@@ -52,8 +52,6 @@ int main( int argc, char **argv )
 	LIST *query_record_list;
 	char *query_record;
 	QUERY *query;
-	FOLDER *folder;
-	ROLE *role;
 	LIST *select_attribute_name_list;
 	char *select_attribute_name;
 	char buffer[ 256 ];
@@ -68,8 +66,6 @@ int main( int argc, char **argv )
 	char ftp_output_filename[ 256 ];
 	char output_filename[ 256 ];
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -95,6 +91,7 @@ int main( int argc, char **argv )
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{
 		get_line( dictionary_string, stdin );
+
 		decode_html_post(	decoded_dictionary_string, 
 					dictionary_string );
 
@@ -120,73 +117,45 @@ int main( int argc, char **argv )
 	else
 	{
 		dictionary_appaserver =
-				dictionary_appaserver_new(
-					(DICTIONARY *)0,
-					(char *)0 /* application_name */,
-					(LIST *)0 /* attribute_list */,
-					(LIST *)0 /* operation_name_list */ );
+			dictionary_appaserver_new(
+				(DICTIONARY *)0,
+				(char *)0 /* application_name */,
+				(LIST *)0 /* attribute_list */,
+				(LIST *)0 /* operation_name_list */ );
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new( application_name, role_name );
-
-	folder =
-		folder_load_new(
-			application_name,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(	title,
-			"%s Histogram",
-			format_initial_capital(
-				buffer,
-				folder_name ) );
+	sprintf(title,
+		"%s Histogram",
+		format_initial_capital(
+			buffer,
+			folder_name ) );
 
 	document = document_new( title, application_name );
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
+		document->application_name,
+		document->onload_control_string );
 
 	query =
 		query_simple_new(
-			dictionary_appaserver->
-				query_dictionary,
+			dictionary_appaserver->query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
+			folder_name,
+			role_name,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
@@ -199,22 +168,12 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	printf( "<h1>Histogram</h1>\n" );
 	fflush( stdout );
 
 	select_attribute_name_list =
 		attribute_histogram_attribute_name_list(
-			folder->attribute_list );
+			query->query_folder->attribute_list );
 
 	if ( list_rewind( select_attribute_name_list ) )
 	{
@@ -238,8 +197,8 @@ int main( int argc, char **argv )
 				query_select_attribute_name_list,
 				select_attribute_name );
 
-			query->query_output->query_output_select_display =
-				query_output_select_display(
+			query->query_select_display =
+				query_select_display(
 					query->mto1_folder->folder_name,
 					query_select_attribute_name_list,
 					0 /* mto1_isa_..._list_length */ );

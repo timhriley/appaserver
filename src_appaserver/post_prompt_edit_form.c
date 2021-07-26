@@ -60,8 +60,8 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			char *fulfilled_folder_name );
 
 boolean all_required_attributes_populated(
-				LIST *lookup_required_attribute_name_list,
-				DICTIONARY *query_dictionary );
+			LIST *lookup_required_attribute_name_list,
+			DICTIONARY *query_dictionary );
 
 int main( int argc, char **argv )
 {
@@ -180,9 +180,9 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	environ_prepend_dot_to_path();
 	add_utility_to_path();
@@ -280,21 +280,23 @@ int main( int argc, char **argv )
 	}
 
 	if ( !session_access_folder(
+		application_name,
+		session,
+		folder_name,
+		role_name,
+		state ) )
+	{
+		if ( !session_access_folder(
 				application_name,
 				session,
 				folder_name,
 				role_name,
-				state ) )
-	{
-		if ( !session_access_folder(
-				application_name,
-					session,
-					folder_name,
-					role_name,
-					"lookup" ) )
+				"lookup" ) )
 		{
 			session_access_failed_message_and_exit(
-					application_name, session, login_name );
+				application_name,
+				session,
+				login_name );
 		}
 		else
 		{
@@ -303,12 +305,14 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		application_name,
+		login_name,
+		role_name ) )
 	{
 		session_access_failed_message_and_exit(
-				application_name, session, login_name );
+			application_name,
+			session,
+			login_name );
 	}
 
 	session_update_access_date_time( application_name, session );
@@ -318,7 +322,7 @@ int main( int argc, char **argv )
 		attribute_lookup_required_attribute_name_list(
 			attribute_list );
 
-	if ( !( lookup_option_radio_button =
+	if ( ! ( lookup_option_radio_button =
 			dictionary_get_string(
 				dictionary_appaserver->
 					non_prefixed_dictionary,
@@ -409,9 +413,8 @@ int main( int argc, char **argv )
 
 	if ( system( sys_string ) ) {};
 
-	exit( 0 );
-
-} /* main() */
+	return 0;
+}
 
 boolean all_required_attributes_populated(
 				LIST *lookup_required_attribute_name_list,
@@ -452,8 +455,7 @@ boolean all_required_attributes_populated(
 	} while( list_next( lookup_required_attribute_name_list ) );
 
 	return 1;
-
-} /* all_required_attributes_populated() */
+}
 
 void post_prompt_edit_form_lookup_before_drop_down(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -628,8 +630,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 		__FUNCTION__,
 		__LINE__ );
 	exit( 1 );
-
-} /* post_prompt_edit_form_lookup_before_drop_down() */
+}
 
 boolean execute_radio_button_process_maybe(
 				char *application_name,
@@ -881,6 +882,5 @@ boolean execute_radio_button_process_maybe(
 	}
 
 	return 1;
-
-} /* execute_radio_button_process_maybe() */
+}
 

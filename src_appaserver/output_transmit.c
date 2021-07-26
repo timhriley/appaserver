@@ -46,12 +46,9 @@ int main( int argc, char **argv )
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char dictionary_string[ MAX_INPUT_LINE ];
 	DICTIONARY *post_dictionary;
-	FOLDER *folder;
-	ROLE *role;
 	LIST *row_dictionary_list = {0};
 	QUERY *query;
-	LIST *attribute_name_list;
-	LIST *ignore_attribute_name_list;
+	LIST *ignore_select_attribute_name_list;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *output_filename;
@@ -59,8 +56,6 @@ int main( int argc, char **argv )
 	pid_t process_id = getpid();
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	APPASERVER_LINK_FILE *appaserver_link_file;
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -86,8 +81,10 @@ int main( int argc, char **argv )
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{
 		get_line( dictionary_string, stdin );
-		decode_html_post(	decoded_dictionary_string, 
-					dictionary_string );
+
+		decode_html_post(
+			decoded_dictionary_string, 
+			dictionary_string );
 
 		post_dictionary = 
 			dictionary_index_string2dictionary( 
@@ -138,42 +135,15 @@ int main( int argc, char **argv )
 		document->application_name,
 		document->onload_control_string );
 
-	ignore_attribute_name_list = list_new();
-
-	role = role_new( application_name, role_name );
-
-	folder =
-		folder_load_new(
-			application_name,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
+	ignore_select_attribute_name_list = list_new();
 
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
-			(LIST *)0 /* ignore_attribute_name_list */ );
+			folder_name,
+			role_name,
+			(LIST *)0 /* ignore_select_attribute_name_list */ );
 
 	if ( !query )
 	{

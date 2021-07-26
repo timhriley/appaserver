@@ -333,7 +333,6 @@ DICTIONARY *dictionary_appaserver_ignore_dictionary(
 				(char *)0 /* prefix */ );
 
 	return dictionary;
-
 }
 
 DICTIONARY *dictionary_appaserver_pair_one2m_dictionary(

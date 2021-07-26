@@ -11,17 +11,16 @@
 #include "sql.h"
 #include "timlib.h"
 #include "piece.h"
-#include "environ.h"
-#include "appaserver_error.h"
-#include "attribute.h"
 #include "role.h"
+#include "appaserver_library.h"
+#include "appaserver_error.h"
 
-ROLE *role_new( char *role_name )
+ROLE *role_new(
+		char *application_name,
+		char *role_name )
 {
-	ROLE *role = role_calloc();
+	return role_new_role( application_name, role_name );
 
-	role->role_name = role_name;
-	return role;
 }
 
 ROLE *role_calloc( void )
@@ -49,9 +48,17 @@ ROLE *role_new_role(
 	if ( !role_name || strcmp( role_name, "ignored" ) == 0 )
 		return (ROLE *)0;
 
-	role = role_fetch( role_name );
+	role = role_calloc();
 
 	role->application_name = application_name;
+	role->role_name = role_name;
+
+	role_fetch(
+			&role->folder_count_yn,
+			&role->override_row_restrictions_yn,
+			&role->grace_no_cycle_colors_yn,
+			application_name,
+			role_name );
 
 	return role;
 }
@@ -61,22 +68,26 @@ void role_free( ROLE *role )
 	free( role );
 }
 
-ROLE *role_fetch( char *role_name )
+boolean role_fetch( 		char *folder_count_yn,
+				char *override_row_restrictions_yn,
+				char *grace_no_cycle_colors_yn,
+				char *application_name,
+				char *role_name )
 {
 	char sys_string[ 1024 ];
 	char piece_string[ 128 ];
 	char *results;
 	char *select;
 	char where[ 128 ];
-	ROLE *role;
-	char *application_name = environment_application_name();
+	char *folder_name;
 
-	if ( !role_name ) return (ROLE *)0;
+	if ( !role_name ) return 0;
 
-	if ( attribute_exists(
-		application_name,
-		"role",
-		"grace_no_cycle_colors_yn" ) )
+	folder_name = "role";
+
+	if ( attribute_exists(	application_name,
+				folder_name,
+				"grace_no_cycle_colors_yn" ) )
 	{
 		select =
 	"folder_count_yn,override_row_restrictions_yn,grace_no_cycle_colors_yn";
@@ -103,28 +114,61 @@ ROLE *role_fetch( char *role_name )
 
 	results = pipe2string( sys_string );
 
-	if ( !results ) return (ROLE *)0;
-
-	role = role_calloc();
-
-	role->role_name = role_name;
+	if ( !results ) return 0;
 
 	piece( piece_string, '^', results, 0 );
-	role->folder_count = (*piece_string == 'y');
+	*folder_count_yn = *piece_string;
 
 	piece( piece_string, '^', results, 1 );
-	role->override_row_restrictions = (*piece_string == 'y');
+	*override_row_restrictions_yn = *piece_string;
 
 	piece( piece_string, '^', results, 2 );
-	role->grace_no_cycle_colors = (*piece_string == 'y');
+	*grace_no_cycle_colors_yn = *piece_string;
 
 	free( results );
+	return 1;
 
-	role->attribute_exclude_list =
-		role_attribute_exclude_list(
-			role->role_name );
+}
 
-	return role;
+boolean role_get_override_row_restrictions(
+		char override_row_restrictions_yn )
+{
+	return (override_row_restrictions_yn == 'y');
+}
+
+boolean role_get_exists_folder_count_y(
+			char *application_name,
+			char *login_name )
+{
+	char *role_table_name;
+	char *role_appaserver_user_table_name;
+	char sys_string[ 1024 ];
+	char *results;
+
+	role_table_name = get_table_name( application_name, "role" );
+
+	role_appaserver_user_table_name =
+		get_table_name(
+			application_name,
+			"role_appaserver_user" );
+
+	sprintf( sys_string,
+		 "echo \"select count(*)				 "
+		 "	 from %s,%s					 "
+		 "	 where %s.role = %s.role			 "
+		 "	   and %s.login_name = '%s'			 "
+		 "	   and folder_count_yn = 'y';\"			|"
+		 "sql.e							 ",
+		 role_table_name,
+		 role_appaserver_user_table_name,
+		 role_table_name,
+		 role_appaserver_user_table_name,
+		 role_appaserver_user_table_name,
+		 login_name );
+
+	results = pipe2string( sys_string );
+	return atoi( results );
+
 }
 
 ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
@@ -154,8 +198,8 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
 	return role_attribute_exclude;
 }
 
-LIST *role_attribute_exclude_list(
-			char *role_name )
+LIST *role_get_attribute_exclude_list(	char *application_name,
+					char *role_name )
 {
 	char sys_string[ 1024 ];
 	char attribute_name[ 128 ];
@@ -178,7 +222,7 @@ LIST *role_attribute_exclude_list(
 		 "			select=%s			"
 		 "			folder=attribute_exclude	"
 		 "			where=\"%s\"			",
-		 environment_application_name(),
+		 application_name,
 		 select,
 		 where );
 
@@ -187,12 +231,12 @@ LIST *role_attribute_exclude_list(
 	while( get_line( input_buffer, input_pipe ) )
 	{
 		piece(	attribute_name,
-			SQL_DELIMITER,
+			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			0 );
 
 		piece(	permission,
-			SQL_DELIMITER,
+			FOLDER_DATA_DELIMITER,
 			input_buffer,
 			1 );
 
@@ -348,10 +392,10 @@ ROLE *role_parse(	char *input,
 	role->role_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	role->folder_count = (*piece_buffer == 'y');
+	role->folder_count_yn = *piece_buffer;
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	role->override_row_restrictions = (*piece_buffer == 'y');
+	role->override_row_restrictions_yn = *piece_buffer;
 
 	if ( fetch_attribute_exclude_list )
 	{
@@ -367,6 +411,7 @@ ROLE *role_parse(	char *input,
 					role_primary_where(
 						role->role_name ) ) );
 	}
+
 	return role;
 }
 

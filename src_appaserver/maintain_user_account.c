@@ -49,7 +49,8 @@ LIST *get_attribute_element_list(
 char *get_order_clause(	DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary );
 
-LIST *get_element_list(	char *login_name,
+LIST *maintain_element_list(
+			char *login_name,
 			char *application_name,
 			char *session,
 			char *role_name,
@@ -75,8 +76,6 @@ int main( int argc, char **argv )
 	DOCUMENT *document;
 	DICTIONARY *query_dictionary = {0};
 	FORM *form;
-	ROLE *role;
-	FOLDER *folder;
 	LIST *row_dictionary_list = {0};
 	int number_rows_outputted = 0;
 	int row_dictionary_list_length = 0;
@@ -90,8 +89,6 @@ int main( int argc, char **argv )
 	char key[ 128 ];
 	char action_string[ 512 ];
 	QUERY *query;
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -130,21 +127,25 @@ int main( int argc, char **argv )
 	}
 
 	if ( !session_load(
-			&session->login_name,
-			&session->last_access_date,
-			&session->last_access_time,
-			&session->http_user_agent,
-			application_name,
-			session->session ) )
+		&session->login_name,
+		&session->last_access_date,
+		&session->last_access_time,
+		&session->http_user_agent,
+		application_name,
+		session->session ) )
 	{
 		session_access_failed_message_and_exit(
-				application_name, session_key, login_name );
+			application_name,
+			session_key,
+			login_name );
 	}
 
 	if ( strcmp( session->login_name, login_name ) != 0 )
 	{
 		session_access_failed_message_and_exit(
-				application_name, session_key, login_name );
+			application_name,
+			session_key,
+			login_name );
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -212,24 +213,6 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new( application_name, role_name );
-
-	folder =
-		folder_load_new(
-			application_name,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	form =
 		form_new(
 			folder_name,
@@ -274,7 +257,7 @@ int main( int argc, char **argv )
 		login_name,
 		application_name,
 		session_key,
-		folder->folder_name,
+		folder_name,
 		role_name );
 
 	form_output_title(
@@ -327,21 +310,12 @@ int main( int argc, char **argv )
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
 
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
-
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
+			folder_name,
+			role_name,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
@@ -354,25 +328,15 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	row_dictionary_list =
-		query_output_dictionary_list(
-			query->query_output->query_output_select_display,
-			query->query_output->query_output_select_name_list,
-			query->query_output->query_output_from,
-			query->query_output->query_output_where,
-			query->query_output->query_output_order,
+		query_dictionary_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
 			0 /* max_rows */,
-			query->query_output->query_date_convert );
+			query->query_date_convert );
 
 	row_dictionary_list_length =
 		list_length( row_dictionary_list );
@@ -390,7 +354,7 @@ int main( int argc, char **argv )
 				ignore_attribute_name_list );
 
 	mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
+		related_folder_mto1_related_folder_list(
 			list_new_list(),
 			application_name,
 			session_key,
@@ -403,7 +367,7 @@ int main( int argc, char **argv )
 			0 /* recursive_level */ );
 
 	form->regular_element_list =
-		get_element_list(
+		maintain_element_list(
 			login_name,
 			application_name,
 			session_key,
@@ -473,13 +437,15 @@ int main( int argc, char **argv )
 	document_close();
 
 	process_increment_execution_count(
-				application_name,
-				PROCESS_NAME,
-				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+		application_name,
+		PROCESS_NAME,
+		appaserver_parameter_file_get_dbms() );
+
+	return 0;
 }
 
-LIST *get_element_list(	char *login_name,
+LIST *maintain_element_list(
+			char *login_name,
 			char *application_name,
 			char *session_key,
 			char *role_name,

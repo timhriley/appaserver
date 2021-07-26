@@ -1,5 +1,7 @@
 /* $APPASERVER_HOME/library/appaserver_user.h				*/
 /* -------------------------------------------------------------------- */
+/* This is the appaserver user ADT.					*/
+/*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
@@ -12,7 +14,6 @@
 
 #define APPASERVER_USER_TABLE		"appaserver_user"
 #define APPASERVER_USER_PRIMARY_KEY	"login_name"
-
 typedef struct
 {
 	/* Input */
@@ -26,7 +27,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *encrypted_password;
-	LIST *role_list;
+	LIST *role_name_list;
 	LIST *session_list;
 	enum password_function password_function;
 	boolean appaserver_user_password_encrypted;
@@ -54,14 +55,12 @@ boolean appaserver_user_exists_role(
 
 APPASERVER_USER *appaserver_user_fetch(
 			char *login_name,
-			boolean fetch_role_list,
-			boolean fetch_attribute_exclude_list,
+			boolean fetch_role_name_list,
 			boolean fetch_session_list );
 
 APPASERVER_USER *appaserver_user_parse(
 			char *input,
-			boolean fetch_role_list,
-			boolean fetch_attribute_exclude_list,
+			boolean fetch_role_name_list,
 			boolean fetch_session_list );
 
 char *appaserver_user_person_full_name(
@@ -74,7 +73,7 @@ boolean appaserver_user_frameset_menu_horizontal(
 			char *application_name,
 			char *login_name );
 
-LIST *appaserver_user_role_list(
+LIST *appaserver_user_role_name_list(
 			char *application_name,
 			char *login_name );
 

@@ -407,7 +407,7 @@ LIST *folder_get_role_folder_name_list(
 
 char *folder_display(	FOLDER *folder );
 
-LIST *folder_get_process_dictionary_list(
+LIST *folder_process_dictionary_list(
 			char *application_name,
 			char *session,
 			char *folder_name,

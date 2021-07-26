@@ -192,40 +192,19 @@ int main( int argc, char **argv )
 	/* Note: station and datatype will be hidden.     */
 	/* ---------------------------------------------- */
 	attribute_name_list = list_new();
-	list_append_string( attribute_name_list, "measurement_date" );
-	list_append_string( attribute_name_list, "measurement_time" );
-	list_append_string( attribute_name_list, "measurement_value" );
-	list_append_string( attribute_name_list, "station" );
-	list_append_string( attribute_name_list, "datatype" );
 
-	role =
-		role_new(
-			application_name,
-			role_name );
-
-	folder =
-		folder_load_new( 	
-			application_name,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	list_set( attribute_name_list, "measurement_date" );
+	list_set( attribute_name_list, "measurement_time" );
+	list_set( attribute_name_list, "measurement_value" );
+	list_set( attribute_name_list, "station" );
+	list_set( attribute_name_list, "datatype" );
 
 	query =
 		query_simple_new(
 			query_dictionary,
 			(char *)0 /* login_name */,
-			(char *)0 /* full_name_only */,
-			(char *)0 /* street_address_only */,
-			folder,
+			folder_name,
+			role_name,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
@@ -238,6 +217,15 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	query->query_select_name_list = attribute_name_list;
+
+	query->query_select_display =
+		query_select_display(
+			(char *)0 /* folder_name */,
+			query->query_select_name_list,
+			0 /* mto1_isa_related_folder_list_length */,
+			(LIST *)0 /* common_attribute_name_list );
+		
 	row_dictionary_list =
 		query_dictionary_list(
 			query->query_select_display,

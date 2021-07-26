@@ -2876,41 +2876,41 @@ LIST *related_folder_preselection_dictionary_list(
 			char *related_folder_name,
 			DICTIONARY *query_dictionary,
 			char *login_name,
-			char *full_name_only,
-			char *street_address_only,
 			char *role_name )
 {
-	QUERY *query;
-	ROLE *role;
 	LIST *related_folder_dictionary_list = {0};
+	LIST *related_primary_attribute_name_list = {0};
 	FOLDER *folder_related;
-	LIST *related_primary_attribute_name_list;
-
-	role = role_new( application_name, role_name );
 
 	folder_related =
-		folder_load_new(
-			application_name,
-			related_folder,
-			role );
+		folder_fetch(
+			related_folder_name,
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
+			0 /* not fetch_one2m_recursive_relation_list */,
+			0 /* not fetch_mto1_isa_recursive_relation_list */,
+			0 /* not fetch_mto1_relation_list */,
+			0 /* not fetch_row_level_restriction_list */ );
 
 	if ( !folder_related )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	related_primary_attribute_name_list =
-		folder_related->primary_attribute_name_list;
-
 	if ( folder_related->populate_drop_down_process )
 	{
+		ROLE *role = role_new( application_name, role_name );
+
+		related_primary_attribute_name_list =
+			folder_related->primary_attribute_name_list;
+
 		related_folder_dictionary_list =
-		    folder_get_process_dictionary_list(
+		    folder_process_dictionary_list(
 			application_name,
 			session,
 			folder_related->folder_name,
@@ -2921,21 +2921,21 @@ LIST *related_folder_preselection_dictionary_list(
 			(char *)0 /* state */,
 			folder_name /*one2m_folder_name_for_processes */,
 			folder_related->attribute_list,
-			0
-			/* piece_multi_attribute_data_label_delimiter */,
+			0 /* piece_multi_attribute_data_label_delimiter */,
 			(char *)0 /* process_name */,
 			(char *)0 /* prompt */,
 			related_primary_attribute_name_list );
 	}
 	else
 	{
+		QUERY *query;
+
 		query =
 			query_simple_new(
 				query_dictionary,
 				login_name,
-				full_name_only,
-				street_address_only,
-				folder_related,
+				folder_name,
+				role_name,
 				(LIST *)0 /* ignore_attribute_name_list */ );
 
 		if ( !query )
@@ -2948,25 +2948,15 @@ LIST *related_folder_preselection_dictionary_list(
 			exit( 1 );
 		}
 
-		if ( !query->query_output )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
 		related_folder_dictionary_list =
-		     query_output_dictionary_list(
-			query->query_output->query_output_select_display,
-			query->query_output->query_output_select_name_list,
-			query->query_output->query_output_from,
-			query->query_output->query_output_where,
-			query->query_output->query_output_order,
+		     query_dictionary_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
 			query->max_rows,
-			query->query_output->query_date_convert );
+			query->query_date_convert );
 	}
 
 	return related_folder_subtract_preselection_existing_dictionary_list(
@@ -2975,7 +2965,7 @@ LIST *related_folder_preselection_dictionary_list(
 			session,
 			folder_name,
 			query_dictionary,
-			login_name_only,
+			login_name,
 			related_primary_attribute_name_list );
 }
 

@@ -33,20 +33,20 @@
 /* Prototypes */
 /* ---------- */
 char *prompt_edit_form_get_sys_string(
-					char *login_name,
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *role_name,
-					char *state );
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *state );
 
 char *prompt_insert_form_sys_string(
-					char *login_name,
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *role_name,
-					char *state );
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *state );
 
 int main( int argc, char **argv )
 {
@@ -94,15 +94,39 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 	environ_appaserver_home();
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
 	{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
+			application_name,
+			login_name );
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	if ( !session_access_folder(
 				application_name,
 				session,
@@ -117,18 +141,46 @@ int main( int argc, char **argv )
 					role_name,
 					"lookup" ) )
 		{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 			session_access_failed_message_and_exit(
-					application_name, session, login_name );
+				application_name,
+				session,
+				login_name );
 		}
 	}
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		application_name,
+		login_name,
+		role_name ) )
 	{
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+m2( application_name, msg );
+}
 		session_access_failed_message_and_exit(
-				application_name, session, login_name );
+			application_name,
+			session,
+			login_name );
 	}
 
 	session_update_access_date_time( application_name, session );

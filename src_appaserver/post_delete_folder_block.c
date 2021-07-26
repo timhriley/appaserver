@@ -64,18 +64,14 @@ int main( int argc, char **argv )
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char *dictionary_string;
 	DICTIONARY *post_dictionary;
-	FOLDER *folder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *where_clause;
-	ROLE *role;
 	ROLE_FOLDER *role_folder;
 	char *role_name;
 	char *database_string = {0};
 	char *state;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	if ( argc < 7 )
 	{
@@ -127,8 +123,9 @@ int main( int argc, char **argv )
 	{
 		dictionary_string = argv[ 7 ];
 
-		decode_html_post(	decoded_dictionary_string, 
-					dictionary_string );
+		decode_html_post(
+			decoded_dictionary_string, 
+			dictionary_string );
 
 		post_dictionary = 
 			dictionary_index_string2dictionary( 
@@ -184,7 +181,9 @@ int main( int argc, char **argv )
 				session ) ) != 0 )
 	{
 		session_access_failed_message_and_exit(
-			application_name, session, login_name );
+			application_name,
+			session,
+			login_name );
 	}
 
 	if ( !appaserver_user_exists_role(
@@ -193,48 +192,20 @@ int main( int argc, char **argv )
 		role_name ) )
 	{
 		session_access_failed_message_and_exit(
-			application_name, session, login_name );
+			application_name,
+			session,
+			login_name );
 	}
 
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	role = role_new( application_name, role_name );
-
-	folder =
-		folder_load_new(
-			session_key,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( folder->row_level_non_owner_view_only )
-		folder->row_level_non_owner_forbid = 1;
-
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
-
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
+			folder_name,
+			role_name,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
@@ -247,17 +218,18 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
+	if ( query->role_folder->delete_yn != 'y'
+	||   query->role_folder->update_yn != 'y' )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
+		"ERROR in %s/%s()/%d: update_yn or delete_yn not set.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	where_clause = query->query_output->query_output_where;
+	where_clause = query->query_where;
 
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
@@ -282,7 +254,7 @@ int main( int argc, char **argv )
 		delete_folder_block_state_one(
 			dictionary_appaserver,
 			application_name,
-			folder,
+			query->query_folder,
 			where_clause,
 			login_name,
 			session,
@@ -293,7 +265,7 @@ int main( int argc, char **argv )
 	{
 		delete_folder_block_state_two(
 			application_name,
-			folder,
+			query->query_folder,
 			where_clause,
 			session,
 			login_name,
@@ -335,16 +307,16 @@ void delete_folder_block_state_one(
 	query_folder_name = folder->folder_name;
 
 	query_attribute_statistics_list =
-			query_attribute_statistics_list_new(
-					folder->application_name,
-					query_folder_name );
+		query_attribute_statistics_list_new(
+			application_name,
+			query_folder_name );
 
 	query_attribute_statistics_list->list =
 		query_attribute_statistics_list_get_primary_list(
-					folder->attribute_list );
+			folder->attribute_list );
 
 	sys_string =
-	query_attribute_statistics_list_get_build_each_temp_file_sys_string(
+	query_attribute_statistics_list_build_each_temp_file_sys_string(
 			query_attribute_statistics_list->application_name,
 			query_attribute_statistics_list->folder_name,
 			query_attribute_statistics_list->list,

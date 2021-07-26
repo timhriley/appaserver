@@ -141,6 +141,10 @@ char *security_mysql_version( void )
 	return version;
 }
 
+/* ---------------------------------------------------- */
+/* Next step is openssl_256				*/
+/* echo $password | openssl dgst -sha256 | column.e 1	*/
+/* ---------------------------------------------------- */
 char *security_encryption_select_clause(
 			enum password_function password_function,
 			char *password )

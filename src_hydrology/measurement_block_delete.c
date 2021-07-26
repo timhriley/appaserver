@@ -440,34 +440,12 @@ char *get_where_clause_string( 	char *application_name,
 		"reason_value_missing",
 		"" );
 
-	role =
-		role_new(
-			application_name,
-			role_name );
-
-	folder =
-		folder_load_new( 	
-			application_name,
-			"measurement",
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	query =
 		query_simple_new(
 			query_dictionary,
 			(char *)0 /* login_name */,
-			(char *)0 /* full_name_only */,
-			(char *)0 /* street_address_only */,
-			folder,
+			"measurement" /* folder_name */,
+			role_name,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )

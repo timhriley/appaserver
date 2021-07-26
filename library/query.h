@@ -83,7 +83,7 @@ typedef struct
 	char *login_name_only;
 	char *full_name_only;
 	char *street_address_only;
-} QUERY_ENTITY_ONLY;
+} QUERY_ENTITY;
 
 typedef struct
 {
@@ -126,7 +126,6 @@ typedef struct
 	char *data_list_string;
 	LIST *query_data_string_list;
 	LIST *query_data_list;
-
 } QUERY_DROP_DOWN_ROW;
 
 typedef struct
@@ -134,7 +133,6 @@ typedef struct
 	char *root_folder_name;
 	char *mto1_foreign_folder_name;
 	LIST *drop_down_row_list;
-
 } QUERY_DROP_DOWN;
 
 typedef struct
@@ -146,7 +144,6 @@ typedef struct
 	QUERY_DATA *from_data;
 	QUERY_DATA *to_data;
 	int primary_key_index;
-
 } QUERY_ATTRIBUTE;
 
 typedef struct
@@ -156,7 +153,6 @@ typedef struct
 	LIST *query_drop_down_list;
 	LIST *query_attribute_list;
 	char *where_clause;
-
 } QUERY_SUBQUERY;
 
 typedef struct
@@ -165,15 +161,22 @@ typedef struct
 	/* ----- */
 	DICTIONARY *query_dictionary;
 	LIST *where_attribute_data_list;
-	FOLDER *mto1_folder;
+	char *login_name_only;
+	char *full_name_only;
+	char *street_address_only;
 	LIST *ignore_attribute_name_list;
-	PROMPT_RECURSIVE *prompt_recursive;
 	char *attribute_not_null_join;
 	char *attribute_not_null_folder_name;
 	DICTIONARY *sort_dictionary;
 
 	/* Process */
 	/* ------- */
+	PROMPT_RECURSIVE *prompt_recursive;
+	FOLDER *query_folder;
+	ROLE *role;
+	QUERY_ENTITY *query_entity;
+	ROLE_FOLDER *role_folder;
+	int max_rows /* use zero for unlimited */;
 	LIST *query_drop_down_list;
 	LIST *query_prompt_recursive_drop_down_list;
 	LIST *query_attribute_list;
@@ -189,28 +192,6 @@ typedef struct
 	char *query_output_order;
 	char *query_output_display;
 	LIST *query_output_dictionary_list;
-} QUERY_OUTPUT;
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	DICTIONARY *query_dictionary;
-	LIST *where_attribute_data_list;
-	char *login_name_only;
-	char *full_name_only;
-	char *street_address_only;
-	FOLDER *mto1_folder;
-	LIST *ignore_attribute_name_list;
-	char *attribute_not_null_join;
-	char *attribute_not_null_folder_name;
-	DICTIONARY *sort_dictionary;
-
-	/* Process */
-	/* ------- */
-	PROMPT_RECURSIVE *prompt_recursive;
-	int max_rows /* use zero for unlimited */;
-	QUERY_OUTPUT *query_output;
 } QUERY;
 
 /* Operations */
@@ -362,7 +343,7 @@ boolean query_attribute_exists(
 			LIST *query_attribute_list,
 			char *attribute_name );
 
-char *query_get_process_where_clause(
+char *query_process_where_clause(
 			char **drop_down_where_clause,
 			char **attribute_where_clause,
 			LIST *query_drop_down_list,
@@ -924,9 +905,8 @@ LIST *query_detail_dictionary_list(
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
 			char *login_name,
-			char *full_name_only,
-			char *street_address_only,
-			FOLDER *mto1_folder,
+			char *folder_name,
+			char *role_name,
 			LIST *ignore_attribute_name_list );
 
 QUERY_DATE_CONVERT *query_date_convert_calloc(
@@ -1144,10 +1124,10 @@ char *query_display_where(
 			char *query_output_where,
 			char *folder_name );
 
-QUERY_ENTITY_ONLY *query_entity_only_calloc(
+QUERY_ENTITY *query_entity_calloc(
 			void );
 
-QUERY_ENTITY_ONLY *query_entity_only_new(
+QUERY_ENTITY *query_entity_new(
 			char *login_name,
 			boolean non_owner_forbid,
 			boolean override_row_restrictions );

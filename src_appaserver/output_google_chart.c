@@ -40,9 +40,9 @@
 void output_chart(	
 			DICTIONARY *query_dictionary,
 			char *application_name,
-			FOLDER *folder,
-			ROLE *role,
 			char *login_name,
+			char *folder_name,
+			char *role_name,
 			char *document_root_directory,
 			char *appaserver_mount_point,
 			char *time_attribute_name,
@@ -61,7 +61,6 @@ int main( int argc, char **argv )
 	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	FOLDER *folder;
-	ROLE *role;
 	LIST *date_primary_attribute_name_list;
 	LIST *time_primary_attribute_name_list;
 	LIST *float_integer_attribute_name_list;
@@ -130,19 +129,19 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new( application_name, role_name );
-
 	folder =
-		folder_load_new(
-			application_name,
-			session,
+		folder_fetch(
 			folder_name,
-			role );
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_one2m_relation_list */,
+			0 /* not fetch_mto1_relation_list */,
+			0 /* not fetch_mto1_isa_relation_list */,
+			0 /* not fetch_row_level_restriction_list */ );
 
 	if ( !folder )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -171,8 +170,8 @@ int main( int argc, char **argv )
 
 	time_primary_attribute_name_list =
 		attribute_list_primary_datatype_attribute_string_list(
-						folder->attribute_list,
-						"time,current_time" );
+			folder->attribute_list,
+			"time,current_time" );
 
 	if ( list_length( time_primary_attribute_name_list ) )
 	{
@@ -183,7 +182,7 @@ int main( int argc, char **argv )
 
 	float_integer_attribute_name_list =
 		attribute_time_chart_attribute_name_list(
-					folder->attribute_list );
+			folder->attribute_list );
 
 	if ( !list_length( float_integer_attribute_name_list ) )
 	{
@@ -209,9 +208,9 @@ int main( int argc, char **argv )
 
 	output_chart(	dictionary_appaserver->query_dictionary,
 			application_name,
-			folder,
-			role,
 			login_name,
+			folder_name,
+			role_name,
 			appaserver_parameter_file->document_root,
 			appaserver_parameter_file->appaserver_mount_point,
 			time_attribute_name,
@@ -222,9 +221,9 @@ int main( int argc, char **argv )
 
 void output_chart(	DICTIONARY *query_dictionary,
 			char *application_name,
-			FOLDER *folder,
-			ROLE *role,
 			char *login_name,
+			char *folder_name,
+			char *role_name,
 			char *document_root_directory,
 			char *appaserver_mount_point,
 			char *time_attribute_name,
@@ -279,31 +278,22 @@ void output_chart(	DICTIONARY *query_dictionary,
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
+			folder_name,
+			role_name,
 			(LIST *)0 /* ignore_attribute_name_list */ );
 
 	if ( !query )
@@ -316,25 +306,15 @@ void output_chart(	DICTIONARY *query_dictionary,
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	query_record_list =
-		query_output_record_list(
-			query->query_output->query_output_select_display,
-			query->query_output->query_output_select_name_list,
-			query->query_output->query_output_from,
-			query->query_output->query_output_where,
-			query->query_output->query_output_order,
+		query_record_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
 			0 /* max_rows */,
-			query->query_output->query_date_convert );
+			query->query_date_convert );
 
 	if ( !query_record_list || !list_length( query_record_list ) )
 	{
@@ -350,17 +330,7 @@ void output_chart(	DICTIONARY *query_dictionary,
 			format_plural( buffer, folder_name ) ) );
 
 	strcpy( sub_title,
-		query_display_where(
-			query->query_output->query_output_where,
-			folder_name ) );
-
-	if ( strcmp( sub_title, "1 = 1" ) == 0 )
-		*sub_title = '\0';
-
-	strcpy( buffer, "'" );
-	search_replace_string( sub_title, buffer, "" );
-
-	strcpy( sub_title, format_initial_capital( buffer, sub_title ) );
+		query->query_display_where );
 
 	google_output_chart =
 		google_output_chart_new(
@@ -397,7 +367,7 @@ void output_chart(	DICTIONARY *query_dictionary,
 		if ( !list_rewind( query_record_list ) ) return;
 
 		do {
-			query_record = list_get_pointer( query_record_list );
+			query_record = list_get( query_record_list );
 
 			piece(	date_data,
 				FOLDER_DATA_DELIMITER,

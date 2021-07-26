@@ -759,7 +759,7 @@ LIST *folder_primary_data_list(
 	}
 }
 
-LIST *folder_get_process_dictionary_list(
+LIST *folder_process_dictionary_list(
 			char *application_name,
 			char *session,
 			char *folder_name,

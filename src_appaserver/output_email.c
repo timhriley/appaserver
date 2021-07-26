@@ -64,7 +64,7 @@ int main( int argc, char **argv )
 	ROLE *role;
 	LIST *row_dictionary_list = {0};
 	QUERY *query;
-	LIST *ignore_attribute_name_list;
+	LIST *ignore_select_attribute_name_list;
 	LIST *attribute_name_list;
 	FILE *file;
 	DOCUMENT *document;
@@ -124,14 +124,17 @@ int main( int argc, char **argv )
 			exit( 1 );
 		}
 
-		post_dictionary = dictionary_appaserver->
-					working_post_dictionary;
+		post_dictionary =
+			dictionary_appaserver->
+				working_post_dictionary;
 
-		ignore_dictionary = dictionary_appaserver->
-					ignore_dictionary;
+		ignore_dictionary =
+			dictionary_appaserver->
+				ignore_dictionary;
 
-		query_dictionary = dictionary_appaserver->
-					query_dictionary;
+		query_dictionary =
+			dictionary_appaserver->
+				query_dictionary;
 	}
 	else
 	{
@@ -173,8 +176,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	ignore_attribute_name_list = list_new();
-
 	role =
 		role_new_role(
 			application_name,
@@ -212,7 +213,7 @@ int main( int argc, char **argv )
 			full_name_only,
 			street_address_only,
 			folder,
-			(LIST *)0 /* ignore_attribute_name_list */ );
+			ignore_select_attribute_name_list */ );
 
 	if ( !query )
 	{
