@@ -54,8 +54,7 @@ int main( int argc, char **argv )
 		if ( ! ( appaserver_user =
 				appaserver_user_fetch(
 					login_name,
-					0 /* not fetch_role_list */,
-					0 /* not fetch_attribute_exclude_list*/,
+					0 /* not fetch_role_name_list */,
 					0 /* not fetch_session_ist */ ) ) )
 		{
 			printf(
