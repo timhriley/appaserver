@@ -380,23 +380,19 @@ boolean appaserver_user_exists_session(
 		global_appaserver_user->session_list );
 }
 
-boolean appaserver_user_exists_role(	char *application_name,
-					char *login_name,
-					char *role_name )
+boolean appaserver_user_exists_role(
+			char *application_name,
+			char *login_name,
+			char *role_name )
 {
 	if ( !global_appaserver_user )
 	{
 		global_appaserver_user =
 			appaserver_user_fetch(
-				login_name, 0, 0, 0 );
-	}
-
-	if ( !global_appaserver_user->role_list )
-	{
-		global_appaserver_user->role_list =
-			appaserver_user_role_list(
-				application_name,
-				login_name );
+				login_name,
+				1 /* fetch_role_list */,
+				0 /* not fetch_attribute_exclude_list */,
+				0 /* not fetch_session_list */ );
 	}
 
 	return list_exists_string(
