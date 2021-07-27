@@ -19,7 +19,9 @@
 /* --------- */
 #define RELATION_TABLE		"relation"
 
-#define RELATION_PRIMARY_KEY	"program_name"
+#define RELATION_PRIMARY_KEY	"folder,"				\
+				"related_folder,"			\
+				"related_attribute"
 
 #define RELATION_SELECT_COLUMNS	"folder,"				\
 				"related_folder,"			\
@@ -62,20 +64,24 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	LIST *relation_mto1_non_isa_list;
 	boolean is_primary_key_subset;
 	LIST *foreign_attribute_name_list;
 	boolean ignore;
 	LIST *join_where_clause;
 } RELATION;
 
+/* Operations */
+/* ---------- */
+LIST *relation_mto1_non_isa_list(
+			char *many_folder_name );
+
 RELATION *relation_calloc(
 			void );
 
 RELATION *relation_new(
 			char *many_folder_name,
-			char *one_folder_name,
-			boolean fetch_folder,
-			boolean fetch_attribute_list );
+			char *one_folder_name );
 
 RELATION *relation_parse(
 			char *input,
@@ -87,7 +93,7 @@ RELATION *relation_parse(
 			boolean fetch_attribute_list );
 
 LIST *relation_system_list(
-			char *sys_string,
+			char *system_string,
 			/* ---------------------------- */
 			/* Setting both will set	*/
 			/* foreign_attribute_name_list	*/
@@ -95,7 +101,7 @@ LIST *relation_system_list(
 			boolean fetch_folder,
 			boolean fetch_attribute_list );
 
-char *relation_sys_string(
+char *relation_system_string(
 			char *where,
 			char *order_clause );
 
@@ -115,7 +121,10 @@ LIST *relation_one2m_recursive_relation_list(
 			LIST *relation_list /* in only */,
 			char *one_folder_name );
 
-LIST *relation_one2m_relation_list(
+/* ---------------------------------- */
+/* foreign_attribute_name_list is set */
+/* ---------------------------------- */
+LIST *relation_one2m_non_isa_pair_order_list(
 			char *one_folder_name );
 
 LIST *relation_mto1_isa_recursive_relation_list(
@@ -128,14 +137,15 @@ LIST *relation_mto1_relation_list(
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */
 /* ---------------------------------- */
-LIST *relation_one2m_fetch_relation_list(
+LIST *relation_fetch_one2m_list(
 			char *one_folder_name,
-			char *order_clause );
+			char *where,
+			char *order );
 
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */
 /* ---------------------------------- */
-LIST *relation_mto1_fetch_relation_list(
+LIST *relation_fetch_mto1_non_isa_list(
 			char *many_folder_name );
 
 boolean relation_is_primary_key_subset(
@@ -148,8 +158,12 @@ char *relation_list_display(
 LIST *relation_one2m_pair_relation_list(
 			LIST *relation_one2m_relation_list );
 
+/* Transition between the two systems */
+/* ---------------------------------- */
+/*
 LIST *relation_mto1_related_folder_list(
 			LIST *mto1_relation_list );
+*/
 
 #endif
 

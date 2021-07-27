@@ -53,20 +53,20 @@ FOREIGN_ATTRIBUTE *foreign_attribute_parse(
 			char *input );
 
 LIST *foreign_attribute_system_list(
-			char *sys_string );
+			char *system_string );
 
 /* Safely returns heap memory */
 /* --------------------------- */
-char *foreign_attribute_sys_string(
+char *foreign_attribute_system_string(
 			char *where );
 
-LIST *foreign_attribute_list_folder(
+LIST *foreign_many_folder_attribute_list(
 			char *many_folder_name,
 			LIST *foreign_attribute_list );
 
 LIST *foreign_attribute_list(
-			char *mto1_folder_name,
-			char *one2m_folder_name );
+			char *many_folder_name,
+			char *one_folder_name );
 
 LIST *foreign_attribute_name_list(
 			LIST *foreign_attribute_list );

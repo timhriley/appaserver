@@ -76,10 +76,10 @@ FOREIGN_ATTRIBUTE *foreign_attribute_parse(
 	return foreign_attribute;
 }
 
-LIST *foreign_attribute_system_list( char *sys_string )
+LIST *foreign_attribute_system_list( char *system_string )
 {
 	char input[ 1024 ];
-	FILE *input_pipe = popen( sys_string, "r" );
+	FILE *input_pipe = popen( system_string, "r" );
 	LIST *foreign_attribute_list = list_new();
 
 	while ( string_input( input, input_pipe, 1024 ) )
@@ -93,36 +93,36 @@ LIST *foreign_attribute_system_list( char *sys_string )
 	return foreign_attribute_list;
 }
 
-char *foreign_attribute_sys_string( char *where )
+char *foreign_attribute_system_string( char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '*' %s \"%s\" folder,foreign_key_index",
 		 FOREIGN_ATTRIBUTE_TABLE,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *foreign_attribute_list(
-			char *mto1_folder_name,
-			char *one2m_folder_name )
+			char *many_folder_name,
+			char *one_folder_name )
 {
 	char where[ 128 ];
 
 	sprintf(where,
 		"folder = '%s' and	"
 		"related_folder = '%s'	",
-		mto1_folder_name,
-		one2m_folder_name );
+		many_folder_name,
+		one_folder_name );
 
 	return foreign_attribute_system_list(
-		foreign_attribute_sys_string(
+		foreign_attribute_system_string(
 			where ) );
 }
 
-LIST *foreign_attribute_list_folder(
+LIST *foreign_many_folder_attribute_list(
 			char *many_folder_name,
 			LIST *foreign_attribute_list )
 {
