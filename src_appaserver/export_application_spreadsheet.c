@@ -388,25 +388,16 @@ void export_output_spreadsheet_folder(
 			char *application_name,
 			char *folder_name )
 {
-	FOLDER *folder;
-	LIST *row_dictionary_list = {0};
+	LIST *dictionary_list = {0};
 	QUERY *query;
-	LIST *attribute_name_list;
-
-	folder =
-		folder_load_folder(
-			application_name,
-			folder_name,
-			(ROLE *)0 );
 
 	query =
 		query_simple_new(
 			(DICTIONARY *)0 /* query_dictionary */,
 			(char *)0 /* login_name */,
-			(char *)0 /* full_name_only */,
-			(char *)0 /* street_address_only */,
-			folder,
-			(LIST *)0 /* ignore_attribute_name_list */ );
+			folder_name,
+			(char *)0 /* role_name */,
+			(LIST *)0 /* ignore_select_attribute_name_list */ );
 
 	if ( !query )
 	{
@@ -418,31 +409,19 @@ void export_output_spreadsheet_folder(
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	row_dictionary_list =
-		query_row_dictionary_list(
-			query->folder->application_name,
-			query->query_output->select_clause,
-			query->query_output->from_clause,
-			query->query_output->where_clause,
-			query->query_output->order_clause,
-			query->max_rows,
-			folder->append_isa_attribute_list,
-			query->login_name );
+	dictionary_list =
+		query_dictionary_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
+			0 /* max_rows */,
+			(QUERY_DATE_CONVERT *)0 );
 
 	dictionary_list_output_to_file(
 		output_filename, 
-			row_dictionary_list,
+			dictionary_list,
 			attribute_name_list,
 			(char *)0 /* heading_display */ );
-
 }

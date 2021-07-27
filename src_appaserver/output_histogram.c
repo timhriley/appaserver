@@ -201,44 +201,29 @@ int main( int argc, char **argv )
 				query_select_display(
 					query->mto1_folder->folder_name,
 					query_select_attribute_name_list,
-					0 /* mto1_isa_..._list_length */ );
+					0 /* mto1_isa_..._list_length */,
+					(LIST *)0
+					   /* common_attribute_name_list */ );
 
 			query_record_list =
-				query_output_record_list(
-					query->
-						query_output->
-						query_output_select_display,
+				query_record_list(
+					query->query_select_display,
 					query_select_attribute_name_list,
-					query->
-						query_output->
-						query_output_from,
-					query->
-						query_output->
-						query_output_where,
-					query->
-						query_output->
-						query_output_order,
+					query->query_from,
+					query->query_where,
+					query->query_order,
 					0 /* max_rows */,
 					(QUERY_DATE_CONVERT *)0 );
 
 			strcpy( sub_title,
 				query_display_where(
-					query->query_output->query_output_where,
+					query->query_where,
 					folder_name ) );
 
-			if ( strlen( sub_title ) > 80
-			||   strcmp( sub_title, "1 = 1" ) == 0 )
+			if ( strlen( sub_title ) > 80 )
 			{
 				*sub_title = '\0';
 			}
-
-			strcpy( buffer, "'" );
-			search_replace_string( sub_title, buffer, "" );
-
-			strcpy(	sub_title,
-				format_initial_capital(
-					buffer,
-					sub_title ) );
 
 			if ( !query_record_list
 			||   !list_rewind( query_record_list ) )

@@ -53,11 +53,11 @@ typedef struct{
 TOTAL_COUNT *total_count_new(
 			void );
 
-char *get_total_delimiter_list(
+char *output_group_total_delimiter_list(
 			int attribute_list_length,
 			char delimiter );
 
-TOTAL_COUNT *get_total_count(
+TOTAL_COUNT *output_group_total_count(
 			char *application_name,
 			char *folder_name,
 			char *where_clause,
@@ -73,39 +73,37 @@ void output_related_folder(
 			char *folder_name,
 			TOTAL_COUNT *total_count );
 
-FILE *get_input_pipe(	char *application_name,
+FILE *output_group_input_pipe(
+			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *folder_name,
 			char *where_clause,
 			TOTAL_COUNT *total_count );
 
-char *get_justify_comma_list( int attribute_list_length );
+char *output_group_justify_comma_list(
+			int attribute_list_length );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *folder_name;
 	char *login_name;
+	char *folder_name;
 	char *role_name;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char dictionary_string[ MAX_INPUT_LINE ];
 	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
-	APPASERVER *appaserver;
 	QUERY *query;
 	char buffer[ 128 ];
 	char title[ QUERY_WHERE_BUFFER ];
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	ROLE *role;
 	boolean override_row_restrictions;
 	LIST *exclude_attribute_name_list;
 	RELATED_FOLDER *related_folder;
 	LIST *done_folder_name_list;
 	pid_t process_id = getpid();
 	TOTAL_COUNT *total_count;
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -127,6 +125,7 @@ int main( int argc, char **argv )
 	role_name = argv[ 4 ];
 
 	get_line( dictionary_string, stdin );
+
 	decode_html_post(	decoded_dictionary_string, 
 				dictionary_string );
 
@@ -151,46 +150,13 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new( application_name, role_name );
-
-	appaserver =
-		appaserver_folder_load_new(
-			application_name,
-			folder_name );
-
-	exclude_attribute_name_list =
-		appaserver_get_exclude_attribute_name_list(
-			appaserver->folder->attribute_list,
-			"lookup" );
-
-	if ( appaserver->folder->row_level_non_owner_forbid )
-	{
-		list_append_pointer(
-			exclude_attribute_name_list,
-			"login_name" );
-	}
-
-	appaserver->folder->mto1_related_folder_list =
-	appaserver_remove_attribute_name_list_from_related_folder_list(
-		appaserver->folder->mto1_related_folder_list,
-		exclude_attribute_name_list );
-
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
-
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			appaserver->folder,
-			(LIST *)0 /* ignore_attribute_name_list */ );
+			folder_name,
+			role_name,
+			(LIST *)0 /* ignore_select_attribute_name_list */ );
 
 	if ( !query )
 	{
@@ -202,39 +168,30 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	if ( ! ( total_count =
-			get_total_count(
+			output_group_total_count(
 				application_name,
-				appaserver->folder->folder_name,
-				query->query_output->where_clause,
-				appaserver->folder->attribute_float_list ) ) )
+				query->query_folder->folder_name,
+				query->query_where,
+				query->query_folder->attribute_float_list ) ) )
 	{
 		document_quick_output_body(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point );
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
 		printf(
 		"<h3>Warning: there are no rows selected.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	if ( !list_rewind( appaserver->folder->mto1_related_folder_list ) )
+	if ( !list_rewind( query->query_folder->mto1_related_folder_list ) )
 	{
 		document_quick_output_body(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_mount_point );
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
 		printf(
 		"<h3>Warning: there are no groups to be displayed.</h3>\n" );
 		document_close();
@@ -244,11 +201,9 @@ int main( int argc, char **argv )
 	sprintf(title, 
 		"Group %s: %s",
 		format_initial_capital( buffer, folder_name ),
-		query_get_display_where_clause(
-			query->query_output->where_clause,
-			application_name,
-			folder_name,
-			1 ) );
+		query->query_display_where(
+			query->query_where,
+			query->query_folder->folder_name ) );
 
 	document = document_new( title, application_name );
 	document_set_output_content_type( document );
@@ -275,8 +230,10 @@ int main( int argc, char **argv )
 
 	do {
 		related_folder =
-			list_get_pointer(
-				appaserver->folder->mto1_related_folder_list );
+			list_get(
+				query->
+					query_folder->
+					mto1_related_folder_list );
 
 		output_related_folder(
 			done_folder_name_list,
@@ -375,7 +332,9 @@ void output_related_folder(
 
 	attribute_list_length = list_length( foreign_attribute_name_list );
 
-	justify_comma_list = get_justify_comma_list( attribute_list_length );
+	justify_comma_list =
+		output_group_justify_comma_list(
+			attribute_list_length );
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -511,19 +470,10 @@ void output_related_folder(
 
 	fprintf(	table_output_pipe,
 			"%s%d\n",
-			get_total_delimiter_list(
+			output_group_total_delimiter_list(
 				attribute_list_length,
 				FOLDER_DATA_DELIMITER ),
 			total_count->total_count );
-
-/*
-	fprintf(	file_output_pipe,
-			"%s%d\n",
-			get_total_delimiter_list(
-				attribute_list_length,
-				',' ),
-			total_count->total_count );
-*/
 
 	pclose( input_pipe );
 	pclose( table_output_pipe );
@@ -536,11 +486,11 @@ void output_related_folder(
 			(char *)0 /* target */,
 			(char *)0 /* application_type */ );
 	fflush( stdout );
-
 }
 
-char *get_total_delimiter_list(	int attribute_list_length,
-				char delimiter )
+char *output_group_total_delimiter_list(
+			int attribute_list_length,
+			char delimiter )
 {
 	static char total_delimiter_list[ 1024 ];
 	char *ptr = total_delimiter_list;
@@ -563,7 +513,8 @@ char *get_total_delimiter_list(	int attribute_list_length,
 	return total_delimiter_list;
 }
 
-char *get_justify_comma_list( int attribute_list_length )
+char *output_group_justify_comma_list(
+			int attribute_list_length )
 {
 	static char justify_comma_list[ 1024 ];
 	char *ptr = justify_comma_list;
@@ -629,7 +580,7 @@ fprintf( stderr, "%s\n",sys_string );
 
 }
 
-TOTAL_COUNT *get_total_count(
+TOTAL_COUNT *output_group_total_count(
 			char *application_name,
 			char *folder_name,
 			char *where_clause,
@@ -647,7 +598,7 @@ TOTAL_COUNT *get_total_count(
 	if ( list_length( attribute_float_list ) )
 	{
 		first_attribute =
-				list_get_first_pointer(
+				list_first_pointer(
 					attribute_float_list );
 
 		sprintf( select,
@@ -696,15 +647,14 @@ TOTAL_COUNT *get_total_count(
 						1 ) );
 
 		total_count->total_sum =
-				atof( piece(	piece_buffer,
-						FOLDER_DATA_DELIMITER,
-						input_record,
-						2 ) );
+			atof( piece(	piece_buffer,
+					FOLDER_DATA_DELIMITER,
+					input_record,
+					2 ) );
 
 	}
 
 	return total_count;
-
 }
 
 TOTAL_COUNT *total_count_new( void )

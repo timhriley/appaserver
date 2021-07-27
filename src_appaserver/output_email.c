@@ -54,29 +54,23 @@ void output_dictionary_to_file( FILE *file,
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
 	char *role_name;
 	char *email_address;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char dictionary_string[ MAX_INPUT_LINE ];
 	DICTIONARY *post_dictionary;
-	FOLDER *folder;
-	ROLE *role;
 	LIST *row_dictionary_list = {0};
 	QUERY *query;
-	LIST *ignore_select_attribute_name_list;
-	LIST *attribute_name_list;
 	FILE *file;
 	DOCUMENT *document;
 	char sys_string[ 1024 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	LIST *mto1_isa_related_folder_list;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	DICTIONARY *ignore_dictionary;
-	DICTIONARY *query_dictionary;
 	char attachment_filename[ 128 ];
-	char *full_name_only;
-	char *street_address_only = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -102,8 +96,10 @@ int main( int argc, char **argv )
 	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
 	{
 		get_line( dictionary_string, stdin );
-		decode_html_post(	decoded_dictionary_string, 
-					dictionary_string );
+
+		decode_html_post(
+			decoded_dictionary_string, 
+			dictionary_string );
 
 		post_dictionary = 
 			dictionary_index_string2dictionary( 
@@ -127,20 +123,15 @@ int main( int argc, char **argv )
 		post_dictionary =
 			dictionary_appaserver->
 				working_post_dictionary;
-
-		ignore_dictionary =
-			dictionary_appaserver->
-				ignore_dictionary;
-
-		query_dictionary =
-			dictionary_appaserver->
-				query_dictionary;
 	}
 	else
 	{
-		post_dictionary = (DICTIONARY *)0;
-		ignore_dictionary = (DICTIONARY *)0;
-		query_dictionary = (DICTIONARY *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: dictionary is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -149,23 +140,24 @@ int main( int argc, char **argv )
 	document_set_output_content_type( document );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		0 /* not with_dynarch_menu */ );
 
 	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+		document->application_name,
+		document->onload_control_string );
 
-	email_address = dictionary_get_index_zero(
-				query_dictionary,
-				EMAIL_OUTPUT_NAME );
+	email_address =
+		dictionary_get_index_zero(
+			dictionary_appaserver->query_dictionary,
+			EMAIL_OUTPUT_NAME );
 
 	if ( !email_address || !*email_address )
 	{
@@ -176,44 +168,14 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	role =
-		role_new_role(
-			application_name,
-			role_name );
-
-	folder =
-		folder_load_new(
-			application_name,
-			session,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
-
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
-			ignore_select_attribute_name_list */ );
+			folder_name,
+			role_name,
+			dictionary_appaserver->
+				ignore_select_attribute_name_list );
 
 	if ( !query )
 	{
@@ -225,36 +187,15 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	row_dictionary_list =
-		query_row_dictionary_list(
-			query->folder->application_name,
-			query->query_output->select_clause,
-			query->query_output->from_clause,
-			query->query_output->where_clause,
-			query->query_output->order_clause,
-			query->max_rows,
-			query->folder->append_isa_attribute_list,
-			query->login_name );
-
-	list_append_string_list(
-		ignore_attribute_name_list,
-		appaserver_library_no_display_pressed_attribute_name_list(
-			ignore_dictionary, 
-			folder->lookup_allowed_attribute_name_list ) );
-
-	attribute_name_list = 
-		list_subtract( 	folder->lookup_allowed_attribute_name_list, 
-				ignore_attribute_name_list );
+		query_dictionary_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
+			0 /* max_rows */,
+			query->query_date_convert );
 
 	sprintf(attachment_filename,
 	 	ATTACHMENT_FILENAME_TEMPLATE, 
@@ -276,10 +217,11 @@ int main( int argc, char **argv )
 
 	output_heading_to_file( file, attribute_name_list, DELIMITER );
 
-	output_dictionary_list_to_file(	file, 
-					row_dictionary_list,
-					attribute_name_list,
-					DELIMITER );
+	output_dictionary_list_to_file(
+		file, 
+		row_dictionary_list,
+		query->select_name_list,
+		DELIMITER );
 
 	fclose( file );
 
@@ -293,17 +235,16 @@ int main( int argc, char **argv )
 		 email_address );
 
 	system( sys_string );
-
 	document_close();
-	exit( 0 );
 
-} /* main() */
+	return 0;
+}
 
-
-void output_dictionary_list_to_file(	FILE *file, 
-					LIST *data_dictionary_list,
-					LIST *attribute_name_list,
-					char delimiter )
+void output_dictionary_list_to_file(
+			FILE *file, 
+			LIST *data_dictionary_list,
+			LIST *attribute_name_list,
+			char delimiter )
 {
 	DICTIONARY *data_dictionary;
 
@@ -323,13 +264,14 @@ void output_dictionary_list_to_file(	FILE *file,
 						attribute_name_list,
 						delimiter );
 	} while( list_next( data_dictionary_list ) );
-} /* output_dictionary_list_to_file() */
+}
 
 
-void output_dictionary_to_file( FILE *file, 
-				DICTIONARY *data_dictionary,
-				LIST *attribute_name_list,
-				char delimiter )
+void output_dictionary_to_file(
+			FILE *file, 
+			DICTIONARY *data_dictionary,
+			LIST *attribute_name_list,
+			char delimiter )
 {
 	char current_value[ MAX_INPUT_LINE ];
 	char *attribute_name;
@@ -359,11 +301,12 @@ void output_dictionary_to_file( FILE *file,
 
 	} while( next_item( attribute_name_list ) );
 	fprintf( file, "\n" );
-} /* output_dictionary_to_file() */
+}
 
-void output_heading_to_file(	FILE *file, 
-				LIST *attribute_name_list,
-				char delimiter )
+void output_heading_to_file(
+			FILE *file, 
+			LIST *attribute_name_list,
+			char delimiter )
 {
 	char *attribute_name;
 	int first_time = 1;
@@ -381,6 +324,7 @@ void output_heading_to_file(	FILE *file,
 		fprintf( file, "\"%s\"", attribute_name );
 
 	} while( next_item( attribute_name_list ) );
+
 	fprintf( file, "\n" );
-} /* output_heading_to_file() */
+}
 

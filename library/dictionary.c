@@ -1851,7 +1851,8 @@ DICTIONARY *dictionary_remove_index( DICTIONARY *source_dictionary )
 	return dictionary;
 }
 
-DICTIONARY *dictionary_remove_index_zero( DICTIONARY *source_dictionary )
+DICTIONARY *dictionary_remove_index_zero(
+			DICTIONARY *source_dictionary )
 {
 	DICTIONARY *dictionary;
 	LIST *key_list;
@@ -1859,17 +1860,19 @@ DICTIONARY *dictionary_remove_index_zero( DICTIONARY *source_dictionary )
 	char *data;
 	char key_without_index[ 1024 ];
 
-	dictionary = dictionary_new();
+	dictionary = dictionary_small_new();
 
-	key_list = dictionary_get_key_list( source_dictionary );
+	key_list = dictionary_key_list( source_dictionary );
+
 	if ( key_list && list_rewind( key_list ) )
 	{
 		do {
 			key = list_get_pointer( key_list );
 
-			data = dictionary_get_pointer(
-						source_dictionary, 
-						key );
+			data =
+				dictionary_get_pointer(
+					source_dictionary, 
+					key );
 
 			trim_index_zero( key_without_index, key );
 

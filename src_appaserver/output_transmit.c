@@ -48,7 +48,6 @@ int main( int argc, char **argv )
 	DICTIONARY *post_dictionary;
 	LIST *row_dictionary_list = {0};
 	QUERY *query;
-	LIST *ignore_select_attribute_name_list;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *output_filename;
@@ -135,15 +134,14 @@ int main( int argc, char **argv )
 		document->application_name,
 		document->onload_control_string );
 
-	ignore_select_attribute_name_list = list_new();
-
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
 			login_name,
 			folder_name,
 			role_name,
-			(LIST *)0 /* ignore_select_attribute_name_list */ );
+			dictionary_appaserver->
+				ignore_select_attribute_name_list );
 
 	if ( !query )
 	{
@@ -155,39 +153,14 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	row_dictionary_list =
-		query_row_dictionary_list(
-			query->folder->application_name,
-			query->query_output->select_clause,
-			query->query_output->from_clause,
-			query->query_output->where_clause,
-			query->query_output->order_clause,
-			0 /* query->max_rows */,
-			folder->attribute_list
-				/* append_isa_attribute_list */,
-			query->login_name );
-
-	list_append_string_list(
-		ignore_attribute_name_list,
-		appaserver_library_no_display_pressed_attribute_name_list(
-			dictionary_appaserver->
-				ignore_dictionary, 
-			folder->lookup_allowed_attribute_name_list ) );
-
-	attribute_name_list = 
-		list_subtract(
-			folder->lookup_allowed_attribute_name_list, 
-			ignore_attribute_name_list );
+		query_dictionary_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
+			query->query_date_convert );
 
 	appaserver_link_file =
 		appaserver_link_file_new(

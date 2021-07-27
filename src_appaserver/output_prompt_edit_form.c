@@ -1276,19 +1276,15 @@ LIST *output_prompt_element_list(
 
 		do {
 			related_folder =
-				list_get_pointer(
+				list_get(
 					folder->join_1tom_related_folder_list );
 
-			/* Make the line break. */
+			/* Make two line breaks */
 			/* -------------------- */
 			element = element_appaserver_new( linebreak, "" );
-			list_append_pointer(
-					return_list, 
-					element );
 
-			list_append_pointer(
-					return_list, 
-					element );
+			list_set( return_list, element );
+			list_set( return_list, element );
 
 			/* Make the push button element. */
 			/* ----------------------------- */
@@ -1299,7 +1295,8 @@ LIST *output_prompt_element_list(
 					one2m_folder->
 					folder_name );
 
-			element = element_appaserver_new(
+			element =
+				element_appaserver_new(
 					toggle_button, 
 					strdup( element_name ) );
 
@@ -1346,23 +1343,25 @@ LIST *get_radio_button_element_list(
 	/* Create the button to set all the no display buttons. */
 	/* ---------------------------------------------------- */
 	element = element_appaserver_new( toggle_button, "" );
+
 	element->toggle_button->heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
+
 	sprintf( onclick_function,
 		 "timlib_set_all_push_buttons( this, '%s' )",
 		 NO_DISPLAY_PUSH_BUTTON_PREFIX );
+
 	element->toggle_button->onclick_function = strdup( onclick_function );
-	list_append_pointer(
-			return_list, 
-			element );
+
+	list_set( return_list, element );
 
 	element = element_appaserver_new( table_opening, "" );
-	list_append_pointer(
-			return_list, 
-			element );
+
+	list_set( return_list, element );
 
 	/* Create the statistics button */
 	/* ---------------------------- */
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			radio_button, 
 			LOOKUP_OPTION_RADIO_BUTTON_NAME );
 

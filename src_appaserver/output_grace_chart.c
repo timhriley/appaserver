@@ -37,9 +37,9 @@
 /* ---------- */
 void output_chart(	DICTIONARY *query_dictionary,
 			char *application_name,
-			FOLDER *folder,
-			ROLE *role,
 			char *login_name,
+			char *folder_name,
+			char *role_name,
 			char *document_root_directory,
 			char *appaserver_mount_point,
 			char *time_attribute_name,
@@ -204,9 +204,9 @@ int main( int argc, char **argv )
 
 	output_chart(	dictionary_appaserver->query_dictionary,
 			application_name,
-			folder,
-			role,
 			login_name,
+			folder_name,
+			role_name,
 			appaserver_parameter_file->document_root,
 			appaserver_parameter_file->appaserver_mount_point,
 			time_attribute_name,
@@ -217,9 +217,9 @@ int main( int argc, char **argv )
 
 void output_chart(	DICTIONARY *query_dictionary,
 			char *application_name,
-			FOLDER *folder,
-			ROLE *role,
 			char *login_name,
+			char *folder_name,
+			char *role_name,
 			char *document_root_directory,
 			char *appaserver_mount_point,
 			char *folder_name,
@@ -237,7 +237,7 @@ void output_chart(	DICTIONARY *query_dictionary,
 	char sub_title[ QUERY_WHERE_BUFFER ];
 	char initcap_buffer[ 256 ];
 	DOCUMENT *document;
-	LIST *query_record_list;
+	LIST *record_list;
 	char graph_identifier[ 128 ];
 	char begin_date_string[ 128 ];
 	char date_data[ 128 ];
@@ -270,22 +270,13 @@ void output_chart(	DICTIONARY *query_dictionary,
 			application_name ),
 		0 /* not with_dynarch_menu */ );
 
-	full_name_only =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_login_name_full_name(
-			&street_address_only,
-			login_name );
-
 	query =
 		query_simple_new(
 			query_dictionary,
 			login_name,
-			full_name_only,
-			street_address_only,
-			folder,
-			(LIST *)0 /* ignore_attribute_name_list */ );
+			folder_name,
+			role_name,
+			(LIST *)0 /* ignore_select_attribute_name_list */ );
 
 	if ( !query )
 	{
@@ -297,24 +288,26 @@ void output_chart(	DICTIONARY *query_dictionary,
 		exit( 1 );
 	}
 
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	query->query_select_name_list = select_attribute_name_list;
 
-	query_record_list =
-		query_get_record_list(
-			application_name,
-			query->query_output,
-			list_display( select_attribute_name_list ),
-			query->query_output->order_clause );
+	query->query_select_display =
+		query_select_display(
+			query->query_folder->folder_name,
+			query->query_select_name_list,
+			0 /* mto1_isa_related_folder_list_length */,
+			query->common_attribute_name_list );
 
-	if ( !query_record_list || !list_length( query_record_list ) )
+	record_list =
+		query_record_list(
+			query->query_select_display,
+			query->query_select_name_list,
+			query->query_from,
+			query->query_where,
+			query->query_order,
+			0 /* max_rows */,
+			query->query_date_convert );
+
+	if ( !record_list || !list_length( record_list ) )
 	{
 		printf( "<h2>No data for selected parameters.</h2>\n" );
 		document_close();
@@ -380,10 +373,10 @@ void output_chart(	DICTIONARY *query_dictionary,
 					grace->graph_list,
 					float_integer_attribute_name );
 
-		if ( !list_rewind( query_record_list ) ) break;
+		if ( !list_rewind( record_list ) ) break;
 
 		do {
-			query_record = list_get_pointer( query_record_list );
+			query_record = list_get_pointer( record_list );
 
 			piece(	date_data,
 				FOLDER_DATA_DELIMITER,
@@ -427,7 +420,7 @@ void output_chart(	DICTIONARY *query_dictionary,
 						grace->dataset_no_cycle_color );
 			}
 
-		} while( list_next( query_record_list ) );
+		} while( list_next( record_list ) );
 
 		value_piece_offset++;
 

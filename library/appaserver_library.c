@@ -550,10 +550,11 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 	char *data;
 	char trimmed_attribute_name[ 256 ];
 	char ignored_attribute_name[ 256 ];
-	int str_len = strlen( IGNORE_PUSH_BUTTON_PREFIX );
+	int str_len = strlen( IGNORE_SELECT_PUSH_BUTTON_PREFIX );
 
 	attribute_name_list =
-		dictionary_key_list( dictionary );
+		dictionary_key_list(
+			dictionary );
 
 	if ( list_rewind( attribute_name_list ) )
 	{
@@ -562,7 +563,7 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 				list_get( attribute_name_list );
 
 			if ( strncmp(
-				IGNORE_PUSH_BUTTON_PREFIX,
+				IGNORE_SELECT_PUSH_BUTTON_PREFIX,
 				attribute_name,
 				str_len ) == 0 )
 			{
@@ -619,7 +620,7 @@ void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 
 				sprintf(ignored_attribute_name,
 		 			"%s%s", 
-		 			IGNORE_PUSH_BUTTON_PREFIX, 
+		 			IGNORE_SELECT_PUSH_BUTTON_PREFIX, 
 		 			trimmed_attribute_name );
 
 				dictionary_set_pointer(

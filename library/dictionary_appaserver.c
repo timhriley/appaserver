@@ -1,4 +1,4 @@
-/* library/dictionary_appaserver.c			   */
+/* $APPASERVER_HOME/library/dictionary_appaserver.c	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -104,6 +104,10 @@ DICTIONARY_APPASERVER *dictionary_appaserver_new(
 				dictionary_appaserver->
 					working_post_dictionary );
 
+		dictionary_appaserver->ignore_select_attribute_name_list =
+			dictionary_appaserver_ignore_select_attribute_name_list(
+				dictionary_appaserver->ignore_dictionary );
+
 		dictionary_appaserver->pair_one2m_dictionary =
 			dictionary_appaserver_pair_one2m_dictionary(
 				dictionary_appaserver->
@@ -126,7 +130,6 @@ DICTIONARY_APPASERVER *dictionary_appaserver_new(
 	}
 
 	return dictionary_appaserver;
-
 }
 
 DICTIONARY *dictionary_appaserver_send_dictionary(
@@ -184,7 +187,7 @@ DICTIONARY *dictionary_appaserver_send_dictionary(
 			send_dictionary,
 			dictionary_add_prefix(
 				ignore_dictionary,
-				IGNORE_PUSH_BUTTON_PREFIX ) );
+				IGNORE_SELECT_PUSH_BUTTON_PREFIX ) );
 	}
 
 	if ( dictionary_length( pair_one2m_dictionary ) )
@@ -317,7 +320,7 @@ DICTIONARY *dictionary_appaserver_ignore_dictionary(
 	if ( ! ( dictionary =
 		dictionary_without_prefix(
 			working_post_dictionary,
-			IGNORE_PUSH_BUTTON_PREFIX ) ) )
+			IGNORE_SELECT_PUSH_BUTTON_PREFIX ) ) )
 	{
 		dictionary = dictionary_small_new();
 	}
@@ -329,8 +332,8 @@ DICTIONARY *dictionary_appaserver_ignore_dictionary(
 			NO_DISPLAY_PUSH_BUTTON_PREFIX ) );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				dictionary,
-				(char *)0 /* prefix */ );
+		dictionary,
+		(char *)0 /* prefix */ );
 
 	return dictionary;
 }
@@ -639,7 +642,7 @@ DICTIONARY *dictionary_appaserver_non_prefixed_dictionary(
 	strlen_lookup = strlen( LOOKUP_BEFORE_DROP_DOWN_PREFIX );
 	strlen_query = strlen( QUERY_STARTING_LABEL );
 	strlen_preprompt = strlen( PREPROMPT_PREFIX );
-	strlen_ignore = strlen( IGNORE_PUSH_BUTTON_PREFIX );
+	strlen_ignore = strlen( IGNORE_SELECT_PUSH_BUTTON_PREFIX );
 	strlen_pair_1tom = strlen( PAIR_ONE2M_PREFIX );
 	strlen_no_display = strlen( NO_DISPLAY_PUSH_BUTTON_PREFIX );
 
@@ -659,7 +662,7 @@ DICTIONARY *dictionary_appaserver_non_prefixed_dictionary(
 				QUERY_STARTING_LABEL,
 				strlen_query ) == 0
 		||   strncmp(	key,
-				IGNORE_PUSH_BUTTON_PREFIX,
+				IGNORE_SELECT_PUSH_BUTTON_PREFIX,
 				strlen_ignore ) == 0
 		||   strncmp(	key,
 				PAIR_ONE2M_PREFIX,
@@ -671,8 +674,10 @@ DICTIONARY *dictionary_appaserver_non_prefixed_dictionary(
 			continue;
 		}
 
-		data = dictionary_get( 	working_post_dictionary, 
-					key );
+		data =
+			dictionary_get(
+				working_post_dictionary, 
+				key );
 
 		dictionary_set_pointer( 
 			dictionary,
@@ -682,14 +687,14 @@ DICTIONARY *dictionary_appaserver_non_prefixed_dictionary(
 	} while( list_next( key_list ) );
 
 	dictionary_appaserver_parse_multi_attribute_keys(
-				dictionary,
-				(char *)0 /* prefix */ );
+		dictionary,
+		(char *)0 /* prefix */ );
 
 	dictionary_appaserver_remove_from_starting_label(
-				dictionary );
+		dictionary );
 
 	dictionary_add_elements_by_removing_index_zero(
-			    	dictionary );
+	    	dictionary );
 
 	if ( attribute_list )
 	{
@@ -740,7 +745,7 @@ void dictionary_appaserver_output_as_hidden(
 			dictionary_prepend_key(
 				dictionary_appaserver->
 					ignore_dictionary,
-				IGNORE_PUSH_BUTTON_PREFIX ) );
+				IGNORE_SELECT_PUSH_BUTTON_PREFIX ) );
 	}
 
 	if ( dictionary_length( dictionary_appaserver->pair_one2m_dictionary ) )
@@ -879,5 +884,29 @@ void dictionary_appaserver_set_primary_data_list_string(
 		} while( list_next( primary_attribute_name_list ) );
 
 	}
+}
+
+LIST *dictionary_appaserver_ignore_select_attribute_name_list(
+			DICTIONARY *ignore_dictionary )
+{
+	LIST *ignore_select_attribute_name_list;
+	DICTIONARY *remove_index_zero_dictionary;
+
+	remove_index_zero_dictionary =
+		dictionary_remove_index_zero(
+			ignore_dictionary );
+
+	ignore_select_attribute_name_list =
+		dictionary_extract_and_remove_prefixed_key_list(
+			remove_index_zero_dictionary,
+			IGNORE_SELECT_PUSH_BUTTON_PREFIX );
+
+	list_set_list(
+		ignore_select_attribute_name_list,
+		dictionary_extract_and_remove_prefixed_key_list(
+			remove_index_zero_dictionary,
+			NO_DISPLAY_PUSH_BUTTON_PREFIX ) );
+
+	return ignore_select_attribute_name_list;
 }
 

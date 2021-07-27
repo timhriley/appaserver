@@ -306,6 +306,14 @@ void output_chart(	DICTIONARY *query_dictionary,
 		exit( 1 );
 	}
 
+	query->query_select_name_list = select_attribute_name_list;
+
+	query->query_select_display(
+		query->query_folder->folder_name,
+		query->query_select_name_list,
+		0 /* mto1_isa_related_folder_list_length */,
+		query->common_attribute_name_list );
+
 	query_record_list =
 		query_record_list(
 			query->query_select_display,

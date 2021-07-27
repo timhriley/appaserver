@@ -27,7 +27,7 @@ GOOGLE_MAP *google_map_new( void )
 	google_map->point_list = list_new();
 	return google_map;
 
-} /* google_map_new() */
+}
 
 
 void google_map_output_selectable_map_thumbtack(
@@ -45,7 +45,7 @@ void google_map_output_selectable_map_thumbtack(
 "	create_selectable_map_marker( map, point, '%s' );\n\n",
 		click_message );
 
-} /* google_map_output_selectable_map_thumbtack() */
+}
 
 void google_map_output_map_thumbtack(
 					FILE *output_file,
@@ -62,7 +62,7 @@ void google_map_output_map_thumbtack(
 "	create_map_marker( map, point, '%s' );\n\n",
 		click_message );
 
-} /* google_map_output_map_thumbtack() */
+}
 
 void google_map_output_heading_close( FILE *output_file )
 {
@@ -73,7 +73,7 @@ void google_map_output_heading_close( FILE *output_file )
 "</script>\n"
 "</head>\n" );
 
-} /* google_map_output_heading_close() */
+}
 
 void google_map_output_body(	FILE *output_file,
 				boolean with_table,
@@ -100,7 +100,7 @@ void google_map_output_body(	FILE *output_file,
 "<div id=\"%s\"></div>\n",
 		 GOOGLE_MAP_CANVAS_ID );
 
-} /* google_map_output_body() */
+}
 
 char *google_map_get_map_key(
 			char *application_name )
@@ -125,7 +125,7 @@ char *google_map_get_map_key(
 			exit( 1 );
 	}
 	return google_map_key_data;
-} /* google_map_get_map_key() */
+}
 
 void google_map_set_point(	LIST *point_list,
 				char *click_message,
@@ -153,7 +153,7 @@ void google_map_set_point(	LIST *point_list,
 	map_point->utm_easting = utm_easting;
 	map_point->utm_northing = utm_northing;
 	list_append_pointer( point_list, map_point );
-} /* google_map_set_point() */
+}
 
 void google_map_convert_to_latitude_longitude(
 					LIST *point_list )
@@ -211,7 +211,7 @@ void google_map_convert_to_latitude_longitude(
 	fclose( input_file );
 	sprintf( sys_string, "rm -f %s", tmp_filename );
 	if ( system( sys_string ) ){};
-} /* google_map_convert_to_latitude_longitude() */
+}
 
 void google_map_output_point_list(	FILE *output_file,
 					LIST *point_list )
@@ -237,7 +237,7 @@ void google_map_output_point_list(	FILE *output_file,
 		} while( list_next( point_list ) );
 	}
 
-} /* google_map_output_point_list() */
+}
 
 void google_map_output_selectable_point_list(	FILE *output_file,
 						LIST *point_list )
@@ -262,7 +262,7 @@ void google_map_output_selectable_point_list(	FILE *output_file,
 		}
 	} while( list_next( point_list ) );
 
-} /* google_map_output_selectable_point_list() */
+}
 
 
 double google_map_convert_coordinate( char *latitude_longitude )
@@ -282,7 +282,7 @@ double google_map_convert_coordinate( char *latitude_longitude )
 		return atof( latitude_longitude );
 	}
 
-} /* google_map_convert_coordinate() */
+}
 
 double google_map_convert_base_60( char *latitude_longitude )
 {
@@ -313,7 +313,7 @@ double google_map_convert_base_60( char *latitude_longitude )
 		           (atof( seconds ) / 3600.0 ) );
 	}
 	return results;
-} /* google_map_convert_base_60() */
+}
 
 double google_map_convert_base_60_with_float( char *latitude_longitude )
 {
@@ -342,7 +342,7 @@ double google_map_convert_base_60_with_float( char *latitude_longitude )
 		          (atof( minutes_float ) / 60.0 );
 	}
 	return results;
-} /* google_map_convert_base_60_with_float() */
+}
 
 void google_map_output_heading( FILE *output_file,
 				char *title,
@@ -513,7 +513,7 @@ void google_map_output_heading( FILE *output_file,
 "	var infowindow = new google.maps.InfoWindow();\n" );
 */
 
-} /* google_map_output_heading() */
+}
 
 void google_map_output_rectangle(
 				FILE *output_file,
@@ -543,7 +543,7 @@ void google_map_output_rectangle(
 	fprintf( output_file,
 "	google.maps.event.addListener(rectangle, 'bounds_changed', rectangle_bounds_changed);\n" );
 
-} /* google_map_output_rectangle() */
+}
 
 void google_map_output_rectangle_bounds_changed(
 				FILE *output_file )
@@ -580,7 +580,7 @@ void google_map_output_rectangle_bounds_changed(
 	fprintf( output_file,
 "</script>\n" );
 
-} /* google_map_output_rectangle_bounds_changed() */
+}
 
 void google_map_output_rectangle_copy_to_form(
 				FILE *output_file )
@@ -613,7 +613,7 @@ void google_map_output_rectangle_copy_to_form(
 	fprintf( output_file,
 "</script>\n" );
 
-} /* google_map_output_rectangle_copy_to_form() */
+}
 
 char *google_map_get_balloon(	char *application_name,
 				char *folder_name,
@@ -701,20 +701,5 @@ char *google_map_get_balloon(	char *application_name,
 	strcpy( buffer, label );
 	escape_character( label, buffer, '\'' );
 	return label;
-
-} /* google_map_get_balloon() */
-
-LIST *google_map_get_no_display_attribute_name_list(
-			DICTIONARY *dictionary )
-{
-	LIST *no_display_attribute_name_list;
-
-	no_display_attribute_name_list =
-		dictionary_extract_and_remove_prefixed_key_list(
-				dictionary_remove_index_zero( dictionary ),
-				IGNORE_PUSH_BUTTON_PREFIX );
-
-	return no_display_attribute_name_list;
-
-} /* google_map_get_no_display_attribute_name_list() */
+}
 

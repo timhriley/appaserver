@@ -859,7 +859,7 @@ LIST *output_prompt_insert_element_list(
 	if ( !omit_push_buttons )
 	{
 		omit_drop_down_new_push_button = 0;
-		ignore_push_button_prefix = IGNORE_PUSH_BUTTON_PREFIX;
+		ignore_push_button_prefix = IGNORE_SELECT_PUSH_BUTTON_PREFIX;
 		ignore_push_button_heading = "ignore";
 	}
 	else
@@ -1521,20 +1521,20 @@ LIST *output_prompt_insert_attribute_element_list(
 	{
 		if ( !omit_ignore_push_buttons )
 		{
-			sprintf( ignore_element_name, "%s%s",
-			 	IGNORE_PUSH_BUTTON_PREFIX,
+			sprintf(ignore_element_name,
+				"%s%s",
+			 	IGNORE_SELECT_PUSH_BUTTON_PREFIX,
 			 	attribute_name );
 	
-			element = element_appaserver_new(
+			element =
+				element_appaserver_new(
 					toggle_button, 
 					strdup( ignore_element_name ) );
 	
 			element_toggle_button_set_heading(
 				element->toggle_button, "ignore" );
 	
-			list_append_pointer(
-					return_list, 
-					element );
+			list_set( return_list, element );
 		}
 
 		/* If New buttons appear before the drop downs */

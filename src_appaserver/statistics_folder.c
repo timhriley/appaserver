@@ -28,7 +28,6 @@
 #include "decode_html_post.h"
 #include "role.h"
 #include "dictionary_appaserver.h"
-#include "lookup_before_drop_down.h"
 
 /* Constants */
 /* --------- */
@@ -38,24 +37,18 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name;
 	char *application_name;
+	char *login_name;
 	char *folder_name;
+	char *role_name;
 	DOCUMENT *document;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char *dictionary_string;
 	DICTIONARY *original_post_dictionary;
-	FOLDER *folder;
 	QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *sys_string;
-	char *where_clause;
-	ROLE *role;
-	char *role_name;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	QUERY *query;
-	QUERY_ENTITY_ONLY *query_entity_only;
-	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -102,50 +95,13 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new( application_name, role_name ); 
-
-	folder =
-		folder_load_new(
-			application_name,
-			folder_name,
-			role );
-
-	if ( !folder )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_load_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	lookup_before_drop_down =
-		lookup_before_drop_down_new(
-			application_name,
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary,
-			"lookup" /* state */ );
-
-	lookup_before_drop_down->lookup_before_drop_down_state =
-		lookup_before_drop_down_get_state(
-			lookup_before_drop_down->
-				lookup_before_drop_down_folder_list,
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			folder->lookup_before_drop_down );
-
-	query_entity_only = query_entity_only_new( login_name );
-
 	query =
 		query_simple_new(
 			dictionary_appaserver->query_dictionary,
-			login_name /* login_name_only */,
-			full_name_only,
-			street_address_only,
-			folder /* mto1_folder */,
-			(LIST *)0 /* ignore_attribute_name_list */ );
+			login_name,
+			folder_name,
+			role_name,
+			(LIST *)0 /* ignore_select_attribute_name_list */ );
 
 	if ( !query )
 	{
@@ -156,18 +112,6 @@ int main( int argc, char **argv )
 			__LINE__ );
 		exit( 1 );
 	}
-
-	if ( !query->query_output )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_output is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	where_clause = query->query_output->where_clause;
 
 	document = document_new( "", application_name );
 	document->output_content_type = 1;
@@ -189,19 +133,19 @@ int main( int argc, char **argv )
 
 	query_attribute_statistics_list =
 		query_attribute_statistics_list_new(
-			folder->application_name,
-			query->query_output->from_clause );
+			document->application_name,
+			query->query_from );
 
 	query_attribute_statistics_list->list =
 		query_attribute_statistics_list_get_list(
-			folder->attribute_list );
+			query->query_folder->attribute_list );
 
 	sys_string =
 	query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 			query_attribute_statistics_list->application_name,
 			query_attribute_statistics_list->folder_name,
 			query_attribute_statistics_list->list,
-			where_clause );
+			query->query_where );
 
 	if ( !sys_string )
 	{
@@ -218,7 +162,7 @@ int main( int argc, char **argv )
 
 	query_attribute_statistics_list_output_table(
 		query_attribute_statistics_list->folder_name,
-		where_clause,
+		query->query_where
 		query_attribute_statistics_list->list,
 		application_name );
 

@@ -1,4 +1,4 @@
-/* library/dictionary_appaserver.h			   */
+/* $APPASERVER_HOME/library/dictionary_appaserver.h	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -13,9 +13,11 @@
 
 /* Constants */
 /* --------- */
-#define SORT_BUTTON_PREFIX		"ssort_button_"
-#define LOOKUP_BEFORE_DROP_DOWN_PREFIX	"llookup_before_drop_down_"
-#define PAIR_ONE2M_PREFIX		"ppair_one2m_"
+#define SORT_BUTTON_PREFIX			"ssort_button_"
+#define LOOKUP_BEFORE_DROP_DOWN_PREFIX		"llookup_before_drop_down_"
+#define PAIR_ONE2M_PREFIX			"ppair_one2m_"
+#define IGNORE_SELECT_PUSH_BUTTON_PREFIX	"ignore_"
+#define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
 
 /* Structures */
 /* ---------- */
@@ -32,6 +34,7 @@ typedef struct
 	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
 	DICTIONARY *send_dictionary;
+	LIST *ignore_select_attribute_name_list;
 } DICTIONARY_APPASERVER;
 
 DICTIONARY_APPASERVER *dictionary_appaserver_new(
@@ -123,5 +126,8 @@ void dictionary_appaserver_set_primary_data_list_string(
 DICTIONARY *dictionary_appaserver_prefixed_dictionary(
 			DICTIONARY *post_dictionary,
 			char *prefix );
+
+LIST *dictionary_appaserver_ignore_select_attribute_name_list(
+			DICTIONARY *ignore_dictionary );
 
 #endif

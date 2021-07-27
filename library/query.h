@@ -14,6 +14,8 @@
 #include "boolean.h"
 #include "piece.h"
 #include "prompt_recursive.h"
+#include "role.h"
+#include "role_folder.h"
 #include "folder.h"
 
 /* Constants */
