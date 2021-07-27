@@ -49,7 +49,6 @@ boolean appaserver_user_exists_session(
 			char *session );
 
 boolean appaserver_user_exists_role(
-			char *application_name,
 			char *login_name,
 			char *role_name );
 

@@ -303,9 +303,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( !appaserver_user_exists_role(
-					application_name,
-					login_name,
-					role_name ) )
+		login_name,
+		role_name ) )
 	{
 		session_access_failed_message_and_exit(
 				application_name, session, login_name );

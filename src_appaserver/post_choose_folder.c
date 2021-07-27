@@ -94,39 +94,15 @@ int main( int argc, char **argv )
 	add_relative_source_directory_to_path( application_name );
 	environ_appaserver_home();
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 	if ( session_remote_ip_address_changed(
 		application_name,
 		session ) )
 	{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 		session_message_ip_address_changed_exit(
 			application_name,
 			login_name );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 	if ( !session_access_folder(
 				application_name,
 				session,
@@ -141,14 +117,6 @@ m2( application_name, msg );
 					role_name,
 					"lookup" ) )
 		{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 			session_access_failed_message_and_exit(
 				application_name,
 				session,
@@ -156,27 +124,10 @@ m2( application_name, msg );
 		}
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 	if ( !appaserver_user_exists_role(
-		application_name,
 		login_name,
 		role_name ) )
 	{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-m2( application_name, msg );
-}
 		session_access_failed_message_and_exit(
 			application_name,
 			session,
