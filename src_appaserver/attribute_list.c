@@ -49,12 +49,15 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
+	if ( ( application_name =
+		environ_exit_application_name( argv[ 0 ] ) ) ){};
 
+/*
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
+*/
 
 	/* -------------------------------------------- */
 	/* Usage: attribute_list [folder | with_table]  */

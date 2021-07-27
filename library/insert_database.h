@@ -62,56 +62,58 @@ INSERT_DATABASE *insert_database_new(
 			DICTIONARY *ignore_dictionary,
 			LIST *attribute_list );
 
-void set_insert_row_zero_only(	INSERT_DATABASE *insert_database );
+void set_insert_row_zero_only(
+			INSERT_DATABASE *insert_database );
 
 void insert_database_set_row_zero_only(
-				INSERT_DATABASE *insert_database );
+			INSERT_DATABASE *insert_database );
 
-int insert_database_execute(	char **message,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				LIST *primary_attribute_name_list,
-				LIST *insert_required_attribute_name_list,
-				LIST *attribute_name_list,
-				DICTIONARY *row_dictionary,
-				LIST *ignore_attribute_name_list,
-				int insert_row_zero_only,
-				boolean dont_remove_tmp_file,
-				PROCESS *post_change_process,
-				char *login_name,
-				LIST *mto1_related_folder_list,
-				LIST *common_non_primary_attribute_name_list,
-				LIST *attribute_list,
-				boolean exists_reference_number,
-				char *tmp_file_directory );
+int insert_database_execute(
+			char **message,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_attribute_name_list,
+			LIST *insert_required_attribute_name_list,
+			LIST *attribute_name_list,
+			DICTIONARY *row_dictionary,
+			LIST *ignore_attribute_name_list,
+			int insert_row_zero_only,
+			boolean dont_remove_tmp_file,
+			PROCESS *post_change_process,
+			char *login_name,
+			LIST *mto1_related_folder_list,
+			LIST *common_non_primary_attribute_name_list,
+			LIST *attribute_list,
+			boolean exists_reference_number,
+			char *tmp_file_directory );
 
 FILE *insert_database_open_tmp_file(
-				char **tmp_file_name,
-				char *tmp_file_directory,
-				char *session );
+			char **tmp_file_name,
+			char *tmp_file_directory,
+			char *session );
 
 void insert_database_remove_tmp_file(
-				char *tmp_file_name );
+			char *tmp_file_name );
 
 int insert_database_execute_insert_mysql(
-				char **message,
-				char *application_name,
-				char *folder_name,
-				char *tmp_file_name,
-				LIST *insert_attribute_name_list );
+			char **message,
+			char *application_name,
+			char *folder_name,
+			char *tmp_file_name,
+			LIST *insert_attribute_name_list );
 
 /* Returns insert_attribute_name_list */
 /* ---------------------------------- */
 LIST *build_insert_tmp_file_each_row(	
+			FILE *insert_tmp_file,
 			DICTIONARY *row_dictionary,
 			char *application_name,
 			LIST *primary_attribute_name_list,
 			LIST *insert_required_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *ignore_attribute_name_list,
-			FILE *insert_tmp_file,
 			LIST *mto1_related_folder_list,
 			LIST *common_non_primary_attribute_name_list,
 			LIST *attribute_list,
@@ -120,39 +122,38 @@ LIST *build_insert_tmp_file_each_row(
 /* Returns insert_attribute_name_list */
 /* ---------------------------------- */
 LIST *build_insert_tmp_file_row_zero(	
+			FILE *insert_tmp_file,
 			DICTIONARY *row_dictionary,
 			char *application_name,
 			LIST *primary_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *ignore_attribute_name_list,
-			FILE *insert_tmp_file,
 			LIST *mto1_related_folder_list,
 			LIST *common_non_primary_attribute_name_list,
 			LIST *attribute_list,
 			boolean exists_reference_number );
 
 void insert_database_populate_missing_attribute_name_list(
-				LIST **missing_attribute_name_list,
-				int row,
-				DICTIONARY *query_dictionary,
-				LIST *ignore_attribute_name_list,
-				LIST *check_attribute_name_list );
+			LIST **missing_attribute_name_list,
+			int row,
+			DICTIONARY *query_dictionary,
+			LIST *ignore_attribute_name_list,
+			LIST *check_attribute_name_list );
 
 LIST *insert_database_get_missing_attribute_name_list(
-				int row,
-				DICTIONARY *row_dictionary,
-				LIST *ignore_attribute_name_list,
-				LIST *primary_attribute_name_list,
-				LIST *insert_required_attribute_name_list );
+			int row,
+			DICTIONARY *row_dictionary,
+			LIST *ignore_attribute_name_list,
+			LIST *primary_attribute_name_list,
+			LIST *insert_required_attribute_name_list );
 
 /* Returns insert_attribute_name_list */
 /* ---------------------------------- */
-LIST *build_insert_data_string(
+LIST *build_insert_data_string( 	
 			char *destination,
 			DICTIONARY *row_dictionary,
 		     	int row,
 			LIST *ignore_attribute_name_list,
-			LIST *primary_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *mto1_related_folder_list,
 			LIST *common_non_primary_attribute_name_list,
@@ -256,7 +257,6 @@ LIST *insert_database_attribute_data_list(
 			DICTIONARY *row_dictionary,
 		     	int row,
 			LIST *ignore_attribute_name_list,
-			LIST *primary_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *mto1_related_folder_list,
 			LIST *common_non_primary_attribute_name_list,
@@ -278,5 +278,8 @@ void insert_database_set_attribute_data_list(
 			char *data_string,
 			int length,
 			LIST *attribute_list );
+
+char *insert_database_attribute_data_list_display(
+			LIST *attribute_data_list );
 
 #endif
