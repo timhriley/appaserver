@@ -30,12 +30,9 @@
 #include "folder.h"
 
 FOLDER *folder_new_folder(
-			char *application_name,
 			char *folder_name )
 {
-	return folder_new(
-			application_name,
-			folder_name );
+	return folder_new( folder_name );
 }
 
 FOLDER *folder_calloc( void )
@@ -54,8 +51,7 @@ FOLDER *folder_calloc( void )
 	return f;
 }
 
-FOLDER *folder_new(	char *application_name,
-			char *folder_name )
+FOLDER *folder_new( char *folder_name )
 {
 	FOLDER *f;
 
@@ -71,7 +67,6 @@ FOLDER *folder_new(	char *application_name,
 
 	f = folder_calloc();
 
-	f->application_name = application_name;
 	f->folder_name = folder_name;
 
 	return f;
@@ -97,7 +92,6 @@ FOLDER *folder_load_new(
 
 	folder =
 		folder_new(
-			application_name,
 			folder_name );
 
 	folder->mto1_related_folder_list =
@@ -113,7 +107,7 @@ FOLDER *folder_load_new(
 		(LIST *)0 /* root_primary_attribute_name_list */,
 		0 /* recursive_level */ );
 
-	folder_append_mto1_related_folder_list(
+	folder_set_mto1_related_folder_list(
 		folder->mto1_related_folder_list,
 		application_name );
 
@@ -152,7 +146,7 @@ FOLDER *folder_load_new(
 	}
 
 	folder->mto1_recursive_related_folder_list =
-	     related_folder_get_mto1_related_folder_list(
+	     related_folder_mto1_related_folder_list(
 		list_new(),
 		application_name,
 		BOGUS_SESSION,
@@ -164,7 +158,7 @@ FOLDER *folder_load_new(
 		(LIST *)0 /* root_primary_attribute_name_list */,
 		0 /* recursive_level */ );
 
-	folder_append_one2m_related_folder_list(
+	folder_set_one2m_related_folder_list(
 		folder->mto1_recursive_related_folder_list,
 		application_name );
 
@@ -178,7 +172,7 @@ FOLDER *folder_load_new(
 			role_name,
 			0 /* recursive_level */ );
 
-	folder_append_one2m_related_folder_list(
+	folder_set_one2m_related_folder_list(
 		folder->mto1_isa_related_folder_list,
 		application_name );
 
@@ -1819,7 +1813,7 @@ void folder_convert_date_attributes_to_database_format(
 	} /* if list_rewind() */
 }
 
-void folder_append_one2m_related_folder_list(
+void folder_set_one2m_related_folder_list(
 		LIST *mto1_related_folder_list,
 		char *application_name )
 {
@@ -1867,10 +1861,9 @@ void folder_append_one2m_related_folder_list(
 			(char *)0 /* prior_related_attribute_name */ );
 
 	} while( list_next( mto1_related_folder_list ) );
-
 }
 
-void folder_append_mto1_related_folder_list(
+void folder_set_mto1_related_folder_list(
 			LIST *mto1_related_folder_list,
 			char *application_name )
 {
@@ -1880,11 +1873,11 @@ void folder_append_mto1_related_folder_list(
 
 	do {
 		related_folder =
-			list_get_pointer(
+			list_get(
 				mto1_related_folder_list );
 
 		related_folder->folder->mto1_related_folder_list =
-			related_folder_get_mto1_related_folder_list(
+			related_folder_mto1_related_folder_list(
 				list_new(),
 				application_name,
 				BOGUS_SESSION,
@@ -1898,7 +1891,6 @@ void folder_append_mto1_related_folder_list(
 				0 /* recursive_level */ );
 
 	} while( list_next( mto1_related_folder_list ) );
-
 }
 
 LIST *folder_append_isa_mto1_related_folder_list(
@@ -2754,22 +2746,15 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
-			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
 			boolean fetch_row_level_restriction_list )
 {
 	return	folder_parse(
 			pipe2string(
-				folder_sys_string(
+				folder_system_string(
 					folder_primary_where(
 						folder_name ) ) ),
 			fetch_attribute_list,
-			fetch_one2m_relation_list,
-			fetch_one2m_recursive_relation_list,
-			fetch_mto1_isa_recursive_relation_list,
-			fetch_mto1_relation_list );
+			fetch_row_level_restriction_list );
 }
 
 LIST *folder_fetch_primary_attribute_name_list(
@@ -2784,10 +2769,6 @@ LIST *folder_fetch_primary_attribute_name_list(
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
-			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
 			boolean fetch_row_level_restriction_list )
 {
 	char folder_name[ 128 ];
@@ -2898,54 +2879,9 @@ FOLDER *folder_parse(	char *input,
 				folder->attribute_list );
 	}
 
-	if ( fetch_one2m_relation_list )
-	{
-		folder->one2m_relation_list =
-			relation_one2m_relation_list(
-				folder->folder_name );
-	}
-
-	if ( fetch_one2m_recursive_relation_list )
-	{
-		folder->one2m_recursive_relation_list =
-			relation_one2m_recursive_relation_list(
-				(LIST *)0,
-				folder->folder_name );
-	}
-
-	if ( fetch_mto1_isa_recursive_relation_list )
-	{
-		folder->mto1_isa_recursive_relation_list =
-			relation_mto1_isa_recursive_relation_list(
-				(LIST *)0,
-				folder->folder_name );
-
-		folder->mto1_isa_recursive_related_folder_list =
-			relation_mto1_related_folder_list(
-				folder->mto1_isa_recursive_relation_list );
-	}
-
-	if ( fetch_mto1_isa_recursive_relation_list )
-	{
-		folder->mto1_isa_recursive_relation_list =
-			relation_mto1_isa_recursive_relation_list(
-				(LIST *)0,
-				folder->folder_name );
-	}
-
-	if ( fetch_mto1_relation_list )
-	{
-		folder->mto1_relation_list =
-			relation_mto1_relation_list(
-				folder->folder_name );
-
-		folder->mto1_related_folder_list =
-			relation_mto1_related_folder_list(
-				folder->mto1_relation_list );
-	}
-
 	if ( fetch_row_level_restriction_list )
 	{
+here1
 	}
 
 	return folder;

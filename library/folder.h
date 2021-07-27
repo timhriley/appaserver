@@ -71,7 +71,6 @@ typedef struct
 
 typedef struct
 {
-	char *application_name;
 	char *folder_name;
 	LIST *attribute_list;
 	LIST *attribute_float_list;
@@ -154,24 +153,15 @@ void folder_load_row_level_restrictions(
 
 FOLDER *folder_calloc( 	void );
 
-FOLDER *folder_new( 	char *application_name,
-			char *folder_name );
+FOLDER *folder_new( 	char *folder_name );
 
 FOLDER *folder_new_folder(
-			char *application_name,
 			char *folder_name );
-
-FOLDER *folder_folder_new(
-			char *application_name,
-			char *folder_name );
-
-LIST *folder_get_attribute_name_list( 
-			LIST *attribute_list );
 
 LIST *folder_attribute_name_list( 
 			LIST *attribute_list );
 
-LIST *folder_get_primary_attribute_name_list(
+LIST *folder_attribute_name_list( 
 			LIST *attribute_list );
 
 LIST *folder_primary_attribute_name_list(
@@ -181,7 +171,7 @@ void folder_set_list_delimiter(
 			FOLDER *folder,
 			char delimiter );
 
-LIST *folder_get_process_primary_data_list(
+LIST *folder_process_primary_data_list(
 			char *application_name,
 			char *folder_name,
 			char *login_name,
@@ -197,25 +187,6 @@ LIST *folder_get_process_primary_data_list(
 			char *one2m_folder_name_for_processes,
 			char *process_name,
 			char *prompt );
-
-LIST *folder_get_primary_data_list(
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *login_name,
-			DICTIONARY *parameter_dictionary,
-			DICTIONARY *where_clause_dictionary,
-			char delimiter,
-			PROCESS *populate_drop_down_process,
-			LIST *attribute_list,
-			LIST *common_non_primary_attribute_name_list,
-			boolean filter_only_login_name,
-			LIST *exclude_attribute_name_list,
-			char *role_name,
-			char *state,
-			char *one2m_folder_name_for_processes,
-			char *appaserver_user_foreign_login_name,
-			boolean include_root_folder );
 
 LIST *folder_primary_data_list(
 			char *application_name,
@@ -388,20 +359,20 @@ LIST *folder_append_isa_mto1_related_folder_list(
 			boolean override_row_restrictions,
 			LIST *folder_mto1_isa_related_folder_list );
 
-void folder_append_one2m_related_folder_list(
+void folder_set_one2m_related_folder_list(
 			LIST *mto1_related_folder_list,
 			char *application_name );
 
-void folder_append_mto1_related_folder_list(
+void folder_set_mto1_related_folder_list(
 			LIST *mto1_related_folder_list,
 			char *application_name );
 
-char *folder_get_foreign_join_where_clause(
+char *folder_foreign_join_where_clause(
 			LIST *primary_attribute_name_list,
 			char *one_folder_name,
 			char *many_folder_name );
 
-LIST *folder_get_role_folder_name_list(
+LIST *folder_role_folder_name_list(
 			char *application_name,
 			char *role_name );
 
@@ -627,20 +598,13 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
-			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list,
 			boolean fetch_row_level_restriction_list );
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_one2m_relation_list,
-			boolean fetch_one2m_recursive_relation_list,
-			boolean fetch_mto1_isa_recursive_relation_list,
-			boolean fetch_mto1_relation_list );
+			boolean fetch_row_level_restriction_list );
 
-char *folder_sys_string(
+char *folder_system_string(
 			char *where );
 
 LIST *folder_fetch_primary_attribute_name_list(

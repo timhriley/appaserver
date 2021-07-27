@@ -12,6 +12,7 @@
 #include "date_convert.h"
 #include "form.h"
 #include "environ.h"
+#include "attribute.h"
 #include "prompt_recursive.h"
 #include "query.h"
 
@@ -2149,16 +2150,16 @@ boolean query_attribute_date_time_between(
 
 		if (  	query_attribute->primary_key_index
 		&&    	query_attribute->relational_operator == between
-		&&	query_attribute_is_time(
+		&&	attribute_is_time(
 				query_attribute->datatype ) )
 		{
 			*time_between_attribute = query_attribute;
 			continue;
 		}
 
-		if (   query_attribute->primary_key_index
-		&&     query_attribute->relational_operator == between
-		&&	query_attribute_is_date(
+		if (   	query_attribute->primary_key_index
+		&&     	query_attribute->relational_operator == between
+		&&	attribute_is_date(
 				query_attribute->datatype ) )
 		{
 			*date_between_attribute = query_attribute;
@@ -2168,66 +2169,6 @@ boolean query_attribute_date_time_between(
 	} while( list_next( query_attribute_list ) );
 
 	return ( *date_between_attribute && *time_between_attribute );
-}
-
-boolean query_attribute_is_date(
-			char *datatype )
-{
-	if (  string_strcmp( datatype, "date" ) == 0
-	||    string_strcmp( query_attribute->datatype, "current_date" ) == 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-boolean query_attribute_is_time(
-			char *datatype )
-{
-	if (  string_strcmp( datatype, "time" ) == 0
-	||    string_strcmp( query_attribute->datatype, "current_time" ) == 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-boolean query_attribute_is_date_time(
-			char *datatype )
-{
-	if ( ( string_strcmp(
-			attribute->datatype,
-			"current_date_time" ) == 0
-	||     string_strcmp(
-			attribute->datatype,
-			"date_time" ) == 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-boolean query_attribute_is_number(
-			char *datatype )
-{
-	if (  string_strcmp( datatype, "float" ) == 0
-	||    string_strcmp( query_attribute->datatype, "integer" ) == 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
 }
 
 char *query_output_drop_down_data_where(
@@ -5181,7 +5122,7 @@ char *query_output_attribute_where(
 					query_attribute->
 						relational_operator ) );
 
-		if ( query_attribute_is_number( query_attribute->datatype )
+		if ( attribute_is_number( query_attribute->datatype )
 		&&   query_attribute->relational_operator == between )
 		{
 			ptr += sprintf(
@@ -5375,7 +5316,7 @@ char *query_output_attribute_where(
 					query_attribute->attribute_name ) );
 		}
 		else
-		if ( query_attribute_is_number(
+		if ( attribute_is_number(
 			query_attribute->datatype ) )
 		{
 			ptr +=
@@ -5464,7 +5405,7 @@ char *query_output_attribute_where(
 		}
 		else
 		{
-			if ( query_attribute_is_number(
+			if ( attribute_is_number(
 				query_attribute->datatype ) )
 			{
 				ptr +=
@@ -5662,7 +5603,7 @@ LIST *query_output_select_name_list(
 				attribute->folder_name ),
 			attribute->attribute_name );
 
-		if ( query_attribute_is_date_time( attribute->datatype )
+		if ( attribute_is_date_time( attribute->datatype )
 		&&   attribute->width == 16 )
 		{
 			ptr += sprintf( ptr,

@@ -51,15 +51,15 @@ enum related_folder_list_usage {
 #define RELATED_FOLDER_AJAX_FILL_DROP_DOWN_PIECE		12
 #define RELATED_FOLDER_HINT_MESSAGE_PIECE			13
 
-#define RELATED_FOLDER_DELIMITER				'^'
-
 /* Objects */
 /* ------- */
 typedef struct
 {
+	char *folder_name;
+	char *related_folder_name;
+	char *related_attribute_name;
 	FOLDER *folder;
 	FOLDER *one2m_folder;
-	char *related_attribute_name;
 	boolean relation_type_isa;
 	int pair_1tom_order;
 	boolean omit_1tom_detail;
@@ -86,9 +86,8 @@ typedef struct
 /* Operations */
 /* ---------- */
 RELATED_FOLDER *related_folder_new(
-			char *application_name,
-			char *session,
 			char *folder_name,
+			char *related_folder_name,
 			char *related_attribute_name );
 
 LIST *related_folder_foreign_attribute_name_list(
@@ -316,9 +315,7 @@ boolean related_folder_exists_1tom_relations(
 			char *related_attribute_name );
 
 LIST *related_folder_global_related_folder_list(
-			char *application_name,
-			char *session,
-			char delimiter );
+			void );
 
 boolean related_folder_exists_one2m_related_folder_list(
 			char *related_folder_name,
@@ -688,5 +685,17 @@ LIST *related_folder_viewonly_element_list(
 			RELATED_FOLDER *related_folder,
 			LIST *foreign_attribute_name_list,
 			boolean is_primary_attribute );
+
+LIST *related_folder_mto1_related_folder_list(
+			LIST *related_folder_list,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			boolean isa_flag,
+			enum related_folder_recursive_request_type,
+			boolean override_row_restrictions,
+			LIST *root_primary_attribute_name_list,
+			int recursive_level );
 
 #endif

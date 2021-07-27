@@ -1850,34 +1850,31 @@ char *attribute_append_post_change_javascript(
 
 }
 
-LIST *attribute_non_primary_float_list(
-			LIST *attribute_list )
+LIST *attribute_extract_float_list(
+			LIST *append_isa_attribute_list )
 {
 	ATTRIBUTE *attribute;
-	LIST *attribute_float_list = {0};
+	LIST *float_list = {0};
 
-	if ( !list_rewind( attribute_list ) ) return (LIST *)0;
+	if ( !list_rewind( append_isa_attribute_list ) ) return (LIST *)0;
 
 	do {
-		attribute = list_get_pointer( attribute_list );
+		attribute = list_get( append_isa_attribute_list );
 
-		if ( timlib_strcmp( attribute->datatype, "float" ) == 0
+		if ( attribute_is_float( attribute->datatype )
 		&&   attribute->display_order )
 		{
-			if ( !attribute_float_list )
+			if ( !float_list )
 			{
-				attribute_float_list = list_new();
+				float_list = list_new();
 			}
 
-			list_append_pointer(
-				attribute_float_list,
-				attribute );
+			list_set( float_list, attribute );
 		}
 
-	} while( list_next( attribute_list ) );
+	} while( list_next( append_isa_attribute_list ) );
 
-	return attribute_float_list;
-
+	return float_list;
 }
 
 void attribute_set_dictionary_date_international(
@@ -2495,5 +2492,92 @@ LIST *attribute_exclude_permission_record_list(
 		 application_name );
 
 	return pipe2list( sys_string );
+}
+
+boolean attribute_is_date(
+			char *datatype )
+{
+	if (  string_strcmp( datatype, "date" ) == 0
+	||    string_strcmp( datatype, "current_date" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_time(
+			char *datatype )
+{
+	if (  string_strcmp( datatype, "time" ) == 0
+	||    string_strcmp( datatype, "current_time" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_date_time(
+			char *datatype )
+{
+	if ( ( string_strcmp(
+			attribute->datatype,
+			"current_date_time" ) == 0
+	||     string_strcmp(
+			attribute->datatype,
+			"date_time" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_number(
+			char *datatype )
+{
+	if (  string_strcmp( datatype, "float" ) == 0
+	||    string_strcmp( datatype, "integer" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_float(
+			char *datatype )
+{
+	if (  string_strcmp( datatype, "float" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_date_time(
+			char *datatype )
+{
+	if (  string_strcmp( datatype, "date_time" ) == 0
+	||    string_strcmp( datatype, "current_date_time" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

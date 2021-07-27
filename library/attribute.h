@@ -388,4 +388,19 @@ LIST *attribute_exclude_permission_list(
 LIST *attribute_exclude_permission_record_list(
 			char *application_name );
 
+boolean attribute_is_date(
+			char *datatype );
+
+boolean attribute_is_time(
+			char *datatype );
+
+boolean attribute_is_number(
+			char *datatype );
+
+boolean attribute_is_date_time(
+			char *datatype );
+
+LIST *attribute_extract_float_list(
+			LIST *append_isa_attribute_list );
+
 #endif

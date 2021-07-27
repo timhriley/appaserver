@@ -64,6 +64,8 @@ typedef struct
 	/* Process */
 	/* ------- */
 	boolean non_owner_forbid;
+	LIST *attribute_list;
+	LIST *append_isa_attribute_list;
 	LIST *append_isa_copy_attribute_list;
 	LIST *mto1_isa_recursive_related_folder_list;
 	LIST *mto1_copy_common_related_folder_list;
@@ -1043,18 +1045,6 @@ char *query_attribute_between_date_time_where(
 			QUERY_DATA *date_to_data,
 			QUERY_DATA *time_to_data,
 			char *folder_name );
-
-boolean query_attribute_is_date(
-			char *datatype );
-
-boolean query_attribute_is_time(
-			char *datatype );
-
-boolean query_attribute_is_number(
-			char *datatype );
-
-boolean query_attribute_is_date_time(
-			char *datatype );
 
 LIST *query_output_select_name_list(
 			LIST *append_isa_attribute_list,

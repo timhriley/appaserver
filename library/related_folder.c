@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "String.h"
+#include "sql.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "related_folder.h"
@@ -73,24 +74,29 @@ LIST *related_folder_get_primary_data_list(
 }
 
 RELATED_FOLDER *related_folder_new(
-					char *application_name,
-					char *session,
-					char *related_folder_name,
-					char *related_attribute_name )
+			char *folder_name,
+			char *related_folder_name,
+			char *related_attribute_name )
 {
 	RELATED_FOLDER *related_folder;
 
 	related_folder = related_folder_calloc();
 
 	related_folder->folder =
-		folder_new_folder(
-			application_name,
-			session,
-			related_folder_name );
+		folder_fetch(
+			folder_name,
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_row_level_restriction_list */ );
+
+	related_folder->related_to_folder =
+		folder_fetch(
+			related_folder_name,
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_row_level_restriction_list */ );
 
 	related_folder->related_attribute_name = related_attribute_name;
-	return related_folder;
 
+	return related_folder;
 }
 
 RELATED_FOLDER *related_folder_calloc( void )
@@ -1397,213 +1403,6 @@ LIST *related_folder_get_edit_lookup_element_list(
 	return element_list;
 }
 
-LIST *related_folder_get_mto1_related_folder_list(
-		LIST *related_folder_list,
-		char *application_name,
-		char *session,
-		char *folder_name,
-		char *role_name,
-		boolean isa_flag,
-		enum related_folder_recursive_request_type
-			recursive_request_type,
-		boolean override_row_restrictions,
-		LIST *root_primary_attribute_name_list,
-		int recursive_level )
-{
-	return related_folder_mto1_related_folder_list(
-		related_folder_list,
-		application_name,
-		session,
-		folder_name,
-		role_name,
-		isa_flag,
-		recursive_request_type,
-		override_row_restrictions,
-		root_primary_attribute_name_list,
-		recursive_level );
-}
-
-LIST *related_folder_mto1_related_folder_list(
-		LIST *related_folder_list,
-		char *application_name,
-		char *session,
-		char *folder_name,
-		char *role_name,
-		boolean isa_flag,
-		enum related_folder_recursive_request_type
-			recursive_request_type,
-		boolean override_row_restrictions,
-		LIST *root_primary_attribute_name_list,
-		int recursive_level )
-{
-	RELATED_FOLDER *related_folder;
-	LIST *local_related_folder_list;
-
-	if ( !related_folder_list ) related_folder_list = list_new_list();
-
-	local_related_folder_list =
-		related_folder_related_folder_list(
-			application_name,
-			session,
-			folder_name,
-			mto1,
-			related_folder_list
-				/* existing_related_folder_list */ );
-
-	if (!list_rewind( local_related_folder_list ) )
-	{
-		return related_folder_list;
-	}
-
-	do {
-		related_folder = list_get_pointer( local_related_folder_list );
-
-		if ( folder_name
-		&&   strcmp(	related_folder->
-					one2m_folder->
-					folder_name,
-				folder_name ) != 0 )
-		{
-			continue;
-		}
-
-		related_folder->recursive_level = recursive_level;
-
-		if ( !related_folder->folder->attribute_list )
-		{
-			related_folder->folder->attribute_list =
-			attribute_get_attribute_list(
-				related_folder->folder->application_name,
-				related_folder->folder->folder_name,
-				(char *)0 /* attribute_name */,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				role_name );
-
-			related_folder->folder->primary_attribute_name_list =
-				attribute_primary_attribute_name_list(
-					related_folder->
-						folder->
-						attribute_list );
-		}
-
-		folder_load(
-			&related_folder->folder->insert_rows_number,
-			&related_folder->folder->lookup_email_output,
-			&related_folder->folder->row_level_non_owner_forbid,
-			&related_folder->folder->row_level_non_owner_view_only,
-			&related_folder->folder->populate_drop_down_process,
-			&related_folder->folder->post_change_process,
-			&related_folder->folder->folder_form,
-			&related_folder->folder->notepad,
-			&related_folder->folder->html_help_file_anchor,
-			&related_folder->folder->
-				post_change_javascript,
-			&related_folder->folder->lookup_before_drop_down,
-			&related_folder->folder->data_directory,
-			&related_folder->folder->index_directory,
-			&related_folder->folder->no_initial_capital,
-			&related_folder->folder->subschema_name,
-			&related_folder->folder->create_view_statement,
-			application_name,
-			session,
-			related_folder->folder->folder_name,
-			override_row_restrictions,
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
-
-		related_folder->foreign_attribute_name_list =
-			related_folder_foreign_attribute_name_list(
-				related_folder->
-					folder->
-						primary_attribute_name_list,
-				related_folder->related_attribute_name,
-				related_folder->
-					folder_foreign_attribute_name_list );
-
-		if ( isa_flag != related_folder->relation_type_isa )
-		{
-			continue;
-		}
-		else
-		if ( recursive_request_type == related_folder_no_recursive
-		&&   !isa_flag )
-		{
-			list_append_pointer(
-				related_folder_list,
-				related_folder );
-			continue;
-		}
-		else
-		if ( !isa_flag
-		&&	recursive_request_type !=
-			related_folder_no_recursive )
-		{
-			if ( root_primary_attribute_name_list )
-			{
-				if ( !list_is_subset_of(
-				attribute_primary_attribute_name_list(
-					related_folder->folder->attribute_list),
-				root_primary_attribute_name_list ) )
-				{
-					continue;
-				}
-			}
-		}
-
-		if ( isa_flag )
-		{
-			if ( related_folder->relation_type_isa )
-			{
-				list_append_pointer(
-					related_folder_list,
-					related_folder );
-			}
-			else
-			{
-				continue;
-			}
-		}
-		else
-		{
-			if ( !related_folder->relation_type_isa )
-			{
-				list_append_pointer(
-					related_folder_list,
-					related_folder );
-			}
-		}
-
-		if ( (	recursive_request_type ==
-			related_folder_prompt_recursive_only
-		&&      related_folder->prompt_mto1_recursive )
-		|| (    recursive_request_type ==
-			related_folder_recursive_all ) )
-		{
-			LIST *local_root_primary_attribute_name_list;
-
-			local_root_primary_attribute_name_list =
-			      attribute_primary_attribute_name_list(
-			      related_folder->folder->attribute_list );
-
-			related_folder_list =
-				related_folder_get_mto1_related_folder_list(
-				   related_folder_list,
-				   application_name,
-				   session,
-				   related_folder->folder->folder_name,
-				   role_name,
-				   isa_flag,
-				   recursive_request_type,
-				   override_row_restrictions,
-				   local_root_primary_attribute_name_list,
-				   recursive_level + 1 );
-		}
-	} while( list_next( local_related_folder_list ) );
-
-	return related_folder_list;
-
-}
-
 LIST *related_folder_1tom_related_folder_list(
 		char *application_name,
 		char *session,
@@ -1940,10 +1739,7 @@ LIST *related_folder_1tom_related_folder_list(
 
 static LIST *global_related_folder_list = {0};
 
-LIST *related_folder_global_related_folder_list(
-			char *application_name,
-			char *session,
-			char delimiter )
+LIST *related_folder_global_related_folder_list( void )
 {
 	LIST *related_record_list;
 	LIST *related_folder_list;
@@ -1955,15 +1751,16 @@ LIST *related_folder_global_related_folder_list(
 	char folder_name[ 128 ];
 	char related_folder_name[ 128 ];
 	char related_attribute_name[ 128 ];
+	char *application_name = environment_application_name();
 
 	related_folder_list = list_new();
 
 	sprintf(sys_string,
 		"%s/src_appaserver/related_folder_list.sh %s \"%c\" 2>>%s",
-		appaserver_parameter_file_get_appaserver_mount_point(),
+		appaserver_parameter_file_appaserver_mount_point(),
 		application_name,
-		delimiter,
-		appaserver_error_get_filename( application_name ) );
+		SQL_DELIMITER,
+		appaserver_error_filename( application_name ) );
 
 	related_record_list = pipe2list( sys_string );
 
@@ -1974,7 +1771,7 @@ LIST *related_folder_global_related_folder_list(
 		related_record = list_get_pointer( related_record_list );
 
 		if ( character_count(
-			delimiter, 
+			SQL_DELIMITER, 
 			related_record ) != 
 			    RELATED_FOLDER_HINT_MESSAGE_PIECE )
 		{
@@ -1988,24 +1785,23 @@ LIST *related_folder_global_related_folder_list(
 		}
 
 		piece(	folder_name,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_FOLDER_PIECE );
 
 		piece(	related_folder_name,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_RELATED_FOLDER_PIECE );
 
 		piece(	related_attribute_name,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_RELATED_ATTRIBUTE_PIECE );
 
 		related_folder =
 			related_folder_new(
-				application_name,
-				session,
+				strdup( folder_name ),
 				strdup( related_folder_name ),
 				strdup( related_attribute_name ) );
 
@@ -2015,152 +1811,140 @@ LIST *related_folder_global_related_folder_list(
 				folder_name,
 				related_folder_name );
 
-		folder = folder_new_folder(
-				application_name,
-				session,
-				strdup( folder_name ) );
-
-		related_folder->one2m_folder = folder;
-
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_PAIR_1TOM_PIECE );
+
 		related_folder->pair_1tom_order = atoi( buffer );
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_OMIT_1TOM_DETAIL_PIECE );
+
 		related_folder->omit_1tom_detail = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_MTO1_RECURSIVE_PIECE );
+
 		related_folder->prompt_mto1_recursive = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_RELATION_TYPE_ISA_PIECE );
+
 		related_folder->relation_type_isa = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_COPY_COMMON_ATTRIBUTES_PIECE );
-		related_folder->copy_common_attributes =
-				(*buffer == 'y');
+
+		related_folder->copy_common_attributes = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_AUTOMATIC_PRESELECTION_PIECE );
-		related_folder->automatic_preselection =
-				(*buffer == 'y');
+
+		related_folder->automatic_preselection = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_DROP_DOWN_MULTI_SELECT_PIECE );
-		related_folder->drop_down_multi_select =
-				(*buffer == 'y');
+
+		related_folder->drop_down_multi_select = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_JOIN_1TOM_EACH_ROW_PIECE );
-		related_folder->join_1tom_each_row =
-				(*buffer == 'y');
+
+		related_folder->join_1tom_each_row = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_OMIT_LOOKUP_BEFORE_DROP_DOWN_PIECE );
-		related_folder->omit_lookup_before_drop_down =
-				(*buffer == 'y');
+
+		related_folder->omit_lookup_before_drop_down = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_AJAX_FILL_DROP_DOWN_PIECE );
-		related_folder->ajax_fill_drop_down =
-				(*buffer == 'y');
+
+		related_folder->ajax_fill_drop_down = (*buffer == 'y');
 
 		piece(	buffer,
-			delimiter,
+			SQL_DELIMITER,
 			related_record,
 			RELATED_FOLDER_HINT_MESSAGE_PIECE );
+
 		related_folder->hint_message = strdup( buffer );
 
-		list_append_pointer(	related_folder_list,
-					related_folder );
+		list_set( related_folder_list, related_folder );
 
 	} while( list_next( related_record_list ) );
+
 	list_free_string_list( related_record_list );
+
 	return related_folder_list;
 }
 
 LIST *related_folder_mto1_related_folder_list(
-			char *application_name,
-			char *folder_name,
-			LIST *existing_related_folder_list )
+			FOLDER *folder )
 {
-	LIST *related_folder_list;
+	LIST *related_folder_list = {0};
 	RELATED_FOLDER *related_folder;
 	RELATED_FOLDER *new_related_folder;
-	FOLDER *folder;
+
+	if ( !folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty folder.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( !global_related_folder_list )
 	{
 		global_related_folder_list =
-			related_folder_global_related_folder_list(
-				application_name,
-				BOGUS_SESSION,
-				RELATED_FOLDER_DELIMITER );
+			related_folder_global_related_folder_list();
 	}
-
-	related_folder_list = list_new_list();
 
 	if ( !list_rewind( global_related_folder_list ) )
 		return (LIST *)0;
 
 	do {
-		related_folder = list_get_pointer( global_related_folder_list );
+		related_folder = list_get( global_related_folder_list );
 
-		folder = related_folder->folder;
-
-		if ( related_folder_exists_related_folder_list(
-					folder->folder_name,
-					related_folder->related_attribute_name,
-					existing_related_folder_list,
-					mto1 /* relation_type */ ) )
+		if ( strcmp(
+			related_folder->
+				one2m_folder->
+					folder_name,
+			folder->folder_name ) == 0 )
 		{
-			continue;
+			if ( !related_folder_list )
+				related_folder_list =
+					list_new_list();
+
+
+			folder = related_folder->folder;
+
+			list_set( related_folder_list, related_folder );
 		}
-
-		if ( folder_name
-		&&   strcmp(	related_folder->
-					one2m_folder->
-						folder_name,
-				folder_name ) != 0 )
-		{
-			continue;
-		}
-
-		new_related_folder = related_folder_calloc();
-		memcpy(	new_related_folder,
-			related_folder,
-			sizeof( RELATED_FOLDER ) );
-
-		list_append_pointer(	related_folder_list,
-					new_related_folder );
 
 	} while( list_next( global_related_folder_list ) );
 
 	return related_folder_list;
-
 }
 
 LIST *related_folder_related_folder_list(
@@ -2178,10 +1962,7 @@ LIST *related_folder_related_folder_list(
 	if ( !global_related_folder_list )
 	{
 		global_related_folder_list =
-			related_folder_global_related_folder_list(
-				application_name,
-				session,
-				RELATED_FOLDER_DELIMITER );
+			related_folder_global_related_folder_list();
 	}
 
 	related_folder_list = list_new_list();
@@ -2751,7 +2532,7 @@ LIST *related_folder_mto1_common_non_primary_related_folder_list(
 	LIST *return_list = {0};
 
 	mto1_related_folder_list =
-		related_folder_mto1_related_folder_list(
+		related_folder_get_mto1_related_folder_list(
 			list_new(),
 			environment_application_name(),
 			BOGUS_SESSION,
@@ -5847,5 +5628,185 @@ LIST *related_folder_viewonly_element_list(
 		element );
 
 	return element_list;
+}
+
+LIST *related_folder_get_mto1_related_folder_list(
+		LIST *related_folder_list,
+		char *application_name,
+		char *session,
+		char *folder_name,
+		char *role_name,
+		boolean isa_flag,
+		enum related_folder_recursive_request_type
+			recursive_request_type,
+		boolean override_row_restrictions,
+		LIST *root_primary_attribute_name_list,
+		int recursive_level )
+{
+	RELATED_FOLDER *related_folder;
+	LIST *local_related_folder_list;
+
+	if ( !related_folder_list ) related_folder_list = list_new_list();
+
+	local_related_folder_list =
+		related_folder_related_folder_list(
+			application_name,
+			session,
+			folder_name,
+			mto1,
+			related_folder_list
+				/* existing_related_folder_list */ );
+
+	if (!list_rewind( local_related_folder_list ) )
+	{
+		return related_folder_list;
+	}
+
+	do {
+		related_folder = list_get_pointer( local_related_folder_list );
+
+		if ( folder_name
+		&&   strcmp(	related_folder->
+					one2m_folder->
+					folder_name,
+				folder_name ) != 0 )
+		{
+			continue;
+		}
+
+		related_folder->recursive_level = recursive_level;
+
+		if ( !related_folder->folder->attribute_list )
+		{
+			related_folder->folder->attribute_list =
+			attribute_get_attribute_list(
+				related_folder->folder->application_name,
+				related_folder->folder->folder_name,
+				(char *)0 /* attribute_name */,
+				(LIST *)0 /* mto1_isa_related_folder_list */,
+				role_name );
+
+			related_folder->folder->primary_attribute_name_list =
+				attribute_primary_attribute_name_list(
+					related_folder->
+						folder->
+						attribute_list );
+		}
+
+		folder_load(
+			&related_folder->folder->insert_rows_number,
+			&related_folder->folder->lookup_email_output,
+			&related_folder->folder->row_level_non_owner_forbid,
+			&related_folder->folder->row_level_non_owner_view_only,
+			&related_folder->folder->populate_drop_down_process,
+			&related_folder->folder->post_change_process,
+			&related_folder->folder->folder_form,
+			&related_folder->folder->notepad,
+			&related_folder->folder->html_help_file_anchor,
+			&related_folder->folder->
+				post_change_javascript,
+			&related_folder->folder->lookup_before_drop_down,
+			&related_folder->folder->data_directory,
+			&related_folder->folder->index_directory,
+			&related_folder->folder->no_initial_capital,
+			&related_folder->folder->subschema_name,
+			&related_folder->folder->create_view_statement,
+			application_name,
+			session,
+			related_folder->folder->folder_name,
+			override_row_restrictions,
+			role_name,
+			(LIST *)0 /* mto1_related_folder_list */ );
+
+		related_folder->foreign_attribute_name_list =
+			related_folder_foreign_attribute_name_list(
+				related_folder->
+					folder->
+						primary_attribute_name_list,
+				related_folder->related_attribute_name,
+				related_folder->
+					folder_foreign_attribute_name_list );
+
+		if ( isa_flag != related_folder->relation_type_isa )
+		{
+			continue;
+		}
+		else
+		if ( recursive_request_type == related_folder_no_recursive
+		&&   !isa_flag )
+		{
+			list_append_pointer(
+				related_folder_list,
+				related_folder );
+			continue;
+		}
+		else
+		if ( !isa_flag
+		&&	recursive_request_type !=
+			related_folder_no_recursive )
+		{
+			if ( root_primary_attribute_name_list )
+			{
+				if ( !list_is_subset_of(
+				attribute_primary_attribute_name_list(
+					related_folder->folder->attribute_list),
+				root_primary_attribute_name_list ) )
+				{
+					continue;
+				}
+			}
+		}
+
+		if ( isa_flag )
+		{
+			if ( related_folder->relation_type_isa )
+			{
+				list_append_pointer(
+					related_folder_list,
+					related_folder );
+			}
+			else
+			{
+				continue;
+			}
+		}
+		else
+		{
+			if ( !related_folder->relation_type_isa )
+			{
+				list_append_pointer(
+					related_folder_list,
+					related_folder );
+			}
+		}
+
+		if ( (	recursive_request_type ==
+			related_folder_prompt_recursive_only
+		&&      related_folder->prompt_mto1_recursive )
+		|| (    recursive_request_type ==
+			related_folder_recursive_all ) )
+		{
+			LIST *local_root_primary_attribute_name_list;
+
+			local_root_primary_attribute_name_list =
+			      attribute_primary_attribute_name_list(
+			      related_folder->folder->attribute_list );
+
+			related_folder_list =
+				related_folder_get_mto1_related_folder_list(
+				   related_folder_list,
+				   application_name,
+				   session,
+				   related_folder->folder->folder_name,
+				   role_name,
+				   isa_flag,
+				   recursive_request_type,
+				   override_row_restrictions,
+				   local_root_primary_attribute_name_list,
+				   recursive_level + 1 );
+		}
+	} while( list_next( local_related_folder_list ) );
+
+	return related_folder_list;
 }
 
