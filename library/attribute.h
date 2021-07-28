@@ -351,10 +351,8 @@ LIST *attribute_distinct_folder_name_list(
 			LIST *attribute_list );
 
 LIST *attribute_fetch_list(
-			char *folder_name );
-
-LIST *attribute_list_fetch(
-			char *folder_name );
+			char *folder_name,
+			LIST *exclude_attribute_name_list );
 
 LIST *attribute_system_list(
 			char *sys_string );
@@ -402,5 +400,10 @@ boolean attribute_is_date_time(
 
 LIST *attribute_extract_float_list(
 			LIST *append_isa_attribute_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *attribute_folder_where(
+			char *folder_name );
 
 #endif

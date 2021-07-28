@@ -4450,7 +4450,10 @@ QUERY *query_simple_new(
 
 	query = query_calloc();
 
-	if ( ! ( query->role = role_fetch( role_name ) ) )
+	if ( ! ( query->role =
+			role_fetch(
+				role_name,
+				1 /* fetch_attribute_exclude_list */ ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: role_fetch() returned empty.\n",

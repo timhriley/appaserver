@@ -34,6 +34,7 @@
 #include "lookup_before_drop_down.h"
 #include "row_security.h"
 #include "dictionary_appaserver.h"
+#include "prompt_edit_form.h"
 
 /* Constants */
 /* --------- */
@@ -148,12 +149,18 @@ LIST *output_prompt_element_list(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
-	char *role_name, *state;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *folder_name;
+	char *role_name;
+	char *state;
+	DICTIONARY *post_dictionary = {0};
+	PROMPT_EDIT_FORM *prompt_edit_form;
+
 	ROLE_FOLDER *role_folder;
 	APPASERVER *appaserver;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY *original_post_dictionary = {0};
 	ROLE *role;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 	char *target_frame;
@@ -161,84 +168,62 @@ int main( int argc, char **argv )
 	boolean omit_delete_button = 0;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc < 8 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role state target_frame [post_dictionary]\n",
+"Usage: %s login_name session folder role state target_frame post_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	state = argv[ 6 ];
-	target_frame = argv[ 7 ];
+	session = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	state = argv[ 5 ];
+	target_frame = argv[ 6 ];
 
 	if ( !*target_frame ) target_frame = EDIT_FRAME;
+
+	post_dictionary =
+		dictionary_index_string2dictionary(
+			argv[ 7 ] );
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role =
-		role_new_role(
+	if ( ! ( prompt_edit_form =
+			prompt_edit_form_fetch(
+				application_name,
+				login_name,
+				session,
+				folder_name,
+				role_name,
+				state,
+				target_frame,
+				post_dictionary ) ) )
+	{
+		document_output_content_type();
+
+		document_quick_output_body(
 			application_name,
-			role_name );
+			appaserver_parameter_file->
+				appaserver_mount_point );
 
-	appaserver =
-		appaserver_folder_with_load_new(
-			application_name,
-			session,
-			folder_name );
+		printf(
+	"<h3>An internal error occurred. Check the system log.</h3>\n" );
 
-	if ( list_length( appaserver->
-				folder->
-				mto1_isa_related_folder_list ) )
-	{
-		omit_new_button = 1;
-	}
-
-	if ( argc == 9 )
-	{
-		original_post_dictionary =
-			dictionary_index_string2dictionary(
-				argv[ 8 ] );
-
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					original_post_dictionary,
-					application_name,
-					appaserver->folder->attribute_list,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-	}
-	else
-	{
-		dictionary_appaserver =
-				dictionary_appaserver_new(
-					(DICTIONARY *)0,
-					application_name,
-					appaserver->
-						folder->
-						attribute_list,
-					(LIST *)0 /* operation_name_list */ );
+		document_close();
+		exit( 1 );
 	}
 
 	lookup_before_drop_down =
@@ -551,7 +536,8 @@ m2( application_name, msg );
 	form->html_help_file_anchor =
 		appaserver->folder->html_help_file_anchor;
 
-	document = document_new(
+	document =
+		document_new(
 			application_title_string( application_name ),
 			application_name );
 

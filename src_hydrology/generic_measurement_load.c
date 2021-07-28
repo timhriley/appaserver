@@ -263,7 +263,8 @@ void generic_measurement_load(
 					"constant_%s",
 					attribute->attribute_name );
 
-				element = element_appaserver_new(
+				element =
+					element_appaserver_new(
 						drop_down,
 						strdup( element_name ) );
 

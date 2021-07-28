@@ -110,7 +110,8 @@ APPASERVER_LIBRARY=						\
 		foreign_attribute.o				\
 		moving_average.o				\
 		pair_one2m.o					\
-		mysqldump.o
+		mysqldump.o					\
+		prompt_edit_form.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -1046,4 +1047,7 @@ relation.o: relation.c relation.h
 
 javascript.o: javascript.c javascript.h
 	${CC} ${CFLAGS} -c javascript.c
+
+prompt_edit_form.o: prompt_edit_form.c prompt_edit_form.h
+	${CC} ${CFLAGS} -c prompt_edit_form.c
 

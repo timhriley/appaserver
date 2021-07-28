@@ -334,19 +334,6 @@ LIST *folder_single_primary_key_folder_name_list(
 			char *login_name,
 			char *role_name );
 
-LIST *folder_primary_text_element_list(
-			char *application_name,
-			char *session,
-			char *role_name,
-			FOLDER *folder );
-
-FOLDER *folder_unfulfilled_lookup_before_drop_down_folder(
-			LIST *mto1_related_folder_list,
-			DICTIONARY *post_dictionary );
-
-char *folder_unfulfilled_dictionary_key(
-			char *folder_name );
-
 void folder_convert_date_attributes_to_database_format(
 			DICTIONARY *dictionary,
 			char *application_name,

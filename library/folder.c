@@ -1,6 +1,5 @@
 /* $APPASERVER_LIBRARY/library/folder.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver folder ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -1591,139 +1590,6 @@ LIST *folder_get_select_folder_name_list(
 
 }
 
-LIST *folder_get_primary_text_element_list(
-				char *application_name,
-				char *session,
-				char *role_name,
-				FOLDER *folder )
-{
-	ATTRIBUTE *attribute;
-	LIST *return_element_list = list_new_list();
-
-	if ( !folder->mto1_related_folder_list )
-	{
-		folder->mto1_related_folder_list =
-			related_folder_get_mto1_related_folder_list(
-			   list_new_list(),
-			   application_name,
-			   session,
-			   folder->folder_name,
-			   role_name,
-			   0 /* isa_flag */,
-			   related_folder_no_recursive,
-			   0 /* dont override_row_restrictions */,
-			   (LIST *)0 /* root_primary_attribute_name_list */,
-			   0 /* recursive_level */ );
-	}
-
-	if ( !folder->attribute_list )
-	{
-		folder->attribute_list =
-			attribute_get_attribute_list(
-			application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			role_name );
-	}
-
-	if ( !list_rewind( folder->attribute_list ) )
-		return return_element_list;
-
-	do {
-		attribute = list_get_pointer( folder->attribute_list );
-
-		if ( !attribute->primary_key_index ) continue;
-
-		if ( related_folder_attribute_consumes_related_folder(
-				(LIST **)0 /* foreign_attribute_name_list */,
-				(LIST *)0 /* done_attribute_name_list */,
-			        (LIST *)0 /* omit_update_attribute_name_list */,
-				folder->mto1_related_folder_list,
-				attribute->attribute_name,
-				(LIST *)0 /* include_attribute_name_list */ ) )
-		{
-			continue;
-		}
-
-		list_append_list(
-			return_element_list,
-			   attribute_prompt_element_list(
-				attribute->attribute_name,
-				(char *)0 /* prepend_folder_name */,
-				attribute->datatype,
-				attribute->post_change_javascript,
-				attribute->width,
-				attribute->hint_message,
-				1 /* is_primary_attribute */,
-				0 /* not omit_push_buttons */ ) );
-
-	} while( list_next( folder->attribute_list ) );
-
-	return return_element_list;
-}
-
-FOLDER *folder_get_unfulfilled_lookup_before_drop_down_folder(
-		LIST *mto1_related_folder_list,
-		DICTIONARY *post_dictionary )
-{
-	RELATED_FOLDER *unfulfilled_related_folder;
-
-	if ( !post_dictionary )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: post_dictionary is null.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( mto1_related_folder_list ) )
-		return (FOLDER *)0;
-
-	do {
-		unfulfilled_related_folder =
-			list_get_pointer(
-				mto1_related_folder_list );
-
-		if ( unfulfilled_related_folder->
-				folder->
-				lookup_before_drop_down )
-		{
-			char *unfulfilled_dictionary_key;
-
-			unfulfilled_dictionary_key =
-				folder_get_unfulfilled_dictionary_key(
-					unfulfilled_related_folder->
-					folder->
-					folder_name );
-
-			if ( !dictionary_key_exists(
-					post_dictionary,
-					unfulfilled_dictionary_key ) )
-			{
-				return	unfulfilled_related_folder->
-					folder;
-			}
-		}
-	} while( list_next( mto1_related_folder_list ) );
-	return (FOLDER *)0;
-}
-
-char *folder_get_unfulfilled_dictionary_key(
-			char *folder_name )
-{
-	char dictionary_key[ 128 ];
-
-	sprintf(dictionary_key,
-		"%s_%s",
-		LOOKUP_BEFORE_DROP_DOWN_UNFULFILLED_FOLDER_PREFIX,
-		folder_name );
-
-	return strdup( dictionary_key );
-}
-
 void folder_convert_date_attributes_to_database_format(
 			DICTIONARY *dictionary,
 			char *application_name,
@@ -2723,7 +2589,9 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_row_level_restriction )
+			boolean fetch_process,
+			boolean fetch_row_level_restriction,
+			LIST *exclude_lookup_attribute_name_list )
 {
 	return	folder_parse(
 			pipe2string(
@@ -2731,7 +2599,9 @@ FOLDER *folder_fetch(	char *folder_name,
 					folder_primary_where(
 						folder_name ) ) ),
 			fetch_attribute_list,
-			fetch_row_level_restriction );
+			fetch_process,
+			fetch_row_level_restriction,
+			exclude_lookup_attribute_name_list );
 }
 
 LIST *folder_fetch_primary_attribute_name_list(
@@ -2739,14 +2609,17 @@ LIST *folder_fetch_primary_attribute_name_list(
 {
 	LIST *attribute_list =
 		attribute_fetch_list(
-			folder_name );
+			folder_name,
+			(LIST *)0 /* exclude_attribute_name_list */ );
 
 	return attribute_primary_name_list( attribute_list );
 }
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_row_level_restriction )
+			boolean fetch_process,
+			boolean fetch_row_level_restriction,
+			LIST *exclude_lookup_attribute_name_list )
 {
 	char folder_name[ 128 ];
 	char form[ 128 ];
@@ -2788,9 +2661,11 @@ FOLDER *folder_parse(	char *input,
 	piece( notepad, SQL_DELIMITER, input, 4 );
 	folder->notepad = strdup( notepad );
 
-	piece( populate_drop_down_process, SQL_DELIMITER, input, 5 );
+	if ( fetch_process )
+	{
+		piece( populate_drop_down_process, SQL_DELIMITER, input, 5 );
 
-	folder->populate_drop_down_process =
+		folder->populate_drop_down_process =
 			/* -------------------- */
 			/* Does a PROCESS fetch */
 			/* -------------------- */
@@ -2799,13 +2674,14 @@ FOLDER *folder_parse(	char *input,
 				strdup( populate_drop_down_process ),
 				0 /* not with_check_executable_ok */ );
 
-	piece( post_change_process, SQL_DELIMITER, input, 6 );
+		piece( post_change_process, SQL_DELIMITER, input, 6 );
 
-	folder->post_change_process =
+		folder->post_change_process =
 			process_new(
 				environment_application(),
 				strdup( post_change_process ),
 				1 /* check_executable_inside_filesystem */ );
+	}
 
 	piece( html_help_file_anchor, SQL_DELIMITER, input, 7 );
 	folder->html_help_file_anchor = strdup( html_help_file_anchor );
@@ -2845,7 +2721,8 @@ FOLDER *folder_parse(	char *input,
 	{
 		folder->attribute_list =
 			attribute_fetch_list(
-				folder->folder_name );
+				folder->folder_name,
+				exclude_lookup_attribute_name_list );
 
 		folder->attribute_name_list =
 			attribute_name_list_extract(
@@ -3091,3 +2968,54 @@ FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction_calloc(
 	return f;
 }
 
+LIST *folder_append_isa_attribute_list(
+			LIST *attribute_list,
+			LIST *mto1_isa_relation_list,
+			LIST *attribute_exclude_list )
+{
+	RELATION *relation;
+
+	attribute_append_attribute_list(
+		attribute_list,
+		application_name,
+		folder_name,
+		(char *)0 /* attribute_name */,
+		role_name,
+		attribute_primary_only
+			/* attribute_primary_attribute_fetch */ );
+
+	if ( list_rewind( mto1_isa_related_folder_list ) )
+	{
+		do {
+			related_folder =
+				list_get_pointer(
+					mto1_isa_related_folder_list );
+
+			isa_related_folder_attribute_list = list_new();
+
+			attribute_append_attribute_list(
+					isa_related_folder_attribute_list,
+					application_name,
+					related_folder->folder->folder_name,
+					(char *)0 /* attribute_name */,
+					role_name,
+					attribute_fetch_either );
+
+			list_append_list(
+				attribute_list,
+				folder_get_non_primary_attribute_list(
+					isa_related_folder_attribute_list ) );
+
+		} while( list_next( mto1_isa_related_folder_list ) );
+	}
+
+	attribute_append_attribute_list(
+		attribute_list,
+		application_name,
+		folder_name,
+		(char *)0 /* attribute_name */,
+		role_name,
+		attribute_non_primary
+			/* attribute_primary_attribute_fetch */ );
+
+	return attribute_list;

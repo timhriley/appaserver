@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/attribute.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver attribute ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -9,11 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include "String.h"
-#include "attribute.h"
+#include "timlib.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
-#include "timlib.h"
 #include "sql.h"
 #include "list.h"
 #include "piece.h"
@@ -24,7 +22,9 @@
 #include "element.h"
 #include "boolean.h"
 #include "date_convert.h"
+#include "security.h"
 #include "folder.h"
+#include "attribute.h"
 
 ATTRIBUTE *attribute_calloc( void )
 {
@@ -32,7 +32,7 @@ ATTRIBUTE *attribute_calloc( void )
 	if ( !a )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: cannot allocate a new attribute.\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -2274,19 +2274,28 @@ LIST *attribute_distinct_folder_name_list( LIST *attribute_list )
 	return distinct_folder_name_list;
 }
 
-LIST *attribute_list_fetch(
-			char *folder_name )
+char *attribute_folder_where( char *folder_name )
 {
-	return attribute_system_list(
-			attribute_list_sys_string(
-				folder_name ) );
+	static char where[ 128 ];
+
+	sprintf(where,
+		"folder = '%s'",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_inject_escape(
+			folder_name ) );
+
+	return where;
 }
 
 LIST *attribute_fetch_list(
-			char *folder_name )
+			char *folder_name,
+			LIST *exclude_attribute_name_list )
 {
 	return attribute_system_list(
 			attribute_list_system_string(
+				
 				folder_name ) );
 }
 

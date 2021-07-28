@@ -9,7 +9,9 @@
 
 #include "boolean.h"
 
-#define FOLDER_COUNT_YN_PIECE		0
+/* Constants */
+/* --------- */
+#define ROLE_TABLE_NAME		"role"
 
 typedef struct
 {
@@ -20,7 +22,6 @@ typedef struct
 
 typedef struct
 {
-	char *application_name;
 	char *role_name;
 	boolean folder_count;
 	boolean override_row_restrictions;
@@ -30,10 +31,8 @@ typedef struct
 
 ROLE *role_new( 	char *role_name );
 
-ROLE *role_new_role( 	char *application_name,
-			char *role_name );
-
-ROLE *role_fetch(	char *role_name );
+ROLE *role_fetch(	char *role_name,
+			boolean fetch_role_attribute_exclude_list );
 
 void role_free(		ROLE *role );
 
@@ -41,9 +40,6 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
 			char *role_name,
 			char *attribute_name,
 			char *permission );
-
-LIST *role_attribute_exclude_list(
-			char *role_name );
 
 boolean role_exists_attribute_exclude_insert(
 			LIST *attribute_exclude_list,

@@ -23,6 +23,10 @@ typedef struct
 LIST *role_folder_list_fetch(
 			char *role_name );
 
+ROLE_FOLDER *role_folder_fetch( 
+			char *role_name,
+			char *folder_name );
+
 ROLE_FOLDER *role_folder_new( 
 			char *role_name,
 			char *folder_name );

@@ -14,6 +14,15 @@
 #include "folder.h"
 #include "role_folder.h"
 
+ROLE_FOLDER *role_folder_fetch(
+			char *role_name,
+			char *folder_name )
+{
+	return role_folder_new(
+			role_name,
+			folder_name );
+}
+
 ROLE_FOLDER *role_folder_new(
 			char *role_name,
 			char *folder_name )
