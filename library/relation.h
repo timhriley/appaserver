@@ -115,23 +115,23 @@ LIST *relation_foreign_attribute_name_list(
 			/* ----------------------------------- */
 			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
-			LIST *foreign_attribute_list_folder );
+			LIST *foreign_attribute_name_list );
 
-LIST *relation_one2m_recursive_relation_list(
-			LIST *relation_list /* in only */,
+LIST *relation_one2m_recursive_list(
+			LIST *relation_list /* in/out */,
 			char *one_folder_name );
 
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */
 /* ---------------------------------- */
-LIST *relation_one2m_non_isa_pair_order_list(
+LIST *relation_one2m_pair_list(
 			char *one_folder_name );
 
-LIST *relation_mto1_isa_recursive_relation_list(
+LIST *relation_mto1_isa_recursive_list(
 			LIST *relation_list /* in only */,
 			char *many_folder_name );
 
-LIST *relation_mto1_relation_list(
+LIST *relation_mto1_non_isa_list(
 			char *many_folder_name );
 
 /* ---------------------------------- */
@@ -145,8 +145,10 @@ LIST *relation_fetch_one2m_list(
 /* ---------------------------------- */
 /* foreign_attribute_name_list is set */
 /* ---------------------------------- */
-LIST *relation_fetch_mto1_non_isa_list(
-			char *many_folder_name );
+LIST *relation_fetch_mto1_list(
+			char *many_folder_name,
+			char *where,
+			char *order );
 
 boolean relation_is_primary_key_subset(
 			LIST *foreign_attribute_name_list,
@@ -154,9 +156,6 @@ boolean relation_is_primary_key_subset(
 
 char *relation_list_display(
 			LIST *one2m_relation_list );
-
-LIST *relation_one2m_pair_relation_list(
-			LIST *relation_one2m_relation_list );
 
 /* Transition between the two systems */
 /* ---------------------------------- */

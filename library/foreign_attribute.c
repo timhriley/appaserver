@@ -13,7 +13,6 @@
 #include "piece.h"
 #include "boolean.h"
 #include "list.h"
-#include "related_folder.h"
 #include "foreign_attribute.h"
 
 FOREIGN_ATTRIBUTE *foreign_attribute_new(
@@ -122,31 +121,26 @@ LIST *foreign_attribute_list(
 			where ) );
 }
 
-LIST *foreign_many_folder_attribute_list(
-			char *many_folder_name,
+LIST *foreign_related_attribute_name_list(
 			LIST *foreign_attribute_list )
 {
-	LIST *return_list = {0};
+	LIST *name_list;
 	FOREIGN_ATTRIBUTE *foreign_attribute;
 
 	if ( !list_rewind( foreign_attribute_list ) ) return (LIST *)0;
 
+	name_list = list_new();
+
 	do {
 		foreign_attribute = list_get( foreign_attribute_list );
 
-		if ( strcmp(	foreign_attribute->folder,
-				many_folder_name ) == 0 )
-		{
-			if ( !return_list ) return_list = list_new();
-
-			list_set(
-				return_list,
-				foreign_attribute );
-		}
+		list_set(
+			name_list,
+			foreign_attribute->related_attribute );
 
 	} while ( list_next( foreign_attribute_list ) );
 
-	return return_list;
+	return name_list;
 }
 
 LIST *foreign_attribute_name_list(

@@ -62,19 +62,12 @@ enum password_function
 }
 
 char *security_encrypted_password(
-			char *application_name,
 			char *password_sql_injection_escape,
 			enum password_function password_function )
 {
 	char sys_string[ 1024 ];
-	char where[ 128 ];
 	char *select_clause;
 	char *results;
-	char *table_name;
-
-	table_name = get_table_name( application_name, "application" );
-
-	sprintf( where, "application = '%s'", application_name );
 
 	if ( ! ( select_clause = 
 			security_encryption_select_clause(
@@ -90,10 +83,8 @@ char *security_encrypted_password(
 	}
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql.e",
-		 select_clause,
-		 table_name,
-		 where );
+		 "select.sh \"%s\"",
+		 select_clause );
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{

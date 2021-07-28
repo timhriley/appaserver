@@ -86,7 +86,6 @@ void appaserver_user_trigger_insert_update(
 			/* Returns heap memory */
 			/* ------------------- */
 			security_encrypted_password(
-				application_name,
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */

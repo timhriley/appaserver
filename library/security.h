@@ -36,7 +36,6 @@ enum password_function
 /* Returns heap memory. */
 /* -------------------- */
 char *security_encrypted_password(
-			char *application_name,
 			char *password_sql_injection_escape,
 			enum password_function );
 

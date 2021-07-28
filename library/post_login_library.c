@@ -147,7 +147,6 @@ enum password_match_return post_login_password_match(
 	if ( security_password_match(
 			database_password,
 			security_encrypted_password(
-				application_name,
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */

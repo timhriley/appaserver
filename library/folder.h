@@ -123,7 +123,7 @@ typedef struct
 	LIST *mto1_isa_relation_list;
 	LIST *lookup_attribute_exclude_name_list;
 	LIST *update_attribute_exclude_name_list;
-	LIST *folder_row_level_restriction_list;
+	char *row_level_restriction_string;
 } FOLDER;
 
 /* Operations */
@@ -598,11 +598,11 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_row_level_restriction_list );
+			boolean fetch_row_level_restriction );
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_row_level_restriction_list );
+			boolean fetch_row_level_restriction );
 
 char *folder_system_string(
 			char *where );
@@ -635,10 +635,7 @@ LIST *folder_lookup_attribute_exclude_name_list(
 LIST *folder_update_attribute_exclude_name_list(
 			LIST *append_isa_attribute_list );
 
-FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction_calloc(
-			void );
-
-LIST *folder_row_level_restriction_list(
+char *folder_row_level_restriction_string(
 			char *folder_name );
 
 boolean folder_row_level_restrictions_non_owner_forbid(

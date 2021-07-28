@@ -1425,31 +1425,8 @@ LIST *folder_get_role_folder_name_list(
 				char *role_name )
 {
 	return folder_lookup_update_folder_name_list(
-				application_name,
-				role_name );
-
-/*
-	char *role_folder_table_name;
-	char sys_string[ 2048 ];
-
-	role_folder_table_name =
-		get_table_name(
 			application_name,
-			"role_folder" );
-
-	sprintf( sys_string,
-		 "echo \"	select distinct folder		 	 "
-		 "		from %s					 "
-		 "		where permission = 'update'		 "
-		 "		  and folder <> 'null'			 "
-		 "		  and role = '%s';\"			|"
-		 "sql.e							 ",
-		 role_folder_table_name,
-		 role_name );
-
-	return pipe2list( sys_string );
-*/
-
+			role_name );
 }
 
 LIST *folder_get_single_primary_key_folder_name_list(
@@ -2746,7 +2723,7 @@ char *folder_primary_where(
 
 FOLDER *folder_fetch(	char *folder_name,
 			boolean fetch_attribute_list,
-			boolean fetch_row_level_restriction_list )
+			boolean fetch_row_level_restriction )
 {
 	return	folder_parse(
 			pipe2string(
@@ -2754,7 +2731,7 @@ FOLDER *folder_fetch(	char *folder_name,
 					folder_primary_where(
 						folder_name ) ) ),
 			fetch_attribute_list,
-			fetch_row_level_restriction_list );
+			fetch_row_level_restriction );
 }
 
 LIST *folder_fetch_primary_attribute_name_list(
@@ -2769,13 +2746,13 @@ LIST *folder_fetch_primary_attribute_name_list(
 
 FOLDER *folder_parse(	char *input,
 			boolean fetch_attribute_list,
-			boolean fetch_row_level_restriction_list )
+			boolean fetch_row_level_restriction )
 {
 	char folder_name[ 128 ];
 	char form[ 128 ];
 	char insert_rows_number[ 128 ];
 	char lookup_email_output_yn[ 128 ];
-	char notepad[ 2048 ];
+	char notepad[ 65536 ];
 	char populate_drop_down_process[ 128 ];
 	char post_change_process[ 128 ];
 	char html_help_file_anchor[ 128 ];
@@ -2786,7 +2763,7 @@ FOLDER *folder_parse(	char *input,
 	char no_initial_capital_yn[ 128 ];
 	char index_directory[ 128 ];
 	char data_directory[ 128 ];
-	char create_view_statement[ 2048 ];
+	char create_view_statement[ 65536 ];
 	char appaserver_yn[ 128 ];
 	FOLDER *folder;
 
@@ -2879,9 +2856,11 @@ FOLDER *folder_parse(	char *input,
 				folder->attribute_list );
 	}
 
-	if ( fetch_row_level_restriction_list )
+	if ( fetch_row_level_restriction )
 	{
-here1
+		folder->row_level_restriction_string =
+			folder_row_level_restriction_string(
+				folder->folder_name );
 	}
 
 	return folder;
@@ -3043,7 +3022,7 @@ LIST *folder_update_attribute_exclude_name_list(
 	return exclude_name_list;
 }
 
-LIST *folder_row_level_restriction_list( char *folder_name )
+char *folder_row_level_restriction_string( char *folder_name )
 {
 	char system_string[ 1024 ];
 	char where[ 128 ];
@@ -3068,53 +3047,31 @@ LIST *folder_row_level_restriction_list( char *folder_name )
 		from,
 		where );
 
-	input = string_pipe_fetch( system_string );
-
-	if ( !input || !*input ) return (LIST *)0;
-
-	return_list = list_new();
-
-	folder_row_level_restriction = folder_row_level_restriction_calloc();
-	folder_row_level_restriction->folder_name = folder_name;
-	folder_row_level_restriction->row_level_restriction = input;
-
-	list_set( return_list, folder_row_level_restriction );
-
-	return return_list;
+	return string_pipe_fetch( system_string );
 }
 
 boolean folder_row_level_restrictions_non_owner_forbid(
 			char *folder_name )
 {
-	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
-
 	FOLDER *folder =
 		   folder_fetch(
 			folder_name,
 			0 /* not fetch_attribute_list */,
-			0 /* not fetch_one2m_relation_list */,
-			0 /* not fetch_one2m_recursive_relation_list */,
-			0 /* not fetch_mto1_isa_recursive_relation_list */,
-			0 /* not fetch_mto1_relation_list */,
-			1 /* fetch_row_level_restriction_list */ );
+			1 /* fetch_row_level_restriction */ );
 
-	if ( !list_rewind( folder->folder_row_level_restriction_list ) )
-		return 0;
+	if ( !folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	do {
-		folder_row_level_restriction =
-			list_get(
-				folder->folder_row_level_restriction_list );
-
-		if ( strcmp(
+	return ( (boolean)string_strcmp(
 			folder_row_level_restriction->row_level_restriction,
-			"row_level_non_owner_forbid" ) == 0 )
-		{
-			return 1;
-		}
-	} while ( list_next( folder->folder_row_level_restriction_list ) );
-
-	return 0;
+			"row_level_non_owner_forbid" ) == 0 );
 }
 
 FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction_calloc(
