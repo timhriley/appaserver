@@ -8,11 +8,13 @@
 #define PROCESS_H
 
 #include "list.h"
+#include "boolean.h"
 #include "dictionary.h"
-#include "attribute.h"
 
 /* Constants */
 /* --------- */
+#define PROCESS_TABLE		"process"
+#define PROCESS_SET_TABLE	"process_set"
 #define PROCESS_ID_LABEL	"pprocess_id"
 
 typedef struct
@@ -22,28 +24,36 @@ typedef struct
 	char *html_help_file_anchor;
 	char *post_change_javascript;
 	char *prompt_display_text;
+	char *process_group;
 	char *preprompt_help_text;
 	boolean prompt_display_bottom;
 } PROCESS_SET;
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *process_name;
-	char *person;
-	char *application_name;
-	char *session;
-	char *role_name;
-	LIST *attribute_list;
-	char *from_folder;
-	LIST *related_folder_list;
-	char *executable;
+	boolean check_executable_inside_filesystem;
+	char *command_line;
 	char *notepad;
 	char *html_help_file_anchor;
+	int execution_count;
 	char *post_change_javascript;
 	char *process_set_display;
+	char *process_group;
 	char *preprompt_help_text;
-	boolean is_appaserver_process;
+
+	/* Process */
+	/* ------- */
 } PROCESS;
+
+typedef struct
+{
+	char *process_or_process_set_name;
+	boolean check_executable_inside_filesystem;
+
+} PROCESS_STRUCTURE;
 
 /* Operations */
 /* ---------- */
