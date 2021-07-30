@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/process.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver process and process_set ADTs.			*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -8,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "process.h"
 #include "query.h"
 #include "process_parameter_list.h"
 #include "timlib.h"
@@ -25,6 +23,7 @@
 #include "appaserver.h"
 #include "appaserver_parameter_file.h"
 #include "operation.h"
+#include "process.h"
 
 PROCESS_SET *process_new_process_set(
 				char *application_name,
@@ -62,16 +61,14 @@ PROCESS_SET *process_new_process_set(
 	return p;
 }
 
-PROCESS *process_new(	char *application_name,
-			char *process_name,
-			boolean check_executable_inside_filesystem )
+PROCESS *process_calloc( void )
 {
 	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
 
 	if ( !p )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate %d bytes",
+			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -79,6 +76,13 @@ PROCESS *process_new(	char *application_name,
 		exit( 1 );
 	}
 
+	return p;
+}
+
+PROCESS *process_new(	char *application_name,
+			char *process_name,
+			boolean check_executable_inside_filesystem )
+{
 	if ( !process_load(	&p->executable,
 				&p->notepad,
 				&p->html_help_file_anchor,

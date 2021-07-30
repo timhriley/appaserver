@@ -1,6 +1,5 @@
-/* process.h 								*/
+/* $APPASERVER_HOME/library/process.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver process and process_set ADTs.			*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -239,6 +238,9 @@ void process_prompt_convert_parameters(char **executable,
 			int row,
 			char *process_name,
 			char *one2m_folder_name_for_process );
+
+PROCESS *process_calloc(
+			void );
 
 #endif
 

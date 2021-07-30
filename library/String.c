@@ -9,8 +9,6 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include "boolean.h"
-#include "list.h"
 #include "float.h"
 #include "timlib.h"
 #include "piece.h"
@@ -954,5 +952,32 @@ char *string_strncpy(	char *destination,
 	*(destination + count) = '\0';
 
 	return results;
+}
+
+char *string_in_clause(	LIST *data_list )
+{
+	char in_clause[ STRING_WHERE_BUFFER ];
+	char *ptr = in_clause;
+	char *data;
+	char *escaped_data;
+
+	if ( !list_rewind( data_list ) ) strdup( "" );
+
+	*ptr = '\0';
+
+	do {
+		data = list_get_pointer( data_list );
+
+		if ( !*ptr ) ptr += sprintf( ptr, "," );
+
+		escaped_data = timlib_sql_injection_escape( data );
+
+		ptr += sprintf( ptr, "'%s'", escaped_data );
+
+		free( escaped_data );
+
+	} while( list_next( data_list ) );
+
+	return strdup( in_clause );
 }
 

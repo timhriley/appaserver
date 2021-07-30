@@ -20,7 +20,6 @@
 #include "date.h"
 #include "array.h"
 #include "float.h"
-#include "query.h"
 /* #include "sed.h" */
 
 int timlib_strlen( char *s )
@@ -3002,24 +3001,20 @@ char *timlib_in_clause(	LIST *data_list )
 	char *ptr = in_clause;
 	char *data;
 	char *escaped_data;
-	boolean first_time = 1;
 
 	if ( !list_rewind( data_list ) ) strdup( "" );
 
-	*in_clause = '\0';
+	*ptr = '\0';
 
 	do {
 		data = list_get_pointer( data_list );
 
-		if ( first_time )
-			first_time = 0;
-		else
-		{
-			ptr += sprintf( ptr, "," );
-		}
+		if ( !*ptr ) ptr += sprintf( ptr, "," );
 
 		escaped_data = timlib_sql_injection_escape( data );
+
 		ptr += sprintf( ptr, "'%s'", escaped_data );
+
 		free( escaped_data );
 
 	} while( list_next( data_list ) );

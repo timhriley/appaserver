@@ -187,4 +187,8 @@ char *string_strncpy(	char *destination,
 			char *source,
 			int count );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *string_in_clause(	LIST *data_list );
+
 #endif

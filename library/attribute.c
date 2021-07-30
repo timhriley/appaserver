@@ -210,3 +210,13 @@ LIST *attribute_list( void )
 	return list;
 }
 
+ATTRIBUTE *attribute_fetch( char *attribute_name )
+{
+	static LIST *list = {0};
+
+	if ( list ) return attribute_seek( attribute_name, list );
+
+	list = attribute_list();
+	return attribute_seek( attribute_name, list );
+}
+

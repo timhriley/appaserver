@@ -11,7 +11,7 @@
 #include "sql.h"
 #include "piece.h"
 #include "environ.h"
-/* #include "process.h" */
+#include "process.h"
 #include "folder_attribute.h"
 #include "role_folder.h"
 #include "folder.h"
@@ -147,7 +147,6 @@ FOLDER *folder_parse(	char *input,
 	piece( notepad, SQL_DELIMITER, input, 4 );
 	folder->notepad = strdup( notepad );
 
-#ifdef NOT_DEFINED
 	if ( fetch_process )
 	{
 		piece( populate_drop_down_process, SQL_DELIMITER, input, 5 );
@@ -169,7 +168,6 @@ FOLDER *folder_parse(	char *input,
 				strdup( post_change_process ),
 				1 /* check_executable_inside_filesystem */ );
 	}
-#endif
 
 	piece( html_help_file_anchor, SQL_DELIMITER, input, 7 );
 	folder->html_help_file_anchor = strdup( html_help_file_anchor );

@@ -21,6 +21,18 @@
 /* --------- */
 #define FOLDER_ATTRIBUTE_TABLE	"folder_attribute"
 
+#define FOLDER_ATTRIBUTE_SELECT	"folder,"			\
+				"attribute,"			\
+				"primary_key_index,"		\
+				"display_order,"		\
+				"omit_insert_yn,"		\
+				"omit_insert_prompt_yn,"	\
+				"omit_update_yn,"		\
+				"additional_unique_index_yn,"	\
+				"additional_index_yn,"		\
+				"insert_required_yn,"		\
+				"lookup_required_yn"
+
 /* Structures */
 /* ---------- */
 typedef struct
@@ -29,6 +41,7 @@ typedef struct
 	/* ----- */
 	char *folder_name;
 	char *attribute_name;
+	ATTRIBUTE *attribute;
 	int primary_key_index;
 	int display_order;
 	boolean omit_insert;
@@ -41,7 +54,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	ATTRIBUTE *attribute;
+
 } FOLDER_ATTRIBUTE;
 
 /* Operations */
@@ -54,17 +67,21 @@ LIST *folder_attribute_list(
 			char *escaped_replaced_folder_name,
 			LIST *exclude_attribute_name_list );
 
-/* Returns static memory */
-/* --------------------- */
-char *folder_attribute_where(
-			char *folder_name );
-
 /* Returns heap memory */
 /* ------------------- */
 char *folder_attribute_system_string(
 			char *where );
 
+LIST *folder_attribute_system_list(
+			char *system_string );
+
 FOLDER_ATTRIBUTE *folder_attribute_parse(
 			char *input );
+
+/* Returns heap memory */
+/* ------------------- */
+char *folder_attribute_where(
+			char *escaped_replaced_folder_name,
+			LIST *exclude_attribute_name_list );
 
 #endif

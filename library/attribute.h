@@ -84,4 +84,7 @@ LIST *attribute_extract_float_list(
 
 LIST *attribute_list(	void );
 
+ATTRIBUTE *attribute_fetch(
+			char *attribute_name );
+
 #endif
