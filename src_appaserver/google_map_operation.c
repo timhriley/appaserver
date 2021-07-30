@@ -363,7 +363,7 @@ int main( int argc, char **argv )
 			appaserver_parameter_file_get_dbms() );
 
 	exit( 0 );
-} /* main() */
+}
 
 boolean get_omit_output_content_type(
 			DICTIONARY *dictionary )
@@ -376,7 +376,7 @@ boolean get_omit_output_content_type(
 
 	return ( ( !results ) ? 0 : ( *results != 'y') );
 
-} /* get_omit_output_content_type() */
+}
 
 char *add_dot_maybe( char *coordinate )
 {
@@ -401,5 +401,5 @@ char *add_dot_maybe( char *coordinate )
 
 	return strdup( return_coordinate );
 
-} /* add_dot_maybe() */
+}
 

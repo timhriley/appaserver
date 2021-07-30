@@ -157,12 +157,5 @@ boolean relation_is_primary_key_subset(
 char *relation_list_display(
 			LIST *one2m_relation_list );
 
-/* Transition between the two systems */
-/* ---------------------------------- */
-/*
-LIST *relation_mto1_related_folder_list(
-			LIST *mto1_relation_list );
-*/
-
 #endif
 

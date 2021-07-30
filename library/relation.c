@@ -246,7 +246,7 @@ LIST *relation_foreign_attribute_name_list(
 	/* -------------------------- */
 	/* If using FOREIGN_ATTRIBUTE */
 	/* -------------------------- */
-	if ( list_length( foreign_attribute_list_folder ) )
+	if ( list_length( foreign_attribute_name_list ) )
 	{
 		return_list = foreign_attribute_name_list;
 	}
@@ -498,78 +498,4 @@ LIST *relation_one2m_pair_list(
 			1 /* fetch_folder */,
 			1 /* fetch_attribute_list */ );
 }
-
-#ifdef NOT_DEFINED
-/* Transition between the two systems */
-/* ---------------------------------- */
-#include "related_folder.h"
-LIST *relation_mto1_related_folder_list(
-			LIST *mto1_relation_list )
-{
-	RELATION *relation;
-	RELATED_FOLDER *related_folder;
-	LIST *mto1_related_folder_list = {0};
-
-	if ( !list_rewind( mto1_relation_list ) ) return (LIST *)0;
-
-	do {
-		relation = list_get( mto1_relation_list );
-
-		related_folder =
-			related_folder_new(
-				(char *)0 /* application_name */,
-				(char *)0 /* session */,
-				relation->one_folder_name,
-				relation->related_attribute_name );
-
-		related_folder->foreign_attribute_name_list =
-			relation->foreign_attribute_name_list;
-
-		related_folder->pair_1tom_order =
-			relation->pair_1tom_order;
-
-		related_folder->omit_1tom_detail =
-			relation->omit_1tom_detail;
-
-		related_folder->prompt_mto1_recursive =
-			relation->prompt_mto1_recursive;
-
-		related_folder->relation_type_isa =
-			relation->relation_type_isa;
-
-		related_folder->copy_common_attributes =
-			relation->copy_common_attributes;
-
-		related_folder->automatic_preselection =
-			relation->automatic_preselection;
-
-		related_folder->drop_down_multi_select =
-			relation->drop_down_multi_select;
-
-		related_folder->join_1tom_each_row =
-			relation->join_1tom_each_row;
-
-		related_folder->omit_lookup_before_drop_down =
-			relation->omit_lookup_before_drop_down;
-
-		related_folder->ajax_fill_drop_down =
-			relation->ajax_fill_drop_down;
-
-		related_folder->hint_message =
-			relation->hint_message;
-
-		related_folder->folder->attribute_list =
-			relation->one_folder->attribute_list;
-
-		if ( !mto1_related_folder_list )
-			mto1_related_folder_list =
-				list_new();
-
-		list_set( mto1_related_folder_list, related_folder );
-
-	} while ( list_next( mto1_relation_list ) );
-
-	return mto1_related_folder_list;
-}
-#endif
 

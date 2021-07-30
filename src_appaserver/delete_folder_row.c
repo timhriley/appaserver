@@ -101,8 +101,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void delete_where_data_carrot_list_string(
 				char *application_name,
@@ -198,5 +197,5 @@ delete_database_display( delete_database ) );
 		session,
 		role_name );
 
-} /* delete_where_data_carrot_list_string() */
+}
 

@@ -11,6 +11,7 @@
 /* -------- */
 #include "list.h"
 #include "boolean.h"
+#include "relation.h"
 #include "attribute.h"
 
 /* Enumerated types */

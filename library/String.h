@@ -13,8 +13,9 @@
 
 /* Constants */
 /* --------- */
-#define STRING_LF	10
-#define STRING_CR	13
+#define STRING_LF			10
+#define STRING_CR			13
+#define STRING_WHERE_BUFFER		131072
 
 /* Structures */
 /* ---------- */
@@ -156,6 +157,7 @@ int string_instr(	char *substr,
 /* Returns heap memory or null */
 /* --------------------------- */
 char *string_pipe_fetch( char *system_string );
+char *string_fetch_pipe( char *system_string );
 
 LIST *string_pipe_list(	char *system_string );
 

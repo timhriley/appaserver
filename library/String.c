@@ -14,7 +14,6 @@
 #include "float.h"
 #include "timlib.h"
 #include "piece.h"
-#include "query.h"
 #include "appaserver_error.h"
 #include "environ.h"
 #include "String.h"
@@ -731,6 +730,11 @@ int string_instr(	char *substr,
         return -1;
 }
 
+char *string_fetch_pipe( char *system_string )
+{
+	return string_pipe_fetch( system_string );
+}
+
 char *string_pipe_fetch( char *system_string )
 {
 	char buffer[ 65536 ];
@@ -867,9 +871,9 @@ char *string_escape_character_array(
 			char *source,
 			char *character_array )
 {
-	char local_source[ QUERY_WHERE_BUFFER ];
+	char local_source[ STRING_WHERE_BUFFER ];
 
-	string_strcpy( local_source, source, QUERY_WHERE_BUFFER );
+	string_strcpy( local_source, source, STRING_WHERE_BUFFER );
 
 	while ( *character_array )
 	{
@@ -886,7 +890,7 @@ char *string_escape_character_array(
 			string_strcpy(
 				local_source,
 				destination,
-				QUERY_WHERE_BUFFER );
+				STRING_WHERE_BUFFER );
 		}
 	}
 	return destination;

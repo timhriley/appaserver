@@ -132,10 +132,9 @@ long int folder_menu_fetch_folder_count(
 		 table_name );
 
 	if ( ( results = pipe2string( sys_string ) ) )
-		return atol( pipe2string( sys_string ) );
+		return atol( results );
 	else
 		return 0;
-
 }
 
 boolean folder_menu_write_folder_count_list(
