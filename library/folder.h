@@ -49,8 +49,8 @@ typedef struct
 	int insert_rows_number;
 	boolean lookup_email_output;
 	char *notepad;
-	PROCESS *populate_drop_down_process;
-	PROCESS *post_change_process;
+	char *populate_drop_down_process_name;
+	char *post_change_process_name;
 	char *html_help_file_anchor;
 	char *post_change_javascript;
 	char *subschema;
@@ -64,6 +64,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	PROCESS *populate_drop_down_process;
+	PROCESS *post_change_process;
 	LIST *role_exclude_attribute_name_list;
 	LIST *folder_attribute_list;
 	LIST *role_folder_list;

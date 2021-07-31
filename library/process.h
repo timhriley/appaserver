@@ -10,12 +10,47 @@
 #include "list.h"
 #include "boolean.h"
 #include "dictionary.h"
+#include "folder.h"
+#include "attribute.h"
 
 /* Constants */
 /* --------- */
 #define PROCESS_TABLE		"process"
 #define PROCESS_SET_TABLE	"process_set"
 #define PROCESS_ID_LABEL	"pprocess_id"
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *drop_down_prompt_name;
+	char *drop_down_prompt_data;
+	int display_order;
+} DROP_DOWN_PROMPT_DATA;
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *drop_down_prompt_name;
+	char *hint_message;
+	char *optional_display;
+
+	/* Process */
+	/* ------- */
+	LIST *drop_down_prompt_data_list;
+} DROP_DOWN_PROMPT;
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *prompt_name;
+	int input_width;
+	char *hint_message;
+	boolean upload_filename;
+	boolean date;
+} PROMPT;
 
 typedef struct
 {
@@ -28,6 +63,24 @@ typedef struct
 	char *preprompt_help_text;
 	boolean prompt_display_bottom;
 } PROCESS_SET;
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *process_name;
+	char *process_set_name;
+	char *folder_name;
+	char *attribute_name;
+	char *drop_down_prompt_name;
+	char *prompt_name;
+
+	/* Process */
+	FOLDER *folder;
+	ATTRIBUTE *attribute;
+	DROP_DOWN_PROMPT *drop_down_prompt;
+	PROMPT *prompt;
+} PROCESS_PARAMETER;
 
 typedef struct
 {
