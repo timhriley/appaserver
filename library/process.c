@@ -30,7 +30,7 @@ PROCESS_SET *process_new_process_set(
 				char *session, 
 				char *process_set_name )
 {
-	PROCESS_SET *p = (PROCESS_SET *)calloc( 1, sizeof( PROCESS_SET ) );
+	PROCESS_SET *p = calloc( 1, sizeof( PROCESS_SET ) );
 
 	if ( !p )
 	{
@@ -63,7 +63,7 @@ PROCESS_SET *process_new_process_set(
 
 PROCESS *process_calloc( void )
 {
-	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
+	PROCESS *p = calloc( 1, sizeof( PROCESS ) );
 
 	if ( !p )
 	{
@@ -78,113 +78,6 @@ PROCESS *process_calloc( void )
 
 	return p;
 }
-
-PROCESS *process_new(	char *application_name,
-			char *process_name,
-			boolean check_executable_inside_filesystem )
-{
-	if ( !process_load(	&p->executable,
-				&p->notepad,
-				&p->html_help_file_anchor,
-				&p->post_change_javascript,
-				&p->process_set_display,
-				&p->preprompt_help_text,
-				&p->is_appaserver_process,
-				application_name,
-				process_name,
-				check_executable_inside_filesystem ) )
-	{
-		return (PROCESS *)0;
-	}
-
-	p->application_name = application_name;
-	p->process_name = process_name;
-
-	return p;
-
-}
-
-PROCESS *process_new_process(	char *application_name,
-				char *session,
-				char *process_name,
-				DICTIONARY *dictionary,
-				char *role_name,
-				boolean check_executable_inside_filesystem )
-{
-	PROCESS *p = (PROCESS *)calloc( 1, sizeof( PROCESS ) );
-
-	if ( !p )
-	{
-		char msg[ 1024 ];
-		sprintf( msg, "ERROR in %s/%s(): cannot allocate %d bytes",
-			 __FILE__,
-			 __FUNCTION__,
-			 (int)sizeof( PROCESS ) );
-		appaserver_output_error_message(
-			application_name, msg, (char *)0 );
-		exit( 1 );
-	}
-
-	if ( !process_load(	&p->executable,
-				&p->notepad,
-				&p->html_help_file_anchor,
-				&p->post_change_javascript,
-				&p->process_set_display,
-				&p->preprompt_help_text,
-				&p->is_appaserver_process,
-				application_name,
-				process_name,
-				check_executable_inside_filesystem ) )
-	{
-		if ( dictionary && dictionary_get_index_data(
-							&process_name,
-							dictionary,
-							process_name,
-							0 ) == -1 )
-		{
-			return (PROCESS *)0;
-		}
-		else
-		{
-			if ( !process_load(
-				&p->executable,
-				&p->notepad,
-				&p->html_help_file_anchor,
-				&p->post_change_javascript,
-				&p->process_set_display,
-				&p->preprompt_help_text,
-				&p->is_appaserver_process,
-				application_name,
-				process_name,
-				check_executable_inside_filesystem ) )
-			{
-				return (PROCESS *)0;
-			}
-		}
-
-	}
-
-	p->application_name = application_name;
-	p->session = session;
-	p->process_name = process_name;
-	p->attribute_list = list_new_list();
-	p->role_name = role_name;
-	
-	return p;
-
-}
-
-void process_free( PROCESS *process )
-{
-	list_free( process->attribute_list );
-	free( process->notepad );
-	free( process->html_help_file_anchor );
-	free( process->post_change_javascript );
-	free( process->process_set_display );
-	free( process );
-
-}
-
 
 LIST *process2list( char *executable )
 {
@@ -1084,13 +977,12 @@ boolean process_exists_appaserver_process(
 		is_appaserver_process =
 			process->is_appaserver_process;
 
-		process_free( process );
 		if ( is_appaserver_process ) return 1;
 	} while( list_next( process_name_list ) );
 	return 0;
 }
 
-boolean process_executable_ok(	char *executable )
+boolean process_executable_ok( char *executable )
 {
 	char command[ 128 ];
 	char sys_string[ 1024 ];
@@ -1126,7 +1018,7 @@ boolean process_executable_ok(	char *executable )
 		return 1;
 	}
 
-	directory = basename_get_directory( which_string );
+	directory = basename_directory( which_string );
 
 	/* Anything in $CGI_HOME is okay. */
 	/* ------------------------------ */
@@ -1135,7 +1027,7 @@ boolean process_executable_ok(	char *executable )
 	/* Must execute from $APPASERVER_HOME/src_* */
 	/* ---------------------------------------- */
 	appaserver_mount_point =
-		appaserver_parameter_file_get_appaserver_mount_point();
+		appaserver_parameter_file_appaserver_mount_point();
 
 	sprintf( check_directory,
 		 "%s/src_",
@@ -1154,15 +1046,15 @@ boolean process_executable_ok(	char *executable )
 	/* --------------------- */
 	if ( timlib_strncmp( command, "get_folder_data" ) == 0 ) return 0;
 	if ( timlib_strncmp( command, "sql" ) == 0 ) return 0;
+	if ( timlib_strncmp( command, "select" ) == 0 ) return 0;
 	if ( timlib_exists_string( command, "appaserver" ) ) return 0;
 
 	return 1;
-
 }
 
 void process_set_one2m_folder_name_for_process(
-				DICTIONARY *dictionary,
-				char *one2m_folder_name )
+			DICTIONARY *dictionary,
+			char *one2m_folder_name )
 {
 	char key[ 128 ];
 
@@ -1694,5 +1586,412 @@ void process_prompt_convert_parameters(
 	remove_character( local_executable, '`' );
 
 	*executable = strdup( local_executable );
+}
+
+PROMPT *prompt_fetch( char *prompt_name )
+{
+	return
+	prompt_parse(
+		string_fetch_pipe(
+			prompt_system_string(
+				prompt_primary_where(
+					prompt_name ) ) ) );
+}
+
+char *prompt_primary_where( char *prompt_name )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"prompt = '%s'",
+		prompt_name );
+
+	return where;
+}
+
+char *prompt_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\"",
+		PROMPT_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+PROMPT *prompt_new( char *prompt_name )
+{
+	PROMPT *p = calloc( 1, sizeof( PROMPT ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (int)sizeof( PROMPT ) );
+		exit( 1 );
+	}
+
+	p->prompt_name = prompt_name;
+	return p;
+}
+
+PROMPT *prompt_parse( char *input )
+{
+	char prompt_name[ 256 ];
+	char buffer[ 4096 ];
+	PROMPT *prompt;
+
+	/* See attribute_list prompt */
+	/* ------------------------- */
+	piece( prompt_name, SQL_DELIMITER, input, 0 );
+	prompt = prompt_new( strdup( prompt_name ) );
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	prompt->input_width = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	prompt->hint_message = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	prompt->upload_filename = ( *buffer == 'y' );
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	prompt->date = ( *buffer == 'y' );
+
+	return prompt;
+}
+
+DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_new(
+			char *drop_down_prompt_name,
+			char *drop_down_prompt_data )
+{
+	DROP_DOWN_PROMPT_DATA *p = calloc( 1, sizeof( DROP_DOWN_PROMPT_DATA ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (int)sizeof( DROP_DOWN_PROMPT_DATA ) );
+		exit( 1 );
+	}
+
+	p->drop_down_prompt_name = drop_down_prompt_name;
+	p->drop_down_prompt_data = drop_down_prompt_data;
+
+	return p;
+}
+
+DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_parse(
+			char *input )
+{
+	char drop_down_prompt_name[ 256 ];
+	char drop_down_prompt_data[ 256 ];
+	char display_order[ 128 ];
+	DROP_DOWN_PROMPT_DATA *drop_down_prompt_data;
+
+	/* See attribute_list drop_down_prompt_data */
+	/* ---------------------------------------- */
+	piece( drop_down_prompt_name, SQL_DELIMITER, input, 0 );
+	piece( drop_down_prompt_data, SQL_DELIMITER, input, 1 );
+	piece( display_order, SQL_DELIMITER, input, 3 );
+
+	drop_down_prompt_data =
+		drop_down_prompt_data_new(
+			strdup( drop_down_prompt_name ),
+			strdup( drop_down_prompt_data ) );
+
+	drop_down_prompt_data->display_order = atoi( display_order );
+
+	return drop_down_prompt_data;
+}
+
+char *drop_down_prompt_data_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\"",
+		DROP_DOWN_PROMPT_DATA_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+LIST *drop_down_prompt_data_system_list(
+			char *system_string )
+{
+	LIST *list = {0};
+	char input[ 1024 ];
+	DROP_DOWN_PROMPT_DATA *drop_down_prompt_data;
+	FILE *pipe = popen( system_string, "r" );
+
+	while ( string_input( input, pipe, 1024 ) )
+	{
+		if ( ( drop_down_prompt_data =
+				drop_down_prompt_data_parse(
+					input ) ) )
+		{
+			if ( !list ) list = list_new();
+
+			list_set( list, drop_down_prompt_data );
+		}
+	}
+
+	pclose( pipe );
+	return list;
+}
+
+DROP_DOWN_PROMPT *drop_down_prompt_new(
+			char *drop_down_prompt_name )
+{
+	DROP_DOWN_PROMPT *p = calloc( 1, sizeof( DROP_DOWN_PROMPT ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (int)sizeof( DROP_DOWN_PROMPT ) );
+		exit( 1 );
+	}
+
+	p->drop_down_prompt_name = drop_down_prompt_name;
+	return p;
+}
+
+DROP_DOWN_PROMPT *drop_down_prompt_fetch(
+			char *drop_down_prompt_name )
+{
+	DROP_DOWN_PROMPT *drop_down_prompt;
+
+	drop_down_prompt =
+		drop_down_prompt_parse(
+			string_fetch_pipe(
+				drop_down_prompt_prompt_system_string(
+					drop_down_prompt_primary_where(
+						drop_down_prompt_name ) ) ) );
+
+	drop_down_prompt->drop_down_prompt_data_list =
+		drop_down_prompt_data_system_list(
+			drop_down_prompt_data_system_string(
+				drop_down_prompt_primary_where(
+					drop_down_prompt_name ) ) );
+	return drop_down_prompt;
+}
+
+DROP_DOWN_PROMPT *drop_down_prompt_parse(
+			char *input )
+{
+	char drop_down_prompt_name[ 256 ];
+	char buffer[ 2048 ];
+	DROP_DOWN_PROMPT *drop_down_prompt;
+
+	/* See attribute_list drop_down_prompt */
+	/* ----------------------------------- */
+	piece( drop_down_prompt_name, SQL_DELIMITER, input, 0 );
+
+	drop_down_prompt =
+		drop_down_prompt_new(
+			strdup( drop_down_prompt_name ) );
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	drop_down_prompt->hint_message = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	drop_down_prompt->optional_display = strdup( buffer );
+
+	return drop_down_prompt;
+}
+
+char *drop_down_prompt_primary_where(
+			char *drop_down_prompt_name )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"drop_down_prompt = '%s'",
+		drop_down_prompt );
+
+	return where;
+}
+
+char *drop_down_prompt_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\"",
+		DROP_DOWN_PROMPT_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+LIST *process_parameter_system_list(
+			char *system_string,
+			DICTIONARY *preprompt_dictionary )
+{
+	LIST *list = {0};
+	char input[ 1024 ];
+	PROCESS_PARAMETER *process_parameter;
+	FILE *pipe = popen( system_string, "r" );
+
+	while ( string_input( input, pipe, 1024 ) )
+	{
+		if ( ( process_parameter =
+				process_parameter_parse(
+					input,
+					preprompt_dictionary ) ) )
+		{
+			if ( !list ) list = list_new();
+
+			list_set( list, process_parameter );
+		}
+	}
+
+	pclose( pipe );
+	return list;
+}
+
+char *process_parameter_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '%s' %s \"%s\" display_order",
+		PROCESS_PARAMETER_SELECT,
+		PROCESS_PARAMETER_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+char *process_set_parameter_system_string(
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '%s' %s \"%s\" display_order",
+		PROCESS_SET_PARAMETER_SELECT,
+		PROCESS_SET_PARAMETER_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+PROCESS_PARAMETER *process_parameter_parse(
+			char *input,
+			DICTIONARY *preprompt_dictionary )
+{
+	char process_or_process_set_name[ 128 ];
+	char folder_name[ 128 ];
+	char attribute_name[ 128 ];
+	char drop_down_prompt_name[ 128 ];
+	char prompt_name[ 128 ];
+	char buffer[ 128 ];
+	PROCESS_PARAMETER *process_parameterk
+
+	/* See PROCESS_PARAMETER_SELECT or PROCESS_SET_PARAMETER_SELECT */
+	/* ------------------------------------------------------------ */
+	piece( process_or_process_set_name, SQL_DELIMITER, input, 0 );
+	piece( folder_name, SQL_DELIMITER, input, 1 );
+	piece( attribute_name, SQL_DELIMITER, input, 2 );
+	piece( drop_down_prompt_name, SQL_DELIMITER, input, 3 );
+	piece( prompt_name, SQL_DELIMITER, input, 4 );
+
+	process_parameter =
+		process_parameter_new(
+			strdup( process_or_process_set_name ),
+			strdup( folder_name ),
+			strdup( attribute_name ),
+			strdup( drop_down_prompt_name ),
+			strdup( prompt_name ) );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	process_parameter->display_order = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	process_parameter->drop_down_multi_select = ( *buffer == 'y' );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	process_parameter->preprompt = ( *buffer == 'y' );
+
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	process_parameter->populate_drop_down_process_name = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 9 );
+	process_parameter->populate_helper_process_name = strdup( buffer );
+
+	if ( strcmp( process_parameter->folder_name, "null" != 0 )
+	{
+		process_parameter->folder =
+			folder_primary_data_fetch(
+				process_parameter->folder_name );
+	}
+	else
+	if ( strcmp( process_parameter->attribute_name, "null" ) != 0 )
+	{
+		process_parameter->attribute =
+			attribute_fetch(
+				process_parameter->
+					attribute_name );
+	}
+	else
+	if ( strcmp( process_parameter->drop_down_prompt_name, "null" ) != 0 )
+	{
+		process_parameter->drop_down_prompt =
+			drop_down_prompt_fetch(
+				process_parameter->
+					drop_down_prompt_name );
+	}
+	else
+	if ( strcmp( process_parameter->prompt, "null" ) != 0 )
+	{
+		process_parameter->prompt =
+			prompt_fetch(
+				process_parameter->
+					prompt_name );
+	}
+
+	return process_parameter;
+}
+
+PROCESS *process_fetch(
+			char *process_name,
+			boolean check_executable_inside_filesystem )
+{
+}
+
+PROCESS *process_new( char *process_name )
+{
+	PROCESS *p = calloc( 1, sizeof( PROCESS ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (int)sizeof( PROCESS ) );
+		exit( 1 );
+	}
+
+	p->process_name = process_name;
+	return p;
 }
 

@@ -1,5 +1,5 @@
-/* library/basename.c */
-/* ------------------ */
+/* $APPASERVER_HOME/library/basename.c */
+/* ----------------------------------- */
 
 #include <ctype.h>
 #include <string.h>
@@ -9,6 +9,11 @@
 #include "timlib.h"
 
 char *basename_get_directory( char *argv_0 )
+{
+	return basename_directory( argv_0 );
+}
+
+char *basename_directory( char *argv_0 )
 {
 	static char base_name[ 128 ];
 	char local_buffer[ 512 ];
@@ -33,33 +38,43 @@ char *basename_get_directory( char *argv_0 )
 		}
 	}
 	return "";
-
-} /* basename_get_directory() */
+}
 
 char *basename_filename( char *argv_0 )
 {
-	return basename_get_base_name(
+	return basename_base_name(
 			argv_0,
 			0 /* no strip_extension */ );
 }
 
 char *basename_get_filename( char *argv_0 )
 {
-	return basename_get_base_name(
+	return basename_base_name(
 			argv_0,
 			0 /* no strip_extension */ );
 }
 
 char *basename_get_extension( char *argv_0 )
 {
+	return basename_extension( argv_0 );
+}
+
+char *basename_extension( char *argv_0 )
+{
 	static char extension[ 128 ];
 
 	if ( !piece( extension, '.', argv_0, 1 ) ) *extension = '\0';
+
 	return extension;
 
-} /* basename_get_extension() */
+}
 
 char *basename_get_base_name( char *argv_0, boolean strip_extension )
+{
+	return basename_base_name( argv_0, strip_extension );
+}
+
+char *basename_base_name( char *argv_0, boolean strip_extension )
 {
 	static char base_name[ 128 ];
 	char local_buffer[ 512 ];
@@ -114,5 +129,4 @@ char *basename_get_base_name( char *argv_0, boolean strip_extension )
 	/* ------------------------------- */
 	strcpy( base_name, base_name_ptr );
 	return base_name;
-
-} /* basename_get_base_name() */
+}
