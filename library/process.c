@@ -25,60 +25,6 @@
 #include "operation.h"
 #include "process.h"
 
-PROCESS_SET *process_new_process_set(
-				char *application_name,
-				char *session, 
-				char *process_set_name )
-{
-	PROCESS_SET *p = calloc( 1, sizeof( PROCESS_SET ) );
-
-	if ( !p )
-	{
-		char msg[ 1024 ];
-		sprintf( msg, "ERROR in %s/%s(): cannot allocate %d bytes",
-			 __FILE__,
-			 __FUNCTION__,
-			 (int)sizeof( PROCESS_SET ) );
-		appaserver_output_error_message(
-			application_name, msg, (char *)0 );
-		exit( 1 );
-	}
-
-	p->process_set_name = process_set_name;
-
-	if ( !process_set_load(	&p->notepad,
-				&p->html_help_file_anchor,
-				&p->post_change_javascript,
-				&p->prompt_display_text,
-				&p->preprompt_help_text,
-				&p->prompt_display_bottom,
-				application_name,
-				session,
-				process_set_name ) )
-	{
-		return (PROCESS_SET *)0;
-	}
-	return p;
-}
-
-PROCESS *process_calloc( void )
-{
-	PROCESS *p = calloc( 1, sizeof( PROCESS ) );
-
-	if ( !p )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 (int)sizeof( PROCESS ) );
-		exit( 1 );
-	}
-
-	return p;
-}
-
 LIST *process2list( char *executable )
 {
 	return pipe2list( executable );
@@ -354,9 +300,9 @@ void process_convert_parameters(
 }
 
 char *process_get_process_member_from_dictionary(
-				char *process_set,
-				DICTIONARY *parsed_decoded_post_dictionary,
-				char *from_starting_label )
+			char *process_set,
+			DICTIONARY *parsed_decoded_post_dictionary,
+			char *from_starting_label )
 {
 	char *process_member;
 	char key[ 1024 ];
@@ -460,274 +406,21 @@ void process_for_folder_or_attribute_parameters_populate_attribute_list(
 
 }
 
-LIST *process_get_prompt_list( 	LIST *process_parameter_list )
-{
-	LIST *prompt_list;
-	PROCESS_PARAMETER *process_parameter;
-	char *type;
-
-	prompt_list = list_new();
-
-	if ( list_reset( process_parameter_list ) )
-		do {
-			process_parameter = (PROCESS_PARAMETER *)
-				list_get( process_parameter_list );
-
-			if ( !process_parameter->type )
-			{
-				fprintf(stderr,
-			"Warning: %s/%s() got an empty process_parameter\n",
-					__FILE__,
-					__FUNCTION__ );
-				continue;
-			}
-
-			type = process_parameter->type;
-
-			if ( strcmp( type, "prompt" ) == 0 )
-			{
-				list_append_string(	prompt_list,
-							process_parameter->
-							parameter_prompt->
-							prompt );
-			}
-			else
-			if ( strcmp( type, "folder" ) == 0 
-			&&   process_parameter->parameter_folder->prompt )
-			{
-				list_append_string(	prompt_list,
-							process_parameter->
-							parameter_folder->
-							prompt );
-			}
-
-		} while( list_next( process_parameter_list ) );
-
-	list_separate( prompt_list, MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
-	return prompt_list;
-}
-
-ATTRIBUTE *process_get_attribute( 	char *application_name, 
-					char *attribute_name )
-{
-	return attribute_load_attribute(
-			application_name,
-			attribute_name );
-}
-
-void process_set_from_folder(	PROCESS *process,
-				char *from_folder )
-{
-	process->from_folder = strdup( from_folder );
-}
-
-
-void process_append_related_folder(
-				PROCESS *process,
-				char *related_folder )
-{
-	list_append_string( process->related_folder_list, related_folder );
-}
-
-int process_set_load(	char **notepad,
-			char **html_help_file_anchor,
-			char **post_change_javascript,
-			char **prompt_display_text,
-			char **preprompt_help_text,
-			boolean *prompt_display_bottom,
+void process_replace_parameter_variables(	
+			char *executable,
 			char *application_name,
 			char *session,
-			char *process_set_name )
-{
-	char sys_string[ 1024 ];
-	char piece_buffer[ 2048 ];
-	char *record;
-
-	sprintf( sys_string,
-		 "process_set_get_record.sh %s %s '%s' 2>>%s",
-		 application_name,
-		 session,
-		 process_set_name,
-		 appaserver_error_get_filename(
-				application_name ) );
-
-	if ( ! ( record = pipe2string( sys_string ) ) ) return 0;
-
-	piece( piece_buffer, '^', record, 0 );
-	*notepad = strdup( piece_buffer );
-
-	piece( piece_buffer, '^', record, 1 );
-	*html_help_file_anchor = strdup( piece_buffer );
-
-	piece( piece_buffer, '^', record, 2 );
-	*post_change_javascript = strdup( piece_buffer );
-
-	piece( piece_buffer, '^', record, 3 );
-	*prompt_display_text = strdup( piece_buffer );
-
-	piece( piece_buffer, '^', record, 4 );
-	*preprompt_help_text = strdup( piece_buffer );
-
-	piece( piece_buffer, '^', record, 5 );
-	*prompt_display_bottom = ( *piece_buffer == 'y' );
-
-	free( record );
-	return 1;
-}
-
-void process_load_executable(	char **executable,
-				char *process_name,
-				char *application_name )
-{
-	process_get_executable(	executable,
-				process_name,
-				application_name );
-}
-
-void process_get_executable(	char **executable,
-				char *process_name,
-				char *application_name )
-{
-	char sys_string[ 1024 ];
-	char where[ 256 ];
-
-	sprintf( where, "process = '%s'", process_name );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		"
-		 "			select=command_line	"
-		 "			folder=process		"
-		 "			where=\"%s\"		",
-		 application_name,
-		 where );
-
-
-/*
-fprintf( stderr, "%s/%s()/%d: sys_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-sys_string  );
-*/
-
-	*executable = pipe2string( sys_string );
-
-}
-
-boolean process_load(	char **executable,
-			char **notepad,
-			char **html_help_file_anchor,
-			char **post_change_javascript,
-			char **process_set_display,
-			char **preprompt_help_text,
-			boolean *is_appaserver_process,
-			char *application_name,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
 			char *process_name,
-			boolean check_executable_inside_filesystem )
-{
-	char piece_buffer[ 2048 ];
-	char process_name_search[ 128 ];
-	char *record;
-	static LIST *process_record_list = {0};
-
-	if ( !process_record_list )
-	{
-		process_record_list =
-			process_load_record_list( application_name );
-	}
-
-	if ( !list_rewind( process_record_list ) ) return 0;
-
-	do {
-		record = list_get_pointer( process_record_list );
-
-		piece( process_name_search, '^', record, 0 );
-
-		if ( timlib_strcmp(
-				process_name,
-				process_name_search ) == 0 )
-		{
-			piece( piece_buffer, '^', record, 1 );
-			*executable = strdup( piece_buffer );
-
-			if ( check_executable_inside_filesystem
-			&&   !process_executable_ok( *executable ) )
-			{
-				char msg[ 1024 ];
-
-				sprintf( msg,
-"ERROR in %s/%s()/%d: EXECUTABLE NOT OK for application = (%s) IN (%s)\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 application_name,
-					 *executable );
-
-				appaserver_output_error_message(
-					application_name,
-					msg,
-					(char *)0 );
-
-				return 0;
-			}
-
-			piece( piece_buffer, '^', record, 2 );
-			*notepad = strdup( piece_buffer );
-
-			piece( piece_buffer, '^', record, 3 );
-			*html_help_file_anchor = strdup( piece_buffer );
-
-			piece( piece_buffer, '^', record, 4 );
-			*post_change_javascript =
-				strdup( piece_buffer );
-
-			piece( piece_buffer, '^', record, 5 );
-			*process_set_display =
-				strdup( piece_buffer );
-
-			piece( piece_buffer, '^', record, 6 );
-			*preprompt_help_text =
-				strdup( piece_buffer );
-
-			piece( piece_buffer, '^', record, 7 );
-			*is_appaserver_process =
-				(*piece_buffer == 'y');
-
-			return 1;
-		}
-	} while( list_next( process_record_list ) );
-
-	return 0;
-}
-
-LIST *process_load_record_list( char *application_name )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "process_get_record_list.sh %s 2>>%s",
-		 application_name,
-		 appaserver_error_get_filename(
-				application_name ) );
-
-	return pipe2list( sys_string );
-}
-
-void process_replace_parameter_variables(	
-				char *executable,
-				char *application_name,
-				char *session,
-				char *state,
-				char *person,
-				char *folder_name,
-				char *role_name,
-				char *target_frame,
-				char *process_name,
-				char *process_set_name,
-				char *operation_row_count_string,
-				char *one2m_folder_name_for_process,
-				char *prompt,
-				char *process_id_string )
+			char *process_set_name,
+			char *operation_row_count_string,
+			char *one2m_folder_name_for_process,
+			char *prompt,
+			char *process_id_string )
 {
 	char buffer[ 1024 ];
 
@@ -932,56 +625,6 @@ void process_execution_count_increment(
 	if ( system( sys_string ) ){}
 }
 
-void process_increment_execution_count(
-			char *application_name,
-			char *process_name,
-			char *database_management_system )
-{
-if ( application_name ){}
-if ( database_management_system ){}
-
-	process_execution_count_increment( process_name );
-
-}
-
-boolean process_exists_appaserver_process(
-					char *application_name,
-					LIST *process_name_list )
-{
-	PROCESS *process;
-	boolean is_appaserver_process = 0;
-
-	if ( !process_name_list || !list_rewind( process_name_list ) )
-		return 0;
-
-	do {
-		process =
-			process_new_process(
-			     application_name,
-			     (char *)0 /* session */,
-			     list_get_pointer( process_name_list ),
-			     (DICTIONARY *)0 /* dictionary */,
-			     (char *)0 /* role_name */,
-			     0 /* not check_executable_inside_filesystem */ );
-
-		if ( !process )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: process_new_process returned null\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		is_appaserver_process =
-			process->is_appaserver_process;
-
-		if ( is_appaserver_process ) return 1;
-	} while( list_next( process_name_list ) );
-	return 0;
-}
-
 boolean process_executable_ok( char *executable )
 {
 	char command[ 128 ];
@@ -1059,12 +702,14 @@ void process_set_one2m_folder_name_for_process(
 	char key[ 128 ];
 
 	strcpy( key, ONE2M_FOLDER_NAME_FOR_PROCESS );
+
 	dictionary_add_pointer(
 		dictionary,
 		strdup( key ),
 		one2m_folder_name );
 
 	sprintf( key, "%s_0", ONE2M_FOLDER_NAME_FOR_PROCESS );
+
 	dictionary_add_pointer(
 		dictionary,
 		strdup( key ),
@@ -1970,10 +1615,109 @@ PROCESS_PARAMETER *process_parameter_parse(
 	return process_parameter;
 }
 
-PROCESS *process_fetch(
-			char *process_name,
+char *process_primary_where( char *process_name )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"process = '%s'",
+		process_name );
+
+	return where;
+}
+
+char *process_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '%s' %s \"%s\"",
+		PROCESS_SELECT,
+		PROCESS_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+PROCESS *process_parse(	char *input,
+			char *role_name,
 			boolean check_executable_inside_filesystem )
 {
+	PROCESS *process;
+	char process_name[ 128 ];
+	char buffer[ 65536 ];
+
+	/* See PROCESS_SELECT */
+	/* ------------------ */
+	piece( process_name, SQL_DELIMITER, input, 0 );
+	process = process_new( strdup( process_name ) );
+
+	process->role_name = role_name;
+
+	process->
+		check_executable_inside_filesystem =
+			check_executable_inside_filesystem;
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	process->command_line = strdup( buffer );
+
+	if ( process->check_executable_inside_filesystem
+	&&   !process_executable_ok( process->command_line ) )
+	{
+		char msg[ 1024 ];
+
+		sprintf( msg,
+"ERROR in %s/%s()/%d: EXECUTABLE NOT OK for [%s]\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 process->command_line );
+
+		appaserver_output_error_message(
+			environment_application_name(),
+			msg,
+			(char *)0 );
+
+		return (PROCESS *)0;
+	}
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	process->notepad = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	process->html_help_file_anchor = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	process->execution_count = atoi( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	process->post_change_javascript = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	process->process_set_display = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	process->process_group = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	process->preprompt_help_text = strdup( buffer );
+
+	return process;
+}
+
+PROCESS *process_fetch(
+			char *process_name,
+			char *role_name,
+			boolean check_executable_inside_filesystem )
+{
+	return
+	process_parse(
+		string_pipe_fetch(
+			process_system_string(
+				process_primary_where(
+					process_name ) ) ),
+		role_name,
+		check_executable_inside_filesystem );
 }
 
 PROCESS *process_new( char *process_name )
@@ -1993,5 +1737,174 @@ PROCESS *process_new( char *process_name )
 
 	p->process_name = process_name;
 	return p;
+}
+
+PROCESS_SET *process_set_fetch(
+			char *process_set_name,
+			char *role_name,
+			boolean check_executable_inside_filesystem )
+{
+	return
+	process_set_parse(
+		string_pipe_fetch(
+			process_set_system_string(
+				process_set_primary_where(
+					process_set_name ) ) ),
+		role_name,
+		check_executable_inside_filesystem );
+}
+
+char *process_set_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s"",
+		PROCESS_SET_SELECT,
+		PROCESS_SET_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+PROCESS_SET *process_set_parse(
+			char *input,
+			char *role_name,
+			boolean check_executable_inside_filesystem )
+{
+	PROCESS_SET *process_set;
+	char process_set_name[ 128 ];
+	char buffer[ 65536 ];
+
+	/* See PROCESS_SET_SELECT */
+	/* ---------------------- */
+	piece( process_set_name, SQL_DELIMITER, input, 0 );
+	process_set = process_set_new( strdup( process_set_name ) );
+
+	process_set->role_name = role_name;
+
+	process_set->
+		check_executable_inside_filesystem =
+			check_executable_inside_filesystem;
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	process_set->notepad = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	process_set->html_help_file_anchor = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	process_set->post_change_javascript = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 4 );
+	process_set->prompt_display_text = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 5 );
+	process_set->process_group = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 6 );
+	process_set->preprompt_help_text = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 7 );
+	process_set->prompt_display_bottom = ( *buffer == 'y' );
+
+	process_set->process_set_role_process_name_list =
+		process_set_role_process_name_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			process_set_primary_where(
+				process_set_name ),
+			role_name );
+
+	if ( list_length( 
+		process_set->
+			process_set_role_process_name_list  ) )
+	{
+		process_set->process_set_process_where =
+			process_set_process_where(
+				process_set->
+					process_set_role_process_name_list  );
+
+		process_set->process_list =
+			process_system_list(
+				process_system_string(
+					process_set->
+						process_set_process_where ),
+				process_set->
+					check_executable_inside_filesystem );
+	}
+
+	return process_set;
+}
+
+PROCESS_SET *process_set_new(
+			char *process_set_name )
+{
+	PROCESS_SET *p = calloc( 1, sizeof( PROCESS_SET ) );
+
+	if ( !p )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 (int)sizeof( PROCESS_SET ) );
+		exit( 1 );
+	}
+
+	p->process_set_name = process_set_name;
+	return p;
+}
+
+char *process_set_primary_where(
+			char *process_set_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"process_set = '%s'",
+		process_set_name );
+
+	return where;
+}
+
+LIST *process_set_role_process_name_list(
+			char *primary_where,
+			char *role_name )
+{
+	char system_string[ 1024 ];
+	char where[ 256 ];
+
+	sprintf(where,
+		"%s and role = '%s'",
+		primary_where,
+		role_name );
+
+	sprintf(system_string,
+		"select.sh process role_process_set_member \"%s\",
+		where );
+
+	return list_pipe_fetch( system_string );
+}
+
+char *process_set_process_where(
+			LIST *process_name_list )
+{
+	char where[ 65536 ];
+
+	if ( !list_length( process_name_list ) )
+	{
+		strcpy( where, "1 = 1" );
+	}
+	else
+	{
+		sprintf(where,
+			"process in (%s)",
+			string_in_clause( process_name_list ) );
+	}
+
+	return strdup( where );
 }
 

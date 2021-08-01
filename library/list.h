@@ -79,21 +79,29 @@ int delete_item();
 
 int num_items();
 
-int list_count( LIST *list );
+int list_count(		LIST *list );
 
-int list_length( LIST *list );
+int list_length(	LIST *list );
 
-int next_item( LIST *list );
+int next_item(		LIST *list );
 
-int list_next( LIST *list );
+int list_next(		LIST *list );
 
-int list_item_exists( LIST *list, char *item, int (*match_fn)() );
+int list_item_exists(	LIST *list,
+			char *item,
+			int (*match_fn)() );
 
-void *list_fetch( LIST *list, char *string, int (*match_fn)() );
+void *list_match_seek(	LIST *list,
+			char *string,
+			int (*match_fn)() );
 
-boolean item_exists( LIST *list, char *item, int (*match_fn)() );
+boolean item_exists(	LIST *list,
+			char *item,
+			int (*match_fn)() );
 
-boolean list_exists( LIST *list, char *item, int (*match_fn)() );
+boolean list_exists(	LIST *list,
+			char *item,
+			int (*match_fn)() );
 
 boolean list_exists_string(
 			char *string,
@@ -107,14 +115,21 @@ boolean list_exists_string_beginning(
 			LIST *list,
 			char *string );
 
-LIST *create_list( void );
-LIST *list_new( void );
-LIST *list_new_list( void );
-LIST *new_list( void );
-boolean go_head();
-boolean list_reset( LIST *list );
-boolean list_rewind( LIST *list );
-void *list_get( LIST *list );
+LIST *create_list(	void );
+
+LIST *list_new(		void );
+
+LIST *list_new_list(	void );
+
+LIST *new_list(		void );
+
+boolean go_head(	LIST * );
+
+boolean list_reset(	LIST *list );
+
+boolean list_rewind(	LIST *list );
+
+void *list_get(		LIST *list );
 
 void *list_pointer(		LIST *list );
 
@@ -128,11 +143,14 @@ int next_node();
 int previous_node();
 int retrieve_item( char *ret_item, LIST *list );
 char *retrieve_item_ptr();
+
 char *add_item(	LIST *list,
 		void *this_item,
 		int num_bytes,
 		int head_or_tail_or_current );
+
 int destroy_list( LIST *list );
+
 void list_free( LIST *list );
 struct LINKTYPE *get_current_record( LIST *list );
 void go_record( LIST *list, struct LINKTYPE *l );
@@ -145,17 +163,21 @@ int list_at_first( LIST *list );
 int at_head( LIST *list );
 int at_end( LIST *list );
 
-LIST *sys_string2list(
-			char *sys_string );
+LIST *list_pipe_fetch(	char *sys_string );
+
+LIST *sys_string2list(	char *sys_string );
 
 LIST *pipe2list(	char *sys_string );
 
 LIST *list_string_list(	char *list_string,
 			char delimiter );
 
-LIST *string2list( char *list_string, char delimiter );
+LIST *string2list(	char *list_string,
+			char delimiter );
 
-LIST *list_delimiter_string_to_list( char *list_string, char delimiter );
+LIST *list_delimiter_string_to_list(
+			char *list_string,
+			char delimiter );
 
 /* offset is zero based */
 /* -------------------- */

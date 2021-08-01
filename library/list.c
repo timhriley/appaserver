@@ -918,6 +918,23 @@ void list_get_from_pipe( LIST *list, char *pipe_string )
 	list_load_from_pipe( list, pipe_string );
 }
 
+LIST *list_pipe_fetch( char *pipe_string )
+{
+	char buffer[ 65536 ];
+	FILE *p;
+	LIST *list = list_new();
+
+	p = popen( pipe_string, "r" );
+
+	while( string_input( buffer, p, 65536 ) )
+	{
+		list_set( list, strdup( buffer ) );
+	}
+
+	pclose( p );
+	return list;
+}
+
 void list_load_from_pipe( LIST *list, char *pipe_string )
 {
 	char buffer[ 65536 ];
@@ -1027,7 +1044,7 @@ int num_in_list( LIST *list )
         	return list->num_in_list;
 }
 
-void *list_fetch( LIST *list, char *string, int (*match_fn)() )
+void *list_match_seek( LIST *list, char *string, int (*match_fn)() )
 {
 	if ( list_exists( list, string, match_fn ) )
 		return list->current->item;
