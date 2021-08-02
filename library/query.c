@@ -33,144 +33,6 @@ QUERY *query_calloc( void )
 	return query;
 }
 
-QUERY_OUTPUT *query_output_calloc( void )
-{
-	QUERY_OUTPUT *query_output;
-
-	if ( ! ( query_output = calloc( 1, sizeof( QUERY_OUTPUT ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return query_output;
-
-}
-
-QUERY_OUTPUT *query_primary_data_output_new(
-			QUERY *query,
-			FOLDER *folder,
-			boolean include_root_folder )
-{
-	QUERY_OUTPUT *query_output;
-	LIST *exclude_attribute_name_list = list_new();
-
-	query_output = query_output_calloc();
-
-	if ( !folder )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	query_output->from_clause =
-		query_from_clause(
-			folder->folder_name,
-			(LIST *)0 /* isa_attribute_list */,
-			(char *)0 /* attribute_not_null_folder_name */ );
-
-	query_output->
-		query_drop_down_list =
-			query_primary_data_drop_down_list(
-				exclude_attribute_name_list,
-				folder /* root_folder */,
-				folder->
-					mto1_related_folder_list,
-				folder->
-				    mto1_append_isa_related_folder_list,
-				query->dictionary,
-				include_root_folder );
-
-	query_output->query_attribute_list =
-		query_attribute_list(
-			folder->append_isa_attribute_list,
-			query->dictionary,
-			exclude_attribute_name_list );
-
-	query_output->where_clause =
-		query_combined_where_clause(
-			&query_output->drop_down_where_clause,
-			&query_output->attribute_where_clause,
-			query_output->query_drop_down_list,
-			query_output->query_attribute_list,
-			folder->application_name,
-			folder->folder_name,
-			0 /* not combine_date_time */ );
-
-	if ( folder->row_level_non_owner_forbid
-	&&   list_length( folder->mto1_isa_related_folder_list ) )
-	{
-		RELATED_FOLDER *isa_related_folder;
-		LIST *foreign_attribute_name_list;
-
-		list_rewind( folder->mto1_isa_related_folder_list );
-
-		do {
-			isa_related_folder =
-				list_get_pointer(
-					folder->
-					mto1_isa_related_folder_list );
-
-			foreign_attribute_name_list =
-				   folder_get_primary_attribute_name_list(
-					isa_related_folder->folder->
-						attribute_list );
-
-			query_output->where_clause =
-				query_append_where_clause_related_join(
-					folder->application_name,
-					query_output->where_clause,
-					folder_get_primary_attribute_name_list(
-						folder->attribute_list ),
-					foreign_attribute_name_list,
-					folder->folder_name,
-					isa_related_folder->
-						folder->
-						folder_name );
-
-		} while( list_next( folder-> mto1_isa_related_folder_list ) );
-	}
-
-	return query_output;
-}
-
-QUERY_OUTPUT *query_process_parameter_output_new(
-				DICTIONARY *dictionary,
-				char *application_name,
-				LIST *attribute_list )
-{
-	QUERY_OUTPUT *query_output;
-
-	query_output = query_output_calloc();
-
-	query_output->query_attribute_list =
-		query_attribute_list(
-			attribute_list,
-			dictionary,
-			(LIST *)0
-				/* exclude_attribute_name_list */ );
-
-	query_output->where_clause =
-		query_combined_where_clause(
-			&query_output->drop_down_where_clause,
-			&query_output->attribute_where_clause,
-			query_output->query_drop_down_list,
-			query_output->query_attribute_list,
-			application_name,
-			(char *)0 /* folder_name */,
-			1 /* combine_date_time */ );
-
-	return query_output;
-}
-
 char *query_system_string( 	char *select_clause,
 				char *from_clause,
 				char *where_clause,
@@ -3172,104 +3034,6 @@ QUERY_OUTPUT *query_process_drop_down_output_new(
 	return query_output;
 }
 
-QUERY *query_folder_data_new(	char *application_name,
-				char *login_name,
-				char *folder_name,
-				DICTIONARY *dictionary,
-				ROLE *role,
-				int max_rows,
-				boolean include_root_folder )
-{
-	QUERY *query;
-
-	query = query_calloc();
-
-	if ( !folder_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty folder_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ! ( query->folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				folder_name,
-				role ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	query->login_name = login_name;
-	query->dictionary = dictionary;
-	query->max_rows = max_rows;
-
-	query->query_output =
-		query_primary_data_output_new(
-			query,
-			query->folder,
-			include_root_folder );
-
-	return query;
-}
-
-QUERY *query_related_folder_data_new(
-			char *application_name,
-			char *login_name,
-			char *folder_name,
-			DICTIONARY *dictionary,
-			ROLE *role,
-			int max_rows )
-{
-	QUERY *query;
-
-	query = query_calloc();
-
-	if ( !folder_name )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty folder_name.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( ! ( query->folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				folder_name,
-				role ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	query->login_name = login_name;
-	query->dictionary = dictionary;
-	query->max_rows = max_rows;
-
-	query->query_output =
-		query_related_data_output_new(
-			query,
-			query->folder );
-
-	return query;
-}
 
 #ifdef NOT_DEFINED
 QUERY_DROP_DOWN *query_related_data_drop_down(
@@ -3503,17 +3267,17 @@ check_mto1_append_isa_related_folder_list:
 
 QUERY *query_edit_table_new(
 			DICTIONARY *query_dictionary,
-			char *login_name_only,
-			char *full_name_only,
-			char *street_address_only,
-			FOLDER *mto1_folder,
-			LIST *ignore_attribute_name_list,
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			LIST *ignore_select_attribute_name_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name,
 			DICTIONARY *sort_dictionary )
 {
-	QUERY *query;
+	QUERY *query = query_calloc();
 
+	query->
 	if ( mto1_folder->row_level_non_owner_forbid )
 	{
 		/* Sets login_name or entity to query_dictionary */
@@ -4325,10 +4089,11 @@ QUERY_OUTPUT *query_detail_output_new(
 }
 
 QUERY *query_detail_new(
-			char *application_name,
-			char *login_name,
-			FOLDER *folder,
 			LIST *where_attribute_data_list,
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			LIST *ignore_select_attribute_name_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name )
 {
@@ -4440,9 +4205,9 @@ char *query_from_clause(
 
 QUERY *query_simple_new(
 			DICTIONARY *query_dictionary,
-			char *login_name,
 			char *folder_name,
 			char *role_name,
+			char *login_name,
 			LIST *ignore_select_attribute_name_list )
 {
 	QUERY *query;

@@ -1312,9 +1312,9 @@ int dictionary_index_data(
 }
 
 void dictionary_search_replace_command_arguments( 	
-					char *source_destination,
-					DICTIONARY *dictionary, 
-					int index )
+			char *source_destination,
+			DICTIONARY *dictionary, 
+			int index )
 {
 	LIST *column_list;
 	char *column;
@@ -1373,7 +1373,6 @@ void dictionary_search_replace_command_arguments(
 			}
 		}
 	} while( list_next( column_list ) );
-
 }
 
 LIST *dictionary_using_list_get_index_data_list(

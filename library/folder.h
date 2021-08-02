@@ -68,13 +68,16 @@ typedef struct
 	PROCESS *post_change_process;
 	LIST *role_exclude_attribute_name_list;
 	LIST *folder_attribute_list;
+	LIST *primary_attribute_name_list;
 	LIST *role_folder_list;
 	long int folder_row_count;
 	char *folder_row_level_restriction_string;
 	char *folder_table_name;
 	LIST *folder_attribute_append_isa_list;
 	LIST *mto1_isa_relation_list;
-
+	LIST *folder_primary_delimited_list;
+	LIST *folder_delimited_list;
+	LIST *folder_dictionary_list;
 } FOLDER;
 
 /* Operations */
@@ -127,5 +130,29 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 
 char *folder_row_level_restriction_string(
 			char *folder_name );
+
+LIST *folder_process_primary_delimited_list(
+			PROCESS *populate_drop_down_process,
+			DICTIONARY *preprompt_dictionary.
+			char *login_name );
+
+LIST *folder_query_primary_delimited_list(
+			char *table_name,
+			LIST *folder_attribute_list,
+			LIST *primary_attribute_name_list,
+			DICTIONARY *preprompt_dictionary.
+			char *login_name );
+
+LIST *folder_delimited_list(
+			char *table_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *query_dictionary );
+
+LIST *folder_dictionary_list(
+			char *table_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *query_dictionary );
 
 #endif

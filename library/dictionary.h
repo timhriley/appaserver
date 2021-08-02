@@ -266,6 +266,9 @@ char *dictionary_get_with_prefix_at_index_zero(
 			char *prefix,
 			char *key );
 
+DICTIONARY *dictionary_copy(
+			DICTIONARY *dictionary );
+
 DICTIONARY *copy_dictionary(
 			DICTIONARY *dictionary );
 
@@ -548,9 +551,6 @@ DICTIONARY *dictionary_add_prefix(
 void dictionary_delete_keys_with_prefix(
 			DICTIONARY *dictionary, 
 			char *prefix );
-
-DICTIONARY *dictionary_copy(
-			DICTIONARY *dictionary );
 
 
 LIST *dictionary_get_key_data_list(

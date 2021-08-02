@@ -23,11 +23,176 @@
 #include "appaserver.h"
 #include "appaserver_parameter_file.h"
 #include "operation.h"
+#include "security.h"
+#include "folder.h"
 #include "process.h"
 
-LIST *process2list( char *executable )
+LIST *process_executable_list( char *command_line )
 {
-	return pipe2list( executable );
+	return pipe2list( command_line );
+}
+
+void process_convert_dictionary_login_name(
+			char **command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name )
+{
+	char buffer[ 65536 ];
+	char local_executable[ 65536 ];
+
+	string_strcpy( local_executable, *command_line, 65536 );
+
+	/* This memory is always heap */
+	/* -------------------------- */
+	free( *command_line );
+
+	if ( dictionary_length( preprompt_dictionary ) )
+	{
+		char *data;
+		DICTIONARY *local_dictionary;
+	
+		local_dictionary =
+			dictionary_copy(
+				parameter_dictionary );
+
+		if ( !dictionary_exists_key_index(
+				local_dictionary,
+				"login_name",
+				0 ) )
+		{
+			dictionary_set_pointer(
+				local_parameter_dictionary,
+				"login_name_0",
+				login_name );
+		}
+
+		dictionary_search_replace_command_arguments(
+			local_executable,
+			local_parameter_dictionary, 
+			row );
+
+	} /* if preprompt_dictionary */
+
+	if ( primary_data_list )
+	{
+		search_replace_word(	local_executable,
+					"$primary_data_list",
+					list_display_quoted_delimiter( 
+						buffer,
+						primary_data_list,
+						SQL_DELIMITER ) );
+	}
+
+	if ( primary_attribute_name_list )
+	{
+		search_replace_word(	local_executable,
+					"$primary_attribute_list",
+					list_display_quoted_delimiter( 
+						buffer,
+						primary_attribute_name_list,
+						',' ) );
+	}
+
+	if ( prompt_list )
+	{
+		search_replace_list_index_prepend_double_quoted(
+			local_executable, 
+			prompt_list,
+			local_parameter_dictionary,
+			0, 	                  /* dictionary_key_offset */
+			QUERY_FROM_STARTING_LABEL,/* dictionary_key_prepend */
+			' '	                  /* replace_char_prepend */
+			);
+
+		search_replace_list_index_prepend_double_quoted(
+			local_executable, 
+			prompt_list,
+			local_parameter_dictionary,
+			0, 	             /* dictionary_key_offset */
+			"",		    /* dictionary_key_prepend */
+			' '	              /* replace_char_prepend */
+			);
+	}
+
+	if ( attribute_name_list )
+	{
+		search_replace_list_index_prepend_double_quoted(
+			local_executable, 
+			attribute_name_list,
+			local_parameter_dictionary,
+			0, 	                  /* dictionary_key_offset */
+			QUERY_FROM_STARTING_LABEL,/* dictionary_key_prepend */
+			' '	                  /* replace_char_prepend */
+			);
+
+		search_replace_list_index_prepend_double_quoted(
+			local_executable, 
+			attribute_name_list,
+			local_parameter_dictionary,
+			0, 	             /* dictionary_key_offset */
+			"",		    /* dictionary_key_prepend */
+			' '	              /* replace_char_prepend */
+			);
+	}
+
+	process_replace_parameter_variables(
+				local_executable,
+				application_name,
+				session,
+				state,
+				person,
+				folder_name,
+				role_name,
+				target_frame,
+				process_name,
+				process_set_name,
+				operation_row_count_string,
+				one2m_folder_name_for_process,
+				prompt,
+				process_id_string );
+
+	if ( state && *state )
+	{
+		dictionary_set_pointer(
+			local_parameter_dictionary,
+			"state",
+			state );
+	}
+
+	if ( timlib_exists_string( local_executable, "$dictionary" )
+	&&   dictionary_length( local_parameter_dictionary ) )
+	{
+		search_replace_word(
+			local_executable,
+			"$dictionary",
+			double_quotes_around(
+				buffer, 
+				dictionary_display_delimited(
+					local_parameter_dictionary, '&' ) 
+				) );
+	}
+
+	if ( timlib_exists_string( local_executable, "$where" ) )
+	{
+		process_search_replace_executable_where(
+			local_executable,
+			application_name,
+			folder_name,
+			attribute_list,
+			where_clause_dictionary );
+	}
+
+	sprintf(	local_executable + strlen( local_executable ),
+			" 2>>%s",
+			appaserver_error_get_filename(
+				application_name ) );
+
+	strcpy( buffer, local_executable );
+	escape_character( local_executable, buffer, '$' );
+
+	remove_character( local_executable, '`' );
+
+	*executable = strdup( local_executable );
 }
 
 void process_convert_parameters(
@@ -184,7 +349,7 @@ void process_convert_parameters(
 					list_display_quoted_delimiter( 
 						buffer,
 						primary_data_list,
-						FOLDER_DATA_DELIMITER ) );
+						SQL_DELIMITER ) );
 	}
 
 	if ( primary_attribute_name_list )
@@ -299,7 +464,7 @@ void process_convert_parameters(
 	*executable = strdup( local_executable );
 }
 
-char *process_get_process_member_from_dictionary(
+char *process_dictionary_process_member(
 			char *process_set,
 			DICTIONARY *parsed_decoded_post_dictionary,
 			char *from_starting_label )
@@ -308,102 +473,22 @@ char *process_get_process_member_from_dictionary(
 	char key[ 1024 ];
 	int results;
 
-	sprintf( key, "%s%s",
-		 from_starting_label,
-		 process_set );
+	sprintf(key,
+		"%s%s",
+		from_starting_label,
+		process_set );
 
-	results = dictionary_get_index_data(
-				&process_member,
-				parsed_decoded_post_dictionary,
-				key,
-				0 /* index */ );
+	results =
+		dictionary_get_index_data(
+			&process_member,
+			parsed_decoded_post_dictionary,
+			key,
+			0 /* index */ );
+
 	if ( results > -1 )
 		return process_member;
 	else
 		return (char *)0;
-}
-
-void process_for_folder_or_attribute_parameters_populate_attribute_list(
-				LIST *attribute_list,
-				char *application_name,
-				LIST *process_parameter_list )
-{
-	PROCESS_PARAMETER *process_parameter;
-	char *type;
-
-	if ( !list_reset( process_parameter_list ) ) return;
-
-	do {
-		process_parameter = list_get( process_parameter_list );
-
-		if ( !process_parameter->type )
-		{
-			fprintf(stderr,
-		"Warning: %s/%s() got an empty process_parameter\n",
-				__FILE__,
-				__FUNCTION__ );
-			continue;
-		}
-
-		type = process_parameter->type;
-
-		if ( strcmp( type, "folder" ) == 0 )
-		{
-			FOLDER *folder;
-
-			if ( !process_parameter->
-				parameter_folder->
-					folder_name )
-			{
-				char msg[ 1024 ];
-				sprintf(msg,
-"ERROR: %s/%s() got a folder type but an empty folder_name\n",
-					__FILE__,
-					__FUNCTION__ );
-				appaserver_output_error_message(
-					application_name,
-					msg,
-					(char *)0 );
-				exit( 1 );
-			}
-
-			folder = 
-				folder_new_folder(
-					application_name,
-					BOGUS_SESSION,
-					process_parameter->
-					  	parameter_folder->
-					  	folder_name );
-
-			folder->attribute_list =
-				attribute_get_attribute_list(
-					folder->application_name,
-					folder->folder_name,
-					(char *)0 /* attribute_name */,
-					(LIST *)0
-					     /* mto1_isa_related_folder_list */,
-					(char *)0 /* role_name */ );
-
-			list_append_list(
-				attribute_list,
-				folder->attribute_list );
-		}
-		else
-		if ( strcmp( type, "attribute" ) == 0 )
-		{
-			ATTRIBUTE *attribute;
-
-			attribute =
-				process_get_attribute(		
-					application_name,
-					process_parameter->
-						parameter_attribute->
-						attribute_name );
-
-			list_append_pointer( attribute_list, attribute );
-		}
-	} while( list_next( process_parameter_list ) );
-
 }
 
 void process_replace_parameter_variables(	
@@ -1486,7 +1571,8 @@ char *drop_down_prompt_system_string(
 
 LIST *process_parameter_system_list(
 			char *system_string,
-			DICTIONARY *preprompt_dictionary )
+			DICTIONARY *preprompt_dictionary,
+			char *login_name )
 {
 	LIST *list = {0};
 	char input[ 1024 ];
@@ -1498,7 +1584,8 @@ LIST *process_parameter_system_list(
 		if ( ( process_parameter =
 				process_parameter_parse(
 					input,
-					preprompt_dictionary ) ) )
+					preprompt_dictionary,
+					login_name ) ) )
 		{
 			if ( !list ) list = list_new();
 
@@ -1540,7 +1627,8 @@ char *process_set_parameter_system_string(
 
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
-			DICTIONARY *preprompt_dictionary )
+			DICTIONARY *preprompt_dictionary,
+			char *login_name )
 {
 	char process_or_process_set_name[ 128 ];
 	char folder_name[ 128 ];
@@ -1548,7 +1636,8 @@ PROCESS_PARAMETER *process_parameter_parse(
 	char drop_down_prompt_name[ 128 ];
 	char prompt_name[ 128 ];
 	char buffer[ 128 ];
-	PROCESS_PARAMETER *process_parameterk
+	PROCESS_PARAMETER *process_parameter;
+	boolean ok_return = 0;
 
 	/* See PROCESS_PARAMETER_SELECT or PROCESS_SET_PARAMETER_SELECT */
 	/* ------------------------------------------------------------ */
@@ -1565,6 +1654,9 @@ PROCESS_PARAMETER *process_parameter_parse(
 			strdup( attribute_name ),
 			strdup( drop_down_prompt_name ),
 			strdup( prompt_name ) );
+
+	process_parameter->preprompt_dictionary = preprompt_dictionary;
+	process_parameter->login_name = login_name;
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
 	process_parameter->display_order = atoi( buffer );
@@ -1583,9 +1675,14 @@ PROCESS_PARAMETER *process_parameter_parse(
 
 	if ( strcmp( process_parameter->folder_name, "null" != 0 )
 	{
-		process_parameter->folder =
-			folder_primary_data_fetch(
-				process_parameter->folder_name );
+		process_parameter->primary_delimited_list =
+			process_parameter_primary_delimited_list(
+				process_parameter->preprompt_dictionary,
+				process_parameter->login_name,
+				process_parameter->folder_name,
+				process_parameter->
+					populate_drop_down_process_name );
+		ok_return = 1;
 	}
 	else
 	if ( strcmp( process_parameter->attribute_name, "null" ) != 0 )
@@ -1594,6 +1691,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 			attribute_fetch(
 				process_parameter->
 					attribute_name );
+		ok_return = 1;
 	}
 	else
 	if ( strcmp( process_parameter->drop_down_prompt_name, "null" ) != 0 )
@@ -1602,6 +1700,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 			drop_down_prompt_fetch(
 				process_parameter->
 					drop_down_prompt_name );
+		ok_return = 1;
 	}
 	else
 	if ( strcmp( process_parameter->prompt, "null" ) != 0 )
@@ -1610,9 +1709,13 @@ PROCESS_PARAMETER *process_parameter_parse(
 			prompt_fetch(
 				process_parameter->
 					prompt_name );
+		ok_return = 1;
 	}
 
-	return process_parameter;
+	if ( ok_return )
+		return process_parameter;
+	else
+		return (PROCESS_PARAMETER *)0;
 }
 
 char *process_primary_where( char *process_name )
@@ -1646,6 +1749,8 @@ PROCESS *process_parse(	char *input,
 	PROCESS *process;
 	char process_name[ 128 ];
 	char buffer[ 65536 ];
+
+	if ( !input || !*input ) return (PROCESS *)0;
 
 	/* See PROCESS_SELECT */
 	/* ------------------ */
@@ -1906,5 +2011,39 @@ char *process_set_process_where(
 	}
 
 	return strdup( where );
+}
+
+LIST *process_parameter_primary_delimited_list(
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *folder_name,
+			char *populate_drop_down_process_name )
+{
+	if ( *process_parameter->populate_drop_down_process_name )
+	{
+		return
+		folder_process_primary_delimited_list(
+			process_fetch(
+				populate_drop_down_process_name,
+				1 /* check_executable... */ ),
+			preprompt_dictionary,
+			login_name );
+	}
+	else
+	{
+		LIST *list =
+			folder_attribute_list(
+				folder_name,
+				(LIST *)0 /* exclude_attribute_name_list */ );
+
+		return
+		folder_query_primary_delimited_list(
+			folder_table_name(
+				environment_application_name(),
+				folder_name ),
+			list /* folder_attribute_list */,
+			folder_attribute_primary_name_list( list ),
+			login_name );
+	}
 }
 

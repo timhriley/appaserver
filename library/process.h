@@ -142,6 +142,8 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *process_or_set_name;
+	DICTIONARY *preprompt_dictionary;
+	char *login_name;
 	char *folder_name;
 	char *attribute_name;
 	char *drop_down_prompt_name;
@@ -149,7 +151,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	FOLDER *folder;
+	LIST *primary_delimited_list;
 	ATTRIBUTE *attribute;
 	DROP_DOWN_PROMPT *drop_down_prompt;
 	PROMPT *prompt;
@@ -167,7 +169,10 @@ typedef struct
 void process_execution_count_increment(
 			char *process_name );
 
-LIST *process2list(	char *executable );
+void process_convert_dictionary_login_name(
+			char **command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name );
 
 void process_convert_parameters(
 			char **executable,
@@ -191,46 +196,10 @@ void process_convert_parameters(
 			char *operation_row_count_string,
 			char *prompt );
 
-void process_for_folder_or_attribute_parameters_populate_attribute_list(
-			LIST *attribute_list,
-			char *application_name,
-			LIST *process_parameter_list );
-
-char *process_get_process_member_from_dictionary(
+char *process_dictionary_process_member(
 			char *process_set,
 			DICTIONARY *parsed_decoded_post_dictionary,
 			char *from_starting_label );
-
-void process_load_executable(
-			char **executable,
-			char *process_name,
-			char *application_name );
-
-void process_get_executable(
-			char **executable, 
-			char *application_name,
-			char *process_name );
-
-void process_get_member_executable( 
-			char *executable, 
-			char *application_name,
-			char *role,
-			char *process,
-			DICTIONARY *parsed_decoded_post_dictionary );
-
-void process_get_executable_role( 	
-			char *executable, 
-			char *application_name,
-			char *role,
-			char *process_name );
-
-void process_set_from_folder(
-			PROCESS *process,
-			char *from_folder );
-
-void process_append_related_folder(
-			PROCESS *process,
-			char *related_folder );
 
 void process_replace_parameter_variables(	
 			char *executable,
@@ -360,7 +329,8 @@ char *drop_down_prompt_system_string(
 /* ================= */
 LIST *process_parameter_system_list(
 			char *system_string,
-			DICTIONARY *preprompt_dictionary );
+			DICTIONARY *preprompt_dictionary,
+			char *login_name );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -374,7 +344,14 @@ char *process_set_parameter_system_string(
 
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
-			DICTIONARY *preprompt_dictionary );
+			DICTIONARY *preprompt_dictionary,
+			char *login_name );
+
+LIST *process_parameter_primary_delimited_list(
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *folder_name,
+			char *populate_drop_down_process_name );
 
 /* PROCESS_STRUCTURE */
 /* ================= */
@@ -403,6 +380,9 @@ PROCESS *process_parse(	char *input,
 			char *role_name,
 			boolean check_executable_inside_filesystem );
 
+LIST *process_executable_list(
+			char *command_line );
+
 /* PROCESS_SET */
 /* =========== */
 PROCESS_SET *process_set_new(
@@ -425,10 +405,6 @@ PROCESS_SET *process_set_parse(
 			char *input,
 			char *role_name,
 			boolean check_executable_inside_filesystem );
-
-LIST *process_set_role_process_name_list(
-			char *primary_where,
-			char *role_name );
 
 /* Returns heap memory */
 /* ------------------- */

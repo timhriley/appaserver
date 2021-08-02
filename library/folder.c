@@ -14,6 +14,8 @@
 #include "process.h"
 #include "folder_attribute.h"
 #include "role_folder.h"
+#include "process.h"
+#include "query.h"
 #include "folder.h"
 
 FOLDER *folder_new( char *sql_injection_escape_folder_name )
@@ -114,8 +116,8 @@ FOLDER *folder_parse(	char *input,
 	char insert_rows_number[ 128 ];
 	char lookup_email_output_yn[ 128 ];
 	char notepad[ 65536 ];
-	char populate_drop_down_process[ 128 ];
-	char post_change_process[ 128 ];
+	char populate_drop_down_process_name[ 128 ];
+	char post_change_process_name[ 128 ];
 	char html_help_file_anchor[ 128 ];
 	char post_change_javascript[ 2048 ];
 	char subschema[ 128 ];
@@ -147,27 +149,13 @@ FOLDER *folder_parse(	char *input,
 	piece( notepad, SQL_DELIMITER, input, 4 );
 	folder->notepad = strdup( notepad );
 
-	if ( fetch_process )
-	{
-		piece( populate_drop_down_process, SQL_DELIMITER, input, 5 );
+	piece( populate_drop_down_process_name, SQL_DELIMITER, input, 5 );
+	folder->populate_drop_down_process_name =
+		strdup( populate_drop_down_process_name );
 
-		folder->populate_drop_down_process =
-			/* -------------------- */
-			/* Does a PROCESS fetch */
-			/* -------------------- */
-			process_new(
-				environment_application(),
-				strdup( populate_drop_down_process ),
-				0 /* not check_executable_inside_filesystem */);
-
-		piece( post_change_process, SQL_DELIMITER, input, 6 );
-
-		folder->post_change_process =
-			process_new(
-				environment_application(),
-				strdup( post_change_process ),
-				1 /* check_executable_inside_filesystem */ );
-	}
+	piece( post_change_process_name, SQL_DELIMITER, input, 6 );
+	folder->post_change_process_name =
+		strdup( post_change_process_name );
 
 	piece( html_help_file_anchor, SQL_DELIMITER, input, 7 );
 	folder->html_help_file_anchor = strdup( html_help_file_anchor );
@@ -213,7 +201,21 @@ FOLDER *folder_parse(	char *input,
 				role_exclude_attribute_name_list );
 	}
 
-	if ( fetch_role_folder_list )
+	if ( fetch_process )
+	{
+		folder->populate_drop_down_process =
+			process_fetch(
+				folder->populate_drop_down_process_name,
+				(char *)0 /* role_name */,
+				1 /* check_executable_inside_filesystem */ );
+
+		folder->post_change_process =
+			process_fetch(
+				folder->post_change_process_name,
+				1 /* check_executable_inside_filesystem */ );
+	}
+
+	if ( fetch_role_folder_list && sql_injection_escape_role_name )
 	{
 		folder->sql_injection_escape_role_name =
 			sql_injection_escape_role_name;
@@ -317,5 +319,78 @@ char *folder_row_level_restriction_string( char *folder_name )
 		folder_primary_where( folder_name ) );
 
 	return string_fetch_pipe( system_string );
+}
+
+LIST *folder_query_primary_delimited_list(
+			char *table_name,
+			LIST *folder_attribute_list,
+			LIST *primary_attribute_name_list,
+			DICTIONARY *preprompt_dictionary.
+			char *login_name )
+{
+	QUERY *query;
+}
+
+LIST *folder_process_primary_delimited_list(
+			PROCESS *populate_drop_down_process,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name )
+{
+	LIST *return_list;
+	char *parameter_process_name;
+
+	if ( !populate_drop_down_process )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: populate_drop_down_process is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	process_convert_dictionary_login_name(
+		&populate_drop_down_process->executable,
+		preprompt_dictionary,
+		login_name );
+
+fprintf( stderr, "%s/%s()/%d: executable = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+populate_drop_down_process->executable );
+
+	return_list =
+		process_executable_list(
+			populate_drop_down_process->executable );
+
+	if ( piece_multi_attribute_data_label_delimiter )
+	{
+		return_list =
+			list_usage_piece_list(
+				return_list,
+				piece_multi_attribute_data_label_delimiter,
+				0 /* offset */ );
+	}
+
+	return return_list;
+}
+
+LIST *folder_delimited_list(
+			char *table_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *query_dictionary )
+{
+	return (LIST *)0;
+}
+
+LIST *folder_dictionary_list(
+			char *table_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *query_dictionary )
+{
+	return (LIST *)0;
 }
 
