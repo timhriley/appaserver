@@ -1301,13 +1301,15 @@ char *insert_str( char *sub, char *string, int pos )
 }
 
 
-char *search_replace_word( 	char *source_destination,
-				char *search_str, 
-				char *replace_str )
+char *search_replace_word(
+			char *source_destination,
+			char *search_str, 
+			char *replace_str )
 {
         int here, len_search = strlen( search_str );
 
-	if ( (here = instr_exclude_double_quoted(
+	if ( ( here =
+		instr_exclude_double_quoted(
 			search_str,
 			source_destination, 1) ) == -1 )
 	{
@@ -1316,6 +1318,7 @@ char *search_replace_word( 	char *source_destination,
 
 	delete_str( source_destination, here, len_search );
 	insert_str( replace_str, source_destination, here );
+
 	return source_destination;
 }
 

@@ -638,63 +638,58 @@ void process_set_one2m_folder_name_for_process(
 		one2m_folder_name );
 }
 
-void process_search_replace_executable_where(
-			char *local_executable,
-			char *application_name,
-			char *folder_name,
-			LIST *attribute_list,
-			DICTIONARY *where_clause_dictionary )
+void process_parameter_search_replace_where(
+			char *command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name )
 {
 	QUERY *query;
 	char *where_clause;
-	char buffer[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
 
-	if ( folder_name )
+	if ( !command_line )
 	{
-		query =
-			query_primary_data_new(
-				application_name,
-				(char *)0 /* login_name */,
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: command_line is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( query =
+			query_process_parameter_new(
+				preprompt_dictionary,
 				folder_name,
-				where_clause_dictionary,
-				(ROLE *)0,
-				0 /* max_rows; zero for unlimited */,
-				1 /* include_root_folder */ );
-
-		where_clause = query->query_output->where_clause;
-
-		if ( where_clause )
-		{
-			search_replace_word( 	local_executable, 
-						"$where", 
-						double_quotes_around( 	
-							buffer,
-							where_clause ) );
-		}
-		return;
-	}
-
-	if ( list_length( attribute_list ) )
+				role_name,
+				login_name ) ) )
 	{
-		QUERY *query;
-
-		query = query_process_parameter_new(
-				application_name,
-				attribute_list,
-				where_clause_dictionary );
-
-		where_clause = query->query_output->where_clause;
-
-		if ( where_clause )
-		{
-			search_replace_word( 	local_executable, 
-						"$where", 
-						double_quotes_around( 	
-							buffer,
-							where_clause ) );
-		}
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: query_process_parameter_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
+	search_replace_word(
+		command_line, 
+		"$where", 
+		double_quotes_around( 	
+			buffer,
+			query->where ) );
 }
 
 boolean process_interpreted_executable_ok( char *which_string )
@@ -1940,8 +1935,6 @@ command_line );
 	return return_list;
 }
 
-}
-
 void process_parameter_command_line_replace(
 			char **command_line,
 			DICTIONARY *preprompt_dictionary,
@@ -1950,8 +1943,8 @@ void process_parameter_command_line_replace(
 			char *folder_name,
 			char *application_name )
 {
-	char buffer[ 65536 ];
-	char local_executable[ 65536 ];
+	char buffer[ QUERY_WHERE_BUFFER ];
+	char local_executable[ QUERY_WHERE_BUFFER ];
 	char buffer[ 1024 ];
 	char *data;
 
@@ -1997,22 +1990,22 @@ void process_parameter_command_line_replace(
 				) );
 	}
 
+	if ( timlib_exists_string( local_executable, "$where" ) )
+	{
+		process_parameter_search_replace_where(
+			local_executable,
+			preprompt_dictionary,
+			login_name,
+			role_name,
+			folder_name );
+	}
+
 	if ( dictionary_length( preprompt_dictionary ) )
 	{ 
 		dictionary_search_replace_command_arguments(
 			local_executable,
 			preprompt_dictionary, 
 			0 /* row  */ );
-	}
-
-	if ( timlib_exists_string( local_executable, "$where" ) )
-	{
-		process_search_replace_executable_where(
-			local_executable,
-			application_name,
-			folder_name,
-			attribute_list,
-			preprompt_dictionary );
 	}
 
 	sprintf(	local_executable + strlen( local_executable ),

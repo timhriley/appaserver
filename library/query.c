@@ -4211,7 +4211,7 @@ QUERY *query_simple_new(
 			LIST *ignore_select_attribute_name_list )
 {
 	QUERY *query;
-	LIST *exclude_attribute_name_list = list_new();
+	LIST *exclude_attribute_name_list;
 
 	query = query_calloc();
 
@@ -4228,20 +4228,30 @@ QUERY *query_simple_new(
 		exit( 1 );
 	}
 
-	if ( ! ( query->query_folder = query_folder_new( folder_name ) ) )
+	if ( ! ( query->query_folder =
+			folder_fetch(
+				folder_name,
+				(char *)0 /* role_name */,
+				(LIST *)0 /* exclude_attribute_name_list */,
+				1 /* fetch_folder_attribute_list */,
+				0 /* not fetch_process */,
+				0 /* not fetch_role_folder_list */,
+				1 /* fetch_row_level_restriction */ ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_folder_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+		folder_name );
+
 		exit( 1 );
 	}
 
 	if ( ! ( query->query_entity =
 			query_entity_new(
 				login_name,
-				query_folder->non_owner_forbid,
+				query->query_folder->non_owner_forbid,
 				role->override_row_restrictions ) ) )
 	{
 		fprintf(stderr,
@@ -4258,14 +4268,17 @@ QUERY *query_simple_new(
 				folder_name ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: role_folder_fetch() returned empty.\n",
+	"ERROR in %s/%s()/%d: role_folder_fetch(%s,%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+			role_name,
+			folder_name );
+
 		exit( 1 );
 	}
 
-	if ( mto1_folder->row_level_non_owner_forbid )
+	if ( query->query_folder->non_owner_forbid )
 	{
 		/* Sets login_name or entity to query_dictionary */
 		/* --------------------------------------------- */
@@ -4282,6 +4295,8 @@ QUERY *query_simple_new(
 	query->role_name = role_name;
 	query->ignore_attribute_name_list = ignore_attribute_name_list;
 	query->max_rows = QUERY_MAX_ROWS;
+
+	exclude_attribute_name_list = list_new();
 
 	query->prompt_recursive =
 		prompt_recursive_new(
@@ -4372,7 +4387,7 @@ QUERY *query_simple_new(
 			list_length(
 				query->
 					query_folder->
-					mto1_isa_related_folder_list_length ) );
+					mto1_isa_related_folder_list ) );
 
 	query->query_attribute_where =
 		query_attribute_where(
@@ -5757,17 +5772,186 @@ QUERY_FOLDER *query_folder_calloc( void )
 	return query_folder;
 }
 
-QUERY_FOLDER *query_folder_new( char *folder_name )
+QUERY *query_process_parameter_new(
+			DICTIONARY *preprompt_dictionary,
+			char *folder_name,
+			char *role_name,
+			char *login_name )
 {
-	QUERY_FOLDER *entity_folder = query_folder_calloc();
+	LIST *exclude_attribute_name_list;
+	QUERY *query;
 
-	query_folder->folder_name = folder_name;
+	if ( !folder_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: folder_name is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	query_folder->non_owner_forbid =
-		folder_row_level_restrictions_non_owner_forbid(
-			query_folder->folder_name );
+	if ( !role_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: role_name is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	returen query_folder;
+	if ( !login_name )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: login_name is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	query = query_calloc();
+
+	if ( ! ( query->role =
+			role_fetch(
+				role_name,
+				1 /* fetch_attribute_exclude_list */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: role_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( query->query_folder =
+			folder_fetch(
+				folder_name,
+				(char *)0 /* role_name */,
+				(LIST *)0 /* exclude_attribute_name_list */,
+				1 /* fetch_folder_attribute_list */,
+				0 /* not fetch_process */,
+				0 /* not fetch_role_folder_list */,
+				1 /* fetch_row_level_restriction */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+		folder_name );
+
+		exit( 1 );
+	}
+
+	if ( ! ( query->query_entity =
+			query_entity_new(
+				login_name,
+				query->query_folder->non_owner_forbid,
+				role->override_row_restrictions ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_entity_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( query->query_folder->non_owner_forbid )
+	{
+		/* Sets login_name or entity to query_dictionary */
+		/* --------------------------------------------- */
+		query_dictionary_row_level_non_owner_forbid(
+			query_dictionary,
+			query->query_entity->login_name_only,
+			query->query_entity->full_name_only,
+			query->query_entity->street_address_only );
+	}
+
+	query->dictionary = preprompt_dictionary;
+	query->login_name = login_name;
+	query->folder_name = folder_name;
+	query->role_name = role_name;
+
+	exclude_attribute_name_list = list_new();
+
+here1
+	query_output->from_clause =
+		query_from_clause(
+			folder->folder_name,
+			(LIST *)0 /* isa_attribute_list */,
+			(char *)0 /* attribute_not_null_folder_name */ );
+
+	query_output->
+		query_drop_down_list =
+			query_primary_data_drop_down_list(
+				exclude_attribute_name_list,
+				folder /* root_folder */,
+				folder->
+					mto1_related_folder_list,
+				folder->
+				    mto1_append_isa_related_folder_list,
+				query->dictionary,
+				include_root_folder );
+
+	query_output->query_attribute_list =
+		query_get_attribute_list(
+			folder->append_isa_attribute_list,
+			query->dictionary,
+			exclude_attribute_name_list,
+			folder->folder_name
+				/* dictionary_prepend_folder_name */ );
+
+	query_output->where_clause =
+		query_combined_where_clause(
+			&query_output->drop_down_where_clause,
+			&query_output->attribute_where_clause,
+			query_output->query_drop_down_list,
+			query_output->query_attribute_list,
+			folder->application_name,
+			folder->folder_name,
+			0 /* not combine_date_time */ );
+
+	if ( folder->row_level_non_owner_forbid
+	&&   list_length( folder->mto1_isa_related_folder_list ) )
+	{
+		RELATED_FOLDER *isa_related_folder;
+		LIST *foreign_attribute_name_list;
+
+		list_rewind( folder->mto1_isa_related_folder_list );
+
+		do {
+			isa_related_folder =
+				list_get_pointer(
+					folder->
+					mto1_isa_related_folder_list );
+
+			foreign_attribute_name_list =
+				   folder_get_primary_attribute_name_list(
+					isa_related_folder->folder->
+						attribute_list );
+
+			query_output->where_clause =
+				query_append_where_clause_related_join(
+					folder->application_name,
+					query_output->where_clause,
+					folder_get_primary_attribute_name_list(
+						folder->attribute_list ),
+					foreign_attribute_name_list,
+					folder->folder_name,
+					isa_related_folder->
+						folder->
+						folder_name );
+
+		} while( list_next(
+				folder->
+				mto1_isa_related_folder_list ) );
+	}
+
+	return query;
 }
 
 #ifdef NOT_DEFINED

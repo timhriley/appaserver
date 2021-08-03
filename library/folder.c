@@ -284,8 +284,9 @@ char *folder_table_name(
 
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			char *sql_injection_escape_role_name,
-			LIST *role_exclude_attribute_name_list,
+			LIST *role_attribute_exclude_list,
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_isa_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction )

@@ -59,27 +59,6 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *folder_name;
-
-	/* Process */
-	/* ------- */
-	boolean non_owner_forbid;
-	LIST *attribute_list;
-	LIST *append_isa_attribute_list;
-	LIST *append_isa_copy_attribute_list;
-	LIST *mto1_isa_recursive_related_folder_list;
-	LIST *mto1_copy_common_related_folder_list;
-	LIST *one2m_related_folder_list;
-	LIST *primary_attribute_name_list;
-	LIST *append_isa_attribute_name_list;
-	LIST *copy_common_attribute_name_list;
-	LIST *lookup_attribute_exclude_name_list;
-} QUERY_FOLDER;
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
 	char *login_name;
 
 	/* Process */
@@ -952,10 +931,10 @@ QUERY_ENTITY *query_entity_new(
 			boolean non_owner_forbid,
 			boolean override_row_restrictions );
 
-QUERY_FOLDER *query_folder_calloc(
-			void );
-
-QUERY_FOLDER *query_folder_new(
-			char *folder_name );
+QUERY *query_process_parameter_new(
+			DICTIONARY *preprompt_dictionary,
+			char *folder_name,
+			char *role_name,
+			char *login_name );
 
 #endif

@@ -356,6 +356,13 @@ void process_parameter_command_line_replace(
 			char *folder_name,
 			char *application_name );
 
+void process_parameter_search_replace_where(
+			char *command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name );
+
 /* PROCESS_STRUCTURE */
 /* ================= */
 
