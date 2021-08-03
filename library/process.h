@@ -169,11 +169,6 @@ typedef struct
 void process_execution_count_increment(
 			char *process_name );
 
-void process_convert_dictionary_login_name(
-			char **command_line,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name );
-
 void process_convert_parameters(
 			char **executable,
 			char *application_name,
@@ -352,6 +347,14 @@ LIST *process_parameter_primary_delimited_list(
 			char *login_name,
 			char *folder_name,
 			char *populate_drop_down_process_name );
+
+void process_parameter_command_line_replace(
+			char **command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *application_name );
 
 /* PROCESS_STRUCTURE */
 /* ================= */

@@ -331,51 +331,6 @@ LIST *folder_query_primary_delimited_list(
 	QUERY *query;
 }
 
-LIST *folder_process_primary_delimited_list(
-			PROCESS *populate_drop_down_process,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name )
-{
-	LIST *return_list;
-	char *parameter_process_name;
-
-	if ( !populate_drop_down_process )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: populate_drop_down_process is empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	process_convert_dictionary_login_name(
-		&populate_drop_down_process->executable,
-		preprompt_dictionary,
-		login_name );
-
-fprintf( stderr, "%s/%s()/%d: executable = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-populate_drop_down_process->executable );
-
-	return_list =
-		process_executable_list(
-			populate_drop_down_process->executable );
-
-	if ( piece_multi_attribute_data_label_delimiter )
-	{
-		return_list =
-			list_usage_piece_list(
-				return_list,
-				piece_multi_attribute_data_label_delimiter,
-				0 /* offset */ );
-	}
-
-	return return_list;
-}
-
 LIST *folder_delimited_list(
 			char *table_name,
 			LIST *folder_attribute_append_isa_list,
