@@ -16,6 +16,7 @@
 #include "prompt_recursive.h"
 #include "role.h"
 #include "role_folder.h"
+#include "security.h"
 #include "folder.h"
 
 /* Constants */
@@ -55,19 +56,6 @@ enum relational_operator {	equals,
 
 /* Structures */
 /* ---------- */
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *login_name;
-
-	/* Process */
-	/* ------- */
-	char *login_name_only;
-	char *full_name_only;
-	char *street_address_only;
-} QUERY_ENTITY;
-
 typedef struct
 {
 	char *login_name;
@@ -157,7 +145,7 @@ typedef struct
 	PROMPT_RECURSIVE *prompt_recursive;
 	FOLDER *query_folder;
 	ROLE *role;
-	QUERY_ENTITY *query_entity;
+	SECURITY_ENTITY *security_entity;
 	ROLE_FOLDER *role_folder;
 	int max_rows /* use zero for unlimited */;
 	LIST *query_drop_down_list;
@@ -922,14 +910,6 @@ LIST *query_system_dictionary_list(
 char *query_display_where(
 			char *query_output_where,
 			char *folder_name );
-
-QUERY_ENTITY *query_entity_calloc(
-			void );
-
-QUERY_ENTITY *query_entity_new(
-			char *login_name,
-			boolean non_owner_forbid,
-			boolean override_row_restrictions );
 
 QUERY *query_process_parameter_new(
 			DICTIONARY *preprompt_dictionary,

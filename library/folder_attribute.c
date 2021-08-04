@@ -206,3 +206,71 @@ LIST *folder_attribute_primary_name_list(
 	return primary_name_list;
 }
 
+LIST *folder_attribute_append_isa_list(
+			LIST *folder_attribute_list /* in/out */,
+			LIST *relation_mto1_isa_list )
+{
+	RELATION *relation;
+	FOLDER_ATTRIBUTE *folder_attribute;
+
+	if ( !list_rewind( relation_mto1_isa_list ) )
+		return folder_attribute_list;
+
+	do {
+		relation =
+			list_get(
+				relation_mto1_isa_list );
+
+
+		isa_related_folder_attribute_list = list_new();
+
+		attribute_append_attribute_list(
+				isa_related_folder_attribute_list,
+				application_name,
+				related_folder->folder->folder_name,
+				(char *)0 /* attribute_name */,
+				role_name,
+				attribute_fetch_either );
+
+		list_append_list(
+			attribute_list,
+			folder_get_non_primary_attribute_list(
+				isa_related_folder_attribute_list ) );
+
+	} while( list_next( mto1_isa_related_folder_list ) );
+
+	return folder_attribute_list;
+}
+
+char *folder_attribute_primary_where(
+			char *folder_name,
+			char *attribute_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"folder = '%s' and attribute = '%s'",
+		folder_name,
+		attribute_name );
+
+	return where
+}
+
+boolean folder_attribute_exists(
+			char *folder_name,
+			char *attribute_name )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh "count(1) folder_attribute \"%s\"",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		folder_attribute_primary_where(
+			folder_name,
+			attribute_name ) );
+
+	return (boolean)atoi( string_fetch_pipe( system_string ) );
+}
+

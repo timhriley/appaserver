@@ -1,4 +1,4 @@
-/* library/sql.h					   */
+/* $APPASERVER_HOME/library/sql.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */

@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/update_database.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver update_database ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -67,6 +66,7 @@ UPDATE_DATABASE *update_database_new(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
+			LIST *exclude_attribute_name_list,
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary )
 {
@@ -78,17 +78,25 @@ UPDATE_DATABASE *update_database_new(
 	update_database->login_name = login_name;
 	update_database->role_name = role_name;
 	update_database->folder_name = folder_name;
+
+	update_database->exclude_attribute_name_list =
+		exclude_attribute_name_list;
+
 	update_database->post_dictionary = dictionary_copy( post_dictionary );
 	update_database->file_dictionary = file_dictionary;
 
 	update_database->folder =
 		folder_fetch(
 			update_database->folder_name,
-			1 /* fetch_attribute_list */,
-			0 /* not fetch_one2m_relation_list */,
-			1 /* fetch_one2m_recursive_relation_list */,
-			1 /* fetch_mto1_isa_recursive_relation_list */,
-			0 /* not fetch_mto1_relation_list */ );
+			update_database->role_name,
+			exclude_attribute_name_list,
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			1 /* fetch_relation_one2m_recursive_list */,
+			1 /* fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			1 /* fetch_row_level_restriction */ );
 
 	if ( !update_database->folder )
 	{

@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/dictionary.c		*/
 /* ==================================================== */
-/* This contains the code for the dictionary ADT.	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ==================================================== */
@@ -125,12 +124,12 @@ void dictionary_parse_multi_attribute_keys(
 					continue;
 				}
 
-				data = list_get_pointer( attribute_data_list );
+				data = list_get( attribute_data_list );
 
 				dictionary_set_pointer( 
-						dictionary, 
-						strdup( key_with_index ),
-						data );
+					dictionary, 
+					strdup( key_with_index ),
+					data );
 
 				list_previous( attribute_data_list );
 
@@ -138,12 +137,11 @@ void dictionary_parse_multi_attribute_keys(
 		}
 
 	} while( list_next( multi_attribute_key_list ) );
-
 }
 
 void dictionary_parse_multi_attribute_relation_operator_keys(
-				DICTIONARY *dictionary, 
-				char multi_attribute_drop_down_delimiter )
+			DICTIONARY *dictionary, 
+			char multi_attribute_drop_down_delimiter )
 {
 	LIST *multi_attribute_key_list;
 	LIST *attribute_key_list;
@@ -217,7 +215,6 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 		} while( list_next( attribute_key_list ) );
 
 	} while( list_next( multi_attribute_key_list ) );
-
 }
 
 void dictionary_delete_keys_with_prefix(
@@ -682,7 +679,7 @@ DICTIONARY *dictionary_index_string2dictionary( char *dictionary_string )
 
 void dictionary_add( DICTIONARY *d, char *key, char *data, int size )
 {
-	dictionary_set( d, key, data, size );
+	dictionary_set_other_data( d, key, data, size );
 }
 
 int dictionary_all_null_data( DICTIONARY *d )
@@ -948,12 +945,14 @@ void dictionary_set_index_zero(		DICTIONARY *d,
 			d, key, data_string, 0 );
 }
 
-void dictionary_set_string_index_key(	DICTIONARY *d,
-					char *key, 
-					char *data_string,
-					int index )
+void dictionary_set_string_index_key(
+			DICTIONARY *d,
+			char *key, 
+			char *data_string,
+			int index )
 {
 	char full_key[ 1024 ];
+
 	sprintf( full_key, "%s_%d", key, index );
 	dictionary_set_pointer( d, strdup( full_key ), data_string );
 }
@@ -962,12 +961,24 @@ void dictionary_set_string(	DICTIONARY *d,
 				char *key, 
 				char *data_string )
 {
-	dictionary_set( d, key, data_string, strlen( data_string ) + 1 );
+	dictionary_set_other_data(
+		d,
+		key,
+		data_string,
+		strlen( data_string ) + 1 );
 }
 
-void dictionary_set_pointer(	DICTIONARY *d,
-				char *key,
-				char *data )
+void dictionary_set_pointer(
+			DICTIONARY *d,
+			char *key,
+			char *data )
+{
+	dictionary_set( d, key, data );
+}
+
+void dictionary_set(	DICTIONARY *d,
+			char *key,
+			char *data )
 {
 	if ( !d ) return;
 	if ( !d->hash_table ) return;
@@ -977,7 +988,8 @@ void dictionary_set_pointer(	DICTIONARY *d,
 	hash_table_set( d->hash_table, key, data );
 }
 
-void dictionary_set(	DICTIONARY *d, 
+void dictionary_set_other_data(
+			DICTIONARY *d, 
 			char *key, 
 			void *other_data, 
 			int sizeof_other_data )
@@ -987,16 +999,16 @@ void dictionary_set(	DICTIONARY *d,
 	if ( !memory )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error.\n",
+			"ERROR in %s/%s()/%d: calloc(%d) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+			sizeof_other_data );
 		exit( 1 );
 	}
 
 	memcpy( memory, other_data, sizeof_other_data );
-	hash_table_set( d->hash_table, strdup( key ), memory );
-
+	hash_table_set( d->hash_table, key, memory );
 }
 
 void dictionary_add_pointer(	DICTIONARY *d, 
@@ -1449,9 +1461,11 @@ void dictionary_set_delimited_string(
 				delimited_string,
 				piece_offset ) )
 		{
-			dictionary_set_pointer(	dictionary,
-						key,
-						strdup( piece_buffer ) );
+			dictionary_set_pointer(
+				dictionary,
+				key,
+				strdup( piece_buffer ) );
+
 			piece_offset++;
 		}
 	} while( list_next( key_list ) );
@@ -1471,22 +1485,25 @@ DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 	if ( list_reset( key_list ) )
 	{
 		do {
-			key = list_get_string( key_list );
-			dictionary_set_pointer(	destination,
-						strdup( key ),
-						strdup( dictionary_get(
-							dictionary,
-							key ) ) );
+			key = list_get( key_list );
+
+			dictionary_set_pointer(
+				destination,
+				strdup( key ),
+				strdup( dictionary_get(
+						dictionary,
+						key ) ) );
+
 		} while( list_next( key_list ) );
 	}
 
 	list_free_container( key_list );
-
 	return destination;
 }
 
-DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
-					char *label )
+DICTIONARY *dictionary_prepend_key(
+			DICTIONARY *dictionary,
+			char *label )
 {
 	DICTIONARY *destination;
 	LIST *key_list;
@@ -1500,16 +1517,18 @@ DICTIONARY *dictionary_prepend_key(	DICTIONARY *dictionary,
 	if ( list_reset( key_list ) )
 	{
 		do {
-			key = list_get_string( key_list );
+			key = list_get( key_list );
 
 			if ( strncmp( key, label, strlen_label ) != 0 )
 			{
 				sprintf( new_key, "%s%s", label, key );
-				dictionary_set_pointer(	destination,
-							strdup( new_key ),
-							dictionary_get(
-								dictionary,
-								key ) );
+
+				dictionary_set_pointer(
+					destination,
+					strdup( new_key ),
+					dictionary_get(
+						dictionary,
+						key ) );
 			}
 		} while( list_next( key_list ) );
 	}
@@ -1577,8 +1596,8 @@ boolean dictionary_key_exists_index_zero_or_one(
 }
 
 boolean dictionary_data_exists_index_zero(
-					DICTIONARY *indexed_dictionary,
-					char *key )
+			DICTIONARY *indexed_dictionary,
+			char *key )
 {
 	char *data;
 
@@ -1590,8 +1609,8 @@ boolean dictionary_data_exists_index_zero(
 }
 
 void dictionary_add_elements_by_removing_prefix(
-				    	DICTIONARY *dictionary,
-				    	char *starting_prefix )
+		    	DICTIONARY *dictionary,
+		    	char *starting_prefix )
 {
 	LIST *key_list;
 	char *key;
@@ -1625,7 +1644,7 @@ void dictionary_add_elements_by_removing_prefix(
 					dictionary_set_pointer( 
 						dictionary,
 						strdup(
-						key_without_starting_prefix ),
+						  key_without_starting_prefix ),
 						data );				
 				}
 			}
@@ -1633,7 +1652,8 @@ void dictionary_add_elements_by_removing_prefix(
 	}
 }
 
-void dictionary_add_elements_by_removing_index_zero( DICTIONARY *dictionary )
+void dictionary_add_elements_by_removing_index_zero(
+			DICTIONARY *dictionary )
 {
 	LIST *key_list;
 	char *key;
@@ -1669,8 +1689,9 @@ void dictionary_add_elements_by_removing_index_zero( DICTIONARY *dictionary )
 }
 
 
-DICTIONARY *dictionary_remove_prefix( 	DICTIONARY *source_dictionary,
-				    	char *starting_prefix )
+DICTIONARY *dictionary_remove_prefix(
+			DICTIONARY *source_dictionary,
+		    	char *starting_prefix )
 {
 	DICTIONARY *dictionary;
 	LIST *key_list;
@@ -1742,8 +1763,8 @@ DICTIONARY *dictionary_zap_with_prefix(	DICTIONARY *dictionary,
 }
 
 DICTIONARY *dictionary_get_with_prefix(
-					DICTIONARY *source_dictionary,
-				    	char *starting_prefix )
+			DICTIONARY *source_dictionary,
+		    	char *starting_prefix )
 {
 	DICTIONARY *dictionary;
 	LIST *key_list;
@@ -1777,8 +1798,8 @@ DICTIONARY *dictionary_get_with_prefix(
 }
 
 DICTIONARY *dictionary_get_without_prefix(
-					DICTIONARY *source_dictionary,
-				    	char *starting_prefix )
+			DICTIONARY *source_dictionary,
+		    	char *starting_prefix )
 {
 	DICTIONARY *dictionary;
 	LIST *key_list;
@@ -1800,8 +1821,10 @@ DICTIONARY *dictionary_get_without_prefix(
 
 		if ( strncmp( key, starting_prefix, str_len ) == 0 )
 		{
-			data = dictionary_get( 	source_dictionary, 
-						key );
+			data =
+				dictionary_get(
+					source_dictionary, 
+					key );
 
 			strcpy( key_without_starting_prefix,
 				key + str_len );
@@ -1816,10 +1839,10 @@ DICTIONARY *dictionary_get_without_prefix(
 	list_free( key_list );
 
 	return dictionary;
-
 }
 
-DICTIONARY *dictionary_remove_index( DICTIONARY *source_dictionary )
+DICTIONARY *dictionary_remove_index(
+			DICTIONARY *source_dictionary )
 {
 	DICTIONARY *dictionary;
 	LIST *key_list;
@@ -1833,11 +1856,12 @@ DICTIONARY *dictionary_remove_index( DICTIONARY *source_dictionary )
 	if ( key_list && list_rewind( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
+			key = list_get( key_list );
 
-			data = dictionary_get_pointer(
-						source_dictionary, 
-						key );
+			data =
+				dictionary_get_pointer(
+					source_dictionary, 
+					key );
 
 			trim_index( key_without_index, key );
 
@@ -1845,6 +1869,7 @@ DICTIONARY *dictionary_remove_index( DICTIONARY *source_dictionary )
 				dictionary,
 				strdup( key_without_index ),
 				data );				
+
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
@@ -1879,6 +1904,7 @@ DICTIONARY *dictionary_remove_index_zero(
 				dictionary,
 				strdup( key_without_index ),
 				data );				
+
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
@@ -1993,7 +2019,7 @@ void dictionary_append_row_zero(	DICTIONARY *source_destination,
 	if ( list_reset( key_list ) )
 	{
 		do {
-			key = list_get_string( key_list );
+			key = list_get( key_list );
 
 			key_length = strlen( key );
 
@@ -2003,15 +2029,15 @@ void dictionary_append_row_zero(	DICTIONARY *source_destination,
 				continue;
 
 			if ( !dictionary_exists_key(
-						source_destination,
-						key ) )
+				source_destination,
+				key ) )
 			{
 				dictionary_set_pointer(
-						source_destination,
-						key,
-						dictionary_get(
-							append_dictionary,
-							key ) );
+					source_destination,
+					key,
+					dictionary_get(
+						append_dictionary,
+						key ) );
 			}
 		} while( list_next( key_list ) );
 	}
@@ -2053,14 +2079,13 @@ void dictionary_append_dictionary(	DICTIONARY *source_destination,
 			source_destination_non_indexed_key_list ) )
 		{
 			dictionary_set_pointer(
-					source_destination,
-					key,
-					dictionary_get(
-						append_dictionary,
-						key ) );
+				source_destination,
+				key,
+				dictionary_get(
+					append_dictionary,
+					key ) );
 		}
 	} while( list_next( key_list ) );
-
 }
 
 void dictionary_add_index_zero( DICTIONARY *dictionary )
@@ -2386,12 +2411,11 @@ DICTIONARY *pipe2dictionary( char *sys_string, char delimiter )
 
 	pclose( p );
 	return d;
-
 }
 
 DICTIONARY *dictionary_index_data2dictionary(
-					DICTIONARY *source_dictionary,
-					char *key_wo_index )
+			DICTIONARY *source_dictionary,
+			char *key_wo_index )
 {
 	int highest_index, index, results;
 	char *data;
@@ -2422,28 +2446,29 @@ DICTIONARY *dictionary_index_data2dictionary(
 }
 
 DICTIONARY *dictionary_merge_dictionary(
-					DICTIONARY *dictionary1,
-					DICTIONARY *dictionary2 )
+			DICTIONARY *dictionary1,
+			DICTIONARY *dictionary2 )
 {
 	LIST *key_list;
 	char *key;
 
 	key_list = dictionary_get_key_list( dictionary2 );
+
 	if ( list_rewind( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
+			key = list_get( key_list );
 
 			if ( !dictionary_exists_key(
-						dictionary1,
-						key ) )
+				dictionary1,
+				key ) )
 			{
 				dictionary_set_pointer(
-						dictionary1,
-						key,
-						dictionary_get_data(
-							dictionary2,
-							key ) );
+					dictionary1,
+					key,
+					dictionary_get_data(
+						dictionary2,
+						key ) );
 			}
 		} while( list_next( key_list ) );
 	}
@@ -2451,8 +2476,8 @@ DICTIONARY *dictionary_merge_dictionary(
 }
 
 DICTIONARY *dictionary_merge_lists2dictionary(
-					LIST *key_list,
-					LIST *data_list )
+			LIST *key_list,
+			LIST *data_list )
 {
 	char *key;
 	DICTIONARY *dictionary;
@@ -2463,10 +2488,14 @@ DICTIONARY *dictionary_merge_lists2dictionary(
 	{
 		do {
 			key = list_get_string( key_list );
-			dictionary_set_string(	dictionary,
-						key,
-						list_get_string( data_list ) );
+
+			dictionary_set_string(
+				dictionary,
+				key,
+				list_get_string( data_list ) );
+
 			if ( !list_next( data_list ) ) break;
+
 		} while( list_next( key_list ) );
 	}
 	return dictionary;
@@ -2543,6 +2572,7 @@ void dictionary_search_replace_special_characters( DICTIONARY *dictionary )
 	char *data;
 
 	key_list = dictionary_get_key_list( dictionary );
+
 	if ( key_list && list_rewind( key_list ) )
 	{
 		do {
@@ -2552,26 +2582,29 @@ void dictionary_search_replace_special_characters( DICTIONARY *dictionary )
 			search_replace_special_characters( data );
 
 			dictionary_set_pointer( 
-					dictionary,
-					key,
-					data );				
+				dictionary,
+				key,
+				data );				
+
 		} while( list_next( key_list ) );
 	}
 }
 
 DICTIONARY *dictionary_subtract_dictionary(
-					DICTIONARY *d1,
-					DICTIONARY *d2 )
+			DICTIONARY *d1,
+			DICTIONARY *d2 )
 {
 	LIST *d2_key_list;
 
-	d2_key_list = dictionary_get_key_list( d2 );
+	d2_key_list = dictionary_key_list( d2 );
+
 	if ( list_rewind( d2_key_list ) )
 	{
 		do {
 			dictionary_remove_data(
 				d1,
-				list_get_pointer( d2_key_list ) );
+				list_get( d2_key_list ) );
+
 		} while( list_next( d2_key_list ) );
 	}
 	return d1;
@@ -2596,7 +2629,7 @@ boolean dictionary_exists_index_in_key( char *key )
 }
 
 void dictionary_replace_double_quote_with_single(
-					DICTIONARY *dictionary )
+			DICTIONARY *dictionary )
 {
 	char *key;
 	char *data;
@@ -2607,9 +2640,10 @@ void dictionary_replace_double_quote_with_single(
 	if ( key_list && list_rewind( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
+			key = list_get( key_list );
 
-			data = dictionary_get_data(
+			data =
+				dictionary_get_data(
 					dictionary,
 					key );
 
@@ -2631,8 +2665,10 @@ void dictionary_escape_single_quotes( DICTIONARY *dictionary )
 	if ( key_list && list_rewind( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
-			data = dictionary_get_data(
+			key = list_get( key_list );
+
+			data =
+				dictionary_get_data(
 					dictionary,
 					key );
 
@@ -2641,10 +2677,12 @@ void dictionary_escape_single_quotes( DICTIONARY *dictionary )
 				strcpy( new_data, data );
 				escape_single_quotes( new_data );
 				free( data );
+
 				dictionary_set_pointer(
 					dictionary,
 					key,
 					strdup( new_data ) );
+
 			}
 		} while( list_next( key_list ) );
 	}
@@ -2871,9 +2909,10 @@ DICTIONARY *dictionary_load_record_dictionary(
 		
 		if ( piece( data, delimiter, buffer, 1 ) )
 		{
-			dictionary_set_pointer(	d,
-						strdup( key ),
-						strdup( data ) );
+			dictionary_set_pointer(
+				d,
+				strdup( key ),
+				strdup( data ) );
 		}
 	}
 	return d;
@@ -2936,16 +2975,16 @@ void dictionary_increment_count(
 	}
 	else
 	{
-		dictionary_set_pointer(	dictionary,
-					strdup( key ),
-					strdup( "1" ) );
+		dictionary_set_pointer(
+			dictionary,
+			strdup( key ),
+			strdup( "1" ) );
 	}
-
 }
 
 void dictionary_output_with_prefix(
-				DICTIONARY *dictionary,
-				char *prefix )
+			DICTIONARY *dictionary,
+			char *prefix )
 {
 	char *key;
 	LIST *key_list;
@@ -3073,9 +3112,10 @@ DICTIONARY *dictionary_add_prefix(	DICTIONARY *dictionary,
 				prefix,
 				key );
 
-			if ( ( data = dictionary_get_pointer(
-						dictionary,
-						key ) ) )
+			if ( ( data =
+				dictionary_get_pointer(
+					dictionary,
+					key ) ) )
 			{
 				dictionary_set_pointer(
 					new_dictionary,
@@ -3089,9 +3129,10 @@ DICTIONARY *dictionary_add_prefix(	DICTIONARY *dictionary,
 	return new_dictionary;
 }
 
-LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
-					LIST *key_list,
-					char delimiter )
+LIST *dictionary_key_data_list(
+			DICTIONARY *dictionary,
+			LIST *key_list,
+			char delimiter )
 {
 	char *data, *key;
 	char key_data[ 1024 ];
@@ -3100,17 +3141,20 @@ LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
 	if ( list_rewind( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
+			key = list_get( key_list );
 
 			if ( ( data =
-				dictionary_get_data( dictionary, key ) ) )
+				dictionary_get_data(
+					dictionary,
+					key ) ) )
 			{
 				sprintf( key_data,
 					 "%s%c%s",
 					 key,
 					 delimiter,
 					 data );
-				list_append_pointer( list, strdup( key_data ) );
+
+				list_set( list, strdup( key_data ) );
 			}
 
 		} while( list_next( key_list ) );
@@ -3118,8 +3162,9 @@ LIST *dictionary_get_key_data_list(	DICTIONARY *dictionary,
 	return list;
 }
 
-void dictionary_clear_key_list(		DICTIONARY *dictionary,
-					LIST *key_list )
+void dictionary_clear_key_list(
+			DICTIONARY *dictionary,
+			LIST *key_list )
 {
 	char *data, *key;
 
@@ -3129,7 +3174,9 @@ void dictionary_clear_key_list(		DICTIONARY *dictionary,
 			key = list_get_pointer( key_list );
 
 			if ( ( data =
-				dictionary_get_data( dictionary, key ) ) )
+				dictionary_get_data(
+					dictionary,
+					key ) ) )
 			{
 				hash_table_remove(
 					dictionary->hash_table,
@@ -3317,8 +3364,9 @@ void dictionary_remove_keys_with_prefix(
 	dictionary_delete_prefixed_keys( dictionary, prefix );
 }
 
-void dictionary_trim_prefix(		DICTIONARY *dictionary,
-					char *prefix )
+void dictionary_trim_prefix(
+			DICTIONARY *dictionary,
+			char *prefix )
 {
 	LIST *key_list;
 	char *key;
@@ -3329,13 +3377,16 @@ void dictionary_trim_prefix(		DICTIONARY *dictionary,
 	str_len = strlen( prefix );
 
 	key_list = dictionary_get_key_list( dictionary );
+
 	if ( !key_list || !list_rewind( key_list ) ) return;
 
 	do {
-		key = list_get_pointer( key_list );
+		key = list_get( key_list );
 
-		data = dictionary_get( 	dictionary, 
-					key );
+		data =
+			dictionary_get(
+				dictionary, 
+				key );
 
 		if ( strncmp( prefix, key, str_len ) == 0 )
 		{
@@ -3353,8 +3404,8 @@ void dictionary_trim_prefix(		DICTIONARY *dictionary,
 }
 
 DICTIONARY *dictionary_zap_index_zero_attribute_name_list(
-					DICTIONARY *dictionary,
-					LIST *attribute_name_list )
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list )
 {
 	char *attribute_name;
 	char dictionary_key[ 1024 ];
@@ -3498,9 +3549,9 @@ char *dictionary_get_attribute_where_clause(
 }
 
 void dictionary_add_login_name_if_necessary(
-				DICTIONARY *dictionary,
-				LIST *attribute_name_list,
-				char *login_name )
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list,
+			char *login_name )
 {
 	if ( list_exists_string(
 		"login_name",
@@ -3508,22 +3559,25 @@ void dictionary_add_login_name_if_necessary(
 	{
 		char operator_entry[ 128 ];
 
-		if ( !dictionary_exists_key_index( dictionary, 
-						   "login_name",
-						   0 ) )
+		if ( !dictionary_exists_key_index(
+				dictionary, 
+				"login_name",
+				0 ) )
 		{
-			dictionary_add_string(	dictionary,
-						"login_name_0",
-						login_name );
+			dictionary_set_pointer(
+				dictionary,
+				"login_name_0",
+				strdup( login_name ) );
 
 			sprintf(operator_entry,
 		 		"%s%s",
 		 		QUERY_RELATION_OPERATOR_STARTING_LABEL,
 		 		"login_name" );
 
-			dictionary_set_pointer(	dictionary,
-						strdup( operator_entry ),
-						EQUAL_OPERATOR );
+			dictionary_set_pointer(
+				dictionary,
+				strdup( operator_entry ),
+				EQUAL_OPERATOR );
 		}
 	}
 }
@@ -3701,7 +3755,6 @@ void dictionary_set_indexed_date_time_to_current(
 		} while( list_next( attribute_list ) );
 
 	} /* for( index ) */
-
 }
 
 void dictionary_remove_symbols_in_numbers(
@@ -3889,7 +3942,6 @@ DICTIONARY *dictionary_get_row_zero_dictionary(
 	} while( list_next( key_list ) );
 
 	return row_zero_dictionary;
-
 }
 
 LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
@@ -3918,7 +3970,8 @@ LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 
 		do {
 			primary_attribute_name =
-				list_get( primary_attribute_name_list );
+				list_get(
+					primary_attribute_name_list );
 
 			if ( !piece(	attribute_data,
 					delimiter,
@@ -3959,12 +4012,11 @@ LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 
 		} while( list_next( primary_attribute_name_list ) );
 
-		list_append_pointer( dictionary_list, dictionary );
+		list_set( dictionary_list, dictionary );
 
 	} while( list_next( primary_data_list ) );
 
 	return dictionary_list;
-
 }
 
 LIST *dictionary_seek_delimited_list(

@@ -22,9 +22,25 @@ enum password_function	{	no_encryption,
 				regular_password_function,
 				sha2_function };
 
-/* Prototypes */
+/* Structures */
 /* ---------- */
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *login_name;
+	boolean non_owner_forbid;
+	boolean override_row_restrictions;
 
+	/* Process */
+	/* ------- */
+	char *login_name_only;
+	char *full_name_only;
+	char *street_address_only;
+} SECURITY_ENTITY;
+
+/* Operations */
+/* ---------- */
 boolean security_password_match(
 			char *database_password,
 			char *injection_escaped_encrypted_password );
@@ -73,5 +89,27 @@ char *security_escape_character_array(
 			char *destination,
 			char *source,
 			char *character_array );
+
+SECURITY_ENTITY *security_entity_calloc(
+			void );
+
+SECURITY_ENTITY *security_entity(
+			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions );
+
+/* ---------------------- */
+/* Returns heap memory    */
+/* Returns full_name_only */
+/* ---------------------- */
+char *security_entity_fetch(
+			char **street_address_only,
+			char *login_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *security_login_name_full_name_only(
+			char **street_address,
+			char *login_name );
 
 #endif

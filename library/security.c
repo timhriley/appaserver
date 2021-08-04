@@ -4,15 +4,18 @@
 /* ------------------------------------------------------- */
 
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include "String.h"
 #include "timlib.h"
-#include "query.h"
+#include "sql.h"
+#include "piece.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "folder_attribute.h"
 #include "security.h"
 
 boolean security_password_match(
@@ -207,7 +210,7 @@ char *security_replace_special_characters(
 
 char *security_sql_injection_escape( char *data )
 {
-	char destination[ QUERY_WHERE_BUFFER ];
+	char destination[ STRING_WHERE_BUFFER ];
 
 	if ( !data || !*data ) return data;
 
@@ -216,5 +219,99 @@ char *security_sql_injection_escape( char *data )
 			destination,
 			data,
 			"`'$;%&=" ) );
+}
+
+SECURITY_ENTITY *security_entity_calloc( void )
+{
+	SECURITY_ENTITY *security_entity;
+
+	if ( ! ( security_entity =
+			calloc( 1, sizeof( SECURITY_ENTITY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return security_entity;
+}
+
+SECURITY_ENTITY *security_entity(
+			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions )
+{
+	SECURITY_ENTITY *security_entity = security_entity_calloc();
+
+	security_entity->login_name = login_name;
+	security_entity->non_owner_forbid = non_owner_forbid;
+	security_entity->override_row_restrictions = override_row_restrictions;
+
+	if ( non_owner_forbid && !override_row_restrictions )
+	{
+		security_entity->login_name_only = login_name;
+
+		security_entity->full_name_only =
+			security_entity_fetch(
+				&security_entity->street_address_only,
+				security_entity->login_name );
+	}
+
+	return security_entity;
+}
+
+char *security_entity_fetch(
+			char **street_address_only,
+			char *login_name )
+{
+	char system_string[ 1024 ];
+	char full_name_only[ 128 ];
+	char local_street_address[ 128 ];
+	char escaped_login_name[ 128 ];
+	char where[ 256 ];
+	char *results;
+	char *select = "full_name,street_address";
+
+	sprintf(where,
+		"login_name = '%s'",
+		string_escape_full(
+			escaped_login_name,
+			login_name ) );
+
+	sprintf(system_string,
+		"select.sh %s entity \"%s\"",
+		select,
+		where );
+
+	results = string_pipe_fetch( system_string );
+
+	if ( !results || !*results ) return (char *)0;
+
+	piece( full_name_only, SQL_DELIMITER, results, 0 );
+	piece( local_street_address, SQL_DELIMITER, results, 1 );
+
+	*street_address_only = strdup( local_street_address );
+
+	return strdup( full_name_only );
+}
+
+char *security_login_name_full_name_only(
+			char **street_address_only,
+			char *login_name )
+{
+	if ( !folder_attribute_exists(
+			"entity",
+			"login_name" ) )
+	{
+		return (char *)0;
+	}
+
+	return
+	security_entity_fetch(
+		street_address_only,
+		login_name );
 }
 

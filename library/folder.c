@@ -68,8 +68,12 @@ char *folder_system_string( char *where )
 LIST *folder_system_list(
 			char *system_string,
 			char *sql_injection_escape_role_name,
-			LIST *role_exclude_attribute_name_lst,
+			LIST *exclude_attribute_name_lst,
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction )
@@ -87,8 +91,12 @@ LIST *folder_system_list(
 			folder_parse(
 				input,
 				sql_injection_escape_role_name,
-				role_exclude_attribute_name_lst,
+				exclude_attribute_name_lst,
 				fetch_folder_attribute_list,
+				fetch_relation_mto1_non_isa_list,
+				fetch_relation_mto1_isa_list,
+				fetch_relation_one2m_list,
+				fetch_relation_one2m_recursive_list,
 				fetch_process,
 				fetch_role_folder_list,
 				fetch_row_level_restriction ) ) )
@@ -105,8 +113,12 @@ LIST *folder_system_list(
 
 FOLDER *folder_parse(	char *input,
 			char *sql_injection_escape_role_name,
-			LIST *role_exclude_attribute_name_list,
+			LIST *exclude_attribute_name_list,
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction )
@@ -192,13 +204,53 @@ FOLDER *folder_parse(	char *input,
 
 	if ( fetch_folder_attribute_list )
 	{
-		folder->role_exclude_attribute_name_list =
-				role_exclude_attribute_name_list;
+		folder->
+			exclude_attribute_name_list =
+				exclude_attribute_name_list;
 
 		folder->folder_attribute_list =
 			folder_attribute_list(
 				folder->sql_injection_escape_folder_name,
-				role_exclude_attribute_name_list );
+				exclude_attribute_name_list );
+	}
+
+	if ( fetch_relation_mto1_non_isa_list )
+	{
+		folder->relation_mto1_non_isa_list =
+			relation_mto1_non_isa_list(
+				folder->sql_injection_escape_folder_name );
+	}
+
+	if ( fetch_relation_mto1_isa_list )
+	{
+		folder->relation_mto1_isa_list =
+			/* ---------------------------- */
+			/* folder_attribute_list is set */
+			/* ---------------------------- */
+			relation_mto1_isa_list(
+				(LIST *)0 /* mto1_isa_list */,
+				folder->sql_injection_escape_folder_name );
+
+		folder->folder_attribute_append_isa_list =
+			folder_attribute_append_isa_list(
+				list_copy( folder->folder_attribute_list ),
+				folder->relation_mto1_isa_list );
+	}
+
+	if ( fetch_relation_one2m_list )
+	{
+		folder->relation_one2m_list =
+			relation_one2m_list(
+				folder->sql_injection_escape_folder_name );
+
+	}
+
+	if ( fetch_relation_one2m_recursive_list )
+	{
+		folder->relation_one2m_recursive_list =
+			relation_one2m_recursive_list(
+				(LIST *)0 /* one2m_recursive_list */,
+				folder->sql_injection_escape_folder_name );
 	}
 
 	if ( fetch_process )
@@ -206,12 +258,13 @@ FOLDER *folder_parse(	char *input,
 		folder->populate_drop_down_process =
 			process_fetch(
 				folder->populate_drop_down_process_name,
-				(char *)0 /* role_name */,
+				(char *)0 /* don't check role security */,
 				1 /* check_executable_inside_filesystem */ );
 
 		folder->post_change_process =
 			process_fetch(
 				folder->post_change_process_name,
+				(char *)0 /* don't check role security */,
 				1 /* check_executable_inside_filesystem */ );
 	}
 
@@ -228,9 +281,17 @@ FOLDER *folder_parse(	char *input,
 
 	if ( fetch_row_level_restriction )
 	{
-		folder->folder_row_level_restriction_string =
+		folder->row_level_restriction_string =
 			folder_row_level_restriction_string(
 				folder->sql_injection_escape_folder_name );
+
+		folder->non_owner_view_only =
+			folder_non_owner_view_only(
+				folder->row_level_restriction_string );
+
+		folder->non_owner_forbid =
+			folder_non_owner_forbid(
+				folder->row_level_restriction_string );
 	}
 
 	return folder;
@@ -284,9 +345,12 @@ char *folder_table_name(
 
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			char *sql_injection_escape_role_name,
-			LIST *role_attribute_exclude_list,
+			LIST *exclude_attribute_name_list,
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
 			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction )
@@ -301,8 +365,12 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 				folder_primary_where(
 					sql_injection_escape_folder_name ) ) ),
 		sql_injection_escape_role_name,
-		role_exclude_attribute_name_list,
+		exclude_attribute_name_list,
 		fetch_folder_attribute_list,
+		fetch_relation_mto1_non_isa_list,
+		fetch_relation_mto1_isa_list,
+		fetch_relation_one2m_list,
+		fetch_relation_one2m_recursive_list,
 		fetch_process,
 		fetch_role_folder_list,
 		fetch_row_level_restriction );

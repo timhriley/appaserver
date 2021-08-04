@@ -69,12 +69,17 @@ typedef struct
 	LIST *role_exclude_attribute_name_list;
 	LIST *folder_attribute_list;
 	LIST *primary_attribute_name_list;
+	LIST *folder_attribute_append_isa_list;
 	LIST *role_folder_list;
 	long int folder_row_count;
-	char *folder_row_level_restriction_string;
+	char *row_level_restriction_string;
+	boolean non_owner_view_only;
+	boolean non_owner_forbid;
 	char *folder_table_name;
-	LIST *folder_attribute_append_isa_list;
-	LIST *mto1_isa_relation_list;
+	LIST *relation_mto1_non_isa_list;
+	LIST *relation_mto1_isa_list;
+	LIST *relation_one2m_list;
+	LIST *relation_one2m_isa_list;
 	LIST *folder_primary_delimited_list;
 	LIST *folder_delimited_list;
 	LIST *folder_dictionary_list;
@@ -105,8 +110,12 @@ LIST *folder_system_list(
 
 FOLDER *folder_parse(	char *input,
 			char *sql_injection_escape_role_name,
-			LIST *role_exclude_attribute_name_list,
+			LIST *exclude_attribute_name_list,
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction );
@@ -122,8 +131,12 @@ char *folder_table_name(
 
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			char *sql_injection_escape_role_name,
-			LIST *role_exclude_attribute_name_list,
+			LIST *exclude_attribute_name_list,
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction );

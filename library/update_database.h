@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/update_database.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver update_database ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -11,8 +10,10 @@
 #include <stdio.h>
 #include "list.h"
 #include "dictionary.h"
-#include "process.h"
+#include "security_entity.h"
 #include "related_folder.h"
+#include "folder_attribute.h"
+#include "folder.h"
 
 /* Constants */
 /* --------- */
@@ -20,8 +21,8 @@
 #define UPDATE_DATABASE_PREUPDATE_PREFIX	"preupdate_"
 #define UPDATE_DATABASE_NULL_TOKEN		"/"
 
-/* Objects */
-/* ------- */
+/* Structures */
+/* ---------- */
 typedef struct
 {
 	char *attribute_name;
@@ -30,24 +31,38 @@ typedef struct
 
 typedef struct
 {
-	char *attribute_name;
-	char *attribute_datatype;
+	/* Process */
+	/* ------- */
+	char *key;
 	char *old_data;
+	char *new_data;
+	boolean changed_attribute;
 	char *escaped_replaced_new_data;
-	int changed_primary_key_index;
-} CHANGED_ATTRIBUTE;
+} UPDATE_CHANGED_ATTRIBUTE_DATA;
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data;
+	boolean update_changed_attribute_primary_key;
+	char *update_changed_attribute_preupdate_label;
+} UPDATE_CHANGED_ATTRIBUTE;
 
 typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *folder_name;
-	LIST *attribute_list;
+	DICTIONARY *post_dictionary;
+	DICTIONARY *file_dictionary;
+	FOLDER *folder;
+	SECURITY_ENTITY *security_entity;
 	int row;
-	PROCESS *post_change_process;
 
 	/* Process */
 	/* ------- */
+	LIST *primary_attribute_name_list;
+
 	LIST *changed_attribute_list;
 
 	/* ---------------------------------------------------- */

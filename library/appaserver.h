@@ -143,19 +143,6 @@ char *appaserver_escape_street_address(
 APPASERVER *appaserver_calloc(
 			void );
 
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_login_name_full_name(
-			char **street_address,
-			char *login_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_entity_fetch(
-			char **street_address,
-			char *login_name );
-
-
 LIST *appaserver_ignore_pressed_attribute_name_list( 	
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *query_dictionary,

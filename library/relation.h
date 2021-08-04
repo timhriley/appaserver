@@ -127,8 +127,10 @@ LIST *relation_one2m_recursive_list(
 LIST *relation_one2m_pair_list(
 			char *one_folder_name );
 
-LIST *relation_mto1_isa_recursive_list(
-			LIST *relation_list /* in only */,
+/* folder_attribute_list is set */
+/* ---------------------------- */
+LIST *relation_mto1_isa_list(
+			LIST *relation_list /* in/out */,
 			char *many_folder_name );
 
 LIST *relation_mto1_non_isa_list(

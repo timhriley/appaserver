@@ -562,56 +562,6 @@ char *appaserver_escape_street_address( char *street_address )
 			street_address ) );
 }
 
-char *appaserver_entity_fetch(
-			char **street_address,
-			char *login_name )
-{
-	char system_string[ 1024 ];
-	char full_name[ 128 ];
-	char local_street_address[ 128 ];
-	char escaped_login_name[ 128 ];
-	char where[ 256 ];
-	char *results;
-	char *select = "full_name,street_address";
-
-	sprintf(where,
-		"login_name = '%s'",
-		string_escape_full(
-			escaped_login_name,
-			login_name ) );
-
-	sprintf(system_string,
-		"select.sh %s entity \"%s\"",
-		select,
-		where );
-
-	results = string_pipe_fetch( system_string );
-
-	if ( !results || !*results ) return (char *)0;
-
-	piece( full_name, results, SQL_DELIMITER, 0 );
-	piece( local_street_address, results, SQL_DELIMITER, 1 );
-
-	*street_address = strdup( local_street_address );
-	return strdup( full_name );
-}
-
-char *appaserver_login_name_full_name(
-			char **street_address,
-			char *login_name )
-{
-	if ( !folder_exists_attribute(
-			"entity",
-			"login_name" ) )
-	{
-		return (char *)0;
-	}
-
-	return appaserver_entity_fetch(
-			street_address,
-			login_name );
-}
-
 LIST *appaserver_ignore_pressed_attribute_name_list( 	
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *query_dictionary,

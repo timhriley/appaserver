@@ -87,4 +87,18 @@ char *folder_attribute_where(
 LIST *folder_attribute_primary_name_list(
 			LIST *folder_attribute_list );
 
+LIST *folder_attribute_append_isa_list(
+			LIST *folder_attribute_list /* in/out */,
+			LIST *relation_mto1_isa_list );
+
+boolean folder_attribute_exists(
+			char *folder_name,
+			char *attribute_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *folder_attribute_primary_where(
+			char *folder_name,
+			char *attribute_name );
+
 #endif

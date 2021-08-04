@@ -5712,48 +5712,6 @@ LIST *query_system_dictionary_list(
 	return list;
 }
 
-QUERY_ENTITY *query_entity_calloc( void )
-{
-	QUERY_ENTITY *query_entity;
-
-	if ( ! ( query_entity =
-			calloc( 1, sizeof( QUERY_ENTITY ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return query_entity;
-}
-
-QUERY_ENTITY *query_entity_new(
-			char *login_name,
-			boolean non_owner_forbid,
-			boolean override_row_restrictions )
-{
-	QUERY_ENTITY *query_entity = query_entity_calloc();
-
-	query_entity->login_name = login_name;
-	query_entity->non_owner_forbid = non_owner_forbid;
-	query_entity->override_row_restrictions = login_name;
-
-	if ( non_owner_forbid && !override_row_restrictions )
-	{
-		query_entity->login_name_only = login_name;
-
-		query_entity->full_name =
-			appaserver_entity_fetch(
-				&query_entity->street_address,
-				query_entity->login_name );
-	}
-
-	return query_entity;
-}
-
 QUERY_FOLDER *query_folder_calloc( void )
 {
 	QUERY_FOLDER *query_folder;

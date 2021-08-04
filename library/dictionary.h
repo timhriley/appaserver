@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/dictionary.h		*/
 /* ==================================================== */
-/* This contains the code for the dictionary ADT.	*/
 /*							*/
 /* Freely available software: see Appaserver.org	*/
 /* ==================================================== */
@@ -51,18 +50,29 @@ int dictionary_length(	DICTIONARY *d );
 
 void dictionary_set( 	DICTIONARY *d, 
 			char *key, 
-			void *other_data, 
-			int sizeof_other_data );
+			char *data );
 
 void *dictionary_get(	DICTIONARY *d,
 			char *key );
 
-void dictionary_free(			DICTIONARY *d );
-void dictionary_free_data(		DICTIONARY *d, LIST *key_list );
-void dictionary_free_container(		DICTIONARY *d );
-char **get_key_array(			DICTIONARY *d );
-int dictionary_all_null_data(		DICTIONARY *d );
-void dictionary_add( DICTIONARY *d, char *key, char *data, int size );
+void dictionary_free(	DICTIONARY *d );
+
+void dictionary_free_data(
+			DICTIONARY *d,
+			LIST *key_list );
+
+void dictionary_free_container(
+			DICTIONARY *d );
+
+char **get_key_array(	DICTIONARY *d );
+
+int dictionary_all_null_data(
+			DICTIONARY *d );
+
+void dictionary_add(	DICTIONARY *d,
+			char *key,
+			char *data,
+			int size );
 
 LIST *get_dictionary_key_list(
 			DICTIONARY *d );

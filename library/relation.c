@@ -46,7 +46,7 @@ RELATION *relation_new(	char *many_folder_name,
 RELATION *relation_parse(
 			char *input,
 			boolean fetch_folder,
-			boolean fetch_attribute_list )
+			boolean fetch_folder_attribute_list )
 {
 	char many_folder_name[ 128 ];
 	char one_folder_name[ 128 ];
@@ -117,15 +117,31 @@ RELATION *relation_parse(
 	{
 		relation->many_folder =
 			folder_fetch(
-			     many_folder_name,
-			     fetch_attribute_list,
-			     0 /* not fetch_row_level_restriction */ );
+				many_folder_name,
+				(char *)0 /* role_name */,
+				(LIST *)0 /* exclude_attribute_name_list */,
+				fetch_folder_attribute_list,
+				0 /* not fetch_relation_mto1_non_isa_list */,
+				0 /* not fetch_relation_mto1_isa_list */,
+				0 /* not fetch_relation_one2m_list */,
+				0 /* not fetch_relation_one2m_recursive_list */,
+				0 /* not fetch_process */,
+				0 /* not fetch_role_folder_list */,
+				0 /* not fetch_row_level_restriction */ );
 
 		relation->one_folder =
 			folder_fetch(
-			     one_folder_name,
-			     fetch_attribute_list,
-			     0 /* not fetch_row_level_restriction */ );
+				one_folder_name,
+				(char *)0 /* role_name */,
+				(LIST *)0 /* exclude_lookup_..._name_list */,
+				fetch_folder_attribute_list,
+				0 /* not fetch_relation_mto1_non_isa_list */,
+				0 /* not fetch_relation_mto1_isa_list */,
+				0 /* not fetch_relation_one2m_list */,
+				0 /* not fetch_relation_one2m_recursive_list */,
+				0 /* not fetch_process */,
+				0 /* not fetch_role_folder_list */,
+				0 /* not fetch_row_level_restriction */ );
 	}
 
 	if ( fetch_folder && fetch_attribute_list )
@@ -201,37 +217,6 @@ char *relation_display(	RELATION *relation )
 
 	return strdup( display );
 }
-
-#ifdef NOT_DEFINED
-boolean relation_list_exists(
-			LIST *relation_list,
-			char *many_folder_name,
-			char *one_folder_name )
-{
-	RELATION *relation;
-
-	if ( !list_rewind( relation_list ) ) return 0;
-
-	do {
-		relation =
-			list_get(
-				relation_list );
-
-		if ( string_strcmp(
-			relation->many_folder_name,
-			many_folder_name ) == 0
-		&&   string_strcmp(
-			relation->one_folder_name,
-			one_folder_name ) == 0 )
-		{
-			return 1;
-		}
-
-	} while ( list_next( relation_list ) );
-
-	return 0;
-}
-#endif
 
 LIST *relation_foreign_attribute_name_list(
 			/* ----------------------------------- */
@@ -393,7 +378,7 @@ LIST *relation_one2m_recursive_list(
 	return relation_list;
 }
 
-LIST *relation_mto1_isa_recursive_list(
+LIST *relation_mto1_isa_list(
 			LIST *relation_list,
 			char *many_folder_name )
 {
@@ -429,7 +414,7 @@ LIST *relation_mto1_isa_recursive_list(
 		list_set( relation_list, relation );
 
 		relation_list =
-			relation_mto1_isa_recursive_list(
+			relation_mto1_isa_list(
 				relation_list,
 				relation->
 					one_folder->
