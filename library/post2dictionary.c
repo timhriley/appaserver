@@ -61,7 +61,7 @@ sample input_buffer = "--------------20983969252595940091482100312"
 				input_buffer );
 	}
 	return dictionary;
-} /* post2dictionary() */
+}
 
 void post2dictionary_process_input_buffer(
 				DICTIONARY *dictionary,
@@ -157,7 +157,7 @@ void post2dictionary_process_input_buffer(
 					data );
 		}
 	}
-} /* post2dictionary_process_input_buffer() */
+}
 
 void convert_folder_data_delimiter(
 				char *data,
@@ -176,7 +176,7 @@ void convert_folder_data_delimiter(
 			POST2DICTIONARY_DELIMITER_REPLACEMENT );
 	}
 
-} /* convert_folder_data_delimiter() */
+}
 
 void post2dictionary_set_dictionary(	DICTIONARY *dictionary,
 					char *key,
@@ -269,11 +269,12 @@ void post2dictionary_set_dictionary(	DICTIONARY *dictionary,
 		}
 		return;
 	}
-} /* post2dictionary_set_dictionary() */
+}
 
-void post2dictionary_fetch(	char *destination,
-				FILE *input_stream,
-				char *post_key )
+void post2dictionary_fetch(
+			char *destination,
+			FILE *input_stream,
+			char *post_key )
 {
 	char input_buffer[ MAX_INPUT_LINE ];
 
@@ -291,7 +292,7 @@ void post2dictionary_fetch(	char *destination,
 				 "%s",
 				 input_buffer );
 	}
-} /* post2dictionary_fetch() */
+}
 
 void post2dictionary_get_spool_filename(
 						char *spool_filename,
@@ -315,7 +316,7 @@ void post2dictionary_get_spool_filename(
 			 base_filename,
 			 getpid() );
 	}
-} /* post2dictionary_get_spool_filename() */
+}
 
 boolean post2dictionary_spool_file(	char *spool_filename,
 					FILE *input_stream,
@@ -395,5 +396,5 @@ boolean post2dictionary_spool_file(	char *spool_filename,
 
 	return 1;
 
-} /* post2dictionary_spool_file() */
+}
 

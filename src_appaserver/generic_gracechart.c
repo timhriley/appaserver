@@ -303,8 +303,8 @@ boolean output_gracechart(
 
 	accumulate_yn =
 		dictionary_fetch(
-			post_dictionary,
-			"accumulate_yn_0" );
+			"accumulate_yn_0",
+			post_dictionary );
 
 	accumulate_flag = (accumulate_yn && *accumulate_yn == 'y' );
 

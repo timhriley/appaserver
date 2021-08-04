@@ -556,7 +556,7 @@ void change_sort_order_state_two(
 
 		sprintf( key, "%s_%d", sort_attribute_name, row );
 
-		if ( ! ( new_sort = dictionary_fetch( post_dictionary, key ) ) )
+		if ( ! ( new_sort = dictionary_fetch( key, post_dictionary ) ) )
 		{
 			break;
 		}

@@ -31,6 +31,15 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	DICTIONARY *post_dictionary;
+	DICTIONARY *file_dictionary;
+	char *attribute_name;
+	char *attribute_datatype;
+	int primary_key_index;
+	int row;
+
 	/* Process */
 	/* ------- */
 	char *key;
@@ -42,10 +51,16 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	DICTIONARY *post_dictionary;
+	DICTIONARY *file_dictionary;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	int row;
+
 	/* Process */
 	/* ------- */
 	UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data;
-	boolean update_changed_attribute_primary_key;
 	char *update_changed_attribute_preupdate_label;
 } UPDATE_CHANGED_ATTRIBUTE;
 
@@ -361,5 +376,37 @@ CHANGED_ATTRIBUTE *update_database_changed_attribute(
 boolean update_database_attribute_exists(
 			char *attribute_name,
 			LIST *update_row_list );
+
+UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_calloc(
+			void );
+
+UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *attribute_name,
+			char *attribute_datatype,
+			int primary_key_index,
+			int row );
+
+/* Returns static memory */
+/* --------------------- */
+char *update_changed_attribute_data_key(
+			char *attribute_name,
+			int row );
+
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_calloc(
+			void );
+
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			FOLDER_ATTRIBUTE *folder_attribute,
+			int row );
+
+/* Returns heap memory */
+/* ------------------- */
+char *update_changed_attribute_preupdate_label(
+			char *attribute_name,
+			int row );
 
 #endif

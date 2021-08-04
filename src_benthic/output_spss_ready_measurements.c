@@ -887,9 +887,10 @@ void output_spss_ready_measurements_sys_string(
 					collection_name,
 					datatype );
 
-				value = dictionary_fetch(
-						abiotic_dictionary,
-						key );
+				value =
+					dictionary_fetch(
+						key,
+						abiotic_dictionary );
 
 				if ( value && *value )
 				{

@@ -246,7 +246,9 @@ double get_navd88_value(	char *application_name,
 	}
 
 	if ( ( value_offset_string =
-			dictionary_fetch( station_dictionary, station ) ) )
+		dictionary_fetch(
+			station,
+			station_dictionary ) ) )
 	{
 		return value + atof( value_offset_string );
 	}

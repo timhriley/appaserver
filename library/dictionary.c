@@ -333,6 +333,7 @@ boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 	sprintf(dictionary_key, 
 	 	"%s_%d",
 	 	search_key, row );
+
 	data = dictionary_get( dictionary, dictionary_key );
 
 	if ( !data && row == 0 )
@@ -340,6 +341,7 @@ boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 		sprintf(dictionary_key, 
 		 	"%s",
 		 	search_key );
+
 		data = dictionary_get( dictionary, dictionary_key );
 	}
 
@@ -1039,22 +1041,24 @@ char *dictionary_get_string( DICTIONARY *d, char *key )
 	return dictionary_get( d, key );
 }
 
-void *dictionary_seek( DICTIONARY *d, char *key )
+void *dictionary_seek( char *key, DICTIONARY *d )
 {
 	return dictionary_get( d, key );
 }
 
 void *dictionary_get( DICTIONARY *d, char *key )
 {
-	int duplicate_indicator;
+	int duplicate_indicator = 0;
 	char *memory;
 
 	if ( !d ) return (void *)0;
 
-	memory = (char *)hash_table_retrieve_other_data( 
-					d->hash_table, 
-					key,
-					&duplicate_indicator );
+	memory =
+		(char *)hash_table_retrieve_other_data( 
+			d->hash_table, 
+			key,
+			&duplicate_indicator );
+
 	if ( !memory )
 		return (void *)0;
 	else
@@ -2943,16 +2947,20 @@ LIST *dictionary_key_list_fetch(
 	return data_list;
 }
 
-char *dictionary_fetch( DICTIONARY *d, char *key )
+char *dictionary_fetch( char *key, DICTIONARY *d )
 {
+	if ( !d ) return (char *)0;
+
 	return dictionary_get( d, key );
 }
 
-char *dictionary_safe_fetch( DICTIONARY *d, char *key )
+char *dictionary_safe_fetch( char *key, DICTIONARY *d )
 {
 	char *results;
 
-	if ( ( results = dictionary_get_pointer( d, key ) ) )
+	if ( !d ) return "";
+
+	if ( ( results = dictionary_get( d, key ) ) )
 		return results;
 	else
 		return "";
@@ -2966,7 +2974,7 @@ void dictionary_increment_count(
 	char count_string[ 32 ];
 	int current_count;
 
-	if ( ( data_pointer = dictionary_fetch( dictionary, key ) ) )
+	if ( ( data_pointer = dictionary_fetch( key, dictionary ) ) )
 	{
 		current_count = atoi( data_pointer );
 		sprintf( count_string, "%d", current_count + 1 );
@@ -3072,7 +3080,9 @@ void dictionary_convert_index_to_index_zero(
 			if ( key_index == index )
 			{
 				data = dictionary_get( dictionary, key );
+
 				trim_index( key_without_index, key );
+
 				sprintf(new_key, 
 	 				"%s_0",
 	 				key_without_index );
@@ -3383,10 +3393,7 @@ void dictionary_trim_prefix(
 	do {
 		key = list_get( key_list );
 
-		data =
-			dictionary_get(
-				dictionary, 
-				key );
+		data = dictionary_get( dictionary, key );
 
 		if ( strncmp( prefix, key, str_len ) == 0 )
 		{
@@ -3736,7 +3743,7 @@ void dictionary_set_indexed_date_time_to_current(
 			 	attribute->attribute_name,
 				index );
 
-			if ( ( data = dictionary_fetch( dictionary, key ) )
+			if ( ( data = dictionary_fetch( key, dictionary ) )
 			&&     *data
 			&&     strcmp( data, "/" ) != 0
 			&&     !character_exists( data, ' ' ) )
@@ -3797,7 +3804,7 @@ void dictionary_remove_symbols_in_numbers(
 			 	attribute->attribute_name,
 				index );
 
-			if ( ( data = dictionary_fetch( dictionary, key ) )
+			if ( ( data = dictionary_fetch( key, dictionary ) )
 			&&     *data )
 			{
 				if ( character_exists( data, ',' ) )
@@ -3846,9 +3853,10 @@ void dictionary_set_date_time_to_current(
 
 		strcpy( key, attribute->attribute_name );
 
-		if ( ( data = dictionary_fetch(
-				dictionary,
-				key ) )
+		if ( ( data =
+			dictionary_fetch(
+				key,
+				dictionary ) )
 		&&     *data
 		&&     strcmp( data, "/" ) != 0
 		&&     !character_exists( data, ' ' ) )
@@ -3869,9 +3877,10 @@ void dictionary_set_date_time_to_current(
 		 	"%s_0",
 		 	attribute->attribute_name );
 
-		if ( ( data = dictionary_fetch(
-				dictionary,
-				key ) )
+		if ( ( data =
+			dictionary_fetch(
+				key,
+				dictionary ) )
 		&&     *data
 		&&     strcmp( data, "/" ) != 0
 		&&     !character_exists( data, ' ' ) )
@@ -3932,7 +3941,7 @@ DICTIONARY *dictionary_get_row_zero_dictionary(
 
 		if ( index ) continue;
 
-		data = dictionary_fetch( row_dictionary, key );
+		data = dictionary_fetch( key, row_dictionary );
 
 		dictionary_set_pointer(
 			row_zero_dictionary,
@@ -4025,7 +4034,7 @@ LIST *dictionary_seek_delimited_list(
 {
 	char *delimited_data;
 
-	if ( ! ( delimited_data = dictionary_seek( dictionary, key ) ) )
+	if ( ! ( delimited_data = dictionary_seek( key, dictionary ) ) )
 		return (LIST *)0;
 
 	if ( !*delimited_data ) return (LIST *)0;

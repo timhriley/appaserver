@@ -3922,8 +3922,8 @@ boolean total_caught_exists_census(
 			interview_location );
 
 	if ( dictionary_fetch(
-			weekend_creel_census_dictionary,
-			key ) )
+			key,
+			weekend_creel_census_dictionary ) )
 	{
 		return 1;
 	}

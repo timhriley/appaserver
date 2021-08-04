@@ -295,14 +295,14 @@ BANK_UPLOAD *bank_upload_get_starting(
 	sprintf( key, "%s_1", "sequence_number" );
 
 	if ( ! ( sequence_number_string =
-			dictionary_fetch( dictionary, key ) ) )
+			dictionary_fetch( key, dictionary ) ) )
 	{
 		return (BANK_UPLOAD *)0;
 	}
 
 	sprintf( key, "%s_1", "bank_date" );
 
-	if ( ! ( bank_date = dictionary_fetch( dictionary, key ) ) )
+	if ( ! ( bank_date = dictionary_fetch( key, dictionary ) ) )
 	{
 		return (BANK_UPLOAD *)0;
 	}
@@ -310,7 +310,7 @@ BANK_UPLOAD *bank_upload_get_starting(
 	sprintf( key, "%s_1", "bank_description" );
 
 	if ( ! ( bank_description =
-			dictionary_fetch( dictionary, key ) ) )
+			dictionary_fetch( key, dictionary ) ) )
 	{
 		return (BANK_UPLOAD *)0;
 	}

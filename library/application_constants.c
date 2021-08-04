@@ -74,8 +74,8 @@ char *application_constants_safe_fetch(
 
 	if ( ! ( results =
 			dictionary_fetch(
-				application_constants_dictionary,
-				key ) ) )
+				key,
+				application_constants_dictionary ) ) )
 	{
 		fprintf( stderr,
 			 "Warning in %s/%s()/%d: cannot fetch key = %s.\n",
@@ -92,7 +92,7 @@ char *application_constants_fetch(
 				DICTIONARY *application_constants_dictionary,
 				char *key )
 {
-	return dictionary_fetch( application_constants_dictionary, key );
+	return dictionary_fetch( key, application_constants_dictionary );
 
 }
 

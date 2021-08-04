@@ -442,9 +442,10 @@ DICTIONARY *dictionary_appaserver_row_dictionary_row_zero(
 				"%s_0",
 				attribute_name );
 
-		dictionary_row = dictionary_fetch(
-					working_post_dictionary,
-					key );
+		dictionary_row =
+			dictionary_fetch(
+				key,
+				working_post_dictionary );
 
 		if ( dictionary_row )
 		{
@@ -494,8 +495,8 @@ DICTIONARY *dictionary_appaserver_row_dictionary_multi_row(
 
 			data =
 				dictionary_fetch(
-					non_prefixed_dictionary,
-					key );
+					key,
+					non_prefixed_dictionary );
 
 			if ( data )
 			{
@@ -520,8 +521,8 @@ DICTIONARY *dictionary_appaserver_row_dictionary_multi_row(
 
 			data =
 				dictionary_fetch(
-					non_prefixed_dictionary,
-					key );
+					key,
+					non_prefixed_dictionary );
 
 			if ( data )
 			{
@@ -558,7 +559,7 @@ DICTIONARY *dictionary_appaserver_row_dictionary_row(
 
 		sprintf( key, "%s_%d", attribute_name, row );
 
-		if ( ( data = dictionary_fetch( row_dictionary, key ) ) )
+		if ( ( data = dictionary_fetch( key, row_dictionary ) ) )
 		{
 			dictionary_set_pointer(
 				return_dictionary,

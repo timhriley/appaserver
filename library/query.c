@@ -569,7 +569,7 @@ char *query_data_list_string(
 			DICTIONARY *query_dictionary,
 			char *query_key )
 {
-	return dictionary_fetch( query_dictionary, query_key );
+	return dictionary_fetch( query_key, query_dictionary );
 }
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row(
@@ -898,8 +898,8 @@ char *query_dictionary_operator_name(
 
 	if ( ( operator_name =
 			dictionary_fetch(
-				dictionary,
-				search_string ) ) )
+				search_string,
+				dictionary ) ) )
 	{
 		return operator_name;
 	}
@@ -2574,7 +2574,7 @@ char *query_get_dictionary_where_clause(
 	{
 		sprintf( key, "%s_%d", dictionary_indexed_prefix, index );
 
-		if ( ! ( data = dictionary_fetch( dictionary, key ) ) )
+		if ( ! ( data = dictionary_fetch( key, dictionary ) ) )
 		{
 			break;
 		}
@@ -3587,7 +3587,7 @@ QUERY_DROP_DOWN *query_edit_table_row_drop_down(
 
 	sprintf( key, "%s_%d", string_delimited, index );
 
-	if ( ! ( data_list_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ! ( data_list_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		if ( dictionary_prepend_folder_name
 		&&   *dictionary_prepend_folder_name )
@@ -3600,7 +3600,7 @@ QUERY_DROP_DOWN *query_edit_table_row_drop_down(
 		}
 
 		if ( ! ( data_list_string =
-				dictionary_fetch( dictionary, key ) ) )
+				dictionary_fetch( key, dictionary ) ) )
 		{
 			/* Return disappointed */
 			/* ------------------- */

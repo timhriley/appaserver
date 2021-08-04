@@ -807,8 +807,8 @@ void delete_fishing_trips(	char *application_name,
 
 		if ( ( interview_number =
 				dictionary_fetch( 
-					interview_number_dictionary,
-					interview_number_key ) ) )
+					interview_number_key,
+					interview_number_dictionary ) ) )
 		{
 			fprintf(catches_delete_pipe,
 				"%s|%s|%s\n",

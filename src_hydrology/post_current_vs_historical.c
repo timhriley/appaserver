@@ -120,8 +120,8 @@ int main( int argc, char **argv )
 	{
 		datatype_name =
 			dictionary_fetch(
-				post_dictionary,
-				DATATYPE_RADIO_BUTTON_IDENTIFIER );
+				DATATYPE_RADIO_BUTTON_IDENTIFIER,
+				post_dictionary );
 	}
 
 	if ( !list_length( station_name_list ) )

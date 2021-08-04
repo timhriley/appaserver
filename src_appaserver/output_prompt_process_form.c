@@ -1069,14 +1069,15 @@ LIST *get_hidden_preprompt_element_list(
 			continue;
 		}
 
-		data = dictionary_fetch( preprompt_dictionary, key );
+		data = dictionary_fetch( key, preprompt_dictionary );
 
 		sprintf( element_name,
 			 "%s%s",
 			 PREPROMPT_PREFIX,
 			 key );
 
-		element = element_hidden_new_element(
+		element =
+			element_hidden_new_element(
 				strdup( element_name ),
 				data );
 
@@ -1085,7 +1086,6 @@ LIST *get_hidden_preprompt_element_list(
 	} while( list_next( key_list ) );
 		
 	return element_list;
-
 }
 
 char *get_preprompt_button_control_string(

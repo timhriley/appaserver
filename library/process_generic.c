@@ -222,8 +222,8 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 
 	process_generic_datatype->datatype_name =
 		dictionary_fetch(
-			process_generic_datatype->post_dictionary,
-			process_generic_datatype->datatype_attribute_name );
+			process_generic_datatype->datatype_attribute_name,
+			process_generic_datatype->post_dictionary );
 
 	if ( !process_generic_datatype->datatype_name )
 	{

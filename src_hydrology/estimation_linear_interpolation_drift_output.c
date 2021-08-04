@@ -448,18 +448,21 @@ int main( int argc, char **argv )
 				"Last Value",
 				last_value,
 				"Original First Value",
-				dictionary_fetch( drift_parameter_dictionary,
-						  "original_first_value" ),
+				dictionary_fetch(
+					"original_first_value",
+					drift_parameter_dictionary ),
 				"Original Last Value",
-				dictionary_fetch( drift_parameter_dictionary,
-						  "original_last_value" ),
+				dictionary_fetch(
+					"original_last_value",
+					drift_parameter_dictionary ),
 				"First Multiplier",
-				dictionary_fetch( drift_parameter_dictionary,
-						  "first_multiplier" ),
+				dictionary_fetch(
+					"first_multiplier",
+					drift_parameter_dictionary ),
 				"Last Multiplier",
-				dictionary_fetch( drift_parameter_dictionary,
-						  "last_multiplier" )
-				);
+				dictionary_fetch(
+					"last_multiplier",
+					drift_parameter_dictionary ) );
 			printf( "</table>\n" );
 			printf( "<table border>\n" );
 		}

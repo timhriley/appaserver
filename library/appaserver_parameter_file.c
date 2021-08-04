@@ -179,24 +179,8 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 	d = appaserver_parameter_file_load_record_dictionary( f, '=' );
 
-/*
-	a = "default_database";
-	if ( ! ( s->default_database_connection =
-			dictionary_fetch( d, a ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: Cannot fetch %s\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 a );
-		fclose( f );
-		exit( 1 );
-	}
-*/
-
 	a = "mysql_user";
-	if ( ! ( s->user = dictionary_fetch( d, a ) ) )
+	if ( ! ( s->user = dictionary_fetch( a, d ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: Cannot fetch %s\n",
@@ -209,7 +193,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	}
 
 	a = "mysql_flags";
-	if ( ! ( s->flags = dictionary_fetch( d, a ) ) )
+	if ( ! ( s->flags = dictionary_fetch( a, d ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: Cannot fetch %s\n",
@@ -222,10 +206,10 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	}
 
 	a = "mysql_password";
-	if ( ! ( s->password = dictionary_fetch( d, a ) ) )
+	if ( ! ( s->password = dictionary_fetch( a, d ) ) )
 	{
 		a = "password";
-		if ( ! ( s->password = dictionary_fetch( d, a ) ) )
+		if ( ! ( s->password = dictionary_fetch( a, d ) ) )
 		{
 			fprintf( stderr,
 			 	"Error in %s/%s()/%d: Cannot fetch %s\n",
@@ -241,14 +225,14 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 
 	a = "mysql_host";
-	s->MYSQL_HOST = dictionary_fetch( d, a );
+	s->MYSQL_HOST = dictionary_fetch( a, d );
 
 	a = "mysql_tcp_port";
-	s->MYSQL_TCP_PORT = dictionary_fetch( d, a );
+	s->MYSQL_TCP_PORT = dictionary_fetch( a, d );
 
 	a = "appaserver_mount_point";
 	if ( ! ( s->appaserver_mount_point =
-			dictionary_fetch( d, a ) ) )
+			dictionary_fetch( a, d ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: Cannot fetch %s\n",
@@ -263,7 +247,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	/* cgi home from the browser's perspective. */
 	/* ---------------------------------------- */
 	a = "apache_cgi_directory";
-	if ( ! ( s->apache_cgi_directory = dictionary_fetch( d, a ) ) )
+	if ( ! ( s->apache_cgi_directory = dictionary_fetch( a, d ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: Cannot fetch %s\n",
@@ -278,16 +262,16 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	/* cgi home from the file system's perspective. */
 	/* -------------------------------------------- */
 	a = "cgi_home";
-	s->cgi_home = dictionary_fetch( d, a );
+	s->cgi_home = dictionary_fetch( a, d );
 
 	a = "document_root";
-	s->document_root = dictionary_fetch( d, a );
+	s->document_root = dictionary_fetch( a, d );
 
 	a = "appaserver_error_directory";
-	s->appaserver_error_directory = dictionary_fetch( d, a );
+	s->appaserver_error_directory = dictionary_fetch( a, d );
 
 	a = "appaserver_data_directory";
-	s->appaserver_data_directory = dictionary_fetch( d, a );
+	s->appaserver_data_directory = dictionary_fetch( a, d );
 
 	return s;
 

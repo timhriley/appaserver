@@ -870,7 +870,7 @@ void set_null_operator_data_to_null(
 			 "%s_0",
 			 attribute_name );
 
-		data = dictionary_fetch( query_dictionary, key );
+		data = dictionary_fetch( key, query_dictionary );
 
 		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
 		{
@@ -888,9 +888,10 @@ void set_null_operator_data_to_null(
 
 		/* Also without the suffix. */
 		/* ------------------------ */
-		data = dictionary_fetch(
-				query_dictionary,
-				attribute_name );
+		data =
+			dictionary_fetch(
+				attribute_name,
+				query_dictionary );
 
 		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
 		{

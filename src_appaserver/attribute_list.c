@@ -186,15 +186,15 @@ void attribute_list_dictionary( char *dictionary_string )
 
 	if ( ( results =
 			dictionary_fetch(
-				dictionary,
-				"one2m_folder_name_for_process" ) ) )
+				"one2m_folder_name_for_process",
+				dictionary ) ) )
 	{
 		if ( strcmp( results, "relation" ) == 0 )
 		{
 			if ( ( results =
 					dictionary_fetch(
-						dictionary,
-						"folder" ) ) )
+						"folder",
+						dictionary ) ) )
 			{
 				attribute_list_with_null( results );
 				return;

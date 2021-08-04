@@ -78,7 +78,7 @@ int main( void )
 	fflush( stdout );
 
 	return 0;
-} /* main() */
+}
 
 void output_solved_sudoku( DICTIONARY *post_dictionary )
 {
@@ -141,7 +141,7 @@ void output_solved_sudoku( DICTIONARY *post_dictionary )
 
 	printf( "</body></html>\n" );
 
-} /* output_solved_sudoku() */
+}
 
 void output_html_heading( void )
 {
@@ -159,7 +159,7 @@ void output_html_heading( void )
 "cellspacing=3\n"
 "align=center\n"
 "valign=top>\n" );
-} /* output_html_heading() */
+}
 
 void solve_sudoku( char *output_filename, DICTIONARY *post_dictionary )
 {
@@ -182,13 +182,14 @@ void solve_sudoku( char *output_filename, DICTIONARY *post_dictionary )
 	{
 		do {
 			key = list_get_pointer( key_list );
-			data = dictionary_fetch( post_dictionary, key );
+			data = dictionary_fetch( key, post_dictionary );
 
 			/* Sample key = "cell-3-0" */
 			/* ----------------------- */
 			sprintf( output_string,
 				 "%s,%s",
 				 key + 5, data );
+
 			search_replace_character( output_string, '-', ',' );
 
 			fprintf( output_pipe, "%s\n", output_string );
@@ -197,5 +198,5 @@ void solve_sudoku( char *output_filename, DICTIONARY *post_dictionary )
 
 	pclose( output_pipe );
 
-} /* solve_sudoku() */
+}
 

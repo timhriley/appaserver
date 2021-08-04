@@ -1659,7 +1659,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 	key = "begin_date_0";
 
 
-	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
 			dictionary,
@@ -1670,7 +1670,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 
 	key = "end_date_0";
 
-	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
 			dictionary,
@@ -1681,7 +1681,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 
 	key = "query_from_begin_date_0";
 
-	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
 			dictionary,
@@ -1692,7 +1692,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 
 	key = "query_from_end_date_0";
 
-	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
 			dictionary,
@@ -1703,7 +1703,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 
 	key = "from_begin_date_0";
 
-	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
 			dictionary,
@@ -1714,7 +1714,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 
 	key = "from_end_date_0";
 
-	if ( ( date_string = dictionary_fetch( dictionary, key ) ) )
+	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
 	{
 		appaserver_library_dictionary_convert_date( 
 			dictionary,
@@ -1759,9 +1759,10 @@ void appaserver_library_post_dictionary_database_convert_dates(
 				/* ---------------------------- */
 				strcpy(	key, attribute_name );
 
-				date_string = dictionary_fetch(
-						post_dictionary,
-						key );
+				date_string =
+					dictionary_fetch(
+						key,
+						post_dictionary );
 
 				appaserver_library_dictionary_convert_date( 
 					post_dictionary,
@@ -1777,9 +1778,10 @@ void appaserver_library_post_dictionary_database_convert_dates(
 					attribute_name,
 					index );
 
-			date_string = dictionary_fetch(
-					post_dictionary,
-					key );
+			date_string =
+				dictionary_fetch(
+					key,
+					post_dictionary );
 
 			appaserver_library_dictionary_convert_date( 
 				post_dictionary,
@@ -1795,9 +1797,10 @@ void appaserver_library_post_dictionary_database_convert_dates(
 					attribute_name,
 					index );
 
-			date_string = dictionary_fetch(
-					post_dictionary,
-					key );
+			date_string =
+				dictionary_fetch(
+					key,
+					post_dictionary );
 
 			appaserver_library_dictionary_convert_date( 
 				post_dictionary,
@@ -1813,9 +1816,10 @@ void appaserver_library_post_dictionary_database_convert_dates(
 					attribute_name,
 					index );
 	
-			date_string = dictionary_fetch(
-					post_dictionary,
-					key );
+			date_string =
+				dictionary_fetch(
+					key,
+					post_dictionary );
 
 			appaserver_library_dictionary_convert_date( 
 				post_dictionary,
@@ -2137,8 +2141,8 @@ boolean appaserver_library_from_php( DICTIONARY *post_dictionary )
 
 	if ( !( filename =
 			dictionary_fetch(
-				post_dictionary,
-				"filename" ) ) )
+				"filename",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
@@ -2938,8 +2942,8 @@ char *appaserver_library_folder_foreign_translation(
 
 		if ( ! ( check_attribute_name =
 				dictionary_fetch(
-					foreign_attribute_dictionary,
-					folder_foreign_attribute_name ) ) )
+					folder_foreign_attribute_name,
+					foreign_attribute_dictionary ) ) )
 		{
 			continue;
 		}

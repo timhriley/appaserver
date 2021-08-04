@@ -812,8 +812,8 @@ enum lookup_before_drop_down_state
 
 	state_string =
 		dictionary_fetch(
-			lookup_before_drop_down_dictionary,
-			LOOKUP_BEFORE_DROP_DOWN_STATE_KEY );
+			LOOKUP_BEFORE_DROP_DOWN_STATE_KEY,
+			lookup_before_drop_down_dictionary );
 
 	if ( timlib_strcmp(	state_string,
 				LOOKUP_BEFORE_DROP_DOWN_SKIPPED_STATE ) == 0 )
@@ -823,8 +823,8 @@ enum lookup_before_drop_down_state
 
 	base_folder_name =
 		dictionary_fetch(
-			lookup_before_drop_down_dictionary,
-			LOOKUP_BEFORE_DROP_DOWN_BASE_FOLDER_KEY );
+			LOOKUP_BEFORE_DROP_DOWN_BASE_FOLDER_KEY,
+			lookup_before_drop_down_dictionary );
 
 	if ( !base_folder_name )
 	{

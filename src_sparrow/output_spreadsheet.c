@@ -160,7 +160,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 void output_spreadsheet(
 				char *application_name,
@@ -273,7 +273,7 @@ void output_spreadsheet(
 
 	printf( "<br>\n" );
 
-} /* output_spreadsheet() */
+}
 
 
 void get_title_and_sub_title(
@@ -291,7 +291,7 @@ void get_title_and_sub_title(
 
 	format_initial_capital( sub_title, sub_title );
 
-} /* get_title_and_sub_title() */
+}
 
 char *get_sys_string(	char *parameter_where )
 {
@@ -337,7 +337,7 @@ char *get_sys_string(	char *parameter_where )
 
 	return sys_string;
 
-} /* get_sys_string() */
+}
 
 void output_spreadsheet_sys_string(
 		char *output_filename,
@@ -480,7 +480,7 @@ void output_spreadsheet_sys_string(
 	pclose( output_pipe );
 	pclose( input_pipe );
 
-} /* output_spreadsheet_sys_string() */
+}
 
 char *get_site_visit_key(	char *quad_sheet,
 				char *site_number,
@@ -496,7 +496,7 @@ char *get_site_visit_key(	char *quad_sheet,
 
 	return strdup( key );
 
-} /* get_site_visit_key() */
+}
 
 char *get_physical_observation_key(
 				char *site_visit_key,
@@ -529,7 +529,7 @@ char *get_physical_observation_key(
 
 	return key;
 
-} /* get_physical_observation_key() */
+}
 
 char *get_bird_count(	char *key,
 			char *parameter_where )
@@ -544,12 +544,12 @@ char *get_bird_count(	char *key,
 				parameter_where );
 	}
 
-	if ( ! ( data = dictionary_fetch( bird_count_dictionary, key ) ) )
+	if ( ! ( data = dictionary_fetch( key, bird_count_dictionary ) ) )
 		return "";
 	else
 		return data;
 
-} /* get_bird_count() */
+}
 
 DICTIONARY *load_bird_count_dictionary( char *parameter_where )
 {
@@ -613,7 +613,7 @@ DICTIONARY *load_bird_count_dictionary( char *parameter_where )
 
 	return bird_count_dictionary;
 
-} /* load_bird_count_dictionary() */
+}
 
 char *get_site_visit(	char *key,
 			char *parameter_where )
@@ -628,7 +628,7 @@ char *get_site_visit(	char *key,
 				parameter_where );
 	}
 
-	if ( ! ( data = dictionary_fetch( site_visit_dictionary, key ) ) )
+	if ( ! ( data = dictionary_fetch( key, site_visit_dictionary ) ) )
 	{
 		fprintf( stderr,
 		"ERROR in %s/%s()/%d: cannot dictionary_fetch(%s).\n",
@@ -641,7 +641,7 @@ char *get_site_visit(	char *key,
 
 	return data;
 
-} /* get_site_visit() */
+}
 
 char *get_vegetation(	char *key,
 			char *parameter_where )
@@ -656,12 +656,12 @@ char *get_vegetation(	char *key,
 				parameter_where );
 	}
 
-	if ( ! ( data = dictionary_fetch( vegetation_dictionary, key ) ) )
+	if ( ! ( data = dictionary_fetch( key, vegetation_dictionary ) ) )
 		return "";
 	else
 		return data;
 
-} /* get_vegetation() */
+}
 
 DICTIONARY *load_vegetation_dictionary( char *parameter_where )
 {
@@ -725,7 +725,7 @@ DICTIONARY *load_vegetation_dictionary( char *parameter_where )
 		key = get_site_visit_key( quad_sheet, site_number, visit_date );
 
 		if ( !( data =
-			dictionary_fetch( vegetation_dictionary, key ) ) )
+			dictionary_fetch( key, vegetation_dictionary ) ) )
 		{
 			dictionary_set_pointer(
 				vegetation_dictionary,
@@ -751,7 +751,7 @@ DICTIONARY *load_vegetation_dictionary( char *parameter_where )
 
 	return vegetation_dictionary;
 
-} /* load_vegetation_dictionary() */
+}
 
 char *get_physical_observation(
 			char *site_visit_key,
@@ -784,9 +784,10 @@ char *get_physical_observation(
 
 		ptr += sprintf( ptr, "," );
 
-		if ( ( data = dictionary_fetch(
-				physical_observation_dictionary,
-				physical_observation_key ) ) )
+		if ( ( data =
+			dictionary_fetch(
+				physical_observation_key,
+				physical_observation_dictionary ) ) )
 		{
 			ptr += sprintf( ptr, "%s", data );
 		}
@@ -794,7 +795,7 @@ char *get_physical_observation(
 
 	return physical_observation;
 
-} /*get_physical_observation() */
+}
 
 DICTIONARY *load_physical_observation_dictionary( char *parameter_where )
 {
@@ -864,7 +865,7 @@ DICTIONARY *load_physical_observation_dictionary( char *parameter_where )
 
 	return physical_observation_dictionary;
 
-} /* load_physical_observation_dictionary() */
+}
 
 DICTIONARY *load_site_visit_dictionary( char *parameter_where )
 {
@@ -945,7 +946,7 @@ DICTIONARY *load_site_visit_dictionary( char *parameter_where )
 
 	return site_visit_dictionary;
 
-} /* load_site_visit_dictionary() */
+}
 
 char *get_site_visit_comments(	char *observer_code,
 				char *visit_time,
@@ -997,5 +998,5 @@ char *get_site_visit_comments(	char *observer_code,
 
 	return site_visit_data;
 
-} /* get_site_visit_comments() */
+}
 

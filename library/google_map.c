@@ -681,8 +681,10 @@ char *google_map_get_balloon(	char *application_name,
 	do {
 		attribute_name = list_get_pointer( attribute_name_list );
 
-		if ( ( data = dictionary_fetch(	dictionary,
-						attribute_name ) ) )
+		if ( ( data =
+			dictionary_fetch(
+				attribute_name,
+				dictionary ) ) )
 		{
 			if ( first_time )
 				first_time = 0;

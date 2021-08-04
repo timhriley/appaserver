@@ -159,8 +159,8 @@ void station_datatype_list(	char *application_name,
 
 		if ( ( manipulate_agency =
 				dictionary_fetch(
-					manipulate_agency_dictionary,
-					key ) ) )
+					key,
+					manipulate_agency_dictionary ) ) )
 		{
 			if ( *manipulate_agency )
 				strcpy( agency, manipulate_agency );

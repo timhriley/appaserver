@@ -28,12 +28,10 @@ UPDATE_DATABASE *update_database_calloc( void )
 {
 	UPDATE_DATABASE *update_database;
 
-	if ( ! ( update_database =
-			(UPDATE_DATABASE *)
-				calloc( 1, sizeof( UPDATE_DATABASE ) ) ) )
+	if ( ! ( update_database = calloc( 1, sizeof( UPDATE_DATABASE ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -46,12 +44,10 @@ UPDATE_FOLDER *update_folder_calloc( void )
 {
 	UPDATE_FOLDER *update_folder;
 
-	if ( ! ( update_folder =
-			(UPDATE_FOLDER *)
-				calloc( 1, sizeof( UPDATE_FOLDER ) ) ) )
+	if ( ! ( update_folder = calloc( 1, sizeof( UPDATE_FOLDER ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -161,104 +157,19 @@ WHERE_ATTRIBUTE *update_database_where_attribute_new(
 
 }
 
-boolean update_database_data_if_changed(
-			char **old_data,
-			char **new_data,
-			/* ------------------------------------------------- */
-			/* Set the preupdate_$attribute_name for the trigger */
-			/* ------------------------------------------------- */
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *attribute_name,
-			int row )
-{
-	char preupdate_attribute_name[ 128 ];
-
-	if ( !post_dictionary )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: post_dictionary is empty./\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !file_dictionary )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: file_dictionary is empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	*old_data = (char *)0;
-	*new_data = (char *)0;
-
-	if ( !update_database_dictionary_index_data(
-		new_data,
-		post_dictionary,
-		attribute_name,
-		row ) )
-	{
-		return 0;
-	}
-
-	if ( !update_database_dictionary_index_data(
-		old_data,
-		file_dictionary,
-		attribute_name,
-		row ) )
-	{
-		return 0;
-	}
-
-	if ( strcasecmp( *old_data, *new_data ) == 0 )
-	{
-		return 0;
-	}
-	else
-	if ( strcmp( *old_data, "select" ) == 0 && !**new_data )
-	{
-		return 0;
-	}
-	else
-	/* --------------------------------------------------------------- */
-	/* Got a change. Set the preupdate attribute name for the trigger. */
-	/* --------------------------------------------------------------- */
-	{
-		sprintf(	preupdate_attribute_name,
-				"%s%s_%d",
-				UPDATE_DATABASE_PREUPDATE_PREFIX,
-				attribute_name,
-				row );
-
-		dictionary_set_pointer(
-			post_dictionary,
-			strdup( preupdate_attribute_name ),
-			*old_data );
-
-		return 1;
-	}
-}
-
 UPDATE_ROW *update_database_update_row_calloc( void )
 {
 	UPDATE_ROW *update_row;
 
-	update_row =
-		(UPDATE_ROW *)
-			calloc( 1, sizeof( UPDATE_ROW ) );
+	update_row = calloc( 1, sizeof( UPDATE_ROW ) );
 
 	if ( !update_row )
 	{
-		fprintf( stderr,
-			 "Memory allocation error in %s/%s()/%d\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 	return update_row;
@@ -273,7 +184,6 @@ UPDATE_ROW *update_database_update_row_new( int row )
 	update_row->update_folder_list = list_new_list();
 
 	return update_row;
-
 }
 
 UPDATE_FOLDER *update_database_update_folder_new(
@@ -1752,5 +1662,249 @@ boolean update_database_attribute_exists(
 	} while ( list_next( update_row_list ) );
 
 	return 0;
+}
+
+UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_calloc( void )
+{
+	UPDATE_CHANGED_ATTRIBUTE_DATA *u;
+
+	if ( ! ( u = calloc( 1, sizeof( UPDATE_CHANGED_ATTRIBUTE_DATA ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return u;
+}
+
+UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *attribute_name,
+			char *attribute_datatype,
+			int primary_key_index,
+			int row )
+{
+	UPDATE_CHANGED_ATTRIBUTE_DATA *changed_attribute_data;
+	char *key;
+	char *old_data;
+	char *new_data;
+	boolean changed_attribute;
+
+	key =
+		update_changed_attribute_data_key(
+			attribute_name,
+			row );
+
+	if ( ! ( old_data = dictionary_fetch( key, file_dictionary ) ) )
+	{
+		return (CHANGED_ATTRIBUTE_DATA *)0;
+	}
+
+	if ( ! ( new_data = dictionary_fetch( key, post_dictionary ) ) )
+	{
+		return (CHANGED_ATTRIBUTE_DATA *)0;
+	}
+
+	if ( strcmp( new_data, UPDATE_DATABASE_NULL_TOKEN ) == 0 )
+		*new_data = '\0';
+
+	if ( strcmp( old_data, "select" ) == 0 && !*new_data )
+	{
+		return (CHANGED_ATTRIBUTE_DATA *)0;
+	}
+
+	if ( ! ( changed_attribute = ( strcmp( old_data, new_data ) != 0 ) ) )
+	{
+		return (CHANGED_ATTRIBUTE_DATA *)0;
+	}
+
+	changed_attribute_data = changed_attribute_data_calloc();
+
+	changed_attribute_data->post_dictionary = post_dictionary;
+	changed_attribute_data->file_dictionary = file_dictionary;
+	changed_attribute_data->attribute_name = attribute_name;
+	changed_attribute_data->attribute_datatype = attribute_datatype;
+	changed_attribute_data->primary_key_index = primary_key_index;
+	changed_attribute_data->row = row;
+	changed_attribute_data->changed_attribute = changed_attribute;
+
+	changed_attribute_data->escaped_replaced_new_data =
+		security_sql_injection_escape(
+			security_replace_special_characters(
+				string_trim_number_characters(
+					new_data,
+					attribute_datatype ) ) );
+
+	return changed_attribute_data;
+}
+
+char *update_changed_attribute_data_key(
+			char *attribute_name,
+			int row )
+{
+	static char key[ 128 ];
+
+	sprintf(key,
+		"%s_%d",
+		attribute_name,
+		row );
+
+	return key;
+}
+
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_calloc( void )
+{
+	UPDATE_CHANGED_ATTRIBUTE *u;
+
+	if ( ! ( u = calloc( 1, sizeof( UPDATE_CHANGED_ATTRIBUTE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return u;
+}
+
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			FOLDER_ATTRIBUTE *folder_attribute,
+			int row )
+{
+	UPDATE_CHANGED_ATTRIBUTE *changed_attribute;
+	UPDATE_CHANGED_ATTRIBUTE_DATA *changed_attribute_data;
+
+	if ( !folder_attribute )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_attribute is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !folder_attribute->attribute )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( changed_attribute_data =
+			update_changed_attribute_data(
+				post_dictionary,
+				file_dictionary,
+				folder_attribute->attribute->attribute_name,
+				folder_attribute->attribute->attribute_datatype,
+				folder_attribute->primary_key_index,
+				row ) ) )
+	{
+		return (UPDATE_CHANGED_ATTRIBUTE *)0;
+	}
+
+	changed_attribute = update_changed_attribute_calloc();
+
+	changed_attribute->post_dictionary = post_dictionary;
+	changed_attribute->file_dictionary = file_dictionary;
+	changed_attribute->folder_attribute = folder_attribute;
+	changed_attribute->row = row;
+
+	changed_attribute->changed_attribute_data =
+		update_changed_attribute_data;
+
+	changed_attribute->changed_attribute_preupdate_label =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_changed_attribute_preupdate_label(
+			folder_attribute->attribute->attribute_name,
+			row );
+
+	dictionary_set(
+		post_dictionary,
+		changed_attribute->changed_attribute_preupdate_label,
+		old_data );
+
+	return changed_attribute;
+}
+
+char *update_changed_attribute_preupdate_label(
+			char *attribute_name,
+			int row )
+{
+	char label[ 128 ];
+
+	if ( !attribute_name || !*attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(label,
+		"%s%s_%d",
+		UPDATE_DATABASE_PREUPDATE_PREFIX,
+		attribute_name,
+		row );
+
+	return strdup( label );
+}
+
+LIST *update_changed_attribute_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			LIST *folder_attribute_list,
+			int row )
+{
+	UPDATE_CHANGED_ATTRIBUTE *changed_attribute;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *changed_attribute_list = {0};
+
+	if ( !list_rewind( folder_attribute_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: list_rewind() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		folder_attribute = list_get( folder_attribute_list );
+
+		if ( ( changed_attribute =
+				update_changed_attribute(
+					post_dictionary,
+					file_dictionary,
+					folder_attribute,
+					row ) ) )
+		{
+			if ( !changed_attribute_list )
+				changed_attribute_list =
+					list_new();
+
+			list_set(
+				changed_attribute_list,
+				changed_attribute );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return changed_attribute_list;
 }
 

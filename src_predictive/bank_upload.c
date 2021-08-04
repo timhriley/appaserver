@@ -1261,7 +1261,7 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 
 	key = "bank_date";
 
-	if ( ! ( bank_date = dictionary_fetch( dictionary, key ) ) )
+	if ( ! ( bank_date = dictionary_fetch( key, dictionary ) ) )
 	{
 		return (BANK_UPLOAD *)0;
 	}
@@ -1269,7 +1269,7 @@ BANK_UPLOAD *bank_upload_dictionary_extract(
 	key = "bank_description";
 
 	if ( ! ( bank_description =
-			dictionary_fetch( dictionary, key ) ) )
+			dictionary_fetch( key, dictionary ) ) )
 	{
 		return (BANK_UPLOAD *)0;
 	}

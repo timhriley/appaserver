@@ -525,15 +525,15 @@ void dictionary_increment_count(
 			DICTIONARY *dictionary,
 			char *key );
 
-char *dictionary_fetch(	DICTIONARY *d,
-			char *key );
+char *dictionary_fetch(	char *key,
+			DICTIONARY *d );
 
-void *dictionary_seek(	DICTIONARY *d,
-			char *key );
+void *dictionary_seek(	char *key,
+			DICTIONARY *d );
 
 char *dictionary_safe_fetch(
-			DICTIONARY *d,
-			char *key );
+			char *key,
+			DICTIONARY *d );
 
 void dictionary_output_with_prefix(
 			DICTIONARY *dictionary,
