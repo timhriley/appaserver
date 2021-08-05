@@ -918,13 +918,13 @@ void list_get_from_pipe( LIST *list, char *pipe_string )
 	list_load_from_pipe( list, pipe_string );
 }
 
-LIST *list_pipe_fetch( char *pipe_string )
+LIST *list_pipe_fetch( char *system_string )
 {
 	char buffer[ 65536 ];
 	FILE *p;
 	LIST *list = list_new();
 
-	p = popen( pipe_string, "r" );
+	p = popen( system_string, "r" );
 
 	while( string_input( buffer, p, 65536 ) )
 	{

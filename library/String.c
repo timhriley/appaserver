@@ -981,3 +981,11 @@ char *string_in_clause(	LIST *data_list )
 	return strdup( in_clause );
 }
 
+int string_length( char *string )
+{
+	if ( !string )
+		return 0;
+	else
+		return strlen( string );
+}
+

@@ -98,10 +98,8 @@ SECURITY_ENTITY *security_entity(
 			boolean non_owner_forbid,
 			boolean override_row_restrictions );
 
-/* ---------------------- */
-/* Returns heap memory    */
-/* Returns full_name_only */
-/* ---------------------- */
+/* Returns full_name_only as heap memory */
+/* ------------------------------------- */
 char *security_entity_fetch(
 			char **street_address_only,
 			char *login_name );
@@ -111,5 +109,11 @@ char *security_entity_fetch(
 char *security_login_name_full_name_only(
 			char **street_address,
 			char *login_name );
+
+/* Returns where_clause if null or heap memory */
+/* ------------------------------------------- */
+char *security_entity_where_clause(
+			char *where_clause,
+			SECURITY_ENTITY *security_entity );
 
 #endif

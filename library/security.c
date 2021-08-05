@@ -315,3 +315,28 @@ char *security_login_name_full_name_only(
 		login_name );
 }
 
+char *security_entity_where_clause(
+			char *where_clause,
+			SECURITY_ENTITY *security_entity )
+{
+	char where_clause[ STRING_WHERE_BUFFER ];
+
+	if ( !security_entity ) return where_clause;
+
+	if ( security_entity->full_name_only )
+	{
+		sprintf(where_clause,
+			" and full_name = '%s' and street_address = '%s'",
+			security_entity->full_name_only,
+			security_entity->street_address_only );
+	}
+	else
+	{
+		sprintf(where_clause,
+			" and login_name = '%s'",
+			security_entity->login_name_only );
+	}
+
+	return strdup( where_clause );
+}
+

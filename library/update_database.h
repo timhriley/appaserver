@@ -31,15 +31,6 @@ typedef struct
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	DICTIONARY *post_dictionary;
-	DICTIONARY *file_dictionary;
-	char *attribute_name;
-	char *attribute_datatype;
-	int primary_key_index;
-	int row;
-
 	/* Process */
 	/* ------- */
 	char *key;
@@ -53,10 +44,7 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	DICTIONARY *post_dictionary;
-	DICTIONARY *file_dictionary;
 	FOLDER_ATTRIBUTE *folder_attribute;
-	int row;
 
 	/* Process */
 	/* ------- */
@@ -66,90 +54,66 @@ typedef struct
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
+	LIST *changed_attribute_list;
+	LIST *where_attribute_list;
+	char *where_clause;
+	char *security_entity_where_clause;
+	char *set_clause;
+	char *folder_delimited_fetch;
+} UPDATE_FOLDER_PRIMARY;
+
+typedef struct
+{
 	/* Input */
 	/* ----- */
-	DICTIONARY *post_dictionary;
-	DICTIONARY *file_dictionary;
-	FOLDER *folder;
-	SECURITY_ENTITY *security_entity;
 	int row;
 
 	/* Process */
 	/* ------- */
-	LIST *primary_attribute_name_list;
-
-	LIST *changed_attribute_list;
-
-	/* ---------------------------------------------------- */
-	/* For the primary folder,				*/
-	/* build where using primary_attribute_name_list.	*/
-	/* ---------------------------------------------------- */
-	LIST *primary_attribute_name_list;
-
-	/* ------------------------------------------------------------ */
-	/* For the secondary folders,					*/
-	/* build where using relation_foreign_attribute_name_list.	*/
-	/* ------------------------------------------------------------ */
-	LIST *relation_foreign_attribute_name_list;
-
-	/* ---------------------------------------------------- */
-	/* Where_attribute_name_list is either			*/
-	/* primary_attribute_name_list or			*/
-	/* relation_foreign_attribute_name_list			*/
-	/* ---------------------------------------------------- */
-	LIST *where_attribute_name_list;
-
-	LIST *primary_data_list;
-	LIST *where_attribute_list;
-
-	char *where_clause;
-	char *set_clause;
-	boolean changed_primary_key;
-	boolean update_failed;
-	int count;
-} UPDATE_FOLDER;
-
-typedef struct
-{
-	int row;
-	LIST *update_folder_list;
-	boolean changed_primary_key;
+	UPDATE_FOLDER_PRIMARY *update_folder_primary;
+	LIST *primary_changed_attribute_list;
+	LIST *folder_related_list;
+	int update_row_count;
 } UPDATE_ROW;
 
 typedef struct
 {
-	char *application_name;
-	char *session;
+	/* Input */
+	/* ----- */
 	char *login_name;
 	char *role_name;
 	char *folder_name;
-	FOLDER *folder;
 	DICTIONARY *post_dictionary;
 	DICTIONARY *file_dictionary;
+	char *application_name;
+
+	/* Process */
+	/* ------- */
+	FOLDER *folder;
 	LIST *update_row_list;
 	LIST *attribute_list;
 	PROCESS *post_change_process;
 	LIST *one2m_recursive_relation_list;
 } UPDATE_DATABASE;
 
-UPDATE_ROW *update_database_update_row_new(
-			int row );
-
-UPDATE_FOLDER *update_database_update_folder_new(
-			char *folder_name );
-
-WHERE_ATTRIBUTE *update_database_where_attribute_new(
-			char *where_attribute_name,
+WHERE_ATTRIBUTE *update_where_attribute(
+			char *attribute_name,
 			char *data );
 
-CHANGED_ATTRIBUTE *update_changed_attribute_new(
-			char *attribute_name,
-			char *attribute_datatype,
-			char *old_data,
-			char *escaped_replaced_new_data );
+UPDATE_FOLDER_PRIMARY *update_folder_primary(
+			/* ------------------------------------------ */
+			/* Sets preupdate_$attribute_name for trigger */
+			/* ------------------------------------------ */
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			FOLDER *folder,
+			SECURITY_ENTITY *security_entity,
+			int row );
 
-UPDATE_FOLDER *update_database_update_folder_new(
-			char *folder_name );
+UPDATE_FOLDER_PRIMARY *update_folder_primary_calloc(
+			void );
 
 boolean update_database_data_if_changed(
 			char **old_data,
@@ -241,39 +205,14 @@ int update_database_where_display(
 			char *buffer_pointer,
 			LIST *where_attribute_list );
 
-void update_database_set_login_name_each_row(
-			DICTIONARY *dictionary,
-			char *login_name );
-
-LIST *update_folder_changed_attribute_list(
-			boolean *changed_primary_key,
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			LIST *attribute_list,
-			int row );
-
 CHANGED_ATTRIBUTE *update_changed_attribute(
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			ATTRIBUTE *attribute,
+			FOLDER_ATTRIBUTE *folder_attribute,
 			int row );
-
-UPDATE_FOLDER *update_database_update_folder(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *folder_name,
-			LIST *attribute_list,
-			int row,
-			PROCESS *post_change_process );
 
 UPDATE_DATABASE *update_database_calloc(
 			void );
@@ -286,29 +225,21 @@ LIST *update_folder_primary_data_list(
 			LIST *primary_attribute_name_list,
 			int row );
 
-UPDATE_ROW *update_database_update_row(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
+UPDATE_ROW *update_row(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			char *folder_name,
-			LIST *attribute_list,
-			LIST *one2m_recursive_relation_list,
-			PROCESS *post_change_process,
+			FOLDER *folder,
+			SECURITY_ENTITY *security_entity,
 			int row );
 
-UPDATE_ROW *update_database_update_row_calloc(
+UPDATE_ROW *update_row_calloc(
 			void );
 
-LIST *update_database_update_row_list(
+LIST *update_row_list(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			char *folder_name,
-			LIST *attribute_list,
-			LIST *one2m_recursive_relation_list,
-			LIST *mto1_isa_recursive_relation_list,
-			PROCESS *post_change_process );
+			FOLDER *folder,
+			SECURITY_ENTITY *security_entity );
 
 UPDATE_FOLDER *update_secondary_update_folder(
 			char *mto1_folder_name,
@@ -319,9 +250,10 @@ UPDATE_FOLDER *update_secondary_update_folder(
 UPDATE_FOLDER *update_folder_set_where_clause(
 			UPDATE_FOLDER *update_folder );
 
-LIST *update_folder_where_attribute_list(
-			LIST *attribute_name_list,
-			LIST *primary_data_list );
+LIST *update_where_attribute_list(
+			DICTIONARY *file_dictionary,
+			LIST *primary_attribute_name_list,
+			int row );
 
 UPDATE_FOLDER *update_database_primary_update_folder(
 			DICTIONARY *post_dictionary,
@@ -331,14 +263,15 @@ UPDATE_FOLDER *update_database_primary_update_folder(
 			PROCESS *post_change_process,
 			int row );
 
-UPDATE_DATABASE *update_database_new(
-			char *application_name,
-			char *session,
+UPDATE_DATABASE *update_database(
+			/* ------------------------------------------ */
+			/* Sets preupdate_$attribute_name for trigger */
+			/* ------------------------------------------ */
+			DICTIONARY *post_dictionary /* in/out */,
+			DICTIONARY *file_dictionary,
 			char *login_name,
 			char *role_name,
-			char *folder_name,
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary );
+			char *folder_name );
 
 LIST *update_database_changed_folder_name_list(
 			LIST *update_row_list );
@@ -390,7 +323,7 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
 
 /* Returns static memory */
 /* --------------------- */
-char *update_changed_attribute_data_key(
+char *update_dictionary_key(
 			char *attribute_name,
 			int row );
 

@@ -15,6 +15,7 @@
 /* --------- */
 #define STRING_LF			10
 #define STRING_CR			13
+#define STRING_STRING_BUFFER		131072
 #define STRING_WHERE_BUFFER		131072
 
 /* Structures */
@@ -190,5 +191,7 @@ char *string_strncpy(	char *destination,
 /* Safely returns heap memory */
 /* -------------------------- */
 char *string_in_clause(	LIST *data_list );
+
+int string_length(	char *string );
 
 #endif

@@ -163,7 +163,7 @@ int list_at_first( LIST *list );
 int at_head( LIST *list );
 int at_end( LIST *list );
 
-LIST *list_pipe_fetch(	char *sys_string );
+LIST *list_pipe_fetch(	char *system_string );
 
 LIST *sys_string2list(	char *sys_string );
 

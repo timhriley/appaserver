@@ -80,9 +80,6 @@ typedef struct
 	LIST *relation_mto1_isa_list;
 	LIST *relation_one2m_list;
 	LIST *relation_one2m_isa_list;
-	LIST *folder_primary_delimited_list;
-	LIST *folder_delimited_list;
-	LIST *folder_dictionary_list;
 } FOLDER;
 
 /* Operations */
@@ -156,11 +153,21 @@ LIST *folder_query_primary_delimited_list(
 			DICTIONARY *preprompt_dictionary.
 			char *login_name );
 
-LIST *folder_delimited_list(
+LIST *folder_query_delimited_list(
 			char *table_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary );
+
+LIST *folder_delimited_list(
+			char *table_name,
+			LIST *attribute_name_list,
+			char *where_clause );
+
+LIST *folder_delimited_fetch(
+			char *table_name,
+			LIST *attribute_name_list,
+			char *where_clause );
 
 LIST *folder_dictionary_list(
 			char *table_name,
