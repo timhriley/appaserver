@@ -213,7 +213,7 @@ char *security_sql_injection_escape( char *data )
 {
 	char destination[ QUERY_WHERE_BUFFER ];
 
-	if ( !data || !*data ) return data;
+	if ( !data || !*data ) return strdup( "" );
 
 	return strdup(
 		string_escape_character_array(

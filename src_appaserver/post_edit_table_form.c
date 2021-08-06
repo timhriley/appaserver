@@ -545,10 +545,8 @@ void post_state_insert(
 			ignore_dictionary,
 			folder->append_isa_attribute_list );
 
-/*
 	insert_database->dont_remove_tmp_file =
 		INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
-*/
 
 	rows_inserted =
 	insert_database_execute(
