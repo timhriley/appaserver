@@ -103,9 +103,7 @@ int insert_database_execute_insert_mysql(
 			char *tmp_file_name,
 			LIST *insert_attribute_name_list );
 
-/* Returns insert_attribute_name_list */
-/* ---------------------------------- */
-LIST *build_insert_tmp_file_each_row(	
+boolean build_insert_tmp_file_each_row(	
 			FILE *insert_tmp_file,
 			DICTIONARY *row_dictionary,
 			char *application_name,
@@ -118,9 +116,7 @@ LIST *build_insert_tmp_file_each_row(
 			LIST *attribute_list,
 			boolean exists_reference_number );
 
-/* Returns insert_attribute_name_list */
-/* ---------------------------------- */
-LIST *build_insert_tmp_file_row_zero(	
+boolean build_insert_tmp_file_row_zero(	
 			FILE *insert_tmp_file,
 			DICTIONARY *row_dictionary,
 			char *application_name,
@@ -146,9 +142,7 @@ LIST *insert_database_get_missing_attribute_name_list(
 			LIST *primary_attribute_name_list,
 			LIST *insert_required_attribute_name_list );
 
-/* Returns insert_attribute_name_list */
-/* ---------------------------------- */
-LIST *build_insert_data_string( 	
+boolean build_insert_data_string( 	
 			char *destination,
 			DICTIONARY *row_dictionary,
 		     	int row,

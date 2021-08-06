@@ -78,8 +78,8 @@ boolean security_password_encrypted(
 char *security_replace_special_characters(
 			char *data );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *security_sql_injection_escape(
 			char *data );
 
