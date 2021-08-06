@@ -1027,13 +1027,6 @@ UPDATE_FOLDER_PRIMARY *update_folder_primary(
 	update_folder_primary->changed_attribute_list =
 		changed_attribute_list;
 
-
-	update_folder_primary->post_dictionary = post_dictionary;
-	update_folder_primary->file_dictionary = file_dictionary;
-	update_folder_primary->folder = folder;
-	update_folder_primary->security_entity = security_entity;
-	update_folder_primary->row = row;
-
 	update_folder_primary->where_attribute_list =
 		update_where_attribute_list(
 			file_dictionary,
@@ -1055,8 +1048,8 @@ UPDATE_FOLDER_PRIMARY *update_folder_primary(
 			update_folder_primary->
 				changed_attribute_list );
 
-	update_folder_primary->folder_delimited_list =
-		folder_delimited_list(
+	update_folder_primary->folder_delimited_fetch =
+		folder_delimited_fetch(
 			folder_table_name(
 				folder->folder_name ),
 			folder_attribute_primary_name_list(
@@ -1152,7 +1145,7 @@ UPDATE_ROW *update_row(
 		exit( 1 );
 	}
 
-	if ( !list_length( folder_primary->update_where_attribute_list ) )
+	if ( !list_length( folder_primary->where_attribute_list ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: update_where_attribute_list is empty.\n",
@@ -1176,12 +1169,11 @@ UPDATE_ROW *update_row(
 	{
 		folder_primary->folder_related_list =
 			update_folder_related_list(
-				folder_attribute_primary_name_list(
-					folder->folder_attribute_list ),
 				folder_primary->
 					primary_changed_attribute_list,
 				folder_primary->
-					update_where_attribute_list,
+					where_attribute_list
+					/* primary_where_attribute_list */,
 				folder->relation_one2m_recursive_list );
 	}
 
@@ -1341,7 +1333,13 @@ int update_row_cell_count(
 	do {
 		update_folder_related = list_get( update_folder_related_list );
 
-here1
+		related_cell_count +=
+			( list_length(
+				update_folder_related->
+					related_changed_attribute_list ) *
+			  list_length(
+				update_folder_related->
+					related_delimited_list ) );
 
 	} while( list_next( update_folder_related_list ) );
 
@@ -1591,9 +1589,8 @@ LIST *update_changed_attribute_list(
 }
 
 LIST *update_folder_related_list(
-			LIST *primary_attribute_name_list,
 			LIST *primary_changed_attribute_list,
-			LIST *where_attribute_list,
+			LIST *primary_where_attribute_list,
 			LIST *relation_one2m_recursive_list )
 {
 	UPDATE_FOLDER_RELATED *folder_related;
@@ -1615,9 +1612,8 @@ LIST *update_folder_related_list(
 
 		if ( ! ( related_folder =
 				update_folder_related(
-					primary_attribute_name_list,
 					primary_changed_attribute_list,
-					where_attribute_list,
+					primary_where_attribute_list,
 					relation_one2m ) ) )
 		{
 			fprintf(stderr,
@@ -1652,17 +1648,85 @@ UPDATE_FOLDER_RELATED *update_folder_related_calloc( void )
 }
 
 UPDATE_FOLDER_RELATED *update_folder_related(
-			LIST *primary_attribute_name_list,
 			LIST *primary_changed_attribute_list,
-			LIST *where_attribute_list,
+			LIST *primary_where_attribute_list,
 			RELATION *relation_one2m )
 {
-	UPDATE_FOLDER_RELATED *folder_related =
-		update_folder_related_calloc();
+	LIST *changed_attribute_list;
+	UPDATE_FOLDER_RELATED *folder_related;
 
-	folder_related->changed_attribute_list =
+	if ( !relation_one2m->many_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: many_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length(
+		relation_one2m->
+			many_folder->
+			primary_attribute_name_list )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: many_folder's primary_attribute_name_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	changed_attribute_list =
 		update_related_changed_attribute_list(
+			primary_changed_attribute_list,
+			relation_one2m->many_folder->folder_name,
+			relation_one2m->foreign_attribute_name_list );
+
+	if ( !list_length( changed_attribute_list ) )
+	{
+		return (UPDATE_FOLDER_RELATED *)0;
+	}
+
+	folder_related = update_folder_related_calloc();
+
+	folder_related->changed_attribute_list = changed_attribute_list;
+
+	folder_related->related_where_attribute_list =
+		update_related_where_attribute_list(
+			primary_where_attribute_list,
+			relation_one2m->foreign_attribute_name_list );
+
+	folder_related->related_delimited_list =
+		update_related_delimited_list(
+			relation_one2m->many_folder->folder_name,
+			relation_one2m->
+				many_folder->
+				primary_attribute_name_list,
+		update_folder_where_clause(
+			folder_related->related_where_attribute_list ) );
 
 	return folder_related;
+}
+
+LIST *update_related_changed_attribute_list(
+			LIST *primary_changed_attribute_list,
+			char *relation_one2m->many_folder->folder_name,
+			LIST *foreign_attribute_name_list )
+{
+}
+
+LIST *update_related_where_attribute_list(
+			LIST *primary_where_attribute_list,
+			LIST *foreign_attribute_name_list )
+{
+}
+
+LIST *update_related_delimited_list(
+			char *folder_name,
+			LIST *related_primary_attribute_name_list,
+			char *where_clause )
+{
 }
 
