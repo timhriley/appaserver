@@ -1176,6 +1176,8 @@ UPDATE_ROW *update_row(
 	{
 		folder_primary->folder_related_list =
 			update_folder_related_list(
+				folder_attribute_primary_name_list(
+					folder->folder_attribute_list ),
 				folder_primary->
 					primary_changed_attribute_list,
 				folder_primary->
@@ -1586,5 +1588,81 @@ LIST *update_changed_attribute_list(
 	} while ( list_next( folder_attribute_list ) );
 
 	return changed_attribute_list;
+}
+
+LIST *update_folder_related_list(
+			LIST *primary_attribute_name_list,
+			LIST *primary_changed_attribute_list,
+			LIST *where_attribute_list,
+			LIST *relation_one2m_recursive_list )
+{
+	UPDATE_FOLDER_RELATED *folder_related;
+	RELATION *relation_one2m;
+	LIST *related_list = list_new();
+
+	if ( !list_rewind( relation_one2m_recursive_list ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: relation_one2m_recursive_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+		return (LIST *)0;
+	}
+
+	do {
+		relation_one2m = list_get( relation_one2m_recursive_list );
+
+		if ( ! ( related_folder =
+				update_folder_related(
+					primary_attribute_name_list,
+					primary_changed_attribute_list,
+					where_attribute_list,
+					relation_one2m ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: update_folder_related() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set( related_list, folder_related );
+
+	} while ( list_next( relation_one2m_recursive_list ) );
+
+	return related_list;
+}
+
+UPDATE_FOLDER_RELATED *update_folder_related_calloc( void )
+{
+	UPDATE_FOLDER_RELATED *u;
+
+	if ( ! ( u = calloc( 1, sizeof( UPDATE_FOLDER_RELATED ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return u;
+}
+
+UPDATE_FOLDER_RELATED *update_folder_related(
+			LIST *primary_attribute_name_list,
+			LIST *primary_changed_attribute_list,
+			LIST *where_attribute_list,
+			RELATION *relation_one2m )
+{
+	UPDATE_FOLDER_RELATED *folder_related =
+		update_folder_related_calloc();
+
+	folder_related->changed_attribute_list =
+		update_related_changed_attribute_list(
+
+	return folder_related;
 }
 
