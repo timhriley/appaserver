@@ -14,7 +14,7 @@
 #include "process.h"
 #include "related_folder.h"
 
-#define INSERT_DATABASE_DONT_REMOVE_TMP_FILE	1
+#define INSERT_DATABASE_DONT_REMOVE_TMP_FILE	0
 
 /* Structures */
 /* ---------- */
