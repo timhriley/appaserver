@@ -55,7 +55,8 @@ typedef struct
 typedef struct
 {
 	LIST *related_changed_attribute_list;
-	LIST *update_related_delimited_list;
+	LIST *related_where_attribute_list;
+	LIST *related_delimited_list;
 } UPDATE_FOLDER_RELATED;
 
 typedef struct
@@ -349,18 +350,29 @@ char *update_changed_attribute_preupdate_label(
 			int row );
 
 LIST *update_folder_related_list(
-			LIST *primary_attribute_name_list,
 			LIST *primary_changed_attribute_list,
-			LIST *where_attribute_list,
+			LIST *primary_where_attribute_list,
 			LIST *relation_one2m_recursive_list );
 
 UPDATE_FOLDER_RELATED *update_folder_related_calloc(
 			void );
 
 UPDATE_FOLDER_RELATED *update_folder_related(
-			LIST *primary_attribute_name_list,
 			LIST *primary_changed_attribute_list,
-			LIST *where_attribute_list,
+			LIST *primary_where_attribute_list,
 			RELATION *relation_one2m );
 
+LIST *update_related_changed_attribute_list(
+			LIST *primary_changed_attribute_list,
+			char *relation_one2m->many_folder->folder_name,
+			LIST *foreign_attribute_name_list );
+
+LIST *update_related_where_attribute_list(
+			LIST *primary_where_attribute_list,
+			LIST *foreign_attribute_name_list );
+
+LIST *update_related_delimited_list(
+			char *folder_name,
+			LIST *related_primary_attribute_name_list,
+			char *where_clause );
 #endif
