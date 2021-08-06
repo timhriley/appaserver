@@ -595,11 +595,12 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "validate_date" );
 
 	document_set_folder_javascript_files(
-				document,
-				application_name,
-				folder->folder_name );
+		document,
+		application_name,
+		folder->folder_name );
 
-	document_output_head(
+	document_output_head_stream(
+			stdout,
 			document->application_name,
 			document->title,
 			document->output_content_type,
@@ -608,13 +609,16 @@ int main( int argc, char **argv )
 			document->stylesheet_filename,
 			application_relative_source_directory(
 				application_name ),
-			0 /* not with_dynarch_menu */ );
+			0 /* not with_dynarch_menu */,
+			0 /* not with_close_head */ );
 
 	if ( attribute_exists_date_attribute(
 		folder->attribute_list ) )
 	{
 		appaserver_library_output_calendar_javascript();
 	}
+
+	printf( "</head>\n" );
 
 	if ( folder->post_change_javascript
 	&&   *folder->post_change_javascript )

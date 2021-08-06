@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/insert_database.h				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver insert_database ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
