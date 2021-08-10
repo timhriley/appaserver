@@ -671,7 +671,7 @@ DICTIONARY *dictionary_get_row_zero_dictionary(
 
 LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 			LIST *primary_data_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char delimiter );
 
 LIST *dictionary_seek_delimited_list(

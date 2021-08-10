@@ -349,7 +349,7 @@ void output_exceedance_table(
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -562,7 +562,7 @@ void output_exceedance_gracechart(
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -871,7 +871,7 @@ void output_exceedance_spreadsheet(
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -1112,7 +1112,7 @@ void output_exceedance_text_file(
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->

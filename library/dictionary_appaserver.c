@@ -841,7 +841,7 @@ void dictionary_appaserver_remove_from_starting_label(
 void dictionary_appaserver_set_primary_data_list_string(
 		DICTIONARY *row_dictionary,
 		char *primary_data_list_string,
-		LIST *primary_attribute_name_list,
+		LIST *primary_key_list,
 		char delimiter )
 {
 	int highest_index;
@@ -851,7 +851,7 @@ void dictionary_appaserver_set_primary_data_list_string(
 	char *primary_data;
 	char key[ 128 ];
 
-	if ( !list_length( primary_attribute_name_list) ) return;
+	if ( !list_length( primary_key_list) ) return;
 
 	primary_data_list =
 		list_string2list(
@@ -866,12 +866,12 @@ void dictionary_appaserver_set_primary_data_list_string(
 
 	for( index = 1; index <= highest_index; index++ )
 	{
-		list_rewind( primary_attribute_name_list );
+		list_rewind( primary_key_list );
 		list_rewind( primary_data_list );
 
 		do {
 			primary_data = list_get( primary_data_list );
-			primary_key = list_get( primary_attribute_name_list );
+			primary_key = list_get( primary_key_list );
 
 			sprintf( key, "%s_%d", primary_key, index );
 
@@ -882,7 +882,7 @@ void dictionary_appaserver_set_primary_data_list_string(
 
 			if ( !list_next( primary_data_list ) ) break;
 
-		} while( list_next( primary_attribute_name_list ) );
+		} while( list_next( primary_key_list ) );
 
 	}
 }

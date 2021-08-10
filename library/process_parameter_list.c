@@ -514,7 +514,7 @@ LIST *process_parameter_get_folder_element_list(
 				(DICTIONARY *)0 /* where_clause_dictionary */,
 				process->attribute_list,
 				(LIST *)0 /* prompt_list */,
-				(LIST *)0 /* primary_attribute_name_list */,
+				(LIST *)0 /* primary_key_list */,
 				(LIST *)0 /* primary_data_list */,
 				0 /* row */,
 				(char *)0 /* process_name */,
@@ -917,7 +917,7 @@ LIST *process_parameter_get_primary_key_and_data_list(
 			folder->attribute_list );
 
 	*primary_key_list = 
-		folder_get_primary_attribute_name_list(
+		folder_get_primary_key_list(
 			folder->attribute_list );
 
 	if ( populate_drop_down_process_string )
@@ -946,7 +946,7 @@ LIST *process_parameter_get_primary_key_and_data_list(
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			local_populate_drop_down_process,
 			folder->attribute_list,
-			(LIST *)0 /* common_non_primary_attribute_name_list */,
+			(LIST *)0 /* common_non_primary_key_list */,
 			folder->row_level_non_owner_forbid,
 			(LIST *)0
 			/* preprompt_accounted_for_attribute_name_list */,
@@ -987,7 +987,7 @@ LIST *process_parameter_get_primary_data_list(
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			folder->populate_drop_down_process,
 			folder->attribute_list,
-			(LIST *)0 /* common_non_primary_attribute_name_list */,
+			(LIST *)0 /* common_non_primary_key_list */,
 			folder->row_level_non_owner_forbid,
 			(LIST *)0
 			/* preprompt_accounted_for_attribute_name_list */,
@@ -1969,7 +1969,7 @@ LIST *process_parameter_get_prompt_process_list(
 			parameter_dictionary /* where_clause_dictionary */,
 			(LIST *)0 /* attribute_list */,
 			(LIST *)0 /* prompt_list */,
-			(LIST *)0 /* primary_attribute_name_list */,
+			(LIST *)0 /* primary_key_list */,
 			(LIST *)0 /* primary_data_list */,
 			0 /* row */,
 			(char *)0 /* process_name */,
@@ -2438,7 +2438,7 @@ char *process_parameter_command_line(
 			(DICTIONARY *)0 /* where_clause_dictionary */,
 			(LIST *)0 /* attribute_list */,
 			(LIST *)0 /* prompt_list */,
-			(LIST *)0 /* primary_attribute_name_list */,
+			(LIST *)0 /* primary_key_list */,
 			(LIST *)0 /* primary_data_list */,
 			0 /* row */,
 			(char *)0 /* parameter_process_name */,

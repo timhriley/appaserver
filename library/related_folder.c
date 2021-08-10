@@ -117,7 +117,7 @@ RELATED_FOLDER *related_folder_calloc( void )
 /*
 		foreign_attribute_name_list =
 		    related_folder_foreign_attribute_name_list(
-			folder_primary_attribute_name_list(
+			folder_primary_key_list(
 				isa_related_folder->
 					one2m_folder->
 					attribute_list ),
@@ -126,7 +126,7 @@ RELATED_FOLDER *related_folder_calloc( void )
 				folder_foreign_attribute_name_list );
 */
 LIST *related_folder_foreign_attribute_name_list(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *related_attribute_name,
 			LIST *folder_foreign_attribute_name_list )
 {
@@ -137,7 +137,7 @@ LIST *related_folder_foreign_attribute_name_list(
 		return_list = folder_foreign_attribute_name_list;
 	}
 	else
-	if ( !list_length( primary_attribute_name_list ) )
+	if ( !list_length( primary_key_list ) )
 	{
 		return_list = list_new();
 	}
@@ -146,19 +146,19 @@ LIST *related_folder_foreign_attribute_name_list(
 	&&   *related_attribute_name
 	&&   strcmp( related_attribute_name, "null" ) != 0 )
 	{
-		primary_attribute_name_list = 
+		primary_key_list = 
 			string_list_duplicate(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		list_replace_last_string( 
-			primary_attribute_name_list,
+			primary_key_list,
 			related_attribute_name );
 
-		return_list = primary_attribute_name_list;
+		return_list = primary_key_list;
 	}
 	else
 	{
-		return_list = primary_attribute_name_list;
+		return_list = primary_key_list;
 	}
 
 	return return_list;
@@ -209,7 +209,7 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		{
 			local_foreign_attribute_name_list =
 				related_folder_foreign_attribute_name_list(
-			   	folder_get_primary_attribute_name_list(
+			   	folder_get_primary_key_list(
 						related_folder->folder->
 							attribute_list ),
 			   	related_folder->related_attribute_name,
@@ -290,7 +290,7 @@ LIST *related_folder_drop_down_element_list(
 			char *post_change_javascript,
 			char *hint_message,
 			int max_drop_down_size,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			boolean is_primary_attribute,
 			boolean row_level_non_owner_view_only,
 			boolean row_level_non_owner_forbid,
@@ -515,7 +515,7 @@ LIST *related_folder_drop_down_element_list(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 				populate_drop_down_process,
 				attribute_list,
-				common_non_primary_attribute_name_list,
+				common_non_primary_key_list,
 				( row_level_non_owner_view_only ||
 				  row_level_non_owner_forbid )
 					/* filter_only_login_name */,
@@ -610,7 +610,7 @@ LIST *related_folder_subtract_related_attribute_name_list(
 	LIST *attribute_name_list = list_new_list();
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	LIST *primary_attribute_name_list = list_new_list();
+	LIST *primary_key_list = list_new_list();
 
 	if ( !list_rewind( foreign_attribute_name_list ) )
 		return attribute_name_list;
@@ -628,8 +628,8 @@ LIST *related_folder_subtract_related_attribute_name_list(
 					mto1_related_folder_list );
 
 		list_append_list(
-			primary_attribute_name_list,
-			folder_get_primary_attribute_name_list(
+			primary_key_list,
+			folder_get_primary_key_list(
 				related_folder->folder->
 					attribute_list ) );
 
@@ -641,7 +641,7 @@ LIST *related_folder_subtract_related_attribute_name_list(
 
 		if ( !list_exists_string(
 			attribute_name,
-			primary_attribute_name_list ) )
+			primary_key_list ) )
 		{
 			list_append_pointer(
 					attribute_name_list,
@@ -740,14 +740,14 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 
 	if ( list_length(
 		folder->
-		primary_attribute_name_list ) )
+		primary_key_list ) )
 	{
 		buf_ptr +=
 		sprintf( buf_ptr,
 			 ", primary = (%s)",
 			 list_display(
 			 	folder->
-			 	primary_attribute_name_list ) );
+			 	primary_key_list ) );
 	}
 
 	if ( list_length(
@@ -764,14 +764,14 @@ char *related_folder_display(	RELATED_FOLDER *related_folder,
 
 	if ( list_length(
 		related_folder->
-		parent_primary_attribute_name_list ) )
+		parent_primary_key_list ) )
 	{
 		buf_ptr +=
 		sprintf( buf_ptr,
-			 ", parent_primary_attribute_name_list = (%s)",
+			 ", parent_primary_key_list = (%s)",
 			 list_display(
 			 	related_folder->
-			 	parent_primary_attribute_name_list ) );
+			 	parent_primary_key_list ) );
 	}
 
 	if ( dictionary_length(
@@ -1001,7 +1001,7 @@ LIST *related_folder_insert_element_list(
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			1 /* override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	list_append_pointer(
@@ -1071,7 +1071,7 @@ LIST *related_folder_insert_element_list(
 					folder->
 					attribute_list,
 				related_folder->
-					common_non_primary_attribute_name_list,
+					common_non_primary_key_list,
 				role_name,
 				"insert" /* state */,
 				one2m_folder_name_for_processes,
@@ -1112,7 +1112,7 @@ LIST *related_folder_update_element_list(
 	DICTIONARY *local_preprompt_dictionary = {0};
 	DICTIONARY *parameter_dictionary;
 	char primary_attribute_asteric[ 2 ] = {0};
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean set_option_data_option_label_list;
 
 	if ( ajax_fill_drop_down_related_folder )
@@ -1226,27 +1226,27 @@ LIST *related_folder_update_element_list(
 	if ( !is_primary_attribute )
 		element->drop_down->output_null_option = 1;
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			related_folder->folder->attribute_list );
 
 	/* If single primary key, then don't filter anything. */
 	/* -------------------------------------------------- */
-	if ( list_length( primary_attribute_name_list ) == 1
+	if ( list_length( primary_key_list ) == 1
 	&&   local_preprompt_dictionary )
 	{
-		char *primary_attribute_name;
+		char *primary_key;
 		char tmp[ 512 ];
 
-		primary_attribute_name =
+		primary_key =
 			list_get_first_pointer(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		dictionary_remove_key(
 			local_preprompt_dictionary,
-			primary_attribute_name );
+			primary_key );
 
-		sprintf( tmp, "%s_0", primary_attribute_name );
+		sprintf( tmp, "%s_0", primary_key );
 
 		dictionary_remove_key(
 			local_preprompt_dictionary,
@@ -1353,7 +1353,7 @@ LIST *related_folder_update_element_list(
 					folder->
 					attribute_list,
 				related_folder->
-				common_non_primary_attribute_name_list,
+				common_non_primary_key_list,
 				row_level_non_owner_forbid
 					/* filter_only_login_name */,
 				(LIST *)0
@@ -1414,8 +1414,8 @@ LIST *related_folder_1tom_related_folder_list(
 		boolean omit_isa_relations,
 		enum related_folder_recursive_request_type
 			recursive_request_type,
-		LIST *parent_primary_attribute_name_list,
-		LIST *original_primary_attribute_name_list,
+		LIST *parent_primary_key_list,
+		LIST *original_primary_key_list,
 		char *prior_related_attribute_name )
 {
 	RELATED_FOLDER *related_folder;
@@ -1532,12 +1532,12 @@ LIST *related_folder_1tom_related_folder_list(
 
 		if ( !related_folder->
 			one2m_folder->
-			primary_attribute_name_list )
+			primary_key_list )
 		{
 			related_folder->
 			one2m_folder->
-			primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+			primary_key_list =
+				folder_get_primary_key_list(
 					related_folder->
 						one2m_folder->
 						attribute_list );
@@ -1572,12 +1572,12 @@ LIST *related_folder_1tom_related_folder_list(
 				role_name );
 		}
 
-		if ( !related_folder->folder->primary_attribute_name_list )
+		if ( !related_folder->folder->primary_key_list )
 		{
 			related_folder->
 			folder->
-			primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+			primary_key_list =
+				folder_get_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -1594,14 +1594,14 @@ LIST *related_folder_1tom_related_folder_list(
 						attribute_list );
 		}
 
-		related_folder->parent_primary_attribute_name_list =
-			parent_primary_attribute_name_list;
+		related_folder->parent_primary_key_list =
+			parent_primary_key_list;
 
-		if ( list_length( parent_primary_attribute_name_list ) )
+		if ( list_length( parent_primary_key_list ) )
 		{
 			related_folder->foreign_attribute_name_list =
 				related_folder_foreign_attribute_name_list(
-					parent_primary_attribute_name_list,
+					parent_primary_key_list,
 					related_folder->
 						related_attribute_name,
 					related_folder->
@@ -1613,7 +1613,7 @@ LIST *related_folder_1tom_related_folder_list(
 				related_folder_foreign_attribute_name_list(
 					related_folder->
 						folder->
-						primary_attribute_name_list,
+						primary_key_list,
 					related_folder->
 						related_attribute_name,
 					related_folder->
@@ -1645,7 +1645,7 @@ LIST *related_folder_1tom_related_folder_list(
 						foreign_attribute_name_list,
 					related_folder->
 						one2m_folder->
-						primary_attribute_name_list );
+						primary_key_list );
 		}
 
 		related_folder_one2m_append_unique(
@@ -1697,7 +1697,7 @@ LIST *related_folder_1tom_related_folder_list(
 							folder_name,
 					related_folder->
 						one2m_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 					related_folder->
 						foreign_attribute_name_list,
 					primary_data_list ),
@@ -1706,7 +1706,7 @@ LIST *related_folder_1tom_related_folder_list(
 				   recursive_request_type,
 				   related_folder->
 					foreign_attribute_name_list,
-				   original_primary_attribute_name_list,
+				   original_primary_key_list,
 					use_related_attribute_name );
 			}
 			else
@@ -1726,8 +1726,8 @@ LIST *related_folder_1tom_related_folder_list(
 					recursive_request_type,
 					related_folder->
 						one2m_folder->
-						primary_attribute_name_list,
-					original_primary_attribute_name_list,
+						primary_key_list,
+					original_primary_key_list,
 					use_related_attribute_name );
 			}
 		}
@@ -2189,7 +2189,7 @@ LIST *related_folder_get_mto1_multi_key_name_list(
 		if ( list_length(
 			related_folder->
 				folder->
-				primary_attribute_name_list ) > 1 )
+				primary_key_list ) > 1 )
 		{
 			list_append_pointer(	related_folder_name_list,
 						related_folder->
@@ -2247,7 +2247,7 @@ LIST *related_folder_get_isa_related_folder_list(
 			1 /* isa_flag */,
 			recursive_request_type,
 			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	if ( !list_rewind( mto1_isa_related_folder_list ) )
@@ -2261,8 +2261,8 @@ LIST *related_folder_get_isa_related_folder_list(
 			list_get_pointer(
 				mto1_isa_related_folder_list );
 
-		related_folder->folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
+		related_folder->folder->primary_key_list =
+			folder_get_primary_key_list(
 				related_folder->folder->
 					attribute_list );
 
@@ -2274,7 +2274,7 @@ boolean related_folder_exists_1tom_relations(
 				char *application_name,
 				char *session,
 				char *folder_name,
-				LIST *original_primary_attribute_name_list,
+				LIST *original_primary_key_list,
 				char *related_attribute_name )
 {
 	LIST *one2m_related_folder_list;
@@ -2284,7 +2284,7 @@ boolean related_folder_exists_1tom_relations(
 
 	original_foreign_attribute_name_list =
 		related_folder_foreign_attribute_name_list(
-			original_primary_attribute_name_list,
+			original_primary_key_list,
 			related_attribute_name,
 			(LIST *)0 /* folder_foreign_attribute_name_list */ );
 
@@ -2323,12 +2323,12 @@ boolean related_folder_exists_1tom_relations(
 
 		if ( !related_folder->
 			one2m_folder->
-			primary_attribute_name_list )
+			primary_key_list )
 		{
 			related_folder->
 				one2m_folder->
-				primary_attribute_name_list =
-				attribute_primary_attribute_name_list(
+				primary_key_list =
+				attribute_primary_key_list(
 					related_folder->
 						one2m_folder->
 						attribute_list );
@@ -2341,7 +2341,7 @@ boolean related_folder_exists_1tom_relations(
 		{
 			original_foreign_attribute_name_list =
 				related_folder_foreign_attribute_name_list(
-					original_primary_attribute_name_list,
+					original_primary_key_list,
 					related_folder->
 						related_attribute_name,
 					related_folder->
@@ -2352,7 +2352,7 @@ boolean related_folder_exists_1tom_relations(
 			related_folder_foreign_attribute_name_list(
 				related_folder->
 					one2m_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -2418,7 +2418,7 @@ LIST *related_folder_mto1_folder_name_list(
 }
 
 
-LIST *related_folder_common_non_primary_attribute_name_list(
+LIST *related_folder_common_non_primary_key_list(
 			char *related_folder_name,
 			char *one2m_related_folder_name )
 {
@@ -2484,7 +2484,7 @@ LIST *related_folder_common_non_primary_attribute_name_list(
 
 /* Note: this only applies when state=insert. */
 /* ------------------------------------------ */
-LIST *related_folder_insert_common_non_primary_attribute_name_list(
+LIST *related_folder_insert_common_non_primary_key_list(
 			char *folder_name,
 			LIST *mto1_related_folder_list )
 {
@@ -2506,17 +2506,17 @@ LIST *related_folder_insert_common_non_primary_attribute_name_list(
 		if ( !return_list ) return_list = list_new();
 
 		related_folder->
-			common_non_primary_attribute_name_list =
-			  related_folder_common_non_primary_attribute_name_list(
+			common_non_primary_key_list =
+			  related_folder_common_non_primary_key_list(
 				related_folder->
-					common_non_primary_attribute_name_list,
+					common_non_primary_key_list,
 				folder_name,
 				related_folder->folder->folder_name );
 
 		list_append_string_list(
 			return_list,
 			related_folder->
-				common_non_primary_attribute_name_list );
+				common_non_primary_key_list );
 
 	} while( list_next( mto1_related_folder_list ) );
 
@@ -2541,7 +2541,7 @@ LIST *related_folder_mto1_common_non_primary_related_folder_list(
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	if ( !mto1_related_folder_list
@@ -2559,8 +2559,8 @@ LIST *related_folder_mto1_common_non_primary_related_folder_list(
 		if ( !return_list ) return_list = list_new();
 
 		related_folder->
-			common_non_primary_attribute_name_list =
-			  related_folder_common_non_primary_attribute_name_list(
+			common_non_primary_key_list =
+			  related_folder_common_non_primary_key_list(
 				folder_name,
 				related_folder->folder->folder_name );
 
@@ -2660,7 +2660,7 @@ LIST *related_folder_preselection_dictionary_list(
 			char *role_name )
 {
 	LIST *related_folder_dictionary_list = {0};
-	LIST *related_primary_attribute_name_list = {0};
+	LIST *related_primary_key_list = {0};
 	FOLDER *folder_related;
 
 	folder_related =
@@ -2687,8 +2687,8 @@ LIST *related_folder_preselection_dictionary_list(
 	{
 		ROLE *role = role_new( application_name, role_name );
 
-		related_primary_attribute_name_list =
-			folder_related->primary_attribute_name_list;
+		related_primary_key_list =
+			folder_related->primary_key_list;
 
 		related_folder_dictionary_list =
 		    folder_process_dictionary_list(
@@ -2705,7 +2705,7 @@ LIST *related_folder_preselection_dictionary_list(
 			0 /* piece_multi_attribute_data_label_delimiter */,
 			(char *)0 /* process_name */,
 			(char *)0 /* prompt */,
-			related_primary_attribute_name_list );
+			related_primary_key_list );
 	}
 	else
 	{
@@ -2747,7 +2747,7 @@ LIST *related_folder_preselection_dictionary_list(
 			folder_name,
 			query_dictionary,
 			login_name,
-			related_primary_attribute_name_list );
+			related_primary_key_list );
 }
 
 LIST *related_folder_subtract_preselection_existing_dictionary_list(
@@ -2757,7 +2757,7 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 			char *primary_folder_name,
 			DICTIONARY *query_dictionary,
 			char *login_name,
-			LIST *related_primary_attribute_name_list )
+			LIST *related_primary_key_list )
 {
 	LIST *return_dictionary_list;
 	QUERY *query;
@@ -2843,7 +2843,7 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 		related_key_data_list =
 			dictionary_get_key_data_list(
 				related_dictionary,
-				related_primary_attribute_name_list,
+				related_primary_key_list,
 				'^' );
 
 		related_key_data_list =
@@ -3001,8 +3001,8 @@ LIST *related_folder_get_pair_one2m_related_folder_list(
 			list_new_list() /* related_folder_list */,
 			0 /* dont omit_isa_relations */,
 			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
+			(LIST *)0 /* parent_primary_key_list */,
+			(LIST *)0 /* original_primary_key_list */,
 			(char *)0 /* prior_related_attribute_name */ );
 
 	if ( list_rewind( one2m_related_folder_list ) )
@@ -3045,10 +3045,10 @@ void related_folder_populate_primary_data_dictionary(
 
 		if ( !list_length(	related_folder->
 						folder->
-						primary_attribute_name_list ) )
+						primary_key_list ) )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: for folder_name = %s, empty primary_attribute_name_list.\n",
+"ERROR in %s/%s()/%d: for folder_name = %s, empty primary_key_list.\n",
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
@@ -3062,7 +3062,7 @@ void related_folder_populate_primary_data_dictionary(
 					related_folder->folder->folder_name,
 					related_folder->
 						folder->
-						primary_attribute_name_list );
+						primary_key_list );
 
 	} while( list_next( mto1_related_folder_list ) );
 
@@ -3201,8 +3201,8 @@ LIST *related_folder_lookup_before_drop_down_related_folder_list(
 				(char *)0 /* role_name */ );
 
 
-			related_folder->folder->primary_attribute_name_list =
-				attribute_primary_attribute_name_list(
+			related_folder->folder->primary_key_list =
+				attribute_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -3224,8 +3224,8 @@ LIST *related_folder_lookup_before_drop_down_related_folder_list(
 
 			related_folder->
 				one2m_folder->
-				primary_attribute_name_list =
-				attribute_primary_attribute_name_list(
+				primary_key_list =
+				attribute_primary_key_list(
 					related_folder->
 						one2m_folder->
 						attribute_list );
@@ -3235,7 +3235,7 @@ LIST *related_folder_lookup_before_drop_down_related_folder_list(
 			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -3410,7 +3410,7 @@ LIST *related_folder_fetch_non_primary_foreign_data_list(
 					char *application_name,
 					LIST *select_list,
 					char *folder_name,
-					LIST *primary_attribute_name_list,
+					LIST *primary_key_list,
 					LIST *primary_data_list )
 {
 	char sys_string[ 1024 ];
@@ -3424,7 +3424,7 @@ LIST *related_folder_fetch_non_primary_foreign_data_list(
 		 list_display( select_list ),
 		 folder_name,
 		 list_usage_attribute_data_list2where_clause(
-				primary_attribute_name_list,
+				primary_key_list,
 				primary_data_list ) );
 
 	return list_string_to_list(
@@ -3570,7 +3570,7 @@ RELATED_FOLDER *related_folder_get_view_only_related_folder(
 
 void related_folder_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
+			char *last_primary_key,
 			char *related_attribute_name )
 {
 	if ( related_attribute_name
@@ -3586,12 +3586,12 @@ void related_folder_populate_one2m_foreign_attribute_dictionary(
 			dictionary_set_pointer(
 				foreign_attribute_dictionary,
 				related_attribute_name,
-				last_primary_attribute_name );
+				last_primary_key );
 		}
 
 		if ( ( data = dictionary_get_pointer(
 				foreign_attribute_dictionary,
-				last_primary_attribute_name ) ) )
+				last_primary_key ) ) )
 		{
 			if ( !dictionary_exists_key(
 				foreign_attribute_dictionary,
@@ -3609,7 +3609,7 @@ void related_folder_populate_one2m_foreign_attribute_dictionary(
 
 void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
+			char *last_primary_key,
 			LIST *one2m_recursive_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
@@ -3638,7 +3638,7 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 
 		related_folder_populate_one2m_foreign_attribute_dictionary(
 			foreign_attribute_dictionary,
-			last_primary_attribute_name,
+			last_primary_key,
 			related_folder->related_attribute_name );
 
 	} while( list_next( one2m_recursive_related_folder_list ) );
@@ -3647,24 +3647,24 @@ void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 
 void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
+			char *last_primary_key,
 			LIST *mto1_isa_related_folder_list,
 			char *application_name )
 {
 	RELATED_FOLDER *related_folder;
 	FOLDER *folder;
-	LIST *related_primary_attribute_name_list;
-	char *last_related_primary_attribute_name;
+	LIST *related_primary_key_list;
+	char *last_related_primary_key;
 
 	if ( !list_rewind( mto1_isa_related_folder_list ) )
 	{
 		return;
 	}
 
-	if ( !last_primary_attribute_name )
+	if ( !last_primary_key )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s/%d: empty last_primary_attribute_name.\n", 
+		"ERROR in %s/%s/%d: empty last_primary_key.\n", 
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -3695,11 +3695,11 @@ void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 				(char *)0 /* role_name */ );
 		}
 
-		related_primary_attribute_name_list =
-			attribute_primary_attribute_name_list(
+		related_primary_key_list =
+			attribute_primary_key_list(
 				folder->attribute_list );
 
-		if ( !list_length( related_primary_attribute_name_list ) )
+		if ( !list_length( related_primary_key_list ) )
 		{
 			fprintf( stderr,
 		"ERROR in %s/%s/%d: no primary attributes for folder = (%s)\n", 
@@ -3710,14 +3710,14 @@ void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			exit( 1 );
 		}
 
-		last_related_primary_attribute_name =
+		last_related_primary_key =
 			list_get_last_pointer(
-				related_primary_attribute_name_list );
+				related_primary_key_list );
 
 		dictionary_set_pointer(
 			foreign_attribute_dictionary,
-			last_related_primary_attribute_name,
-			last_primary_attribute_name );
+			last_related_primary_key,
+			last_primary_key );
 
 	} while( list_next( mto1_isa_related_folder_list ) );
 
@@ -3878,7 +3878,7 @@ void related_folder_mark_ignore_multi_attribute_primary_keys(
 
 		if ( list_length( related_folder->
 					folder->
-					primary_attribute_name_list ) != 1 )
+					primary_key_list ) != 1 )
 		{
 			related_folder->ignore_output = 1;
 		}
@@ -3888,16 +3888,16 @@ void related_folder_mark_ignore_multi_attribute_primary_keys(
 void related_populate_folder_foreign_attribute_dictionary(
 				DICTIONARY *foreign_attribute_dictionary,
 				LIST *folder_foreign_attribute_name_list,
-				LIST *primary_attribute_name_list )
+				LIST *primary_key_list )
 {
 	char *foreign_attribute_name;
-	char *primary_attribute_name;
+	char *primary_key;
 
 	if ( !list_length( folder_foreign_attribute_name_list ) )
 		return;
 
 	if ( list_length( folder_foreign_attribute_name_list ) !=
-	     list_length( primary_attribute_name_list ) )
+	     list_length( primary_key_list ) )
 	{
 		fprintf( stderr,
 	    "ERROR in %s/%s()/%d: list lengths are not the same: %d vs %d.\n",
@@ -3905,28 +3905,28 @@ void related_populate_folder_foreign_attribute_dictionary(
 			 __FUNCTION__,
 			 __LINE__,
 			 list_length( folder_foreign_attribute_name_list ),
-	     		 list_length( primary_attribute_name_list ) );
+	     		 list_length( primary_key_list ) );
 		exit( 1 );
 	}
 
 	list_rewind( folder_foreign_attribute_name_list );
-	list_rewind( primary_attribute_name_list );
+	list_rewind( primary_key_list );
 
 	do {
 		foreign_attribute_name =
 			list_get_pointer( 
 				folder_foreign_attribute_name_list );
 
-		primary_attribute_name =
+		primary_key =
 			list_get_pointer( 
-				primary_attribute_name_list );
+				primary_key_list );
 
 		dictionary_set_pointer(
 			foreign_attribute_dictionary,
 			foreign_attribute_name,
-			primary_attribute_name );
+			primary_key );
 
-		list_next( primary_attribute_name_list );
+		list_next( primary_key_list );
 
 	} while( list_next( folder_foreign_attribute_name_list ) );
 }
@@ -4023,8 +4023,8 @@ LIST *related_folder_mto1_isa_related_folder_list(
 					folder_name,
 				role_name );
 
-		related_folder->folder->primary_attribute_name_list =
-			attribute_primary_attribute_name_list(
+		related_folder->folder->primary_key_list =
+			attribute_primary_key_list(
 				related_folder->
 					folder->
 					attribute_list );
@@ -4058,7 +4058,7 @@ LIST *related_folder_mto1_isa_related_folder_list(
 			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
-						primary_attribute_name_list,
+						primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -4160,10 +4160,10 @@ char *related_folder_append_where_clause_related_join(
 		exit( 1 );
 	}
 
-	if ( !list_length( folder->primary_attribute_name_list ) )
+	if ( !list_length( folder->primary_key_list ) )
 	{
-		folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
+		folder->primary_key_list =
+			folder_get_primary_key_list(
 					folder->attribute_list );
 	}
 
@@ -4171,7 +4171,7 @@ char *related_folder_append_where_clause_related_join(
 	{
 		related_folder->foreign_attribute_name_list =
 			related_folder_foreign_attribute_name_list(
-				folder->primary_attribute_name_list,
+				folder->primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -4180,7 +4180,7 @@ char *related_folder_append_where_clause_related_join(
 	return query_append_where_clause_related_join(
 			application_name,
 			source_where_clause,
-			folder->primary_attribute_name_list,
+			folder->primary_key_list,
 			related_folder->foreign_attribute_name_list,
 			folder->folder_name,
 			related_folder->one2m_folder->folder_name );
@@ -4228,7 +4228,7 @@ LIST *related_folder_prompt_element_list(
 			char *post_change_javascript,
 			char *hint_message,
 			int max_drop_down_size,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			boolean is_primary_attribute,
 			boolean row_level_non_owner_view_only,
 			boolean row_level_non_owner_forbid,
@@ -4436,7 +4436,7 @@ LIST *related_folder_prompt_element_list(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 				populate_drop_down_process,
 				attribute_list,
-				common_non_primary_attribute_name_list,
+				common_non_primary_key_list,
 				( row_level_non_owner_view_only ||
 				  row_level_non_owner_forbid )
 					/* filter_only_login_name */,
@@ -4519,7 +4519,7 @@ LIST *related_folder_edit_table_element_list(
 	DICTIONARY *local_preprompt_dictionary = {0};
 	DICTIONARY *parameter_dictionary;
 	char primary_attribute_asteric[ 2 ] = {0};
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean set_option_data_option_label_list;
 
 	if ( ajax_fill_drop_down_related_folder )
@@ -4634,26 +4634,26 @@ LIST *related_folder_edit_table_element_list(
 	if ( !is_primary_attribute )
 		element->drop_down->output_null_option = 1;
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			related_folder->folder->attribute_list );
 
 	/* If single primary key, then don't filter anything. */
 	/* -------------------------------------------------- */
-	if ( list_length( primary_attribute_name_list ) == 1
+	if ( list_length( primary_key_list ) == 1
 	&&   local_preprompt_dictionary )
 	{
-		char *primary_attribute_name;
+		char *primary_key;
 		char tmp[ 512 ];
 
-		primary_attribute_name =
+		primary_key =
 			list_get_first_pointer(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		dictionary_remove_key(	local_preprompt_dictionary,
-					primary_attribute_name );
+					primary_key );
 
-		sprintf( tmp, "%s_0", primary_attribute_name );
+		sprintf( tmp, "%s_0", primary_key );
 		dictionary_remove_key(	local_preprompt_dictionary,
 					tmp );
 	}
@@ -4757,7 +4757,7 @@ LIST *related_folder_edit_table_element_list(
 					folder->
 					attribute_list,
 				related_folder->
-				common_non_primary_attribute_name_list,
+				common_non_primary_key_list,
 				(LIST *)0
 					/* exclude_attribute_name_list */,
 				role_name,
@@ -4790,7 +4790,7 @@ LIST *related_folder_prompt_insert_element_list(
 			LIST *role_folder_insert_list,
 			char *form_name,
 			int max_drop_down_size,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			boolean is_primary_attribute,
 			char *related_attribute_name,
 			boolean drop_down_multi_select,
@@ -5024,7 +5024,7 @@ LIST *related_folder_prompt_insert_element_list(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 				populate_drop_down_process,
 				attribute_list,
-				common_non_primary_attribute_name_list,
+				common_non_primary_key_list,
 				role_name,
 				state,
 				one2m_folder_name_for_processes ) );
@@ -5113,7 +5113,7 @@ RELATED_FOLDER *related_folder_insert_table_consumes_related_folder(
 		{
 			local_foreign_attribute_name_list =
 				related_folder_foreign_attribute_name_list(
-			   	folder_get_primary_attribute_name_list(
+			   	folder_get_primary_key_list(
 						related_folder->folder->
 							attribute_list ),
 			   	related_folder->related_attribute_name,
@@ -5218,8 +5218,8 @@ LIST *related_folder_prompt_insert_mto1_related_folder_list(
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				role_name );
 
-			related_folder->folder->primary_attribute_name_list =
-				attribute_primary_attribute_name_list(
+			related_folder->folder->primary_key_list =
+				attribute_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -5254,7 +5254,7 @@ LIST *related_folder_prompt_insert_mto1_related_folder_list(
 			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
-						primary_attribute_name_list,
+						primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -5316,7 +5316,7 @@ LIST *related_folder_regular_element_list(
 	DICTIONARY *local_preprompt_dictionary = {0};
 	DICTIONARY *parameter_dictionary;
 	char primary_attribute_asteric[ 2 ] = {0};
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean set_option_data_option_label_list;
 
 	if ( ajax_fill_drop_down_related_folder )
@@ -5426,26 +5426,26 @@ LIST *related_folder_regular_element_list(
 	if ( !is_primary_attribute )
 		element->drop_down->output_null_option = 1;
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			related_folder->folder->attribute_list );
 
 	/* If single primary key, then don't filter anything. */
 	/* -------------------------------------------------- */
-	if ( list_length( primary_attribute_name_list ) == 1
+	if ( list_length( primary_key_list ) == 1
 	&&   local_preprompt_dictionary )
 	{
-		char *primary_attribute_name;
+		char *primary_key;
 		char tmp[ 512 ];
 
-		primary_attribute_name =
+		primary_key =
 			list_get_first_pointer(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		dictionary_remove_key(	local_preprompt_dictionary,
-					primary_attribute_name );
+					primary_key );
 
-		sprintf( tmp, "%s_0", primary_attribute_name );
+		sprintf( tmp, "%s_0", primary_key );
 		dictionary_remove_key(	local_preprompt_dictionary,
 					tmp );
 	}
@@ -5549,7 +5549,7 @@ LIST *related_folder_regular_element_list(
 					folder->
 					attribute_list,
 				related_folder->
-				common_non_primary_attribute_name_list,
+				common_non_primary_key_list,
 				row_level_non_owner_forbid
 					/* filter_only_login_name */,
 				(LIST *)0
@@ -5640,7 +5640,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 		enum related_folder_recursive_request_type
 			recursive_request_type,
 		boolean override_row_restrictions,
-		LIST *root_primary_attribute_name_list,
+		LIST *root_primary_key_list,
 		int recursive_level )
 {
 	RELATED_FOLDER *related_folder;
@@ -5686,8 +5686,8 @@ LIST *related_folder_get_mto1_related_folder_list(
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				role_name );
 
-			related_folder->folder->primary_attribute_name_list =
-				attribute_primary_attribute_name_list(
+			related_folder->folder->primary_key_list =
+				attribute_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -5722,7 +5722,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 			related_folder_foreign_attribute_name_list(
 				related_folder->
 					folder->
-						primary_attribute_name_list,
+						primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -5745,12 +5745,12 @@ LIST *related_folder_get_mto1_related_folder_list(
 		&&	recursive_request_type !=
 			related_folder_no_recursive )
 		{
-			if ( root_primary_attribute_name_list )
+			if ( root_primary_key_list )
 			{
 				if ( !list_is_subset_of(
-				attribute_primary_attribute_name_list(
+				attribute_primary_key_list(
 					related_folder->folder->attribute_list),
-				root_primary_attribute_name_list ) )
+				root_primary_key_list ) )
 				{
 					continue;
 				}
@@ -5786,10 +5786,10 @@ LIST *related_folder_get_mto1_related_folder_list(
 		|| (    recursive_request_type ==
 			related_folder_recursive_all ) )
 		{
-			LIST *local_root_primary_attribute_name_list;
+			LIST *local_root_primary_key_list;
 
-			local_root_primary_attribute_name_list =
-			      attribute_primary_attribute_name_list(
+			local_root_primary_key_list =
+			      attribute_primary_key_list(
 			      related_folder->folder->attribute_list );
 
 			related_folder_list =
@@ -5802,7 +5802,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 				   isa_flag,
 				   recursive_request_type,
 				   override_row_restrictions,
-				   local_root_primary_attribute_name_list,
+				   local_root_primary_key_list,
 				   recursive_level + 1 );
 		}
 	} while( list_next( local_related_folder_list ) );

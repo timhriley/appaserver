@@ -69,11 +69,11 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 			application_name,
 			p->process.subsidiary_transaction_folder->folder_name );
 
-	p->process.subsidiary_transaction_folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	p->process.subsidiary_transaction_folder->primary_key_list =
+		folder_attribute_primary_key_list(
 			p->process.
 				subsidiary_transaction_folder->
-				attribute_list );
+				folder_attribute_list );
 
 	p->process.subsidiary_transaction_folder->primary_data_list =
 		primary_data_list;
@@ -118,23 +118,23 @@ SUBSIDIARY_TRANSACTION *subsidiary_new(	char *application_name,
 			application_name,
 			p->process.debit_account_folder->folder_name );
 
-	p->process.debit_account_folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	p->process.debit_account_folder->primary_key_list =
+		folder_attribute_primary_key_list(
 			p->process.
 				debit_account_folder->
-				attribute_list );
+				folder_attribute_list );
 
 	p->process.debit_account_name =
 		subsidiary_process_fetch_debit_account_name(
 			application_name,
 			p->process.debit_account_folder->folder_name,
-			list_get_first_pointer(
+			list_first_pointer(
 				p->process.debit_account_folder->
-					primary_attribute_name_list ),
+					primary_key_list ),
 			p->process.subsidiary_transaction_folder->
 				folder_name,
 			p->process.subsidiary_transaction_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			p->process.subsidiary_transaction_folder->
 				primary_data_list );
 
@@ -165,7 +165,7 @@ set_transaction_amount:
 					folder_name,
 				p->process.attribute_name,
 				p->process.subsidiary_transaction_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				p->process.subsidiary_transaction_folder->
 					primary_data_list );
 	}
@@ -259,9 +259,9 @@ boolean subsidiary_transaction_fetch(
 char *subsidiary_process_fetch_debit_account_name(
 		char *application_name,
 		char *debit_account_folder_name,
-		char *debit_account_folder_primary_attribute_name,
+		char *debit_account_folder_primary_key,
 		char *subsidiary_transaction_folder_name,
-		LIST *subsidiary_transaction_folder_primary_attribute_name_list,
+		LIST *subsidiary_transaction_folder_primary_key_list,
 		LIST *subsidiary_transaction_folder_primary_data_list )
 {
 	char where_clause[ 256 ];
@@ -271,7 +271,7 @@ char *subsidiary_process_fetch_debit_account_name(
 	strcpy( where_clause,
 		query_login_name_where_clause(
 		      (FOLDER *)0,
-		      subsidiary_transaction_folder_primary_attribute_name_list,
+		      subsidiary_transaction_folder_primary_key_list,
 		      subsidiary_transaction_folder_primary_data_list,
 		      (char *)0 /* login_name */ ) );
 
@@ -281,7 +281,7 @@ char *subsidiary_process_fetch_debit_account_name(
 		 "			folder=%s	"
 		 "			where=\"%s\"	",
 		 application_name,
-		 debit_account_folder_primary_attribute_name,
+		 debit_account_folder_primary_key,
 		 subsidiary_transaction_folder_name,
 		 where_clause );
 
@@ -289,7 +289,7 @@ char *subsidiary_process_fetch_debit_account_name(
 
 	sprintf( where_clause,
 		 "%s = '%s'",
-		 debit_account_folder_primary_attribute_name,
+		 debit_account_folder_primary_key,
 		 data );
 
 	sprintf( sys_string,
@@ -309,7 +309,7 @@ double subsidiary_fetch_transaction_amount(
 			char *application_name,
 			char *subsidiary_transaction_folder_name,
 			char *subsidiary_transaction_attribute_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_data_list )
 {
 	char sys_string[ 1024 ];
@@ -319,7 +319,7 @@ double subsidiary_fetch_transaction_amount(
 	where_clause =
 		query_login_name_where_clause(
 		      (FOLDER *)0,
-		      primary_attribute_name_list,
+		      primary_key_list,
 		      primary_data_list,
 		      (char *)0 /* login_name */ );
 

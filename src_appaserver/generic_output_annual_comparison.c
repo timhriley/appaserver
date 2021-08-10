@@ -216,7 +216,7 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -373,7 +373,7 @@ int main( int argc, char **argv )
 		   	process_generic_output->
 		   		value_folder->
 				datatype_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			' ' /* delimiter */ );
 
 	if ( strcmp( output_medium, "table" ) == 0 )

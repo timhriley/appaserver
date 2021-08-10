@@ -124,13 +124,13 @@ void row_security_append_join_1tom_related_folder_list(
 			LIST *row_dictionary_list,
 			LIST *join_1tom_related_folder_list,
 			char *application_name,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 void row_security_set_dictionary_related_folder(
 			DICTIONARY *row_dictionary,
 			RELATED_FOLDER *related_folder,
 			char *application_name,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 enum row_security_state row_security_get_row_security_state(
 			char **attribute_not_null_join,

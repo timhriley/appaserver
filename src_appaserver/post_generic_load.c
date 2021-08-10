@@ -301,7 +301,7 @@ void post_state_one(	char *application_name,
 			0 /* isa_flag */,
 			related_folder_recursive_all,
 			1 /* override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	related_folder_mark_ignore_multi_attribute_primary_keys(
@@ -364,8 +364,8 @@ void post_state_one(	char *application_name,
 
 			related_folder->
 			folder->
-			primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+			primary_key_list =
+				folder_get_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
@@ -373,7 +373,7 @@ void post_state_one(	char *application_name,
 			if ( list_length(
 					related_folder->
 					folder->
-					primary_attribute_name_list ) == 1 )
+					primary_key_list ) == 1 )
 			{
 				sprintf(element_name,
 					"constant_%s",

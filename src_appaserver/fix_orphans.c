@@ -452,7 +452,7 @@ void output_insert_statement(
 			table_name,
 			list_display( related_folder->
 					folder->
-					primary_attribute_name_list ) );
+					primary_key_list ) );
 	}
 
 	if ( table_output_pipe )
@@ -462,7 +462,7 @@ void output_insert_statement(
 				related_folder->folder->folder_name,
 				list_display( related_folder->
 						folder->
-						primary_attribute_name_list ) );
+						primary_key_list ) );
 	}
 
 	fprintf(	text_output_pipe,
@@ -470,9 +470,9 @@ void output_insert_statement(
 			related_folder->folder->folder_name,
 			list_display( related_folder->
 					folder->
-					primary_attribute_name_list ) );
+					primary_key_list ) );
 
-	list_rewind( related_folder->folder->primary_attribute_name_list );
+	list_rewind( related_folder->folder->primary_key_list );
 	list_rewind( foreign_data_key_list );
 
 	do {
@@ -480,7 +480,7 @@ void output_insert_statement(
 
 		if ( !list_at_head( related_folder->
 					folder->
-					primary_attribute_name_list ) )
+					primary_key_list ) )
 		{
 			if ( table_output_pipe )
 			{
@@ -516,7 +516,7 @@ void output_insert_statement(
 
 	} while( list_next( related_folder->
 				folder->
-				primary_attribute_name_list ) );
+				primary_key_list ) );
 
 	if ( table_output_pipe )
 	{

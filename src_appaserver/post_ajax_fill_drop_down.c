@@ -48,7 +48,7 @@ void output_folder_results(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *value,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *folder_name );
 
 int main( int argc, char **argv )
@@ -176,7 +176,7 @@ int main( int argc, char **argv )
 			application_name,
 			related_folder->foreign_attribute_name_list,
 			value,
-		 	mto1_folder->primary_attribute_name_list,
+		 	mto1_folder->primary_key_list,
 		 	mto1_folder->folder_name );
 	}
 
@@ -188,7 +188,7 @@ void output_folder_results(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *value,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *folder_name )
 {
 	char *where;
@@ -214,7 +214,7 @@ void output_folder_results(
 		 "			order=select	|"
 		 "joinlines.e '%c'			 ",
 		 application_name,
-		 list_display( primary_attribute_name_list ),
+		 list_display( primary_key_list ),
 		 folder_name,
 		 where,
 		 DATA_DELIMITER );

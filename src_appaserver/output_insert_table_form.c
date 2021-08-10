@@ -191,7 +191,7 @@ int main( int argc, char **argv )
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	folder->attribute_list =
@@ -295,7 +295,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				query_dictionary,
 			folder->mto1_isa_related_folder_list,
-			attribute_primary_attribute_name_list(
+			attribute_primary_key_list(
 				folder->attribute_list ) );
 	}
 
@@ -323,7 +323,7 @@ int main( int argc, char **argv )
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	if ( dictionary_length( dictionary_appaserver->query_dictionary ) )
@@ -752,7 +752,7 @@ int main( int argc, char **argv )
 
 	list_append_string_list(
 		ignore_attribute_name_list,
-		related_folder_insert_common_non_primary_attribute_name_list(
+		related_folder_insert_common_non_primary_key_list(
 			folder->folder_name,
 			folder->mto1_related_folder_list ) );
 
@@ -892,7 +892,7 @@ int main( int argc, char **argv )
 			 list_display(
 				ajax_fill_drop_down_related_folder->
 				folder->
-				primary_attribute_name_list ) /* select */ );
+				primary_key_list ) /* select */ );
 
 		if ( system( sys_string ) ) {};
 	}
@@ -1005,7 +1005,7 @@ void primary_data_list_string_build_dictionaries(
 			char *primary_data_list_string,
 			LIST *attribute_list )
 {
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	LIST *primary_data_list;
 	char *attribute_name;
 	char *attribute_data;
@@ -1014,8 +1014,8 @@ void primary_data_list_string_build_dictionaries(
 	if ( !timlib_strlen( primary_data_list_string ) )
 		return;
 
-	primary_attribute_name_list =
-		attribute_primary_attribute_name_list(
+	primary_key_list =
+		attribute_primary_key_list(
 			attribute_list );
 
 	dictionary_set_string(	non_prefixed_dictionary,
@@ -1027,12 +1027,12 @@ void primary_data_list_string_build_dictionaries(
 					FOLDER_DATA_DELIMITER );
 
 	if ( !list_rewind( primary_data_list ) ) return;
-	list_rewind( primary_attribute_name_list );
+	list_rewind( primary_key_list );
 
 	do {
 		attribute_name =
 			list_get_pointer(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		attribute_data =
 			list_get_pointer(
@@ -1050,7 +1050,7 @@ void primary_data_list_string_build_dictionaries(
 			strdup( key ),
 			attribute_data );
 
-		list_next( primary_attribute_name_list );
+		list_next( primary_key_list );
 
 	} while( list_next( primary_data_list ) );
 }
@@ -1082,7 +1082,7 @@ LIST *output_insert_table_form_element_list(
 	RELATED_FOLDER *related_folder;
 	ELEMENT_APPASERVER *element;
 	int objects_outputted = 0;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	LIST *isa_folder_list;
 	int max_drop_down_size = INT_MAX;
 	boolean is_primary_attribute;
@@ -1107,8 +1107,8 @@ LIST *output_insert_table_form_element_list(
 		appaserver_get_isa_folder_list(
 			application_name );
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
 	return_list = list_new_list();
@@ -1142,7 +1142,7 @@ LIST *output_insert_table_form_element_list(
 		is_primary_attribute =
 			list_exists_string(	
 				attribute_name,
-				primary_attribute_name_list );
+				primary_key_list );
 
 		if ( ( related_folder =
 		       related_folder_insert_table_consumes_related_folder(

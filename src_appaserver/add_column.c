@@ -411,7 +411,7 @@ void output_relation(	FILE *output_file,
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			1 /* override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	if ( ( related_folder =

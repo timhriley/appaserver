@@ -321,10 +321,10 @@ void change_sort_order_state_one(
 
 	/* Can't ignore any primary key */
 	/* ---------------------------- */
-	if ( !list_rewind( folder->primary_attribute_name_list ) )
+	if ( !list_rewind( folder->primary_key_list ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty primary_attribute_name_list.\n",
+		"ERROR in %s/%s()/%d: empty primary_key_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -334,12 +334,12 @@ void change_sort_order_state_one(
 	do {
 		attribute_name =
 			list_get_pointer(
-				folder->primary_attribute_name_list );
+				folder->primary_key_list );
 
 		sprintf( key, "%s_0", attribute_name );
 		dictionary_remove_key( ignore_dictionary, key );
 
-	} while( list_next( folder->primary_attribute_name_list ) );
+	} while( list_next( folder->primary_key_list ) );
 
 	/* These are the attributes that javascript moves up or down. */
 	/* ---------------------------------------------------------- */
@@ -530,8 +530,8 @@ void change_sort_order_state_two(
 		appaserver_library_sort_attribute_name(
 			folder->attribute_list );
 
-	folder->primary_attribute_name_list =
-		attribute_primary_attribute_name_list(
+	folder->primary_key_list =
+		attribute_primary_key_list(
 			folder->attribute_list );
 
 	table_name = get_table_name( application_name, folder->folder_name );
@@ -540,7 +540,7 @@ void change_sort_order_state_two(
 		 "update_statement.e table=%s key=%s carrot=y	|"
 		 "sql.e						 ",
 		 table_name,
-		 list_display( folder->primary_attribute_name_list ) );
+		 list_display( folder->primary_key_list ) );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -548,7 +548,7 @@ void change_sort_order_state_two(
 	{
 		primary_data_list =
 			dictionary_get_data_list(
-					folder->primary_attribute_name_list,
+					folder->primary_key_list,
 					post_dictionary,
 					row );
 
@@ -603,7 +603,7 @@ void post_change_sort_order_post_change_process_execute(
 		post_dictionary /* where_clause_dictionary */,
 		(LIST *)0 /* attribute_list */,
 		(LIST *)0 /* prompt_list */,
-		(LIST *)0 /* primary_attribute_name_list */,
+		(LIST *)0 /* primary_key_list */,
 		(LIST *)0 /* primary_data_list */,
 		0 /* row */,
 		post_change_process->process_name,

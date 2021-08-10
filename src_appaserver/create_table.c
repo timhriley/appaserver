@@ -462,7 +462,7 @@ char *get_sys_string(	char *folder_name,
 		 	buffer_ptr,
 "echo \"create unique index $table_name on $table_name (%s)",
 		 	list_display(
-				folder_get_primary_attribute_name_list(
+				folder_get_primary_key_list(
 				attribute_list ) ) );
 	}
 	else
@@ -473,7 +473,7 @@ char *get_sys_string(	char *folder_name,
 		 	table_name,
 		 	table_name,
 		 	list_display(
-				folder_get_primary_attribute_name_list(
+				folder_get_primary_key_list(
 				attribute_list ) ) );
 	}
 

@@ -1043,7 +1043,7 @@ void output_sweep(
 		 "html_table.e '%s' '%s' '%c' ''",
 		 table_title,
 		 list_display_delimited(
-				sweep_list->non_primary_attribute_name_list,
+				sweep_list->non_primary_key_list,
 				',' ),
 		 '|' );
 

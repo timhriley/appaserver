@@ -61,8 +61,8 @@ int main( int argc, char **argv )
 	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	FOLDER *folder;
-	LIST *date_primary_attribute_name_list;
-	LIST *time_primary_attribute_name_list;
+	LIST *date_primary_key_list;
+	LIST *time_primary_key_list;
 	LIST *float_integer_attribute_name_list;
 	char *date_attribute_name = {0};
 	char *time_attribute_name = {0};
@@ -148,12 +148,12 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	date_primary_attribute_name_list =
+	date_primary_key_list =
 	    attribute_list_primary_datatype_attribute_string_list(
 		folder->attribute_list,
 		"current_date,current_date_time,date,date_time,current_date" );
 
-	if ( !list_length( date_primary_attribute_name_list ) )
+	if ( !list_length( date_primary_key_list ) )
 	{
 		document_quick_output_body(
 			application_name,
@@ -166,18 +166,18 @@ int main( int argc, char **argv )
 	else
 		date_attribute_name =
 			list_get_first_pointer(
-				date_primary_attribute_name_list );
+				date_primary_key_list );
 
-	time_primary_attribute_name_list =
+	time_primary_key_list =
 		attribute_list_primary_datatype_attribute_string_list(
 			folder->attribute_list,
 			"time,current_time" );
 
-	if ( list_length( time_primary_attribute_name_list ) )
+	if ( list_length( time_primary_key_list ) )
 	{
 		time_attribute_name =
 			list_get_first_pointer(
-				time_primary_attribute_name_list );
+				time_primary_key_list );
 	}
 
 	float_integer_attribute_name_list =

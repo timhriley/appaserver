@@ -641,14 +641,14 @@ LIST *appaserver_library_datatype_name_list( char *application )
 }
 
 char *get_displayable_primary_attribute_list_string(
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	char buffer[ 512 ];
 
 	return strdup( 
 		format_initial_capital( buffer, 
 					list_display_delimited(
-						primary_attribute_name_list,
+						primary_key_list,
 						'/' ) ) );
 }
 
@@ -712,7 +712,7 @@ LIST *appaserver_library_update_attribute_element_list(
 			int *objects_outputted,
 			ATTRIBUTE *attribute,
 			char update_yn,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			boolean is_primary_attribute,
 			char *folder_post_change_javascript,
 			boolean prompt_data_element_only )
@@ -741,7 +741,7 @@ LIST *appaserver_library_update_attribute_element_list(
 	element_list =
 		appaserver_library_update_lookup_attribute_element_list(
 				update_yn,
-				primary_attribute_name_list,
+				primary_key_list,
 				attribute->exclude_permission_list,
 				attribute->attribute_name,
 				attribute->datatype,
@@ -1144,7 +1144,7 @@ LIST *appaserver_library_primary_data_list(
 			DICTIONARY *post_dictionary,
 			LIST *attribute_list )
 {
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	LIST *primary_data_list;
 	char *data;
 
@@ -1156,11 +1156,11 @@ LIST *appaserver_library_primary_data_list(
 		return primary_data_list;
 	}
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
-	if ( !list_rewind( primary_attribute_name_list ) )
+	if ( !list_rewind( primary_key_list ) )
 		return primary_data_list;
 
 	do {
@@ -1168,13 +1168,13 @@ LIST *appaserver_library_primary_data_list(
 			dictionary_get_index_zero(
 				post_dictionary,
 				list_get_pointer(
-					primary_attribute_name_list ) ) ) )
+					primary_key_list ) ) ) )
 		{
 			return list_new_list();
 		}
 
 		list_append_pointer( primary_data_list, data );
-	} while( list_next( primary_attribute_name_list ) );
+	} while( list_next( primary_key_list ) );
 	return primary_data_list;
 }
 
@@ -1882,7 +1882,7 @@ void appaserver_library_list_database_convert_dates(
 					LIST *attribute_list )
 {
 	LIST *date_attribute_name_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	char *attribute_name;
 	char *data;
 	DATE_CONVERT *date_convert = {0};
@@ -1891,16 +1891,16 @@ void appaserver_library_list_database_convert_dates(
 		attribute_date_attribute_name_list(
 			attribute_list );
 
-	primary_attribute_name_list =
-		attribute_primary_attribute_name_list(
+	primary_key_list =
+		attribute_primary_key_list(
 			attribute_list );
 
-	if ( !list_rewind( primary_attribute_name_list ) ) return;
+	if ( !list_rewind( primary_key_list ) ) return;
 	if ( !list_rewind( data_list ) ) return;
 
 	do {
 		attribute_name =
-			list_get_pointer( primary_attribute_name_list );
+			list_get_pointer( primary_key_list );
 
 		if ( list_exists_string(
 			attribute_name,
@@ -1937,7 +1937,7 @@ void appaserver_library_list_database_convert_dates(
 				strdup( date_convert->return_date ) );
 		}
 		if ( !list_next( data_list ) ) break;
-	} while( list_next( primary_attribute_name_list ) );
+	} while( list_next( primary_key_list ) );
 	if ( date_convert ) date_convert_free( date_convert );
 }
 
@@ -2014,10 +2014,10 @@ char *appaserver_library_prelookup_button_control_string(
 void appaserver_library_populate_last_foreign_attribute_key(
 			DICTIONARY *post_dictionary,
 			LIST *mto1_related_folder_list,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	RELATED_FOLDER *related_folder;
-	char *last_primary_attribute_name;
+	char *last_primary_key;
 	char *last_foreign_attribute_name;
 	char *data;
 	char key[ 128 ];
@@ -2035,7 +2035,7 @@ void appaserver_library_populate_last_foreign_attribute_key(
 			list_get_last_pointer(
 				related_folder->
 					folder->
-					primary_attribute_name_list );
+					primary_key_list );
 
 		sprintf( key, "%s_0", last_foreign_attribute_name );
 
@@ -2043,11 +2043,11 @@ void appaserver_library_populate_last_foreign_attribute_key(
 			dictionary_get_pointer(
 				post_dictionary, key ) ) )
 		{
-			last_primary_attribute_name =
+			last_primary_key =
 				list_get_last_pointer(
-					primary_attribute_name_list );
+					primary_key_list );
 
-			sprintf( key, "%s_0", last_primary_attribute_name );
+			sprintf( key, "%s_0", last_primary_key );
 
 			dictionary_set_pointer(
 				post_dictionary,
@@ -2065,13 +2065,13 @@ void appaserver_library_populate_last_foreign_attribute_key(
 			dictionary_get_pointer(
 				post_dictionary, key ) ) )
 		{
-			last_primary_attribute_name =
+			last_primary_key =
 				list_get_last_pointer(
-					primary_attribute_name_list );
+					primary_key_list );
 			sprintf(key,
 				"%s%s_0",
 				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				last_primary_attribute_name );
+				last_primary_key );
 
 			dictionary_set_pointer(
 				post_dictionary,
@@ -2084,7 +2084,7 @@ void appaserver_library_populate_last_foreign_attribute_key(
 		/* ------------------------------------- */
 		last_foreign_attribute_name =
 			list_get_last_pointer(
-					primary_attribute_name_list );
+					primary_key_list );
 
 		sprintf( key, "%s_0", last_foreign_attribute_name );
 
@@ -2092,13 +2092,13 @@ void appaserver_library_populate_last_foreign_attribute_key(
 			dictionary_get_pointer(
 				post_dictionary, key ) ) )
 		{
-			last_primary_attribute_name =
+			last_primary_key =
 				list_get_last_pointer(
 					related_folder->
 						folder->
-						primary_attribute_name_list );
+						primary_key_list );
 
-			sprintf( key, "%s_0", last_primary_attribute_name );
+			sprintf( key, "%s_0", last_primary_key );
 
 			dictionary_set_pointer(
 				post_dictionary,
@@ -2115,15 +2115,15 @@ void appaserver_library_populate_last_foreign_attribute_key(
 			dictionary_get_pointer(
 				post_dictionary, key ) ) )
 		{
-			last_primary_attribute_name =
+			last_primary_key =
 				list_get_last_pointer(
 					related_folder->
 						folder->
-						primary_attribute_name_list );
+						primary_key_list );
 			sprintf(key,
 				"%s%s_0",
 				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				last_primary_attribute_name );
+				last_primary_key );
 
 			dictionary_set_pointer(
 				post_dictionary,
@@ -2516,7 +2516,7 @@ char *appaserver_library_sort_attribute_name( LIST *attribute_list )
 
 LIST *appaserver_library_update_lookup_attribute_element_list(
 			char update_yn,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *exclude_permission_list,
 			char *attribute_name,
 			char *datatype,
@@ -2600,7 +2600,7 @@ LIST *appaserver_library_update_lookup_attribute_element_list(
 
 		if ( list_exists_string(
 			attribute_name,
-			primary_attribute_name_list ) )
+			primary_key_list ) )
 		{
 			element =
 				element_appaserver_new(

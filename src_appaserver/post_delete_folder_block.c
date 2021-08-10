@@ -412,13 +412,13 @@ void delete_folder_block_state_two(
 				char *login_name,
 				char *role_name )
 {
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	char *table_name;
 	char sys_string[ 1024 ];
 	char where_clause_construct[ 1024 ];
 
-	primary_attribute_name_list =
-		attribute_primary_attribute_name_list(
+	primary_key_list =
+		attribute_primary_key_list(
 			folder->attribute_list );
 
 	table_name = get_table_name( application_name, folder->folder_name );
@@ -432,7 +432,7 @@ void delete_folder_block_state_two(
 		 "echo \"select %s from %s %s;\"			|"
 		 "sql.e '^'						|"
 		 "delete_folder_row %s %s %s %s stdin sql.e n 2>>%s	 ",
-		 list_display_delimited( primary_attribute_name_list, ',' ),
+		 list_display_delimited( primary_key_list, ',' ),
 		 table_name,
 		 where_clause_construct,
 		 session,

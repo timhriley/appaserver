@@ -65,13 +65,13 @@ DELETE_DATABASE *delete_database_new(
 
 	return delete_database;
 
-} /* delete_database_new() */
+}
 
 LIST *delete_database_get_delete_folder_list(
 				char *application_name,
 				char *folder_name,
 				PROCESS *post_change_process,
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				boolean row_level_non_owner_forbid,
 				boolean row_level_non_owner_view_only,
 				LIST *mto1_isa_related_folder_list,
@@ -89,7 +89,7 @@ LIST *delete_database_get_delete_folder_list(
 			folder_name,
 			0 /* not null_1tom_upon_delete */,
 			post_change_process,
-			primary_attribute_name_list );
+			primary_key_list );
 
 	/* Make sure user didn't alter the web page source. */
 	/* ------------------------------------------------ */
@@ -110,9 +110,9 @@ __LINE__ );
 				folder_name,
 				row_level_non_owner_forbid,
 				row_level_non_owner_view_only,
-				primary_attribute_name_list
+				primary_key_list
 					/* select_attribute_name_list */,
-				primary_attribute_name_list
+				primary_key_list
 					/* where_attribute_name_list */,
 				primary_attribute_data_list
 					/* where_attribute_data_list */,
@@ -160,7 +160,7 @@ __LINE__ );
 
 	return delete_folder_list;
 
-} /* delete_database_get_delete_folder_list() */
+}
 
 void delete_database_append_one2m_delete_folder_list(
 				LIST *delete_folder_list,
@@ -170,7 +170,7 @@ void delete_database_append_one2m_delete_folder_list(
 				LIST *where_attribute_data_list,
 				char *login_name,
 				LIST *one2m_related_folder_list,
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				PROCESS *post_change_process )
 {
 	LIST *delete_row_list;
@@ -184,7 +184,7 @@ void delete_database_append_one2m_delete_folder_list(
 			one2m_related_folder_name,
 			0 /* row_level_non_owner_forbid */,
 			0 /* row_level_non_owner_view_only */,
-			primary_attribute_name_list
+			primary_key_list
 				/* select_attribute_name_list */,
 			where_attribute_name_list,
 			where_attribute_data_list,
@@ -197,7 +197,7 @@ void delete_database_append_one2m_delete_folder_list(
 			delete_folder_list,
 			one2m_related_folder_name,
 			post_change_process,
-			primary_attribute_name_list );
+			primary_key_list );
 
 	if ( !delete_folder->delete_row_list )
 		delete_folder->delete_row_list = list_new();
@@ -244,7 +244,7 @@ void delete_database_append_one2m_delete_folder_list(
 					one2m_related_folder_list,
 				related_folder->
 					one2m_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				related_folder->
 					one2m_folder->
 					post_change_process );
@@ -253,7 +253,7 @@ void delete_database_append_one2m_delete_folder_list(
 
 	} while( list_next( one2m_related_folder_list ) );
 
-} /* delete_database_append_one2m_delete_folder_list() */
+}
 
 void delete_database_append_mto1_isa_delete_folder_list(
 				LIST *delete_folder_list,
@@ -276,7 +276,7 @@ void delete_database_append_mto1_isa_delete_folder_list(
 				related_folder->folder->post_change_process,
 				related_folder->
 					folder->
-					primary_attribute_name_list );
+					primary_key_list );
 
 fprintf( stderr, "%s/%s()/%d\n",
 __FILE__,
@@ -295,11 +295,11 @@ __LINE__ );
 					row_level_non_owner_view_only,
 				related_folder->
 					folder->
-					primary_attribute_name_list
+					primary_key_list
 					/* select_attribute_name_list */,
 				related_folder->
 					folder->
-					primary_attribute_name_list
+					primary_key_list
 					/* where_attribute_name_list */,
 				primary_attribute_data_list
 					/* where_attribute_data_list */,
@@ -322,7 +322,7 @@ __LINE__ );
 
 	} while( list_next( mto1_isa_related_folder_list ) );
 
-} /* delete_database_append_mto1_isa_delete_folder_list() */
+}
 
 DELETE_ROW *delete_database_delete_row_new(
 			LIST *primary_attribute_data_list )
@@ -345,13 +345,13 @@ DELETE_ROW *delete_database_delete_row_new(
 
 	return delete_row;
 
-} /* delete_database_delete_row_new() */
+}
 
 DELETE_FOLDER *delete_database_get_or_set_delete_folder(
 			LIST *delete_folder_list,
 			char *folder_name,
 			PROCESS *post_change_process,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	DELETE_FOLDER *delete_folder;
 
@@ -391,19 +391,19 @@ DELETE_FOLDER *delete_database_get_or_set_delete_folder(
 			folder_name,
 			0 /* not null_1tom_upon_delete */,
 			post_change_process,
-			primary_attribute_name_list );
+			primary_key_list );
 
 	list_append_pointer( delete_folder_list, delete_folder );
 
 	return delete_folder;
 
-} /* delete_database_get_or_set_delete_folder() */
+}
 
 DELETE_FOLDER *delete_database_delete_folder_new(
 			char *folder_name,
 			boolean null_1tom_upon_delete,
 			PROCESS *post_change_process,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	DELETE_FOLDER *delete_folder;
 
@@ -422,12 +422,12 @@ DELETE_FOLDER *delete_database_delete_folder_new(
 	delete_folder->folder_name = folder_name;
 	delete_folder->null_1tom_upon_delete = null_1tom_upon_delete;
 	delete_folder->post_change_process = post_change_process;
-	delete_folder->primary_attribute_name_list =
-		primary_attribute_name_list;
+	delete_folder->primary_key_list =
+		primary_key_list;
 
 	return delete_folder;
 
-} /* delete_database_delete_folder_new() */
+}
 
 LIST *delete_database_get_delete_row_list(
 			char *application_name,
@@ -517,7 +517,7 @@ sys_string );
 	pclose( input_pipe );
 	return delete_row_list;
 
-} /* delete_database_get_delete_row_list() */
+}
 
 void delete_database_execute_delete_folder_list(
 			char *application_name,
@@ -538,7 +538,7 @@ void delete_database_execute_delete_folder_list(
 				delete_folder->folder_name,
 				delete_folder->delete_row_list,
 				delete_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				delete_folder->
 					update_null_attribute_name_list,
 				sql_executable );
@@ -550,24 +550,24 @@ void delete_database_execute_delete_folder_list(
 				delete_folder->folder_name,
 				delete_folder->delete_row_list,
 				delete_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				sql_executable,
 				delete_folder->post_change_process );
 		}
 
 	} while( list_previous( delete_folder_list ) );
 
-} /* delete_database_execute_delete_folder_list() */
+}
 
 void delete_database_set_parameter_dictionary(
 			DICTIONARY *parameter_dictionary,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_attribute_data_list )
 {
 	char *primary_attribute;
 	char *primary_data;
 
-	if ( !list_rewind( primary_attribute_name_list ) )
+	if ( !list_rewind( primary_key_list ) )
 		return;
 
 	if ( !list_rewind( primary_attribute_data_list ) )
@@ -576,7 +576,7 @@ void delete_database_set_parameter_dictionary(
 	do {
 		primary_attribute =
 			list_get_pointer(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		primary_data =
 			list_get_pointer(
@@ -589,15 +589,15 @@ void delete_database_set_parameter_dictionary(
 
 		list_next( primary_attribute_data_list );
 
-	} while( list_next( primary_attribute_name_list ) );
+	} while( list_next( primary_key_list ) );
 
-} /* delete_database_set_parameter_dictionary() */
+}
 
 void delete_database_execute_delete_row_list(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *sql_executable,
 			PROCESS *post_change_process )
 {
@@ -613,7 +613,7 @@ void delete_database_execute_delete_row_list(
 	}
 
 	if ( !list_length( delete_row_list )
-	||   !list_length( primary_attribute_name_list ) )
+	||   !list_length( primary_key_list ) )
 	{
 		return;
 	}
@@ -625,7 +625,7 @@ void delete_database_execute_delete_row_list(
 		 "%s 					      ",
 		 table_name,
 		 list_display_delimited(
-			primary_attribute_name_list,
+			primary_key_list,
 			',' ),
 		 sql_executable );
 
@@ -635,7 +635,7 @@ void delete_database_execute_delete_row_list(
 		 "delete_statement.e table=%s field=%s del='^' 1>&2",
 		 table_name,
 		 list_display_delimited(
-			primary_attribute_name_list,
+			primary_key_list,
 			',' ) );
 
 	stderr_pipe = popen( sys_string, "w" );
@@ -647,14 +647,14 @@ void delete_database_execute_delete_row_list(
 			application_name,
 			folder_name,
 			delete_row_list,
-			primary_attribute_name_list,
+			primary_key_list,
 			post_change_process );
 
 	pclose( output_pipe );
 	pclose( stderr_pipe );
 	dictionary_free( parameter_dictionary );
 
-} /* delete_database_execute_delete_list_row() */
+}
 
 void delete_database_execute_delete_row_list_pipe(
 			FILE *output_pipe,
@@ -663,7 +663,7 @@ void delete_database_execute_delete_row_list_pipe(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			PROCESS *post_change_process )
 {
 	DELETE_ROW *delete_row;
@@ -680,7 +680,7 @@ void delete_database_execute_delete_row_list_pipe(
 		{
 			delete_database_set_parameter_dictionary(
 				parameter_dictionary,
-				primary_attribute_name_list,
+				primary_key_list,
 				delete_row->primary_attribute_data_list );
 
 			/* Reload the command_line each row */
@@ -706,7 +706,7 @@ void delete_database_execute_delete_row_list_pipe(
 					/* where_clause_dictionary */,
 				(LIST *)0 /* attribute_list */,
 				(LIST *)0 /* prompt_list */,
-				primary_attribute_name_list,
+				primary_key_list,
 				(LIST *)0 /* primary_data_list */,
 				0 /* row */,
 				(char *)0 /* process_name */,
@@ -757,7 +757,7 @@ void delete_database_execute_delete_row_list_pipe(
 					/* where_clause_dictionary */,
 				(LIST *)0 /* attribute_list */,
 				(LIST *)0 /* prompt_list */,
-				primary_attribute_name_list,
+				primary_key_list,
 				(LIST *)0 /* primary_data_list */,
 				0 /* row */,
 				(char *)0 /* process_name */,
@@ -771,13 +771,13 @@ void delete_database_execute_delete_row_list_pipe(
 
 	} while( list_next( delete_row_list ) );
 
-} /* delete_database_execute_delete_row_list_pipe() */
+}
 
 void delete_database_execute_update_to_null_row(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *update_null_attribute_name_list,
 			char *sql_executable )
 {
@@ -798,7 +798,7 @@ void delete_database_execute_update_to_null_row(
  		"%s 					      ",
  		table_name,
 		list_display_delimited(
-			primary_attribute_name_list,
+			primary_key_list,
 			',' ),
 		sql_executable );
 
@@ -808,7 +808,7 @@ void delete_database_execute_update_to_null_row(
  		"update_statement.e table=%s key=%s carrot=y 1>&2",
  		table_name,
 		list_display_delimited(
-			primary_attribute_name_list,
+			primary_key_list,
 			',' ) );
 
 	stderr_pipe = popen( sys_string, "w" );
@@ -822,7 +822,7 @@ void delete_database_execute_update_to_null_row(
 	pclose( output_pipe );
 	pclose( stderr_pipe );
 
-} /* delete_database_execute_update_to_null_row() */
+}
 
 void delete_database_execute_update_to_null_row_pipe(
 			FILE *output_pipe,
@@ -874,7 +874,7 @@ void delete_database_execute_update_to_null_row_pipe(
 
 	} while( list_next( delete_row_list ) );
 
-} /* delete_database_execute_update_to_null_row_pipe() */
+}
 
 char *delete_database_display(
 			DELETE_DATABASE *delete_database )
@@ -903,12 +903,12 @@ char *delete_database_display(
 		ptr += sprintf(	ptr,
 				"\nfolder = %s\n"
 				"null_1tom_upon_delete? = %d\n"
-				"primary_attribute_name_list = %s\n",
+				"primary_key_list = %s\n",
 				delete_folder->folder_name,
 				delete_folder->null_1tom_upon_delete,
 				list_display(
 					delete_folder->
-						primary_attribute_name_list ) );
+						primary_key_list ) );
 
 		if ( delete_folder->null_1tom_upon_delete )
 		{
@@ -940,14 +940,14 @@ char *delete_database_display(
 
 	return strdup( return_string );
 
-} /* delete_database_display() */
+}
 
 void delete_database_append_null_1tom_delete_folder_list(
 			LIST *delete_folder_list,
 			char *application_name,
 			char *one2m_related_folder_name,
 			PROCESS *one2m_related_post_change_process,
-			LIST *one2m_related_primary_attribute_name_list,
+			LIST *one2m_related_primary_key_list,
 			LIST *foreign_attribute_name_list,
 			LIST *primary_attribute_data_list,
 			char *login_name )
@@ -959,20 +959,20 @@ void delete_database_append_null_1tom_delete_folder_list(
 			one2m_related_folder_name,
 			1 /* null_1tom_upon_delete */,
 			one2m_related_post_change_process,
-			one2m_related_primary_attribute_name_list );
+			one2m_related_primary_key_list );
 
 	delete_folder->update_null_attribute_name_list =
 		delete_database_get_update_null_attribute_name_list(
 			foreign_attribute_name_list,
-			one2m_related_primary_attribute_name_list );
+			one2m_related_primary_key_list );
 
 /*
-fprintf( stderr, "%s/%s()/%d: for folder_name = (%s), got one2m_related_primary_attribute_name = (%s)\n",
+fprintf( stderr, "%s/%s()/%d: for folder_name = (%s), got one2m_related_primary_key = (%s)\n",
 __FILE__,
 __FUNCTION__,
 __LINE__,
 one2m_related_folder_name,
-list_display( one2m_related_primary_attribute_name_list ) );
+list_display( one2m_related_primary_key_list ) );
 */
 
 	delete_folder->delete_row_list =
@@ -981,7 +981,7 @@ list_display( one2m_related_primary_attribute_name_list ) );
 			one2m_related_folder_name,
 			0 /* row_level_non_owner_forbid */,
 			0 /* row_level_non_owner_view_only */,
-			one2m_related_primary_attribute_name_list
+			one2m_related_primary_key_list
 				/* select_attribute_name_list*/,
 			foreign_attribute_name_list
 				/* where_attribute_name_list */,
@@ -991,11 +991,11 @@ list_display( one2m_related_primary_attribute_name_list ) );
 
 	list_append_pointer( delete_folder_list, delete_folder );
 
-} /* delete_database_append_null_1tom_delete_folder_list() */
+}
 
 LIST *delete_database_get_update_null_attribute_name_list(
 			LIST *foreign_attribute_name_list,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	LIST *update_null_attribute_name_list = list_new();
 	char *foreign_attribute_name;
@@ -1017,7 +1017,7 @@ LIST *delete_database_get_update_null_attribute_name_list(
 
 		if ( !list_exists_string(
 			foreign_attribute_name,
-			primary_attribute_name_list ) )
+			primary_key_list ) )
 		{
 			list_append_pointer(
 				update_null_attribute_name_list,
@@ -1028,7 +1028,7 @@ LIST *delete_database_get_update_null_attribute_name_list(
 
 	return update_null_attribute_name_list;
 
-} /* delete_database_get_update_null_attribute_name_list() */
+}
 
 void delete_database_append_one2m_related_folder_list(
 			LIST *delete_folder_list,
@@ -1063,7 +1063,7 @@ void delete_database_append_one2m_related_folder_list(
 					post_change_process,
 				related_folder->
 					one2m_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				related_folder->
 					folder_foreign_attribute_name_list,
 				primary_attribute_data_list,
@@ -1085,7 +1085,7 @@ void delete_database_append_one2m_related_folder_list(
 					post_change_process,
 				related_folder->
 					one2m_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				related_folder->
 					foreign_attribute_name_list,
 				primary_attribute_data_list,
@@ -1111,14 +1111,14 @@ void delete_database_append_one2m_related_folder_list(
 				one2m_related_folder_list,
 			related_folder->
 				one2m_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			related_folder->
 				one2m_folder->
 				post_change_process );
 
 	} while( list_next( one2m_related_folder_list ) );
 
-} /* delete_database_append_one2m_related_folder_list() */
+}
 
 void delete_database_refresh_row_count(
 			char *application_name,

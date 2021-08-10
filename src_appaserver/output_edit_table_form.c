@@ -600,7 +600,7 @@ m2( application_name, msg );
 			 list_display(
 				ajax_fill_drop_down_related_folder->
 				folder->
-				primary_attribute_name_list ) /* select */ );
+				primary_key_list ) /* select */ );
 
 		if ( system( sys_string ) ) {};
 	}

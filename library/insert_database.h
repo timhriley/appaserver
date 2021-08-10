@@ -29,7 +29,7 @@ typedef struct
 	char *application_name;
 	char *session;
 	char *folder_name;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	LIST *attribute_name_list;
 	LIST *data_list;
 	DICTIONARY *row_dictionary;
@@ -55,7 +55,7 @@ INSERT_DATABASE *insert_database_new(
 			char *application_name,
 			char *session,
 			char *folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *attribute_name_list,
 			DICTIONARY *row_dictionary,
 			DICTIONARY *ignore_dictionary,
@@ -73,7 +73,7 @@ int insert_database_execute(
 			char *session,
 			char *folder_name,
 			char *role_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			LIST *attribute_name_list,
 			DICTIONARY *row_dictionary,
@@ -83,7 +83,7 @@ int insert_database_execute(
 			PROCESS *post_change_process,
 			char *login_name,
 			LIST *mto1_related_folder_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			LIST *attribute_list,
 			boolean exists_reference_number,
 			char *tmp_file_directory );
@@ -107,12 +107,12 @@ boolean build_insert_tmp_file_each_row(
 			FILE *insert_tmp_file,
 			DICTIONARY *row_dictionary,
 			char *application_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *ignore_attribute_name_list,
 			LIST *mto1_related_folder_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			LIST *attribute_list,
 			boolean exists_reference_number );
 
@@ -120,11 +120,11 @@ boolean build_insert_tmp_file_row_zero(
 			FILE *insert_tmp_file,
 			DICTIONARY *row_dictionary,
 			char *application_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *attribute_name_list,
 			LIST *ignore_attribute_name_list,
 			LIST *mto1_related_folder_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			LIST *attribute_list,
 			boolean exists_reference_number );
 
@@ -139,7 +139,7 @@ LIST *insert_database_get_missing_attribute_name_list(
 			int row,
 			DICTIONARY *row_dictionary,
 			LIST *ignore_attribute_name_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list );
 
 boolean build_insert_data_string( 	
@@ -149,7 +149,7 @@ boolean build_insert_data_string(
 			LIST *ignore_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *mto1_related_folder_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			char *application_name,
 			LIST *attribute_list );
 
@@ -179,7 +179,7 @@ void insert_database_execute_post_change_process_row_zero(
 			char *session,
 			DICTIONARY *row_dictionary,
 			LIST *ignore_attribute_name_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			PROCESS *post_change_process,
 			char *login_name,
@@ -192,7 +192,7 @@ void insert_database_execute_post_change_process_each_row(
 			char *session,
 			DICTIONARY *row_dictionary,
 			LIST *ignore_attribute_name_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			PROCESS *post_change_process,
 			char *login_name,
@@ -214,20 +214,20 @@ RELATED_FOLDER *insert_database_get_common_data_related_folder(
 			LIST *mto1_related_folder_list );
 
 char *insert_database_get_fetch_common_data_where_clause_string( 	
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_data_list );
 
 char *insert_database_fetch_common_data(
 			char *application_name,
 			char *folder_name,
 			char *attribute_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_data_list );
 
 boolean insert_database_non_primary_attribute_populated(
 			int row,
 			DICTIONARY *dictionary,
-			LIST *non_primary_attribute_name_list );
+			LIST *non_primary_key_list );
 
 void insert_database_set_reference_number(
 			DICTIONARY *dictionary,
@@ -241,7 +241,7 @@ LIST *insert_database_get_trim_indices_dictionary_key_list(
 LIST *insert_database_set_ignore_primary_key_to_null(
 			DICTIONARY *row_dictionary,
 			LIST *ignore_attribute_name_list,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 LIST *insert_database_attribute_name_list(
 			LIST *attribute_data_list );
@@ -252,7 +252,7 @@ LIST *insert_database_attribute_data_list(
 			LIST *ignore_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *mto1_related_folder_list,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			char *application_name,
 			LIST *attribute_list );
 

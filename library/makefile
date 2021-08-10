@@ -78,7 +78,7 @@ APPASERVER_LIBRARY=						\
 		document.o					\
 		insert_database.o				\
 		expected_count.o				\
-		update_database.o				\
+		update.o					\
 		delete_database.o				\
 		process_parameter_list.o			\
 		start_stop_time.o				\
@@ -685,22 +685,6 @@ fopen_path_dvr.e: fopen_path_dvr.c fopen_path.o hash_table.o	\
 fopen_path.o: fopen_path.c fopen_path.h
 	${CC} ${CFLAGS} -c fopen_path.c
 
-update_statement_dvr.e: update_statement_dvr.c 			\
-	update_statement.o hash_table.o
-	${CC} ${CFLAGS} update_statement_dvr.c 			\
-			piece.o 				\
-			date.o 					\
-			julian.o 				\
-			timlib.o 				\
-			list_usage.o 				\
-			date_convert.o 				\
-			dictionary.o 				\
-			hash_table.o 				\
-			column.o 				\
-			list.o 					\
-			update_statement.o 			\
-			-o update_statement_dvr.e
-
 update_statement.o: update_statement.c update_statement.h
 	${CC} ${CFLAGS} -c update_statement.c
 
@@ -885,8 +869,8 @@ insert_database.o: insert_database.c insert_database.h			\
 	process.h
 	${CC} ${CFLAGS} -c insert_database.c
 
-update_database.o: update_database.c update_database.h
-	${CC} ${CFLAGS} -c update_database.c
+update.o: update.c update.h
+	${CC} ${CFLAGS} -c update.c
 
 delete_database.o: delete_database.c delete_database.h
 	${CC} ${CFLAGS} -c delete_database.c

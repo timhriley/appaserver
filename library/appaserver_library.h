@@ -223,7 +223,7 @@ LIST *appaserver_library_datatype_name_list(
 			char *application );
 
 char *appaserver_library_displayable_primary_attribute_list_string(
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 LIST *get_attribute4folder_list(
 			char *entity, 
@@ -296,7 +296,7 @@ LIST *appaserver_library_update_attribute_element_list(
 			int *objects_outputted,
 			ATTRIBUTE *attribute,
 			char update_yn,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			boolean is_primary_attribute,
 			char *folder_post_change_javascript,
 			boolean prompt_data_element_only );
@@ -401,7 +401,7 @@ char *appaserver_library_prelookup_button_control_string(
 void appaserver_library_populate_last_foreign_attribute_key(
 			DICTIONARY *post_dictionary,
 			LIST *mto1_related_folder_list,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 void appaserver_library_dictionary_convert_dates(
 			DICTIONARY *dictionary,
@@ -470,7 +470,7 @@ char *appaserver_library_sort_attribute_name(
 
 LIST *appaserver_library_update_lookup_attribute_element_list(
 			char update_yn,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *exclude_permission_list,
 			char *attribute_name,
 			char *datatype,

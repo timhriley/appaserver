@@ -84,7 +84,7 @@ char *folder_attribute_where(
 			char *escaped_replaced_folder_name,
 			LIST *exclude_attribute_name_list );
 
-LIST *folder_attribute_primary_name_list(
+LIST *folder_attribute_primary_key_list(
 			LIST *folder_attribute_list );
 
 LIST *folder_attribute_append_isa_list(

@@ -192,7 +192,7 @@ void generic_measurement_load(
 			0 /* isa_flag */,
 			related_folder_recursive_all,
 			1 /* override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	related_folder_mark_ignore_multi_attribute_primary_keys(
@@ -257,7 +257,7 @@ void generic_measurement_load(
 			if ( list_length(
 					related_folder->
 					folder->
-					primary_attribute_name_list ) == 1 )
+					primary_key_list ) == 1 )
 			{
 				sprintf(element_name,
 					"constant_%s",

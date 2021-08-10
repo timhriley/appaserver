@@ -651,7 +651,7 @@ m2( application_name, msg );
 			 list_display(
 				ajax_fill_drop_down_related_folder->
 				folder->
-				primary_attribute_name_list ) /* select */ );
+				primary_key_list ) /* select */ );
 
 		if ( system( sys_string ) ) {};
 	}
@@ -934,8 +934,8 @@ LIST *output_prompt_element_list(
 			list_new() /* related_folder_list */,
 			0 /* dont omit_isa_relations */,
 			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
+			(LIST *)0 /* parent_primary_key_list */,
+			(LIST *)0 /* original_primary_key_list */,
 			(char *)0 /* prior_related_attribute_name */ );
 
 	if (	lookup_before_drop_down->lookup_before_drop_down_state !=
@@ -1175,7 +1175,7 @@ LIST *output_prompt_element_list(
 	
 			foreign_attribute_name_list =
 			related_folder_foreign_attribute_name_list(
-			   folder_get_primary_attribute_name_list(
+			   folder_get_primary_key_list(
 				related_folder->folder->
 					attribute_list ),
 			   related_folder->related_attribute_name,
@@ -1790,7 +1790,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 				prompt_folder->folder_name,
 				prompt_folder->populate_drop_down_process,
 				prompt_folder->attribute_list,
-				attribute_primary_attribute_name_list(
+				attribute_primary_key_list(
 					prompt_folder->attribute_list ),
 				0 /* dont omit_ignore_push_buttons */,
 				preprompt_dictionary,
@@ -1820,7 +1820,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 	
 		list_append_string_list(
 			exclude_attribute_name_list,
-			attribute_primary_attribute_name_list(
+			attribute_primary_key_list(
 				prompt_folder->attribute_list ) );
 	}
 
@@ -1856,7 +1856,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 				prompt_recursive_mto1_folder->
 					folder->
 					attribute_list,
-				attribute_primary_attribute_name_list(
+				attribute_primary_key_list(
 					prompt_recursive_mto1_folder->
 						folder->
 						attribute_list ),
@@ -1896,7 +1896,7 @@ LIST *prompt_mto1_recursive_element_list_fetch(
 
 			list_append_string_list(
 				exclude_attribute_name_list,
-				attribute_primary_attribute_name_list(
+				attribute_primary_key_list(
 					prompt_recursive_mto1_folder->
 						folder->
 						attribute_list ) );
@@ -1963,7 +1963,7 @@ void mark_ignore_for_prelookup_skipped(
 			unfulfilled_folder_name_list )
 		&&   list_length( related_folder->
 					folder->
-					primary_attribute_name_list ) > 1 )
+					primary_key_list ) > 1 )
 		{
 			related_folder->ignore_output = 1;
 		}

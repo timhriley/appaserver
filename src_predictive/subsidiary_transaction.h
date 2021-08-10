@@ -26,7 +26,7 @@ typedef struct
 {
 	char *attribute_name;
 	char *credit_account_name;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	double transaction_amount;
 	char *debit_account_name;
 	FOLDER *subsidiary_transaction_folder;
@@ -75,16 +75,16 @@ boolean subsidiary_transaction_fetch(
 char *subsidiary_process_fetch_debit_account_name(
 		char *application_name,
 		char *debit_account_folder_name,
-		char *debit_account_folder_primary_attribute_name,
+		char *debit_account_folder_primary_key,
 		char *subsidiary_transaction_folder_name,
-		LIST *subsidiary_transaction_folder_primary_attribute_name_list,
+		LIST *subsidiary_transaction_folder_primary_key_list,
 		LIST *subsidiary_transaction_folder_primary_data_list );
 
 double subsidiary_fetch_transaction_amount(
 				char *application_name,
 				char *subsidiary_transaction_folder_name,
 				char *subsidiary_transaction_attribute_name,
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				LIST *primary_data_list );
 
 TRANSACTION *subsidiary_get_transaction(

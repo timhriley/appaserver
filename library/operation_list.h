@@ -44,7 +44,7 @@ int operation_list_perform_operations(
 				char *person,
 				char *folder_name,
 				char *role_name,
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				boolean non_owner_forbid_deletion,
 				char *target_frame );
 

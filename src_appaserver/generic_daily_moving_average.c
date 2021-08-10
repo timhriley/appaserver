@@ -108,7 +108,7 @@ void generic_output_table(
 			char *input_system_string,
 			char *heading,
 			char *subtitle,
-			int primary_attribute_name_list_length );
+			int primary_key_list_length );
 
 void generic_output_spreadsheet(
 			char *application_name,
@@ -399,7 +399,7 @@ int main( int argc, char **argv )
 			list_length(
 				process_generic->
 					value_folder->
-					primary_attribute_name_list ) );
+					primary_key_list ) );
 	}
 
 	if (	process_generic->parameter->output_medium !=
@@ -1167,7 +1167,7 @@ void generic_output_table(
 			char *input_system_string,
 			char *heading,
 			char *subtitle,
-			int primary_attribute_name_list_length )
+			int primary_key_list_length )
 {
 	FILE *input_pipe;
 	FILE *output_pipe;
@@ -1181,7 +1181,7 @@ void generic_output_table(
 		SQL_DELIMITER,
 		string_repeat(
 			"left,",
-			primary_attribute_name_list_length
+			primary_key_list_length
 				/* number_times */ ) );
 
 	input_pipe = popen( input_system_string, "r" );

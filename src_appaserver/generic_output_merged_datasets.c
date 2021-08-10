@@ -264,7 +264,7 @@ int main( int argc, char **argv )
 					process_generic_output->
 						value_folder->
 						datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 					process_generic_output->
 						value_folder->
 						datatype_folder->
@@ -929,7 +929,7 @@ boolean merged_datasets_output_gracechart(
 		datatype_entity_name =
 			process_generic_get_datatype_entity(
 				datatype->foreign_attribute_data_list,
-				datatype_folder->primary_attribute_name_list,
+				datatype_folder->primary_key_list,
 				' ' /* delimiter */ );
 
 		grace_datatype =
@@ -999,7 +999,7 @@ boolean merged_datasets_output_gracechart(
 			datatype_entity_name =
 			process_generic_get_datatype_entity(
 				datatype->foreign_attribute_data_list,
-				datatype_folder->primary_attribute_name_list,
+				datatype_folder->primary_key_list,
 				' ' /* delimiter */ );
 
 			sprintf(datatype_entity_datatype_input_buffer,
@@ -1592,7 +1592,7 @@ void merged_datasets_googlechart_set_output_chart(
 		datatype_entity_name =
 			process_generic_get_datatype_entity(
 				datatype->foreign_attribute_data_list,
-				datatype_folder->primary_attribute_name_list,
+				datatype_folder->primary_key_list,
 				' ' /* delimiter */ );
 
 		output_datatype_name =
@@ -1616,7 +1616,7 @@ void merged_datasets_googlechart_set_output_chart(
 		datatype_entity_name =
 			process_generic_get_datatype_entity(
 				datatype->foreign_attribute_data_list,
-				datatype_folder->primary_attribute_name_list,
+				datatype_folder->primary_key_list,
 				' ' /* delimiter */ );
 
 		output_datatype_name =

@@ -65,7 +65,7 @@ char *list_usage_concat(	LIST *attribute_name_list );
 char *list_usage_get_in_clause( LIST *column_string_list );
 
 LIST *list_usage_attribute_data_dictionary_merge_list(
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				LIST *primary_data_list,
 				char delimiter );
 

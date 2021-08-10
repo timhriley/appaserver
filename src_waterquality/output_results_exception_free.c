@@ -191,7 +191,7 @@ int main( int argc, char **argv )
 				appaserver_parameter_file_get_dbms() );
 	exit( 0 );
 
-} /* main() */
+}
 
 void output_results_exception(
 		char *application_name,
@@ -249,7 +249,7 @@ void output_results_exception(
 
 	printf( "<br><br>Selected %d rows.\n", count );
 
-} /* output_results_exception() */
+}
 
 int output_results_exception_spreadsheet(
 					char *application_name,
@@ -382,7 +382,7 @@ int output_results_exception_spreadsheet(
 
 	return count;
 
-} /* output_results_exception_spreadsheet() */
+}
 
 void output_results_exception_table(	char *select,
 					char *from_clause,
@@ -427,23 +427,23 @@ void output_results_exception_table(	char *select,
 	pclose( input_pipe );
 	pclose( output_pipe );
 
-} /* output_results_exception_table() */
+}
 
 char *exception_free_subquery_where(
 				char *application_name,
 				char *value_folder_name )
 {
 	char subquery_where[ 2048 ];
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	LIST *foreign_attribute_name_list;
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			folder_get_attribute_list(
 				application_name,
 				value_folder_name ) );
 
-	foreign_attribute_name_list = list_copy( primary_attribute_name_list );
+	foreign_attribute_name_list = list_copy( primary_key_list );
 
 	sprintf(subquery_where,
 		"not exists ( select 1 from %s where %s)",
@@ -451,7 +451,7 @@ char *exception_free_subquery_where(
 			query_append_where_clause_related_join(
 				application_name,
 				(char *)0 /* source_where_clause */,
-				primary_attribute_name_list,
+				primary_key_list,
 				foreign_attribute_name_list,
 				value_folder_name,
 				"results_exception"
@@ -459,5 +459,5 @@ char *exception_free_subquery_where(
 
 	return strdup( subquery_where );
 
-} /* exception_free_subquery_where() */
+}
 

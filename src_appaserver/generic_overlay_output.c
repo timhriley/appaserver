@@ -214,7 +214,7 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -281,7 +281,7 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -1042,7 +1042,7 @@ GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 			process_generic_output->
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			' ' /* delimiter */ );
 
 	datatype_name =
@@ -1092,7 +1092,7 @@ GRACE_DATATYPE_OVERLAY_INPUT_GROUP *get_grace_datatype_overlay_input_group(
 				process_generic_output->
 					value_folder->
 					datatype_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 			' ' /* delimiter */ );
 
 		datatype_name =
@@ -1154,7 +1154,7 @@ void output_covariance(	char *application_name,
 			process_generic_output->
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			' ' /* delimiter */ );
 
 	anchor_datatype =
@@ -1656,7 +1656,7 @@ boolean output_scatter(	char *application_name,
 			process_generic_output->
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			' ' /* delimiter */ );
 
 	anchor_datatype_name =
@@ -1683,7 +1683,7 @@ boolean output_scatter(	char *application_name,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list );
+						primary_key_list );
 
 	compare_datatype_name_list =
 		process_generic_output_get_compare_datatype_name_list(

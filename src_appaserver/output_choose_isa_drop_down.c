@@ -44,7 +44,7 @@ LIST *get_element_list(
 					char *isa_related_folder_name,
 					char *role_name,
 					LIST *attribute_list,
-					LIST *primary_attribute_name_list,
+					LIST *primary_key_list,
 					PROCESS *populate_drop_down_process );
 
 int main( int argc, char **argv )
@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	/* char *spool_filename; */
 	LIST *attribute_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	FOLDER *folder;
 	char *isa_related_folder_name;
 	ROLE *role;
@@ -128,8 +128,8 @@ int main( int argc, char **argv )
 			role_name,
 			(LIST *)0 /* mto1_related_folder_list */ );
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
 	form = form_new( INSERT_UPDATE_KEY,
@@ -152,7 +152,7 @@ int main( int argc, char **argv )
 			isa_related_folder_name,
 			role_name,
 			attribute_list,
-			primary_attribute_name_list,
+			primary_key_list,
 			folder->populate_drop_down_process );
 
 	form_set_post_process( form, "post_choose_isa_drop_down" );
@@ -310,7 +310,7 @@ LIST *get_element_list(		char *login_name,
 				char *isa_related_folder_name,
 				char *role_name,
 				LIST *attribute_list,
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				PROCESS *populate_drop_down_process )
 {
 	LIST *return_list;
@@ -333,7 +333,7 @@ LIST *get_element_list(		char *login_name,
 		 "%s%s",
 		 APPASERVER_ISA_PROMPT_PREFIX,
 		 list_display_delimited(
-			  primary_attribute_name_list,
+			  primary_key_list,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
 
 	element = element_appaserver_new(
@@ -413,7 +413,7 @@ LIST *get_element_list(		char *login_name,
 	sprintf( element_name, 
 		 "%s",
 		 list_display_delimited_prefixed(
-			  primary_attribute_name_list,
+			  primary_key_list,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
 			  QUERY_RELATION_OPERATOR_STARTING_LABEL ) );
 

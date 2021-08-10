@@ -219,9 +219,9 @@ char *relation_display(	RELATION *relation )
 }
 
 LIST *relation_foreign_attribute_name_list(
-			/* ----------------------------------- */
-			/* Send in primary_attribute_name_list */
-			/* ----------------------------------- */
+			/* ------------------------ */
+			/* Send in primary_key_list */
+			/* ------------------------ */
 			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_name_list )
@@ -360,8 +360,8 @@ LIST *relation_one2m_recursive_list(
 				relation->foreign_attribute_name_list,
 				relation->
 				    many_folder->
-				    primary_attribute_name_list
-				    /* mto1_primary_attribute_name_list */ ) ) )
+				    primary_key_list
+				    /* mto1_primary_key_list */ ) ) )
 		{
 			relation_list =
 				relation_one2m_recursive_list(
@@ -430,11 +430,11 @@ LIST *relation_mto1_isa_list(
 
 boolean relation_is_primary_key_subset(
 			LIST *foreign_attribute_name_list,
-			LIST *mto1_primary_attribute_name_list )
+			LIST *mto1_primary_key_list )
 {
 	return list_is_subset_of(
 			foreign_attribute_name_list,
-			mto1_primary_attribute_name_list );
+			mto1_primary_key_list );
 }
 
 char *relation_list_display(

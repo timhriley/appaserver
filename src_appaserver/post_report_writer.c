@@ -1408,7 +1408,7 @@ LIST *state_three_folder_element_list(
 
 		if ( list_length(	related_folder->
 					folder->
-					primary_attribute_name_list ) > 1 )
+					primary_key_list ) > 1 )
 		{
 			goto skip_drop_down;
 		}
@@ -2013,7 +2013,7 @@ LIST *state_four_element_list(
 				&objects_outputted,
 				attribute,
 				'n' /* update_yn */,
-				(LIST *)0 /* primary_attribute_name_list */,
+				(LIST *)0 /* primary_key_list */,
 				0 /* not is_primary_attribute */,
 				(char *)0 /* folder_post_change_javascript */,
 				0 /* not prompt_data_element_only */ ) );

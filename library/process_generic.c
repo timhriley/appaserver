@@ -346,7 +346,7 @@ char *process_generic_where(
 }
 
 char *process_generic_select(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *value_attribute_name )
 {
 	char select[ 1024 ];
@@ -354,7 +354,7 @@ char *process_generic_select(
 	sprintf(select,
 		"%s,%s",
 		list_display_delimited(
-			primary_attribute_name_list,
+			primary_key_list,
 			',' ),
 		value_attribute_name );
 
@@ -605,8 +605,8 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 
 	free( results );
 
-	value_folder->primary_attribute_name_list =
-		folder_fetch_primary_attribute_name_list(
+	value_folder->primary_key_list =
+		folder_fetch_primary_key_list(
 			value_folder->value_folder_name );
 
 	value_folder->post_dictionary = post_dictionary;
@@ -710,12 +710,12 @@ char *process_generic_datatype_folder_select(
 
 
 char *process_generic_datatype_folder_where(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_attribute_data_list )
 {
 	return query_simple_where(
 			(char *)0 /* folder_name */,
-			primary_attribute_name_list
+			primary_key_list
 				/* where_attribute_name_list */,
 			primary_attribute_data_list
 				/* where_attribute_data_list */,
@@ -726,7 +726,7 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			char *output_medium_string,
 			DICTIONARY *post_dictionary,
 			boolean aggregation_sum,
-			LIST *value_folder_primary_attribute_name_list,
+			LIST *value_folder_primary_key_list,
 			char *value_folder_date_attribute_name,
 			char *value_folder_time_attribute_name )
 {
@@ -833,15 +833,15 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 		/* Returns -1 if not found */
 		/* ----------------------- */
 		list_seek(	value_folder_date_attribute_name,
-				value_folder_primary_attribute_name_list );
+				value_folder_primary_key_list );
 
 	process_generic_parameter->time_piece =
 		list_seek(	value_folder_time_attribute_name,
-				value_folder_primary_attribute_name_list );
+				value_folder_primary_key_list );
 
 	process_generic_parameter->value_piece =
 		list_length(
-			value_folder_primary_attribute_name_list );
+			value_folder_primary_key_list );
 
 	return process_generic_parameter;
 }
@@ -892,7 +892,7 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 	process_generic_foreign_folder->foreign_attribute_name_list =
 		process_generic_foreign_folder->
 			foreign_folder->
-			primary_attribute_name_list;
+			primary_key_list;
 
 	process_generic_foreign_folder->foreign_attribute_data_list =
 		dictionary_key_list_fetch(
@@ -916,7 +916,7 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 }
 
 char *process_generic_heading(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *value_attribute_name,
 			char *datatype_unit,
 			char *foreign_folder_unit,
@@ -932,22 +932,22 @@ char *process_generic_heading(
 
 	*ptr = '\0';
 
-	if ( !list_rewind( primary_attribute_name_list ) )
+	if ( !list_rewind( primary_key_list ) )
 		return heading_line;
 
 	do {
 		attribute_name =
 			list_get(
-				primary_attribute_name_list );
+				primary_key_list );
 
-		if ( !list_at_head( primary_attribute_name_list ) )
+		if ( !list_at_head( primary_key_list ) )
 			ptr += sprintf( ptr, "," );
 
 		format_initial_capital( heading, attribute_name );
 
 		ptr += sprintf( ptr, "%s", heading );
 
-	} while( list_next( primary_attribute_name_list ) );
+	} while( list_next( primary_key_list ) );
 
 	if ( datatype_unit && *datatype_unit )
 	{
@@ -1171,7 +1171,7 @@ PROCESS_GENERIC *process_generic_fetch(
 				aggregation_sum,
 			process_generic->
 				value_folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			process_generic->
 				value_folder->
 				date_attribute_name,
@@ -1239,7 +1239,7 @@ PROCESS_GENERIC *process_generic_fetch(
 			process_generic_select(
 				process_generic->
 					value_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				process_generic->
 					value_folder->
 					value_attribute_name ),
@@ -1296,7 +1296,7 @@ PROCESS_GENERIC *process_generic_fetch(
 			process_generic_heading(
 				process_generic->
 					value_folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				process_generic->
 					value_folder->
 					value_attribute_name,

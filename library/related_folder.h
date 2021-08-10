@@ -67,7 +67,7 @@ typedef struct
 	boolean prompt_mto1_recursive;
 	boolean copy_common_attributes;
 	boolean ignore_output;
-	LIST *common_non_primary_attribute_name_list;
+	LIST *common_non_primary_key_list;
 	boolean automatic_preselection;
 	boolean drop_down_multi_select;
 	boolean join_1tom_each_row;
@@ -77,7 +77,7 @@ typedef struct
 	LIST *foreign_attribute_name_list;
 	LIST *folder_foreign_attribute_name_list;
 	char *hint_message;
-	LIST *parent_primary_attribute_name_list;
+	LIST *parent_primary_key_list;
 	char *join_where_clause;
 	int recursive_level /* zero based */;
 	boolean is_primary_key_subset;
@@ -91,7 +91,7 @@ RELATED_FOLDER *related_folder_new(
 			char *related_attribute_name );
 
 LIST *related_folder_foreign_attribute_name_list(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *related_attribute_name,
 			LIST *folder_foreign_attribute_name_list );
 
@@ -127,7 +127,7 @@ LIST *related_folder_drop_down_element_list(
 			char *post_change_javascript,
 			char *hint_message,
 			int max_drop_down_size,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			boolean is_primary_attribute,
 			boolean row_level_non_owner_view_only,
 			boolean row_level_non_owner_forbid,
@@ -248,8 +248,8 @@ LIST *related_folder_1tom_related_folder_list(
 			LIST *related_folder_list,
 			boolean omit_isa_relations,
 			enum related_folder_recursive_request_type,
-			LIST *parent_primary_attribute_name_list,
-			LIST *original_primary_attribute_name_list,
+			LIST *parent_primary_key_list,
+			LIST *original_primary_key_list,
 			char *prior_related_attribute_name );
 
 LIST *related_folder_related_folder_list(
@@ -268,7 +268,7 @@ LIST *related_folder_mto1_related_folder_list(
 			boolean isa_flag,
 			enum related_folder_recursive_request_type,
 			boolean override_row_restrictions,
-			LIST *root_primary_attribute_name_list,
+			LIST *root_primary_key_list,
 			int recursive_level );
 
 LIST *related_folder_get_mto1_related_folder_list(
@@ -280,7 +280,7 @@ LIST *related_folder_get_mto1_related_folder_list(
 			boolean isa_flag,
 			enum related_folder_recursive_request_type,
 			boolean override_row_restrictions,
-			LIST *root_primary_attribute_name_list,
+			LIST *root_primary_key_list,
 			int recursive_level );
 
 LIST *related_folder_subtract_duplicate_related_folder_list(
@@ -311,7 +311,7 @@ boolean related_folder_exists_1tom_relations(
 			char *application_name,
 			char *session,
 			char *folder_name,
-			LIST *original_primary_attribute_name_list,
+			LIST *original_primary_key_list,
 			char *related_attribute_name );
 
 LIST *related_folder_global_related_folder_list(
@@ -344,13 +344,13 @@ RELATED_FOLDER *related_folder_get_preprompt_related_folder(
 			char *role_name,
 			boolean override_row_restrictions );
 
-LIST *related_folder_common_non_primary_attribute_name_list(
+LIST *related_folder_common_non_primary_key_list(
 			char *related_folder_name,
 			char *one2m_related_folder_name );
 
 /* Note: this only applies when state=insert. */
 /* ------------------------------------------ */
-LIST *related_folder_insert_common_non_primary_attribute_name_list(
+LIST *related_folder_insert_common_non_primary_key_list(
 			char *folder_name,
 			LIST *mto1_related_folder_list );
 
@@ -395,7 +395,7 @@ LIST *related_folder_subtract_preselection_existing_dictionary_list(
 			char *folder_name,
 			DICTIONARY *query_dictionary,
 			char *login_name,
-			LIST *related_primary_attribute_name_list );
+			LIST *related_primary_key_list );
 
 boolean related_folder_exists_pair_1tom(
 			LIST *related_folder_list );
@@ -467,7 +467,7 @@ LIST *related_folder_fetch_non_primary_foreign_data_list(
 			char *application_name,
 			LIST *select_list,
 			char *folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_data_list );
 
 RELATED_FOLDER *related_folder_calloc(
@@ -489,17 +489,17 @@ RELATED_FOLDER *related_folder_get_view_only_related_folder(
 
 void related_folder_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
+			char *last_primary_key,
 			char *related_attribute_name );
 
 void related_folder_list_populate_one2m_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
+			char *last_primary_key,
 			LIST *one2m_recursive_related_folder_list );
 
 void related_folder_list_populate_mto1_isa_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
-			char *last_primary_attribute_name,
+			char *last_primary_key,
 			LIST *mto1_isa_related_folder_list,
 			char *application_name );
 
@@ -525,7 +525,7 @@ void related_folder_mark_ignore_multi_attribute_primary_keys(
 void related_populate_folder_foreign_attribute_dictionary(
 			DICTIONARY *foreign_attribute_dictionary,
 			LIST *folder_foreign_attribute_name_list,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 RELATED_FOLDER *related_folder_get_ajax_fill_drop_down_related_folder(
 			LIST *mto1_related_folder_list );
@@ -563,7 +563,7 @@ LIST *related_folder_prompt_element_list(
 			char *post_change_javascript,
 			char *hint_message,
 			int max_drop_down_size,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			boolean is_primary_attribute,
 			boolean row_level_non_owner_view_only,
 			boolean row_level_non_owner_forbid,
@@ -625,7 +625,7 @@ LIST *related_folder_prompt_insert_element_list(
 			LIST *role_folder_insert_list,
 			char *form_name,
 			int max_drop_down_size,
-			LIST *common_non_primary_attribute_name_list,
+			LIST *common_non_primary_key_list,
 			boolean is_primary_attribute,
 			char *related_attribute_name,
 			boolean drop_down_multi_select,
@@ -695,7 +695,7 @@ LIST *related_folder_mto1_related_folder_list(
 			boolean isa_flag,
 			enum related_folder_recursive_request_type,
 			boolean override_row_restrictions,
-			LIST *root_primary_attribute_name_list,
+			LIST *root_primary_key_list,
 			int recursive_level );
 
 #endif

@@ -595,7 +595,7 @@ LIST *row_security_detail_dictionary_list(
 			row_dictionary_list,
 			join_1tom_related_folder_list,
 			application_name,
-			attribute_primary_attribute_name_list(
+			attribute_primary_key_list(
 				append_isa_attribute_list ) );
 	}
 
@@ -606,7 +606,7 @@ void row_security_append_join_1tom_related_folder_list(
 			LIST *row_dictionary_list,
 			LIST *join_1tom_related_folder_list,
 			char *application_name,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	DICTIONARY *row_dictionary;
 	RELATED_FOLDER *related_folder;
@@ -629,14 +629,14 @@ void row_security_append_join_1tom_related_folder_list(
 				list_get_last_pointer(
 					related_folder->
 						folder->
-						primary_attribute_name_list ),
+						primary_key_list ),
 				related_folder->related_attribute_name );
 
 		     row_security_set_dictionary_related_folder(
 				row_dictionary,
 				related_folder,
 				application_name,
-				primary_attribute_name_list );
+				primary_key_list );
 
 		} while( list_next( join_1tom_related_folder_list ) );
 
@@ -648,7 +648,7 @@ void row_security_set_dictionary_related_folder(
 				DICTIONARY *row_dictionary,
 				RELATED_FOLDER *related_folder,
 				char *application_name,
-				LIST *primary_attribute_name_list )
+				LIST *primary_key_list )
 {
 	char *related_data_list_string;
 	char *where_clause;
@@ -658,14 +658,14 @@ void row_security_set_dictionary_related_folder(
 	select_list = list_subtract(
 			related_folder->
 				one2m_folder->
-				primary_attribute_name_list,
-			primary_attribute_name_list );
+				primary_key_list,
+			primary_key_list );
 
 	where_clause =
 		dictionary_get_attribute_where_clause(
 			row_dictionary,
 			related_folder_foreign_attribute_name_list( 
-				primary_attribute_name_list,
+				primary_key_list,
 				related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list ) );
@@ -675,7 +675,7 @@ void row_security_set_dictionary_related_folder(
 		where_clause =
 			dictionary_get_attribute_where_clause(
 				row_dictionary,
-				primary_attribute_name_list );
+				primary_key_list );
 	}
 
 	sprintf( sys_string,
@@ -749,7 +749,7 @@ enum row_security_state
 				/* ------------------- */
 				query_join_where_clause(
 					role_update->folder->
-						primary_attribute_name_list,
+						primary_key_list,
 					(LIST *)0
 					     /* related_attribute_name_list */,
 					select_folder_name,
@@ -1022,7 +1022,7 @@ m2( query->folder->application_name, msg );
 			row_dictionary_list,
 			join_1tom_related_folder_list,
 			application_name,
-			attribute_primary_attribute_name_list(
+			attribute_primary_key_list(
 				query->folder->append_isa_attribute_list ) );
 	}
 
@@ -1296,7 +1296,7 @@ LIST *row_security_edit_table_update_element_list(
 	ELEMENT_APPASERVER *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean prompt_data_element_only;
 	LIST *isa_folder_list;
 	int max_drop_down_size = 0;
@@ -1318,8 +1318,8 @@ LIST *row_security_edit_table_update_element_list(
 		appaserver_get_isa_folder_list(
 			application_name );
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
 	return_list = list_new_list();
@@ -1388,7 +1388,7 @@ LIST *row_security_edit_table_update_element_list(
 		is_primary_attribute =
 			list_exists_string(	
 				attribute_name,
-				primary_attribute_name_list );
+				primary_key_list );
 
 		if ( is_primary_attribute && make_primary_keys_non_edit )
 			prompt_data_element_only = 1;
@@ -1504,7 +1504,7 @@ skip_checking_drop_down:
 					&objects_outputted,
 					attribute,
 					update_yn,
-					primary_attribute_name_list,
+					primary_key_list,
 					is_primary_attribute,
 					folder_post_change_javascript,
 					prompt_data_element_only );
@@ -1679,7 +1679,7 @@ LIST *row_security_regular_evaluate_element_list(
 	ELEMENT_APPASERVER *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean prompt_data_element_only;
 	LIST *isa_folder_list;
 	int max_drop_down_size = 0;
@@ -1700,8 +1700,8 @@ LIST *row_security_regular_evaluate_element_list(
 		appaserver_get_isa_folder_list(
 			application_name );
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
 	return_list = list_new_list();
@@ -1765,7 +1765,7 @@ LIST *row_security_regular_evaluate_element_list(
 		is_primary_attribute =
 			list_exists_string(	
 				attribute_name,
-				primary_attribute_name_list );
+				primary_key_list );
 
 		if ( is_primary_attribute && make_primary_keys_non_edit )
 			prompt_data_element_only = 1;
@@ -1882,7 +1882,7 @@ skip_checking_drop_down:
 					&objects_outputted,
 					attribute,
 					'y' /* update_yn */,
-					primary_attribute_name_list,
+					primary_key_list,
 					is_primary_attribute,
 					folder_post_change_javascript,
 					prompt_data_element_only );
@@ -2016,7 +2016,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 	ELEMENT_APPASERVER *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean is_primary_attribute;
 	boolean prompt_data_element_only = 1;
 	ATTRIBUTE *attribute;
@@ -2024,8 +2024,8 @@ LIST *row_security_viewonly_evaluate_element_list(
 	if ( !list_length( include_attribute_name_list ) )
 		return list_new_list();
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
 	return_list = list_new_list();
@@ -2089,7 +2089,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 		is_primary_attribute =
 			list_exists_string(	
 				attribute_name,
-				primary_attribute_name_list );
+				primary_key_list );
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -2122,7 +2122,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 					&objects_outputted,
 					attribute,
 					'n' /* update_yn */,
-					primary_attribute_name_list,
+					primary_key_list,
 					is_primary_attribute,
 					folder_post_change_javascript,
 					prompt_data_element_only );

@@ -1396,12 +1396,12 @@ void *list_pointer( LIST *list )
 	return retrieve_item_ptr( list );
 }
 
-void *list_get( LIST *list )
+void *list_string( LIST *list )
 {
 	return retrieve_item_ptr( list );
 }
 
-char *retrieve_item_ptr( LIST *list )
+void *list_get( LIST *list )
 {
         if (list->num_in_list)
                 return list->current->item;
@@ -1409,7 +1409,11 @@ char *retrieve_item_ptr( LIST *list )
                 /* List is empty */
                 /* ------------- */
                 return (char *)0;
+}
 
+char *retrieve_item_ptr( LIST *list )
+{
+	return list_get( list );
 }
 
 

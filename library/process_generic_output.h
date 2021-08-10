@@ -50,7 +50,7 @@ typedef struct
 typedef struct
 {
 	char *datatype_folder_name;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean exists_aggregation_sum;
 	boolean exists_bar_graph;
 	boolean exists_scale_graph_zero;
@@ -63,7 +63,7 @@ typedef struct
 	char *time_attribute_name;
 	char *value_attribute_name;
 	char *units_folder_name;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;
 	PROCESS_GENERIC_DATATYPE_FOLDER *datatype_folder;
 	PROCESS_GENERIC_DATATYPE *datatype;
@@ -112,7 +112,7 @@ void process_generic_value_folder_load(
 					char *process_set_name );
 
 void process_generic_datatype_folder_load(
-				LIST **primary_attribute_name_list,
+				LIST **primary_key_list,
 				boolean *datatype_exists_aggregation_sum,
 				boolean *datatype_exists_bar_graph,
 				boolean *datatype_exists_scale_graph_zero,
@@ -129,7 +129,7 @@ void process_generic_datatype_load(
 				boolean datatype_exists_scale_graph_zero,
 				char *application_name,
 				char *datatype_folder_name,
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				LIST *primary_attribute_data_list,
 				char *units_folder_name );
 
@@ -177,7 +177,7 @@ char *process_generic_output_get_process_name(
 char *process_generic_output_get_units(
 				char *application_name,
 				char *datatype_folder_name,
-				LIST *datatype_primary_attribute_name_list,
+				LIST *datatype_primary_key_list,
 				DICTIONARY *post_dictionary );
 
 char *process_generic_output_get_units_label(
@@ -268,7 +268,7 @@ LIST *process_generic_get_compare_datatype_list(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *datatype_folder_name,
-			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_key_list,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
 			boolean exists_scale_graph_zero,
@@ -289,7 +289,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *datatype_folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
 			boolean exists_scale_graph_zero,
@@ -359,12 +359,12 @@ LIST *process_generic_output_get_select_list(
 			boolean concat_datatype );
 
 char *process_generic_get_datatype_where_clause(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_attribute_data_list );
 
 LIST *process_generic_get_datatype_primary_attribute_data_list(
 			DICTIONARY *post_dictionary,
-			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_key_list,
 			char *compare_datatype_prefix,
 			int dictionary_index );
 
@@ -374,11 +374,11 @@ char *process_generic_get_datatype_name(
 
 LIST *process_generic_get_prefixed_primary_attribute_data_list(
 			LIST *full_primary_attribute_data_list,
-			int length_datatype_primary_attribute_name_list );
+			int length_datatype_primary_key_list );
 
 char *process_generic_get_datatype_entity(
 			LIST *foreign_attribute_data_list,
-			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_key_list,
 			char delimiter );
 
 LIST *process_generic_output_get_concat_heading_list(
@@ -387,7 +387,7 @@ LIST *process_generic_output_get_concat_heading_list(
 
 LIST *process_generic_output_get_compare_entity_name_list(
 			LIST *compare_datatype_list,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 LIST *process_generic_output_get_compare_datatype_units_list(
 			LIST *compare_datatype_list );

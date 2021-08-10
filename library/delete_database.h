@@ -28,7 +28,7 @@ typedef struct
 {
 	char *folder_name;
 	PROCESS *post_change_process;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean null_1tom_upon_delete;
 	LIST *update_null_attribute_name_list;
 	LIST *delete_row_list;
@@ -59,7 +59,7 @@ LIST *delete_database_get_delete_folder_list(
 			char *application_name,
 			char *folder_name,
 			PROCESS *post_change_process,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			boolean row_level_non_owner_forbid,
 			boolean row_level_non_owner_view_only,
 			LIST *mto1_isa_related_folder_list,
@@ -72,7 +72,7 @@ DELETE_FOLDER *delete_database_delete_folder_new(
 			char *folder_name,
 			boolean null_1tom_upon_delete,
 			PROCESS *post_change_process,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 DELETE_ROW *delete_database_delete_row_new(
 			LIST *primary_attribute_data_list );
@@ -101,7 +101,7 @@ void delete_database_append_one2m_delete_folder_list(
 			LIST *where_attribute_data_list,
 			char *login_name,
 			LIST *one2m_related_folder_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			PROCESS *post_change_process );
 
 void delete_database_execute_delete_folder_list(
@@ -111,14 +111,14 @@ void delete_database_execute_delete_folder_list(
 
 void delete_database_set_parameter_dictionary(
 			DICTIONARY *parameter_dictionary,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_attribute_data_list );
 
 void delete_database_execute_delete_row_list(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *sql_executable,
 			PROCESS *post_change_process );
 
@@ -129,14 +129,14 @@ void delete_database_execute_delete_row_list_pipe(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			PROCESS *post_change_process );
 
 void delete_database_execute_update_to_null_row(
 			char *application_name,
 			char *folder_name,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *update_null_attribute_name_list,
 			char *sql_executable );
 
@@ -152,7 +152,7 @@ char *delete_database_display(
 void delete_database_append_mto1_isa_one2m_recursive(
 			LIST *delete_folder_list,
 			LIST *delete_row_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *one2m_recursive_related_folder_list,
 			char *application_name );
 
@@ -160,14 +160,14 @@ DELETE_FOLDER *delete_database_get_or_set_delete_folder(
 			LIST *delete_folder_list,
 			char *folder_name,
 			PROCESS *post_change_process,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 void delete_database_append_null_1tom_delete_folder_list(
 			LIST *delete_folder_list,
 			char *application_name,
 			char *one2m_related_folder_name,
 			PROCESS *one2m_related_post_change_process,
-			LIST *one2m_related_primary_attribute_name_list,
+			LIST *one2m_related_primary_key_list,
 			LIST *foreign_attribute_name_list,
 			LIST *primary_attribute_data_list,
 			char *login_name );
@@ -181,7 +181,7 @@ void delete_database_append_one2m_related_folder_list(
 
 LIST *delete_database_get_update_null_attribute_name_list(
 			LIST *foreign_attribute_name_list,
-			LIST *one2m_related_primary_attribute_name_list );
+			LIST *one2m_related_primary_key_list );
 
 void delete_database_refresh_row_count(
 			char *application_name,

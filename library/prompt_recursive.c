@@ -94,14 +94,14 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder(
 	recursive_folder->prompt_recursive_mto1_folder_list =
 		prompt_recursive_mto1_folder_list(
 			folder->folder_name,
-			folder->primary_attribute_name_list );
+			folder->primary_key_list );
 
 	return recursive_folder;
 }
 
 LIST *prompt_recursive_mto1_folder_list(
 			char *folder_name,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	LIST *recursive_mto1_folder_list = {0};
 	LIST *mto1_recursive_related_folder_list;
@@ -118,7 +118,7 @@ LIST *prompt_recursive_mto1_folder_list(
 			0 /* isa_flag */,
 			related_folder_prompt_recursive_only,
 			0 /* dont override_row_restrictions */,
-			primary_attribute_name_list,
+			primary_key_list,
 			0 /* recursive_level */ );
 
 	if ( !list_rewind( mto1_recursive_related_folder_list ) )
@@ -209,14 +209,14 @@ char *prompt_recursive_display(	PROMPT_RECURSIVE *prompt_recursive )
 					prompt_recursive_folder_list );
 
 		ptr += sprintf( ptr,
-"; got prompt_folder = (%s), primary_attribute_name_list = (%s)",
+"; got prompt_folder = (%s), primary_key_list = (%s)",
 				prompt_recursive_folder->
 					prompt_folder->
 					folder_name,
 				list_display(
 					prompt_recursive_folder->
 						prompt_folder->
-						primary_attribute_name_list ) );
+						primary_key_list ) );
 
 		prompt_recursive_mto1_folder_list =
 			prompt_recursive_folder->
@@ -236,7 +236,7 @@ char *prompt_recursive_display(	PROMPT_RECURSIVE *prompt_recursive )
 					prompt_recursive_mto1_folder_list );
 
 			ptr += sprintf(	ptr,
-"; child folder = %s, recursive_level = %d, primary_attribute_name_list = (%s)",
+"; child folder = %s, recursive_level = %d, primary_key_list = (%s)",
 					prompt_recursive_mto1_folder->
 						folder->
 						folder_name,
@@ -245,7 +245,7 @@ char *prompt_recursive_display(	PROMPT_RECURSIVE *prompt_recursive )
 					list_display(
 					prompt_recursive_mto1_folder->
 						folder->
-						primary_attribute_name_list ) );
+						primary_key_list ) );
 
 		} while( list_next( prompt_recursive_mto1_folder_list ) );
 

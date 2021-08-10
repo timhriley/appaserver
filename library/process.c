@@ -45,7 +45,7 @@ void process_convert_parameters(
 			DICTIONARY *where_clause_dictionary,
 			LIST *attribute_list,
 			LIST *prompt_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_data_list,
 			int row,
 			char *process_name,
@@ -189,14 +189,22 @@ void process_convert_parameters(
 						SQL_DELIMITER ) );
 	}
 
-	if ( primary_attribute_name_list )
+	if ( primary_key_list )
 	{
 		search_replace_word(	local_executable,
 					"$primary_attribute_list",
 					list_display_quoted_delimiter( 
 						buffer,
-						primary_attribute_name_list,
+						primary_key_list,
 						',' ) );
+
+		search_replace_word(	local_executable,
+					"$primary_key_list",
+					list_display_quoted_delimiter( 
+						buffer,
+						primary_key_list,
+						',' ) );
+
 	}
 
 	if ( prompt_list )
@@ -719,7 +727,7 @@ void process_operation_convert(
 			DICTIONARY *parameter_dictionary,
 			DICTIONARY *where_clause_dictionary,
 			LIST *append_isa_attribute_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_data_list,
 			int row,
 			char *process_name,
@@ -847,14 +855,22 @@ void process_operation_convert(
 						FOLDER_DATA_DELIMITER ) );
 	}
 
-	if ( primary_attribute_name_list )
+	if ( primary_key_list )
 	{
+		search_replace_word(	local_executable,
+					"$primary_key",
+					list_display_quoted_delimiter( 
+						buffer,
+						primary_key_list,
+						',' ) );
+
 		search_replace_word(	local_executable,
 					"$primary_attribute_list",
 					list_display_quoted_delimiter( 
 						buffer,
-						primary_attribute_name_list,
+						primary_key_list,
 						',' ) );
+
 	}
 
 	search_replace_list_index_prepend_double_quoted(

@@ -111,7 +111,7 @@ char *relation_display(	RELATION *relation );
 
 LIST *relation_foreign_attribute_name_list(
 			/* ----------------------------------- */
-			/* Send in primary_attribute_name_list */
+			/* Send in primary_key_list */
 			/* ----------------------------------- */
 			LIST *primary_foreign_attribute_name_list,
 			char *related_attribute_name,
@@ -154,7 +154,7 @@ LIST *relation_fetch_mto1_list(
 
 boolean relation_is_primary_key_subset(
 			LIST *foreign_attribute_name_list,
-			LIST *many_primary_attribute_name_list );
+			LIST *many_primary_key_list );
 
 char *relation_list_display(
 			LIST *one2m_relation_list );

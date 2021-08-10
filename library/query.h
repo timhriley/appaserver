@@ -84,7 +84,7 @@ typedef struct
 	/* ----- */
 	char *mto1_folder_name;
 	char *one2m_folder_name;
-	LIST *one2m_primary_attribute_name_list;
+	LIST *one2m_primary_key_list;
 	LIST *mto1_foreign_attribute_name_list;
 	LIST *one2m_attribute_list;
 	int index;
@@ -193,7 +193,7 @@ LIST *query_drop_down_list(
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			int index );
@@ -205,7 +205,7 @@ QUERY_DROP_DOWN *query_drop_down_new(
 boolean query_get_drop_down_dictionary_data(
 			char **data,
 			DICTIONARY *dictionary, 
-			char *primary_attribute_name,
+			char *primary_key,
 			int dictionary_offset );
 
 char *query_dictionary_operator_name(
@@ -285,7 +285,7 @@ char *query_get_simple_where_clause(
 char *query_append_where_clause_related_join(
 			char *application_name,
 			char *source_where_clause,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *related_attribute_name_list,
 			char *folder_name,
 			char *related_folder_name );
@@ -368,13 +368,13 @@ LIST *query_get_one2m_subquery_related_folder_list(
 LIST *query_get_subquery_list(
 			DICTIONARY *dictionary,
 			LIST *one2m_subquery_related_folder_list,
-			int length_primary_attribute_name_list );
+			int length_primary_key_list );
 
 char *query_get_subquery_where_clause(
 			char *application_name,
 			char *folder_name,
 			LIST *query_subquery_list,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 char *query_append_where_clause(char *source_where_clause,
 			char *append_where_clause );
@@ -428,7 +428,7 @@ char *query_get_process_drop_down_where_clause(
 
 char *query_get_dictionary_where_clause(
 			DICTIONARY *dictionary,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *dictionary_indexed_prefix );
 
 QUERY_OR_SEQUENCE *query_or_sequence_new(
@@ -614,7 +614,7 @@ char *query_folder_where_clause(
 char *query_related_join_where(
 			char *application_name,
 			char *source_where_clause,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *foreign_attribute_name_list,
 			char *folder_name,
 			char *related_folder_name );
@@ -668,7 +668,7 @@ char *query_folder_get_where_clause(
 /* Returns heap memory */
 /* ------------------- */
 char *query_join_where_clause(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *related_attribute_name_list,
 			char *folder_name,
 			char *related_folder_name );
@@ -735,7 +735,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 			void );
 
 LIST *query_drop_down_query_data_list(
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			LIST *data_string_list );
@@ -772,14 +772,14 @@ char *query_output_attribute_where(
 /* ------------------- */
 char *query_output_join_where(
 			char *folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *mto1_isa_related_folder_list );
 
 /* Returns static memory */
 /* --------------------- */
 char *query_output_related_join(
 			char *folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *isa_folder_name,
 			LIST *isa_foreign_attribute_name_list );
 
@@ -795,7 +795,7 @@ QUERY_DROP_DOWN *query_drop_down(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary );
@@ -804,7 +804,7 @@ LIST *query_drop_down_row_list(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary,
@@ -814,7 +814,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary,
@@ -857,7 +857,7 @@ char *query_output_from(
 /* ------------------- */
 char *query_output_order(
 			char *mto1_folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *append_isa_attribute_list,
 			DICTIONARY *sort_dictionary );
 

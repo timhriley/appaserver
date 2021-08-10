@@ -44,13 +44,13 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *insert_update_key;
 	char *target_frame;
-	LIST *posted_primary_attribute_name_list;
+	LIST *posted_primary_key_list;
 	FOLDER *folder;
 	LIST *isa_related_folder_list;
 	pid_t dictionary_process_id;
 	ROLE *role;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	LIST *non_primary_attribute_name_list;
+	LIST *non_primary_key_list;
 
 	if ( argc < 10 )
 	{
@@ -229,15 +229,15 @@ int main( int argc, char **argv )
 			application_name, msg, login_name );
 	}
 
-	non_primary_attribute_name_list =
-		folder_get_non_primary_attribute_name_list(
+	non_primary_key_list =
+		folder_get_non_primary_key_list(
 					folder->attribute_list );
 
 	/* ------------------------------------------------------------- */
 	/* Insert here if selected from the drop-down and		 */
 	/* there are no non-primary attributes.				 */
 	/* ------------------------------------------------------------- */
-	if ( !list_length( non_primary_attribute_name_list ) )
+	if ( !list_length( non_primary_key_list ) )
 	{
 		RELATED_FOLDER *isa_related_folder;
 
@@ -255,15 +255,15 @@ int main( int argc, char **argv )
 				(LIST *)0 /* mto1_isa_related_folder_list */,
 				role_name );
 
-		posted_primary_attribute_name_list =
+		posted_primary_key_list =
 			dictionary_get_index_zero_key_list(
 				dictionary_appaserver->non_prefixed_dictionary, 
-				folder_get_primary_attribute_name_list(
+				folder_get_primary_key_list(
 					isa_related_folder->
 						folder->
 						attribute_list ) );
 
-		if ( list_length( posted_primary_attribute_name_list ) )
+		if ( list_length( posted_primary_key_list ) )
 		{
 			char *message = "";
 			int rows_inserted;
@@ -280,14 +280,14 @@ int main( int argc, char **argv )
 				folder_get_attribute_name_list(
 					folder->attribute_list );
 
-			insert_database->primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+			insert_database->primary_key_list =
+				folder_get_primary_key_list(
 					folder->attribute_list );
 
 			dictionary_new_index_key_list_for_data_list(
 					dictionary_appaserver->
 						non_prefixed_dictionary,
-					posted_primary_attribute_name_list,
+					posted_primary_key_list,
 					insert_database->attribute_name_list,
 					0 );
 
@@ -312,7 +312,7 @@ int main( int argc, char **argv )
 				insert_database->session,
 				insert_database->folder_name,
 				role_name,
-				insert_database->primary_attribute_name_list,
+				insert_database->primary_key_list,
 				(LIST *)0 /* insert_required_attribute... */,
 				insert_database->attribute_name_list,
 				dictionary_appaserver->non_prefixed_dictionary,

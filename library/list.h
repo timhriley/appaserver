@@ -129,11 +129,13 @@ boolean list_reset(	LIST *list );
 
 boolean list_rewind(	LIST *list );
 
+void *list_string(	LIST *list );
+
 void *list_get(		LIST *list );
 
-void *list_pointer(		LIST *list );
+void *list_pointer(	LIST *list );
 
-void *list_get_pointer(		LIST *list );
+void *list_get_pointer(	LIST *list );
 
 void *list_get_current_pointer( LIST *list );
 

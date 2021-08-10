@@ -461,8 +461,8 @@ void post_state_insert(
 		ignore_dictionary = dictionary_appaserver->ignore_dictionary;
 	}
 
-	folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	folder->primary_key_list =
+		folder_get_primary_key_list(
 			folder->append_isa_attribute_list );
 
 	folder->attribute_name_list =
@@ -503,7 +503,7 @@ void post_state_insert(
 	dictionary_appaserver_set_primary_data_list_string(
 		dictionary_appaserver->row_dictionary,
 		primary_data_list_string,
-		folder->primary_attribute_name_list,
+		folder->primary_key_list,
 		FOLDER_DATA_DELIMITER );
 
 	if ( folder->row_level_non_owner_forbid
@@ -531,7 +531,7 @@ void post_state_insert(
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			role_override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	insert_database =
@@ -539,7 +539,7 @@ void post_state_insert(
 			application_name,
 			session,
 			folder->folder_name,
-			folder->primary_attribute_name_list,
+			folder->primary_key_list,
 			folder->attribute_name_list,
 			dictionary_appaserver->row_dictionary,
 			ignore_dictionary,
@@ -557,7 +557,7 @@ void post_state_insert(
 		insert_database->session,
 		insert_database->folder_name,
 		role_name,
-		insert_database->primary_attribute_name_list,
+		insert_database->primary_key_list,
 		insert_required_attribute_name_list,
 		attribute_folder_name_list(
 			insert_database->attribute_list,
@@ -569,7 +569,7 @@ void post_state_insert(
 		folder->post_change_process,
 		login_name,
 		mto1_related_folder_list,
-		related_folder_common_non_primary_attribute_name_list(
+		related_folder_common_non_primary_key_list(
 			folder->folder_name,
 			mto1_related_folder_list ),
 		insert_database->attribute_list,
@@ -611,7 +611,7 @@ void post_state_insert(
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *isa_attribute_name_list;
-		LIST *isa_primary_attribute_name_list;
+		LIST *isa_primary_key_list;
 
 		list_rewind( isa_related_folder_list );
 		do {
@@ -633,8 +633,8 @@ void post_state_insert(
 					folder->
 					attribute_list );
 
-			isa_primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+			isa_primary_key_list =
+				folder_get_primary_key_list(
 					isa_related_folder->
 					folder->
 					attribute_list );
@@ -642,8 +642,8 @@ void post_state_insert(
 			dictionary_new_index_key_list_for_data_list(
 					dictionary_appaserver->
 						row_dictionary,
-					folder->primary_attribute_name_list,
-					isa_primary_attribute_name_list,
+					folder->primary_key_list,
+					isa_primary_key_list,
 					0 );
 
 			insert_database =
@@ -652,7 +652,7 @@ void post_state_insert(
 				session,
 				isa_related_folder->
 					folder->folder_name,
-				isa_primary_attribute_name_list,
+				isa_primary_key_list,
 				isa_attribute_name_list,
 				dictionary_appaserver->row_dictionary,
 				ignore_dictionary,
@@ -670,7 +670,7 @@ void post_state_insert(
 				insert_database->folder_name,
 				role_name,
 				insert_database->
-					primary_attribute_name_list,
+					primary_key_list,
 				insert_required_attribute_name_list,
 				insert_database->attribute_name_list,
 				insert_database->row_dictionary,
@@ -807,8 +807,8 @@ void post_state_update(
 			folder->mto1_isa_related_folder_list,
 			role_name );
 
-	folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	folder->primary_key_list =
+		folder_get_primary_key_list(
 			folder->append_isa_attribute_list );
 
 	folder->attribute_name_list =
@@ -873,7 +873,7 @@ void post_state_update(
 			login_name,
 			folder_name,
 			role_name,
-			folder->primary_attribute_name_list,
+			folder->primary_key_list,
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
 			target_frame );
@@ -1109,7 +1109,7 @@ void post_state_lookup(
 			1 /* isa_flag */,
 			related_folder_recursive_all,
 			role_override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	folder->attribute_list =
@@ -1120,16 +1120,16 @@ void post_state_lookup(
 			folder->mto1_isa_related_folder_list,
 			role_name );
 
-	folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	folder->primary_key_list =
+		folder_get_primary_key_list(
 			folder->attribute_list );
 
 	folder->attribute_name_list =
 		folder_get_attribute_name_list(
 			folder->attribute_list );
 
-	folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	folder->primary_key_list =
+		folder_get_primary_key_list(
 			folder->attribute_list );
 
 	operation_list_structure->performed_any_output =
@@ -1142,7 +1142,7 @@ void post_state_lookup(
 			login_name,
 			folder_name,
 			role_name,
-			folder->primary_attribute_name_list,
+			folder->primary_key_list,
 			(folder->row_level_non_owner_forbid ||
 			 folder->row_level_non_owner_view_only),
 			target_frame );

@@ -46,7 +46,7 @@ typedef struct
 
 typedef struct
 {
-	LIST *non_primary_attribute_name_list;
+	LIST *non_primary_key_list;
 	LIST *sweep_list;
 } SWEEP_LIST;
 
@@ -61,23 +61,23 @@ SWEEP_LIST *sweep_list_new(	char *application_name,
 
 SWEEP *sweep_new(		int sweep_number );
 
-LIST *sweep_get_sampling_point_sweep_list(
+LIST *sweep_sampling_point_sweep_list(
 				char *application_name,
 				char *anchor_date,
 				char *anchor_time,
 				char *location,
 				int site_number,
 				int replicate_number,
-				LIST *non_primary_attribute_name_list );
+				LIST *non_primary_key_list );
 
-LIST *sweep_get_non_primary_attribute_name_list(
+LIST *sweep_non_primary_key_list(
 				boolean with_total_minutes );
 
-int sweep_non_primary_attribute_name_list_get_piece_offset(
-				LIST *non_primary_attribute_name_list,
+int sweep_non_primary_key_list_piece_offset(
+				LIST *non_primary_key_list,
 				char *attribute_name );
 
-char *sweep_get_minutes_sum_expression(
+char *sweep_minutes_sum_expression(
 				void );
 
 #endif

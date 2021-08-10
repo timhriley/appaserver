@@ -94,9 +94,9 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
 			application_name,
 			folder->folder_name );
 
-	value_folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
-			folder->attribute_list );
+	value_folder->primary_key_list =
+		folder_attribute_primary_key_list(
+			folder->folder_attribute_list );
 
 	return value_folder;
 }
@@ -121,8 +121,8 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
 			folder->folder_name );
 
 	foreign_folder->foreign_attribute_name_list =
-		folder_get_primary_attribute_name_list(
-			folder->attribute_list );
+		folder_primary_key_list(
+			folder->folder_attribute_list );
 
 	foreign_folder->foreign_folder_name = foreign_folder_name;
 
@@ -256,7 +256,7 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 		datatype_folder_name;
 
 	process_generic_datatype_folder_load(
-		&process_generic_datatype_folder->primary_attribute_name_list,
+		&process_generic_datatype_folder->primary_key_list,
 		&process_generic_datatype_folder->exists_aggregation_sum,
 		&process_generic_datatype_folder->exists_bar_graph,
 		&process_generic_datatype_folder->exists_scale_graph_zero,
@@ -267,7 +267,7 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 }
 
 void process_generic_datatype_folder_load(
-				LIST **primary_attribute_name_list,
+				LIST **primary_key_list,
 				boolean *datatype_exists_aggregation_sum,
 				boolean *datatype_exists_bar_graph,
 				boolean *datatype_exists_scale_graph_zero,
@@ -341,7 +341,7 @@ void process_generic_datatype_folder_load(
 		 where_clause,
 		 order_clause );
 
-	*primary_attribute_name_list = pipe2list( sys_string );
+	*primary_key_list = pipe2list( sys_string );
 
 }
 
@@ -349,7 +349,7 @@ LIST *process_generic_get_compare_datatype_list(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *datatype_folder_name,
-			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_key_list,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
 			boolean exists_scale_graph_zero,
@@ -398,7 +398,7 @@ LIST *process_generic_get_compare_datatype_list(
 		( datatype_primary_attribute_data_list =
 		     process_generic_get_datatype_primary_attribute_data_list(
 			post_dictionary,
-			datatype_primary_attribute_name_list,
+			datatype_primary_key_list,
 			compare_datatype_prefix,
 			index ) );
 		index++ )
@@ -422,7 +422,7 @@ LIST *process_generic_get_compare_datatype_list(
 			exists_scale_graph_zero,
 			application_name,
 			datatype_folder_name,
-			datatype_primary_attribute_name_list,
+			datatype_primary_key_list,
 			process_generic_datatype->primary_attribute_data_list,
 			units_folder_name );
 
@@ -571,7 +571,7 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 			char *application_name,
 			LIST *foreign_attribute_name_list,
 			char *datatype_folder_name,
-			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_key_list,
 			boolean exists_aggregation_sum,
 			boolean exists_bar_graph,
 			boolean exists_scale_graph_zero,
@@ -588,28 +588,10 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_new(
 	if ( ! ( process_generic_datatype->primary_attribute_data_list =
 		process_generic_get_datatype_primary_attribute_data_list(
 				post_dictionary,
-				datatype_primary_attribute_name_list,
+				datatype_primary_key_list,
 				(char *)0 /* compare_datatype_prefix */,
 				dictionary_index /* dictionary_index */ ) ) )
 	{
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: datatype_primary_attribute_name_list = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-list_display( datatype_primary_attribute_name_list ) );
-m2( "modeland", msg );
-}
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: post_dictionary = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display( post_dictionary ) );
-m2( "modeland", msg );
-}
 		return (PROCESS_GENERIC_DATATYPE *)0;
 	}
 
@@ -623,7 +605,7 @@ m2( "modeland", msg );
 		exists_scale_graph_zero,
 		application_name,
 		datatype_folder_name,
-		datatype_primary_attribute_name_list,
+		datatype_primary_key_list,
 		process_generic_datatype->primary_attribute_data_list,
 		units_folder_name );
 
@@ -647,7 +629,7 @@ void process_generic_datatype_load(
 				boolean exists_scale_graph_zero,
 				char *application_name,
 				char *datatype_folder_name,
-				LIST *datatype_primary_attribute_name_list,
+				LIST *datatype_primary_key_list,
 				LIST *datatype_primary_attribute_data_list,
 				char *units_folder_name )
 {
@@ -691,7 +673,7 @@ void process_generic_datatype_load(
 
 	if ( ! ( where_clause =
 		process_generic_get_datatype_where_clause(
-			datatype_primary_attribute_name_list,
+			datatype_primary_key_list,
 			datatype_primary_attribute_data_list ) ) )
 	{
 		fprintf(stderr,
@@ -781,7 +763,7 @@ void process_generic_datatype_load(
 }
 
 char *process_generic_get_datatype_where_clause(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *primary_attribute_data_list )
 {
 	QUERY *query;
@@ -793,7 +775,7 @@ char *process_generic_get_datatype_where_clause(
 				(DICTIONARY *)0 /* dictionary */,
 				(DICTIONARY *)0 /* sort_dictionary */,
 				(ROLE *)0 /* role */,
-				primary_attribute_name_list,
+				primary_key_list,
 				primary_attribute_data_list,
 				0 /* max_rows */,
 				0 /* not include_root_folder */,
@@ -807,14 +789,14 @@ char *process_generic_get_datatype_where_clause(
 
 LIST *process_generic_get_datatype_primary_attribute_data_list(
 			DICTIONARY *post_dictionary,
-			LIST *datatype_primary_attribute_name_list,
+			LIST *datatype_primary_key_list,
 			char *compare_datatype_prefix,
 			int dictionary_index )
 {
 	char key[ 128 ];
 	LIST *full_primary_attribute_data_list;
 	LIST *primary_attribute_data_list;
-	char *primary_attribute_name;
+	char *primary_key;
 	char *primary_attribute_data;
 
 	if ( compare_datatype_prefix )
@@ -833,7 +815,7 @@ LIST *process_generic_get_datatype_primary_attribute_data_list(
 		     process_generic_get_prefixed_primary_attribute_data_list(
 				full_primary_attribute_data_list,
 				list_length(
-					datatype_primary_attribute_name_list
+					datatype_primary_key_list
 			) ) ) )
 		{
 			return (LIST *)0;
@@ -842,19 +824,19 @@ LIST *process_generic_get_datatype_primary_attribute_data_list(
 		return primary_attribute_data_list;
 	}
 
-	if ( !list_rewind( datatype_primary_attribute_name_list ) )
+	if ( !list_rewind( datatype_primary_key_list ) )
 		return (LIST *)0;
 
 	primary_attribute_data_list = list_new();
 
 	do {
-		primary_attribute_name =
+		primary_key =
 			list_get_pointer(
-				datatype_primary_attribute_name_list );
+				datatype_primary_key_list );
 
 		sprintf(	key,
 				"%s_%d",
-				primary_attribute_name,
+				primary_key,
 				dictionary_index );
 
 		if ( ! ( primary_attribute_data =
@@ -865,7 +847,7 @@ LIST *process_generic_get_datatype_primary_attribute_data_list(
 			primary_attribute_data =
 				dictionary_get_pointer(
 					post_dictionary,
-					primary_attribute_name );
+					primary_key );
 		}
 
 		if ( !primary_attribute_data )
@@ -874,7 +856,7 @@ LIST *process_generic_get_datatype_primary_attribute_data_list(
 		}
 		list_append_pointer(	primary_attribute_data_list,
 					primary_attribute_data );
-	} while( list_next( datatype_primary_attribute_name_list ) );
+	} while( list_next( datatype_primary_key_list ) );
 	return primary_attribute_data_list;
 }
 
@@ -1009,7 +991,7 @@ LIST *process_generic_output_get_concat_heading_list(
 			local_foreign_attribute_name_list,
 			value_folder->
 				datatype_folder->
-				primary_attribute_name_list );
+				primary_key_list );
 
 	if ( !list_rewind( local_foreign_attribute_name_list ) )
 	{
@@ -1393,7 +1375,7 @@ LIST *process_generic_output_get_select_list(
 			local_foreign_attribute_name_list,
 			value_folder->
 			datatype_folder->
-			primary_attribute_name_list );
+			primary_key_list );
 
 	if ( concat_datatype_entity )
 	{
@@ -1437,7 +1419,7 @@ LIST *process_generic_output_get_select_list(
 			list_usage_concat(
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list );
+				primary_key_list );
 
 		list_append_pointer(
 			select_list,
@@ -1455,13 +1437,13 @@ LIST *process_generic_output_get_select_list(
 		length = list_length(
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list );
+				primary_key_list );
 
 		list_append_list(
 			select_list,
 			value_folder->
 			datatype_folder->
-			primary_attribute_name_list );
+			primary_key_list );
 
 		if ( date_piece ) (*date_piece) += length;
 		if ( time_piece ) (*time_piece) += length;
@@ -1551,7 +1533,7 @@ char *process_generic_output_get_datatype_entity_data(
 char *process_generic_output_get_units(
 				char *application_name,
 				char *datatype_folder_name,
-				LIST *datatype_primary_attribute_name_list,
+				LIST *datatype_primary_key_list,
 				DICTIONARY *post_dictionary )
 {
 	char sys_string[ 1024 ];
@@ -1561,7 +1543,7 @@ char *process_generic_output_get_units(
 	if ( ! ( datatype_primary_attribute_data_list =
 		process_generic_get_datatype_primary_attribute_data_list(
 				post_dictionary,
-				datatype_primary_attribute_name_list,
+				datatype_primary_key_list,
 				(char *)0 /* compare_datatype_prefix */,
 				0 /* dictionary_index */ ) ) )
 	{
@@ -1570,7 +1552,7 @@ char *process_generic_output_get_units(
 
 	if ( ! ( where_clause =
 		process_generic_get_datatype_where_clause(
-			datatype_primary_attribute_name_list,
+			datatype_primary_key_list,
 			datatype_primary_attribute_data_list ) ) )
 	{
 		fprintf(stderr,
@@ -2157,7 +2139,7 @@ char *process_generic_output_get_exceedance_stdout_sys_string(
 }
 
 LIST *process_generic_output_get_primary_attribute_data_list(
-				LIST *primary_attribute_name_list,
+				LIST *primary_key_list,
 				DICTIONARY *post_dictionary,
 				int index_offset )
 {
@@ -2165,14 +2147,14 @@ LIST *process_generic_output_get_primary_attribute_data_list(
 	char key[ 128 ];
 	char *data;
 
-	if ( post_dictionary && list_rewind( primary_attribute_name_list ) )
+	if ( post_dictionary && list_rewind( primary_key_list ) )
 	{
 		primary_attribute_data_list = list_new_list();
 		do {
 			sprintf(	key,
 					"%s_%d",
 					(char *)list_get_pointer(
-						primary_attribute_name_list ),
+						primary_key_list ),
 					index_offset );
 
 			if ( ! ( data = dictionary_get_pointer(
@@ -2187,7 +2169,7 @@ LIST *process_generic_output_get_primary_attribute_data_list(
 				primary_attribute_data_list,
 				data );
 
-		} while( list_next( primary_attribute_name_list ) );
+		} while( list_next( primary_key_list ) );
 	}
 
 	return primary_attribute_data_list;
@@ -2608,14 +2590,14 @@ char *process_generic_get_datatype_name(
 
 LIST *process_generic_get_prefixed_primary_attribute_data_list(
 			LIST *full_primary_attribute_data_list,
-			int length_datatype_primary_attribute_name_list )
+			int length_datatype_primary_key_list )
 {
 	int number_to_skip;
 	LIST *primary_attribute_data_list;
 
 	number_to_skip =
 		list_length( full_primary_attribute_data_list ) -
-		length_datatype_primary_attribute_name_list;
+		length_datatype_primary_key_list;
 
 	if ( number_to_skip <= 0 )
 	{
@@ -2639,7 +2621,7 @@ LIST *process_generic_get_prefixed_primary_attribute_data_list(
 
 char *process_generic_get_datatype_entity(
 				LIST *foreign_attribute_data_list,
-				LIST *datatype_primary_attribute_name_list,
+				LIST *datatype_primary_key_list,
 				char delimiter )
 {
 	char datatype_entity[ 512 ];
@@ -2652,7 +2634,7 @@ char *process_generic_get_datatype_entity(
 
 	number_of_elements_to_include =
 		list_length( foreign_attribute_data_list ) -
-		list_length( datatype_primary_attribute_name_list );
+		list_length( datatype_primary_key_list );
 
 	*datatype_entity = '\0';
 	if ( !list_rewind( foreign_attribute_data_list ) )
@@ -2721,7 +2703,7 @@ LIST *process_generic_output_get_compare_datatype_name_list(
 
 LIST *process_generic_output_get_compare_entity_name_list(
 				LIST *compare_datatype_list,
-				LIST *primary_attribute_name_list )
+				LIST *primary_key_list )
 {
 	PROCESS_GENERIC_DATATYPE *compare_datatype;
 	LIST *compare_entity_name_list;
@@ -2742,7 +2724,7 @@ LIST *process_generic_output_get_compare_entity_name_list(
 			process_generic_get_datatype_entity(
 				compare_datatype->
 					foreign_attribute_data_list,
-				primary_attribute_name_list,
+				primary_key_list,
 				' ' /* delimiter */ ) );
 
 	} while( list_next( compare_datatype_list ) );

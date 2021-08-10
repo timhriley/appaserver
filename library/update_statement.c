@@ -1,45 +1,45 @@
-/* update_statement.c */
-/* ------------------ */
-/* Tim Riley          */
-/* ------------------ */
+/* $APPASERVER_HOME/library/update_statement.c		*/
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include "update_statement.h"
 
-UPDATE_STATEMENT *new_update_statement( char *table_name )
+UPDATE_STATEMENT *update_statement_new( char *table_name )
 {
 	UPDATE_STATEMENT *u;
 
-	u = (UPDATE_STATEMENT *)calloc( 1, sizeof( UPDATE_STATEMENT ) );
+	u = calloc( 1, sizeof( UPDATE_STATEMENT ) );
 	u->table_name = table_name;
 	return u;
 }
 
 void update_statement_set_attribute_list(
-				UPDATE_STATEMENT *u,
-				LIST *attribute_list )
+			UPDATE_STATEMENT *u,
+			LIST *attribute_list )
 {
 	u->attribute_list = attribute_list;
 }
 
 void update_statement_set_data_list(
-				UPDATE_STATEMENT *u,
-				LIST *data_list )
+			UPDATE_STATEMENT *u,
+			LIST *data_list )
 {
 	u->data_list = data_list;
 }
 
 void update_statement_set_primary_attribute_list(
-				UPDATE_STATEMENT *u,
-				LIST *primary_attribute_list )
+			UPDATE_STATEMENT *u,
+			LIST *primary_attribute_list )
 {
 	u->primary_attribute_list = primary_attribute_list;
 }
 
 void update_statement_set_primary_data_list(
-				UPDATE_STATEMENT *u,
-				LIST *primary_data_list )
+			UPDATE_STATEMENT *u,
+			LIST *primary_data_list )
 {
 	u->primary_data_list = primary_data_list;
 }
@@ -49,7 +49,7 @@ int update_statement_get( char *destination, UPDATE_STATEMENT *u )
 	char where_clause[ 4096 ];
 	char set_clause[ 4096 ];
 
-	if ( !update_statement_get_set_clause(
+	if ( !update_statement_set_clause(
 					set_clause,
 					u->attribute_list,
 					u->data_list ) )
@@ -59,7 +59,7 @@ int update_statement_get( char *destination, UPDATE_STATEMENT *u )
 		return 0;
 	}
 
-	if ( !update_statement_get_where_clause(
+	if ( !update_statement_where_clause(
 					where_clause,
 					u->primary_attribute_list,
 					u->primary_data_list ) )
@@ -76,12 +76,13 @@ int update_statement_get( char *destination, UPDATE_STATEMENT *u )
 		 where_clause );
 
 	return 1;
-} /* update_statement_get() */
+}
 
 
-int update_statement_get_set_clause(	char *destination,
-					LIST *attribute_list,
-					LIST *data_list )
+int update_statement_set_clause(
+			char *destination,
+			LIST *attribute_list,
+			LIST *data_list )
 {
 	int first_time = 1;
 	char *attribute, *data;
@@ -97,8 +98,8 @@ int update_statement_get_set_clause(	char *destination,
 	}
 
 	do {
-		attribute = list_get_string( attribute_list );
-		data = list_get_string( data_list );
+		attribute = list_string( attribute_list );
+		data = list_string( data_list );
 
 		if ( first_time )
 		{
@@ -138,11 +139,12 @@ int update_statement_get_set_clause(	char *destination,
 		list_next( data_list );
 	} while( list_next( attribute_list ) );
 	return 1;
-} /* update_statement_get_set_clause() */
+}
 
-int update_statement_get_where_clause(	char *destination,
-					LIST *primary_attribute_list,
-					LIST *primary_data_list )
+int update_statement_where_clause(
+			char *destination,
+			LIST *primary_attribute_list,
+			LIST *primary_data_list )
 {
 	int first_time = 1;
 	char *attribute, *data;
@@ -158,8 +160,8 @@ int update_statement_get_where_clause(	char *destination,
 	}
 
 	do {
-		attribute = list_get_string( primary_attribute_list );
-		data = list_get_string( primary_data_list );
+		attribute = list_string( primary_attribute_list );
+		data = list_string( primary_data_list );
 
 		if ( first_time )
 		{
@@ -197,5 +199,5 @@ int update_statement_get_where_clause(	char *destination,
 		list_next( primary_data_list );
 	} while( list_next( primary_attribute_list ) );
 	return 1;
-} /* update_statement_get_where_clause() */
+}
 

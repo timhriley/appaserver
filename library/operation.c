@@ -103,7 +103,7 @@ boolean operation_perform(
 			char *login_name,
 			char *folder_name,
 			char *role_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *process_name,
 			char *executable,
 			char output_yn,
@@ -212,7 +212,7 @@ boolean operation_perform(
 			primary_data_list = 
 				dictionary_using_list_get_index_data_list( 
 					row_dictionary,
-					primary_attribute_name_list,
+					primary_key_list,
 					row );
 
 			sprintf( key, "really_yn_%d", row );
@@ -299,7 +299,7 @@ boolean operation_perform(
 				local_send_dictionary
 					/* where_clause_dictionary */,
 				folder->append_isa_attribute_list,
-				primary_attribute_name_list,
+				primary_key_list,
 				primary_data_list,
 				row,
 				process_name,

@@ -640,10 +640,10 @@ void output_test_only_report(
 			purge_data_list_string,
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
 
-	if ( !folder->primary_attribute_name_list )
+	if ( !folder->primary_key_list )
 	{
-		folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
+		folder->primary_key_list =
+			folder_get_primary_key_list(
 				folder->attribute_list );
 	}
 
@@ -654,7 +654,7 @@ void output_test_only_report(
 
 		where_attribute_name_list =
 			related_folder_foreign_attribute_name_list( 
-				folder->primary_attribute_name_list,
+				folder->primary_key_list,
 				related_folder->
 					related_attribute_name,
 				related_folder->
@@ -678,7 +678,7 @@ void update_database_related_folder(
 			LIST *purge_data_list )
 {
 	char *table_name;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	char sys_string[ 1024 ];
 	FILE *output_pipe;
 	FILE *input_pipe;
@@ -700,8 +700,8 @@ void update_database_related_folder(
 		return;
 	}
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			related_folder->one2m_folder->attribute_list );
 
 	table_name =
@@ -719,7 +719,7 @@ void update_database_related_folder(
 		 "%s 2>&1				|"
 		 "html_paragraph_wrapper.e		 ",
 		 table_name,
-		 list_display_delimited( primary_attribute_name_list, ',' ),
+		 list_display_delimited( primary_key_list, ',' ),
 		 executable );
 
 	output_pipe = popen( sys_string, "w" );
@@ -738,7 +738,7 @@ void update_database_related_folder(
 		 "			where=\"%s\"			"
 		 "			order=select			",
 		 application_name,
-		 list_display_delimited( primary_attribute_name_list, ',' ),
+		 list_display_delimited( primary_key_list, ',' ),
 		 related_folder->one2m_folder->folder_name,
 		 where );
 
@@ -867,10 +867,10 @@ void output_update_database(
 			purge_data_list_string,
 			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
 
-	if ( !folder->primary_attribute_name_list )
+	if ( !folder->primary_key_list )
 	{
-		folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
+		folder->primary_key_list =
+			folder_get_primary_key_list(
 				folder->attribute_list );
 	}
 
@@ -881,7 +881,7 @@ void output_update_database(
 
 		where_attribute_name_list =
 			related_folder_foreign_attribute_name_list( 
-				folder->primary_attribute_name_list,
+				folder->primary_key_list,
 				related_folder->
 					related_attribute_name,
 				related_folder->
@@ -922,10 +922,10 @@ void output_delete_database(
 		return;
 	}
 
-	if ( !folder->primary_attribute_name_list )
+	if ( !folder->primary_key_list )
 	{
-		folder->primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
+		folder->primary_key_list =
+			folder_get_primary_key_list(
 				folder->attribute_list );
 	}
 
@@ -941,7 +941,7 @@ void output_delete_database(
 
 		where_attribute_name_list =
 			related_folder_foreign_attribute_name_list( 
-				folder->primary_attribute_name_list,
+				folder->primary_key_list,
 				related_folder->
 					related_attribute_name,
 				related_folder->
@@ -977,7 +977,7 @@ void output_delete_database(
 
 	} while( list_next( folder->one2m_recursive_related_folder_list ) );
 
-	where_attribute_name_list = folder->primary_attribute_name_list;
+	where_attribute_name_list = folder->primary_key_list;
 
 	table_name =
 		get_table_name(

@@ -362,8 +362,8 @@ LIST *query_drop_down_list(
 					/* one2m_folder_name */,
 				related_folder->
 					folder->
-					primary_attribute_name_list
-					/* one2m_primary_attribute_name_list */,
+					primary_key_name_list
+					/* one2m_primary_key_name_list */,
 				related_folder->
 					foreign_attribute_name_list
 					/* mto1_foreign_attribute_name_list */,
@@ -431,7 +431,7 @@ check_mto1_isa_related_folder_list:
 						/* one2m_folder_name */,
 					sub_related_folder->
 						folder->
-						primary_attribute_name_list,
+						primary_key_name_list,
 					sub_related_folder->
 						foreign_attribute_name_list,
 					sub_related_folder->
@@ -460,7 +460,7 @@ QUERY_DROP_DOWN *query_drop_down(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_name_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary )
@@ -472,7 +472,7 @@ QUERY_DROP_DOWN *query_drop_down(
 	highest_index =
 		dictionary_attribute_name_list_highest_index(
 			query_dictionary,
-			one2m_primary_attribute_name_list );
+			one2m_primary_key_name_list );
 
 	if ( highest_index == -1 ) return (QUERY_DROP_DOWN *)0;
 
@@ -481,7 +481,7 @@ QUERY_DROP_DOWN *query_drop_down(
 			exclude_attribute_name_list,
 			mto1_folder_name,
 			one2m_folder_name,
-			one2m_primary_attribute_name_list,
+			one2m_primary_key_name_list,
 			mto1_foreign_attribute_name_list,
 			one2m_attribute_list,
 			query_dictionary )
@@ -504,7 +504,7 @@ LIST *query_drop_down_row_list(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_name_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary,
@@ -521,7 +521,7 @@ LIST *query_drop_down_row_list(
 				exclude_attribute_name_list,
 				mto1_folder_name,
 				one2m_folder_name,
-				one2m_primary_attribute_name_list,
+				one2m_primary_key_list,
 				mto1_foreign_attribute_name_list,
 				one2m_attribute_list,
 				query_dictionary,
@@ -576,7 +576,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			DICTIONARY *query_dictionary,
@@ -635,7 +635,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 		query_drop_down_row_new(
 			mto1_folder_name,
 			one2m_folder_name,
-			one2m_primary_attribute_name_list,
+			one2m_primary_key_list,
 			mto1_foreign_attribute_name_list,
 			one2m_attribute_list,
 			index );
@@ -679,7 +679,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row(
 
 	query_drop_down_row->query_data_list =
 		query_drop_down_query_data_list(
-			query_drop_down_row->one2m_primary_attribute_name_list,
+			query_drop_down_row->one2m_primary_key_list,
 			query_drop_down_row->mto1_foreign_attribute_name_list,
 			query_drop_down_row->one2m_attribute_list,
 			query_drop_down_row->data_string_list );
@@ -733,7 +733,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc( void )
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			char *mto1_folder_name,
 			char *one2m_folder_name,
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			int index )
@@ -845,7 +845,7 @@ LIST *query_get_drop_down_data_list(
 boolean query_get_drop_down_dictionary_data(
 			char **data,
 			DICTIONARY *dictionary, 
-			char *primary_attribute_name,
+			char *primary_key,
 			int dictionary_offset )
 {
 	int return_value;
@@ -854,7 +854,7 @@ boolean query_get_drop_down_dictionary_data(
 		dictionary_get_index_data( 
 			data,
 			dictionary, 
-			primary_attribute_name,
+			primary_key,
 			dictionary_offset );
 
 	*data = security_sql_injection_escape( *data );
@@ -1370,21 +1370,21 @@ char *query_display_where(
 
 char *query_output_related_join(
 			char *folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *isa_folder_name,
 			LIST *isa_foreign_attribute_name_list )
 {
 	static char where[ 2048 ];
 	char *ptr = where;
-	char *primary_attribute_name;
+	char *primary_key;
 	char *foreign_attribute_name;
 
 	*ptr = '\0';
 
-	if ( !list_length( primary_attribute_name_list ) )
+	if ( !list_length( primary_key_list ) )
 		return where_clause;
 
-	if (	list_length( primary_attribute_name_list ) !=
+	if (	list_length( primary_key_list ) !=
 		list_length( isa_foreign_attribute_name_list ) )
 	{
 		fprintf(stderr,
@@ -1392,18 +1392,18 @@ char *query_output_related_join(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			list_length( primary_attribute_name_list ),
+			list_length( primary_key_list ),
 			list_length( isa_foreign_attribute_name_list ) );
 		exit( 1 );
 	}
 
-	list_rewind( primary_attribute_name_list );
+	list_rewind( primary_key_list );
 	list_rewind( isa_related_attribute_name_list );
 
 	do {
-		primary_attribute_name =
+		primary_key =
 			list_get(
-				primary_attribute_name_list );
+				primary_key_list );
 
 		foreign_attribute_name =
 			list_get(
@@ -1415,13 +1415,13 @@ char *query_output_related_join(
 				ptr,
 				"%s.%s = %s.%s",
 				folder_name,
-				primary_attribute_name,
+				primary_key,
 				isa_folder_name,
 				foreign_attribute_name );
 
 		list_next( isa_foreign_attribute_name_list );
 
-	} while( list_next( primary_attribute_name_list ) );
+	} while( list_next( primary_key_list ) );
 
 	return where;
 }
@@ -2334,7 +2334,7 @@ LIST *query_get_one2m_subquery_related_folder_list(
 			related_folder->foreign_attribute_name_list =
 				root_related_folder->
 					folder->
-					primary_attribute_name_list;
+					primary_key_list;
 		}
 		else
 		{
@@ -2516,7 +2516,7 @@ LIST *query_prompt_recursive_drop_down_list(
 			mto1_folder = prompt_recursive_mto1_folder->folder;
 
 			if ( list_is_subset_of(
-				mto1_folder->primary_attribute_name_list,
+				mto1_folder->primary_key_list,
 				exclude_attribute_name_list ) )
 			{
 				continue;
@@ -2545,23 +2545,23 @@ LIST *query_prompt_recursive_drop_down_list(
 
 char *query_get_dictionary_where_clause(
 			DICTIONARY *dictionary,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *dictionary_indexed_prefix )
 {
 	char where_clause[ QUERY_WHERE_BUFFER ];
 	char piece_buffer[ 512 ];
 	char key[ 128 ];
 	char *data;
-	char *primary_attribute_name;
+	char *primary_key;
 	int first_time = 1;
 	char *ptr = where_clause;
 	int index;
 	int p;
 
-	if ( !list_length( primary_attribute_name_list ) )
+	if ( !list_length( primary_key_list ) )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty primary_attribute_name_list.\n",
+		"ERROR in %s/%s()/%d: empty primary_key_list.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -2587,12 +2587,12 @@ char *query_get_dictionary_where_clause(
 		ptr += sprintf( ptr, "(" );
 
 		p = 0;
-		list_rewind( primary_attribute_name_list );
+		list_rewind( primary_key_list );
 
 		do {
-			primary_attribute_name =
+			primary_key =
 				list_get_pointer(
-					primary_attribute_name_list );
+					primary_key_list );
 
 			if ( !piece(	piece_buffer,
 					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
@@ -2614,12 +2614,12 @@ char *query_get_dictionary_where_clause(
 			ptr += sprintf(
 			   		ptr,
 			   		"%s = '%s'",
-					primary_attribute_name,
+					primary_key,
 			   		timlib_escape_field( piece_buffer ) );
 
 			p++;
 
-		} while( list_next( primary_attribute_name_list ) );
+		} while( list_next( primary_key_list ) );
 
 		ptr += sprintf( ptr, ")" );
 	}
@@ -3133,7 +3133,7 @@ QUERY_OUTPUT *query_related_data_output_new(
 					mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
-				   folder_get_primary_attribute_name_list(
+				   folder_get_primary_key_list(
 					isa_related_folder->folder->
 						attribute_list );
 
@@ -3141,7 +3141,7 @@ QUERY_OUTPUT *query_related_data_output_new(
 				query_append_where_clause_related_join(
 					folder->application_name,
 					query_output->where_clause,
-					folder_get_primary_attribute_name_list(
+					folder_get_primary_key_list(
 						folder->attribute_list ),
 					foreign_attribute_name_list,
 					folder->folder_name,
@@ -3353,8 +3353,8 @@ LIST *query_drop_down_list(
 				mto1_folder->folder_name,
 				related_folder->folder_name
 					/* one2m_folder_name */,
-				related_folder->primary_attribute_name_list
-					/* one2m_primary_attribute_name_list */,
+				related_folder->primary_key_list
+					/* one2m_primary_key_list */,
 				related_folder->foreign_attribute_name_list
 					/* mto1_foreign_attribute_name_list */,
 				related_folder->folder->attribute_list
@@ -3414,8 +3414,8 @@ check_mto1_isa_related_folder_list:
 				mto1_folder->folder_name,
 				sub_related_folder->folder_name
 					/* one2m_folder_name */,
-				sub_related_folder->primary_attribute_name_list
-					/* one2m_primary_attribute_name_list */,
+				sub_related_folder->primary_key_list
+					/* one2m_primary_key_list */,
 				sub_related_folder->foreign_attribute_name_list
 					/* mto1_foreign_attribute_name_list */,
 				sub_related_folder->folder->attribute_list
@@ -4073,7 +4073,7 @@ QUERY_OUTPUT *query_detail_output_new(
 				folder->application_name,
 				folder->folder_name,
 				mto1_isa_related_folder_list,
-				folder->primary_attribute_name_list,
+				folder->primary_key_list,
 				query_output->where_clause,
 				1 /* one_only */ );
 	}
@@ -4396,7 +4396,7 @@ QUERY *query_simple_new(
 	query->query_join_where =
 		query_join_where(
 			query->query_folder->folder_name,
-			query->query_folder->primary_attribute_name_list,
+			query->query_folder->primary_key_list,
 			query->query_folder->mto1_isa_related_folder_list,
 			query->attribute_not_null_join );
 			
@@ -4411,7 +4411,7 @@ QUERY *query_simple_new(
 	query->query_order =
 		query_order(
 			query->query_folder->folder_name,
-			query->query_folder->primary_attribute_name_list,
+			query->query_folder->primary_key_list,
 			query->query_folder->append_isa_attribute_list,
 			query->sort_dictionary );
 
@@ -4603,12 +4603,12 @@ LIST *query_data_string_list(
 }
 
 LIST *query_drop_down_query_data_list(
-			LIST *one2m_primary_attribute_name_list,
+			LIST *one2m_primary_key_list,
 			LIST *mto1_foreign_attribute_name_list,
 			LIST *one2m_attribute_list,
 			LIST *data_string_list )
 {
-	char *one2m_primary_attribute_name;
+	char *one2m_primary_key;
 	char *mto1_foreign_attribute_name;
 	ATTRIBUTE *attribute;
 	QUERY_DATA *query_data;
@@ -4618,15 +4618,15 @@ LIST *query_drop_down_query_data_list(
 	if ( !list_length( data_string_list ) ) return (LIST *)0;
 
 	if (	list_length( data_string_list ) !=
-		list_length( one2m_primary_attribute_name_list ) )
+		list_length( one2m_primary_key_list ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: data_string_list length = %d != one2m_primary_attribute_name_list length = %d\n",
+"ERROR in %s/%s()/%d: data_string_list length = %d != one2m_primary_key_list length = %d\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			list_length( data_string_list ),
-			list_length( one2m_primary_attribute_name_list ) );
+			list_length( one2m_primary_key_list ) );
 		exit( 1 );
 
 	}
@@ -4648,27 +4648,27 @@ LIST *query_drop_down_query_data_list(
 	query_data_list = list_new();
 
 	list_rewind( data_string_list );
-	list_rewind( one2m_primary_attribute_name_list );
+	list_rewind( one2m_primary_key_list );
 	list_rewind( mto1_foreign_attribute_name_list );
 
 	do {
 		data = list_get( data_string_list );
 
-		one2m_primary_attribute_name =
+		one2m_primary_key =
 			list_get(
-				one2m_primary_attribute_name_list );
+				one2m_primary_key_list );
 
 		if ( ! ( attribute =
 				attribute_seek_attribute( 
-					one2m_primary_attribute_name,
+					one2m_primary_key_name,
 					one2m_attribute_list ) ) )
 		{
 			fprintf( stderr,
-"ERROR in %s/%s()/%d: cannot seek one2m_primary_attribute_name = (%s).\n",
+"ERROR in %s/%s()/%d: cannot seek one2m_primary_key_name = (%s).\n",
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
-			 	one2m_primary_attribute_name );
+			 	one2m_primary_key_name );
 			exit( 1 );
 		}
 
@@ -4687,7 +4687,7 @@ LIST *query_drop_down_query_data_list(
 						  data,
 						  attribute->datatype ) ) ) ) );
 
-		list_next( one2m_primary_attribute_name_list );
+		list_next( one2m_primary_key_name_list );
 		list_next( mto1_foreign_attribute_name_list );
 
 	} while ( list_next( data_string_list ) );
@@ -5232,7 +5232,7 @@ char *query_output_attribute_where(
 
 char *query_output_join_where(
 			char *folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_name_list,
 			LIST *mto1_isa_related_folder_list )
 {
 	RELATED_FOLDER *isa_related_folder;
@@ -5268,7 +5268,7 @@ char *query_output_join_where(
 			/* --------------------- */
 			query_output_related_join(
 				folder_name,
-				primary_attribute_name_list,
+				primary_key_name_list,
 				isa_related_folder->
 					folder->
 					folder_name,
@@ -5523,7 +5523,7 @@ char *query_sort_prefix_direction_attribute_index(
 
 char *query_output_order(
 			char *mto1_folder_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_name_list,
 			LIST *append_isa_attribute_list,
 			DICTIONARY *sort_dictionary )
 {
@@ -5537,7 +5537,7 @@ char *query_output_order(
 	{
 		return query_attribute_name_list_order(
 			mto1_folder_name,
-			primary_attribute_name_list,
+			primary_key_name_list,
 			append_isa_attribute_list,
 			descending_label );
 	}
@@ -5888,7 +5888,7 @@ here1
 					mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
-				   folder_get_primary_attribute_name_list(
+				   folder_get_primary_key_list(
 					isa_related_folder->folder->
 						attribute_list );
 
@@ -5896,7 +5896,7 @@ here1
 				query_append_where_clause_related_join(
 					folder->application_name,
 					query_output->where_clause,
-					folder_get_primary_attribute_name_list(
+					folder_get_primary_key_list(
 						folder->attribute_list ),
 					foreign_attribute_name_list,
 					folder->folder_name,
@@ -6039,7 +6039,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 					mto1_isa_related_folder_list );
 
 			foreign_attribute_name_list =
-				   folder_get_primary_attribute_name_list(
+				   folder_get_primary_key_list(
 					isa_related_folder->folder->
 						attribute_list );
 
@@ -6048,7 +6048,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 					folder->application_name,
 					query_output->where_clause
 						/* source_where_clause */,
-					folder_get_primary_attribute_name_list(
+					folder_get_primary_key_list(
 						folder->attribute_list ),
 					foreign_attribute_name_list,
 					folder->folder_name,

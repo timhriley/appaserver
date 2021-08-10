@@ -120,7 +120,7 @@ void dictionary_appaserver_remove_from_starting_label(
 void dictionary_appaserver_set_primary_data_list_string(
 			DICTIONARY *row_dictionary,
 			char *primary_data_list_string,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char delimiter );
 
 DICTIONARY *dictionary_appaserver_prefixed_dictionary(

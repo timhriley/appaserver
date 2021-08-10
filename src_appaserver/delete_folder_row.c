@@ -151,7 +151,7 @@ void delete_where_data_carrot_list_string(
 			application_name,
 			delete_database->folder->folder_name,
 			delete_database->folder->post_change_process,
-			delete_database->folder->primary_attribute_name_list,
+			delete_database->folder->primary_key_list,
 			delete_database->folder->row_level_non_owner_forbid,
 			delete_database->folder->row_level_non_owner_view_only,
 			delete_database->

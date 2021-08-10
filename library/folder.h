@@ -68,7 +68,7 @@ typedef struct
 	PROCESS *post_change_process;
 	LIST *role_exclude_attribute_name_list;
 	LIST *folder_attribute_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	LIST *folder_attribute_append_isa_list;
 	LIST *role_folder_list;
 	long int folder_row_count;
@@ -100,7 +100,14 @@ LIST *folder_system_list(
 			char *system_string,
 			char *sql_injection_escape_role_name,
 			LIST *role_exclude_attribute_name_lst,
+			/* -------------------------- */
+			/* Also sets primary_key_list */
+			/* -------------------------- */
 			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction );
@@ -108,6 +115,9 @@ LIST *folder_system_list(
 FOLDER *folder_parse(	char *input,
 			char *sql_injection_escape_role_name,
 			LIST *exclude_attribute_name_list,
+			/* -------------------------- */
+			/* Also sets primary_key_list */
+			/* -------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
 			boolean fetch_relation_mto1_isa_list,
@@ -129,6 +139,9 @@ char *folder_table_name(
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			char *sql_injection_escape_role_name,
 			LIST *exclude_attribute_name_list,
+			/* -------------------------- */
+			/* Also sets primary_key_list */
+			/* -------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
 			boolean fetch_relation_mto1_isa_list,
@@ -149,7 +162,7 @@ LIST *folder_process_primary_delimited_list(
 LIST *folder_query_primary_delimited_list(
 			char *table_name,
 			LIST *folder_attribute_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			DICTIONARY *preprompt_dictionary.
 			char *login_name );
 
@@ -159,12 +172,12 @@ LIST *folder_query_delimited_list(
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary );
 
-LIST *folder_delimited_list(
+char *folder_delimited(
 			char *table_name,
-			LIST *attribute_name_list,
-			char *where_clause );
+			LIST *primary_key_list,
+			char *primary_where_clause );
 
-LIST *folder_delimited_fetch(
+LIST *folder_delimited_list(
 			char *table_name,
 			LIST *attribute_name_list,
 			char *where_clause );

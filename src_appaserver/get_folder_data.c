@@ -112,7 +112,7 @@ int main( int argc, char **argv )
 				(char *)0 /* role_name */ );
 
 		primary_name_list = 
-			folder_get_primary_attribute_name_list(
+			folder_get_primary_key_list(
 				folder->attribute_list );
 
 		if ( !list_length( primary_name_list ) )

@@ -44,7 +44,7 @@ LIST *get_attribute_element_list(
 			int *objects_outputted,
 			LIST *attribute_list,
 			char *attribute_name,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 char *get_order_clause(	DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary );
@@ -363,7 +363,7 @@ int main( int argc, char **argv )
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			0 /* dont override_row_restrictions */,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	form->regular_element_list =
@@ -464,7 +464,7 @@ LIST *maintain_element_list(
 	RELATED_FOLDER *related_folder;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	int prompt_data_element_only = 0;
 	int max_drop_down_size;
 	boolean override_row_restrictions = 0;
@@ -476,8 +476,8 @@ LIST *maintain_element_list(
 		application_max_drop_down_size(
 			application_name );
 
-	primary_attribute_name_list =
-		folder_primary_attribute_name_list(
+	primary_key_list =
+		folder_primary_key_list(
 			attribute_list );
 
 	return_list = list_new();
@@ -531,7 +531,7 @@ LIST *maintain_element_list(
 					override_row_restrictions,
 					list_exists_string(	
 						attribute_name,
-						primary_attribute_name_list ),
+						primary_key_list ),
 					role_name,
 				application_max_query_rows_for_drop_downs(
 						application_name ),
@@ -560,7 +560,7 @@ LIST *maintain_element_list(
 						&objects_outputted,
 						attribute_list,
 						attribute_name,
-						primary_attribute_name_list );
+						primary_key_list );
 
 			if ( element_list )
 			{
@@ -583,7 +583,7 @@ LIST *get_attribute_element_list(
 			int *objects_outputted,
 			LIST *attribute_list,
 			char *attribute_name,
-			LIST *primary_attribute_name_list )
+			LIST *primary_key_list )
 {
 	ATTRIBUTE *attribute;
 	LIST *element_list;
@@ -609,7 +609,7 @@ LIST *get_attribute_element_list(
 	element_list =
 		appaserver_library_update_lookup_attribute_element_list(
 			'y' /* update_yn */,
-			primary_attribute_name_list,
+			primary_key_list,
 			attribute->exclude_permission_list,
 			attribute->attribute_name,
 			attribute->datatype,
@@ -618,7 +618,7 @@ LIST *get_attribute_element_list(
 			attribute->on_focus_javascript_function,
 			list_exists_string(	
 				attribute->attribute_name,
-				primary_attribute_name_list ) );
+				primary_key_list ) );
 
 	if ( element_list && list_length( element_list ) )
 	{

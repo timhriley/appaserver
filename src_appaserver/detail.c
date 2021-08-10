@@ -457,7 +457,7 @@ int main( int argc, char **argv )
 			related_folder_recursive_all,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	if ( list_length( mto1_isa_related_folder_list ) )
@@ -529,10 +529,10 @@ void detail_mto1_isa_related_folder_list(
 				mto1_isa_related_folder_list );
 
 		if ( list_equivalent_string_list(
-			primary_attribute_name_list,
+			primary_key_list,
 			related_folder->
 				one2m_folder->
-				primary_attribute_name_list ) )
+				primary_key_list ) )
 		{
 			where_clause_data_list = primary_data_list;
 		}
@@ -544,7 +544,7 @@ void detail_mto1_isa_related_folder_list(
 				related_folder->foreign_attribute_name_list
 					/* select_list */,
 				folder_name,
-				primary_attribute_name_list,
+				primary_key_list,
 				primary_data_list );
 		}
 
@@ -591,7 +591,7 @@ void detail_mto1_isa_related_folder_list(
 			role_name,
 			target_frame,
 			related_folder->folder->append_isa_attribute_list,
-			related_folder->folder->primary_attribute_name_list
+			related_folder->folder->primary_key_list
 				/* where_clause_attribute_name_list */,
 			where_clause_data_list,
 			login_name,
@@ -750,8 +750,8 @@ void output_1tom_folder_detail(
 			list_new() /* related_folder_list */,
 			0 /* dont omit_isa_relations */,
 			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
+			(LIST *)0 /* parent_primary_key_list */,
+			(LIST *)0 /* original_primary_key_list */,
 			(char *)0 /* prior_related_attribute_name */ );
 	}
 
@@ -899,7 +899,7 @@ void output_1tom_folder_detail(
 					related_folder_no_recursive,
 					override_row_restrictions,
 					(LIST *)0
-					/* root_primary_attribute_name_list */,
+					/* root_primary_key_list */,
 					0 /* recursive_level */ );
 		}
 
@@ -917,7 +917,7 @@ void output_1tom_folder_detail(
 
 		related_folder->folder_foreign_attribute_name_list =
 			related_folder_foreign_attribute_name_list(
-			   folder_get_primary_attribute_name_list(
+			   folder_get_primary_key_list(
 				related_folder->
 					folder->
 					attribute_list ),
@@ -1058,7 +1058,7 @@ void output_mto1_folder_detail(
 			0 /* isa_flag */,
 			related_folder_no_recursive,
 			override_row_restrictions,
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	if ( !list_rewind( appaserver->folder->mto1_related_folder_list ) )
@@ -1106,7 +1106,7 @@ void output_mto1_folder_detail(
 		/* If no non-primary attributes and no operations, ignore */
 		/* ------------------------------------------------------ */
 		if ( !list_length(
-			folder_get_non_primary_attribute_name_list(
+			folder_get_non_primary_key_list(
 				related_folder->
 					folder->
 					append_isa_attribute_list ) )
@@ -1128,7 +1128,7 @@ void output_mto1_folder_detail(
 			   dictionary_using_list_get_index_data_list( 
 			      primary_dictionary,
 			      related_folder_foreign_attribute_name_list(
-			         folder_get_primary_attribute_name_list(
+			         folder_get_primary_key_list(
 			            related_folder->
 					folder->
 					append_isa_attribute_list ),
@@ -1211,7 +1211,7 @@ void output_mto1_folder_detail(
 				related_folder->
 					folder->
 					append_isa_attribute_list,
-				folder_get_primary_attribute_name_list(
+				folder_get_primary_key_list(
 					related_folder->
 						folder->
 						append_isa_attribute_list )

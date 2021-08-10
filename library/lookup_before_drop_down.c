@@ -1002,7 +1002,7 @@ LIST *lookup_before_drop_down_get_non_edit_folder_name_list(
 
 		if ( list_length( related_folder->
 					folder->
-					primary_attribute_name_list ) > 1
+					primary_key_list ) > 1
 		&&   list_exists_string(
 			related_folder->folder->folder_name,
 			lookup_before_drop_down_folder_name_list ) )

@@ -399,7 +399,7 @@ int main( int argc, char **argv )
 		parameter_dictionary /* where_clause_dictionary */,
 		process->attribute_list,
 		prompt_list,
-		(LIST *)0 /* primary_attribute_name_list */,
+		(LIST *)0 /* primary_key_list */,
 		(LIST *)0 /* primary_data_list */,
 		0 /* row */,
 		process->process_name,

@@ -52,7 +52,7 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder(
 
 LIST *prompt_recursive_mto1_folder_list(
 			char *folder_name,
-			LIST *primary_attribute_name_list );
+			LIST *primary_key_list );
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder(
 			FOLDER *folder,

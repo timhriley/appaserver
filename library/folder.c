@@ -211,7 +211,11 @@ FOLDER *folder_parse(	char *input,
 		folder->folder_attribute_list =
 			folder_attribute_list(
 				folder->sql_injection_escape_folder_name,
-				exclude_attribute_name_list );
+				folder->exclude_attribute_name_list );
+
+		folder->primary_key_list =
+			folder_attribute_primary_key_list(
+				folder->folder_attribute_list );
 	}
 
 	if ( fetch_relation_mto1_non_isa_list )
@@ -393,7 +397,7 @@ char *folder_row_level_restriction_string( char *folder_name )
 LIST *folder_query_primary_delimited_list(
 			char *table_name,
 			LIST *folder_attribute_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			DICTIONARY *preprompt_dictionary.
 			char *login_name )
 {
@@ -452,5 +456,23 @@ LIST *folder_dictionary_list(
 			DICTIONARY *query_dictionary )
 {
 	return (LIST *)0;
+}
+
+char *folder_delimited(
+			char *table_name,
+			LIST *primary_key_list,
+			char *primary_where_clause )
+{
+	char system_string[ STRING_SYSTEM_BUFFER ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		list_display_delimited(
+			primary_key_list,
+			',' ),
+		table_name,
+		primary_where_clause );
+
+	return string_pipe_fetch( system_string );
 }
 

@@ -117,7 +117,7 @@ char *appaserver_delete_display_string(
 				"folder: %s (%s=%s)",
 				folder_name,
 				list_display(
-				folder_primary_attribute_name_list(
+				folder_primary_key_list(
 					attribute_list ) ),
 				primary_data_list_string );
 
@@ -135,7 +135,7 @@ char *appaserver_delete_display_string(
 			" (%s=%s)",
 			list_display( 
 			    related_folder_foreign_attribute_name_list(
-				folder_primary_attribute_name_list(
+				folder_primary_key_list(
 					related_folder->
 						one2m_folder->
 						attribute_list ),
@@ -155,7 +155,7 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 			LIST *exclude_attribute_name_list )
 {
 	LIST *foreign_attribute_name_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	RELATED_FOLDER *related_folder;
 	LIST *return_list;
 
@@ -168,15 +168,15 @@ LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
 				(RELATED_FOLDER *)
 					 list_get( related_folder_list );
 
-			primary_attribute_name_list =
-				folder_primary_attribute_name_list(
+			primary_key_list =
+				folder_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
 
 			foreign_attribute_name_list =
 			    related_folder_foreign_attribute_name_list(
-				primary_attribute_name_list,
+				primary_key_list,
 			     	related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );
@@ -200,7 +200,7 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 				LIST *attribute_name_list )
 {
 	LIST *foreign_attribute_name_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	RELATED_FOLDER *related_folder;
 	LIST *return_list;
 
@@ -211,15 +211,15 @@ LIST *appaserver_include_attribute_name_list_in_related_folder_list(
 		do {
 			related_folder = list_get( related_folder_list );
 
-			primary_attribute_name_list =
-				folder_primary_attribute_name_list(
+			primary_key_list =
+				folder_primary_key_list(
 					related_folder->
 						folder->
 						attribute_list );
 
 			foreign_attribute_name_list =
 			    related_folder_foreign_attribute_name_list(
-				primary_attribute_name_list,
+				primary_key_list,
 			     	related_folder->related_attribute_name,
 				related_folder->
 					folder_foreign_attribute_name_list );

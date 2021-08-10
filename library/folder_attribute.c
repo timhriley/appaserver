@@ -179,15 +179,15 @@ FOLDER_ATTRIBUTE *folder_attribute_parse( char *input )
 	return folder_attribute;
 }
 
-LIST *folder_attribute_primary_name_list(
+LIST *folder_attribute_primary_key_list(
 			LIST *folder_attribute_list )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	LIST *primary_name_list;
+	LIST *primary_key_list;
 
 	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
 
-	primary_name_list = list_new();
+	primary_key_list = list_new();
 
 	do {
 		folder_attribute =
@@ -197,13 +197,13 @@ LIST *folder_attribute_primary_name_list(
 		if ( folder_attribute->primary_key_index ) )
 		{
 			list_set(
-				primary_name_list, 
+				primary_key_list, 
 				folder_attribute->attribute_name );
 		}
 
 	} while ( list_next( folder_attribute_list ) );
 
-	return primary_name_list;
+	return primary_key_list;
 }
 
 LIST *folder_attribute_append_isa_list(

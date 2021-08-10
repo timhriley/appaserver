@@ -222,7 +222,7 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 					datatype_folder->
-						primary_attribute_name_list,
+						primary_key_list,
 			process_generic_output->
 				value_folder->
 					datatype_folder->
@@ -258,14 +258,14 @@ int main( int argc, char **argv )
 				process_generic_output->
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list ) );
+				primary_key_list ) );
 		printf(
 	"<h3>ERROR: cannot find datatype information for (%s).</h3>\n",
 			list_display(
 				process_generic_output->
 				value_folder->
 				datatype_folder->
-				primary_attribute_name_list ) );
+				primary_key_list ) );
 		document_close();
 		exit( 0 );
 	}

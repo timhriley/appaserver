@@ -234,8 +234,7 @@ int main( int argc, char **argv )
 
 	document_close();
 	exit( 0 );
-} /* main() */
-
+}
 
 void get_update_statement(	char *destination,
 				char *record,
@@ -263,7 +262,7 @@ void get_update_statement(	char *destination,
 	primary_attribute_list = string2list( SELECT_ATTRIBUTE_LIST, ',' );
 	primary_data_list = string2list( record, '|' );
 
-	u = new_update_statement( table_name );
+	u = update_statement_new( table_name );
 	update_statement_set_attribute_list( u, attribute_list );
 	update_statement_set_data_list( u, data_list );
 
@@ -274,5 +273,5 @@ void get_update_statement(	char *destination,
 
 	if ( !update_statement_get( destination, u ) ) exit( 1 );
 
-} /* get_update_statement() */
+}
 

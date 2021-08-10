@@ -3955,18 +3955,18 @@ DICTIONARY *dictionary_get_row_zero_dictionary(
 
 LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 			LIST *primary_data_list,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char delimiter )
 {
 	LIST *dictionary_list;
 	DICTIONARY *dictionary;
-	char *primary_attribute_name;
+	char *primary_key;
 	char *multi_attribute_data;
 	char attribute_data[ 1024 ];
 	int i;
 
 	if ( !list_rewind( primary_data_list ) ) return (LIST *)0;
-	if ( !list_length( primary_attribute_name_list ) ) return (LIST *)0;
+	if ( !list_length( primary_key_list ) ) return (LIST *)0;
 
 	dictionary_list = list_new();
 
@@ -3975,12 +3975,12 @@ LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 
 		dictionary = dictionary_small_new();
 		i = 0;
-		list_rewind( primary_attribute_name_list );
+		list_rewind( primary_key_list );
 
 		do {
-			primary_attribute_name =
+			primary_key =
 				list_get(
-					primary_attribute_name_list );
+					primary_key_list );
 
 			if ( !piece(	attribute_data,
 					delimiter,
@@ -4014,12 +4014,12 @@ LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
 
 			dictionary_set_pointer(
 				dictionary,
-				primary_attribute_name,
+				primary_key,
 				strdup( attribute_data ) );
 
 			i++;
 
-		} while( list_next( primary_attribute_name_list ) );
+		} while( list_next( primary_key_list ) );
 
 		list_set( dictionary_list, dictionary );
 

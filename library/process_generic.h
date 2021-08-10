@@ -116,8 +116,8 @@ typedef struct
 	boolean datatype_exists_unit;
 	boolean foreign_exists_unit;
 
-	LIST *primary_attribute_name_list;
-	int primary_attribute_name_list_length;
+	LIST *primary_key_list;
+	int primary_key_list_length;
 	PROCESS_GENERIC_DATATYPE *datatype;
 	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;
 } PROCESS_GENERIC_VALUE_FOLDER;
@@ -222,7 +222,7 @@ char *process_generic_system_string(
 /* Returns static memory */
 /* --------------------- */
 char *process_generic_heading(
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			char *value_attribute_name,
 			char *datatype_unit,
 			char *foreign_folder_unit,
@@ -308,7 +308,7 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			char *output_medium_string,
 			DICTIONARY *post_dictionary,
 			boolean aggregation_sum,
-			LIST *value_folder_primary_attribute_name_list,
+			LIST *value_folder_primary_key_list,
 			char *value_folder_date_attribute_name,
 			char *value_folder_time_attribute_name );
 

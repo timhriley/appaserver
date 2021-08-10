@@ -65,7 +65,7 @@ int post_prompt_insert_database(
 			char *login_name,
 			char *folder_name,
 			char *role_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *mto1_isa_related_folder_list,
@@ -83,8 +83,8 @@ int main( int argc, char **argv )
 	char *state;
 	LIST *posted_attribute_name_list;
 	LIST *non_populated_attribute_name_list;
-	LIST *ignore_primary_attribute_name_list;
-	LIST *subtracted_primary_attribute_name_list;
+	LIST *ignore_primary_key_list;
+	LIST *subtracted_primary_key_list;
 	LIST *insert_required_attribute_name_list;
 	char sys_string[ 65536 ];
 	DICTIONARY *original_post_dictionary;
@@ -356,7 +356,7 @@ int main( int argc, char **argv )
 			related_folder_no_recursive,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	appaserver_library_automatically_set_login_name(
@@ -366,8 +366,8 @@ int main( int argc, char **argv )
 		appaserver->folder->attribute_list,
 		role->role_attribute_exclude_list );
 
-	appaserver->folder->primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	appaserver->folder->primary_key_list =
+		folder_get_primary_key_list(
 			appaserver->folder->
 				attribute_list );
 
@@ -384,18 +384,18 @@ int main( int argc, char **argv )
 			dictionary_appaserver->query_dictionary, 
 			appaserver->folder->attribute_name_list );
 
-	ignore_primary_attribute_name_list =
+	ignore_primary_key_list =
 		appaserver_library_ignore_pressed_attribute_name_list( 	
 			dictionary_appaserver->ignore_dictionary, 
 			appaserver->
 				folder->
-				primary_attribute_name_list,
+				primary_key_list,
 			(DICTIONARY *)0 /* query_dictionary */ );
 
 	if ( attribute_exists_omit_insert_login_name(
 		appaserver->folder->attribute_list ) )
 	{
-		list_append_pointer(	ignore_primary_attribute_name_list,
+		list_append_pointer(	ignore_primary_key_list,
 					"login_name" );
 	}
 
@@ -423,22 +423,22 @@ int main( int argc, char **argv )
 		appaserver_library_populate_last_foreign_attribute_key(
 			dictionary_appaserver->query_dictionary,
 			mto1_isa_related_folder_list,
-			appaserver->folder->primary_attribute_name_list );
+			appaserver->folder->primary_key_list );
 	}
 
-	subtracted_primary_attribute_name_list = 
+	subtracted_primary_key_list = 
 		list_subtract( 	appaserver->
 					folder->
-					primary_attribute_name_list, 
+					primary_key_list, 
 				posted_attribute_name_list );
 
 	list_append_string_list(
-			subtracted_primary_attribute_name_list, 
+			subtracted_primary_key_list, 
 			non_populated_attribute_name_list );
 
-	subtracted_primary_attribute_name_list =
-		list_subtract( 	subtracted_primary_attribute_name_list, 
-				ignore_primary_attribute_name_list );
+	subtracted_primary_key_list =
+		list_subtract( 	subtracted_primary_key_list, 
+				ignore_primary_key_list );
 
 	ignore_attribute_name_list =
 		insert_database_get_trim_indices_dictionary_key_list(
@@ -457,7 +457,7 @@ int main( int argc, char **argv )
 				0 /* row */,
 				dictionary_appaserver->query_dictionary,
 				ignore_attribute_name_list,
-				subtracted_primary_attribute_name_list,
+				subtracted_primary_key_list,
 				insert_required_attribute_name_list ) ) )
 		{
 			output_missing_information_message(
@@ -473,7 +473,7 @@ int main( int argc, char **argv )
 	/* If all the needed attributes are populated or */
 	/* has an isa relation. 			 */
 	/* --------------------------------------------- */
-	if ( !list_length( subtracted_primary_attribute_name_list )
+	if ( !list_length( subtracted_primary_key_list )
 	||    list_length( mto1_isa_related_folder_list ) )
 	{
 		rows_inserted =
@@ -490,7 +490,7 @@ int main( int argc, char **argv )
 				role_name,
 				appaserver->
 					folder->
-					primary_attribute_name_list,
+					primary_key_list,
 				insert_required_attribute_name_list,
 				appaserver->
 					folder->
@@ -642,7 +642,7 @@ int post_prompt_insert_database(
 			char *login_name,
 			char *folder_name,
 			char *role_name,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			LIST *attribute_name_list,
 			LIST *mto1_isa_related_folder_list,
@@ -662,7 +662,7 @@ int post_prompt_insert_database(
 				application_name,
 				session,
 				folder_name,
-				primary_attribute_name_list,
+				primary_key_list,
 				attribute_name_list,
 				row_dictionary,
 				ignore_dictionary,
@@ -680,7 +680,7 @@ int post_prompt_insert_database(
 		insert_database->session,
 		insert_database->folder_name,
 		role_name,
-		insert_database->primary_attribute_name_list,
+		insert_database->primary_key_list,
 		insert_required_attribute_name_list,
 		insert_database->attribute_name_list,
 		insert_database->row_dictionary,
@@ -690,7 +690,7 @@ int post_prompt_insert_database(
 		post_change_process,
 		login_name,
 		mto1_related_folder_list,
-		related_folder_common_non_primary_attribute_name_list(
+		related_folder_common_non_primary_key_list(
 			folder_name,
 			mto1_related_folder_list ),
 		insert_database->attribute_list,
@@ -703,7 +703,7 @@ int post_prompt_insert_database(
 	{
 		RELATED_FOLDER *isa_related_folder;
 		LIST *isa_attribute_name_list;
-		LIST *isa_primary_attribute_name_list;
+		LIST *isa_primary_key_list;
 
 		do {
 			isa_related_folder =
@@ -723,16 +723,16 @@ int post_prompt_insert_database(
 					isa_related_folder->
 					folder->attribute_list );
 
-			isa_primary_attribute_name_list =
-				folder_get_primary_attribute_name_list(
+			isa_primary_key_list =
+				folder_get_primary_key_list(
 					isa_related_folder->
 						folder->
 						attribute_list );
 
 			dictionary_new_index_key_list_for_data_list(
 					row_dictionary,
-					primary_attribute_name_list,
-					isa_primary_attribute_name_list,
+					primary_key_list,
+					isa_primary_key_list,
 					0 );
 					
 			insert_database =
@@ -742,7 +742,7 @@ int post_prompt_insert_database(
 					isa_related_folder->
 						folder->
 						folder_name,
-					isa_primary_attribute_name_list,
+					isa_primary_key_list,
 					isa_attribute_name_list,
 					row_dictionary,
 					ignore_dictionary,
@@ -761,7 +761,7 @@ int post_prompt_insert_database(
 				insert_database->session,
 				insert_database->folder_name,
 				role_name,
-				insert_database->primary_attribute_name_list,
+				insert_database->primary_key_list,
 				insert_required_attribute_name_list,
 				insert_database->attribute_name_list,
 				insert_database->row_dictionary,
@@ -915,7 +915,7 @@ void set_null_operator_data_to_null(
 void insert_one2m_pair_sequence(
 			FOLDER *folder,
 			DICTIONARY_APPASERVER *dictionary_appaserver,
-			LIST *primary_attribute_name_list,
+			LIST *primary_key_list,
 			LIST *insert_required_attribute_name_list,
 			char *application_name,
 			char *appaserver_mount_point,
@@ -944,7 +944,7 @@ void insert_one2m_pair_sequence(
 			0 /* row */,
 			dictionary_appaserver->query_dictionary,
 			ignore_attribute_name_list,
-			primary_attribute_name_list,
+			primary_key_list,
 			insert_required_attribute_name_list ) ) )
 	{
 		output_missing_information_message(
@@ -966,7 +966,7 @@ void insert_one2m_pair_sequence(
 			login_name,
 			folder->folder_name,
 			role_name,
-			folder->primary_attribute_name_list,
+			folder->primary_key_list,
 			insert_required_attribute_name_list,
 			folder->attribute_name_list,
 			isa_related_folder_list,

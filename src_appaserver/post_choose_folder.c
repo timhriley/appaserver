@@ -173,7 +173,7 @@ int main( int argc, char **argv )
 			related_folder_prompt_recursive_only,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
+			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
 	appaserver->folder->one2m_related_folder_list = 
@@ -187,8 +187,8 @@ int main( int argc, char **argv )
 			list_new() /* related_folder_list */,
 			0 /* dont omit_isa_relations */,
 			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_attribute_name_list */,
-			(LIST *)0 /* original_primary_attribute_name_list */,
+			(LIST *)0 /* parent_primary_key_list */,
+			(LIST *)0 /* original_primary_key_list */,
 			(char *)0 /* prior_related_attribute_name */ );
 
 	if ( related_folder_exists_pair_1tom(

@@ -711,7 +711,7 @@ int main( int argc, char **argv )
 			 list_display(
 				ajax_fill_drop_down_related_folder->
 				folder->
-				primary_attribute_name_list ) /* select */ );
+				primary_key_list ) /* select */ );
 
 		if ( system( sys_string ) ){};
 	}
@@ -846,7 +846,7 @@ LIST *output_prompt_insert_element_list(
 	char *attribute_name;
 	ELEMENT_APPASERVER *element;
 	LIST *role_folder_insert_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 	boolean is_primary_attribute;
 	int tab_index = 0;
 	boolean omit_drop_down_new_push_button;
@@ -866,8 +866,8 @@ LIST *output_prompt_insert_element_list(
 		omit_drop_down_new_push_button = 1;
 	}
 
-	primary_attribute_name_list =
-		folder_get_primary_attribute_name_list(
+	primary_key_list =
+		folder_get_primary_key_list(
 			attribute_list );
 
 	role_folder_insert_list =
@@ -882,7 +882,7 @@ LIST *output_prompt_insert_element_list(
 	allowed_attribute_name_list =
 	    list_subtract_string_list(
 		allowed_attribute_name_list,
-		related_folder_insert_common_non_primary_attribute_name_list(
+		related_folder_insert_common_non_primary_key_list(
 			folder_name,
 			mto1_related_folder_list ) );
 
@@ -915,7 +915,7 @@ LIST *output_prompt_insert_element_list(
 		is_primary_attribute =
 			list_exists_string(	
 				attribute_name,
-				primary_attribute_name_list );
+				primary_key_list );
 
 		if ( ( related_folder =
 		       related_folder_attribute_consumes_related_folder(
@@ -1146,7 +1146,7 @@ void get_with_isa_variables(	LIST **mto1_related_folder_list,
 
 	local_isa_multi_attribute_name =
 		build_multi_attribute_key( 
-			folder_get_primary_attribute_name_list(
+			folder_get_primary_key_list(
 				first_mto1_isa_related_folder->
 					folder->
 						attribute_list ),
@@ -1210,7 +1210,7 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 	LIST *attribute_name_list;
 	LIST *omit_insert_prompt_attribute_name_list;
 	LIST *omit_insert_attribute_name_list;
-	LIST *primary_attribute_name_list;
+	LIST *primary_key_list;
 
 	appaserver =
 		appaserver_folder_new(
@@ -1235,8 +1235,8 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 			(LIST *)0 /* mto1_isa_related_folder_list */,
 			role_name );
 
-	primary_attribute_name_list =
-			folder_get_primary_attribute_name_list(
+	primary_key_list =
+			folder_get_primary_key_list(
 				appaserver->folder->
 					attribute_list );
 
@@ -1265,7 +1265,7 @@ void get_selected_choose_isa_drop_down_with_isa_variables(
 	*allowed_attribute_name_list =
 		list_subtract_list(
 			*allowed_attribute_name_list,
-			primary_attribute_name_list );
+			primary_key_list );
 
 	folder_load(	&appaserver->folder->insert_rows_number,
 			&appaserver->folder->lookup_email_output,
@@ -1373,7 +1373,7 @@ void get_not_selected_choose_isa_drop_down_with_isa_variables(
 
 		list_append_string_list(
 				*allowed_attribute_name_list,
-				folder_get_non_primary_attribute_name_list(
+				folder_get_non_primary_key_list(
 					mto1_isa_related_folder->
 					folder->attribute_list ) );
 
@@ -1730,7 +1730,7 @@ void build_related_folder_element_list(
 {
 	char *hint_message;
 	ATTRIBUTE *attribute;
-	LIST *common_non_primary_attribute_name_list;
+	LIST *common_non_primary_key_list;
 	boolean set_first_initial_data;
 
 	if ( !related_folder )
@@ -1782,7 +1782,7 @@ void build_related_folder_element_list(
 
 	foreign_attribute_name_list =
 		related_folder_foreign_attribute_name_list(
-	   		folder_get_primary_attribute_name_list(
+	   		folder_get_primary_key_list(
 				related_folder->
 					folder->
 					attribute_list ),
@@ -1791,8 +1791,8 @@ void build_related_folder_element_list(
 
 	if ( related_folder->copy_common_attributes )
 	{
-		common_non_primary_attribute_name_list =
-			related_folder_common_non_primary_attribute_name_list(
+		common_non_primary_key_list =
+			related_folder_common_non_primary_key_list(
 					folder_name,
 					related_folder->
 						folder->
@@ -1800,7 +1800,7 @@ void build_related_folder_element_list(
 	}
 	else
 	{
-		common_non_primary_attribute_name_list = (LIST *)0;
+		common_non_primary_key_list = (LIST *)0;
 	}
 
 	hint_message =
@@ -1849,7 +1849,7 @@ void build_related_folder_element_list(
 			role_folder_insert_list,
 			form_name,
 			0 /* max_drop_down_size */,
-			common_non_primary_attribute_name_list,
+			common_non_primary_key_list,
 			is_primary_attribute,
 			related_folder->
 				related_attribute_name,
