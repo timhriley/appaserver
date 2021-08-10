@@ -284,6 +284,10 @@ UPDATE_WHERE_ATTRIBUTE *update_where_attribute(
 			char *primary_key,
 			int row );
 
+LIST *update_foreign_where_attribute_list(
+			LIST *primary_key_changed_attribute_list,
+			LIST *foreign_key_list );
+
 char *update_where_clause(
 			LIST *where_attribute_list );
 

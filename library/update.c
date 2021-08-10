@@ -1762,3 +1762,68 @@ LIST *update_primary_key_changed_attribute_list(
 
 	return primary_key_changed_attribute_list;
 }
+
+LIST *update_foreign_where_attribute_list(
+			LIST *primary_key_changed_attribute_list,
+			LIST *foreign_key_list )
+{
+	UPDATE_WHERE_ATTRIBUTE *where_attribute;
+	UPDATE_CHANGED_ATTRIBUTE *changed_attribute;
+	LIST *where_attribute_list;
+	char *foreign_key;
+
+	if ( !list_rewind( primary_key_changed_attribute_list ) )
+		return (LIST *)0;
+
+	where_attribute_list = list_new();
+
+	do {
+		changed_attribute =
+			list_get(
+				primary_key_changed_attribute_list );
+
+		foreign_key =
+			/* index is one based */
+			/* ------------------ */
+			list_seek_index(
+				foreign_key_list,
+				changed_attribute->
+					folder_attribute->
+					primary_key_index );
+
+		if ( !foreign_key )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: for folder_name = %s, list_seek_index(%s,%d) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				changed_attribute->
+					folder_attribute->
+					folder->
+					folder_name,
+				list_display_delimited(
+					foreign_key_list,
+					'^' ),
+				changed_attribute->
+					folder_attribute->
+					primary_key_index );
+			exit( 1 );
+		}
+
+		where_attribute = update_where_attribute_calloc();
+
+		where_attribute->attribute_name = foreign_key;
+
+		where_attribute->data =
+			changed_attribute->
+				changed_attribute_data->
+				escaped_replaced_new_data;
+
+		list_set( where_attribute_list, where_attribute );
+
+	} while ( list_next( primary_key_changed_attribute_list ) );
+
+	return where_attribute_list;
+}
+
