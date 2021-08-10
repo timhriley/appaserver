@@ -40,14 +40,14 @@ UPDATE *update_calloc( void )
 	return update;
 }
 
-UPDATE_FOLDER_PRIMARY *update_folder_primary_calloc( void )
+UPDATE_PRIMARY *update_primary_calloc( void )
 {
-	UPDATE_FOLDER_PRIMARY *update_folder_primary;
+	UPDATE_PRIMARY *update_primary;
 
-	if ( ! ( update_folder_primary =
+	if ( ! ( update_primary =
 			calloc(
 				1,
-				sizeof( UPDATE_FOLDER_PRIMARY ) ) ) )
+				sizeof( UPDATE_PRIMARY ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -56,7 +56,7 @@ UPDATE_FOLDER_PRIMARY *update_folder_primary_calloc( void )
 			 __LINE__ );
 		exit( 1 );
 	}
-	return update_folder_primary;
+	return update_primary;
 }
 
 UPDATE *update(		DICTIONARY *post_dictionary,
@@ -149,8 +149,7 @@ UPDATE_ROW *update_row_calloc( void )
 
 UPDATE_ROW *update_row_new( int row )
 {
-	UPDATE_ROW *update_row =
-		update_row_calloc();
+	UPDATE_ROW *update_row = update_row_calloc();
 
 	update_row->row = row;
 	update_row->update_folder_list = list_new_list();
@@ -1270,35 +1269,27 @@ UPDATE_WHERE_ATTRIBUTE *update_where_attribute(
 	return where_attribute;
 }
 
-int update_cell_count(
-			LIST *update_row_list )
+int update_cell_count( LIST *update_row_list )
 {
 	int cells_updated = 0;
 	UPDATE_ROW *update_row;
-	UPDATE_FOLDER *update_folder;
 
 	if ( !list_rewind( update_row_list ) ) return 0;
 
 	do {
-		update_row = list_get_pointer( update_row_list );
+		update_row = list_get( update_row_list );
 
-		if ( !list_rewind( update_row->update_folder_list ) )
+		if ( !update_row->update_row_cell_count )
 		{
-			continue;
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: update_row_cell_count is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
-		do {
-			update_folder =
-				list_get(
-					update_row->update_folder_list );
-
-			cells_updated +=
-				( update_folder_columns_updated(
-					update_folder->
-						changed_attribute_list ) *
-					update_folder->count ); 
-
-		} while( list_next( update_row->update_folder_list ) );
+		cells_updated += update_row->update_row_cell_count;
 
 	} while( list_next( update_row_list ) );
 
@@ -1307,49 +1298,47 @@ int update_cell_count(
 
 int update_row_cell_count(
 			int primary_cell_count,
-			LIST *update_folder_one2m_list,
-			LIST *update_folder_mto1_list )
+			LIST *update_one2m_list,
+			LIST *update_mto1_list )
 {
-	int cell_count;
-	UPDATE_FOLDER_ONE2M *update_folder_one2m;
-	UPDATE_FOLDER_MTO1 *update_folder_mto1;
+	UPDATE_ONE2M *update_one2m;
+	UPDATE_MTO1 *update_mto1;
+	int cell_count = primary_cell_count;
 
-	cell_count = primary_cell_count;
-
-	if ( list_rewind( update_folder_one2m_list ) )
+	if ( list_rewind( update_one2m_list ) )
 	{
 		do {
-			update_folder_one2m =
+			update_one2m =
 				list_get(
-					update_folder_one2m_list );
+					update_one2m_list );
 
 			cell_count +=
 			( list_length(
-				update_folder_one2m->
+				update_one2m->
 					one2m_changed_attribute_list ) *
 			  list_length(
-				update_folder_one2m->
+				update_one2m->
 					folder_delimited_list ) );
 
-		} while( list_next( update_folder_one2m_list ) );
+		} while( list_next( update_one2m_list ) );
 	}
 
-	if ( list_rewind( update_folder_mto1_list ) )
+	if ( list_rewind( update_mto1_list ) )
 	{
 		do {
-			update_folder_mto1 =
+			update_mto1 =
 				list_get(
-					update_folder_mto1_list );
+					update_mto1_list );
 
 			cell_count +=
 			( list_length(
-				update_folder_mto1->
+				update_mto1->
 					mto1_changed_attribute_list ) *
 			  list_length(
-				update_folder_mto1->
+				update_mto1->
 					folder_delimited_list ) );
 
-		} while( list_next( update_folder_mto1_list ) );
+		} while( list_next( update_mto1_list ) );
 	}
 
 	return cell_count;
@@ -1415,7 +1404,7 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
 		return (CHANGED_ATTRIBUTE_DATA *)0;
 	}
 
-	changed_attribute_data = changed_attribute_data_calloc();
+	changed_attribute_data = update_changed_attribute_data_calloc();
 
 	changed_attribute_data->post_dictionary = post_dictionary;
 	changed_attribute_data->file_dictionary = file_dictionary;
@@ -1597,54 +1586,11 @@ LIST *update_primary_changed_attribute_list(
 	return changed_attribute_list;
 }
 
-LIST *update_folder_related_list(
-			LIST *primary_changed_attribute_list,
-			LIST *primary_where_attribute_list,
-			LIST *relation_one2m_recursive_list )
+UPDATE_MTO1 *update_mto1_calloc( void )
 {
-	UPDATE_FOLDER_RELATED *folder_related;
-	RELATION *relation_one2m;
-	LIST *related_list = list_new();
+	UPDATE_MTO1 *u;
 
-	if ( !list_rewind( relation_one2m_recursive_list ) )
-	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: relation_one2m_recursive_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-		return (LIST *)0;
-	}
-
-	do {
-		relation_one2m = list_get( relation_one2m_recursive_list );
-
-		if ( ! ( related_folder =
-				update_folder_related(
-					primary_changed_attribute_list,
-					primary_where_attribute_list,
-					relation_one2m ) ) )
-		{
-			fprintf(stderr,
-	"ERROR in %s/%s()/%d: update_folder_related() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		list_set( related_list, folder_related );
-
-	} while ( list_next( relation_one2m_recursive_list ) );
-
-	return related_list;
-}
-
-UPDATE_FOLDER_RELATED *update_folder_related_calloc( void )
-{
-	UPDATE_FOLDER_RELATED *u;
-
-	if ( ! ( u = calloc( 1, sizeof( UPDATE_FOLDER_RELATED ) ) ) )
+	if ( ! ( u = calloc( 1, sizeof( UPDATE_MTO1 ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1656,13 +1602,48 @@ UPDATE_FOLDER_RELATED *update_folder_related_calloc( void )
 	return u;
 }
 
-UPDATE_FOLDER_RELATED *update_folder_related(
-			LIST *primary_changed_attribute_list,
+UPDATE_ONE2M *update_one2m_calloc( void )
+{
+	UPDATE_ONE2M *u;
+
+	if ( ! ( u = calloc( 1, sizeof( UPDATE_ONE2M ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return u;
+}
+
+UPDATE_ONE2M *update_one2m(
+			LIST *primary_key_changed_attribute_list,
 			LIST *primary_where_attribute_list,
 			RELATION *relation_one2m )
 {
-	LIST *changed_attribute_list;
-	UPDATE_FOLDER_RELATED *folder_related;
+	UPDATE_ONE2M *one2m;
+
+	if ( !list_length( primary_key_changed_attribute_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: primary_key_changed_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( primary_where_attribute_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: primary_where_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( !relation_one2m->many_folder )
 	{
@@ -1674,49 +1655,50 @@ UPDATE_FOLDER_RELATED *update_folder_related(
 		exit( 1 );
 	}
 
-	if ( !list_length(
-		relation_one2m->
-			many_folder->
-			primary_key_list )
+	if ( !list_length( relation_one2m->many_folder->primary_key_list )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: many_folder's primary_key_list is empty.\n",
+	"ERROR in %s/%s()/%d: many_folder's primary_key_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	changed_attribute_list =
-		update_related_changed_attribute_list(
-			primary_changed_attribute_list,
-			relation_one2m->many_folder->folder_name,
-			relation_one2m->foreign_attribute_name_list );
-
-	if ( !list_length( changed_attribute_list ) )
+	if ( !list_length( relation_one2m->foreign_key_list ) )
 	{
-		return (UPDATE_FOLDER_RELATED *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	folder_related = update_folder_related_calloc();
+	one2m = update_one2m_calloc();
 
-	folder_related->changed_attribute_list = changed_attribute_list;
+	one2m->changed_attribute_list =
+		update_one2m_changed_attribute_list(
+			primary_key_changed_attribute_list,
+			relation_one2m->many_folder->folder_name,
+			relation_one2m->foreign_key_list );
 
-	folder_related->related_where_attribute_list =
-		update_related_where_attribute_list(
+	if ( !list_length( one2m->changed_attribute_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: update_one2m_changed_attribute_list returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	one2m->one2m_where_attribute_list =
+		update_one2m_where_attribute_list(
 			primary_where_attribute_list,
 			relation_one2m->foreign_attribute_name_list );
 
-	folder_related->related_delimited_list =
-		update_related_delimited_list(
-			relation_one2m->many_folder->folder_name,
-			relation_one2m->
-				many_folder->
-				primary_key_list,
-		update_folder_where_clause(
-			folder_related->related_where_attribute_list ) );
-
-	return folder_related;
+	return one2m;
 }
 
 LIST *update_related_changed_attribute_list(
