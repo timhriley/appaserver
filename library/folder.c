@@ -434,7 +434,7 @@ LIST *folder_delimited_fetch(
 LIST *folder_delimited_list(
 			char *table_name,
 			LIST *attribute_name_list,
-			char *where )
+			char *where_clause )
 {
 	char system_string[ STRING_SYSTEM_BUFFER ];
 
@@ -444,7 +444,7 @@ LIST *folder_delimited_list(
 			attribute_name_list,
 			',' ),
 		table_name,
-		where );
+		where_clause );
 
 	return list_pipe_fetch( system_string );
 }

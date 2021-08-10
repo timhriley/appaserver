@@ -15,7 +15,7 @@
 #include "environ.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
-#include "attribute.h"
+#include "folder_attribute.h"
 #include "folder.h"
 #include "relation.h"
 #include "appaserver_library.h"
@@ -1360,6 +1360,37 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_calloc( void )
 	return u;
 }
 
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_new(
+			char *folder_name,
+			char *attribute_name )
+{
+	UPDATE_CHANGED_ATTRIBUTE_DATA *u =
+		update_changed_attribute_data_calloc();
+
+	u->folder_attribute =
+		folder_attribute_new(
+			folder_name,
+			attribute_name );
+}
+
+UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_new(
+			char *key,
+			char *old_data,
+			char *escaped_replaced_new_data )
+{
+	UPDATE_CHANGED_ATTRIBUTE_DATA *changed_attribute_data;
+
+	changed_attribute_data = changed_attribute_data_calloc();
+
+	changed_attribute_data->key = key;
+	changed_attribute_data->old_data = old_data;
+
+	changed_attribute_data->escaped_replaced_new_data =
+		escaped_replaced_new_data;
+
+	return changed_attribute_data;
+}
+
 UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
@@ -1498,8 +1529,7 @@ UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute(
 	changed_attribute = update_changed_attribute_calloc();
 	changed_attribute->folder_attribute = folder_attribute;
 
-	changed_attribute->changed_attribute_data =
-		update_changed_attribute_data;
+	changed_attribute->data = update_changed_attribute_data;
 
 	changed_attribute->changed_attribute_preupdate_label =
 		/* ------------------- */
@@ -1655,16 +1685,6 @@ UPDATE_ONE2M *update_one2m(
 		exit( 1 );
 	}
 
-	if ( !list_length( relation_one2m->many_folder->primary_key_list )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: many_folder's primary_key_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	if ( !list_length( relation_one2m->foreign_key_list ) )
 	{
 		fprintf(stderr,
@@ -1677,40 +1697,116 @@ UPDATE_ONE2M *update_one2m(
 
 	one2m = update_one2m_calloc();
 
-	one2m->changed_attribute_list =
-		update_one2m_changed_attribute_list(
+	one2m->primary_key_changed_attribute_list =
+		primary_key_changed_attribute_list;
+
+	one2m->foreign_changed_attribute_list =
+		update_foreign_changed_attribute_list(
 			primary_key_changed_attribute_list,
 			relation_one2m->many_folder->folder_name,
 			relation_one2m->foreign_key_list );
 
-	if ( !list_length( one2m->changed_attribute_list ) )
+	one2m->foreign_where_attribute_list =
+		update_foreign_where_attribute_list(
+			primary_key_changed_attribute_list,
+			relation_one2m->foreign_key_list );
+
+	one2m->folder_delimited_list =
+		folder_delimited_list(
+			folder_table_name(
+				environment_application_name(),
+				one2m->many_folder->folder_name ),
+					/* table_name */,
+			one2m->many_folder->primary_key_list
+				/* attribute_name_list */,
+			update_where_clause(
+				one2m->foreign_where_attribute_list ),
+				/* where_clause */ );
+
+	return one2m;
+}
+
+UPDATE_MTO1 *update_mto1(
+			LIST *primary_key_changed_attribute_list,
+			LIST *primary_where_attribute_list,
+			RELATION *relation_one2m )
+{
+	UPDATE_MTO1 *mto1;
+
+	if ( !list_length( primary_key_changed_attribute_list ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: update_one2m_changed_attribute_list returned empty.\n",
+	"ERROR in %s/%s()/%d: primary_key_changed_attribute_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	one2m->one2m_where_attribute_list =
-		update_one2m_where_attribute_list(
-			primary_where_attribute_list,
-			relation_one2m->foreign_attribute_name_list );
+	if ( !list_length( primary_where_attribute_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: primary_where_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	return one2m;
+	if ( !relation_mto1->one_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( relation_mto1->foreign_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	mto1 = update_mto1_calloc();
+
+	mto1->primary_key_changed_attribute_list =
+		primary_key_changed_attribute_list;
+
+	mto1->foreign_changed_attribute_list =
+		update_foreign_changed_attribute_list(
+			primary_key_changed_attribute_list,
+			relation_mto1->one_folder->folder_name,
+			relation_mto1->foreign_key_list );
+
+	mto1->foreign_where_attribute_list =
+		update_foreign_where_attribute_list(
+			primary_key_changed_attribute_list,
+			relation_mto1->foreign_key_list );
+
+	mto1->folder_delimited_list =
+		folder_delimited_list(
+			folder_table_name(
+				environment_application_name(),
+				mto1->one_folder->folder_name ),
+					/* table_name */,
+			mto1->many_folder->primary_key_list
+				/* attribute_name_list */,
+			update_where_clause(
+				mto1->foreign_where_attribute_list ),
+				/* where_clause */ );
+
+	return mto1;
 }
 
 LIST *update_related_changed_attribute_list(
-			LIST *primary_changed_attribute_list,
-			char *relation_one2m->many_folder->folder_name,
-			LIST *foreign_attribute_name_list )
-{
-}
-
-LIST *update_related_where_attribute_list(
-			LIST *primary_where_attribute_list,
-			LIST *foreign_attribute_name_list )
+			LIST *primary_key_changed_attribute_list,
+			LIST *foreign_key_list )
 {
 }
 
@@ -1818,12 +1914,85 @@ LIST *update_foreign_where_attribute_list(
 		where_attribute->data =
 			changed_attribute->
 				changed_attribute_data->
-				escaped_replaced_new_data;
+				old_data;
 
 		list_set( where_attribute_list, where_attribute );
 
 	} while ( list_next( primary_key_changed_attribute_list ) );
 
 	return where_attribute_list;
+}
+
+LIST *update_foreign_changed_attribute_list(
+			LIST *primary_key_changed_attribute_list,
+			char *foreign_folder_name,
+			LIST *foreign_key_list )
+{
+	UPDATE_CHANGED_ATTRIBUTE *changed_attribute;
+	UPDATE_CHANGED_ATTRIBUTE *foreign_changed_attribute;
+	LIST *changed_attribute_list;
+	char *foreign_key;
+
+	if ( !list_rewind( primary_key_changed_attribute_list ) )
+		return (LIST *)0;
+
+	changed_attribute_list = list_new();
+
+	do {
+		changed_attribute =
+			list_get(
+				primary_key_changed_attribute_list );
+
+		foreign_key =
+			/* index is one based */
+			/* ------------------ */
+			list_seek_index(
+				foreign_key_list,
+				changed_attribute->
+					folder_attribute->
+					primary_key_index );
+
+		if ( !foreign_key )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: for folder_name = %s, list_seek_index(%s,%d) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				changed_attribute->
+					folder_attribute->
+					folder->
+					folder_name,
+				list_display_delimited(
+					foreign_key_list,
+					'^' ),
+				changed_attribute->
+					folder_attribute->
+					primary_key_index );
+			exit( 1 );
+		}
+
+		foreign_changed_attribute =
+			update_changed_attribute_new(
+				foreign_folder_name /* folder_name */,
+				foreign_key /* attribute_name */ );
+
+		changed_attribute->data =
+			update_changed_attribute_data_new(
+				changed_attribute->
+					changed_attribute_data->
+					key;
+				changed_attribute->
+					changed_attribute_data->
+					old_data;
+				changed_attribute->
+					changed_attribute_data->
+					escaped_replaced_new_data );
+
+		list_set( changed_attribute_list, changed_attribute );
+
+	} while ( list_next( primary_key_changed_attribute_list ) );
+
+	return changed_attribute_list;
 }
 

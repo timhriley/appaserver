@@ -48,7 +48,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data;
+	UPDATE_CHANGED_ATTRIBUTE_DATA *data;
 	char *update_changed_attribute_preupdate_label;
 } UPDATE_CHANGED_ATTRIBUTE;
 
@@ -62,8 +62,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *one2m_changed_attribute_list;
-	LIST *related_where_attribute_list;
+	LIST *foreign_changed_attribute_list;
+	LIST *foreign_where_attribute_list;
 	LIST *folder_delimited_list;
 } UPDATE_ONE2M;
 
@@ -77,8 +77,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *mto1_changed_attribute_list;
-	LIST *related_where_attribute_list;
+	LIST *foreign_changed_attribute_list;
+	LIST *foreign_where_attribute_list;
 	LIST *folder_delimited_list;
 } UPDATE_MTO1;
 
@@ -199,6 +199,16 @@ LIST *update_primary_key_changed_attribute_list(
 char *update_primary_set_clause(
 			LIST *primary_changed_attribute_list );
 
+/* UPDATE_FOREIGN operations */
+/* ------------------------- */
+LIST *update_foreign_changed_attribute_list(
+			LIST *primary_key_changed_attribute_list,
+			LIST *foreign_key_list );
+
+LIST *update_foreign_where_attribute_list(
+			LIST *primary_key_changed_attribute_list,
+			LIST *foreign_key_list );
+
 /* UPDATE_ONE2M operations */
 /* ----------------------- */
 UPDATE_ONE2M *update_one2m_calloc(
@@ -208,15 +218,6 @@ UPDATE_ONE2M *update_one2m(
 			LIST *primary_key_changed_attribute_list,
 			LIST *primary_where_attribute_list,
 			RELATION *relation_one2m );
-
-LIST *update_one2m_changed_attribute_list(
-			LIST *primary_key_changed_attribute_list,
-			char *many_folder_name,
-			LIST *foreign_attribute_name_list );
-
-LIST *update_one2m_where_attribute_list(
-			LIST *primary_where_attribute_list,
-			LIST *foreign_attribute_name_list );
 
 /* UPDATE_MTO1 operations */
 /* ----------------------- */
@@ -233,10 +234,6 @@ LIST *update_mto1_changed_attribute_list(
 			char *one_folder_name,
 			LIST *foreign_attribute_name_list );
 
-LIST *update_mto1_where_attribute_list(
-			LIST *primary_where_attribute_list,
-			LIST *foreign_attribute_name_list );
-
 /* UPDATE_CHANGED_ATTRIBUTE operations */
 /* ----------------------------------- */
 UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute(
@@ -247,6 +244,10 @@ UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute(
 			DICTIONARY *file_dictionary,
 			FOLDER_ATTRIBUTE *folder_attribute,
 			int row );
+
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_new(
+			char *folder_name,
+			char *attribute_name );
 
 UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_calloc(
 			void );
@@ -264,6 +265,11 @@ LIST *update_primary_changed_attribute_list(
 /* ---------------------------------------- */
 UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_calloc(
 			void );
+
+UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_new(
+			char *key,
+			char *old_data,
+			char *escaped_replaced_new_data );
 
 UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
 			DICTIONARY *post_dictionary,
