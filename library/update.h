@@ -86,12 +86,14 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
-	LIST *primary_changed_attribute_list;
-	LIST *primary_where_attribute_list;
-	char *security_entity_where_clause;
+	LIST *changed_attribute_list;
+	LIST *where_attribute_list;
+	_char *primary_where_clause;
 	char *folder_delimited;
-	LIST *primary_key_changed_attribute_list;
-	char *primary_set_clause;
+
+	/* Generic */
+	/* ------- */
+	LIST *key_changed_attribute_list;
 } UPDATE_PRIMARY;
 
 typedef struct
@@ -105,7 +107,10 @@ typedef struct
 	UPDATE_PRIMARY *update_primary;
 	LIST *one2m_list;
 	LIST *mto1_list;
-	int update_row_cell_count;
+	int cell_count;
+
+	/* Generic */
+	/* ------- */
 } UPDATE_ROW;
 
 typedef struct
@@ -133,7 +138,7 @@ typedef struct
 UPDATE *update_calloc(
 			void );
 
-UPDATE *update(
+UPDATE *update_new(
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
@@ -143,11 +148,16 @@ UPDATE *update(
 			char *role_name,
 			char *folder_name );
 
-int update_cell_count(
-			LIST *update_row_list );
+LIST *update_row_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			FOLDER *folder,
+			LIST *relation_mto1_isa_list,
+			LIST *relation_one2m_recursive_list,
+			SECURITY_ENTITY *security_entity );
 
-/* Returns mysql_message_list_string as heap memory */
-/* ------------------------------------------------ */
+/* Returns mysql_message as heap memory */
+/* ------------------------------------ */
 char *update_row_list_sql(
 			char *login_name,
 			SECURITY_ENTITY *security_entity,
@@ -159,40 +169,48 @@ char *update_set_clause(
 char *update_where_clause(
 			LIST *where_attribute_list );
 
-/* Returns mysql_message as heap memory */
-/* ------------------------------------ */
+/* Safely returns mysql_message as heap memory */
+/* ------------------------------------------- */
 char *update_folder_sql(
 			char *login_name,
 			char *table_name,
 			char *update_set_clause,
-			char *update_security_where_clause,
-			char *process_update_command_line );
+			char *security_entity_where_clause );
 
 char *update_post_change_process(
 			char *command_line );
 
 LIST *update_data_list( LIST *changed_attribute_list );
 
+int update_cell_count(
+			LIST *update_row_list );
+
 /* UPDATE_ROW operations */
 /* --------------------- */
-UPDATE_ROW *update_row(
+UPDATE_ROW *update_row_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
+			LIST *relation_mto1_isa_list,
+			LIST *relation_one2m_recursive_list,
 			SECURITY_ENTITY *security_entity,
 			int row );
 
 UPDATE_ROW *update_row_calloc(
 			void );
 
-LIST *update_row_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			SECURITY_ENTITY *security_entity );
+LIST *update_row_one2m_list(
+			LIST *primary_key_changed_attribute_list,
+			LIST *primary_where_attribute_list,
+			LIST *relation_one2m_recursive_list );
 
-/* Returns mysql_message_list_string as heap memory */
-/* ------------------------------------------------ */
+LIST *update_row_mto1_list(
+			LIST *primary_key_changed_attribute_list,
+			LIST *primary_where_attribute_list,
+			LIST *relation_mto1_isa_list );
+
+/* Returns mysql_message as heap memory */
+/* ------------------------------------ */
 char *update_row_sql(
 			char *login_name,
 			SECURITY_ENTITY *security_entity,
@@ -203,7 +221,7 @@ char *update_row_sql(
 UPDATE_PRIMARY *update_primary_calloc(
 			void );
 
-UPDATE_PRIMARY *update_primary(
+UPDATE_PRIMARY *update_primary_new(
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
@@ -248,7 +266,7 @@ LIST *update_foreign_where_attribute_list(
 UPDATE_ONE2M *update_one2m_calloc(
 			void );
 
-UPDATE_ONE2M *update_one2m(
+UPDATE_ONE2M *update_one2m_new(
 			LIST *primary_key_changed_attribute_list,
 			LIST *primary_where_attribute_list,
 			RELATION *relation_one2m );
@@ -258,7 +276,7 @@ UPDATE_ONE2M *update_one2m(
 UPDATE_MTO1 *update_mto1_calloc(
 			void );
 
-UPDATE_MTO1 *update_one2m(
+UPDATE_MTO1 *update_one2m_new(
 			LIST *primary_key_changed_attribute_list,
 			LIST *primary_where_attribute_list,
 			RELATION *relation_mto1 );
@@ -270,7 +288,7 @@ LIST *update_mto1_changed_attribute_list(
 
 /* UPDATE_CHANGED_ATTRIBUTE operations */
 /* ----------------------------------- */
-UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute(
+UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_fetch(
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
@@ -319,7 +337,7 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data(
 UPDATE_WHERE_ATTRIBUTE *update_where_attribute_calloc(
 			void );
 
-UPDATE_WHERE_ATTRIBUTE *update_where_attribute(
+UPDATE_WHERE_ATTRIBUTE *update_where_attribute_new(
 			DICTIONARY *file_dictionary,
 			char *primary_key,
 			int row );

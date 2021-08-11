@@ -27,9 +27,9 @@
 #include "folder.h"
 #include "process.h"
 
-LIST *process_executable_list( char *command_line )
+LIST *process_fetch_list( char *command_line )
 {
-	return pipe2list( command_line );
+	return list_pipe_fetch( command_line );
 }
 
 void process_convert_parameters(
@@ -677,7 +677,7 @@ void process_search_replace_where(
 	}
 
 	if ( ! ( query =
-			query_process_parameter_new(
+			query_search_replace_where(
 				preprompt_dictionary,
 				folder_name,
 				role_name,
@@ -1911,7 +1911,7 @@ LIST *process_parameter_primary_delimited_list(
 	}
 }
 
-LIST *process_parameter_evaluate_list(
+LIST *process_parameter_fetch_list(
 			char *command_line,
 			DICTIONARY *preprompt_dictionary,
 			char *login_name,
@@ -1920,13 +1920,17 @@ LIST *process_parameter_evaluate_list(
 {
 	LIST *return_list;
 
-	process_parameter_command_line_replace(
-		&command_line,
-		preprompt_dictionary,
-		login_name,
-		role_name,
-		folder_name,
-		environment_application_name() );
+	command_line =
+		/* ------------------------------------------ */
+		/* Frees command_line and returns heap memory */
+		/* ------------------------------------------ */
+		process_parameter_command_line_replace(
+			command_line,
+			preprompt_dictionary,
+			login_name,
+			role_name,
+			folder_name,
+			environment_application_name() );
 
 fprintf( stderr, "%s/%s()/%d: command_line = [%s]\n",
 __FILE__,
@@ -1935,7 +1939,7 @@ __LINE__,
 command_line );
 
 	return_list =
-		process_executable_list(
+		process_fetch_list(
 			command_line );
 
 	if ( piece_multi_attribute_data_label_delimiter )
@@ -1950,53 +1954,46 @@ command_line );
 	return return_list;
 }
 
-void process_parameter_command_line_replace(
-			char **command_line,
+char *process_parameter_command_line_replace(
+			char *command_line,
 			DICTIONARY *preprompt_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
 			char *application_name )
 {
-	char buffer[ QUERY_WHERE_BUFFER ];
-	char local_executable[ QUERY_WHERE_BUFFER ];
+	char buffer[ STRING_WHERE_BUFFER ];
+	char local_command_line[ STRING_WHERE_BUFFER ];
 	char buffer[ 1024 ];
 	char *data;
 
-	string_strcpy( local_executable, *command_line, 65536 );
+	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
 
 	search_replace_word(
-		local_executable,
+		local_command_line,
 		"$login_name",
 		double_quotes_around(
 			buffer, 
 			login_name ) );
 
 	search_replace_word(
-		local_executable,
+		local_command_line,
 		"$role",
 		double_quotes_around(
 			buffer, 
 			role_name ) );
 
 	search_replace_word(
-		local_executable,
+		local_command_line,
 		"$folder",
 		double_quotes_around(
 			buffer, 
 			folder_name ) );
 
-	search_replace_word(
-		local_executable,
-		"$application",
-		double_quotes_around(
-			buffer, 
-			application_name ) );
-
-	if ( timlib_exists_string( local_executable, "$dictionary" ) )
+	if ( string_exists( local_command_line, "$dictionary" ) )
 	{
 		search_replace_word(
-			local_executable,
+			local_command_line,
 			"$dictionary",
 			double_quotes_around(
 				buffer, 
@@ -2005,10 +2002,10 @@ void process_parameter_command_line_replace(
 				) );
 	}
 
-	if ( timlib_exists_string( local_executable, "$where" ) )
+	if ( string_exists( local_command_line, "$where" ) )
 	{
-		process_parameter_search_replace_where(
-			local_executable,
+		process_search_replace_where(
+			local_command_line,
 			preprompt_dictionary,
 			login_name,
 			role_name,
@@ -2018,26 +2015,26 @@ void process_parameter_command_line_replace(
 	if ( dictionary_length( preprompt_dictionary ) )
 	{ 
 		dictionary_search_replace_command_arguments(
-			local_executable,
+			local_command_line,
 			preprompt_dictionary, 
 			0 /* row  */ );
 	}
 
-	sprintf(	local_executable + strlen( local_executable ),
+	sprintf(	local_command_line + strlen( local_command_line ),
 			" 2>>%s",
 			appaserver_error_get_filename(
 				application_name ) );
 
 	/* This memory is always heap */
 	/* -------------------------- */
-	free( *command_line );
+	free( command_line );
 
-	*command_line =
+	return
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		security_sql_injection_escape(
-			local_executable ) );
+			local_command_line ) );
 }
 
 char *process_update_command_line(
@@ -2061,10 +2058,6 @@ char *process_update_command_line(
 		local_command_line,
 		command_line,
 		STRING_SYSTEM_BUFFER );
-
-	/* This memory is always strdup(). */
-	/* ------------------------------- */
-	free( command_line );
 
 	sprintf( process_id_string, "%d", getpid() );
 
@@ -2113,6 +2106,10 @@ char *process_update_command_line(
 	string_strcpy( buffer, local_command_line, STRING_SYSTEM_BUFFER );
 	escape_character( local_command_line, buffer, '$' );
 	remove_character( local_command_line, '`' );
+
+	/* This memory is always strdup(). */
+	/* ------------------------------- */
+	free( command_line );
 
 	return strdup( local_command_line );
 }

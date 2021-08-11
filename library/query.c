@@ -5736,7 +5736,6 @@ QUERY *query_process_parameter_new(
 			char *role_name,
 			char *login_name )
 {
-	LIST *exclude_attribute_name_list;
 	QUERY *query;
 
 	if ( !folder_name )
@@ -5787,9 +5786,13 @@ QUERY *query_process_parameter_new(
 	if ( ! ( query->query_folder =
 			folder_fetch(
 				folder_name,
-				(char *)0 /* role_name */,
+				role_name,
 				(LIST *)0 /* exclude_attribute_name_list */,
+				/* -------------------------- */
+				/* Also sets primary_key_list */
+				/* -------------------------- */
 				1 /* fetch_folder_attribute_list */,
+				0 /* not fetch_relation_mto1_non_isa_list */,
 				0 /* not fetch_process */,
 				0 /* not fetch_role_folder_list */,
 				1 /* fetch_row_level_restriction */ ) ) )
@@ -5836,7 +5839,6 @@ QUERY *query_process_parameter_new(
 
 	exclude_attribute_name_list = list_new();
 
-here1
 	query_output->from_clause =
 		query_from_clause(
 			folder->folder_name,

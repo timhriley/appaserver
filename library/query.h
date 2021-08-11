@@ -144,6 +144,7 @@ typedef struct
 	/* ------- */
 	PROMPT_RECURSIVE *prompt_recursive;
 	FOLDER *query_folder;
+	FOLDER *search_replace_where_folder;
 	ROLE *role;
 	SECURITY_ENTITY *security_entity;
 	ROLE_FOLDER *role_folder;

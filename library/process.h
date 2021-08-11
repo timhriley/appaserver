@@ -159,110 +159,24 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
 	char *process_or_process_set_name;
+	char *role_name;
+	char *login_name;
 	boolean check_executable_inside_filesystem;
+	boolean is_preprompt;
+	DICTIONARY *preprompt_dictionary;
 
+	/* Process */
+	/* ------- */
+	boolean process_structure_is_set;
+	PROCESS *process;
+	PROCESS_SET *process_set;
+	LIST *process_parameter_list;
 } PROCESS_STRUCTURE;
 
-/* Operations */
-/* ---------- */
-void process_execution_count_increment(
-			char *process_name );
-
-void process_convert_parameters(
-			char **executable,
-			char *application_name,
-			char *session,
-			char *state,
-			char *person,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			DICTIONARY *parameter_dictionary,
-			DICTIONARY *where_clause_dictionary,
-			LIST *attribute_list,
-			LIST *prompt_list,
-			LIST *primary_key_list,
-			LIST *primary_data_list,
-			int row,
-			char *process_name,
-			PROCESS_SET *process_set,
-			char *one2m_folder_name_for_process,
-			char *operation_row_count_string,
-			char *prompt );
-
-char *process_dictionary_process_member(
-			char *process_set,
-			DICTIONARY *parsed_decoded_post_dictionary,
-			char *from_starting_label );
-
-void process_replace_parameter_variables(	
-			char *command_line /* in/out */,
-			char *session,
-			char *state,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			char *process_name,
-			char *process_set_name,
-			char *operation_row_count_string,
-			char *one2m_folder_name,
-			char *prompt,
-			char *process_id_string,
-			DICTIONARY *post_dictionary );
-
-boolean process_executable_ok(
-			char *executable );
-
-void process_set_one2m_folder_name_for_process(
-			DICTIONARY *dictionary,
-			char *one2m_folder_name );
-
-void process_search_replace_where(
-			char *command_line /* in/out */,
-			char *folder_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *preprompt_dictionary );
-
-boolean process_interpreted_executable_ok(
-			char *which_string );
-
-void process_operation_convert(
-			char **executable,
-			char *application_name,
-			char *session,
-			char *state,
-			char *person,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			DICTIONARY *parameter_dictionary,
-			DICTIONARY *where_clause_dictionary,
-			LIST *append_isa_attribute_list,
-			LIST *primary_key_list,
-			LIST *primary_data_list,
-			int row,
-			char *process_name,
-			char *operation_row_count_string );
-
-void process_prompt_convert_parameters(
-			char **executable,
-			char *application_name,
-			char *session,
-			char *state,
-			char *person,
-			char *folder_name,
-			char *role_name,
-			DICTIONARY *preprompt_dictionary,
-			LIST *attribute_list,
-			int row,
-			char *process_name,
-			char *one2m_folder_name_for_process );
-
-/* PROMPT */
-/* ====== */
+/* PROMPT operations */
+/* ----------------- */
 PROMPT *prompt_fetch(	char *prompt_name );
 
 /* Returns static memory */
@@ -345,23 +259,15 @@ LIST *process_parameter_primary_delimited_list(
 			char *folder_name,
 			char *populate_drop_down_process_name );
 
-void process_parameter_command_line_replace(
-			char **command_line,
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_parameter_command_line_replace(
+			char *command_line,
 			DICTIONARY *preprompt_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
 			char *application_name );
-
-void process_parameter_search_replace_where(
-			char *command_line,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name );
-
-/* PROCESS_STRUCTURE */
-/* ================= */
 
 /* PROCESS */
 /* ======= */
@@ -387,11 +293,11 @@ PROCESS *process_parse(	char *input,
 			char *role_name,
 			boolean check_executable_inside_filesystem );
 
-LIST *process_executable_list(
+LIST *process_fetch_list(
 			char *command_line );
 
-/* PROCESS_SET */
-/* =========== */
+/* PROCESS_SET operations */
+/* ---------------------- */
 PROCESS_SET *process_set_new(
 			char *process_set_name );
 
@@ -418,9 +324,12 @@ PROCESS_SET *process_set_parse(
 char *process_set_process_where(
 			LIST *process_name_list );
 
-/* Returns heap memory */
-/* ------------------- */
-char *process_update_command_line(
+/* GENERIC operations */
+/* ------------------ */
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_update_row_command_line(
 			char *command_line,
 			DICTIONARY *post_dictionary,
 			char *login_name,
@@ -430,5 +339,108 @@ char *process_update_command_line(
 			int row,
 			char *process_name,
 			LIST *primary_data_list );
+
+void process_search_replace_where(
+			char *command_line /* in/out */,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name );
+
+void process_replace_parameter_variables(
+			char *command_line /* in/out */,
+			char *session,
+			char *state,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *process_name,
+			char *process_set_name,
+			char *operation_row_count_string,
+			char *one2m_folder_name,
+			char *prompt,
+			char *process_id_string,
+			DICTIONARY *post_dictionary );
+
+void process_execution_count_increment(
+			char *process_name );
+
+void process_convert_parameters(
+			char **executable,
+			char *application_name,
+			char *session,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			LIST *attribute_list,
+			LIST *prompt_list,
+			LIST *primary_key_list,
+			LIST *primary_data_list,
+			int row,
+			char *process_name,
+			PROCESS_SET *process_set,
+			char *one2m_folder_name_for_process,
+			char *operation_row_count_string,
+			char *prompt );
+
+char *process_dictionary_process_member(
+			char *process_set,
+			DICTIONARY *parsed_decoded_post_dictionary,
+			char *from_starting_label );
+
+boolean process_executable_ok(
+			char *executable );
+
+void process_set_one2m_folder_name_for_process(
+			DICTIONARY *dictionary,
+			char *one2m_folder_name );
+
+void process_search_replace_where(
+			char *command_line /* in/out */,
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary );
+
+boolean process_interpreted_executable_ok(
+			char *which_string );
+
+void process_operation_convert(
+			char **executable,
+			char *application_name,
+			char *session,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			DICTIONARY *parameter_dictionary,
+			DICTIONARY *where_clause_dictionary,
+			LIST *append_isa_attribute_list,
+			LIST *primary_key_list,
+			LIST *primary_data_list,
+			int row,
+			char *process_name,
+			char *operation_row_count_string );
+
+void process_prompt_convert_parameters(
+			char **executable,
+			char *application_name,
+			char *session,
+			char *state,
+			char *person,
+			char *folder_name,
+			char *role_name,
+			DICTIONARY *preprompt_dictionary,
+			LIST *attribute_list,
+			int row,
+			char *process_name,
+			char *one2m_folder_name_for_process );
+
 #endif
 
