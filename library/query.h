@@ -7,8 +7,9 @@
 #ifndef QUERY_H
 #define QUERY_H
 
+#include "string.h"
 #include "folder.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "list.h"
 #include "dictionary.h"
 #include "boolean.h"
@@ -21,7 +22,6 @@
 
 /* Constants */
 /* --------- */
-#define QUERY_WHERE_BUFFER			131072
 #define QUERY_MAX_ROWS				500
 #define QUERY_STARTING_LABEL			"qquery_"
 #define QUERY_FROM_STARTING_LABEL		"from_"

@@ -39,7 +39,7 @@ char *query_system_string( 	char *select_clause,
 				char *order_clause,
 				int maxrows )
 {
-	char system_string[ QUERY_WHERE_BUFFER ];
+	char system_string[ STRING_SYSTEM_BUFFER ];
 
 	if ( !select_clause || !*select_clause )
 	{
@@ -1432,7 +1432,7 @@ char *query_login_name_where_clause(
 			LIST *where_attribute_data_list,
 			char *login_name )
 {
-	char where_clause[ QUERY_WHERE_BUFFER ];
+	char where_clause[ STRING_WHERE_BUFFER ];
 	char *ptr = where_clause;
 	char *attribute_name;
 	char escaped_data[ 1024 ];
@@ -1532,7 +1532,7 @@ char *query_simple_where(
 			LIST *where_attribute_data_list,
 			LIST *append_isa_attribute_list )
 {
-	char where_clause[ QUERY_WHERE_BUFFER ];
+	char where_clause[ STRING_WHERE_BUFFER ];
 	char *ptr = where_clause;
 	char *attribute_name;
 	char escaped_data[ 1024 ];
@@ -1617,7 +1617,7 @@ char *query_attribute_list_display(
 			LIST *query_attribute_list )
 {
 	QUERY_ATTRIBUTE *query_attribute;
-	char buffer[ QUERY_WHERE_BUFFER ];
+	char buffer[ STRING_WHERE_BUFFER ];
 	char *ptr = buffer;
 
 	*ptr = '\0';
@@ -1679,7 +1679,7 @@ char *query_drop_down_list_display(	char *folder_name,
 	LIST *row_list;
 	LIST *attribute_name_list;
 	LIST *data_list;
-	char buffer[ QUERY_WHERE_BUFFER ];
+	char buffer[ STRING_WHERE_BUFFER ];
 	char *ptr = buffer;
 	char *attribute_name;
 	char *data;
@@ -1801,7 +1801,7 @@ char *query_drop_down_list_in_clause_display(
 			char *attribute_name,
 			LIST *data_list )
 {
-	char buffer[ QUERY_WHERE_BUFFER ];
+	char buffer[ STRING_WHERE_BUFFER ];
 	char *ptr = buffer;
 
 	if ( !list_rewind( data_list ) ) return "";
@@ -1905,7 +1905,7 @@ char *query_get_process_where_clause(
 	}
 	else
 	{
-		char where_clause[ QUERY_WHERE_BUFFER ];
+		char where_clause[ STRING_WHERE_BUFFER ];
 		boolean combine_date_time = 0;
 
 		/* Fix this! */
@@ -1972,7 +1972,7 @@ char *query_combined_where_clause(
 	}
 	else
 	{
-		char where_clause[ QUERY_WHERE_BUFFER ];
+		char where_clause[ STRING_WHERE_BUFFER ];
 
 		*drop_down_where_clause =
 			query_get_drop_down_where_clause(
@@ -2362,7 +2362,7 @@ LIST *query_get_one2m_subquery_related_folder_list(
 char *query_output_display(
 			QUERY_OUTPUT *query_output )
 {
-	static char display_string[ QUERY_WHERE_BUFFER ];
+	static char display_string[ STRING_WHERE_BUFFER ];
 	char *ptr = display_string;
 	QUERY_SUBQUERY *subquery;
 
@@ -2407,7 +2407,7 @@ char *query_output_display(
 char *query_get_drop_down_list_display(
 			LIST *query_drop_down_list )
 {
-	static char display_string[ QUERY_WHERE_BUFFER ];
+	static char display_string[ STRING_WHERE_BUFFER ];
 	char *ptr = display_string;
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
@@ -2548,7 +2548,7 @@ char *query_get_dictionary_where_clause(
 			LIST *primary_key_list,
 			char *dictionary_indexed_prefix )
 {
-	char where_clause[ QUERY_WHERE_BUFFER ];
+	char where_clause[ STRING_WHERE_BUFFER ];
 	char piece_buffer[ 512 ];
 	char key[ 128 ];
 	char *data;
@@ -2720,7 +2720,7 @@ char *query_or_sequence_get_where_clause(
 	char *attribute_name;
 	LIST *data_list;
 	char *data;
-	char where_clause[ QUERY_WHERE_BUFFER ];
+	char where_clause[ STRING_WHERE_BUFFER ];
 	char *where_ptr = where_clause;
 	boolean first_time_and;
 	boolean first_time_or;
@@ -3816,7 +3816,7 @@ char *query_edit_table_drop_down_where(
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
 	LIST *query_drop_down_row_list;
-	char where_clause[ QUERY_WHERE_BUFFER ];
+	char where_clause[ STRING_WHERE_BUFFER ];
 	char *ptr = where_clause;
 	char *attribute_name;
 	char *data;
@@ -3988,7 +3988,7 @@ char *query_edit_table_where(
 	}
 	else
 	{
-		char where_clause[ QUERY_WHERE_BUFFER ];
+		char where_clause[ STRING_WHERE_BUFFER ];
 
 		*drop_down_where_clause =
 			query_edit_table_drop_down_where(
@@ -4055,7 +4055,7 @@ QUERY_OUTPUT *query_detail_output_new(
 
 	if ( attribute_not_null_join && *attribute_not_null_join )
 	{
-		char where[ QUERY_WHERE_BUFFER ];
+		char where[ STRING_WHERE_BUFFER ];
 
 		sprintf(where,
 			"%s and %s",
@@ -4717,7 +4717,7 @@ char *query_output_drop_down_where(
 	boolean outter_first_time;
 	boolean inner_first_time;
 	boolean inner_inner_first_time;
-	char where[ QUERY_WHERE_BUFFER ];
+	char where[ STRING_WHERE_BUFFER ];
 	char *ptr = where;
 
 	if ( !list_rewind( query_drop_down_list ) ) return (char *)0;
@@ -4822,7 +4822,7 @@ char *query_output_drop_down_where(
 char *query_output_attribute_where(
 			LIST *query_attribute_list )
 {
-	char where_clause[ QUERY_WHERE_BUFFER ];
+	char where_clause[ STRING_WHERE_BUFFER ];
 	char *ptr = where_clause;
 	QUERY_ATTRIBUTE *date_between_attribute = {0};
 	QUERY_ATTRIBUTE *time_between_attribute = {0};
@@ -5236,7 +5236,7 @@ char *query_output_join_where(
 			LIST *mto1_isa_related_folder_list )
 {
 	RELATED_FOLDER *isa_related_folder;
-	char where[ QUERY_WHERE_BUFFER ];
+	char where[ STRING_WHERE_BUFFER ];
 	char *ptr = where;
 
 	*ptr = '\0';
@@ -5286,7 +5286,7 @@ char *query_output_where(
 			char *query_output_join_where,
 			char *attribute_not_null_join )
 {
-	char where[ QUERY_WHERE_BUFFER ];
+	char where[ STRING_WHERE_BUFFER ];
 	char *ptr = where;
 
 	*ptr = '\0';
@@ -5592,7 +5592,7 @@ char *query_output_select_display(
 			int mto1_isa_related_folder_list_length )
 {
 	char *select_name;
-	char display[ QUERY_WHERE_BUFFER ];
+	char display[ STRING_WHERE_BUFFER ];
 	char *ptr = display;
 
 	if ( !list_rewind( query_output_select_name_list ) )
@@ -5624,7 +5624,7 @@ LIST *query_system_dictionary_list(
 			LIST *select_name_list,
 			QUERY_DATE_CONVERT *query_date_convert )
 {
-	char buffer[ QUERY_WHERE_BUFFER ];
+	char buffer[ STRING_WHERE_BUFFER ];
 	char data[ 65536 ];
 	LIST *list = list_new();
 	DICTIONARY *dictionary;
@@ -5658,7 +5658,7 @@ LIST *query_system_dictionary_list(
 
 	pipe = popen( sys_string, "r" );
 
-	while( string_input_pipe( buffer, pipe, QUERY_WHERE_BUFFER ) )
+	while( string_input_pipe( buffer, pipe, STRING_WHERE_BUFFER ) )
 	{
 		dictionary = dictionary_small_new();
 		list_set( list, dictionary );
@@ -5804,14 +5804,14 @@ QUERY *query_process_parameter_new(
 		exit( 1 );
 	}
 
-	if ( ! ( query->query_entity =
-			query_entity_new(
+	if ( ! ( query->security_entity =
+			security_entity_new(
 				login_name,
 				query->query_folder->non_owner_forbid,
 				role->override_row_restrictions ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_entity_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: security_entity_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -6079,7 +6079,7 @@ QUERY_OUTPUT *query_edit_table_output_new(
 	&&   *attribute_not_null_folder_name
 	&&   strcmp( attribute_not_null_folder_name, first_folder_name ) != 0 )
 	{
-		char where[ QUERY_WHERE_BUFFER ];
+		char where[ STRING_WHERE_BUFFER ];
 
 		sprintf(where,
 			"%s and %s",

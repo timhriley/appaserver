@@ -147,6 +147,9 @@ int string_character_count(
 
 char *string_rtrim(	char *buffer );
 
+boolean string_exists(	char *string,
+			char *substring );
+
 boolean string_exists_substr(
 			char *string,
 			char *substring );

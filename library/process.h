@@ -197,23 +197,20 @@ char *process_dictionary_process_member(
 			char *from_starting_label );
 
 void process_replace_parameter_variables(	
-			char *executable,
-			char *application_name,
+			char *command_line /* in/out */,
 			char *session,
 			char *state,
-			char *person,
+			char *login_name,
 			char *folder_name,
 			char *role_name,
 			char *target_frame,
 			char *process_name,
 			char *process_set_name,
 			char *operation_row_count_string,
-			char *one2m_folder_name_for_process,
+			char *one2m_folder_name,
 			char *prompt,
-			char *process_id_string );
-
-void process_append_error_file(
-			char *executable );
+			char *process_id_string,
+			DICTIONARY *post_dictionary );
 
 boolean process_executable_ok(
 			char *executable );
@@ -222,12 +219,12 @@ void process_set_one2m_folder_name_for_process(
 			DICTIONARY *dictionary,
 			char *one2m_folder_name );
 
-void process_search_replace_executable_where(
-			char *local_executable,
-			char *application_name,
+void process_search_replace_where(
+			char *command_line /* in/out */,
 			char *folder_name,
-			LIST *attribute_list,
-			DICTIONARY *where_clause_dictionary );
+			char *role_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary );
 
 boolean process_interpreted_executable_ok(
 			char *which_string );
@@ -424,11 +421,8 @@ char *process_set_process_where(
 /* Returns heap memory */
 /* ------------------- */
 char *process_update_command_line(
-			/* -------------------------------- */
-			/* Sets process_id and login_name_0 */
-			/* -------------------------------- */
-			DICTIONARY *post_dictionary,
 			char *command_line,
+			DICTIONARY *post_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,

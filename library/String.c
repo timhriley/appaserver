@@ -695,12 +695,18 @@ char *string_rtrim( char *buffer )
         return buffer;
 }
 
+boolean string_exists(
+			char *string,
+			char *substring )
+{
+	return string_exists_substr( string, substring );
+}
+
 boolean string_exists_substr(
 			char *string,
 			char *substring )
 {
 	return ( string_instr( substring, string, 1 ) > -1 );
-
 }
 
 int string_instr(	char *substr,
