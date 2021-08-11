@@ -308,7 +308,6 @@ void update_execute_row(
 				 	"%s",
 				 	error_message_string );
 			}
-
 		}
 	} while( list_next( update_folder_list ) );
 }
@@ -1996,3 +1995,337 @@ LIST *update_foreign_changed_attribute_list(
 	return changed_attribute_list;
 }
 
+char *update_row_list_sql(
+			char *login_name,
+			SECURITY_ENTITY *security_entity,
+			LIST *update_row_list )
+{
+	UPDATE_ROW *update_row;
+	char mysql_message_list_string[ STRING_SYSTEM_BUFFER ];
+	char *ptr = mysql_message_list_string;
+	char *return_string = {0};
+
+	*ptr = '\0';
+
+	if ( list_rewind( update_row_list ) )
+	{
+		do {
+			update_row = list_get( update_row_list );
+
+			return_string =
+				/* Returns heap memory */
+				/* ------------------- */
+				update_row_sql(
+					login_name,
+					security_entity,
+					update_row );
+
+			if ( return_string )
+			{
+				ptr += sprintf( ptr, "%s;", return_string );
+				free( return_string );
+			}
+
+		} while ( list_next( update_row_list ) );
+	}
+	return strdup( mysql_message_list_string);
+}
+
+char *update_row_sql(	char *login_name,
+			SECURITY_ENTITY *security_entity,
+			UPDATE_ROW *update_row )
+{
+	char *set_clause;
+	char *security_where_clause;
+	char mysql_message[ STRING_SYSTEM_BUFFER ];
+	char *ptr = mysql_message;
+	char *return_message;
+
+	if ( !update_row )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_row is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	/* Execute the update primary folder */
+	/* --------------------------------- */
+	if ( !update_row->update_primary )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_primary is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( set_clause =
+			update_set_clause(
+				update_row->
+					update_primary->
+					changed_attribute_list ) ) )
+	{
+		fprintf(stderr,
+			"%s/%s()/%d: update_set_clause() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( where_clause =
+			security_entity_where_clause(
+				update_where_clause(
+					update_row->
+						update_primary->
+						where_attribute_list ),
+				security_entity ) ) )
+	{
+		fprintf(stderr,
+		"%s/%s()/%d: security_entity_where_clause() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return_message =
+		update_folder_sql(
+			login_name,
+			folder_table_name(
+				environment_application_name(),
+				update_row->
+					update_primary->
+					folder->
+					folder_name ),
+			set_clause,
+			where_clause );
+
+	/* If the primary_folder generates an error, then return now. */
+	/* ---------------------------------------------------------- */
+	if ( return_message && *return_message )
+	{
+		return return_message;
+	}
+
+	/* Execute the post_change_process */
+	/* ------------------------------- */
+}
+
+char *update_post_change_process( char *command_line )
+{
+			/* Reload the command_line each row */
+			/* -------------------------------- */
+			free( update_folder->post_change_process->executable );
+
+			process_load_executable(
+				&update_folder->post_change_process->
+					executable,
+				update_folder->post_change_process->
+					process_name,
+				application_name );
+
+			process_convert_parameters(
+				&update_folder->
+					post_change_process->executable,
+				application_name,
+				session,
+				"update" /* state */,
+				login_name,
+				update_folder->folder_name,
+				role_name,
+				(char *)0 /* target_frame */,
+				post_dictionary /* parameter_dictionary */,
+				post_dictionary /* where_clause_dictionary */,
+				update_folder->
+					post_change_process->attribute_list,
+				(LIST *)0 /* prompt_list */,
+				(LIST *)0 /* primary_key_list */,
+				(LIST *)0 /* primary_data_list */,
+				row,
+				(char *)0 /* process_name */,
+				(PROCESS_SET *)0,
+				(char *)0
+				/* one2m_folder_name_for_processes */,
+				(char *)0 /* operation_row_count_string */,
+				(char *)0 /* prompt */ );
+
+			error_message_string =
+				pipe2string( update_folder->
+						post_change_process->
+						executable );
+
+			if ( error_message_string && *error_message_string )
+			{
+				sprintf(error_messages +
+				 	strlen( error_messages ),
+				 	"%s",
+				 	error_message_string );
+			}
+}
+
+char *update_set_clause( LIST *changed_attribute_list )
+{
+}
+
+char *update_where_clause(
+			LIST *where_attribute_list )
+{
+}
+
+/* Returns mysql output */
+/* -------------------- */
+char *update_folder_sql(
+			char *login_name,
+			char *table_name,
+			char *update_set_clause,
+			char *update_security_where_clause,
+			char *process_update_command_line )
+{
+	char system_string[ STRING_SYSTEM_BUFFER ];
+	char *error_message_string = {0};
+	char sql_executable[ 1024 ];
+
+#ifdef UPDATE_DEBUG_MODE
+	sprintf( sql_executable,
+		 "cat >> %s",
+		 appaserver_error_filename(
+			application_name ) );
+#else
+	sprintf( sql_executable,
+		 "sql.e 2>&1 >> %s",
+		 appaserver_error_filename(
+			application_name ) );
+#endif
+
+	sprintf( sys_string,
+		 "echo \"update %s %s %s;\" | %s",
+		 table_name,
+		 set_clause,
+		 where_clause,
+		 sql_executable );
+
+	if ( strcmp( table_name, "appaserver_user" ) != 0 )
+	{
+		appaserver_output_error_message(
+			application_name,
+			system_string,
+			login_name );
+	}
+
+	/* Here is the update execution. */
+	/* ----------------------------- */
+	error_message_string = pipe2string( sys_string );
+
+	if ( error_message_string )
+	{
+		appaserver_output_error_message(
+			application_name,
+			error_message_string,
+			login_name );
+		return error_message_string;
+	}
+
+	if ( list_length( additional_update_attribute_name_list ) )
+	{
+		char *additional_update_attribute_name;
+		char *additional_update_data;
+
+		if (	list_length(
+			additional_update_attribute_name_list ) !=
+	     		list_length(
+			additional_update_data_list ) )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: length of additional_update_attribute_name_list does not equal length of additional_update_data_list.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_rewind( additional_update_attribute_name_list );
+		list_rewind( additional_update_data_list );
+
+		do {
+			additional_update_attribute_name =
+				list_get(
+				additional_update_attribute_name_list );
+
+			additional_update_data =
+				list_get(
+				additional_update_data_list );
+
+			if ( strcmp(	additional_update_data,
+					NULL_STRING ) == 0 )
+			{
+				sprintf(additional_set_clause,
+			 		"set %s=null",
+				 	additional_update_attribute_name );
+			}
+			else
+			{
+				sprintf(additional_set_clause,
+			 		"set %s='%s'",
+			 	additional_update_attribute_name,
+			 	additional_update_data );
+			}
+
+			sprintf( sys_string,
+	 			"echo \"update %s %s %s;\" | %s",
+	 			table_name,
+	 			additional_set_clause,
+	 			where_clause,
+				sql_executable );
+
+			appaserver_output_error_message(
+				application_name,
+				sys_string,
+				login_name );
+
+			if ( system( sys_string ) ){};
+
+			list_next( additional_update_data_list );
+
+		} while( list_next(
+			additional_update_attribute_name_list ) );
+	}
+	return (char *)0;
+}
+
+LIST *update_data_list( LIST *changed_attribute_list )
+{
+	LIST *data_list;
+	UPDATE_CHANGED_ATTRIBUTE *changed_attribute;
+
+	if ( !list_rewind( changed_attribute_list ) ) return (LIST *)0;
+
+	data_list = list_new();
+
+	do {
+		changed_attibute = list_get( changed_attribute_list );
+
+		if ( !changed_attribute->changed_attribute_data )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: changed_attribute_data is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			data_list,
+			changed_attribute->
+				changed_attribute_data->
+				escaped_replaced_new_data );
+
+	} while ( list_next( changed_attribute_list ) );
+
+	return data_list;
+}

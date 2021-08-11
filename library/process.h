@@ -421,5 +421,20 @@ PROCESS_SET *process_set_parse(
 char *process_set_process_where(
 			LIST *process_name_list );
 
+/* Returns heap memory */
+/* ------------------- */
+char *process_update_command_line(
+			/* -------------------------------- */
+			/* Sets process_id and login_name_0 */
+			/* -------------------------------- */
+			DICTIONARY *post_dictionary,
+			char *command_line,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state,
+			int row,
+			char *process_name,
+			LIST *primary_data_list );
 #endif
 

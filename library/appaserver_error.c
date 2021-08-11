@@ -9,12 +9,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "appaserver_error.h"
-#include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "date.h"
 #include "timlib.h"
 #include "environ.h"
+#include "appaserver_error.h"
 
 void appaserver_output_error_message(
 			char *application_name,
@@ -47,10 +46,15 @@ void appaserver_output_error_message(
 
 char *appaserver_get_error_filename( char *application_name )
 {
-	return appaserver_error_get_filename( application_name );
+	return appaserver_error_filename( application_name );
 }
 
 char *appaserver_error_get_filename( char *application_name )
+{
+	return appaserver_error_filename( application_name );
+}
+
+char *appaserver_error_filename( char *application_name )
 {
 	static char filename[ 128 ] = {0};
 	char local_application_name[ 128 ];
@@ -58,9 +62,7 @@ char *appaserver_error_get_filename( char *application_name )
 
 	if ( !application_name )
 	{
-		application_name =
-			environ_get_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		application_name = environment_application_name();
 	}
 
 	if ( application_name && *application_name )

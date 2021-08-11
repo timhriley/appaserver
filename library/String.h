@@ -15,7 +15,7 @@
 /* --------- */
 #define STRING_LF			10
 #define STRING_CR			13
-#define STRING_STRING_BUFFER		131072
+#define STRING_SYSTEM_BUFFER		131072
 #define STRING_WHERE_BUFFER		131072
 
 /* Structures */

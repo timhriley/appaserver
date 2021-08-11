@@ -146,6 +146,33 @@ UPDATE *update(
 int update_cell_count(
 			LIST *update_row_list );
 
+/* Returns mysql_message_list_string as heap memory */
+/* ------------------------------------------------ */
+char *update_row_list_sql(
+			char *login_name,
+			SECURITY_ENTITY *security_entity,
+			LIST *update_row_list );
+
+char *update_set_clause(
+			LIST *changed_attribute_list );
+
+char *update_where_clause(
+			LIST *where_attribute_list );
+
+/* Returns mysql_message as heap memory */
+/* ------------------------------------ */
+char *update_folder_sql(
+			char *login_name,
+			char *table_name,
+			char *update_set_clause,
+			char *update_security_where_clause,
+			char *process_update_command_line );
+
+char *update_post_change_process(
+			char *command_line );
+
+LIST *update_data_list( LIST *changed_attribute_list );
+
 /* UPDATE_ROW operations */
 /* --------------------- */
 UPDATE_ROW *update_row(
@@ -163,6 +190,13 @@ LIST *update_row_list(
 			DICTIONARY *file_dictionary,
 			FOLDER *folder,
 			SECURITY_ENTITY *security_entity );
+
+/* Returns mysql_message_list_string as heap memory */
+/* ------------------------------------------------ */
+char *update_row_sql(
+			char *login_name,
+			SECURITY_ENTITY *security_entity,
+			UPDATE_ROW *update_row );
 
 /* UPDATE_PRIMARY operations */
 /* ------------------------- */
