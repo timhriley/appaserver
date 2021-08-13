@@ -93,7 +93,9 @@ char *security_escape_character_array(
 SECURITY_ENTITY *security_entity_calloc(
 			void );
 
-SECURITY_ENTITY *security_entity(
+/* Always returns */
+/* -------------- */
+SECURITY_ENTITY *security_entity_new(
 			char *login_name,
 			boolean non_owner_forbid,
 			boolean override_row_restrictions );

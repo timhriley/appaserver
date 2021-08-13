@@ -160,10 +160,9 @@ typedef struct
 typedef struct
 {
 	/* Input */
-	char *process_or_process_set_name;
+	char *process_or_set_name;
 	char *role_name;
 	char *login_name;
-	boolean check_executable_inside_filesystem;
 	boolean is_preprompt;
 	DICTIONARY *preprompt_dictionary;
 
@@ -172,15 +171,28 @@ typedef struct
 	PROCESS *process;
 	PROCESS_SET *process_set;
 	LIST *process_parameter_list;
-} PROCESS_STRUCTURE;
+} PROCESS_PROMPT_DISPLAY;
 
-/* PROCESS_STRUCTURE operations */
-/* ---------------------------- */
-PROCESS_STRUCTURE *process_structure_fetch(
-			char *process_or_process_set_name,
+typedef struct
+{
+	/* Input */
+	char *process_name;
+	char *role_name;
+	char *login_name;
+	DICTIONARY *working_post
+
+	/* Process */
+	/* ------- */
+	PROCESS *process;
+	char *command_line;
+} PROCESS_PROMPT_SUBMIT;
+
+/* PROCESS_PROMPT_DISPLAY operations */
+/* --------------------------------- */
+PROCESS_PROMPT_DISPLAY *process_prompt_display_fetch(
+			char *process_or_set_name,
 			char *role_name,
-			char *login_namem,
-			boolean check_executable_inside_filesystem,
+			char *login_name,
 			boolean is_preprompt,
 			DICTIONARY *preprompt_dictionary );
 

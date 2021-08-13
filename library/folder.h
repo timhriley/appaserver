@@ -137,6 +137,9 @@ char *folder_table_name(
 			char *folder_name );
 
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
+			/* ---------------------------- */
+			/* If fetching role_folder_list */
+			/* ---------------------------- */
 			char *sql_injection_escape_role_name,
 			LIST *exclude_attribute_name_list,
 			/* -------------------------- */
@@ -187,5 +190,28 @@ LIST *folder_dictionary_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary );
+
+FOLDER *folder_drop_down_delimited_fetch(
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			char *one2m_folder_name,
+			char *state,
+			char *populate_drop_down_process_name,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *working_post_dictionary );
+
+LIST *folder_process_delimited_list(
+			PROCESS *populate_drop_down_process,
+			SECURITY_ENTITY *security_entity,
+			char *one2m_folder_name,
+			char *state,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *working_post_dictionary );
+
+LIST *folder_drop_down_delimited_list(
+			LIST *primary_key_list,
+			SECURITY_ENTITY *security_entity,
+			DICTIONARY *preprompt_dictionary );
 
 #endif

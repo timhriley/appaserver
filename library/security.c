@@ -239,7 +239,7 @@ SECURITY_ENTITY *security_entity_calloc( void )
 	return security_entity;
 }
 
-SECURITY_ENTITY *security_entity(
+SECURITY_ENTITY *security_entity_new(
 			char *login_name,
 			boolean non_owner_forbid,
 			boolean override_row_restrictions )
