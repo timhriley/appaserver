@@ -2037,7 +2037,7 @@ char *process_parameter_command_line_replace(
 			local_command_line ) );
 }
 
-char *process_update_command_line(
+char *process_update_row_command_line(
 			char *command_line,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *preprompt_dictionary,
@@ -2352,5 +2352,60 @@ void process_search_replace_where(
 		double_quotes_around( 	
 			buffer,
 			query->where_clause ) );
+}
+
+PROCESS_STRUCTURE *process_structure_fetch(
+			char *process_or_process_set_name,
+			char *role_name,
+			char *login_namem,
+			boolean check_executable_inside_filesystem,
+			boolean is_preprompt,
+			DICTIONARY *preprompt_dictionary )
+{
+	PROCESS_STRUCTURE *p = process_structure_calloc();
+
+	p->process_or_process_set_name = process_or_process_set_name;
+	p->role_name = role_name;
+	p->login_name = login_name;
+
+	p->check_executable_inside_filesystem =
+		check_executable_inside_filesystem;
+
+	p->is_preprompt = is_preprompt;
+	p->preprompt_dictionary = preprompt_dictionary;
+
+	if ( ( p->process_set =
+			process_set_fetch(
+				p->process_or_process_set_name,
+				p->role_name,
+				p->check_executable_inside_filesystem ) ) )
+	{
+		p->process_parameter_list =
+			process_set_parameter_system_list(
+				process_set_parameter_system_string(
+					process_set_primary_where(
+						p->
+							process_set->
+							process_set_name ) ) );
+	}
+	else
+	if ( ( p->process =
+			process_fetch(
+				p->process_or_process_set_name,
+				p->role_name,
+				p->check_executable_inside_filesystem ) ) )
+	{
+		p->process_parameter_list =
+			process_parameter_system_list(
+				process_parameter_system_string(
+					process_primary_where(
+						p->process->process_name ) ) );
+	}
+
+	if ( !p->process_set && !p->process )
+	{
+		return (PROCESS_STRUCTURE *)0;
+	}
+	return p;
 }
 

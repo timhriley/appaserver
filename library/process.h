@@ -169,11 +169,75 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	boolean process_structure_is_set;
 	PROCESS *process;
 	PROCESS_SET *process_set;
 	LIST *process_parameter_list;
 } PROCESS_STRUCTURE;
+
+/* PROCESS_STRUCTURE operations */
+/* ---------------------------- */
+PROCESS_STRUCTURE *process_structure_fetch(
+			char *process_or_process_set_name,
+			char *role_name,
+			char *login_namem,
+			boolean check_executable_inside_filesystem,
+			boolean is_preprompt,
+			DICTIONARY *preprompt_dictionary );
+
+/* PROCESS_SET operations */
+/* ---------------------- */
+PROCESS_SET *process_set_fetch(
+			char *process_set_name,
+			char *role_name,
+			boolean check_executable_inside_filesystem );
+
+/* Returns static memory */
+/* --------------------- */
+char *process_set_primary_where(
+			char *process_set_name );
+
+char *process_set_system_string(
+			char *where );
+
+PROCESS_SET *process_set_parse(
+			char *input,
+			char *role_name,
+			boolean check_executable_inside_filesystem );
+
+/* Returns heap memory */
+/* ------------------- */
+char *process_set_process_where(
+			LIST *process_name_list );
+
+PROCESS_SET *process_set_new(
+			char *process_set_name );
+
+/* PROCESS operations */
+/* ------------------ */
+PROCESS *process_fetch(
+			char *process_name,
+			char *role_name,
+			boolean check_executable_inside_filesystem );
+
+PROCESS *process_new(
+			char *process_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *process_primary_where(
+			char *process_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *process_system_string(
+			char *where );
+
+PROCESS *process_parse(	char *input,
+			char *role_name,
+			boolean check_executable_inside_filesystem );
+
+LIST *process_fetch_list(
+			char *command_line );
 
 /* PROMPT operations */
 /* ----------------- */
@@ -269,69 +333,23 @@ char *process_parameter_command_line_replace(
 			char *folder_name,
 			char *application_name );
 
-/* PROCESS */
-/* ======= */
-PROCESS *process_fetch(
-			char *process_name,
-			char *role_name,
-			boolean check_executable_inside_filesystem );
-
-PROCESS *process_new(
-			char *process_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *process_primary_where(
-			char *process_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_system_string(
-			char *where );
-
-PROCESS *process_parse(	char *input,
-			char *role_name,
-			boolean check_executable_inside_filesystem );
-
-LIST *process_fetch_list(
-			char *command_line );
-
-/* PROCESS_SET operations */
-/* ---------------------- */
-PROCESS_SET *process_set_new(
-			char *process_set_name );
-
-PROCESS_SET *process_set_fetch(
-			char *process_set_name,
-			char *role_name,
-			boolean check_executable_inside_filesystem );
-
-/* Returns static memory */
-/* --------------------- */
-char *process_set_primary_where(
-			char *process_set_name );
-
-char *process_set_system_string(
-			char *where );
-
-PROCESS_SET *process_set_parse(
-			char *input,
-			char *role_name,
-			boolean check_executable_inside_filesystem );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_set_process_where(
-			LIST *process_name_list );
-
 /* GENERIC operations */
 /* ------------------ */
+
+/* Frees command line and returns heap memory */
+/* ------------------------------------------ */
+char *process_structure_command_line(
+			char *command_line,
+			DICTIONARY *working_post_dictionary,
+			char *login_name,
+			char *role_name,
+			char *process_name );
 
 /* Frees command_line and returns heap memory */
 /* ------------------------------------------ */
 char *process_update_row_command_line(
 			char *command_line,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *preprompt_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
@@ -361,7 +379,7 @@ void process_replace_parameter_variables(
 			char *one2m_folder_name,
 			char *prompt,
 			char *process_id_string,
-			DICTIONARY *post_dictionary );
+			DICTIONARY *dictionary );
 
 void process_execution_count_increment(
 			char *process_name );
