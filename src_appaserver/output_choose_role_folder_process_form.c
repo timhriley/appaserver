@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 
 	if ( argc == 6 )
 	{
-		omit_html_head = (*argv[ 5 ] == 'y');
+		omit_html_head = ( *argv[ 5 ] == 'y' );
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
@@ -71,24 +71,24 @@ int main( int argc, char **argv )
 		login_name ) )
 	{
 		sprintf(sys_string,
-		"output_open_html_document %s %s \"%s\" %s",
+			"output_open_html_document %s %s \"%s\" %s",
 			application_name,
 			session,
 			title,
 			content_type_yn );
 
 		fflush( stdout );
-		system( sys_string );
+		if ( system( sys_string ) ){};
 		fflush( stdout );
 	}
 	else
 	if ( !omit_html_head )
 	{
 		document_output_dynarch_non_frame_html_head_body(
-				application_name,
-				(*content_type_yn == 'y'),
-				DOCUMENT_DYNARCH_MENU_ONLOAD_CONTROL_STRING,
-				(char *)0 /* additional_control_string */ );
+			application_name,
+			( *content_type_yn == 'y' ),
+			DOCUMENT_DYNARCH_MENU_ONLOAD_CONTROL_STRING,
+			(char *)0 /* additional_control_string */ );
 
 		printf( "<ul id=menu>\n" );
 	}
@@ -102,7 +102,7 @@ int main( int argc, char **argv )
 		char msg[ 1024 ];
 
 		sprintf( msg, 
-		"ERROR in %s/%s()/%d: cannot get roles for login_name = %s",
+		"ERROR in %s/%s()/%d: role_list_fetch(%s) returned empty.",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
@@ -143,7 +143,7 @@ int main( int argc, char **argv )
 				role_name,
 				title,
 				list_display_delimited( role_list, ',' ),
-				appaserver_error_get_filename(
+				appaserver_error_filename(
 					application_name ) );
 	
 			fflush( stdout );
@@ -172,9 +172,8 @@ int main( int argc, char **argv )
 	if ( *role_name )
 	{
 		sprintf(sys_string,
-		"output_choose_folder_process_menu %s %s %s \"%s\" 2>>%s",
+		"output_choose_folder_process_menu %s %s \"%s\" 2>>%s",
 			login_name,
-			application_name,
 			session,
 			role_name,
 			appaserver_error_filename( application_name ) );

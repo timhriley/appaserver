@@ -7,15 +7,29 @@
 #ifndef SESSION_H
 #define SESSION_H
 
+/* Includes */
+/* -------- */
 #include "list.h"
 #include "boolean.h"
 
+/* Constants */
+/* --------- */
+#define SESSION_TABLE_NAME			"appaserver_sessions"
 #define SESSION_REMOTE_IP_ADDRESS_VARIABLE	"REMOTE_ADDR"
 #define SESSION_MAX_SESSION_SIZE		10
 
+/* Structures */
+/* ---------- */
 typedef struct
 {
-	char *session;
+	/* Input */
+	/* ----- */
+	char *sql_injection_escape_application_name;
+	char *sql_injection_escape_session_key;
+
+	/* Attributes */
+	/* ---------- */
+	char *session_key;
 	char *login_name;
 	char *login_date;
 	char *login_time;
@@ -28,81 +42,30 @@ typedef struct
 SESSION *session_calloc(
 			void );
 
-int session_access_folder(
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *permission );
+SESSION *session_fetch(
+			/* Sets ENVIRONMENT_DATABASE */
+			/* ------------------------- */
+			char *sql_injection_escape_application_name,
+			char *sql_injection_escape_session_key,
+			char *integrity_check_login_name );
 
-void session_access_failed_message_and_exit(
+void session_access_failed_message_exit(
 			char *application_name,
-			char *session_key,
+			char *current_ip_address,
 			char *login_name );
-
-int session_get_session_folder_access_ok(
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *permission );
 
 SESSION *session_parse(	char *input );
 
-int session_load(
-			char **login_name,
-			char **last_access_date,
-			char **last_access_time,
-			char **http_user_agent,
-			char *application_name,
-			char *session_key );
-
-boolean session_access(	char *application_name,
-			char *session,
-			char *login_name );
-
-int session_access_process(
-			char *application_name,
-			char *session,
-			char *process_name,
-			char *login_name,
-			char *role_name );
-
-int session_get_session_process_access_ok(
-			char *application_name,
-			char *login_name,
-			char *session,
-			char *process_name,
-			char *role_name );
-
-char *session_get_login_name(
-			char *application_name,
-			char *session );
-
-char *session_get_http_user_agent(
-			char *application_name,
-			char *session );
-
-boolean session_key_exists(
-			char *application_name,
-			char *session_key );
-
-char *session_degrade_state(
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name );
-
 void session_update_access_date_time(
-			char *application_name,
-			char *session );
+			char *session_key );
 
 boolean session_remote_ip_address_changed(
-			char *application_name,
-			char *session );
+			char *remote_ip_address,
+			char *current_ip_address );
 
 void session_message_ip_address_changed_exit(
 			char *application_name,
+			char *session,
 			char *login_name );
 
 LIST *session_list_fetch(
@@ -111,9 +74,21 @@ LIST *session_list_fetch(
 LIST *session_system_list(
 			char *system_string );
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *session_system_string(
 			char *where );
+
+/* Returns static memory */
+/* --------------------- */
+char *session_primary_where(
+			char *session_key );
+
+void session_message_ip_address_changed_exit(
+			char *application_name,
+			char *session_key,
+			char *remote_ip_address,
+			char *current_ip_address,
+			char *login_name );
 
 #endif

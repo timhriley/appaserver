@@ -15,9 +15,10 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "query.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "appaserver.h"
 #include "session.h"
+#include "security.h"
 #include "appaserver_user.h"
 #include "application.h"
 #include "document.h"
@@ -25,7 +26,7 @@
 #include "dictionary.h"
 #include "post2dictionary.h"
 #include "role.h"
-#include "lookup_before_drop_down.h"
+#include "drilldown.h"
 
 #define TABLE_TARGET_FRAME		PROMPT_FRAME
 #define INSERT_UPDATE_KEY		"prompt"
@@ -52,15 +53,16 @@ int main( int argc, char **argv )
 {
 	char *login_name;
 	char *application_name;
-	char *session;
+	char *session_key;
 	char *folder_name;
 	char *state;
 	char *role_name;
 	char *form;
 	char sys_string[ 1024 ];
-	LIST *isa_related_folder_list;
-	APPASERVER *appaserver;
 	ROLE *role;
+	FOLDER *folder;
+	SESSION *session;
+	char *current_ip_address;
 
 	if ( argc != 7 )
 	{
@@ -72,78 +74,112 @@ int main( int argc, char **argv )
 
 	login_name = argv[ 1 ];
 	application_name = argv[ 2 ];
-	session = argv[ 3 ];
+	session_key = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	state = argv[ 6 ];
 
-	environ_set_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-		application_name );
+	if ( ! ( current_ip_address =
+			environment_get(
+				SESSION_REMOTE_IP_ADDRESS_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: environment_get(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			SESSION_REMOTE_IP_ADDRESS_VARIABLE );
+		exit( 1 );
+	}
 
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
+	if ( ! ( session =
+			session_fetch(
+				/* ------------------------- */
+				/* Sets ENVIRONMENT_DATABASE */
+				/* ------------------------- */
+				security_sql_injection_escape(
+					application_name ),
+				security_sql_injection_escape(
+					session_key ),
+				login_name
+					/* integrity_check_login_name */ ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: for IP=%s, session_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			current_ip_address,
+			session );
+
+		session_access_failed_message_exit(
+			application_name,
+			current_ip_address,
+			login_name );
+	}
 
 	appaserver_output_starting_argv_append_file(
 		argc,
 		argv,
-		application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
+		session->sql_injection_escape_application_name );
 
 	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
+		session->session_key,
+		current_ip_address ) )
 	{
 		session_message_ip_address_changed_exit(
+			session->sql_injection_escape_application_name,
+			session->session_key,
+			session->remote_ip_address,
+			current_ip_address,
+			session->login_name );
+	}
+
+	if ( !role_appaserver_user_fetch(
+		session->login_name,
+		security_sql_injection_escape(
+			role_name ) ) )
+	{
+		session_access_failed_message_exit(
+			session->sql_injection_escape_application_name,
+			current_ip_address,
+			session->sql_injection_escape_login_name );
+	}
+
+	if ( !security_access_folder(
+		security_sql_injection_escape(
+			folder_name ),
+		security_sql_injection_escape(
+			role_name ) ) )
+	{
+		session_access_failed_message_exit(
 			application_name,
+			current_ip_address,
 			login_name );
 	}
 
-	if ( !session_access_folder(
-				application_name,
-				session,
-				folder_name,
-				role_name,
-				state ) )
-	{
-		if ( !session_access_folder(
-					application_name,
-					session,
-					folder_name,
-					role_name,
-					"lookup" ) )
-		{
-			session_access_failed_message_and_exit(
-				application_name,
-				session,
-				login_name );
-		}
-	}
+	environ_set_utc_offset(
+		session->
+			sql_injection_escape_application_name );
 
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-			application_name,
-			session,
-			login_name );
-	}
+	add_relative_source_directory_to_path(
+		session->
+			sql_injection_escape_application_name );
 
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
+	add_utility_to_path();
+	add_src_appaserver_to_path();
+	environ_appaserver_home();
+	environ_prepend_dot_to_path();
+
+	session_update_access_date_time( session->session );
+
+	appaserver_library_purge_temporary_files(
+		session->sql_injection_escape_application_name );
 
 	role = role_new( role_name );
 
-	appaserver =
-		appaserver_folder_new(
-			application_name,
-			session,
-			folder_name );
+	folder =
+		folder_fetch(
 
 	appaserver->folder->mto1_related_folder_list = 
 		related_folder_get_mto1_related_folder_list(

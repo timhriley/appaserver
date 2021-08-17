@@ -50,6 +50,9 @@ int main( int argc, char **argv )
 	POST_LOGIN *post_login;
 
 	if ( ! ( post_login =
+			/* -------------------------------- */
+			/* Inserts into APPASERVER_SESSIONS */
+			/* -------------------------------- */
 			post_login_new(
 				argc,
 				argv ) ) )
@@ -179,9 +182,9 @@ int main( int argc, char **argv )
 		post_login->sql_injection_login_name );
 
 	post_login_frameset_output(
-			post_login->post_login_application_name,
-			post_login->sql_injection_login_name );
-			post_login->post_login_session );
+		post_login->post_login_application_name,
+		post_login->sql_injection_login_name );
+		post_login->post_login_session );
 
 	return 0;
 }

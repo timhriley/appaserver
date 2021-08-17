@@ -27,7 +27,7 @@ typedef struct
 	char *permission;
 } ROLE_FOLDER;
 
-LIST *role_folder_list(
+LIST *role_folder_fetch_list(
 			char *role_name,
 			char *folder_name );
 
@@ -56,4 +56,9 @@ boolean role_folder_update(
 boolean role_folder_insert(
 			LIST *role_folder_list );
 
+/* Returns static memory */
+/* --------------------- */
+char *role_folder_primary_where(
+			char *role_name,
+			char *folder_name )
 #endif

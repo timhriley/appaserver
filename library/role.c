@@ -360,3 +360,28 @@ LIST *role_list_fetch( char *login_name )
 	return list_pipe_fetch( sys_string );
 }
 
+char *role_appaserver_user_primary_where(
+			char *login_name,
+			char *role_name )
+{
+}
+
+char *role_appaserver_user_system_string( char *where )
+{
+}
+
+ROLE_APPASERVER_USER *role_appaserver_user_calloc( void )
+{
+}
+
+ROLE_APPASERVER_USER *role_appaserver_user_fetch(
+			char *session_login_name,
+			char *sql_injection_escape_role_name )
+{
+}
+
+
+ROLE_APPASERVER_USER *role_appaserver_user_parse( char *input )
+{
+}
+

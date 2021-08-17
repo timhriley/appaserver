@@ -6,8 +6,16 @@
 #ifndef ENVIRON_H
 #define ENVIRON_H
 
+/* Includes */
+/* -------- */
 #include "boolean.h"
 
+/* Constants */
+/* --------- */
+#define ENVIRONMENT_DATABASE		"APPASERVER_DATABASE"
+
+/* Prototypes */
+/* ---------- */
 char *resolve_environment_variables( 	char *return_string, char *s );
 
 char *environ_get_environment(		char *variable_name );

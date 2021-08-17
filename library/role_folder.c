@@ -12,18 +12,29 @@
 #include "sql.h"
 #include "role_folder.h"
 
-LIST *role_folder_list(
+char *role_folder_primary_where(
 			char *role_name,
 			char *folder_name )
 {
-	char where[ 128 ];
+	static char where[ 128 ];
 
 	sprintf(where,
 		"role = '%s' and folder = '%s'",
 		role_name,
 		folder_name );
 
-	return role_folder_system_list( where );
+	return where;
+}
+
+LIST *role_folder_fetch_list(
+			char *role_name,
+			char *folder_name )
+{
+	return
+	role_folder_system_list(
+		role_folder_primary_where(
+			role_name,
+			folder_name ) );
 }
 
 ROLE_FOLDER *role_folder_new( 
@@ -103,7 +114,6 @@ LIST *role_folder_system_list( char *system_string )
 		if ( ( role_folder = role_folder_parse( input ) ) )
 		{
 			if ( !list ) list = list_new();
-
 			list_set( list, role_folder );
 		}
 	}

@@ -34,7 +34,7 @@ enum horizontal_orphan {subschemas_only,
 
 /* Prototypes */
 /* ---------- */
-LIST *get_process_record_list(
+LIST *process_record_list_fetch(
 				char *entity,
 				char *role,
 				char *error_file,
@@ -108,7 +108,10 @@ void output_horizontal_processes(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *role_name;
+	char *login_name;
+	char *application_name;
+	char *session;
+	char *role_name;
 	LIST *process_record_list;
 	LIST *folder_list = {0};
 	char buffer[ 1024 ];
@@ -117,35 +120,35 @@ int main( int argc, char **argv )
 	boolean with_group_name_trimmed;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
-		fprintf( stderr, 
-	"Usage: %s login_name ignored session role\n", 
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s login_name session role\n", 
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	role_name = argv[ 4 ];
+	session = argv[ 2 ];
+	role_name = argv[ 3 ];
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new_role( application_name, role_name );
+	role = role_new( role_name );
 	
 	if ( appaserver_frameset_menu_horizontal(
-			application_name,
-			login_name ) )
+		application_name,
+		login_name ) )
 	{
 		with_group_name_trimmed = 0;
 	}
@@ -154,21 +157,22 @@ int main( int argc, char **argv )
 		with_group_name_trimmed = 1;
 	}
 
-	role_folder_insert_list = role_folder_get_insert_list(
-					application_name,
-					session,
-					role_name );
+	role_folder_insert_list =
+		role_folder_insert_list(
+			application_name,
+			session,
+			role_name );
 
 	folder_list =
-		folder_menu_get_choose_folder_list(
+		folder_menu_choose_folder_list(
 		     application_name,
 		     appaserver_parameter_file_get_data_directory(),
 		     session,
 		     role_name,
-		     (role->folder_count_yn == 'y' ) );
+		     ( role->folder_count_yn == 'y' ) );
 
 	process_record_list =
-		get_process_record_list(
+		process_record_list_fetch(
 			application_name,
 			role_name,
 			appaserver_error_get_filename( application_name ),
@@ -177,25 +181,25 @@ int main( int argc, char **argv )
 	if ( list_length( folder_list ) == 0
 	&&   list_length( process_record_list ) == 1 )
 	{
-		sprintf( buffer,
-			 "post_choose_process %s %s %s %s %s",
-			 login_name,
+		sprintf(buffer,
+			"post_choose_process %s %s %s %s %s",
+			login_name,
 			application_name,
-			 session,
-			 (char *)list_get_first_pointer( process_record_list ),
-			 role_name );
+			session,
+			(char *)list_first( process_record_list ),
+			role_name );
 
 		exit( system( buffer ) );
 	}
 
 	role_folder_populate_folder_insert_permission(
-			folder_list, 
-			role_folder_insert_list,
-			application_name );
+		folder_list, 
+		role_folder_insert_list,
+		application_name );
 
 	if ( appaserver_frameset_menu_horizontal(
-			application_name,
-			login_name ) )
+		application_name,
+		login_name ) )
 	{
 		HORIZONTAL_MENU *horizontal_menu;
 
@@ -205,70 +209,70 @@ int main( int argc, char **argv )
 				process_record_list );
 
 		output_horizontal_folders(
-				login_name,
-				application_name,
-				session,
-				role_name,
-				PROMPT_FRAME,
-				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_server_address(),
-				role->folder_count_yn,
-				"lookup",
-				horizontal_menu->lookup_subschema_list,
-			        horizontal_menu->
-					lookup_orphan_folder_list );
+			login_name,
+			application_name,
+			session,
+			role_name,
+			PROMPT_FRAME,
+			appaserver_parameter_file->apache_cgi_directory,
+			appaserver_library_server_address(),
+			role->folder_count_yn,
+			"lookup",
+			horizontal_menu->lookup_subschema_list,
+		        horizontal_menu->
+				lookup_orphan_folder_list );
 
 		output_horizontal_folders(
-				login_name,
-				application_name,
-				session,
-				role_name,
-				PROMPT_FRAME,
-				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_server_address(),
-				role->folder_count_yn,
-				"insert",
-				horizontal_menu->insert_subschema_list,
-			        horizontal_menu->
-					insert_orphan_folder_list );
+			login_name,
+			application_name,
+			session,
+			role_name,
+			PROMPT_FRAME,
+			appaserver_parameter_file->apache_cgi_directory,
+			appaserver_library_server_address(),
+			role->folder_count_yn,
+			"insert",
+			horizontal_menu->insert_subschema_list,
+		        horizontal_menu->
+				insert_orphan_folder_list );
 	
 		output_horizontal_processes(
-				login_name,
-				application_name,
-				session,
-				role_name,
-				PROMPT_FRAME,
-				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_server_address(),
-				horizontal_menu->process_group_list,
-			        horizontal_menu->orphan_process_name_list );
+			login_name,
+			application_name,
+			session,
+			role_name,
+			PROMPT_FRAME,
+			appaserver_parameter_file->apache_cgi_directory,
+			appaserver_library_server_address(),
+			horizontal_menu->process_group_list,
+		        horizontal_menu->orphan_process_name_list );
 	}
 	else
 	{
 		output_vertical_folders(
-				login_name,
-				application_name,
-				session,
-				role_name,
-				PROMPT_FRAME,
-				folder_list,
-				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_server_address(),
-				role->folder_count_yn );
+			login_name,
+			application_name,
+			session,
+			role_name,
+			PROMPT_FRAME,
+			folder_list,
+			appaserver_parameter_file->apache_cgi_directory,
+			appaserver_library_server_address(),
+			role->folder_count_yn );
 	
 		output_vertical_processes(
-				login_name,
-				application_name,
-				session,
-				role_name,
-				PROMPT_FRAME,
-				process_record_list,
-				appaserver_parameter_file->apache_cgi_directory,
-				appaserver_library_server_address() );
+			login_name,
+			application_name,
+			session,
+			role_name,
+			PROMPT_FRAME,
+			process_record_list,
+			appaserver_parameter_file->apache_cgi_directory,
+			appaserver_library_server_address() );
 	}
 
 	return 0;
-} /* main() */
+}
 
 void output_vertical_folders(
 			char *login_name,
@@ -293,7 +297,7 @@ void output_vertical_folders(
 "	<th colspan=3><h2 align=center>Data</h2></th>			\n" );
 
 	do {
-		folder = list_get_pointer( folder_list );
+		folder = list_get( folder_list );
 
 		printf ( "<tr>\n" );
 
@@ -353,21 +357,10 @@ void output_vertical_folders(
 		}
 	} while( list_next( folder_list ) );
 
-/* See folder_menu.h
-	if ( folder_count_yn == 'y' )
-	{
-		output_recount_submit_button_form(
-					application_name,
-					login_name,
-					session,
-					role_name );
-	}
-*/
-
 	printf( 
 "	</table>\n" );
 
-} /* output_vertical_folders() */
+}
 
 void output_vertical_processes(
 			char *login_name,
@@ -390,7 +383,7 @@ void output_vertical_processes(
 "	<th><h2 align=center>Processes</h2></th>			\n" );
 
 		do {
-			process_name = list_get_pointer( process_record_list );
+			process_name = list_get( process_record_list );
 			printf ( "<tr>\n" );
 
 			printf(
@@ -419,7 +412,7 @@ void output_vertical_processes(
 	printf( 
 "	</table>\n" );
 
-} /* output_vertical_processes() */
+}
 
 void output_horizontal_folders(
 			char *login_name,
@@ -495,7 +488,7 @@ void output_horizontal_folders(
 	if ( list_rewind( subschema_list ) )
 	{
 		do {
-			subschema = list_get_pointer( subschema_list );
+			subschema = list_get( subschema_list );
 	
 			printf(
 "\t\t<li>\n"
@@ -519,7 +512,7 @@ void output_horizontal_folders(
 
 			do {
 				horizontal_menu_folder =
-					list_get_pointer(
+					list_get(
 						subschema->
 						horizontal_menu_folder_list );
 
@@ -550,7 +543,7 @@ void output_horizontal_folders(
 	{
 		do {
 			horizontal_menu_folder =
-				list_get_pointer(
+				list_get(
 					orphan_folder_list );
 
 			output_folder_element(
@@ -572,7 +565,7 @@ void output_horizontal_folders(
 
 	} /* if ( list_rewind( orphan_folder_list ) ) */
 
-} /* output_horizontal_folders() */
+}
 
 void output_horizontal_processes(
 			char *login_name,
@@ -593,7 +586,7 @@ void output_horizontal_processes(
 	{
 		do {
 			process_group =
-				list_get_pointer(
+				list_get(
 					process_group_list );
 
 			printf(
@@ -617,7 +610,7 @@ void output_horizontal_processes(
 
 			do {
 				process_name =
-					list_get_pointer(
+					list_get(
 						process_group->
 							process_name_list );
 
@@ -649,7 +642,7 @@ void output_horizontal_processes(
 
 		do {
 			process_name =
-				list_get_pointer(
+				list_get(
 					orphan_process_name_list );
 
 			output_process_element(
@@ -668,19 +661,20 @@ void output_horizontal_processes(
 
 	} /* if ( list_rewind( orphan_process_name_list ) ) */
 
-} /* output_horizontal_processes() */
+}
 
-void output_folder_element(	char *apache_cgi_directory,
-				char *server_address,
-				char *application_name,
-				char *login_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				char *state,
-				char *target_frame,
-				char folder_count_yn,
-				long count )
+void output_folder_element(
+			char *apache_cgi_directory,
+			char *server_address,
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *state,
+			char *target_frame,
+			char folder_count_yn,
+			long count )
 {
 	char action_string[ 1024 ];
 	char buffer[ 256 ];
@@ -728,16 +722,17 @@ void output_folder_element(	char *apache_cgi_directory,
 			format_initial_capital(
 				buffer, folder_name ) );
 		}
-} /* output_folder_element() */
+}
 
-void output_process_element(	char *apache_cgi_directory,
-				char *server_address,
-				char *application_name,
-				char *login_name,
-				char *session,
-				char *process_name,
-				char *role_name,
-				char *target_frame )
+void output_process_element(
+			char *apache_cgi_directory,
+			char *server_address,
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *process_name,
+			char *role_name,
+			char *target_frame )
 {
 	char action_string[ 1024 ];
 	char buffer[ 256 ];
@@ -766,9 +761,9 @@ void output_process_element(	char *apache_cgi_directory,
 			HORIZONTAL_MENU_CLASS,
 			format_initial_capital(
 				buffer, process_name ) );
-} /* output_process_element() */
+}
 
-LIST *get_process_record_list(
+LIST *process_record_list_fetch(
 			char *application,
 			char *role,
 			char *error_file,
@@ -806,5 +801,5 @@ LIST *get_process_record_list(
 	}
 
 	return pipe2list( sys_string );
-} /* get_process_record_list() */
+}
 

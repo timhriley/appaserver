@@ -61,7 +61,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define MULTI_ATTRIBUTE_KEY_DELIMITER			'|'
 #define MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER		'^'
 #define MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER		'|'
-#define APPASERVER_DATABASE_ENVIRONMENT_VARIABLE	"APPASERVER_DATABASE"
 #define HORIZONTAL_MENU_CLASS			"menu"
 #define VERTICAL_MENU_CLASS			"vertical_menu"
 #define SUBMIT_BUTTON_LABEL			"|    Submit    |"

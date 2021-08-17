@@ -27,7 +27,7 @@ enum post_login_password_match_return {
 typedef struct
 {
 	DICTIONARY *post_login_dictionary;
-	char *post_login_application_name;
+	char *sql_injection_escape_application_name;
 	char *sql_injection_escape_login_name;
 	char *sql_injection_escape_password;
 	boolean post_login_missing_name;
@@ -44,6 +44,8 @@ typedef struct
 boolean post_login_missing_name(
 			char *post_login_name );
 
+/* Inserts into APPASERVER_SESSIONS */
+/* -------------------------------- */
 POST_LOGIN *post_login_new(
 			int argc,
 			char **argv );
@@ -55,9 +57,6 @@ char *post_login_application_name(
 			int argc,
 			char **argv,
 			DICTIONARY *post_dictionary );
-
-char *post_login_sql_injection_escape_name(
-			DICTIONARY *post_login_dictionary );
 
 char *post_login_database_password(
 			char *application_name,
@@ -90,6 +89,10 @@ char *post_login_session(
 			char *login_name );
 
 boolean post_login_name_email_address(
+			char *login_name );
+
+char *post_login_session_new(
+			char *application_name,
 			char *login_name );
 
 #endif

@@ -45,14 +45,21 @@ POST_LOGIN *post_login_new(
 		return (POST_LOGIN *)0;
 	}
 
-	if ( ! ( post_login->post_login_application_name =
+	post_login->sql_injection_escape_application_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
 			post_login_application_name(
 				argc,
 				argv,
-				post_login->post_dictionary ) ) )
+				post_login->post_dictionary ) );
+
+	if ( !post_login->sql_injection_escape_application_name
+	||   !*post_login->sql_injection_escape_application_name )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: post_login_application() returned empty.\n",
+"Warning in %s/%s()/%d: post_login_application_name() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -78,28 +85,32 @@ POST_LOGIN *post_login_new(
 				"password",
 				post_login->
 					post_login_dictionary ) );
-		post_login_sql_injection_escape_name(
 
 	if ( ( post_login->post_login_missing_name =
 		post_login_missing_name(
 			post_login->sql_injection_escape_login_name ) ) )
 	{
+		/* Generates an error */
+		/* ------------------ */
 		return post_login;
 	}
 
 	post_login->post_login_public_name =
 		post_login_public_name(
-			post_login->sql_injection_escape_login_name );
+			post_login->
+				sql_injection_escape_login_name );
 
 	post_login->post_login_database_password =
 		post_login_database_password(
-			post_login->post_login_application_name,
+			post_login->sql_injection_escape_application_name,
 			post_login->sql_injection_escape_login_name );
 
 	if ( ( post_login->post_login_missing_database_password =
 		post_login_missing_database_password(
 			post_login->post_login_database_password ) ) )
 	{
+		/* Generates an error */
+		/* ------------------ */
 		return post_login;
 	}
 
@@ -114,6 +125,10 @@ POST_LOGIN *post_login_new(
 			post_login->post_login_public_name,
 			post_login->sql_injection_escape_password,
 			post_login->post_login_database_password );
+
+	post_login_session_new(
+		post_login->sql_injection_escape_application_name,
+		post_login->sql_injection_escape_login_name );
 
 	return post_login;
 }
@@ -342,7 +357,7 @@ enum post_login_password_match_return
 	return password_fail;
 }
 
-char *post_login_session(
+char *post_login_session_new(
 			char *application_name,
 			char *login_name )
 {
