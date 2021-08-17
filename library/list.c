@@ -1765,6 +1765,11 @@ LIST *list_delimiter_string_to_integer_list(
 	return list;
 }
 
+LIST *list_string_extract( char *list_string, char delimiter )
+{
+	return list_string_list( list_string, delimiter );
+}
+
 LIST *list_delimiter_string_to_list( char *list_string, char delimiter )
 {
 	return list_string_list( list_string, delimiter );

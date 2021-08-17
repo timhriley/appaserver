@@ -228,17 +228,19 @@ FOLDER *folder_parse(	char *input,
 	if ( fetch_relation_mto1_isa_list )
 	{
 		folder->relation_mto1_isa_list =
-			/* ---------------------------- */
-			/* folder_attribute_list is set */
-			/* ---------------------------- */
 			relation_mto1_isa_list(
 				(LIST *)0 /* mto1_isa_list */,
 				folder->sql_injection_escape_folder_name );
 
-		folder->folder_attribute_append_isa_list =
-			folder_attribute_append_isa_list(
-				list_copy( folder->folder_attribute_list ),
-				folder->relation_mto1_isa_list );
+		if ( list_length( folder->folder_attribute_list ) )
+		{
+			folder->folder_attribute_append_isa_list =
+				folder_attribute_append_isa_list(
+					list_copy(
+						folder->
+							folder_attribute_list ),
+					folder->relation_mto1_isa_list );
+		}
 	}
 
 	if ( fetch_relation_one2m_list )

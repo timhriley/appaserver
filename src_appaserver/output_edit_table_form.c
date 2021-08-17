@@ -11,6 +11,7 @@
 #include <string.h>
 #include <limits.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "list.h"
 #include "list_usage.h"
@@ -29,7 +30,6 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
-#include "decode_html_post.h"
 #include "dictionary2file.h"
 #include "attribute.h"
 #include "session.h"
@@ -37,14 +37,24 @@
 #include "lookup_before_drop_down.h"
 #include "row_security.h"
 #include "dictionary_appaserver.h"
+#include "edit_table_form.h"
 
 /* Constants */
 /* --------- */
-#define INSERT_UPDATE_KEY	"edit"
-#define DEFAULT_TARGET_FRAME	EDIT_FRAME
 
 /* Prototypes */
 /* ---------- */
+void output_edit_table_form(
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			DICTIONARY *post_dictionary,
+			char *appaserver_mount_point );
+
 LIST *subtract_join_1tom_ignore_dictionary_related_folder_list(
 			LIST *join_1tom_related_folder_list,
 			DICTIONARY *ignore_dictionary );
@@ -67,13 +77,12 @@ int main( int argc, char **argv )
 	char *session;
 	char *folder_name;
 	char *role_name;
-	char *state;
 	char *state_for_heading;
 	char *insert_update_key;
 	char *target_frame;
 	DOCUMENT *document;
-	char decoded_dictionary_string[ MAX_INPUT_LINE ];
-	char dictionary_string[ MAX_INPUT_LINE ];
+	char decoded_dictionary_string[ STRING_INPUT_LINE ];
+	char dictionary_string[ STRING_INPUT_LINE ];
 	DICTIONARY *original_post_dictionary = {0};
 	FORM *form;
 	FOLDER *folder;
@@ -110,101 +119,93 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 9 )
+	if ( argc < 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role ignored insert_update_key target_frame [content_type_yn]\n",
+"Usage: %s login_name session folder role insert_update_key target_frame [content_type_yn]\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	/* message = argv[ 6 ]; */
-	insert_update_key = argv[ 7 ];
-	target_frame = argv[ 8 ];
+	session = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	insert_update_key = argv[ 5 ];
+	target_frame = argv[ 6 ];
 
-	if ( argc == 10 ) content_type_yn = *argv[ 9 ];
-
-	state = "update";
+	if ( argc == 8 ) content_type_yn = *argv[ 7 ];
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role_folder =
-		role_folder_new(
-			application_name,
-			session,
-			role_name,
-			folder_name );
-
-	if ( role_folder_viewonly( role_folder ) ) state = "lookup";
-
-	role =
-		role_new(
-			application_name,
-			role_name );
-
-	if ( ! ( folder =
-			folder_load_new(
-				application_name,
-				folder_name,
-				role ) ) )
+	if ( string_input( dictionary_string, stdin, STRING_INPUT_LINE ) )
 	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: folder_with_load_new(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 folder_name );
-		exit( 1 );
-	}
+		string_decode_html_post(
+			decoded_dictionary_string, 
+			dictionary_string );
 
-	if ( list_length( folder->mto1_isa_related_folder_list ) )
-	{
-		make_primary_keys_non_edit = 1;
-	}
-
-	if ( get_line( dictionary_string, stdin ) )
-	{
-		decode_html_post(	decoded_dictionary_string, 
-					dictionary_string );
-
-		original_post_dictionary =
+		post_dictionary =
 			dictionary_index_string2dictionary( 
 				decoded_dictionary_string );
-
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					original_post_dictionary,
-					application_name,
-					folder->attribute_list,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
-		dictionary_appaserver_parse_multi_attribute_keys(
-			dictionary_appaserver->query_dictionary,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL );
 	}
 	else
 	{
-		dictionary_appaserver =
-				dictionary_appaserver_new(
-					(DICTIONARY *)0,
-					(char *)0 /* application_name */,
-					(LIST *)0 /* attribute_list */,
-					(LIST *)0 /* operation_name_list */ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: string_input() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	output_edit_table_form(
+		application_name,
+		login_name,
+		session,
+		folder_name,
+		role_name,
+		insert_update_key,
+		target_frame,
+		post_dictionary,
+		appaserver_parameter_file->appaserver_mount_point );
+
+	return 0;
+}
+
+void output_edit_table_form(
+			char *application_name,
+			char *login_name,
+			char *session,
+			char *folder_name,
+			char *role_name,
+			char *insert_update_key,
+			char *target_frame,
+			DICTIONARY *post_dictionary,
+			char *appaserver_mount_point )
+{
+	EDIT_TABLE_FORM *edit_table_form =
+		edit_table_form_fetch(
+			application_name,
+			login_name,
+			session,
+			folder_name,
+			role_name,
+			insert_update_key,
+			target_frame,
+			post_dictionary );
+
+	if ( !edit_table_form )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: edit_table_form_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+
 	}
 
 	folder->join_1tom_related_folder_list =

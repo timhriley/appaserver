@@ -29,7 +29,6 @@ STANDARD_LIBRARY=						\
 APPASERVER_LIBRARY=						\
 		aggregate_level.o 				\
 		aggregate_statistic.o				\
-		decode_html_post.o				\
 		update_statement.o				\
 		fopen_path.o					\
 		name_arg.o					\
@@ -111,7 +110,8 @@ APPASERVER_LIBRARY=						\
 		moving_average.o				\
 		pair_one2m.o					\
 		mysqldump.o					\
-		prompt_edit_form.o
+		prompt_edit_form.o				\
+		edit_table_form.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -322,7 +322,6 @@ parse_report_dvr.e: parse_report_dvr.c parse_report.o hash_table.o
 		environ.o						\
 		dictionary.o						\
 		fopen_path.o						\
-		decode_html_post.o					\
 		column.o						\
 		hash_table.o						\
 		piece.o							\
@@ -547,7 +546,7 @@ queue.o: queue.c queue.h
 	${CC} ${CFLAGS} ${CFLAGS} -c queue.c
 
 list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
-		column.o hash_table.o decode_html_post.o
+		column.o hash_table.o
 	${CC} ${CFLAGS} list_dvr.c 			\
 			piece.o 			\
 			timlib.o 			\
@@ -557,7 +556,6 @@ list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
 			dictionary.o 			\
 			list_usage.o 			\
 			date_convert.o 			\
-			decode_html_post.o 		\
 			column.o 			\
 			hash_table.o 			\
 			list.o 				\
@@ -565,9 +563,6 @@ list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
 
 list.o: list.c list.h
 	${CC} ${CFLAGS} -c list.c
-
-decode_html_post.o: decode_html_post.c decode_html_post.h
-	${CC} ${CFLAGS} -c decode_html_post.c
 
 list_usage.o: list_usage.c list.h dictionary.o date_convert.o
 	${CC} ${CFLAGS} -c list_usage.c
@@ -582,7 +577,6 @@ dictionary_dvr.e: dictionary_dvr.c dictionary.o hash_table.o
 			julian.o 			\
 			hash_table.o 			\
 			piece.o 			\
-			decode_html_post.o 		\
 			timlib.o 			\
 			float.o 			\
 			list.o 				\
@@ -996,9 +990,9 @@ dictionary_appaserver.o: dictionary_appaserver.c dictionary_appaserver.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c dictionary_appaserver.c
 
-post_login_library.o: post_login_library.c post_login_library.h
+post_login.o: post_login.c post_login.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c post_login_library.c
+		-c post_login.c
 
 array.o: array.c array.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
@@ -1034,4 +1028,7 @@ javascript.o: javascript.c javascript.h
 
 prompt_edit_form.o: prompt_edit_form.c prompt_edit_form.h
 	${CC} ${CFLAGS} -c prompt_edit_form.c
+
+edit_table_form.o: edit_table_form.c edit_table_form.h
+	${CC} ${CFLAGS} -c edit_table_form.c
 

@@ -196,6 +196,58 @@ PROCESS_PROMPT_DISPLAY *process_prompt_display_fetch(
 			boolean is_preprompt,
 			DICTIONARY *preprompt_dictionary );
 
+/* PROCESS_PROMPT_SUBMIT operations */
+/* -------------------------------- */
+PROCESS_PROMPT_SUBMIT *process_prompt_submit_fetch(
+			char *process_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *working_post_dictionary );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_drop_down_command_line(
+			char *command_line,
+			char *application_name,
+			char *one2m_folder_name,
+			char *state,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *working_post_dictionary );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_update_row_command_line(
+			char *command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state,
+			int row,
+			char *process_name,
+			char *one2m_folder_name,
+			LIST *primary_data_list );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_prompt_submit_command_line(
+			char *command_line,
+			char *process_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *working_post_dictionary );
+
+void process_search_replace_where(
+			char *command_line /* in/out */,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name );
+
+void process_replace_one2m_folder_name(
+			char *command_line /* in/out */,
+			char *one2m_folder_name );
+
 /* PROCESS_SET operations */
 /* ---------------------- */
 PROCESS_SET *process_set_fetch(
@@ -335,63 +387,8 @@ LIST *process_parameter_primary_delimited_list(
 			char *folder_name,
 			char *populate_drop_down_process_name );
 
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
-char *process_parameter_command_line_replace(
-			char *command_line,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *application_name );
-
 /* GENERIC operations */
 /* ------------------ */
-
-/* Frees command line and returns heap memory */
-/* ------------------------------------------ */
-char *process_structure_command_line(
-			char *command_line,
-			DICTIONARY *working_post_dictionary,
-			char *login_name,
-			char *role_name,
-			char *process_name );
-
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
-char *process_update_row_command_line(
-			char *command_line,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *state,
-			int row,
-			char *process_name,
-			LIST *primary_data_list );
-
-void process_search_replace_where(
-			char *command_line /* in/out */,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name );
-
-void process_replace_parameter_variables(
-			char *command_line /* in/out */,
-			char *session,
-			char *state,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			char *process_name,
-			char *process_set_name,
-			char *operation_row_count_string,
-			char *one2m_folder_name,
-			char *prompt,
-			char *process_id_string,
-			DICTIONARY *dictionary );
 
 void process_execution_count_increment(
 			char *process_name );

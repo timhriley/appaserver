@@ -399,16 +399,16 @@ int main( int argc, char **argv )
 			0 /* not with_non_prefixed_dictionary */ );
 
 	sprintf(sys_string,
-"echo \"%s\"								|"
-"output_edit_table_form '%s' '%s' '%s' '%s' '%s' '' '%s' '%s'	 	 ",
+"echo \"%s\"							|"
+"output_edit_table_form '%s' '%s' '%s' '%s' '%s' '%s' 2>>%s	 ",
 		escaped_dictionary_string,
  		login_name,
-		application_name,
  		session,
  		folder_name,
 		role_name,
 		insert_update_key,
-		target_frame );
+		target_frame,
+		appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ) {};
 

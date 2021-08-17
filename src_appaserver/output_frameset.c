@@ -1,5 +1,5 @@
 /* ----------------------------------------------------	*/
-/* src_appaserver/output_frameset.c			*/
+/* $APPASERVER_HOME/src_appaserver/output_frameset.c	*/
 /* ----------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ----------------------------------------------------	*/
@@ -19,34 +19,35 @@
 
 #define LOCAL_CONTENT_TYPE_YN		"n"
 
-void output_vertical_frameset(		char *application_name,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *menu_frame_prompt_filename,
-					char *menu_frame_create_filename,
-					char *prompt_frame_prompt_filename,
-					char *prompt_frame_create_filename,
-					char *edit_frame_prompt_filename,
-					char *edit_frame_create_filename,
-					char *title,
-					boolean content_type );
+void output_vertical_frameset(
+		char *application_name,
+		char *session,
+		char *login_name,
+		char *menu_frame_prompt_filename,
+		char *menu_frame_create_filename,
+		char *prompt_frame_prompt_filename,
+		char *prompt_frame_create_filename,
+		char *edit_frame_prompt_filename,
+		char *edit_frame_create_filename,
+		char *title,
+		boolean content_type );
 
-void output_horizontal_frameset(	char *application_name,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *prompt_frame_prompt_filename,
-					char *prompt_frame_create_filename,
-					char *edit_frame_prompt_filename,
-					char *edit_frame_create_filename,
-					char *title,
-					boolean content_type );
+void output_horizontal_frameset(
+		char *application_name,
+		char *session,
+		char *login_name,
+		char *prompt_frame_prompt_filename,
+		char *prompt_frame_create_filename,
+		char *edit_frame_prompt_filename,
+		char *edit_frame_create_filename,
+		char *title,
+		boolean content_type );
 
 int main( int argc, char **argv )
 {
-	char *application_name, *session, *login_name;
-	char *role_name;
+	char *application_name;
+	char *session;
+	char *login_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char title[ 1024 ];
 	char *menu_frame_prompt_filename;
@@ -58,28 +59,27 @@ int main( int argc, char **argv )
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	boolean content_type = 1;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc < 5 )
+	if ( argc < 3 )
 	{
 		fprintf( stderr, 
-"Usage: %s ignored session login_name role [content_type_yn]\n", 
+"Usage: %s session login_name [content_type_yn]\n", 
 		argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
 
-	if ( argc == 6 )
+	if ( argc == 4 )
 	{
-		content_type = ( *argv[ 5 ] == 'y' );
+		content_type = ( *argv[ 3 ] == 'y' );
 	}
 
 	add_src_appaserver_to_path();
@@ -233,7 +233,6 @@ int main( int argc, char **argv )
 					application_name,
 					session,
 					login_name,
-					role_name,
 					prompt_frame_prompt_filename,
 					prompt_frame_create_filename,
 					edit_frame_prompt_filename,
@@ -247,7 +246,6 @@ int main( int argc, char **argv )
 					application_name,
 					session,
 					login_name,
-					role_name,
 					menu_frame_prompt_filename,
 					menu_frame_create_filename,
 					prompt_frame_prompt_filename,
@@ -257,30 +255,27 @@ int main( int argc, char **argv )
 					title,
 					content_type );
 	}
-	exit( 0 );
+	return 0;
 }
 
-void output_vertical_frameset(		char *application_name,
-					char *session,
-					char *login_name,
-					char *role_name,
-					char *menu_frame_prompt_filename,
-					char *menu_frame_create_filename,
-					char *prompt_frame_prompt_filename,
-					char *prompt_frame_create_filename,
-					char *edit_frame_prompt_filename,
-					char *edit_frame_create_filename,
-					char *title,
-					boolean content_type )
+void output_vertical_frameset(
+			char *session,
+			char *login_name,
+			char *menu_frame_prompt_filename,
+			char *menu_frame_create_filename,
+			char *prompt_frame_prompt_filename,
+			char *prompt_frame_create_filename,
+			char *edit_frame_prompt_filename,
+			char *edit_frame_create_filename,
+			char *title,
+			boolean content_type )
 {
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
-			application_name,
+"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s >> %s",
 			session,
 			login_name,
-			role_name,
 			title,
 			LOCAL_CONTENT_TYPE_YN,
 			menu_frame_create_filename );
@@ -293,6 +288,7 @@ void output_vertical_frameset(		char *application_name,
 		 title,
 		 prompt_frame_create_filename,
 		 appaserver_get_error_filename( application_name ) );
+
 	if ( system( sys_string ) ){};
 
 	sprintf( sys_string,
@@ -335,7 +331,6 @@ void output_vertical_frameset(		char *application_name,
 void output_horizontal_frameset(	char *application_name,
 					char *session,
 					char *login_name,
-					char *role_name,
 					char *prompt_frame_prompt_filename,
 					char *prompt_frame_create_filename,
 					char *edit_frame_prompt_filename,
@@ -346,11 +341,9 @@ void output_horizontal_frameset(	char *application_name,
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' \"%s\" %s >> %s",
-			application_name,
+"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s >> %s",
 			session,
 			login_name,
-			role_name,
 			title,
 			LOCAL_CONTENT_TYPE_YN,
 			prompt_frame_create_filename );

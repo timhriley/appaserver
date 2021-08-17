@@ -159,5 +159,9 @@ boolean relation_is_primary_key_subset(
 char *relation_list_display(
 			LIST *one2m_relation_list );
 
+LIST *relation_join_one2m_list(
+			LIST *relation_one2m_recursive_list,
+			DICTIONARY *ignore_dictionary );
+
 #endif
 

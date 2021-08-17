@@ -148,10 +148,7 @@ int main( int argc, char **argv )
 	if ( !role_name || !*role_name )
 	{
 		LIST *role_list;
-		role_list = get_role_list(	application_name,
-						login_name,
-						appaserver_error_get_filename(
-						application_name ) );
+		role_list = role_list_fetch( login_name );
 		role_name = list_get_first_string( role_list );
 	}
 

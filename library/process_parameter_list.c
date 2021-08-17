@@ -1040,7 +1040,7 @@ FOLDER *process_parameter_get_and_set_distinct_folder(
 				&folder->html_help_file_anchor,
 				&folder->post_change_javascript,
 				&folder->
-				lookup_before_drop_down,
+					lookup_before_drop_down,
 				&folder->data_directory,
 				&folder->index_directory,
 				&folder->no_initial_capital,

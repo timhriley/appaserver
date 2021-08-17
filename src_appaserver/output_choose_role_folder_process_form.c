@@ -30,39 +30,40 @@
 
 int main( int argc, char **argv )
 {
-	char *application_name, *session, *login_name;
-	char *role_name;
+	char *application_name;
+	char *session;
+	char *login_name;
 	char *title;
 	char sys_string[ 1024 ];
 	LIST *role_list;
 	char login_name_buffer[ 128 ];
 	char *content_type_yn;
 	boolean omit_html_head = 0;
+	char *role_name = "";
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc < 7 )
+	if ( argc < 5 )
 	{
 		fprintf( stderr, 
-"Usage: %s ignored session login_name role title content_type_yn [omit_html_head_yn]\n", 
+"Usage: %s session login_name title content_type_yn [omit_html_head_yn]\n", 
 		argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	title = argv[ 5 ];
-	content_type_yn = argv[ 6 ];
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
+	title = argv[ 3 ];
+	content_type_yn = argv[ 4 ];
 
-	if ( argc == 8 )
+	if ( argc == 6 )
 	{
-		omit_html_head = (*argv[ 7 ] == 'y');
+		omit_html_head = (*argv[ 5 ] == 'y');
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
@@ -92,10 +93,9 @@ int main( int argc, char **argv )
 		printf( "<ul id=menu>\n" );
 	}
 
-	role_list = get_role_list(	application_name,
-					login_name,
-					appaserver_error_get_filename(
-						application_name ) );
+	role_list =
+		role_list_fetch(
+			login_name );
 
 	if ( list_length( role_list ) == 0 )
 	{
@@ -119,7 +119,7 @@ int main( int argc, char **argv )
 	else
 	if ( list_length( role_list ) == 1 )
 	{
-		role_name = list_get_first_string( role_list );
+		role_name = list_first( role_list );
 	}
 
 	if ( !appaserver_frameset_menu_horizontal(
@@ -159,7 +159,7 @@ int main( int argc, char **argv )
 
 	/* If don't know the role, but has a default role, then fetch it. */
 	/* -------------------------------------------------------------- */
-	if ( !*role_name || strcmp( role_name, "role" ) == 0 )
+	if ( !*role_name )
 	{
 		role_name =
 			appaserver_library_default_role_name(
@@ -169,7 +169,7 @@ int main( int argc, char **argv )
 
 	/* If know the role, then output the other menus. */
 	/* ---------------------------------------------- */
-	if ( *role_name && strcmp( role_name, "role" ) != 0 )
+	if ( *role_name )
 	{
 		sprintf(sys_string,
 		"output_choose_folder_process_menu %s %s %s \"%s\" 2>>%s",
@@ -177,8 +177,7 @@ int main( int argc, char **argv )
 			application_name,
 			session,
 			role_name,
-			appaserver_error_get_filename(
-					application_name ) );
+			appaserver_error_filename( application_name ) );
 
 		fflush( stdout );
 		system( sys_string );
@@ -210,8 +209,7 @@ int main( int argc, char **argv )
 				role_name,
 				title,
 				list_display_delimited( role_list, ',' ),
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 
 			fflush( stdout );
 			system( sys_string );
@@ -243,5 +241,5 @@ int main( int argc, char **argv )
 	} /* if horizontal menu */
 
 	return 0;
-} /* main() */
+}
 

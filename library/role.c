@@ -11,6 +11,7 @@
 #include "sql.h"
 #include "timlib.h"
 #include "piece.h"
+#include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
@@ -345,5 +346,17 @@ ROLE *role_parse(	char *input,
 	}
 
 	return role;
+}
+
+LIST *role_list_fetch( char *login_name )
+{
+	char sys_string[ 256 ];
+
+	sprintf( sys_string, 
+		 "roles4appaserver_user.sh %s %s",
+		 environment_application_name(),
+		 login_name );
+
+	return list_pipe_fetch( sys_string );
 }
 

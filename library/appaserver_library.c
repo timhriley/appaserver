@@ -431,19 +431,6 @@ char **appaserver_library_system_folder_list( void )
 	return system_folder_list;
 }
 
-LIST *get_role_list(	char *application_name,
-			char *login_name,
-			char *error_file )
-{
-	char sys_string[ 256 ];
-
-	sprintf( sys_string, 
-		 "roles4appaserver_user.sh %s %s 2>>%s", 
-		 application_name,
-		 login_name, error_file );
-	return pipe2list( sys_string );
-}
-
 void appaserver_library_set_no_display_pressed(
 					DICTIONARY *ignore_dictionary, 
 					LIST *key_list )

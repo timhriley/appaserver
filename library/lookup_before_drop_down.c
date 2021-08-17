@@ -17,7 +17,7 @@
 #include "dictionary_appaserver.h"
 
 LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
-			char *application_name,
+			FOLDER *base_folder,
 			DICTIONARY *lookup_before_drop_down_dictionary,
 			char *state )
 {
@@ -98,13 +98,12 @@ LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
 			      mto1_lookup_before_drop_down_related_folder_list,
 			state );
 
-	lookup_before_drop_down_with_dictionary_set_fulfilled(
+	lookup_before_drop_down_dictionary_set_fulfilled(
 		lookup_before_drop_down->
 			lookup_before_drop_down_folder_list,
 		lookup_before_drop_down_dictionary );
 
 	return lookup_before_drop_down;
-
 }
 
 char *lookup_before_drop_down_get_base_folder_name(
@@ -284,7 +283,7 @@ boolean lookup_before_drop_down_omit(
 
 }
 
-void lookup_before_drop_down_with_dictionary_set_fulfilled(
+void lookup_before_drop_down_dictionary_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
 		DICTIONARY *lookup_before_drop_down_dictionary )
 {
@@ -303,7 +302,7 @@ void lookup_before_drop_down_with_dictionary_set_fulfilled(
 			fulfilled_folder_name_list_string,
 			',' );
 
-	lookup_before_drop_down_with_folder_name_list_set_fulfilled(
+	lookup_before_drop_down_folder_name_list_set_fulfilled(
 		lookup_before_drop_down_folder_list,
 		fulfilled_folder_name_list );
 
@@ -335,7 +334,7 @@ LOOKUP_BEFORE_DROP_DOWN_FOLDER *lookup_before_drop_down_folder_list_seek(
 
 }
 
-void lookup_before_drop_down_with_folder_name_list_set_fulfilled(
+void lookup_before_drop_down_folder_name_list_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
 		LIST *folder_name_list )
 {

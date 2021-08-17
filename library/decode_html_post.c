@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* decode_html_post.c							*/
+/* $APPASERVER_HOME/library/decode_html_post.c				*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -23,27 +23,6 @@ char *decode_html_post( char *destination, char *source )
 
 	while( *source_ptr )
 	{
-#ifdef NOT_DEFINED
-		/* Convert plus to space */
-		/* --------------------- */
-		if ( *source_ptr == '+' )
-		{
-			*destination_ptr++ = ' ';
-			source_ptr++;
-			continue;
-		}
-
-		/* Convert carrot to two stars. */
-		/* ---------------------------- */
-		if ( *source_ptr == '^' )
-		{
-			*destination_ptr++ = '*';
-			*destination_ptr++ = '*';
-			source_ptr++;
-			continue;
-		}
-#endif
-
 		if ( *source_ptr == '%' )
 		{
 			/* Sometimes, there's a preceeding "25" */
@@ -112,33 +91,5 @@ char *decode_html_post( char *destination, char *source )
 	}
 	*destination_ptr = '\0';
 	return destination;
-} /* decode_html_post() */
-
-char *string_decode_cr( char *d, char *s )
-{
-	char *tmp = d;
-
-	while( *s )
-	{
-		if ( strncmp( s, "%0D", 3 ) == 0 )
-		{
-/*
-			*tmp++ = 13;
-*/
-			s += 3;
-		}
-		else
-		if ( strncmp( s, "%0A", 3 ) == 0 )
-		{
-			*tmp++ = 10;
-			s += 3;
-		}
-		else
-			*tmp++ = *s++;
-	}
-	*tmp = '\0';
-
-	return trim( d );
-
-} /* string_decode_cr() */
+}
 

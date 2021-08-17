@@ -137,24 +137,7 @@ int main( int argc, char **argv )
 	session_update_access_date_time( application_name, session );
 	appaserver_library_purge_temporary_files( application_name );
 
-	if ( !*folder_name )
-	{
-		DICTIONARY *post_dictionary;
-
-		post_dictionary =
-			post2dictionary(
-				stdin,
-				(char *)0 /* appaserver_data_directory */,
-				(char *)0 /* session */ );
-
-		folder_name =
-			dictionary_get_string(
-				post_dictionary,
-				CHOOSE_FOLDER_MENU_NAME );
-	}
-
-	role = role_new_role(	application_name,
-				role_name );
+	role = role_new( role_name );
 
 	appaserver =
 		appaserver_folder_new(
@@ -271,17 +254,16 @@ int main( int argc, char **argv )
 	{
 		if ( strcmp( form, "table" ) == 0 )
 		{
-			sprintf( sys_string,
-"output_edit_table_form %s %s %s %s %s '' %s %s 2>>%s",
-			 	 login_name,
-				 application_name,
-				 session,
-				 folder_name,
-				 role_name,
-				 TABLE_TARGET_FRAME,
-				 TABLE_TARGET_FRAME,
-				 appaserver_error_get_filename(
-					 application_name ) );
+			sprintf(
+			     sys_string,
+			     "output_edit_table_form %s %s %s %s %s %s 2>>%s",
+			     login_name,
+			     session,
+			     folder_name,
+			     role_name,
+			     TABLE_TARGET_FRAME,
+			     TABLE_TARGET_FRAME,
+			     appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp( form, "prompt" ) == 0 )

@@ -14,7 +14,7 @@
 
 <body bgcolor=#ffffff>
 	<form name="login_form" enctype="multipart/form-data"
-    		method=POST action="/cgi/post_login?everglades">
+    		method=POST action="/cgi/post_login?template">
 
 <input type="hidden" name="filename" value="index.php">
 

@@ -75,7 +75,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define PROMPT_FRAME				"prompt_frame"
 #define EDIT_FRAME				"edit_frame"
 #define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
-#define MAX_INPUT_LINE				131072
 #define MENU_VERTICAL_PIXEL_COLUMNS		200
 #define MENU_HORIZONTAL_PIXEL_ROWS		35
 #define ERROR_HEADING				"appaserver error"

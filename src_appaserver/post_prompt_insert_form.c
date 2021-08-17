@@ -301,20 +301,18 @@ int main( int argc, char **argv )
 			appaserver->folder->attribute_list );
 
 		sprintf( sys_string,
-	"echo \"%s\" 							  |"
-	"output_edit_table_form %s %s %s %s '%s' '' '%s' '%s' 2>>%s	   ",
+	"echo \"%s\" 						|"
+	"output_edit_table_form %s %s %s '%s' '%s' '%s' 2>>%s	 ",
 			dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				0 /* not with_non_prefixed_dictionary */ ),
 		 	login_name,
-			application_name,
 		 	session,
 		 	folder_name,
 			role_name,
 			insert_update_key,
 			target_frame,
-			appaserver_error_get_filename(
-					application_name ) );
+			appaserver_error_filename( application_name ) );
 
 		if ( system( sys_string ) ){};
 
@@ -910,132 +908,4 @@ void set_null_operator_data_to_null(
 	} while( list_next( attribute_name_list ) );
 
 }
-
-#ifdef NOT_DEFINED
-void insert_one2m_pair_sequence(
-			FOLDER *folder,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
-			LIST *primary_key_list,
-			LIST *insert_required_attribute_name_list,
-			char *application_name,
-			char *appaserver_mount_point,
-			char *session,
-			char *role_name,
-			char *insert_update_key,
-			char *target_frame,
-			char *login_name,
-			LIST *isa_related_folder_list )
-{
-	boolean got_duplicate_message = 0;
-	char *message = "";
-	char *isa_message = "";
-	char sys_string[ 65536 ];
-	LIST *missing_attribute_name_list;
-	int rows_inserted;
-	LIST *ignore_attribute_name_list;
-
-	ignore_attribute_name_list =
-		insert_database_get_trim_indices_dictionary_key_list(
-			dictionary_appaserver->
-				ignore_dictionary );
-
-	if ( ( missing_attribute_name_list =
-		insert_database_get_missing_attribute_name_list(
-			0 /* row */,
-			dictionary_appaserver->query_dictionary,
-			ignore_attribute_name_list,
-			primary_key_list,
-			insert_required_attribute_name_list ) ) )
-	{
-		output_missing_information_message(
-					application_name,
-					appaserver_mount_point,
-					missing_attribute_name_list );
-		exit( 0 );
-	}
-
-	rows_inserted =
-		post_prompt_insert_database(
-			&message,
-			&isa_message,
-			dictionary_appaserver->query_dictionary
-				/* row_dictionary */,
-			dictionary_appaserver->ignore_dictionary,
-			application_name,
-			session,
-			login_name,
-			folder->folder_name,
-			role_name,
-			folder->primary_key_list,
-			insert_required_attribute_name_list,
-			folder->attribute_name_list,
-			isa_related_folder_list,
-			folder->post_change_process,
-			folder->mto1_related_folder_list,
-			folder->attribute_list );
-
-	got_duplicate_message =
-		( instr(	MYSQL_DUPLICATE_ERROR_MESSAGE_KEY,
-				message,
-				1 ) != -1 );
-
-	if ( !rows_inserted
-	&&   !got_duplicate_message )
-	{
-		sprintf( sys_string,
- 			"output_results '' %s %s %s %s 0 \"%s\" '' y 2>>%s",
- 			folder->folder_name,
-			session,
-			login_name,
-			role_name,
-			(message) ? message : "",
-			appaserver_error_get_filename(
-				application_name ) );
-		if ( system( sys_string ) ){};
-		exit( 0 );
-	}
-
-	/* Zap message in case it contains "Duplicate entry" */
-	/* ------------------------------------------------- */
-	message = "";
-
-	if ( got_duplicate_message )
-	{
-		dictionary_set_pointer(
-				dictionary_appaserver->
-					pair_one2m_dictionary,
-				PAIR_ONE2M_DUPLICATE_STATE_KEY,
-				"yes" );
-	}
-	else
-	{
-		dictionary_set_pointer(
-				dictionary_appaserver->
-					pair_one2m_dictionary,
-				PAIR_ONE2M_DUPLICATE_STATE_KEY,
-				"no" );
-	}
-
-	sprintf( sys_string,
-"echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-		dictionary_appaserver_escaped_send_dictionary_string(
-			dictionary_appaserver,
-			0 /* not with_non_prefixed_dictionary */ ),
-	 	login_name,
-		application_name,
-	 	session,
-	 	folder->folder_name,
-		role_name,
-		insert_update_key,
-		target_frame,
-		appaserver_error_get_filename(
-				application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	exit( 0 );
-
-}
-#endif
 

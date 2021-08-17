@@ -1303,18 +1303,17 @@ void execute_update_output_process(
 	{
 		sprintf( sys_string,
 "echo \"%s\" 								|"
-"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" '' \"%s\" \"%s\" 2>>%s	 ",
+"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
 			 dictionary_appaserver_escaped_send_dictionary_string(
 				dictionary_appaserver,
 				1 /* with_non_prefixed_dictionary */ ),
 	 	 	 login_name,
-		 	 application_name,
 		 	 session,
 		 	 folder_name,
 		 	 role_name,
 		 	 insert_update_key,
 		 	 target_frame,
-		 	 appaserver_error_get_filename( application_name ) );
+		 	 appaserver_error_filename( application_name ) );
 	}
 
 	if ( system( sys_string ) ) {};
@@ -1414,20 +1413,19 @@ void execute_insert_output_process(
 		}
 
 		sprintf(sys_string, 
-"echo \"%s\" 								|"
-"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" '' \"%s\" \"%s\" \"%c\" 2>>%s	 ",
+"echo \"%s\" 								     |"
+"output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%c\" 2>>%s",
 			dictionary_appaserver_escaped_send_dictionary_string(
-			dictionary_appaserver,
+				dictionary_appaserver,
 			1 /* with_non_prefixed_dictionary */ ),
 	 		login_name,
-			application_name,
 			session,
 			folder_name,
 			role_name,
 			insert_update_key,
 			target_frame,
 			content_type_yn,
-			appaserver_error_get_filename( application_name ) );
+			appaserver_error_filename( application_name ) );
 	}
 
 	if ( system( sys_string ) ) {};

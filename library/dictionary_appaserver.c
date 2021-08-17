@@ -90,14 +90,6 @@ DICTIONARY_APPASERVER *dictionary_appaserver_new(
 		/* ------------------------------------------------------- */
 		/* Don't initialize the lookup_before_drop_down_dictionary */
 		/* ------------------------------------------------------- */
-		if ( !dictionary_length(
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary ) )
-		{
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary =
-					(DICTIONARY *)0;
-		}
 
 		dictionary_appaserver->ignore_dictionary =
 			dictionary_appaserver_ignore_dictionary(

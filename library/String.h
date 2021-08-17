@@ -17,6 +17,7 @@
 #define STRING_CR			13
 #define STRING_SYSTEM_BUFFER		131072
 #define STRING_WHERE_BUFFER		131072
+#define STRING_INPUT_LINE		131072
 
 /* Structures */
 /* ---------- */
@@ -196,5 +197,9 @@ char *string_strncpy(	char *destination,
 char *string_in_clause(	LIST *data_list );
 
 int string_length(	char *string );
+
+char *string_decode_html_post(
+			char *destination,
+			char *source );
 
 #endif

@@ -63,13 +63,13 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: role_folder_fetch(%s,%s) returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				role_name,
-				folder_name );
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name,
+			folder_name );
 
-			return (PROMPT_EDIT_FORM *)0;
+		return (PROMPT_EDIT_FORM *)0;
 	}
 
 	if ( prompt_edit_form_forbid(
@@ -88,7 +88,21 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 	if ( ! ( prompt_edit_form->folder =
 			folder_fetch(
 				folder_name,
-				1 /* fetch_attribute_list */,
+				role_exclude_lookup_attribute_name_list(
+					role->attribute_exclude_list ),
+				/* -------------------------- */
+				/* Also sets primary_key_list */
+				/* -------------------------- */
+				1 /* fetch_folder_attribute_list */,
+				0 /* not fetch_relation_mto1_non_isa_list */,
+				/* ------------------------------------------*/
+				/* Also sets folder_attribute_append_isa_list*/,
+				/* ------------------------------------------*/
+				1 /* fetch_relation_mto1_isa_list */,
+				1 /* fetch_relation_one2m_list */,
+				0 /* not fetch_relation_one2m_recursive_list */,
+				0 /* not fetch_process */,
+				0 /* not fetch_role_folder_list */,
 				0 /* not fetch_row_level_restriction */ ) ) )
 	{
 		fprintf(stderr,
@@ -98,7 +112,7 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 				__LINE__,
 				folder_name );
 
-		return (PROMPT_EDIT_FORM *)0;
+		return (EDIT_TABLE_FORM *)0;
 	}
 
 	if ( ! ( dictionary_appaserver =
@@ -106,7 +120,7 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 				prompt_edit_form->post_dictionary,
 				prompt_edit_form->application_name,
 				prompt_edit_form->folder->attribute_list,
-				(LIST *)0 /* operation_name_list */) ) )
+				(LIST *)0 /* operation_name_list */ ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",

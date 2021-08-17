@@ -108,10 +108,10 @@ void appaserver_output_starting_argv_append_file(
 }
 
 void appaserver_error_login_name_append_file(
-					int argc,
-					char **argv,
-					char *application_name,
-					char *login_name )
+			int argc,
+			char **argv,
+			char *application_name,
+			char *login_name )
 {
 	FILE *f;
 
@@ -127,8 +127,8 @@ void appaserver_error_login_name_append_file(
 	f = appaserver_error_open_append_file( application_name );
 
 	fprintf( f, "%s %s %s: %s",
-		 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 date_get_now_hhmm( date_get_utc_offset() ),
+		 date_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 date_now_hhmm( date_get_utc_offset() ),
 		 login_name,
 		 argv[ 0 ] );
 
@@ -136,7 +136,6 @@ void appaserver_error_login_name_append_file(
 
 	fprintf( f, "\n" );
 	fclose( f );
-
 }
 
 void appaserver_error_starting_argv_append_file(

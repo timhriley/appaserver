@@ -89,6 +89,9 @@ UPDATE *update_new(	DICTIONARY *post_dictionary,
 			/* -------------------------- */
 			1 /* fetch_folder_attribute_list */,
 			0 /* not fetch_relation_mto1_non_isa_list */,
+			/* ------------------------------------------ */
+			/* Also sets folder_attribute_append_isa_list */
+			/* ------------------------------------------ */
 			1 /* fetch_relation_mto1_isa_list */,
 			0 /* not fetch_relation_one2m_list */,
 			1 /* fetch_relation_one2m_recursive_list */,

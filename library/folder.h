@@ -105,6 +105,9 @@ LIST *folder_system_list(
 			/* -------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
+			/* ------------------------------------------- */
+			/* Maybe sets folder_attribute_append_isa_list */
+			/* ------------------------------------------- */
 			boolean fetch_relation_mto1_isa_list,
 			boolean fetch_relation_one2m_list,
 			boolean fetch_relation_one2m_recursive_list,
@@ -120,6 +123,9 @@ FOLDER *folder_parse(	char *input,
 			/* -------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
+			/* ------------------------------------------- */
+			/* Maybe sets folder_attribute_append_isa_list */
+			/* ------------------------------------------- */
 			boolean fetch_relation_mto1_isa_list,
 			boolean fetch_relation_one2m_list,
 			boolean fetch_relation_one2m_recursive_list,
@@ -147,6 +153,9 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			/* -------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
+			/* ------------------------------------------- */
+			/* Maybe sets folder_attribute_append_isa_list */
+			/* ------------------------------------------- */
 			boolean fetch_relation_mto1_isa_list,
 			boolean fetch_relation_one2m_list,
 			boolean fetch_relation_one2m_recursive_list,

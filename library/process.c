@@ -677,14 +677,14 @@ void process_search_replace_where(
 	}
 
 	if ( ! ( query =
-			query_search_replace_where(
+			query_search_replace_where_new(
 				preprompt_dictionary,
 				folder_name,
 				role_name,
 				login_name ) ) )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: query_process_parameter_new() returned empty.\n",
+"ERROR in %s/%s()/%d: query_search_replace_where_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1911,56 +1911,12 @@ LIST *process_parameter_primary_delimited_list(
 	}
 }
 
-LIST *process_parameter_fetch_list(
+char *process_prompt_submit_command_line(
 			char *command_line,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
+			char *process_name,
 			char *role_name,
-			char *folder_name )
-{
-	LIST *return_list;
-
-	command_line =
-		/* ------------------------------------------ */
-		/* Frees command_line and returns heap memory */
-		/* ------------------------------------------ */
-		process_parameter_command_line_replace(
-			command_line,
-			preprompt_dictionary,
-			login_name,
-			role_name,
-			folder_name,
-			environment_application_name() );
-
-fprintf( stderr, "%s/%s()/%d: command_line = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-command_line );
-
-	return_list =
-		process_fetch_list(
-			command_line );
-
-	if ( piece_multi_attribute_data_label_delimiter )
-	{
-		return_list =
-			list_usage_piece_list(
-				return_list,
-				piece_multi_attribute_data_label_delimiter,
-				0 /* offset */ );
-	}
-
-	return return_list;
-}
-
-char *process_parameter_command_line_replace(
-			char *command_line,
-			DICTIONARY *preprompt_dictionary,
 			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *application_name )
+			DICTIONARY *working_post_dictionary )
 {
 	char buffer[ STRING_WHERE_BUFFER ];
 	char local_command_line[ STRING_WHERE_BUFFER ];
@@ -1969,26 +1925,42 @@ char *process_parameter_command_line_replace(
 
 	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
 
-	search_replace_word(
-		local_command_line,
-		"$login_name",
-		double_quotes_around(
-			buffer, 
-			login_name ) );
+	if ( process_name && *process_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$process",
+			double_quotes_around(
+				buffer, 
+				process_name ) );
+	}
 
-	search_replace_word(
-		local_command_line,
-		"$role",
-		double_quotes_around(
-			buffer, 
-			role_name ) );
+	if ( role_name && *role_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$role",
+			double_quotes_around(
+				buffer, 
+				role_name ) );
+	}
 
-	search_replace_word(
-		local_command_line,
-		"$folder",
-		double_quotes_around(
-			buffer, 
-			folder_name ) );
+	if ( login_name && *login_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$login_name",
+			double_quotes_around(
+				buffer, 
+				login_name ) );
+
+		search_replace_word(
+			local_command_line,
+			"$person",
+			double_quotes_around(
+				buffer, 
+				login_name ) );
+	}
 
 	if ( string_exists( local_command_line, "$dictionary" ) )
 	{
@@ -1998,32 +1970,115 @@ char *process_parameter_command_line_replace(
 			double_quotes_around(
 				buffer, 
 				dictionary_display_delimited(
-					preprompt_dictionary, '&' ) 
+					working_post_dictionary, '&' ) 
+				) );
+	}
+
+	dictionary_search_replace_command_arguments(
+		local_command_line,
+		working_post_dictionary, 
+		0 /* row  */ );
+
+	sprintf(local_command_line + strlen( local_command_line ),
+		" 2>>%s",
+		appaserver_error_get_filename(
+			application_name ) );
+
+	/* This memory is always heap */
+	/* -------------------------- */
+	free( command_line );
+
+	return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			local_command_line ) );
+}
+
+char *process_drop_down_command_line(
+			char *command_line,
+			char *process_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *working_post_dictionary )
+{
+	char buffer[ STRING_WHERE_BUFFER ];
+	char local_command_line[ STRING_WHERE_BUFFER ];
+	char buffer[ 1024 ];
+	char *data;
+
+	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
+
+	if ( process_name && *process_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$process",
+			double_quotes_around(
+				buffer, 
+				process_name ) );
+	}
+
+	if ( role_name && *role_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$role",
+			double_quotes_around(
+				buffer, 
+				role_name ) );
+	}
+
+	if ( login_name && *login_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$login_name",
+			double_quotes_around(
+				buffer, 
+				login_name ) );
+
+		search_replace_word(
+			local_command_line,
+			"$person",
+			double_quotes_around(
+				buffer, 
+				login_name ) );
+	}
+
+	if ( string_exists( local_command_line, "$dictionary" ) )
+	{
+		search_replace_word(
+			local_command_line,
+			"$dictionary",
+			double_quotes_around(
+				buffer, 
+				dictionary_display_delimited(
+					working_post_dictionary, '&' ) 
 				) );
 	}
 
 	if ( string_exists( local_command_line, "$where" ) )
 	{
 		process_search_replace_where(
-			local_command_line,
+			local_command_line /* in/out */,
 			preprompt_dictionary,
 			login_name,
 			role_name,
 			folder_name );
 	}
 
-	if ( dictionary_length( preprompt_dictionary ) )
-	{ 
-		dictionary_search_replace_command_arguments(
-			local_command_line,
-			preprompt_dictionary, 
-			0 /* row  */ );
-	}
+	dictionary_search_replace_command_arguments(
+		local_command_line,
+		working_post_dictionary, 
+		0 /* row  */ );
 
-	sprintf(	local_command_line + strlen( local_command_line ),
-			" 2>>%s",
-			appaserver_error_get_filename(
-				application_name ) );
+	sprintf(local_command_line + strlen( local_command_line ),
+		" 2>>%s",
+		appaserver_error_get_filename(
+			application_name ) );
 
 	/* This memory is always heap */
 	/* -------------------------- */
@@ -2072,21 +2127,12 @@ char *process_update_row_command_line(
 				SQL_DELIMITER ) );
 	}
 
-	process_replace_parameter_variables(
-		local_command_line,
-		session,
-		state,
-		login_name,
-		folder_name,
-		role_name,
-		target_frame,
-		process_name,
-		process_set_name,
-		operation_row_count_string,
-		one2m_folder_name,
-		prompt,
-		process_id_string,
-		query_dictionary );
+	if ( one2m_folder_name && *one2m_folder_name )
+	{
+		process_replace_one2m_folder_name(
+			command_line,
+			one2m_folder_name );
+	}
 
 	if ( string_exists( local_command_line, "$where" ) )
 	{
@@ -2103,197 +2149,53 @@ char *process_update_row_command_line(
 		appaserver_error_filename(
 			environment_application_name() ) );
 
-	string_strcpy( buffer, local_command_line, STRING_SYSTEM_BUFFER );
-	escape_character( local_command_line, buffer, '$' );
-	remove_character( local_command_line, '`' );
-
 	/* This memory is always strdup(). */
 	/* ------------------------------- */
 	free( command_line );
 
-	return strdup( local_command_line );
+	return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			local_command_line ) );
 }
 
-void process_replace_parameter_variables(	
-			char *command_line,
-			char *session,
-			char *state,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			char *process_name,
-			char *process_set_name,
-			char *operation_row_count_string,
-			char *one2m_folder_name,
-			char *prompt,
-			char *process_id_string,
-			DICTIONARY *post_dictionary )
+void process_replace_one2m_folder_name(
+			char *command_line /* in/out */,
+			char *one2m_folder_name )
 {
-	char buffer[ 1024 ];
+	char buffer[ 256 ];
+	if ( !one2m_folder_name || !*one2m_folder_name ) return;
 
-	if ( process_id_string && *process_id_string )
-	{
-		search_replace_word(
-			command_line,
-			"$process_id",
-			double_quotes_around(
-				buffer, 
-				process_id_string ) );
-	}
+	double_quotes_around(
+		buffer, 
+		one2m_folder_name );
 
-	if ( operation_row_count_string && *operation_row_count )
-	{
-		search_replace_word(
-			command_line,
-			"$operation_row_count",
-			double_quotes_around(
-				buffer, 
-				operation_row_count_string ) );
-	}
+	search_replace_word(
+		command_line,
+		"$one2m_folder_name_for_processes",
+		buffer );
 
-	if ( login_name && *login_name )
-	{
-		search_replace_word(
-			command_line,
-			"$login_name",
-			double_quotes_around(
-				buffer, 
-				login_name ) );
-	}
+	search_replace_word(
+		command_line,
+		"$one2m_folder_name_for_process",
+		buffer );
 
-	if ( prompt && *prompt )
-	{
-		search_replace_word(
-			command_line,
-			"$prompt",
-			double_quotes_around(
-				buffer, 
-				prompt ) );
-	}
+	search_replace_word(
+		command_line,
+		"$one2m_folder_name",
+		buffer );
 
-	if ( target_frame && *target_frame )
-	{
-		search_replace_word( 
-			command_line,
-			"$target_frame",
-			double_quotes_around(
-				buffer, 
-				target_frame ) );
-	}
+	search_replace_word(
+		command_line,
+		"$one2m_related_folder",
+		buffer );
 
-	if ( session && *session )
-	{
-		search_replace_word(
-			command_line,
-			"$session",
-			double_quotes_around(
-				buffer, 
-				session ) );
-	}
-
-	if ( state && *state )
-	{
-		search_replace_word(
-			command_line,
-			"$state",
-			double_quotes_around(
-				buffer, 
-				state ) );
-	}
-
-	if ( folder_name && *folder_name )
-	{
-		search_replace_word(
-			command_line,
-			"$folder",
-			double_quotes_around(
-				buffer, 
-				folder_name ) );
-	}
-
-	if ( role_name && *role_name )
-	{
-		search_replace_word(
-			command_line,
-			"$role",
-			double_quotes_around(
-				buffer, 
-				role_name ) );
-	}
-
-	if ( process_set_name && *process_set_name )
-	{
-		search_replace_word(
-			command_line,
-			"$process_set",
-			double_quotes_around(
-				buffer, 
-				process_set_name ) );
-	}
-	else
-	{
-		search_replace_word(
-			command_line,
-			"$process_set",
-			double_quotes_around(
-				buffer, 
-				"" ) );
-	}
-
-	if ( process_name && *process_name )
-	{
-		search_replace_word(
-			command_line,
-			"$process",
-			double_quotes_around(
-				buffer, 
-				process_name ) );
-	}
-
-	if ( one2m_folder_name && *one2m_folder_name )
-	{
-		double_quotes_around(
-			buffer, 
-			one2m_folder_name );
-
-		search_replace_word(
-			command_line,
-			"$one2m_folder_name_for_processes",
-			buffer );
-
-		search_replace_word(
-			command_line,
-			"$one2m_folder_name_for_process",
-			buffer );
-
-		search_replace_word(
-			command_line,
-			"$one2m_folder_name",
-			buffer );
-
-		search_replace_word(
-			command_line,
-			"$one2m_related_folder",
-			buffer );
-
-		search_replace_word(
-			command_line,
-			"$one2m_folder",
-			buffer );
-	}
-
-	if ( string_exists( command_line, "$dictionary" ) )
-	{
-		search_replace_word(
-			command_line,
-			"$dictionary",
-			double_quotes_around(
-				buffer, 
-				dictionary_display_delimited(
-					post_dictionary, '&' ) 
-				) );
-	}
+	search_replace_word(
+		command_line,
+		"$one2m_folder",
+		buffer );
 }
 
 void process_search_replace_where(
@@ -2332,14 +2234,14 @@ void process_search_replace_where(
 	}
 
 	if ( ! ( query =
-			query_process_parameter_new(
+			query_process_drop_down_new(
 				preprompt_dictionary,
 				folder_name,
 				role_name,
 				login_name ) ) )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: query_process_parameter_new() returned empty.\n",
+	"ERROR in %s/%s()/%d: query_process_drop_down_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

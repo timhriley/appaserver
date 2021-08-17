@@ -322,6 +322,64 @@ LIST *relation_mto1_non_isa_list(
 			1 /* fetch_attribute_list */ );
 }
 
+LIST *relation_one2m_list(
+			char *one_folder_name )
+{
+	RELATION *relation;
+	char where[ 128 ];
+
+	sprintf(where,
+		"related_folder = '%s'",
+		one_folder_name );
+
+	return
+		relation_system_list(
+			relation_system_string(
+				where,
+				(char *)0 /* order */ ),
+			/* ---------------------------------- */
+			/* foreign_attribute_name_list is set */
+			/* ---------------------------------- */
+			1 /* fetch_folder */,
+			1 /* fetch_attribute_list */ );
+}
+
+LIST *relation_join_one2m_list(
+			LIST *relation_one2m_recursive_list,
+			DICTIONARY *ignore_dictionary )
+{
+	RELATION *relation;
+	char key[ 128 ];
+	LIST *join_one2m_list = {0};
+
+	if ( !list_rewind( relation_one2m_list ) ) return (LIST *)0;
+
+	do {
+		relation = list_get( relation_one2m_list );
+
+		if ( relation->join_one2m_each_row )
+		{
+			sprintf(key,
+			 	"%s_0",
+			 	relation->
+					one_folder->
+					folder_name );
+
+			if ( dictionary_key_exists( ignore_dictionary, key ) )
+			{
+				continue;
+			}
+
+			if ( !join_one2m_list ) join_one2m_list = list_new();
+
+			list_set( join_one2m_list, relation );
+		}
+
+	} while ( list_next( relation_one2m_list ) );
+
+	return join_one2m_list;
+}
+
 LIST *relation_one2m_recursive_list(
 			LIST *relation_list,
 			char *one_folder_name )

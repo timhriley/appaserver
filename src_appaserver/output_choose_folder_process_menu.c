@@ -1,9 +1,9 @@
-/* --------------------------------------------------		*/
-/* src_appaserver/output_choose_folder_process_menu.c		*/
-/* --------------------------------------------------		*/
-/*								*/
-/* Freely available software: see Appaserver.org		*/
-/* --------------------------------------------------		*/
+/* -------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/output_choose_folder_process_menu.c	*/
+/* -------------------------------------------------------------------	*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +25,6 @@
 
 /* Constants */
 /* --------- */
-#define CHOOSE_ROLE_DROP_DOWN_FORM_NAME		"refresh_choose_role_drop_down"
 
 /* Structures */
 /* ---------- */

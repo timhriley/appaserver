@@ -74,7 +74,7 @@ LOOKUP_BEFORE_DROP_DOWN_FOLDER *lookup_before_drop_down_folder_new(
 		char *folder_name );
 
 LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down_new(
-		char *application_name,
+		FOLDER *base_folder,
 		DICTIONARY *lookup_before_drop_down_dictionary,
 		char *state );
 
@@ -83,7 +83,7 @@ LIST *lookup_before_drop_down_folder_list(
 		LIST *mto1_lookup_before_drop_down_related_folder_list,
 		char *state );
 
-void lookup_before_drop_down_with_dictionary_set_fulfilled(
+void lookup_before_drop_down_dictionary_set_fulfilled(
 		LIST *lookup_before_drop_down_folder_list,
 		DICTIONARY *lookup_before_drop_down_dictionary );
 
@@ -130,15 +130,10 @@ void lookup_before_drop_down_append_folder_list(
 			LIST *lookup_before_drop_down_folder_list,
 			LOOKUP_BEFORE_DROP_DOWN_FOLDER *folder );
 
-/*
-boolean lookup_before_drop_down_prelookup_empty(
-			DICTIONARY *dictionary );
-*/
-
 char *lookup_before_drop_down_get_dictionary_base_name(
 			DICTIONARY *lookup_before_drop_down_dictionary );
 
-void lookup_before_drop_down_with_folder_name_list_set_fulfilled(
+void lookup_before_drop_down_folder_name_list_set_fulfilled(
 			LIST *lookup_before_drop_down_folder_list,
 			LIST *folder_name_list );
 

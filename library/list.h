@@ -174,6 +174,10 @@ LIST *pipe2list(	char *sys_string );
 LIST *list_string_list(	char *list_string,
 			char delimiter );
 
+LIST *list_string_extract(
+			char *list_string,
+			char delimiter );
+
 LIST *string2list(	char *list_string,
 			char delimiter );
 
