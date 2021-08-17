@@ -1,9 +1,8 @@
-/* frameset.h 								*/
-/* -------------------------------------------------------------------- */
-/* This is the appaserver frameset ADT.					*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/frameset.h			*/
+/* ---------------------------------------------------- */
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #ifndef FRAMESET_H
 #define FRAMESET_H
@@ -18,6 +17,24 @@
 
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *application_name;
+	char *document_root_directory;
+
+	/* Process */
+	/* ------- */
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *menu_frame_prompt_filename;
+	char *menu_frame_create_filename;
+	char *prompt_frame_prompt_filename;
+	char *prompt_frame_create_filename;
+	char *edit_frame_prompt_filename;
+	char *edit_frame_create_filename;
+} FRAMESET_LINK_FILE;
+
 typedef struct
 {
 	char *frameset_name;
@@ -44,7 +61,9 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-FRAMESET *frameset_new( char *frameset_name, char *form_name );
+FRAMESET *frameset_new(	char *application_name,
+			char *login_name,
+			char *session );
 
 void frameset_set_parameters( 	FRAMESET *frameset,
 				char *login_name, 
@@ -83,17 +102,20 @@ void frameset_set_sys_string(	FRAMESET *frameset,
 void frameset_set_application_name(
 				FRAMESET *frameset,
 				char *application_name );
-void frameset_set_customer(	FRAMESET *frameset,
-				char *customer );
-void frameset_set_session(	FRAMESET *frameset,
-				char *session );
-char *frameset_get_heading_filename(
-				char *application_name,
-				char *frameset_name,
-				char *session );
-void frameset_set_appaserver_mount_point(
-				FRAMESET *frameset,
-				char *appaserver_mount_point );
+
+char *frameset_heading_filename(
+			char *application_name,
+			char *frameset_name,
+			char *session );
+
+FRAMESET_LINK_FILE *frameset_link_file_calloc(
+			void );
+
+FRAMESET_LINK_FILE *frameset_link_file_new(
+			char *application_name,
+			char *document_root_directory,
+			char *login_name,
+			char *session );
+
 #endif
 
-/* void frameset_output(	 	FRAMESET *frameset ); */

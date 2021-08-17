@@ -104,23 +104,6 @@ char *appaserver_link_abbreviated_output_filename(
 		char *session,
 		char *extension )
 {
-	return appaserver_link_get_abbreviated_output_filename(
-		filename_stem,
-		begin_date_string,
-		end_date_string,
-		process_id,
-		session,
-		extension );
-}
-
-char *appaserver_link_get_abbreviated_output_filename(
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
-{
 	char output_filename[ 512 ];
 
 	if ( !filename_stem || !*filename_stem )
@@ -146,27 +129,6 @@ char *appaserver_link_get_abbreviated_output_filename(
 }
 
 char *appaserver_link_output_filename(
-		char *document_root_directory,
-		char *application_name,
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
-{
-	return appaserver_link_get_output_filename(
-		document_root_directory,
-		application_name,
-		filename_stem,
-		begin_date_string,
-		end_date_string,
-		process_id,
-		session,
-		extension );
-}
-
-char *appaserver_link_get_output_filename(
 		char *document_root_directory,
 		char *application_name,
 		char *filename_stem,
@@ -202,7 +164,7 @@ char *appaserver_link_get_output_filename(
 	return strdup( output_filename );
 }
 
-char *appaserver_link_get_link_prompt(
+char *appaserver_link_prompt_filename(
 		boolean prepend_http_boolean,
 		char *http_prefix,
 		char *server_address,
@@ -252,25 +214,6 @@ char *appaserver_link_get_link_prompt(
 }
 
 char *appaserver_link_tail_half(
-		char *application_name,
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
-{
-	return appaserver_link_get_tail_half(
-		application_name,
-		filename_stem,
-		begin_date_string,
-		end_date_string,
-		process_id,
-		session,
-		extension );
-}
-
-char *appaserver_link_get_tail_half(
 		char *application_name,
 		char *filename_stem,
 		char *begin_date_string,
@@ -340,15 +283,6 @@ char *appaserver_link_get_tail_half(
 	return tail_half;
 }
 
-char *appaserver_link_get_source_directory(
-		char *document_root_directory,
-		char *application_name )
-{
-	return appaserver_link_source_directory(
-		document_root_directory,
-		application_name );
-}
-
 char *appaserver_link_source_directory(
 		char *document_root_directory,
 		char *application_name )
@@ -365,25 +299,6 @@ char *appaserver_link_source_directory(
 }
 
 void appaserver_link_pid_filename(
-				char **output_filename,
-				char **prompt_filename,
-				char *application_name,
-				char *document_root_directory,
-				pid_t pid,
-				char *process_name,
-				char *extension )
-{
-	appaserver_link_get_pid_filename(
-				output_filename,
-				prompt_filename,
-				application_name,
-				document_root_directory,
-				pid,
-				process_name,
-				extension );
-}
-
-void appaserver_link_get_pid_filename(
 				char **output_filename,
 				char **prompt_filename,
 				char *application_name,
@@ -421,7 +336,7 @@ void appaserver_link_get_pid_filename(
 			appaserver_link_file->extension );
 
 	*prompt_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_link_prompt(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,

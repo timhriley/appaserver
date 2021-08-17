@@ -1,23 +1,54 @@
-/* frameset.c 								*/
-/* -------------------------------------------------------------------- */
-/* This is the appaserver frameset ADT.					*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/frameset.c			*/
+/* ---------------------------------------------------- */
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "frameset.h"
 #include "application.h"
 #include "appaserver_library.h"
+#include "frameset.h"
 
-FRAMESET *frameset_new( char *frameset_name, char *form_name )
+FRAMESET *frameset_calloc( void )
 {
-	FRAMESET *f = (FRAMESET *)calloc( 1, sizeof( FRAMESET ) );
+	FRAMESET *frameset;
+
+	if ( ! ( frameset = calloc( 1, sizeof( FRAMESET ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return frameset;
+}
+
+FRAMESET *frameset_new(	char *application_name,
+			char *login_name,
+			char *session )
+{
+	FRAMESET *f = frameset_calloc();
+
 	f->frameset_name = frameset_name;
 	f->form_name = form_name;
-	f->dictionary_string = "";
+	f->application_name = application_name;
+	f->login_name = login_name;
+	f->session = session;
+
+	f->appaserver_parameter_file =
+		appaserver_parameter_file_new();
+
+	f->frameset_link_file =
+		frameset_link_file_new(
+			application_name,
+			appaserver_parameter_file->
+				document_root,
+			login_name,
+			session );
 	return f;
 }
 
@@ -84,7 +115,7 @@ void frameset_output_by_cat( FRAMESET *frameset )
 
 }
 
-char *frameset_get_prompt_destination_filename( FRAMESET *frameset )
+char *frameset_prompt_destination_filename( FRAMESET *frameset )
 {
 	if ( !frameset->prompt_destination_filename )
 	{
@@ -100,7 +131,7 @@ char *frameset_get_prompt_destination_filename( FRAMESET *frameset )
 	return frameset->prompt_destination_filename;
 }
 
-char *frameset_get_create_destination_filename( FRAMESET *frameset )
+char *frameset_create_destination_filename( FRAMESET *frameset )
 {
 	if ( !frameset->create_destination_filename )
 	{
@@ -117,7 +148,7 @@ char *frameset_get_create_destination_filename( FRAMESET *frameset )
 	return frameset->create_destination_filename;
 }
 
-char *frameset_get_prompt_bottom_filename( FRAMESET *frameset )
+char *frameset_prompt_bottom_filename( FRAMESET *frameset )
 {
 	char filename[ 1024 ];
 
@@ -132,7 +163,7 @@ char *frameset_get_prompt_bottom_filename( FRAMESET *frameset )
 	return frameset->prompt_bottom_filename;
 }
 
-char *frameset_get_create_bottom_filename( FRAMESET *frameset)
+char *frameset_create_bottom_filename( FRAMESET *frameset )
 {
 	char filename[ 1024 ];
 
@@ -143,50 +174,169 @@ char *frameset_get_create_bottom_filename( FRAMESET *frameset)
 		 	frameset->appaserver_mount_point, 
 		 	frameset->application_name, 
 		 	frameset->session );
+
 		frameset->create_bottom_filename = strdup( filename );
 	}
 	return frameset->create_bottom_filename;
 }
 
-void frameset_set_dictionary_string( 	FRAMESET *frameset,
-					char *dictionary_string )
+FRAMESET_LINK_FILE *frameset_link_file_calloc( void )
 {
-	frameset->dictionary_string =  dictionary_string;
+	FRAMESET_LINK_FILE *frameset_link_file;
+
+	if ( ! ( frameset_link_file =
+			calloc( 1, sizeof( FRAMESET_LINK_FILE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return frameset_link_file;
 }
 
-void frameset_set_output_bottom_frame( FRAMESET *frameset )
+FRAMESET_LINK_FILE *frameset_link_file_new(
+			char *application_name,
+			char *document_root_directory,
+			char *login_name,
+			char *session )
 {
-	frameset->output_bottom_frame = 1;
-}
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
-void frameset_set_target_frame( FRAMESET *frameset, 
-				char *target_frame )
-{
-	frameset->target_frame = strdup( target_frame );
-}
+	FRAMESET_LINK_FILE *frameset_link_file =
+		frameset_link_file_calloc();
 
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_http_prefix( application_name ),
+			appaserver_library_get_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+	 		document_root_directory,
+			(char *)0 /* filename_stem */,
+			application_name,
+			0 /* process_id */,
+			session,
+			"html" );
 
-void frameset_set_sys_string(	FRAMESET *frameset,
-				char *sys_string )
-{
-	frameset->sys_string = strdup( sys_string );
-}
+	appaserver_link_file->filename_stem = MENU_FRAME;
 
-void frameset_set_application_name(	FRAMESET *frameset,
-					char *application_name )
-{
-	frameset->application_name = strdup( application_name );
-}
+	frameset_link_file->menu_frame_prompt_filename =
+		appaserver_link_prompt_filename(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
-void frameset_set_session(	FRAMESET *frameset,
-				char *session )
-{
-	frameset->session = strdup( session );
-}
+	frameset_link_file->menu_frame_create_filename =
+		appaserver_link_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
-void frameset_set_appaserver_mount_point(
-				FRAMESET *frameset,
-				char *appaserver_mount_point )
-{
-	frameset->appaserver_mount_point = appaserver_mount_point;
+	if ( !zap_file( frameset_link_file->menu_frame_create_filename ) )
+	{
+		char msg[ 1024 ];
+
+		sprintf(msg,
+			"ERROR in %s/%s()/%d: cannot write to file (%s)",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			frameset_link_file->menu_frame_create_filename );
+
+		appaserver_output_error_message(
+			application_name,
+			msg,
+			login_name );
+		exit( 1 );
+	}
+
+	appaserver_link_file->filename_stem = PROMPT_FRAME;
+
+	frameset_link_file->prompt_frame_prompt_filename =
+		appaserver_link_prompt_filename(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	frameset_link_file->prompt_frame_create_filename =
+		appaserver_link_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	appaserver_link_file->filename_stem = EDIT_FRAME;
+
+	frameset_link_file->edit_frame_prompt_filename =
+		appaserver_link_prompt_filename
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	frameset_link_file->edit_frame_create_filename =
+		appaserver_link_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	return frameset_link_file;
 }

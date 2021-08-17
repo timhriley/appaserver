@@ -13,12 +13,6 @@
 /* Constants */
 /* --------- */
 #define SECONDS_TO_SLEEP		2
-#define CLOUDACUS_LOCATION		"https://cloudacus.com:/index.php"
-#define RETURN_ADDRESS			"login@cloudacus.com"
-#define SUBJECT				"Appaserver login"
-
-#define EMAIL_OUTPUT_FILE_TEMPLATE "%s/appaserver/%s/data/post_login_%s.html"
-#define EMAIL_HTTP_FILE_TEMPLATE   "%s://%s/appaserver/%s/data/post_login_%s.html"
 
 /* Enumerated types */
 /* ---------------- */
@@ -34,13 +28,15 @@ typedef struct
 {
 	DICTIONARY *post_login_dictionary;
 	char *post_login_application_name;
-	char *post_login_sql_injection_escape_name;
+	char *sql_injection_escape_login_name;
+	char *sql_injection_escape_password;
 	boolean post_login_missing_name;
 	boolean post_login_public_name;
-	char *post_login_sql_injection_escape_password;
+	boolean post_login_name_email_address;
 	char *post_login_database_password;
 	boolean post_login_missing_database_password;
 	enum post_login_password_match_return post_login_password_match_return;
+	char *post_login_session;
 } POST_LOGIN;
 
 /* Operations */
@@ -78,14 +74,10 @@ void post_login_redraw_index_screen(
 
 enum password_match_return post_login_password_match(
 			char *application_name,
-			char *post_login_sql_injection_escape_name,
+			boolean post_login_name_email_address,
 			boolean post_login_public_name,
-			char *post_login_sql_injection_escape_password,
+			char *sql_injection_escape_password,
 			char *database_password );
-
-void post_login_output_frameset(
-			char *login_name,
-			char *session );
 
 boolean post_login_missing_database_password(
 			char *database_password );
@@ -97,7 +89,7 @@ char *post_login_session(
 			char *application_name,
 			char *login_name );
 
-char *post_login_session(
-			char *application_name,
-			char *login_name )
+boolean post_login_name_email_address(
+			char *login_name );
+
 #endif

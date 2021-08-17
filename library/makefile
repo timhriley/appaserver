@@ -111,7 +111,8 @@ APPASERVER_LIBRARY=						\
 		pair_one2m.o					\
 		mysqldump.o					\
 		prompt_edit_form.o				\
-		edit_table_form.o
+		edit_table_form.o				\
+		frameset_link_file.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -1031,4 +1032,7 @@ prompt_edit_form.o: prompt_edit_form.c prompt_edit_form.h
 
 edit_table_form.o: edit_table_form.c edit_table_form.h
 	${CC} ${CFLAGS} -c edit_table_form.c
+
+frameset_link_file.o: frameset_link_file.c frameset_link_file.h
+	${CC} ${CFLAGS} -c frameset_link_file.c
 

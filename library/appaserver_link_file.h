@@ -61,7 +61,7 @@ LINK_PROMPT *appaserver_link_prompt_new(
 LINK_OUTPUT_FILE *appaserver_link_output_file_new(
 				char *document_root_directory );
 
-char *appaserver_link_get_abbreviated_output_filename(
+char *appaserver_link_abbreviated_output_filename(
 		char *filename_stem,
 		char *begin_date_string,
 		char *end_date_string,
@@ -85,7 +85,7 @@ char *appaserver_link_output_filename(
 /* ---------------- */
 /* Returns strdup() */
 /* ---------------- */
-char *appaserver_link_get_output_filename(
+char *appaserver_link_output_filename(
 		char *document_root_directory,
 		char *application_name,
 		char *filename_stem,
@@ -95,10 +95,10 @@ char *appaserver_link_get_output_filename(
 		char *session,
 		char *extension );
 
-/* ---------------- */
-/* Returns strdup() */
-/* ---------------- */
-char *appaserver_link_get_link_prompt(
+/* ------------------- */
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_link_prompt_filename(
 		boolean prepend_http_boolean,
 		char *http_prefix,
 		char *server_address,
@@ -110,16 +110,16 @@ char *appaserver_link_get_link_prompt(
 		char *session,
 		char *extension );
 
-/* ---------------- */
-/* Returns strdup() */
-/* ---------------- */
+/* ------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *appaserver_link_source_directory(
 		char *document_root_directory,
 		char *application_name );
 
-/* -------------- */
-/* Returns static */
-/* -------------- */
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *appaserver_link_tail_half(
 		char *application_name,
 		char *filename_stem,
@@ -129,10 +129,10 @@ char *appaserver_link_tail_half(
 		char *session,
 		char *extension );
 
-/* -------------- */
-/* Returns static */
-/* -------------- */
-char *appaserver_link_get_tail_half(
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_link_tail_half(
 		char *application_name,
 		char *filename_stem,
 		char *begin_date_string,
@@ -141,7 +141,7 @@ char *appaserver_link_get_tail_half(
 		char *session,
 		char *extension );
 
-void appaserver_link_get_pid_filename(
+void appaserver_link_pid_filename(
 		char **output_filename,
 		char **prompt_filename,
 		char *application_name,

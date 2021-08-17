@@ -82,7 +82,6 @@ EXECUTABLES=								\
 		output_choose_role_folder_process_form			\
 		output_choose_folder_process_menu			\
 		maintain_user_account					\
-		output_frameset						\
 		synchronize_mysql_produce				\
 		synchronize_mysql_consume				\
 		generic_output_text_file				\
@@ -465,14 +464,6 @@ get_folder_data: get_folder_data.c ${EXTERNAL_LIBS}
 	/bin/rm -f select
 	ln get_folder_data select
 
-output_frameset: output_frameset.c					\
-		${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		output_frameset.c					\
-		-o output_frameset
-
 synchronize_mysql_produce: synchronize_mysql_produce.c			\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
@@ -480,9 +471,6 @@ synchronize_mysql_produce: synchronize_mysql_produce.c			\
 		${EXTERNAL_LIBS}					\
 		synchronize_mysql_produce.c				\
 		-o synchronize_mysql_produce
-#	touch synchronize_mysql_produce_everglades
-#	/bin/rm -f synchronize_mysql_produce_everglades
-#	ln synchronize_mysql_produce synchronize_mysql_produce_everglades
 
 synchronize_mysql_consume: synchronize_mysql_consume.c			\
 			${EXTERNAL_LIBS}
