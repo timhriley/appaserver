@@ -24,12 +24,11 @@
 				"post_change_javascript,"	\
 				"subschema,"			\
 				"exclude_application_export_yn,"\
-				"lookup_before_drop_down_yn,"	\
+				"drilldown_yn,"			\
 				"no_initial_capital_yn,"	\
 				"index_directory,"		\
 				"data_directory,"		\
-				"create_view_statement,"	\
-				"appaserver_yn"
+				"create_view_statement"
 
 #define FOLDER_TABLE				"folder"
 #define FOLDER_ROW_LEVEL_RESTRICTION_TABLE	"folder_row_level_restrictions"
@@ -55,12 +54,11 @@ typedef struct
 	char *post_change_javascript;
 	char *subschema;
 	boolean exclude_application_export;
-	boolean lookup_before_drop_down;
+	boolean drilldown;
 	boolean no_initial_capital;
 	char *index_directory;
 	char *data_directory;
 	char *create_view_statement;
-	boolean appaserver;
 
 	/* Process */
 	/* ------- */
@@ -79,7 +77,9 @@ typedef struct
 	LIST *relation_mto1_non_isa_list;
 	LIST *relation_mto1_isa_list;
 	LIST *relation_one2m_list;
-	LIST *relation_one2m_isa_list;
+	LIST *relation_one2m_recursive_list;
+	LIST *relation_pair_one2m_list;
+	LIST *relation_join_one2m_list;
 } FOLDER;
 
 /* Operations */

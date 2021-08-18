@@ -163,5 +163,13 @@ LIST *relation_join_one2m_list(
 			LIST *relation_one2m_recursive_list,
 			DICTIONARY *ignore_dictionary );
 
+LIST *relation_pair_one2m_list(
+			LIST *relation_one2m_list );
+
+LIST *relation_mto1_drilldown_list(
+			LIST *relation_list,
+			char *folder_name,
+			LIST *fulfilled_folder_name_list );
+
 #endif
 

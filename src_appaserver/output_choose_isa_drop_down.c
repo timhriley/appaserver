@@ -1,7 +1,7 @@
 /* $APPASERVER_HOME/src_appaserver/output_choose_isa_drop_down.c	*/
 /* --------------------------------------------------------------------	*/
 /*									*/
-/* This is the drop down that displays to select a related folder that	*/
+/* This is the drop down that displays to select a relation that	*/
 /* another folder inherents the attributes of.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -32,20 +32,20 @@
 
 /* Constants */
 /* --------- */
-#define INSERT_UPDATE_KEY			"prompt"
+#define INSERT_UPDATE_KEY		"prompt"
 
 /* Prototypes */
 /* ---------- */
-LIST *get_element_list(	
-					char *login_name,
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *isa_related_folder_name,
-					char *role_name,
-					LIST *attribute_list,
-					LIST *primary_key_list,
-					PROCESS *populate_drop_down_process );
+LIST *output_choose_isa_drop_down_element_list(	
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *isa_related_folder_name,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *primary_key_list,
+			PROCESS *populate_drop_down_process );
 
 int main( int argc, char **argv )
 {
@@ -144,7 +144,7 @@ int main( int argc, char **argv )
 					role_name );
 
 	form->regular_element_list =
-		get_element_list(
+		output_choose_isa_drop_down_element_list(
 			login_name,
 			application_name,
 			session,
@@ -160,7 +160,8 @@ int main( int argc, char **argv )
 	form->output_row_zero_only = 1;
 	form->html_help_file_anchor = folder->html_help_file_anchor;
 
-	document = document_new(
+	document =
+		document_new(
 			application_title_string( application_name ),
 			application_name );
 
@@ -176,15 +177,15 @@ int main( int argc, char **argv )
 	document_set_javascript_module( document, "form" );
 
 	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			with_dynarch_menu );
+		document->application_name,
+		document->title,
+		document->output_content_type,
+		appaserver_parameter_file->appaserver_mount_point,
+		document->javascript_module_list,
+		document->stylesheet_filename,
+		application_relative_source_directory(
+			application_name ),
+		with_dynarch_menu );
 
 	if ( appaserver_frameset_menu_horizontal(
 			application_name,
@@ -231,12 +232,13 @@ int main( int argc, char **argv )
 
 	form->subtitle_string = subtitle_string;
 
-	form_output_title(	form->application_title,
-				form->state,
-				form->form_title,
-				form->folder_name,
-				form->subtitle_string,
-				0 /* not omit_format_initial_capital */ );
+	form_output_title(
+		form->application_title,
+		form->state,
+		form->form_title,
+		form->folder_name,
+		form->subtitle_string,
+		0 /* not omit_format_initial_capital */ );
 
 	form->table_border = 1;
 
@@ -303,15 +305,16 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-LIST *get_element_list(		char *login_name,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *isa_related_folder_name,
-				char *role_name,
-				LIST *attribute_list,
-				LIST *primary_key_list,
-				PROCESS *populate_drop_down_process )
+LIST *output_choose_isa_drop_down_element_list(
+			char *login_name,
+			char *application_name,
+			char *session,
+			char *folder_name,
+			char *isa_related_folder_name,
+			char *role_name,
+			LIST *attribute_list,
+			LIST *primary_key_list,
+			PROCESS *populate_drop_down_process )
 {
 	LIST *return_list;
 	ELEMENT_APPASERVER *element;

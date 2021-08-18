@@ -340,22 +340,3 @@ char *security_entity_where_clause(
 
 	return strdup( where_clause );
 }
-
-boolean security_access_folder(
-			char *sql_injection_escape_folder_name,
-			char *sql_injection_escape_role_name )
-{
-	LIST *role_folder_list;
-
-	if ( ( role_folder_list =
-			role_folder_fetch_list(
-				sql_injection_escape_folder_name,
-				sql_injection_escape_role_name ) ) )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}

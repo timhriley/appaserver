@@ -38,11 +38,14 @@ POST_CHOOSE_FOLDER *post_choose_folder_calloc( void )
 }
 
 POST_CHOOSE_FOLDER *post_choose_folder_fetch(
+			/* ----------------------------------- */
+			/* See session_folder_integrity_exit() */
+			/* ----------------------------------- */
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			char *folder_name,
 			char *role_name,
+			char *folder_name,
 			char *state )
 {
 	POST_CHOOSE_FOLDER *post_choose_folder =
@@ -68,7 +71,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
 			1 /* fetch_relation_mto1_non_isa_list */,
-			0 /* not fetch_relation_mto1_isa_list */,
+			post_choose_folder_fetch_mto1_isa_list(
+				state ),
 			1 /* fetch_relation_one2m_list */,
 			0 /* not fetch_relation_one2m_recursive_list */,
 			0 /* not fetch_process */,
@@ -86,6 +90,20 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 		exit( 1 );
 	}
 
+	if ( list_length(
+		relation_pair_one2m_list(
+			folder->relation_one2m_list ) ) )
+	{
+		folder->folder_form = "prompt";
+	}
+
+	if ( !*folder->folder_form ) folder->folder_form = "table";
+
 	return post_choose_folder;
 }
 
+boolean post_choose_folder_fetch_mto1_isa_list(
+			char *state )
+{
+	return ( string_strcmp( state, "insert" ) == 0 );
+}

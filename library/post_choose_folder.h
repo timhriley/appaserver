@@ -10,9 +10,8 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
-#include "role.h"
-#include "folder.h"
-#include "role_folder.h"
+#include "relation.h"
+#include "drilldown.h"
 
 /* Constants */
 /* --------- */
@@ -35,9 +34,9 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	ROLE *role;
-	FOLDER *folder;
-	ROLE_FOLDER *role_folder;
+	boolean post_choose_folder_fetch_mto1_isa_list;
+	LIST *relation_mto1_isa_list;
+	DRILLDOWN *drilldown;
 } POST_CHOOSE_FOLDER;
 
 /* Operations */
@@ -45,15 +44,18 @@ typedef struct
 POST_CHOOSE_FOLDER *post_choose_folder_calloc(
 			void );
 
+boolean post_choose_folder_fetch_mto1_isa_list(
+			char *state );
+
 POST_CHOOSE_FOLDER *post_choose_folder_fetch(
-			/* ------------------------------------- */
-			/* Each parameter was security inspected */
-			/* ------------------------------------- */
+			/* ----------------------------------- */
+			/* See session_folder_integrity_exit() */
+			/* ----------------------------------- */
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			char *folder_name,
 			char *role_name,
+			char *folder_name,
 			char *state );
 
 #endif

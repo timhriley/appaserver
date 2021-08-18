@@ -116,7 +116,8 @@ SESSION *session_folder_integrity_exit(
 /* Returns state, program memory, or null */
 /* -------------------------------------- */
 char *session_state_integrity(
-			char *state );
+			char *state,
+			LIST *role_folder_list );
 
 /* Returns heap memory or exits */
 /* ---------------------------- */

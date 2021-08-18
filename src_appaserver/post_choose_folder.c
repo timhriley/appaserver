@@ -77,10 +77,10 @@ int main( int argc, char **argv )
 	state = argv[ 6 ];
 
 	session =
-		/* --------------------------------------------- */
-		/* Sets appaserver environment and outputs usage */
-		/* Each parameter is security inspected.	 */
-		/* --------------------------------------------- */
+		/* ---------------------------------------------- */
+		/* Sets appaserver environment and outputs usage. */
+		/* Each parameter is security inspected.	  */
+		/* ---------------------------------------------- */
 		session_folder_integrity_exit(
 			argc,
 			argv,
@@ -93,15 +93,15 @@ int main( int argc, char **argv )
 
 	if ( ! ( post_choose_folder =
 			post_choose_folder_fetch(
-				/* ------------------------------------- */
-				/* Each parameter was security inspected */
-				/* ------------------------------------- */
-				application_name,
+				/* ----------------------------------- */
+				/* See session_folder_integrity_exit() */
+				/* ----------------------------------- */
+				session->sql_injection_escape_application_name,
 				session->login_name,
-				session->session_key,
-				folder_name,
+				session->sql_injection_escape_session_key,
 				role_name,
-				state ) ) )
+				folder_name,
+				session->session_state_integrity ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: post_choose_folder_fetch() returned empty.\n",
@@ -111,52 +111,31 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( related_folder_exists_pair_1tom(
-				appaserver->
-					folder->
-					one2m_related_folder_list ) )
+	if ( string_strcmp( state, "insert" ) == 0 )
 	{
-		form = "prompt";
-	}
-	else
-	{
-		sprintf(sys_string,
-		 	"form4folder.sh %s %s 2>>%s",
-		 	application_name,
-		 	folder_name,
-		 	appaserver_error_get_filename( application_name ) );
-		form = pipe2string( sys_string );
-	}
-
-	if ( !form || !*form ) form = "table";
-
-	if ( strcmp( state, "insert" ) == 0 )
-	{
-		if ( ( isa_related_folder_list =
-			related_folder_get_isa_related_folder_list(
-			application_name,
-			session,
-			folder_name,
-			role_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			related_folder_no_recursive ) ) )
+		if ( list_length( post_choose_folder->
+				folder->
+				relation_mto1_isa_list ) )
 		{
-			RELATED_FOLDER *isa_related_folder;
+			RELATION *is_relation;
 
-			isa_related_folder = (RELATED_FOLDER *)
-				list_get_first_pointer(
-					isa_related_folder_list );
+			isa_relation =
+				list_first(
+					post_choose_folder->
+						folder->
+						relation_mto1_isa_list );
 
-			sprintf( sys_string, 
+			sprintf(sys_string, 
 "output_choose_isa_drop_down %s %s %s %s %s %s %s 2>>%s",
-		 	 login_name,
-			 application_name,
-			 session,
-			 folder_name,
-			 isa_related_folder->folder->folder_name,
-			 role_name, state, 
-			 appaserver_error_get_filename( application_name ) );
+		 		login_name,
+		 		application_name,
+		 		session,
+		 		folder_name,
+		 		isa_relation->one_folder->folder_name,
+		 		role_name,
+				state, 
+			 	appaserver_error_get_filename(
+					application_name ) );
 		}
 		else
 		if ( strcmp( form, "prompt" ) == 0 )
@@ -175,13 +154,13 @@ int main( int argc, char **argv )
 		{
 			sprintf( sys_string,
 "output_insert_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s'",
-			 	login_name,
+		 		login_name,
 				application_name,
-			 	session,
-			 	folder_name,
-			 	role_name,
-			 	TABLE_TARGET_FRAME /* insert_update_key */,
-			 	TABLE_TARGET_FRAME );
+		 		session,
+		 		folder_name,
+		 		role_name,
+		 		TABLE_TARGET_FRAME /* insert_update_key */,
+		 		TABLE_TARGET_FRAME );
 		}
 	}
 	else

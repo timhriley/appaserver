@@ -386,23 +386,17 @@ SESSION *session_folder_integrity_exit(
 			session->login_name );
 	}
 
-	if ( !security_access_folder(
-		security_sql_injection_escape(
-			folder_name ),
-		security_sql_injection_escape(
-			role_name ) ) )
-	{
-		session_access_failed_message_exit(
-			application_name,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
 	session->session_state_integrity =
 		/* -------------------------------------- */
 		/* Returns state, program memory, or null */
 		/* -------------------------------------- */
-		session_state_integrity( state );
+		session_state_integrity(
+			state,
+			role_folder_fetch_list(
+				security_sql_injection_escape(
+					role_name ),
+				security_sql_injection_escape(
+					folder_name ) ) );
 
 	if ( !session->session_state_integrity )
 	{
@@ -412,7 +406,11 @@ SESSION *session_folder_integrity_exit(
 			__FUNCTION__,
 			__LINE__,
 			state );
-		exit( 1 );
+
+		session_access_failed_message_exit(
+			session->sql_injection_escape_application_name,
+			session->session_current_ip_address,
+			session->login_name );
 	}
 
 	environ_set_utc_offset(
@@ -436,17 +434,39 @@ SESSION *session_folder_integrity_exit(
 	return session;
 }
 
-char *session_state_integrity( char *state )
+char *session_state_integrity(
+			char *state,
+			LIST *role_folder_list )
 {
-	if ( !state ) return (char *)0;
+	if ( !state || !*state ) return (char *)0;
 
-	if ( strcmp( state, "view" ) == 0 )
-		return "lookup";
+	if ( !list_length( role_folder_list ) ) return (char *)0;
 
-	if ( strcmp( state, "lookup" ) == 0
-	||   strcmp( state, "insert" ) == 0 )
+	if ( strcmp( state, "view" ) == 0 ) state = "lookup";
+
+	if ( strcmp( state, "lookup" ) == 0 )
 	{
-		return state;
+		if ( role_folder_update( role_folder_list )
+		||   role_folder_lookup( role_folder_list ) )
+		{
+			return state;
+		}
+	}
+
+	if ( strcmp( state, "update" ) == 0 )
+	{
+		if ( role_folder_update( role_folder_list ) )
+		{
+			return state;
+		}
+	}
+
+	if ( strcmp( state, "insert" ) == 0 )
+	{
+		if ( role_folder_insert( role_folder_list ) )
+		{
+			return state;
+		}
 	}
 
 	return (char *)0;

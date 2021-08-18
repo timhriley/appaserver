@@ -118,8 +118,4 @@ char *security_entity_where_clause(
 			char *where_clause,
 			SECURITY_ENTITY *security_entity );
 
-boolean security_access_folder(
-			char *sql_injection_escape_folder_name,
-			char *sql_injection_escape_role_name );
-
 #endif

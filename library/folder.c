@@ -134,7 +134,7 @@ FOLDER *folder_parse(	char *input,
 	char post_change_javascript[ 2048 ];
 	char subschema[ 128 ];
 	char exclude_application_export_yn[ 128 ];
-	char lookup_before_drop_down_yn[ 128 ];
+	char drilldown_yn[ 128 ];
 	char no_initial_capital_yn[ 128 ];
 	char index_directory[ 128 ];
 	char data_directory[ 128 ];
@@ -182,9 +182,8 @@ FOLDER *folder_parse(	char *input,
 	folder->exclude_application_export =
 		( *exclude_application_export_yn == 'y' );
 
-	piece( lookup_before_drop_down_yn, SQL_DELIMITER, input, 11 );
-	folder->lookup_before_drop_down =
-		( *lookup_before_drop_down_yn == 'y' );
+	piece( drilldown_yn, SQL_DELIMITER, input, 11 );
+	folder->drilldown = ( *drilldown_yn == 'y' );
 
 	piece( no_initial_capital_yn, SQL_DELIMITER, input, 12 );
 	folder->no_initial_capital =

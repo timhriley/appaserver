@@ -51,14 +51,14 @@ RELATION *relation_parse(
 	char many_folder_name[ 128 ];
 	char one_folder_name[ 128 ];
 	char related_attribute_name[ 128 ];
-	char pair_1tom_order[ 128 ];
-	char omit_1tom_detail[ 128 ];
+	char pair_one2m_order[ 128 ];
+	char omit_one2m_detail[ 128 ];
 	char prompt_mto1_recursive[ 128 ];
 	char relation_type_isa[ 128 ];
 	char copy_common_attributes[ 128 ];
 	char automatic_preselection[ 128 ];
 	char drop_down_multi_select[ 128 ];
-	char join_1tom_each_row[ 128 ];
+	char join_one2m_each_row[ 128 ];
 	char omit_lookup_before_drop_down[ 128 ];
 	char ajax_fill_drop_down[ 128 ];
 	char hint_message[ 4096 ];
@@ -79,11 +79,11 @@ RELATION *relation_parse(
 	piece( related_attribute_name, SQL_DELIMITER, input, 2 );
 	relation->related_attribute_name = strdup( related_attribute_name );
 
-	piece( pair_1tom_order, SQL_DELIMITER, input, 3 );
-	relation->pair_1tom_order = atoi( pair_1tom_order );
+	piece( pair_one2m_order, SQL_DELIMITER, input, 3 );
+	relation->pair_one2m_order = atoi( pair_one2m_order );
 
-	piece( omit_1tom_detail, SQL_DELIMITER, input, 4 );
-	relation->omit_1tom_detail = ( *omit_1tom_detail == 'y' );
+	piece( omit_one2m_detail, SQL_DELIMITER, input, 4 );
+	relation->omit_one2m_detail = ( *omit_one2m_detail == 'y' );
 
 	piece( prompt_mto1_recursive, SQL_DELIMITER, input, 5 );
 	relation->prompt_mto1_recursive = ( *prompt_mto1_recursive == 'y' );
@@ -100,8 +100,8 @@ RELATION *relation_parse(
 	piece( drop_down_multi_select, SQL_DELIMITER, input, 9 );
 	relation->drop_down_multi_select = ( *drop_down_multi_select == 'y' );
 
-	piece( join_1tom_each_row, SQL_DELIMITER, input, 10 );
-	relation->join_1tom_each_row = ( *join_1tom_each_row == 'y' );
+	piece( join_one2m_each_row, SQL_DELIMITER, input, 10 );
+	relation->join_one2m_each_row = ( *join_one2m_each_row == 'y' );
 
 	piece( omit_lookup_before_drop_down, SQL_DELIMITER, input, 11 );
 	relation->omit_lookup_before_drop_down =
@@ -344,6 +344,30 @@ LIST *relation_one2m_list(
 			1 /* fetch_attribute_list */ );
 }
 
+LIST *relation_pair_one2m_list(
+			LIST *relation_one2m_list )
+{
+	RELATION *relation;
+	char key[ 128 ];
+	LIST *pair_one2m_list = {0};
+
+	if ( !list_rewind( relation_one2m_list ) ) return (LIST *)0;
+
+	do {
+		relation = list_get( relation_one2m_list );
+
+		if ( relation->pair_one2m_order )
+		{
+			if ( !pair_one2m_list ) pair_one2m_list = list_new();
+
+			list_set( pair_one2m_list, relation );
+		}
+
+	} while ( list_next( relation_one2m_list ) );
+
+	return pair_one2m_list;
+}
+
 LIST *relation_join_one2m_list(
 			LIST *relation_one2m_recursive_list,
 			DICTIONARY *ignore_dictionary )
@@ -352,10 +376,11 @@ LIST *relation_join_one2m_list(
 	char key[ 128 ];
 	LIST *join_one2m_list = {0};
 
-	if ( !list_rewind( relation_one2m_list ) ) return (LIST *)0;
+	if ( !list_rewind( relation_one2m_recursive_list ) )
+		return (LIST *)0;
 
 	do {
-		relation = list_get( relation_one2m_list );
+		relation = list_get( relation_one2m_recursive_list );
 
 		if ( relation->join_one2m_each_row )
 		{
@@ -375,7 +400,7 @@ LIST *relation_join_one2m_list(
 			list_set( join_one2m_list, relation );
 		}
 
-	} while ( list_next( relation_one2m_list ) );
+	} while ( list_next( relation_one2m_recursive_list ) );
 
 	return join_one2m_list;
 }
@@ -426,9 +451,7 @@ LIST *relation_one2m_recursive_list(
 					relation_list,
 					relation->
 						many_folder->
-						folder_name
-						/* translates to	*/
-						/* one_folder_name	*/ );
+						folder_name );
 		}
 	} while ( list_next( local_relation_list ) );
 
@@ -476,9 +499,7 @@ LIST *relation_mto1_isa_list(
 				relation_list,
 				relation->
 					one_folder->
-					folder_name
-					/* translates to	*/
-					/* many_folder_name	*/ );
+					folder_name );
 
 	} while ( list_next( local_relation_list ) );
 
@@ -540,5 +561,55 @@ LIST *relation_one2m_pair_list(
 			/* ---------------------------------- */
 			1 /* fetch_folder */,
 			1 /* fetch_attribute_list */ );
+}
+
+LIST *relation_mto1_drilldown_list(
+			LIST *relation_list,
+			char *folder_name,
+			LIST *fulfilled_folder_name_list )
+{
+	LIST *local_relation_list;
+	RELATION *relation;
+	char where[ 256 ];
+
+	sprintf(where,
+		"folder = '%s' and ifnull(relation_type_isa,'n') = 'n'",
+		folder_name );
+
+	local_relation_list =
+		relation_system_list(
+			relation_system_string(
+				where,
+				(char *)0 /* order */ ),
+			1 /* fetch_folder */,
+			0 /* not fetch_attribute_list */ );
+
+	if ( !list_rewind( local_relation_list ) )
+		return relation_list;
+
+	do {
+		relation = list_get( local_relation_list );
+
+		if ( relation->one_folder->drilldown
+		&&   !list_exists(
+			relation->one_folder->folder_name,
+			fulfilled_folder_name_list ) )
+		{
+			if ( !relation_list ) relation_list = list_new();
+
+			list_set( relation_list, relation );
+
+			relation_list =
+				relation_mto1_drilldown_list(
+					relation_list,
+					relation->
+						one_folder->
+						folder_name )'
+		}
+
+	} while ( list_next( local_relation_list ) );
+
+	list_free_container( local_relation_list );
+	return relation_list;
 }
 
