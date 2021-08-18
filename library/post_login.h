@@ -12,7 +12,7 @@
 
 /* Constants */
 /* --------- */
-#define SECONDS_TO_SLEEP		2
+#define POST_LOGIN_SECONDS_TO_SLEEP		2
 
 /* Enumerated types */
 /* ---------------- */

@@ -101,7 +101,7 @@ int main( int argc, char **argv )
 				"invalid_login_yn=y" );
 		}
 
-		sleep( SECONDS_TO_SLEEP );
+		sleep( POST_LOGIN_SECONDS_TO_SLEEP );
 		exit ( 1 );
 	}
 
@@ -156,7 +156,7 @@ int main( int argc, char **argv )
 				"invalid_login_yn=y" );
 		}
 
-		sleep( SECONDS_TO_SLEEP );
+		sleep( POST_LOGIN_SECONDS_TO_SLEEP );
 		exit ( 1 );
 	}
 

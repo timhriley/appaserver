@@ -37,6 +37,10 @@ typedef struct
 	char *last_access_time;
 	char *http_user_agent;
 	char *remote_ip_address;
+
+	/* Process */
+	/* ------- */
+	char *session_current_ip_address;
 } SESSION;
 
 SESSION *session_calloc(
@@ -90,5 +94,23 @@ void session_message_ip_address_changed_exit(
 			char *remote_ip_address,
 			char *current_ip_address,
 			char *login_name );
+
+/* ----------------------------------------------	*/
+/* Sets appaserver environment and outputs usage.	*/
+/* Each parameter is security inspected.		*/
+/* ----------------------------------------------	*/
+SESSION *session_folder_integrity_exit(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name );
+
+/* Returns heap memory or exits */
+/* ---------------------------- */
+char *session_current_ip_address(
+			void );
 
 #endif

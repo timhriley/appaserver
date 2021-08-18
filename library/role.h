@@ -92,19 +92,26 @@ char *role_attribute_exclude_system_string(
 
 /* ROLE_APPASERVER_USER operations */
 /* ------------------------------- */
+ROLE_APPASERVER_USER *role_appaserver_user_fetch(
+			char *session_login_name,
+			char *sql_injection_escape_role_name );
+
+LIST *role_appaserver_user_system_list(
+			char *system_string );
+
+/* Returns static memory */
+/* --------------------- */
 char *role_appaserver_user_primary_where(
 			char *login_name,
 			char *role_name );
 
+/* Returns heap memory */
+/* ------------------- */
 char *role_appaserver_user_system_string(
 			char *where );
 
 ROLE_APPASERVER_USER *role_appaserver_user_calloc(
 			void );
-
-ROLE_APPASERVER_USER *role_appaserver_user_fetch(
-			char *session_login_name,
-			char *sql_injection_escape_role_name );
 
 ROLE_APPASERVER_USER *role_appaserver_user_parse(
 			char *input );

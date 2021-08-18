@@ -27,6 +27,7 @@
 #include "post2dictionary.h"
 #include "role.h"
 #include "drilldown.h"
+#include "post_choose_folder.h"
 
 #define TABLE_TARGET_FRAME		PROMPT_FRAME
 #define INSERT_UPDATE_KEY		"prompt"
@@ -55,14 +56,10 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *session_key;
 	char *folder_name;
-	char *state;
 	char *role_name;
-	char *form;
-	char sys_string[ 1024 ];
-	ROLE *role;
-	FOLDER *folder;
+	char *state;
 	SESSION *session;
-	char *current_ip_address;
+	POST_CHOOSE_FOLDER *post_choose_folder;
 
 	if ( argc != 7 )
 	{
@@ -79,136 +76,39 @@ int main( int argc, char **argv )
 	role_name = argv[ 5 ];
 	state = argv[ 6 ];
 
-	if ( ! ( current_ip_address =
-			environment_get(
-				SESSION_REMOTE_IP_ADDRESS_VARIABLE ) ) )
+	session =
+		/* --------------------------------------------- */
+		/* Sets appaserver environment and outputs usage */
+		/* Each parameter is security inspected.	 */
+		/* --------------------------------------------- */
+		session_folder_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name );
+
+	if ( ! ( post_choose_folder =
+			post_choose_folder_fetch(
+				/* ------------------------------------- */
+				/* Each parameter was security inspected */
+				/* ------------------------------------- */
+				application_name,
+				session->login_name,
+				session->session_key,
+				folder_name,
+				role_name,
+				state ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: environment_get(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: post_choose_folder_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			SESSION_REMOTE_IP_ADDRESS_VARIABLE );
+			__LINE__ );
 		exit( 1 );
 	}
-
-	if ( ! ( session =
-			session_fetch(
-				/* ------------------------- */
-				/* Sets ENVIRONMENT_DATABASE */
-				/* ------------------------- */
-				security_sql_injection_escape(
-					application_name ),
-				security_sql_injection_escape(
-					session_key ),
-				login_name
-					/* integrity_check_login_name */ ) ) )
-	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: for IP=%s, session_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			current_ip_address,
-			session );
-
-		session_access_failed_message_exit(
-			application_name,
-			current_ip_address,
-			login_name );
-	}
-
-	appaserver_output_starting_argv_append_file(
-		argc,
-		argv,
-		session->sql_injection_escape_application_name );
-
-	if ( session_remote_ip_address_changed(
-		session->session_key,
-		current_ip_address ) )
-	{
-		session_message_ip_address_changed_exit(
-			session->sql_injection_escape_application_name,
-			session->session_key,
-			session->remote_ip_address,
-			current_ip_address,
-			session->login_name );
-	}
-
-	if ( !role_appaserver_user_fetch(
-		session->login_name,
-		security_sql_injection_escape(
-			role_name ) ) )
-	{
-		session_access_failed_message_exit(
-			session->sql_injection_escape_application_name,
-			current_ip_address,
-			session->sql_injection_escape_login_name );
-	}
-
-	if ( !security_access_folder(
-		security_sql_injection_escape(
-			folder_name ),
-		security_sql_injection_escape(
-			role_name ) ) )
-	{
-		session_access_failed_message_exit(
-			application_name,
-			current_ip_address,
-			login_name );
-	}
-
-	environ_set_utc_offset(
-		session->
-			sql_injection_escape_application_name );
-
-	add_relative_source_directory_to_path(
-		session->
-			sql_injection_escape_application_name );
-
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	environ_appaserver_home();
-	environ_prepend_dot_to_path();
-
-	session_update_access_date_time( session->session );
-
-	appaserver_library_purge_temporary_files(
-		session->sql_injection_escape_application_name );
-
-	role = role_new( role_name );
-
-	folder =
-		folder_fetch(
-
-	appaserver->folder->mto1_related_folder_list = 
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			0 /* isa_flag */,
-			related_folder_prompt_recursive_only,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_key_list */,
-			0 /* recursive_level */ );
-
-	appaserver->folder->one2m_related_folder_list = 
-		related_folder_1tom_related_folder_list(
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			other,
-			(LIST *)0 /* primary_data_list */,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_no_recursive,
-			(LIST *)0 /* parent_primary_key_list */,
-			(LIST *)0 /* original_primary_key_list */,
-			(char *)0 /* prior_related_attribute_name */ );
 
 	if ( related_folder_exists_pair_1tom(
 				appaserver->
@@ -491,6 +391,5 @@ char *prompt_insert_form_sys_string(
 		 	application_name ) );
 
 	return sys_string;
-
 }
 

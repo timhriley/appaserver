@@ -12,7 +12,6 @@
 
 /* Constants */
 /* --------- */
-#define ENVIRONMENT_DATABASE		"APPASERVER_DATABASE"
 
 /* Prototypes */
 /* ---------- */

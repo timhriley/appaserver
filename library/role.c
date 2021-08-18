@@ -364,24 +364,77 @@ char *role_appaserver_user_primary_where(
 			char *login_name,
 			char *role_name )
 {
+	static char where[ 256 ];
+
+	sprintf(where,
+		"login_name = '%s' and role = '%s'",
+		login_name,
+		role_name );
+
+	return where;
 }
 
 char *role_appaserver_user_system_string( char *where )
 {
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh '*' %s \"%s\" select",
+		ROLE_APPASERVER_USER_TABLE,
+		where );
+
+	return strdup( system_string );
 }
 
 ROLE_APPASERVER_USER *role_appaserver_user_calloc( void )
 {
+	ROLE_APPASERVER_USER *role_appaserver_user;
+
+	if ( ! ( role_appaserver_user =
+			calloc( 1, sizeof( ROLE_APPASERVER_USER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return role_appaserver_user;
 }
 
 ROLE_APPASERVER_USER *role_appaserver_user_fetch(
 			char *session_login_name,
 			char *sql_injection_escape_role_name )
 {
+	return
+	role_appaserver_user_parse(
+		string_pipe_fetch(
+			role_appaserver_user_system_string(
+				role_appaserver_user_primary_where(
+					session_login_name,
+					sql_injection_escape_role_name ) ) ) );
 }
 
 
 ROLE_APPASERVER_USER *role_appaserver_user_parse( char *input )
 {
+	ROLE_APPASERVER_USER *role_appaserver_user;
+	char piece_buffer[ 128 ];
+
+	if ( !input || !*input ) return (ROLE_APPASERVER_USER )0;
+
+	role_appaserver_user = role_appaserver_user_calloc();
+
+	/* See attribute_list role_appaserver_user */
+	/* --------------------------------------- */
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	role_appaserver_user->login_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	role_appaserver_user->role_name = strdup( piece_buffer );
+
+	return role_appaserver_user;
 }
 

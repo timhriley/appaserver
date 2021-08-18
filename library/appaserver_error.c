@@ -44,16 +44,6 @@ void appaserver_output_error_message(
 	fclose( f );
 }
 
-char *appaserver_get_error_filename( char *application_name )
-{
-	return appaserver_error_filename( application_name );
-}
-
-char *appaserver_error_get_filename( char *application_name )
-{
-	return appaserver_error_filename( application_name );
-}
-
 char *appaserver_error_filename( char *application_name )
 {
 	static char filename[ 128 ] = {0};
@@ -96,17 +86,6 @@ char *appaserver_error_filename( char *application_name )
 	return filename;
 }
 
-void appaserver_output_starting_argv_append_file(
-			int argc,
-			char **argv,
-			char *application_name )
-{
-	appaserver_error_starting_argv_append_file(
-			argc,
-			argv,
-			application_name );
-}
-
 void appaserver_error_login_name_append_file(
 			int argc,
 			char **argv,
@@ -117,7 +96,7 @@ void appaserver_error_login_name_append_file(
 
 	if ( !login_name || !*login_name )
 	{
-		appaserver_error_starting_argv_append_file(
+		appaserver_error_argv_append_file(
 			argc,
 			argv,
 			application_name );
@@ -138,7 +117,7 @@ void appaserver_error_login_name_append_file(
 	fclose( f );
 }
 
-void appaserver_error_starting_argv_append_file(
+void appaserver_error_argv_append_file(
 			int argc,
 			char **argv,
 			char *application_name )
@@ -215,9 +194,9 @@ FILE *appaserver_error_open_append_file(
 void output_error_message( char *message, char *login_name )
 {
 	return appaserver_output_error_message(
-					(char *)0 /* application_name */,
-					message,
-					login_name );
+			(char *)0 /* application_name */,
+			message,
+			login_name );
 }
 
 void m( char *message )
@@ -230,42 +209,16 @@ void m2( char *application_name, char *message )
 	appaserver_output_error_message( application_name, message, (char *)0 );
 }
 
-void appaserver_output_starting_argv_stderr(
-					int argc,
-					char **argv )
-{
-	appaserver_error_output_starting_argv_stderr(
-					argc,
-					argv );
-}
-
-void appaserver_error_usage_stderr(	int argc,
-					char **argv )
-{
-	appaserver_error_output_starting_argv_stderr(
-					argc,
-					argv );
-}
-
-void appaserver_error_stderr(		int argc,
-					char **argv )
-{
-	appaserver_error_output_starting_argv_stderr(
-					argc,
-					argv );
-}
-
-void appaserver_error_output_starting_argv_stderr(
-					int argc,
-					char **argv )
+void appaserver_error_stderr(
+			int argc,
+			char **argv )
 {
 	fprintf( stderr, "%s %s: %s",
-		 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
-		 date_get_now_hhmm( date_get_utc_offset() ),
+		 date_now_yyyy_mm_dd( date_get_utc_offset() ),
+		 date_now_hhmm( date_get_utc_offset() ),
 		 *argv );
 
 	while( --argc ) fprintf( stderr, " %s", *++argv );
 	fprintf( stderr, "\n" );
 	fflush( stderr );
-
 }

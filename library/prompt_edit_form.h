@@ -8,7 +8,6 @@
 
 /* Includes */
 /* -------- */
-#include "dictionary.h"
 #include "boolean.h"
 #include "list.h"
 #include "role.h"

@@ -22,6 +22,7 @@
 #include "date.h"
 #include "sql.h"
 #include "appaserver_user.h"
+#include "role_appaserver_user.h"
 #include "session.h"
 
 #define SLEEP_SECONDS	2
@@ -248,7 +249,7 @@ SESSION *session_fetch(
 	SESSION *session;
 
 	environment_set(
-		ENVIRONMENT_DATABASE,
+		"APPASERVER_DATABASE",
 		sql_injection_escape_application_name );
 
 	session =
@@ -281,6 +282,138 @@ SESSION *session_fetch(
 	session->sql_injection_escape_session =
 		sql_injection_escape_session;
 
+	session->session_current_ip_address =
+		/* ---------------------------- */
+		/* Returns heap memory or exits */
+		/* ---------------------------- */
+		session_current_ip_address();
+
 	return session;
 }
 
+char *session_current_ip_address( void )
+{
+	char *current_ip_address;
+
+	if ( ! ( current_ip_address =
+			environment_get(
+				SESSION_REMOTE_IP_ADDRESS_VARIABLE ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: environment_get(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			SESSION_REMOTE_IP_ADDRESS_VARIABLE );
+		exit( 1 );
+	}
+
+	return current_ip_address;
+}
+
+SESSION *session_folder_integrity_exit(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name )
+{
+	SESSION *session;
+
+	if ( ! ( session =
+			session_fetch(
+				/* ------------------------- */
+				/* Sets ENVIRONMENT_DATABASE */
+				/* ------------------------- */
+				security_sql_injection_escape(
+					application_name ),
+				security_sql_injection_escape(
+					session_key ),
+				login_name
+					/* integrity_check_login_name */ ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: for IP=%s, session_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			current_ip_address,
+			session_key );
+
+		session_access_failed_message_exit(
+			application_name,
+			current_ip_address,
+			login_name );
+	}
+
+	appaserver_error_argv_append_file(
+		argc,
+		argv,
+		session->sql_injection_escape_application_name );
+
+	if ( session_remote_ip_address_changed(
+		session->remote_ip_address,
+		session->session_current_ip_address ) )
+	{
+		session_message_ip_address_changed_exit(
+			session->sql_injection_escape_application_name,
+			session->session_key,
+			session->remote_ip_address,
+			session->session_current_ip_address,
+			session->login_name );
+	}
+
+	if ( !role_appaserver_user_fetch(
+		session->login_name,
+		security_sql_injection_escape(
+			role_name ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: for IP=%s, role_appaserver_user_fetch(%s,%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			current_ip_address,
+			session->login_name,
+			role_name );
+
+		session_access_failed_message_exit(
+			session->sql_injection_escape_application_name,
+			session->session_current_ip_address,
+			session->login_name );
+	}
+
+	if ( !security_access_folder(
+		security_sql_injection_escape(
+			folder_name ),
+		security_sql_injection_escape(
+			role_name ) ) )
+	{
+		session_access_failed_message_exit(
+			application_name,
+			session->session_current_ip_address,
+			session->login_name );
+	}
+
+	environ_set_utc_offset(
+		session->
+			sql_injection_escape_application_name );
+
+	add_relative_source_directory_to_path(
+		session->
+			sql_injection_escape_application_name );
+
+	add_utility_to_path();
+	add_src_appaserver_to_path();
+	environ_appaserver_home();
+	environ_prepend_dot_to_path();
+
+	session_update_access_date_time( session->session_key );
+
+	appaserver_library_purge_temporary_files(
+		session->sql_injection_escape_application_name );
+
+	return session;
+}

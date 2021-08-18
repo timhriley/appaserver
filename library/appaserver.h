@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/appaserver.h				*/
 /* -------------------------------------------------------------------- */
-/* This maintains a set of APPASERVER ADTs.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
