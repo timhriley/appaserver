@@ -318,7 +318,8 @@ SESSION *session_folder_integrity_exit(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
-			char *role_name )
+			char *role_name,
+			char *state )
 {
 	SESSION *session;
 
@@ -397,6 +398,23 @@ SESSION *session_folder_integrity_exit(
 			session->login_name );
 	}
 
+	session->session_state_integrity =
+		/* -------------------------------------- */
+		/* Returns state, program memory, or null */
+		/* -------------------------------------- */
+		session_state_integrity( state );
+
+	if ( !session->session_state_integrity )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: session_state_integrity(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			state );
+		exit( 1 );
+	}
+
 	environ_set_utc_offset(
 		session->
 			sql_injection_escape_application_name );
@@ -416,4 +434,20 @@ SESSION *session_folder_integrity_exit(
 		session->sql_injection_escape_application_name );
 
 	return session;
+}
+
+char *session_state_integrity( char *state )
+{
+	if ( !state ) return (char *)0;
+
+	if ( strcmp( state, "view" ) == 0 )
+		return "lookup";
+
+	if ( strcmp( state, "lookup" ) == 0
+	||   strcmp( state, "insert" ) == 0 )
+	{
+		return state;
+	}
+
+	return (char *)0;
 }

@@ -41,6 +41,10 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *session_current_ip_address;
+
+	/* Generic */
+	/* ------- */
+	char *session_state_integrity;
 } SESSION;
 
 SESSION *session_calloc(
@@ -106,7 +110,13 @@ SESSION *session_folder_integrity_exit(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
-			char *role_name );
+			char *role_name,
+			char *state );
+
+/* Returns state, program memory, or null */
+/* -------------------------------------- */
+char *session_state_integrity(
+			char *state );
 
 /* Returns heap memory or exits */
 /* ---------------------------- */

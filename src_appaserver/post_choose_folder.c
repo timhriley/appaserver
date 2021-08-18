@@ -88,7 +88,8 @@ int main( int argc, char **argv )
 			login_name,
 			session_key,
 			folder_name,
-			role_name );
+			role_name,
+			state );
 
 	if ( ! ( post_choose_folder =
 			post_choose_folder_fetch(
