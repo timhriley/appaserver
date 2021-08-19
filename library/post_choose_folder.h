@@ -10,6 +10,7 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
+#include "folder.h"
 #include "relation.h"
 #include "drilldown.h"
 
@@ -34,18 +35,17 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	boolean post_choose_folder_fetch_mto1_isa_list;
-	LIST *relation_mto1_isa_list;
+	boolean fetch_relation_mto1_isa_list;
+	FOLDER *folder;
+	LIST *relation_pair_one2m_list;
 	DRILLDOWN *drilldown;
+	char *form_name;
 } POST_CHOOSE_FOLDER;
 
 /* Operations */
 /* ---------- */
 POST_CHOOSE_FOLDER *post_choose_folder_calloc(
 			void );
-
-boolean post_choose_folder_fetch_mto1_isa_list(
-			char *state );
 
 POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 			/* ----------------------------------- */
@@ -57,5 +57,12 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 			char *role_name,
 			char *folder_name,
 			char *state );
+
+boolean post_choose_folder_fetch_relation_mto1_isa_list(
+			char *state );
+
+char *post_choose_folder_form_name(
+			int relation_pair_one2m_list_length,
+			char *folder_form );
 
 #endif

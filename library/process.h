@@ -26,7 +26,7 @@
 #define PROCESS_ID_LABEL		"pprocess_id"
 
 #define PROCESS_SELECT			"process,"			\
-					"command_line",			|
+					"command_line",			\
 					"notepad,"			\
 					"html_help_file_anchor,"	\
 					"execution_count,"		\
@@ -179,7 +179,7 @@ typedef struct
 	char *process_name;
 	char *role_name;
 	char *login_name;
-	DICTIONARY *working_post
+	DICTIONARY *working_post_dictionary;
 
 	/* Process */
 	/* ------- */
@@ -426,13 +426,6 @@ boolean process_executable_ok(
 void process_set_one2m_folder_name_for_process(
 			DICTIONARY *dictionary,
 			char *one2m_folder_name );
-
-void process_search_replace_where(
-			char *command_line /* in/out */,
-			char *folder_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *preprompt_dictionary );
 
 boolean process_interpreted_executable_ok(
 			char *which_string );

@@ -14,7 +14,7 @@
 /* Constants */
 /* --------- */
 #define SORT_BUTTON_PREFIX			"ssort_button_"
-#define LOOKUP_BEFORE_DROP_DOWN_PREFIX		"llookup_before_drop_down_"
+#define DRILLDOWN_PREFIX			"ddrilldown_"
 #define PAIR_ONE2M_PREFIX			"ppair_one2m_"
 #define IGNORE_SELECT_PUSH_BUTTON_PREFIX	"ignore_"
 #define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"

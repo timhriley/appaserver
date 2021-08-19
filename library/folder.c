@@ -18,7 +18,7 @@
 #include "query.h"
 #include "folder.h"
 
-FOLDER *folder_new( char *sql_injection_escape_folder_name )
+FOLDER *folder_new( char *folder_name )
 {
 	FOLDER *folder;
 
@@ -32,8 +32,7 @@ FOLDER *folder_new( char *sql_injection_escape_folder_name )
 		exit( 1 );
 	}
 
-	folder->sql_injection_escape_folder_name =
-		sql_injection_escape_folder_name;
+	folder->folder_name = folder_name;
 
 	return folder;
 }
@@ -348,6 +347,23 @@ char *folder_table_name(
 	}
 
 	return strdup( table_name );
+}
+
+FOLDER *folder_quick_fetch( char *folder_name )
+{
+	return
+	folder_fetch(
+		folder_name,
+		(char *)0 /* role_name */,
+		(LIST *)0 /* exclude_attribute_name_list */,
+		0 /* not fetch_folder_attribute_list */,
+		0 /* not fetch_relation_mto1_non_isa_list */,
+		0 /* not fetch_relation_mto1_isa_list */,
+		0 /* not fetch_relation_one2m_list */,
+		0 /* not fetch_relation_one2m_recursive_list */,
+		0 /* not fetch_process */,
+		0 /* not fetch_role_folder_list */,
+		0 /* not fetch_row_level_restriction */ );
 }
 
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,

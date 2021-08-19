@@ -8,8 +8,10 @@
 #define FOLDER_H
 
 #include "list.h"
-#include "process.h"
 #include "boolean.h"
+#include "process.h"
+#include "dictionary.h"
+#include "security.h"
 
 /* Constants */
 /* --------- */
@@ -42,8 +44,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *sql_injection_escape_folder_name;
-	char *sql_injection_escape_role_name;
+	char *folder_name;
+	char *role_name;
 	char *folder_form;
 	int insert_rows_number;
 	boolean lookup_email_output;
@@ -84,7 +86,7 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-FOLDER *folder_new( 	char *sql_injection_escape_folder_name );
+FOLDER *folder_new(	char *folder_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -163,19 +165,22 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			boolean fetch_role_folder_list,
 			boolean fetch_row_level_restriction );
 
+FOLDER *folder_quick_fetch(
+			char *folder_name );
+
 char *folder_row_level_restriction_string(
 			char *folder_name );
 
 LIST *folder_process_primary_delimited_list(
 			PROCESS *populate_drop_down_process,
-			DICTIONARY *preprompt_dictionary.
+			DICTIONARY *preprompt_dictionary,
 			char *login_name );
 
 LIST *folder_query_primary_delimited_list(
 			char *table_name,
 			LIST *folder_attribute_list,
 			LIST *primary_key_list,
-			DICTIONARY *preprompt_dictionary.
+			DICTIONARY *preprompt_dictionary,
 			char *login_name );
 
 LIST *folder_query_delimited_list(

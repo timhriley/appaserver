@@ -45,7 +45,7 @@ APPASERVER_LIBRARY=						\
 		token.o						\
 		make_date_time_between_compatable.o		\
 		populate_helper_process.o			\
-		lookup_before_drop_down.o			\
+		drilldown.o					\
 		appaserver_library.o				\
 		appaserver_error.o				\
 		appaserver.o					\
@@ -906,12 +906,9 @@ populate_helper_process.o: populate_helper_process.c 			\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c populate_helper_process.c
 
-lookup_before_drop_down.o: lookup_before_drop_down.c 			\
-	lookup_before_drop_down.h					\
-	form.h								\
-	related_folder.h
+drilldown.o: drilldown.c
 	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c lookup_before_drop_down.c
+		-c drilldown.c
 
 process_generic_output.o: process_generic_output.c 			\
 	process_generic_output.h
