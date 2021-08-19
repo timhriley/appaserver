@@ -99,10 +99,10 @@ void session_message_ip_address_changed_exit(
 			char *current_ip_address,
 			char *login_name );
 
-/* ----------------------------------------------	*/
-/* Sets appaserver environment and outputs usage.	*/
-/* Each parameter is security inspected.		*/
-/* ----------------------------------------------	*/
+/* --------------------------------------------- */
+/* Sets appaserver environment and outputs argv. */
+/* Each parameter is security inspected.	 */
+/* --------------------------------------------- */
 SESSION *session_folder_integrity_exit(
 			int argc,
 			char **argv,
@@ -112,6 +112,19 @@ SESSION *session_folder_integrity_exit(
 			char *folder_name,
 			char *role_name,
 			char *state );
+
+/* --------------------------------------------- */
+/* Sets appaserver environment and outputs argv. */
+/* Each parameter is security inspected.	 */
+/* --------------------------------------------- */
+SESSION *session_process_integrity_exit(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *process_name,
+			char *role_name );
 
 /* Returns state, program memory, or null */
 /* -------------------------------------- */

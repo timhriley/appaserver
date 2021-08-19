@@ -30,7 +30,7 @@
 #include "role_folder.h"
 #include "role.h"
 #include "dictionary_appaserver.h"
-#include "lookup_before_drop_down.h"
+#include "drilldown.h"
 #include "relation.h"
 #include "pair_one2m.h"
 
@@ -159,222 +159,157 @@ LIST *output_prompt_insert_element_list(
 int main( int argc, char **argv )
 {
 	char *login_name;
-	char *application_name = {0};
-	char *database_string = {0};
-	char *session;
+	char *application_name;
+	char *session_key;
 	char *folder_name;
-	char *role_name, *state;
+	char *role_name;
+	ROLE *role;
+	FOLDER *folder;
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	LIST *allowed_attribute_name_list = {0};
-	DICTIONARY *original_post_dictionary = {0};
-	LIST *mto1_isa_related_folder_list = {0};
-	LIST *mto1_related_folder_list;
-	LIST *attribute_list;
-	char *folder_notepad;
-	char *html_help_file_anchor;
-	char *isa_multi_attribute_name = {0};
-	char *isa_multi_attribute_data = {0};
+	DICTIONARY *original_post_dictionary;
+	DRILLDOWN *drilldown;
+	SESSION *session;
 	boolean omit_push_buttons;
-	boolean omit_ignore_push_buttons = 0;
-	FOLDER *folder;
-	ROLE *role;
 	LIST *remember_button_non_multi_element_name_list;
 	LIST *remember_button_multi_element_name_list;
 	char *prelookup_button_control_string = {0};
-	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 	boolean with_dynarch_menu = 0;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 	LIST *isa_folder_list = {0};
 	PAIR_ONE2M *pair_one2m;
-	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
+	RELATION *ajax_fill_drop_down_relation = {0};
+	char *dictionary_string;
+	char escaped_delimiter_string[ 3 ];
+	char delimiter_string[ 2 ];
 
-	/* -------------------------------------------- */
-	/* Maybe called from output_results.		*/
-	/* output_results does "onload=window.open()"	*/
-	/* -------------------------------------------- */
-	/* application_name = environ_get_application_name( argv[ 0 ] ); */
-
-	if ( argc >= 3 )
-	{
-		application_name = argv[ 2 ];
-
-		if ( timlib_parse_database_string(	&database_string,
-							application_name ) )
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				database_string );
-		}
-		else
-		{
-			environ_set_environment(
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-				application_name );
-		}
-
-		appaserver_error_starting_argv_append_file(
-			argc,
-			argv,
-			application_name );
-	}
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-	environ_prepend_dot_to_path();
-	environ_appaserver_home();
-	add_utility_to_path();
-	add_local_bin_to_path();
-	add_relative_source_directory_to_path( application_name );
-
-	/* Note: optionally there could be a trailing dictionary string */
-	/* ------------------------------------------------------------ */
-	if ( argc < 8 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state omit_buttons_yn [dictionary]\n",
+"Usage: %s login_name application session folder role omit_buttons_yn drilldown_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
+	application_name = argv[ 2 ];
+	session_key = argv[ 3 ];
+
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
-	state = argv[ 6 ];
 
-	/* Maybe called from output_results. */
-	/* --------------------------------- */
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
+	session =
+		/* --------------------------------------------- */
+		/* Sets appaserver environment and outputs argv. */
+		/* Each parameter is security inspected.	 */
+		/* --------------------------------------------- */
+		session_folder_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			"insert" /* state */ );
+
+	/* Yes if called from post_choose_isa_drop_down */
+	/* -------------------------------------------- */
+	omit_push_buttons = ( *argv[ 6 ] == 'y' );
+
+	role =
+		role_fetch(
+			role_name,
+			1 /* fetch_attribute_exclude_list */,
+			0 /* not fetch process_name_list */ );
+
+	folder =
+		folder_fetch(
+			folder_name,
+			/* ----------------------------- */
+			/* Not fetching role_folder_list */
+			/* ----------------------------- */
+			(char *)0 /* role_name */,
+			role->exclude_insert_attribute_name_list,
+			/* -------------------------- */
+			/* Also sets primary_key_list */
+			/* -------------------------- */
+			1 /* fetch_folder_attribute_list */,
+			boolean fetch_relation_mto1_non_isa_list,
+			/* ------------------------------------------- */
+			/* Maybe sets folder_attribute_append_isa_list */
+			/* ------------------------------------------- */
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
+			0 /* not fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			0 /* not fetch_row_level_restriction */ );
+
+	dictionary_string = argv[ 7 ];
+
+	/* ---------------------------------------------------- */
+	/* If from output_results, then this is executed by	*/
+	/* window.open(). Therefore, the delimiters are escaped.*/
+	/* ---------------------------------------------------- */
+	sprintf( escaped_delimiter_string,
+		 "\\%c",
+		 DICTIONARY_ALTERNATIVE_DELIMITER );
+
+	if ( string_exists(
+			dictionary_string,
+			escaped_delimiter_string ) )
 	{
-		session_message_ip_address_changed_exit(
+		sprintf( delimiter_string,
+			 "%c",
+			 DICTIONARY_ALTERNATIVE_DELIMITER );
+
+		search_replace_string(
+			dictionary_string,
+			escaped_delimiter_string,
+			delimiter_string );
+
+		sprintf( escaped_delimiter_string,
+		 	 "\\%c",
+			 '&' );
+
+		sprintf( delimiter_string,
+			 "%c",
+			 '&' );
+
+		search_replace_string(
+			dictionary_string,
+			escaped_delimiter_string,
+			delimiter_string );
+	}
+
+	original_post_dictionary = 
+		dictionary_string2dictionary( 
+			dictionary_string );
+
+	if ( ! ( dictionary_appaserver =
+			dictionary_appaserver_new(
+				original_post_dictionary,
 				application_name,
-				login_name );
-	}
-
-	if ( !session_access_folder(
-				application_name,
-				session,
-				folder_name,
-				role_name,
-				state ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
-
-	if ( strcmp( state, "insert" ) != 0 )
+				folder->attribute_list,
+				(LIST *)0 /* operation_name_list */) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: invalid state of (%s).\n",
+			 "ERROR in %s/%s()/%d: exiting early.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 state );
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	omit_push_buttons = ( *argv[ 7 ] == 'y' );
-
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	role = role_new_role(	application_name,
-				role_name );
 
 	folder = folder_with_load_new(
 			application_name,
 			BOGUS_SESSION,
 			folder_name,
 			role );
-
-	if ( argc == 9 )
-	{
-		char *dictionary_string;
-		char escaped_delimiter_string[ 3 ];
-		char delimiter_string[ 2 ];
-
-		dictionary_string = argv[ 8 ];
-
-		/* ---------------------------------------------------- */
-		/* If from output_results, then this is executed by	*/
-		/* window.open(). Therefore, the delimiters are escaped.*/
-		/* ---------------------------------------------------- */
-		sprintf( escaped_delimiter_string,
-			 "\\%c",
-			 DICTIONARY_ALTERNATIVE_DELIMITER );
-
-		if ( timlib_exists_string(
-				dictionary_string,
-				escaped_delimiter_string ) )
-		{
-			sprintf( delimiter_string,
-				 "%c",
-				 DICTIONARY_ALTERNATIVE_DELIMITER );
-
-			search_replace_string(
-				dictionary_string,
-				escaped_delimiter_string,
-				delimiter_string );
-
-			sprintf( escaped_delimiter_string,
-			 	 "\\%c",
-				 '&' );
-
-			sprintf( delimiter_string,
-				 "%c",
-				 '&' );
-
-			search_replace_string(
-				dictionary_string,
-				escaped_delimiter_string,
-				delimiter_string );
-		}
-
-		original_post_dictionary = 
-			dictionary_string2dictionary( 
-				dictionary_string );
-
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					original_post_dictionary,
-					application_name,
-					folder->attribute_list,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-	}
-	else
-	{
-		dictionary_appaserver =
-			dictionary_appaserver_new(
-				(DICTIONARY *)0,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ );
-	}
-
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
 
 	/* If came from output_choose_isa_drop_down */
 	/* ---------------------------------------- */

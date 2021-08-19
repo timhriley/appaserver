@@ -423,6 +423,7 @@ SESSION *session_folder_integrity_exit(
 
 	add_utility_to_path();
 	add_src_appaserver_to_path();
+	add_local_bin_to_path();
 	environ_appaserver_home();
 	environ_prepend_dot_to_path();
 

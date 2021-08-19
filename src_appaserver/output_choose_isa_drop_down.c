@@ -19,7 +19,7 @@
 #include "document.h"
 #include "application.h"
 #include "folder.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "dictionary.h"
 #include "form.h"
 #include "query.h"
@@ -49,43 +49,44 @@ LIST *output_choose_isa_drop_down_element_list(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
-	char *role_name, *state;
+	char *login_name;
+	char *application_name;
+	char *session_key;
+	char *folder_name;
+	char *role_name;
+	char *state;
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	/* char *spool_filename; */
-	LIST *attribute_list;
-	LIST *primary_key_list;
 	FOLDER *folder;
-	char *isa_related_folder_name;
+	char *one2m_isa_folder_name;
 	ROLE *role;
 	boolean with_dynarch_menu;
 	char subtitle_string[ 128 ];
 	char buffer1[ 128 ];
 	char buffer2[ 128 ];
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name ignored session folder related_isa_folder_name role state\n",
+"Usage: %s login_name session folder one2m_isa_folder_name role state\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	isa_related_folder_name = argv[ 5 ];
-	role_name = argv[ 6 ];
-	state = argv[ 7 ];
+	session_key = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	one2m_isa_folder_name = argv[ 4 ];
+	role_name = argv[ 5 ];
+	state = argv[ 6 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

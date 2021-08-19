@@ -114,8 +114,59 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 				post_choose_folder->
 					relation_pair_one2m_list )
 				/* relation_pair_one2m_list_length */,
-			folder->folder_form );
+			post_choose_folder->folder->folder_form );
 	
+	post_choose_folder->output_choose_isa_drop_down =
+		post_choose_folder_output_choose_isa_drop_down(
+			list_length(
+				post_choose_folder->
+					folder->
+					post_choose_folder->
+					relation_mto1_isa_list )
+					/* relation_mto1_isa_list_length */ );
+
+	post_choose_folder->output_prompt_insert_form =
+		post_choose_folder_output_prompt_insert_form(
+			post_choose_folder->form_name,
+			state );
+
+	post_choose_folder->output_insert_table_form =
+		post_choose_folder_output_insert_table_form(
+			post_choose_folder->form_name,
+			state );
+
+	post_choose_folder->output_prompt_edit_form =
+		post_choose_folder_output_prompt_edit_form(
+			post_choose_folder->form_name,
+			state );
+
+	post_choose_folder->output_edit_table_form =
+		post_choose_folder_output_edit_table_form(
+			post_choose_folder->form_name,
+			state );
+
+	post_choose_folder->system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		post_choose_folder_system_string(
+			output_choose_isa_drop_down,
+			output_prompt_insert_form,
+			output_insert_table_form,
+			output_prompt_edit_form
+			output_edit_table_form,
+			application_name,
+			login_name,
+			session_key,
+			current_folder_name,
+			role_name,
+			state,
+			list_first(
+				post_choose_folder->
+					folder->
+					post_choose_folder->
+					relation_mto1_isa_list ),
+					/* first_one2m_isa_relation */ );
 
 	return post_choose_folder;
 }
@@ -138,3 +189,120 @@ boolean post_choose_folder_fetch_relation_mto1_isa_list(
 {
 	return ( string_strcmp( state, "insert" ) == 0 );
 }
+
+boolean post_choose_folder_output_prompt_insert_form(
+			char *folder_form_name,
+			char *state )
+{
+	if ( string_strcmp( state, "insert" ) != 0 )
+		return 0;
+
+	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
+}
+
+boolean post_choose_folder_output_insert_table_form(
+			char *folder_form_name),
+			char *state )
+{
+	if ( string_strcmp( state, "insert" ) != 0 )
+		return 0;
+
+	return ( string_strcmp( folder_form_name, "table" ) == 0 );
+}
+
+boolean post_choose_folder_output_prompt_edit_form(
+			char *folder_form_name,
+			char *state )
+{
+	if ( string_strcmp( state, "insert" ) == 0 )
+		return 0;
+
+	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
+}
+
+boolean post_choose_folder_output_edit_table_form(
+			char *folder_form_name,
+			char *state )
+{
+	if ( string_strcmp( state, "insert" ) == 0 )
+		return 0;
+
+	return ( string_strcmp( folder_form_name, "table" ) == 0 );
+}
+
+char *post_choose_folder_system_string(
+			boolean output_choose_isa_drop_down,
+			boolean output_prompt_insert_form,
+			boolean output_insert_table_form,
+			boolean output_prompt_edit_form
+			boolean output_edit_table_form,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *current_folder_name,
+			char *role_name,
+			char *state,
+			RELATION *first_one2m_isa_relation )
+{
+	char system_string[ 1024 ];
+
+	if ( output_choose_isa_drop_down )
+	{
+		if ( !first_one2m_isa_relation )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: first_one2m_isa_relation is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !first_one2m_isa_relation->one_folder )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		sprintf(system_string,
+			"output_choose_isa_drop_down %s %s %s %s %s 2>>%s",
+			login_name,
+			session_key,
+			current_folder_name,
+			first_one2m_isa_relation->one_folder->folder_name,
+			role_name,
+			state,
+		 	appaserver_error_filename( application_name ) );
+	}
+	else
+	if (output_prompt_insert_form )
+	{
+	}
+	else
+	if (output_insert_table_form )
+	{
+	}
+	else
+	if (output_prompt_edit_form )
+	{
+	}
+	if (output_edit_table_form )
+	{
+	}
+	else
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: can't determine system_string\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return strdup( system_string );
+}
+
