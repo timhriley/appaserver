@@ -44,7 +44,7 @@ DATE_CONVERT *date_convert_evaluate(
 			DATE_CONVERT *date_convert,
 			char *date_string );
 
-DATE_CONVERT *date_convert_new_date_convert(
+DATE_CONVERT *date_convert_string_date_convert(
 			enum date_convert_format destination_format,
 			char *date_string );
 
@@ -99,7 +99,7 @@ enum date_convert_format date_convert_populate_return_date(
 char *date_convert_american2international(
 			char *american );
 
-DATE_CONVERT *date_convert_new_database_date_convert(
+DATE_CONVERT *date_convert_database(
 			char *application_name,
 			char *login_name,
 			char *date_string );

@@ -29,7 +29,8 @@
 #include "post2dictionary.h"
 #include "appaserver_user.h"
 #include "dictionary.h"
-#include "related_folder.h"
+#include "dictionary_appaserver.h"
+#include "relation.h"
 #include "session.h"
 #include "role.h"
 #include "date.h"
@@ -322,7 +323,7 @@ int main( int argc, char **argv )
 					appaserver_data_directory,
 				session );
  
-		dictionary_trim_multi_drop_down_index(
+		dictionary_appaserver_trim_multi_drop_down_index(
 			post_dictionary,
 			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 

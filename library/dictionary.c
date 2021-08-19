@@ -3097,46 +3097,38 @@ void dictionary_convert_index_to_index_zero(
 	}
 }
 
-DICTIONARY *dictionary_add_prefix(	DICTIONARY *dictionary,
-					char *prefix )
+DICTIONARY *dictionary_prefix(
+			DICTIONARY *dictionary,
+			char *prefix )
 {
 	char *key;
-	char *data;
 	LIST *key_list;
 	char new_key[ 1024 ];
-	DICTIONARY *new_dictionary;
+	DICTIONARY *prefix_dictionary;
 
 	if ( !dictionary ) return (DICTIONARY *)0;
 
-	new_dictionary = dictionary_large_new();
+	prefix_dictionary = dictionary_large_new();
+	key_list = dictionary_key_list( dictionary );
 
-	key_list = get_dictionary_key_list( dictionary );
-
-	if ( key_list && list_rewind( key_list ) )
+	if ( list_rewind( key_list ) )
 	{
 		do {
-			key = list_get_pointer( key_list );
+			key = list_get( key_list );
 
-			sprintf(new_key,
-				"%s%s",
-				prefix,
-				key );
+			sprintf( new_key, "%s%s", prefix, key );
 
-			if ( ( data =
-				dictionary_get_pointer(
+			dictionary_set(
+				prefix_dictionary,
+				strdup( new_key ),
+				dictionary_get(
 					dictionary,
-					key ) ) )
-			{
-				dictionary_set_pointer(
-					new_dictionary,
-					strdup( new_key ),
-					strdup( data ) );
-			}
+					key ) );
 
 		} while( list_next( key_list ) );
 	}
 	list_free_container( key_list );
-	return new_dictionary;
+	return prefix_dictionary;
 }
 
 LIST *dictionary_key_data_list(
@@ -3223,50 +3215,7 @@ void dictionary_clear_key_list_index_zero(
 	}
 }
 
-void dictionary_trim_multi_drop_down_index(
-			DICTIONARY *dictionary,
-			char multi_select_move_left_right_index_delimiter )
-{
-	char *ptr;
-	char *data;
-	char *key;
-	LIST *key_list;
-	char place_holder = multi_select_move_left_right_index_delimiter;
-
-	key_list = dictionary_get_key_list( dictionary );
-
-	if ( !list_rewind( key_list ) ) return;
-
-	do {
-		key = list_get_pointer( key_list );
-
-		data = dictionary_get_data( dictionary, key );
-
-		if ( !strlen( data ) ) continue;
-
-		ptr = data + strlen( data ) - 1;
-
-		while( ptr > data )
-		{
-			if ( isdigit( *ptr ) )
-			{
-				ptr--;
-			}
-			else
-			if ( *ptr == place_holder )
-			{
-				*ptr = '\0';
-				break;
-			}
-			else
-			{
-				break;
-			}
-		}
-	} while( list_next( key_list ) );
-}
-
-boolean dictionary_get_index_list_string(
+boolean dictionary_index_list_string(
 					char *destination,
 					DICTIONARY *dictionary,
 					char *key_without_index )

@@ -105,6 +105,7 @@ char *post_choose_folder_system_string(
 			char *current_folder_name,
 			char *role_name,
 			char *state,
+			DICTIONARY *drilldown_dictionary,
 			RELATION *first_one2m_isa_relation );
 
 #endif

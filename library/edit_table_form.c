@@ -125,7 +125,8 @@ EDIT_TABLE_FORM *edit_table_form_fetch(
 				edit_table_form->post_dictionary,
 				edit_table_form->application_name,
 				edit_table_form->folder->attribute_list,
-				(LIST *)0 /* operation_name_list */ ) ) )
+				(LIST *)0 /* operation_name_list */,
+				edit_table_form->login_name ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",

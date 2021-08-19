@@ -43,7 +43,7 @@ enum date_convert_format date_convert_get_database_date_format(
 	return date_format;
 }
 
-enum date_convert_format date_convert_get_user_date_format(
+enum date_convert_format date_convert_user_date_format(
 			char *application_name,
 			char *login_name )
 {
@@ -94,7 +94,16 @@ enum date_convert_format date_convert_get_user_date_format(
 	return user_date_format;
 }
 
-DATE_CONVERT *date_convert_new_user_format_date_convert(
+enum date_convert_format date_convert_get_user_date_format(
+			char *application_name,
+			char *login_name )
+{
+	return date_convert_user_date_format(
+			application_name,
+			login_name );
+}
+
+DATE_CONVERT *date_convert_database(
 			char *application_name,
 			char *login_name,
 			char *date_string )
@@ -102,11 +111,11 @@ DATE_CONVERT *date_convert_new_user_format_date_convert(
 	enum date_convert_format user_date_format;
 
 	user_date_format =
-		date_convert_get_user_date_format(
+		date_convert_user_date_format(
 			application_name,
 			login_name );
 
-	return date_convert_new_date_convert(
+	return date_convert_string_date_convert(
 			user_date_format,
 			date_string );
 }
@@ -162,7 +171,7 @@ DATE_CONVERT *date_convert_calloc( void )
 	return d;
 }
 
-DATE_CONVERT *date_convert_new_date_convert(
+DATE_CONVERT *date_convert_string_date_convert(
 			enum date_convert_format destination_format,
 			char *date_string )
 {
@@ -259,7 +268,7 @@ DATE_CONVERT *date_convert_new_database_format_date_convert(
 		date_convert_get_database_date_format(
 			application_name );
 
-	return date_convert_new_date_convert(
+	return date_convert_string_date_convert(
 			database_date_format,
 			date_string );
 }
@@ -994,7 +1003,6 @@ DATE_CONVERT *date_convert_login_name_fetch(
 			appaserver_user_fetch(
 				login_name,
 				0 /* fetch_role_list */,
-				0 /* fetch_attribute_exclude_list */,
 				0 /* fetch_session_list */ ) ) )
 	{
 		fprintf(stderr,

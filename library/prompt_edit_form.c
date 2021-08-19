@@ -120,7 +120,8 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 				prompt_edit_form->post_dictionary,
 				prompt_edit_form->application_name,
 				prompt_edit_form->folder->attribute_list,
-				(LIST *)0 /* operation_name_list */ ) ) )
+				(LIST *)0 /* operation_name_list */,
+				prompt_edit_form->login_name ) ) )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",

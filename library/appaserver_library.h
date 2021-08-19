@@ -358,26 +358,6 @@ char *appaserver_library_verify_attribute_widths_submit_control_string(
 			LIST *element_list,
 			char *source_form );
 
-void appaserver_library_post_dictionary_database_convert_dates(
-			DICTIONARY *post_dictionary,
-			char *application_name,
-			LIST *attribute_list );
-
-void appaserver_library_dictionary_database_convert_begin_end_dates(
-			DICTIONARY *dictionary,
-			char *application_name );
-
-void appaserver_library_list_database_convert_dates(
-			LIST *data_list,
-			char *application_name,
-			LIST *attribute_list );
-
-void appaserver_library_dictionary_convert_date(
-			DICTIONARY *dictionary,
-			char *application_name,
-			char *date_string,
-			char *key );
-
 void appaserver_library_output_calendar_javascript(
 			void );
 
@@ -488,5 +468,14 @@ LIST *appaserver_library_application_name_list(
 char *appaserver_library_table_name(
 			char *application_name,
 				char *folder_name );
+
+void appaserver_library_list_database_convert_dates(
+			LIST *data_list,
+			char *application_name,
+			LIST *attribute_list );
+
+void appaserver_library_dictionary_database_convert_begin_end_dates(
+			DICTIONARY *dictionary,
+			char *application_name );
 
 #endif

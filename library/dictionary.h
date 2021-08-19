@@ -554,7 +554,7 @@ void dictionary_convert_index_to_index_zero(
 			DICTIONARY *dictionary,
 			int index );
 
-DICTIONARY *dictionary_add_prefix(
+DICTIONARY *dictionary_prefix(
 			DICTIONARY *dictionary,
 			char *prefix );
 
@@ -575,10 +575,6 @@ void dictionary_clear_key_list(
 void dictionary_clear_key_list_index_zero(
 			DICTIONARY *dictionary,
 			LIST *key_list );
-
-void dictionary_trim_multi_drop_down_index(
-			DICTIONARY *dictionary,
-			char multi_select_move_left_right_index_delimiter );
 
 void dictionary_trim_prefix(
 			DICTIONARY *dictionary,

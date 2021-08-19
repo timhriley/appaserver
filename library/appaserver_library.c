@@ -1556,89 +1556,9 @@ char *appaserver_library_verify_attribute_widths_submit_control_string(
 	return submit_control_string;
 }
 
-void appaserver_library_dictionary_convert_date(
-			DICTIONARY *dictionary,
-			char *application_name,
-			char *date_string,
-			char *key )
-{
-	DATE_CONVERT *date_convert;
-	char destination[ 1024 ];
-	char date_piece_string[ 64 ];
-	char date_half[ 32 ];
-	char time_half[ 32 ];
-	char *destination_ptr = destination;
-	int i;
-	boolean exists_time;
-
-	if ( !date_string || !*date_string ) return;
-
-	*destination = '\0';
-
-	for( i = 0; piece( date_piece_string, ',', date_string, i ); i++ )
-	{
-		if ( timlib_character_count( ' ', date_piece_string ) == 0 )
-		{
-			strcpy( date_half, date_piece_string );
-			exists_time = 0;
-		}
-		else
-		if ( timlib_character_count( ' ', date_piece_string ) == 1 )
-		{
-			column( date_half, 0, date_piece_string );
-			column( time_half, 1, date_piece_string );
-			exists_time = 1;
-		}
-		else
-		{
-			continue;
-		}
-
-		date_convert =
-			date_convert_new_database_format_date_convert(
-				application_name,
-				date_half );
-
-		if ( !date_convert )
-		{
-			fprintf( stderr,
-			 "Error in %s/%s(): cannot fetch from database\n",
-		 		__FILE__,
-		 		__FUNCTION__ );
-			exit( 1 );
-		}
-
-		if ( i ) destination_ptr += sprintf( destination_ptr, "," );
-
-		if ( exists_time )
-		{
-			destination_ptr +=
-				sprintf( destination_ptr,
-					 "%s %s",
-					 date_convert->return_date,
-					 time_half );
-		}
-		else
-		{
-			destination_ptr +=
-				sprintf( destination_ptr,
-					 "%s",
-					 date_convert->return_date );
-		}
-
-		date_convert_free( date_convert );
-
-	} /* for each comma delimited date */
-
-	dictionary_set_pointer(
-		dictionary,
-		key,
-		strdup( destination ) );
-}
-
 void appaserver_library_dictionary_database_convert_begin_end_dates(
-					DICTIONARY *dictionary,
-					char *application_name )
+				DICTIONARY *dictionary,
+				char *application_name )
 {
 	char *date_string;
 	char *key;
@@ -1709,223 +1629,6 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 			date_string,
 			key );
 	}
-}
-
-void appaserver_library_post_dictionary_database_convert_dates(
-			DICTIONARY *post_dictionary,
-			char *application_name,
-			LIST *attribute_list )
-{
-	LIST *date_attribute_name_list;
-	char *attribute_name;
-	char key[ 128 ];
-	char *date_string;
-	int index;
-	int highest_index;
-
-	date_attribute_name_list =
-		attribute_date_attribute_name_list(
-			attribute_list );
-
-	if ( !list_length( date_attribute_name_list ) ) return;
-
-	highest_index = dictionary_get_highest_index( post_dictionary );
-
-	for( index = 0; index <= highest_index; index++ )
-	{
-		list_rewind( date_attribute_name_list );
-
-		do {
-			attribute_name =
-				list_get_pointer(
-					date_attribute_name_list );
-
-			if ( index == 0 )
-			{
-				/* Do without prefix and suffix */
-				/* ---------------------------- */
-				strcpy(	key, attribute_name );
-
-				date_string =
-					dictionary_fetch(
-						key,
-						post_dictionary );
-
-				appaserver_library_dictionary_convert_date( 
-					post_dictionary,
-					application_name,
-					date_string,
-					key );
-			}
-
-			/* Do without prefix */
-			/* ----------------- */
-			sprintf(	key,
-					"%s_%d",
-					attribute_name,
-					index );
-
-			date_string =
-				dictionary_fetch(
-					key,
-					post_dictionary );
-
-			appaserver_library_dictionary_convert_date( 
-				post_dictionary,
-				application_name,
-				date_string,
-				key );
-
-			/* Do from date */
-			/* ------------ */
-			sprintf(	key,
-					"%s%s_%d",
-					QUERY_FROM_STARTING_LABEL,
-					attribute_name,
-					index );
-
-			date_string =
-				dictionary_fetch(
-					key,
-					post_dictionary );
-
-			appaserver_library_dictionary_convert_date( 
-				post_dictionary,
-				application_name,
-				date_string,
-				key );
-
-			/* Do to date */
-			/* ---------- */
-			sprintf(	key,
-					"%s%s_%d",
-					QUERY_TO_STARTING_LABEL,
-					attribute_name,
-					index );
-	
-			date_string =
-				dictionary_fetch(
-					key,
-					post_dictionary );
-
-			appaserver_library_dictionary_convert_date( 
-				post_dictionary,
-				application_name,
-				date_string,
-				key );
-
-		} while( list_next( date_attribute_name_list ) );
-
-	} /* for each index */
-}
-
-void appaserver_library_dictionary_convert_dates(
-			DICTIONARY *dictionary,
-			char *application_name )
-{
-	LIST *key_list = dictionary_get_key_list( dictionary );
-	char *key;
-	char *date_string;
-	enum date_convert_format date_convert_format;
-	enum date_convert_format database_date_convert_format;
-
-	database_date_convert_format =
-		date_convert_get_database_date_format(
-			application_name );
-
-	if ( !list_reset( key_list ) ) return;
-
-	do {
-		key = list_get_string( key_list );
-
-		if ( ( date_string =
-			(char *)dictionary_get(
-				dictionary,
-				key ) ) )
-		{
-			date_convert_format =
-				date_convert_date_get_format(
-					date_string );
-
-			if ( date_convert_format != date_convert_unknown
-			&& date_convert_format != database_date_convert_format )
-			{
-				appaserver_library_dictionary_convert_date( 
-					dictionary,
-					application_name,
-					date_string,
-					key );
-			}
-		}
-
-	} while( list_next( key_list ) );
-
-	list_free_container( key_list );
-}
-
-void appaserver_library_list_database_convert_dates(
-					LIST *data_list,
-					char *application_name,
-					LIST *attribute_list )
-{
-	LIST *date_attribute_name_list;
-	LIST *primary_key_list;
-	char *attribute_name;
-	char *data;
-	DATE_CONVERT *date_convert = {0};
-
-	date_attribute_name_list =
-		attribute_date_attribute_name_list(
-			attribute_list );
-
-	primary_key_list =
-		attribute_primary_key_list(
-			attribute_list );
-
-	if ( !list_rewind( primary_key_list ) ) return;
-	if ( !list_rewind( data_list ) ) return;
-
-	do {
-		attribute_name =
-			list_get_pointer( primary_key_list );
-
-		if ( list_exists_string(
-			attribute_name,
-			date_attribute_name_list ) )
-		{
-			data = list_get_pointer( data_list );
-
-			if ( !date_convert )
-			{
-				date_convert =
-				date_convert_new_database_format_date_convert(
-						application_name,
-						data );
-	
-				if ( !date_convert )
-				{
-					fprintf( stderr,
-			 "Error in %s/%s(): cannot fetch from database\n",
-				 		__FILE__,
-				 		__FUNCTION__ );
-					exit( 1 );
-				}
-			}
-			else
-			{
-				date_convert_populate_return_date(
-					date_convert->return_date,
-					date_convert->source_format,
-					date_convert->destination_format,
-					data );
-			}
-			list_set_current(
-				data_list,
-				strdup( date_convert->return_date ) );
-		}
-		if ( !list_next( data_list ) ) break;
-	} while( list_next( primary_key_list ) );
-	if ( date_convert ) date_convert_free( date_convert );
 }
 
 void appaserver_library_output_calendar_javascript( void )
@@ -2971,5 +2674,114 @@ LIST *appaserver_library_application_name_list(
 
 	return pipe2list( sys_string );;
 
+}
+
+void appaserver_library_list_database_convert_dates(
+					LIST *data_list,
+					char *application_name,
+					LIST *attribute_list )
+{
+	LIST *date_attribute_name_list;
+	LIST *primary_key_list;
+	char *attribute_name;
+	char *data;
+	DATE_CONVERT *date_convert = {0};
+
+	date_attribute_name_list =
+		attribute_date_attribute_name_list(
+			attribute_list );
+
+	primary_key_list =
+		attribute_primary_key_list(
+			attribute_list );
+
+	if ( !list_rewind( primary_key_list ) ) return;
+	if ( !list_rewind( data_list ) ) return;
+
+	do {
+		attribute_name =
+			list_get_pointer( primary_key_list );
+
+		if ( list_exists_string(
+			attribute_name,
+			date_attribute_name_list ) )
+		{
+			data = list_get_pointer( data_list );
+
+			if ( !date_convert )
+			{
+				date_convert =
+				date_convert_new_database_format_date_convert(
+						application_name,
+						data );
+	
+				if ( !date_convert )
+				{
+					fprintf( stderr,
+			 "Error in %s/%s(): cannot fetch from database\n",
+				 		__FILE__,
+				 		__FUNCTION__ );
+					exit( 1 );
+				}
+			}
+			else
+			{
+				date_convert_populate_return_date(
+					date_convert->return_date,
+					date_convert->source_format,
+					date_convert->destination_format,
+					data );
+			}
+			list_set_current(
+				data_list,
+				strdup( date_convert->return_date ) );
+		}
+		if ( !list_next( data_list ) ) break;
+	} while( list_next( primary_key_list ) );
+	if ( date_convert ) date_convert_free( date_convert );
+}
+
+void appaserver_library_dictionary_convert_dates(
+			DICTIONARY *dictionary,
+			char *application_name )
+{
+	LIST *key_list = dictionary_get_key_list( dictionary );
+	char *key;
+	char *date_string;
+	enum date_convert_format date_convert_format;
+	enum date_convert_format database_date_convert_format;
+
+	database_date_convert_format =
+		date_convert_get_database_date_format(
+			application_name );
+
+	if ( !list_reset( key_list ) ) return;
+
+	do {
+		key = list_get_string( key_list );
+
+		if ( ( date_string =
+			(char *)dictionary_get(
+				dictionary,
+				key ) ) )
+		{
+			date_convert_format =
+				date_convert_date_get_format(
+					date_string );
+
+			if ( date_convert_format != date_convert_unknown
+			&& date_convert_format != database_date_convert_format )
+			{
+				dictionary_appaserver_dictionary_convert_date( 
+					dictionary,
+					application_name,
+					date_string,
+					key );
+			}
+		}
+
+	} while( list_next( key_list ) );
+
+	list_free_container( key_list );
 }
 

@@ -161,6 +161,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 			current_folder_name,
 			role_name,
 			state,
+			drilldown->drilldown_dictionary,
 			list_first(
 				post_choose_folder->
 					folder->
@@ -242,6 +243,7 @@ char *post_choose_folder_system_string(
 			char *current_folder_name,
 			char *role_name,
 			char *state,
+			DICTIONARY *drilldown_dictionary,
 			RELATION *first_one2m_isa_relation )
 {
 	char system_string[ 1024 ];
