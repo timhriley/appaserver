@@ -119,10 +119,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s login_name ignored session process role passed_preprompt_yn [dictionary]\n",
+"Usage: %s login_name ignored session process role passed_preprompt_yn dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -133,44 +133,27 @@ int main( int argc, char **argv )
 	role_name = argv[ 5 ];
 	passed_preprompt_yn = *argv[ 6 ];
 
-	if ( argc == 8 )
-	{
-		post_dictionary =
-			dictionary_index_string2dictionary(
-				argv[ 7 ] );
+	post_dictionary =
+		dictionary_index_string2dictionary(
+			argv[ 7 ] );
 
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					post_dictionary,
-					(char *)0 /* application_name */,
-					(LIST *)0 /* attribute_list */,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-	}
-	else
+	if ( ! ( dictionary_appaserver =
+			dictionary_appaserver_new(
+				post_dictionary,
+				application_name,
+				attribute_name_list(
+					folder->attribute_list ),
+				attribute_date_name_list(
+					folder->attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name ) ) )
 	{
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					(DICTIONARY *)0,
-					(char *)0 /* application_name */,
-					(LIST *)0 /* attribute_list */,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
 	}
 
 	add_src_appaserver_to_path();

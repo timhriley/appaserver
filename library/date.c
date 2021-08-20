@@ -740,34 +740,14 @@ int date_day_of_week( DATE *d )
 	return d->tm->tm_wday;
 }
 
+char *date_day_of_week_string( DATE *d )
+{
+	return date_day_string( date_day_offset( d ) );
+}
+
 char *date_get_day_of_week_string( DATE *d )
 {
 	return date_day_string( date_day_offset( d ) );
-
-/* 
-	if ( d->tm->tm_wday == WDAY_SUNDAY )
-		return "Sunday";
-	else
-	if ( d->tm->tm_wday == WDAY_MONDAY )
-		return "Monday";
-	else
-	if ( d->tm->tm_wday == WDAY_TUESDAY )
-		return "Tuesday";
-	else
-	if ( d->tm->tm_wday == WDAY_WEDNESDAY )
-		return "Wednesday";
-	else
-	if ( d->tm->tm_wday == WDAY_THURSDAY )
-		return "Thursday";
-	else
-	if ( d->tm->tm_wday == WDAY_FRIDAY )
-		return "Friday";
-	else
-	if ( d->tm->tm_wday == WDAY_SATURDAY )
-		return "Saturday";
-	else
-		return "Unknown";
-*/
 }
 
 int date_year( DATE *d )
@@ -1472,8 +1452,18 @@ char *date_get_yyyy_mm_dd_string( DATE *date )
 	return date_display_yyyy_mm_dd( date );
 }
 
-char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
-					int utc_offset )
+char *date_get_day_of_week_yyyy_mm_dd(
+			int wday_of_week,
+			int utc_offset )
+{
+	return date_day_of_week_yyyy_mm_dd(
+			wday_of_week,
+			utc_offset );
+}
+
+char *date_day_of_week_yyyy_mm_dd(
+			int wday_of_week,
+			int utc_offset )
 {
 	char *date_string;
 	DATE *date = date_today_new( utc_offset );
@@ -1486,6 +1476,11 @@ char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
 	date_free( date );
 
 	return date_string;
+}
+
+char *date_yesterday_yyyy_mm_dd( int utc_offset )
+{
+	return date_get_yesterday_yyyy_mm_dd_string( utc_offset );
 }
 
 char *date_get_yesterday_yyyy_mm_dd( int utc_offset )
@@ -1579,6 +1574,11 @@ char *date_now_yyyy_mm_dd( int utc_offset )
 }
 
 char *date_get_now_yyyy_mm_dd( int utc_offset )
+{
+	return date_get_now_date_yyyy_mm_dd( utc_offset );
+}
+
+char *date_today_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }

@@ -89,8 +89,7 @@ int main( int argc, char **argv )
 	char *insert_update_key;
 	char *target_frame;
 	DOCUMENT *document;
-	char decoded_dictionary_string[ MAX_INPUT_LINE ];
-	char dictionary_string[ MAX_INPUT_LINE ];
+	char dictionary_string[ STRING_INPUT_LINE ];
 	DICTIONARY *original_post_dictionary = {0};
 	FORM *form;
 	FOLDER *folder;
@@ -107,7 +106,9 @@ int main( int argc, char **argv )
 	ROLE *role;
 	LIST *automatic_preselection_dictionary_list = {0};
 	boolean with_dynarch_menu = 0;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_APPASERVER *dictionary_appaserver = {0};
+	DICTIONARY *non_prefixed_dictionary = {0};
+	DICTIONARY *query_dictionary = {0};
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m = {0};
 	char *message = {0};
@@ -202,38 +203,26 @@ int main( int argc, char **argv )
 			folder->mto1_isa_related_folder_list,
 			role_name );
 
-	if ( get_line( dictionary_string, stdin ) )
+	if ( string_input( dictionary_string, stdin ) )
 	{
-		decode_html_post(	decoded_dictionary_string, 
-					dictionary_string );
+		decode_html_post(
+			decoded_dictionary_string, 
+			dictionary_string );
 
 		original_post_dictionary = 
 			dictionary_index_string2dictionary( 
 				decoded_dictionary_string );
 
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					original_post_dictionary,
-					application_name,
-					folder->attribute_list,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-	}
-	else
-	{
 		dictionary_appaserver =
 			dictionary_appaserver_new(
-				(DICTIONARY *)0 /* post_dictionary */,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ );
+				original_post_dictionary,
+				application_name */,
+				attribute_name_list(
+					folder->attribute_list ),
+				attribute_date_name_list(
+					folder->attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name );
 	}
 
 	/* Vertical new button */
@@ -243,31 +232,37 @@ int main( int argc, char **argv )
 	vertical_new_button->one_folder_name =
 		vertical_new_button_dictionary_one_folder_name(
 			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			dictionary_appaserver->
-				non_prefixed_dictionary );
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					non_prefixed_dictionary
+				: (DICTIONARY *)0 );
 
 	vertical_new_button->many_folder_name =
 		vertical_new_button_dictionary_folder_name(
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
-			dictionary_appaserver->
-				non_prefixed_dictionary );
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					non_prefixed_dictionary
+				: (DICTIONARY *)0 );
 
 	primary_data_list_string =
 		dictionary_get_string(
-			dictionary_appaserver->
-				non_prefixed_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					non_prefixed_dictionary
+				: (DICTIONARY *)0 );
 			PRIMARY_DATA_LIST_KEY );
 
-	dictionary_appaserver->non_prefixed_dictionary =
-		dictionary_small_new();
+	non_prefixed_dictionary = dictionary_small_new();
 
 	if ( timlib_strlen( primary_data_list_string ) )
 	{
 		primary_data_list_string_build_dictionaries(
-			dictionary_appaserver->
-				non_prefixed_dictionary,
-			dictionary_appaserver->
-				query_dictionary,
+			non_prefixed_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					query_dictionary
+				: (DICTIONARY *)0,
 			primary_data_list_string,
 			folder->attribute_list );
 	}
@@ -292,8 +287,10 @@ int main( int argc, char **argv )
 	if ( list_length( folder->mto1_isa_related_folder_list ) )
 	{
 		appaserver_library_populate_last_foreign_attribute_key(
-			dictionary_appaserver->
-				query_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					query_dictionary
+				: (DICTIONARY *)0 );
 			folder->mto1_isa_related_folder_list,
 			attribute_primary_key_list(
 				folder->attribute_list ) );
@@ -303,7 +300,10 @@ int main( int argc, char **argv )
 			folder->attribute_list ) )
 	{
 		dictionary_add_login_name_if_necessary(
-			dictionary_appaserver->query_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					query_dictionary
+				: (DICTIONARY *)0 );
 			folder->attribute_name_list,
 			login_name );
 	}
@@ -326,7 +326,8 @@ int main( int argc, char **argv )
 			(LIST *)0 /* root_primary_key_list */,
 			0 /* recursive_level */ );
 
-	if ( dictionary_length( dictionary_appaserver->query_dictionary ) )
+	if ( dictionary_appaserver
+	&&   dictionary_length( dictionary_appaserver->query_dictionary ) )
 	{
 		char *reference_number_attribute_name;
 
@@ -381,19 +382,19 @@ int main( int argc, char **argv )
 		}
 
 		list_append_string_list(
-		      ignore_attribute_name_list,
-	      	      appaserver_library_ignore_pressed_attribute_name_list(
-				dictionary_appaserver->
-					ignore_dictionary,
-				folder->attribute_name_list,
-				(DICTIONARY *)0 /* query_dictionary */ ) );
+			ignore_attribute_name_list,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					ignore_select_attribute_name_list
+				: (LIST *)0;
 
 	} /* if query_dictionary */
 
 	/* If pair 1tom and not the vertical new button */
 	/* -------------------------------------------- */
-	if ( !vertical_new_button->one_folder_name
-	&&    pair_one2m_participating(
+	if ( dictionary_appaserver
+	&&   !vertical_new_button->one_folder_name
+	&&   pair_one2m_participating(
 		dictionary_appaserver->
 			pair_one2m_dictionary ) )
 	{
@@ -735,17 +736,22 @@ int main( int argc, char **argv )
 				onload_control_string );
 
 		vertical_new_button_dictionary_set(
-			dictionary_appaserver->non_prefixed_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					non_prefixed_dictionary
+				: (DICTIONARY *)0,
 			VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
 			vertical_new_button->one_folder_name );
 
 		vertical_new_button_dictionary_set(
-			dictionary_appaserver->non_prefixed_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->
+					non_prefixed_dictionary
+				: (DICTIONARY *)0 );
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
 			vertical_new_button->many_folder_name );
 
-		dictionary_appaserver->query_dictionary =
-			dictionary_small_new();
+		query_dictionary = dictionary_small_new();
 
 		output_submit_reset_buttons_in_trailer = 0;
 	}

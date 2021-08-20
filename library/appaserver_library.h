@@ -201,11 +201,6 @@ int get_attribute_width(
 			char *entity,
 			char *attribute_name );
 
-LIST *appaserver_library_ignore_pressed_attribute_name_list( 	
-			DICTIONARY *posted_dictionary,
-			DICTIONARY *query_dictionary,
-			LIST *attribute_name_list );
-
 LIST *folder_name_list2table_name_list( 	
 			char *entity,
 			char *application,
@@ -226,10 +221,6 @@ char *appaserver_library_displayable_primary_attribute_list_string(
 LIST *get_attribute4folder_list(
 			char *entity, 
 			char *folder_name );
-
-LIST *appaserver_library_ignore_pressed_attribute_name_list( 	
-			DICTIONARY *posted_dictionary,
-			LIST *attribute_name_list );
 
 LIST *appaserver_library_no_display_pressed_attribute_name_list( 	
 			DICTIONARY *ignore_dictionary,

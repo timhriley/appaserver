@@ -156,11 +156,15 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				original_post_dictionary,
 				application_name,
-				folder->attribute_list,
-				(LIST *)0 /* operation_name_list */ ) ) )
+				attribute_name_list(
+					folder->attribute_list ),
+				attribute_date_name_list(
+					folder->attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -187,12 +191,23 @@ int main( int argc, char **argv )
 			(char *)0 /* prefix */,
 			0 /* not dont_include_relational_operators */ );
 
-		sprintf( sys_string,
+		sprintf(sys_string,
 	"echo \"%s\" 							  |"
 	"post_prompt_edit_form %s %s %s %s '%s' '%s' %s %s %d null 2>>%s   ",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
 		 	login_name,
 			application_name,
 		 	session,
@@ -370,11 +385,21 @@ int main( int argc, char **argv )
 	 	folder_name,
 		role_name,
 		state,
-		dictionary_appaserver_escaped_send_dictionary_string(
-			dictionary_appaserver,
-			1 /* with_non_prefixed_dictionary */ ),
-	 	appaserver_error_get_filename(
-			application_name ) );
+		dictionary_appaserver_send_string(
+			dictionary_appaserver_send_dictionary(
+				dictionary_appaserver->
+					sort_dictionary,
+				dictionary_appaserver->
+					query_dictionary,
+				dictionary_appaserver->
+					drilldown_dictionary,
+				dictionary_appaserver->
+					ignore_dictionary,
+				dictionary_appaserver->
+					pair_one2m_dictionary,
+				dictionary_appaserver->
+					non_prefixed_dictionary ) ),
+	 	appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ){};
 

@@ -65,7 +65,7 @@ int main( int argc, char **argv )
 	char ftp_agr_filename[ 256 ];
 	char ftp_output_filename[ 256 ];
 	char output_filename[ 256 ];
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_APPASERVER *dictionary_appaserver = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -99,29 +99,14 @@ int main( int argc, char **argv )
 			dictionary_index_string2dictionary( 
 				decoded_dictionary_string );
 
-		if ( ! ( dictionary_appaserver =
-				dictionary_appaserver_new(
-					original_post_dictionary,
-					(char *)0 /* application_name */,
-					(LIST *)0 /* attribute_list */,
-					(LIST *)0 /* operation_name_list */) ) )
-		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: exiting early.\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__ );
-			exit( 1 );
-		}
-	}
-	else
-	{
 		dictionary_appaserver =
 			dictionary_appaserver_new(
-				(DICTIONARY *)0,
+				original_post_dictionary,
 				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ );
+				(LIST *)0 /* attribute_name_list */,
+				(LIST *)0 /* attribute_date_name_list*/,
+				(LIST *)0 /* operation_name_list */,
+				(char *)0 /* login_name */ );
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
@@ -152,7 +137,9 @@ int main( int argc, char **argv )
 
 	query =
 		query_simple_new(
-			dictionary_appaserver->query_dictionary,
+			(dictionary_appaserver)
+				? dictionary_appaserver->query_dictionary
+				: (DICTIONARY *)0,
 			login_name,
 			folder_name,
 			role_name,

@@ -27,6 +27,15 @@
 /* ---------- */
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *application_name;
+	LIST *attribute_date_name_list;
+	LIST *operation_list;
+	char *login_name;
+
+	/* Process */
+	/* ------- */
 	DICTIONARY *original_post_dictionary;
 	DICTIONARY *working_post_dictionary;
 	DICTIONARY *sort_dictionary;
@@ -43,7 +52,8 @@ typedef struct
 DICTIONARY_APPASERVER *dictionary_appaserver_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
-			LIST *attribute_list,
+			LIST *attribute_name_list,
+			LIST *attribute_date_name_list,
 			LIST *operation_name_list,
 			char *login_name );
 
@@ -59,7 +69,8 @@ DICTIONARY *dictionary_appaserver_row_dictionary_multi_row(
 DICTIONARY *dictionary_appaserver_working_post(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
-			LIST *attribute_list );
+			LIST *attribute_date_name_list,
+			char *login_name );
 
 DICTIONARY *dictionary_appaserver_query(
 			DICTIONARY *working_post_dictionary );
@@ -70,7 +81,7 @@ DICTIONARY *dictionary_appaserver_sort(
 DICTIONARY *dictionary_appaserver_drilldown(
 			DICTIONARY *working_post_dictionary );
 
-DICTIONARY *dictionary_appaserver_send(
+DICTIONARY *dictionary_appaserver_send_dictionary(
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *drilldown_dictionary,
@@ -103,8 +114,9 @@ char *dictionary_appaserver_escaped_dictionary_string(
 
 DICTIONARY *dictionary_appaserver_non_prefixed(
 			DICTIONARY *working_post_dictionary,
-			LIST *attribute_list,
-			char *application_name );
+			LIST *attribute_date_name_list,
+			char *application_name,
+			char *login_name );
 
 void dictionary_appaserver_output_as_hidden(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -130,13 +142,13 @@ DICTIONARY *dictionary_appaserver_prefixed(
 LIST *dictionary_appaserver_ignore_select_attribute_name_list(
 			DICTIONARY *ignore_dictionary );
 
-void dictionary_appaserver_dictionary_convert_date(
+void dictionary_appaserver_dictionary_date_convert(
 			DICTIONARY *post_dictionary,
 			char *application_name,
-			LIST *attribute_list,
+			LIST *attribute_date_name_list,
 			char *login_name );
 
-void dictionary_appaserver_date_string_convert_date(
+void dictionary_appaserver_string_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *date_string,
@@ -146,5 +158,11 @@ void dictionary_appaserver_date_string_convert_date(
 void dictionary_appaserver_trim_multi_drop_down_index(
 			DICTIONARY *working_post_dictionary,
 			char multi_select_move_left_right_index_delimiter );
+
+void dictionary_appaserver_trim_double_bracked_data(
+			DICTIONARY *working_post_dictionary );
+
+char *dictionary_appaserver_send_string(
+			DICTIONARY *send_dictionary );
 
 #endif

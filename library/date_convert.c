@@ -103,7 +103,7 @@ enum date_convert_format date_convert_get_user_date_format(
 			login_name );
 }
 
-DATE_CONVERT *date_convert_database(
+DATE_CONVERT *date_convert_international(
 			char *application_name,
 			char *login_name,
 			char *date_string )
@@ -115,7 +115,7 @@ DATE_CONVERT *date_convert_database(
 			application_name,
 			login_name );
 
-	return date_convert_string_date_convert(
+	return date_convert_string_international(
 			user_date_format,
 			date_string );
 }
@@ -171,6 +171,33 @@ DATE_CONVERT *date_convert_calloc( void )
 	return d;
 }
 
+DATE_CONVERT *date_convert_string_international(
+			enum date_convert_format source_format,
+			char *date_string )
+{
+	DATE_CONVERT *d = date_convert_calloc();
+
+	if ( !d )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__ );
+		exit( 1 );
+	}
+
+	d->source_format = source_format;
+	d->destination_format = international;
+
+	date_convert_populate_return_date(
+		d->return_date,
+		d->source_format,
+		d->destination_format,
+		date_string );
+
+	return d;
+}
+
 DATE_CONVERT *date_convert_string_date_convert(
 			enum date_convert_format destination_format,
 			char *date_string )
@@ -188,57 +215,57 @@ DATE_CONVERT *date_convert_string_date_convert(
 
 	if ( strcasecmp( date_string, "today" ) == 0 )
 		date_string =
-			date_get_today_yyyy_mm_dd(
-				date_get_utc_offset() );
+			date_today_yyyy_mm_dd(
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "yesterday" ) == 0 )
 		date_string =
-			date_get_yesterday_yyyy_mm_dd(
-				date_get_utc_offset() );
+			date_yesterday_yyyy_mm_dd(
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "monday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_MONDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "tuesday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_TUESDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "wednesday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_WEDNESDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "thursday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_THURSDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "friday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_FRIDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "saturday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_SATURDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "sunday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_SUNDAY,
-				date_get_utc_offset() );
+				date_utc_offset() );
 
-	d->source_format = date_convert_date_get_format( date_string );
+	d->source_format = date_convert_date_format( date_string );
 	d->destination_format = destination_format;
 
 	if ( d->source_format == date_convert_unknown
@@ -281,7 +308,7 @@ enum date_convert_format date_convert_populate_return_date(
 {
 	if ( source_format == date_convert_unknown )
 	{
-		source_format = date_convert_date_get_format( date_string );
+		source_format = date_convert_date_format( date_string );
 	}
 
 	if ( source_format == american )
@@ -320,7 +347,7 @@ enum date_convert_format date_convert_populate_return_date(
 
 }
 
-enum date_convert_format date_convert_date_get_format(
+enum date_convert_format date_convert_date_format(
 			char *date_time_string )
 {
 	return date_convert_date_time_evaluate( date_time_string );
@@ -427,7 +454,7 @@ boolean date_convert_date_time_source_unknown(
 	column( date_string, 0, date_time_string );
 	column( time_string, 1, date_time_string );
 
-	source_format = date_convert_date_get_format( date_string );
+	source_format = date_convert_date_format( date_string );
 
 	if ( source_format == american )
 	{
@@ -502,7 +529,7 @@ boolean date_convert_source_unknown(
 		date_string = strdup( buffer );
 	}
 
-	source_format = date_convert_date_get_format( date_string );
+	source_format = date_convert_date_format( date_string );
 
 	if ( source_format == american )
 	{

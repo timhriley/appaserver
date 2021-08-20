@@ -172,11 +172,13 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				original_post_dictionary,
 				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ ) ) )
+				(LIST *)0 /* attribute_name_list */,
+				(LIST *)0 /* attribute_date_name_list */,
+				(LIST *)0 /* operation_name_list */,
+				(char *)0 /* login_name */ ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

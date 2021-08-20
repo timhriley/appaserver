@@ -193,7 +193,11 @@ int main( int argc, char **argv )
 	}
 
 	login_name = argv[ 1 ];
+
+	/* Passed on the command line from output_results. */
+	/* ----------------------------------------------- */
 	application_name = argv[ 2 ];
+
 	session_key = argv[ 3 ];
 
 	folder_name = argv[ 4 ];

@@ -142,7 +142,7 @@ int main( int argc, char **argv )
 	boolean exclude_roles;
 	char *execution_process_name;
 	CREATE_CLONE_FILENAME *create_clone_filename;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_APPASERVER *dictionary_appaserver = {0};
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -176,15 +176,19 @@ int main( int argc, char **argv )
 		dictionary_index_string2dictionary(
 			parameter_dictionary_string );
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				parameter_dictionary,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ ) ) )
+	dictionary_appaserver =
+		dictionary_appaserver_new(
+			parameter_dictionary,
+			(char *)0 /* application_name */,
+			(LIST *)0 /* attribute_name_list */,
+			(LIST *)0 /* attribute_date_name_list*/,
+			(LIST *)0 /* operation_name_list */,
+			(char *)0 /* login_name */ );
+
+	if ( !dictionary_appaserver )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );

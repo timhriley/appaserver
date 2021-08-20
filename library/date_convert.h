@@ -44,6 +44,10 @@ DATE_CONVERT *date_convert_evaluate(
 			DATE_CONVERT *date_convert,
 			char *date_string );
 
+DATE_CONVERT *date_convert_string_international(
+			enum date_convert_format source_format,
+			char *date_string );
+
 DATE_CONVERT *date_convert_string_date_convert(
 			enum date_convert_format destination_format,
 			char *date_string );
@@ -99,7 +103,7 @@ enum date_convert_format date_convert_populate_return_date(
 char *date_convert_american2international(
 			char *american );
 
-DATE_CONVERT *date_convert_database(
+DATE_CONVERT *date_convert_international(
 			char *application_name,
 			char *login_name,
 			char *date_string );
@@ -167,5 +171,8 @@ char *date_convert_international_string(
 
 DATE_CONVERT *date_convert_login_name_fetch(
 			char *login_name );
+
+enum date_convert_format date_convert_date_format(
+			char *date_time_string );
 
 #endif

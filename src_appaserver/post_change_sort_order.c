@@ -77,10 +77,10 @@ int main( int argc, char **argv )
 	char *state;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
-	if ( argc < 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state [dictionary]\n",
+"Usage: %s login_name application session folder role state dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

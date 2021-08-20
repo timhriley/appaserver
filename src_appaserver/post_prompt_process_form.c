@@ -154,24 +154,20 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				original_post_dictionary,
 				application_name,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ ) ) )
+				attribute_name_list(
+					folder->attribute_list ),
+				attribute_date_name_list(
+					folder->attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
-
-	appaserver_library_dictionary_convert_dates(
-		dictionary_appaserver->non_prefixed_dictionary,
-		application_name );
-
-	dictionary_appaserver_parse_multi_attribute_keys(
-		dictionary_appaserver->non_prefixed_dictionary,
-		QUERY_RELATION_OPERATOR_STARTING_LABEL );
 
 	process_parameter_list = 
 		process_parameter_list_new(
@@ -200,17 +196,28 @@ int main( int argc, char **argv )
 					dictionary_appaserver->
 						non_prefixed_dictionary );
 
-		sprintf( sys_string, 
+		sprintf(sys_string, 
 		"output_prompt_process_form %s %s %s \"%s\" %s y \"%s\" 2>>%s",
-		 	 login_name,
-			 application_name,
-			 session,
-			 process_or_process_set_name,
-			 role_name,
-			 dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* not with_non_prefixed_dictionary */ ),
-			 appaserver_error_get_filename( application_name ) );
+		 	login_name,
+			application_name,
+			session,
+			process_or_process_set_name,
+			role_name,
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
+			 appaserver_error_filename( application_name ) );
 
 		exit( system( sys_string ) );
 	}

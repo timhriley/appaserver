@@ -29,6 +29,8 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "role.h"
+#include "session.h"
+#include "choose_isa_drop_down.h"
 
 /* Constants */
 /* --------- */
@@ -49,100 +51,100 @@ LIST *output_choose_isa_drop_down_element_list(
 
 int main( int argc, char **argv )
 {
-	char *login_name;
 	char *application_name;
+	char *login_name;
 	char *session_key;
 	char *folder_name;
+	char *one2m_isa_folder_name;
 	char *role_name;
-	char *state;
+	SESSION *session;
+	CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down;
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	FOLDER *folder;
-	char *one2m_isa_folder_name;
 	ROLE *role;
 	boolean with_dynarch_menu;
 	char subtitle_string[ 128 ];
 	char buffer1[ 128 ];
 	char buffer2[ 128 ];
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
-
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
-
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name session folder one2m_isa_folder_name role state\n",
+	"Usage: %s login_name session folder one2m_isa_folder_name role\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
+	application_name =
+		environ_exit_application_name(
+			argv[ 0 ] );
+
 	login_name = argv[ 1 ];
 	session_key = argv[ 2 ];
 	folder_name = argv[ 3 ];
-	one2m_isa_folder_name = argv[ 4 ];
+	one2m_isa_folder_name = security_sql_injection_escape( argv[ 4 ] );
 	role_name = argv[ 5 ];
-	state = argv[ 6 ];
+
+	session =
+		/* --------------------------------------------- */
+		/* Sets appaserver environment and outputs argv. */
+		/* Each parameter is security inspected.	 */
+		/* --------------------------------------------- */
+		session_folder_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			"insert" /* state */ );
+
+	if ( !session )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: session_folder_integrity_exit() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	choose_isa_drop_down =
+		choose_isa_drop_down_fetch(
+			session->login_name,
+			session->session_key,
+			session->folder_name,
+			one2m_folder_name,
+			session->role_name );
+
+	if ( !choose_isa_drop_down )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: choose_isa_drop_down_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	folder = folder_new_folder(	application_name,
-					session,
-					isa_related_folder_name );
+	form =
+		form_new(
+			"insert" /* form_name */,
+			application_title_string(
+				application_name ) );
 
-	role = role_new_role(	application_name,
-				role_name );
-
-	attribute_list =
-		attribute_get_attribute_list(
-			application_name,
-			isa_related_folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
-
-	primary_key_list =
-		folder_get_primary_key_list(
-			attribute_list );
-
-	form = form_new( INSERT_UPDATE_KEY,
-			 application_title_string( application_name ) );
-
-	form_set_folder_parameters(	form,
-					state,
-					login_name,
-					application_name,
-					session,
-					folder_name,
-					role_name );
+	form->state = "insert";
+	form->login_name = login_name;
+	form->application_name = application_name;
+	form->session = session_key;
+	form->folder_name = folder_name;
+	form->role_name = role_name;
+	form->drop_down_number_columns = 2;
 
 	form->regular_element_list =
 		output_choose_isa_drop_down_element_list(

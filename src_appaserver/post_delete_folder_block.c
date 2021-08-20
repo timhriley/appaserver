@@ -144,6 +144,25 @@ int main( int argc, char **argv )
 	if ( ! ( dictionary_appaserver =
 			dictionary_appaserver_new(
 				post_dictionary,
+				application_name,
+				attribute_name_list(
+					folder->attribute_list ),
+				attribute_date_name_list(
+					folder->attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name ) ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( dictionary_appaserver =
+			dictionary_appaserver_new(
+				post_dictionary,
 				(char *)0 /* application_name */,
 				(LIST *)0 /* attribute_list */,
 				(LIST *)0 /* operation_name_list */ ) ) )

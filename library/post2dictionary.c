@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "dictionary.h"
@@ -17,15 +18,16 @@
 #include "basename.h"
 #include "decode_html_post.h"
 
-DICTIONARY *post2dictionary(	FILE *input_stream,
-				char *appaserver_data_directory,
-				char *session )
+DICTIONARY *post2dictionary(
+			FILE *input_stream,
+			char *appaserver_data_directory,
+			char *session )
 {
-	char input_buffer[ MAX_INPUT_LINE ];
+	char input_buffer[ STRING_INPUT_LINE ];
 	DICTIONARY *dictionary;
 	char post_key[ 256 ];
 
-	get_line( input_buffer, input_stream );
+	string_input( input_buffer, input_stream, STRING_INPUT_LINE );
 
 /*
 sample input_buffer = "--------------20983969252595940091482100312"

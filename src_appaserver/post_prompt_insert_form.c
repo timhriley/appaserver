@@ -216,11 +216,15 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				original_post_dictionary,
 				application_name,
-				appaserver->folder->attribute_list,
-				(LIST *)0 /* operation_name_list */ ) ) )
+				attribute_name_list(
+					folder->attribute_list ),
+				attribute_date_name_list(
+					folder->attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
+	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -247,12 +251,23 @@ int main( int argc, char **argv )
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
 			folder_name );
 
-		sprintf( sys_string,
+		sprintf(sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
 		 	login_name,
 			application_name,
 		 	session,
@@ -300,12 +315,23 @@ int main( int argc, char **argv )
 			dictionary_appaserver->query_dictionary,
 			appaserver->folder->attribute_list );
 
-		sprintf( sys_string,
+		sprintf(sys_string,
 	"echo \"%s\" 						|"
 	"output_edit_table_form %s %s %s '%s' '%s' '%s' 2>>%s	 ",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) ),
 		 	login_name,
 		 	session,
 		 	folder_name,
@@ -573,22 +599,32 @@ int main( int argc, char **argv )
 					pair_one2m->
 					   fulfilled_folder_name_list );
 
-			sprintf( sys_string,
+			sprintf(
+			sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ ),
-		 		login_name,
-				application_name,
-		 		session,
-		 		pair_one2m->one_folder_name,
-				role_name,
-				insert_update_key,
-				target_frame,
-				appaserver_error_get_filename(
-						application_name ) );
-
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					     /* non_prefixed_dictionary */ ) ),
+		 	login_name,
+			application_name,
+		 	session,
+		 	pair_one2m->one_folder_name,
+			role_name,
+			insert_update_key,
+			target_frame,
+			appaserver_error_filename( application_name ) );
 		} /* if pair_one2m */
 		else
 		{
@@ -600,18 +636,29 @@ int main( int argc, char **argv )
 				role_name,
 				rows_inserted,
 				(message) ? message : "",
-				appaserver_error_get_filename(
+				appaserver_error_filename(
 					application_name ) );
 		}
 	}
 	else
 	{
-		sprintf( sys_string,
+		sprintf(sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					     /* non_prefixed_dictionary */ ) ),
 		 	login_name,
 			application_name,
 		 	session,

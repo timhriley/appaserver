@@ -153,19 +153,22 @@ char *date_display_yyyy_mm_dd_colon_hms(
 
 char *date_hms(		DATE *date );
 
-char *date_get_hms(		DATE *date );
+char *date_get_hms(	DATE *date );
 
 char *date_display_yyyy_mm_dd_hh_mm(
-				DATE *date );
+			DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hm(
-				DATE *date );
+			DATE *date );
 
 char *date_get_yyyy_mm_dd_string(
-				DATE *date );
+			DATE *date );
+
+char *date_yesterday_yyyy_mm_dd(
+			int utc_offset );
 
 char *date_get_yesterday_yyyy_mm_dd_string(
-				int utc_offset );
+			int utc_offset );
 
 DATE *date_get_today_new(
 			int utc_offset );
@@ -194,6 +197,9 @@ char *date_get_now_date_hhmm(
 			int utc_offset );
 
 char *date_get_now_date_oracle_format(
+			int utc_offset );
+
+char *date_today_yyyy_mm_dd(
 			int utc_offset );
 
 char *date_get_today_yyyy_mm_dd(
@@ -384,53 +390,67 @@ boolean date_tomorrow( 		DATE *old_date,
 boolean date_year_in_future(	DATE *date,
 				int year );
 
+char *date_day_of_week_yyyy_mm_dd(
+			int wday_of_week,
+			int utc_offset );
+
 char *date_get_day_of_week_yyyy_mm_dd(
-				int wday_of_week,
-				int utc_offset );
+			int wday_of_week,
+			int utc_offset );
 
 time_t date_yyyy_mm_dd_time_hhmm_to_time_t(
-				char *date_string,
-				char *time_string );
+			char *date_string,
+			char *time_string );
 
-void date_set_tm_structures(	DATE *d,
-				time_t current,
-				int utc_offset );
+void date_set_tm_structures(
+			DATE *d,
+			time_t current,
+			int utc_offset );
 
-void date_output_hour_error(	char *function_name,
-				int hour );
+void date_output_hour_error(
+			char *function_name,
+			int hour );
 
 void date_set_tm_structures_pre_1970(
-				DATE *d,
-				time_t current,
-				int utc_offset );
+			DATE *d,
+			time_t current,
+			int utc_offset );
 
-int date_get_year(		DATE *d );
-int get_hour(			DATE *d );
-int date_get_hour(		DATE *d );
-int date_get_minutes(		DATE *d );
-int date_get_seconds(		DATE *d );
+int date_get_year(	DATE *d );
+int get_hour(		DATE *d );
+int date_get_hour(	DATE *d );
+int date_get_minutes(	DATE *d );
+int date_get_seconds(	DATE *d );
 
-int get_day_of_month(		DATE *d );
-int date_day_of_month(		DATE *d );
-int date_get_day_of_month(	DATE *d );
-int date_get_month(		DATE *d );
+int get_day_of_month(	DATE *d );
+int date_day_of_month(	DATE *d );
 
-time_t date_tm_to_current(	struct tm *tm,
-				int utc_offset );
+int date_get_day_of_month(
+			DATE *d );
+
+int date_get_month(	DATE *d );
+
+time_t date_tm_to_current(
+			struct tm *tm,
+			int utc_offset );
 
 time_t date_tm_to_current_pre_1970(
-				struct tm *tm,
-				int utc_offset );
+			struct tm *tm,
+			int utc_offset );
 
 time_t date_mktime(	struct tm *tm,
 			int utc_offset );
+
+char *date_day_of_week_string(
+			DATE *d );
 
 char *date_get_day_of_week_string(
 			DATE *d );
 
 char *date_display_mdy(	DATE *date );
 
-int date_get_month_day_number(	DATE *date );
+int date_get_month_day_number(
+			DATE *date );
 
 int date_days_in_month(	int month,
 			int year );

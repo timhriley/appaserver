@@ -119,7 +119,14 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 			dictionary_appaserver_new(
 				prompt_edit_form->post_dictionary,
 				prompt_edit_form->application_name,
-				prompt_edit_form->folder->attribute_list,
+				attribute_name_list(
+					prompt_edit_form->
+						folder->
+						attribute_list ),
+				attribute_date_name_list(
+					prompt_edit_form->
+						folder->
+						attribute_list ),
 				(LIST *)0 /* operation_name_list */,
 				prompt_edit_form->login_name ) ) )
 	{

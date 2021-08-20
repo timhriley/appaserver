@@ -277,22 +277,79 @@ char *post_choose_folder_system_string(
 			current_folder_name,
 			first_one2m_isa_relation->one_folder->folder_name,
 			role_name,
-			state,
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
-	if (output_prompt_insert_form )
+	if ( output_prompt_insert_form )
 	{
+		sprintf(system_string,
+			"output_prompt_insert_form %s %s %s %s %s %c \"%s\"\n",
+			login_name,
+			application_name,
+			session_key,
+			current_folder_name,
+			role_name,
+			'n' /* omit_buttons_yn */,
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					(DICTIONARY *)0
+						/* sort_dictionary */,
+					(DICTIONARY *)0
+						/* query_dictionary */,
+					drilldown_dictionary,
+					(DICTIONARY *)0
+						/* ignore_dictionary */,
+					(DICTIONARY *)0
+						/* pair_one2m_dictionary */,
+					(DICTIONARY *)0
+						/* non_prefixed_dictionary */
+					) ) );
 	}
 	else
-	if (output_insert_table_form )
+	if ( output_insert_table_form )
 	{
+		sprintf(system_string,
+			"echo \"%s\"					   |"
+			"output_insert_table_form %s %s %s %s %s %c \"%s\"\n",
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					(DICTIONARY *)0
+						/* sort_dictionary */,
+					(DICTIONARY *)0
+						/* query_dictionary */,
+					drilldown_dictionary,
+					(DICTIONARY *)0
+						/* ignore_dictionary */,
+					(DICTIONARY *)0
+						/* pair_one2m_dictionary */,
+					(DICTIONARY *)0
+						/* non_prefixed_dictionary */
+			login_name,
+			application_name,
+			session_key,
+			current_folder_name,
+			role_name,
+			'n' /* omit_buttons_yn */,
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					(DICTIONARY *)0
+						/* sort_dictionary */,
+					(DICTIONARY *)0
+						/* query_dictionary */,
+					drilldown_dictionary,
+					(DICTIONARY *)0
+						/* ignore_dictionary */,
+					(DICTIONARY *)0
+						/* pair_one2m_dictionary */,
+					(DICTIONARY *)0
+						/* non_prefixed_dictionary */
+					) ) );
 	}
 	else
-	if (output_prompt_edit_form )
+	if ( output_prompt_edit_form )
 	{
 	}
-	if (output_edit_table_form )
+	if ( output_edit_table_form )
 	{
 	}
 	else

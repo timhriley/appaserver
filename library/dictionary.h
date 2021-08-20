@@ -30,6 +30,7 @@ DICTIONARY *dictionary_medium_dictionary_new();
 DICTIONARY *dictionary_new_medium_dictionary();
 DICTIONARY *dictionary_medium_new();
 DICTIONARY *dictionary_large_dictionary_new();
+DICTIONARY *dictionary_large_new();
 DICTIONARY *dictionary_new_large_dictionary();
 DICTIONARY *dictionary_new_huge_dictionary();
 DICTIONARY *dictionary_new_super_dictionary();
@@ -78,6 +79,9 @@ LIST *get_dictionary_key_list(
 			DICTIONARY *d );
 
 LIST *dictionary_get_key_list(
+			DICTIONARY *d );
+
+LIST *dictionary_key_list(
 			DICTIONARY *d );
 
 LIST *dictionary_ordered_key_list(
@@ -610,9 +614,6 @@ boolean dictionary_get_index_data_strict_index(
 			char *key,
 			int index );
 
-DICTIONARY *dictionary_large_new(
-			void );
-
 DICTIONARY *dictionary_huge_new(
 			void );
 
@@ -692,5 +693,11 @@ char *dictionary_get_data(
 
 char *dictionary_data(	DICTIONARY *d,
 			char *key );
+
+void dictionary_set_other_data(
+			DICTIONARY *d, 
+			char *key, 
+			void *other_data, 
+			int sizeof_other_data );
 
 #endif

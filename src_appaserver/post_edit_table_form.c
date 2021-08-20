@@ -1294,19 +1294,41 @@ void execute_update_output_process(
 		 	role_name,
 			target_frame,
 		 	primary_data_list_string,
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
-		 	appaserver_error_get_filename( application_name ) );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
+		 	appaserver_error_filename( application_name ) );
 	}
 	else
 	{
 		sprintf( sys_string,
 "echo \"%s\" 								|"
 "output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
-			 dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
 	 	 	 login_name,
 		 	 session,
 		 	 folder_name,
@@ -1351,9 +1373,20 @@ void execute_insert_output_process(
 		sprintf( sys_string, 
 "echo \"%s\" 								|"
 "output_insert_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" 2>>%s	 ",
-			 dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
 	 	 	 login_name,
 		 	 application_name,
 		 	 session,
@@ -1362,7 +1395,7 @@ void execute_insert_output_process(
 		 	 insert_update_key,
 		 	 target_frame,
 			 (message) ? message : "",
-		 	 appaserver_error_get_filename( application_name ) );
+		 	 appaserver_error_filename( application_name ) );
 	}
 	else
 	if ( vertical_new_button_many_folder_name )
@@ -1380,10 +1413,21 @@ void execute_insert_output_process(
 				vertical_new_button_many_folder_name	:
 				"",
 			'y' /* content_type_yn */,
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				1 /* with_non_prefixed_dictionary */ ),
-			appaserver_error_get_filename( application_name ) );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
+			appaserver_error_filename( application_name ) );
 	}
 	else
 	{
@@ -1415,9 +1459,20 @@ void execute_insert_output_process(
 		sprintf(sys_string, 
 "echo \"%s\" 								     |"
 "output_edit_table_form \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%s\" \"%c\" 2>>%s",
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-			1 /* with_non_prefixed_dictionary */ ),
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					dictionary_appaserver->
+						non_prefixed_dictionary ) ),
 	 		login_name,
 			session,
 			folder_name,

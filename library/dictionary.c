@@ -8,16 +8,18 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "String.h"
 #include "list.h"
 #include "list_usage.h"
 #include "piece.h"
-#include "dictionary.h"
 #include "attribute.h"
 #include "timlib.h"
 #include "date_convert.h"
 #include "hash_table.h"
-#include "query.h"
 #include "date.h"
+#include "appaserver_library.h"
+#include "dictionary_appaserver.h"
+#include "dictionary.h"
 
 /* ------------------------------------------------------------ */
 /* Sample:							*/
@@ -70,7 +72,7 @@ void dictionary_parse_multi_attribute_keys(
 		if ( dont_include_relational_operators
 		&&   timlib_strncmp(
 				full_key + str_len,
-				QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+				RELATION_OPERATOR_PREFIX ) == 0 )
 		{
 			continue;
 		}
@@ -166,7 +168,7 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 		/* ------------------------------- */
 		if ( timlib_strncmp(
 			full_key,
-			QUERY_RELATION_OPERATOR_STARTING_LABEL ) != 0 )
+			RELATION_OPERATOR_PREFIX ) != 0 )
 		{
 			continue;
 		}
@@ -188,7 +190,7 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 
 			if ( timlib_strncmp(
 				key,
-				QUERY_RELATION_OPERATOR_STARTING_LABEL ) == 0 )
+				RELATION_OPERATOR_PREFIX ) == 0 )
 			{
 				strcpy( full_parse_key, key );
 			}
@@ -196,7 +198,7 @@ void dictionary_parse_multi_attribute_relation_operator_keys(
 			{
 				sprintf(full_parse_key,
 					"%s%s",
-					QUERY_RELATION_OPERATOR_STARTING_LABEL,
+					RELATION_OPERATOR_PREFIX,
 					key );
 			}
 
@@ -479,7 +481,6 @@ int dictionary_attribute_name_list_highest_index(
 	LIST *key_list;
 	char *key;
 	char *attribute_name;
-	char folder_attribute_name[ 128 ];
 	int highest_index = -1;
 	int index;
 
@@ -526,7 +527,7 @@ int get_dictionary_key_highest_index( DICTIONARY *d )
 	int index;
 	LIST *key_list;
 
-	key_list = get_dictionary_key_list( d );
+	key_list = dictionary_key_list( d );
 
 	if ( list_rewind( key_list ) )
 	{
@@ -541,7 +542,7 @@ int get_dictionary_key_highest_index( DICTIONARY *d )
 
 LIST *dictionary_get_key_list( DICTIONARY *d )
 {
-	return get_dictionary_key_list( d );
+	return dictionary_key_list( d );
 }
 
 char *dictionary_display_delimited( DICTIONARY *d, char delimiter )
@@ -563,14 +564,15 @@ char *dictionary_index_zero_display_delimited( DICTIONARY *d, char delimiter )
 
 char *dictionary_display_delimiter( DICTIONARY *d, char delimiter )
 {
-	/* char buffer[ 65536 ]; */
-	char buffer[ 196608 ];
+	char buffer[ STRING_INPUT_LINE ];
 
 	if ( !d ) return "NULL";
 
-	return strdup( hash_table_display_delimiter( 	buffer, 
-							d->hash_table,
-							delimiter ) );
+	return strdup(
+			hash_table_display_delimiter(
+				buffer, 
+				d->hash_table,
+				delimiter ) );
 }
 
 char *dictionary_list_display( LIST *dictionary_list )
@@ -701,39 +703,11 @@ DICTIONARY *dictionary_small_new()
 
 DICTIONARY *dictionary_small_dictionary_new()
 {
-	DICTIONARY *dictionary = 
-		(DICTIONARY *)calloc( 1, sizeof( DICTIONARY ) );
+	DICTIONARY *dictionary = dictionary_calloc();
 
-	if ( !dictionary )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 	dictionary->hash_table = hash_table_init( hash_table_small );
 
 	if ( !dictionary->hash_table )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return dictionary;
-}
-
-DICTIONARY *dictionary_calloc( void )
-{
-	DICTIONARY *dictionary = 
-		(DICTIONARY *)calloc( 1, sizeof( DICTIONARY ) );
-
-	if ( !dictionary )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: memory allocation error.\n",
@@ -808,25 +782,30 @@ DICTIONARY *dictionary_new_large_dictionary()
 	return dictionary_large_dictionary_new();
 }
 
-DICTIONARY *dictionary_large_new()
-{
-	return dictionary_large_dictionary_new();
-}
-
 DICTIONARY *dictionary_large_dictionary_new()
 {
-	DICTIONARY *dictionary = 
-		(DICTIONARY *)calloc( 1, sizeof( DICTIONARY ) );
+	return dictionary_large_new();
+}
 
-	if ( !dictionary )
+DICTIONARY *dictionary_calloc( void )
+{
+	DICTIONARY *dictionary;
+
+	if ( ! ( dictionary = calloc( 1, sizeof( DICTIONARY ) ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error.\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
+	return dictionary;
+}
+
+DICTIONARY *dictionary_large_new()
+{
+	DICTIONARY *dictionary =  dictionary_calloc();
 
 	dictionary->hash_table = hash_table_init( hash_table_large );
 
@@ -845,18 +824,7 @@ DICTIONARY *dictionary_large_dictionary_new()
 
 DICTIONARY *dictionary_huge_new()
 {
-	DICTIONARY *dictionary = 
-		(DICTIONARY *)calloc( 1, sizeof( DICTIONARY ) );
-
-	if ( !dictionary )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	DICTIONARY *dictionary = dictionary_calloc();
 
 	dictionary->hash_table = hash_table_init( hash_table_huge );
 
@@ -885,18 +853,7 @@ DICTIONARY *dictionary_new_medium_dictionary()
 
 DICTIONARY *dictionary_medium_dictionary_new()
 {
-	DICTIONARY *dictionary = 
-		(DICTIONARY *)calloc( 1, sizeof( DICTIONARY ) );
-
-	if ( !dictionary )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	DICTIONARY *dictionary = dictionary_calloc();
 
 	dictionary->hash_table = hash_table_init( hash_table_medium );
 
@@ -1088,7 +1045,7 @@ void dictionary_free( DICTIONARY *d )
 	char *key;
 	LIST *key_list;
 
-	key_list = get_dictionary_key_list( d );
+	key_list = dictionary_key_list( d );
 
 	if ( key_list && list_rewind( key_list ) )
 	{
@@ -1116,10 +1073,15 @@ LIST *dictionary_get_ordered_key_list( DICTIONARY *d )
 	return hash_table_ordered_key_list( d->hash_table );
 }
 
-LIST *get_dictionary_key_list( DICTIONARY *d )
+LIST *dictionary_key_list( DICTIONARY *d )
 {
 	if ( !d ) return (LIST *)0;
 	return hash_table_key_list( d->hash_table );
+}
+
+LIST *get_dictionary_key_list( DICTIONARY *d )
+{
+	return dictionary_key_list( d );
 }
 
 /* ----------------------------------------------------------- */
@@ -2639,7 +2601,7 @@ void dictionary_replace_double_quote_with_single(
 	char *data;
 	LIST *key_list;
 
-	key_list = get_dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	if ( key_list && list_rewind( key_list ) )
 	{
@@ -2664,7 +2626,7 @@ void dictionary_escape_single_quotes( DICTIONARY *dictionary )
 	LIST *key_list;
 	char new_data[ 4096 ];
 
-	key_list = get_dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	if ( key_list && list_rewind( key_list ) )
 	{
@@ -2806,7 +2768,7 @@ void dictionary_trim_double_bracked_data( DICTIONARY *dictionary )
 	char *data;
 	LIST *key_list;
 
-	key_list = get_dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	if ( key_list && list_rewind( key_list ) )
 	{
@@ -2997,7 +2959,7 @@ void dictionary_output_with_prefix(
 	char *key;
 	LIST *key_list;
 
-	key_list = get_dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	if ( key_list && list_rewind( key_list ) )
 	{
@@ -3022,7 +2984,7 @@ void dictionary_output_html_table(
 	char *key;
 	LIST *key_list;
 
-	key_list = get_dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	printf( "<table border=1>\n" );
 
@@ -3070,7 +3032,7 @@ void dictionary_convert_index_to_index_zero(
 	char new_key[ 1024 ];
 	char key_without_index[ 1024 ];
 
-	key_list = get_dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	if ( key_list && list_rewind( key_list ) )
 	{
@@ -3527,7 +3489,7 @@ void dictionary_add_login_name_if_necessary(
 
 			sprintf(operator_entry,
 		 		"%s%s",
-		 		QUERY_RELATION_OPERATOR_STARTING_LABEL,
+		 		RELATION_OPERATOR_PREFIX,
 		 		"login_name" );
 
 			dictionary_set_pointer(
@@ -3602,8 +3564,8 @@ void dictionary_row_output_to_file(
 
 		value =
 			dictionary_safe_fetch(
-				row_dictionary,
-				attribute_name );
+				attribute_name,
+				row_dictionary );
 
 		if ( first_time )
 		{
@@ -3679,10 +3641,12 @@ void dictionary_set_indexed_date_time_to_current(
 		do {
 			attribute = list_get( attribute_list );
 
-			if ( timlib_strcmp(	attribute->datatype,
-						"date_time" ) != 0
-			&&   timlib_strcmp(	attribute->datatype,
-						"current_date_time" ) != 0 )
+			if ( timlib_strcmp(
+				attribute->datatype_name,
+				"date_time" ) != 0
+			&&   timlib_strcmp(
+				attribute->datatype_name,
+				"current_date_time" ) != 0 )
 			{
 				continue;
 			}
@@ -3740,10 +3704,12 @@ void dictionary_remove_symbols_in_numbers(
 		do {
 			attribute = list_get( attribute_list );
 
-			if ( timlib_strcmp(	attribute->datatype,
-						"float" ) != 0
-			&&   timlib_strcmp(	attribute->datatype,
-						"integer" ) != 0 )
+			if ( timlib_strcmp(
+				attribute->datatype_name,
+				"float" ) != 0
+			&&   timlib_strcmp(
+				attribute->datatype_name,
+				"integer" ) != 0 )
 			{
 				continue;
 			}
@@ -3792,10 +3758,12 @@ void dictionary_set_date_time_to_current(
 	do {
 		attribute = list_get( attribute_list );
 
-		if ( timlib_strcmp(	attribute->datatype,
-					"date_time" ) != 0
-		&&   timlib_strcmp(	attribute->datatype,
-					"current_date_time" ) != 0 )
+		if ( timlib_strcmp(
+			attribute->datatype_name,
+			"date_time" ) != 0
+		&&   timlib_strcmp(
+			attribute->datatype_name,
+			"current_date_time" ) != 0 )
 		{
 			continue;
 		}
@@ -4023,7 +3991,6 @@ LIST *dictionary_get_non_indexed_key_list(
 	} while( list_next( key_list ) );
 
 	return non_indexed_key_list;
-
 }
 
 DICTIONARY *dictionary_key_piece(

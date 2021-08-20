@@ -351,7 +351,7 @@ int main( int argc, char **argv )
 			char buffer[ 1024 ];
 
 			appaserver_parameter_file =
-				new_appaserver_parameter_file();
+				appaserver_parameter_file_new();
 
 			document_quick_output_body(
 					application_name,
@@ -394,9 +394,20 @@ int main( int argc, char **argv )
 	}
 
 	escaped_dictionary_string =
-		dictionary_appaserver_escaped_send_dictionary_string(
-			dictionary_appaserver,
-			0 /* not with_non_prefixed_dictionary */ );
+		dictionary_appaserver_send_string(
+			dictionary_appaserver_send_dictionary(
+				dictionary_appaserver->
+					sort_dictionary,
+				dictionary_appaserver->
+					query_dictionary,
+				dictionary_appaserver->
+					drilldown_dictionary,
+				dictionary_appaserver->
+					ignore_dictionary,
+				dictionary_appaserver->
+					pair_one2m_dictionary,
+				(DICTIONARY *)0
+				      /* non_prefixed_dictionary */ ) );
 
 	sprintf(sys_string,
 "echo \"%s\"							|"
@@ -427,7 +438,7 @@ boolean all_required_attributes_populated(
 
 	do {
 		lookup_required_attribute_name =
-			list_get_pointer( 
+			list_get( 
 				lookup_required_attribute_name_list );
 
 		sprintf( key, "%s_0", lookup_required_attribute_name );
@@ -478,7 +489,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 	if ( strcmp( state, "insert" ) == 0 )
 	{
 		lookup_before_drop_down->insert_folder_name =
-		      lookup_before_drop_down_get_dictionary_insert_folder_name(
+		      lookup_before_drop_down_dictionary_insert_folder_name(
 				dictionary_appaserver->
 					lookup_before_drop_down_dictionary );
 	}
@@ -541,7 +552,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			unfulfilled_folder_name,
 			role->role_name,
 			state,
-			appaserver_error_get_filename(
+			appaserver_error_filename(
 					application_name ),
 			dictionary_appaserver,
 			PROMPT_FRAME /* target_frame */ );
@@ -573,8 +584,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			lookup_before_drop_down->base_folder->folder_name,
 			role->role_name,
 			state,
-			appaserver_error_get_filename(
-					application_name ),
+			appaserver_error_filename( application_name ),
 			dictionary_appaserver,
 			EDIT_FRAME /* target_frame */ );
 		exit( 0 );
@@ -617,8 +627,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 			folder_name,
 			role->role_name,
 			state,
-			appaserver_error_get_filename(
-					application_name ),
+			appaserver_error_filename( application_name ),
 			dictionary_appaserver );
 		exit( 0 );
 	}
@@ -654,15 +663,23 @@ boolean execute_radio_button_process_maybe(
 					non_prefixed_dictionary,
 				EMAIL_OUTPUT_NAME ) )
 	{
-		escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
-
 		sprintf(sys_string,
 "echo \"%s\"								|"
 "output_email %s %s %s %s %s %s dictionary_stdin  		 	 ",
-			escaped_dictionary_string,
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					     /* non_prefixed_dictionary */ ) ),
 		 	login_name,
 			application_name,
 		 	session,
@@ -678,9 +695,20 @@ boolean execute_radio_button_process_maybe(
 				STATISTICS_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					     /* non_prefixed_dictionary */ ) );
 
 			sprintf( sys_string,
 			"statistics_folder %s %s %s %s %s \"%s\" 2>>%s",
@@ -690,7 +718,7 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				escaped_dictionary_string,
-				appaserver_error_get_filename(
+				appaserver_error_filename(
 					application_name ) );
 		}
 		else
@@ -698,9 +726,20 @@ boolean execute_radio_button_process_maybe(
 				DELETE_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					     /* non_prefixed_dictionary */ ) );
 
 			sprintf( sys_string,
 		"post_delete_folder_block %s %s %s %s %s one \"%s\" 2>>%s",
@@ -710,17 +749,27 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				escaped_dictionary_string,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				SORT_ORDER_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			sprintf( sys_string,
 		"post_change_sort_order %s %s %s %s %s one \"%s\" 2>>%s",
@@ -730,17 +779,27 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				escaped_dictionary_string,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				RADIO_NEW_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			state = "insert";
 
@@ -757,18 +816,27 @@ boolean execute_radio_button_process_maybe(
 				insert_update_key,
 				target_frame,
 				dictionary_process_id,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				TRANSMIT_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
-
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			sprintf(sys_string,
 "echo \"%s\"								|"
@@ -780,17 +848,27 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				state,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				GRACE_CHART_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			sprintf(sys_string,
 "echo \"%s\"								|"
@@ -802,17 +880,27 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				state,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				GOOGLE_CHART_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			sprintf(sys_string,
 "echo \"%s\"								|"
@@ -824,17 +912,27 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				state,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				HISTOGRAM_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			sprintf(sys_string,
 "echo \"%s\"								|"
@@ -846,17 +944,27 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				role_name,
 				state,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		if ( strcmp(	lookup_option_radio_button,
 				GROUP_PUSH_BUTTON_NAME ) == 0 )
 		{
 			escaped_dictionary_string =
-			dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
-				0 /* not with_non_prefixed_dictionary */ );
+			dictionary_appaserver_send_string(
+				dictionary_appaserver_send_dictionary(
+					dictionary_appaserver->
+						sort_dictionary,
+					dictionary_appaserver->
+						query_dictionary,
+					dictionary_appaserver->
+						drilldown_dictionary,
+					dictionary_appaserver->
+						ignore_dictionary,
+					dictionary_appaserver->
+						pair_one2m_dictionary,
+					(DICTIONARY *)0
+					      /* non_prefixed_dictionary */ ) );
 
 			sprintf(sys_string,
 			"echo \"%s\" | output_group %s %s %s %s 2>>%s",
@@ -865,8 +973,7 @@ boolean execute_radio_button_process_maybe(
 		 		folder_name,
 				login_name,
 				role_name,
-				appaserver_error_get_filename(
-					application_name ) );
+				appaserver_error_filename( application_name ) );
 		}
 		else
 		{

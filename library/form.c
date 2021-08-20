@@ -28,27 +28,27 @@
 #include "vertical_new_button.h"
 #include "pair_one2m.h"
 
-FORM *form_new_form( void )
+FORM *form_calloc( void )
 {
 	FORM *form;
 
-	if ( ! ( form = (FORM *)calloc( 1, sizeof( FORM ) ) ) )
+	if ( ! ( form = calloc( 1, sizeof( FORM ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	form->hidden_name_dictionary = dictionary_small_new();
 	return form;
 }
 
 FORM *form_new( char *form_name, char *application_title )
 {
-	FORM *form = form_new_form();
+	FORM *form = form_calloc();
+
 	form->form_name = form_name;
 	form->application_title = application_title;
 	return form;
