@@ -204,50 +204,6 @@ PROCESS_PROMPT_SUBMIT *process_prompt_submit_fetch(
 			char *login_name,
 			DICTIONARY *working_post_dictionary );
 
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
-char *process_drop_down_command_line(
-			char *command_line,
-			char *application_name,
-			char *one2m_folder_name,
-			char *state,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *working_post_dictionary );
-
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
-char *process_update_row_command_line(
-			char *command_line,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *state,
-			int row,
-			char *process_name,
-			char *one2m_folder_name,
-			LIST *primary_data_list );
-
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
-char *process_prompt_submit_command_line(
-			char *command_line,
-			char *process_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *working_post_dictionary );
-
-void process_search_replace_where(
-			char *command_line /* in/out */,
-			DICTIONARY *preprompt_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name );
-
-void process_replace_one2m_folder_name(
-			char *command_line /* in/out */,
-			char *one2m_folder_name );
-
 /* PROCESS_SET operations */
 /* ---------------------- */
 PROCESS_SET *process_set_fetch(
@@ -300,7 +256,15 @@ PROCESS *process_parse(	char *input,
 			char *role_name,
 			boolean check_executable_inside_filesystem );
 
-LIST *process_fetch_list(
+char *process_populate_drop_down_command_line(
+			DICTIONARY *drilldown_dictionary,
+			char *command_line,
+			char *security_entity_where,
+			char *state,
+			char *login_name,
+			char *role_name );
+
+LIST *process_delimited_list(
 			char *command_line );
 
 /* PROMPT operations */
@@ -430,6 +394,14 @@ void process_set_one2m_folder_name_for_process(
 boolean process_interpreted_executable_ok(
 			char *which_string );
 
+/* PROCESS command_line */
+/* -------------------- */
+char *process_choose_isa_command_line(
+			char *command_line,
+			char *security_entity_where,
+			char *login_name,
+			char *role_name );
+
 void process_operation_convert(
 			char **executable,
 			char *application_name,
@@ -461,6 +433,50 @@ void process_prompt_convert_parameters(
 			int row,
 			char *process_name,
 			char *one2m_folder_name_for_process );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_drop_down_command_line(
+			char *command_line,
+			char *application_name,
+			char *one2m_folder_name,
+			char *state,
+			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *working_post_dictionary );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_update_row_command_line(
+			char *command_line,
+			DICTIONARY *preprompt_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state,
+			int row,
+			char *process_name,
+			char *one2m_folder_name,
+			LIST *primary_data_list );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_prompt_submit_command_line(
+			char *command_line,
+			char *process_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *working_post_dictionary );
+
+void process_search_replace_where(
+			char *command_line /* in/out */,
+			DICTIONARY *drilldown_dictionary,
+			char *login_name,
+			char *role_name,
+			char *folder_name );
+
+void process_replace_one2m_folder_name(
+			char *command_line /* in/out */,
+			char *one2m_folder_name );
 
 #endif
 

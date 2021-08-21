@@ -73,35 +73,59 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			0 /* not fetch_role_folder_list */,
 			1 /* fetch_row_level_restriction */ );
 
+	choose_isa_drop_down->role = role_fetch( role_name );
+
+	choose_isa_drop_down->security_entity =
+		security_entity_new(
+			login_name,
+			choose_isa_drop_down->folder->non_owner_forbid,
+			role->override_row_restrictions );
+
+	if ( choose_isa_drop_down->folder->populate_drop_down_process )
+	{
+		choose_isa_drop_down->delimited_list =
+			process_delimited_list(
+				process_choose_isa_commmand_line(
+					choose_isa_drop_down->
+						folder->
+						populate_drop_down_process->
+						command_line,
+					security_entity_where(
+						choose_isa_drop_down->
+							security_entity ),
+					login_name,
+					role_name ) );
+	}
+	else
+	{
+		QUERY *query;
+
+		query =
+			query_isa_drop_down_fetch(
+				one2m_isa_folder_name,
+				choose_isa_drop_down->
+					folder->
+					primary_key_list,
+				security_entity_where(
+					security_entity ) );
+
+		choose_isa_drop_down->delimited_list =
+			query->query_delimited_list;
+	}
+
 	choose_isa_drop_down->element_list =
 		choose_isa_drop_down_element_list(
 			one2m_isa_folder_name,
 			folder->primary_key_list,
-			folder->populate_drop_down_process,
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *isa_related_folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			PROCESS *populate_drop_down_process )
+			choose_isa_drop_down->delimited_list );
+
 	return choose_isa_drop_down;
 }
 
 LIST *choose_isa_drop_down_element_list(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
-			PROCESS *populate_drop_down_process )
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *isa_related_folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *primary_key_list,
-			PROCESS *populate_drop_down_process )
+			LIST *delimited_list )
 {
 	LIST *return_list;
 	ELEMENT_APPASERVER *element;
@@ -143,33 +167,9 @@ LIST *choose_isa_drop_down_element_list(
 			drop_down,
 			strdup( element_name ) );
 
-	query =
-		query_isa_drop_down_new(
-			folder_name,
+	element->drop_down->option_data_list = delimited_list;
 
-	element->drop_down->option_data_list =
-		folder_primary_data_list(
-			application_name,
-			session,
-			isa_related_folder_name,
-			login_name,
-			(DICTIONARY *)0 /* parameter_dictionary */,
-			(DICTIONARY *)0 /* where_clause_dictionary */,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			populate_drop_down_process,
-			attribute_list,
-			(LIST *)0 /* common_non_primary_attribute_... */,
-			0 /* filter_only_login_name */,
-			(LIST *)0 /*  exclude_attribute_name_list */,
-			role_name,
-			(char *)0 /* state */,
-			(char *)0 /* one2m_folder_name_for_processes */,
-			(char *)0 /* appaserver_user_foreign_login_name */,
-			0 /* not include_root_folder */ );
-
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+	list_set( return_list, element );
 
 	/* Create a hidden folder_name */
 	/* --------------------------- */
@@ -178,30 +178,25 @@ LIST *choose_isa_drop_down_element_list(
 			hidden,
 			"folder_name" );
 
-	element->hidden->data = strdup( folder_name );
+	element->hidden->data = strdup( one2m_isa_folder_name );
 
-	list_append(
-		return_list, 
-		element, 
-		sizeof( ELEMENT_APPASERVER ) );
+	list_set( return_list, element );
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
 	element = element_appaserver_new( linebreak, "" );
 
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+	list_set( return_list, element );
 
-	element = element_appaserver_new( 	toggle_button, 
-				LOOKUP_PUSH_BUTTON_NAME );
+	element =
+		element_appaserver_new(
+			toggle_button, 
+			LOOKUP_PUSH_BUTTON_NAME );
 
 	element_toggle_button_set_heading(
 		element->toggle_button, "lookup" );
 
-	list_append(	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+	list_set( return_list, element );
 
 	/* Create a hidden query relational operator equals */
 	/* ------------------------------------------------ */
@@ -210,7 +205,7 @@ LIST *choose_isa_drop_down_element_list(
 		 list_display_delimited_prefixed(
 			  primary_key_list,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			  QUERY_RELATION_OPERATOR_STARTING_LABEL ) );
+			  RELATION_OPERATION_PREFIX ) );
 
 	element =
 		element_appaserver_new(
@@ -219,10 +214,7 @@ LIST *choose_isa_drop_down_element_list(
 
 	element->hidden->data = EQUAL_OPERATOR;
 
-	list_append(
-		return_list, 
-		element, 
-		sizeof( ELEMENT_APPASERVER ) );
+	list_set( return_list, element );
 
 	return return_list;
 }

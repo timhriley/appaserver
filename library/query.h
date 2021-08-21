@@ -18,6 +18,7 @@
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
+#include "process.h"
 #include "folder.h"
 
 /* Constants */
@@ -177,8 +178,14 @@ typedef struct
 /* ---------------- */
 QUERY *query_calloc(	void );
 
+QUERY *query_populate_drop_down_process_fetch(
+			DICTIONARY *drilldown_dictionary,
+			char *populate_drop_down_process_commmand_line,
+			char *security_entity_where,
+			char *state );
+
 QUERY *query_process_drop_down_new(
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *folder_name,
 			char *role_name,
 			char *login_name );
@@ -199,11 +206,6 @@ QUERY *query_process_parameter_new(
 QUERY *query_isa_drop_down_fetch(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
-			SECURITY_ENTITY *security_entity );
-
-QUERY *query_populate_drop_down_process_fetch(
-			DICTIONARY *drilldown_dictionary,
-			PROCESS *populate_drop_down_process,
 			SECURITY_ENTITY *security_entity );
 
 /* QUERY_SELECT operations */
@@ -458,14 +460,14 @@ LIST *query_get_process_drop_down_list(
 			LIST *exclude_attribute_name_list,
 			char *folder_name,
 			LIST *mto1_recursive_related_folder_list,
-			DICTIONARY *preprompt_dictionary );
+			DICTIONARY *drilldown_dictionary );
 
 QUERY_DROP_DOWN *query_process_drop_down(
 			LIST *exclude_attribute_name_list,
 			char *folder_name,
 			LIST *foreign_attribute_name_list,
 			LIST *attribute_list,
-			DICTIONARY *preprompt_dictionary );
+			DICTIONARY *drilldown_dictionary );
 
 QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
 			char *attribute_name,
@@ -954,8 +956,8 @@ char *query_display_where(
 			char *query_output_where,
 			char *folder_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *query_security_entity_where(
 			SECURITY_ENTITY *security_entity );
 

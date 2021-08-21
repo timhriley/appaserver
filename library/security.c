@@ -321,9 +321,7 @@ char *security_entity_where(
 {
 	char where_buffer[ 1024 ];
 
-	strcpy( where_buffer, "1 = 1" );
-
-	if ( !security_entity ) return strdup( where_buffer );
+	if ( !security_entity ) return (char *)0;
 
 	if ( security_entity->full_name_only
 	&&   *security_entity->full_name_only )
@@ -334,8 +332,10 @@ char *security_entity_where(
 				security_entity->full_name_only ),
 			security_sql_injection_escape(
 				security_entity->street_address_only ) );
+
+		return strdup( where_buffer );
 	}
-	else
+
 	if ( security_entity->login_name_only
 	&&   *security_entity->login_name_only )
 	{
@@ -343,7 +343,9 @@ char *security_entity_where(
 			"login_name = '%s'",
 			security_sql_injection_escape(
 				security_entity->login_name_only ) );
+
+		return strdup( where_buffer );
 	}
 
-	return strdup( where_buffer );
+	return (char *)0;
 }

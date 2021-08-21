@@ -27,7 +27,7 @@
 #include "folder.h"
 #include "process.h"
 
-LIST *process_fetch_list( char *command_line )
+LIST *process_delimited_list( char *command_line )
 {
 	return list_pipe_fetch( command_line );
 }
@@ -647,7 +647,7 @@ void process_set_one2m_folder_name_for_process(
 
 void process_search_replace_where(
 			char *command_line,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *folder_name,
 			char *role_name,
 			char *login_name )
@@ -2001,7 +2001,7 @@ char *process_drop_down_command_line(
 			char *process_name,
 			char *role_name,
 			char *login_name,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			DICTIONARY *working_post_dictionary )
 {
 	char buffer[ STRING_WHERE_BUFFER ];
@@ -2064,7 +2064,7 @@ char *process_drop_down_command_line(
 	{
 		process_search_replace_where(
 			local_command_line /* in/out */,
-			preprompt_dictionary,
+			drilldown_dictionary,
 			login_name,
 			role_name,
 			folder_name );
@@ -2095,7 +2095,7 @@ char *process_drop_down_command_line(
 char *process_update_row_command_line(
 			char *command_line,
 			DICTIONARY *query_dictionary,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
@@ -2138,7 +2138,7 @@ char *process_update_row_command_line(
 	{
 		process_search_replace_where(
 			local_command_line,
-			preprompt_dictionary,
+			drilldown_dictionary,
 			folder_name,
 			role_name,
 			login_name );
@@ -2309,5 +2309,13 @@ PROCESS_STRUCTURE *process_structure_fetch(
 		return (PROCESS_STRUCTURE *)0;
 	}
 	return p;
+}
+
+char *process_choose_isa_command_line(
+			char *command_line,
+			char *security_entity_where,
+			char *login_name,
+			char *role_name )
+{
 }
 

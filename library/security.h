@@ -112,8 +112,8 @@ char *security_login_name_full_name_only(
 			char **street_address,
 			char *login_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *security_entity_where(
 			SECURITY_ENTITY *security_entity );
 

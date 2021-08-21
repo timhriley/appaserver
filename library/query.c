@@ -8,7 +8,6 @@
 #include "appaserver_library.h"
 #include "timlib.h"
 #include "String.h"
-#include "security.h"
 #include "date_convert.h"
 #include "form.h"
 #include "environ.h"
@@ -6048,7 +6047,7 @@ QUERY *query_isa_drop_down_fetch(
 	query->from_clause = one2m_isa_folder_name;
 
 	query->query_where_clause =
-		query_security_entity_where(
+		security_entity_where(
 			security_entity );
 
 	query->query_order_clause = query->query_select_clause;
@@ -6151,14 +6150,6 @@ LIST *query_primary_key_select_list(
 	return select_list;
 }
 
-char *query_security_entity_where(
-			SECURITY_ENTITY *security_entity )
-{
-	/* Safely returns heap memory */
-	/* -------------------------- */
-	return security_entity_where( security_entity );
-}
-
 char *query_select_clause( LIST *select_list )
 {
 	char clause[ 2048 ];
@@ -6191,3 +6182,4 @@ char *query_select_clause( LIST *select_list )
 
 	return strdup( clause );
 }
+

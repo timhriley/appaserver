@@ -34,6 +34,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	FOLDER *folder;
+	LIST *delimited_list;
 	LIST *element_list;
 } CHOOSE_ISA_DROP_DOWN;
 
@@ -52,4 +53,8 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			char *one2m_isa_folder_name,
 			char *role_name );
 
+LIST *choose_isa_drop_down_element_list(
+			char *one2m_isa_folder_name,
+			LIST *primary_key_list,
+			LIST *delimited_list );
 #endif
