@@ -89,7 +89,7 @@ typedef struct
 	boolean output_null_option;
 	boolean output_not_null_option;
 	boolean output_select_option;
-	int multi_select;
+	boolean multi_select;
 	char *folder_name;
 	char *post_change_javascript;
 	int max_drop_down_size;
@@ -245,7 +245,7 @@ typedef struct
 
 ELEMENT_APPASERVER *element_appaserver_new(
 			enum element_type,
-			char *name );
+			char *element_name );
 
 void element_simple_output(
 			ELEMENT_APPASERVER *element,
@@ -839,5 +839,8 @@ void element_drop_down_text_item_output(
 
 ELEMENT_APPASERVER *element_sort_order(
 			ATTRIBUTE *attribute );
+
+ELEMENT_APPASERVER *element_appaserver_calloc(
+			void );
 
 #endif

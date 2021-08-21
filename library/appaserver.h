@@ -20,7 +20,6 @@
 /* Constants */
 /* --------- */
 #define APPASERVER_RELATIVE_SOURCE_DIRECTORY		"src_appaserver"
-#define APPASERVER_ISA_PROMPT_PREFIX			"choose_"
 
 /* Data structures */
 /* --------------- */

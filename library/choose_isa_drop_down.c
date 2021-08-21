@@ -13,9 +13,10 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "appaserver_error.h"
-#include "appaserver_user.h"
 #include "security.h"
 #include "environ.h"
+#include "element.h"
+#include "query.h"
 #include "choose_isa_drop_down.h"
 
 CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_calloc( void )
@@ -74,6 +75,9 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 
 	choose_isa_drop_down->element_list =
 		choose_isa_drop_down_element_list(
+			one2m_isa_folder_name,
+			folder->primary_key_list,
+			folder->populate_drop_down_process,
 			char *login_name,
 			char *application_name,
 			char *session,
@@ -81,12 +85,14 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			char *isa_related_folder_name,
 			char *role_name,
 			LIST *attribute_list,
-			LIST *primary_key_list,
 			PROCESS *populate_drop_down_process )
 	return choose_isa_drop_down;
 }
 
 LIST *choose_isa_drop_down_element_list(
+			char *one2m_isa_folder_name,
+			LIST *primary_key_list,
+			PROCESS *populate_drop_down_process )
 			char *login_name,
 			char *application_name,
 			char *session,
@@ -99,42 +105,47 @@ LIST *choose_isa_drop_down_element_list(
 {
 	LIST *return_list;
 	ELEMENT_APPASERVER *element;
-	char element_name[ 256 ];
-	char buffer[ 256 ];
+	QUERY *query;
+	char element_name[ 512 ];
+	char buffer[ 512 ];
 
 	return_list = list_new();
 
-	/* Create the line break */
-	/* --------------------- */
+	/* Create a line break */
+	/* ------------------- */
 	element = element_appaserver_new( linebreak, "" );
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+
+	list_set( return_list, element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	sprintf( element_name,
-		 "%s%s",
-		 APPASERVER_ISA_PROMPT_PREFIX,
-		 list_display_delimited(
+	sprintf(element_name,
+		"%s%s",
+		CHOOSE_ISA_DROP_DOWN_PROMPT_PREFIX,
+		list_display_delimited(
 			  primary_key_list,
 			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
 
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			prompt,
-			strdup( format_initial_capital( 
+			strdup(
+				format_initial_capital( 
 					buffer, 
 					element_name ) ) );
 
-	list_append( 	return_list, 
-			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+	list_set( return_list, element );
 
 	/* Create the drop down element */
 	/* ---------------------------- */
-	element = element_appaserver_new(
+	element =
+		element_appaserver_new(
 			drop_down,
 			strdup( element_name ) );
+
+	query =
+		query_isa_drop_down_new(
+			folder_name,
 
 	element->drop_down->option_data_list =
 		folder_primary_data_list(

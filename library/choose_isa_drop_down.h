@@ -14,6 +14,7 @@
 
 /* Constants */
 /* --------- */
+#define CHOOSE_ISA_DROP_DOWN_PROMPT_PREFIX	"choose_"
 
 /* Enumerated types */
 /* ---------------- */

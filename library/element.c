@@ -33,19 +33,36 @@ ELEMENT_NON_EDIT_TEXT *element_new_non_edit_text( void )
 
 ELEMENT_APPASERVER *element_new_element( void )
 {
-	return (ELEMENT_APPASERVER *)calloc( 1, sizeof( ELEMENT_APPASERVER ) );
+	return element_appaserver_calloc();
+}
+
+ELEMENT_APPASERVER *element_appaserver_calloc( void )
+{
+	ELEMENT_APPASERVER *element_appaserver;
+
+	if ( ! ( element_appaserver =
+			calloc( 1, sizeof( ELEMENT_APPASERVER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+	}
+	return element_appaserver;
 }
 
 ELEMENT_APPASERVER *element_appaserver_new(
 			enum element_type element_type,
-			char *name )
+			char *element_name )
 {
 	ELEMENT_APPASERVER *i;
 
-	i = element_new_element();
+	i = element_appaserver_calloc();
 
 	i->element_type = element_type;
-	i->name = name;
+	i->name = element_name;
 	i->remember_keystrokes_ok = 1;
 
 	if ( element_type == drop_down )
@@ -2042,20 +2059,23 @@ char *element_reference_number_heading(
 
 ELEMENT_DROP_DOWN *element_drop_down_new( void )
 {
-	ELEMENT_DROP_DOWN *e = (ELEMENT_DROP_DOWN *)
-					calloc( 1,
-						sizeof( ELEMENT_DROP_DOWN ) );
+	ELEMENT_DROP_DOWN *e = calloc( 1, sizeof( ELEMENT_DROP_DOWN ) );
+
 	if ( !e )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: memory allocation error\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
+	e->output_null_option = 1;
+	e->output_not_null_option = 1;
+	e->output_select_option = 1;
 	e->date_piece_offset = -1;
+
 	return e;
 }
 
