@@ -112,10 +112,9 @@ char *security_login_name_full_name_only(
 			char **street_address,
 			char *login_name );
 
-/* Returns where_clause if null or heap memory */
-/* ------------------------------------------- */
-char *security_entity_where_clause(
-			char *where_clause,
+/* Safely returns heap memory */
+/* -------------------------- */
+char *security_entity_where(
 			SECURITY_ENTITY *security_entity );
 
 #endif

@@ -128,6 +128,12 @@ typedef struct
 
 typedef struct
 {
+	char *folder_name;
+	char *attribute_name;
+} QUERY_SELECT;
+
+typedef struct
+{
 	/* Input */
 	/* ----- */
 	DICTIONARY *query_dictionary;
@@ -142,6 +148,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	LIST *select_list;
 	PROMPT_RECURSIVE *prompt_recursive;
 	FOLDER *query_folder;
 	FOLDER *search_replace_where_folder;
@@ -152,18 +159,18 @@ typedef struct
 	LIST *query_drop_down_list;
 	LIST *query_prompt_recursive_drop_down_list;
 	LIST *query_attribute_list;
-	char *query_output_drop_down_where;
-	char *query_output_drop_down_data_where(
-	char *query_output_attribute_where;
-	char *query_output_join_where;
-	char *query_output_related_join;
-	LIST *query_output_select_name_list;
-	LIST *query_output_select_display;
-	char *query_output_where;
-	char *query_output_from;
-	char *query_output_order;
-	char *query_output_display;
-	LIST *query_output_dictionary_list;
+	char *query_drop_down_where;
+	char *query_drop_down_data_where(
+	char *query_attribute_where;
+	char *query_join_where;
+	char *query_related_join;
+	LIST *query_select_name_list;
+	LIST *query_select_clause;
+	char *query_where_clause;
+	char *query_from_clause;
+	char *query_order_clause;
+	LIST *query_delimited_list;
+	LIST *query_dictionary_list;
 } QUERY;
 
 /* QUERY operations */
@@ -177,10 +184,47 @@ QUERY *query_process_drop_down_new(
 			char *login_name );
 
 QUERY *query_search_replace_where_new(
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
+			LIST *append_isa_attribute_list,
+			LIST *relation_mto1_isa_list,
+			boolean non_owner_forbid,
+			SECURITY_ENTITY *security_entity );
+
+QUERY *query_process_parameter_new(
+			DICTIONARY *drilldown_dictionary,
 			char *folder_name,
 			char *role_name,
 			char *login_name );
+
+QUERY *query_isa_drop_down_fetch(
+			char *one2m_isa_folder_name,
+			LIST *primary_key_list,
+			SECURITY_ENTITY *security_entity );
+
+QUERY *query_populate_drop_down_process_fetch(
+			DICTIONARY *drilldown_dictionary,
+			PROCESS *populate_drop_down_process,
+			SECURITY_ENTITY *security_entity );
+
+/* QUERY_SELECT operations */
+/* ----------------------- */
+QUERY_SELECT *query_select_new(
+			char *folder_name,
+			char *attribute_name );
+
+LIST *query_select_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *ignore_select_attribute_name_list,
+			LIST *exclude_lookup_attribute_name_list,
+			int relation_mto1_isa_length );
+
+LIST *query_primary_key_select_list(
+			LIST *primary_key_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_select_clause(
+			LIST *select_list );
 
 /* QUERY_ROW operations */
 /* -------------------- */
@@ -881,30 +925,23 @@ char *query_attribute_name_list_order(
 			LIST *attribute_name_list,
 			char *descending_label );
 
-LIST *query_output_dictionary_list(
-			char *query_select_display,
-			LIST *query_output_select_name_list,
-			char *query_output_from,
-			char *query_output_where,
-			char *query_output_order,
+LIST *query_dictionary_list(
+			char *query_select_clause,
+			LIST *query_select_name_list,
+			char *query_from_clause,
+			char *query_where_clause,
+			char *query_order_clause,
 			int max_rows,
 			QUERY_DATE_CONVERT *query_date_convert );
 
-LIST *query_output_record_list(
-			char *query_select_display,
-			LIST *query_output_select_name_list,
-			char *query_output_from,
-			char *query_output_where,
-			char *query_output_order,
+LIST *query_delimited_list(
+			char *query_select_clause,
+			LIST *query_select_name_list,
+			char *query_from_clause,
+			char *query_where_clause,
+			char *query_order_clause,
 			int max_rows,
 			QUERY_DATE_CONVERT *query_date_convert );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_output_select_display(
-			char *mto1_folder_name,
-			LIST *query_output_select_name_list,
-			int mto1_isa_related_folder_list_length );
 
 LIST *query_system_dictionary_list(
 			char *system_string,
@@ -917,10 +954,9 @@ char *query_display_where(
 			char *query_output_where,
 			char *folder_name );
 
-QUERY *query_process_parameter_new(
-			DICTIONARY *preprompt_dictionary,
-			char *folder_name,
-			char *role_name,
-			char *login_name );
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_security_entity_where(
+			SECURITY_ENTITY *security_entity );
 
 #endif
