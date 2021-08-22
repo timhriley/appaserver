@@ -171,12 +171,21 @@ boolean environ_name_to_value( char *variable_value, char *variable_name )
 
 }
 
-void environ_set_environment( char *environment, char *datum )
+void environ_set_environment(
+			char *environment,
+			char *datum )
 {
-	set_environment( environment, datum );
+	environment_set( environment, datum );
 }
 
-void set_environment( char *environment, char *datum )
+void set_environment(	char *environment,
+			char *datum )
+{
+	environment_set( environment, datum );
+}
+
+void environment_set(	char *environment,
+			char *datum )
 {
 	char statement[ 4096 ];
 

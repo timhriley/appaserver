@@ -68,7 +68,6 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
-		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/validation_form.o				\

@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/form.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver form ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -21,7 +20,6 @@
 #include "list.h"
 #include "query.h"
 #include "application.h"
-#include "process_parameter_list.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "application_constants.h"
@@ -45,12 +43,14 @@ FORM *form_calloc( void )
 	return form;
 }
 
-FORM *form_new( char *form_name, char *application_title )
+FORM *form_new(		char *state,
+			char *application_title )
 {
 	FORM *form = form_calloc();
 
-	form->form_name = form_name;
+	form->state = state;
 	form->application_title = application_title;
+
 	return form;
 }
 

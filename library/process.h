@@ -104,7 +104,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *process_set_name;
-	boolean check_executable_inside_filesystem;
+	char *role_name;
 	char *notepad;
 	char *html_help_file_anchor;
 	char *post_change_javascript;
@@ -118,7 +118,6 @@ typedef struct
 	LIST *process_set_role_process_name_list;
 	char *process_set_process_where;
 	LIST *process_list;
-
 } PROCESS_SET;
 
 typedef struct
@@ -127,6 +126,7 @@ typedef struct
 	/* ----- */
 	char *process_name;
 	boolean check_executable_inside_filesystem;
+	char *role_name;
 	char *command_line;
 	char *notepad;
 	char *html_help_file_anchor;
@@ -142,7 +142,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *process_or_set_name;
-	DICTIONARY *preprompt_dictionary;
+	DICTIONARY *drilldown_dictionary;
 	char *login_name;
 	char *folder_name;
 	char *attribute_name;
@@ -151,6 +151,11 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	int display_order;
+	boolean drop_down_multi_select;
+	boolean preprompt;
+	char *populate_drop_down_process_name;
+	char *populate_helper_process_name;
 	LIST *primary_delimited_list;
 	ATTRIBUTE *attribute;
 	DROP_DOWN_PROMPT *drop_down_prompt;
@@ -164,7 +169,7 @@ typedef struct
 	char *role_name;
 	char *login_name;
 	boolean is_preprompt;
-	DICTIONARY *preprompt_dictionary;
+	DICTIONARY *drilldown_dictionary;
 
 	/* Process */
 	/* ------- */
@@ -187,6 +192,15 @@ typedef struct
 	char *command_line;
 } PROCESS_PROMPT_SUBMIT;
 
+/* PROCESS_PARAMETER operations */
+/* ---------------------------- */
+PROCESS_PARAMETER *process_parameter_new(
+			char *process_or_set_name,
+			char *folder_name,
+			char *attribute_name,
+			char *drop_down_prompt_name,
+			char *prompt_name );
+
 /* PROCESS_PROMPT_DISPLAY operations */
 /* --------------------------------- */
 PROCESS_PROMPT_DISPLAY *process_prompt_display_fetch(
@@ -194,7 +208,7 @@ PROCESS_PROMPT_DISPLAY *process_prompt_display_fetch(
 			char *role_name,
 			char *login_name,
 			boolean is_preprompt,
-			DICTIONARY *preprompt_dictionary );
+			DICTIONARY *drilldown_dictionary );
 
 /* PROCESS_PROMPT_SUBMIT operations */
 /* -------------------------------- */
@@ -222,7 +236,8 @@ char *process_set_system_string(
 PROCESS_SET *process_set_parse(
 			char *input,
 			char *role_name,
-			boolean check_executable_inside_filesystem );
+			boolean fetch_member_process_name_list,
+			boolean fetch_javascript_list );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -327,7 +342,7 @@ char *drop_down_prompt_system_string(
 /* ================= */
 LIST *process_parameter_system_list(
 			char *system_string,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name );
 
 /* Returns heap memory */
@@ -342,11 +357,11 @@ char *process_set_parameter_system_string(
 
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name );
 
 LIST *process_parameter_primary_delimited_list(
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name,
 			char *folder_name,
 			char *populate_drop_down_process_name );
@@ -428,7 +443,7 @@ void process_prompt_convert_parameters(
 			char *person,
 			char *folder_name,
 			char *role_name,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			LIST *attribute_list,
 			int row,
 			char *process_name,
@@ -441,14 +456,14 @@ char *process_drop_down_command_line(
 			char *application_name,
 			char *one2m_folder_name,
 			char *state,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			DICTIONARY *working_post_dictionary );
 
 /* Frees command_line and returns heap memory */
 /* ------------------------------------------ */
 char *process_update_row_command_line(
 			char *command_line,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,

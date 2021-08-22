@@ -20,22 +20,32 @@ static APPASERVER_PARAMETER_FILE *global_appaserver_parameter_file = {0};
 
 char *appaserver_parameter_file_get_appaserver_mount_point( void )
 {
+	return appaserver_parameter_file_appaserver_mount_point();
+}
+
+char *appaserver_parameter_file_appaserver_mount_point( void )
+{
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 	return global_appaserver_parameter_file->appaserver_mount_point;
 }
 
 char *appaserver_parameter_file_get_cgi_directory( void )
 {
-	return appaserver_parameter_file_get_apache_cgi_directory();
+	return appaserver_parameter_file_cgi_directory();
 }
 
-char *appaserver_parameter_file_get_apache_cgi_directory( void )
+char *appaserver_parameter_file_apache_cgi_directory( void )
+{
+	return appaserver_parameter_file_cgi_directory();
+}
+
+char *appaserver_parameter_file_cgi_directory( void )
 {
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 
 	return timlib_trim_trailing_character(
 			global_appaserver_parameter_file->
@@ -47,7 +57,7 @@ char *appaserver_parameter_file_get_appaserver_error_directory( void )
 {
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 
 	return timlib_trim_trailing_character(
 			global_appaserver_parameter_file->
@@ -64,14 +74,14 @@ char *appaserver_parameter_file_get_appaserver_data_directory( void )
 {
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 
 	return timlib_trim_trailing_character(
 			global_appaserver_parameter_file->
 				appaserver_data_directory,
 			'/' );
 
-} /* appaserver_parameter_file_get_appaserver_data_directory() */
+}
 
 char *appaserver_parameter_file_get_dbms( void )
 {
@@ -88,7 +98,7 @@ char *appaserver_parameter_file_get_database( void )
 {
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 	return global_appaserver_parameter_file->default_database_connection;
 }
 */
@@ -97,7 +107,7 @@ char *appaserver_parameter_file_get_cgi_home( void )
 {
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 	return global_appaserver_parameter_file->cgi_home;
 }
 
@@ -105,13 +115,8 @@ char *appaserver_parameter_file_get_document_root( void )
 {
 	if ( !global_appaserver_parameter_file )
 		global_appaserver_parameter_file =
-			new_appaserver_parameter_file();
+			appaserver_parameter_file_new();
 	return global_appaserver_parameter_file->document_root;
-}
-
-APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file( void )
-{
-	return appaserver_parameter_file_new();
 }
 
 FILE *appaserver_parameter_file_open(	char *filename,
@@ -143,7 +148,7 @@ FILE *appaserver_parameter_file_open(	char *filename,
 	else
 		return fopen( filename, "r" );
 
-} /* appaserver_parameter_file_open() */
+}
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 {
@@ -151,7 +156,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 
 	application =
 		environ_get_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+			"APPASERVER_DATABASE" );
 
 	if ( !application || !*application )
 	{
@@ -162,7 +167,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 
 	return appaserver_parameter_file_application( application );
 
-} /* appaserver_parameter_file_new() */
+}
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 					FILE *f,
@@ -275,7 +280,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 	return s;
 
-} /* appaserver_parameter_file_fetch() */
+}
 
 DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 			FILE *input_pipe,
@@ -318,7 +323,7 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 
 	return d;
 
-} /* appaserver_parameter_file_load_record_dictionary() */
+}
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 					char *application_name )
@@ -356,7 +361,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 			 	__FILE__,
 			 	__FUNCTION__,
 			 	__LINE__,
-				APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+				"APPASERVER_DATABASE" );
 		}
 		else
 		{
@@ -383,5 +388,5 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 
 	return s;
 
-} /* appaserver_parameter_file_application() */
+}
 

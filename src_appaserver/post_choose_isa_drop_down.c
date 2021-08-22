@@ -25,8 +25,6 @@
 #include "appaserver.h"
 #include "environ.h"
 #include "post2dictionary.h"
-#include "related_folder.h"
-#include "query.h"
 #include "session.h"
 #include "role.h"
 #include "dictionary_appaserver.h"
@@ -36,26 +34,20 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name, *session, *application_name, *folder_name;
-	char *database_string;
-	char *role_name, *state;
-	char sys_string[ 1024 ];
+	char *login_name;
+	char *session;
+	char *application_name;
+	char *folder_name;
+	char *role_name;
 	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *insert_update_key;
-	char *target_frame;
-	LIST *posted_primary_key_list;
-	FOLDER *folder;
-	LIST *isa_related_folder_list;
-	pid_t dictionary_process_id;
-	ROLE *role;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	LIST *non_primary_key_list;
+	SESSION *session;
 
-	if ( argc < 10 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state insert_update_key target_frame dictionary_process_id\n",
+		"Usage: %s login_name application session folder role\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

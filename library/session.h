@@ -40,6 +40,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *sql_injection_escape_role_name;
+	char *sql_injection_escape_folder_name;
 	char *session_current_ip_address;
 
 	/* Generic */
@@ -50,6 +52,8 @@ typedef struct
 SESSION *session_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 SESSION *session_fetch(
 			/* Sets ENVIRONMENT_DATABASE */
 			/* ------------------------- */
@@ -70,11 +74,6 @@ void session_update_access_date_time(
 boolean session_remote_ip_address_changed(
 			char *remote_ip_address,
 			char *current_ip_address );
-
-void session_message_ip_address_changed_exit(
-			char *application_name,
-			char *session,
-			char *login_name );
 
 LIST *session_list_fetch(
 			char *login_name );

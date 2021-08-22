@@ -42,14 +42,20 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-APPASERVER_PARAMETER_FILE *new_appaserver_parameter_file(
-						void );
+APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new(
+			void );
+
+char *appaserver_parameter_file_appaserver_mount_point(
+			void );
 
 char *appaserver_parameter_file_get_appaserver_mount_point(
-						void );
+			void );
 
 char *appaserver_parameter_file_get_cgi_directory(
-						void );
+			void );
+
+char *appaserver_parameter_file_cgi_directory(
+			void );
 
 char *appaserver_parameter_file_get_apache_cgi_directory(
 						void );
@@ -73,19 +79,18 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 						FILE *input_pipe,
 						int delimiter );
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new(
-						void );
-
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
-					FILE *f,
-					char *parameter_file_full_path );
+			FILE *f,
+			char *parameter_file_full_path );
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
-						char *application_name );
+			char *application_name );
 
-char *appaserver_parameter_file_get_dbms(	void );
+char *appaserver_parameter_file_get_dbms(
+			void );
 
-FILE *appaserver_parameter_file_open(		char *filename,
-						char *application_name );
+FILE *appaserver_parameter_file_open(
+			char *filename,
+			char *application_name );
 
 #endif

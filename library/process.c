@@ -7,14 +7,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "query.h"
-#include "process_parameter_list.h"
 #include "timlib.h"
 #include "appaserver_error.h"
 #include "dictionary.h"
 #include "hash_table.h"
 #include "list.h"
 #include "list_usage.h"
+#include "environ.h"
 #include "piece.h"
 #include "basename.h"
 #include "column.h"
@@ -32,6 +33,7 @@ LIST *process_delimited_list( char *command_line )
 	return list_pipe_fetch( command_line );
 }
 
+#ifdef NOT_DEFINED
 void process_convert_parameters(
 			char **executable,
 			char *application_name,
@@ -307,7 +309,9 @@ void process_convert_parameters(
 
 	*executable = strdup( local_executable );
 }
+#endif
 
+#ifdef NOT_DEFINED
 char *process_dictionary_process_member(
 			char *process_set,
 			DICTIONARY *parsed_decoded_post_dictionary,
@@ -334,7 +338,9 @@ char *process_dictionary_process_member(
 	else
 		return (char *)0;
 }
+#endif
 
+#ifdef NOT_DEFINED
 void process_replace_parameter_variables(	
 			char *executable,
 			char *application_name,
@@ -534,6 +540,7 @@ void process_replace_parameter_variables(
 	}
 
 }
+#endif
 
 void process_execution_count_increment(
 			char *process_name )
@@ -645,6 +652,7 @@ void process_set_one2m_folder_name_for_process(
 		one2m_folder_name );
 }
 
+#ifdef NOT_DEFINED
 void process_search_replace_where(
 			char *command_line,
 			DICTIONARY *drilldown_dictionary,
@@ -654,7 +662,7 @@ void process_search_replace_where(
 {
 	QUERY *query;
 	char *where_clause;
-	char buffer[ QUERY_WHERE_BUFFER ];
+	char buffer[ STRING_WHERE_BUFFER ];
 
 	if ( !command_line )
 	{
@@ -678,7 +686,7 @@ void process_search_replace_where(
 
 	if ( ! ( query =
 			query_search_replace_where_new(
-				preprompt_dictionary,
+				drilldown_dictionary,
 				folder_name,
 				role_name,
 				login_name ) ) )
@@ -698,6 +706,7 @@ void process_search_replace_where(
 			buffer,
 			query->where ) );
 }
+#endif
 
 boolean process_interpreted_executable_ok( char *which_string )
 {
@@ -714,6 +723,7 @@ boolean process_interpreted_executable_ok( char *which_string )
 
 }
 
+#ifdef NOT_DEFINED
 void process_operation_convert(
 			char **executable,
 			char *application_name,
@@ -953,7 +963,9 @@ void process_operation_convert(
 	*executable = strdup( local_executable );
 
 }
+#endif
 
+#ifdef NOT_DEFINED
 void process_prompt_convert_parameters(
 			char **executable,
 			char *application_name,
@@ -1164,6 +1176,7 @@ void process_prompt_convert_parameters(
 
 	*executable = strdup( local_executable );
 }
+#endif
 
 PROMPT *prompt_fetch( char *prompt_name )
 {
@@ -1269,21 +1282,21 @@ DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_new(
 DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_parse(
 			char *input )
 {
-	char drop_down_prompt_name[ 256 ];
-	char drop_down_prompt_data[ 256 ];
+	char prompt_name[ 256 ];
+	char prompt_data[ 256 ];
 	char display_order[ 128 ];
 	DROP_DOWN_PROMPT_DATA *drop_down_prompt_data;
 
 	/* See attribute_list drop_down_prompt_data */
 	/* ---------------------------------------- */
-	piece( drop_down_prompt_name, SQL_DELIMITER, input, 0 );
-	piece( drop_down_prompt_data, SQL_DELIMITER, input, 1 );
+	piece( prompt_name, SQL_DELIMITER, input, 0 );
+	piece( prompt_data, SQL_DELIMITER, input, 1 );
 	piece( display_order, SQL_DELIMITER, input, 3 );
 
 	drop_down_prompt_data =
 		drop_down_prompt_data_new(
-			strdup( drop_down_prompt_name ),
-			strdup( drop_down_prompt_data ) );
+			strdup( prompt_name ),
+			strdup( prompt_data ) );
 
 	drop_down_prompt_data->display_order = atoi( display_order );
 
@@ -1355,7 +1368,7 @@ DROP_DOWN_PROMPT *drop_down_prompt_fetch(
 	drop_down_prompt =
 		drop_down_prompt_parse(
 			string_fetch_pipe(
-				drop_down_prompt_prompt_system_string(
+				drop_down_prompt_system_string(
 					drop_down_prompt_primary_where(
 						drop_down_prompt_name ) ) ) );
 
@@ -1398,7 +1411,7 @@ char *drop_down_prompt_primary_where(
 
 	sprintf(where,
 		"drop_down_prompt = '%s'",
-		drop_down_prompt );
+		drop_down_prompt_name );
 
 	return where;
 }
@@ -1474,10 +1487,10 @@ char *process_set_parameter_system_string(
 
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name )
 {
-	char process_or_process_set_name[ 128 ];
+	char process_or_set_name[ 128 ];
 	char folder_name[ 128 ];
 	char attribute_name[ 128 ];
 	char drop_down_prompt_name[ 128 ];
@@ -1488,7 +1501,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 
 	/* See PROCESS_PARAMETER_SELECT or PROCESS_SET_PARAMETER_SELECT */
 	/* ------------------------------------------------------------ */
-	piece( process_or_process_set_name, SQL_DELIMITER, input, 0 );
+	piece( process_or_set_name, SQL_DELIMITER, input, 0 );
 	piece( folder_name, SQL_DELIMITER, input, 1 );
 	piece( attribute_name, SQL_DELIMITER, input, 2 );
 	piece( drop_down_prompt_name, SQL_DELIMITER, input, 3 );
@@ -1496,13 +1509,13 @@ PROCESS_PARAMETER *process_parameter_parse(
 
 	process_parameter =
 		process_parameter_new(
-			strdup( process_or_process_set_name ),
+			strdup( process_or_set_name ),
 			strdup( folder_name ),
 			strdup( attribute_name ),
 			strdup( drop_down_prompt_name ),
 			strdup( prompt_name ) );
 
-	process_parameter->preprompt_dictionary = preprompt_dictionary;
+	process_parameter->drilldown_dictionary = drilldown_dictionary;
 	process_parameter->login_name = login_name;
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
@@ -1520,11 +1533,11 @@ PROCESS_PARAMETER *process_parameter_parse(
 	piece( buffer, SQL_DELIMITER, input, 9 );
 	process_parameter->populate_helper_process_name = strdup( buffer );
 
-	if ( strcmp( process_parameter->folder_name, "null" != 0 )
+	if ( strcmp( process_parameter->folder_name, "null" ) != 0 )
 	{
 		process_parameter->primary_delimited_list =
 			process_parameter_primary_delimited_list(
-				process_parameter->preprompt_dictionary,
+				process_parameter->drilldown_dictionary,
 				process_parameter->login_name,
 				process_parameter->folder_name,
 				process_parameter->
@@ -1550,7 +1563,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 		ok_return = 1;
 	}
 	else
-	if ( strcmp( process_parameter->prompt, "null" ) != 0 )
+	if ( strcmp( process_parameter->prompt_name, "null" ) != 0 )
 	{
 		process_parameter->prompt =
 			prompt_fetch(
@@ -1574,19 +1587,6 @@ char *process_primary_where( char *process_name )
 		process_name );
 
 	return where;
-}
-
-char *process_system_string( char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh '%s' %s \"%s\"",
-		PROCESS_SELECT,
-		PROCESS_TABLE,
-		where );
-
-	return strdup( system_string );
 }
 
 PROCESS *process_parse(	char *input,
@@ -1694,7 +1694,8 @@ PROCESS *process_new( char *process_name )
 PROCESS_SET *process_set_fetch(
 			char *process_set_name,
 			char *role_name,
-			boolean check_executable_inside_filesystem )
+			boolean fetch_member_process_name_list,
+			boolean fetch_javascript_list )
 {
 	return
 	process_set_parse(
@@ -1704,19 +1705,6 @@ PROCESS_SET *process_set_fetch(
 					process_set_name ) ) ),
 		role_name,
 		check_executable_inside_filesystem );
-}
-
-char *process_set_system_string( char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s"",
-		PROCESS_SET_SELECT,
-		PROCESS_SET_TABLE,
-		where );
-
-	return strdup( system_string );
 }
 
 PROCESS_SET *process_set_parse(
@@ -1822,6 +1810,32 @@ char *process_set_primary_where(
 	return where;
 }
 
+char *process_set_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s"",
+		PROCESS_SET_SELECT,
+		PROCESS_SET_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+char *process_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		PROCESS_SELECT,
+		PROCESS_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
 LIST *process_set_role_process_name_list(
 			char *primary_where,
 			char *role_name )
@@ -1861,7 +1875,7 @@ char *process_set_process_where(
 }
 
 LIST *process_parameter_primary_delimited_list(
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
@@ -1888,7 +1902,7 @@ LIST *process_parameter_primary_delimited_list(
 		return
 			process_parameter_evaluate_list(
 				process->command_line,
-				preprompt_dictionary,
+				drilldown_dictionary,
 				login_name,
 				role_name,
 				folder_name );
@@ -2200,7 +2214,7 @@ void process_replace_one2m_folder_name(
 
 void process_search_replace_where(
 			char *command_line,
-			DICTIONARY *preprompt_dictionary,
+			DICTIONARY *drilldown_dictionary,
 			char *folder_name,
 			char *role_name,
 			char *login_name )
@@ -2235,7 +2249,7 @@ void process_search_replace_where(
 
 	if ( ! ( query =
 			query_process_drop_down_new(
-				preprompt_dictionary,
+				drilldown_dictionary,
 				folder_name,
 				role_name,
 				login_name ) ) )
@@ -2262,7 +2276,7 @@ PROCESS_STRUCTURE *process_structure_fetch(
 			char *login_namem,
 			boolean check_executable_inside_filesystem,
 			boolean is_preprompt,
-			DICTIONARY *preprompt_dictionary )
+			DICTIONARY *drilldown_dictionary )
 {
 	PROCESS_STRUCTURE *p = process_structure_calloc();
 
@@ -2274,7 +2288,7 @@ PROCESS_STRUCTURE *process_structure_fetch(
 		check_executable_inside_filesystem;
 
 	p->is_preprompt = is_preprompt;
-	p->preprompt_dictionary = preprompt_dictionary;
+	p->drilldown_dictionary = drilldown_dictionary;
 
 	if ( ( p->process_set =
 			process_set_fetch(
@@ -2317,5 +2331,35 @@ char *process_choose_isa_command_line(
 			char *login_name,
 			char *role_name )
 {
+return (char *)0;
+}
+
+PROCESS_PARAMETER *process_parameter_new(
+			char *process_or_set_name,
+			char *folder_name,
+			char *attribute_name,
+			char *drop_down_prompt_name,
+			char *prompt_name )
+{
+	PROCESS_PARAMETER *process_parameter;
+
+	if ( ! ( process_parameter =
+			calloc( 1, sizeof( PROCESS_PARAMETER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_parameter->process_or_set_name = process_or_set_name;
+	process_parameter->folder_name = folder_name;
+	process_parameter->attribute_name = attribute_name;
+	process_parameter->drop_down_prompt_name = drop_down_prompt_name;
+	process_parameter->prompt_name = prompt_name;
+
+	return process_parameter;
 }
 

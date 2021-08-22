@@ -161,7 +161,7 @@ typedef struct
 	LIST *query_prompt_recursive_drop_down_list;
 	LIST *query_attribute_list;
 	char *query_drop_down_where;
-	char *query_drop_down_data_where(
+	char *query_drop_down_data_where;
 	char *query_attribute_where;
 	char *query_join_where;
 	char *query_related_join;
@@ -418,49 +418,11 @@ char *query_parse_multi_attribute_get_order_clause(
 			boolean descending,
 			LIST *attribute_list );
 
-LIST *query_get_one2m_subquery_related_folder_list(
-			char *application_name,
-			LIST *one2m_subquery_folder_name_list,
-			LIST *one2m_recursive_related_folder_list,
-			RELATED_FOLDER *root_related_folder );
-
-LIST *query_get_subquery_list(
-			DICTIONARY *dictionary,
-			LIST *one2m_subquery_related_folder_list,
-			int length_primary_key_list );
-
-char *query_get_subquery_where_clause(
-			char *application_name,
-			char *folder_name,
-			LIST *query_subquery_list,
-			LIST *primary_key_list );
-
-char *query_append_where_clause(char *source_where_clause,
-			char *append_where_clause );
-
-char *query_output_display(
-			QUERY_OUTPUT *query_output );
-
-char *query_subquery_list_display(
-			LIST *subquery_list );
-
-char *query_get_drop_down_list_display(
-			LIST *query_drop_down_list );
-
-char *query_get_query_attribute_list_display(
-			LIST *query_attribute_list );
-
 LIST *query_prompt_recursive_drop_down_list(
 			LIST *exclude_attribute_name_list,
 			char *mto1_folder_name,
 			LIST *prompt_recursive_folder_list,
 			DICTIONARY *query_dictionary );
-
-LIST *query_get_process_drop_down_list(
-			LIST *exclude_attribute_name_list,
-			char *folder_name,
-			LIST *mto1_recursive_related_folder_list,
-			DICTIONARY *drilldown_dictionary );
 
 QUERY_DROP_DOWN *query_process_drop_down(
 			LIST *exclude_attribute_name_list,
@@ -480,15 +442,6 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 char *query_drop_down_list_in_clause_display(
 			char *attribute_name,
 			LIST *data_list );
-
-char *query_get_process_drop_down_where_clause(
-			LIST *query_drop_down_list,
-			char *folder_name );
-
-char *query_get_dictionary_where_clause(
-			DICTIONARY *dictionary,
-			LIST *primary_key_list,
-			char *dictionary_indexed_prefix );
 
 QUERY_OR_SEQUENCE *query_or_sequence_new(
 			LIST *attribute_name_list );
@@ -511,27 +464,10 @@ char *query_or_sequence_get_where_clause(
 			LIST *data_list_list,
 			boolean with_and_prefix );
 
-QUERY_DROP_DOWN *query_process_drop_down(
-			LIST *foreign_attribute_name_list,
-			LIST *attribute_list,
-			DICTIONARY *dictionary );
-
 char *query_primary_where_clause(
 			LIST *primary_key_list,
 			char *input_buffer,
 			char delimiter );
-
-QUERY_OUTPUT *query_folder_output_new(
-			QUERY *query,
-			FOLDER *folder,
-			PROMPT_RECURSIVE *prompt_recursive,
-			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list,
-			LIST *mto1_join_folder_list );
-
-void query_output_set_row_level_non_owner_forbid_join(
-			QUERY_OUTPUT *query_output,
-			FOLDER *folder );
 
 /* Sets login_name or entity to query_dictionary */
 /* --------------------------------------------- */
@@ -582,15 +518,6 @@ LIST *query_edit_table_dictionary_list(
 			int max_rows,
 			LIST *append_isa_attribute_list,
 			char *login_name );
-
-QUERY_OUTPUT *query_edit_table_output_new(
-			DICTIONARY *query_dictionary,
-			FOLDER *mto1_folder,
-			LIST *ignore_select_attribute_name_list,
-			PROMPT_RECURSIVE *prompt_recursive,
-			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name,
-			DICTIONARY *sort_dictionary );
 
 LIST *query_edit_table_drop_down_list(
 			LIST *exclude_attribute_name_list,

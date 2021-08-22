@@ -13,7 +13,6 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
 #include "appaserver_error.h"
-#include "security.h"
 #include "environ.h"
 #include "element.h"
 #include "query.h"
@@ -41,8 +40,6 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *login_name,
-			char *session_key,
-			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name )
 {
@@ -51,9 +48,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 
 	/* Input */
 	/* ----- */
-	choose_isa_drop_down->login_name =
-	choose_isa_drop_down->session_key = session_key;
-	choose_isa_drop_down->folder_name = folder_name;
+	choose_isa_drop_down->login_name = login_name;
 	choose_isa_drop_down->one2m_isa_folder_name = one2m_isa_folder_name;
 	choose_isa_drop_down->role_name = role_name;
 
@@ -62,6 +57,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 	choose_isa_drop_down->folder =
 		folder_fetch(
 			one2m_isa_folder_name,
+			(char *)0 /* not fetching role_folder_list */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* Also sets primary_key_list */
 			1 /* fetch_folder_attribute_list */,
@@ -73,13 +69,18 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			0 /* not fetch_role_folder_list */,
 			1 /* fetch_row_level_restriction */ );
 
-	choose_isa_drop_down->role = role_fetch( role_name );
+	choose_isa_drop_down->role =
+		role_fetch(
+			role_name,
+			0 /* not fetch_role_attribute_exclude_list */ );
 
 	choose_isa_drop_down->security_entity =
 		security_entity_new(
 			login_name,
 			choose_isa_drop_down->folder->non_owner_forbid,
-			role->override_row_restrictions );
+			choose_isa_drop_down->
+				role->
+				override_row_restrictions );
 
 	if ( choose_isa_drop_down->folder->populate_drop_down_process )
 	{
@@ -219,3 +220,30 @@ LIST *choose_isa_drop_down_element_list(
 	return return_list;
 }
 
+char *choose_isa_drop_down_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name )
+{
+	char action_string[ 1024 ];
+
+	sprintf(action_string,
+		" action=\"%s/%s?%s+%s+%s+%s+%s+%s\"",
+			appaserver_library_http_prompt(
+				appaserver_parameter_file_cgi_directory(),
+				appaserver_library_server_address(),
+				application_ssl_support_yn(
+					application_name ),
+				application_prepend_http_protocol_yn(
+					application_name ) ),
+		"post_choose_isa_drop_down",
+		login_name,
+		application_name,
+		session_key,
+		folder_name,
+		role_name );
+
+	return strdup( action_string );
+}

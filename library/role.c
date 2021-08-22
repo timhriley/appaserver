@@ -16,6 +16,7 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "security.h"
+#include "folder_attribute.h"
 #include "role.h"
 
 ROLE *role_calloc( void )
@@ -43,9 +44,8 @@ char *role_select( void )
 {
 	char *select;
 
-	if ( attribute_exists(
-		environment_application_name(),
-		ROLE_TABLE_NAME,
+	if ( folder_attribute_exists(
+		ROLE_TABLE,
 		"grace_no_cycle_colors_yn" ) )
 	{
 		select =
@@ -58,33 +58,6 @@ char *role_select( void )
 	}
 
 	return select;
-}
-
-
-	role_table_name = get_table_name( application_name, "role" );
-
-	role_appaserver_user_table_name =
-		get_table_name(
-			application_name,
-			"role_appaserver_user" );
-
-	sprintf( sys_string,
-		 "echo \"select count(*)				 "
-		 "	 from %s,%s					 "
-		 "	 where %s.role = %s.role			 "
-		 "	   and %s.login_name = '%s'			 "
-		 "	   and folder_count_yn = 'y';\"			|"
-		 "sql.e							 ",
-		 role_table_name,
-		 role_appaserver_user_table_name,
-		 role_table_name,
-		 role_appaserver_user_table_name,
-		 role_appaserver_user_table_name,
-		 login_name );
-
-	results = pipe2string( sys_string );
-	return atoi( results );
-
 }
 
 ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
@@ -209,7 +182,7 @@ char *role_primary_where( char *role_name )
 		/* Returns heap memory */
 		/* ------------------- */
 		security_sql_injection_escape(
-			role_name );
+			role_name ) );
 
 	return where;
 }
@@ -328,7 +301,7 @@ ROLE *role_parse(	char *input,
 	role->override_row_restrictions = (*piece_buffer == 'y');
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	role->grace_no_cycle_colors_yn = *piece_buffer;
+	role->grace_no_cycle_colors = (*piece_buffer == 'y');
 
 	if ( fetch_attribute_exclude_list )
 	{
@@ -417,13 +390,13 @@ ROLE_APPASERVER_USER *role_appaserver_user_fetch(
 					sql_injection_escape_role_name ) ) ) );
 }
 
-
-ROLE_APPASERVER_USER *role_appaserver_user_parse( char *input )
+ROLE_APPASERVER_USER *role_appaserver_user_parse(
+			char *input )
 {
 	ROLE_APPASERVER_USER *role_appaserver_user;
 	char piece_buffer[ 128 ];
 
-	if ( !input || !*input ) return (ROLE_APPASERVER_USER )0;
+	if ( !input || !*input ) return (ROLE_APPASERVER_USER *)0;
 
 	role_appaserver_user = role_appaserver_user_calloc();
 

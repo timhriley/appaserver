@@ -38,16 +38,6 @@
 
 /* Prototypes */
 /* ---------- */
-LIST *output_choose_isa_drop_down_element_list(	
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *isa_related_folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *primary_key_list,
-			PROCESS *populate_drop_down_process );
 
 int main( int argc, char **argv )
 {
@@ -62,8 +52,6 @@ int main( int argc, char **argv )
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	FOLDER *folder;
-	ROLE *role;
 	boolean with_dynarch_menu;
 	char subtitle_string[ 128 ];
 	char buffer1[ 128 ];
@@ -114,9 +102,10 @@ int main( int argc, char **argv )
 
 	choose_isa_drop_down =
 		choose_isa_drop_down_fetch(
+			session->sql_injection_escape_application_name,
+			session->sql_injection_escape_session_key,
 			session->login_name,
-			session->session_key,
-			session->folder_name,
+			folder_name,
 			one2m_folder_name,
 			session->role_name );
 
@@ -134,29 +123,11 @@ int main( int argc, char **argv )
 
 	form =
 		form_new(
-			"insert" /* form_name */,
+			"insert" /* state */,
 			application_title_string(
 				application_name ) );
 
-	form->state = "insert";
-	form->login_name = login_name;
-	form->application_name = application_name;
-	form->session = session_key;
-	form->folder_name = folder_name;
-	form->role_name = role_name;
-	form->drop_down_number_columns = 2;
-
-	form->regular_element_list =
-		output_choose_isa_drop_down_element_list(
-			login_name,
-			application_name,
-			session,
-			folder_name,
-			isa_related_folder_name,
-			role_name,
-			attribute_list,
-			primary_key_list,
-			folder->populate_drop_down_process );
+	form->regular_element_list = choose_isa_drop_down->element_list;
 
 	form_set_post_process( form, "post_choose_isa_drop_down" );
 	form->target_frame = PROMPT_FRAME;

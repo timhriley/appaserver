@@ -140,7 +140,6 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/application.o					\
 		${LIB}/appaserver_user.o				\
 		${LIB}/security.o					\
-		${LIB}/process_parameter_list.o				\
 		${LIB}/populate_helper_process.o			\
 		${LIB}/appaserver_link_file.o				\
 		${LIB}/related_folder.o					\
@@ -990,11 +989,13 @@ output_prompt_insert_form: output_prompt_insert_form.c 			\
 	${CGI_HOME}
 
 output_choose_isa_drop_down: output_choose_isa_drop_down.c		\
-			${EXTERNAL_LIBS}
+			${EXTERNAL_LIBS}				\
+			${LIB}/choose_isa_drop_down.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		output_choose_isa_drop_down.c				\
+		${LIB}/choose_isa_drop_down.o				\
 		-o output_choose_isa_drop_down
 
 view_source: view_source.c						\

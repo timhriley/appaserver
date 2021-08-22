@@ -53,19 +53,21 @@ typedef struct
 
 typedef struct
 {
-	char *form_name;
-	char *insert_update_key;
+	/* Input */
+	/* ----- */
 	char *state;
+	char *application_title;
+	LIST *regular_element_list;
+	LIST *viewonly_element_list;
+
+	char *insert_update_key;
 	char *login_name;
 	char *application_name;
-	char *application_title;
 	char *session;
 	char *folder_name;
 	char *role_name;
 	char *target_frame;
 	char *post_process;
-	LIST *regular_element_list;
-	LIST *viewonly_element_list;
 	int output_pairs;
 	int submit_button_in_heading;
 	int submit_button_in_trailer;
@@ -112,13 +114,15 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-FORM_BUTTON *form_button_new(		char *button_label,
-					char *onclick_control_string );
+FORM_BUTTON *form_button_new(
+			char *button_label,
+			char *onclick_control_string );
 
-FORM *form_new(				char *form_name,
-					char *application_title );
+FORM *form_new(		char *state,
+			char *application_title );
 
-FORM *form_new_form( void );
+FORM *form_calloc(	void );
+
 void form_set_output_pairs( 		FORM *form );
 void form_set_submit_button_in_heading(	FORM *form );
 void form_set_submit_button_in_trailer(	FORM *form );

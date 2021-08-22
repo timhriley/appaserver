@@ -79,7 +79,6 @@ APPASERVER_LIBRARY=						\
 		expected_count.o				\
 		update.o					\
 		delete_database.o				\
-		process_parameter_list.o			\
 		start_stop_time.o				\
 		appaserver_parameter_file.o			\
 		prompt_recursive.o				\

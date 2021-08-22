@@ -10,6 +10,8 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
+#include "role.h"
+#include "security.h"
 #include "folder.h"
 
 /* Constants */
@@ -33,7 +35,9 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	ROLE *role;
 	FOLDER *folder;
+	SECURITY_ENTITY *security_entity;
 	LIST *delimited_list;
 	LIST *element_list;
 } CHOOSE_ISA_DROP_DOWN;
@@ -48,8 +52,6 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *login_name,
-			char *session_key,
-			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
 
@@ -57,4 +59,14 @@ LIST *choose_isa_drop_down_element_list(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
 			LIST *delimited_list );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *choose_isa_drop_down_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name );
+
 #endif

@@ -27,6 +27,8 @@ typedef struct
 	char *permission;
 } ROLE_FOLDER;
 
+/* Operations */
+/* ---------- */
 LIST *role_folder_fetch_list(
 			char *role_name,
 			char *folder_name );
@@ -60,5 +62,6 @@ boolean role_folder_insert(
 /* --------------------- */
 char *role_folder_primary_where(
 			char *role_name,
-			char *folder_name )
+			char *folder_name );
+
 #endif

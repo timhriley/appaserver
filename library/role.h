@@ -11,7 +11,8 @@
 
 /* Constants */
 /* --------- */
-#define ROLE_TABLE_NAME		"role"
+#define ROLE_TABLE			"role"
+#define ROLE_APPASERVER_USER_TABLE	"role_appaserver_user"
 
 typedef struct
 {

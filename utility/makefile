@@ -35,7 +35,6 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/environ.o					\
 		${LIBRARY}/prompt_recursive.o				\
-		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/decode_html_post.o				\

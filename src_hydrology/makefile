@@ -181,7 +181,6 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
-		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/appaserver_parameter_file.o			\

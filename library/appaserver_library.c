@@ -34,7 +34,6 @@
 #include "appaserver_error.h"
 #include "basename.h"
 #include "element.h"
-#include "process_parameter_list.h"
 
 static char *system_folder_list[] = {
 					"additional_user_drop_down_attribute",
