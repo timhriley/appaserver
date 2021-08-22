@@ -10,7 +10,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "dictionary.h"
-#include "folder.h"
 #include "attribute.h"
 
 /* Constants */
@@ -33,7 +32,8 @@
 					"post_change_javascript,"	\
 					"process_set_display,"		\
 					"process_group,"		\
-					"preprompt_help_text"
+					"preprompt_help_text,"		\
+					"javascript_filename"
 
 #define PROCESS_SET_SELECT		"process_set,"			\
 					"notepad,"			\
@@ -42,7 +42,8 @@
 					"prompt_display_text,"		\
 					"process_group,"		\
 					"preprompt_help_text,"		\
-					"prompt_display_bottom_yn"
+					"prompt_display_bottom_yn,"	\
+					"javascript_filename"
 
 #define PROCESS_PARAMETER_SELECT	"process,"			\
 					"folder,"			\
@@ -51,7 +52,7 @@
 					"prompt,"			\
 					"display_order,"		\
 					"drop_down_multi_select_yn,"	\
-					"preprompt_yn,"			\
+					"drilldown_yn,"			\
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 
@@ -62,7 +63,7 @@
 					"prompt,"			\
 					"display_order,"		\
 					"drop_down_multi_select_yn,"	\
-					"preprompt_yn,"			\
+					"drilldown_yn,"			\
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 

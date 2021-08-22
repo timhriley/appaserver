@@ -1525,7 +1525,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 	process_parameter->drop_down_multi_select = ( *buffer == 'y' );
 
 	piece( buffer, SQL_DELIMITER, input, 7 );
-	process_parameter->preprompt = ( *buffer == 'y' );
+	process_parameter->drilldown = ( *buffer == 'y' );
 
 	piece( buffer, SQL_DELIMITER, input, 8 );
 	process_parameter->populate_drop_down_process_name = strdup( buffer );
@@ -1654,6 +1654,9 @@ PROCESS *process_parse(	char *input,
 	piece( buffer, SQL_DELIMITER, input, 8 );
 	process->preprompt_help_text = strdup( buffer );
 
+	piece( buffer, SQL_DELIMITER, input, 9 );
+	process->javascript_filename = strdup( buffer );
+
 	return process;
 }
 
@@ -1747,6 +1750,9 @@ PROCESS_SET *process_set_parse(
 
 	piece( buffer, SQL_DELIMITER, input, 7 );
 	process_set->prompt_display_bottom = ( *buffer == 'y' );
+
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	process->javascript_filename = strdup( buffer );
 
 	process_set->process_set_role_process_name_list =
 		process_set_role_process_name_list(

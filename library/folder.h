@@ -30,7 +30,8 @@
 				"no_initial_capital_yn,"	\
 				"index_directory,"		\
 				"data_directory,"		\
-				"create_view_statement"
+				"create_view_statement,"	\
+				"javascript_filename"
 
 #define FOLDER_TABLE				"folder"
 #define FOLDER_ROW_LEVEL_RESTRICTION_TABLE	"folder_row_level_restrictions"
@@ -61,6 +62,7 @@ typedef struct
 	char *index_directory;
 	char *data_directory;
 	char *create_view_statement;
+	char *javascript_filename;
 
 	/* Process */
 	/* ------- */
@@ -199,33 +201,15 @@ LIST *folder_delimited_list(
 			LIST *attribute_name_list,
 			char *where_clause );
 
-LIST *folder_dictionary_list(
+boolean folder_non_owner_view_only(
+			char *row_level_restriction_string );
+
+boolean folder_non_owner_forbid(
+			char *row_level_restriction_string );
+
+LIST *folder_delimited_fetch(
 			char *table_name,
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_isa_list,
-			DICTIONARY *query_dictionary );
-
-FOLDER *folder_drop_down_delimited_fetch(
-			char *folder_name,
-			char *role_name,
-			char *login_name,
-			char *one2m_folder_name,
-			char *state,
-			char *populate_drop_down_process_name,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *working_post_dictionary );
-
-LIST *folder_process_delimited_list(
-			PROCESS *populate_drop_down_process,
-			SECURITY_ENTITY *security_entity,
-			char *one2m_folder_name,
-			char *state,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *working_post_dictionary );
-
-LIST *folder_drop_down_delimited_list(
-			LIST *primary_key_list,
-			SECURITY_ENTITY *security_entity,
-			DICTIONARY *preprompt_dictionary );
+			LIST *attribute_name_list,
+			char *where );
 
 #endif

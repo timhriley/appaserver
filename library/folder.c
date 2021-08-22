@@ -138,7 +138,7 @@ FOLDER *folder_parse(	char *input,
 	char index_directory[ 128 ];
 	char data_directory[ 128 ];
 	char create_view_statement[ 65536 ];
-	char appaserver_yn[ 128 ];
+	char javascript_filename[ 128 ];
 	FOLDER *folder;
 
 	if ( !input || !*input ) return (FOLDER *)0;
@@ -197,19 +197,15 @@ FOLDER *folder_parse(	char *input,
 	piece( create_view_statement, SQL_DELIMITER, input, 15 );
 	folder->create_view_statement = strdup( create_view_statement );
 
-	piece( appaserver_yn, SQL_DELIMITER, input, 16 );
-	folder->appaserver = ( *appaserver_yn == 'y' );
+	piece( javascript_filename, SQL_DELIMITER, input, 16 );
+	folder->javascript_filename = strdup( javascript_filename );
 
 	if ( fetch_folder_attribute_list )
 	{
-		folder->
-			exclude_attribute_name_list =
-				exclude_attribute_name_list;
-
 		folder->folder_attribute_list =
 			folder_attribute_list(
-				folder->sql_injection_escape_folder_name,
-				folder->exclude_attribute_name_list );
+				folder->folder_name,
+				exclude_attribute_name_list );
 
 		folder->primary_key_list =
 			folder_attribute_primary_key_list(
@@ -220,7 +216,7 @@ FOLDER *folder_parse(	char *input,
 	{
 		folder->relation_mto1_non_isa_list =
 			relation_mto1_non_isa_list(
-				folder->sql_injection_escape_folder_name );
+				folder->folder_name );
 	}
 
 	if ( fetch_relation_mto1_isa_list )
@@ -228,7 +224,7 @@ FOLDER *folder_parse(	char *input,
 		folder->relation_mto1_isa_list =
 			relation_mto1_isa_list(
 				(LIST *)0 /* mto1_isa_list */,
-				folder->sql_injection_escape_folder_name );
+				folder->folder_name );
 
 		if ( list_length( folder->folder_attribute_list ) )
 		{
@@ -245,7 +241,7 @@ FOLDER *folder_parse(	char *input,
 	{
 		folder->relation_one2m_list =
 			relation_one2m_list(
-				folder->sql_injection_escape_folder_name );
+				folder->folder_name );
 
 	}
 
@@ -254,7 +250,7 @@ FOLDER *folder_parse(	char *input,
 		folder->relation_one2m_recursive_list =
 			relation_one2m_recursive_list(
 				(LIST *)0 /* one2m_recursive_list */,
-				folder->sql_injection_escape_folder_name );
+				folder->folder_name );
 	}
 
 	if ( fetch_process )
@@ -276,20 +272,20 @@ FOLDER *folder_parse(	char *input,
 
 	if ( fetch_role_folder_list && sql_injection_escape_role_name )
 	{
-		folder->sql_injection_escape_role_name =
+		folder->role_name =
 			sql_injection_escape_role_name;
 
 		folder->role_folder_list =
-			role_folder_list(
-				folder->sql_injection_escape_role_name,
-				folder->sql_injection_escape_folder_name );
+			role_folder_fetch_list(
+				folder->role_name,
+				folder->folder_name );
 	}
 
 	if ( fetch_row_level_restriction )
 	{
 		folder->row_level_restriction_string =
 			folder_row_level_restriction_string(
-				folder->sql_injection_escape_folder_name );
+				folder->folder_name );
 
 		folder->non_owner_view_only =
 			folder_non_owner_view_only(
@@ -413,25 +409,6 @@ char *folder_row_level_restriction_string( char *folder_name )
 	return string_fetch_pipe( system_string );
 }
 
-LIST *folder_query_primary_delimited_list(
-			char *table_name,
-			LIST *folder_attribute_list,
-			LIST *primary_key_list,
-			DICTIONARY *preprompt_dictionary.
-			char *login_name )
-{
-	QUERY *query;
-}
-
-LIST *folder_query_delimited_list(
-			char *table_name,
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_isa_list,
-			DICTIONARY *query_dictionary )
-{
-	return (LIST *)0;
-}
-
 LIST *folder_delimited_fetch(
 			char *table_name,
 			LIST *attribute_name_list,
@@ -468,15 +445,6 @@ LIST *folder_delimited_list(
 	return list_pipe_fetch( system_string );
 }
 
-LIST *folder_dictionary_list(
-			char *table_name,
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_isa_list,
-			DICTIONARY *query_dictionary )
-{
-	return (LIST *)0;
-}
-
 char *folder_delimited(
 			char *table_name,
 			LIST *primary_key_list,
@@ -495,6 +463,7 @@ char *folder_delimited(
 	return string_pipe_fetch( system_string );
 }
 
+#ifdef NOT_DEFINED
 FOLDER *folder_drop_down_delimited_fetch(
 			char *folder_name,
 			char *role_name,
@@ -585,66 +554,21 @@ FOLDER *folder_drop_down_delimited_fetch(
 			preprompt_dictionary );
 	}
 }
+#endif
 
-LIST *folder_process_delimited_list(
-			PROCESS *populate_drop_down_process,
-			SECURITY_ENTITY *security_entity,
-			char *one2m_folder_name,
-			char *state,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *working_post_dictionary )
+boolean folder_non_owner_view_only(
+			char *row_level_restriction_string )
 {
-	LIST *return_list;
+	return (string_strcmp(
+			row_level_restriction_string,
+			"row_level_non_owner_view_only" ) == 0 );
+}
 
-	if ( !populate_drop_down_process )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: populate_drop_down_process is empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+boolean folder_non_owner_forbid(
+			char *row_level_restriction_string )
+{
+	return (string_strcmp(
+			row_level_restriction_string,
+			"row_level_non_owner_forbid" ) == 0 );
+}
 
-	process_convert_parameters(
-			&populate_drop_down_process->executable,
-			application_name,
-			session,
-			state,
-			login_name,
-			folder_name,
-			role_name,
-			(char *)0 /* target_frame */,
-			parameter_dictionary,
-			where_clause_dictionary,
-			attribute_list,
-			(LIST *)0 /* prompt_list */,
-			(LIST *)0 /* primary_attribute_name_list */,
-			(LIST *)0 /* primary_data_list */,
-			0 /* row */,
-			parameter_process_name,
-			(PROCESS_SET *)0 /* process_set */,
-			one2m_folder_name_for_processes,
-			(char *)0 /* operation_row_count_string */,
-			prompt );
-
-/*
-fprintf( stderr, "%s/%s()/%d: executable = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-populate_drop_down_process->executable );
-*/
-
-	return_list = process2list( populate_drop_down_process->executable );
-
-	if ( piece_multi_attribute_data_label_delimiter )
-	{
-		return_list =
-			list_usage_piece_list(
-				return_list,
-				piece_multi_attribute_data_label_delimiter,
-				0 /* offset */ );
-	}
-
-	return return_list;
