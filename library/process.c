@@ -28,11 +28,6 @@
 #include "folder.h"
 #include "process.h"
 
-LIST *process_delimited_list( char *command_line )
-{
-	return list_pipe_fetch( command_line );
-}
-
 #ifdef NOT_DEFINED
 void process_convert_parameters(
 			char **executable,
@@ -1213,9 +1208,9 @@ char *prompt_system_string( char *where )
 
 PROMPT *prompt_new( char *prompt_name )
 {
-	PROMPT *p = calloc( 1, sizeof( PROMPT ) );
+	PROMPT *prompt = calloc( 1, sizeof( PROMPT ) );
 
-	if ( !p )
+	if ( !prompt )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
@@ -1226,8 +1221,8 @@ PROMPT *prompt_new( char *prompt_name )
 		exit( 1 );
 	}
 
-	p->prompt_name = prompt_name;
-	return p;
+	prompt->prompt_name = prompt_name;
+	return prompt;
 }
 
 PROMPT *prompt_parse( char *input )
@@ -1590,7 +1585,8 @@ char *process_primary_where( char *process_name )
 }
 
 PROCESS *process_parse(	char *input,
-			char *role_name,
+			char *document_root_directory,
+			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem )
 {
 	PROCESS *process;
@@ -1604,8 +1600,6 @@ PROCESS *process_parse(	char *input,
 	piece( process_name, SQL_DELIMITER, input, 0 );
 	process = process_new( strdup( process_name ) );
 
-	process->role_name = role_name;
-
 	process->
 		check_executable_inside_filesystem =
 			check_executable_inside_filesystem;
@@ -1618,12 +1612,12 @@ PROCESS *process_parse(	char *input,
 	{
 		char msg[ 1024 ];
 
-		sprintf( msg,
-"ERROR in %s/%s()/%d: EXECUTABLE NOT OK for [%s]\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 process->command_line );
+		sprintf(msg,
+			"ERROR in %s/%s()/%d: EXECUTABLE NOT OK for [%s]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			process->command_line );
 
 		appaserver_output_error_message(
 			environment_application_name(),
@@ -1657,12 +1651,32 @@ PROCESS *process_parse(	char *input,
 	piece( buffer, SQL_DELIMITER, input, 9 );
 	process->javascript_filename = strdup( buffer );
 
+	if ( *process->javascript_filename )
+	{
+		process->process_javascript =
+			process_javascript_new(
+				process->javascript_filename,
+				document_root_directory,
+				application_relative_source_directory );
+
+		if ( !process->process_javascript )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: process_javascript_new(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				process->javascript_filename );
+			exit( 1 );
+		}
+	}
+
 	return process;
 }
 
-PROCESS *process_fetch(
-			char *process_name,
-			char *role_name,
+PROCESS *process_fetch(	char *process_name,
+			char *document_root_directory,
+			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem )
 {
 	return
@@ -1671,7 +1685,8 @@ PROCESS *process_fetch(
 			process_system_string(
 				process_primary_where(
 					process_name ) ) ),
-		role_name,
+		document_root_directory,
+		application_relative_source_directory,
 		check_executable_inside_filesystem );
 }
 
@@ -1697,8 +1712,9 @@ PROCESS *process_new( char *process_name )
 PROCESS_SET *process_set_fetch(
 			char *process_set_name,
 			char *role_name,
-			boolean fetch_member_process_name_list,
-			boolean fetch_javascript_list )
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			boolean fetch_process_set_member_name_list )
 {
 	return
 	process_set_parse(
@@ -1707,13 +1723,17 @@ PROCESS_SET *process_set_fetch(
 				process_set_primary_where(
 					process_set_name ) ) ),
 		role_name,
-		check_executable_inside_filesystem );
+		document_root_directory,
+		application_relative_source_directory,
+		fetch_process_set_member_name_list );
 }
 
 PROCESS_SET *process_set_parse(
 			char *input,
 			char *role_name,
-			boolean check_executable_inside_filesystem )
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			boolean fetch_process_set_member_name_list )
 {
 	PROCESS_SET *process_set;
 	char process_set_name[ 128 ];
@@ -1725,10 +1745,6 @@ PROCESS_SET *process_set_parse(
 	process_set = process_set_new( strdup( process_set_name ) );
 
 	process_set->role_name = role_name;
-
-	process_set->
-		check_executable_inside_filesystem =
-			check_executable_inside_filesystem;
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	process_set->notepad = strdup( buffer );
@@ -1752,33 +1768,38 @@ PROCESS_SET *process_set_parse(
 	process_set->prompt_display_bottom = ( *buffer == 'y' );
 
 	piece( buffer, SQL_DELIMITER, input, 8 );
-	process->javascript_filename = strdup( buffer );
+	process_set->javascript_filename = strdup( buffer );
 
-	process_set->process_set_role_process_name_list =
-		process_set_role_process_name_list(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			process_set_primary_where(
-				process_set_name ),
-			role_name );
-
-	if ( list_length( 
-		process_set->
-			process_set_role_process_name_list  ) )
+	if ( *process_set->javascript_filename )
 	{
-		process_set->process_set_process_where =
-			process_set_process_where(
-				process_set->
-					process_set_role_process_name_list  );
+		process_set->process_javascript =
+			process_javascript_new(
+				process_set->javascript_filename,
+				document_root_directory,
+				application_relative_source_directory );
 
-		process_set->process_list =
-			process_system_list(
-				process_system_string(
-					process_set->
-						process_set_process_where ),
-				process_set->
-					check_executable_inside_filesystem );
+		if ( !process_set->process_javascript )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: process_javascript_new(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				process_set->javascript_filename );
+			exit( 1 );
+		}
+	}
+
+	if ( fetch_process_set_member_name_list )
+	{
+		process_set->process_set_member_name_list =
+			process_set_member_name_list(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				process_set_primary_where(
+					process_set_name ),
+				role_name );
 	}
 
 	return process_set;
@@ -1878,57 +1899,6 @@ char *process_set_process_where(
 	}
 
 	return strdup( where );
-}
-
-LIST *process_parameter_primary_delimited_list(
-			DICTIONARY *drilldown_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *populate_drop_down_process_name )
-{
-	if ( *process_parameter->populate_drop_down_process_name )
-	{
-		PROCESS *process =
-			process_fetch(
-				populate_drop_down_process_name,
-				1 /* check_executable... */ );
-
-		if ( !process )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: process_fetch(%s) returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				populate_drop_down_process_name );
-			exit( 1 );
-		}
-
-		return
-			process_parameter_evaluate_list(
-				process->command_line,
-				drilldown_dictionary,
-				login_name,
-				role_name,
-				folder_name );
-	}
-	else
-	{
-		LIST *list =
-			folder_attribute_list(
-				folder_name,
-				(LIST *)0 /* exclude_attribute_name_list */ );
-
-		return
-		folder_query_primary_delimited_list(
-			folder_table_name(
-				environment_application_name(),
-				folder_name ),
-			list /* folder_attribute_list */,
-			folder_attribute_primary_name_list( list ),
-			login_name );
-	}
 }
 
 char *process_prompt_submit_command_line(
@@ -2276,68 +2246,162 @@ void process_search_replace_where(
 			query->where_clause ) );
 }
 
-PROCESS_STRUCTURE *process_structure_fetch(
-			char *process_or_process_set_name,
+PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
+			char *process_or_set_name,
 			char *role_name,
-			char *login_namem,
-			boolean check_executable_inside_filesystem,
+			char *login_name,
 			boolean is_preprompt,
+			char *document_root_directory,
+			char *application_relative_source_directory,
 			DICTIONARY *drilldown_dictionary )
 {
-	PROCESS_STRUCTURE *p = process_structure_calloc();
+	PROCESS_PROMPT_OUTPUT *process_prompt_output;
+	char *process_name;
+	char *process_set_name = {0};
 
-	p->process_or_process_set_name = process_or_process_set_name;
-	p->role_name = role_name;
-	p->login_name = login_name;
-
-	p->check_executable_inside_filesystem =
-		check_executable_inside_filesystem;
-
-	p->is_preprompt = is_preprompt;
-	p->drilldown_dictionary = drilldown_dictionary;
-
-	if ( ( p->process_set =
-			process_set_fetch(
-				p->process_or_process_set_name,
-				p->role_name,
-				p->check_executable_inside_filesystem ) ) )
+	if ( ! ( process_name =
+			process_name_fetch(
+				process_or_set_name ) ) )
 	{
-		p->process_parameter_list =
+		if ( ! ( process_set_name =
+				process_set_name_fetch(
+					process_or_set_name ) ) )
+		{
+			return (PROCESS_PROMPT_OUTPUT *)0;
+		}
+	}
+
+	process_prompt_output = rocess_prompt_output_calloc();
+
+	process_prompt_output->process_or_set_name = process_or_set_name;
+	process_prompt_output->role_name = role_name;
+	process_prompt_output->login_name = login_name;
+	process_prompt_output->is_preprompt = is_preprompt;
+	process_prompt_output->drilldown_dictionary = drilldown_dictionary;
+
+	if ( process_name )
+	{
+		process_prompt_output->process =
+			process_fetch(
+				process_name
+				document_root_directory,
+				application_relative_source_directory,
+				0 /* not check_executable_inside */ );
+
+		if ( !process_prompt_output->process )
+		{
+			return (PROCESS_PROMPT_OUTPUT *)0;
+		}
+
+		process_prompt_output->process_parameter_list =
+			process_parameter_system_list(
+				process_parameter_system_string(
+					process_parameter_where(
+						process_primary_where(
+							process_name ),
+						is_preprompt ) ) );
+	}
+	else
+	{
+
+		process_prompt_output->process_set =
+			process_set_fetch(
+				process_prompt_output->process_or_process_set_name,
+				process_prompt_output->role_name,
+				1 /* fetch_member_process_name_list */ ) ) )
+	{
+		process_prompt_output->process_parameter_list =
 			process_set_parameter_system_list(
 				process_set_parameter_system_string(
 					process_set_primary_where(
-						p->
+						process_prompt_output->
 							process_set->
 							process_set_name ) ) );
 	}
 	else
-	if ( ( p->process =
-			process_fetch(
-				p->process_or_process_set_name,
-				p->role_name,
-				p->check_executable_inside_filesystem ) ) )
-	{
-		p->process_parameter_list =
-			process_parameter_system_list(
-				process_parameter_system_string(
-					process_primary_where(
-						p->process->process_name ) ) );
+	if ( ( process_prompt_output->process =
 	}
 
-	if ( !p->process_set && !p->process )
+	if ( !process_prompt_output->process_set && !process_prompt_output->process )
 	{
-		return (PROCESS_STRUCTURE *)0;
+		return (PROCESS_PROMPT_OUTPUT *)0;
 	}
-	return p;
+	return process_prompt_output;
 }
 
 char *process_choose_isa_command_line(
 			char *command_line,
+			char *application_name,
 			char *security_entity_where,
 			char *login_name,
-			char *role_name )
+			char *role_name,
+			char *one2m_isa_folder_name )
 {
-return (char *)0;
+	char local_command_line[ STRING_WHERE_BUFFER ];
+	char buffer[ 1024 ];
+
+	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
+
+	if ( login_name && *login_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$login_name",
+			double_quotes_around(
+				buffer, 
+				login_name ) );
+	}
+
+	if ( role_name && *role_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$role",
+			double_quotes_around(
+				buffer, 
+				role_name ) );
+	}
+
+	if ( security_entity_where
+	&&   *security_entity_where )
+	{
+		search_replace_word(
+			local_command_line, 
+			"$where", 
+			double_quotes_around( 	
+				buffer,
+				security_entity_where ) );
+	}
+
+	if ( one2m_isa_folder_name
+	&&   *one2m_isa_folder_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$one2m_folder_name",
+			buffer );
+
+		search_replace_word(
+			local_command_line,
+			"$one2m_folder",
+			buffer );
+	}
+
+	sprintf(local_command_line + strlen( local_command_line ),
+		" 2>>%s",
+		appaserver_error_filename(
+			application_name ) );
+
+	/* This memory is always heap */
+	/* -------------------------- */
+	free( command_line );
+
+	return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			local_command_line ) );
 }
 
 PROCESS_PARAMETER *process_parameter_new(
@@ -2367,5 +2431,144 @@ PROCESS_PARAMETER *process_parameter_new(
 	process_parameter->prompt_name = prompt_name;
 
 	return process_parameter;
+}
+
+LIST *process_set_member_name_list(
+			char *process_set_primary_where,
+			char *role_name )
+{
+	char where[ 256 ];
+	char system_string[ 1024 ];
+
+	if ( !process_set_primary_where || !*process_set_primary_where )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: process_set_primary_where is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !role_name || !*role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s and role = '%s'",
+		process_set_primary_where,
+		role_name );
+
+	sprintf(system_string,
+		"select.sh process %s \"%s\" process",
+		"role_process_set_member",
+		where );
+
+	return list_fetch_pipe( system_string );
+}
+
+PROCESS_JAVASCRIPT *process_javascript_calloc( void )
+{
+	PROCESS_JAVASCRIPT *process_javascript;
+
+	if ( ! ( process_javascript =
+			calloc( 1, sizeof( PROCESS_JAVASCRIPT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_javascript;
+}
+
+PROCESS_JAVASCRIPT *process_javascript_new(
+			char *javascript_filename,
+			char *document_root_directory,
+			char *application_relative_source_directory )
+{
+	PROCESS_JAVASCRIPT *process_javascript;
+	char javascript_home_source[ 256 ];
+	char javascript_relative_source[ 256 ];
+	char javascript_html[ 256 ];
+	char relative_source_directory[ 128 ];
+	int index;
+
+	if ( !javascript_filename
+	||   !document_root_directory
+	||   !appaserver_mount_point
+	||   !application_relative_source_directory )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: a parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(javascript_home_source,
+		"%s/appaserver/javascript/%s",
+		document_root_directory,
+		javascript_filename );
+
+	if ( timlib_file_exists( javascript_home_source ) )
+	{
+		process_javascript = process_javascript_calloc();
+
+		process_javascript->javascript_source =
+			strdup( javascript_home_source );
+
+		sprintf(javascript_html,
+			"/appaserver/javascript/%s",
+			javascript_filename );
+
+		process_javascript->javascript_html =
+			strdup( javascript_html );
+
+		return process_javascript;
+	}
+
+	for(	index = 0;
+		piece(	relative_source_directory,
+			PATH_DELIMITER,
+			application_relative_source_directory,
+			index );
+		index++ )
+	{
+		sprintf(javascript_relative_source,
+			"%s/appaserver/%s/%s",
+			document_root_directory,
+			relative_source_directory,
+			javascript_filename );
+
+		if ( timlib_file_exists( javascript_relative_source ) )
+		{
+			process_javascript = process_javascript_calloc();
+
+			process_javascript->javascript_source =
+				strdup( javascript_relative_source );
+
+			sprintf(javascript_html,
+				"/appaserver/%s/%s",
+				relative_source_directory,
+				javascript_filename );
+
+			process_javascript->javascript_html =
+				strdup( javascript_html );
+
+			return process_javascript;
+		}
+	}
+	return (PROCESS_JAVASCRIPT *)0;
 }
 

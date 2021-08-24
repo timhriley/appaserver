@@ -69,6 +69,12 @@
 
 typedef struct
 {
+	char *process_full_javascript_html;
+	char *process_full_javascript_source;
+} PROCESS_JAVASCRIPT;
+
+typedef struct
+{
 	/* Input */
 	/* ----- */
 	char *drop_down_prompt_name;
@@ -113,12 +119,12 @@ typedef struct
 	char *process_group;
 	char *preprompt_help_text;
 	boolean prompt_display_bottom;
+	char *javascript_filename;
 
 	/* Process */
 	/* ------- */
-	LIST *process_set_role_process_name_list;
-	char *process_set_process_where;
-	LIST *process_list;
+	LIST *process_set_member_name_list;
+	PROCESS_JAVASCRIPT *process_javascript;
 } PROCESS_SET;
 
 typedef struct
@@ -136,6 +142,11 @@ typedef struct
 	char *process_set_display;
 	char *process_group;
 	char *preprompt_help_text;
+	char *javascript_filename;
+
+	/* Process */
+	/* ------- */
+	PROCESS_JAVASCRIPT *process_javascript;
 } PROCESS;
 
 typedef struct
@@ -154,7 +165,7 @@ typedef struct
 	/* ------- */
 	int display_order;
 	boolean drop_down_multi_select;
-	boolean preprompt;
+	boolean drilldown;
 	char *populate_drop_down_process_name;
 	char *populate_helper_process_name;
 	LIST *primary_delimited_list;
@@ -174,10 +185,12 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *process_name;
+	char *process_set_name;
 	PROCESS *process;
 	PROCESS_SET *process_set;
 	LIST *process_parameter_list;
-} PROCESS_PROMPT_DISPLAY;
+} PROCESS_PROMPT_OUTPUT;
 
 typedef struct
 {
@@ -202,13 +215,15 @@ PROCESS_PARAMETER *process_parameter_new(
 			char *drop_down_prompt_name,
 			char *prompt_name );
 
-/* PROCESS_PROMPT_DISPLAY operations */
-/* --------------------------------- */
-PROCESS_PROMPT_DISPLAY *process_prompt_display_fetch(
+/* PROCESS_PROMPT_OUTPUT operations */
+/* -------------------------------- */
+PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
 			char *process_or_set_name,
 			char *role_name,
 			char *login_name,
 			boolean is_preprompt,
+			char *document_root_directory,
+			char *application_relative_source_directory,
 			DICTIONARY *drilldown_dictionary );
 
 /* PROCESS_PROMPT_SUBMIT operations */
@@ -224,7 +239,9 @@ PROCESS_PROMPT_SUBMIT *process_prompt_submit_fetch(
 PROCESS_SET *process_set_fetch(
 			char *process_set_name,
 			char *role_name,
-			boolean check_executable_inside_filesystem );
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			boolean fetch_process_set_member_name_list );
 
 /* Returns static memory */
 /* --------------------- */
@@ -237,22 +254,23 @@ char *process_set_system_string(
 PROCESS_SET *process_set_parse(
 			char *input,
 			char *role_name,
-			boolean fetch_member_process_name_list,
-			boolean fetch_javascript_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_set_process_where(
-			LIST *process_name_list );
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			boolean fetch_member_process_name_list );
 
 PROCESS_SET *process_set_new(
 			char *process_set_name );
+
+LIST *process_set_member_name_list(
+			char *process_set_primary_where,
+			char *role_name );
 
 /* PROCESS operations */
 /* ------------------ */
 PROCESS *process_fetch(
 			char *process_name,
-			char *role_name,
+			char *document_root_directory,
+			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem );
 
 PROCESS *process_new(
@@ -269,7 +287,8 @@ char *process_system_string(
 			char *where );
 
 PROCESS *process_parse(	char *input,
-			char *role_name,
+			char *document_root_directory,
+			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem );
 
 char *process_populate_drop_down_command_line(
@@ -279,9 +298,6 @@ char *process_populate_drop_down_command_line(
 			char *state,
 			char *login_name,
 			char *role_name );
-
-LIST *process_delimited_list(
-			char *command_line );
 
 /* PROMPT operations */
 /* ----------------- */
@@ -367,8 +383,18 @@ LIST *process_parameter_primary_delimited_list(
 			char *folder_name,
 			char *populate_drop_down_process_name );
 
-/* GENERIC operations */
-/* ------------------ */
+/* PROCESS_JAVASCRIPT operations */
+/* ----------------------------- */
+PROCESS_JAVASCRIPT *process_javascript_new(
+			char *javascript_filename,
+			char *document_root_directory,
+			char *application_relative_source_directory );
+
+PROCESS_JAVASCRIPT *process_javascript_calloc(
+			void );
+
+/* PROCESS generic operations */
+/* -------------------------- */
 
 void process_execution_count_increment(
 			char *process_name );
@@ -412,11 +438,16 @@ boolean process_interpreted_executable_ok(
 
 /* PROCESS command_line */
 /* -------------------- */
+
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_choose_isa_command_line(
 			char *command_line,
+			char *application_name,
 			char *security_entity_where,
 			char *login_name,
-			char *role_name );
+			char *role_name,
+			char *one2m_isa_folder_name );
 
 void process_operation_convert(
 			char **executable,

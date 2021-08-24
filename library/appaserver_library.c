@@ -21,7 +21,7 @@
 #include "application.h"
 #include "attribute.h"
 #include "appaserver_library.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "element.h"
 #include "appaserver.h"
 #include "document.h"
@@ -54,10 +54,6 @@ static char *system_folder_list[] = {
 					"foreign_attribute",
 					"form",
 					"grace_output",
-					"javascript_files",
-					"javascript_folders",
-					"javascript_processes",
-					"javascript_process_sets",
 					"login_default_role",
 					"operation",
 					"permissions",
@@ -153,11 +149,10 @@ char *get_multi_table_name(
 		if ( i ) ptr += sprintf( ptr, "," );
 		table_name = get_table_name( application_name, folder_name );
 		ptr += sprintf( ptr, "%s", table_name );
-		free( table_name );
+		/* free( table_name ); */
 	}
 
 	return strdup( multi_table_name );
-
 }
 
 #ifdef NOT_DEFINED
@@ -694,6 +689,7 @@ LIST *appaserver_library_folder_name_list(
 	return pipe2list( sys_string );
 }
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_update_attribute_element_list(
 			int *objects_outputted,
 			ATTRIBUTE *attribute,
@@ -744,7 +740,9 @@ LIST *appaserver_library_update_attribute_element_list(
 
 	return return_list;
 }
+#endif
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_insert_attribute_element_list(
 			int *objects_outputted,
 			LIST *attribute_list,
@@ -821,7 +819,9 @@ LIST *appaserver_library_insert_attribute_element_list(
 
 	return return_list;
 }
+#endif
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_with_attribute_insert_attribute_element_list(
 			char *attribute_name,
 			char *datatype,
@@ -1005,6 +1005,7 @@ LIST *appaserver_library_with_attribute_insert_attribute_element_list(
 	return return_list;
 
 }
+#endif
 
 boolean appaserver_library_validate_begin_end_date(
 			char **begin_date,
@@ -1126,6 +1127,7 @@ boolean appaserver_library_validate_begin_end_date(
 
 }
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_primary_data_list(
 			DICTIONARY *post_dictionary,
 			LIST *attribute_list )
@@ -1163,6 +1165,7 @@ LIST *appaserver_library_primary_data_list(
 	} while( list_next( primary_key_list ) );
 	return primary_data_list;
 }
+#endif
 
 char *appaserver_library_server_address( void )
 {
@@ -1284,6 +1287,7 @@ boolean appaserver_library_from_preprompt( DICTIONARY *dictionary )
 	return ( strcmp( data, "yes" ) == 0 );
 }
 
+/*
 LIST *appaserver_library_omit_insert_prompt_attribute_name_list(
 						LIST *attribute_list )
 {
@@ -1310,7 +1314,9 @@ LIST *appaserver_library_omit_insert_prompt_attribute_name_list(
 	}
 	return omit_insert_prompt_attribute_name_list;
 }
+*/
 
+/*
 LIST *appaserver_library_omit_insert_attribute_name_list(
 						LIST *attribute_list )
 {
@@ -1334,7 +1340,9 @@ LIST *appaserver_library_omit_insert_attribute_name_list(
 	}
 	return omit_insert_attribute_name_list;
 }
+*/
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_prompt_data_element_list(
 				char *attribute_name,
 				boolean is_primary_attribute )
@@ -1377,10 +1385,11 @@ LIST *appaserver_library_prompt_data_element_list(
 			element );
 	return element_list;
 }
+#endif
 
 void appaserver_library_output_style_sheet(
-					FILE *output_file, 
-					char *application_name )
+			FILE *output_file, 
+			char *application_name )
 {
 	char buffer[ 1024 ];
 	FILE *input_file;
@@ -1413,7 +1422,8 @@ void appaserver_library_output_style_sheet(
 		 "</style>\n" );
 }
 
-LIST *appaserver_library_trim_carrot_number( LIST *data_list )
+LIST *appaserver_library_trim_carrot_number(
+			LIST *data_list )
 {
 	char *data;
 	char *ptr;
@@ -1439,6 +1449,7 @@ LIST *appaserver_library_trim_carrot_number( LIST *data_list )
 	return data_list;
 }
 
+#ifdef NOT_DEFINEDA
 char *appaserver_library_verify_attribute_widths_submit_control_string(
 			LIST *element_list,
 			char *source_form )
@@ -1554,10 +1565,12 @@ char *appaserver_library_verify_attribute_widths_submit_control_string(
 
 	return submit_control_string;
 }
+#endif
 
+#ifdef NOT_DEFINED
 void appaserver_library_dictionary_database_convert_begin_end_dates(
-				DICTIONARY *dictionary,
-				char *application_name )
+			DICTIONARY *dictionary,
+			char *application_name )
 {
 	char *date_string;
 	char *key;
@@ -1629,6 +1642,7 @@ void appaserver_library_dictionary_database_convert_begin_end_dates(
 			key );
 	}
 }
+#endif
 
 void appaserver_library_output_calendar_javascript( void )
 {
@@ -1698,129 +1712,6 @@ char *appaserver_library_prelookup_button_control_string(
 		 state );
 
 	return control_string;
-}
-
-void appaserver_library_populate_last_foreign_attribute_key(
-			DICTIONARY *post_dictionary,
-			LIST *mto1_related_folder_list,
-			LIST *primary_key_list )
-{
-	RELATED_FOLDER *related_folder;
-	char *last_primary_key;
-	char *last_foreign_attribute_name;
-	char *data;
-	char key[ 128 ];
-
-	if ( !post_dictionary ) return;
-
-	if ( !list_rewind( mto1_related_folder_list ) ) return;
-
-	do {
-		related_folder = list_get_pointer( mto1_related_folder_list );
-
-		/* Populate the dictionary with the last related primary key. */
-		/* ---------------------------------------------------------- */
-		last_foreign_attribute_name =
-			list_get_last_pointer(
-				related_folder->
-					folder->
-					primary_key_list );
-
-		sprintf( key, "%s_0", last_foreign_attribute_name );
-
-		if ( ( data =
-			dictionary_get_pointer(
-				post_dictionary, key ) ) )
-		{
-			last_primary_key =
-				list_get_last_pointer(
-					primary_key_list );
-
-			sprintf( key, "%s_0", last_primary_key );
-
-			dictionary_set_pointer(
-				post_dictionary,
-				strdup( key ),
-				data );
-		}
-
-
-		sprintf(	key,
-				"%s%s_0",
-				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				last_foreign_attribute_name );
-
-		if ( ( data =
-			dictionary_get_pointer(
-				post_dictionary, key ) ) )
-		{
-			last_primary_key =
-				list_get_last_pointer(
-					primary_key_list );
-			sprintf(key,
-				"%s%s_0",
-				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				last_primary_key );
-
-			dictionary_set_pointer(
-				post_dictionary,
-				strdup( key ),
-				data );
-		}
-
-		/* Populate the dictionary with the last */
-		/* parameter primary key.		 */
-		/* ------------------------------------- */
-		last_foreign_attribute_name =
-			list_get_last_pointer(
-					primary_key_list );
-
-		sprintf( key, "%s_0", last_foreign_attribute_name );
-
-		if ( ( data =
-			dictionary_get_pointer(
-				post_dictionary, key ) ) )
-		{
-			last_primary_key =
-				list_get_last_pointer(
-					related_folder->
-						folder->
-						primary_key_list );
-
-			sprintf( key, "%s_0", last_primary_key );
-
-			dictionary_set_pointer(
-				post_dictionary,
-				strdup( key ),
-				data );
-		}
-
-		sprintf(	key,
-				"%s%s_0",
-				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				last_foreign_attribute_name );
-
-		if ( ( data =
-			dictionary_get_pointer(
-				post_dictionary, key ) ) )
-		{
-			last_primary_key =
-				list_get_last_pointer(
-					related_folder->
-						folder->
-						primary_key_list );
-			sprintf(key,
-				"%s%s_0",
-				QUERY_RELATION_OPERATOR_STARTING_LABEL,
-				last_primary_key );
-
-			dictionary_set_pointer(
-				post_dictionary,
-				strdup( key ),
-				data );
-		}
-
-	} while( list_next( mto1_related_folder_list ) );
 }
 
 boolean appaserver_library_from_php( DICTIONARY *post_dictionary )
@@ -2022,57 +1913,6 @@ void appaserver_library_purge_temporary_files( char *application_name )
 	if ( system( sys_string ) ){};
 }
 
-void appaserver_library_automatically_set_login_name(
-				DICTIONARY *query_dictionary,
-				char *login_name,
-				LIST *mto1_related_folder_list,
-				LIST *attribute_list,
-				LIST *role_attribute_exclude_list )
-{
-	char *appaserver_user_foreign_login_name;
-	boolean set_login_name = 0;
-
-	if ( ( appaserver_user_foreign_login_name =
-		related_folder_get_appaserver_user_foreign_login_name(
-			mto1_related_folder_list ) ) )
-	{
-		if ( role_exists_attribute_exclude_insert(
-					role_attribute_exclude_list,
-					appaserver_user_foreign_login_name ) )
-		{
-			set_login_name = 1;
-		}
-
-		if ( !set_login_name )
-		{
-			ATTRIBUTE *attribute;
-
-			attribute =
-				attribute_seek_attribute(
-					appaserver_user_foreign_login_name,
-					attribute_list );
-
-			if ( attribute )
-			{
-				if ( attribute->omit_insert )
-					set_login_name = 1;
-				else
-				if ( attribute->omit_insert_prompt )
-					set_login_name = 1;
-			}
-		}
-
-		if ( set_login_name )
-		{
-			dictionary_set_pointer(
-				query_dictionary,
-				appaserver_user_foreign_login_name,
-				login_name );
-		}
-	}
-
-}
-
 char *appaserver_library_change_state_display(
 			enum preupdate_change_state preupdate_change_state )
 {
@@ -2177,6 +2017,7 @@ enum preupdate_change_state appaserver_library_preupdate_change_state(
 
 }
 
+/*
 char *appaserver_library_sort_attribute_name( LIST *attribute_list )
 {
 	if ( attribute_list_exists(
@@ -2202,7 +2043,9 @@ char *appaserver_library_sort_attribute_name( LIST *attribute_list )
 
 	return (char *)0;
 }
+*/
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_update_lookup_attribute_element_list(
 			char update_yn,
 			LIST *primary_key_list,
@@ -2612,7 +2455,9 @@ LIST *appaserver_library_update_lookup_attribute_element_list(
 
 	return return_list;
 }
+#endif
 
+#ifdef NOT_DEFINED
 char *appaserver_library_folder_foreign_translation(
 			char *attribute_name,
 			LIST *folder_foreign_attribute_name_list,
@@ -2647,6 +2492,7 @@ char *appaserver_library_folder_foreign_translation(
 	return (char *)0;
 
 }
+#endif
 
 LIST *appaserver_library_application_name_list(
 				char *appaserver_error_directory )
@@ -2672,13 +2518,13 @@ LIST *appaserver_library_application_name_list(
 		 "cat					 " );
 
 	return pipe2list( sys_string );;
-
 }
 
+#ifdef NOT_DEFINED
 void appaserver_library_list_database_convert_dates(
-					LIST *data_list,
-					char *application_name,
-					LIST *attribute_list )
+			LIST *data_list,
+			char *application_name,
+			LIST *attribute_list )
 {
 	LIST *date_attribute_name_list;
 	LIST *primary_key_list;
@@ -2739,7 +2585,9 @@ void appaserver_library_list_database_convert_dates(
 	} while( list_next( primary_key_list ) );
 	if ( date_convert ) date_convert_free( date_convert );
 }
+#endif
 
+#ifdef NOT_DEFINED
 void appaserver_library_dictionary_convert_dates(
 			DICTIONARY *dictionary,
 			char *application_name )
@@ -2783,4 +2631,5 @@ void appaserver_library_dictionary_convert_dates(
 
 	list_free_container( key_list );
 }
+#endif
 

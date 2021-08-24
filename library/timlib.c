@@ -3051,7 +3051,7 @@ boolean timlib_file_exists( char *filename )
 }
 
 double timlib_latitude_longitude_degrees_minutes_to_decimal(
-					char *latitude_longitude )
+			char *latitude_longitude )
 {
 	char degrees[ 16 ];
 	char decimal[ 16 ];
@@ -3074,7 +3074,7 @@ double timlib_latitude_longitude_degrees_minutes_to_decimal(
 }
 
 char *timlib_latitude_longitude_degrees_decimal_to_minutes(
-					char *latitude_longitude_decimal )
+			char *latitude_longitude_decimal )
 {
 	static char degrees_minutes[ 32 ];
 	char degrees[ 16 ];
@@ -3102,9 +3102,9 @@ char *timlib_latitude_longitude_degrees_decimal_to_minutes(
 }
 
 void **timlib_allocate_pointer_array(
-				int array_pointer_size,
-				int item_pointer_size,
-				int array_length )
+			int array_pointer_size,
+			int item_pointer_size,
+			int array_length )
 {
 	void **pointer_array;
 	int x;

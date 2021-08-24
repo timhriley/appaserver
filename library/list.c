@@ -918,6 +918,11 @@ void list_get_from_pipe( LIST *list, char *pipe_string )
 	list_load_from_pipe( list, pipe_string );
 }
 
+LIST *list_fetch_pipe( char *system_string )
+{
+	return list_pipe_fetch( system_string );
+}
+
 LIST *list_pipe_fetch( char *system_string )
 {
 	char buffer[ 65536 ];
