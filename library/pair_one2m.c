@@ -114,9 +114,9 @@ LIST *pair_one2m_fulfilled_folder_name_list(
 
 	if ( ! ( data =
 			dictionary_get(
-				pair_one2m_dictionary,
 				pair_one2m_fulfilled_list_label
-					/* key */ ) ) )
+					/* key */,
+				pair_one2m_dictionary ) ) )
 	{
 		return list_new();
 	}
@@ -178,8 +178,8 @@ char *pair_one2m_folder_name(
 
 	if ( ! ( data =
 			dictionary_get(
-				pair_one2m_dictionary,
-				key ) ) )
+				key,
+				pair_one2m_dictionary ) ) )
 	{
 		return (char *)0;
 	}
@@ -242,8 +242,8 @@ boolean pair_one2m_inserted_duplicate(
 
 	data =
 		dictionary_get(
-			pair_one2m_dictionary, 
-			pair_one2m_duplicate_key );
+			pair_one2m_duplicate_key,
+			pair_one2m_dictionary );
 
 	if ( string_strcmp( data, "yes" ) == 0 )
 		return 1;

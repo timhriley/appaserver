@@ -31,7 +31,7 @@ typedef struct
 	/* ----- */
 	char *application_name;
 	LIST *attribute_date_name_list;
-	LIST *operation_list;
+	LIST *operation_name_list;
 	char *login_name;
 
 	/* Process */
@@ -93,7 +93,7 @@ void dictionary_appaserver_parse_multi_attribute_keys(
 			DICTIONARY *source_destination,
 			char *prefix );
 
-DICTIONARY *dictionary_appaserver_row_dictionary_row(
+DICTIONARY *dictionary_appaserver_row(
 			DICTIONARY *row_dictionary,
 			LIST *attribute_name_list,
 			int row );
@@ -113,10 +113,7 @@ char *dictionary_appaserver_escaped_dictionary_string(
 			boolean with_non_prefixed_dictionary );
 
 DICTIONARY *dictionary_appaserver_non_prefixed(
-			DICTIONARY *working_post_dictionary,
-			LIST *attribute_date_name_list,
-			char *application_name,
-			char *login_name );
+			DICTIONARY *working_post_dictionary );
 
 void dictionary_appaserver_output_as_hidden(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
@@ -164,5 +161,12 @@ void dictionary_appaserver_trim_double_bracked_data(
 
 char *dictionary_appaserver_send_string(
 			DICTIONARY *send_dictionary );
+
+DICTIONARY *dictionary_appaserver_original_post_dictionary(
+			char *dictionary_string );
+
+DICTIONARY *dictionary_appaserver_prefixed(
+			DICTIONARY *post_dictionary,
+			char *prefix );
 
 #endif

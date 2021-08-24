@@ -114,6 +114,10 @@ enum date_convert_format date_convert_date_time_evaluate(
 enum date_convert_format date_convert_format_evaluate(
 			char *format_string );
 
+enum date_convert_format date_convert_user_date_format(
+			char *application_name,
+			char *login_name );
+
 enum date_convert_format date_convert_get_user_date_format(
 			char *application_name,
 			char *login_name );

@@ -36,7 +36,7 @@ boolean timlib_strcmp( char *s1, char *s2 )
 
 	return strcasecmp( s1, s2 );
 
-} /* timlib_strcmp() */
+}
 
 boolean timlib_loose_strcmp( char *s1, char *s2 )
 {
@@ -84,16 +84,16 @@ char *timlib_strcat( char *d, char *s )
 	*end = '\0';
 	return d;
 
-} /* timlib_strcat() */
+}
 
 int timlib_get_index( char *s )
 {
-	return get_index( s );
+	return timlib_index( s );
 }
 
 int get_index_from_string( char *s )
 {
-	return get_index( s );
+	return timlib_index( s );
 }
 
 /* This function expects source to have beginning and ending delimiters */
@@ -112,7 +112,7 @@ void extract_delimited( char *destination, char *source )
 		*ptr++ = *source++;
 	}
 	*ptr = '\0';
-} /* extract_delimited() */
+}
 
 void mail_tim( char *message )
 {
@@ -125,9 +125,14 @@ void mail_tim( char *message )
 	if ( system( buffer ) ) {}
 }
 
+int get_index( char *attribute_name )
+{
+	return timlib_index( attribute_name );
+}
+
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
-int get_index( char *attribute_name )
+int timlib_index( char *attribute_name )
 {
 	char *end_ptr;
 
@@ -150,8 +155,7 @@ int get_index( char *attribute_name )
 
 	return atoi( end_ptr );
 
-} /* get_index() */
-
+}
 
 char *timlib_trim_index( char *destination, char *attribute_name )
 {
@@ -169,7 +173,7 @@ char *timlib_trim_trailing_character(	char *source_destination,
 
 	return source_destination;
 
-} /* timlib_trim_trailing_character() */
+}
 
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
@@ -197,7 +201,7 @@ char *trim_index( char *destination, char *attribute_name )
 		}
 	}
 	return destination;
-} /* trim_index() */
+}
 
 /* Sample: attribute_name = "station_0" */
 /* ------------------------------------ */
@@ -212,7 +216,7 @@ char *trim_index_zero( char *destination, char *attribute_name )
 	end_ptr--;
 	if ( *end_ptr == '_' ) *end_ptr = '\0';
 	return destination;
-} /* trim_index_zero() */
+}
 
 boolean exists_index( char *attribute_name )
 {
@@ -237,7 +241,7 @@ boolean exists_index( char *attribute_name )
 		}
 	}
 	return 0;
-} /* exists_index() */
+}
 
 char *mnemonic2upper_case( char *d, char *s )
 {

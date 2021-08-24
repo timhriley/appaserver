@@ -98,8 +98,8 @@ char *get_species_sys_string(	char *application_name,
 	{
 		one2m_folder_name =
 			dictionary_get(
-				post_dictionary,
-				ONE2M_FOLDER_NAME_FOR_PROCESS );
+				ONE2M_FOLDER_NAME_FOR_PROCESS,
+				post_dictionary );
 	}
 
 	if ( one2m_folder_name

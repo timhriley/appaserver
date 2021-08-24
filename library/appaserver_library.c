@@ -263,7 +263,9 @@ void output_dictionary_as_hidden( DICTIONARY *dictionary )
 			key = list_get( key_list );
 
 			if ( ( data =
-				(char *)dictionary_get( dictionary, key ) ) )
+				dictionary_get(
+					key,
+					dictionary ) ) )
 			{
 				printf( 
 			"<input name=\"%s\" type=\"hidden\" value=\"%s\">\n",
@@ -2017,33 +2019,6 @@ enum preupdate_change_state appaserver_library_preupdate_change_state(
 
 }
 
-/*
-char *appaserver_library_sort_attribute_name( LIST *attribute_list )
-{
-	if ( attribute_list_exists(
-			SORT_ORDER_ATTRIBUTE_NAME,
-			attribute_list ) )
-	{
-		return SORT_ORDER_ATTRIBUTE_NAME;
-	}
-	else
-	if ( attribute_list_exists(
-			DISPLAY_ORDER_ATTRIBUTE_NAME,
-			attribute_list ) )
-	{
-		return DISPLAY_ORDER_ATTRIBUTE_NAME;
-	}
-	else
-	if ( attribute_list_exists(
-			SEQUENCE_NUMBER_ATTRIBUTE_NAME,
-			attribute_list ) )
-	{
-		return SEQUENCE_NUMBER_ATTRIBUTE_NAME;
-	}
-
-	return (char *)0;
-}
-*/
 
 #ifdef NOT_DEFINED
 LIST *appaserver_library_update_lookup_attribute_element_list(
@@ -2608,9 +2583,9 @@ void appaserver_library_dictionary_convert_dates(
 		key = list_get_string( key_list );
 
 		if ( ( date_string =
-			(char *)dictionary_get(
-				dictionary,
-				key ) ) )
+			dictionary_get(
+				key,
+				dictionary ) ) )
 		{
 			date_convert_format =
 				date_convert_date_get_format(

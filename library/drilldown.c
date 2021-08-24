@@ -41,7 +41,7 @@ DRILLDOWN *drilldown_fetch(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 )
+		exit( 1 );
 	}
 
 	if ( !drilldown_dictionary )
@@ -51,7 +51,7 @@ DRILLDOWN *drilldown_fetch(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 )
+		exit( 1 );
 	}
 
 	drilldown = drilldown_calloc();
@@ -93,8 +93,8 @@ LIST *drilldown_fulfilled_folder_name_list(
 {
 	return list_string_extract(
 			dictionary_get(
-				drilldown_dictionary,
-				drilldown_folder_list_key ),
+				drilldown_folder_list_key,
+				drilldown_dictionary ),
 			',' );
 }
 

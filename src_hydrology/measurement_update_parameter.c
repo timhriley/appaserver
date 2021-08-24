@@ -168,9 +168,10 @@ void measurement_update_parameter_save_parameter(
 		if ( strcmp( key, "from_really_yn" ) == 0 ) continue;
 		if ( strcmp( key, "notes" ) == 0 ) continue;
 
-		data = dictionary_get( 
-				parameter_dictionary,
-				key );
+		data =
+			dictionary_get( 
+				key,
+				parameter_dictionary );
 
 		if ( data && *data )
 		{

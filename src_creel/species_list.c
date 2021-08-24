@@ -113,8 +113,8 @@ char *get_species_sys_string(	char *application_name,
 	{
 		one2m_folder_name =
 			dictionary_get(
-				post_dictionary,
-				ONE2M_FOLDER_NAME_FOR_PROCESS );
+				ONE2M_FOLDER_NAME_FOR_PROCESS,
+				post_dictionary );
 	}
 
 	if ( timlib_strcmp(	one2m_folder_name,
@@ -178,8 +178,8 @@ boolean get_dictionary_variables(
 	/* --------------------- */
 	if ( ( primary_data_list_string =
 		dictionary_get(
-			post_dictionary,
-			PRIMARY_DATA_LIST_KEY ) ) )
+			PRIMARY_DATA_LIST_KEY,
+			post_dictionary ) ) )
 	{
 		char piece_buffer[ 128 ];
 
@@ -224,26 +224,30 @@ boolean get_dictionary_variables(
 	} /* if from detail screen */
 
 	if ( ! ( *fishing_purpose =
-			dictionary_get(	post_dictionary,
-					"fishing_purpose_0" ) ) )
+			dictionary_get(
+				"fishing_purpose_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 	if ( ! ( *census_date =
-			dictionary_get(	post_dictionary,
-					"census_date_0" ) ) )
+			dictionary_get(
+				"census_date_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 	if ( ! ( *interview_location =
-			dictionary_get(	post_dictionary,
-					"interview_location_0" ) ) )
+			dictionary_get(
+				"interview_location_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 	if ( ! ( *interview_number =
-			dictionary_get(	post_dictionary,
-					"interview_number_0" ) ) )
+			dictionary_get(
+				"interview_number_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}

@@ -181,6 +181,9 @@ char *date_now_yyyy_mm_dd(
 char *date_get_now_yyyy_mm_dd(
 			int utc_offset );
 
+char *date_now_hhmm(
+			int utc_offset );
+
 char *date_get_now_hhmm(
 			int utc_offset );
 
@@ -214,10 +217,16 @@ char *date_get_now_time_hhmm(
 char *date_get_now_time_hhmm_colon_ss(
 			int utc_offset );
 
+char *date_now_hhmm_colon_ss(
+			int utc_offset );
+
 char *date_get_now_hhmm_colon_ss(
 			int utc_offset );
 
 char *date_get_now_hh_colon_mm_colon_ss(
+			int utc_offset );
+
+char *date_now_hh_colon_mm(
 			int utc_offset );
 
 char *date_get_now_hh_colon_mm(
@@ -724,5 +733,10 @@ char *date_time_display(
 /* ---------------------- */
 char *date_display_th_st_rd_nd(
 			DATE *date );
+
+/* Safely returns heap memory. */
+/* --------------------------- */
+char *date_now_time_hhmm_colon_ss(
+			int utc_offset );
 
 #endif

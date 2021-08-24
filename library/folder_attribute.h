@@ -19,7 +19,10 @@
 
 /* Constants */
 /* --------- */
-#define FOLDER_ATTRIBUTE_TABLE	"folder_attribute"
+#define FOLDER_ATTRIBUTE_TABLE			"folder_attribute"
+#define SORT_ORDER_ATTRIBUTE_NAME		"sort_order"
+#define DISPLAY_ORDER_ATTRIBUTE_NAME		"display_order"
+#define SEQUENCE_NUMBER_ATTRIBUTE_NAME		"sequence_number"
 
 #define FOLDER_ATTRIBUTE_SELECT	"folder,"			\
 				"attribute,"			\
@@ -88,7 +91,7 @@ LIST *folder_attribute_primary_key_list(
 			LIST *folder_attribute_list );
 
 LIST *folder_attribute_append_isa_list(
-			LIST *folder_attribute_list /* in/out */,
+			LIST *append_isa_list /* in/out */,
 			LIST *relation_mto1_isa_list );
 
 boolean folder_attribute_exists(
@@ -100,5 +103,17 @@ boolean folder_attribute_exists(
 char *folder_attribute_primary_where(
 			char *folder_name,
 			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *folder_attribute_sort_attribute_name(
+			LIST *folder_attribute_list );
+
+FOLDER_ATTRIBUTE *folder_attribute_list_seek(
+			char *attribute_name,
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_non_primary_list(
+			LIST *folder_attribute_list );
 
 #endif

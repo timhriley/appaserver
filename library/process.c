@@ -1653,16 +1653,16 @@ PROCESS *process_parse(	char *input,
 
 	if ( *process->javascript_filename )
 	{
-		process->process_javascript =
-			process_javascript_new(
+		process->javascript =
+			javascript_new(
 				process->javascript_filename,
 				document_root_directory,
 				application_relative_source_directory );
 
-		if ( !process->process_javascript )
+		if ( !process->javascript )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: process_javascript_new(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: javascript_new(%s) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
@@ -1772,8 +1772,8 @@ PROCESS_SET *process_set_parse(
 
 	if ( *process_set->javascript_filename )
 	{
-		process_set->process_javascript =
-			process_javascript_new(
+		process_set->javascript =
+			javascript_new(
 				process_set->javascript_filename,
 				document_root_directory,
 				application_relative_source_directory );
@@ -1781,7 +1781,7 @@ PROCESS_SET *process_set_parse(
 		if ( !process_set->process_javascript )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: process_javascript_new(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: javascript_new(%s) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
@@ -2471,104 +2471,5 @@ LIST *process_set_member_name_list(
 		where );
 
 	return list_fetch_pipe( system_string );
-}
-
-PROCESS_JAVASCRIPT *process_javascript_calloc( void )
-{
-	PROCESS_JAVASCRIPT *process_javascript;
-
-	if ( ! ( process_javascript =
-			calloc( 1, sizeof( PROCESS_JAVASCRIPT ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return process_javascript;
-}
-
-PROCESS_JAVASCRIPT *process_javascript_new(
-			char *javascript_filename,
-			char *document_root_directory,
-			char *application_relative_source_directory )
-{
-	PROCESS_JAVASCRIPT *process_javascript;
-	char javascript_home_source[ 256 ];
-	char javascript_relative_source[ 256 ];
-	char javascript_html[ 256 ];
-	char relative_source_directory[ 128 ];
-	int index;
-
-	if ( !javascript_filename
-	||   !document_root_directory
-	||   !appaserver_mount_point
-	||   !application_relative_source_directory )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: a parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(javascript_home_source,
-		"%s/appaserver/javascript/%s",
-		document_root_directory,
-		javascript_filename );
-
-	if ( timlib_file_exists( javascript_home_source ) )
-	{
-		process_javascript = process_javascript_calloc();
-
-		process_javascript->javascript_source =
-			strdup( javascript_home_source );
-
-		sprintf(javascript_html,
-			"/appaserver/javascript/%s",
-			javascript_filename );
-
-		process_javascript->javascript_html =
-			strdup( javascript_html );
-
-		return process_javascript;
-	}
-
-	for(	index = 0;
-		piece(	relative_source_directory,
-			PATH_DELIMITER,
-			application_relative_source_directory,
-			index );
-		index++ )
-	{
-		sprintf(javascript_relative_source,
-			"%s/appaserver/%s/%s",
-			document_root_directory,
-			relative_source_directory,
-			javascript_filename );
-
-		if ( timlib_file_exists( javascript_relative_source ) )
-		{
-			process_javascript = process_javascript_calloc();
-
-			process_javascript->javascript_source =
-				strdup( javascript_relative_source );
-
-			sprintf(javascript_html,
-				"/appaserver/%s/%s",
-				relative_source_directory,
-				javascript_filename );
-
-			process_javascript->javascript_html =
-				strdup( javascript_html );
-
-			return process_javascript;
-		}
-	}
-	return (PROCESS_JAVASCRIPT *)0;
 }
 

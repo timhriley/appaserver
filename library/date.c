@@ -1565,7 +1565,7 @@ DATE *date_get_today_new( int utc_offset )
 
 char *date_get_now_hhmm( int utc_offset )
 {
-	return date_get_now_date_hhmm( utc_offset );
+	return date_now_hhmm( utc_offset );
 }
 
 char *date_now_yyyy_mm_dd( int utc_offset )
@@ -1596,6 +1596,12 @@ char *date_get_current_hhmm( int utc_offset )
 char *date_get_current_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
+}
+
+char *date_now_hhmm( int utc_offset )
+{
+	DATE *date = date_today_new( utc_offset );
+	return date_display_hhmm( date );
 }
 
 char *date_get_now_date_hhmm( int utc_offset )
@@ -1641,27 +1647,41 @@ char *date_get_now_hhmmss( int utc_offset )
 
 char *date_now_hhmmss( int utc_offset )
 {
-	char *return_string;
+	char buffer[ 128 ];
+	DATE *d;
 
-	/* Returns heap memory. */
-	/* -------------------- */
-	return_string = date_get_now_hhmm_colon_ss( utc_offset );
+	d = date_today_new( utc_offset );
 
-	return return_string;
+	sprintf(	buffer,
+			"%02d%02d%02d",
+			d->tm->tm_hour,
+			d->tm->tm_min,
+			d->tm->tm_sec );
 
-#ifdef NOT_DEFINED
-	return search_replace_string(
-			return_string /* source_destination */,
-			":" /* search_str */,
-			"" /* replace_str */ );
-#endif
+	return strdup( buffer );
 }
 
 char *date_get_now_hhmm_colon_ss( int utc_offset )
 {
-	/* Returns heap memory. */
-	/* -------------------- */
-	return date_get_now_time_hhmm_colon_ss( utc_offset );
+	return date_now_hhmm_colon_ss( utc_offset );
+}
+
+/* Safely returns heap memory. */
+/* --------------------------- */
+char *date_now_hhmm_colon_ss( int utc_offset )
+{
+	char buffer[ 128 ];
+	DATE *d;
+
+	d = date_today_new( utc_offset );
+
+	sprintf(	buffer,
+			"%02d%02d:%02d",
+			d->tm->tm_hour,
+			d->tm->tm_min,
+			d->tm->tm_sec );
+
+	return strdup( buffer );
 }
 
 char *date_now_hh_colon_mm_colon_ss( int utc_offset )
@@ -1732,6 +1752,11 @@ char *date_now16( int utc_offset )
 
 char *date_get_now_hh_colon_mm( int utc_offset )
 {
+	return date_now_hh_colon_mm( utc_offset );
+}
+
+char *date_now_hh_colon_mm( int utc_offset )
+{
 	char buffer[ 128 ];
 	DATE *d;
 
@@ -1770,24 +1795,6 @@ char *date_time_now19( int utc_offset )
 
 	d = date_now_new( utc_offset );
 	return date_get_yyyy_mm_dd_hh_mm_ss( d );
-}
-
-/* Safely returns heap memory. */
-/* --------------------------- */
-char *date_get_now_time_hhmm_colon_ss( int utc_offset )
-{
-	char buffer[ 128 ];
-	DATE *d;
-
-	d = date_today_new( utc_offset );
-
-	sprintf(	buffer,
-			"%02d%02d:%02d",
-			d->tm->tm_hour,
-			d->tm->tm_min,
-			d->tm->tm_sec );
-
-	return strdup( buffer );
 }
 
 void date_set_tm_structures(	DATE *d,

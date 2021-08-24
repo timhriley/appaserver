@@ -10,6 +10,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "dictionary.h"
+#include "javascript.h"
 #include "attribute.h"
 
 /* Constants */
@@ -69,12 +70,6 @@
 
 typedef struct
 {
-	char *process_full_javascript_html;
-	char *process_full_javascript_source;
-} PROCESS_JAVASCRIPT;
-
-typedef struct
-{
 	/* Input */
 	/* ----- */
 	char *drop_down_prompt_name;
@@ -124,7 +119,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *process_set_member_name_list;
-	PROCESS_JAVASCRIPT *process_javascript;
+	JAVASCRIPT *javascript;
 } PROCESS_SET;
 
 typedef struct
@@ -146,7 +141,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	PROCESS_JAVASCRIPT *process_javascript;
+	JAVASCRIPT *javascript;
 } PROCESS;
 
 typedef struct
@@ -382,16 +377,6 @@ LIST *process_parameter_primary_delimited_list(
 			char *login_name,
 			char *folder_name,
 			char *populate_drop_down_process_name );
-
-/* PROCESS_JAVASCRIPT operations */
-/* ----------------------------- */
-PROCESS_JAVASCRIPT *process_javascript_new(
-			char *javascript_filename,
-			char *document_root_directory,
-			char *application_relative_source_directory );
-
-PROCESS_JAVASCRIPT *process_javascript_calloc(
-			void );
 
 /* PROCESS generic operations */
 /* -------------------------- */

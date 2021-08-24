@@ -550,7 +550,7 @@ boolean update_dictionary_index_data(
 	 	"%s_%d",
 	 	key, index );
 
-	data = dictionary_get( dictionary, dictionary_key );
+	data = dictionary_get( dictionary_key, dictionary );
 
 	if ( !data ) return 0;
 

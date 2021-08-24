@@ -194,7 +194,7 @@ LIST *folder_attribute_primary_key_list(
 			list_get(
 				folder_attribute_list );
 
-		if ( folder_attribute->primary_key_index ) )
+		if ( folder_attribute->primary_key_index )
 		{
 			list_set(
 				primary_key_list, 
@@ -207,39 +207,52 @@ LIST *folder_attribute_primary_key_list(
 }
 
 LIST *folder_attribute_append_isa_list(
-			LIST *folder_attribute_list /* in/out */,
+			LIST *append_isa_list /* in/out */,
 			LIST *relation_mto1_isa_list )
 {
 	RELATION *relation;
-	FOLDER_ATTRIBUTE *folder_attribute;
 
 	if ( !list_rewind( relation_mto1_isa_list ) )
-		return folder_attribute_list;
+		return append_isa_list;
+
+	if ( !append_isa_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: append_isa_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		relation =
 			list_get(
 				relation_mto1_isa_list );
 
-
-		isa_related_folder_attribute_list = list_new();
-
-		attribute_append_attribute_list(
-				isa_related_folder_attribute_list,
-				application_name,
-				related_folder->folder->folder_name,
-				(char *)0 /* attribute_name */,
-				role_name,
-				attribute_fetch_either );
+		if ( !list_length(
+			relation->
+				many_folder->
+				folder_attribute_list ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		list_append_list(
-			attribute_list,
-			folder_get_non_primary_attribute_list(
-				isa_related_folder_attribute_list ) );
+			append_isa_list,
+			folder_attribute_non_primary_list(
+				relation->
+					many_folder->
+					folder_attribute_list ) );
 
-	} while( list_next( mto1_isa_related_folder_list ) );
+	} while( list_next( relation_mto1_isa_list ) );
 
-	return folder_attribute_list;
+	return append_isa_list;
 }
 
 char *folder_attribute_primary_where(
@@ -253,7 +266,7 @@ char *folder_attribute_primary_where(
 		folder_name,
 		attribute_name );
 
-	return where
+	return where;
 }
 
 boolean folder_attribute_exists(
@@ -263,7 +276,7 @@ boolean folder_attribute_exists(
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"select.sh "count(1) folder_attribute \"%s\"",
+		"select.sh 'count(1)' folder_attribute \"%s\"",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -272,5 +285,89 @@ boolean folder_attribute_exists(
 			attribute_name ) );
 
 	return (boolean)atoi( string_fetch_pipe( system_string ) );
+}
+
+char *folder_attribute_sort_attribute_name(
+			LIST *folder_attribute_list )
+{
+	if ( folder_attribute_list_seek(
+			SORT_ORDER_ATTRIBUTE_NAME,
+			folder_attribute_list ) )
+	{
+		return SORT_ORDER_ATTRIBUTE_NAME;
+	}
+	else
+	if ( folder_attribute_list_seek(
+			DISPLAY_ORDER_ATTRIBUTE_NAME,
+			folder_attribute_list ) )
+	{
+		return DISPLAY_ORDER_ATTRIBUTE_NAME;
+	}
+	else
+	if ( folder_attribute_list_seek(
+			SEQUENCE_NUMBER_ATTRIBUTE_NAME,
+			folder_attribute_list ) )
+	{
+		return SEQUENCE_NUMBER_ATTRIBUTE_NAME;
+	}
+
+	return (char *)0;
+}
+
+FOLDER_ATTRIBUTE *folder_attribute_list_seek(
+			char *attribute_name,
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+
+	if ( !list_rewind( folder_attribute_list ) )
+		return (FOLDER_ATTRIBUTE *)0;
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( string_strcmp(
+			folder_attribute->attribute_name,
+			attribute_name ) == 0 )
+		{
+			return folder_attribute;
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return (FOLDER_ATTRIBUTE *)0;
+}
+
+LIST *folder_attribute_non_primary_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *return_list = list_new();
+
+	if ( !list_rewind( folder_attribute_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_attribute->primary_key_index )
+		{
+			list_set( return_list, folder_attribute );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return return_list;
 }
 

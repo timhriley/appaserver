@@ -40,6 +40,7 @@
 /* Prototypes */
 /* ---------- */
 void mail_tim( char *message );
+
 int get_index( char *attribute_name );
 
 char *timlib_trim_index( char *destination, char *attribute_name );
@@ -550,6 +551,8 @@ char timlib_get_delimiter(
 char timlib_delimiter(	char *string );
 
 int timlib_get_index(	char *s );
+
+int timlib_index(	char *s );
 
 char *timlib_search_replace_character_limited(
 			char *source_destination,

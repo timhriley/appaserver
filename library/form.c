@@ -1075,8 +1075,8 @@ int form_output_all_rows(
 		{
 			data =
 				dictionary_get(
-					row_dictionary,
-					attribute_not_null_string );
+					attribute_not_null_string,
+					row_dictionary );
 
 			/* If not null. */
 			/* ------------ */
@@ -1225,7 +1225,7 @@ LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
 		do {
 			key = list_get( key_list );
 			element = element_appaserver_new( hidden, key );
-			data = dictionary_get( dictionary, key );
+			data = dictionary_get( key, dictionary );
 
 			element_set_data( element, data );
 

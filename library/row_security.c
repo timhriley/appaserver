@@ -2209,7 +2209,7 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 
 	element_list_structure->regular_element_list =
 		row_security_sort_order_element_list(
-			select_folder->attribute_list );
+			select_folder->folder_attribute_list );
 
 	return element_list_structure;
 }
@@ -2253,45 +2253,45 @@ LIST *row_security_sort_order_dictionary_list(
 }
 
 LIST *row_security_sort_order_element_list(
-			LIST *attribute_list )
+			LIST *folder_attribute_list )
 {
 	LIST *element_list;
-	ATTRIBUTE *attribute;
+	FOLDER_ATTRIBUTE *folder_attribute;
 	char *sort_attribute_name;
 
 	if ( ! ( sort_attribute_name =
-			appaserver_library_sort_attribute_name(
-				attribute_list ) ) )
+			folder_attribute_sort_attribute_name(
+				folder_attribute_list ) ) )
 	{
 		return (LIST *)0;
 	}
 
-	if ( !list_rewind( attribute_list ) ) return (LIST *)0;
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
 
 	element_list = list_new();
 
 	do {
-		attribute = list_get( attribute_list );
+		folder_attribute = list_get( folder_attribute_list );
 
-		if ( attribute->primary_key_index )
+		if ( folder_attribute->primary_key_index )
 		{
 			list_set(
 				element_list,
 				element_sort_order(
-					attribute ) );
+					folder_attribute ) );
 		}
 		else
 		if ( strcmp(
-			attribute->attribute_name,
+			folder_attribute->attribute_name,
 			sort_attribute_name ) == 0 )
 		{
 			list_set(
 				element_list,
 				element_sort_order(
-					attribute ) );
+					folder_attribute ) );
 		}
 
-	} while ( list_next( attribute_list ) );
+	} while ( list_next( folder_attribute_list ) );
 
 	return element_list;
 }

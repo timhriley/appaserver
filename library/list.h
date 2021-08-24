@@ -274,6 +274,9 @@ LIST *list_unique(	LIST *string_list );
 
 char *list_get_string( LIST *list );
 
+void *list_first_pointer(
+			LIST *list );
+
 void *list_first(	LIST *list );
 
 void *list_get_first(	LIST *list );

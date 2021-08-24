@@ -270,9 +270,12 @@ char *search_replace_list( 	char *source_destination,
 	char *data;
 
 	if ( list_reset( list ) )
+	{
 		do {
 			key = list_get( list );
-			data = dictionary_get( dictionary, key );
+
+			data = dictionary_get( key, dictionary );
+
 			if ( data )
 			{
 				search_replace_word(
@@ -281,6 +284,7 @@ char *search_replace_list( 	char *source_destination,
 					data );
 			}
 		} while( list_next( list ) );
+	}
 	return source_destination;
 }
 
@@ -297,7 +301,9 @@ char *search_replace_list_prepend( 	char *source_destination,
 	{
 		do {
 			key = list_get( list );
-			data = dictionary_get( dictionary, key );
+
+			data = dictionary_get( key, dictionary );
+
 			if ( data )
 			{
 				sprintf( data_to_replace,

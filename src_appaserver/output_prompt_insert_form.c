@@ -180,8 +180,6 @@ int main( int argc, char **argv )
 	PAIR_ONE2M *pair_one2m;
 	RELATION *ajax_fill_drop_down_relation = {0};
 	char *dictionary_string;
-	char escaped_delimiter_string[ 3 ];
-	char delimiter_string[ 2 ];
 
 	if ( argc != 8 )
 	{
@@ -251,45 +249,6 @@ int main( int argc, char **argv )
 			0 /* not fetch_row_level_restriction */ );
 
 	dictionary_string = argv[ 7 ];
-
-	/* ---------------------------------------------------- */
-	/* If from output_results, then this is executed by	*/
-	/* window.open(). Therefore, the delimiters are escaped.*/
-	/* ---------------------------------------------------- */
-	sprintf( escaped_delimiter_string,
-		 "\\%c",
-		 DICTIONARY_ALTERNATIVE_DELIMITER );
-
-	if ( string_exists(
-			dictionary_string,
-			escaped_delimiter_string ) )
-	{
-		sprintf( delimiter_string,
-			 "%c",
-			 DICTIONARY_ALTERNATIVE_DELIMITER );
-
-		search_replace_string(
-			dictionary_string,
-			escaped_delimiter_string,
-			delimiter_string );
-
-		sprintf( escaped_delimiter_string,
-		 	 "\\%c",
-			 '&' );
-
-		sprintf( delimiter_string,
-			 "%c",
-			 '&' );
-
-		search_replace_string(
-			dictionary_string,
-			escaped_delimiter_string,
-			delimiter_string );
-	}
-
-	original_post_dictionary = 
-		dictionary_string2dictionary( 
-			dictionary_string );
 
 	if ( ! ( dictionary_appaserver =
 			dictionary_appaserver_new(

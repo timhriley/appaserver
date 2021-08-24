@@ -53,8 +53,8 @@ void dictionary_set( 	DICTIONARY *d,
 			char *key, 
 			char *data );
 
-void *dictionary_get(	DICTIONARY *d,
-			char *key );
+void *dictionary_get(	char *key,
+			DICTIONARY *d );
 
 void dictionary_free(	DICTIONARY *d );
 
@@ -246,6 +246,10 @@ DICTIONARY *dictionary_get_with_prefix(
 			DICTIONARY *source_dictionary,
 		    	char *starting_prefix );
 
+DICTIONARY *dictionary_without_prefix(
+			DICTIONARY *dictionary,
+		    	char *starting_prefix );
+
 DICTIONARY *dictionary_get_without_prefix(
 			DICTIONARY *dictionary,
 		    	char *starting_prefix );
@@ -281,6 +285,9 @@ char *dictionary_get_with_prefix_at_index_zero(
 			char *key );
 
 DICTIONARY *dictionary_copy(
+			DICTIONARY *dictionary );
+
+DICTIONARY *dictionary_large_copy(
 			DICTIONARY *dictionary );
 
 DICTIONARY *copy_dictionary(
@@ -699,5 +706,8 @@ void dictionary_set_other_data(
 			char *key, 
 			void *other_data, 
 			int sizeof_other_data );
+
+void dictionary_output_as_hidden(
+			DICTIONARY *dictionary );
 
 #endif

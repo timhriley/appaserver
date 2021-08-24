@@ -103,21 +103,22 @@ int main( int argc, char **argv )
 	system( sys_string );
 
 	return 0;
-} /* main() */
+}
 
 boolean get_dictionary_variables(
 			char **one2m_folder_name_for_process,
 			DICTIONARY *post_dictionary )
 {
 	if ( ! ( *one2m_folder_name_for_process =
-			dictionary_get(	post_dictionary,
-					ONE2M_FOLDER_NAME_FOR_PROCESS ) ) )
+			dictionary_get(
+				ONE2M_FOLDER_NAME_FOR_PROCESS,
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 
 	return 1;
-} /* get_dictionary_variables() */
+}
 
 
 char *get_vegetation_species_sys_string(
@@ -167,7 +168,7 @@ char *get_vegetation_species_sys_string(
 
 	return strdup( sys_string );
 
-} /* get_vegetation_species_sys_string() */
+}
 
 char *get_non_vegetation_species_sys_string(
 				char *application_name )
@@ -209,7 +210,7 @@ char *get_non_vegetation_species_sys_string(
 
 	return strdup( sys_string );
 
-} /* get_non_vegetation_species_sys_string() */
+}
 
 char *get_species_sys_string( char *application_name )
 {
@@ -243,5 +244,5 @@ char *get_species_sys_string( char *application_name )
 
 	return strdup( sys_string );
 
-} /* get_species_sys_string() */
+}
 

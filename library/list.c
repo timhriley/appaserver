@@ -202,6 +202,11 @@ void *list_get_last_pointer( LIST *list )
 	return list_get_pointer( list );
 }
 
+void *list_first_pointer( LIST *list )
+{
+	return list_first( list );
+}
+
 void *list_get_first( LIST *list )
 {
 	return list_first( list );

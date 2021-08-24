@@ -37,9 +37,9 @@ int main( void )
 				(char *)0 /* appaserver_data_directory */,
 				(char *)0 /* session */ );
 
-	reason = dictionary_get( dictionary, "reason" );
-	email_address = dictionary_get( dictionary, "email_address" );
-	message = dictionary_get( dictionary, "message" );
+	reason = dictionary_get( "reason", dictionary );
+	email_address = dictionary_get( "email_address", dictionary );
+	message = dictionary_get( "message", dictionary );
 
 	if ( timlib_strcmp( https_on, "on" ) == 0
 	&&   reason && *reason

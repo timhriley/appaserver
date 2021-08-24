@@ -285,7 +285,7 @@ LIST *row_security_sort_order_dictionary_list(
 			FOLDER *folder );
 
 LIST *row_security_sort_order_element_list(
-			LIST *attribute_list );
+			LIST *folder_attribute_list );
 
 boolean row_security_role_update_row_view_only(
 			char *folder_name,

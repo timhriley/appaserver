@@ -22,6 +22,7 @@
 #include "piece.h"
 #include "timlib.h"
 #include "basename.h"
+#include "javascript.h"
 #include "element.h"
 
 ELEMENT_NON_EDIT_TEXT *element_new_non_edit_text( void )
@@ -161,7 +162,7 @@ ELEMENT_APPASERVER *element_appaserver_new(
 	if ( element_type == non_edit_text )
 	{
 		i->non_edit_text = element_new_non_edit_text();
-		i->non_edit_text->text = name;
+		i->non_edit_text->text = element_name;
 	}
 	else
 	{
@@ -378,10 +379,10 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 
 			date_convert =
 				date_convert_new_user_format_date_convert(
-				application_name,
-				login_name,
-				date_now_yyyy_mm_dd(
-					date_utc_offset() ) );
+					application_name,
+					login_name,
+					date_now_yyyy_mm_dd(
+						date_utc_offset() ) );
 
 			char *time_string;
 			if ( element->element_type == element_current_date )
@@ -448,10 +449,10 @@ void element_output( 	DICTIONARY *hidden_name_dictionary,
 
 			date_convert =
 				date_convert_new_user_format_date_convert(
-				application_name,
-				login_name,
-				date_now_yyyy_mm_dd(
-					date_utc_offset() ) );
+					application_name,
+					login_name,
+					date_now_yyyy_mm_dd(
+						date_utc_offset() ) );
 
 			element->text_item->data = date_convert->return_date;
 		}
@@ -999,7 +1000,6 @@ char *element_heading(
 		return "";
 	else
 		return (char *)0;
-
 }
 
 /* ELEMENT_NOTEPAD Operations */
@@ -1491,20 +1491,6 @@ void element_text_item_set_data(
 			char *s )
 {
 	e->data = strdup( s );
-}
-
-void element_text_item_set_attribute_width(
-			ELEMENT_TEXT_ITEM *e,
-			int w )
-{
-	e->attribute_width = w;
-}
-
-void element_text_item_set_heading(
-			ELEMENT_TEXT_ITEM *e,
-			char *s )
-{
-	e->heading = s;
 }
 
 char *element_text_item_heading(
@@ -2497,7 +2483,7 @@ void element_drop_down_output(
 	if ( strcmp( initial_label, "select" ) == 0 )
 		*initial_label = toupper( *initial_label );
 
-	if ( process_parameter_list_element_name_boolean( element_name ) )
+	if ( element_appaserver_name_boolean( element_name ) )
 	{
 		if ( strcmp( initial_label, "y" ) == 0 )
 			strcpy( initial_label, "Yes" );
@@ -2566,8 +2552,7 @@ void element_drop_down_output(
 				label = list_get( option_data_list );
 			}
 
-			if ( process_parameter_list_element_name_boolean(
-								element_name ) )
+			if ( element_appaserver_name_boolean( element_name ) )
 			{
 				if ( strcmp(
 					data,
@@ -3491,16 +3476,14 @@ ELEMENT_APPASERVER *element_text_item_variant_element(
 				attribute_name );
 	}
 
-	element_text_item_set_attribute_width(
-		element->text_item, 
-		width );
+	element->text_item->attribute_width = width;
 
 	if ( element->text_item
 	&&   post_change_javascript
 	&&   *post_change_javascript )
 	{
 		element->text_item->post_change_javascript =
-			attribute_append_post_change_javascript(
+			javascript_post_change_append(
 				element->text_item->post_change_javascript,
 				post_change_javascript,
 				0 /* not place_first */ );
@@ -3862,6 +3845,7 @@ boolean element_combined_option_data_list(
 	char *option_data;
 
 	if ( !list_length( option_data_list ) ) return 0;
+
 	option_data = list_first_pointer( option_data_list );
 
 	if ( exists_character(
@@ -4188,43 +4172,40 @@ void element_drop_down_text_item_output(
 }
 
 ELEMENT_APPASERVER *element_sort_order(
-			ATTRIBUTE *attribute )
+			FOLDER_ATTRIBUTE *folder_attribute )
 {
-	ELEMENT_APPASERVER *element = {0};
-	int width;
-
-	if ( attribute->primary_key_index )
-		width = 15;
-	else
-		width = 10;
+	ELEMENT_APPASERVER *element;
 
 	element =
-		element_text_item_variant_element(
-			attribute->attribute_name,
-			element_type_string( text_item ),
-			width,
-			(char *)0 /* post_change_javascript */,
-			(char *)0 /* on_focus_javascript_function */ );
+		element_appaserver_new(
+			text_item,
+			folder_attribute->attribute_name );
 
-	if ( attribute->primary_key_index )
+	element->text_item->attribute_width =
+		(folder_attribute->primary_key_index)
+			? 15 : 10;
+
+	if ( folder_attribute->primary_key_index )
 	{
 		char heading[ 128 ];
 
 		sprintf( heading, "*%s", element->name );
-
-		element_text_item_set_heading(
-			element->text_item,
-			strdup( heading ) );
+		element->text_item->heading = strdup( heading );
 	}
 	else
 	{
-		element_text_item_set_heading(
-			element->text_item,
-			element->name );
+		element->text_item->heading = element->name;
 	}
 
 	element->text_item->readonly = 1;
-
 	return element;
+}
+
+boolean element_appaserver_name_boolean(
+			char *element_name )
+{
+	int str_len = strlen( element_name );
+
+	return ( strncmp( element_name + str_len - 3, "_yn", 3 ) == 0 );
 }
 

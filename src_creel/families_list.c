@@ -139,8 +139,8 @@ char *get_fish_families_sys_string(
 	{
 		one2m_folder_name =
 			dictionary_get(
-				post_dictionary,
-				ONE2M_FOLDER_NAME_FOR_PROCESS );
+				ONE2M_FOLDER_NAME_FOR_PROCESS,
+				post_dictionary );
 	}
 
 	if ( one2m_folder_name
@@ -316,26 +316,30 @@ boolean get_dictionary_variables(
 			DICTIONARY *post_dictionary )
 {
 	if ( ! ( *login_name =
-			dictionary_get(	post_dictionary,
-					"login_name_0" ) ) )
+			dictionary_get(
+				"login_name_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 	if ( ! ( *census_date =
-			dictionary_get(	post_dictionary,
-					"census_date_0" ) ) )
+			dictionary_get(
+				"census_date_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 	if ( ! ( *interview_location =
-			dictionary_get(	post_dictionary,
-					"interview_location_0" ) ) )
+			dictionary_get(
+				"interview_location_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}
 	if ( ! ( *interview_number =
-			dictionary_get(	post_dictionary,
-					"interview_number_0" ) ) )
+			dictionary_get(
+				"interview_number_0",
+				post_dictionary ) ) )
 	{
 		return 0;
 	}

@@ -11,7 +11,7 @@
 #include "list.h"
 #include "dictionary.h"
 #include "date_convert.h"
-#include "attribute.h"
+#include "folder_attribute.h"
 #include "boolean.h"
 
 /* Constants */
@@ -838,9 +838,16 @@ void element_drop_down_text_item_output(
 			char *background_color );
 
 ELEMENT_APPASERVER *element_sort_order(
-			ATTRIBUTE *attribute );
+			FOLDER_ATTRIBUTE *folder_attribute );
 
 ELEMENT_APPASERVER *element_appaserver_calloc(
 			void );
+
+boolean element_appaserver_name_boolean(
+			char *element_name );
+
+ELEMENT_APPASERVER *element_appaserver_sort_order(
+			char *attribute_name,
+			int width );
 
 #endif
