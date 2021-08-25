@@ -111,6 +111,7 @@ APPASERVER_LIBRARY=						\
 		mysqldump.o					\
 		prompt_edit_form.o				\
 		edit_table_form.o				\
+		insert_table_form.o				\
 		frameset_link_file.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
@@ -1025,6 +1026,9 @@ javascript.o: javascript.c javascript.h
 
 prompt_edit_form.o: prompt_edit_form.c prompt_edit_form.h
 	${CC} ${CFLAGS} -c prompt_edit_form.c
+
+insert_table_form.o: insert_table_form.c insert_table_form.h
+	${CC} ${CFLAGS} -c insert_table_form.c
 
 edit_table_form.o: edit_table_form.c edit_table_form.h
 	${CC} ${CFLAGS} -c edit_table_form.c

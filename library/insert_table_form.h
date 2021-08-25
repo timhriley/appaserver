@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/edit_table_form.h				*/
+/* $APPASERVER_HOME/library/insert_table_form.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef EDIT_TABLE_FORM_H
-#define EDIT_TABLE_FORM_H
+#ifndef INSERT_TABLE_FORM_H
+#define INSERT_TABLE_FORM_H
 
 /* Includes */
 /* -------- */
@@ -40,17 +40,17 @@ typedef struct
 	ROLE *role;
 	ROLE_FOLDER *role_folder;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
-	char *edit_table_form_state;
+	char *insert_table_form_state;
 	boolean primary_keys_non_edit;
 
-} EDIT_TABLE_FORM;
+} INSERT_TABLE_FORM;
 
 /* Prototypes */
 /* ---------- */
-EDIT_TABLE_FORM *edit_table_form_calloc(
+INSERT_TABLE_FORM *insert_table_form_calloc(
 			void );
 
-EDIT_TABLE_FORM *edit_table_form_fetch(
+INSERT_TABLE_FORM *insert_table_form_fetch(
 			char *application_name,
 			char *login_name,
 			char *session,
@@ -60,12 +60,7 @@ EDIT_TABLE_FORM *edit_table_form_fetch(
 			char *target_frame,
 			DICTIONARY *post_dictionary );
 
-/* Returns program memory */
-/* ---------------------- */
-char *edit_table_form_state(
-			LIST *role_folder_list );
-
-boolean edit_table_form_primary_keys_non_edit(
-			int relation_mto1_isa_list_length );
+boolean insert_table_form_forbid(
+			boolean role_folder_insert );
 
 #endif

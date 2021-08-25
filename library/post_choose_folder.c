@@ -343,7 +343,7 @@ char *post_choose_folder_system_string(
 						/* pair_one2m_dictionary */,
 					(DICTIONARY *)0
 						/* non_prefixed_dictionary */
-					) ) );
+					) ) ) ) );
 	}
 	else
 	if ( output_prompt_edit_form )
