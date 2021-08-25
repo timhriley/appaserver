@@ -136,4 +136,7 @@ char *session_state_integrity(
 char *session_current_ip_address(
 			void );
 
+void session_environment_set(
+			char *application_name );
+
 #endif

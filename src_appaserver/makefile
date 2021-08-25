@@ -163,7 +163,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/update_database.o				\
 		${LIB}/operation_list.o					\
 		${LIB}/validation_form.o				\
-		${LIB}/post2dictionary.o				\
+		${LIB}/post_dictionary.o				\
 		${LIB}/dictionary2file.o				\
 		${LIB}/date_convert.o					\
 		${LIB}/hash_table.o

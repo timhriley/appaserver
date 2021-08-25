@@ -18,6 +18,7 @@
 #define STRING_SYSTEM_BUFFER		196608
 #define STRING_WHERE_BUFFER		196608
 #define STRING_INPUT_LINE		196608
+#define STRING_INPUT_BUFFER		196608
 
 /* Structures */
 /* ---------- */
@@ -201,5 +202,15 @@ int string_length(	char *string );
 char *string_decode_html_post(
 			char *destination,
 			char *source );
+
+char *string_trim(	char *buffer );
+
+char *string_extract_lt_gt_delimited(
+			char *destination,
+			char *source );
+
+/* Sample: source = "station_1" */
+/* ---------------------------- */
+int string_index(	char *source );
 
 #endif

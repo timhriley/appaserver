@@ -105,6 +105,7 @@ void extract_delimited( char *destination, char *source )
 
 	*ptr = '\0';
 	destination_delimiter = *source++;
+
 	if ( destination_delimiter == '<' ) destination_delimiter = '>';
 
 	while(	*source && *source != destination_delimiter )
@@ -846,21 +847,12 @@ char *trim( char *buffer )
         /* Copy the buffer */
         /* --------------- */
         if ( buffer != buf_ptr )
-		timlib_strcpy( buffer, buf_ptr, STRING_WHERE_BUFFER );
+		timlib_strcpy( buffer, buf_ptr, 0 );
 
         /* Trim trailing spaces */
         /* -------------------- */
         buf_ptr = buffer + strlen( buffer ) - 1;
 
-/*
-        while (	*buf_ptr &&
-		( isspace( *buf_ptr ) ||
-		  *buf_ptr > 127 ||
-		  *buf_ptr < 0 ) )
-	{
-        	buf_ptr--;
-	}
-*/
         while (	*buf_ptr && isspace( *buf_ptr ) )
 	{
         	buf_ptr--;
@@ -869,10 +861,9 @@ char *trim( char *buffer )
         *(buf_ptr + 1) = '\0';
 
         return buffer;
-
 }
 
-char *up_string_to_delimiter ( char *s, char delimiter )
+char *up_string_to_delimiter( char *s, char delimiter )
 {
         char *hold = s;
         while ( *s )
@@ -1046,7 +1037,6 @@ int timlib_get_line(	char *in_line,
 int get_line( char *in_line, FILE *infile )
 {
 	return timlib_get_line( in_line, infile, 0 );
-
 }
 
 void skip_line( FILE *infile )

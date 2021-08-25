@@ -72,7 +72,7 @@ EXTERNAL_LIBRARY_OBJECT=						\
 		${LIBRARY}/update_database.o				\
 		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/validation_form.o				\
-		${LIBRARY}/post2dictionary.o				\
+		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/dictionary2file.o
 
 all: 	${EXTENRAL_LIBRARY_OBJECT}					\

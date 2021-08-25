@@ -1079,3 +1079,90 @@ char *string_decode_html_post(
 	return destination;
 }
 
+char *string_trim( char *buffer )
+{
+        char *buf_ptr = buffer;
+
+        /* If buffer is empty then return */
+        /* ------------------------------ */
+        if ( !buffer || !*buffer ) return buffer;
+
+        /* First trim leading spaces */
+        /* ------------------------- */
+        while( *buf_ptr && isspace( *buf_ptr ) )
+        	buf_ptr++;
+
+        /* If *buf_ptr is NULL then buffer was just spaces */
+        /* ----------------------------------------------- */
+        if ( !*buf_ptr )
+        {
+        	*buffer = '\0';
+        	return buffer;
+        }
+
+        /* Flush left the buffer */
+        /* --------------------- */
+        if ( buffer != buf_ptr ) string_strcpy( buffer, buf_ptr, 0 );
+
+        /* Trim trailing spaces */
+        /* -------------------- */
+        buf_ptr = buffer + strlen( buffer ) - 1;
+
+        while (	*buf_ptr && isspace( *buf_ptr ) )
+	{
+        	buf_ptr--;
+	}
+
+        *(buf_ptr + 1) = '\0';
+
+        return buffer;
+}
+
+char *string_extract_lt_gt_delimited(
+			char *destination,
+			char *source )
+{
+	char *ptr = destination;
+	char destination_delimiter;
+
+	*ptr = '\0';
+	destination_delimiter = *source++;
+
+	if ( destination_delimiter == '<' ) destination_delimiter = '>';
+
+	while(	*source && *source != destination_delimiter )
+	{
+		*ptr++ = *source++;
+	}
+	*ptr = '\0';
+	return destination;
+}
+
+/* Sample: source = "station_1" */
+/* ---------------------------- */
+int string_index( char *source )
+{
+	char *end_ptr;
+
+ 	end_ptr = source + strlen( source ) - 1;
+
+	while( end_ptr != source )
+	{
+		if ( isdigit( *end_ptr ) )
+		{
+			end_ptr--;
+			continue;
+		}
+		if ( *end_ptr == '_' )
+		{
+			end_ptr++;
+			break;
+		}
+		else
+			break;
+	}
+
+	return atoi( end_ptr );
+
+}
+

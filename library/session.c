@@ -430,19 +430,8 @@ SESSION *session_folder_integrity_exit(
 			session->login_name );
 	}
 
-	environ_set_utc_offset(
-		session->
-			sql_injection_escape_application_name );
-
-	add_relative_source_directory_to_path(
-		session->
-			sql_injection_escape_application_name );
-
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_local_bin_to_path();
-	environ_appaserver_home();
-	environ_prepend_dot_to_path();
+	session_environment_set(
+		session->sql_injection_escape_application_name );
 
 	session_update_access_date_time( session->session_key );
 
@@ -488,4 +477,16 @@ char *session_state_integrity(
 	}
 
 	return (char *)0;
+}
+
+void session_environment_set(
+			char *application_name )
+{
+	environ_set_utc_offset( application_name );
+	add_relative_source_directory_to_path( application_name );
+	add_utility_to_path();
+	add_src_appaserver_to_path();
+	add_local_bin_to_path();
+	environ_appaserver_home();
+	environ_prepend_dot_to_path();
 }

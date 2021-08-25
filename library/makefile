@@ -86,7 +86,7 @@ APPASERVER_LIBRARY=						\
 		process.o					\
 		queue.o						\
 		validation_form.o				\
-		post2dictionary.o				\
+		post_dictionary.o				\
 		period_wo_date.o				\
 		dictionary2file.o				\
 		application_constants.o				\
@@ -818,8 +818,8 @@ role_folder.o: role_folder.c role_folder.h
 validation_form.o: validation_form.c validation_form.h element.h
 	${CC} ${CFLAGS} -c validation_form.c
 
-post2dictionary.o: post2dictionary.c post2dictionary.h
-	${CC} ${CFLAGS} -c post2dictionary.c
+post_dictionary.o: post_dictionary.c post_dictionary.h
+	${CC} ${CFLAGS} -c post_dictionary.c
 
 period_wo_date.o: period_wo_date.c period_wo_date.h timlib.h
 	${CC} ${CFLAGS} -c period_wo_date.c

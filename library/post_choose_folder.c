@@ -325,7 +325,6 @@ char *post_choose_folder_system_string(
 					(DICTIONARY *)0
 						/* non_prefixed_dictionary */
 			login_name,
-			application_name,
 			session_key,
 			current_folder_name,
 			role_name,

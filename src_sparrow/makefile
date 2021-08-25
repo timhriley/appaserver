@@ -75,7 +75,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/expected_count.o				\
-		${LIBRARY}/post2dictionary.o				\
+		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o

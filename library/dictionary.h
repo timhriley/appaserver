@@ -36,6 +36,9 @@ DICTIONARY *dictionary_new_huge_dictionary();
 DICTIONARY *dictionary_new_super_dictionary();
 DICTIONARY *dictionary_new_duper_dictionary();
 
+DICTIONARY *dictionary_string_resolve(
+			char *dictionary_string );
+
 DICTIONARY *dictionary_index_string2dictionary(
 			char *dictionary_string );
 

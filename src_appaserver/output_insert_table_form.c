@@ -33,11 +33,12 @@
 #include "attribute.h"
 #include "session.h"
 #include "role.h"
-#include "lookup_before_drop_down.h"
+#include "drilldown.h"
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
 #include "appaserver_link_file.h"
 #include "vertical_new_button.h"
+#include "insert_table_form.h"
 
 /* Constants */
 /* --------- */
@@ -48,8 +49,6 @@
 
 #define DUPLICATE_NON_INSERTED_MESSAGE "<h3>Warning: A duplication occurred.</h3>\n"
 
-#define INSERT_UPDATE_KEY	"edit"
-#define DEFAULT_TARGET_FRAME	EDIT_FRAME
 
 /* Prototypes */
 /* ---------- */
@@ -81,13 +80,14 @@ void primary_data_list_string_build_dictionaries(
 
 int main( int argc, char **argv )
 {
-	char *login_name;
 	char *application_name;
-	char *session;
-	char *parameter_folder_name;
+	char *login_name;
+	char *session_key;
+	char *folder_name;
 	char *role_name;
-	char *insert_update_key;
 	char *target_frame;
+	char *message = {0};
+	INSERT_TABLE_FORM *insert_table_form;
 	DOCUMENT *document;
 	char dictionary_string[ STRING_INPUT_LINE ];
 	DICTIONARY *original_post_dictionary = {0};
@@ -111,7 +111,6 @@ int main( int argc, char **argv )
 	DICTIONARY *query_dictionary = {0};
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m = {0};
-	char *message = {0};
 	boolean output_content_type = 1;
 	VERTICAL_NEW_BUTTON *vertical_new_button;
 
@@ -119,67 +118,41 @@ int main( int argc, char **argv )
 	/* ---------------------------------- */
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder = {0};
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc < 8 )
+	if ( argc < 6 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role insert_update_key target_frame [message]\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+	"Usage: %s login_name session folder role target_frame [message]\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	parameter_folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	insert_update_key = argv[ 6 ];
-	target_frame = argv[ 7 ];
+	session_key = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	target_frame = argv[ 5 ];
 
-	if ( argc == 9 ) message = argv[ 8 ];
+	if ( argc == 7 ) message = argv[ 6 ];
 
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
+	session_environment_set( application_name );
 
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
 
-	role = role_new_role(	application_name,
-				role_name );
-
-	folder = folder_new_folder( 	application_name,
-					session,
-					parameter_folder_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
+	insert_table_form =
+		insert_table_form_fetch(
 			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
+			login_name,
+			session_key,
+			folder_name,
 			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
+			target_frame,
+			message,
 
 	folder->mto1_isa_related_folder_list =
 		related_folder_get_mto1_related_folder_list(

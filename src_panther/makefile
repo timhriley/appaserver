@@ -72,7 +72,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/expected_count.o				\
-		${LIBRARY}/post2dictionary.o				\
+		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o

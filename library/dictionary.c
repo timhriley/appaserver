@@ -611,29 +611,39 @@ char *dictionary_display( DICTIONARY *d )
 DICTIONARY *dictionary_string2dictionary(
 			char *dictionary_string )
 {
-	return dictionary_string_dictionary( dictionary_string );
+	return dictionary_string_resolve( dictionary_string );
+}
+
+DICTIONARY *dictionary_string_dictionary(
+			char *dictionary_string )
+{
+	return dictionary_string_resolve( dictionary_string );
 }
 
 /* Sample: "datatype=salinity&station=BA&grade_1=a" */
 /* ------------------------------------------------ */
-DICTIONARY *dictionary_string_dictionary(
+DICTIONARY *dictionary_string_resolve(
 			char *dictionary_string )
 {
 	DICTIONARY *d;
         char attribute[ 1024 ];
-	char pair_string[ 65536 ];
-        char data[ 65536 ];
+	char pair_string[ STRING_INPUT_BUFFER ];
+        char data[ STRING_INPUT_BUFFER ];
 	int i;
 	char delimiter;
 	char pair_delimiter;
+
+	if ( !dictionary_string || !*dictionary_string )
+		return (DICTIONARY *)0;
 
 	if ( character_exists( dictionary_string, '=' ) )
 	{
 		delimiter = '=';
 	}
 	else
-	if ( character_exists(	dictionary_string,
-				DICTIONARY_ALTERNATIVE_DELIMITER ) )
+	if ( character_exists(
+		dictionary_string,
+		DICTIONARY_ALTERNATIVE_DELIMITER ) )
 	{
 		delimiter = DICTIONARY_ALTERNATIVE_DELIMITER;
 	}
@@ -669,10 +679,10 @@ DICTIONARY *dictionary_string_dictionary(
 				continue;
 			}
 
-			dictionary_set_pointer(
-					d, 
-					strdup( attribute ),
-					strdup( data ) );
+			dictionary_set(
+				d, 
+				strdup( attribute ),
+				strdup( data ) );
 		}
 	}
 
@@ -681,7 +691,7 @@ DICTIONARY *dictionary_string_dictionary(
 
 DICTIONARY *dictionary_index_string2dictionary( char *dictionary_string )
 {
-	return dictionary_string2dictionary( dictionary_string );
+	return dictionary_string_resolve( dictionary_string );
 
 }
 
@@ -1230,9 +1240,10 @@ int dictionary_index_data(
 
 	/* Try to get the data with the index */
 	/* ---------------------------------- */
-	sprintf( dictionary_key, 
+	sprintf(dictionary_key, 
 	 	"%s_%d",
-	 	key, index );
+	 	key,
+		index );
 
 	data = dictionary_get( dictionary_key, dictionary );
 
@@ -1240,9 +1251,10 @@ int dictionary_index_data(
 	{
 		/* Try again with the index zero */
 		/* ----------------------------- */
-		sprintf( dictionary_key, 
+		sprintf(dictionary_key, 
 		 	"%s_0",
 		 	key );
+
 		data = dictionary_get( dictionary_key, dictionary );
 
 		if ( data )
@@ -1290,7 +1302,9 @@ int dictionary_index_data(
 			return_value = 1;
 		}
 	}
+
 	*destination  = data;
+
 	return return_value;
 }
 

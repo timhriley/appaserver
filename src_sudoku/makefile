@@ -67,7 +67,7 @@ EXTERNAL_LIBRARYS=							\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\
-		${LIBRARY}/post2dictionary.o				\
+		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/update_database.o				\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/process.o					\
