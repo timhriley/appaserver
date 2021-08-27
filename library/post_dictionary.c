@@ -33,8 +33,7 @@ POST_DICTIONARY *post_dictionary_calloc( void )
 	return post_dictionary;
 }
 
-POST_DICTIONARY *post_dictionary_stream_new(
-			FILE *input_stream,
+POST_DICTIONARY *post_dictionary_stdin_new(
 			char *appaserver_data_directory,
 			char *session_key )
 {
@@ -48,7 +47,7 @@ POST_DICTIONARY *post_dictionary_stream_new(
 		post_dictionary_apache_key(
 			string_input(
 				input,
-				input_stream,
+				stdin,
 				STRING_INPUT_LINE ) );
 
 	if ( !post_dictionary->post_dictionary_apache_key )
@@ -58,7 +57,7 @@ POST_DICTIONARY *post_dictionary_stream_new(
 
 	post_dictionary->dictionary =
 		post_dictionary_fetch(
-			input_stream,
+			stdin,
 			appaserver_data_directory,
 			session_key,
 			post_dictionary->
@@ -80,7 +79,7 @@ POST_DICTIONARY *post_dictionary_string_new(
 }
 
 DICTIONARY *post_dictionary_fetch(
-			FILE *input_stream,
+			FILE *stdin,
 			char *appaserver_data_directory,
 			char *session_key,
 			char *apache_key )
@@ -93,7 +92,7 @@ DICTIONARY *post_dictionary_fetch(
 
 	while( string_input(
 			input,
-			input_stream,
+			stdin,
 			1024 ) )
 	{
 		if ( !*input ) continue;
@@ -139,7 +138,22 @@ DICTIONARY *post_dictionary_fetch(
 
 			if ( *input_filename )
 			{
-				char *spool_filename =
+				char *spool_filename;
+
+				if ( !appaserver_data_directory
+				||   !*appaserver_data_directory
+				||   !session_key
+				||   !*session_key )
+				{
+					fprintf(stderr,
+				"ERROR in %s/%s()/%d: spool file error.\n",
+						__FILE__,
+						__FUNCTION__,
+						__LINE__ );
+					exit( 1 );
+				}
+
+				spool_filename =
 					/* ------------------- */
 					/* Returns heap memory */
 					/* ------------------- */
@@ -157,7 +171,7 @@ DICTIONARY *post_dictionary_fetch(
 					spool_filename );
 
 				post_dictionary_spool_file(
-					input_stream,
+					stdin,
 					apache_key,
 					spool_filename );
 			}
@@ -168,7 +182,7 @@ DICTIONARY *post_dictionary_fetch(
 				/* ------------------- */
 				post_dictionary_stream_set(
 					dictionary,
-					input_stream,
+					stdin,
 					appaserver_key,
 					apache_key );
 			}
@@ -202,7 +216,7 @@ char *post_dictionary_apache_key( char *input )
 
 void post_dictionary_stream_set(
 			DICTIONARY *dictionary,
-			FILE *input_stream,
+			FILE *stdin,
 			/* ------------- */
 			/* static memory */
 			/* ------------- */
@@ -235,7 +249,7 @@ void post_dictionary_stream_set(
 
 	while( string_input(
 			input,
-			input_stream,
+			stdin,
 			STRING_INPUT_BUFFER ) )
 	{
 		if ( !*input ) continue;
@@ -367,14 +381,14 @@ void post_dictionary_set(
 
 void post_dictionary_input(
 			char *data,
-			FILE *input_stream,
+			FILE *stdin,
 			char *post_dictionary_key )
 {
 	char input[ STRING_INPUT_LINE ];
 
 	*data = '\0';
 
-	while( string_input( input, input_stream, STRING_INPUT_LINE ) )
+	while( string_input( input, stdin, STRING_INPUT_LINE ) )
 	{
 		if ( !*input ) continue;
 		if ( strcmp( input, "select" ) == 0 ) continue;
@@ -385,7 +399,7 @@ void post_dictionary_input(
 }
 
 void post_dictionary_spool_file(
-			FILE *input_stream,
+			FILE *stdin,
 			char *apache_key,
 			char *spool_filename )
 {
@@ -407,13 +421,13 @@ void post_dictionary_spool_file(
 
 	/* Skip "Content-Type: application/octet-stream" */
 	/* --------------------------------------------- */
-	skip_line( input_stream );
+	skip_line( stdin );
 
 	/* Skip "\n" */
 	/* --------- */
-	skip_line( input_stream );
+	skip_line( stdin );
 
-	while( ( c = getc( input_stream ) ) != EOF )
+	while( ( c = getc( stdin ) ) != EOF )
 	{
 		if ( c == *apache_key )
 		{

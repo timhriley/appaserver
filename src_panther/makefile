@@ -57,7 +57,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/query.o 					\
 		${LIBRARY}/frameset.o					\
 		${LIBRARY}/validation_level.o				\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/related_folder.o				\
 		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\

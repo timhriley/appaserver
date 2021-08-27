@@ -29,8 +29,10 @@ typedef struct
 
 /* Always succeeds */
 /* --------------- */
-POST_DICTIONARY *post_dictionary_stream_new(
-			FILE *input_stream,
+POST_DICTIONARY *post_dictionary_stdin_new(
+			/* ---------------------------------- */
+			/* Used when expecting a spooled file */
+			/* ---------------------------------- */
 			char *appaserver_data_directory,
 			char *session_key );
 
@@ -43,7 +45,7 @@ char *post_dictionary_apache_key(
 			char *input );
 
 DICTIONARY *post_dictionary_fetch(
-			FILE *input_stream,
+			FILE *stdin,
 			char *appaserver_data_directory,
 			char *session_key,
 			char *apache_key );
@@ -70,7 +72,7 @@ char *post_dictionary_appaserver_key(
 
 void post_dictionary_stream_set(
 			DICTIONARY *dictionary,
-			FILE *input_stream,
+			FILE *stdin,
 			char *appaserver_key,
 			char *apache_key );
 
@@ -82,7 +84,7 @@ char *post_dictionary_spool_filename(
 			char *session_key );
 
 void post_dictionary_spool_file(
-			FILE *input_stream,
+			FILE *stdin,
 			char *apache_key,
 			char *spool_filename );
 

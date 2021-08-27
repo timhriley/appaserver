@@ -54,7 +54,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security.o					\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/element.o					\
 		${LIBRARY}/form.o					\
 		${LIBRARY}/query.o 					\

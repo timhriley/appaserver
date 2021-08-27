@@ -33,12 +33,11 @@
 #include "post2dictionary.h"
 #include "form.h"
 #include "session.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
 #define INSERT_UPDATE_KEY	"edit"
-#define FOLDER_NAME		"appaserver_user"
 
 /* Prototypes */
 /* ---------- */
@@ -50,7 +49,7 @@ void execute_output_process(
 			char *message );
 
 boolean post_state_update(
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			char **message,
 			char *application_name,
 			char *session,
@@ -64,23 +63,23 @@ boolean post_state_update(
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session_key, *folder_name;
+	char *application_name
+	char *login_name;
+	char *session_key;
+	char *folder_name;
 	char *role_name;
+	POST_DICTIONARY *post_dictionary;
 	char *message = {0};
-	char *insert_update_key = INSERT_UPDATE_KEY;
-	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	SESSION *session;
-	pid_t dictionary_process_id;
-	char *database_string = {0};
 	boolean changed_horizontal_menu_flag;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name role application session ignored dictionary_process_id\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s login_name role application session\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
@@ -88,105 +87,42 @@ int main( int argc, char **argv )
 	role_name = argv[ 2 ];
 	application_name = argv[ 3 ];
 	session_key = argv[ 4 ];
-	/* target_frame = argv[ 5 ]; */
-	dictionary_process_id = atoi( argv[ 6 ] );
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
-
-	folder_name = FOLDER_NAME;
-
-	session = session_calloc();
-	session->session = session_key;
-
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session->session ) )
-	{
-		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
-	}
-
-	if ( !session_load(
-			&session->login_name,
-			&session->last_access_date,
-			&session->last_access_time,
-			&session->http_user_agent,
+	session =
+		session_folder_integrity_exit(
+			argc,
+			argv,
 			application_name,
-			session->session ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session_key, login_name );
-	}
-
-	if ( strcmp( session->login_name, login_name ) != 0 )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session_key, login_name );
-	}
-
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session_key, login_name );
-	}
-
-	session_update_access_date_time( application_name, session->session );
-	appaserver_library_purge_temporary_files( application_name );
+			login_name,
+			session_key,
+			APPASERVER_USER_TABLE,
+			role_name,
+			"update" /* state */ );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	original_post_dictionary =
-		post2dictionary(stdin,
+	post_dictionary =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_dictionary_stdin_new(
+			/* ---------------------------------- */
+			/* Used when expecting a spooled file */
+			/* ---------------------------------- */
 			(char *)0 /* appaserver_data_directory */,
-			(char *)0 /* session */ );
+			(char *)0 /* session_key );
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_name_list */,
-				(LIST *)0 /* attribute_date_name_list */,
-				(LIST *)0 /* operation_name_list */,
-				(char *)0 /* login_name */ ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_stream_new(
+			post_dictionary,
+			application_name,
+			login_name,
 
 	changed_horizontal_menu_flag =
-		post_state_update(	dictionary_appaserver,
+		post_state_update(	dictionary_separate,
 					&message,
 					application_name,
 					session_key,
@@ -224,7 +160,7 @@ int main( int argc, char **argv )
 }
 
 boolean post_state_update(
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			char **message,
 			char *application_name,
 			char *session_key,
@@ -303,13 +239,13 @@ boolean post_state_update(
 		exit( 0 );
 	}
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		file_dictionary,
 		(char *)0 /* prefix */ );
 
-	dictionary_appaserver->row_dictionary =
-		dictionary_appaserver_get_row_dictionary_multi_row(
-			dictionary_appaserver->
+	dictionary_separate->row_dictionary =
+		dictionary_separate_multi_row_dictionary(
+			dictionary_separate->
 				working_post_dictionary,
 			folder->attribute_name_list,
 			(LIST *)0 /* operation_name_list */ );
@@ -321,7 +257,7 @@ boolean post_state_update(
 			login_name,
 			role_name,
 			folder_name,
-			dictionary_appaserver->row_dictionary,
+			dictionary_separate->row_dictionary,
 			file_dictionary );
 
 	/* Set for the where clause generator. */

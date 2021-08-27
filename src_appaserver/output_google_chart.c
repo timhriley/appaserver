@@ -29,7 +29,7 @@
 #include "environ.h"
 #include "decode_html_post.h"
 #include "appaserver.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -56,9 +56,7 @@ int main( int argc, char **argv )
 	char *session;
 	char *folder_name;
 	char *role_name;
-	char decoded_dictionary_string[ MAX_INPUT_LINE ];
-	char dictionary_string[ MAX_INPUT_LINE ];
-	DICTIONARY *original_post_dictionary;
+	char *dictionary_string;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	FOLDER *folder;
 	LIST *date_primary_key_list;
@@ -67,7 +65,7 @@ int main( int argc, char **argv )
 	char *date_attribute_name = {0};
 	char *time_attribute_name = {0};
 	LIST *select_attribute_name_list;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 
 	application_name = environ_get_application_name( argv[ 0 ] );
 
@@ -76,46 +74,26 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 7 )
+	if ( argc != 6 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role ignored [dictionary_stdin]\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s login_name session folder role dictionary\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	/* state = argv[ 6 ]; */
+	session = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	dictionary_string = argv[ 5 ];
 
-	get_line( dictionary_string, stdin );
-
-	decode_html_post(
-		decoded_dictionary_string, 
-		dictionary_string );
-
-	original_post_dictionary = 
-		dictionary_index_string2dictionary( 
-			decoded_dictionary_string );
-
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_name_list */,
-				(LIST *)0 /* attribute_date_name_list */,
-				(LIST *)0 /* operation_name_list */,
-				(char *)0 /* login_name */ ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__ );
-		exit( 1 );
-	}
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -196,7 +174,7 @@ int main( int argc, char **argv )
 		select_attribute_name_list,
 		float_integer_attribute_name_list );
 
-	output_chart(	dictionary_appaserver->query_dictionary,
+	output_chart(	dictionary_separate->query_dictionary,
 			application_name,
 			login_name,
 			folder_name,

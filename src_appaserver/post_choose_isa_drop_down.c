@@ -27,7 +27,8 @@
 #include "post2dictionary.h"
 #include "session.h"
 #include "role.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
+#include "post_choose_isa_drop_down.h"
 
 /* Prototypes */
 /* ---------- */
@@ -35,98 +36,75 @@
 int main( int argc, char **argv )
 {
 	char *login_name;
-	char *session;
+	char *session_key;
 	char *application_name;
 	char *folder_name;
+	char *one2m_isa_folder_name;
 	char *role_name;
-	DICTIONARY *original_post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	POST_DICTIONARY *post_dictionary;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	SESSION *session;
+	CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down;
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-		"Usage: %s login_name application session folder role\n",
+"Usage: %s application login_name session folder one2m_isa_folder role\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
 	application_name = argv[ 2 ];
-	session = argv[ 3 ];
+	session_key = argv[ 3 ];
 	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	state = argv[ 6 ];
-	insert_update_key = argv[ 7 ];
-	target_frame = argv[ 8 ];
-	dictionary_process_id = atoi( argv[ 9 ] );
+	one2m_isa_folder_name = security_sql_injectionary_escape( argv[ 5 ] );
+	role_name = argv[ 6 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
+	session =
+		session_folder_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			"insert" /* state */ );
 
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
-
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
-	{
-		session_message_ip_address_changed_exit(
+	if ( ! ( choose_isa_drop_down =
+			choose_isa_drop_down_post_fetch(
 				application_name,
-				login_name );
-	}
-
-	if ( !session_access_folder(
-				application_name,
-				session,
+				login_name,
+				session_key,
 				folder_name,
-				role_name,
-				state ) )
+				one2m_isa_folder_name,
+				role_name ) ) )
 	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: choose_isa_drop_down_post_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
-
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
-
-	role = role_new_role(	application_name,
-				role_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	original_post_dictionary =
-		post2dictionary(stdin,
+	post_dictionary =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_dictionary_stdin_new(
+			(char *)0 /* appaserver_data_directory */,
+			(char *)0 /* session_key */ );
+
+	dictionary_separate =
+		dictionary_separate_stdin_new(
+			application_name,
+			login_name,
+
 			appaserver_parameter_file->
 				appaserver_data_directory,
 			session );
@@ -377,19 +355,19 @@ int main( int argc, char **argv )
 	 	folder_name,
 		role_name,
 		state,
-		dictionary_appaserver_send_string(
-			dictionary_appaserver_send_dictionary(
-				dictionary_appaserver->
+		dictionary_separate_send_string(
+			dictionary_separate_send_dictionary(
+				dictionary_separate->
 					sort_dictionary,
-				dictionary_appaserver->
+				dictionary_separate->
 					query_dictionary,
-				dictionary_appaserver->
+				dictionary_separate->
 					drilldown_dictionary,
-				dictionary_appaserver->
+				dictionary_separate->
 					ignore_dictionary,
-				dictionary_appaserver->
+				dictionary_separate->
 					pair_one2m_dictionary,
-				dictionary_appaserver->
+				dictionary_separate->
 					non_prefixed_dictionary ) ),
 	 	appaserver_error_filename( application_name ) );
 

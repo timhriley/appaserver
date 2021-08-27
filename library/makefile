@@ -93,7 +93,7 @@ APPASERVER_LIBRARY=						\
 		query_attribute_statistics_list.o		\
 		table.o						\
 		row_security.o					\
-		dictionary_appaserver.o				\
+		dictionary_separate.o				\
 		additional_drop_down_attribute.o		\
 		scatterplot.o					\
 		regression.o					\
@@ -776,7 +776,7 @@ pipe.o: pipe.c pipe.h
 operation.o: operation.c operation.h process.h
 	${CC} ${CFLAGS} -c operation.c
 
-form.o: form.c form.h element.h dictionary_appaserver.h
+form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c
 
 query_dvr.e: query_dvr.c query.o
@@ -984,9 +984,9 @@ row_security.o: row_security.c row_security.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c row_security.c
 
-dictionary_appaserver.o: dictionary_appaserver.c dictionary_appaserver.h
+dictionary_separate.o: dictionary_separate.c dictionary_separate.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c dictionary_appaserver.c
+		-c dictionary_separate.c
 
 post_login.o: post_login.c post_login.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\

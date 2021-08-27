@@ -39,7 +39,7 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 			char *role_name,
 			char *state,
 			char *target_frame,
-			DICTIONARY *post_dictionary )
+			POST_DICTIONARY *post_dictionary )
 {
 	PROMPT_EDIT_FORM *prompt_edit_form = prompt_edit_form_calloc();
 
@@ -115,30 +115,22 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 		return (EDIT_TABLE_FORM *)0;
 	}
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				prompt_edit_form->post_dictionary,
-				prompt_edit_form->application_name,
-				attribute_name_list(
-					prompt_edit_form->
-						folder->
-						attribute_list ),
-				attribute_date_name_list(
-					prompt_edit_form->
-						folder->
-						attribute_list ),
-				(LIST *)0 /* operation_name_list */,
-				prompt_edit_form->login_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-
-		return (PROMPT_EDIT_FORM *)0;
-	}
-
+	dictionary_appaserver =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_appaserver_stream_new(
+			prompt_edit_form->post_dictionary,
+			prompt_edit_form->application_name,
+			prompt_edit_form->login_name,
+			attribute_name_list(
+				prompt_edit_form->
+					folder->
+					attribute_list ),
+			attribute_date_name_list(
+				prompt_edit_form->
+					folder->
+					attribute_list ) );
 	return prompt_edit_form;
 }
 

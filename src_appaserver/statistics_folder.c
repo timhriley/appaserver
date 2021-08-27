@@ -27,7 +27,7 @@
 #include "appaserver_parameter_file.h"
 #include "decode_html_post.h"
 #include "role.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -47,7 +47,7 @@ int main( int argc, char **argv )
 	DICTIONARY *original_post_dictionary;
 	QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	QUERY *query;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -70,36 +70,18 @@ int main( int argc, char **argv )
 	role_name = argv[ 5 ];
 	dictionary_string = argv[ 6 ];
 
-	decode_html_post(
-		decoded_dictionary_string, 
-		dictionary_string );
-
-	original_post_dictionary = 
-		dictionary_index_string2dictionary( 
-			decoded_dictionary_string );
-
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_name_list */,
-				(LIST *)0 /* attribute_date_name_list */,
-				(LIST *)0 /* operation_name_list */,
-				(char *)0 /* login_name */ ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	query =
 		query_simple_new(
-			dictionary_appaserver->query_dictionary,
+			dictionary_separate->query_dictionary,
 			login_name,
 			folder_name,
 			role_name,

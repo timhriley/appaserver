@@ -78,7 +78,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/appaserver.o					\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/latex.o					\
 		${LIBRARY}/process.o					\

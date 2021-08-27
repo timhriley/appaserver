@@ -23,7 +23,7 @@
 #include "create_clone_filename.h"
 #include "session.h"
 #include "dictionary2file.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* appaserver_link_file */
 
@@ -128,75 +128,60 @@ void clone_table_drop_down_prompt(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	DOCUMENT *document;
-	LIST *process_set_name_list;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *parameter_dictionary_string;
-	DICTIONARY *parameter_dictionary;
-	char *process_set_name;
-	char export_process_filename[ 512 ];
 	char *session;
 	char *login_name;
 	char *role_name;
+	char *execution_process_name;
+	char *process_set_name;
+	DOCUMENT *document;
+	LIST *process_set_name_list;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	char *dictionary_string;
+	char export_process_filename[ 512 ];
 	char *exclude_roles_yn = {0};
 	boolean exclude_roles;
-	char *execution_process_name;
 	CREATE_CLONE_FILENAME *create_clone_filename;
-	DICTIONARY_APPASERVER *dictionary_appaserver = {0};
+	DICTIONARY_SEPARATE *dictionary_separate;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s ignored session login_name role process parameter_dictionary\n",
+		"Usage: %s session login_name role process dictionary\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	execution_process_name = argv[ 5 ];
-	parameter_dictionary_string = argv[ 6 ];
+	session = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	execution_process_name = argv[ 4 ];
+	dictionary_string = argv[ 5 ];
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	create_clone_filename = create_clone_filename_new(
-					application_name,
-					appaserver_parameter_file->
-						appaserver_data_directory );
+	create_clone_filename =
+		create_clone_filename_new(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_data_directory );
 
-	parameter_dictionary = 
-		dictionary_index_string2dictionary(
-			parameter_dictionary_string );
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
-	dictionary_appaserver =
-		dictionary_appaserver_new(
-			parameter_dictionary,
-			(char *)0 /* application_name */,
-			(LIST *)0 /* attribute_name_list */,
-			(LIST *)0 /* attribute_date_name_list*/,
-			(LIST *)0 /* operation_name_list */,
-			(char *)0 /* login_name */ );
-
-	if ( !dictionary_appaserver )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	parameter_dictionary = dictionary_appaserver->
-				working_post_dictionary;
+	parameter_dictionary =
+		dictionary_separate->
+			working_post_dictionary;
 
 	dictionary_get_index_data( 	&exclude_roles_yn,
 					parameter_dictionary,

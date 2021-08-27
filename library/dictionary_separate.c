@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/dictionary_appaserver.c	   */
+/* $APPASERVER_HOME/library/dictionary_separate.c	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -13,9 +13,10 @@
 #include "column.h"
 #include "element.h"
 #include "appaserver_library.h"
-#include "dictionary_appaserver.h"
+#include "post_dictionary.h"
+#include "dictionary_separate.h"
 
-DICTIONARY *dictionary_appaserver_original_post_dictionary(
+DICTIONARY *dictionary_separate_original_post_dictionary(
 			char *dictionary_string )
 {
 	char escaped_delimiter_string[ 3 ];
@@ -61,12 +62,12 @@ DICTIONARY *dictionary_appaserver_original_post_dictionary(
 		dictionary_string );
 }
 
-DICTIONARY_APPASERVER *dictionary_appaserver_calloc( void )
+DICTIONARY_SEPARATE *dictionary_separate_calloc( void )
 {
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 
-	if ( ! ( dictionary_appaserver =
-			calloc( 1, sizeof( DICTIONARY_APPASERVER ) ) ) )
+	if ( ! ( dictionary_separate =
+			calloc( 1, sizeof( DICTIONARY_SEPARATE ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -75,86 +76,229 @@ DICTIONARY_APPASERVER *dictionary_appaserver_calloc( void )
 			 __LINE__ );
 		exit( 1 );
 	}
-	return dictionary_appaserver;
+	return dictionary_separate;
 }
 
-DICTIONARY_APPASERVER *dictionary_appaserver_new(
-			POST_DICTIONARY *post_dictionary,
+DICTIONARY_SEPARATE *dictionary_separate_stdin_new(
+			DICTIONARY *original_post_dictionary,
 			char *application_name,
+			char *login_name,
 			LIST *attribute_name_list,
-			LIST *attribute_date_name_list,
-			LIST *operation_name_list,
-			char *login_name )
+			LIST *attribute_date_name_list )
 {
-	DICTIONARY_APPASERVER *dictionary_appaserver =
-		dictionary_appaserver_calloc();
+	DICTIONARY_SEPARATE *dictionary_separate =
+		dictionary_separate_calloc();
 
-	dictionary_appaserver->original_post_dictionary =
+	dictionary_separate->original_post_dictionary =
 		original_post_dictionary;
 
-	dictionary_appaserver->application_name = application_name;
+	dictionary_separate->application_name = application_name;
 
-	dictionary_appaserver->attribute_date_name_list =
+	dictionary_separate->attribute_date_name_list =
 		attribute_date_name_list;
 
-	dictionary_appaserver->operation_name_list = operation_name_list;
-	dictionary_appaserver->login_name = login_name;
+	dictionary_separate->operation_name_list = operation_name_list;
+	dictionary_separate->login_name = login_name;
 
-	if ( !dictionary_length( original_post_dictionary ) )
-		return dictionary_appaserver;
+	if ( !dictionary_length(
+			dictionary_separate->
+				original_post_dictionary ) )
+	{
+		return dictionary_separate;
+	}
 
-	dictionary_appaserver->working_post_dictionary =
-		dictionary_appaserver_working_post(
+	dictionary_separate->working_post_dictionary =
+		dictionary_separate_working_post(
 			original_post_dictionary,
 			application_name,
 			attribute_date_name_list,
 			login_name );
 
-	dictionary_appaserver->sort_dictionary =
-		dictionary_appaserver_sort(
-			dictionary_appaserver->
+	dictionary_separate->sort_dictionary =
+		dictionary_separate_sort(
+			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_appaserver->query_dictionary =
-		dictionary_appaserver_query(
-			dictionary_appaserver->
+	dictionary_separate->query_dictionary =
+		dictionary_separate_query(
+			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_appaserver->drilldown_dictionary =
-		dictionary_appaserver_drilldown(
-			dictionary_appaserver->
+	dictionary_separate->drilldown_dictionary =
+		dictionary_separate_drilldown(
+			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_appaserver->ignore_dictionary =
-		dictionary_appaserver_ignore(
-			dictionary_appaserver->
+	dictionary_separate->ignore_dictionary =
+		dictionary_separate_ignore(
+			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_appaserver->ignore_select_attribute_name_list =
-		dictionary_appaserver_ignore_select_attribute_name_list(
-			dictionary_appaserver->ignore_dictionary );
+	dictionary_separate->ignore_select_attribute_name_list =
+		dictionary_separate_ignore_select_attribute_name_list(
+			dictionary_separate->ignore_dictionary );
 
-	dictionary_appaserver->pair_one2m_dictionary =
-		dictionary_appaserver_pair_one2m(
-			dictionary_appaserver->
+	dictionary_separate->pair_one2m_dictionary =
+		dictionary_separate_pair_one2m(
+			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_appaserver->non_prefixed_dictionary =
-		dictionary_appaserver_non_prefixed(
-			dictionary_appaserver->
+	dictionary_separate->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_appaserver->row_dictionary =
-		dictionary_appaserver_row_dictionary_multi_row(
-			dictionary_appaserver->
+	return dictionary_separate;
+}
+
+DICTIONARY_SEPARATE *dictionary_separate_row_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *attribute_name_list,
+			LIST *attribute_date_name_list,
+			LIST *operation_name_list )
+{
+	DICTIONARY_SEPARATE *dictionary_separate =
+		dictionary_separate_calloc();
+
+	dictionary_separate->original_post_dictionary =
+		original_post_dictionary;
+
+	dictionary_separate->application_name = application_name;
+
+	dictionary_separate->attribute_date_name_list =
+		attribute_date_name_list;
+
+	dictionary_separate->operation_name_list = operation_name_list;
+	dictionary_separate->login_name = login_name;
+
+	if ( !dictionary_length( original_post_dictionary ) )
+		return dictionary_separate;
+
+	dictionary_separate->working_post_dictionary =
+		dictionary_separate_working_post(
+			original_post_dictionary,
+			application_name,
+			attribute_date_name_list,
+			login_name );
+
+	dictionary_separate->sort_dictionary =
+		dictionary_separate_sort(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->query_dictionary =
+		dictionary_separate_query(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->drilldown_dictionary =
+		dictionary_separate_drilldown(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->ignore_dictionary =
+		dictionary_separate_ignore(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->ignore_select_attribute_name_list =
+		dictionary_separate_ignore_select_attribute_name_list(
+			dictionary_separate->ignore_dictionary );
+
+	dictionary_separate->pair_one2m_dictionary =
+		dictionary_separate_pair_one2m(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->row_dictionary =
+		dictionary_separate_row_dictionary_multi_row(
+			dictionary_separate->
 				non_prefixed_dictionary,
 			attribute_name_list,
 			operation_name_list );
 
-	return dictionary_appaserver;
+	return dictionary_separate;
 }
 
-DICTIONARY *dictionary_appaserver_working_post(
+DICTIONARY_SEPARATE *dictionary_separate_string_new(
+			char *dictionary_string )
+{
+	DICTIONARY_SEPARATE *dictionary_separate =
+		dictionary_separate_calloc();
+
+	dictionary_separate->original_post_dictionary =
+		original_post_dictionary;
+
+	dictionary_separate->application_name = application_name;
+
+	dictionary_separate->attribute_date_name_list =
+		attribute_date_name_list;
+
+	dictionary_separate->operation_name_list = operation_name_list;
+	dictionary_separate->login_name = login_name;
+
+	if ( !dictionary_length( original_post_dictionary ) )
+		return dictionary_separate;
+
+	dictionary_separate->working_post_dictionary =
+		dictionary_separate_working_post(
+			original_post_dictionary,
+			application_name,
+			attribute_date_name_list,
+			login_name );
+
+	dictionary_separate->sort_dictionary =
+		dictionary_separate_sort(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->query_dictionary =
+		dictionary_separate_query(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->drilldown_dictionary =
+		dictionary_separate_drilldown(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->ignore_dictionary =
+		dictionary_separate_ignore(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->ignore_select_attribute_name_list =
+		dictionary_separate_ignore_select_attribute_name_list(
+			dictionary_separate->ignore_dictionary );
+
+	dictionary_separate->pair_one2m_dictionary =
+		dictionary_separate_pair_one2m(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			dictionary_separate->
+				working_post_dictionary );
+
+	dictionary_separate->row_dictionary =
+		dictionary_separate_row_dictionary_multi_row(
+			dictionary_separate->
+				non_prefixed_dictionary,
+			attribute_name_list,
+			operation_name_list );
+
+	return dictionary_separate;
+}
+
+DICTIONARY *dictionary_separate_working_post(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			LIST *attribute_date_name_list,
@@ -166,25 +310,25 @@ DICTIONARY *dictionary_appaserver_working_post(
 		dictionary_large_copy(
 			original_post_dictionary );
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
 		QUERY_PREFIX );
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
 		DRILLDOWN_PREFIX );
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
 		SORT_BUTTON_PREFIX );
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
 		PAIR_ONE2M_PREFIX );
 
 	if ( list_length( attribute_date_name_list ) )
 	{
-		dictionary_appaserver_dictionary_date_convert(
+		dictionary_separate_dictionary_date_convert(
 			working_post_dictionary,
 			application_name,
 			attribute_date_name_list,
@@ -193,30 +337,30 @@ DICTIONARY *dictionary_appaserver_working_post(
 
 	/* Remove the index appended to the multi-select lookup widget. */
 	/* ------------------------------------------------------------ */
-	dictionary_appaserver_trim_multi_drop_down_index(
+	dictionary_separate_trim_multi_drop_down_index(
 		working_post_dictionary,
 		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
 
 	/* Trim the [common_non_primary_attribute data] 		*/
 	/* Note: this must follow					*/
-	/* 	 dictionary_appaserver_trim_multi_drop_down_index()	*/
+	/* 	 dictionary_separate_trim_multi_drop_down_index()	*/
 	/* ------------------------------------------------------------ */
-	dictionary_appaserver_trim_double_bracked_data(
+	dictionary_separate_trim_double_bracked_data(
 		working_post_dictionary );
 
 	return working_post_dictionary;
 }
 
-DICTIONARY *dictionary_appaserver_sort(
+DICTIONARY *dictionary_separate_sort(
 			DICTIONARY *working_post_dictionary )
 {
-	return dictionary_appaserver_prefixed(
+	return dictionary_separate_prefixed(
 		working_post_dictionary,
 		SORT_BUTTON_PREFIX );
 
 }
 
-DICTIONARY *dictionary_appaserver_prefixed(
+DICTIONARY *dictionary_separate_prefixed(
 			DICTIONARY *post_dictionary,
 			char *prefix )
 {
@@ -233,7 +377,7 @@ DICTIONARY *dictionary_appaserver_prefixed(
 	return return_dictionary;
 }
 
-DICTIONARY *dictionary_appaserver_drilldown(
+DICTIONARY *dictionary_separate_drilldown(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -248,13 +392,13 @@ DICTIONARY *dictionary_appaserver_drilldown(
 
 	dictionary_add_suffix_zero( dictionary );
 
-	dictionary_appaserver_remove_from_starting_label( dictionary );
+	dictionary_separate_remove_from_starting_label( dictionary );
 
 	return dictionary;
 
 }
 
-DICTIONARY *dictionary_appaserver_ignore_dictionary(
+DICTIONARY *dictionary_separate_ignore_dictionary(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -273,14 +417,14 @@ DICTIONARY *dictionary_appaserver_ignore_dictionary(
 			working_post_dictionary,
 			NO_DISPLAY_PUSH_BUTTON_PREFIX ) );
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		dictionary,
 		(char *)0 /* prefix */ );
 
 	return dictionary;
 }
 
-DICTIONARY *dictionary_appaserver_pair_one2m_dictionary(
+DICTIONARY *dictionary_separate_pair_one2m_dictionary(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -296,7 +440,7 @@ DICTIONARY *dictionary_appaserver_pair_one2m_dictionary(
 	return dictionary;
 }
 
-DICTIONARY *dictionary_appaserver_query(
+DICTIONARY *dictionary_separate_query(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -311,9 +455,9 @@ DICTIONARY *dictionary_appaserver_query(
 
 	dictionary_add_suffix_zero( dictionary );
 
-	dictionary_appaserver_remove_from_starting_label( dictionary );
+	dictionary_separate_remove_from_starting_label( dictionary );
 
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		dictionary,
 		RELATION_OPERATOR_PREFIX );
 
@@ -321,7 +465,7 @@ DICTIONARY *dictionary_appaserver_query(
 
 }
 
-void dictionary_appaserver_parse_multi_attribute_keys(
+void dictionary_separate_parse_multi_attribute_keys(
 			DICTIONARY *source_destination,
 			char *prefix )
 {
@@ -345,7 +489,7 @@ void dictionary_appaserver_parse_multi_attribute_keys(
 		1 /* dont_include_relational_operators */ );
 }
 
-DICTIONARY *dictionary_appaserver_row_dictionary_row_zero(
+DICTIONARY *dictionary_separate_row_dictionary_row_zero(
 			DICTIONARY *working_post_dictionary,
 			LIST *attribute_name_list )
 {
@@ -385,7 +529,7 @@ DICTIONARY *dictionary_appaserver_row_dictionary_row_zero(
 	return row_dictionary;
 }
 
-DICTIONARY *dictionary_appaserver_row_dictionary_multi_row(
+DICTIONARY *dictionary_separate_row_dictionary_multi_row(
 			DICTIONARY *non_prefixed_dictionary,
 			LIST *attribute_name_list,
 			LIST *operation_name_list )
@@ -463,7 +607,7 @@ DICTIONARY *dictionary_appaserver_row_dictionary_multi_row(
 	return row_dictionary;
 }
 
-DICTIONARY *dictionary_appaserver_row(
+DICTIONARY *dictionary_separate_row(
 			DICTIONARY *row_dictionary,
 			LIST *attribute_name_list,
 			int row )
@@ -496,17 +640,17 @@ DICTIONARY *dictionary_appaserver_row(
 	return return_dictionary;
 }
 
-char *dictionary_appaserver_escaped_dictionary_string(
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+char *dictionary_separate_escaped_dictionary_string(
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean with_non_prefixed_dictionary )
 {
-	return dictionary_appaserver_escaped_send_dictionary_string(
-				dictionary_appaserver,
+	return dictionary_separate_escaped_send_dictionary_string(
+				dictionary_separate,
 				with_non_prefixed_dictionary );
 }
 
-char *dictionary_appaserver_escaped_send_dictionary_string(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
+char *dictionary_separate_escaped_send_dictionary_string(
+				DICTIONARY_SEPARATE *dictionary_separate,
 				boolean with_non_prefixed_dictionary )
 {
 	char escaped_dictionary_string[ STRING_INPUT_LINE ];
@@ -515,30 +659,30 @@ char *dictionary_appaserver_escaped_send_dictionary_string(
 	if ( with_non_prefixed_dictionary )
 	{
 		non_prefixed_dictionary =
-			dictionary_appaserver->
+			dictionary_separate->
 				non_prefixed_dictionary;
 	}
 
-	dictionary_appaserver->send_dictionary =
-		dictionary_appaserver_send_dictionary(
-			dictionary_appaserver->sort_dictionary,
-			dictionary_appaserver->query_dictionary,
-			dictionary_appaserver->drilldown_dictionary,
-			dictionary_appaserver->ignore_dictionary,
-			dictionary_appaserver->pair_one2m_dictionary,
+	dictionary_separate->send_dictionary =
+		dictionary_separate_send_dictionary(
+			dictionary_separate->sort_dictionary,
+			dictionary_separate->query_dictionary,
+			dictionary_separate->drilldown_dictionary,
+			dictionary_separate->ignore_dictionary,
+			dictionary_separate->pair_one2m_dictionary,
 			non_prefixed_dictionary );
 
 	escape_character(
 			escaped_dictionary_string,
 			dictionary_display_delimited(
-				dictionary_appaserver->send_dictionary,
+				dictionary_separate->send_dictionary,
 				'&' ),
 			'$' );
 
 	return strdup( escaped_dictionary_string );
 }
 
-DICTIONARY *dictionary_appaserver_non_prefixed(
+DICTIONARY *dictionary_separate_non_prefixed(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -590,11 +734,11 @@ DICTIONARY *dictionary_appaserver_non_prefixed(
 	} while( list_next( key_list ) );
 
 #ifdef NOT_DEFINED
-	dictionary_appaserver_parse_multi_attribute_keys(
+	dictionary_separate_parse_multi_attribute_keys(
 		dictionary,
 		(char *)0 /* prefix */ );
 
-	dictionary_appaserver_remove_from_starting_label(
+	dictionary_separate_remove_from_starting_label(
 		dictionary );
 
 	dictionary_add_elements_by_removing_index_zero(
@@ -602,7 +746,7 @@ DICTIONARY *dictionary_appaserver_non_prefixed(
 
 	if ( list_length( attribute_date_name_list ) )
 	{
-		dictionary_appaserver_dictionary_date_convert(
+		dictionary_separate_dictionary_date_convert(
 				dictionary,
 				application_name,
 				attribute_date_name_list,
@@ -613,57 +757,57 @@ DICTIONARY *dictionary_appaserver_non_prefixed(
 	return dictionary;
 }
 
-void dictionary_appaserver_output_as_hidden(
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+void dictionary_separate_output_as_hidden(
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean with_non_prefixed_dictionary )
 {
-	if ( dictionary_length( dictionary_appaserver->drilldown_dictionary ) )
+	if ( dictionary_length( dictionary_separate->drilldown_dictionary ) )
 	{
 		dictionary_output_as_hidden(
 			dictionary_prepend_key(
-				dictionary_appaserver->drilldown_dictionary,
+				dictionary_separate->drilldown_dictionary,
 				DRILLDOWN_PREFIX ) );
 	}
 
-	if ( dictionary_length( dictionary_appaserver->query_dictionary ) )
+	if ( dictionary_length( dictionary_separate->query_dictionary ) )
 	{
 		dictionary_output_as_hidden(
 			dictionary_prepend_key(
-				dictionary_appaserver->
+				dictionary_separate->
 					query_dictionary,
 				QUERY_PREFIX ) );
 	}
 
-	if ( dictionary_length( dictionary_appaserver->ignore_dictionary ) )
+	if ( dictionary_length( dictionary_separate->ignore_dictionary ) )
 	{
 		dictionary_output_as_hidden(
 			dictionary_prepend_key(
-				dictionary_appaserver->
+				dictionary_separate->
 					ignore_dictionary,
 				IGNORE_SELECT_PUSH_BUTTON_PREFIX ) );
 	}
 
-	if ( dictionary_length( dictionary_appaserver->pair_one2m_dictionary ) )
+	if ( dictionary_length( dictionary_separate->pair_one2m_dictionary ) )
 	{
 		dictionary_output_as_hidden(
 			dictionary_prepend_key(
-				dictionary_appaserver->
+				dictionary_separate->
 					pair_one2m_dictionary,
 				PAIR_ONE2M_PREFIX ) );
 	}
 
 	if ( with_non_prefixed_dictionary
-	&&   dictionary_length( dictionary_appaserver->
+	&&   dictionary_length( dictionary_separate->
 					non_prefixed_dictionary ) )
 	{
 		dictionary_output_as_hidden(
-				dictionary_appaserver->
+				dictionary_separate->
 					non_prefixed_dictionary );
 	}
 
 }
 
-LIST *dictionary_appaserver_posted_attribute_name_list(
+LIST *dictionary_separate_posted_attribute_name_list(
 			DICTIONARY *query_dictionary, 
 			LIST *attribute_name_list )
 {
@@ -712,7 +856,7 @@ LIST *dictionary_appaserver_posted_attribute_name_list(
 	return return_list;
 }
 
-void dictionary_appaserver_remove_from_starting_label(
+void dictionary_separate_remove_from_starting_label(
 			DICTIONARY *dictionary )
 {
 	dictionary_add_elements_by_removing_prefix(
@@ -721,7 +865,7 @@ void dictionary_appaserver_remove_from_starting_label(
 
 }
 
-void dictionary_appaserver_set_primary_data_list_string(
+void dictionary_separate_set_primary_data_list_string(
 		DICTIONARY *row_dictionary,
 		char *primary_data_list_string,
 		LIST *primary_key_list,
@@ -770,7 +914,7 @@ void dictionary_appaserver_set_primary_data_list_string(
 	}
 }
 
-LIST *dictionary_appaserver_ignore_select_attribute_name_list(
+LIST *dictionary_separate_ignore_select_attribute_name_list(
 			DICTIONARY *ignore_dictionary )
 {
 	LIST *ignore_select_attribute_name_list;
@@ -794,7 +938,7 @@ LIST *dictionary_appaserver_ignore_select_attribute_name_list(
 	return ignore_select_attribute_name_list;
 }
 
-void dictionary_appaserver_dictionary_date_convert(
+void dictionary_separate_dictionary_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			LIST *attribute_date_name_list,
@@ -830,7 +974,7 @@ void dictionary_appaserver_dictionary_date_convert(
 						key,
 						dictionary ) ) )
 				{
-				     dictionary_appaserver_string_date_convert( 
+				     dictionary_separate_string_date_convert( 
 					dictionary,
 					application_name,
 					date_string,
@@ -851,7 +995,7 @@ void dictionary_appaserver_dictionary_date_convert(
 					key,
 					dictionary ) ) )
 			{
-				dictionary_appaserver_string_date_convert( 
+				dictionary_separate_string_date_convert( 
 					dictionary,
 					application_name,
 					date_string,
@@ -872,7 +1016,7 @@ void dictionary_appaserver_dictionary_date_convert(
 					key,
 					dictionary ) ) )
 			{
-				dictionary_appaserver_string_date_convert( 
+				dictionary_separate_string_date_convert( 
 					dictionary,
 					application_name,
 					date_string,
@@ -893,7 +1037,7 @@ void dictionary_appaserver_dictionary_date_convert(
 					key,
 					dictionary ) ) )
 			{
-				dictionary_appaserver_string_date_convert( 
+				dictionary_separate_string_date_convert( 
 					dictionary,
 					application_name,
 					date_string,
@@ -906,7 +1050,7 @@ void dictionary_appaserver_dictionary_date_convert(
 	} /* for each index */
 }
 
-void dictionary_appaserver_trim_multi_drop_down_index(
+void dictionary_separate_trim_multi_drop_down_index(
 			DICTIONARY *working_post_dictionary,
 			char multi_select_move_left_right_index_delimiter )
 {
@@ -949,7 +1093,7 @@ void dictionary_appaserver_trim_multi_drop_down_index(
 	} while( list_next( key_list ) );
 }
 
-void dictionary_appaserver_string_date_convert(
+void dictionary_separate_string_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *date_string,
@@ -1031,13 +1175,13 @@ void dictionary_appaserver_string_date_convert(
 		strdup( destination ) );
 }
 
-void dictionary_appaserver_trim_double_bracked_data(
+void dictionary_separate_trim_double_bracked_data(
 			DICTIONARY *working_post_dictionary )
 {
 	dictionary_trim_double_bracked_data( working_post_dictionary );
 }
 
-DICTIONARY *dictionary_appaserver_send_dictionary(
+DICTIONARY *dictionary_separate_send_dictionary(
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *drilldown_dictionary,
@@ -1107,7 +1251,7 @@ DICTIONARY *dictionary_appaserver_send_dictionary(
 	return send_dictionary;
 }
 
-char *dictionary_appaserver_send_string(
+char *dictionary_separate_send_string(
 			DICTIONARY *send_dictionary )
 {
 	char escaped_dictionary_string[ STRING_INPUT_LINE ];

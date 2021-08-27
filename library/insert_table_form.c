@@ -39,7 +39,7 @@ INSERT_TABLE_FORM *insert_table_form_fetch(
 			char *role_name,
 			char *state,
 			char *target_frame,
-			DICTIONARY *post_dictionary )
+			POST_DICTIONARY *post_dictionary )
 {
 	INSERT_TABLE_FORM *insert_table_form = insert_table_form_calloc();
 
@@ -130,29 +130,22 @@ INSERT_TABLE_FORM *insert_table_form_fetch(
 		return (INSERT_TABLE_FORM *)0;
 	}
 
-	if ( ! ( edit_table_form->dictionary_appaserver =
-			dictionary_appaserver_new(
-				insert_table_form->post_dictionary,
-				insert_table_form->application_name,
-				attribute_name_list(
-					insert_table_form->
-						folder->
-						attribute_list ),
-				attribute_date_name_list(
-					insert_table_form->
-						folder->
-						attribute_list ),
-				(LIST *)0 /* operation_name_list */,
-				insert_table_form->login_name ) ) )
-	{
-		fprintf( stderr,
-	"Warning in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-
-		return (EDIT_TABLE_FORM *)0;
-	}
+	edit_table_form->dictionary_appaserver =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_appaserver_stream_new(
+			insert_table_form->post_dictionary,
+			insert_table_form->application_name,
+			insert_table_form->login_name,
+			attribute_name_list(
+				insert_table_form->
+					folder->
+					attribute_list ),
+			attribute_date_name_list(
+				insert_table_form->
+					folder->
+					attribute_list ) );
 
 	return insert_table_form;
 }

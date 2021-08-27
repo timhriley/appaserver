@@ -43,7 +43,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/form.o					\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/attribute.o					\

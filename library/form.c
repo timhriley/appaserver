@@ -24,6 +24,7 @@
 #include "appaserver_parameter_file.h"
 #include "application_constants.h"
 #include "vertical_new_button.h"
+#include "dictionary_separate.h"
 #include "pair_one2m.h"
 
 FORM *form_calloc( void )
@@ -1526,7 +1527,7 @@ void form_execute_output_prompt_edit_form(
 			char *role_name,
 			char *state,
 			char *error_file,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			char *target_frame )
 {
 	char sys_string[ 65536 ];
@@ -1542,8 +1543,8 @@ void form_execute_output_prompt_edit_form(
 			role_name,
 			state,
 			target_frame,
-			dictionary_appaserver_get_escaped_dictionary_string(
-				dictionary_appaserver,
+			dictionary_separate_escaped_dictionary_string(
+				dictionary_separate,
 				0 /* not with_non_prefixed_dictionary */ ),
 			error_file );
 
@@ -1561,7 +1562,7 @@ void form_execute_output_prompt_insert_form(
 			char *role_name,
 			char *state,
 			char *error_file,
-			DICTIONARY_APPASERVER *dictionary_appaserver )
+			DICTIONARY_SEPARATE *dictionary_separate )
 {
 	char sys_string[ 65536 ];
 
@@ -1573,8 +1574,8 @@ void form_execute_output_prompt_insert_form(
 			folder_name,
 			role_name,
 			state,
-			dictionary_appaserver_get_escaped_dictionary_string(
-				dictionary_appaserver,
+			dictionary_separate_escaped_dictionary_string(
+				dictionary_separate,
 				0 /* not with_non_prefixed_dictionary */ ),
 			error_file );
 

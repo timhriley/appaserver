@@ -62,7 +62,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/application.o				\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security.o					\
 		${LIBRARY}/element.o					\

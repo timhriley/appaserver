@@ -36,7 +36,7 @@
 #include "role.h"
 #include "lookup_before_drop_down.h"
 #include "row_security.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 #include "edit_table_form.h"
 
 /* Constants */
@@ -99,7 +99,7 @@ int main( int argc, char **argv )
 	boolean with_dynarch_menu = 0;
 	LIST *non_edit_folder_name_list = {0};
 	ROW_SECURITY *row_security;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	char content_type_yn = {0};
 	int rows_inserted;
 	int cells_updated;
@@ -211,12 +211,12 @@ void output_edit_table_form(
 	folder->join_1tom_related_folder_list =
 		subtract_join_1tom_ignore_dictionary_related_folder_list(
 			folder->join_1tom_related_folder_list,
-			dictionary_appaserver->ignore_dictionary );
+			dictionary_separate->ignore_dictionary );
 
 	lookup_before_drop_down =
 		lookup_before_drop_down_new(
 			application_name,
-			dictionary_appaserver->
+			dictionary_separate->
 				lookup_before_drop_down_dictionary,
 			state );
 
@@ -224,24 +224,24 @@ void output_edit_table_form(
 		lookup_before_drop_down_get_state(
 			lookup_before_drop_down->
 				lookup_before_drop_down_folder_list,
-			dictionary_appaserver->
+			dictionary_separate->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
+			dictionary_separate->preprompt_dictionary,
 			folder->lookup_before_drop_down );
 
 	rows_inserted =
 		get_rows_inserted(
-			dictionary_appaserver->
+			dictionary_separate->
 				non_prefixed_dictionary );
 
 	cells_updated =
 		get_cells_updated(
-			dictionary_appaserver->
+			dictionary_separate->
 				non_prefixed_dictionary );
 
 	results_string =
 		get_results_string(
-			dictionary_appaserver->
+			dictionary_separate->
 				non_prefixed_dictionary );
 
 	/* If come from detail */
@@ -295,7 +295,7 @@ void output_edit_table_form(
 
 		cells_updated_folder_name_list_string =
 			get_cells_updated_folder_name_list_string(
-				dictionary_appaserver->
+				dictionary_separate->
 					non_prefixed_dictionary );
 
 		if ( !cells_updated_folder_name_list_string
@@ -519,16 +519,16 @@ void output_edit_table_form(
 			role,
 			login_name,
 			state,
-			dictionary_appaserver->
+			dictionary_separate->
 				preprompt_dictionary,
-			dictionary_appaserver->
+			dictionary_separate->
 				query_dictionary,
-			dictionary_appaserver->
+			dictionary_separate->
 				sort_dictionary,
 			appaserver_no_display_pressed_attribute_name_list(
-				dictionary_appaserver->
+				dictionary_separate->
 					ignore_dictionary, 
-				dictionary_appaserver->
+				dictionary_separate->
 					query_dictionary, 
 				folder->attribute_name_list ) );
 
@@ -681,8 +681,8 @@ m2( application_name, msg );
 
 	printf( "</table>\n" );
 
-	dictionary_appaserver_output_as_hidden(
-		dictionary_appaserver,
+	dictionary_separate_output_as_hidden(
+		dictionary_separate,
 		0 /* not with_prefixed_dictionary */ );
 
 	printf( "<table border=0>\n" );

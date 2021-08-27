@@ -20,7 +20,7 @@
 #include "folder.h"
 #include "query.h"
 #include "html_table.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "document.h"
 #include "application.h"
 #include "appaserver.h"
@@ -29,15 +29,17 @@
 #include "form.h"
 #include "role_folder.h"
 #include "role.h"
-#include "dictionary2file.h"
+#include "post_dictionary.h"
 #include "operation_list.h"
 #include "session.h"
 #include "boolean.h"
 #include "environ.h"
 #include "row_security.h"
-#include "lookup_before_drop_down.h"
+#include "drilldown.h"
+#include "session.h"
 #include "javascript.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
+#include "detail.h"
 
 /* Constants */
 /* --------- */
@@ -100,7 +102,7 @@ DICTIONARY *output_folder_detail(
 			boolean omit_insert_flag,
 			boolean omit_operation_buttons,
 			boolean output_even_if_not_populated,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean override_row_restrictions,
 			enum omit_delete_operation
 				regular_omit_delete_operation,
@@ -129,7 +131,7 @@ void output_mto1_folder_detail(
 			DICTIONARY *primary_dictionary,
 			char *appaserver_data_directory,
 			char *base_folder_name,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean override_row_restrictions,
 			LIST *role_folder_insert_list,
 			LIST *role_folder_update_list,
@@ -148,7 +150,7 @@ void output_1tom_folder_detail(
 			char *appaserver_data_directory,
 			char *base_folder_name,
 			boolean output_even_if_not_populated,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean override_row_restrictions,
 			LIST *role_folder_insert_list,
 			LIST *role_folder_update_list,
@@ -156,25 +158,27 @@ void output_1tom_folder_detail(
 
 int main( int argc, char **argv )
 {
-	char *application_name, *session, *folder_name;
+	char *application_name;
+	char *session_key;
+	char *folder_name;
 	char *login_name;
-	DOCUMENT *document;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *role_name;
 	char *target_frame;
-	DICTIONARY *primary_dictionary = {0};
 	char *primary_data_list_string;
+	char *dictionary_string;
+	DICTIONARY_SEPARATE *dictionary_separate;
+	SESSION *session;
+	DOCUMENT *document;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	LIST *primary_attribute_data_list;
 	LIST *ignore_attribute_name_list;
 	char *base_folder_name;
-	DICTIONARY *original_post_dictionary;
 	FOLDER *folder;
 	ROLE *role;
 	char *output_content_type_yn;
 	LIST *role_folder_insert_list;
 	LIST *role_folder_update_list;
 	LIST *role_folder_lookup_list;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char form_title[ 128 ];
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 	LIST *non_edit_folder_name_list = {0};
@@ -188,22 +192,28 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 9 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s ignored session login_name folder role target_frame primary_data_bar_list dictionary\n",
+"Usage: %s session login_name folder role target_frame primary_data_list_string dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	/* application_name = argv[ 1 ]; */
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	base_folder_name = folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	target_frame = argv[ 6 ];
-	primary_data_list_string = argv[ 7 ];
-	original_post_dictionary = dictionary_string2dictionary( argv[ 8 ] );
+	session_key = argv[ 1 ];
+	login_name = argv[ 2 ];
+	base_folder_name = folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	target_frame = argv[ 5 ];
+	primary_data_list_string = argv[ 6 ];
+	dictionary_string = argv[ 7 ];
+
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
 	if ( session_remote_ip_address_changed(
 		application_name,
@@ -254,29 +264,10 @@ int main( int argc, char **argv )
 			session,
 			folder_name );
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				application_name,
-				attribute_name_list(
-					folder->append_isa_attribute_list )
-				attribute_date_name_list(
-					folder->append_isa_attribute_list ),
-				(LIST *)0 /* operation_name_list */,
-				login_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
 	lookup_before_drop_down =
 		lookup_before_drop_down_new(
 			application_name,
-			dictionary_appaserver->
+			dictionary_separate->
 				lookup_before_drop_down_dictionary,
 			(char *)0 /* state */ );
 
@@ -284,9 +275,9 @@ int main( int argc, char **argv )
 		lookup_before_drop_down_get_state(
 			lookup_before_drop_down->
 				lookup_before_drop_down_folder_list,
-			dictionary_appaserver->
+			dictionary_separate->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
+			dictionary_separate->preprompt_dictionary,
 			appaserver->folder->lookup_before_drop_down );
 
 	if ( lookup_before_drop_down->
@@ -304,24 +295,24 @@ int main( int argc, char **argv )
 	/* --------------------------------------------------- */
 	output_content_type_yn =
 		dictionary_get_pointer(
-			dictionary_appaserver->non_prefixed_dictionary,
+			dictionary_separate->non_prefixed_dictionary,
 			CONTENT_TYPE_YN );
 
 	parent_pid =
 		atoi( dictionary_safe_fetch(
-			dictionary_appaserver->non_prefixed_dictionary,
+			dictionary_separate->non_prefixed_dictionary,
 			PROCESS_ID_LABEL ) );
 
-	dictionary_appaserver->non_prefixed_dictionary =
+	dictionary_separate->non_prefixed_dictionary =
 		dictionary_small();
 
 	dictionary_set_pointer( 
-		dictionary_appaserver->non_prefixed_dictionary,
+		dictionary_separate->non_prefixed_dictionary,
 			CONTENT_TYPE_YN,
 			"n" );
 
 	dictionary_set_string(
-		dictionary_appaserver->non_prefixed_dictionary,
+		dictionary_separate->non_prefixed_dictionary,
 		PRIMARY_DATA_LIST_KEY,
 		primary_data_list_string );
 
@@ -330,7 +321,7 @@ int main( int argc, char **argv )
 	/* so parameter_dictionary will get it. */
 	/* ------------------------------------ */
 	dictionary_set_string(
-		dictionary_appaserver->preprompt_dictionary,
+		dictionary_separate->preprompt_dictionary,
 		PRIMARY_DATA_LIST_KEY,
 		primary_data_list_string );
 
@@ -413,7 +404,7 @@ int main( int argc, char **argv )
 			1 /* omit_insert_flag */,
 			0 /* dont omit_operation_buttons */,
 			1 /* output_even_if_not_populated */,
-			dictionary_appaserver,
+			dictionary_separate,
 			role_override_row_restrictions(
 				role->override_row_restrictions_yn ),
 			dont_omit_delete
@@ -481,7 +472,7 @@ int main( int argc, char **argv )
 			appaserver_data_directory,
 		base_folder_name,
 		0 /* dont output_even_if_not_populated */,
-		dictionary_appaserver,
+		dictionary_separate,
 		role_get_override_row_restrictions(
 			role->override_row_restrictions_yn ),
 		role_folder_insert_list,
@@ -501,7 +492,7 @@ int main( int argc, char **argv )
 		appaserver_parameter_file->
 			appaserver_data_directory,
 		base_folder_name,
-		dictionary_appaserver,
+		dictionary_separate,
 		role_get_override_row_restrictions(
 			role->override_row_restrictions_yn ),
 		role_folder_insert_list,
@@ -604,7 +595,7 @@ void detail_mto1_isa_related_folder_list(
 			0 /* dont omit_operation_buttons */,
 			(char *)0 /* last_related_attribute_name */,
 			0 /* dont output_even_if_not_populated */,
-			dictionary_appaserver,
+			dictionary_separate,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
 			dont_omit_delete
@@ -714,7 +705,7 @@ void output_1tom_folder_detail(
 			char *appaserver_data_directory,
 			char *base_folder_name,
 			boolean output_even_if_not_populated,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean override_row_restrictions,
 			LIST *role_folder_insert_list,
 			LIST *role_folder_update_list,
@@ -952,7 +943,7 @@ void output_1tom_folder_detail(
 			0 /* dont omit_operation_buttons */,
 			related_folder->related_attribute_name,
 			local_output_even_if_not_populated,
-			dictionary_appaserver,
+			dictionary_separate,
 			override_row_restrictions,
 			dont_omit_delete
 				/* regular_omit_delete_operation */,
@@ -1006,7 +997,7 @@ void output_mto1_folder_detail(
 			DICTIONARY *primary_dictionary,
 			char *appaserver_data_directory,
 			char *base_folder_name,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean override_row_restrictions,
 			LIST *role_folder_insert_list,
 			LIST *role_folder_update_list,
@@ -1228,7 +1219,7 @@ void output_mto1_folder_detail(
 				0 /* dont omit_operation_buttons */,
 				related_folder->related_attribute_name,
 				0 /* not output_even_if_not_populated */,
-				dictionary_appaserver,
+				dictionary_separate,
 				override_row_restrictions,
 				omit_delete
 					/* regular_omit_delete_operation */,
@@ -1261,7 +1252,7 @@ DICTIONARY *output_folder_detail(
 			boolean omit_operation_buttons,
 			char *last_related_attribute_name,
 			boolean output_even_if_not_populated,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
+			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean override_row_restrictions,
 			enum omit_delete_operation
 				regular_omit_delete_operation,
@@ -1332,11 +1323,11 @@ DICTIONARY *output_folder_detail(
 			role,
 			login_name,
 			"update" /* state */,
-			dictionary_appaserver->
+			dictionary_separate->
 				preprompt_dictionary,
-			dictionary_appaserver->
+			dictionary_separate->
 				query_dictionary,
-			dictionary_appaserver->
+			dictionary_separate->
 				sort_dictionary,
 			(LIST *)0 /* no_display_pressed_attribute_name_list */);
 
@@ -1528,8 +1519,8 @@ DICTIONARY *output_folder_detail(
 		appaserver_user_foreign_login_name,
 		non_edit_folder_name_list );
 
-	dictionary_appaserver_output_as_hidden(
-		dictionary_appaserver,
+	dictionary_separate_output_as_hidden(
+		dictionary_separate,
 		1 /* with non_prefixed_dictionary */ );
 
 	output_submit_reset_buttons_in_trailer =

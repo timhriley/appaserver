@@ -27,7 +27,7 @@
 #include "process.h"
 #include "session.h"
 #include "process_generic_output.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -53,8 +53,8 @@ int main( int argc, char **argv )
 	char *process_set_name;
 	char *process_name;
 	char *login_name;
+	char *dictionary_string;
 	PROCESS_GENERIC_OUTPUT *process_generic_output;
-	DICTIONARY *original_post_dictionary;
 	char *output_medium;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *sys_string;
@@ -62,7 +62,7 @@ int main( int argc, char **argv )
 	int percent_below_piece;
 	char *begin_date = {0};
 	char *end_date = {0};
-	DICTIONARY_APPASERVER *dictionary_appaserver = {0};
+	DICTIONARY_SEPARATE *dictionary_separate;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -83,16 +83,14 @@ int main( int argc, char **argv )
 	process_name = argv[ 2 ];
 	login_name = argv[ 3 ];
 	output_medium = argv[ 4 ];
-	original_post_dictionary = dictionary_string2dictionary( argv[ 5 ] );
+	dictionary_string = argv[ 5 ];
 
-	dictionary_appaserver =
-		dictionary_appaserver_new(
-			original_post_dictionary,
-			(char *)0 /* application_name */,
-			(LIST *)0 /* attribute_name_list */,
-			(LIST *)0 /* attribute_date_name_list*/,
-			(LIST *)0 /* operation_name_list */,
-			(char *)0 /* login_name */ );
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -133,10 +131,8 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 					units_folder_name,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				: (DICTIONARY *)0,
+			dictionary_separate->
+				non_prefixed_dictionary
 			0 /* dictionary_index */ );
 
 	if ( !process_generic_output->value_folder->datatype )
@@ -167,10 +163,8 @@ int main( int argc, char **argv )
 	process_name =
 		process_generic_output_get_process_name(
 			process_set_name,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				: (DICTIONARY *)0 );
+			dictionary_separate->
+				non_prefixed_dictionary );
 
 	if ( !process_generic_output_validate_begin_end_date(
 			&begin_date /* in/out */,
@@ -182,11 +176,8 @@ int main( int argc, char **argv )
 			process_generic_output->
 				value_folder->
 				date_attribute_name,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				: (DICTIONARY *)0
-					/* query_removed_post_dictionary */ ) )
+			dictionary_separate->
+				non_prefixed_dictionary ) )
 	{
 		printf( "<p>ERROR: no data available for these dates.\n" );
 		document_close();
@@ -203,11 +194,8 @@ int main( int argc, char **argv )
 			&where_clause,
 			application_name,
 			process_generic_output,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				: (DICTIONARY *)0
-					/* post_dictionary */,
+			dictionary_separate->non_prefixed_dictionary
+				/* post_dictionary */,
 			0 /* not with_html_table */,
 			login_name );
 
@@ -224,11 +212,8 @@ int main( int argc, char **argv )
 			&where_clause,
 			application_name,
 			process_generic_output,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				: (DICTIONARY *)0
-					/* post_dictionary */,
+			dictionary_separate->non_prefixed_dictionary
+				/* post_dictionary */,
 			1 /* with_html_table */,
 			login_name );
 
@@ -262,11 +247,8 @@ int main( int argc, char **argv )
 			&where_clause,
 			application_name,
 			process_generic_output,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				? (DICTIONARY *)0
-					/* post_dictionary */,
+			dictionary_separate->non_prefixed_dictionary
+				/* post_dictionary */,
 			0 /* not with_html_table */,
 			login_name );
 
@@ -276,11 +258,8 @@ int main( int argc, char **argv )
 			process_generic_output,
 			begin_date,
 			end_date,
-			(dictionary_appaserver)
-				? dictionary_appaserver->
-					non_prefixed_dictionary
-				: (DICTIONARY *)0
-					/* post_dictionary */,
+			dictionary_separate->non_prefixed_dictionary
+				/* post_dictionary */,
 			appaserver_parameter_file->
 				document_root,
 			percent_below_piece,

@@ -148,7 +148,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/folder.o						\
 		${LIB}/role.o						\
 		${LIB}/appaserver.o					\
-		${LIB}/dictionary_appaserver.o				\
+		${LIB}/dictionary_separate.o				\
 		${LIB}/query.o						\
 		${LIB}/process.o					\
 		${LIB}/attribute.o					\

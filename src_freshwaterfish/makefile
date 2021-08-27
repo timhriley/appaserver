@@ -47,7 +47,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/basename.o					\
 		${LIBRARY}/environ.o					\
 		${LIBRARY}/application_constants.o			\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/make_date_time_between_compatable.o		\
 		${LIBRARY}/appaserver_library.o				\
 		${LIBRARY}/prompt_recursive.o				\

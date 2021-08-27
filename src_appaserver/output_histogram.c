@@ -29,7 +29,7 @@
 #include "decode_html_post.h"
 #include "appaserver.h"
 #include "column.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -44,9 +44,7 @@ int main( int argc, char **argv )
 	char *session;
 	char *folder_name;
 	char *role_name;
-	char decoded_dictionary_string[ MAX_INPUT_LINE ];
-	char dictionary_string[ MAX_INPUT_LINE ];
-	DICTIONARY *original_post_dictionary;
+	char *dictionary_string;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DOCUMENT *document;
 	LIST *query_record_list;
@@ -65,7 +63,7 @@ int main( int argc, char **argv )
 	char ftp_agr_filename[ 256 ];
 	char ftp_output_filename[ 256 ];
 	char output_filename[ 256 ];
-	DICTIONARY_APPASERVER *dictionary_appaserver = {0};
+	DICTIONARY_SEPARATE *dictionary_separate;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -74,40 +72,26 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 7 )
+	if ( argc != 6 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role ignored [dictionary_stdin]\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s login_name session folder role dictionary\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	/* state = argv[ 6 ]; */
+	session = argv[ 2 ];
+	folder_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	dictionary_string = argv[ 5 ];
 
-	if ( argc == 8 && strcmp( argv[ 7 ], "dictionary_stdin" ) == 0 )
-	{
-		get_line( dictionary_string, stdin );
-
-		decode_html_post(	decoded_dictionary_string, 
-					dictionary_string );
-
-		original_post_dictionary = 
-			dictionary_index_string2dictionary( 
-				decoded_dictionary_string );
-
-		dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_name_list */,
-				(LIST *)0 /* attribute_date_name_list*/,
-				(LIST *)0 /* operation_name_list */,
-				(char *)0 /* login_name */ );
-	}
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -137,9 +121,7 @@ int main( int argc, char **argv )
 
 	query =
 		query_simple_new(
-			(dictionary_appaserver)
-				? dictionary_appaserver->query_dictionary
-				: (DICTIONARY *)0,
+			dictionary_separate->query_dictionary,
 			login_name,
 			folder_name,
 			role_name,

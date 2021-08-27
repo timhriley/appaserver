@@ -28,7 +28,7 @@ EXECUTABLES=	update_cell_stage					\
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
 		${LIBRARY}/aggregate_statistic.o			\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/process_generic_output.o			\
 		${LIBRARY}/decode_html_post.o				\
 		${LIBRARY}/update_statement.o				\

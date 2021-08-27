@@ -50,7 +50,7 @@ EXTERNAL_LIBRARYS=							\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/aggregate_statistic.o			\
-		${LIBRARY}/dictionary_appaserver.o			\
+		${LIBRARY}/dictionary_separate.o			\
 		${LIBRARY}/aggregate_level.o				\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security.o					\
