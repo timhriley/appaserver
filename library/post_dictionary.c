@@ -213,7 +213,6 @@ void post_dictionary_stream_set(
 			char *apache_key )
 {
 	char input[ STRING_INPUT_BUFFER ];
-	char input_multi_select_trimmed[ 256 ];
 	int multi_drop_down_index;
 	int row = 0;
 	char key[ 256 ];
@@ -222,7 +221,9 @@ void post_dictionary_stream_set(
 
 	multi_drop_down_index = string_index( appaserver_key );
 
-	if ( multi_drop_down_index )
+	/* May be a multi-select drop-down or the first edit table row */
+	/* ----------------------------------------------------------- */
+	if ( multi_drop_down_index == 1 )
 	{
 		string_trim_index( appaserver_key );
 		row = 1;
@@ -241,23 +242,21 @@ void post_dictionary_stream_set(
 
 		if ( strcmp( input, "select" ) == 0 ) continue;
 
+		/* All done */
+		/* -------- */
 		if ( string_strncmp( input, apache_key ) == 0 ) break;
 
-		if ( multi_drop_down_index )
+		if ( multi_drop_down_index == 1 )
 		{
 			sprintf(key,
 				"%s_%d",
 				appaserver_key,
 				row++ );
 
-			/* Trim index used to manage the move left button */
-			/* ---------------------------------------------- */
-			piece( input_multi_select_trimmed, '|', input, 0 );
-
 			dictionary_set(
 				dictionary,
 				strdup( key ),
-				strdup( input_multi_select_trimmed ) );
+				strdup( input ) );
 		}
 		else
 		{
