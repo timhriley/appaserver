@@ -88,7 +88,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 	if ( ! ( post_choose_folder->drilldown =
 			drilldown_fetch(
 				folder_name /* base_folder_name */,
-				dictionary_small_new() ) ) )
+				dictionary_small() ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: drilldown_fetch() returned empty.\n",

@@ -226,7 +226,7 @@ int main( int argc, char **argv )
 				: (DICTIONARY *)0 );
 			PRIMARY_DATA_LIST_KEY );
 
-	non_prefixed_dictionary = dictionary_small_new();
+	non_prefixed_dictionary = dictionary_small();
 
 	if ( timlib_strlen( primary_data_list_string ) )
 	{
@@ -724,7 +724,7 @@ int main( int argc, char **argv )
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
 			vertical_new_button->many_folder_name );
 
-		query_dictionary = dictionary_small_new();
+		query_dictionary = dictionary_small();
 
 		output_submit_reset_buttons_in_trailer = 0;
 	}

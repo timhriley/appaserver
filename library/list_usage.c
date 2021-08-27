@@ -67,7 +67,7 @@ LIST *list_usage_pipe2dictionary_list(
 	{
 		list_rewind( attribute_name_list );
 
-		dictionary = dictionary_small_dictionary_new();
+		dictionary = dictionary_small();
 
 		list_set( list, dictionary );
 
@@ -244,7 +244,7 @@ char *two_lists_to_dictionary_string( LIST *list1, LIST *list2 )
 }
 
 
-LIST *list_usage_get_column_list( char *string )
+LIST *list_usage_column_list( char *string )
 {
 	int c;
 	char buffer[ 1024 ];
@@ -339,12 +339,13 @@ char *search_replace_list_index_prepend_single_quoted(
 	{
 		do {
 			key = list_get( list );
+
 			sprintf( key_to_search, 
 				 "%s%s", 
 				 search_key_prepend, 
 				 key );
 
-			if (  dictionary_get_index_data(		
+			if (  dictionary_index_data(		
 					&data,
 					dictionary,
 					key_to_search,
@@ -394,7 +395,7 @@ char *search_replace_list_index_prepend_double_quoted(
 				 search_key_prepend, 
 				 key );
 
-			if (  dictionary_get_index_data(		
+			if (  dictionary_index_data(		
 					&data,
 					dictionary,
 					key_to_search,
@@ -437,14 +438,16 @@ void list_interpolate_string_record( LIST *list, char delimiter )
 	
 	if ( !list_rewind( list ) ) return;
 
-	last_piece = character_count( delimiter, list_get_string( list ) );
+	last_piece = character_count( delimiter, list_get( list ) );
 
 	/* Build the double array */
 	/* ---------------------- */
 	do {
-		s = list_get_string( list );
+		s = list_get( list );
+
 		double_array[ i++ ] = 
 			atof( piece( buffer, delimiter, s, last_piece ) );
+
 	} while( list_next( list ) );
 
 	/* Fix the double array */
@@ -456,7 +459,7 @@ void list_interpolate_string_record( LIST *list, char delimiter )
 	list_reset( list );
 	i = 0;
 	do {
-		s = list_get_string( list );
+		s = list_get( list );
 		original_value =
 			atof( piece( buffer, delimiter, s, last_piece ) );
 		if ( original_value != double_array[ i ] )
@@ -472,15 +475,15 @@ void list_interpolate_string_record( LIST *list, char delimiter )
 	free( double_array );
 }
 
-int list_get_string_item_offset( LIST *list, char *search_string )
+int list_string_item_offset( LIST *list, char *search_string )
 {
 	char *item;
 	int i = 0;
 
-	if ( list && list_rewind( list ) )
+	if ( list_rewind( list ) )
 	{
 		do {
-			item = list_get_string( list );
+			item = list_get( list );
 			if ( strcmp( item, search_string ) == 0 ) return i;
 			i++;
 		} while( list_next( list ) );
@@ -500,7 +503,7 @@ void list_separate( LIST *list, int c )
 	if ( list_rewind( list ) )
 	{
 		do {
-			ptr = list_get_string( list );
+			ptr = list_get( list );
 			for( i = 0; piece( buffer, c, ptr, i ); i++ )
 				list_append_string( new_list, buffer );
 		} while( list_next( list ) );
@@ -519,7 +522,7 @@ LIST *list_usage_piece_list( LIST *list, char delimiter, int offset )
 	if ( list_rewind( list ) )
 	{
 		do {
-			ptr = list_get_pointer( list );
+			ptr = list_get( list );
 			if ( piece( buffer, delimiter, ptr, offset ) )
 			{
 				list_append_pointer(
@@ -551,10 +554,11 @@ char *list_usage_attribute_data_list2where_clause(
 		where_ptr += sprintf(
 				where_ptr,
 				" and %s = '%s'",
-				list_get_string( attribute_name_list ),
+				(char *)list_get( attribute_name_list ),
+
 				escape_character(
 					buffer,
-					list_get_string(
+					list_get(
 						attribute_data_list ),
 					'\'' ) );
 
@@ -574,7 +578,7 @@ LIST *list_usage_add_prefix(	LIST *source_list,
 	if ( list_rewind( source_list ) )
 	{
 		do {
-			data = list_get_string( source_list );
+			data = list_get( source_list );
 			sprintf( buffer, "%s%s", prefix, data );
 			list_append_string( return_list, strdup( buffer ) );
 		} while( list_next( source_list ) );
@@ -595,7 +599,7 @@ LIST *list_usage_remove_prefix(	LIST *source_list,
 	if ( list_rewind( source_list ) )
 	{
 		do {
-			data = list_get_string( source_list );
+			data = list_get( source_list );
 
 			if ( timlib_strncmp( data, prefix ) == 0 )
 				data = data + str_len;
@@ -617,7 +621,7 @@ char *list_usage_concat( LIST *attribute_name_list )
 	{
 		do {
 			attribute_name =
-				list_get_pointer(
+				list_get(
 					attribute_name_list );
 
 			if ( !list_at_head( attribute_name_list ) )
@@ -639,7 +643,7 @@ char *list_usage_concat( LIST *attribute_name_list )
 	return strdup( buffer );
 }
 
-char *list_usage_get_in_clause( LIST *column_string_list )
+char *list_usage_in_clause( LIST *column_string_list )
 {
 	char in_clause[ 65536 ];
 	char *ptr = in_clause;
@@ -650,7 +654,7 @@ char *list_usage_get_in_clause( LIST *column_string_list )
 
 	ptr += sprintf( ptr, "(" );
 	do {
-		column = list_get_pointer( column_string_list );
+		column = list_get( column_string_list );
 
 		if ( first_time )
 			first_time = 0;
@@ -687,9 +691,9 @@ LIST *list_usage_attribute_data_dictionary_merge_list(
 		return data_dictionary_merge_list;
 
 	do {
-		primary_data = list_get_pointer( primary_data_list );
+		primary_data = list_get( primary_data_list );
 		
-		dictionary = dictionary_small_dictionary_new();
+		dictionary = dictionary_small();
 		list_append_pointer( data_dictionary_merge_list, dictionary );
 
 		list_rewind( primary_key_list );
@@ -697,7 +701,7 @@ LIST *list_usage_attribute_data_dictionary_merge_list(
 
 		do {
 			primary_key =
-				list_get_pointer(
+				list_get(
 					primary_key_list );
 
 			if ( !piece(	piece_buffer,

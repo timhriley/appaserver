@@ -313,7 +313,7 @@ int main( int argc, char **argv )
 			PROCESS_ID_LABEL ) );
 
 	dictionary_appaserver->non_prefixed_dictionary =
-		dictionary_small_new();
+		dictionary_small();
 
 	dictionary_set_pointer( 
 		dictionary_appaserver->non_prefixed_dictionary,

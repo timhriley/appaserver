@@ -131,7 +131,7 @@ DICTIONARY *freshwaterfish_library_get_species_code_dictionary(
 	char code[ 128 ];
 	DICTIONARY *dictionary;
 
-	dictionary = dictionary_small_new();
+	dictionary = dictionary_small();
 
 	if ( !list_rewind( species_record_list ) )
 	{
@@ -1193,7 +1193,7 @@ char *freshwaterfish_get_nps_code(
 /*
 #define SPECIES_SELECT "scientific_name,nps_code,fiu_fish_old_code,fiu_non_fish_old_code,fiu_new_code"
 */
-		nps_code_dictionary = dictionary_small_new();
+		nps_code_dictionary = dictionary_small();
 
 		if ( !list_rewind( species_record_list ) )
 		{
@@ -1272,7 +1272,7 @@ char *freshwaterfish_get_fiu_new_code(
 /*
 #define SPECIES_SELECT "scientific_name,nps_code,fiu_fish_old_code,fiu_non_fish_old_code,fiu_new_code"
 */
-		fiu_new_code_dictionary = dictionary_small_new();
+		fiu_new_code_dictionary = dictionary_small();
 
 		if ( !list_rewind( species_record_list ) )
 		{
@@ -1356,7 +1356,7 @@ char *freshwaterfish_get_fiu_non_fish_old_code(
 /*
 #define SPECIES_SELECT "scientific_name,nps_code,fiu_fish_old_code,fiu_non_fish_old_code,fiu_new_code"
 */
-		fiu_non_fish_old_code_dictionary = dictionary_small_new();
+		fiu_non_fish_old_code_dictionary = dictionary_small();
 
 		if ( !list_rewind( species_record_list ) )
 		{
@@ -1434,7 +1434,7 @@ char *freshwaterfish_get_fiu_fish_old_code(
 /*
 #define SPECIES_SELECT "scientific_name,nps_code,fiu_fish_old_code,fiu_non_fish_old_code,fiu_new_code"
 */
-		fiu_fish_old_code_dictionary = dictionary_small_new();
+		fiu_fish_old_code_dictionary = dictionary_small();
 
 		if ( !list_rewind( species_record_list ) )
 		{
@@ -2694,7 +2694,7 @@ char *freshwaterfish_library_get_species_category(
 
 		input_pipe = popen( sys_string, "r" );
 
-		species_dictionary = dictionary_small_new();
+		species_dictionary = dictionary_small();
 
 		while( get_line( input_buffer, input_pipe ) )
 		{

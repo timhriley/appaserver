@@ -814,7 +814,7 @@ DICTIONARY *load_physical_observation_dictionary( char *parameter_where )
 	char *from;
 	char *physical_observation_key;
 
-	physical_observation_dictionary = dictionary_large_new();
+	physical_observation_dictionary = dictionary_large();
 
 	select =
 "site_visit.quad_sheet, site_visit.site_number, site_visit.visit_date, physical_parameter, measurement_number, measurement_value";

@@ -207,7 +207,7 @@ int main( int argc, char **argv )
 		table_name );
 
 	input_pipe = popen( sys_string, "r" );
-	row_dictionary = dictionary_new_duper_dictionary();
+	row_dictionary = dictionary_duper();
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
@@ -333,7 +333,7 @@ void check_row_dictionary_with_related_folder(
 
 	if ( !guarantee_output_unique_dictionary )
 	{
-		guarantee_output_unique_dictionary = dictionary_huge_new();
+		guarantee_output_unique_dictionary = dictionary_huge();
 	}
 
 	foreign_data_key_ptr = foreign_data_key_list_string;

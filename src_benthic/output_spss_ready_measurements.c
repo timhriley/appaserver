@@ -675,7 +675,7 @@ DICTIONARY *get_sys_string_abiotic_dictionary( char *sys_string )
 	char datatype[ 128 ];
 	char value[ 128 ];
 	char *key;
-	DICTIONARY *dictionary = dictionary_large_new();
+	DICTIONARY *dictionary = dictionary_large();
 
 	input_pipe = popen( sys_string, "r" );
 

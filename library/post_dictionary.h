@@ -21,57 +21,72 @@
 typedef struct
 {
 	DICTIONARY *dictionary;
-	char *post_dictionary_key;
+	char *post_dictionary_apache_key;
 } POST_DICTIONARY;
 
 /* Operations */
 /* ---------- */
 
-/* Always returns */
-/* -------------- */
-POST_DICTIONARY *post_dictionary_fetch(
-			FILE *input_stream,
-			char *dictionary_string,
-			char *appaserver_data_directory,
-			char *session_key );
-
-POST_DICTIONARY *post_dictionary_calloc(
-			void );
-
-DICTIONARY *post_dictionary_input_stream(
+/* Always succeeds */
+/* --------------- */
+POST_DICTIONARY *post_dictionary_stream_new(
 			FILE *input_stream,
 			char *appaserver_data_directory,
 			char *session_key );
 
-char *post_dictionary_key(
+POST_DICTIONARY *post_dictionary_string_new(
+			char *dictionary_string );
+
+/* Returns heap memory or NULL */
+/* --------------------------- */
+char *post_dictionary_apache_key(
 			char *input );
 
-void post_dictionary_line_input(
-			DICTIONARY *dictionary,
-			char *input,
-			char *post_dictionary_key,
+DICTIONARY *post_dictionary_fetch(
+			FILE *input_stream,
 			char *appaserver_data_directory,
 			char *session_key,
-			FILE *input_stream );
+			char *apache_key );
 
+/* Returns static memory */
+/* --------------------- */
+char *post_dictionary_apache_label(
+			char *input );
+
+/* Returns static memory */
+/* --------------------- */
+char *post_dictionary_appaserver_key(
+			char *input );
+
+/* Returns static memory */
+/* --------------------- */
+char *post_dictionary_input_filename(
+			char *input );
+
+/* Returns static memory */
+/* --------------------- */
+char *post_dictionary_appaserver_key(
+			char *input );
+
+void post_dictionary_stream_set(
+			DICTIONARY *dictionary,
+			FILE *input_stream,
+			char *appaserver_key,
+			char *apache_key );
+
+/* Returns heap memory */
+/* ------------------- */
 char *post_dictionary_spool_filename(
+			char *input_filename,
 			char *appaserver_data_directory,
-			char *base_filename,
 			char *session_key );
 
 void post_dictionary_spool_file(
-			char *spool_filename,
 			FILE *input_stream,
-			char *post_dictionary_key );
+			char *apache_key,
+			char *spool_filename );
 
-void post_dictionary_input(
-			char *data,
-			FILE *input_stream,
-			char *post_dictionary_key );
-
-void post_dictionary_set(
-			DICTIONARY *dictionary,
-			char *key,
-			char *data );
+POST_DICTIONARY *post_dictionary_calloc(
+			void );
 
 #endif

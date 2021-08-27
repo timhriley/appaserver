@@ -1391,7 +1391,7 @@ GOOGLE_UNIT_CHART *google_unit_chart_new( char *unit )
 	g->yaxis_label = strdup( unit );
 	format_initial_capital( g->yaxis_label, g->yaxis_label );
 
-	g->date_time_dictionary = dictionary_large_new();
+	g->date_time_dictionary = dictionary_large();
 	g->unit_datatype_list = list_new();
 
 	return g;

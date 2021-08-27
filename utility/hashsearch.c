@@ -17,18 +17,19 @@
 #include "dictionary.h"
 
 void hashsearch(char *argv_0,
-		char *dictionary_filename,
-		char delimiter,
-		int offset );
+			char *dictionary_filename,
+			char delimiter,
+			int offset );
 
-DICTIONARY *get_dictionary(
-		char *argv_0,
-		char *dictionary_filename,
-		char delimiter );
+DICTIONARY *hashsearch_dictionary(
+			char *argv_0,
+			char *dictionary_filename,
+			char delimiter );
 
-DICTIONARY *get_dictionary(	char *argv_0,
-				char *dictionary_filename,
-				char delimiter )
+DICTIONARY *hashsearch_dictionary(
+			char *argv_0,
+			char *dictionary_filename,
+			char delimiter )
 {
 	FILE *dictionary_file;
 	char input_buffer[ 4096 ];
@@ -36,7 +37,7 @@ DICTIONARY *get_dictionary(	char *argv_0,
 	char data[ 4096 ];
 	DICTIONARY *dictionary;
 
-	dictionary = dictionary_large_new();
+	dictionary = dictionary_large();
 
 	dictionary_file = open_file( dictionary_filename, "r" );
 
@@ -63,13 +64,12 @@ DICTIONARY *get_dictionary(	char *argv_0,
 
 	fclose( dictionary_file );
 	return dictionary;
+}
 
-} /* get_dictionary() */
-
-void hashsearch(char *argv_0,
-		char *dictionary_filename,
-		char delimiter,
-		int offset )
+void hashsearch(	char *argv_0,
+			char *dictionary_filename,
+			char delimiter,
+			int offset )
 {
 	char input_buffer[ 4096 ];
 	char key[ 256 ];
@@ -78,7 +78,7 @@ void hashsearch(char *argv_0,
 	boolean not_found;
 
 	dictionary =
-		get_dictionary(
+		hashsearch_dictionary(
 			argv_0,
 			dictionary_filename,
 			delimiter );
@@ -127,8 +127,7 @@ skip:
 				input_buffer );
 		}
 	}
-
-} /* hashsearch() */
+}
 
 int main( int argc, char **argv )
 {
@@ -146,6 +145,5 @@ int main( int argc, char **argv )
 
 	hashsearch( argv[ 0 ], argv[ 1 ], *argv[ 2 ], offset ); 
 	return 0;
-
-} /* main() */
+}
 

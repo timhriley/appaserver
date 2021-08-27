@@ -5666,7 +5666,7 @@ LIST *query_system_dictionary_list(
 
 	while( string_input_pipe( buffer, pipe, STRING_WHERE_BUFFER ) )
 	{
-		dictionary = dictionary_small_new();
+		dictionary = dictionary_small();
 		list_set( list, dictionary );
 		i = 0;
 
@@ -5799,7 +5799,7 @@ QUERY *query_search_replace_where_new(
 
 	if ( !drilldown_dictionary )
 		drilldown_dictionary = 
-			dictionary_small_new();
+			dictionary_small();
 
 	if ( query->
 		search_replace_where_folder->

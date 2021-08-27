@@ -32,6 +32,8 @@
 #include "drilldown.h"
 #include "relation.h"
 #include "pair_one2m.h"
+#include "post_dictionary.h"
+#include "prompt_insert_form.h"
 
 /* Constants */
 /* --------- */
@@ -162,12 +164,12 @@ int main( int argc, char **argv )
 	char *session_key;
 	char *folder_name;
 	char *role_name;
+	POST_DICTIONARY *post_dictionary;
 	ROLE *role;
 	FOLDER *folder;
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY *original_post_dictionary;
 	DRILLDOWN *drilldown;
 	SESSION *session;
 	boolean omit_push_buttons;
@@ -196,9 +198,14 @@ int main( int argc, char **argv )
 	application_name = argv[ 2 ];
 
 	session_key = argv[ 3 ];
-
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
+
+	/* Yes if called from post_choose_isa_drop_down */
+	/* -------------------------------------------- */
+	omit_push_buttons = ( *argv[ 6 ] == 'y' );
+
+	dictionary_string = argv[ 7 ];
 
 	session =
 		/* --------------------------------------------- */
@@ -214,10 +221,6 @@ int main( int argc, char **argv )
 			folder_name,
 			role_name,
 			"insert" /* state */ );
-
-	/* Yes if called from post_choose_isa_drop_down */
-	/* -------------------------------------------- */
-	omit_push_buttons = ( *argv[ 6 ] == 'y' );
 
 	role =
 		role_fetch(
@@ -248,14 +251,28 @@ int main( int argc, char **argv )
 			0 /* not fetch_role_folder_list */,
 			0 /* not fetch_row_level_restriction */ );
 
-	dictionary_string = argv[ 7 ];
+	post_dictionary =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_dictionary_new(
+			(FILE *)0 /* input_stream */,
+			dictionary_string,
+			(char *)0 /* appaserver_data_directory */,
+			(char *)0 /* session_key */ );
 
 	if ( ! ( dictionary_appaserver =
 			dictionary_appaserver_new(
-				original_post_dictionary,
+				post_dictionary,
 				application_name,
-				folder->attribute_list,
-				(LIST *)0 /* operation_name_list */) ) )
+				attribute_name_list(
+					folder->
+						folder_attribute_list ),
+				attribute_date_name_list(
+					folder->
+						folder_attribute_list ),
+				(LIST *)0 /* operation_name_list */,
+				login_name ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: exiting early.\n",

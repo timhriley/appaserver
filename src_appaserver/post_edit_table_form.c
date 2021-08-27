@@ -339,7 +339,7 @@ int main( int argc, char **argv )
 	/* Repopulate non_prefixed_dictionary */
 	/* ---------------------------------- */
 	dictionary_appaserver->non_prefixed_dictionary =
-		dictionary_small_new();
+		dictionary_small();
 
 	if ( insert_flag )
 	{
@@ -1230,7 +1230,7 @@ void execute_update_output_process(
 		if ( !dictionary_appaserver->non_prefixed_dictionary )
 		{
 			dictionary_appaserver->non_prefixed_dictionary =
-				dictionary_small_new();
+				dictionary_small();
 		}
 
 		dictionary_set_pointer(

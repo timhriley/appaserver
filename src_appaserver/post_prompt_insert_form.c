@@ -295,7 +295,7 @@ int main( int argc, char **argv )
 		dictionary_appaserver->non_prefixed_dictionary );
 
 	dictionary_appaserver->non_prefixed_dictionary =
-		dictionary_small_new();
+		dictionary_small();
 
 	appaserver->folder->attribute_name_list =
 		folder_get_attribute_name_list(

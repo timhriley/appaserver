@@ -11,9 +11,9 @@
 #include "String.h"
 #include "appaserver_library.h"
 #include "timlib.h"
+#include "piece.h"
 #include "appaserver_error.h"
 #include "dictionary.h"
-#include "basename.h"
 #include "decode_html_post.h"
 #include "post_dictionary.h"
 
@@ -33,181 +33,238 @@ POST_DICTIONARY *post_dictionary_calloc( void )
 	return post_dictionary;
 }
 
-POST_DICTIONARY *post_dictionary_fetch(
+POST_DICTIONARY *post_dictionary_stream_new(
 			FILE *input_stream,
-			char *dictionary_string,
 			char *appaserver_data_directory,
 			char *session_key )
 {
 	POST_DICTIONARY *post_dictionary = post_dictionary_calloc();
+	char input[ STRING_INPUT_LINE ];
 
-	if ( input_stream )
-	{
-		post_dictionary->dictionary =
-			post_dictionary_input_stream(
+	post_dictionary->post_dictionary_apache_key =
+		/* --------------------------- */
+		/* Returns heap memory or NULL */
+		/* --------------------------- */
+		post_dictionary_apache_key(
+			string_input(
+				input,
 				input_stream,
-				appaserver_data_directory,
-				session_key );
-	}
-	else
+				STRING_INPUT_LINE ) );
+
+	if ( !post_dictionary->post_dictionary_apache_key )
 	{
-		post_dictionary->dictionary =
-			dictionary_string_resolve(
-				dictionary_string );
+		return post_dictionary_string_new( input );
 	}
+
+	post_dictionary->dictionary =
+		post_dictionary_fetch(
+			input_stream,
+			appaserver_data_directory,
+			session_key,
+			post_dictionary->
+				post_dictionary_apache_key );
 
 	return post_dictionary;
 }
 
-DICTIONARY *post_dictionary_input_stream(
+POST_DICTIONARY *post_dictionary_string_new(
+			char *dictionary_string )
+{
+	POST_DICTIONARY *post_dictionary = post_dictionary_calloc();
+
+	post_dictionary->dictionary =
+		dictionary_string_resolve(
+			dictionary_string );
+
+	return post_dictionary;
+}
+
+DICTIONARY *post_dictionary_fetch(
 			FILE *input_stream,
 			char *appaserver_data_directory,
-			char *session_key )
+			char *session_key,
+			char *apache_key )
 {
-	char input[ STRING_INPUT_LINE ];
-	DICTIONARY *dictionary;
-	char *key;
+	char input[ 1024 ];
+	char *apache_label;
+	char *appaserver_key;
+	char *input_filename;
+	DICTIONARY *dictionary = dictionary_huge();
 
-	/* Get first line */
-	/* -------------- */
-	string_input( input, input_stream, STRING_INPUT_LINE );
-
-	/* If from Apache */
-	/* -------------- */
-	if ( string_strncmp( input, "---------" ) == 0
-	||   string_strncmp( input, "------WebKitFormBoundary" ) == 0 )
+	while( string_input(
+			input,
+			input_stream,
+			1024 ) )
 	{
-/*
-sample input_buffer = "--------------20983969252595940091482100312"
-sample input_buffer = "------WebKitFormBoundary"
-*/
-		key = post_dictionary_key( input );
-		dictionary = dictionary_huge_new();
+		if ( !*input ) continue;
 
-		while( string_input(
-				input,
-				input_stream,
-				STRING_INPUT_LINE ) )
+		apache_label =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			post_dictionary_apache_label(
+				input );
+
+		if ( string_strcmp(
+			apache_label,
+			"Content-Disposition: form-data; name=" ) == 0 )
 		{
-			post_dictionary_line_input(
-				dictionary,
-				input,
-				key,
-				appaserver_data_directory,
-				session_key,
-				input_stream );
+			appaserver_key =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				post_dictionary_appaserver_key(
+					input );
+
+			if ( !*appaserver_key )
+			{
+				fprintf(stderr,
+"Warning in %s/%s()/%d: post_dictionary_appaserver_key(%s) returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					input );
+				continue;
+			}
+
+			/* ------------------------ */
+			/* Check if spooling a file */
+			/* ------------------------ */
+			input_filename =
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				post_dictionary_input_filename(
+					input );
+
+			if ( *input_filename )
+			{
+				char *spool_filename =
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					post_dictionary_spool_filename(
+						search_replace_character(
+							input_filename,
+							' ',
+							'_' ),
+						appaserver_data_directory,
+						session_key );
+
+				dictionary_set(
+					dictionary,
+					strdup( appaserver_key ),
+					spool_filename );
+
+				post_dictionary_spool_file(
+					input_stream,
+					apache_key,
+					spool_filename );
+			}
+			else
+			{
+				/* ------------------- */
+				/* Not spooling a file */
+				/* ------------------- */
+				post_dictionary_stream_set(
+					dictionary,
+					input_stream,
+					appaserver_key,
+					apache_key );
+			}
+		}
+		else
+		/* ---------------------------------------- */
+		/* If Appaserver sent a dictionary to stdin */
+		/* ---------------------------------------- */
+		{
+			dictionary =
+				dictionary_string_resolve(
+					input );
+
+			/* Should only be one */
+			/* ------------------ */
+			break;
 		}
 	}
-	else
-	/* ------------------ */
-	/* If from Appaserver */
-	/* ------------------ */
-	{
-		dictionary =
-			dictionary_string_resolve(
-				input );
-	}
+
 	return dictionary;
 }
 
-char *post_dictionary_key( char *input )
+char *post_dictionary_apache_key( char *input )
 {
-	char key[ 1024 ];
 
-	sprintf( key,
-		"\r\n%s",
-		 string_trim( input ) );
-
-	return strdup( key );
+	if ( *input == '-' )
+		return strdup( input );
+	else
+		return (char *)0;
 }
 
-void post_dictionary_line_input(
+void post_dictionary_stream_set(
 			DICTIONARY *dictionary,
-			char *input,
-			char *post_dictionary_key,
-			char *appaserver_data_directory,
-			char *session_key,
-			FILE *input_stream )
+			FILE *input_stream,
+			/* ------------- */
+			/* static memory */
+			/* ------------- */
+			char *appaserver_key,
+			/* ------------- */
+			/* static memory */
+			/* ------------- */
+			char *apache_key )
 {
-	char key[ 1024 ];
-	char *spool_filename;
-	char *base_name;
-	char data[ STRING_INPUT_LINE ];
-	int target;
+	char input[ STRING_INPUT_BUFFER ];
+	char input_multi_select_trimmed[ 256 ];
+	int multi_drop_down_index;
+	int row = 0;
+	char key[ 256 ];
 
-	target =
-		instr( "Content-Disposition: form-data; name=",
-			input,
-			1 );
+	*key = '0';
 
-	if ( target != -1 )
+	multi_drop_down_index = string_index( appaserver_key );
+
+	if ( multi_drop_down_index )
 	{
-		string_extract_lt_gt_delimited(
-			key,
-			input + 
-			target +
-			strlen(
-			 "Content-Disposition: form-data; name=" ) );
+		string_trim_index( appaserver_key );
+		row = 1;
+	}
+	else
+	{
+		string_strcpy( key, appaserver_key, 256 );
+	}
 
-		target =
-			instr( "; filename=",
-				input,
-				1 );
+	while( string_input(
+			input,
+			input_stream,
+			STRING_INPUT_BUFFER ) )
+	{
+		if ( !*input ) continue;
 
-		if ( target != -1 )
+		if ( strcmp( input, "select" ) == 0 ) continue;
+
+		if ( string_strncmp( input, apache_key ) == 0 ) break;
+
+		if ( multi_drop_down_index )
 		{
-			string_extract_lt_gt_delimited(
-				data,
-				input + 
-				target   +
-				strlen(
-				"; filename=" ) );
+			sprintf(key,
+				"%s_%d",
+				appaserver_key,
+				row++ );
 
-			base_name =
-				basename_base_name(
-					data,
-					0 /* not strip_extension */ );
+			/* Trim index used to manage the move left button */
+			/* ---------------------------------------------- */
+			piece( input_multi_select_trimmed, '|', input, 0 );
 
-			if ( !base_name || !*base_name )
-			{
-				fprintf(stderr,
-				"ERROR in %s/%s()/%d: base_name is empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
-			spool_filename =
-				post_dictionary_spool_filename(
-					appaserver_data_directory,
-					base_name,
-					session_key );
-
-			post_dictionary_spool_file(
-				spool_filename,
-				input_stream,
-				post_dictionary_key );
-
-			string_strcpy(
-				data,
-				spool_filename,
-				STRING_INPUT_LINE );
+			dictionary_set(
+				dictionary,
+				strdup( key ),
+				strdup( input_multi_select_trimmed ) );
 		}
 		else
 		{
-			post_dictionary_input(
-				data,
-				input_stream,
-				post_dictionary_key );
-		}
-
-		if ( *data )
-		{
-			post_dictionary_set(
+			dictionary_set(
 				dictionary,
-				key,
-				data );
+				strdup( key ),
+				strdup( input ) );
 		}
 	}
 }
@@ -329,20 +386,20 @@ void post_dictionary_input(
 }
 
 void post_dictionary_spool_file(
-			char *spool_filename,
 			FILE *input_stream,
-			char *post_dictionary_key )
+			char *apache_key,
+			char *spool_filename )
 {
 	FILE *output_stream;
-	int false_alarm_buffer[ 256 ];
-	int false_alarm_buffer_length;
-	char *post_key_anchor = post_dictionary_key;
+	int false_alarm_buffer[ 1024 ];
+	int false_alarm_buffer_index = 0;
+	char *apache_key_anchor = apache_key;
 	int c;
 
 	if ( ! ( output_stream = fopen( spool_filename, "w" ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s(): cannot open %s for write.\n",
+		"ERROR in %s/%s(): fopen(%s) for write returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			spool_filename );
@@ -357,64 +414,72 @@ void post_dictionary_spool_file(
 	/* --------- */
 	skip_line( input_stream );
 
-	false_alarm_buffer_length = 0;
-
 	while( ( c = getc( input_stream ) ) != EOF )
 	{
-		if ( c == *post_dictionary_key )
+		if ( c == *apache_key )
 		{
-			post_dictionary_key++;
+			apache_key++;
 
-			if ( !*post_dictionary_key ) break;
+			/* All done */
+			/* -------- */
+			if ( !*apache_key ) break;
 
-			false_alarm_buffer[ false_alarm_buffer_length++ ] = c;
+			false_alarm_buffer[ false_alarm_buffer_index++ ] = c;
+			continue;
 		}
-		else
+
+		/* If started an all done, but it's not. */
+		/* ------------------------------------- */
+		if ( apache_key != apache_key_anchor )
 		{
-			if ( post_dictionary_key != post_key_anchor )
+			int i;
+
+			/* Write false_alarm_buffer */
+			/* ------------------------ */
+			for( i = 0; i < false_alarm_buffer_index; i++ )
 			{
-				int i;
-
-				for( i = 0; i < false_alarm_buffer_length; i++ )
-				{
-					putc(	false_alarm_buffer[ i ],
-						output_stream );
-				}
-
-				post_dictionary_key = post_key_anchor;
-
-				false_alarm_buffer_length = 0;
-
-				if ( c == *post_dictionary_key )
-				{
-					post_dictionary_key++;
-					false_alarm_buffer[
-					false_alarm_buffer_length++ ] = c;
-				}
-				else
-				{
-					putc( c, output_stream );
-				}
+				putc(	false_alarm_buffer[ i ],
+					output_stream );
 			}
-			else
+
+			/* Reset apache_key and index */
+			/* -------------------------- */
+			apache_key = apache_key_anchor;
+			false_alarm_buffer_index = 0;
+
+			/* If NOW starting an all done */
+			/* --------------------------- */
+			if ( c == *apache_key )
 			{
-				putc( c, output_stream );
+				apache_key++;
+
+				false_alarm_buffer[
+					false_alarm_buffer_index++ ] =
+						c;
+				continue;
 			}
 		}
+
+		/* Write to the spool file */
+		/* ----------------------- */
+		putc( c, output_stream );
 	}
 
 	fclose( output_stream );
 }
 
 char *post_dictionary_spool_filename(
+			/* ------------- */
+			/* Static memory */
+			/* ------------- */
+			char *input_filename,
 			char *appaserver_data_directory,
-			char *base_name,
 			char *session_key )
 {
 	char spool_filename[ 1024 ];
 
-	if ( !appaserver_data_directory
-	||   !base_name
+	if ( !*input_filename
+	||   !appaserver_data_directory
 	||   !session_key )
 	{
 		fprintf(stderr,
@@ -428,9 +493,37 @@ char *post_dictionary_spool_filename(
 	sprintf(spool_filename,
 	 	"%s/%s_%s",
 	 	appaserver_data_directory,
-	 	base_name,
+	 	input_filename,
 		session_key );
 
 	return strdup( spool_filename );
+}
+
+char *post_dictionary_apache_label( char *input )
+{
+	static char apache_label[ 128 ];
+
+	return piece( apache_label, '"', input, 0 );
+}
+
+char *post_dictionary_appaserver_key( char *input )
+{
+	static char appaserver_key[ 256 ];
+
+	*appaserver_key = '\0';
+
+	return piece( appaserver_key, '"', input, 1 );
+}
+
+char *post_dictionary_input_filename( char *input )
+{
+	static char input_filename[ 256 ];
+
+	*input_filename = '\0';
+
+	if ( instr( "; filename=", input, 1 ) > -1 )
+		return piece( input_filename, '"', input, 3 );
+	else
+		return input_filename;
 }
 

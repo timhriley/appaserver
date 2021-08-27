@@ -364,7 +364,7 @@ void change_sort_order_state_one(
 
 	/* Select in order by the sort_attribute_name */
 	/* ------------------------------------------ */
-	sort_dictionary = dictionary_small_new();
+	sort_dictionary = dictionary_small();
 
 	dictionary_set_pointer(
 		sort_dictionary,

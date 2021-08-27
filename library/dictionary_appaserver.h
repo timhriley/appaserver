@@ -8,8 +8,10 @@
 
 /* Includes */
 /* -------- */
-#include "dictionary.h"
+#include "boolean.h"
 #include "list.h"
+#include "dictionary.h"
+#include "post_dictionary.h"
 
 /* Constants */
 /* --------- */
@@ -49,8 +51,13 @@ typedef struct
 	LIST *ignore_select_attribute_name_list;
 } DICTIONARY_APPASERVER;
 
+DICTIONARY_APPASERVER *dictionary_appaserver_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
 DICTIONARY_APPASERVER *dictionary_appaserver_new(
-			DICTIONARY *original_post_dictionary,
+			POST_DICTIONARY *post_dictionary,
 			char *application_name,
 			LIST *attribute_name_list,
 			LIST *attribute_date_name_list,

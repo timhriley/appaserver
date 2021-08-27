@@ -603,7 +603,7 @@ void delete_database_execute_delete_row_list(
 {
 	char sys_string[ 4096 ];
 	char *table_name;
-	DICTIONARY *parameter_dictionary = dictionary_small_new();
+	DICTIONARY *parameter_dictionary = dictionary_small();
 	FILE *output_pipe;
 	FILE *stderr_pipe;
 

@@ -213,7 +213,7 @@ char *prompt_edit_form_get_sys_string(
 	char *unfulfilled_folder_name;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 
-	lookup_before_drop_down_dictionary = dictionary_small_new();
+	lookup_before_drop_down_dictionary = dictionary_small();
 
 	lookup_before_drop_down_set_dictionary_base_name(
 		lookup_before_drop_down_dictionary,
@@ -291,7 +291,7 @@ char *prompt_insert_form_sys_string(
 	char *unfulfilled_folder_name;
 	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 
-	lookup_before_drop_down_dictionary = dictionary_small_new();
+	lookup_before_drop_down_dictionary = dictionary_small();
 
 	lookup_before_drop_down_set_dictionary_base_name(
 		lookup_before_drop_down_dictionary,

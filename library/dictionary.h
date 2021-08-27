@@ -24,17 +24,11 @@ typedef struct
 DICTIONARY *dictionary_calloc();
 DICTIONARY *dictionary_new();
 DICTIONARY *dictionary_small();
-DICTIONARY *dictionary_small_new();
-DICTIONARY *dictionary_small_dictionary_new();
-DICTIONARY *dictionary_medium_dictionary_new();
-DICTIONARY *dictionary_new_medium_dictionary();
-DICTIONARY *dictionary_medium_new();
-DICTIONARY *dictionary_large_dictionary_new();
-DICTIONARY *dictionary_large_new();
-DICTIONARY *dictionary_new_large_dictionary();
-DICTIONARY *dictionary_new_huge_dictionary();
-DICTIONARY *dictionary_new_super_dictionary();
-DICTIONARY *dictionary_new_duper_dictionary();
+DICTIONARY *dictionary_medium();
+DICTIONARY *dictionary_large();
+DICTIONARY *dictionary_huge();
+DICTIONARY *dictionary_super();
+DICTIONARY *dictionary_duper();
 
 DICTIONARY *dictionary_string_resolve(
 			char *dictionary_string );
@@ -56,7 +50,7 @@ void dictionary_set( 	DICTIONARY *d,
 			char *key, 
 			char *data );
 
-void *dictionary_get(	char *key,
+char *dictionary_get(	char *key,
 			DICTIONARY *d );
 
 void dictionary_free(	DICTIONARY *d );
@@ -78,19 +72,10 @@ void dictionary_add(	DICTIONARY *d,
 			char *data,
 			int size );
 
-LIST *get_dictionary_key_list(
-			DICTIONARY *d );
-
-LIST *dictionary_get_key_list(
-			DICTIONARY *d );
-
 LIST *dictionary_key_list(
 			DICTIONARY *d );
 
 LIST *dictionary_ordered_key_list(
-			DICTIONARY *d );
-
-LIST *dictionary_get_ordered_key_list(
 			DICTIONARY *d );
 
 char *dictionary_display(
@@ -109,14 +94,11 @@ int dictionary_key_highest_index(
 int get_dictionary_key_highest_index(
 			DICTIONARY *d );
 
-int dictionary_get_key_highest_index(
-			DICTIONARY *d );
-
-LIST *dictionary_get_index_data_list(
+LIST *dictionary_index_data_list(
 			DICTIONARY *dictionary,
 			char *key );
 
-int dictionary_get_index_data_if_changed(
+int dictionary_index_data_if_changed(
 			char **destination,
 			DICTIONARY *dictionary_1,
 			DICTIONARY *dictionary_2,
@@ -129,12 +111,6 @@ int dictionary_get_index_data_if_changed(
 /*	       -1 if the data is not found	   	       */
 /* ----------------------------------------------------------- */
 boolean dictionary_index_data(
-			char **destination,
-			DICTIONARY *dictionary,
-			char *key,
-			int index );
-
-boolean dictionary_get_index_data(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key,
@@ -182,7 +158,7 @@ void dictionary_search_replace_command_arguments(
 			DICTIONARY *dictionary, 
 			int index );
 
-int dictionary_get_index_data_multi(
+int dictionary_index_data_multi(
 			char *destination,
 			DICTIONARY *dictionary,
 			char *key_multi,
@@ -192,10 +168,6 @@ int dictionary_get_index_data_multi(
 DICTIONARY *dictionary_prepend_key(
 			DICTIONARY *dictionary,
 			char *label );
-
-char *dictionary_get_string(
-			DICTIONARY *d, 
-			char *key );
 
 DICTIONARY *dictionary_extract_prepended_key(
 			DICTIONARY *dictionary,
@@ -245,15 +217,11 @@ void dictionary_zap_where_key_contains_character(
 			DICTIONARY *dictionary,
 			char character );
 
-DICTIONARY *dictionary_get_with_prefix(
+DICTIONARY *dictionary_with_prefix(
 			DICTIONARY *source_dictionary,
 		    	char *starting_prefix );
 
 DICTIONARY *dictionary_without_prefix(
-			DICTIONARY *dictionary,
-		    	char *starting_prefix );
-
-DICTIONARY *dictionary_get_without_prefix(
 			DICTIONARY *dictionary,
 		    	char *starting_prefix );
 
@@ -282,7 +250,7 @@ void dictionary_extract_where_operator(
 			char *operator,
 			char *where_portion );
 
-char *dictionary_get_with_prefix_at_index_zero(
+char *dictionary_with_prefix_at_index_zero(
 			DICTIONARY *dictionary,
 			char *prefix,
 			char *key );
@@ -316,7 +284,7 @@ void dictionary_add_suffix_zero(
 void dictionary_add_index_zero(
 			DICTIONARY *dictionary );
 
-char *dictionary_get_index_zero(
+char *dictionary_index_zero(
 			DICTIONARY *dictionary,
 			char *key );
 
@@ -324,11 +292,11 @@ char *dictionary_fetch_index_zero(
 			DICTIONARY *dictionary,
 			char *key );
 
-char *dictionary_get_index_zero_data(
+char *dictionary_index_zero_data(
 			DICTIONARY *dictionary,
 			char *key );
 
-int dictionary_get_index_data_if_populated(
+int dictionary_index_data_if_populated(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key, 
@@ -338,7 +306,7 @@ int dictionary_exists_key_in_list(
 			LIST *key_list,
 			DICTIONARY *dictionary );
 
-LIST *dictionary_get_index_zero_key_list(
+LIST *dictionary_index_zero_key_list(
 			DICTIONARY *dictionary,
 			LIST *attribute_name_list );
 
@@ -363,11 +331,11 @@ boolean dictionary_exists_index_key(
 			DICTIONARY *d, 
 			char *key_with_unknown_index );
 
-LIST *dictionary_get_index_list(
+LIST *dictionary_index_list(
 			DICTIONARY *d,
 			char *search_key_without_prefix );
 
-LIST *dictionary_get_positive_index_list(
+LIST *dictionary_positive_index_list(
 			DICTIONARY *d,
 			char *search_key_without_prefix );
 
@@ -376,6 +344,10 @@ DICTIONARY *pipe2dictionary(
 			char delimiter );
 
 DICTIONARY *dictionary_pipe2dictionary(
+			char *sys_string,
+			char delimiter );
+
+DICTIONARY *dictionary_pipe(
 			char *sys_string,
 			char delimiter );
 
@@ -406,16 +378,9 @@ boolean dictionary_data_exists_index_zero(
 			DICTIONARY *indexed_dictionary,
 			char *key );
 
-int dictionary_attribute_name_list_get_highest_index(
-			DICTIONARY *d,
-			LIST *attribute_name_list );
-
 int dictionary_attribute_name_list_highest_index(
 			DICTIONARY *d,
 			LIST *attribute_name_list );
-
-int dictionary_get_highest_index(
-			DICTIONARY *d );
 
 int dictionary_remove_key(
 			DICTIONARY *d,
@@ -445,11 +410,11 @@ boolean dictionary_exists_index_in_key(
 boolean dictionary_exists_suffix(
 			char *key );
 
-LIST *dictionary_get_non_populated_index_zero_key_list(
+LIST *dictionary_non_populated_index_zero_key_list(
 			DICTIONARY *dictionary, 
 			LIST *required_attribute_name_list );
 
-LIST *dictionary_get_populated_index_zero_key_list(
+LIST *dictionary_populated_index_zero_key_list(
 			DICTIONARY *dictionary, 
 			LIST *attribute_name_list );
 
@@ -465,11 +430,11 @@ boolean dictionary_non_populated_key_exists_index_zero(
 			DICTIONARY *dictionary,
 			char *key );
 
-LIST *dictionary_get_index_zero_data_list(
+LIST *dictionary_index_zero_data_list(
 			DICTIONARY *dictionary,
 			LIST *attribute_name_list );
 
-char *dictionary_get_delimited_data(
+char *dictionary_delimited_data(
 			DICTIONARY *dictionary,
 			LIST *attribute_name_list,
 			char delimiter );
@@ -481,15 +446,15 @@ char *dictionary_get_pointer(
 			DICTIONARY *d,
 			char *key );
 
-LIST *dictionary_get_indexed_data_list(
+LIST *dictionary_indexed_data_list(
 			DICTIONARY *dictionary,
 			char *key_prefix );
 
-LIST *dictionary_get_populated_index_list(
+LIST *dictionary_populated_index_list(
 			DICTIONARY *dictionary,
 			char *key_prefix );
 
-LIST *dictionary_with_populated_index_list_get_index_data_list(
+LIST *dictionary_with_populated_index_list_index_data_list(
 			DICTIONARY *dictionary,
 			LIST *populated_index_list,
 			char *key_prefix );
@@ -542,7 +507,7 @@ void dictionary_increment_count(
 char *dictionary_fetch(	char *key,
 			DICTIONARY *d );
 
-void *dictionary_seek(	char *key,
+char *dictionary_seek(	char *key,
 			DICTIONARY *d );
 
 char *dictionary_safe_fetch(
@@ -559,7 +524,7 @@ void dictionary_output_html_table(
 			char *heading2,
 			boolean align_right );
 
-LIST *dictionary_using_list_get_index_data_list(
+LIST *dictionary_using_list_index_data_list(
 			DICTIONARY *dictionary,
 			LIST *key_list,
 			int index );
@@ -577,7 +542,7 @@ void dictionary_delete_keys_with_prefix(
 			char *prefix );
 
 
-LIST *dictionary_get_key_data_list(
+LIST *dictionary_key_data_list(
 			DICTIONARY *dictionary,
 			LIST *key_list,
 			char delimiter );
@@ -597,12 +562,12 @@ void dictionary_trim_prefix(
 void dictionary_escape_single_quotes(
 			DICTIONARY *dictionary );
 
-boolean dictionary_get_index_list_string(
+boolean dictionary_index_list_string(
 			char *destination,
 			DICTIONARY *dictionary,
 			char *key_without_index );
 
-LIST *dictionary_get_prefixed_indexed_data_list(
+LIST *dictionary_prefixed_indexed_data_list(
 			DICTIONARY *dictionary,
 			char *prompt_prefix,
 			int dictionary_index,
@@ -618,16 +583,16 @@ void dictionary_set_delimited_string(
 			char *delimited_string,
 			char delimiter );
 
-boolean dictionary_get_index_data_strict_index(
+boolean dictionary_index_data_strict_index(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key,
 			int index );
 
-DICTIONARY *dictionary_huge_new(
+DICTIONARY *dictionary_huge(
 			void );
 
-LIST *dictionary_get_data_list(
+LIST *dictionary_data_list(
 			LIST *attribute_name_list,
 			DICTIONARY *dictionary,
 			int row );
@@ -636,7 +601,7 @@ LIST *dictionary_key_list_fetch(
 			LIST *key_list,
 			DICTIONARY *dictionary );
 
-char *dictionary_get_attribute_where_clause(
+char *dictionary_attribute_where_clause(
 			DICTIONARY *dictionary,
 			LIST *attribute_name_list );
 
@@ -670,10 +635,10 @@ void dictionary_set_date_time_to_current(
 			DICTIONARY *dictionary,
 			LIST *attribute_list );
 
-LIST *dictionary_get_attribute_name_list(
+LIST *dictionary_attribute_name_list(
 			LIST *attribute_list );
 
-DICTIONARY *dictionary_get_row_zero_dictionary(
+DICTIONARY *dictionary_row_zero_dictionary(
 			DICTIONARY *row_dictionary );
 
 LIST *dictionary_data_list_attribute_name_list_merge_dictionary_list(
@@ -685,7 +650,7 @@ LIST *dictionary_seek_delimited_list(
 			DICTIONARY *dictionary,
 			char *key );
 
-LIST *dictionary_get_non_indexed_key_list(
+LIST *dictionary_non_indexed_key_list(
 			DICTIONARY *dictionary );
 
 void dictionary_remove_symbols_in_numbers(
@@ -696,10 +661,6 @@ DICTIONARY *dictionary_key_piece(
 			DICTIONARY *source_dictionary,
 			char delimiter,
 			int piece_offset );
-
-char *dictionary_get_data(
-			DICTIONARY *d,
-			char *key );
 
 char *dictionary_data(	DICTIONARY *d,
 			char *key );

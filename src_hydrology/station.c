@@ -341,7 +341,7 @@ DICTIONARY *station_load_dictionary(
 		return (DICTIONARY *)0;
 	}
 
-	dictionary = dictionary_small_new();
+	dictionary = dictionary_small();
 
 	dictionary_set_pointer(
 		dictionary,

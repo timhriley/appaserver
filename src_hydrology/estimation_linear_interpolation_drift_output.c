@@ -288,7 +288,7 @@ int main( int argc, char **argv )
 		double local_first_multiplier;
 		double local_last_multiplier;
 
-		drift_parameter_dictionary = dictionary_small_new();
+		drift_parameter_dictionary = dictionary_small();
 
 		if ( !hydrology_library_get_drift_ratio_variables(
 						drift_parameter_dictionary,

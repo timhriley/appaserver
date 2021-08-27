@@ -28,7 +28,33 @@ DRILLDOWN *drilldown_calloc( void )
 	return drilldown;
 }
 
-DRILLDOWN *drilldown_fetch(
+DRILLDOWN *drilldown_start(
+			char *base_folder_name )
+{
+	DRILLDOWN *drilldown = drilldown_calloc();
+
+	drilldown->relation_mto1_drilldown_list =
+		relation_mto1_drilldown_list(
+			(LIST *)0 /* relation_list */,
+			base_folder_name,
+			(LIST *)0 /* fulfilled_folder_name_list */ );
+
+	if ( !list_length( drilldown->relation_mto1_drilldown_list ) )
+	{
+		return drilldown;
+	}
+
+	drilldown->drilldown_dictionary = dictionary_small();
+
+	drilldown_base_folder_name_set(
+		drilldown->drilldown_dictionary,
+		DRILLDOWN_BASE_FOLDER_KEY,
+		base_folder_name );
+
+	return drilldown;
+}
+
+DRILLDOWN *drilldown_participating(
 			char *base_folder_name,
 			DICTIONARY *drilldown_dictionary )
 {
@@ -68,16 +94,6 @@ DRILLDOWN *drilldown_fetch(
 			(LIST *)0 /* relation_list */,
 			base_folder_name,
 			drilldown->fulfilled_folder_name_list );
-
-	if ( !dictionary_key_exists(
-		drilldown->drilldown_dictionary,
-		DRILLDOWN_BASE_FOLDER_KEY ) )
-	{
-		drilldown_base_folder_name_set(
-			drilldown->drilldown_dictionary,
-			DRILLDOWN_BASE_FOLDER_KEY,
-			base_folder_name );
-	}
 
 	drilldown->current_folder_name =
 		drilldown_current_folder_name(
@@ -122,14 +138,24 @@ char *drilldown_current_folder_name(
 	return relation->one_folder->folder_name;
 }
 
+char *drilldown_base_folder_name(
+			DICTIONARY *drilldown_dictionary,
+			char *drilldown_base_folder_key )
+{
+	return
+	dictionary_get(
+		drilldown_base_folder_key,
+		drilldown_dictionary );
+}
+
 void drilldown_base_folder_name_set(
 			DICTIONARY *drilldown_dictionary,
-			char *drilldown_folder_list_key,
+			char *drilldown_base_folder_key,
 			char *base_folder_name )
 {
 	dictionary_set(
 		drilldown_dictionary,
-		drilldown_folder_list_key,
+		drilldown_base_folder_key,
 		base_folder_name );
 }
 
@@ -159,5 +185,19 @@ void drilldown_fulfilled_folder_name_set(
 		drilldown_dictionary,
 		DRILLDOWN_FOLDER_LIST_KEY,
 		fulfilled_folder_name_list );
+}
+
+boolean drilldown_middle(
+			char *folder_name,
+			char *current_folder_name )
+{
+	return ( string_strcmp( folder_name, current_folder_name ) != 0 );
+}
+
+boolean drilldown_finished(
+			char *folder_name,
+			char *current_folder_name )
+{
+	return ( string_strcmp( folder_name, current_folder_name ) == 0 );
 }
 

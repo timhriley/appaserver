@@ -96,7 +96,7 @@ int main( int argc, char **argv )
 		end_measurement_date_string );
 
 	output_pipe = popen( "sort", "w" );
-	measurement_dictionary = dictionary_large_dictionary_new();
+	measurement_dictionary = dictionary_large();
 	input_pipe = popen( sys_string, "r" );
 
 	while( get_line( input_buffer, input_pipe ) )

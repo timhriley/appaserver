@@ -1023,7 +1023,7 @@ DICTIONARY *get_heading_piece_dictionary(	char **missing_heading,
 	char piece_offset_string[ 8 ];
 	char heading[ 128 ];
 
-	heading_piece_dictionary = dictionary_small_new();
+	heading_piece_dictionary = dictionary_small();
 
 	for( piece_offset = 0 ;; piece_offset++ )
 	{

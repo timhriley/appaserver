@@ -150,7 +150,7 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	query_dictionary = dictionary_small_new();
+	query_dictionary = dictionary_small();
 
 	sprintf(key,
 		"%s%s",

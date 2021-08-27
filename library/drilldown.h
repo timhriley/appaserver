@@ -41,7 +41,14 @@ typedef struct
 DRILLDOWN *drilldown_calloc(
 			void );
 
-DRILLDOWN *drilldown_fetch(
+/* Always succeeds */
+/* --------------- */
+DRILLDOWN *drilldown_start(
+			char *base_folder_name );
+
+/* Always succeeds */
+/* --------------- */
+DRILLDOWN *drilldown_participating(
 			char *base_folder_name,
 			DICTIONARY *drilldown_dictionary );
 
@@ -55,8 +62,12 @@ char *drilldown_current_folder_name(
 
 void drilldown_base_folder_name_set(
 			DICTIONARY *drilldown_dictionary,
-			char *drilldown_folder_list_key,
+			char *drilldown_folder_key,
 			char *base_folder_name );
+
+char *drilldown_base_folder_name(
+			DICTIONARY *drilldown_dictionary,
+			char *drilldown_base_folder_name );
 
 void drilldown_fulfilled_folder_name_list_set(
 			DICTIONARY *drilldown_dictionary,
@@ -68,4 +79,11 @@ void drilldown_fulfilled_folder_name_set(
 			LIST *fulfilled_folder_name_list,
 			char *current_folder_name );
 
+boolean drilldown_middle(
+			char *folder_name,
+			char *current_folder_name );
+
+boolean drilldown_finished(
+			char *folder_name,
+			char *current_folder_name );
 #endif

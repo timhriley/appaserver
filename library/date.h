@@ -570,6 +570,9 @@ DATE *date_get_prior_saturday(
 char *date_append_hhmmss(
 			char *date_string );
 
+char *date_now_time_second(
+			int utc_offset );
+
 char *date_get_now_time_second(
 			int utc_offset );
 

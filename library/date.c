@@ -1689,6 +1689,11 @@ char *date_now_hh_colon_mm_colon_ss( int utc_offset )
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
 }
 
+char *date_now_time_second( int utc_offset )
+{
+	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
+}
+
 char *date_get_now_time_second( int utc_offset )
 {
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );

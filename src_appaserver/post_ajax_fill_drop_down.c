@@ -261,7 +261,7 @@ void output_process_results(
 		exit( 1 );
 	}
 
-	parameter_dictionary = dictionary_small_new();
+	parameter_dictionary = dictionary_small();
 
 	dictionary_set_pointer(
 		parameter_dictionary,

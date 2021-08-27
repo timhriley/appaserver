@@ -69,8 +69,9 @@ int main( int argc, char **argv )
 		dictionary_string = "";
 
 	vertical_new_button_many_folder_name =
-		trim_quotes(	trim_buffer,
-				vertical_new_button_many_folder_name );
+		trim_quotes(
+			rim_buffer,
+			vertical_new_button_many_folder_name );
 
 	if ( *vertical_new_button_many_folder_name )
 	{
@@ -80,13 +81,14 @@ int main( int argc, char **argv )
 			 "%c",
 			 DICTIONARY_ALTERNATIVE_DELIMITER );
 
-		search_replace_string(	dictionary_string,
-					"=",
-					replace_string );
+		search_replace_string(
+			dictionary_string,
+			"=",
+			replace_string );
 
 		sprintf(onload_function,
 "onload=\"window.open('%s/output_prompt_insert_form?%s+%s+%s+%s+%s+insert+n+%s', '%s', 'menubar=yes,resizable=yes,scrollbars=yes,status=yes,toolbar=yes,location=yes', 'false' );\"",
-			appaserver_parameter_file_get_cgi_directory(),
+			appaserver_parameter_file_cgi_directory(),
 			login_name,
 			application_name,
 			session,

@@ -213,4 +213,11 @@ char *string_extract_lt_gt_delimited(
 /* ---------------------------- */
 int string_index(	char *source );
 
+char *string_trim_leading_character(
+			char *data,
+			char character );
+
+char *string_trim_index(
+			char *string );
+
 #endif

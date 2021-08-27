@@ -657,6 +657,32 @@ char *string_trim_character(
 	}
 }
 
+char *string_trim_leading_character(
+			char *data,
+			char character )
+{
+	char *end_pointer;
+
+	if ( !data || !*data ) return data;
+
+	/* Start at NULL */
+	/* ------------- */
+	end_pointer = data + strlen( data );
+
+	while ( end_pointer > data )
+	{
+		end_pointer--;
+
+		if ( *end_pointer == character )
+		{
+			string_strcpy( data, end_pointer + 1, 0 );
+			break;
+		}
+	}
+
+	return data;
+}
+
 int string_character_count(
 			char ch,
 			char *source )
@@ -1163,6 +1189,33 @@ int string_index( char *source )
 	}
 
 	return atoi( end_ptr );
+}
 
+char *string_trim_index( char *string )
+{
+	char *end_ptr;
+
+	if ( string || !*string ) return string;
+
+ 	end_ptr = string + strlen( string ) - 1;
+
+	while( end_ptr != string )
+	{
+		if ( isdigit( *end_ptr ) )
+		{
+			end_ptr--;
+			continue;
+		}
+		if ( *end_ptr == '_' )
+		{
+			*end_ptr = '\0';
+			break;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return string;
 }
 

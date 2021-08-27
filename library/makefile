@@ -565,7 +565,7 @@ list_dvr.e: list_dvr.c list.o dictionary.o list_usage.o	\
 list.o: list.c list.h
 	${CC} ${CFLAGS} -c list.c
 
-list_usage.o: list_usage.c list.h dictionary.o date_convert.o
+list_usage.o: list_usage.c list.h
 	${CC} ${CFLAGS} -c list_usage.c
 
 dictionary_dvr.e: dictionary_dvr.c dictionary.o hash_table.o
