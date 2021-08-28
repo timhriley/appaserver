@@ -9,15 +9,16 @@
 #include <unistd.h>
 #include "list.h"
 #include "timlib.h"
+#include "float.h"
 #include "hash_table.h"
 #include "dictionary.h"
 #include "environ.h"
 #include "document.h"
 #include "application.h"
 #include "piece.h"
-#include "easycharts.h"
 #include "appaserver_library.h"
 #include "appaserver_link_file.h"
+#include "easycharts.h"
 
 EASYCHARTS *easycharts_new_easycharts(	int width,
 					int height )
@@ -54,7 +55,7 @@ EASYCHARTS *easycharts_new_easycharts(	int width,
 	e->input_chart_list = list_new_list();
 
 	return e;
-} /* easycharts_new_easycharts() */
+}
 
 EASYCHARTS *easycharts_new_timeline_easycharts(
 					int width,
@@ -69,7 +70,7 @@ EASYCHARTS *easycharts_new_timeline_easycharts(
 	e->highlight_on = 1;
 
 	return e;
-} /* easycharts_new_timeline_easycharts() */
+}
 
 EASYCHARTS *easycharts_new_scatter_easycharts(
 					int width,
@@ -85,7 +86,7 @@ EASYCHARTS *easycharts_new_scatter_easycharts(
 	e->highlight_on = 1;
 
 	return e;
-} /* easycharts_new_scatter_easycharts() */
+}
 
 EASYCHARTS_POINT *easycharts_new_point(	double x_value,
 					double y_value,
@@ -109,7 +110,7 @@ EASYCHARTS_POINT *easycharts_new_point(	double x_value,
 	e->x_label = x_label;
 	e->display_value = 1;
 	return e;
-} /* easycharts_new_point() */
+}
 
 boolean easycharts_set_point(	LIST *point_list,
 				double x_value,
@@ -128,7 +129,7 @@ boolean easycharts_set_point(	LIST *point_list,
 		return 0;
 	else
 		return 1;
-} /* easycharts_set_point() */
+}
 
 boolean easycharts_output_all_charts(
 				FILE *destination,
@@ -164,7 +165,7 @@ boolean easycharts_output_all_charts(
 	if ( !list_rewind( output_chart_list ) ) return 0;
 
 	do {
-		output_chart = list_get_pointer( output_chart_list );
+		output_chart = list_get( output_chart_list );
 
 		if ( !easycharts_output_chart(
 				destination,
@@ -205,7 +206,7 @@ boolean easycharts_output_all_charts(
 		}
 	} while( list_next( output_chart_list ) );
 	return 1;
-} /* easycharts_output_all_charts() */
+}
 
 int easycharts_output_chart(
 				FILE *destination,
@@ -299,7 +300,7 @@ int easycharts_output_chart(
 		{
 			datatype =
 				(EASYCHARTS_OUTPUT_DATATYPE *)
-					list_get_first_pointer(
+					list_first(
 						output_datatype_list );
 
 			fprintf(destination,
@@ -319,7 +320,7 @@ int easycharts_output_chart(
 
 			do {
 				datatype =
-					list_get_pointer(
+					list_get(
 						output_datatype_list );
 
 				fprintf(destination,
@@ -343,7 +344,7 @@ int easycharts_output_chart(
 	
 	datatype =
 		(EASYCHARTS_OUTPUT_DATATYPE *)
-			list_get_first_pointer(
+			list_first(
 				output_datatype_list );
 
 	easycharts_output_point_list(
@@ -553,36 +554,10 @@ int easycharts_output_chart(
 			 "<param name=rangeAdjusterOn_2 value=true>\n" );
 	}
 
-/*
-	if ( timeline_info )
-	{
-		fprintf(destination,
-			"<param name=timeFormatInput value=\"%s\">\n",
-			timeline_info->time_format_input );
-		fprintf(destination,
-			"<param name=timeFormatOut value=\"%s\">\n",
-			timeline_info->x_axis_ticklabel_format );
-		fprintf(destination,
-			"<param name=lowerTime value=\"%s\">\n",
-			timeline_info->lowest_date_string );
-		fprintf(destination,
-			"<param name=upperTime value=\"%s\">\n",
-			timeline_info->highest_date_string );
-		fprintf(destination,
-			"<param name=timeScale value=86400>\n" );
-		fprintf(destination,
-			"<param name=autoTimeLabelsOn value=true>\n" );
-		fprintf(destination,
-			"<param name=valueLinesOn value=true>\n" );
-		fprintf(destination,
-		"<param name=sampleLabelStyle value=below_and_floating>\n" );
-	}
-*/
-
 	fprintf( destination, "</applet>\n" );
 
 	return 1;
-} /* easycharts_output_chart() */
+}
 
 void easycharts_output_point_list(	FILE *destination,
 					LIST *point_list,
@@ -596,7 +571,7 @@ void easycharts_output_point_list(	FILE *destination,
 	do {
 		point =
 			(EASYCHARTS_POINT *)
-				list_get_pointer( point_list );
+				list_get( point_list );
 
 		if ( first_time )
 			first_time = 0;
@@ -632,7 +607,7 @@ void easycharts_output_point_list(	FILE *destination,
 			}
 		}
 	} while( list_next( point_list ) );
-} /* easycharts_output_point_list() */
+}
 
 void easycharts_get_chart_filename(
 				char **chart_filename,
@@ -657,7 +632,7 @@ void easycharts_get_chart_filename(
 			"html" );
 
 	*chart_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -670,7 +645,7 @@ void easycharts_get_chart_filename(
 			appaserver_link_file->extension );
 
 	*prompt_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_prompt_filename(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,
@@ -686,35 +661,7 @@ void easycharts_get_chart_filename(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf(	local_chart_filename,
-			EASYCHARTS_CHART_TEMPLATE,
-			appaserver_mount_point,
-			application_name,
-			pid );
-
-	if ( prepend_http_protocol )
-	{
-		server_address = appaserver_library_server_address();
-
-		sprintf(	local_prompt_filename,
-				EASYCHARTS_HTTP_PROMPT_TEMPLATE,
-				application_http_prefix( application_name ),
-				server_address,
-				application_name,
-				pid );
-	}
-	else
-	{
-		sprintf(	local_prompt_filename,
-				EASYCHARTS_PROMPT_TEMPLATE,
-				application_name,
-				pid );
-	}
-*/
-
-} /* easycharts_get_chart_filename() */
+}
 
 EASYCHARTS_INPUT_CHART *easycharts_new_input_chart( void )
 {
@@ -733,9 +680,9 @@ EASYCHARTS_INPUT_CHART *easycharts_new_input_chart( void )
 	}
 
 	input_chart->datatype_list = list_new_list();
-	input_chart->date_time_dictionary = dictionary_new_medium_dictionary();
+	input_chart->date_time_dictionary = dictionary_medium();
 	return input_chart;
-} /* easycharts_new_input_chart() */
+}
 
 EASYCHARTS_INPUT_DATATYPE *easycharts_new_input_datatype(
 			char *datatype_name,
@@ -761,7 +708,7 @@ EASYCHARTS_INPUT_DATATYPE *easycharts_new_input_datatype(
 		hash_table_new_hash_table( hash_table_medium );
 
 	return input_datatype;
-} /* easycharts_new_input_datatype() */
+}
 
 LIST *easycharts_new_datatype_list(
 			LIST *datatype_name_list,
@@ -793,12 +740,12 @@ LIST *easycharts_new_datatype_list(
 
 	do {
 		datatype_name =
-			list_get_pointer(
+			list_get(
 				datatype_name_list );
 
 		if ( datatype_units_list )
 		{
-			units = list_get_pointer( datatype_units_list );
+			units = list_get( datatype_units_list );
 		}
 
 		input_datatype = easycharts_new_input_datatype(
@@ -812,7 +759,7 @@ LIST *easycharts_new_datatype_list(
 	} while( list_next( datatype_name_list ) );
 
 	return datatype_list;
-} /* easycharts_new_datatype_list() */
+}
 
 boolean easycharts_set_all_input_values(
 			LIST *input_chart_list,
@@ -881,7 +828,7 @@ fprintf( stderr, "got value_string = (%s)\n", value_string );
 
 	pclose( input_pipe );
 	return got_input;
-} /* easycharts_set_all_input_values() */
+}
 
 EASYCHARTS_INPUT_VALUE *easycharts_new_input_value(
 				char *date_time,
@@ -906,7 +853,7 @@ EASYCHARTS_INPUT_VALUE *easycharts_new_input_value(
 	e->null_value = null_value;
 
 	return e;
-} /* easycharts_new_input_value() */
+}
 
 boolean easycharts_set_input_value(
 				LIST *input_chart_list,
@@ -926,7 +873,7 @@ boolean easycharts_set_input_value(
 			date_time, value, null_value );
 
 	do {
-		input_chart = list_get_pointer( input_chart_list );
+		input_chart = list_get( input_chart_list );
 
 		if ( !*datatype_name
 		||   list_item_exists(	input_chart->datatype_list,
@@ -934,7 +881,7 @@ boolean easycharts_set_input_value(
 					easycharts_datatype_compare ) )
 		{
 			datatype =
-				list_get_current_pointer(
+				list_get(
 					input_chart->datatype_list );
 
 			hash_table_set_pointer(
@@ -952,7 +899,7 @@ boolean easycharts_set_input_value(
 		}
 	} while( list_next( input_chart_list ) );
 	return 1;
-} /* easycharts_set_input_value() */
+}
 
 int easycharts_point_compare(		EASYCHARTS_POINT *point1,
 					EASYCHARTS_POINT *point2 )
@@ -979,7 +926,7 @@ int easycharts_get_y_minimum_integer( LIST *output_datatype_list )
 	rounded_min = easycharts_get_rounded_min_y( output_datatype_list );
 
 	return rounded_min;
-} /* easycharts_get_y_minimum_integer() */
+}
 
 int easycharts_get_rounded_max_y( LIST *point_list )
 {
@@ -991,7 +938,7 @@ int easycharts_get_rounded_max_y( LIST *point_list )
 		do {
 			point =
 				(EASYCHARTS_POINT *)
-					list_get_pointer( point_list );
+					list_get( point_list );
 			if ( point->display_value
 			&&   (int)point->y_value > rounded_max )
 			{
@@ -1000,7 +947,7 @@ int easycharts_get_rounded_max_y( LIST *point_list )
 		} while( list_next( point_list ) );
 	}
 	return rounded_max;
-} /* easycharts_get_rounded_max_y() */
+}
 
 int easycharts_get_rounded_min_y( LIST *output_datatype_list )
 {
@@ -1011,16 +958,16 @@ int easycharts_get_rounded_min_y( LIST *output_datatype_list )
 	if ( !list_rewind( output_datatype_list ) ) return 0;
 
 	do {
-		datatype = list_get_pointer( output_datatype_list );
+		datatype = list_get( output_datatype_list );
 
 		if ( datatype->point_list
 		&&   list_rewind( datatype->point_list ) )
 		{
 			do {
 				point =
-				(EASYCHARTS_POINT *)
-					list_get_pointer(
+					list_get(
 						datatype->point_list );
+
 				if ( point->display_value
 				&&   point->y_value < minimum )
 				{
@@ -1030,7 +977,7 @@ int easycharts_get_rounded_min_y( LIST *output_datatype_list )
 		}
 	} while( list_next( output_datatype_list ) );
 	return (int)(minimum - 0.999999);
-} /* easycharts_get_rounded_min_y() */
+}
 
 EASYCHARTS_OUTPUT_CHART *easycharts_timeline_get_output_chart(
 					LIST *datatype_list,
@@ -1053,7 +1000,7 @@ EASYCHARTS_OUTPUT_CHART *easycharts_timeline_get_output_chart(
 
 	do {
 		input_datatype =
-			list_get_pointer( datatype_list );
+			list_get( datatype_list );
 
 		output_datatype =
 			easycharts_new_output_datatype(
@@ -1066,7 +1013,7 @@ EASYCHARTS_OUTPUT_CHART *easycharts_timeline_get_output_chart(
 		list_rewind( date_time_key_list );
 
 		do {
-			date_time_key = list_get_pointer( date_time_key_list );
+			date_time_key = list_get( date_time_key_list );
 
 			input_value =
 				hash_table_get_pointer(
@@ -1102,7 +1049,7 @@ EASYCHARTS_OUTPUT_CHART *easycharts_timeline_get_output_chart(
 	} while( list_next( datatype_list ) );
 	return output_chart;
 
-} /* easycharts_timeline_get_output_chart() */
+}
 
 EASYCHARTS_OUTPUT_DATATYPE *easycharts_new_output_datatype(
 				char *datatype_name,
@@ -1146,7 +1093,7 @@ LIST *easycharts_get_series_labels_list( LIST *output_datatype_list )
 	if ( list_rewind( output_datatype_list ) )
 	{
 		do {
-			datatype = list_get_pointer( output_datatype_list );
+			datatype = list_get( output_datatype_list );
 
 			if ( datatype->units && *datatype->units )
 			{
@@ -1171,7 +1118,7 @@ LIST *easycharts_get_series_labels_list( LIST *output_datatype_list )
 	}
 
 	return series_labels_list;
-} /* easycharts_get_series_labels_list() */
+}
 
 char *easycharts_series_label_convert_comma( char *series_label )
 {
@@ -1183,7 +1130,7 @@ char *easycharts_series_label_convert_comma( char *series_label )
 			',',
 			'-' );
 	return buffer;
-} /* easycharts_series_label_convert_comma() */
+}
 
 double easycharts_get_y_point_average( LIST *output_chart_list )
 {
@@ -1195,19 +1142,19 @@ double easycharts_get_y_point_average( LIST *output_chart_list )
 
 	if ( !list_length( output_chart_list ) ) return 0.0;
 
-	output_chart = list_get_first_pointer( output_chart_list );
+	output_chart = list_first( output_chart_list );
 
 	if ( !list_length( output_chart->output_datatype_list ) )
 		return 0.0;
 
-	datatype = list_get_first_pointer(
+	datatype = list_first(
 					output_chart->output_datatype_list );
 	if ( datatype->point_list
 	&&   list_rewind( datatype->point_list ) )
 	{
 		do {
 			point =
-				list_get_pointer(
+				list_get(
 					datatype->point_list );
 
 			if ( point->display_value )
@@ -1222,7 +1169,7 @@ double easycharts_get_y_point_average( LIST *output_chart_list )
 		return sum / (double)count;
 	else
 		return 0.0;
-} /* easycharts_get_y_point_average() */
+}
 
 double easycharts_get_y_point_range( LIST *output_chart_list )
 {
@@ -1238,19 +1185,19 @@ double easycharts_get_y_point_range( LIST *output_chart_list )
 
 	if ( !list_length( output_chart_list ) ) return 0.0;
 
-	output_chart = list_get_first_pointer( output_chart_list );
+	output_chart = list_first( output_chart_list );
 
 	if ( !list_length( output_chart->output_datatype_list ) )
 		return 0.0;
 
-	datatype = list_get_first_pointer(
+	datatype = list_first(
 					output_chart->output_datatype_list );
 	if ( datatype->point_list
 	&&   list_rewind( datatype->point_list ) )
 	{
 		do {
 			point =
-				list_get_pointer(
+				list_get(
 					datatype->point_list );
 
 			if ( point->display_value )
@@ -1265,7 +1212,7 @@ double easycharts_get_y_point_range( LIST *output_chart_list )
 	}
 
 	return highest - lowest;
-} /* easycharts_get_y_point_range() */
+}
 
 int easycharts_get_yaxis_decimal_count( LIST *output_chart_list )
 {
@@ -1283,7 +1230,7 @@ int easycharts_get_yaxis_decimal_count( LIST *output_chart_list )
 		return 2;
 	else
 		return 3;
-} /* easycharts_get_yaxis_decimal_count() */
+}
 
 int easycharts_get_range_step( LIST *output_chart_list )
 {
@@ -1304,23 +1251,7 @@ int easycharts_get_range_step( LIST *output_chart_list )
 		range_step = 1;
 
 	return range_step;
-} /* easycharts_get_range_step() */
-
-#ifdef NOT_DEFINED
-int easycharts_get_point_count( LIST *dataset_list )
-{
-	EASYCHARTS_OUTPUT_DATASET *dataset;
-
-	if ( !list_length( dataset_list ) )
-		return 0;
-
-	dataset =
-		(EASYCHARTS_OUTPUT_DATASET *)
-			list_get_first_pointer( dataset_list );
-	return list_length( dataset->point_list );
-
-} /* easycharts_get_point_count() */
-#endif
+}
 
 void easycharts_trim_label_year_to_two( LIST *output_chart_list )
 {
@@ -1332,14 +1263,14 @@ void easycharts_trim_label_year_to_two( LIST *output_chart_list )
 	if ( !list_rewind( output_chart_list ) ) return;
 
 	do {
-		output_chart = list_get_pointer( output_chart_list );
+		output_chart = list_get( output_chart_list );
 
 		if ( !list_rewind( output_chart->output_datatype_list ) )
 			continue;
 
 		do {
 			output_datatype =
-				list_get_pointer( 
+				list_get( 
 					output_chart->output_datatype_list );
 
 			if ( !list_rewind( output_datatype->point_list ) )
@@ -1347,7 +1278,7 @@ void easycharts_trim_label_year_to_two( LIST *output_chart_list )
 	
 			do {
 				point =
-					list_get_pointer(
+					list_get(
 						output_datatype->point_list );
 	
 				if ( point->x_label
@@ -1361,7 +1292,7 @@ void easycharts_trim_label_year_to_two( LIST *output_chart_list )
 			} while( list_next( output_datatype->point_list ) );
 		} while( list_next( output_chart->output_datatype_list ) );
 	} while( list_next( output_chart_list ) );
-} /* easycharts_trim_label_year_to_two() */
+}
 
 void easycharts_output_html( FILE *chart_file )
 {
@@ -1382,7 +1313,7 @@ void easycharts_set_printer_sized(
 	*font_size = 12;
 	*bold_labels = 0;
 	*bold_legends = 0;
-} /* easycharts_set_printer_sized() */
+}
 
 void easycharts_set_half_height(
 				int *height,
@@ -1396,153 +1327,7 @@ void easycharts_set_half_height(
 	{
 		*height = (double)*height / 2.0;
 	}
-} /* easycharts_set_half_height() */
-
-#ifdef NOT_DEFINED
-char *easycharts_xy_input_dataset_list_display(
-				LIST *input_dataset_list,
-				DICTIONARY *label_key_dictionary )
-{
-	char return_buffer[ 65536 ];
-	char *return_buffer_pointer = return_buffer;
-	EASYCHARTS_XY_VALUE *xy_value;
-	EASYCHARTS_XY_DATASET *dataset;
-	char *label;
-	LIST *label_key_list;
-
-	label_key_list =
-		dictionary_get_ordered_key_list(
-			label_key_dictionary );
-
-	if ( !label_key_list
-	||   !list_length( label_key_list ) )
-	{
-		return "";
-	}
-
-	if ( !list_rewind( input_dataset_list ) ) return "";
-
-	*return_buffer_pointer = '\0';
-	do {
-		dataset =
-			(EASYCHARTS_XY_DATASET *)
-				list_get_pointer(
-					input_dataset_list );
-
-		list_rewind( label_key_list );
-
-		do {
-			label = list_get_pointer( label_key_list );
-
-			xy_value =
-				hash_table_get_pointer(
-					dataset->dataset_hash_table,
-					label );
-
-			if ( !xy_value )
-			{
-				return_buffer_pointer +=
-					sprintf(
-						return_buffer_pointer,
-						"%s:0,1",
-						label );
-			}
-			else
-			{
-				return_buffer_pointer +=
-					sprintf(
-						return_buffer_pointer,
-						"%s:%lf,%d",
-						label,
-						xy_value->value,
-						xy_value->null_value );
-			}
-
-			return_buffer_pointer +=
-				sprintf( return_buffer_pointer, "\n" );
-
-		} while( list_next( label_key_list ) );
-	} while( list_next( input_dataset_list ) );
-	return strdup( return_buffer );
-} /* easycharts_xy_input_dataset_list_display() */
-
-DICTIONARY *easycharts_remove_key_if_any_missing_key_dictionary(
-				LIST *input_dataset_list,
-				DICTIONARY *label_key_dictionary )
-{
-	EASYCHARTS_XY_VALUE *xy_value;
-	EASYCHARTS_XY_DATASET *dataset;
-	char *label;
-	LIST *label_key_list;
-
-	label_key_list =
-		dictionary_get_ordered_key_list(
-			label_key_dictionary );
-
-	if ( !label_key_list
-	||   !list_length( label_key_list ) )
-	{
-		return label_key_dictionary;
-	}
-
-	if ( !list_rewind( input_dataset_list ) ) return label_key_dictionary;
-
-	do {
-		dataset =
-			(EASYCHARTS_XY_DATASET *)
-				list_get_pointer(
-					input_dataset_list );
-
-		list_rewind( label_key_list );
-
-		do {
-			label = list_get_pointer( label_key_list );
-
-			xy_value =
-				hash_table_get_pointer(
-					dataset->dataset_hash_table,
-					label );
-
-			if ( !xy_value || xy_value->null_value )
-			{
-				dictionary_delete_key(
-					label_key_dictionary,
-					label );
-
-			}
-		} while( list_next( label_key_list ) );
-	} while( list_next( input_dataset_list ) );
-	return label_key_dictionary;
-} /* easycharts_remove_key_if_any_missing_key_dictionary() */
-#endif
-
-#ifdef NOT_DEFINED
-EASYCHARTS_TIMELINE_INFO *easycharts_new_timeline_info(
-				char *time_format_input,
-				char *x_axis_ticklabel_format,
-				char *lowest_date_string,
-				char *highest_date_string )
-{
-	EASYCHARTS_TIMELINE_INFO *e;
-
-	e = (EASYCHARTS_TIMELINE_INFO *)
-		calloc( 1, sizeof( EASYCHARTS_TIMELINE_INFO ) );
-	if ( !e )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	e->time_format_input = time_format_input;
-	e->x_axis_ticklabel_format = x_axis_ticklabel_format;
-	e->lowest_date_string = lowest_date_string;
-	e->highest_date_string = highest_date_string;
-	return e;
-} /* easycharts_new_timeline_info() */
-#endif
+}
 
 EASYCHARTS_OUTPUT_CHART *easycharts_new_output_chart( void )
 {
@@ -1574,7 +1359,7 @@ LIST *easycharts_get_regression_point_list(
 	file = popen( buffer, "w" );
 
 	do {
-		point = list_get_pointer( point_list );
+		point = list_get( point_list );
 		fprintf(file,
 			"%lf %lf\n",
 			point->x_value,
@@ -1600,7 +1385,7 @@ LIST *easycharts_get_regression_point_list(
 	regression_point_list = list_new_list();
 
 	do {
-		point = list_get_pointer( point_list );
+		point = list_get( point_list );
 
 		new_y = (*slope * point->x_value) + *y_intercept;
 
@@ -1670,7 +1455,7 @@ void easycharts_output_graph_window(
 
 	if ( with_document_output ) document_close();
 
-} /* easycharts_output_graph_window() */
+}
 
 void easycharts_output_home_link( void )
 {
@@ -1690,10 +1475,10 @@ LIST *easycharts_timeline_get_output_chart_list( LIST *input_chart_list )
 	output_chart_list = list_new_list();
 
 	do {
-		input_chart = list_get_pointer( input_chart_list );
+		input_chart = list_get( input_chart_list );
 
 		date_time_key_list =
-			dictionary_get_ordered_key_list(
+			dictionary_ordered_key_list(
 				input_chart->date_time_dictionary );
 
 		if ( !date_time_key_list
@@ -1723,7 +1508,7 @@ LIST *easycharts_timeline_get_output_chart_list( LIST *input_chart_list )
 	} while( list_next( input_chart_list ) );
 
 	return output_chart_list;
-} /* easycharts_timeline_get_output_chart_list() */
+}
 
 LIST *easycharts_scatter_get_output_chart_list(
 				LIST *input_chart_list )
@@ -1738,10 +1523,10 @@ LIST *easycharts_scatter_get_output_chart_list(
 	output_chart_list = list_new_list();
 
 	do {
-		input_chart = list_get_pointer( input_chart_list );
+		input_chart = list_get( input_chart_list );
 
 		date_time_key_list =
-			dictionary_get_key_list(
+			dictionary_key_list(
 				input_chart->date_time_dictionary );
 
 		if ( !date_time_key_list
@@ -1760,9 +1545,6 @@ LIST *easycharts_scatter_get_output_chart_list(
 		output_chart->bar_chart = input_chart->bar_chart;
 		output_chart->bar_labels_on = input_chart->bar_labels_on;
 		output_chart->x_axis_label = input_chart->x_axis_label;
-/*
-		output_chart->y_axis_label = input_chart->y_axis_label;
-*/
 
 		output_chart->applet_library_code =
 			input_chart->applet_library_code;
@@ -1773,7 +1555,7 @@ LIST *easycharts_scatter_get_output_chart_list(
 	} while( list_next( input_chart_list ) );
 
 	return output_chart_list;
-} /* easycharts_scatter_get_output_chart_list() */
+}
 
 EASYCHARTS_OUTPUT_CHART *easycharts_scatter_get_output_chart(
 			LIST *datatype_list,
@@ -1803,9 +1585,9 @@ EASYCHARTS_OUTPUT_CHART *easycharts_scatter_get_output_chart(
 	output_chart = easycharts_new_output_chart();
 
 	list_rewind( datatype_list );
-	datatype_1 = list_get_pointer( datatype_list );
+	datatype_1 = list_get( datatype_list );
 	list_next( datatype_list );
-	datatype_2 = list_get_pointer( datatype_list );
+	datatype_2 = list_get( datatype_list );
 
 	output_datatype = easycharts_new_output_datatype(
 				datatype_2->datatype_name,
@@ -1871,7 +1653,7 @@ EASYCHARTS_OUTPUT_CHART *easycharts_scatter_get_output_chart(
 
 	return output_chart;
 
-} /* easycharts_scatter_get_output_chart() */
+}
 
 LIST *easycharts_scatter_get_point_list(
 				EASYCHARTS_INPUT_DATATYPE *datatype_1,
@@ -1889,7 +1671,7 @@ LIST *easycharts_scatter_get_point_list(
 	point_list = list_new_list();
 
 	do {
-		date_time_key = list_get_pointer( date_time_key_list );
+		date_time_key = list_get( date_time_key_list );
 
 		if ( ( datatype_1_value =
 			hash_table_get_pointer(
@@ -1921,7 +1703,7 @@ LIST *easycharts_scatter_get_point_list(
 		}
 	} while( list_next( date_time_key_list ) );
 	return point_list;
-} /* easycharts_scatter_get_point_list() */
+}
 
 char *easycharts_output_chart_list_display( LIST *output_chart_list )
 {
@@ -1935,7 +1717,7 @@ char *easycharts_output_chart_list_display( LIST *output_chart_list )
 
 	*ptr = '\0';
 	do {
-		output_chart = list_get_pointer( output_chart_list );
+		output_chart = list_get( output_chart_list );
 
 		if ( !output_chart->output_datatype_list
 		||   !list_rewind( output_chart->output_datatype_list ) )
@@ -1945,7 +1727,7 @@ char *easycharts_output_chart_list_display( LIST *output_chart_list )
 
 		do {
 			output_datatype =
-				list_get_pointer(
+				list_get(
 					output_chart->output_datatype_list );
 
 			ptr += sprintf(	ptr,
@@ -1960,7 +1742,7 @@ char *easycharts_output_chart_list_display( LIST *output_chart_list )
 
 			do {
 				output_point =
-					list_get_pointer(
+					list_get(
 						output_datatype->point_list );
 
 				if ( output_point->x_label )
@@ -1985,7 +1767,7 @@ char *easycharts_output_chart_list_display( LIST *output_chart_list )
 
 	*ptr = '\0';
 	return strdup( buffer );
-} /* easycharts_output_chart_list_display() */
+}
 
 DICTIONARY *easycharts_remove_key_if_any_missing_key_dictionary(
 				LIST *input_datatype_list,
@@ -1997,7 +1779,7 @@ DICTIONARY *easycharts_remove_key_if_any_missing_key_dictionary(
 	LIST *date_time_list;
 
 	date_time_list =
-		dictionary_get_key_list(
+		dictionary_key_list(
 			date_time_dictionary );
 
 	if ( !date_time_list
@@ -2009,12 +1791,12 @@ DICTIONARY *easycharts_remove_key_if_any_missing_key_dictionary(
 	if ( !list_rewind( input_datatype_list ) ) return date_time_dictionary;
 
 	do {
-		input_datatype = list_get_pointer( input_datatype_list );
+		input_datatype = list_get( input_datatype_list );
 
 		list_rewind( date_time_list );
 
 		do {
-			date_time = list_get_pointer( date_time_list );
+			date_time = list_get( date_time_list );
 
 			input_value =
 				hash_table_get_pointer(
@@ -2031,5 +1813,5 @@ DICTIONARY *easycharts_remove_key_if_any_missing_key_dictionary(
 		} while( list_next( date_time_list ) );
 	} while( list_next( input_datatype_list ) );
 	return date_time_dictionary;
-} /* easycharts_remove_key_if_any_missing_key_dictionary() */
+}
 

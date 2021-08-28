@@ -26,16 +26,17 @@
 #include "appaserver_parameter_file.h"
 #include "appaserver.h"
 #include "environ.h"
-#include "post2dictionary.h"
 #include "related_folder.h"
 #include "relation.h"
 #include "session.h"
 #include "role.h"
 #include "query.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
+#include "post_dictionary.h"
 #include "pair_one2m.h"
 #include "folder_menu.h"
 #include "vertical_new_button.h"
+#include "prompt_insert_form.h"
 
 /* Constants */
 /* --------- */
@@ -76,27 +77,26 @@ int post_prompt_insert_database(
 int main( int argc, char **argv )
 {
 	char *login_name;
-	char *session;
+	char *session_key;
 	char *application_name;
 	char *folder_name;
 	char *role_name;
-	char *state;
+	SESSION *session;
+	DICTIONARY_SEPARATE *dictionary_separate;
+	POST_DICTIONARY *post_dictionary;
+	PROMPT_INSERT_FORM *prompt_insert_form;
 	LIST *posted_attribute_name_list;
 	LIST *non_populated_attribute_name_list;
 	LIST *ignore_primary_key_list;
 	LIST *subtracted_primary_key_list;
 	LIST *insert_required_attribute_name_list;
 	char sys_string[ 65536 ];
-	DICTIONARY *original_post_dictionary;
 	int rows_inserted;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	APPASERVER *appaserver;
 	char *insert_update_key;
 	char *target_frame;
 	LIST *mto1_isa_related_folder_list = {0};
 	ROLE *role;
-	char *database_string = {0};
-	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *message = "";
 	char *isa_message = "";
 	PAIR_ONE2M *pair_one2m;
@@ -104,92 +104,40 @@ int main( int argc, char **argv )
 	LIST *ignore_attribute_name_list;
 	VERTICAL_NEW_BUTTON *vertical_new_button;
 
-	if ( argc != 11 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state insert_update_key target_frame ignored ignored\n",
+"Usage: %s login_name application session folder role target_frame\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
 	application_name = argv[ 2 ];
-	session = argv[ 3 ];
+	session_key = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
-	state = argv[ 6 ];
-	insert_update_key = argv[ 7 ];
-	target_frame = argv[ 8 ];
+	target_frame = argv[ 6 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
-
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
-	{
-		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
-	}
-
-	if ( !session_access_folder(
-				application_name,
-				session,
-				folder_name,
-				role_name,
-				state ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
-
-	role =
-		role_new_role(
+	session =
+		session_folder_integrity_exit(
+			argc,
+			argv,
 			application_name,
-			role_name );
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			"insert" /* state */ );
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	role = role_new( role_name );
 
 	role->role_attribute_exclude_list =
 		role_get_attribute_exclude_list(
 			application_name,
 			role->role_name );
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	appaserver =
 		appaserver_folder_new(
@@ -205,31 +153,26 @@ int main( int argc, char **argv )
 			(LIST *)0 /* mto1_isa_related_folder_list */,
 			role_name );
 
-	original_post_dictionary =
-		post2dictionary(
-			stdin,
+	post_dictionary =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_dictionary_stdin_new(
 			appaserver_parameter_file->
-				appaserver_data_directory,
-			session );
+				appaserver_mount_point,
+			session_key );
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				application_name,
-				attribute_name_list(
-					folder->attribute_list ),
-				attribute_date_name_list(
-					folder->attribute_list ),
-				(LIST *)0 /* operation_name_list */,
-				login_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_stdin_new(
+			post_dictionary->dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list(
+				folder->folder_attribute_list ) );
 
 	/* If pressed the new button next to a drop-down. */
 	/* ---------------------------------------------- */
@@ -238,35 +181,35 @@ int main( int argc, char **argv )
 	if ( ( vertical_new_button->one_folder_name =
 		vertical_new_button_dictionary_one_folder_name(
 			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			dictionary_appaserver->
+			dictionary_separate->
 				non_prefixed_dictionary ) ) )
 	{
 		vertical_new_button_dictionary_set(
-			dictionary_appaserver->non_prefixed_dictionary,
+			dictionary_separate->non_prefixed_dictionary,
 			VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
 			vertical_new_button->one_folder_name );
 
 		vertical_new_button_dictionary_set(
-			dictionary_appaserver->non_prefixed_dictionary,
+			dictionary_separate->non_prefixed_dictionary,
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
 			folder_name );
 
 		sprintf(sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_appaserver_send_string(
-				dictionary_appaserver_send_dictionary(
-					dictionary_appaserver->
+			dictionary_separate_send_string(
+				dictionary_separate_send_dictionary(
+					dictionary_separate->
 						sort_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						query_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						drilldown_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						ignore_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						pair_one2m_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						non_prefixed_dictionary ) ),
 		 	login_name,
 			application_name,
@@ -291,10 +234,10 @@ int main( int argc, char **argv )
 	/* Copy to the query dictionary */
 	/* ---------------------------- */
 	dictionary_append_dictionary(
-		dictionary_appaserver->query_dictionary,
-		dictionary_appaserver->non_prefixed_dictionary );
+		dictionary_separate->query_dictionary,
+		dictionary_separate->non_prefixed_dictionary );
 
-	dictionary_appaserver->non_prefixed_dictionary =
+	dictionary_separate->non_prefixed_dictionary =
 		dictionary_small();
 
 	appaserver->folder->attribute_name_list =
@@ -308,27 +251,27 @@ int main( int argc, char **argv )
 	/* If pressed the "lookup" button */
 	/* ------------------------------ */
 	if ( dictionary_key_exists_index_zero(
-			dictionary_appaserver->working_post_dictionary,
+			dictionary_separate->working_post_dictionary,
 			LOOKUP_PUSH_BUTTON_NAME ) )
 	{
 		remove_primary_key_reference_number(
-			dictionary_appaserver->query_dictionary,
+			dictionary_separate->query_dictionary,
 			appaserver->folder->attribute_list );
 
 		sprintf(sys_string,
 	"echo \"%s\" 						|"
 	"output_edit_table_form %s %s %s '%s' '%s' '%s' 2>>%s	 ",
-			dictionary_appaserver_send_string(
-				dictionary_appaserver_send_dictionary(
-					dictionary_appaserver->
+			dictionary_separate_send_string(
+				dictionary_separate_send_dictionary(
+					dictionary_separate->
 						sort_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						query_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						drilldown_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						ignore_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						pair_one2m_dictionary,
 					(DICTIONARY *)0
 					      /* non_prefixed_dictionary */ ) ),
@@ -384,7 +327,7 @@ int main( int argc, char **argv )
 			0 /* recursive_level */ );
 
 	appaserver_library_automatically_set_login_name(
-		dictionary_appaserver->query_dictionary,
+		dictionary_separate->query_dictionary,
 		login_name,
 		appaserver->folder->mto1_related_folder_list,
 		appaserver->folder->attribute_list,
@@ -400,17 +343,17 @@ int main( int argc, char **argv )
 	/* with NULL_OPERATOR selected.			*/
 	/* -------------------------------------------- */
 	set_null_operator_data_to_null(
-		dictionary_appaserver->query_dictionary,
+		dictionary_separate->query_dictionary,
 		appaserver->folder->attribute_name_list );
 
 	posted_attribute_name_list =
-		dictionary_appaserver_get_posted_attribute_name_list(
-			dictionary_appaserver->query_dictionary, 
+		dictionary_separate_posted_attribute_name_list(
+			dictionary_separate->query_dictionary, 
 			appaserver->folder->attribute_name_list );
 
 	ignore_primary_key_list =
 		appaserver_library_ignore_pressed_attribute_name_list( 	
-			dictionary_appaserver->ignore_dictionary, 
+			dictionary_separate->ignore_dictionary, 
 			appaserver->
 				folder->
 				primary_key_list,
@@ -429,7 +372,7 @@ int main( int argc, char **argv )
 
 	non_populated_attribute_name_list =
 		dictionary_get_non_populated_index_zero_key_list(
-			dictionary_appaserver->query_dictionary, 
+			dictionary_separate->query_dictionary, 
 			insert_required_attribute_name_list );
 
 	mto1_isa_related_folder_list =
@@ -445,7 +388,7 @@ int main( int argc, char **argv )
 	if ( list_length( mto1_isa_related_folder_list ) )
 	{
 		appaserver_library_populate_last_foreign_attribute_key(
-			dictionary_appaserver->query_dictionary,
+			dictionary_separate->query_dictionary,
 			mto1_isa_related_folder_list,
 			appaserver->folder->primary_key_list );
 	}
@@ -466,20 +409,20 @@ int main( int argc, char **argv )
 
 	ignore_attribute_name_list =
 		insert_database_get_trim_indices_dictionary_key_list(
-			dictionary_appaserver->
+			dictionary_separate->
 				ignore_dictionary );
 
 	/* If pair_one2m */
 	/* ------------- */
 	if ( pair_one2m_participating(
-		dictionary_appaserver->
+		dictionary_separate->
 			pair_one2m_dictionary )
 	||    list_length( mto1_isa_related_folder_list ) )
 	{
 		if ( ( missing_attribute_name_list =
 			insert_database_get_missing_attribute_name_list(
 				0 /* row */,
-				dictionary_appaserver->query_dictionary,
+				dictionary_separate->query_dictionary,
 				ignore_attribute_name_list,
 				subtracted_primary_key_list,
 				insert_required_attribute_name_list ) ) )
@@ -504,9 +447,9 @@ int main( int argc, char **argv )
 			post_prompt_insert_database(
 				&message,
 				&isa_message,
-				dictionary_appaserver->query_dictionary
+				dictionary_separate->query_dictionary
 					/* row_dictionary */,
-				dictionary_appaserver->ignore_dictionary,
+				dictionary_separate->ignore_dictionary,
 				application_name,
 				session,
 				login_name,
@@ -542,11 +485,11 @@ int main( int argc, char **argv )
 		/* If pair_one2m */
 		/* ------------- */
 		if ( pair_one2m_participating(
-			dictionary_appaserver->pair_one2m_dictionary ) )
+			dictionary_separate->pair_one2m_dictionary ) )
 		{
 			pair_one2m =
 				pair_one2m_post_new(
-					dictionary_appaserver->
+					dictionary_separate->
 						pair_one2m_dictionary );
 
 			pair_one2m->many_folder_name =
@@ -588,7 +531,7 @@ int main( int argc, char **argv )
 					PAIR_ONE2M_DUPLICATE_KEY );
 			}
 
-			dictionary_appaserver->pair_one2m_dictionary =
+			dictionary_separate->pair_one2m_dictionary =
 				pair_one2m_fulfilled_dictionary(
 					/* ---------------- */
 					/* Sets and returns */
@@ -603,17 +546,17 @@ int main( int argc, char **argv )
 			sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_appaserver_send_string(
-				dictionary_appaserver_send_dictionary(
-					dictionary_appaserver->
+			dictionary_separate_send_string(
+				dictionary_separate_send_dictionary(
+					dictionary_separate->
 						sort_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						query_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						drilldown_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						ignore_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						pair_one2m_dictionary,
 					(DICTIONARY *)0
 					     /* non_prefixed_dictionary */ ) ),
@@ -645,17 +588,17 @@ int main( int argc, char **argv )
 		sprintf(sys_string,
 "echo \"%s\" 								|"
 "output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_appaserver_send_string(
-				dictionary_appaserver_send_dictionary(
-					dictionary_appaserver->
+			dictionary_separate_send_string(
+				dictionary_separate_send_dictionary(
+					dictionary_separate->
 						sort_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						query_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						drilldown_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						ignore_dictionary,
-					dictionary_appaserver->
+					dictionary_separate->
 						pair_one2m_dictionary,
 					(DICTIONARY *)0
 					     /* non_prefixed_dictionary */ ) ),

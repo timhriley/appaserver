@@ -25,7 +25,8 @@
 #include "environ.h"
 #include "role.h"
 #include "query.h"
-#include "dictionary_appaserver.h"
+#include "post_dictionary.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -87,8 +88,13 @@ LIST *get_element_list(		char **preprompt_help_text,
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *process_name;
+	char *login_name;
+	char *application_name;
+	char *session_key;
+	char *process_name;
 	char *role_name;
+	POST_DICTIONARY *post_dictionary;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	DOCUMENT *document;
 	FORM *form;
 	LIST *remember_keystrokes_non_multi_element_name_list;
@@ -99,8 +105,6 @@ int main( int argc, char **argv )
 	char action_string[ 512 ];
 	ROLE *role;
 	char *post_change_javascript = {0};
-	DICTIONARY *post_dictionary = {0};
-	char passed_preprompt_yn;
 	char *destination_multi_select_element_name;
 	boolean exists_date_element = 0;
 	boolean exists_time_element = 0;
@@ -108,52 +112,41 @@ int main( int argc, char **argv )
 	boolean process_parameter_doing_preprompt = 0;
 	char *preprompt_button_control_string = {0};
 	boolean with_dynarch_menu = 0;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
 	char *preprompt_help_text = "";
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environment_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 6 )
 	{
-		fprintf( stderr,
-"Usage: %s login_name ignored session process role passed_preprompt_yn dictionary\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+		"Usage: %s login_name session process role dictionary\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	process_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	passed_preprompt_yn = *argv[ 6 ];
+	session_key = argv[ 2 ];
+	process_name = argv[ 3 ];
+	role_name = argv[ 4 ];
 
 	post_dictionary =
-		dictionary_index_string2dictionary(
-			argv[ 7 ] );
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_dictionary_string_new(
+			argv[ 5 ] );
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				post_dictionary,
-				application_name,
-				attribute_name_list(
-					folder->attribute_list ),
-				attribute_date_name_list(
-					folder->attribute_list ),
-				(LIST *)0 /* operation_name_list */,
-				login_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			post_dictionary->original_post_dictionary );
 
 	add_src_appaserver_to_path();
 	environ_set_utc_offset( application_name );
@@ -202,10 +195,9 @@ int main( int argc, char **argv )
 			role_name,
 			role_get_override_row_restrictions(
 				role->override_row_restrictions_yn ),
-			dictionary_appaserver->non_prefixed_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			passed_preprompt_yn,
-			session,
+			dictionary_separate->non_prefixed_dictionary,
+			dictionary_separate->drilldown_dictionary,
+			session_key,
 			appaserver_parameter_file->
 				document_root );
  

@@ -348,9 +348,6 @@ latex_invoice.o: latex_invoice.c latex_invoice.h
 grace.o: grace.c grace.h
 	${CC} ${CFLAGS} -I${LIBRARY} -c grace.c
 
-easycharts.o: easycharts.c easycharts.h
-	${CC} ${CFLAGS} -c easycharts.c
-
 pair_one2m.o: pair_one2m.c pair_one2m.h
 	${CC} ${CFLAGS} -c pair_one2m.c
 

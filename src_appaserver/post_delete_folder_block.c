@@ -18,7 +18,6 @@
 #include "session.h"
 #include "related_folder.h"
 #include "appaserver.h"
-#include "operation_list.h"
 #include "document.h"
 #include "application.h"
 #include "appaserver_user.h"
@@ -33,7 +32,7 @@
 #include "decode_html_post.h"
 #include "role.h"
 #include "role_folder.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -41,36 +40,38 @@
 /* Prototypes */
 /* ---------- */
 void delete_folder_block_state_one(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
+				DICTIONARY_SEPARATE *dictionary_separate,
 				char *application_name,
 				FOLDER *folder,
 				char *where_clause,
 				char *login_name,
-				char *session,
+				char *session_key,
 				char *role_name );
 
 void delete_folder_block_state_two(
 				char *application_name,
 				FOLDER *folder,
 				char *where_clause,
-				char *session,
+				char *session_key,
 				char *login_name,
 				char *role_name );
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
+	char *login_name;
+	char *application_name;
+	char *session_key;
+	char *folder_name;
+	char *role_name;
 	DOCUMENT *document;
-	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char *dictionary_string;
-	DICTIONARY *post_dictionary;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *where_clause;
 	ROLE_FOLDER *role_folder;
-	char *role_name;
 	char *database_string = {0};
 	char *state;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	POST_DICTIONARY *post_dictionary;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	QUERY *query;
 
 	if ( argc < 7 )
@@ -83,31 +84,7 @@ int main( int argc, char **argv )
 
 	login_name = argv[ 1 ];
 	application_name = argv[ 2 ];
-
-	if ( timlib_parse_database_string(
-		&database_string,
-		application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
-
-	session = argv[ 3 ];
+	session_key = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
 	state = argv[ 6 ];
@@ -141,8 +118,8 @@ int main( int argc, char **argv )
 				session );
 	}
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
+	if ( ! ( dictionary_separate =
+			dictionary_separate_new(
 				post_dictionary,
 				application_name,
 				attribute_name_list(
@@ -153,15 +130,15 @@ int main( int argc, char **argv )
 				login_name ) ) )
 	{
 		fprintf( stderr,
-	"ERROR in %s/%s()/%d: dictionary_appaserver_new() returnede empty.\n",
+	"ERROR in %s/%s()/%d: dictionary_separate_new() returnede empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
+	if ( ! ( dictionary_separate =
+			dictionary_separate_new(
 				post_dictionary,
 				(char *)0 /* application_name */,
 				(LIST *)0 /* attribute_list */,
@@ -175,7 +152,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	post_dictionary = dictionary_appaserver->working_post_dictionary;
+	post_dictionary = dictionary_separate->working_post_dictionary;
 
 	role_folder =
 		role_folder_new_role_folder(
@@ -220,7 +197,7 @@ int main( int argc, char **argv )
 
 	query =
 		query_simple_new(
-			dictionary_appaserver->query_dictionary,
+			dictionary_separate->query_dictionary,
 			login_name,
 			folder_name,
 			role_name,
@@ -270,7 +247,7 @@ int main( int argc, char **argv )
 	if ( strcmp( state, "one" ) == 0 )
 	{
 		delete_folder_block_state_one(
-			dictionary_appaserver,
+			dictionary_separate,
 			application_name,
 			query->query_folder,
 			where_clause,
@@ -308,7 +285,7 @@ int main( int argc, char **argv )
 }
 
 void delete_folder_block_state_one(
-				DICTIONARY_APPASERVER *dictionary_appaserver,
+				DICTIONARY_SEPARATE *dictionary_separate,
 				char *application_name,
 				FOLDER *folder,
 				char *where_clause,
@@ -403,18 +380,18 @@ void delete_folder_block_state_one(
 		(char *)0 /* remember_keystrokes_onload_control_string */,
 		(char *)0 /* post_change_javascript */ );
 
-	dictionary_appaserver->send_dictionary =
-		dictionary_appaserver_get_send_dictionary(
-			dictionary_appaserver->sort_dictionary,
-			dictionary_appaserver->query_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			dictionary_appaserver->
+	dictionary_separate->send_dictionary =
+		dictionary_separate_get_send_dictionary(
+			dictionary_separate->sort_dictionary,
+			dictionary_separate->query_dictionary,
+			dictionary_separate->preprompt_dictionary,
+			dictionary_separate->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->ignore_dictionary,
-			dictionary_appaserver->pair_one2m_dictionary,
+			dictionary_separate->ignore_dictionary,
+			dictionary_separate->pair_one2m_dictionary,
 			(DICTIONARY *)0 /* non_prefixed_dictionary */ );
 
-	output_dictionary_as_hidden( dictionary_appaserver->send_dictionary );
+	output_dictionary_as_hidden( dictionary_separate->send_dictionary );
 
 	form_output_submit_button(
 			(char *)0 /* submit_control_string */,

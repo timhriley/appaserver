@@ -26,46 +26,51 @@ typedef struct
 {
 	PROCESS *process;
 	char output_yn;
-	boolean empty_placeholder_instead;
+	boolean empty_placeholder;
 	char *label;
 } OPERATION;
 
 /* Operations */
 /* ---------- */
-OPERATION *operation_new_operation(	char *application_name,
-					char *session,
-					char *operation_name,
-					boolean empty_placeholder_instead );
+OPERATION *operation_new(
+			char *operation_name );
 
-boolean operation_perform(		DICTIONARY *send_dictionary,
-					DICTIONARY *row_dictionary,
-					char *application_name,
-					char *session,
-					char *person,
-					char *folder_name,
-					char *role_name,
-					LIST *primary_key_list,
-					char *process_name,
-					char *executable,
-					char output_yn,
-					boolean non_owner_forbid_deletion,
-					char *target_frame,
-					char *operation_row_count_string,
-					char *state );
+boolean operation_perform(
+			DICTIONARY *send_dictionary,
+			DICTIONARY *row_dictionary,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_key_list,
+			char *process_name,
+			char *command_line,
+			boolean output,
+			boolean non_owner_forbid_deletion,
+			char *target_frame,
+			char *operation_row_count_string,
+			char *state );
 
-char *operation_get_operation_row_count_string(
-					DICTIONARY *row_dictionary,
-					char *operation_name,
-					int highest_index );
+char *operation_operation_row_count_string(
+			DICTIONARY *row_dictionary,
+			char *operation_name,
+			int highest_index );
 
 OPERATION_SEMAPHORE *operation_semaphore_new(
-					char *application_name,
-					char *process_name,
-					char *parent_process_id_string,
-					char *appaserver_data_directory,
-					char *operation_row_count_string );
+			char *application_name,
+			char *process_name,
+			char *parent_process_id_string,
+			char *appaserver_data_directory,
+			char *operation_row_count_string );
 
-void operation_semaphore_remove_file(	char *semaphore_filename );
+void operation_semaphore_remove_file(
+			char *semaphore_filename );
+
+char *operation_semaphore_filename(
+			char *application_name,
+			char *appaserver_data_directory,
+			int parent_process_id );
 
 #endif
 

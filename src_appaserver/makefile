@@ -90,7 +90,6 @@ EXECUTABLES=								\
 		generic_statistics_report				\
 		generic_gracechart					\
 		generic_high_average_low				\
-		generic_easychart					\
 		generic_googlechart					\
 		generic_daily_moving_average				\
 		generic_output_annual_periods				\
@@ -674,16 +673,6 @@ generic_overlay_output: generic_overlay_output.c			\
 		${LIB}/scatterplot.o					\
 		${LIB}/regression.o					\
 		-o generic_overlay_output
-
-generic_easychart: generic_easychart.c					\
-		${EXTERNAL_LIBS}					\
-		${LIB}/easycharts.o
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/easycharts.o					\
-		generic_easychart.c					\
-		-o generic_easychart
 
 generic_googlechart: generic_googlechart.c				\
 		${EXTERNAL_LIBS}					\

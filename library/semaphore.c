@@ -14,15 +14,7 @@ int semaphore( key_t key )
 {
 	int status = 0;
 	int semid;
-#ifdef NOT_DEFINED
-	int perms;
 
-	/* rw-rw---- */
-	/* --------- */
-	perms = S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP;
-
-	if ( ( semid = semget( key, 1, perms|IPC_CREAT|IPC_EXCL ) ) == -1 )
-#endif
 	if ( ( semid = semget( key, 1, 0666|IPC_CREAT|IPC_EXCL ) ) == -1 )
 	{
 		if ( errno == EEXIST )
@@ -109,31 +101,13 @@ SEMAPHORE_OPERATION *semaphore_operation_new(
 	semaphore_operation->operation_row_total = operation_row_total;
 
 	return semaphore_operation;
-
-} /* semaphore_operation_new() */
-
-char *semaphore_operation_get_filename(
-				char *application_name,
-				char *appaserver_data_directory,
-				int parent_process_id )
-{
-	char semaphore_filename[ 256 ];
-
-	sprintf(	semaphore_filename,
-			SEMAPHORE_TEMPLATE,
-			appaserver_data_directory,
-			application_name,
-			parent_process_id );
-
-	return strdup( semaphore_filename );
-
-} /* semaphore_operation_get_filename() */
+}
 
 void semaphore_operation_check(
-				boolean *group_first_time,
-				boolean *group_last_time,
-				int operation_row_total,
-				char *semaphore_filename )
+			boolean *group_first_time,
+			boolean *group_last_time,
+			int operation_row_total,
+			char *semaphore_filename )
 {
 	char *operation_row_current_string;
 	int operation_row_current;
@@ -174,6 +148,5 @@ void semaphore_operation_check(
 	if ( system( sys_string ) ){};
 
 	*group_last_time = ( operation_row_current == operation_row_total );
-
-} /* semaphore_operation_check() */
+}
 

@@ -32,6 +32,11 @@ extern int errno;
 /* ---------- */
 typedef struct
 {
+	key_t semkey;
+} SEMAPHORE;
+
+typedef struct
+{
 	char *application_name;
 	char *appaserver_data_directory;
 	char *semaphore_filename;
@@ -42,25 +47,25 @@ typedef struct
 	int operation_row_current;
 } SEMAPHORE_OPERATION;
 
-int semaphore(		key_t semkey );
+/* Operations */
+/* ---------- */
+SEMAPHORE *semaphore_new(
+			key_t semkey );
+
 void semaphore_wait(	int semid );
+
 void semaphore_signal(	int semid );
 
 SEMAPHORE_OPERATION *semaphore_operation_new(
-				char *application_name,
-				char *appaserver_data_directory,
-				int parent_process_id,
-				int operation_row_total );
-
-char *semaphore_operation_get_filename(
-				char *application_name,
-				char *appaserver_data_directory,
-				int parent_process_id );
+			char *application_name,
+			char *appaserver_data_directory,
+			int parent_process_id,
+			int operation_row_total );
 
 void semaphore_operation_check(
-				boolean *group_first_time,
-				boolean *group_last_time,
-				int operation_row_total,
-				char *semaphore_filename );
+			boolean *group_first_time,
+			boolean *group_last_time,
+			int operation_row_total,
+			char *semaphore_filename );
 
 #endif

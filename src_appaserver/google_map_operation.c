@@ -144,6 +144,7 @@ int main( int argc, char **argv )
 	results_string = pipe2string( sys_string );
 
 	sprintf( increment_string, "%d", atoi( results_string ) + 1 );
+
 	sprintf( sys_string,
 		 "echo %s > %s",
 		 increment_string,

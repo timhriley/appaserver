@@ -1,6 +1,5 @@
 /* library/operation.c 							*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver operation ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -425,13 +424,30 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 
 }
 
-void operation_semaphore_remove_file( char *semaphore_filename )
+void operation_semaphore_remove_file(
+			char *semaphore_filename )
 {
 	char sys_string[ 1024 ];
 
 	sprintf( sys_string,
 		 "rm -f %s",
 		 semaphore_filename );
+}
+
+char *operation_semaphore_filename(
+			char *application_name,
+			char *appaserver_data_directory,
+			int parent_process_id )
+{
+	char semaphore_filename[ 256 ];
+
+	sprintf(	semaphore_filename,
+			SEMAPHORE_TEMPLATE,
+			appaserver_data_directory,
+			application_name,
+			parent_process_id );
+
+	return strdup( semaphore_filename );
 
 }
 

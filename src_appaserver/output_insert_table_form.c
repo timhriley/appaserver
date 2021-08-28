@@ -103,7 +103,7 @@ int main( int argc, char **argv )
 	ROLE *role;
 	LIST *automatic_preselection_dictionary_list = {0};
 	boolean with_dynarch_menu = 0;
-	DICTIONARY_APPASERVER *dictionary_separate = {0};
+	DICTIONARY_SEPARATE *dictionary_separate = {0};
 	DICTIONARY *non_prefixed_dictionary = {0};
 	DICTIONARY *query_dictionary = {0};
 	char *primary_data_list_string;
