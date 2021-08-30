@@ -124,8 +124,8 @@ DICTIONARY_SEPARATE *dictionary_separate_stdin_new(
 			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_separate->drilldown_dictionary =
-		dictionary_separate_drilldown(
+	dictionary_separate->drillthru_dictionary =
+		dictionary_separate_drillthru(
 			dictionary_separate->
 				working_post_dictionary );
 
@@ -193,8 +193,8 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_separate->drilldown_dictionary =
-		dictionary_separate_drilldown(
+	dictionary_separate->drillthru_dictionary =
+		dictionary_separate_drillthru(
 			dictionary_separate->
 				working_post_dictionary );
 
@@ -264,8 +264,8 @@ DICTIONARY_SEPARATE *dictionary_separate_string_new(
 			dictionary_separate->
 				working_post_dictionary );
 
-	dictionary_separate->drilldown_dictionary =
-		dictionary_separate_drilldown(
+	dictionary_separate->drillthru_dictionary =
+		dictionary_separate_drillthru(
 			dictionary_separate->
 				working_post_dictionary );
 
@@ -316,7 +316,7 @@ DICTIONARY *dictionary_separate_working_post(
 
 	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
-		DRILLDOWN_PREFIX );
+		DRILLTHRU_PREFIX );
 
 	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
@@ -377,7 +377,7 @@ DICTIONARY *dictionary_separate_prefixed(
 	return return_dictionary;
 }
 
-DICTIONARY *dictionary_separate_drilldown(
+DICTIONARY *dictionary_separate_drillthru(
 			DICTIONARY *working_post_dictionary )
 {
 	DICTIONARY *dictionary;
@@ -385,7 +385,7 @@ DICTIONARY *dictionary_separate_drilldown(
 	if ( ! ( dictionary =
 			dictionary_without_prefix(
 				working_post_dictionary,
-				DRILLDOWN_PREFIX ) ) )
+				DRILLTHRU_PREFIX ) ) )
 	{
 		dictionary = dictionary_small();
 	}
@@ -667,7 +667,7 @@ char *dictionary_separate_escaped_send_dictionary_string(
 		dictionary_separate_send_dictionary(
 			dictionary_separate->sort_dictionary,
 			dictionary_separate->query_dictionary,
-			dictionary_separate->drilldown_dictionary,
+			dictionary_separate->drillthru_dictionary,
 			dictionary_separate->ignore_dictionary,
 			dictionary_separate->pair_one2m_dictionary,
 			non_prefixed_dictionary );
@@ -707,7 +707,7 @@ DICTIONARY *dictionary_separate_non_prefixed(
 				QUERY_PREFIX ) == 0
 		||   string_strncmp(
 				key,
-				DRILLDOWN_PREFIX ) == 0
+				DRILLTHRU_PREFIX ) == 0
 		||   string_strncmp(
 				key,
 				IGNORE_SELECT_PUSH_BUTTON_PREFIX ) == 0
@@ -761,12 +761,12 @@ void dictionary_separate_output_as_hidden(
 			DICTIONARY_SEPARATE *dictionary_separate,
 			boolean with_non_prefixed_dictionary )
 {
-	if ( dictionary_length( dictionary_separate->drilldown_dictionary ) )
+	if ( dictionary_length( dictionary_separate->drillthru_dictionary ) )
 	{
 		dictionary_output_as_hidden(
 			dictionary_prepend_key(
-				dictionary_separate->drilldown_dictionary,
-				DRILLDOWN_PREFIX ) );
+				dictionary_separate->drillthru_dictionary,
+				DRILLTHRU_PREFIX ) );
 	}
 
 	if ( dictionary_length( dictionary_separate->query_dictionary ) )
@@ -1184,7 +1184,7 @@ void dictionary_separate_trim_double_bracked_data(
 DICTIONARY *dictionary_separate_send_dictionary(
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *query_dictionary,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *pair_one2m_dictionary,
 			DICTIONARY *non_prefixed_dictionary )
@@ -1209,13 +1209,13 @@ DICTIONARY *dictionary_separate_send_dictionary(
 				QUERY_PREFIX ) );
 	}
 
-	if ( dictionary_length( drilldown_dictionary ) )
+	if ( dictionary_length( drillthru_dictionary ) )
 	{
 		dictionary_append_dictionary(
 			send_dictionary,
 			dictionary_prefix(
-				drilldown_dictionary,
-				DRILLDOWN_PREFIX ) );
+				drillthru_dictionary,
+				DRILLTHRU_PREFIX ) );
 	}
 
 	if ( dictionary_length( ignore_dictionary ) )

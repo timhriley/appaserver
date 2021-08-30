@@ -17,7 +17,7 @@
 /* --------- */
 #define QUERY_PREFIX				"qqery_"
 #define SORT_BUTTON_PREFIX			"ssort_button_"
-#define DRILLDOWN_PREFIX			"ddrilldown_"
+#define DRILLTHRU_PREFIX			"ddrillthru_"
 #define PAIR_ONE2M_PREFIX			"ppair_one2m_"
 #define IGNORE_SELECT_PUSH_BUTTON_PREFIX	"ignore_"
 #define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
@@ -42,7 +42,7 @@ typedef struct
 	DICTIONARY *working_post_dictionary;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
-	DICTIONARY *drilldown_dictionary;
+	DICTIONARY *drillthru_dictionary;
 	DICTIONARY *row_dictionary;
 	DICTIONARY *ignore_dictionary;
 	DICTIONARY *pair_one2m_dictionary;
@@ -98,13 +98,13 @@ DICTIONARY *dictionary_separate_query(
 DICTIONARY *dictionary_separate_sort(
 			DICTIONARY *working_post_dictionary );
 
-DICTIONARY *dictionary_separate_drilldown(
+DICTIONARY *dictionary_separate_drillthru(
 			DICTIONARY *working_post_dictionary );
 
 DICTIONARY *dictionary_separate_send_dictionary(
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *query_dictionary,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *pair_one2m_dictionary,
 			DICTIONARY *non_prefixed_dictionary );

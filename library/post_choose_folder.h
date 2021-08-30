@@ -12,7 +12,7 @@
 #include "list.h"
 #include "folder.h"
 #include "relation.h"
-#include "drilldown.h"
+#include "drillthru.h"
 
 /* Constants */
 /* --------- */
@@ -38,7 +38,7 @@ typedef struct
 	boolean fetch_relation_mto1_isa_list;
 	FOLDER *folder;
 	LIST *relation_pair_one2m_list;
-	DRILLDOWN *drilldown;
+	DRILLTHRU *drillthru;
 	char *form_name;
 	boolean output_choose_isa_drop_down;
 	boolean output_prompt_insert_form;
@@ -105,7 +105,7 @@ char *post_choose_folder_system_string(
 			char *current_folder_name,
 			char *role_name,
 			char *state,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			RELATION *first_one2m_isa_relation );
 
 #endif

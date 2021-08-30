@@ -45,7 +45,7 @@ APPASERVER_LIBRARY=						\
 		token.o						\
 		make_date_time_between_compatable.o		\
 		populate_helper_process.o			\
-		drilldown.o					\
+		drillthru.o					\
 		appaserver_library.o				\
 		appaserver_error.o				\
 		appaserver.o					\
@@ -903,9 +903,9 @@ populate_helper_process.o: populate_helper_process.c 			\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c populate_helper_process.c
 
-drilldown.o: drilldown.c
+drillthru.o: drillthru.c
 	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c drilldown.c
+		-c drillthru.c
 
 process_generic_output.o: process_generic_output.c 			\
 	process_generic_output.h

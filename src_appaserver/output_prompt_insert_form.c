@@ -29,7 +29,7 @@
 #include "role_folder.h"
 #include "role.h"
 #include "dictionary_appaserver.h"
-#include "drilldown.h"
+#include "drillthru.h"
 #include "relation.h"
 #include "pair_one2m.h"
 #include "post_dictionary.h"
@@ -170,7 +170,7 @@ int main( int argc, char **argv )
 	FORM *form;
 	DOCUMENT *document;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DRILLDOWN *drilldown;
+	DRILLTHRU *drillthru;
 	SESSION *session;
 	boolean omit_push_buttons;
 	LIST *remember_button_non_multi_element_name_list;
@@ -186,7 +186,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role omit_buttons_yn drilldown_dictionary\n",
+"Usage: %s login_name application session folder role omit_buttons_yn drillthru_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
