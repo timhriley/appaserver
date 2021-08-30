@@ -1143,11 +1143,6 @@ void form_set_insert_update_key( FORM *form, char *insert_update_key )
 	form->insert_update_key = insert_update_key;
 }
 
-void form_set_operation_list( FORM *form, LIST *operation_list )
-{
-	form->operation_list = operation_list;
-}
-
 void form_set_drop_down_number_columns(	FORM *form,
 					int drop_down_number_columns )
 {

@@ -1872,11 +1872,6 @@ int appaserver_library_add_operations(
 				strdup( buffer );
 		}
 
-/*
-		list_append(	element_list, 
-				element,
-				sizeof( ELEMENT_APPASERVER ) );
-*/
 		list_set( element_list, element );
 
 	} while( list_next( operation_list ) );

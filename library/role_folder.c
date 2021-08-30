@@ -102,14 +102,14 @@ char *role_folder_system_string( char *where )
 
 LIST *role_folder_system_list( char *system_string )
 {
-	char input[ 65536 ];
+	char input[ 1024 ];
 	FILE *pipe;
 	LIST *list = {0};
 	ROLE_FOLDER *role_folder;
 
 	pipe = popen( system_string, "r"  );
 
-	while ( string_input( input, pipe, 65536 ) )
+	while ( string_input( input, pipe, 1024 ) )
 	{
 		if ( ( role_folder = role_folder_parse( input ) ) )
 		{

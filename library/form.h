@@ -133,9 +133,6 @@ void form_set_remember_keystrokes_button_in_heading(
 
 void form_set_output_content_type(	FORM *form );
 
-void form_set_operation_list(		FORM *form,
-					LIST *operation_list );
-
 void form_set_drop_down_number_columns(	FORM *form,
 					int drop_down_number_columns );
 

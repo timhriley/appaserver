@@ -63,7 +63,6 @@ EXTERNAL_LIBRARYS=							\
 		${LIBRARY}/related_folder.o				\
 		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
-		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\

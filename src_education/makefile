@@ -92,7 +92,6 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/frameset.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
-		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/dictionary2file.o

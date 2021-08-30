@@ -13,8 +13,6 @@
 #include "appaserver.h"
 #include "dictionary_appaserver.h"
 
-/* appaserver_link_file */
-
 OPERATION *operation_new_operation(
 			char *application_name,
 			char *session,

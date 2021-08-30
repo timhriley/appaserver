@@ -42,6 +42,7 @@ APPASERVER_LIBRARY=						\
 		basename.o					\
 		role.o						\
 		role_folder.o					\
+		role_operation.o				\
 		token.o						\
 		make_date_time_between_compatable.o		\
 		populate_helper_process.o			\
@@ -72,7 +73,6 @@ APPASERVER_LIBRARY=						\
 		related_folder.o				\
 		vertical_new_button.o				\
 		relation.o					\
-		operation_list.o				\
 		operation.o					\
 		document.o					\
 		insert_database.o				\
@@ -812,6 +812,9 @@ vertical_new_button.o: vertical_new_button.c vertical_new_button.h
 role_folder.o: role_folder.c role_folder.h
 	${CC} ${CFLAGS} -c role_folder.c
 
+role_operation.o: role_operation.c role_operation.h
+	${CC} ${CFLAGS} -c role_operation.c
+
 validation_form.o: validation_form.c validation_form.h element.h
 	${CC} ${CFLAGS} -c validation_form.c
 
@@ -850,9 +853,6 @@ role.o: role.c role.h
 
 sed.o: sed.c sed.h
 	${CC} ${CFLAGS} -c sed.c
-
-operation_list.o: operation_list.c operation_list.h operation.h
-	${CC} ${CFLAGS} -c operation_list.c
 
 frameset.o: frameset.c frameset.h
 	${CC} ${CFLAGS} -c frameset.c

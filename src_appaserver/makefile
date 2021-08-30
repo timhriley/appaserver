@@ -160,7 +160,6 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/frameset.o					\
 		${LIB}/insert_database.o				\
 		${LIB}/update_database.o				\
-		${LIB}/operation_list.o					\
 		${LIB}/validation_form.o				\
 		${LIB}/post_dictionary.o				\
 		${LIB}/dictionary2file.o				\

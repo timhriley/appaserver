@@ -13,7 +13,6 @@
 #include "piece.h"
 #include "appaserver_parameter_file.h"
 #include "dictionary.h"
-#include "operation_list.h"
 #include "role_folder.h"
 #include "appaserver.h"
 #include "appaserver_error.h"

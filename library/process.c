@@ -365,14 +365,16 @@ void process_replace_parameter_variables(
 		search_replace_word(
 			executable,
 			"$process_row_count",
-			double_quotes_around(	buffer, 
-						operation_row_count_string ) );
+			double_quotes_around(
+				buffer, 
+				operation_row_count_string ) );
 
 		search_replace_word(
 			executable,
 			"$operation_row_count",
-			double_quotes_around(	buffer, 
-						operation_row_count_string ) );
+			double_quotes_around(
+				buffer, 
+				operation_row_count_string ) );
 	}
 
 	if ( person && *person )
