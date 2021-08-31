@@ -8,30 +8,41 @@
 #ifndef OPERATION_H
 #define OPERATION_H
 
+#include <getpid.h>
 #include "process.h"
 #include "boolean.h"
 
-#define OPERATION_ROW_COUNT_LABEL	"operation_row_count"
+#define OPERATION_ROW_TOTAL_LABEL	"operation_row_total"
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
-#define OPERATION_SEMAPHORE_TEMPLATE	"%s/%s_%s_operation_%s.dat"
 
 typedef struct
 {
-	char semaphore_filename[ 256 ];
+	/* Input */
+	/* ----- */
+	char *application_name;
+	char *operation_name;
+	char *appaserver_data_directory,
+	pid_t parent_process_id;
+	int operation_row_total;
+
+	/* Process */
+	/* ------- */
+	char filename;
 	boolean group_first_time;
+	int row_current;
 	boolean group_last_time;
 } OPERATION_SEMAPHORE;
 
 typedef struct
 {
 	PROCESS *process;
-	char output_yn;
+	boolean output;
 	boolean empty_placeholder;
 	char *label;
 } OPERATION;
 
-/* Operations */
-/* ---------- */
+/* OPERATION operations */
+/* -------------------- */
 OPERATION *operation_new(
 			char *operation_name );
 
@@ -49,28 +60,51 @@ boolean operation_perform(
 			boolean output,
 			boolean non_owner_forbid_deletion,
 			char *target_frame,
-			char *operation_row_count_string,
+			int operation_row_total,
 			char *state );
 
-char *operation_operation_row_count_string(
+int operation_row_total(
 			DICTIONARY *row_dictionary,
 			char *operation_name,
 			int highest_index );
 
-OPERATION_SEMAPHORE *operation_semaphore_new(
-			char *application_name,
-			char *process_name,
-			char *parent_process_id_string,
+/* OPERATION_SEMAPHORE operations */
+/* ------------------------------ */
+OPERATION_SEMAPHORE *operation_semaphore_fetch(
+			char *operation_name,
 			char *appaserver_data_directory,
-			char *operation_row_count_string );
+			pid_t parent_process_id,
+			int operation_row_total );
 
-void operation_semaphore_remove_file(
-			char *semaphore_filename );
-
+/* Returns heap memory */
+/* ------------------- */
 char *operation_semaphore_filename(
-			char *application_name,
+			char *operation_name,
 			char *appaserver_data_directory,
 			int parent_process_id );
+
+OPERATION_SEMAPHORE *operation_semaphore_calloc(
+			void );
+
+boolean operation_semaphore_group_first_time(
+			char *filename );
+
+void operation_semaphore_initialize_file(
+			char *filename );
+
+int operation_semaphore_row_current(
+			char *filename );
+
+boolean operation_semaphore_group_last_time(
+			int row_current,
+			int operation_row_total );
+
+void operation_semaphore_increment(
+			char *filename,
+			int row_current );
+
+void operation_semaphore_remove_file(
+			char *filename );
 
 #endif
 

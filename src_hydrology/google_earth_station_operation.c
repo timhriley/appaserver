@@ -1,11 +1,11 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/google_earth_station_operation.c	*/
-/* ---------------------------------------------------	*/
-/* This is the operation process for the google earth   */
-/* station button.					*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/google_earth_station_operation.c	*/
+/* ---------------------------------------------------------------	*/
+/* This is the operation process for the google earth			*/
+/* station button.							*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -228,7 +228,7 @@ int main( int argc, char **argv )
 
 	exit( 0 );
 
-} /* main() */
+}
 
 void google_earth_station_operation(
 			char *application_name,
@@ -386,7 +386,7 @@ void google_earth_station_operation(
 	fclose( uncompressed_kml_output_file );
 	fclose( uncompressed_kmz_output_file );
 
-} /* google_earth_station_operation() */
+}
 
 void spool_station(	char *station_name,
 			boolean group_first_time,
@@ -423,7 +423,7 @@ void spool_station(	char *station_name,
 	fprintf( spool_file, "%s\n", station_name );
 	fclose( spool_file );
 
-} /* spool_station() */
+}
 
 char *get_spool_filename(
 			char *document_root_directory,
@@ -469,7 +469,7 @@ char *get_spool_filename(
 
 	return spool_filename;
 
-} /* get_spool_filename() */
+}
 
 LIST *get_spool_station_name_list(
 			char *document_root_directory,
@@ -489,7 +489,7 @@ LIST *get_spool_station_name_list(
 
 	return pipe2list( sys_string );
 
-} /* get_spool_station_name_list() */
+}
 
 
 void zip_kmz_file(	char *output_kmz_filename,
@@ -563,5 +563,5 @@ fprintf( stderr, "%s\n", sys_string );
 
 	if ( system( sys_string ) ) {};
 
-} /* zip_kmz_file() */
+}
 

@@ -20,7 +20,6 @@ OPERATION *operation_new_operation(
 			boolean empty_placeholder_instead )
 {
 	OPERATION *operation;
-	char sys_string[ 1024 ];
 	char *results;
 	char *table_name;
 
@@ -106,7 +105,7 @@ boolean operation_perform(
 			char output_yn,
 			boolean non_owner_forbid_deletion,
 			char *target_frame,
-			char *operation_row_count_string,
+			int operation_row_total,
 			char *state )
 {
 	int row, highest_index;
@@ -316,136 +315,191 @@ boolean operation_perform(
 	} /* for each row */
 
 	return performed_any_output;
-
 }
 
-char *operation_get_operation_row_count_string(
+int operation_row_total(
 			DICTIONARY *dictionary,
 			char *operation_name,
 			int highest_index )
 {
-	static char row_count_string[ 16 ];
-	int operation_row_count = 0;
+	int row_total = 0;
 	int row;
 	char *data;
-
-	if ( !highest_index )
-	{
-		highest_index = get_dictionary_key_highest_index( dictionary );
-	}
 
 	if ( !highest_index ) return 0;
 
 	for( row = 1; row <= highest_index; row++ )
 	{
-		/* -------------------------------------------------- */
-		/* Sample dictionary entry			      */
-		/* delete_1					      */
-		/* -------------------------------------------------- */
-		if ( dictionary_get_index_data(
-					&data,
-					dictionary,
-					operation_name,
-					row ) != -1 )
+		/* ---------------------------- */
+		/* Sample dictionary entry:	*/
+		/* delete_1=yes			*/
+		/* ---------------------------- */
+		if ( dictionary_index_data(
+			&data,
+			dictionary,
+			operation_name,
+			row ) > -1 )
 		{
-			if ( strcmp( data, "yes" ) == 0 )
-				operation_row_count++;
-
+			if ( strcmp( data, "yes" ) == 0 ) row_total++;
 		}
-	} /* for each row */
-	sprintf( row_count_string, "%d", operation_row_count );
-	return row_count_string;
+	}
+	return row_total;
 }
 
-OPERATION_SEMAPHORE *operation_semaphore_new(
-			char *application_name,
-			char *process_name,
-			char *parent_process_id_string,
-			char *appaserver_data_directory,
-			char *operation_row_count_string )
+OPERATION_SEMAPHORE *operation_semaphore_calloc( void )
 {
-	OPERATION_SEMAPHORE *operation_semaphore;
-	char increment_string[ 16];
-	char sys_string[ 1024 ];
-	char *results;
-
 	operation_semaphore =
-		(OPERATION_SEMAPHORE *)
-			calloc( 1, sizeof( OPERATION_SEMAPHORE ) );
+		calloc( 1, sizeof( OPERATION_SEMAPHORE ) );
 
 	if ( !operation_semaphore )
 	{
 		fprintf( stderr,
-			 "Memory allocation error in %s/%s()/%d\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
+	return operation_semaphore;
+}
 
-	sprintf(	operation_semaphore->semaphore_filename,
-			OPERATION_SEMAPHORE_TEMPLATE,
+OPERATION_SEMAPHORE *operation_semaphore_fetch(
+			char *operation_name,
+			char *appaserver_data_directory,
+			pit_t parent_process_id,
+			int operation_row_count )
+{
+	OPERATION_SEMAPHORE *operation_semaphore;
+	char increment_string[ 16];
+	char *results;
+
+	operation_semaphore = operation_semaphore_calloc();
+
+	operation_semaphore->filename =
+		/* Returns heap memory */
+		/* ------------------- */
+		operation_semaphore_filename(
+			operation_name,
 			appaserver_data_directory,
-			application_name,
-			process_name,
-			parent_process_id_string );
+			parent_process_id );
 
-	if ( !timlib_file_exists( operation_semaphore->semaphore_filename ) )
+	if ( ( operation_semaphore->group_first_time =
+		operation_semaphore_group_first_time(
+			operation_semaphore->filename ) )
 	{
-		sprintf(	sys_string,
-				"echo 0 > %s",
-				operation_semaphore->semaphore_filename );
-		fflush( stdout );
-		if ( system( sys_string ) ){};
-		fflush( stdout );
-		operation_semaphore->group_first_time = 1;
+		operation_semaphore_initialize_file(
+			operation_semaphore->filename );
+
+		operation_semaphore->row_current = 1;
+	}
+	else
+	{
+		operation_semaphore->row_current =
+			operation_semaphore_row_current(
+				operation_semaphore->filename );
 	}
 
-	sprintf( sys_string,
-		 "cat %s",
-		 operation_semaphore->semaphore_filename );
-	results = pipe2string( sys_string );
-	sprintf( increment_string, "%d", atoi( results ) + 1 );
-	sprintf( sys_string,
-		 "echo %s > %s",
-		 increment_string,
-		 operation_semaphore->semaphore_filename );
-	fflush( stdout );
-	if ( system( sys_string ) ){};
-	fflush( stdout );
-
-	operation_semaphore->group_last_time =
-		( strcmp(	operation_row_count_string,
-				increment_string ) == 0 );
+	if ( ( operation_semaphore->group_last_time =
+			operation_semaphore_group_last_time(
+				operation_semaphore->row_current,
+				operation_row_total ) ) )
+	{
+		operation_semaphore_remove_file(
+			operation_semaphore->filename );
+	}
+	else
+	{
+		operation_semaphore_increment(
+			operation_semaphore->filename,
+			operation_semaphore->row_current );
+	}
 
 	return operation_semaphore;
-
 }
 
 void operation_semaphore_remove_file(
-			char *semaphore_filename )
+			char *filename )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	sprintf( sys_string,
-		 "rm -f %s",
-		 semaphore_filename );
+	sprintf(system_string,
+		"rm -f %s",
+		filename );
+
+	if ( system( system_string ) ){};
 }
 
 char *operation_semaphore_filename(
-			char *application_name,
+			char *operation_name,
 			char *appaserver_data_directory,
 			int parent_process_id )
 {
 	char semaphore_filename[ 256 ];
 
-	sprintf(	semaphore_filename,
-			SEMAPHORE_TEMPLATE,
-			appaserver_data_directory,
-			application_name,
-			parent_process_id );
+	if ( !appaserver_data_directory
+	||   !operation_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(semaphore_filename,
+		"/%s/%s_%d.dat",
+		appaserver_data_directory,
+		operation_name,
+		parent_process_id );
 
 	return strdup( semaphore_filename );
-
 }
 
+void operation_semaphore_group_first_time( char *filename )
+{
+	return timlib_file_exists( filename );
+}
+
+void operation_semaphore_initialize_file( char *filename )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"echo 1 > %s",
+		filename );
+
+	if ( system( sys_string ) ){};
+}
+
+int operation_semaphore_row_current( char *filename )
+{
+	char system_string[ 1024 ];
+
+	sprintf( system_string,
+		 "cat %s",
+		 filename );
+
+	return atoi( string_pipe_fetch( system_string ) );
+}
+
+boolean operation_semaphore_group_last_time(
+			int row_current,
+			int operation_row_total )
+{
+	return ( row_current == operation_row_total );
+}
+
+void operation_semaphore_increment(
+			char *filename,
+			int row_current )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"echo %d > %s",
+		row_current + 1,
+		filename );
+
+	if ( system( sys_string ) ){};
+}
