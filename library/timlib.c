@@ -1300,7 +1300,17 @@ char *search_replace_word(
 			char *search_str, 
 			char *replace_str )
 {
-        int here, len_search = strlen( search_str );
+        int here;
+	int len_search;
+
+	if ( !replace_str
+	||   !search_str
+	||   !source_destination )
+	{
+		return source_destination;
+	}
+
+	len_search = strlen( search_str );
 
 	if ( ( here =
 		instr_exclude_double_quoted(

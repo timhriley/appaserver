@@ -53,7 +53,7 @@
 					"prompt,"			\
 					"display_order,"		\
 					"drop_down_multi_select_yn,"	\
-					"drilldown_yn,"			\
+					"drillthru_yn,"			\
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 
@@ -64,7 +64,7 @@
 					"prompt,"			\
 					"display_order,"		\
 					"drop_down_multi_select_yn,"	\
-					"drilldown_yn,"			\
+					"drillthru_yn,"			\
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 
@@ -149,7 +149,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *process_or_set_name;
-	DICTIONARY *drilldown_dictionary;
+	DICTIONARY *drillthru_dictionary;
 	char *login_name;
 	char *folder_name;
 	char *attribute_name;
@@ -160,7 +160,7 @@ typedef struct
 	/* ------- */
 	int display_order;
 	boolean drop_down_multi_select;
-	boolean drilldown;
+	boolean drillthru;
 	char *populate_drop_down_process_name;
 	char *populate_helper_process_name;
 	LIST *primary_delimited_list;
@@ -176,7 +176,7 @@ typedef struct
 	char *role_name;
 	char *login_name;
 	boolean is_preprompt;
-	DICTIONARY *drilldown_dictionary;
+	DICTIONARY *drillthru_dictionary;
 
 	/* Process */
 	/* ------- */
@@ -210,8 +210,17 @@ PROCESS_PARAMETER *process_parameter_new(
 			char *drop_down_prompt_name,
 			char *prompt_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *process_parameter_where(
+			char *where,
+			boolean is_preprompt );
+
 /* PROCESS_PROMPT_OUTPUT operations */
 /* -------------------------------- */
+PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc(
+			void );
+
 PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
 			char *process_or_set_name,
 			char *role_name,
@@ -219,7 +228,7 @@ PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
 			boolean is_preprompt,
 			char *document_root_directory,
 			char *application_relative_source_directory,
-			DICTIONARY *drilldown_dictionary );
+			DICTIONARY *drillthru_dictionary );
 
 /* PROCESS_PROMPT_SUBMIT operations */
 /* -------------------------------- */
@@ -287,12 +296,18 @@ PROCESS *process_parse(	char *input,
 			boolean check_executable_inside_filesystem );
 
 char *process_populate_drop_down_command_line(
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			char *command_line,
 			char *security_entity_where,
 			char *state,
 			char *login_name,
 			char *role_name );
+
+char *process_name_fetch(
+			char *process_or_set_name );
+
+char *process_set_name_fetch(
+			char *process_or_set_name );
 
 /* PROMPT operations */
 /* ----------------- */
@@ -354,7 +369,7 @@ char *drop_down_prompt_system_string(
 /* ================= */
 LIST *process_parameter_system_list(
 			char *system_string,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			char *login_name );
 
 /* Returns heap memory */
@@ -369,11 +384,11 @@ char *process_set_parameter_system_string(
 
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			char *login_name );
 
 LIST *process_parameter_primary_delimited_list(
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *folder_name,
 			char *populate_drop_down_process_name );
@@ -383,28 +398,6 @@ LIST *process_parameter_primary_delimited_list(
 
 void process_execution_count_increment(
 			char *process_name );
-
-void process_convert_parameters(
-			char **executable,
-			char *application_name,
-			char *session,
-			char *state,
-			char *person,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			DICTIONARY *parameter_dictionary,
-			DICTIONARY *where_clause_dictionary,
-			LIST *attribute_list,
-			LIST *prompt_list,
-			LIST *primary_key_list,
-			LIST *primary_data_list,
-			int row,
-			char *process_name,
-			PROCESS_SET *process_set,
-			char *one2m_folder_name_for_process,
-			char *operation_row_count_string,
-			char *prompt );
 
 char *process_dictionary_process_member(
 			char *process_set,
@@ -424,8 +417,8 @@ boolean process_interpreted_executable_ok(
 /* PROCESS command_line */
 /* -------------------- */
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
 char *process_choose_isa_command_line(
 			char *command_line,
 			char *application_name,
@@ -434,53 +427,21 @@ char *process_choose_isa_command_line(
 			char *role_name,
 			char *one2m_isa_folder_name );
 
-void process_operation_convert(
-			char **executable,
-			char *application_name,
-			char *session,
-			char *state,
-			char *person,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			DICTIONARY *parameter_dictionary,
-			DICTIONARY *where_clause_dictionary,
-			LIST *append_isa_attribute_list,
-			LIST *primary_key_list,
-			LIST *primary_data_list,
-			int row,
-			char *process_name,
-			char *operation_row_count_string );
-
-void process_prompt_convert_parameters(
-			char **executable,
-			char *application_name,
-			char *session,
-			char *state,
-			char *person,
-			char *folder_name,
-			char *role_name,
-			DICTIONARY *drilldown_dictionary,
-			LIST *attribute_list,
-			int row,
-			char *process_name,
-			char *one2m_folder_name_for_process );
-
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
 char *process_drop_down_command_line(
 			char *command_line,
 			char *application_name,
 			char *one2m_folder_name,
 			char *state,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *working_post_dictionary );
 
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
 char *process_update_row_command_line(
 			char *command_line,
-			DICTIONARY *drilldown_dictionary,
+			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
@@ -490,25 +451,45 @@ char *process_update_row_command_line(
 			char *one2m_folder_name,
 			LIST *primary_data_list );
 
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
 char *process_prompt_submit_command_line(
 			char *command_line,
+			char *application_name,
 			char *process_name,
 			char *role_name,
 			char *login_name,
 			DICTIONARY *working_post_dictionary );
 
-void process_search_replace_where(
-			char *command_line /* in/out */,
-			DICTIONARY *drilldown_dictionary,
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
+char *process_search_replace_where(
+			char *command_line,
+			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *role_name,
 			char *folder_name );
 
-void process_replace_one2m_folder_name(
-			char *command_line /* in/out */,
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
+char *process_replace_one2m_folder_name(
+			char *command_line,
 			char *one2m_folder_name );
+
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
+char *process_operation_command_line(
+			char *command_line,
+			char *application_name,
+			char *operation_name,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			pid_t parent_process_id,
+			char *session_key,
+			int operation_row_total,
+			LIST *operation_row_primary_data_list,
+			DICTIONARY *operation_single_row_dictionary );
 
 #endif
 
