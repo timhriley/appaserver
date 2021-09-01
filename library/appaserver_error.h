@@ -6,6 +6,7 @@
 
 /* Includes */
 /* -------- */
+#include <stdio.h>
 
 /* Constants */
 /* --------- */

@@ -8,10 +8,12 @@
 #define DICTIONARY_H
 
 #include "hash_table.h"
+#include "boolean.h"
 #include "list.h"
 
 /* Constants */
 /* --------- */
+#define RELATION_OPERATOR_PREFIX		"relation_operator_"
 #define DICTIONARY_ALTERNATIVE_DELIMITER	'~'
 
 typedef struct
@@ -296,7 +298,7 @@ char *dictionary_index_zero_data(
 			DICTIONARY *dictionary,
 			char *key );
 
-int dictionary_index_data_if_populated(
+boolean dictionary_index_data_if_populated(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key, 
@@ -524,7 +526,7 @@ void dictionary_output_html_table(
 			char *heading2,
 			boolean align_right );
 
-LIST *dictionary_using_list_index_data_list(
+LIST *dictionary_key_list_index_data_list(
 			DICTIONARY *dictionary,
 			LIST *key_list,
 			int index );

@@ -23,7 +23,6 @@
 #define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
 #define FROM_PREFIX				"from_"
 #define TO_PREFIX				"to_"
-#define RELATION_OPERATOR_PREFIX		"relation_operator_"
 
 /* Structures */
 /* ---------- */

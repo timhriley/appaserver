@@ -18,7 +18,6 @@
 #include "hash_table.h"
 #include "date.h"
 #include "appaserver_library.h"
-#include "dictionary_appaserver.h"
 #include "dictionary.h"
 
 /* ------------------------------------------------------------ */
@@ -27,11 +26,11 @@
 /* To:    "station_1=BA and datatype_1=stage"			*/
 /* ------------------------------------------------------------ */
 void dictionary_parse_multi_attribute_keys(
-				DICTIONARY *dictionary, 
-				char key_delimiter,
-				char data_delimiter,
-				char *prefix,
-				boolean dont_include_relational_operators )
+			DICTIONARY *dictionary, 
+			char key_delimiter,
+			char data_delimiter,
+			char *prefix,
+			boolean dont_include_relational_operators )
 {
 	LIST *multi_attribute_key_list;
 	LIST *attribute_key_list;
@@ -365,11 +364,11 @@ boolean dictionary_exists_key_index( 	DICTIONARY *dictionary,
 /*	       -1 if the data is not found or didn't change        */
 /* --------------------------------------------------------------- */
 int dictionary_index_data_if_changed(
-					char **destination,
-					DICTIONARY *dictionary_1,
-					DICTIONARY *dictionary_2,
-					char *key, 
-					int index )
+			char **destination,
+			DICTIONARY *dictionary_1,
+			DICTIONARY *dictionary_2,
+			char *key, 
+			int index )
 {
 	char *data_1, *data_2;
 	int results;
@@ -415,7 +414,7 @@ int dictionary_index_data_if_changed(
 }
 
 
-int dictionary_index_data_if_populated(
+boolean dictionary_index_data_if_populated(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key, 
@@ -424,10 +423,12 @@ int dictionary_index_data_if_populated(
 	char *data;
 	int results;
 
-	results = dictionary_index_data(	&data,
-						dictionary,
-						key,
-						index );
+	results =
+		dictionary_index_data(
+			&data,
+			dictionary,
+			key,
+			index );
 
 	if ( results == -1 )
 	{
@@ -443,7 +444,7 @@ LIST *dictionary_index_data_list(
 			DICTIONARY *dictionary,
 			char *key  )
 {
-	LIST *return_list = list_new_list();
+	LIST *return_list = list_new();
 	char *data;
 	int index;
 	int results;
@@ -452,10 +453,10 @@ LIST *dictionary_index_data_list(
 	{
 		results =
 			dictionary_index_data(
-					&data,
-					dictionary,
-					key,
-					index );
+				&data,
+				dictionary,
+				key,
+				index );
 
 		if ( results <= 0 ) return return_list;
 
@@ -1276,7 +1277,7 @@ void dictionary_search_replace_command_arguments(
 	} while( list_next( column_list ) );
 }
 
-LIST *dictionary_using_list_index_data_list(
+LIST *dictionary_key_list_index_data_list(
 			DICTIONARY *dictionary,
 			LIST *key_list,
 			int index )

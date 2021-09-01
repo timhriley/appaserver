@@ -1,6 +1,5 @@
-/* library/operation.h							*/
+/* $APPASERVER_HOME/library/operation.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver operation ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -8,12 +7,27 @@
 #ifndef OPERATION_H
 #define OPERATION_H
 
-#include <getpid.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include "process.h"
 #include "boolean.h"
+#include "list.h"
+#include "dictionary.h"
 
+/* Constants */
+/* --------- */
+#define OPERATION_TABLE			"operation"
 #define OPERATION_ROW_TOTAL_LABEL	"operation_row_total"
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
+
+/* Structures */
+/* ---------- */
+typedef struct
+{
+	boolean checked;
+	LIST *primary_data_list;
+	DICTIONARY *dictionary;
+} OPERATION_ROW;
 
 typedef struct
 {
@@ -21,13 +35,13 @@ typedef struct
 	/* ----- */
 	char *application_name;
 	char *operation_name;
-	char *appaserver_data_directory,
+	char *appaserver_data_directory;
 	pid_t parent_process_id;
 	int operation_row_total;
 
 	/* Process */
 	/* ------- */
-	char filename;
+	char *filename;
 	boolean group_first_time;
 	int row_current;
 	boolean group_last_time;
@@ -35,38 +49,51 @@ typedef struct
 
 typedef struct
 {
-	PROCESS *process;
+	/* Attributes */
+	/* ---------- */
+	char *operation_name;
 	boolean output;
-	boolean empty_placeholder;
+
+	/* Process */
+	/* ------- */
+	PROCESS *process;
+	boolean delete_name;
+	boolean delete_placeholder;
 	char *label;
 } OPERATION;
 
 /* OPERATION operations */
 /* -------------------- */
-OPERATION *operation_new(
-			char *operation_name );
+OPERATION *operation_calloc(
+			void );
 
-boolean operation_perform(
-			DICTIONARY *send_dictionary,
-			DICTIONARY *row_dictionary,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			LIST *primary_key_list,
-			char *process_name,
-			char *command_line,
-			boolean output,
-			boolean non_owner_forbid_deletion,
-			char *target_frame,
-			int operation_row_total,
-			char *state );
+OPERATION *operation_new(
+			char *operation_name,
+			boolean role_update_view_only );
+
+boolean operation_delete_placeholder(
+			boolean role_update_view_only,
+			boolean delete_name );
+
+/* Returns heap memory or NULL */
+/* --------------------------- */
+char *operation_label(
+			char *operation_name,
+			boolean delete_placeholder );
 
 int operation_row_total(
 			DICTIONARY *row_dictionary,
 			char *operation_name,
 			int highest_index );
+
+boolean operation_delete_name(
+			char *operation_name );
+
+OPERATION *operation_fetch(
+			char *operation_name );
+
+void operation_perform(
+			char *command_line );
 
 /* OPERATION_SEMAPHORE operations */
 /* ------------------------------ */
@@ -81,7 +108,7 @@ OPERATION_SEMAPHORE *operation_semaphore_fetch(
 char *operation_semaphore_filename(
 			char *operation_name,
 			char *appaserver_data_directory,
-			int parent_process_id );
+			pid_t parent_process_id );
 
 OPERATION_SEMAPHORE *operation_semaphore_calloc(
 			void );
@@ -105,6 +132,33 @@ void operation_semaphore_increment(
 
 void operation_semaphore_remove_file(
 			char *filename );
+
+/* OPERATION_ROW operations */
+/* ------------------------ */
+OPERATION_ROW *operation_row_fetch(
+			DICTIONARY *row_dictionary,
+			char *operation_name,
+			LIST *primary_key_list,
+			LIST *attribute_name_list,
+			int row_number );
+
+OPERATION_ROW *operation_row_calloc(
+			void );
+
+boolean operation_row_checked(
+			DICTIONARY *row_dictionary,
+			char *operation_name,
+			int row_number );
+
+LIST *operation_row_primary_data_list(
+			DICTIONARY *row_dictionary,
+			LIST *primary_key_list,
+			int row_number );
+
+DICTIONARY *operation_single_row_dictionary(
+			DICTIONARY *row_dictionary,
+			LIST *attribute_name_list,
+			int row_number );
 
 #endif
 

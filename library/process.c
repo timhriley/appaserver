@@ -1653,7 +1653,9 @@ PROCESS *process_parse(	char *input,
 	piece( buffer, SQL_DELIMITER, input, 9 );
 	process->javascript_filename = strdup( buffer );
 
-	if ( *process->javascript_filename )
+	if ( *process->javascript_filename
+	&&   document_root_directory
+	&&   application_relative_source_directory )
 	{
 		process->javascript =
 			javascript_new(

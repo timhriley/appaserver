@@ -1,4 +1,4 @@
-/* library/operation.c 							*/
+/* $APPASERVER_HOME/library/operation.c					*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -6,89 +6,121 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "operation.h"
 #include "appaserver_error.h"
-#include "folder.h"
 #include "timlib.h"
-#include "appaserver.h"
-#include "dictionary_appaserver.h"
+#include "String.h"
+#include "operation.h"
 
-OPERATION *operation_new_operation(
-			char *application_name,
-			char *session,
+OPERATION *operation_new(
 			char *operation_name,
-			boolean empty_placeholder_instead )
+			boolean role_update_view_only )
 {
-	OPERATION *operation;
+	char system_string[ 1024 ];
+	char where[ 128 ];
 	char *results;
-	char *table_name;
+	OPERATION *operation;
 
-	operation = (OPERATION *)calloc( 1, sizeof( OPERATION ) );
-
-	if ( !operation )
-	{
-		fprintf( stderr,
-			 "Memory allocation error in %s/%s()/%d\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	table_name = get_table_name( application_name, "operation" );
-	sprintf(sys_string,
-		"echo \"select output_yn			 "
-		"	 from %s				 "
-		"	 where operation = '%s';\"		|"
-		"sql						 ",
-		table_name,
+	sprintf(where,
+		"operation = '%s'",
 		operation_name );
 
-	results = pipe2string( sys_string );
-	if ( !results )
+	sprintf(system_string,
+		"select.sh output_yn %s \"%s\"",
+		OPERATION_TABLE,
+		where );
+
+	if ( ! ( results = string_pipe_fetch( system_string ) ) )
 	{
-		char msg[ 1024 ];
-		sprintf(msg,
-			"ERROR in %s.%s: cannot find operation = %s",
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			operation_name );
-		appaserver_output_error_message(
-			application_name, msg, (char *)0 );
+			__LINE__,
+			system_string );
 		exit( 1 );
 	}
 
-	operation->output_yn = *results;
-	operation->empty_placeholder_instead = empty_placeholder_instead;
+	operation = operation_calloc();
+	operation->operation_name = operation_name;
+	operation->output = (*results == 'y');
 
-	if ( ! (operation->process =
-			process_new_process(
-				application_name,
-				session,
-				operation_name,
-				(DICTIONARY *)0,
-				(char *)0 /* role_name */,
-				0 /* not with_check_executable_ok */ ) ) )
+	operation->process =
+		process_fetch(
+			operation_name,
+			(char *)0 /* document_root_directory */,
+			(char *)0 /* relative_source_directory */,
+			1 /* check_executable_inside_filesystem */ );
+
+	if ( !operation->process )
 	{
-		char msg[ 1024 ];
-		sprintf( msg,
-		"Error in %s/%s() cannot get process for operation = (%s)",
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: process_fetch(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
+			__LINE__,
 			operation_name );
-		appaserver_output_error_message(
-			application_name, msg, (char *)0 );
 		exit( 1 );
 	}
 
-	if ( operation->empty_placeholder_instead )
-	{
-		operation->label = operation->process->process_name;
-	}
+	operation->delete_name =
+		operation_delete_name(
+			operation_name );
+
+	operation->delete_placeholder =
+		operation_delete_placeholder(
+			role_update_view_only,
+			operation->delete_name );
+
+	operation->label =
+		operation_label(
+			operation_name,
+			operation->delete_placeholder );
 
 	return operation;
 }
 
+boolean operation_delete_placeholder(
+			boolean role_update_view_only,
+			boolean delete_name )
+{
+	return ( role_update_view_only && delete_name );
+}
+
+char *operation_label(	char *operation_name,
+			boolean delete_placeholder )
+{
+	if ( !operation_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: operation_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( delete_placeholder )
+	{
+		char label[ 128 ];
+
+		format_initial_capital(
+			label,
+			operation_name );
+
+		return strdup( label );
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+
+void operation_perform( char *command_line )
+{
+	if ( system( command_line ) ){};
+}
+
+#ifdef NOT_DEFINED
 /* Returns 1 if performed any output */
 /* --------------------------------- */
 boolean operation_perform(
@@ -262,7 +294,7 @@ boolean operation_perform(
 			local_executable = strdup( executable );
 
 			row_dictionary_row =
-				dictionary_appaserver_get_row_dictionary_row(
+				dictionary_separate_row_dictionary(
 					row_dictionary,
 					folder->
 					append_isa_attribute_name_list,
@@ -316,6 +348,7 @@ boolean operation_perform(
 
 	return performed_any_output;
 }
+#endif
 
 int operation_row_total(
 			DICTIONARY *dictionary,
@@ -338,7 +371,7 @@ int operation_row_total(
 			&data,
 			dictionary,
 			operation_name,
-			row ) > -1 )
+			row ) == 1 )
 		{
 			if ( strcmp( data, "yes" ) == 0 ) row_total++;
 		}
@@ -348,6 +381,8 @@ int operation_row_total(
 
 OPERATION_SEMAPHORE *operation_semaphore_calloc( void )
 {
+	OPERATION_SEMAPHORE *operation_semaphore;
+
 	operation_semaphore =
 		calloc( 1, sizeof( OPERATION_SEMAPHORE ) );
 
@@ -366,16 +401,15 @@ OPERATION_SEMAPHORE *operation_semaphore_calloc( void )
 OPERATION_SEMAPHORE *operation_semaphore_fetch(
 			char *operation_name,
 			char *appaserver_data_directory,
-			pit_t parent_process_id,
-			int operation_row_count )
+			pid_t parent_process_id,
+			int operation_row_total )
 {
 	OPERATION_SEMAPHORE *operation_semaphore;
-	char increment_string[ 16];
-	char *results;
 
 	operation_semaphore = operation_semaphore_calloc();
 
 	operation_semaphore->filename =
+		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		operation_semaphore_filename(
@@ -385,7 +419,7 @@ OPERATION_SEMAPHORE *operation_semaphore_fetch(
 
 	if ( ( operation_semaphore->group_first_time =
 		operation_semaphore_group_first_time(
-			operation_semaphore->filename ) )
+			operation_semaphore->filename ) ) )
 	{
 		operation_semaphore_initialize_file(
 			operation_semaphore->filename );
@@ -432,7 +466,7 @@ void operation_semaphore_remove_file(
 char *operation_semaphore_filename(
 			char *operation_name,
 			char *appaserver_data_directory,
-			int parent_process_id )
+			pid_t parent_process_id )
 {
 	char semaphore_filename[ 256 ];
 
@@ -456,7 +490,7 @@ char *operation_semaphore_filename(
 	return strdup( semaphore_filename );
 }
 
-void operation_semaphore_group_first_time( char *filename )
+boolean operation_semaphore_group_first_time( char *filename )
 {
 	return timlib_file_exists( filename );
 }
@@ -469,7 +503,7 @@ void operation_semaphore_initialize_file( char *filename )
 		"echo 1 > %s",
 		filename );
 
-	if ( system( sys_string ) ){};
+	if ( system( system_string ) ){};
 }
 
 int operation_semaphore_row_current( char *filename )
@@ -501,5 +535,165 @@ void operation_semaphore_increment(
 		row_current + 1,
 		filename );
 
-	if ( system( sys_string ) ){};
+	if ( system( system_string ) ){};
+}
+
+OPERATION_ROW *operation_row_fetch(
+			DICTIONARY *row_dictionary,
+			char *operation_name,
+			LIST *primary_key_list,
+			LIST *attribute_name_list,
+			int row_number )
+{
+	boolean checked;
+	OPERATION_ROW *operation_row;
+
+	if ( ! ( checked =
+			operation_row_checked(
+				row_dictionary,
+				operation_name,
+				row_number ) ) )
+	{
+		return (OPERATION_ROW *)0;
+	}
+
+	operation_row = operation_row_calloc();
+
+	operation_row->primary_data_list =
+		operation_row_primary_data_list(
+			row_dictionary,
+			primary_key_list,
+			row_number );
+
+	if ( !list_length( operation_row->primary_data_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: operation_row_primary_data_list(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_display( primary_key_list ) );
+		exit( 1 );
+	}
+
+	operation_row->dictionary =
+		operation_single_row_dictionary(
+			row_dictionary,
+			attribute_name_list,
+			row_number );
+
+	return operation_row;
+}
+
+OPERATION_ROW *operation_row_calloc( void )
+{
+	OPERATION_ROW *operation_row;
+
+	if ( ! ( operation_row =
+			calloc( 1, sizeof( OPERATION_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return operation_row;
+}
+
+boolean operation_row_checked(
+			DICTIONARY *row_dictionary,
+			char *operation_name,
+			int row_number )
+{
+	char *data = {0};
+
+	if ( dictionary_index_data(
+			&data,
+			row_dictionary,
+			operation_name,
+			row_number ) == 1 )
+	{
+		if ( strcmp( data, "yes" ) == 0 ) return 1;
+	}
+	return 0;
+}
+
+LIST *operation_row_primary_data_list(
+			DICTIONARY *row_dictionary,
+			LIST *primary_key_list,
+			int row_number )
+{
+	return
+	dictionary_key_list_index_data_list( 
+		row_dictionary,
+		primary_key_list,
+		row_number );
+}
+
+DICTIONARY *operation_single_row_dictionary(
+			DICTIONARY *row_dictionary,
+			LIST *attribute_name_list,
+			int row_number )
+{
+	DICTIONARY *single_row_dictionary = dictionary_small();
+	char key[ 128 ];
+	char *attribute_name;
+	char *data;
+
+
+	if ( !list_rewind( attribute_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: list_rewind() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		attribute_name = list_get( attribute_name_list );
+
+		data = (char *)0;
+
+		if ( dictionary_index_data(
+				&data,
+				row_dictionary,
+				attribute_name,
+				row_number ) == 1 )
+		{
+			dictionary_set(
+				single_row_dictionary,
+				attribute_name,
+				data );
+		}
+	} while ( list_next( attribute_name_list ) );
+
+	sprintf( key, "execute_yn_%d", row_number );
+	dictionary_set( single_row_dictionary, strdup( key ), "y" );
+
+	return single_row_dictionary;
+}
+
+boolean operation_delete_name( char *operation_name )
+{
+	return ( string_strncmp( operation_name, "delete" ) == 0 );
+}
+
+OPERATION *operation_calloc( void )
+{
+	OPERATION *operation;
+
+	if ( ! ( operation = calloc( 1, sizeof( OPERATION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return operation;
 }
