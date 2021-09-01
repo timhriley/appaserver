@@ -86,8 +86,8 @@ typedef struct
 	LIST *relation_join_one2m_list;
 } FOLDER;
 
-/* Operations */
-/* ---------- */
+/* FOLDER operations */
+/* ----------------- */
 FOLDER *folder_new(	char *folder_name );
 
 /* Returns static memory */
@@ -211,5 +211,12 @@ LIST *folder_delimited_fetch(
 			char *table_name,
 			LIST *attribute_name_list,
 			char *where );
+
+FOLDER *folder_primary_data_fetch(
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *drillthru_dictionary,
+			char *populate_drop_down_process_name );
 
 #endif

@@ -84,6 +84,7 @@ APPASERVER_LIBRARY=						\
 		prompt_recursive.o				\
 		appaserver_link_file.o				\
 		process.o					\
+		process_parameter.o				\
 		queue.o						\
 		validation_form.o				\
 		post_dictionary.o				\
@@ -758,8 +759,11 @@ appaserver.o: appaserver.c appaserver.h					\
 folder.o: folder.c folder.h process.h attribute.h date_convert.h
 	${CC} ${CFLAGS} -c folder.c
 
-process.o: process.c process.h query.h
+process.o: process.c process.h
 	${CC} ${CFLAGS} -c process.c
+
+process_parameter.o: process_parameter.c process_parameter.h
+	${CC} ${CFLAGS} -c process_parameter.c
 
 attribute.o: attribute.c attribute.h
 	${CC} ${CFLAGS} -c attribute.c

@@ -258,15 +258,15 @@ FOLDER *folder_parse(	char *input,
 		folder->populate_drop_down_process =
 			process_fetch(
 				folder->populate_drop_down_process_name,
-				/* don't check role security */
-				(char *)0 /* role_name */,
-				1 /* check_executable_inside_filesystem */ );
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
+				0 /* not check_executable_inside_filesystem */);
 
 		folder->post_change_process =
 			process_fetch(
 				folder->post_change_process_name,
-				/* don't check role security */
-				(char *)0 /* role_name */,
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
 				0 /* not check_executable_inside_filesystem */);
 	}
 
@@ -570,5 +570,28 @@ boolean folder_non_owner_forbid(
 	return (string_strcmp(
 			row_level_restriction_string,
 			"row_level_non_owner_forbid" ) == 0 );
+}
+
+FOLDER *folder_primary_data_fetch(
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			DICTIONARY *drillthru_dictionary,
+			char *populate_drop_down_process_name )
+{
+	PROCESS *populate_drop_down_process;
+
+	if ( populate_drop_down_process_name
+	&&   *populate_drop_down_process_name )
+	{
+		populate_drop_down_process =
+			process_fetch(
+				populate_drop_down_process_name,
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
+				1 /* check_executable_inside_filesystem */ );
+	}
+
+	return (FOLDER *)0;
 }
 
