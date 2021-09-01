@@ -90,14 +90,14 @@ typedef struct
 	char *attribute_name;
 	char *drop_down_prompt_name;
 	char *prompt_name;
-
-	/* Process */
-	/* ------- */
 	int display_order;
 	boolean drop_down_multi_select;
 	boolean drillthru;
 	char *populate_drop_down_process_name;
 	char *populate_helper_process_name;
+
+	/* Process */
+	/* ------- */
 	LIST *primary_delimited_list;
 	FOLDER *folder;
 	ATTRIBUTE *attribute;

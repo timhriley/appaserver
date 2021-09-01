@@ -383,16 +383,38 @@ PROCESS_PARAMETER *process_parameter_parse(
 	piece( buffer, SQL_DELIMITER, input, 9 );
 	process_parameter->populate_helper_process_name = strdup( buffer );
 
+	if ( *process_parameter->populate_drop_down_process_name )
+	{
+		if ( strcmp( process_parameter->folder_name, "null" ) == 0 )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: folder_name = null.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		process_parameter->folder =
+			folder_process_parameter_delimited_fetch_list(
+				process_parameter->
+					folder_name );
+				process_parameter->
+					populate_drop_down_process_name,
+				process_parameter->login_name,
+				process_parameter->role_name,
+				process_parameter->drillthru_dictionary );
+		ok_return = 1;
+	}
+	else
 	if ( strcmp( process_parameter->folder_name, "null" ) != 0 )
 	{
 		process_parameter->folder =
-			folder_primary_data_fetch(
+			folder_primary_delimited_fetch(
 				process_parameter->folder_name,
-				process_parameter->role_name,
 				process_parameter->login_name,
-				process_parameter->drillthru_dictionary,
-				process_parameter->
-					populate_drop_down_process_name );
+				process_parameter->role_name,
+				process_parameter->drillthru_dictionary );
 		ok_return = 1;
 	}
 	else

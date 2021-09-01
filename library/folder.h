@@ -70,6 +70,7 @@ typedef struct
 	PROCESS *post_change_process;
 	LIST *role_exclude_attribute_name_list;
 	LIST *folder_attribute_list;
+	LIST *folder_attribute_primary_list;
 	LIST *primary_key_list;
 	LIST *folder_attribute_append_isa_list;
 	LIST *role_folder_list;
@@ -84,6 +85,9 @@ typedef struct
 	LIST *relation_one2m_recursive_list;
 	LIST *relation_pair_one2m_list;
 	LIST *relation_join_one2m_list;
+	LIST *role_operation_list;
+	LIST *delimited_list;
+	LIST *dictionary_list;
 } FOLDER;
 
 /* FOLDER operations */
@@ -117,7 +121,8 @@ LIST *folder_system_list(
 			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
-			boolean fetch_row_level_restriction );
+			boolean fetch_row_level_restriction,
+			boolean fetch_role_operation_list );
 
 FOLDER *folder_parse(	char *input,
 			char *sql_injection_escape_role_name,
@@ -135,7 +140,8 @@ FOLDER *folder_parse(	char *input,
 			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
-			boolean fetch_row_level_restriction );
+			boolean fetch_row_level_restriction,
+			boolean fetch_role_operation_list );
 
 long int folder_row_count(
 			char *folder_table_name );
@@ -165,7 +171,8 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			boolean fetch_relation_one2m_recursive_list,
 			boolean fetch_process,
 			boolean fetch_role_folder_list,
-			boolean fetch_row_level_restriction );
+			boolean fetch_row_level_restriction,
+			boolean fetch_role_operation_list );
 
 FOLDER *folder_quick_fetch(
 			char *folder_name );
@@ -212,11 +219,10 @@ LIST *folder_delimited_fetch(
 			LIST *attribute_name_list,
 			char *where );
 
-FOLDER *folder_primary_data_fetch(
-			char *folder_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *drillthru_dictionary,
-			char *populate_drop_down_process_name );
+LIST *folder_primary_delimited_list(
+			char *folder_table_name,
+			LIST *folder_attribute_primary_list,
+			SECURITY_ENTITY *security_entity,
+			DICTIONARY *drillthru_dictionary );
 
 #endif

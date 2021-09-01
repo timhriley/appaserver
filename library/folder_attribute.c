@@ -179,6 +179,33 @@ FOLDER_ATTRIBUTE *folder_attribute_parse( char *input )
 	return folder_attribute;
 }
 
+LIST *folder_attribute_primary_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *primary_list;
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	primary_list = list_new();
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( folder_attribute->primary_key_index )
+		{
+			list_set(
+				primary_list, 
+				folder_attribute );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return primary_list;
+}
+
 LIST *folder_attribute_primary_key_list(
 			LIST *folder_attribute_list )
 {
