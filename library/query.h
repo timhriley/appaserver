@@ -18,6 +18,7 @@
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
+#include "date_convert.h"
 #include "folder.h"
 
 /* Constants */
@@ -59,10 +60,7 @@ enum relational_operator {	equals,
 typedef struct
 {
 	char *login_name;
-	LIST *append_isa_attribute_list;
-	LIST *date_attribute_name_list;
-	enum date_convert_format database_date_format;
-	enum date_convert_format user_date_format;
+	enum date_convert_format date_convert_format;
 } QUERY_DATE_CONVERT;
 
 typedef struct
@@ -130,6 +128,8 @@ typedef struct
 {
 	char *folder_name;
 	char *attribute_name;
+	boolean attribute_is_date;
+	char *select_string;
 } QUERY_SELECT;
 
 typedef struct
@@ -177,7 +177,17 @@ typedef struct
 /* ---------------- */
 QUERY *query_calloc(	void );
 
-QUERY *query_populate_drop_down_process_fetch(
+/* Query usage */
+/* ----------- */
+QUERY *query_primary_delimited_new(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
+			SECURITY_ENTITY *security_entity,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name );
+
+QUERY *query_populate_drop_down_process_new(
 			DICTIONARY *drilldown_dictionary,
 			char *populate_drop_down_process_commmand_line,
 			char *security_entity_where,
@@ -202,30 +212,44 @@ QUERY *query_process_parameter_new(
 			char *role_name,
 			char *login_name );
 
-QUERY *query_isa_drop_down_fetch(
+QUERY *query_isa_drop_down_new(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
 			SECURITY_ENTITY *security_entity );
 
 /* QUERY_SELECT operations */
 /* ----------------------- */
+
+/* Always succeeds */
+/* --------------- */
 QUERY_SELECT *query_select_new(
 			char *folder_name,
-			char *attribute_name );
+			char *attribute_name,
+			boolean attribute_is_date,
+			QUERY_DATE_CONVERT *query_date_convert );
 
 LIST *query_select_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
-			int relation_mto1_isa_length );
+			int relation_mto1_isa_length,
+			QUERY_DATE_CONVERT *query_date_convert );
 
-LIST *query_primary_key_select_list(
-			LIST *primary_key_list );
+LIST *query_primary_select_list(
+			LIST *folder_attribute_primary_list,
+			QUERY_DATE_CONVERT *query_date_convert );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_select_clause(
 			LIST *select_list );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_select_string(
+			char *folder_name,
+			char *attribute_name,
+			enum date_convert_format );
 
 /* QUERY_ROW operations */
 /* -------------------- */
@@ -693,13 +717,24 @@ QUERY *query_simple_new(
 			char *login_name,
 			LIST *ignore_select_attribute_name_list );
 
+/* QUERY_DATE_CONVERT operations */
+/* ----------------------------- */
 QUERY_DATE_CONVERT *query_date_convert_calloc(
 			void );
 
-QUERY_DATE_CONVERT *query_date_convert(
-			char *login_name,
-			LIST *append_isa_attribute_list );
+/* Always succeeds */
+/* --------------- */
+QUERY_DATE_CONVERT *query_date_convert_new(
+			char *login_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *query_date_convert_select_string(
+			char *attribute_name,
+			enum date_convert_format date_convert_format );
+
+/* QUERY_DATA operations */
+/* --------------------- */
 QUERY_DATA *query_data_new(
 			char *attribute_name,
 			char *attribute_datatype,

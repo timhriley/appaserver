@@ -103,7 +103,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 		QUERY *query;
 
 		query =
-			query_isa_drop_down_fetch(
+			query_isa_drop_down_new(
 				one2m_isa_folder_name,
 				choose_isa_drop_down->
 					folder->
@@ -112,6 +112,8 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 					security_entity ) );
 
 		choose_isa_drop_down->delimited_list =
+			query_delimited_list(
+
 			query->query_delimited_list;
 	}
 

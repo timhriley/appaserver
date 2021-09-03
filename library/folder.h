@@ -220,9 +220,11 @@ LIST *folder_delimited_fetch(
 			char *where );
 
 LIST *folder_primary_delimited_list(
-			char *folder_table_name,
-			LIST *folder_attribute_primary_list,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
 			SECURITY_ENTITY *security_entity,
-			DICTIONARY *drillthru_dictionary );
+			DICTIONARY *drillthru_dictionary,
+			char *login_name );
 
 #endif

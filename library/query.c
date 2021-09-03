@@ -98,7 +98,7 @@ char *query_system_string( 	char *select_clause,
 	return strdup( system_string );
 }
 
-LIST *query_output_dictionary_list(
+LIST *query_dictionary_list(
 			char *query_select_clause,
 			LIST *query_output_select_name_list,
 			char *query_output_from,
@@ -124,26 +124,36 @@ LIST *query_output_dictionary_list(
 			query_date_convert );
 }
 
-LIST *query_output_record_list(
-			char *query_select_clause,
-			LIST *query_output_select_name_list,
-			char *query_output_from,
-			char *query_output_where,
-			char *query_output_order,
+LIST *query_delimited_list(
+			char *select_clause,
+			LIST *select_attribute_list,
+			char *from_clause,
+			char *where_clause,
+			char *order_clause,
 			int max_rows,
 			QUERY_DATE_CONVERT *query_date_convert )
 {
 	char *system_string;
+	FILE *input_pipe;
+	char input[ STRING_INPUT_BUFFER ];
+	LIST *delimited_list = list_new();
 
 	system_string = 
-		query_output_system_string(
+		query_system_string(
 			query_select_clause,
 			query_output_from,
 			query_output_where,
 			query_output_order,
 			max_rows );
 
-	return pipe2list( system_string );
+	input_pipe = popen( system_string, "r" );
+
+	while( string_input( input, input_pipe, STRING_INPUT_BUFFER ) )
+	{
+	}
+
+	pclose( input_pipe );
+	return delimited_list;
 }
 
 char *query_attribute_between_date_time_where(
@@ -4450,47 +4460,60 @@ QUERY_DATE_CONVERT *query_date_convert_calloc( void )
 	return query_date_convert;
 }
 
-QUERY_DATE_CONVERT *query_date_convert(
-			char *login_name,
-			LIST *append_isa_attribute_list )
+QUERY_DATE_CONVERT *query_date_convert_new(
+			char *login_name )
 {
-	QUERY_DATE_CONVERT *date_convert;
-	LIST *date_attribute_name_list;
-	DATE_CONVERT *convert;
+	QUERY_DATE_CONVERT *query_date_convert = query_date_convert_calloc();
 
-	if ( !login_name || !*login_name )
-		return (QUERY_DATE_CONVERT *)0;
+	query_date_convert->date_convert_format =
+		date_convert_user_date_format(
+			environment_application_name(),
+			login_name );
 
-	date_attribute_name_list =
-		attribute_date_attribute_name_list(
-			append_isa_attribute_list );
+	return date_convert;
+}
 
-	if ( !list_length( date_attribute_name_list ) )
-		return (QUERY_DATE_CONVERT *)0;
+char *query_date_convert_select_string(
+			char *attribute_name,
+			enum date_convert_format date_convert_format )
+{
+	static char select_string[ 64 ];
 
-	date_convert = query_date_convert_calloc();
-
-	date_convert->date_attribute_name_list =
-		date_attribute_name_list;
-
-	date_convert->database_date_format =
-		date_convert_format_evaluate(
-			application_database_date_format() );
-
-	if ( ! ( convert =
-			date_convert_login_name_fetch(
-				login_name ) ) )
+	if ( !attribute_name || !*attribute_name )
 	{
-		date_convert->user_date_format =
-			date_convert->database_date_format;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( date_convert_format == american )
+	{
+		sprintf(select_string,
+			"date_format(%s,'%cc/%ce/%cY')",
+			attribute_name,
+			'%',
+			'%',
+			'%' );
+	}
+	else
+	if ( date_convert_format == military )
+	{
+		sprintf(select_string,
+			"date_format(%s,'%cd-%cb-%cY')",
+			attribute_name,
+			'%',
+			'%',
+			'%' );
 	}
 	else
 	{
-		date_convert->user_date_format =
-			convert->user_date_format;
+		strcpy( select_string, attribute_name );
 	}
 
-	return date_convert;
+	return select_string;
 }
 
 QUERY_DATA *query_data_new(
@@ -6011,7 +6034,7 @@ check_mto1_append_isa_related_folder_list:
 	return drop_down_list;
 }
 
-QUERY *query_isa_drop_down_fetch(
+QUERY *query_isa_drop_down_new(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
 			SECURITY_ENTITY *security_entity )
@@ -6057,7 +6080,9 @@ QUERY *query_isa_drop_down_fetch(
 
 QUERY_SELECT *query_select_new(
 			char *folder_name,
-			char *attribute_name )
+			char *attribute_name,
+			boolean attribute_is_date,
+			QUERY_DATE_CONVERT *query_date_convert )
 {
 	QUERY_SELECT *query_select;
 
@@ -6073,15 +6098,102 @@ QUERY_SELECT *query_select_new(
 
 	query_select->folder_name = folder_name;
 	query_select->attribute_name = attribute_name;
+	query_select->attribute_is_date = attribute_is_date;
+
+	if ( query_select->attribute_is_date )
+	{
+		if ( !query_date_convert )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: query_date_convert is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		query->select_string =
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			query_select_string(
+				folder_name,
+				attribute_name,
+				query_select->date_convert_format );
+	}
+	else
+	{
+		query_select_string =
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			query_select_string(
+				folder_name,
+				attribute_name,
+				date_convert_unknown );
+	}
 
 	return query_select;
+}
+
+char *query_select_string(
+			char *folder_name,
+			char *attribute_name,
+			enum date_convert_format date_convert_format )
+{
+	char select_string[ 128 ];
+
+	*select_string = '\0';
+
+	if ( folder_name && *folder_name )
+	{
+		if ( date_convert_format != date_convert_unknown )
+		{
+			sprintf(select_string,
+				"%s.%s",
+				folder_name,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				query_date_convert_select_string(
+					attribute_name,
+					date_convert_format ) );
+		}
+		else
+		{
+			sprintf(select_string,
+				"%s.%s",
+				folder_name,
+				attribute_name );
+		}
+	}
+	else
+	{
+		if ( date_convert_format != date_convert_unknown )
+		{
+			strcpy( select_string,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				query_date_convert_select_string(
+					attribute_name,
+					date_convert_format ) );
+		}
+		else
+		{
+			strcpy( select_string, attribute_name );
+		}
+	}
+
+	return strdup( select_string );
 }
 
 LIST *query_select_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
-			int relation_mto1_isa_length )
+			int relation_mto1_isa_length,
+			QUERY_DATE_CONVERT *query_date_convert )
 {
 	LIST *select_list;
 	FOLDER_ATTRIBUTE *folder_attribute;
@@ -6117,35 +6229,63 @@ LIST *query_select_list(
 
 		list_set(
 			select_list,
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
 			query_select_new(
 				folder_name,
-				folder_attribute->attribute_name ) );
+				folder_attribute->attribute_name,
+				attribute_is_date(
+					folder_attribute->
+						attribute->
+						datatype_name ),
+				query_date_convert ) );
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
 	return select_list;
 }
 
-LIST *query_primary_key_select_list(
-			LIST *primary_key_list )
+LIST *query_primary_select_list(
+			LIST *folder_attribute_primary_list,
+			QUERY_DATE_CONVERT *query_date_convert )
 {
 	LIST *select_list;
 	FOLDER_ATTRIBUTE *folder_attribute;
-	char *folder_name = {0};
 
-	if ( !list_rewind( primary_key_list ) )
-		return (LIST *)0;
+	if ( !list_rewind( folder_attribute_primary_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: folder_attribute_primary_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	select_list = list_new();
 
 	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_primary_list );
+
 		list_set(
 			select_list,
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
 			query_select_new(
 				(char *)0 /* folder_name */,
-				(char *)list_get( primary_key_list ) ) );
+				folder_attribute->attribute_name,
+				attribute_is_date(
+					folder_attribute->
+						attribute->
+						datatype_name ),
+				query_date_convert ) );
 
-	} while ( list_next( primary_key_list ) );
+	} while ( list_next( folder_attribute_primary_list ) );
 
 	return select_list;
 }
@@ -6165,21 +6305,57 @@ char *query_select_clause( LIST *select_list )
 
 		if ( !*ptr ) ptr += sprintf( ptr, "," );
 
-		if ( query_select->folder_name )
-		{
-			ptr += sprintf(	ptr,
-					"%s.%s",
-					query_select->folder_name,
-					query_select->attribute_name );
-		}
-		else
-		{
-			ptr += sprintf(	ptr,
-					"%s",
-					query_select->attribute_name );
-		}
+		ptr += sprintf( ptr, query_select->select_string );
+
 	} while ( list_next( select_list ) );
 
 	return strdup( clause );
+}
+
+QUERY *query_primary_delimited_new(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
+			SECURITY_ENTITY *security_entity,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
+{
+	QUERY *query = query_calloc();
+
+	if ( ! ( query->select_list =
+			query_primary_key_select_list(
+				primary_key_list ) ) )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: query_primary_key_select_list() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return query;
+	}
+
+	if ( ! ( query->query_select_clause =
+			query_select_clause(
+				query->select_list ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: query_select_clause() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return query;
+	}
+
+	query->from_clause = one2m_isa_folder_name;
+
+	query->query_where_clause =
+		security_entity_where(
+			security_entity );
+
+	query->query_order_clause = query->query_select_clause;
+
+	return query;
 }
 

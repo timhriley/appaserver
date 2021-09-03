@@ -715,28 +715,49 @@ FOLDER *folder_process_parameter_delimited_fetch(
 			folder->non_owner_forbid,
 			role->override_row_restrictions );
 
-	folder->folder_attribute_primary_list =
-		folder_attribute_primary_list(
-			folder->folder_attribute_list );
-
 	folder->delimited_list =
 		folder_primary_delimited_list(
-			folder_table_name(
-				environment_application_name(),
-				folder_name ),
-			folder->folder_attribute_primary_list,
+			folder_name,
+			folder->primary_key_list,
+			folder->folder_attribute_list,
 			security_entity,
-			drillthru_dictionary );
+			drillthru_dictionary,
+			login_name );
 
 	return folder;
 }
 
 LIST *folder_primary_delimited_list(
-			char *folder_table_name,
-			LIST *folder_attribute_primary_list,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
 			SECURITY_ENTITY *security_entity,
-			DICTIONARY *drillthru_dictionary )
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
 {
-	return (LIST *)0;
+	QUERY *query;
+
+	query =
+		query_primary_delimited_new(
+			folder_name,
+			primary_key_list,
+			folder_attribute_list,
+			security_entity,
+			drillthru_dictionary,
+			login_name );
+
+	query->query_delimited_list =
+		query_delimited_list(
+			query->select_clause,
+			query->from_clause,
+			query->where_clause,
+			query->order_clause,
+			0 /* max_rows */,
+			query_date_convert_new(
+				login_name,
+				query->select_attribute_name_list,
+				folder_attribute_list ) );
+
+	return query->query_delimited_list;
 }
 

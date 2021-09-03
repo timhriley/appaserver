@@ -47,12 +47,9 @@ enum date_convert_format date_convert_user_date_format(
 			char *application_name,
 			char *login_name )
 {
-	static enum date_convert_format user_date_format = date_convert_unknown;
 	char sys_string[ 1024 ];
 	char where_string[ 128 ];
-	char *results;
-
-	if ( user_date_format != date_convert_unknown ) return user_date_format;
+	enum date_convert_format user_date_format;
 
 	/* Get from APPASERVER_USER */
 	/* ------------------------ */
@@ -66,9 +63,9 @@ enum date_convert_format date_convert_user_date_format(
 		 application_name,
 		 where_string );
 
-	results = pipe2string( sys_string );
-
-	user_date_format = date_convert_format_evaluate( results );
+	user_date_format =
+		date_convert_format_evaluate(
+			string_pipe_fetch( sys_string ) );
 
 	if ( user_date_format == date_convert_unknown )
 	{
@@ -83,12 +80,10 @@ enum date_convert_format date_convert_user_date_format(
 			 "			where=\"%s\"		",
 			 application_name,
 			 where_string );
-		results = pipe2string( sys_string );
-		if ( !results || !*results ) return date_convert_unknown;
-	
+
 		user_date_format =
 			date_convert_format_evaluate(
-				results );
+				string_pipe_fetch( sys_string ) );
 	}
 
 	return user_date_format;
