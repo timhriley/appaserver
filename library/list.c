@@ -183,25 +183,6 @@ void *list_data( LIST *list )
 	return list_get_pointer( list );
 }
 
-void *list_last( LIST *list )
-{
-	return list_get_last_pointer( list );
-}
-
-void *list_get_last( LIST *list )
-{
-	return list_get_last_pointer( list );
-}
-
-void *list_get_last_pointer( LIST *list )
-{
-	if ( !list ) return (char *)0;
-
-	if ( !go_tail( list ) ) return (char *)0;
-
-	return list_get_pointer( list );
-}
-
 void *list_first_pointer( LIST *list )
 {
 	return list_first( list );
@@ -1418,7 +1399,7 @@ void *list_get( LIST *list )
         else
                 /* List is empty */
                 /* ------------- */
-                return (char *)0;
+                return (void *)0;
 }
 
 char *retrieve_item_ptr( LIST *list )
@@ -1840,44 +1821,54 @@ LIST *list_string_list(
 
 LIST *list_duplicate( LIST *list )
 {
-	return string_list_duplicate( list );
-}
-
-LIST *list_duplicate_string_list( LIST *list )
-{
-	return string_list_duplicate( list );
-}
-
-LIST *string_list_duplicate( LIST *list )
-{
 	LIST *return_list = list_new();
 	char *string;
 
-	if( list_reset( list ) )
+	if( list_rewind( list ) )
 	{
 		do {
 			string = list_get_string( list );
-			list_append_string( return_list, string );
+			list_set( return_list, string );
 		} while( list_next( list ) );
 	}
 	return return_list;
 }
 
-char *list_get_last_string( LIST *list )
+LIST *list_duplicate_string_list( LIST *list )
 {
-	if ( !list_length( list ) ) return (char *)0;
-	go_tail( list );
-	return list_get_string( list );
+	return list_duplicate( list );
 }
 
-void list_replace_last_string( 	LIST *list, char *string )
+char *list_last_string( LIST *list )
 {
-	if ( list_length( list ) )
+	if ( !go_tail( list ) ) return (char *)0;
+
+	return (char *)list_get( list );
+}
+
+void *list_last( LIST *list )
+{
+	if ( !go_tail( list ) ) return (void *)0;
+
+	return list_get( list );
+}
+
+void list_replace_last(
+			LIST *list,
+			void *data )
+{
+	if ( go_tail( list ) )
 	{
-		go_tail( list );
 		delete_current( list );
-		list_append_string( list, string );
+		list_set( list, data );
 	}
+}
+
+void list_replace_last_string(
+			LIST *list,
+			char *string )
+{
+	list_replace_last( list, string );
 }
 
 void *list_get_first_item( LIST *list )

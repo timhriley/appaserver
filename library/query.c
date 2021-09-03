@@ -6452,27 +6452,57 @@ char *query_where_clause(
 
 LIST *query_drop_down_list(
 			LIST *exclude_attribute_name_list,
+			char *many_folder_name,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			DICTIONARY *drillthru_dictionary )
+			DICTIONARY *drillthru_dictionary,
+			LIST *relation_mto1_non_isa_list )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
 	RELATION *relation;
+	QUERY_DROP_DOWN *query_drop_down;
+	LIST *drop_down_list = {0};
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
 
 	do {
 		folder_attribute =
 			list_get(
 				folder_attribute_list );
 
-		if ( ( relation =
-			relation_consumes(
-				exclude_attribute_name_list,
-				folder_attribute->attribute_name,
-				relation_mto1_non_isa_list ) ) )
+		if ( ! ( relation =
+				relation_consumes(
+					exclude_attribute_name_list /* out */,
+					folder_attribute->attribute_name,
+					relation_mto1_non_isa_list ) ) )
 		{
+			continue;
+		}
+
+		if ( ( query_drop_down =
+			query_drop_down_new(
+				many_folder_name,
+				relation->one_folder->folder_name,
+				drillthru_dictionary,
+				relation->one_folder->primary_key_list,
+				relation->foreign_key_list ) ) )
+		{
+			if ( !drop_down_list )
+				drop_down_list =
+					list_new();
+
+			list_set( drop_down_list, query_drop_down );
 		}
 	} while ( list_next( folder_attribute_list ) );
 
-	return strdup( where_clause );
+	return drop_down_list;
+}
+
+QUERY_DROP_DOWN *query_drop_down_new(
+			char *many_folder_name,
+			char *one_folder_name,
+			DICTIONARY *drillthru_dictionary,
+			LIST *primary_key_list,
+			LIST *foreign_key_list )
+{
 }
 

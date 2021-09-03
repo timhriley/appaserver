@@ -99,8 +99,8 @@ typedef struct
 
 typedef struct
 {
-	char *root_folder_name;
-	char *mto1_foreign_folder_name;
+	char *many_folder_name;
+	char *one_folder_name;
 	LIST *drop_down_row_list;
 } QUERY_DROP_DOWN;
 
@@ -274,24 +274,22 @@ char *query_select_string(
 			boolean attribute_is_date_time,
 			enum date_convert_format );
 
-/* QUERY_ROW operations */
-/* -------------------- */
-LIST *query_row_dictionary_list(
-			char *application_name,
-			char *select_clause,
-			char *from_clause,
-			char *where_clause,
-			char *order_clause,
-			int max_rows,
-			LIST *append_isa_attribute_list,
-			char *login_name );
-
 /* QUERY_DROP_DOWN operations */
 /* -------------------------- */
 LIST *query_drop_down_list(
-			LIST *exclude_attribute_name_list,
-			FOLDER *mto1_folder,
-			DICTIONARY *query_dictionary );
+			LIST *exclude_attribute_name_list /* out */,
+			char *many_folder_name,
+			LIST *folder_attribute_list,
+			DICTIONARY *drillthru_dictionary,
+			LIST *relation_mto1_non_isa_list );
+
+QUERY_DROP_DOWN *query_drop_down_new(
+			char *many_folder_name,
+			char *one_folder_name,
+			DICTIONARY *drillthru_dictionary,
+			LIST *primary_key_list,
+			LIST *foreign_key_list );
+
 
 /* QUERY_DROP_DOWN_ROW operations */
 /* ------------------------------ */
@@ -303,9 +301,17 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			LIST *one2m_attribute_list,
 			int index );
 
-QUERY_DROP_DOWN *query_drop_down_new(
-			char *root_folder_name,
-			char *mto1_foreign_folder_name );
+/* QUERY_ROW operations */
+/* -------------------- */
+LIST *query_row_dictionary_list(
+			char *application_name,
+			char *select_clause,
+			char *from_clause,
+			char *where_clause,
+			char *order_clause,
+			int max_rows,
+			LIST *append_isa_attribute_list,
+			char *login_name );
 
 boolean query_get_drop_down_dictionary_data(
 			char **data,

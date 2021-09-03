@@ -13,7 +13,7 @@
 #include "timlib.h"
 #include "sql.h"
 #include "foreign_attribute.h"
-#include "attribute.h"
+#include "folder_attribute.h"
 #include "relation.h"
 
 RELATION *relation_calloc( void )
@@ -127,7 +127,8 @@ RELATION *relation_parse(
 				0 /* not fetch_relation_one2m_recursive_list */,
 				0 /* not fetch_process */,
 				0 /* not fetch_role_folder_list */,
-				0 /* not fetch_row_level_restriction */ );
+				0 /* not fetch_row_level_restriction */,
+				0 /* not fetch_role_operation_list */ );
 
 		relation->one_folder =
 			folder_fetch(
@@ -141,18 +142,19 @@ RELATION *relation_parse(
 				0 /* not fetch_relation_one2m_recursive_list */,
 				0 /* not fetch_process */,
 				0 /* not fetch_role_folder_list */,
-				0 /* not fetch_row_level_restriction */ );
+				0 /* not fetch_row_level_restriction */,
+				0 /* not fetch_role_operation_list */ );
 	}
 
-	if ( fetch_folder && fetch_attribute_list )
+	if ( fetch_folder && fetch_folder_attribute_list )
 	{
-		relation->foreign_attribute_name_list =
-			relation_foreign_attribute_name_list(
-				attribute_primary_name_list(
+		relation->foreign_key_list =
+			relation_foreign_key_list(
+				folder_attribute_primary_key_list(
 				     relation->
 						one_folder->
-						attribute_list )
-				     /* primary_foreign_attribute_name_list */,
+						folder_attribute_list )
+				     		/* primary_foreign_key_list */,
 				relation->related_attribute_name,
 				foreign_attribute_name_list(
 					foreign_attribute_list(
@@ -209,20 +211,19 @@ char *relation_display(	RELATION *relation )
 	char display[ 65536 ];
 
 	sprintf(display,
-		"\nRelation: %s -> %s, foreign_attribute_name_list = [%s];\n",
+		"\nRelation: %s -> %s, foreign_key_list = [%s];\n",
 		relation->many_folder->folder_name,
 		relation->one_folder->folder_name,
-		list_display(
-			relation->foreign_attribute_name_list ) );
+		list_display( relation->foreign_key_list ) );
 
 	return strdup( display );
 }
 
-LIST *relation_foreign_attribute_name_list(
-			/* ------------------------ */
-			/* Send in primary_key_list */
-			/* ------------------------ */
-			LIST *primary_foreign_attribute_name_list,
+LIST *relation_foreign_key_list(
+			/* ------------------------------------------- */
+			/* Send in folder_attribute_primary_key_list() */
+			/* ------------------------------------------- */
+			LIST *primary_foreign_key_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_name_list )
 {
@@ -243,22 +244,22 @@ LIST *relation_foreign_attribute_name_list(
 	&&   *related_attribute_name
 	&&   string_strcmp( related_attribute_name, "null" ) != 0 )
 	{
-		primary_foreign_attribute_name_list =
-			string_list_duplicate(
-				primary_foreign_attribute_name_list );
+		primary_foreign_key_list =
+			list_duplicate(
+				primary_foreign_key_list );
 
-		list_replace_last_string( 
-			primary_foreign_attribute_name_list,
+		list_replace_last( 
+			primary_foreign_key_list,
 			related_attribute_name );
 
-		return_list = primary_foreign_attribute_name_list;
+		return_list = primary_foreign_key_list;
 	}
 	else
 	{
 		/* ---------------------------- */
 		/* If exact one-to-one matching */
 		/* ---------------------------- */
-		return_list = primary_foreign_attribute_name_list;
+		return_list = primary_foreign_key_list;
 	}
 	return return_list;
 }
@@ -325,7 +326,6 @@ LIST *relation_mto1_non_isa_list(
 LIST *relation_one2m_list(
 			char *one_folder_name )
 {
-	RELATION *relation;
 	char where[ 128 ];
 
 	sprintf(where,
@@ -348,7 +348,6 @@ LIST *relation_pair_one2m_list(
 			LIST *relation_one2m_list )
 {
 	RELATION *relation;
-	char key[ 128 ];
 	LIST *pair_one2m_list = {0};
 
 	if ( !list_rewind( relation_one2m_list ) ) return (LIST *)0;
@@ -440,7 +439,7 @@ LIST *relation_one2m_recursive_list(
 
 		if ( ( relation->is_primary_key_subset =
 			relation_is_primary_key_subset(
-				relation->foreign_attribute_name_list,
+				relation->foreign_key_list,
 				relation->
 				    many_folder->
 				    primary_key_list
@@ -549,7 +548,12 @@ char *relation_list_display(
 LIST *relation_one2m_pair_list(
 			char *one_folder_name )
 {
-	char *where = "ifnull(pair_1tom_order,0) > 0";
+	char where[ 256 ];
+
+	sprintf(where,
+		"related_folder = '%s' and	"
+		"ifnull(pair_1tom_order,0) > 0	",
+		one_folder_name );
 
 	return
 		relation_system_list(
@@ -591,7 +595,7 @@ LIST *relation_mto1_drilldown_list(
 		relation = list_get( local_relation_list );
 
 		if ( relation->one_folder->drilldown
-		&&   !list_exists(
+		&&   !list_exists_string(
 			relation->one_folder->folder_name,
 			fulfilled_folder_name_list ) )
 		{
@@ -604,7 +608,8 @@ LIST *relation_mto1_drilldown_list(
 					relation_list,
 					relation->
 						one_folder->
-						folder_name )'
+						folder_name,
+					fulfilled_folder_name_list );
 		}
 
 	} while ( list_next( local_relation_list ) );

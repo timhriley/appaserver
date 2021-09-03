@@ -286,18 +286,33 @@ void *list_get_first_pointer(
 
 void *list_last(	LIST *list );
 
-void *list_get_last(	LIST *list );
+LIST *list_string_to_list(
+			char *list_string,
+			char delimiter );
 
-void *list_get_last_pointer( LIST *list );
+LIST *list_string2list(	char *list_string,
+			char delimiter );
 
-LIST *list_string_to_list( char *list_string, char delimiter );
-LIST *list_string2list( char *list_string, char delimiter );
-LIST *list_quote_comma_string2list( char *list_string );
-LIST *string_list_duplicate( LIST *list );
-LIST *list_duplicate_string_list( LIST *list );
-LIST *list_duplicate( LIST *list );
-void list_replace_last_string( 	LIST *list, char *string );
-void list_replace_string( 	LIST *list, char *old, char *new );
+LIST *list_quote_comma_string2list(
+			char *list_string );
+
+LIST *list_duplicate_string_list(
+			LIST *list );
+
+LIST *list_duplicate(	LIST *list );
+
+void list_replace_last_string( 
+			LIST *list,
+			char *string );
+
+void list_replace_last( 
+			LIST *list,
+			void *data );
+
+void list_replace_string(
+			LIST *list,
+			char *old,
+			char *new );
 
 LIST *list_set_list(		LIST *destination_list,
 				LIST *source_list );
@@ -371,7 +386,7 @@ char *list2string_delimited(	LIST *list, char delimiter );
 
 int list_go_offset( 		LIST *list, int offset );
 
-char *list_get_last_string( 	LIST *list );
+char *list_last_string( 	LIST *list );
 
 char *list_display_delimited_prefixed(	
 				LIST *list, 

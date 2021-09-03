@@ -50,14 +50,14 @@ typedef struct
 	char *one_folder_name;
 	FOLDER *one_folder;
 	char *related_attribute_name;
-	int pair_1tom_order;
-	boolean omit_1tom_detail;
+	int pair_one2m_order;
+	boolean omit_one2m_detail;
 	boolean prompt_mto1_recursive;
 	boolean relation_type_isa;
 	boolean copy_common_attributes;
 	boolean automatic_preselection;
 	boolean drop_down_multi_select;
-	boolean join_1tom_each_row;
+	boolean join_one2m_each_row;
 	boolean omit_lookup_before_drop_down;
 	boolean ajax_fill_drop_down;
 	char *hint_message;
@@ -65,7 +65,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	boolean is_primary_key_subset;
-	LIST *foreign_attribute_name_list;
+	LIST *foreign_key_list;
 	boolean ignore;
 } RELATION;
 
@@ -83,19 +83,17 @@ RELATION *relation_new(
 
 RELATION *relation_parse(
 			char *input,
-			/* ---------------------------- */
-			/* Setting both will set	*/
-			/* foreign_attribute_name_list	*/
-			/* ---------------------------- */
+			/* -------------------------------------- */
+			/* Setting both will set foreign_key_list */
+			/* -------------------------------------- */
 			boolean fetch_folder,
 			boolean fetch_attribute_list );
 
 LIST *relation_system_list(
 			char *system_string,
-			/* ---------------------------- */
-			/* Setting both will set	*/
-			/* foreign_attribute_name_list	*/
-			/* ---------------------------- */
+			/* -------------------------------------- */
+			/* Setting both will set foreign_key_list */
+			/* -------------------------------------- */
 			boolean fetch_folder,
 			boolean fetch_attribute_list );
 
@@ -107,11 +105,11 @@ char *relation_system_string(
 /* -------------------------- */
 char *relation_display(	RELATION *relation );
 
-LIST *relation_foreign_attribute_name_list(
-			/* ----------------------------------- */
-			/* Send in primary_key_list */
-			/* ----------------------------------- */
-			LIST *primary_foreign_attribute_name_list,
+LIST *relation_foreign_key_list(
+			/* ------------------------------------------- */
+			/* Send in folder_attribute_primary_key_list() */
+			/* ------------------------------------------- */
+			LIST *primary_foreign_key_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_name_list );
 
@@ -119,9 +117,9 @@ LIST *relation_one2m_recursive_list(
 			LIST *relation_list /* in/out */,
 			char *one_folder_name );
 
-/* ---------------------------------- */
-/* foreign_attribute_name_list is set */
-/* ---------------------------------- */
+/* ----------------------- */
+/* foreign_key_list is set */
+/* ----------------------- */
 LIST *relation_one2m_pair_list(
 			char *one_folder_name );
 
@@ -134,24 +132,24 @@ LIST *relation_mto1_isa_list(
 LIST *relation_mto1_non_isa_list(
 			char *many_folder_name );
 
-/* ---------------------------------- */
-/* foreign_attribute_name_list is set */
-/* ---------------------------------- */
+/* ----------------------- */
+/* foreign_key_list is set */
+/* ----------------------- */
 LIST *relation_fetch_one2m_list(
 			char *one_folder_name,
 			char *where,
 			char *order );
 
-/* ---------------------------------- */
-/* foreign_attribute_name_list is set */
-/* ---------------------------------- */
+/* ----------------------- */
+/* foreign_key_list is set */
+/* ----------------------- */
 LIST *relation_fetch_mto1_list(
 			char *many_folder_name,
 			char *where,
 			char *order );
 
 boolean relation_is_primary_key_subset(
-			LIST *foreign_attribute_name_list,
+			LIST *foreign_key_list,
 			LIST *many_primary_key_list );
 
 char *relation_list_display(
