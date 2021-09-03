@@ -200,11 +200,18 @@ PROCESS_PARAMETER *process_parameter_parse(
 			char *login_name,
 			DICTIONARY *drillthru_dictionary );
 
-LIST *process_parameter_primary_delimited_list(
-			DICTIONARY *drillthru_dictionary,
-			char *login_name,
+LIST *process_parameter_process_delimited_list(
 			char *folder_name,
-			char *populate_drop_down_process_name );
+			char *populate_drop_down_process_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary );
+
+LIST *process_parameter_folder_delimited_list(
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary );
 
 #endif
 

@@ -395,10 +395,10 @@ PROCESS_PARAMETER *process_parameter_parse(
 			exit( 1 );
 		}
 
-		process_parameter->folder =
-			folder_process_parameter_delimited_fetch_list(
+		process_parameter->delimited_list =
+			process_parameter_process_delimited_list(
 				process_parameter->
-					folder_name );
+					folder_name,
 				process_parameter->
 					populate_drop_down_process_name,
 				process_parameter->login_name,
@@ -409,8 +409,8 @@ PROCESS_PARAMETER *process_parameter_parse(
 	else
 	if ( strcmp( process_parameter->folder_name, "null" ) != 0 )
 	{
-		process_parameter->folder =
-			folder_primary_delimited_fetch(
+		process_parameter->delimited_list =
+			process_parameter_folder_delimited_list(
 				process_parameter->folder_name,
 				process_parameter->login_name,
 				process_parameter->role_name,
@@ -492,5 +492,160 @@ char *process_parameter_where(
 		(is_preprompt) ? 'y' : 'n' );
 
 	return parameter_where;
+}
+
+LIST *process_parameter_process_delimited_list(
+			char *folder_name,
+			char *populate_drop_down_process_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary )
+{
+	ROLE *role;
+	FOLDER *folder;
+	SECURITY_ENTITY *security_entity;
+
+	role =
+		role_fetch(
+			role_name,
+			0 /* not fetch_role_attribute_exclude_list */ );
+
+	if ( !role )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
+		exit( 1 );
+	}
+
+	folder =
+		folder_fetch(
+			folder_name,
+			(char *)0 /* role_name */,
+			(LIST *)0 /* role_exclude_attribute_name_list */,
+			/* -------------------------- */
+			/* Also sets primary_key_list */
+			/* -------------------------- */
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_non_isa_list */,
+			0 /* not fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* not fetch_relation_one2m_recursive_list */,
+			0 /* not fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			1 /* fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
+
+	security_entity =
+		/* -------------- */
+		/* Always returns */
+		/* -------------- */
+		security_entity_new(
+			login_name,
+			folder->non_owner_forbid,
+			role->override_row_restrictions );
+
+	folder->delimited_list =
+		folder_primary_delimited_list(
+			folder_name,
+			folder->primary_key_list,
+			folder->folder_attribute_list,
+			security_entity,
+			drillthru_dictionary,
+			login_name );
+
+	return folder;
+}
+
+LIST *process_parameter_folder_delimited_list(
+			char *folder_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary )
+{
+	ROLE *role;
+	FOLDER *folder;
+	SECURITY_ENTITY *security_entity;
+	QUERY *query;
+
+	if ( ! ( folder =
+		     folder_fetch(
+			folder_name,
+			(char *)0 /* role_name */,
+			(LIST *)0 /* role_exclude_attribute_name_list */,
+			/* -------------------------- */
+			/* Also sets primary_key_list */
+			/* -------------------------- */
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_non_isa_list */,
+			0 /* not fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* not fetch_relation_one2m_recursive_list */,
+			0 /* not fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			1 /* fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name );
+		exit( 1 );
+	}
+
+	if ( ! ( role =
+		     role_fetch(
+			role_name,
+			0 /* not fetch_role_attribute_exclude_list */ ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
+		exit( 1 );
+	}
+
+	security_entity =
+		/* -------------- */
+		/* Always returns */
+		/* -------------- */
+		security_entity_new(
+			login_name,
+			folder->non_owner_forbid,
+			role->override_row_restrictions );
+
+	folder->folder_attribute_primary_list =
+		folder_attribute_primary_list(
+			folder->folder_attribute_list );
+
+	query =
+		query_primary_delimited_new(
+			folder_name,
+			login_name,
+			folder->folder_attribute_primary_list,
+			folder->folder_attribute_list,
+			security_entity,
+			drillthru_dictionary );
+
+	query->query_delimited_list =
+		query_delimited_list(
+			query->select_clause,
+			query->from_clause,
+			query->where_clause,
+			query->order_clause,
+			0 /* max_rows */,
+			query_date_convert_new(
+				login_name,
+				query->select_attribute_name_list,
+				folder_attribute_list ) );
+
+	return query->query_delimited_list;
 }
 

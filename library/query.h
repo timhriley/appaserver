@@ -129,6 +129,7 @@ typedef struct
 	char *folder_name;
 	char *attribute_name;
 	boolean attribute_is_date;
+	boolean attribute_is_date_time;
 	char *select_string;
 } QUERY_SELECT;
 
@@ -164,13 +165,13 @@ typedef struct
 	char *query_attribute_where;
 	char *query_join_where;
 	char *query_related_join;
-	LIST *query_select_name_list;
-	LIST *query_select_clause;
-	char *query_where_clause;
-	char *query_from_clause;
-	char *query_order_clause;
-	LIST *query_delimited_list;
-	LIST *query_dictionary_list;
+	LIST *select_list;
+	LIST *select_clause;
+	char *where_clause;
+	char *from_clause;
+	char *order_clause;
+	LIST *delimited_list;
+	LIST *dictionary_list;
 } QUERY;
 
 /* QUERY operations */
@@ -179,13 +180,20 @@ QUERY *query_calloc(	void );
 
 /* Query usage */
 /* ----------- */
+QUERY *query_isa_drop_down_new(
+			char *one2m_isa_folder_name,
+			char *login_name,
+			LIST *folder_attribute_primary_list,
+			SECURITY_ENTITY *security_entity );
+
 QUERY *query_primary_delimited_new(
 			char *folder_name,
-			LIST *primary_key_list,
+			char *login_name,
+			LIST *folder_attribute_primary_list,
 			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
 			SECURITY_ENTITY *security_entity,
-			DICTIONARY *drillthru_dictionary,
-			char *login_name );
+			DICTIONARY *drillthru_dictionary );
 
 QUERY *query_populate_drop_down_process_new(
 			DICTIONARY *drilldown_dictionary,
@@ -212,10 +220,22 @@ QUERY *query_process_parameter_new(
 			char *role_name,
 			char *login_name );
 
-QUERY *query_isa_drop_down_new(
-			char *one2m_isa_folder_name,
+/* QUERY where */
+/* ----------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_where_clause(
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary );
+
+char *query_primary_key_where_clause(
 			LIST *primary_key_list,
-			SECURITY_ENTITY *security_entity );
+			char *input_buffer,
+			char delimiter );
+
 
 /* QUERY_SELECT operations */
 /* ----------------------- */
@@ -226,6 +246,7 @@ QUERY_SELECT *query_select_new(
 			char *folder_name,
 			char *attribute_name,
 			boolean attribute_is_date,
+			boolean attribute_is_date_time,
 			QUERY_DATE_CONVERT *query_date_convert );
 
 LIST *query_select_list(
@@ -249,6 +270,8 @@ char *query_select_clause(
 char *query_select_string(
 			char *folder_name,
 			char *attribute_name,
+			boolean attribute_is_date,
+			boolean attribute_is_date_time,
 			enum date_convert_format );
 
 /* QUERY_ROW operations */
@@ -486,11 +509,6 @@ char *query_or_sequence_get_where_clause(
 			LIST *attribute_name_list,
 			LIST *data_list_list,
 			boolean with_and_prefix );
-
-char *query_primary_where_clause(
-			LIST *primary_key_list,
-			char *input_buffer,
-			char delimiter );
 
 /* Sets login_name or entity to query_dictionary */
 /* --------------------------------------------- */
@@ -731,6 +749,8 @@ QUERY_DATE_CONVERT *query_date_convert_new(
 /* --------------------- */
 char *query_date_convert_select_string(
 			char *attribute_name,
+			boolean attribute_is_date,
+			boolean attribute_is_date_time,
 			enum date_convert_format date_convert_format );
 
 /* QUERY_DATA operations */
@@ -889,37 +909,21 @@ char *query_attribute_name_list_order(
 			char *descending_label );
 
 LIST *query_dictionary_list(
-			char *query_select_clause,
-			LIST *query_select_name_list,
-			char *query_from_clause,
-			char *query_where_clause,
-			char *query_order_clause,
-			int max_rows,
-			QUERY_DATE_CONVERT *query_date_convert );
+			char *select_clause,
+			LIST *select_list,
+			char *from_clause,
+			char *where_clause,
+			char *order_clause,
+			int max_rows );
 
 LIST *query_delimited_list(
-			char *query_select_clause,
-			LIST *query_select_name_list,
-			char *query_from_clause,
-			char *query_where_clause,
-			char *query_order_clause,
-			int max_rows,
-			QUERY_DATE_CONVERT *query_date_convert );
+			char *select_clause,
+			char *from_clause,
+			char *where_clause,
+			char *order_clause );
 
 LIST *query_system_dictionary_list(
 			char *system_string,
-			LIST *select_name_list,
-			QUERY_DATE_CONVERT *query_date_convert );
-
-/* Returns query_output_where */
-/* -------------------------- */
-char *query_display_where(
-			char *query_output_where,
-			char *folder_name );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *query_security_entity_where(
-			SECURITY_ENTITY *security_entity );
+			LIST *select_list );
 
 #endif
