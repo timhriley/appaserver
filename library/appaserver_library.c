@@ -11,17 +11,13 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 #include "list.h"
 #include "dictionary.h"
-#include "query.h"
-#include "process_generic_output.h"
-#include "folder.h"
 #include "application.h"
 #include "attribute.h"
-#include "appaserver_library.h"
-#include "relation.h"
 #include "element.h"
 #include "appaserver.h"
 #include "document.h"
@@ -34,6 +30,7 @@
 #include "appaserver_error.h"
 #include "basename.h"
 #include "element.h"
+#include "appaserver_library.h"
 
 static char *system_folder_list[] = {
 					"additional_user_drop_down_attribute",
@@ -105,12 +102,15 @@ char *appaserver_library_full_attribute_name(
 
 	if ( folder_name && *folder_name )
 	{
-		sprintf( full_attribute_name,
-			 "%s.%s",
-			 get_table_name(
+		sprintf(full_attribute_name,
+			"%s.%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_library_table_name(
 				application_name,
 				folder_name ),
-			 attribute_name );
+			attribute_name );
 	}
 	else
 	{
@@ -133,7 +133,7 @@ char *get_multi_table_name(
 			char *application_name,
 			char *multi_folder_name_list_string )
 {
-	char multi_table_name[ 1024 ];
+	char multi_table_name[ 2048 ];
 	char *ptr = multi_table_name;
 	char folder_name[ 128 ];
 	char *table_name;
@@ -147,73 +147,46 @@ char *get_multi_table_name(
 		i++ )
 	{
 		if ( i ) ptr += sprintf( ptr, "," );
-		table_name = get_table_name( application_name, folder_name );
+
+		table_name =
+			/* ---------------------- */
+			/* Returns static memory */
+			/* ---------------------- */
+			appaserver_library_table_name(
+				application_name,
+				folder_name );
+
 		ptr += sprintf( ptr, "%s", table_name );
-		/* free( table_name ); */
 	}
 
 	return strdup( multi_table_name );
 }
 
-#ifdef NOT_DEFINED
-char *get_folder_name(	char *application_name,
-			char *table_name )
+char *get_table_name(
+			char *application_name,
+			char *folder_name )
 {
-	char folder_name[ 512 ];
-	char application_table_name[ 512 ];
-
-	if ( !application_name || !table_name ) return "";
-
-	sprintf( application_table_name, "%s_application", application_name );
-
-	if ( strcmp( table_name, application_table_name ) == 0 )
-	{
-		strcpy( folder_name, table_name );
-	}
-	else
-	if ( application_is_primary_application( application_name ) )
-	{
-		strcpy( folder_name, table_name );
-	}
-	else
-	{
-		char search_string[ 512 ];
-		int str_len;
-
-		sprintf( search_string, "%s_", application_name );
-		str_len = strlen( search_string );
-
-		if ( strncasecmp( table_name, search_string, str_len ) != 0 )
-		{
-			strcpy( folder_name, table_name );
-		}
-		else
-		{
-			strcpy(	folder_name,
-				table_name + strlen( application_name ) + 1 );
-		}
-	}
-
-	return strdup( folder_name );
+	return strdup(
+			appaserver_library_table_name(
+				application_name,
+				folder_name ) );
 }
-#endif
 
 char *appaserver_library_table_name(
 			char *application_name,
 			char *folder_name )
 {
-	return get_table_name( application_name, folder_name );
+	static char table_name[ 512 ];
 
-}
+	*table_name = '\0';
 
-char *get_table_name( 	char *application_name,
-			char *folder_name )
-{
-	char table_name[ 512 ];
+	if ( !folder_name || !*folder_name )
+	{
+		return table_name;
+	}
 
-	if ( !application_name ) return folder_name;
-
-	if ( strcmp( folder_name, "application" ) == 0 )
+	if ( application_name
+	&&   string_strcmp( folder_name, "application" ) == 0 )
 	{
 		sprintf( table_name, "%s_%s", application_name, folder_name );
 	}
@@ -222,7 +195,7 @@ char *get_table_name( 	char *application_name,
 		strcpy( table_name, folder_name );
 	}
 
-	return strdup( table_name );
+	return table_name;
 }
 
 /* Sample: dictionary_string = "first_name=tim&last_name=riley" */
@@ -1026,18 +999,20 @@ boolean appaserver_library_validate_begin_end_date(
 
 	if ( !*begin_date && dictionary_length( post_dictionary ) )
 	{
-		dictionary_get_index_data(	begin_date,
-						post_dictionary,
-						"begin_date",
-						0 );
+		dictionary_index_data(
+			begin_date,
+			post_dictionary,
+			"begin_date",
+			0 );
 	}
 
 	if ( !*end_date && dictionary_length( post_dictionary ) )
 	{
-		dictionary_get_index_data(	end_date,
-						post_dictionary,
-						"end_date",
-						0 );
+		dictionary_index_data(
+			end_date,
+			post_dictionary,
+			"end_date",
+			0 );
 	}
 
 	if ( !*begin_date || strcmp( *begin_date, "begin_date" ) == 0 )
@@ -1155,7 +1130,7 @@ LIST *appaserver_library_primary_data_list(
 
 	do {
 		if ( !( data =
-			dictionary_get_index_zero(
+			dictionary_index_zero(
 				post_dictionary,
 				list_get_pointer(
 					primary_key_list ) ) ) )
@@ -1283,111 +1258,15 @@ boolean appaserver_library_from_preprompt( DICTIONARY *dictionary )
 	sprintf( key, "%s", FROM_PREPROMPT );
 
 	if ( ! ( data =
-			dictionary_get_pointer( dictionary, key ) ) )
-				return 0;
+			dictionary_get(
+				key,
+				dictionary ) ) )
+	{
+		return 0;
+	}
 
 	return ( strcmp( data, "yes" ) == 0 );
 }
-
-/*
-LIST *appaserver_library_omit_insert_prompt_attribute_name_list(
-						LIST *attribute_list )
-{
-	ATTRIBUTE *attribute;
-	LIST *omit_insert_prompt_attribute_name_list = list_new();
-
-	if ( list_rewind( attribute_list ) )
-	{
-		do {
-			attribute = list_get( attribute_list );
-
-			if ( list_exists_string(
-				"insert",
-				attribute->exclude_permission_list )
-			||   attribute->omit_insert_prompt
-			||   attribute->omit_insert )
-			{
-				list_set(
-					omit_insert_prompt_attribute_name_list,
-					attribute->attribute_name );
-			}
-
-		} while( list_next( attribute_list ) );
-	}
-	return omit_insert_prompt_attribute_name_list;
-}
-*/
-
-/*
-LIST *appaserver_library_omit_insert_attribute_name_list(
-						LIST *attribute_list )
-{
-	ATTRIBUTE *attribute;
-	LIST *omit_insert_attribute_name_list = list_new();
-
-	if ( list_rewind( attribute_list ) )
-	{
-		do {
-			attribute = (ATTRIBUTE *)
-				list_get_pointer( attribute_list );
-
-			if ( attribute->omit_insert )
-			{
-				list_append_pointer(
-					omit_insert_attribute_name_list,
-					attribute->attribute_name );
-			}
-
-		} while( list_next( attribute_list ) );
-	}
-	return omit_insert_attribute_name_list;
-}
-*/
-
-#ifdef NOT_DEFINED
-LIST *appaserver_library_prompt_data_element_list(
-				char *attribute_name,
-				boolean is_primary_attribute )
-{
-	ELEMENT_APPASERVER *element;
-	char prompt_data_heading[ 128 ];
-	LIST *element_list = list_new_list();
-
-	element =
-		element_appaserver_new(
-			prompt_data,
-			attribute_name );
-
-	if ( is_primary_attribute )
-	{
-		sprintf( prompt_data_heading, "*%s", attribute_name );
-		element->prompt_data->heading =
-			strdup( prompt_data_heading );
-	}
-	else
-	{
-		*prompt_data_heading = '\0';
-	}
-
-	list_append_pointer(
-			element_list, 
-			element );
-
-	/* ------------------------- */
-	/* Create a hidden element   */
-	/* so delete will work.      */
-	/* ------------------------- */
-	element =
-		element_appaserver_new( 
-			hidden,
-			attribute_name );
-
-	list_append_pointer(
-			element_list, 
-			element );
-	return element_list;
-}
-#endif
 
 void appaserver_library_output_style_sheet(
 			FILE *output_file, 
@@ -1450,201 +1329,6 @@ LIST *appaserver_library_trim_carrot_number(
 
 	return data_list;
 }
-
-#ifdef NOT_DEFINEDA
-char *appaserver_library_verify_attribute_widths_submit_control_string(
-			LIST *element_list,
-			char *source_form )
-{
-	ELEMENT_APPASERVER *element;
-	char buffer[ 128 ];
-	char local_element_heading[ 128 ];
-	static char submit_control_string[ FORM_SUBMIT_CONTROL_STRING_SIZE ];
-	char *element_name;
-	int element_attribute_width;
-	char *element_heading;
-	char element_name_list_string[
-		FORM_SUBMIT_CONTROL_STRING_SIZE ];
-	char *name_ptr = element_name_list_string;
-	char element_heading_list_string[
-		FORM_SUBMIT_CONTROL_STRING_SIZE ];
-	char *heading_ptr = element_heading_list_string;
-	char element_attribute_width_list_string[
-		FORM_SUBMIT_CONTROL_STRING_SIZE ];
-	char *width_ptr = element_attribute_width_list_string;
-	int first_time = 1;
-
-	if ( !list_rewind( element_list ) ) return (char *)0;
-
-	do {
-		element = list_get_pointer( element_list );
-		element_name = element->name;
-		element_attribute_width =
-			element_get_attribute_width( element );
-		element_heading =
-			element_get_heading( (char **)0, element, 0 );
-
-		if ( element_attribute_width
-		&&   strncmp( element_name, "to_", 3 ) != 0 )
-		{
-			if ( first_time )
-			{
-				name_ptr += sprintf( name_ptr, "'" );
-				heading_ptr += sprintf( heading_ptr, "'" );
-				width_ptr += sprintf( width_ptr, "'" );
-				first_time = 0;
-			}
-			else
-			{
-				name_ptr += sprintf( name_ptr, "," );
-				heading_ptr += sprintf( heading_ptr, "," );
-				width_ptr += sprintf( width_ptr, "," );
-			}
-
-			name_ptr += sprintf( name_ptr, "%s_0", element_name );
-
-			if ( element_heading
-			&&   *element_heading
-			&&    strncmp( element_heading, "from_", 5 ) == 0 )
-			{
-				strcpy( local_element_heading,
-					element_heading + 5 );
-			}
-			else
-			{
-				if ( element_heading && *element_heading )
-				{
-					strcpy( local_element_heading,
-						element_heading );
-				}
-				else
-				{
-					strcpy( local_element_heading, "" );
-				}
-			}
-
-			heading_ptr +=
-				sprintf( heading_ptr,
-					"%s",
-					format_initial_capital(
-						buffer,
-						local_element_heading ) );
-
-			width_ptr += sprintf( 	width_ptr,
-						"%d",
-						element_attribute_width );
-		}
-
-	} while( list_next( element_list ) );
-
-	name_ptr += sprintf( name_ptr, "'" );
-	heading_ptr += sprintf( heading_ptr, "'" );
-	width_ptr += sprintf( width_ptr, "'" );
-
-	if ( strcmp( element_name_list_string, "'" ) == 0 )
-		return (char *)0;
-
-	if (	strlen( element_name_list_string ) +
-		strlen( element_heading_list_string ) +
-		strlen( element_attribute_width_list_string ) +
-		strlen( source_form ) +
-		40 > FORM_SUBMIT_CONTROL_STRING_SIZE )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s(): data too big for string size.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	sprintf(submit_control_string,
-		"verify_attribute_widths(%s,%s,%s,'%s','%s') && ",
-		element_name_list_string,
-		element_heading_list_string,
-		element_attribute_width_list_string,
-		"" /* database_management_system */,
-		source_form );
-
-	return submit_control_string;
-}
-#endif
-
-#ifdef NOT_DEFINED
-void appaserver_library_dictionary_database_convert_begin_end_dates(
-			DICTIONARY *dictionary,
-			char *application_name )
-{
-	char *date_string;
-	char *key;
-
-	key = "begin_date_0";
-
-
-	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
-	{
-		appaserver_library_dictionary_convert_date( 
-			dictionary,
-			application_name,
-			date_string,
-			key );
-	}
-
-	key = "end_date_0";
-
-	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
-	{
-		appaserver_library_dictionary_convert_date( 
-			dictionary,
-			application_name,
-			date_string,
-			key );
-	}
-
-	key = "query_from_begin_date_0";
-
-	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
-	{
-		appaserver_library_dictionary_convert_date( 
-			dictionary,
-			application_name,
-			date_string,
-			key );
-	}
-
-	key = "query_from_end_date_0";
-
-	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
-	{
-		appaserver_library_dictionary_convert_date( 
-			dictionary,
-			application_name,
-			date_string,
-			key );
-	}
-
-	key = "from_begin_date_0";
-
-	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
-	{
-		appaserver_library_dictionary_convert_date( 
-			dictionary,
-			application_name,
-			date_string,
-			key );
-	}
-
-	key = "from_end_date_0";
-
-	if ( ( date_string = dictionary_fetch( key, dictionary ) ) )
-	{
-		appaserver_library_dictionary_convert_date( 
-			dictionary,
-			application_name,
-			date_string,
-			key );
-	}
-}
-#endif
 
 void appaserver_library_output_calendar_javascript( void )
 {
@@ -1802,19 +1486,13 @@ int appaserver_library_add_operations(
 
 		operation = list_get_pointer( operation_list );
 
-		if ( operation->empty_placeholder_instead )
+		if ( operation->delete_placeholder )
 		{
 			element =
 				element_appaserver_new(
 					empty_column,
 					operation->label );
 
-/*
-			list_append(
-				element_list, 
-				element, 
-				sizeof( ELEMENT_APPASERVER ) );
-*/
 			list_set( element_list, element );
 
 			continue;
@@ -2011,458 +1689,7 @@ enum preupdate_change_state appaserver_library_preupdate_change_state(
 	{
 		return from_something_to_something_else;
 	}
-
 }
-
-
-#ifdef NOT_DEFINED
-LIST *appaserver_library_update_lookup_attribute_element_list(
-			char update_yn,
-			LIST *primary_key_list,
-			LIST *exclude_permission_list,
-			char *attribute_name,
-			char *datatype,
-			int width,
-			char *post_change_javascript,
-			char *on_focus_javascript_function,
-			boolean is_primary_attribute )
-{
-	LIST *return_list;
-	ELEMENT_APPASERVER *element = {0};
-
-	return_list = list_new();
-
-	if ( timlib_strcmp(
-			datatype,
-			element_get_type_string( http_filename ) ) == 0 )
-	{
-		element =
-			element_appaserver_new(
-				http_filename, 
-				attribute_name );
-
-		if ( update_yn == 'y' )
-		{
-			ELEMENT_APPASERVER *temp_element;
-
-			temp_element =
-				element_text_item_variant_element(
-					attribute_name,
-					element_get_type_string( text_item ),
-					width,
-					post_change_javascript,
-					on_focus_javascript_function );
-
-			element_text_item_set_onchange_null2slash(
-					temp_element->text_item );
-
-			element->http_filename->update_text_item =
-				temp_element->text_item;
-		}
-
-		list_append_pointer( return_list, element );
-		return return_list;
-	}
-
-	if ( update_yn != 'y' 
-	||   appaserver_exclude_permission(
-			exclude_permission_list,
-			"update" ) )
-	{
-		if ( appaserver_exclude_permission(
-			exclude_permission_list,
-			"lookup" ) )
-		{
-			return (LIST *)0;
-		}
-
-		if ( timlib_strcmp(
-				datatype, 
-				"password" ) == 0 )
-		{
-			return (LIST *)0;
-		}
-
-		element =
-			element_appaserver_new( 
-				prompt_data_plus_hidden,
-				attribute_name );
-
-		element->prompt_data->heading = element->name;
-
-		if ( timlib_strcmp( datatype, "float" ) == 0
-		||   timlib_strcmp( datatype, "integer" ) == 0 )
-		{
-			element->prompt_data->align = "right";
-		}
-
-		list_append_pointer(
-				return_list, 
-				element );
-
-		if ( list_exists_string(
-			attribute_name,
-			primary_key_list ) )
-		{
-			element =
-				element_appaserver_new(
-					hidden,
-					attribute_name );
-
-			list_append_pointer( return_list, element );
-		}
-
-		return return_list;
-
-	} /* if view only */
-
-	if ( timlib_strcmp( datatype, "notepad" ) == 0 )
-	{
-		element = element_appaserver_new(
-				notepad,
-				attribute_name );
-
-		element_notepad_set_attribute_width(
-				element->notepad,
-				width );
-
-		element->notepad->heading = element->name;
-
-		element_notepad_set_onchange_null2slash(
-				element->notepad );
-
-		element->notepad->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "password" ) == 0 )
-	{
-		element = element_appaserver_new(
-				password,
-				attribute_name );
-
-		element_password_set_attribute_width(
-				element->password,
-				width );
-
-		element_password_set_heading(
-				element->password, 
-				element->name );
-
-		element->password->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "hidden_text" ) == 0 )
-	{
-		element = element_appaserver_new(
-				hidden, 
-				attribute_name );
-	}
-	else
-	if ( timlib_strcmp( datatype, "timestamp" ) == 0 )
-	{
-		element =
-			element_appaserver_new( 
-				prompt_data,
-				attribute_name );
-
-		element->prompt_data->heading = element->name;
-	}
-	else
-	if ( process_parameter_list_element_name_boolean( attribute_name ) )
-	{
-		element =
-			element_get_yes_no_element(
-				attribute_name,
-				(char *)0 /* prepend_folder_name */,
-				post_change_javascript,
-				1 /* with_is_null */,
-				0 /* not with_not_null */ );
-
-		element->drop_down->state = "update";
-		element->drop_down->attribute_width = 1;
-	}
-	else
-	if ( timlib_strcmp( datatype, "reference_number" ) == 0 )
-	{
-		element = element_appaserver_new(
-				hidden, 
-				attribute_name );
-
-		list_append_pointer( return_list, element );
-
-		element = element_appaserver_new( 
-				prompt_data,
-				attribute_name );
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element->prompt_data->heading = strdup( heading );
-		}
-		else
-		{
-			element->prompt_data->heading = element->name;
-		}
-	}
-	else
-	if ( timlib_strcmp( datatype, "date" ) == 0
-	||   timlib_strcmp( datatype, "date_time" ) == 0 )
-	{
-		element = element_appaserver_new(
-				element_date,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "current_date" ) == 0 )
-	{
-		element = element_appaserver_new(
-				element_current_date,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		element->text_item->dont_create_current_date = 1;
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "current_date_time" ) == 0 )
-	{
-		element = element_appaserver_new(
-				element_current_date_time,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		element->text_item->dont_create_current_date = 1;
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "text" ) == 0
-	||   timlib_strcmp( datatype, "time" ) == 0 )
-	{
-		element = element_appaserver_new(
-				text_item,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-			sprintf( heading, "*%s", element->name );
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "integer" ) == 0
-	||   timlib_strcmp( datatype, "float" ) == 0 )
-	{
-		element = element_appaserver_new(
-				text_item,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		element->text_item->is_numeric = 1;
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-			sprintf( heading, "*%s", element->name );
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-
-	if ( element )
-	{
-		list_append_pointer( return_list, element );
-	}
-	else
-	if ( datatype && *datatype )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: could not assign an element to datatype = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 datatype );
-	}
-
-	return return_list;
-}
-#endif
-
-#ifdef NOT_DEFINED
-char *appaserver_library_folder_foreign_translation(
-			char *attribute_name,
-			LIST *folder_foreign_attribute_name_list,
-			DICTIONARY *foreign_attribute_dictionary )
-{
-	char *folder_foreign_attribute_name;
-	char *check_attribute_name;
-
-	if ( !list_rewind( folder_foreign_attribute_name_list ) )
-		return (char *)0;
-
-	do {
-		folder_foreign_attribute_name =
-			list_get_pointer(
-				folder_foreign_attribute_name_list );
-
-		if ( ! ( check_attribute_name =
-				dictionary_fetch(
-					folder_foreign_attribute_name,
-					foreign_attribute_dictionary ) ) )
-		{
-			continue;
-		}
-
-		if ( strcmp( check_attribute_name, attribute_name ) != 0 )
-			continue;
-
-		return folder_foreign_attribute_name;
-
-	} while( list_next( folder_foreign_attribute_name_list ) );
-
-	return (char *)0;
-
-}
-#endif
 
 LIST *appaserver_library_application_name_list(
 				char *appaserver_error_directory )
@@ -2489,117 +1716,4 @@ LIST *appaserver_library_application_name_list(
 
 	return pipe2list( sys_string );;
 }
-
-#ifdef NOT_DEFINED
-void appaserver_library_list_database_convert_dates(
-			LIST *data_list,
-			char *application_name,
-			LIST *attribute_list )
-{
-	LIST *date_attribute_name_list;
-	LIST *primary_key_list;
-	char *attribute_name;
-	char *data;
-	DATE_CONVERT *date_convert = {0};
-
-	date_attribute_name_list =
-		attribute_date_attribute_name_list(
-			attribute_list );
-
-	primary_key_list =
-		attribute_primary_key_list(
-			attribute_list );
-
-	if ( !list_rewind( primary_key_list ) ) return;
-	if ( !list_rewind( data_list ) ) return;
-
-	do {
-		attribute_name =
-			list_get_pointer( primary_key_list );
-
-		if ( list_exists_string(
-			attribute_name,
-			date_attribute_name_list ) )
-		{
-			data = list_get_pointer( data_list );
-
-			if ( !date_convert )
-			{
-				date_convert =
-				date_convert_new_database_format_date_convert(
-						application_name,
-						data );
-	
-				if ( !date_convert )
-				{
-					fprintf( stderr,
-			 "Error in %s/%s(): cannot fetch from database\n",
-				 		__FILE__,
-				 		__FUNCTION__ );
-					exit( 1 );
-				}
-			}
-			else
-			{
-				date_convert_populate_return_date(
-					date_convert->return_date,
-					date_convert->source_format,
-					date_convert->destination_format,
-					data );
-			}
-			list_set_current(
-				data_list,
-				strdup( date_convert->return_date ) );
-		}
-		if ( !list_next( data_list ) ) break;
-	} while( list_next( primary_key_list ) );
-	if ( date_convert ) date_convert_free( date_convert );
-}
-#endif
-
-#ifdef NOT_DEFINED
-void appaserver_library_dictionary_convert_dates(
-			DICTIONARY *dictionary,
-			char *application_name )
-{
-	LIST *key_list = dictionary_get_key_list( dictionary );
-	char *key;
-	char *date_string;
-	enum date_convert_format date_convert_format;
-	enum date_convert_format database_date_convert_format;
-
-	database_date_convert_format =
-		date_convert_get_database_date_format(
-			application_name );
-
-	if ( !list_reset( key_list ) ) return;
-
-	do {
-		key = list_get_string( key_list );
-
-		if ( ( date_string =
-			dictionary_get(
-				key,
-				dictionary ) ) )
-		{
-			date_convert_format =
-				date_convert_date_get_format(
-					date_string );
-
-			if ( date_convert_format != date_convert_unknown
-			&& date_convert_format != database_date_convert_format )
-			{
-				dictionary_appaserver_dictionary_convert_date( 
-					dictionary,
-					application_name,
-					date_string,
-					key );
-			}
-		}
-
-	} while( list_next( key_list ) );
-
-	list_free_container( key_list );
-}
-#endif
 

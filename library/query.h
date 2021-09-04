@@ -29,8 +29,10 @@
 #define QUERY_TO_STARTING_LABEL			"to_"
 #define QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL	"original_"
 #define QUERY_RELATION_OPERATOR_STARTING_LABEL	"relation_operator_"
+
 #define QUERY_NULL_EXPRESSION			\
 			 " (%s = 'null' or %s = '' or %s is null)"
+
 #define QUERY_NOT_NULL_EXPRESSION		\
 			 " (%s <> 'null' or %s <> '' or %s is not null)"
 
@@ -284,6 +286,11 @@ char *query_primary_key_where_clause(
 			char *input_buffer,
 			char delimiter );
 
+
+char *query_drop_down_where(
+			LIST *drop_down_list,
+			char *folder_name,
+			int relation_mto1_isa_length );
 
 /* QUERY_SELECT operations */
 /* ----------------------- */

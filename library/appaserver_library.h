@@ -152,18 +152,6 @@ LIST *get_primary_data_list(
 			char *entity,
 			char *folder );
 
-/* ------------------- */
-/* Returns heap memory */
-/* ------------------- */
-char *get_table_name(
-			char *application_name,
-			char *folder );
-
-/*
-char *get_folder_name(	char *application_name,
-			char *table_name );
-*/
-
 void output_insert_database_row(
 			char *data_pipe_string,
 			int row,
@@ -453,9 +441,18 @@ char *appaserver_library_folder_foreign_translation(
 LIST *appaserver_library_application_name_list(
 			char *appaserver_error_directory );
 
+/* ------------------- */
+/* Returns heap memory */
+/* ------------------- */
+char *get_table_name(
+			char *application_name,
+			char *folder_name );
+
+/* Returns static memory */
+/* --------------------- */
 char *appaserver_library_table_name(
 			char *application_name,
-				char *folder_name );
+			char *folder_name );
 
 void appaserver_library_list_database_convert_dates(
 			LIST *data_list,

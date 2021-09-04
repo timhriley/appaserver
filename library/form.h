@@ -13,7 +13,7 @@
 #include "dictionary.h"
 #include "element.h"
 #include "boolean.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -409,7 +409,7 @@ void form_execute_output_prompt_edit_form(
 				char *role_name,
 				char *state,
 				char *error_file,
-				DICTIONARY_APPASERVER *dictionary_appaserver,
+				DICTIONARY_SEPARATE *dictionary_separate,
 				char *target_frame );
 
 void form_execute_output_prompt_insert_form(
@@ -420,7 +420,7 @@ void form_execute_output_prompt_insert_form(
 				char *role_name,
 				char *state,
 				char *error_file,
-				DICTIONARY_APPASERVER *dictionary_appaserver );
+				DICTIONARY_SEPARATE *dictionary_separate );
 
 void form_output_back_to_top_button(
 				void );
