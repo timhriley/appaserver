@@ -1164,33 +1164,6 @@ char *string_extract_lt_gt_delimited(
 	return destination;
 }
 
-/* Sample: source = "station_1" */
-/* ---------------------------- */
-int string_index( char *source )
-{
-	char *end_ptr;
-
- 	end_ptr = source + strlen( source ) - 1;
-
-	while( end_ptr != source )
-	{
-		if ( isdigit( *end_ptr ) )
-		{
-			end_ptr--;
-			continue;
-		}
-		if ( *end_ptr == '_' )
-		{
-			end_ptr++;
-			break;
-		}
-		else
-			break;
-	}
-
-	return atoi( end_ptr );
-}
-
 char *string_trim_index( char *string )
 {
 	char *end_ptr;
@@ -1217,5 +1190,31 @@ char *string_trim_index( char *string )
 		}
 	}
 	return string;
+}
+
+/* Sample: attribute_name = "station_1" */
+/* ------------------------------------ */
+int string_index( char *source )
+{
+	char *end_ptr;
+
+	if ( !source || !*source ) return -1;
+
+ 	end_ptr = source + strlen( source ) - 1;
+
+	while( end_ptr > source )
+	{
+		if ( *end_ptr == '_' )
+		{
+			end_ptr++;
+			return atoi( end_ptr );
+		}
+
+		if ( isdigit( *end_ptr ) )
+			end_ptr--;
+		else
+			return -1;
+	}
+	return -1;
 }
 

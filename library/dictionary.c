@@ -465,17 +465,17 @@ LIST *dictionary_index_data_list(
 	return return_list;
 }
 
-int dictionary_attribute_name_list_highest_index(
-			DICTIONARY *d,
-			LIST *attribute_name_list )
+int dictionary_string_list_highest_index(
+			LIST *string_list,
+			DICTIONARY *d )
 {
 	LIST *key_list;
 	char *key;
-	char *attribute_name;
+	char *string;
 	int highest_index = -1;
 	int index;
 
-	if ( !list_length( attribute_name_list ) ) return -1;
+	if ( !list_length( string_list ) ) return -1;
 
 	key_list = dictionary_key_list( d );
 
@@ -484,20 +484,23 @@ int dictionary_attribute_name_list_highest_index(
 	do {
 		key = list_get( key_list );
 
-		list_rewind( attribute_name_list );
+		list_rewind( string_list );
 
 		do {
-			attribute_name = list_get( attribute_name_list );
+			string = list_get( string_list );
 
-			if ( timlib_strncmp( key, attribute_name ) == 0 )
+			if ( timlib_strncmp( key, string ) == 0 )
 			{
-				index = timlib_index( key );
+				index = string_index( key );
 
-				if ( highest_index < index )
-					highest_index = index;
+				if ( index > -1 )
+				{
+					if ( index > highest_index )
+						highest_index = index;
+				}
 			}
 
-		} while( list_next( attribute_name_list ) );
+		} while( list_next( string_list ) );
 
 	} while( list_next( key_list ) );
 
@@ -509,7 +512,7 @@ int dictionary_attribute_name_list_highest_index(
 int dictionary_key_highest_index( DICTIONARY *d )
 {
 	char *key;
-	int highest_index = 0;
+	int highest_index = -1;
 	int index;
 	LIST *key_list;
 
@@ -520,7 +523,12 @@ int dictionary_key_highest_index( DICTIONARY *d )
 		do {
 			key = list_get( key_list );
 			index = timlib_index( key );
-			if ( highest_index < index ) highest_index = index;
+
+			if ( index > -1 )
+			{
+				if ( index > highest_index )
+					highest_index = index;
+			}
 		} while( list_next( key_list ) );
 	}
 	return highest_index;
@@ -3615,10 +3623,10 @@ void dictionary_set_indexed_date_time_to_current(
 	if ( !list_rewind( attribute_list ) ) return;
 
 	highest_index =
-		dictionary_attribute_name_list_highest_index(
-			dictionary,
+		dictionary_string_list_highest_index(
 			dictionary_attribute_name_list(
-				attribute_list ) );
+				attribute_list ),
+			dictionary );
 
 	if ( highest_index < 1 ) return;
 
@@ -3678,10 +3686,10 @@ void dictionary_remove_symbols_in_numbers(
 	if ( !list_rewind( attribute_list ) ) return;
 
 	highest_index =
-		dictionary_attribute_name_list_highest_index(
-			dictionary,
+		dictionary_string_list_highest_index(
 			dictionary_attribute_name_list(
-				attribute_list ) );
+				attribute_list ),
+			dictionary );
 
 	if ( highest_index < 0 ) return;
 

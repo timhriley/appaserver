@@ -212,9 +212,13 @@ FOLDER *folder_parse(	char *input,
 				folder->folder_name,
 				exclude_attribute_name_list );
 
+		folder->primary_attribute_list =
+			folder_primary_attribute_list(
+				folder->folder_attribute_list );
+
 		folder->primary_key_list =
 			folder_attribute_primary_key_list(
-				folder->folder_attribute_list );
+				folder->folder_primary_attribute_list );
 	}
 
 	if ( fetch_relation_mto1_non_isa_list )

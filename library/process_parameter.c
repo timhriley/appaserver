@@ -411,7 +411,8 @@ PROCESS_PARAMETER *process_parameter_parse(
 	{
 		process_parameter->delimited_list =
 			process_parameter_folder_delimited_list(
-				process_parameter->folder_name,
+				process_parameter->folder_name
+					/* drop_down_folder_name */,
 				process_parameter->login_name,
 				process_parameter->role_name,
 				process_parameter->drillthru_dictionary );
@@ -526,9 +527,10 @@ LIST *process_parameter_process_delimited_list(
 			folder_name,
 			(char *)0 /* role_name */,
 			(LIST *)0 /* role_exclude_attribute_name_list */,
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
 			1 /* fetch_relation_mto1_non_isa_list */,
 			0 /* not fetch_relation_mto1_isa_list */,
@@ -561,7 +563,7 @@ LIST *process_parameter_process_delimited_list(
 }
 
 LIST *process_parameter_folder_delimited_list(
-			char *folder_name,
+			char *drop_down_folder_name,
 			char *login_name,
 			char *role_name,
 			DICTIONARY *drillthru_dictionary )
@@ -573,12 +575,13 @@ LIST *process_parameter_folder_delimited_list(
 
 	if ( ! ( folder =
 		     folder_fetch(
-			folder_name,
+			drop_down_folder_name,
 			(char *)0 /* role_name */,
 			(LIST *)0 /* role_exclude_attribute_name_list */,
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
 			1 /* fetch_relation_mto1_non_isa_list */,
 			0 /* not fetch_relation_mto1_isa_list */,
@@ -594,7 +597,7 @@ LIST *process_parameter_folder_delimited_list(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			folder_name );
+			drop_down_folder_name );
 		exit( 1 );
 	}
 
@@ -621,18 +624,25 @@ LIST *process_parameter_folder_delimited_list(
 			folder->non_owner_forbid,
 			role->override_row_restrictions );
 
-	folder->folder_attribute_primary_list =
-		folder_attribute_primary_list(
-			folder->folder_attribute_list );
-
 	query =
-		query_primary_delimited_new(
-			folder_name,
+		query_drop_down_delimited_new(
+			drop_down_folder_name,
 			login_name,
 			folder->folder_attribute_primary_list,
 			folder->folder_attribute_list,
 			security_entity,
 			drillthru_dictionary );
+
+	if ( !query )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: query_drop_down_delimited_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			drop_down_folder_name );
+		exit( 1 );
+	}
 
 	query->query_delimited_list =
 		query_delimited_list(

@@ -208,7 +208,7 @@ LIST *process_parameter_process_delimited_list(
 			DICTIONARY *drillthru_dictionary );
 
 LIST *process_parameter_folder_delimited_list(
-			char *folder_name,
+			char *drop_down_folder_name,
 			char *login_name,
 			char *role_name,
 			DICTIONARY *drillthru_dictionary );

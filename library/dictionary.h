@@ -93,9 +93,6 @@ char *dictionary_display_delimiter(
 int dictionary_key_highest_index(
 			DICTIONARY *d );
 
-int get_dictionary_key_highest_index(
-			DICTIONARY *d );
-
 LIST *dictionary_index_data_list(
 			DICTIONARY *dictionary,
 			char *key );
@@ -380,9 +377,9 @@ boolean dictionary_data_exists_index_zero(
 			DICTIONARY *indexed_dictionary,
 			char *key );
 
-int dictionary_attribute_name_list_highest_index(
-			DICTIONARY *d,
-			LIST *attribute_name_list );
+int dictionary_string_list_highest_index(
+			LIST *string_list,
+			DICTIONARY *d );
 
 int dictionary_remove_key(
 			DICTIONARY *d,

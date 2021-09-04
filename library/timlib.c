@@ -137,25 +137,25 @@ int timlib_index( char *attribute_name )
 {
 	char *end_ptr;
 
+	if ( !attribute_name || !*attribute_name ) return -1;
+
  	end_ptr = attribute_name + strlen( attribute_name ) - 1;
+
 	while( end_ptr != attribute_name )
 	{
-		if ( isdigit( *end_ptr ) )
-		{
-			end_ptr--;
-			continue;
-		}
 		if ( *end_ptr == '_' )
 		{
 			end_ptr++;
-			break;
+			return atoi( end_ptr );
 		}
+
+		if ( isdigit( *end_ptr ) )
+			end_ptr--;
 		else
-			break;
+			return -1;
 	}
 
-	return atoi( end_ptr );
-
+	return -1;
 }
 
 char *timlib_trim_index( char *destination, char *attribute_name )

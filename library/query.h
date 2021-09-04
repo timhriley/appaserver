@@ -89,9 +89,9 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *key;
 	char *operator_name;
 	enum relational_operator relational_operator;
-	char *key;
 	char *data_list_string;
 	LIST *query_data_string_list;
 	LIST *query_data_list;
@@ -99,8 +99,18 @@ typedef struct
 
 typedef struct
 {
-	char *many_folder_name;
+	/* Input */
+	/* ----- */
+	char *drop_down_folder_name;
 	char *one_folder_name;
+	LIST *one_folder_attribute_list;
+	DICTIONARY *drillthru_dictionary;
+	LIST *primary_key_list;
+	LIST *foreign_key_list;
+	int highest_index;
+
+	/* Process */
+	/* ------- */
 	LIST *drop_down_row_list;
 } QUERY_DROP_DOWN;
 
@@ -186,8 +196,8 @@ QUERY *query_isa_drop_down_new(
 			LIST *folder_attribute_primary_list,
 			SECURITY_ENTITY *security_entity );
 
-QUERY *query_primary_delimited_new(
-			char *folder_name,
+QUERY *query_drop_down_delimited_new(
+			char *drop_down_folder_name,
 			char *login_name,
 			LIST *folder_attribute_primary_list,
 			LIST *folder_attribute_list,
@@ -223,9 +233,47 @@ QUERY *query_process_parameter_new(
 /* QUERY where */
 /* ----------- */
 
+/* Returns heap memory */
+/* ------------------- */
+char *query_join_where(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *mto1_isa_related_folder_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_isa_related_join(
+			char *folder_name,
+			LIST *primary_key_list,
+			char *isa_folder_name,
+			LIST *isa_foreign_attribute_name_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_where_clause(
+			char *query_output_drop_down_where,
+			char *query_output_attribute_where,
+			char *query_output_join_where,
+			char *attribute_not_null_join );
+
+boolean query_attribute_date_time_between(
+			QUERY_ATTRIBUTE **date_between_attribute,
+			QUERY_ATTRIBUTE **time_between_attribute,
+			LIST *query_attribute_list );
+
+char *query_attribute_between_date_time_where(
+			char *date_attribute_name,
+			char *time_attribute_name,
+			QUERY_DATA *date_from_data,
+			QUERY_DATA *time_from_data,
+			QUERY_DATA *date_to_data,
+			QUERY_DATA *time_to_data,
+			char *folder_name );
+
 /* Returns heap memory or null */
 /* --------------------------- */
-char *query_where_clause(
+char *query_drop_down_where_clause(
+			char *drop_down_folder_name,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *security_entity_where,
@@ -278,28 +326,25 @@ char *query_select_string(
 /* -------------------------- */
 LIST *query_drop_down_list(
 			LIST *exclude_attribute_name_list /* out */,
-			char *many_folder_name,
+			char *drop_down_folder_name,
 			LIST *folder_attribute_list,
 			DICTIONARY *drillthru_dictionary,
 			LIST *relation_mto1_non_isa_list );
 
+QUERY_DROP_DOWN *query_drop_down_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
 QUERY_DROP_DOWN *query_drop_down_new(
-			char *many_folder_name,
+			char *drop_down_folder_name,
 			char *one_folder_name,
+			LIST *one_folder_attribute_list,
 			DICTIONARY *drillthru_dictionary,
 			LIST *primary_key_list,
-			LIST *foreign_key_list );
+			LIST *foreign_key_list,
+			int highest_index );
 
-
-/* QUERY_DROP_DOWN_ROW operations */
-/* ------------------------------ */
-QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
-			char *mto1_folder_name,
-			char *one2m_folder_name,
-			LIST *one2m_primary_key_list,
-			LIST *mto1_foreign_attribute_name_list,
-			LIST *one2m_attribute_list,
-			int index );
 
 /* QUERY_ROW operations */
 /* -------------------- */
@@ -321,8 +366,19 @@ boolean query_get_drop_down_dictionary_data(
 
 char *query_dictionary_operator_name(
 			char *key,
+			DICTIONARY *dictionary );
+
+/* QUERY_ATTRIBUTE operations */
+/* -------------------------- */
+LIST *query_attribute_list(
+			LIST *folder_attribute_list,
 			DICTIONARY *dictionary,
-			char *starting_label );
+			LIST *exclude_attribute_name_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_attribute_list_where(
+			LIST *query_attribute_list );
 
 void query_convert_date_international(
 			char **data );
@@ -761,6 +817,12 @@ char *query_date_convert_select_string(
 
 /* QUERY_DATA operations */
 /* --------------------- */
+LIST *query_drop_down_data_list(
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *one_folder_attribute_list,
+			LIST *data_string_list );
+
 QUERY_DATA *query_data_new(
 			char *attribute_name,
 			char *attribute_datatype,
@@ -769,6 +831,22 @@ QUERY_DATA *query_data_new(
 char *query_data_convert_date_international(
 			char *attribute_datatype,
 			char *escaped_replaced_data );
+
+/* QUERY_DROP_DOWN_ROW operations */
+/* ------------------------------ */
+LIST *query_drop_down_row_list(
+			LIST *one_folder_attribute_list,
+			DICTIONARY *drillthru_dictionary,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			int highest_index );
+
+QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
+			LIST *one_folder_attribute_list,
+			DICTIONARY *drillthru_dictionary,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			int index );
 
 QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
 			LIST *exclude_attribute_name_list,
@@ -780,13 +858,9 @@ QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
 QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 			void );
 
-LIST *query_drop_down_query_data_list(
-			LIST *one2m_primary_key_list,
-			LIST *mto1_foreign_attribute_name_list,
-			LIST *one2m_attribute_list,
-			LIST *data_string_list );
-
-char *query_key(	LIST *foreign_attribute_name_list,
+/* Returns static memory */
+/* --------------------- */
+char *query_key(	LIST *foreign_key_list,
 			int index );
 
 char *query_data_list_string(
@@ -795,90 +869,6 @@ char *query_data_list_string(
 
 LIST *query_data_string_list(
 			char *data_list_string );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_output_drop_down_where(
-			LIST *query_drop_down_list,
-			int mto1_isa_related_folder_list_length );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_output_attribute_where(
-			LIST *query_attribute_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_output_join_where(
-			char *folder_name,
-			LIST *primary_key_list,
-			LIST *mto1_isa_related_folder_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *query_output_related_join(
-			char *folder_name,
-			LIST *primary_key_list,
-			char *isa_folder_name,
-			LIST *isa_foreign_attribute_name_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_output_where(
-			char *query_output_drop_down_where,
-			char *query_output_attribute_where,
-			char *query_output_join_where,
-			char *attribute_not_null_join );
-
-QUERY_DROP_DOWN *query_drop_down(
-			LIST *exclude_attribute_name_list,
-			char *mto1_folder_name,
-			char *one2m_folder_name,
-			LIST *one2m_primary_key_list,
-			LIST *mto1_foreign_attribute_name_list,
-			LIST *one2m_attribute_list,
-			DICTIONARY *query_dictionary );
-
-LIST *query_drop_down_row_list(
-			LIST *exclude_attribute_name_list,
-			char *mto1_folder_name,
-			char *one2m_folder_name,
-			LIST *one2m_primary_key_list,
-			LIST *mto1_foreign_attribute_name_list,
-			LIST *one2m_attribute_list,
-			DICTIONARY *query_dictionary,
-			int highest_index );
-
-QUERY_DROP_DOWN_ROW *query_drop_down_row(
-			LIST *exclude_attribute_name_list,
-			char *mto1_folder_name,
-			char *one2m_folder_name,
-			LIST *one2m_primary_key_list,
-			LIST *mto1_foreign_attribute_name_list,
-			LIST *one2m_attribute_list,
-			DICTIONARY *query_dictionary,
-			int index );
-
-/* Returns static memory */
-/* --------------------- */
-char *query_output_drop_down_data_where(
-			char *mto1_folder_name,
-			char *attribute_name,
-			char *data );
-
-boolean query_attribute_date_time_between(
-			QUERY_ATTRIBUTE **date_between_attribute,
-			QUERY_ATTRIBUTE **time_between_attribute,
-			LIST *query_attribute_list );
-
-char *query_attribute_between_date_time_where(
-			char *date_attribute_name,
-			char *time_attribute_name,
-			QUERY_DATA *date_from_data,
-			QUERY_DATA *time_from_data,
-			QUERY_DATA *date_to_data,
-			QUERY_DATA *time_to_data,
-			char *folder_name );
 
 LIST *query_select_name_list(
 			LIST *append_isa_attribute_list,
@@ -931,5 +921,10 @@ LIST *query_delimited_list(
 LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_list );
+
+/* QUERY generic */
+/* ------------- */
+char *query_yes_no_operator_name(
+			char *attribute_name );
 
 #endif

@@ -108,9 +108,10 @@ LIST *folder_system_list(
 			char *system_string,
 			char *sql_injection_escape_role_name,
 			LIST *role_exclude_attribute_name_lst,
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
 			/* ------------------------------------------- */
@@ -127,9 +128,10 @@ LIST *folder_system_list(
 FOLDER *folder_parse(	char *input,
 			char *sql_injection_escape_role_name,
 			LIST *exclude_attribute_name_list,
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
 			/* ------------------------------------------- */
@@ -158,9 +160,10 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			/* ---------------------------- */
 			char *sql_injection_escape_role_name,
 			LIST *exclude_attribute_name_list,
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
 			boolean fetch_folder_attribute_list,
 			boolean fetch_relation_mto1_non_isa_list,
 			/* ------------------------------------------- */
