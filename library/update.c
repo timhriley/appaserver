@@ -861,7 +861,11 @@ UPDATE_PRIMARY *update_primary_new(
 
 	primary->folder_delimited =
 		folder_delimited(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
 			folder_table_name(
+				environment_application_name(),
 				folder->folder_name ),
 			folder->primary_key_list,
 			primary->primary_where_clause );
@@ -1602,6 +1606,9 @@ UPDATE_ONE2M *update_one2m_new(
 
 	one2m->folder_delimited_list =
 		folder_delimited_list(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
 			folder_table_name(
 				environment_application_name(),
 				one2m->many_folder->folder_name ),
@@ -1680,6 +1687,9 @@ UPDATE_MTO1 *update_mto1(
 
 	mto1->folder_delimited_list =
 		folder_delimited_list(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			folder_table_name(
 				environment_application_name(),
 				mto1->one_folder->folder_name ),
@@ -1990,6 +2000,9 @@ char *update_row_sql(	char *login_name,
 		/* ------------------------------------------- */
 		update_folder_sql(
 			login_name,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			folder_table_name(
 				environment_application_name(),
 				update_row->

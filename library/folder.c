@@ -16,7 +16,6 @@
 #include "role_folder.h"
 #include "role_operation.h"
 #include "process.h"
-#include "query.h"
 #include "security.h"
 #include "folder.h"
 
@@ -212,13 +211,13 @@ FOLDER *folder_parse(	char *input,
 				folder->folder_name,
 				exclude_attribute_name_list );
 
-		folder->primary_attribute_list =
-			folder_primary_attribute_list(
+		folder->folder_attribute_primary_list =
+			folder_attribute_primary_list(
 				folder->folder_attribute_list );
 
 		folder->primary_key_list =
 			folder_attribute_primary_key_list(
-				folder->folder_primary_attribute_list );
+				folder->folder_attribute_primary_list );
 	}
 
 	if ( fetch_relation_mto1_non_isa_list )
@@ -335,19 +334,12 @@ char *folder_table_name(
 			char *application_name,
 			char *folder_name )
 {
-	char table_name[ 128 ];
+	static char table_name[ 128 ];
 
-	if ( !application_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: application_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !folder_name || !*folder_name ) return (char *)0;
 
-	if ( strcmp( folder_name, "application" ) == 0 )
+	if ( application_name
+	&&  string_strcmp( folder_name, "application" ) == 0 )
 	{
 		sprintf(table_name,
 			"%s_application",
@@ -358,7 +350,7 @@ char *folder_table_name(
 		strcpy( table_name, folder_name );
 	}
 
-	return strdup( table_name );
+	return table_name;
 }
 
 FOLDER *folder_quick_fetch( char *folder_name )

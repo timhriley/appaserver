@@ -10,6 +10,8 @@
 #include "String.h"
 #include "sql.h"
 #include "piece.h"
+#include "environ.h"
+#include "folder.h"
 #include "attribute.h"
 
 ATTRIBUTE *attribute_new( char *attribute_name )
@@ -218,5 +220,66 @@ ATTRIBUTE *attribute_fetch( char *attribute_name )
 
 	list = attribute_list();
 	return attribute_seek( attribute_name, list );
+}
+
+char *attribute_full_attribute_name(
+			char *folder_name,
+			char *attribute_name )
+{
+	static char full_attribute_name[ 512 ];
+	static char *application_name = {0};
+
+	if ( !application_name )
+	{
+		if ( ! ( application_name =
+				environment_application_name() ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: environment_application_name() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+
+	if ( folder_name && *folder_name )
+	{
+		sprintf(full_attribute_name,
+			"%s.%s",
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			folder_table_name(
+				application_name,
+				folder_name ),
+			attribute_name );
+	}
+	else
+	{
+		strcpy( full_attribute_name, attribute_name );
+	}
+
+	return full_attribute_name;
+}
+
+boolean attribute_is_yes_no(
+			char *attribute_name )
+{
+	int str_len;
+
+	str_len = strlen( attribute_name );
+
+	if ( str_len > 3
+	&&   strncmp(	attribute_name + str_len - 3,
+			"_yn",
+			3 ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

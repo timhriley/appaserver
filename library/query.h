@@ -198,7 +198,7 @@ QUERY *query_isa_drop_down_new(
 			LIST *folder_attribute_primary_list,
 			SECURITY_ENTITY *security_entity );
 
-QUERY *query_drop_down_delimited_new(
+QUERY *query_widget_delimited_new(
 			char *drop_down_folder_name,
 			char *login_name,
 			LIST *folder_attribute_primary_list,
@@ -263,6 +263,8 @@ boolean query_attribute_date_time_between(
 			QUERY_ATTRIBUTE **time_between_attribute,
 			LIST *query_attribute_list );
 
+/* Returns static memory */
+/* --------------------- */
 char *query_attribute_between_date_time_where(
 			char *date_attribute_name,
 			char *time_attribute_name,
@@ -274,8 +276,8 @@ char *query_attribute_between_date_time_where(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *query_drop_down_where_clause(
-			char *drop_down_folder_name,
+char *query_widget_where_clause(
+			char *widget_folder_name,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *security_entity_where,
@@ -287,10 +289,16 @@ char *query_primary_key_where_clause(
 			char delimiter );
 
 
-char *query_drop_down_where(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_drop_down_list_where(
 			LIST *drop_down_list,
-			char *folder_name,
 			int relation_mto1_isa_length );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_attribute_list_where(
+			LIST *query_attribute_list );
 
 /* QUERY_SELECT operations */
 /* ----------------------- */
@@ -681,11 +689,6 @@ char *query_edit_table_where(
 			char *folder_name,
 			boolean combine_date_time );
 
-char *query_drop_down_where(
-			LIST *query_drop_down_list,
-			char *application_name,
-			char *folder_name );
-
 char *query_simple_where(
 			char *folder_name,
 			LIST *where_attribute_name_list,
@@ -933,5 +936,10 @@ LIST *query_system_dictionary_list(
 /* ------------- */
 char *query_yes_no_operator_name(
 			char *attribute_name );
+
+/* Returns program memory */
+/* ---------------------- */
+char *query_operator_character_string(
+			char *operator_string );
 
 #endif

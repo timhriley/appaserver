@@ -87,4 +87,13 @@ LIST *attribute_list(	void );
 ATTRIBUTE *attribute_fetch(
 			char *attribute_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *attribute_full_attribute_name(
+			char *folder_name,
+			char *attribute_name );
+
+boolean attribute_is_yes_no(
+			char *attribute_name );
+
 #endif

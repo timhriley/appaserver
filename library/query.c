@@ -163,7 +163,7 @@ char *query_attribute_between_date_time_where(
 			QUERY_DATA *time_to_data,
 			char *folder_name )
 {
-	char where_clause[ 4066 ];
+	static char where_clause[ 1024 ];
 	char *where_ptr;
 	char *start_end_time;
 	char *finish_begin_time;
@@ -195,18 +195,15 @@ char *query_attribute_between_date_time_where(
 		sprintf(
 		   where_ptr,
 		  " ( ( %s = '%s' and %s >= '%s' and %s <= '%s' )",
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				date_column_name ),
 		 	begin_date,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				time_column_name ),
 		 	begin_time,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				time_column_name ),
 			start_end_time );
@@ -215,13 +212,11 @@ char *query_attribute_between_date_time_where(
 		sprintf(
 		   where_ptr,
 		   " or ( %s = '%s' and %s = 'null' )",
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				date_column_name ),
 		 	begin_date,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				time_column_name ) );
 
@@ -229,13 +224,11 @@ char *query_attribute_between_date_time_where(
 		sprintf(
 		   where_ptr,
 		   " or ( %s = '%s' and %s = 'null' )",
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				date_column_name ),
 		 	end_date,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				time_column_name ) );
 
@@ -243,13 +236,11 @@ char *query_attribute_between_date_time_where(
 		sprintf(
 		   where_ptr,
 		   " or ( %s > '%s' and %s < '%s' )",
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				date_column_name ),
 		 	begin_date,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				date_column_name ),
 			end_date );
@@ -258,23 +249,20 @@ char *query_attribute_between_date_time_where(
 		sprintf(
 		   where_ptr,
 		   " or ( %s = '%s' and %s >= '%s' and %s <= '%s' ) )",
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				date_column_name ),
 		 	end_date,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				time_column_name ),
 			finish_begin_time,
-			appaserver_library_full_attribute_name(
-				application_name,
+			attribute_full_attribute_name(
 				folder_name,
 				time_column_name ),
 		 	end_time );
 
-	return strdup( where_clause );
+	return where_clause;
 }
 
 LIST *query_get_record_list(	char *application_name,
@@ -1623,7 +1611,7 @@ boolean query_attribute_date_time_between(
 char *query_drop_down_data_where(
 			char *folder_name,
 			char *attribute_name,
-			char *data )
+			char *escaped_replaced_data )
 {
 	static char where[ 1024 ];
 	char *application_name = environment_application_name();
@@ -1637,16 +1625,13 @@ char *query_drop_down_data_where(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ),
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ),
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ) );
 	}
@@ -1658,31 +1643,27 @@ char *query_drop_down_data_where(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ),
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ),
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ) );
 	}
 	else
 	{
 		sprintf(where,
-			" %s = '%s'",
+			"%s = '%s'",
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-		 	appaserver_library_full_attribute_name(
-		 		application_name,
+		 	attribute_full_attribute_name(
 		 		folder_name,
 		 		attribute_name ),
-		 	data );
+		 	escaped_replaced_data );
 	}
 
 	return where;
@@ -2063,6 +2044,7 @@ char *query_get_drop_down_list_display(
 	return display_string;
 }
 
+#ifdef NOT_DEFINED
 LIST *query_prompt_recursive_drop_down_list(
 			LIST *exclude_attribute_name_list,
 			char *query_folder_name,
@@ -2129,8 +2111,10 @@ LIST *query_prompt_recursive_drop_down_list(
 
 	return return_list;
 }
+#endif
 
-char *query_get_dictionary_where_clause(
+#ifdef NOT_DEFINED
+char *query_dictionary_where_clause(
 			DICTIONARY *dictionary,
 			LIST *primary_key_list,
 			char *dictionary_indexed_prefix )
@@ -2216,6 +2200,7 @@ char *query_get_dictionary_where_clause(
 	return strdup( where_clause );
 
 }
+#endif
 
 QUERY_OR_SEQUENCE *query_or_sequence_new( LIST *attribute_name_list )
 {
@@ -3834,8 +3819,8 @@ QUERY *query_simple_new(
 
 	/* Where */
 	/* ----- */
-	query->query_drop_down_where =
-		query_drop_down_where(
+	query->query_drop_down_list_where =
+		query_drop_down_list_where(
 			query->query_drop_down_list,
 			query->query_folder->folder_name,
 			list_length(
@@ -3843,8 +3828,8 @@ QUERY *query_simple_new(
 					query_folder->
 					mto1_isa_related_folder_list ) );
 
-	query->query_attribute_where =
-		query_attribute_where(
+	query->query_attribute_list_where =
+		query_attribute_list_where(
 			query->query_attribute_list );
 
 	query->query_join_where =
@@ -4192,417 +4177,6 @@ LIST *query_drop_down_data_list(
 	} while ( list_next( data_string_list ) );
 
 	return query_data_list;
-}
-
-char *query_output_attribute_where(
-			LIST *query_attribute_list )
-{
-	char where_clause[ STRING_WHERE_BUFFER ];
-	char *ptr = where_clause;
-	QUERY_ATTRIBUTE *date_between_attribute = {0};
-	QUERY_ATTRIBUTE *time_between_attribute = {0};
-	QUERY_ATTRIBUTE *query_attribute;
-	LIST *exclude_attribute_name_list = list_new();
-	int str_len;
-	boolean boolean_attribute;
-	boolean first_time = 1;
-	char *operator_character_string;
-	char *return_where;
-	char *application_name = environment_application_name();
-
-	*ptr = '\0';
-
-	if ( !list_length( query_attribute_list ) ) return (char *)0;
-
-	if ( query_attribute_date_time_between(
-			&date_between_attribute,
-			&time_between_attribute,
-			query_attribute_list ) )
-	{
-		return_where =
-			query_attribute_between_date_time_where(
-				date_between_attribute->attribute_name,
-				time_between_attribute->attribute_name,
-				date_between_attribute->from_data,
-				time_between_attribute->from_data,
-				date_between_attribute->to_data,
-				time_between_attribute->to_data,
-				date_between_attribute->folder_name );
-
-		if ( return_where && *return_where )
-		{
-			ptr += sprintf(
-				ptr,
-				"%s",
-				return_where );
-
-			list_set(
-				exclude_attribute_name_list,
-				date_between_attribute->attribute_name );
-
-			list_set(
-				exclude_attribute_name_list,
-				time_between_attribute->attribute_name );
-
-			first_time = 0;
-		}
-	}
-
-	list_rewind( query_attribute_list );
-
-	do {
-		query_attribute = list_get( query_attribute_list );
-
-		if ( list_exists_string(
-			query_attribute->attribute_name,
-			exclude_attribute_name_list ) )
-		{
-			continue;
-		}
-
-		str_len = strlen( query_attribute->attribute_name );
-
-		boolean_attribute =
-			( strncmp(
-				query_attribute->attribute_name +
-				str_len - 3,
-				"_yn",
-				3 ) == 0 );
-
-		if ( first_time )
-			first_time = 0;
-		else
-			ptr += sprintf( ptr, " and" );
-
-		operator_character_string = 
-			appaserver_library_operator_character(
-				query_relational_operator_display(
-					query_attribute->
-						relational_operator ) );
-
-		if ( attribute_is_number( query_attribute->datatype )
-		&&   query_attribute->relational_operator == between )
-		{
-			ptr += sprintf(
-				ptr,
-				" %s >= %s and %s <= %s",
-				appaserver_library_full_attribute_name(
-					application_name,
-					query_attribute->folder_name,
-					query_attribute->attribute_name ),
-				query_attribute->
-					from_data->
-					escaped_replaced_data,
-				appaserver_library_full_attribute_name(
-					application_name,
-					query_attribute->folder_name,
-					query_attribute->attribute_name ),
-				query_attribute->
-					to_data->
-					escaped_replaced_data );
-		}
-		else
-		if ( query_attribute->relational_operator == between )
-		{
-			ptr += sprintf(
-				ptr,
-				" %s %s '%s' and '%s'",
-				appaserver_library_full_attribute_name(
-					application_name,
-					query_attribute->folder_name,
-					query_attribute->attribute_name ),
-				operator_character_string,
-				query_attribute->
-					from_data->
-					escaped_replaced_data,
-				query_attribute->
-					to_data->
-					escaped_replaced_data );
-		}
-		else
-		if ( query_attribute->relational_operator == is_null )
-		{
-			ptr += sprintf(
-			   	ptr,
-				QUERY_NULL_EXPRESSION,
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-			   		query_attribute->attribute_name ),
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-			   		query_attribute->attribute_name ),
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-					query_attribute->attribute_name ) );
-		}
-		else
-		if ( query_attribute->relational_operator == not_null )
-		{
-			ptr += sprintf(
-			   	ptr,
-				QUERY_NOT_NULL_EXPRESSION,
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-			   		query_attribute->attribute_name ),
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-			   		query_attribute->attribute_name ),
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-					query_attribute->attribute_name ) );
-		}
-		else
-		if ( query_attribute->relational_operator == query_or )
-		{
-			char piece_buffer[ 512 ];
-			int i;
-			int local_first_time = 1;
-
-			for(	i = 0;
-				piece(	piece_buffer,
-					',',
-					query_attribute->
-						from_data->
-						escaped_replaced_data,
-					i );
-				i++ )
-			{
-				if ( local_first_time )
-				{
-					local_first_time = 0;
-					ptr += sprintf( ptr, " (" );
-				}
-				else
-				{
-					ptr += sprintf( ptr, " or" );
-				}
-				ptr += sprintf(
-			   		ptr,
-			   		" %s = '%s'",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ),
-			   		strdup( piece_buffer ) );
-			}
-			ptr += sprintf( ptr, " )" );
-		}
-		else
-		if ( query_attribute->relational_operator == begins )
-		{
-			char buffer[ 4096 ];
-
-			ptr += sprintf( ptr,
-					" %s like '%s%c'",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ),
-					escape_character(
-						buffer,
-						query_attribute->
-							from_data->
-							escaped_replaced_data,
-						'_' ),
-					'%' );
-		}
-		else
-		if ( query_attribute->relational_operator == contains )
-		{
-			char buffer[ 4096 ];
-
-			ptr += sprintf( ptr,
-					" %s like '%c%s%c'",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ),
-					'%',
-					escape_character(
-						buffer,
-						query_attribute->
-							from_data->
-							escaped_replaced_data,
-						'_' ),
-					'%' );
-		}
-		else
-		if ( query_attribute->relational_operator == not_contains )
-		{
-			char buffer[ 4096 ];
-
-			ptr += sprintf( ptr,
-					" %s not like '%c%s%c'",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ),
-					'%',
-					escape_character(
-						buffer,
-						query_attribute->
-							from_data->
-							escaped_replaced_data,
-						'_' ),
-					'%' );
-		}
-		else
-		if ( query_attribute->relational_operator == not_equal_or_null )
-		{
-			ptr +=
-				sprintf(
-			   	ptr,
-			   	" (%s <> '%s' or %s is null)",
-				appaserver_library_full_attribute_name(
-					application_name,
-					query_attribute->folder_name,
-			   		query_attribute->attribute_name ),
-				query_attribute->from_data,
-				appaserver_library_full_attribute_name(
-					application_name,
-					query_attribute->folder_name,
-					query_attribute->attribute_name ) );
-		}
-		else
-		if ( attribute_is_number(
-			query_attribute->datatype ) )
-		{
-			ptr +=
-				sprintf(
-		   		ptr,
-			   	" %s %s %s",
-				appaserver_library_full_attribute_name(
-					application_name,
-			   		query_attribute->folder_name,
-			   		query_attribute->attribute_name ),
-				operator_character_string,
-				query_attribute->
-					from_data->
-					escaped_replaced_data );
-		}
-		else
-		if ( boolean_attribute )
-		{
-			if ( string_strcmp(
-				query_attribute->
-					from_data->
-					escaped_replaced_data,
-				NOT_NULL_OPERATOR ) == 0 )
-			{
-				ptr +=
-					sprintf(
-			   		ptr,
-			   		" %s is not null",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ) );
-			}
-			else
-			if ( *query_attribute->
-				from_data->
-				escaped_replaced_data == 'n' )
-			{
-				char *full_attribute_name;
-
-				full_attribute_name =
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name );
-
-				ptr +=
-					sprintf(
-			   		ptr,
-			   		" (%s = 'n' or %s is null)",
-					full_attribute_name,
-					full_attribute_name );
-			}
-			else
-			if ( *query_attribute->
-				from_data->
-				escaped_replaced_data == 'y' )
-			{
-				ptr +=
-					sprintf(
-			   		ptr,
-			   		" %s = 'y'",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ) );
-			}
-			else
-			if ( string_strcmp(
-					query_attribute->from_data,
-					NULL_OPERATOR ) == 0 )
-			{
-				ptr +=
-					sprintf(
-			   		ptr,
-			   		" %s is null",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ) );
-			}
-		}
-		else
-		{
-			if ( attribute_is_number(
-				query_attribute->datatype ) )
-			{
-				ptr +=
-					sprintf( ptr,
-					" %s %s %s",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ),
-					operator_character_string,
-					query_attribute->
-						from_data->
-						escaped_replaced_data );
-			}
-			else
-			{
-				ptr +=
-					sprintf( ptr,
-					" %s %s '%s'",
-					appaserver_library_full_attribute_name(
-						application_name,
-			   			query_attribute->folder_name,
-			   			query_attribute->
-							attribute_name ),
-					operator_character_string,
-					query_attribute->
-						from_data->
-						esacaped_replaced_data );
-			}
-		}
-
-		list_set(
-			exclude_attribute_name_list,
-			query_attribute->attribute_name );
-
-	} while( list_next( query_attribute_list ) );
-
-	return strdup( where_clause );
 }
 
 char *query_output_join_where(
@@ -5680,7 +5254,7 @@ char *query_select_clause( LIST *select_list )
 	return strdup( clause );
 }
 
-QUERY *query_drop_down_delimited_new(
+QUERY *query_widget_delimited_new(
 			char *drop_down_folder_name,
 			char *login_name,
 			LIST *folder_attribute_primary_list,
@@ -5728,7 +5302,7 @@ QUERY *query_drop_down_delimited_new(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		query_drop_down_where_clause(
+		query_widget_where_clause(
 			drop_down_folder_name,
 			folder_attribute_list,
 			relation_mto1_non_isa_list,
@@ -5741,8 +5315,8 @@ QUERY *query_drop_down_delimited_new(
 	return query;
 }
 
-char *query_drop_down_where_clause(
-			char *drop_down_folder_name,
+char *query_widget_where_clause(
+			char *widget_folder_name,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *security_entity_where,
@@ -5757,7 +5331,8 @@ char *query_drop_down_where_clause(
 	drop_down_list =
 		query_drop_down_list(
 			exclude_attribute_name_list,
-			drop_down_folder_name,
+			widget_folder_name
+				/* drop_down_folder_name */,
 			folder_attribute_list,
 			relation_mto1_non_isa_list,
 			drillthru_dictionary );
@@ -5768,14 +5343,18 @@ char *query_drop_down_where_clause(
 			folder_attribute_list,
 			drillthru_dictionary );
 
-	return query_drop_down_where_evaluate(
-		query_drop_down_where(
+	return query_widget_where_evaluate(
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		query_drop_down_list_where(
 			drop_down_list,
-			(char *)0 /* folder_name */,
 			0 /* relation_mto1_isa_list_length */ ),
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		query_attribute_list_where(
-			attribute_list ) );
-		join_where );
+			attribute_list /* query_attribute_list */ ) );
 }
 
 LIST *query_drop_down_list(
@@ -6135,14 +5714,7 @@ LIST *query_attribute_list(
 char *query_yes_no_operator_name(
 			char *attribute_name )
 {
-	int str_len;
-
-	str_len = strlen( attribute_name );
-
-	if ( str_len > 3
-	&&   strncmp(	attribute_name + str_len - 3,
-			"_yn",
-			3 ) == 0 )
+	if ( attribute_is_yes_no( attribute_name ) )
 	{
 		return EQUAL_OPERATOR;
 	}
@@ -6152,9 +5724,8 @@ char *query_yes_no_operator_name(
 	}
 }
 
-char *query_drop_down_where(
+char *query_drop_down_list_where(
 			LIST *drop_down_list,
-			char *folder_name,
 			int relation_mto1_isa_length )
 {
 	QUERY_DROP_DOWN *drop_down;
@@ -6258,5 +5829,411 @@ char *query_drop_down_where(
 	} while( list_next( drop_down_list ) );
 
 	return strdup( where_clause );
+}
+
+char *query_attribute_list_where(
+			LIST *query_attribute_list )
+{
+	char where_clause[ STRING_WHERE_BUFFER ];
+	char *ptr = where_clause;
+	QUERY_ATTRIBUTE *date_between_attribute = {0};
+	QUERY_ATTRIBUTE *time_between_attribute = {0};
+	QUERY_ATTRIBUTE *query_attribute;
+	int str_len;
+	boolean first_time = 1;
+	char *operator_character_string;
+	char *application_name = environment_application_name();
+	LIST *exclude_attribute_name_list = list_new();
+
+	*ptr = '\0';
+
+	if ( !list_length( query_attribute_list ) ) return (char *)0;
+
+	if ( query_attribute_date_time_between(
+			&date_between_attribute,
+			&time_between_attribute,
+			query_attribute_list ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			query_attribute_between_date_time_where(
+				date_between_attribute->attribute_name,
+				time_between_attribute->attribute_name,
+				date_between_attribute->
+					from_data->
+					escaped_replaced_data,
+				time_between_attribute->
+					from_data->
+					escaped_replaced_data,
+				date_between_attribute->
+					to_data->
+					escaped_replaced_data,
+				time_between_attribute->
+					to_data->
+					escaped_replaced_data,
+				/* ----------------------------- */
+				/* Returns static memory or null */
+				/* ----------------------------- */
+				folder_table_name(
+					application_name,
+					date_between_attribute->
+						folder_name ) );
+
+		list_set(
+			exclude_attribute_name_list,
+			date_between_attribute->attribute_name );
+
+		list_set(
+			exclude_attribute_name_list,
+			time_between_attribute->attribute_name );
+
+		first_time = 0;
+	}
+
+	list_rewind( query_attribute_list );
+
+	do {
+		query_attribute = list_get( query_attribute_list );
+
+		if ( list_exists_string(
+			query_attribute->attribute_name,
+			exclude_attribute_name_list ) )
+		{
+			continue;
+		}
+
+		if ( first_time )
+			first_time = 0;
+		else
+			ptr += sprintf( ptr, " and" );
+
+		operator_character_string = 
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			query_operator_character_string(
+				query_relational_operator_display(
+					query_attribute->
+						relational_operator ) );
+
+		if ( attribute_is_number( query_attribute->datatype )
+		&&   query_attribute->relational_operator == between )
+		{
+			ptr += sprintf(
+				ptr,
+				" %s >= %s and %s <= %s",
+				attribute_full_attribute_name(
+					query_attribute->folder_name,
+					query_attribute->attribute_name ),
+				query_attribute->from_data,
+				attribute_full_attribute_name(
+					query_attribute->folder_name,
+					query_attribute->attribute_name ),
+				query_attribute->to_data );
+		}
+		else
+		if ( query_attribute->relational_operator == between )
+		{
+			ptr += sprintf(
+				ptr,
+				" %s %s '%s' and '%s'",
+				attribute_full_attribute_name(
+					query_attribute->folder_name,
+					query_attribute->attribute_name ),
+				operator_character_string,
+				query_attribute->from_data,
+				query_attribute->to_data );
+		}
+		else
+		if ( query_attribute->relational_operator == is_null )
+		{
+			ptr += sprintf(
+			   	ptr,
+				QUERY_NULL_EXPRESSION,
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+			   		query_attribute->attribute_name ),
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+			   		query_attribute->attribute_name ),
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+					query_attribute->attribute_name ) );
+		}
+		else
+		if ( query_attribute->relational_operator == not_null )
+		{
+			ptr += sprintf(
+			   	ptr,
+				QUERY_NOT_NULL_EXPRESSION,
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+			   		query_attribute->attribute_name ),
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+			   		query_attribute->attribute_name ),
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+					query_attribute->attribute_name ) );
+		}
+		else
+		if ( query_attribute->relational_operator == query_or )
+		{
+			char piece_buffer[ 512 ];
+			int i;
+			int local_first_time = 1;
+
+			for(	i = 0;
+				piece(	piece_buffer,
+					',',
+					query_attribute->
+						from_data->
+						escape_replaced_data,
+					i );
+				i++ )
+			{
+				if ( local_first_time )
+				{
+					local_first_time = 0;
+					ptr += sprintf( ptr, " (" );
+				}
+				else
+				{
+					ptr += sprintf( ptr, " or" );
+				}
+				ptr += sprintf(
+			   		ptr,
+			   		" %s = '%s'",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ),
+			   		strdup( piece_buffer ) );
+			}
+			ptr += sprintf( ptr, " )" );
+		}
+		else
+		if ( query_attribute->relational_operator == begins )
+		{
+			char buffer[ 4096 ];
+
+			ptr += sprintf( ptr,
+					" %s like '%s%c'",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ),
+					escape_character( buffer,
+							  query_attribute->
+								from_data,
+							  '_' ),
+					'%' );
+		}
+		else
+		if ( query_attribute->relational_operator == contains )
+		{
+			char buffer[ 4096 ];
+
+			ptr += sprintf( ptr,
+					" %s like '%c%s%c'",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ),
+					'%',
+					escape_character( buffer,
+							  query_attribute->
+								from_data,
+							  '_' ),
+					'%' );
+		}
+		else
+		if ( query_attribute->relational_operator == not_contains )
+		{
+			char buffer[ 4096 ];
+
+			ptr += sprintf( ptr,
+					" %s not like '%c%s%c'",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ),
+					'%',
+					escape_character( buffer,
+							  query_attribute->
+								from_data,
+							  '_' ),
+					'%' );
+		}
+		else
+		if ( query_attribute->relational_operator == not_equal_or_null )
+		{
+			ptr +=
+				sprintf(
+			   	ptr,
+			   	" (%s <> '%s' or %s is null)",
+				get_full_attribute_name(
+					application_name,
+					query_attribute->folder_name,
+			   		query_attribute->attribute_name ),
+				query_attribute->from_data,
+				get_full_attribute_name(
+					application_name,
+					query_attribute->folder_name,
+					query_attribute->attribute_name ) );
+		}
+		else
+		if ( timlib_strcmp( query_attribute->datatype, "float" ) == 0
+		||   timlib_strcmp(	query_attribute->datatype,
+					"integer" ) == 0 )
+		{
+			ptr +=
+				sprintf(
+		   		ptr,
+			   	" %s %s %s",
+				get_full_attribute_name(
+					application_name,
+			   		query_attribute->folder_name,
+			   		query_attribute->attribute_name ),
+				operator_character_string,
+				query_attribute->from_data );
+		}
+		else
+		if ( boolean_attribute )
+		{
+			if ( timlib_strcmp(
+					query_attribute->from_data,
+					NOT_NULL_OPERATOR ) == 0 )
+			{
+				ptr +=
+					sprintf(
+			   		ptr,
+			   		" %s is not null",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ) );
+			}
+			else
+			if ( *query_attribute->from_data == 'n' )
+			{
+				char *full_attribute_name;
+
+				full_attribute_name =
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name );
+
+				ptr +=
+					sprintf(
+			   		ptr,
+			   		" (%s = 'n' or %s is null)",
+					full_attribute_name,
+					full_attribute_name );
+			}
+			else
+			if ( *query_attribute->from_data == 'y' )
+			{
+				ptr +=
+					sprintf(
+			   		ptr,
+			   		" %s = 'y'",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ) );
+			}
+			else
+			if ( timlib_strcmp(
+					query_attribute->from_data,
+					NULL_OPERATOR ) == 0 )
+			{
+				ptr +=
+					sprintf(
+			   		ptr,
+			   		" %s is null",
+					get_full_attribute_name(
+						application_name,
+			   			query_attribute->folder_name,
+			   			query_attribute->
+							attribute_name ) );
+			}
+		}
+		else
+		{
+			ptr +=
+				sprintf( ptr,
+				" %s %s '%s'",
+				attribute_full_attribute_name(
+			   		query_attribute->folder_name,
+			   		query_attribute->
+						attribute_name ),
+				operator_character_string,
+				query_attribute->from_data );
+		}
+
+	} while( list_next( query_attribute_list ) );
+
+	return strdup( where_clause );
+}
+
+char *query_operator_character_string(
+			char *operator_string )
+{
+	if ( strcmp( operator_string, EQUAL_OPERATOR ) == 0 )
+		return "=";
+	else
+	if ( strcmp( operator_string, NOT_EQUAL_OPERATOR ) == 0 )
+		return "<>";
+	else
+	if ( strcmp( operator_string, GREATER_THAN_OPERATOR ) == 0 )
+		return ">";
+	else
+	if ( strcmp( operator_string, GREATER_THAN_EQUAL_TO_OPERATOR ) == 0 )
+		return ">=";
+	else
+	if ( strcmp( operator_string, LESS_THAN_OPERATOR ) == 0 )
+		return "<";
+	else
+	if ( strcmp( operator_string, LESS_THAN_EQUAL_TO_OPERATOR ) == 0 )
+		return "<=";
+	else
+	if ( strcmp( operator_string, BEGINS_OPERATOR ) == 0 )
+		return BEGINS_OPERATOR;
+	else
+	if ( strcmp( operator_string, CONTAINS_OPERATOR ) == 0 )
+		return CONTAINS_OPERATOR;
+	else
+	if ( strcmp( operator_string, OR_OPERATOR ) == 0 )
+		return OR_OPERATOR;
+	else
+	if ( strcmp( operator_string, NOT_CONTAINS_OPERATOR ) == 0 )
+		return NOT_CONTAINS_OPERATOR;
+	else
+	if ( strcmp( operator_string, NOT_EQUAL_OR_NULL_OPERATOR ) == 0 )
+		return NOT_EQUAL_OR_NULL_OPERATOR;
+	else
+	if ( strcmp( operator_string, BETWEEN_OPERATOR ) == 0 )
+		return BETWEEN_OPERATOR;
+	else
+	if ( strcmp( operator_string, NULL_OPERATOR ) == 0 )
+		return NULL_OPERATOR;
+	else
+	if ( strcmp( operator_string, NOT_NULL_OPERATOR ) == 0 )
+		return NOT_NULL_OPERATOR;
+	else
+		return "unknown operator";
 }
 

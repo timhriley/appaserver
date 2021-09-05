@@ -148,8 +148,8 @@ FOLDER *folder_parse(	char *input,
 long int folder_row_count(
 			char *folder_table_name );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory or null */
+/* ----------------------------- */
 char *folder_table_name(
 			char *application_name,
 			char *folder_name );
