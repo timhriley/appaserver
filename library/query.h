@@ -82,18 +82,14 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *mto1_folder_name;
-	char *one2m_folder_name;
-	LIST *one2m_primary_key_list;
-	LIST *mto1_foreign_attribute_name_list;
-	LIST *one2m_attribute_list;
+	LIST *one_primary_key_list;
+	LIST *one_folder_attribute_list;
+	LIST *foreign_key_list;
+	DICTIONARY *drillthru_dictionary;
 	int index;
 
 	/* Process */
 	/* ------- */
-	char *key;
-	char *operator_name;
-	enum relational_operator relational_operator;
 	char *data_list_string;
 	LIST *query_data_string_list;
 	LIST *query_data_list;
@@ -103,12 +99,11 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *drop_down_folder_name;
+	char *many_folder_name;
 	char *one_folder_name;
-	LIST *one_folder_attribute_list;
-	DICTIONARY *drillthru_dictionary;
-	LIST *primary_key_list;
+	LIST *one_primary_key_list;
 	LIST *foreign_key_list;
+	DICTIONARY *drillthru_dictionary;
 	int highest_index;
 
 	/* Process */
@@ -129,12 +124,14 @@ typedef struct
 
 typedef struct
 {
-	char *folder_name;
-	LIST *foreign_attribute_name_list;
+	char *widget_folder_name;
+	LIST *exclude_attribute_name_list;
 	LIST *query_drop_down_list;
 	LIST *query_attribute_list;
+	char *query_drop_down_list_where;
+	char *query_attribute_list_where;
 	char *where_clause;
-} QUERY_SUBQUERY;
+} QUERY_WIDGET_WHERE;
 
 typedef struct
 {
@@ -192,6 +189,9 @@ QUERY *query_calloc(	void );
 
 /* QUERY_ISA_WIDGET operations */
 /* --------------------------- */
+
+/* Always succeeds */
+/* --------------- */
 QUERY *query_isa_widget_new(
 			char *one2m_isa_folder_name,
 			LIST *folder_attribute_primary_list,
@@ -200,16 +200,27 @@ QUERY *query_isa_widget_new(
 
 /* QUERY_WIDGET operations */
 /* ----------------------- */
+
+/* Always succeeds */
+/* --------------- */
 QUERY *query_widget_new(
 			char *widget_folder_name,
 			char *login_name,
 			LIST *folder_attribute_primary_list,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
-			SECURITY_ENTITY *security_entity,
+			char *security_entity_where,
 			DICTIONARY *drillthru_dictionary );
 
+/* QUERY_WIDGET_WHERE operations */
+/* ----------------------------- */
+QUERY_WIDGET_WHERE *query_widget_where_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
 QUERY_WIDGET_WHERE *query_widget_where_new(
+			char *widget_folder_name,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *security_entity_where,
@@ -363,7 +374,7 @@ char *query_select_string(
 
 /* QUERY_DROP_DOWN operations */
 /* -------------------------- */
-LIST *query_drop_down_fetch_list(
+LIST *query_drop_down_list(
 			LIST *exclude_attribute_name_list /* out */,
 			char *drop_down_folder_name,
 			LIST *folder_attribute_list,
@@ -376,14 +387,12 @@ QUERY_DROP_DOWN *query_drop_down_calloc(
 /* Always succeeds */
 /* --------------- */
 QUERY_DROP_DOWN *query_drop_down_new(
-			char *drop_down_folder_name,
+			char *many_folder_name,
 			char *one_folder_name,
-			LIST *one_folder_attribute_list,
-			DICTIONARY *drillthru_dictionary,
-			LIST *primary_key_list,
+			LIST *one_primary_key_list,
 			LIST *foreign_key_list,
+			DICTIONARY *drillthru_dictionary,
 			int highest_index );
-
 
 /* QUERY_ROW operations */
 /* -------------------- */
