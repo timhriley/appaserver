@@ -190,21 +190,45 @@ typedef struct
 /* ---------------- */
 QUERY *query_calloc(	void );
 
-/* Query usage */
-/* ----------- */
+/* QUERY_ISA_WIDGET operations */
+/* --------------------------- */
 QUERY *query_isa_widget_new(
 			char *one2m_isa_folder_name,
 			LIST *folder_attribute_primary_list,
 			char *login_name,
 			char *security_entity_where );
 
-QUERY *query_widget_delimited_new(
-			char *drop_down_folder_name,
+/* QUERY_WIDGET operations */
+/* ----------------------- */
+QUERY *query_widget_new(
+			char *widget_folder_name,
 			char *login_name,
 			LIST *folder_attribute_primary_list,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			SECURITY_ENTITY *security_entity,
+			DICTIONARY *drillthru_dictionary );
+
+QUERY_WIDGET_WHERE *query_widget_where_new(
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary );
+
+/* QUERY_TABLE operations */
+/* ---------------------- */
+QUERY *query_table_new(
+			char *folder_name,
+			char *role_name,
+			char *login_name,
+			LIST *ignore_select_attribute_name_list,
+			SECURITY_ENTITY *security_entity,
+			DICTIONARY *drillthru_dictionary );
+
+QUERY_WIDGET_WHERE *query_widget_where_new(
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
 			DICTIONARY *drillthru_dictionary );
 
 QUERY *query_populate_drop_down_process_new(

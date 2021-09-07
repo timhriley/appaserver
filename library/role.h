@@ -78,6 +78,15 @@ boolean role_exists_attribute_exclude_insert(
 char *role_primary_where(
 			char *role_name );
 
+LIST *role_exclude_lookup_attribute_name_list(
+			LIST *role_attribute_exclude_list );
+
+LIST *role_exclude_insert_attribute_name_list(
+			LIST *role_attribute_exclude_list );
+
+LIST *role_exclude_update_attribute_name_list(
+			LIST *role_attribute_exclude_list );
+
 /* ROLE_ATTRIBUTE_EXCLUDE operations */
 /* --------------------------------- */
 ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_parse(

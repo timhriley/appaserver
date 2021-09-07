@@ -411,3 +411,96 @@ ROLE_APPASERVER_USER *role_appaserver_user_parse(
 	return role_appaserver_user;
 }
 
+LIST *role_exclude_lookup_attribute_name_list(
+			LIST *role_attribute_exclude_list )
+{
+	LIST *exclude_attribute_name_list;
+	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
+
+	if ( !list_rewind( role_attribute_exclude_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	exclude_attribute_name_list = list_new();
+
+	do {
+		role_attribute_exclude =
+			list_get(
+				role_attribute_exclude_list );
+
+		if ( strcmp(
+			role_attribute_exclude->permission,
+			"lookup" ) == 0 )
+		{
+			list_set(
+				exclude_attribute_name_list,
+				role_attribute_exclude->attribute_name );
+		}
+	} while ( list_next( role_attribute_exclude_list ) );
+
+	return exclude_attribute_name_list;
+}
+
+LIST *role_exclude_insert_attribute_name_list(
+			LIST *role_attribute_exclude_list )
+{
+	LIST *exclude_attribute_name_list;
+	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
+
+	if ( !list_rewind( role_attribute_exclude_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	exclude_attribute_name_list = list_new();
+
+	do {
+		role_attribute_exclude =
+			list_get(
+				role_attribute_exclude_list );
+
+		if ( strcmp(
+			role_attribute_exclude->permission,
+			"insert" ) == 0 )
+		{
+			list_set(
+				exclude_attribute_name_list,
+				role_attribute_exclude->attribute_name );
+		}
+	} while ( list_next( role_attribute_exclude_list ) );
+
+	return exclude_attribute_name_list;
+}
+
+LIST *role_exclude_update_attribute_name_list(
+			LIST *role_attribute_exclude_list )
+{
+	LIST *exclude_attribute_name_list;
+	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
+
+	if ( !list_rewind( role_attribute_exclude_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	exclude_attribute_name_list = list_new();
+
+	do {
+		role_attribute_exclude =
+			list_get(
+				role_attribute_exclude_list );
+
+		if ( strcmp(
+			role_attribute_exclude->permission,
+			"update" ) == 0 )
+		{
+			list_set(
+				exclude_attribute_name_list,
+				role_attribute_exclude->attribute_name );
+		}
+	} while ( list_next( role_attribute_exclude_list ) );
+
+	return exclude_attribute_name_list;
+}
+
