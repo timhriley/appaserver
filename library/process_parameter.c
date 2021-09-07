@@ -412,7 +412,7 @@ PROCESS_PARAMETER *process_parameter_parse(
 		process_parameter->delimited_list =
 			process_parameter_folder_delimited_list(
 				process_parameter->folder_name
-					/* drop_down_folder_name */,
+					/* widget_folder_name */,
 				process_parameter->login_name,
 				process_parameter->role_name,
 				process_parameter->drillthru_dictionary );
@@ -563,7 +563,7 @@ LIST *process_parameter_process_delimited_list(
 }
 
 LIST *process_parameter_folder_delimited_list(
-			char *drop_down_folder_name,
+			char *widget_folder_name,
 			char *login_name,
 			char *role_name,
 			DICTIONARY *drillthru_dictionary )
@@ -575,7 +575,7 @@ LIST *process_parameter_folder_delimited_list(
 
 	if ( ! ( folder =
 		     folder_fetch(
-			drop_down_folder_name,
+			widget_folder_name,
 			(char *)0 /* role_name */,
 			(LIST *)0 /* role_exclude_attribute_name_list */,
 			/* --------------------------------------- */
@@ -625,8 +625,8 @@ LIST *process_parameter_folder_delimited_list(
 			role->override_row_restrictions );
 
 	query =
-		query_drop_down_delimited_new(
-			drop_down_folder_name,
+		query_widget_delimited_new(
+			widget_folder_name,
 			login_name,
 			folder->folder_attribute_primary_list,
 			folder->folder_attribute_list,

@@ -192,11 +192,11 @@ QUERY *query_calloc(	void );
 
 /* Query usage */
 /* ----------- */
-QUERY *query_isa_drop_down_new(
+QUERY *query_isa_widget_new(
 			char *one2m_isa_folder_name,
-			char *login_name,
 			LIST *folder_attribute_primary_list,
-			SECURITY_ENTITY *security_entity );
+			char *login_name,
+			char *security_entity_where );
 
 QUERY *query_widget_delimited_new(
 			char *drop_down_folder_name,
@@ -339,7 +339,7 @@ char *query_select_string(
 
 /* QUERY_DROP_DOWN operations */
 /* -------------------------- */
-LIST *query_drop_down_list(
+LIST *query_drop_down_fetch_list(
 			LIST *exclude_attribute_name_list /* out */,
 			char *drop_down_folder_name,
 			LIST *folder_attribute_list,
@@ -554,14 +554,6 @@ QUERY_DROP_DOWN *query_process_drop_down(
 			LIST *attribute_list,
 			DICTIONARY *drilldown_dictionary );
 
-QUERY_DROP_DOWN_ROW *query_process_drop_down_row_new(
-			char *attribute_name,
-			LIST *attribute_list,
-			LIST *query_data_list );
-
-QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
-			void );
-
 char *query_drop_down_list_in_clause_display(
 			char *attribute_name,
 			LIST *data_list );
@@ -669,11 +661,6 @@ LIST *query_edit_table_drop_down_row_list(
 			LIST *foreign_attribute_list,
 			DICTIONARY *query_dictionary,
 			int highest_index );
-
-QUERY_DROP_DOWN_ROW *query_drop_down_edit_table_new(
-			LIST *attribute_name_list,
-			LIST *attribute_list,
-			LIST *data_list );
 
 char *query_edit_table_drop_down_where(
 			LIST *query_drop_down_list,
@@ -842,6 +829,11 @@ char *query_data_convert_date_international(
 			char *attribute_datatype,
 			char *escaped_replaced_data );
 
+char *query_drop_down_data_where(
+			char *folder_name,
+			char *attribute_name,
+			char *data );
+
 /* QUERY_DROP_DOWN_ROW operations */
 /* ------------------------------ */
 LIST *query_drop_down_row_list(
@@ -856,13 +848,6 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 			DICTIONARY *drillthru_dictionary,
 			LIST *primary_key_list,
 			LIST *foreign_key_list,
-			int index );
-
-QUERY_DROP_DOWN_ROW *query_edit_table_drop_down_row(
-			LIST *exclude_attribute_name_list,
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_list,
-			DICTIONARY *query_dictionary,
 			int index );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
@@ -926,7 +911,8 @@ LIST *query_delimited_list(
 			char *select_clause,
 			char *from_clause,
 			char *where_clause,
-			char *order_clause );
+			char *order_clause,
+			int max_rows );
 
 LIST *query_system_dictionary_list(
 			char *system_string,

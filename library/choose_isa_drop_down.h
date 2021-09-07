@@ -13,6 +13,7 @@
 #include "role.h"
 #include "security.h"
 #include "folder.h"
+#include "form.h"
 
 /* Constants */
 /* --------- */
@@ -42,16 +43,19 @@ typedef struct
 	LIST *element_list;
 } CHOOSE_ISA_DROP_DOWN;
 
-/* Operations */
-/* ---------- */
+/* Prompt operations */
+/* ----------------- */
 CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_calloc(
 			void );
 
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
+CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
+			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
 
@@ -67,6 +71,30 @@ char *choose_isa_drop_down_action_string(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
+			char *one2m_isa_folder_name,
+			char *role_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *choose_isa_drop_down_prompt_message(
+			char *one2m_isa_folder_name );
+
+FORM *choose_isa_drop_down_prompt_form(
+			char *prompt_message,
+			LIST *element_list,
+			char *action_string );
+
+/* Post operations */
+/* --------------- */
+CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_post_fetch(
+			/* ----------------------------------- */
+			/* See session_folder_integrity_exit() */
+			/* ----------------------------------- */
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *folder_name,
+			char *one2m_isa_folder_name,
 			char *role_name );
 
 #endif

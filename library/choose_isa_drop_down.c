@@ -36,7 +36,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_calloc( void )
 	return choose_isa_drop_down;
 }
 
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
+CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
@@ -60,7 +60,10 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 			one2m_isa_folder_name,
 			(char *)0 /* not fetching role_folder_list */,
 			(LIST *)0 /* exclude_attribute_name_list */,
-			/* Also sets primary_key_list */
+			/* --------------------------------------- */
+			/* Also sets folder_primary_attribute_list */
+			/* and folder_key_list			   */
+			/* --------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
 			0 /* not fetch_relation_mto1_non_isa_list */,
 			0 /* not fetch_relation_mto1_isa_list */,
@@ -102,19 +105,30 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_fetch(
 	{
 		QUERY *query;
 
-		query =
-			query_isa_drop_down_new(
-				one2m_isa_folder_name,
-				choose_isa_drop_down->
-					folder->
-					primary_key_list,
-				security_entity_where(
-					security_entity ) );
+		if ( ! ( query =
+				query_isa_widget_new(
+					one2m_isa_folder_name,
+					choose_isa_drop_down->
+						folder->
+						primary_key_list,
+					security_entity_where(
+						security_entity ) ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_isa_widget_new() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		choose_isa_drop_down->delimited_list =
 			query_delimited_list(
-
-			query->query_delimited_list;
+				query->select_clause,
+				query->from_clause,
+				query->where_clause,
+				query->order_clause,
+				0 /* max_rows */ );
 	}
 
 	choose_isa_drop_down->element_list =
