@@ -83,15 +83,15 @@ typedef struct
 	/* Input */
 	/* ----- */
 	LIST *one_primary_key_list;
-	LIST *one_folder_attribute_list;
 	LIST *foreign_key_list;
+	LIST *many_folder_attribute_list;
 	DICTIONARY *drillthru_dictionary;
 	int index;
 
 	/* Process */
 	/* ------- */
 	char *data_list_string;
-	LIST *query_data_string_list;
+	LIST *data_string_list;
 	LIST *query_data_list;
 } QUERY_DROP_DOWN_ROW;
 
@@ -182,10 +182,6 @@ typedef struct
 	LIST *delimited_list;
 	LIST *dictionary_list;
 } QUERY;
-
-/* QUERY operations */
-/* ---------------- */
-QUERY *query_calloc(	void );
 
 /* QUERY_ISA_WIDGET operations */
 /* --------------------------- */
@@ -376,10 +372,10 @@ char *query_select_string(
 /* -------------------------- */
 LIST *query_drop_down_list(
 			LIST *exclude_attribute_name_list /* out */,
-			char *drop_down_folder_name,
-			LIST *folder_attribute_list,
-			DICTIONARY *drillthru_dictionary,
-			LIST *relation_mto1_non_isa_list );
+			char *many_folder_name,
+			LIST *many_folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary );
 
 QUERY_DROP_DOWN *query_drop_down_calloc(
 			void );
@@ -388,11 +384,15 @@ QUERY_DROP_DOWN *query_drop_down_calloc(
 /* --------------- */
 QUERY_DROP_DOWN *query_drop_down_new(
 			char *many_folder_name,
+			LIST *many_folder_attribute_list,
 			char *one_folder_name,
 			LIST *one_primary_key_list,
 			LIST *foreign_key_list,
 			DICTIONARY *drillthru_dictionary,
 			int highest_index );
+
+char *query_drop_down_operator_key(
+			LIST *foreign_key_list );
 
 /* QUERY_ROW operations */
 /* -------------------- */
@@ -428,16 +428,8 @@ LIST *query_attribute_list(
 char *query_attribute_list_where(
 			LIST *query_attribute_list );
 
-void query_convert_date_international(
-			char **data );
-
-boolean query_get_dictionary_data(
-			char **data,
-			DICTIONARY *dictionary, 
-			char *attribute_name,
-			int dictionary_offset,
-			char *starting_label,
-			char *dictionary_prepend_folder_name );
+char *query_attribute_operator_key(
+			char *operator_name );
 
 QUERY_DATA *query_data_escaped(
 			DICTIONARY *dictionary,
@@ -455,10 +447,6 @@ LIST *query_attribute_list(
 enum relational_operator query_relational_operator(
 			char *operator_name,
 			char *attribute_datatype );
-
-QUERY_SUBQUERY *query_subquery_new(
-			char *folder_name,
-			LIST *foreign_attribute_name_list );
 
 QUERY_ATTRIBUTE *query_attribute_new(
 			char *attribute_name,
@@ -847,10 +835,9 @@ char *query_date_convert_select_string(
 
 /* QUERY_DATA operations */
 /* --------------------- */
-LIST *query_drop_down_data_list(
-			LIST *primary_key_list,
+LIST *query_data_list(
 			LIST *foreign_key_list,
-			LIST *one_folder_attribute_list,
+			LIST *many_folder_attribute_list,
 			LIST *data_string_list );
 
 QUERY_DATA *query_data_new(
@@ -870,17 +857,17 @@ char *query_drop_down_data_where(
 /* QUERY_DROP_DOWN_ROW operations */
 /* ------------------------------ */
 LIST *query_drop_down_row_list(
-			LIST *one_folder_attribute_list,
-			DICTIONARY *drillthru_dictionary,
-			LIST *primary_key_list,
+			LIST *one_primary_key_list,
 			LIST *foreign_key_list,
+			LIST *many_folder_attribute_list,
+			DICTIONARY *drillthru_dictionary,
 			int highest_index );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
-			LIST *one_folder_attribute_list,
-			DICTIONARY *drillthru_dictionary,
-			LIST *primary_key_list,
+			LIST *one_primary_key_list,
 			LIST *foreign_key_list,
+			LIST *many_folder_attribute_list,
+			DICTIONARY *drillthru_dictionary,
 			int index );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
@@ -888,15 +875,38 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 
 /* Returns static memory */
 /* --------------------- */
-char *query_key(	LIST *foreign_key_list,
+char *query_drop_down_row_key(
+			LIST *foreign_key_list,
 			int index );
 
-char *query_data_list_string(
-			DICTIONARY *query_dictionary,
-			char *query_key );
+char *query_drop_down_row_data_list_string(
+			char *key,
+			DICTIONARY *query_dictionary );
 
-LIST *query_data_string_list(
+LIST *query_drop_down_row_data_string_list(
 			char *data_list_string );
+
+/* QUERY generic operations */
+/* ------------------------ */
+QUERY *query_calloc(	void );
+
+char *query_yes_no_operator_name(
+			char *attribute_name );
+
+char *query_operator_name(
+			char *operator_key,
+			DICTIONARY *dictionary );
+
+enum relational_operator
+	query_relational_operator(
+			char *operator_name,
+			char *attribute_datatype );
+
+/* Returns program memory */
+/* ---------------------- */
+char *query_operator_character_string(
+			char *operator_string );
+
 
 LIST *query_select_name_list(
 			LIST *append_isa_attribute_list,
@@ -950,15 +960,5 @@ LIST *query_delimited_list(
 LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_list );
-
-/* QUERY generic */
-/* ------------- */
-char *query_yes_no_operator_name(
-			char *attribute_name );
-
-/* Returns program memory */
-/* ---------------------- */
-char *query_operator_character_string(
-			char *operator_string );
 
 #endif
