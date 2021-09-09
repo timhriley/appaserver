@@ -178,7 +178,7 @@ char *string_itoa(	int i );
 /* -------------- */
 char *string_trim_number_characters(
 			char *number,
-			char *attribute_datatype );
+			char *datatype_name );
 
 char *string_trim_character_array(
 			char *data,
@@ -219,5 +219,11 @@ char *string_trim_leading_character(
 
 char *string_trim_index(
 			char *string );
+
+int string_exists_character(
+			char *s,
+			char ch );
+
+char string_delimiter(	char *string );
 
 #endif

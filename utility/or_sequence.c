@@ -1,4 +1,4 @@
-/* utility/or_sequence.c		     */
+/* $APPASERVER_HOME/utility/or_sequence.c     */
 /* ----------------------------------------- */
 /* Utility program for QUERY_OR_SEQUENCE ADT */
 /* ----------------------------------------- */
@@ -60,10 +60,10 @@ int main( int argc, char **argv )
 		for( j = 0; j < division_results; j++ )
 		{
 			full_data_list_pointer =
-				list_get_pointer(
+				list_get(
 					full_data_list );
 
-			list_append_pointer(	partial_data_list,
+			list_set(	partial_data_list,
 						full_data_list_pointer );
 
 			list_next( full_data_list );
@@ -81,6 +81,5 @@ int main( int argc, char **argv )
 				0 /* not with_and_prefix */ ) );
 
 	return 0;
-
-} /* main() */
+}
 

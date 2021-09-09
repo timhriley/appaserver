@@ -172,7 +172,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 void output_spss_ready_attempt_success(
 				char *application_name,
@@ -277,7 +277,7 @@ void output_spss_ready_attempt_success(
 
 	printf( "<br>\n" );
 
-} /* output_spss_ready_attempt_success() */
+}
 
 void get_title_and_sub_title(
 			char *title,
@@ -293,7 +293,7 @@ void get_title_and_sub_title(
 			collection_list,
 			project_list ) );
 
-} /* get_title_and_sub_title() */
+}
 
 FILE *get_input_pipe(	char *application_name,
 			LIST *collection_list,
@@ -314,7 +314,7 @@ FILE *get_input_pipe(	char *application_name,
 
 	return popen( sys_string, "r" );
 
-} /* get_input_pipe() */
+}
 
 char *get_query_or_sequence_where_clause(
 				char *application_name,
@@ -354,12 +354,11 @@ char *get_query_or_sequence_where_clause(
 			query_or_sequence->data_list_list,
 			project_list );
 
-	return query_or_sequence_get_where_clause(
+	return query_or_sequence_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
-
-} /* get_query_or_sequence_where_clause() */
+}
 
 char *get_select_string(
 			char *application_name,
@@ -500,5 +499,5 @@ char *get_select_string(
 
 	return strdup( select_string );
 
-} /* get_select_string() */
+}
 

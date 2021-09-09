@@ -2737,8 +2737,9 @@ char *timlib_yyyymmdd_to_ora_date( char *s )
 
 }
 
-boolean timlib_exists_character( 	char *s,
-					char ch )
+boolean timlib_exists_character(
+			char *s,
+			char ch )
 {
 	while( *s )
 	{

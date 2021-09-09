@@ -673,4 +673,9 @@ void dictionary_set_other_data(
 void dictionary_output_as_hidden(
 			DICTIONARY *dictionary );
 
+char *dictionary_starting_label_get(
+			char *key,
+			char *starting_label,
+			DICTIONARY *dictionary );
+
 #endif

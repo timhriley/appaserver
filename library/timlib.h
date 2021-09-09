@@ -348,7 +348,7 @@ int timlib_get_block_delimiter(
 			int delimiter,
 			int columns_to_block,
 			FILE *input_file,
-		int max_lines );
+			int max_lines );
 
 int string_array_search_offset(
 			char **string_array, 

@@ -51,7 +51,7 @@ BRAUN_BLANQUE *braun_blanque_new(	char *application_name )
 			list_length( braun_blanque->vegetation_group_list ) );
 
 	return braun_blanque;
-} /* braun_blanque_new() */
+}
 
 VALUE *braun_blanque_value_new(	double value_double )
 {
@@ -70,7 +70,7 @@ VALUE *braun_blanque_value_new(	double value_double )
 	value->value = value_double;
 
 	return value;
-} /* braun_blanque_value_new() */
+}
 
 INPUT_RECORD *braun_blanque_input_record_new( void )
 {
@@ -87,7 +87,7 @@ INPUT_RECORD *braun_blanque_input_record_new( void )
 	}
 
 	return input_record;
-} /* braun_blanque_input_record_new() */
+}
 
 OUTPUT_RECORD *braun_blanque_output_record_new(
 				int length_vegetation_list,
@@ -116,7 +116,7 @@ OUTPUT_RECORD *braun_blanque_output_record_new(
 	output_record->substrate_list = list_new();
 
 	return output_record;
-} /* braun_blanque_output_record_new() */
+}
 
 SUBSTRATE *braun_blanque_substrate_new(
 					char *substrate_name,
@@ -138,7 +138,7 @@ SUBSTRATE *braun_blanque_substrate_new(
 	substrate->substrate_code = substrate_code;
 
 	return substrate;
-} /* braun_blanque_substrate_new() */
+}
 
 VEGETATION_GROUP *braun_blanque_vegetation_group_new(
 					char *vegetation_group_name,
@@ -160,7 +160,7 @@ VEGETATION_GROUP *braun_blanque_vegetation_group_new(
 	vegetation_group->heading_label = heading_label;
 
 	return vegetation_group;
-} /* braun_blanque_vegetation_group_new() */
+}
 
 VEGETATION_GROUP_VALUE *braun_blanque_vegetation_group_value_new(
 						void )
@@ -179,7 +179,7 @@ VEGETATION_GROUP_VALUE *braun_blanque_vegetation_group_value_new(
 	}
 
 	return vegetation_group_value;
-} /* braun_blanque_vegetation_group_value_new() */
+}
 
 VALUE **braun_blanque_value_array_new( int length_vegetation_list )
 {
@@ -199,7 +199,7 @@ VALUE **braun_blanque_value_array_new( int length_vegetation_list )
 	}
 
 	return value_array;
-} /* braun_blanque_value_array_new() */
+}
 
 VEGETATION_GROUP_VALUE **braun_blanque_group_value_array_new(
 				int length_vegetation_group_list )
@@ -220,7 +220,7 @@ VEGETATION_GROUP_VALUE **braun_blanque_group_value_array_new(
 	}
 
 	return group_value_array;
-} /* braun_blanque_group_value_array_new() */
+}
 
 char *braun_blanque_group_heading_label_list_display(
 				LIST *vegetation_group_list )
@@ -242,7 +242,7 @@ char *braun_blanque_group_heading_label_list_display(
 	*ptr = '\0';
 	return strdup( heading_label_list_string );
 
-} /* braun_blanque_group_heading_label_list_display() */
+}
 
 char *braun_blanque_heading_label_list_display(
 				LIST *vegetation_list )
@@ -264,7 +264,7 @@ char *braun_blanque_heading_label_list_display(
 	*ptr = '\0';
 	return strdup( heading_label_list_string );
 
-} /* braun_blanque_heading_label_list_display() */
+}
 
 LIST *braun_blanque_get_total_vegetation_list(
 				char *application_name )
@@ -320,7 +320,7 @@ LIST *braun_blanque_get_total_vegetation_list(
 	pclose( input_pipe );
 	return vegetation_list;
 
-} /* braun_blanque_get_total_vegetation_list() */
+}
 
 LIST *braun_blanque_get_vegetation_list(char *application_name,
 					LIST *vegetation_group_list )
@@ -353,7 +353,7 @@ LIST *braun_blanque_get_vegetation_list(char *application_name,
 
 	return vegetation_list;
 
-} /* braun_blanque_get_vegetation_list() */
+}
 
 SUBSTRATE *braun_blanque_substrate_seek(LIST *master_substrate_list,
 					char *substrate_name )
@@ -373,7 +373,7 @@ SUBSTRATE *braun_blanque_substrate_seek(LIST *master_substrate_list,
 		}
 	} while( list_next( master_substrate_list ) );
 	return (SUBSTRATE *)0;
-} /* braun_blanque_substrate_seek() */
+}
 
 LIST *braun_blanque_get_substrate_list( char *application_name )
 {
@@ -420,7 +420,7 @@ LIST *braun_blanque_get_substrate_list( char *application_name )
 	pclose( input_pipe );
 	return substrate_list;
 
-} /* braun_blanque_get_substrate_list() */
+}
 
 LIST *braun_blanque_get_vegetation_group_list( char *application_name )
 {
@@ -470,7 +470,7 @@ LIST *braun_blanque_get_vegetation_group_list( char *application_name )
 	pclose( input_pipe );
 	return vegetation_group_list;
 
-} /* braun_blanque_get_vegetation_group_list() */
+}
 
 LIST *braun_blanque_get_seagrass_vegetation_list(
 				char *application_name,
@@ -556,7 +556,7 @@ LIST *braun_blanque_get_seagrass_vegetation_list(
 	pclose( input_pipe );
 	return vegetation_list;
 
-} /* braun_blanque_get_seagrass_vegetation_list() */
+}
 
 LIST *braun_blanque_get_non_seagrass_vegetation_list(
 			char *application_name,
@@ -622,7 +622,7 @@ LIST *braun_blanque_get_non_seagrass_vegetation_list(
 	pclose( input_pipe );
 	return vegetation_list;
 
-} /* braun_blanque_get_non_seagrass_vegetation_list() */
+}
 
 VEGETATION *braun_blanque_vegetation_new(
 				char *vegetation_name,
@@ -648,7 +648,7 @@ VEGETATION *braun_blanque_vegetation_new(
 	vegetation->vegetation_group = group;
 	return vegetation;
 
-} /* braun_blanque_vegetation_new() */
+}
 
 void braun_blanque_append_vegetation_list(
 				LIST *vegetation_list,
@@ -667,7 +667,7 @@ void braun_blanque_append_vegetation_list(
 
 	list_append_pointer( vegetation_list, vegetation );
 
-} /* braun_blanque_append_vegetation_list() */
+}
 
 VEGETATION *braun_blanque_append_vegetation_seek(
 				LIST *vegetation_list,
@@ -691,7 +691,7 @@ VEGETATION *braun_blanque_append_vegetation_seek(
 		}
 	} while( list_next( vegetation_list ) );
 	return (VEGETATION *)0;
-} /* braun_blanque_append_vegetation_seek() */
+}
 
 boolean braun_blanque_vegetation_exists(
 				LIST *vegetation_list,
@@ -703,7 +703,7 @@ boolean braun_blanque_vegetation_exists(
 				vegetation_name,
 				is_height_yn );
 
-} /* braun_blanque_vegetation_exists() */
+}
 
 boolean braun_blanque_set_input_buffer(
 				FILE *output_file,
@@ -1143,7 +1143,7 @@ input_record->value );
 	}
 
 	return 1;
-} /* braun_blanque_set_input_buffer() */
+}
 
 void braun_blanque_set_output_record(
 		OUTPUT_RECORD *output_record,
@@ -1211,7 +1211,7 @@ void braun_blanque_set_output_record(
 		}
 	}
 
-} /* braun_blanque_set_output_record() */
+}
 
 char *braun_blanque_get_key(	char *collection_name,
 				char *location,
@@ -1227,7 +1227,7 @@ char *braun_blanque_get_key(	char *collection_name,
 			site_number,
 			quad );
 	return key;
-} /* braun_blanque_get_key() */
+}
 
 void braun_blanque_set_output_anchor(
 				OUTPUT_RECORD *output_record,
@@ -1247,13 +1247,13 @@ void braun_blanque_set_output_anchor(
 	output_record->site_number = site_number;
 	output_record->quad = quad;
 
-} /* braun_blanque_set_output_anchor() */
+}
 
 LIST *braun_blanque_clear_substrate_list( LIST *substrate_list )
 {
 	if ( substrate_list ) list_free_container( substrate_list );
 	return list_new();
-} /* braun_blanque_clear_substrate_list() */
+}
 
 void braun_blanque_clear_group_value_array(
 				VEGETATION_GROUP_VALUE **group_value_array,
@@ -1271,7 +1271,7 @@ void braun_blanque_clear_group_value_array(
 		}
 	}
 
-} /* braun_blanque_clear_group_value_array() */
+}
 
 void braun_blanque_clear_value_array(
 				VALUE **value_array,
@@ -1289,7 +1289,7 @@ void braun_blanque_clear_value_array(
 		}
 	}
 
-} /* braun_blanque_clear_value_array() */
+}
 
 void braun_blanque_set_group_value_array(
 				VEGETATION_GROUP_VALUE **group_value_array,
@@ -1326,7 +1326,7 @@ void braun_blanque_set_group_value_array(
 		value_double;
 	group_value_array[ output_record_value_index ]->count++;
 
-} /* braun_blanque_set_group_value_array() */
+}
 
 void braun_blanque_set_value_array(
 			VALUE **value_array,
@@ -1350,7 +1350,7 @@ void braun_blanque_set_value_array(
 	value = braun_blanque_value_new( value_double );
 	value_array[ output_record_value_index ] = value;
 
-} /* braun_blanque_set_value_array() */
+}
 
 VEGETATION_GROUP *braun_blanque_vegetation_group_seek(
 			char *vegetation_group_name,
@@ -1380,7 +1380,7 @@ VEGETATION_GROUP *braun_blanque_vegetation_group_seek(
 		 __LINE__,
 		 vegetation_group_name );
 	exit( 1 );
-} /* braun_blanque_vegetation_group_seek() */
+}
 
 int braun_blanque_get_vegetation_group_index(
 			char *vegetation_group_name,
@@ -1407,7 +1407,7 @@ int braun_blanque_get_vegetation_group_index(
 		} while( list_next( vegetation_group_list ) );
 	}
 	return -1;
-} /* braun_blanque_get_vegetation_group_index() */
+}
  
 int braun_blanque_get_output_record_value_index(
 			char *vegetation_name,
@@ -1433,7 +1433,7 @@ int braun_blanque_get_output_record_value_index(
 		} while( list_next( vegetation_list ) );
 	}
 	return -1;
-} /* braun_blanque_get_output_record_value_index() */
+}
 
 boolean braun_blanque_is_height_yn_match(	char is_height_yn1,
 						char is_height_yn2 )
@@ -1448,7 +1448,7 @@ boolean braun_blanque_is_height_yn_match(	char is_height_yn1,
 		return 0;
 	else
 		return 1;
-} /* braun_blanque_is_height_yn_match() */
+}
 
 char *braun_blanque_or_sequence_get_where_clause(
 				char *application_name,
@@ -1488,12 +1488,11 @@ char *braun_blanque_or_sequence_get_where_clause(
 			query_or_sequence->data_list_list,
 			project_list );
 
-	return query_or_sequence_get_where_clause(
+	return query_or_sequence_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
-
-} /* braun_blanque_or_sequence_get_where_clause() */
+}
 
 char *braun_blanque_get_substrate_display(
 				LIST *substrate_list )
@@ -1515,7 +1514,7 @@ char *braun_blanque_get_substrate_display(
 	} while( list_next( substrate_list ) );
 	*ptr = '\0';
 	return display;
-} /* braun_blanque_get_substrate_display() */
+}
 
 char *braun_blanque_vegetation_list_display(
 					LIST *vegetation_list )
@@ -1545,7 +1544,7 @@ char *braun_blanque_vegetation_list_display(
 	} while( list_next( vegetation_list ) );
 
 	return display;
-} /* braun_blanque_vegetation_list_display() */
+}
 
 char *braun_blanque_vegetation_group_display(
 				VEGETATION_GROUP *vegetation_group )
@@ -1562,7 +1561,7 @@ char *braun_blanque_vegetation_group_display(
 		 	vegetation_group->heading_label );
 	}
 	return strdup( display );
-} /* braun_blanque_vegetation_group_display() */
+}
 
 VEGETATION *braun_blanque_vegetation_seek(
 					LIST *vegetation_list,
@@ -1583,7 +1582,7 @@ VEGETATION *braun_blanque_vegetation_seek(
 
 	return (VEGETATION *)0;
 
-} /* braun_blanque_vegetation_seek() */
+}
 
 char *braun_blanque_get_vegetation_group_name(
 					LIST *vegetation_list,
@@ -1611,7 +1610,7 @@ char *braun_blanque_get_vegetation_group_name(
 
 	return vegetation->vegetation_group->vegetation_group_name;
 
-} /* braun_blanque_get_vegetation_group_name() */
+}
 
 double braun_blanque_get_max_avg_height(
 			double *average_height,
@@ -1668,7 +1667,7 @@ double braun_blanque_get_max_avg_height(
 	if ( count ) *average_height = total_height / (double)count;
 
 	return max_height;
-} /* braun_blanque_get_max_avg_height() */
+}
 
 VEGETATION **braun_blanque_vegetation_array_new(
 			LIST *vegetation_list )
@@ -1707,7 +1706,7 @@ VEGETATION **braun_blanque_vegetation_array_new(
 		vegetation_array[ i++ ] = vegetation;
 	} while( list_next( vegetation_list ) );
 	return vegetation_array;
-} /* braun_blanque_vegetation_array_new() */
+}
 
 void braun_blanque_output_record(	FILE *output_file,
 					OUTPUT_RECORD *output_record,
@@ -1891,11 +1890,11 @@ void braun_blanque_output_record(	FILE *output_file,
 
 	fprintf( output_file, "\n" );
 
-} /* braun_blanque_output_record() */
+}
 
 void braun_blanque_clear_aggregate_values( OUTPUT_RECORD *output_record )
 {
 	output_record->average_height = 0.0;
 	output_record->max_height = 0.0;
-} /* braun_blanque_clear_aggregate_values() */
+}
 

@@ -219,7 +219,7 @@ char *security_sql_injection_escape( char *data )
 		string_escape_character_array(
 			destination,
 			data,
-			"`'$;%&=" ) );
+			"`'$;%&=_" ) );
 }
 
 SECURITY_ENTITY *security_entity_calloc( void )

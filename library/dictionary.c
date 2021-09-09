@@ -1916,6 +1916,20 @@ char *dictionary_with_prefix_at_index_zero(
 	return dictionary_get( dictionary_key, dictionary );
 }
 
+char *dictionary_starting_label_get(
+			char *key,
+			char *starting_label,
+			DICTIONARY *dictionary )
+{
+	char dictionary_key[ 1024 ];
+
+	sprintf( dictionary_key, 
+	 	"%s%s",
+	 	starting_label, key );
+
+	return dictionary_get( dictionary_key, dictionary );
+}
+
 /* --------------------------------------------------------------------------- 
 Two notes:
 1) No memory gets allocated. Both the key and data still exist

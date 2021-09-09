@@ -443,7 +443,7 @@ LIST *relation_one2m_recursive_list(
 				relation->
 				    many_folder->
 				    primary_key_list
-				    /* mto1_primary_key_list */ ) ) )
+				    /* many_primary_key_list */ ) ) )
 		{
 			relation_list =
 				relation_one2m_recursive_list(
@@ -507,12 +507,12 @@ LIST *relation_mto1_isa_list(
 }
 
 boolean relation_is_primary_key_subset(
-			LIST *foreign_attribute_name_list,
-			LIST *mto1_primary_key_list )
+			LIST *foreign_key_list,
+			LIST *many_primary_key_list )
 {
 	return list_is_subset_of(
-			foreign_attribute_name_list,
-			mto1_primary_key_list );
+			foreign_key_list,
+			many_primary_key_list );
 }
 
 char *relation_list_display(
@@ -616,5 +616,42 @@ LIST *relation_mto1_drilldown_list(
 
 	list_free_container( local_relation_list );
 	return relation_list;
+}
+
+RELATION *relation_consumes(
+			char *many_attribute_name,
+			LIST *relation_mto1_non_isa_list )
+{
+	RELATION *relation;
+
+	if ( !list_rewind( relation_mto1_non_isa_list ) ) return (RELATION *)0;
+
+	do {
+		relation =
+			list_get(
+				relation_mto1_non_isa_list );
+
+		if ( relation->consumes_taken ) continue;
+
+		if ( !relation->foreign_key_list )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( list_string_exists(
+			many_attribute_name,
+			relation->foreign_key_list ) )
+		{
+			return relation;
+		}
+
+	} while( list_next( relation_mto1_non_isa_list ) );
+
+	return (RELATION *)0;
 }
 

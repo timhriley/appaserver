@@ -129,7 +129,7 @@ int main( int argc, char **argv )
 	system( sys_string );
 
 	return 0;
-} /* main() */
+}
 
 char *get_sys_string(
 			char *application_name,
@@ -156,7 +156,7 @@ char *get_sys_string(
 
 	return strdup( sys_string );
 
-} /* get_sys_string() */
+}
 
 char *get_sql_statement(
 			char *application_name,
@@ -194,7 +194,7 @@ char *get_sql_statement(
 
 	return strdup( sql_statement );
 
-} /* get_sql_statement() */
+}
 
 char *get_select_statement(
 			char *application_name,
@@ -262,7 +262,7 @@ char *get_select_statement(
 
 	return strdup( select_statement );
 
-} /* get_select_statement() */
+}
 
 char *get_where_clause(
 			char *application_name,
@@ -331,18 +331,18 @@ char *get_where_clause(
 	query_or_sequence = query_or_sequence_new( attribute_name_list );
 
 	query_or_sequence_set_data_list(
-			query_or_sequence->data_list_list,
-			collection_list );
+		query_or_sequence->data_list_list,
+		collection_list );
 
 	query_or_sequence_set_data_list(
-			query_or_sequence->data_list_list,
-			project_list );
+		query_or_sequence->data_list_list,
+		project_list );
 
 	strcpy( where_or_clause,
-		query_or_sequence_get_where_clause(
-				query_or_sequence->attribute_name_list,
-				query_or_sequence->data_list_list,
-				0 /* not with_and_prefix */ ) );
+		query_or_sequence_where_clause(
+			query_or_sequence->attribute_name_list,
+			query_or_sequence->data_list_list,
+			0 /* not with_and_prefix */ ) );
 
 
 	if ( sum_sweeps_yn != 'y' )
@@ -525,7 +525,7 @@ char *get_where_clause(
 
 	return strdup( where_clause );
 
-} /* get_where_clause() */
+}
 
 char *get_from_clause(
 			char *application_name,
@@ -593,7 +593,7 @@ char *get_from_clause(
 
 	return strdup( from_clause );
 
-} /* get_from_clause() */
+}
 
 char *get_order_group_clause(	char *application_name,
 				char *select_string,
@@ -641,5 +641,5 @@ char *get_order_group_clause(	char *application_name,
 
 	return strdup( order_group_clause );
 
-} /* get_order_group_clause() */
+}
 

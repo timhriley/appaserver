@@ -14,6 +14,7 @@
 #include "piece.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "attribute.h"
 #include "String.h"
 
 /* Class variables */
@@ -947,27 +948,27 @@ char *string_trim_character_array(
 
 char *string_trim_number_characters(
 			char *number,
-			char *attribute_datatype )
+			char *datatype_name )
 {
-	if ( !attribute_datatype
-	||   !*attribute_datatype
+	if ( !datatype_name
+	||   !*datatype_name
 	||   !number
 	||   !*number )
 	{
 		return number;
 	}
 
-	if ( strcmp( attribute_datatype, "float" ) != 0
-	&&   strcmp( attribute_datatype, "integer" ) != 0
-	&&   strcmp( attribute_datatype, "reference_number" ) != 0 )
+	if ( attribute_is_number( datatype_name ) )
 	{
-		return number;
-	}
-
-	return
+		return
 		string_trim_character_array(
 			number,
 			",$" );
+	}
+	else
+	{
+		return number;
+	}
 }
 
 char *string_strncpy(	char *destination,
@@ -1216,5 +1217,37 @@ int string_index( char *source )
 			return -1;
 	}
 	return -1;
+}
+
+boolean string_exists_character(
+			char *s,
+			char ch )
+{
+	while( *s )
+	{
+		if ( *s == ch ) return 1;
+		s++;
+	}
+	return 0;
+}
+
+char string_delimiter( char *string )
+{
+	if ( string_exists_character( string, '|' ) )
+		return '|';
+	else
+	if ( string_exists_character( string, '^' ) )
+		return '^';
+	else
+	if ( string_exists_character( string, ',' ) )
+		return ',';
+	else
+	if ( string_exists_character( string, ';' ) )
+		return ';';
+	else
+	if ( string_exists_character( string, ':' ) )
+		return ':';
+	else
+		return 0;
 }
 

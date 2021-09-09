@@ -166,7 +166,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 void output_spss_ready_measurements(
 				char *application_name,
@@ -326,7 +326,7 @@ void output_spss_ready_measurements(
 
 	printf( "<br>\n" );
 
-} /* output_spss_ready_measurements() */
+}
 
 void get_title_and_sub_title(
 			char *title,
@@ -342,7 +342,7 @@ void get_title_and_sub_title(
 			collection_list,
 			project_list ) );
 
-} /* get_title_and_sub_title() */
+}
 
 char *get_sys_string(	char *application_name,
 			LIST *collection_list,
@@ -581,7 +581,7 @@ char *get_sys_string(	char *application_name,
 
 	return sys_string;
 
-} /* get_sys_string() */
+}
 
 char *get_abiotic_measurement_key(
 				char *location,
@@ -601,7 +601,7 @@ char *get_abiotic_measurement_key(
 		 datatype );
 	return key;
 
-} /* get_abiotic_measurement_key() */
+}
 
 DICTIONARY *get_abiotic_dictionary(
 				char *application_name,
@@ -662,7 +662,7 @@ DICTIONARY *get_abiotic_dictionary(
 
 	return get_sys_string_abiotic_dictionary( sys_string );
 
-} /* get_abiotic_dictionary() */
+}
 
 DICTIONARY *get_sys_string_abiotic_dictionary( char *sys_string )
 {
@@ -731,7 +731,7 @@ DICTIONARY *get_sys_string_abiotic_dictionary( char *sys_string )
 
 	return dictionary;
 
-} /* get_sys_string_abiotic_dictionary() */
+}
 
 char *get_where_collection_project(
 			char *application_name,
@@ -767,12 +767,12 @@ char *get_where_collection_project(
 			query_or_sequence->data_list_list,
 			project_list );
 
-	return query_or_sequence_get_where_clause(
+	return query_or_sequence_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
 
-} /* get_where_collection_project() */
+}
 
 LIST *get_sampling_point_datatype_list(
 				char *application_name )
@@ -795,7 +795,7 @@ LIST *get_sampling_point_datatype_list(
 
 	return pipe2list( sys_string );
 
-} /* get_sampling_point_datatype_list() */
+}
 
 void output_spss_ready_measurements_sys_string(
 		char *output_filename,
@@ -913,5 +913,5 @@ void output_spss_ready_measurements_sys_string(
 	pclose( output_pipe );
 	pclose( input_pipe );
 
-} /* output_spss_ready_measurements_sys_string() */
+}
 

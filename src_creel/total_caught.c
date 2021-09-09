@@ -369,7 +369,7 @@ LIST *total_caught_get_species_list(
 			species_list_string );
 	
 		query_or_sequence_where_clause =
-			query_or_sequence_get_where_clause(
+			query_or_sequence_where_clause(
 					query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );

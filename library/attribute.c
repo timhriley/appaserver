@@ -164,7 +164,8 @@ boolean attribute_is_number(
 			char *datatype )
 {
 	if (  string_strcmp( datatype, "float" ) == 0
-	||    string_strcmp( datatype, "integer" ) == 0 )
+	||    string_strcmp( datatype, "integer" ) == 0
+	||    string_strcmp( datatype, "reference_number" ) == 0 )
 	{
 		return 1;
 	}
@@ -261,6 +262,12 @@ char *attribute_full_attribute_name(
 	}
 
 	return full_attribute_name;
+}
+
+boolean attribute_is_boolean(
+			char *attribute_name )
+{
+	return attribute_is_yes_no( attribute_name );
 }
 
 boolean attribute_is_yes_no(

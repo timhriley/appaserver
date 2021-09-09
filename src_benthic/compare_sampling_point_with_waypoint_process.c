@@ -154,7 +154,7 @@ int main( int argc, char **argv )
 				utm_distance_list );
 
 	return 0;
-} /* main() */
+}
 
 void output_compare_waypoint_process(
 				char *application_name,
@@ -262,7 +262,7 @@ void output_compare_waypoint_process(
 
 	pclose( input_pipe );
 
-} /* output_compare_waypoint_process() */
+}
 
 char *get_query_or_sequence_where_clause(
 				char *application_name,
@@ -302,12 +302,11 @@ char *get_query_or_sequence_where_clause(
 			query_or_sequence->data_list_list,
 			project_list );
 
-	return query_or_sequence_get_where_clause(
+	return query_or_sequence_where_clause(
 				query_or_sequence->attribute_name_list,
 				query_or_sequence->data_list_list,
 				0 /* not with_and_prefix */ );
-
-} /* get_query_or_sequence_where_clause() */
+}
 
 
 char *get_input_sys_string(
@@ -383,7 +382,7 @@ char *get_input_sys_string(
 
 	return strdup( sys_string );
 
-} /* get_input_sys_string() */
+}
 
 void parse_input_buffer(	char *collection_name,
 				char *location,
@@ -435,7 +434,7 @@ void parse_input_buffer(	char *collection_name,
 		input_buffer,
 		7 );
 
-} /* parse_input_buffer() */
+}
 
 void get_both_waypoint_lists(	LIST **waypoint1_list,
 				LIST **waypoint2_list,
@@ -525,7 +524,7 @@ void get_both_waypoint_lists(	LIST **waypoint1_list,
 
 	pclose( input_pipe );
 
-} /* get_both_waypoint_lists() */
+}
 
 LIST *get_utm_distance_list(	char *application_name,
 				LIST *collection_list,
@@ -555,5 +554,5 @@ LIST *get_utm_distance_list(	char *application_name,
 		waypoint1_list,
 		waypoint2_list );
 
-} /* get_utm_distance_list() */
+}
 

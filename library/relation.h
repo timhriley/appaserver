@@ -64,9 +64,12 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	boolean is_primary_key_subset;
 	LIST *foreign_key_list;
-	boolean ignore;
+
+	/* Generic */
+	/* ------- */
+	boolean is_primary_key_subset;
+	boolean consumes_taken;
 } RELATION;
 
 /* Operations */
@@ -169,6 +172,10 @@ LIST *relation_mto1_drilldown_list(
 
 LIST *relation_one2m_list(
 			char *one_folder_name );
+
+RELATION *relation_consumes(
+			char *many_attribute_name,
+			LIST *relation_mto1_non_isa_list );
 
 #endif
 

@@ -180,7 +180,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 void output_spss_ready_sampling_point_abiotic(
 				char *application_name,
@@ -287,7 +287,7 @@ void output_spss_ready_sampling_point_abiotic(
 
 	printf( "<br>\n" );
 
-} /* output_spss_ready_sampling_point_abiotic() */
+}
 
 void get_title_and_sub_title(
 			char *title,
@@ -303,7 +303,7 @@ void get_title_and_sub_title(
 			collection_list,
 			project_list ) );
 
-} /* get_title_and_sub_title() */
+}
 
 FILE *get_input_pipe(	char *application_name,
 			LIST *collection_list,
@@ -343,7 +343,7 @@ m2( "benthic", msg );
 */
 	return popen( sys_string, "r" );
 
-} /* get_input_pipe() */
+}
 
 char *get_query_or_sequence_where_clause(
 				char *application_name,
@@ -376,19 +376,18 @@ char *get_query_or_sequence_where_clause(
 	query_or_sequence = query_or_sequence_new( attribute_name_list );
 
 	query_or_sequence_set_data_list(
-			query_or_sequence->data_list_list,
-			collection_list );
+		query_or_sequence->data_list_list,
+		collection_list );
 
 	query_or_sequence_set_data_list(
-			query_or_sequence->data_list_list,
-			project_list );
+		query_or_sequence->data_list_list,
+		project_list );
 
 	return query_or_sequence_get_where_clause(
-				query_or_sequence->attribute_name_list,
-				query_or_sequence->data_list_list,
-				0 /* not with_and_prefix */ );
-
-} /* get_query_or_sequence_where_clause() */
+			query_or_sequence->attribute_name_list,
+			query_or_sequence->data_list_list,
+			0 /* not with_and_prefix */ );
+}
 
 LIST *get_master_datatype_name_list(
 			char *application_name )
@@ -407,7 +406,7 @@ LIST *get_master_datatype_name_list(
 		 where );
 	return pipe2list( sys_string );
 	
-} /* get_master_datatype_name_list() */
+}
 
 char *get_sampling_select_string(
 			char *application_name,
@@ -547,7 +546,7 @@ char *get_sampling_select_string(
 
 	return strdup( select_string );
 
-} /* get_sampling_select_string() */
+}
 
 char *get_throwtrap_select_string(
 			char *application_name,
@@ -702,5 +701,5 @@ char *get_throwtrap_select_string(
 
 	return strdup( select_string );
 
-} /* get_throwtrap_select_string() */
+}
 

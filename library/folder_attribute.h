@@ -114,6 +114,10 @@ char *folder_attribute_primary_where(
 char *folder_attribute_sort_attribute_name(
 			LIST *folder_attribute_list );
 
+FOLDER_ATTRIBUTE *folder_attribute_seek(
+			char *attribute_name,
+			LIST *folder_attribute_list );
+
 FOLDER_ATTRIBUTE *folder_attribute_list_seek(
 			char *attribute_name,
 			LIST *folder_attribute_list );
