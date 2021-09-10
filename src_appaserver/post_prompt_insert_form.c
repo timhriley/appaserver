@@ -103,6 +103,7 @@ int main( int argc, char **argv )
 	LIST *missing_attribute_name_list;
 	LIST *ignore_attribute_name_list;
 	VERTICAL_NEW_BUTTON *vertical_new_button;
+	FOLDER *folder;
 
 	if ( argc != 7 )
 	{
@@ -132,26 +133,32 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	role = role_new( role_name );
+	role =
+		role_fetch(
+			role_name,
+			1 /* fetch_attribute_exclude_list */ );
 
-	role->role_attribute_exclude_list =
-		role_get_attribute_exclude_list(
-			application_name,
-			role->role_name );
-
-	appaserver =
-		appaserver_folder_new(
-			application_name,
-			session,
-			folder_name );
-
-	appaserver->folder->attribute_list =
-		attribute_get_attribute_list(
-			appaserver->application_name,
-			appaserver->folder->folder_name,
-			(char *)0 /* attribute_name */,
-			(LIST *)0 /* mto1_isa_related_folder_list */,
-			role_name );
+	folder =
+		folder_fetch(
+			folder_name,
+			/* ------------------------- */
+			/* Fetching role_folder_list */
+			/* ------------------------- */
+			role_name,
+			role->exclude_insert_attribute_name_list,
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_non_isa_list */,
+			0 /* not fetch_relation_mto1_isa_list */,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
+			boolean fetch_process,
+			boolean fetch_role_folder_list,
+			boolean fetch_row_level_restriction,
+			boolean fetch_role_operation_list );
 
 	post_dictionary =
 		/* --------------- */
@@ -218,7 +225,7 @@ int main( int argc, char **argv )
 			role_name,
 			insert_update_key,
 			target_frame,
-			appaserver_error_get_filename(
+			appaserver_error_filename(
 				application_name ) );
 
 		if ( system( sys_string ) ){};
@@ -240,10 +247,6 @@ int main( int argc, char **argv )
 	dictionary_separate->non_prefixed_dictionary =
 		dictionary_small();
 
-	appaserver->folder->attribute_name_list =
-		folder_get_attribute_name_list(
-			appaserver->folder->attribute_list );
-
 	/* Promote source frame */
 	/* -------------------- */
 	insert_update_key = target_frame;
@@ -256,7 +259,7 @@ int main( int argc, char **argv )
 	{
 		remove_primary_key_reference_number(
 			dictionary_separate->query_dictionary,
-			appaserver->folder->attribute_list );
+			folder->folder_attribute_list );
 
 		sprintf(sys_string,
 	"echo \"%s\" 						|"
@@ -288,75 +291,23 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	folder_load(	&appaserver->folder->insert_rows_number,
-			&appaserver->folder->lookup_email_output,
-			&appaserver->folder->row_level_non_owner_forbid,
-			&appaserver->folder->row_level_non_owner_view_only,
-			&appaserver->folder->populate_drop_down_process,
-			&appaserver->folder->post_change_process,
-			&appaserver->folder->folder_form,
-			&appaserver->folder->notepad,
-			&appaserver->folder->html_help_file_anchor,
-			&appaserver->folder->post_change_javascript,
-			&appaserver->folder->lookup_before_drop_down,
-			&appaserver->folder->data_directory,
-			&appaserver->folder->index_directory,
-			&appaserver->folder->no_initial_capital,
-			&appaserver->folder->subschema_name,
-			&appaserver->folder->create_view_statement,
-			application_name,
-			session,
-			appaserver->folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
-
-	appaserver->folder->mto1_related_folder_list = 
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
-			appaserver->application_name,
-			appaserver->session,
-			appaserver->folder->folder_name,
-			role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_key_list */,
-			0 /* recursive_level */ );
-
-	appaserver_library_automatically_set_login_name(
-		dictionary_separate->query_dictionary,
-		login_name,
-		appaserver->folder->mto1_related_folder_list,
-		appaserver->folder->attribute_list,
-		role->role_attribute_exclude_list );
-
-	appaserver->folder->primary_key_list =
-		folder_get_primary_key_list(
-			appaserver->folder->
-				attribute_list );
-
 	/* -------------------------------------------- */
 	/* If pressed <Insert> from the lookup screen	*/
 	/* with NULL_OPERATOR selected.			*/
 	/* -------------------------------------------- */
 	set_null_operator_data_to_null(
 		dictionary_separate->query_dictionary,
-		appaserver->folder->attribute_name_list );
+		folder->attribute_name_list );
 
 	posted_attribute_name_list =
 		dictionary_separate_posted_attribute_name_list(
 			dictionary_separate->query_dictionary, 
-			appaserver->folder->attribute_name_list );
+			folder->attribute_name_list );
 
 	ignore_primary_key_list =
 		appaserver_library_ignore_pressed_attribute_name_list( 	
 			dictionary_separate->ignore_dictionary, 
-			appaserver->
-				folder->
-				primary_key_list,
+			folder->primary_key_list,
 			(DICTIONARY *)0 /* query_dictionary */ );
 
 	if ( attribute_exists_omit_insert_login_name(

@@ -12,7 +12,7 @@
 #include "appaserver_user.h"
 #include "folder.h"
 #include "list.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "piece.h"
 #include "timlib.h"
 #include "environ.h"
@@ -20,6 +20,7 @@
 #include "hash_table.h"
 #include "String.h"
 #include "sql.h"
+#include "aggregate_statistic.h"
 #include "appaserver.h"
 
 APPASERVER *appaserver_calloc( void )
@@ -42,202 +43,6 @@ APPASERVER *appaserver_calloc( void )
 
 }
 
-APPASERVER *appaserver_folder_new(
-			char *application_name,
-			char *session,
-			char *folder_name )
-{
-	APPASERVER *appaserver = appaserver_calloc();
-
-	appaserver->application_name = application_name;
-	appaserver->session = session;
-
-	appaserver->folder =
-		folder_new_folder(
-			application_name,
-			session,
-			folder_name );
-
-	return appaserver;
-}
-
-APPASERVER *appaserver_folder_with_load_new(
-			char *application_name,
-			char *session,
-			char *folder_name )
-{
-	return appaserver_folder_load_new(
-			application_name,
-			session,
-			folder_name );
-}
-
-APPASERVER *appaserver_folder_load_new(
-			char *application_name,
-			char *session,
-			char *folder_name )
-{
-	APPASERVER *appaserver = appaserver_calloc();
-
-	appaserver->application_name = application_name;
-	appaserver->session = session;
-
-	if ( ! ( folder =
-			folder_load_new(
-				application_name,
-				session,
-				folder_name,
-				role ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: folder_with_load_new(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 select_folder_name );
-		exit( 1 );
-	}
-
-	return appaserver;
-}
-
-char *appaserver_delete_display_string(
-			char *folder_name,
-			LIST *attribute_list,
-			LIST *related_folder_list,
-			char *primary_data_list_string )
-{
-	char buffer[ 65536 ];
-	char *buffer_pointer = buffer;
-	RELATED_FOLDER *related_folder;
-
-	buffer_pointer += sprintf(
-				buffer_pointer,
-				"folder: %s (%s=%s)",
-				folder_name,
-				list_display(
-				folder_primary_key_list(
-					attribute_list ) ),
-				primary_data_list_string );
-
-	if ( !list_rewind( related_folder_list ) ) return strdup( buffer );
-	do {
-		related_folder = (RELATED_FOLDER *)
-					list_get( related_folder_list );
-		buffer_pointer += sprintf(
-			buffer_pointer,
-			"\n\t%s",
-			related_folder->folder->folder_name );
-
-		buffer_pointer += sprintf(
-			buffer_pointer,
-			" (%s=%s)",
-			list_display( 
-			    related_folder_foreign_attribute_name_list(
-				folder_primary_key_list(
-					related_folder->
-						one2m_folder->
-						attribute_list ),
-				related_folder->related_attribute_name,
-				related_folder->
-					folder_foreign_attribute_name_list ) ),
-			list_display(
-				related_folder->
-					primary_data_list ) );
-
-	} while( list_next( related_folder_list ) );
-	return strdup( buffer );
-}
-
-LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
-			LIST *related_folder_list,
-			LIST *exclude_attribute_name_list )
-{
-	LIST *foreign_attribute_name_list;
-	LIST *primary_key_list;
-	RELATED_FOLDER *related_folder;
-	LIST *return_list;
-
-	return_list = list_new();
-
-	if ( list_reset( related_folder_list ) )
-	{
-		do {
-			related_folder =
-				(RELATED_FOLDER *)
-					 list_get( related_folder_list );
-
-			primary_key_list =
-				folder_primary_key_list(
-					related_folder->
-						folder->
-						attribute_list );
-
-			foreign_attribute_name_list =
-			    related_folder_foreign_attribute_name_list(
-				primary_key_list,
-			     	related_folder->related_attribute_name,
-				related_folder->
-					folder_foreign_attribute_name_list );
-
-			if ( list_length( 
-				list_subtract( 
-				 foreign_attribute_name_list,
-				 exclude_attribute_name_list ) ) )
-			{
-				list_append_pointer( 	return_list, 
-							related_folder );
-			}
-
-		} while( list_next( related_folder_list ) );
-	}
-	return return_list;
-}
-
-LIST *appaserver_include_attribute_name_list_in_related_folder_list(
-				LIST *related_folder_list,
-				LIST *attribute_name_list )
-{
-	LIST *foreign_attribute_name_list;
-	LIST *primary_key_list;
-	RELATED_FOLDER *related_folder;
-	LIST *return_list;
-
-	return_list = list_new();
-
-	if ( list_reset( related_folder_list ) )
-	{
-		do {
-			related_folder = list_get( related_folder_list );
-
-			primary_key_list =
-				folder_primary_key_list(
-					related_folder->
-						folder->
-						attribute_list );
-
-			foreign_attribute_name_list =
-			    related_folder_foreign_attribute_name_list(
-				primary_key_list,
-			     	related_folder->related_attribute_name,
-				related_folder->
-					folder_foreign_attribute_name_list );
-
-			if ( list_length( 
-				list_subtract( 
-					foreign_attribute_name_list,
-					attribute_name_list ) ) ==
-			     list_length( attribute_name_list ) )
-			{
-				list_append_pointer( 	return_list, 
-							related_folder );
-			}
-
-		} while( list_next( related_folder_list ) );
-	}
-	return return_list;
-}
-
 LIST *appaserver_exclude_permission_record_list(
 			char *application_name )
 {
@@ -251,8 +56,6 @@ LIST *appaserver_exclude_permission_record_list(
 
 	return pipe2list( sys_string );
 }
-
-static LIST *global_exclude_permission_record_list = {0};
 
 boolean appaserver_exclude_permission(
 			LIST *exclude_permission_list,
@@ -270,67 +73,6 @@ boolean appaserver_exclude_permission(
 			return 1;
 	} while( list_next( exclude_permission_list ) );
 	return 0;
-}
-
-void appaserver_append_isa_related_attribute_list(
-			LIST *attribute_list,
-			LIST *mto1_isa_related_folder_list )
-{
-	RELATED_FOLDER *related_folder;
-
-	if ( mto1_isa_related_folder_list
-	&&   list_rewind( mto1_isa_related_folder_list ) )
-	{
-		do {
-			related_folder =
-				list_get(
-					mto1_isa_related_folder_list );
-
-			list_append_list(
-				attribute_list,
-				related_folder->folder->attribute_list );
-		} while( list_next( mto1_isa_related_folder_list ) );
-	}
-}
-
-LIST *appaserver_exclude_attribute_name_list(
-			LIST *attribute_list,
-			char *permission )
-{
-	char *compare_permission;
-	ATTRIBUTE *attribute;
-	LIST *exclude_attribute_name_list = list_new();
-
-	if ( !list_rewind( attribute_list ) )
-		return exclude_attribute_name_list;
-
-	do {
-		attribute = list_get( attribute_list );
-
-		if ( !attribute->exclude_permission_list
-		||   !list_rewind( attribute->exclude_permission_list ) )
-		{
-			continue;
-		}
-
-		do {
-			compare_permission =
-				list_get(
-					attribute->
-					exclude_permission_list );
-
-			if ( strcmp( permission, compare_permission ) == 0 )
-			{
-				list_append_pointer(
-						exclude_attribute_name_list,
-						attribute->attribute_name );
-			}
-		} while( list_next( attribute->exclude_permission_list ) );
-
-	} while( list_next( attribute_list ) );
-
-	return exclude_attribute_name_list;
-
 }
 
 boolean appaserver_frameset_menu_horizontal(
@@ -508,14 +250,14 @@ enum aggregate_statistic appaserver_based_on_datatype_aggregate_statistic(
 				datatype ) == 'y' )
 	{
 		aggregate_statistic =
-			aggregate_statistic_aggregate_statistic(
+			aggregate_statistic_evaluate(
 				"sum",
 				daily );
 	}
 	else
 	{
 		aggregate_statistic =
-			aggregate_statistic_aggregate_statistic(
+			aggregate_statistic_evaluate(
 				"average",
 				daily );
 	}

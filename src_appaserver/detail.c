@@ -712,7 +712,7 @@ void output_1tom_folder_detail(
 			LIST *role_folder_lookup_list )
 {
 	RELATED_FOLDER *related_folder;
-	APPASERVER *appaserver;
+	FOLDER *folder;
 	boolean omit_insert_flag = 1;
 	LIST *non_edit_folder_name_list = {0};
 	DOCUMENT *document;
@@ -724,6 +724,28 @@ void output_1tom_folder_detail(
 
 	/* Executing this again; need to optimize. */
 	/* --------------------------------------- */
+FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
+			/* ---------------------------- */
+			/* If fetching role_folder_list */
+			/* ---------------------------- */
+			char *sql_injection_escape_role_name,
+			LIST *exclude_attribute_name_list,
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
+			boolean fetch_folder_attribute_list,
+			boolean fetch_relation_mto1_non_isa_list,
+			/* ------------------------------------------- */
+			/* Maybe sets folder_attribute_append_isa_list */
+			/* ------------------------------------------- */
+			boolean fetch_relation_mto1_isa_list,
+			boolean fetch_relation_one2m_list,
+			boolean fetch_relation_one2m_recursive_list,
+			boolean fetch_process,
+			boolean fetch_role_folder_list,
+			boolean fetch_row_level_restriction,
+			boolean fetch_role_operation_list );
 	appaserver =
 		appaserver_folder_new(
 			application_name,

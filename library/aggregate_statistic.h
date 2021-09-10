@@ -17,14 +17,14 @@ enum aggregate_statistic {	average,
 				non_zero_percent,
 				aggregate_statistic_none };
 
-enum aggregate_statistic *aggregate_statistic_new_aggregate_statistic(
+enum aggregate_statistic *aggregate_statistic_calloc(
 				void );
 
-enum aggregate_statistic aggregate_statistic_extract(
+enum aggregate_statistic aggregate_statistic_evaluate(
 				char *aggregate_statistic_string,
-				enum aggregate_level );
+				enum aggregate_level aggregate_level );
 
-enum aggregate_statistic aggregate_statistic_get_aggregate_statistic(
+enum aggregate_statistic aggregate_statistic_extract(
 				char *aggregate_statistic_string,
 				enum aggregate_level );
 

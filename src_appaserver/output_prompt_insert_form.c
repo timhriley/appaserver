@@ -225,8 +225,7 @@ int main( int argc, char **argv )
 	role =
 		role_fetch(
 			role_name,
-			1 /* fetch_attribute_exclude_list */,
-			0 /* not fetch process_name_list */ );
+			1 /* fetch_attribute_exclude_list */ );
 
 	folder =
 		folder_fetch(
@@ -249,7 +248,8 @@ int main( int argc, char **argv )
 			boolean fetch_relation_one2m_recursive_list,
 			0 /* not fetch_process */,
 			0 /* not fetch_role_folder_list */,
-			0 /* not fetch_row_level_restriction */ );
+			0 /* not fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
 
 	post_dictionary =
 		/* --------------- */
@@ -265,12 +265,9 @@ int main( int argc, char **argv )
 			dictionary_appaserver_new(
 				post_dictionary,
 				application_name,
-				attribute_name_list(
-					folder->
-						folder_attribute_list ),
-				attribute_date_name_list(
-					folder->
-						folder_attribute_list ),
+				folder->attribute_name_list ),
+				folder_attribute_date_name_list(
+					folder->folder_attribute_list ),
 				(LIST *)0 /* operation_name_list */,
 				login_name ) ) )
 	{
@@ -283,12 +280,6 @@ int main( int argc, char **argv )
 	}
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	folder = folder_with_load_new(
-			application_name,
-			BOGUS_SESSION,
-			folder_name,
-			role );
 
 	/* If came from output_choose_isa_drop_down */
 	/* ---------------------------------------- */

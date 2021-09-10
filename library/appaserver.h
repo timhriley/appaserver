@@ -74,41 +74,14 @@ APPASERVER *appaserver_folder_load_new(
 			char *session,
 			char *folder_name );
 
-APPASERVER *appaserver_folder_new(
-			char *application_name,
-			char *session,
-			char *folder_name );
-
-char *appaserver_delete_display_string(
-			char *folder_name,
-			LIST *attribute_list,
-			LIST *related_folder_list,
-			char *primary_data_list_string );
-
 LIST *appaserver_folder_count_list(
 			char *application_name,
 			char *role,
 			char *permissions,
 			int with_count );
 
-LIST *appaserver_remove_attribute_name_list_from_related_folder_list(
-			LIST *related_folder_list,
-			LIST *exclude_attribute_name_list );
-
-LIST *appaserver_include_attribute_name_list_in_related_folder_list(
-			LIST *related_folder_list,
-			LIST *attribute_name_list );
-
 boolean appaserver_exclude_permission(
 			LIST *exclude_permission_list,
-			char *permission );
-
-void appaserver_append_isa_related_attribute_list(
-			LIST *attribute_list,
-			LIST *mto1_isa_related_folder_list );
-
-LIST *appaserver_exclude_attribute_name_list(
-			LIST *attribute_list,
 			char *permission );
 
 int appaserver_frameset_menu_horizontal(

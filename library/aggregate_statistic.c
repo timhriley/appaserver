@@ -7,11 +7,11 @@
 #include "boolean.h"
 #include "aggregate_statistic.h"
 
-enum aggregate_statistic aggregate_statistic_get_aggregate_statistic(
+enum aggregate_statistic aggregate_statistic_evaluate(
 				char *aggregate_statistic_string,
 				enum aggregate_level aggregate_level )
 {
-	return aggregate_statistic_extract(
+	return  aggregate_statistic_extract(
 				aggregate_statistic_string,
 				aggregate_level );
 }
@@ -103,7 +103,7 @@ char *aggregate_statistic_string(
 		return "value";
 }
 
-enum aggregate_statistic *aggregate_statistic_new_aggregate_statistic( void )
+enum aggregate_statistic *aggregate_statistic_calloc( void )
 {
 	enum aggregate_statistic *aggregate_statistic_pointer;
 
