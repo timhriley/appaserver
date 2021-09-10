@@ -1,6 +1,5 @@
-/* process_generic_output.h 						*/
+/* $APPASERVER_HOME/library/process_generic_output.h			*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver process_generic_output ADT.			*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -85,76 +84,76 @@ PROCESS_GENERIC_DATATYPE_FOLDER *process_generic_datatype_folder_new(
 				char *datatype_folder_name );
 
 PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_new(
-				char *application_name,
-				char *foreign_folder_name );
+			char *application_name,
+			char *foreign_folder_name );
 
 PROCESS_GENERIC_OUTPUT *process_generic_output_new(
-		 			char *application_name,
-					char *process_name,
-					char *process_set_name,
-					boolean accumulate );
+ 			char *application_name,
+			char *process_name,
+			char *process_set_name,
+			boolean accumulate );
 
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_new(
-					char *application_name,
-					char *process_name,
-					char *process_set_name );
+			char *application_name,
+			char *process_name,
+			char *process_set_name );
 
 void process_generic_value_folder_load(
-					char **value_folder_name,
-					char **date_attribute_name,
-					char **time_attribute_name,
-					char **value_attribute_name,
-					char **units_folder_name,
-					char **datatype_folder_name,
-					char **foreign_folder_name,
-					char *application_name,
-					char *process_name,
-					char *process_set_name );
+			char **value_folder_name,
+			char **date_attribute_name,
+			char **time_attribute_name,
+			char **value_attribute_name,
+			char **units_folder_name,
+			char **datatype_folder_name,
+			char **foreign_folder_name,
+			char *application_name,
+			char *process_name,
+			char *process_set_name );
 
 void process_generic_datatype_folder_load(
-				LIST **primary_key_list,
-				boolean *datatype_exists_aggregation_sum,
-				boolean *datatype_exists_bar_graph,
-				boolean *datatype_exists_scale_graph_zero,
-				char *application_name,
-				char *datatype_folder_name );
+			LIST **primary_key_list,
+			boolean *datatype_exists_aggregation_sum,
+			boolean *datatype_exists_bar_graph,
+			boolean *datatype_exists_scale_graph_zero,
+			char *application_name,
+			char *datatype_folder_name );
 
 void process_generic_datatype_load(
-				boolean *datatype_aggregation_sum,
-				boolean *datatype_bar_graph,
-				boolean *datatype_scale_graph_zero,
-				char **datatype_units,
-				boolean datatype_exists_aggregation_sum,
-				boolean datatype_exists_bar_graph,
-				boolean datatype_exists_scale_graph_zero,
-				char *application_name,
-				char *datatype_folder_name,
-				LIST *primary_key_list,
-				LIST *primary_attribute_data_list,
-				char *units_folder_name );
+			boolean *datatype_aggregation_sum,
+			boolean *datatype_bar_graph,
+			boolean *datatype_scale_graph_zero,
+			char **datatype_units,
+			boolean datatype_exists_aggregation_sum,
+			boolean datatype_exists_bar_graph,
+			boolean datatype_exists_scale_graph_zero,
+			char *application_name,
+			char *datatype_folder_name,
+			LIST *primary_key_list,
+			LIST *primary_attribute_data_list,
+			char *units_folder_name );
 
 char *process_generic_output_get_text_file_sys_string(
-				char **begin_date,
-				char **end_date,
-				char **where_clause,
-				char **units_label,
-				int *datatype_entity_piece,
-				int *datatype_piece,
-				int *date_piece,
-				int *time_piece,
-				int *value_piece,
-				int *length_select_list,
-				char *application_name,
-				PROCESS_GENERIC_OUTPUT *
-					process_generic_output,
-				DICTIONARY *post_dictionary,
-				char delimiter,
-				enum aggregate_level,
-				enum aggregate_statistic,
-				boolean append_low_high,
-				boolean concat_datatype_entity,
-				boolean concat_datatype,
-				boolean accumulate_flag );
+			char **begin_date,
+			char **end_date,
+			char **where_clause,
+			char **units_label,
+			int *datatype_entity_piece,
+			int *datatype_piece,
+			int *date_piece,
+			int *time_piece,
+			int *value_piece,
+			int *length_select_list,
+			char *application_name,
+			PROCESS_GENERIC_OUTPUT *
+				process_generic_output,
+			DICTIONARY *post_dictionary,
+			char delimiter,
+			enum aggregate_level,
+			enum aggregate_statistic,
+			boolean append_low_high,
+			boolean concat_datatype_entity,
+			boolean concat_datatype,
+			boolean accumulate_flag );
 
 char *process_generic_output_get_begin_end_date_where(
 			char **begin_date,

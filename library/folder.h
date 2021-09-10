@@ -230,4 +230,7 @@ LIST *folder_primary_delimited_list(
 			DICTIONARY *drillthru_dictionary,
 			char *login_name );
 
+LIST *folder_fetch_primary_key_list(
+			char *folder_name );
+
 #endif

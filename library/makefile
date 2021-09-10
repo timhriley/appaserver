@@ -53,7 +53,6 @@ APPASERVER_LIBRARY=						\
 		folder.o					\
 		attribute.o					\
 		date_aggregate.o				\
-		process_generic_output.o			\
 		process_generic.o				\
 		horizontal_menu.o				\
 		folder_menu.o					\
@@ -910,11 +909,6 @@ populate_helper_process.o: populate_helper_process.c 			\
 drillthru.o: drillthru.c
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c drillthru.c
-
-process_generic_output.o: process_generic_output.c 			\
-	process_generic_output.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c process_generic_output.c
 
 process_generic.o: process_generic.c					\
 	horizontal_menu.h

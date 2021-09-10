@@ -10,10 +10,11 @@
 #include "String.h"
 #include "column.h"
 #include "date_convert.h"
+#include "folder.h"
 #include "folder_attribute.h"
+#include "attribute.h"
 #include "form.h"
 #include "environ.h"
-#include "attribute.h"
 #include "prompt_recursive.h"
 #include "query.h"
 
@@ -2869,3 +2870,85 @@ char *query_widget_where_clause(
 }
 
 
+char *query_data_where_clause(
+			char *folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			LIST *folder_attribute_list )
+{
+	char where_clause[ STRING_WHERE_BUFFER ];
+	char *ptr = where_clause;
+	char *attribute_name;
+	char full_attribute_name[ 128 ];
+	char *data;
+	char *table_name = {0};
+	FOLDER_ATTRIBUTE *folder_attribute = {0};
+
+	if ( folder_name )
+	{
+		table_name =
+			folder_table_name(
+				environment_application_name(),
+				folder_name );
+	}
+
+	list_rewind( where_attribute_name_list );
+	list_rewind( where_attribute_data_list );
+	*ptr = '\0';
+
+	do {
+		attribute_name =
+			list_get(
+				where_attribute_name_list );
+
+		if ( list_length( folder_attribute_list ) )
+		{
+			folder_attribute =
+				folder_attribute_seek(
+					attribute_name,
+					folder_attribute_list );
+		}
+
+		if ( !list_at_head( where_attribute_name_list ) )
+		{
+			ptr += sprintf( ptr, " and " );
+		}
+
+		if ( table_name )
+		{
+			sprintf(full_attribute_name,
+				"%s.%s",
+				table_name,
+				attribute_name );
+		}
+		else
+		{
+			strcpy( full_attribute_name, attribute_name );
+		}
+
+		if ( folder_attribute
+		&&   attribute_is_date_time(
+				folder_attribute->
+					attribute->
+					datatype_name )
+		&&   folder_attribute->attribute->width == 16 )
+		{
+			ptr += sprintf( ptr,
+					"substr(%s,1,16) = '%s'",
+					full_attribute_name,
+					data );
+		}
+		else
+		{
+			ptr += sprintf( ptr,
+			 		"%s = '%s'",
+			 		full_attribute_name,
+			 		data );
+		}
+
+		if ( !list_next( where_attribute_data_list ) ) break;
+
+	} while( list_next( where_attribute_name_list ) );
+
+	return strdup( where_clause );
+}

@@ -12,6 +12,7 @@
 /* -------- */
 #include "list.h"
 #include "hash_table.h"
+#include "folder.h"
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
 
@@ -31,6 +32,22 @@ enum process_generic_medium {
 
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *value_folder_name;
+	LIST *where_attribute_name_list;
+	LIST *where_attribute_data_list;
+	char *date_where;
+
+	/* Process */
+	/* ------- */
+	char *data_where;
+	char *where_clause;
+
+} PROCESS_GENERIC_WHERE;
+
 typedef struct
 {
 	char *process_set;
@@ -87,10 +104,16 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *foreign_folder_name;
 	DICTIONARY *post_dictionary;
-	FOLDER *foreign_folder;
-	LIST *foreign_attribute_name_list;
+	boolean foreign_exists_unit;
+
+	/* Process */
+	/* ------- */
+	FOLDER *folder;
+	LIST *foreign_key_list;
 	LIST *foreign_attribute_data_list;
 	char *unit;
 } PROCESS_GENERIC_FOREIGN_FOLDER;
@@ -138,15 +161,15 @@ typedef struct
 	PROCESS_GENERIC_VALUE_FOLDER *value_folder;
 	PROCESS_GENERIC_PARAMETER *parameter;
 	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;
+	PROCESS_GENERIC_WHERE *process_generic_where;
 	char *process_generic_date_where;
-	char *process_generic_where;
 	char *process_generic_system_string;
 	char *process_generic_heading;
 	char *process_generic_subtitle;
 } PROCESS_GENERIC;
 
-/* Prototypes */
-/* ---------- */
+/* PROCESS_GENERIC operations */
+/* -------------------------- */
 PROCESS_GENERIC *process_generic_fetch(
 			char *process_set_name,
 			char *process_name,
@@ -162,13 +185,6 @@ char *process_generic_units_label(
 			char *units,
 			char *units_converted,
 			enum aggregate_statistic );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_generic_where(
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_data_list,
-			char *date_where );
 
 /* Returns static memory */
 /* --------------------- */
@@ -241,8 +257,8 @@ char *process_generic_subtitle(
 			enum aggregate_statistic aggregate_statistic,
 			char *additional_message );
 
-/* PROCESS_GENERIC_VALUE_FOLDER */
-/* ---------------------------- */
+/* PROCESS_GENERIC_VALUE_FOLDER operations */
+/* --------------------------------------- */
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_calloc(
 			void );
 
@@ -253,8 +269,8 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_parse(
 			char *input );
 
-/* PROCESS_GENERIC_DATATYPE */
-/* ------------------------ */
+/* PROCESS_GENERIC_DATATYPE operations */
+/* ----------------------------------- */
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_calloc(
 			void );
 
@@ -274,6 +290,8 @@ char *process_generic_datatype_select(
 			boolean exists_scale_graph_zero,
 			boolean unit_datatype_folder );
 
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_generic_datatype_where(
 			char *datatype_attribute_name,
 			char *datatype_name );
@@ -286,8 +304,8 @@ char *process_generic_datatype_system_string(
 PROCESS_GENERIC_DATATYPE *process_generic_datatype_parse(
 			char *input_buffer );
 
-/* PROCESS_GENERIC_VALUE */
-/* --------------------- */
+/* PROCESS_GENERIC_VALUE operations */
+/* -------------------------------- */
 PROCESS_GENERIC_VALUE *process_generic_value_calloc(
 			void );
 
@@ -299,8 +317,8 @@ PROCESS_GENERIC_VALUE *process_generic_value_parse(
 			boolean accumulate,
 			enum aggregate_level aggregate_level );
 
-/* PROCESS_GENERIC_PARAMETER */
-/* ------------------------- */
+/* PROCESS_GENERIC_PARAMETER operations */
+/* ------------------------------------ */
 PROCESS_GENERIC_PARAMETER *process_generic_parameter_calloc(
 			void );
 
@@ -312,11 +330,29 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			char *value_folder_date_attribute_name,
 			char *value_folder_time_attribute_name );
 
-/* PROCESS_GENERIC_FOREIGN_FOLDER */
-/* ------------------------------ */
+/* PROCESS_GENERIC_FOREIGN_FOLDER operations */
+/* ----------------------------------------- */
 PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 			char *foreign_folder_name,
 			DICTIONARY *post_dictionary,
 			boolean foreign_exists_unit );
+
+/* PROCESS_GENERIC_WHERE operations */
+/* -------------------------------- */
+PROCESS_GENERIC_WHERE *process_generic_where_calloc(
+			void );
+
+PROCESS_GENERIC_WHERE *process_generic_where_new(
+			char *value_folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			LIST *folder_attribute_primary_list,
+			char *date_where );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *process_generic_where_clause(
+			char *data_where,
+			char *date_where );
 
 #endif

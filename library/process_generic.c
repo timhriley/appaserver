@@ -231,6 +231,9 @@ PROCESS_GENERIC_DATATYPE *process_generic_datatype_fetch(
 	}
 
 	process_generic_datatype->process_generic_datatype_where =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
 		process_generic_datatype_where(
 			process_generic_datatype->datatype_attribute_name,
 			process_generic_datatype->datatype_name );
@@ -316,33 +319,23 @@ char *process_generic_datatype_select(
 	return strdup( select );
 }
 
-char *process_generic_where(
-			LIST *foreign_attribute_name_list,
-			LIST *foreign_attribute_data_list,
-			char *date_where )
+PROCESS_GENERIC_WHERE *process_generic_where_calloc(
+			void )
 {
-	char where[ 1024 ];
-	char *query_where;
+	PROCESS_GENERIC_WHERE *process_generic_where;
 
-	if ( !date_where ) return (char *)0;
+	if ( ! ( process_generic_where =
+			calloc( 1, sizeof( PROCESS_GENERIC_WHERE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	query_where =
-		query_simple_where(
-			(char *)0 /* folder_name */,
-			foreign_attribute_name_list
-				/* where_attribute_name_list */,
-			foreign_attribute_data_list
-				/* where_attribute_data_list */,
-			(LIST *)0 /* append_isa_attribute_list */ );
-
-	if ( !query_where ) return (char *)0;
-
-	sprintf(where,
-		"%s and %s",
-		query_where,
-		date_where );
-
-	return strdup( where );
+	return process_generic_where;
 }
 
 char *process_generic_select(
@@ -708,20 +701,6 @@ char *process_generic_datatype_folder_select(
 	return strdup( select );
 }
 
-
-char *process_generic_datatype_folder_where(
-			LIST *primary_key_list,
-			LIST *primary_attribute_data_list )
-{
-	return query_simple_where(
-			(char *)0 /* folder_name */,
-			primary_key_list
-				/* where_attribute_name_list */,
-			primary_attribute_data_list
-				/* where_attribute_data_list */,
-			(LIST *)0 /* append_isa_attribute_list */ );
-}
-
 PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 			char *output_medium_string,
 			DICTIONARY *post_dictionary,
@@ -871,8 +850,17 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 	PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder;
 
 	process_generic_foreign_folder =
-		(PROCESS_GENERIC_FOREIGN_FOLDER *)
-			calloc( 1, sizeof( PROCESS_GENERIC_FOREIGN_FOLDER ) );
+		calloc( 1, sizeof( PROCESS_GENERIC_FOREIGN_FOLDER ) );
+
+	if ( !process_generic_foreign_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	process_generic_foreign_folder->foreign_folder_name =
 		foreign_folder_name;
@@ -880,24 +868,32 @@ PROCESS_GENERIC_FOREIGN_FOLDER *process_generic_foreign_folder_fetch(
 	process_generic_foreign_folder->post_dictionary =
 		post_dictionary;
 
-	process_generic_foreign_folder->foreign_folder =
+	process_generic_foreign_folder->folder =
 		folder_fetch(
 			process_generic_foreign_folder->foreign_folder_name,
-			1 /* fetch_attribute_list */,
-			0 /* not fetch_one2m_relation_list */,
-			0 /* not fetch_one2m_recursive_relation_list */,
-			0 /* not fetch_mto1_isa_recursive_relation_list */,
-			0 /* not fetch_mto1_relation_list */ );
+			(char *)0 /* role_name */,
+			(LIST *)0 /* exclude_attribute_name_list */,
+			/* --------------------------------------- */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list.		   */
+			/* ---------------------------------------- */
+			1 /* fetch_folder_attribute_list */,
+			0 /* not fetch_relation_mto1_non_isa_list */,
+			0 /* not fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* not fetch_relation_one2m_recursive_list */,
+			0 /* not fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			0 /* not fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
 
-	process_generic_foreign_folder->foreign_attribute_name_list =
-		process_generic_foreign_folder->
-			foreign_folder->
-			primary_key_list;
+	process_generic_foreign_folder->foreign_key_list =
+		process_generic_foreign_folder->folder->primary_key_list;
 
 	process_generic_foreign_folder->foreign_attribute_data_list =
 		dictionary_key_list_fetch(
 			process_generic_foreign_folder->
-				foreign_attribute_name_list,
+				foreign_key_list,
 			process_generic_foreign_folder->post_dictionary );
 
 	if ( !list_length( process_generic_foreign_folder->
@@ -1085,14 +1081,22 @@ char *process_generic_datatype_where(
 			char *datatype_name )
 {
 	char where[ 256 ];
-	char destination[ 128 ];
+
+	if ( ! ( datatype_attribute_name || !*datatype_attribute_name )
+	&&   ! ( datatype_name || !*datatype_name ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(where,
 		"%s = '%s'",
 		datatype_attribute_name,
-		string_escape_quote(
-			destination,
-			datatype_name ) );
+		datatype_name );
 
 	return strdup( where );
 }
@@ -1206,25 +1210,29 @@ PROCESS_GENERIC *process_generic_fetch(
 				end_date );
 
 	process_generic->process_generic_where =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		process_generic_where(
+		process_generic_where_new(
+			process_generic->value_folder_name,
 			process_generic->
 				value_folder->
 				foreign_folder->
-				foreign_attribute_name_list,
+				foreign_key_list
+					/* where_attribute_name_list */,
 			process_generic->
 				value_folder->
 				foreign_folder->
-				foreign_attribute_data_list,
+				foreign_attribute_data_list
+					/* where_attribute_data_list */,
+			process_generic->
+				value_folder->
+				foreign_folder->
+				folder->folder_attribute_primary_list,
 			process_generic->
 				process_generic_date_where );
 
 	if ( !process_generic->process_generic_where )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: process_generic_where() returned empty.\n",
+	"Warning in %s/%s()/%d: process_generic_where_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1244,7 +1252,7 @@ PROCESS_GENERIC *process_generic_fetch(
 					value_folder->
 					value_attribute_name ),
 			process_generic->value_folder_name,
-			process_generic->process_generic_where,
+			process_generic->process_generic_where->where_clause,
 			process_generic->
 				parameter->
 				aggregate_level,
@@ -1342,5 +1350,68 @@ PROCESS_GENERIC *process_generic_fetch(
 				(char *)0 /* additional_message */ );
 
 	return process_generic;
+}
+
+PROCESS_GENERIC_WHERE *process_generic_where_new(
+			char *value_folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			LIST *folder_attribute_primary_list,
+			char *date_where )
+{
+	PROCESS_GENERIC_WHERE *process_generic_where =
+		process_generic_where_calloc();
+
+	process_generic_where->where_attribute_name_list =
+		where_attribute_name_list;
+
+	process_generic_where->where_attribute_data_list =
+		where_attribute_data_list;
+
+	process_generic_where->date_where = date_where;
+
+	process_generic_where->data_where =
+		query_data_where_clause(
+			value_folder_name,
+			where_attribute_name_list,
+			where_attribute_data_list,
+			folder_attribute_primary_list );
+
+	process_generic_where->where_clause =
+		process_generic_where_clause(
+			process_generic_where->data_where,
+			date_where );
+
+	return process_generic_where;
+}
+
+char *process_generic_where_clause(
+			char *data_where,
+			char *date_where )
+{
+	char where_clause[ STRING_WHERE_BUFFER ];
+	char *ptr = where_clause;
+
+	if ( ! ( data_where || !*data_where )
+	&&   ! ( date_where || !*date_where ) )
+	{
+		return (char *)0;
+	}
+
+	*ptr = '\0';
+
+	if ( data_where )
+	{
+		ptr += sprintf( ptr, "%s", data_where );
+	}
+
+	if ( date_where )
+	{
+		if ( !*ptr ) ptr += sprintf( ptr, " and ");
+
+		ptr += sprintf( ptr, "%s", date_where );
+	}
+
+	return strdup( where_clause );
 }
 

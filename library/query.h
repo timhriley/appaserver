@@ -749,4 +749,10 @@ char *query_output_order(
 			LIST *primary_key_list,
 			DICTIONARY *sort_dictionary );
 
+char *query_data_where_clause(
+			char *folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			LIST *folder_attribute_list );
+
 #endif

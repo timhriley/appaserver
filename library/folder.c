@@ -207,7 +207,7 @@ FOLDER *folder_parse(	char *input,
 	if ( fetch_folder_attribute_list )
 	{
 		folder->folder_attribute_list =
-			folder_attribute_list(
+			folder_attribute_fetch_list(
 				folder->folder_name,
 				exclude_attribute_name_list );
 
@@ -474,113 +474,6 @@ char *folder_delimited(
 	return string_pipe_fetch( system_string );
 }
 
-#ifdef NOT_DEFINED
-FOLDER *folder_drop_down_delimited_fetch(
-			char *folder_name,
-			char *role_name,
-			char *login_name,
-			char *one2m_folder_name,
-			char *state,
-			char *populate_drop_down_process_name,
-			DICTIONARY *preprompt_dictionary,
-			DICTIONARY *working_post_dictionary )
-{
-	FOLDER *folder;
-	ROLE *role;
-	SECURITY_ENTITY *security_entity;
-
-	if ( ! (folder =
-		   folder_parse(
-			string_pipe_fetch(
-				folder_system_string(
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					folder_primary_where(
-						folder_name ) ) ),
-			/* ----------------------------- */
-			/* Not fetching role_folder_list */
-			/* ----------------------------- */
-			(char *)0 /* role_name */,
-			(LIST *)0 /*exclude_attribute_name_list */,
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
-			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_relation_mto1_non_isa_list */,
-			0 /* not fetch_relation_mto1_isa_list */,
-			0 /* not fetch_relation_one2m_list */,
-			0 /* not fetch_relation_one2m_recursive_list */,
-			1 /* fetch_process */,
-			0 /* not fetch_role_folder_list */,
-			1 /* fetch_row_level_restriction */ ) ) )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: folder_process_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			folder_name );
-		exit( 1 );
-	}
-
-	role =
-		role_fetch(
-			role_name,
-			0 /* not fetch_role_attribute_exclude_list */ );
-
-	if ( !role )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			role_name );
-		exit( 1 );
-	}
-
-	security_entity =
-		/* Always returns */
-		/* -------------- */
-		security_entity_new(
-			login_name,
-			folder->non_owner_forbid,
-			role->override_row_restrictions );
-
-	if ( populate_drop_down_process_name
-	&&   *populate_drop_down_process_name )
-	{
-		folder->populate_drop_down_process =
-			process_fetch(
-				populate_drop_down_process_name,
-				/* ------------------------- */
-				/* Don't check role security */
-				/* ------------------------- */
-				(char *)0 /* role_name */,
-				1 /* check_executable_inside_filesystem */ );
-	}
-
-	if ( folder->populate_drop_down_process )
-	{
-		return folder_drop_down_delimited_list(
-			folder->populate_drop_down_process,
-			security_entity,
-			one2m_folder_name,
-			state,
-			preprompt_dictionary,
-			working_post_dictionary );
-	}
-	else
-	{
-		return folder_drop_down_delimited_list(
-			folder->primary_key_list,
-			security_entity,
-			preprompt_dictionary );
-	}
-}
-#endif
-
 boolean folder_non_owner_view_only(
 			char *row_level_restriction_string )
 {
@@ -595,5 +488,15 @@ boolean folder_non_owner_forbid(
 	return (string_strcmp(
 			row_level_restriction_string,
 			"row_level_non_owner_forbid" ) == 0 );
+}
+
+LIST *folder_fetch_primary_key_list(
+			char *folder_name )
+{
+	return
+	folder_attribute_primary_key_list(
+		folder_attribute_fetch_list(
+			folder_name,
+			(LIST *)0 /* exclude_attribute_name_list */ ) );
 }
 

@@ -66,7 +66,7 @@ FOLDER_ATTRIBUTE *folder_attribute_new(
 			char *folder_name,
 			char *attribute_name );
 
-LIST *folder_attribute_list(
+LIST *folder_attribute_fetch_list(
 			char *escaped_replaced_folder_name,
 			LIST *exclude_attribute_name_list );
 

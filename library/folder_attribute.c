@@ -64,7 +64,7 @@ char *folder_attribute_where(
 	return strdup( where );
 }
 
-LIST *folder_attribute_list(
+LIST *folder_attribute_fetch_list(
 			char *sql_injection_escape_folder_name,
 			LIST *exclude_attribute_name_list )
 {
