@@ -3045,7 +3045,11 @@ char *timlib_get_in_clause( char *data_list_string )
 	list_free( data_list );
 
 	return in_clause;
+}
 
+boolean file_exists( char *filename )
+{
+	return timlib_file_exists( filename );
 }
 
 boolean timlib_file_exists( char *filename )

@@ -64,4 +64,10 @@ char *role_folder_primary_where(
 			char *role_name,
 			char *folder_name );
 
+LIST *role_lookup_folder_name_list(
+			char *role_name );
+
+LIST *role_insert_folder_name_list(
+			char *role_name );
+
 #endif

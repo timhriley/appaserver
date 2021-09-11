@@ -14,7 +14,6 @@
 
 /* Constants */
 /* --------- */
-#define FOLDER_MENU_PERMISSIONS "insert,update,lookup"
 
 /* Structures */
 /* ---------- */
@@ -36,8 +35,10 @@ typedef struct
 	/* Process */
 	/* ------- */
 	ROLE *role;
+	LIST *lookup_folder_name_list;
+	LIST *insert_folder_name_list;
+	LIST *lookup_count_list;
 	char *filename;
-	LIST *count_list;
 } FOLDER_MENU;
 
 /* FOLDER_MENU operations */
@@ -51,69 +52,42 @@ FOLDER_MENU *folder_menu_new(
 			char *appaserver_data_directory,
 			char *role_name );
 
-boolean folder_menu_write(
-			char *filename,
-			LIST *folder_menu_count_list );
-
-LIST *folder_menu_choose_folder_list(
-			char *application_name,
-			char *appaserver_data_directory,
-			char *session_key,
-			char *role_name,
-			boolean with_count );
-
-char *folder_menu_input_pipe_sys_string(
-			char *application_name,
-			char *session_key,
-			char *appaserver_data_directory,
+LIST *folder_menu_lookup_folder_name_list(
 			char *role_name );
 
+LIST *folder_menu_insert_folder_name_list(
+			char *role_name );
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *folder_menu_filename(
 			char *application_name,
 			char *session_key,
 			char *appaserver_data_directory,
 			char *role_name );
 
-void folder_menu_create_spool_file(
-			char *application_name,
-			char *session_key,
-			char *appaserver_data_directory,
-			char *role_name,
-			boolean with_count );
-
-boolean folder_menu_file_exists(
-			char *application_name,
-			char *session_key,
-			char *appaserver_data_directory,
-			char *role_name );
-
-void folder_menu_remove_file(
-			char *application_name,
-			char *session_key,
-			char *appaserver_data_directory,
-			char *role_name );
-
-void folder_menu_refresh_row_count(
-			char *application_name,
-			char *folder_name,
-			char *session_key,
-			char *appaserver_data_directory,
-			char *role_name );
-
-void folder_menu_refresh_folder_name_list(
-			char *application_name,
-			LIST *folder_name_list,
-			char *session_key,
-			char *role_name );
-
-void folder_menu_refresh_role(
-			char *application_name,
-			char *session_key,
-			char *role_name );
-
 /* FOLDER_MENU_COUNT operations */
 /* ---------------------------- */
-long int folder_menu_folder_count(
+LIST *folder_menu_lookup_count_list(
+			char *application_name,
+			LIST *lookup_folder_name_list,
+			char *filename );
+
+FOLDER_MENU_COUNT *folder_menu_count_calloc(
+			void );
+
+FOLDER_MENU_COUNT *folder_menu_count_fetch(
+			char *application_name,
+			char *folder_name );
+
+LIST *folder_menu_read_count_list(
+			char *filename );
+
+long int folder_menu_count(
 			char *folder_table_name );
+
+void folder_menu_write_count_list(
+			char *filename,
+			LIST *lookup_count_list );
 
 #endif

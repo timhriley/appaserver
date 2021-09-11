@@ -580,6 +580,9 @@ char *timlib_with_list_get_in_clause(
 boolean timlib_file_exists(
 			char *filename );
 
+boolean file_exists(
+			char *filename );
+
 boolean timlib_strcpy(	char *d, char *s, int buffer_size );
 
 char *timlib_strcat(	char *d, char *s );

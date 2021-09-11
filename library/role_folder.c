@@ -173,3 +173,39 @@ boolean role_folder_lookup( LIST *role_folder_list )
 	return 0;
 }
 
+LIST *role_lookup_folder_name_list(
+			char *role_name )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"permission in ('lookup','update') and role = '%s'",
+		role_name );
+
+	sprintf(system_string,
+		"select.sh folder %s \"%s\" folder",
+		ROLE_FOLDER_TABLE,
+		where );
+
+	return list_pipe_fetch( system_string );
+}
+
+LIST *role_insert_folder_name_list(
+			char *role_name )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"permission = 'insert' and role = '%s'",
+		role_name );
+
+	sprintf(system_string,
+		"select.sh folder %s \"%s\" folder",
+		ROLE_FOLDER_TABLE,
+		where );
+
+	return list_pipe_fetch( system_string );
+}
+
