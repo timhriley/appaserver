@@ -276,6 +276,17 @@ LIST *role_system_list(	char *system_string,
 ROLE *role_fetch(	char *role_name,
 			boolean fetch_attribute_exclude_list )
 {
+	if ( !role_name || !*role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
 	return
 		role_parse(
 			string_pipe_fetch(

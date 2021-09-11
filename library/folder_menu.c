@@ -1,7 +1,7 @@
-/* library/folder_menu.c				   */
-/* ------------------------------------------------------- */
-/* Freely available software: see Appaserver.org	   */
-/* ------------------------------------------------------- */
+/* $APPASERVER_HOME/library/folder_menu.c	 */
+/* --------------------------------------------- */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,42 +15,87 @@
 #include "folder.h"
 #include "piece.h"
 
-FOLDER_MENU *folder_menu_new(	char *application_name,
-				char *session,
-				char *appaserver_data_directory,
-				char *role_name )
+FOLDER_MENU *folder_menu_calloc( void )
 {
-	FOLDER_MENU *f;
-	ROLE *role;
+	FOLDER_MENU *folder_menu;
 
-	role = role_new_role( application_name, role_name );
+	if ( ! ( folder_menu = 
+			calloc( 1, sizeof( FOLDER_MENU ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
-	if ( role->folder_count_yn != 'y' ) return (FOLDER_MENU *)0;
+	return folder_menu;
+}
+
+FOLDER_MENU *folder_menu_new(
+			char *application_name,
+			char *session_key,
+			char *appaserver_data_directory,
+			char *role_name )
+{
+	FOLDER_MENU *folder_menu;
+
+	if ( !application_name || !*application_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: application_name is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( !session_key || !*session_key )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: session_key is empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
 
 	if ( !appaserver_data_directory || !*appaserver_data_directory )
 	{
 		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty appaserver_data_directory.\n",
+		"ERROR in %s/%s()/%d: appaserver_data_directory is empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( f = (FOLDER_MENU *)calloc( 1, sizeof( FOLDER_MENU ) ) ) )
+	folder_menu = folder_menu_calloc();
+
+	folder_menu->application_name = application_name;
+	folder_menu->session_key = session_key;
+	folder_menu->appaserver_data_directory = appaserver_data_directory;
+	folder_menu->role_name = role_name;
+
+	if ( ! ( folder_menu->role =
+			role_fetch(
+				role_name,
+				0 /* not fetch_role_..._exclude_list */ ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
 		exit( 1 );
 	}
 
-	f->filename =
-		folder_menu_get_filename(
+	folder_menu->filename =
+		folder_menu_filename(
 			application_name,
-			session,
+			session_key,
 			appaserver_data_directory,
 			role_name );
 
@@ -184,7 +229,7 @@ void folder_menu_create_spool_file(
 		exit( 1 );
 	}
 
-	filename = folder_menu_get_filename(
+	filename = folder_menu_filename(
 			application_name,
 			session,
 			appaserver_data_directory,
@@ -208,7 +253,7 @@ void folder_menu_create_spool_file(
 			role_name,
 			FOLDER_MENU_PERMISSIONS,
 			filename,
-			appaserver_error_get_filename(
+			appaserver_error_filename(
 				application_name ) );
 	}
 	else
