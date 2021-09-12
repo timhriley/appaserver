@@ -55,7 +55,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 		return post_dictionary_string_new( input );
 	}
 
-	post_dictionary->dictionary =
+	post_dictionary->original_post_dictionary =
 		post_dictionary_fetch(
 			stdin,
 			appaserver_data_directory,
@@ -71,7 +71,7 @@ POST_DICTIONARY *post_dictionary_string_new(
 {
 	POST_DICTIONARY *post_dictionary = post_dictionary_calloc();
 
-	post_dictionary->dictionary =
+	post_dictionary->original_post_dictionary =
 		dictionary_string_resolve(
 			dictionary_string );
 
@@ -88,7 +88,7 @@ DICTIONARY *post_dictionary_fetch(
 	char *apache_label;
 	char *appaserver_key;
 	char *input_filename;
-	DICTIONARY *dictionary = dictionary_huge();
+	DICTIONARY *original_post_dictionary = dictionary_huge();
 
 	while( string_input(
 			input,
@@ -166,7 +166,7 @@ DICTIONARY *post_dictionary_fetch(
 						session_key );
 
 				dictionary_set(
-					dictionary,
+					original_post_dictionary,
 					strdup( appaserver_key ),
 					spool_filename );
 
@@ -181,7 +181,7 @@ DICTIONARY *post_dictionary_fetch(
 				/* Not spooling a file */
 				/* ------------------- */
 				post_dictionary_stream_set(
-					dictionary,
+					original_post_dictionary,
 					stdin,
 					appaserver_key,
 					apache_key );
@@ -192,7 +192,7 @@ DICTIONARY *post_dictionary_fetch(
 		/* If Appaserver sent a dictionary to stdin */
 		/* ---------------------------------------- */
 		{
-			dictionary =
+			original_post_dictionary =
 				dictionary_string_resolve(
 					input );
 
@@ -202,7 +202,7 @@ DICTIONARY *post_dictionary_fetch(
 		}
 	}
 
-	return dictionary;
+	return original_post_dictionary;
 }
 
 char *post_dictionary_apache_key( char *input )

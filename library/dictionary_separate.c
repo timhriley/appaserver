@@ -79,12 +79,11 @@ DICTIONARY_SEPARATE *dictionary_separate_calloc( void )
 	return dictionary_separate;
 }
 
-DICTIONARY_SEPARATE *dictionary_separate_stdin_new(
+DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *attribute_name_list,
-			LIST *attribute_date_name_list )
+			LIST *folder_attribute_date_name_list )
 {
 	DICTIONARY_SEPARATE *dictionary_separate =
 		dictionary_separate_calloc();
@@ -111,7 +110,7 @@ DICTIONARY_SEPARATE *dictionary_separate_stdin_new(
 		dictionary_separate_working_post(
 			original_post_dictionary,
 			application_name,
-			attribute_date_name_list,
+			folder_attribute_date_name_list,
 			login_name );
 
 	dictionary_separate->sort_dictionary =
@@ -180,7 +179,7 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 		dictionary_separate_working_post(
 			original_post_dictionary,
 			application_name,
-			attribute_date_name_list,
+			folder_attribute_date_name_list,
 			login_name );
 
 	dictionary_separate->sort_dictionary =
@@ -228,7 +227,7 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 }
 
 DICTIONARY_SEPARATE *dictionary_separate_string_new(
-			char *dictionary_string )
+			DICTIONARY *original_post_dictionary )
 {
 	DICTIONARY_SEPARATE *dictionary_separate =
 		dictionary_separate_calloc();
@@ -236,72 +235,13 @@ DICTIONARY_SEPARATE *dictionary_separate_string_new(
 	dictionary_separate->original_post_dictionary =
 		original_post_dictionary;
 
-	dictionary_separate->application_name = application_name;
-
-	dictionary_separate->attribute_date_name_list =
-		attribute_date_name_list;
-
-	dictionary_separate->operation_name_list = operation_name_list;
-	dictionary_separate->login_name = login_name;
-
-	if ( !dictionary_length( original_post_dictionary ) )
-		return dictionary_separate;
-
-	dictionary_separate->working_post_dictionary =
-		dictionary_separate_working_post(
-			original_post_dictionary,
-			application_name,
-			attribute_date_name_list,
-			login_name );
-
-	dictionary_separate->sort_dictionary =
-		dictionary_separate_sort(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->query_dictionary =
-		dictionary_separate_query(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->drillthru_dictionary =
-		dictionary_separate_drillthru(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->ignore_dictionary =
-		dictionary_separate_ignore(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->ignore_select_attribute_name_list =
-		dictionary_separate_ignore_select_attribute_name_list(
-			dictionary_separate->ignore_dictionary );
-
-	dictionary_separate->pair_one2m_dictionary =
-		dictionary_separate_pair_one2m(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->non_prefixed_dictionary =
-		dictionary_separate_non_prefixed(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->row_dictionary =
-		dictionary_separate_row_dictionary_multi_row(
-			dictionary_separate->
-				non_prefixed_dictionary,
-			attribute_name_list,
-			operation_name_list );
-
 	return dictionary_separate;
 }
 
 DICTIONARY *dictionary_separate_working_post(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
-			LIST *attribute_date_name_list,
+			LIST *folder_attribute_date_name_list,
 			char *login_name )
 {
 	DICTIONARY *working_post_dictionary;
@@ -328,10 +268,10 @@ DICTIONARY *dictionary_separate_working_post(
 
 	if ( list_length( attribute_date_name_list ) )
 	{
-		dictionary_separate_dictionary_date_convert(
+		dictionary_separate_date_convert(
 			working_post_dictionary,
 			application_name,
-			attribute_date_name_list,
+			folder_attribute_date_name_list,
 			login_name );
 	}
 

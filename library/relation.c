@@ -567,9 +567,9 @@ LIST *relation_one2m_pair_list(
 			1 /* fetch_attribute_list */ );
 }
 
-LIST *relation_mto1_drilldown_list(
+LIST *relation_mto1_drillthru_list(
 			LIST *relation_list,
-			char *folder_name,
+			char *base_folder_name,
 			LIST *fulfilled_folder_name_list )
 {
 	LIST *local_relation_list;
@@ -578,7 +578,7 @@ LIST *relation_mto1_drilldown_list(
 
 	sprintf(where,
 		"folder = '%s' and ifnull(relation_type_isa,'n') = 'n'",
-		folder_name );
+		base_folder_name );
 
 	local_relation_list =
 		relation_system_list(
@@ -604,7 +604,7 @@ LIST *relation_mto1_drilldown_list(
 			list_set( relation_list, relation );
 
 			relation_list =
-				relation_mto1_drilldown_list(
+				relation_mto1_drillthru_list(
 					relation_list,
 					relation->
 						one_folder->

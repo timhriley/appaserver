@@ -19,8 +19,6 @@
 #include "document.h"
 #include "folder.h"
 #include "dictionary.h"
-#include "form.h"
-#include "related_folder.h"
 #include "query.h"
 #include "role_folder.h"
 #include "application.h"
@@ -30,9 +28,11 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "role.h"
-#include "lookup_before_drop_down.h"
+#include "drillthru.h"
 #include "row_security.h"
+#include "post_dictionary.h"
 #include "dictionary_appaserver.h"
+#include "form_prompt.h"
 #include "prompt_edit_form.h"
 
 /* Constants */
@@ -150,21 +150,14 @@ int main( int argc, char **argv )
 {
 	char *login_name;
 	char *application_name;
-	char *session;
+	char *session_key;
 	char *folder_name;
 	char *role_name;
 	char *state;
-	DICTIONARY *post_dictionary = {0};
-	PROMPT_EDIT_FORM *prompt_edit_form;
-
-	ROLE_FOLDER *role_folder;
-	APPASERVER *appaserver;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	ROLE *role;
-	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
 	char *target_frame;
-	boolean omit_new_button = 0;
-	boolean omit_delete_button = 0;
+	POST_DICTIONARY *post_dictionary;
+	PROMPT_EDIT_FORM *prompt_edit_form;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DICTIONARY_APPASERVER *dictionary_appaserver;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -183,21 +176,17 @@ int main( int argc, char **argv )
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 2 ];
+	session_key = argv[ 2 ];
 	folder_name = argv[ 3 ];
 	role_name = argv[ 4 ];
 	state = argv[ 5 ];
 	target_frame = argv[ 6 ];
 
-	if ( !*target_frame ) target_frame = EDIT_FRAME;
-
 	post_dictionary =
-		dictionary_index_string2dictionary(
+		post_dictionary_string_new(
 			argv[ 7 ] );
 
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
+	session_environment_set( application_name );
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( ! ( prompt_edit_form =
@@ -225,112 +214,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	lookup_before_drop_down =
-		lookup_before_drop_down_new(
-			application_name,
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary,
-			state );
+	output_prompt_edit_form( prompt_edit_form );
 
-	lookup_before_drop_down->lookup_before_drop_down_state =
-		lookup_before_drop_down_get_state(
-			lookup_before_drop_down->
-				lookup_before_drop_down_folder_list,
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			0 /* folder_lookup_before_drop_down */ );
-
-	lookup_before_drop_down->insert_folder_name =
-		lookup_before_drop_down_get_dictionary_insert_folder_name(
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary );
-
-	if ( lookup_before_drop_down->
-		lookup_before_drop_down_state ==
-			lookup_participating_not_root )
-	{
-		lookup_before_drop_down->first_prelookup =
-			lookup_before_drop_down_first_prelookup(
-				dictionary_appaserver->
-					lookup_before_drop_down_dictionary );
-	}
-
-	if ( lookup_before_drop_down->
-		lookup_before_drop_down_state ==
-			lookup_participating_not_root )
-	{
-		target_frame = PROMPT_FRAME;
-	}
-	else
-	if ( lookup_before_drop_down->
-		lookup_before_drop_down_state ==
-			lookup_skipped )
-	{
-		target_frame = EDIT_FRAME;
-
-		omit_new_button = 1;
-
-		mark_ignore_for_prelookup_skipped(
-			appaserver->folder->mto1_related_folder_list,
-			lookup_before_drop_down->
-				lookup_before_drop_down_folder_list );
-	}
-
-	appaserver->prompt_recursive =
-		prompt_recursive_new(
-			application_name,
-			appaserver->folder->folder_name /* query_folder_name */,
-			appaserver->folder->mto1_related_folder_list );
-
-	if ( !omit_new_button )
-	{
-		omit_new_button =
-			related_folder_mto1_exists_drop_down_multi_select(
-				appaserver->folder->mto1_related_folder_list );
-	}
-
-	role_folder =
-		role_folder_new(
-			application_name,
-			session,
-			role_name,
-			folder_name );
-
-	omit_delete_button = 
-		  list_length( appaserver->
-				folder->
-				mto1_isa_related_folder_list );
-
-	output_prompt_edit_form(
-		application_name,
-		session,
-		login_name,
-		appaserver->folder->folder_name,
-		role_name,
-		state,
-		appaserver->folder->mto1_isa_related_folder_list,
-		appaserver,
-		appaserver->folder->mto1_related_folder_list,
-		role_folder,
-		appaserver_parameter_file->
-			appaserver_mount_point,
-		dictionary_appaserver->
-			preprompt_dictionary,
-		role_get_override_row_restrictions(
-			role->override_row_restrictions_yn ),
-		appaserver->
-			prompt_recursive->
-			prompt_recursive_folder_list,
-		lookup_before_drop_down,
-		dictionary_appaserver->
-			lookup_before_drop_down_dictionary,
-		target_frame,
-		omit_new_button,
-		omit_delete_button,
-		lookup_before_drop_down->insert_folder_name );
-
-	exit( 0 );
+	return 0;
 }
 
 void output_prompt_edit_form(

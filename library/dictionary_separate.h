@@ -11,7 +11,6 @@
 #include "boolean.h"
 #include "list.h"
 #include "dictionary.h"
-#include "post_dictionary.h"
 
 /* Constants */
 /* --------- */
@@ -55,11 +54,11 @@ DICTIONARY_SEPARATE *dictionary_separate_calloc(
 
 /* Always succeeds */
 /* --------------- */
-DICTIONARY_SEPARATE *dictionary_separate_stdin_new(
+DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *attribute_date_name_list );
+			LIST *folder_attribute_date_name_list );
 
 /* Always succeeds */
 /* --------------- */
@@ -74,7 +73,7 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 /* Always succeeds */
 /* --------------- */
 DICTIONARY_SEPARATE *dictionary_separate_string_new(
-			char *dictionary_string );
+			DICTIONARY *original_post_dictionary );
 
 DICTIONARY *dictionary_separate_row_dictionary_row_zero(
 			DICTIONARY *working_post_dictionary,
@@ -158,8 +157,8 @@ DICTIONARY *dictionary_separate_prefixed(
 LIST *dictionary_separate_ignore_select_attribute_name_list(
 			DICTIONARY *ignore_dictionary );
 
-void dictionary_separate_dictionary_date_convert(
-			DICTIONARY *post_dictionary,
+void dictionary_separate_date_convert(
+			DICTIONARY *working_post_dictionary,
 			char *application_name,
 			LIST *attribute_date_name_list,
 			char *login_name );

@@ -61,7 +61,9 @@ APPASERVER_LIBRARY=						\
 		security.o					\
 		element.o					\
 		sed.o						\
-		form.o						\
+		form_prompt.o					\
+		form_table.o					\
+		form_button.o					\
 		email.o						\
 		query.o 					\
 		stack.o 					\
@@ -69,7 +71,6 @@ APPASERVER_LIBRARY=						\
 		frameset.o					\
 		validation_level.o				\
 		relation.o					\
-		related_folder.o				\
 		vertical_new_button.o				\
 		relation.o					\
 		operation.o					\
@@ -776,38 +777,22 @@ pipe.o: pipe.c pipe.h
 operation.o: operation.c operation.h process.h
 	${CC} ${CFLAGS} -c operation.c
 
-form.o: form.c form.h
-	${CC} ${CFLAGS} -c form.c
+form_prompt.o: form_prompt.c form_prompt.h
+	${CC} ${CFLAGS} -c form_prompt.c
 
-query_dvr.e: query_dvr.c query.o
-	${CC} ${CFLAGS} query_dvr.c				\
-			${APPASERVER_LIBRARY}			\
-			piece.o 				\
-			date.o 					\
-			julian.o 				\
-			timlib.o 				\
-			list_usage.o 				\
-			date_convert.o 				\
-			dictionary.o 				\
-			hash_table.o 				\
-			column.o 				\
-			list.o 					\
-			-o query_dvr.e
+form_table.o: form_table.c form_table.h
+	${CC} ${CFLAGS} -c form_table.c
 
-query.o: query.c query.h related_folder.h
+form_button.o: form_button.c form_button.h
+	${CC} ${CFLAGS} -c form_button.c
+
+query.o: query.c query.h
 	${CC} ${CFLAGS} -c query.c
 
 prompt_recursive.o: prompt_recursive.c					\
-	prompt_recursive.h related_folder.h
+	prompt_recursive.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c prompt_recursive.c
-
-related_folder.o: related_folder.c related_folder.h			\
-			folder.o					\
-			attribute.o					\
-			form.o						\
-			vertical_new_button.o
-	${CC} ${CFLAGS} -c related_folder.c
 
 vertical_new_button.o: vertical_new_button.c vertical_new_button.h
 	${CC} ${CFLAGS} -c vertical_new_button.c

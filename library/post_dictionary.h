@@ -20,7 +20,7 @@
 /* ---------- */
 typedef struct
 {
-	DICTIONARY *dictionary;
+	DICTIONARY *original_post_dictionary;
 	char *post_dictionary_apache_key;
 } POST_DICTIONARY;
 
@@ -71,7 +71,7 @@ char *post_dictionary_appaserver_key(
 			char *input );
 
 void post_dictionary_stream_set(
-			DICTIONARY *dictionary,
+			DICTIONARY *original_post_dictionary,
 			FILE *stdin,
 			char *appaserver_key,
 			char *apache_key );

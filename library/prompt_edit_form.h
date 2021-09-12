@@ -13,7 +13,7 @@
 #include "role.h"
 #include "role_folder.h"
 #include "folder.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -35,10 +35,10 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	FOLDER *folder;
-	ROLE *role;
 	ROLE_FOLDER *role_folder;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	ROLE *role;
+	FOLDER *folder;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	boolean prompt_edit_form_omit_new_button;
 
 } PROMPT_EDIT_FORM;

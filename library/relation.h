@@ -165,9 +165,9 @@ LIST *relation_join_one2m_list(
 LIST *relation_pair_one2m_list(
 			LIST *relation_one2m_list );
 
-LIST *relation_mto1_drilldown_list(
+LIST *relation_mto1_drillthru_list(
 			LIST *relation_list,
-			char *folder_name,
+			char *base_folder_name,
 			LIST *fulfilled_folder_name_list );
 
 LIST *relation_one2m_list(

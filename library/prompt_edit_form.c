@@ -57,9 +57,9 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 	/* Process */
 	/* ------- */
 	if ( ! ( prompt_edit_form->role_folder =
-		role_folder_fetch(
-			role_name,
-			folder_name ) ) )
+			role_folder_fetch(
+				role_name,
+				folder_name ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: role_folder_fetch(%s,%s) returned empty.\n",
@@ -85,14 +85,31 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 		return (PROMPT_EDIT_FORM *)0;
 	}
 
+	if ( ! ( prompt_edit_form->role =
+			role_fetch(
+				role_name,
+				1 /* fetch_attribute_exclude_list */ ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
+		exit( 1 );
+	}
+
 	if ( ! ( prompt_edit_form->folder =
 			folder_fetch(
 				folder_name,
 				role_exclude_lookup_attribute_name_list(
-					role->attribute_exclude_list ),
-				/* -------------------------- */
-				/* Also sets primary_key_list */
-				/* -------------------------- */
+					prompt_edit_form->
+						role->
+						attribute_exclude_list ),
+				/* --------------------------------------- */
+				/* Also sets folder_attribute_primary_list */
+				/* and primary_key_list			   */
+				/* --------------------------------------- */
 				1 /* fetch_folder_attribute_list */,
 				0 /* not fetch_relation_mto1_non_isa_list */,
 				/* ------------------------------------------*/
@@ -100,7 +117,7 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 				/* ------------------------------------------*/
 				1 /* fetch_relation_mto1_isa_list */,
 				1 /* fetch_relation_one2m_list */,
-				0 /* not fetch_relation_one2m_recursive_list */,
+				1 /* fetch_relation_one2m_recursive_list */,
 				0 /* not fetch_process */,
 				0 /* not fetch_role_folder_list */,
 				0 /* not fetch_row_level_restriction */ ) ) )
@@ -115,22 +132,19 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 		return (EDIT_TABLE_FORM *)0;
 	}
 
-	dictionary_appaserver =
+	dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_appaserver_stream_new(
+		dictionary_separate_folder_new(
 			prompt_edit_form->post_dictionary,
 			prompt_edit_form->application_name,
 			prompt_edit_form->login_name,
-			attribute_name_list(
+			folder_attribute_date_name_list(
 				prompt_edit_form->
 					folder->
-					attribute_list ),
-			attribute_date_name_list(
-				prompt_edit_form->
-					folder->
-					attribute_list ) );
+					folder_attribute_list ) );
+
 	return prompt_edit_form;
 }
 
