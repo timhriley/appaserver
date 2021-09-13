@@ -74,9 +74,6 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-LIST *relation_mto1_non_isa_list(
-			char *many_folder_name );
-
 RELATION *relation_calloc(
 			void );
 
@@ -115,6 +112,13 @@ LIST *relation_foreign_key_list(
 			LIST *primary_foreign_key_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_name_list );
+
+LIST *relation_mto1_non_isa_list(
+			char *many_folder_name );
+
+LIST *relation_mto1_primary_key_subset_list(
+			char *many_folder_name,
+			LIST *primary_key_list );
 
 LIST *relation_one2m_recursive_list(
 			LIST *relation_list /* in/out */,

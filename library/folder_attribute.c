@@ -233,6 +233,155 @@ LIST *folder_attribute_primary_key_list(
 	return primary_key_list;
 }
 
+LIST *folder_attribute_non_primary_key_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *non_primary_key_list;
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	non_primary_key_list = list_new();
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_attribute->primary_key_index )
+		{
+			list_set(
+				non_primary_key_list, 
+				folder_attribute->attribute_name );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return non_primary_key_list;
+}
+
+LIST *folder_attribute_date_name_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *date_name_list = {0};
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_attribute->attribute )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( attribute_is_date(
+			folder_attribute->
+				attribute->
+				datatype_name ) )
+		{
+			if ( ! date_name_list ) date_name_list = list_new();
+
+			list_set(
+				date_name_list, 
+				folder_attribute->attribute_name );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return date_name_list;
+}
+
+LIST *folder_attribute_time_name_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *time_name_list = {0};
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_attribute->attribute )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( attribute_is_time(
+			folder_attribute->
+				attribute->
+				datatype_name ) )
+		{
+			if ( ! time_name_list ) time_name_list = list_new();
+
+			list_set(
+				time_name_list, 
+				folder_attribute->attribute_name );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return time_name_list;
+}
+
+LIST *folder_attribute_date_time_name_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *date_time_name_list = {0};
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_attribute->attribute )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( attribute_is_date_time(
+			folder_attribute->
+				attribute->
+				datatype_name ) )
+		{
+			if ( ! date_time_name_list )
+				date_time_name_list =
+					list_new();
+
+			list_set(
+				date_time_name_list, 
+				folder_attribute->attribute_name );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return date_time_name_list;
+}
+
 LIST *folder_attribute_append_isa_list(
 			LIST *append_isa_list /* in/out */,
 			LIST *relation_mto1_isa_list )

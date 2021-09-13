@@ -323,6 +323,53 @@ LIST *relation_mto1_non_isa_list(
 			1 /* fetch_attribute_list */ );
 }
 
+LIST *relation_mto1_primary_key_subset_list(
+			char *many_folder_name,
+			LIST *primary_key_list )
+{
+	LIST *mto1_primary_key_subset_list = {0};
+	LIST *mto1_non_isa_list;
+	RELATION *relation;
+
+	mto1_non_isa_list =
+		relation_mto1_non_isa_list(
+			many_folder_name );
+
+	if ( !list_rewind( mto1_non_isa_list ) ) return (LIST *)0;
+
+	do {
+		relation = list_get( mto1_non_isa_list );
+
+		if ( !list_length( relation->one_folder->primary_key_list ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: one_folder->primary_key_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_is_subset_of(
+			relation->one_folder->primary_key_list,
+			primary_key_list ) )
+		{
+			continue;
+		}
+
+		if ( !mto1_primary_key_subset_list )
+			mto1_primary_key_subset_list =
+				list_new();
+
+		list_set(
+			mto1_primary_key_subset_list,
+			relation );
+
+	} while ( list_next( mto1_non_isa_list ) );
+
+	return mto1_primary_key_subset_list;
+}
+
 LIST *relation_one2m_list(
 			char *one_folder_name )
 {

@@ -11,45 +11,80 @@
 #include <ctype.h>
 #include <malloc.h>
 #include "environ.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "prompt_recursive.h"
 
-PROMPT_RECURSIVE *prompt_recursive(
+PROMPT_RECURSIVE *prompt_recursive_new(
 			char *folder_name,
-			LIST *mto1_related_folder_list )
+			LIST *relation_mto1_non_isa_list )
 {
 	PROMPT_RECURSIVE *recursive;
 
-	recursive =
-		(PROMPT_RECURSIVE *)
-			calloc( 1, sizeof( PROMPT_RECURSIVE ) );
+	if ( ! ( recursive =
+			calloc( 1, sizeof( PROMPT_RECURSIVE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	recursive->folder_name = folder_name;
 
 	recursive->prompt_recursive_folder_list =
 		prompt_recursive_folder_list(
-				mto1_related_folder_list );
+			relation_mto1_non_isa_list );
 
 	return recursive;
 }
 
 LIST *prompt_recursive_folder_list(
-			LIST *mto1_related_folder_list )
+			LIST *relation_mto1_non_isa_list )
 {
 	LIST *folder_list = {0};
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
-	RELATED_FOLDER *related_folder;
+	RELATION *relation;
 
-	if ( !list_rewind( mto1_related_folder_list ) ) return (LIST *)0;
+	if ( !list_rewind( relation_mto1_non_isa_list ) ) return (LIST *)0;
 
 	do {
-		related_folder = list_get( mto1_related_folder_list );
+		relation = list_get( relation_mto1_non_isa_list );
 
-		if ( !related_folder->prompt_mto1_recursive ) continue;
+		if ( !relation->prompt_mto1_recursive ) continue;
 
-		prompt_recursive_folder =
-			prompt_recursive_folder(
-				related_folder->folder );
+		if ( !relation->one_folder )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_length( relation->one_folder->primary_key_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ! ( prompt_recursive_folder =
+				prompt_recursive_folder_new(
+					relation->one_folder,
+					/* ------------------------------ */
+					/* Exclude drop_down_multi_select */
+					/* ------------------------------ */
+					relation->drop_down_multi_select ) ) )
+		{
+			continue;
+		}
 
 		if ( !folder_list ) folder_list = list_new();
 
@@ -57,7 +92,7 @@ LIST *prompt_recursive_folder_list(
 			folder_list,
 			prompt_recursive_folder );
 
-	} while( list_next( mto1_related_folder_list ) );
+	} while( list_next( relation_mto1_non_isa_list ) );
 
 	return folder_list;
 }
@@ -83,77 +118,89 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc( void )
 	return prompt_recursive_folder;
 }
 
-PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder(
-			FOLDER *folder )
+PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
+			FOLDER *one_folder,
+			boolean drop_down_multi_select )
 {
-	PROMPT_RECURSIVE_FOLDER *recursive_folder =
-		prompt_recursive_folder_calloc();
+	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
+	RELATION *relation;
 
-	recursive_folder->folder = folder;
+	if ( !one_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	recursive_folder->prompt_recursive_mto1_folder_list =
-		prompt_recursive_mto1_folder_list(
-			folder->folder_name,
-			folder->primary_key_list );
+	if ( !list_length( one_folder->primary_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	return recursive_folder;
-}
+	if ( drop_down_multi_select ) return (PROMPT_RECURSIVE_FOLDER *)0;
 
-LIST *prompt_recursive_mto1_folder_list(
-			char *folder_name,
-			LIST *primary_key_list )
-{
-	LIST *recursive_mto1_folder_list = {0};
-	LIST *mto1_recursive_related_folder_list;
-	RELATED_FOLDER *related_folder;
-	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder;
+	prompt_recursive_folder = prompt_recursive_folder_calloc();
 
-	mto1_recursive_related_folder_list =
-		related_folder_mto1_related_folder_list(
-			list_new_list(),
-			environment_application_name(),
-			BOGUS_SESSION,
-			folder_name,
-			(char *)0 /* role_name */,
-			0 /* isa_flag */,
-			related_folder_prompt_recursive_only,
-			0 /* dont override_row_restrictions */,
-			primary_key_list,
-			0 /* recursive_level */ );
+	prompt_recursive_folder->one_folder = one_folder;
 
-	if ( !list_rewind( mto1_recursive_related_folder_list ) )
-		return (LIST *)0;
+	prompt_recursive_folder->relation_mto1_primary_key_subset_list =
+		relation_mto1_primary_key_subset_list(
+			one_folder->folder_name,
+			one_folder->primary_key_list );
+
+	if ( !list_rewind(
+		prompt_recursive_folder->
+			relation_mto1_primary_key_subset_list ) )
+	{
+		return (PROMPT_RECURSIVE_FOLDER *)0;
+	}
+
+	prompt_recursive_folder->prompt_recursive_mto1_folder_list =
+		list_new();
 
 	do {
-		related_folder = list_get( mto1_recursive_related_folder_list );
+		relation =
+			list_get(
+				prompt_recursive_folder->
+					relation_mto1_primary_key_subset_list );
 
-		recursive_mto1_folder =
-			prompt_recursive_mto1_folder(
-				related_folder->folder,
-				related_folder->recursive_level );
-
-		if ( !recursive_mto1_folder_list )
-			recursive_mto1_folder_list =
-				list_new();
+		if ( !relation->one_folder )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		list_set(
-			recursive_mto1_folder_list,
-			recursive_mto1_folder );
+			prompt_recursive_folder->
+				prompt_recursive_mto1_folder_list,
+			prompt_recursive_mto1_folder_new(
+				relation->one_folder ) );
 
-	} while( list_next( mto1_recursive_related_folder_list ) );
+	} while ( list_next( 
+		prompt_recursive_folder->
+			relation_mto1_primary_key_subset_list ) );
 
-	return recursive_mto1_folder_list;
+	return prompt_recursive_folder;
 }
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc( void )
 {
 	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
 
-	prompt_recursive_mto1_folder =
-		(PROMPT_RECURSIVE_MTO1_FOLDER *)
-			calloc( 1, sizeof( PROMPT_RECURSIVE_MTO1_FOLDER ) );
-
-	if ( !prompt_recursive_mto1_folder )
+	if ( ! ( prompt_recursive_mto1_folder =
+			calloc( 1, sizeof( PROMPT_RECURSIVE_MTO1_FOLDER ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -166,94 +213,13 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc( void )
 	return prompt_recursive_mto1_folder;
 }
 
-PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder(
-			FOLDER *folder,
-			int recursive_level )
+PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
+			FOLDER *one_folder )
 {
-	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder;
-
-	recursive_mto1_folder =
+	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder =
 		prompt_recursive_mto1_folder_calloc();
 
-	recursive_mto1_folder->folder = folder;
-	recursive_mto1_folder->recursive_level = recursive_level;
-
+	recursive_mto1_folder->one_folder = one_folder;
 	return recursive_mto1_folder;
-}
-
-char *prompt_recursive_display(	PROMPT_RECURSIVE *prompt_recursive )
-{
-	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
-	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
-	LIST *prompt_recursive_mto1_folder_list;
-	char buffer[ 65536 ];
-	char *ptr = buffer;
-
-	*ptr = '\0';
-
-	ptr += sprintf( ptr,
-			"%s(): got folder_name = (%s)",
-			__FUNCTION__,
-			prompt_recursive->
-				folder_name );
-
-	if ( !list_rewind( prompt_recursive->prompt_recursive_folder_list ) )
-	{
-		return strdup( buffer );
-	}
-
-	do {
-		prompt_recursive_folder =
-			list_get_pointer(
-				prompt_recursive->
-					prompt_recursive_folder_list );
-
-		ptr += sprintf( ptr,
-"; got prompt_folder = (%s), primary_key_list = (%s)",
-				prompt_recursive_folder->
-					prompt_folder->
-					folder_name,
-				list_display(
-					prompt_recursive_folder->
-						prompt_folder->
-						primary_key_list ) );
-
-		prompt_recursive_mto1_folder_list =
-			prompt_recursive_folder->
-				prompt_recursive_mto1_folder_list;
-
-		if ( !list_rewind( prompt_recursive_mto1_folder_list ) )
-		{
-			ptr += sprintf(
-				ptr,
-				" empty prompt_recursive_mto1_folder_list.\n" );
-			continue;
-		}
-
-		do {
-			prompt_recursive_mto1_folder =
-				list_get_pointer(
-					prompt_recursive_mto1_folder_list );
-
-			ptr += sprintf(	ptr,
-"; child folder = %s, recursive_level = %d, primary_key_list = (%s)",
-					prompt_recursive_mto1_folder->
-						folder->
-						folder_name,
-					prompt_recursive_mto1_folder->
-						recursive_level,
-					list_display(
-					prompt_recursive_mto1_folder->
-						folder->
-						primary_key_list ) );
-
-		} while( list_next( prompt_recursive_mto1_folder_list ) );
-
-		ptr += sprintf( ptr, "\n" );
-
-	} while( list_next( prompt_recursive->
-				prompt_recursive_folder_list ) );
-
-	return strdup( buffer );
 }
 

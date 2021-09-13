@@ -73,7 +73,7 @@ void drillthru_fulfilled_folder_name_list_dictionary_set(
 boolean drillthru_skipped(
 			char *folder_name,
 			char *base_folder_name,
-			int relation_mto1_drill_thru_list_length );
+			int drillthru_fulfilled_folder_name_list_length );
 
 boolean drillthru_middle(
 			char *folder_name,

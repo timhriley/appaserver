@@ -87,64 +87,6 @@ ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude_new(
 	return role_attribute_exclude;
 }
 
-LIST *role_get_attribute_exclude_list(	char *application_name,
-					char *role_name )
-{
-	char sys_string[ 1024 ];
-	char attribute_name[ 128 ];
-	char permission[ 128 ];
-	char *select;
-	char where[ 128 ];
-	FILE *input_pipe;
-	char input_buffer[ 256 ];
-	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
-	LIST *attribute_exclude_list = {0};
-
-	select = "attribute,permission";
-
-	sprintf( where,
-		 "role = '%s'",
-		 role_name );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=%s			"
-		 "			folder=attribute_exclude	"
-		 "			where=\"%s\"			",
-		 application_name,
-		 select,
-		 where );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece(	attribute_name,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			0 );
-
-		piece(	permission,
-			FOLDER_DATA_DELIMITER,
-			input_buffer,
-			1 );
-
-		if ( !attribute_exclude_list )
-			attribute_exclude_list = list_new();
-
-		role_attribute_exclude =
-			role_attribute_exclude_new(
-				role_name,
-				strdup( attribute_name ),
-				strdup( permission ) );
-
-		list_append_pointer(	attribute_exclude_list,
-					role_attribute_exclude );
-	}
-
-	return attribute_exclude_list;
-}
-
 boolean role_exists_attribute_exclude_insert(
 				LIST *attribute_exclude_list,
 				char *attribute_name )
@@ -316,7 +258,7 @@ ROLE *role_parse(	char *input,
 
 	if ( fetch_attribute_exclude_list )
 	{
-		role->role_attribute_exclude_list =
+		role->attribute_exclude_list =
 			role_attribute_exclude_system_list(
 				/* ------------------- */
 				/* Returns heap memory */
@@ -423,12 +365,12 @@ ROLE_APPASERVER_USER *role_appaserver_user_parse(
 }
 
 LIST *role_exclude_lookup_attribute_name_list(
-			LIST *role_attribute_exclude_list )
+			LIST *attribute_exclude_list )
 {
 	LIST *exclude_attribute_name_list;
 	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
 
-	if ( !list_rewind( role_attribute_exclude_list ) )
+	if ( !list_rewind( attribute_exclude_list ) )
 	{
 		return (LIST *)0;
 	}
@@ -438,7 +380,7 @@ LIST *role_exclude_lookup_attribute_name_list(
 	do {
 		role_attribute_exclude =
 			list_get(
-				role_attribute_exclude_list );
+				attribute_exclude_list );
 
 		if ( strcmp(
 			role_attribute_exclude->permission,
@@ -448,18 +390,18 @@ LIST *role_exclude_lookup_attribute_name_list(
 				exclude_attribute_name_list,
 				role_attribute_exclude->attribute_name );
 		}
-	} while ( list_next( role_attribute_exclude_list ) );
+	} while ( list_next( attribute_exclude_list ) );
 
 	return exclude_attribute_name_list;
 }
 
 LIST *role_exclude_insert_attribute_name_list(
-			LIST *role_attribute_exclude_list )
+			LIST *attribute_exclude_list )
 {
 	LIST *exclude_attribute_name_list;
 	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
 
-	if ( !list_rewind( role_attribute_exclude_list ) )
+	if ( !list_rewind( attribute_exclude_list ) )
 	{
 		return (LIST *)0;
 	}
@@ -469,7 +411,7 @@ LIST *role_exclude_insert_attribute_name_list(
 	do {
 		role_attribute_exclude =
 			list_get(
-				role_attribute_exclude_list );
+				attribute_exclude_list );
 
 		if ( strcmp(
 			role_attribute_exclude->permission,
@@ -479,18 +421,18 @@ LIST *role_exclude_insert_attribute_name_list(
 				exclude_attribute_name_list,
 				role_attribute_exclude->attribute_name );
 		}
-	} while ( list_next( role_attribute_exclude_list ) );
+	} while ( list_next( attribute_exclude_list ) );
 
 	return exclude_attribute_name_list;
 }
 
 LIST *role_exclude_update_attribute_name_list(
-			LIST *role_attribute_exclude_list )
+			LIST *attribute_exclude_list )
 {
 	LIST *exclude_attribute_name_list;
 	ROLE_ATTRIBUTE_EXCLUDE *role_attribute_exclude;
 
-	if ( !list_rewind( role_attribute_exclude_list ) )
+	if ( !list_rewind( attribute_exclude_list ) )
 	{
 		return (LIST *)0;
 	}
@@ -500,7 +442,7 @@ LIST *role_exclude_update_attribute_name_list(
 	do {
 		role_attribute_exclude =
 			list_get(
-				role_attribute_exclude_list );
+				attribute_exclude_list );
 
 		if ( strcmp(
 			role_attribute_exclude->permission,
@@ -510,7 +452,7 @@ LIST *role_exclude_update_attribute_name_list(
 				exclude_attribute_name_list,
 				role_attribute_exclude->attribute_name );
 		}
-	} while ( list_next( role_attribute_exclude_list ) );
+	} while ( list_next( attribute_exclude_list ) );
 
 	return exclude_attribute_name_list;
 }

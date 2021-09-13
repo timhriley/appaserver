@@ -19,13 +19,13 @@
 /* --------------- */
 typedef struct
 {
-	FOLDER *folder;
-	int recursive_level;
+	FOLDER *one_folder;
 } PROMPT_RECURSIVE_MTO1_FOLDER;
 
 typedef struct
 {
-	FOLDER *folder;
+	FOLDER *one_folder;
+	LIST *relation_mto1_primary_key_subset_list;
 	LIST *prompt_recursive_mto1_folder_list;
 } PROMPT_RECURSIVE_FOLDER;
 
@@ -40,26 +40,26 @@ typedef struct
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc(
 			void );
 
-PROMPT_RECURSIVE *prompt_recursive(
+PROMPT_RECURSIVE *prompt_recursive_new(
 			char *folder_name,
 			LIST *mto1_related_folder_list );
 
 LIST *prompt_recursive_folder_list(
 			LIST *mto1_related_folder_list );
 
-PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder(
-			FOLDER *folder );
+PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
+			FOLDER *one_folder,
+			/* ------------------------------ */
+			/* Exclude drop_down_multi_select */
+			/* ------------------------------ */
+			boolean drop_down_multi_select );
 
 LIST *prompt_recursive_mto1_folder_list(
 			char *folder_name,
 			LIST *primary_key_list );
 
-PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder(
-			FOLDER *folder,
-			int recursive_level );
-
-char *prompt_recursive_display(
-			PROMPT_RECURSIVE *prompt_recursive );
+PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
+			FOLDER *one_folder );
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc(
 			void );

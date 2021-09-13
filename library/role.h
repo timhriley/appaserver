@@ -33,7 +33,7 @@ typedef struct
 	boolean folder_count;
 	boolean override_row_restrictions;
 	boolean grace_no_cycle_colors;
-	LIST *role_attribute_exclude_list;
+	LIST *attribute_exclude_list;
 } ROLE;
 
 /* ROLE operations */
@@ -79,13 +79,13 @@ char *role_primary_where(
 			char *role_name );
 
 LIST *role_exclude_lookup_attribute_name_list(
-			LIST *role_attribute_exclude_list );
+			LIST *attribute_exclude_list );
 
 LIST *role_exclude_insert_attribute_name_list(
-			LIST *role_attribute_exclude_list );
+			LIST *attribute_exclude_list );
 
 LIST *role_exclude_update_attribute_name_list(
-			LIST *role_attribute_exclude_list );
+			LIST *attribute_exclude_list );
 
 /* ROLE_ATTRIBUTE_EXCLUDE operations */
 /* --------------------------------- */

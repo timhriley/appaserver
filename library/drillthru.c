@@ -183,10 +183,10 @@ void drillthru_fulfilled_current_folder_name_set(
 boolean drillthru_skipped(
 			char *folder_name,
 			char *base_folder_name,
-			int relation_mto1_drillthru_list_length )
+			int drillthru_fulfilled_folder_name_list_length )
 {
 	if ( string_strcmp( folder_name, base_folder_name ) == 0
-	&&   relation_mto1_drillthru_list_length )
+	&&   drillthru_fulfilled_folder_name_list_length > 0 )
 	{
 		return 1;
 	}

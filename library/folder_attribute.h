@@ -95,6 +95,18 @@ LIST *folder_attribute_primary_list(
 LIST *folder_attribute_primary_key_list(
 			LIST *folder_attribute_list );
 
+LIST *folder_attribute_non_primary_key_list(
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_date_name_list(
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_time_name_list(
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_date_time_name_list(
+			LIST *folder_attribute_list );
+
 LIST *folder_attribute_append_isa_list(
 			LIST *append_isa_list /* in/out */,
 			LIST *relation_mto1_isa_list );

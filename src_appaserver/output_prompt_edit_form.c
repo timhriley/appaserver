@@ -44,107 +44,8 @@
 
 /* Prototypes */
 /* ---------- */
-void build_related_folder_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			LIST *element_list,
-			RELATED_FOLDER *related_folder,
-			LIST *done_folder_name_list,
-			LIST *isa_folder_list,
-			ATTRIBUTE *attribute,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
-			char *application_name,
-			char *session,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *preprompt_dictionary,
-		  	char *no_display_push_button_prefix,
-		  	char *no_display_push_button_heading,
-			boolean row_level_non_owner_forbid,
-			char *one2m_folder_name_for_processes,
-			boolean attribute_exists_in_preprompt_dictionary,
-			char *state,
-			LIST *foreign_attribute_name_list );
-
-char *get_done_folder_name(
-			char *folder_name,
-			char *related_attribute_name );
-
-void mark_ignore_for_prelookup_skipped(
-			LIST *mto1_related_folder_list,
-			LIST *lookup_before_drop_down_folder_list );
-
-LIST *get_preprompt_attribute_name_list(
-				DICTIONARY *preprompt_dictionary );
-
-LIST *prompt_mto1_recursive_element_list_fetch(
-			LIST *done_folder_name_list,
-			char **post_change_javascript,
-			LIST *exclude_attribute_name_list,
-			FOLDER *prompt_folder,
-			boolean prompt_folder_drop_down_multi_select,
-			LIST *prompt_recursive_mto1_folder_list,
-			char *application_name,
-			char *session,
-			char *login_name,
-			DICTIONARY *preprompt_dictionary,
-			char *role_name,
-			boolean omit_push_buttons,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down );
-
-int exists_hidden_text_datatype(	LIST *attribute_list );
-
-LIST *get_radio_button_element_list(
-					LIST *attribute_list,
-					int folder_lookup_transmit_output,
-					char new_button_yn,
-					boolean delete_button,
-					boolean group_button,
-					boolean sort_order_button );
-
 void output_prompt_edit_form(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			char *state,
-			LIST *mto1_isa_related_folder_list,
-			APPASERVER *appaserver,
-			LIST *mto1_related_folder_list,
-			ROLE_FOLDER *role_folder,
-			char *appaserver_mount_point,
-			DICTIONARY *preprompt_dictionary,
-			boolean override_row_restrictions,
-			LIST *prompt_recursive_folder_list,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
-			DICTIONARY *lookup_before_drop_down_dictionary,
-			char *target_frame,
-			boolean omit_new_button,
-			boolean omit_delete_button,
-			char *lookup_insert_folder_name );
-
-LIST *output_prompt_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			char **post_change_javascript,
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			LIST *attribute_list,
-			LIST *mto1_related_folder_list,
-			int folder_lookup_transmit_output,
-			char new_button_yn,
-			char *notepad,
-			LIST *exclude_attribute_name_list,
-			boolean row_level_non_owner_forbid,
-			DICTIONARY *preprompt_dictionary,
-			LIST *prompt_recursive_folder_list,
-			char *role_name,
-			boolean delete_button,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
-			boolean group_button,
-			boolean sort_order_button,
-			char *state );
+			PROMPT_EDIT_FORM *prompt_edit_form );
 
 int main( int argc, char **argv )
 {
@@ -198,6 +99,8 @@ int main( int argc, char **argv )
 				role_name,
 				state,
 				target_frame,
+				appaserver_parameter_file->
+					appaserver_mount_point,
 				post_dictionary ) ) )
 	{
 		document_output_content_type();
