@@ -39,7 +39,6 @@
 /* --------- */
 #define EMAIL_TEXT_ITEM_WIDTH		100
 #define DROP_DOWN_NUMBER_COLUMNS	2
-#define INSERT_UPDATE_KEY		"prompt"
 #define COOKIE_KEY_PREFIX		"edit"
 
 /* Prototypes */

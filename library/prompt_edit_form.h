@@ -41,6 +41,7 @@ typedef struct
 	FOLDER *folder;
 	DICTIONARY_SEPARATE *dictionary_separate;
 	DRILLTHRU *drillthru;
+	boolean drillthru_skipped;
 	PROMPT_RECURSIVE *prompt_recursive;
 	boolean omit_insert_button;
 	boolean omit_delete_button;

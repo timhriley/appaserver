@@ -32,20 +32,30 @@ typedef struct
 typedef struct
 {
 	char *folder_name;
+	DICTIONARY *drillthru_dictionary;
 	LIST *prompt_recursive_folder_list;
+	LIST *element_list;
 } PROMPT_RECURSIVE;
 
-/* Prototypes */
-/* ---------- */
+/* PROMPT_RECURSIVE operations */
+/* --------------------------- */
+PROMPT_RECURSIVE *prompt_recursive_new(
+			char *folder_name,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean drillthru_skipped );
+
+/* PROMPT_RECURSIVE_FOLDER operations */
+/* ---------------------------------- */
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc(
 			void );
 
-PROMPT_RECURSIVE *prompt_recursive_new(
-			char *folder_name,
-			LIST *mto1_related_folder_list );
-
 LIST *prompt_recursive_folder_list(
-			LIST *mto1_related_folder_list );
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary );
+
+LIST *prompt_recursive_element_list(
+			LIST *prompt_recursive_folder_list );
 
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			FOLDER *one_folder,

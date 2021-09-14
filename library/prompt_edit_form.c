@@ -166,34 +166,42 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 		return (PROMPT_EDIT_FORM *)0;
 	}
 
-	prompt_edit_form->prompt_recursive =
-		prompt_recursive_new(
-			folder_name,
-			prompt_edit_form->
-				folder->
-				relation_mto1_non_isa_list );
-
 	prompt_edit_form->drillthru =
 		drillthru_fetch(
 			prompt_edit_form->
 				dictionary_separate->
 				drillthru_dictionary );
 
+	prompt_edit_form->drillthru_skipped =
+		drillthru_skipped(
+			folder_name,
+			(prompt_edit_form->drillthru)
+				? prompt_edit_form->
+					drillthru->
+					base_folder_name
+				: (char *)0,
+			(prompt_edit_form->drillthru)
+				? list_length(
+					prompt_edit_form->
+				     	    drillthru->
+				     	    fulfilled_folder_name_list )
+				: 0 );
+
+	prompt_edit_form->prompt_recursive =
+		prompt_recursive_new(
+			folder_name,
+			prompt_edit_form->
+				folder->
+				relation_mto1_non_isa_list,
+			prompt_edit_form->
+				dictionary_separate->
+				drillthru_dictionary,
+			prompt_edit_form->
+				drillthru_skipped );
+
 	prompt_edit_form->omit_insert_button =
 		prompt_insert_form_omit_insert_button(
-			drillthru_skipped(
-				folder_name,
-				(prompt_edit_form->drillthru)
-					? prompt_edit_form->
-						drillthru->
-						base_folder_name
-					: (char *)0,
-				(prompt_edit_form->drillthru)
-					? list_length(
-						prompt_edit_form->
-					     	    drillthru->
-					     	    fulfilled_folder_name_list )
-					: 0 ) );
+			prompt_edit_form->drillthru_skipped );
 
 	return prompt_edit_form;
 }

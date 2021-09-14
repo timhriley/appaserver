@@ -14,13 +14,12 @@
 #include "relation.h"
 #include "prompt_recursive.h"
 
-PROMPT_RECURSIVE *prompt_recursive_new(
-			char *folder_name,
-			LIST *relation_mto1_non_isa_list )
+PROMPT_RECURSIVE *prompt_recursive_calloc(
+			void )
 {
-	PROMPT_RECURSIVE *recursive;
+	PROMPT_RECURSIVE *prompt_recursive;
 
-	if ( ! ( recursive =
+	if ( ! ( prompt_recursive =
 			calloc( 1, sizeof( PROMPT_RECURSIVE ) ) ) )
 	{
 		fprintf(stderr,
@@ -30,15 +29,37 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			__LINE__ );
 		exit( 1 );
 	}
+	return prompt_recursive;
+}
 
+PROMPT_RECURSIVE *prompt_recursive_new(
+			char *folder_name,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean drillthru_skipped )
+{
+	PROMPT_RECURSIVE *prompt_recursive;
 
-	recursive->folder_name = folder_name;
+	if ( drillthru_skipped ) return (PROMPT_RECURSIVE *)0;
 
-	recursive->prompt_recursive_folder_list =
+	prompt_recursive->folder_name = folder_name;
+	prompt_recursive->drillthru_dictionary = drillthru_dictionary;
+
+	prompt_recursive->prompt_recursive_folder_list =
 		prompt_recursive_folder_list(
-			relation_mto1_non_isa_list );
+			relation_mto1_non_isa_list,
+			drillthru_dictionary );
 
-	return recursive;
+	if ( !list_length( prompt_recursive->prompt_recursive_folder_list ) )
+	{
+		return (PROMPT_RECURSIVE *)0;
+	}
+
+	prompt_recursive->element_list =
+		prompt_recursive_element_list(
+			prompt_recursive->prompt_recursive_folder_list );
+
+	return prompt_recursive;
 }
 
 LIST *prompt_recursive_folder_list(
@@ -223,3 +244,211 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
 	return recursive_mto1_folder;
 }
 
+LIST *prompt_recursive_element_list(
+			LIST *prompt_recursive_folder_list,
+			DICTIONARY *drillthru_dictionary )
+{
+	LIST *element_list = list_new();
+	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
+
+
+	return element_list;
+
+#ifdef NOT_DEFINED
+	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
+	char *no_display_push_button_prefix = {0};
+	char *no_display_push_button_heading = {0};
+	boolean set_first_initial_data;
+	boolean output_null_option;
+	boolean output_not_null_option;
+	/* boolean output_select_option; */
+
+	if ( !omit_push_buttons )
+	{
+		no_display_push_button_prefix = NO_DISPLAY_PUSH_BUTTON_PREFIX;
+		no_display_push_button_heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
+	}
+
+	recursive_element_list = list_new_list();
+
+	if ( prompt_folder )
+	{
+		list_append_pointer(
+			done_folder_name_list,
+			strdup( get_done_folder_name(
+				prompt_folder->folder_name,
+				(char *)0 /* related_attribute_name */ ) ) );
+	}
+
+	*post_change_javascript =
+		prompt_recursive_get_gray_drop_downs_javascript(
+			prompt_folder,
+			prompt_folder_drop_down_multi_select,
+			prompt_recursive_mto1_folder_list );
+
+	if ( prompt_folder
+	&&   lookup_before_drop_down->
+		lookup_before_drop_down_state ==
+			lookup_participating_not_root
+	&&   lookup_before_drop_down_is_fulfilled_folder(
+		lookup_before_drop_down->
+			lookup_before_drop_down_folder_list,
+		prompt_folder->folder_name ) )
+	{
+		set_first_initial_data = 1;
+		output_null_option = 0;
+		output_not_null_option = 0;
+		/* output_select_option = 0; */
+	}
+	else
+	if ( prompt_folder
+	&&   lookup_before_drop_down->
+		lookup_before_drop_down_state ==
+			lookup_participating_is_root_all_complete
+	&&   lookup_before_drop_down_is_fulfilled_folder(
+		lookup_before_drop_down->
+			lookup_before_drop_down_folder_list,
+		prompt_folder->folder_name ) )
+	{
+		set_first_initial_data = 1;
+		output_null_option = 0;
+		output_not_null_option = 0;
+		/* output_select_option = 1; */
+	}
+	else
+	{
+		set_first_initial_data = 0;
+		output_null_option = 1;
+		output_not_null_option = 1;
+		/* output_select_option = 1; */
+	}
+
+	if ( prompt_folder )
+	{
+		list_append_list(
+			recursive_element_list,
+			related_folder_prompt_element_list(
+				(RELATED_FOLDER **)0,
+				application_name,
+				session,
+				role_name,
+				login_name,
+				prompt_folder->folder_name,
+				prompt_folder->populate_drop_down_process,
+				prompt_folder->attribute_list,
+				attribute_primary_key_list(
+					prompt_folder->attribute_list ),
+				0 /* dont omit_ignore_push_buttons */,
+				preprompt_dictionary,
+	  			no_display_push_button_prefix,
+	  			no_display_push_button_heading,
+				*post_change_javascript,
+				prompt_folder->notepad /* hint_message */,
+				0 /* max_drop_down_size */,
+				(LIST *)0 /* common_non_primary_a... */,
+				0 /* not is_primary_attribute */,
+				prompt_folder->row_level_non_owner_view_only,
+				prompt_folder->row_level_non_owner_forbid,
+				(char *)0 /* related_attribute_name */,
+				prompt_folder_drop_down_multi_select,
+				prompt_folder->no_initial_capital,
+				(char *)0 /* state */,
+				(char *)0 /* one2m_folder_name_for_processes */,
+				0 /* tab_index */,
+				set_first_initial_data,
+				output_null_option,
+				output_not_null_option,
+				1 /* output_select_option */,
+				(char *)0
+				/* appaserver_user_foreign_login_name */,
+			        0 /* not omit_lookup_before_drop_down */
+				) );
+	
+		list_append_string_list(
+			exclude_attribute_name_list,
+			attribute_primary_key_list(
+				prompt_folder->attribute_list ) );
+	}
+
+	if ( !list_rewind( prompt_recursive_mto1_folder_list ) )
+		return recursive_element_list;
+
+	do {
+		prompt_recursive_mto1_folder =
+			list_get_pointer( prompt_recursive_mto1_folder_list );
+
+		list_append_pointer(
+			done_folder_name_list,
+			strdup( get_done_folder_name(
+				prompt_recursive_mto1_folder->
+					folder->
+					folder_name,
+				(char *)0 /* related_attribute_name */ ) ) );
+
+		list_append_list(
+			recursive_element_list,
+			related_folder_prompt_element_list(
+				(RELATED_FOLDER **)0,
+				application_name,
+				session,
+				role_name,
+				login_name,
+				prompt_recursive_mto1_folder->
+					folder->
+					folder_name,
+				prompt_recursive_mto1_folder->
+					folder->
+					populate_drop_down_process,
+				prompt_recursive_mto1_folder->
+					folder->
+					attribute_list,
+				attribute_primary_key_list(
+					prompt_recursive_mto1_folder->
+						folder->
+						attribute_list ),
+				0 /* dont omit_ignore_push_buttons */,
+				preprompt_dictionary,
+	  			no_display_push_button_prefix,
+	  			no_display_push_button_heading,
+				*post_change_javascript,
+				prompt_recursive_mto1_folder->
+					folder->
+					notepad,
+				0 /* max_drop_down_size */,
+				(LIST *)0 /* common_non_primary_a... */,
+				0 /* not is_primary_attribute */,
+				prompt_recursive_mto1_folder->
+					folder->
+					row_level_non_owner_view_only,
+				prompt_recursive_mto1_folder->
+					folder->
+					row_level_non_owner_forbid,
+				(char *)0 /* related_attribute_name */,
+				0 /* drop_down_multi_select */,
+				prompt_recursive_mto1_folder->
+					folder->
+					no_initial_capital,
+				(char *)0 /* state */,
+				(char *)0 /* one2m_folder_name_for_processes */,
+				0 /* tab_index */,
+				0 /* not set_first_initial_data */,
+				1 /* output_null_option */,
+				1 /* output_not_null_option */,
+				1 /* output_select_option */,
+				(char *)0
+				/* appaserver_user_foreign_login_name */,
+			        0 /* not omit_lookup_before_drop_down */
+				) );
+
+			list_append_string_list(
+				exclude_attribute_name_list,
+				attribute_primary_key_list(
+					prompt_recursive_mto1_folder->
+						folder->
+						attribute_list ) );
+
+	} while( list_next( prompt_recursive_mto1_folder_list ) );
+
+	return element_list;
+#endif
+}
