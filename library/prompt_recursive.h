@@ -27,6 +27,7 @@ typedef struct
 	FOLDER *one_folder;
 	LIST *relation_mto1_primary_key_subset_list;
 	LIST *prompt_recursive_mto1_folder_list;
+	LIST *element_list;
 } PROMPT_RECURSIVE_FOLDER;
 
 typedef struct
@@ -46,6 +47,12 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			char *login_name,
 			boolean drillthru_skipped );
 
+char *prompt_recursive_javascript(
+			LIST *prompt_recursive_folder_list );
+
+LIST *prompt_recursive_element_list(
+			LIST *prompt_recursive_folder_list );
+
 /* PROMPT_RECURSIVE_FOLDER operations */
 /* ---------------------------------- */
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc(
@@ -56,9 +63,6 @@ LIST *prompt_recursive_folder_list(
 			DICTIONARY *drillthru_dictionary,
 			char *login_name );
 
-LIST *prompt_recursive_element_list(
-			LIST *prompt_recursive_folder_list );
-
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			FOLDER *one_folder,
 			DICTIONARY *drillthru_dictionary,
@@ -67,6 +71,14 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			/* Exclude drop_down_multi_select */
 			/* ------------------------------ */
 			boolean drop_down_multi_select );
+
+char *prompt_recursive_folder_javascript(
+			FOLDER *one_folder,
+			LIST *prompt_recursive_mto1_folder_list );
+
+LIST *prompt_recursive_folder_element_list(
+			FOLDER *one_folder,
+			LIST *prompt_recursive_mto1_folder_list );
 
 /* PROMPT_RECURSIVE_MTO1_FOLDER operations */
 /* --------------------------------------- */

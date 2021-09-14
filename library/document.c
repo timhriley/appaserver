@@ -222,8 +222,7 @@ void document_output_head_stream(
 	/* ------------------------------------------------------- */
 	fflush( output_stream );
 
-	if ( with_close_head )  document_output_close_head( output_stream );
-
+	if ( with_close_head ) document_output_close_head( output_stream );
 }
 
 void document_output_close_head( FILE *output_stream )
@@ -810,7 +809,7 @@ DOCUMENT *document_output_menu_new(
 				"" /* title */,
 				'n' /* not content_type_yn */,
 				'y' /* omit_html_head_yn */,
-				appaserver_error_get_filename(
+				appaserver_error_filename(
 					application_name ) );
 
 		fflush( stdout );

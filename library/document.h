@@ -1,6 +1,5 @@
-/* document.h 								*/
+/* $APPASERVER_HOME/library/document.h					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver document ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -31,7 +30,6 @@ typedef struct
 	char *error_function;
 	char *application_name;
 	char *onload_control_string;
-	char *load_button_control_string;
 	char *appaserver_mount_point;
 	char *stylesheet_filename;
 } DOCUMENT;

@@ -2743,8 +2743,6 @@ void element_non_edit_multi_select_output(
 	}
 
 	fprintf( output_file, "</select></td>\n" );
-
-
 }
 
 /* ELEMENT_LINEBREAK Operations */

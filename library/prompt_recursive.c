@@ -297,9 +297,60 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
 LIST *prompt_recursive_element_list(
 			LIST *prompt_recursive_folder_list )
 {
-	LIST *element_list = list_new();
+	LIST *element_list = {0};
+	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
+
+	if ( !list_rewind( prompt_recursive_folder ) ) return (LIST *)0;
+
+	do {
+		prompt_recursive_folder =
+			list_get(
+				prompt_recursive_folder_list );
+
+		prompt_recursive_folder->element_list =
+			prompt_recursive_folder_element_list(
+				prompt_recursive_folder->one_folder,
+				prompt_recursive_folder->
+					mto1_folder_list );
+
+		if ( list_length( prompt_recursive_folder->element_list ) )
+		{
+			if ( !element_list ) element_list = list_new();
+
+			list_set_list(
+				element_list,
+				prompt_recursive_folder->element_list );
+		}
+	} while ( list_next( prompt_recursive_folder_list ) );
 
 	return element_list;
+}
+
+LIST *prompt_recursive_folder_element_list(
+			FOLDER *one_folder,
+			LIST *mto1_folder_list )
+{
+	LIST *element_list;
+	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
+
+	if ( !one_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( mto1_folder_list ) ) return (LIST *)0;
+
+	element_list = list_new();
+
+			
+
+	return element_list;
+}
 
 #ifdef NOT_DEFINED
 	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
