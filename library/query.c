@@ -2952,3 +2952,73 @@ char *query_data_where_clause(
 
 	return strdup( where_clause );
 }
+
+LIST *query_primary_delimited_fetch_list(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_primary_list,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
+{
+	QUERY *query = query_calloc();
+
+	if ( ! ( query->select_list =
+			query_primary_select_list(
+				primary_key_list,
+				folder_attribute_primary_list,
+				/* --------------- */
+				/* Always succeeds */
+				/* --------------- */
+				query_date_convert_new(
+					login_name ) ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: query_primary_select_list() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (LIST *)0;
+	}
+
+	if ( ! ( query->select_clause =
+			query_select_clause(
+				query->select_list ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: query_select_clause() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (LIST *)0;
+	}
+
+	query->from_clause = folder_name;
+
+	query->query_widget_where =
+		query_widget_where_new(
+			folder_name,
+			folder_attribute_primary_list,
+			relation_mto1_non_isa_list,
+			(char *)0 /* security_entity_where */,
+			drillthru_dictionary );
+
+	query->where_clause =
+		query_widget_where_clause(
+			query->query_widget_where->query_drop_down_list_where,
+			query->query_widget_where->query_attribute_list_where,
+			(char *)0 /* security_entity_where */ );
+
+	query->order_clause = query->select_clause;
+
+	return
+	query_delimited_list(
+		query->select_clause,
+		query->from_clause,
+		query->where_clause,
+		query->order_clause,
+		0 /* max_rows */ );
+}
+

@@ -43,6 +43,7 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			char *folder_name,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
+			char *login_name,
 			boolean drillthru_skipped );
 
 /* PROMPT_RECURSIVE_FOLDER operations */
@@ -52,24 +53,32 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc(
 
 LIST *prompt_recursive_folder_list(
 			LIST *relation_mto1_non_isa_list,
-			DICTIONARY *drillthru_dictionary );
+			DICTIONARY *drillthru_dictionary,
+			char *login_name );
 
 LIST *prompt_recursive_element_list(
 			LIST *prompt_recursive_folder_list );
 
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			FOLDER *one_folder,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
 			/* ------------------------------ */
 			/* Exclude drop_down_multi_select */
 			/* ------------------------------ */
 			boolean drop_down_multi_select );
 
+/* PROMPT_RECURSIVE_MTO1_FOLDER operations */
+/* --------------------------------------- */
 LIST *prompt_recursive_mto1_folder_list(
-			char *folder_name,
-			LIST *primary_key_list );
+			LIST *relation_mto1_primary_key_subset_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name );
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
-			FOLDER *one_folder );
+			FOLDER *one_folder,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name );
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc(
 			void );

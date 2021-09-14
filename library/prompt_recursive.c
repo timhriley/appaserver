@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include <malloc.h>
 #include "environ.h"
 #include "relation.h"
+#include "query.h"
 #include "prompt_recursive.h"
 
 PROMPT_RECURSIVE *prompt_recursive_calloc(
@@ -36,11 +36,14 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			char *folder_name,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
+			char *login_name,
 			boolean drillthru_skipped )
 {
 	PROMPT_RECURSIVE *prompt_recursive;
 
 	if ( drillthru_skipped ) return (PROMPT_RECURSIVE *)0;
+
+	prompt_recursive = prompt_recursive_calloc();
 
 	prompt_recursive->folder_name = folder_name;
 	prompt_recursive->drillthru_dictionary = drillthru_dictionary;
@@ -48,7 +51,8 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 	prompt_recursive->prompt_recursive_folder_list =
 		prompt_recursive_folder_list(
 			relation_mto1_non_isa_list,
-			drillthru_dictionary );
+			drillthru_dictionary,
+			login_name );
 
 	if ( !list_length( prompt_recursive->prompt_recursive_folder_list ) )
 	{
@@ -57,13 +61,16 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 
 	prompt_recursive->element_list =
 		prompt_recursive_element_list(
-			prompt_recursive->prompt_recursive_folder_list );
+			prompt_recursive->
+				prompt_recursive_folder_list );
 
 	return prompt_recursive;
 }
 
 LIST *prompt_recursive_folder_list(
-			LIST *relation_mto1_non_isa_list )
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
 {
 	LIST *folder_list = {0};
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
@@ -99,6 +106,8 @@ LIST *prompt_recursive_folder_list(
 		if ( ! ( prompt_recursive_folder =
 				prompt_recursive_folder_new(
 					relation->one_folder,
+					drillthru_dictionary,
+					login_name,
 					/* ------------------------------ */
 					/* Exclude drop_down_multi_select */
 					/* ------------------------------ */
@@ -141,10 +150,11 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc( void )
 
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			FOLDER *one_folder,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
 			boolean drop_down_multi_select )
 {
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
-	RELATION *relation;
 
 	if ( !one_folder )
 	{
@@ -168,6 +178,19 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 
 	if ( drop_down_multi_select ) return (PROMPT_RECURSIVE_FOLDER *)0;
 
+	one_folder->relation_mto1_non_isa_list =
+		relation_mto1_non_isa_list(
+			one_folder->folder_name );
+
+	one_folder->delimited_list =
+		query_primary_delimited_fetch_list(
+			one_folder->folder_name,
+			one_folder->primary_key_list,
+			one_folder->folder_attribute_primary_list,
+			one_folder->relation_mto1_non_isa_list,
+			drillthru_dictionary,
+			login_name );
+
 	prompt_recursive_folder = prompt_recursive_folder_calloc();
 
 	prompt_recursive_folder->one_folder = one_folder;
@@ -177,21 +200,33 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			one_folder->folder_name,
 			one_folder->primary_key_list );
 
-	if ( !list_rewind(
-		prompt_recursive_folder->
-			relation_mto1_primary_key_subset_list ) )
+	prompt_recursive_folder->prompt_recursive_mto1_folder_list =
+		prompt_recursive_mto1_folder_list(
+			prompt_recursive_folder->
+				relation_mto1_primary_key_subset_list,
+			drillthru_dictionary,
+			login_name );
+
+	return prompt_recursive_folder;
+}
+
+LIST *prompt_recursive_mto1_folder_list(
+			LIST *relation_mto1_primary_key_subset_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
+{
+	RELATION *relation;
+	LIST *mto1_folder_list;
+
+	if ( !list_rewind( relation_mto1_primary_key_subset_list ) )
 	{
-		return (PROMPT_RECURSIVE_FOLDER *)0;
+		return (LIST *)0;
 	}
 
-	prompt_recursive_folder->prompt_recursive_mto1_folder_list =
-		list_new();
+	mto1_folder_list = list_new();
 
 	do {
-		relation =
-			list_get(
-				prompt_recursive_folder->
-					relation_mto1_primary_key_subset_list );
+		relation = list_get( relation_mto1_primary_key_subset_list );
 
 		if ( !relation->one_folder )
 		{
@@ -204,16 +239,15 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 		}
 
 		list_set(
-			prompt_recursive_folder->
-				prompt_recursive_mto1_folder_list,
+			mto1_folder_list,
 			prompt_recursive_mto1_folder_new(
-				relation->one_folder ) );
+				relation->one_folder,
+				drillthru_dictionary,
+				login_name ) );
 
-	} while ( list_next( 
-		prompt_recursive_folder->
-			relation_mto1_primary_key_subset_list ) );
+	} while ( list_next( relation_mto1_primary_key_subset_list ) );
 
-	return prompt_recursive_folder;
+	return mto1_folder_list;
 }
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc( void )
@@ -235,22 +269,35 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc( void )
 }
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
-			FOLDER *one_folder )
+			FOLDER *one_folder,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
 {
 	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder =
 		prompt_recursive_mto1_folder_calloc();
 
+	one_folder->relation_mto1_non_isa_list =
+		relation_mto1_non_isa_list(
+			one_folder->folder_name );
+
+	one_folder->delimited_list =
+		query_primary_delimited_fetch_list(
+			one_folder->folder_name,
+			one_folder->primary_key_list,
+			one_folder->folder_attribute_primary_list,
+			one_folder->relation_mto1_non_isa_list,
+			drillthru_dictionary,
+			login_name );
+
 	recursive_mto1_folder->one_folder = one_folder;
+
 	return recursive_mto1_folder;
 }
 
 LIST *prompt_recursive_element_list(
-			LIST *prompt_recursive_folder_list,
-			DICTIONARY *drillthru_dictionary )
+			LIST *prompt_recursive_folder_list )
 {
 	LIST *element_list = list_new();
-	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
-
 
 	return element_list;
 

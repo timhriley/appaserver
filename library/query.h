@@ -720,6 +720,34 @@ char *query_attribute_name_list_order(
 			LIST *attribute_name_list,
 			char *descending_label );
 
+char *query_isa_join_where(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *relation_mto1_isa_list );
+
+char *query_output_order(
+			char *mto1_folder_name,
+			LIST *primary_key_list,
+			DICTIONARY *sort_dictionary );
+
+char *query_data_where_clause(
+			char *folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			LIST *folder_attribute_list );
+
+/* QUERY (Primary) operations */
+/* -------------------------- */
+LIST *query_primary_delimited_fetch_list(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_primary_list,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name );
+
+/* QUERY (Output) operations */
+/* ------------------------- */
 LIST *query_dictionary_list(
 			char *select_clause,
 			LIST *select_list,
@@ -738,21 +766,5 @@ LIST *query_delimited_list(
 LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_list );
-
-char *query_isa_join_where(
-			char *folder_name,
-			LIST *primary_key_list,
-			LIST *relation_mto1_isa_list );
-
-char *query_output_order(
-			char *mto1_folder_name,
-			LIST *primary_key_list,
-			DICTIONARY *sort_dictionary );
-
-char *query_data_where_clause(
-			char *folder_name,
-			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list,
-			LIST *folder_attribute_list );
 
 #endif
