@@ -808,7 +808,7 @@ LIST *appaserver_library_with_attribute_insert_attribute_element_list(
 			boolean omit_update )
 {
 	LIST *return_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !datatype ) return (LIST *)0;
 
@@ -1473,7 +1473,7 @@ int appaserver_library_add_operations(
 			LIST *operation_list,
 			char *delete_isa_only_folder_name )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	OPERATION *operation;
 	char heading[ 128 ];
 	char buffer[ 128 ];

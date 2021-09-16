@@ -179,7 +179,7 @@ void generic_measurement_load(
 	ATTRIBUTE *attribute;
 	int default_position = 1;
 	int primary_key_default_position;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char post_change_javascript[ 128 ];
 
 	mto1_related_folder_list =
@@ -241,7 +241,7 @@ void generic_measurement_load(
 	do {
 		attribute = list_get_pointer( attribute_list );
 
-		element = (ELEMENT_APPASERVER *)0;
+		element = (APPASERVER_ELEMENT *)0;
 
 		if ( ( related_folder =
 	       		related_folder_attribute_consumes_related_folder(

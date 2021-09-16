@@ -451,7 +451,7 @@ int main( int argc, char **argv )
 	if ( list_length( pair_one2m->
 				prompt_form_folder_list ) > 0 )
 	{
-		ELEMENT_APPASERVER *element;
+		APPASERVER_ELEMENT *element;
 
 		pair_one2m->prompt_one_element_name =
 			pair_one2m_prompt_element_name(
@@ -749,7 +749,7 @@ LIST *output_prompt_insert_element_list(
 	LIST *done_attribute_name_list;
 	LIST *element_list;
 	char *attribute_name;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *role_folder_insert_list;
 	LIST *primary_key_list;
 	boolean is_primary_attribute;
@@ -917,7 +917,7 @@ LIST *output_prompt_insert_element_list(
 		list_append(
 			return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 	}
 
 	/* Create the lookup push button */
@@ -927,7 +927,7 @@ LIST *output_prompt_insert_element_list(
 	list_append(
 		return_list, 
 		element, 
-		sizeof( ELEMENT_APPASERVER ) );
+		sizeof( APPASERVER_ELEMENT ) );
 
 	element =
 		element_appaserver_new(
@@ -939,7 +939,7 @@ LIST *output_prompt_insert_element_list(
 
 	list_append(	return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	return return_list;
 }
@@ -1367,7 +1367,7 @@ LIST *output_prompt_insert_attribute_element_list(
 			char *folder_post_change_javascript )
 {
 	ATTRIBUTE *attribute;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 	LIST *return_list;
 	char ignore_element_name[ 256 ];

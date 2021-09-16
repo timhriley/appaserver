@@ -43,7 +43,7 @@ char *vertical_new_button_one_element_name(
 char *vertical_new_button_many_element_name(
 			char *vertical_new_button_many_label );
 
-ELEMENT_APPASERVER *vertical_new_button_element(
+APPASERVER_ELEMENT *vertical_new_button_element(
 			char *one_folder_name,
 			LIST *role_folder_insert_list,
 			char *form_name,

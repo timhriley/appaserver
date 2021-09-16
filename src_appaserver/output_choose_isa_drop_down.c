@@ -291,7 +291,7 @@ LIST *output_choose_isa_drop_down_element_list(
 			PROCESS *populate_drop_down_process )
 {
 	LIST *return_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 	char buffer[ 256 ];
 
@@ -302,7 +302,7 @@ LIST *output_choose_isa_drop_down_element_list(
 	element = element_appaserver_new( linebreak, "" );
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create the prompt element */
 	/* ------------------------- */
@@ -321,7 +321,7 @@ LIST *output_choose_isa_drop_down_element_list(
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create the drop down element */
 	/* ---------------------------- */
@@ -351,7 +351,7 @@ LIST *output_choose_isa_drop_down_element_list(
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create a hidden folder_name */
 	/* --------------------------- */
@@ -365,7 +365,7 @@ LIST *output_choose_isa_drop_down_element_list(
 	list_append(
 		return_list, 
 		element, 
-		sizeof( ELEMENT_APPASERVER ) );
+		sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create the lookup push button */
 	/* ----------------------------- */
@@ -373,7 +373,7 @@ LIST *output_choose_isa_drop_down_element_list(
 
 	list_append( 	return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	element = element_appaserver_new( 	toggle_button, 
 				LOOKUP_PUSH_BUTTON_NAME );
@@ -383,7 +383,7 @@ LIST *output_choose_isa_drop_down_element_list(
 
 	list_append(	return_list, 
 			element, 
-			sizeof( ELEMENT_APPASERVER ) );
+			sizeof( APPASERVER_ELEMENT ) );
 
 	/* Create a hidden query relational operator equals */
 	/* ------------------------------------------------ */
@@ -404,7 +404,7 @@ LIST *output_choose_isa_drop_down_element_list(
 	list_append(
 		return_list, 
 		element, 
-		sizeof( ELEMENT_APPASERVER ) );
+		sizeof( APPASERVER_ELEMENT ) );
 
 	return return_list;
 }

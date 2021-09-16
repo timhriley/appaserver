@@ -656,7 +656,7 @@ LIST *prompt_recursive_one_folder_element_list(
 	char buffer[ 256 ];
 	char element_name[ 256 ];
 	LIST *element_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char relation_operator_equals[ 256 ];
 	boolean set_option_data_option_label_list;
 
@@ -865,5 +865,154 @@ LIST *prompt_recursive_mto1_folder_element_list(
 			/* -------------------- */
 			LIST *element_list,
 			char *javascript,
-			LIST *mto1_folder_list );
+			LIST *mto1_folder_list )
+{
+	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
+	char buffer[ 256 ];
+	char element_name[ 256 ];
+	ELEMENT_APPASERVER *element;
+	char relation_operator_equals[ 256 ];
+	boolean set_option_data_option_label_list;
 
+	if ( !list_length( element_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( mto1_folder_list ) )
+		return element_list;
+
+	do {
+		mto1_folder =
+			list_get( mto1_folder_list );
+
+
+		/* Create the line break */
+		/* --------------------- */
+		element = element_appaserver_new( linebreak, "" );
+
+		list_set( element_list, element );
+
+		sprintf(element_name,
+	 		"%s%s",
+			NO_DISPLAY_PUSH_BUTTON_PREFIX,
+	 		list_display_delimited(
+		  		mto1_folder->one_folder->primary_key_list,
+		  		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
+
+		element =
+			element_appaserver_new(
+				toggle_button, 
+				strdup( element_name ) );
+
+		element_toggle_button_set_heading(
+			element->toggle_button,
+			NO_DISPLAY_PUSH_BUTTON_PREFIX );
+
+		list_set( element_list, element );
+
+		/* Create the prompt element */
+		/* ------------------------- */
+		sprintf(element_name,
+		 	"*%s",
+		 	strdup( mto1_folder->one_folder->folder_name ) );
+
+		element =
+			element_appaserver_new(
+				prompt,
+				strdup( format_initial_capital_not_parens(
+						buffer, 
+						element_name ) ) );
+
+		list_set( element_list, element );
+
+		sprintf(element_name, 
+	 		"%s",
+	 		list_display_delimited(
+		  		mto1_folder->one_folder->primary_key_list,
+		  		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+
+		if ( mto1_folder->drop_down_multi_select )
+		{
+			char drop_down_element_name[ 128 ];
+
+			sprintf(drop_down_element_name,
+				"%s%s",
+				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
+				element_name );
+
+			element =
+				element_appaserver_new(
+					drop_down,
+					strdup( drop_down_element_name ) );
+
+			element->drop_down->multi_select = 1;
+
+			element->drop_down->multi_select_element_name =
+				strdup( element_name );
+		}
+		else
+		{
+			element =
+				element_appaserver_new(
+					drop_down,
+					strdup( element_name ) );
+
+			element->drop_down->output_null_option = 1;
+			element->drop_down->output_not_null_option = 1;
+			element->drop_down->output_select_option = 1;
+		}
+
+		element->drop_down->post_change_javascript = javascript;
+
+		list_set( element_list, element );
+
+		element_drop_down_set_option_data_option_label_list(
+			&element->drop_down->option_data_list,
+			&element->drop_down->option_label_list,
+			mto1_folder->one_folder->primary_delimited_list );
+
+		if ( list_length( element->drop_down->option_data_list ) )
+		{
+			element->drop_down->initial_data =
+				list_first(
+					element->drop_down->option_data_list );
+		}
+
+		/* Create the hint message */
+		/* ----------------------- */
+		if ( *mto1_folder->one_folder->hint_message )
+		{
+			element = 
+				element_appaserver_new(
+					non_edit_text,
+					mto1_folder->one_folder->hint_message );
+
+			list_set( element_list, element );
+		}
+
+		/* Create the hidden equals operator */
+		/* --------------------------------- */
+		sprintf( relation_operator_equals,
+		 	"%s%s",
+		 	QUERY_RELATION_OPERATOR_STARTING_LABEL,
+		 	element_name );
+
+		element =
+			element_appaserver_new(
+				hidden,
+				strdup( relation_operator_equals ) );
+
+		element->hidden->data = "equals";
+
+		list_set( element_list, element );
+
+	} while( list_next( mto1_folder_list ) );
+
+	return element_list;
+}

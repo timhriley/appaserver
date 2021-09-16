@@ -1023,7 +1023,7 @@ LIST *output_insert_table_form_element_list(
 	LIST *ignore_attribute_name_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	int objects_outputted = 0;
 	LIST *primary_key_list;
 	LIST *isa_folder_list;

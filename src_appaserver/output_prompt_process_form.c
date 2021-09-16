@@ -1012,7 +1012,7 @@ LIST *get_hidden_preprompt_element_list(
 	char *key;
 	char *data;
 	char element_name[ 128 ];
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list;
 	int str_len;
 

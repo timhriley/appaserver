@@ -207,10 +207,15 @@ int form_output_all_rows(
 			char *appaserver_user_foreign_login_name,
 			LIST *non_edit_folder_name_list );
 
-void form_output_prompt( 		ELEMENT_APPASERVER *element );
-void form_output_table_heading(		LIST *element_list,
-					int form_number );
-void form_set_output_table_heading(	FORM *form );
+void form_output_prompt(
+			APPASERVER_ELEMENT *element );
+
+void form_output_table_heading(
+			LIST *element_list,
+			int form_number );
+
+void form_set_output_table_heading(
+			FORM *form );
 
 void form_output_submit_button(
 			char *submit_control_string,

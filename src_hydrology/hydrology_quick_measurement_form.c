@@ -447,7 +447,7 @@ LIST *get_element_list(
 	LIST *return_list;
 	ATTRIBUTE *attribute;
 	char *attribute_name;
-	ELEMENT_APPASERVER *element = {0};
+	APPASERVER_ELEMENT *element = {0};
 
 	if ( !list_rewind( attribute_name_list ) )
 	{
@@ -501,7 +501,7 @@ LIST *get_element_list(
 
 			list_append( 	return_list,
 					element,
-					sizeof( ELEMENT_APPASERVER ) );
+					sizeof( APPASERVER_ELEMENT ) );
 		}
 		else
 		/* ------------------------------------ */
@@ -522,7 +522,7 @@ LIST *get_element_list(
 			list_append(
 				return_list,
 				element,
-				sizeof( ELEMENT_APPASERVER ) );
+				sizeof( APPASERVER_ELEMENT ) );
 		}
 		else
 		/* ------------------------------- */
@@ -540,7 +540,7 @@ LIST *get_element_list(
 
 			list_append( 	return_list,
 					element,
-					sizeof( ELEMENT_APPASERVER ) );
+					sizeof( APPASERVER_ELEMENT ) );
 		}
 
 	} while( list_next( attribute_name_list ) );

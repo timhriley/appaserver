@@ -31,17 +31,17 @@ ELEMENT_NON_EDIT_TEXT *element_new_non_edit_text( void )
 			calloc( 1, sizeof( ELEMENT_NON_EDIT_TEXT ) );
 }
 
-ELEMENT_APPASERVER *element_new_element( void )
+APPASERVER_ELEMENT *element_new_element( void )
 {
 	return element_appaserver_calloc();
 }
 
-ELEMENT_APPASERVER *element_appaserver_calloc( void )
+APPASERVER_ELEMENT *element_appaserver_calloc( void )
 {
-	ELEMENT_APPASERVER *element_appaserver;
+	APPASERVER_ELEMENT *element_appaserver;
 
 	if ( ! ( element_appaserver =
-			calloc( 1, sizeof( ELEMENT_APPASERVER ) ) ) )
+			calloc( 1, sizeof( APPASERVER_ELEMENT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -53,11 +53,11 @@ ELEMENT_APPASERVER *element_appaserver_calloc( void )
 	return element_appaserver;
 }
 
-ELEMENT_APPASERVER *element_appaserver_new(
+APPASERVER_ELEMENT *element_appaserver_new(
 			enum element_type element_type,
 			char *element_name )
 {
-	ELEMENT_APPASERVER *i;
+	APPASERVER_ELEMENT *i;
 
 	i = element_appaserver_calloc();
 
@@ -177,7 +177,7 @@ ELEMENT_APPASERVER *element_appaserver_new(
 
 }
 
-void element_simple_output(	ELEMENT_APPASERVER *element,
+void element_simple_output(	APPASERVER_ELEMENT *element,
 				int row )
 {
 	element_output(
@@ -193,7 +193,7 @@ void element_simple_output(	ELEMENT_APPASERVER *element,
 
 void element_output_as_dictionary(
 			FILE *output_file,
-			ELEMENT_APPASERVER *element, 
+			APPASERVER_ELEMENT *element, 
 			int row )
 {
 	if ( element->element_type == notepad )
@@ -292,7 +292,7 @@ void element_output_as_dictionary(
 }
 
 void element_output( 	DICTIONARY *hidden_name_dictionary,
-			ELEMENT_APPASERVER *element, 
+			APPASERVER_ELEMENT *element, 
 			int row,
 			int with_toggle_buttons,
 			FILE *output_file,
@@ -800,7 +800,7 @@ void element_output_non_element( char *s, FILE *output_file )
 	fprintf( output_file, "</td>\n" );
 }
 
-void element_set_data( ELEMENT_APPASERVER *e, char *s )
+void element_set_data( APPASERVER_ELEMENT *e, char *s )
 {
 	if ( e->element_type == element_date
 	||   e->element_type == element_current_date
@@ -859,7 +859,7 @@ void element_set_data( ELEMENT_APPASERVER *e, char *s )
 	}
 }
 
-int element_attribute_width( ELEMENT_APPASERVER *e )
+int element_attribute_width( APPASERVER_ELEMENT *e )
 {
 	if ( e->element_type == text_item )
 		return e->text_item->attribute_width;
@@ -902,7 +902,7 @@ int element_attribute_width( ELEMENT_APPASERVER *e )
 
 char *element_heading(
 			char **toggle_button_set_all_control_string,
-			ELEMENT_APPASERVER *e,
+			APPASERVER_ELEMENT *e,
 			int form_number )
 {
 	if ( e->element_type == text_item
@@ -2283,7 +2283,7 @@ void element_drop_down_output(
 	&&      ( list_length( option_data_list ) > 
 		  max_drop_down_size ) )
 	{
-		ELEMENT_APPASERVER *element;
+		APPASERVER_ELEMENT *element;
 
 		if ( initial_data && *initial_data )
 		{
@@ -3134,13 +3134,13 @@ ELEMENT_ANCHOR *element_anchor_new( void )
 
 }
 
-ELEMENT_APPASERVER *element_non_edit_text_new_element(
+APPASERVER_ELEMENT *element_non_edit_text_new_element(
 			char *name,
 			char *text,
 			int column_span,
 			int padding_em )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	element = element_new_element();
 	element->element_type = non_edit_text;
@@ -3152,10 +3152,10 @@ ELEMENT_APPASERVER *element_non_edit_text_new_element(
 	return element;
 }
 
-ELEMENT_APPASERVER *element_hidden_new_element(	char *name,
+APPASERVER_ELEMENT *element_hidden_new_element(	char *name,
 					char *data )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	element = element_new_element();
 	element->element_type = hidden;
@@ -3200,7 +3200,7 @@ void element_non_edit_text_output(	FILE *output_file,
 
 int element_type_count( LIST *element_list, enum element_type element_type )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	int count = 0;
 
 	if ( list_rewind( element_list ) )
@@ -3215,14 +3215,14 @@ int element_type_count( LIST *element_list, enum element_type element_type )
 	return count;
 }
 
-ELEMENT_APPASERVER *element_yes_no_element(
+APPASERVER_ELEMENT *element_yes_no_element(
 			char *attribute_name,
 			char *prepend_folder_name,
 			char *post_change_javascript,
 			boolean with_is_null,
 			boolean with_not_null )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 128 ];
 	LIST *option_data_list;
 
@@ -3410,14 +3410,14 @@ date_piece_offset = 0; /* stub */
 	return anchor;
 }
 
-ELEMENT_APPASERVER *element_text_item_variant_element(
+APPASERVER_ELEMENT *element_text_item_variant_element(
 				char *attribute_name,
 				char *datatype,
 				int width,
 				char *post_change_javascript,
 				char *on_focus_javascript_function )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( strcmp( datatype, "current_date" ) == 0 )
 	{
@@ -3495,7 +3495,7 @@ ELEMENT_APPASERVER *element_text_item_variant_element(
 
 char *element_appaserver_list_display( LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char buffer[ 65536 ];
 	char *ptr = buffer;
 
@@ -3516,7 +3516,7 @@ char *element_appaserver_list_display( LIST *element_list )
 	return strdup( buffer );
 }
 
-char *element_appaserver_display( ELEMENT_APPASERVER *element )
+char *element_appaserver_display( APPASERVER_ELEMENT *element )
 {
 	static char buffer[ 1024 ];
 
@@ -3609,7 +3609,7 @@ char *element_type_string( enum element_type element_type )
 char *element_destination_multi_select_element_name(
 			LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( list_at_end( element_list ) ) return (char *)0;
 
@@ -3635,7 +3635,7 @@ char *element_destination_multi_select_element_name(
 
 boolean element_exists_reference_number(LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !list_rewind( element_list ) ) return 0;
 
@@ -3651,7 +3651,7 @@ boolean element_exists_reference_number(LIST *element_list )
 
 boolean element_exists_upload_filename( LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !list_rewind( element_list ) ) return 0;
 
@@ -3665,7 +3665,7 @@ boolean element_exists_upload_filename( LIST *element_list )
 LIST *element_list2remember_keystrokes_non_multi_element_name_list(
 			LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *remember_keystrokes_element_name_list = list_new();
 	char element_name[ 512 ];
 
@@ -3706,7 +3706,7 @@ LIST *element_list2remember_keystrokes_non_multi_element_name_list(
 LIST *element_list2remember_keystrokes_multi_element_name_list(
 			LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *multi_element_name_list = list_new();
 	char element_name[ 512 ];
 
@@ -3977,7 +3977,7 @@ void element_list_set_omit_heading_sort_button(
 					LIST *join_1tom_related_folder_list )
 {
 	RELATED_FOLDER *related_folder;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !list_rewind( element_list ) ) return;
 	if ( !list_length( join_1tom_related_folder_list ) ) return;
@@ -4045,7 +4045,7 @@ char *element_date_format_string(
 void element_list_set_readonly(
 			LIST *element_list )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( !list_rewind( element_list ) ) return;
 
@@ -4169,10 +4169,10 @@ void element_drop_down_text_item_output(
 		data );
 }
 
-ELEMENT_APPASERVER *element_sort_order(
+APPASERVER_ELEMENT *element_sort_order(
 			FOLDER_ATTRIBUTE *folder_attribute )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	element =
 		element_appaserver_new(

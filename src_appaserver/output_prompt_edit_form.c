@@ -696,7 +696,7 @@ LIST *output_prompt_element_list(
 	boolean attribute_exists_in_preprompt_dictionary;
 	FOLDER *folder;
 	FOLDER *prompt_folder;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 128 ];
 	LIST *omit_update_attribute_name_list;
 
@@ -744,7 +744,7 @@ LIST *output_prompt_element_list(
 
 	if ( *notepad )
 	{
-		ELEMENT_APPASERVER *element;
+		APPASERVER_ELEMENT *element;
 
 		list_append_pointer(
 				return_list,
@@ -1110,7 +1110,7 @@ LIST *get_radio_button_element_list(
 {
 	LIST *return_list = list_new_list();
 	int output_table_row_boolean = 0;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char onclick_function[ 512 ];
 
 	/* Create the button to set all the no display buttons. */

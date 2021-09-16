@@ -285,7 +285,7 @@ LIST *process_parameter_get_drop_down_prompt_element_list(
 			char *post_change_javascript )
 {
 	LIST *element_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char *element_name;
 	char buffer[ 1024 ];
 	char *multi_select_element_name = {0};
@@ -393,7 +393,7 @@ LIST *process_parameter_get_folder_element_list(
 			char *login_name )
 {
 	LIST *element_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name_buffer[ 512 ];
 	char *element_name;
 	POPULATE_HELPER_PROCESS *
@@ -564,7 +564,7 @@ LIST *process_parameter_get_folder_element_list(
 
 /* This is a folder with a prompt added. */
 /* ------------------------------------- */
-ELEMENT_APPASERVER *process_parameter_get_folder_prompt_element(
+APPASERVER_ELEMENT *process_parameter_get_folder_prompt_element(
 				char *login_name,
 				char *application_name,
 				boolean override_row_restrictions,
@@ -574,7 +574,7 @@ ELEMENT_APPASERVER *process_parameter_get_folder_prompt_element(
 				LIST *primary_data_list,
 				char *role_name )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 
 	if ( multi_select )
@@ -626,12 +626,12 @@ ELEMENT_APPASERVER *process_parameter_get_folder_prompt_element(
 	return element;
 }
 
-ELEMENT_APPASERVER *process_parameter_get_process_set_output_drop_down_element(
+APPASERVER_ELEMENT *process_parameter_get_process_set_output_drop_down_element(
 					char *process_set_name,
 					char *application_name,
 					char *role_name )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 	LIST *members4set_list;
 	LIST *option_data_list;
@@ -683,10 +683,10 @@ ELEMENT_APPASERVER *process_parameter_get_process_set_output_drop_down_element(
 
 }
 
-ELEMENT_APPASERVER *process_parameter_get_attribute_element(
+APPASERVER_ELEMENT *process_parameter_get_attribute_element(
 					PROCESS_PARAMETER *process_parameter )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char *element_name;
 
 	element_name = process_parameter->parameter_attribute->attribute_name;
@@ -1116,7 +1116,7 @@ LIST *process_parameter_get_prompt_element_list(
 				char *post_change_javascript )
 {
 	LIST *element_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 
 	element_list = list_new();
@@ -1253,7 +1253,7 @@ LIST *process_parameter_get_folder_prompt_element_list(
 				LIST *primary_data_list,
 				char *role_name )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new_list();
 	char *hint_message;
 
@@ -1315,7 +1315,7 @@ LIST *process_parameter_get_attribute_element_list(
 				char *post_change_javascript )
 {
 	LIST *element_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 128 ];
 	ATTRIBUTE *attribute;
 
@@ -1501,7 +1501,7 @@ LIST *process_parameter_get_process_set_output_element_list(
 				char *post_change_javascript,
 				char *prompt_display_text )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
 
 	/* Start with a line break */
@@ -1733,7 +1733,7 @@ LIST *process_parameter_get_folder_process_element_list(
 				boolean multi_select,
 				char *state )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new_list();
 
 	/* Start with a line break */
@@ -1776,7 +1776,7 @@ LIST *process_parameter_get_prompt_process_element_list(
 				boolean multi_select,
 				DICTIONARY *parameter_dictionary )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new_list();
 
 	/* Start with a line break */
@@ -1809,7 +1809,7 @@ LIST *process_parameter_get_prompt_process_element_list(
 	return element_list;
 }
 
-ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
+APPASERVER_ELEMENT *process_parameter_get_folder_process_element(
 				char *login_name,
 				char *application_name,
 				boolean multi_select,
@@ -1819,7 +1819,7 @@ ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 				char *session,
 				char *state )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 
 	if ( !populate_drop_down_process )
@@ -1877,7 +1877,7 @@ ELEMENT_APPASERVER *process_parameter_get_folder_process_element(
 
 }
 
-ELEMENT_APPASERVER *process_parameter_get_prompt_process_element(
+APPASERVER_ELEMENT *process_parameter_get_prompt_process_element(
 				char *login_name,
 				char *application_name,
 				boolean multi_select,
@@ -1887,7 +1887,7 @@ ELEMENT_APPASERVER *process_parameter_get_prompt_process_element(
 				char *session,
 				DICTIONARY *parameter_dictionary )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char element_name[ 256 ];
 
 	if ( !populate_drop_down_process )

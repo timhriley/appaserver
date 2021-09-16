@@ -387,7 +387,7 @@ void post_state_one(	char *application_name,
 {
 	DOCUMENT *document;
 	FORM *form;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *folder_name_list;
 	char action_string[ 1024 ];
 	LIST *remember_keystrokes_non_multi_element_name_list;
@@ -573,7 +573,7 @@ void post_state_two(	char *application_name,
 	LIST *one2m_recursive_related_folder_list;
 	LIST *mto1_recursive_related_folder_list;
 	LIST *option_data_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char *folder_name;
 	DICTIONARY *post_dictionary;
 	char key[ 128 ];
@@ -1193,7 +1193,7 @@ LIST *state_three_element_list(
 	LIST *return_list;
 	FOLDER *folder;
 	ROLE *role;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	role = role_new( application_name, role_name );
 

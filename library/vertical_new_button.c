@@ -80,14 +80,14 @@ char *vertical_new_button_one_element_name(
 	return strdup( element_name );
 }
 
-ELEMENT_APPASERVER *vertical_new_button_element(
+APPASERVER_ELEMENT *vertical_new_button_element(
 			char *one_folder_name,
 			LIST *role_folder_insert_list,
 			char *form_name,
 			char *vertical_new_button_one_prefix,
 			char *vertical_new_button_display )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 
 	if ( list_exists_string(
 		one_folder_name,
@@ -111,7 +111,7 @@ ELEMENT_APPASERVER *vertical_new_button_element(
 	}
 	else
 	{
-		return (ELEMENT_APPASERVER *)0;
+		return (APPASERVER_ELEMENT *)0;
 	}
 }
 

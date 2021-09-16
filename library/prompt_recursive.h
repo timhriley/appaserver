@@ -93,6 +93,11 @@ LIST *prompt_recursive_folder_element_list(
 			char *javascript,
 			LIST *prompt_recursive_mto1_folder_list );
 
+LIST *prompt_recursive_one_folder_element_list(
+			FOLDER *one_folder,
+			boolean drop_down_multi_select,
+			char *javascript );
+
 /* PROMPT_RECURSIVE_MTO1_FOLDER operations */
 /* --------------------------------------- */
 LIST *prompt_recursive_mto1_folder_list(

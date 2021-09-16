@@ -146,7 +146,7 @@ LIST *choose_isa_drop_down_element_list(
 			LIST *delimited_list )
 {
 	LIST *return_list;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	QUERY *query;
 	char element_name[ 512 ];
 	char buffer[ 512 ];

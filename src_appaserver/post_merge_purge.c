@@ -303,7 +303,7 @@ void post_state_one(	char *application_name,
 			char *login_name,
 			char *process_name )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	FOLDER *folder;
 	char buffer[ 256 ];
 	LIST *option_data_list;

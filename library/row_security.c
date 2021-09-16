@@ -1292,7 +1292,7 @@ LIST *row_security_edit_table_update_element_list(
 	LIST *element_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_key_list;
@@ -1675,7 +1675,7 @@ LIST *row_security_regular_evaluate_element_list(
 	LIST *ignore_attribute_name_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_key_list;
@@ -2012,7 +2012,7 @@ LIST *row_security_viewonly_evaluate_element_list(
 	LIST *ignore_attribute_name_list;
 	char *attribute_name;
 	RELATED_FOLDER *related_folder;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	LIST *foreign_attribute_name_list = {0};
 	int objects_outputted = 0;
 	LIST *primary_key_list;

@@ -285,7 +285,7 @@ void change_sort_order_state_one(
 	LIST *ignore_attribute_name_list;
 	ROW_SECURITY *row_security;
 	DICTIONARY *sort_dictionary;
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char onclick[ 1024 ];
 	char key[ 128 ];
 	char *attribute_name;

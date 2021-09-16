@@ -4,8 +4,8 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef ELEMENT_APPASERVER_H
-#define ELEMENT_APPASERVER_H
+#ifndef APPASERVER_ELEMENT_H
+#define APPASERVER_ELEMENT_H
 
 #include <stdio.h>
 #include "list.h"
@@ -241,18 +241,18 @@ typedef struct
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
 	boolean remember_keystrokes_ok;
 	int tab_index;
-} ELEMENT_APPASERVER;
+} APPASERVER_ELEMENT;
 
-ELEMENT_APPASERVER *element_appaserver_new(
+APPASERVER_ELEMENT *element_appaserver_new(
 			enum element_type,
 			char *element_name );
 
 void element_simple_output(
-			ELEMENT_APPASERVER *element,
+			APPASERVER_ELEMENT *element,
 			int row );
 
 void element_output( 	DICTIONARY *hidden_name_dictionary,
-			ELEMENT_APPASERVER *e,
+			APPASERVER_ELEMENT *e,
 			int row,
 			int with_toggle_buttons,
 			FILE *output_file,
@@ -269,19 +269,19 @@ void element_output_non_element(
 			char *s,
 			FILE *output_file );
 
-void element_set_data( 	ELEMENT_APPASERVER *e,
+void element_set_data( 	APPASERVER_ELEMENT *e,
 			char *s );
 
 char *element_heading(
 			char **toggle_button_set_all_control_string,
-			ELEMENT_APPASERVER *e,
+			APPASERVER_ELEMENT *e,
 			int form_number );
 
 int element_attribute_width(
-			ELEMENT_APPASERVER *e );
+			APPASERVER_ELEMENT *e );
 
 void element_set_datatype(
-			ELEMENT_APPASERVER *e,
+			APPASERVER_ELEMENT *e,
 			char *datatype );
 
 ELEMENT_PUSH_BUTTON *element_push_button_new(
@@ -616,7 +616,7 @@ void element_javascript_filename_output(
 			FILE *output_file,
 			char *filename );
 
-ELEMENT_APPASERVER *element_non_edit_text_new_element(
+APPASERVER_ELEMENT *element_non_edit_text_new_element(
 			char *name,
 			char *text,
 			int column_span,
@@ -634,7 +634,7 @@ void element_non_edit_text_output(
 int element_type_count(	LIST *element_list,
 			enum element_type );
 
-ELEMENT_APPASERVER *element_yes_no_element(
+APPASERVER_ELEMENT *element_yes_no_element(
 			char *attribute_name,
 			char *prepend_folder_name,
 			char *post_change_javascript,
@@ -672,7 +672,7 @@ char *element_delimit_drop_down_data(
 
 void element_output_as_dictionary(
 			FILE *output_file,
-			ELEMENT_APPASERVER *element, 
+			APPASERVER_ELEMENT *element, 
 			int row );
 
 void element_notepad_output_as_dictionary(
@@ -713,7 +713,7 @@ void element_hidden_output(
 			char *data,
 			int row );
 
-ELEMENT_APPASERVER *element_text_item_variant_element(
+APPASERVER_ELEMENT *element_text_item_variant_element(
 			char *attribute_name,
 			char *datatype,
 			int width,
@@ -726,7 +726,7 @@ void element_non_edit_text_output_as_dictionary(
 			char *text,
 			int row );
 
-ELEMENT_APPASERVER *element_hidden_new_element(
+APPASERVER_ELEMENT *element_hidden_new_element(
 			char *name,
 			char *data );
 
@@ -734,7 +734,7 @@ char *element_appaserver_list_display(
 			LIST *element_list );
 
 char *element_appaserver_display(
-			ELEMENT_APPASERVER *element );
+			APPASERVER_ELEMENT *element );
 
 char *element_type_string(
 			enum element_type element_type );
@@ -837,16 +837,16 @@ void element_drop_down_text_item_output(
 			int row,
 			char *background_color );
 
-ELEMENT_APPASERVER *element_sort_order(
+APPASERVER_ELEMENT *element_sort_order(
 			FOLDER_ATTRIBUTE *folder_attribute );
 
-ELEMENT_APPASERVER *element_appaserver_calloc(
+APPASERVER_ELEMENT *element_appaserver_calloc(
 			void );
 
 boolean element_appaserver_name_boolean(
 			char *element_name );
 
-ELEMENT_APPASERVER *element_appaserver_sort_order(
+APPASERVER_ELEMENT *element_appaserver_sort_order(
 			char *attribute_name,
 			int width );
 

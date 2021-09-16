@@ -138,7 +138,7 @@ void output_vertical_frameset_choose_role_drop_down(
 			LIST *role_list,
 			DICTIONARY *hidden_dictionary )
 {
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	FORM *form;
 	char post_change_javascript[ 512 ];
 	LIST *option_data_list = list_new();
