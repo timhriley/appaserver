@@ -8,6 +8,9 @@
 #define DOCUMENT_H
 
 #include "list.h"
+#include "boolean.h"
+#include "javascript.h"
+#include "form.h"
 
 /* Constants */
 /* --------- */
@@ -19,29 +22,89 @@
 /* ------- */
 typedef struct
 {
-	char *javascript_filename;
-} DOCUMENT_JAVASCRIPT_MODULE;
+	char *title;
+	LIST *javascript_list;
+} DOCUMENT_HEAD;
 
 typedef struct
 {
+	FORM_PROMPT *form_prompt;
+	FORM_TABLE *form_table;
+	FORM_DETAIL *form_detail;
+} DOCUMENT_BODY;
+
+typedef struct
+{
+	char *type_string;
+	char *html_type_string;
+	DOCUMENT_HEAD *document_head;
 	char *title;
-	boolean output_content_type;
-	LIST *javascript_module_list;
+	char *type_string;
 	char *error_function;
 	char *application_name;
 	char *onload_control_string;
 	char *appaserver_mount_point;
 	char *stylesheet_filename;
+	LIST *javascript_list;
 } DOCUMENT;
 
-/* Operations */
-/* ---------- */
-DOCUMENT *document_new(			char *title,
-					char *application_name );
+/* DOCUMENT operations */
+/* ------------------- */
+DOCUMENT *document_calloc(
+			void );
 
-DOCUMENT *document_new_document(	char *application_name );
+DOCUMENT *document_new(	char *title );
 
-void document_set_output_content_type(	DOCUMENT *d );
+/* Returns program memory */
+/* ---------------------- */
+char *document_type_string(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_html_standard_url(
+			void );
+
+void document_output_content_type(
+			void );
+
+void document_output_type_string(
+			FILE *output_stream,
+			char *type_string );
+
+void document_output_html_tag(
+			FILE *output_stream,
+			char *html_standard_url );
+
+void document_quick_output(
+			void );
+
+void document_close(	FILE *output_stream );
+
+/* DOCUMENT_HEAD operations */
+/* ------------------------ */
+DOCUMENT_HEAD *document_head_calloc(
+			void );
+
+DOCUMENT_HEAD *document_head_new(
+			char *title );
+
+LIST *document_head_javascript_list(
+			void );
+
+void document_head_quick_output(
+			void );
+
+/* DOCUMENT_BODY operations */
+/* ------------------------ */
+DOCUMENT_BODY *document_body_calloc(
+			void );
+
+DOCUMENT_BODY *document_body_new(
+			char *title );
+
+void document_body_quick_output(
+			void );
 
 void document_output_heading(		char *application_name,
 					char *title,
@@ -88,8 +151,6 @@ void document_close_body( 		void );
 void document_close_html( 		void );
 
 void document_close_stream(		FILE *output_stream );
-
-void document_close( 			void );
 
 void document_set_javascript_module( 	DOCUMENT *d, 
 					char *javascript_filename );

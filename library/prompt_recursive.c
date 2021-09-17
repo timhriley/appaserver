@@ -9,8 +9,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "timlib.h"
 #include "environ.h"
 #include "relation.h"
+#include "appaserver_library.h"
+#include "dictionary_separate.h"
 #include "query.h"
 #include "prompt_recursive.h"
 
@@ -202,7 +205,7 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			one_folder->folder_name,
 			one_folder->primary_key_list );
 
-	prompt_recursive_folder->prompt_recursive_mto1_folder_list =
+	prompt_recursive_folder->mto1_folder_list =
 		prompt_recursive_mto1_folder_list(
 			prompt_recursive_folder->
 				relation_mto1_primary_key_subset_list,
@@ -305,7 +308,8 @@ LIST *prompt_recursive_element_list(
 	LIST *element_list = {0};
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
 
-	if ( !list_rewind( prompt_recursive_folder ) ) return (LIST *)0;
+	if ( !list_rewind( prompt_recursive_folder_list ) )
+		return (LIST *)0;
 
 	do {
 		prompt_recursive_folder =
@@ -341,7 +345,6 @@ LIST *prompt_recursive_folder_element_list(
 			LIST *mto1_folder_list )
 {
 	LIST *element_list;
-	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
 
 	if ( !one_folder )
 	{
@@ -371,204 +374,6 @@ LIST *prompt_recursive_folder_element_list(
 			mto1_folder_list );
 }
 
-#ifdef NOT_DEFINED
-	PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder;
-	char *no_display_push_button_prefix = {0};
-	char *no_display_push_button_heading = {0};
-	boolean set_first_initial_data;
-	boolean output_null_option;
-	boolean output_not_null_option;
-	/* boolean output_select_option; */
-
-	if ( !omit_push_buttons )
-	{
-		no_display_push_button_prefix = NO_DISPLAY_PUSH_BUTTON_PREFIX;
-		no_display_push_button_heading = NO_DISPLAY_PUSH_BUTTON_HEADING;
-	}
-
-	recursive_element_list = list_new_list();
-
-	if ( prompt_folder )
-	{
-		list_append_pointer(
-			done_folder_name_list,
-			strdup( get_done_folder_name(
-				prompt_folder->folder_name,
-				(char *)0 /* related_attribute_name */ ) ) );
-	}
-
-	*post_change_javascript =
-		prompt_recursive_get_gray_drop_downs_javascript(
-			prompt_folder,
-			prompt_folder_drop_down_multi_select,
-			prompt_recursive_mto1_folder_list );
-
-	if ( prompt_folder
-	&&   lookup_before_drop_down->
-		lookup_before_drop_down_state ==
-			lookup_participating_not_root
-	&&   lookup_before_drop_down_is_fulfilled_folder(
-		lookup_before_drop_down->
-			lookup_before_drop_down_folder_list,
-		prompt_folder->folder_name ) )
-	{
-		set_first_initial_data = 1;
-		output_null_option = 0;
-		output_not_null_option = 0;
-		/* output_select_option = 0; */
-	}
-	else
-	if ( prompt_folder
-	&&   lookup_before_drop_down->
-		lookup_before_drop_down_state ==
-			lookup_participating_is_root_all_complete
-	&&   lookup_before_drop_down_is_fulfilled_folder(
-		lookup_before_drop_down->
-			lookup_before_drop_down_folder_list,
-		prompt_folder->folder_name ) )
-	{
-		set_first_initial_data = 1;
-		output_null_option = 0;
-		output_not_null_option = 0;
-		/* output_select_option = 1; */
-	}
-	else
-	{
-		set_first_initial_data = 0;
-		output_null_option = 1;
-		output_not_null_option = 1;
-		/* output_select_option = 1; */
-	}
-
-	if ( prompt_folder )
-	{
-		list_append_list(
-			recursive_element_list,
-			related_folder_prompt_element_list(
-				(RELATED_FOLDER **)0,
-				application_name,
-				session,
-				role_name,
-				login_name,
-				prompt_folder->folder_name,
-				prompt_folder->populate_drop_down_process,
-				prompt_folder->attribute_list,
-				attribute_primary_key_list(
-					prompt_folder->attribute_list ),
-				0 /* dont omit_ignore_push_buttons */,
-				preprompt_dictionary,
-	  			no_display_push_button_prefix,
-	  			no_display_push_button_heading,
-				*post_change_javascript,
-				prompt_folder->notepad /* hint_message */,
-				0 /* max_drop_down_size */,
-				(LIST *)0 /* common_non_primary_a... */,
-				0 /* not is_primary_attribute */,
-				prompt_folder->row_level_non_owner_view_only,
-				prompt_folder->row_level_non_owner_forbid,
-				(char *)0 /* related_attribute_name */,
-				prompt_folder_drop_down_multi_select,
-				prompt_folder->no_initial_capital,
-				(char *)0 /* state */,
-				(char *)0 /* one2m_folder_name_for_processes */,
-				0 /* tab_index */,
-				set_first_initial_data,
-				output_null_option,
-				output_not_null_option,
-				1 /* output_select_option */,
-				(char *)0
-				/* appaserver_user_foreign_login_name */,
-			        0 /* not omit_lookup_before_drop_down */
-				) );
-	
-		list_append_string_list(
-			exclude_attribute_name_list,
-			attribute_primary_key_list(
-				prompt_folder->attribute_list ) );
-	}
-
-	if ( !list_rewind( prompt_recursive_mto1_folder_list ) )
-		return recursive_element_list;
-
-	do {
-		prompt_recursive_mto1_folder =
-			list_get_pointer( prompt_recursive_mto1_folder_list );
-
-		list_append_pointer(
-			done_folder_name_list,
-			strdup( get_done_folder_name(
-				prompt_recursive_mto1_folder->
-					folder->
-					folder_name,
-				(char *)0 /* related_attribute_name */ ) ) );
-
-		list_append_list(
-			recursive_element_list,
-			related_folder_prompt_element_list(
-				(RELATED_FOLDER **)0,
-				application_name,
-				session,
-				role_name,
-				login_name,
-				prompt_recursive_mto1_folder->
-					folder->
-					folder_name,
-				prompt_recursive_mto1_folder->
-					folder->
-					populate_drop_down_process,
-				prompt_recursive_mto1_folder->
-					folder->
-					attribute_list,
-				attribute_primary_key_list(
-					prompt_recursive_mto1_folder->
-						folder->
-						attribute_list ),
-				0 /* dont omit_ignore_push_buttons */,
-				preprompt_dictionary,
-	  			no_display_push_button_prefix,
-	  			no_display_push_button_heading,
-				*post_change_javascript,
-				prompt_recursive_mto1_folder->
-					folder->
-					notepad,
-				0 /* max_drop_down_size */,
-				(LIST *)0 /* common_non_primary_a... */,
-				0 /* not is_primary_attribute */,
-				prompt_recursive_mto1_folder->
-					folder->
-					row_level_non_owner_view_only,
-				prompt_recursive_mto1_folder->
-					folder->
-					row_level_non_owner_forbid,
-				(char *)0 /* related_attribute_name */,
-				0 /* drop_down_multi_select */,
-				prompt_recursive_mto1_folder->
-					folder->
-					no_initial_capital,
-				(char *)0 /* state */,
-				(char *)0 /* one2m_folder_name_for_processes */,
-				0 /* tab_index */,
-				0 /* not set_first_initial_data */,
-				1 /* output_null_option */,
-				1 /* output_not_null_option */,
-				1 /* output_select_option */,
-				(char *)0
-				/* appaserver_user_foreign_login_name */,
-			        0 /* not omit_lookup_before_drop_down */
-				) );
-
-			list_append_string_list(
-				exclude_attribute_name_list,
-				attribute_primary_key_list(
-					prompt_recursive_mto1_folder->
-						folder->
-						attribute_list ) );
-
-	} while( list_next( prompt_recursive_mto1_folder_list ) );
-
-	return element_list;
-#endif
-
 char *prompt_recursive_folder_javascript(
 			FOLDER *one_folder,
 			boolean drop_down_multi_select,
@@ -579,7 +384,7 @@ char *prompt_recursive_folder_javascript(
 	char *ptr = javascript;
 	int element_index;
 
-	element_index = prompt_folder_drop_down_multi_select;
+	element_index = (int)drop_down_multi_select;
 
 	ptr +=
 		sprintf( ptr,
@@ -593,7 +398,7 @@ char *prompt_recursive_folder_javascript(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ),
 			 element_index );
 
-	if ( !list_rewind( prompt_mto1_recursive_folder_list ) )
+	if ( !list_rewind( prompt_recursive_mto1_folder_list ) )
 	{
 		sprintf( ptr, "');" );
 		return strdup( javascript );
@@ -602,9 +407,9 @@ char *prompt_recursive_folder_javascript(
 	do {
 		mto1_folder =
 			list_get(
-				prompt_mto1_recursive_folder_list );
+				prompt_recursive_mto1_folder_list );
 
-		if ( !list_at_first( prompt_mto1_recursive_folder_list ) )
+		if ( !list_at_first( prompt_recursive_mto1_folder_list ) )
 		{
 			ptr += sprintf( ptr, "," );
 		}
@@ -617,7 +422,7 @@ char *prompt_recursive_folder_javascript(
 				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ),
 			 0 /* element_index */ );
 
-	} while( list_next( prompt_mto1_recursive_folder_list ) );
+	} while( list_next( prompt_recursive_mto1_folder_list ) );
 
 	sprintf( ptr, "');" );
 
@@ -655,12 +460,9 @@ LIST *prompt_recursive_one_folder_element_list(
 {
 	char buffer[ 256 ];
 	char element_name[ 256 ];
-	LIST *element_list;
 	APPASERVER_ELEMENT *element;
 	char relation_operator_equals[ 256 ];
-	boolean set_option_data_option_label_list;
-
-	return_list = list_new_list();
+	LIST *element_list = list_new();
 
 	/* Create the line break */
 	/* --------------------- */
@@ -738,106 +540,35 @@ LIST *prompt_recursive_one_folder_element_list(
 		element->drop_down->output_select_option = 1;
 	}
 
-	element->drop_down->post_change_javascript =
-		post_change_javascript;
-
-	element->drop_down->no_initial_capital = folder->no_initial_capital;
+	element->drop_down->post_change_javascript = javascript;
+	element->drop_down->no_initial_capital = one_folder->no_initial_capital;
 	element->tab_index = 1;
 
 	list_set( element_list, element );
 
-	set_option_data_option_label_list = 1;
+	element_drop_down_set_option_data_option_label_list(
+		&element->drop_down->option_data_list,
+		&element->drop_down->option_label_list,
+		one_folder->delimited_list );
 
 	if ( !drop_down_multi_select
-	&&   !omit_lookup_before_drop_down
-	&&   ajax_fill_drop_down_related_folder
-	&&   !*ajax_fill_drop_down_related_folder
-			/* Can only execute this once.		     */
-			/* Therefore, only one ajaxed mto1 relation. */ )
-	{
-		FOLDER *folder;
-
-		folder = folder_with_load_new(
-				application_name,
-				session,
-				folder_name,
-				(ROLE *)0 );
-
-		if ( ( *ajax_fill_drop_down_related_folder =
-		       related_folder_get_ajax_fill_drop_down_related_folder(
-			folder->mto1_related_folder_list ) ) )
-		{
-			char *onclick_function;
-
-			/* Create the fill button element */
-			/* ------------------------------ */
-			element =
-				element_appaserver_new(
-					push_button, 
-					(char *)0 /* element_name */ );
-
-			element->push_button->label =
-				RELATED_FOLDER_AJAX_FILL_LABEL;
-
-			onclick_function =
-				related_folder_ajax_onclick_function(
-					foreign_attribute_name_list );
-
-			element->push_button->onclick_function =
-				onclick_function;
-
-			list_append_pointer(
-				return_list, 
-				element );
-
-			set_option_data_option_label_list = 0;
-		}
-	}
-
-	if ( set_option_data_option_label_list )
-	{
-		element_drop_down_set_option_data_option_label_list(
-			&element->drop_down->option_data_list,
-			&element->drop_down->option_label_list,
-			folder_prompt_primary_data_list(
-				application_name,
-				session,
-				folder_name,
-				login_name,
-				preprompt_dictionary,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-				populate_drop_down_process,
-				attribute_list,
-				common_non_primary_attribute_name_list,
-				( row_level_non_owner_view_only ||
-				  row_level_non_owner_forbid )
-					/* filter_only_login_name */,
-				role_name,
-				state,
-				one2m_folder_name_for_processes,
-				appaserver_user_foreign_login_name ) );
-	}
-
-	if ( set_first_initial_data
 	&&   list_length( element->drop_down->option_data_list ) )
 	{
 		element->drop_down->initial_data =
-			list_get_first_pointer(
+			list_first(
 				element->drop_down->option_data_list );
 	}
 
 	/* Create the hint message */
 	/* ----------------------- */
-	if ( hint_message && *hint_message )
+	if ( *one_folder->notepad )
 	{
 		element = 
 			element_appaserver_new(
 				non_edit_text,
-				hint_message );
+				one_folder->notepad );
 
-		list_append_pointer(
-			return_list, 
-			element );
+		list_set( element_list, element );
 	}
 
 	/* Create the hidden equals operator */
@@ -870,9 +601,8 @@ LIST *prompt_recursive_mto1_folder_element_list(
 	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
 	char buffer[ 256 ];
 	char element_name[ 256 ];
-	ELEMENT_APPASERVER *element;
+	APPASERVER_ELEMENT *element;
 	char relation_operator_equals[ 256 ];
-	boolean set_option_data_option_label_list;
 
 	if ( !list_length( element_list ) )
 	{
@@ -975,7 +705,7 @@ LIST *prompt_recursive_mto1_folder_element_list(
 		element_drop_down_set_option_data_option_label_list(
 			&element->drop_down->option_data_list,
 			&element->drop_down->option_label_list,
-			mto1_folder->one_folder->primary_delimited_list );
+			mto1_folder->one_folder->delimited_list );
 
 		if ( list_length( element->drop_down->option_data_list ) )
 		{
@@ -986,12 +716,12 @@ LIST *prompt_recursive_mto1_folder_element_list(
 
 		/* Create the hint message */
 		/* ----------------------- */
-		if ( *mto1_folder->one_folder->hint_message )
+		if ( *mto1_folder->one_folder->notepad )
 		{
 			element = 
 				element_appaserver_new(
 					non_edit_text,
-					mto1_folder->one_folder->hint_message );
+					mto1_folder->one_folder->notepad );
 
 			list_set( element_list, element );
 		}

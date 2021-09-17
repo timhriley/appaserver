@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/document.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver document ADT.					*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -8,7 +7,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "document.h"
 #include "timlib.h"
 #include "piece.h"
 #include "application.h"
@@ -16,22 +14,115 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "document.h"
 
-DOCUMENT *document_new( char *title, char *application_name )
+DOCUMENT *document_calloc( void )
 {
-	DOCUMENT *d = document_new_document( application_name );
-	d->title = title;
-	d->application_name = application_name;
-	d->javascript_module_list = list_new();
-	d->stylesheet_filename = "style.css";
-	return d;
+	DOCUMENT *document;
+
+	if ( ! ( document = calloc( 1, sizeof( DOCUMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document;
 }
 
-DOCUMENT *document_new_document( char *application_name )
+char *document_type_string( void )
 {
-	DOCUMENT *d = (DOCUMENT *)calloc( 1, sizeof( DOCUMENT ) );
-	d->application_name = application_name;
-	return d;
+	return
+	"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">";
+}
+
+char *document_html_standard_url( void )
+{
+	return
+	"http://www.w3.org/1999/xhtml";
+}
+
+DOCUMENT *document_new( char *title )
+{
+	DOCUMENT *document = document_calloc();
+
+	/* Returns program memory */
+	/* ---------------------- */
+	document->type_string = document_type_string();
+
+	/* Returns program memory */
+	/* ---------------------- */
+	document->html_standard_url = document_html_standard_url();
+
+	document->head = document_head_new( title );
+	document->body = document_body_new();
+
+	return document;
+}
+
+void document_output_content_type( void )
+{
+	printf( "Content-type: text/html\n\n" );
+	fflush( stdout );
+}
+
+void document_output_type_string(
+			FILE *output_stream,
+			char *type_string )
+{
+	fprintf(output_stream,
+		"%s\n",
+		type_string );
+}
+
+void document_output_html_tag(
+			FILE *output_stream,
+			char *html_standard_url )
+{
+	fprintf(output_stream,
+		"<html xmlns=\"%s\">\n",
+		html_standard_url );
+}
+
+void document_quick_output( void )
+{
+	document_output_content_type();
+
+	document_head_quick_output();
+	printf( "</head>\n" );
+
+	document_body_quick_output();
+}
+
+DOCUMENT_HEAD *document_head_calloc( void )
+{
+	DOCUMENT_HEAD *document_head;
+
+	if ( ! ( document_head = calloc( 1, sizeof( DOCUMENT_HEAD ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_head;
+}
+
+DOCUMENT_HEAD *document_head_new( char *title )
+{
+	DOCUMENT_HEAD *document_head = document_head_calloc();
+
+	document_head->title = title;
+
+	document_head->javascript_list =
+		document_head_javascript_list(
+	return document_head;
 }
 
 void document_output_body(	char *application_name,
@@ -74,13 +165,6 @@ void document_output_body_stream(
 	}
 
 	fprintf( output_stream, ">\n" );
-
-}
-
-void document_output_content_type( void )
-{
-	printf( "Content-type: text/html\n\n" );
-	fflush( stdout );
 }
 
 void document_output_heading(	char *application_name,
@@ -352,46 +436,10 @@ void document_output_javascript_source(
 	}
 }
 
-void document_close( void )
-{
-	return document_close_stream( stdout );
-}
-
-void document_close_stream( FILE *output_stream )
-{
-	document_close_body_stream( output_stream );
-	document_close_html_stream( output_stream );
-}
-
-void document_output_closing( void )
-{
-	document_close_body();
-	document_close_html();
-}
-
-void document_close_body( void )
-{
-	return document_close_body_stream( stdout );
-}
-
-void document_close_body_stream( FILE *output_stream )
+void document_close( FILE *output_stream )
 {
 	fprintf( output_stream, "</body>\n" );
-}
-
-void document_close_html( void )
-{
-	return document_close_html_stream( stdout );
-}
-
-void document_close_html_stream( FILE *output_stream )
-{
 	fprintf( output_stream, "</html>\n" );
-}
-
-void document_set_output_content_type( DOCUMENT *d )
-{
-	d->output_content_type = 1;
 }
 
 void document_set_javascript_module(
@@ -442,7 +490,7 @@ void document_output_quick_body(	char *application_name,
 					appaserver_mount_point );
 }
 
-void document_quick_output_head(	char *application_name,
+void document_quick_output_head(char *application_name,
 					char *appaserver_mount_point )
 {
 	DOCUMENT *document;
@@ -461,8 +509,7 @@ void document_quick_output_head(	char *application_name,
 		0 /* not with_dynarch_menu */ );
 }
 
-void document_quick_output_body(	char *application_name,
-					char *appaserver_mount_point )
+void document_quick_output_body( void )
 {
 	DOCUMENT *document;
 

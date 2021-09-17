@@ -14,25 +14,15 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "list.h"
-#include "session.h"
-#include "attribute.h"
 #include "document.h"
-#include "folder.h"
-#include "dictionary.h"
-#include "query.h"
-#include "role_folder.h"
-#include "application.h"
-#include "appaserver.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
-#include "role.h"
 #include "drillthru.h"
-#include "row_security.h"
+#include "session.h"
 #include "post_dictionary.h"
-#include "dictionary_appaserver.h"
-#include "form_prompt.h"
+#include "form.h"
 #include "prompt_edit_form.h"
 
 /* Constants */
@@ -55,10 +45,10 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *state;
 	char *target_frame;
+	DOCUMENT *document;
 	POST_DICTIONARY *post_dictionary;
 	PROMPT_EDIT_FORM *prompt_edit_form;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -87,6 +77,7 @@ int main( int argc, char **argv )
 			argv[ 7 ] );
 
 	session_environment_set( application_name );
+
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( ! ( prompt_edit_form =

@@ -61,9 +61,7 @@ APPASERVER_LIBRARY=						\
 		security.o					\
 		element.o					\
 		sed.o						\
-		form_prompt.o					\
-		form_table.o					\
-		form_button.o					\
+		form.o						\
 		email.o						\
 		query.o 					\
 		stack.o 					\
@@ -777,14 +775,8 @@ pipe.o: pipe.c pipe.h
 operation.o: operation.c operation.h process.h
 	${CC} ${CFLAGS} -c operation.c
 
-form_prompt.o: form_prompt.c form_prompt.h
-	${CC} ${CFLAGS} -c form_prompt.c
-
-form_table.o: form_table.c form_table.h
-	${CC} ${CFLAGS} -c form_table.c
-
-form_button.o: form_button.c form_button.h
-	${CC} ${CFLAGS} -c form_button.c
+form.o: form.c form.h
+	${CC} ${CFLAGS} -c form.c
 
 query.o: query.c query.h
 	${CC} ${CFLAGS} -c query.c

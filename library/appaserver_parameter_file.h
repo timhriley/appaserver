@@ -45,39 +45,27 @@ typedef struct
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new(
 			void );
 
-char *appaserver_parameter_file_appaserver_mount_point(
-			void );
-
-char *appaserver_parameter_file_get_appaserver_mount_point(
-			void );
-
-char *appaserver_parameter_file_get_cgi_directory(
+char *appaserver_parameter_file_mount_point(
 			void );
 
 char *appaserver_parameter_file_cgi_directory(
 			void );
 
-char *appaserver_parameter_file_get_apache_cgi_directory(
-						void );
+char *appaserver_parameter_file_error_directory(
+			void );
 
-char *appaserver_parameter_file_get_appaserver_error_directory(
-						void );
+char *appaserver_parameter_file_data_directory(
+			void );
 
-char *appaserver_parameter_file_get_appaserver_data_directory(
-						void );
+char *appaserver_parameter_file_cgi_home(
+			void );
 
-char *appaserver_parameter_file_get_data_directory(
-						void );
-
-char *appaserver_parameter_file_get_cgi_home(
-						void );
-
-char *appaserver_parameter_file_get_document_root(
-						void );
+char *appaserver_parameter_file_document_root(
+			void );
 
 DICTIONARY *appaserver_parameter_file_load_record_dictionary(
-						FILE *input_pipe,
-						int delimiter );
+			FILE *input_pipe,
+			int delimiter );
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 			FILE *f,
@@ -85,9 +73,6 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 
 APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 			char *application_name );
-
-char *appaserver_parameter_file_get_dbms(
-			void );
 
 FILE *appaserver_parameter_file_open(
 			char *filename,

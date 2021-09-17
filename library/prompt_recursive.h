@@ -35,7 +35,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *relation_mto1_primary_key_subset_list;
-	LIST *prompt_recursive_mto1_folder_list;
+	LIST *mto1_folder_list;
 	char *javascript;
 	LIST *element_list;
 } PROMPT_RECURSIVE_FOLDER;
