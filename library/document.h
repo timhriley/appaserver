@@ -22,8 +22,11 @@
 /* ------- */
 typedef struct
 {
-	char *title;
-	LIST *javascript_list;
+	char *stylesheet_string;
+	char *menu_setup_string;
+	char *calendar_setup_string;
+	char *meta_string;
+	char *javascript_string;
 } DOCUMENT_HEAD;
 
 typedef struct
@@ -31,6 +34,7 @@ typedef struct
 	FORM_PROMPT *form_prompt;
 	FORM_TABLE *form_table;
 	FORM_DETAIL *form_detail;
+	MENU *menu;
 } DOCUMENT_BODY;
 
 typedef struct
@@ -53,7 +57,7 @@ typedef struct
 DOCUMENT *document_calloc(
 			void );
 
-DOCUMENT *document_new(	char *title );
+DOCUMENT *document_new( char *title );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -76,8 +80,10 @@ void document_output_html_tag(
 			FILE *output_stream,
 			char *html_standard_url );
 
+/* Later execute document_close() */
+/* ------------------------------ */
 void document_quick_output(
-			void );
+			char *application_name );
 
 void document_close(	FILE *output_stream );
 
@@ -87,13 +93,38 @@ DOCUMENT_HEAD *document_head_calloc(
 			void );
 
 DOCUMENT_HEAD *document_head_new(
-			char *title );
-
-LIST *document_head_javascript_list(
-			void );
+			char *title,
+			char *stylesheet_string,
+			char *menu_setup_string,
+			char *calendar_setup_string );
 
 void document_head_quick_output(
+			char *application_name );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_meta_string(
 			void );
+
+char *document_head_javascript_string(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_head_stylesheet_string(
+			char *application_name );
+
+char *document_head_menu_setup_string(
+			void );
+
+void document_head_output(
+			FILE *output_stream,
+			char *title,
+			char *sytlesheet_string,
+			char *menu_setup_string,
+			char *calendar_setup_string,
+			char *meta_string,
+			char *javascript_string );
 
 /* DOCUMENT_BODY operations */
 /* ------------------------ */
@@ -235,7 +266,6 @@ void document_output_html_stream(
 
 void document_output_stylesheet(
 			FILE *output_stream,
-			char *application_name,
-			char *stylesheet_filename );
+			char *application_name );
 
 #endif

@@ -45,7 +45,12 @@ char *document_html_standard_url( void )
 	"http://www.w3.org/1999/xhtml";
 }
 
-DOCUMENT *document_new( char *title )
+DOCUMENT *document_new(	char *title,
+			char *role_name,
+			char *stylesheet_string,
+			char *menu_setup_string,
+			char *calendar_setup_string,
+			char *onload_control_string )
 {
 	DOCUMENT *document = document_calloc();
 
@@ -57,7 +62,13 @@ DOCUMENT *document_new( char *title )
 	/* ---------------------- */
 	document->html_standard_url = document_html_standard_url();
 
-	document->head = document_head_new( title );
+	document->head =
+		document_head_new(
+			title,
+			stylesheet_string,
+			menu_setup_string,
+			calendar_setup_string );
+
 	document->body = document_body_new();
 
 	return document;
@@ -82,18 +93,16 @@ void document_output_html_tag(
 			FILE *output_stream,
 			char *html_standard_url )
 {
-	fprintf(output_stream,
-		"<html xmlns=\"%s\">\n",
-		html_standard_url );
+	fprintf(output_stream, "<html xmlns=\"%s\">\n", html_standard_url );
 }
 
-void document_quick_output( void )
+void document_quick_output( char *application_name )
 {
 	document_output_content_type();
+	document_head_quick_output( application_name );
 
-	document_head_quick_output();
-	printf( "</head>\n" );
-
+	/* Later execute document_close() */
+	/* ------------------------------ */
 	document_body_quick_output();
 }
 
@@ -114,15 +123,67 @@ DOCUMENT_HEAD *document_head_calloc( void )
 	return document_head;
 }
 
-DOCUMENT_HEAD *document_head_new( char *title )
+DOCUMENT_HEAD *document_head_new(
+			char *title,
+			char *stylesheet_string,
+			char *menu_setup_string,
+			char *calendar_setup_string )
 {
 	DOCUMENT_HEAD *document_head = document_head_calloc();
 
 	document_head->title = title;
+	document_head->stylesheet_string = stylesheet_string;
+	document_head->menu_setup_string = menu_setup_string;
+	document_head->calendar_setup_string = calendar_setup_string;
+	document_head->meta_string = document_head_meta_string();
+	document_head->javascript_string = document_head_javascript_string();
 
-	document_head->javascript_list =
-		document_head_javascript_list(
 	return document_head;
+}
+
+void document_head_quick_output(
+			char *application_name );
+
+char *document_head_meta_string( void )
+{
+}
+
+char *document_head_javascript_string(
+			void );
+
+char *document_head_menu_setup_string(
+			void );
+
+void document_head_output(
+			FILE *output_stream,
+			char *title,
+			char *sytlesheet_string,
+			char *menu_setup_string,
+			char *calendar_setup_string,
+			char *meta_string,
+			char *javascript_string );
+
+void document_head_quick_output(
+			char *application_name )
+{
+	printf( "<head>\n%s\n</head>\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		document_head_stylesheet_string(
+			application_name ) );
+}
+
+char *document_head_stylesheet_string(
+			char *application_name )
+{
+	char stylesheet_string[ 256 ];
+
+	sprintf(stylesheet_string,
+"<link rel=stylesheet type=\"text/css\" href=\"/appaserver/%s/style.css\">",
+		application_name );
+
+	return strdup( stylesheet_string );
 }
 
 void document_output_body(	char *application_name,
@@ -226,27 +287,10 @@ void document_output_dynarch_heading( FILE *output_stream )
 			HORIZONTAL_MENU_RELATIVE_DIRECTORY );
 }
 
-void document_output_html_stream( FILE *output_stream )
-{
-	fprintf( output_stream,
-"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">\n" );
-
-	fprintf( output_stream,
-"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" );
-
-	fflush( output_stream );
-
-}
-
-void document_output_stylesheet(
+void document_head_output_stylesheet(
 			FILE *output_stream,
-			char *application_name,
-			char *stylesheet_filename )
+			char *application_name )
 {
-	fprintf( output_stream,
-"<link rel=stylesheet type=\"text/css\" href=\"/appaserver/%s/%s\">\n",
-	application_name,
-	stylesheet_filename );
 }
 
 void document_output_head_stream(

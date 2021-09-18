@@ -25,13 +25,17 @@ typedef struct
 	char *role_name;
 	char *folder_name;
 	char *permission;
+	char *subschema_name;
 } ROLE_FOLDER;
 
-/* Operations */
-/* ---------- */
+/* ROLE_FOLDER operations */
+/* ---------------------- */
 LIST *role_folder_fetch_list(
 			char *role_name,
 			char *folder_name );
+
+ROLE_FOLDER *role_folder_calloc(
+			 void );
 
 ROLE_FOLDER *role_folder_new( 
 			char *role_name,
@@ -64,10 +68,35 @@ char *role_folder_primary_where(
 			char *role_name,
 			char *folder_name );
 
-LIST *role_lookup_folder_name_list(
+/* ROLE_FOLDER subschema operations */
+/* -------------------------------- */
+LIST *role_folder_subschema_fetch_list(
 			char *role_name );
 
-LIST *role_insert_folder_name_list(
+/* Safely returns heap memory */
+/* -------------------------- */
+char *role_folder_subschema_system_string(
+			char *where );
+
+/* Returns static memory */
+/* --------------------- */
+char *role_folder_subschema_order(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *role_folder_subschema_select(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *role_folder_subschema_where(
 			char *role_name );
+
+LIST *role_folder_subschema_fetch_list(
+			char *role_name );
+
+ROLE_FOLDER *role_folder_subschema_parse(
+			char *input );
 
 #endif

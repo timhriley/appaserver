@@ -10,6 +10,7 @@
 #include "String.h"
 #include "piece.h"
 #include "sql.h"
+#include "folder.h"
 #include "role_folder.h"
 
 char *role_folder_primary_where(
@@ -37,10 +38,7 @@ LIST *role_folder_fetch_list(
 			folder_name ) );
 }
 
-ROLE_FOLDER *role_folder_new( 
-			char *role_name,
-			char *folder_name,
-			char *permission )
+ROLE_FOLDER *role_folder_calloc( void )
 {
 	ROLE_FOLDER *role_folder;
 
@@ -53,6 +51,16 @@ ROLE_FOLDER *role_folder_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	return role_folder;
+}
+
+ROLE_FOLDER *role_folder_new( 
+			char *role_name,
+			char *folder_name,
+			char *permission )
+{
+	ROLE_FOLDER *role_folder = role_folder_calloc();
 
 	role_folder->role_name = role_name;
 	role_folder->folder_name = folder_name;
@@ -173,39 +181,127 @@ boolean role_folder_lookup( LIST *role_folder_list )
 	return 0;
 }
 
-LIST *role_lookup_folder_name_list(
-			char *role_name )
+char *role_folder_subschema_order( void )
 {
-	char system_string[ 1024 ];
-	char where[ 128 ];
+	static char order[ 128 ];
 
-	sprintf(where,
-		"permission in ('lookup','update') and role = '%s'",
-		role_name );
+	sprintf(order,
+		"%s.subschema,%s.folder",
+		FOLDER_TABLE,
+		ROLE_FOLDER_TABLE );
 
-	sprintf(system_string,
-		"select.sh folder %s \"%s\" folder",
-		ROLE_FOLDER_TABLE,
-		where );
-
-	return list_pipe_fetch( system_string );
+	return order;
 }
 
-LIST *role_insert_folder_name_list(
-			char *role_name )
+char *role_folder_subschema_system_string( char *where )
 {
 	char system_string[ 1024 ];
-	char where[ 128 ];
-
-	sprintf(where,
-		"permission = 'insert' and role = '%s'",
-		role_name );
 
 	sprintf(system_string,
-		"select.sh folder %s \"%s\" folder",
+		"select.sh \"%s\" %s,%s \"%s\" %s",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		role_folder_subschema_select(),
 		ROLE_FOLDER_TABLE,
-		where );
+		FOLDER_TABLE,
+		where,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		role_folder_subschema_order() );
 
-	return list_pipe_fetch( system_string );
+	return strdup( system_string );
+}
+
+LIST *role_folder_subschema_fetch_list(
+			char *role_name )
+{
+	LIST *role_folder_list = list_new();
+	char input[ 256 ];
+	FILE *input_pipe;
+
+	input_pipe =
+		popen(
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			role_folder_subschema_system_string(
+				/* -------------------------- */
+				/* Safely returns heap memory */
+				/* -------------------------- */
+				role_folder_subschema_where(
+					role_name ) ),
+			"r" );
+
+	while( string_input( input, input_pipe, 256 ) )
+	{
+		list_set(
+			role_folder_list,
+			role_folder_subschema_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return role_folder_list;
+}
+
+char *role_folder_subschema_select( void )
+{
+	static char select[ 256 ];
+
+	sprintf(select,
+		"%s.role,%s.folder,%s.permission,%s.subschema",
+		ROLE_FOLDER_TABLE,
+		ROLE_FOLDER_TABLE,
+		ROLE_FOLDER_TABLE,
+		FOLDER_TABLE );
+
+	return select;
+}
+
+char *role_folder_subschema_where( char *role_name )
+{
+	char where[ 256 ];
+
+	if ( !role_name || !*role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s.role = '%s' and %s.folder = %s.folder",
+		ROLE_FOLDER_TABLE,
+		role_name,
+		ROLE_FOLDER_TABLE,
+		FOLDER_TABLE );
+
+	return strdup( where );
+}
+
+ROLE_FOLDER *role_folder_subschema_parse( char *input )
+{
+	ROLE_FOLDER *role_folder = role_folder_calloc();
+	char piece_buffer[ 128 ];
+
+	/* See role_folder_subschema_select() */
+	/* ---------------------------------- */
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	role_folder->role_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	role_folder->folder_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	role_folder->permission = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	role_folder->subschema_name = strdup( piece_buffer );
+
+	return role_folder;
 }
 

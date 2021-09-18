@@ -12,7 +12,23 @@
 /* Constants */
 /* --------- */
 #define ROLE_TABLE			"role"
+#define ROLE_PROCESS_TABLE		"role_process"
+#define ROLE_PROCESS_SET_MEMBER_TABLE	"role_process_set_member"
 #define ROLE_APPASERVER_USER_TABLE	"role_appaserver_user"
+
+typedef struct
+{
+	char *role_name;
+	char *process_name;
+	char *process_group_name;
+} ROLE_PROCESS;
+
+typedef struct
+{
+	char *role_name;
+	char *process_set_name;
+	char *process_group_name;
+} ROLE_PROCESS_SET;
 
 typedef struct
 {
@@ -124,6 +140,63 @@ ROLE_APPASERVER_USER *role_appaserver_user_calloc(
 			void );
 
 ROLE_APPASERVER_USER *role_appaserver_user_parse(
+			char *input );
+
+/* ROLE_PROCESS operations */
+/* ----------------------- */
+LIST *role_process_fetch_list(
+			char *role_name );
+
+ROLE_PROCESS *role_process_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *role_process_select(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *role_process_where(
+			char *role_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *role_process_system_string(
+			char *where );
+
+ROLE_PROCESS *role_process_parse(
+			char *input );
+
+/* Returns static memory */
+/* --------------------- */
+char *role_process_order(
+			void );
+
+/* ROLE_PROCESS_SET operations */
+/* --------------------------- */
+LIST *role_process_set_fetch_list(
+			char *role_name );
+
+ROLE_PROCESS_SET *role_process_set_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *role_process_set_select(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *role_process_set_where(
+			char *role_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *role_process_set_system_string(
+			char *where );
+
+ROLE_PROCESS_SET *role_process_set_parse(
 			char *input );
 
 #endif

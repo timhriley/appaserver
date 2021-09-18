@@ -95,10 +95,9 @@ int main( int argc, char **argv )
 	{
 		document_output_content_type();
 
-		document_quick_output_body(
-			application_name,
-			appaserver_parameter_file->
-				appaserver_mount_point );
+		/* Later execute document_close() */
+		/* ------------------------------ */
+		document_quick_output( application_name );
 
 		printf(
 	"<h3>An internal error occurred. Check the system log.</h3>\n" );
@@ -113,43 +112,13 @@ int main( int argc, char **argv )
 }
 
 void output_prompt_edit_form(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			char *state,
-			LIST *mto1_isa_related_folder_list,
-			APPASERVER *appaserver,
-			LIST *mto1_related_folder_list,
-			ROLE_FOLDER *role_folder,
-			char *appaserver_mount_point,
-			DICTIONARY *preprompt_dictionary,
-			boolean override_row_restrictions,
-			LIST *prompt_recursive_folder_list,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down,
-			DICTIONARY *lookup_before_drop_down_dictionary,
-			char *target_frame,
-			boolean omit_new_button,
-			boolean omit_delete_button,
-			char *lookup_insert_folder_name )
+			PROMPT_EDIT_FORM *prompt_edit_form )
 {
-	LIST *exclude_attribute_name_list;
 	DOCUMENT *document;
-	char *post_change_javascript = {0};
-	char new_button_yn;
-	char *remember_keystrokes_onload_control_string = {0};
-	LIST *remember_button_non_multi_element_name_list;
-	LIST *remember_button_multi_element_name_list;
-	char *destination_multi_select_element_name;
-	char *prelookup_button_control_string = {0};
-	boolean with_dynarch_menu;
-	boolean omit_format_initial_capital = 0;
-	boolean delete_button;
-	boolean group_button;
-	boolean sort_order_button;
-	FORM *form;
-	boolean with_prelookup_skip_button = 0;
+
+	document =
+		document_new(
+			application_title_string( application_name ) );
 
 	/* This needs to be made into a list. */
 	/* ---------------------------------- */
@@ -314,10 +283,6 @@ m2( application_name, msg );
 	form->html_help_file_anchor =
 		appaserver->folder->html_help_file_anchor;
 
-	document =
-		document_new(
-			application_title_string( application_name ),
-			application_name );
 
 	if ( post_change_javascript )
 	{

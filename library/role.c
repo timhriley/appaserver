@@ -17,6 +17,7 @@
 #include "environ.h"
 #include "security.h"
 #include "folder_attribute.h"
+#include "process.h"
 #include "role.h"
 
 ROLE *role_calloc( void )
@@ -455,5 +456,182 @@ LIST *role_exclude_update_attribute_name_list(
 	} while ( list_next( attribute_exclude_list ) );
 
 	return exclude_attribute_name_list;
+}
+
+LIST *role_process_fetch_list( char *role_name )
+{
+}
+
+ROLE_PROCESS *role_process_calloc( void )
+{
+}
+
+char *role_process_select( void )
+{
+}
+
+char *role_process_where( char *role_name )
+{
+}
+
+char *role_process_order( void )
+{
+}
+
+char *role_process_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s,%s \"%s\" %s",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		role_process_select(),
+		ROLE_PROCESS_TABLE,
+		PROCESS_TABLE,
+		where,
+		role_process_order() );
+
+	return strdup( system_string );
+}
+
+ROLE_PROCESS *role_process_parse( char *input )
+{
+	ROLE_PROCESS *role_process = role_process_calloc();
+	char piece_buffer[ 128 ];
+
+	/* See role_process_select() */
+	/* ------------------------- */
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	role_process->role_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	role_process->process_group_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	role_process->process_name = strdup( piece_buffer );
+
+	return role_process;
+}
+
+LIST *role_process_set_fetch_list( char *role_name )
+{
+	LIST *role_process_set_list = list_new();
+	char input[ 256 ];
+	FILE *input_pipe;
+
+	input_pipe =
+		popen(
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			role_process_set_system_string(
+				/* -------------------------- */
+				/* Safely returns heap memory */
+				/* -------------------------- */
+				role_process_set_where(
+					role_name ) ),
+			"r" );
+
+	while( string_input( input, input_pipe, 256 ) )
+	{
+		list_set(
+			role_process_set_list,
+			role_process_set_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return role_process_set_list;
+}
+
+ROLE_PROCESS_SET *role_process_set_calloc( void )
+{
+	ROLE_PROCESS_SET *role_process_set;
+
+	if ( ! ( role_process_set = calloc( 1, sizeof( ROLE_PROCESS_SET ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return role_process_set;
+}
+
+char *role_process_set_select( void )
+{
+	static char select[ 256 ];
+
+	sprintf(select,
+		"%s.role,%s.process_group,%s.process_set",
+		ROLE_PROCESS_SET_MEMBER_TABLE,
+		PROCESS_SET_TABLE,
+		ROLE_PROCESS_SET_MEMBER_TABLE );
+
+	return select;
+}
+
+char *role_process_set_where( char *role_name )
+{
+	char where[ 256 ];
+
+	if ( !role_name || !*role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s.role = '%s' and %s.process_set = %s.process_set",
+		ROLE_PROCESS_SET_MEMBER_TABLE,
+		role_name,
+		ROLE_PROCESS_SET_MEMBER_TABLE,
+		PROCESS_SET_TABLE );
+
+	return strdup( where );
+}
+
+char *role_process_set_system_string( char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s,%s \"%s\" | sort -u",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		role_process_set_select(),
+		ROLE_PROCESS_SET_MEMBER_TABLE,
+		PROCESS_SET_TABLE,
+		where );
+
+	return strdup( system_string );
+}
+
+ROLE_PROCESS_SET *role_process_set_parse( char *input )
+{
+	ROLE_PROCESS_SET *role_process_set = role_process_set_calloc();
+	char piece_buffer[ 128 ];
+
+	/* See role_process_set_select() */
+	/* ----------------------------- */
+	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	role_process_set->role_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	role_process_set->process_group_name = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	role_process_set->process_set_name = strdup( piece_buffer );
+
+	return role_process_set;
 }
 
