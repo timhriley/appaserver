@@ -86,7 +86,7 @@ boolean process_executable_ok( char *executable )
 	/* Must execute from $APPASERVER_HOME/src_* */
 	/* ---------------------------------------- */
 	appaserver_mount_point =
-		appaserver_parameter_file_appaserver_mount_point();
+		appaserver_parameter_file_mount_point();
 
 	sprintf( check_directory,
 		 "%s/src_",

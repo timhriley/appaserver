@@ -460,22 +460,98 @@ LIST *role_exclude_update_attribute_name_list(
 
 LIST *role_process_fetch_list( char *role_name )
 {
+	LIST *role_process_list = list_new();
+	char input[ 256 ];
+	FILE *input_pipe;
+
+	input_pipe =
+		popen(
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			role_process_system_string(
+				/* -------------------------- */
+				/* Safely returns heap memory */
+				/* -------------------------- */
+				role_process_where(
+					role_name ) ),
+			"r" );
+
+	while( string_input( input, input_pipe, 256 ) )
+	{
+		list_set(
+			role_process_list,
+			role_process_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return role_process_list;
 }
 
 ROLE_PROCESS *role_process_calloc( void )
 {
+	ROLE_PROCESS *role_process;
+
+	if ( ! ( role_process = calloc( 1, sizeof( ROLE_PROCESS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return role_process;
 }
 
 char *role_process_select( void )
 {
+	static char select[ 256 ];
+
+	sprintf(select,
+		"%s.role,%s.process_group,%s.process",
+		ROLE_PROCESS_TABLE,
+		PROCESS_TABLE,
+		ROLE_PROCESS_TABLE );
+
+	return select;
 }
 
 char *role_process_where( char *role_name )
 {
+	char where[ 256 ];
+
+	if ( !role_name || !*role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s.role = '%s' and %s.process = %s.process",
+		ROLE_PROCESS_TABLE,
+		role_name,
+		ROLE_PROCESS_TABLE,
+		PROCESS_TABLE );
+
+	return strdup( where );
 }
 
 char *role_process_order( void )
 {
+	static char order[ 128 ];
+
+	sprintf(order,
+		"%s.process_group,%s.role",
+		PROCESS_TABLE,
+		ROLE_PROCESS_TABLE );
+
+	return order;
 }
 
 char *role_process_system_string( char *where )
