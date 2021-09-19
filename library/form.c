@@ -7,12 +7,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "attribute.h"
+#include "String.h"
 #include "timlib.h"
-#include "form.h"
+#include "attribute.h"
 #include "piece.h"
 #include "element.h"
-#include "related_folder.h"
 #include "dictionary.h"
 #include "appaserver_error.h"
 #include "document.h"
@@ -26,6 +25,7 @@
 #include "vertical_new_button.h"
 #include "dictionary_separate.h"
 #include "pair_one2m.h"
+#include "form.h"
 
 FORM *form_calloc( void )
 {
@@ -244,7 +244,7 @@ void form_output_heading(
 
 		printf( " action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s+%s+%d+%s\"",
 			appaserver_library_http_prompt(
-				appaserver_parameter_file_get_cgi_directory(),
+				appaserver_parameter_file_cgi_directory(),
 				server_address,
 				application_ssl_support_yn(
 					application_name ),

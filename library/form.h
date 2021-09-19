@@ -9,10 +9,10 @@
 #define FORM_H
 
 #include <unistd.h>
+#include "boolean.h"
 #include "list.h"
 #include "dictionary.h"
 #include "element.h"
-#include "boolean.h"
 #include "dictionary_separate.h"
 
 /* Constants */

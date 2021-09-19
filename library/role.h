@@ -144,7 +144,7 @@ ROLE_APPASERVER_USER *role_appaserver_user_parse(
 
 /* ROLE_PROCESS operations */
 /* ----------------------- */
-LIST *role_process_fetch_list(
+LIST *role_process_list(
 			char *role_name );
 
 ROLE_PROCESS *role_process_calloc(
@@ -168,14 +168,9 @@ char *role_process_system_string(
 ROLE_PROCESS *role_process_parse(
 			char *input );
 
-/* Returns static memory */
-/* --------------------- */
-char *role_process_order(
-			void );
-
 /* ROLE_PROCESS_SET operations */
 /* --------------------------- */
-LIST *role_process_set_fetch_list(
+LIST *role_process_set_list(
 			char *role_name );
 
 ROLE_PROCESS_SET *role_process_set_calloc(

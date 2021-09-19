@@ -458,9 +458,9 @@ LIST *role_exclude_update_attribute_name_list(
 	return exclude_attribute_name_list;
 }
 
-LIST *role_process_fetch_list( char *role_name )
+LIST *role_process_list( char *role_name )
 {
-	LIST *role_process_list = list_new();
+	LIST *list = list_new();
 	char input[ 256 ];
 	FILE *input_pipe;
 
@@ -480,12 +480,12 @@ LIST *role_process_fetch_list( char *role_name )
 	while( string_input( input, input_pipe, 256 ) )
 	{
 		list_set(
-			role_process_list,
+			list,
 			role_process_parse( input ) );
 	}
 
 	pclose( input_pipe );
-	return role_process_list;
+	return list;
 }
 
 ROLE_PROCESS *role_process_calloc( void )
@@ -510,7 +510,7 @@ char *role_process_select( void )
 	static char select[ 256 ];
 
 	sprintf(select,
-		"%s.role,%s.process_group,%s.process",
+		"%s.role,ifnull(%s.process_group,'process'),%s.process",
 		ROLE_PROCESS_TABLE,
 		PROCESS_TABLE,
 		ROLE_PROCESS_TABLE );
@@ -542,32 +542,19 @@ char *role_process_where( char *role_name )
 	return strdup( where );
 }
 
-char *role_process_order( void )
-{
-	static char order[ 128 ];
-
-	sprintf(order,
-		"%s.process_group,%s.role",
-		PROCESS_TABLE,
-		ROLE_PROCESS_TABLE );
-
-	return order;
-}
-
 char *role_process_system_string( char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"select.sh \"%s\" %s,%s \"%s\" %s",
+		"select.sh \"%s\" %s,%s \"%s\"",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		role_process_select(),
 		ROLE_PROCESS_TABLE,
 		PROCESS_TABLE,
-		where,
-		role_process_order() );
+		where );
 
 	return strdup( system_string );
 }
@@ -591,9 +578,9 @@ ROLE_PROCESS *role_process_parse( char *input )
 	return role_process;
 }
 
-LIST *role_process_set_fetch_list( char *role_name )
+LIST *role_process_set_list( char *role_name )
 {
-	LIST *role_process_set_list = list_new();
+	LIST *list = list_new();
 	char input[ 256 ];
 	FILE *input_pipe;
 
@@ -613,12 +600,12 @@ LIST *role_process_set_fetch_list( char *role_name )
 	while( string_input( input, input_pipe, 256 ) )
 	{
 		list_set(
-			role_process_set_list,
+			list,
 			role_process_set_parse( input ) );
 	}
 
 	pclose( input_pipe );
-	return role_process_set_list;
+	return list;
 }
 
 ROLE_PROCESS_SET *role_process_set_calloc( void )
@@ -643,7 +630,7 @@ char *role_process_set_select( void )
 	static char select[ 256 ];
 
 	sprintf(select,
-		"%s.role,%s.process_group,%s.process_set",
+		"%s.role,ifnull(%s.process_group,'process'),%s.process_set",
 		ROLE_PROCESS_SET_MEMBER_TABLE,
 		PROCESS_SET_TABLE,
 		ROLE_PROCESS_SET_MEMBER_TABLE );

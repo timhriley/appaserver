@@ -30,7 +30,7 @@ typedef struct
 
 /* ROLE_FOLDER operations */
 /* ---------------------- */
-LIST *role_folder_fetch_list(
+LIST *role_folder_list(
 			char *role_name,
 			char *folder_name );
 
@@ -70,18 +70,13 @@ char *role_folder_primary_where(
 
 /* ROLE_FOLDER subschema operations */
 /* -------------------------------- */
-LIST *role_folder_subschema_fetch_list(
+LIST *role_folder_subschema_list(
 			char *role_name );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *role_folder_subschema_system_string(
 			char *where );
-
-/* Returns static memory */
-/* --------------------- */
-char *role_folder_subschema_order(
-			void );
 
 /* Returns static memory */
 /* --------------------- */
@@ -93,10 +88,21 @@ char *role_folder_subschema_select(
 char *role_folder_subschema_where(
 			char *role_name );
 
-LIST *role_folder_subschema_fetch_list(
-			char *role_name );
-
 ROLE_FOLDER *role_folder_subschema_parse(
 			char *input );
+
+LIST *role_folder_subschema_name_list(
+			LIST *role_folder_subschema_list );
+
+LIST *role_folder_subschema_lookup_name_list(
+			char *subschema_name,
+			LIST *role_folder_subschema_list );
+
+LIST *role_folder_subschema_insert_name_list(
+			char *subschema_name,
+			LIST *role_folder_subschema_list );
+
+LIST *role_folder_name_list(
+			LIST *role_folder_list );
 
 #endif

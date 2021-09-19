@@ -293,6 +293,8 @@ void appaserver_library_output_ftp_prompt(
 			char *target,
 			char *mime_type );
 
+/* Returns static memory */
+/* --------------------- */
 char *appaserver_library_http_prompt(
 		 	char *cgi_directory,
 		 	char *server_address,

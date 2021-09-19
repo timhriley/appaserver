@@ -111,7 +111,8 @@ APPASERVER_LIBRARY=						\
 		prompt_edit_form.o				\
 		edit_table_form.o				\
 		insert_table_form.o				\
-		frameset_link_file.o
+		frameset_link_file.o				\
+		menu.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -1007,4 +1008,7 @@ edit_table_form.o: edit_table_form.c edit_table_form.h
 
 frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 	${CC} ${CFLAGS} -c frameset_link_file.c
+
+menu.o: menu.c menu.h
+	${CC} ${CFLAGS} -c menu.c
 

@@ -27,7 +27,7 @@ char *role_folder_primary_where(
 	return where;
 }
 
-LIST *role_folder_fetch_list(
+LIST *role_folder_list(
 			char *role_name,
 			char *folder_name )
 {
@@ -181,40 +181,24 @@ boolean role_folder_lookup( LIST *role_folder_list )
 	return 0;
 }
 
-char *role_folder_subschema_order( void )
-{
-	static char order[ 128 ];
-
-	sprintf(order,
-		"%s.subschema,%s.folder",
-		FOLDER_TABLE,
-		ROLE_FOLDER_TABLE );
-
-	return order;
-}
-
 char *role_folder_subschema_system_string( char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"select.sh \"%s\" %s,%s \"%s\" %s",
+		"select.sh \"%s\" %s,%s \"%s\"",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		role_folder_subschema_select(),
 		ROLE_FOLDER_TABLE,
 		FOLDER_TABLE,
-		where,
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		role_folder_subschema_order() );
+		where );
 
 	return strdup( system_string );
 }
 
-LIST *role_folder_subschema_fetch_list(
+LIST *role_folder_subschema_list(
 			char *role_name )
 {
 	LIST *role_folder_list = list_new();
@@ -303,5 +287,146 @@ ROLE_FOLDER *role_folder_subschema_parse( char *input )
 	role_folder->subschema_name = strdup( piece_buffer );
 
 	return role_folder;
+}
+
+LIST *role_folder_subschema_name_list(
+			LIST *role_folder_subschema_list )
+{
+	ROLE_FOLDER *role_folder;
+	LIST *name_list = list_new();
+
+	if ( list_rewind( role_folder_subschema_list ) )
+	{
+		do {
+			role_folder =
+				list_get(
+					role_folder_subschema_list );
+
+			if ( role_folder->subschema_name
+			&&   *role_folder->subschema_name )
+			{
+				if ( list_exists_string(
+					role_folder->subschema_name,
+					name_list ) )
+				{
+					continue;
+				}
+
+				list_add_string_in_order(
+					name_list,
+					role_folder->subschema_name );
+			}
+		} while ( list_next( role_folder_subschema_list ) );
+	}
+
+	return name_list;
+}
+
+LIST *role_folder_subschema_lookup_name_list(
+			char *subschema_name,
+			LIST *role_folder_subschema_list )
+{
+	ROLE_FOLDER *role_folder;
+	LIST *name_list = list_new();
+
+	if ( list_rewind( role_folder_subschema_list ) )
+	{
+		do {
+			role_folder =
+				list_get(
+					role_folder_subschema_list );
+
+			if ( ( ( string_strcmp(
+					role_folder->permission,
+					"lookup" ) == 0 )
+			||     ( string_strcmp(
+					role_folder->permission,
+					"update" ) == 0 ) )
+			&& 	 string_strcmp(
+					role_folder->subschema_name,
+					subschema_name ) == 0 )
+			{
+				if ( list_exists_string(
+					role_folder->folder_name,
+					name_list ) )
+				{
+					continue;
+				}
+
+				list_add_string_in_order(
+					name_list,
+					role_folder->folder_name );
+			}
+		} while ( list_next( role_folder_subschema_list ) );
+	}
+
+	return name_list;
+}
+
+LIST *role_folder_subschema_insert_name_list(
+			char *subschema_name,
+			LIST *role_folder_subschema_list )
+{
+	ROLE_FOLDER *role_folder;
+	LIST *name_list = list_new();
+
+	if ( list_rewind( role_folder_subschema_list ) )
+	{
+		do {
+			role_folder =
+				list_get(
+					role_folder_subschema_list );
+
+			if ( ( 	string_strcmp(
+					role_folder->permission,
+					"insert" ) == 0 )
+			&& 	string_strcmp(
+					role_folder->subschema_name,
+					subschema_name ) == 0 )
+			{
+				if ( list_exists_string(
+					role_folder->folder_name,
+					name_list ) )
+				{
+					continue;
+				}
+
+				list_add_string_in_order(
+					name_list,
+					role_folder->folder_name );
+			}
+		} while ( list_next( role_folder_subschema_list ) );
+	}
+
+	return name_list;
+}
+
+LIST *role_folder_name_list( LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+	LIST *name_list = list_new();
+
+	if ( list_rewind( role_folder_list ) )
+	{
+		do {
+			role_folder =
+				list_get(
+					role_folder_list );
+
+			if ( list_exists_string(
+				role_folder->folder_name,
+				name_list ) )
+			{
+				continue;
+			}
+
+			list_add_string_in_order(
+				name_list,
+				role_folder->folder_name );
+
+		} while ( list_next( role_folder_list ) );
+	}
+
+	return name_list;
 }
 
