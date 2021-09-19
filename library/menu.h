@@ -23,6 +23,19 @@ typedef struct
 {
 	/* Attributes */
 	/* ---------- */
+	char *subschema_name;
+	LIST *role_folder_name_list;
+
+	/* Process */
+	/* ------- */
+	LIST *menu_item_folder_list;
+	char *span_tag;
+} MENU_SUBSCHEMA;
+
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
 	char *folder_name;
 	char *state;
 	char *process_or_set_name;
@@ -34,10 +47,28 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *folder_action;
-	char *process_action;
+	char *folder_action_tag;
+	char *process_action_tag;
+	char *span_tag;
 } MENU_ITEM;
 
+/* MENU_SUBSCHEMA operations */
+/* ------------------------- */
+MENU_SUBSCHEMA *menu_subschema_calloc(
+			void );
+
+MENU_SUBSCHEMA *menu_subschema_fetch(
+			char *subschema_name,
+			LIST *role_folder_name_list,
+			char *verb,
+			char *login_name,
+			char *application_name,
+			char *session_key,
+			char *role_name,
+			char *target_frame );
+
+char *menu_subschema_span_tag(
+			char *subschema_name );
 
 /* MENU_ITEM operations */
 /* -------------------- */
@@ -71,8 +102,7 @@ LIST *menu_item_folder_list(
 			char *target_frame );
 
 LIST *menu_item_process_list(
-			LIST *role_process_name_list,
-			LIST *role_process_set_name_list,
+			LIST *process_or_set_name_list,
 			char *login_name,
 			char *application_name,
 			char *session_key,
@@ -91,11 +121,6 @@ char *menu_item_folder_action_tag(
 			char *role_name,
 			char *target_frame );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *menu_item_folder_span_tag(
-			char *folder_name );
-
 /* Returns heap memory or null */
 /* --------------------------- */
 char *menu_item_process_action_tag(
@@ -109,7 +134,11 @@ char *menu_item_process_action_tag(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *menu_item_process_span_tag(
-			char *process_or_set_name );
+char *menu_item_span_tag(
+			char *item_name );
+
+LIST *menu_item_process_or_set_name_list(
+			LIST *role_process_name_list,
+			LIST *role_process_set_name_list );
 
 #endif

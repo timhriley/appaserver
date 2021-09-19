@@ -356,6 +356,10 @@ boolean list_add_string_in_order(
 				LIST *list,
 				char *string );
 
+boolean list_set_string_in_order(
+				LIST *list,
+				char *string );
+
 void list_add_string( 		LIST *list, char *string );
 
 int list_add_in_order(		LIST *list, 
@@ -374,6 +378,7 @@ int add_in_order( 		LIST *list,
 				int (*match_fn)() );
 
 struct LINKTYPE *create_node(	void );
+
 void list_double_forward( 	LIST *double_list, double here );
 
 boolean list_previous( 		LIST *list );

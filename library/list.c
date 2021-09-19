@@ -1073,9 +1073,6 @@ int item_exists( LIST *list, char *item, int (*match_fn)() )
 }
 
 struct LINKTYPE *create_node()
-/* --------------------------- */
-/* Allocate a new node to link */
-/* --------------------------- */
 {
         return (struct LINKTYPE *)calloc( 1, sizeof( struct LINKTYPE ) );
 
@@ -1427,40 +1424,54 @@ int retrieve_item( char *ret_item, LIST *list )
 
 }
 
-boolean list_add_string_in_order(	LIST *list,
-					char *string )
+boolean list_set_string_in_order(
+			LIST *list,
+			char *string )
 {
 	return list_add_pointer_in_order(
 			list, 
 			string,
 			strcasecmp );
-
 }
 
-boolean list_add_pointer_in_order(	LIST *list, 
-					void *this_item, 
-					int (*match_fn)() )
+boolean list_add_string_in_order(
+			LIST *list,
+			char *string )
+{
+	return list_add_pointer_in_order(
+			list, 
+			string,
+			strcasecmp );
+}
+
+boolean list_add_pointer_in_order(
+			LIST *list, 
+			void *this_item, 
+			int (*match_fn)() )
 {
         struct LINKTYPE *newlink = create_node();
 
-        if (!newlink)
+        if ( !newlink )
+	{
                 list_bye( "create_node failed in list_add_pointer_in_order()" );
+	}
 
         newlink->item = this_item;
         newlink->num_bytes = -1;
 
         /* If list is empty then just add the item */
         /* --------------------------------------- */
-	if (!list_rewind( list ) )
+	if ( !list_rewind( list ) )
 	{
-		list_append_pointer( list, this_item );
+		list_set( list, this_item );
 		return 1;
 	}
 	else
+	/* ------------------------------- */
 	/* Find where the item needs to go */
 	/* ------------------------------- */
 	do {
-		if ((*match_fn) (list->current->item, this_item) >= 0 )
+		if ( (*match_fn) (list->current->item, this_item) >= 0 )
 		{
 			/* Add someplace in the middle */
 			/* --------------------------- */
@@ -1475,10 +1486,9 @@ boolean list_add_pointer_in_order(	LIST *list,
 
         /* If at the end of the list then just add to the tail */
         /* -------------------------------------------------- */
-        list_append_pointer( list, this_item );
+        list_set( list, this_item );
 
         return 1;
-
 }
 
 int list_add_in_order(	LIST *list, 
@@ -1490,26 +1500,40 @@ int list_add_in_order(	LIST *list,
 }
 
 
-int add_in_order( 	LIST *list, 
-			void *this_item, 
-			int num_bytes,
-			int (*match_fn)() )
 /* --------------------------------------------------------- */
 /* Add a new link containing this item to the list in order  */
 /* The current pointer is uneffected.                        */
 /* --------------------------------------------------------- */
+int add_in_order( 	LIST *list, 
+			void *this_item, 
+			int num_bytes,
+			int (*match_fn)() )
 {
         /* Create the new link */
         /* ------------------- */
-        struct LINKTYPE *create_node(),*newlink = create_node();
+	struct LINKTYPE *newlink = create_node();
 
-        if (!newlink)
-                return 0;
+        if ( !newlink )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: create_node() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-        newlink->item = (char *)malloc(num_bytes);
-        if (!newlink->item)
-                return 0;
+        newlink->item = malloc( num_bytes );
 
+        if ( !newlink->item )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: malloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
         moveitem(newlink->item,this_item,num_bytes);
         newlink->num_bytes = num_bytes;
@@ -1611,16 +1635,16 @@ char *append( LIST *list, char *this_item, int num_bytes )
 
 }
 
-char *add_item(	LIST *list,
-		void *this_item,
-		int num_bytes,
-		int head_or_tail_or_current )
 /* ------------------------------------------------- */
 /* Add a new link containing this item to the list   */
 /* The current pointer is uneffected.                */
 /* ------------------------------------------------- */
+char *add_item(	LIST *list,
+		void *this_item,
+		int num_bytes,
+		int head_or_tail_or_current )
 {
-        struct LINKTYPE *create_node(),*newlink;
+        struct LINKTYPE *newlink;
 
 	if ( !list ) return (char *)0;
 
@@ -1628,14 +1652,20 @@ char *add_item(	LIST *list,
         /* ------------------- */
         newlink = create_node();
 
-        if (!newlink)
+        if ( !newlink )
+	{
                 list_bye( "create_node failed in add_item()" );;
+	}
 
         newlink->item = (char *)malloc(num_bytes);
-        if (!newlink->item)
-                list_bye( "malloc failed in add_item()" );
 
-        moveitem(newlink->item,this_item,num_bytes);
+        if ( !newlink->item )
+	{
+                list_bye( "malloc failed in add_item()" );
+	}
+
+        moveitem( newlink->item, this_item, num_bytes );
+
         newlink->num_bytes = num_bytes;
 
         if (head_or_tail_or_current == ADD_HEAD)
