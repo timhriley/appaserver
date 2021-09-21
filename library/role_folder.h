@@ -53,13 +53,13 @@ char *role_folder_system_string(
 LIST *role_folder_system_list(
 			char *system_string );
 
-boolean role_folder_lookup(
+boolean role_folder_insert(
 			LIST *role_folder_list );
 
 boolean role_folder_update(
 			LIST *role_folder_list );
 
-boolean role_folder_insert(
+boolean role_folder_lookup(
 			LIST *role_folder_list );
 
 /* Returns static memory */
@@ -70,7 +70,10 @@ char *role_folder_primary_where(
 
 /* ROLE_FOLDER subschema operations */
 /* -------------------------------- */
-LIST *role_folder_subschema_list(
+LIST *role_folder_lookup_list(
+			char *role_name );
+
+LIST *role_folder_insert_list(
 			char *role_name );
 
 /* Safely returns heap memory */
@@ -92,17 +95,19 @@ ROLE_FOLDER *role_folder_subschema_parse(
 			char *input );
 
 LIST *role_folder_subschema_name_list(
-			LIST *role_folder_subschema_list );
+			LIST *role_folder_lookup_insert_list );
 
-LIST *role_folder_subschema_lookup_name_list(
+/* List of folder_name */
+/* ------------------- */
+LIST *role_folder_subschema_missing_list(
+			LIST *role_folder_lookup_insert_list );
+
+LIST *role_folder_lookup_name_list(
 			char *subschema_name,
-			LIST *role_folder_subschema_list );
+			LIST *role_folder_lookup_list );
 
-LIST *role_folder_subschema_insert_name_list(
+LIST *role_folder_insert_name_list(
 			char *subschema_name,
-			LIST *role_folder_subschema_list );
-
-LIST *role_folder_name_list(
-			LIST *role_folder_list );
+			LIST *role_folder_insert_list );
 
 #endif

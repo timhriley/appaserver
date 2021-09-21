@@ -698,3 +698,53 @@ ROLE_PROCESS_SET *role_process_set_parse( char *input )
 	return role_process_set;
 }
 
+LIST *role_process_or_set_name_list(
+			char *process_group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list )
+{
+	LIST *name_list = list_new();
+
+	if ( list_rewind( role_process_list ) )
+	{
+		ROLE_PROCESS *role_process;
+
+		do {
+			role_process =
+				list_get(
+					role_process_list );
+
+			if ( string_strcmp(
+				role_process->process_group_name,
+				process_group_name ) == 0 )
+			{
+				list_set_string_in_order(
+					name_list,
+					role_process->process_name );
+			}
+		} while ( list_next( role_process_list ) );
+	}
+
+	if ( list_rewind( role_process_set_list ) )
+	{
+		ROLE_PROCESS_SET *role_process_set;
+
+		do {
+			role_process_set =
+				list_get(
+					role_process_set_list );
+
+			if ( string_strcmp(
+				role_process_set->process_group_name,
+				process_group_name ) == 0 )
+			{
+				list_set_string_in_order(
+					name_list,
+					role_process_set->process_set_name );
+			}
+		} while ( list_next( role_process_set_list ) );
+	}
+
+	return name_list;
+}
+

@@ -290,17 +290,17 @@ ROLE_FOLDER *role_folder_subschema_parse( char *input )
 }
 
 LIST *role_folder_subschema_name_list(
-			LIST *role_folder_subschema_list )
+			LIST *role_folder_lookup_insert_list )
 {
 	ROLE_FOLDER *role_folder;
 	LIST *name_list = list_new();
 
-	if ( list_rewind( role_folder_subschema_list ) )
+	if ( list_rewind( role_folder_lookup_insert_list ) )
 	{
 		do {
 			role_folder =
 				list_get(
-					role_folder_subschema_list );
+					role_folder_lookup_insert_list );
 
 			if ( role_folder->subschema_name
 			&&   *role_folder->subschema_name )
@@ -316,25 +316,25 @@ LIST *role_folder_subschema_name_list(
 					name_list,
 					role_folder->subschema_name );
 			}
-		} while ( list_next( role_folder_subschema_list ) );
+		} while ( list_next( role_folder_lookup_insert_list ) );
 	}
 
 	return name_list;
 }
 
-LIST *role_folder_subschema_lookup_name_list(
+LIST *role_folder_lookup_name_list(
 			char *subschema_name,
-			LIST *role_folder_subschema_list )
+			LIST *role_folder_lookup_list )
 {
 	ROLE_FOLDER *role_folder;
 	LIST *name_list = list_new();
 
-	if ( list_rewind( role_folder_subschema_list ) )
+	if ( list_rewind( role_folder_lookup_list ) )
 	{
 		do {
 			role_folder =
 				list_get(
-					role_folder_subschema_list );
+					role_folder_lookup_list );
 
 			if ( ( ( string_strcmp(
 					role_folder->permission,
@@ -357,30 +357,30 @@ LIST *role_folder_subschema_lookup_name_list(
 					name_list,
 					role_folder->folder_name );
 			}
-		} while ( list_next( role_folder_subschema_list ) );
+		} while ( list_next( role_folder_lookup_list ) );
 	}
 
 	return name_list;
 }
 
-LIST *role_folder_subschema_insert_name_list(
+LIST *role_folder_insert_name_list(
 			char *subschema_name,
-			LIST *role_folder_subschema_list )
+			LIST *role_folder_insert_list )
 {
 	ROLE_FOLDER *role_folder;
 	LIST *name_list = list_new();
 
-	if ( list_rewind( role_folder_subschema_list ) )
+	if ( list_rewind( role_folder_insert_list ) )
 	{
 		do {
 			role_folder =
 				list_get(
-					role_folder_subschema_list );
+					role_folder_insert_list );
 
-			if ( ( 	string_strcmp(
+			if ( ( string_strcmp(
 					role_folder->permission,
 					"insert" ) == 0 )
-			&& 	string_strcmp(
+			&& 	 string_strcmp(
 					role_folder->subschema_name,
 					subschema_name ) == 0 )
 			{
@@ -395,36 +395,7 @@ LIST *role_folder_subschema_insert_name_list(
 					name_list,
 					role_folder->folder_name );
 			}
-		} while ( list_next( role_folder_subschema_list ) );
-	}
-
-	return name_list;
-}
-
-LIST *role_folder_name_list( LIST *role_folder_list )
-{
-	ROLE_FOLDER *role_folder;
-	LIST *name_list = list_new();
-
-	if ( list_rewind( role_folder_list ) )
-	{
-		do {
-			role_folder =
-				list_get(
-					role_folder_list );
-
-			if ( list_exists_string(
-				role_folder->folder_name,
-				name_list ) )
-			{
-				continue;
-			}
-
-			list_add_string_in_order(
-				name_list,
-				role_folder->folder_name );
-
-		} while ( list_next( role_folder_list ) );
+		} while ( list_next( role_folder_insert_list ) );
 	}
 
 	return name_list;

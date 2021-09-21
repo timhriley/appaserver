@@ -168,6 +168,18 @@ char *role_process_system_string(
 ROLE_PROCESS *role_process_parse(
 			char *input );
 
+LIST *role_process_group_name_list(
+			LIST *role_process_list );
+
+LIST *role_process_name_list(
+			char *process_group_name,
+			LIST *role_process_list );
+
+LIST *role_process_or_set_name_list(
+			char *process_group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list );
+
 /* ROLE_PROCESS_SET operations */
 /* --------------------------- */
 LIST *role_process_set_list(
@@ -193,5 +205,12 @@ char *role_process_set_system_string(
 
 ROLE_PROCESS_SET *role_process_set_parse(
 			char *input );
+
+LIST *role_process_set_group_name_list(
+			LIST *role_process_set_list );
+
+LIST *role_process_set_name_list(
+			char *process_group_name,
+			LIST *role_process_set_list );
 
 #endif
