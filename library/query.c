@@ -803,17 +803,6 @@ generate_select_clause:
 					folder->folder_name,
 					query_output->query_subquery_list,
 					folder->primary_attribute_name_list );
-/*
-{
-char msg[ QUERY_WHERE_BUFFER ];
-sprintf( msg, "%s/%s()/%d: got subquery_list = %s\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-query_subquery_list_display( query_output->query_subquery_list ) );
-m2( folder->application_name, msg );
-}
-*/
 		}
 	}
 
@@ -7714,8 +7703,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_edit_table_new(
 
 char *query_edit_table_drop_down_where(
 			LIST *query_drop_down_list,
-			char *application_name,
-			char *folder_name )
+			char *application_name )
 {
 	QUERY_DROP_DOWN *query_drop_down;
 	QUERY_DROP_DOWN_ROW *query_drop_down_row;
@@ -7831,7 +7819,8 @@ char *query_edit_table_drop_down_where(
 					"%s",
 					query_get_drop_down_data_where(
 						application_name,
-						folder_name,
+						query_drop_down->
+							folder_name,
 						attribute_name,
 						data ) );
 
@@ -7873,8 +7862,7 @@ char *query_edit_table_where(
 		*drop_down_where_clause =
 			query_edit_table_drop_down_where(
 				query_drop_down_list,
-				application_name,
-				folder_name );
+				application_name );
 
 		return *drop_down_where_clause;
 	}
@@ -7897,8 +7885,7 @@ char *query_edit_table_where(
 		*drop_down_where_clause =
 			query_edit_table_drop_down_where(
 				query_drop_down_list,
-				application_name,
-				folder_name );
+				application_name );
 
 		*attribute_where_clause =
 			query_get_attribute_where_clause(

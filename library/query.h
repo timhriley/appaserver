@@ -722,8 +722,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_edit_table_new(
 
 char *query_edit_table_drop_down_where(
 			LIST *query_drop_down_list,
-			char *application_name,
-			char *folder_name );
+			char *application_name );
 
 char *query_edit_table_where(
 			char **drop_down_where_clause,
