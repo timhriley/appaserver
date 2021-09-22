@@ -43,7 +43,6 @@ int main( int argc, char **argv )
 	char *session_key;
 	char *folder_name;
 	char *role_name;
-	char *state;
 	char *target_frame;
 	DOCUMENT *document;
 	POST_DICTIONARY *post_dictionary;
@@ -57,10 +56,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name session folder role state target_frame post_dictionary\n",
+"Usage: %s login_name session folder role target_frame post_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -69,12 +68,11 @@ int main( int argc, char **argv )
 	session_key = argv[ 2 ];
 	folder_name = argv[ 3 ];
 	role_name = argv[ 4 ];
-	state = argv[ 5 ];
-	target_frame = argv[ 6 ];
+	target_frame = argv[ 5 ];
 
 	post_dictionary =
 		post_dictionary_string_new(
-			argv[ 7 ] );
+			argv[ 6 ] );
 
 	session_environment_set( application_name );
 
@@ -87,7 +85,6 @@ int main( int argc, char **argv )
 				session,
 				folder_name,
 				role_name,
-				state,
 				target_frame,
 				appaserver_parameter_file->
 					appaserver_mount_point,
@@ -102,7 +99,7 @@ int main( int argc, char **argv )
 		printf(
 	"<h3>An internal error occurred. Check the system log.</h3>\n" );
 
-		document_close();
+		document_close( stdout );
 		exit( 1 );
 	}
 

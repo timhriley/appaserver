@@ -293,7 +293,7 @@ LIST *role_folder_subschema_name_list(
 			LIST *role_folder_lookup_insert_list )
 {
 	ROLE_FOLDER *role_folder;
-	LIST *name_list = list_new();
+	LIST *subschema_name_list = list_new();
 
 	if ( list_rewind( role_folder_lookup_insert_list ) )
 	{
@@ -307,97 +307,136 @@ LIST *role_folder_subschema_name_list(
 			{
 				if ( list_exists_string(
 					role_folder->subschema_name,
-					name_list ) )
+					subschema_name_list ) )
 				{
 					continue;
 				}
 
 				list_add_string_in_order(
-					name_list,
+					subschema_name_list,
 					role_folder->subschema_name );
 			}
 		} while ( list_next( role_folder_lookup_insert_list ) );
 	}
 
-	return name_list;
+	return subschema_name_list;
 }
 
-LIST *role_folder_lookup_name_list(
+LIST *role_folder_subschema_folder_name_list(
 			char *subschema_name,
-			LIST *role_folder_lookup_list )
+			LIST *role_folder_list )
 {
 	ROLE_FOLDER *role_folder;
-	LIST *name_list = list_new();
+	LIST *folder_name_list = list_new();
 
-	if ( list_rewind( role_folder_lookup_list ) )
+	if ( list_rewind( role_folder_list ) )
 	{
 		do {
 			role_folder =
 				list_get(
-					role_folder_lookup_list );
+					role_folder_list );
 
-			if ( ( ( string_strcmp(
-					role_folder->permission,
-					"lookup" ) == 0 )
-			||     ( string_strcmp(
-					role_folder->permission,
-					"update" ) == 0 ) )
-			&& 	 string_strcmp(
+			if ( string_strcmp(
 					role_folder->subschema_name,
 					subschema_name ) == 0 )
 			{
 				if ( list_exists_string(
 					role_folder->folder_name,
-					name_list ) )
+					folder_name_list ) )
 				{
 					continue;
 				}
 
 				list_add_string_in_order(
-					name_list,
+					folder_name_list,
 					role_folder->folder_name );
 			}
-		} while ( list_next( role_folder_lookup_list ) );
+		} while ( list_next( role_folder_list ) );
 	}
 
-	return name_list;
+	return folder_name_list;
 }
 
-LIST *role_folder_insert_name_list(
-			char *subschema_name,
-			LIST *role_folder_insert_list )
+LIST *role_folder_subschema_missing_folder_name_list(
+			LIST *role_folder_list )
 {
 	ROLE_FOLDER *role_folder;
-	LIST *name_list = list_new();
+	LIST *folder_name_list;
 
-	if ( list_rewind( role_folder_insert_list ) )
+	if ( !list_rewind( role_folder_list ) ) return (LIST *)0;
+
+	folder_name_list = list_new();
+
+	do {
+		role_folder =
+			list_get(
+				role_folder_list );
+
+		if ( !role_folder->subschema_name
+		||   !*role_folder->subschema_name )
+		{
+			list_set(
+				folder_name_list,
+				role_folder->folder_name );
+		}
+
+	} while ( list_next( role_folder_list ) );
+
+	return folder_name_list;
+}
+
+LIST *role_folder_lookup_list( char *role_name )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"role_name = '%s' and			"
+		"permission in ('lookup','update')	",
+		role_name );
+
+	return role_folder_system_list( where );
+}
+
+LIST *role_folder_insert_list( char *role_name )
+{
+	char where[ 128 ];
+
+	sprintf(where,
+		"role_name = '%s' and	"
+		"permission = 'insert'	",
+		role_name );
+
+	return role_folder_system_list( where );
+}
+
+LIST *role_folder_name_list(
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+
+	LIST *folder_name_list = list_new();
+
+	if ( list_rewind( role_folder_list ) )
 	{
 		do {
 			role_folder =
 				list_get(
-					role_folder_insert_list );
+					role_folder_list );
 
-			if ( ( string_strcmp(
-					role_folder->permission,
-					"insert" ) == 0 )
-			&& 	 string_strcmp(
-					role_folder->subschema_name,
-					subschema_name ) == 0 )
+			if ( list_exists_string(
+				role_folder->folder_name,
+				folder_name_list ) )
 			{
-				if ( list_exists_string(
-					role_folder->folder_name,
-					name_list ) )
-				{
-					continue;
-				}
-
-				list_add_string_in_order(
-					name_list,
-					role_folder->folder_name );
+				continue;
 			}
-		} while ( list_next( role_folder_insert_list ) );
+
+			list_add_string_in_order(
+				folder_name_list,
+				role_folder->folder_name );
+
+		} while ( list_next( role_folder_list ) );
 	}
 
-	return name_list;
+	return folder_name_list;
 }
 

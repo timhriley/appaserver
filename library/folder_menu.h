@@ -20,7 +20,8 @@
 typedef struct
 {
 	char *folder_name;
-	long int count;
+	unsigned long count;
+	char *display;
 } FOLDER_MENU_COUNT;
 
 typedef struct
@@ -76,18 +77,25 @@ LIST *folder_menu_lookup_count_list(
 FOLDER_MENU_COUNT *folder_menu_count_calloc(
 			void );
 
-FOLDER_MENU_COUNT *folder_menu_count_fetch(
+FOLDER_MENU_COUNT *folder_menu_count_new(
 			char *application_name,
 			char *folder_name );
 
 LIST *folder_menu_read_count_list(
 			char *filename );
 
-long int folder_menu_count(
+unsigned long folder_menu_count_fetch(
 			char *folder_table_name );
 
 void folder_menu_write_count_list(
 			char *filename,
 			LIST *lookup_count_list );
+
+FOLDER_MENU_COUNT *folder_menu_count_seek(
+			char *folder_name,
+			LIST *folder_menu_lookup_count_list );
+
+char *folder_menu_count_display(
+			unsigned long count );
 
 #endif

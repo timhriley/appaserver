@@ -70,6 +70,10 @@ void drillthru_fulfilled_folder_name_list_dictionary_set(
 			DICTIONARY *drillthru_dictionary,
 			LIST *fulfilled_folder_name_list );
 
+boolean drillthru_participating(
+			DICTIONARY *drillthru_dictionary,
+			int relation_mto1_drillthru_list_length );
+
 boolean drillthru_skipped(
 			char *folder_name,
 			char *base_folder_name,

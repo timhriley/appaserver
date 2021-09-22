@@ -24,8 +24,6 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *subschema_name;
-	LIST *role_folder_name_list;
-	LIST *folder_menu_lookup_count_list;
 	char *application_name;
 	char *login_name;
 	char *session_key;
@@ -55,8 +53,9 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *folder_action_tag;
+	char *folder_tag;
 	char *process_action_tag;
-	char *span_tag;
+	char *process_tag;
 } MENU_ITEM;
 
 typedef struct
@@ -68,9 +67,9 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *menu_lookup_subschema_list;
-	LIST *menu_lookup_item_list;
+	LIST *menu_lookup_folder_item_list;
 	LIST *menu_insert_subschema_list;
-	LIST *menu_insert_item_list;
+	LIST *menu_insert_folder_item_list;
 	LIST *menu_process_item_list;
 	char *menu_verb_tag;
 } MENU_VERB;
@@ -210,7 +209,7 @@ LIST *menu_insert_folder_item_list(
 			char *target_frame );
 
 LIST *menu_process_item_list(
-			char *role_process_or_set_name_list,
+			LIST *role_process_or_set_name_list,
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -270,6 +269,6 @@ char *menu_item_process_action_tag(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *menu_item_process_tag(
-			char *item_name );
+			char *process_or_set_name );
 
 #endif

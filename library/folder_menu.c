@@ -132,13 +132,17 @@ FOLDER_MENU *folder_menu_new(
 LIST *folder_menu_lookup_folder_name_list(
 			char *role_name )
 {
-	return role_lookup_folder_name_list( role_name );
+	return role_folder_name_list(
+		role_folder_lookup_list(
+			role_name ) );
 }
 
 LIST *folder_menu_insert_folder_name_list(
 			char *role_name )
 {
-	return role_insert_folder_name_list( role_name );
+	return role_folder_name_list(
+		role_folder_insert_list(
+			role_name ) );
 }
 
 LIST *folder_menu_lookup_count_list(
@@ -192,22 +196,26 @@ FOLDER_MENU_COUNT *folder_menu_count_calloc( void )
 	return folder_menu_count;
 }
 
-FOLDER_MENU_COUNT *folder_menu_count_fetch(
+FOLDER_MENU_COUNT *folder_menu_count_new(
 			char *application_name,
 			char *folder_name )
 {
-	FOLDER_MENU_COUNT *menu_count = folder_menu_count_calloc();
+	FOLDER_MENU_COUNT *folder_menu_count = folder_menu_count_calloc();
 
-	menu_count->count =
-		folder_menu_count(
+	folder_menu_count->count =
+		folder_menu_count_fetch(
 			folder_table_name(
 				application_name,
 				folder_name ) );
 
+	folder_menu_count->display =
+		folder_menu_count_display(
+			folder_menu_count->count );
+
 	return menu_count;
 }
 
-long int folder_menu_count(
+unsigned long folder_menu_count_fetch(
 			char *folder_table_name )
 {
 	char system_string[ 1024 ];
@@ -222,7 +230,7 @@ long int folder_menu_count(
 	if ( !results || !*results )
 		return 0;
 	else
-		return atol( results );
+		return strtoul( results, (char **)0, 0 );
 }
 
 LIST *folder_menu_read_count_list(
@@ -327,3 +335,34 @@ char *folder_menu_filename(
 	return strdup( filename );
 }
 
+FOLDER_MENU_COUNT *folder_menu_count_seek(
+			char *folder_name,
+			LIST *folder_menu_lookup_count_list )
+{
+	FOLDER_MENU_COUNT *folder_menu_count;
+
+	if ( ! list_rewind( folder_menu_lookup_count_list ) )
+		return (FOLDER_MENU_COUNT *)0;
+
+	do {
+		folder_menu_count =
+			list_get(
+				folder_menu_lookup_count_list );
+
+		if ( strcmp(
+			folder_menu_count->folder_name,
+			folder_name ) == 0 )
+		{
+			return folder_menu_count;
+		}
+
+	} while ( list_next( folder_menu_lookup_count_list ) );
+
+	return (FOLDER_MENU_COUNT *)0;
+}
+
+char *folder_menu_count_display(
+			unsigned long count )
+{
+	return place_commas_in_unsigned_long( count );
+}

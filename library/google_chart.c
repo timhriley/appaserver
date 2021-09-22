@@ -1994,7 +1994,7 @@ void google_chart_output_graph_window(
 		prompt_filename,
 		window_name );
 
-	if ( with_document_output ) document_close();
+	if ( with_document_output ) document_close( stdout );
 
 }
 

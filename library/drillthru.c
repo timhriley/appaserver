@@ -210,3 +210,20 @@ boolean drillthru_finished(
 	return ( string_strcmp( folder_name, current_folder_name ) == 0 );
 }
 
+boolean drillthru_participating(
+			DICTIONARY *drillthru_dictionary,
+			int relation_mto1_drillthru_list_length )
+{
+	char *data;
+
+	data = 
+		dictionary_fetch(
+			DRILLTHRU_FOLDER_LIST_KEY,
+			drillthru_dictionary );
+
+	if ( data || relation_mto1_drillthru_list_length )
+		return 1;
+	else
+		return 0;
+}
+

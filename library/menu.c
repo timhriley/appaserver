@@ -16,7 +16,6 @@
 #include "folder_menu.h"
 #include "role.h"
 #include "role_folder.h"
-#include "role_process.h"
 #include "menu.h"
 
 MENU_ITEM *menu_item_calloc( void )
@@ -145,8 +144,8 @@ MENU_ITEM *menu_item_process_new(
 		exit( 1 );
 	}
 
-	menu_item->span_tag =
-		menu_item_span_tag(
+	menu_item->process_tag =
+		menu_item_process_tag(
 			process_or_set_name );
 
 	return menu_item;
@@ -317,38 +316,6 @@ MENU_SUBSCHEMA *menu_subschema_calloc( void )
 	return menu_subschema;
 }
 
-MENU_SUBSCHEMA *menu_subschema_fetch(
-			char *subschema_name,
-			LIST *role_folder_name_list,
-			char *verb,
-			char *login_name,
-			char *application_name,
-			char *session_key,
-			char *role_name,
-			char *target_frame )
-{
-	MENU_SUBSCHEMA *menu_subschema = menu_subschema_calloc();
-
-	menu_subschema->subschema_name = subschema_name;
-	menu_subschema->role_folder_name_list = role_folder_name_list;
-
-	menu_subschema->menu_item_folder_list =
-		menu_item_folder_list(
-			role_folder_name_list,
-			verb /* state */,
-			login_name,
-			application_name,
-			session_key,
-			role_name,
-			target_frame );
-
-	menu_subschema->span_tag =
-		menu_subschema_span_tag(
-			subschema_name );
-
-	return menu_subschema;
-}
-
 char *menu_subschema_span_tag( char *subschema_name )
 {
 	return menu_item_span_tag( subschema_name );
@@ -468,6 +435,69 @@ MENU_VERB *menu_verb_lookup_subschema_fetch(
 {
 	MENU_VERB *menu_verb = menu_verb_calloc();
 
+	menu_verb->menu_lookup_subschema_list =
+		menu_lookup_subschema_list(
+			role_folder_lookup_list,
+			folder_menu_lookup_count_list,
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			target_frame );
+
+	menu_verb->menu_lookup_folder_item_list =
+		menu_lookup_folder_item_list(
+			role_folder_subschema_missing_folder_name_list(
+				role_folder_lookup_list )
+					/* role_folder_lookup_name_list */,
+			folder_menu_lookup_count_list,
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			target_frame );
+
+	menu_verb->menu_verb_tag =
+		menu_verb_tag(
+			"lookup" /* verb */ );
+
+	return menu_verb;
+}
+
+MENU_VERB *menu_verb_insert_subschema_fetch(
+			LIST *role_folder_insert_list,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *target_frame )
+{
+	MENU_VERB *menu_verb = menu_verb_calloc();
+
+	menu_verb->menu_insert_subschema_list =
+		menu_insert_subschema_list(
+			role_folder_insert_list,
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			target_frame );
+
+	menu_verb->menu_insert_folder_item_list =
+		menu_insert_folder_item_list(
+			role_folder_subschema_missing_folder_name_list(
+				role_folder_insert_list )
+					/* role_folder_insert_name_list */,
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			target_frame );
+
+	menu_verb->menu_verb_tag =
+		menu_verb_tag(
+			"insert" /* verb */ );
+
 	return menu_verb;
 }
 
@@ -501,7 +531,7 @@ LIST *menu_lookup_subschema_list(
 			subschema_list,
 			menu_lookup_subschema_fetch(
 				subschema_name,
-				role_folder_lookup_name_list(
+				role_folder_subschema_folder_name_list(
 					subschema_name,
 					role_folder_lookup_list ),
 				folder_menu_lookup_count_list,
@@ -545,9 +575,9 @@ LIST *menu_insert_subschema_list(
 			subschema_list,
 			menu_insert_subschema_fetch(
 				subschema_name,
-				role_folder_insert_name_list(
+				role_folder_subschema_folder_name_list(
 					subschema_name,
-					role_folder_lookup_list ),
+					role_folder_insert_list ),
 				application_name,
 				login_name,
 				session_key,
@@ -572,9 +602,8 @@ MENU_SUBSCHEMA *menu_lookup_subschema_fetch(
 	MENU_SUBSCHEMA *menu_subschema = menu_subschema_calloc();
 
 	menu_subschema->subschema_name = subschema_name;
-	menu_subschema->role_folder_name_list = role_folder_lookup_name_list;
 
-	menu_subschema->menu_item_folder_list =
+	menu_subschema->menu_lookup_folder_item_list =
 		menu_lookup_folder_item_list(
 			role_folder_lookup_name_list,
 			folder_menu_lookup_count_list,
@@ -603,9 +632,8 @@ MENU_SUBSCHEMA *menu_insert_subschema_fetch(
 	MENU_SUBSCHEMA *menu_subschema = menu_subschema_calloc();
 
 	menu_subschema->subschema_name = subschema_name;
-	menu_subschema->role_folder_name_list = role_folder_insert_name_list;
 
-	menu_subschema->menu_item_folder_list =
+	menu_subschema->menu_insert_folder_item_list =
 		menu_insert_folder_item_list(
 			role_folder_insert_name_list,
 			application_name,
@@ -650,8 +678,7 @@ LIST *menu_lookup_folder_item_list(
 					folder_menu_lookup_count_list ) ) )
 		{
 			folder_menu_count_display =
-				folder_menu_count->
-					folder_menu_count_display;
+				folder_menu_count->display;
 		}
 		else
 		{
@@ -717,6 +744,7 @@ char *menu_item_folder_tag(
 			char *folder_menu_count_display )
 {
 	char folder_tag[ 128 ];
+	char buffer[ 64 ];
 
 	if ( !folder_name || !*folder_name )
 	{
@@ -735,16 +763,41 @@ char *menu_item_folder_tag(
 		char buffer[ 64 ];
 
 		sprintf(folder_tag,
-			"%s %s",
+			"<a><span class=menu>%s %s</span></a>",
 			format_initial_capital( buffer, folder_name ),
 			folder_menu_count_display );
 	}
 	else
 	{
-		format_initial_capital( folder_tag, folder_name );
+		sprintf(folder_tag,
+			"<a><span class=menu>%s</span></a>",
+			format_initial_capital( buffer, folder_name ) );
 	}
 
 	return strdup( folder_tag );
+}
+
+char *menu_item_process_tag(
+			char *process_or_set_name )
+{
+	char process_tag[ 128 ];
+	char buffer[ 64 ];
+
+	if ( !process_or_set_name || !*process_or_set_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_or_set_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(process_tag,
+		"<a><span class=menu>%s</span></a>",
+		format_initial_capital( buffer, process_or_set_name ) );
+
+	return strdup( process_tag );
 }
 
 LIST *menu_process_group_name_list(
@@ -811,5 +864,80 @@ MENU_VERB *menu_verb_process_fetch(
 {
 	MENU_VERB *menu_verb = menu_verb_calloc();
 
+	menu_verb->menu_process_item_list =
+		menu_process_item_list(
+			role_process_or_set_name_list(
+				verb /* process_group_name */,
+				role_process_list,
+				role_process_set_list ),
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			target_frame );
+
+	menu_verb->menu_verb_tag =
+		menu_verb_tag(
+			verb );
+
 	return menu_verb;
+}
+
+LIST *menu_process_item_list(
+			LIST *role_process_or_set_name_list,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *target_frame )
+{
+	LIST *menu_item_list;
+	char *process_or_set_name;
+
+	if ( ! list_rewind( role_process_or_set_name_list ) ) return (LIST *)0;
+
+	menu_item_list = list_new();
+
+	do {
+		process_or_set_name =
+			list_get(
+				role_process_or_set_name_list );
+
+		list_set(
+			menu_item_list,
+			menu_item_process_new(
+				process_or_set_name,
+				application_name,
+				login_name,
+				session_key,
+				role_name,
+				target_frame ) );
+
+	} while ( list_next( role_process_or_set_name_list ) );
+
+	return menu_item_list;
+}
+
+char *menu_verb_tag( char *verb )
+{
+	char tag[ 128 ];
+	char buffer[ 64 ];
+
+	if ( !verb || !*verb )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: verb is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(tag,
+		"<a><span class=menu>%s</span></a>",
+		format_initial_capital(
+			buffer,
+			verb ) );
+
+	return strdup( tag );
 }
