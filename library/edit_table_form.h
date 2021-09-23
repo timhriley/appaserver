@@ -14,7 +14,7 @@
 #include "role.h"
 #include "role_folder.h"
 #include "folder.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -30,17 +30,16 @@ typedef struct
 	char *session;
 	char *folder_name;
 	char *role_name;
-	char *insert_update_key;
 	char *target_frame;
-	DICTIONARY *post_dictionary;
+	char *state;
+	POST_DICTIONARY *post_dictionary;
 
 	/* Process */
 	/* ------- */
-	FOLDER *folder;
 	ROLE *role;
-	ROLE_FOLDER *role_folder;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
-	char *edit_table_form_state;
+	FOLDER *folder;
+	LIST *role_folder_list;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	boolean primary_keys_non_edit;
 
 } EDIT_TABLE_FORM;

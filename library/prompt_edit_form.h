@@ -60,8 +60,8 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *state,
 			char *target_frame,
+			char *state /* maybe drillthru for state=insert */,
 			char *appasever_mount_point,
 			POST_DICTIONARY *post_dictionary );
 

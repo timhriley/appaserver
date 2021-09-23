@@ -37,125 +37,9 @@
 
 /* Constants */
 /* --------- */
-#define INSERT_UPDATE_KEY			"prompt"
-#define COOKIE_KEY_PREFIX			"iinsert"
 
 /* Prototypes */
 /* ---------- */
-void build_related_folder_element_list(
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			LIST *element_list,
-			LIST *attribute_list,
-			char *attribute_name,
-			char *application_name,
-			char *session,
-			char *role_name,
-			char *login_name,
-			RELATED_FOLDER *related_folder,
-			LIST *isa_folder_list,
-			char *folder_name,
-			int tab_index,
-			boolean omit_drop_down_new_push_button,
-			boolean omit_ignore_push_buttons,
-			DICTIONARY *preprompt_dictionary,
-			char *ignore_push_button_prefix,
-			char *ignore_push_button_heading,
-			char *post_change_javascript,
-			LIST *role_folder_insert_list,
-			char *form_name,
-			boolean is_primary_attribute,
-			char *state,
-			LOOKUP_BEFORE_DROP_DOWN *
-				lookup_before_drop_down,
-			LIST *foreign_attribute_name_list );
-
-LIST *output_prompt_insert_attribute_element_list(
-			int *current_reference_number,
-			char *application_name,
-			LIST *attribute_list,
-			char *attribute_name,
-			boolean omit_push_buttons,
-			boolean omit_ignore_push_buttons,
-			LIST *role_folder_insert_list,
-			boolean is_primary_attribute,
-			int tab_index,
-			char *folder_post_change_javascript );
-
-void get_with_isa_variables(	LIST **mto1_related_folder_list,
-				LIST **attribute_list,
-				LIST **allowed_attribute_name_list,
-				char **folder_notepad,
-				char **html_help_file_anchor,
-				char **isa_multi_attribute_name,
-				char **isa_multi_attribute_data,
-				LIST **isa_folder_list,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				LIST *mto1_isa_related_folder_list,
-				DICTIONARY *non_prefixed_dictionary,
-				boolean override_row_restrictions );
-
-void get_without_isa_variables(	LIST **mto1_related_folder_list,
-				LIST **attribute_list,
-				LIST **allowed_attribute_name_list,
-				char **folder_notepad,
-				char **html_help_file_anchor,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				boolean override_row_restrictions );
-
-void get_selected_choose_isa_drop_down_with_isa_variables(
-				LIST **mto1_related_folder_list,
-				LIST **attribute_list,
-				LIST **allowed_attribute_name_list,
-				char **folder_notepad,
-				char **html_help_file_anchor,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				boolean override_row_restrictions );
-
-void get_not_selected_choose_isa_drop_down_with_isa_variables(
-				LIST **mto1_related_folder_list,
-				LIST **attribute_list,
-				LIST **allowed_attribute_name_list,
-				char **folder_notepad,
-				char **html_help_file_anchor,
-				LIST **isa_folder_list,
-				char *application_name,
-				char *session,
-				char *folder_name,
-				char *role_name,
-				LIST *mto1_isa_related_folder_list,
-				boolean override_row_restrictions );
-
-LIST *output_prompt_insert_element_list(	
-			int *current_reference_number,
-			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			LIST *attribute_list,
-			LIST *allowed_attribute_name_list,
-			LIST *mto1_related_folder_list,
-			boolean omit_push_buttons,
-			boolean omit_ignore_push_buttons,
-			char *folder_notepad,
-			char *isa_multi_attribute_name,
-			char *isa_multi_attribute_data,
-			LIST *isa_folder_list,
-			char *form_name,
-			DICTIONARY *preprompt_dictionary,
-			char *post_change_javascript,
-			char *state,
-			LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down );
 
 int main( int argc, char **argv )
 {
@@ -186,7 +70,7 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role omit_buttons_yn drillthru_dictionary\n",
+"Usage: %s login_name session folder role drillthru_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}

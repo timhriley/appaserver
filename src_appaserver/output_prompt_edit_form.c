@@ -13,23 +13,14 @@
 #include <string.h>
 #include <unistd.h>
 #include "timlib.h"
-#include "list.h"
-#include "document.h"
-#include "appaserver_library.h"
-#include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "environ.h"
-#include "drillthru.h"
 #include "session.h"
 #include "post_dictionary.h"
-#include "form.h"
 #include "prompt_edit_form.h"
 
 /* Constants */
 /* --------- */
-#define EMAIL_TEXT_ITEM_WIDTH		100
-#define DROP_DOWN_NUMBER_COLUMNS	2
-#define COOKIE_KEY_PREFIX		"edit"
 
 /* Prototypes */
 /* ---------- */
@@ -44,6 +35,7 @@ int main( int argc, char **argv )
 	char *folder_name;
 	char *role_name;
 	char *target_frame;
+	char *state;
 	DOCUMENT *document;
 	POST_DICTIONARY *post_dictionary;
 	PROMPT_EDIT_FORM *prompt_edit_form;
@@ -56,10 +48,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name session folder role target_frame post_dictionary\n",
+"Usage: %s login_name session folder role target_frame state post_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -69,10 +61,11 @@ int main( int argc, char **argv )
 	folder_name = argv[ 3 ];
 	role_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
+	state = argv[ 6 ];
 
 	post_dictionary =
 		post_dictionary_string_new(
-			argv[ 6 ] );
+			argv[ 7 ] );
 
 	session_environment_set( application_name );
 
@@ -86,6 +79,7 @@ int main( int argc, char **argv )
 				folder_name,
 				role_name,
 				target_frame,
+				state,
 				appaserver_parameter_file->
 					appaserver_mount_point,
 				post_dictionary ) ) )

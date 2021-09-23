@@ -14,8 +14,8 @@
 
 /* Constants */
 /* --------- */
-#define DRILLTHRU_FOLDER_LIST_KEY	"drillthru_folder_list_key"
-#define DRILLTHRU_BASE_FOLDER_KEY	"drillthru_base_folder_key"
+#define DRILLTHRU_FULFILLED_KEY		"drillthru_fulfilled"
+#define DRILLTHRU_BASE_KEY		"drillthru_base"
 
 /* Enumerated types */
 /* ---------------- */
@@ -31,6 +31,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	boolean drillthru_participating;
 	LIST *fulfilled_folder_name_list;
 	LIST *relation_mto1_drillthru_list;
 	char *current_folder_name;
@@ -41,37 +42,43 @@ typedef struct
 DRILLTHRU *drillthru_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 DRILLTHRU *drillthru_start(
-			char *base_folder_name );
+			char *folder_name );
 
+/* Always succeeds */
+/* --------------- */
 DRILLTHRU *drillthru_fetch(
 			DICTIONARY *drillthru_dictionary );
 
 LIST *drillthru_fulfilled_folder_name_list(
 			DICTIONARY *drillthru_dictionary );
 
+char *drillthru_base_folder_name(
+			DICTIONARY *drillthru_dictionary );
+
 char *drillthru_current_folder_name(
 			LIST *relation_mto1_drillthru_list,
 			char *base_folder_name );
 
-void drillthru_base_folder_name_set(
+void drillthru_base_set(
 			DICTIONARY *drillthru_dictionary,
-			char *base_folder_name );
+			char *folder_name );
 
-char *drillthru_base_folder_name(
-			DICTIONARY *drillthru_dictionary );
-
-void drillthru_fulfilled_current_folder_name_set(
+void drillthru_fulfilled_current_set(
 			DICTIONARY *drillthru_dictionary,
 			LIST *fulfilled_folder_name_list,
 			char *current_folder_name );
 
-void drillthru_fulfilled_folder_name_list_dictionary_set(
+void drillthru_fulfilled_set(
 			DICTIONARY *drillthru_dictionary,
 			LIST *fulfilled_folder_name_list );
 
 boolean drillthru_participating(
-			DICTIONARY *drillthru_dictionary,
+			char *base_folder_name );
+
+boolean drillthru_start_participating(
 			int relation_mto1_drillthru_list_length );
 
 boolean drillthru_skipped(
@@ -86,5 +93,9 @@ boolean drillthru_middle(
 boolean drillthru_finished(
 			char *folder_name,
 			char *current_folder_name );
+
+char *drillthru_participating_folder_name(
+			char *folder_name,
+			DRILLTHRU *drillthru );
 
 #endif

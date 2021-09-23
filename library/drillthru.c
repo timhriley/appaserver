@@ -29,29 +29,30 @@ DRILLTHRU *drillthru_calloc( void )
 	return drillthru;
 }
 
-DRILLTHRU *drillthru_start( char *base_folder_name )
+DRILLTHRU *drillthru_start( char *folder_name )
 {
-	DRILLTHRU *drillthru;
-	LIST *mto1_drillthru_list;
+	DRILLTHRU *drillthru = drillthru_calloc();
 
-	mto1_drillthru_list =
+	drillthru->relation_mto1_drillthru_list =
 		relation_mto1_drillthru_list(
 			(LIST *)0 /* relation_list */,
-			base_folder_name,
+			folder_name,
 			(LIST *)0 /* fulfilled_folder_name_list */ );
 
-	if ( !list_length( mto1_drillthru_list ) )
+	if ( ! ( drillthru->drillthru_participating =
+		     drillthru_start_participating(
+			list_length(
+				drillthru->
+					relation_mto1_drillthru_list ) ) ) )
 	{
-		return (DRILLTHRU *)0;
+		return drillthru;
 	}
 
-	drillthru = drillthru_calloc();
-	drillthru->relation_mto1_drillthru_list = mto1_drillthru_list;
 	drillthru->drillthru_dictionary = dictionary_small();
 
-	drillthru_base_folder_name_set(
+	drillthru_base_set(
 		drillthru->drillthru_dictionary,
-		base_folder_name );
+		folder_name );
 
 	return drillthru;
 }
@@ -59,8 +60,7 @@ DRILLTHRU *drillthru_start( char *base_folder_name )
 DRILLTHRU *drillthru_fetch(
 			DICTIONARY *drillthru_dictionary )
 {
-	DRILLTHRU *drillthru;
-	char *base_folder_name;
+	DRILLTHRU *drillthru = drillthru_calloc();
 
 	if ( !drillthru_dictionary )
 	{
@@ -72,15 +72,17 @@ DRILLTHRU *drillthru_fetch(
 		exit( 1 );
 	}
 
-	if ( ! ( base_folder_name =
-			drillthru_base_folder_name(
-				drillthru_dictionary ) ) )
+	drillthru->base_folder_name =
+		drillthru_base_folder_name(
+			drillthru_dictionary );
+
+	if ( ! ( drillthru->drillthru_participating =
+			drillthru_participating(
+				drillthru->base_folder_name ) ) )
 	{
-		return (DRILLTHRU *)0;
+		return drillthru;
 	}
 
-	drillthru = drillthru_calloc();
-	drillthru->base_folder_name = base_folder_name;
 	drillthru->drillthru_dictionary = drillthru_dictionary;
 
 	drillthru->fulfilled_folder_name_list =
@@ -90,7 +92,7 @@ DRILLTHRU *drillthru_fetch(
 	drillthru->relation_mto1_drillthru_list =
 		relation_mto1_drillthru_list(
 			(LIST *)0 /* relation_list */,
-			base_folder_name,
+			drillthru->base_folder_name,
 			drillthru->fulfilled_folder_name_list );
 
 	drillthru->current_folder_name =
@@ -106,7 +108,7 @@ LIST *drillthru_fulfilled_folder_name_list(
 {
 	return list_string_extract(
 			dictionary_get(
-				DRILLTHRU_FOLDER_LIST_KEY,
+				DRILLTHRU_FULFILLED_KEY,
 				drillthru_dictionary ),
 			',' );
 }
@@ -140,33 +142,33 @@ char *drillthru_base_folder_name(
 {
 	return
 	dictionary_get(
-		DRILLTHRU_BASE_FOLDER_KEY,
+		DRILLTHRU_BASE_KEY,
 		drillthru_dictionary );
 }
 
-void drillthru_base_folder_name_set(
+void drillthru_base_set(
 			DICTIONARY *drillthru_dictionary,
 			char *base_folder_name )
 {
 	dictionary_set(
 		drillthru_dictionary,
-		DRILLTHRU_BASE_FOLDER_KEY,
+		DRILLTHRU_BASE_KEY,
 		base_folder_name );
 }
 
-void drillthru_fulfilled_folder_name_list_dictionary_dictionary_set(
+void drillthru_fulfilled_set(
 			DICTIONARY *drillthru_dictionary,
 			LIST *fulfilled_folder_name_list )
 {
 	dictionary_set(
 		drillthru_dictionary,
-		DRILLTHRU_FOLDER_LIST_KEY,
+		DRILLTHRU_FULFILLED_KEY,
 		list_display_delimited(
 			fulfilled_folder_name_list,
 			',' ) );
 }
 
-void drillthru_fulfilled_current_folder_name_set(
+void drillthru_fulfilled_current_set(
 			DICTIONARY *drillthru_dictionary,
 			LIST *fulfilled_folder_name_list,
 			char *current_folder_name )
@@ -175,7 +177,7 @@ void drillthru_fulfilled_current_folder_name_set(
 		fulfilled_folder_name_list,
 		current_folder_name );
 
-	drillthru_fulfilled_folder_name_list_dictionary_set(
+	drillthru_fulfilled_set(
 		drillthru_dictionary,
 		fulfilled_folder_name_list );
 }
@@ -183,10 +185,10 @@ void drillthru_fulfilled_current_folder_name_set(
 boolean drillthru_skipped(
 			char *folder_name,
 			char *base_folder_name,
-			int drillthru_fulfilled_folder_name_list_length )
+			int fulfilled_folder_name_list_length )
 {
 	if ( string_strcmp( folder_name, base_folder_name ) == 0
-	&&   drillthru_fulfilled_folder_name_list_length > 0 )
+	&&   fulfilled_folder_name_list_length > 0 )
 	{
 		return 1;
 	}
@@ -211,19 +213,36 @@ boolean drillthru_finished(
 }
 
 boolean drillthru_participating(
-			DICTIONARY *drillthru_dictionary,
-			int relation_mto1_drillthru_list_length )
+			char *base_folder_name )
 {
-	char *data;
-
-	data = 
-		dictionary_fetch(
-			DRILLTHRU_FOLDER_LIST_KEY,
-			drillthru_dictionary );
-
-	if ( data || relation_mto1_drillthru_list_length )
+	if ( base_folder_name )
 		return 1;
 	else
 		return 0;
+}
+
+boolean drillthru_start_participating(
+			int relation_mto1_drillthru_list_length )
+{
+	if ( relation_mto1_drillthru_list_length )
+		return 1;
+	else
+		return 0;
+}
+
+
+char *drillthru_participating_folder_name(
+			char *folder_name,
+			DRILLTHRU *drillthru )
+{
+	if ( drillthru->drillthru_participating )
+	{
+		folder_name =
+			drillthru_current_folder_name(
+				drillthru->relation_mto1_drillthru_list,
+				drillthru->base_folder_name );
+	}
+
+	return folder_name;
 }
 

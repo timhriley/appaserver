@@ -41,8 +41,8 @@ PROMPT_EDIT_FORM *prompt_edit_form_fetch(
 			char *session,
 			char *folder_name,
 			char *role_name,
-			char *state,
 			char *target_frame,
+			char *state,
 			char *appaserver_mount_point,
 			POST_DICTIONARY *post_dictionary )
 {

@@ -64,7 +64,7 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name application session folder role state\n",
+		"Usage: %s login_name application session folder role state\n",
 		argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -91,25 +91,20 @@ int main( int argc, char **argv )
 			role_name,
 			state );
 
-	if ( ! ( post_choose_folder =
-			post_choose_folder_fetch(
-				/* ----------------------------------- */
-				/* See session_folder_integrity_exit() */
-				/* ----------------------------------- */
-				session->sql_injection_escape_application_name,
-				session->login_name,
-				session->sql_injection_escape_session_key,
-				role_name,
-				folder_name,
-				session->session_state_integrity ) ) )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: post_choose_folder_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	post_choose_folder =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_choose_folder_fetch(
+			/* ----------------------------------- */
+			/* See session_folder_integrity_exit() */
+			/* ----------------------------------- */
+			session->sql_injection_escape_application_name,
+			session->login_name,
+			session->sql_injection_escape_session_key,
+			role_name,
+			folder_name,
+			session->session_state_integrity );
 
 	if ( string_strcmp( state, "insert" ) == 0 )
 	{

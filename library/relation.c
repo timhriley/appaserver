@@ -702,3 +702,25 @@ RELATION *relation_consumes(
 	return (RELATION *)0;
 }
 
+LIST *relation_mto1_folder_name_list(
+			LIST *relation_mto1_list )
+{
+	LIST *folder_name_list;
+	RELATION *relation;
+
+	if ( !list_rewind( relation_mto1_list ) ) return (LIST *)0;
+
+	folder_name_list = list_new();
+
+	do {
+		relation = list_get( relation_mto1_list );
+
+		list_set(
+			folder_name_list,
+			relation->many_folder_name );
+
+	} while ( list_next( relation_mto1_list ) );
+
+	return folder_name_list;
+}
+
