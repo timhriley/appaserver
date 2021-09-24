@@ -131,110 +131,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 				0 /* max_rows */ );
 	}
 
-	choose_isa_drop_down->element_list =
-		choose_isa_drop_down_element_list(
-			one2m_isa_folder_name,
-			folder->primary_key_list,
-			choose_isa_drop_down->delimited_list );
-
 	return choose_isa_drop_down;
-}
-
-LIST *choose_isa_drop_down_element_list(
-			char *one2m_isa_folder_name,
-			LIST *primary_key_list,
-			LIST *delimited_list )
-{
-	LIST *return_list;
-	APPASERVER_ELEMENT *element;
-	QUERY *query;
-	char element_name[ 512 ];
-	char buffer[ 512 ];
-
-	return_list = list_new();
-
-	/* Create a line break */
-	/* ------------------- */
-	element = element_appaserver_new( linebreak, "" );
-
-	list_set( return_list, element );
-
-	/* Create the prompt element */
-	/* ------------------------- */
-	sprintf(element_name,
-		"%s%s",
-		CHOOSE_ISA_DROP_DOWN_PROMPT_PREFIX,
-		list_display_delimited(
-			  primary_key_list,
-			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
-
-	element =
-		element_appaserver_new(
-			prompt,
-			strdup(
-				format_initial_capital( 
-					buffer, 
-					element_name ) ) );
-
-	list_set( return_list, element );
-
-	/* Create the drop down element */
-	/* ---------------------------- */
-	element =
-		element_appaserver_new(
-			drop_down,
-			strdup( element_name ) );
-
-	element->drop_down->option_data_list = delimited_list;
-
-	list_set( return_list, element );
-
-	/* Create a hidden folder_name */
-	/* --------------------------- */
-	element =
-		element_appaserver_new(
-			hidden,
-			"folder_name" );
-
-	element->hidden->data = strdup( one2m_isa_folder_name );
-
-	list_set( return_list, element );
-
-	/* Create the lookup push button */
-	/* ----------------------------- */
-	element = element_appaserver_new( linebreak, "" );
-
-	list_set( return_list, element );
-
-	element =
-		element_appaserver_new(
-			toggle_button, 
-			LOOKUP_PUSH_BUTTON_NAME );
-
-	element_toggle_button_set_heading(
-		element->toggle_button, "lookup" );
-
-	list_set( return_list, element );
-
-	/* Create a hidden query relational operator equals */
-	/* ------------------------------------------------ */
-	sprintf( element_name, 
-		 "%s",
-		 list_display_delimited_prefixed(
-			  primary_key_list,
-			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			  RELATION_OPERATION_PREFIX ) );
-
-	element =
-		element_appaserver_new(
-			hidden,
-			strdup( element_name ) );
-
-	element->hidden->data = EQUAL_OPERATOR;
-
-	list_set( return_list, element );
-
-	return return_list;
 }
 
 char *choose_isa_drop_down_action_string(
@@ -263,4 +160,30 @@ char *choose_isa_drop_down_action_string(
 		role_name );
 
 	return strdup( action_string );
+}
+
+char *choose_isa_drop_down_title(
+			char *one2m_isa_folder_name )
+{
+	char title[ 256 ];
+	char buffer[ 128 ];
+
+	if ( !one2m_isa_folder_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: one2m_isa_folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(title,
+		"%s Insert %s",
+		application_title_string(),
+		format_initial_capital(
+			buffer,
+			one2m_isa_folder_name ) );
+
+	return strdup( title );
 }

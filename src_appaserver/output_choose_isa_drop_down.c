@@ -139,7 +139,6 @@ int main( int argc, char **argv )
 			application_title_string( application_name ),
 			application_name );
 
-
 	document->output_content_type = 1;
 
 	with_dynarch_menu =

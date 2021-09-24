@@ -174,7 +174,6 @@ char *application_title_string( char *application_string )
 		return "";
 	else
 		return global_application->application_title;
-
 }
 
 char *application_first_relative_source_directory(

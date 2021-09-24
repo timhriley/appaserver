@@ -39,8 +39,8 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	SECURITY_ENTITY *security_entity;
-	LIST *delimited_list;
-	LIST *element_list;
+	QUERY *query;
+	DOCUMENT *document;
 } CHOOSE_ISA_DROP_DOWN;
 
 /* Prompt operations */
@@ -58,11 +58,6 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
-
-LIST *choose_isa_drop_down_element_list(
-			char *one2m_isa_folder_name,
-			LIST *primary_key_list,
-			LIST *delimited_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -96,5 +91,10 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_post_fetch(
 			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *choose_isa_drop_down_title(
+			char *one2m_isa_folder_name );
 
 #endif

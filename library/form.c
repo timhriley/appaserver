@@ -2137,3 +2137,118 @@ void form_set_new_button_onclick_keystrokes_save_string(
 		}
 	} while( list_next( element_list ) );
 }
+
+FORM_PROMPT *form_prompt_calloc( void )
+{
+	FORM_PROMPT *form_prompt;
+
+	if ( ! ( form_prompt = calloc( 1, sizeof( FORM_PROMPT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt;
+}
+
+LIST *form_prompt_choose_isa_drop_down_element_list(
+			char *one2m_isa_folder_name,
+			LIST *primary_key_list,
+			LIST *delimited_list )
+{
+	LIST *return_list;
+	APPASERVER_ELEMENT *element;
+	QUERY *query;
+	char element_name[ 512 ];
+	char buffer[ 512 ];
+
+	return_list = list_new();
+
+	/* Create a line break */
+	/* ------------------- */
+	element = element_appaserver_new( linebreak, "" );
+
+	list_set( return_list, element );
+
+	/* Create the prompt element */
+	/* ------------------------- */
+	sprintf(element_name,
+		"%s%s",
+		CHOOSE_ISA_DROP_DOWN_PROMPT_PREFIX,
+		list_display_delimited(
+			  primary_key_list,
+			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+
+	element =
+		element_appaserver_new(
+			prompt,
+			strdup(
+				format_initial_capital( 
+					buffer, 
+					element_name ) ) );
+
+	list_set( return_list, element );
+
+	/* Create the drop down element */
+	/* ---------------------------- */
+	element =
+		element_appaserver_new(
+			drop_down,
+			strdup( element_name ) );
+
+	element->drop_down->option_data_list = delimited_list;
+
+	list_set( return_list, element );
+
+	/* Create a hidden folder_name */
+	/* --------------------------- */
+	element =
+		element_appaserver_new(
+			hidden,
+			"folder_name" );
+
+	element->hidden->data = strdup( one2m_isa_folder_name );
+
+	list_set( return_list, element );
+
+	/* Create the lookup push button */
+	/* ----------------------------- */
+	element = element_appaserver_new( linebreak, "" );
+
+	list_set( return_list, element );
+
+	element =
+		element_appaserver_new(
+			toggle_button, 
+			LOOKUP_PUSH_BUTTON_NAME );
+
+	element_toggle_button_set_heading(
+		element->toggle_button, "lookup" );
+
+	list_set( return_list, element );
+
+	/* Create a hidden query relational operator equals */
+	/* ------------------------------------------------ */
+	sprintf( element_name, 
+		 "%s",
+		 list_display_delimited_prefixed(
+			  primary_key_list,
+			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+			  RELATION_OPERATION_PREFIX ) );
+
+	element =
+		element_appaserver_new(
+			hidden,
+			strdup( element_name ) );
+
+	element->hidden->data = EQUAL_OPERATOR;
+
+	list_set( return_list, element );
+
+	return return_list;
+}
+
