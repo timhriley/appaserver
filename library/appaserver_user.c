@@ -20,7 +20,7 @@
 #include "piece.h"
 #include "folder.h"
 #include "timlib.h"
-#include "attribute.h"
+#include "folder_attribute.h"
 #include "session.h"
 #include "appaserver_user.h"
 
@@ -55,15 +55,6 @@ char *appaserver_user_system_string( char *where )
 		appaserver_user_select(),
 		where );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: system_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-system_string );
-m2( "donner", msg );
-}
 	return strdup( system_string );
 }
 
@@ -245,25 +236,40 @@ void appaserver_user_insert_stream(
 
 char *appaserver_user_select( void )
 {
-	if ( attribute_exists(
-			environment_application_name(),
+	static char select[ 256 ];
+
+	if ( folder_attribute_exists(
 			"appaserver_user",
 			"full_name" ) )
 	{
-		return "login_name,full_name,password,user_date_format";
+		strcpy(
+			select,
+			"login_name,full_name,password,user_date_format" );
 	}
 	else
-	if ( attribute_exists(
-			environment_application_name(),
+	if ( folder_attribute_exists(
 			"appaserver_user",
 			"person_full_name" ) )
 	{
-		return "login_name,person_full_name,password,user_date_format";
+		strcpy(
+		   select,
+		   "login_name,person_full_name,password,user_date_format" );
 	}
 	else
 	{
-		return "login_name,'',password,user_date_format";
+		strcpy(
+			select,
+			"login_name,'',password,user_date_format" );
 	}
+
+	if ( folder_attribute_exists(
+			"appaserver_user",
+			"frameset_menu_horizontal_yn" ) )
+	{
+		sprintf(select + strlen( select ),
+			",frameset_menu_horizontal_yn" );
+	}
+	return select;
 }
 
 APPASERVER_USER *appaserver_user_parse(
@@ -287,6 +293,15 @@ APPASERVER_USER *appaserver_user_parse(
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	appaserver_user->user_date_format = strdup( piece_buffer );
+
+	if ( folder_attribute_exists(
+			"appaserver_user",
+			"frameset_menu_horizontal_yn" ) )
+	{
+		piece( piece_buffer, SQL_DELIMITER, input, 4 );
+		appaserver_user->frameset_menu_horizontal =
+			( *piece_buffer == 'y' );
+	}
 
 	if ( fetch_role_name_list )
 	{
@@ -427,3 +442,26 @@ void appaserver_user_update(
 		 login_name,
 		 injection_escaped_encrypted_password );
 }
+
+boolean appaserver_user_frameset_menu_horizontal(
+			char *login_name )
+{
+	APPASERVER_USER *appaserver_user;
+
+	if ( ! ( appaserver_user =
+			appaserver_user_fetch(
+				login_name,
+				0 /* not fetch_role_name_list */,
+				0 /* not fetch_session_list */ ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver_user->frameset_menu_horizontal;
+}
+

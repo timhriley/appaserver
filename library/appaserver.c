@@ -81,28 +81,16 @@ boolean appaserver_frameset_menu_horizontal(
 {
 	char frameset_menu_horizontal_yn;
 
+	if ( appaserver_user_frameset_menu_horizontal( login_name ) )
+	{
+		return 1;
+	}
+
 	frameset_menu_horizontal_yn =
 		application_frameset_menu_horizontal_yn(
 			application_name );
 
-	if ( login_name ){};
-/*
-	boolean frameset_menu_horizontal;
-	boolean return_value = 1;
-	frameset_menu_horizontal =
-		appaserver_user_frameset_menu_horizontal(
-				application_name,
-				login_name );
-
-	if ( frameset_menu_horizontal_yn != 'y'
-	||   !frameset_menu_horizontal )
-	{
-		return_value = 0;
-	}
-*/
-
 	return (frameset_menu_horizontal_yn == 'y');
-
 }
 
 LIST *appaserver_isa_folder_list( char *application_name )

@@ -146,23 +146,32 @@ DOCUMENT_BODY *document_body_new(
 
 /* Returns program memory */
 /* ---------------------- */
-char *document_body_hide_ul_contents_string(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_body_dynarch_onload_string(
+char *document_body_menu_onload_string(
 			void );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *document_body_onload_string(
-			char *dynarch_onload_string,
+			char *menu_onload_string,
 			char *onload_string );
 
 void document_body_tag_output(
 			FILE *output_stream,
 			char *onload_string );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_body_hide_preload_message(
+			void );
+
+void document_body_horizontal_menu_output(
+			FILE *output_stream,
+			char *hide_preload_message,
+			MENU *menu );
+
+void document_body_vertical_menu_output(
+			FILE *output_stream,
+			MENU *menu );
 
 /* DOCUMENT choose_isa_drop_down operations */
 /* ---------------------------------------- */

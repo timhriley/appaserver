@@ -31,6 +31,7 @@ typedef struct
 	LIST *session_list;
 	enum password_function password_function;
 	boolean appaserver_user_password_encrypted;
+	boolean frameset_menu_horizontal;
 } APPASERVER_USER;
 
 /* Prototypes */
@@ -69,7 +70,6 @@ char *appaserver_user_password_fetch(
 			char *login_name );
 
 boolean appaserver_user_frameset_menu_horizontal(
-			char *application_name,
 			char *login_name );
 
 LIST *appaserver_user_role_name_list(

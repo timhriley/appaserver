@@ -32,8 +32,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *menu_lookup_folder_item_list;
-	LIST *menu_insert_folder_item_list;
+	LIST *item_list;
 	char *span_tag;
 } MENU_SUBSCHEMA;
 
@@ -52,10 +51,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *folder_action_tag;
-	char *folder_tag;
-	char *process_action_tag;
-	char *process_tag;
+	char *action_tag;
+	char *span_tag;
 } MENU_ITEM;
 
 typedef struct
@@ -66,11 +63,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *menu_lookup_subschema_list;
-	LIST *menu_lookup_folder_item_list;
-	LIST *menu_insert_subschema_list;
-	LIST *menu_insert_folder_item_list;
-	LIST *menu_process_item_list;
+	LIST *subschema_list;
+	LIST *item_list;
 	char *menu_verb_tag;
 } MENU_VERB;
 
@@ -91,7 +85,6 @@ typedef struct
 	LIST *role_process_list;
 	LIST *role_process_set_list;
 	LIST *menu_process_group_name_list;
-	char *menu_script_tag;
 } MENU;
 
 /* MENU operations */
@@ -141,9 +134,27 @@ MENU_VERB *menu_verb_process_fetch(
 			char *role_name,
 			char *target_frame );
 
+MENU_VERB *menu_verb_role_change_fetch(
+			LIST *role_name_list,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name );
+
+MENU_VERB *menu_verb_role_display(
+			char *role_name );
+
+MENU_VERB *menu_verb_login_name_display(
+			char *login_name );
+
 /* Safely returns heap memory */
 /* -------------------------- */
 char *menu_verb_tag(	char *verb );
+
+void menu_verb_horizontal_output(
+			FILE *output_stream,
+			char *hide_preload_message,
+			LIST *menu_verb_list );
 
 /* MENU_SUBSCHEMA operations */
 /* ------------------------- */
@@ -189,8 +200,15 @@ MENU_SUBSCHEMA *menu_insert_subschema_fetch(
 char *menu_subschema_span_tag(
 			char *subschema_name );
 
+void menu_subschema_horizontal_output(
+			FILE *output_stream,
+			LIST *subschema_list );
+
 /* MENU_ITEM operations */
 /* -------------------- */
+MENU_ITEM *menu_item_calloc(
+			void );
+
 LIST *menu_lookup_folder_item_list(
 			LIST *role_folder_lookup_name_list,
 			LIST *folder_menu_lookup_count_list,
@@ -216,8 +234,11 @@ LIST *menu_process_item_list(
 			char *role_name,
 			char *target_frame );
 
-MENU_ITEM *menu_item_calloc(
-			void );
+LIST *menu_role_change_item_list(
+			LIST *role_name_list,
+			char *application_name,
+			char *login_name,
+			char *session_key );
 
 MENU_ITEM *menu_item_folder_new(
 			char *folder_name,
@@ -237,6 +258,18 @@ MENU_ITEM *menu_item_process_new(
 			char *role_name,
 			char *target_frame );
 
+MENU_ITEM *menu_item_role_change_new(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *change_role_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *menu_item_folder_span_tag(
+			char *folder_name,
+			char *folder_menu_count_display );
+
 /* Returns heap memory or null */
 /* --------------------------- */
 char *menu_item_folder_action_tag(
@@ -251,9 +284,8 @@ char *menu_item_folder_action_tag(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *menu_item_folder_tag(
-			char *folder_name,
-			char *folder_menu_count_display );
+char *menu_item_process_span_tag(
+			char *process_or_set_name );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -268,7 +300,20 @@ char *menu_item_process_action_tag(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *menu_item_process_tag(
-			char *process_or_set_name );
+char *menu_item_role_name_span_tag(
+			char *role_name );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *menu_item_role_change_action_tag(
+			char *http_prompt,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name );
+
+void menu_item_horizontal_output(
+			FILE *output_stream,
+			LIST *menu_item_list );
 
 #endif

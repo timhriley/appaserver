@@ -56,7 +56,7 @@ APPLICATION *application_new_application( char *application_string )
 
 	sprintf(sys_string, 
 		"%s/src_appaserver/application_record.sh %s '%c'",
-		appaserver_parameter_file_get_appaserver_mount_point(),
+		appaserver_parameter_file_mount_point(),
 		application_string,
 		SQL_DELIMITER );
 

@@ -279,36 +279,36 @@ void document_close( FILE *output_stream )
 }
 
 char *document_body_onload_string(
-			char *dynarch_onload_string,
-			char *onload_string )
+			char *menu_onload_string,
+			char *additional_onload_string )
 {
 	char string[ 1024 ];
 	char *ptr = string;
 
 	*ptr = '\0';
 
-	if ( dynarch_onload_string )
+	if ( menu_onload_string )
 	{
-		ptr += sprintf( ptr, "%s", dynarch_onload_string );
+		ptr += sprintf( ptr, "%s", menu_onload_string );
 	}
 
-	if ( onload_string )
+	if ( additional_onload_string )
 	{
 		if ( ptr != string ) ptr += sprintf( ptr, ";" );
 
-		ptr += sprintf( ptr, "%s", onload_string );
+		ptr += sprintf( ptr, "%s", additional_onload_string );
 	}
 
 	return strdup( string );
 }
 
-char *document_body_dynarch_onload_string( void )
+char *document_body_menu_onload_string( void )
 {
 	return
 "DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: true, scrolling: true} )";
 }
 
-char *document_body_hide_ul_contents_string( void )
+char *document_body_hide_preload_message( void )
 {
 	return
 "<!-- following there's an workaround to hide the UL contents while the page is loading ;-) -->\n"
@@ -335,6 +335,20 @@ char *document_head_calendar_setup_string( void )
 
 }
 
+void document_body_horizontal_menu_output(
+			FILE *output_stream,
+			char *hide_preload_message,
+			MENU *menu )
+{
+	if ( menu && list_length( menu->menu_verb_list ) )
+	{
+		menu_verb_horizontal_output(
+			output_stream,
+			hide_preload_message,
+			menu->menu_verb_list );
+	}
+}
+
 #ifdef NOT_DEFINED
 DOCUMENT *document_choose_isa_drop_down_new(
 			char *title,
@@ -358,8 +372,8 @@ DOCUMENT *document_choose_isa_drop_down_new(
 	document->document_body =
 		document_body_new(
 			document_body_onload_string(
-				document_body_dynarch_onload_string(),
-				(char *)0 /* onload_string */ ) );
+				document_body_menu_onload_string(),
+				(char *)0 /* additional_onload_string */ ) );
 
 	document->form_prompt->choose_isa_drop_down_element_list =
 		form_prompt_choose_isa_drop_down_element_list(

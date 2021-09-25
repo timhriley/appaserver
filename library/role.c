@@ -14,6 +14,7 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
+#include "appaserver_user.h"
 #include "environ.h"
 #include "security.h"
 #include "folder_attribute.h"
@@ -277,14 +278,11 @@ ROLE *role_parse(	char *input,
 
 LIST *role_list_fetch( char *login_name )
 {
-	char sys_string[ 256 ];
-
-	sprintf( sys_string, 
-		 "roles4appaserver_user.sh %s %s",
-		 environment_application_name(),
-		 login_name );
-
-	return list_pipe_fetch( sys_string );
+	return role_system_list(
+			role_system_string(
+				appaserver_user_primary_where(
+					login_name ) ),
+			0 /* not fetch_attribute_exclude_list */ );
 }
 
 char *role_appaserver_user_primary_where(
@@ -748,3 +746,21 @@ LIST *role_process_or_set_name_list(
 	return name_list;
 }
 
+LIST *role_name_list( LIST *role_list )
+{
+	LIST *name_list;
+	ROLE *role;
+
+	if ( !list_rewind( role_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		role = list_get( role_list );
+
+		list_set( name_list, role->role_name );
+
+	} while ( list_next( role_list ) );
+
+	return name_list;
+}

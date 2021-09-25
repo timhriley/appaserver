@@ -54,7 +54,6 @@ APPASERVER_LIBRARY=						\
 		attribute.o					\
 		date_aggregate.o				\
 		process_generic.o				\
-		horizontal_menu.o				\
 		folder_menu.o					\
 		application.o					\
 		appaserver_user.o				\
@@ -746,16 +745,10 @@ application.o: application.c application.h
 appaserver_user.o: appaserver_user.c appaserver_user.h
 	${CC} ${CFLAGS} -c appaserver_user.c
 
-process_parameter_list.o: process_parameter_list.c			\
-		process_parameter_list.h element.h folder.h		\
-		populate_helper_process.h
-	${CC} ${CFLAGS} -c process_parameter_list.c
-
-appaserver.o: appaserver.c appaserver.h					\
-		element.o
+appaserver.o: appaserver.c appaserver.h
 	${CC} ${CFLAGS} -c appaserver.c
 
-folder.o: folder.c folder.h process.h attribute.h date_convert.h
+folder.o: folder.c folder.h
 	${CC} ${CFLAGS} -c folder.c
 
 process.o: process.c process.h
@@ -888,15 +881,9 @@ drillthru.o: drillthru.c
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c drillthru.c
 
-process_generic.o: process_generic.c					\
-	horizontal_menu.h
+process_generic.o: process_generic.c
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c process_generic.c
-
-horizontal_menu.o: horizontal_menu.c					\
-	horizontal_menu.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c horizontal_menu.c
 
 folder_menu.o: folder_menu.c						\
 	folder_menu.h
