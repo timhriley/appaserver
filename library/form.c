@@ -1945,28 +1945,6 @@ void form_output_generic_button(char *onclick_control_string,
 			onclick_control_string );
 }
 
-FORM_BUTTON *form_button_new(
-			char *button_label,
-			char *onclick_control_string )
-{
-	FORM_BUTTON *f;
-
-	if ( ! ( f = (FORM_BUTTON *)calloc( 1, sizeof( FORM_BUTTON ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	f->button_label = button_label;
-	f->onclick_control_string = onclick_control_string;
-
-	return f;
-}
-
 void form_output_prompt_insert_trailer(
 			char *submit_control_string,
 			char *html_help_file_anchor,
@@ -2426,5 +2404,357 @@ char *form_radio_value_html(
 			value_string ) );
 
 	return strdup( html );
+}
+
+
+char *form_title_html( char *title )
+{
+	char title_html[ 256 ];
+
+	if ( !title )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: title is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(title_html,
+		"<h1>%s</h1>\n",
+		title );
+
+	return strdup( title_html );
+}
+
+char *form_message_html( char *prompt_message )
+{
+	char message_html[ 256 ];
+
+	if ( !prompt_message )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_message is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(message_html,
+		"<h1>%s</h1>\n",
+		prompt_message );
+
+	return strdup( message_html );
+}
+
+char *form_tag_html(
+			char *action_string,
+			char *target_frame )
+{
+	char tag_html[ 1024 ];
+
+	if ( !action_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: action_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !target_frame )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: target_frame is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(tag_html,
+		"<form enctype=\"multipart/form-data\" "
+		"method=post name=\"prompt\" "
+		"action=\"%s\" target=\"%s\">\n",
+		action_string,
+		target_frame );
+
+	return strdup( tag_html );
+}
+
+FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_calloc( void )
+{
+	FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa;
+
+	if ( ! ( form_prompt_insert_isa =
+			calloc( 1, sizeof( FORM_PROMPT_INSERT_ISA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_insert_isa;
+}
+
+FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_new(
+			char *title,
+			char *prompt_message,
+			char *one2m_folder_name,
+			LIST *primary_key_list,
+			LIST *delimited_list,
+			char *action_string )
+{
+	FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa =
+		form_prompt_insert_isa_calloc();
+
+	form_prompt_insert_isa->title_html =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		form_title_html(
+			title );
+
+	form_prompt_insert_isa->message_html =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		form_message_html(
+			prompt_message );
+
+	form_prompt_insert_isa->tag_html =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		form_tag_html(
+			action_string,
+			PROMPT_FRAME );
+
+	form_prompt_insert_isa->element_list =
+		form_prompt_insert_isa_element_list(
+			one2m_folder_name,
+			primary_key_list,
+			delimited_list );
+
+	form_prompt_insert_isa->button_list =
+		form_prompt_insert_isa_button_list();
+
+	return form_prompt_insert_isa;
+}
+
+LIST *form_prompt_insert_isa_element_list(
+			char *one2m_folder_name,
+			LIST *primary_key_list,
+			LIST *delimited_list )
+{
+}
+
+LIST *form_prompt_insert_isa_button_list( void )
+{
+}
+
+void form_prompt_insert_isa_output(
+			FILE *output_stream,
+			char *title_html,
+			char *message_html,
+			char *tag_html,
+			LIST *element_list,
+			LIST *button_list )
+{
+}
+
+char *form_button_submit(
+			char *submit_control_string,
+			char *button_label,
+			int form_number )
+{
+	if ( !button_label || !*button_label )
+		button_label = SUBMIT_BUTTON_LABEL;
+
+	printf( "<td>" );
+
+	if ( submit_control_string && *submit_control_string )
+	{
+		/* -------------------------------------------- */
+		/* The submit_control_string is assumed to	*/
+		/* have "&&" appended to it.			*/
+		/* -------------------------------------------- */
+		printf(
+"<td><input type=button value=\"%s\" "
+"onClick=\"%s document.forms[%d].submit();\">\n",
+			button_label,
+			submit_control_string,
+			form_number );
+	}
+	else
+	{
+		printf(
+"<td><input type=button value=\"%s\" "
+"onClick=\"document.forms[%d].submit();\">\n",
+			button_label,
+		     	form_number );
+	}
+}
+
+FORM_BUTTON *form_button_calloc( void )
+{
+	FORM_BUTTON *form_button;
+
+	if ( ! ( form_button = calloc( 1, sizeof( FORM_BUTTON ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_button;
+}
+
+FORM_BUTTON *form_button_new(
+			char *button_label,
+			char *action_string,
+			char *additional_action_string,
+			char *image_source )
+{
+	FORM_BUTTON *form_button = form_button_calloc();
+
+	form_button->html =
+		form_button_html(
+			button_label,
+			action_string,
+			additional_action_string,
+			image_source );
+
+	return form_button;
+}
+
+FORM_BUTTON *form_button_submit(
+			int form_number,
+			char *additional_action_string )
+{
+	char action_string[ 128 ];
+
+	sprintf(action_string,
+		"document.forms[%d].submit()",
+		form_number );
+
+	return
+	form_button_new(
+		FORM_BUTTON_SUBMIT_LABEL,
+		action_string,
+		additional_action_string,
+		(char *)0 /* image_source */ );
+}
+
+FORM_BUTTON *form_button_reset(
+			int form_number )
+{
+	char action_string[ 128 ];
+
+	sprintf(action_string,
+		"form_reset(document.forms[%d],'|')",
+		form_number );
+
+	return
+	form_button_new(
+		"Reset" /* button_label */,
+		action_string,
+		additional_action_string,
+		(char *)0 /* image_source */ );
+}
+
+FORM_BUTTON *form_button_back( void )
+{
+	return
+	form_button_new(
+		"Back" /* button_label */,
+		"history.back()" /* action_string */,
+		(char *)0 /* additional_action_string */,
+		(char *)0 /* image_source */ );
+}
+
+FORM_BUTTON *form_button_forward( void )
+{
+	return
+	form_button_new(
+		"Forward" /* button_label */,
+		"timlib_history_forward()" /* action_string */,
+		(char *)0 /* additional_action_string */,
+		(char *)0 /* image_source */ );
+}
+
+char *form_button_html(
+			char *button_label,
+			char *action_string,
+			char *additional_action_string,
+			char *image_source )
+{
+	char local_action_string[ 1024 ];
+	char html[ 2048 ];
+
+	if ( !action_string ) return (char *)0;
+	if ( !button_label && !image_source ) return (char *)0;
+
+	if ( !additional_action_string )
+	{
+		strcpy( local_action_string, action_string );
+	}
+	else
+	{
+		sprintf(local_action_string,
+			"%s && %s",
+			additional_action_string,
+			action_string );
+	}
+
+	if ( button_label )
+	{
+		sprintf(html,
+			"<td><input type=button value=\"%s\" onClick=\"%s\">",
+			button_label,
+			local_action_string );
+	}
+	else
+	{
+		sprintf(html,
+			"<td><a onClick=\"%s\"><img src=\"%s\"></a>",
+			local_action_string,
+			image_source );
+	}
+
+	return strdup( html );
+}
+
+void form_button_list_output(
+			FILE *output_stream,
+			LIST *button_list )
+{
+	FORM_BUTTON *form_button;
+
+	if ( !list_rewind( button_list ) ) return;
+
+	fprintf(output_stream,
+		"<table border=0>\n<tr>\n" );
+
+	do {
+		form_button = list_get( button_list );
+
+		fprintf(output_stream,
+			"%s\n",
+			form_button->html );
+
+	} while ( list_next( button_list ) );
+
+	fprintf(output_stream,
+		"</table\n" );
 }
 
