@@ -38,8 +38,21 @@
 typedef struct
 {
 	char *button_label;
-	char *onclick_control_string;
+	char *action_string;
+	char *image_source;
 } FORM_BUTTON;
+
+typedef struct
+{
+	LIST *value_list;
+	char *html;
+} FORM_RADIO_VALUE;
+
+typedef struct
+{
+	char *radio_name;
+	LIST *value_list;
+} FORM_RADIO;
 
 typedef struct
 {
@@ -60,11 +73,53 @@ typedef struct
 
 typedef struct
 {
-	char *folder_name;
-	char *state;
-	char *title_string;
+	char *title;
+	char *subtitle;
+	char *action_string;
+	LIST *form_button_bottom_list;
+	LIST *form_radio_list;
+	REMEMBER *remember;
 	LIST *element_list;
 } FORM_PROMPT;
+
+/* FORM_RADIO_VALUE operations */
+/* --------------------------- */
+FORM_RADIO_VALUE *form_radio_value_calloc(
+			void );
+
+LIST *form_radio_value_list(
+			char *radio_value,
+			char *initial_value,
+			LIST *value_string_list );
+
+FORM_RADIO_VALUE *form_radio_value_new(
+			char *radio_name,
+			char *initial_value,
+			char *value_string );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *form_radio_value_html(
+			char *radio_name,
+			char *initial_value,
+			char *value_string );
+
+/* FORM_RADIO operations */
+/* --------------------- */
+FORM_RADIO *form_radio_calloc(
+			void );
+
+FORM_RADIO *form_radio_new(
+			char *radio_name,
+			char *initial_value,
+			LIST *value_string_list,
+			char *set_all_push_buttons_html );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *form_radio_html(
+			LIST *value_list,
+			char *set_all_push_buttons_html );
 
 /* FORM_BUTTON operations */
 /* ---------------------- */

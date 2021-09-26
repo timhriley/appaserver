@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include "String.h"
 #include "timlib.h"
-#include "attribute.h"
 #include "piece.h"
 #include "element.h"
 #include "dictionary.h"
@@ -2250,5 +2249,182 @@ LIST *form_prompt_choose_isa_drop_down_element_list(
 	list_set( return_list, element );
 
 	return return_list;
+}
+
+FORM_RADIO *form_radio_calloc( void )
+{
+	FORM_RADIO *form_radio;
+
+	if ( ! ( form_radio = calloc( 1, sizeof( FORM_RADIO ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_radio;
+}
+
+FORM_RADIO *form_radio_new(
+			char *radio_name,
+			char *initial_value,
+			LIST *value_string_list,
+			char *set_all_push_buttons_html )
+{
+	FORM_RADIO *form_radio = form_radio_calloc();
+
+	form_radio->value_list =
+		form_radio_value_list(
+			radio_name,
+			initial_value,
+			value_string_list );
+
+	form_radio->html =
+		form_radio_html(
+			form_radio->value_list,
+			set_all_push_buttons_html );
+
+	return form_radio;
+}
+
+char *form_radio_html(
+			LIST *value_list,
+			char *set_all_push_buttons_html )
+{
+	char html[ STRING_INPUT_BUFFER ];
+	char *ptr = html;
+	FORM_RADIO_VALUE *form_radio_value;
+
+	if ( !list_rewind( value_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"<table cellspacing=0 cellpadding=0 border>\n<tr>\n" );
+
+	if ( set_all_push_buttons_html
+	&&   *set_all_push_buttons_html )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			set_all_push_buttons_html );
+	}
+
+	do {
+		form_radio_value =
+			list_get(
+				value_list );
+
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			form_radio_value->html );
+
+	} while ( list_next( value_list ) );
+
+	ptr += sprintf(
+		ptr,
+		"</table>\n" );
+
+	return strdup( html );
+}
+
+FORM_RADIO_VALUE *form_radio_value_calloc( void )
+{
+	FORM_RADIO_VALUE *form_radio_value;
+
+	if ( ! ( form_radio_value = calloc( 1, sizeof( FORM_RADIO_VALUE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_radio_value;
+}
+
+LIST *form_radio_value_list(
+			char *radio_value,
+			char *initial_value,
+			LIST *value_string_list )
+{
+	LIST *value_list;
+
+	if ( !list_rewind( value_string_list ) ) return (LIST *)0;
+
+	value_list = list_new();
+
+	do {
+		list_set(
+			value_list,
+			form_radio_value_new(
+				radio_value,
+				initial_value,
+				list_get( value_string_list ) ) );
+
+	} while ( list_next( value_string_list ) );
+
+	return value_list;
+}
+
+FORM_RADIO_VALUE *form_radio_value_new(
+			char *radio_name,
+			char *initial_value,
+			char *value_string )
+{
+	FORM_RADIO_VALUE *form_radio_value = form_radio_value_calloc();
+
+	form_radio_value->html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		form_radio_value_html(
+			radio_name,
+			initial_value,
+			value_string );
+
+	if ( !form_radio_value->html ) return (FORM_RADIO_VALUE *)0;
+
+	return form_radio_value;
+}
+
+char *form_radio_value_html(
+			char *radio_name,
+			char *initial_value,
+			char *value_string )
+{
+	char html[ 1024 ];
+	char *ptr = html;
+	char buffer[ 128 ];
+
+	if ( !radio_name || !*radio_name || !value_string || !*value_string )
+		return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"<td><input name=\"%s\" type=radio value=\"%s\""
+		" class=lookup_option_radio_button",
+		radio_name,
+		value_string );
+
+	if ( string_strcmp( value_string, initial_value ) == 0 )
+	{
+		ptr += sprintf( ptr, " checked" );
+	}
+
+	ptr += sprintf(
+		ptr,
+		">%s\n,
+		string_initial_capital(
+			buffer,
+			value_string ) );
+
+	return strdup( html );
 }
 

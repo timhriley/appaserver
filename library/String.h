@@ -226,4 +226,8 @@ int string_exists_character(
 
 char string_delimiter(	char *string );
 
+char *string_initial_capital(
+			char *destination,
+			char *source );
+
 #endif

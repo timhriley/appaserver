@@ -111,7 +111,8 @@ APPASERVER_LIBRARY=						\
 		edit_table_form.o				\
 		insert_table_form.o				\
 		frameset_link_file.o				\
-		menu.o
+		menu.o						\
+		remember.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -998,4 +999,7 @@ frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 
 menu.o: menu.c menu.h
 	${CC} ${CFLAGS} -c menu.c
+
+remember.o: remember.c remember.h
+	${CC} ${CFLAGS} -c remember.c
 

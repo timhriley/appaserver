@@ -1,9 +1,9 @@
-// keystrokes.js
-// -------------------------------------------
+// $APPASERVER_HOME/javascript/keystrokes.js
+// ---------------------------------------------
 //
 // This package is a set of functions that
 // saves elements in forms for later retrieval.
-// -------------------------------------------
+// ---------------------------------------------
 // Freely available software. See appaserver.org
 // ---------------------------------------------
 

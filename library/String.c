@@ -1251,3 +1251,64 @@ char string_delimiter( char *string )
 		return 0;
 }
 
+char *string_initial_capital(
+			char *destination,
+			char *source )
+{
+	int beginning = 1;
+	char *destination_ptr = destination;
+
+	if ( !string ) return "";
+
+	while( *string )
+	{
+		if ( *string == '\\' )
+		{
+			*destination_ptr++ = *string++;
+			beginning = 0;
+		}
+		else
+		if ( beginning )
+		{
+			if ( isspace( *string )
+			|| ( ispunct( *string ) && *string != '\'' ) )
+			{
+				beginning = 1;
+			}
+			else
+			{
+				beginning = 0;
+			}
+			*destination_ptr++ = toupper( *string++ );
+		}
+		else
+		if ( *string == '_' )
+		{
+			beginning = 1;
+			destination_ptr += sprintf( destination_ptr, "<br>" );
+			/* *destination_ptr++ = delimiter; */
+			string++;
+		}
+		else
+		if ( *string == '|' )
+		{
+			beginning = 1;
+			*destination_ptr++ = *string++;
+		}
+		else
+		if ( isspace( *string )
+		|| ( ispunct( *string ) && *string != '\'' ) )
+		{
+			beginning = 1;
+			*destination_ptr++ = *string++;
+		}
+		else
+		{
+			*destination_ptr++ = *string++;
+		}
+	}
+
+	*destination_ptr = '\0';
+
+	return destination;
+}

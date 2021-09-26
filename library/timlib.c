@@ -376,7 +376,6 @@ char *format_initial_capital_cr( char *destination, char *string )
 	*destination_ptr = '\0';
 
 	return destination;
-
 }
 
 char *format_initial_capital( char *destination, char *string )
