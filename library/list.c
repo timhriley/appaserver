@@ -2219,17 +2219,27 @@ LIST *list_get_position_list(	LIST *list,
 	return position_list;
 }
 
-void list_format_initial_capital( LIST *list )
+LIST *list_initial_capital( LIST *list )
 {
 	char *ptr;
+	char buffer[ 1024 ];
+	LIST *return_list = list_new();
 
 	if ( list_rewind( list ) )
 	{
 		do {
-			ptr = list_get_pointer( list );
-			format_initial_capital( ptr, ptr );
+			ptr = list_get( list );
+
+			list_set(
+				return_list,
+				strdup( 
+					string_initial_capital(
+						buffer,
+						ptr ) ) );
+
 		} while( list_next( list ) );
 	}
+	return return_list;
 }
 
 boolean list_string_list_same(	LIST *list1,

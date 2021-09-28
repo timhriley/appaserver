@@ -472,7 +472,6 @@ char *format_initial_capital_delimiter(
 	if ( strcmp( destination, "N" ) == 0 ) *destination = 'n';
 
 	return destination;
-
 }
 
 void output_starting_argv_stderr( int argc, char **argv )
@@ -1292,7 +1291,6 @@ char *insert_str( char *sub, char *string, int pos )
         free(temp);
         return string;
 }
-
 
 char *search_replace_word(
 			char *source_destination,

@@ -593,7 +593,7 @@ char *dictionary_separate_escaped_send_dictionary_string(
 				DICTIONARY_SEPARATE *dictionary_separate,
 				boolean with_non_prefixed_dictionary )
 {
-	char escaped_dictionary_string[ STRING_INPUT_LINE ];
+	char escaped_dictionary_string[ STRING_INPUT_BUFFER ];
 	DICTIONARY *non_prefixed_dictionary = (DICTIONARY *)0;
 
 	if ( with_non_prefixed_dictionary )
@@ -1194,7 +1194,7 @@ DICTIONARY *dictionary_separate_send_dictionary(
 char *dictionary_separate_send_string(
 			DICTIONARY *send_dictionary )
 {
-	char escaped_dictionary_string[ STRING_INPUT_LINE ];
+	char escaped_dictionary_string[ STRING_INPUT_BUFFER ];
 
 	escape_character(
 		escaped_dictionary_string,

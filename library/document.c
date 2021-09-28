@@ -349,18 +349,15 @@ void document_body_horizontal_menu_output(
 	}
 }
 
-#ifdef NOT_DEFINED
-DOCUMENT *document_choose_isa_drop_down_new(
+DOCUMENT *document_choose_isa_new(
 			char *title,
-			MENU *menu,
-			LIST *primary_key_list,
-			LIST *delimited_list,
 			char *prompt_message,
-			char *prompt_action_string )
+			MENU *menu,
+			LIST *foreing_key_list,
+			LIST *delimited_list,
+			char *action_string )
 {
-	DOCUMENT *document;
-
-	document = document_new();
+	DOCUMENT *document = document_calloc();
 
 	document->document_head =
 		document_head_new(
@@ -375,37 +372,13 @@ DOCUMENT *document_choose_isa_drop_down_new(
 				document_body_menu_onload_string(),
 				(char *)0 /* additional_onload_string */ ) );
 
-	document->form_prompt->choose_isa_drop_down_element_list =
-		form_prompt_choose_isa_drop_down_element_list(
+	document->document_body->form_prompt = form_prompt_calloc();
+
+	document->form_prompt->choose_isa_element_list =
+		form_prompt_choose_isa_element_list(
 			one2m_isa_folder_name,
-			folder->primary_key_list,
-			choose_isa_drop_down->delimited_list );
+			foreign_key_list,
+			delimited_list );
 
 	return document;
 }
-
-DOCUMENT *document_choose_isa_drop_down_new(
-			char *title,
-			MENU *menu,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			char *prompt_message,
-			char *prompt_action_string )
-{
-}
-
-DOCUMENT_HEAD *document_head_choose_isa_drop_down_new(
-			char *title,
-			char *stylesheet_string,
-			char *menu_setup_string )
-{
-}
-
-DOCUMENT_BODY *document_body_choose_isa_drop_down_new(
-			char *title,
-			char *role_name,
-			LIST *primary_key_list,
-			LIST *delimited_list )
-{
-}
-#endif

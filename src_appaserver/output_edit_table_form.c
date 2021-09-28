@@ -81,8 +81,8 @@ int main( int argc, char **argv )
 	char *insert_update_key;
 	char *target_frame;
 	DOCUMENT *document;
-	char decoded_dictionary_string[ STRING_INPUT_LINE ];
-	char dictionary_string[ STRING_INPUT_LINE ];
+	char decoded_dictionary_string[ STRING_INPUT_BUFFER ];
+	char dictionary_string[ STRING_INPUT_BUFFER ];
 	DICTIONARY *original_post_dictionary = {0};
 	FORM *form;
 	FOLDER *folder;
@@ -141,7 +141,7 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	if ( string_input( dictionary_string, stdin, STRING_INPUT_LINE ) )
+	if ( string_input( dictionary_string, stdin, STRING_INPUT_BUFFER ) )
 	{
 		string_decode_html_post(
 			decoded_dictionary_string, 

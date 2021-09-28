@@ -38,7 +38,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 			char *session_key )
 {
 	POST_DICTIONARY *post_dictionary = post_dictionary_calloc();
-	char input[ STRING_INPUT_LINE ];
+	char input[ STRING_INPUT_BUFFER ];
 
 	post_dictionary->post_dictionary_apache_key =
 		/* --------------------------- */
@@ -48,7 +48,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 			string_input(
 				input,
 				stdin,
-				STRING_INPUT_LINE ) );
+				STRING_INPUT_BUFFER ) );
 
 	if ( !post_dictionary->post_dictionary_apache_key )
 	{
@@ -384,11 +384,11 @@ void post_dictionary_input(
 			FILE *stdin,
 			char *post_dictionary_key )
 {
-	char input[ STRING_INPUT_LINE ];
+	char input[ STRING_INPUT_BUFFER ];
 
 	*data = '\0';
 
-	while( string_input( input, stdin, STRING_INPUT_LINE ) )
+	while( string_input( input, stdin, STRING_INPUT_BUFFER ) )
 	{
 		if ( !*input ) continue;
 		if ( strcmp( input, "select" ) == 0 ) continue;

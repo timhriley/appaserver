@@ -173,15 +173,15 @@ void document_body_vertical_menu_output(
 			FILE *output_stream,
 			MENU *menu );
 
-/* DOCUMENT choose_isa_drop_down operations */
-/* ---------------------------------------- */
-DOCUMENT *document_choose_isa_drop_down_new(
+/* DOCUMENT choose_isa operations */
+/* ------------------------------ */
+DOCUMENT *document_choose_isa_new(
 			char *title,
-			MENU *menu,
-			LIST *primary_key_list,
-			LIST *delimited_list,
 			char *prompt_message,
-			char *prompt_action_string );
+			MENU *menu,
+			LIST *foreing_key_list,
+			LIST *delimited_list,
+			char *action_string );
 
 DOCUMENT_BODY *document_body_choose_isa_drop_down_new(
 			char *title,

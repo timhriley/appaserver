@@ -667,16 +667,16 @@ LIST *relation_mto1_drillthru_list(
 
 RELATION *relation_consumes(
 			char *many_attribute_name,
-			LIST *relation_mto1_non_isa_list )
+			LIST *relation_mto1_list )
 {
 	RELATION *relation;
 
-	if ( !list_rewind( relation_mto1_non_isa_list ) ) return (RELATION *)0;
+	if ( !list_rewind( relation_mto1_list ) ) return (RELATION *)0;
 
 	do {
 		relation =
 			list_get(
-				relation_mto1_non_isa_list );
+				relation_mto1_list );
 
 		if ( relation->consumes_taken ) continue;
 
@@ -697,7 +697,7 @@ RELATION *relation_consumes(
 			return relation;
 		}
 
-	} while( list_next( relation_mto1_non_isa_list ) );
+	} while( list_next( relation_mto1_list ) );
 
 	return (RELATION *)0;
 }

@@ -1255,60 +1255,149 @@ char *string_initial_capital(
 			char *destination,
 			char *source )
 {
-	int beginning = 1;
+	boolean beginning = 1;
 	char *destination_ptr = destination;
 
-	if ( !string ) return "";
+	if ( !source ) return "";
 
-	while( *string )
+	while( *source )
 	{
-		if ( *string == '\\' )
+		if ( *source == '(' )
 		{
-			*destination_ptr++ = *string++;
+			*destination_ptr++ = *source++;
+			beginning = 1;
+
+			while( *source )
+			{
+				*destination_ptr++ = *source++;
+				if ( *source == ')' ) break;
+			}
+		}
+
+		if ( *source == '\\' )
+		{
+			*destination_ptr++ = *source++;
 			beginning = 0;
 		}
 		else
 		if ( beginning )
 		{
-			if ( isspace( *string )
-			|| ( ispunct( *string ) && *string != '\'' ) )
+
+			if ( !isspace( *source )
+			&& ( !ispunct( *source )
+			&&   *source != '\'' ) )
 			{
-				beginning = 1;
+				*destination_ptr++ = toupper( *source++ );
+				beginning = 0;
 			}
 			else
 			{
-				beginning = 0;
+				*destination_ptr++ = *source++;
 			}
-			*destination_ptr++ = toupper( *string++ );
 		}
 		else
-		if ( *string == '_' )
+		if ( *source == '_' || *source == '|' )
 		{
 			beginning = 1;
-			destination_ptr += sprintf( destination_ptr, "<br>" );
-			/* *destination_ptr++ = delimiter; */
-			string++;
+			*destination_ptr++ = *source++;
 		}
 		else
-		if ( *string == '|' )
+		if ( isspace( *source )
+		|| ( ispunct( *source ) && *source != '\'' ) )
 		{
 			beginning = 1;
-			*destination_ptr++ = *string++;
-		}
-		else
-		if ( isspace( *string )
-		|| ( ispunct( *string ) && *string != '\'' ) )
-		{
-			beginning = 1;
-			*destination_ptr++ = *string++;
+			*destination_ptr++ = *source++;
 		}
 		else
 		{
-			*destination_ptr++ = *string++;
+			*destination_ptr++ = *source++;
 		}
 	}
-
 	*destination_ptr = '\0';
+
+	/* Keep booleans at lower case */
+	/* --------------------------- */
+	search_replace_string( destination, " Yn", " yn" );
+
+	if ( strcmp( destination, "Y" ) == 0 ) *destination = 'y';
+	if ( strcmp( destination, "N" ) == 0 ) *destination = 'n';
 
 	return destination;
 }
+
+char *string_search_replace(
+			char *source_destination,
+			char *search_string ,
+			char *replace_string )
+{
+        int here;
+	int len_search = strlen( search_string );
+	char *anchor;
+	int str_len = strlen( replace_string );
+
+	anchor = source_destination;
+
+	if ( strcmp( search_string, replace_string ) == 0 )
+		return anchor;
+
+        while( 1 )
+	{
+                if ( ( here =
+			string_instr(
+				search_string,
+				source_destination,
+				1 ) ) == -1 )
+		{
+                        return anchor;
+		}
+
+                string_delete( source_destination, here, len_search );
+                string_insert( source_destination, replace_string, here );
+
+		source_destination += ( here + str_len );
+        }
+}
+
+char *string_insert(	char *string,
+			char *substring,
+			int pos )
+{
+        char *temp = malloc( strlen( string ) + strlen( substring ) + 1 );
+
+        /* Copy first part */
+	/* --------------- */
+        strncpy( temp, string, pos );
+        temp[ pos ] = '\0';
+
+        /* place substring in middle */
+	/* ------------------------- */
+        strcat( temp, substring );
+
+        /* Copy rest of string */
+	/* ------------------- */
+        strcat( temp, &string[ pos ] );
+
+        /* copy entire string back to original */
+	/* ----------------------------------- */
+        strcpy( string, temp );
+
+        free( temp );
+        return string;
+}
+
+char *string_delete(	char *string,
+			int start,
+			int num_chars )
+{
+        int far_str;
+
+        for(	far_str = start + num_chars;
+                far_str <= strlen( string );
+		far_str++, start++ )
+	{
+		string[ start ] = string[ far_str ];
+	}
+
+        return string;
+}
+

@@ -17,8 +17,9 @@
 #define STRING_CR			13
 #define STRING_SYSTEM_BUFFER		196608
 #define STRING_WHERE_BUFFER		196608
-#define STRING_INPUT_LINE		196608
 #define STRING_INPUT_BUFFER		196608
+#define STRING_ONE_MEG			1048576
+#define STRING_TWO_MEG			2097152
 
 /* Structures */
 /* ---------- */
@@ -229,5 +230,18 @@ char string_delimiter(	char *string );
 char *string_initial_capital(
 			char *destination,
 			char *source );
+
+char *string_search_replace(
+			char *source_destination,
+			char *search_string,
+			char *replace_string );
+
+char *string_insert(	char *string,
+			char *substring,
+			int pos );
+
+char *string_delete(	char *string,
+			int start,
+			int num_chars );
 
 #endif

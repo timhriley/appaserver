@@ -100,7 +100,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define QUANTUM_CHART_PUSH_BUTTON_NAME		"quantum_chart_button"
 #define STATISTICS_PUSH_BUTTON_NAME		"statistics_button"
 #define DELETE_PUSH_BUTTON_NAME			"delete_button"
-#define LOOKUP_PUSH_BUTTON_NAME			"lookup_button"
 #define BOGUS_SESSION				"-999"
 #define EMAIL_OUTPUT_NAME			"email_output"
 #define EDIT_RADIO_GROUP			"edit_radio"

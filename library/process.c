@@ -469,9 +469,9 @@ char *process_prompt_submit_command_line(
 			DICTIONARY *working_post_dictionary )
 {
 	char buffer[ 65536 ];
-	char local_command_line[ STRING_INPUT_LINE ];
+	char local_command_line[ STRING_INPUT_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, STRING_INPUT_LINE );
+	string_strcpy( local_command_line, command_line, STRING_INPUT_BUFFER );
 
 	if ( process_name && *process_name )
 	{
@@ -833,10 +833,10 @@ char *process_operation_command_line(
 			LIST *primary_data_list,
 			DICTIONARY *single_row_dictionary )
 {
-	char local_command_line[ STRING_INPUT_LINE ];
+	char local_command_line[ STRING_INPUT_BUFFER ];
 	char buffer[ 65536 ];
 
-	string_strcpy( local_command_line, command_line, STRING_INPUT_LINE );
+	string_strcpy( local_command_line, command_line, STRING_INPUT_BUFFER );
 	free( command_line );
 
 	if ( application_name )

@@ -553,7 +553,7 @@ char *dictionary_index_zero_display_delimited( DICTIONARY *d, char delimiter )
 
 char *dictionary_display_delimiter( DICTIONARY *d, char delimiter )
 {
-	char buffer[ STRING_INPUT_LINE ];
+	char buffer[ STRING_INPUT_BUFFER ];
 
 	if ( !d ) return "NULL";
 

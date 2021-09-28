@@ -24,6 +24,7 @@
 #include "vertical_new_button.h"
 #include "dictionary_separate.h"
 #include "pair_one2m.h"
+#include "element.h"
 #include "form.h"
 
 FORM *form_calloc( void )
@@ -868,9 +869,9 @@ int form_output_insert_rows(	int *form_current_reference_number,
 }
 
 
-LIST *form_get_hydrology_validation_element_list(
-				HASH_TABLE *attribute_hash_table,
-				LIST *attribute_name_list )
+LIST *form_hydrology_validation_element_list(
+			HASH_TABLE *attribute_hash_table,
+			LIST *attribute_name_list )
 {
 	LIST *return_list;
 	ATTRIBUTE *attribute;
@@ -1205,7 +1206,7 @@ void form_dont_output_document_heading( FORM *form )
 	form->dont_output_document_heading = 1;
 }
 
-LIST *form_dictionary2hidden_element_list( DICTIONARY *dictionary )
+LIST *form_dictionary_hidden_element_list( DICTIONARY *dictionary )
 {
 	LIST *element_list;
 	LIST *key_list;
@@ -2132,71 +2133,83 @@ FORM_PROMPT *form_prompt_calloc( void )
 	return form_prompt;
 }
 
-LIST *form_prompt_choose_isa_drop_down_element_list(
+LIST *form_prompt_isa_element_list(
 			char *one2m_isa_folder_name,
-			LIST *primary_key_list,
+			LIST *foreign_key_list,
 			LIST *delimited_list )
 {
-	LIST *return_list;
+	LIST *element_list = list_new();
 	APPASERVER_ELEMENT *element;
 	QUERY *query;
 	char element_name[ 512 ];
 	char buffer[ 512 ];
 
-	return_list = list_new();
+	/* Create a table row */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row ) );
 
-	/* Create a line break */
-	/* ------------------- */
-	element = element_appaserver_new( linebreak, "" );
+	element->table_row->html = element_table_row_html();
 
-	list_set( return_list, element );
+	/* Create a prompt */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				prompt ) );
 
-	/* Create the prompt element */
-	/* ------------------------- */
-	sprintf(element_name,
-		"%s%s",
-		CHOOSE_ISA_DROP_DOWN_PROMPT_PREFIX,
-		list_display_delimited(
-			  primary_key_list,
-			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+	element->prompt->html =
+		element_prompt_html(
+			string_initial_capital(
+				prompt_string,
+				one2m_isa_folder_name ) );
 
-	element =
-		element_appaserver_new(
-			prompt,
-			strdup(
-				format_initial_capital( 
-					buffer, 
-					element_name ) ) );
+	/* Create a drop-down */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				drop_down ) );
 
-	list_set( return_list, element );
+	element->drop_down->html =
+		element_drop_down_html(
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			element_drop_down_name(
+				foreign_key_list,
+				0 ),
+			(char *)0 /* initial_data */,
+			delimited_list,
+			list_initial_capital(
+				delimited_list )
+					/* display_list */,
+			0 /* not output_null_option */,
+			0 /* not output_not_null_option */,
+			0 /* not output_select_option */ );
 
-	/* Create the drop down element */
-	/* ---------------------------- */
-	element =
-		element_appaserver_new(
-			drop_down,
-			strdup( element_name ) );
+	/* Create a table row */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row ) );
 
-	element->drop_down->option_data_list = delimited_list;
+	element->table_row->html = element_table_row_html();
 
-	list_set( return_list, element );
-
-	/* Create a hidden folder_name */
-	/* --------------------------- */
-	element =
-		element_appaserver_new(
-			hidden,
-			"folder_name" );
-
-	element->hidden->data = strdup( one2m_isa_folder_name );
-
-	list_set( return_list, element );
-
-	/* Create the lookup push button */
-	/* ----------------------------- */
-	element = element_appaserver_new( linebreak, "" );
-
-	list_set( return_list, element );
+	/* Create a lookup state checkbox */
+	/* ------------------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				checkbox ) );
 
 	element =
 		element_appaserver_new(
@@ -2218,7 +2231,7 @@ LIST *form_prompt_choose_isa_drop_down_element_list(
 			  RELATION_OPERATION_PREFIX ) );
 
 	element =
-		element_appaserver_new(
+		appaserver_element_new(
 			hidden,
 			strdup( element_name ) );
 
@@ -2485,12 +2498,12 @@ char *form_tag_html(
 	return strdup( tag_html );
 }
 
-FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_calloc( void )
+FORM_PROMPT_ISA *form_prompt_isa_calloc( void )
 {
-	FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa;
+	FORM_PROMPT_ISA *form_prompt_isa;
 
-	if ( ! ( form_prompt_insert_isa =
-			calloc( 1, sizeof( FORM_PROMPT_INSERT_ISA ) ) ) )
+	if ( ! ( form_prompt_isa =
+			calloc( 1, sizeof( FORM_PROMPT_ISA ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -2500,10 +2513,10 @@ FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_calloc( void )
 		exit( 1 );
 	}
 
-	return form_prompt_insert_isa;
+	return form_prompt_isa;
 }
 
-FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_new(
+FORM_PROMPT_ISA *form_prompt_isa_new(
 			char *title,
 			char *prompt_message,
 			char *one2m_folder_name,
@@ -2511,24 +2524,22 @@ FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_new(
 			LIST *delimited_list,
 			char *action_string )
 {
-	FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa =
-		form_prompt_insert_isa_calloc();
+	FORM_PROMPT_ISA *form_prompt_isa =
+		form_prompt_isa_calloc();
 
-	form_prompt_insert_isa->title_html =
+	form_prompt_isa->title_html =
 		/* -------------------------- */
 		/* Safely returns heap memory */
 		/* -------------------------- */
-		form_title_html(
-			title );
+		form_title_html( title );
 
-	form_prompt_insert_isa->message_html =
+	form_prompt_isa->message_html =
 		/* -------------------------- */
 		/* Safely returns heap memory */
 		/* -------------------------- */
-		form_message_html(
-			prompt_message );
+		form_message_html( prompt_message );
 
-	form_prompt_insert_isa->tag_html =
+	form_prompt_isa->tag_html =
 		/* -------------------------- */
 		/* Safely returns heap memory */
 		/* -------------------------- */
@@ -2536,30 +2547,23 @@ FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_new(
 			action_string,
 			PROMPT_FRAME );
 
-	form_prompt_insert_isa->element_list =
-		form_prompt_insert_isa_element_list(
+	form_prompt_isa->element_list =
+		form_prompt_isa_element_list(
 			one2m_folder_name,
 			primary_key_list,
 			delimited_list );
 
-	form_prompt_insert_isa->button_list =
-		form_prompt_insert_isa_button_list();
+	form_prompt_isa->button_list =
+		form_prompt_isa_button_list();
 
-	return form_prompt_insert_isa;
+	return form_prompt_isa;
 }
 
-LIST *form_prompt_insert_isa_element_list(
-			char *one2m_folder_name,
-			LIST *primary_key_list,
-			LIST *delimited_list )
+LIST *form_prompt_isa_button_list( void )
 {
 }
 
-LIST *form_prompt_insert_isa_button_list( void )
-{
-}
-
-void form_prompt_insert_isa_output(
+void form_prompt_isa_output(
 			FILE *output_stream,
 			char *title_html,
 			char *message_html,
@@ -2567,6 +2571,19 @@ void form_prompt_insert_isa_output(
 			LIST *element_list,
 			LIST *button_list )
 {
+	fprintf( output_stream, "%s\n", title_html );
+	fprintf( output_stream, "%s\n", message_html );
+	fprintf( output_stream, "%s\n", tag_html );
+
+	appaserver_element_list_output(
+		output_stream,
+		element_list );
+
+	button_list_output(
+		output_stream,
+		button_list );
+
+	fprintf( output_stream, "</form>\n" );
 }
 
 char *form_button_submit(

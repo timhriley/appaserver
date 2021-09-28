@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/choose_isa_drop_down.c	*/
+/* $APPASERVER_HOME/library/choose_isa.c		*/
 /* -----------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* -----------------------------------------------	*/
@@ -17,14 +17,14 @@
 #include "element.h"
 #include "query.h"
 #include "process.h"
-#include "choose_isa_drop_down.h"
+#include "choose_isa.h"
 
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_calloc( void )
+CHOOSE_ISA *choose_isa_calloc( void )
 {
-	CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down;
+	CHOOSE_ISA *choose_isa;
 
-	if ( ! ( choose_isa_drop_down =
-			calloc( 1, sizeof( CHOOSE_ISA_DROP_DOWN ) ) ) )
+	if ( ! ( choose_isa =
+			calloc( 1, sizeof( CHOOSE_ISA ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -33,29 +33,34 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_calloc( void )
 			__LINE__ );
 		exit( 1 );
 	}
-	return choose_isa_drop_down;
+	return choose_isa;
 }
 
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
+CHOOSE_ISA *choose_isa_prompt_fetch(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
+			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name )
 {
-	CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down =
-		choose_isa_drop_down_calloc();
+	CHOOSE_ISA *choose_isa = choose_isa_calloc();
 
 	/* Input */
 	/* ----- */
-	choose_isa_drop_down->login_name = login_name;
-	choose_isa_drop_down->one2m_isa_folder_name = one2m_isa_folder_name;
-	choose_isa_drop_down->role_name = role_name;
+	choose_isa->application_name = application_name;
+	choose_isa->session_key = session_key;
+	choose_isa->login_name = login_name;
+	choose_isa->folder_name = folder_name;
+	choose_isa->one2m_isa_folder_name = one2m_isa_folder_name;
+	choose_isa->role_name = role_name;
 
 	/* Process */
 	/* ------- */
-	choose_isa_drop_down->folder =
+	choose_isa->folder =
 		folder_fetch(
 			one2m_isa_folder_name,
 			(char *)0 /* not fetching role_folder_list */,
@@ -71,32 +76,33 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 			0 /* not fetch_relation_one2m_recursive_list */,
 			1 /* fetch_process */,
 			0 /* not fetch_role_folder_list */,
-			1 /* fetch_row_level_restriction */ );
+			0 /* not fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
 
-	choose_isa_drop_down->role =
+	choose_isa->role =
 		role_fetch(
 			role_name,
 			0 /* not fetch_role_attribute_exclude_list */ );
 
-	choose_isa_drop_down->security_entity =
+	choose_isa->security_entity =
 		security_entity_new(
 			login_name,
-			choose_isa_drop_down->folder->non_owner_forbid,
-			choose_isa_drop_down->
+			choose_isa->folder->non_owner_forbid,
+			choose_isa->
 				role->
 				override_row_restrictions );
 
-	if ( choose_isa_drop_down->folder->populate_drop_down_process )
+	if ( choose_isa->folder->populate_drop_down_process )
 	{
-		choose_isa_drop_down->delimited_list =
+		choose_isa->delimited_list =
 			process_delimited_list(
 				process_choose_isa_commmand_line(
-					choose_isa_drop_down->
+					choose_isa->
 						folder->
 						populate_drop_down_process->
 						command_line,
 					security_entity_where(
-						choose_isa_drop_down->
+						choose_isa->
 							security_entity ),
 					login_name,
 					role_name ) );
@@ -108,7 +114,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 		if ( ! ( query =
 				query_isa_widget_new(
 					one2m_isa_folder_name,
-					choose_isa_drop_down->
+					choose_isa->
 						folder->
 						primary_key_list,
 					security_entity_where(
@@ -122,7 +128,7 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 			exit( 1 );
 		}
 
-		choose_isa_drop_down->delimited_list =
+		choose_isa->query->delimited_list =
 			query_delimited_list(
 				query->select_clause,
 				query->from_clause,
@@ -131,10 +137,28 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 				0 /* max_rows */ );
 	}
 
-	return choose_isa_drop_down;
+	choose_isa->action_string =
+		choose_isa_action_string(
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name );
+
+	choose_isa->document =
+		document_choose_isa_new(
+			choose_isa->title,
+			choose_isa->prompt_message,
+			menu_fetch( role_name ),
+			choose_isa->folder->primary_key_list
+				/* foreign_key_list */,
+			choose_isa->query->delimited_list,
+			choose_isa->action_string );
+
+	return choose_isa;
 }
 
-char *choose_isa_drop_down_action_string(
+char *choose_isa_action_string(
 			char *application_name,
 			char *login_name,
 			char *session_key,

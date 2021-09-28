@@ -23,6 +23,7 @@
 #define FORM_COLOR4				"#f7ffce"
 #define FORM_COLOR5				"#f2e0b8"
 
+#define FORM_LOOKUP_STATE			"lookup_state"
 #define FORM_ROWS_BETWEEN_HEADINGS		10
 #define FORM_SORT_LABEL				"sort_"
 #define FORM_DESCENDING_LABEL			"descend_"
@@ -38,8 +39,8 @@ typedef struct
 	char *message_html;
 	char *tag_html;
 	LIST *element_list;
-	LIST *insert_isa_button_list;
-} FORM_PROMPT_INSERT_ISA;
+	LIST *button_list;
+} FORM_PROMPT_ISA;
 	
 typedef struct
 {
@@ -197,28 +198,28 @@ FORM_PROMPT *form_new(
 FORM_PROMPT *form_prompt_calloc(
 			void );
 
-/* FORM_PROMPT_INSERT_ISA operations */
+/* FORM_PROMPT_ISA operations */
 /* --------------------------------- */
-FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_calloc(
+FORM_PROMPT_ISA *form_prompt_isa_calloc(
 			void );
 
-FORM_PROMPT_INSERT_ISA *form_prompt_insert_isa_new(
+FORM_PROMPT_ISA *form_prompt_isa_new(
 			char *title,
 			char *prompt_message,
 			char *one2m_folder_name,
-			LIST *primary_key_list,
+			LIST *foreign_key_list,
 			LIST *delimited_list,
 			char *action_string );
 
-LIST *form_prompt_insert_isa_element_list(
+LIST *form_prompt_isa_element_list(
 			char *one2m_folder_name,
 			LIST *primary_key_list,
 			LIST *delimited_list );
 
-LIST *form_prompt_insert_isa_button_list(
+LIST *form_prompt_isa_button_list(
 			void );
 
-void form_prompt_insert_isa_output(
+void form_prompt_isa_output(
 			FILE *output_stream,
 			char *title_html,
 			char *message_html,

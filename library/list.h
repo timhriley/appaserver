@@ -483,34 +483,40 @@ boolean list_equals_string_list(LIST *list1,
 				LIST *list2 );
 
 boolean list_equivalent_string_list(
-				LIST *list1,
-				LIST *list2 );
+			LIST *list1,
+			LIST *list2 );
 
-int list_free_container(	LIST *list );
-int list_free_string_container(	LIST *list );
+int list_free_container(
+			LIST *list );
 
-LIST *list_get_position_list(	LIST *list,
-				LIST *subset_list );
+int list_free_string_container(
+			LIST *list );
 
-void list_format_initial_capital(
-				LIST *list );
+LIST *list_position_list(
+			LIST *list,
+			LIST *subset_list );
 
-boolean list_go_head(		LIST *list );
+LIST *list_initial_capital(
+			LIST *list );
 
-boolean list_string_list_same(	LIST *list1,
-				LIST *list2 );
+boolean list_go_head(	LIST *list );
 
-boolean list_string_list_match( LIST *list1,
-				LIST *list2 );
+boolean list_string_list_same(
+			LIST *list1,
+			LIST *list2 );
+
+boolean list_string_list_match(
+			LIST *list1,
+			LIST *list2 );
 
 boolean list_exists_any_index_string(
-				LIST *list,
-				char *string );
+			LIST *list,
+			char *string );
 
 boolean list_exists_index_string(
-				LIST *list,
-				char *string,
-				int index );
+			LIST *list,
+			char *string,
+			int index );
 
 boolean list_string_list_all_populated(
 			LIST *list );

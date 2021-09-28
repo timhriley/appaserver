@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/choose_isa_drop_down.h	*/
+/* $APPASERVER_HOME/library/choose_isa.h		*/
 /* -----------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* -----------------------------------------------	*/
 
-#ifndef CHOOSE_ISA_DROP_DOWN_H
-#define CHOOSE_ISA_DROP_DOWN_H
+#ifndef CHOOSE_ISA_H
+#define CHOOSE_ISA_H
 
 /* Includes */
 /* -------- */
@@ -17,7 +17,6 @@
 
 /* Constants */
 /* --------- */
-#define CHOOSE_ISA_DROP_DOWN_PROMPT_PREFIX	"choose_"
 
 /* Enumerated types */
 /* ---------------- */
@@ -28,6 +27,7 @@ typedef struct
 {
 	/* Input */
 	/* ------*/
+	char *application_name;
 	char *login_name;
 	char *session_key;
 	char *folder_name;
@@ -36,19 +36,19 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	ROLE *role;
 	FOLDER *folder;
+	ROLE *role;
 	SECURITY_ENTITY *security_entity;
 	QUERY *query;
 	DOCUMENT *document;
-} CHOOSE_ISA_DROP_DOWN;
+} CHOOSE_ISA;
 
 /* Prompt operations */
 /* ----------------- */
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_calloc(
+CHOOSE_ISA *choose_isa_calloc(
 			void );
 
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
+CHOOSE_ISA *choose_isa_prompt_fetch(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
@@ -61,27 +61,27 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_prompt_fetch(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *choose_isa_drop_down_action_string(
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *folder_name,
-			char *one2m_isa_folder_name,
-			char *role_name );
+char *choose_isa_title(
+			char *one2m_isa_folder_name );
 
 /* Returns static memory */
 /* --------------------- */
-char *choose_isa_drop_down_prompt_message(
+char *choose_isa_prompt_message(
 			char *one2m_isa_folder_name );
 
-FORM *choose_isa_drop_down_prompt_form(
-			char *prompt_message,
-			LIST *element_list,
-			char *action_string );
+/* Safely returns heap memory */
+/* -------------------------- */
+char *choose_isa_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *one2m_isa_folder_name,
+			char *role_name );
 
 /* Post operations */
 /* --------------- */
-CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_post_fetch(
+CHOOSE_ISA *choose_isa_post_fetch(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
@@ -91,10 +91,5 @@ CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down_post_fetch(
 			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *choose_isa_drop_down_title(
-			char *one2m_isa_folder_name );
 
 #endif
