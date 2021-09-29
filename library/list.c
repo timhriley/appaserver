@@ -28,7 +28,7 @@ void list_free_data( LIST *list )
 	if ( list_rewind( list ) )
 	{
 		do {
-			data = list_get_pointer( list );
+			data = list_get( list );
 			free( data );
 		} while( list_next( list ) );
 	}
@@ -147,7 +147,7 @@ void list_append_string_list( LIST *list, LIST *string_list )
 	if ( list_reset( string_list ) )
 	{
 		do {
-			item = list_get_pointer( string_list );
+			item = list_get( string_list );
 			list_append_pointer( list, item );
 		} while( list_next( string_list ) );
 	}
@@ -167,27 +167,12 @@ void list_delete_current( LIST *list )
 	return delete_current( list );
 }
 
-void *list_get_first_element( LIST *list )
-{
-	return list_get_first( list );
-}
-
-void *list_get_first_pointer( LIST *list )
-{
-	return list_get_first( list );
-}
-
-void *list_data( LIST *list )
-{
-	return list_get_pointer( list );
-}
-
-void *list_first_pointer( LIST *list )
+void *list_first_element( LIST *list )
 {
 	return list_first( list );
 }
 
-void *list_get_first( LIST *list )
+void *list_first_pointer( LIST *list )
 {
 	return list_first( list );
 }
@@ -200,9 +185,9 @@ void *list_first( LIST *list )
 		return retrieve_item_ptr( list );
 }
 
-char *list_get_string( LIST *list )
+void *list_data( LIST *list )
 {
-	return retrieve_item_ptr( list );
+	return list_get( list );
 }
 
 boolean list_exists_string_beginning( LIST *list, char *string )
@@ -214,7 +199,7 @@ boolean list_exists_string_beginning( LIST *list, char *string )
 	if ( !string ) return 0;
 
 	do {
-		item = list_get_pointer( list );
+		item = list_get( list );
 
 		if ( timlib_strncmp( string, item ) == 0 ) return 1;
 
@@ -285,12 +270,12 @@ LIST *list_intersect_string_list( LIST *list1, LIST *list2 )
 
 	do {
 		dictionary_add_string(	dictionary,
-					list_get_string( list2 ),
+					list_get( list2 ),
 					"" );
 	} while( list_next( list2 ) );
 
 	do {
-		s = list_get_string( list1 );
+		s = list_get( list1 );
 		if ( dictionary_exists_key(
 					dictionary,
 					s ) )
@@ -314,7 +299,7 @@ boolean is_subset_of( LIST *subset, LIST *set )
 	list_save( set );
 	if ( list_reset( subset ) )
 		do {
-			item = list_get_pointer( subset );
+			item = list_get( subset );
 			if ( !item_exists( set, item, list_strcmp ) )
 			{
 				list_restore( subset );
@@ -339,7 +324,7 @@ void list_delete_from_list( LIST *set, LIST *delete_list )
 
 	if ( list_reset( delete_list ) )
 		do {
-			item = list_get_pointer( delete_list );
+			item = list_get( delete_list );
 			if ( item_exists( set, item, list_strcmp ) )
 				delete_current( set );
 		} while ( next_item( delete_list ) );
@@ -350,7 +335,7 @@ void list_display_lines( LIST *list )
 	if ( !list_rewind( list ) ) return;
 
 	do {
-		printf( "%s\n", (char *)list_get_pointer( list ) );
+		printf( "%s\n", (char *)list_get( list ) );
 	} while( list_next( list ) );
 }
 
@@ -831,7 +816,7 @@ LIST *list_append_current_list(	LIST *destination_list,
 	if ( list_past_end( source_list ) ) return destination_list;
 
 	do {
-		a = list_get_pointer( source_list );
+		a = list_get( source_list );
 		list_append_pointer( destination_list, a );
 	} while( list_next( source_list ) );
 
@@ -892,7 +877,7 @@ void get_list_from_pipe( LIST *list, char *pipe_string )
 	list_load_from_pipe( list, pipe_string );
 }
 
-void list_get_from_pipe( LIST *list, char *pipe_string )
+void list_from_pipe( LIST *list, char *pipe_string )
 {
 	list_load_from_pipe( list, pipe_string );
 }
@@ -926,7 +911,7 @@ void list_load_from_pipe( LIST *list, char *pipe_string )
 
 	p = popen( pipe_string, "r" );
 
-	while( timlib_get_line( buffer, p, 65536 ) )
+	while( string_input( buffer, p, 65536 ) )
 	{
 		append( list, buffer, strlen( buffer ) + 1 );
 	}
@@ -1070,7 +1055,7 @@ void list_free_string_list( LIST *string_list )
 {
 	if ( list_rewind( string_list ) )
 		do {
-			free( list_get_string( string_list ) );
+			free( list_get( string_list ) );
 		} while( list_next( string_list ) );
 	list_free_container( string_list );
 }
@@ -1357,7 +1342,7 @@ int previous_item( LIST *list )
 }
 
 
-void *list_get_current_pointer( LIST *list )
+void *list_current_pointer( LIST *list )
 {
 	return retrieve_item_ptr( list );
 }
@@ -1574,7 +1559,7 @@ LIST *list_append_unique_string_list(
 	if ( list_rewind( source_list ) )
 	{
 		do {
-			item = list_get_pointer( source_list );
+			item = list_get( source_list );
 			list_append_unique_string( destination_list, item );
 		} while( list_next( source_list ) );
 	}
@@ -1717,7 +1702,7 @@ LIST *list_trim_indices( LIST *string_list )
 	if ( list_rewind( string_list ) )
 	{
 		do {
-			ptr = list_get_pointer( string_list );
+			ptr = list_get( string_list );
 			list_append_string( new_list,
 					    trim_index( buffer,
 							ptr ) );
@@ -1733,7 +1718,7 @@ LIST *list_unique( LIST *string_list )
 
 	if ( list_reset( string_list ) )
 		do {
-			ptr = list_get_pointer( string_list );
+			ptr = list_get( string_list );
 			list_append_unique( 
 				new_list,
 				ptr,
@@ -1845,7 +1830,7 @@ LIST *list_duplicate( LIST *list )
 	if( list_rewind( list ) )
 	{
 		do {
-			string = list_get_string( list );
+			string = list_get( list );
 			list_set( return_list, string );
 		} while( list_next( list ) );
 	}
@@ -1889,13 +1874,13 @@ void list_replace_last_string(
 	list_replace_last( list, string );
 }
 
-void *list_get_first_item( LIST *list )
+void *list_first_item( LIST *list )
 {
 	if ( !list_rewind( list ) ) return "";
-	return list_get_pointer( list );
+	return list_get( list );
 }
 
-int list_get_max_string_width( LIST *list )
+int list_max_string_width( LIST *list )
 {
 	char *item;
 	int max = 0;
@@ -1903,23 +1888,25 @@ int list_get_max_string_width( LIST *list )
 
 	if ( list_rewind( list ) )
 		do {
-			item = list_get_pointer( list );
+			item = list_get( list );
 			str_len = strlen( item );
 			if ( str_len > max ) max = str_len;
 		} while( list_next( list ) );
 	return max;
 }
 
-LIST *list_copy_string_list( LIST *source )
+LIST *list_strdup_copy( LIST *source )
 {
 	LIST *return_list = list_new();
 	char *data;
 
-	if ( list_rewind( source ) )
-		do {
-			data = list_get_string( source );
-			list_set( return_list, data );
-		} while( list_next( source ) );
+	if ( !list_rewind( source ) ) return return_list;
+
+	do {
+		data = list_get( source );
+		list_set( return_list, strdup( data ) );
+	} while( list_next( source ) );
+
 	return return_list;
 }
 
@@ -1931,9 +1918,10 @@ LIST *list_copy( LIST *source )
 	if ( !list_rewind( source ) ) return return_list;
 
 	do {
-		data = list_get_pointer( source );
-		list_append_pointer( return_list, data );
+		data = list_get( source );
+		list_set( return_list, data );
 	} while( list_next( source ) );
+
 	return return_list;
 }
 
@@ -1983,7 +1971,7 @@ void list_double_forward( LIST *double_list, double here )
 	double *double_pointer;
 
 	do {
-		double_pointer = (double *)list_get_pointer( double_list );
+		double_pointer = (double *)list_get( double_list );
 		if ( *double_pointer == here ) return;
 	} while( list_next( double_list ) );
 }
@@ -2003,16 +1991,16 @@ void list_toupper( LIST *list )
 	if ( list_rewind( list ) )
 	{
 		do {
-			up_string( list_get_string( list ) );
+			up_string( list_get( list ) );
 		} while( list_next( list ) );
 	}
 }
 
 
-char *list_get_first_string( LIST *list )
+char *list_first_string( LIST *list )
 {
 	if ( list_rewind( list ) )
-		return list_get_string( list );
+		return list_get( list );
 	else
 		return (char *)0;
 }
@@ -2089,7 +2077,7 @@ void list_replace_string( LIST *list, char *old, char *new )
 	if ( list_rewind( list ) )
 	{
 		do {
-			data = list_get_pointer( list );
+			data = list_get( list );
 			if ( strcmp( data, old ) == 0 )
 			{
                 		list->current->item = new;
@@ -2109,8 +2097,8 @@ LIST *list_merge_string_list(	LIST *list1,
 	if ( list_rewind( list1 ) && list_rewind( list2 ) )
 	{
 		do {
-			item1 = list_get_pointer( list1 );
-			item2 = list_get_pointer( list2 );
+			item1 = list_get( list1 );
+			item2 = list_get( list2 );
 
 			sprintf(merged_items,
 				"%s%c%s",
@@ -2141,7 +2129,7 @@ boolean list_equivalent_string_list(
 	list_save( list2 );
 	list_reset( list1 );
 	do {
-		item = list_get_pointer( list1 );
+		item = list_get( list1 );
 
 		if ( !list_item_exists( list2, item, list_strcmp ) )
 		{
@@ -2171,8 +2159,8 @@ boolean list_equals_string_list(LIST *list1,
 	list_rewind( list2 );
 
 	do {
-		item1 = list_get_pointer( list1 );
-		item2 = list_get_pointer( list2 );
+		item1 = list_get( list1 );
+		item2 = list_get( list2 );
 
 		if ( timlib_strcmp( item1, item2 ) != 0 ) return 0;
 
@@ -2183,7 +2171,7 @@ boolean list_equals_string_list(LIST *list1,
 
 }
 
-LIST *list_get_position_list(	LIST *list,
+LIST *list_position_list(	LIST *list,
 				LIST *subset_list )
 {
 	char position_string[ 16 ];
@@ -2194,7 +2182,7 @@ LIST *list_get_position_list(	LIST *list,
 	if ( list_rewind( subset_list ) )
 	{
 		do {
-			item = list_get_pointer( subset_list );
+			item = list_get( subset_list );
 			if ( ( position = list_exists_string( item, list ) ) )
 			{
 				sprintf( position_string, "%d", position - 1 );
@@ -2246,8 +2234,8 @@ boolean list_string_list_match( LIST *list1,
 	list_rewind( list1 );
 	list_rewind( list2 );
 	do {
-		item1 = list_get_pointer( list1 );
-		item2 = list_get_pointer( list2 );
+		item1 = list_get( list1 );
+		item2 = list_get( list2 );
 		if ( strcmp( item1, item2 ) != 0 ) return 0;
 		list_next( list2 );
 	} while( list_next( list1 ) );
@@ -2262,7 +2250,7 @@ boolean list_string_list_all_populated( LIST *list )
 
 	if ( !list_rewind( list ) ) return 0;
 	do {
-		item = list_get_pointer( list );
+		item = list_get( list );
 		if ( !*item ) return 0;
 	} while( list_next( list ) );
 	return 1;
@@ -2274,7 +2262,7 @@ boolean list_string_list_all_empty( LIST *list )
 
 	if ( !list_rewind( list ) ) return 1;
 	do {
-		item = list_get_pointer( list );
+		item = list_get( list );
 		if ( *item ) return 0;
 	} while( list_next( list ) );
 	return 1;
@@ -2286,7 +2274,7 @@ LIST *list_rotate( LIST *list )
 
 	if ( !list_length( list ) ) return list;
 	list_go_tail( list );
-	last_item = list_get_pointer( list );
+	last_item = list_get( list );
 	list_delete_current( list );
 	list_go_head( list );
 	list_set_current( list, last_item );
@@ -2303,7 +2291,7 @@ LIST *list_purge_duplicates( LIST *string_list )
 	if ( list_rewind( string_list ) )
 	{
 		do {
-			string = list_get_pointer( string_list );
+			string = list_get( string_list );
 			if ( !list_exists_string(
 					string,
 					return_list ) )
@@ -2369,7 +2357,7 @@ LIST *list_delimited_string_to_list(
 {
 	char delimiter;
 
-	if ( ! ( delimiter = timlib_get_delimiter( delimited_string ) ) )
+	if ( ! ( delimiter = timlib_delimiter( delimited_string ) ) )
 	{
 		/* Could be anything. */
 		/* ------------------ */
@@ -2394,7 +2382,7 @@ LIST *list_delimiter_list_piece_list(
 	return_list = list_new();
 
 	do {
-		item = list_get_pointer( list );
+		item = list_get( list );
 
 		if ( piece( piece_buffer, delimiter, item, piece_offset ) )
 		{
@@ -2423,7 +2411,7 @@ char *list_double_list_display(	char *destination,
 	if ( !list_rewind( double_list ) ) return "";
 
 	do {
-		d_ptr = (double *)list_get_pointer( double_list );
+		d_ptr = (double *)list_get( double_list );
 
 		if ( anchor != destination )
 		{
@@ -2455,7 +2443,7 @@ LIST *list_string_to_double_list(
 	double_list = list_new();
 
 	do {
-		item = list_get_pointer( string_list );
+		item = list_get( string_list );
 
 		if ( ! ( d_ptr = (double *)
 				calloc( 1, sizeof( double ) ) ) )
@@ -2490,7 +2478,7 @@ int list_double_list_match(	LIST *double_list,
 	if ( !list_rewind( double_list ) ) return -1;
 
 	do {
-		d_ptr = (double *)list_get_pointer( double_list );
+		d_ptr = (double *)list_get( double_list );
 
 		if ( timlib_double_virtually_same( *d_ptr, match ) )
 		{
@@ -2534,7 +2522,7 @@ char *list_integer_display(	LIST *integer_list,
 	*buf_ptr = '\0';
 
 	do {
-		ptr = list_get_pointer( integer_list );
+		ptr = list_get( integer_list );
 
 		if ( first_time )
 		{

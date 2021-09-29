@@ -23,11 +23,13 @@
 #define ELEMENT_PROMPT_REMEMBER			0
 #define ELEMENT_CHECKBOX_REMEMBER		1
 #define ELEMENT_DROP_DOWN_REMEMBER		1
+#define ELEMENT_MULTI_DROP_DOWN_REMEMBER	1
 
+#define ELEMENT_NAME_LOOKUP_STATE		"lookup_button"
 #define ELEMENT_TITLE_NOTEPAD_PADDING_EM	3
 #define ELEMENT_TEXTAREA_WRAP			"soft"
 #define ELEMENT_DICTIONARY_DELIMITER		'~'
-#define ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER '|'
+#define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER	'|'
 #define ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER '~'
 #define ELEMENT_MULTI_SELECT_ADD_LABEL		"Add ->"
 #define ELEMENT_MULTI_SELECT_REMOVE_LABEL	"<- Remove"
@@ -48,13 +50,14 @@
 
 enum element_type {	table_row,
 			prompt,
-			drop_down,
 			checkbox,
+			drop_down,
+			multi_drop_down,
 			radio_button,
 			notepad,
+			text_item,
 			password,
 			non_edit_text,
-			text_item,
 			javascript_filename,
 			upload_filename,
 			prompt_data,
@@ -96,13 +99,6 @@ typedef struct
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
-	char *many_folder_name;
-	LIST *foreign_key_list;
-
-	/* External */
-	/* -------- */
 	char *html;
 } ELEMENT_DROP_DOWN;
 
@@ -246,9 +242,6 @@ typedef struct
 	ELEMENT_NON_EDIT_TEXT *non_edit_text;
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
 */
-	/* External */
-	/* -------- */
-	int tab_index;
 } APPASERVER_ELEMENT;
 
 /* APPASERVER_ELEMENT operations */
@@ -256,8 +249,8 @@ typedef struct
 APPASERVER_ELEMENT *appaserver_element_new(
 			enum element_type element_type );
 
-int appaserver_element_tab_index(
-			int tab_index );
+int appaserver_element_tab_order(
+			int tab_order );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -309,11 +302,15 @@ char *element_prompt_html(
 ELEMENT_CHECKBOX *element_checkbox_calloc(
 			void );
 
+/* Returns heap memory or null. */
+/* ---------------------------- */
 char *element_checkbox_html(
 			char *element_name,
-			char *prompt_string,
+			char *prompt_display,
 			boolean checked,
-			char *onclick );
+			char *action_string,
+			int tab_order,
+			char *value );
 
 /* ELEMENT_DROP_DOWN operations */
 /* ---------------------------- */
@@ -323,7 +320,7 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *element_drop_down_name(
-			LIST *foreign_key_list,
+			LIST *element_name_list,
 			int row_number );
 
 LIST *element_drop_down_display_list(
@@ -345,7 +342,7 @@ char *element_drop_down_html(
 			int drop_down_size,
 			char *post_change_javascript,
 			char *background_color,
-			int tab_index );
+			int tab_order );
 
 /* Zaps row in delimited_list.  */
 /* Returns heap memory or null.	*/

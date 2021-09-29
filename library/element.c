@@ -174,7 +174,7 @@ char *element_password_html(
 			char *data,
 			int attribute_width,
 			int row,
-			int tab_index )
+			int tab_order )
 {
 	char html[ 1024 ];
 	char *ptr = html;
@@ -207,12 +207,12 @@ char *element_password_html(
 
 	ptr += sprintf( ptr, " Autocomplete=Off" );
 
-	if ( tab_index )
+	if ( tab_order > 0 )
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			tab_index );
+			" taborder=%d",
+			tab_order );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
@@ -236,12 +236,12 @@ char *element_password_html(
 
 	ptr += sprintf( ptr, " Autocomplete=Off" );
 
-	if ( tab_index )
+	if ( tab_order > 0 )
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			tab_index + 1 );
+			" taborder=%d",
+			tab_order +1 );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
@@ -269,7 +269,7 @@ char *element_drop_down_html(
 			int drop_down_size,
 			char *post_change_javascript,
 			char *background_color,
-			int tab_index )
+			int tab_order )
 {
 	char html[ STRING_TWO_MEG ];
 	char *ptr = html;
@@ -287,12 +287,12 @@ char *element_drop_down_html(
 		element_drop_down_name,
 		(drop_down_size) ? drop_down_size : 1 );
 
-	if ( tab_index )
+	if ( tab_order > 0 )
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			tab_index );
+			" taborder=%d",
+			tab_order );
 	}
 
 	if ( background_color && *background_color )
@@ -663,15 +663,15 @@ ELEMENT_TABLE_ROW *element_table_row_calloc( void )
 }
 
 char *element_drop_down_name(
-			LIST *foreign_key_list,
+			LIST *element_name_list,
 			int row_number )
 {
 	char drop_down_name[ 1024 ];
 
-	if ( !list_length( foreign_key_list ) )
+	if ( !list_length( element_name_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			"ERROR in %s/%s()/%d: element_name_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -681,24 +681,24 @@ char *element_drop_down_name(
 	sprintf(drop_down_name,
 		"%s_%d",
 		list_display_delimited(
-			foreign_key_list,
-			'^' ),
+			element_name_list,
+			SQL_DELIMITER ),
 		row_number );
 
 	return strdup( drop_down_name );
 }
 
-int appaserver_element_tab_index( int tab_index )
+int appaserver_element_tab_order( int tab_order )
 {
-	if ( tab_index == -1 ) return -1;
+	if ( tab_order == -1 ) return -1;
 
-	return tab_index + 1;
+	return tab_order + 1;
 }
 
 int element_drop_down_size(
 			int delimited_list_length )
 {
-	if ( delimited_list_length > 5 )
+	if ( delimited_list_length == 0 || delimited_list_length > 5 )
 		return 1;
 	else
 		return delimited_list_length;
@@ -715,11 +715,11 @@ LIST *element_drop_down_display_list(
 	char buffer[ 1024 ];
 	char delimiter_string[ 2 ];
 
-	if ( no_initial_capital ) return (LIST *)0;
+	if ( no_initial_capital ) return list_copy( delimited_list );
 
 	if ( !list_rewind( delimited_list ) ) return (LIST *)0;
 
-	*delimiter_string = '^';
+	*delimiter_string = SQL_DELIMITER;
 	*(delimiter_string + 1) = '\0';
 
 	display_list = list_new();
@@ -915,3 +915,59 @@ char *element_drop_down_close_html(
 
 	return html;
 }
+
+char *element_checkbox_html(
+			char *element_name,
+			char *prompt_display,
+			boolean checked,
+			char *action_string,
+			int tab_order,
+			char *value )
+{
+	char html[ 1024 ];
+	char *ptr = html;
+
+	if ( !element_name
+	||   !prompt_display
+	||   !value )
+	{
+		return (char *)0;
+	}
+
+	ptr += sprintf(
+		ptr,
+"<td>%s<input name=\"%s\" type=\"checkbox\" value=\"%s\"",
+		prompt_display,
+		element_name,
+		value );
+
+	if ( action_string && *action_string )
+	{
+		ptr += sprintf(
+			ptr,
+			" onClick=\"%s\"",
+			action_string );
+	}
+
+	if ( tab_order > 0 )
+	{
+		ptr += sprintf(
+			ptr,
+			" taborder=%d",
+			tab_order );
+	}
+
+	if ( checked )
+	{
+		ptr += sprintf(
+			ptr,
+			" checked" );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"></td>" );
+
+	return strdup( html );
+}
+

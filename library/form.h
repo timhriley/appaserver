@@ -66,6 +66,7 @@ typedef struct
 {
 	char *radio_name;
 	LIST *value_list;
+	char *html;
 } FORM_RADIO;
 
 typedef struct
@@ -174,8 +175,7 @@ FORM_BUTTON *form_button_calloc(
 			void );
 
 FORM_BUTTON *form_button_submit(
-			int form_number,
-			char *additional_action_string );
+			int form_number );
 
 FORM_BUTTON *form_button_reset(
 			int form_number,
@@ -203,27 +203,13 @@ FORM_BUTTON *form_button_html_help(
 LIST *form_button_insert_pair_one2m_submit_list(
 			LIST *pair_one2m_folder_list );
 
-FORM_BUTTON *form_button_new(
-			char *button_label,
-			char *action_string,
-			char *additional_action_string,
-			char *image_source );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *form_button_html(
-			char *button_label,
-			char *action_string,
-			char *additional_action_string,
-			char *image_source );
-
 void form_button_list_output(
 			FILE *output_stream,
 			LIST *button_list );
 
 void form_button_output(
 			FILE *output_stream,
-			FORM_BUTTON *form_button );
+			char *html );
 
 /* FORM_PROMPT operations */
 /* ---------------------- */
@@ -243,7 +229,7 @@ FORM_PROMPT_ISA *form_prompt_isa_new(
 			char *title,
 			char *prompt_message,
 			char *one2m_folder_name,
-			LIST *foreign_key_list,
+			LIST *primary_key_list,
 			LIST *delimited_list,
 			char *action_string );
 
@@ -259,7 +245,7 @@ void form_prompt_isa_output(
 			FILE *output_stream,
 			char *title_html,
 			char *message_html,
-			char *tag_html,
+			char *form_tag_html,
 			LIST *element_list,
 			LIST *button_list );
 

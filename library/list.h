@@ -326,22 +326,24 @@ void list_replace_string(
 			char *old,
 			char *new );
 
-LIST *list_set_list(		LIST *destination_list,
-				LIST *source_list );
+LIST *list_set_list(	LIST *destination_list,
+			LIST *source_list );
 
-LIST *list_append_list( 	LIST *destination_list, 
-				LIST *source_list );
+LIST *list_append_list(	LIST *destination_list, 
+			LIST *source_list );
 
-void *list_get_first_item(	LIST *list );
+void *list_first_item(	LIST *list );
 
-int list_get_max_string_width( LIST *list );
+int list_max_string_width(
+			LIST *list );
 
-LIST *pipe2list_append( 	LIST *source_list, 
-				char *pipe_string );
+LIST *pipe2list_append(	LIST *source_list, 
+			char *pipe_string );
 
-LIST *list_copy_string_list(	LIST *source );
+LIST *list_strdup_copy(
+			LIST *source );
 
-LIST *list_copy(		LIST *source );
+LIST *list_copy(	LIST *source );
 
 void list_push_current(	LIST *list );
 

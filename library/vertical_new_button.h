@@ -12,6 +12,7 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
+#include "element.h"
 
 /* --------- */
 /* Constants */

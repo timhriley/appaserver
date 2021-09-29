@@ -10,12 +10,11 @@
 #include "String.h"
 #include "timlib.h"
 #include "piece.h"
-#include "element.h"
+#include "environ.h"
 #include "dictionary.h"
 #include "appaserver_error.h"
 #include "operation.h"
 #include "list.h"
-#include "query.h"
 #include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
@@ -126,10 +125,20 @@ FORM_BUTTON *form_button_back_to_drillthru( char *action_string )
 {
 	FORM_BUTTON *form_button = form_button_calloc();
 	char html[ 1024 ];
+	char *ptr = html;
 
-	sprintf(html,
+	/* Close form[0] */
+	/* ------------- */
+	ptr += sprintf(
+		ptr,
+		"</form>\n" );
+
+	/* Open form[1] */
+	/* ------------ */
+	ptr += sprintf(
+		ptr,
 "<form enctype=\"multipart/form-data\" method=post action=\"%s\" target=%s>\n"
-"<input type=button value=\"Back to Drillthru\" onClick=\"document.forms[1].submit();\"></form>",
+"<input type=button value=\"Back to Drillthru\" onClick=\"document.forms[1].submit()\"\n",
 		action_string,
 		PROMPT_FRAME );
 
@@ -378,13 +387,13 @@ FORM_BUTTON *form_button_reset(
 		ptr,
 "<td><input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
 		form_number,
-		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
 
 	if ( post_change_javascript && *post_change_javascript )
 	{
 		ptr += sprintf(
 			ptr,
-			";%s;",
+			"&& %s",
 			javascript_replace_row(
 				post_change_javascript,
 			"0" /* row_string */ ) );
@@ -403,7 +412,7 @@ FORM_BUTTON *form_button_drillthru_skip( void )
 
 	sprintf(html,
 "<td><input type=\"button\" value=\"Skip\" title=\"Skip this form if you don't know exactly what you're looking for.\" onClick=\"form_reset(document.forms[0], '%c'); document.forms[0].submit()\">",
-		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
 
 	form_button->html = strdup( html );
 	return form_button;
@@ -543,13 +552,11 @@ FORM_PROMPT *form_prompt_calloc( void )
 
 LIST *form_prompt_isa_element_list(
 			char *one2m_isa_folder_name,
-			LIST *foreign_key_list,
+			LIST *primary_key_list,
 			LIST *delimited_list )
 {
 	LIST *element_list = list_new();
 	APPASERVER_ELEMENT *element;
-	QUERY *query;
-	char element_name[ 512 ];
 	char buffer[ 512 ];
 
 	/* Create a table row */
@@ -560,6 +567,8 @@ LIST *form_prompt_isa_element_list(
 			appaserver_element_new(
 				table_row ) ) );
 
+	/* Returns program memory */
+	/* ---------------------- */
 	element->table_row->html = element_table_row_html();
 
 	/* Create a prompt */
@@ -571,10 +580,13 @@ LIST *form_prompt_isa_element_list(
 				prompt ) ) );
 
 	element->prompt->html =
+		/* --------------------------- */
+		/* Safely returns heap memory. */
+		/* --------------------------- */
 		element_prompt_html(
 			string_initial_capital(
-				prompt_string,
-				one2m_isa_folder_name ) );
+				buffer /* prompt_string */,
+				one2m_isa_folder_name /* source */ ) );
 
 	/* Create a drop-down */
 	/* ------------------ */
@@ -590,16 +602,22 @@ LIST *form_prompt_isa_element_list(
 			/* Safely returns heap memory */
 			/* -------------------------- */
 			element_drop_down_name(
-				foreign_key_list,
+				primary_key_list /* element_name_list */,
 				0 ),
 			(char *)0 /* initial_data */,
 			delimited_list,
-			list_initial_capital(
-				delimited_list )
-					/* display_list */,
+			element_drop_down_display_list(
+				delimited_list,
+				0 /* not no_initial_capital */ ),
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
-			0 /* not output_select_option */ );
+			1 /* output_select_option */,
+			1 /* column_span */,
+			element_drop_down_size(
+				list_length( delimited_list ) ),
+			(char *)0 /* post_change_javascript */,
+			form_table_row_background_color(),
+			appaserver_element_tab_order( -1 ) );
 
 	/* Create a table row */
 	/* ------------------ */
@@ -609,6 +627,8 @@ LIST *form_prompt_isa_element_list(
 			appaserver_element_new(
 				table_row ) ) );
 
+	/* Returns program memory */
+	/* ---------------------- */
 	element->table_row->html = element_table_row_html();
 
 	/* Create a lookup state checkbox */
@@ -619,35 +639,29 @@ LIST *form_prompt_isa_element_list(
 			appaserver_element_new(
 				checkbox ) ) );
 
-	element =
-		element_appaserver_new(
-			toggle_button, 
-			LOOKUP_PUSH_BUTTON_NAME );
+	element->checkbox->html =
+		/* ---------------------------- */
+		/* Returns heap memory or null. */
+		/* ---------------------------- */
+		element_checkbox_html(
+			ELEMENT_NAME_LOOKUP_STATE,
+			"Lookup",
+			0 /* not checked */,
+			(char *)0 /* action_string */,
+			-1 /* tab_order */,
+			"yes" /* value */ );
 
-	element_toggle_button_set_heading(
-		element->toggle_button, "lookup" );
+	if ( !element->checkbox->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: element_checkbox_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	list_set( return_list, element );
-
-	/* Create a hidden query relational operator equals */
-	/* ------------------------------------------------ */
-	sprintf( element_name, 
-		 "%s",
-		 list_display_delimited_prefixed(
-			  primary_key_list,
-			  MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-			  RELATION_OPERATION_PREFIX ) );
-
-	element =
-		appaserver_element_new(
-			hidden,
-			strdup( element_name ) );
-
-	element->hidden->data = EQUAL_OPERATOR;
-
-	list_set( return_list, element );
-
-	return return_list;
+	return element_list;
 }
 
 FORM_RADIO *form_radio_calloc( void )
@@ -682,9 +696,23 @@ FORM_RADIO *form_radio_new(
 			value_string_list );
 
 	form_radio->html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		form_radio_html(
 			form_radio->value_list,
 			set_all_push_buttons_html );
+
+	if ( !form_radio->html )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_radio_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	return form_radio;
 }
@@ -703,8 +731,7 @@ char *form_radio_html(
 		ptr,
 		"<table cellspacing=0 cellpadding=0 border>\n<tr>\n" );
 
-	if ( set_all_push_buttons_html
-	&&   *set_all_push_buttons_html )
+	if ( set_all_push_buttons_html && *set_all_push_buttons_html )
 	{
 		ptr += sprintf(
 			ptr,
@@ -819,7 +846,7 @@ char *form_radio_value_html(
 
 	ptr += sprintf(
 		ptr,
-		">%s\n,
+		">%s\n",
 		string_initial_capital(
 			buffer,
 			value_string ) );
@@ -870,11 +897,10 @@ char *form_message_html( char *prompt_message )
 	return strdup( message_html );
 }
 
-char *form_tag_html(
-			char *action_string,
+char *form_tag_html(	char *action_string,
 			char *target_frame )
 {
-	char tag_html[ 1024 ];
+	char tag_html[ STRING_INPUT_BUFFER ];
 
 	if ( !action_string )
 	{
@@ -897,9 +923,10 @@ char *form_tag_html(
 	}
 
 	sprintf(tag_html,
-		"<form enctype=\"multipart/form-data\" "
-		"method=post name=\"prompt\" "
-		"action=\"%s\" target=\"%s\">\n",
+		"<form enctype=\"multipart/form-data\"\n"
+		"\tmethod=post name=\"prompt\"\n"
+		"\taction=\"%s\"\n"
+		"\ttarget=\"%s\">\n",
 		action_string,
 		target_frame );
 
@@ -932,8 +959,7 @@ FORM_PROMPT_ISA *form_prompt_isa_new(
 			LIST *delimited_list,
 			char *action_string )
 {
-	FORM_PROMPT_ISA *form_prompt_isa =
-		form_prompt_isa_calloc();
+	FORM_PROMPT_ISA *form_prompt_isa = form_prompt_isa_calloc();
 
 	form_prompt_isa->title_html =
 		/* -------------------------- */
@@ -969,62 +995,68 @@ FORM_PROMPT_ISA *form_prompt_isa_new(
 
 LIST *form_prompt_isa_button_list( void )
 {
+	LIST *button_list = list_new();
+
+	list_set(
+		button_list,
+		form_button_submit(
+			0 /* form_number */ ) );
+
+	list_set(
+		button_list,
+		form_button_reset(
+			0 /* form_number */,
+			(char *)0 /* post_change_javascript */ ) );
+
+	list_set(
+		button_list,
+		form_button_back_forward() );
+
+	return button_list;
 }
 
 void form_prompt_isa_output(
 			FILE *output_stream,
 			char *title_html,
 			char *message_html,
-			char *tag_html,
+			char *form_tag_html,
 			LIST *element_list,
 			LIST *button_list )
 {
 	fprintf( output_stream, "%s\n", title_html );
 	fprintf( output_stream, "%s\n", message_html );
-	fprintf( output_stream, "%s\n", tag_html );
+
+	/* Open table then form */
+	/* -------------------- */
+	fprintf( output_stream, "<table border=0>\n" );
+	fprintf( output_stream, "%s\n", form_tag_html );
 
 	appaserver_element_list_output(
 		output_stream,
 		element_list );
 
-	button_list_output(
+	form_button_list_output(
 		output_stream,
 		button_list );
 
+	/* Close form then table */
+	/* --------------------- */
 	fprintf( output_stream, "</form>\n" );
+	fprintf( output_stream, "</table>\n" );
 }
 
-char *form_button_submit(
-			char *submit_control_string,
-			char *button_label,
+FORM_BUTTON *form_button_submit(
 			int form_number )
 {
-	if ( !button_label || !*button_label )
-		button_label = SUBMIT_BUTTON_LABEL;
+	FORM_BUTTON *form_button = form_button_calloc();
+	char html[ 1024 ];
 
-	printf( "<td>" );
+	sprintf(html,
+"<td><input type=button value=\"|    Submit    |\" onClick=\"document.forms[%d].submit();\">",
+		form_number );
 
-	if ( submit_control_string && *submit_control_string )
-	{
-		/* -------------------------------------------- */
-		/* The submit_control_string is assumed to	*/
-		/* have "&&" appended to it.			*/
-		/* -------------------------------------------- */
-		printf(
-"<td><input type=button value=\"%s\" "
-"onClick=\"%s document.forms[%d].submit();\">\n",
-			button_label,
-			submit_control_string,
-			form_number );
-	}
-	else
-	{
-		printf(
-"<td><input type=button value=\"%s\" "
-"onClick=\"document.forms[%d].submit();\">\n",
-			button_label,
-		     	form_number );
-	}
+	form_button->html = strdup( html );
+	return form_button;
 }
 
 FORM_BUTTON *form_button_calloc( void )
@@ -1044,121 +1076,6 @@ FORM_BUTTON *form_button_calloc( void )
 	return form_button;
 }
 
-FORM_BUTTON *form_button_new(
-			char *button_label,
-			char *action_string,
-			char *additional_action_string,
-			char *image_source )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-
-	form_button->html =
-		form_button_html(
-			button_label,
-			action_string,
-			additional_action_string,
-			image_source );
-
-	return form_button;
-}
-
-FORM_BUTTON *form_button_submit(
-			int form_number,
-			char *additional_action_string )
-{
-	char action_string[ 128 ];
-
-	sprintf(action_string,
-		"document.forms[%d].submit()",
-		form_number );
-
-	return
-	form_button_new(
-		FORM_BUTTON_SUBMIT_LABEL,
-		action_string,
-		additional_action_string,
-		(char *)0 /* image_source */ );
-}
-
-FORM_BUTTON *form_button_reset(
-			int form_number )
-{
-	char action_string[ 128 ];
-
-	sprintf(action_string,
-		"form_reset(document.forms[%d],'|')",
-		form_number );
-
-	return
-	form_button_new(
-		"Reset" /* button_label */,
-		action_string,
-		additional_action_string,
-		(char *)0 /* image_source */ );
-}
-
-FORM_BUTTON *form_button_back( void )
-{
-	return
-	form_button_new(
-		"Back" /* button_label */,
-		"history.back()" /* action_string */,
-		(char *)0 /* additional_action_string */,
-		(char *)0 /* image_source */ );
-}
-
-FORM_BUTTON *form_button_forward( void )
-{
-	return
-	form_button_new(
-		"Forward" /* button_label */,
-		"timlib_history_forward()" /* action_string */,
-		(char *)0 /* additional_action_string */,
-		(char *)0 /* image_source */ );
-}
-
-char *form_button_html(
-			char *button_label,
-			char *action_string,
-			char *additional_action_string,
-			char *image_source )
-{
-	char local_action_string[ 1024 ];
-	char html[ 2048 ];
-
-	if ( !action_string ) return (char *)0;
-	if ( !button_label && !image_source ) return (char *)0;
-
-	if ( !additional_action_string )
-	{
-		strcpy( local_action_string, action_string );
-	}
-	else
-	{
-		sprintf(local_action_string,
-			"%s && %s",
-			additional_action_string,
-			action_string );
-	}
-
-	if ( button_label )
-	{
-		sprintf(html,
-			"<td><input type=button value=\"%s\" onClick=\"%s\">",
-			button_label,
-			local_action_string );
-	}
-	else
-	{
-		sprintf(html,
-			"<td><a onClick=\"%s\"><img src=\"%s\"></a>",
-			local_action_string,
-			image_source );
-	}
-
-	return strdup( html );
-}
-
 void form_button_list_output(
 			FILE *output_stream,
 			LIST *button_list )
@@ -1173,6 +1090,10 @@ void form_button_list_output(
 	do {
 		form_button = list_get( button_list );
 
+		form_button_output(
+			output_stream,
+			form_button->html );
+
 		fprintf(output_stream,
 			"%s\n",
 			form_button->html );
@@ -1183,6 +1104,22 @@ void form_button_list_output(
 		"</table\n" );
 }
 
+void form_button_output(
+			FILE *output_stream,
+			char *html )
+{
+	if ( !html || !*html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	fprintf( output_stream, "%s\n", html );
+}
 char *form_table_row_background_color( void )
 {
 	static int cycle_count = 0;
