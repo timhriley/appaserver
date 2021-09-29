@@ -13,6 +13,7 @@
 #include "list.h"
 #include "dictionary.h"
 #include "element.h"
+#include "remember.h"
 #include "dictionary_separate.h"
 
 /* Constants */
@@ -23,7 +24,7 @@
 #define FORM_COLOR4				"#f7ffce"
 #define FORM_COLOR5				"#f2e0b8"
 
-#define FORM_LOOKUP_STATE			"lookup_state"
+#define FORM_MAX_BACKGROUND_COLOR_ARRAY		10
 #define FORM_ROWS_BETWEEN_HEADINGS		10
 #define FORM_SORT_LABEL				"sort_"
 #define FORM_DESCENDING_LABEL			"descend_"
@@ -77,11 +78,22 @@ typedef struct
 
 typedef struct
 {
+	DICTIONARY *row_dictionary;
+	LIST *element_list;
+	int row_number;
+	char *background_color;
+} FORM_TABLE_ROW;
+
+typedef struct
+{
 	char *folder_name;
 	char *state;
 	char *title_string;
 	LIST *regular_element_list;
 	LIST *viewonly_element_list;
+	char *action_string;
+	LIST *button_list;
+	LIST *row_list;
 } FORM_TABLE;
 
 typedef struct
@@ -113,6 +125,9 @@ char *form_message_html(
 char *form_tag_html(
 			char *action_string,
 			char *target_frame );
+
+char *form_next_reference_number(
+			int *form_current_reference_number );
 
 /* FORM_RADIO_VALUE operations */
 /* --------------------------- */
@@ -158,24 +173,41 @@ char *form_radio_html(
 FORM_BUTTON *form_button_calloc(
 			void );
 
-FORM_BUTTON *form_button_new(
-			char *button_label,
-			char *action_string,
-			char *additional_action_string,
-			char *image_source );
-
 FORM_BUTTON *form_button_submit(
 			int form_number,
 			char *additional_action_string );
 
 FORM_BUTTON *form_button_reset(
-			int form_number );
+			int form_number,
+			char *post_change_javascript );
 
-FORM_BUTTON *form_button_back(
+FORM_BUTTON *form_button_back_to_top(
 			void );
 
-FORM_BUTTON *form_button_forward(
+FORM_BUTTON *form_button_remember(
+			char *action_string );
+
+FORM_BUTTON *form_button_back_to_drillthru(
+			char *action_string );
+
+FORM_BUTTON *form_button_back_forward(
 			void );
+
+FORM_BUTTON *form_button_drillthru_skip(
+			void );
+
+FORM_BUTTON *form_button_html_help(
+			char *application_name,
+			char *html_help_file_anchor );
+
+LIST *form_button_insert_pair_one2m_submit_list(
+			LIST *pair_one2m_folder_list );
+
+FORM_BUTTON *form_button_new(
+			char *button_label,
+			char *action_string,
+			char *additional_action_string,
+			char *image_source );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -188,6 +220,10 @@ char *form_button_html(
 void form_button_list_output(
 			FILE *output_stream,
 			LIST *button_list );
+
+void form_button_output(
+			FILE *output_stream,
+			FORM_BUTTON *form_button );
 
 /* FORM_PROMPT operations */
 /* ---------------------- */
@@ -226,5 +262,27 @@ void form_prompt_isa_output(
 			char *tag_html,
 			LIST *element_list,
 			LIST *button_list );
+
+/* FORM_TABLE_ROW operations */
+/* ------------------------- */
+FORM_TABLE_ROW *form_table_row_new(
+			DICTIONARY *row_dictionary,
+			LIST *element_list,
+			int row_number,
+			char *background_color );
+
+char *form_table_row_background_color(
+			void );
+
+char **form_table_row_background_color_array(
+			int *background_color_array_length,
+			char *application_name );
+
+void form_table_row_output(
+			FILE *output_stream,
+			FORM_TABLE_ROW *form_table_row );
+
+void form_table_row_free(
+			FORM_TABLE_ROW *form_table_row );
 
 #endif

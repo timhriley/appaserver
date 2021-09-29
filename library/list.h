@@ -75,7 +75,7 @@ char *list_append_unique(	LIST *list,
 				int num_bytes,
 				int (*match_fn)() );
 
-int delete_item();
+void delete_item(	LIST *list );
 
 int num_items();
 
@@ -189,47 +189,59 @@ LIST *list_delimiter_string_to_list(
 
 /* offset is zero based */
 /* -------------------- */
-char *list_get_offset(	LIST *list,
-			int offset );
-
-/* offset is zero based */
-/* -------------------- */
-char *list_seek_offset(	LIST *list,
+char *list_offset_seek(	LIST *list,
 			int offset );
 
 /* index is one based */
 /* ------------------ */
-char *list_seek_index(	LIST *list,
+char *list_index_seek(	LIST *list,
 			int index );
 
 /* Returns -1 if not found */
 /* ----------------------- */
-int list_seek(		char *item,
+int list_seek_offset(	char *item,
 			LIST *list );
 
-LIST *list_subtract( LIST *big_list, LIST *subtract_this );
+LIST *list_subtract(	LIST *big_list,
+			LIST *subtract_this );
 
-LIST *subtract_list( LIST *big_list, LIST *subtract_this );
+LIST *subtract_list(	LIST *big_list,
+			LIST *subtract_this );
 
-LIST *list_subtract_list( LIST *big_list, LIST *subtract_this );
+LIST *list_subtract_list(
+			LIST *big_list,
+			LIST *subtract_this );
 
-LIST *list_subtract_string_list( LIST *big_list, LIST *subtract_this );
+LIST *list_subtract_string_list(
+			LIST *big_list,
+			LIST *subtract_this );
 
-char *list2comma_string( LIST *list );
+char *list2comma_string(
+			LIST *list );
 
-char *two_lists_to_dictionary_string( LIST *list1, LIST *list2 );
+char *two_lists_to_dictionary_string(
+			LIST *list1,
+			LIST *list2 );
 
-char *list_string_display( LIST *list );
+char *list_string_display(
+			LIST *list );
 
-void list_subtract_dictionary_string( LIST *list, char *dictionary_string );
+void list_subtract_dictionary_string(
+			LIST *list,
+			char *dictionary_string );
 
-void list_subtract_string( LIST *list, char *string );
+void list_subtract_string(
+			LIST *list,
+			char *string );
 
-int delete_current( LIST *list );
+void delete_current(	LIST *list );
 
-int list_delete_current( LIST *list );
+void list_delete_current(
+			LIST *list );
 
-char *list_display_quoted( char *destination, LIST *list );
+char *list_display_quoted(
+			char *destination,
+			LIST *list );
 
 char *list_display_quoted_delimiter( 
 			char *destination, 
@@ -331,115 +343,160 @@ LIST *list_copy_string_list(	LIST *source );
 
 LIST *list_copy(		LIST *source );
 
-void list_push_current(		LIST *list );
-void list_pop_current(		LIST *list );
-void list_mark_current(		LIST *list );
-void list_restore_current(	LIST *list );
-void list_save(			LIST *list );
-void list_restore(		LIST *list );
+void list_push_current(	LIST *list );
 
-boolean list_tail( 		LIST *list );
+void list_pop_current(	LIST *list );
 
-boolean list_go_tail( 		LIST *list );
+void list_mark_current(	LIST *list );
 
-boolean list_go_last( 		LIST *list );
+void list_restore_current(
+			LIST *list );
+
+void list_save(		LIST *list );
+void list_restore(	LIST *list );
+
+boolean list_tail( 	LIST *list );
+
+boolean list_go_tail( 	LIST *list );
+
+boolean list_go_last( 	LIST *list );
 
 void list_interpolate_string_record( 
-				LIST *list,
-				char delimiter );
+			LIST *list,
+			char delimiter );
 
-void list_set_current_string(	LIST *list, char *s );
+void list_set_current_string(
+			LIST *list,
+			char *s );
 
-void list_set_string(		LIST *list, char *s );
+void list_set_string(	LIST *list,
+			char *s );
 
 boolean list_add_string_in_order(
-				LIST *list,
-				char *string );
+			LIST *list,
+			char *string );
 
 boolean list_set_string_in_order(
-				LIST *list,
-				char *string );
+			LIST *list,
+			char *string );
 
-void list_add_string( 		LIST *list, char *string );
+void list_add_string( 	LIST *list,
+			char *string );
 
-int list_add_in_order(		LIST *list, 
-				void *this_item, 
-				int num_bytes, 
-				int (*match_fn)() );
+int list_add_in_order(	LIST *list, 
+			void *this_item, 
+			int num_bytes, 
+			int (*match_fn)() );
 
 boolean list_add_pointer_in_order(
-				LIST *list, 
-				void *this_item, 
-				int (*match_fn)() );
+			LIST *list, 
+			void *this_item, 
+			int (*match_fn)() );
 
-int add_in_order( 		LIST *list, 
-				void *this_item, 
-				int num_bytes,
-				int (*match_fn)() );
+int add_in_order( 	LIST *list, 
+			void *this_item, 
+			int num_bytes,
+			int (*match_fn)() );
 
-struct LINKTYPE *create_node(	void );
+struct LINKTYPE *create_node(
+			void );
 
-void list_double_forward( 	LIST *double_list, double here );
+void list_double_forward(
+			LIST *double_list,
+			double here );
 
-boolean list_previous( 		LIST *list );
+boolean list_previous( 	LIST *list );
 
-boolean list_prior( 		LIST *list );
+boolean list_prior( 	LIST *list );
 
-char *list_to_string( 		LIST *list, char delimiter );
+char *list_to_string( 	LIST *list,
+			char delimiter );
 
-char *list2string_delimited(	LIST *list, char delimiter );
+char *list2string_delimited(
+			LIST *list,
+			char delimiter );
 
-int list_go_offset( 		LIST *list, int offset );
+int list_go_offset( 	LIST *list,
+			int offset );
 
-char *list_last_string( 	LIST *list );
+char *list_last_string(	LIST *list );
 
 char *list_display_delimited_prefixed(	
-				LIST *list, 
-				char delimiter, 
-				char *prefix );
+			LIST *list, 
+			char delimiter, 
+			char *prefix );
 
-int list_search_string( 	LIST *list, char *string );
+int list_search_string(	LIST *list,
+			char *string );
 
-void list_toupper(		LIST *list );
+void list_toupper(	LIST *list );
 
 
-char *list_get_first_string(	LIST *list );
+char *list_get_first_string(
+			LIST *list );
 
-int list_strcmp(		char *s1, char *s2 );
+int list_strcmp(	char *s1,
+			char *s2 );
 
-int list_string_index_compare(	char *s1, char *s2 );
+int list_string_index_compare(
+			char *s1,
+			char *s2 );
 
-void free_string_list( 		LIST *string_list );
-void list_free_string_list( 	LIST *string_list );
+void free_string_list( 	LIST *string_list );
+
+void list_free_string_list(
+			LIST *string_list );
+
 LIST *list_double_quotes_around_string_list(
-				LIST *list );
+			LIST *list );
 
 LIST *list_replicate_string_list(
-				char *string, int how_many );
+			char *string,
+			int how_many );
 
-LIST *string_array2string_list( char **string_array,
-				int max_array_elements );
+LIST *string_array2string_list(
+			char **string_array,
+			int max_array_elements );
 
-void *list_get_first_element( 	LIST *list );
+void *list_get_first_element(
+			LIST *list );
 
-int list_at_tail(		LIST *list );
-int at_tail(			LIST *list );
-void list_bye(			char *s );
-int num_in_list(		LIST *list );
-int previous_item(		LIST *list );
-void moveitem(			char *to, char *from, int num_bytes );
+int list_at_tail(	LIST *list );
 
-void list_remove_string(	LIST *string_list,
-				char *remove_string );
+int at_tail(		LIST *list );
 
-void list_insert_current(	LIST *list, void *item );
-void list_set_current(		LIST *list, void *item );
-void list_set_current_pointer(	LIST *list, void *item );
-void list_pop(			LIST *list );
-void list_push(			LIST *list );
+void list_bye(		char *s );
+
+int num_in_list(	LIST *list );
+
+int previous_item(	LIST *list );
+
+void moveitem(		char *to,
+			char *from,
+			int num_bytes );
+
+void list_remove_string(
+			LIST *string_list,
+			char *remove_string );
+
+void list_insert_current(
+			LIST *list,
+			void *item );
+
+void list_set_current(	LIST *list,
+			void *item );
+
+void list_set_current_pointer(
+			LIST *list,
+			void *item );
+
+void list_pop(		LIST *list );
+
+void list_push(		LIST *list );
 
 LIST *list_intersect_string_list(
-				LIST *list1, LIST *list2 );
+			LIST *list1,
+			LIST *list2 );
 
 LIST *list_append_unique_string_list(
 			LIST *destination_list,
@@ -461,35 +518,38 @@ void list_append_unique_string(
 			LIST *list,
 			char *this_item );
 
-char *list_buffered_display(	char *destination,
-				LIST *list, 
-				char delimiter );
+char *list_buffered_display(
+			char *destination,
+			LIST *list, 
+			char delimiter );
 
-LIST *list_merge_string_list(	LIST *list1,
-				LIST *list2,
-				char delimiter );
+LIST *list_merge_string_list(
+			LIST *list1,
+			LIST *list2,
+			char delimiter );
 
 /* This will generate an in clause */
 /* ------------------------------- */
 char *list_display_quote_comma_delimited(
-				char *destination, 
-				LIST *list );
+			char *destination, 
+			LIST *list );
 
 char *list_display_double_quote_comma_delimited(
-				char *destination, 
-				LIST *list );
+			char *destination, 
+			LIST *list );
 
-boolean list_equals_string_list(LIST *list1,
-				LIST *list2 );
+boolean list_equals_string_list(
+			LIST *list1,
+			LIST *list2 );
 
 boolean list_equivalent_string_list(
 			LIST *list1,
 			LIST *list2 );
 
-int list_free_container(
+void list_free_container(
 			LIST *list );
 
-int list_free_string_container(
+void list_free_string_container(
 			LIST *list );
 
 LIST *list_position_list(

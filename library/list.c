@@ -37,7 +37,7 @@ void list_free_data( LIST *list )
 /* ------------------------------- */
 /* Free the list but keep the data */
 /* ------------------------------- */
-int list_free_container( LIST *list )
+void list_free_container( LIST *list )
 {
 	struct LINKTYPE *linktype;
 
@@ -52,7 +52,6 @@ int list_free_container( LIST *list )
 	}
 
 	free( list );
-	return 1;
 }
 
 void list_linktype_free( struct LINKTYPE *linktype )
@@ -61,9 +60,9 @@ void list_linktype_free( struct LINKTYPE *linktype )
 	if ( linktype ) free( linktype );
 }
 
-int list_free_string_container( LIST *list )
+void list_free_string_container( LIST *list )
 {
-	return list_free_container( list );
+	list_free_container( list );
 }
 
 boolean list_set( LIST *list, void *this_item )
@@ -163,7 +162,7 @@ void list_subtract_string(
 }
 
 
-int list_delete_current( LIST *list )
+void list_delete_current( LIST *list )
 {
 	return delete_current( list );
 }
@@ -777,9 +776,7 @@ LIST *list_subtract( LIST *big_list, LIST *subtract_this )
 	return return_list;
 }
 
-/* index is one based */
-/* ------------------ */
-char *list_seek_index(	LIST *list,
+char *list_index_seek(	LIST *list,
 			int index )
 {
 	if ( list_go_offset( list, index - 1 ) )
@@ -788,16 +785,8 @@ char *list_seek_index(	LIST *list,
 		return (char *)0;
 }
 
-/* offset is zero based */
-/* -------------------- */
-char *list_seek_offset( LIST *list, int offset )
-{
-	return list_get_offset( list, offset );
-}
-
-/* offset is zero based */
-/* -------------------- */
-char *list_get_offset( LIST *list, int offset )
+char *list_offset_seek(	LIST *list,
+			int offset )
 {
 	if ( list_go_offset( list, offset ) )
 		return (char *)retrieve_item_ptr( list );
@@ -805,20 +794,24 @@ char *list_get_offset( LIST *list, int offset )
 		return (char *)0;
 }
 
-/* offset is zero based. */
-/* --------------------- */
-boolean list_go_offset( LIST *list, int offset )
+boolean list_go_offset(	LIST *list,
+			int offset )
 {
 	int i = 0;
 
-	if ( go_head( list ) )
+	if ( list_rewind( list ) )
+	{
 		do {
 			if ( i++ == offset ) return 1;
+
 		} while ( next_item( list ) );
+	}
 	return 0;
 }
 
-void list_append_string( LIST *list, char *string )
+void list_append_string(
+			LIST *list,
+			char *string )
 {
 	append( list, string, strlen( string ) + 1 );
 }
@@ -966,24 +959,22 @@ int list_at_tail( LIST *list )
 int at_tail( LIST *list )
 {
         return (list->current == list->tail->previous);
-
 }
 
-
-
-int delete_item( LIST *list )
+void delete_item( LIST *list )
 {
-	return delete_current( list );
+	delete_current( list );
 }
 
-int delete_current( LIST *list )
+void delete_current( LIST *list )
 /* --------------------------------------------------- */
 /* This function deletes the item pointing to current. */
 /* If the list is empty, it returns FALSE.             */
 /* --------------------------------------------------- */
 {
         struct LINKTYPE *save_ptr;
-        if ( !list->num_in_list ) return 0;
+
+        if ( !list->num_in_list ) return;
 
         /* Free item space */
         /* --------------- */
@@ -1017,9 +1008,6 @@ int delete_current( LIST *list )
 
         	free ( save_ptr );
 	}
-
-        return 1;
-
 }
 
 int list_count( LIST *list )
@@ -2576,7 +2564,7 @@ LIST *list_string_new( char *string )
 
 /* Returns -1 if not found */
 /* ----------------------- */
-int list_seek(		char *item,
+int list_seek_offset(	char *item,
 			LIST *list )
 {
 	char *a;

@@ -33,12 +33,12 @@ char *javascript_source(
 			char *javascript_html,
 			char *document_root_directory );
 
-void javascript_replace_state(
+char *javascript_replace_state(
 			char *post_change_javascript,
 			char *state );
 
 
-void javascript_replace_row(
+char *javascript_replace_row(
 			char *post_change_javascript,
 			char *row );
 

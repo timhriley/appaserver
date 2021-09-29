@@ -136,20 +136,22 @@ char *javascript_source(
 	return strdup( source );
 }
 
-void javascript_replace_state(
+char *javascript_replace_state(
 			char *post_change_javascript,
 			char *state )
 {
+	return
 	search_replace_string(
 		post_change_javascript,
 		"$state",
 		state );
 }
 
-void javascript_replace_row(
+char *javascript_replace_row(
 			char *post_change_javascript,
 			char *row )
 {
+	return
 	search_replace_string(
 		post_change_javascript,
 		"$row",

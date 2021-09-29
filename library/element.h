@@ -18,7 +18,6 @@
 /* --------- */
 /* #define ELEMENT_LONG_DASH_DELIMITER		"&#151;" */
 #define ELEMENT_LONG_DASH_DELIMITER		"---"
-#define ELEMENT_DROP_DOWN_DELIMITER		'^'
 
 #define ELEMENT_TABLE_ROW_REMEMBER		0
 #define ELEMENT_PROMPT_REMEMBER			0
@@ -43,11 +42,14 @@
 #define ELEMENT_MULTI_SELECT_ROW_COUNT		10
 #define ELEMENT_NON_EDIT_MULTI_SELECT_ROW_COUNT	3
 
+#define ELEMENT_NULL_OPERATOR			"is_empty"
+#define ELEMENT_NOT_NULL_OPERATOR		"not_empty"
+#define ELEMENT_SELECT_OPERATOR			"select"
+
 enum element_type {	table_row,
 			prompt,
 			drop_down,
-			toggle_button,
-			push_button,
+			checkbox,
 			radio_button,
 			notepad,
 			password,
@@ -70,7 +72,6 @@ enum element_type {	table_row,
 			http_filename,
 			timestamp,
 			table_opening,
-			table_row,
 			table_closing,
 			prompt_heading,
 			anchor,
@@ -244,7 +245,6 @@ typedef struct
 	ELEMENT_REFERENCE_NUMBER *reference_number;
 	ELEMENT_NON_EDIT_TEXT *non_edit_text;
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
-	boolean remember_keystrokes_ok;
 */
 	/* External */
 	/* -------- */
@@ -259,14 +259,22 @@ APPASERVER_ELEMENT *appaserver_element_new(
 int appaserver_element_tab_index(
 			int tab_index );
 
+/* Returns program memory */
+/* ---------------------- */
+char *appaserver_element_background_color(
+			int row_number );
+
+/* Safely returns heap memory.			    */
+/* Note: sourse is assumed to be heap and is freed. */
+/* ------------------------------------------------ */
 char *appaserver_element_post_change_javascript(
 			char *source,
-			int row,
+			int row_number,
 			char *state );
 
 char *appaserver_element_name(
 			char *name,
-			int row );
+			int row_number );
 
 void appaserver_element_list_output(
 			FILE *output_stream,
@@ -316,13 +324,19 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc(
 /* -------------------------- */
 char *element_drop_down_name(
 			LIST *foreign_key_list,
-			int row );
+			int row_number );
+
+LIST *element_drop_down_display_list(
+			LIST *delimited_list,
+			boolean no_initial_capital );
+
+int element_drop_down_size(
+			int delimited_list_length );
 
 char *element_drop_down_html( 	
 			char *element_drop_down_name,
 			char *initial_data,
 			LIST *delimited_list,
-			boolean no_initial_capital,
 			LIST *display_list,
 			boolean output_null_option,
 			boolean output_not_null_option,
@@ -332,5 +346,26 @@ char *element_drop_down_html(
 			char *post_change_javascript,
 			char *background_color,
 			int tab_index );
+
+/* Zaps row in delimited_list.  */
+/* Returns heap memory or null.	*/
+/* ---------------------------- */
+char *element_drop_down_initial_data_html(
+			LIST *delimited_list,
+			LIST *display_list,
+			char *initial_data );
+
+/* Returns static memory. */
+/* ---------------------- */
+char *element_drop_down_close_html(
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_drop_down_option_value_html(
+			char *data,
+			char *display );
 
 #endif

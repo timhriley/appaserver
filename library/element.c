@@ -166,8 +166,7 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		exit( 1 );
 	}
 
-	return i;
-
+	return element;
 }
 
 char *element_password_html(
@@ -178,7 +177,7 @@ char *element_password_html(
 			int tab_index )
 {
 	char html[ 1024 ];
-	char *ptr;
+	char *ptr = html;
 	int maxlength;
 	int size;
 
@@ -216,7 +215,7 @@ char *element_password_html(
 			tab_index );
 	}
 
-	ptr += sprintf( ptrt, ">\n" );
+	ptr += sprintf( ptr, ">\n" );
 
 	/* Output the password compare field */
 	/* --------------------------------- */
@@ -226,7 +225,7 @@ char *element_password_html(
 "<td><input name=\"%s_compare_%d\" type=\"password\" size=\"%d\"",
 		element_name, row, size );
 
-	ptr += sprintf( ptre, " maxlength=\"%d\"", maxlength );
+	ptr += sprintf( ptr, " maxlength=\"%d\"", maxlength );
 
 	ptr += sprintf( ptr,
 		 " onChange=\"password_compare('%s_%d','%s_compare_%d')\"",
@@ -258,11 +257,10 @@ void element_password_erase_data( char *data )
 	while( *data ) *data++ = '*';
 }
 
-char *element_drop_down_html( 	
+char *element_drop_down_html(
 			char *element_drop_down_name,
 			char *initial_data,
 			LIST *delimited_list,
-			boolean no_initial_capital,
 			LIST *display_list,
 			boolean output_null_option,
 			boolean output_not_null_option,
@@ -275,301 +273,152 @@ char *element_drop_down_html(
 {
 	char html[ STRING_TWO_MEG ];
 	char *ptr = html;
-
-	column_span = (column_span) ? column_span : 1;
+	char *initial_data_html = {0};
+	char *data;
+	char *display = {0};
+	char buffer[ 128 ];
 
 	ptr += sprintf(
 		ptr,
 		"<td align=left colspan=%d>\n"
-		"<select name=\"%s\" id=\"%s\"",
-		column_span,
+		"<select name=\"%s\" id=\"%s\" size=%d",
+		(column_span) ? column_span : 1,
 		element_drop_down_name,
-		element_drop_down_name );
-
-	fprintf(	output_file,
-			" size=\"%d\"",
-			( multi_select ) ? ELEMENT_MULTI_SELECT_ROW_COUNT : 1 );
-
-	if ( multi_select ) fprintf( output_file, " multiple" );
+		element_drop_down_name,
+		(drop_down_size) ? drop_down_size : 1 );
 
 	if ( tab_index )
 	{
-		fprintf( output_file,
-			 " tabindex=%d",
-			 tab_index );
+		ptr += sprintf(
+			ptr,
+			" tabindex=%d",
+			tab_index );
 	}
 
-	if ( post_change_javascript
-	&&   *post_change_javascript )
+	if ( background_color && *background_color )
 	{
-		fprintf(output_file, " onchange=\"%s\"",
-			element_replace_javascript_variables(
-				buffer,
-				post_change_javascript,
-				row,
-				state ) );
+		ptr += sprintf(
+			ptr,
+			" style=\"{background:%s}\"",
+			background_color );
 	}
 
-	if ( onblur_javascript_function
-	&&   *onblur_javascript_function )
+	if ( post_change_javascript && *post_change_javascript )
 	{
-		fprintf(output_file,
-			" onblur=\"%s\"",
-			element_replace_javascript_variables(
-				buffer,
-				onblur_javascript_function,
-				row,
-				state ) );
+		ptr += sprintf(
+			ptr,
+			" onChange=\"%s\"",
+			post_change_javascript );
 	}
 
-	fprintf( output_file, ">" );
+	ptr += sprintf( ptr, ">\n" );
 
-	if ( !multi_select && initial_data && *initial_data )
+	if ( initial_data && *initial_data )
 	{
-		if ( ( *(initial_data +
-			strlen( initial_data ) - 1 ) ==
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER )
-		||	strcmp( initial_data, " | " ) == 0 )
-		{
-			strcpy( initial_label, "Select" );
-		}
-		else
-		{
-			element_drop_down_initial_label(
-				initial_label,
-				initial_data,
-				no_initial_capital,
-				option_data_list,
-				option_label_list );
-		}
+		initial_data_html =
+			/* ------------------------------ */
+			/* Zaps row in delimited_list and */
+			/* adds "Select" to bottom.	  */
+			/* Returns heap memory or null.	  */
+			/* ------------------------------ */
+			element_drop_down_initial_data_html(
+				delimited_list,
+				display_list,
+				initial_data );
+	}
+
+	if ( initial_data_html )
+	{
+		ptr += sprintf( ptr, "%s\n", initial_data_html );
 	}
 	else
+	if ( output_select_option )
 	{
-		initial_data = "select";
-		strcpy( initial_label, "Select" );
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_option_value_html(
+				ELEMENT_SELECT_OPERATOR,
+				string_initial_capital(
+					buffer,
+					ELEMENT_SELECT_OPERATOR ) ) );
+
+		output_select_option = 0;
 	}
 
-	if ( strcmp( initial_label, "select" ) == 0 )
-		*initial_label = toupper( *initial_label );
-
-	if ( element_appaserver_name_boolean( element_name ) )
+	if ( !list_rewind( delimited_list ) )
 	{
-		if ( strcmp( initial_label, "y" ) == 0 )
-			strcpy( initial_label, "Yes" );
-		if ( strcmp( initial_label, "n" ) == 0 )
-			strcpy( initial_label, "No" );
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_close_html(
+				output_null_option,
+				output_not_null_option,
+				output_select_option ) );
+		
+		return strdup( html );
 	}
 
-	if ( !multi_select )
-	{
-		char *local_initial_label;
+	if ( display_list ) list_rewind( display_list );
 
-		if ( ! ( seeked_initial_data =
-				element_seek_initial_data(
-					&seeked_initial_label,
-					initial_data,
-					option_data_list,
-					option_label_list ) ) )
+	do {
+		data = list_get( delimited_list );
+
+		/* Skip the preselected item. */
+		/* -------------------------- */
+		if ( !data )
 		{
-			seeked_initial_data = initial_data;
-			seeked_initial_label = initial_label;
+			if ( display_list ) list_next( display_list );
+			continue;
 		}
 
-		local_initial_label =
-			element_data2label(
-				buffer,
-			 	element_delimit_drop_down_data(
-					delimited_label_buffer,
-					seeked_initial_label,
-					date_piece_offset ),
-				no_initial_capital );
+		if ( display_list )
+		{
+			display = list_get( display_list );
+		}
 
-		/* Set the first option */
-		/* -------------------- */
-		fprintf( output_file, "<option " );
-
-		fprintf( output_file,
-			 "value=\"%s\">%s\n",
-			 seeked_initial_data,
-			 local_initial_label );
-	}
-
-	list_rewind( option_label_list );
-
-	if ( list_rewind( option_data_list ) )
-	{
-		do {
-			data = list_get( option_data_list );
-
-			/* Skip the preselected item. */
-			/* -------------------------- */
-			if ( timlib_strcmp(
-					data,
-					seeked_initial_data ) == 0 )
-			{
-				list_next( option_label_list );
-				continue;
-			}
-
-			if ( list_length( option_label_list )
-			&&   !list_past_end( option_label_list ) )
-			{
-				label = list_get( option_label_list );
-			}
-			else
-			{
-				label = list_get( option_data_list );
-			}
-
-			if ( element_appaserver_name_boolean( element_name ) )
-			{
-				if ( strcmp(
-					data,
-					"y" ) == 0 )
-				{
-					label = "Yes";
-				}
-				if ( strcmp(
-					data,
-					"n" ) == 0 )
-				{
-					label = "No";
-				}
-			}
-
-			fprintf( output_file,
-			"\t<option value=\"%s\">%s\n", 
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* ---------------------- */
+			/* Returns static memory. */
+			/* ---------------------- */
+			element_drop_down_option_value_html(
 				data,
-			 	element_data2label(
-					buffer,
-			 		element_delimit_drop_down_data(
-						delimited_label_buffer,
-						label,
-						date_piece_offset ),
-					no_initial_capital ) );
+				display ) );
 
-			if ( list_length( option_label_list ) )
-				list_next( option_label_list );
-
-		} while( list_next( option_data_list ) );
-
-		if ( output_null_option )
+		if ( display_list )
 		{
-			fprintf(output_file,
-				"\t<option value=\"%s\">%s\n",
-				NULL_OPERATOR,
-				format_initial_capital( buffer,
-						        NULL_OPERATOR ) );
-
+			list_next( display_list );
 		}
 
-		if ( output_not_null_option )
-		{
-			fprintf(output_file,
-				"\t<option value=\"%s\">%s\n",
-				NOT_NULL_OPERATOR,
-				format_initial_capital( buffer,
-						        NOT_NULL_OPERATOR ) );
-		}
+	} while( list_next( delimited_list ) );
 
-		if ( output_select_option
-		&&   strcmp( initial_data, "select" ) != 0 )
-		{
-			fprintf(output_file,
-				"\t<option value=\"\">Select\n" );
-		}
-	}
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		/* Returns static memory. */
+		/* ---------------------- */
+		element_drop_down_close_html(
+			output_null_option,
+			output_not_null_option,
+			output_select_option ) );
 
-	/* fprintf( output_file, "</select></td>\n" ); */
-	fprintf( output_file, "</select>\n" );
-
-	/* ----------------------------------------------- */
-	/* Create the multi_select second drop down 	   */
-	/* ----------------------------------------------- */
-	if ( multi_select )
-	{
-		fprintf(output_file,
-			"<td align=left><table border=1><tr>\n" );
-
-		fprintf(output_file,
-			"<td>"
-			"<input type=button name=\"add_%s\" value=\"%s\""
-			" onclick="
-		"\"post_change_multi_select_move_right('%s','%s','%c');",
-			drop_down_element_name,
-			ELEMENT_MULTI_SELECT_ADD_LABEL,
-			drop_down_element_name,
-			multi_select_drop_down_element_name,
-			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
-
-		if ( post_change_javascript
-		&&   *post_change_javascript )
-		{
-			fprintf(output_file,
-				"%s",
-				element_replace_javascript_variables(
-					buffer,
-					post_change_javascript,
-					row,
-				(char *)0 /* state */ ) );
-		}
-
-		fprintf(output_file,
-			"\"><br>\n" );
-
-		fprintf(output_file,
-			"<input type=button name=\"remove_%s\" value=\"%s\""
-			" onclick="
-			"\"post_change_multi_select_move_left('%s','%s','%c');",
-			drop_down_element_name,
-			ELEMENT_MULTI_SELECT_REMOVE_LABEL,
-			drop_down_element_name,
-			multi_select_drop_down_element_name,
-			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
-
-		if ( post_change_javascript
-		&&   *post_change_javascript )
-		{
-			fprintf(output_file,
-				"%s",
-				element_replace_javascript_variables(
-					buffer,
-					post_change_javascript,
-					row,
-				(char *)0 /* state */ ) );
-		}
-
-		fprintf(output_file,
-			"\">\n" );
-
-		fprintf(output_file,
-			"<td><select name=\"%s\""
-			" multiple size=%d",
-			multi_select_drop_down_element_name,
-			ELEMENT_MULTI_SELECT_ROW_COUNT );
-
-		if ( post_change_javascript
-		&&   *post_change_javascript )
-		{
-			fprintf(output_file,
-				" onchange=\"%s\"",
-				element_replace_javascript_variables(
-					buffer,
-					post_change_javascript,
-					row,
-				(char *)0 /* state */ ) );
-		}
-
-		fprintf(output_file,
-			"></table>\n" );
-	}
+	return strdup( html );
 }
 
 char *element_table_row_html( void )
 {
-	return "<tr>" );
+	return "<tr>";
 }
 
+#ifdef NOT_DEFINED
 APPASERVER_ELEMENT *element_yes_no(
 			char *element_name,
 			char *post_change_javascript,
@@ -577,41 +426,37 @@ APPASERVER_ELEMENT *element_yes_no(
 			boolean with_not_null )
 {
 	APPASERVER_ELEMENT *element;
-	LIST *option_data_list;
-
-	option_data_list = list_new();
+	LIST *delimited_list = list_new();
 
 	list_set(
-		option_data_list,
-		"y" );
+		delimited_list,
+		"yes" );
 
 	list_set(
-		option_data_list,
-		"n" );
+		delimited_list,
+		"no" );
 
 	if ( with_is_null )
 	{
 		list_set(
-			option_data_list,
-			NULL_OPERATOR );
+			delimited_list,
+			ELEMENT_NULL_OPERATOR );
 	}
 
 	if ( with_not_null )
 	{
 		list_set(
-			option_data_list,
-			NOT_NULL_OPERATOR );
+			delimited_list,
+			ELEMENT_NOT_NULL_OPERATOR );
 	}
 
 	element =
 		appaserver_element_new(
 			drop_down );
 
-	element->drop_down->element_name = element_name;
-	element->drop_down->option_data_list = option_data_list;
+	element->drop_down->many_folder_name = element_name;
 
-	if ( post_change_javascript
-	&&   *post_change_javascript )
+	if ( post_change_javascript && *post_change_javascript )
 	{
 		element->drop_down->post_change_javascript =
 			post_change_javascript;
@@ -619,10 +464,11 @@ APPASERVER_ELEMENT *element_yes_no(
 
 	return element;
 }
+#endif
 
 char *appaserver_element_post_change_javascript(
 			char *source,
-			int row,
+			int row_number,
 			char *state )
 {
 	char post_change_javascript[ 1024 ];
@@ -631,7 +477,8 @@ char *appaserver_element_post_change_javascript(
 	if ( !source || !*source ) return strdup( "" );
 
 	strcpy( post_change_javascript, source );
-	sprintf( row_string, "%d", row );
+
+	sprintf( row_string, "%d", row_number );
 
 	string_search_replace(
 		post_change_javascript,
@@ -647,7 +494,7 @@ char *appaserver_element_post_change_javascript(
 	}
 
 	free( source );
-	return post_change_javascript;
+	return strdup( post_change_javascript );
 }
 
 boolean element_exists_reference_number(
@@ -729,21 +576,7 @@ char *element_place_commas_in_number_string(
 		return place_commas_in_number_string( data );
 }
 
-char *element_carrot_replace(
-			char *data )
-{
-	static char replace[ 2048 ];
-
-	if ( !character_exists( data, '^' ) ) return data;
-
-	strcpy( replace, data );
-
-	return string_search_replace(
-			replace,
-			"^",
-			ELEMENT_MULTI_ATTRIBUTE_DISPLAY_DELIMITER );
-}
-
+#ifdef NOT_DEFINED
 APPASERVER_ELEMENT *element_sort_order(
 			FOLDER_ATTRIBUTE *folder_attribute )
 {
@@ -772,6 +605,7 @@ APPASERVER_ELEMENT *element_sort_order(
 	element->text_item->readonly = 1;
 	return element;
 }
+#endif
 
 ELEMENT_PROMPT *element_prompt_calloc( void )
 {
@@ -830,7 +664,7 @@ ELEMENT_TABLE_ROW *element_table_row_calloc( void )
 
 char *element_drop_down_name(
 			LIST *foreign_key_list,
-			int row )
+			int row_number )
 {
 	char drop_down_name[ 1024 ];
 
@@ -845,18 +679,239 @@ char *element_drop_down_name(
 	}
 
 	sprintf(drop_down_name,
-		%s_%d",
+		"%s_%d",
 		list_display_delimited(
 			foreign_key_list,
-			ELEMENT_DROP_DOWN_DELIMITER ) );
+			'^' ),
+		row_number );
 
 	return strdup( drop_down_name );
 }
 
 int appaserver_element_tab_index( int tab_index )
 {
-	if ( tax_index == -1 ) return -1;
+	if ( tab_index == -1 ) return -1;
 
 	return tab_index + 1;
 }
 
+int element_drop_down_size(
+			int delimited_list_length )
+{
+	if ( delimited_list_length > 5 )
+		return 1;
+	else
+		return delimited_list_length;
+}
+
+LIST *element_drop_down_display_list(
+			LIST *delimited_list,
+			boolean no_initial_capital )
+{
+	LIST *display_list;
+	char *delimited_string;
+	char display_buffer[ 1024 ];
+	char data_buffer[ 1024 ];
+	char buffer[ 1024 ];
+	char delimiter_string[ 2 ];
+
+	if ( no_initial_capital ) return (LIST *)0;
+
+	if ( !list_rewind( delimited_list ) ) return (LIST *)0;
+
+	*delimiter_string = '^';
+	*(delimiter_string + 1) = '\0';
+
+	display_list = list_new();
+
+	do {
+		delimited_string = list_get( delimited_list );
+
+		if ( string_character_exists(
+			delimited_string,
+			'|' ) )
+		{
+			piece( data_buffer, '|', delimited_string, 0 );
+			piece( display_buffer, '|', delimited_string, 1 );
+
+			free( delimited_string );
+
+			list_set_current(
+				delimited_list,
+				strdup( data_buffer ) );
+
+			list_set(
+				display_list,
+				strdup(
+					string_search_replace(
+					   string_initial_capital(
+						buffer,
+						display_buffer ),
+					   delimiter_string,
+					   ELEMENT_LONG_DASH_DELIMITER ) ) );
+		}
+		else
+		if ( string_character_exists(
+			delimited_string,
+			'[' ) )
+		{
+			piece( data_buffer, '[', delimited_string, 0 );
+
+			free( delimited_string );
+
+			list_set_current(
+				delimited_list,
+				strdup( data_buffer ) );
+
+			list_set(
+				display_list,
+				strdup(
+					string_search_replace(
+					   string_initial_capital(
+						buffer,
+						delimited_string ),
+					   delimiter_string,
+					   ELEMENT_LONG_DASH_DELIMITER ) ) );
+		}
+		else
+		{
+			list_set(
+				display_list,
+				strdup(
+					string_search_replace(
+					   string_initial_capital(
+						buffer,
+						data_buffer ),
+					   delimiter_string,
+					   ELEMENT_LONG_DASH_DELIMITER ) ) );
+		}
+	} while ( list_next( delimited_list ) );
+
+	return display_list;
+}
+
+char *element_drop_down_initial_data_html(
+			LIST *delimited_list,
+			LIST *display_list,
+			char *initial_data )
+{
+	int offset;
+	char *data;
+	char *display = {0};
+
+	if ( !initial_data || !*initial_data ) return (char *)0;
+
+	if ( ( offset =
+		list_seek_offset(
+			initial_data,
+			delimited_list ) == -1 ) )
+	{
+		return (char *)0;
+	}
+
+	list_offset_seek( delimited_list, offset );
+
+	data = list_get( delimited_list );
+
+	list_set_current( delimited_list, (char *)0 );
+	list_set( delimited_list, "select" );
+
+	if ( list_length( display_list ) )
+	{
+		list_offset_seek( display_list, offset );
+
+		display = list_get( display_list );
+		list_set( display_list, "Select" );
+	}
+
+	return
+	strdup(
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		element_drop_down_option_value_html(
+			data,
+			display ) );
+}
+
+char *element_drop_down_option_value_html(
+			char *data,
+			char *display )
+{
+	static char html[ 256 ];
+
+	if ( display && *display )
+	{
+		sprintf(html,
+			"\t<option value=\"%s\">%s",
+			data,
+			display );
+	}
+	else
+	{
+		sprintf(html,
+			"\t<option>%s",
+			data );
+	}
+
+	return html;
+}
+
+char *element_drop_down_close_html(
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option )
+{
+	static char html[ 1024 ];
+	char *ptr = html;
+	char buffer[ 128 ];
+
+	if ( output_null_option )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_option_value_html(
+				ELEMENT_NULL_OPERATOR,
+				string_initial_capital(
+					buffer,
+					ELEMENT_NULL_OPERATOR ) ) );
+	}
+
+	if ( output_not_null_option )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_option_value_html(
+				ELEMENT_NOT_NULL_OPERATOR,
+				string_initial_capital(
+					buffer,
+					ELEMENT_NOT_NULL_OPERATOR ) ) );
+	}
+
+	if ( output_select_option )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_option_value_html(
+				ELEMENT_SELECT_OPERATOR,
+				string_initial_capital(
+					buffer,
+					ELEMENT_SELECT_OPERATOR ) ) );
+	}
+
+	ptr += sprintf( ptr, "</select>" );
+
+	return html;
+}
