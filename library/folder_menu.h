@@ -47,7 +47,7 @@ typedef struct
 FOLDER_MENU *folder_menu_calloc(
 			void );
 
-FOLDER_MENU *folder_menu_new(
+FOLDER_MENU *folder_menu_fetch(
 			char *application_name,
 			char *session_key,
 			char *appaserver_data_directory,

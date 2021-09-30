@@ -95,17 +95,19 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 	if ( choose_isa->folder->populate_drop_down_process )
 	{
 		choose_isa->delimited_list =
-			process_delimited_list(
-				process_choose_isa_commmand_line(
+			list_pipe_fetch(
+				process_choose_isa_command_line(
 					choose_isa->
 						folder->
 						populate_drop_down_process->
 						command_line,
+					application_name,
 					security_entity_where(
 						choose_isa->
 							security_entity ),
 					login_name,
-					role_name ) );
+					role_name,
+					one2m_isa_folder_name ) );
 	}
 	else
 	{
@@ -117,8 +119,13 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 					choose_isa->
 						folder->
 						primary_key_list,
+					choose_isa->
+						folder->
+						folder_attribute_primary_list,
+					login_name,
 					security_entity_where(
-						security_entity ) ) ) )
+						choose_isa->
+							security_entity ) ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: query_isa_widget_new() returned empty.\n",
@@ -128,7 +135,7 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 			exit( 1 );
 		}
 
-		choose_isa->query->delimited_list =
+		choose_isa->delimited_list =
 			query_delimited_list(
 				query->select_clause,
 				query->from_clause,
@@ -137,22 +144,56 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 				0 /* max_rows */ );
 	}
 
+	choose_isa->folder_menu =
+		folder_menu_fetch(
+			application_name,
+			session_key,
+			appaserver_parameter_file_data_directory(),
+			role_name );
+
+	if ( !choose_isa->folder_menu )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	choose_isa->action_string =
 		choose_isa_action_string(
 			application_name,
 			login_name,
 			session_key,
 			folder_name,
+			one2m_isa_folder_name,
 			role_name );
+
+	if ( !choose_isa->action_string )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: choose_isa_action_string() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	choose_isa->document =
 		document_choose_isa_new(
 			choose_isa->title,
 			choose_isa->prompt_message,
-			menu_fetch( role_name ),
-			choose_isa->folder->primary_key_list
-				/* foreign_key_list */,
-			choose_isa->query->delimited_list,
+			one2m_isa_folder_name,
+			menu_fetch(
+				application_name,
+				login_name,
+				session_key,
+				role_name,
+				PROMPT_FRAME /* target_frame */,
+				choose_isa->folder_menu->lookup_count_list ),
+			choose_isa->folder->primary_key_list,
+			choose_isa->delimited_list,
 			choose_isa->action_string );
 
 	return choose_isa;
@@ -163,6 +204,7 @@ char *choose_isa_action_string(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
+			char *one2m_isa_folder_name,
 			char *role_name )
 {
 	char action_string[ 1024 ];
@@ -181,6 +223,7 @@ char *choose_isa_action_string(
 		application_name,
 		session_key,
 		folder_name,
+		one2m_isa_folder_name,
 		role_name );
 
 	return strdup( action_string );
@@ -204,8 +247,9 @@ char *choose_isa_drop_down_title(
 
 	sprintf(title,
 		"%s Insert %s",
-		application_title_string(),
-		format_initial_capital(
+		application_title_string(
+			environment_application_name() ),
+		string_initial_capital(
 			buffer,
 			one2m_isa_folder_name ) );
 

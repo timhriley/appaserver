@@ -1008,28 +1008,3 @@ char *process_set_name_fetch( char *process_or_set_name )
 	return string_pipe_fetch( system_string );
 }
 
-LIST *process_delimited_list_fetch(
-			char *process_name )
-{
-	PROCESS *process;
-
-	if ( !process_name
-	||   !*process_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: process_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	process =
-		process_fetch(
-			process_name,
-			(char *)0 /* document_root_directory */,
-			(char *)0 /* relative_source_directory */,
-			0 /* not check_executable_inside_filesystem */ );
-
-	return (LIST *)0;
-}

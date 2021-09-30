@@ -13,7 +13,8 @@
 #include "role.h"
 #include "security.h"
 #include "folder.h"
-#include "form.h"
+#include "folder_menu.h"
+#include "document.h"
 
 /* Constants */
 /* --------- */
@@ -28,8 +29,8 @@ typedef struct
 	/* Input */
 	/* ------*/
 	char *application_name;
-	char *login_name;
 	char *session_key;
+	char *login_name;
 	char *folder_name;
 	char *one2m_isa_folder_name;
 	char *role_name;
@@ -39,7 +40,12 @@ typedef struct
 	FOLDER *folder;
 	ROLE *role;
 	SECURITY_ENTITY *security_entity;
+	LIST *delimited_list;
 	QUERY *query;
+	char *title;
+	char *prompt_message;
+	char *action_string;
+	FOLDER_MENU *folder_menu;
 	DOCUMENT *document;
 } CHOOSE_ISA;
 

@@ -352,8 +352,9 @@ void document_body_horizontal_menu_output(
 DOCUMENT *document_choose_isa_new(
 			char *title,
 			char *prompt_message,
+			char *one2m_isa_folder_name,
 			MENU *menu,
-			LIST *foreing_key_list,
+			LIST *primary_key_list,
 			LIST *delimited_list,
 			char *action_string )
 {
@@ -367,18 +368,65 @@ DOCUMENT *document_choose_isa_new(
 			document_head_javascript_include_string() );
 
 	document->document_body =
-		document_body_new(
-			document_body_onload_string(
-				document_body_menu_onload_string(),
-				(char *)0 /* additional_onload_string */ ) );
-
-	document->document_body->form_prompt = form_prompt_calloc();
-
-	document->form_prompt->choose_isa_element_list =
-		form_prompt_choose_isa_element_list(
+		document_body_choose_isa_new(
+			title,
+			prompt_message,
 			one2m_isa_folder_name,
-			foreign_key_list,
-			delimited_list );
+			menu,
+			primary_key_list,
+			delimited_list,
+			action_string );
 
 	return document;
 }
+
+DOCUMENT_BODY *document_body_choose_isa_new(
+			char *title,
+			char *prompt_message,
+			char *one2m_isa_folder_name,
+			MENU *menu,
+			LIST *primary_key_list,
+			LIST *delimited_list,
+			char *action_string )
+{
+	DOCUMENT_BODY *document_body;
+
+	document_body =
+		document_body_new(
+			document_body_onload_string(
+				document_body_menu_onload_string(),
+				(char *)0 /* additional_onload_string */ ),
+			menu );
+
+	if ( !document_body )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: document_body_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	document_body->form_prompt_isa =
+		form_prompt_isa_new(
+			title,
+			prompt_message,
+			one2m_isa_folder_name,
+			primary_key_list,
+			delimited_list,
+			action_string );
+
+	if ( !document_body->form_prompt_isa )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_prompt_isa_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_body;
+}
+

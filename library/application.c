@@ -47,7 +47,7 @@ APPLICATION *application_new( char *application_name )
 	return application;
 }
 
-APPLICATION *application_new_application( char *application_string )
+APPLICATION *application_new_application( char *application_name )
 {
 	char sys_string[ 1024 ];
 	char piece_buffer[ 1024 ];
@@ -57,7 +57,7 @@ APPLICATION *application_new_application( char *application_string )
 	sprintf(sys_string, 
 		"%s/src_appaserver/application_record.sh %s '%c'",
 		appaserver_parameter_file_mount_point(),
-		application_string,
+		application_name,
 		SQL_DELIMITER );
 
 	input_string = string_pipe_fetch( sys_string );
@@ -71,10 +71,10 @@ APPLICATION *application_new_application( char *application_string )
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
-			 application_string );
+			 application_name );
 
 		appaserver_output_error_message(
-			application_string,
+			application_name,
 			msg,
 			(char *)0 /* login_name */ );
 
@@ -98,7 +98,7 @@ APPLICATION *application_new_application( char *application_string )
 
 	application = application_calloc();
 
-	application->application_name = application_string;
+	application->application_name = application_name;
 
 	piece( piece_buffer, SQL_DELIMITER, input_string, 0 );
 	application->application_title = strdup( piece_buffer );
@@ -157,17 +157,17 @@ APPLICATION *application_new_application( char *application_string )
 
 }
 
-char *application_title( char *application_string )
+char *application_title( char *application_name )
 {
-	return application_title_string( application_string );
+	return application_title_string( application_name );
 }
 
-char *application_title_string( char *application_string )
+char *application_title_string( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -177,7 +177,7 @@ char *application_title_string( char *application_string )
 }
 
 char *application_first_relative_source_directory(
-			char *application_string )
+			char *application_name )
 {
 	static char first_relative_source_directory[ 128 ];
 	char *relative_source_directory;
@@ -185,7 +185,7 @@ char *application_first_relative_source_directory(
 
 	relative_source_directory =
 		application_relative_source_directory(
-			application_string );
+			application_name );
 
 	if ( ! ( delimiter =
 			timlib_get_delimiter(
@@ -205,12 +205,12 @@ char *application_first_relative_source_directory(
 
 }
 
-char *application_relative_source_directory( char *application_string )
+char *application_relative_source_directory( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -220,12 +220,12 @@ char *application_relative_source_directory( char *application_string )
 
 }
 
-char *application_background_color(char *application_string )
+char *application_background_color(char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -235,12 +235,12 @@ char *application_background_color(char *application_string )
 
 }
 
-char *application_distill_directory(char *application_string )
+char *application_distill_directory(char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -250,12 +250,12 @@ char *application_distill_directory(char *application_string )
 
 }
 
-char *application_ghost_script_directory(char *application_string )
+char *application_ghost_script_directory(char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -265,12 +265,12 @@ char *application_ghost_script_directory(char *application_string )
 
 }
 
-char *application_grace_home_directory( char *application_string )
+char *application_grace_home_directory( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -280,12 +280,12 @@ char *application_grace_home_directory( char *application_string )
 
 }
 
-char *application_grace_execution_directory( char *application_string )
+char *application_grace_execution_directory( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -295,12 +295,12 @@ char *application_grace_execution_directory( char *application_string )
 
 }
 
-char *application_chart_email_command_line( char *application_string )
+char *application_chart_email_command_line( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -309,12 +309,12 @@ char *application_chart_email_command_line( char *application_string )
 		return global_application->chart_email_command_line;
 }
 
-char application_grace_free_option_yn( char *application_string )
+char application_grace_free_option_yn( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -324,12 +324,12 @@ char application_grace_free_option_yn( char *application_string )
 
 }
 
-char *application_grace_output( char *application_string )
+char *application_grace_output( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -338,12 +338,12 @@ char *application_grace_output( char *application_string )
 		return global_application->grace_output;
 }
 
-char application_frameset_menu_horizontal_yn( char *application_string )
+char application_frameset_menu_horizontal_yn( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -353,12 +353,12 @@ char application_frameset_menu_horizontal_yn( char *application_string )
 
 }
 
-char application_ssl_support_yn( char *application_string )
+char application_ssl_support_yn( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -371,12 +371,12 @@ char application_ssl_support_yn( char *application_string )
 	}
 }
 
-char application_prepend_http_protocol_yn( char *application_string )
+char application_prepend_http_protocol_yn( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -390,12 +390,12 @@ char application_prepend_http_protocol_yn( char *application_string )
 	}
 }
 
-int application_max_drop_down_size( char *application_string )
+int application_max_drop_down_size( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -406,12 +406,12 @@ int application_max_drop_down_size( char *application_string )
 	}
 }
 
-int application_max_query_rows_for_drop_downs( char *application_string )
+int application_max_query_rows_for_drop_downs( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -422,12 +422,12 @@ int application_max_query_rows_for_drop_downs( char *application_string )
 	}
 }
 
-char *application_version( char *application_string )
+char *application_version( char *application_name )
 {
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_string );
+			application_new_application( application_name );
 	}
 
 	if ( !global_application )
@@ -443,21 +443,21 @@ void application_reset( void )
 	global_application = 0;
 }
 
-char *application_http_prefix( char *application_string )
+char *application_http_prefix( char *application_name )
 {
 	char ssl_support_yn;
 
-	if ( !application_string )
+	if ( !application_name )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty application_string.\n",
+			 "ERROR in %s/%s()/%d: empty application_name.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	ssl_support_yn = application_ssl_support_yn( application_string );
+	ssl_support_yn = application_ssl_support_yn( application_name );
 
 	if ( ssl_support_yn == 'y' )
 		return "https";

@@ -233,7 +233,7 @@ boolean process_interpreted_executable_ok(
 /* Frees command_line and safely returns heap memory */
 /* ------------------------------------------------- */
 char *process_choose_isa_command_line(
-			char *command_line,
+			char *command_line /* in */,
 			char *application_name,
 			char *security_entity_where,
 			char *login_name,
