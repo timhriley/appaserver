@@ -36,7 +36,6 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *target_frame;
 	char *state;
-	DOCUMENT *document;
 	POST_DICTIONARY *post_dictionary;
 	PROMPT_EDIT_FORM *prompt_edit_form;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -84,8 +83,6 @@ int main( int argc, char **argv )
 					appaserver_mount_point,
 				post_dictionary ) ) )
 	{
-		document_output_content_type();
-
 		/* Later execute document_close() */
 		/* ------------------------------ */
 		document_quick_output( application_name );
@@ -93,7 +90,7 @@ int main( int argc, char **argv )
 		printf(
 	"<h3>An internal error occurred. Check the system log.</h3>\n" );
 
-		document_close( stdout );
+		document_tag_close( stdout );
 		exit( 1 );
 	}
 

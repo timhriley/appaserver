@@ -35,7 +35,7 @@
 void post_login_frameset_output(
 			char *application_name,
 			char *login_name,
-			char *session );
+			char *session_key );
 
 void post_login_horizontal_frameset(
 			char *title,
@@ -50,9 +50,9 @@ int main( int argc, char **argv )
 	POST_LOGIN *post_login;
 
 	if ( ! ( post_login =
-			/* -------------------------------- */
-			/* Inserts into APPASERVER_SESSIONS */
-			/* -------------------------------- */
+			/* --------------------------------- */
+			/* Executes post_login_session_new() */
+			/* --------------------------------- */
 			post_login_new(
 				argc,
 				argv ) ) )
@@ -192,16 +192,22 @@ int main( int argc, char **argv )
 void post_login_frameset_output(
 			char *application_name,
 			char *login_name,
-			char *session )
+			char *session_key )
 {
 	FRAMESET *frameset;
 	char title[ 1024 ];
+	boolean create_menu_frame;
+
+	create_menu_frame =
+		1 - appaserver_frameset_menu_horizontal(
+			application_name,
+			login_name );
 
 	if ( ! ( frameset =
 			frameset_new(
 				application_name,
-				login_name,
-				session ) ) )
+				session_key,
+				create_menu_frame ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: frameset_new() returned empty.\n",
@@ -215,9 +221,7 @@ void post_login_frameset_output(
 		application_title(
 			application_name ) );
 
-	if ( appaserver_frameset_menu_horizontal(
-		application_name,
-		login_name ) )
+	if ( !create_menu_frame )
 	{
 		post_login_horizontal_frameset(
 			title,
@@ -238,14 +242,15 @@ void post_login_horizontal_frameset(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s >> %s",
-			frameset->session,
-			frameset->login_name,
-			title,
-			'n' /* content_type_yn */,
-			frameset->
-				frameset_link_file->
-				prompt_frame_create_filename );
+"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s > %s 2>>%s",
+		frameset->session_key,
+		frameset->login_name,
+		title,
+		'n' /* content_type_yn */,
+		frameset->
+			frameset_frame_prompt->
+			output_filename,
+		appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ){};
 
@@ -253,8 +258,8 @@ void post_login_horizontal_frameset(
 		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
 		 application_background_color( application_name ),
 		 frameset->
-			frameset_link_file->
-			edit_frame_create_filename,
+			frameset_frame_edit->
+			output_filename,
 		 appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ){};
@@ -262,24 +267,14 @@ void post_login_horizontal_frameset(
 	if ( system( "content_type_cgi.sh" ) ){};
 
 	printf(
-"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-"<HEAD>\n"
-"	<TITLE>%s</TITLE>\n"
-"</HEAD>\n"
-"<frameset rows=\"*,*\">\n"
-"<frame name=\"%s\" src=\"%s\">\n"
-"<frame name=\"%s\" src=\"%s\">\n"
-"</frameset>\n"
-"</HTML>\n",
-	title,
-	PROMPT_FRAME,
-	frameset->
-		frameset_link_file->
-		prompt_frame_prompt_filename,
-	EDIT_FRAME,
-	frameset->
-		frameset_link_file->
-		edit_frame_prompt_filename );
+		"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+		"<HEAD>\n"
+		"<TITLE>%s</TITLE>\n"
+		"</HEAD>\n"
+		"%s\n"
+		"</HTML>\n",
+		title,
+		frameset->html );
 }
 
 void post_login_vertical_frameset(
@@ -289,14 +284,15 @@ void post_login_vertical_frameset(
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s >> %s",
-			session,
-			login_name,
-			title,
-			'n' /* content_type_yn */,
-			frameset->
-				frameset_link_file->
-				menu_frame_create_filename );
+"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s > %s 2>>%s",
+		frameset->session_key,
+		frameset->login_name,
+		title,
+		'n' /* content_type_yn */,
+		frameset->
+			frameset_frame_menu->
+			output_filename,
+		appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ){};
 
@@ -305,8 +301,8 @@ void post_login_vertical_frameset(
 		 application_background_color( application_name ),
 		 title,
 		 frameset->
-			frameset_link_file->
-			prompt_frame_create_filename,
+			frameset_frame_prompt->
+			output_filename,
 		 appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ){};
@@ -315,8 +311,8 @@ void post_login_vertical_frameset(
 		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
 		 application_background_color( application_name ),
 		 frameset->
-			frameset_link_file->
-			edit_frame_create_filename,
+			frameset_frame_edit->
+			output_filename,
 		 appaserver_error_filename( application_name ) );
 
 	if ( system( sys_string ) ){};
@@ -324,31 +320,12 @@ void post_login_vertical_frameset(
 	if ( system( "content_type_cgi.sh" ) ){};
 
 	printf(
-"<HTML>									\n"
-"<HEAD>									\n"
-"	<TITLE>%s</TITLE>			  			\n"
-"</HEAD>								\n"
-"									\n"
-"<frameset cols=\"%d,*\">						\n"
-"<frame name=\"%s\" src=\"%s\">						\n"
-"<frameset rows=\"*,*\">						\n"
-"<frame name=\"%s\" src=\"%s\">						\n"
-"<frame name=\"%s\" src=\"%s\">						\n"
-"</frameset>								\n"
-"</frameset>								\n"
-"</HTML>								\n",
-	title,
-	MENU_VERTICAL_PIXEL_COLUMNS,
-	MENU_FRAME,
-	frameset->
-		frameset_link_file->
-		menu_frame_prompt_filename,
-	PROMPT_FRAME,
-	frameset->
-		frameset_link_file->
-		prompt_frame_prompt_filename,
-	EDIT_FRAME,
-	frameset->
-		frameset_link_file->
-		edit_frame_prompt_filename );
+		"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
+		"<HEAD>\n"
+		"<TITLE>%s</TITLE>\n"
+		"</HEAD>\n"
+		"%s\n"
+		"</HTML>\n",
+		title,
+		frameset->html );
 }

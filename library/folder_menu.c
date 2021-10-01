@@ -167,7 +167,7 @@ LIST *folder_menu_lookup_count_list(
 
 		list_set(
 			lookup_count_list,
-			folder_menu_count_fetch(
+			folder_menu_count_new(
 				application_name,
 				folder_name ) );
 
@@ -212,7 +212,7 @@ FOLDER_MENU_COUNT *folder_menu_count_new(
 		folder_menu_count_display(
 			folder_menu_count->count );
 
-	return menu_count;
+	return folder_menu_count;
 }
 
 unsigned long folder_menu_count_fetch(

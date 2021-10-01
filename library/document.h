@@ -77,17 +77,18 @@ char *document_standard_string(
 void document_output_content_type(
 			void );
 
-void document_output(
+void document_tag_open(
 			FILE *output_stream,
 			char *type_string,
 			char *standard_string );
 
-/* Output your message then execute document_close() */
-/* ------------------------------------------------- */
+/* Output your message then execute document_tag_close() */
+/* ----------------------------------------------------- */
 void document_quick_output(
 			char *application_name );
 
-void document_close(	FILE *output_stream );
+void document_tag_close(
+			FILE *output_stream );
 
 /* DOCUMENT_HEAD operations */
 /* ------------------------ */
@@ -132,9 +133,12 @@ char *document_head_calendar_setup_string(
 char *document_head_javascript_include_string(
 			void );
 
-void document_head_output(
+void document_head_open(
 			FILE *output_stream,
 			DOCUMENT_HEAD *document_head );
+
+void document_head_close(
+			FILE *output_stream );
 
 /* DOCUMENT_BODY operations */
 /* ------------------------ */
@@ -156,7 +160,7 @@ char *document_body_onload_string(
 			char *menu_onload_string,
 			char *onload_string );
 
-void document_body_tag_output(
+void document_body_tag_open(
 			FILE *output_stream,
 			char *onload_string );
 

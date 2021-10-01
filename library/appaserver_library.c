@@ -1280,7 +1280,7 @@ void appaserver_library_output_style_sheet(
 
 	sprintf( buffer,
 		 "%s/appaserver/%s/style.css",
-		 appaserver_parameter_file_get_document_root(),
+		 appaserver_parameter_file_document_root(),
 		 application_name );
 
 	input_file = fopen( buffer, "r" );
@@ -1467,6 +1467,7 @@ char *appaserver_library_default_role_name(
 		return results;
 }
 
+#ifdef NOT_DEFINED
 int appaserver_library_add_operations(
 			LIST *element_list,
 			int objects_outputted,
@@ -1556,7 +1557,9 @@ int appaserver_library_add_operations(
 
 	return objects_outputted;
 }
+#endif
 
+#ifdef NOT_DEFINED
 boolean appaserver_library_exists_javascript_folder(
 				char *application_name,
 				char *folder_name )
@@ -1576,6 +1579,7 @@ boolean appaserver_library_exists_javascript_folder(
 
 	return atoi( pipe2string( sys_string ) );
 }
+#endif
 
 void appaserver_library_purge_temporary_files( char *application_name )
 {

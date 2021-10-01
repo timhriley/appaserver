@@ -119,7 +119,9 @@ enum preupdate_change_state {		from_null_to_something,
 #define BEGINS_OPERATOR				"begins"
 #define CONTAINS_OPERATOR			"contains"
 #define NOT_CONTAINS_OPERATOR			"not_contains"
-#define OR_OPERATOR				"or_,"
+#define OR_OPERATOR				"or,"
+#define NULL_OPERATOR				"is_empty"
+#define NOT_NULL_OPERATOR			"not_empty"
 
 #ifndef APPASERVER_DATABASE_ERROR_FILE
 #define APPASERVER_DATABASE_ERROR_FILE		"/var/log/appaserver_%s.err"
@@ -376,35 +378,8 @@ char *appaserver_library_default_role_name(
 			char *application_name,
 			char *login_name );
 
-LIST *appaserver_library_with_attribute_insert_attribute_element_list(
-			char *attribute_name,
-			char *datatype,
-			int width,
-			char *post_change_javascript,
-			char *on_focus_javascript_function,
-			LIST *posted_attribute_name_list,
-			boolean is_primary_attribute,
-			boolean omit_update );
-
-int appaserver_library_add_operations(
-			LIST *element_list,
-			int objects_outputted,
-			LIST *operation_list,
-			char *delete_isa_only_folder_name );
-
-boolean appaserver_library_exists_javascript_folder(
-			char *application_name,
-			char *folder_name );
-
 void appaserver_library_purge_temporary_files(
 			char *application_name );
-
-void appaserver_library_automatically_set_login_name(
-			DICTIONARY *query_dictionary,
-			char *login_name,
-			LIST *mto1_related_folder_list,
-			LIST *attribute_list,
-			LIST *role_attribute_exclude_list );
 
 enum preupdate_change_state appaserver_library_preupdate_change_state(
 			char *preupdate_data,

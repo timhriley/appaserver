@@ -25,25 +25,27 @@
 /* Prototypes */
 /* ---------- */
 boolean total_payment_amount_exceeds_invoice_amount(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time,
-					double payment_amount,
-					double total_payment_amount );
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			double payment_amount,
+			double total_payment_amount );
 
-void insert_customer_payment(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *payment_date_time,
-				double payment_amount,
-				int check_number );
+void insert_customer_payment(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *payment_date_time,
+			double payment_amount,
+			int check_number );
 
-void display_customer_sale(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time );
+void display_customer_sale(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
 
 int main( int argc, char **argv )
 {
@@ -62,12 +64,12 @@ int main( int argc, char **argv )
 	double total_payment;
 	char sys_string[ 1024 ];
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 9 )
 	{
@@ -92,41 +94,23 @@ int main( int argc, char **argv )
 	if ( paid_amount_due )
 	{
 		payment_amount = 
-			customer_sale_get_amount_due(
-					application_name,
-					full_name,
-					street_address,
-					sale_date_time );
+			customer_sale_amount_due(
+				application_name,
+				full_name,
+				street_address,
+				sale_date_time );
 	}
 
 	total_payment =
-		customer_sale_get_total_payment(
-					application_name,
-					full_name,
-					street_address,
-					sale_date_time );
+		customer_sale_total_payment(
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time );
+
+	document_quick_output( application_name );
 
 	format_initial_capital( title, process_name );
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-
 	printf( "<h1>%s</h1>\n", title );
 
 	if ( !*sale_date_time
@@ -134,7 +118,7 @@ int main( int argc, char **argv )
 	{
 		printf(
 		"<h3>Error: please select a customer sale.</h3>\n" );
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -143,7 +127,7 @@ int main( int argc, char **argv )
 		printf(
 "<h3>Error: the customer sale is already paid in full.</h3>\n" );
 
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 	else
@@ -153,17 +137,17 @@ int main( int argc, char **argv )
 "<h3>Error: the payment amount is missing. Total existing payments = %.2lf</h3>\n",
 			total_payment );
 
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
 	if ( total_payment_amount_exceeds_invoice_amount(
-				application_name,
-				full_name,
-				street_address,
-				sale_date_time,
-				payment_amount,
-				total_payment ) )
+			application_name,
+			full_name,
+			street_address,
+			sale_date_time,
+			payment_amount,
+			total_payment ) )
 	{
 		if ( total_payment )
 		{
@@ -176,7 +160,7 @@ int main( int argc, char **argv )
 			printf(
 "<h3>Error: the payment amount exceeds invoice amount.</h3>\n" );
 		}
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -200,25 +184,25 @@ int main( int argc, char **argv )
 		 sale_date_time,
 		 payment_date_time );
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
-	display_customer_sale(	application_name,
-				full_name,
-				street_address,
-				sale_date_time );
+	display_customer_sale(
+		application_name,
+		full_name,
+		street_address,
+		sale_date_time );
 
 	printf( "<h3>Payment of $%.2lf stored.</h3>\n", payment_amount );
 
-	document_close();
-
+	document_tag_close();
 	return 0;
+}
 
-} /* main() */
-
-void display_customer_sale(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time )
+void display_customer_sale(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time )
 {
 	char sys_string[ 1024 ];
 	char *select;
@@ -253,16 +237,16 @@ void display_customer_sale(	char *application_name,
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
+}
 
-} /* display_customer_sale() */
-
-void insert_customer_payment(	char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *payment_date_time,
-				double payment_amount,
-				int check_number )
+void insert_customer_payment(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *payment_date_time,
+			double payment_amount,
+			int check_number )
 {
 	char sys_string[ 1024 ];
 	char *field_list_string;
@@ -301,16 +285,15 @@ void insert_customer_payment(	char *application_name,
 	}
 
 	pclose( output_pipe );
-
-} /* insert_customer_payment() */
+}
 
 boolean total_payment_amount_exceeds_invoice_amount(
-					char *application_name,
-					char *full_name,
-					char *street_address,
-					char *sale_date_time,
-					double payment_amount,
-					double total_payment )
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			double payment_amount,
+			double total_payment )
 {
 	char *table_name;
 	char sys_string[ 1024 ];
@@ -360,6 +343,5 @@ boolean total_payment_amount_exceeds_invoice_amount(
 	{
 		return 1;
 	}
-
-} /* total_payment_amount_exceeds_invoice_amount() */
+}
 

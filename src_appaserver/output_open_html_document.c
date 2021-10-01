@@ -21,7 +21,7 @@ int main( int argc, char **argv )
 	char *content_type_yn;
 	DOCUMENT *document;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,

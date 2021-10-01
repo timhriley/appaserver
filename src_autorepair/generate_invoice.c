@@ -34,33 +34,33 @@
 
 /* Prototypes */
 /* ---------- */
-boolean get_vehicle_information(
-				char **vehicle_make,
-				char **vehicle_model,
-				char **vehicle_trim,
-				int *vehicle_year,
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time );
+boolean generate_invoice_vehicle_information(
+			char **vehicle_make,
+			char **vehicle_model,
+			char **vehicle_trim,
+			int *vehicle_year,
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time );
 
 double populate_line_item_list(
-				LIST *invoice_line_item_list,
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *completed_date_time );
+			LIST *invoice_line_item_list,
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *completed_date_time );
 
-LATEX_INVOICE_CUSTOMER *get_invoice_customer(
-				char *application_name,
-				char *full_name,
-				char *street_address,
-				char *sale_date_time,
-				char *vehicle_make,
-				char *vehicle_model,
-				char *vehicle_trim,
-				int vehicle_year );
+LATEX_INVOICE_CUSTOMER *generate_invoice_invoice_customer(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *sale_date_time,
+			char *vehicle_make,
+			char *vehicle_model,
+			char *vehicle_trim,
+			int vehicle_year );
 
 boolean build_latex_invoice(	FILE *output_stream,
 				char *application_name,
@@ -173,26 +173,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	document = document_new( process_name /* title */, application_name );
-	document->output_content_type = 1;
+	document_quick_output( application_name );
 
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-
-	if ( !get_vehicle_information(
+	if ( !generate_invoice_vehicle_information(
 				&vehicle_make,
 				&vehicle_model,
 				&vehicle_trim,
@@ -229,7 +212,7 @@ int main( int argc, char **argv )
 	{
 		printf( "<h3>Please choose a customer sale.</h3>\n" );
 		fclose( output_stream );
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -282,10 +265,8 @@ int main( int argc, char **argv )
 			process_id,
 			process_name );
 
-	document_close();
-
-	exit( 0 );
-
+	document_tag_close();
+	return 0;
 }
 
 void output_invoice_window(
@@ -421,7 +402,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 	latex_invoice_output_header( output_stream );
 
 	latex_invoice->invoice_customer =
-		get_invoice_customer(
+		generate_invoice_invoice_customer(
 			application_name,
 			full_name,
 			street_address,
@@ -440,7 +421,7 @@ boolean build_latex_invoice(	FILE *output_stream,
 			customer_sale->completed_date_time ) )
 	{
 		printf( "<H3>Error: no line items for this invoice.</h3>\n" );
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -498,10 +479,9 @@ boolean build_latex_invoice(	FILE *output_stream,
 		workorder /* with_customer_signature */ );
 
 	return 1;
-
 }
 
-LATEX_INVOICE_CUSTOMER *get_invoice_customer(
+LATEX_INVOICE_CUSTOMER *generate_invoice_invoice_customer(
 				char *application_name,
 				char *full_name,
 				char *street_address,
@@ -605,10 +585,9 @@ double populate_line_item_list(
 
 	pclose( input_pipe );
 	return extension_total;
-
 }
 
-boolean get_vehicle_information(
+boolean generate_invoice_vehicle_information(
 				char **vehicle_make,
 				char **vehicle_model,
 				char **vehicle_trim,

@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* src_predictive/make_vendor_payment.c					*/
+/* $APPASERVER_HOME/src_predictive/make_vendor_payment.c		*/
 /* ---------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
@@ -49,7 +49,6 @@ int main( int argc, char **argv )
 	double payment_amount;
 	int check_number;
 	boolean paid_amount_due;
-	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	double payment_amount_total;
@@ -58,9 +57,9 @@ int main( int argc, char **argv )
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 8 )
 	{
@@ -82,29 +81,9 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
+	document_quick_output( application_name );
+
 	format_initial_capital( title, process_name );
-
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
 	printf( "<h1>%s</h1>\n", title );
 
 	if ( !*purchase_date_time
@@ -112,7 +91,7 @@ int main( int argc, char **argv )
 	{
 		printf(
 		"<h3>Error: please select a purchase order.</h3>\n" );
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -137,7 +116,7 @@ int main( int argc, char **argv )
 		printf(
 	"<h3>Error: the purchase order is already paid in full.</h3>\n" );
 
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 	else
@@ -147,7 +126,7 @@ int main( int argc, char **argv )
 "<h3>Error: the payment amount is missing. Total existing payments = %.2lf</h3>\n",
 			payment_amount_total );
 
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -169,7 +148,7 @@ int main( int argc, char **argv )
 			printf(
 "<h3>Error: the payment amount exceeds amount due.</h3>\n" );
 		}
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -207,8 +186,7 @@ int main( int argc, char **argv )
 		printf( "<p>No payment amount.\n" );
 	}
 
-	document_close();
-
+	document_tag_close();
 	return 0;
 }
 

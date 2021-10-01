@@ -77,16 +77,15 @@ int main( int argc, char **argv )
 	char *service_name;
 	char *description;
 	char *begin_work_date_time;
-	DOCUMENT *document;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 12 )
 	{
@@ -109,33 +108,16 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
+	document_quick_output( application_name );
+
 	format_initial_capital( title, process_name );
-	document = document_new( title, application_name );
-	document->output_content_type = 1;
-
-	document_output_head_stream(
-			stdout,
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */,
-			1 /* with close_head */ );
-
-	document_output_body(	document->application_name,
-				document->onload_control_string );
-
 	printf( "<h1>%s</h1>\n", title );
 
 	if ( !*full_name || strcmp( full_name, "full_name" ) == 0 )
 	{
 		printf(
 		"<h3>Error: please select a customer sale.</h3>\n" );
-		document_close();
+		document_tag_close();
 		exit( 0 );
 	}
 
@@ -157,7 +139,6 @@ int main( int argc, char **argv )
 				full_name,
 				street_address,
 				sale_date_time );
-
 	}
 	else
 	if ( strcmp( operation, "close" ) == 0
@@ -177,7 +158,6 @@ int main( int argc, char **argv )
 				full_name,
 				street_address,
 				sale_date_time );
-
 	}
 	else
 	if ( strcmp( operation, "open" ) == 0
@@ -197,7 +177,6 @@ int main( int argc, char **argv )
 				full_name,
 				street_address,
 				sale_date_time );
-
 	}
 	else
 	if ( strcmp( operation, "close" ) == 0
@@ -228,9 +207,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	document_tag_close( stdout );
 	return 0;
-
-} /* main() */
+}
 
 void display_customer_sale(	char *application_name,
 				char *full_name,
@@ -266,8 +245,7 @@ void display_customer_sale(	char *application_name,
 	fflush( stdout );
 	system( sys_string );
 	fflush( stdout );
-
-} /* display_customer_sale() */
+}
 
 void service_work_open_hourly(
 			char *full_name,
@@ -310,8 +288,7 @@ void service_work_open_hourly(
 		 login_name );
 
 	pclose( output_pipe );
-
-} /* service_work_open_hourly() */
+}
 
 void service_work_close_hourly(
 			char *application_name,
@@ -365,8 +342,7 @@ void service_work_close_hourly(
 		 begin_work_date_time );
 
 	system( sys_string );
-
-} /* service_work_close_hourly() */
+}
 
 void service_work_open_fixed(
 			char *full_name,
@@ -407,8 +383,7 @@ void service_work_open_fixed(
 		 login_name );
 
 	pclose( output_pipe );
-
-} /* service_work_open_fixed() */
+}
 
 void service_work_close_fixed(
 			char *application_name,
@@ -458,9 +433,8 @@ void service_work_close_fixed(
 		 service_name,
 		 begin_work_date_time );
 
-	system( sys_string );
-
-} /* service_work_close_fixed() */
+	if ( system( sys_string ) ){};
+}
 
 void service_work_close_all(	char *application_name,
 				char *login_name )
@@ -479,7 +453,6 @@ void service_work_close_all(	char *application_name,
 		 application_name,
 		 login_name );
 
-	system( sys_string );
-
-} /* service_work_close_all() */
+	if ( system( sys_string ) ){};
+}
 

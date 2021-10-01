@@ -1,4 +1,4 @@
-/* library/grace.c					*/
+/* $APPASERVER_HOME/library/grace.c			*/
 /* ---------------------------------------------------- */
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
@@ -902,7 +902,7 @@ GRACE *grace_new_quantum_grace(
 	grace_graph->xaxis_ticklabel_stagger = 1;
 	grace_graph_set_scale_to_zero( grace_graph, 1 );
 	grace_graph->xaxis_tickmarks_on_off = "off";
-	list_append_pointer( grace->graph_list, grace_graph );
+	list_set( grace->graph_list, grace_graph );
 
 	grace_datatype = grace_new_grace_datatype( 
 				"" /* entity_name */,
@@ -910,7 +910,7 @@ GRACE *grace_new_quantum_grace(
 	grace_datatype->datatype_type_bar_xy_xyhilo = "bar";
 	grace_datatype->line_linestyle = 0;
 	grace_datatype->annotated_value_on_off = "on";
-	list_append_pointer( grace_graph->datatype_list, grace_datatype );
+	list_set( grace_graph->datatype_list, grace_datatype );
 
 	return grace;
 }
@@ -959,11 +959,11 @@ void grace_date_time_set_attribute_name(
 				buffer,
 				float_integer_attribute_name ) );
 
-	list_append_pointer(	grace_graph->datatype_list,
-				grace_datatype );
+	list_set(	grace_graph->datatype_list,
+			grace_datatype );
 
-	list_append_pointer(	graph_list,
-				grace_graph );
+	list_set(	graph_list,
+			grace_graph );
 
 }
 
@@ -1019,17 +1019,17 @@ void grace_date_time_set_data(	LIST *graph_list,
 				grace_datatype->datatype_number,
 				dataset_no_cycle_color );
 
-		list_append_pointer(	grace_datatype->dataset_list,
-					grace_dataset );
+		list_set(	grace_datatype->dataset_list,
+				grace_dataset );
 	}
 	else
 	{
 		grace_dataset =
-			list_get_last_pointer(
+			list_last(
 				grace_datatype->dataset_list );
 	}
 
-	list_append_pointer( grace_dataset->point_list, grace_point );
+	list_set( grace_dataset->point_list, grace_point );
 
 }
 
@@ -1213,12 +1213,12 @@ void grace_set_point(		boolean *inside_null,
 					datatype_number,
 					dataset_no_cycle_color );
 
-		list_append_pointer(	dataset_list,
-					grace_dataset );
+		list_set(	dataset_list,
+				grace_dataset );
 	}
 	else
 	{
-		grace_dataset = list_get_last_pointer( dataset_list );
+		grace_dataset = list_last( dataset_list );
 	}
 
 	if ( grace_is_null( y_string ) )
@@ -1234,8 +1234,8 @@ void grace_set_point(		boolean *inside_null,
 
 				*inside_null = 1;
 
-				list_append_pointer(	dataset_list,
-							grace_dataset );
+				list_set(	dataset_list,
+						grace_dataset );
 				return;
 			}
 			else
@@ -1252,7 +1252,7 @@ void grace_set_point(		boolean *inside_null,
 
 	*inside_null = 0;
 	point = grace_new_grace_point(x, y_string, optional_label );
-	list_append_pointer( grace_dataset->point_list, point );
+	list_set( grace_dataset->point_list, point );
 
 }
 
@@ -1668,17 +1668,10 @@ void grace_get_filenames(		char **agr_filename,
 			graph_identifier /* session */,
 			(char *)0 /* extension */ );
 
-/*
-	sprintf(	buffer,
-			GRACE_AGR_FILE_TEMPLATE, 
-			appaserver_mount_point,
-			application_name,
-			graph_identifier );
-*/
 	appaserver_link_file->extension = "agr";
 
 	*agr_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -1691,7 +1684,7 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->extension );
 
 	*ftp_agr_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_prompt_filename(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,
@@ -1744,7 +1737,7 @@ void grace_get_filenames(		char **agr_filename,
 	appaserver_link_file->extension = extension;
 
 	*output_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -1757,7 +1750,7 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->extension );
 
 	*pdf_output_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_prompt_filename(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,
@@ -1774,19 +1767,10 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-
-/*
-	sprintf(	buffer,
-			GRACE_POSTSCRIPT_FILE_TEMPLATE,
-			appaserver_mount_point,
-			application_name,
-			graph_identifier );
-*/
-	
 	appaserver_link_file->extension = "ps";
 
 	*postscript_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -1797,7 +1781,6 @@ void grace_get_filenames(		char **agr_filename,
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
 }
 
 int grace_set_structures(	int *page_width_pixels,
@@ -2337,7 +2320,7 @@ GRACE_DATATYPE *grace_new_grace_datatype(
 
 void grace_append_graph( LIST *graph_list, GRACE_GRAPH *graph )
 {
-	list_append_pointer( graph_list, graph );
+	list_set( graph_list, graph );
 }
 
 void grace_set_view_minimum( GRACE_GRAPH *graph, double x, double y )
@@ -2464,11 +2447,11 @@ int grace_populate_unit_graph_list(
 				grace_datatype->symbol_size =
 					GRACE_XYHILO_SYMBOL_SIZE;
 
-			list_append_pointer(
+			list_set(
 				grace_graph->datatype_list,
 				grace_datatype );
 		}
-		list_append_pointer( graph_list, grace_graph );
+		list_set( graph_list, grace_graph );
 		free_array_string_with_count( block, block_count );
 	}
 	pclose( p );
@@ -3531,17 +3514,17 @@ boolean grace_set_string_to_point_list(
 					datatype->datatype_number,
 					dataset_no_cycle_color );
 
-			list_append_pointer(
-					datatype->dataset_list,
-					dataset );
+			list_set(
+				datatype->dataset_list,
+				dataset );
 		}
 		else
 		{
-			dataset = list_get_last_pointer(
+			dataset = list_last(
 					datatype->dataset_list );
 		}
 
-		grace_point = list_get_last_pointer( dataset->point_list );
+		grace_point = list_last( dataset->point_list );
 
 		if ( !grace_point )
 		{
@@ -3768,8 +3751,8 @@ void grace_set_compare_datatype_overlay_input(
 				bar_graph,
 				scale_graph_zero );
 
-	list_append_pointer( compare_datatype_overlay_input_list,
-			     d );
+	list_set(	compare_datatype_overlay_input_list,
+			d );
 }
 
 void grace_populate_datatype_overlay_graph_list(
@@ -3779,7 +3762,8 @@ void grace_populate_datatype_overlay_graph_list(
 					anchor_datatype_overlay_input,
 				LIST *compare_datatype_overlay_input_list )
 {
-	GRACE_GRAPH *grace_graph, *anchor_grace_graph;
+	GRACE_GRAPH *grace_graph;
+	GRACE_GRAPH *anchor_grace_graph;
 	GRACE_DATATYPE_OVERLAY_INPUT *grace_datatype_overlay_input;
 	GRACE_DATATYPE *anchor_grace_datatype, *grace_datatype;
 	char legend[ 1024 ];
@@ -3787,8 +3771,7 @@ void grace_populate_datatype_overlay_graph_list(
 
 	/* Build the anchor graph */
 	/* ---------------------- */
-	anchor_grace_graph =
-		grace_new_grace_graph();
+	anchor_grace_graph = grace_new_grace_graph();
 
 	anchor_grace_graph->yaxis_tick_place_string = "normal";
 
@@ -3832,14 +3815,14 @@ void grace_populate_datatype_overlay_graph_list(
 			? "bar" : "xy";
 */
 
-	list_append_pointer(	anchor_grace_graph->datatype_list,
-				anchor_grace_datatype );
+	list_set(	anchor_grace_graph->datatype_list,
+			anchor_grace_datatype );
 
 	/* If no datatypes to compare then return the anchor graph */
 	/* ------------------------------------------------------- */
 	if ( !list_rewind( compare_datatype_overlay_input_list ) )
 	{
-		list_append_pointer( anchor_graph_list, anchor_grace_graph );
+		list_set( anchor_graph_list, anchor_grace_graph );
 		return;
 	}
 
@@ -3905,13 +3888,13 @@ void grace_populate_datatype_overlay_graph_list(
 			grace_graph->y_invert_on_off = "on";
 		}
 
-		list_append_pointer(	grace_graph->datatype_list,
-					grace_datatype );
+		list_set(	grace_graph->datatype_list,
+				grace_datatype );
 
-		list_append_pointer( graph_list, grace_graph );
-		list_append(	anchor_graph_list,
-				anchor_grace_graph,
-				sizeof( GRACE_GRAPH ) );
+		list_set( graph_list, grace_graph );
+
+		list_set(	anchor_graph_list,
+				anchor_grace_graph );
 
 	} while( list_next( compare_datatype_overlay_input_list ) );
 }
@@ -4069,12 +4052,10 @@ GRACE *grace_new_grace( 	char *application_name,
 	if ( application_name && role_name
 	&&   *application_name && *role_name )
 	{
-		ROLE *role = role_new_role(
-					application_name,
-					role_name );
+		ROLE *role = role_new( role_name );
 
 		grace->dataset_no_cycle_color =
-			(role->grace_no_cycle_colors_yn == 'y');
+			role->grace_no_cycle_colors;
 
 		role_free( role );
 	}
@@ -4106,7 +4087,7 @@ GRACE *grace_new_xy_grace(	char *application_name,
 	grace->graph_list = list_new_list();
 	grace_graph = grace_new_grace_graph();
 	grace_graph->units = units;
-	list_append_pointer( grace->graph_list, grace_graph );
+	list_set( grace->graph_list, grace_graph );
 
 	grace_graph->datatype_list = list_new_list();
 	grace_datatype = grace_new_grace_datatype( 
@@ -4117,7 +4098,7 @@ GRACE *grace_new_xy_grace(	char *application_name,
 	grace_datatype->datatype_type_bar_xy_xyhilo = "xy";
 
 	grace_datatype->dataset_list = list_new();
-	list_append_pointer( grace_graph->datatype_list, grace_datatype );
+	list_set( grace_graph->datatype_list, grace_datatype );
 	return grace;
 }
 
@@ -4162,12 +4143,12 @@ void grace_set_to_point_list(
 					grace_datatype->datatype_number,
 					dataset_no_cycle_color );
 
-		list_append_pointer(	grace_datatype->dataset_list,
-					dataset );
+		list_set(	grace_datatype->dataset_list,
+				dataset );
 	}
 	else
 	{
-		dataset = list_get_last_pointer( grace_datatype->dataset_list );
+		dataset = list_last( grace_datatype->dataset_list );
 	}
 
 	grace_point =
@@ -4178,7 +4159,7 @@ void grace_set_to_point_list(
 
 	grace_point->optional_label = optional_label;
 
-	list_append_pointer( dataset->point_list, grace_point );
+	list_set( dataset->point_list, grace_point );
 
 }
 
@@ -4408,7 +4389,7 @@ LIST *grace_get_optional_label_list( LIST *graph_list )
 						grace_point->
 							optional_label );
 
-					list_append_pointer(
+					list_set(
 						optional_label_list,
 						optional_label );
 				} while( list_next(
@@ -4428,25 +4409,12 @@ void grace_output_graph_window(
 			char *where_clause )
 {
 	char window_label[ 128 ];
-	DOCUMENT *document;
 
 	sprintf( window_label, "grace_window_%d", getpid() );
 
 	if ( with_document_output )
 	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-	
-		document_output_head(
-				document->application_name,
-				document->title,
-				document->output_content_type,
-				appaserver_mount_point,
-				document->javascript_module_list,
-				document->stylesheet_filename,
-				application_relative_source_directory(
-					application_name ),
-				0 /* not with_dynarch_menu */ );
+		document_quick_output( application_name );
 	}
 
 	printf(
@@ -4467,13 +4435,13 @@ void grace_output_graph_window(
 			window_label );
 
 	appaserver_library_output_ftp_prompt(
-				ftp_agr_filename, 
-				grace_get_agr_prompt(),
-				(char *)0    /* target */,
-				"application/agr" );
+		ftp_agr_filename, 
+		grace_get_agr_prompt(),
+		(char *)0    /* target */,
+		"application/agr" );
 
 	grace_output_grace_home_link();
-	if ( with_document_output ) document_close();
+	if ( with_document_output ) document_tag_close( stdout );
 	fflush( stdout );
 }
 
@@ -4485,25 +4453,12 @@ void grace_email_graph(	char *application_name,
 			boolean with_document_output,
 			char *where_clause )
 {
-	DOCUMENT *document;
 	char search_replace_command_line[ 512 ];
 	char sys_string[ 1024 ];
 
 	if ( with_document_output )
 	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-	
-		document_output_head(
-				document->application_name,
-				document->title,
-				document->output_content_type,
-				appaserver_mount_point,
-				document->javascript_module_list,
-				document->stylesheet_filename,
-				application_relative_source_directory(
-					application_name ),
-				0 /* not with_dynarch_menu */ );
+		document_quick_output( application_name );
 	}
 
 	printf( "<h1>Emailed graph to %s ", email_address );
@@ -4531,7 +4486,7 @@ void grace_email_graph(	char *application_name,
 		search_replace_command_line );
 
 	if ( system( sys_string ) ) {};
-	if ( with_document_output ) document_close();
+	if ( with_document_output ) document_tag_close( stdout );
 }
 
 void grace_error_exit( char *function_name, int line_number )
@@ -5301,7 +5256,7 @@ GRACE_DATATYPE *grace_get_or_set_datatype(
 					(char *)0 /* datatype_entity */,
 					(char *)0 /* datatype_name */ );
 
-		list_append_pointer( datatype_list, grace_datatype );
+		list_set( datatype_list, grace_datatype );
 	}
 
 	return grace_datatype;
@@ -5343,13 +5298,13 @@ void grace_set_datatype_number_point(
 					datatype_number,
 					1 /* dataset_no_cycle_color */ );
 
-		list_append_pointer(	grace_datatype->dataset_list,
-					grace_dataset );
+		list_set(	grace_datatype->dataset_list,
+				grace_dataset );
 	}
 	else
 	{
 		grace_dataset =
-			list_get_last_pointer(
+			list_last(
 				grace_datatype->dataset_list );
 	}
 
@@ -5358,7 +5313,7 @@ void grace_set_datatype_number_point(
 			y_string,
 			(char *)0 /* optional_label */ );
 
-	list_append_pointer( grace_dataset->point_list, point );
+	list_set( grace_dataset->point_list, point );
 
 }
 

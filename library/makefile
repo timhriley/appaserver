@@ -282,14 +282,6 @@ regression_dvr.e: regression_dvr.c					\
 		${APPASERVER_LIBRARY}					\
 	   -o regression_dvr.e
 
-html_invoice_dvr.e: html_invoice_dvr.c					\
-	html_invoice.o
-	${CC} ${CFLAGS} -I${LIBRARY} html_invoice_dvr.c			\
-		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		html_invoice.o						\
-	   -o html_invoice_dvr.e
-
 google_chart_dvr.e: google_chart_dvr.c					\
 	google_chart.o
 	${CC} ${CFLAGS} -I${LIBRARY} google_chart_dvr.c			\

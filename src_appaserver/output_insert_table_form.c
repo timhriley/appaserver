@@ -147,52 +147,6 @@ int main( int argc, char **argv )
 			message,
 			dictionary_string );
 
-#ifdef NOT_DEFINED
-	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
-			application_name,
-			session,
-			folder->folder_name,
-			role_name,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_key_list */,
-			0 /* recursive_level */ );
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			folder->application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
-			role_name );
-
-	if ( string_input( dictionary_string, stdin ) )
-	{
-		decode_html_post(
-			decoded_dictionary_string, 
-			dictionary_string );
-
-		original_post_dictionary = 
-			dictionary_index_string2dictionary( 
-				decoded_dictionary_string );
-
-		dictionary_separate =
-			dictionary_separate_new(
-				original_post_dictionary,
-				application_name */,
-				attribute_name_list(
-					folder->attribute_list ),
-				attribute_date_name_list(
-					folder->attribute_list ),
-				(LIST *)0 /* operation_name_list */,
-				login_name );
-	}
-#endif
-
 	/* Vertical new button */
 	/* ------------------- */ 
 	vertical_new_button = vertical_new_button_calloc();

@@ -67,7 +67,7 @@ void document_output_content_type( void )
 	fflush( stdout );
 }
 
-void document_output(
+void document_tag_open(
 			FILE *output_stream,
 			char *type_string,
 			char *standard_string )
@@ -93,16 +93,16 @@ void document_quick_output( char *application_name )
 
 	document_output_content_type();
 
-	document_output(
+	document_tag_open(
 		stdout,
 		document->type_string,
 		document->standard_string );
 
-	document_head_output(
+	document_head_open(
 		stdout,
 		document->document_head );
 
-	document_body_tag_output(
+	document_body_tag_open(
 		stdout,
 		(char *)0 /* onload_string */ );
 }
@@ -119,7 +119,7 @@ DOCUMENT_BODY *document_body_new(
 	return document_body;
 }
 
-void document_body_tag_output(
+void document_body_tag_open(
 			FILE *output_stream,
 			char *onload_string )
 {
@@ -197,10 +197,13 @@ char *document_head_javascript_include_string( void )
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/trim.js\"></SCRIPT>"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/timlib.js\"></SCRIPT>"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/cookie.js\"></SCRIPT>"
+"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/null2slash.js\"></SCRIPT>"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/form.js\"></SCRIPT>"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/form_cookie.js\"></SCRIPT>"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/keystrokes.js\"></SCRIPT>"
-"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/verify_attribute_widths.js\"></SCRIPT>";
+"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/verify_attribute_widths.js\"></SCRIPT>"
+"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/push_button_submit.js\"></SCRIPT>"
+"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/validate_date.js\"></SCRIPT>";
 
 }
 
@@ -215,7 +218,7 @@ char *document_head_menu_setup_string( void )
 
 }
 
-void document_head_output(
+void document_head_open(
 			FILE *output_stream,
 			DOCUMENT_HEAD *document_head )
 {
@@ -244,7 +247,10 @@ void document_head_output(
 			"%s\n",
 			document_head->javascript_include_string );
 	}
+}
 
+void document_head_close( FILE *output_stream )
+{
 	fprintf( output_stream, "</head>\n" );
 }
 
@@ -272,7 +278,7 @@ char *document_head_title_tag(
 	return strdup( title_tag );
 }
 
-void document_close( FILE *output_stream )
+void document_tag_close( FILE *output_stream )
 {
 	fprintf( output_stream, "</body>\n" );
 	fprintf( output_stream, "</html>\n" );

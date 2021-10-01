@@ -7,13 +7,17 @@
 #ifndef FRAMESET_H
 #define FRAMESET_H
 
+#include "boolean.h"
 #include "list.h"
 #include "appaserver_library.h"
+#include "appaserver_parameter_file.h"
+#include "appaserver_link_file.h"
 
 /* Constants */
 /* --------- */
-#define TOP_FRAME_NAME			"top_frame"
-#define HEADING_FRAME_NAME		"heading_frame"
+#define FRAMESET_MENU_FRAME		"menu_frame"
+#define FRAMESET_PROMPT_FRAME		"prompt_frame"
+#define FRAMESET_EDIT_FRAME		"edit_frame"
 
 /* Structures */
 /* ---------- */
@@ -23,99 +27,69 @@ typedef struct
 	/* ----- */
 	char *application_name;
 	char *document_root_directory;
+	char *session_key;
+	char *frame_name;
 
 	/* Process */
 	/* ------- */
 	APPASERVER_LINK_FILE *appaserver_link_file;
-	char *menu_frame_prompt_filename;
-	char *menu_frame_create_filename;
-	char *prompt_frame_prompt_filename;
-	char *prompt_frame_create_filename;
-	char *edit_frame_prompt_filename;
-	char *edit_frame_create_filename;
-} FRAMESET_LINK_FILE;
+	char *output_filename;
+	char *prompt_filename;
+	char *html;
+} FRAMESET_FRAME;
 
 typedef struct
 {
-	char *frameset_name;
-	char *form_name;
-	char *login_name;
-	char *session;
+	/* Input */
+	/* ----- */
 	char *application_name;
-	char *folder_or_process;
-	char *role;
-	char *state;
-	char *error_file;
-	char *blank_form_name;
-	char *prompt_destination_filename;
-	char *create_destination_filename;
-	char *heading_filename;
-	char *prompt_bottom_filename;
-	char *create_bottom_filename;
-	int output_bottom_frame;
-	char *dictionary_string;
-	char *target_frame;
-	char *sys_string;
-	char *appaserver_mount_point;
+	char *session_key;
+
+	/* Process */
+	/* ------- */
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	FRAMESET_FRAME *frameset_frame_menu;
+	FRAMESET_FRAME *frameset_frame_prompt;
+	FRAMESET_FRAME *frameset_frame_edit;
+	char *html;
 } FRAMESET;
 
-/* Operations */
-/* ---------- */
-FRAMESET *frameset_new(	char *application_name,
-			char *login_name,
-			char *session );
-
-void frameset_set_parameters( 	FRAMESET *frameset,
-				char *login_name, 
-				char *application_name,
-				char *session, 
-				char *folder_or_process, 
-				char *role,
-				char *state, 
-				char *appaserver_mount_point, 
-				char *error_file );
-
-void frameset_set_appaserver_mount_point(
-				FRAMESET *frameset,
-				char *appaserver_mount_point );
-void frameset_set_dictionary_string(
-				FRAMESET *frameset,
-				char *dictionary_string );
-void frameset_set_output_bottom_frame(
-				FRAMESET *frameset );
-void frameset_remove_files( 	FRAMESET *frameset );
-char *frameset_get_prompt_destination_filename(
-				FRAMESET *frameset );
-char *frameset_get_create_destination_filename(
-				FRAMESET *frameset );
-char *frameset_get_create_bottom_filename(
-				FRAMESET *frameset );
-char *frameset_get_prompt_bottom_filename(
-				FRAMESET *frameset );
-void frameset_output_by_cat( 	FRAMESET *frameset );
-void frameset_output_by_frameset(
-				FRAMESET *frameset );
-void frameset_set_target_frame( FRAMESET *frameset, 
-				char *target_frame );
-void frameset_set_sys_string(	FRAMESET *frameset,
-				char *sys_string );
-void frameset_set_application_name(
-				FRAMESET *frameset,
-				char *application_name );
-
-char *frameset_heading_filename(
-			char *application_name,
-			char *frameset_name,
-			char *session );
-
-FRAMESET_LINK_FILE *frameset_link_file_calloc(
+/* FRAMESET operations */
+/* -------------------- */
+FRAMESET *frameset_calloc(
 			void );
 
-FRAMESET_LINK_FILE *frameset_link_file_new(
+FRAMESET *frameset_new(
+			char *application_name,
+			char *session_key,
+			boolean create_menu_frame );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *frameset_html(
+			char *menu_frame_html,
+			char *prompt_frame_html,
+			char *edit_frame_html,
+			boolean create_menu_frame );
+
+/* FRAMESET_FRAME operations */
+/* ------------------------- */
+FRAMESET_FRAME *frameset_frame_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+FRAMESET_FRAME *frameset_frame_new(
 			char *application_name,
 			char *document_root_directory,
-			char *login_name,
-			char *session );
+			char *session_key,
+			char *frame_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *frameset_frame_html(
+			char *frame_name,
+			char *prompt_filename );
 
 #endif
 

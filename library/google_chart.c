@@ -230,12 +230,11 @@ GOOGLE_TIMELINE *google_timeline_append(
 	list_append_pointer( timeline_list, timeline );
 
 	return timeline;
-
 }
 
-int google_chart_get_datatype_offset(
-				LIST *datatype_name_list,
-				char *datatype_name )
+int google_chart_datatype_offset(
+			LIST *datatype_name_list,
+			char *datatype_name )
 {
 	int offset = 0;
 
@@ -243,7 +242,7 @@ int google_chart_get_datatype_offset(
 
 	do {
 		if ( timlib_strcmp(
-				list_get_pointer( datatype_name_list ),
+				list_get( datatype_name_list ),
 				datatype_name ) == 0 )
 		{
 			return offset;
@@ -266,7 +265,7 @@ GOOGLE_BARCHART *google_barchart_get_or_set(
 	&&   list_rewind( barchart_list ) )
 	{
 		do {
-			barchart = list_get_pointer( barchart_list );
+			barchart = list_get( barchart_list );
 
 			if ( timlib_strcmp(	barchart->stratum_name,
 						stratum_name ) == 0 )
@@ -296,7 +295,7 @@ GOOGLE_TIMELINE *google_timeline_get_or_set(
 	&&   list_rewind( timeline_list ) )
 	{
 		do {
-			timeline = list_get_pointer( timeline_list );
+			timeline = list_get( timeline_list );
 
 			if ( timlib_strcmp(	timeline->date_string,
 						date_string ) == 0 )
@@ -408,7 +407,7 @@ void google_barchart_set_point(		LIST *barchart_list,
 			list_length( datatype_name_list ) );
 
 	if ( ( offset =
-		google_chart_get_datatype_offset(
+		google_chart_datatype_offset(
 			datatype_name_list,
 			datatype_name ) ) < 0 )
 	{
@@ -460,7 +459,7 @@ void google_timeline_set_point(	LIST *timeline_list,
 	if ( datatype_name && *datatype_name )
 	{
 		if ( ( offset =
-			google_chart_get_datatype_offset(
+			google_chart_datatype_offset(
 				datatype_name_list,
 				datatype_name ) ) < 0 )
 		{
@@ -535,7 +534,7 @@ void google_barchart_display(	LIST *barchart_list,
 	if ( !list_rewind( barchart_list ) ) return;
 
 	do {
-		barchart = list_get_pointer( barchart_list );
+		barchart = list_get( barchart_list );
 
 		fprintf(stderr,
 			"stratum_name = %s",
@@ -579,7 +578,7 @@ void google_timeline_display(	LIST *timeline_list,
 	if ( !list_rewind( timeline_list ) ) return;
 
 	do {
-		timeline = list_get_pointer( timeline_list );
+		timeline = list_get( timeline_list );
 		fprintf( stderr, "date_string = %s", timeline->date_string );
 		fprintf( stderr, ",time_hhmm = %s", timeline->time_hhmm );
 
@@ -695,7 +694,7 @@ void google_chart_output_visualization_annotated(
 	char *visualization_function_name;
 
 	visualization_function_name =
-		google_chart_get_visualization_function_name(
+		google_chart_visualization_function_name(
 			chart_number );
 
 	if ( ! ( length_datatype_name_list =
@@ -821,7 +820,7 @@ void google_chart_output_visualization_non_annotated(
 	char *visualization_function_name;
 
 	visualization_function_name =
-		google_chart_get_visualization_function_name(
+		google_chart_visualization_function_name(
 			chart_number );
 
 	if ( ! ( length_datatype_name_list =
@@ -948,7 +947,7 @@ void google_chart_output_chart_instantiation(
 	char *visualization_function_name;
 
 	visualization_function_name =
-		google_chart_get_visualization_function_name(
+		google_chart_visualization_function_name(
 			chart_number );
 
 	fprintf( output_file,
@@ -959,7 +958,7 @@ void google_chart_output_chart_instantiation(
 
 }
 
-char *google_chart_get_visualization_function_name(
+char *google_chart_visualization_function_name(
 					int chart_number )
 {
 	static char visualization_function_name[ 32 ];
@@ -995,7 +994,7 @@ void google_chart_output_barchart_list(
 "	data.addRows([\n" );
 
 	do {
-		barchart = list_get_pointer( barchart_list );
+		barchart = list_get( barchart_list );
 
 		fprintf(output_file,
 		 	"\t\t['%s'",
@@ -1055,7 +1054,7 @@ void google_chart_output_timeline_list(
 "	data.addRows([\n" );
 
 	do {
-		timeline = list_get_pointer( timeline_list );
+		timeline = list_get( timeline_list );
 
 		fprintf(output_file,
 		 	"\t\t[%s",
@@ -1110,7 +1109,7 @@ void google_chart_output_datatype_column_heading(
 	if ( !list_rewind( datatype_name_list ) ) return;
 
 	do {
-		datatype_name = list_get_pointer( datatype_name_list );
+		datatype_name = list_get( datatype_name_list );
 
 		fprintf( output_file,
 "	data.addColumn('number', '%s');\n",
@@ -1471,7 +1470,7 @@ boolean google_datatype_chart_input_value_list_set(
 		null_value = ( *value_string ) ? 0 : 1;
 
 		date_time_key =
-			google_chart_get_date_time_key(
+			google_chart_date_time_key(
 				date_string,
 				time_string );
 
@@ -1561,7 +1560,7 @@ boolean google_chart_value_hash_table_set(
 
 }
 
-char *google_chart_get_date_time_key(
+char *google_chart_date_time_key(
 			char *date_string,
 			char *time_string )
 {
@@ -1612,7 +1611,7 @@ boolean google_chart_set_input_value(
 	}
 
 	date_time_key =
-		google_chart_get_date_time_key(
+		google_chart_date_time_key(
 			date_string,
 			time_string );
 
@@ -1642,7 +1641,7 @@ boolean google_chart_set_input_value(
 
 }
 
-LIST *google_chart_get_unit_datatype_name_list(
+LIST *google_chart_unit_datatype_name_list(
 			LIST *unit_datatype_list )
 {
 	GOOGLE_UNIT_DATATYPE *unit_datatype;
@@ -1653,7 +1652,7 @@ LIST *google_chart_get_unit_datatype_name_list(
 	datatype_name_list = list_new();
 
 	do {
-		unit_datatype = list_get_pointer( unit_datatype_list );
+		unit_datatype = list_get( unit_datatype_list );
 
 		list_append_pointer(
 			datatype_name_list,
@@ -1665,7 +1664,7 @@ LIST *google_chart_get_unit_datatype_name_list(
 
 }
 
-LIST *google_datatype_chart_get_datatype_name_list(
+LIST *google_datatype_chart_datatype_name_list(
 			LIST *datatype_chart_list )
 {
 	LIST *datatype_name_list;
@@ -1676,7 +1675,7 @@ LIST *google_datatype_chart_get_datatype_name_list(
 	datatype_name_list = list_new();
 
 	do {
-		datatype_chart = list_get_pointer( datatype_chart_list );
+		datatype_chart = list_get( datatype_chart_list );
 
 		list_append_pointer(
 			datatype_name_list,
@@ -1688,7 +1687,7 @@ LIST *google_datatype_chart_get_datatype_name_list(
 
 }
 
-LIST *google_chart_datatype_get_output_chart_list(
+LIST *google_chart_datatype_output_chart_list(
 			LIST *datatype_chart_list,
 			int width,
 			int height )
@@ -1710,7 +1709,7 @@ LIST *google_chart_datatype_get_output_chart_list(
 			height );
 
 	output_chart->datatype_name_list =
-		google_datatype_chart_get_datatype_name_list(
+		google_datatype_chart_datatype_name_list(
 			datatype_chart_list );
 
 	list_append_pointer( output_chart_list, output_chart );
@@ -1718,7 +1717,7 @@ LIST *google_chart_datatype_get_output_chart_list(
 	list_rewind( datatype_chart_list );
 
 	do {
-		datatype_chart = list_get_pointer( datatype_chart_list );
+		datatype_chart = list_get( datatype_chart_list );
 
 		if ( !list_rewind( datatype_chart->input_value_list ) )
 			continue;
@@ -1727,7 +1726,7 @@ LIST *google_chart_datatype_get_output_chart_list(
 
 		do {
 			input_value =
-				list_get_pointer( 
+				list_get( 
 					datatype_chart->input_value_list );
 
 			if ( !input_value->null_value )
@@ -1749,7 +1748,7 @@ LIST *google_chart_datatype_get_output_chart_list(
 
 }
 
-LIST *google_chart_unit_get_output_chart_list(
+LIST *google_chart_unit_output_chart_list(
 			LIST *unit_chart_list,
 			int width,
 			int height )
@@ -1764,10 +1763,10 @@ LIST *google_chart_unit_get_output_chart_list(
 	output_chart_list = list_new_list();
 
 	do {
-		unit_chart = list_get_pointer( unit_chart_list );
+		unit_chart = list_get( unit_chart_list );
 
 		date_time_key_list =
-			dictionary_get_ordered_key_list(
+			dictionary_ordered_key_list(
 				unit_chart->date_time_dictionary );
 
 		if ( !date_time_key_list
@@ -1777,7 +1776,7 @@ LIST *google_chart_unit_get_output_chart_list(
 		}
 
 		output_chart =
-			google_chart_unit_get_output_chart(
+			google_chart_unit_output_chart(
 				unit_chart->unit_datatype_list,
 				date_time_key_list,
 				width,
@@ -1800,7 +1799,7 @@ LIST *google_chart_unit_get_output_chart_list(
 
 }
 
-GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
+GOOGLE_OUTPUT_CHART *google_chart_unit_output_chart(
 				LIST *unit_datatype_list,
 				LIST *date_time_key_list,
 				int width,
@@ -1825,21 +1824,21 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_get_output_chart(
 			height );
 
 	output_chart->datatype_name_list =
-		google_chart_get_unit_datatype_name_list(
+		google_chart_unit_datatype_name_list(
 			unit_datatype_list );
 
 	list_rewind( unit_datatype_list );
 
 	do {
-		unit_datatype = list_get_pointer( unit_datatype_list );
+		unit_datatype = list_get( unit_datatype_list );
 
 		list_rewind( date_time_key_list );
 
 		do {
-			date_time_key = list_get_pointer( date_time_key_list );
+			date_time_key = list_get( date_time_key_list );
 
 			input_value =
-				hash_table_get_pointer(
+				hash_table_get(
 					unit_datatype->value_hash_table,
 					date_time_key );
 
@@ -1871,23 +1870,29 @@ void google_chart_output_all_charts(
 			char *sub_title,
 			char *stylesheet )
 {
-
+	DOCUMENT *document;
 	GOOGLE_OUTPUT_CHART *google_chart;
 
-	document_output_html_stream( output_file );
+	document = document_new();
 
-	fprintf( output_file, "<head>\n" );
+	document->document_head =
+		document_head_new(
+			title,
+			(char *)0 /* menu_setup_string */,
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */ );
+
+	document_head_open(
+		output_file,
+		document->document_head );
 
 	google_chart_include( output_file );
 
-	if ( stylesheet && *stylesheet )
-	{
-		fprintf( output_file,
-			 "<link rel=stylesheet type=text/css href=\"%s\">\n",
-			 stylesheet );
-	}
+	fprintf( output_file,
+		 "<link rel=stylesheet type=text/css href=\"%s\">\n",
+		 stylesheet );
 
-	fprintf( output_file, "</head>\n" );
+	document_head_close( output_file );
 
 	fprintf( output_file, "<body>\n" );
 
@@ -1904,7 +1909,7 @@ void google_chart_output_all_charts(
 	if ( list_rewind( output_chart_list ) )
 	{
 		do {
-			google_chart = list_get_pointer( output_chart_list );
+			google_chart = list_get( output_chart_list );
 
 			google_chart_output_visualization_non_annotated(
 				output_file,
@@ -1945,36 +1950,19 @@ void google_chart_output_all_charts(
 
 	fprintf( output_file, "</body>\n" );
 	fprintf( output_file, "</html>\n" );
-
 }
 
 void google_chart_output_graph_window(
 			char *application_name,
-			char *appaserver_mount_point,
 			boolean with_document_output,
 			char *window_name,
 			char *prompt_filename,
 			char *where_clause )
 {
-	DOCUMENT *document;
-
 	if ( with_document_output )
 	{
-		document = document_new( "", application_name );
-		document_set_output_content_type( document );
-	
-		document_output_head(
-				document->application_name,
-				document->title,
-				document->output_content_type,
-				appaserver_mount_point,
-				document->javascript_module_list,
-				document->stylesheet_filename,
-				application_relative_source_directory(
-					application_name ),
-				0 /* not with_dynarch_menu */ );
+		document_quick_output( application_name );
 	}
-
 
 	printf(
 "<body bgcolor=\"%s\" onload=\"window.open('%s','%s');\">\n",
@@ -1994,20 +1982,19 @@ void google_chart_output_graph_window(
 		prompt_filename,
 		window_name );
 
-	if ( with_document_output ) document_close( stdout );
-
+	if ( with_document_output ) document_tag_close( stdout );
 }
 
 GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(
-					LIST *datatype_chart_list,
-					char *datatype_name )
+			LIST *datatype_chart_list,
+			char *datatype_name )
 {
 	GOOGLE_DATATYPE_CHART *g;
 
 	if ( list_rewind( datatype_chart_list ) )
 	{
 		do {
-			g = list_get_pointer( datatype_chart_list );
+			g = list_get( datatype_chart_list );
 
 			if ( timlib_strcmp(	g->datatype_name,
 						datatype_name ) == 0 )
@@ -2075,7 +2062,7 @@ char *google_chart_input_value_list_display(
 	if ( list_rewind( input_value_list ) )
 	{
 		do {
-			input_value = list_get_pointer( input_value_list );
+			input_value = list_get( input_value_list );
 
 			ptr += sprintf(
 			ptr,
@@ -2126,7 +2113,7 @@ char *google_datatype_chart_list_display(
 	{
 		do {
 			datatype_chart =
-				list_get_pointer(
+				list_get(
 					datatype_chart_list );
 
 			ptr += sprintf( ptr,
