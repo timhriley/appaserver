@@ -41,6 +41,8 @@ typedef struct
 	char *onload_string;
 	MENU *menu;
 
+	/* Attributes */
+	/* ---------- */
 	FORM_PROMPT_ISA *form_prompt_isa;
 	FORM_PROMPT *form_prompt;
 	FORM_TABLE *form_table;
@@ -62,7 +64,8 @@ DOCUMENT *document_calloc(
 
 /* Always succeeds */
 /* --------------- */
-DOCUMENT *document_new(	void );
+DOCUMENT *document_new(	char *application_name,
+			MENU *menu );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -77,15 +80,20 @@ char *document_standard_string(
 void document_output_content_type(
 			void );
 
-void document_tag_open(
+void document_tag_begin(
 			FILE *output_stream,
 			char *type_string,
 			char *standard_string );
 
-/* Output your message then execute document_tag_close() */
-/* ----------------------------------------------------- */
+/* Need to execute document_tag_close( stdout ) */
+/* -------------------------------------------- */
 void document_quick_output(
 			char *application_name );
+
+/* Need to execute document_tag_close( output_stream ) */
+/* --------------------------------------------------- */
+void document_begin(	FILE *output_stream,
+			DOCUMENT *document );
 
 void document_tag_close(
 			FILE *output_stream );
@@ -133,7 +141,7 @@ char *document_head_calendar_setup_string(
 char *document_head_javascript_include_string(
 			void );
 
-void document_head_open(
+void document_head_begin(
 			FILE *output_stream,
 			DOCUMENT_HEAD *document_head );
 
@@ -160,7 +168,7 @@ char *document_body_onload_string(
 			char *menu_onload_string,
 			char *onload_string );
 
-void document_body_tag_open(
+void document_body_tag_begin(
 			FILE *output_stream,
 			char *onload_string );
 
@@ -177,6 +185,10 @@ void document_body_horizontal_menu_output(
 void document_body_vertical_menu_output(
 			FILE *output_stream,
 			MENU *menu );
+
+void document_body_begin(
+			FILE *output_stream,
+			DOCUMENT_BODY *document_body );
 
 /* DOCUMENT choose_isa operations */
 /* ------------------------------ */

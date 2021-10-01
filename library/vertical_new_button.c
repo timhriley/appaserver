@@ -8,6 +8,9 @@
 #include "String.h"
 #include "element.h"
 #include "dictionary.h"
+#include "frameset.h"
+#include "document.h"
+#include "appaserver_parameter_file.h"
 #include "vertical_new_button.h"
 
 VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
@@ -151,12 +154,17 @@ char *vertical_new_button_onload_control_string( char *prompt_filename )
 char *vertical_new_button_blank_prompt_screen(
 			char *application_name,
 			char *session_key,
-			char *document_root_directory )
+			char *login_name,
+			char *role_name,
+			char *document_root_directory,
+			char *appaserver_data_directory )
 {
 	char sys_string[ 1024 ];
 	char *prompt_filename;
 	char *output_filename;
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	DOCUMENT *document;
+	FILE *output_stream;
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -172,7 +180,7 @@ char *vertical_new_button_blank_prompt_screen(
 			"html" );
 
 	output_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -185,7 +193,7 @@ char *vertical_new_button_blank_prompt_screen(
 			appaserver_link_file->extension );
 
 	prompt_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_prompt_filename(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,
@@ -202,32 +210,67 @@ char *vertical_new_button_blank_prompt_screen(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
+	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			output_filename );
+		exit( 1 );
+	}
+
 	if ( appaserver_frameset_menu_horizontal(
 		application_name,
 		login_name ) )
 	{
-		sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s 2>>%s",
-				application_name,
-				session,
-				login_name,
-				role->role_name,
-				output_filename,
-				appaserver_error_filename(
-					application_name ) );
-		}
-		else
+		FOLDER_MENU *folder_menu;
+
+		if ( ! ( folder_menu =
+				folder_menu_fetch(
+					application_name,
+					session_key,
+					appaserver_data_directory,
+					role_name ) ) )
 		{
-			sprintf(sys_string,
-		 		"output_blank_screen.sh '%s' '' n > %s 2>>%s",
-		 		application_background_color(
-					application_name ),
-				output_filename,
-		 		appaserver_error_get_filename(
-					application_name ) );
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
-		if ( system( sys_string ) ) {};
+		document =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			document_new(
+				application_name,
+				menu_fetch(
+					application_name,
+					login_name,
+					session_key,
+					role_name,
+					FRAMESET_PROMPT_FRAME
+						/* target_frame */,
+					folder_menu->lookup_count_list ) );
+	}
+	else
+	{
+		document =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			document_new(
+				application_name,
+				(MENU *)0 /* menu */ );
+	}
+
+	document_begin( output_stream, document );
+	document_tag_close( output_stream );
+	fclose( output_stream );
 
 	return prompt_filename;
 }

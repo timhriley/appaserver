@@ -61,5 +61,15 @@ void vertical_new_button_dictionary_set(
 			char *hidden_label,
 			char *folder_name );
 
+/* Returns prompt_filename */
+/* ----------------------- */
+char *vertical_new_button_blank_prompt_screen(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *document_root_directory,
+			char *appaserver_data_directory );
+
 #endif
 

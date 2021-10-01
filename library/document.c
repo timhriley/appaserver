@@ -46,9 +46,43 @@ char *document_html_standard_url( void )
 	"http://www.w3.org/1999/xhtml";
 }
 
-DOCUMENT *document_new(	void )
+DOCUMENT *document_new(	char *application_name,
+			MENU *menu )
 {
 	DOCUMENT *document = document_calloc();
+
+	if ( menu )
+	{
+		document->document_head =
+			document_head_new(
+				application_title_string(
+					application_name ),
+				document_head_menu_setup_string(),
+				(char *)0 /* calendar_setup_string */,
+				(char *)0 /* javascript_include_string */ );
+
+		document->document_body =
+			document_body_new(
+			     document_body_onload_string(
+				   document_body_menu_onload_string(),
+				   (char *)0 /* additional_onload_string */ ),
+			     menu );
+	}
+	else
+	{
+		document->document_head =
+			document_head_new(
+				application_title_string(
+					application_name ),
+				(char *)0 /* menu_setup_string */,
+				(char *)0 /* calendar_setup_string */,
+				(char *)0 /* javascript_include_string */ );
+
+		document->document_body =
+			document_body_new(
+				(char *)0 /* onload_string */,
+				(MENU *)0 /* menu */ );
+	}
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -67,7 +101,7 @@ void document_output_content_type( void )
 	fflush( stdout );
 }
 
-void document_tag_open(
+void document_tag_begin(
 			FILE *output_stream,
 			char *type_string,
 			char *standard_string )
@@ -82,27 +116,28 @@ void document_quick_output( char *application_name )
 {
 	DOCUMENT *document;
 
-	document = document_new();
-
-	document->document_head =
-		document_head_new(
-			application_title_string( application_name ),
-			(char *)0 /* menu_setup_string */,
-			(char *)0 /* calendar_setup_string */,
-			(char *)0 /* javascript_include_string */ );
+	document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			(MENU *)0 /* menu */ );
 
 	document_output_content_type();
 
-	document_tag_open(
+	document_tag_begin(
 		stdout,
 		document->type_string,
 		document->standard_string );
 
-	document_head_open(
+	document_head_begin(
 		stdout,
 		document->document_head );
 
-	document_body_tag_open(
+	document_head_close( stdout );
+
+	document_body_tag_begin(
 		stdout,
 		(char *)0 /* onload_string */ );
 }
@@ -119,7 +154,7 @@ DOCUMENT_BODY *document_body_new(
 	return document_body;
 }
 
-void document_body_tag_open(
+void document_body_tag_begin(
 			FILE *output_stream,
 			char *onload_string )
 {
@@ -218,10 +253,21 @@ char *document_head_menu_setup_string( void )
 
 }
 
-void document_head_open(
+void document_head_begin(
 			FILE *output_stream,
 			DOCUMENT_HEAD *document_head )
 {
+	if ( !document_head )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document_head is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
 	fprintf( output_stream, "<head>\n" );
 	fprintf( output_stream, "%s\n", document_head->meta_string );
 	fprintf( output_stream, "%s\n", document_head->stylesheet_string );
@@ -434,5 +480,71 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 	}
 
 	return document_body;
+}
+
+void document_begin(	FILE *output_stream,
+			DOCUMENT *document )
+{
+	if ( !document->document_head )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document_head is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !document->document_body )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document_body is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	document_tag_begin(
+		output_stream,
+		document->type_string,
+		document->standard_string );
+
+	document_head_begin(
+		output_stream,
+		document->document_head );
+
+	document_head_close( output_stream );
+
+	document_body_begin(
+		output_stream,
+		document->document_body );
+}
+
+void document_body_begin(
+			FILE *output_stream,
+			DOCUMENT_BODY *document_body )
+{
+	if ( !document_body )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document_body is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	document_body_tag_begin(
+		output_stream,
+		document_body->onload_string );
+
+	if ( document_body->menu )
+	{
+		document_body_horizontal_menu_output(
+			output_stream,
+			document_body_hide_preload_message(),
+			document_body->menu );
+	}
 }
 

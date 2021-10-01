@@ -167,7 +167,8 @@ char *application_title_string( char *application_name )
 	if ( !global_application )
 	{
 		global_application =
-			application_new_application( application_name );
+			application_new_application(
+				application_name );
 	}
 
 	if ( !global_application )
