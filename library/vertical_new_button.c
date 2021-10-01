@@ -115,12 +115,6 @@ APPASERVER_ELEMENT *vertical_new_button_element(
 	}
 }
 
-char *vertical_new_button_many_element_name(
-			char *vertical_new_button_many_label )
-{
-	return vertical_new_button_many_label;
-}
-
 char *vertical_new_button_dictionary_folder_name(
 			char *hidden_label,
 			DICTIONARY *non_prefixed_dictionary )
@@ -141,3 +135,99 @@ void vertical_new_button_dictionary_set(
 		folder_name );
 }
 
+char *vertical_new_button_onload_control_string( char *prompt_filename )
+{
+	char onload_control_string[ 128 ];
+
+	sprintf(onload_control_string,
+		"window.open('%s','%s');",
+		prompt_filename,
+		PROMPT_FRAME );
+
+	return strdup( onload_control_string );
+
+}
+
+char *vertical_new_button_blank_prompt_screen(
+			char *application_name,
+			char *session_key,
+			char *document_root_directory )
+{
+	char sys_string[ 1024 ];
+	char *prompt_filename;
+	char *output_filename;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+
+	appaserver_link_file =
+		appaserver_link_file_new(
+			application_http_prefix( application_name ),
+			appaserver_library_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			"blank_screen" /* filename_stem */,
+			application_name,
+			0 /* process_id */,
+			session,
+			"html" );
+
+	output_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	prompt_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	if ( appaserver_frameset_menu_horizontal(
+		application_name,
+		login_name ) )
+	{
+		sprintf(sys_string,
+"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s 2>>%s",
+				application_name,
+				session,
+				login_name,
+				role->role_name,
+				output_filename,
+				appaserver_error_filename(
+					application_name ) );
+		}
+		else
+		{
+			sprintf(sys_string,
+		 		"output_blank_screen.sh '%s' '' n > %s 2>>%s",
+		 		application_background_color(
+					application_name ),
+				output_filename,
+		 		appaserver_error_get_filename(
+					application_name ) );
+		}
+
+		if ( system( sys_string ) ) {};
+
+	return prompt_filename;
+}

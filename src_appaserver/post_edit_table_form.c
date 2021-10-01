@@ -350,10 +350,10 @@ int main( int argc, char **argv )
 
 	if ( timlib_strlen( primary_data_list_string ) )
 	{
-		dictionary_set_string(	dictionary_appaserver->
-						non_prefixed_dictionary,
-					PRIMARY_DATA_LIST_KEY,
-					primary_data_list_string );
+		dictionary_set(
+			dictionary_appaserver->non_prefixed_dictionary,
+			PRIMARY_DATA_LIST_KEY,
+			primary_data_list_string );
 	}
 
 	if ( strcmp( target_frame, PROMPT_FRAME ) == 0 )
@@ -423,7 +423,6 @@ int main( int argc, char **argv )
 	}
 
 	exit( 0 );
-
 }
 
 void post_state_insert(

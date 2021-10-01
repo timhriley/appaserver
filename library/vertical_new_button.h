@@ -41,9 +41,6 @@ char *vertical_new_button_one_element_name(
 			char *vertical_new_button_one_prefix,
 			char *one_folder_name );
 
-char *vertical_new_button_many_element_name(
-			char *vertical_new_button_many_label );
-
 APPASERVER_ELEMENT *vertical_new_button_element(
 			char *one_folder_name,
 			LIST *role_folder_insert_list,

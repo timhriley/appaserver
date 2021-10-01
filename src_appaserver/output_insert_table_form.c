@@ -162,7 +162,7 @@ int main( int argc, char **argv )
 			dictionary_separate->non_prefixed_dictionary );
 
 	primary_data_list_string =
-		dictionary_get_string(
+		dictionary_get(
 			dictionary_separate->non_prefixed_dictionary,
 			PRIMARY_DATA_LIST_KEY );
 
@@ -542,90 +542,16 @@ int main( int argc, char **argv )
 	/* ----------------------------------------------------- */
 	if ( vertical_new_button->one_folder_name )
 	{
-		char onload_control_string[ 1024 ];
-		char sys_string[ 1024 ];
-		char *output_filename;
 		char *prompt_filename;
-		APPASERVER_LINK_FILE *appaserver_link_file;
-
-		/* Make the prompt screen blank. */
-		/* ----------------------------- */
-		appaserver_link_file =
-			appaserver_link_file_new(
-				application_http_prefix( application_name ),
-				appaserver_library_server_address(),
-				( application_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-	 			appaserver_parameter_file->
-					document_root,
-				"blank_screen" /* filename_stem */,
-				application_name,
-				0 /* process_id */,
-				session,
-				"html" );
-
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		char *onload_control_string;
 
 		prompt_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			vertical_new_button_blank_prompt_screen(
+				application_name );
 
-		if ( appaserver_frameset_menu_horizontal(
-			application_name,
-			login_name ) )
-		{
-			sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '' n n > %s 2>>%s",
-				application_name,
-				session,
-				login_name,
-				role->role_name,
-				output_filename,
-				appaserver_error_get_filename(
-					application_name ) );
-		}
-		else
-		{
-			sprintf(sys_string,
-		 		"output_blank_screen.sh '%s' '' n > %s 2>>%s",
-		 		application_background_color(
-					application_name ),
-				output_filename,
-		 		appaserver_error_get_filename(
-					application_name ) );
-		}
-
-		if ( system( sys_string ) ) {};
-
-		sprintf(onload_control_string,
-			"window.open('%s','%s');",
-			prompt_filename,
-			PROMPT_FRAME );
+		onload_control_string =
+			vertical_new_button_onload_control_string(
+				prompt_filename );
 
 		document->onload_control_string =
 			document_set_onload_control_string(
@@ -915,13 +841,15 @@ void primary_data_list_string_build_dictionaries(
 		attribute_primary_key_list(
 			attribute_list );
 
-	dictionary_set_string(	non_prefixed_dictionary,
-				PRIMARY_DATA_LIST_KEY,
-				primary_data_list_string );
+	dictionary_set_string(
+		non_prefixed_dictionary,
+		PRIMARY_DATA_LIST_KEY,
+		primary_data_list_string );
 
 	primary_data_list =
-		list_string2list(	primary_data_list_string,
-					FOLDER_DATA_DELIMITER );
+		list_string2list(
+			primary_data_list_string,
+			FOLDER_DATA_DELIMITER );
 
 	if ( !list_rewind( primary_data_list ) ) return;
 	list_rewind( primary_key_list );
@@ -936,13 +864,13 @@ void primary_data_list_string_build_dictionaries(
 				primary_data_list );
 
 		strcpy( key, attribute_name );
-		dictionary_set_pointer(
+		dictionary_set(
 			query_dictionary,
 			strdup( key ),
 			attribute_data );
 
 		sprintf( key, "%s_0", attribute_name );
-		dictionary_set_pointer(
+		dictionary_set(
 			query_dictionary,
 			strdup( key ),
 			attribute_data );
