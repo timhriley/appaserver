@@ -38,16 +38,9 @@ INSERT *insert_calloc( void )
 
 INSERT_ATTRIBUTE_DATA *insert_attribute_data_calloc( void )
 {
-}
+	INSERT_ATTRIBUTE_DATA *insert_attribute_data;
 
-INSERT_ATTRIBUTE_DATA *insert_attribute_data_new(
-			char *attribute_name,
-			char *escaped_replaced_data )
-{
-	INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data;
-
-	if ( ! ( insert_database_attribute_data =
-		     calloc( 1, sizeof( INSERT_DATABASE_ATTRIBUTE_DATA ) ) ) )
+	if ( ! ( insert = calloc( 1, sizeof( INSERT_ATTRIBUTE_DATA ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -57,12 +50,22 @@ INSERT_ATTRIBUTE_DATA *insert_attribute_data_new(
 		exit( 1 );
 	}
 
-	insert_database_attribute_data->attribute_name = attribute_name;
+	return insert_attribute_data;
+}
 
-	insert_database_attribute_data->escaped_replaced_data =
+INSERT_ATTRIBUTE_DATA *insert_attribute_data_new(
+			char *attribute_name,
+			char *escaped_replaced_data )
+{
+	INSERT_ATTRIBUTE_DATA *insert_attribute_data =
+		insert_attribute_data_calloc();
+
+	insert_attribute_data->attribute_name = attribute_name;
+
+	insert_attribute_data->escaped_replaced_data =
 		escaped_replaced_data;
 
-	return insert_database_attribute_data;
+	return insert_attribute_data;
 }
 
 INSERT_DATABASE *insert_database_new(
