@@ -29,7 +29,7 @@ GOOGLE_EARTH *google_earth_new(		char *document_name,
 
 	return google_earth;
 
-} /* google_earth_new() */
+}
 
 GOOGLE_EARTH_PLACEMARK *google_earth_placemark_new( void )
 {
@@ -49,7 +49,7 @@ GOOGLE_EARTH_PLACEMARK *google_earth_placemark_new( void )
 
 	return google_earth_placemark;
 
-} /* google_earth_placemark_new() */
+}
 
 void google_earth_set_placemark(	LIST *placemark_list,
 					char *placemark_name,
@@ -67,7 +67,7 @@ void google_earth_set_placemark(	LIST *placemark_list,
 	google_earth_placemark->longitude = longitude;
 	list_append_pointer( placemark_list, google_earth_placemark );
 
-} /* google_earth_set_placemark() */
+}
 
 void google_earth_output_heading(	FILE *output_file,
 					char *document_name,
@@ -105,7 +105,7 @@ void google_earth_output_heading(	FILE *output_file,
 		 GOOGLE_EARTH_TILT,
 		 GOOGLE_EARTH_ALTITUDE_MODE );
 
-} /* google_earth_output_heading() */
+}
 
 void google_earth_output_placemark_list(FILE *output_file,
 					LIST *placemark_list )
@@ -126,7 +126,7 @@ void google_earth_output_placemark_list(FILE *output_file,
 
 	} while( list_next( placemark_list ) );
 
-} /* google_earth_output_placemark_list() */
+}
 
 void google_earth_output_placemark(	FILE *output_file,
 					char *placemark_name,
@@ -171,7 +171,7 @@ void google_earth_output_placemark(	FILE *output_file,
 		 longitude,
 		 latitude );
 
-} /* google_earth_output_placemark() */
+}
 
 #ifdef NOT_DEFINED
 void google_earth_output_placemark(	FILE *output_file,
@@ -228,9 +228,9 @@ void google_earth_output_closing( FILE *output_file )
 "</Document>\n"
 "</kml>\n" );
 
-} /* google_earth_output_closing() */
+}
 
-void google_earth_get_filenames(
+void google_earth_filenames(
 			char **output_uncompressed_kml_filename,
 			char **output_uncompressed_kmz_filename,
 			char **output_kmz_filename,
@@ -278,7 +278,7 @@ void google_earth_get_filenames(
 	appaserver_link_file->extension = "kml";
 
 	*output_uncompressed_kml_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -289,20 +289,12 @@ void google_earth_get_filenames(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-/*
-	sprintf(	local_output_uncompressed_kmz_filename,
-			GOOGLE_EARTH_OUTPUT_UNCOMPRESSED_KMZ_TEMPLATE,
-			appaserver_mount_point,
-			application_name,
-			session );
-*/
 
 	appaserver_link_file->filename_stem = FILENAME_STEM_KMZ;
 	appaserver_link_file->extension = "kml";
 
 	*output_uncompressed_kmz_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -314,19 +306,11 @@ void google_earth_get_filenames(
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
 
-/*
-	sprintf(	local_output_kmz_filename,
-			GOOGLE_EARTH_OUTPUT_KMZ_TEMPLATE,
-			appaserver_mount_point,
-			application_name,
-			session );
-*/
-
 	appaserver_link_file->filename_stem = FILENAME_STEM_KMZ;
 	appaserver_link_file->extension = "kmz";
 
 	*output_kmz_filename =
-		appaserver_link_get_output_filename(
+		appaserver_link_output_filename(
 			appaserver_link_file->
 				output_file->
 				document_root_directory,
@@ -342,7 +326,7 @@ void google_earth_get_filenames(
 	appaserver_link_file->extension = "kml";
 
 	*prompt_kml_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_prompt_filename(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,
@@ -363,7 +347,7 @@ void google_earth_get_filenames(
 	appaserver_link_file->extension = "kmz";
 
 	*prompt_kmz_filename =
-		appaserver_link_get_link_prompt(
+		appaserver_link_prompt_filename(
 			appaserver_link_file->
 				link_prompt->
 				prepend_http_boolean,
@@ -379,6 +363,5 @@ void google_earth_get_filenames(
 			appaserver_link_file->process_id,
 			appaserver_link_file->session,
 			appaserver_link_file->extension );
-
-} /* google_earth_get_filenames() */
+}
 

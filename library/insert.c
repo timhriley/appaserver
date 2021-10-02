@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/insert_database.c				*/
+/* $APPASERVER_HOME/library/insert.c					*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -14,27 +14,33 @@
 #include "piece.h"
 #include "process.h"
 #include "appaserver_library.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "list.h"
 #include "security.h"
-#include "insert_database.h"
+#include "insert.h"
 
-INSERT_DATABASE *insert_database_calloc(
-			char *application_name,
-			char *session,
-			char *folder_name )
+INSERT *insert_calloc( void )
 {
-	INSERT_DATABASE *i =
-		(INSERT_DATABASE *)
-			calloc( 1, sizeof( INSERT_DATABASE ) );
+	INSERT *insert;
 
-	i->application_name = application_name;
-	i->session = session;
-	i->folder_name = folder_name;
-	return i;
+	if ( ! ( insert = calloc( 1, sizeof( INSERT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return insert;
 }
 
-INSERT_DATABASE_ATTRIBUTE_DATA *insert_database_attribute_data_new(
+INSERT_ATTRIBUTE_DATA *insert_attribute_data_calloc( void )
+{
+}
+
+INSERT_ATTRIBUTE_DATA *insert_attribute_data_new(
 			char *attribute_name,
 			char *escaped_replaced_data )
 {

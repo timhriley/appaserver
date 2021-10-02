@@ -72,7 +72,7 @@ APPASERVER_LIBRARY=						\
 		relation.o					\
 		operation.o					\
 		document.o					\
-		insert_database.o				\
+		insert.o					\
 		expected_count.o				\
 		update.o					\
 		delete_database.o				\
@@ -825,9 +825,8 @@ sed.o: sed.c sed.h
 frameset.o: frameset.c frameset.h
 	${CC} ${CFLAGS} -c frameset.c
 
-insert_database.o: insert_database.c insert_database.h			\
-	process.h
-	${CC} ${CFLAGS} -c insert_database.c
+insert.o: insert.c insert.h
+	${CC} ${CFLAGS} -c insert.c
 
 update.o: update.c update.h
 	${CC} ${CFLAGS} -c update.c
