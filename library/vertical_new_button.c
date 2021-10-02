@@ -7,8 +7,11 @@
 #include "timlib.h"
 #include "String.h"
 #include "element.h"
+#include "application.h"
+#include "appaserver.h"
 #include "dictionary.h"
 #include "frameset.h"
+#include "folder_menu.h"
 #include "document.h"
 #include "appaserver_parameter_file.h"
 #include "vertical_new_button.h"
@@ -52,9 +55,9 @@ char *vertical_new_button_dictionary_one_folder_name(
 		key = list_get( key_list );
 
 		data =
-			dictionary_get_data(
-				non_prefixed_dictionary,
-				key );
+			dictionary_get(
+				key,
+				non_prefixed_dictionary );
 
 		if ( string_strcmp( data, "yes" ) == 0 )
 		{
@@ -83,6 +86,7 @@ char *vertical_new_button_one_element_name(
 	return strdup( element_name );
 }
 
+/*
 APPASERVER_ELEMENT *vertical_new_button_element(
 			char *one_folder_name,
 			LIST *role_folder_insert_list,
@@ -117,14 +121,15 @@ APPASERVER_ELEMENT *vertical_new_button_element(
 		return (APPASERVER_ELEMENT *)0;
 	}
 }
+*/
 
 char *vertical_new_button_dictionary_folder_name(
 			char *hidden_label,
 			DICTIONARY *non_prefixed_dictionary )
 {
-	return dictionary_get_data(
-			non_prefixed_dictionary,
-			hidden_label );
+	return dictionary_get(
+			hidden_label,
+			non_prefixed_dictionary );
 }
 
 void vertical_new_button_dictionary_set(
@@ -159,7 +164,6 @@ char *vertical_new_button_blank_prompt_screen(
 			char *document_root_directory,
 			char *appaserver_data_directory )
 {
-	char sys_string[ 1024 ];
 	char *prompt_filename;
 	char *output_filename;
 	APPASERVER_LINK_FILE *appaserver_link_file;
@@ -176,7 +180,7 @@ char *vertical_new_button_blank_prompt_screen(
 			"blank_screen" /* filename_stem */,
 			application_name,
 			0 /* process_id */,
-			session,
+			session_key,
 			"html" );
 
 	output_filename =
@@ -269,7 +273,14 @@ char *vertical_new_button_blank_prompt_screen(
 	}
 
 	document_begin( output_stream, document );
-	document_tag_close( output_stream );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_close_html() );
+
 	fclose( output_stream );
 
 	return prompt_filename;

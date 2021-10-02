@@ -14,7 +14,7 @@
 #include "google_chart.h"
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_link_file.h"
+#include "environ.h"
 #include "document.h"
 
 GOOGLE_CHART *google_chart_new( void )
@@ -1872,29 +1872,50 @@ void google_chart_output_all_charts(
 {
 	DOCUMENT *document;
 	GOOGLE_OUTPUT_CHART *google_chart;
+	char *tmp;
 
-	document = document_new();
+	document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			environment_application_name(),
+			(MENU *)0 );
 
-	document->document_head =
-		document_head_new(
-			title,
-			(char *)0 /* menu_setup_string */,
-			(char *)0 /* calendar_setup_string */,
-			(char *)0 /* javascript_include_string */ );
+	fprintf(output_file,
+		"%s\n",
+		( tmp =
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			document_head_begin_html(
+				document->document_head ) ) );
 
-	document_head_open(
-		output_file,
-		document->document_head );
+	free( tmp );
 
 	google_chart_include( output_file );
 
-	fprintf( output_file,
-		 "<link rel=stylesheet type=text/css href=\"%s\">\n",
-		 stylesheet );
+	fprintf(output_file,
+		"<link rel=stylesheet type=text/css href=\"%s\">\n",
+		stylesheet );
 
-	document_head_close( output_file );
+	fprintf(output_file,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_head_close_html() );
 
-	fprintf( output_file, "<body>\n" );
+	fprintf(output_file,
+		"%s\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		( tmp =
+			document_body_begin_html(
+				(char *)0 /* onload_string */ ) ) );
+
+	free( tmp );
 
 	if ( title && *title )
 	{
@@ -1948,8 +1969,12 @@ void google_chart_output_all_charts(
 
 	} /* if list_rewind() */
 
-	fprintf( output_file, "</body>\n" );
-	fprintf( output_file, "</html>\n" );
+	fprintf(output_file,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_close_html() );
 }
 
 void google_chart_output_graph_window(
@@ -1982,7 +2007,14 @@ void google_chart_output_graph_window(
 		prompt_filename,
 		window_name );
 
-	if ( with_document_output ) document_tag_close( stdout );
+	if ( with_document_output )
+	{
+		printf( "%s\n",
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_close_html() );
+	}
 }
 
 GOOGLE_DATATYPE_CHART *google_datatype_chart_get_or_set(

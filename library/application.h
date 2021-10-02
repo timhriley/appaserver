@@ -67,6 +67,8 @@ APPLICATION *application_calloc(
 APPLICATION *application_new(
 			char *application_name );
 
+/* Returns heap memory or "" */
+/* ------------------------- */
 char *application_title_string(
 			char *application_name );
 

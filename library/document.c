@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "environ.h"
 #include "application.h"
@@ -51,10 +52,13 @@ DOCUMENT *document_new(	char *application_name,
 {
 	DOCUMENT *document = document_calloc();
 
-	if ( menu )
+	if ( application_name && menu )
 	{
 		document->document_head =
 			document_head_new(
+				/* ------------------------- */
+				/* Returns heap memory or "" */
+				/* ------------------------- */
 				application_title_string(
 					application_name ),
 				document_head_menu_setup_string(),
@@ -72,6 +76,9 @@ DOCUMENT *document_new(	char *application_name,
 	{
 		document->document_head =
 			document_head_new(
+				/* ------------------------- */
+				/* Returns heap memory or "" */
+				/* ------------------------- */
 				application_title_string(
 					application_name ),
 				(char *)0 /* menu_setup_string */,
@@ -101,20 +108,36 @@ void document_output_content_type( void )
 	fflush( stdout );
 }
 
-void document_tag_begin(
-			FILE *output_stream,
+char *document_begin_html(
 			char *type_string,
 			char *standard_string )
 {
-	fprintf(output_stream,
-		"%s\n%s\n",
+	char html[ STRING_INPUT_BUFFER ];
+
+	if ( !type_string || !standard_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s",
 		type_string,
 		standard_string );
+
+	return strdup( html );
 }
 
 void document_quick_output( char *application_name )
 {
 	DOCUMENT *document;
+	char *tmp;
+
+	document_output_content_type();
 
 	document =
 		/* --------------- */
@@ -124,22 +147,41 @@ void document_quick_output( char *application_name )
 			application_name,
 			(MENU *)0 /* menu */ );
 
-	document_output_content_type();
+	printf("%s\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		( tmp = document_begin_html(
+				document->type_string,
+				document->standard_string ) ) );
 
-	document_tag_begin(
-		stdout,
-		document->type_string,
-		document->standard_string );
+	free( tmp );
 
-	document_head_begin(
-		stdout,
-		document->document_head );
+	printf( "%s\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		( tmp =
+			document_head_begin_html(
+				document->document_head ) ) );
 
-	document_head_close( stdout );
+	free( tmp );
 
-	document_body_tag_begin(
-		stdout,
-		(char *)0 /* onload_string */ );
+	printf( "%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_head_close_html() );
+
+	printf( "%s\n",
+		( tmp =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+			document_body_begin_html(
+				(char *)0 /* onload_string */ ) ) );
+
+	free( tmp );
 }
 
 DOCUMENT_BODY *document_body_new(
@@ -154,11 +196,11 @@ DOCUMENT_BODY *document_body_new(
 	return document_body;
 }
 
-void document_body_tag_begin(
-			FILE *output_stream,
+char *document_body_begin_html(
 			char *onload_string )
 {
-	char onload_attribute[ 1024 ];
+	char html[ STRING_INPUT_BUFFER ];
+	char onload_attribute[ STRING_INPUT_BUFFER ];
 
 	*onload_attribute = '\0';
 
@@ -169,9 +211,11 @@ void document_body_tag_begin(
 			onload_string );
 	}
 
-	fprintf(output_stream,
+	sprintf(html,
 "<body%s leftmargin=0 topmargin=0 marginwidth=0 marginheight=0>",
 		onload_attribute );
+
+	return strdup( html );
 }
 
 DOCUMENT_HEAD *document_head_calloc( void )
@@ -253,10 +297,12 @@ char *document_head_menu_setup_string( void )
 
 }
 
-void document_head_begin(
-			FILE *output_stream,
+char *document_head_begin_html(
 			DOCUMENT_HEAD *document_head )
 {
+	char html[ STRING_INPUT_BUFFER ];
+	char *ptr = html;
+
 	if ( !document_head )
 	{
 		fprintf(stderr,
@@ -267,37 +313,52 @@ void document_head_begin(
 		exit( 1 );
 	}
 
+	ptr += sprintf( ptr, "<head>\n" );
 
-	fprintf( output_stream, "<head>\n" );
-	fprintf( output_stream, "%s\n", document_head->meta_string );
-	fprintf( output_stream, "%s\n", document_head->stylesheet_string );
-	fprintf( output_stream, "%s\n", document_head->title_tag );
+	if ( document_head->meta_string )
+	{
+		ptr += sprintf( ptr, "%s\n", document_head->meta_string );
+	}
+
+	if ( document_head->stylesheet_string )
+	{
+		ptr += sprintf( ptr, "%s\n", document_head->stylesheet_string );
+	}
+
+	if ( document_head->title_tag )
+	{
+		ptr += sprintf( ptr, "%s\n", document_head->title_tag );
+	}
 
 	if ( document_head->menu_setup_string )
 	{
-		fprintf(output_stream,
+		ptr += sprintf(
+			ptr,
 			"%s\n",
 			document_head->menu_setup_string );
 	}
 
 	if ( document_head->calendar_setup_string )
 	{
-		fprintf(output_stream,
+		ptr += sprintf(
+			ptr,
 			"%s\n",
 			document_head->calendar_setup_string );
 	}
 
 	if ( document_head->javascript_include_string )
 	{
-		fprintf(output_stream,
+		ptr += sprintf(
+			ptr,
 			"%s\n",
 			document_head->javascript_include_string );
 	}
+	return strdup( html );
 }
 
-void document_head_close( FILE *output_stream )
+char *document_head_close_html( void )
 {
-	fprintf( output_stream, "</head>\n" );
+	return "</head>";
 }
 
 char *document_head_stylesheet_string(
@@ -324,10 +385,9 @@ char *document_head_title_tag(
 	return strdup( title_tag );
 }
 
-void document_tag_close( FILE *output_stream )
+char *document_close_html( void )
 {
-	fprintf( output_stream, "</body>\n" );
-	fprintf( output_stream, "</html>\n" );
+	return "</body>\n</html>";
 }
 
 char *document_body_onload_string(
@@ -363,7 +423,6 @@ char *document_body_menu_onload_string( void )
 char *document_body_hide_preload_message( void )
 {
 	return
-"<!-- following there's an workaround to hide the UL contents while the page is loading ;-) -->\n"
 "<script type=\"text/javascript\">//<![CDATA[ \ndocument.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");\n"
 "//]]></script>\n\n";
 }
@@ -374,8 +433,6 @@ char *document_standard_string( void )
 "xmlns=\"http://www.w3.org/1999/xhtml\"";
 }
 
-/* Returns program memory */
-/* ---------------------- */
 char *document_head_calendar_setup_string( void )
 {
 	return
@@ -485,6 +542,8 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 void document_begin(	FILE *output_stream,
 			DOCUMENT *document )
 {
+	char *tmp;
+
 	if ( !document->document_head )
 	{
 		fprintf(stderr,
@@ -505,16 +564,35 @@ void document_begin(	FILE *output_stream,
 		exit( 1 );
 	}
 
-	document_tag_begin(
-		output_stream,
-		document->type_string,
-		document->standard_string );
+	fprintf(output_stream,
+		"%s\n",
+		( tmp =
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			document_begin_html(
+				document->type_string,
+				document->standard_string ) ) );
 
-	document_head_begin(
-		output_stream,
-		document->document_head );
+	free( tmp );
 
-	document_head_close( output_stream );
+	fprintf(output_stream,
+		"%s\n",
+		( tmp =
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			document_head_begin_html(
+				document->document_head ) ) );
+
+	free( tmp );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_head_close_html() );
 
 	document_body_begin(
 		output_stream,
@@ -525,6 +603,8 @@ void document_body_begin(
 			FILE *output_stream,
 			DOCUMENT_BODY *document_body )
 {
+	char *tmp;
+
 	if ( !document_body )
 	{
 		fprintf(stderr,
@@ -535,9 +615,16 @@ void document_body_begin(
 		exit( 1 );
 	}
 
-	document_body_tag_begin(
-		output_stream,
-		document_body->onload_string );
+	fprintf(output_stream,
+		"%s\n",
+		( tmp =
+			/* -------------------------- */
+			/* Safely returns heap memory */
+			/* -------------------------- */
+			document_body_begin_html(
+				document_body->onload_string ) ) );
+
+	free( tmp );
 
 	if ( document_body->menu )
 	{
@@ -547,4 +634,3 @@ void document_body_begin(
 			document_body->menu );
 	}
 }
-

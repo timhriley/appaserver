@@ -80,23 +80,26 @@ char *document_standard_string(
 void document_output_content_type(
 			void );
 
-void document_tag_begin(
-			FILE *output_stream,
-			char *type_string,
-			char *standard_string );
-
 /* Need to execute document_tag_close( stdout ) */
 /* -------------------------------------------- */
 void document_quick_output(
 			char *application_name );
 
-/* Need to execute document_tag_close( output_stream ) */
-/* --------------------------------------------------- */
+/* Need to output document_tag_close_html() */
+/* ---------------------------------------- */
 void document_begin(	FILE *output_stream,
 			DOCUMENT *document );
 
-void document_tag_close(
-			FILE *output_stream );
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_begin_html(
+			char *type_string,
+			char *standard_string );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_close_html(
+			void );
 
 /* DOCUMENT_HEAD operations */
 /* ------------------------ */
@@ -141,12 +144,15 @@ char *document_head_calendar_setup_string(
 char *document_head_javascript_include_string(
 			void );
 
-void document_head_begin(
-			FILE *output_stream,
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_head_begin_html(
 			DOCUMENT_HEAD *document_head );
 
-void document_head_close(
-			FILE *output_stream );
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_close_html(
+			void );
 
 /* DOCUMENT_BODY operations */
 /* ------------------------ */
@@ -168,8 +174,9 @@ char *document_body_onload_string(
 			char *menu_onload_string,
 			char *onload_string );
 
-void document_body_tag_begin(
-			FILE *output_stream,
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_body_begin_html(
 			char *onload_string );
 
 /* Returns program memory */
