@@ -509,6 +509,11 @@ int dictionary_string_list_highest_index(
 	return highest_index;
 }
 
+int dictionary_highest_row( DICTIONARY *d )
+{
+	return dictionary_key_highest_index( d );
+}
+
 int dictionary_key_highest_index( DICTIONARY *d )
 {
 	char *key;
@@ -1258,9 +1263,9 @@ void dictionary_search_replace_command_arguments(
 			sprintf( replace, " \"%s\"", data );
 
 			search_replace_word( 
-					source_destination,
-					search, 
-					replace );
+				source_destination,
+				search, 
+				replace );
 		}
 		else
 		/* ----------------------------------- */

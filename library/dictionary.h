@@ -90,6 +90,9 @@ char *dictionary_display_delimiter(
 			DICTIONARY *d,
 			char delimiter );
 
+int dictionary_highest_row(
+			DICTIONARY *d );
+
 int dictionary_key_highest_index(
 			DICTIONARY *d );
 
@@ -109,7 +112,7 @@ int dictionary_index_data_if_changed(
 /*		0 if the data comes from index = 0 or no index */
 /*	       -1 if the data is not found	   	       */
 /* ----------------------------------------------------------- */
-boolean dictionary_index_data(
+int dictionary_index_data(
 			char **destination,
 			DICTIONARY *dictionary,
 			char *key,

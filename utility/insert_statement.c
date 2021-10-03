@@ -108,8 +108,7 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 
 void output_compress_insert_statements(
 				char *table_name,
@@ -158,7 +157,7 @@ void output_compress_insert_statements(
 	printf(";\n" );
 	fflush( stdout );
 
-} /* output_insert_statements() */
+}
 
 void output_insert_statements(	char *table_name,
 				char *field_names,
@@ -202,7 +201,7 @@ void output_insert_statements(	char *table_name,
 		fflush( stdout );
 	}
 
-} /* output_insert_statements() */
+}
 
 void output_row( char *row, char delimiter, int max_piece )
 {
@@ -229,7 +228,7 @@ void output_row( char *row, char delimiter, int max_piece )
 			printf( "\'%s\'", field );
 		}
 	}
-} /* output_row() */
+}
 
 void fix_any_dollar_signs( char *d )
 {
@@ -251,7 +250,7 @@ void fix_any_dollar_signs( char *d )
 
 	*d = '\0';
 
-} /* fix_any_dollar_signs() */
+}
 
 void fix_any_quotes( char *d )
 {
@@ -326,5 +325,5 @@ void fix_any_quotes( char *d )
 
 	*d = '\0';
 
-} /* fix_any_quotes() */
+}
 
