@@ -733,31 +733,6 @@ void update_set_login_name_each_row(
 
 }
 
-CHANGED_ATTRIBUTE *update_changed_attribute_new(
-			char *attribute_name,
-			char *attribute_datatype,
-			char *old_data,
-			char *escaped_replaced_new_data )
-{
-	CHANGED_ATTRIBUTE *changed_attribute;
-
-	changed_attribute =
-		(CHANGED_ATTRIBUTE *)
-			calloc( 1, sizeof( CHANGED_ATTRIBUTE ) );
-
-	changed_attribute->attribute_name = attribute_name;
-	changed_attribute->attribute_datatype = attribute_datatype;
-	changed_attribute->old_data = old_data;
-
-	if ( strcmp( escaped_replaced_new_data, FORBIDDEN_NULL ) == 0 )
-		changed_attribute->escaped_replaced_new_data = NULL_STRING;
-	else
-		changed_attribute->escaped_replaced_new_data =
-			escaped_replaced_new_data;
-
-	return changed_attribute;
-}
-
 UPDATE_PRIMARY *update_primary_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
@@ -829,7 +804,7 @@ UPDATE_PRIMARY *update_primary_new(
 	}
 
 	changed_attribute_list =
-		update_primary_changed_attribute_list(
+		update_changed_attribute_list(
 			/* ------------------------------------------ */
 			/* Sets preupdate_$attribute_name for trigger */
 			/* ------------------------------------------ */
@@ -1253,19 +1228,6 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_calloc( void )
 	return u;
 }
 
-UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute_new(
-			char *folder_name,
-			char *attribute_name )
-{
-	UPDATE_CHANGED_ATTRIBUTE_DATA *u =
-		update_changed_attribute_data_calloc();
-
-	u->folder_attribute =
-		folder_attribute_new(
-			folder_name,
-			attribute_name );
-}
-
 UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_new(
 			char *key,
 			char *old_data,
@@ -1292,7 +1254,7 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_fetch(
 			int primary_key_index,
 			int row )
 {
-	UPDATE_CHANGED_ATTRIBUTE_DATA *changed_attribute_data;
+	UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data;
 	char *key;
 	char *old_data;
 	char *new_data;
@@ -1307,12 +1269,12 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_fetch(
 
 	if ( ! ( old_data = dictionary_fetch( key, file_dictionary ) ) )
 	{
-		return (CHANGED_ATTRIBUTE_DATA *)0;
+		return (UPDATE_CHANGED_ATTRIBUTE_DATA *)0;
 	}
 
 	if ( ! ( new_data = dictionary_fetch( key, post_dictionary ) ) )
 	{
-		return (CHANGED_ATTRIBUTE_DATA *)0;
+		return (UPDATE_CHANGED_ATTRIBUTE_DATA *)0;
 	}
 
 	if ( strcmp( new_data, UPDATE_NULL_TOKEN ) == 0 )
@@ -1320,32 +1282,27 @@ UPDATE_CHANGED_ATTRIBUTE_DATA *update_changed_attribute_data_fetch(
 
 	if ( strcmp( old_data, "select" ) == 0 && !*new_data )
 	{
-		return (CHANGED_ATTRIBUTE_DATA *)0;
+		return (UPDATE_CHANGED_ATTRIBUTE_DATA *)0;
 	}
 
 	if ( ! ( changed_attribute = ( strcmp( old_data, new_data ) != 0 ) ) )
 	{
-		return (CHANGED_ATTRIBUTE_DATA *)0;
+		return (UPDATE_CHANGED_ATTRIBUTE_DATA *)0;
 	}
 
-	changed_attribute_data = update_changed_attribute_data_calloc();
+	update_changed_attribute_data =
+		update_changed_attribute_data_new(
+			strdup( key ),
+			old_data,
+			security_sql_injection_escape(
+				security_replace_special_characters(
+					string_trim_number_characters(
+						new_data,
+						attribute_datatype ) ) ) );
 
-	changed_attribute_data->post_dictionary = post_dictionary;
-	changed_attribute_data->file_dictionary = file_dictionary;
-	changed_attribute_data->attribute_name = attribute_name;
-	changed_attribute_data->attribute_datatype = attribute_datatype;
-	changed_attribute_data->primary_key_index = primary_key_index;
-	changed_attribute_data->row = row;
-	changed_attribute_data->changed_attribute = changed_attribute;
+	update_changed_attribute_data->changed_attribute = changed_attribute;
 
-	changed_attribute_data->escaped_replaced_new_data =
-		security_sql_injection_escape(
-			security_replace_special_characters(
-				string_trim_number_characters(
-					new_data,
-					attribute_datatype ) ) );
-
-	return changed_attribute_data;
+	return update_changed_attribute_data;
 }
 
 char *update_dictionary_key(
@@ -1465,7 +1422,7 @@ char *update_changed_attribute_preupdate_label(
 	return strdup( label );
 }
 
-LIST *update_primary_changed_attribute_list(
+LIST *update_changed_attribute_list(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *folder_attribute_list,
@@ -1543,10 +1500,9 @@ UPDATE_ONE2M *update_one2m_calloc( void )
 
 UPDATE_ONE2M *update_one2m_new(
 			LIST *primary_key_changed_attribute_list,
-			LIST *primary_where_attribute_list,
 			RELATION *relation_one2m )
 {
-	UPDATE_ONE2M *one2m;
+	UPDATE_ONE2M *update_one2m;
 
 	if ( !list_length( primary_key_changed_attribute_list ) )
 	{
@@ -1588,38 +1544,38 @@ UPDATE_ONE2M *update_one2m_new(
 		exit( 1 );
 	}
 
-	one2m = update_one2m_calloc();
+	update_one2m = update_one2m_calloc();
 
-	one2m->primary_key_changed_attribute_list =
+	update_one2m->primary_key_changed_attribute_list =
 		primary_key_changed_attribute_list;
 
-	one2m->foreign_changed_attribute_list =
+	update_one2m->foreign_changed_attribute_list =
 		update_foreign_changed_attribute_list(
 			primary_key_changed_attribute_list,
 			relation_one2m->many_folder->folder_name,
 			relation_one2m->foreign_key_list );
 
-	one2m->foreign_where_attribute_list =
+	update_one2m->foreign_where_attribute_list =
 		update_foreign_where_attribute_list(
 			primary_key_changed_attribute_list,
 			relation_one2m->foreign_key_list );
 
-	one2m->folder_delimited_list =
+	update_one2m->folder_delimited_list =
 		folder_delimited_list(
 			/* ----------------------------- */
 			/* Returns static memory or null */
 			/* ----------------------------- */
 			folder_table_name(
 				environment_application_name(),
-				one2m->many_folder->folder_name ),
+				update_one2m->many_folder->folder_name ),
 					/* table_name */,
-			one2m->many_folder->primary_key_list
+			update_one2m->many_folder->primary_key_list
 				/* attribute_name_list */,
 			update_where_clause(
-				one2m->foreign_where_attribute_list ),
+				update_one2m->foreign_where_attribute_list ),
 				/* where_clause */ );
 
-	return one2m;
+	return update_one2m;
 }
 
 UPDATE_MTO1 *update_mto1(
@@ -1901,9 +1857,9 @@ char *update_row_list_sql(
 			LIST *update_row_list )
 {
 	UPDATE_ROW *update_row;
-	char mysql_message_list_string[ STRING_SYSTEM_BUFFER ];
-	char *ptr = mysql_message_list_string;
-	char *return_string = {0};
+	char return_message_list_string[ STRING_SYSTEM_BUFFER ];
+	char *ptr = return_message_list_string;
+	char *return_message;
 
 	*ptr = '\0';
 
@@ -1912,24 +1868,32 @@ char *update_row_list_sql(
 		do {
 			update_row = list_get( update_row_list );
 
-			return_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
+			return_message =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
 				update_row_sql(
 					login_name,
 					security_entity,
 					update_row );
 
-			if ( return_string )
+			if ( return_message )
 			{
-				ptr += sprintf( ptr, "%s;", return_string );
-				free( return_string );
+				ptr += sprintf( ptr, "%s;", return_message );
+				free( return_message );
 			}
 
 		} while ( list_next( update_row_list ) );
 	}
-	return strdup( mysql_message_list_string );
+
+	if ( *return_message_list_string )
+	{
+		return strdup( return_message_list_string );
+	}
+	else
+	{
+		return (char *)0;
+	}
 }
 
 char *update_row_sql(	char *login_name,
@@ -1998,7 +1962,7 @@ char *update_row_sql(	char *login_name,
 		/* ------------------------------------------- */
 		/* Safely returns mysql_message as heap memory */
 		/* ------------------------------------------- */
-		update_folder_sql(
+		update_row_table_sql(
 			login_name,
 			/* --------------------- */
 			/* Returns static memory */
@@ -2084,7 +2048,7 @@ char *update_where_clause(
 {
 }
 
-char *update_folder_sql(
+char *update_row_table_sql(
 			char *login_name,
 			char *table_name,
 			char *update_set_clause,

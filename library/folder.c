@@ -232,7 +232,8 @@ FOLDER *folder_parse(	char *input,
 		folder->relation_mto1_isa_list =
 			relation_mto1_isa_list(
 				(LIST *)0 /* mto1_isa_list */,
-				folder->folder_name );
+				folder->folder_name,
+				fetch_process );
 
 		if ( list_length( folder->folder_attribute_list ) )
 		{
@@ -258,7 +259,8 @@ FOLDER *folder_parse(	char *input,
 		folder->relation_one2m_recursive_list =
 			relation_one2m_recursive_list(
 				(LIST *)0 /* one2m_recursive_list */,
-				folder->folder_name );
+				folder->folder_name,
+				fetch_process );
 	}
 
 	if ( fetch_process )

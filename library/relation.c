@@ -46,7 +46,8 @@ RELATION *relation_new(	char *many_folder_name,
 RELATION *relation_parse(
 			char *input,
 			boolean fetch_folder,
-			boolean fetch_folder_attribute_list )
+			boolean fetch_folder_attribute_list,
+			boolean fetch_process )
 {
 	char many_folder_name[ 128 ];
 	char one_folder_name[ 128 ];
@@ -125,7 +126,7 @@ RELATION *relation_parse(
 				0 /* not fetch_relation_mto1_isa_list */,
 				0 /* not fetch_relation_one2m_list */,
 				0 /* not fetch_relation_one2m_recursive_list */,
-				0 /* not fetch_process */,
+				fetch_process,
 				0 /* not fetch_role_folder_list */,
 				0 /* not fetch_row_level_restriction */,
 				0 /* not fetch_role_operation_list */ );
@@ -140,7 +141,7 @@ RELATION *relation_parse(
 				0 /* not fetch_relation_mto1_isa_list */,
 				0 /* not fetch_relation_one2m_list */,
 				0 /* not fetch_relation_one2m_recursive_list */,
-				0 /* not fetch_process */,
+				fetch_process,
 				0 /* not fetch_role_folder_list */,
 				0 /* not fetch_row_level_restriction */,
 				0 /* not fetch_role_operation_list */ );
@@ -171,7 +172,8 @@ RELATION *relation_parse(
 LIST *relation_system_list(
 			char *system_string,
 			boolean fetch_folder,
-			boolean fetch_attribute_list )
+			boolean fetch_attribute_list,
+			boolean fetch_process )
 {
 	char input[ 65536 ];
 	FILE *input_pipe = popen( system_string, "r" );
@@ -184,7 +186,8 @@ LIST *relation_system_list(
 			relation_parse(
 				input,
 				fetch_folder,
-				fetch_attribute_list ) );
+				fetch_attribute_list,
+				fetch_process ) );
 	}
 	pclose( input_pipe );
 	return relation_list;
@@ -264,43 +267,6 @@ LIST *relation_foreign_key_list(
 	return return_list;
 }
 
-LIST *relation_fetch_one2m_list(
-			char *one_folder_name,
-			char *where,
-			char *order )
-{
-	char relation_where[ 128 ];
-	char full_where[ 256 ];
-
-	sprintf(relation_where,
-		"related_folder = '%s'",
-		one_folder_name );
-
-	if ( where && *where )
-	{
-		sprintf(full_where,
-			"%s and %s",
-			where,
-			relation_where );
-	}
-	else
-	{
-		strcpy( full_where, relation_where );
-	}
-
-	return
-		relation_system_list(
-			relation_system_string(
-				full_where,
-				order ),
-			/* ---------------------------- */
-			/* Setting both will set	*/
-			/* foreign_attribute_name_list	*/
-			/* ---------------------------- */
-			1 /* fetch_folder */,
-			1 /* fetch_attribute_list */ );
-}
-
 LIST *relation_mto1_non_isa_list(
 			char *many_folder_name )
 {
@@ -320,7 +286,8 @@ LIST *relation_mto1_non_isa_list(
 			/* foreign_attribute_name_list	*/
 			/* ---------------------------- */
 			1 /* fetch_folder */,
-			1 /* fetch_attribute_list */ );
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_process */ );
 }
 
 LIST *relation_mto1_primary_key_subset_list(
@@ -388,7 +355,8 @@ LIST *relation_one2m_list(
 			/* foreign_attribute_name_list is set */
 			/* ---------------------------------- */
 			1 /* fetch_folder */,
-			1 /* fetch_attribute_list */ );
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_process */ );
 }
 
 LIST *relation_pair_one2m_list(
@@ -453,7 +421,8 @@ LIST *relation_join_one2m_list(
 
 LIST *relation_one2m_recursive_list(
 			LIST *relation_list,
-			char *one_folder_name )
+			char *one_folder_name,
+			boolean fetch_process )
 {
 	LIST *local_relation_list;
 	RELATION *relation;
@@ -472,7 +441,8 @@ LIST *relation_one2m_recursive_list(
 			/* foreign_attribute_name_list is set */
 			/* ---------------------------------- */
 			1 /* fetch_folder */,
-			1 /* fetch_attribute_list */ );
+			1 /* fetch_attribute_list */,
+			fetch_process );
 
 	if ( !list_rewind( local_relation_list ) )
 		return relation_list;
@@ -497,7 +467,8 @@ LIST *relation_one2m_recursive_list(
 					relation_list,
 					relation->
 						many_folder->
-						folder_name );
+						folder_name,
+					fetch_process );
 		}
 	} while ( list_next( local_relation_list ) );
 
@@ -507,7 +478,8 @@ LIST *relation_one2m_recursive_list(
 
 LIST *relation_mto1_isa_list(
 			LIST *relation_list,
-			char *many_folder_name )
+			char *many_folder_name,
+			boolean fetch_process )
 {
 	LIST *local_relation_list;
 	RELATION *relation;
@@ -526,7 +498,8 @@ LIST *relation_mto1_isa_list(
 			/* foreign_attribute_name_list is set */
 			/* ---------------------------------- */
 			1 /* fetch_folder */,
-			1 /* fetch_attribute_list */ );
+			1 /* fetch_attribute_list */,
+			fetch_process );
 
 	if ( !list_rewind( local_relation_list ) )
 		return relation_list;
@@ -545,7 +518,8 @@ LIST *relation_mto1_isa_list(
 				relation_list,
 				relation->
 					one_folder->
-					folder_name );
+					folder_name,
+				fetch_process );
 
 	} while ( list_next( local_relation_list ) );
 
@@ -611,7 +585,8 @@ LIST *relation_one2m_pair_list(
 			/* foreign_attribute_name_list is set */
 			/* ---------------------------------- */
 			1 /* fetch_folder */,
-			1 /* fetch_attribute_list */ );
+			1 /* fetch_attribute_list */,
+			0 /* not fetch_process */ );
 }
 
 LIST *relation_mto1_drillthru_list(
@@ -633,7 +608,8 @@ LIST *relation_mto1_drillthru_list(
 				where,
 				(char *)0 /* order */ ),
 			1 /* fetch_folder */,
-			0 /* not fetch_attribute_list */ );
+			0 /* not fetch_attribute_list */,
+			0 /* not fetch_process */ );
 
 	if ( !list_rewind( local_relation_list ) )
 		return relation_list;

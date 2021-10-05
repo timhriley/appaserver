@@ -87,7 +87,11 @@ RELATION *relation_parse(
 			/* Setting both will set foreign_key_list */
 			/* -------------------------------------- */
 			boolean fetch_folder,
-			boolean fetch_attribute_list );
+			boolean fetch_attribute_list,
+			/* ---------------------- */
+			/* If fetch_folder is set */
+			/* ---------------------- */
+			boolean fetch_process );
 
 LIST *relation_system_list(
 			char *system_string,
@@ -95,7 +99,8 @@ LIST *relation_system_list(
 			/* Setting both will set foreign_key_list */
 			/* -------------------------------------- */
 			boolean fetch_folder,
-			boolean fetch_attribute_list );
+			boolean fetch_attribute_list,
+			boolean fetch_process );
 
 char *relation_system_string(
 			char *where,
@@ -122,7 +127,8 @@ LIST *relation_mto1_primary_key_subset_list(
 
 LIST *relation_one2m_recursive_list(
 			LIST *relation_list /* in/out */,
-			char *one_folder_name );
+			char *one_folder_name,
+			boolean fetch_process );
 
 /* ----------------------- */
 /* foreign_key_list is set */
@@ -134,26 +140,11 @@ LIST *relation_one2m_pair_list(
 /* ---------------------------- */
 LIST *relation_mto1_isa_list(
 			LIST *relation_list /* in/out */,
-			char *many_folder_name );
+			char *many_folder_name,
+			boolean fetch_process );
 
 LIST *relation_mto1_non_isa_list(
 			char *many_folder_name );
-
-/* ----------------------- */
-/* foreign_key_list is set */
-/* ----------------------- */
-LIST *relation_fetch_one2m_list(
-			char *one_folder_name,
-			char *where,
-			char *order );
-
-/* ----------------------- */
-/* foreign_key_list is set */
-/* ----------------------- */
-LIST *relation_fetch_mto1_list(
-			char *many_folder_name,
-			char *where,
-			char *order );
 
 boolean relation_is_primary_key_subset(
 			LIST *foreign_key_list,

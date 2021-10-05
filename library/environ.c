@@ -142,11 +142,6 @@ char *environment_get( char *variable_name )
 		return (char *)0;
 }
 
-char *environ_get_environment( char *variable_name )
-{
-	return environment_get( variable_name );
-}
-
 boolean environ_name_to_value( char *variable_value, char *variable_name )
 {
 	char *value;
@@ -236,7 +231,7 @@ void set_path( char *path_to_add )
 
 }
 
-boolean environ_get_browser_internet_explorer( void )
+boolean environ_browser_internet_explorer( void )
 {
 	char http_user_agent[ 512 ];
 
@@ -247,7 +242,7 @@ boolean environ_get_browser_internet_explorer( void )
 
 }
 
-char *environ_get_http_referer(	void )
+char *environ_http_referer( void )
 {
 	char http_referer_with_parameter[ 512 ];
 	static char http_referer[ 512 ];
@@ -263,7 +258,6 @@ char *environ_get_http_referer(	void )
 		piece( http_referer, '?', http_referer_with_parameter, 0 );
 		return http_referer;
 	}
-
 }
 
 void environ_set_utc_offset( char *application_name )
@@ -274,7 +268,7 @@ void environ_set_utc_offset( char *application_name )
 	application_constants = application_constants_new();
 
 	application_constants->dictionary =
-		application_constants_get_dictionary(
+		application_constants_dictionary(
 			application_name );
 
 	if ( ( utc_offset =
@@ -297,7 +291,7 @@ void environ_set_utc_offset( char *application_name )
 
 }
 
-char *environ_get_http_referer_filename( void )
+char *environ_http_referer_filename( void )
 {
 	char http_referer_with_parameter[ 512 ];
 	char http_referer_with_pathname[ 512 ];
@@ -366,7 +360,7 @@ void add_utility_to_path( void )
 	char utility_path[ 128 ];
 
 	appaserver_mount_point =
-		appaserver_parameter_file_get_appaserver_mount_point();
+		appaserver_parameter_file_mount_point();
 
 	sprintf( utility_path, "%s/utility", appaserver_mount_point );
 	set_path( utility_path );
@@ -381,7 +375,7 @@ void environ_appaserver_home( void )
 {
 	environ_set_environment(
 		"APPASERVER_HOME",
-		appaserver_parameter_file_get_appaserver_mount_point() );
+		appaserver_parameter_file_mount_point() );
 }
 
 void add_src_appaserver_to_path( void )
@@ -390,7 +384,7 @@ void add_src_appaserver_to_path( void )
 	char bin_path[ 256 ];
 
 	appaserver_mount_point =
-		appaserver_parameter_file_get_appaserver_mount_point();
+		appaserver_parameter_file_mount_point();
 
 	sprintf(	bin_path,
 			"%s/%s",
@@ -411,7 +405,7 @@ void add_library_to_python_path( void )
 	char python_library_path[ 128 ];
 
 	appaserver_mount_point = 
-		appaserver_parameter_file_get_appaserver_mount_point();
+		appaserver_parameter_file_mount_point();
 	sprintf( python_library_path,
 		 "%s/library", 
 		 appaserver_mount_point );
@@ -438,7 +432,7 @@ void add_appaserver_home_to_python_path( void )
 	char *appaserver_mount_point;
 
 	appaserver_mount_point = 
-		appaserver_parameter_file_get_appaserver_mount_point();
+		appaserver_parameter_file_mount_point();
 
 	set_environment( "PYTHONPATH", appaserver_mount_point );
 }
@@ -458,14 +452,14 @@ void add_relative_source_directory_to_path( char *application_name )
 	char delimiter;
 
 	appaserver_mount_point =
-		appaserver_parameter_file_get_appaserver_mount_point();
+		appaserver_parameter_file_mount_point();
 
 	relative_source_directory =
 		application_relative_source_directory(
 			application_name );
 
 	if ( ! ( delimiter =
-			timlib_get_delimiter(
+			timlib_delimiter(
 				relative_source_directory ) ) )
 	{
 		/* No delimiter, so set it to anything. */
@@ -493,11 +487,6 @@ char *environ_application_name( char *argv_0 )
 	return environ_exit_application_name( argv_0 );
 }
 
-char *environ_get_application_name( char *argv_0 )
-{
-	return environ_exit_application_name( argv_0 );
-}
-
 char *environ_exit_application_name( char *argv_0 )
 {
 	char *application_name;
@@ -521,11 +510,11 @@ void environ_output_application_shell( FILE *output_file )
 {
 	fprintf( output_file,
 		 "%s",
-		 environ_get_shell_snippet() );
+		 environ_shell_snippet() );
 
 }
 
-char *environ_get_shell_snippet( void )
+char *environ_shell_snippet( void )
 {
 	char buffer[ 1024 ];
 	char *buffer_ptr = buffer;

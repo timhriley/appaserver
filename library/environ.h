@@ -19,9 +19,6 @@ char *resolve_environment_variables(
 			char *return_string,
 			char *s );
 
-char *environ_get_environment(
-			char *variable_name );
-
 char *environment_get(	char *variable_name );
 
 void set_environment(
@@ -50,13 +47,13 @@ boolean environ_name_to_value(
 int environ_next_delimiter(
 			char *looking_string );
 
-boolean environ_get_browser_internet_explorer(
+boolean environ_browser_internet_explorer(
 			void );
 
-char *environ_get_http_referer(
+char *environ_http_referer(
 			void );
 
-char *environ_get_http_referer_filename(
+char *environ_http_referer_filename(
 			void );
 
 void add_pwd_to_path(	void );
@@ -88,30 +85,34 @@ void add_library_to_python_path( 	void );
 void add_appaserver_home_to_python_path(void );
 void add_python_library_path( 		void );
 
-void add_local_bin_to_path( 		void );
+void add_local_bin_to_path(
+			void );
 
 void add_relative_source_directory_to_path(
-					char *application_name );
-void environ_prepend_path(		char *path_to_add );
+			char *application_name );
 
-void environ_set_utc_offset(		char *application_name );
+void environ_prepend_path(
+			char *path_to_add );
+
+void environ_set_utc_offset(
+			char *application_name );
 
 char *environ_exit_application_name(
-			char *argv_0 );
-
-char *environ_get_application_name(
 			char *argv_0 );
 
 char *environ_application_name(
 			char *argv_0 );
 
-char *environment_application(		void );
+char *environment_application(
+			void );
 
-void environ_output_application_shell(	FILE *output_file );
+void environ_output_application_shell(
+			FILE *output_file );
 
-char *environ_get_shell_snippet(	void );
+char *environ_shell_snippet(
+			void );
 
-void environ_display(			FILE *output_pipe );
+void environ_display(	FILE *output_pipe );
 
 char *environment_application_name(
 			void );
