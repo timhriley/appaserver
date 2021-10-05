@@ -17,7 +17,6 @@
 
 /* Constants */
 /* --------- */
-/* #define UPDATE_DEBUG_MODE		1 */
 #define UPDATE_PREUPDATE_PREFIX	"preupdate_"
 #define UPDATE_NULL_TOKEN		"/"
 
@@ -106,12 +105,24 @@ typedef struct
 	/* ------- */
 	UPDATE_PRIMARY *update_primary;
 	LIST *one2m_list;
-	LIST *mto1_list;
+	LIST *mto1_isa_list;
 	int cell_count;
 
 	/* Generic */
 	/* ------- */
 } UPDATE_ROW;
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	LIST *list;
+	int dictionary_highest_row;
+
+	/* Output */
+	/* ------ */
+	char *message_list_string;
+} UPDATE_ROW_LIST;
 
 typedef struct
 {
@@ -129,14 +140,17 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	SECURITY_ENTITY *security_entity;
-	LIST *update_row_list;
-	char *mysql_message;
+	UPDATE_ROW_LIST *update_row_list;
+
+	/* Output */
+	/* ------ */
+	LIST *sql_statement_list;
+	LIST *command_line_list;
 } UPDATE;
 
 /* UPDATE operations */
 /* ----------------- */
-UPDATE *update_calloc(
-			void );
+UPDATE *update_calloc(	void );
 
 UPDATE *update_new(
 			/* ------------------------------------------ */
@@ -147,14 +161,6 @@ UPDATE *update_new(
 			char *login_name,
 			char *role_name,
 			char *folder_name );
-
-LIST *update_row_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			FOLDER *folder,
-			LIST *relation_mto1_isa_list,
-			LIST *relation_one2m_recursive_list,
-			SECURITY_ENTITY *security_entity );
 
 /* Returns return_message_list_string as heap memory or null */
 /* --------------------------------------------------------- */
@@ -177,26 +183,43 @@ LIST *update_data_list( LIST *changed_attribute_list );
 int update_cell_count(
 			LIST *update_row_list );
 
+/* UPDATE_ROW_LIST operations */
+/* -------------------------- */
+UPDATE_ROW_LIST *update_row_list_calloc(
+			void );
+
+UPDATE_ROW_LIST *update_row_list_new(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			LIST *relation_one2m_recursive_list,
+			PROCESS *post_change_process,
+			SECURITY_ENTITY *security_entity );
+
 /* UPDATE_ROW operations */
 /* --------------------- */
+UPDATE_ROW *update_row_calloc(
+			void );
+
 UPDATE_ROW *update_row_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			FOLDER *folder,
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
+			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			int row );
-
-UPDATE_ROW *update_row_calloc(
-			void );
 
 LIST *update_row_one2m_list(
 			LIST *primary_key_changed_attribute_list,
 			LIST *primary_where_attribute_list,
 			LIST *relation_one2m_recursive_list );
 
-LIST *update_row_mto1_list(
+LIST *update_row_mto1_isa_list(
 			LIST *primary_key_changed_attribute_list,
 			LIST *primary_where_attribute_list,
 			LIST *relation_mto1_isa_list );

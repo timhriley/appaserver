@@ -1401,3 +1401,29 @@ char *string_delete(	char *string,
         return string;
 }
 
+/* Sample: attribute_name = "station_1" */
+/* ------------------------------------ */
+int string_row_number( char *attribute_name )
+{
+	char *end_ptr;
+
+	if ( !attribute_name || !*attribute_name ) return -1;
+
+ 	end_ptr = attribute_name + strlen( attribute_name ) - 1;
+
+	while( end_ptr != attribute_name )
+	{
+		if ( *end_ptr == '_' )
+		{
+			end_ptr++;
+			return atoi( end_ptr );
+		}
+
+		if ( isdigit( *end_ptr ) )
+			end_ptr--;
+		else
+			return -1;
+	}
+	return -1;
+}
+

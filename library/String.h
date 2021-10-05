@@ -244,4 +244,8 @@ char *string_delete(	char *string,
 			int start,
 			int num_chars );
 
+/* Sample: attribute_name = "station_1" */
+/* ------------------------------------ */
+int string_row_number(	char *attribute_name );
+
 #endif

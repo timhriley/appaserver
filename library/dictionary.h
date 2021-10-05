@@ -91,7 +91,7 @@ char *dictionary_display_delimiter(
 			char delimiter );
 
 int dictionary_highest_row(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
 int dictionary_key_highest_index(
 			DICTIONARY *d );

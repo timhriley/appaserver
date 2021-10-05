@@ -509,34 +509,34 @@ int dictionary_string_list_highest_index(
 	return highest_index;
 }
 
-int dictionary_highest_row( DICTIONARY *d )
+int dictionary_highest_row( DICTIONARY *dictionary )
 {
-	return dictionary_key_highest_index( d );
+	char *attribute_name;
+	int highest_row = -1;
+	int row;
+	LIST *attribute_name_list;
+
+	attribute_name_list = dictionary_key_list( dictionary );
+
+	if ( list_rewind( attribute_name_list ) )
+	{
+		do {
+			attribute_name = list_get( attribute_name_list );
+			row = string_row_number( attribute_name );
+
+			if ( row > -1 )
+			{
+				if ( row > highest_row )
+					highest_row = row;
+			}
+		} while( list_next( attribute_name_list ) );
+	}
+	return highest_row;
 }
 
 int dictionary_key_highest_index( DICTIONARY *d )
 {
-	char *key;
-	int highest_index = -1;
-	int index;
-	LIST *key_list;
-
-	key_list = dictionary_key_list( d );
-
-	if ( list_rewind( key_list ) )
-	{
-		do {
-			key = list_get( key_list );
-			index = timlib_index( key );
-
-			if ( index > -1 )
-			{
-				if ( index > highest_index )
-					highest_index = index;
-			}
-		} while( list_next( key_list ) );
-	}
-	return highest_index;
+	return dictionary_highest_row( d );
 }
 
 char *dictionary_display_delimited( DICTIONARY *d, char delimiter )
