@@ -557,3 +557,39 @@ LIST *folder_attribute_non_primary_list(
 	return return_list;
 }
 
+LIST *folder_attribute_name_list(
+			LIST *folder_attribute_list,
+			char *folder_name )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *name_list;
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_name )
+		{
+			list_set(
+				name_list,
+				folder_attribute->attribute_name );
+		}
+		else
+		if ( strcmp(
+			folder_name,
+			folder_attribute->folder_name ) == 0 )
+		{
+			list_set(
+				name_list,
+				folder_attribute->attribute_name );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return name_list;
+}

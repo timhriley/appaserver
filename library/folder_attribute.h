@@ -40,8 +40,8 @@
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *folder_name;
 	char *attribute_name;
 	ATTRIBUTE *attribute;
@@ -54,10 +54,6 @@ typedef struct
 	boolean additional_index;
 	boolean insert_required;
 	boolean lookup_required;
-
-	/* Process */
-	/* ------- */
-
 } FOLDER_ATTRIBUTE;
 
 /* Operations */
@@ -136,5 +132,9 @@ FOLDER_ATTRIBUTE *folder_attribute_list_seek(
 
 LIST *folder_attribute_non_primary_list(
 			LIST *folder_attribute_list );
+
+LIST *folder_attribute_name_list(
+			LIST *folder_attribute_list,
+			char *folder_name );
 
 #endif

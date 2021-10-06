@@ -905,9 +905,12 @@ LIST *update_folder_primary_data_list(
 UPDATE_ROW *update_row_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			FOLDER *folder,
+			char *login_name,
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
+			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			int row )
 {
@@ -918,7 +921,10 @@ UPDATE_ROW *update_row_new(
 			update_primary_new(
 				post_dictionary,
 				file_dictionary,
-				folder,
+				login_name,
+				folder_name,
+				folder_attribute_append_isa_list,
+				post_change_process,
 				security_entity,
 				row ) ) )
 	{
@@ -1499,8 +1505,9 @@ UPDATE_ONE2M *update_one2m_calloc( void )
 }
 
 UPDATE_ONE2M *update_one2m_new(
-			LIST *primary_key_changed_attribute_list,
-			RELATION *relation_one2m )
+			LIST *update_primary_changed_attribute_list,
+			RELATION *relation_one2m,
+			char *login_name )
 {
 	UPDATE_ONE2M *update_one2m;
 
@@ -1560,20 +1567,21 @@ UPDATE_ONE2M *update_one2m_new(
 			primary_key_changed_attribute_list,
 			relation_one2m->foreign_key_list );
 
-	update_one2m->folder_delimited_list =
-		folder_delimited_list(
+	update_one2m->sql_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		update_one2m_sql_statement(
 			/* ----------------------------- */
 			/* Returns static memory or null */
 			/* ----------------------------- */
 			folder_table_name(
 				environment_application_name(),
 				update_one2m->many_folder->folder_name ),
-					/* table_name */,
 			update_one2m->many_folder->primary_key_list
 				/* attribute_name_list */,
 			update_where_clause(
-				update_one2m->foreign_where_attribute_list ),
-				/* where_clause */ );
+				update_one2m->foreign_where_attribute_list ) );
 
 	return update_one2m;
 }
@@ -2143,3 +2151,46 @@ LIST *update_data_list( LIST *changed_attribute_list )
 
 	return data_list;
 }
+
+UPDATE_ROW_LIST *update_row_list_calloc( void )
+{
+	UPDATE_ROW_LIST *update_row_list;
+
+	if ( ! ( update_row_list =
+			calloc( 1, sizeof( UPDATE_ROW_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_row_list;
+}
+
+UPDATE_ROW_LIST *update_row_list_new(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *login_name,
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			LIST *relation_one2m_recursive_list,
+			PROCESS *post_change_process,
+			SECURITY_ENTITY *security_entity )
+{
+	UPDATE_ROW_LIST *update_row_list = update_row_list_calloc();
+	int row;
+
+	update_row_list->list = list_new();
+
+	update_row_list->dictionary_highest_row =
+		dictionary_highest_row(
+			post_dictionary );
+
+
+	return update_row_list;
+}
+
