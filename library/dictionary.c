@@ -4070,3 +4070,39 @@ void dictionary_output_as_hidden( DICTIONARY *dictionary )
 	list_free_container( key_list );
 }
 
+char *dictionary_row_get(
+			char *attribute_name,
+			int row,
+			DICTIONARY *dictionary )
+{
+	char dictionary_key[ 1024 ];
+	char *data;
+
+	if ( !attribute_name ) return (char *)0;
+	if ( !dictionary ) return (char *)0;
+
+	/* Try to get the data with the row number */
+	/* --------------------------------------- */
+	sprintf(dictionary_key, 
+	 	"%s_%d",
+	 	attribute_name,
+		row );
+
+	if ( ! ( data = dictionary_get( dictionary_key, dictionary ) ) )
+	{
+		/* Try again with the row zero */
+		/* --------------------------- */
+		sprintf(dictionary_key, 
+		 	"%s_0",
+		 	attribute_name );
+
+		if ( ! ( data = dictionary_get( dictionary_key, dictionary ) ) )
+		{
+			/* Try with the no row number */
+			/* -------------------------- */
+			data = dictionary_get( attribute_name, dictionary );
+		}
+	}
+	return data;
+}
+

@@ -90,9 +90,6 @@ char *dictionary_display_delimiter(
 			DICTIONARY *d,
 			char delimiter );
 
-int dictionary_highest_row(
-			DICTIONARY *dictionary );
-
 int dictionary_key_highest_index(
 			DICTIONARY *d );
 
@@ -679,6 +676,14 @@ void dictionary_output_as_hidden(
 char *dictionary_starting_label_get(
 			char *key,
 			char *starting_label,
+			DICTIONARY *dictionary );
+
+int dictionary_highest_row(
+			DICTIONARY *dictionary );
+
+char *dictionary_row_get(
+			char *attribute_name,
+			int row,
 			DICTIONARY *dictionary );
 
 #endif
