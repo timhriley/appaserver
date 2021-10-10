@@ -833,20 +833,16 @@ LIST *list_append_list(	LIST *destination_list,
 LIST *list_set_list(	LIST *destination_list,
 			LIST *source_list )
 {
-	void *a;
-
-	if ( !destination_list ) return destination_list;
+	if ( !destination_list ) destination_list = list_new();
 
 	if ( list_reset( source_list ) )
 	{
 		do {
-			a = list_get( source_list );
-			list_set( destination_list, a );
+			list_set( destination_list, list_get( source_list ) );
 		} while( list_next( source_list ) );
 	}
 
 	return destination_list;
-
 }
 
 void list_append( LIST *list, void *this_item, int num_bytes )

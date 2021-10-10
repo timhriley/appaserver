@@ -361,11 +361,11 @@ UPDATE_ROOT *update_root_new(
 	if ( !update_root->update_where_clause )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: update_where_clause() returned empty.\n",
+	"Warning in %s/%s()/%d: update_where_clause() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+		return (UPDATE_ROOT *)0;
 	}
 
 	update_root->update_root_where_clause =
@@ -374,12 +374,20 @@ UPDATE_ROOT *update_root_new(
 			security_entity );
 
 	update_root->update_sql_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		update_sql_statement(
 			folder_table_name(
 				environment_application_name(),
 				folder_name ),
 			update_root->update_attribute_changed_list,
 			update_root->update_root_where_clause );
+
+	if ( !update_root->update_sql_statement )
+	{
+		return (UPDATE_ROOT *)0;
+	}
 
 	if ( post_change_process )
 	{
@@ -1055,20 +1063,28 @@ UPDATE_ONE2M *update_one2m_new(
 	if ( !update_one2m->update_where_clause )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: update_where_clause() returned empty.\n",
+	"Warning in %s/%s()/%d: update_where_clause() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+		return (UPDATE_ONE2M *)0;
 	}
 
 	update_one2m->update_sql_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		update_sql_statement(
 			folder_table_name(
 				environment_application_name(),
 				relation_one2m->many_folder->folder_name ),
 			update_one2m->update_attribute_changed_list,
 			update_one2m->update_where_clause );
+
+	if ( !update_one2m->update_sql_statement )
+	{
+		return (UPDATE_ONE2M *)0;
+	}
 
 	if ( relation_one2m->many_folder->post_change_process )
 	{
@@ -1193,20 +1209,28 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 	if ( !update_mto1_isa->update_where_clause )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: update_where_clause() returned empty.\n",
+	"Warning in %s/%s()/%d: update_where_clause() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+		return (UPDATE_MTO1_ISA *)0;
 	}
 
 	update_mto1_isa->update_sql_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		update_sql_statement(
 			folder_table_name(
 				environment_application_name(),
 				relation_mto1_isa->one_folder->folder_name ),
 			update_mto1_isa->update_attribute_changed_list,
 			update_mto1_isa->update_where_clause );
+
+	if ( !update_mto1_isa->update_sql_statement )
+	{
+		return (UPDATE_MTO1_ISA *)0;
+	}
 
 	if ( relation_mto1_isa->one_folder->post_change_process )
 	{
@@ -1288,6 +1312,10 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 	update_row_list->cell_count =
 		update_row_list_cell_count(
+			update_row_list );
+
+	update_row_list->command_line_list =
+		update_row_list_command_line_list(
 			update_row_list );
 
 	return update_row_list;
@@ -1442,11 +1470,11 @@ char *update_sql_statement(
 			sql_injection_escape_post_data )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: sql_injection_escape_post_data is empty.\n",
+	"Warning in %s/%s()/%d: sql_injection_escape_post_data is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+			return (char *)0;
 		}
 
 		if ( !list_at_first( update_attribute_changed_list ) )
@@ -1491,7 +1519,7 @@ char *update_sql_statement(
 
 	} while ( list_next( update_attribute_changed_list ) );
 
-	ptr += sprintf( ptr, " where %s", update_where_clause );
+	ptr += sprintf( ptr, " %s", update_where_clause );
 
 	return strdup( sql_statement );
 }
@@ -1528,5 +1556,451 @@ char *update_root_where_clause(
 	{
 		return update_where_clause;
 	}
+}
+
+char *update_execute(	char *sql_statement,
+			char *application_name )
+{
+	char system_string[ 1024 ];
+	static char error_output[ 256 ] = {0};
+
+	if ( !sql_statement || !*sql_statement )
+	{
+		return "sql_statement is empty";
+	}
+
+	if ( application_name && !*error_output )
+	{
+		sprintf(error_output,
+			"2>>%s",
+			appaserver_error_filename(
+				application_name ) );
+	}
+
+	if ( application_name )
+	{
+		sprintf(system_string,
+			"echo \"%s\" | sql %s",
+			sql_statement,
+			error_output );
+	}
+	else
+	{
+		sprintf(system_string,
+			"echo \"%s\" | sql 2>&1",
+			sql_statement );
+	}
+
+	return string_pipe_fetch( system_string );
+}
+
+void update_mto1_isa_execute(
+			LIST *update_mto1_isa_list,
+			char *application_name )
+{
+	UPDATE_MTO1_ISA *update_mto1_isa;
+
+	if ( !list_rewind( update_mto1_isa_list ) ) return;
+
+	do {
+		update_mto1_isa =
+			list_get(
+				update_mto1_isa_list );
+
+		if ( !update_mto1_isa->update_sql_statement
+		||   !*update_mto1_isa->update_sql_statement )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		update_execute(
+			update_mto1_isa->update_sql_statement,
+			application_name );
+
+	} while ( list_next( update_mto1_isa_list ) );
+}
+
+void update_one2m_execute(
+			LIST *update_one2m_list,
+			char *application_name )
+{
+	UPDATE_ONE2M *update_one2m;
+
+	if ( !list_rewind( update_one2m_list ) ) return;
+
+	do {
+		update_one2m =
+			list_get(
+				update_one2m_list );
+
+		if ( !update_one2m->update_sql_statement
+		||   !*update_one2m->update_sql_statement )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		update_execute(
+			update_one2m->update_sql_statement,
+			application_name );
+
+	} while ( list_next( update_one2m_list ) );
+}
+
+LIST *update_row_sql_statement_list(
+			UPDATE_ROOT *update_root,
+			LIST *update_mto1_isa_list,
+			LIST *update_one2m_list )
+{
+	LIST *sql_statement_list = list_new();
+
+	if ( update_root )
+	{
+		if ( !update_root->update_sql_statement )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			sql_statement_list,
+			update_root->update_sql_statement );
+	}
+
+	if ( list_length( update_mto1_isa_list ) )
+	{
+		list_append_list(
+			sql_statement_list,
+			update_mto1_isa_sql_statement_list(
+				update_mto1_isa_list ) );
+	}
+
+	if ( list_length( update_one2m_list ) )
+	{
+		list_append_list(
+			sql_statement_list,
+			update_one2m_sql_statement_list(
+				update_one2m_list ) );
+	}
+
+	return sql_statement_list;
+}
+
+LIST *update_row_command_line_list(
+			UPDATE_ROOT *update_root,
+			LIST *update_mto1_isa_list,
+			LIST *update_one2m_list )
+{
+	LIST *command_line_list = list_new();
+
+	if ( update_root )
+	{
+		list_set(
+			command_line_list,
+			update_root->update_command_line );
+	}
+
+	if ( list_length( update_mto1_isa_list ) )
+	{
+		list_append_list(
+			command_line_list,
+			update_mto1_isa_command_line_list(
+				update_mto1_isa_list ) );
+	}
+
+	if ( list_length( update_one2m_list ) )
+	{
+		list_append_list(
+			command_line_list,
+			update_one2m_command_line_list(
+				update_one2m_list ) );
+	}
+
+	return command_line_list;
+}
+
+LIST *update_mto1_isa_sql_statement_list(
+			LIST *update_mto1_isa_list )
+{
+	UPDATE_MTO1_ISA *update_mto1_isa;
+	LIST *sql_statement_list;
+
+	if ( !list_rewind( update_mto1_isa_list ) ) return (LIST *)0;
+
+	sql_statement_list = list_new();
+
+	do {
+		update_mto1_isa =
+			list_get(
+				update_mto1_isa_list );
+
+		if ( !update_mto1_isa->update_sql_statement )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: update_sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		list_set(
+			sql_statement_list,
+			update_mto1_isa->update_sql_statement );
+
+	} while ( list_next( update_mto1_isa_list ) );
+
+	return sql_statement_list;
+}
+
+LIST *update_one2m_sql_statement_list(
+			LIST *update_one2m_list )
+{
+	UPDATE_ONE2M *update_one2m;
+	LIST *sql_statement_list;
+
+	if ( !list_rewind( update_one2m_list ) ) return (LIST *)0;
+
+	sql_statement_list = list_new();
+
+	do {
+		update_one2m =
+			list_get(
+				update_one2m_list );
+
+		if ( !update_one2m->update_sql_statement )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: update_sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		list_set(
+			sql_statement_list,
+			update_one2m->update_sql_statement );
+
+	} while ( list_next( update_one2m_list ) );
+
+	return sql_statement_list;
+}
+
+LIST *update_one2m_command_line_list(
+			LIST *update_one2m_list )
+{
+	UPDATE_ONE2M *update_one2m;
+	LIST *command_line_list = {0};
+
+	if ( !list_rewind( update_one2m_list ) ) return (LIST *)0;
+
+	do {
+		update_one2m =
+			list_get(
+				update_one2m_list );
+
+		if ( update_one2m->update_command_line )
+		{
+			if ( !command_line_list )
+				command_line_list =
+					list_new();
+
+			list_set(
+				command_line_list,
+				update_one2m->update_command_line );
+		}
+
+	} while ( list_next( update_one2m_list ) );
+
+	return command_line_list;
+}
+
+LIST *update_mto1_isa_command_line_list(
+			LIST *update_mto1_isa_list )
+{
+	UPDATE_MTO1_ISA *update_mto1_isa;
+	LIST *command_line_list = {0};
+
+	if ( !list_rewind( update_mto1_isa_list ) ) return (LIST *)0;
+
+	do {
+		update_mto1_isa =
+			list_get(
+				update_mto1_isa_list );
+
+		if ( update_mto1_isa->update_command_line )
+		{
+			if ( !command_line_list )
+				command_line_list =
+					list_new();
+
+			list_set(
+				command_line_list,
+				update_mto1_isa->update_command_line );
+		}
+
+	} while ( list_next( update_mto1_isa_list ) );
+
+	return command_line_list;
+}
+
+LIST *update_row_list_sql_statement_list(
+			UPDATE_ROW_LIST *update_row_list )
+{
+	UPDATE_ROW *update_row;
+	LIST *sql_statement_list;
+
+	if ( !update_row_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_row_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( update_row_list->list ) ) return (LIST *)0;
+
+	sql_statement_list = list_new();
+
+	do {
+		update_row =
+			list_get(
+				update_row_list->list );
+
+		list_set_list(
+			sql_statement_list,
+			update_row->sql_statement_list );
+
+	} while ( list_next( update_row_list->list ) );
+
+	return sql_statement_list;
+}
+
+LIST *update_row_list_command_line_list(
+			UPDATE_ROW_LIST *update_row_list )
+{
+	LIST *command_line_list;
+	UPDATE_ROW *update_row;
+
+	if ( !update_row_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_row_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( update_row_list->list ) ) return (LIST *)0;
+
+	command_line_list = list_new();
+
+	do {
+		update_row =
+			list_get(
+				update_row_list->list );
+
+		list_set_list(
+			command_line_list,
+			update_row->command_line_list );
+
+	} while ( list_next( update_row_list->list ) );
+
+	return command_line_list;
+}
+
+void update_row_list_command_line_execute(
+			LIST *command_line_list )
+{
+	char *command_line;
+
+	if ( !list_rewind( command_line_list ) ) return;
+
+	do {
+		command_line =
+			list_get(
+				command_line_list );
+
+		if ( system( command_line ) ){};
+
+	} while ( list_next( command_line_list ) );
+}
+
+char *update_row_list_execute(
+			UPDATE_ROW_LIST *update_row_list )
+{
+	char *message_list_string = {0};
+	UPDATE_ROW *update_row;
+	char *message_string;
+
+	if ( !update_row_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_row_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( update_row_list->list ) ) return (char *)0;
+
+	do {
+		update_row = list_get( update_row_list->list );
+
+		message_string = (char *)0;
+
+		if ( update_row->update_root )
+		{
+			if ( ( message_string =
+				update_execute(
+					update_row->update_root->sql_statement,
+					(char *)0 /* application_name */ ) ) )
+			{
+				message_list_string =
+					string_append_string(
+						message_list_string,
+						message_string,
+						"<br>" );
+			}
+		}
+
+		if ( message_string ) continue;
+
+		if ( list_length( update_row->update_mto1_isa_list ) )
+		{
+			update_mto1_isa_list_execute(
+				update_row->update_mto1_isa_list,
+				environment_application_name() );
+		}
+
+		if ( update_row->update_root->changed_primary_key
+		&&   list_length( update_row->update_one2m_list ) )
+		{
+			update_one2m_list_execute(
+				update_row->update_one2m_list,
+				environment_application_name() );
+		}
+
+	} while ( list_next( update_row_list->list ) );
+
+	return message_list_string;
 }
 

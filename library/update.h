@@ -71,7 +71,7 @@ typedef struct
 	char *update_where_clause;
 	char *update_sql_statement;
 	char *update_command_line;
-} UPDATE_ONE2M;
+} UPDATE_MTO1_ISA;
 
 typedef struct
 {
@@ -83,7 +83,7 @@ typedef struct
 	char *update_where_clause;
 	char *update_sql_statement;
 	char *update_command_line;
-} UPDATE_MTO1_ISA;
+} UPDATE_ONE2M;
 
 typedef struct
 {
@@ -123,6 +123,7 @@ typedef struct
 	LIST *list;
 	int dictionary_highest_row;
 	int cell_count;
+	LIST *command_line_list;
 
 	/* Output */
 	/* ------ */
@@ -162,6 +163,8 @@ UPDATE *update_new(
 			char *role_name,
 			char *folder_name );
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *update_sql_statement(
 			char *folder_table_name,
 			LIST *update_attribute_changed_list,
@@ -171,6 +174,11 @@ char *update_command_line(
 			PROCESS *post_change_process,
 			char *login_name,
 			LIST *update_attribute_list );
+
+/* Returns message_string, if application_name is null */
+/* --------------------------------------------------- */
+char *update_execute(	char *sql_statement,
+			char *application_name );
 
 /* UPDATE_ROW_LIST operations */
 /* -------------------------- */
@@ -196,14 +204,14 @@ UPDATE_ROW_LIST *update_row_list_new(
 int update_row_list_cell_count(
 			UPDATE_ROW_LIST *update_row_list );
 
+char *update_row_list_execute(
+			UPDATE_ROW_LIST *update_row_list );
+
 LIST *update_row_list_sql_statement_list(
 			UPDATE_ROW_LIST *update_row_list );
 
 LIST *update_row_list_command_line_list(
-			char *application_name,
-			UPDATE_ROOT *update_root,
-			LIST *mto1_isa_list,
-			LIST *one2m_list );
+			UPDATE_ROW_LIST *update_row_list );
 
 void update_row_list_command_line_execute(
 			LIST *command_line_list );
@@ -241,17 +249,6 @@ LIST *update_row_sql_statement_list(
 LIST *update_row_command_line_list(
 			UPDATE_ROOT *update_root,
 			LIST *update_mto1_isa_list,
-			LIST *update_one2m_list );
-
-char *update_row_root_execute(
-			UPDATE_ROOT *update_root );
-
-void update_row_mto1_isa_list_execute(
-			char *application_name,
-			LIST *update_mto1_isa_list );
-
-void update_row_one2m_list_execute(
-			char *application_name,
 			LIST *update_one2m_list );
 
 /* UPDATE_ROOT operations */
@@ -295,6 +292,16 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 UPDATE_MTO1_ISA *update_mto1_isa_calloc(
 			void );
 
+LIST *update_mto1_isa_sql_statement_list(
+			LIST *update_mto1_isa_list );
+
+LIST *update_mto1_isa_command_line_list(
+			LIST *update_mto1_isa_list );
+
+void update_mto1_isa_execute(
+			LIST *update_mto1_isa_list,
+			char *application_name );
+
 /* UPDATE_ONE2M operations */
 /* ----------------------- */
 UPDATE_ONE2M *update_one2m_calloc(
@@ -313,6 +320,16 @@ UPDATE_ONE2M *update_one2m_new(
 			char *login_name,
 			RELATION *relation_one2m,
 			int row );
+
+LIST *update_one2m_sql_statement_list(
+			LIST *update_one2m_list );
+
+LIST *update_one2m_command_line_list(
+			LIST *update_one2m_list );
+
+void update_one2m_execute(
+			LIST *update_one2m_list,
+			char *application_name );
 
 /* UPDATE_ATTRIBUTE operations */
 /* --------------------------- */
