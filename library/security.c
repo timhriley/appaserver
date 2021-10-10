@@ -319,32 +319,32 @@ char *security_login_name_full_name_only(
 char *security_entity_where(
 			SECURITY_ENTITY *security_entity )
 {
-	char where_buffer[ 1024 ];
+	char where[ 1024 ];
 
 	if ( !security_entity ) return (char *)0;
 
 	if ( security_entity->full_name_only
 	&&   *security_entity->full_name_only )
 	{
-		sprintf(where_buffer,
+		sprintf(where,
 			"full_name = '%s' and street_address = '%s'",
 			security_sql_injection_escape(
 				security_entity->full_name_only ),
 			security_sql_injection_escape(
 				security_entity->street_address_only ) );
 
-		return strdup( where_buffer );
+		return strdup( where );
 	}
 
 	if ( security_entity->login_name_only
 	&&   *security_entity->login_name_only )
 	{
-		sprintf(where_buffer,
+		sprintf(where,
 			"login_name = '%s'",
 			security_sql_injection_escape(
 				security_entity->login_name_only ) );
 
-		return strdup( where_buffer );
+		return strdup( where );
 	}
 
 	return (char *)0;

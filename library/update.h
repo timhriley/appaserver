@@ -17,8 +17,7 @@
 
 /* Constants */
 /* --------- */
-#define UPDATE_PREUPDATE_PREFIX	"preupdate_"
-#define UPDATE_NULL_TOKEN		"/"
+#define UPDATE_PREUPDATE_PREFIX		"preupdate_"
 
 /* Structures */
 /* ---------- */
@@ -27,7 +26,8 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	char *primary_attribute_name;
-	char *file_data;
+	char *datatype_name;
+	char *sql_injection_escape_file_data;
 } UPDATE_WHERE_ATTRIBUTE;
 
 typedef struct
@@ -43,8 +43,8 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *post_data;
+	char *sql_injection_escape_post_data;
 	boolean attribute_changed;
-	char *sql_injection_escape_data;
 } UPDATE_ATTRIBUTE_CHANGED;
 
 typedef struct
@@ -66,10 +66,11 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *update_attribute_list;
-	LIST *where_attribute_list;
-	char *where_clause;
-	char *sql_statement;
-	char *command_line;
+	LIST *update_attribute_changed_list;
+	LIST *update_where_attribute_list;
+	char *update_where_clause;
+	char *update_sql_statement;
+	char *update_command_line;
 } UPDATE_ONE2M;
 
 typedef struct
@@ -80,7 +81,6 @@ typedef struct
 	LIST *update_attribute_changed_list;
 	LIST *update_where_attribute_list;
 	char *update_where_clause;
-	LIST *update_changed_attribute_list;
 	char *update_sql_statement;
 	char *update_command_line;
 } UPDATE_MTO1_ISA;
@@ -92,8 +92,9 @@ typedef struct
 	LIST *update_attribute_list;
 	LIST *update_attribute_changed_list;
 	LIST *update_where_attribute_list;
-	char *update_where_clause;
 	LIST *update_changed_attribute_list;
+	char *update_where_clause;
+	char *update_root_where_clause;
 	char *update_sql_statement;
 	char *update_command_line;
 	boolean changed_primary_key;
@@ -121,6 +122,7 @@ typedef struct
 	/* ------- */
 	LIST *list;
 	int dictionary_highest_row;
+	int cell_count;
 
 	/* Output */
 	/* ------ */
@@ -160,18 +162,9 @@ UPDATE *update_new(
 			char *role_name,
 			char *folder_name );
 
-LIST *update_where_attribute_list(
-			LIST *update_attribute_list );
-
-char *update_where_clause(
-			LIST *update_where_attribute_list );
-
-LIST *update_changed_attribute_list(
-			LIST *update_attribute_list );
-
 char *update_sql_statement(
 			char *folder_table_name,
-			LIST *update_changed_attribute_list,
+			LIST *update_attribute_changed_list,
 			char *update_where_clause );
 
 char *update_command_line(
@@ -229,7 +222,6 @@ UPDATE_ROW *update_row_new(
 			char *login_name,
 			char *folder_name,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
 			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
 			PROCESS *post_change_process,
@@ -276,7 +268,6 @@ UPDATE_ROOT *update_root_new(
 			char *login_name,
 			char *folder_name,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			int row );
@@ -284,9 +275,6 @@ UPDATE_ROOT *update_root_new(
 char *update_root_where_clause(
 			char *update_where_clause,
 			SECURITY_ENTITY *security_entity );
-
-boolean update_root_changed_primary_key(
-			LIST *update_attribute_list );
 
 /* UPDATE_MTO1_ISA operations */
 /* -------------------------- */
@@ -313,36 +301,18 @@ UPDATE_ONE2M *update_one2m_calloc(
 			void );
 
 LIST *update_one2m_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
 			char *login_name,
-			LIST *update_changed_attribute_list,
-			LIST *update_where_attribute_list,
-			LIST *relation_one2m_recursive_list );
+			LIST *relation_one2m_recursive_list,
+			int row );
 
 UPDATE_ONE2M *update_one2m_new(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
 			char *login_name,
-			LIST *update_changed_attribute_list,
-			LIST *where_attribute_list,
-			RELATION *relation_one2m );
-
-LIST *update_one2m_changed_attribute_list(
-			LIST *update_changed_attribute_list,
-			char *folder_name,
-			LIST *foreign_key_list );
-
-LIST *update_one2m_where_attribute_list(
-			LIST *update_changed_attribute_list,
-			LIST *foreign_key_list );
-
-char *update_one2m_sql_statement(
-			char *folder_table_name,
-			LIST *primary_key_list,
-			char *update_where_clause );
-
-char *update_one2m_command_line(
-			PROCESS *post_change_process,
-			char *login_name,
-			char *folder_name,
-			LIST *folder_attribute_list );
+			RELATION *relation_one2m,
+			int row );
 
 /* UPDATE_ATTRIBUTE operations */
 /* --------------------------- */
@@ -350,7 +320,6 @@ LIST *update_attribute_list(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
 			int row );
 
 UPDATE_ATTRIBUTE *update_attribute_calloc(
@@ -400,8 +369,11 @@ UPDATE_WHERE_ATTRIBUTE *update_where_attribute_calloc(
 
 UPDATE_WHERE_ATTRIBUTE *update_where_attribute_new(
 			char *primary_attribute_name,
-			char *file_data );
+			char *datatype_name,
+			char *sql_injection_escape_file_data );
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *update_where_clause(
 			LIST *update_where_attribute_list );
 
