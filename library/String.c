@@ -1427,3 +1427,32 @@ int string_row_number( char *attribute_name )
 	return -1;
 }
 
+char *string_append_string(
+			char *message_list_string,
+			char *message_string,
+			char *delimiter )
+{
+	char append_string[ STRING_INPUT_BUFFER ];
+
+	if ( !message_string || !delimiter )
+		return strdup( "" );
+
+	if ( !message_list_string )
+	{
+		strcpy( append_string, message_string );
+	}
+	else
+	{
+		sprintf(append_string,
+			"%s%s%s",
+			message_list_string,
+			delimiter,
+			message_string );
+		free( message_list_string );
+	}
+
+	free( message_string );
+
+	return strdup( append_string );
+}
+

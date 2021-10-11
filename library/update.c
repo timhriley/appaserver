@@ -819,6 +819,10 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 		return (UPDATE_ATTRIBUTE *)0;
 	}
 
+	update_attribute->sql_injection_escape_file_data =
+		security_sql_injection_escape(
+			update_attribute->file_data );
+
 	if ( ! ( update_attribute->update_attribute_changed =
 			update_attribute_changed_new(
 				post_dictionary,
@@ -842,7 +846,7 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 	dictionary_set(
 		post_dictionary,
 		update_attribute->update_attribute_preupdate_label,
-		update_attribute->file_data );
+		update_attribute->sql_injection_escape_file_data );
 
 	return update_attribute;
 }
@@ -1558,102 +1562,45 @@ char *update_root_where_clause(
 	}
 }
 
-char *update_execute(	char *sql_statement,
-			char *application_name )
+char *update_execute( char *sql_statement )
 {
 	char system_string[ 1024 ];
-	static char error_output[ 256 ] = {0};
 
 	if ( !sql_statement || !*sql_statement )
 	{
-		return "sql_statement is empty";
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: sql_statement is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	if ( application_name && !*error_output )
-	{
-		sprintf(error_output,
-			"2>>%s",
-			appaserver_error_filename(
-				application_name ) );
-	}
-
-	if ( application_name )
-	{
-		sprintf(system_string,
-			"echo \"%s\" | sql %s",
-			sql_statement,
-			error_output );
-	}
-	else
-	{
-		sprintf(system_string,
-			"echo \"%s\" | sql 2>&1",
-			sql_statement );
-	}
+	sprintf(system_string,
+		"echo \"%s\" | sql 2>&1",
+		sql_statement );
 
 	return string_pipe_fetch( system_string );
 }
 
-void update_mto1_isa_execute(
-			LIST *update_mto1_isa_list,
-			char *application_name )
+void update_sql_statement_list_execute(
+			FILE *update_sql_pipe,
+			LIST *sql_statement_list )
 {
-	UPDATE_MTO1_ISA *update_mto1_isa;
+	char *sql_statement;
 
-	if ( !list_rewind( update_mto1_isa_list ) ) return;
+	if ( !list_rewind( sql_statement_list ) ) return;
 
 	do {
-		update_mto1_isa =
+		sql_statement =
 			list_get(
-				update_mto1_isa_list );
+				sql_statement_list );
 
-		if ( !update_mto1_isa->update_sql_statement
-		||   !*update_mto1_isa->update_sql_statement )
-		{
-			fprintf(stderr,
-			"Warning in %s/%s()/%d: sql_statement is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
-		}
+		fprintf(update_sql_pipe,
+			"%s\n",
+			sql_statement );
 
-		update_execute(
-			update_mto1_isa->update_sql_statement,
-			application_name );
-
-	} while ( list_next( update_mto1_isa_list ) );
-}
-
-void update_one2m_execute(
-			LIST *update_one2m_list,
-			char *application_name )
-{
-	UPDATE_ONE2M *update_one2m;
-
-	if ( !list_rewind( update_one2m_list ) ) return;
-
-	do {
-		update_one2m =
-			list_get(
-				update_one2m_list );
-
-		if ( !update_one2m->update_sql_statement
-		||   !*update_one2m->update_sql_statement )
-		{
-			fprintf(stderr,
-			"Warning in %s/%s()/%d: sql_statement is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
-		}
-
-		update_execute(
-			update_one2m->update_sql_statement,
-			application_name );
-
-	} while ( list_next( update_one2m_list ) );
+	} while ( list_next( sql_statement_list ) );
 }
 
 LIST *update_row_sql_statement_list(
@@ -1949,6 +1896,7 @@ char *update_row_list_execute(
 	char *message_list_string = {0};
 	UPDATE_ROW *update_row;
 	char *message_string;
+	FILE *sql_pipe;
 
 	if ( !update_row_list )
 	{
@@ -1962,6 +1910,8 @@ char *update_row_list_execute(
 
 	if ( !list_rewind( update_row_list->list ) ) return (char *)0;
 
+	sql_pipe = update_sql_pipe( environment_application_name() );
+
 	do {
 		update_row = list_get( update_row_list->list );
 
@@ -1970,9 +1920,13 @@ char *update_row_list_execute(
 		if ( update_row->update_root )
 		{
 			if ( ( message_string =
+				/* ------------------------------------- */
+				/* Returns message_string as heap memory */
+				/* ------------------------------------- */
 				update_execute(
-					update_row->update_root->sql_statement,
-					(char *)0 /* application_name */ ) ) )
+					update_row->
+						update_root->
+						sql_statement ) ) )
 			{
 				message_list_string =
 					string_append_string(
@@ -1986,21 +1940,126 @@ char *update_row_list_execute(
 
 		if ( list_length( update_row->update_mto1_isa_list ) )
 		{
-			update_mto1_isa_list_execute(
-				update_row->update_mto1_isa_list,
-				environment_application_name() );
+			update_sql_statement_list_execute(
+				sql_pipe,
+				update_mto1_isa_sql_statement_list(
+					update_row->update_mto1_isa_list ) );
 		}
 
 		if ( update_row->update_root->changed_primary_key
 		&&   list_length( update_row->update_one2m_list ) )
 		{
-			update_one2m_list_execute(
-				update_row->update_one2m_list,
-				environment_application_name() );
+			update_sql_statement_list_execute(
+				sql_pipe,
+				update_one2m_sql_statement_list(
+					update_row->update_one2m_list ) );
+		}
+
+		if ( list_length( update_row->commmand_line_list ) )
+		{
+			update_row_command_line_list_execute(
+				update_row->command_line_list );
 		}
 
 	} while ( list_next( update_row_list->list ) );
 
+	pclose( sql_pipe );
 	return message_list_string;
 }
 
+FILE *update_sql_pipe( char *application_name )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"sql 2>>%s",
+		appaserver_error_filename(
+			application_name ) );
+
+	return popen( system_string, "w" );
+}
+
+char *update_command_line(
+			PROCESS *post_change_process,
+			char *login_name,
+			LIST *update_attribute_list )
+{
+	char command_line[ STRING_INPUT_BUFFER ];
+	char buffer[ 1024 ];
+	UPDATE_ATTRIBUTE *update_attribute;
+
+	if ( !post_change_process ) return (char *)0;
+
+	if ( !post_change_process->command_line )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: command_line is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: login_name empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( update_attribute_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: update_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	string_strcpy( command_line, post_change_process->command_line );
+
+	string_search_replace(
+		command_line,
+		"$login_name",
+		double_quotes_around(
+			buffer,
+			login_name ) );
+
+	string_search_replace(
+		command_line,
+		"$state",
+		double_quotes_around(
+			buffer,
+			"update" ) );
+
+	do {
+		update_attribute =
+			list_get(
+				update_attribute_list );
+
+		if ( !update_attribute->sql_injection_escape_file_data )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: sql_injection_escape_file_data is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		string_search_replace(
+			command_line,
+			update_attribute->folder_attribute->attribute_name,
+			double_quotes_around(
+				buffer,
+				update_attribute->
+					sql_injection_escape_file_data ) );
+
+	} while ( list_next( update_attribute_list ) );
+
+	return strdup( command_line );
+}

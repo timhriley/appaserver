@@ -248,4 +248,9 @@ char *string_delete(	char *string,
 /* ------------------------------------ */
 int string_row_number(	char *attribute_name );
 
+char *string_append_string(
+			char *message_list_string,
+			char *message_string,
+			char *delimiter );
+
 #endif

@@ -38,6 +38,7 @@ typedef struct
 	char *datatype_name;
 	int primary_key_index;
 	char *file_data;
+	char *sql_injection_escape_file_data;
 	int row;
 
 	/* Process */
@@ -175,10 +176,15 @@ char *update_command_line(
 			char *login_name,
 			LIST *update_attribute_list );
 
-/* Returns message_string, if application_name is null */
-/* --------------------------------------------------- */
-char *update_execute(	char *sql_statement,
-			char *application_name );
+/* Returns message_string as heap memory */
+/* ------------------------------------- */
+char *update_execute(	char *sql_statement );
+
+FILE *update_sql_pipe(	char *application_name );
+
+void update_sql_statement_list_execute(
+			FILE *update_sql_pipe,
+			LIST *sql_statement_list );
 
 /* UPDATE_ROW_LIST operations */
 /* -------------------------- */
@@ -298,10 +304,6 @@ LIST *update_mto1_isa_sql_statement_list(
 LIST *update_mto1_isa_command_line_list(
 			LIST *update_mto1_isa_list );
 
-void update_mto1_isa_execute(
-			LIST *update_mto1_isa_list,
-			char *application_name );
-
 /* UPDATE_ONE2M operations */
 /* ----------------------- */
 UPDATE_ONE2M *update_one2m_calloc(
@@ -326,10 +328,6 @@ LIST *update_one2m_sql_statement_list(
 
 LIST *update_one2m_command_line_list(
 			LIST *update_one2m_list );
-
-void update_one2m_execute(
-			LIST *update_one2m_list,
-			char *application_name );
 
 /* UPDATE_ATTRIBUTE operations */
 /* --------------------------- */
