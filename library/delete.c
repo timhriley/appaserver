@@ -67,7 +67,7 @@ DELETE *delete_new(	char *application_name,
 			1 /* fetch_relation_one2m_recursive_list */,
 			1 /* fetch_process */,
 			0 /* not fetch_role_folder_list */,
-			0 /* not fetch_row_level_restriction */,
+			1 /* fetch_row_level_restriction */,
 			1 /* fetch_role_operation_list */ );
 
 	if ( !delete->folder )
@@ -87,6 +87,11 @@ DELETE *delete_new(	char *application_name,
 	{
 		return (DELETE *)0;
 	}
+
+	delete->role =
+		role_fetch(
+			role_name,
+			0 /* not fetch_attribute_exclude_list */ );
 
 
 	return delete;
@@ -1171,5 +1176,106 @@ void delete_database_refresh_row_count(
 			role_name );
 
 	} while( list_next( delete_folder_list ) );
+}
+
+DELETE *delete_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_data_list,
+			boolean dont_delete_mto1_isa )
+{
+}
+
+DELETE *delete_calloc( void )
+{
+}
+
+LIST *delete_sql_statement_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list )
+{
+}
+
+LIST *delete_command_line_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list )
+{
+}
+
+char *delete_sql_statement(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *primary_data_list,
+			char *security_entity_where )
+{
+}
+
+char *delete_command_line(
+			PROCESS *post_change_process,
+			char *login_name,
+			LIST *primary_key_list,
+			LIST *primary_data_list )
+{
+}
+
+DELETE_ROOT *delete_root_new(
+			char *application_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *primary_data_list,
+			PROCESS *post_change_process,
+			char *security_entity_where )
+{
+}
+
+DELETE_ROOT *delete_root_calloc( void )
+{
+}
+
+LIST *delete_one2m_list(
+			char *application_name,
+			LIST *relation_one2m_recursive_list,
+			LIST *primary_data_list )
+{
+}
+
+DELETE_ONE2M *delete_one2m_new(
+			char *application_name,
+			RELATION *relation_one2m,
+			LIST *primary_data_list )
+{
+}
+
+DELETE_ONE2M *delete_one2m_calloc( void )
+{
+}
+
+char *delete_one2m_update_statement(
+			char *folder_table_name,
+			LIST *foreign_key_list )
+{
+}
+
+LIST *delete_mto1_isa_list(
+			char *application_name,
+			LIST *relation_mto1_isa_list,
+			LIST *primary_data_list )
+{
+}
+
+DELETE_MTO1_ISA *delete_mto1_isa_new(
+			char *application_name,
+			RELATION *relation_mto1_isa,
+			LIST *primary_data_list )
+{
+}
+
+DELETE_MTO1_ISA *delete_mto1_isa_calloc( void )
+{
 }
 
