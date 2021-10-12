@@ -308,7 +308,7 @@ FOLDER *folder_parse(	char *input,
 	if ( fetch_role_operation_list )
 	{
 		folder->role_operation_list =
-			role_operation_fetch_list(
+			role_operation_list(
 				folder_name,
 				role_name );
 	}

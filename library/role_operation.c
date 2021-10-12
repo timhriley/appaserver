@@ -13,7 +13,7 @@
 #include "role_folder.h"
 #include "role_operation.h"
 
-LIST *role_operation_fetch_list(
+LIST *role_operation_list(
 			char *folder_name,
 			char *role_name )
 {
@@ -150,3 +150,26 @@ char *role_operation_primary_where(
 	return where;
 }
 
+boolean role_operation_delete(
+			LIST *role_operation_list )
+{
+	ROLE_OPERATION *role_operation;
+
+	if ( !list_rewind( role_operation_list ) ) return 0;
+
+	do {
+		role_operation =
+			list_get(
+				role_operation_list );
+
+		if ( string_strcmp(
+			role_operation->operation_name,
+			"delete" ) == 0 )
+		{
+			return 1;
+		}
+
+	} while ( list_next( role_operation_list ) );
+
+	return 0;
+}

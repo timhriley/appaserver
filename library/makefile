@@ -75,7 +75,7 @@ APPASERVER_LIBRARY=						\
 		insert.o					\
 		expected_count.o				\
 		update.o					\
-		delete_database.o				\
+		delete.o					\
 		start_stop_time.o				\
 		appaserver_parameter_file.o			\
 		prompt_recursive.o				\
@@ -831,8 +831,8 @@ insert.o: insert.c insert.h
 update.o: update.c update.h
 	${CC} ${CFLAGS} -c update.c
 
-delete_database.o: delete_database.c delete_database.h
-	${CC} ${CFLAGS} -c delete_database.c
+delete.o: delete.c delete.h
+	${CC} ${CFLAGS} -c delete.c
 
 query_attribute_statistics_list.o:					\
 		query_attribute_statistics_list.c			\

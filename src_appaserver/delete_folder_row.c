@@ -10,139 +10,96 @@
 #include <string.h>
 #include "list.h"
 #include "timlib.h"
-#include "delete_database.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
 #include "document.h"
+#include "delete.h"
 
 /* Prototypes */
 /* ---------- */
-void delete_where_data_carrot_list_string(
-				char *application_name,
-				char *login_name,
-				char *session,
-				char *role_name,
-				char *folder_name,
-				char *where_data_carrot_list_string,
-				char *sql_executable,
-				boolean dont_delete_mto1_isa );
+void delete_folder_row(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_data_list,
+			boolean dont_delete_mto1_isa );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session_key;
 	char *login_name;
-	char *session;
-	char *role_name;
 	char *folder_name;
-	char *primary_attribute_data_list_string;
-	char primary_attribute_data_list_string_buffer[ 1024 ];
-	char *sql_executable;
-	boolean dont_delete_mto1_isa = 0;
+	char *role_name;
+	char *primary_data_list_string;
+	boolean dont_delete_mto1_isa;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc < 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s session login_name folder role_name primary_attribute_data_list [dont_delete_mto1_isa_yn]\n",
+"Usage: %s session login_name folder role_name primary_data_list dont_delete_mto1_isa_yn\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
 
-	session = argv[ 1 ];
+	session_key = argv[ 1 ];
 	login_name = argv[ 2 ];
 	folder_name = argv[ 3 ];
 	role_name = argv[ 4 ];
-	primary_attribute_data_list_string = argv[ 5 ];
-	if ( argc == 7 ) dont_delete_mto1_isa = (*argv[ 6 ] == 'y');
+	primary_data_list_string = argv[ 5 ];
+	dont_delete_mto1_isa = (*argv[ 6 ] == 'y');
 
-	sql_executable = "sql.e";
-	/* sql_executable = "html_paragraph_wrapper"; */
-
-	if ( timlib_strncmp( sql_executable, "html_paragraph_wrapper" ) == 0 )
-	{
-		document_output_content_type();
-	}
-
-	if ( strcmp( primary_attribute_data_list_string, "stdin" ) == 0 )
-	{
-		while( get_line(
-				primary_attribute_data_list_string_buffer,
-				stdin ) )
-		{
-			delete_where_data_carrot_list_string(
-				application_name,
-				login_name,
-				session,
-				role_name,
-				folder_name,
-				primary_attribute_data_list_string_buffer,
-				sql_executable,
-				dont_delete_mto1_isa );
-		}
-	}
-	else
-	{
-		delete_where_data_carrot_list_string(
-				application_name,
-				login_name,
-				session,
-				role_name,
-				folder_name,
-				primary_attribute_data_list_string,
-				sql_executable,
-				dont_delete_mto1_isa );
-	}
+	delete_folder_row(
+		application_name,
+		session_key,
+		login_name,
+		folder_name,
+		role_name,
+		list_string_list( primary_data_list_string, '^' ),
+		dont_delete_mto1_isa );
 
 	return 0;
 }
 
-void delete_where_data_carrot_list_string(
-				char *application_name,
-				char *login_name,
-				char *session,
-				char *role_name,
-				char *folder_name,
-				char *primary_attribute_data_list_string,
-				char *sql_executable,
-				boolean dont_delete_mto1_isa )
+void delete_folder_row(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *folder_name,
+			char *role_name,
+			LIST *primary_data_list,
+			boolean dont_delete_mto1_isa )
 {
-	DELETE_DATABASE *delete_database;
+	DELETE *delete;
 
-	delete_database =
-		delete_database_new(
+	delete =
+		delete_new(
 			application_name,
+			session_key,
 			login_name,
 			role_name,
-			dont_delete_mto1_isa,
 			folder_name,
-			list_string2list( primary_attribute_data_list_string,
-					  '^' /* delimiter */ ),
-			sql_executable );
+			primary_data_list,
+			dont_delete_mto1_isa );
 
-	if ( !delete_database )
+	if ( !delete )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty delete_database.\n",
+			"ERROR in %s/%s()/%d: delete_new(%s) returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !delete_database->folder )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty folder.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+			 __LINE__,
+			role_name );
 		exit( 1 );
 	}
 

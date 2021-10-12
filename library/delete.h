@@ -17,11 +17,11 @@
 /* Constants */
 /* --------- */
 
-/* Objects */
-/* ------- */
+/* Structures */
+/* ---------- */
 typedef struct
 {
-	LIST *primary_attribute_data_list;
+	LIST *primary_data_list;
 } DELETE_ROW;
 
 typedef struct
@@ -36,15 +36,20 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *application_name;
-	boolean dont_delete_mto1_isa;
-	char *sql_executable;
 	char *login_name;
 	char *role_name;
+	LIST *primary_data_list;
+	boolean dont_delete_mto1_isa;
+	char *folder_name;
+
+	/* Process */
+	/* ------- */
 	FOLDER *folder;
-	LIST *primary_attribute_data_list;
 	LIST *delete_folder_list;
-} DELETE_DATABASE;
+} DELETE;
 
 DELETE_DATABASE *delete_database_new(
 			char *application_name,

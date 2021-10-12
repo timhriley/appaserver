@@ -1,9 +1,8 @@
-/* $APPASERVER_HOME/library/delete_database.c				*/
-/* -------------------------------------------------------------------- */
-/* This is the appaserver delete_database ADT.				*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/delete.c			*/
+/* ---------------------------------------------------- */
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 #include <stdio.h>
 #include <string.h>
@@ -14,56 +13,83 @@
 #include "process.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "folder.h"
 #include "appaserver_library.h"
-#include "query.h"
 #include "folder_menu.h"
 #include "appaserver_parameter_file.h"
-#include "delete_database.h"
+#include "role_operation.h"
+#include "delete.h"
 
-DELETE_DATABASE *delete_database_new(
-			char *application_name,
-			char *login_name,
-			char *role_name,
-			boolean dont_delete_mto1_isa,
-			char *folder_name,
-			LIST *primary_attribute_data_list,
-			char *sql_executable )
+DELETE *delete_calloc( void )
 {
-	DELETE_DATABASE *delete_database;
+	DELETE *delete;
 
-	if ( ! ( delete_database =
-			(DELETE_DATABASE *)
-				calloc( 1, sizeof( DELETE_DATABASE ) ) ) )
+	if ( ! ( delete = calloc( 1, sizeof( DELETE ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit( 1 );
 	}
 
-	delete_database->application_name = application_name;
-	delete_database->login_name = login_name;
-	delete_database->role_name = role_name;
-	delete_database->dont_delete_mto1_isa = dont_delete_mto1_isa;
-	delete_database->sql_executable = sql_executable;
+	delete;
+}
 
-	delete_database->primary_attribute_data_list =
-		primary_attribute_data_list;
+DELETE *delete_new(	char *application_name,
+			char *login_name,
+			char *role_name,
+			LIST *primary_data_list,
+			boolean dont_delete_mto1_isa,
+			char *folder_name )
+{
+	DELETE *delete = delete_calloc();
 
-	delete_database->folder =
-		folder_with_load_new(
-			delete_database->application_name,
-			BOGUS_SESSION, 
+	delete->application_name = application_name;
+	delete->login_name = login_name;
+	delete->role_name = role_name;
+	delete->primary_data_list = primary_data_list;
+	delete->dont_delete_mto1_isa = dont_delete_mto1_isa;
+
+	delete->folder =
+		folder_fetch(
 			folder_name,
-			role_new(
-				delete_database->application_name,
-				role_name ) );
+			role_name,
+			(LIST *)0 /* role_exclude_attribute_name_list */,
+			/* Also sets primary_key_list */
+			1 /* fetch_folder_attribute_list */,
+			0 /* not fetch_relation_mto1_non_isa_list */,
+			/* Also sets folder_attribute_append_isa_list */
+			1 /* fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			1 /* fetch_relation_one2m_recursive_list */,
+			1 /* fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			0 /* not fetch_row_level_restriction */,
+			1 /* fetch_role_operation_list */ );
 
-	return delete_database;
+	if ( !delete->folder )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name );
+		exit( 1 );
+	}
+
+
+	if ( !role_operation_delete(
+			delete->folder->role_operation_list ) )
+	{
+		return (DELETE *)0;
+	}
+
+
+	return delete;
 
 }
 

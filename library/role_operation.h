@@ -36,7 +36,7 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-LIST *role_operation_fetch_list(
+LIST *role_operation_list(
 			char *folder_name,
 			char *role_name );
 
@@ -65,5 +65,8 @@ char *role_operation_primary_where(
 			char *folder_name,
 			char *role_name,
 			char *operation_name );
+
+boolean role_operation_delete(
+			LIST *role_operation_list );
 
 #endif
