@@ -285,7 +285,7 @@ FOLDER *folder_parse(	char *input,
 		folder->role_name = role_name;
 
 		folder->role_folder_list =
-			role_folder_fetch_list(
+			role_folder_list(
 				folder->role_name,
 				folder->folder_name );
 	}

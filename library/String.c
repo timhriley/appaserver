@@ -1427,7 +1427,7 @@ int string_row_number( char *attribute_name )
 	return -1;
 }
 
-char *string_append_string(
+char *string_append(
 			char *message_list_string,
 			char *message_string,
 			char *delimiter )
@@ -1448,6 +1448,7 @@ char *string_append_string(
 			message_list_string,
 			delimiter,
 			message_string );
+
 		free( message_list_string );
 	}
 

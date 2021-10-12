@@ -37,9 +37,8 @@ typedef struct
 	char *attribute_name;
 	char *datatype_name;
 	int primary_key_index;
-	char *file_data;
-	char *sql_injection_escape_file_data;
 	int row;
+	char *file_data;
 
 	/* Process */
 	/* ------- */
@@ -58,6 +57,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *file_data;
+	char *sql_injection_escape_file_data;
 	UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed;
 	char *update_attribute_preupdate_label;
 } UPDATE_ATTRIBUTE;
@@ -185,6 +185,9 @@ FILE *update_sql_pipe(	char *application_name );
 void update_sql_statement_list_execute(
 			FILE *update_sql_pipe,
 			LIST *sql_statement_list );
+
+char *update_command_line_list_execute(
+			LIST *command_line_list );
 
 /* UPDATE_ROW_LIST operations */
 /* -------------------------- */

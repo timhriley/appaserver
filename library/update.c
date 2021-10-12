@@ -1926,10 +1926,10 @@ char *update_row_list_execute(
 				update_execute(
 					update_row->
 						update_root->
-						sql_statement ) ) )
+						update_sql_statement ) ) )
 			{
 				message_list_string =
-					string_append_string(
+					string_append(
 						message_list_string,
 						message_string,
 						"<br>" );
@@ -1955,10 +1955,18 @@ char *update_row_list_execute(
 					update_row->update_one2m_list ) );
 		}
 
-		if ( list_length( update_row->commmand_line_list ) )
+		if ( list_length( update_row->command_line_list ) )
 		{
-			update_row_command_line_list_execute(
-				update_row->command_line_list );
+			if ( ( message_string =
+				update_command_line_list_execute(
+					update_row->command_line_list ) ) )
+			{
+				message_list_string =
+					string_append(
+						message_list_string,
+						message_string,
+						"<br>" );
+			}
 		}
 
 	} while ( list_next( update_row_list->list ) );
@@ -2020,7 +2028,10 @@ char *update_command_line(
 		exit( 1 );
 	}
 
-	string_strcpy( command_line, post_change_process->command_line );
+	string_strcpy(
+		command_line,
+		post_change_process->command_line,
+		STRING_INPUT_BUFFER );
 
 	string_search_replace(
 		command_line,
@@ -2063,3 +2074,29 @@ char *update_command_line(
 
 	return strdup( command_line );
 }
+
+char *update_command_line_list_execute(
+			LIST *command_line_list )
+{
+	char *message_string;
+	char *message_list_string = {0};
+
+	if ( !list_rewind( command_line_list ) ) return (char *)0;
+
+	do {
+		if ( ( message_string =
+			string_pipe_fetch(
+				list_get(
+					command_line_list ) ) ) )
+		{
+			message_list_string =
+				string_append(
+					message_list_string,
+					message_string,
+					"<br>" );
+		}
+	} while ( list_next( command_line_list ) );
+					
+	return message_list_string;
+}
+
