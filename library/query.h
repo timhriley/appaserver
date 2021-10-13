@@ -730,7 +730,7 @@ char *query_output_order(
 			LIST *primary_key_list,
 			DICTIONARY *sort_dictionary );
 
-char *query_data_where_clause(
+char *query_data_where(
 			char *folder_name,
 			LIST *where_attribute_name_list,
 			LIST *where_attribute_data_list,
@@ -766,5 +766,11 @@ LIST *query_delimited_list(
 LIST *query_system_dictionary_list(
 			char *system_string,
 			LIST *select_list );
+
+LIST *query_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list );
 
 #endif

@@ -21,7 +21,7 @@
 #include "relation.h"
 #include "appaserver_library.h"
 #include "appaserver_user.h"
-#include "document.h"
+#include "query.h"
 #include "appaserver_parameter_file.h"
 #include "update.h"
 
@@ -2098,5 +2098,19 @@ char *update_command_line_list_execute(
 	} while ( list_next( command_line_list ) );
 					
 	return message_list_string;
+}
+
+LIST *update_one2m_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list )
+{
+	return
+	query_primary_delimited_list(
+			folder_table_name,
+			primary_key_list,
+			foreign_key_list,
+			foreign_data_list );
 }
 

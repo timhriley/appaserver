@@ -326,6 +326,12 @@ UPDATE_ONE2M *update_one2m_new(
 			RELATION *relation_one2m,
 			int row );
 
+LIST *update_one2m_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list );
+
 LIST *update_one2m_sql_statement_list(
 			LIST *update_one2m_list );
 

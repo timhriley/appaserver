@@ -135,15 +135,21 @@ DELETE_ROOT *delete_root_calloc(
 LIST *delete_one2m_list(
 			char *application_name,
 			LIST *relation_one2m_recursive_list,
-			LIST *primary_data_list );
+			LIST *foreign_data_list );
 
 DELETE_ONE2M *delete_one2m_new(
 			char *application_name,
 			RELATION *relation_one2m,
-			LIST *primary_data_list );
+			LIST *foreign_data_list );
 
 DELETE_ONE2M *delete_one2m_calloc(
 			void );
+
+LIST *delete_one2m_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list );
 
 char *delete_one2m_update_statement(
 			char *folder_table_name,

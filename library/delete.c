@@ -15,6 +15,7 @@
 #include "appaserver_error.h"
 #include "relation.h"
 #include "folder.h"
+#include "query.h"
 #include "appaserver_library.h"
 #include "folder_menu.h"
 #include "appaserver_parameter_file.h"
@@ -1235,24 +1236,171 @@ DELETE_ROOT *delete_root_new(
 
 DELETE_ROOT *delete_root_calloc( void )
 {
+	DELETE_ROOT *delete_root;
+
+	if ( ! ( delete_root = calloc( 1, sizeof( DELETE_ROOT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return delete_root;
 }
 
 LIST *delete_one2m_list(
 			char *application_name,
 			LIST *relation_one2m_recursive_list,
-			LIST *primary_data_list )
+			LIST *foreign_data_list )
 {
+	LIST *list;
+	RELATION *relation_one2m;
+
+	if ( !list_rewind( relation_one2m_recursive_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		relation_one2m =
+			list_get(
+				relation_one2m_recursive_list );
+
+		list_set(
+			list,
+			delete_one2m_new(
+				application_name,
+				relation_one2m,
+				foreign_data_list ) );
+
+	} while ( list_next( relation_one2m_recursive_list ) );
+
+	return list;
 }
 
 DELETE_ONE2M *delete_one2m_new(
 			char *application_name,
 			RELATION *relation_one2m,
-			LIST *primary_data_list )
+			LIST *foreign_data_list )
 {
+	DELETE_ONE2M *delete_one2m = delete_one2m_calloc();
+
+	if ( !relation_one2m )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: relation_one2m is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !relation_one2m->many_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: many_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( relation_one2m->many_folder->primary_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( relation_one2m->foreign_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	delete_one2m->primary_delimited_list =
+		delete_one2m_primary_delimited_list(
+			folder_table_name(
+				application_name,
+				relation_one2m->many_folder->folder_name ),
+			relation_one2m->many_folder->primary_key_list,
+			relation_one2m->foreign_key_list,
+			foreign_data_list );
+
+	if ( !list_length( delete_one2m->primary_delimited_list ) )
+	{
+		free( delete_one2m );
+		return (LIST *)0;
+	}
+
+	if ( !relation_one2m->is_primary_key_subset )
+	{
+		delete_one2m->update_sql_statement_list =
+			delete_one2m_update_sql_statement_list(
+				folder_table_name(
+					application_name,
+					relation_one2m->
+						many_folder->
+						folder_name ),
+				relation_one2m->foreign_key_list,
+				relation_one2m->
+					many_folder->
+					primary_key_list,
+				delete_one2m->primary_delimited_list );
+	}
+	else
+	{
+		delete_one2m->sql_statement_list(
+			delete_one2m_sql_statement_list(
+				folder_table_name(
+					application_name,
+					relation_one2m->
+						many_folder->
+						folder_name ),
+				relation_one2m->
+					many_folder->
+					primary_key_list,
+				delete_one2m->primary_delimited_list );
+	}
+
+	if ( relation_one2m->many_folder->post_change_process )
+	{
+		delete_one2m->command_line_list =
+			delete_one2m_command_line_list(
+				relation_one2m->
+					many_folder->
+					post_change_process,
+				relation_one2m->foreign_key_list,
+				delete_one2m->primary_delimited_list );
+	}
+
+	return delete_one2m;
 }
 
 DELETE_ONE2M *delete_one2m_calloc( void )
 {
+	DELETE_ONE2M *delete_one2m;
+
+	if ( ! ( delete_one2m = calloc( 1, sizeof( DELETE_ONE2M ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return delete_one2m;
 }
 
 char *delete_one2m_update_statement(
@@ -1273,9 +1421,40 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 			RELATION *relation_mto1_isa,
 			LIST *primary_data_list )
 {
+	DELETE_MTO1_ISA *delete_mto1_isa = delete_mto1_isa_calloc();
+
+	return delete_mto1_isa;
 }
 
 DELETE_MTO1_ISA *delete_mto1_isa_calloc( void )
 {
+	DELETE_MTO1_ISA *delete_mto1_isa;
+
+	if ( ! ( delete_mto1_isa =
+			calloc( 1, sizeof( DELETE_MTO1_ISA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return delete_mto1_isa;
+}
+
+LIST *delete_one2m_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list )
+{
+	return
+	query_primary_delimited_list(
+			folder_table_name,
+			primary_key_list,
+			foreign_key_list,
+			foreign_data_list );
 }
 

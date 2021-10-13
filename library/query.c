@@ -2870,7 +2870,33 @@ char *query_widget_where_clause(
 }
 
 
-char *query_data_where_clause(
+LIST *query_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list )
+{
+	char system_string[ STRING_INPUT_BUFFER ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		list_display_delimited(
+			primary_key_list, ',' ),
+		folder_table_name,
+		query_data_where(
+			(char *)0
+				/* folder_name */,
+			foreign_key_list
+				/* where_attribute_name_list */,
+			foreign_data_list
+				/* where_attribute_data_list */,
+			(LIST *)0
+				/* folder_attribute_list */ );
+
+	return list_pipe_fetch( system_string );
+}
+
+char *query_data_where(
 			char *folder_name,
 			LIST *where_attribute_name_list,
 			LIST *where_attribute_data_list,
