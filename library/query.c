@@ -2883,6 +2883,9 @@ LIST *query_primary_delimited_list(
 		list_display_delimited(
 			primary_key_list, ',' ),
 		folder_table_name,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		query_data_where(
 			(char *)0
 				/* folder_name */,

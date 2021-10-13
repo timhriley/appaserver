@@ -730,6 +730,8 @@ char *query_output_order(
 			LIST *primary_key_list,
 			DICTIONARY *sort_dictionary );
 
+/* Returns heap memory */
+/* ------------------- */
 char *query_data_where(
 			char *folder_name,
 			LIST *where_attribute_name_list,

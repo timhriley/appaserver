@@ -615,6 +615,10 @@ LIST *list_copy_count(	LIST *list,
 LIST *list_delimited_string_to_list(
 			char *delimited_string );
 
+LIST *list_delimiter_extract(
+			char *delimited_string,
+			char delimiter );
+
 LIST *list_delimiter_list_piece_list(
 			LIST *list,
 			char delimiter,

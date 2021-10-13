@@ -2321,7 +2321,6 @@ LIST *list_tail_list(		LIST *list,
 	}
 
 	return return_list;
-
 }
 
 LIST *list_copy_count(		LIST *list,
@@ -2345,7 +2344,13 @@ LIST *list_copy_count(		LIST *list,
 	} while( list_next( list ) );
 
 	return return_list;
+}
 
+LIST *list_delimiter_extract(
+			char *delimited_string,
+			char delimiter )
+{
+	return list_string_list( delimited_string, delimiter );
 }
 
 LIST *list_delimited_string_to_list(
@@ -2361,7 +2366,6 @@ LIST *list_delimited_string_to_list(
 	}
 
 	return list_delimiter_string_to_list( delimited_string, delimiter );
-
 }
 
 LIST *list_delimiter_list_piece_list(
@@ -2395,7 +2399,6 @@ LIST *list_delimiter_list_piece_list(
 	} while( list_next( list ) );
 
 	return return_list;
-
 }
 
 char *list_double_list_display(	char *destination,
@@ -2424,7 +2427,6 @@ char *list_double_list_display(	char *destination,
 	} while( list_next( double_list ) );
 
 	return anchor;
-
 }
 
 LIST *list_string_to_double_list(
@@ -2458,7 +2460,6 @@ LIST *list_string_to_double_list(
 	} while( list_next( string_list ) );
 
 	return double_list;
-
 }
 
 /* -------------------------------------------- */

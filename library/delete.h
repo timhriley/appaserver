@@ -111,6 +111,9 @@ char *delete_sql_statement(
 			LIST *primary_data_list,
 			char *security_entity_where );
 
+/* --------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *delete_command_line(
 			PROCESS *post_change_process,
 			char *login_name,
@@ -134,11 +137,13 @@ DELETE_ROOT *delete_root_calloc(
 /* ----------------------- */
 LIST *delete_one2m_list(
 			char *application_name,
+			char *login_name,
 			LIST *relation_one2m_recursive_list,
 			LIST *foreign_data_list );
 
 DELETE_ONE2M *delete_one2m_new(
 			char *application_name,
+			char *login_name,
 			RELATION *relation_one2m,
 			LIST *foreign_data_list );
 
@@ -151,9 +156,41 @@ LIST *delete_one2m_primary_delimited_list(
 			LIST *foreign_key_list,
 			LIST *foreign_data_list );
 
-char *delete_one2m_update_statement(
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_sql_statement(
 			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *primary_delimited_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *delete_one2m_update_sql_statement(
+			char *folder_table_name,
+			LIST *foreign_key_list,
+			LIST *primary_key_list,
+			LIST *primary_data_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *delete_one2m_update_set_null_statement(
 			LIST *foreign_key_list );
+
+LIST *delete_one2m_sql_statement_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *primary_data_list );
+
+LIST *delete_one2m_update_sql_statement_list(
+			char *folder_table_name,
+			LIST *foreign_key_list,
+			LIST *primary_key_list,
+			LIST *primary_delimited_list );
+
+LIST *delete_one2m_command_line_list(
+			PROCESS *post_change_process,
+			LIST *foreign_key_list,
+			LIST *primary_delimited_list );
 
 /* DELETE_MTO1_ISA operations */
 /* -------------------------- */
