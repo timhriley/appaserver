@@ -29,6 +29,10 @@ typedef struct
 	char *application_name;
 	RELATION *relation_mto1_isa;
 	LIST *primary_data_list;
+
+	/* Process */
+	/* ------- */
+	LIST *one2m_list;
 } DELETE_MTO1_ISA;
 
 typedef struct
@@ -206,5 +210,16 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 
 DELETE_MTO1_ISA *delete_mto1_isa_calloc(
 			void );
+
+LIST *delete_mto1_isa_one2m_list(
+			char *application_name,
+			char *folder_name,
+			LIST *primary_data_list );
+
+LIST *delete_mto1_isa_one2m_sql_statement_list(
+			LIST *one2m_list );
+
+LIST *delete_mto1_isa_one2m_command_line_list(
+			LIST *one2m_list );
 
 #endif

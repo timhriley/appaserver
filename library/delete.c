@@ -1766,3 +1766,20 @@ LIST *delete_one2m_command_line_list(
 	return command_line_list;
 }
 
+LIST *delete_mto1_isa_one2m_list(
+			char *application_name,
+			char *folder_name,
+			LIST *primary_data_list )
+{
+}
+
+LIST *delete_mto1_isa_one2m_sql_statement_list(
+			LIST *one2m_list )
+{
+}
+
+LIST *delete_mto1_isa_one2m_command_line_list(
+			LIST *one2m_list )
+{
+}
+

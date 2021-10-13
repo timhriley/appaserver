@@ -1247,6 +1247,16 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 				update_mto1_isa->update_attribute_list );
 	}
 
+	update_mto1_isa->one2m_list =
+		update_mto1_isa_one2m_list(
+			post_dictionary,
+			file_dictionary,
+			login_name,
+			relation_mto1_isa->
+				one_folder->
+				folder_name,
+			row );
+
 	return update_mto1_isa;
 }
 
@@ -1708,6 +1718,14 @@ LIST *update_mto1_isa_sql_statement_list(
 			sql_statement_list,
 			update_mto1_isa->update_sql_statement );
 
+		if ( list_length( update_mto1_isa->one2m_list ) )
+		{
+			list_set_list(
+				sql_statement_list,
+				update_mto1_isa_one2m_sql_statement_list(
+					update_mto1_isa->one2m_list ) );
+		}
+
 	} while ( list_next( update_mto1_isa_list ) );
 
 	return sql_statement_list;
@@ -1798,6 +1816,14 @@ LIST *update_mto1_isa_command_line_list(
 			list_set(
 				command_line_list,
 				update_mto1_isa->update_command_line );
+		}
+
+		if ( list_length( update_mto1_isa->one2m_list ) )
+		{
+			list_set_list(
+				command_line_list,
+				update_mto1_isa_one2m_command_line_list(
+					update_mto1_isa->one2m_list ) );
 		}
 
 	} while ( list_next( update_mto1_isa_list ) );
@@ -2112,5 +2138,70 @@ LIST *update_one2m_primary_delimited_list(
 			primary_key_list,
 			foreign_key_list,
 			foreign_data_list );
+}
+
+LIST *update_mto1_isa_one2m_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *login_name,
+			char *folder_name,
+			int row )
+{
+	FOLDER *folder;
+
+	if ( ! ( folder =
+			folder_fetch(
+				folder_name,
+				(char *)0 /* role_name */,
+				(LIST *)0 /* role_exclude_attribute_name_list*/,
+				/* Also sets primary_key_list */
+				1 /* fetch_folder_attribute_list */,
+				0 /* not fetch_relation_mto1_non_isa_list */,
+				/* Also sets folder_attribute_append_isa_list */
+				0 /* not fetch_relation_mto1_isa_list */,
+				0 /* not fetch_relation_one2m_list */,
+				1 /* fetch_relation_one2m_recursive_list */,
+				1 /* fetch_process */,
+				0 /* not fetch_role_folder_list */,
+				0 /* not fetch_row_level_restriction */,
+				0 /* not fetch_role_operation_list */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name );
+		exit( 1 );
+	}
+
+
+	return
+	update_one2m_list(
+		post_dictionary,
+		file_dictionary,
+		login_name,
+		folder->relation_one2m_recursive_list,
+		row );
+}
+
+LIST *update_mto1_isa_one2m_sql_statement_list(
+			LIST *update_one2m_list )
+{
+	if ( !list_length( update_one2m_list ) ) return (LIST *)0;
+
+	return
+	update_one2m_sql_statement_list(
+		update_one2m_list );
+}
+
+LIST *update_mto1_isa_one2m_command_line_list(
+			LIST *update_one2m_list )
+{
+	if ( !list_length( update_one2m_list ) ) return (LIST *)0;
+
+	return
+	update_one2m_command_line_list(
+		update_one2m_list );
 }
 

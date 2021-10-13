@@ -72,6 +72,7 @@ typedef struct
 	char *update_where_clause;
 	char *update_sql_statement;
 	char *update_command_line;
+	LIST *one2m_list;
 } UPDATE_MTO1_ISA;
 
 typedef struct
@@ -301,11 +302,24 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 UPDATE_MTO1_ISA *update_mto1_isa_calloc(
 			void );
 
+LIST *update_mto1_isa_one2m_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *login_name,
+			char *folder_name,
+			int row );
+
 LIST *update_mto1_isa_sql_statement_list(
 			LIST *update_mto1_isa_list );
 
 LIST *update_mto1_isa_command_line_list(
 			LIST *update_mto1_isa_list );
+
+LIST *update_mto1_isa_one2m_sql_statement_list(
+			LIST *update_one2m_list );
+
+LIST *update_mto1_isa_one2m_command_line_list(
+			LIST *update_one2m_list );
 
 /* UPDATE_ONE2M operations */
 /* ----------------------- */
