@@ -72,11 +72,12 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *application_name;
+	char *session_key;
 	char *login_name;
+	char *folder_name;
 	char *role_name;
 	LIST *primary_data_list;
 	boolean dont_delete_mto1_isa;
-	char *folder_name;
 
 	/* Process */
 	/* ------- */
@@ -84,6 +85,8 @@ typedef struct
 	ROLE *role;
 	SECURITY_ENTITY *security_entity;
 	DELETE_ROOT *delete_root;
+	LIST *delete_one2m_list;
+	LIST *delete_mto1_isa_list;
 } DELETE;
 
 /* DELETE operations */
@@ -127,8 +130,8 @@ char *delete_command_line(
 /* DELETE_ROOT operations */
 /* ---------------------- */
 DELETE_ROOT *delete_root_new(
-			char *application_name,
-			char *folder_name,
+			char *folder_table_name,
+			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_data_list,
 			PROCESS *post_change_process,
@@ -193,6 +196,7 @@ LIST *delete_one2m_update_sql_statement_list(
 
 LIST *delete_one2m_command_line_list(
 			PROCESS *post_change_process,
+			char *login_name,
 			LIST *foreign_key_list,
 			LIST *primary_delimited_list );
 
@@ -200,11 +204,13 @@ LIST *delete_one2m_command_line_list(
 /* -------------------------- */
 LIST *delete_mto1_isa_list(
 			char *application_name,
+			char *login_name,
 			LIST *relation_mto1_isa_list,
 			LIST *primary_data_list );
 
 DELETE_MTO1_ISA *delete_mto1_isa_new(
 			char *application_name,
+			char *login_name,
 			RELATION *relation_mto1_isa,
 			LIST *primary_data_list );
 

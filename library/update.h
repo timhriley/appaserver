@@ -346,6 +346,23 @@ LIST *update_one2m_command_line_list(
 			LIST *primary_delimited_list,
 			LIST *update_attribute_changed_list );
 
+/* Safely returns heap memory */
+/* -------------------------- */
+char *update_one2m_sql_statement(
+			char *folder_table_name,
+			LIST *update_attribute_changed_list,
+			LIST *primary_key_list,
+			LIST *primary_data_list );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *update_one2m_command_line(
+			char *command_line,
+			char *login_name,
+			LIST *primary_key_list,
+			LIST *primary_data_list,
+			LIST *update_attribute_changed_list );
+
 LIST *update_one2m_list_sql_statement_list(
 			LIST *update_one2m_list );
 
@@ -392,6 +409,10 @@ UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_new(
 			int row );
 
 boolean update_attribute_changed_primary_key(
+			LIST *update_attribute_changed_list );
+
+UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_seek(
+			char *attribute_name,
 			LIST *update_attribute_changed_list );
 
 /* UPDATE_WHERE_ATTRIBUTE operations */
