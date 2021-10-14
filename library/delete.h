@@ -32,6 +32,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *delete_sql_statement;
+	char *delete_command_line;
 	LIST *one2m_list;
 } DELETE_MTO1_ISA;
 
@@ -56,6 +58,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *folder_table_name;
+	char *login_name;
 	LIST *primary_key_list;
 	LIST *primary_data_list;
 	PROCESS *post_change_process;
@@ -122,7 +125,7 @@ char *delete_sql_statement(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *delete_command_line(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_data_list );
@@ -195,10 +198,16 @@ LIST *delete_one2m_update_sql_statement_list(
 			LIST *primary_delimited_list );
 
 LIST *delete_one2m_command_line_list(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *foreign_key_list,
 			LIST *primary_delimited_list );
+
+LIST *delete_one2m_list_sql_statement_list(
+			LIST *delete_one2m_list );
+
+LIST *delete_one2m_list_command_line_list(
+			LIST *delete_one2m_list );
 
 /* DELETE_MTO1_ISA operations */
 /* -------------------------- */
@@ -219,8 +228,15 @@ DELETE_MTO1_ISA *delete_mto1_isa_calloc(
 
 LIST *delete_mto1_isa_one2m_list(
 			char *application_name,
+			char *login_name,
 			char *folder_name,
 			LIST *primary_data_list );
+
+LIST *delete_mto1_isa_sql_statement_list(
+			LIST *delete_mto1_isa_list );
+
+LIST *delete_mto1_isa_command_line_list(
+			LIST *delete_mto1_isa_list );
 
 LIST *delete_mto1_isa_one2m_sql_statement_list(
 			LIST *one2m_list );

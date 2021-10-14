@@ -391,7 +391,7 @@ UPDATE_ROOT *update_root_new(
 	{
 		update_root->update_command_line =
 			update_command_line(
-				post_change_process,
+				post_change_process->command_line,
 				login_name,
 				update_root->update_attribute_list );
 	}
@@ -1031,7 +1031,7 @@ UPDATE_ONE2M *update_one2m_new(
 
 	update_one2m->update_where_attribute_list =
 		update_where_attribute_list(
-			update_one2m->update_attribute_list ) );
+			update_one2m->update_attribute_list );
 
 	if ( !list_length( update_one2m->update_where_attribute_list ) )
 	{
@@ -1066,7 +1066,7 @@ UPDATE_ONE2M *update_one2m_new(
 		exit( 1 );
 	}
 
-	update_one2m->update_sql_statement_list =
+	update_one2m->sql_statement_list =
 		update_one2m_sql_statement_list(
 			folder_table_name(
 				environment_application_name(),
@@ -1075,7 +1075,7 @@ UPDATE_ONE2M *update_one2m_new(
 			relation_one2m->many_folder->primary_key_list,
 			update_one2m->primary_delimited_list );
 
-	if ( !list_length( update_one2m->update_sql_statement_list ) )
+	if ( !list_length( update_one2m->sql_statement_list ) )
 	{
 		fprintf(stderr,
 "ERROR in %s/%s()/%d: update_one2m_sql_statement_list() returned empty.\n",
@@ -1087,15 +1087,15 @@ UPDATE_ONE2M *update_one2m_new(
 
 	if ( relation_one2m->many_folder->post_change_process )
 	{
-		update_one2m->update_command_line_list =
+		update_one2m->command_line_list =
 			update_one2m_command_line_list(
 				relation_one2m->
 					many_folder->
-					post_change_process,
+					post_change_process->
+					command_line,
 				login_name,
 				relation_one2m->many_folder->primary_key_list,
 				update_one2m->primary_delimited_list,
-				update_one2m->update_attribute_list,
 				update_one2m->update_attribute_changed_list );
 	}
 
@@ -1237,7 +1237,8 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 			update_command_line(
 				relation_mto1_isa->
 					one_folder->
-					post_change_process,
+					post_change_process->
+					command_line,
 				login_name,
 				update_mto1_isa->update_attribute_list );
 	}
@@ -1674,7 +1675,7 @@ LIST *update_row_command_line_list(
 	{
 		list_append_list(
 			command_line_list,
-			update_one2m_command_line_list(
+			update_one2m_list_command_line_list(
 				update_one2m_list ) );
 	}
 
@@ -1799,6 +1800,10 @@ LIST *update_mto1_isa_command_line_list(
 
 		if ( list_length( update_mto1_isa->one2m_list ) )
 		{
+			if ( !command_line_list )
+				command_line_list =
+					list_new();
+
 			list_set_list(
 				command_line_list,
 				update_mto1_isa_one2m_command_line_list(
@@ -1956,7 +1961,7 @@ char *update_row_list_execute(
 		{
 			update_sql_statement_list_execute(
 				sql_pipe,
-				update_one2m_sql_statement_list(
+				update_one2m_list_sql_statement_list(
 					update_row->update_one2m_list ) );
 		}
 
@@ -1993,17 +1998,15 @@ FILE *update_sql_pipe( char *application_name )
 }
 
 char *update_command_line(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *update_attribute_list )
 {
-	char command_line[ STRING_INPUT_BUFFER ];
+	char line[ STRING_INPUT_BUFFER ];
 	char buffer[ 1024 ];
 	UPDATE_ATTRIBUTE *update_attribute;
 
-	if ( !post_change_process ) return (char *)0;
-
-	if ( !post_change_process->command_line )
+	if ( !command_line )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: command_line is empty.\n",
@@ -2033,20 +2036,17 @@ char *update_command_line(
 		exit( 1 );
 	}
 
-	string_strcpy(
-		command_line,
-		post_change_process->command_line,
-		STRING_INPUT_BUFFER );
+	string_strcpy( line, command_line, STRING_INPUT_BUFFER );
 
 	string_search_replace(
-		command_line,
+		line,
 		"$login_name",
 		double_quotes_around(
 			buffer,
 			login_name ) );
 
 	string_search_replace(
-		command_line,
+		line,
 		"$state",
 		double_quotes_around(
 			buffer,
@@ -2068,7 +2068,7 @@ char *update_command_line(
 		}
 
 		string_search_replace(
-			command_line,
+			line,
 			update_attribute->folder_attribute->attribute_name,
 			double_quotes_around(
 				buffer,
@@ -2077,7 +2077,7 @@ char *update_command_line(
 
 	} while ( list_next( update_attribute_list ) );
 
-	return strdup( command_line );
+	return strdup( line );
 }
 
 char *update_command_line_list_execute(
@@ -2193,19 +2193,12 @@ char *update_one2m_sql_statement(
 			LIST *primary_key_list,
 			LIST *primary_data_list )
 {
-	UPDATE_CHANGED_ATTRIBUTE *update_changed_attribute;
+	UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed;
 	char sql_statement[ 1024 ];
 	char *ptr = sql_statement;
 
 	if ( !list_rewind( update_attribute_changed_list ) )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: update_attribute_changed_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+		return (char *)0;
 
 	if ( !list_length( primary_key_list ) )
 	{
@@ -2232,7 +2225,7 @@ char *update_one2m_sql_statement(
 
 	ptr += sprintf(
 		ptr,
-		"update %s set",
+		"update %s set ",
 		folder_table_name );
 
 	do {
@@ -2240,7 +2233,7 @@ char *update_one2m_sql_statement(
 			list_get(
 				update_attribute_changed_list );
 
-		if ( !list_at_first( update_attribute_change_list ) )
+		if ( !list_at_first( update_attribute_changed_list ) )
 			ptr += sprintf( ptr, "," );
 
 		if ( attribute_is_number(
@@ -2268,8 +2261,7 @@ char *update_one2m_sql_statement(
 
 	ptr += sprintf(
 		ptr,
-		"where ",
-		folder_table_name );
+		" where " );
 
 	list_rewind( primary_key_list );
 	list_rewind( primary_data_list );
@@ -2302,6 +2294,7 @@ char *update_one2m_command_line(
 {
 	char line[ 1024 ];
 	char buffer[ 128 ];
+	char preupdate_attribute_name[ 128 ];
 	char *primary_key;
 	UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed;
 
@@ -2376,6 +2369,27 @@ char *update_one2m_command_line(
 			buffer,
 			"update" ) );
 
+	list_rewind( update_attribute_changed_list );
+
+	do {
+		update_attribute_changed =
+			list_get(
+				update_attribute_changed_list );
+
+		sprintf(preupdate_attribute_name,
+			"%s%s",
+			UPDATE_PREUPDATE_PREFIX,
+			update_attribute_changed->attribute_name );
+
+		string_search_replace(
+			line,
+			preupdate_attribute_name,
+			double_quotes_around(
+				buffer,
+				update_attribute_changed->file_data ) );
+
+	} while ( list_next( update_attribute_changed_list ) );
+
 	return strdup( line );
 }
 
@@ -2401,7 +2415,7 @@ LIST *update_one2m_sql_statement_list(
 				folder_table_name,
 				update_attribute_changed_list,
 				primary_key_list,
-				list_string_list(
+				list_string_extract(
 					(char *)list_get(
 						primary_delimited_list ),
 					SQL_DELIMITER )
@@ -2436,5 +2450,37 @@ UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_seek(
 	} while ( list_next( update_attribute_changed_list ) );
 
 	return (UPDATE_ATTRIBUTE_CHANGED *)0;
+}
+
+LIST *update_one2m_command_line_list(
+			char *command_line,
+			char *login_name,
+			LIST *primary_key_list,
+			LIST *primary_delimited_list,
+			LIST *update_attribute_changed_list )
+{
+	LIST *command_line_list;
+
+	if ( !command_line ) return (LIST *)0;
+
+	if ( !list_rewind( primary_delimited_list ) ) return (LIST *)0;
+
+	command_line_list = list_new();
+
+	do {
+		list_set(
+			command_line_list,
+			update_one2m_command_line(
+				command_line,
+				login_name,
+				primary_key_list,
+				list_string_extract(
+					list_get( primary_delimited_list ),
+					SQL_DELIMITER ),
+				update_attribute_changed_list ) );
+
+	} while ( list_next( primary_delimited_list ) );
+
+	return command_line_list;
 }
 

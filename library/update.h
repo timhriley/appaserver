@@ -170,7 +170,7 @@ char *update_sql_statement(
 			char *update_where_clause );
 
 char *update_command_line(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *update_attribute_list );
 
@@ -340,7 +340,7 @@ LIST *update_one2m_sql_statement_list(
 			LIST *primary_delimited_list );
 
 LIST *update_one2m_command_line_list(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_delimited_list,

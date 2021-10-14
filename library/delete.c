@@ -108,7 +108,42 @@ LIST *delete_sql_statement_list(
 			LIST *delete_one2m_list,
 			LIST *delete_mto1_isa_list )
 {
-	return (LIST *)0;
+	LIST *sql_statement_list = {0};
+
+	if ( delete_root )
+	{
+		sql_statement_list = list_new();
+
+		list_set(
+			sql_statement_list,
+			delete_root->delete_sql_statement );
+	}
+
+	if ( list_length( delete_one2m_list ) )
+	{
+		if ( !sql_statement_list )
+			sql_statement_list =
+				list_new();
+
+		list_set_list(
+			sql_statement_list,
+			delete_one2m_list_sql_statement_list(
+				delete_one2m_list ) );
+	}
+
+	if ( list_length( delete_mto1_isa_list ) )
+	{
+		if ( !sql_statement_list )
+			sql_statement_list =
+				list_new();
+
+		list_set_list(
+			sql_statement_list,
+			delete_mto1_isa_sql_statement_list(
+				delete_mto1_isa_list ) );
+	}
+
+	return sql_statement_list;
 }
 
 LIST *delete_command_line_list(
@@ -116,7 +151,40 @@ LIST *delete_command_line_list(
 			LIST *delete_one2m_list,
 			LIST *delete_mto1_isa_list )
 {
-	return (LIST *)0;
+	LIST *command_line_list = {0};
+
+	if ( delete_root && delete_root->delete_command_line )
+	{
+		command_line_list = list_new();
+
+		list_set( command_line_list, delete_root->delete_command_line );
+	}
+
+	if ( list_length( delete_one2m_list ) )
+	{
+		if ( !command_line_list )
+			command_line_list =
+				list_new();
+
+		list_set_list(
+			command_line_list,
+			delete_one2m_list_command_line_list(
+				delete_one2m_list ) );
+	}
+
+	if ( list_length( delete_mto1_isa_list ) )
+	{
+		if ( !command_line_list )
+			command_line_list =
+				list_new();
+
+		list_set_list(
+			command_line_list,
+			delete_mto1_isa_command_line_list(
+				delete_mto1_isa_list ) );
+	}
+
+	return command_line_list;
 }
 
 char *delete_sql_statement(
@@ -125,19 +193,71 @@ char *delete_sql_statement(
 			LIST *primary_data_list,
 			char *security_entity_where )
 {
-	return (char *)0;
+	char sql_statement[ 1024 ];
+	char *data_where;
+	char where[ 512 ];
+
+	if ( !folder_table_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_table_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( primary_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	data_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		query_data_where(
+			(char *)0 /* folder_name */,
+			primary_key_list /* where_attribute_name_list */,
+			primary_data_list /* where_attribute_data_list */,
+			(LIST *)0 /* folder_attribute_list */ );
+
+	if ( security_entity_where )
+	{
+		sprintf(where,
+			"%s and %s",
+			data_where,
+			security_entity_where );
+	}
+	else
+	{
+		strcpy( where, data_where );
+	}
+
+	sprintf(sql_statement,
+		"delete from %s where %s;",
+		folder_table_name,
+		where );
+
+	free( data_where );
+	return strdup( sql_statement );
 }
 
 char *delete_command_line(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_data_list )
 {
-	char command_line[ 1024 ];
+	char line[ 1024 ];
 	char buffer[ 128 ];
 
-	if ( !post_change_process ) return (char *)0;
+	if ( !command_line ) return (char *)0;
 
 	if ( !list_rewind( primary_key_list ) )
 	{
@@ -162,12 +282,12 @@ char *delete_command_line(
 		exit( 1 );
 	}
 
-	string_strcpy( command_line, post_change_process->command_line, 1024 );
+	string_strcpy( line, command_line, 1024 );
 	list_rewind( primary_data_list );
 
 	do {
 		string_search_replace(
-			command_line,
+			line,
 			(char *)list_get( primary_key_list ),
 			double_quotes_around(
 				buffer,
@@ -178,20 +298,20 @@ char *delete_command_line(
 	} while ( list_next( primary_data_list ) );
 
 	string_search_replace(
-		command_line,
+		line,
 		"$login_name",
 		double_quotes_around(
 			buffer,
 			login_name ) );
 
 	string_search_replace(
-		command_line,
+		line,
 		"$state",
 		double_quotes_around(
 			buffer,
 			"delete" ) );
 
-	return strdup( command_line );
+	return strdup( line );
 }
 
 DELETE_ROOT *delete_root_new(
@@ -203,6 +323,30 @@ DELETE_ROOT *delete_root_new(
 			char *security_entity_where )
 {
 	DELETE_ROOT *delete_root = delete_root_calloc();
+
+	delete_root->folder_table_name = folder_table_name;
+	delete_root->login_name = login_name;
+	delete_root->primary_key_list = primary_key_list;
+	delete_root->primary_data_list = primary_data_list;
+	delete_root->post_change_process = post_change_process;
+	delete_root->security_entity_where = security_entity_where;
+
+	delete_root->delete_sql_statement =
+		delete_sql_statement(
+			folder_table_name,
+			primary_key_list,
+			primary_data_list,
+			security_entity_where );
+
+	if ( post_change_process )
+	{
+		delete_root->delete_command_line =
+			delete_command_line(
+				post_change_process->command_line,
+				login_name,
+				primary_key_list,
+				primary_data_list );
+	}
 
 	return delete_root;
 }
@@ -354,7 +498,8 @@ DELETE_ONE2M *delete_one2m_new(
 			delete_one2m_command_line_list(
 				relation_one2m->
 					many_folder->
-					post_change_process,
+					post_change_process->
+					command_line,
 				login_name,
 				relation_one2m->foreign_key_list,
 				delete_one2m->primary_delimited_list );
@@ -386,7 +531,24 @@ LIST *delete_mto1_isa_list(
 			LIST *relation_mto1_isa_list,
 			LIST *primary_data_list )
 {
-	return (LIST *)0;
+	LIST *mto1_isa_list;
+
+	if ( !list_rewind( relation_mto1_isa_list ) ) return (LIST *)0;
+
+	mto1_isa_list = list_new();
+
+	do {
+		list_set(
+			mto1_isa_list,
+			delete_mto1_isa_new(
+				application_name,
+				login_name,
+				list_get( relation_mto1_isa_list ),
+				primary_data_list ) );
+
+	} while ( list_next( relation_mto1_isa_list ) );
+
+	return mto1_isa_list;
 }
 
 DELETE_MTO1_ISA *delete_mto1_isa_new(
@@ -396,6 +558,78 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 			LIST *primary_data_list )
 {
 	DELETE_MTO1_ISA *delete_mto1_isa = delete_mto1_isa_calloc();
+
+	if ( !relation_mto1_isa )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: relation_mto1_isa is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !relation_mto1_isa->one_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( relation_mto1_isa->foreign_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	delete_mto1_isa->delete_sql_statement =
+		delete_sql_statement(
+			folder_table_name(
+				application_name,
+				relation_mto1_isa->one_folder->folder_name ),
+			relation_mto1_isa->foreign_key_list,
+			primary_data_list,
+			(char *)0 /* security_entity_where */ );
+
+	if ( !delete_mto1_isa->delete_sql_statement )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: delete_sql_statement(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			relation_mto1_isa->one_folder->folder_name );
+		exit( 1 );
+	}
+
+	if ( relation_mto1_isa->one_folder->post_change_process )
+	{
+		delete_mto1_isa->delete_command_line =
+			delete_command_line(
+				relation_mto1_isa->
+					one_folder->
+					post_change_process->
+					command_line,
+				login_name,
+				relation_mto1_isa->foreign_key_list,
+				primary_data_list );
+	}
+
+	delete_mto1_isa->one2m_list =
+		delete_mto1_isa_one2m_list(
+			application_name,
+			login_name,
+			relation_mto1_isa->
+				one_folder->
+				folder_name,
+			primary_data_list );
 
 	return delete_mto1_isa;
 }
@@ -577,7 +811,6 @@ LIST *delete_one2m_sql_statement_list(
 			LIST *primary_delimited_list )
 {
 	LIST *sql_statement_list;
-	char sql_statement[ 1024 ];
 
 	if ( !list_rewind( primary_delimited_list ) ) return (LIST *)0;
 
@@ -609,7 +842,6 @@ LIST *delete_one2m_update_sql_statement_list(
 			LIST *primary_delimited_list )
 {
 	LIST *sql_statement_list;
-	char sql_statement[ 1024 ];
 
 	if ( !list_rewind( primary_delimited_list ) ) return (LIST *)0;
 
@@ -636,25 +868,14 @@ LIST *delete_one2m_update_sql_statement_list(
 }
 
 LIST *delete_one2m_command_line_list(
-			PROCESS *post_change_process,
+			char *command_line,
 			char *login_name,
 			LIST *foreign_key_list,
 			LIST *primary_delimited_list )
 {
 	LIST *command_line_list;
 
-	if ( !post_change_process ) return (LIST *)0;
-
-	if ( !post_change_process->command_line )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: command_line is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
+	if ( !command_line ) return (LIST *)0;
 	if ( !list_rewind( primary_delimited_list ) ) return (LIST *)0;
 
 	command_line_list = list_new();
@@ -666,7 +887,7 @@ LIST *delete_one2m_command_line_list(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			delete_command_line(
-				post_change_process,
+				command_line,
 				login_name,
 				foreign_key_list
 					/* primary_key_list */,
@@ -683,21 +904,163 @@ LIST *delete_one2m_command_line_list(
 
 LIST *delete_mto1_isa_one2m_list(
 			char *application_name,
+			char *login_name,
 			char *folder_name,
 			LIST *primary_data_list )
 {
-	return (LIST *)0;
+	LIST *relation_list;
+
+	relation_list =
+		relation_one2m_recursive_list(
+			(LIST *)0 /* relation_list */,
+			folder_name,
+			1 /* fetch_process */ );
+
+	if ( !list_length( relation_list ) ) return (LIST *)0;
+
+	return
+	delete_one2m_list(
+		application_name,
+		login_name,
+		relation_list,
+		primary_data_list /* foreign_data_list */ );
 }
 
 LIST *delete_mto1_isa_one2m_sql_statement_list(
 			LIST *one2m_list )
 {
-	return (LIST *)0;
+	return delete_one2m_list_sql_statement_list( one2m_list );
 }
 
 LIST *delete_mto1_isa_one2m_command_line_list(
 			LIST *one2m_list )
 {
-	return (LIST *)0;
+	return delete_one2m_list_command_line_list( one2m_list );
+}
+
+LIST *delete_one2m_list_sql_statement_list(
+			LIST *delete_one2m_list )
+{
+	DELETE_ONE2M *delete_one2m;
+	LIST *sql_statement_list;
+
+	if ( !list_rewind( delete_one2m_list ) ) return (LIST *)0;
+
+	sql_statement_list = list_new();
+
+	do {
+		delete_one2m = list_get( delete_one2m_list );
+
+		if ( list_length( delete_one2m->update_sql_statement_list ) )
+		{
+			list_set_list(
+				sql_statement_list,
+				delete_one2m->update_sql_statement_list );
+		}
+		else
+		if ( list_length( delete_one2m->delete_sql_statement_list ) )
+		{
+			list_set_list(
+				sql_statement_list,
+				delete_one2m->delete_sql_statement_list );
+		}
+		else
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: both update_sql_statement_list and delete_sql_statement_list are empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+		}
+
+	} while ( list_next( delete_one2m_list ) );
+
+	return sql_statement_list;
+}
+
+LIST *delete_one2m_list_command_line_list(
+			LIST *delete_one2m_list )
+{
+	DELETE_ONE2M *delete_one2m;
+	LIST *command_line_list;
+
+	if ( !list_rewind( delete_one2m_list ) ) return (LIST *)0;
+
+	command_line_list = list_new();
+
+	do {
+		delete_one2m = list_get( delete_one2m_list );
+
+		if ( list_length( delete_one2m->command_line_list ) )
+		{
+			list_set_list(
+				command_line_list,
+				delete_one2m->command_line_list );
+		}
+
+	} while ( list_next( delete_one2m_list ) );
+
+	return command_line_list;
+}
+
+LIST *delete_mto1_isa_sql_statement_list(
+			LIST *delete_mto1_isa_list )
+{
+	DELETE_MTO1_ISA *delete_mto1_isa;
+	LIST *sql_statement_list;
+
+	if ( !list_rewind( delete_mto1_isa_list ) ) return (LIST *)0;
+
+	sql_statement_list = list_new();
+
+	do {
+		delete_mto1_isa =
+			list_get(
+				delete_mto1_isa_list );
+
+		if ( !delete_mto1_isa->delete_sql_statement )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: delete_sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			sql_statement_list,
+			delete_mto1_isa->delete_sql_statement );
+
+	} while ( list_next( delete_mto1_isa_list ) );
+
+	return sql_statement_list;
+}
+
+LIST *delete_mto1_isa_command_line_list(
+			LIST *delete_mto1_isa_list )
+{
+	DELETE_MTO1_ISA *delete_mto1_isa;
+	LIST *command_line_list;
+
+	if ( !list_rewind( delete_mto1_isa_list ) ) return (LIST *)0;
+
+	command_line_list = list_new();
+
+	do {
+		delete_mto1_isa =
+			list_get(
+				delete_mto1_isa_list );
+
+		if ( delete_mto1_isa->delete_command_line )
+		{
+			list_set(
+				command_line_list,
+				delete_mto1_isa->delete_command_line );
+		}
+
+	} while ( list_next( delete_mto1_isa_list ) );
+
+	return command_line_list;
 }
 
