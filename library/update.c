@@ -327,9 +327,6 @@ UPDATE_ROOT *update_root_new(
 
 	update_root->update_attribute_list =
 		update_attribute_list(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			post_dictionary,
 			file_dictionary,
 			folder_attribute_list,
@@ -782,21 +779,21 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 	if ( !folder_attribute )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: folder_attribute is empty.\n",
+			"ERROR in %s/%s()/%d: folder_attribute is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_ATTRIBUTE *)0;
+		exit( 1 );
 	}
 
 	if ( !folder_attribute->attribute )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: attribute is empty.\n",
+			"ERROR in %s/%s()/%d: attribute is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_ATTRIBUTE *)0;
+		exit( 1 );
 	}
 
 	update_attribute = update_attribute_calloc();
@@ -810,12 +807,7 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 				row,
 				file_dictionary ) ) )
 	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: dictionary_row_get(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			folder_attribute->attribute_name );
+		free( update_attribute );
 		return (UPDATE_ATTRIBUTE *)0;
 	}
 
@@ -901,24 +893,15 @@ LIST *update_attribute_list(
 	do {
 		folder_attribute = list_get( folder_attribute_list );
 
-		if ( ! ( update_attribute =
+		if ( ( update_attribute =
 				update_attribute_new(
 					post_dictionary,
 					file_dictionary,
 					folder_attribute,
 					row ) ) )
 		{
-			fprintf(stderr,
-	"ERROR in %s/%s()/%d: update_attribute_new(%s/%s) returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				folder_attribute->folder_name,
-				folder_attribute->attribute_name );
-			exit( 1 );
+			list_set( attribute_list, update_attribute );
 		}
-
-		list_set( attribute_list, update_attribute );
 
 	} while ( list_next( folder_attribute_list ) );
 
@@ -967,65 +950,55 @@ UPDATE_ONE2M *update_one2m_new(
 
 	UPDATE_ONE2M *update_one2m;
 
-	if ( !dictionary_length( post_dictionary ) )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: post_dictionary is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (UPDATE_ONE2M *)0;
-	}
-
-	if ( !dictionary_length( file_dictionary ) )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: file_dictionary is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (UPDATE_ONE2M *)0;
-	}
-
 	if ( !login_name )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: login_name is empty.\n",
+			"ERROR in %s/%s()/%d: login_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_ONE2M *)0;
+		exit( 1 );
 	}
 
 	if ( !relation_one2m->many_folder )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: many_folder is empty.\n",
+			"ERROR in %s/%s()/%d: many_folder is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_ONE2M *)0;
-	}
+		exit( 1 );
+	} 
 
 	if ( !list_length( relation_one2m->
 				many_folder->
 				folder_attribute_list ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: folder_attribute_list is empty.\n",
+	"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_ONE2M *)0;
+		exit( 1 );
 	}
 
 	if ( row <= 0 )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: row is empty.\n",
+			"ERROR in %s/%s()/%d: row is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( post_dictionary ) )
+	{
+		return (UPDATE_ONE2M *)0;
+	}
+
+	if ( !dictionary_length( file_dictionary ) )
+	{
 		return (UPDATE_ONE2M *)0;
 	}
 
@@ -1033,13 +1006,16 @@ UPDATE_ONE2M *update_one2m_new(
 
 	update_one2m->update_attribute_list =
 		update_attribute_list(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			post_dictionary,
 			file_dictionary,
 			relation_one2m->many_folder->folder_attribute_list,
 			row );
+
+	if ( !list_length( update_one2m->update_attribute_list ) )
+	{
+		free( update_one2m );
+		return (UPDATE_ONE2M *)0;
+	}
 
 	update_one2m->update_attribute_changed_list =
 		update_attribute_changed_list(
@@ -1054,51 +1030,72 @@ UPDATE_ONE2M *update_one2m_new(
 
 	update_one2m->update_where_attribute_list =
 		update_where_attribute_list(
-			update_one2m->update_attribute_list );
+			update_one2m->update_attribute_list ) );
 
-	update_one2m->update_where_clause =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		update_where_clause(
-			update_one2m->
-				update_where_attribute_list );
-
-	if ( !update_one2m->update_where_clause )
+	if ( !list_length( update_one2m->update_where_attribute_list ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: update_where_clause() returned empty.\n",
+	"ERROR in %s/%s()/%d: update_where_attribute_list() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_ONE2M *)0;
+		exit( 1 );
 	}
 
-	update_one2m->update_sql_statement =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		update_sql_statement(
+	update_one2m->primary_delimited_list =
+		update_one2m_primary_delimited_list(
+			folder_table_name(
+				environment_application_name(),
+				relation_one2m->many_folder->folder_name ),
+			relation_one2m->many_folder->primary_key_list,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			update_where_clause(
+				update_one2m->
+					update_where_attribute_list ) );
+
+	if ( !list_length( update_one2m->primary_delimited_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: update_one2m_primary_delimited_list() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	update_one2m->update_sql_statement_list =
+		update_one2m_sql_statement_list(
 			folder_table_name(
 				environment_application_name(),
 				relation_one2m->many_folder->folder_name ),
 			update_one2m->update_attribute_changed_list,
-			update_one2m->update_where_clause );
+			relation_one2m->many_folder->primary_key_list,
+			update_one2m->primary_delimited_list );
 
-	if ( !update_one2m->update_sql_statement )
+	if ( !list_length( update_one2m->update_sql_statement_list ) )
 	{
-		return (UPDATE_ONE2M *)0;
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: update_one2m_sql_statement_list() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	if ( relation_one2m->many_folder->post_change_process )
 	{
-		update_one2m->update_command_line =
-			update_command_line(
+		update_one2m->update_command_line_list =
+			update_one2m_command_line_list(
 				relation_one2m->
 					many_folder->
 					post_change_process,
 				login_name,
-				update_one2m->update_attribute_list );
+				relation_one2m->many_folder->primary_key_list,
+				update_one2m->primary_delimited_list,
+				update_one2m->update_attribute_list,
+				update_one2m->update_attribute_changed_list );
 	}
 
 	return update_one2m;
@@ -1179,9 +1176,6 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 
 	update_mto1_isa->update_attribute_list =
 		update_attribute_list(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			post_dictionary,
 			file_dictionary,
 			relation_mto1_isa->one_folder->folder_attribute_list,
@@ -1309,9 +1303,6 @@ UPDATE_ROW_LIST *update_row_list_new(
 		list_set(
 			update_row_list->list,
 			update_row_new(
-				/* ------------------------------ */
-				/* Sets preupdate_$attribute_name */
-				/* ------------------------------ */
 				post_dictionary,
 				file_dictionary,
 				login_name,
@@ -1444,7 +1435,7 @@ LIST *update_one2m_list(
 
 		list_set(
 			list,
-			update_mto1_isa_new(
+			update_one2m_new(
 				post_dictionary,
 				file_dictionary,
 				login_name,

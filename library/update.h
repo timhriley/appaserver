@@ -80,11 +80,11 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *update_attribute_list;
-	LIST *update_attribute_changed_list;
 	LIST *update_where_attribute_list;
-	char *update_where_clause;
-	char *update_sql_statement;
-	char *update_command_line;
+	LIST *primary_delimited_list;
+	LIST *update_attribute_changed_list;
+	LIST *sql_statement_list;
+	LIST *command_line_list;
 } UPDATE_ONE2M;
 
 typedef struct
@@ -156,9 +156,6 @@ typedef struct
 UPDATE *update_calloc(	void );
 
 UPDATE *update_new(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			DICTIONARY *post_dictionary /* in/out */,
 			DICTIONARY *file_dictionary,
 			char *login_name,
@@ -198,9 +195,6 @@ UPDATE_ROW_LIST *update_row_list_calloc(
 /* Returns null if no updates */
 /* -------------------------- */
 UPDATE_ROW_LIST *update_row_list_new(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			char *login_name,
@@ -232,9 +226,6 @@ UPDATE_ROW *update_row_calloc(
 			void );
 
 UPDATE_ROW *update_row_new(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			char *login_name,
@@ -267,9 +258,6 @@ UPDATE_ROOT *update_root_calloc(
 			void );
 
 UPDATE_ROOT *update_root_new(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			char *login_name,
@@ -323,9 +311,6 @@ LIST *update_mto1_isa_one2m_command_line_list(
 
 /* UPDATE_ONE2M operations */
 /* ----------------------- */
-UPDATE_ONE2M *update_one2m_calloc(
-			void );
-
 LIST *update_one2m_list(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
@@ -340,16 +325,31 @@ UPDATE_ONE2M *update_one2m_new(
 			RELATION *relation_one2m,
 			int row );
 
+UPDATE_ONE2M *update_one2m_calloc(
+			void );
+
 LIST *update_one2m_primary_delimited_list(
 			char *folder_table_name,
 			LIST *primary_key_list,
-			LIST *foreign_key_list,
-			LIST *foreign_data_list );
+			char *update_where_clause );
 
 LIST *update_one2m_sql_statement_list(
-			LIST *update_one2m_list );
+			char *folder_table_name,
+			LIST *update_attribute_changed_list,
+			LIST *primary_key_list,
+			LIST *primary_delimited_list );
 
 LIST *update_one2m_command_line_list(
+			PROCESS *post_change_process,
+			char *login_name,
+			LIST *primary_key_list,
+			LIST *primary_delimited_list,
+			LIST *update_attribute_changed_list );
+
+LIST *update_one2m_list_sql_statement_list(
+			LIST *update_one2m_list );
+
+LIST *update_one2m_list_command_line_list(
 			LIST *update_one2m_list );
 
 /* UPDATE_ATTRIBUTE operations */
@@ -364,9 +364,6 @@ UPDATE_ATTRIBUTE *update_attribute_calloc(
 			void );
 
 UPDATE_ATTRIBUTE *update_attribute_new(
-			/* ------------------------------------------ */
-			/* Sets preupdate_$attribute_name for trigger */
-			/* ------------------------------------------ */
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER_ATTRIBUTE *folder_attribute,
