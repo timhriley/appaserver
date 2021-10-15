@@ -971,3 +971,25 @@ char *element_checkbox_html(
 	return strdup( html );
 }
 
+char *element_drop_down_data_list_display( LIST *data_list )
+{
+	char display[ 1024 ];
+	char *ptr = display;
+
+	if ( !list_rewind( data_list ) ) return (char *)0;
+
+	do {
+		if ( !list_at_first( data_list ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				ELEMENT_LONG_DASH_DELIMITER );
+		}
+
+		ptr += sprintf( ptr, "%s", (char *)list_get( data_list ) );
+
+	} while ( list_next( data_list ) );
+
+	return strdup( display );
+}

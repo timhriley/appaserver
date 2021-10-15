@@ -22,6 +22,7 @@
 #include "folder_menu.h"
 #include "appaserver_parameter_file.h"
 #include "role_operation.h"
+#include "element.h"
 #include "delete.h"
 
 DELETE *delete_calloc( void )
@@ -103,37 +104,40 @@ DELETE *delete_new(
 	delete->security_entity =
 		security_entity_new(
 			login_name,
-			folder->non_owner_forbid ||
-			folder->non_owner_view_only,
-			role->override_row_restrictions );
+			delete->folder->non_owner_forbid ||
+			delete->folder->non_owner_view_only,
+			delete->role->override_row_restrictions );
 
 	delete->delete_root =
 		delete_root_new(
 			application_name,
 			folder_name,
-			folder->primary_key_list,
+			login_name,
+			delete->folder->primary_key_list,
 			primary_data_list,
-			folder->post_change_process,
+			delete->folder->post_change_process,
 			security_entity_where(
 				delete->security_entity ) );
 
-	if ( list_length( folder->relation_one2m_recursive_list ) )
+	if ( list_length( delete->folder->relation_one2m_recursive_list ) )
 	{
 		delete->delete_one2m_list =
 			delete_one2m_list(
 				application_name,
-				folder->relation_one2m_recursive_list,
+				login_name,
+				delete->folder->relation_one2m_recursive_list,
 				primary_data_list /* foreign_data_list */ );
 	}
 
 	if ( !dont_delete_mto1_isa
-	&&   list_length( folder->relation_mto1_isa_list ) )
+	&&   list_length( delete->folder->relation_mto1_isa_list ) )
 	{
 		delete->delete_mto1_isa_list =
 			delete_mto1_isa_list(
 				application_name,
-				folder->relation_mto1_isa_list,
-				primmary_data_list );
+				login_name,
+				delete->folder->relation_mto1_isa_list,
+				primary_data_list );
 	}
 
 	return delete;
@@ -1303,10 +1307,149 @@ LIST *delete_mto1_isa_command_line_list(
 LIST *delete_mto1_isa_distinct_folder_name_list(
 			LIST *delete_mto1_isa_list )
 {
+	DELETE_MTO1_ISA *delete_mto1_isa;
+	LIST *folder_name_list;
+
+	if ( !list_rewind( delete_mto1_isa_list ) ) return (LIST *)0;
+
+	folder_name_list = list_new();
+
+	do {
+		delete_mto1_isa =
+			list_get(
+				delete_mto1_isa_list );
+
+		list_set(
+			folder_name_list,
+			delete_mto1_isa->
+				relation_mto1_isa->
+				one_folder->
+				folder_name );
+
+	} while ( list_next( delete_mto1_isa_list ) );
+
+	return folder_name_list;
 }
 
 LIST *delete_mto1_isa_one2m_distinct_folder_name_list(
-			LIST *one2m_list )
+			LIST *delete_mto1_isa_list )
 {
+	DELETE_MTO1_ISA *delete_mto1_isa;
+	LIST *folder_name_list;
+
+	if ( !list_rewind( delete_mto1_isa_list ) ) return (LIST *)0;
+
+	folder_name_list = list_new();
+
+	do {
+		delete_mto1_isa =
+			list_get(
+				delete_mto1_isa_list );
+
+		if ( !list_length( delete_mto1_isa->one2m_list ) )
+			continue;
+
+		list_set_list(
+			folder_name_list,
+			delete_one2m_list_distinct_folder_name_list(
+				delete_mto1_isa->one2m_list ) );
+
+	} while ( list_next( delete_mto1_isa_list ) );
+
+	return folder_name_list;
+}
+
+char *delete_message_html(
+			LIST *primary_data_list,
+			int delete_sql_statement_list_length,
+			LIST *delete_distinct_folder_name_list )
+{
+	char html[ STRING_INPUT_BUFFER ];
+	char *ptr = html;
+	char *display;
+
+	if ( !list_length( primary_data_list ) ) return (char *)0;
+	if ( !delete_sql_statement_list_length ) return (char *)0;
+
+	if ( !list_rewind( delete_distinct_folder_name_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: delete_distinct_folder_name_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( display =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			element_drop_down_data_list_display(
+				primary_data_list ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: element_drop_down_data_list_display() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf( ptr, "<table><tr>" );
+
+	ptr += sprintf( ptr, "<td>%s", display );
+
+	ptr += sprintf(
+		ptr,
+		"<td>Deleted %d %s in<td>",
+		delete_sql_statement_list_length,
+		(delete_sql_statement_list_length == 1)
+			? "row"
+			: "rows" );
+
+	do {
+		if ( !list_at_first( delete_distinct_folder_name_list ) )
+			ptr += sprintf( ptr, ", " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			(char *)list_get(
+				delete_distinct_folder_name_list ) );
+
+	} while ( list_next( delete_distinct_folder_name_list ) );
+
+	ptr += sprintf( ptr, "</table>" );
+
+	free( display );
+	return strdup( html );
+}
+
+LIST *delete_one2m_list_distinct_folder_name_list(
+			LIST *delete_one2m_list )
+{
+	DELETE_ONE2M *delete_one2m;
+	LIST *folder_name_list;
+
+	if ( !list_rewind( delete_one2m_list ) ) return (LIST *)0;
+
+	folder_name_list = list_new();
+
+	do {
+		delete_one2m =
+			list_get(
+				delete_one2m_list );
+
+		list_set(
+			folder_name_list,
+			delete_one2m->
+				relation_one2m->
+				many_folder->
+				folder_name );
+
+	} while ( list_next( delete_one2m_list ) );
+
+	return folder_name_list;
 }
 

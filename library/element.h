@@ -352,6 +352,12 @@ char *element_drop_down_initial_data_html(
 			LIST *display_list,
 			char *initial_data );
 
+/* Returns static memory */
+/* --------------------- */
+char *element_drop_down_option_value_html(
+			char *data,
+			char *display );
+
 /* Returns static memory. */
 /* ---------------------- */
 char *element_drop_down_close_html(
@@ -359,10 +365,9 @@ char *element_drop_down_close_html(
 			boolean output_not_null_option,
 			boolean output_select_option );
 
-/* Returns static memory */
-/* --------------------- */
-char *element_drop_down_option_value_html(
-			char *data,
-			char *display );
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_drop_down_data_list_display(
+			LIST *data_list );
 
 #endif

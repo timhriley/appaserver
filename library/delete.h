@@ -1,6 +1,5 @@
 /* $APPASERVER_HOME/library/delete.h		 */
 /* --------------------------------------------- */
-/* This is the appaserver delete_database ADT.	 */
 /*						 */
 /* Freely available software: see Appaserver.org */
 /* --------------------------------------------- */
@@ -145,6 +144,13 @@ LIST *delete_distinct_folder_name_list(
 			LIST *delete_one2m_list,
 			LIST *delete_mto1_isa_list );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *delete_message_html(
+			LIST *primary_data_list,
+			int delete_sql_statement_list_length,
+			LIST *delete_distinct_folder_name_list );
+
 /* DELETE_ROOT operations */
 /* ---------------------- */
 DELETE_ROOT *delete_root_new(
@@ -229,6 +235,9 @@ LIST *delete_one2m_list_pre_command_line_list(
 LIST *delete_one2m_list_command_line_list(
 			LIST *delete_one2m_list );
 
+LIST *delete_one2m_list_distinct_folder_name_list(
+			LIST *delete_one2m_list );
+
 /* DELETE_MTO1_ISA operations */
 /* -------------------------- */
 LIST *delete_mto1_isa_list(
@@ -274,6 +283,6 @@ LIST *delete_mto1_isa_distinct_folder_name_list(
 			LIST *delete_mto1_isa_list );
 
 LIST *delete_mto1_isa_one2m_distinct_folder_name_list(
-			LIST *one2m_list );
+			LIST *delete_mto1_isa_list );
 
 #endif
