@@ -11,7 +11,11 @@
 #include "appaserver_library.h"
 #include "appaserver_link_file.h"
 
-APPASERVER_LINK_FILE *appaserver_link_file_new(
+APPASERVER_LINK *appaserver_link_calloc( void )
+{
+}
+
+APPASERVER_LINK *appaserver_link_new(
 			char *http_prefix,
 			char *server_address,
 			boolean prepend_http_boolean,
@@ -19,20 +23,10 @@ APPASERVER_LINK_FILE *appaserver_link_file_new(
 			char *filename_stem,
 			char *application_name,
 			pid_t process_id,
-			char *session,
+			char *session_key,
 			char *extension )
 {
-	APPASERVER_LINK_FILE *h;
-
-	h = (APPASERVER_LINK_FILE *)calloc( 1, sizeof( APPASERVER_LINK_FILE ) );
-	if ( !h )
-	{
-		fprintf( stderr, 
-			 "%s/%s(): Memory allocation error.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
+	APPASERVER_LINK *appaserver_link = appaserver_link_calloc();
 
 	h->filename_stem = filename_stem;
 	h->application_name = application_name;

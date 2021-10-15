@@ -53,7 +53,7 @@ PROCESS_PARAMETER_LIST *process_parameter_list_new(
 	char upload_filename_yn[ 8 ];
 	char prompt_date_yn[ 8 ];
 	char populate_drop_down_process[ 128 ];
-	char populate_helper_process[ 128 ];
+	char populate_helper_process_name[ 128 ];
 	LIST *parameter_record_list;
 
 	p =	(PROCESS_PARAMETER_LIST *)
@@ -101,13 +101,13 @@ PROCESS_PARAMETER_LIST *process_parameter_list_new(
 				populate_drop_down_process,
 				upload_filename_yn,
 				prompt_date_yn,
-				populate_helper_process,
+				populate_helper_process_name,
 				parameter_record );
 
 		process_parameter = process_parameter_new();
 
 		process_parameter->populate_helper_process =
-			strdup( populate_helper_process );
+			strdup( populate_helper_process_name );
 
 		if ( strcmp( folder_name, "null" ) == 0 )
 			*folder_name = '\0';
@@ -386,7 +386,7 @@ LIST *process_parameter_get_folder_element_list(
 			LIST *primary_key_list,
 			LIST *primary_data_list,
 			boolean multi_select,
-			char *populate_helper_process_string,
+			char *populate_helper_process_name,
 			char *document_root_directory,
 			char *application_name,
 			char *session,
@@ -474,8 +474,8 @@ LIST *process_parameter_get_folder_element_list(
 		element_list, 
 		element );
 
-	if ( populate_helper_process_string
-	&&   *populate_helper_process_string )
+	if ( populate_helper_process_name
+	&&   *populate_helper_process_name )
 	{
 		PROCESS *process;
 		char executable[ 1024 ];
@@ -484,7 +484,7 @@ LIST *process_parameter_get_folder_element_list(
 			process_new_process(
 				application_name,
 				session, 
-				populate_helper_process_string,
+				populate_helper_process_name,
 				(DICTIONARY *) 0 /* dictionary */,
 				(char *)0 /* role_name */,
 				0 /* not with_check_executable_ok */ );
@@ -496,7 +496,7 @@ LIST *process_parameter_get_folder_element_list(
 				 __FILE__,
 				 __FUNCTION__,
 				 __LINE__,
-				 populate_helper_process_string );
+				 populate_helper_process_name );
 
 			goto return_element_list;
 		}
@@ -526,40 +526,52 @@ LIST *process_parameter_get_folder_element_list(
 
 		populate_helper_process =
 			populate_helper_process_new(
-					populate_helper_process_string );
+				populate_helper_process_name,
+				document_root_directory,
+				application_name,
+				getpid() );
 
 		strcpy( executable, process->executable );
 		sprintf( executable + strlen( executable ),
 			 " >%s",
-			 populate_helper_process_get_output_filename(
-				populate_helper_process->key,
+			populate_helper_process->output_filename );
+/*
+			 populate_helper_process_output_filename(
+				populate_helper_process->,
+					populate_helper_process_name,
 				document_root_directory,
 				application_name,
 				getpid() ) );
+*/
 
 		if ( system( executable ) ) {};
 
 		element =
 			element_appaserver_new(
 				anchor,
-				populate_helper_process->key );
+				populate_helper_process->
+					populate_helper_process_name );
 
-		element->anchor->prompt = populate_helper_process->key;
+		element->anchor->prompt =
+			populate_helper_process->
+				populate_helper_process_name;
+
 		element->anchor->href =
-			populate_helper_process_get_ftp_file_prompt(
+			populate_helper_process->
+				prompt;
+/*
+			populate_helper_process_prompt(
 				populate_helper_process->key,
 				application_name,
 				getpid() );
+*/
 
 		list_append_pointer( 	element_list, 
 					element );
 
 	}
 
-	return_element_list:
-
 	return element_list;
-
 }
 
 /* This is a folder with a prompt added. */

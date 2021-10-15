@@ -79,7 +79,7 @@ APPASERVER_LIBRARY=						\
 		start_stop_time.o				\
 		appaserver_parameter_file.o			\
 		prompt_recursive.o				\
-		appaserver_link_file.o				\
+		appaserver_link.o				\
 		process.o					\
 		process_parameter.o				\
 		queue.o						\
@@ -694,9 +694,8 @@ appaserver_parameter_file.o: appaserver_parameter_file.c	\
 	appaserver_parameter_file.h
 	${CC} ${CFLAGS} -c appaserver_parameter_file.c
 
-appaserver_link_file.o: appaserver_link_file.c			\
-	appaserver_link_file.h
-	${CC} ${CFLAGS} -c appaserver_link_file.c
+appaserver_link.o: appaserver_link.c appaserver_link.h
+	${CC} ${CFLAGS} -c appaserver_link.c
 
 two_way_pipe_dvr.e: two_way_pipe_dvr.c two_way_pipe.o
 	${CC} ${CFLAGS} two_way_pipe_dvr.c 			\
