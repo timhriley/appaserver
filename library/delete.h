@@ -34,6 +34,7 @@ typedef struct
 	/* ------- */
 	char *delete_sql_statement;
 	char *delete_command_line;
+	char *delete_pre_command_line;
 	LIST *one2m_list;
 } DELETE_MTO1_ISA;
 
@@ -50,6 +51,7 @@ typedef struct
 	LIST *primary_delimited_list;
 	LIST *update_sql_statement_list;
 	LIST *delete_sql_statement_list;
+	LIST *pre_command_line_list;
 	LIST *command_line_list;
 } DELETE_ONE2M;
 
@@ -57,7 +59,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *folder_table_name;
+	char *application_name;
+	char *folder_name;
 	char *login_name;
 	LIST *primary_key_list;
 	LIST *primary_data_list;
@@ -67,6 +70,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *delete_sql_statement;
+	char *delete_pre_command_line;
 	char *delete_command_line;
 } DELETE_ROOT;
 
@@ -105,16 +109,6 @@ DELETE *delete_new(
 
 DELETE *delete_calloc(	void );
 
-LIST *delete_sql_statement_list(
-			DELETE_ROOT *delete_root,
-			LIST *delete_one2m_list,
-			LIST *delete_mto1_isa_list );
-
-LIST *delete_command_line_list(
-			DELETE_ROOT *delete_root,
-			LIST *delete_one2m_list,
-			LIST *delete_mto1_isa_list );
-
 char *delete_sql_statement(
 			char *folder_table_name,
 			LIST *primary_key_list,
@@ -128,12 +122,34 @@ char *delete_command_line(
 			char *command_line,
 			char *login_name,
 			LIST *primary_key_list,
-			LIST *primary_data_list );
+			LIST *primary_data_list,
+			char *state );
+
+LIST *delete_sql_statement_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list );
+
+LIST *delete_pre_command_line_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list );
+
+LIST *delete_command_line_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list );
+
+LIST *delete_distinct_folder_name_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list );
 
 /* DELETE_ROOT operations */
 /* ---------------------- */
 DELETE_ROOT *delete_root_new(
-			char *folder_table_name,
+			char *application_name,
+			char *folder_name,
 			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_data_list,
@@ -201,9 +217,13 @@ LIST *delete_one2m_command_line_list(
 			char *command_line,
 			char *login_name,
 			LIST *foreign_key_list,
-			LIST *primary_delimited_list );
+			LIST *primary_delimited_list,
+			char *state );
 
 LIST *delete_one2m_list_sql_statement_list(
+			LIST *delete_one2m_list );
+
+LIST *delete_one2m_list_pre_command_line_list(
 			LIST *delete_one2m_list );
 
 LIST *delete_one2m_list_command_line_list(
@@ -235,13 +255,25 @@ LIST *delete_mto1_isa_one2m_list(
 LIST *delete_mto1_isa_sql_statement_list(
 			LIST *delete_mto1_isa_list );
 
+LIST *delete_mto1_isa_pre_command_line_list(
+			LIST *delete_mto1_isa_list );
+
 LIST *delete_mto1_isa_command_line_list(
 			LIST *delete_mto1_isa_list );
 
 LIST *delete_mto1_isa_one2m_sql_statement_list(
 			LIST *one2m_list );
 
+LIST *delete_mto1_isa_one2m_pre_command_line_list(
+			LIST *one2m_list );
+
 LIST *delete_mto1_isa_one2m_command_line_list(
+			LIST *one2m_list );
+
+LIST *delete_mto1_isa_distinct_folder_name_list(
+			LIST *delete_mto1_isa_list );
+
+LIST *delete_mto1_isa_one2m_distinct_folder_name_list(
 			LIST *one2m_list );
 
 #endif

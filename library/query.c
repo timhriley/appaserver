@@ -2894,7 +2894,7 @@ LIST *query_primary_delimited_list(
 			foreign_data_list
 				/* where_attribute_data_list */,
 			(LIST *)0
-				/* folder_attribute_list */ );
+				/* folder_attribute_list */ ) );
 
 	return list_pipe_fetch( system_string );
 }

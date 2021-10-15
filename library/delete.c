@@ -100,6 +100,42 @@ DELETE *delete_new(
 			role_name,
 			0 /* not fetch_attribute_exclude_list */ );
 
+	delete->security_entity =
+		security_entity_new(
+			login_name,
+			folder->non_owner_forbid ||
+			folder->non_owner_view_only,
+			role->override_row_restrictions );
+
+	delete->delete_root =
+		delete_root_new(
+			application_name,
+			folder_name,
+			folder->primary_key_list,
+			primary_data_list,
+			folder->post_change_process,
+			security_entity_where(
+				delete->security_entity ) );
+
+	if ( list_length( folder->relation_one2m_recursive_list ) )
+	{
+		delete->delete_one2m_list =
+			delete_one2m_list(
+				application_name,
+				folder->relation_one2m_recursive_list,
+				primary_data_list /* foreign_data_list */ );
+	}
+
+	if ( !dont_delete_mto1_isa
+	&&   list_length( folder->relation_mto1_isa_list ) )
+	{
+		delete->delete_mto1_isa_list =
+			delete_mto1_isa_list(
+				application_name,
+				folder->relation_mto1_isa_list,
+				primmary_data_list );
+	}
+
 	return delete;
 }
 
@@ -144,6 +180,92 @@ LIST *delete_sql_statement_list(
 	}
 
 	return sql_statement_list;
+}
+
+LIST *delete_distinct_folder_name_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list )
+{
+	LIST *folder_name_list = {0};
+
+	if ( delete_root )
+	{
+		folder_name_list = list_new();
+
+		list_set(
+			folder_name_list,
+			delete_root->folder_name );
+	}
+
+	if ( list_length( delete_one2m_list ) )
+	{
+		if ( !folder_name_list )
+			folder_name_list =
+				list_new();
+
+		list_unique_list(
+			folder_name_list,
+			delete_one2m_list_distinct_folder_name_list(
+				delete_one2m_list ) );
+	}
+
+	if ( list_length( delete_mto1_isa_list ) )
+	{
+		if ( !folder_name_list )
+			folder_name_list =
+				list_new();
+
+		list_unique_list(
+			folder_name_list,
+			delete_mto1_isa_distinct_folder_name_list(
+				delete_mto1_isa_list ) );
+	}
+
+	return folder_name_list;
+}
+
+LIST *delete_pre_command_line_list(
+			DELETE_ROOT *delete_root,
+			LIST *delete_one2m_list,
+			LIST *delete_mto1_isa_list )
+{
+	LIST *command_line_list = {0};
+
+	if ( delete_root && delete_root->delete_command_line )
+	{
+		command_line_list = list_new();
+
+		list_set(
+			command_line_list,
+			delete_root->delete_pre_command_line );
+	}
+
+	if ( list_length( delete_one2m_list ) )
+	{
+		if ( !command_line_list )
+			command_line_list =
+				list_new();
+
+		list_set_list(
+			command_line_list,
+			delete_one2m_list_pre_command_line_list(
+				delete_one2m_list ) );
+	}
+
+	if ( list_length( delete_mto1_isa_list ) )
+	{
+		if ( !command_line_list )
+			command_line_list =
+				list_new();
+
+		list_set_list(
+			command_line_list,
+			delete_mto1_isa_pre_command_line_list(
+				delete_mto1_isa_list ) );
+	}
+
+	return command_line_list;
 }
 
 LIST *delete_command_line_list(
@@ -252,7 +374,8 @@ char *delete_command_line(
 			char *command_line,
 			char *login_name,
 			LIST *primary_key_list,
-			LIST *primary_data_list )
+			LIST *primary_data_list,
+			char *state )
 {
 	char line[ 1024 ];
 	char buffer[ 128 ];
@@ -309,13 +432,14 @@ char *delete_command_line(
 		"$state",
 		double_quotes_around(
 			buffer,
-			"delete" ) );
+			state ) );
 
 	return strdup( line );
 }
 
 DELETE_ROOT *delete_root_new(
-			char *folder_table_name,
+			char *application_name,
+			char *folder_name,
 			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_data_list,
@@ -324,7 +448,8 @@ DELETE_ROOT *delete_root_new(
 {
 	DELETE_ROOT *delete_root = delete_root_calloc();
 
-	delete_root->folder_table_name = folder_table_name;
+	delete_root->application_name = application_name;
+	delete_root->folder_name = folder_name;
 	delete_root->login_name = login_name;
 	delete_root->primary_key_list = primary_key_list;
 	delete_root->primary_data_list = primary_data_list;
@@ -333,19 +458,30 @@ DELETE_ROOT *delete_root_new(
 
 	delete_root->delete_sql_statement =
 		delete_sql_statement(
-			folder_table_name,
+			folder_table_name(
+				application_name,
+				folder_name ),
 			primary_key_list,
 			primary_data_list,
 			security_entity_where );
 
 	if ( post_change_process )
 	{
+		delete_root->delete_pre_command_line =
+			delete_command_line(
+				post_change_process->command_line,
+				login_name,
+				primary_key_list,
+				primary_data_list,
+				"predelete" );
+
 		delete_root->delete_command_line =
 			delete_command_line(
 				post_change_process->command_line,
 				login_name,
 				primary_key_list,
-				primary_data_list );
+				primary_data_list,
+				"delete" );
 	}
 
 	return delete_root;
@@ -494,6 +630,17 @@ DELETE_ONE2M *delete_one2m_new(
 
 	if ( relation_one2m->many_folder->post_change_process )
 	{
+		delete_one2m->pre_command_line_list =
+			delete_one2m_command_line_list(
+				relation_one2m->
+					many_folder->
+					post_change_process->
+					command_line,
+				login_name,
+				relation_one2m->foreign_key_list,
+				delete_one2m->primary_delimited_list,
+				"predelete" /* state */ );
+
 		delete_one2m->command_line_list =
 			delete_one2m_command_line_list(
 				relation_one2m->
@@ -502,7 +649,8 @@ DELETE_ONE2M *delete_one2m_new(
 					command_line,
 				login_name,
 				relation_one2m->foreign_key_list,
-				delete_one2m->primary_delimited_list );
+				delete_one2m->primary_delimited_list,
+				"delete" /* state */ );
 	}
 
 	return delete_one2m;
@@ -611,6 +759,17 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 
 	if ( relation_mto1_isa->one_folder->post_change_process )
 	{
+		delete_mto1_isa->delete_pre_command_line =
+			delete_command_line(
+				relation_mto1_isa->
+					one_folder->
+					post_change_process->
+					command_line,
+				login_name,
+				relation_mto1_isa->foreign_key_list,
+				primary_data_list,
+				"predelete" /* state */ );
+
 		delete_mto1_isa->delete_command_line =
 			delete_command_line(
 				relation_mto1_isa->
@@ -619,7 +778,8 @@ DELETE_MTO1_ISA *delete_mto1_isa_new(
 					command_line,
 				login_name,
 				relation_mto1_isa->foreign_key_list,
-				primary_data_list );
+				primary_data_list,
+				"delete" /* state */ );
 	}
 
 	delete_mto1_isa->one2m_list =
@@ -871,7 +1031,8 @@ LIST *delete_one2m_command_line_list(
 			char *command_line,
 			char *login_name,
 			LIST *foreign_key_list,
-			LIST *primary_delimited_list )
+			LIST *primary_delimited_list,
+			char *state )
 {
 	LIST *command_line_list;
 
@@ -895,7 +1056,8 @@ LIST *delete_one2m_command_line_list(
 					(char *)
 					list_get(
 						primary_delimited_list ),
-					SQL_DELIMITER ) ) );
+					SQL_DELIMITER ),
+				state ) );
 
 	} while ( list_next( primary_delimited_list ) );
 
@@ -930,6 +1092,12 @@ LIST *delete_mto1_isa_one2m_sql_statement_list(
 			LIST *one2m_list )
 {
 	return delete_one2m_list_sql_statement_list( one2m_list );
+}
+
+LIST *delete_mto1_isa_one2m_pre_command_line_list(
+			LIST *one2m_list )
+{
+	return delete_one2m_list_pre_command_line_list( one2m_list );
 }
 
 LIST *delete_mto1_isa_one2m_command_line_list(
@@ -976,6 +1144,31 @@ LIST *delete_one2m_list_sql_statement_list(
 	} while ( list_next( delete_one2m_list ) );
 
 	return sql_statement_list;
+}
+
+LIST *delete_one2m_list_pre_command_line_list(
+			LIST *delete_one2m_list )
+{
+	DELETE_ONE2M *delete_one2m;
+	LIST *command_line_list;
+
+	if ( !list_rewind( delete_one2m_list ) ) return (LIST *)0;
+
+	command_line_list = list_new();
+
+	do {
+		delete_one2m = list_get( delete_one2m_list );
+
+		if ( list_length( delete_one2m->command_line_list ) )
+		{
+			list_set_list(
+				command_line_list,
+				delete_one2m->pre_command_line_list );
+		}
+
+	} while ( list_next( delete_one2m_list ) );
+
+	return command_line_list;
 }
 
 LIST *delete_one2m_list_command_line_list(
@@ -1037,6 +1230,41 @@ LIST *delete_mto1_isa_sql_statement_list(
 	return sql_statement_list;
 }
 
+LIST *delete_mto1_isa_pre_command_line_list(
+			LIST *delete_mto1_isa_list )
+{
+	DELETE_MTO1_ISA *delete_mto1_isa;
+	LIST *command_line_list;
+
+	if ( !list_rewind( delete_mto1_isa_list ) ) return (LIST *)0;
+
+	command_line_list = list_new();
+
+	do {
+		delete_mto1_isa =
+			list_get(
+				delete_mto1_isa_list );
+
+		if ( delete_mto1_isa->delete_pre_command_line )
+		{
+			list_set(
+				command_line_list,
+				delete_mto1_isa->delete_pre_command_line );
+		}
+
+		if ( list_length( delete_mto1_isa->one2m_list ) )
+		{
+			list_set_list(
+				command_line_list,
+				delete_mto1_isa_one2m_pre_command_line_list(
+					delete_mto1_isa->one2m_list ) );
+		}
+
+	} while ( list_next( delete_mto1_isa_list ) );
+
+	return command_line_list;
+}
+
 LIST *delete_mto1_isa_command_line_list(
 			LIST *delete_mto1_isa_list )
 {
@@ -1059,8 +1287,26 @@ LIST *delete_mto1_isa_command_line_list(
 				delete_mto1_isa->delete_command_line );
 		}
 
+		if ( list_length( delete_mto1_isa->one2m_list ) )
+		{
+			list_set_list(
+				command_line_list,
+				delete_mto1_isa_one2m_command_line_list(
+					delete_mto1_isa->one2m_list ) );
+		}
+
 	} while ( list_next( delete_mto1_isa_list ) );
 
 	return command_line_list;
+}
+
+LIST *delete_mto1_isa_distinct_folder_name_list(
+			LIST *delete_mto1_isa_list )
+{
+}
+
+LIST *delete_mto1_isa_one2m_distinct_folder_name_list(
+			LIST *one2m_list )
+{
 }
 
