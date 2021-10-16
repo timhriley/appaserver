@@ -28,7 +28,7 @@
 #include "benthic_species.h"
 #include "benthic_library.h"
 #include "braun_blanque.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -231,62 +231,50 @@ void output_spss_ready_cover_abundance(
 	char input_buffer[ 1024 ];
 	BRAUN_BLANQUE *braun_blanque;
 	boolean extra_output_needed = 0;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-		   application_http_prefix(
-				application_name ),
-		   appaserver_library_server_address(),
-		   ( application_prepend_http_protocol_yn(
-			application_name ) == 'y' ),
-		   document_root_directory,
-		   FILENAME_STEM,
-		   application_name,
-		   process_id,
-		   (char *)0 /* session */,
-		   "csv" );
+	appaserver_link =
+		appaserver_link_new(
+			application_http_prefix( application_name ),
+			appaserver_library_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
+			"csv" );
 
 	process_output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session,
+				appaserver_link->extension ) );
 
 	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	braun_blanque = braun_blanque_new( application_name );
-
-/*
-	sprintf(process_output_filename,
-	 	OUTPUT_FILE,
-	 	appaserver_mount_point,
-	 	application_name,
-	 	process_id );
-*/
 
 	if ( ! ( output_file = fopen( process_output_filename, "w" ) ) )
 	{

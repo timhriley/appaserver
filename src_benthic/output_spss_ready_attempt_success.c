@@ -1,8 +1,8 @@
-/* ------------------------------------------------------*/
-/* src_benthic/output_spss_ready_attempt_success.c	 */
-/* ------------------------------------------------------*/
-/* Freely available software: see Appaserver.org	 */
-/* ------------------------------------------------------*/
+/* ----------------------------------------------------------------------*/
+/* $APPASERVER_HOME/src_benthic/output_spss_ready_attempt_success.c	 */
+/* ----------------------------------------------------------------------*/
+/* Freely available software: see Appaserver.org	 		 */
+/* ----------------------------------------------------------------------*/
 
 #include <stdio.h>
 #include <string.h>
@@ -26,7 +26,7 @@
 #include "environ.h"
 #include "application.h"
 #include "benthic_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -188,42 +188,34 @@ void output_spss_ready_attempt_success(
 	FILE *output_pipe;
 	char input_buffer[ 1024 ];
 	char *datatype_comma_list;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-		   application_http_prefix(
-				application_name ),
-		   appaserver_library_server_address(),
-		   ( application_prepend_http_protocol_yn(
-			application_name ) == 'y' ),
-		   document_root_directory,
-		   FILENAME_STEM,
-		   application_name,
-		   process_id,
-		   (char *)0 /* session */,
-		   "csv" );
+	appaserver_link =
+		appaserver_link_new(
+			application_http_prefix( application_name ),
+			appaserver_library_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			FILENAME_STEM,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
+			"csv" );
 
 	process_output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-/*
-	sprintf(process_output_filename,
-	 	OUTPUT_FILE,
-	 	appaserver_mount_point,
-	 	application_name,
-	 	process_id );
-*/
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	datatype_comma_list = "Attempt1,Attempt2,Attempt3,Attempt4,Attempt5";
 
@@ -252,22 +244,18 @@ void output_spss_ready_attempt_success(
 	pclose( input_pipe );
 
 	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	appaserver_library_output_ftp_prompt(
 			ftp_filename,

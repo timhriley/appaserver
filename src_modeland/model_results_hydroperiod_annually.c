@@ -32,7 +32,7 @@
 #include "station.h"
 #include "html_table.h"
 #include "annual_hydroperiod.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -292,10 +292,10 @@ int main( int argc, char **argv )
 		char title[ 512 ];
 		char begin_year_string[ 8 ];
 		char end_year_string[ 8 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -306,44 +306,41 @@ int main( int argc, char **argv )
 				application_name,
 				process_id /* process_id */,
 				(char *)0 /* session */,
+				(char *)0 /* begin_date_string */,
+				(char *)0 /* end_date_string */,
 				"csv" );
 
 		sprintf( begin_year_string, "%d", begin_year );
-		appaserver_link_file->begin_date_string = begin_year_string;
+		appaserver_link->begin_date_string = begin_year_string;
 
 		sprintf( end_year_string, "%d", end_year );
-		appaserver_link_file->end_date_string = end_year_string;
+		appaserver_link->end_date_string = end_year_string;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-				prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session,
+				appaserver_link->extension );
 
 		annual_hydroperiod_get_report_title(
 					title,
@@ -407,7 +404,7 @@ int main( int argc, char **argv )
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
 		annual_hydroperiod_get_report_title(
 					title,
@@ -415,8 +412,8 @@ int main( int argc, char **argv )
 					begin_year,
 					end_year );
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -427,44 +424,41 @@ int main( int argc, char **argv )
 				application_name,
 				process_id /* process_id */,
 				(char *)0 /* session */,
+				(char *)0 /* begin_date_string */,
+				(char *)0 /* end_date_string */,
 				"txt" );
 
 		sprintf( begin_year_string, "%d", begin_year );
-		appaserver_link_file->begin_date_string = begin_year_string;
+		appaserver_link->begin_date_string = begin_year_string;
 
 		sprintf( end_year_string, "%d", end_year );
-		appaserver_link_file->end_date_string = end_year_string;
+		appaserver_link->end_date_string = end_year_string;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-				prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{

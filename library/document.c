@@ -634,3 +634,20 @@ void document_body_begin(
 			document_body->menu );
 	}
 }
+
+void document_close( void )
+{
+	document_close_body_stream( stdout );
+	document_close_html_stream( stdout );
+}
+
+void document_close_body_stream( FILE *output_stream )
+{
+	fprintf( output_stream, "</body>\n" );
+}
+
+void document_close_html_stream( FILE *output_stream )
+{
+	fprintf( output_stream, "</html>\n" );
+}
+

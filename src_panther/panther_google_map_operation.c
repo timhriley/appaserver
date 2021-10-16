@@ -25,7 +25,7 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "google_map.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 #include "application_constants.h"
 
 /* Constants */
@@ -63,7 +63,7 @@ int main( int argc, char **argv )
 	GOOGLE_MAP *google_map;
 	char *mode;
 	char *panther_number;
-	APPASERVER_LINK_FILE *google_map_appaserver_link_file;
+	APPASERVER_LINK *google_map_appaserver_link;
 
 	if ( argc != 11 )
 	{
@@ -168,17 +168,8 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-/*
-	sprintf(	url_filename,
-			GOOGLE_MAP_URL_TEMPLATE,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			application_name,
-			session );
-*/
-
-	google_map_appaserver_link_file =
-		appaserver_link_file_new(
+	google_map_appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -188,20 +179,11 @@ int main( int argc, char **argv )
 			application_name,
 			0 /* process_id */,
 			session,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"html" );
 
-	url_filename =
-		appaserver_link_get_output_filename(
-			google_map_appaserver_link_file->
-				output_file->
-				document_root_directory,
-			google_map_appaserver_link_file->application_name,
-			google_map_appaserver_link_file->filename_stem,
-			google_map_appaserver_link_file->begin_date_string,
-			google_map_appaserver_link_file->end_date_string,
-			google_map_appaserver_link_file->process_id,
-			google_map_appaserver_link_file->session,
-			google_map_appaserver_link_file->extension );
+	url_filename = appaserver_link->output->filename;
 
 	if ( group_first_time )
 	{
@@ -281,23 +263,7 @@ int main( int argc, char **argv )
 
 	fclose( output_file );
 
-	prompt_filename =
-		appaserver_link_get_link_prompt(
-			google_map_appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			google_map_appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			google_map_appaserver_link_file->
-				link_prompt->server_address,
-			google_map_appaserver_link_file->application_name,
-			google_map_appaserver_link_file->filename_stem,
-			google_map_appaserver_link_file->begin_date_string,
-			google_map_appaserver_link_file->end_date_string,
-			google_map_appaserver_link_file->process_id,
-			google_map_appaserver_link_file->session,
-			google_map_appaserver_link_file->extension );
+	prompt_filename = appaserver_link->prompt->filename;
 
 	if ( group_last_time )
 	{

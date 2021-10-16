@@ -101,6 +101,14 @@ char *document_begin_html(
 char *document_close_html(
 			void );
 
+void document_close(	void );
+
+void document_close_body_stream(
+			FILE *output_stream );
+
+void document_close_html_stream(
+			FILE *output_stream );
+
 /* DOCUMENT_HEAD operations */
 /* ------------------------ */
 DOCUMENT_HEAD *document_head_calloc(

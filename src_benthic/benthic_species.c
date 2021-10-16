@@ -13,8 +13,6 @@
 #include "timlib.h"
 #include "appaserver_library.h"
 
-/* appaserver_link_file */
-
 BENTHIC_SPECIES *benthic_species_new(
 			char *scientific_name )
 {
