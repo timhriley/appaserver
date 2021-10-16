@@ -25,7 +25,7 @@
 #include "appaserver_parameter_file.h"
 #include "html_table.h"
 #include "date.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -262,7 +262,7 @@ int main( int argc, char **argv )
 
 	return 0;
 
-} /* main() */
+}
 
 void program_profit_aggregate_account_html_table(
 				char *title,
@@ -396,7 +396,7 @@ void program_profit_aggregate_account_html_table(
 
 	html_table_close();
 
-} /* program_profit_aggregate_account_html_table() */
+}
 
 void program_profit_html_table(	char *title,
 				char *sub_title,
@@ -537,7 +537,7 @@ void program_profit_html_table(	char *title,
 
 	html_table_close();
 
-} /* program_profit_html_table() */
+}
 
 double program_profit_aggregate_account_html_table_element(
 				HTML_TABLE *html_table,
@@ -603,7 +603,7 @@ double program_profit_aggregate_account_html_table_element(
 
 	return total_element;
 
-} /* program_profit_aggregate_account_html_table_element() */
+}
 
 double program_profit_html_table_element(
 				HTML_TABLE *html_table,
@@ -681,7 +681,7 @@ double program_profit_html_table_element(
 
 	return total_element;
 
-} /* program_profit_html_table_element() */
+}
 
 void program_profit_aggregate_account_PDF(
 				char *application_name,
@@ -707,14 +707,13 @@ void program_profit_aggregate_account_PDF(
 	double total_expense;
 	double profit;
 	char buffer[ 128 ];
-
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>%s</h2>\n", sub_title );
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -724,38 +723,41 @@ void program_profit_aggregate_account_PDF(
 			application_name,
 			pid /* process_id */,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			(char *)0 /* extension */ );
 
-	appaserver_link_file->extension = "tex";
+	appaserver_link->extension = "tex";
 
 	latex_filename =
-		strdup( appaserver_link_get_tail_half(
+		appaserver_link_output_tail_half(
 				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session,
+				appaserver_link->extension );
 
-	appaserver_link_file->extension = "dvi";
+	appaserver_link->extension = "dvi";
 
 	dvi_filename =
-		strdup( appaserver_link_get_tail_half(
+		appaserver_link_output_tail_half(
 				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session,
+				appaserver_link->extension );
 
 	working_directory =
 		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 
-	latex = latex_new_latex(
+	latex =
+		latex_new_latex(
 			latex_filename,
 			dvi_filename,
 			working_directory,
@@ -883,25 +885,21 @@ void program_profit_aggregate_account_PDF(
 
 	fclose( latex->output_stream );
 
-	appaserver_link_file->extension = "pdf";
+	appaserver_link->extension = "pdf";
 
 	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session,
+			appaserver_link->extension );
 
 	latex_tex2pdf(	latex->tex_filename,
 			latex->working_directory );
@@ -912,7 +910,7 @@ void program_profit_aggregate_account_PDF(
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* program_profit_aggregate_account_PDF() */
+}
 
 void program_profit_PDF(	char *application_name,
 				char *title,
@@ -937,14 +935,13 @@ void program_profit_PDF(	char *application_name,
 	double total_expense;
 	double profit;
 	char buffer[ 128 ];
-
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	printf( "<h1>%s</h1>\n", title );
 	printf( "<h2>%s</h2>\n", sub_title );
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -954,38 +951,41 @@ void program_profit_PDF(	char *application_name,
 			application_name,
 			pid /* process_id */,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			(char *)0 /* extension */ );
 
-	appaserver_link_file->extension = "tex";
+	appaserver_link->extension = "tex";
 
 	latex_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+		appaserver_link_output_tail_half(
+			(char *)0 /* application_name */,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
-	appaserver_link_file->extension = "dvi";
+	appaserver_link->extension = "dvi";
 
 	dvi_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+		appaserver_link_output_tail_half(
+			(char *)0 /* application_name */,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	working_directory =
 		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 
-	latex = latex_new_latex(
+	latex =
+		latex_new_latex(
 			latex_filename,
 			dvi_filename,
 			working_directory,
@@ -1153,25 +1153,21 @@ void program_profit_PDF(	char *application_name,
 
 	fclose( latex->output_stream );
 
-	appaserver_link_file->extension = "pdf";
+	appaserver_link->extension = "pdf";
 
 	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session,
+			appaserver_link->extension );
 
 	latex_tex2pdf(	latex->tex_filename,
 			latex->working_directory );
@@ -1182,7 +1178,7 @@ void program_profit_PDF(	char *application_name,
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
 
-} /* program_profit_PDF() */
+}
 
 double program_profit_aggregate_account_PDF_element(
 				LIST *row_list,
@@ -1243,7 +1239,7 @@ double program_profit_aggregate_account_PDF_element(
 
 	return total_element;
 
-} /* program_profit_aggregate_account_PDF_element() */
+}
 
 double program_profit_PDF_element(
 				LIST *row_list,
@@ -1318,7 +1314,7 @@ double program_profit_PDF_element(
 
 	return total_element;
 
-} /* program_profit_PDF_element() */
+}
 
 LIST *program_journal_ledger_aggregate_account_fetch_record_list(
 			char *program_name,
@@ -1337,7 +1333,7 @@ LIST *program_journal_ledger_aggregate_account_fetch_record_list(
 
 	return pipe2list( sys_string );
 
-} /* program_journal_ledger_aggregate_account_fetch_record_list() */
+}
 
 LIST *program_journal_ledger_fetch_record_list(
 			char *program_name,
@@ -1356,7 +1352,7 @@ LIST *program_journal_ledger_fetch_record_list(
 
 	return pipe2list( sys_string );
 
-} /* program_journal_ledger_fetch_record_list() */
+}
 
 void program_journal_aggregate_account_parse(
 			char *account_name,
@@ -1366,7 +1362,7 @@ void program_journal_aggregate_account_parse(
 	piece( account_name, FOLDER_DATA_DELIMITER, record, 0 );
 	piece( amount_string, FOLDER_DATA_DELIMITER, record, 1 );
 
-} /* program_journal_aggregate_account_parse() */
+}
 
 void program_journal_parse(
 			char *entity_name,
@@ -1380,5 +1376,5 @@ void program_journal_parse(
 	piece( account_name, FOLDER_DATA_DELIMITER, record, 2 );
 	piece( amount_string, FOLDER_DATA_DELIMITER, record, 3 );
 
-} /* program_journal_parse() */
+}
 

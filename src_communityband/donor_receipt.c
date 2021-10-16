@@ -170,7 +170,7 @@ void donor_receipt(	char *application_name,
 			document_root_directory,
 			application_name );
 
-	appaserver_link_file->extension = "tex";
+	appaserver_link->extension = "tex";
 
 	latex_filename =
 		appaserver_link_output_tail_half(
@@ -202,7 +202,7 @@ void donor_receipt(	char *application_name,
 			appaserver_link->session_key,
 			appaserver_link->extension );
 
-	appaserver_link_file->extension = "dvi";
+	appaserver_link->extension = "dvi";
 
 	dvi_filename =
 		appaserver_link_output_filename(
@@ -277,11 +277,11 @@ void donor_receipt(	char *application_name,
 	latex_tex2pdf(	latex->tex_filename,
 			latex->working_directory );
 
-	appaserver_link_file->extension = "pdf";
+	appaserver_link->extension = "pdf";
 
 	ftp_output_filename =
 		appaserver_link_prompt_filename(
-			appaserver_link_prompt_half(
+			appaserver_link_prompt_link_half(
 				appaserver_link->prepend_http,
 				appaserver_link->http_prefix,
 				appaserver_link->server_address ),
