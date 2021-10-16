@@ -174,7 +174,7 @@ int main( int argc, char **argv )
 	fclose( output_stream );
 
 	output_directory =
-		appaserver_link_source_directory(
+		appaserver_link_working_directory(
 			appaserver_parameter_file->
 				document_root,
 			application_name );

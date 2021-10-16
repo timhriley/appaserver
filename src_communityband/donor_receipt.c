@@ -26,7 +26,7 @@
 #include "ledger.h"
 #include "latex.h"
 #include "date_convert.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -36,35 +36,36 @@
 
 /* Prototypes */
 /* ---------- */
-void donor_receipt_get_address(
-					char **street_address,
-					char **city_state_zip,
-					char *donor_name,
-					char *application_name );
+void donor_receipt_address(
+			char **street_address,
+			char **city_state_zip,
+			char *donor_name,
+			char *application_name );
 
-void donor_receipt_donor(		FILE *output_stream,
-					LATEX_TABLE *latex_table,
-					char *logo_filename,
-					char *application_name,
-					char *year_string,
-					char *donor_name );
+void donor_receipt_donor(
+			FILE *output_stream,
+			LATEX_TABLE *latex_table,
+			char *logo_filename,
+			char *application_name,
+			char *year_string,
+			char *donor_name );
 
-LIST *donor_receipt_get_donor_name_list(
-					char *application_name,
-					char *year_string );
+LIST *donor_receipt_donor_name_list(
+			char *application_name,
+			char *year_string );
 
 void donor_receipt_each_donor(
-					FILE *output_stream,
-					LATEX_TABLE *latex_table,
-					char *logo_filename,
-					char *application_name,
-					char *year_string,
-					LIST *donor_name_list );
+			FILE *output_stream,
+			LATEX_TABLE *latex_table,
+			char *logo_filename,
+			char *application_name,
+			char *year_string,
+			LIST *donor_name_list );
 
-void donor_receipt(			char *application_name,
-					char *year_string,
-					char *process_name,
-					char *document_root_directory );
+void donor_receipt(	char *application_name,
+			char *year_string,
+			char *process_name,
+			char *document_root_directory );
 
 int main( int argc, char **argv )
 {
@@ -77,18 +78,18 @@ int main( int argc, char **argv )
 	char *database_string = {0};
 	char *year_string;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+			argc,
+			argv,
+			application_name );
 
 	if ( argc != 4 )
 	{
-		fprintf( stderr,
-"Usage: %s ignored process year\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+			"Usage: %s ignored process year\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
@@ -131,13 +132,12 @@ int main( int argc, char **argv )
 	document_close();
 
 	return 0;
+}
 
-} /* main() */
-
-void donor_receipt(		char *application_name,
-				char *year_string,
-				char *process_name,
-				char *document_root_directory )
+void donor_receipt(	char *application_name,
+			char *year_string,
+			char *process_name,
+			char *document_root_directory )
 {
 	LATEX *latex;
 	LATEX_TABLE *latex_table;
@@ -146,13 +146,12 @@ void donor_receipt(		char *application_name,
 	char *working_directory;
 	char *ftp_output_filename;
 	char *tex_output_filename;
-	pid_t pid = getpid();
 	LATEX_TABLE_HEADING *table_heading;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	LIST *donor_name_list;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -160,61 +159,65 @@ void donor_receipt(		char *application_name,
 	 		document_root_directory,
 			process_name,
 			application_name,
-			pid,
-			(char *)0 /* session */,
+			getpid(),
+			(char *)0 /* session_key */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			(char *)0 /* extension */ );
 
 	working_directory =
-		appaserver_link_source_directory(
+		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 
 	appaserver_link_file->extension = "tex";
 
 	latex_filename =
-		strdup( appaserver_link_get_tail_half(
-				(char *)0 /* application_name */,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension ) );
+		appaserver_link_output_tail_half(
+			(char *)0 /* application_name */,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	tex_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link->
+					link_prompt->
+					http_prefix,
+				appaserver_link->
+					link_prompt->
+					server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	appaserver_link_file->extension = "dvi";
 
 	dvi_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
-	latex = latex_new_latex(
+	latex =
+		latex_new_latex(
 			latex_filename,
 			dvi_filename,
 			working_directory,
@@ -251,7 +254,7 @@ void donor_receipt(		char *application_name,
 	list_append_pointer( latex_table->heading_list, table_heading );
 
 	donor_name_list =
-		donor_receipt_get_donor_name_list(
+		donor_receipt_donor_name_list(
 			application_name,
 			year_string );
 
@@ -277,22 +280,18 @@ void donor_receipt(		char *application_name,
 	appaserver_link_file->extension = "pdf";
 
 	ftp_output_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	appaserver_library_output_ftp_prompt(
 		ftp_output_filename, 
@@ -307,16 +306,15 @@ void donor_receipt(		char *application_name,
 		LATEX_PROMPT,
 		process_name /* target */,
 		(char *)0 /* mime_type */ );
-
-} /* donor_receipt() */
+}
 
 void donor_receipt_each_donor(
-				FILE *output_stream,
-				LATEX_TABLE *latex_table,
-				char *logo_filename,
-				char *application_name,
-				char *year_string,
-				LIST *donor_name_list )
+			FILE *output_stream,
+			LATEX_TABLE *latex_table,
+			char *logo_filename,
+			char *application_name,
+			char *year_string,
+			LIST *donor_name_list )
 {
 	char *donor_name;
 
@@ -340,7 +338,7 @@ void donor_receipt_each_donor(
 
 	} while( list_next( donor_name_list ) );
 
-} /* donor_receipt_each_donor() */
+}
 
 void donor_receipt_donor(	FILE *output_stream,
 				LATEX_TABLE *latex_table,
@@ -383,7 +381,7 @@ void donor_receipt_donor(	FILE *output_stream,
 	street_address = "";
 	city_state_zip = "";
 
-	donor_receipt_get_address(
+	donor_receipt_address(
 		&street_address,
 		&city_state_zip,
 		donor_name,
@@ -543,9 +541,9 @@ void donor_receipt_donor(	FILE *output_stream,
 "Our federal tax identification number is 90-0090160. Consult\n"
 "your tax advisor about the deductibility of contributions.\n" );
 
-} /* donor_receipt_donor() */
+}
 
-LIST *donor_receipt_get_donor_name_list(
+LIST *donor_receipt_donor_name_list(
 			char *application_name,
 			char *year_string )
 {
@@ -559,9 +557,9 @@ LIST *donor_receipt_get_donor_name_list(
 
 	return pipe2list( sys_string );
 
-} /* donor_receipt_get_donor_name_list() */
+}
 
-void donor_receipt_get_address(
+void donor_receipt_address(
 			char **street_address,
 			char **city_state_zip,
 			char *donor_name,
@@ -636,5 +634,5 @@ void donor_receipt_get_address(
 
 	*city_state_zip = strdup( buffer );
 
-} /* donor_receipt_get_address() */
+}
 

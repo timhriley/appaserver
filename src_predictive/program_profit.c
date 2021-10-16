@@ -751,7 +751,7 @@ void program_profit_aggregate_account_PDF(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_source_directory(
+		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 
@@ -981,7 +981,7 @@ void program_profit_PDF(	char *application_name,
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_source_directory(
+		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 

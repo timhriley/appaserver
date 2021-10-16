@@ -13,210 +13,277 @@
 
 APPASERVER_LINK *appaserver_link_calloc( void )
 {
+	APPASERVER_LINK *appaserver_link;
+
+	if ( ! ( appaserver_link =
+			calloc( 1, sizeof( APPASERVER_LINK ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver_link;
 }
 
 APPASERVER_LINK *appaserver_link_new(
 			char *http_prefix,
 			char *server_address,
-			boolean prepend_http_boolean,
+			boolean prepend_http,
 			char *document_root_directory,
 			char *filename_stem,
 			char *application_name,
 			pid_t process_id,
 			char *session_key,
+			char *begin_date_string,
+			char *end_date_string,
 			char *extension )
 {
 	APPASERVER_LINK *appaserver_link = appaserver_link_calloc();
 
-	h->filename_stem = filename_stem;
-	h->application_name = application_name;
-	h->process_id = process_id;
-	h->session = session;
-	h->extension = extension;
+	if ( !filename_stem || !*filename_stem )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: filename_stem is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	h->link_prompt =
+
+	appaserver_link->document_root_directory = document_root_directory;
+	appaserver_link->filename_stem = filename_stem;
+	appaserver_link->application_name = application_name;
+	appaserver_link->process_id = process_id;
+	appaserver_link->session_key = session_key;
+	appaserver_link->begin_date_string = begin_date_string;
+	appaserver_link->end_date_string = end_date_string;
+	appaserver_link->extension = extension;
+
+	appaserver_link->prompt =
 		appaserver_link_prompt_new(
 			http_prefix,
 			server_address,
-			prepend_http_boolean );
-
-	h->output_file =
-		appaserver_link_output_file_new(
-			document_root_directory );
-
-	return h;
-}
-
-LINK_PROMPT *appaserver_link_prompt_new(
-			char *http_prefix,
-			char *server_address,
-			boolean prepend_http_boolean )
-{
-	LINK_PROMPT *h;
-
-	h = (LINK_PROMPT *)calloc( 1, sizeof( LINK_PROMPT ) );
-	if ( !h )
-	{
-		fprintf( stderr, 
-			 "%s/%s(): Memory allocation error.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	h->http_prefix = http_prefix;
-	h->server_address = server_address;
-	h->prepend_http_boolean = prepend_http_boolean;
-	return h;
-
-} /* appaserver_link_prompt_new() */
-
-LINK_OUTPUT_FILE *appaserver_link_output_file_new(
-			char *document_root_directory )
-{
-	LINK_OUTPUT_FILE *h;
-
-	h = (LINK_OUTPUT_FILE *)calloc( 1, sizeof( LINK_OUTPUT_FILE ) );
-	if ( !h )
-	{
-		fprintf( stderr, 
-			 "%s/%s(): Memory allocation error.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	h->document_root_directory = document_root_directory;
-	return h;
-}
-
-char *appaserver_link_abbreviated_output_filename(
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
-{
-	char output_filename[ 512 ];
-
-	if ( !filename_stem || !*filename_stem )
-	{
-		fprintf( stderr, 
-			 "%s/%s(): empty filename_stem.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	strcpy(  output_filename,
-		 appaserver_link_tail_half(
-			(char *)0 /* application_name */,
-			filename_stem,
-			begin_date_string,
-			end_date_string,
-			process_id,
-			session,
-			extension ) );
-
-	return strdup( output_filename );
-}
-
-char *appaserver_link_output_filename(
-		char *document_root_directory,
-		char *application_name,
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
-{
-	char output_filename[ 512 ];
-
-	if ( !filename_stem || !*filename_stem )
-	{
-		fprintf( stderr, 
-			 "%s/%s(): empty filename_stem.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	sprintf( output_filename,
-		 "%s%s",
-		 document_root_directory,
-		 appaserver_link_tail_half(
+			prepend_http,
 			application_name,
 			filename_stem,
 			begin_date_string,
 			end_date_string,
 			process_id,
-			session,
+			session_key,
+			extension );
+
+	appaserver_link->tail_half =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_link_output_tail_half(
+			application_name,
+			filename_stem,
+			begin_date_string,
+			end_date_string,
+			process_id,
+			session_key,
 			extension ) );
+
+	appaserver_link->output =
+		appaserver_link_output_new(
+			document_root_directory,
+			appaserver_link->tail_half );
+
+	return appaserver_link;
+}
+
+APPASERVER_LINK_PROMPT *appaserver_link_prompt_calloc( void )
+{
+	APPASERVER_LINK_PROMPT *appaserver_link_prompt;
+
+	if ( ! ( appaserver_link_prompt =
+			calloc( 1, sizeof( APPASERVER_LINK_PROMPT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver_link_prompt;
+}
+
+APPASERVER_LINK_PROMPT *appaserver_link_prompt_new(
+			char *http_prefix,
+			char *server_address,
+			boolean prepend_http,
+			char *application_name,
+			char *filename_stem,
+			char *begin_date_string,
+			char *end_date_string,
+			pid_t process_id,
+			char *session_key,
+			char *extension )
+{
+	APPASERVER_LINK_PROMPT *appaserver_link_prompt =
+		appaserver_link_prompt_calloc();
+
+	appaserver_link_prompt->link_half =
+		appaserver_link_prompt_link_half(
+			prepend_http,
+			http_prefix,
+			server_address );
+
+	appaserver_link_prompt->filename =
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt->link_half,
+			application_name,
+			filename_stem,
+			begin_date_string,
+			end_date_string,
+			process_id,
+			session_key,
+			extension );
+
+	return appaserver_link_prompt;
+}
+
+APPASERVER_LINK_OUTPUT *appaserver_link_output_calloc( void )
+{
+	APPASERVER_LINK_OUTPUT *appaserver_link_output;
+
+	if ( ! ( appaserver_link_output =
+			calloc( 1, sizeof( APPASERVER_LINK_OUTPUT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver_link_output;
+}
+
+APPASERVER_LINK_OUTPUT *appaserver_link_output_new(
+			char *document_root_directory,
+			char *tail_half )
+{
+	APPASERVER_LINK_OUTPUT *appaserver_link_output =
+		appaserver_link_output_calloc();
+
+	appaserver_link_output->filename =
+		appaserver_link_output_filename(
+			document_root_directory,
+			tail_half );
+
+	return appaserver_link_output;
+}
+
+char *appaserver_link_output_abbreviated_filename(
+			char *filename_stem,
+			char *begin_date_string,
+			char *end_date_string,
+			pid_t process_id,
+			char *session_key,
+			char *extension )
+{
+	if ( !filename_stem || !*filename_stem )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: filename_stem is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	return
+	/* --------------------- */
+	/* Returns heap memory */
+	/* --------------------- */
+	appaserver_link_output_tail_half(
+		(char *)0 /* application_name */,
+		filename_stem,
+		begin_date_string,
+		end_date_string,
+		process_id,
+		session_key,
+		extension );
+}
+
+char *appaserver_link_output_filename(
+			char *document_root_directory,
+			char *tail_half )
+{
+	char output_filename[ 512 ];
+
+	if ( !document_root_directory || !*document_root_directory )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: document_root_directory is  empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(output_filename,
+		"%s%s",
+		document_root_directory,
+		tail_half );
 
 	return strdup( output_filename );
 }
 
 char *appaserver_link_prompt_filename(
-		boolean prepend_http_boolean,
-		char *http_prefix,
-		char *server_address,
-		char *application_name,
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
+			char *link_half,
+			char *application_name,
+			char *filename_stem,
+			char *begin_date_string,
+			char *end_date_string,
+			pid_t process_id,
+			char *session_key,
+			char *extension )
 {
-	char link_prompt[ 512 ];
-	char link_half[ 128 ];
+	char filename[ 512 ];
+	char *tail_half;
 
-	*link_half = '\0';
+	sprintf(filename,
+		"%s%s",
+		link_half,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tail_half =
+			appaserver_link_output_tail_half(
+				application_name,
+				filename_stem,
+				begin_date_string,
+				end_date_string,
+				process_id,
+				session_key,
+				extension ) ) );
 
-	if ( prepend_http_boolean )
-	{
-		if ( server_address && *server_address )
-		{
-			sprintf(link_half,
-			 	"%s://%s",
-			 	http_prefix,
-			 	server_address );
-		}
-		else
-		{
-			sprintf(link_half,
-			 	"%s://",
-			 	http_prefix );
-		}
-	}
-
-	sprintf( link_prompt,
-		 "%s%s",
-		 link_half,
-		 appaserver_link_tail_half(
-			application_name,
-			filename_stem,
-			begin_date_string,
-			end_date_string,
-			process_id,
-			session,
-			extension ) );
-
-	return strdup( link_prompt );
+	free( tail_half );
+	return strdup( filename );
 }
 
-char *appaserver_link_tail_half(
-		char *application_name,
-		char *filename_stem,
-		char *begin_date_string,
-		char *end_date_string,
-		pid_t process_id,
-		char *session,
-		char *extension )
+char *appaserver_link_output_tail_half(
+			char *application_name,
+			char *filename_stem,
+			char *begin_date_string,
+			char *end_date_string,
+			pid_t process_id,
+			char *session_key,
+			char *extension )
 {
-	static char tail_half[ 512 ];
+	char tail_half[ 512 ];
 	char application_part[ 128 ];
 	char date_part[ 128 ];
 	char key_part[ 128 ];
@@ -237,11 +304,11 @@ char *appaserver_link_tail_half(
 		 	end_date_string );
 	}
 
-	if ( session && *session )
+	if ( session_key && *session_key )
 	{
 		sprintf( key_part,
 			 "_%s",
-			 session );
+			 session_key );
 	}
 	else
 	if ( process_id )
@@ -261,7 +328,7 @@ char *appaserver_link_tail_half(
 	{
 		sprintf( application_part,
 		 	"/%s/%s/%s/",
-			 	APPASERVER_KEY,
+		 	APPASERVER_KEY,
 		 	application_name,
 		 	APPASERVER_DATA_KEY );
 	}
@@ -274,37 +341,37 @@ char *appaserver_link_tail_half(
 		 key_part,
 		 (extension) ? extension : "null" );
 
-	return tail_half;
+	return strdup( tail_half );
 }
 
-char *appaserver_link_source_directory(
+char *appaserver_link_working_directory(
 		char *document_root_directory,
 		char *application_name )
 {
-	char source_directory[ 128 ];
+	char working_directory[ 128 ];
 
-	sprintf( source_directory,
+	sprintf( working_directory,
 		 "%s/%s/%s/data",
 		 document_root_directory,
 		 APPASERVER_KEY,
 		 application_name );
 
-	return strdup( source_directory );
+	return strdup( working_directory );
 }
 
 void appaserver_link_pid_filename(
-				char **output_filename,
-				char **prompt_filename,
-				char *application_name,
-				char *document_root_directory,
-				pid_t pid,
-				char *process_name,
-				char *extension )
+			char **prompt_filename,
+			char **output_filename,
+			char *application_name,
+			char *document_root_directory,
+			pid_t process_id,
+			char *process_name,
+			char *extension )
 {
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -312,8 +379,10 @@ void appaserver_link_pid_filename(
 			document_root_directory,
 			process_name /* FILENAME_STEM */,
 			application_name,
-			pid,
-			(char *)0 /* session */,
+			process_id,
+			(char *)0 /* session_key */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			extension );
 
 	*output_filename =
@@ -333,7 +402,7 @@ void appaserver_link_pid_filename(
 		appaserver_link_link_prompt(
 			appaserver_link_file->
 				link_prompt->
-				prepend_http_boolean,
+				prepend_http,
 			appaserver_link_file->
 				link_prompt->
 				http_prefix,
@@ -344,7 +413,37 @@ void appaserver_link_pid_filename(
 			appaserver_link_file->begin_date_string,
 			appaserver_link_file->end_date_string,
 			appaserver_link_file->process_id,
-			appaserver_link_file->session,
+			appaserver_link_file->session_key,
 			appaserver_link_file->extension );
 }
 
+char *appaserver_link_prompt_link_half(
+			boolean prepend_http,
+			char *http_prefix,
+			char *server_address )
+{
+	char link_half[ 128 ];
+
+	if ( prepend_http )
+	{
+		if ( server_address && *server_address )
+		{
+			sprintf(link_half,
+			 	"%s://%s",
+			 	http_prefix,
+			 	server_address );
+		}
+		else
+		{
+			sprintf(link_half,
+			 	"%s://",
+			 	http_prefix );
+		}
+	}
+	else
+	{
+		*link_half = '\0'
+	}
+
+	return strdup( link_half );
+}

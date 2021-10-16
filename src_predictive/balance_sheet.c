@@ -421,7 +421,7 @@ void PDF_output_fund(
 				appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_source_directory(
+		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 

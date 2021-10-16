@@ -551,7 +551,7 @@ void tax_form_report_PDF(
 			appaserver_link_file->extension ) );
 
 	working_directory =
-		appaserver_link_source_directory(
+		appaserver_link_working_directory(
 			document_root_directory,
 			application_name );
 

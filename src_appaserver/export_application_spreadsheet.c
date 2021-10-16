@@ -311,10 +311,8 @@ char *output_zip_file(	LIST *folder_name_list,
 			appaserver_link_file->extension );
 
 	source_directory =
-		appaserver_link_source_directory(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
+		appaserver_link_working_directory(
+			document_root_directory,
 			appaserver_link_file->application_name );
 
 	if ( chdir( source_directory ) != 0 )
