@@ -21,7 +21,7 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "query.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -57,7 +57,7 @@ int main( int argc, char **argv )
 	LIST *folder_name_list;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *folder_name;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	char *output_filename;
 	char *link_prompt;
 	char *date_string;
@@ -83,8 +83,8 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -94,6 +94,8 @@ int main( int argc, char **argv )
 			application_name,
 			0 /* process_id */,
 			date_string /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
 	document = document_new( "", application_name );
@@ -143,20 +145,19 @@ int main( int argc, char **argv )
 		if ( strcmp( folder_name, "appaserver_sessions" ) == 0 )
 			continue;
 
-		appaserver_link_file->filename_stem = folder_name;
+		appaserver_link->filename_stem = folder_name;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		export_output_spreadsheet_folder(
 			output_filename,
@@ -195,15 +196,15 @@ void remove_files(	LIST *folder_name_list,
 			char *date_string,
 			char *application_name )
 {
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	char sys_string[ 1024 ];
 	char *output_filename;
 	char *folder_name;
 
 	if ( !list_rewind( folder_name_list ) ) return;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -213,6 +214,8 @@ void remove_files(	LIST *folder_name_list,
 			application_name,
 			0 /* process_id */,
 			date_string /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
 	do {
@@ -221,29 +224,19 @@ void remove_files(	LIST *folder_name_list,
 		if ( strcmp( folder_name, "appaserver_sessions" ) == 0 )
 			continue;
 
-/*
-		sprintf(output_filename, 
-		 	OUTPUT_FILE_TEMPLATE,
-		 	appaserver_mount_point,
-		 	application_name, 
-		 	folder_name,
-		 	process_id );
-*/
-
-		appaserver_link_file->filename_stem = folder_name;
+		appaserver_link->filename_stem = folder_name;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		sprintf( sys_string, "rm %s", output_filename );
 		if ( system( sys_string ) ){};
@@ -258,7 +251,7 @@ char *output_zip_file(	LIST *folder_name_list,
 			char *date_string,
 			char *application_name )
 {
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	char *source_directory;
 	char *folder_name;
 	char sys_string[ 65536 ];
@@ -266,8 +259,8 @@ char *output_zip_file(	LIST *folder_name_list,
 	char *output_filename;
 	char *link_prompt;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -277,43 +270,40 @@ char *output_zip_file(	LIST *folder_name_list,
 			application_name,
 			0 /* process_id */,
 			date_string /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"zip" );
 
 	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	link_prompt =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	source_directory =
 		appaserver_link_working_directory(
 			document_root_directory,
-			appaserver_link_file->application_name );
+			appaserver_link->application_name );
 
 	if ( chdir( source_directory ) != 0 )
 	{
@@ -332,7 +322,7 @@ char *output_zip_file(	LIST *folder_name_list,
 
 	if ( !list_rewind( folder_name_list ) ) return "";
 
-	appaserver_link_file->extension = "csv";
+	appaserver_link->extension = "csv";
 
 	do {
 		folder_name = list_get( folder_name_list );
@@ -340,16 +330,16 @@ char *output_zip_file(	LIST *folder_name_list,
 		if ( strcmp( folder_name, "appaserver_sessions" ) == 0 )
 			continue;
 
-		appaserver_link_file->filename_stem = folder_name;
+		appaserver_link->filename_stem = folder_name;
 
 		output_filename =
-			appaserver_link_get_abbreviated_output_filename(
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_abbreviated_filename(
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		ptr += sprintf( ptr, " %s", output_filename );
 

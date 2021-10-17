@@ -32,7 +32,7 @@
 #include "hydrology_library.h"
 #include "application_constants.h"
 #include "dictionary_appaserver.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -449,10 +449,10 @@ int main( int argc, char **argv )
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -463,41 +463,12 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				begin_date,
+				end_date,
 				"csv" );
 
-		appaserver_link_file->begin_date_string = begin_date;
-		appaserver_link_file->end_date_string = end_date;
-
-		output_pipename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_pipename = appaserver_link->output->filename;
+		ftp_filename = appaserver_link->prompt->filename;
 
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -590,10 +561,10 @@ int main( int argc, char **argv )
 		pid_t process_id = getpid();
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -604,23 +575,11 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				begin_date,
+				end_date,
 				"txt" );
 
-		appaserver_link_file->begin_date_string = begin_date;
-		appaserver_link_file->end_date_string = end_date;
-
-		output_pipename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_pipename = appaserver_link->output->filename;
 
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
@@ -705,23 +664,7 @@ int main( int argc, char **argv )
 		fflush( stdout );
 		printf( "</h1>\n" );
 
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		ftp_filename = appaserver_link->prompt->filename;
 
 		appaserver_library_output_ftp_prompt(
 				ftp_filename,

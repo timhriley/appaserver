@@ -154,84 +154,32 @@ FRAMESET_FRAME *frameset_frame_new(
 {
 	FRAMESET_FRAME *frameset_frame = frameset_frame_calloc();
 
-	frameset_frame->appaserver_link_file =
-		appaserver_link_file_new(
+	frameset_frame->appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		document_root_directory,
-			(char *)0 /* filename_stem */,
+			frame_name /* filename_stem */,
 			application_name,
 			0 /* process_id */,
 			session_key,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"html" );
 
-	frameset_frame->appaserver_link_file->filename_stem = frame_name;
-
 	frameset_frame->prompt_filename =
-		appaserver_link_prompt_filename(
-			frameset_frame->
-				appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			frameset_frame->
-				appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			frameset_frame->
-				appaserver_link_file->
-				link_prompt->
-				server_address,
-			frameset_frame->
-				appaserver_link_file->
-				application_name,
-			frameset_frame->
-				appaserver_link_file->
-				filename_stem,
-			frameset_frame->
-				appaserver_link_file->
-				begin_date_string,
-			frameset_frame->
-				appaserver_link_file->
-				end_date_string,
-			frameset_frame->
-				appaserver_link_file->
-				process_id,
-			frameset_frame->
-				appaserver_link_file->
-				session,
-			frameset_frame->
-				appaserver_link_file->
-				extension );
+		frameset_frame->
+			appaserver_link->
+			prompt->
+			filename;
 
 	frameset_frame->output_filename =
-		appaserver_link_output_filename(
-			frameset_frame->
-				appaserver_link_file->
-				output_file->
-				document_root_directory,
-			frameset_frame->
-				appaserver_link_file->
-				application_name,
-			frameset_frame->
-				appaserver_link_file->
-				filename_stem,
-			frameset_frame->
-				appaserver_link_file->
-				begin_date_string,
-			frameset_frame->
-				appaserver_link_file->
-				end_date_string,
-			frameset_frame->
-				appaserver_link_file->
-				process_id,
-			frameset_frame->
-				appaserver_link_file->
-				session,
-			frameset_frame->
-				appaserver_link_file->
-				extension );
+		frameset_frame->
+			appaserver_link->
+			output->
+			filename;
 
 	if ( !zap_file( frameset_frame->output_filename ) )
 	{

@@ -28,9 +28,7 @@
 #include "environ.h"
 #include "google_map.h"
 #include "application_constants.h"
-#include "appaserver_link_file.h"
-
-/* appaserver_link_file */
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -74,9 +72,9 @@ int main( int argc, char **argv )
 	char *folder_name;
 	DICTIONARY *dictionary;
 	char *balloon_attribute_name_list_string = {0};
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
@@ -190,8 +188,8 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -202,20 +200,11 @@ int main( int argc, char **argv )
 			application_name,
 			0 /* process_id */,
 			session,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"html" );
 
-	url_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	url_filename = appaserver_link->output->filename;
 
 	if ( group_first_time )
 	{
@@ -314,23 +303,7 @@ int main( int argc, char **argv )
 	{
 		char *prompt_filename;
 
-		prompt_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		prompt_filename = appaserver_link->prompt->filename;
 
 		printf( "<body bgcolor=\"%s\" onload=\"",
 			application_background_color( application_name ) );

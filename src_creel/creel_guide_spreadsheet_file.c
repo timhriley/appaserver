@@ -24,7 +24,7 @@
 #include "environ.h"
 #include "application.h"
 #include "creel_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -199,143 +199,92 @@ void output_spreadsheet(
 	char species_display[ 128 ];
 	char *species_code;
 	int results;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
-		   application_http_prefix(
-				application_name ),
-		   appaserver_library_server_address(),
-		   ( application_prepend_http_protocol_yn(
-			application_name ) == 'y' ),
-		   document_root_directory,
-		   (char *)0 /* filename_stem */,
-		   application_name,
-		   process_id,
-		   (char *)0 /* session */,
-		   "csv" );
+	appaserver_link =
+		appaserver_link_new(
+			application_http_prefix( application_name ),
+			appaserver_library_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			(char *)0 /* filename_stem */,
+			application_name,
+			process_id,
+			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
+			"csv" );
 
 	if ( with_between )
 	{
-		appaserver_link_file->begin_date_string = begin_date_string;
-		appaserver_link_file->end_date_string = end_date_string;
+		appaserver_link->begin_date_string = begin_date_string;
+		appaserver_link->end_date_string = end_date_string;
 	}
 	else
 	{
-		appaserver_link_file->begin_date_string = begin_date_string;
+		appaserver_link->begin_date_string = begin_date_string;
 	}
 
 	/* With codes */
 	/* ========== */
-	appaserver_link_file->filename_stem = FILENAME_STEM_WITH_CODES;
+	appaserver_link->filename_stem = FILENAME_STEM_WITH_CODES;
 
 	output_codes_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	ftp_codes_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	/* Without codes */
 	/* ============= */
-	appaserver_link_file->filename_stem = FILENAME_STEM_NO_CODES;
+	appaserver_link->filename_stem = FILENAME_STEM_NO_CODES;
 
 	output_no_codes_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	ftp_no_codes_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-
-/*
-	if ( with_between )
-	{
-		sprintf(output_codes_filename, 
-		 	OUTPUT_CODES_WITH_BETWEEN,
-		 	appaserver_mount_point,
-		 	application_name, 
-			GUIDE_FISHING_PURPOSE,
-		 	begin_date_string,
-			end_date_string,
-			process_id );
-
-		sprintf(output_no_codes_filename, 
-		 	OUTPUT_NO_CODES_WITH_BETWEEN,
-		 	appaserver_mount_point,
-		 	application_name, 
-			GUIDE_FISHING_PURPOSE,
-		 	begin_date_string,
-			end_date_string,
-			process_id );
-	}
-	else
-	{
-		sprintf(output_codes_filename, 
-		 	OUTPUT_CODES_NO_BETWEEN,
-		 	appaserver_mount_point,
-		 	application_name, 
-			GUIDE_FISHING_PURPOSE,
-		 	begin_date_string,
-			process_id );
-
-		sprintf(output_no_codes_filename, 
-		 	OUTPUT_NO_CODES_NO_BETWEEN,
-		 	appaserver_mount_point,
-		 	application_name, 
-			GUIDE_FISHING_PURPOSE,
-		 	begin_date_string,
-			process_id );
-	}
-*/
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	if ( ! ( output_codes_file = fopen( output_codes_filename, "w" ) ) )
 	{

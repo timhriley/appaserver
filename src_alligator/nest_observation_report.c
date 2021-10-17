@@ -23,7 +23,7 @@
 #include "environ.h"
 #include "application.h"
 #include "date.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 #include "alligator.h"
 
 /* Enumerated Types */
@@ -604,10 +604,10 @@ void output_text_file(	char *application_name,
 	char sub_title[ 512 ];
 	NEST *nest;
 	int results;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -617,38 +617,12 @@ void output_text_file(	char *application_name,
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
-	nest_output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	nest_ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	nest_output_filename = appaserver_link->output->filename;
+	nest_ftp_filename = appaserver_link->prompt->filename;
 
 	get_title_sub_title(
 		title,
@@ -679,51 +653,38 @@ void output_text_file(	char *application_name,
 		fclose( nest_output_file );
 	}
 
-/*
-	sprintf( observation_output_filename, 
-		 OBSERVATION_OUTPUT_TEMPLATE,
-		 appaserver_mount_point,
-		 application_name, 
-		 process_id );
-*/
-
-	appaserver_link_file->filename_stem = OBSERVATION_FILENAME_STEM;
+	appaserver_link->filename_stem = OBSERVATION_FILENAME_STEM;
 
 	observation_output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	observation_ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	/* Test the observation output file */
 	/* -------------------------------- */
 	if ( !( observation_output_file =
-				fopen( observation_output_filename, "w" ) ) )
+			fopen( observation_output_filename, "w" ) ) )
 	{
 		printf( "<H2>ERROR: Cannot open output file %s\n",
 			observation_output_filename );

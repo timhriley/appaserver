@@ -29,7 +29,7 @@
 #include "google_earth_station.h"
 #include "application_constants.h"
 #include "operation.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -431,10 +431,10 @@ char *get_spool_filename(
 			char *parent_process_id_string )
 {
 	char *spool_filename;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -444,31 +444,13 @@ char *get_spool_filename(
 			application_name,
 			0 /* process_id */,
 			parent_process_id_string /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"dat" );
 
-	spool_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-/*
-	sprintf(spool_filename,
-		SPOOL_TEMPLATE,
-		appaserver_mount_point,
-		application_name,
-		parent_process_id_string );
-*/
+	spool_filename = appaserver_link->output->filename;
 
 	return spool_filename;
-
 }
 
 LIST *get_spool_station_name_list(

@@ -7,8 +7,6 @@
 #include "fifo.h"
 #include "timlib.h"
 
-/* appaserver_link_file */
-
 FIFO *fifo_new(	char *process,
 		pid_t pid )
 {

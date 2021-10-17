@@ -6,7 +6,7 @@
 #include "google_earth.h"
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 GOOGLE_EARTH *google_earth_new(		char *document_name,
 					char *folder_name,
@@ -238,12 +238,12 @@ void google_earth_filenames(
 			char **prompt_kmz_filename,
 			char *application_name,
 			char *document_root_directory,
-			char *session )
+			char *session_key )
 {
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -252,7 +252,9 @@ void google_earth_filenames(
 			(char *)0 /* filename_stem */,
 			application_name,
 			0 /* process_id */,
-			session,
+			session_key,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			(char *)0 /* extension */ );
 
 /*
@@ -266,102 +268,84 @@ void google_earth_filenames(
 #define GOOGLE_EARTH_HTTP_PROMPT_KML_TEMPLATE	"%s://%s/%s/google_earth_kml_%s.kml"
 #define GOOGLE_EARTH_HTTP_PROMPT_KMZ_TEMPLATE	"%s://%s/%s/google_earth_kmz_%s.kmz"
 */
-/*
-	sprintf(	local_output_uncompressed_kml_filename,
-			GOOGLE_EARTH_OUTPUT_UNCOMPRESSED_KML_TEMPLATE,
-			appaserver_mount_point,
-			application_name,
-			session );
-*/
 
-	appaserver_link_file->filename_stem = FILENAME_STEM_KML;
-	appaserver_link_file->extension = "kml";
+	appaserver_link->filename_stem = FILENAME_STEM_KML;
+	appaserver_link->extension = "kml";
 
 	*output_uncompressed_kml_filename =
 		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
-	appaserver_link_file->filename_stem = FILENAME_STEM_KMZ;
-	appaserver_link_file->extension = "kml";
+	appaserver_link->filename_stem = FILENAME_STEM_KMZ;
+	appaserver_link->extension = "kml";
 
 	*output_uncompressed_kmz_filename =
 		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
-	appaserver_link_file->filename_stem = FILENAME_STEM_KMZ;
-	appaserver_link_file->extension = "kmz";
+	appaserver_link->filename_stem = FILENAME_STEM_KMZ;
+	appaserver_link->extension = "kmz";
 
 	*output_kmz_filename =
 		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
-	appaserver_link_file->filename_stem = FILENAME_STEM_KML;
-	appaserver_link_file->extension = "kml";
+	appaserver_link->filename_stem = FILENAME_STEM_KML;
+	appaserver_link->extension = "kml";
 
 	*prompt_kml_filename =
 		appaserver_link_prompt_filename(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link_prompt_link_half(
+				appaserverr_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
-	appaserver_link_file->filename_stem = FILENAME_STEM_KMZ;
-	appaserver_link_file->extension = "kmz";
+	appaserver_link->filename_stem = FILENAME_STEM_KMZ;
+	appaserver_link->extension = "kmz";
 
 	*prompt_kmz_filename =
 		appaserver_link_prompt_filename(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 }
 

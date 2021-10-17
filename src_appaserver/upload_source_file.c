@@ -20,8 +20,6 @@
 #include "environ.h"
 #include "application.h"
 
-/* appaserver_link_file */
-
 /* Enumerated Types */
 /* ---------------- */
 

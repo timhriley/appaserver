@@ -25,7 +25,7 @@
 #include "aggregate_level.h"
 #include "aggregate_statistic.h"
 #include "hydrology_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 #include "process.h"
 
 /* Constants */
@@ -1248,14 +1248,14 @@ boolean exceedance_curve_spreadsheet_output(
 	char sub_title[ 1024 ];
 	char value_label[ 128 ];
 	DOCUMENT *document;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	pid_t process_id = getpid();
 	char *ftp_filename;
 	FILE *output_pipe;
 	char output_sys_string[ 128 ];
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1265,47 +1265,12 @@ boolean exceedance_curve_spreadsheet_output(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date,
+			end_date,
 			"csv" );
 
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date;
-
-	*output_filename =
-		/* ---------------- */
-		/* Returns strdup() */
-		/* ---------------- */
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		/* ---------------- */
-		/* Returns strdup() */
-		/* ---------------- */
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	*output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	if ( ! ( output_pipe = fopen( *output_filename, "w" ) ) )
 		return 0;
@@ -1477,14 +1442,14 @@ boolean exceedance_curve_text_file_output(
 	char sub_title[ 1024 ];
 	char value_label[ 128 ];
 	DOCUMENT *document;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	pid_t process_id = getpid();
 	char *ftp_filename;
 	FILE *output_pipe;
 	char output_sys_string[ 128 ];
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1494,47 +1459,12 @@ boolean exceedance_curve_text_file_output(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date,
+			end_date,
 			"txt" );
 
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date;
-
-	*output_filename =
-		/* ---------------- */
-		/* Returns strdup() */
-		/* ---------------- */
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		/* ---------------- */
-		/* Returns strdup() */
-		/* ---------------- */
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	*output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	if ( ! ( output_pipe = fopen( *output_filename, "w" ) ) )
 		return 0;
@@ -1705,7 +1635,7 @@ void exceedance_curve_stdout_output(
 	char title[ 256 ];
 	char sub_title[ 1024 ];
 	char value_label[ 128 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	pid_t process_id = getpid();
 	char *output_filename;
 	FILE *output_pipe;
@@ -1753,8 +1683,8 @@ void exceedance_curve_stdout_output(
 		units,
 		units_converted );
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1764,26 +1694,11 @@ void exceedance_curve_stdout_output(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date,
+			end_date,
 			"txt" );
 
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date;
-
-	output_filename =
-		/* ---------------- */
-		/* Returns strdup() */
-		/* ---------------- */
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
 
 	hydrology_library_output_station_text_filename(
 			output_filename,

@@ -24,7 +24,7 @@
 #include "application.h"
 #include "easycharts.h"
 #include "creel_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -642,7 +642,7 @@ void sport_measurement_report_output_text_file(
 	FILE *input_file;
 	char title[ 512 ];
 	char sub_title[ 512 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	get_title_and_sub_title(
 			title,
@@ -671,41 +671,24 @@ void sport_measurement_report_output_text_file(
 		{
 			FILE *output_file;
 
-			appaserver_link_file =
-				appaserver_link_file_new(
-				   application_http_prefix(
+			appaserver_link =
+				appaserver_link_new(
+					application_http_prefix(
 						application_name ),
-				   appaserver_library_server_address(),
-				   ( application_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-				   document_root_directory,
-				   FILENAME_STEM_DETAIL,
-				   application_name,
-				   process_id,
-				   (char *)0 /* session */,
-				   "csv" );
+					appaserver_library_server_address(),
+					( application_prepend_http_protocol_yn(
+						application_name ) == 'y' ),
+					document_root_directory,
+					FILENAME_STEM_DETAIL,
+					application_name,
+					process_id,
+					(char *)0 /* session */,
+					(char *)0 /* begin_date_string */,
+					(char *)0 /* end_date_string */,
+					"csv" );
 
-			output_filename =
-				appaserver_link_get_output_filename(
-					appaserver_link_file->
-						output_file->
-						document_root_directory,
-					appaserver_link_file->application_name,
-					appaserver_link_file->filename_stem,
-					appaserver_link_file->begin_date_string,
-					appaserver_link_file->end_date_string,
-					appaserver_link_file->process_id,
-					appaserver_link_file->session,
-					appaserver_link_file->extension );
+			output_filename = appaserver_link->output->filename;
 
-/*
-			sprintf( output_filename, 
-				 OUTPUT_DETAIL_TEMPLATE,
-				 appaserver_mount_point,
-				 application_name, 
-				 process_id );
-*/
-	
 			if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 			{
 				printf(
@@ -723,23 +706,7 @@ void sport_measurement_report_output_text_file(
 			 	 "sed 's/|/,/g' > %s",
 			 	 output_filename );
 
-			ftp_detail_filename =
-				appaserver_link_get_link_prompt(
-					appaserver_link_file->
-						link_prompt->
-						prepend_http_boolean,
-					appaserver_link_file->
-						link_prompt->
-						http_prefix,
-					appaserver_link_file->
-						link_prompt->server_address,
-					appaserver_link_file->application_name,
-					appaserver_link_file->filename_stem,
-					appaserver_link_file->begin_date_string,
-					appaserver_link_file->end_date_string,
-					appaserver_link_file->process_id,
-					appaserver_link_file->session,
-					appaserver_link_file->extension );
+			ftp_detail_filename = appaserver_link->prompt->filename;
 		}
 		else
 		{
@@ -782,41 +749,22 @@ void sport_measurement_report_output_text_file(
 	{
 		FILE *output_file;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
-			   application_http_prefix(
-					application_name ),
-			   appaserver_library_server_address(),
-			   ( application_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-			   document_root_directory,
-			   FILENAME_STEM_SUMMARY,
-			   application_name,
-			   process_id,
-			   (char *)0 /* session */,
-			   "csv" );
+		appaserver_link =
+			appaserver_link_new(
+				application_http_prefix( application_name ),
+				appaserver_library_server_address(),
+				( application_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				document_root_directory,
+				FILENAME_STEM_SUMMARY,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				(char *)0 /* begin_date_string */,
+				(char *)0 /* end_date_string */,
+				"csv" );
 
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_SUMMARY_TEMPLATE,
-			 appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
+		output_filename = appaserver_link->output->filename;
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -834,23 +782,7 @@ void sport_measurement_report_output_text_file(
 		 	 "sed 's/|/,/g' > %s",
 		 	 output_filename );
 
-		ftp_summary_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		ftp_summary_filename = appaserver_link->prompt->filename;
 	}
 	else
 	{

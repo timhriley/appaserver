@@ -25,7 +25,7 @@
 #include "environ.h"
 #include "process.h"
 #include "application.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -552,7 +552,7 @@ void extract_measurements(	char *application_name,
 	char date_where_clause[ 128 ];
 	char *sys_string;
 	char *table_name;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	char filename_stem[ 128 ];
 
 	if ( !list_length( station_list )
@@ -561,8 +561,8 @@ void extract_measurements(	char *application_name,
 		return;
 	}
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -573,6 +573,8 @@ void extract_measurements(	char *application_name,
 			application_name,
 			0 /* process_id */,
 			session,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
 	list_rewind( station_list );
@@ -609,8 +611,8 @@ void extract_measurements(	char *application_name,
 		else
 			*end_date_suffix = '\0';
 
-		appaserver_link_file->begin_date_string = begin_date;
-		appaserver_link_file->end_date_string = end_date;
+		appaserver_link->begin_date_string = begin_date;
+		appaserver_link->end_date_string = end_date;
 
 		sprintf( filename_stem,
 			 "%s_%s_%s",
@@ -619,35 +621,30 @@ void extract_measurements(	char *application_name,
 			 datatype );
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
 				filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		if ( strcmp( end_date, "end_date" ) != 0 )
 		{
@@ -743,7 +740,7 @@ void extract_measurements_combined(
 	char date_where_clause[ 128 ];
 	char *sys_string;
 	char *table_name;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	if ( !list_length( station_list )
 	||   list_length( station_list ) != list_length( datatype_list ) )
@@ -775,8 +772,8 @@ void extract_measurements_combined(
 	else
 		*end_date_suffix = '\0';
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -787,41 +784,12 @@ void extract_measurements_combined(
 			application_name,
 			0 /* process_id */,
 			session,
+			begin_date,
+			end_date,
 			"csv" );
 
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	if ( strcmp( end_date, "end_date" ) != 0 )
 	{

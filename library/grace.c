@@ -18,6 +18,7 @@
 #include "document.h"
 #include "application.h"
 #include "role.h"
+#include "appaserver_link.h"
 #include "grace.h"
 
 void grace_output_optional_label_list(
@@ -1641,22 +1642,23 @@ void grace_get_filenames(		char **agr_filename,
 					char *grace_output )
 {
 	char extension[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	if ( !grace_output || !*grace_output )
 	{
 		char msg[ 1024 ];
-		sprintf(	msg,
-				"ERROR in %s/%s(): empty grace_output",
-				__FILE__,
-				__FUNCTION__ );
+
+		sprintf(msg,
+			"ERROR in %s/%s(): empty grace_output",
+			__FILE__,
+			__FUNCTION__ );
 		appaserver_output_error_message(
 			application_name, msg, (char *)0 );
 		exit( 1 );
 	}
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1666,49 +1668,37 @@ void grace_get_filenames(		char **agr_filename,
 			application_name,
 			0 /* process_id */,
 			graph_identifier /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			(char *)0 /* extension */ );
 
-	appaserver_link_file->extension = "agr";
+	appaserver_link->extension = "agr";
 
 	*agr_filename =
 		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	*ftp_agr_filename =
 		appaserver_link_prompt_filename(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-/*
-	sprintf(	buffer,
-			GRACE_OUTPUT_FILE_TEMPLATE, 
-			appaserver_mount_point,
-			application_name,
-			graph_identifier,
-			extension );
-*/
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	if ( strcmp( grace_output, "postscript_pdf" ) == 0
 	||   strcmp( grace_output, "direct_pdf" ) == 0 )
@@ -1734,53 +1724,47 @@ void grace_get_filenames(		char **agr_filename,
 		exit( 1 );
 	}
 
-	appaserver_link_file->extension = extension;
+	appaserver_link->extension = extension;
 
 	*output_filename =
 		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	*pdf_output_filename =
 		appaserver_link_prompt_filename(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
-	appaserver_link_file->extension = "ps";
+	appaserver_link->extension = "ps";
 
 	*postscript_filename =
 		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 }
 
 int grace_set_structures(	int *page_width_pixels,

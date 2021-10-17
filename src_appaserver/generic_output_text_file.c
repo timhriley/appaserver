@@ -24,7 +24,7 @@
 #include "appaserver_parameter_file.h"
 #include "process_generic.h"
 #include "appaserver.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -335,13 +335,13 @@ void generic_output_spreadsheet(
 			pid_t process_id,
 			char *email_address )
 {
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	char *output_filename;
 	char *link_prompt;
 	char output_system_string[ 1024 ];
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -351,44 +351,12 @@ void generic_output_spreadsheet(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
-			(char *)0 /* extension */ );
+			begin_date,
+			end_date,
+			"csv" /* extension */ );
 
-	appaserver_link_file->application_name = application_name;
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date;
-
-	appaserver_link_file->extension = "csv";
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	link_prompt =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	link_prompt = appaserver_link->prompt->filename;
 
 	generic_output_spreadsheet_create(
 		output_filename,

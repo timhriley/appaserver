@@ -21,7 +21,7 @@
 #include "environ.h"
 #include "process.h"
 #include "application.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -373,27 +373,15 @@ void output_spreadsheet(
 	int record_count;
 	char sys_string[ 1024 ];
 	FILE *output_file;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	if ( strcmp( end_date, "end_date" ) != 0 )
 		sprintf( end_date_suffix, "%s_", end_date );
 	else
 		*end_date_suffix = '\0';
 
-/*
-	sprintf(output_filename,
-		OUTPUT_FILE_SPREADSHEET,
-	 	appaserver_mount_point,
-	 	application_name, 
-		station,
-		datatype,
-	 	begin_date,
-	 	end_date_suffix,
-	 	session );
-*/
-
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -403,41 +391,12 @@ void output_spreadsheet(
 			application_name,
 			0 /* process_id */,
 			session,
+			begin_date,
+			end_date,
 			"csv" );
 
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date_suffix;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
@@ -520,27 +479,15 @@ void output_text_file(
 	FILE *input_pipe;
 	FILE *output_pipe;
 	char *heading;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	if ( strcmp( end_date, "end_date" ) != 0 )
 		sprintf( end_date_suffix, "%s_", end_date );
 	else
 		*end_date_suffix = '\0';
 
-/*
-	sprintf(output_filename,
-		OUTPUT_FILE_TEXT_FILE,
-	 	appaserver_mount_point,
-	 	application_name, 
-		station,
-		datatype,
-	 	begin_date,
-	 	end_date_suffix,
-	 	session );
-*/
-
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -550,41 +497,12 @@ void output_text_file(
 			application_name,
 			0 /* process_id */,
 			session,
+			begin_date,
+			end_date_suffix,
 			"txt" );
 
-	appaserver_link_file->begin_date_string = begin_date;
-	appaserver_link_file->end_date_string = end_date_suffix;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	if ( ! ( output_pipe = fopen( output_filename, "w" ) ) )
 	{

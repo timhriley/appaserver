@@ -22,7 +22,7 @@ FRAMESET_LINK_FILE *frameset_link_file_new(
 			char *document_root_directory )
 {
 	FRAMESET_LINK_FILE *frameset_link_file;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
 	if ( ! ( frameset_link_file =
 			calloc( 1, sizeof( FRAMESET_LINK_FILE ) ) ) )

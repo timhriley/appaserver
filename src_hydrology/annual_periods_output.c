@@ -32,7 +32,7 @@
 #include "query.h"
 #include "boolean.h"
 #include "period_wo_date.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -833,10 +833,10 @@ sys_string );
 		FILE *output_pipe;
 		FILE *output_file;
 		char output_sys_string[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -847,38 +847,12 @@ sys_string );
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				(char *)0 /* begin_date_string */,
+				(char *)0 /* end_date_string */,
 				"csv" );
 
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_filename = appaserver_link->output->filename;
+		ftp_filename = appaserver_link->prompt->filename;
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -976,10 +950,10 @@ sys_string );
 		FILE *output_pipe;
 		FILE *output_file;
 		char output_sys_string[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -990,21 +964,11 @@ sys_string );
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				(char *)0 /* begin_date_string */,
+				(char *)0 /* end_date_string */,
 				"txt" );
 
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
+		output_filename = appaserver_link->output->filename;
 	
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -1045,24 +1009,7 @@ sys_string );
 
 		output_pipe = popen( output_sys_string, "w" );
 
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
+		ftp_filename = appaserver_link->prompt->filename;
 
 		if ( *exceedance_format_yn == 'y' )
 		{
@@ -3243,10 +3190,10 @@ void period_wo_date_output_transmit(
 
 	if ( !output_medium || strcmp( output_medium, "stdout" ) != 0 )
 	{
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -3256,29 +3203,12 @@ void period_wo_date_output_transmit(
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				(char *)0 /* begin_date_string */,
+				(char *)0 /* end_date_string */,
 				"csv" );
 
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_filename = appaserver_link->output->filename;
 
-/*
-		sprintf( output_filename,
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-		
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -3295,24 +3225,7 @@ void period_wo_date_output_transmit(
 		 	"tr '|' ',' > %s",
 		 	output_filename );
 
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
+		ftp_filename = appaserver_link->prompt->filename;
 	}
 	else
 	{

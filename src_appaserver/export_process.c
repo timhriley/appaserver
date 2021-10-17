@@ -25,8 +25,6 @@
 #include "dictionary2file.h"
 #include "dictionary_appaserver.h"
 
-/* appaserver_link_file */
-
 /* Constants */
 /* --------- */
 #define SHELL_HERE_LABEL	"all_done"

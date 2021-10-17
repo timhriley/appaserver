@@ -26,7 +26,7 @@
 #include "aggregate_statistic.h"
 #include "julian.h"
 #include "hydrology_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -411,10 +411,10 @@ void output_measurement_data_sets_transmit(
 	char *ftp_filename;
 	char end_date_string[ 16 ];
 	char prompt_string[ 128 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -424,9 +424,9 @@ void output_measurement_data_sets_transmit(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date,
+			(char *)0 /* end_date_string */,
 			"csv" );
-
-	appaserver_link_file->begin_date_string = begin_date;
 
 	printf( "<h1>Transmit Measurement Data Sets " );
 
@@ -459,39 +459,34 @@ void output_measurement_data_sets_transmit(
 			 "%d",
 			 expected_count->expected_count );
 
-		appaserver_link_file->end_date_string =
+		appaserver_link->end_date_string =
 			end_date_string;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		if ( aggregate_level == real_time )
 		{
@@ -548,10 +543,10 @@ void output_measurement_data_sets_table(
 	char input_buffer[ 1024 ];
 	char heading_string[ 1024 ];
 	char end_date_string[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -561,9 +556,9 @@ void output_measurement_data_sets_table(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date,
+			(char *)0 /* end_date_string */,
 			"csv" );
-
-	appaserver_link_file->begin_date_string = begin_date;
 
 	list_rewind( expected_count_list );
 	do {
@@ -571,36 +566,24 @@ void output_measurement_data_sets_table(
 			list_get_pointer(
 				expected_count_list );
 
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEMPLATE,
-			 appaserver_mount_point,
-			 application_name, 
-			 station,
-			 expected_count->expected_count,
-			 begin_date,
-			 process_id );
-*/
-
 		sprintf( end_date_string,
 			 "%d",
 			 expected_count->expected_count );
 
-		appaserver_link_file->end_date_string =
+		appaserver_link->end_date_string =
 			end_date_string;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		if ( aggregate_level == real_time )
 		{
@@ -645,6 +628,7 @@ void output_measurement_data_sets_table(
 				aggregate_level );
 
 		input_file = fopen( output_filename, "r" );
+
 		if ( !input_file )
 		{
 			fprintf(stderr,
@@ -790,7 +774,7 @@ char *get_measurement_record_list_sys_string(
 
 	return strdup( sys_string );
 
-} /* get_measurement_record_list_sys_string() */
+}
 
 EXPECTED_COUNT *expected_count_new(	int expected_count,
 					char *begin_date,
@@ -809,7 +793,7 @@ EXPECTED_COUNT *expected_count_new(	int expected_count,
 						aggregate_level );
 
 	return a;
-} /* expected_count_new() */
+}
 
 void expected_count_append_datatype(	LIST *datatype_list,
 					char *datatype_string,
@@ -842,7 +826,7 @@ void expected_count_append_datatype(	LIST *datatype_list,
 
 	datatype.measurement_hash_table = hash_table_new( hash_table_small );
 	list_append( datatype_list, &datatype, sizeof( DATATYPE ) );
-} /* expected_count_append_datatype() */
+}
 
 void datatype_set_measurement_record(
 				LIST *expected_count_list,
@@ -919,7 +903,7 @@ void datatype_set_measurement_record(
 			measurement->date_colon_time,
 			measurement );
 
-} /* datatype_set_measurement_record() */
+}
 
 
 void output_measurement_data_sets_to_file(
@@ -1054,7 +1038,7 @@ void output_measurement_data_sets_to_file(
 
 	fclose( f );
 
-} /* output_measurement_data_sets_to_file() */
+}
 
 LIST *get_date_colon_time_slot_list(
 				int measurements_per_day,
@@ -1074,7 +1058,7 @@ LIST *get_date_colon_time_slot_list(
 
 	return pipe2list( sys_string );
 
-} /* get_date_colon_time_slot_list() */
+}
 
 TRANSMIT_MEASUREMENT_SETS *transmit_measurement_sets_new( void )
 {
@@ -1197,7 +1181,7 @@ void transmit_measurement_sets_populate_expected_count_list_datatype(
 
 	} while( list_next( temp_list ) );
 	list_free_string_list( temp_list );
-} /* transmit_measurement_sets_populate_expected_count_list_datatype() */
+}
 
 EXPECTED_COUNT *get_or_set_expected_count(
 					LIST *expected_count_list,
@@ -1237,7 +1221,7 @@ EXPECTED_COUNT *get_or_set_expected_count(
 	list_append_pointer( expected_count_list, expected_count );
 	return expected_count;
 
-} /* get_or_set_expected_count() */
+}
 
 void transmit_measurement_sets_populate_measurement_hash_table(
 				LIST *expected_count_list,
@@ -1312,7 +1296,7 @@ sys_string );
 
 	} while( list_next( datatype_name_list ) );
 
-} /* transmit_measurement_sets_populate_measurement_hash_table() */
+}
 
 LIST *get_datatype_name_list( LIST *expected_count_list )
 {
@@ -1339,7 +1323,7 @@ LIST *get_datatype_name_list( LIST *expected_count_list )
 		} while( list_next( expected_count->datatype_list ) );
 	} while( list_next( expected_count_list ) );
 	return datatype_name_list;
-} /* get_datatype_name_list() */
+}
 
 HASH_TABLE *get_measurement_hash_table(
 				LIST *expected_count_list,
@@ -1391,7 +1375,7 @@ HASH_TABLE *get_measurement_hash_table(
 	list_free_container( datatype_expected_count_list );
 	return (HASH_TABLE *)0;
 
-} /* get_measurement_hash_table() */
+}
 
 LIST *get_datatype_expected_count_list(
 			LIST *expected_count_list,
@@ -1425,7 +1409,7 @@ LIST *get_datatype_expected_count_list(
 	} while( list_next( expected_count_list ) ) ;
 
 	return datatype_expected_count_list;
-} /* get_datatype_expected_count_list() */
+}
 
 char *get_justify_column_list_string(	char *heading_string,
 					enum aggregate_level aggregate_level )
@@ -1458,7 +1442,7 @@ char *get_justify_column_list_string(	char *heading_string,
 		}
 	}
 	return string;
-} /* get_justify_column_list_string() */
+}
 
 char *expected_count_list_get_display( LIST *expected_count_list )
 {
@@ -1486,7 +1470,7 @@ char *expected_count_list_get_display( LIST *expected_count_list )
 
 	return strdup( return_string );
 
-} /* expected_count_list_get_display() */
+}
 
 char *local_datatype_list_display( LIST *datatype_list )
 {
@@ -1518,14 +1502,14 @@ char *local_datatype_list_display( LIST *datatype_list )
 
 	return return_string;
 
-} /* local_datatype_list_display() */
+}
 
 char *date_colon_time_slot_list_display(
 				LIST *date_colon_time_slot_list )
 {
 date_colon_time_slot_list = (LIST *)0;
 	return "";
-} /* date_colon_time_slot_list_display() */
+}
 
 MEASUREMENT_OUTPUT *measurement_output_new(
 				char *date_colon_time,
@@ -1550,5 +1534,5 @@ MEASUREMENT_OUTPUT *measurement_output_new(
 
 	return m;
 
-} /* measurement_output_new() */
+}
 

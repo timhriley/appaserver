@@ -23,7 +23,7 @@
 #include "environ.h"
 #include "application.h"
 #include "creel_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -349,10 +349,10 @@ void guide_compliance_mail_merge_output_text_file(
 	char title[ 512 ];
 	char sub_title[ 512 ];
 	GUIDE_ANGLER guide_angler;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -362,39 +362,13 @@ void guide_compliance_mail_merge_output_text_file(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"txt" );
 
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
 
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
+	ftp_filename = appaserver_link->prompt->filename;
 
 	get_title_and_sub_title(
 			title,
@@ -479,10 +453,10 @@ void guide_compliance_mail_merge_output_labels(
 	char title[ 512 ];
 	char sub_title[ 512 ];
 	GUIDE_ANGLER guide_angler;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -492,39 +466,13 @@ void guide_compliance_mail_merge_output_labels(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"txt" );
 
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
 
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
+	ftp_filename = appaserver_link->prompt->filename;
 
 	get_title_and_sub_title(
 			title,

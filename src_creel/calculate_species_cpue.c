@@ -24,7 +24,7 @@
 #include "environ.h"
 #include "application.h"
 #include "creel_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -348,7 +348,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 void calculate_species_cpue_group_annually(
 				char *application_name,
@@ -377,10 +377,10 @@ void calculate_species_cpue_group_annually(
 	char *ftp_summary_filename;
 	FILE *output_file;
 	char column_a_datum[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -390,6 +390,8 @@ void calculate_species_cpue_group_annually(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
 	sprintf( begin_date_string,
@@ -450,26 +452,22 @@ void calculate_species_cpue_group_annually(
 		fclose( output_file );
 	}
 
-	appaserver_link_file->begin_date_string = begin_date_string;
-	appaserver_link_file->end_date_string = end_date_string;
+	appaserver_link->begin_date_string = begin_date_string;
+	appaserver_link->end_date_string = end_date_string;
 
 	ftp_summary_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
 			FILENAME_STEM_DESTINATION,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	for (	year = begin_year;
 		year <= end_year;
@@ -539,7 +537,7 @@ void calculate_species_cpue_group_annually(
 			(char *)0 /* application_type */ );
 	}
 
-} /* calculate_species_cpue_group_annually() */
+}
 
 void calculate_species_cpue_group_monthly(
 				char *application_name,
@@ -569,10 +567,10 @@ void calculate_species_cpue_group_monthly(
 	char *ftp_summary_filename;
 	FILE *output_file;
 	char column_a_datum[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -582,6 +580,8 @@ void calculate_species_cpue_group_monthly(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
 	sprintf( begin_date_string,
@@ -642,26 +642,22 @@ void calculate_species_cpue_group_monthly(
 		fclose( output_file );
 	}
 
-	appaserver_link_file->begin_date_string = begin_date_string;
-	appaserver_link_file->end_date_string = end_date_string;
+	appaserver_link->begin_date_string = begin_date_string;
+	appaserver_link->end_date_string = end_date_string;
 
 	ftp_summary_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	for (	year = begin_year;
 		year <= end_year;
@@ -744,7 +740,7 @@ void calculate_species_cpue_group_monthly(
 			(char *)0 /* application_type */ );
 	}
 
-} /* calculate_species_cpue_group_monthly() */
+}
 
 void calculate_species_cpue(	char *application_name,
 				char *begin_date_string,
@@ -821,7 +817,7 @@ void calculate_species_cpue(	char *application_name,
 			appaserver_data_directory );
 	}
 
-} /* calculate_species_cpue() */
+}
 
 enum output_medium get_output_medium( char *output_medium_string )
 {
@@ -851,7 +847,7 @@ enum output_medium get_output_medium( char *output_medium_string )
 	{
 		return DEFAULT_OUTPUT_MEDIUM;
 	}
-} /* get_output_medium_string() */
+}
 
 CATCH_PER_UNIT_EFFORT *get_catch_per_unit_effort(
 					char *application_name,
@@ -906,7 +902,7 @@ CATCH_PER_UNIT_EFFORT *get_catch_per_unit_effort(
 
 	return catch_per_unit_effort;
 
-} /* get_catch_per_unit_effort() */
+}
 
 void creel_catches_report_catch_per_unit_effort_output_table(
 					char *application_name,
@@ -1387,7 +1383,7 @@ void creel_catches_report_catch_per_unit_effort_output_table(
 				catch_per_unit_effort->
 					results_per_species_list );
 
-} /* creel_catches_report_catch_per_unit_effort_output_table() */
+}
 
 void creel_catches_report_catch_per_unit_effort_spreadsheet(
 					char *application_name,
@@ -1421,10 +1417,10 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 	double cpue_standard_deviation = 0.0;
 	double cpue_standard_error_of_mean = 0.0;
 	int cpue_sample_size = 0;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1434,10 +1430,12 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
-	appaserver_link_file->begin_date_string = begin_date_string;
-	appaserver_link_file->end_date_string = end_date_string;
+	appaserver_link->begin_date_string = begin_date_string;
+	appaserver_link->end_date_string = end_date_string;
 
 	catch_per_unit_effort =
 		get_catch_per_unit_effort(
@@ -1456,21 +1454,19 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 
 	if ( !summary_only )
 	{
-		appaserver_link_file->filename_stem =
-			FILENAME_STEM_SPECIES_DETAIL;
+		appaserver_link->filename_stem = FILENAME_STEM_SPECIES_DETAIL;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -1485,22 +1481,18 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		}
 
 		ftp_detail_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		sprintf(output_sys_string,
 		 	"tr '|' ',' > %s",
@@ -1599,21 +1591,19 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 
 	/* Output CPUE Per Species Per Area */
 	/* -------------------------------- */
-	appaserver_link_file->filename_stem =
-		FILENAME_STEM_SPECIES_PER_AREA;
+	appaserver_link->filename_stem = FILENAME_STEM_SPECIES_PER_AREA;
 
 	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_utput_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
@@ -1632,22 +1622,18 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		 output_filename );
 
 	ftp_per_species_per_area_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	output_pipe = popen( output_sys_string, "w" );
 
@@ -1756,8 +1742,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 
 	/* Output CPUE Per Species */
 	/* ----------------------- */
-	appaserver_link_file->filename_stem =
-		FILENAME_STEM_PER_SPECIES;
+	appaserver_link->filename_stem = FILENAME_STEM_PER_SPECIES;
 
 	output_filename =
 		get_per_species_output_filename(
@@ -1766,7 +1751,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 			begin_date_string,
 			end_date_string,
 			process_id,
-			appaserver_link_file->filename_stem );
+			appaserver_link->filename_stem );
 
 	if ( ! ( output_file =
 			fopen(	output_filename,
@@ -1783,22 +1768,18 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 	}
 
 	ftp_per_species_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_prompt_filename(
+			appaserver_link_prompt_link_half(
+				appaserver_link->prepend_http,
+				appaserver_link->http_prefix,
+				appaserver_link->server_address ),
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension );
 
 	sprintf( output_sys_string,
 		 "tr '|' ',' > %s",
@@ -1908,7 +1889,7 @@ void creel_catches_report_catch_per_unit_effort_spreadsheet(
 		catch_per_unit_effort->
 			results_per_species_list );
 
-} /* creel_catches_report_catch_per_unit_effort_spreadsheet() */
+}
 
 void get_title_and_sub_title(
 			char *title,
@@ -1938,7 +1919,7 @@ void get_title_and_sub_title(
 				end_date_string );
 	}
 	format_initial_capital( sub_title, sub_title );
-} /* get_title_and_sub_title() */
+}
 
 char *get_per_species_output_filename(
 			char *document_root_directory,
@@ -1949,10 +1930,10 @@ char *get_per_species_output_filename(
 			char *filename_stem )
 {
 	char *output_filename;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1962,27 +1943,15 @@ char *get_per_species_output_filename(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date_string,
+			end_date_string,
 			"csv" );
 
-	appaserver_link_file->begin_date_string = begin_date_string;
-	appaserver_link_file->end_date_string = end_date_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
 
 	return output_filename;
 
-} /* get_per_species_output_filename() */
+}
 
 char *get_summary_heading(
 			char *catch_harvest,
@@ -2007,7 +1976,7 @@ char *get_summary_heading(
 
 	return summary_heading;
 
-} /* get_summary_heading() */
+}
 
 void append_spreadsheet(	char *destination_filename,
 				char *source_filename,
@@ -2056,5 +2025,5 @@ void append_spreadsheet(	char *destination_filename,
 	fclose( input_file );
 	fclose( output_file );
 
-} /* append_spreadsheet() */
+}
 

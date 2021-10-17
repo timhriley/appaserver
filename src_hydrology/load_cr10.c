@@ -23,7 +23,7 @@
 #include "application.h"
 #include "appaserver_parameter_file.h"
 #include "process.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 	char execution_directory[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *database_string = {0};
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	boolean with_shift_left = 0;
 
 	if ( argc < 9 )
@@ -160,79 +160,65 @@ int main( int argc, char **argv )
 		source_directory = DEFAULT_SOURCE_DIRECTORY;
 	}
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
 	 		appaserver_parameter_file->
 				document_root,
-			(char *)0 /* filename_stem */,
+			TDP_FILENAME_STEM,
 			application_name,
 			getpid(),
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"dat" );
 
-	appaserver_link_file->filename_stem = TDP_FILENAME_STEM;
+	tdp_bad_file = appaserver_link->output->filename;
 
-	tdp_bad_file =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	appaserver_link_file->filename_stem = GREP_FILENAME_STEM;
+	appaserver_link->filename_stem = GREP_FILENAME_STEM;
 
 	grep_ignore_file =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
-	appaserver_link_file->filename_stem = DATE_FILENAME_STEM;
+	appaserver_link->filename_stem = DATE_FILENAME_STEM;
 
 	date_ignore_file =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension ) );
 
-	appaserver_link_file->filename_stem = MEASUREMENT_ERROR_STEM;
+	appaserver_link->filename_stem = MEASUREMENT_ERROR_STEM;
 
 	measurement_error_file =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+		appaserver_link_output_filename(
+			appaserver_link->document_root_directory,
+			appaserver_link_output_tail_half(
+			appaserver_link->application_name,
+			appaserver_link->filename_stem,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
+			appaserver_link->process_id,
+			appaserver_link->session_key,
+			appaserver_link->extension ) );
 
 	if ( strcmp( cr10_file_specification, "filename" ) == 0 )
 	{

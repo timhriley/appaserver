@@ -28,7 +28,7 @@
 #include "session.h"
 #include "process_generic_output.h"
 #include "dictionary_appaserver.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -806,10 +806,10 @@ void output_exceedance_spreadsheet(
 	char buffer[ 1024 ];
 	pid_t process_id = getpid();
 	char dictionary_index_string[ 8 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -821,9 +821,9 @@ void output_exceedance_spreadsheet(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" /* extension */ );
-
-	appaserver_link_file->application_name = application_name;
 
 	aggregate_level =
 		aggregate_level_get_aggregate_level(
@@ -914,38 +914,33 @@ void output_exceedance_spreadsheet(
 		}
 
 		sprintf( dictionary_index_string, "%d", dictionary_index );
-		appaserver_link_file->end_date_string = dictionary_index_string;
+		appaserver_link->end_date_string = dictionary_index_string;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link__output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -1047,10 +1042,10 @@ void output_exceedance_text_file(
 	char buffer[ 1024 ];
 	pid_t process_id = getpid();
 	char dictionary_index_string[ 8 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1062,9 +1057,9 @@ void output_exceedance_text_file(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" /* extension */ );
-
-	appaserver_link_file->application_name = application_name;
 
 	aggregate_level =
 		aggregate_level_get_aggregate_level(
@@ -1155,38 +1150,33 @@ void output_exceedance_text_file(
 		}
 
 		sprintf( dictionary_index_string, "%d", dictionary_index );
-		appaserver_link_file->end_date_string = dictionary_index_string;
+		appaserver_link->end_date_string = dictionary_index_string;
 
 		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_output_filename(
+				appaserver_link->document_root_directory,
+				appaserver_link_output_tail_half(
+					appaserver_link->application_name,
+					appaserver_link->filename_stem,
+					appaserver_link->begin_date_string,
+					appaserver_link->end_date_string,
+					appaserver_link->process_id,
+					appaserver_link->session_key,
+					appaserver_link->extension ) );
 
 		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+			appaserver_link_prompt_filename(
+				appaserver_link_prompt_link_half(
+					appaserver_link->prepend_http,
+					appaserver_link->http_prefix,
+					appaserver_link->server_address ),
+				appaserver_link->application_name,
+				appaserver_link->filename_stem,
+				appaserver_link->begin_date_string,
+				appaserver_link->end_date_string,
+				appaserver_link->process_id,
+				appaserver_link->session_key,
+				appaserver_link->extension );
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{

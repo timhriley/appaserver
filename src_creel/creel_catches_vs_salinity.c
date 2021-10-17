@@ -24,7 +24,7 @@
 #include "environ.h"
 #include "process.h"
 #include "easycharts.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -707,11 +707,10 @@ void output_text_file(	char *creel_application_name,
 	char old_date_string[ 16 ];
 	char ftp_output_sys_string[ 256 ];
 	int process_id = getpid();
+	APPASERVER_LINK *appaserver_link;
 
-	APPASERVER_LINK_FILE *appaserver_link_file;
-
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -721,41 +720,13 @@ void output_text_file(	char *creel_application_name,
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			begin_date_string,
+			end_date_string,
 			"txt" );
 
-	appaserver_link_file->begin_date_string = begin_date_string;
-	appaserver_link_file->end_date_string = end_date_string;
+	text_output_filename = appaserver_link->output->filename;
 
-	text_output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	text_ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	text_ftp_filename = appaserver_link->prompt->filename;
 
 	application_reset();
 

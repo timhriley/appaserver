@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/appaserver_link_file.c			*/
+/* $APPASERVER_HOME/library/appaserver_link.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 APPASERVER_LINK *appaserver_link_calloc( void )
 {
@@ -385,36 +385,9 @@ void appaserver_link_pid_filename(
 			(char *)0 /* end_date_string */,
 			extension );
 
-	*output_filename =
-		appaserver_link_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	*output_filename = appaserver_link->output->filename;
 
-	*prompt_filename =
-		appaserver_link_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session_key,
-			appaserver_link_file->extension );
+	*prompt_filename = appaserver_link->prompt->filename;
 }
 
 char *appaserver_link_prompt_link_half(

@@ -20,7 +20,7 @@
 #include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "hydrology_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 #include "creel_library.h"
 
 /* Constants */
@@ -299,7 +299,7 @@ void output_catches_per_species(
 	boolean omit_output_day = 0;
 	boolean omit_output_day_sum = 0;
 	boolean omit_output_month_sum = 0;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	int row_count;
 
 	input_pipe = get_input_pipe(
@@ -328,8 +328,8 @@ void output_catches_per_species(
 			fishing_area_list_string,
 			interview_location );
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -339,23 +339,14 @@ void output_catches_per_species(
 			application_name,
 			process_id,
 			(char *)0 /* session */,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
 			"csv" );
 
 	if ( strcmp( output_medium, "text_file" ) == 0
 	||   strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_filename = appaserver_link->output->filename;
 
 		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 		{
@@ -400,23 +391,7 @@ void output_catches_per_species(
 		pclose( input_pipe );
 		pclose( output_pipe );
 
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		ftp_filename = appaserver_link->prompt->filename;
 
 		printf( "<p>Generated %d rows.<br>\n", row_count );
 

@@ -28,8 +28,6 @@
 #include "role.h"
 #include "dictionary_appaserver.h"
 
-/* appaserver_link_file */
-
 /* Constants */
 /* --------- */
 #define DELIMITER			','
