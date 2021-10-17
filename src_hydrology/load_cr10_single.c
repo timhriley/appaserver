@@ -22,7 +22,6 @@
 #include "session.h"
 #include "basename.h"
 #include "application.h"
-#include "appaserver_link_file.h"
 
 /* Structures */
 /* ---------- */

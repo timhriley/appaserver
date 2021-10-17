@@ -33,6 +33,7 @@
 #include "hydrology_library.h"
 #include "station.h"
 #include "html_table.h"
+#include "appaserver_link.h"
 #include "annual_hydroperiod.h"
 
 /* Constants */
@@ -273,10 +274,10 @@ int main( int argc, char **argv )
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -287,58 +288,19 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				begin_year_string,
+				end_year_string,
 				"txt" );
 
-		appaserver_link_file->begin_date_string = begin_year_string;
-		appaserver_link_file->end_date_string = end_year_string;
-
-		output_pipename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_pipename = appaserver_link->output->filename;
+		ftp_filename = appaserver_link->prompt->filename;
 
 		annual_hydroperiod_get_report_title(
-					title,
-					REPORT_TITLE,
-					begin_year,
-					end_year );
+			title,
+			REPORT_TITLE,
+			begin_year,
+			end_year );
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_year,
-			 end_year,
-			 process_id );
-*/
-	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -394,10 +356,10 @@ int main( int argc, char **argv )
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -408,59 +370,19 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				begin_year_string,
+				end_year_string,
 				"csv" );
 
-		appaserver_link_file->begin_date_string = begin_year_string;
-		appaserver_link_file->end_date_string = end_year_string;
-
-		output_pipename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
+		output_pipename = appaserver_link->output->filename;
+		ftp_filename = appaserver_link->prompt->filename;
 
 		annual_hydroperiod_get_report_title(
-					title,
-					REPORT_TITLE,
-					begin_year,
-					end_year );
+			title,
+			REPORT_TITLE,
+			begin_year,
+			end_year );
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_year,
-			 end_year,
-			 process_id );
-*/
-	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -510,10 +432,10 @@ int main( int argc, char **argv )
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -524,58 +446,19 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				begin_year_string,
+				end_year_string,
 				"csv" );
 
-		appaserver_link_file->begin_date_string = begin_year_string;
-		appaserver_link_file->end_date_string = end_year_string;
-
-		output_pipename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_pipename = appaserver_link->output->filename;
+		ftp_filename = appaserver_link->prompt->filename;
 
 		annual_hydroperiod_get_report_title(
-					title,
-					REPORT_TITLE,
-					begin_year,
-					end_year );
+			title,
+			REPORT_TITLE,
+			begin_year,
+			end_year );
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_year,
-			 end_year,
-			 process_id );
-*/
-	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",
@@ -625,10 +508,10 @@ int main( int argc, char **argv )
 		FILE *output_pipe;
 		char sys_string[ 1024 ];
 		char title[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -639,58 +522,19 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
+				begin_year_string,
+				end_year_string,
 				"txt" );
 
-		appaserver_link_file->begin_date_string = begin_year_string;
-		appaserver_link_file->end_date_string = end_year_string;
-
-		output_pipename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
+		output_pipename = appaserver_link->output->filename;
+		ftp_filename = appaserver_link->prompt->filename;
 
 		annual_hydroperiod_get_report_title(
-					title,
-					REPORT_TITLE,
-					begin_year,
-					end_year );
+			title,
+			REPORT_TITLE,
+			begin_year,
+			end_year );
 
-/*
-		sprintf( output_pipename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 begin_year,
-			 end_year,
-			 process_id );
-*/
-	
 		if ( ! ( output_pipe = fopen( output_pipename, "w" ) ) )
 		{
 			printf( "<H2>ERROR: Cannot open output file %s\n",

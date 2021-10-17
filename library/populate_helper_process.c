@@ -44,7 +44,7 @@ POPULATE_HELPER_PROCESS *populate_helper_process_new(
 	populate_helper_process->application_name =
 		application_name;
 
-	populate_helper_process->process_id = process;
+	populate_helper_process->process_id = process_id;
 
 	populate_helper_process->output_filename =
 		populate_helper_process_output_filename(

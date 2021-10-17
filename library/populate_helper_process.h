@@ -16,7 +16,7 @@ typedef struct
 	char *name;
 	char *document_root_directory;
 	char *application_name;
-	pid_t pid;
+	pid_t process_id;
 
 	/* Process */
 	/* ------- */

@@ -14,8 +14,6 @@
 #include "list_usage.h"
 #include "freshwaterfish_library.h"
 
-/* appaserver_link_file */
-
 char *freshwaterfish_library_get_scientific_name(
 				char *nps_code,
 				char *fiu_fish_old_code,

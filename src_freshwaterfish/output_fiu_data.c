@@ -26,7 +26,7 @@
 #include "environ.h"
 #include "application.h"
 #include "freshwaterfish_library.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -286,10 +286,10 @@ void output_fish_data(
 	THROW throw;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -299,50 +299,14 @@ void output_fish_data(
 			application_name,
 			year /* process_id */,
 			(char *)0 /* session */,
+			timlib_integer2full_month(
+				begin_month_integer ),
+			timlib_integer2full_month(
+				end_month_integer ),
 			"csv" );
 
-	begin_month_string =
-		timlib_integer2full_month(
-			begin_month_integer );
-
-	appaserver_link_file->begin_date_string = begin_month_string;
-
-	end_month_string =
-		timlib_integer2full_month(
-			end_month_integer );
-
-	appaserver_link_file->end_date_string = end_month_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -536,10 +500,10 @@ void output_crayfish_data(
 	THROW throw;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -549,50 +513,14 @@ void output_crayfish_data(
 			application_name,
 			year /* process_id */,
 			(char *)0 /* session */,
+			timlib_integer2full_month(
+				begin_month_integer ),
+			timlib_integer2full_month(
+				end_month_integer ),
 			"csv" );
 
-	begin_month_string =
-		timlib_integer2full_month(
-			begin_month_integer );
-
-	appaserver_link_file->begin_date_string = begin_month_string;
-
-	end_month_string =
-		timlib_integer2full_month(
-			end_month_integer );
-
-	appaserver_link_file->end_date_string = end_month_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -742,10 +670,10 @@ void output_vegetation_data(
 	LIST *species_group_name_list;
 	THROW_WEIGHT_COUNT *throw_count;
 	char output_string[ 128 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -755,50 +683,14 @@ void output_vegetation_data(
 			application_name,
 			year /* process_id */,
 			(char *)0 /* session */,
+			timlib_integer2full_month(
+				begin_month_integer ),
+			timlib_integer2full_month(
+				end_month_integer ),
 			"csv" );
 
-	begin_month_string =
-		timlib_integer2full_month(
-			begin_month_integer );
-
-	appaserver_link_file->begin_date_string = begin_month_string;
-
-	end_month_string =
-		timlib_integer2full_month(
-			end_month_integer );
-
-	appaserver_link_file->end_date_string = end_month_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -1011,10 +903,10 @@ void output_periphyton_data(
 	THROW throw;
 	char begin_date_string[ 16 ];
 	char end_date_string[ 16 ];
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1024,51 +916,15 @@ void output_periphyton_data(
 			application_name,
 			year /* process_id */,
 			(char *)0 /* session */,
+			timlib_integer2full_month(
+				begin_month_integer ),
+			timlib_integer2full_month(
+				end_month_integer ),
 			"csv" );
 
-	begin_month_string =
-		timlib_integer2full_month(
-			begin_month_integer );
 
-	appaserver_link_file->begin_date_string = begin_month_string;
-
-	end_month_string =
-		timlib_integer2full_month(
-			end_month_integer );
-
-	appaserver_link_file->end_date_string = end_month_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -1158,10 +1014,10 @@ void output_inverts_verts_data(
 	THROW_WEIGHT_COUNT *throw_count;
 	char output_string[ 128 ];
 	LIST *species_group_name_list;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1171,50 +1027,14 @@ void output_inverts_verts_data(
 			application_name,
 			year /* process_id */,
 			(char *)0 /* session */,
+			timlib_integer2full_month(
+				begin_month_integer ),
+			timlib_integer2full_month(
+				end_month_integer ),
 			"csv" );
 
-	begin_month_string =
-		timlib_integer2full_month(
-			begin_month_integer );
-
-	appaserver_link_file->begin_date_string = begin_month_string;
-
-	end_month_string =
-		timlib_integer2full_month(
-			end_month_integer );
-
-	appaserver_link_file->end_date_string = end_month_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",
@@ -1448,10 +1268,10 @@ void output_wet_weights_data(
 	LIST *species_group_name_list;
 	SPECIES_GROUP_WEIGHT *species_group_weight;
 	THROW_WEIGHT_COUNT *throw_count;
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 
-	appaserver_link_file =
-		appaserver_link_file_new(
+	appaserver_link =
+		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
@@ -1461,50 +1281,14 @@ void output_wet_weights_data(
 			application_name,
 			year /* process_id */,
 			(char *)0 /* session */,
+			timlib_integer2full_month(
+				begin_month_integer ),
+			timlib_integer2full_month(
+				end_month_integer ),
 			"csv" );
 
-	begin_month_string =
-		timlib_integer2full_month(
-			begin_month_integer );
-
-	appaserver_link_file->begin_date_string = begin_month_string;
-
-	end_month_string =
-		timlib_integer2full_month(
-			end_month_integer );
-
-	appaserver_link_file->end_date_string = end_month_string;
-
-	output_filename =
-		appaserver_link_get_output_filename(
-			appaserver_link_file->
-				output_file->
-				document_root_directory,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
-
-	ftp_filename =
-		appaserver_link_get_link_prompt(
-			appaserver_link_file->
-				link_prompt->
-				prepend_http_boolean,
-			appaserver_link_file->
-				link_prompt->
-				http_prefix,
-			appaserver_link_file->
-				link_prompt->server_address,
-			appaserver_link_file->application_name,
-			appaserver_link_file->filename_stem,
-			appaserver_link_file->begin_date_string,
-			appaserver_link_file->end_date_string,
-			appaserver_link_file->process_id,
-			appaserver_link_file->session,
-			appaserver_link_file->extension );
+	output_filename = appaserver_link->output->filename;
+	ftp_filename = appaserver_link->prompt->filename;
 
 	sprintf(	begin_date_string,
 			"%d-%d-01",

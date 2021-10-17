@@ -11,7 +11,7 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter_file.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -32,7 +32,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	APPASERVER_LINK_FILE *appaserver_link_file;
+	APPASERVER_LINK *appaserver_link;
 	char *output_filename;
 	char *prompt_filename;
 	char *html;

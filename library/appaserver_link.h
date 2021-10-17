@@ -26,6 +26,7 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
+	char *link_half;
 	char *filename;
 } APPASERVER_LINK_PROMPT;
 
@@ -33,6 +34,9 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
+	char *http_prefix;
+	char *server_address;
+	boolean prepend_http;
 	char *document_root_directory;
 	char *filename_stem;
 	char *application_name;
@@ -88,7 +92,14 @@ char *appaserver_link_working_directory(
 APPASERVER_LINK_PROMPT *appaserver_link_prompt_new(
 			char *http_prefix,
 			char *server_address,
-			boolean prepend_http );
+			boolean prepend_http,
+			char *application_name,
+			char *filename_stem,
+			char *begin_date_string,
+			char *end_date_string,
+			pid_t process_id,
+			char *session_key,
+			char *extension );
 
 APPASERVER_LINK_PROMPT *appaserver_link_prompt_calloc(
 			void );
@@ -142,9 +153,7 @@ char *appaserver_link_output_abbreviated_filename(
 /* Returns heap memory */
 /* ------------------- */
 char *appaserver_link_prompt_filename(
-			boolean prepend_http,
-			char *http_prefix,
-			char *server_address,
+			char *link_half,
 			char *application_name,
 			char *filename_stem,
 			char *begin_date_string,

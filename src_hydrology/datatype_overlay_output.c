@@ -31,7 +31,7 @@
 #include "session.h"
 #include "hydrology_library.h"
 #include "application_constants.h"
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Constants */
 /* --------- */
@@ -658,10 +658,10 @@ int main( int argc, char **argv )
 	||   strcmp( compare_output, "spreadsheet" ) == 0
 	||   strcmp( compare_output, "stdout" ) == 0 )
 	{
-		APPASERVER_LINK_FILE *appaserver_link_file;
+		APPASERVER_LINK *appaserver_link;
 
-		appaserver_link_file =
-			appaserver_link_file_new(
+		appaserver_link =
+			appaserver_link_new(
 				application_http_prefix( application_name ),
 				appaserver_library_server_address(),
 				( application_prepend_http_protocol_yn(
@@ -672,21 +672,9 @@ int main( int argc, char **argv )
 				application_name,
 				process_id,
 				(char *)0 /* session */,
-				(char *)0 /* extension */ );
-
-		appaserver_link_file->begin_date_string = begin_date;
-		appaserver_link_file->end_date_string = end_date_suffix;
-
-/*
-		if ( aggregate_level == real_time )
-		{
-			right_justified_columns_from_right = 1;
-		}
-		else
-		{
-			right_justified_columns_from_right = 2;
-		}
-*/
+				begin_date,
+				end_date_suffix,
+				"txt" /* extension */ );
 
 		if ( strcmp( compare_output, "text_file" ) == 0 )
 		{
@@ -699,38 +687,11 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					appaserver_mount_point );
 
-			appaserver_link_file->extension = "txt";
-
 			text_output_filename =
-				appaserver_link_get_output_filename(
-				   appaserver_link_file->
-					output_file->
-					document_root_directory,
-				   appaserver_link_file->application_name,
-				   appaserver_link_file->filename_stem,
-				   appaserver_link_file->begin_date_string,
-				   appaserver_link_file->end_date_string,
-				   appaserver_link_file->process_id,
-				   appaserver_link_file->session,
-				   appaserver_link_file->extension );
+				appaserver_link->output->filename;
 
 			text_ftp_filename =
-				appaserver_link_get_link_prompt(
-				   appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				   appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				   appaserver_link_file->
-					link_prompt->server_address,
-				   appaserver_link_file->application_name,
-				   appaserver_link_file->filename_stem,
-				   appaserver_link_file->begin_date_string,
-				   appaserver_link_file->end_date_string,
-				   appaserver_link_file->process_id,
-				   appaserver_link_file->session,
-				   appaserver_link_file->extension );
+				appaserver_link->prompt->filename;
 
 			if ( ! ( output_file =
 					fopen( text_output_filename, "w" ) ) )
@@ -805,38 +766,42 @@ int main( int argc, char **argv )
 				appaserver_parameter_file->
 					appaserver_mount_point );
 
-			appaserver_link_file->extension = "csv";
+			appaserver_link->extension = "csv";
 
 			text_output_filename =
-				appaserver_link_get_output_filename(
-				   appaserver_link_file->
-					output_file->
-					document_root_directory,
-				   appaserver_link_file->application_name,
-				   appaserver_link_file->filename_stem,
-				   appaserver_link_file->begin_date_string,
-				   appaserver_link_file->end_date_string,
-				   appaserver_link_file->process_id,
-				   appaserver_link_file->session,
-				   appaserver_link_file->extension );
+				appaserver_link_output_filename(
+					appaserver_link->
+						document_root_directory,
+					appaserver_link_output_tail_half(
+				   		appaserver_link->
+							application_name,
+				   		appaserver_link->
+							filename_stem,
+				   		appaserver_link->
+							begin_date_string,
+				   		appaserver_link->
+							end_date_string,
+				   		appaserver_link->process_id,
+				   		appaserver_link->session_key,
+				   		appaserver_link->extension ) );
 
 			text_ftp_filename =
-				appaserver_link_get_link_prompt(
-				   appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				   appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				   appaserver_link_file->
-					link_prompt->server_address,
-				   appaserver_link_file->application_name,
-				   appaserver_link_file->filename_stem,
-				   appaserver_link_file->begin_date_string,
-				   appaserver_link_file->end_date_string,
-				   appaserver_link_file->process_id,
-				   appaserver_link_file->session,
-				   appaserver_link_file->extension );
+				appaserver_link_prompt_filename(
+					appaserver_link_prompt_link_half(
+						appaserver_link->prepend_http,
+						appaserver_link->http_prefix,
+						appaserver_link->
+							server_address ),
+						appaserver_link->
+							application_name,
+				   		appaserver_link->filename_stem,
+				   		appaserver_link->
+							begin_date_string,
+				   		appaserver_link->
+							end_date_string,
+				   		appaserver_link->process_id,
+				   		appaserver_link->session_key,
+				   		appaserver_link->extension );
 
 			if ( ! ( output_file =
 					fopen( text_output_filename, "w" ) ) )

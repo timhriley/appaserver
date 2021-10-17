@@ -320,7 +320,7 @@ void google_earth_filenames(
 	*prompt_kml_filename =
 		appaserver_link_prompt_filename(
 			appaserver_link_prompt_link_half(
-				appaserverr_link->prepend_http,
+				appaserver_link->prepend_http,
 				appaserver_link->http_prefix,
 				appaserver_link->server_address ),
 			appaserver_link->application_name,

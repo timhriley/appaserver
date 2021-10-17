@@ -54,7 +54,9 @@ APPASERVER_LINK *appaserver_link_new(
 		exit( 1 );
 	}
 
-
+	appaserver_link->http_prefix = http_prefix;
+	appaserver_link->server_address = server_address;
+	appaserver_link->prepend_http = prepend_http;
 	appaserver_link->document_root_directory = document_root_directory;
 	appaserver_link->filename_stem = filename_stem;
 	appaserver_link->application_name = application_name;
@@ -88,7 +90,7 @@ APPASERVER_LINK *appaserver_link_new(
 			end_date_string,
 			process_id,
 			session_key,
-			extension ) );
+			extension );
 
 	appaserver_link->output =
 		appaserver_link_output_new(
@@ -415,7 +417,7 @@ char *appaserver_link_prompt_link_half(
 	}
 	else
 	{
-		*link_half = '\0'
+		*link_half = '\0';
 	}
 
 	return strdup( link_half );
