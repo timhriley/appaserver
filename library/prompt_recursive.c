@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "dictionary_separate.h"
 #include "query.h"
+#include "element.h"
 #include "prompt_recursive.h"
 
 PROMPT_RECURSIVE *prompt_recursive_calloc(
@@ -49,7 +50,6 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 	prompt_recursive = prompt_recursive_calloc();
 
 	prompt_recursive->folder_name = folder_name;
-	prompt_recursive->drillthru_dictionary = drillthru_dictionary;
 
 	prompt_recursive->prompt_recursive_folder_list =
 		prompt_recursive_folder_list(
@@ -59,6 +59,7 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 
 	if ( !list_length( prompt_recursive->prompt_recursive_folder_list ) )
 	{
+		free( prompt_recursive );
 		return (PROMPT_RECURSIVE *)0;
 	}
 
@@ -459,16 +460,31 @@ LIST *prompt_recursive_one_folder_element_list(
 			char *javascript )
 {
 	char buffer[ 256 ];
+	char prompt_display[ 256 ];
 	char element_name[ 256 ];
 	APPASERVER_ELEMENT *element;
-	char relation_operator_equals[ 256 ];
 	LIST *element_list = list_new();
+
+	if ( !list_length( one_folder->primary_key_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: folder_name=%s has empty primary_key_list.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			one_folder->folder_name );
+		exit( 1 );
+	}
 
 	/* Create the line break */
 	/* --------------------- */
-	element = element_appaserver_new( linebreak, "" );
+	element = appaserver_element_new( linebreak );
 
 	list_set( element_list, element );
+
+	/* Create the no display checkbox */
+	/* ------------------------------ */
+	element = element_appaserver_new( checkbox ); 
 
 	sprintf(element_name,
 	 	"%s%s",
@@ -477,37 +493,62 @@ LIST *prompt_recursive_one_folder_element_list(
 		  	one_folder->primary_key_list,
 		  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
-	element =
-		element_appaserver_new(
-			toggle_button, 
-			strdup( element_name ) );
+	element->checkbox->name = strdup( element_name );
 
-	element_toggle_button_set_heading(
-		element->toggle_button,
-		NO_DISPLAY_PUSH_BUTTON_PREFIX );
+	element->checkbox->html =
+		/* ---------------------------- */
+		/* Returns heap memory or null. */
+		/* ---------------------------- */
+		element_checkbox_html(
+			element->checkbox->name,
+			string_initial_capital(
+				prompt_display,
+				NO_DISPLAY_PUSH_BUTTON_HEADING ),
+			0 /* not checked */,
+			(char *)0 /* action_string */,
+			0 /* tab_order */,
+			"yes" /* value */ );
+
+	if ( !element->checkbox->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: element_checkbox_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	list_set( element_list, element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	sprintf( element_name,
-	 	 "*%s",
-	 	 one_folder->folder_name );
+	element = element_appaserver_new( prompt );
 
-	element =
-		element_appaserver_new(
-			prompt,
-			strdup( format_initial_capital_not_parens(
+	sprintf(element_name,
+	 	"*%s",
+	 	one_folder->folder_name );
+
+	element->prompt->html =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		element_prompt_html(
+			strdup(
+				format_initial_capital_not_parens(
 					buffer, 
 					element_name ) ) );
 
 	list_set( element_list, element );
 
-	sprintf(element_name, 
+	/* Create the drop-down element */
+	/* ---------------------------- */
+	sprintf(element_name,
 	 	"%s",
 	 	list_display_delimited(
 		  	one_folder->primary_key_list,
-		  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
+		  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
 
 	if ( drop_down_multi_select )
 	{

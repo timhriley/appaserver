@@ -811,12 +811,14 @@ PROCESS_GENERIC_PARAMETER *process_generic_parameter_parse(
 		/* ----------------------- */
 		/* Returns -1 if not found */
 		/* ----------------------- */
-		list_seek(	value_folder_date_attribute_name,
-				value_folder_primary_key_list );
+		list_seek_offset(
+			value_folder_date_attribute_name,
+			value_folder_primary_key_list );
 
 	process_generic_parameter->time_piece =
-		list_seek(	value_folder_time_attribute_name,
-				value_folder_primary_key_list );
+		list_seek_offset(
+			value_folder_time_attribute_name,
+			value_folder_primary_key_list );
 
 	process_generic_parameter->value_piece =
 		list_length(
@@ -1371,7 +1373,7 @@ PROCESS_GENERIC_WHERE *process_generic_where_new(
 	process_generic_where->date_where = date_where;
 
 	process_generic_where->data_where =
-		query_data_where_clause(
+		query_data_where(
 			value_folder_name,
 			where_attribute_name_list,
 			where_attribute_data_list,

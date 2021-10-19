@@ -637,17 +637,7 @@ void document_body_begin(
 
 void document_close( void )
 {
-	document_close_body_stream( stdout );
-	document_close_html_stream( stdout );
-}
-
-void document_close_body_stream( FILE *output_stream )
-{
-	fprintf( output_stream, "</body>\n" );
-}
-
-void document_close_html_stream( FILE *output_stream )
-{
-	fprintf( output_stream, "</html>\n" );
+	printf( "%s\n",
+		document_close_html() );
 }
 

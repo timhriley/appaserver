@@ -4388,7 +4388,6 @@ void grace_output_graph_window(
 			char *application_name,
 			char *pdf_output_filename,
 			char *ftp_agr_filename,
-			char *appaserver_mount_point,
 			boolean with_document_output,
 			char *where_clause )
 {
@@ -4425,7 +4424,7 @@ void grace_output_graph_window(
 		"application/agr" );
 
 	grace_output_grace_home_link();
-	if ( with_document_output ) document_tag_close( stdout );
+	if ( with_document_output ) document_close();
 	fflush( stdout );
 }
 
@@ -4433,7 +4432,6 @@ void grace_email_graph(	char *application_name,
 			char *email_address,
 			char *chart_email_command_line,
 			char *pdf_jpg_filename,
-			char *appaserver_mount_point,
 			boolean with_document_output,
 			char *where_clause )
 {
@@ -4470,7 +4468,7 @@ void grace_email_graph(	char *application_name,
 		search_replace_command_line );
 
 	if ( system( sys_string ) ) {};
-	if ( with_document_output ) document_tag_close( stdout );
+	if ( with_document_output ) document_close();
 }
 
 void grace_error_exit( char *function_name, int line_number )

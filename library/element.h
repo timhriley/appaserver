@@ -100,6 +100,11 @@ typedef struct
 typedef struct
 {
 	char *html;
+} ELEMENT_MULTI_DROP_DOWN;
+
+typedef struct
+{
+	char *html;
 } ELEMENT_DROP_DOWN;
 
 typedef struct
@@ -138,6 +143,12 @@ typedef struct
 
 typedef struct
 {
+	/* Attribute */
+	/* --------- */
+	char *name;
+
+	/* External */
+	/* -------- */
 	char *html;
 } ELEMENT_CHECKBOX;
 
@@ -224,6 +235,7 @@ typedef struct
 	ELEMENT_PROMPT *prompt;
 	ELEMENT_CHECKBOX *checkbox;
 	ELEMENT_DROP_DOWN *drop_down;
+	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
 
 /*
 	ELEMENT_TOGGLE_BUTTON *toggle_button;
@@ -369,5 +381,10 @@ char *element_drop_down_close_html(
 /* --------------------------- */
 char *element_drop_down_data_list_display(
 			LIST *data_list );
+
+/* ELEMENT_MULTI_DROP_DOWN operations */
+/* ---------------------------------- */
+ELEMENT_DROP_DOWN *element_drop_down_calloc(
+			void );
 
 #endif

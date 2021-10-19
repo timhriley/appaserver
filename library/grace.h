@@ -731,14 +731,12 @@ void grace_email_graph(		char *application_name,
 				char *email_address,
 				char *chart_email_command_line,
 				char *pdf_jpg_filename,
-				char *appaserver_mount_point,
 				boolean with_document_output,
 				char *where_clause );
 
 void grace_output_graph_window(	char *application_name,
 				char *pdf_output_filename,
 				char *ftp_agr_filename,
-				char *appaserver_mount_point,
 				boolean with_document_output,
 				char *where_clause );
 

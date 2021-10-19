@@ -10,7 +10,7 @@
 /* -------- */
 #include "list.h"
 #include "folder.h"
-#include "related_folder.h"
+#include "relation.h"
 
 /* Constants */
 /* --------- */
@@ -42,8 +42,12 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
 	char *folder_name;
-	DICTIONARY *drillthru_dictionary;
+
+	/* Process */
+	/* ------- */
 	LIST *prompt_recursive_folder_list;
 	char *javascript;
 	LIST *element_list;

@@ -64,6 +64,12 @@ APPASERVER_ELEMENT *appaserver_element_new(
 	if ( element_type == drop_down )
 		element->drop_down =
 			element_drop_down_calloc();
+
+	else
+	if ( element_type == multi_drop_down )
+		element->multi_drop_down =
+			element_multi_drop_down_calloc();
+
 #ifdef NOT_DEFINED
 	else
 	if ( element_type == non_edit_multi_select )
@@ -966,7 +972,7 @@ char *element_checkbox_html(
 
 	ptr += sprintf(
 		ptr,
-		"></td>" );
+		">" );
 
 	return strdup( html );
 }
