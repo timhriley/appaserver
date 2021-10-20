@@ -1909,13 +1909,11 @@ LIST *list_strdup_copy( LIST *source )
 LIST *list_copy( LIST *source )
 {
 	LIST *return_list = list_new_list();
-	char *data;
 
 	if ( !list_rewind( source ) ) return return_list;
 
 	do {
-		data = list_get( source );
-		list_set( return_list, data );
+		list_set( return_list, list_get( source ) );
 	} while( list_next( source ) );
 
 	return return_list;

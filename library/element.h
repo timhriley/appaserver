@@ -24,15 +24,15 @@
 #define ELEMENT_CHECKBOX_REMEMBER		1
 #define ELEMENT_DROP_DOWN_REMEMBER		1
 #define ELEMENT_MULTI_DROP_DOWN_REMEMBER	1
-
+#define ELEMENT_BUTTON_REMEMBER			0
+#define ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX	"original_"
+#define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER '|'
 #define ELEMENT_NAME_LOOKUP_STATE		"lookup_button"
 #define ELEMENT_TITLE_NOTEPAD_PADDING_EM	3
 #define ELEMENT_TEXTAREA_WRAP			"soft"
 #define ELEMENT_DICTIONARY_DELIMITER		'~'
 #define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER	'|'
 #define ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER '~'
-#define ELEMENT_MULTI_SELECT_ADD_LABEL		"Add ->"
-#define ELEMENT_MULTI_SELECT_REMOVE_LABEL	"<- Remove"
 #define ELEMENT_TEXT_ITEM_LOOKUP_LENGTH 	100
 #define ELEMENT_TEXT_ITEM_LARGE_WIDGET_SIZE	25
 #define ELEMENT_TEXT_ITEM_SMALL_WIDGET_SIZE	10
@@ -41,9 +41,6 @@
 #define ELEMENT_LARGE_NOTEPAD_THRESHOLD		10000
 #define ELEMENT_LARGE_NOTEPAD_WIDTH		70
 #define ELEMENT_LARGE_NOTEPAD_NUMBER_ROWS	12
-#define ELEMENT_MULTI_SELECT_ROW_COUNT		10
-#define ELEMENT_NON_EDIT_MULTI_SELECT_ROW_COUNT	3
-
 #define ELEMENT_NULL_OPERATOR			"is_empty"
 #define ELEMENT_NOT_NULL_OPERATOR		"not_empty"
 #define ELEMENT_SELECT_OPERATOR			"select"
@@ -57,15 +54,16 @@ enum element_type {	table_row,
 			notepad,
 			text_item,
 			password,
-			non_edit_text,
-			javascript_filename,
-			upload_filename,
 			prompt_data,
-			prompt_data_plus_hidden,
-			reference_number,
 			hidden,
-			empty_column,
+			upload_filename,
+			reference_number,
+			anchor,
+			non_edit_text,
+			button,
 			blank,
+			break_tag,
+			javascript_filename,
 			element_date,
 			element_current_date,
 			element_time,
@@ -74,11 +72,27 @@ enum element_type {	table_row,
 			element_current_date_time,
 			http_filename,
 			timestamp,
-			table_opening,
-			table_closing,
-			prompt_heading,
-			anchor,
-			non_edit_multi_select };
+			empty_column };
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	char *html;
+} ELEMENT_BREAK_TAG;
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *label;
+	char *action_string;
+
+	/* Process */
+	/* ------- */
+	char *html;
+
+} ELEMENT_BUTTON;
 
 typedef struct
 {
@@ -99,13 +113,44 @@ typedef struct
 
 typedef struct
 {
+	/* Attributes */
+	/* ---------- */
+	char *drop_down_name;
+	char *initial_data;
+	LIST *delimited_list;
+	boolean no_initial_capital;
+	boolean output_null_option;
+	boolean output_not_null_option;
+	boolean output_select_option;
+	int column_span;
+	int drop_down_size;
+	int tab_order;
+	boolean multi_select;
+	char *post_change_javascript;
+
+	/* Process */
+	/* ------- */
 	char *html;
-} ELEMENT_MULTI_DROP_DOWN;
+} ELEMENT_DROP_DOWN;
 
 typedef struct
 {
-	char *html;
-} ELEMENT_DROP_DOWN;
+	/* Input */
+	/* ----- */
+	LIST *attribute_name_list;
+	LIST *delimited_list;
+	boolean no_initial_capital;
+	boolean output_select_option;
+	char *post_change_javascript;
+
+	/* Process */
+	/* ------- */
+	ELEMENT_DROP_DOWN *original_drop_down;
+	ELEMENT_BUTTON *move_right_button;
+	ELEMENT_BREAK_TAG *element_break_tag;
+	ELEMENT_BUTTON *move_left_button;
+	char *element_drop_down_empty_html;
+} ELEMENT_MULTI_DROP_DOWN;
 
 typedef struct
 {
@@ -236,6 +281,7 @@ typedef struct
 	ELEMENT_CHECKBOX *checkbox;
 	ELEMENT_DROP_DOWN *drop_down;
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
+	ELEMENT_BUTTON *button;
 
 /*
 	ELEMENT_TOGGLE_BUTTON *toggle_button;
@@ -329,21 +375,22 @@ char *element_checkbox_html(
 ELEMENT_DROP_DOWN *element_drop_down_calloc(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_drop_down_name(
-			LIST *element_name_list,
-			int row_number );
-
-LIST *element_drop_down_display_list(
+ELEMENT_DROP_DOWN *element_drop_down_new(
+			char *drop_down_name,
+			char *initial_data,
 			LIST *delimited_list,
-			boolean no_initial_capital );
-
-int element_drop_down_size(
-			int delimited_list_length );
+			boolean no_initial_capital,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			int column_span,
+			int drop_down_size,
+			int tab_order,
+			boolean multi_select,
+			char *post_change_javascript );
 
 char *element_drop_down_html( 	
-			char *element_drop_down_name,
+			char *drop_down_name,
 			char *initial_data,
 			LIST *delimited_list,
 			LIST *display_list,
@@ -352,10 +399,16 @@ char *element_drop_down_html(
 			boolean output_select_option,
 			int column_span,
 			int drop_down_size,
+			boolean multi_select,
 			char *post_change_javascript,
 			char *background_color,
 			int tab_order );
 
+LIST *element_drop_down_display_list(
+			LIST *delimited_list,
+			boolean no_initial_capital );
+
+/* ---------------------------- */
 /* Zaps row in delimited_list.  */
 /* Returns heap memory or null.	*/
 /* ---------------------------- */
@@ -377,14 +430,90 @@ char *element_drop_down_close_html(
 			boolean output_not_null_option,
 			boolean output_select_option );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *element_drop_down_data_list_display(
-			LIST *data_list );
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_name(
+			LIST *element_name_list,
+			int row_number );
+
+int element_drop_down_size(
+			int delimited_list_length );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_empty_html(
+			char *drop_down_name,
+			int drop_down_size,
+			boolean multi_select );
 
 /* ELEMENT_MULTI_DROP_DOWN operations */
 /* ---------------------------------- */
-ELEMENT_DROP_DOWN *element_drop_down_calloc(
+ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
+			void );
+
+ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
+			LIST *attribute_name_list,
+			LIST *delimited_list,
+			boolean no_initial_capital );
+
+int element_multi_drop_down_size(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_multi_drop_down_move_right_label(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_multi_drop_down_move_left_label(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_move_right_action_string(
+			LIST *attribute_name_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_move_left_action_string(
+			LIST *attribute_name_list );
+
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_name(
+			LIST *attribute_name_list,
+			char *element_name_prefix );
+
+/* ELEMENT_BUTTON operations */
+/* ------------------------- */
+ELEMENT_BUTTON *element_button_calloc(
+			void );
+
+ELEMENT_BUTTON *element_button_new(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_button_html(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+/* ELEMENT_BREAK_TAG operations */
+/* ---------------------------- */
+ELEMENT_BREAK_TAG *element_break_tag_calloc(
+			void );
+
+ELEMENT_BREAK_TAG *element_break_tag_new(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_break_tag_html(
 			void );
 
 #endif

@@ -63,7 +63,7 @@ function post_change_multi_select_all( element_name )
 
 	return true;
 
-} // post_change_multi_select_all()
+}
 
 function post_change_multi_select_move_right(
 		original_element_name, to_element_name, index_delimiter )
@@ -118,7 +118,7 @@ function post_change_multi_select_move_right(
 		}
 	}
 	return true;
-} // post_change_multi_select_move_right()
+}
 
 function post_change_multi_select_move_left(
 		original_element_name, to_element_name, index_delimiter )
@@ -180,5 +180,5 @@ function post_change_multi_select_move_left(
 		}
 	}
 	return true;
-} // post_change_multi_select_move_left()
+}
 
