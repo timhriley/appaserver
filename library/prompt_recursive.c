@@ -9,6 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include "String.h"
+#include "sql.h"
 #include "timlib.h"
 #include "environ.h"
 #include "relation.h"
@@ -41,6 +43,8 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions,
 			boolean drillthru_skipped )
 {
 	PROMPT_RECURSIVE *prompt_recursive;
@@ -51,11 +55,18 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 
 	prompt_recursive->folder_name = folder_name;
 
+	prompt_recursive->security_entity =
+		security_entity_new(
+			login_name,
+			non_owner_forbid,
+			override_row_restrictions );
+
 	prompt_recursive->prompt_recursive_folder_list =
 		prompt_recursive_folder_list(
 			relation_mto1_non_isa_list,
 			drillthru_dictionary,
-			login_name );
+			login_name,
+			prompt_recursive->security_entity );
 
 	if ( !list_length( prompt_recursive->prompt_recursive_folder_list ) )
 	{
@@ -63,12 +74,12 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 		return (PROMPT_RECURSIVE *)0;
 	}
 
-	prompt_recursive_set_javascript(
+	prompt_recursive_folder_list_set_javascript(
 		prompt_recursive->
 			prompt_recursive_folder_list );
 
 	prompt_recursive->element_list =
-		prompt_recursive_element_list(
+		prompt_recursive_folder_list_element_list(
 			prompt_recursive->
 				prompt_recursive_folder_list );
 
@@ -78,7 +89,8 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 LIST *prompt_recursive_folder_list(
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name )
+			char *login_name,
+			SECURITY_ENTITY *security_entity )
 {
 	LIST *folder_list = {0};
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
@@ -104,10 +116,11 @@ LIST *prompt_recursive_folder_list(
 		if ( !list_length( relation->one_folder->primary_key_list ) )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+"ERROR in %s/%s()/%d: for one_folder = %s, primary_key_list is empty.\n",
 				__FILE__,
 				__FUNCTION__,
-				__LINE__ );
+				__LINE__,
+				relation->one_folder->folder_name );
 			exit( 1 );
 		}
 
@@ -116,7 +129,8 @@ LIST *prompt_recursive_folder_list(
 					relation->one_folder,
 					relation->drop_down_multi_select,
 					drillthru_dictionary,
-					login_name ) ) )
+					login_name,
+					security_entity ) ) )
 		{
 			continue;
 		}
@@ -157,7 +171,8 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			FOLDER *one_folder,
 			boolean drop_down_multi_select,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name )
+			char *login_name,
+			SECURITY_ENTITY *security_entity )
 {
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
 
@@ -181,9 +196,30 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 		exit( 1 );
 	}
 
-	one_folder->relation_mto1_non_isa_list =
-		relation_mto1_non_isa_list(
-			one_folder->folder_name );
+	if ( one_folder->relation_mto1_non_isa_list )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: one_folder->relation_mto1_non_isa_list is set. The next instruction is unnecessary.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+	}
+	else
+	{
+		one_folder->relation_mto1_non_isa_list =
+			relation_mto1_non_isa_list(
+				one_folder->folder_name );
+	}
+
+	if ( !list_length( one_folder->relation_mto1_nnon_isa_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: relation_mto1_non_isa_list() returned empty. Unset relation->prompt_mto1_recursive.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (PROMPT_RECURSIVE_FOLDER *)0;
+	}
 
 	one_folder->delimited_list =
 		query_primary_delimited_fetch_list(
@@ -192,7 +228,10 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			one_folder->folder_attribute_primary_list,
 			one_folder->relation_mto1_non_isa_list,
 			drillthru_dictionary,
-			login_name );
+			login_name,
+			security_entity_where(
+				security_entity,
+				one_folder->folder_attribute_list ) );
 
 	prompt_recursive_folder = prompt_recursive_folder_calloc();
 
@@ -211,7 +250,8 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			prompt_recursive_folder->
 				relation_mto1_primary_key_subset_list,
 			drillthru_dictionary,
-			login_name );
+			login_name,
+			security_entity );
 
 	return prompt_recursive_folder;
 }
@@ -219,7 +259,8 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 LIST *prompt_recursive_mto1_folder_list(
 			LIST *relation_mto1_primary_key_subset_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name )
+			char *login_name,
+			SECURITY_ENTITY *security_entity )
 {
 	RELATION *relation;
 	LIST *mto1_folder_list;
@@ -250,7 +291,8 @@ LIST *prompt_recursive_mto1_folder_list(
 				relation->one_folder,
 				relation->drop_down_multi_select,
 				drillthru_dictionary,
-				login_name ) );
+				login_name,
+				security_entity ) );
 
 	} while ( list_next( relation_mto1_primary_key_subset_list ) );
 
@@ -279,14 +321,29 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
 			FOLDER *one_folder,
 			boolean drop_down_multi_select,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name )
+			char *login_name,
+			SECURITY_ENTITY *security_entity )
 {
 	PROMPT_RECURSIVE_MTO1_FOLDER *recursive_mto1_folder =
 		prompt_recursive_mto1_folder_calloc();
 
-	one_folder->relation_mto1_non_isa_list =
-		relation_mto1_non_isa_list(
-			one_folder->folder_name );
+	recursive_mto1_folder->one_folder = one_folder;
+	recursive_mto1_folder->drop_down_multi_select = drop_down_multi_select;
+
+	if ( one_folder->relation_mto1_non_isa_list )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: relation_mto1_non_isa_list is set. The next instruction is unnecessary.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+	}
+	else
+	{
+		one_folder->relation_mto1_non_isa_list =
+			relation_mto1_non_isa_list(
+				one_folder->folder_name );
+	}
 
 	one_folder->delimited_list =
 		query_primary_delimited_fetch_list(
@@ -295,15 +352,15 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
 			one_folder->folder_attribute_primary_list,
 			one_folder->relation_mto1_non_isa_list,
 			drillthru_dictionary,
-			login_name );
-
-	recursive_mto1_folder->one_folder = one_folder;
-	recursive_mto1_folder->drop_down_multi_select = drop_down_multi_select;
+			login_name,
+			security_entity_where(
+				security_entity,
+				one_folder->folder_attribute_list ) );
 
 	return recursive_mto1_folder;
 }
 
-LIST *prompt_recursive_element_list(
+LIST *prompt_recursive_folder_list_element_list(
 			LIST *prompt_recursive_folder_list )
 {
 	LIST *element_list = {0};
@@ -346,6 +403,7 @@ LIST *prompt_recursive_folder_element_list(
 			LIST *mto1_folder_list )
 {
 	LIST *element_list;
+	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
 
 	if ( !one_folder )
 	{
@@ -361,7 +419,8 @@ LIST *prompt_recursive_folder_element_list(
 
 	element_list = 
 		prompt_recursive_one_folder_element_list(
-			one_folder,
+			one_folder->folder_name,
+			one_folder->primary_key_list,
 			drop_down_multi_select,
 			javascript );
 
@@ -376,14 +435,24 @@ LIST *prompt_recursive_folder_element_list(
 }
 
 char *prompt_recursive_folder_javascript(
-			FOLDER *one_folder,
+			LIST *primary_key_list,
 			boolean drop_down_multi_select,
-			LIST *prompt_recursive_mto1_folder_list )
+			LIST *relation_mto1_primary_key_subset_list )
 {
-	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
+	RELATION *relation_mto1;
 	char javascript[ 1024 ];
 	char *ptr = javascript;
 	int element_index;
+
+	if ( !list_rewind( relation_mto1_primary_key_subset_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: relation_mto1_primary_key_subset_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	element_index = (int)drop_down_multi_select;
 
@@ -395,22 +464,16 @@ char *prompt_recursive_folder_javascript(
 		sprintf( ptr,
 			 "%s_%d",
 			 list_display_delimited(
-				one_folder->primary_key_list,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ),
+				primary_key_list,
+				SQL_DELIMITER ),
 			 element_index );
-
-	if ( !list_rewind( prompt_recursive_mto1_folder_list ) )
-	{
-		sprintf( ptr, "');" );
-		return strdup( javascript );
-	}
 
 	do {
 		mto1_folder =
 			list_get(
-				prompt_recursive_mto1_folder_list );
+				relation_mto1_primary_key_subset_list );
 
-		if ( !list_at_first( prompt_recursive_mto1_folder_list ) )
+		if ( !list_at_first( relation_mto1_primary_key_subset_list ) )
 		{
 			ptr += sprintf( ptr, "," );
 		}
@@ -420,17 +483,17 @@ char *prompt_recursive_folder_javascript(
 			 "%s_%d",
 			 list_display_delimited(
 				mto1_folder->one_folder->primary_key_list,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ),
+				SQL_DELIMITER ),
 			 0 /* element_index */ );
 
-	} while( list_next( prompt_recursive_mto1_folder_list ) );
+	} while( list_next( relation_mto1_primary_key_subset_list ) );
 
 	sprintf( ptr, "');" );
 
 	return strdup( javascript );
 }
 
-void prompt_recursive_set_javascript(
+void prompt_recursive_folder_list_set_javascript(
 			LIST *prompt_recursive_folder_list )
 {
 	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
@@ -447,15 +510,20 @@ void prompt_recursive_set_javascript(
 			/* Safely returns heap memory */
 			/* -------------------------- */
 			prompt_recursive_folder_javascript(
-				prompt_recursive_folder->one_folder,
-				prompt_recursive_folder->drop_down_multi_select,
-				prompt_recursive_folder->mto1_folder_list );
+				prompt_recursive_folder->
+					one_folder->
+					primary_key_list,
+				prompt_recursive_folder->
+					drop_down_multi_select,
+				prompt_recursive_folder->
+					relation_mto1_primary_key_subset_list );
 
 	} while ( list_next( prompt_recursive_folder_list ) );
 }
 
 LIST *prompt_recursive_one_folder_element_list(
-			FOLDER *one_folder,
+			char *folder_name,
+			LIST *primary_key_list,
 			boolean drop_down_multi_select,
 			char *javascript )
 {
@@ -465,14 +533,14 @@ LIST *prompt_recursive_one_folder_element_list(
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
 
-	if ( !list_length( one_folder->primary_key_list ) )
+	if ( !list_length( primary_key_list ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: folder_name=%s has empty primary_key_list.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			one_folder->folder_name );
+			folder_name );
 		exit( 1 );
 	}
 
@@ -484,14 +552,14 @@ LIST *prompt_recursive_one_folder_element_list(
 
 	/* Create the no display checkbox */
 	/* ------------------------------ */
-	element = element_appaserver_new( checkbox ); 
+	element = appaserver_element_new( checkbox ); 
 
 	sprintf(element_name,
 	 	"%s%s",
 		NO_DISPLAY_PUSH_BUTTON_PREFIX,
 	 	list_display_delimited(
-		  	one_folder->primary_key_list,
-		  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
+		  	primary_key_list,
+		  	SQL_DELIMITER ) );
 
 	element->checkbox->name = strdup( element_name );
 
@@ -519,12 +587,11 @@ LIST *prompt_recursive_one_folder_element_list(
 		exit( 1 );
 	}
 
-
 	list_set( element_list, element );
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	element = element_appaserver_new( prompt );
+	element = appaserver_element_new( prompt );
 
 	sprintf(element_name,
 	 	"*%s",
@@ -547,11 +614,12 @@ LIST *prompt_recursive_one_folder_element_list(
 	sprintf(element_name,
 	 	"%s",
 	 	list_display_delimited(
-		  	one_folder->primary_key_list,
-		  	MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
+		  	primary_key_list,
+		  	SQL_DELIMITER ) );
 
 	if ( drop_down_multi_select )
 	{
+here1
 		char drop_down_element_name[ 128 ];
 
 		sprintf(drop_down_element_name,

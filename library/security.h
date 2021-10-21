@@ -115,6 +115,7 @@ char *security_login_name_full_name_only(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *security_entity_where(
-			SECURITY_ENTITY *security_entity );
+			SECURITY_ENTITY *security_entity,
+			LIST *folder_attribute_list );
 
 #endif

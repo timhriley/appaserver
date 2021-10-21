@@ -11,6 +11,7 @@
 #include "list.h"
 #include "folder.h"
 #include "relation.h"
+#include "security.h"
 
 /* Constants */
 /* --------- */
@@ -48,6 +49,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	SECURITY_ENTITY *security_entity;
 	LIST *prompt_recursive_folder_list;
 	char *javascript;
 	LIST *element_list;
@@ -60,10 +62,9 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions,
 			boolean drillthru_skipped );
-
-void prompt_recursive_set_javascript(
-			LIST *prompt_recursive_folder_list );
 
 LIST *prompt_recursive_element_list(
 			LIST *prompt_recursive_folder_list );
@@ -76,20 +77,28 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_calloc(
 LIST *prompt_recursive_folder_list(
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name );
+			char *login_name,
+			SECURITY_ENTITY *security_entity );
 
 PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			FOLDER *one_folder,
 			boolean drop_down_multi_select,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name );
+			char *login_name,
+			SECURITY_ENTITY *security_entity );
+
+void prompt_recursive_folder_list_set_javascript(
+			LIST *prompt_recursive_folder_list );
+
+LIST *prompt_recursive_folder_list_element_list(
+			LIST *prompt_recursive_folder_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *prompt_recursive_folder_javascript(
-			FOLDER *one_folder,
+			LIST *primary_key_list,
 			boolean drop_down_multi_select,
-			LIST *prompt_recursive_mto1_folder_list );
+			LIST *relation_mto1_primary_key_subset_list );
 
 LIST *prompt_recursive_folder_element_list(
 			FOLDER *one_folder,
@@ -98,7 +107,8 @@ LIST *prompt_recursive_folder_element_list(
 			LIST *prompt_recursive_mto1_folder_list );
 
 LIST *prompt_recursive_one_folder_element_list(
-			FOLDER *one_folder,
+			char *folder_name,
+			LIST *primary_key_list,
 			boolean drop_down_multi_select,
 			char *javascript );
 
@@ -107,13 +117,15 @@ LIST *prompt_recursive_one_folder_element_list(
 LIST *prompt_recursive_mto1_folder_list(
 			LIST *relation_mto1_primary_key_subset_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name );
+			char *login_name,
+			SECURITY_ENTITY *security_entity );
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
 			FOLDER *one_folder,
 			boolean drop_down_multi_select,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name );
+			char *login_name,
+			SECURITY_ENTITY *security_entity );
 
 PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc(
 			void );

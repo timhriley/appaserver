@@ -317,14 +317,18 @@ char *security_login_name_full_name_only(
 }
 
 char *security_entity_where(
-			SECURITY_ENTITY *security_entity )
+			SECURITY_ENTITY *security_entity,
+			LIST *folder_attribute_list )
 {
 	char where[ 1024 ];
 
 	if ( !security_entity ) return (char *)0;
 
 	if ( security_entity->full_name_only
-	&&   *security_entity->full_name_only )
+	&&   *security_entity->full_name_only
+	&&   folder_attribute_list_seek(
+		"full_name",
+		folder_attribute_list ) )
 	{
 		sprintf(where,
 			"full_name = '%s' and street_address = '%s'",
@@ -337,7 +341,10 @@ char *security_entity_where(
 	}
 
 	if ( security_entity->login_name_only
-	&&   *security_entity->login_name_only )
+	&&   *security_entity->login_name_only
+	&&   folder_attribute_list_seek(
+		"login_name",
+		folder_attribute_list ) )
 	{
 		sprintf(where,
 			"login_name = '%s'",

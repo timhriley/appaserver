@@ -9,5 +9,6 @@
 /* Constants */
 /* --------- */
 #define SQL_DELIMITER	'^'
+/* #define SQL_DELIMITER	0x1e */
 
 #endif

@@ -38,7 +38,6 @@ enum preupdate_change_state {		from_null_to_something,
 /* ---------------------------------------------------- */
 #define DIFFERENT_DESTINATION_APPLICATION_OK	0
 
-#define FOLDER_DATA_DELIMITER			'^'
 #define SQL_DELIMITER				'^'
 #define PREDICTIVE_LOGO_FILENAME_KEY		"logo_filename"
 #define TEMPLATE_APPLICATION			"template"
@@ -58,9 +57,8 @@ enum preupdate_change_state {		from_null_to_something,
 #define ROWS_INSERTED_COUNT_KEY			"rrows_inserted_count"
 #define DEFAULT_TARGET_FRAME			EDIT_FRAME
 #define MYSQL_DUPLICATE_ERROR_MESSAGE_KEY	"Duplicate entry"
-#define MULTI_ATTRIBUTE_KEY_DELIMITER			'|'
-#define MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER		'^'
-#define MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER		'|'
+#define MULTI_ATTRIBUTE_KEY_DELIMITER		'|'
+#define MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER	'|'
 #define HORIZONTAL_MENU_CLASS			"menu"
 #define VERTICAL_MENU_CLASS			"vertical_menu"
 #define SUBMIT_BUTTON_LABEL			"|    Submit    |"

@@ -746,7 +746,8 @@ LIST *query_primary_delimited_fetch_list(
 			LIST *folder_attribute_primary_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name );
+			char *login_name,
+			char *security_entity_where );
 
 /* QUERY (Output) operations */
 /* ------------------------- */

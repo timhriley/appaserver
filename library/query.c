@@ -2988,7 +2988,8 @@ LIST *query_primary_delimited_fetch_list(
 			LIST *folder_attribute_primary_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name )
+			char *login_name,
+			char *security_entity_where )
 {
 	QUERY *query = query_calloc();
 
@@ -3031,14 +3032,10 @@ LIST *query_primary_delimited_fetch_list(
 			folder_name,
 			folder_attribute_primary_list,
 			relation_mto1_non_isa_list,
-			(char *)0 /* security_entity_where */,
+			security_entity_where,
 			drillthru_dictionary );
 
-	query->where_clause =
-		query_widget_where_clause(
-			query->query_widget_where->query_drop_down_list_where,
-			query->query_widget_where->query_attribute_list_where,
-			(char *)0 /* security_entity_where */ );
+	query->where_clause = query->query_widget_where->where_clause;
 
 	query->order_clause = query->select_clause;
 
