@@ -74,15 +74,6 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 		return (PROMPT_RECURSIVE *)0;
 	}
 
-	prompt_recursive_folder_list_set_javascript(
-		prompt_recursive->
-			prompt_recursive_folder_list );
-
-	prompt_recursive->element_list =
-		prompt_recursive_folder_list_element_list(
-			prompt_recursive->
-				prompt_recursive_folder_list );
-
 	return prompt_recursive;
 }
 
@@ -245,6 +236,19 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			one_folder->folder_name,
 			one_folder->primary_key_list );
 
+	prompt_recursive_folder->javascript =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		prompt_recursive_folder_javascript(
+			prompt_recursive_folder->
+				one_folder->
+				primary_key_list,
+			prompt_recursive_folder->
+				drop_down_multi_select,
+			prompt_recursive_folder->
+				relation_mto1_primary_key_subset_list );
+
 	prompt_recursive_folder->mto1_folder_list =
 		prompt_recursive_mto1_folder_list(
 			prompt_recursive_folder->
@@ -252,6 +256,35 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			drillthru_dictionary,
 			login_name,
 			security_entity );
+
+	prompt_recursive_folder->one_element_list =
+		prompt_recursive_folder_one_element_list(
+			prompt_recursive_folder->
+				one_folder->
+				folder_name,
+			prompt_recursive_folder->
+				one_folder->
+				primary_key_list,
+			prompt_recursive_folder->
+				one_folder->
+				delimited_list,
+			prompt_recursive_folder->
+				one_folder->
+				no_initial_capital,
+			prompt_recursive_folder->
+				one_folder->
+				notepad,
+			drop_down_multi_select,
+			prompt_recursive_folder->javascript );
+
+	prompt_recursive_folder->element_list =
+		prompt_recursive_mto1_folder_element_list(
+			/* --------------------------- */
+			/* Appends to one_element_list */
+			/* --------------------------- */
+			prompt_recursive_folder->one_element_list,
+			prompt_recursive_folder->mto1_folder_list,
+			prompt_recursive_folder->javascript );
 
 	return prompt_recursive_folder;
 }
@@ -360,80 +393,6 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_new(
 	return recursive_mto1_folder;
 }
 
-LIST *prompt_recursive_folder_list_element_list(
-			LIST *prompt_recursive_folder_list )
-{
-	LIST *element_list = {0};
-	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
-
-	if ( !list_rewind( prompt_recursive_folder_list ) )
-		return (LIST *)0;
-
-	do {
-		prompt_recursive_folder =
-			list_get(
-				prompt_recursive_folder_list );
-
-		prompt_recursive_folder->element_list =
-			prompt_recursive_folder_element_list(
-				prompt_recursive_folder->one_folder,
-				prompt_recursive_folder->
-					drop_down_multi_select,
-				prompt_recursive_folder->javascript,
-				prompt_recursive_folder->
-					mto1_folder_list );
-
-		if ( list_length( prompt_recursive_folder->element_list ) )
-		{
-			if ( !element_list ) element_list = list_new();
-
-			list_set_list(
-				element_list,
-				prompt_recursive_folder->element_list );
-		}
-	} while ( list_next( prompt_recursive_folder_list ) );
-
-	return element_list;
-}
-
-LIST *prompt_recursive_folder_element_list(
-			FOLDER *one_folder,
-			boolean drop_down_multi_select,
-			char *javascript,
-			LIST *mto1_folder_list )
-{
-	LIST *element_list;
-	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
-
-	if ( !one_folder )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: one_folder is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_length( mto1_folder_list ) ) return (LIST *)0;
-
-	element_list = 
-		prompt_recursive_one_folder_element_list(
-			one_folder->folder_name,
-			one_folder->primary_key_list,
-			drop_down_multi_select,
-			javascript );
-
-	return
-		prompt_recursive_mto1_folder_element_list(
-			/* -------------------- */
-			/* Returns element_list */
-			/* -------------------- */
-			element_list,
-			javascript,
-			mto1_folder_list );
-}
-
 char *prompt_recursive_folder_javascript(
 			LIST *primary_key_list,
 			boolean drop_down_multi_select,
@@ -493,37 +452,57 @@ char *prompt_recursive_folder_javascript(
 	return strdup( javascript );
 }
 
-void prompt_recursive_folder_list_set_javascript(
-			LIST *prompt_recursive_folder_list )
+LIST *prompt_recursive_mto1_folder_element_list(
+			/* ------------------------ */
+			/* Returns one_element_list */
+			/* ------------------------ */
+			LIST *one_element_list,
+			LIST *mto1_folder_list,
+			char *javascript )
 {
-	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
+	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
+	char buffer[ 256 ];
+	char element_name[ 256 ];
+	APPASERVER_ELEMENT *element;
 
-	if ( !list_rewind( prompt_recursive_folder_list ) ) return;
+	if ( !list_length( one_element_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_element_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( mto1_folder_list ) )
+		return element_list;
 
 	do {
-		prompt_recursive_folder =
-			list_get(
-				prompt_recursive_folder_list );
+		mto1_folder = list_get( mto1_folder_list );
 
-		prompt_recursive_folder->javascript =
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
-			prompt_recursive_folder_javascript(
-				prompt_recursive_folder->
-					one_folder->
-					primary_key_list,
-				prompt_recursive_folder->
-					drop_down_multi_select,
-				prompt_recursive_folder->
-					relation_mto1_primary_key_subset_list );
+		list_set_list(
+			one_element_list,
+			prompt_recursive_folder_one_element_list(
+				mto1_folder->one_folder->folder_name,
+				mto1_folder->one_folder->primary_key_list,
+				mto1_folder->one_folder->delimited_list,
+				mto1_folder->one_folder->no_initial_capital,
+				mto1_folder->one_folder->notepad,
+				0 /* not drop_down_multi_select */,
+				javascript ) );
 
-	} while ( list_next( prompt_recursive_folder_list ) );
+	} while( list_next( mto1_folder_list ) );
+
+	return one_element_list;
 }
 
-LIST *prompt_recursive_one_folder_element_list(
+LIST *prompt_recursive_folder_one_element_list(
 			char *folder_name,
 			LIST *primary_key_list,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			char *notepad,
 			boolean drop_down_multi_select,
 			char *javascript )
 {
@@ -591,267 +570,79 @@ LIST *prompt_recursive_one_folder_element_list(
 
 	/* Create the prompt element */
 	/* ------------------------- */
-	element = appaserver_element_new( prompt );
+	element = appaserver_element_new( non_edit_text );
 
 	sprintf(element_name,
 	 	"*%s",
-	 	one_folder->folder_name );
+	 	folder_name );
 
-	element->prompt->html =
+	element->non_edit_text->html =
 		/* -------------------------- */
 		/* Safely returns heap memory */
 		/* -------------------------- */
-		element_prompt_html(
-			strdup(
-				format_initial_capital_not_parens(
-					buffer, 
-					element_name ) ) );
+		element_non_edit_text_html(
+			format_initial_capital_not_parens(
+				buffer, 
+				element_name ) );
 
 	list_set( element_list, element );
 
 	/* Create the drop-down element */
 	/* ---------------------------- */
-	sprintf(element_name,
-	 	"%s",
-	 	list_display_delimited(
-		  	primary_key_list,
-		  	SQL_DELIMITER ) );
-
 	if ( drop_down_multi_select )
 	{
-here1
-		char drop_down_element_name[ 128 ];
+		element = element_new( multi_drop_down );
 
-		sprintf(drop_down_element_name,
-			"%s%s",
-			QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
-			element_name );
+		free( element->multi_drop_down );
 
-		element =
-			element_appaserver_new(
-				drop_down,
-				strdup( drop_down_element_name ) );
-
-		element->drop_down->multi_select = 1;
-
-		element->drop_down->multi_select_element_name =
-			strdup( element_name );
+		element->multi_drop_down =
+			element_multi_drop_down_new(
+				primary_key_list,
+				delimited_list,
+				no_initial_capital,
+				javascript );
 	}
 	else
 	{
-		element =
-			element_appaserver_new(
-				drop_down,
-				strdup( element_name ) );
+		element = element_new( drop_down );
 
-		element->drop_down->output_null_option = 1;
-		element->drop_down->output_not_null_option = 1;
-		element->drop_down->output_select_option = 1;
+		free( element->drop_down );
+
+		element->drop_down =
+			element_drop_down_new(
+				element_drop_down_name(
+					primary_key_list,
+					0 /* row_number */ ),
+				(char *)0 /* initial_data */,
+				delimited_list,
+				no_initial_capital,
+				1 /* output_null_option */,
+				1 /* output_not_null_option */,
+				1 /* output_select_option */,
+				1 /* column_span */,
+				element_drop_down_size(
+					list_length(
+						delimited_list ) ),
+				0 /* tab_order */,
+				0 /* not multi_select */,
+				javascript );
 	}
-
-	element->drop_down->post_change_javascript = javascript;
-	element->drop_down->no_initial_capital = one_folder->no_initial_capital;
-	element->tab_index = 1;
 
 	list_set( element_list, element );
-
-	element_drop_down_set_option_data_option_label_list(
-		&element->drop_down->option_data_list,
-		&element->drop_down->option_label_list,
-		one_folder->delimited_list );
-
-	if ( !drop_down_multi_select
-	&&   list_length( element->drop_down->option_data_list ) )
-	{
-		element->drop_down->initial_data =
-			list_first(
-				element->drop_down->option_data_list );
-	}
 
 	/* Create the hint message */
 	/* ----------------------- */
-	if ( *one_folder->notepad )
+	if ( notepad )
 	{
-		element = 
-			element_appaserver_new(
-				non_edit_text,
-				one_folder->notepad );
+		element = appaserver_element_new( non_edit_text );
+
+		element->non_edit_text->html =
+			element_non_edit_text_html(
+				notepad );
 
 		list_set( element_list, element );
 	}
 
-	/* Create the hidden equals operator */
-	/* --------------------------------- */
-	sprintf( relation_operator_equals,
-		 "%s%s",
-		 QUERY_RELATION_OPERATOR_STARTING_LABEL,
-		 element_name );
-
-	element =
-		element_appaserver_new(
-			hidden,
-			strdup( relation_operator_equals ) );
-
-	element->hidden->data = "equals";
-
-	list_set( element_list, element );
-
 	return element_list;
 }
 
-LIST *prompt_recursive_mto1_folder_element_list(
-			/* -------------------- */
-			/* Returns element_list */
-			/* -------------------- */
-			LIST *element_list,
-			char *javascript,
-			LIST *mto1_folder_list )
-{
-	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
-	char buffer[ 256 ];
-	char element_name[ 256 ];
-	APPASERVER_ELEMENT *element;
-	char relation_operator_equals[ 256 ];
-
-	if ( !list_length( element_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: element_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( mto1_folder_list ) )
-		return element_list;
-
-	do {
-		mto1_folder =
-			list_get( mto1_folder_list );
-
-
-		/* Create the line break */
-		/* --------------------- */
-		element = element_appaserver_new( linebreak, "" );
-
-		list_set( element_list, element );
-
-		sprintf(element_name,
-	 		"%s%s",
-			NO_DISPLAY_PUSH_BUTTON_PREFIX,
-	 		list_display_delimited(
-		  		mto1_folder->one_folder->primary_key_list,
-		  		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) );
-
-		element =
-			element_appaserver_new(
-				toggle_button, 
-				strdup( element_name ) );
-
-		element_toggle_button_set_heading(
-			element->toggle_button,
-			NO_DISPLAY_PUSH_BUTTON_PREFIX );
-
-		list_set( element_list, element );
-
-		/* Create the prompt element */
-		/* ------------------------- */
-		sprintf(element_name,
-		 	"*%s",
-		 	strdup( mto1_folder->one_folder->folder_name ) );
-
-		element =
-			element_appaserver_new(
-				prompt,
-				strdup( format_initial_capital_not_parens(
-						buffer, 
-						element_name ) ) );
-
-		list_set( element_list, element );
-
-		sprintf(element_name, 
-	 		"%s",
-	 		list_display_delimited(
-		  		mto1_folder->one_folder->primary_key_list,
-		  		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER));
-
-		if ( mto1_folder->drop_down_multi_select )
-		{
-			char drop_down_element_name[ 128 ];
-
-			sprintf(drop_down_element_name,
-				"%s%s",
-				QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL,
-				element_name );
-
-			element =
-				element_appaserver_new(
-					drop_down,
-					strdup( drop_down_element_name ) );
-
-			element->drop_down->multi_select = 1;
-
-			element->drop_down->multi_select_element_name =
-				strdup( element_name );
-		}
-		else
-		{
-			element =
-				element_appaserver_new(
-					drop_down,
-					strdup( element_name ) );
-
-			element->drop_down->output_null_option = 1;
-			element->drop_down->output_not_null_option = 1;
-			element->drop_down->output_select_option = 1;
-		}
-
-		element->drop_down->post_change_javascript = javascript;
-
-		list_set( element_list, element );
-
-		element_drop_down_set_option_data_option_label_list(
-			&element->drop_down->option_data_list,
-			&element->drop_down->option_label_list,
-			mto1_folder->one_folder->delimited_list );
-
-		if ( list_length( element->drop_down->option_data_list ) )
-		{
-			element->drop_down->initial_data =
-				list_first(
-					element->drop_down->option_data_list );
-		}
-
-		/* Create the hint message */
-		/* ----------------------- */
-		if ( *mto1_folder->one_folder->notepad )
-		{
-			element = 
-				element_appaserver_new(
-					non_edit_text,
-					mto1_folder->one_folder->notepad );
-
-			list_set( element_list, element );
-		}
-
-		/* Create the hidden equals operator */
-		/* --------------------------------- */
-		sprintf( relation_operator_equals,
-		 	"%s%s",
-		 	QUERY_RELATION_OPERATOR_STARTING_LABEL,
-		 	element_name );
-
-		element =
-			element_appaserver_new(
-				hidden,
-				strdup( relation_operator_equals ) );
-
-		element->hidden->data = "equals";
-
-		list_set( element_list, element );
-
-	} while( list_next( mto1_folder_list ) );
-
-	return element_list;
-}

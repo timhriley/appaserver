@@ -87,12 +87,6 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 			char *login_name,
 			SECURITY_ENTITY *security_entity );
 
-void prompt_recursive_folder_list_set_javascript(
-			LIST *prompt_recursive_folder_list );
-
-LIST *prompt_recursive_folder_list_element_list(
-			LIST *prompt_recursive_folder_list );
-
 /* Safely returns heap memory */
 /* -------------------------- */
 char *prompt_recursive_folder_javascript(
@@ -100,15 +94,12 @@ char *prompt_recursive_folder_javascript(
 			boolean drop_down_multi_select,
 			LIST *relation_mto1_primary_key_subset_list );
 
-LIST *prompt_recursive_folder_element_list(
-			FOLDER *one_folder,
-			boolean drop_down_multi_select,
-			char *javascript,
-			LIST *prompt_recursive_mto1_folder_list );
-
-LIST *prompt_recursive_one_folder_element_list(
+LIST *prompt_recursive_folder_one_element_list(
 			char *folder_name,
 			LIST *primary_key_list,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			char *notepad,
 			boolean drop_down_multi_select,
 			char *javascript );
 
@@ -131,11 +122,11 @@ PROMPT_RECURSIVE_MTO1_FOLDER *prompt_recursive_mto1_folder_calloc(
 			void );
 
 LIST *prompt_recursive_mto1_folder_element_list(
-			/* -------------------- */
-			/* Returns element_list */
-			/* -------------------- */
-			LIST *element_list,
-			char *javascript,
-			LIST *mto1_folder_list );
+			/* --------------------------- */
+			/* Appends to one_element_list */
+			/* --------------------------- */
+			LIST *one_element_list,
+			LIST *mto1_folder_list,
+			char *javascript );
 
 #endif

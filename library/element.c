@@ -54,9 +54,9 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->table_row =
 			element_table_row_calloc();
 	else
-	if ( element_type == prompt )
-		element->prompt =
-			element_prompt_calloc();
+	if ( element_type == non_edit_text )
+		element->non_edit_text =
+			element_non_edit_text_calloc();
 	else
 	if ( element_type == checkbox )
 		element->checkbox =
@@ -70,100 +70,6 @@ APPASERVER_ELEMENT *appaserver_element_new(
 	if ( element_type == multi_drop_down )
 		element->multi_drop_down =
 			element_multi_drop_down_calloc();
-
-#ifdef NOT_DEFINED
-	else
-	if ( element_type == non_edit_multi_select )
-		i->non_edit_multi_select = element_non_edit_multi_select_new();
-	else
-	if ( element_type == toggle_button )
-		i->toggle_button = element_toggle_button_new();
-	else
-	if ( element_type == radio_button )
-		i->radio_button = element_radio_button_new();
-	else
-	if ( element_type == notepad )
-		i->notepad = element_notepad_new();
-	else
-	if ( element_type == text_item
-	||   element_type == element_date
-	||   element_type == element_time
-	||   element_type == element_current_date
-	||   element_type == element_current_time
-	||   element_type == element_current_date_time
-	||   element_type == element_date_time )
-	{
-		i->text_item = element_text_item_new();
-	}
-	else
-	if ( element_type == password )
-		i->password = element_password_new();
-	else
-	if ( element_type == prompt_data
-	||   element_type == prompt_data_plus_hidden )
-	{
-		i->prompt_data = element_prompt_data_new();
-	}
-	else
-	if ( element_type == reference_number )
-		i->reference_number = element_reference_number_new();
-	else
-	if ( element_type == hidden )
-		i->hidden = element_hidden_new();
-	else
-	if ( element_type == upload_filename )
-		i->upload_filename = element_upload_filename_new();
-	else
-	if ( element_type == empty_column )
-		i->empty_column = element_empty_column_new();
-	else
-	if ( element_type == http_filename )
-		i->http_filename = element_http_filename_new();
-	else
-	if ( element_type == anchor )
-		i->anchor = element_anchor_new();
-	else
-	if ( element_type == blank )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == table_opening )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == table_row )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == table_closing )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == prompt )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == prompt_heading )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == javascript_filename )
-	{
-		/* do nothing */
-	}
-	else
-	if ( element_type == non_edit_text )
-	{
-		i->non_edit_text = element_new_non_edit_text();
-		i->non_edit_text->text = element_name;
-	}
-#endif
 	else
 	{
 		fprintf( stderr, 
@@ -617,11 +523,12 @@ APPASERVER_ELEMENT *element_sort_order(
 }
 #endif
 
-ELEMENT_PROMPT *element_prompt_calloc( void )
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc( void )
 {
-	ELEMENT_PROMPT *prompt;
+	ELEMENT_NON_EDIT_TEXT *non_edit_text;
 
-	if ( ! ( prompt = calloc( 1, sizeof( ELEMENT_PROMPT ) ) ) )
+	if ( ! ( non_edit_text =
+			calloc( 1, sizeof( ELEMENT_NON_EDIT_TEXT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -631,26 +538,24 @@ ELEMENT_PROMPT *element_prompt_calloc( void )
 		exit( 1 );
 	}
 
-	return prompt;
+	return non_edit_text;
 }
 
-char *element_prompt_html( char *prompt_string )
+char *element_non_edit_text_html( char *message )
 {
 	char html[ 128 ];
 
-	if ( !prompt_string || !*prompt_string )
+	if ( !message || !*message )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: prompt_string is empty.\n",
+			"ERROR in %s/%s()/%d: message is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	sprintf(html,
-		"<td align=left>%s",
-		prompt_string );
+	sprintf( html, "<td align=left>%s", message );
 
 	return strdup( html );
 }
@@ -1093,7 +998,8 @@ char *element_multi_drop_down_name(
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			LIST *attribute_name_list,
 			LIST *delimited_list,
-			boolean no_initial_capital )
+			boolean no_initial_capital,
+			char *post_change_javascript )
 {
 	ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down;
 
@@ -1127,7 +1033,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			element_multi_drop_down_size(),
 			0 /* tab_order */,
 			1 /* multi_select */,
-			(char *)0 /* post_change_javascript */ );
+			post_change_javascript );
 
 	element_multi_drop_down->move_right_button =
 		element_button_new(

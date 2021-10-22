@@ -46,7 +46,6 @@
 #define ELEMENT_SELECT_OPERATOR			"select"
 
 enum element_type {	table_row,
-			prompt,
 			checkbox,
 			drop_down,
 			multi_drop_down,
@@ -54,7 +53,6 @@ enum element_type {	table_row,
 			notepad,
 			text_item,
 			password,
-			prompt_data,
 			hidden,
 			upload_filename,
 			reference_number,
@@ -277,11 +275,11 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	ELEMENT_TABLE_ROW *table_row;
-	ELEMENT_PROMPT *prompt;
 	ELEMENT_CHECKBOX *checkbox;
 	ELEMENT_DROP_DOWN *drop_down;
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
 	ELEMENT_BUTTON *button;
+	ELEMENT_NON_EDIT_TEXT *non_edit_text;
 
 /*
 	ELEMENT_TOGGLE_BUTTON *toggle_button;
@@ -290,14 +288,12 @@ typedef struct
 	ELEMENT_NOTEPAD *notepad;
 	ELEMENT_TEXT_ITEM *text_item;
 	ELEMENT_PASSWORD *password;
-	ELEMENT_PROMPT_DATA *prompt_data;
 	ELEMENT_HIDDEN *hidden;
 	ELEMENT_UPLOAD_FILENAME *upload_filename;
 	ELEMENT_HTTP_FILENAME *http_filename;
 	ELEMENT_ANCHOR *anchor;
 	ELEMENT_EMPTY_COLUMN *empty_column;
 	ELEMENT_REFERENCE_NUMBER *reference_number;
-	ELEMENT_NON_EDIT_TEXT *non_edit_text;
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
 */
 } APPASERVER_ELEMENT;
@@ -345,15 +341,15 @@ ELEMENT_TABLE_ROW *element_table_row_calloc(
 char *element_table_row_html(
 			void );
 
-/* ELEMENT_PROMPT operations */
-/* ------------------------- */
-ELEMENT_PROMPT *element_prompt_calloc(
+/* ELEMENT_NON_EDIT_TEXT operations */
+/* -------------------------------- */
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
 			void );
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *element_prompt_html(
-			char *prompt_string );
+char *element_non_edit_text_html(
+			char *message );
 
 /* ELEMENT_CHECKBOX operations */
 /* --------------------------- */
@@ -454,7 +450,8 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			LIST *attribute_name_list,
 			LIST *delimited_list,
-			boolean no_initial_capital );
+			boolean no_initial_capital,
+			char *post_change_javascript );
 
 int element_multi_drop_down_size(
 			void );
