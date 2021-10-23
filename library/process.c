@@ -1008,3 +1008,66 @@ char *process_set_name_fetch( char *process_or_set_name )
 	return string_pipe_fetch( system_string );
 }
 
+char *process_parameter_command_line(
+			char *command_line,
+			char *process_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary )
+{
+	char buffer[ 65536 ];
+	char local_command_line[ STRING_INPUT_BUFFER ];
+
+	string_strcpy( local_command_line, command_line, STRING_INPUT_BUFFER );
+
+	if ( process_name && *process_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$process",
+			double_quotes_around(
+				buffer, 
+				process_name ) );
+	}
+
+	if ( role_name && *role_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$role",
+			double_quotes_around(
+				buffer, 
+				role_name ) );
+	}
+
+	if ( login_name && *login_name )
+	{
+		search_replace_word(
+			local_command_line,
+			"$login_name",
+			double_quotes_around(
+				buffer, 
+				login_name ) );
+	}
+
+	dictionary_search_replace_command_arguments(
+		local_command_line,
+		drillthru_dictionary, 
+		0 /* row  */ );
+
+	sprintf(local_command_line + strlen( local_command_line ),
+		" 2>>%s",
+		appaserver_error_filename(
+			environment_application_name() ) );
+
+	/* This memory is always heap */
+	/* -------------------------- */
+	free( command_line );
+
+	return strdup( command_line );
+}
+
+LIST *process_delimited_list( char *command_line )
+{
+	return list_fetch_pipe( command_line );
+}

@@ -49,6 +49,8 @@ enum element_type {	table_row,
 			checkbox,
 			drop_down,
 			multi_drop_down,
+			button,
+			non_edit_text /* last one */,
 			radio_button,
 			notepad,
 			text_item,
@@ -57,8 +59,6 @@ enum element_type {	table_row,
 			upload_filename,
 			reference_number,
 			anchor,
-			non_edit_text,
-			button,
 			blank,
 			break_tag,
 			javascript_filename,
@@ -104,9 +104,15 @@ typedef struct
 
 typedef struct
 {
+	/* Attributes */
+	/* ---------- */
 	char *text;
 	int column_span;
 	int padding_em;
+
+	/* Process */
+	/* ------- */
+	char *html;
 } ELEMENT_NON_EDIT_TEXT;
 
 typedef struct
@@ -147,7 +153,8 @@ typedef struct
 	ELEMENT_BUTTON *move_right_button;
 	ELEMENT_BREAK_TAG *element_break_tag;
 	ELEMENT_BUTTON *move_left_button;
-	char *element_drop_down_empty_html;
+	char *empty_html;
+	char *html;
 } ELEMENT_MULTI_DROP_DOWN;
 
 typedef struct
@@ -512,5 +519,15 @@ ELEMENT_BREAK_TAG *element_break_tag_new(
 /* ---------------------- */
 char *element_break_tag_html(
 			void );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_list_html(
+			LIST *appaserver_element_list );
+
+/* Returns heap, static, or program memory, or it returns null */
+/* ----------------------------------------------------------- */
+char *appaserver_element_html(
+			APPASERVER_ELEMENT *appaserver_element );
 
 #endif

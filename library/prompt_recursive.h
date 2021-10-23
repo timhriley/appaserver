@@ -38,6 +38,7 @@ typedef struct
 	LIST *relation_mto1_primary_key_subset_list;
 	LIST *mto1_folder_list;
 	char *javascript;
+	LIST *one_element_list;
 	LIST *element_list;
 } PROMPT_RECURSIVE_FOLDER;
 
@@ -53,6 +54,7 @@ typedef struct
 	LIST *prompt_recursive_folder_list;
 	char *javascript;
 	LIST *element_list;
+	char *html;
 } PROMPT_RECURSIVE;
 
 /* PROMPT_RECURSIVE operations */
@@ -66,7 +68,9 @@ PROMPT_RECURSIVE *prompt_recursive_new(
 			boolean override_row_restrictions,
 			boolean drillthru_skipped );
 
-LIST *prompt_recursive_element_list(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *prompt_recursive_html(
 			LIST *prompt_recursive_folder_list );
 
 /* PROMPT_RECURSIVE_FOLDER operations */
@@ -102,6 +106,11 @@ LIST *prompt_recursive_folder_one_element_list(
 			char *notepad,
 			boolean drop_down_multi_select,
 			char *javascript );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *prompt_recursive_folder_html(
+			LIST *element_list );
 
 /* PROMPT_RECURSIVE_MTO1_FOLDER operations */
 /* --------------------------------------- */

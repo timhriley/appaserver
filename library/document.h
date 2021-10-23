@@ -208,6 +208,7 @@ DOCUMENT *document_choose_isa_new(
 			MENU *menu,
 			LIST *primary_key_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *action_string );
 
 DOCUMENT_BODY *document_body_choose_isa_new(
@@ -217,6 +218,7 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 			MENU *menu,
 			LIST *primary_key_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *action_string );
 
 #endif

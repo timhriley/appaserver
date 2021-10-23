@@ -22,6 +22,7 @@
 #include "dictionary.h"
 #include "attribute.h"
 #include "folder.h"
+#include "query.h"
 #include "process_parameter.h"
 
 PROMPT *prompt_fetch( char *prompt_name )
@@ -385,20 +386,8 @@ PROCESS_PARAMETER *process_parameter_parse(
 
 	if ( *process_parameter->populate_drop_down_process_name )
 	{
-		if ( strcmp( process_parameter->folder_name, "null" ) == 0 )
-		{
-			fprintf(stderr,
-				"ERROR in %s/%s()/%d: folder_name = null.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
 		process_parameter->delimited_list =
 			process_parameter_process_delimited_list(
-				process_parameter->
-					folder_name,
 				process_parameter->
 					populate_drop_down_process_name,
 				process_parameter->login_name,
@@ -496,70 +485,39 @@ char *process_parameter_where(
 }
 
 LIST *process_parameter_process_delimited_list(
-			char *folder_name,
 			char *populate_drop_down_process_name,
 			char *login_name,
 			char *role_name,
 			DICTIONARY *drillthru_dictionary )
 {
-	ROLE *role;
-	FOLDER *folder;
-	SECURITY_ENTITY *security_entity;
+	PROCESS *process;
 
-	role =
-		role_fetch(
-			role_name,
-			0 /* not fetch_role_attribute_exclude_list */ );
-
-	if ( !role )
+	if ( ! ( process =
+			process_fetch(
+				populate_drop_down_process_name,
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
+				1 /* check_executable_inside_filesystem */ ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: process_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			role_name );
+			__LINE__ );
 		exit( 1 );
 	}
 
-	folder =
-		folder_fetch(
-			folder_name,
-			(char *)0 /* role_name */,
-			(LIST *)0 /* role_exclude_attribute_name_list */,
-			/* --------------------------------------- */
-			/* Also sets folder_attribute_primary_list */
-			/* and primary_key_list.		   */
-			/* ---------------------------------------- */
-			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_relation_mto1_non_isa_list */,
-			0 /* not fetch_relation_mto1_isa_list */,
-			0 /* not fetch_relation_one2m_list */,
-			0 /* not fetch_relation_one2m_recursive_list */,
-			0 /* not fetch_process */,
-			0 /* not fetch_role_folder_list */,
-			1 /* fetch_row_level_restriction */,
-			0 /* not fetch_role_operation_list */ );
-
-	security_entity =
-		/* -------------- */
-		/* Always returns */
-		/* -------------- */
-		security_entity_new(
+	return
+	process_delimited_list(
+		/* ------------------------------------------------- */
+		/* Frees command_line and safely returns heap memory */
+		/* ------------------------------------------------- */
+		process_parameter_command_line(
+			process->command_line,
+			populate_drop_down_process_name,
 			login_name,
-			folder->non_owner_forbid,
-			role->override_row_restrictions );
-
-	folder->delimited_list =
-		folder_primary_delimited_list(
-			folder_name,
-			folder->primary_key_list,
-			folder->folder_attribute_list,
-			security_entity,
-			drillthru_dictionary,
-			login_name );
-
-	return folder;
+			role_name,
+			drillthru_dictionary ) );
 }
 
 LIST *process_parameter_folder_delimited_list(
@@ -597,7 +555,7 @@ LIST *process_parameter_folder_delimited_list(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			drop_down_folder_name );
+			widget_folder_name );
 		exit( 1 );
 	}
 
@@ -625,37 +583,34 @@ LIST *process_parameter_folder_delimited_list(
 			role->override_row_restrictions );
 
 	query =
-		query_widget_delimited_new(
+		query_widget_new(
 			widget_folder_name,
 			login_name,
-			folder->folder_attribute_primary_list,
+			folder->primary_key_list,
 			folder->folder_attribute_list,
-			security_entity,
+			folder->relation_mto1_non_isa_list,
+			security_entity_where(
+				security_entity,
+				folder->folder_attribute_list ),
 			drillthru_dictionary );
 
 	if ( !query )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: query_drop_down_delimited_new(%s) returned empty.\n",
+"ERROR in %s/%s()/%d: query_widget_new(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			drop_down_folder_name );
+			widget_folder_name );
 		exit( 1 );
 	}
 
-	query->query_delimited_list =
-		query_delimited_list(
-			query->select_clause,
-			query->from_clause,
-			query->where_clause,
-			query->order_clause,
-			0 /* max_rows */,
-			query_date_convert_new(
-				login_name,
-				query->select_attribute_name_list,
-				folder_attribute_list ) );
-
-	return query->query_delimited_list;
+	return
+	query_delimited_list(
+		query->select_clause,
+		query->from_clause,
+		query->where_clause,
+		query->order_clause,
+		0 /* max_rows */ );
 }
 

@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "appaserver_library.h"
 #include "timlib.h"
+#include "sql.h"
 #include "String.h"
 #include "column.h"
 #include "date_convert.h"
@@ -40,7 +41,7 @@ char *query_system_string(
 			char *from_clause,
 			char *where_clause,
 			char *order_clause,
-			int maxrows )
+			int max_rows )
 {
 	char system_string[ STRING_SYSTEM_BUFFER ];
 
@@ -76,7 +77,7 @@ char *query_system_string(
 		from_clause,
 		(where_clause) ? where_clause : "",
 		(order_clause) ? order_clause : "",
-		maxrows );
+		max_rows );
 
 	return strdup( system_string );
 }
@@ -272,7 +273,7 @@ char *query_drop_down_operator_key(
 		( tmp =
 			list_display_delimited(
 				foreign_key_list,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) ) );
+				SQL_DELIMITER ) ) );
 
 	free( tmp );
 	return key;
@@ -305,7 +306,7 @@ char *query_drop_down_row_key(
 		( tmp =
 			list_display_delimited(
 				foreign_key_list,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) ),
+				SQL_DELIMITER ) ),
 		index );
 
 	free( tmp );
@@ -1095,7 +1096,7 @@ LIST *query_data_string_list(
 {
 	return list_string_list(
 			data_list_string,
-			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER );
+			SQL_DELIMITER );
 }
 
 LIST *query_data_list(	LIST *foreign_key_list,
@@ -1401,7 +1402,7 @@ char *query_output_order(
 			mto1_folder_name,
 			list_string_list(
 				attribute_list_string,
-				FOLDER_DATA_DELIMITER )
+				SQL_DELIMITER )
 					/* primary_key_list */,
 			descending_label );
 }

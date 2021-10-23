@@ -1051,7 +1051,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 				attribute_name_list ),
 			0 /* not with_table_data_tag */ );
 
-	element_multi_drop_down->element_drop_down_empty_html =
+	element_multi_drop_down->empty_html =
 		element_drop_down_empty_html(
 			/* ------------------- */
 			/* Returns heap memory */
@@ -1266,5 +1266,63 @@ ELEMENT_BREAK_TAG *element_break_tag_new( void )
 char *element_break_tag_html( void )
 {
 	return "<br>";
+}
+
+char *appaserver_element_html(
+			APPASERVER_ELEMENT *appaserver_element )
+{
+	if ( appaserver_element->element_type == table_row )
+		return appaserver_element->table_row->html;
+	else
+	if ( appaserver_element->element_type == checkbox )
+		return appaserver_element->checkbox->html;
+	else
+	if ( appaserver_element->element_type == drop_down )
+		return appaserver_element->drop_down->html;
+	else
+	if ( appaserver_element->element_type == multi_drop_down )
+	{
+		if ( appaserver_element->multi_drop_down->empty_html )
+			return appaserver_element->multi_drop_down->empty_html;
+		else
+			return appaserver_element->multi_drop_down->html;
+	}
+	else
+	if ( appaserver_element->element_type == button )
+		return appaserver_element->button->html;
+	else
+		return (char *)0;
+}
+
+char *appaserver_element_list_html(
+			LIST *appaserver_element_list )
+{
+	APPASERVER_ELEMENT *appaserver_element;
+	char html[ STRING_FOUR_MEG ];
+	char *ptr = html;
+	char *element_html;
+
+	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
+
+	do {
+		appaserver_element = list_get( appaserver_element_list );
+
+		/* ---------------------------------------- */
+		/* Returns heap, static, or program memory, */
+		/* or it returns null			    */
+		/* ---------------------------------------- */
+		if ( ( element_html =
+				appaserver_element_html(
+					appaserver_element ) ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s\n", 
+				element_html );
+		}
+
+	} while ( list_next( appaserver_element_list ) );
+
+	return strdup( html );
 }
 

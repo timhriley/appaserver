@@ -117,7 +117,8 @@ DELETE *delete_new(
 			primary_data_list,
 			delete->folder->post_change_process,
 			security_entity_where(
-				delete->security_entity ) );
+				delete->security_entity,
+				delete->folder->folder_attribute_list ) );
 
 	if ( list_length( delete->folder->relation_one2m_recursive_list ) )
 	{
@@ -1385,7 +1386,7 @@ char *delete_message_html(
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			element_drop_down_data_list_display(
+			delete_primary_data_list_display(
 				primary_data_list ) ) )
 	{
 		fprintf(stderr,
@@ -1451,5 +1452,33 @@ LIST *delete_one2m_list_distinct_folder_name_list(
 	} while ( list_next( delete_one2m_list ) );
 
 	return folder_name_list;
+}
+
+char *delete_primary_data_list_display(
+			LIST *primary_data_list )
+{
+	char display[ 1024 ];
+	char *ptr = display;
+
+	if ( !list_rewind( primary_data_list ) ) return (char *)0;
+
+	do {
+		if ( !list_at_head( primary_data_list ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s", 
+				ELEMENT_LONG_DASH_DELIMITER );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			(char *)list_get(
+				primary_data_list ) );
+
+	} while ( list_next( primary_data_list ) );
+
+	return strdup( display );
 }
 

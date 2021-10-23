@@ -304,5 +304,17 @@ char *process_operation_command_line(
 			LIST *primary_data_list,
 			DICTIONARY *single_row_dictionary );
 
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
+char *process_parameter_command_line(
+			char *command_line,
+			char *process_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary );
+
+LIST *process_delimited_list(
+			char *command_line );
+
 #endif
 

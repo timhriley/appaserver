@@ -369,7 +369,8 @@ UPDATE_ROOT *update_root_new(
 	update_root->update_root_where_clause =
 		update_root_where_clause(
 			update_root->update_where_clause,
-			security_entity );
+			security_entity,
+			folder_attribute_list );
 
 	update_root->update_sql_statement =
 		/* --------------------------- */
@@ -1533,7 +1534,8 @@ char *update_sql_statement(
 
 char *update_root_where_clause(
 			char *update_where_clause,
-			SECURITY_ENTITY *security_entity )
+			SECURITY_ENTITY *security_entity,
+			LIST *folder_attribute_list )
 {
 	char *where;
 
@@ -1547,7 +1549,10 @@ char *update_root_where_clause(
 		exit( 1 );
 	}
 
-	if ( ( where = security_entity_where( security_entity ) ) )
+	if ( ( where =
+			security_entity_where(
+				security_entity,
+				folder_attribute_list ) ) )
 	{
 		char where_clause[ 4096 ];
 

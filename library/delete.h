@@ -14,6 +14,7 @@
 #include "folder.h"
 #include "role.h"
 #include "security.h"
+#include "element.h"
 #include "relation.h"
 
 /* Constants */
@@ -284,5 +285,10 @@ LIST *delete_mto1_isa_distinct_folder_name_list(
 
 LIST *delete_mto1_isa_one2m_distinct_folder_name_list(
 			LIST *delete_mto1_isa_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *delete_primary_data_list_display(
+			LIST *primary_data_list );
 
 #endif

@@ -231,12 +231,14 @@ FORM_PROMPT_ISA *form_prompt_isa_new(
 			char *one2m_folder_name,
 			LIST *primary_key_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *action_string );
 
 LIST *form_prompt_isa_element_list(
 			char *one2m_folder_name,
 			LIST *primary_key_list,
-			LIST *delimited_list );
+			LIST *delimited_list,
+			boolean no_initial_capital );
 
 LIST *form_prompt_isa_button_list(
 			void );

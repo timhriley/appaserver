@@ -528,37 +528,37 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_parse(
 
 	/* See attribute_list process_generic_value_folder */
 	/* ----------------------------------------------- */
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 0 );
+	piece( piece_string, SQL_DELIMITER, input, 0 );
 	value_folder->value_folder_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 1 );
+	piece( piece_string, SQL_DELIMITER, input, 1 );
 	value_folder->datatype_folder_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 2 );
+	piece( piece_string, SQL_DELIMITER, input, 2 );
 	value_folder->foreign_folder_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 3 );
+	piece( piece_string, SQL_DELIMITER, input, 3 );
 	value_folder->datatype_attribute_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 4 );
+	piece( piece_string, SQL_DELIMITER, input, 4 );
 	value_folder->date_attribute_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 5 );
+	piece( piece_string, SQL_DELIMITER, input, 5 );
 	value_folder->time_attribute_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 6 );
+	piece( piece_string, SQL_DELIMITER, input, 6 );
 	value_folder->value_attribute_name = strdup( piece_string );
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 7 );
+	piece( piece_string, SQL_DELIMITER, input, 7 );
 	value_folder->exists_aggregation_sum = (*piece_string == 'y');
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 8 );
+	piece( piece_string, SQL_DELIMITER, input, 8 );
 	value_folder->exists_bar_graph = (*piece_string == 'y');
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 9 );
+	piece( piece_string, SQL_DELIMITER, input, 9 );
 	value_folder->datatype_exists_unit = (*piece_string == 'y');
 
-	piece( piece_string, FOLDER_DATA_DELIMITER, input, 10 );
+	piece( piece_string, SQL_DELIMITER, input, 10 );
 	value_folder->foreign_exists_unit = (*piece_string == 'y');
 
 	return value_folder;

@@ -553,7 +553,8 @@ FORM_PROMPT *form_prompt_calloc( void )
 LIST *form_prompt_isa_element_list(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
-			LIST *delimited_list )
+			LIST *delimited_list,
+			boolean no_initial_capital )
 {
 	LIST *element_list = list_new();
 	APPASERVER_ELEMENT *element;
@@ -577,13 +578,13 @@ LIST *form_prompt_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				prompt ) ) );
+				non_edit_text ) ) );
 
-	element->prompt->html =
+	element->non_edit_text->html =
 		/* --------------------------- */
 		/* Safely returns heap memory. */
 		/* --------------------------- */
-		element_prompt_html(
+		element_non_edit_text_html(
 			string_initial_capital(
 				buffer /* prompt_string */,
 				one2m_isa_folder_name /* source */ ) );
@@ -596,8 +597,10 @@ LIST *form_prompt_isa_element_list(
 			appaserver_element_new(
 				drop_down ) ) );
 
-	element->drop_down->html =
-		element_drop_down_html(
+	free( element->drop_down );
+
+	element->drop_down =
+		element_drop_down_new(
 			/* -------------------------- */
 			/* Safely returns heap memory */
 			/* -------------------------- */
@@ -606,18 +609,16 @@ LIST *form_prompt_isa_element_list(
 				0 ),
 			(char *)0 /* initial_data */,
 			delimited_list,
-			element_drop_down_display_list(
-				delimited_list,
-				0 /* not no_initial_capital */ ),
+			no_initial_capital,
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
 			1 /* output_select_option */,
 			1 /* column_span */,
 			element_drop_down_size(
 				list_length( delimited_list ) ),
-			(char *)0 /* post_change_javascript */,
-			form_table_row_background_color(),
-			appaserver_element_tab_order( -1 ) );
+			appaserver_element_tab_order( -1 ),
+			0 /* not multi_select */,
+			(char *)0 /* post_change_javascript */ );
 
 	/* Create a table row */
 	/* ------------------ */
@@ -957,6 +958,7 @@ FORM_PROMPT_ISA *form_prompt_isa_new(
 			char *one2m_folder_name,
 			LIST *primary_key_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *action_string )
 {
 	FORM_PROMPT_ISA *form_prompt_isa = form_prompt_isa_calloc();
@@ -985,7 +987,8 @@ FORM_PROMPT_ISA *form_prompt_isa_new(
 		form_prompt_isa_element_list(
 			one2m_folder_name,
 			primary_key_list,
-			delimited_list );
+			delimited_list,
+			no_initial_capital );
 
 	form_prompt_isa->button_list =
 		form_prompt_isa_button_list();

@@ -20,6 +20,7 @@
 #define STRING_INPUT_BUFFER		196608
 #define STRING_ONE_MEG			1048576
 #define STRING_TWO_MEG			2097152
+#define STRING_FOUR_MEG			4194304
 
 /* Structures */
 /* ---------- */

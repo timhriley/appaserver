@@ -194,6 +194,7 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 				choose_isa->folder_menu->lookup_count_list ),
 			choose_isa->folder->primary_key_list,
 			choose_isa->delimited_list,
+			choose_isa->folder->no_initial_capital,
 			choose_isa->action_string );
 
 	return choose_isa;

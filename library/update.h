@@ -269,7 +269,8 @@ UPDATE_ROOT *update_root_new(
 
 char *update_root_where_clause(
 			char *update_where_clause,
-			SECURITY_ENTITY *security_entity );
+			SECURITY_ENTITY *security_entity,
+			LIST *folder_attribute_list );
 
 /* UPDATE_MTO1_ISA operations */
 /* -------------------------- */

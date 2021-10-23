@@ -98,7 +98,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *primary_delimited_list;
+	LIST *delimited_list;
 	FOLDER *folder;
 	ATTRIBUTE *attribute;
 	DROP_DOWN_PROMPT *drop_down_prompt;
@@ -201,7 +201,6 @@ PROCESS_PARAMETER *process_parameter_parse(
 			DICTIONARY *drillthru_dictionary );
 
 LIST *process_parameter_process_delimited_list(
-			char *folder_name,
 			char *populate_drop_down_process_name,
 			char *login_name,
 			char *role_name,

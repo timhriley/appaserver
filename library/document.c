@@ -465,6 +465,7 @@ DOCUMENT *document_choose_isa_new(
 			MENU *menu,
 			LIST *primary_key_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *action_string )
 {
 	DOCUMENT *document = document_calloc();
@@ -484,6 +485,7 @@ DOCUMENT *document_choose_isa_new(
 			menu,
 			primary_key_list,
 			delimited_list,
+			no_initial_capital,
 			action_string );
 
 	return document;
@@ -496,6 +498,7 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 			MENU *menu,
 			LIST *primary_key_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *action_string )
 {
 	DOCUMENT_BODY *document_body;
@@ -524,6 +527,7 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 			one2m_isa_folder_name,
 			primary_key_list,
 			delimited_list,
+			no_initial_capital,
 			action_string );
 
 	if ( !document_body->form_prompt_isa )

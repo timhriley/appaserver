@@ -202,7 +202,7 @@ PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder_new(
 				one_folder->folder_name );
 	}
 
-	if ( !list_length( one_folder->relation_mto1_nnon_isa_list ) )
+	if ( !list_length( one_folder->relation_mto1_non_isa_list ) )
 	{
 		fprintf(stderr,
 "ERROR in %s/%s()/%d: relation_mto1_non_isa_list() returned empty. Unset relation->prompt_mto1_recursive.\n",
@@ -428,7 +428,7 @@ char *prompt_recursive_folder_javascript(
 			 element_index );
 
 	do {
-		mto1_folder =
+		relation_mto1 =
 			list_get(
 				relation_mto1_primary_key_subset_list );
 
@@ -441,7 +441,7 @@ char *prompt_recursive_folder_javascript(
 			sprintf( ptr,
 			 "%s_%d",
 			 list_display_delimited(
-				mto1_folder->one_folder->primary_key_list,
+				relation_mto1->one_folder->primary_key_list,
 				SQL_DELIMITER ),
 			 0 /* element_index */ );
 
@@ -461,9 +461,6 @@ LIST *prompt_recursive_mto1_folder_element_list(
 			char *javascript )
 {
 	PROMPT_RECURSIVE_MTO1_FOLDER *mto1_folder;
-	char buffer[ 256 ];
-	char element_name[ 256 ];
-	APPASERVER_ELEMENT *element;
 
 	if ( !list_length( one_element_list ) )
 	{
@@ -476,7 +473,7 @@ LIST *prompt_recursive_mto1_folder_element_list(
 	}
 
 	if ( !list_rewind( mto1_folder_list ) )
-		return element_list;
+		return one_element_list;
 
 	do {
 		mto1_folder = list_get( mto1_folder_list );
@@ -523,9 +520,9 @@ LIST *prompt_recursive_folder_one_element_list(
 		exit( 1 );
 	}
 
-	/* Create the line break */
-	/* --------------------- */
-	element = appaserver_element_new( linebreak );
+	/* Create the table row */
+	/* -------------------- */
+	element = appaserver_element_new( table_row );
 
 	list_set( element_list, element );
 
@@ -591,7 +588,7 @@ LIST *prompt_recursive_folder_one_element_list(
 	/* ---------------------------- */
 	if ( drop_down_multi_select )
 	{
-		element = element_new( multi_drop_down );
+		element = appaserver_element_new( multi_drop_down );
 
 		free( element->multi_drop_down );
 
@@ -604,7 +601,7 @@ LIST *prompt_recursive_folder_one_element_list(
 	}
 	else
 	{
-		element = element_new( drop_down );
+		element = appaserver_element_new( drop_down );
 
 		free( element->drop_down );
 
@@ -644,5 +641,46 @@ LIST *prompt_recursive_folder_one_element_list(
 	}
 
 	return element_list;
+}
+
+char *prompt_recursive_html(
+			LIST *prompt_recursive_folder_list )
+{
+	char html[ STRING_TWO_MEG ];
+	char *ptr = html;
+	PROMPT_RECURSIVE_FOLDER *prompt_recursive_folder;
+	char *folder_html;
+
+	if ( !list_rewind( prompt_recursive_folder_list ) ) return (char *)0;
+
+	do {
+		prompt_recursive_folder =
+			list_get(
+				prompt_recursive_folder_list );
+
+		if ( ( folder_html =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				prompt_recursive_folder_html(
+					prompt_recursive_folder->
+						element_list ) ) )
+		{
+			ptr += sprintf( ptr, "%s\n", folder_html );
+
+			free( folder_html );
+		}
+
+	} while ( list_next( prompt_recursive_folder_list ) );
+
+	return strdup( html );
+}
+
+char *prompt_recursive_folder_html(
+			LIST *element_list )
+{
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	return appaserver_element_list_html( element_list );
 }
 
