@@ -1,12 +1,12 @@
-/* ---------------------------------------------------	*/
-/* src_hydrology/post_hydrology_validation_form.c	*/
-/* ---------------------------------------------------	*/
-/*							*/
-/* This script is attached to the submit button on 	*/
-/* the hydrology validation form.			*/
-/*							*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_hydrology/post_hydrology_validation_form.c	*/
+/* ---------------------------------------------------------------	*/
+/*									*/
+/* This script is attached to the submit button on 			*/
+/* the hydrology validation form.					*/
+/*									*/
+/* Freely available software: see Appaserver.org			*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -218,9 +218,9 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	exit( 0 );
+	return 0;
 
-} /* main() */
+}
 
 char *insert_salinity(	char *application_name,
 			char *login_name,
@@ -278,7 +278,7 @@ char *insert_salinity(	char *application_name,
 
 	return salinity_datatype;
 
-} /* insert_salinity() */
+}
 
 LIST *get_conductivity_datatype_list( char *application_name )
 {
@@ -292,7 +292,7 @@ LIST *get_conductivity_datatype_list( char *application_name )
 
 	return pipe2list( sys_string );
 
-} /* get_conductivity_datatype_list() */
+}
 
 char *get_salinity_datatype(
 			char *application_name,
@@ -313,4 +313,4 @@ char *get_salinity_datatype(
 
 	return pipe2string( sys_string );
 
-} /* get_salinity_datatype() */
+}

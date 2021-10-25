@@ -1,4 +1,4 @@
-/* hydrology_validation_form.c						*/
+/* $APPASERVER_HOME/src_hydrology/hydrology_validation_form.c		*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -27,76 +27,104 @@
 /* Constants */
 /* --------- */
 #define PROCESS_NAME		"hydrology_validation_form"
-/* #define CHART_USING_EASYCHART	1 */
 
 #define TARGET_FRAME		EDIT_FRAME
 
-/* Type Definitions */
-/* ---------------- */
-
 /* Prototypes */
 /* ---------- */
-void get_chart_title_string(		char **title,
-					char **sub_title,
-					char *station,
-					char *begin_measurement_date,
-					char *end_measurement_date );
+char *hydrology_validation_form_data_process(
+			char *application_name,
+			char *station,
+			char *datatype,
+			char *begin_date,
+			char *end_date );
 
-void get_table_title_string(		char **title,
-					char *station,
-					char *datatype,
-					char *begin_measurement_date,
-					char *end_measurement_date );
+char *hydrology_validation_form_action_string(
+			char *apache_cgi_directory,
+			char *login_name,
+			char *application_name,
+			char *session_key,
+			char *station,
+			char *datatype,
+			char *begin_date,
+			char *end_date,
+			char *target_frame );
 
-char *get_infrastructure_process( 		char *application_name,
-						char *station,
-						char *datatype );
+void validation_form_chart_title_string(
+			char **title,
+			char **sub_title,
+			char *station,
+			char *begin_measurement_date,
+			char *end_measurement_date );
 
-void chart_hydrology_validation_form(		char *application_name,
-						char *role_name,
-						char *document_root_directory,
-						char *station,
-						char *datatype,
-						char *begin_measurement_date,
-						char *end_measurement_date,
-						char *action_string,
-						char *argv_0,
-						char *post_dictionary_string );
+void hydrology_validation_form_table_title_string(
+			char **title,
+			char *station,
+			char *datatype,
+			char *begin_measurement_date,
+			char *end_measurement_date );
 
-LIST *hydrology_validation_get_primary_name_list();
+char *hydrology_validation_form_infrastructure_process(
+			char *application_name,
+			char *station,
+			char *datatype );
+
+void chart_hydrology_validation_form(
+			char *application_name,
+			char *role_name,
+			char *document_root_directory,
+			char *station,
+			char *datatype,
+			char *begin_measurement_date,
+			char *end_measurement_date,
+			char *action_string,
+			char *argv_0,
+			char *post_dictionary_string );
+
+LIST *hydrology_validation_primary_name_list(
+			void );
+
+LIST *hydrology_validation_form_datatype_name_list(
+			LIST *datatype );
 
 int main( int argc, char **argv )
 {
-	char *person, *session, *application_name;
+	char *login_name;
+	char *session_key;
+	char *application_name;
 	char *role_name;
-	char *station, *datatype;
-	char *begin_date, *end_date;
+	char *station;
+	char *datatype;
+	char *begin_date;
+	char *end_date;
 	char *table_title;
-	char action_string[ 1024 ];
+	char *action_string;
 	VALIDATION_FORM *validation_form;
 	DOCUMENT *document;
-	LIST *datatype_name_list;
-	LIST *primary_name_list;
 	char data_process[ 1024 ];
 	char *post_dictionary_string;
 	char *database_string = {0};
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char *chart_yn;
 
-	output_starting_argv_stderr( argc, argv );
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 11 )
 	{
 		fprintf( stderr, 
-"Usage: %s application role session person station datatype begin_date end_date dictionary chart_yn\n",
+"Usage: %s ignored role session login_name station datatype begin_date end_date dictionary chart_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
 	role_name = argv[ 2 ];
 	session = argv[ 3 ];
-	person = argv[ 4 ];
+	login_name = argv[ 4 ];
 	station = argv[ 5 ];
 	datatype = argv[ 6 ];
 	begin_date = argv[ 7 ];
@@ -106,128 +134,85 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = new_appaserver_parameter_file();
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
 	hydrology_library_get_clean_begin_end_date(
-					&begin_date,
-					&end_date,
-					application_name,
-					station,
-					datatype );
+		&begin_date,
+		&end_date,
+		application_name,
+		station,
+		datatype );
 
 	if ( !appaserver_library_validate_begin_end_date(
-					&begin_date,
-					&end_date,
-					(DICTIONARY *)0 /* post_dictionary */) )
+		&begin_date,
+		&end_date,
+		(DICTIONARY *)0 /* post_dictionary */) )
 	{
-		document_quick_output_body(	application_name,
-						appaserver_parameter_file->
-						appaserver_mount_point );
-
+		document_quick_output( application_name );
 		printf( "<p>ERROR: no data available for these dates.\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	primary_name_list = 
-		hydrology_validation_get_primary_name_list();
-
-	sprintf( action_string,
-		 "%s/post_hydrology_validation_form?%s+%s+%s+%s+%s+%s+%s+%s",
-		 appaserver_parameter_file->apache_cgi_directory,
-		 person,
-		 application_name,
-		 session,
-		 station,
-		 datatype,
-		 begin_date,
-		 end_date,
-		 TARGET_FRAME );
+	action_string =
+		hydrology_validation_form_action_string(
+			appaserver_parameter_file->apache_cgi_directory,
+			login_name,
+			application_name,
+			session_key,
+			station,
+			datatype,
+			begin_date,
+			end_date,
+			TARGET_FRAME );
 
 	if ( *chart_yn == 'y' )
 	{
-		chart_hydrology_validation_form(application_name,
-						role_name,
-						appaserver_parameter_file->
-							document_root,
-						station,
-						datatype,
-						begin_date,
-						end_date,
-						action_string,
-						argv[ 0 ],
-						post_dictionary_string );
+		chart_hydrology_validation_form(
+			application_name,
+			role_name,
+			appaserver_parameter_file->document_root,
+			station,
+			datatype,
+			begin_date,
+			end_date,
+			action_string,
+			argv[ 0 ],
+			post_dictionary_string );
 		exit( 0 );
 	}
 
-	datatype_name_list = list_new();
-	list_append_string( datatype_name_list, datatype );
+	document = document_new( application_name, (MENU *)0 );
+	document_output_output_content_type();
+	document_begin( stdout, document );
 
-	get_table_title_string(		&table_title,
-					station,
-					datatype,
-					begin_date,
-					end_date );
+	hydrology_validation_form_table_title_string(
+		&table_title,
+		station,
+		datatype,
+		begin_date,
+		end_date );
 
 	validation_form = 
-			validation_form_new(	table_title,
-						TARGET_FRAME,
-						primary_name_list,
-						datatype_name_list );
+		validation_form_new(
+			table_title,
+			TARGET_FRAME,
+			hydrology_validation_primary_name_list(),
+			hydrology_validation_form_datatype_name_list(
+				datatype ),
+			action_string,
+			1 /* table_border */,
+			hydrology_validation_form_data_process(
+				application_name,
+				station,
+				datatype,
+				begin_date,
+				end_date ) );
 
-	document = document_new( table_title, application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
-
-	validation_form_set_action( validation_form, action_string );
-
-	validation_form->element_list = 
-		validation_form_get_element_list( 
-		   validation_form->primary_column_name_list,
-		   validation_form->datatype_name_list );
-
-	validation_form->table_border = 1;
-
-	validation_form_output_heading(	validation_form->title,
-					validation_form->action_string,
-					validation_form->target_frame,
-					validation_form->element_list,
-					validation_form->table_border );
-
-	/* Input specification: primary_data_1,...,n|datatype=value=validated */
-	/* ------------------------------------------------------------------ */
-	sprintf( data_process,
-		 "hydrology_select_value4validation.sh %s %s %s %s %s",
-		 application_name,
-		 station,
-		 datatype,
-		 begin_date,
-		 end_date );
-
-	validation_form->row_list =
-		validation_form_get_row_list(
-			validation_form->primary_column_name_list,
-			data_process );
+	validation_form_output_heading(
+		validation_form->table_title,
+		validation_form->action_string,
+		validation_form->target_frame,
+		validation_form->element_list,
+		validation_form->table_border );
 
 	validation_form_output_body( validation_form );
 	output_dictionary_string_as_hidden( post_dictionary_string );
@@ -239,14 +224,14 @@ int main( int argc, char **argv )
 				application_name,
 				PROCESS_NAME,
 				appaserver_parameter_file_get_dbms() );
-	exit( 0 );
+	return 0;
 }
 
-LIST *hydrology_validation_get_primary_name_list()
+LIST *hydrology_validation_primary_name_list()
 {
 	LIST *list = list_new();
-	list_add_string( list, "measurement_date" );
-	list_add_string( list, "measurement_time" );
+	list_set( list, "measurement_date" );
+	list_set( list, "measurement_time" );
 	return list;
 }
 
@@ -284,9 +269,11 @@ void chart_hydrology_validation_form(		char *application_name,
 	char *distill_landscape_flag;
 
 	infrastructure_process =
-		get_infrastructure_process( 	application_name,
-						station,
-						datatype );
+		hydrology_validation_form_infrastructure_process(
+			application_name,
+			station,
+			datatype );
+
 	select_string =
 	"station,datatype,measurement_date,measurement_time,measurement_value";
 
@@ -451,16 +438,17 @@ void chart_hydrology_validation_form(		char *application_name,
 		printf( "<input type=submit value=Validate>\n" );
 
 		output_dictionary_string_as_hidden(
-				post_dictionary_string );
+			post_dictionary_string );
 
 		printf( "</form>\n" );
 	}
 	document_close();
 }
 
-char *get_infrastructure_process(	char *application_name,
-					char *station,
-					char *datatype )
+char *hydrology_validation_form_infrastructure_process(
+			char *application_name,
+			char *station,
+			char *datatype )
 {
 	char *datatype_table;
 	char *station_datatype_table;
@@ -591,5 +579,62 @@ void get_chart_title_string(
 		 end_measurement_date );
 	*chart_title = strdup( title );
 	*chart_sub_title = strdup( sub_title );
+}
+
+LIST *hydrology_validation_form_datatype_name_list( LIST *datatype )
+{
+	LIST *datatype_name_list = list_new();
+	list_set( datatype_name_list, datatype );
+	return datatype_name_list;
+}
+
+char *hydrology_validation_form_action_string(
+			char *apache_cgi_directory,
+			char *login_name,
+			char *application_name,
+			char *session_key,
+			char *station,
+			char *datatype,
+			char *begin_date,
+			char *end_date,
+			char *target_frame )
+{
+	char action_string[ 1024 ];
+
+	sprintf( action_string,
+		 "%s/post_hydrology_validation_form?%s+%s+%s+%s+%s+%s+%s+%s",
+		 apache_cgi_directory,
+		 login_name,
+		 application_name,
+		 session,
+		 station,
+		 datatype,
+		 begin_date,
+		 end_date,
+		 target_frame );
+
+	return strdup( action_string );
+}
+
+char *hydrology_validation_form_data_process(
+			char *application_name,
+			char *station,
+			char *datatype,
+			char *begin_date,
+			char *end_date )
+{
+	char data_process[ 1024 ];
+
+	/* Input specification: primary_data_1,...,n|datatype=value=validated */
+	/* ------------------------------------------------------------------ */
+	sprintf( data_process,
+		 "hydrology_select_value4validation.sh %s '%s' '%s' %s %s",
+		 application_name,
+		 station,
+		 datatype,
+		 begin_date,
+		 end_date );
+
+	return strdup( data_process );
 }
 

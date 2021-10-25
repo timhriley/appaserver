@@ -1,4 +1,4 @@
-/* library/validation_form.c						*/
+/* $APPASERVER_HOME/library/validation_form.c				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver validation_form ADT.				*/
 /*									*/
@@ -19,34 +19,94 @@
 #include "validation_form.h"
 #include "form.h"
 
-VALIDATION_FORM *validation_form_new( 	char *title, 
-					char *target_frame,
-					LIST *primary_column_name_list,
-					LIST *datatype_name_list )
+VALIDATION_FORM *validation_form_calloc( void )
 {
-	VALIDATION_FORM *v;
+	VALIDATION_FORM *validation_form;
 
-	v = (VALIDATION_FORM *)calloc( 1, sizeof( VALIDATION_FORM ) );
-	v->title = title;
-	v->target_frame = target_frame;
-	v->primary_column_name_list = primary_column_name_list;
-	v->datatype_name_list = datatype_name_list;
-	return v;
+	if ( ! ( validation_form =
+			calloc( 1, sizeof( VALIDATION_FORM ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	return validation_form;
 }
 
-ROW *validation_form_row_new( char *primary_key )
+VALIDATION_FORM *validation_form_new(
+			char *title, 
+			char *target_frame,
+			LIST *primary_name_list,
+			LIST *datatype_name_list,
+			char *action_string,
+			boolean table_border,
+			char *data_process )
 {
-	ROW *row;
+	VALIDATION_FORM *validation_form = validation_form_calloc();
 
-	row = (ROW *)calloc( 1, sizeof( ROW ) );
-	row->primary_key = strdup( primary_key );
-	row->primary_data_hash_table = hash_table_new( hash_table_small );
-	row->datatype_data_hash_table = hash_table_new( hash_table_small );
-	return row;
+	validation_form->title = title;
+	validation_form->target_frame = target_frame;
+	validation_form->primary_name_list = primary_name_list;
+	validation_form->datatype_name_list = datatype_name_list;
+	validation_form->action_string = action_string;
+	validation_form->action_string = action_string;
+	validation_form->action_string = action_string;
+
+	validation_form->element_list = 
+		validation_form_element_list( 
+		   validation_form->primary_name_list,
+		   validation_form->datatype_name_list );
+
+	validation_form->row_list =
+		validation_form_row_list(
+			validation_form->primary_name_list,
+			data_process );
+
+	return validation_form;
 }
 
-LIST *validation_form_get_element_list( LIST *primary_column_name_list,
-					LIST *datatype_name_list )
+VALIDATION_FORM_ROW *validation_form_row_calloc( void )
+{
+	VALIDATION_FORM_ROW *validation_form_row;
+
+	if ( ! ( validation_form_row =
+			calloc( 1, sizeof( VALIDATION_FORM_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return validation_form_row;
+}
+
+VALIDATION_FORM_ROW *validation_form_row_new( char *primary_name )
+{
+	VALIDATION_FORM_ROW *validation_form_row =
+		validation_form_row_calloc();
+
+	validation_form_row->primary_name = primary_name;
+
+	validation_form_row->primary_data_hash_table =
+		hash_table_new(
+			hash_table_small );
+
+	validation_form_row->datatype_data_hash_table =
+		hash_table_new(
+			hash_table_small );
+
+	return validation_form_row;
+}
+
+LIST *validation_form_element_list(
+			LIST *primary_name_list,
+			LIST *datatype_name_list )
 {
 	LIST *element_list = list_new();
 	char buffer[ 1024 ];
@@ -117,17 +177,12 @@ LIST *validation_form_get_element_list( LIST *primary_column_name_list,
 	return element_list;
 }
 
-void validation_form_set_action( 	VALIDATION_FORM *validation_form, 
-					char *action_string )
-{
-	validation_form->action_string = strdup( action_string );
-}
-
-void validation_form_output_heading(	char *title,
-					char *action_string,
-					char *target_frame,
-					LIST *element_list,
-					int table_border )
+void validation_form_output_heading(
+			char *table_title,
+			char *action_string,
+			char *target_frame,
+			LIST *element_list,
+			int table_border )
 {
 	printf( "<h1>%s</h1>\n", title );
 
@@ -148,22 +203,21 @@ void validation_form_output_heading(	char *title,
 	printf( ">\n" );
 
 	validation_form_output_table_heading( element_list );
-
 }
 
 void validation_form_output_table_heading( LIST *element_list )
 {
-	APPASERVER_ELEMENT *element;
 	char buffer[ 1024 ];
 	char *heading;
 
-	if ( element_list
-	&&   list_reset( element_list ) )
+	if ( list_rewind( element_list ) )
 	{
 		printf( "<tr>" );
 		do {
-			element = list_get( element_list );
-			heading = element_get_heading( (char **)0, element, 0 );
+			heading =
+				element_heading(
+					list_get( element_list ) );
+
 			if ( heading && *heading )
 			{
 				printf( "<th><p>%s", 
@@ -171,7 +225,7 @@ void validation_form_output_table_heading( LIST *element_list )
 						buffer, 
 						heading ) );
 			}
-		} while( next_item( element_list ) );
+		} while( list_next( element_list ) );
 		printf( "\n" );
 	}
 }
@@ -181,42 +235,25 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 	APPASERVER_ELEMENT *element;
 	int row_int;
 	char *data;
-	VALIDATION_DATATYPE *datatype;
-	ROW *row;
+	VALIDATION_DATATYPE_DATA *datatype_data;
+	VALIDATION_FORM_ROW *row;
 	char *primary_column_name;
 	char *datatype_name;
 
-	if ( !list_reset( validation_form->element_list ) )
-	{
-		fprintf(stderr,
-	"ERROR: validation_form_output_body has empty element list.\n" );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( validation_form->row_list ) )
-	{
-		fprintf(stderr,
-	"ERROR in validation_form_output_body(): row list is empty.\n" );
-		exit( 1 );
-	}
-
-	if ( !list_length( validation_form->element_list ) )
-	{
-		fprintf(stderr,
-	"ERROR in validation_form_output_body(): element list is empty.\n" );
-		exit( 1 );
-	}
+	if ( !list_length( validation_form->element_list ) ) return;
+	if ( !list_rewind( validation_form->row_list ) ) return;
 
 	row_int = 1;
+
 	do {
-		row = list_get_pointer( validation_form->row_list );
+		row = list_get( validation_form->row_list );
+
 		list_rewind( validation_form->element_list );
-		list_rewind( validation_form->primary_column_name_list );
+		list_rewind( validation_form->primary_name_list );
 
 		/* Output the line break */
 		/* --------------------- */
-		element = (APPASERVER_ELEMENT *)
-			list_get( validation_form->element_list );
+		element = list_get( validation_form->element_list );
 		element_simple_output( element, row_int );
 		list_next( validation_form->element_list );
 
@@ -224,11 +261,14 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 		/* -------------------------- */
 		do {
 			primary_column_name = 
-				list_get_string( validation_form->
+				list_get(
+					validation_form->
 						 primary_column_name_list );
-			data =  hash_table_get_pointer(
+
+			data =
+				hash_table_get(
 					row->primary_data_hash_table,
-					primary_column_name );
+					primary_name );
 
 			if ( !data )
 			{
@@ -243,23 +283,28 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 			}
 
 			element =
-				list_get_pointer(
+				list_get(
 					validation_form->element_list );
+
 			element_set_data( element, data );
+
 			element_simple_output( element, row_int );
+
 			list_next( validation_form->element_list );
-		} while( list_next( validation_form->
-				    primary_column_name_list ) );
+
+		} while( list_next( validation_form->primary_name_list ) );
 
 		/* Output the datatypes */
 		/* -------------------- */
 		list_rewind( validation_form->datatype_name_list );
+
 		do {
 			datatype_name = 
-				list_get_pointer(
+				list_get(
 					validation_form->datatype_name_list );
 
-			datatype = hash_table_get_pointer( 
+			datatype =
+				hash_table_get( 
 					row->datatype_data_hash_table,
 					datatype_name );
 
@@ -268,9 +313,11 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 			if ( datatype )
 			{
 				element =
-					list_get_pointer(
-						validation_form->element_list );
-				data = datatype->value;
+					list_get(
+						validation_form->
+							element_list );
+
+				data = datatype->datatype_value;
 				element_set_data( element, data );
 				element_simple_output( element, row_int );
 			}
@@ -281,12 +328,11 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 
 			list_next( validation_form->element_list );
 
-		} while( list_next( validation_form->
-				    datatype_name_list ) );
+		} while( list_next( validation_form->datatype_name_list ) );
 
 		row_int++;
-	} while( next_item( validation_form->row_list ) );
 
+	} while( next_item( validation_form->row_list ) );
 }
 
 void validation_form_output_trailer( void )
@@ -294,53 +340,73 @@ void validation_form_output_trailer( void )
 	printf( "<tr><td>" );
 
 	form_output_submit_button(
-			(char *)0,
-			"Validate",
-			0 /* form_number */ );
+		(char *)0,
+		"Validate",
+		0 /* form_number */ );
 
 	printf( "</table></form>\n" );
 }
 
-void validation_form_set_primary_data_hash_table(
+void validation_form_row_set_primary_data_hash_table(
 			HASH_TABLE *primary_data_hash_table,
-			LIST *primary_column_name_list,
-			char *primary_data_comma_list )
+			LIST *primary_name_list,
+			char *primary_data_comma_list_string )
 {
 	char primary_data[ 1024 ];
-	char *primary_column_name;
+	char *primary_name;
 	int i;
 
-	if ( 	list_length( primary_column_name_list ) !=
-		count_characters( ',', primary_data_comma_list ) + 1 )
+	if ( 	list_length( primary_name_list ) !=
+		count_characters( ',', primary_data_comma_list_string ) + 1 )
 	{
-		fprintf( stderr,
-"validation_form_set_primary_data_hash_table() ERROR: column list = (%s) does not match data list = (%s)\n",
-			 list_display( primary_column_name_list ),
-			 primary_data_comma_list );
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: column and data are out of balance .\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 
-	for( 	i = 0, list_rewind( primary_column_name_list );
+	for( 	i = 0, list_rewind( primary_name_list );
 		piece( primary_data, ',', primary_data_comma_list, i );
-		list_next( primary_column_name_list ), i++ )
+		list_next( primary_name_list ), i++ )
 	{
-		primary_column_name = 
-			list_get_string( primary_column_name_list );
-
-		hash_table_set_string( 	primary_data_hash_table,
-					strdup( primary_column_name ),
-					strdup( primary_data ) );
+		hash_table_set_string(
+			primary_data_hash_table,
+			list_get( primary_name_list ),
+			strdup( primary_data ) );
 	}
 }
 
-VALIDATION_DATATYPE *validation_datatype_new( char *value, int validated )
+VALIDATION_DATATYPE_DATA *validation_datatype_data_calloc( void )
 {
-	VALIDATION_DATATYPE *d;
+	VALIDATION_DATATYPE_DATA *validation_datatype_data;
 
-	d = (VALIDATION_DATATYPE *)calloc( 1, sizeof( VALIDATION_DATATYPE ) );
-	d->value = value;
-	d->validated = validated;
-	return d;
+	if ( ! ( validation_datatype_data =
+			calloc( 1, sizeof( VALIDATION_DATATYPE_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return validation_datatype_data;
+}
+
+VALIDATION_DATATYPE_DATA *validation_datatype_data_new(
+			char *datatype_value,
+			boolean validated )
+{
+	VALIDATION_DATATYPE_DATA *validation_datatype_data =
+		validation_datatype_data_calloc();
+
+	validation_datatype_data->datatype_value = datatype_value;
+	validation_datatype_data->validated = validated;
+
+	return validation_datatype_data;
 }
 
 
@@ -349,49 +415,74 @@ int row_compare( ROW *row1, ROW *row2 )
 	return strcmp( row1->primary_key, row2->primary_key );
 }
 
-LIST *validation_form_get_row_list(	LIST *primary_column_name_list,
-					char *select_sys_string )
+LIST *validation_form_row_list(
+			LIST *primary_name_list,
+			char *system_string )
 {
 	FILE *p;
 	char input_buffer[ 4096 ];
 	char right_half[ 4096 ];
 	char buffer[ 1024 ];
-	char primary_data_comma_list[ 4096 ];
-	char value[ 128 ];
-	int validated;
-	ROW *row;
-	LIST *row_list = list_new();
+	char primary_data_comma_list_string[ 4096 ];
 	char datatype_name[ 1024 ];
+	char datatype_value[ 128 ];
+	boolean validated;
+	VALIDATION_FORM_ROW *validation_form_row;
+	LIST *row_list = list_new();
 
-	p = popen( select_sys_string, "r" );
+	p = popen( system_string, "r" );
 
 	/* Input specification: primary_data_1,...,n|datatype=value=validated */
 	/* ------------------------------------------------------------------ */
 	while( get_line( input_buffer, p ) )
 	{
-		piece( primary_data_comma_list, '|', input_buffer, 0 );
+		piece( primary_data_comma_list_string, '|', input_buffer, 0 );
 		piece( right_half, '|', input_buffer, 1 );
 		piece( datatype_name, '=', right_half, 0 );
 		piece( value, '=', right_half, 1 );
-		validated = atoi( piece( buffer, '=', right_half, 2 ) );
 
-		row = validation_form_row_new( 
-				primary_data_comma_list );
+		validated =
+			(boolean)
+				atoi( piece(
+					buffer,
+					'=',
+					right_half,
+					2 ) );
 
-		list_append_pointer( row_list, (char *)row );
+		validation_form_row =
+			validation_form_row_new( 
+				primary_data_comma_list_string );
 
-		validation_form_set_primary_data_hash_table(
-			row->primary_data_hash_table,
+		list_set( row_list, validation_form_row );
+
+		validation_form_row_set_primary_data_hash_table(
+			validation_form_row->primary_data_hash_table,
 			primary_column_name_list,
 			primary_data_comma_list );
 
-		hash_table_set(	row->datatype_data_hash_table,
-				strdup( datatype_name ),
-				validation_datatype_new(
-					strdup( value ),
-					validated ) );
+		validation_form_row_set_datatype_data_hash_table(
+			validation_form_row->datatype_data_hash_table,
+			strdup( datatype_name ),
+			strdup( datatype_value ),
+			boolean validated );
+
 	} /* while( get_line() ) */
+
 	pclose( p );
+
 	return row_list;
+}
+
+void validation_form_row_set_datatype_data_hash_table(
+			HASH_TABLE *datatype_data_hash_table,
+			char *datatype_name,
+			char *datatype_value,
+			boolean validated )
+{
+	hash_table_set(	datatype_data_hash_table,
+			datatype_name,
+			validation_datatype_data_new(
+				datatype_value,
+				validated ) ) );
 }
 

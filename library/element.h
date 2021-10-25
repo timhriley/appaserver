@@ -338,6 +338,8 @@ void appaserver_element_output(
 			FILE *output_stream,
 			APPASERVER_ELEMENT *element );
 
+char *element_heading(	APPASERVER_ELEMENT *element );
+
 /* ELEMENT_TABLE_ROW operations */
 /* ---------------------------- */
 ELEMENT_TABLE_ROW *element_table_row_calloc(
@@ -506,6 +508,12 @@ char *element_button_html(
 			char *label,
 			char *action_string,
 			boolean with_table_data_tag );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *element_button_set_all_control_string(
+			APPASERVER_ELEMENT *element,
+			int form_number );
 
 /* ELEMENT_BREAK_TAG operations */
 /* ---------------------------- */

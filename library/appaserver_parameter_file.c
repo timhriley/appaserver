@@ -118,13 +118,13 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 	char *application;
 
 	application =
-		environ_get_environment(
+		environment_get(
 			"APPASERVER_DATABASE" );
 
 	if ( !application || !*application )
 	{
 		application =
-			environ_get_environment(
+			environment_get(
 				"DATABASE" );
 	}
 

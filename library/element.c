@@ -1326,3 +1326,112 @@ char *appaserver_element_list_html(
 	return strdup( html );
 }
 
+char *element_heading( APPASERVER_ELEMENT *element )
+{
+	if ( element->element_type == text_item
+	||   element->element_type == element_date
+	||   element->element_type == element_current_date
+	||   element->element_type == element_current_date_time
+	||   element->element_type == element_date_time )
+	{
+		return element_text_item_heading(
+				element->name,
+				element->text_item->heading );
+	}
+	else
+	if ( element->element_type == password )
+	{
+		return element_password_heading(
+				element->name,
+				element->password->heading );
+	}
+	else
+	if ( element->element_type == toggle_button )
+	{
+		return element_toggle_button_heading(
+				element->name,
+				element->toggle_button->heading );
+	}
+	else
+	if ( element->element_type == radio_button )
+	{
+		return element_radio_button_heading(
+				element->radio_button->heading,
+				element->name );
+	}
+	else
+	if ( element->element_type == notepad )
+		return element_notepad_heading( element->notepad );
+	else
+	if ( element->element_type == drop_down )
+		return element_drop_down_get_heading(
+				element->name,
+				element->drop_down->heading );
+	else
+	if ( element->element_type == non_edit_multi_select )
+		return element_non_edit_multi_select_heading(
+				element->name );
+	else
+	if ( element->element_type == prompt_data )
+		return element_prompt_data_heading(
+				element->name,
+				element->prompt_data->heading );
+	else
+	if ( element->element_type == reference_number )
+		return
+		element_reference_number_heading(
+				element->name,
+				element->reference_number->heading );
+	else
+	if ( element->element_type == hidden )
+		return "";
+	else
+	if ( element->element_type == upload_filename )
+		return "";
+	else
+	if ( element->element_type == javascript_filename )
+		return "";
+	else
+	if ( element->element_type == http_filename )
+		return element->name;
+	else
+	if ( element->element_type == linebreak )
+		return "";
+	else
+		return (char *)0;
+}
+
+char *element_button_set_all_control_string(
+			APPASERVER_ELEMENT *element,
+			int form_number )
+{
+	static char button_control_string[ 256 ];
+
+	if ( element->element_type == button )
+	{
+		if ( toggle_button_set_all_control_string )
+		{
+			char delete_warning_javascript[ 128 ];
+
+			if ( timlib_begins_string( element->name, "delete" ) )
+			{
+				strcpy( delete_warning_javascript,
+					"timlib_delete_button_warning(); " );
+			}
+			else
+			{
+				*delete_warning_javascript = '\0';
+			}
+
+			sprintf(button_control_string,
+				"%sform_push_button_set_all('%s',%d);",
+				delete_warning_javascript,
+				element->button->label,
+				form_number );
+
+			return button_control_string;
+		}
+	}
+	return (char *)0;
+}
+

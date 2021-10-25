@@ -1,9 +1,8 @@
-/* validation_form.h							*/
+/* $APPASERVER_HOME/library/validation_form.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver validation_form ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
-/* This is not in the public domain.					*/
 /* -------------------------------------------------------------------- */
 
 
@@ -11,6 +10,7 @@
 #define VALIDATION_FORM_H
 
 #include "list.h"
+#include "boolean.h"
 #include "hash_table.h"
 
 /* Constants */
@@ -23,58 +23,103 @@
 /* --------------- */
 typedef struct
 {
-	char *value;
-	int validated;
-} VALIDATION_DATATYPE;
+	char *datatype_data;
+	boolean validated;
+} VALIDATION_DATATYPE_DATA;
 
 typedef struct
 {
 	char *primary_key;
 	HASH_TABLE *primary_data_hash_table;
 	HASH_TABLE *datatype_data_hash_table;
-} ROW;
+} VALIDATION_ROW;
 
 typedef struct
 {
-	char *title;
+	/* Input */
+	/* ----- */
+	char *table_title;
 	char *target_frame;
-	char *action_string;
-	LIST *row_list;
-	LIST *primary_column_name_list;
+	LIST *primary_name_list;
 	LIST *datatype_name_list;
+	char *action_string;
+	boolean table_border;
+
+	/* Process */
+	/* ------- */
+	LIST *row_list;
 	LIST *element_list;
-	int table_border;
 } VALIDATION_FORM;
 
-/* Operations */
-/* ---------- */
-VALIDATION_FORM *validation_form_new( 	char *title, 
-					char *target_frame,
-					LIST *primary_column_name_list,
-					LIST *datatype_name_list );
-ROW *validation_form_row_new( 		char *primary_key );
-LIST *validation_form_get_element_list( LIST *primary_column_name_list,
-					LIST *datatype_name_list );
-void validation_form_set_action( 	VALIDATION_FORM *validation_form, 
-					char *action_string );
-void validation_form_output_heading(	char *title,
-					char *action_string,
-					char *target_frame,
-					LIST *element_list,
-					int table_border );
+/* VALIDATION_FORM operations */
+/* -------------------------- */
+VALIDATION_FORM *validation_form_calloc(
+			void );
+
+VALIDATION_FORM *validation_form_new(
+			char *title, 
+			char *target_frame,
+			LIST *primary_column_name_list,
+			LIST *datatype_name_list,
+			char *action_string,
+			boolean table_border,
+			char *data_process );
+
+LIST *validation_form_element_list(
+			LIST *primary_name_list,
+			LIST *datatype_name_list );
+
+void validation_form_set_action(
+			VALIDATION_FORM *validation_form, 
+			char *action_string );
+
+void validation_form_output_heading(
+			char *table_title,
+			char *action_string,
+			char *target_frame,
+			LIST *element_list,
+			int table_border );
+
 void validation_form_output_table_heading( 
-					LIST *element_list );
-void validation_form_output_body( 	VALIDATION_FORM *validation_form );
-void validation_form_output_trailer( 	void );
-void validation_form_set_primary_data_hash_table(
-					HASH_TABLE *primary_data_hash_table,
-					LIST *primary_column_name_list,
-					char *primary_data_comma_list );
+			LIST *element_list );
 
-VALIDATION_DATATYPE *validation_datatype_new(
-					char *value, int validated );
+void validation_form_output_body(
+			VALIDATION_FORM *validation_form );
 
-LIST *validation_form_get_row_list(	LIST *primary_column_name_list,
-					char *select_sys_string );
-int row_compare( 			ROW *row1, ROW *row2 );
+void validation_form_output_trailer(
+			void );
+
+/* VALIDATION_DATATYPE_DATA operations */
+/* ----------------------------------- */
+VALIDATION_DATATYPE_DATA *validation_datatype_data_calloc(
+			void );
+
+VALIDATION_DATATYPE_DATA *validation_datatype_data_new(
+			char *datatype_value,
+			int validated );
+
+void validation_form_row_set_datatype_data_hash_table(
+			HASH_TABLE *datatype_data_hash_table,
+			char *datatype_name,
+			char *datatype_value,
+			boolean validated );
+
+/* VALIDATION_FORM_ROW operations */
+/* ------------------------------ */
+LIST *validation_form_row_list(
+			LIST *primary_column_name_list,
+			char *select_sys_string );
+
+void validation_form_row_set_primary_data_hash_table(
+			HASH_TABLE *primary_data_hash_table,
+			LIST *primary_name_list,
+			char *primary_data_comma_list );
+
+int validation_form_row_compare(
+			VALIDATION_FORM_ROW *row1,
+			VALIDATION_FROM_ROWROW *row2 );
+
+VALIDATION_FORM_ROW *validation_form_row_new(
+			char *primary_name );
+
 #endif
