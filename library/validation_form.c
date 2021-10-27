@@ -111,13 +111,13 @@ LIST *validation_form_element_list(
 	LIST *element_list = list_new();
 	char buffer[ 1024 ];
 	APPASERVER_ELEMENT *element;
-	char *primary_column_name;
+	char *primary_name;
 	char *datatype_name;
 
-	if ( !list_reset( primary_column_name_list ) )
+	if ( !list_reset( primary_name_list ) )
 	{
 		fprintf(stderr,
-"ERROR in validation_form_get_element_list: primary_column_name_list is empty\n" );
+"ERROR in validation_form_get_element_list: primary_name_list is empty\n" );
 		exit( 1 );
 	}
 
@@ -128,32 +128,32 @@ LIST *validation_form_element_list(
 		exit( 1 );
 	}
 
-	/* Create a line break */
-	/* ------------------- */
-	element = element_appaserver_new( linebreak, "" );
-	list_append( 	element_list, 
-			element, 
-			sizeof( APPASERVER_ELEMENT ) );
+	/* Create a table row */
+	/* ------------------ */
+	element = appaserver_element_new( table_row );
+	list_set( element_list, element );
 
 	/* For each primary column */
 	/* ----------------------- */
 	do {
-		primary_column_name = 
-			list_get_string( primary_column_name_list );
+		primary_name = 
+			list_get( primary_name_list );
 
 		/* Create a prompt element for the primary column */
 		/* ---------------------------------------------- */
-		element = 
-			element_appaserver_new( 
-				prompt_data,
-				strdup( format_initial_capital( 
-				   buffer, 
-				   primary_column_name ) ) );
+		element =
+			appaserver_element( 
+				non_edit_text );
 
-		list_append( 	element_list, 
-				element, 
-				sizeof( APPASERVER_ELEMENT ) );
-	} while( list_next( primary_column_name_list ) );
+		element->non_edit_text->html =
+			element_non_edit_text_html(
+				format_initial_capital( 
+					buffer, 
+					primary_name ) );
+
+		list_set( element_list, element );
+
+	} while( list_next( primary_name_list ) );
 
 	/* For each datatype */
 	/* ------------------ */
