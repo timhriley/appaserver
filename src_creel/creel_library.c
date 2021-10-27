@@ -21,8 +21,6 @@
 #include "document.h"
 #include "creel_library.h"
 
-/* appaserver_link_file */
-
 /* Global variables */
 /* ---------------- */
 static LIST *measurements_record_list = {0};
@@ -1632,6 +1630,12 @@ char *creel_library_get_fishing_composition(
 	char *record;
 	char *select = "fishing_party_composition,code";
 
+	if ( !fishing_party_composition_code
+	||   !*fishing_party_composition_code )
+	{
+		return "";
+	}
+
 	if ( !fishing_party_composition_list )
 	{
 		char sys_string[ 1024 ];
@@ -1693,7 +1697,6 @@ char *creel_library_get_fishing_composition(
 		return fishing_party_composition;
 	else
 		return fishing_party_composition_code;
-
 }
 
 char *creel_library_get_trip_origin(	char *application_name,
