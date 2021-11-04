@@ -57,7 +57,7 @@ EXECUTABLES=								\
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
 		${LIBRARY}/aggregate_statistic.o			\
-		${LIBRARY}/process_generic_output.o			\
+		${LIBRARY}/process_generic.o				\
 		${LIBRARY}/decode_html_post.o				\
 		${LIBRARY}/update_statement.o				\
 		${LIBRARY}/fopen_path.o					\

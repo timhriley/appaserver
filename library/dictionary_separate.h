@@ -30,7 +30,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *application_name;
-	LIST *attribute_date_name_list;
+	LIST *folder_attribute_date_name_list;
 	LIST *operation_name_list;
 	char *login_name;
 
@@ -58,7 +58,8 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list );
+			LIST *folder_attribute_date_name_list,
+			LIST *operation_name_list );
 
 /* Always succeeds */
 /* --------------- */
@@ -67,7 +68,7 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 			char *application_name,
 			char *login_name,
 			LIST *attribute_name_list,
-			LIST *attribute_date_name_list,
+			LIST *folder_attribute_date_name_list,
 			LIST *operation_name_list );
 
 /* Always succeeds */
@@ -87,7 +88,7 @@ DICTIONARY *dictionary_separate_row_dictionary_multi_row(
 DICTIONARY *dictionary_separate_working_post(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
-			LIST *attribute_date_name_list,
+			LIST *folder_attribute_date_name_list,
 			char *login_name );
 
 DICTIONARY *dictionary_separate_query(
@@ -160,7 +161,7 @@ LIST *dictionary_separate_ignore_select_attribute_name_list(
 void dictionary_separate_date_convert(
 			DICTIONARY *working_post_dictionary,
 			char *application_name,
-			LIST *attribute_date_name_list,
+			LIST *folder_attribute_date_name_list,
 			char *login_name );
 
 void dictionary_separate_string_date_convert(

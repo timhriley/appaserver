@@ -21,6 +21,8 @@
 #include "document.h"
 #include "creel_library.h"
 
+/* appaserver_link_file */
+
 /* Global variables */
 /* ---------------- */
 static LIST *measurements_record_list = {0};
@@ -1697,6 +1699,7 @@ char *creel_library_get_fishing_composition(
 		return fishing_party_composition;
 	else
 		return fishing_party_composition_code;
+
 }
 
 char *creel_library_get_trip_origin(	char *application_name,

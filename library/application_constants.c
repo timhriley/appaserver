@@ -1,4 +1,4 @@
-/* application_constants.c				*/
+/* $APPASERVER_HOME/library/application_constants.c	*/
 /* ==================================================== */
 /*                                                      */
 /* Freely available software: see Appaserver.org	*/
@@ -10,6 +10,7 @@
 #include "appaserver_parameter_file.h"
 #include "appaserver_library.h"
 #include "timlib.h"
+#include "sql.h"
 #include "piece.h"
 
 APPLICATION_CONSTANTS *application_constants_new( void )
@@ -53,17 +54,17 @@ DICTIONARY *application_constants_get_dictionary(
 
 	while( get_line( input_buffer, input_pipe ) )
 	{
-		piece( key, FOLDER_DATA_DELIMITER, input_buffer, 0 );
-		piece( data, FOLDER_DATA_DELIMITER, input_buffer, 1 );
+		piece( key, SQL_DELIMITER, input_buffer, 0 );
+		piece( data, SQL_DELIMITER, input_buffer, 1 );
 
-		dictionary_set_pointer(	dictionary,
-					strdup( key ),
-					strdup( data ) );
+		dictionary_set(
+			dictionary,
+			strdup( key ),
+			strdup( data ) );
 	}
 
 	pclose( input_pipe );
 	return dictionary;
-
 }
 
 char *application_constants_safe_fetch(

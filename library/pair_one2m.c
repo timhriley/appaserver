@@ -8,7 +8,7 @@
 #include "String.h"
 #include "related_folder.h"
 #include "relation.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 #include "timlib.h"
 #include "pair_one2m.h"
 

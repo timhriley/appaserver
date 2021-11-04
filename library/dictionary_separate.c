@@ -83,7 +83,8 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list )
+			LIST *folder_attribute_date_name_list,
+			LIST *operation_name_list )
 {
 	DICTIONARY_SEPARATE *dictionary_separate =
 		dictionary_separate_calloc();
@@ -93,8 +94,8 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 
 	dictionary_separate->application_name = application_name;
 
-	dictionary_separate->attribute_date_name_list =
-		attribute_date_name_list;
+	dictionary_separate->folder_attribute_date_name_list =
+		folder_attribute_date_name_list;
 
 	dictionary_separate->operation_name_list = operation_name_list;
 	dictionary_separate->login_name = login_name;
@@ -155,7 +156,7 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 			char *application_name,
 			char *login_name,
 			LIST *attribute_name_list,
-			LIST *attribute_date_name_list,
+			LIST *folder_attribute_date_name_list,
 			LIST *operation_name_list )
 {
 	DICTIONARY_SEPARATE *dictionary_separate =
@@ -166,8 +167,8 @@ DICTIONARY_SEPARATE *dictionary_separate_row_new(
 
 	dictionary_separate->application_name = application_name;
 
-	dictionary_separate->attribute_date_name_list =
-		attribute_date_name_list;
+	dictionary_separate->folder_attribute_date_name_list =
+		folder_attribute_date_name_list;
 
 	dictionary_separate->operation_name_list = operation_name_list;
 	dictionary_separate->login_name = login_name;
@@ -266,7 +267,7 @@ DICTIONARY *dictionary_separate_working_post(
 		working_post_dictionary,
 		PAIR_ONE2M_PREFIX );
 
-	if ( list_length( attribute_date_name_list ) )
+	if ( list_length( folder_attribute_date_name_list ) )
 	{
 		dictionary_separate_date_convert(
 			working_post_dictionary,
@@ -279,7 +280,7 @@ DICTIONARY *dictionary_separate_working_post(
 	/* ------------------------------------------------------------ */
 	dictionary_separate_trim_multi_drop_down_index(
 		working_post_dictionary,
-		ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
 
 	/* Trim the [common_non_primary_attribute data] 		*/
 	/* Note: this must follow					*/
@@ -417,14 +418,14 @@ void dictionary_separate_parse_multi_attribute_keys(
 	dictionary_parse_multi_attribute_keys(
 		source_destination, 
 		MULTI_ATTRIBUTE_KEY_DELIMITER,
-		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+		SQL_DELIMITER,
 		prefix,
 		1 /* dont_include_relational_operators */ );
 
 	dictionary_parse_multi_attribute_keys(
 		source_destination, 
-		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-		MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+		SQL_DELIMITER,
+		SQL_DELIMITER,
 		prefix,
 		1 /* dont_include_relational_operators */ );
 }
@@ -673,27 +674,6 @@ DICTIONARY *dictionary_separate_non_prefixed(
 
 	} while( list_next( key_list ) );
 
-#ifdef NOT_DEFINED
-	dictionary_separate_parse_multi_attribute_keys(
-		dictionary,
-		(char *)0 /* prefix */ );
-
-	dictionary_separate_remove_from_starting_label(
-		dictionary );
-
-	dictionary_add_elements_by_removing_index_zero(
-	    	dictionary );
-
-	if ( list_length( attribute_date_name_list ) )
-	{
-		dictionary_separate_dictionary_date_convert(
-				dictionary,
-				application_name,
-				attribute_date_name_list,
-				login_name );
-	}
-#endif
-
 	return dictionary;
 }
 
@@ -881,7 +861,7 @@ LIST *dictionary_separate_ignore_select_attribute_name_list(
 void dictionary_separate_dictionary_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
-			LIST *attribute_date_name_list,
+			LIST *folder_attribute_date_name_list,
 			char *login_name )
 {
 	char *attribute_name;
@@ -890,18 +870,18 @@ void dictionary_separate_dictionary_date_convert(
 	int index;
 	int highest_index;
 
-	if ( !list_length( attribute_date_name_list ) ) return;
+	if ( !list_length( folder_attribute_date_name_list ) ) return;
 
 	highest_index = dictionary_key_highest_index( dictionary );
 
 	for( index = 0; index <= highest_index; index++ )
 	{
-		list_rewind( attribute_date_name_list );
+		list_rewind( folder_attribute_date_name_list );
 
 		do {
 			attribute_name =
 				list_get(
-					attribute_date_name_list );
+					folder_attribute_date_name_list );
 
 			if ( index == 0 )
 			{
@@ -985,7 +965,7 @@ void dictionary_separate_dictionary_date_convert(
 					login_name );
 			}
 
-		} while( list_next( attribute_date_name_list ) );
+		} while( list_next( folder_attribute_date_name_list ) );
 
 	} /* for each index */
 }
