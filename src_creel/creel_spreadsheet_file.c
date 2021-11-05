@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_creel/creel_spreadsheet_file.c			*/
+/* $APPASERVER_HOME/src_creel/creel_spreadsheet_file.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -23,7 +23,7 @@
 #include "environ.h"
 #include "application.h"
 #include "creel_library.h"
-#include "appaserver_link.h"
+#include "appaserver_link_file.h"
 
 /* Enumerated Types */
 /* ---------------- */
@@ -188,7 +188,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 
 void output_spreadsheet(
@@ -213,92 +213,101 @@ void output_spreadsheet(
 	DATE *date;
 	char species_display[ 128 ];
 	char *preferred_species_code;
-	APPASERVER_LINK *appaserver_link;
+	APPASERVER_LINK_FILE *appaserver_link_file;
 
-	appaserver_link =
-		appaserver_link_new(
-			application_http_prefix( application_name ),
-			appaserver_library_server_address(),
-			( application_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-			document_root_directory,
-			(char *)0 /* filename_stem */,
-			application_name,
-			process_id,
-			(char *)0 /* session */,
-			(char *)0 /* begin_date_string */,
-			(char *)0 /* end_date_string */,
-			"csv" );
+	appaserver_link_file =
+		appaserver_link_file_new(
+		   application_http_prefix(
+				application_name ),
+		   appaserver_library_get_server_address(),
+		   ( application_prepend_http_protocol_yn(
+			application_name ) == 'y' ),
+		   document_root_directory,
+		   (char *)0 /* filename_stem */,
+		   application_name,
+		   process_id,
+		   (char *)0 /* session */,
+		   "csv" );
 
 	if ( with_between )
 	{
-		appaserver_link->begin_date_string = begin_date_string;
-		appaserver_link->end_date_string = end_date_string;
+		appaserver_link_file->begin_date_string = begin_date_string;
+		appaserver_link_file->end_date_string = end_date_string;
 	}
 	else
 	{
-		appaserver_link->begin_date_string = begin_date_string;
+		appaserver_link_file->begin_date_string = begin_date_string;
 	}
 
 	/* With codes */
 	/* ========== */
-	appaserver_link->filename_stem = FILENAME_STEM_WITH_CODES;
+	appaserver_link_file->filename_stem = FILENAME_STEM_WITH_CODES;
 
 	output_codes_filename =
-		appaserver_link_output_filename(
-			appaserver_link->document_root_directory,
-			appaserver_link_output_tail_half(
-				appaserver_link->application_name,
-				appaserver_link->filename_stem,
-				appaserver_link->begin_date_string,
-				appaserver_link->end_date_string,
-				appaserver_link->process_id,
-				appaserver_link->session_key,
-				appaserver_link->extension ) );
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	ftp_codes_filename =
-		appaserver_link_prompt_filename(
-			appaserver_link_prompt_link_half(
-				appaserver_link->prepend_http,
-				appaserver_link->http_prefix,
-				appaserver_link->server_address ),
-			appaserver_link->application_name,
-			appaserver_link->filename_stem,
-			appaserver_link->begin_date_string,
-			appaserver_link->end_date_string,
-			appaserver_link->process_id,
-			appaserver_link->session_key,
-			appaserver_link->extension );
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	/* Without codes */
 	/* ============= */
-	appaserver_link->filename_stem = FILENAME_STEM_NO_CODES;
+	appaserver_link_file->filename_stem = FILENAME_STEM_NO_CODES;
 
 	output_no_codes_filename =
-		appaserver_link_output_filename(
-			appaserver_link->document_root_directory,
-			appaserver_link_output_tail_half(
-				appaserver_link->application_name,
-				appaserver_link->filename_stem,
-				appaserver_link->begin_date_string,
-				appaserver_link->end_date_string,
-				appaserver_link->process_id,
-				appaserver_link->session_key,
-				appaserver_link->extension ) );
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	ftp_no_codes_filename =
-		appaserver_link_prompt_filename(
-			appaserver_link_prompt_link_half(
-				appaserver_link->prepend_http,
-				appaserver_link->http_prefix,
-				appaserver_link->server_address ),
-			appaserver_link->application_name,
-			appaserver_link->filename_stem,
-			appaserver_link->begin_date_string,
-			appaserver_link->end_date_string,
-			appaserver_link->process_id,
-			appaserver_link->session_key,
-			appaserver_link->extension );
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
 
 	if ( ! ( output_codes_file = fopen( output_codes_filename, "w" ) ) )
 	{
@@ -451,7 +460,7 @@ void output_spreadsheet(
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	fflush( stdout );
 	printf( "</h2>\n" );
 		
@@ -469,8 +478,7 @@ void output_spreadsheet(
 
 	printf( "<br>\n" );
 
-} /* output_spreadsheet() */
-
+}
 
 void get_title_and_sub_title(
 			char *title,
@@ -489,7 +497,7 @@ void get_title_and_sub_title(
 			"From %s To %s",
 			begin_date_string,
 			end_date_string );
-} /* get_title_and_sub_title() */
+}
 
 void output_spreadsheet_fishing_trip_horizontally(
 			FILE *output_codes_file,
@@ -506,12 +514,14 @@ void output_spreadsheet_fishing_trip_horizontally(
 	char *catch_species_code;
 
 	fprintf(output_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 		fishing_trips.interview_number,
 		date_display_mdy( date ),
-		( date_get_day_of_week( date ) == 6 )
-			? 1
-			: date_get_day_of_week( date ) + 2,
+		creel_library_day_of_week(
+			application_name,
+			fishing_trips.fishing_purpose,
+			fishing_trips.census_date,
+			fishing_trips.interview_location ),
 		fishing_trips.fishing_trip_duration_hours,
 		fishing_trips.number_of_people_fishing,
 		fishing_trips.fishing_duration_hours,
@@ -541,12 +551,14 @@ void output_spreadsheet_fishing_trip_horizontally(
 			fishing_trips.recreational_angler_reside ) );
 
 	fprintf(output_no_codes_file,
-	"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+	"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 		fishing_trips.interview_number,
 		fishing_trips.census_date,
-		( date_get_day_of_week( date ) == 6 )
-			? 1
-			: date_get_day_of_week( date ) + 2,
+		creel_library_day_of_week(
+			application_name,
+			fishing_trips.fishing_purpose,
+			fishing_trips.census_date,
+			fishing_trips.interview_location ),
 		fishing_trips.fishing_trip_duration_hours,
 		fishing_trips.number_of_people_fishing,
 		fishing_trips.fishing_duration_hours,
@@ -614,7 +626,7 @@ void output_spreadsheet_fishing_trip_horizontally(
 
 	fprintf(output_codes_file, "\n" );
 	fprintf(output_no_codes_file, "\n" );
-} /* output_spreadsheet_fishing_trip_horizontally() */
+}
 
 void output_spreadsheet_fishing_trip_vertically(
 			FILE *output_codes_file,
@@ -644,12 +656,14 @@ void output_spreadsheet_fishing_trip_vertically(
 		got_one = 1;
 
 		fprintf(output_codes_file,
-			"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+			"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 			fishing_trips.interview_number,
 			date_display_mdy( date ),
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -679,12 +693,14 @@ void output_spreadsheet_fishing_trip_vertically(
 				fishing_trips.recreational_angler_reside ) );
 	
 		fprintf(output_no_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 			fishing_trips.interview_number,
 			fishing_trips.census_date,
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -742,12 +758,14 @@ void output_spreadsheet_fishing_trip_vertically(
 	if ( !got_one )
 	{
 		fprintf(output_codes_file,
-			"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+			"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			fishing_trips.interview_number,
 			date_display_mdy( date ),
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -777,12 +795,14 @@ void output_spreadsheet_fishing_trip_vertically(
 				fishing_trips.recreational_angler_reside ) );
 	
 		fprintf(output_no_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			fishing_trips.interview_number,
 			fishing_trips.census_date,
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -801,5 +821,5 @@ void output_spreadsheet_fishing_trip_vertically(
 			fishing_trips.recreational_angler_reside );
 	}
 
-} /* output_spreadsheet_fishing_trip_vertically() */
+}
 

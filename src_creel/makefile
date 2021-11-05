@@ -37,6 +37,7 @@ EXECUTABLES=								\
 		species_preferred_species_caught			\
 		output_measurement_spreadsheet_file			\
 		load_sport_fishing_trips				\
+		update_sport_day_of_week				\
 		load_guide_fishing_trips				\
 		load_trailer_count					\
 		load_guide_angler_submission				\
@@ -57,7 +58,7 @@ EXECUTABLES=								\
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
 		${LIBRARY}/aggregate_statistic.o			\
-		${LIBRARY}/process_generic.o				\
+		${LIBRARY}/process_generic_output.o			\
 		${LIBRARY}/decode_html_post.o				\
 		${LIBRARY}/update_statement.o				\
 		${LIBRARY}/fopen_path.o					\
@@ -77,7 +78,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security.o					\
-		${LIBRARY}/dictionary_separate.o			\
+		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/element.o					\
 		${LIBRARY}/form.o					\
 		${LIBRARY}/query.o 					\
@@ -86,17 +87,19 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/related_folder.o				\
 		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
+		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
+		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/expected_count.o				\
-		${LIBRARY}/post_dictionary.o				\
+		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o
@@ -128,6 +131,16 @@ load_sport_fishing_trips: load_sport_fishing_trips.c			\
 		creel_library.o						\
 		load_sport_fishing_trips.c				\
 		-o load_sport_fishing_trips
+
+update_sport_day_of_week: update_sport_day_of_week.c			\
+	${EXTERNAL_LIBS} creel_library.o
+	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		creel_library.o						\
+		update_sport_day_of_week.c				\
+		-o update_sport_day_of_week
 
 load_sport_measurements: load_sport_measurements.c			\
 	${EXTERNAL_LIBS} creel_library.o creel_load_library.o

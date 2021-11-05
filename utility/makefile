@@ -35,6 +35,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/environ.o					\
 		${LIBRARY}/prompt_recursive.o				\
+		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/decode_html_post.o				\
@@ -43,7 +44,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/form.o					\
-		${LIBRARY}/dictionary_separate.o			\
+		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/attribute.o					\
@@ -128,6 +129,7 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	statistics_on_group.e range.e parse_post.e			\
 	decode_html_post.e dayofyear2date.e html_wrapper.e		\
 	date2dayofyear.e						\
+	date2dayofweek.e						\
 	suffix_extract.e ora_date_to.e piece_inverse.e			\
 	oracle_date_to_mysql.e						\
 	mysql_date2ora_date.e						\
@@ -449,6 +451,14 @@ database_management_system.e: database_management_system.c
 		${APPASERVER_LIBRARY}					\
 		database_management_system.c 				\
 		-o database_management_system.e
+
+date2dayofweek.e: date2dayofweek.c
+	$(CC)    ${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		date2dayofweek.c 					\
+		-o date2dayofweek.e
 
 date2dayofyear.e: date2dayofyear.c
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\

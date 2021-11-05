@@ -2061,6 +2061,101 @@ char *creel_library_get_catches_hash_table_key(
 	return hash_table_key;
 }
 
+char *creel_library_day_of_week(
+			char *application_name,
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location )
+{
+	static HASH_TABLE *census_hash_table = {0};
+	char *key;
+	char *day_of_week_string;
+
+	if ( !census_hash_table )
+	{
+		char *select;
+		char where[ 128 ];
+		char sys_string[ 1024 ];
+		char input_string[ 128 ];
+		char local_fishing_purpose[ 16 ];
+		char local_census_date[ 16 ];
+		char local_interview_location[ 32 ];
+		char local_day_of_week[ 32 ];
+		FILE *input_pipe;
+
+		census_hash_table =
+			hash_table_new(
+				hash_table_medium );
+
+		select =
+		"fishing_purpose,census_date,interview_location,day_of_week";
+
+		sprintf( where, "fishing_purpose = '%s'", fishing_purpose );
+
+		sprintf( sys_string,
+			 "get_folder_data	application=%s		"
+			 "			select=%s		"
+			 "			folder=creel_census	"
+			 "			where=\"%s\"		",
+			 application_name,
+			 select,
+			 where );
+
+		input_pipe = popen( sys_string, "r" );
+
+		while( get_line( input_string, input_pipe ) )
+		{
+			piece(	local_fishing_purpose,
+				FOLDER_DATA_DELIMITER,
+				input_string,
+				0 );
+
+			piece(	local_census_date,
+				FOLDER_DATA_DELIMITER,
+				input_string,
+				1 );
+
+			piece(	local_interview_location,
+				FOLDER_DATA_DELIMITER,
+				input_string,
+				2 );
+
+			piece(	local_day_of_week,
+				FOLDER_DATA_DELIMITER,
+				input_string,
+				3 );
+
+			key = creel_library_get_census_hash_table_key(
+					local_fishing_purpose,
+					local_census_date,
+					local_interview_location );
+
+			hash_table_set(
+				census_hash_table,
+				strdup( key ),
+				strdup( local_day_of_week ) );
+		}
+		pclose( input_pipe );
+	}
+
+	key = creel_library_get_census_hash_table_key(
+			fishing_purpose,
+			census_date,
+			interview_location );
+
+	if ( ! ( day_of_week_string =
+			hash_table_get_pointer(
+				census_hash_table,
+				key ) ) )
+	{
+		return "";
+	}
+	else
+	{
+		return day_of_week_string;
+	}
+}
+
 char *creel_library_get_census_researcher(
 				char *application_name,
 				char *fishing_purpose,
@@ -2128,7 +2223,7 @@ char *creel_library_get_census_researcher(
 					local_census_date,
 					local_interview_location );
 
-			hash_table_set_pointer(
+			hash_table_set(
 				census_hash_table,
 				strdup( key ),
 				strdup( local_researcher ) );
@@ -2161,23 +2256,13 @@ char *creel_library_get_census_researcher_code(
 	char *researcher_code;
 	char *researcher;
 
-	if ( !( researcher = creel_library_get_census_researcher(
+	if ( ! ( researcher =
+			creel_library_get_census_researcher(
 				application_name,
 				fishing_purpose,
 				census_date,
 				interview_location ) ) )
 	{
-/*
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: cannot find researcher for %s/%s/%s\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			fishing_purpose,
-			census_date,
-			interview_location );
-		exit( 1 );
-*/
 		return "";
 	}
 
@@ -2193,7 +2278,8 @@ char *creel_library_get_census_researcher_code(
 		FILE *input_pipe;
 
 		researcher_hash_table =
-			hash_table_new( hash_table_small );
+			hash_table_new(
+				hash_table_small );
 
 		select = "researcher,code";
 
@@ -2205,6 +2291,7 @@ char *creel_library_get_census_researcher_code(
 			 select );
 
 		input_pipe = popen( sys_string, "r" );
+
 		while( get_line( input_string, input_pipe ) )
 		{
 			piece(	local_researcher,
@@ -2217,7 +2304,7 @@ char *creel_library_get_census_researcher_code(
 				input_string,
 				1 );
 
-			hash_table_set_pointer(
+			hash_table_set(
 				researcher_hash_table,
 				strdup( local_researcher ),
 				strdup( local_researcher_code ) );
@@ -2225,9 +2312,10 @@ char *creel_library_get_census_researcher_code(
 		pclose( input_pipe );
 	}
 
-	if ( !( researcher_code = hash_table_get_pointer(
-					researcher_hash_table,
-					researcher ) ) )
+	if ( !( researcher_code =
+			hash_table_get_pointer(
+				researcher_hash_table,
+				researcher ) ) )
 	{
 		return "";
 	}

@@ -1,5 +1,5 @@
-/* src_creel/insert_sport_creel_census.c */
-/* ------------------------------------- */
+/* $APPASERVER_HOME/src_creel/insert_sport_creel_census.c */
+/* ------------------------------------------------------ */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +19,8 @@
 #define FIELD_LIST	"fishing_purpose,"	\
 			"census_date,"		\
 			"interview_location,"	\
-			"researcher"
+			"researcher,"		\
+			"day_of_week"
 
 int main( int argc, char **argv )
 {
@@ -30,15 +31,16 @@ int main( int argc, char **argv )
 	FILE *input_file;
 	FILE *output_pipe;
 	char input_string[ 1024 ];
-	char census_date_mdyy[ 16 ];
-	char interview_location_code_string[ 16 ];
+	char census_date_mdyy[ 128 ];
+	char interview_location_code_string[ 128 ];
 	char *interview_location_string;
 	char census_date_international[ 16 ];
 	char *now_date_international;
 	char sys_string[ 1024 ];
 	char error_filename[ 128 ];
 	char *researcher;
-	char researcher_code[ 16 ];
+	char researcher_code[ 128 ];
+	char day_of_week[ 128 ];
 	FILE *error_file;
 
 	if ( argc != 5 )
@@ -66,6 +68,7 @@ int main( int argc, char **argv )
 	}
 
 	sprintf( error_filename, "/tmp/creel_census_error_%d.txt", getpid() );
+
 	if ( ! ( error_file = fopen( error_filename, "w" ) ) )
 	{
 		fprintf( stderr, "File open error: %s\n", error_filename );
@@ -192,12 +195,33 @@ int main( int argc, char **argv )
 			continue;
 		}
 
+		if ( !piece_double_quoted(
+				day_of_week,
+				',',
+				input_string,
+				SPORT_DAY_OF_WEEK_PIECE ) )
+		{
+			fprintf(error_file,
+			"Warning: Cannot piece day of week in (%s)\n",
+				input_string );
+			continue;
+		}
+
+		if ( !isdigit( *day_of_week ) )
+		{
+			fprintf(error_file,
+			"Warning: Invalid day of week in (%s)\n",
+				input_string );
+			continue;
+		}
+
 		fprintf(output_pipe,
-			"%s|%s|%s|%s\n",
+			"%s|%s|%s|%s|%s\n",
 			CREEL_CENSUS_SPORT,
 			census_date_international,
 			interview_location_string,
-			researcher );
+			researcher,
+			day_of_week );
 	}
 
 	fclose( input_file );
