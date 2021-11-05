@@ -2061,7 +2061,7 @@ char *creel_library_get_catches_hash_table_key(
 	return hash_table_key;
 }
 
-int creel_library_day_of_week(
+char *creel_library_day_of_week(
 			char *application_name,
 			char *fishing_purpose,
 			char *census_date,
@@ -2148,13 +2148,12 @@ int creel_library_day_of_week(
 				census_hash_table,
 				key ) ) )
 	{
-		return 0;
+		return "";
 	}
-
-	if ( *day_of_week_string )
-		return atoi( day_of_week_string );
 	else
-		return 0;
+	{
+		return day_of_week_string;
+	}
 }
 
 char *creel_library_get_census_researcher(

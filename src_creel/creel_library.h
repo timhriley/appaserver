@@ -359,7 +359,7 @@ char *creel_library_get_interview_location(
 				char *interview_location,
 				char *interview_location_code );
 
-int creel_library_day_of_week(
+char *creel_library_day_of_week(
 			char *application_name,
 			char *fishing_purpose,
 			char *census_date,

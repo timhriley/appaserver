@@ -514,7 +514,7 @@ void output_spreadsheet_fishing_trip_horizontally(
 	char *catch_species_code;
 
 	fprintf(output_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 		fishing_trips.interview_number,
 		date_display_mdy( date ),
 		creel_library_day_of_week(
@@ -551,7 +551,7 @@ void output_spreadsheet_fishing_trip_horizontally(
 			fishing_trips.recreational_angler_reside ) );
 
 	fprintf(output_no_codes_file,
-	"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+	"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 		fishing_trips.interview_number,
 		fishing_trips.census_date,
 		creel_library_day_of_week(
@@ -656,7 +656,7 @@ void output_spreadsheet_fishing_trip_vertically(
 		got_one = 1;
 
 		fprintf(output_codes_file,
-			"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+			"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 			fishing_trips.interview_number,
 			date_display_mdy( date ),
 			creel_library_day_of_week(
@@ -693,7 +693,7 @@ void output_spreadsheet_fishing_trip_vertically(
 				fishing_trips.recreational_angler_reside ) );
 	
 		fprintf(output_no_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 			fishing_trips.interview_number,
 			fishing_trips.census_date,
 			creel_library_day_of_week(
@@ -758,7 +758,7 @@ void output_spreadsheet_fishing_trip_vertically(
 	if ( !got_one )
 	{
 		fprintf(output_codes_file,
-			"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+			"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			fishing_trips.interview_number,
 			date_display_mdy( date ),
 			creel_library_day_of_week(
@@ -795,7 +795,7 @@ void output_spreadsheet_fishing_trip_vertically(
 				fishing_trips.recreational_angler_reside ) );
 	
 		fprintf(output_no_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			fishing_trips.interview_number,
 			fishing_trips.census_date,
 			creel_library_day_of_week(
