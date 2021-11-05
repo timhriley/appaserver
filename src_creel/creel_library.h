@@ -16,10 +16,9 @@
 #define DISPLAY_CATCHES_VERTICALLY			"vertically"
 #define DISPLAY_CATCHES_FILTERED			"filtered"
 #define CREEL_LIBRARY_STATISTICS_TEMPLATE		"%s/creel_effort_statistics_%s_%s_%s_%s_%d"
-/*
-#define CREEL_LIBRARY_COMPLETE_STATISTICS_TEMPLATE	"/tmp/creel_effort_complete_statistics_%s_%s_%s_%s_%d"
-*/
+
 #define CREEL_LIBRARY_FISHING_TRIPS_SELECT "fishing_purpose,census_date,%s.interview_location,interview_number,interview_time,trip_origin_location,fishing_purpose,family,genus,species_preferred,fishing_area,fishing_party_composition,trip_hours,hours_fishing,number_of_people_fishing,permit_code,recreational_angler_reside"
+
 #define CREEL_CENSUS_SPORT			"sport"
 #define CREEL_CENSUS_GUIDE			"guide"
 #define CREEL_CENSUS_COMMERCIAL			"commercial"
@@ -89,6 +88,7 @@ typedef struct
 {
 	char fishing_purpose[ 16 ];
 	char census_date[ 16 ];
+	char day_of_week[ 16 ];
 	char interview_location[ 64 ];
 	char interview_number[ 16 ];
 	char interview_time[ 8 ];
@@ -359,10 +359,16 @@ char *creel_library_get_interview_location(
 				char *interview_location,
 				char *interview_location_code );
 
+int creel_library_day_of_week(
+			char *application_name,
+			char *fishing_purpose,
+			char *census_date,
+			char *interview_location );
+
 char *creel_library_get_researcher(
-				char *application_name,
-				char *researcher,
-				char *researcher_code );
+			char *application_name,
+			char *researcher,
+			char *researcher_code );
 
 char *creel_library_get_species(
 				char *application_name,

@@ -520,6 +520,7 @@ output_measurement_spreadsheet_file
 species_estimated_total_caught
 species_preferred_species_caught
 sport_measurement_report
+update_sport_day_of_week
 # ------------
 # src_modeland
 # ------------
