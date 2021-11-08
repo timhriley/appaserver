@@ -37,6 +37,7 @@ EXECUTABLES=								\
 		species_preferred_species_caught			\
 		output_measurement_spreadsheet_file			\
 		load_sport_fishing_trips				\
+		update_sport_day_of_week				\
 		load_guide_fishing_trips				\
 		load_trailer_count					\
 		load_guide_angler_submission				\
@@ -130,6 +131,16 @@ load_sport_fishing_trips: load_sport_fishing_trips.c			\
 		creel_library.o						\
 		load_sport_fishing_trips.c				\
 		-o load_sport_fishing_trips
+
+update_sport_day_of_week: update_sport_day_of_week.c			\
+	${EXTERNAL_LIBS} creel_library.o
+	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${STANDARD_LIBRARY} 					\
+		creel_library.o						\
+		update_sport_day_of_week.c				\
+		-o update_sport_day_of_week
 
 load_sport_measurements: load_sport_measurements.c			\
 	${EXTERNAL_LIBS} creel_library.o creel_load_library.o

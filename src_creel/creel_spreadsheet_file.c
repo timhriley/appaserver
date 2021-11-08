@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_creel/creel_spreadsheet_file.c			*/
+/* $APPASERVER_HOME/src_creel/creel_spreadsheet_file.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -188,7 +188,7 @@ int main( int argc, char **argv )
 				process_name,
 				appaserver_parameter_file_get_dbms() );
 	return 0;
-} /* main() */
+}
 
 
 void output_spreadsheet(
@@ -460,7 +460,7 @@ void output_spreadsheet(
 	printf( "<h1>%s<br>%s</h1>\n", title, sub_title );
 	printf( "<h2>\n" );
 	fflush( stdout );
-	system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
 	fflush( stdout );
 	printf( "</h2>\n" );
 		
@@ -478,8 +478,7 @@ void output_spreadsheet(
 
 	printf( "<br>\n" );
 
-} /* output_spreadsheet() */
-
+}
 
 void get_title_and_sub_title(
 			char *title,
@@ -498,7 +497,7 @@ void get_title_and_sub_title(
 			"From %s To %s",
 			begin_date_string,
 			end_date_string );
-} /* get_title_and_sub_title() */
+}
 
 void output_spreadsheet_fishing_trip_horizontally(
 			FILE *output_codes_file,
@@ -515,12 +514,14 @@ void output_spreadsheet_fishing_trip_horizontally(
 	char *catch_species_code;
 
 	fprintf(output_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 		fishing_trips.interview_number,
 		date_display_mdy( date ),
-		( date_get_day_of_week( date ) == 6 )
-			? 1
-			: date_get_day_of_week( date ) + 2,
+		creel_library_day_of_week(
+			application_name,
+			fishing_trips.fishing_purpose,
+			fishing_trips.census_date,
+			fishing_trips.interview_location ),
 		fishing_trips.fishing_trip_duration_hours,
 		fishing_trips.number_of_people_fishing,
 		fishing_trips.fishing_duration_hours,
@@ -550,12 +551,14 @@ void output_spreadsheet_fishing_trip_horizontally(
 			fishing_trips.recreational_angler_reside ) );
 
 	fprintf(output_no_codes_file,
-	"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+	"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 		fishing_trips.interview_number,
 		fishing_trips.census_date,
-		( date_get_day_of_week( date ) == 6 )
-			? 1
-			: date_get_day_of_week( date ) + 2,
+		creel_library_day_of_week(
+			application_name,
+			fishing_trips.fishing_purpose,
+			fishing_trips.census_date,
+			fishing_trips.interview_location ),
 		fishing_trips.fishing_trip_duration_hours,
 		fishing_trips.number_of_people_fishing,
 		fishing_trips.fishing_duration_hours,
@@ -623,7 +626,7 @@ void output_spreadsheet_fishing_trip_horizontally(
 
 	fprintf(output_codes_file, "\n" );
 	fprintf(output_no_codes_file, "\n" );
-} /* output_spreadsheet_fishing_trip_horizontally() */
+}
 
 void output_spreadsheet_fishing_trip_vertically(
 			FILE *output_codes_file,
@@ -653,12 +656,14 @@ void output_spreadsheet_fishing_trip_vertically(
 		got_one = 1;
 
 		fprintf(output_codes_file,
-			"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+			"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 			fishing_trips.interview_number,
 			date_display_mdy( date ),
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -688,12 +693,14 @@ void output_spreadsheet_fishing_trip_vertically(
 				fishing_trips.recreational_angler_reside ) );
 	
 		fprintf(output_no_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 			fishing_trips.interview_number,
 			fishing_trips.census_date,
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -751,12 +758,14 @@ void output_spreadsheet_fishing_trip_vertically(
 	if ( !got_one )
 	{
 		fprintf(output_codes_file,
-			"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+			"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			fishing_trips.interview_number,
 			date_display_mdy( date ),
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -786,12 +795,14 @@ void output_spreadsheet_fishing_trip_vertically(
 				fishing_trips.recreational_angler_reside ) );
 	
 		fprintf(output_no_codes_file,
-		"%s,%s,%d,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+		"%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
 			fishing_trips.interview_number,
 			fishing_trips.census_date,
-			( date_get_day_of_week( date ) == 6 )
-				? 1
-				: date_get_day_of_week( date ) + 2,
+			creel_library_day_of_week(
+				application_name,
+				fishing_trips.fishing_purpose,
+				fishing_trips.census_date,
+				fishing_trips.interview_location ),
 			fishing_trips.fishing_trip_duration_hours,
 			fishing_trips.number_of_people_fishing,
 			fishing_trips.fishing_duration_hours,
@@ -810,5 +821,5 @@ void output_spreadsheet_fishing_trip_vertically(
 			fishing_trips.recreational_angler_reside );
 	}
 
-} /* output_spreadsheet_fishing_trip_vertically() */
+}
 

@@ -137,7 +137,6 @@ EXECUTABLES=	hydrology_verification_process				\
 		calculate_oxygen_solubility				\
 		merged_datasets_remove_all_but_first_heading.e		\
 		get_date_time_slot_list					\
-		hydrology_library_dvr.e					\
 		annual_periods_output					\
 		generate_data_collection_frequency			\
 		output_hydroperiod_annually				\

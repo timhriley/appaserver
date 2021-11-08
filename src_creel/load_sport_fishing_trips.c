@@ -83,19 +83,6 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-/*
-	if ( execute && !replace_existing_data )
-	{
-		sprintf( sys_string,
-		 	"delete_sport_creel_census %s \"%s\"",
-		 	application_name,
-		 	input_filename );
-		fflush( stdout );
-		if ( system( sys_string ) ){};
-		fflush( stdout );
-	}
-*/
-
 	sprintf( sys_string,
 		 "insert_sport_creel_census %s \"%s\" %c %c",
 		 application_name,
@@ -138,9 +125,9 @@ int main( int argc, char **argv )
 	document_close();
 
 	process_increment_execution_count(
-				application_name,
-				process_name,
-				appaserver_parameter_file_get_dbms() );
+		application_name,
+		process_name,
+		appaserver_parameter_file_get_dbms() );
 
 	return 0;
 }

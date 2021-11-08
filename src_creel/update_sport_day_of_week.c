@@ -1,33 +1,114 @@
-/* $APPASERVER_HOME/src_creel/insert_sport_creel_census.c */
-/* ------------------------------------------------------ */
+/* ----------------------------------------------------- */
+/* $APPASERVER_HOME/src_creel/update_sport_day_of_week.c */
+/* ----------------------------------------------------- */
+/* Freely available software: see Appaserver.org	 */
+/* ----------------------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 #include <unistd.h>
-#include "timlib.h"
-#include "piece.h"
-#include "date_convert.h"
-#include "date.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "document.h"
-#include "creel_library.h"
+#include "timlib.h"
+#include "list.h"
+#include "environ.h"
+#include "process.h"
+#include "dictionary.h"
+#include "boolean.h"
+#include "application.h"
+#include "date_convert.h"
+#include "piece.h"
+#include "boolean.h"
 #include "creel_load_library.h"
+#include "creel_library.h"
 
-#define FIELD_LIST	"fishing_purpose,"	\
-			"census_date,"		\
-			"interview_location,"	\
-			"researcher,"		\
-			"day_of_week"
+/* Structures */
+/* ---------- */
+
+/* Constants */
+/* --------- */
+
+/* Prototypes */
+/* ---------- */
+void update_sport_day_of_week(
+			char *application_name,
+			char *input_filename,
+			boolean execute );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *input_filename;
-	boolean replace_existing_data;
 	boolean execute;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
+	appaserver_error_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
+	if ( argc != 3 )
+	{
+		fprintf(stderr, 
+			"Usage: %s filename execute_yn\n",
+			argv[ 0 ] );
+		exit ( 1 );
+	}
+
+	input_filename = argv[ 1 ];
+	execute = ( *argv[ 2 ] == 'y' );
+
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
+	document_quick_output_body(
+		application_name,
+		appaserver_parameter_file->
+			appaserver_mount_point );
+
+	printf( "<h2>Update Sport Day of Week\n" );
+	fflush( stdout );
+	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ){};
+	printf( "</h2>\n" );
+	fflush( stdout );
+
+	if ( !*input_filename
+	||   strcmp( input_filename, "filename" ) == 0 )
+	{
+		printf( "<h3>Please transmit a file.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	update_sport_day_of_week(
+		application_name,
+		input_filename,
+		execute );
+
+	if ( execute )
+		printf( "<p>Process complete\n" );
+	else
+		printf( "<p>Process not executed\n" );
+
+	document_close();
+
+	return 0;
+}
+
+#define KEY_LIST	"fishing_purpose,"	\
+			"census_date,"		\
+			"interview_location"
+
+void update_sport_day_of_week(
+			char *application_name,
+			char *input_filename,
+			boolean execute )
+{
 	FILE *input_file;
 	FILE *output_pipe;
 	char input_string[ 1024 ];
@@ -35,31 +116,10 @@ int main( int argc, char **argv )
 	char interview_location_code_string[ 128 ];
 	char *interview_location_string;
 	char census_date_international[ 16 ];
-	char *now_date_international;
 	char sys_string[ 1024 ];
 	char error_filename[ 128 ];
-	char *researcher;
-	char researcher_code[ 128 ];
 	char day_of_week[ 128 ];
 	FILE *error_file;
-
-	if ( argc != 5 )
-	{
-		fprintf( stderr, 
-	"Usage: %s application filename replace_existing_data_yn execute_yn\n",
-			 argv[ 0 ] );
-		exit ( 1 );
-	}
-
-	application_name = argv[ 1 ];
-	input_filename = argv[ 2 ];
-	replace_existing_data = ( *argv[ 3 ] == 'y' );
-	execute = ( *argv[ 4 ] == 'y' );
-
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
 
 	if ( ! ( input_file = fopen( input_filename, "r" ) ) )
 	{
@@ -80,23 +140,23 @@ int main( int argc, char **argv )
 	{
 		sprintf( sys_string,
 			 "sort -u					|"
-			 "insert_statement t=%s f=%s d='|' replace=%c	|"
+			 "update_statement t=%s k=%s carrot=y		|"
+			 "tee_appaserver_error.sh			|"
 			 "sql 2>&1					|"
 			 "html_paragraph_wrapper.e			 ",
 			 "creel_census",
-			 FIELD_LIST,
-			 (replace_existing_data) ? 'y' : 'n' );
+			 KEY_LIST );
 	}
 	else
 	{
-		sprintf( sys_string,
-		"sort -u | html_table.e 'Insert into Creel Census' %s '|'",
-			 FIELD_LIST );
+		sprintf(
+		   sys_string,
+		   "sort -u						|"
+		   "html_table.e 'Update Creel Census' %s,%s '^' %s 	",
+		   KEY_LIST,
+		   "day_of_week",
+		   "left,left,left,right" );
 	}
-
-	now_date_international =
-		date_get_now_date_yyyy_mm_dd(
-			date_get_utc_offset() );
 
 	output_pipe = popen( sys_string, "w" );
 
@@ -141,32 +201,6 @@ int main( int argc, char **argv )
 				input_string );
 			continue;
 		}
-
-		if ( strcmp(	census_date_international,
-				now_date_international ) > 0 )
-		{
-			fprintf(error_file,
-			"Warning: date is in the future = (%s)\n",
-				census_date_mdyy );
-			continue;
-		}
-
-		if ( !piece_double_quoted(
-				researcher_code,
-				',',
-				input_string,
-				SPORT_RESEARCHER_CODE_PIECE ) )
-		{
-			fprintf(error_file,
-			"Warning: Cannot piece researcher code in (%s)\n",
-				input_string );
-			continue;
-		}
-
-		researcher = creel_library_get_researcher(
-				application_name,
-				(char *)0 /* researcher */,
-				researcher_code );
 
 		if ( !piece_double_quoted(
 				interview_location_code_string,
@@ -215,13 +249,24 @@ int main( int argc, char **argv )
 			continue;
 		}
 
-		fprintf(output_pipe,
-			"%s|%s|%s|%s|%s\n",
-			CREEL_CENSUS_SPORT,
-			census_date_international,
-			interview_location_string,
-			researcher,
-			day_of_week );
+		if ( execute )
+		{
+			fprintf(output_pipe,
+				"%s^%s^%s^day_of_week^%s\n",
+				CREEL_CENSUS_SPORT,
+				census_date_international,
+				interview_location_string,
+				day_of_week );
+		}
+		else
+		{
+			fprintf(output_pipe,
+				"%s^%s^%s^%s\n",
+				CREEL_CENSUS_SPORT,
+				census_date_international,
+				interview_location_string,
+				day_of_week );
+		}
 	}
 
 	fclose( input_file );
@@ -238,7 +283,5 @@ int main( int argc, char **argv )
 
 	sprintf( sys_string, "rm %s", error_filename );
 	if ( system( sys_string ) ){};
-
-	return 0;
 }
 
