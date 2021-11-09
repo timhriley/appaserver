@@ -55,15 +55,6 @@ char *appaserver_user_system_string( char *where )
 		appaserver_user_select(),
 		where );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: system_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-system_string );
-m2( "donner", msg );
-}
 	return strdup( system_string );
 }
 
