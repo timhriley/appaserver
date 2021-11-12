@@ -23,16 +23,45 @@
 /* --------------- */
 typedef struct
 {
+	char *primary_data_column_list_string;
+	HASH_TABLE *primary_data_hash_table;
+	HASH_TABLE *datatype_data_hash_table;
+} VALIDATION_FORM_ROW;
+
+/* VALIDATION_FORM_ROW operations */
+/* ------------------------------ */
+LIST *validation_form_row_list(
+			LIST *primary_column_name_list,
+			char *system_string );
+
+VALIDATION_FORM_ROW *validation_form_row_new(
+			char *primary_data_column_list_string );
+
+void validation_form_row_set_primary_data_hash_table(
+			HASH_TABLE *primary_data_hash_table,
+			LIST *primary_name_list,
+			char *primary_data_comma_list_string );
+
+void validation_form_row_set_datatype_data_hash_table(
+			HASH_TABLE *datatype_hash_table,
+			char *datatype_name,
+			char *datatype_value,
+			boolean validated );
+
+typedef struct
+{
 	char *datatype_data;
 	boolean validated;
 } VALIDATION_DATATYPE_DATA;
 
-typedef struct
-{
-	char *primary_key;
-	HASH_TABLE *primary_data_hash_table;
-	HASH_TABLE *datatype_data_hash_table;
-} VALIDATION_ROW;
+/* VALIDATION_DATATYPE_DATA operations */
+/* ----------------------------------- */
+VALIDATION_DATATYPE_DATA *validation_datatype_data_calloc(
+			void );
+
+VALIDATION_DATATYPE_DATA *validation_datatype_data_new(
+			char *datatype_data,
+			boolean validated );
 
 typedef struct
 {
@@ -69,57 +98,30 @@ LIST *validation_form_element_list(
 			LIST *primary_name_list,
 			LIST *datatype_name_list );
 
-void validation_form_set_action(
-			VALIDATION_FORM *validation_form, 
-			char *action_string );
-
-void validation_form_output_heading(
+char *validation_form_heading(
 			char *table_title,
 			char *action_string,
 			char *target_frame,
 			LIST *element_list,
 			int table_border );
 
-void validation_form_output_table_heading( 
+char *validation_form_table_heading( 
 			LIST *element_list );
 
-void validation_form_output_body(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *validation_form_body(
 			VALIDATION_FORM *validation_form );
 
-void validation_form_output_trailer(
+/* Returns heap memory */
+/* ------------------- */
+char *validation_form_trailer(
 			void );
-
-/* VALIDATION_DATATYPE_DATA operations */
-/* ----------------------------------- */
-VALIDATION_DATATYPE_DATA *validation_datatype_data_calloc(
-			void );
-
-VALIDATION_DATATYPE_DATA *validation_datatype_data_new(
-			char *datatype_value,
-			int validated );
 
 void validation_form_row_set_datatype_data_hash_table(
 			HASH_TABLE *datatype_data_hash_table,
 			char *datatype_name,
 			char *datatype_value,
 			boolean validated );
-
-/* VALIDATION_FORM_ROW operations */
-/* ------------------------------ */
-LIST *validation_form_row_list(
-			LIST *primary_column_name_list,
-			char *select_sys_string );
-
-void validation_form_row_set_primary_data_hash_table(
-			HASH_TABLE *primary_data_hash_table,
-			LIST *primary_name_list,
-			char *primary_data_comma_list );
-
-int validation_form_row_compare(
-			VALIDATION_FORM_ROW *row1,
-			VALIDATION_FROM_ROWROW *row2 );
-
-VALIDATION_FORM_ROW *validation_form_row_new(
-			char *primary_name );
 
 #endif

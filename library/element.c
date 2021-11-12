@@ -1276,7 +1276,9 @@ char *element_break_tag_html( void )
 }
 
 char *appaserver_element_html(
-			APPASERVER_ELEMENT *appaserver_element )
+			APPASERVER_ELEMENT *appaserver_element,
+			int row_number,
+			char *background_color )
 {
 	if ( appaserver_element->element_type == table_row )
 		return appaserver_element->table_row->html;
@@ -1502,5 +1504,504 @@ char *appaserver_element_heading_string( char *name )
 	trim_index( trimmed_name, name );
 	string_initial_capital( heading_string, trimmed_name );
 	return strdup( heading_string );
+}
+
+char *appaserver_element_html(
+			APPASERVER_ELEMENT *appaserver_element, 
+			int row_number,
+			char *background_color )
+{
+	if ( element->element_type == linebreak )
+	{
+		element_linebreak_output( output_file );
+	}
+	else
+	if ( element->element_type == notepad )
+	{
+		element_notepad_output(
+			 	output_file,
+				element->notepad->attribute_width,
+				element->name,
+				element->notepad->data,
+				row,
+				element->notepad->number_rows,
+				element->notepad->onchange_null2slash_yn,
+				element->tab_index );
+	}
+	else
+	if ( element->element_type == blank )
+	{
+		element_blank_data_output( output_file );
+	}
+	else
+	if ( element->element_type == text_item )
+	{
+		element_text_item_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			element->tab_index,
+			0 /* not without_td_tags */,
+			element->text_item->readonly,
+			element->text_item->state,
+			element->text_item->is_numeric );
+	}
+	else
+	if ( element->element_type == element_date )
+	{
+		element_date_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			application_name,
+			login_name,
+			1 /* with_calendar_popup */,
+			element->text_item->readonly,
+			element->tab_index );
+	}
+	else
+	if ( element->element_type == element_current_date_time
+	||   element->element_type == element_current_date )
+	{
+		boolean with_calendar_popup = 1;
+
+		/* If okay to create the date and if no existing date. */
+		/* --------------------------------------------------- */
+		if ( !element->text_item->dont_create_current_date
+		&&   ( !element->text_item->data
+		||     !*element->text_item->data ) )
+		{
+			DATE_CONVERT *date_convert;
+			char data[ 64 ];
+
+			date_convert =
+				date_convert_new_user_format_date_convert(
+				application_name,
+				login_name,
+				date_get_now_yyyy_mm_dd(
+					date_get_utc_offset() ) );
+
+			char *time_string;
+			if ( element->element_type == element_current_date )
+			{
+				strcpy( data, date_convert->return_date );
+			}
+			else
+			/* --------------------------------- */
+			/* Must be element_current_date_time */
+			/* --------------------------------- */
+			{
+				if ( element->text_item->attribute_width == 19 )
+					time_string =
+					    date_get_now_hh_colon_mm_colon_ss(
+						date_get_utc_offset() );
+				else
+					time_string =
+					    date_get_now_hh_colon_mm(
+						date_get_utc_offset() );
+
+				sprintf( data,
+				 	"%s %s",
+				 	date_convert->return_date,
+				 	time_string );
+			}
+
+			element->text_item->data = strdup( data );
+			with_calendar_popup = 0;
+		}
+		else
+		/* -------------------------------------------------- */
+		/* The calendar doesn't work with a time in the date. */
+		/* -------------------------------------------------- */
+		if ( element->element_type == element_current_date_time
+		&&   element->text_item->data
+		&&   *element->text_item->data )
+		{
+			with_calendar_popup = 0;
+		}
+
+		element_date_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			application_name,
+			login_name,
+			with_calendar_popup,
+			element->text_item->readonly,
+			element->tab_index );
+	}
+	else
+	if ( element->element_type == element_current_date )
+	{
+		if ( !element->text_item->data )
+		{
+			DATE_CONVERT *date_convert;
+
+			date_convert =
+				date_convert_new_user_format_date_convert(
+				application_name,
+				login_name,
+				date_get_now_yyyy_mm_dd(
+					date_get_utc_offset() ) );
+
+			element->text_item->data = date_convert->return_date;
+		}
+
+		element_date_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			application_name,
+			login_name,
+			1 /* with_calendar_popup */,
+			element->text_item->readonly,
+			element->tab_index );
+	}
+	else
+	if ( element->element_type == element_date_time )
+	{
+		boolean with_calendar_popup = 1;
+
+		/* The calendar doesn't work with a time in the date. */
+		/* -------------------------------------------------- */
+		if ( element->text_item->data )
+		{
+			with_calendar_popup = 0;
+		}
+
+		element_date_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			application_name,
+			login_name,
+			with_calendar_popup,
+			element->text_item->readonly,
+			element->tab_index );
+	}
+	else
+	if ( element->element_type == element_current_time )
+	{
+		if ( !element->text_item->data )
+		{
+			if ( element->text_item->attribute_width >= 7 )
+				element->text_item->data =
+					date_get_now_time_hhmm_colon_ss(
+						date_get_utc_offset() );
+			else
+				element->text_item->data =
+					date_get_now_hhmm(
+						date_get_utc_offset() );
+		}
+
+		element_text_item_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			element->tab_index,
+			0 /* not without_td_tags */,
+			element->text_item->readonly,
+			element->text_item->state,
+			element->text_item->is_numeric );
+	}
+	else
+	if ( element->element_type == element_time )
+	{
+		element_text_item_output(
+			output_file,
+			element->name,
+			element->text_item->data,
+			element->text_item->attribute_width,
+			row,
+			element->text_item->onchange_null2slash_yn,
+			element->text_item->post_change_javascript,
+			element->text_item->on_focus_javascript_function,
+			element->text_item->widget_size,
+			background_color,
+			element->tab_index,
+			0 /* not without_td_tags */,
+			element->text_item->readonly,
+			element->text_item->state,
+			element->text_item->is_numeric );
+	}
+	else
+	if ( element->element_type == password )
+	{
+		element_password_output( 
+				output_file,
+				element->name,
+				element->password->data,
+				element->password->attribute_width,
+				row,
+				element->tab_index );
+	}
+	else
+	if ( element->element_type == toggle_button )
+	{
+		if ( with_toggle_buttons )
+		{
+			element_toggle_button_output(
+				output_file,
+				element->name,
+				element->toggle_button->heading,
+				element->toggle_button->checked,
+				row,
+				element->toggle_button->onchange_submit_yn,
+				element->toggle_button->form_name,
+				element->toggle_button->image_source,
+				element->toggle_button->
+					onclick_keystrokes_save_string,
+				element->toggle_button->onclick_function );
+		}
+		else
+			element_output_non_element( "", output_file );
+	}
+	else
+	if ( element->element_type == push_button )
+	{
+		element_push_button_output(
+			output_file,
+			element->push_button->label,
+			row,
+			element->push_button->onclick_function );
+	}
+	else
+	if ( element->element_type == radio_button )
+	{
+		element_radio_button_output(
+				output_file,
+				element->radio_button->onchange_submit_yn,
+				element->radio_button->form_name,
+				element->radio_button->image_source,
+				element->radio_button->value,
+				element->radio_button->checked,
+				element->radio_button->heading,
+				element->name,
+				element->radio_button->onclick,
+				row,
+				element->radio_button->state,
+				element->radio_button->post_change_javascript );
+	}
+	else
+	if ( element->element_type == drop_down )
+	{
+		if ( !list_length( element->drop_down->option_label_list ) )
+		{
+			element_drop_down_set_option_data_option_label_list(
+				&element->drop_down->option_data_list,
+				&element->drop_down->option_label_list,
+				element->drop_down->option_data_list
+					/* source_list */ );
+		}
+
+		element_drop_down_output(
+			output_file,
+			element->name,
+			element->drop_down->option_data_list,
+			element->drop_down->option_label_list,
+			element->drop_down->number_columns,
+			element->drop_down->multi_select,
+			row,
+			element->drop_down->initial_data,
+			element->drop_down->output_null_option,
+			element->drop_down->output_not_null_option,
+			element->drop_down->output_select_option,
+			element->drop_down->post_change_javascript,
+			element->drop_down->max_drop_down_size,
+			element->drop_down->multi_select_element_name,
+			element->drop_down->onblur_javascript_function,
+			background_color,
+			element->drop_down->date_piece_offset,
+			element->drop_down->no_initial_capital,
+			element->drop_down->readonly,
+			element->tab_index,
+			element->drop_down->state );
+
+		fflush( output_file );
+	}
+	else
+	if ( element->element_type == non_edit_multi_select )
+	{
+		element_non_edit_multi_select_output(
+			output_file,
+			element->name,
+			element->non_edit_multi_select->option_label_list );
+	}
+	else
+	if ( element->element_type == prompt )
+	{
+		element_prompt_output(
+			output_file,
+			element->name,
+			0 /* not with_heading_format */ );
+	}
+	else
+	if ( element->element_type == prompt_heading )
+	{
+		element_prompt_output(
+			output_file,
+			element->name,
+			1 /* with_heading_format */ );
+	}
+	else
+	if ( element->element_type == prompt_data
+	||   element->element_type == prompt_data_plus_hidden )
+	{
+		element_prompt_data_output(
+			output_file,
+			element->name,
+			element->prompt_data->align,
+			element->prompt_data->data,
+			element->prompt_data->format_initial_capital );
+
+		if ( element->element_type == prompt_data_plus_hidden )
+		{
+			element_hidden_name_dictionary_output(
+				output_file,
+				hidden_name_dictionary,
+				row,
+				element->name,
+				element->prompt_data->data );
+		}
+	}
+	else
+	if ( element->element_type == reference_number )
+	{
+		element_reference_number_output( 
+				output_file,
+				element->name,
+				element->reference_number->data,
+				row,
+				element->reference_number->attribute_width,
+				element->reference_number->omit_update );
+	}
+	else
+	if ( element->element_type == hidden )
+	{
+		element_hidden_name_dictionary_output(
+					output_file,
+					hidden_name_dictionary,
+					row,
+					element->name,
+					element->hidden->data );
+	}
+	else
+	if ( element->element_type == upload_filename )
+	{
+		element_upload_filename_output(
+				output_file,
+				element->upload_filename->attribute_width,
+				row,
+				element->name );
+	}
+	else
+	if ( element->element_type == javascript_filename )
+	{
+		element_javascript_filename_output(
+				output_file,
+				element->name );
+	}
+	else
+	if ( element->element_type == http_filename )
+	{
+		element_http_filename_output(	
+						output_file,
+						element->http_filename,
+						row,
+						background_color,
+						element->name,
+						application_name );
+	}
+	else
+	if ( element->element_type == anchor )
+	{
+		element_anchor_output(	output_file,
+					element->anchor->prompt,
+					element->anchor->href );
+	}
+	else
+	if ( element->element_type == table_opening )
+	{
+		element_table_opening_output( output_file );
+	}
+	else
+	if ( element->element_type == table_row )
+	{
+		element_table_row_output( output_file );
+	}
+	else
+	if ( element->element_type == table_closing )
+	{
+		element_table_closing_output( output_file );
+	}
+	else
+	if ( element->element_type == empty_column )
+	{
+		element_empty_column_output( output_file );
+	}
+	else
+	if ( element->element_type == non_edit_text )
+	{
+		element_non_edit_text_output(
+					output_file,
+					element->non_edit_text->text,
+					element->non_edit_text->column_span,
+					element->non_edit_text->padding_em );
+	}
+	else
+	{
+		char msg[ 1024 ];
+		sprintf( msg, 
+			 "%s/%s(%s)/%d: unrecognized element type = %d",
+			 __FILE__,
+			 __FUNCTION__,
+			 element->name,
+			 __LINE__,
+			 element->element_type );
+		appaserver_output_error_message(
+			application_name, msg, (char *)0 );
+	}
 }
 

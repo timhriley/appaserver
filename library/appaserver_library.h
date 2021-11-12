@@ -61,7 +61,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER	'|'
 #define HORIZONTAL_MENU_CLASS			"menu"
 #define VERTICAL_MENU_CLASS			"vertical_menu"
-#define SUBMIT_BUTTON_LABEL			"|    Submit    |"
 #define TRANSMIT_PROMPT				"Link to file."
 #define SYNCHRONIZE_CURRENT_LOGFILE_NAME	"synchronize_current.txt"
 #define FROM_PREPROMPT				"ffrom_preprompt"

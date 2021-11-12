@@ -28,6 +28,7 @@
 #define FORM_ROWS_BETWEEN_HEADINGS		10
 #define FORM_SORT_LABEL				"sort_"
 #define FORM_DESCENDING_LABEL			"descend_"
+#define FORM_SUBMIT_BUTTON_LABEL		"|    Submit    |"
 
 #define FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER	'~'
 
@@ -55,6 +56,51 @@ typedef struct
 	/* ------- */
 	char *html;
 } FORM_BUTTON;
+
+/* FORM_BUTTON operations */
+/* ---------------------- */
+FORM_BUTTON *form_button_calloc(
+			void );
+
+FORM_BUTTON *form_button_submit(
+			int form_number );
+
+FORM_BUTTON *form_button_reset(
+			int form_number,
+			char *post_change_javascript );
+
+FORM_BUTTON *form_button_back_to_top(
+			void );
+
+FORM_BUTTON *form_button_remember(
+			char *action_string );
+
+FORM_BUTTON *form_button_back_to_drillthru(
+			char *action_string );
+
+FORM_BUTTON *form_button_back_forward(
+			void );
+
+FORM_BUTTON *form_button_drillthru_skip(
+			void );
+
+FORM_BUTTON *form_button_html_help(
+			char *application_name,
+			char *html_help_file_anchor );
+
+LIST *form_button_insert_pair_one2m_submit_list(
+			LIST *pair_one2m_folder_list );
+
+void form_button_list_output(
+			FILE *output_stream,
+			LIST *button_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_button_submit(
+			char *submit_control_string,
+			char *button_label,
+			int form_number );
 
 typedef struct
 {
@@ -168,48 +214,6 @@ FORM_RADIO *form_radio_new(
 char *form_radio_html(
 			LIST *value_list,
 			char *set_all_push_buttons_html );
-
-/* FORM_BUTTON operations */
-/* ---------------------- */
-FORM_BUTTON *form_button_calloc(
-			void );
-
-FORM_BUTTON *form_button_submit(
-			int form_number );
-
-FORM_BUTTON *form_button_reset(
-			int form_number,
-			char *post_change_javascript );
-
-FORM_BUTTON *form_button_back_to_top(
-			void );
-
-FORM_BUTTON *form_button_remember(
-			char *action_string );
-
-FORM_BUTTON *form_button_back_to_drillthru(
-			char *action_string );
-
-FORM_BUTTON *form_button_back_forward(
-			void );
-
-FORM_BUTTON *form_button_drillthru_skip(
-			void );
-
-FORM_BUTTON *form_button_html_help(
-			char *application_name,
-			char *html_help_file_anchor );
-
-LIST *form_button_insert_pair_one2m_submit_list(
-			LIST *pair_one2m_folder_list );
-
-void form_button_list_output(
-			FILE *output_stream,
-			LIST *button_list );
-
-void form_button_output(
-			FILE *output_stream,
-			char *html );
 
 /* FORM_PROMPT operations */
 /* ---------------------- */

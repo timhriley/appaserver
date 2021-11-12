@@ -535,11 +535,15 @@ char *appaserver_element_heading_string(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_list_html(
-			LIST *appaserver_element_list );
+			LIST *appaserver_element_list,
+			int row_number,
+			char *background_color );
 
-/* Returns heap, static, or program memory, or it returns null */
-/* ----------------------------------------------------------- */
+/* Returns heap memory null */
+/* ------------------------ */
 char *appaserver_element_html(
-			APPASERVER_ELEMENT *appaserver_element );
+			APPASERVER_ELEMENT *appaserver_element,
+			int row_number,
+			char *background_color );
 
 #endif

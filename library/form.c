@@ -1107,22 +1107,6 @@ void form_button_list_output(
 		"</table\n" );
 }
 
-void form_button_output(
-			FILE *output_stream,
-			char *html )
-{
-	if ( !html || !*html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	fprintf( output_stream, "%s\n", html );
-}
 char *form_table_row_background_color( void )
 {
 	static int cycle_count = 0;
@@ -1153,5 +1137,45 @@ char *form_table_row_background_color( void )
 		cycle_count = 0;
 
 	return background_color;
+}
+
+char *form_button_submit(
+			char *submit_control_string,
+			char *button_label,
+			int form_number )
+{
+	char submit_button[ 1024 ];
+	char *ptr = submit_button;
+
+	if ( !button_label || !*button_label )
+		button_label = FORM_SUBMIT_BUTTON_LABEL;
+
+	ptr += sprintf( ptr, "<td>" );
+
+	if ( submit_control_string && *submit_control_string )
+	{
+		/* -------------------------------------------- */
+		/* The submit_control_string is assumed to	*/
+		/* have "&&" appended to it.			*/
+		/* -------------------------------------------- */
+		ptr += sprintf(
+			ptr,
+"<td><input type=button value=\"%s\" "
+"onClick=\"%s document.forms[%d].submit();\">\n",
+			button_label,
+			submit_control_string,
+			form_number );
+	}
+	else
+	{
+		ptr += sprintf(
+			ptr,
+"<td><input type=button value=\"%s\" "
+"onClick=\"document.forms[%d].submit();\">\n",
+			button_label,
+		     	form_number );
+	}
+
+	return strdup( submit_button );
 }
 

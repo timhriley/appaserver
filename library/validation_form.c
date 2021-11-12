@@ -86,12 +86,14 @@ VALIDATION_FORM_ROW *validation_form_row_calloc( void )
 	return validation_form_row;
 }
 
-VALIDATION_FORM_ROW *validation_form_row_new( char *primary_name )
+VALIDATION_FORM_ROW *validation_form_row_new(
+			char *primary_data_column_list_string )
 {
 	VALIDATION_FORM_ROW *validation_form_row =
 		validation_form_row_calloc();
 
-	validation_form_row->primary_name = primary_name;
+	validation_form_row->primary_data_column_list_string =
+		primary_data_column_list_string;
 
 	validation_form_row->primary_data_hash_table =
 		hash_table_new(
@@ -177,13 +179,16 @@ LIST *validation_form_element_list(
 	return element_list;
 }
 
-void validation_form_output_heading(
+char *validation_form_heading(
 			char *table_title,
 			char *action_string,
 			char *target_frame,
 			LIST *element_list,
 			int table_border )
 {
+	char heading[ STRING_INPUT_BUFFER ];
+	char *ptr = heading;
+
 	printf( "<h1>%s</h1>\n", title );
 
 	/* Output form tag */
@@ -202,10 +207,10 @@ void validation_form_output_heading(
 
 	printf( ">\n" );
 
-	validation_form_output_table_heading( element_list );
+	validation_form_table_heading( element_list );
 }
 
-void validation_form_output_table_heading( LIST *element_list )
+char *validation_form_table_heading( LIST *element_list )
 {
 	char buffer[ 1024 ];
 	char *heading;
@@ -230,7 +235,8 @@ void validation_form_output_table_heading( LIST *element_list )
 	}
 }
 
-void validation_form_output_body( VALIDATION_FORM *validation_form )
+char *validation_form_body(
+			VALIDATION_FORM *validation_form )
 {
 	APPASERVER_ELEMENT *element;
 	int row_int;
@@ -239,9 +245,11 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 	VALIDATION_FORM_ROW *row;
 	char *primary_column_name;
 	char *datatype_name;
+	char body[ STRING_INPUT_BUFFER ];
+	char *ptr = body;
 
-	if ( !list_length( validation_form->element_list ) ) return;
-	if ( !list_rewind( validation_form->row_list ) ) return;
+	if ( !list_length( validation_form->element_list ) ) return (char *)0;
+	if ( !list_rewind( validation_form->row_list ) ) return (char *)0;
 
 	row_int = 1;
 
@@ -335,16 +343,29 @@ void validation_form_output_body( VALIDATION_FORM *validation_form )
 	} while( next_item( validation_form->row_list ) );
 }
 
-void validation_form_output_trailer( void )
+char *validation_form_trailer( void )
 {
-	printf( "<tr><td>" );
+	char trailer[ 1024 ];
+	char *ptr = trailer;
+	char *tmp;
 
-	form_output_submit_button(
-		(char *)0,
-		"Validate",
-		0 /* form_number */ );
+	ptr += sprintf( ptr, "<tr><td>" );
 
-	printf( "</table></form>\n" );
+	ptr += sprintf(
+		ptr,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp = form_button_submit(
+			(char *)0,
+			"Validate",
+			0 /* form_number */ ) );
+
+	free( tmp );
+
+	ptr += sprintf( ptr, "</table></form>\n" );
+
+	return strdup( trailer );
 }
 
 void validation_form_row_set_primary_data_hash_table(
@@ -371,7 +392,7 @@ void validation_form_row_set_primary_data_hash_table(
 		piece( primary_data, ',', primary_data_comma_list, i );
 		list_next( primary_name_list ), i++ )
 	{
-		hash_table_set_string(
+		hash_table_set(
 			primary_data_hash_table,
 			list_get( primary_name_list ),
 			strdup( primary_data ) );
@@ -464,12 +485,11 @@ LIST *validation_form_row_list(
 			validation_form_row->datatype_data_hash_table,
 			strdup( datatype_name ),
 			strdup( datatype_value ),
-			boolean validated );
+			validated );
 
 	} /* while( get_line() ) */
 
 	pclose( p );
-
 	return row_list;
 }
 
@@ -484,5 +504,36 @@ void validation_form_row_set_datatype_data_hash_table(
 			validation_datatype_data_new(
 				datatype_value,
 				validated ) ) );
+}
+
+VALIDATION_DATATYPE_DATA *validation_datatype_data_calloc( void )
+{
+	VALIDATION_DATATYPE_DATA *validation_datatype_data;
+
+	if ( ! ( validation_datatype_data =
+			calloc( 1, sizeof( VALIDATION_DATATYPE_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return validation_datatype_data;
+}
+
+VALIDATION_DATATYPE_DATA *validation_datatype_data_new(
+			char *datatype_data,
+			boolean validated )
+{
+	VALIDATION_DATATYPE_DATA *validation_datatype_data =
+		validation_datatype_data_calloc();
+
+	validation_datatype_data->datatype_data = datatype_data;
+	validation_datatype_data->validated = validated;
+
+	return validation_datatype_data;
 }
 
