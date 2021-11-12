@@ -43,7 +43,9 @@ void mail_tim( char *message );
 
 int get_index( char *attribute_name );
 
-char *timlib_trim_index( char *destination, char *attribute_name );
+char *timlib_trim_index(
+			char *destination,
+			char *attribute_name );
 
 char *trim_index( char *destination, char *attribute_name );
 

@@ -578,15 +578,15 @@ ELEMENT_TABLE_ROW *element_table_row_calloc( void )
 }
 
 char *element_drop_down_name(
-			LIST *element_name_list,
+			LIST *attribute_name_list,
 			int row_number )
 {
 	char drop_down_name[ 1024 ];
 
-	if ( !list_length( element_name_list ) )
+	if ( !list_length( attribute_name_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: element_name_list is empty.\n",
+			"ERROR in %s/%s()/%d: attribute_name_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -596,7 +596,7 @@ char *element_drop_down_name(
 	sprintf(drop_down_name,
 		"%s_%d",
 		list_display_delimited(
-			element_name_list,
+			attribute_name_list,
 			SQL_DELIMITER ),
 		row_number );
 
@@ -925,7 +925,7 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
-	element_drop_down->drop_down_name = drop_down_name;
+	element_drop_down->name = drop_down_name;
 	element_drop_down->initial_data = initial_data;
 	element_drop_down->delimited_list = delimited_list;
 	element_drop_down->no_initial_capital = no_initial_capital;
@@ -933,7 +933,7 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 	element_drop_down->output_not_null_option = output_not_null_option;
 	element_drop_down->output_select_option = output_select_option;
 	element_drop_down->column_span = column_span;
-	element_drop_down->drop_down_size = drop_down_size;
+	element_drop_down->size = drop_down_size;
 	element_drop_down->tab_order = tab_order;
 	element_drop_down->multi_select = multi_select;
 	element_drop_down->post_change_javascript = post_change_javascript;
@@ -1051,14 +1051,21 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 				attribute_name_list ),
 			0 /* not with_table_data_tag */ );
 
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	element_multi_drop_down->name =
+		element_multi_drop_down_name(
+			attribute_name_list,
+			(char *)0 /* element_name_prefix */ );
+
+	element_multi_drop_down->heading =
+		appaserver_element_heading_string(
+			element_multi_drop_down->name );
+
 	element_multi_drop_down->empty_html =
 		element_drop_down_empty_html(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_multi_drop_down_name(
-				attribute_name_list,
-				(char *)0 /* element_name_prefix */ ),
+			element_multi_drop_down->name,
 			element_multi_drop_down_size(),
 			1 /* multi_select */ );
 
@@ -1326,8 +1333,46 @@ char *appaserver_element_list_html(
 	return strdup( html );
 }
 
-char *element_heading( APPASERVER_ELEMENT *element )
+char *appaserver_element_heading( APPASERVER_ELEMENT *element )
 {
+	if ( element->element_type == non_edit_text )
+	{
+		if ( element->non_edit_text->name
+		&&   !element->non_edit_text->heading )
+		{
+			element->non_edit_text->heading =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				appaserver_element_heading_string(
+					element->non_edit_text->name );
+		}
+		return (element->non_edit_text->heading)
+			? element->non_edit_text->heading
+			: "";
+	}
+	else
+	if ( element->element_type == multi_drop_down )
+	{
+		return element->multi_drop_down->heading;
+	}
+	else
+	if ( element->element_type == drop_down )
+	{
+		if ( !element->drop_down->heading )
+		{
+			element->drop_down->heading =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				appaserver_element_heading_string(
+					element->drop_down->name );
+		}
+		return (element->drop_down->heading)
+			? element->drop_down->heading
+			: "";
+	}
+/*
 	if ( element->element_type == text_item
 	||   element->element_type == element_date
 	||   element->element_type == element_current_date
@@ -1399,9 +1444,12 @@ char *element_heading( APPASERVER_ELEMENT *element )
 		return "";
 	else
 		return (char *)0;
+*/
+	return "";
 }
 
-char *element_button_set_all_control_string(
+#ifdef NOT_DEFINED
+char *appaserver_element_button_set_all_control_string(
 			APPASERVER_ELEMENT *element,
 			int form_number )
 {
@@ -1433,5 +1481,26 @@ char *element_button_set_all_control_string(
 		}
 	}
 	return (char *)0;
+}
+#endif
+
+char *appaserver_element_heading_string( char *name )
+{
+	char heading_string[ 128 ];
+	char trimmed_name[ 128 ];
+
+	if ( !name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trim_index( trimmed_name, name );
+	string_initial_capital( heading_string, trimmed_name );
+	return strdup( heading_string );
 }
 

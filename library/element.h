@@ -79,6 +79,19 @@ typedef struct
 	char *html;
 } ELEMENT_BREAK_TAG;
 
+/* ELEMENT_BREAK_TAG operations */
+/* ---------------------------- */
+ELEMENT_BREAK_TAG *element_break_tag_calloc(
+			void );
+
+ELEMENT_BREAK_TAG *element_break_tag_new(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_break_tag_html(
+			void );
+
 typedef struct
 {
 	/* Input */
@@ -89,13 +102,39 @@ typedef struct
 	/* Process */
 	/* ------- */
 	char *html;
-
 } ELEMENT_BUTTON;
+
+/* ELEMENT_BUTTON operations */
+/* ------------------------- */
+ELEMENT_BUTTON *element_button_calloc(
+			void );
+
+ELEMENT_BUTTON *element_button_new(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_button_html(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
 
 typedef struct
 {
 	char *html;
 } ELEMENT_TABLE_ROW;
+
+/* ELEMENT_TABLE_ROW operations */
+/* ---------------------------- */
+ELEMENT_TABLE_ROW *element_table_row_calloc(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_table_row_html(
+			void );
 
 typedef struct
 {
@@ -106,20 +145,31 @@ typedef struct
 {
 	/* Attributes */
 	/* ---------- */
-	char *text;
+	char *name;
+	char *text_html;
 	int column_span;
 	int padding_em;
 
-	/* Process */
-	/* ------- */
+	/* External */
+	/* -------- */
 	char *html;
+	char *heading;
 } ELEMENT_NON_EDIT_TEXT;
+
+/* ELEMENT_NON_EDIT_TEXT operations */
+/* -------------------------------- */
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *element_non_edit_text_html(
+			char *message );
 
 typedef struct
 {
 	/* Attributes */
 	/* ---------- */
-	char *drop_down_name;
 	char *initial_data;
 	LIST *delimited_list;
 	boolean no_initial_capital;
@@ -127,15 +177,93 @@ typedef struct
 	boolean output_not_null_option;
 	boolean output_select_option;
 	int column_span;
-	int drop_down_size;
 	int tab_order;
 	boolean multi_select;
 	char *post_change_javascript;
 
 	/* Process */
 	/* ------- */
+	char *name;
+	char *heading;
+	int size;
 	char *html;
 } ELEMENT_DROP_DOWN;
+
+/* ELEMENT_DROP_DOWN operations */
+/* ---------------------------- */
+ELEMENT_DROP_DOWN *element_drop_down_calloc(
+			void );
+
+ELEMENT_DROP_DOWN *element_drop_down_new(
+			char *drop_down_name,
+			char *initial_data,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			int column_span,
+			int drop_down_size,
+			int tab_order,
+			boolean multi_select,
+			char *post_change_javascript );
+
+char *element_drop_down_html( 	
+			char *drop_down_name,
+			char *initial_data,
+			LIST *delimited_list,
+			LIST *display_list,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			int column_span,
+			int drop_down_size,
+			boolean multi_select,
+			char *post_change_javascript,
+			char *background_color,
+			int tab_order );
+
+LIST *element_drop_down_display_list(
+			LIST *delimited_list,
+			boolean no_initial_capital );
+
+/* ---------------------------- */
+/* Zaps row in delimited_list.  */
+/* Returns heap memory or null.	*/
+/* ---------------------------- */
+char *element_drop_down_initial_data_html(
+			LIST *delimited_list,
+			LIST *display_list,
+			char *initial_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_drop_down_option_value_html(
+			char *data,
+			char *display );
+
+/* Returns static memory. */
+/* ---------------------- */
+char *element_drop_down_close_html(
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_name(
+			LIST *element_name_list,
+			int row_number );
+
+int element_drop_down_size(
+			int delimited_list_length );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_empty_html(
+			char *drop_down_name,
+			int drop_down_size,
+			boolean multi_select );
 
 typedef struct
 {
@@ -153,9 +281,52 @@ typedef struct
 	ELEMENT_BUTTON *move_right_button;
 	ELEMENT_BREAK_TAG *element_break_tag;
 	ELEMENT_BUTTON *move_left_button;
+	char *name;
 	char *empty_html;
 	char *html;
+	char *heading;
 } ELEMENT_MULTI_DROP_DOWN;
+
+/* ELEMENT_MULTI_DROP_DOWN operations */
+/* ---------------------------------- */
+ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
+			void );
+
+ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
+			LIST *attribute_name_list,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			char *post_change_javascript );
+
+int element_multi_drop_down_size(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_multi_drop_down_move_right_label(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_multi_drop_down_move_left_label(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_move_right_action_string(
+			LIST *attribute_name_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_move_left_action_string(
+			LIST *attribute_name_list );
+
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_name(
+			LIST *attribute_name_list,
+			char *element_name_prefix );
 
 typedef struct
 {
@@ -201,6 +372,21 @@ typedef struct
 	/* -------- */
 	char *html;
 } ELEMENT_CHECKBOX;
+
+/* ELEMENT_CHECKBOX operations */
+/* --------------------------- */
+ELEMENT_CHECKBOX *element_checkbox_calloc(
+			void );
+
+/* Returns heap memory or null. */
+/* ---------------------------- */
+char *element_checkbox_html(
+			char *element_name,
+			char *prompt_display,
+			boolean checked,
+			char *action_string,
+			int tab_order,
+			char *value );
 
 typedef struct
 {
@@ -338,195 +524,13 @@ void appaserver_element_output(
 			FILE *output_stream,
 			APPASERVER_ELEMENT *element );
 
-char *element_heading(	APPASERVER_ELEMENT *element );
-
-/* ELEMENT_TABLE_ROW operations */
-/* ---------------------------- */
-ELEMENT_TABLE_ROW *element_table_row_calloc(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *element_table_row_html(
-			void );
-
-/* ELEMENT_NON_EDIT_TEXT operations */
-/* -------------------------------- */
-ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_non_edit_text_html(
-			char *message );
-
-/* ELEMENT_CHECKBOX operations */
-/* --------------------------- */
-ELEMENT_CHECKBOX *element_checkbox_calloc(
-			void );
-
-/* Returns heap memory or null. */
-/* ---------------------------- */
-char *element_checkbox_html(
-			char *element_name,
-			char *prompt_display,
-			boolean checked,
-			char *action_string,
-			int tab_order,
-			char *value );
-
-/* ELEMENT_DROP_DOWN operations */
-/* ---------------------------- */
-ELEMENT_DROP_DOWN *element_drop_down_calloc(
-			void );
-
-ELEMENT_DROP_DOWN *element_drop_down_new(
-			char *drop_down_name,
-			char *initial_data,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			boolean output_null_option,
-			boolean output_not_null_option,
-			boolean output_select_option,
-			int column_span,
-			int drop_down_size,
-			int tab_order,
-			boolean multi_select,
-			char *post_change_javascript );
-
-char *element_drop_down_html( 	
-			char *drop_down_name,
-			char *initial_data,
-			LIST *delimited_list,
-			LIST *display_list,
-			boolean output_null_option,
-			boolean output_not_null_option,
-			boolean output_select_option,
-			int column_span,
-			int drop_down_size,
-			boolean multi_select,
-			char *post_change_javascript,
-			char *background_color,
-			int tab_order );
-
-LIST *element_drop_down_display_list(
-			LIST *delimited_list,
-			boolean no_initial_capital );
-
-/* ---------------------------- */
-/* Zaps row in delimited_list.  */
-/* Returns heap memory or null.	*/
-/* ---------------------------- */
-char *element_drop_down_initial_data_html(
-			LIST *delimited_list,
-			LIST *display_list,
-			char *initial_data );
-
-/* Returns static memory */
-/* --------------------- */
-char *element_drop_down_option_value_html(
-			char *data,
-			char *display );
-
-/* Returns static memory. */
-/* ---------------------- */
-char *element_drop_down_close_html(
-			boolean output_null_option,
-			boolean output_not_null_option,
-			boolean output_select_option );
+char *appaserver_element_heading(
+			APPASERVER_ELEMENT *element );
 
 /* Returns heap memory */
 /* ------------------- */
-char *element_drop_down_name(
-			LIST *element_name_list,
-			int row_number );
-
-int element_drop_down_size(
-			int delimited_list_length );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_drop_down_empty_html(
-			char *drop_down_name,
-			int drop_down_size,
-			boolean multi_select );
-
-/* ELEMENT_MULTI_DROP_DOWN operations */
-/* ---------------------------------- */
-ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
-			void );
-
-ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
-			LIST *attribute_name_list,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *post_change_javascript );
-
-int element_multi_drop_down_size(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *element_multi_drop_down_move_right_label(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *element_multi_drop_down_move_left_label(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_multi_drop_down_move_right_action_string(
-			LIST *attribute_name_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_multi_drop_down_move_left_action_string(
-			LIST *attribute_name_list );
-
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_multi_drop_down_name(
-			LIST *attribute_name_list,
-			char *element_name_prefix );
-
-/* ELEMENT_BUTTON operations */
-/* ------------------------- */
-ELEMENT_BUTTON *element_button_calloc(
-			void );
-
-ELEMENT_BUTTON *element_button_new(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_button_html(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
-
-/* Returns static memory or null */
-/* ----------------------------- */
-char *element_button_set_all_control_string(
-			APPASERVER_ELEMENT *element,
-			int form_number );
-
-/* ELEMENT_BREAK_TAG operations */
-/* ---------------------------- */
-ELEMENT_BREAK_TAG *element_break_tag_calloc(
-			void );
-
-ELEMENT_BREAK_TAG *element_break_tag_new(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *element_break_tag_html(
-			void );
+char *appaserver_element_heading_string(
+			char *name );
 
 /* Returns heap memory or null */
 /* --------------------------- */

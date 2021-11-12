@@ -184,6 +184,7 @@ char *trim_index( char *destination, char *attribute_name )
 
 	strcpy( destination, attribute_name );
  	end_ptr = destination + strlen( destination ) - 1;
+
 	while( end_ptr != destination )
 	{
 		if ( isdigit( *end_ptr ) )
