@@ -246,6 +246,7 @@ char *element_drop_down_html(
 	if ( initial_data_html )
 	{
 		ptr += sprintf( ptr, "%s\n", initial_data_html );
+		free( initial_data_html );
 	}
 	else
 	if ( output_select_option )
@@ -319,6 +320,7 @@ char *element_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
+		/* ---------------------- */
 		/* Returns static memory. */
 		/* ---------------------- */
 		element_drop_down_close_html(
@@ -331,7 +333,7 @@ char *element_drop_down_html(
 
 char *element_table_row_html( void )
 {
-	return "<tr>";
+	return strdup( "<tr>" );
 }
 
 #ifdef NOT_DEFINED
@@ -581,7 +583,7 @@ char *element_drop_down_name(
 			LIST *attribute_name_list,
 			int row_number )
 {
-	char drop_down_name[ 1024 ];
+	static char drop_down_name[ 1024 ];
 
 	if ( !list_length( attribute_name_list ) )
 	{
@@ -600,7 +602,7 @@ char *element_drop_down_name(
 			SQL_DELIMITER ),
 		row_number );
 
-	return strdup( drop_down_name );
+	return drop_down_name;
 }
 
 int appaserver_element_tab_order( int tab_order )
@@ -846,7 +848,12 @@ char *element_checkbox_html(
 	||   !prompt_display
 	||   !value )
 	{
-		return (char *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	ptr += sprintf(
@@ -910,7 +917,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc( void )
 }
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
-			char *drop_down_name,
+			LIST *attribute_name_list,
 			char *initial_data,
 			LIST *delimited_list,
 			boolean no_initial_capital,
@@ -937,24 +944,6 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 	element_drop_down->tab_order = tab_order;
 	element_drop_down->multi_select = multi_select;
 	element_drop_down->post_change_javascript = post_change_javascript;
-
-	element_drop_down->html =
-		element_drop_down_html(
-			drop_down_name,
-			initial_data,
-			delimited_list,
-			element_drop_down_display_list(
-				delimited_list,
-				no_initial_capital ),
-			output_null_option,
-			output_not_null_option,
-			output_select_option,
-			column_span,
-			drop_down_size,
-			multi_select,
-			post_change_javascript,
-			form_table_row_background_color(),
-			tab_order );
 
 	return element_drop_down;
 }
@@ -1017,12 +1006,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 
 	element_multi_drop_down->original_drop_down =
 		element_drop_down_new(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_multi_drop_down_name(
-				attribute_name_list,
-				ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX ),
+			attribute_name_list,
 			(char *)0 /* initial_data */,
 			delimited_list,
 			no_initial_capital,
@@ -1265,6 +1249,8 @@ ELEMENT_BREAK_TAG *element_break_tag_new( void )
 {
 	ELEMENT_BREAK_TAG *element_break_tag = element_break_tag_calloc();
 
+	/* Returns heap memory */
+	/* ------------------- */
 	element_break_tag->html = element_break_tag_html();
 
 	return element_break_tag;
@@ -1272,39 +1258,13 @@ ELEMENT_BREAK_TAG *element_break_tag_new( void )
 
 char *element_break_tag_html( void )
 {
-	return "<br>";
-}
-
-char *appaserver_element_html(
-			APPASERVER_ELEMENT *appaserver_element,
-			int row_number,
-			char *background_color )
-{
-	if ( appaserver_element->element_type == table_row )
-		return appaserver_element->table_row->html;
-	else
-	if ( appaserver_element->element_type == checkbox )
-		return appaserver_element->checkbox->html;
-	else
-	if ( appaserver_element->element_type == drop_down )
-		return appaserver_element->drop_down->html;
-	else
-	if ( appaserver_element->element_type == multi_drop_down )
-	{
-		if ( appaserver_element->multi_drop_down->empty_html )
-			return appaserver_element->multi_drop_down->empty_html;
-		else
-			return appaserver_element->multi_drop_down->html;
-	}
-	else
-	if ( appaserver_element->element_type == button )
-		return appaserver_element->button->html;
-	else
-		return (char *)0;
+	return strdup( "<br>" );
 }
 
 char *appaserver_element_list_html(
-			LIST *appaserver_element_list )
+			LIST *appaserver_element_list,
+			int row_number,
+			char *background_color )
 {
 	APPASERVER_ELEMENT *appaserver_element;
 	char html[ STRING_FOUR_MEG ];
@@ -1322,7 +1282,9 @@ char *appaserver_element_list_html(
 		/* ---------------------------------------- */
 		if ( ( element_html =
 				appaserver_element_html(
-					appaserver_element ) ) )
+					appaserver_element,
+					row_number,
+					background_color ) ) )
 		{
 			ptr += sprintf(
 				ptr,
@@ -1511,497 +1473,592 @@ char *appaserver_element_html(
 			int row_number,
 			char *background_color )
 {
-	if ( element->element_type == linebreak )
+	if ( !appaserver_element )
 	{
-		element_linebreak_output( output_file );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: appaserver_element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( appaserver_element->element_type == table_row )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_table_row_html();
 	}
 	else
-	if ( element->element_type == notepad )
+	if ( appaserver_element->element_type == checkbox )
 	{
-		element_notepad_output(
-			 	output_file,
-				element->notepad->attribute_width,
-				element->name,
-				element->notepad->data,
-				row,
-				element->notepad->number_rows,
-				element->notepad->onchange_null2slash_yn,
-				element->tab_index );
+		char prompt_display[ 256 ];
+
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_checkbox_html(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_name(
+				appaserver_element->
+					checkbox->
+					name,
+				row_number ),
+			string_initial_capital(
+				prompt_display,
+				appaserver_element->checkbox->prompt_string ),
+			appaserver_element->checkbox->checked,
+			appaserver_element->checkbox->action_string,
+			appaserver_element->checkbox->tab_order,
+			appaserver_element->checkbox->value );
 	}
 	else
-	if ( element->element_type == blank )
+	if ( appaserver_element->element_type == drop_down )
 	{
-		element_blank_data_output( output_file );
-	}
-	else
-	if ( element->element_type == text_item )
-	{
-		element_text_item_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_drop_down_html(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_name(
+				appaserver_element->
+					drop_down->
+					attribute_name_list,
+				row_number ),
+			appaserver_element->drop_down->initial_data,
+			appaserver_element->drop_down->delimited_list,
+			element_drop_down_display_list(
+				appaserver_element->
+					drop_down->
+					delimited_list ),
+			appaserver_element->drop_down->output_null_option,
+			appaserver_element->drop_down->output_not_null_option,
+			appaserver_element->drop_down->output_select_option,
+			appaserver_element->drop_down->column_span,
+			appaserver_element->drop_down->drop_down_size,
+			0 /* not multi_select */,
+			appaserver_element->drop_down->post_change_javascript,
 			background_color,
-			element->tab_index,
-			0 /* not without_td_tags */,
-			element->text_item->readonly,
-			element->text_item->state,
-			element->text_item->is_numeric );
+			appaserver_element->drop_down->tab_order );
 	}
-	else
-	if ( element->element_type == element_date )
+	if ( appaserver_element->element_type == multi_drop_down )
 	{
-		element_date_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
-			background_color,
-			application_name,
-			login_name,
-			1 /* with_calendar_popup */,
-			element->text_item->readonly,
-			element->tab_index );
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_multi_drop_down_html(
+			appaserver_element->
+				multi_drop_down->
+				original_drop_down,
+			appaserver_element->
+				multi_drop_down->
+				move_right_button,
+			appaserver_element->
+				multi_drop_down->
+				move_left_button,
 	}
-	else
-	if ( element->element_type == element_current_date_time
-	||   element->element_type == element_current_date )
-	{
-		boolean with_calendar_popup = 1;
+}
 
-		/* If okay to create the date and if no existing date. */
-		/* --------------------------------------------------- */
-		if ( !element->text_item->dont_create_current_date
-		&&   ( !element->text_item->data
-		||     !*element->text_item->data ) )
-		{
-			DATE_CONVERT *date_convert;
-			char data[ 64 ];
+char *appaserver_element_name(
+			char *name,
+			int row_number )
+{
+	static char element_name[ 128 ];
 
-			date_convert =
-				date_convert_new_user_format_date_convert(
-				application_name,
-				login_name,
-				date_get_now_yyyy_mm_dd(
-					date_get_utc_offset() ) );
+	if ( !name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-			char *time_string;
-			if ( element->element_type == element_current_date )
-			{
-				strcpy( data, date_convert->return_date );
-			}
-			else
-			/* --------------------------------- */
-			/* Must be element_current_date_time */
-			/* --------------------------------- */
-			{
-				if ( element->text_item->attribute_width == 19 )
-					time_string =
-					    date_get_now_hh_colon_mm_colon_ss(
-						date_get_utc_offset() );
-				else
-					time_string =
-					    date_get_now_hh_colon_mm(
-						date_get_utc_offset() );
+	sprintf( element_name, "%s_%d", name, row_number );
 
-				sprintf( data,
-				 	"%s %s",
-				 	date_convert->return_date,
-				 	time_string );
-			}
+	return element_name;
+}
 
-			element->text_item->data = strdup( data );
-			with_calendar_popup = 0;
-		}
-		else
-		/* -------------------------------------------------- */
-		/* The calendar doesn't work with a time in the date. */
-		/* -------------------------------------------------- */
-		if ( element->element_type == element_current_date_time
-		&&   element->text_item->data
-		&&   *element->text_item->data )
-		{
-			with_calendar_popup = 0;
-		}
+char *element_multi_drop_down_html( 	
+			char *element_name,
+			LIST *option_data_list,
+			LIST *option_label_list,
+			int number_columns,
+			boolean multi_select,
+			int row,
+			char *initial_data,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			char *post_change_javascript,
+			int max_drop_down_size,
+			char *multi_select_element_name,
+			char *onblur_javascript_function,
+			char *background_color,
+			int date_piece_offset,
+			boolean no_initial_capital,
+			boolean readonly,
+			int tab_index,
+			char *state )
+{
+	char buffer[ 1024 ];
+	char delimited_label_buffer[ 512 ];
+	char initial_label[ 512 ];
+	char drop_down_element_name[ 512 ];
+	char multi_select_drop_down_element_name[ 512 ];
+	char *data;
+	char *label;
+	char *seeked_initial_data = {0};
+	char *seeked_initial_label;
 
-		element_date_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
-			background_color,
-			application_name,
-			login_name,
-			with_calendar_popup,
-			element->text_item->readonly,
-			element->tab_index );
-	}
-	else
-	if ( element->element_type == element_current_date )
+	if ( !option_data_list )
 	{
-		if ( !element->text_item->data )
-		{
-			DATE_CONVERT *date_convert;
-
-			date_convert =
-				date_convert_new_user_format_date_convert(
-				application_name,
-				login_name,
-				date_get_now_yyyy_mm_dd(
-					date_get_utc_offset() ) );
-
-			element->text_item->data = date_convert->return_date;
-		}
-
-		element_date_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
-			background_color,
-			application_name,
-			login_name,
-			1 /* with_calendar_popup */,
-			element->text_item->readonly,
-			element->tab_index );
-	}
-	else
-	if ( element->element_type == element_date_time )
-	{
-		boolean with_calendar_popup = 1;
-
-		/* The calendar doesn't work with a time in the date. */
-		/* -------------------------------------------------- */
-		if ( element->text_item->data )
-		{
-			with_calendar_popup = 0;
-		}
-
-		element_date_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
-			background_color,
-			application_name,
-			login_name,
-			with_calendar_popup,
-			element->text_item->readonly,
-			element->tab_index );
-	}
-	else
-	if ( element->element_type == element_current_time )
-	{
-		if ( !element->text_item->data )
-		{
-			if ( element->text_item->attribute_width >= 7 )
-				element->text_item->data =
-					date_get_now_time_hhmm_colon_ss(
-						date_get_utc_offset() );
-			else
-				element->text_item->data =
-					date_get_now_hhmm(
-						date_get_utc_offset() );
-		}
-
-		element_text_item_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
-			background_color,
-			element->tab_index,
-			0 /* not without_td_tags */,
-			element->text_item->readonly,
-			element->text_item->state,
-			element->text_item->is_numeric );
-	}
-	else
-	if ( element->element_type == element_time )
-	{
-		element_text_item_output(
-			output_file,
-			element->name,
-			element->text_item->data,
-			element->text_item->attribute_width,
-			row,
-			element->text_item->onchange_null2slash_yn,
-			element->text_item->post_change_javascript,
-			element->text_item->on_focus_javascript_function,
-			element->text_item->widget_size,
-			background_color,
-			element->tab_index,
-			0 /* not without_td_tags */,
-			element->text_item->readonly,
-			element->text_item->state,
-			element->text_item->is_numeric );
-	}
-	else
-	if ( element->element_type == password )
-	{
-		element_password_output( 
-				output_file,
-				element->name,
-				element->password->data,
-				element->password->attribute_width,
-				row,
-				element->tab_index );
-	}
-	else
-	if ( element->element_type == toggle_button )
-	{
-		if ( with_toggle_buttons )
-		{
-			element_toggle_button_output(
-				output_file,
-				element->name,
-				element->toggle_button->heading,
-				element->toggle_button->checked,
-				row,
-				element->toggle_button->onchange_submit_yn,
-				element->toggle_button->form_name,
-				element->toggle_button->image_source,
-				element->toggle_button->
-					onclick_keystrokes_save_string,
-				element->toggle_button->onclick_function );
-		}
-		else
-			element_output_non_element( "", output_file );
-	}
-	else
-	if ( element->element_type == push_button )
-	{
-		element_push_button_output(
-			output_file,
-			element->push_button->label,
-			row,
-			element->push_button->onclick_function );
-	}
-	else
-	if ( element->element_type == radio_button )
-	{
-		element_radio_button_output(
-				output_file,
-				element->radio_button->onchange_submit_yn,
-				element->radio_button->form_name,
-				element->radio_button->image_source,
-				element->radio_button->value,
-				element->radio_button->checked,
-				element->radio_button->heading,
-				element->name,
-				element->radio_button->onclick,
-				row,
-				element->radio_button->state,
-				element->radio_button->post_change_javascript );
-	}
-	else
-	if ( element->element_type == drop_down )
-	{
-		if ( !list_length( element->drop_down->option_label_list ) )
-		{
-			element_drop_down_set_option_data_option_label_list(
-				&element->drop_down->option_data_list,
-				&element->drop_down->option_label_list,
-				element->drop_down->option_data_list
-					/* source_list */ );
-		}
-
-		element_drop_down_output(
-			output_file,
-			element->name,
-			element->drop_down->option_data_list,
-			element->drop_down->option_label_list,
-			element->drop_down->number_columns,
-			element->drop_down->multi_select,
-			row,
-			element->drop_down->initial_data,
-			element->drop_down->output_null_option,
-			element->drop_down->output_not_null_option,
-			element->drop_down->output_select_option,
-			element->drop_down->post_change_javascript,
-			element->drop_down->max_drop_down_size,
-			element->drop_down->multi_select_element_name,
-			element->drop_down->onblur_javascript_function,
-			background_color,
-			element->drop_down->date_piece_offset,
-			element->drop_down->no_initial_capital,
-			element->drop_down->readonly,
-			element->tab_index,
-			element->drop_down->state );
-
-		fflush( output_file );
-	}
-	else
-	if ( element->element_type == non_edit_multi_select )
-	{
-		element_non_edit_multi_select_output(
-			output_file,
-			element->name,
-			element->non_edit_multi_select->option_label_list );
-	}
-	else
-	if ( element->element_type == prompt )
-	{
-		element_prompt_output(
-			output_file,
-			element->name,
-			0 /* not with_heading_format */ );
-	}
-	else
-	if ( element->element_type == prompt_heading )
-	{
-		element_prompt_output(
-			output_file,
-			element->name,
-			1 /* with_heading_format */ );
-	}
-	else
-	if ( element->element_type == prompt_data
-	||   element->element_type == prompt_data_plus_hidden )
-	{
-		element_prompt_data_output(
-			output_file,
-			element->name,
-			element->prompt_data->align,
-			element->prompt_data->data,
-			element->prompt_data->format_initial_capital );
-
-		if ( element->element_type == prompt_data_plus_hidden )
-		{
-			element_hidden_name_dictionary_output(
-				output_file,
-				hidden_name_dictionary,
-				row,
-				element->name,
-				element->prompt_data->data );
-		}
-	}
-	else
-	if ( element->element_type == reference_number )
-	{
-		element_reference_number_output( 
-				output_file,
-				element->name,
-				element->reference_number->data,
-				row,
-				element->reference_number->attribute_width,
-				element->reference_number->omit_update );
-	}
-	else
-	if ( element->element_type == hidden )
-	{
-		element_hidden_name_dictionary_output(
-					output_file,
-					hidden_name_dictionary,
-					row,
-					element->name,
-					element->hidden->data );
-	}
-	else
-	if ( element->element_type == upload_filename )
-	{
-		element_upload_filename_output(
-				output_file,
-				element->upload_filename->attribute_width,
-				row,
-				element->name );
-	}
-	else
-	if ( element->element_type == javascript_filename )
-	{
-		element_javascript_filename_output(
-				output_file,
-				element->name );
-	}
-	else
-	if ( element->element_type == http_filename )
-	{
-		element_http_filename_output(	
-						output_file,
-						element->http_filename,
-						row,
-						background_color,
-						element->name,
-						application_name );
-	}
-	else
-	if ( element->element_type == anchor )
-	{
-		element_anchor_output(	output_file,
-					element->anchor->prompt,
-					element->anchor->href );
-	}
-	else
-	if ( element->element_type == table_opening )
-	{
-		element_table_opening_output( output_file );
-	}
-	else
-	if ( element->element_type == table_row )
-	{
-		element_table_row_output( output_file );
-	}
-	else
-	if ( element->element_type == table_closing )
-	{
-		element_table_closing_output( output_file );
-	}
-	else
-	if ( element->element_type == empty_column )
-	{
-		element_empty_column_output( output_file );
-	}
-	else
-	if ( element->element_type == non_edit_text )
-	{
-		element_non_edit_text_output(
-					output_file,
-					element->non_edit_text->text,
-					element->non_edit_text->column_span,
-					element->non_edit_text->padding_em );
-	}
-	else
-	{
-		char msg[ 1024 ];
-		sprintf( msg, 
-			 "%s/%s(%s)/%d: unrecognized element type = %d",
+		fprintf( stderr, "ERROR in %s/%s(): null option_data_list.\n",
 			 __FILE__,
-			 __FUNCTION__,
-			 element->name,
-			 __LINE__,
-			 element->element_type );
-		appaserver_output_error_message(
-			application_name, msg, (char *)0 );
+			 __FUNCTION__ );
+		exit( 1 );
+	}
+
+	if ( multi_select && !multi_select_element_name )
+	{
+		fprintf( stderr,
+		"ERROR in %s/%s()/%d: empty multi_select_element_name\n",
+		 	 __FILE__,
+		 	 __FUNCTION__,
+		 	 __LINE__ );
+		exit( 1 );
+	}
+
+	if ( readonly )
+	{
+		element_drop_down_text_item_output(
+			output_file,
+			element_name,
+			initial_data,
+			row,
+			background_color );
+
+		return;
+
+	} /* if readonly */
+
+	if ( 	max_drop_down_size
+	&&      ( list_length( option_data_list ) > 
+		  max_drop_down_size ) )
+	{
+		ELEMENT_APPASERVER *element;
+
+		if ( initial_data && *initial_data )
+		{
+			element_data_list_to_label(
+					initial_label,
+					initial_data,
+					option_data_list,
+					option_label_list );
+		}
+		else
+		{
+			*initial_label = '\0';
+			*initial_data = '\0';
+		}
+
+		element =
+			element_non_edit_text_new_element(
+				element_name,
+				initial_label,
+				1 /* column_span */,
+				0 /* padding_em */ );
+
+		element_output(
+			(DICTIONARY *)0 /* hidden_name_dictionary */,
+			element,
+			row,
+			0,
+			output_file,
+			background_color,
+			(char *)0 /* application_name */,
+			(char *)0 /* login_name */ );
+
+		element = element_hidden_new_element(
+						element_name,
+						initial_data );
+		element_output(
+			(DICTIONARY *)0 /* hidden_name_dictionary */,
+			element,
+			row,
+			0,
+			output_file,
+			background_color,
+			(char *)0 /* application_name */,
+			(char *)0 /* login_name */ );
+		return;
+
+	} /* if ( list_length( option_data_list ) > max_drop_down_size ) ) */
+
+	number_columns = (number_columns) ? number_columns : 1;
+
+	/* Have row numbers on prompt screen multi-selects start with 1 */
+	/* ------------------------------------------------------------ */
+	if ( multi_select && !row ) row = 1;
+
+#ifdef NOT_DEFINED
+	if ( folder_name && *folder_name )
+	{
+		if ( row == -1 )
+		{
+			sprintf(drop_down_element_name,
+				"%s.%s",
+				folder_name,
+				element_name );
+		}
+		else
+		{
+			sprintf(drop_down_element_name,
+				"%s.%s_%d",
+				folder_name,
+				element_name,
+				row );
+		}
+
+		if ( multi_select && multi_select_element_name )
+		{
+			sprintf(multi_select_drop_down_element_name,
+				"%s.%s_%d",
+				folder_name,
+				multi_select_element_name,
+				row );
+		}
+	}
+	else
+	{
+		if ( row == -1 )
+		{
+			strcpy(drop_down_element_name, element_name );
+		}
+		else
+		{
+			sprintf(drop_down_element_name,
+				"%s_%d",
+				element_name,
+				row );
+		}
+
+		if ( multi_select && multi_select_element_name )
+		{
+			sprintf(multi_select_drop_down_element_name,
+				"%s_%d",
+				multi_select_element_name,
+				row );
+		}
+	}
+#endif
+
+	if ( row == -1 )
+	{
+		strcpy(drop_down_element_name, element_name );
+	}
+	else
+	{
+		sprintf(drop_down_element_name,
+			"%s_%d",
+			element_name,
+			row );
+	}
+
+	if ( multi_select && multi_select_element_name )
+	{
+		sprintf(multi_select_drop_down_element_name,
+			"%s_%d",
+			multi_select_element_name,
+			row );
+	}
+
+	fprintf(	output_file,
+			"<td align=left colspan=%d>\n"
+			"<select name=\"%s\" id=\"%s\"",
+			number_columns,
+			drop_down_element_name,
+			drop_down_element_name );
+
+	fprintf(	output_file,
+			" size=\"%d\"",
+			( multi_select ) ? ELEMENT_MULTI_SELECT_ROW_COUNT : 1 );
+
+	if ( multi_select ) fprintf( output_file, " multiple" );
+
+	if ( tab_index )
+	{
+		fprintf( output_file,
+			 " tabindex=%d",
+			 tab_index );
+	}
+
+	if ( post_change_javascript
+	&&   *post_change_javascript )
+	{
+		fprintf(output_file, " onchange=\"%s\"",
+			element_replace_javascript_variables(
+				buffer,
+				post_change_javascript,
+				row,
+				state ) );
+	}
+
+	if ( onblur_javascript_function
+	&&   *onblur_javascript_function )
+	{
+		fprintf(output_file,
+			" onblur=\"%s\"",
+			element_replace_javascript_variables(
+				buffer,
+				onblur_javascript_function,
+				row,
+				state ) );
+	}
+
+	fprintf( output_file, ">" );
+
+	if ( !multi_select && initial_data && *initial_data )
+	{
+		if ( ( *(initial_data +
+			strlen( initial_data ) - 1 ) ==
+			MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER )
+		||	strcmp( initial_data, " | " ) == 0 )
+		{
+			strcpy( initial_label, "Select" );
+		}
+		else
+		{
+			element_drop_down_get_initial_label(
+					initial_label,
+					initial_data,
+					no_initial_capital,
+					option_data_list,
+					option_label_list );
+		}
+	}
+	else
+	{
+		initial_data = "select";
+		strcpy( initial_label, "Select" );
+	}
+
+	if ( strcmp( initial_label, "select" ) == 0 )
+		*initial_label = toupper( *initial_label );
+
+	if ( process_parameter_list_element_name_boolean( element_name ) )
+	{
+		if ( strcmp( initial_label, "y" ) == 0 )
+			strcpy( initial_label, "Yes" );
+		if ( strcmp( initial_label, "n" ) == 0 )
+			strcpy( initial_label, "No" );
+	}
+
+	if ( !multi_select )
+	{
+		char *local_initial_label;
+
+		if ( ! ( seeked_initial_data =
+				element_seek_initial_data(
+					&seeked_initial_label,
+					initial_data,
+					option_data_list,
+					option_label_list ) ) )
+		{
+			seeked_initial_data = initial_data;
+			seeked_initial_label = initial_label;
+		}
+
+		local_initial_label =
+			element_data2label(
+				buffer,
+			 	element_delimit_drop_down_data(
+					delimited_label_buffer,
+					seeked_initial_label,
+					date_piece_offset ),
+				no_initial_capital );
+
+		/* Set the first option */
+		/* -------------------- */
+		fprintf( output_file, "<option " );
+
+		fprintf( output_file,
+			 "value=\"%s\">%s\n",
+			 seeked_initial_data,
+			 local_initial_label );
+	}
+
+	list_rewind( option_label_list );
+
+	if ( list_rewind( option_data_list ) )
+	{
+		do {
+			data = list_get_string( option_data_list );
+
+			/* Skip the preselected item. */
+			/* -------------------------- */
+			if ( timlib_strcmp(
+					data,
+					seeked_initial_data ) == 0 )
+			{
+				list_next( option_label_list );
+				continue;
+			}
+
+			if ( list_length( option_label_list )
+			&&   !list_past_end( option_label_list ) )
+			{
+				label = list_get_pointer( option_label_list );
+			}
+			else
+			{
+				label = list_get_pointer( option_data_list );
+			}
+
+			if ( process_parameter_list_element_name_boolean(
+								element_name ) )
+			{
+				if ( strcmp(
+					data,
+					"y" ) == 0 )
+				{
+					label = "Yes";
+				}
+				if ( strcmp(
+					data,
+					"n" ) == 0 )
+				{
+					label = "No";
+				}
+			}
+
+			fprintf( output_file,
+			"\t<option value=\"%s\">%s\n", 
+				data,
+			 	element_data2label(
+					buffer,
+			 		element_delimit_drop_down_data(
+						delimited_label_buffer,
+						label,
+						date_piece_offset ),
+					no_initial_capital ) );
+
+			if ( list_length( option_label_list ) )
+				list_next( option_label_list );
+
+		} while( list_next( option_data_list ) );
+
+		if ( output_null_option )
+		{
+			fprintf(output_file,
+				"\t<option value=\"%s\">%s\n",
+				NULL_OPERATOR,
+				format_initial_capital( buffer,
+						        NULL_OPERATOR ) );
+
+		}
+
+		if ( output_not_null_option )
+		{
+			fprintf(output_file,
+				"\t<option value=\"%s\">%s\n",
+				NOT_NULL_OPERATOR,
+				format_initial_capital( buffer,
+						        NOT_NULL_OPERATOR ) );
+		}
+
+		if ( output_select_option
+		&&   strcmp( initial_data, "select" ) != 0 )
+		{
+			fprintf(output_file,
+				"\t<option value=\"\">Select\n" );
+		}
+	}
+
+	/* fprintf( output_file, "</select></td>\n" ); */
+	fprintf( output_file, "</select>\n" );
+
+	/* ----------------------------------------------- */
+	/* Create the multi_select second drop down 	   */
+	/* ----------------------------------------------- */
+	if ( multi_select )
+	{
+		fprintf(output_file,
+			"<td align=left><table border=1><tr>\n" );
+
+		fprintf(output_file,
+			"<td>"
+			"<input type=button name=\"add_%s\" value=\"%s\""
+			" onclick="
+		"\"post_change_multi_select_move_right('%s','%s','%c');",
+			drop_down_element_name,
+			ELEMENT_MULTI_SELECT_ADD_LABEL,
+			drop_down_element_name,
+			multi_select_drop_down_element_name,
+			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+
+		if ( post_change_javascript
+		&&   *post_change_javascript )
+		{
+			fprintf(output_file,
+				"%s",
+				element_replace_javascript_variables(
+					buffer,
+					post_change_javascript,
+					row,
+				(char *)0 /* state */ ) );
+		}
+
+		fprintf(output_file,
+			"\"><br>\n" );
+
+		fprintf(output_file,
+			"<input type=button name=\"remove_%s\" value=\"%s\""
+			" onclick="
+			"\"post_change_multi_select_move_left('%s','%s','%c');",
+			drop_down_element_name,
+			ELEMENT_MULTI_SELECT_REMOVE_LABEL,
+			drop_down_element_name,
+			multi_select_drop_down_element_name,
+			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+
+		if ( post_change_javascript
+		&&   *post_change_javascript )
+		{
+			fprintf(output_file,
+				"%s",
+				element_replace_javascript_variables(
+					buffer,
+					post_change_javascript,
+					row,
+				(char *)0 /* state */ ) );
+		}
+
+		fprintf(output_file,
+			"\">\n" );
+
+		fprintf(output_file,
+			"<td><select name=\"%s\""
+			" multiple size=%d",
+			multi_select_drop_down_element_name,
+			ELEMENT_MULTI_SELECT_ROW_COUNT );
+
+		if ( post_change_javascript
+		&&   *post_change_javascript )
+		{
+			fprintf(output_file,
+				" onchange=\"%s\"",
+				element_replace_javascript_variables(
+					buffer,
+					post_change_javascript,
+					row,
+				(char *)0 /* state */ ) );
+		}
+
+		fprintf(output_file,
+			"></table>\n" );
 	}
 }
 

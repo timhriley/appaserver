@@ -1258,7 +1258,9 @@ char *string_initial_capital(
 	boolean beginning = 1;
 	char *destination_ptr = destination;
 
-	if ( !source ) return "";
+	*destination_ptr = '\0';
+
+	if ( !source ) return destination;
 
 	while( *source )
 	{

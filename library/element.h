@@ -87,8 +87,8 @@ ELEMENT_BREAK_TAG *element_break_tag_calloc(
 ELEMENT_BREAK_TAG *element_break_tag_new(
 			void );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *element_break_tag_html(
 			void );
 
@@ -131,8 +131,8 @@ typedef struct
 ELEMENT_TABLE_ROW *element_table_row_calloc(
 			void );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *element_table_row_html(
 			void );
 
@@ -170,6 +170,7 @@ typedef struct
 {
 	/* Attributes */
 	/* ---------- */
+	LIST *attribute_name_list;
 	char *initial_data;
 	LIST *delimited_list;
 	boolean no_initial_capital;
@@ -195,7 +196,7 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc(
 			void );
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
-			char *drop_down_name,
+			LIST *attribute_name_list,
 			char *initial_data,
 			LIST *delimited_list,
 			boolean no_initial_capital,
@@ -208,6 +209,8 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			boolean multi_select,
 			char *post_change_javascript );
 
+/* Returns heap memory */
+/* ------------------- */
 char *element_drop_down_html( 	
 			char *drop_down_name,
 			char *initial_data,
@@ -249,10 +252,10 @@ char *element_drop_down_close_html(
 			boolean output_not_null_option,
 			boolean output_select_option );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *element_drop_down_name(
-			LIST *element_name_list,
+			LIST *attribute_name_list,
 			int row_number );
 
 int element_drop_down_size(
@@ -328,6 +331,10 @@ char *element_multi_drop_down_name(
 			LIST *attribute_name_list,
 			char *element_name_prefix );
 
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_html(
+
 typedef struct
 {
 	LIST *option_label_list;
@@ -364,13 +371,14 @@ typedef struct
 
 typedef struct
 {
-	/* Attribute */
-	/* --------- */
+	/* Attributes */
+	/* ---------- */
 	char *name;
-
-	/* External */
-	/* -------- */
-	char *html;
+	char *prompt_string;
+	boolean checked;
+	char *action_string;
+	int tab_order;
+	char *value;
 } ELEMENT_CHECKBOX;
 
 /* ELEMENT_CHECKBOX operations */
@@ -378,8 +386,8 @@ typedef struct
 ELEMENT_CHECKBOX *element_checkbox_calloc(
 			void );
 
-/* Returns heap memory or null. */
-/* ---------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *element_checkbox_html(
 			char *element_name,
 			char *prompt_display,
@@ -512,6 +520,8 @@ char *appaserver_element_post_change_javascript(
 			int row_number,
 			char *state );
 
+/* Returns static memory */
+/* --------------------- */
 char *appaserver_element_name(
 			char *name,
 			int row_number );
