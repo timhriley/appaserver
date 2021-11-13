@@ -773,8 +773,10 @@ char *list_index_seek(	LIST *list,
 char *list_offset_seek(	LIST *list,
 			int offset )
 {
+	if ( offset < 0 ) return (char *)0;
+
 	if ( list_go_offset( list, offset ) )
-		return (char *)retrieve_item_ptr( list );
+		return list_get( list );
 	else
 		return (char *)0;
 }
@@ -2545,8 +2547,6 @@ LIST *list_string_new( char *string )
 	return l;
 }
 
-/* Returns -1 if not found */
-/* ----------------------- */
 int list_seek_offset(	char *item,
 			LIST *list )
 {

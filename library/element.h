@@ -209,6 +209,12 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			boolean multi_select,
 			char *post_change_javascript );
 
+ELEMENT_DROP_DOWN *element_drop_down_empty_new(
+			LIST *attribute_name_list,
+			int drop_down_size,
+			boolean multi_select,
+			char *post_change_javascript );
+
 /* Returns heap memory */
 /* ------------------- */
 char *element_drop_down_html( 	
@@ -222,9 +228,9 @@ char *element_drop_down_html(
 			int column_span,
 			int drop_down_size,
 			boolean multi_select,
-			char *post_change_javascript,
-			char *background_color,
-			int tab_order );
+			int tab_order,
+			char *appaserver_element_javascript,
+			char *background_color );
 
 LIST *element_drop_down_display_list(
 			LIST *delimited_list,
@@ -258,6 +264,11 @@ char *element_drop_down_name(
 			LIST *attribute_name_list,
 			int row_number );
 
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_heading(
+			LIST *attribute_name_list );
+
 int element_drop_down_size(
 			int delimited_list_length );
 
@@ -266,7 +277,10 @@ int element_drop_down_size(
 char *element_drop_down_empty_html(
 			char *drop_down_name,
 			int drop_down_size,
-			boolean multi_select );
+			boolean multi_select,
+			char *post_change_javascript,
+			int row_number,
+			char *background_color );
 
 typedef struct
 {
@@ -334,6 +348,12 @@ char *element_multi_drop_down_name(
 /* Returns heap memory */
 /* ------------------- */
 char *element_multi_drop_down_html(
+			ELEMENT_DROP_DOWN *original_drop_down,
+			ELEMENT_BUTTON *move_right_button,
+			ELEMENT_BREAK_TAG *element_break_tag,
+			ELEMENT_BUTTON *move_left_button,
+			ELEMENT_DROP_DOWN *empty_drop_down,
+			char *appaserver_element_javascript );
 
 typedef struct
 {
@@ -512,13 +532,12 @@ int appaserver_element_tab_order(
 char *appaserver_element_background_color(
 			int row_number );
 
-/* Safely returns heap memory.			    */
-/* Note: sourse is assumed to be heap and is freed. */
-/* ------------------------------------------------ */
-char *appaserver_element_post_change_javascript(
-			char *source,
-			int row_number,
-			char *state );
+/* Returns program memory */
+/* ---------------------- */
+char *appaserver_element_javascript(
+			char *javascript,
+			char *state,
+			int row_number );
 
 /* Returns static memory */
 /* --------------------- */
@@ -545,15 +564,17 @@ char *appaserver_element_heading_string(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_list_html(
-			LIST *appaserver_element_list,
+			char *background_color,
+			char *state,
 			int row_number,
-			char *background_color );
+			LIST *appaserver_element_list );
 
-/* Returns heap memory null */
-/* ------------------------ */
+/* Returns heap memory */
+/* ------------------- */
 char *appaserver_element_html(
-			APPASERVER_ELEMENT *appaserver_element,
+			char *background_color,
+			char *state,
 			int row_number,
-			char *background_color );
+			APPASERVER_ELEMENT *appaserver_element );
 
 #endif
