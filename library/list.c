@@ -1121,7 +1121,6 @@ LIST *create_list( void )
         ret_list->num_in_list = 0;
 
         return ret_list;
-
 }
 
 

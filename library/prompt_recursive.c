@@ -607,9 +607,7 @@ LIST *prompt_recursive_folder_one_element_list(
 
 		element->drop_down =
 			element_drop_down_new(
-				element_drop_down_name(
-					primary_key_list,
-					0 /* row_number */ ),
+				primary_key_list /* attribute_name_list */,
 				(char *)0 /* initial_data */,
 				delimited_list,
 				no_initial_capital,
@@ -620,9 +618,10 @@ LIST *prompt_recursive_folder_one_element_list(
 				element_drop_down_size(
 					list_length(
 						delimited_list ) ),
-				0 /* tab_order */,
+				-1 /* tab_order */,
 				0 /* not multi_select */,
-				javascript );
+				javascript,
+				state );
 	}
 
 	list_set( element_list, element );

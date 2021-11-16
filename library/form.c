@@ -601,12 +601,7 @@ LIST *form_prompt_isa_element_list(
 
 	element->drop_down =
 		element_drop_down_new(
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
-			element_drop_down_name(
-				primary_key_list /* element_name_list */,
-				0 ),
+			primary_key_list /* attribute_name_list */,
 			(char *)0 /* initial_data */,
 			delimited_list,
 			no_initial_capital,
@@ -615,10 +610,12 @@ LIST *form_prompt_isa_element_list(
 			1 /* output_select_option */,
 			1 /* column_span */,
 			element_drop_down_size(
-				list_length( delimited_list ) ),
-			appaserver_element_tab_order( -1 ),
+				list_length(
+					delimited_list ) ),
+			-1 /* tab order */,
 			0 /* not multi_select */,
-			(char *)0 /* post_change_javascript */ );
+			(char *)0 /* post_change_javascript */,
+			(char *)0 /* state */ );
 
 	/* Create a table row */
 	/* ------------------ */

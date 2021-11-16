@@ -232,6 +232,10 @@ char *string_initial_capital(
 			char *destination,
 			char *source );
 
+char *string_separate_delimiter(
+			char *destination,
+			char *source );
+
 char *string_search_replace(
 			char *source_destination,
 			char *search_string,

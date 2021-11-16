@@ -207,13 +207,15 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			int drop_down_size,
 			int tab_order,
 			boolean multi_select,
-			char *post_change_javascript );
+			char *post_change_javascript,
+			char *state );
 
 ELEMENT_DROP_DOWN *element_drop_down_empty_new(
-			LIST *attribute_name_list,
+			char *drop_down_name,
 			int drop_down_size,
 			boolean multi_select,
-			char *post_change_javascript );
+			char *post_change_javascript,
+			char *state );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -232,15 +234,30 @@ char *element_drop_down_html(
 			char *appaserver_element_javascript,
 			char *background_color );
 
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_empty_html(
+			char *drop_down_name,
+			int drop_down_size,
+			boolean multi_select,
+			char *post_change_javascript,
+			int row_number,
+			char *background_color );
+
 LIST *element_drop_down_display_list(
 			LIST *delimited_list,
 			boolean no_initial_capital );
 
-/* ---------------------------- */
-/* Zaps row in delimited_list.  */
-/* Returns heap memory or null.	*/
-/* ---------------------------- */
+/* Returns static memory or null. */
+/* ------------------------------ */
 char *element_drop_down_initial_data_html(
+			char *initial_data,	
+			char *initial_display,
+			boolean no_initial_capital );
+
+/* Returns heap memory or null. */
+/* ---------------------------- */
+char *element_drop_down_option_value_list_html(
 			LIST *delimited_list,
 			LIST *display_list,
 			char *initial_data );
@@ -255,8 +272,7 @@ char *element_drop_down_option_value_html(
 /* ---------------------- */
 char *element_drop_down_close_html(
 			boolean output_null_option,
-			boolean output_not_null_option,
-			boolean output_select_option );
+			boolean output_not_null_option );
 
 /* Returns static memory */
 /* --------------------- */
@@ -272,16 +288,6 @@ char *element_drop_down_heading(
 int element_drop_down_size(
 			int delimited_list_length );
 
-/* Returns heap memory */
-/* ------------------- */
-char *element_drop_down_empty_html(
-			char *drop_down_name,
-			int drop_down_size,
-			boolean multi_select,
-			char *post_change_javascript,
-			int row_number,
-			char *background_color );
-
 typedef struct
 {
 	/* Input */
@@ -289,8 +295,8 @@ typedef struct
 	LIST *attribute_name_list;
 	LIST *delimited_list;
 	boolean no_initial_capital;
-	boolean output_select_option;
 	char *post_change_javascript;
+	char *state;
 
 	/* Process */
 	/* ------- */
@@ -313,7 +319,8 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			LIST *attribute_name_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
-			char *post_change_javascript );
+			char *post_change_javascript,
+			char *state );
 
 int element_multi_drop_down_size(
 			void );
@@ -341,9 +348,14 @@ char *element_multi_drop_down_move_left_action_string(
 
 /* Returns heap memory */
 /* ------------------- */
-char *element_multi_drop_down_name(
+char *element_multi_drop_down_original_name(
 			LIST *attribute_name_list,
 			char *element_name_prefix );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_multi_drop_down_name(
+			LIST *attribute_name_list );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -532,8 +544,8 @@ int appaserver_element_tab_order(
 char *appaserver_element_background_color(
 			int row_number );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns static memory or null */
+/* ----------------------------- */
 char *appaserver_element_javascript(
 			char *javascript,
 			char *state,
@@ -569,8 +581,8 @@ char *appaserver_element_list_html(
 			int row_number,
 			LIST *appaserver_element_list );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *appaserver_element_html(
 			char *background_color,
 			char *state,

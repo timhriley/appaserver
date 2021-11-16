@@ -1251,6 +1251,76 @@ char string_delimiter( char *string )
 		return 0;
 }
 
+char *string_separate_delimiter(
+			char *destination,
+			char *source )
+{
+	boolean beginning = 1;
+	char *destination_ptr = destination;
+
+	*destination_ptr = '\0';
+
+	if ( !source ) return destination;
+
+	while( *source )
+	{
+		if ( *source == '(' )
+		{
+			*destination_ptr++ = *source++;
+			beginning = 1;
+
+			while( *source )
+			{
+				*destination_ptr++ = *source++;
+				if ( *source == ')' ) break;
+			}
+		}
+
+		if ( *source == '\\' )
+		{
+			*destination_ptr++ = *source++;
+			beginning = 0;
+		}
+		else
+		if ( beginning )
+		{
+
+			if ( !isspace( *source )
+			&& ( !ispunct( *source )
+			&&   *source != '\'' ) )
+			{
+				*destination_ptr++ = *source++;
+				beginning = 0;
+			}
+			else
+			{
+				*destination_ptr++ = *source++;
+			}
+		}
+		else
+		if ( *source == '_' || *source == '|' || *source == '^' )
+		{
+			beginning = 1;
+			*destination_ptr++ = ' ';
+			source++;
+		}
+		else
+		if ( isspace( *source )
+		|| ( ispunct( *source ) && *source != '\'' ) )
+		{
+			beginning = 1;
+			*destination_ptr++ = *source++;
+		}
+		else
+		{
+			*destination_ptr++ = *source++;
+		}
+	}
+	*destination_ptr = '\0';
+
+	return destination;
+}
+
 char *string_initial_capital(
 			char *destination,
 			char *source )
@@ -1298,10 +1368,11 @@ char *string_initial_capital(
 			}
 		}
 		else
-		if ( *source == '_' || *source == '|' )
+		if ( *source == '_' || *source == '|' || *source == '^' )
 		{
 			beginning = 1;
-			*destination_ptr++ = *source++;
+			*destination_ptr++ = ' ';
+			source++;
 		}
 		else
 		if ( isspace( *source )

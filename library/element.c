@@ -20,6 +20,7 @@
 #include "date.h"
 #include "list.h"
 #include "appaserver_library.h"
+#include "application.h"
 #include "appaserver_error.h"
 #include "piece.h"
 #include "basename.h"
@@ -187,10 +188,8 @@ char *element_drop_down_html(
 {
 	char html[ STRING_TWO_MEG ];
 	char *ptr = html;
-	char *initial_data_html = {0};
 	char *data;
 	char *display = {0};
-	char buffer[ 128 ];
 
 	ptr += sprintf(
 		ptr,
@@ -219,34 +218,37 @@ char *element_drop_down_html(
 			background_color );
 	}
 
-	if ( post_change_javascript && *post_change_javascript )
+	if ( appaserver_element_javascript && *appaserver_element_javascript )
 	{
 		ptr += sprintf(
 			ptr,
 			" onChange=\"%s\"",
-			post_change_javascript );
+			appaserver_element_javascript );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
 
 	if ( initial_data && *initial_data )
 	{
-		initial_data_html =
-			/* ------------------------------ */
-			/* Zaps row in delimited_list and */
-			/* adds "Select" to bottom.	  */
-			/* Returns heap memory or null.	  */
-			/* ------------------------------ */
-			element_drop_down_initial_data_html(
-				delimited_list,
-				display_list,
-				initial_data );
-	}
+		char buffer[ 128 ];
 
-	if ( initial_data_html )
-	{
-		ptr += sprintf( ptr, "%s\n", initial_data_html );
-		free( initial_data_html );
+		if ( !no_initial_capital && list_length( display_list ) )
+		{
+			display =
+				string_initial_capital(
+					buffer,
+					initial_data );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* ---------------------- */
+			/* Returns static memory. */
+			/* ---------------------- */
+			element_drop_down_option_drop_down_html(
+				initial_data,
+				display ) );
 	}
 	else
 	if ( output_select_option )
@@ -262,8 +264,6 @@ char *element_drop_down_html(
 				string_initial_capital(
 					buffer,
 					ELEMENT_SELECT_OPERATOR ) ) );
-
-		output_select_option = 0;
 	}
 
 	if ( !list_rewind( delimited_list ) )
@@ -276,8 +276,7 @@ char *element_drop_down_html(
 			/* --------------------- */
 			element_drop_down_close_html(
 				output_null_option,
-				output_not_null_option,
-				output_select_option ) );
+				output_not_null_option ) );
 		
 		return strdup( html );
 	}
@@ -287,9 +286,9 @@ char *element_drop_down_html(
 	do {
 		data = list_get( delimited_list );
 
-		/* Skip the preselected item. */
-		/* -------------------------- */
-		if ( !data )
+		/* Skip the initial_data item. */
+		/* --------------------------- */
+		if ( string_strcmp( data, initial_data ) == 0 )
 		{
 			if ( display_list ) list_next( display_list );
 			continue;
@@ -303,11 +302,11 @@ char *element_drop_down_html(
 		ptr += sprintf(
 			ptr,
 			"%s\n",
-			/* ---------------------- */
-			/* Returns static memory. */
-			/* ---------------------- */
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			element_drop_down_option_value_html(
-				data,
+				list_get( delimited_list ),
 				display ) );
 
 		if ( display_list )
@@ -317,6 +316,23 @@ char *element_drop_down_html(
 
 	} while( list_next( delimited_list ) );
 
+	/* If an initial_data, then put the select option at the bottom */
+	/* ------------------------------------------------------------ */
+	if ( initial_data && *initial_data && output_select_option )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_drop_down_option_value_html(
+				ELEMENT_SELECT_OPERATOR,
+				string_initial_capital(
+					buffer,
+					ELEMENT_SELECT_OPERATOR ) ) );
+	}
+
 	ptr += sprintf(
 		ptr,
 		"%s\n",
@@ -325,8 +341,7 @@ char *element_drop_down_html(
 		/* ---------------------- */
 		element_drop_down_close_html(
 			output_null_option,
-			output_not_null_option,
-			output_select_option ) );
+			output_not_null_option ) );
 
 	return strdup( html );
 }
@@ -389,10 +404,10 @@ char *appaserver_element_javascript(
 			char *state,
 			int row_number )
 {
-	char post_change_javascript[ 1024 ];
+	static char post_change_javascript[ 1024 ];
 	char row_string[ 8 ];
 
-	if ( !javascript || !*javascript ) return strdup( "" );
+	if ( !javascript || !*javascript ) return (char *)0;
 
 	strcpy( post_change_javascript, javascript );
 
@@ -411,7 +426,7 @@ char *appaserver_element_javascript(
 			state );
 	}
 
-	return strdup( post_change_javascript );
+	return post_change_javascript;
 }
 
 boolean element_exists_reference_number(
@@ -707,47 +722,32 @@ LIST *element_drop_down_display_list(
 }
 
 char *element_drop_down_initial_data_html(
-			LIST *delimited_list,
-			LIST *display_list,
-			char *initial_data )
+			char *initial_data,	
+			char *initial_display,
+			boolean no_initial_capital )
 {
-	int offset;
-	char *data;
-	char *display = {0};
-
 	if ( !initial_data || !*initial_data ) return (char *)0;
 
-	if ( ( offset =
-		list_seek_offset(
-			initial_data,
-			delimited_list ) == -1 ) )
+	if ( no_initial_capital )
 	{
-		return (char *)0;
-	}
-
-	list_offset_seek( delimited_list, offset );
-
-	data = list_get( delimited_list );
-
-	list_set_current( delimited_list, (char *)0 );
-	list_set( delimited_list, "select" );
-
-	if ( list_length( display_list ) )
-	{
-		list_offset_seek( display_list, offset );
-
-		display = list_get( display_list );
-		list_set( display_list, "Select" );
-	}
-
-	return
-	strdup(
+		return
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		element_drop_down_option_value_html(
-			data,
-			display ) );
+			initial_data,
+			(char *) /* display */ );
+	}
+	else
+	{
+		return
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		element_drop_down_option_value_html(
+			initial_data,
+			display );
+	}
 }
 
 char *element_drop_down_option_value_html(
@@ -775,8 +775,7 @@ char *element_drop_down_option_value_html(
 
 char *element_drop_down_close_html(
 			boolean output_null_option,
-			boolean output_not_null_option,
-			boolean output_select_option )
+			boolean output_not_null_option )
 {
 	static char html[ 1024 ];
 	char *ptr = html;
@@ -810,21 +809,6 @@ char *element_drop_down_close_html(
 				string_initial_capital(
 					buffer,
 					ELEMENT_NOT_NULL_OPERATOR ) ) );
-	}
-
-	if ( output_select_option )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			element_drop_down_option_value_html(
-				ELEMENT_SELECT_OPERATOR,
-				string_initial_capital(
-					buffer,
-					ELEMENT_SELECT_OPERATOR ) ) );
 	}
 
 	ptr += sprintf( ptr, "</select>" );
@@ -919,7 +903,8 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			LIST *attribute_name_list,
 			int drop_down_size,
 			boolean multi_select,
-			char *post_change_javascript )
+			char *post_change_javascript,
+			char *state )
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
@@ -927,6 +912,7 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 	element_drop_down->size = drop_down_size;
 	element_drop_down->multi_select = multi_select;
 	element_drop_down->post_change_javascript = post_change_javascript;
+	element_drop_down->state = state;
 
 	return element_drop_down;
 }
@@ -943,7 +929,8 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			int drop_down_size,
 			int tab_order,
 			boolean multi_select,
-			char *post_change_javascript )
+			char *post_change_javascript,
+			char *state )
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
@@ -959,11 +946,25 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 	element_drop_down->tab_order = tab_order;
 	element_drop_down->multi_select = multi_select;
 	element_drop_down->post_change_javascript = post_change_javascript;
+	element_drop_down->state = state;
 
 	return element_drop_down;
 }
-
+ 
 char *element_multi_drop_down_name(
+			LIST *attribute_name_list )
+{
+	char drop_down_name[ 256 ];
+
+	strcpy(	drop_down_name,
+		list_display_delimited(
+			attribute_name_list,
+			SQL_DELIMITER ) );
+
+	return strdup( drop_down_name );
+}
+
+char *element_multi_drop_down_original_name(
 			LIST *attribute_name_list,
 			char *element_name_prefix )
 {
@@ -981,20 +982,20 @@ char *element_multi_drop_down_name(
 
 	if ( !element_name_prefix )
 	{
-		strcpy(	drop_down_name,
-			list_display_delimited(
-				attribute_name_list,
-				SQL_DELIMITER ) );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name_prefix is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
-	else
-	{
-		sprintf(drop_down_name,
-			"%s%s",
-			element_name_prefix,	
-			list_display_delimited(
-				attribute_name_list,
-				SQL_DELIMITER ) );
-	}
+
+	sprintf(drop_down_name,
+		"%s%s",
+		element_name_prefix,	
+		list_display_delimited(
+			attribute_name_list,
+			SQL_DELIMITER ) );
 
 	return strdup( drop_down_name );
 }
@@ -1003,7 +1004,8 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			LIST *attribute_name_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
-			char *post_change_javascript )
+			char *post_change_javascript,
+			char *state )
 {
 	ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down;
 
@@ -1030,9 +1032,20 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			0 /* not output_select_option */,
 			1 /* column_span */,
 			element_multi_drop_down_size(),
-			0 /* tab_order */,
+			-1 /* tab_order */,
 			1 /* multi_select */,
-			post_change_javascript );
+			(char *)0 /* post_change_javascript */,
+			(char *)0 /* state */ );
+
+	/* Override element_drop_down_html() */
+	/* --------------------------------- */
+	element_multi_drop_down->original_drop_down->name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_multi_drop_down_original_name(
+			attribute_name_list,
+			ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX );
 
 	element_multi_drop_down->move_right_button =
 		element_button_new(
@@ -1050,22 +1063,13 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 				attribute_name_list ),
 			0 /* not with_table_data_tag */ );
 
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	element_multi_drop_down->name =
-		element_multi_drop_down_name(
-			attribute_name_list,
-			(char *)0 /* element_name_prefix */ );
-
-	element_multi_drop_down->empty_html =
-		element_drop_down_empty_html(
-			element_multi_drop_down->name,
+	element_multi_drop_down->empty_drop_down =
+		element_drop_down_empty_new(
+			element_multi_drop_down_name( attribute_name_list ),
 			element_multi_drop_down_size(),
 			1 /* multi_select */,
 			post_change_javascript,
-			row_number,
-			background_color );
+			state );
 
 	return element_multi_drop_down;
 }
@@ -1288,20 +1292,37 @@ char *appaserver_element_list_html(
 	char *ptr = html;
 	char *element_html;
 
-	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
+	if ( !list_rewind( appaserver_element_list ) )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: appaserver_element_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
 
 	do {
 		appaserver_element = list_get( appaserver_element_list );
 
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		element_html =
-			appaserver_element_html(
-				background_color,
-				state,
-				row_number,
-				appaserver_element );
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		if ( ! ( element_html =
+				appaserver_element_html(
+					background_color,
+					state,
+					row_number,
+					appaserver_element ) ) )
+		{
+			fprintf(stderr,
+	"Warning in %s/%s()/%d: appaserver_element_html(%d) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__d,
+				appaserver_element->element_type );
+			return (char *)0;
+		}
 
 		ptr += sprintf(
 			ptr,
@@ -1495,11 +1516,11 @@ char *appaserver_element_html(
 	if ( !appaserver_element )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: appaserver_element is empty.\n",
+			"Warning in %s/%s()/%d: appaserver_element is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+		return (char *)0;
 	}
 
 	if ( appaserver_element->element_type == table_row )
@@ -1551,14 +1572,28 @@ char *appaserver_element_html(
 			element_drop_down_display_list(
 				appaserver_element->
 					drop_down->
-					delimited_list ),
+					delimited_list,
+				appaserver_element->
+					drop_down->
+					no_initial_capital ),
 			appaserver_element->drop_down->output_null_option,
 			appaserver_element->drop_down->output_not_null_option,
 			appaserver_element->drop_down->output_select_option,
 			appaserver_element->drop_down->column_span,
 			appaserver_element->drop_down->drop_down_size,
 			0 /* not multi_select */,
-			appaserver_element->drop_down->post_change_javascript,
+			appaserver_element->drop_down->tab_order,
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			appaserver_element_javascript(
+				appaserver_element->
+					drop_down->
+					post_change_javascript,
+				appaserver_element->
+					drop_down->
+					state,
+				row_number ),
 			background_color,
 			appaserver_element->drop_down->tab_order );
 	}
@@ -1582,15 +1617,25 @@ char *appaserver_element_html(
 			appaserver_element->
 				multi_drop_down->
 				empty_drop_down,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			appaserver_element_javascript(
 				appaserver_element->
 					multi_drop_down->
 					post_change_javascript,
 				state,
 				row_number ) );
+	}
+	else
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: invalid element_type = %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			appaserver_element->element_type );
+		return (char *)0;
 	}
 }
 
@@ -1633,3 +1678,173 @@ char *element_drop_down_heading( LIST *attribute_name_list )
 			heading ) );
 }
 
+char *element_multi_drop_down_html(
+			ELEMENT_DROP_DOWN *original_drop_down,
+			ELEMENT_BUTTON *move_right_button,
+			ELEMENT_BREAK_TAG *element_break_tag,
+			ELEMENT_BUTTON *move_left_button,
+			ELEMENT_DROP_DOWN *empty_drop_down,
+			char *appaserver_element_javascript )
+{
+	APPASERVER_ELEMENT *appaserver_element;
+	char html[ STRING_INPUT_BUFFER ];
+	char *ptr = html;
+	char *element_html;
+	char *background_color =
+		application_background_color(
+			environment_application_name() );
+
+	/* ------------------------------- */
+	/* Create the left multi drop-down */
+	/* ------------------------------- */
+
+	if ( original_drop_down || !original_drop_down->name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: original_drop_down->name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_drop_down_html(
+			original_drop_down->name,
+			(char *)0 /* initial_data */,
+			original_drop_down->delimited_list,
+			element_drop_down_display_list(
+				original_drop_down->delimited_list,
+				original_drop_down->no_initial_capital ),
+			original_drop_down->output_null_option,
+			original_drop_down->output_not_null_option,
+			original_drop_down->output_select_option,
+			original_drop_down->column_span,
+			original_drop_down->drop_down_size,
+			1 /* multi_select */,
+			original_drop_down->tab_order,
+			(char *)0 /* appaserver_element_javascript */,
+			background_color );
+
+	if ( !element_html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: element_drop_down_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		element_html );
+
+	free( element_html );
+
+	/* ---------------------------- */
+	/* Create the move-right button */
+	/* ---------------------------- */
+
+	if ( !move_right_button || !move_right_button->html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: move_right_button is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		move_right_button->html );
+
+	/* ---------------- */
+	/* Create break tag */
+	/* ---------------- */
+
+	if ( !break_tag || !break_tag->html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: break_tag is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		break_tag->html );
+
+	/* --------------------------- */
+	/* Create the move-left button */
+	/* --------------------------- */
+
+	if ( !move_left_button || !move_left_button->html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: move_left_button is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		move_left_button->html );
+
+	/* -------------------------- */
+	/* Create the empty drop-down */
+	/* -------------------------- */
+
+	if ( empty_drop_down )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: empty_drop_down is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_drop_down_empty_html(
+			empty_drop_down->name,
+			empty_drop_down->drop_down_size,
+			1 /* multi_select */,
+			original_drop_down->tab_order,
+			appaserver_element_javascript,
+			background_color );
+
+	if ( !element_html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: element_drop_down_empty_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		element_html );
+
+	free( element_html );
+
+	return strdup( html );
+}
