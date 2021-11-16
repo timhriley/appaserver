@@ -1136,7 +1136,7 @@ char *form_table_row_background_color( void )
 	return background_color;
 }
 
-char *form_button_submit(
+char *form_button_submit_html(
 			char *submit_control_string,
 			char *button_label,
 			int form_number )

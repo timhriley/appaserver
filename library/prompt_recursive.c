@@ -621,7 +621,7 @@ LIST *prompt_recursive_folder_one_element_list(
 				-1 /* tab_order */,
 				0 /* not multi_select */,
 				javascript,
-				state );
+				(char *)0 /* state */ );
 	}
 
 	list_set( element_list, element );
@@ -680,6 +680,12 @@ char *prompt_recursive_folder_html(
 {
 	/* Returns heap memory or null */
 	/* --------------------------- */
-	return appaserver_element_list_html( element_list );
+	return
+	appaserver_element_list_html(
+		application_background_color(
+			environment_application_name() ),
+		(char *)0 /* state */,
+		0 /* row_number */,
+		element_list );
 }
 

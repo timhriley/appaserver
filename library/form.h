@@ -97,7 +97,7 @@ void form_button_list_output(
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_button_submit(
+char *form_button_submit_html(
 			char *submit_control_string,
 			char *button_label,
 			int form_number );

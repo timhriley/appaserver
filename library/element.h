@@ -181,6 +181,7 @@ typedef struct
 	int tab_order;
 	boolean multi_select;
 	char *post_change_javascript;
+	char *state;
 
 	/* Process */
 	/* ------- */
@@ -224,6 +225,7 @@ char *element_drop_down_html(
 			char *initial_data,
 			LIST *delimited_list,
 			LIST *display_list,
+			boolean no_initial_capital,
 			boolean output_null_option,
 			boolean output_not_null_option,
 			boolean output_select_option,
@@ -240,8 +242,7 @@ char *element_drop_down_empty_html(
 			char *drop_down_name,
 			int drop_down_size,
 			boolean multi_select,
-			char *post_change_javascript,
-			int row_number,
+			char *appaserver_element_javascript,
 			char *background_color );
 
 LIST *element_drop_down_display_list(
@@ -304,6 +305,7 @@ typedef struct
 	ELEMENT_BUTTON *move_right_button;
 	ELEMENT_BREAK_TAG *element_break_tag;
 	ELEMENT_BUTTON *move_left_button;
+	ELEMENT_DROP_DOWN *empty_drop_down;
 	char *name;
 	char *empty_html;
 	char *html;
@@ -346,14 +348,14 @@ char *element_multi_drop_down_move_left_action_string(
 			LIST *attribute_name_list );
 
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *element_multi_drop_down_original_name(
 			LIST *attribute_name_list,
 			char *element_name_prefix );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *element_multi_drop_down_name(
 			LIST *attribute_name_list );
 
@@ -411,6 +413,10 @@ typedef struct
 	char *action_string;
 	int tab_order;
 	char *value;
+
+	/* External */
+	/* -------- */
+	char *html;
 } ELEMENT_CHECKBOX;
 
 /* ELEMENT_CHECKBOX operations */
@@ -588,5 +594,15 @@ char *appaserver_element_html(
 			char *state,
 			int row_number,
 			APPASERVER_ELEMENT *appaserver_element );
+
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_element_javascript_html(
+			char *appaserver_element_javascript );
+
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_element_background_color_html(
+			char *background_color );
 
 #endif
