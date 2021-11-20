@@ -32,6 +32,6 @@ echo "insert into folder_attribute (folder,attribute,display_order) values ('$fo
 echo "alter table $folder add bank_date date;" | sql.e
 echo "alter table $folder add bank_description char(140);" | sql.e
 
-echo "insert into relation (folder,related_folder,related_attribute) values ('$folder','bank_upload,'null');" | sql.e
+echo "insert into relation (folder,related_folder,related_attribute) values ('$folder','bank_upload','null');" | sql.e
 
 exit 0

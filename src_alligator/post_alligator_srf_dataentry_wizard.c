@@ -2,9 +2,6 @@
 /* $APPASERVER_HOME/src_alligtor/post_alligator_srf_dataentry_wizard.c	*/
 /* -------------------------------------------------------------------	*/
 /*									*/
-/* This script is attached to the submit button on 			*/
-/* the hydrology quick measurement form.				*/
-/*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------	*/
 
@@ -164,7 +161,7 @@ int main( int argc, char **argv )
 	document_close();
 	exit( 0 );
 
-} /* main() */
+}
 
 
 int insert_into_nest(
@@ -409,5 +406,5 @@ int insert_into_nest(
 	pclose( nest_insert_pipe );
 
 	return posted_count;
-} /* insert_into_nest() */
+}
 

@@ -19,7 +19,10 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_RELATIVE_SOURCE_DIRECTORY		"src_appaserver"
+#define APPASERVER_RELATIVE_SOURCE_DIRECTORY	"src_appaserver"
+#define APPASERVER_LOOKUP_STATE			"lookup"
+#define APPASERVER_UPDATE_STATE			"update"
+#define APPASERVER_INSERT_STATE			"insert"
 
 /* Data structures */
 /* --------------- */

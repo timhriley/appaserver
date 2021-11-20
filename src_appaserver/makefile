@@ -43,7 +43,6 @@ EXECUTABLES=								\
 		add_column						\
 		generic_load						\
 		post_generic_load					\
-		post_report_writer					\
 		merge_purge						\
 		alter_column_datatype					\
 		rename_table						\
@@ -188,7 +187,6 @@ clean:
 	${CGI_HOME}/post_choose_process					\
 	${CGI_HOME}/post_edit_table_form				\
 	${CGI_HOME}/post_generic_load					\
-	${CGI_HOME}/post_report_writer					\
 	${CGI_HOME}/post_merge_purge					\
 	${CGI_HOME}/post_maintain_user_account				\
 	${CGI_HOME}/post_prompt_process_form				\
@@ -248,22 +246,20 @@ delete_folder_row: delete_folder_row.c					\
 statistics_folder: statistics_folder.c					\
 	${EXTERNAL_LIBS}						\
 	${LIB}/lookup_before_drop_down.o				\
-	${LIB}/query_attribute_statistics_list.o
+	${LIB}/query_statistic.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/query_attribute_statistics_list.o 		\
+		${LIB}/query_statistic.o 				\
 		${LIB}/lookup_before_drop_down.o			\
 		statistics_folder.c					\
 		-o statistics_folder
 
 post_delete_folder_block: post_delete_folder_block.c			\
-	${EXTERNAL_LIBS}						\
-	${LIB}/query_attribute_statistics_list.o
+	${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/query_attribute_statistics_list.o 		\
 		post_delete_folder_block.c				\
 		-o post_delete_folder_block
 	touch ${CGI_HOME}/post_delete_folder_block
@@ -273,12 +269,10 @@ post_delete_folder_block: post_delete_folder_block.c			\
 	${CGI_HOME}
 
 post_ajax_fill_drop_down: post_ajax_fill_drop_down.c			\
-	${EXTERNAL_LIBS}						\
-	${LIB}/query_attribute_statistics_list.o
+	${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/query_attribute_statistics_list.o 		\
 		post_ajax_fill_drop_down.c				\
 		-o post_ajax_fill_drop_down
 	touch ${CGI_HOME}/post_ajax_fill_drop_down
@@ -851,13 +845,13 @@ generic_output_text_file: generic_output_text_file.c			\
 
 generic_statistics_report: generic_statistics_report.c			\
 			${EXTERNAL_LIBS}				\
-			${LIB}/query_attribute_statistics_list.o	\
+			${LIB}/query_statisic.o				\
 			${LIB}/statistics_weighted.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		generic_statistics_report.c				\
-		${LIB}/query_attribute_statistics_list.o 		\
+		${LIB}/query_statistic.o		 		\
 		${LIB}/statistics_weighted.o				\
 		-o generic_statistics_report -lm
 
@@ -1204,23 +1198,6 @@ post_generic_load: post_generic_load.c					\
 	/bin/rm -f ${CGI_HOME}/post_generic_load
 	ln ${APPASERVER_LINK_FLAGS}					\
 	${APPASERVER_HOME}/src_appaserver/post_generic_load		\
-	${CGI_HOME}
-
-post_report_writer: post_report_writer.c				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/report_writer.o					\
-		${LIB}/query_attribute_statistics_list.o
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/report_writer.o					\
-		${LIB}/query_attribute_statistics_list.o		\
-		post_report_writer.c					\
-		-o post_report_writer
-	touch ${CGI_HOME}/post_report_writer
-	/bin/rm -f ${CGI_HOME}/post_report_writer
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_report_writer		\
 	${CGI_HOME}
 
 post_merge_purge: post_merge_purge.c					\

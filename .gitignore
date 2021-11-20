@@ -312,7 +312,6 @@ output_group
 add_column
 generic_load
 post_generic_load
-post_report_writer
 merge_purge
 alter_column_datatype
 rename_table

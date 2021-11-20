@@ -256,18 +256,6 @@ int main( int argc, char **argv )
 		printf( "<h3>Please select a sampling point.</h3>\n" );
 		document_close();
 		exit( 0 );
-/*
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: cannot seek sampling_point of (%s,%s,%s,%s)\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			anchor_date,
-			anchor_time,
-			location,
-			site_number_string );
-		exit( 1 );
-*/
 	}
 
 	title = get_title_string(	sampling_point->collection_name,

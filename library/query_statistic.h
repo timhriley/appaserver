@@ -1,28 +1,30 @@
-/* $APPASERVER_HOME/library/query_attribute_statistics_list.c		*/
+/* $APPASERVER_HOME/library/query_statistic.c				*/
 /* -------------------------------------------------------------------- */
 /* This ADT supports the statistics push button on the prompt screens.  */
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef QUERY_ATTRIBUTE_STATISTICS_H
-#define QUERY_ATTRIBUTE_STATISTICS_H
+#ifndef QUERY_STATISTIC_H
+#define QUERY_STATISTIC_H
 
 #include "list.h"
 
 /* Constants */
 /* --------- */
-#define QUERY_ATTRIBUTE_STATISTICS_DELIMITER	'|'
+#define QUERY_STATISTIC_DELIMITER	'|'
 
 typedef struct
 {
-	char *folder_name;
+	/* Input */
+	/* ----- */
 	char *attribute_name;
 	boolean primary_key;
 	char *attribute_datatype;
-	char *attribute_statistics_temp_filename;
 	char *units_string;
-	int input_piece;
+
+	/* Attributes */
+	/* ---------- */
 	unsigned long count;
 	double sum;
 	double average;
@@ -36,69 +38,87 @@ typedef struct
 	double percent_missing;
 	char *begin_date;
 	char *end_date;
-} QUERY_ATTRIBUTE_STATISTICS;
+
+	char *temp_filename;
+	int input_piece;
+} QUERY_STATISTIC_ATTRIBUTE;
+
+/* QUERY_STATISTIC_ATTRIBUTE operations */
+/* ------------------------------------ */
 
 typedef struct
 {
-	char *application_name;
-	char *folder_name;
-	LIST *list;
-} QUERY_ATTRIBUTE_STATISTICS_LIST;
+	/* Input */
+	/* ----- */
+	LIST *folder_attribute_number_name_list;
+	LIST *folder_attribute_date_name_list;
+	LIST *folder_attribute_date_time_name_list;
+	char *from_clause;
+	char *where_clause;
 
-QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list_new(
-			char *application_name,
-			char *folder_name );
+	/* Process */
+	/* ------- */
+	LIST *query_statistic_attribute_list;
+} QUERY_STATISTIC;
 
-QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics_new(
-			char *attribute_name,
-			char *attribute_datatype,
+/* QUERY_STATISTIC operations */
+/* -------------------------- */
+QUERY_STATISTIC *query_statistic_new(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list,
+			char *from_clause,
+			char *where_clause );
+
+QUERY_STATISTIC_ATTRIBUTE *query_statistic_attribute_new(
+			char *folder_attribute_name,
 			int input_piece );
 
-LIST *query_attribute_statistics_list_primary_list(
+LIST *query_statistics_primary_list(
 			LIST *attribute_list );
 
-LIST *query_attribute_statistics_list_list(
+LIST *query_statistics_list(
 			LIST *attribute_list );
 
 char *query_query_attribute_statistics_sys_string(
 			char *application_name,
 			char *folder_name,
-			LIST *query_attribute_statistics_list,
+			LIST *query_statistics,
 			char *where_clause );
 
-void query_attribute_statistics_list_populate_list(
-			LIST *query_attribute_statistics_list );
+void query_statistics_populate_list(
+			LIST *query_statistics );
 
-void query_attribute_statistics_list_output_table(
+void query_statistics_output_table(
 			char *folder_name,
 			char *where_clause,
-			LIST *query_attribute_statistics_list,
+			LIST *query_statistics,
 			char *application_name );
 
-void query_attribute_statistics_list_output_folder_count(
+void query_statistics_output_folder_count(
 			char *application_name,
 			char *folder_name,
 			char *where_clause,
-			LIST *query_attribute_statistics_list );
+			LIST *query_statistics );
 
-char *query_attribute_statistics_list_build_each_temp_file_sys_string(
+char *query_statistics_build_each_temp_file_sys_string(
 			char *application_name,
 			char *folder_name,
-			LIST *query_attribute_statistics_list,
+			LIST *query_statistics,
 			char *where_clause );
 
-LIST *query_attribute_statistics_list_select_attribute_name_list(
+LIST *query_statistics_select_attribute_name_list(
 			char *application_name,
-			LIST *query_attribute_statistics_list );
+			LIST *query_statistics );
 
 char *query_attribute_statistics_temp_filename(
 			char *attribute_name );
 
 void query_attribute_statistics_remove_temp_file(
-			LIST *query_attribute_statistics_list );
+			LIST *query_statistics );
 
-void query_attribute_statistics_list_set_units_string(
-			LIST *query_attribute_statistics_list,
+void query_statistics_set_units_string(
+			LIST *query_statistics,
 			char *attribute_name,
 			char *units_string );
 

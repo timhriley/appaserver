@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "String.h"
 #include "timlib.h"
 #include "dictionary.h"
 #include "piece.h"
@@ -27,8 +28,8 @@ DICTIONARY *dictionary2file_get_dictionary(
 	DICTIONARY *dictionary;
 	char *filename;
 	char key[ 512 ];
-	char data[ MAX_INPUT_LINE ];
-	char buffer[ MAX_INPUT_LINE ];
+	char data[ STRING_INPUT_BUFFER ];
+	char buffer[ STRING_INPUT_BUFFER ];
 	FILE *f;
 
 	filename = dictionary2file_get_filename(
@@ -41,9 +42,9 @@ DICTIONARY *dictionary2file_get_dictionary(
 	f = fopen( filename, "r" );
 	if ( !f ) return (DICTIONARY *)0;
 
-	dictionary = dictionary_new_medium_dictionary();
+	dictionary = dictionary_medium();
 
-	while( timlib_get_line( buffer, f, MAX_INPUT_LINE ) )
+	while( timlib_get_line( buffer, f, STRING_INPUT_BUFFER ) )
 	{
 		piece( key, dictionary_delimiter, buffer, 0 );
 

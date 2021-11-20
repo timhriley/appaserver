@@ -6,7 +6,7 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-days_ago=270
+days_ago=1000
 
 if [ "$#" -lt 1 ]
 then

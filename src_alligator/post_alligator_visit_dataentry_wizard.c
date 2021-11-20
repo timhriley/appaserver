@@ -2,9 +2,6 @@
 /* src_alligator/post_alligator_visit_dataentry_wizard.c	*/
 /* ---------------------------------------------------		*/
 /*								*/
-/* This script is attached to the submit button on 		*/
-/* the hydrology quick measurement form.			*/
-/*								*/
 /* Freely available software: see Appaserver.org		*/
 /* -----------------------------------------------------	*/
 
@@ -180,16 +177,17 @@ int main( int argc, char **argv )
 	document_close();
 	exit( 0 );
 
-} /* main() */
+}
 
 int post_dataentry_wizard(	char *application_name,
 				DICTIONARY *process_dictionary )
 {
 	int results = 1;
 
-	if ( ! ( results = insert_into_nest_observation(
-			application_name,
-			process_dictionary ) ) )
+	if ( ! ( results =
+			insert_into_nest_observation(
+				application_name,
+				process_dictionary ) ) )
 	{
 		return 0;
 	}
@@ -197,7 +195,7 @@ int post_dataentry_wizard(	char *application_name,
 	update_nest( application_name, process_dictionary );
 
 	return results;
-} /* post_dataentry_wizard() */
+}
 
 int insert_into_nest_observation(
 			char *application_name,
@@ -490,7 +488,7 @@ int insert_into_nest_observation(
 	pclose( nest_observation_insert_pipe );
 
 	return posted_count;
-} /* insert_into_nest_observation() */
+}
 
 double get_water_depth_average_cm(
 				boolean *is_null,
@@ -536,7 +534,7 @@ double get_water_depth_average_cm(
 		*is_null = 0;
 		return total / (double)count;
 	}
-} /* get_water_depth_average_cm() */
+}
 
 void insert_water_depth(
 				char *application_name,
@@ -603,7 +601,7 @@ void insert_water_depth(
 	}
 
 	pclose( water_depth_insert_pipe );
-} /* insert_water_depth() */
+}
 
 void update_nest(	char *application_name,
 			DICTIONARY *process_dictionary )
@@ -734,5 +732,5 @@ void update_nest(	char *application_name,
 
 	pclose( nest_update_pipe );
 
-} /* update_nest() */
+}
 

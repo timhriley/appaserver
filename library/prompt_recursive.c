@@ -15,8 +15,10 @@
 #include "environ.h"
 #include "relation.h"
 #include "appaserver_library.h"
+#include "application.h"
 #include "dictionary_separate.h"
 #include "query.h"
+#include "appaserver.h"
 #include "element.h"
 #include "prompt_recursive.h"
 
@@ -597,7 +599,8 @@ LIST *prompt_recursive_folder_one_element_list(
 				primary_key_list,
 				delimited_list,
 				no_initial_capital,
-				javascript );
+				javascript,
+				APPASERVER_LOOKUP_STATE );
 	}
 	else
 	{

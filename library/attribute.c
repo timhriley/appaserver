@@ -132,8 +132,7 @@ ATTRIBUTE *attribute_parse( char *input )
 	return attribute;
 }
 
-boolean attribute_is_date(
-			char *datatype )
+boolean attribute_is_date( char *datatype )
 {
 	if (  string_strcmp( datatype, "date" ) == 0
 	||    string_strcmp( datatype, "current_date" ) == 0 )
@@ -188,8 +187,7 @@ boolean attribute_is_float(
 	}
 }
 
-boolean attribute_is_date_time(
-			char *datatype )
+boolean attribute_is_date_time( char *datatype )
 {
 	if (  string_strcmp( datatype, "date_time" ) == 0
 	||    string_strcmp( datatype, "current_date_time" ) == 0 )

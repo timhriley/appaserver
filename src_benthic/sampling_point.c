@@ -35,7 +35,7 @@ SAMPLING_POINT *sampling_point_new(
 	sampling_point->location = location;
 	sampling_point->site_number = site_number;
 	return sampling_point;
-} /* sampling_point_new() */
+}
 
 boolean sampling_point_load(
 			char **collection_name,
@@ -152,7 +152,7 @@ boolean sampling_point_load(
 	*project = strdup( piece_buffer );
 
 	return 1;
-} /* sampling_point_load() */
+}
 
 char *sampling_point_get_primary_key_where_clause(
 			char *anchor_date,
@@ -176,5 +176,5 @@ char *sampling_point_get_primary_key_where_clause(
 
 	return where_clause;
 
-} /* sampling_point_get_primary_key_where_clause() */
+}
 

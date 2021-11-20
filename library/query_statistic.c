@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/query_attribute_statistics_list.c		*/
+/* $APPASERVER_HOME/library/query_statistic.c				*/
 /* -------------------------------------------------------------------- */
 /* This ADT supports the statistics push button on the prompt screens.  */
 /* -------------------------------------------------------------------- */
@@ -16,18 +16,18 @@
 #include "application.h"
 #include "attribute.h"
 #include "statistics_weighted.h"
-#include "query_attribute_statistics_list.h"
+#include "query_statistic.h"
 #include "html_table.h"
 #include "query.h"
 
-QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list_new(
+QUERY_STATISTICS *query_statistics_new(
 						char *application_name,
 						char *folder_name )
 {
-	QUERY_ATTRIBUTE_STATISTICS_LIST *q;
+	QUERY_STATISTICS *q;
 
-	q = (QUERY_ATTRIBUTE_STATISTICS_LIST *)
-			calloc( 1, sizeof( QUERY_ATTRIBUTE_STATISTICS_LIST ) );
+	q = (QUERY_STATISTICS *)
+			calloc( 1, sizeof( QUERY_STATISTICS ) );
 	q->application_name = application_name;
 	q->folder_name = folder_name;
 		return q;
@@ -53,14 +53,14 @@ QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics_new(
 	return query_attribute_statistics;
 }
 
-LIST *query_attribute_statistics_list( LIST *attribute_list )
+LIST *query_statistics( LIST *attribute_list )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	ATTRIBUTE *attribute;
-	LIST *query_attribute_statistics_list;
+	LIST *query_statistics;
 	int input_piece = 0;
 
-	query_attribute_statistics_list = list_new();
+	query_statistics = list_new();
 
 	if ( list_rewind( attribute_list ) )
 	{
@@ -81,7 +81,7 @@ LIST *query_attribute_statistics_list( LIST *attribute_list )
 					attribute->folder_name;
 
 				list_append_pointer(
-						query_attribute_statistics_list,
+						query_statistics,
 						query_attribute_statistics );
 			}
 		} while( list_next( attribute_list ) );
@@ -105,23 +105,23 @@ LIST *query_attribute_statistics_list( LIST *attribute_list )
 				query_attribute_statistics->primary_key = 1;
 
 				list_append_pointer(
-						query_attribute_statistics_list,
+						query_statistics,
 						query_attribute_statistics );
 			}
 		} while( list_next( attribute_list ) );
 	}
-	return query_attribute_statistics_list;
+	return query_statistics;
 }
 
-LIST *query_attribute_statistics_list_primary_list(
+LIST *query_statistics_primary_list(
 			LIST *attribute_list )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	ATTRIBUTE *attribute;
-	LIST *query_attribute_statistics_list;
+	LIST *query_statistics;
 	int input_piece = 0;
 
-	query_attribute_statistics_list = list_new();
+	query_statistics = list_new();
 
 	if ( list_rewind( attribute_list ) )
 	{
@@ -140,12 +140,12 @@ LIST *query_attribute_statistics_list_primary_list(
 					attribute->folder_name;
 
 				list_append_pointer(
-						query_attribute_statistics_list,
+						query_statistics,
 						query_attribute_statistics );
 			}
 		} while( list_next( attribute_list ) );
 	}
-	return query_attribute_statistics_list;
+	return query_statistics;
 }
 
 char *query_attribute_statistics_temp_filename(
@@ -161,8 +161,8 @@ char *query_attribute_statistics_temp_filename(
 	return strdup( temp_filename );
 }
 
-void query_attribute_statistics_list_populate_list(
-				LIST *query_attribute_statistics_list )
+void query_statistics_populate_list(
+				LIST *query_statistics )
 {
 	char input_buffer[ 256 ];
 	char label[ 128 ];
@@ -170,12 +170,12 @@ void query_attribute_statistics_list_populate_list(
 	FILE *file;
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 
-	if ( !list_rewind( query_attribute_statistics_list ) ) return;
+	if ( !list_rewind( query_statistics ) ) return;
 
 	do {
 		query_attribute_statistics =
 			list_get(
-				query_attribute_statistics_list );
+				query_statistics );
 
 
 		file = fopen( query_attribute_statistics->
@@ -327,18 +327,18 @@ void query_attribute_statistics_list_populate_list(
 			}
 		} /* while( getline() ) */
 		fclose( file );
-	} while( list_next( query_attribute_statistics_list ) );
+	} while( list_next( query_statistics ) );
 }
 
-LIST *query_attribute_statistics_list_select_attribute_name_list(
+LIST *query_statistics_select_attribute_name_list(
 			char *application_name,
-			LIST *query_attribute_statistics_list )
+			LIST *query_statistics )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	char folder_attribute[ 1024 ];
 	LIST *select_attribute_name_list;
 
-	if ( !list_rewind( query_attribute_statistics_list ) ) return (LIST *)0;
+	if ( !list_rewind( query_statistics ) ) return (LIST *)0;
 
 	select_attribute_name_list = list_new();
 
@@ -346,7 +346,7 @@ LIST *query_attribute_statistics_list_select_attribute_name_list(
 		query_attribute_statistics =
 			(QUERY_ATTRIBUTE_STATISTICS *)
 				list_get(
-					query_attribute_statistics_list );
+					query_statistics );
 
 		if ( !query_attribute_statistics->folder_name )
 		{
@@ -368,16 +368,16 @@ LIST *query_attribute_statistics_list_select_attribute_name_list(
 						strdup( folder_attribute ) );
 		}
 
-	} while( list_next( query_attribute_statistics_list ) );
+	} while( list_next( query_statistics ) );
 
 	return select_attribute_name_list;
 
 }
 
-char *query_attribute_statistics_list_build_each_temp_file_sys_string(
+char *query_statistics_build_each_temp_file_sys_string(
 			char *application_name,
 			char *folder_name,
-			LIST *query_attribute_statistics_list,
+			LIST *query_statistics,
 			char *where_clause )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
@@ -389,13 +389,13 @@ char *query_attribute_statistics_list_build_each_temp_file_sys_string(
 	table_name = get_multi_table_name( application_name, folder_name );
 
 	select_attribute_name_list =
-		query_attribute_statistics_list_select_attribute_name_list(
+		query_statistics_select_attribute_name_list(
 			application_name,
-			query_attribute_statistics_list );
+			query_statistics );
 
 	if ( !select_attribute_name_list ) return (char *)0;
 
-	list_rewind( query_attribute_statistics_list );
+	list_rewind( query_statistics );
 
 	if ( where_clause && *where_clause )
 	{
@@ -427,7 +427,7 @@ char *query_attribute_statistics_list_build_each_temp_file_sys_string(
 	do {
 		query_attribute_statistics =
 			list_get(
-				query_attribute_statistics_list );
+				query_statistics );
 
 		if ( query_attribute_is_valid_non_date_datatype(
 			query_attribute_statistics->attribute_datatype ) )
@@ -460,7 +460,7 @@ char *query_attribute_statistics_list_build_each_temp_file_sys_string(
 				query_attribute_statistics->
 					attribute_statistics_temp_filename );
 		}
-	} while( list_next( query_attribute_statistics_list ) );
+	} while( list_next( query_statistics ) );
 
 	sprintf( ptr, "cat > /dev/null" );
 
@@ -468,11 +468,11 @@ char *query_attribute_statistics_list_build_each_temp_file_sys_string(
 
 }
 
-void query_attribute_statistics_list_output_folder_count(
+void query_statistics_output_folder_count(
 			char *application_name,
 			char *folder_name,
 			char *where_clause,
-			LIST *query_attribute_statistics_list )
+			LIST *query_statistics )
 {
 	HTML_TABLE *html_table;
 	char title[ 65536 ];
@@ -517,11 +517,11 @@ void query_attribute_statistics_list_output_folder_count(
 			html_table->justify_list );
 
 
-	if ( !list_length( query_attribute_statistics_list ) ) return;
+	if ( !list_length( query_statistics ) ) return;
 
 	query_attribute_statistics =
 			list_first_pointer(
-				query_attribute_statistics_list );
+				query_statistics );
 
 	if ( query_attribute_statistics->count != -1 )
 	{
@@ -550,10 +550,10 @@ void query_attribute_statistics_list_output_folder_count(
 
 }
 
-void query_attribute_statistics_list_output_table(
+void query_statistics_output_table(
 			char *folder_name,
 			char *where_clause,
-			LIST *query_attribute_statistics_list,
+			LIST *query_statistics,
 			char *application_name )
 {
 	HTML_TABLE *html_table;
@@ -638,12 +638,12 @@ void query_attribute_statistics_list_output_table(
 			html_table->justify_list );
 
 
-	if ( !list_rewind( query_attribute_statistics_list ) ) return;
+	if ( !list_rewind( query_statistics ) ) return;
 
 	do {
 		query_attribute_statistics =
 			list_get(
-				query_attribute_statistics_list );
+				query_statistics );
 
 		if ( query_attribute_statistics->units_string
 		&&   *query_attribute_statistics->units_string )
@@ -837,24 +837,24 @@ void query_attribute_statistics_list_output_table(
 
 		html_table->data_list = list_new();
 
-	} while( list_next( query_attribute_statistics_list ) );
+	} while( list_next( query_statistics ) );
 
 	html_table_close();
 
 }
 
 void query_attribute_statistics_remove_temp_file(
-					LIST *query_attribute_statistics_list )
+					LIST *query_statistics )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 	char sys_string[ 1024 ];
 
-	if ( !list_rewind( query_attribute_statistics_list ) ) return;
+	if ( !list_rewind( query_statistics ) ) return;
 
 	do {
 		query_attribute_statistics =
 			list_get(
-				query_attribute_statistics_list );
+				query_statistics );
 
 		sprintf( sys_string,
 			 "/bin/rm -f %s",
@@ -863,22 +863,22 @@ void query_attribute_statistics_remove_temp_file(
 
 		if ( system( sys_string ) ){};
 
-	} while( list_next( query_attribute_statistics_list ) );
+	} while( list_next( query_statistics ) );
 }
 
-void query_attribute_statistics_list_set_units_string(
-					LIST *query_attribute_statistics_list,
+void query_statistics_set_units_string(
+					LIST *query_statistics,
 					char *attribute_name,
 					char *units_string )
 {
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
 
-	if ( !list_rewind( query_attribute_statistics_list ) ) return;
+	if ( !list_rewind( query_statistics ) ) return;
 
 	do {
 		query_attribute_statistics =
 			list_get(
-				query_attribute_statistics_list );
+				query_statistics );
 
 		if ( strcmp(	query_attribute_statistics->attribute_name,
 				attribute_name ) == 0 )
@@ -886,7 +886,7 @@ void query_attribute_statistics_list_set_units_string(
 			query_attribute_statistics->units_string = units_string;
 		}
 
-	} while( list_next( query_attribute_statistics_list ) );
+	} while( list_next( query_statistics ) );
 }
 
 void query_attribute_display_where_clause(

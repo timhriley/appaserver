@@ -83,8 +83,8 @@ char *folder_attribute_where(
 			char *escaped_replaced_folder_name,
 			LIST *exclude_attribute_name_list );
 
-/* Generic */
-/* ------- */
+/* External */
+/* -------- */
 LIST *folder_attribute_primary_list(
 			LIST *folder_attribute_list );
 
@@ -106,6 +106,9 @@ LIST *folder_attribute_date_time_name_list(
 LIST *folder_attribute_append_isa_list(
 			LIST *append_isa_list /* in/out */,
 			LIST *relation_mto1_isa_list );
+
+LIST *folder_attribute_number_list(
+			LIST *folder_attribute_list );
 
 boolean folder_attribute_exists(
 			char *folder_name,

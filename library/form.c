@@ -1076,34 +1076,6 @@ FORM_BUTTON *form_button_calloc( void )
 	return form_button;
 }
 
-void form_button_list_output(
-			FILE *output_stream,
-			LIST *button_list )
-{
-	FORM_BUTTON *form_button;
-
-	if ( !list_rewind( button_list ) ) return;
-
-	fprintf(output_stream,
-		"<table border=0>\n<tr>\n" );
-
-	do {
-		form_button = list_get( button_list );
-
-		form_button_output(
-			output_stream,
-			form_button->html );
-
-		fprintf(output_stream,
-			"%s\n",
-			form_button->html );
-
-	} while ( list_next( button_list ) );
-
-	fprintf(output_stream,
-		"</table\n" );
-}
-
 char *form_table_row_background_color( void )
 {
 	static int cycle_count = 0;

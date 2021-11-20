@@ -593,3 +593,47 @@ LIST *folder_attribute_name_list(
 
 	return name_list;
 }
+
+LIST *folder_attribute_number_list( LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *number_list = list_new();
+
+	if ( !list_rewind( folder_attribute_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( !folder_attribute->attribute )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( attribute_is_number(
+			folder_attribute->
+				attribute->
+				datatype_name ) )
+		{
+			list_set( number_list, folder_attribute );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return number_list;
+}
+

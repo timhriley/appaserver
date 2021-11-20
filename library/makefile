@@ -83,12 +83,11 @@ APPASERVER_LIBRARY=						\
 		process.o					\
 		process_parameter.o				\
 		queue.o						\
-		validation_form.o				\
 		post_dictionary.o				\
 		period_wo_date.o				\
 		dictionary2file.o				\
 		application_constants.o				\
-		query_attribute_statistics_list.o		\
+		query_statistic.o				\
 		table.o						\
 		row_security.o					\
 		dictionary_separate.o				\
@@ -782,9 +781,6 @@ role_folder.o: role_folder.c role_folder.h
 role_operation.o: role_operation.c role_operation.h
 	${CC} ${CFLAGS} -c role_operation.c
 
-validation_form.o: validation_form.c validation_form.h element.h
-	${CC} ${CFLAGS} -c validation_form.c
-
 post_dictionary.o: post_dictionary.c post_dictionary.h
 	${CC} ${CFLAGS} -c post_dictionary.c
 
@@ -833,11 +829,9 @@ update.o: update.c update.h
 delete.o: delete.c delete.h
 	${CC} ${CFLAGS} -c delete.c
 
-query_attribute_statistics_list.o:					\
-		query_attribute_statistics_list.c			\
-		query_attribute_statistics_list.h
+query_statistic.o: query_statistic.c query_statistic.h
 	${CC} ${CFLAGS} -I${LIBRARY} 					\
-		-c query_attribute_statistics_list.c
+		-c query_statistic.c
 
 aggregate_level.o: aggregate_level.c aggregate_level.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\

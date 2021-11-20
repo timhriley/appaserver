@@ -20,7 +20,7 @@
 #include "application.h"
 #include "dictionary.h"
 #include "query.h"
-#include "query_attribute_statistics_list.h"
+#include "query_statistic.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
@@ -41,14 +41,14 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *folder_name;
 	char *role_name;
-	DOCUMENT *document;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char *dictionary_string;
 	DICTIONARY *original_post_dictionary;
-	QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list;
+	QUERY_STATISTIC *query_statistic;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	DICTIONARY_SEPARATE *dictionary_separate;
 	QUERY *query;
+	ROLE *role;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -57,18 +57,18 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 5 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name ignored ignored folder role dictionary\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s login_name folder role dictionary\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	dictionary_string = argv[ 6 ];
+	folder_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	dictionary_string = argv[ 4 ];
 
 	dictionary_separate =
 		/* --------------- */
@@ -79,46 +79,76 @@ int main( int argc, char **argv )
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	query =
-		query_simple_new(
-			dictionary_separate->query_dictionary,
-			login_name,
-			folder_name,
+	role =
+		role_fetch(
 			role_name,
-			(LIST *)0 /* ignore_select_attribute_name_list */ );
+			1 /* fetch_role_attribute_exclude_list */ );
+
+	if ( !role )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
+		exit( 1 );
+	}
+
+	query =
+		query_table_new(
+			folder_name,
+			login_name,
+			dictionary_separate->
+				ignore_select_attribute_name_list,
+			role,
+			dictionary_separate->query_dictionary,
+			(DICTIONARY *)0 /* sort_dictionary */ );
 
 	if ( !query )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_simple_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: query_row_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	document = document_new( "", application_name );
-	document->output_content_type = 1;
+	if ( !query->folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query->folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	document_output_head(
-		document->application_name,
-		document->title,
-		document->output_content_type,
-		appaserver_parameter_file->appaserver_mount_point,
-		document->javascript_module_list,
-		document->stylesheet_filename,
-		application_relative_source_directory(
-			application_name ),
-		0 /* not with_dynarch_menu */ );
+	document_quick_output( application_name );
 
-	document_output_body(
-		document->application_name,
-		document->onload_control_string );
-
-	query_attribute_statistics_list =
-		query_attribute_statistics_list_new(
-			document->application_name,
-			query->query_from );
+	query_statistic =
+		query_statistic_new(
+			folder_attribute_name_list(
+				folder_attribute_number_list(
+					query->
+						folder->
+						folder_attribute_list ) )
+				/* folder_attribute_number_name_list */,
+			folder_attribute_name_list(
+				folder_attribute_date_list(
+					query->
+						folder->
+						folder_attribute_list ) )
+				/* folder_attribute_date_name_list */,
+			folder_attribute_name_list(
+				folder_attribute_date_time_list(
+					query->
+						folder->
+						folder_attribute_list ) )
+				/* folder_attribute_date_time_name_list */,
+			query->from_clause,
+			query->where_clause );
 
 	query_attribute_statistics_list->list =
 		query_attribute_statistics_list_get_list(
@@ -152,6 +182,7 @@ int main( int argc, char **argv )
 
 	query_attribute_statistics_remove_temp_file(
 		query_attribute_statistics_list->list );
+*/
 
 	document_close();
 

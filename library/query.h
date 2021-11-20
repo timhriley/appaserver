@@ -225,12 +225,12 @@ char *query_widget_where_clause(
 /* QUERY_TABLE operations */
 /* ---------------------- */
 QUERY *query_table_new(
-			char *folder_name,
-			char *role_name,
-			char *login_name,
+			char *security_sql_injection_escape_folder_name,
+			char *security_sql_injection_escape_login_name,
 			LIST *ignore_select_attribute_name_list,
-			SECURITY_ENTITY *security_entity,
-			DICTIONARY *drillthru_dictionary );
+			ROLE *role,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary );
 
 /* QUERY where */
 /* ----------- */
