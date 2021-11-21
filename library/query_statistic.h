@@ -16,13 +16,6 @@
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *attribute_name;
-	boolean primary_key;
-	char *attribute_datatype;
-	char *units_string;
-
 	/* Attributes */
 	/* ---------- */
 	unsigned long count;
@@ -38,13 +31,70 @@ typedef struct
 	double percent_missing;
 	char *begin_date;
 	char *end_date;
+} QUERY_STATISTIC_ATTRIBUTE_AGGREGATE;
 
-	char *temp_filename;
-	int input_piece;
+/* QUERY_STATISTIC_ATTRIBUTE_AGGREGATE operations */
+/* ---------------------------------------------- */
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_calloc(
+			void );
+
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_new(
+			boolean is_date,
+			int piece_offset,
+			LIST *record_list );
+
+FILE *query_statistic_attribute_aggregate_output_pipe(
+			boolean is_date,
+			char *output_filename );
+
+void query_statistic_attribute_aggregate_generate(
+			FILE *output_pipe,
+			int piece_offset,
+			LIST *record_list );
+
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_file_read(
+			boolean is_date,
+			char *query_statistic_attribute_aggregate_filename );
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *folder_attribute_name;
+	boolean is_date;
+	int piece_offset;
+	LIST *query_statistic_record_list;
+
+	/* Process */
+	/* ------- */
+	QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+		query_statistic_attribute_aggregate;
+
+	char *html;
 } QUERY_STATISTIC_ATTRIBUTE;
 
 /* QUERY_STATISTIC_ATTRIBUTE operations */
 /* ------------------------------------ */
+QUERY_STATISTIC_ATTRIBUTE *
+	query_statistic_attribute_calloc(
+			void );
+
+QUERY_STATISTIC_ATTRIBUTE *
+	query_statistic_attribute_new(
+			char *folder_attribute_name,
+			boolean is_date,
+			int piece_offset,
+			LIST *query_statistic_record_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_statistic_attribute_html(
+			char *folder_attribute_name,
+			boolean is_date,
+			QUERY_STATISTIC_ATTRIBUTE_AGGREGATE * );
 
 typedef struct
 {
@@ -58,11 +108,16 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	LIST *record_list;
 	LIST *query_statistic_attribute_list;
+	char *html;
 } QUERY_STATISTIC;
 
 /* QUERY_STATISTIC operations */
 /* -------------------------- */
+QUERY_STATISTIC *query_statistic_calloc(
+			void );
+
 QUERY_STATISTIC *query_statistic_new(
 			LIST *folder_attribute_number_name_list,
 			LIST *folder_attribute_date_name_list,
@@ -70,71 +125,16 @@ QUERY_STATISTIC *query_statistic_new(
 			char *from_clause,
 			char *where_clause );
 
-QUERY_STATISTIC_ATTRIBUTE *query_statistic_attribute_new(
-			char *folder_attribute_name,
-			int input_piece );
-
-LIST *query_statistics_primary_list(
-			LIST *attribute_list );
-
-LIST *query_statistics_list(
-			LIST *attribute_list );
-
-char *query_query_attribute_statistics_sys_string(
-			char *application_name,
-			char *folder_name,
-			LIST *query_statistics,
+LIST *query_statistic_record_list(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list,
+			char *from_clause,
 			char *where_clause );
 
-void query_statistics_populate_list(
-			LIST *query_statistics );
-
-void query_statistics_output_table(
-			char *folder_name,
-			char *where_clause,
-			LIST *query_statistics,
-			char *application_name );
-
-void query_statistics_output_folder_count(
-			char *application_name,
-			char *folder_name,
-			char *where_clause,
-			LIST *query_statistics );
-
-char *query_statistics_build_each_temp_file_sys_string(
-			char *application_name,
-			char *folder_name,
-			LIST *query_statistics,
-			char *where_clause );
-
-LIST *query_statistics_select_attribute_name_list(
-			char *application_name,
-			LIST *query_statistics );
-
-char *query_attribute_statistics_temp_filename(
-			char *attribute_name );
-
-void query_attribute_statistics_remove_temp_file(
-			LIST *query_statistics );
-
-void query_statistics_set_units_string(
-			LIST *query_statistics,
-			char *attribute_name,
-			char *units_string );
-
-void query_attribute_display_where_clause(
-			char *display_where_clause,
-			char *where_clause,
-			char *application_name,
-			char *folder_name );
-
-boolean query_attribute_is_valid_non_date_datatype(
-			char *attribute_datatype );
-
-boolean query_attribute_is_valid_date_datatype(
-			char *attribute_datatype );
-
-boolean query_attribute_is_valid_non_primary_datatype(
-			char *attribute_datatype );
+/* Returns heap memory */
+/* ------------------- */
+char *query_statistic_html(
+			LIST *query_statistic_attribute_list );
 
 #endif

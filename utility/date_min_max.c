@@ -1,5 +1,5 @@
-/* date_min_max.c */
-/* -------------- */
+/* $APPASERVER_HOME/utility/date_min_max.c */
+/* --------------------------------------- */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,26 +17,29 @@ int main( int argc, char **argv )
 	JULIAN *input_date;
 	JULIAN *minimum_date = {0};
 	JULIAN *maximum_date = {0};
-	int date_piece_offset;
-	char delimiter;
+	int date_piece_offset = 0;
+	char delimiter = {0};
 	int total_count = 0;
 	int populated_count = 0;
 	int date_count = 0;
 	boolean exists_time = 0;
 
-	if ( argc != 4 )
+	/* Usage: %s [piece_offset] [delimiter] */
+	/* ------------------------------------ */
+	
+	if ( argc == 3 )
 	{
-		fprintf( stderr, 
-			 "Usage: %s date_piece_offset delimiter ignored\n", 
-			 argv[ 0 ] );
-		exit( 1 );
+		date_piece_offset = atoi( argv[ 1 ] );
+		delimiter = *argv[ 2 ];
 	}
-
-	date_piece_offset = atoi( argv[ 1 ] );
-	delimiter = *argv[ 2 ];
 
 	while( get_line( buffer, stdin ) )
 	{
+		if ( !delimiter )
+		{
+			strcpy( date_buffer, buffer );
+		}
+		else
 		if ( !piece( 	date_buffer, 
 				delimiter, 
 				buffer, 

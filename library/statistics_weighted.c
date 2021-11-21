@@ -109,15 +109,11 @@ void statistics_weighted_accumulate(
 
 	(*weighted_input_count) += weight;
 
-	if ( value_piece != -1 )
+	if ( value_piece > 0 )
 	{
 		if ( piece( value_buffer, delimiter, buffer, value_piece ) )
 		{
-			if ( !*value_buffer )
-			{
-				/* (*count)++; */
-				return;
-			}
+			if ( !*value_buffer ) return;
 			value = atof( value_buffer );
 		}
 		else
@@ -132,11 +128,7 @@ void statistics_weighted_accumulate(
 	}
 	else
 	{
-		if ( !*buffer )
-		{
-			/* (*count)++; */
-			return;
-		}
+		if ( !*buffer ) return;
 		value = atof( buffer );
 	}
 

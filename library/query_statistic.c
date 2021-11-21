@@ -14,320 +14,173 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "application.h"
-#include "attribute.h"
-#include "statistics_weighted.h"
 #include "query_statistic.h"
 #include "html_table.h"
-#include "query.h"
 
-QUERY_STATISTICS *query_statistics_new(
-						char *application_name,
-						char *folder_name )
-{
-	QUERY_STATISTICS *q;
-
-	q = (QUERY_STATISTICS *)
-			calloc( 1, sizeof( QUERY_STATISTICS ) );
-	q->application_name = application_name;
-	q->folder_name = folder_name;
-		return q;
-}
-
-QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics_new(
-						char *attribute_name,
-						char *attribute_datatype,
-						int input_piece )
-{
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-
-	query_attribute_statistics = (QUERY_ATTRIBUTE_STATISTICS *)
-			calloc( 1, sizeof( QUERY_ATTRIBUTE_STATISTICS ) );
-	query_attribute_statistics->attribute_name = attribute_name;
-	query_attribute_statistics->attribute_datatype = attribute_datatype;
-	query_attribute_statistics->input_piece = input_piece;
-	query_attribute_statistics->attribute_statistics_temp_filename =
-		query_attribute_statistics_temp_filename( attribute_name );
-	query_attribute_statistics->begin_date = "";
-	query_attribute_statistics->end_date = "";
-
-	return query_attribute_statistics;
-}
-
-LIST *query_statistics( LIST *attribute_list )
-{
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	ATTRIBUTE *attribute;
-	LIST *query_statistics;
-	int input_piece = 0;
-
-	query_statistics = list_new();
-
-	if ( list_rewind( attribute_list ) )
-	{
-		do {
-			attribute = list_get( attribute_list );
-			
-			if ( query_attribute_is_valid_non_primary_datatype(
-					attribute->datatype )
-			&&   !attribute->primary_key_index )
-			{
-				query_attribute_statistics =
-					query_attribute_statistics_new(
-						attribute->attribute_name,
-						attribute->datatype,
-						input_piece++ );
-
-				query_attribute_statistics->folder_name =
-					attribute->folder_name;
-
-				list_append_pointer(
-						query_statistics,
-						query_attribute_statistics );
-			}
-		} while( list_next( attribute_list ) );
-	}
-	if ( list_rewind( attribute_list ) )
-	{
-		do {
-			attribute = list_get( attribute_list );
-			
-			if ( attribute->primary_key_index )
-			{
-				query_attribute_statistics =
-					query_attribute_statistics_new(
-						attribute->attribute_name,
-						attribute->datatype,
-						input_piece++ );
-
-				query_attribute_statistics->folder_name =
-					attribute->folder_name;
-
-				query_attribute_statistics->primary_key = 1;
-
-				list_append_pointer(
-						query_statistics,
-						query_attribute_statistics );
-			}
-		} while( list_next( attribute_list ) );
-	}
-	return query_statistics;
-}
-
-LIST *query_statistics_primary_list(
-			LIST *attribute_list )
-{
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	ATTRIBUTE *attribute;
-	LIST *query_statistics;
-	int input_piece = 0;
-
-	query_statistics = list_new();
-
-	if ( list_rewind( attribute_list ) )
-	{
-		do {
-			attribute = list_get( attribute_list );
-			
-			if ( attribute->primary_key_index )
-			{
-				query_attribute_statistics =
-					query_attribute_statistics_new(
-						attribute->attribute_name,
-						attribute->datatype,
-						input_piece++ );
-
-				query_attribute_statistics->folder_name =
-					attribute->folder_name;
-
-				list_append_pointer(
-						query_statistics,
-						query_attribute_statistics );
-			}
-		} while( list_next( attribute_list ) );
-	}
-	return query_statistics;
-}
-
-char *query_attribute_statistics_temp_filename(
-			char *attribute_name )
-{
-	char temp_filename[ 1024 ];
-
-	sprintf(	temp_filename,
-			"/tmp/query_attribute_statistics_%s_%d",
-			attribute_name,
-			getpid() );
-
-	return strdup( temp_filename );
-}
-
-void query_statistics_populate_list(
-				LIST *query_statistics )
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_read_file(
+			boolean is_date,
+			char *output_filename )
 {
 	char input_buffer[ 256 ];
 	char label[ 128 ];
 	char data[ 128 ];
 	FILE *file;
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
+	QUERY_ATTRIBUTE_STATISTIC_AGGREGATE *
+		query_attribute_statistic_aggregate =
+			query_attribute_statistic_aggregate_calloc();
 
-	if ( !list_rewind( query_statistics ) ) return;
+	if ( ! ( file = fopen( output_filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			output_filename );
+		exit( 1 );
+	}
 
-	do {
-		query_attribute_statistics =
-			list_get(
-				query_statistics );
-
-
-		file = fopen( query_attribute_statistics->
-				attribute_statistics_temp_filename, "r" );
-		if ( !file )
+	while( get_line( input_buffer, file ) )
+	{
+		if ( character_count( ':', input_buffer ) < 1 )
 		{
+			fprintf( stderr,
+			"ERROR in %s/%s()/%d: invalid input with (%s)\n",
+				 __FILE__,
+				 __FUNCTION__,
+				 __LINE__,
+				 input_buffer );
 			continue;
 		}
 
-		while( get_line( input_buffer, file ) )
+		piece( label, ':', input_buffer, 0 );
+		piece( data, ':', input_buffer, 1 );
+
+		if ( !is_date )
 		{
-			if ( character_count( ':', input_buffer ) < 1 )
+			if (	strcmp( label,
+				STATISTICS_WEIGHTED_AVERAGE ) == 0 )
 			{
-				fprintf( stderr,
-			"ERROR in %s/%s()/%d: invalid input with (%s)\n",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 input_buffer );
-				continue;
-			}
-
-			piece( label, ':', input_buffer, 0 );
-			piece( data, ':', input_buffer, 1 );
-
-			if ( query_attribute_is_valid_non_date_datatype(
-				query_attribute_statistics->
-					attribute_datatype ) )
-			{
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_AVERAGE ) == 0 )
-				{
-					query_attribute_statistics->average =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_SUM ) == 0 )
-				{
-					query_attribute_statistics->sum =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_AVERAGE ) == 0 )
-				{
-					query_attribute_statistics->average =
-						atof( data );
-				}
-				else
-				if (
-				strcmp( label,
-					STATISTICS_WEIGHTED_STANDARD_DEVIATION )
-					== 0 )
-				{
-					query_attribute_statistics->
-						standard_deviation =
-						atof( data );
-				}
-				else
-				if (
-				strcmp( label,
-				STATISTICS_WEIGHTED_COEFFICIENT_OF_VARIATION )
-					== 0 )
-				{
-					query_attribute_statistics->
-						coefficient_of_variation =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_MINIMUM ) == 0 )
-				{
-					query_attribute_statistics->minimum =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_MEDIAN ) == 0 )
-				{
-					query_attribute_statistics->median =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_MAXIMUM ) == 0 )
-				{
-					query_attribute_statistics->maximum =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_RANGE ) == 0 )
-				{
-					query_attribute_statistics->range =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_COUNT ) == 0 )
-				{
-					query_attribute_statistics->count =
-						atof( data );
-				}
-				else
-				if (	strcmp( label,
-					STATISTICS_WEIGHTED_PERCENT_MISSING )
-					== 0 )
-				{
-					query_attribute_statistics->
-						percent_missing =
-						atof( data );
-				}
+				query_attribute_statistics->average =
+					atof( data );
 			}
 			else
-			if ( query_attribute_is_valid_date_datatype(
-					query_attribute_statistics->
-						attribute_datatype ) )
+			if (	strcmp( label,
+				STATISTICS_WEIGHTED_SUM ) == 0 )
 			{
-				if (	strcmp( label,
-					DATE_MINIMUM ) == 0 )
-				{
-					query_attribute_statistics->begin_date =
-						strdup( data );
-				}
-				else
-				if (	strcmp( label,
-					DATE_MAXIMUM ) == 0 )
-				{
-					query_attribute_statistics->end_date =
-						strdup( data );
-				}
-				else
-				if (	strcmp( label,
-					DATE_COUNT ) == 0 )
-				{
-					query_attribute_statistics->count =
-						atoi( data );
-				}
-				else
-				if (	strcmp( label,
-					DATE_PERCENT_MISSING )
-					== 0 )
-				{
-					query_attribute_statistics->
-						percent_missing =
-						atof( data );
-				}
+				query_attribute_statistics->sum =
+					atof( data );
 			}
-		} /* while( getline() ) */
-		fclose( file );
-	} while( list_next( query_statistics ) );
+			else
+			if (	strcmp( label,
+				STATISTICS_WEIGHTED_AVERAGE ) == 0 )
+			{
+				query_attribute_statistics->average =
+					atof( data );
+			}
+			else
+			if (
+			strcmp( label,
+				STATISTICS_WEIGHTED_STANDARD_DEVIATION )
+				== 0 )
+			{
+				query_attribute_statistics->
+					standard_deviation =
+					atof( data );
+			}
+			else
+			if (
+			strcmp( label,
+			STATISTICS_WEIGHTED_COEFFICIENT_OF_VARIATION )
+				== 0 )
+			{
+				query_attribute_statistics->
+					coefficient_of_variation =
+					atof( data );
+			}
+			else
+			if (	strcmp( label,
+				STATISTICS_WEIGHTED_MINIMUM ) == 0 )
+			{
+				query_attribute_statistics->minimum =
+					atof( data );
+			}
+			else
+			if (	strcmp( label,
+					STATISTICS_WEIGHTED_MEDIAN ) == 0 )
+			{
+				query_attribute_statistics->median =
+					atof( data );
+			}
+			else
+			if (	strcmp( label,
+					STATISTICS_WEIGHTED_MAXIMUM ) == 0 )
+			{
+				query_attribute_statistics->maximum =
+					atof( data );
+			}
+			else
+			if (	strcmp( label,
+					STATISTICS_WEIGHTED_RANGE ) == 0 )
+			{
+				query_attribute_statistics->range =
+					atof( data );
+			}
+			else
+			if (	strcmp( label,
+					STATISTICS_WEIGHTED_COUNT ) == 0 )
+			{
+				query_attribute_statistics->count =
+					atof( data );
+			}
+			else
+			if (	strcmp( label,
+					STATISTICS_WEIGHTED_PERCENT_MISSING )
+					== 0 )
+			{
+				query_attribute_statistics->
+					percent_missing =
+					atof( data );
+			}
+		}
+		else
+		{
+			if (	strcmp( label,
+				DATE_MINIMUM ) == 0 )
+			{
+				query_attribute_statistics->begin_date =
+					strdup( data );
+			}
+			else
+			if (	strcmp( label,
+				DATE_MAXIMUM ) == 0 )
+			{
+				query_attribute_statistics->end_date =
+					strdup( data );
+			}
+			else
+			if (	strcmp( label,
+				DATE_COUNT ) == 0 )
+			{
+				query_attribute_statistics->count =
+					atoi( data );
+			}
+			else
+			if (	strcmp( label,
+				DATE_PERCENT_MISSING )
+				== 0 )
+			{
+				query_attribute_statistics->
+					percent_missing =
+					atof( data );
+			}
+		}
+	}
+
+	fclose( file );
+
+	return query_attribute_statistic_aggregate;
 }
 
 LIST *query_statistics_select_attribute_name_list(
@@ -550,11 +403,11 @@ void query_statistics_output_folder_count(
 
 }
 
-void query_statistics_output_table(
-			char *folder_name,
-			char *where_clause,
-			LIST *query_statistics,
-			char *application_name )
+char *query_statistic_attribute_html(
+			char *folder_attribute_name,
+			boolean is_date,
+			QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+				query_statistic_attribute_aggregate )
 {
 	HTML_TABLE *html_table;
 	char title[ QUERY_WHERE_BUFFER ];
@@ -840,14 +693,92 @@ void query_statistics_output_table(
 	} while( list_next( query_statistics ) );
 
 	html_table_close();
-
 }
 
-void query_attribute_statistics_remove_temp_file(
-					LIST *query_statistics )
+char *query_statistic_html(
+			LIST *query_statistic_attribute_list )
 {
+	HTML_TABLE *html_table;
+	char title[ QUERY_WHERE_BUFFER ];
+	char buffer[ 1024 ];
+	LIST *heading_list;
 	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	char sys_string[ 1024 ];
+	char count[ 128 ];
+	char sum[ 128 ];
+	char average[ 128 ];
+	char standard_deviation[ 128 ];
+	char coefficient_of_variation[ 128 ];
+	char minimum[ 128 ];
+	char median[ 128 ];
+	char maximum[ 128 ];
+	char range[ 128 ];
+	char percent_missing[ 128 ];
+	char local_where_clause[ QUERY_WHERE_BUFFER ];
+	char remove_name_string[ 1024 ];
+	char attribute_buffer[ 128 ];
+
+	strcpy( local_where_clause, where_clause );
+	search_replace_string( 
+		local_where_clause, "1 = 1 and ", "" );
+
+	search_replace_string( 
+		local_where_clause, "1 = 1", "entire folder" );
+
+	sprintf(remove_name_string,
+		"%s.",
+		get_table_name( application_name,
+				folder_name ) );
+
+	search_replace_string(
+		local_where_clause,
+		remove_name_string,
+		"" );
+
+	sprintf( remove_name_string, "%s.", folder_name );
+
+	search_replace_string(	local_where_clause,
+				remove_name_string,
+				"" );
+
+	sprintf(title,
+		"%s: %s",
+		format_initial_capital( buffer, folder_name ),
+		local_where_clause );
+
+	html_table =
+		new_html_table(
+			title,
+			(char *)0 /* sub_title */ );
+
+	html_table_set_number_left_justified_columns(
+			html_table, 1 );
+
+	html_table_set_number_right_justified_columns(
+			html_table, 10 );
+
+	heading_list = new_list();
+	list_append_pointer( heading_list, "Attribute" );
+	list_append_pointer( heading_list, "Count" );
+	list_append_pointer( heading_list, "Sum" );
+	list_append_pointer( heading_list, "Average" );
+	list_append_pointer( heading_list, "Minimum" );
+	list_append_pointer( heading_list, "Median" );
+	list_append_pointer( heading_list, "Maximum" );
+	list_append_pointer( heading_list, "Range" );
+	list_append_pointer( heading_list, "Standard Deviation" );
+	list_append_pointer( heading_list, "Coefficient of Variation" );
+	list_append_pointer( heading_list, "Percent Missing" );
+	
+	html_table_set_heading_list( html_table, heading_list );
+	html_table_output_table_heading(
+					html_table->title,
+					html_table->sub_title );
+	html_table_output_data_heading(
+			html_table->heading_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->justify_list );
+
 
 	if ( !list_rewind( query_statistics ) ) return;
 
@@ -856,37 +787,201 @@ void query_attribute_statistics_remove_temp_file(
 			list_get(
 				query_statistics );
 
-		sprintf( sys_string,
-			 "/bin/rm -f %s",
-			 query_attribute_statistics->
-				attribute_statistics_temp_filename );
-
-		if ( system( sys_string ) ){};
-
-	} while( list_next( query_statistics ) );
-}
-
-void query_statistics_set_units_string(
-					LIST *query_statistics,
-					char *attribute_name,
-					char *units_string )
-{
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-
-	if ( !list_rewind( query_statistics ) ) return;
-
-	do {
-		query_attribute_statistics =
-			list_get(
-				query_statistics );
-
-		if ( strcmp(	query_attribute_statistics->attribute_name,
-				attribute_name ) == 0 )
+		if ( query_attribute_statistics->units_string
+		&&   *query_attribute_statistics->units_string )
 		{
-			query_attribute_statistics->units_string = units_string;
+			if ( *query_attribute_statistics->
+					units_string == '(' )
+			{
+				sprintf(attribute_buffer,
+				"%s %s",
+				query_attribute_statistics->attribute_name,
+				query_attribute_statistics->units_string );
+			}
+			else
+			{
+				sprintf(attribute_buffer,
+				"%s (%s)",
+				query_attribute_statistics->attribute_name,
+				query_attribute_statistics->units_string );
+			}
+		}
+		else
+		{
+			if ( query_attribute_statistics->primary_key )
+			{
+				sprintf( attribute_buffer,
+					 "*%s",
+					 query_attribute_statistics->
+						attribute_name );
+			}
+			else
+			{
+				strcpy( attribute_buffer, 
+					query_attribute_statistics->
+						attribute_name );
+			}
 		}
 
+		format_initial_capital(
+				attribute_buffer,
+				attribute_buffer );
+
+		html_table_set_data( html_table->data_list,
+				     strdup( attribute_buffer ) );
+	
+		if ( query_attribute_statistics->count == -1 )
+		{
+			strcpy( count, "" );
+			strcpy( percent_missing, "" );
+		}
+		else
+		{
+/*
+			sprintf( count,
+			 	"%ld",
+			 	query_attribute_statistics->count );
+*/
+			sprintf( count,
+				 "%s",
+				 place_commas_in_unsigned_long(
+					query_attribute_statistics->count ) );
+
+			sprintf( percent_missing,
+			 	"%.3lf",
+			 	query_attribute_statistics->percent_missing );
+		}
+	
+		if ( strcmp( 	query_attribute_statistics->attribute_datatype,
+				"float" ) == 0
+		||   strcmp( 	query_attribute_statistics->attribute_datatype,
+				"reference_number" ) == 0
+		||   strcmp( 	query_attribute_statistics->attribute_datatype,
+				"integer" ) == 0 )
+		{
+			sprintf( average,
+				 "%.5lf",
+				 query_attribute_statistics->average );
+	
+			sprintf( sum,
+				 "%s",
+				 place_commas_in_double(
+					query_attribute_statistics->sum ) );
+
+			if ( query_attribute_statistics->count
+			&&   query_attribute_statistics->sum
+			&&   !query_attribute_statistics->minimum
+			&&   !query_attribute_statistics->median
+			&&   !query_attribute_statistics->maximum )
+			{
+				strcpy( minimum, "Overflow" );
+				strcpy( median, "Overflow" );
+				strcpy( maximum, "Overflow" );
+				strcpy( range, "Overflow" );
+				strcpy( standard_deviation, "Overflow" );
+				strcpy( coefficient_of_variation, "Overflow" );
+			}
+			else
+			{
+				sprintf( minimum,
+					 "%s",
+				 	 place_commas_in_double(
+						query_attribute_statistics->
+							minimum ) );
+		
+				sprintf( median,
+					 "%s",
+				 	 place_commas_in_double(
+						query_attribute_statistics->
+							median ) );
+		
+				sprintf( maximum,
+					 "%s",
+				 	 place_commas_in_double(
+						query_attribute_statistics->
+							maximum ) );
+		
+				sprintf( range,
+					 "%s",
+				 	 place_commas_in_double(
+						query_attribute_statistics->
+							range ) );
+		
+				sprintf( standard_deviation,
+					 "%.2lf",
+					 query_attribute_statistics->
+						standard_deviation );
+		
+				sprintf( coefficient_of_variation,
+					 "%.2lf",
+					 query_attribute_statistics->
+						coefficient_of_variation );
+			}
+	
+			html_table_set_data(	html_table->data_list,
+						strdup( count ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( sum ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( average ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( minimum ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( median ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( maximum ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( range ) );
+			html_table_set_data(	html_table->data_list,
+						strdup( standard_deviation ) );
+			html_table_set_data(	html_table->data_list,
+						strdup(
+						coefficient_of_variation ) );
+			html_table_set_data(
+					html_table->data_list,
+					strdup( percent_missing ) );
+		}
+		else
+		{
+			html_table_set_data(	html_table->data_list,
+						strdup( count ) );
+			html_table_set_data(	html_table->data_list,
+						"" );
+			html_table_set_data(	html_table->data_list,
+						"" );
+			html_table_set_data(	html_table->data_list,
+						strdup(
+						query_attribute_statistics->
+							begin_date ) );
+			html_table_set_data(	html_table->data_list,
+						"" );
+			html_table_set_data(	html_table->data_list,
+						strdup(
+						query_attribute_statistics->
+							end_date ) );
+			html_table_set_data(	html_table->data_list,
+						"" );
+			html_table_set_data(	html_table->data_list,
+						"" );
+			html_table_set_data(	html_table->data_list,
+						"" );
+			html_table_set_data(
+					html_table->data_list,
+					strdup( percent_missing ) );
+		}
+
+		html_table_output_data(
+				html_table->data_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->background_shaded,
+				html_table->justify_list );
+
+		html_table->data_list = list_new();
+
 	} while( list_next( query_statistics ) );
+
+	html_table_close();
 }
 
 void query_attribute_display_where_clause(
@@ -919,57 +1014,118 @@ void query_attribute_display_where_clause(
 				"" );
 }
 
-boolean query_attribute_is_valid_non_date_datatype(
-					char *attribute_datatype )
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_calloc(
+			void )
 {
-	if ( strcmp( attribute_datatype, "float" ) == 0
-	||   strcmp( attribute_datatype, "reference_number" ) == 0
-	||   strcmp( attribute_datatype, "text" ) == 0
-	||   strcmp( attribute_datatype, "time" ) == 0
-	||   strcmp( attribute_datatype, "current_time" ) == 0
-	||   strcmp( attribute_datatype, "integer" ) == 0 )
+	QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+		query_statistic_attribute_aggregate;
+
+	if ( ! ( query_statistic_attribute_aggregate =
+		calloc( 1, sizeof( QUERY_STATISTIC_ATTRIBUTE_AGGREGATE ) ) ) )
 	{
-		return 1;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
-	else
-	{
-		return 0;
-	}
+
+	return query_statistic_attribute_aggregate;
 }
 
-boolean query_attribute_is_valid_date_datatype(
-					char *attribute_datatype )
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_new(
+			boolean is_date,
+			int piece_offset,
+			LIST *record_list )
 {
-	if ( !attribute_datatype ) return 0;
+	QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+		query_statistic_attribute_aggregate;
 
-	if ( strcmp( attribute_datatype, "date" ) == 0
-	||   strcmp( attribute_datatype, "current_date" ) == 0
-	||   strcmp( attribute_datatype, "date_time" ) == 0
-	||   strcmp( attribute_datatype, "current_date_time" ) == 0
-		)
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+	char *outut_filename = timlib_temp_filename();
+
+	FILE *output_pipe =
+		query_statistic_attribute_aggregate_output_pipe(
+			is_date,
+			output_filename );
+
+	query_statistic_attribute_aggregate_generate(
+		output_pipe,
+		piece_offset,
+		record_list );
+
+	pclose( output_pipe );
+
+	query_statistic_attribute_aggregate =
+		query_statistic_attribute_aggregate_file_read(
+			is_date,
+			output_filename );
+
+	timlib_remove_file( output_filename );
+
+	return query_statistic_attribute_aggregate;
 }
 
-boolean query_attribute_is_valid_non_primary_datatype(
-					char *attribute_datatype )
+FILE *query_statistic_attribute_aggregate_output_pipe(
+			boolean is_date,
+			char *output_filename )
 {
-	if ( strcmp( attribute_datatype, "float" ) == 0
-	||   strcmp( attribute_datatype, "reference_number" ) == 0
-	||   strcmp( attribute_datatype, "date" ) == 0
-	||   strcmp( attribute_datatype, "current_date" ) == 0
-	||   strcmp( attribute_datatype, "integer" ) == 0 )
+	char system_string[ 1024 ];
+
+	if ( !is_date )
 	{
-		return 1;
+		sprintf(system_string,
+			"statistics_weighted.e >%s"
+			output_filename );
 	}
 	else
 	{
-		return 0;
+		sprintf(system_string,
+			"date_min_max.e >%s",
+			output_filename );
 	}
+
+	return popen( system_string, "w" );
+}
+
+void query_statistic_attribute_aggregate_generate(
+			FILE *output_pipe,
+			int piece_offset,
+			LIST *record_list )
+{
+	char value[ 128 ];
+
+	if ( !list_rewind( record_list ) ) return;
+
+	do {
+		if ( !piece(	value,
+				SQL_DELIMITER,
+				list_get( record_list ),
+				piece_offset ) )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: piece(%d) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				piece_offset );
+			continue;
+		}
+
+		fprintf( output_pipe, "%s\n", value );
+
+	} while ( list_next( record_list ) );
+}
+
+QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+	query_statistic_attribute_aggregate_file_read(
+			boolean is_date,
+			char *output_filename )
+{
+	QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
+		query_statistic_attribute_aggregate =
+			query_statistic_attribute_aggregate_calloc();
 }
 

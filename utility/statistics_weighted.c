@@ -1,4 +1,4 @@
-/* statistics_weighted.c					*/
+/* $APPASERVER_HOME/utility/statistics_weighted.c		*/
 /* ------------------------------------------------------------ */
 /*								*/
 /* Input: delimited stream with each row containing a number	*/
@@ -69,9 +69,12 @@ int main( int argc, char **argv )
 	int number_in_array = 0;
 	int exceeded_max_numbers = 0;
 	double percent_missing = 0.0;
-	char delimiter;
+	char delimiter = {0};
 	int value_piece = 0;
 	int weight_piece = -1;
+
+	/* "Usage: %s [delimiter] [value_piece] [weight_piece] */
+	/* --------------------------------------------------- */
 
 	if ( strcmp( argv[ 0 ], "descriptive_statistics" ) == 0 )
 	{
@@ -80,14 +83,7 @@ int main( int argc, char **argv )
 		weight_piece = -1;
 	}
 	else
-	if ( argc < 2 )
-	{
-		fprintf(stderr,
-			"Usage: %s delimiter [value_piece] [weight_piece]\n",
-			argv[ 0 ] );
-		exit( 1 );
-	}
-	else
+	if ( argc > 1 )
 	{
 		delimiter = *argv[ 1 ];
 		if ( argc >= 3 ) value_piece = atoi( argv[ 2 ] );
@@ -131,7 +127,7 @@ int main( int argc, char **argv )
 			exceeded_max_numbers );
 	return 0;
 
-} /* main() */
+}
 
 void for_each_row(	long *count, 
 			long *weighted_input_count,
@@ -228,7 +224,7 @@ void for_each_row(	long *count,
 	*number_in_array = statistics_weighted->number_array.number_in_array;
 	*exceeded_max_numbers = statistics_weighted->exceeded_max_numbers;
 
-} /* for_each_row() */
+}
 
 void output_statistics(	long count, 
 			long weighted_input_count,
@@ -339,5 +335,5 @@ void output_statistics(	long count,
 	}
 	fflush( stdout );
 
-} /* output_statistics() */
+}
 

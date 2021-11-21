@@ -5,6 +5,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <ctype.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -20,7 +21,6 @@
 #include "date.h"
 #include "array.h"
 #include "float.h"
-/* #include "sed.h" */
 
 int timlib_strlen( char *s )
 {
@@ -3748,6 +3748,11 @@ char *timlib_dollar_round_string( double amount )
 
 char *timlib_system_date_string( void )
 {
+	return  timlib_system_date_html();
+}
+
+char *timlib_system_date_html( void )
+{
 	return
 	"echo '<h2>' && TZ=`appaserver_tz.sh` date '+%x %H:%M' && echo '</h2>'";
 }
@@ -3761,7 +3766,6 @@ void timlib_remove_file( char *filename )
 		 filename );
 
 	if ( system( sys_string ) ){}
-
 }
 
 boolean timlib_is_number( char *string )
@@ -3818,6 +3822,27 @@ double timlib_round_double( double d )
 
 char *timlib_tmpfile( void )
 {
-	return pipe2string( "tmpfile.py" );
+	return timlib_temp_filename( (char *)0 );
+}
+
+char *timlib_temp_filename( char *key )
+{
+	char temp_filename[ 128 ];
+
+	if ( key && *key )
+	{
+		sprintf(temp_filename,
+			"/tmp/%s_temp_%d.txt",
+			key,
+			getpid() );
+	}
+	else
+	{
+		sprintf(temp_filename,
+			"/tmp/temp_%d.txt",
+			getpid() );
+	}
+
+	return strdup( temp_filename );
 }
 

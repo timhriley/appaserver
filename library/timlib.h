@@ -771,6 +771,9 @@ char *timlib_trim_trailing_character(
 
 char *timlib_rtrim(	char *buffer );
 
+char *timlib_system_date_html(
+			void );
+
 char *timlib_system_date_string(
 			void );
 
@@ -791,5 +794,10 @@ boolean timlib_is_number(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *timlib_tmpfile(	void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *timlib_temp_filename(
+			char *key );
 
 #endif

@@ -117,7 +117,7 @@ typedef struct
 REGRESSION *regression_new(		char *lowest_outlier,
 					char *highest_outlier );
 
-char *regression_get_temp_filename(	void );
+char *regression_temp_filename(	void );
 
 void regression_set_output_file(	FILE *output_file,
 					double *lowest_x,

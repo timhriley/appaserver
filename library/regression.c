@@ -27,7 +27,7 @@ REGRESSION *regression_new(	char *lowest_outlier,
 		exit( 1 );
 	}
 
-	r->temp_filename = regression_get_temp_filename();
+	r->temp_filename = regression_temp_filename();
 	r->output_file = fopen( r->temp_filename, "w" );
 	fprintf( r->output_file, "x,y\n" );
 
@@ -43,7 +43,7 @@ REGRESSION *regression_new(	char *lowest_outlier,
 
 	return r;
 
-} /* regression_new() */
+}
 
 REGRESSION_PREDICTIVE_NODE *regression_predictive_node_new( void )
 {
@@ -63,7 +63,7 @@ REGRESSION_PREDICTIVE_NODE *regression_predictive_node_new( void )
 
 	return r;
 
-} /* regression_predictive_node_new() */
+}
 
 void regression_set_output_file(	FILE *output_file,
 					double *lowest_x,
@@ -90,7 +90,7 @@ void regression_set_output_file(	FILE *output_file,
 	if ( x > *highest_x ) *highest_x = x;
 
 	fprintf( output_file, "%.5lf,%.5lf\n", x, y );
-} /* regression_set_output_file() */
+}
 
 void regression_free( REGRESSION *r )
 {
@@ -100,13 +100,13 @@ void regression_free( REGRESSION *r )
 	free( r );
 }
 
-char *regression_get_temp_filename( void )
+char *regression_temp_filename( void )
 {
 	char temp_filename[ 128 ];
 
 	sprintf( temp_filename, "/tmp/regression_temp_%d.csv", getpid() );
 	return strdup( temp_filename );
-} /* regression_get_temp_filename() */
+}
 
 LINEAR_REGRESSION *regression_linear_regression_new(
 					void )
@@ -126,7 +126,7 @@ LINEAR_REGRESSION *regression_linear_regression_new(
 
 	return r;
 
-} /* regression_linear_regression_new() */
+}
 
 CURVILINEAR_REGRESSION *regression_curvilinear_regression_new(
 					void )
@@ -146,7 +146,7 @@ CURVILINEAR_REGRESSION *regression_curvilinear_regression_new(
 
 	return r;
 
-} /* regression_curvilinear_regression_new() */
+}
 
 LINEAR_REGRESSION *regression_get_linear_regression(
 						char *temp_filename )
@@ -320,7 +320,7 @@ LINEAR_REGRESSION *regression_get_linear_regression(
 	pclose( input_pipe );
 	return linear_regression;
 
-} /* regression_get_linear_regression() */
+}
 
 CURVILINEAR_REGRESSION *regression_get_curvilinear_regression(
 						char *temp_filename )
@@ -472,7 +472,7 @@ CURVILINEAR_REGRESSION *regression_get_curvilinear_regression(
 	pclose( input_pipe );
 	return curvilinear_regression;
 
-} /* regression_get_curvilinear_regression() */
+}
 
 LIST *regression_get_predictive_list(
 			double a,
@@ -498,7 +498,7 @@ LIST *regression_get_predictive_list(
 	}
 
 	return predictive_list;
-} /* regression_get_predictive_list() */
+}
 
 void regression_remove_temp_file( char *temp_filename )
 {
@@ -507,7 +507,7 @@ void regression_remove_temp_file( char *temp_filename )
 	sprintf( sys_string, "rm -f %s", temp_filename );
 	if ( system( sys_string ) ){};
 
-} /* regression_remove_temp_file() */
+}
 
 void regression_output_statistics_table(
 				char *statistics_filename )
@@ -673,5 +673,5 @@ void regression_output_statistics_table(
 	fclose( input_file );
 	pclose( output_pipe );
 
-} /* regression_output_statistics_table() */
+}
 
