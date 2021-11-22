@@ -31,33 +31,33 @@ typedef struct
 	double percent_missing;
 	char *begin_date;
 	char *end_date;
-} QUERY_STATISTIC_ATTRIBUTE_AGGREGATE;
+} QUERY_STATISTIC_AGGREGATE;
 
-/* QUERY_STATISTIC_ATTRIBUTE_AGGREGATE operations */
-/* ---------------------------------------------- */
-QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
-	query_statistic_attribute_aggregate_calloc(
+/* QUERY_STATISTIC_AGGREGATE operations */
+/* ------------------------------------ */
+QUERY_STATISTIC_AGGREGATE *
+	query_statistic_aggregate_calloc(
 			void );
 
-QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
-	query_statistic_attribute_aggregate_new(
+QUERY_STATISTIC_AGGREGATE *
+	query_statistic_aggregate_new(
 			boolean is_date,
 			int piece_offset,
 			LIST *record_list );
 
-FILE *query_statistic_attribute_aggregate_output_pipe(
+FILE *query_statistic_aggregate_output_pipe(
 			boolean is_date,
-			char *output_filename );
+			char *aggregate_filename );
 
-void query_statistic_attribute_aggregate_generate(
+void query_statistic_aggregate_generate(
 			FILE *output_pipe,
 			int piece_offset,
 			LIST *record_list );
 
-QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
-	query_statistic_attribute_aggregate_file_read(
+QUERY_STATISTIC_AGGREGATE *
+	query_statistic_aggregate_read(
 			boolean is_date,
-			char *query_statistic_attribute_aggregate_filename );
+			char *aggregate_filename );
 
 typedef struct
 {
@@ -70,14 +70,20 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	QUERY_STATISTIC_ATTRIBUTE_AGGREGATE *
-		query_statistic_attribute_aggregate;
+	QUERY_STATISTIC_AGGREGATE *
+		query_statistic_aggregate;
 
 	char *html;
 } QUERY_STATISTIC_ATTRIBUTE;
 
 /* QUERY_STATISTIC_ATTRIBUTE operations */
 /* ------------------------------------ */
+LIST *query_statistic_attribute_list(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list,
+			LIST *query_statistic_record_list );
+
 QUERY_STATISTIC_ATTRIBUTE *
 	query_statistic_attribute_calloc(
 			void );
@@ -94,7 +100,7 @@ QUERY_STATISTIC_ATTRIBUTE *
 char *query_statistic_attribute_html(
 			char *folder_attribute_name,
 			boolean is_date,
-			QUERY_STATISTIC_ATTRIBUTE_AGGREGATE * );
+			QUERY_STATISTIC_AGGREGATE * );
 
 typedef struct
 {
@@ -135,6 +141,19 @@ LIST *query_statistic_record_list(
 /* Returns heap memory */
 /* ------------------- */
 char *query_statistic_html(
+			char *from_clause,
+			char *where_clause,
 			LIST *query_statistic_attribute_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_statistic_title_html(
+			char *from_clause,
+			char *where_clause );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_statistic_heading_html(
+			void );
 
 #endif
