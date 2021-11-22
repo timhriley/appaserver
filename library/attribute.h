@@ -56,6 +56,10 @@ ATTRIBUTE *attribute_seek(
 			char *attribute_name,
 			LIST *attribute_list );
 
+boolean attribute_exists(
+			char *attribute_name,
+			LIST *attribute_list );
+
 /* Returns heap memory */
 /* ------------------- */
 char *attribute_system_string(

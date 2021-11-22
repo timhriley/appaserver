@@ -15,8 +15,8 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "application.h"
+#include "statistics_weighted.h"
 #include "query_statistic.h"
-#include "html_table.h"
 
 QUERY_STATISTIC_AGGREGATE *
 	query_statistic_aggregate_read(
@@ -28,8 +28,8 @@ QUERY_STATISTIC_AGGREGATE *
 	char data[ 128 ];
 	FILE *file;
 
-	QUERY_ATTRIBUTE_STATISTIC_AGGREGATE *q =
-		query_attribute_statistic_aggregate_calloc();
+	QUERY_STATISTIC_AGGREGATE *q =
+		query_statistic_aggregate_calloc();
 
 	if ( ! ( file = fopen( aggregate_filename, "r" ) ) )
 	{
@@ -175,545 +175,6 @@ QUERY_STATISTIC_AGGREGATE *
 	return q;
 }
 
-LIST *query_statistics_select_attribute_name_list(
-			char *application_name,
-			LIST *query_statistics )
-{
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	char folder_attribute[ 1024 ];
-	LIST *select_attribute_name_list;
-
-	if ( !list_rewind( query_statistics ) ) return (LIST *)0;
-
-	select_attribute_name_list = list_new();
-
-	do {
-		query_attribute_statistics =
-			(QUERY_ATTRIBUTE_STATISTICS *)
-				list_get(
-					query_statistics );
-
-		if ( !query_attribute_statistics->folder_name )
-		{
-			list_append_pointer(	select_attribute_name_list,
-						query_attribute_statistics->
-							attribute_name );
-		}
-		else
-		{
-			sprintf( folder_attribute,
-				 "%s.%s",
-				 get_table_name(
-					application_name,
-				 	query_attribute_statistics->
-						folder_name ),
-				 query_attribute_statistics->attribute_name );
-
-			list_append_pointer(	select_attribute_name_list,
-						strdup( folder_attribute ) );
-		}
-
-	} while( list_next( query_statistics ) );
-
-	return select_attribute_name_list;
-
-}
-
-char *query_statistics_build_each_temp_file_sys_string(
-			char *application_name,
-			char *folder_name,
-			LIST *query_statistics,
-			char *where_clause )
-{
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	LIST *select_attribute_name_list;
-	char sys_string[ QUERY_WHERE_BUFFER ];
-	char *table_name;
-	char *ptr = sys_string;
-
-	table_name = get_multi_table_name( application_name, folder_name );
-
-	select_attribute_name_list =
-		query_statistics_select_attribute_name_list(
-			application_name,
-			query_statistics );
-
-	if ( !select_attribute_name_list ) return (char *)0;
-
-	list_rewind( query_statistics );
-
-	if ( where_clause && *where_clause )
-	{
-		ptr += sprintf(
-			ptr,
-		 	"echo 	      \"select %s			     "
-		 	"	 	from %s				     "
-		 	"	 	where %s;\"		            |"
-		 	"sql_quick.e '%c'		     		    |",
-		 	list_display_delimited(
-				select_attribute_name_list, ',' ),
-			table_name,
-			where_clause,
-			QUERY_ATTRIBUTE_STATISTICS_DELIMITER );
-	}
-	else
-	{
-		ptr += sprintf(
-			ptr,
-		 	"echo 	      \"select %s			     "
-		 	"	 	from %s;\"			    |"
-		 	"sql_quick.e '%c'		     		    |",
-		 	list_display_delimited(
-				select_attribute_name_list, ',' ),
-			table_name,
-			QUERY_ATTRIBUTE_STATISTICS_DELIMITER );
-	}
-
-	do {
-		query_attribute_statistics =
-			list_get(
-				query_statistics );
-
-		if ( query_attribute_is_valid_non_date_datatype(
-			query_attribute_statistics->attribute_datatype ) )
-		{
-			ptr += sprintf(
-				ptr,
-				"tee_process.e 				 "
-				"	\"piece.e '%c' %d 	 	|"
-				"	  statistics_weighted.e '%c' 	|"
-				"	  cat > %s\"			|",
-				QUERY_ATTRIBUTE_STATISTICS_DELIMITER,
-				query_attribute_statistics->input_piece,
-				QUERY_ATTRIBUTE_STATISTICS_DELIMITER,
-				query_attribute_statistics->
-					attribute_statistics_temp_filename );
-		}
-		else
-		if ( query_attribute_is_valid_date_datatype(
-					query_attribute_statistics->
-						attribute_datatype ) )
-		{
-			ptr += sprintf(
-				ptr,
-				"tee_process.e 				 "
-				"	\"date_min_max.e %d '%c' '%s' 	|"
-				"	  cat > %s\"		|",
-				query_attribute_statistics->input_piece,
-				QUERY_ATTRIBUTE_STATISTICS_DELIMITER,
-				"" /* database_management_system */,
-				query_attribute_statistics->
-					attribute_statistics_temp_filename );
-		}
-	} while( list_next( query_statistics ) );
-
-	sprintf( ptr, "cat > /dev/null" );
-
-	return strdup( sys_string );
-
-}
-
-void query_statistics_output_folder_count(
-			char *application_name,
-			char *folder_name,
-			char *where_clause,
-			LIST *query_statistics )
-{
-	HTML_TABLE *html_table;
-	char title[ 65536 ];
-	char buffer[ 1024 ];
-	LIST *heading_list;
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	char count[ 128 ];
-	char display_where_clause[ QUERY_WHERE_BUFFER ];
-
-	query_attribute_display_where_clause(
-		display_where_clause,
-		where_clause,
-		application_name,
-		folder_name );
-
-	sprintf(title, 
-		"%s: %s",
-		format_initial_capital( buffer, folder_name ),
-		display_where_clause );
-
-	html_table = new_html_table(
-			title,
-			(char *)0 /* sub_title */ );
-
-	html_table_set_number_left_justified_columns(
-			html_table, 1 );
-
-	html_table_set_number_right_justified_columns(
-			html_table, 9 );
-
-	heading_list = new_list();
-	list_append_pointer( heading_list, "Count" );
-	
-	html_table_set_heading_list( html_table, heading_list );
-	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
-	html_table_output_data_heading(
-			html_table->heading_list,
-			html_table->number_left_justified_columns,
-			html_table->number_right_justified_columns,
-			html_table->justify_list );
-
-
-	if ( !list_length( query_statistics ) ) return;
-
-	query_attribute_statistics =
-			list_first_pointer(
-				query_statistics );
-
-	if ( query_attribute_statistics->count != -1 )
-	{
-		sprintf( count,
-		 	"%ld",
-		 	query_attribute_statistics->count );
-
-		html_table_set_data(	html_table->data_list,
-					strdup( count ) );
-	}
-	else
-	{
-		html_table_set_data(	html_table->data_list,
-					strdup( "" ) );
-	}
-
-	html_table_output_data(
-			html_table->data_list,
-			html_table->number_left_justified_columns,
-			html_table->number_right_justified_columns,
-			html_table->background_shaded,
-			html_table->justify_list );
-
-
-	html_table_close();
-
-}
-
-char *query_statistic_html(
-			LIST *query_statistic_attribute_list )
-{
-	HTML_TABLE *html_table;
-	char title[ QUERY_WHERE_BUFFER ];
-	char buffer[ 1024 ];
-	LIST *heading_list;
-	QUERY_ATTRIBUTE_STATISTICS *query_attribute_statistics;
-	char count[ 128 ];
-	char sum[ 128 ];
-	char average[ 128 ];
-	char standard_deviation[ 128 ];
-	char coefficient_of_variation[ 128 ];
-	char minimum[ 128 ];
-	char median[ 128 ];
-	char maximum[ 128 ];
-	char range[ 128 ];
-	char percent_missing[ 128 ];
-	char local_where_clause[ QUERY_WHERE_BUFFER ];
-	char remove_name_string[ 1024 ];
-	char attribute_buffer[ 128 ];
-
-	strcpy( local_where_clause, where_clause );
-	search_replace_string( 
-		local_where_clause, "1 = 1 and ", "" );
-
-	search_replace_string( 
-		local_where_clause, "1 = 1", "entire folder" );
-
-	sprintf(remove_name_string,
-		"%s.",
-		get_table_name( application_name,
-				folder_name ) );
-
-	search_replace_string(
-		local_where_clause,
-		remove_name_string,
-		"" );
-
-	sprintf( remove_name_string, "%s.", folder_name );
-
-	search_replace_string(	local_where_clause,
-				remove_name_string,
-				"" );
-
-	sprintf(title,
-		"%s: %s",
-		format_initial_capital( buffer, folder_name ),
-		local_where_clause );
-
-	html_table =
-		new_html_table(
-			title,
-			(char *)0 /* sub_title */ );
-
-	html_table_set_number_left_justified_columns(
-			html_table, 1 );
-
-	html_table_set_number_right_justified_columns(
-			html_table, 10 );
-
-	heading_list = new_list();
-	list_append_pointer( heading_list, "Attribute" );
-	list_append_pointer( heading_list, "Count" );
-	list_append_pointer( heading_list, "Sum" );
-	list_append_pointer( heading_list, "Average" );
-	list_append_pointer( heading_list, "Minimum" );
-	list_append_pointer( heading_list, "Median" );
-	list_append_pointer( heading_list, "Maximum" );
-	list_append_pointer( heading_list, "Range" );
-	list_append_pointer( heading_list, "Standard Deviation" );
-	list_append_pointer( heading_list, "Coefficient of Variation" );
-	list_append_pointer( heading_list, "Percent Missing" );
-	
-	html_table_set_heading_list( html_table, heading_list );
-	html_table_output_table_heading(
-					html_table->title,
-					html_table->sub_title );
-	html_table_output_data_heading(
-			html_table->heading_list,
-			html_table->number_left_justified_columns,
-			html_table->number_right_justified_columns,
-			html_table->justify_list );
-
-
-	if ( !list_rewind( query_statistics ) ) return;
-
-	do {
-		query_attribute_statistics =
-			list_get(
-				query_statistics );
-
-		if ( query_attribute_statistics->units_string
-		&&   *query_attribute_statistics->units_string )
-		{
-			if ( *query_attribute_statistics->
-					units_string == '(' )
-			{
-				sprintf(attribute_buffer,
-				"%s %s",
-				query_attribute_statistics->attribute_name,
-				query_attribute_statistics->units_string );
-			}
-			else
-			{
-				sprintf(attribute_buffer,
-				"%s (%s)",
-				query_attribute_statistics->attribute_name,
-				query_attribute_statistics->units_string );
-			}
-		}
-		else
-		{
-			if ( query_attribute_statistics->primary_key )
-			{
-				sprintf( attribute_buffer,
-					 "*%s",
-					 query_attribute_statistics->
-						attribute_name );
-			}
-			else
-			{
-				strcpy( attribute_buffer, 
-					query_attribute_statistics->
-						attribute_name );
-			}
-		}
-
-		format_initial_capital(
-				attribute_buffer,
-				attribute_buffer );
-
-		html_table_set_data( html_table->data_list,
-				     strdup( attribute_buffer ) );
-	
-		if ( query_attribute_statistics->count == -1 )
-		{
-			strcpy( count, "" );
-			strcpy( percent_missing, "" );
-		}
-		else
-		{
-/*
-			sprintf( count,
-			 	"%ld",
-			 	query_attribute_statistics->count );
-*/
-			sprintf( count,
-				 "%s",
-				 place_commas_in_unsigned_long(
-					query_attribute_statistics->count ) );
-
-			sprintf( percent_missing,
-			 	"%.3lf",
-			 	query_attribute_statistics->percent_missing );
-		}
-	
-		if ( strcmp( 	query_attribute_statistics->attribute_datatype,
-				"float" ) == 0
-		||   strcmp( 	query_attribute_statistics->attribute_datatype,
-				"reference_number" ) == 0
-		||   strcmp( 	query_attribute_statistics->attribute_datatype,
-				"integer" ) == 0 )
-		{
-			sprintf( average,
-				 "%.5lf",
-				 query_attribute_statistics->average );
-	
-			sprintf( sum,
-				 "%s",
-				 place_commas_in_double(
-					query_attribute_statistics->sum ) );
-
-			if ( query_attribute_statistics->count
-			&&   query_attribute_statistics->sum
-			&&   !query_attribute_statistics->minimum
-			&&   !query_attribute_statistics->median
-			&&   !query_attribute_statistics->maximum )
-			{
-				strcpy( minimum, "Overflow" );
-				strcpy( median, "Overflow" );
-				strcpy( maximum, "Overflow" );
-				strcpy( range, "Overflow" );
-				strcpy( standard_deviation, "Overflow" );
-				strcpy( coefficient_of_variation, "Overflow" );
-			}
-			else
-			{
-				sprintf( minimum,
-					 "%s",
-				 	 place_commas_in_double(
-						query_attribute_statistics->
-							minimum ) );
-		
-				sprintf( median,
-					 "%s",
-				 	 place_commas_in_double(
-						query_attribute_statistics->
-							median ) );
-		
-				sprintf( maximum,
-					 "%s",
-				 	 place_commas_in_double(
-						query_attribute_statistics->
-							maximum ) );
-		
-				sprintf( range,
-					 "%s",
-				 	 place_commas_in_double(
-						query_attribute_statistics->
-							range ) );
-		
-				sprintf( standard_deviation,
-					 "%.2lf",
-					 query_attribute_statistics->
-						standard_deviation );
-		
-				sprintf( coefficient_of_variation,
-					 "%.2lf",
-					 query_attribute_statistics->
-						coefficient_of_variation );
-			}
-	
-			html_table_set_data(	html_table->data_list,
-						strdup( count ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( sum ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( average ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( minimum ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( median ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( maximum ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( range ) );
-			html_table_set_data(	html_table->data_list,
-						strdup( standard_deviation ) );
-			html_table_set_data(	html_table->data_list,
-						strdup(
-						coefficient_of_variation ) );
-			html_table_set_data(
-					html_table->data_list,
-					strdup( percent_missing ) );
-		}
-		else
-		{
-			html_table_set_data(	html_table->data_list,
-						strdup( count ) );
-			html_table_set_data(	html_table->data_list,
-						"" );
-			html_table_set_data(	html_table->data_list,
-						"" );
-			html_table_set_data(	html_table->data_list,
-						strdup(
-						query_attribute_statistics->
-							begin_date ) );
-			html_table_set_data(	html_table->data_list,
-						"" );
-			html_table_set_data(	html_table->data_list,
-						strdup(
-						query_attribute_statistics->
-							end_date ) );
-			html_table_set_data(	html_table->data_list,
-						"" );
-			html_table_set_data(	html_table->data_list,
-						"" );
-			html_table_set_data(	html_table->data_list,
-						"" );
-			html_table_set_data(
-					html_table->data_list,
-					strdup( percent_missing ) );
-		}
-
-		html_table_output_data(
-				html_table->data_list,
-				html_table->number_left_justified_columns,
-				html_table->number_right_justified_columns,
-				html_table->background_shaded,
-				html_table->justify_list );
-
-		html_table->data_list = list_new();
-
-	} while( list_next( query_statistics ) );
-
-	html_table_close();
-}
-
-void query_attribute_display_where_clause(
-		char *display_where_clause,
-		char *where_clause,
-		char *application_name,
-		char *folder_name )
-{
-	char remove_folder_name_string[ 1024 ];
-
-	strcpy( display_where_clause, where_clause );
-	search_replace_string( 
-		display_where_clause, "1 = 1 and ", "" );
-
-	search_replace_string( 
-		display_where_clause, "1 = 1", "entire folder" );
-
-	sprintf( remove_folder_name_string, "%s_%s.",
-		 application_name,
-		 folder_name );
-
-	search_replace_string(	display_where_clause,
-				remove_folder_name_string,
-				"" );
-
-	sprintf( remove_folder_name_string, "%s.", folder_name );
-
-	search_replace_string(	display_where_clause,
-				remove_folder_name_string,
-				"" );
-}
-
 QUERY_STATISTIC_AGGREGATE *
 	query_statistic_aggregate_calloc(
 			void )
@@ -746,7 +207,9 @@ QUERY_STATISTIC_AGGREGATE *
 	QUERY_STATISTIC_AGGREGATE *
 		query_statistic_aggregate;
 
-	char *aggregate_filename = timlib_temp_filename();
+	char *aggregate_filename =
+		timlib_temp_filename(
+			(char *)0 /* key */ );
 
 	FILE *output_pipe =
 		query_statistic_aggregate_output_pipe(
@@ -779,7 +242,7 @@ FILE *query_statistic_aggregate_output_pipe(
 	if ( !is_date )
 	{
 		sprintf(system_string,
-			"statistics_weighted.e >%s"
+			"statistics_weighted.e >%s",
 			aggregate_filename );
 	}
 	else
@@ -851,6 +314,15 @@ QUERY_STATISTIC_ATTRIBUTE *
 {
 	QUERY_STATISTIC_ATTRIBUTE *query_statistic_attribute =
 		query_statistic_attribute_calloc();
+
+	query_statistic_attribute->folder_attribute_name =
+		folder_attribute_name;
+
+	query_statistic_attribute->query_statistic_aggregate =
+		query_statistic_aggregate_new(
+			is_date,
+			piece_offset,
+			record_list );
 
 	return query_statistic_attribute;
 }
@@ -950,7 +422,7 @@ char *query_statistic_attribute_html(
 	ptr += sprintf(
 		ptr,
 		"<tr>\n<td align=left>%s\n",
-		string_format_capital(
+		string_initial_capital(
 			buffer,
 			folder_attribute_name ) );
 
@@ -1022,6 +494,7 @@ char *query_statistic_attribute_html(
 				 "%.2lf",
 				 query_statistic_aggregate->
 					coefficient_of_variation );
+		}
 
 		ptr += sprintf(
 			ptr,
@@ -1116,7 +589,6 @@ char *query_statistic_heading_html( void )
 	static char html[ 1024 ];
 	char *ptr = html;
 
-	ptr += sprintf( ptr, "<table border>\n<tr>\n" );
 	ptr += sprintf( ptr, "<th align=left>Attribute</th>\n" );
 	ptr += sprintf( ptr, "<th align=right>Count</th>\n" );
 	ptr += sprintf( ptr, "<th align=right>Sum</th>\n" );
@@ -1155,6 +627,8 @@ char *query_statistic_html(
 
 	free( title_html );
 
+	ptr += sprintf( ptr, "<table border>\n<tr>\n" );
+
 	ptr += sprintf(
 		ptr,
 		"%s\n",
@@ -1190,4 +664,130 @@ char *query_statistic_html(
 	ptr += sprintf( ptr, "</table>\n" );
 
 	return strdup( html );
+}
+
+QUERY_STATISTIC *query_statistic_calloc( void )
+{
+	QUERY_STATISTIC *query_statistic;
+
+	if ( ! ( query_statistic = calloc( 1, sizeof( QUERY_STATISTIC ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_statistic;
+}
+
+QUERY_STATISTIC *query_statistic_new(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list,
+			char *from_clause,
+			char *where_clause )
+{
+	QUERY_STATISTIC *query_statistic = query_statistic_calloc();
+
+	query_statistic->record_list =
+		query_statistic_record_list(
+			folder_attribute_number_name_list,
+			folder_attribute_date_name_list,
+			folder_attribute_date_time_name_list,
+			from_clause,
+			where_clause );
+
+	query_statistic->attribute_list =
+		query_statistic_attribute_list(
+			folder_attribute_number_name_list,
+			folder_attribute_date_name_list,
+			folder_attribute_date_time_name_list,
+			query_statistic->record_list );
+
+	query_statistic->html =
+		query_statistic_html(
+			from_clause,
+			where_clause,
+			query_statistic->attribute_list );
+
+	return query_statistic;
+}
+
+LIST *query_statistic_record_list(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list,
+			char *from_clause,
+			char *where_clause )
+{
+	char system_string[ 4096 ];
+	char *select;
+
+	if ( ! ( select =
+			query_statistic_select(
+				folder_attribute_number_name_list,
+				folder_attribute_date_name_list,
+				folder_attribute_date_time_name_list ) ) )
+	{
+		return (LIST *)0;
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		select,
+		from_clause,
+		where_clause );
+
+	return list_pipe_fetch( system_string );
+}
+
+char *query_statistic_select(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list )
+{
+	static char select[ 4096 ];
+	char *ptr = select;
+
+	if ( list_length( folder_attribute_number_name_list ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			list_display_delimited(
+				folder_attribute_number_name_list,
+				',' ) );
+	}
+
+	if ( list_length( folder_attribute_date_name_list ) )
+	{
+		if ( ptr != select ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			list_display_delimited(
+				folder_attribute_date_name_list,
+				',' ) );
+	}
+
+	if ( list_length( folder_attribute_date_time_name_list ) )
+	{
+		if ( ptr != select ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			list_display_delimited(
+				folder_attribute_date_time_name_list,
+				',' ) );
+	}
+
+	if ( ptr == select )
+		return (char *)0;
+	else
+		return select;
 }

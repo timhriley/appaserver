@@ -55,6 +55,16 @@ ATTRIBUTE *attribute_seek(
 	return (ATTRIBUTE *)0;
 }
 
+boolean attribute_exists(
+			char *attribute_name,
+			LIST *attribute_list )
+{
+	if ( attribute_seek( attribute_name, attribute_list ) )
+		return 1;
+	else
+		return 0;
+}
+
 char *attribute_system_string( char *where )
 {
 	char system_string[ 1024 ];

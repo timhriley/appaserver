@@ -115,7 +115,7 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *record_list;
-	LIST *query_statistic_attribute_list;
+	LIST *attribute_list;
 	char *html;
 } QUERY_STATISTIC;
 
@@ -155,5 +155,12 @@ char *query_statistic_title_html(
 /* --------------------- */
 char *query_statistic_heading_html(
 			void );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *query_statistic_select(
+			LIST *folder_attribute_number_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_date_time_name_list );
 
 #endif
