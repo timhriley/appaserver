@@ -43,7 +43,7 @@ ROW_SECURITY *row_security_calloc( void )
 	return row_security;
 }
 
-ROW_SECURITY *row_security_new(
+ROW_SECURITY *row_security_folder_new(
 			char *application_name,
 			FOLDER *folder,
 			ROLE *role,

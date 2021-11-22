@@ -1,4 +1,4 @@
-/* library/row_security.h				   */
+/* $APPASERVER_HOME/library/row_security.h		   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -21,6 +21,13 @@ typedef struct
 	char *attribute_not_null_string;
 	ROLE *role;
 } ROW_SECURITY_ROLE_UPDATE;
+
+/* ROW_SECURITY_ROLE_UPDATE operations */
+/* ----------------------------------- */
+ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
+			char *folder_name,
+			char *attribute_not_null_string,
+			ROLE *role );
 
 typedef struct
 {
@@ -48,17 +55,12 @@ typedef struct
 	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
 } ROW_SECURITY;
 
-/* Operations */
-/* ---------- */
-ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
-			char *folder_name,
-			char *attribute_not_null_string,
-			ROLE *role );
-
+/* ROW_SECURITY operations */
+/* ----------------------- */
 ROW_SECURITY *row_security_calloc(
 			void );
 
-ROW_SECURITY *row_security_new(
+ROW_SECURITY *row_security_folder_new(
 			char *application_name,
 			FOLDER *folder,
 			ROLE *role,

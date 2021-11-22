@@ -1339,7 +1339,7 @@ DICTIONARY *output_folder_detail(
 		update_yn = role_folder->update_yn;
 
 	row_security =
-		row_security_new(
+		row_security_detail_new(
 			application_name,
 			folder,
 			role,

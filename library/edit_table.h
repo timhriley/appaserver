@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/edit_table_form.h				*/
+/* $APPASERVER_HOME/library/edit_table.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef EDIT_TABLE_FORM_H
-#define EDIT_TABLE_FORM_H
+#ifndef EDIT_TABLE_H
+#define EDIT_TABLE_H
 
 /* Includes */
 /* -------- */
@@ -42,14 +42,14 @@ typedef struct
 	DICTIONARY_SEPARATE *dictionary_separate;
 	boolean primary_keys_non_edit;
 
-} EDIT_TABLE_FORM;
+} EDIT_TABLE;
 
 /* Prototypes */
 /* ---------- */
-EDIT_TABLE_FORM *edit_table_form_calloc(
+EDIT_TABLE *edit_table_calloc(
 			void );
 
-EDIT_TABLE_FORM *edit_table_form_fetch(
+EDIT_TABLE *edit_table_fetch(
 			char *application_name,
 			char *login_name,
 			char *session,
@@ -61,10 +61,10 @@ EDIT_TABLE_FORM *edit_table_form_fetch(
 
 /* Returns program memory */
 /* ---------------------- */
-char *edit_table_form_state(
+char *edit_table_state(
 			LIST *role_folder_list );
 
-boolean edit_table_form_primary_keys_non_edit(
+boolean edit_table_primary_keys_non_edit(
 			int relation_mto1_isa_list_length );
 
 #endif

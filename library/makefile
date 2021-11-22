@@ -107,7 +107,7 @@ APPASERVER_LIBRARY=						\
 		pair_one2m.o					\
 		mysqldump.o					\
 		prompt_edit_form.o				\
-		edit_table_form.o				\
+		edit_table.o					\
 		insert_table_form.o				\
 		frameset_link_file.o				\
 		menu.o						\
@@ -145,15 +145,6 @@ covariance_dvr.e: covariance_dvr.c covariance.o
 		${STANDARD_LIBRARY}					\
 		covariance.o						\
 	   -o covariance_dvr.e
-
-row_security_dvr.e: row_security_dvr.c					\
-		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		row_security_dvr.c					\
-		${APPASERVER_LIBRARY}					\
-		${STANDARD_LIBRARY}					\
-	   -o row_security_dvr.e
 
 fifo_dvr.e: fifo_dvr.c fifo.o
 	${CC} ${CFLAGS} -I${LIBRARY} fifo_dvr.c				\
@@ -976,8 +967,8 @@ prompt_edit_form.o: prompt_edit_form.c prompt_edit_form.h
 insert_table_form.o: insert_table_form.c insert_table_form.h
 	${CC} ${CFLAGS} -c insert_table_form.c
 
-edit_table_form.o: edit_table_form.c edit_table_form.h
-	${CC} ${CFLAGS} -c edit_table_form.c
+edit_table.o: edit_table.c edit_table.h
+	${CC} ${CFLAGS} -c edit_table.c
 
 frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 	${CC} ${CFLAGS} -c frameset_link_file.c
