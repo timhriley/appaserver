@@ -11,6 +11,8 @@
 #include <ctype.h>
 #include <malloc.h>
 #include "environ.h"
+#include "appaserver_library.h"
+#include "frameset.h"
 #include "edit_table.h"
 
 EDIT_TABLE *edit_table_calloc( void )
@@ -31,7 +33,7 @@ EDIT_TABLE *edit_table_calloc( void )
 	return edit_table;
 }
 
-EDIT_TABLE *edit_table_fetch(
+EDIT_TABLE *edit_table_new(
 			char *application_name,
 			char *login_name,
 			char *session,
@@ -39,20 +41,15 @@ EDIT_TABLE *edit_table_fetch(
 			char *role_name,
 			char *insert_update_key,
 			char *target_frame,
-			POST_DICTIONARY *post_dictionary )
+			DICTIONARY *query_dictionary,
+			DICTIONARY *ignore_dictionary,
+			DICTIONARY *non_prefixed_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *sort_dictionary,
+			LIST *ignore_select_attribute_name_list )
 {
 	EDIT_TABLE *edit_table = edit_table_calloc();
-
-	/* Input */
-	/* ----- */
-	edit_table->application_name = application_name;
-	edit_table->login_name = login_name;
-	edit_table->session = session;
-	edit_table->folder_name = folder_name;
-	edit_table->role_name = role_name;
-	edit_table->insert_update_key = insert_update_key;
-	edit_table->target_frame = target_frame;
-	edit_table->post_dictionary = post_dictionary;
 
 	/* Process */
 	/* ------- */
@@ -74,8 +71,14 @@ EDIT_TABLE *edit_table_fetch(
 	if ( ! ( edit_table->folder =
 			folder_fetch(
 				folder_name,
+				/* ------------------------- */
+				/* Fetching role_folder_list */
+				/* ------------------------- */
+				role_name,
 				role_exclude_lookup_attribute_name_list(
-					role->attribute_exclude_list ),
+					edit_table->
+						role->
+						attribute_exclude_list ),
 				/* -------------------------- */
 				/* Also sets primary_key_list */
 				/* -------------------------- */
@@ -88,8 +91,9 @@ EDIT_TABLE *edit_table_fetch(
 				1 /* fetch_relation_one2m_list */,
 				0 /* not fetch_relation_one2m_recursive_list */,
 				0 /* not fetch_process */,
-				0 /* not fetch_role_folder_list */,
-				0 /* not fetch_row_level_restriction */ ) ) )
+				1 /* fetch_role_folder_list */,
+				1 /* fetch_row_level_restriction */,
+				1 /* fetch_role_operation_list */ ) ) )
 	{
 		fprintf(stderr,
 	"Warning in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
@@ -101,57 +105,50 @@ EDIT_TABLE *edit_table_fetch(
 		return (EDIT_TABLE *)0;
 	}
 
-	if ( ! ( edit_table->role_folder_list =
-			role_folder_fetch_list(
-				role_name,
-				folder_name ) ) )
+	edit_table->folder->join_one2m_relation_list =
+		relation_join_one2m_list(
+			edit_table->folder->relation_one2m_recursive_list,
+			ignore_dictionary );
+
+	if ( ! ( edit_table->query =
+			query_edit_table(
+				edit_table->folder,
+				query_dictionary ) ) )
 	{
 		fprintf(stderr,
-"Warning in %s/%s()/%d: role_folder_fetch_list(%s,%s) returned empty.\n",
+		"Warning in %s/%s()/%d: query_edit_table(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			role_name,
 			folder_name );
 
-		return (EDIT_TABLE_FORM *)0;
+		return (EDIT_TABLE *)0;
 	}
 
-	if ( ! ( edit_table->edit_table_state =
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			edit_table_state(
-				edit_table_form->
-					role_folder_list ) ) )
-	{
-		fprintf(stderr,
-"Warning in %s/%s()/%d: edit_table_state(%s,%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			role_name,
-			folder_name );
+	edit_table->state =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		edit_table_state(
+			edit_table->
+				folder->
+				role_folder_list );
 
-		return (EDIT_TABLE_FORM *)0;
-	}
+	edit_table->with_dynarch_menu =
+		edit_table_with_dynarch_menu(
+			target_frame );
 
-	edit_table->dictionary_appaserver =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		dictionary_appaserver_stream_new(
-			edit_table->post_dictionary,
-			edit_table->application_name,
-			edit_table->login_name,
-			attribute_name_list(
-				edit_table->
-					folder->
-					attribute_list ),
-			attribute_date_name_list(
-				edit_table->
-					folder->
-					attribute_list ) );
+	edit_table->row_insert_count =
+		edit_table_row_insert_count(
+			non_prefixed_dictionary );
+
+	edit_table->cell_update_count =
+		edit_table_cell_update_count(
+			non_prefixed_dictionary );
+
+	edit_table->results_string =
+		edit_table_results_string(
+			non_prefixed_dictionary );
 
 	edit_table->primary_key_non_edit =
 		edit_table_primary_keys_non_edit(
@@ -160,12 +157,17 @@ EDIT_TABLE *edit_table_fetch(
 					folder->
 					relation_mto1_isa_list_length ) );
 
-	edit_table->folder->join_one2m_relation_list =
-		relation_join_one2m_list(
-			edit_table->
-				folder->
-				relation_one2m_list,
-			dictionary_appaserver->ignore_dictionary );
+	edit_table->row_security =
+		row_security_edit_table(
+			folder_name,
+			edit_table->folder->folder_attribute_append_isa_list,
+			drillthru_dictionary,
+			edit_table->primary_keys_non_edit,
+			edit_table->folder->role_operation_list,
+			edit_table->state );
+
+	edit_table->document =
+		document_edit_table(
 
 	return edit_table;
 }
@@ -186,3 +188,70 @@ boolean edit_table_primary_keys_non_edit(
 {
 	return ( relation_mto1_isa_list_length >= 1 );
 }
+
+boolean edit_table_with_dynarch_menu(
+			char *target_frame )
+{
+	return ( strcmp( target_frame, FRAMESET_PROMPT_FRAME ) == 0 );
+}
+
+int edit_table_row_insert_count(
+			DICTIONARY *non_prefixed_dictionary )
+{
+	char *row_insert_count;
+
+	if ( ( row_insert_count =
+		dictionary_get(
+			ROWS_INSERTED_COUNT_KEY
+			non_prefixed_dictionary ) ) )
+	{
+		return atoi( row_insert_count );
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+int edit_table_cell_update_count(
+			DICTIONARY *non_prefixed_dictionary )
+{
+	char *cell_update_count;
+
+	if ( ( cell_update_count =
+		dictionary_get(
+			COLUMNS_UPDATED_KEY,
+			non_prefixed_dictionary ) ) )
+	{
+		return atoi( cell_update_count );
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+char *edit_table_cell_update_folder_list_string(
+			DICTIONARY *non_prefixed_dictionary )
+{
+	return
+		dictionary_get(
+			COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
+			non_prefixed_dictionary );
+}
+
+char *edit_table_results_string(
+			DICTIONARY *non_prefixed_dictionary )
+{
+	return
+		dictionary_get(
+			non_prefixed_dictionary,
+			RESULTS_STRING_KEY );
+}
+
+boolean edit_table_content_type(
+			boolean with_dynarch_menu )
+{
+	return with_dynarch_menu;
+}
+

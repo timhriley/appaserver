@@ -55,7 +55,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define CONTENT_TYPE_YN				"output_content_type_yn"
 #define MAX_QUERY_ROWS_FORCE_DROP_DOWNS		5
 #define ROWS_INSERTED_COUNT_KEY			"rrows_inserted_count"
-#define DEFAULT_TARGET_FRAME			EDIT_FRAME
 #define MYSQL_DUPLICATE_ERROR_MESSAGE_KEY	"Duplicate entry"
 #define MULTI_ATTRIBUTE_KEY_DELIMITER		'|'
 #define MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER	'|'
@@ -67,9 +66,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define ONE2M_FOLDER_NAME_FOR_PROCESS		"one2m_folder_name_for_process"
 #define CHOOSE_FOLDER_MENU_NAME			"choose_folder_menu"
 #define CHOOSE_PROCESS_MENU_NAME		"choose_process_menu"
-#define MENU_FRAME				"menu_frame"
-#define PROMPT_FRAME				"prompt_frame"
-#define EDIT_FRAME				"edit_frame"
 #define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
 #define MENU_VERTICAL_PIXEL_COLUMNS		200
 #define MENU_HORIZONTAL_PIXEL_ROWS		35
@@ -79,7 +75,6 @@ enum preupdate_change_state {		from_null_to_something,
 						"-"
 #define ROWS_FOR_SUBMIT_AT_BOTTOM		6
 #define PROCESS_PROMPT_DEFAULT_WIDTH		25
-#define BOTTOM_FRAME_NAME			"bottomframe"
 #define NO_DISPLAY_PUSH_BUTTON_HEADING		"no_display"
 #define INSERT_NEW_TEXT_ITEM_PREFIX		"insert_"
 #define RADIO_NEW_PUSH_BUTTON_NAME		"new_button"
