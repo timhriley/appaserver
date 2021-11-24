@@ -776,4 +776,27 @@ LIST *query_primary_delimited_list(
 			LIST *foreign_key_list,
 			LIST *foreign_data_list );
 
+/* QUERY (Edit Table) */
+/* ------------------ */
+QUERY *query_edit_table(
+			char *folder_name,
+			SECURITY_ENTITY *security_entity,
+			LIST *relation_join_one2m_list,
+			LIST *ignore_select_attribute_name_list,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary );
+
+LIST *query_edit_table_select_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *ignore_select_attribute_name_list,
+			DATE_CONVERT *date_convert );
+
+QUERY_WHERE *query_edit_table_where(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			char *security_entity_where,
+			DICTIONARY *query_dictionary );
+
 #endif
