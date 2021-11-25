@@ -17,17 +17,73 @@
 
 typedef struct
 {
-	FOLDER *role_update_folder;
-	char *attribute_not_null_string;
-	ROLE *role;
+	/* Attributes */
+	/* ---------- */
+	char *one_folder_name;
+	char *attribute_not_null;
+
+	/* Process */
+	/* ------- */
+	LIST *relation_one2m_recursive_list;
+	boolean participating;
+	char *join;
+} ROW_SECURITY_ROLE_UPDATE_FOLDER;
+
+/* ROW_SECURITY_ROLE_UPDATE_FOLDER operations */
+/* ------------------------------------------ */
+ROW_SECURITY_ROLE_UPDATE_FOLDER *row_security_role_update_folder_calloc(
+			void );
+
+ROW_SECURITY_ROLE_UPDATE_FOLDER *row_security_role_update_folder_fetch(
+			char *folder_name,
+			LIST *primary_key_list );
+
+ROW_SECURITY_ROLE_UPDATE_FOLDER *row_security_role_update_folder_parse(
+			char *input );
+
+boolean row_security_role_update_folder_participating(
+			char *folder_name,
+			char *one_folder_name,
+			LIST *relation_one2m_recursive_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *row_security_role_update_folder_join(
+			char *folder_name,
+			char *one_folder_name,
+			LIST *primary_key_list );
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *folder_name;
+	LIST *primary_key_list;
+	boolean role_override_restrictions;
+
+	/* Process */
+	/* ------- */
+	ROW_SECURITY_ROLE_UPDATE_FOLDER *row_security_role_update_folder;
+	boolean viewonly;
 } ROW_SECURITY_ROLE_UPDATE;
 
 /* ROW_SECURITY_ROLE_UPDATE operations */
 /* ----------------------------------- */
+ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc(
+			void );
+
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
 			char *folder_name,
-			char *attribute_not_null_string,
-			ROLE *role );
+			LIST *primary_key_list,
+			boolean role_override_row_restrictions );
+
+boolean row_security_role_update_viewonly(
+			boolean role_override_restrictions );
+
+/* Returns static memory */
+/* --------------------- */
+char *row_security_role_update_system_string(
+			char *folder_name );
 
 typedef struct
 {
@@ -52,7 +108,7 @@ typedef struct
 	char *isa_where_join;
 	boolean add_attribute_not_null_to_list;
 	LIST *row_dictionary_list;
-	RELATED_FOLDER *ajax_fill_drop_down_related_folder;
+	RELATION *relation_ajax_fill_drop_down;
 } ROW_SECURITY;
 
 /* ROW_SECURITY operations */
@@ -288,15 +344,5 @@ LIST *row_security_sort_order_dictionary_list(
 
 LIST *row_security_sort_order_element_list(
 			LIST *folder_attribute_list );
-
-boolean row_security_role_update_row_view_only(
-			char *folder_name,
-			FOLDER *role_update_folder,
-			boolean override_row_restrictions,
-			boolean attribute_not_null );
-
-boolean row_security_role_update_attribute_seek(
-			char *attribute_name,
-			LIST *row_security_role_update_list );
 
 #endif
