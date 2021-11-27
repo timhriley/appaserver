@@ -330,7 +330,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list(
 			char *state,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
-			ROW_SECURITY_ROLE_UPDATE *row_security_role_update )
+			ROW_SECURITY_ROLE_UPDATE *role_update )
 {
 	ROW_SECURITY_ELEMENT_LIST *row_security_element_list =
 		row_security_element_list_calloc();
@@ -347,16 +347,21 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list(
 				role_operation_list,
 				ignore_select_attribute_name_list,
 				role_exclude_update_attribute_name_list,
-				role_exclude_lookup_attribute_name_list );
+				role_exclude_lookup_attribute_name_list,
+				role_update );
 
-		row_security_element_list->viewonly_element_list =
-			row_security_update_state_viewonly_element_list(
-				folder_attribute_append_isa_list,
-				relation_mto1_non_isa_list,
-				relation_join_one2m_list,
-				role_operation_list,
-				ignore_select_attribute_name_list,
-				role_exclude_lookup_attribute_name_list );
+		if ( role_update )
+		{
+			row_security_element_list->viewonly_element_list =
+				row_security_update_state_viewonly_element_list(
+					folder_attribute_append_isa_list,
+					relation_mto1_non_isa_list,
+					relation_join_one2m_list,
+					role_operation_list,
+					ignore_select_attribute_name_list,
+					role_exclude_lookup_attribute_name_list,
+					role_update );
+		}
 	}
 	else
 	if ( string_strcmp( state, APPASERVER_VIEW_ONLY_STATE ) == 0 )
@@ -376,3 +381,62 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list(
 	return row_security_element_list;
 }
 
+LIST *row_security_update_state_regular_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean primary_keys_non_edit,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
+			LIST *role_exclude_update_attribute_name_list,
+			LIST *role_exclude_lookup_attribute_name_list,
+			ROW_SECURITY_ROLE_UPDATE *role_update )
+{
+	LIST *element_list;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *folder_attribute_name_list;
+	LIST *primary_key_list;
+
+	element_list =
+		/* -------------- */
+		/* Always returns */
+		/* -------------- */
+		row_security_operation_element_list(
+			role_operation_list );
+
+	return element_list;
+}
+
+LIST *row_security_operation_element_list( LIST *role_operation_list )
+{
+	LIST *element_list = list_new();
+	OPERATION *operation;
+	APPASERVER_ELEMENT *element;
+
+	if ( !list_rewind( role_operation_list ) )
+		return element_list();
+
+	do {
+		operation = 
+			list_get(
+				role_operation_list );
+
+		element =
+			appaserver_element_new(
+				checkbox );
+
+		element->checkbox->name = operation->operation_name;
+		element->checkbox->prompt_string = operation->operation_name;
+
+		element->checkbox->action_string =
+			operation->delete_warning_javascript;
+
+		element->checkbox->value = "yes";
+
+		list_set( element_list, element );
+
+	} while( list_next( role_operation_list ) );
+
+	return element_list;
+}

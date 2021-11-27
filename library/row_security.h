@@ -141,7 +141,8 @@ LIST *row_security_update_state_regular_element_list(
 			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			LIST *role_exclude_update_attribute_name_list,
-			LIST *role_exclude_lookup_attribute_name_list );
+			LIST *role_exclude_lookup_attribute_name_list,
+			ROW_SECURITY_ROLE_UPDATE *role_update );
 
 LIST *row_security_update_state_viewonly_element_list(
 			LIST *folder_attribute_append_isa_list,
@@ -149,6 +150,12 @@ LIST *row_security_update_state_viewonly_element_list(
 			LIST *relation_join_one2m_list,
 			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
-			LIST *role_exclude_lookup_attribute_name_list );
+			LIST *role_exclude_lookup_attribute_name_list,
+			ROW_SECURITY_ROLE_UPDATE *role_update );
+
+/* Always returns */
+/* -------------- */
+LIST *row_security_operation_element_list(
+			LIST *role_operation_list );
 
 #endif

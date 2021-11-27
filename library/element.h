@@ -432,7 +432,8 @@ char *element_checkbox_html(
 			boolean checked,
 			char *action_string,
 			int tab_order,
-			char *value );
+			char *value,
+			char *image_source );
 
 typedef struct
 {

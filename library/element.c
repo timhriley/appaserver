@@ -832,7 +832,8 @@ char *element_checkbox_html(
 			boolean checked,
 			char *action_string,
 			int tab_order,
-			char *value )
+			char *value,
+			char *image_source )
 {
 	char html[ 1024 ];
 	char *ptr = html;
@@ -849,9 +850,19 @@ char *element_checkbox_html(
 		exit( 1 );
 	}
 
+	ptr += sprintf( ptr, "<td>" );
+
+	if ( image_source && *image_source )
+	{
+		ptr += sprintf(
+			ptr,
+			"<img src=\"%s\">",
+			image_source );
+	}
+
 	ptr += sprintf(
 		ptr,
-"<td>%s<input name=\"%s\" type=\"checkbox\" value=\"%s\"",
+"%s<input name=\"%s\" type=\"checkbox\" value=\"%s\"",
 		prompt_display,
 		element_name,
 		value );

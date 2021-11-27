@@ -58,8 +58,10 @@ typedef struct
 	/* ------- */
 	PROCESS *process;
 	boolean delete_name;
-	boolean delete_placeholder;
-	char *label;
+	boolean detail_name;
+	char *image_source;
+	char *delete_warning_javascript;
+	char *html;
 } OPERATION;
 
 /* OPERATION operations */
@@ -68,18 +70,7 @@ OPERATION *operation_calloc(
 			void );
 
 OPERATION *operation_new(
-			char *operation_name,
-			boolean role_update_view_only );
-
-boolean operation_delete_placeholder(
-			boolean role_update_view_only,
-			boolean delete_name );
-
-/* Returns heap memory or NULL */
-/* --------------------------- */
-char *operation_label(
-			char *operation_name,
-			boolean delete_placeholder );
+			char *operation_name );
 
 int operation_row_total(
 			DICTIONARY *row_dictionary,
@@ -89,6 +80,11 @@ int operation_row_total(
 boolean operation_delete_name(
 			char *operation_name );
 
+boolean operation_detail_name(
+			char *operation_name );
+
+/* Always succeeds */
+/* --------------- */
 OPERATION *operation_fetch(
 			char *operation_name );
 
@@ -159,6 +155,17 @@ DICTIONARY *operation_single_row_dictionary(
 			DICTIONARY *row_dictionary,
 			LIST *attribute_name_list,
 			int row_number );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *operation_image_source(
+			boolean operation_delete_name,
+			boolean operation_detail_name );
+
+/* Returns program memory or null */
+/* ------------------------------ */
+char *operation_delete_warning_javascript(
+			boolean operation_delete_name );
 
 #endif
 
