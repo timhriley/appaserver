@@ -422,17 +422,28 @@ LIST *row_security_operation_element_list( LIST *role_operation_list )
 			list_get(
 				role_operation_list );
 
-		element =
-			appaserver_element_new(
-				checkbox );
+		if ( operation->empty_placeholder )
+		{
+			element =
+				appaserver_element_new(
+					blank_tag );
+		}
+		else
+		{
+			element =
+				appaserver_element_new(
+					checkbox );
 
-		element->checkbox->name = operation->operation_name;
-		element->checkbox->prompt_string = operation->operation_name;
+			element->checkbox->name = operation->operation_name;
 
-		element->checkbox->action_string =
-			operation->delete_warning_javascript;
+			element->checkbox->prompt_string =
+				operation->operation_name;
 
-		element->checkbox->value = "yes";
+			element->checkbox->action_string =
+				operation->delete_warning_javascript;
+
+			element->checkbox->value = "yes";
+		}
 
 		list_set( element_list, element );
 

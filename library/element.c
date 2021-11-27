@@ -73,6 +73,26 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->multi_drop_down =
 			element_multi_drop_down_calloc();
 	else
+	if ( element_type == button )
+		element->button =
+			element_button_calloc();
+	else
+	if ( element_type == non_edit_text )
+		element->non_edit_text =
+			element_non_edit_text_calloc();
+	else
+	if ( element_type == hidden )
+		element->hidden =
+			element_hidden_calloc();
+	else
+	if ( element_type == break_tag )
+		element->break_tag =
+			element_break_tag_calloc();
+	else
+	if ( element_type == blank_tag )
+		element->blank_tag =
+			element_blank_tag_calloc();
+	else
 	{
 		fprintf( stderr, 
 			 "Error: %s/%s() got invalid element type.\n",
@@ -1331,20 +1351,14 @@ ELEMENT_BREAK_TAG *element_break_tag_calloc( void )
 	return element_break_tag;
 }
 
-ELEMENT_BREAK_TAG *element_break_tag_new( void )
-{
-	ELEMENT_BREAK_TAG *element_break_tag = element_break_tag_calloc();
-
-	/* Returns heap memory */
-	/* ------------------- */
-	element_break_tag->html = element_break_tag_html();
-
-	return element_break_tag;
-}
-
 char *element_break_tag_html( void )
 {
 	return strdup( "<br>" );
+}
+
+char *element_blank_tag_html( void )
+{
+	return strdup( "<td>" );
 }
 
 char *appaserver_element_list_html(
@@ -1694,6 +1708,40 @@ char *appaserver_element_html(
 				row_number ) );
 	}
 	else
+	if ( appaserver_element->element_type == non_edit_text )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_non_edit_text_html(
+			appaserver_element->
+				non_edit_text->
+				message );
+	}
+	else
+	if ( appaserver_element->element_type == hidden )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_hidden_html(
+			appaserver_element->
+				hidden->
+				message );
+	}
+	else
+	if ( appaserver_element->element_type == break_tag )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_break_tag_html();
+	}
+	else
+	if ( appaserver_element->element_type == blank_tag )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_blank_tag_html();
+	}
+	else
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: invalid element_type = %d.\n",
@@ -1947,3 +1995,35 @@ char *appaserver_element_background_color_html(
 
 	return html;
 }
+
+ELEMENT_PROMPT *element_prompt_calloc( void )
+{
+	ELEMENT_PROMPT *element_prompt;
+
+	if ( ! ( element_prompt = calloc( 1, sizeof( ELEMENT_PROMPT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return prompt;
+}
+
+char *element_prompt_html( char *prompt )
+{
+	char html[ 128 ];
+	char buffer[ 128 ];
+
+	sprintf(html,
+		"<td align=left>%s",
+		string_format_capital(
+			buffer,
+			prompt ) );
+
+	return strdup( html );
+}
+

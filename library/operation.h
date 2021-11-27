@@ -53,6 +53,7 @@ typedef struct
 	/* ---------- */
 	char *operation_name;
 	boolean output;
+	boolean empty_placeholder;
 
 	/* Process */
 	/* ------- */

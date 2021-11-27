@@ -19,12 +19,9 @@
 /* #define ELEMENT_LONG_DASH_DELIMITER		"&#151;" */
 #define ELEMENT_LONG_DASH_DELIMITER		"---"
 
-#define ELEMENT_TABLE_ROW_REMEMBER		0
-#define ELEMENT_PROMPT_REMEMBER			0
 #define ELEMENT_CHECKBOX_REMEMBER		1
 #define ELEMENT_DROP_DOWN_REMEMBER		1
 #define ELEMENT_MULTI_DROP_DOWN_REMEMBER	1
-#define ELEMENT_BUTTON_REMEMBER			0
 #define ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX	"original_"
 #define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER '|'
 #define ELEMENT_NAME_LOOKUP_STATE		"lookup_button"
@@ -74,56 +71,7 @@ enum element_type {	table_row,
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
-	char *html;
-} ELEMENT_BREAK_TAG;
-
-/* ELEMENT_BREAK_TAG operations */
-/* ---------------------------- */
-ELEMENT_BREAK_TAG *element_break_tag_calloc(
-			void );
-
-ELEMENT_BREAK_TAG *element_break_tag_new(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_break_tag_html(
-			void );
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *label;
-	char *action_string;
-
-	/* Process */
-	/* ------- */
-	char *html;
-} ELEMENT_BUTTON;
-
-/* ELEMENT_BUTTON operations */
-/* ------------------------- */
-ELEMENT_BUTTON *element_button_calloc(
-			void );
-
-ELEMENT_BUTTON *element_button_new(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_button_html(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
-
-typedef struct
-{
-	char *html;
+	/* stub */
 } ELEMENT_TABLE_ROW;
 
 /* ELEMENT_TABLE_ROW operations */
@@ -138,33 +86,35 @@ char *element_table_row_html(
 
 typedef struct
 {
-	char *html;
-} ELEMENT_PROMPT;
-
-typedef struct
-{
 	/* Attributes */
 	/* ---------- */
 	char *name;
-	char *text_html;
-	int column_span;
-	int padding_em;
+	char *prompt_string;
+	boolean checked;
+	char *action_string;
+	int tab_order;
+	char *value;
 
 	/* External */
 	/* -------- */
 	char *html;
-	char *heading;
-} ELEMENT_NON_EDIT_TEXT;
+} ELEMENT_CHECKBOX;
 
-/* ELEMENT_NON_EDIT_TEXT operations */
-/* -------------------------------- */
-ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
+/* ELEMENT_CHECKBOX operations */
+/* --------------------------- */
+ELEMENT_CHECKBOX *element_checkbox_calloc(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_non_edit_text_html(
-			char *message );
+/* Returns heap memory */
+/* ------------------- */
+char *element_checkbox_html(
+			char *element_name,
+			char *prompt_display,
+			boolean checked,
+			char *action_string,
+			int tab_order,
+			char *value,
+			char *image_source );
 
 typedef struct
 {
@@ -371,6 +321,105 @@ char *element_multi_drop_down_html(
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *label;
+	char *action_string;
+
+	/* Process */
+	/* ------- */
+	char *html;
+} ELEMENT_BUTTON;
+
+/* ELEMENT_BUTTON operations */
+/* ------------------------- */
+ELEMENT_BUTTON *element_button_calloc(
+			void );
+
+ELEMENT_BUTTON *element_button_new(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_button_html(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
+	char *name;
+	char *text_html;
+	int column_span;
+	int padding_em;
+
+	/* External */
+	/* -------- */
+	char *html;
+	char *heading;
+} ELEMENT_NON_EDIT_TEXT;
+
+/* ELEMENT_NON_EDIT_TEXT operations */
+/* -------------------------------- */
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *element_non_edit_text_html(
+			char *message );
+
+typedef struct
+{
+	char *data;
+} ELEMENT_HIDDEN;
+
+/* ELEMENT_HIDDEN operations */
+/* ------------------------- */
+ELEMENT_HIDDEN *element_hidden_calloc(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *element_hidden_html(
+			char *data );
+
+typedef struct
+{
+	/* stub */
+} ELEMENT_BREAK_TAG;
+
+/* ELEMENT_BREAK_TAG operations */
+/* ---------------------------- */
+ELEMENT_BREAK_TAG *element_break_tag_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_break_tag_html(
+			void );
+
+typedef struct
+{
+	/* stub */
+} ELEMENT_BLANK_TAG;
+
+/* ELEMENT_BLANK_TAG operations */
+/* ---------------------------- */
+ELEMENT_BLANK_TAG *element_blank_tag_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_blank_tag_html(
+			void );
+
+typedef struct
+{
 	LIST *option_label_list;
 } ELEMENT_NON_EDIT_MULTI_SELECT;
 
@@ -378,11 +427,6 @@ typedef struct
 {
 	char *null;
 } ELEMENT_EMPTY_COLUMN;
-
-typedef struct
-{
-	char *data;
-} ELEMENT_HIDDEN;
 
 typedef struct
 {
@@ -405,38 +449,6 @@ typedef struct
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
-	char *name;
-	char *prompt_string;
-	boolean checked;
-	char *action_string;
-	int tab_order;
-	char *value;
-
-	/* External */
-	/* -------- */
-	char *html;
-} ELEMENT_CHECKBOX;
-
-/* ELEMENT_CHECKBOX operations */
-/* --------------------------- */
-ELEMENT_CHECKBOX *element_checkbox_calloc(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_checkbox_html(
-			char *element_name,
-			char *prompt_display,
-			boolean checked,
-			char *action_string,
-			int tab_order,
-			char *value,
-			char *image_source );
-
-typedef struct
-{
 	char *heading;
 	boolean checked;
 	char onchange_submit_yn;
@@ -445,19 +457,6 @@ typedef struct
 	char *onclick_keystrokes_save_string;
 	char *onclick_function;
 } ELEMENT_TOGGLE_BUTTON;
-
-typedef struct
-{
-	char *heading;
-	int checked;
-	char onchange_submit_yn;
-	char *form_name;
-	char *image_source;
-	char *value;
-	char *onclick;
-	char *state;
-	char *post_change_javascript;
-} ELEMENT_RADIO_BUTTON;
 
 typedef struct
 {
@@ -508,6 +507,24 @@ typedef struct
 
 typedef struct
 {
+	char *heading;
+	int checked;
+	char onchange_submit_yn;
+	char *form_name;
+	char *image_source;
+	char *value;
+	char *onclick;
+	char *state;
+	char *post_change_javascript;
+} ELEMENT_RADIO_BUTTON;
+
+/* ELEMENT_RADIO_BUTTON operations */
+/* ------------------------------- */
+ELEMENT_RADIO_BUTTON *element_radio_button_calloc(
+			void );
+
+typedef struct
+{
 	/* Input */
 	/* ----- */
 	enum element_type element_type;
@@ -520,15 +537,15 @@ typedef struct
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
 	ELEMENT_BUTTON *button;
 	ELEMENT_NON_EDIT_TEXT *non_edit_text;
+	ELEMENT_HIDDEN *hidden;
+	ELEMENT_BREAK_TAG *break_tag;
+	ELEMENT_BLANK_TAG *blank_tag;
 
 /*
-	ELEMENT_TOGGLE_BUTTON *toggle_button;
-	ELEMENT_PUSH_BUTTON *push_button;
 	ELEMENT_RADIO_BUTTON *radio_button;
 	ELEMENT_NOTEPAD *notepad;
 	ELEMENT_TEXT_ITEM *text_item;
 	ELEMENT_PASSWORD *password;
-	ELEMENT_HIDDEN *hidden;
 	ELEMENT_UPLOAD_FILENAME *upload_filename;
 	ELEMENT_HTTP_FILENAME *http_filename;
 	ELEMENT_ANCHOR *anchor;
