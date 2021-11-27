@@ -44,6 +44,8 @@ ROW_SECURITY *row_security_calloc( void )
 ROW_SECURITY *row_security_edit_table(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
 			boolean edit_table_primary_keys_non_edit,
 			LIST *role_operation_list,
@@ -297,5 +299,80 @@ char *row_security_role_update_folder_join(
 	} while ( list_next( primary_key_list ) );
 
 	return strdup( join );
+}
+
+ROW_SECURITY_ELEMENT_LIST *row_security_element_list_calloc( void )
+{
+	ROW_SECURITY_ELEMENT_LIST *row_security_element_list;
+
+	if ( ! ( row_security_element_list =
+			calloc( 1, sizeof( ROW_SECURITY_ELEMENT_LIST ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return row_security_element_list;
+}
+
+ROW_SECURITY_ELEMENT_LIST *row_security_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean primary_keys_non_edit,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
+			char *state,
+			LIST *role_exclude_update_attribute_name_list,
+			LIST *role_exclude_lookup_attribute_name_list,
+			ROW_SECURITY_ROLE_UPDATE *row_security_role_update )
+{
+	ROW_SECURITY_ELEMENT_LIST *row_security_element_list =
+		row_security_element_list_calloc();
+
+	if ( string_strcmp( state, APPASERVER_UPDATE_STATE ) == 0 )
+	{
+		row_security_element_list->regular_element_list =
+			row_security_update_state_regular_element_list(
+				folder_attribute_append_isa_list,
+				relation_mto1_non_isa_list,
+				relation_join_one2m_list,
+				drillthru_dictionary,
+				primary_keys_non_edit,
+				role_operation_list,
+				ignore_select_attribute_name_list,
+				role_exclude_update_attribute_name_list,
+				role_exclude_lookup_attribute_name_list );
+
+		row_security_element_list->viewonly_element_list =
+			row_security_update_state_viewonly_element_list(
+				folder_attribute_append_isa_list,
+				relation_mto1_non_isa_list,
+				relation_join_one2m_list,
+				role_operation_list,
+				ignore_select_attribute_name_list,
+				role_exclude_lookup_attribute_name_list );
+	}
+	else
+	if ( string_strcmp( state, APPASERVER_VIEW_ONLY_STATE ) == 0 )
+	{
+	}
+	else
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid state of (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			state );
+		exit( 1 );
+	}
+
+	return row_security_element_list;
 }
 

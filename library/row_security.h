@@ -70,7 +70,7 @@ typedef struct
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc(
 			void );
 
-ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
+ROW_SECURITY_ROLE_UPDATE *row_security_role_update(
 			char *folder_name,
 			LIST *primary_key_list,
 			boolean role_override_row_restrictions );
@@ -85,28 +85,33 @@ char *row_security_role_update_system_string(
 
 typedef struct
 {
-	FOLDER *folder;
-	ROLE *role;
-	char *login_name;
-	LIST *role_update_list;
-	char *state;
-	DICTIONARY *preprompt_dictionary;
-	DICTIONARY *query_dictionary;
-	DICTIONARY *sort_dictionary;
-	LIST *ignore_attribute_name_list;
-	FOLDER *foreign_login_name_folder;
-	char *attribute_not_null_join;
-	FOLDER *attribute_not_null_folder;
-	char *attribute_not_null_string;
-	boolean row_security_is_participating;
 	LIST *regular_element_list;
 	LIST *viewonly_element_list;
 	LIST *apply_element_list;
-	char query_folder_name[ 256 ];
-	char *isa_where_join;
-	boolean add_attribute_not_null_to_list;
-	LIST *row_dictionary_list;
-	RELATION *relation_ajax_fill_drop_down;
+} ROW_SECURITY_ELEMENT_LIST;
+
+/* ROW_SECURITY_ELEMENT_LIST operations */
+/* ------------------------------------ */
+ROW_SECURITY_ELEMENT_LIST *row_security_element_list_calloc(
+			void );
+
+ROW_SECURITY_ELEMENT_LIST *row_security_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean primary_keys_non_edit,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
+			char *state,
+			LIST *role_exclude_update_attribute_name_list,
+			LIST *role_exclude_lookup_attribute_name_list,
+			ROW_SECURITY_ROLE_UPDATE *role_update );
+
+typedef struct
+{
+	ROW_SECURITY_ELEMENT_LIST *element_list;
+	ROW_SECURITY_ROLE_UPDATE *role_update;
 } ROW_SECURITY;
 
 /* ROW_SECURITY operations */
@@ -117,12 +122,33 @@ ROW_SECURITY *row_security_calloc(
 ROW_SECURITY *row_security_edit_table(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
 			boolean edit_table_primary_keys_non_edit,
 			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			char *state,
 			LIST *role_exclude_lookup_attribute_name_list,
+			LIST *role_exclude_lookup_attribute_name_list );
+
+LIST *row_security_update_state_regular_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean primary_keys_non_edit,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
+			LIST *role_exclude_update_attribute_name_list,
+			LIST *role_exclude_lookup_attribute_name_list );
+
+LIST *row_security_update_state_viewonly_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list );
 
 #endif
