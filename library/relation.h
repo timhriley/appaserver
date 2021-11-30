@@ -175,5 +175,9 @@ RELATION *relation_consumes(
 LIST *relation_mto1_folder_name_list(
 			LIST *relation_mto1_list );
 
+RELATION *relation_one2m_seek(
+			char *folder_name,
+			LIST *relation_one2m_list );
+
 #endif
 

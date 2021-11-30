@@ -45,19 +45,19 @@
 enum element_type {	table_row,
 			checkbox,
 			drop_down,
-			multi_drop_down,
 			button,
-			non_edit_text /* last one */,
+			non_edit_text,
+			hidden,
+			break_tag,
+			blank_tag,
+			multi_drop_down,
 			radio_button,
 			notepad,
 			text_item,
 			password,
-			hidden,
 			upload_filename,
 			reference_number,
 			anchor,
-			blank,
-			break_tag,
 			javascript_filename,
 			element_date,
 			element_current_date,
@@ -94,6 +94,7 @@ typedef struct
 	char *action_string;
 	int tab_order;
 	char *value;
+	char *image_source;
 
 	/* External */
 	/* -------- */
@@ -121,7 +122,6 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	LIST *attribute_name_list;
-	char *initial_data;
 	LIST *delimited_list;
 	boolean no_initial_capital;
 	boolean output_null_option;
@@ -148,7 +148,6 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc(
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
 			LIST *attribute_name_list,
-			char *initial_data,
 			LIST *delimited_list,
 			boolean no_initial_capital,
 			boolean output_null_option,
@@ -243,6 +242,113 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
+	char *label;
+	char *action_string;
+
+	/* Process */
+	/* ------- */
+	char *html;
+} ELEMENT_BUTTON;
+
+/* ELEMENT_BUTTON operations */
+/* ------------------------- */
+ELEMENT_BUTTON *element_button_calloc(
+			void );
+
+ELEMENT_BUTTON *element_button_new(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_button_html(
+			char *label,
+			char *action_string,
+			boolean with_table_data_tag );
+
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
+	char *name;
+	char *text_html;
+	int column_span;
+	int padding_em;
+
+	/* External */
+	/* -------- */
+	char *message;
+	char *html;
+	char *heading;
+} ELEMENT_NON_EDIT_TEXT;
+
+/* ELEMENT_NON_EDIT_TEXT operations */
+/* -------------------------------- */
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
+			void );
+
+char *element_non_edit_text_message(
+			char *message,
+			char *name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *element_non_edit_text_html(
+			char *message );
+
+typedef struct
+{
+	char *name;
+	char *data;
+} ELEMENT_HIDDEN;
+
+/* ELEMENT_HIDDEN operations */
+/* ------------------------- */
+ELEMENT_HIDDEN *element_hidden_calloc(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *element_hidden_html(
+			char *name,
+			char *data,
+			int row_number );
+
+typedef struct
+{
+	/* stub */
+} ELEMENT_BREAK_TAG;
+
+/* ELEMENT_BREAK_TAG operations */
+/* ---------------------------- */
+ELEMENT_BREAK_TAG *element_break_tag_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_break_tag_html(
+			void );
+
+typedef struct
+{
+	/* stub */
+} ELEMENT_BLANK_TAG;
+
+/* ELEMENT_BLANK_TAG operations */
+/* ---------------------------- */
+ELEMENT_BLANK_TAG *element_blank_tag_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_blank_tag_html(
+			void );
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
 	LIST *attribute_name_list;
 	LIST *delimited_list;
 	boolean no_initial_capital;
@@ -318,105 +424,6 @@ char *element_multi_drop_down_html(
 			ELEMENT_BUTTON *move_left_button,
 			ELEMENT_DROP_DOWN *empty_drop_down,
 			char *appaserver_element_javascript );
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *label;
-	char *action_string;
-
-	/* Process */
-	/* ------- */
-	char *html;
-} ELEMENT_BUTTON;
-
-/* ELEMENT_BUTTON operations */
-/* ------------------------- */
-ELEMENT_BUTTON *element_button_calloc(
-			void );
-
-ELEMENT_BUTTON *element_button_new(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_button_html(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
-
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *name;
-	char *text_html;
-	int column_span;
-	int padding_em;
-
-	/* External */
-	/* -------- */
-	char *html;
-	char *heading;
-} ELEMENT_NON_EDIT_TEXT;
-
-/* ELEMENT_NON_EDIT_TEXT operations */
-/* -------------------------------- */
-ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_non_edit_text_html(
-			char *message );
-
-typedef struct
-{
-	char *data;
-} ELEMENT_HIDDEN;
-
-/* ELEMENT_HIDDEN operations */
-/* ------------------------- */
-ELEMENT_HIDDEN *element_hidden_calloc(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_hidden_html(
-			char *data );
-
-typedef struct
-{
-	/* stub */
-} ELEMENT_BREAK_TAG;
-
-/* ELEMENT_BREAK_TAG operations */
-/* ---------------------------- */
-ELEMENT_BREAK_TAG *element_break_tag_calloc(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_break_tag_html(
-			void );
-
-typedef struct
-{
-	/* stub */
-} ELEMENT_BLANK_TAG;
-
-/* ELEMENT_BLANK_TAG operations */
-/* ---------------------------- */
-ELEMENT_BLANK_TAG *element_blank_tag_calloc(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_blank_tag_html(
-			void );
 
 typedef struct
 {
@@ -602,6 +609,12 @@ char *appaserver_element_heading_string(
 char *appaserver_element_list_html(
 			char *background_color,
 			char *state,
+			int row_number,
+			LIST *appaserver_element_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_hidden_element_list_html(
 			int row_number,
 			LIST *appaserver_element_list );
 

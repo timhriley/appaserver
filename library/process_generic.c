@@ -23,7 +23,6 @@
 #include "folder.h"
 #include "list_usage.h"
 #include "appaserver.h"
-#include "query.h"
 #include "environ.h"
 #include "appaserver_library.h"
 #include "process_generic.h"

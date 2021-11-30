@@ -253,9 +253,11 @@ char *string_delete(	char *string,
 /* ------------------------------------ */
 int string_row_number(	char *attribute_name );
 
-char *string_append(
-			char *message_list_string,
+char *string_append(	char *message_list_string,
 			char *message_string,
 			char *delimiter );
+
+char string_last_character(
+			char *string );
 
 #endif

@@ -24,7 +24,7 @@
 #define APPASERVER_LOOKUP_STATE			"lookup"
 #define APPASERVER_UPDATE_STATE			"update"
 #define APPASERVER_INSERT_STATE			"insert"
-#define APPASERVER_VIEW_ONLY_STATE		"view_only"
+#define APPASERVER_VIEWONLY_STATE		"viewonly"
 
 /* Data structures */
 /* --------------- */

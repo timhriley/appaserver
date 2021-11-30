@@ -700,3 +700,79 @@ LIST *relation_mto1_folder_name_list(
 	return folder_name_list;
 }
 
+RELATION *relation_one2m_seek(
+			char *folder_name,
+			LIST *relation_one2m_list )
+{
+	RELATION *relation;
+
+	if ( !list_rewind( relation_one2m_list ) )
+	{
+		return (RELATION *)0;
+	}
+
+	do {
+		relation =
+			list_get(
+				relation_one2m_list );
+
+		if ( !relation->many_folder )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: many_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( strcmp(
+			folder_name,
+			relation->many_folder->folder_name ) == 0 )
+		{
+			return relation;
+		}
+
+	} while ( list_next( relation_one2m_list ) );
+
+	return (RELATION *)0;
+}
+
+RELATION *relation_mto1_seek(
+			char *folder_name,
+			LIST *relation_mto1_list )
+{
+	RELATION *relation;
+
+	if ( !list_rewind( relation_mto1_list ) )
+	{
+		return (RELATION *)0;
+	}
+
+	do {
+		relation =
+			list_get(
+				relation_mto1_list );
+
+		if ( !relation->many_folder )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: many_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( strcmp(
+			folder_name,
+			relation->one_folder->folder_name ) == 0 )
+		{
+			return relation;
+		}
+
+	} while ( list_next( relation_mto1_list ) );
+
+	return (RELATION *)0;
+}
+

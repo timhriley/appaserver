@@ -16,7 +16,6 @@
 #include "form.h"
 #include "relation.h"
 #include "folder.h"
-#include "query.h"
 #include "date.h"
 #include "list.h"
 #include "appaserver_library.h"
@@ -587,6 +586,16 @@ ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc( void )
 	return non_edit_text;
 }
 
+char *element_non_edit_text_message(
+			char *message,
+			char *name )
+{
+	return
+	string_initial_capital(
+		message,
+		name );
+}
+
 char *element_non_edit_text_html( char *message )
 {
 	char html[ 128 ];
@@ -960,7 +969,6 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
 			LIST *attribute_name_list,
-			char *initial_data,
 			LIST *delimited_list,
 			boolean no_initial_capital,
 			boolean output_null_option,
@@ -976,7 +984,6 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
 	element_drop_down->attribute_name_list = attribute_name_list;
-	element_drop_down->initial_data = initial_data;
 	element_drop_down->delimited_list = delimited_list;
 	element_drop_down->no_initial_capital = no_initial_capital;
 	element_drop_down->output_null_option = output_null_option;
@@ -1065,7 +1072,6 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 	element_multi_drop_down->original_drop_down =
 		element_drop_down_new(
 			attribute_name_list,
-			(char *)0 /* initial_data */,
 			delimited_list,
 			no_initial_capital,
 			0 /* not output_null_option */,
@@ -1102,7 +1108,8 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 				attribute_name_list ),
 			1 /* with_table_data_tag */ );
 
-	element_multi_drop_down->element_break_tag = element_break_tag_new();
+	element_multi_drop_down->element_break_tag =
+		element_break_tag_calloc();
 
 	element_multi_drop_down->move_left_button =
 		element_button_new(
@@ -1385,6 +1392,8 @@ char *appaserver_element_list_html(
 	do {
 		appaserver_element = list_get( appaserver_element_list );
 
+		if ( appaserver_element->hidden ) continue;
+
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
@@ -1392,6 +1401,61 @@ char *appaserver_element_list_html(
 				appaserver_element_html(
 					background_color,
 					state,
+					row_number,
+					appaserver_element ) ) )
+		{
+			fprintf(stderr,
+	"Warning in %s/%s()/%d: appaserver_element_html(%d) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				appaserver_element->element_type );
+			return (char *)0;
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s\n", 
+			element_html );
+
+		free( element_html );
+
+	} while ( list_next( appaserver_element_list ) );
+
+	return strdup( html );
+}
+
+char *appaserver_hidden_element_list_html(
+			int row_number,
+			LIST *appaserver_element_list )
+{
+	APPASERVER_ELEMENT *appaserver_element;
+	char html[ 65536 ];
+	char *ptr = html;
+	char *element_html;
+
+	if ( !list_rewind( appaserver_element_list ) )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: appaserver_element_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
+
+	do {
+		appaserver_element = list_get( appaserver_element_list );
+
+		if ( !appaserver_element->hidden ) continue;
+
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		if ( ! ( element_html =
+				appaserver_element_html(
+					(char *)0 /* background_color */,
+					(char *)0 /* state */,
 					row_number,
 					appaserver_element ) ) )
 		{
@@ -1631,7 +1695,8 @@ char *appaserver_element_html(
 			appaserver_element->checkbox->checked,
 			appaserver_element->checkbox->action_string,
 			appaserver_element->checkbox->tab_order,
-			appaserver_element->checkbox->value );
+			appaserver_element->checkbox->value,
+			appaserver_element->checkbox->image_source );
 	}
 	else
 	if ( appaserver_element->element_type == drop_down )
@@ -1710,12 +1775,23 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == non_edit_text )
 	{
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_non_edit_text_html(
-			appaserver_element->
-				non_edit_text->
-				message );
+		if ( appaserver_element->non_edit_text->message )
+		{
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			return element_non_edit_text_html(
+				appaserver_element->
+					non_edit_text->
+					message );
+		}
+		else
+		{
+			return element_non_edit_text_html(
+				appaserver_element->
+					non_edit_text->
+					name );
+		}
 	}
 	else
 	if ( appaserver_element->element_type == hidden )
@@ -1723,9 +1799,9 @@ char *appaserver_element_html(
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_hidden_html(
-			appaserver_element->
-				hidden->
-				message );
+			appaserver_element->hidden->name,
+			appaserver_element->hidden->data,
+			row_number );
 	}
 	else
 	if ( appaserver_element->element_type == break_tag )
@@ -1883,7 +1959,7 @@ char *element_multi_drop_down_html(
 	/* Create break tag */
 	/* ---------------- */
 
-	if ( !element_break_tag || !element_break_tag->html )
+	if ( !element_break_tag )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: element_break_tag is empty.\n",
@@ -1896,7 +1972,12 @@ char *element_multi_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		element_break_tag->html );
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		(element_html = element_break_tag_html() ) );
+
+	free( element_html );
 
 	/* --------------------------- */
 	/* Create the move-left button */
@@ -1996,33 +2077,30 @@ char *appaserver_element_background_color_html(
 	return html;
 }
 
-ELEMENT_PROMPT *element_prompt_calloc( void )
+char *element_hidden_html(
+			char *name,
+			char *data,
+			int row_number )
 {
-	ELEMENT_PROMPT *element_prompt;
+	char html[ 128 ];
 
-	if ( ! ( element_prompt = calloc( 1, sizeof( ELEMENT_PROMPT ) ) ) )
+	if ( !name || !*name
+	||   !data || !*data )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	return prompt;
-}
-
-char *element_prompt_html( char *prompt )
-{
-	char html[ 128 ];
-	char buffer[ 128 ];
 
 	sprintf(html,
-		"<td align=left>%s",
-		string_format_capital(
-			buffer,
-			prompt ) );
+		"<input type=hidden name=\"%s_%d\" value=\"%s\">",
+		name,
+		row_number,
+		data );
 
 	return strdup( html );
 }

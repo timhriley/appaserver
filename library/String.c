@@ -1530,3 +1530,14 @@ char *string_append(
 	return strdup( append_string );
 }
 
+char string_last_character( char *string )
+{
+	int str_length;
+
+	if ( !string ) return 0;
+
+	if ( ! ( str_length = strlen( string ) ) ) return 0;
+
+	return *(string + str_length - 1);
+}
+
