@@ -145,7 +145,7 @@ PROCESS *process_parse(	char *input,
 {
 	PROCESS *process;
 	char process_name[ 128 ];
-	char buffer[ 65536 ];
+	char buffer[ COMMAND_LINE_BUFFER ];
 
 	if ( !input || !*input ) return (PROCESS *)0;
 
@@ -296,7 +296,7 @@ PROCESS_SET *process_set_parse(
 {
 	PROCESS_SET *process_set;
 	char process_set_name[ 128 ];
-	char buffer[ 65536 ];
+	char buffer[ COMMAND_LINE_BUFFER ];
 
 	/* See PROCESS_SET_SELECT */
 	/* ---------------------- */
@@ -444,7 +444,7 @@ LIST *process_set_role_process_name_list(
 char *process_set_process_where(
 			LIST *process_name_list )
 {
-	char where[ 65536 ];
+	char where[ COMMAND_LINE_BUFFER ];
 
 	if ( !list_length( process_name_list ) )
 	{
@@ -468,10 +468,10 @@ char *process_prompt_submit_command_line(
 			char *login_name,
 			DICTIONARY *working_post_dictionary )
 {
-	char buffer[ 65536 ];
-	char local_command_line[ STRING_INPUT_BUFFER ];
+	char buffer[ COMMAND_LINE_BUFFER ];
+	char local_command_line[ COMMAND_LINE_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, STRING_INPUT_BUFFER );
+	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
 
 	if ( process_name && *process_name )
 	{
@@ -529,13 +529,10 @@ char *process_prompt_submit_command_line(
 	/* -------------------------- */
 	free( command_line );
 
-	return strdup( command_line );
+	return strdup( local_command_line );
 }
 
-
-
-#ifdef NOT_DEFINED
-char *process_search_replace_where(
+void process_replace_where_command_line(
 			char *command_line,
 			DICTIONARY *drillthru_dictionary,
 			char *folder_name,
@@ -543,7 +540,7 @@ char *process_search_replace_where(
 			char *login_name )
 {
 	QUERY *query;
-	char buffer[ STRING_WHERE_BUFFER ];
+	char buffer[ COMMAND_LINE_BUFFER ];
 
 	if ( !command_line )
 	{
@@ -565,20 +562,20 @@ char *process_search_replace_where(
 		exit( 1 );
 	}
 
-	if ( !string_exists( local_command_line, "$where" ) )
+	if ( !string_exists( command_line, "$where" ) )
 	{
 		return;
 	}
 
 	if ( ! ( query =
-			query_process_drop_down_new(
+			query_command_line_where_new(
 				drillthru_dictionary,
 				folder_name,
 				role_name,
 				login_name ) ) )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: query_process_drop_down_new() returned empty.\n",
+	"ERROR in %s/%s()/%d: query_command_line_where_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -592,7 +589,6 @@ char *process_search_replace_where(
 			buffer,
 			query->where_clause ) );
 }
-#endif
 
 PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc( void )
 {
@@ -718,7 +714,7 @@ char *process_choose_isa_command_line(
 			char *role_name,
 			char *one2m_isa_folder_name )
 {
-	char local_command_line[ STRING_WHERE_BUFFER ];
+	char local_command_line[ COMMAND_LINE_BUFFER ];
 	char buffer[ 1024 ];
 
 	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
@@ -754,19 +750,9 @@ char *process_choose_isa_command_line(
 				security_entity_where ) );
 	}
 
-	if ( one2m_isa_folder_name
-	&&   *one2m_isa_folder_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$one2m_folder_name",
-			buffer );
-
-		search_replace_word(
-			local_command_line,
-			"$one2m_folder",
-			buffer );
-	}
+	process_replace_one_folder_command_line(
+		local_command_line,
+		one2m_isa_folder_name );
 
 	sprintf(local_command_line + strlen( local_command_line ),
 		" 2>>%s",
@@ -833,11 +819,10 @@ char *process_operation_command_line(
 			LIST *primary_data_list,
 			DICTIONARY *single_row_dictionary )
 {
-	char local_command_line[ STRING_INPUT_BUFFER ];
-	char buffer[ 65536 ];
+	char local_command_line[ COMMAND_LINE_BUFFER ];
+	char buffer[ COMMAND_LINE_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, STRING_INPUT_BUFFER );
-	free( command_line );
+	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
 
 	if ( application_name )
 	{
@@ -974,6 +959,10 @@ char *process_operation_command_line(
 		appaserver_error_filename(
 			application_name ) );
 
+	/* This memory is always heap */
+	/* -------------------------- */
+	free( command_line );
+
 	return strdup( local_command_line );
 }
 
@@ -1008,6 +997,59 @@ char *process_set_name_fetch( char *process_or_set_name )
 	return string_pipe_fetch( system_string );
 }
 
+char *process_widget_command_line(
+			char *command_line,
+			char *application_name,
+			char *security_entity_where,
+			char *one_folder_name,
+			char *state,
+			DICTIONARY *drillthru_dictionary )
+{
+	char buffer[ COMMAND_LINE_BUFFER ];
+	char local_command_line[ COMMAND_LINE_BUFFER ];
+
+	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
+
+	if ( security_entity_where
+	&&   *security_entity_where )
+	{
+		search_replace_word(
+			local_command_line, 
+			"$where", 
+			double_quotes_around( 	
+				buffer,
+				security_entity_where ) );
+	}
+
+	process_replace_one_folder_command_line(
+		local_command_line,
+		one_folder_name );
+
+	if ( state && *state )
+	{
+		search_replace_word(
+			local_command_line, 
+			"$state", 
+			state );
+	}
+
+	dictionary_search_replace_command_arguments(
+		local_command_line,
+		drillthru_dictionary, 
+		0 /* row  */ );
+
+	sprintf(local_command_line + strlen( local_command_line ),
+		" 2>>%s",
+		appaserver_error_filename(
+			application_name ) );
+
+	/* This memory is always heap */
+	/* -------------------------- */
+	free( command_line );
+
+	return strdup( command_line );
+}
+
 char *process_parameter_command_line(
 			char *command_line,
 			char *process_name,
@@ -1015,10 +1057,10 @@ char *process_parameter_command_line(
 			char *role_name,
 			DICTIONARY *drillthru_dictionary )
 {
-	char buffer[ 65536 ];
-	char local_command_line[ STRING_INPUT_BUFFER ];
+	char buffer[ COMMAND_LINE_BUFFER ];
+	char local_command_line[ COMMAND_LINE_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, STRING_INPUT_BUFFER );
+	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
 
 	if ( process_name && *process_name )
 	{
@@ -1071,3 +1113,58 @@ LIST *process_delimited_list( char *command_line )
 {
 	return list_fetch_pipe( command_line );
 }
+
+void process_replace_one_folder_command_line(
+			char *command_line,
+			char *one_folder_name )
+{
+	if ( !one_folder_name || !*one_folder_name ) return;
+
+	if ( !command_line )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: command_line is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	search_replace_word(
+		command_line,
+		"$one2m_folder_name",
+		one_folder_name );
+
+	search_replace_word(
+		command_line,
+		"$one2m_folder",
+		one_folder_name );
+
+	search_replace_word(
+		command_line,
+		"$one_folder",
+		one_folder_name );
+}
+
+void process_replace_state_command_line(
+			char *command_line,
+			char *state )
+{
+	if ( !state || !*state ) return;
+
+	if ( !command_line )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: command_line is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	search_replace_word(
+		command_line,
+		"$state",
+		state );
+}
+

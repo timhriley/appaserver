@@ -14,6 +14,7 @@
 
 /* Constants */
 /* --------- */
+#define COMMMAND_LINE_BUFFER		65536
 #define PROCESS_TABLE			"process"
 #define PROCESS_SET_TABLE		"process_set"
 
@@ -242,13 +243,12 @@ char *process_choose_isa_command_line(
 
 /* Frees command_line and safely returns heap memory */
 /* ------------------------------------------------- */
-char *process_drop_down_command_line(
+char *process_widgetcommand_line(
 			char *command_line,
 			char *application_name,
-			char *one2m_folder_name,
+			char *one_folder_name,
 			char *state,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *working_post_dictionary );
+			DICTIONARY *drillthru_dictionary );
 
 /* Frees command_line and safely returns heap memory */
 /* ------------------------------------------------- */
@@ -285,9 +285,9 @@ char *process_search_replace_where(
 
 /* Frees command_line and safely returns heap memory */
 /* ------------------------------------------------- */
-char *process_replace_one2m_folder_name(
+char *process_replace_one_folder_command_line(
 			char *command_line,
-			char *one2m_folder_name );
+			char *one_folder_name );
 
 /* Frees command_line and safely returns heap memory */
 /* ------------------------------------------------- */
@@ -313,6 +313,26 @@ char *process_parameter_command_line(
 			char *role_name,
 			DICTIONARY *drillthru_dictionary );
 
+/* Frees command_line and safely returns heap memory */
+/* ------------------------------------------------- */
+char *process_widget_command_line(
+			char *command_line,
+			char *application_name,
+			char *security_entity_where,
+			char *one_folder_name,
+			char *state,
+			DICTIONARY *drillthru_dictionary );
+
+void process_replace_one_folder_command_line(
+			char *command_line,
+			char *one_folder_name );
+
+void process_replace_state_command_line(
+			char *command_line,
+			char *state );
+
+/* PROCESS output */
+/* -------------- */
 LIST *process_delimited_list(
 			char *command_line );
 

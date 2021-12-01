@@ -638,6 +638,19 @@ LIST *row_security_regular_element_list(
 				attribute_name /* many_attribute_name */,
 				relation_mto1_non_isa_list ) )
 		{
+			LIST *delimited_list =
+				row_security_widget_delimited_list(
+					relation->one_folder->folder_name
+						/* widget_folder_name */,
+					login_name,
+					folder_attribute_primary_key_list(
+						relation->
+					LIST *relation_mto1_non_isa_list,
+					char *security_entity_where,
+					char *one_folder_name,
+					DICTIONARY *drillthru_dictionary,
+					PROCESS *populate_drop_down_process );
+
 			element =
 				appaserver_element_new(
 					drop_down );
@@ -681,9 +694,13 @@ if ( folder->populate_drop_down_process )
 }
 
 LIST *row_security_widget_delimited_list(
-			char *one_folder_name,
-			LIST *foreign_key_list,
+			char *widget_folder_name,
 			char *login_name,
+			LIST *primary_key_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			char *one_folder_name,
+			DICTIONARY *drillthru_dictionary,
 			PROCESS *populate_drop_down_process )
 {
 	LIST *delimited_list;
@@ -692,19 +709,35 @@ LIST *row_security_widget_delimited_list(
 	{
 		QUERY *query =
 			query_widget_new(
-				one2m_isa_folder_name,
-				folder->folder_attribute_primary_list,
-				login_name,
-				security_entity_where(
-					security_entity,
-					folder->folder_attribute_list ) );
+				char *widget_folder_name,
+				char *login_name,
+				LIST *folder_attribute_primary_key_list(),
+				LIST *folder_attribute_list(),
+				LIST *relation_mto1_non_isa_list,
+				char *security_entity_where(),
+				DICTIONARY *drillthru_dictionary );
 
-	delimited_list =
-		query_delimited_list(
-			query->select_clause,
-			query->from_clause,
-			query->where_clause,
-			query->order_clause,
-			0 /* max_rows */ );
-}
+		delimited_list =
+			query_delimited_list(
+				query->select_clause,
+				query->from_clause,
+				query->where_clause,
+				query->order_clause,
+				0 /* max_rows */ );
+	}
+	else
+	{
+		delimited_list =
+			list_pipe_fetch(
+				process_widget_command_line(
+					populate_drop_down_process->
+						command_line,
+					application_name,
+					security_entity_where,
+					login_name,
+					role_name,
+					one2m_isa_folder_name  ) );
+	}
+
+	return delimited_list;
 }
