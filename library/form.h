@@ -26,8 +26,8 @@
 
 #define FORM_MAX_BACKGROUND_COLOR_ARRAY		10
 #define FORM_ROWS_BETWEEN_HEADINGS		10
-#define FORM_SORT_LABEL				"sort_"
-#define FORM_DESCENDING_LABEL			"descend_"
+#define FORM_SORT_ASSEND_LABEL			"assend_"
+#define FORM_SORT_DESCEND_LABEL			"descend_"
 #define FORM_SUBMIT_BUTTON_LABEL		"|    Submit    |"
 
 #define FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER	'~'

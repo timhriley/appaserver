@@ -525,10 +525,6 @@ char *process_prompt_submit_command_line(
 		appaserver_error_filename(
 			application_name ) );
 
-	/* This memory is always heap */
-	/* -------------------------- */
-	free( command_line );
-
 	return strdup( local_command_line );
 }
 
@@ -759,10 +755,6 @@ char *process_choose_isa_command_line(
 		appaserver_error_filename(
 			application_name ) );
 
-	/* This memory is always heap */
-	/* -------------------------- */
-	free( command_line );
-
 	return strdup( local_command_line );
 }
 
@@ -959,10 +951,6 @@ char *process_operation_command_line(
 		appaserver_error_filename(
 			application_name ) );
 
-	/* This memory is always heap */
-	/* -------------------------- */
-	free( command_line );
-
 	return strdup( local_command_line );
 }
 
@@ -1043,10 +1031,6 @@ char *process_widget_command_line(
 		appaserver_error_filename(
 			application_name ) );
 
-	/* This memory is always heap */
-	/* -------------------------- */
-	free( command_line );
-
 	return strdup( command_line );
 }
 
@@ -1102,10 +1086,6 @@ char *process_parameter_command_line(
 		appaserver_error_filename(
 			environment_application_name() ) );
 
-	/* This memory is always heap */
-	/* -------------------------- */
-	free( command_line );
-
 	return strdup( command_line );
 }
 
@@ -1115,6 +1095,9 @@ LIST *process_delimited_list( char *command_line )
 }
 
 void process_replace_one_folder_command_line(
+			/* -------------------- */
+			/* Assumes stack memory */
+			/* -------------------- */
 			char *command_line,
 			char *one_folder_name )
 {

@@ -231,8 +231,8 @@ boolean process_interpreted_executable_ok(
 /* PROCESS command_line */
 /* -------------------- */
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_choose_isa_command_line(
 			char *command_line /* in */,
 			char *application_name,
@@ -241,17 +241,8 @@ char *process_choose_isa_command_line(
 			char *role_name,
 			char *one2m_isa_folder_name );
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
-char *process_widgetcommand_line(
-			char *command_line,
-			char *application_name,
-			char *one_folder_name,
-			char *state,
-			DICTIONARY *drillthru_dictionary );
-
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_update_row_command_line(
 			char *command_line,
 			DICTIONARY *drillthru_dictionary,
@@ -264,8 +255,8 @@ char *process_update_row_command_line(
 			char *one2m_folder_name,
 			LIST *primary_data_list );
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_prompt_submit_command_line(
 			char *command_line,
 			char *application_name,
@@ -274,23 +265,15 @@ char *process_prompt_submit_command_line(
 			char *login_name,
 			DICTIONARY *working_post_dictionary );
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
-char *process_search_replace_where(
-			char *command_line,
-			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name );
-
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
-char *process_replace_one_folder_command_line(
+void process_replace_one_folder_command_line(
+			/* -------------------- */
+			/* Assumes stack memory */
+			/* -------------------- */
 			char *command_line,
 			char *one_folder_name );
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_operation_command_line(
 			char *command_line,
 			char *application_name,
@@ -304,8 +287,8 @@ char *process_operation_command_line(
 			LIST *primary_data_list,
 			DICTIONARY *single_row_dictionary );
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_parameter_command_line(
 			char *command_line,
 			char *process_name,
@@ -313,8 +296,8 @@ char *process_parameter_command_line(
 			char *role_name,
 			DICTIONARY *drillthru_dictionary );
 
-/* Frees command_line and safely returns heap memory */
-/* ------------------------------------------------- */
+/* Safely returns heap memory */
+/* -------------------------- */
 char *process_widget_command_line(
 			char *command_line,
 			char *application_name,
@@ -323,18 +306,17 @@ char *process_widget_command_line(
 			char *state,
 			DICTIONARY *drillthru_dictionary );
 
-void process_replace_one_folder_command_line(
-			char *command_line,
-			char *one_folder_name );
-
-void process_replace_state_command_line(
-			char *command_line,
-			char *state );
-
 /* PROCESS output */
 /* -------------- */
 LIST *process_delimited_list(
 			char *command_line );
+
+void process_replace_state_command_line(
+			/* -------------------- */
+			/* Assumes stack memory */
+			/* -------------------- */
+			char *command_line,
+			char *state );
 
 #endif
 

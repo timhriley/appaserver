@@ -308,9 +308,9 @@ DICTIONARY *dictionary_separate_prefixed(
 	DICTIONARY *return_dictionary;
 
 	if ( ! ( return_dictionary =
-		dictionary_without_prefix(
-			post_dictionary,
-			prefix ) ) )
+			dictionary_without_prefix(
+				post_dictionary,
+				prefix ) ) )
 	{
 		return_dictionary = dictionary_small();
 	}

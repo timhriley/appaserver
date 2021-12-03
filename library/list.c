@@ -2569,3 +2569,17 @@ int list_seek_offset(	char *item,
 	return -1;
 }
 
+char *list_string_search(
+			char *string,
+			LIST *list )
+{
+	if ( item_exists( list, string, strcmp ) )
+	{
+		return (char *)list_get( list );
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+

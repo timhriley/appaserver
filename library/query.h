@@ -119,121 +119,82 @@ typedef struct
 
 typedef struct
 {
-	char *widget_folder_name;
-	LIST *exclude_attribute_name_list;
-	LIST *query_drop_down_list;
-	LIST *query_attribute_list;
-	char *query_drop_down_list_where;
-	char *query_attribute_list_where;
-	char *where_clause;
-} QUERY_WIDGET_WHERE;
-
-typedef struct
-{
-	char *folder_name;
-	char *attribute_name;
-	boolean attribute_is_date;
-	boolean attribute_is_date_time;
-	QUERY_DATE_CONVERT *query_date_convert;
-	char *query_select_string;
-} QUERY_SELECT;
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *query_dictionary;
-	LIST *where_attribute_data_list;
-	char *security_entity_where;
-	LIST *ignore_select_attribute_name_list;
-	DICTIONARY *sort_dictionary;
-
 	/* Process */
 	/* ------- */
-	QUERY_WIDGET_WHERE *query_widget_where;
-	PROMPT_RECURSIVE *prompt_recursive;
-	ROLE *role;
-	FOLDER *folder;
-	SECURITY_ENTITY *security_entity;
-	ROLE_FOLDER *role_folder;
-	int max_rows /* use zero for unlimited */;
-	LIST *query_drop_down_list;
-	LIST *query_prompt_recursive_drop_down_list;
-	LIST *query_attribute_list;
-	char *query_drop_down_where;
-	char *query_drop_down_data_where;
-	char *query_attribute_where;
-	char *query_join_where;
-	char *query_related_join;
-	LIST *select_list;
-	char *select_clause;
-	char *where_clause;
-	char *from_clause;
-	char *order_clause;
-	LIST *delimited_list;
-	LIST *dictionary_list;
-} QUERY;
+	char *column_string;
+} QUERY_SELECT;
 
-/* QUERY_ISA_WIDGET operations */
-/* --------------------------- */
+/* QUERY_SELECT operations */
+/* ----------------------- */
+QUERY_SELECT *query_select_calloc(
+			void );
+
+LIST *query_edit_table_select_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *ignore_select_attribute_name_list,
+			LIST *exclude_lookup_attribute_name_list,
+			int relation_mto1_isa_length,
+			QUERY_DATE_CONVERT *query_date_convert );
+
+LIST *query_widget_select_list(
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
+			QUERY_DATE_CONVERT *query_date_convert );
 
 /* Always succeeds */
 /* --------------- */
-QUERY *query_isa_widget_new(
+QUERY_SELECT *query_select_new(
+			char *folder_name,
+			char *attribute_name,
+			boolean attribute_is_date,
+			boolean attribute_is_date_time,
+			QUERY_DATE_CONVERT *query_date_convert );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_select_column_string(
+			char *folder_name,
+			char *attribute_name,
+			boolean attribute_is_date,
+			boolean attribute_is_date_time,
+			enum date_convert_format query_date_convert_format );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_select_list_string(
+			LIST *select_list );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_select_clause(
+			query_select_list_string );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	LIST *query_widget_select_list;
+	char *query_select_list_string;
+	char *query_select_clause;
+	char *query_from_clause;
+	char *query_where_clause;
+	char *query_order_clause;
+	LIST *delimited_list;
+} QUERY_ISA_WIDGET;
+
+/* QUERY_ISA_WIDGET operations */
+/* --------------------------- */
+QUERY_ISA_WIDGET *query_isa_widget_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+QUERY_ISA_WIDGET *query_isa_widget_new(
 			char *one2m_isa_folder_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_primary_list,
 			char *login_name,
 			char *security_entity_where );
-
-/* QUERY_WIDGET operations */
-/* ----------------------- */
-
-/* Always succeeds */
-/* --------------- */
-QUERY *query_widget_new(
-			char *widget_folder_name,
-			char *login_name,
-			LIST *primary_key_list,
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			DICTIONARY *drillthru_dictionary );
-
-/* QUERY_WIDGET_WHERE operations */
-/* ----------------------------- */
-QUERY_WIDGET_WHERE *query_widget_where_calloc(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-QUERY_WIDGET_WHERE *query_widget_where_new(
-			char *widget_folder_name,
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			DICTIONARY *drillthru_dictionary );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *query_widget_where_clause(
-			char *drop_down_where,
-			char *attribute_list_where,
-			char *security_entity_where );
-
-/* QUERY_TABLE operations */
-/* ---------------------- */
-QUERY *query_table_new(
-			char *security_sql_injection_escape_folder_name,
-			char *security_sql_injection_escape_login_name,
-			LIST *ignore_select_attribute_name_list,
-			ROLE *role,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictionary );
-
-/* QUERY where */
-/* ----------- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -290,44 +251,6 @@ char *query_drop_down_list_where(
 /* --------------------------- */
 char *query_attribute_list_where(
 			LIST *query_attribute_list );
-
-/* QUERY_SELECT operations */
-/* ----------------------- */
-
-/* Always succeeds */
-/* --------------- */
-QUERY_SELECT *query_select_new(
-			char *folder_name,
-			char *attribute_name,
-			boolean attribute_is_date,
-			boolean attribute_is_date_time,
-			QUERY_DATE_CONVERT *query_date_convert );
-
-LIST *query_select_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *ignore_select_attribute_name_list,
-			LIST *exclude_lookup_attribute_name_list,
-			int relation_mto1_isa_length,
-			QUERY_DATE_CONVERT *query_date_convert );
-
-LIST *query_primary_select_list(
-			LIST *primary_key_list,
-			LIST *folder_attribute_list,
-			QUERY_DATE_CONVERT *query_date_convert );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *query_select_clause(
-			LIST *select_list );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *query_select_string(
-			char *folder_name,
-			char *attribute_name,
-			boolean attribute_is_date,
-			boolean attribute_is_date_time,
-			enum date_convert_format );
 
 /* QUERY_DROP_DOWN operations */
 /* -------------------------- */
@@ -498,49 +421,6 @@ boolean query_date_time_between_attributes(
 			QUERY_ATTRIBUTE **time_between_attribute,
 			LIST *query_attribute_list,
 			boolean combine_date_time );
-
-boolean query_data_list_accounted_for(
-			LIST *query_drop_down_row_list,
-			LIST *data_list );
-
-char *query_get_order_clause(
-			DICTIONARY *sort_dictionary,
-			char *folder_name,
-			LIST *attribute_list );
-
-char *query_get_non_multi_key_sort_attribute_with_prefix_and_index(
-			DICTIONARY *sort_dictionary );
-
-char *query_get_multi_key_sort_attribute_with_prefix_and_index(
-			DICTIONARY *sort_dictionary );
-
-char *query_with_sort_multi_attribute_get_order_clause(
-			char *sort_multi_attribute_with_prefix_and_index,
-			char *folder_name,
-			LIST *attribute_list );
-
-char *query_parse_multi_attribute_get_order_clause(
-			char *sort_multi_attribute,
-			char *folder_name,
-			boolean descending,
-			LIST *attribute_list );
-
-LIST *query_prompt_recursive_drop_down_list(
-			LIST *exclude_attribute_name_list,
-			char *mto1_folder_name,
-			LIST *prompt_recursive_folder_list,
-			DICTIONARY *query_dictionary );
-
-QUERY_DROP_DOWN *query_process_drop_down(
-			LIST *exclude_attribute_name_list,
-			char *folder_name,
-			LIST *foreign_attribute_name_list,
-			LIST *attribute_list,
-			DICTIONARY *drilldown_dictionary );
-
-char *query_drop_down_list_in_clause_display(
-			char *attribute_name,
-			LIST *data_list );
 
 /* QUERY_OR_SEQUENCE operations */
 /* ---------------------------- */
@@ -776,9 +656,13 @@ LIST *query_primary_delimited_list(
 			LIST *foreign_key_list,
 			LIST *foreign_data_list );
 
-/* QUERY (Edit Table) */
-/* ------------------ */
-QUERY *query_edit_table(
+typedef struct
+{
+} QUERY_EDIT_TABLE;
+
+/* QUERY_EDIT_TABLE operations */
+/* --------------------------- */
+QUERY_EDIT_TABLE *query_edit_table_new(
 			char *folder_name,
 			SECURITY_ENTITY *security_entity,
 			LIST *relation_join_one2m_list,
@@ -793,10 +677,123 @@ LIST *query_edit_table_select_list(
 			LIST *ignore_select_attribute_name_list,
 			DATE_CONVERT *date_convert );
 
-QUERY_WHERE *query_edit_table_where(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_isa_list,
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	LIST *exclude_attribute_name_list;
+	LIST *query_drop_down_list;
+	char *query_drop_down_list_where;
+	LIST *query_attribute_list;
+	char *query_attribute_list_where;
+	char *query_widget_where;
+	char *clause;
+} QUERY_WIDGET_WHERE;
+
+/* QUERY_WIDGET_WHERE operations */
+/* ----------------------------- */
+QUERY_WIDGET_WHERE *query_widget_where_calloc(
+			void );
+
+QUERY_WIDGET_WHERE *query_widget_where_new(
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
 			char *security_entity_where,
-			DICTIONARY *query_dictionary );
+			DICTIONARY *drillthru_dictionary );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_widget_where(
+			char *query_drop_down_where,
+			char *query_attribute_list_where,
+			char *security_entity_where );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_widget_where_clause(
+			char *query_widget_where );
+
+char *query_widget_where_string(
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	LIST *select_list;
+	char *query_select_list_string;
+	char *query_select_clause;
+	char *query_from_clause;
+	QUERY_WIDGET_WHERE *where;
+	char *query_order_clause;
+	LIST *delimited_list;
+} QUERY_WIDGET;
+
+/* QUERY_WIDGET operations */
+/* ----------------------- */
+QUERY_WIDGET *query_widget_calloc(
+			void );
+
+QUERY_WIDGET *query_widget_new(
+			char *widget_folder_name,
+			char *login_name,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary );
+
+typedef struct
+{
+	/* stub */
+} QUERY_FROM;
+
+/* QUERY_FROM operations */
+/* --------------------- */
+
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_from_clause(
+			char *folder_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_edit_table_from_clause(
+			char *folder_name,
+			LIST *relation_mto1_isa_list,
+			ROW_SECURITY_ROLE *row_security_role );
+
+typedef struct
+{
+	/* stub */
+} QUERY_ORDER;
+
+/* QUERY_ORDER operations */
+/* ---------------------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_order_clause(
+			char *query_select_list_string,
+			DICTIONARY *sort_dictionary );
+
+char *query_order_key_list_clause(
+			LIST *key_list );
+
+typedef struct
+{
+	/* stub */
+} QUERY_WHERE;
+
+/* QUERY_WHERE operations */
+/* ---------------------- */
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *query_where_clause(
+			char *where_string );
 
 #endif

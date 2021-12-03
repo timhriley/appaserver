@@ -1398,9 +1398,28 @@ char *string_initial_capital(
 	return destination;
 }
 
+char *string_search_replace_character(
+			char *source_destination,
+			char search_character,
+			char replace_character )
+{
+	char *ptr = source_destination;
+
+	while ( *ptr )
+	{
+		if ( *ptr == search_character )
+		{
+			*ptr = replace_character;
+		}
+		ptr++;
+	}
+
+	return source_destination;
+}
+
 char *string_search_replace(
 			char *source_destination,
-			char *search_string ,
+			char *search_string,
 			char *replace_string )
 {
         int here;

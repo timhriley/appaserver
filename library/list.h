@@ -428,7 +428,8 @@ char *list_display_delimited_prefixed(
 			char delimiter, 
 			char *prefix );
 
-int list_search_string(	LIST *list,
+boolean list_search_string(
+			LIST *list,
 			char *string );
 
 void list_toupper(	LIST *list );
@@ -665,5 +666,9 @@ LIST *list_string_new(		char *string );
 char *list_length_display(
 			LIST *string_list,
 			int how_many );
+
+char *list_string_search(
+			char *string,
+			LIST *list );
 
 #endif

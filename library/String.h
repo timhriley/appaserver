@@ -236,6 +236,11 @@ char *string_separate_delimiter(
 			char *destination,
 			char *source );
 
+char *string_search_replace_character(
+			char *source_destination,
+			char search_character,
+			char replace_character );
+
 char *string_search_replace(
 			char *source_destination,
 			char *search_string,
