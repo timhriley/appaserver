@@ -34,6 +34,59 @@ typedef struct
 	char *title_tag;
 } DOCUMENT_HEAD;
 
+/* DOCUMENT_HEAD operations */
+/* ------------------------ */
+DOCUMENT_HEAD *document_head_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+DOCUMENT_HEAD *document_head_new(
+			char *title_string,
+			char *menu_setup_string,
+			char *calendar_setup_string,
+			char *javascript_include_string );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_meta_string(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_head_stylesheet_string(
+			char *application_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_head_title_tag(
+			char *title_string );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_menu_setup_string(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_calendar_setup_string(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_javascript_include_string(
+			void );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_head_begin_html(
+			DOCUMENT_HEAD *document_head );
+
+/* Returns program memory */
+/* ---------------------- */
+char *document_head_close_html(
+			void );
+
 typedef struct
 {
 	/* Input */
@@ -102,59 +155,6 @@ char *document_close_html(
 			void );
 
 void document_close(	void );
-
-/* DOCUMENT_HEAD operations */
-/* ------------------------ */
-DOCUMENT_HEAD *document_head_calloc(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-DOCUMENT_HEAD *document_head_new(
-			char *title_string,
-			char *menu_setup_string,
-			char *calendar_setup_string,
-			char *javascript_include_string );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_head_meta_string(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *document_head_stylesheet_string(
-			char *application_name );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *document_head_title_tag(
-			char *title_string );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_head_menu_setup_string(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_head_calendar_setup_string(
-			void );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_head_javascript_include_string(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *document_head_begin_html(
-			DOCUMENT_HEAD *document_head );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_head_close_html(
-			void );
 
 /* DOCUMENT_BODY operations */
 /* ------------------------ */
