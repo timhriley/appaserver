@@ -136,26 +136,54 @@ char *javascript_source(
 	return strdup( source );
 }
 
-char *javascript_replace_state(
+char *javascript_replace(
+			char *post_change_javascript,
+			char *state,
+			int row_number )
+{
+	char javascript[ 1024 ];
+
+	if ( !post_change_javascript || !*post_change_javascript )
+		return (char *)0;
+
+	strcpy( javascript, post_change_javascript );
+
+	if ( state && *state )
+	{
+		javascript_replace_state(
+			javascript,
+			state );
+	}
+
+	javascript_replace_row(
+		javascript,
+		row_number );
+
+	return strdup( javascript );
+}
+
+void javascript_replace_state(
 			char *post_change_javascript,
 			char *state )
 {
-	return
 	search_replace_string(
 		post_change_javascript,
 		"$state",
 		state );
 }
 
-char *javascript_replace_row(
+void javascript_replace_row(
 			char *post_change_javascript,
-			char *row )
+			int row_number )
 {
-	return
+	char row_string[ 16 ];
+
+	sprintf( row_string, "%d", row_number );
+
 	search_replace_string(
 		post_change_javascript,
 		"$row",
-		row );
+		row_string );
 }
 
 char *javascript_post_change_append(

@@ -29,22 +29,29 @@ char *javascript_html(
 			char *document_root_directory,
 			char *application_relative_source_directory );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *javascript_replace(
+			char *post_change_javascript,
+			char *state,
+			int row_number );
+
 char *javascript_source(
 			char *javascript_html,
 			char *document_root_directory );
-
-char *javascript_replace_state(
-			char *post_change_javascript,
-			char *state );
-
-
-char *javascript_replace_row(
-			char *post_change_javascript,
-			char *row );
 
 char *javascript_post_change_append(
 			char *original_post_change_javascript,
 			char *post_change_javascript,
 			boolean place_first );
+
+void javascript_replace_state(
+			char *post_change_javascript,
+			char *state );
+
+
+void javascript_replace_row(
+			char *post_change_javascript,
+			int row_number );
 
 #endif
