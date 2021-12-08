@@ -89,18 +89,58 @@ char *document_head_close_html(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *onload_string;
-	MENU *menu;
-
-	/* Attributes */
-	/* ---------- */
-	FORM_PROMPT_ISA *form_prompt_isa;
-	FORM_PROMPT *form_prompt;
-	FORM_TABLE *form_table;
-	FORM_DETAIL *form_detail;
+	char *menu_onload_string;
+	char *tag;
+	char *hide_preload_html;
+	char *horizontal_menu_html;
+	char *title_html;
+	char *open_html;
 } DOCUMENT_BODY;
+
+/* DOCUMENT_BODY operations */
+/* ------------------------ */
+DOCUMENT_BODY *document_body_calloc(
+			void );
+
+DOCUMENT_BODY *document_body_new(
+			MENU *menu,
+			boolean menu_boolean,
+			char *document_title,
+			char *javascript_replace );
+
+/* Returns program memory or null */
+/* ------------------------------ */
+char *document_body_menu_onload_string(
+			boolean menu_boolean );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *document_body_tag(
+			char *menu_onload_string,
+			char *javascript_replace );
+
+/* Returns program memory or null */
+/* ------------------------------ */
+char *document_body_hide_preload_html(
+			boolean menu_boolean );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *document_body_horizontal_menu_html(
+			char *hide_preload_html,
+			MENU *menu,
+			boolean menu_boolean );
+
+char *document_body_title_html(
+			char *document_title );
+
+char *document_body_open_html(
+			char *tag,
+			char *horizontal_menu_html,
+			char *title_html );
+
+char *document_body_close_html(
+			void );
 
 typedef struct
 {
@@ -155,49 +195,6 @@ char *document_close_html(
 			void );
 
 void document_close(	void );
-
-/* DOCUMENT_BODY operations */
-/* ------------------------ */
-DOCUMENT_BODY *document_body_calloc(
-			void );
-
-DOCUMENT_BODY *document_body_new(
-			char *onload_string,
-			MENU *menu );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_body_menu_onload_string(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *document_body_onload_string(
-			char *menu_onload_string,
-			char *onload_string );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *document_body_begin_html(
-			char *onload_string );
-
-/* Returns program memory */
-/* ---------------------- */
-char *document_body_hide_preload_message(
-			void );
-
-void document_body_horizontal_menu_output(
-			FILE *output_stream,
-			char *hide_preload_message,
-			MENU *menu );
-
-void document_body_vertical_menu_output(
-			FILE *output_stream,
-			MENU *menu );
-
-void document_body_begin(
-			FILE *output_stream,
-			DOCUMENT_BODY *document_body );
 
 /* DOCUMENT choose_isa operations */
 /* ------------------------------ */

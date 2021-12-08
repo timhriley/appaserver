@@ -185,16 +185,152 @@ void document_quick_output( char *application_name )
 	free( tmp );
 }
 
+DOCUMENT_BODY *document_body_calloc( void )
+{
+	DOCUMENT_BODY *document_body;
+
+	if ( ! ( document_body = calloc( 1, sizeof( DOCUMENT_BODY ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_body;
+}
+
 DOCUMENT_BODY *document_body_new(
-			char *onload_string,
-			MENU *menu )
+			MENU *menu,
+			boolean menu_boolean,
+			char *document_title,
+			char *javascript_replace )
 {
 	DOCUMENT_BODY *document_body = document_body_calloc();
 
-	document_body->onload_string = onload_string;
-	document_body->menu = menu;
+	document_body->menu_onload_string =
+		document_body_menu_onload_string(
+			menu_boolean );
+
+	document_body->tag =
+		document_body_tag(
+			document_body->menu_onload_string,
+			javascript_replace );
+
+	document_body->hide_preload_html =
+		document_body_hide_preload_html(
+			menu_boolean );
+
+	document_body->horizontal_menu_html =
+		document_body_horizontal_menu_html(
+			document_body->hide_preload_html,
+			menu,
+			menu_boolean );
+
+	document_body->title_html =
+		document_body_title_html(
+			document_title );
+
+	document_body->open_html =
+		document_body_open_html(
+			document_body->tag,
+			document_body->horizontal_menu_html,
+			document_body->title_html );
+
+	document_body->close_html =
+		document_body_close_html();
 
 	return document_body;
+}
+
+char *document_body_tag(
+			char *menu_onload_string,
+			char *javascript_replace )
+{
+	char tag[ 2048 ];
+	char *ptr = tag;
+
+	ptr += sprintf(
+		ptr,
+		"<body leftmargin=0 topmargin=0 marginwidth=0 marginheight=0" );
+
+	if ( ( menu_onload_string && *menu_onload_string )
+	||   ( javascript_replace && *javascript_replace ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"<onload=\"" );
+
+		if ( menu_onload_string && *menu_onload_string )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				menu_onload_string );
+		}
+
+		if ( menu_onload_string && *menu_onload_string
+		&&   javascript_replace && *javascript_replace )
+		{
+			ptr += sprintf(
+				ptr,
+				";" );
+		}
+
+		if ( javascript_replace && *javascript_replace )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				javascript_replace );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"\">" );
+	}
+
+	return stdup( tag );
+}
+
+char *document_body_hide_preload_html( boolean menu_boolean )
+{
+	if ( !menu_boolean ) return (char *)0;
+
+	return
+"<script type=\"text/javascript\">//<![CDATA[ \ndocument.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");//]]></script>\n\n";
+}
+
+char *document_body_horizontal_menu_html(
+			char *hide_preload_html,
+			MENU *menu,
+			boolean menu_boolean )
+{
+	char horizontal_menu_html[ STRING_ONE_MEG ];
+	char *ptr = horizontal_menu_html;
+
+	if ( !menu_boolean ) return (char *)0;
+
+	*ptr = '\0';
+
+	return strdup( horizontal_menu_html );
+}
+
+char *document_body_title_html( char *document_title )
+{
+}
+
+char *document_body_open_html(
+			char *tag,
+			char *horizontal_menu_html,
+			char *title_html )
+{
+}
+
+char *document_body_close_html( void )
+{
 }
 
 char *document_body_begin_html(
@@ -421,17 +557,12 @@ char *document_body_onload_string(
 	return strdup( string );
 }
 
-char *document_body_menu_onload_string( void )
+char *document_body_menu_onload_string( boolean menu_boolean )
 {
+	if ( !menu_boolean ) return (char *)0;
+
 	return
 "DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: true, scrolling: true} )";
-}
-
-char *document_body_hide_preload_message( void )
-{
-	return
-"<script type=\"text/javascript\">//<![CDATA[ \ndocument.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");\n"
-"//]]></script>\n\n";
 }
 
 char *document_standard_string( void )
