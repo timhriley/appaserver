@@ -89,7 +89,7 @@ boolean appaserver_exclude_permission(
 			LIST *exclude_permission_list,
 			char *permission );
 
-boolean appaserver_frameset_menu_horizontal(
+boolean frameset_menu_horizontal(
 			char *application_name,
 			char *login_name );
 

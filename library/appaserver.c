@@ -75,24 +75,6 @@ boolean appaserver_exclude_permission(
 	return 0;
 }
 
-boolean appaserver_frameset_menu_horizontal(
-			char *application_name,
-			char *login_name )
-{
-	char frameset_menu_horizontal_yn;
-
-	if ( appaserver_user_frameset_menu_horizontal( login_name ) )
-	{
-		return 1;
-	}
-
-	frameset_menu_horizontal_yn =
-		application_frameset_menu_horizontal_yn(
-			application_name );
-
-	return (frameset_menu_horizontal_yn == 'y');
-}
-
 LIST *appaserver_isa_folder_list( char *application_name )
 {
 	static LIST *isa_folder_list = {0};

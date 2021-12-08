@@ -14,8 +14,10 @@
 #include "dictionary.h"
 #include "role.h"
 #include "folder.h"
-#include "query.h"
+#include "security.h"
+#include "menu.h"
 #include "row_security.h"
+#include "query.h"
 
 /* Constants */
 /* --------- */
@@ -28,17 +30,14 @@ typedef struct
 	/* ------- */
 	ROLE *role;
 	FOLDER *folder;
-	QUERY *query;
+	SECURITY_ENTITY *security_entity;
 	char *state;
-	boolean with_dynarch_menu;
-	int row_insert_count;
-	int cell_update_count;
-	char *cell_update_folder_list_string;
-	char *results_string;
-	boolean content_type;
+	boolean menu_boolean;
+	MENU *menu;
 	boolean primary_keys_non_edit;
-	ROW_SECURITY *row_security;
-	DOCUMENT *document;
+	ROW_SECURITY_EDIT_TABLE *row_security_edit_table;
+	QUERY_EDIT_TABLE *query_edit_table;
+	DOCUMENT_EDIT_TABLE *document_edit_table;
 } EDIT_TABLE;
 
 /* Prototypes */
@@ -53,6 +52,7 @@ EDIT_TABLE *edit_table_new(
 			char *folder_name,
 			char *role_name,
 			char *target_frame,
+			boolean frameset_menu_horizontal,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
@@ -65,9 +65,6 @@ EDIT_TABLE *edit_table_new(
 /* ---------------------- */
 char *edit_table_state(
 			LIST *role_folder_list );
-
-boolean edit_table_with_dynarch_menu(
-			char *target_frame );
 
 int edit_table_row_insert_count(
 			DICTIONARY *non_prefixed_dictionary );

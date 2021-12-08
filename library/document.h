@@ -62,15 +62,15 @@ char *document_head_stylesheet_string(
 char *document_head_title_tag(
 			char *title_string );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns program memory or null */
+/* ------------------------------ */
 char *document_head_menu_setup_string(
-			void );
+			boolean menu_boolean );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns program memory or null */
+/* ------------------------------ */
 char *document_head_calendar_setup_string(
-			void );
+			int folder_attribute_date_name_list_length );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -220,5 +220,44 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 			LIST *delimited_list,
 			boolean no_initial_capital,
 			char *action_string );
+
+typedef struct
+{
+	FORM_EDIT_TABLE *form_edit_table;
+} DOCUMENT_BODY_EDIT_TABLE;
+
+/* DOCUMENT_BODY_EDIT_TABLE operations */
+/* ----------------------------------- */
+DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc(
+			void );
+
+DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
+			char * );
+
+typedef struct
+{
+	DOCUMENT_HEAD *document_head;
+	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table;
+} DOCUMENT_EDIT_TABLE;
+
+/* DOCUMENT_EDIT_TABLE operations */
+/* ------------------------------ */
+DOCUMENT_EDIT_TABLE *document_edit_table_calloc(
+			void );
+
+DOCUMENT_EDIT_TABLE *document_edit_table_new(
+			char *edit_table_title,
+			char *edit_table_message,
+			char *folder_name,
+			MENU *menu,
+			LIST *folder_attribute_append_isa_list,
+			LIST *dictionary_list,
+			char *edit_table_submit_action_string,
+			LIST *edit_table_heading_list,
+			DICTIONARY *ignore_dictionary,
+			DICTIONARY *non_prefixed_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary );
+
 
 #endif

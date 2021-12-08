@@ -196,18 +196,14 @@ void post_login_frameset_output(
 {
 	FRAMESET *frameset;
 	char title[ 1024 ];
-	boolean create_menu_frame;
-
-	create_menu_frame =
-		1 - appaserver_frameset_menu_horizontal(
-			application_name,
-			login_name );
 
 	if ( ! ( frameset =
 			frameset_new(
 				application_name,
 				session_key,
-				create_menu_frame ) ) )
+				appaserver_frameset_menu_horizontal(
+					application_name,
+					login_name ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: frameset_new() returned empty.\n",

@@ -9,6 +9,7 @@
 #include <string.h>
 #include "application.h"
 #include "appaserver_library.h"
+#include "appaserver_user.h"
 #include "timlib.h"
 #include "frameset.h"
 
@@ -46,7 +47,7 @@ FRAMESET_FRAME *frameset_frame_calloc( void )
 
 FRAMESET *frameset_new(	char *application_name,
 			char *session_key,
-			boolean create_menu_frame )
+			boolean frameset_menu_horizontal )
 {
 	FRAMESET *frameset = frameset_calloc();
 
@@ -91,7 +92,7 @@ FRAMESET *frameset_new(	char *application_name,
 			frameset->frameset_frame_menu->html,
 			frameset->frameset_frame_prompt->html,
 			frameset->frameset_frame_edit->html,
-			create_menu_frame );
+			frameset_menu_horizontal );
 
 	return frameset;
 }
@@ -99,7 +100,7 @@ FRAMESET *frameset_new(	char *application_name,
 char *frameset_html(	char *menu_frame_html,
 			char *prompt_frame_html,
 			char *edit_frame_html,
-			boolean create_menu_frame )
+			boolean frameset_menu_horizontal )
 {
 	char html[ 2048 ];
 
@@ -118,7 +119,7 @@ char *frameset_html(	char *menu_frame_html,
 		exit( 1 );
 	}
 
-	if ( create_menu_frame )
+	if ( !frameset_menu_horizontal )
 	{
 		sprintf(html,
 			"<frameset cols=\"200,*\">\n"
@@ -228,5 +229,32 @@ char *frameset_frame_html(
 		prompt_filename );
 
 	return strdup( html );
+}
+
+boolean frameset_menu_horizonatal(
+			FRAMESET_FRAME *frameset_frame_menu )
+{
+	if ( frameset_frame_menu )
+		return 0;
+	else
+		return 1;
+}
+
+boolean frameset_menu_horizontal(
+			char *application_name,
+			char *login_name )
+{
+	char frameset_menu_horizontal_yn;
+
+	if ( appaserver_user_frameset_menu_horizontal( login_name ) )
+	{
+		return 1;
+	}
+
+	frameset_menu_horizontal_yn =
+		application_frameset_menu_horizontal_yn(
+			application_name );
+
+	return (frameset_menu_horizontal_yn == 'y');
 }
 

@@ -75,15 +75,22 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( ! ( edit_table =
-			edit_table_new(
-				application_name,
-				login_name,
-				session_key,
-				folder_name,
-				role_name,
-				target_frame,
-				post_dictionary ) ) )
+	edit_table =
+		edit_table_new(
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			target_frame,
+			dictionary_separate->query_dictionary,
+			dictionary_separate->ignore_dictionary,
+			dictionary_separate->non_prefixed_dictionary,
+			dictionary_separate->drillthru_dictionary,
+			dictionary_separate->sort_dictionary,
+			dictionary_separate->ignore_select_attribute_name_list);
+
+	if ( !edit_table )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: edit_table_new(%s) returned empty.\n",

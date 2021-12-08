@@ -61,7 +61,8 @@ DOCUMENT *document_new(	char *application_name,
 				/* ------------------------- */
 				application_title_string(
 					application_name ),
-				document_head_menu_setup_string(),
+				document_head_menu_setup_string(
+					1 /* menu_boolean */ ),
 				(char *)0 /* calendar_setup_string */,
 				(char *)0 /* javascript_include_string */ );
 
@@ -286,15 +287,21 @@ char *document_head_javascript_include_string( void )
 
 }
 
-char *document_head_menu_setup_string( void )
+char *document_head_menu_setup_string( boolean menu_boolean )
 {
-	return
+	if ( !menu_boolean )
+	{
+		return (char *)0;
+	}
+	else
+	{
+		return
 "<link rel=stylesheet type=text/css href=\"/appaserver/zmenu/src/style-template.css\">\n"
 "<link rel=stylesheet type=text/css href=\"/appaserver/zmenu/src/skin-template.css\">\n"
 "<script type=text/javascript> _dynarch_menu_url=\"/appaserver/zmenu/src/\"; </script>\n"
 "<script type=text/javascript> _dynarch_top=\"/appaserver/zmenu/\"; </script>\n"
 "<script type=text/javascript src=\"/appaserver/zmenu/src/hmenu.js\"> </script>";
-
+	}
 }
 
 char *document_head_begin_html(
@@ -433,15 +440,22 @@ char *document_standard_string( void )
 "xmlns=\"http://www.w3.org/1999/xhtml\"";
 }
 
-char *document_head_calendar_setup_string( void )
+char *document_head_calendar_setup_string(
+			int folder_attribute_date_name_list_length )
 {
-	return
+	if ( !folder_attribute_date_name_list_length )
+	{
+		return (char *)0;
+	}
+	else
+	{
+		return
 "<link rel=stylesheet type=text/css href=/appaserver/zscal2/src/css/jscal2.css>\n"
 "<link rel=stylesheet type=text/css href=/appaserver/zscal2/src/css/border-radius.css>\n"
 "<link rel=stylesheet type=text/css href=/appaserver/zscal2/src/css/gold/gold.css>\n"
 "<script type=text/javascript src=/appaserver/zscal2/src/js/jscal2.js></script>\n"
 "<script type=text/javascript src=/appaserver/zscal2/src/js/lang/en.js></script>";
-
+	}
 }
 
 void document_body_horizontal_menu_output(
@@ -473,7 +487,7 @@ DOCUMENT *document_choose_isa_new(
 	document->document_head =
 		document_head_new(
 			title,
-			document_head_menu_setup_string(),
+			document_head_menu_setup_string( 1 /* menu_boolean */ ),
 			(char *)0 /* calendar_setup_string */,
 			document_head_javascript_include_string() );
 
@@ -644,4 +658,56 @@ void document_close( void )
 	printf( "%s\n",
 		document_close_html() );
 }
+
+DOCUMENT_EDIT_TABLE *document_edit_table_calloc( void )
+{
+	DOCUMENT_EDIT_TABLE *document_edit_table;
+
+	if ( ! ( document_edit_table =
+			calloc( 1, sizeof( DOCUMENT_EDIT_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_edit_table;
+}
+
+DOCUMENT_EDIT_TABLE *document_edit_table_new(
+			char *edit_table_title,
+			char *edit_table_message,
+			char *folder_name,
+			MENU *menu,
+			LIST *folder_attribute_append_isa_list,
+			LIST *dictionary_list,
+			char *edit_table_submit_action_string,
+			LIST *edit_table_heading_list,
+			DICTIONARY *ignore_dictionary,
+			DICTIONARY *non_prefixed_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary )
+{
+	DOCUMENT_EDIT_TABLE *document_edit_table =
+		document_edit_table_calloc();
+
+	document_edit_table->document_head =
+		document_head_new(
+			edit_table_title,
+			document_head_menu_setup_string(
+				(menu) ? 1 : 0 /* menu_boolean */ ),
+			document_head_calendar_setup_string(
+				list_length(
+					folder_attribute_date_name_list(
+					 folder_attribute_append_isa_list ) ) ),
+			document_head_javascript_include_string() );
+
+
+	document_edit_table->document_body_edit_table =
+		document_body_edit_table_new(
+
+	return document_edit_table;
 

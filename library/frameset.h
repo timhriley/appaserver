@@ -38,6 +38,25 @@ typedef struct
 	char *html;
 } FRAMESET_FRAME;
 
+/* FRAMESET_FRAME operations */
+/* ------------------------- */
+FRAMESET_FRAME *frameset_frame_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+FRAMESET_FRAME *frameset_frame_new(
+			char *application_name,
+			char *document_root_directory,
+			char *session_key,
+			char *frame_name );
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *frameset_frame_html(
+			char *frame_name,
+			char *prompt_filename );
+
 typedef struct
 {
 	/* Input */
@@ -62,7 +81,7 @@ FRAMESET *frameset_calloc(
 FRAMESET *frameset_new(
 			char *application_name,
 			char *session_key,
-			boolean create_menu_frame );
+			boolean frameset_menu_horizontal );
 
 /* Safely returns heap memory */
 /* -------------------------- */
@@ -70,26 +89,11 @@ char *frameset_html(
 			char *menu_frame_html,
 			char *prompt_frame_html,
 			char *edit_frame_html,
-			boolean create_menu_frame );
+			boolean frameset_menu_horizontal );
 
-/* FRAMESET_FRAME operations */
-/* ------------------------- */
-FRAMESET_FRAME *frameset_frame_calloc(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-FRAMESET_FRAME *frameset_frame_new(
+boolean frameset_menu_horizontal(
 			char *application_name,
-			char *document_root_directory,
-			char *session_key,
-			char *frame_name );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *frameset_frame_html(
-			char *frame_name,
-			char *prompt_filename );
+			char *login_name );
 
 #endif
 

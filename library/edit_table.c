@@ -12,7 +12,6 @@
 #include <malloc.h>
 #include "environ.h"
 #include "appaserver_library.h"
-#include "frameset.h"
 #include "edit_table.h"
 
 EDIT_TABLE *edit_table_calloc( void )
@@ -36,15 +35,14 @@ EDIT_TABLE *edit_table_calloc( void )
 EDIT_TABLE *edit_table_new(
 			char *application_name,
 			char *login_name,
-			char *session,
+			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *insert_update_key,
 			char *target_frame,
+			boolean frameset_menu_horizontal,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *sort_dictionary,
 			LIST *ignore_select_attribute_name_list )
@@ -187,12 +185,6 @@ boolean edit_table_primary_keys_non_edit(
 			int relation_mto1_isa_list_length )
 {
 	return ( relation_mto1_isa_list_length >= 1 );
-}
-
-boolean edit_table_with_dynarch_menu(
-			char *target_frame )
-{
-	return ( strcmp( target_frame, FRAMESET_PROMPT_FRAME ) == 0 );
 }
 
 int edit_table_row_insert_count(

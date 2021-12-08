@@ -13,6 +13,7 @@
 #include "appaserver_parameter_file.h"
 #include "appaserver_library.h"
 #include "application.h"
+#include "frameset.h"
 #include "folder_menu.h"
 #include "role.h"
 #include "role_folder.h"
@@ -1270,5 +1271,13 @@ void menu_item_horizontal_output(
 			menu_item->span_tag );
 
 	} while ( list_next( menu_item_list ) );
+}
+
+boolean menu_boolean(
+			char *target_frame,
+			boolean frameset_menu_horizontal )
+{
+	return ( frameset_menu_horizontal &&
+		 strcmp( target_frame, FRAMESET_PROMPT_FRAME ) == 0 );
 }
 

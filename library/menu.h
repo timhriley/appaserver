@@ -316,4 +316,8 @@ void menu_item_horizontal_output(
 			FILE *output_stream,
 			LIST *menu_item_list );
 
+boolean menu_boolean(
+			char *target_frame,
+			boolean frameset_menu_horizontal );
+
 #endif
