@@ -151,9 +151,10 @@ MENU_VERB *menu_verb_login_name_display(
 /* -------------------------- */
 char *menu_verb_tag(	char *verb );
 
-void menu_verb_horizontal_output(
-			FILE *output_stream,
-			char *hide_preload_message,
+/* Returns heap memory or null */
+/* --------------------------- */
+char *menu_horizontal_html(
+			char *hide_preload_html,
 			LIST *menu_verb_list );
 
 /* MENU_SUBSCHEMA operations */
@@ -200,8 +201,9 @@ MENU_SUBSCHEMA *menu_insert_subschema_fetch(
 char *menu_subschema_span_tag(
 			char *subschema_name );
 
-void menu_subschema_horizontal_output(
-			FILE *output_stream,
+/* Returns static memory */
+/* --------------------- */
+char *menu_subschema_horizontal_html(
 			LIST *subschema_list );
 
 /* MENU_ITEM operations */
@@ -312,8 +314,9 @@ char *menu_item_role_change_action_tag(
 			char *session_key,
 			char *role_name );
 
-void menu_item_horizontal_output(
-			FILE *output_stream,
+/* Returns static memory */
+/* --------------------- */
+char *menu_item_horizontal_html(
 			LIST *menu_item_list );
 
 boolean menu_boolean(

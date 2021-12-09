@@ -48,49 +48,33 @@ char *document_html_standard_url( void )
 }
 
 DOCUMENT *document_new(	char *application_name,
-			MENU *menu )
+			MENU *menu,
+			boolean menu_boolean,
+			char *document_title,
+			char *javascript_replace,
+			int folder_attribute_date_name_list_length )
 {
 	DOCUMENT *document = document_calloc();
 
-	if ( application_name && menu )
-	{
-		document->document_head =
-			document_head_new(
-				/* ------------------------- */
-				/* Returns heap memory or "" */
-				/* ------------------------- */
-				application_title_string(
-					application_name ),
-				document_head_menu_setup_string(
-					1 /* menu_boolean */ ),
-				(char *)0 /* calendar_setup_string */,
-				(char *)0 /* javascript_include_string */ );
+	document->document_head =
+		document_head_new(
+			/* ------------------------- */
+			/* Returns heap memory or "" */
+			/* ------------------------- */
+			application_title_string(
+				application_name ),
+			document_head_menu_setup_string(
+				menu_boolean ),
+			document_head_calendar_setup_string(
+			       folder_attribute_date_name_list_length ),
+			document_head_javascript_include_string() );
 
-		document->document_body =
-			document_body_new(
-			     document_body_onload_string(
-				   document_body_menu_onload_string(),
-				   (char *)0 /* additional_onload_string */ ),
-			     menu );
-	}
-	else
-	{
-		document->document_head =
-			document_head_new(
-				/* ------------------------- */
-				/* Returns heap memory or "" */
-				/* ------------------------- */
-				application_title_string(
-					application_name ),
-				(char *)0 /* menu_setup_string */,
-				(char *)0 /* calendar_setup_string */,
-				(char *)0 /* javascript_include_string */ );
-
-		document->document_body =
-			document_body_new(
-				(char *)0 /* onload_string */,
-				(MENU *)0 /* menu */ );
-	}
+	document->document_body =
+		document_body_new(
+			menu,
+			menu_boolean,
+			document_title,
+			javascript_replace );
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -109,11 +93,11 @@ void document_output_content_type( void )
 	fflush( stdout );
 }
 
-char *document_begin_html(
+char *document_open_html(
 			char *type_string,
 			char *standard_string )
 {
-	char html[ STRING_INPUT_BUFFER ];
+	char html[ 1024 ];
 
 	if ( !type_string || !standard_string )
 	{
@@ -146,13 +130,17 @@ void document_quick_output( char *application_name )
 		/* --------------- */
 		document_new(
 			application_name,
-			(MENU *)0 /* menu */ );
+			(MENU *)0 /* menu */,
+			0 /* not menu_boolean */,
+			(char *)0 /* document_title */,
+			(char *)0 /* javascript_replace */,
+			0 /* folder_attribute_date_name_list */ );
 
 	printf("%s\n",
 		/* -------------------------- */
 		/* Safely returns heap memory */
 		/* -------------------------- */
-		( tmp = document_begin_html(
+		( tmp = document_open_html(
 				document->type_string,
 				document->standard_string ) ) );
 
@@ -163,7 +151,7 @@ void document_quick_output( char *application_name )
 		/* Safely returns heap memory */
 		/* -------------------------- */
 		( tmp =
-			document_head_begin_html(
+			document_head_open_html(
 				document->document_head ) ) );
 
 	free( tmp );
@@ -211,6 +199,9 @@ DOCUMENT_BODY *document_body_new(
 	DOCUMENT_BODY *document_body = document_body_calloc();
 
 	document_body->menu_onload_string =
+		/* ------------------------------ */
+		/* Returns program memory or null */
+		/* ------------------------------ */
 		document_body_menu_onload_string(
 			menu_boolean );
 
@@ -224,12 +215,18 @@ DOCUMENT_BODY *document_body_new(
 			menu_boolean );
 
 	document_body->horizontal_menu_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		document_body_horizontal_menu_html(
 			document_body->hide_preload_html,
 			menu,
 			menu_boolean );
 
 	document_body->title_html =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
 		document_body_title_html(
 			document_title );
 
@@ -239,8 +236,7 @@ DOCUMENT_BODY *document_body_new(
 			document_body->horizontal_menu_html,
 			document_body->title_html );
 
-	document_body->close_html =
-		document_body_close_html();
+	document_body->close_html = document_body_close_html();
 
 	return document_body;
 }
@@ -303,23 +299,41 @@ char *document_body_hide_preload_html( boolean menu_boolean )
 "<script type=\"text/javascript\">//<![CDATA[ \ndocument.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");//]]></script>\n\n";
 }
 
-char *document_body_horizontal_menu_html(
+char *document_body_menu_horizontal_html(
 			char *hide_preload_html,
 			MENU *menu,
 			boolean menu_boolean )
 {
-	char horizontal_menu_html[ STRING_ONE_MEG ];
-	char *ptr = horizontal_menu_html;
-
 	if ( !menu_boolean ) return (char *)0;
 
-	*ptr = '\0';
+	if ( !menu )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: menu is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	return strdup( horizontal_menu_html );
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	return menu_horizontal_html(
+			hide_preload_html,
+			menu->menu_verb_list );
 }
 
 char *document_body_title_html( char *document_title )
 {
+	static char title_html[ 256 ];
+
+	if ( !document_title || !*document_title ) return (char *)0;
+
+	sprintf(title_html,
+		"<h1>%s</h1",
+		document_title );
+
+	return title_html;
 }
 
 char *document_body_open_html(
@@ -331,6 +345,7 @@ char *document_body_open_html(
 
 char *document_body_close_html( void )
 {
+	return "</body>";
 }
 
 char *document_body_begin_html(
@@ -440,7 +455,7 @@ char *document_head_menu_setup_string( boolean menu_boolean )
 	}
 }
 
-char *document_head_begin_html(
+char *document_head_open_html(
 			DOCUMENT_HEAD *document_head )
 {
 	char html[ STRING_INPUT_BUFFER ];
@@ -589,20 +604,6 @@ char *document_head_calendar_setup_string(
 	}
 }
 
-void document_body_horizontal_menu_output(
-			FILE *output_stream,
-			char *hide_preload_message,
-			MENU *menu )
-{
-	if ( menu && list_length( menu->menu_verb_list ) )
-	{
-		menu_verb_horizontal_output(
-			output_stream,
-			hide_preload_message,
-			menu->menu_verb_list );
-	}
-}
-
 DOCUMENT *document_choose_isa_new(
 			char *title,
 			char *prompt_message,
@@ -641,6 +642,7 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 			char *prompt_message,
 			char *one2m_isa_folder_name,
 			MENU *menu,
+			boolean menu_boolean,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
@@ -650,10 +652,10 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 
 	document_body =
 		document_body_new(
-			document_body_onload_string(
-				document_body_menu_onload_string(),
-				(char *)0 /* additional_onload_string */ ),
-			menu );
+			menu,
+			menu_boolean,
+			title,
+			(char *)0 /* javascript_replace */ );
 
 	if ( !document_body )
 	{
@@ -686,102 +688,6 @@ DOCUMENT_BODY *document_body_choose_isa_new(
 	}
 
 	return document_body;
-}
-
-void document_begin(	FILE *output_stream,
-			DOCUMENT *document )
-{
-	char *tmp;
-
-	if ( !document->document_head )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: document_head is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !document->document_body )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: document_body is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	fprintf(output_stream,
-		"%s\n",
-		( tmp =
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
-			document_begin_html(
-				document->type_string,
-				document->standard_string ) ) );
-
-	free( tmp );
-
-	fprintf(output_stream,
-		"%s\n",
-		( tmp =
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
-			document_head_begin_html(
-				document->document_head ) ) );
-
-	free( tmp );
-
-	fprintf(output_stream,
-		"%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_head_close_html() );
-
-	document_body_begin(
-		output_stream,
-		document->document_body );
-}
-
-void document_body_begin(
-			FILE *output_stream,
-			DOCUMENT_BODY *document_body )
-{
-	char *tmp;
-
-	if ( !document_body )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: document_body is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	fprintf(output_stream,
-		"%s\n",
-		( tmp =
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
-			document_body_begin_html(
-				document_body->onload_string ) ) );
-
-	free( tmp );
-
-	if ( document_body->menu )
-	{
-		document_body_horizontal_menu_output(
-			output_stream,
-			document_body_hide_preload_message(),
-			document_body->menu );
-	}
 }
 
 void document_close( void )

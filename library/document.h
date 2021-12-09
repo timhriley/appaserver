@@ -79,7 +79,7 @@ char *document_head_javascript_include_string(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *document_head_begin_html(
+char *document_head_open_html(
 			DOCUMENT_HEAD *document_head );
 
 /* Returns program memory */
@@ -126,11 +126,13 @@ char *document_body_hide_preload_html(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *document_body_horizontal_menu_html(
+char *document_body_menu_horizontal_html(
 			char *hide_preload_html,
 			MENU *menu,
 			boolean menu_boolean );
 
+/* Returns static memory or null */
+/* ----------------------------- */
 char *document_body_title_html(
 			char *document_title );
 
@@ -139,6 +141,8 @@ char *document_body_open_html(
 			char *horizontal_menu_html,
 			char *title_html );
 
+/* Returns program memory */
+/* ---------------------- */
 char *document_body_close_html(
 			void );
 
@@ -158,7 +162,11 @@ DOCUMENT *document_calloc(
 /* Always succeeds */
 /* --------------- */
 DOCUMENT *document_new(	char *application_name,
-			MENU *menu );
+			MENU *menu,
+			boolean menu_boolean,
+			char *document_title,
+			char *javascript_replace,
+			int folder_attribute_date_name_list_length );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -185,7 +193,7 @@ void document_begin(	FILE *output_stream,
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *document_begin_html(
+char *document_open_html(
 			char *type_string,
 			char *standard_string );
 
@@ -244,17 +252,14 @@ DOCUMENT_EDIT_TABLE *document_edit_table_calloc(
 
 DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			char *edit_table_title,
-			char *edit_table_message,
-			char *folder_name,
+			char *edit_table_subtitle_html,
 			MENU *menu,
+			boolean menu_boolean,
 			LIST *folder_attribute_append_isa_list,
-			LIST *dictionary_list,
+			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *edit_table_heading_list,
-			DICTIONARY *ignore_dictionary,
-			DICTIONARY *non_prefixed_dictionary,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *drillthru_dictionary );
-
+			char *javascript_replace,
+			SECURITY_ENTITY *security_entity );
 
 #endif

@@ -1166,57 +1166,70 @@ MENU_VERB *menu_verb_login_name_display( char *login_name )
 	return menu_verb;
 }
 
-void menu_verb_horizontal_output(
-			FILE *output_stream,
+char *menu_horizontal_html(
 			char *hide_preload_message,
 			LIST *menu_verb_list )
 {
 	MENU_VERB *menu_verb;
+	char html[ STRING_FOUR_MEG ];
+	char *ptr = html;
 	char buffer[ 128 ];
 
-	if ( !list_rewind( menu_verb_list ) ) return;
+	if ( !list_rewind( menu_verb_list ) ) return (char *)0;
 
 	if ( hide_preload_message && *hide_preload_message )
 	{
-		fprintf(output_stream,
+		ptr += sprintf(
+			ptr,
 			"%s\n",
 			hide_preload_message );
 	}
 
-	fprintf( output_stream, "<ul id=menu>\n" );
+	ptr += sprintf( ptr, "<ul id=menu>\n" );
 
 	do {
 		menu_verb = list_get( menu_verb_list );
 
-		fprintf( output_stream, "\t<li>\n" );
-		fprintf( output_stream, "\t%s\n", menu_verb->menu_verb_tag );
+		ptr += sprintf( ptr, "\t<li>\n" );
+		ptr += sprintf( ptr, "\t%s\n", menu_verb->menu_verb_tag );
 
 		if ( list_length( menu_verb->subschema_list ) )
 		{
-			fprintf( output_stream, "\t<ul>\n" );
+			ptr += sprintf( ptr, "\t<ul>\n" );
 
-			menu_subschema_horizontal_output(
-				output_stream,
-				menu_verb->subschema_list );
+			ptr += sprintf(
+				ptr,
+				"%s\n",
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				menu_subschema_horizontal_html(
+					menu_verb->subschema_list ) );
 
-			fprintf( output_stream, "\t</ul>\n" );
+			ptr += sprintf( ptr, "\t</ul>\n" );
 		}
 
 		if ( list_length( menu_verb->item_list ) )
 		{
-			fprintf( output_stream, "\t<ul>\n" );
+			ptr += sprintf( ptr, "\t<ul>\n" );
 
-			menu_item_horizontal_output(
-				output_stream,
-				menu_verb->item_list );
+			ptr += sprintf(
+				ptr,
+				"%s\n",
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				menu_item_horizontal_html(
+					menu_verb->item_list ) );
 
-			fprintf( output_stream, "\t</ul>\n" );
+			ptr += sprintf( ptr, "\t</ul>\n" );
 		}
 
 		if ( !list_length( menu_verb->subschema_list )
 		&&   !list_length( menu_verb->item_list ) )
 		{
-			fprintf(output_stream,
+			ptr += sprintf(
+				ptr,
 				"\t<li><label style=color:black>%s</label>\n",
 				format_initial_capital(
 					buffer,
@@ -1225,16 +1238,27 @@ void menu_verb_horizontal_output(
 
 	} while ( list_next( menu_verb_list ) );
 
-	fprintf( output_stream, "</ul>\n" );
+	ptr += sprintf( ptr, "</ul>" );
+
+	return strdup( html );
 }
 
-void menu_subschema_horizontal_output(
-			FILE *output_stream,
+char *menu_subschema_horizontal_html(
 			LIST *subschema_list )
 {
 	MENU_SUBSCHEMA *menu_subschema;
+	static char html[ STRING_TWO_MEG ];
+	char *ptr = html;
 
-	if ( !list_rewind( subschema_list ) ) return;
+	if ( !list_rewind( subschema_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: subschema_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		menu_subschema = list_get( subschema_list );
@@ -1242,35 +1266,54 @@ void menu_subschema_horizontal_output(
 		if ( !list_length( menu_subschema->item_list ) )
 			continue;
 
-		fprintf( output_stream, "\t\t%s\n", menu_subschema->span_tag );
-		fprintf( output_stream, "\t\t<ul>\n" );
+		ptr += sprintf( ptr, "\t\t%s\n", menu_subschema->span_tag );
+		ptr += sprintf( ptr, "\t\t<ul>\n" );
 
-		menu_item_horizontal_output(
-			output_stream,
-			menu_subschema->item_list );
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			menu_item_horizontal_html(
+				menu_subschema->item_list ) );
 
-		fprintf( output_stream, "\t\t</ul>\n" );
+		ptr += sprintf( ptr, "\t\t</ul>\n" );
 
 	} while ( list_next( subschema_list ) );
+
+	return html;
 }
 
-void menu_item_horizontal_output(
-			FILE *output_stream,
+char *menu_item_horizontal_html(
 			LIST *menu_item_list )
 {
 	MENU_ITEM *menu_item;
+	static char html[ STRING_ONE_MEG ];
+	char *ptr = html;
 
-	if ( !list_rewind( menu_item_list ) ) return;
+	if ( !list_rewind( menu_item_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: menu_item_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	do {
 		menu_item = list_get( menu_item_list );
 
-		fprintf(output_stream,
+		ptr += sprintf(
+			ptr,
 			"\t\t\t%s\n\t\t\t%s\n",
 			menu_item->action_tag,
 			menu_item->span_tag );
 
 	} while ( list_next( menu_item_list ) );
+
+	return html;
 }
 
 boolean menu_boolean(
