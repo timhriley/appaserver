@@ -46,64 +46,6 @@ typedef struct
 	
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *button_label;
-	char *action_string;
-	char *image_source;
-
-	/* Process */
-	/* ------- */
-	char *html;
-} FORM_BUTTON;
-
-/* FORM_BUTTON operations */
-/* ---------------------- */
-FORM_BUTTON *form_button_calloc(
-			void );
-
-FORM_BUTTON *form_button_submit(
-			int form_number );
-
-FORM_BUTTON *form_button_reset(
-			int form_number,
-			char *post_change_javascript );
-
-FORM_BUTTON *form_button_back_to_top(
-			void );
-
-FORM_BUTTON *form_button_remember(
-			char *action_string );
-
-FORM_BUTTON *form_button_back_to_drillthru(
-			char *action_string );
-
-FORM_BUTTON *form_button_back_forward(
-			void );
-
-FORM_BUTTON *form_button_drillthru_skip(
-			void );
-
-FORM_BUTTON *form_button_html_help(
-			char *application_name,
-			char *html_help_file_anchor );
-
-LIST *form_button_insert_pair_one2m_submit_list(
-			LIST *pair_one2m_folder_list );
-
-void form_button_list_output(
-			FILE *output_stream,
-			LIST *button_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_button_submit_html(
-			char *submit_control_string,
-			char *button_label,
-			int form_number );
-
-typedef struct
-{
 	LIST *value_list;
 	char *html;
 } FORM_RADIO_VALUE;
@@ -125,23 +67,32 @@ typedef struct
 
 typedef struct
 {
-	DICTIONARY *row_dictionary;
-	LIST *element_list;
-	int row_number;
-	char *background_color;
-} FORM_TABLE_ROW;
+	/* Input */
+	/* ----- */
+	int dictionary_list_length;
+	char *edit_table_submit_action_string;
+	LIST *edit_table_heading_list;
+	LIST *operation_list );
 
-typedef struct
-{
-	char *folder_name;
-	char *state;
-	char *title_string;
-	LIST *regular_element_list;
-	LIST *viewonly_element_list;
-	char *action_string;
-	LIST *button_list;
-	LIST *row_list;
-} FORM_TABLE;
+	/* Process */
+	/* ------- */
+	LIST *top_button_list;
+	LIST *bottom_button_list;
+} FORM_EDIT_TABLE;
+
+/* FORM_EDIT_TABLE operations */
+/* -------------------------- */
+FORM_EDIT_TABLE *form_edit_table_calloc(
+			void );
+
+FORM_EDIT_TABLE *form_edit_table_new(
+			int dictionary_list_length,
+			char *edit_table_submit_action_string,
+			LIST *edit_table_heading_list,
+			LIST *operation_list );
+
+LIST *form_edit_table_button_list(
+			int dictionary_list_length );
 
 typedef struct
 {
@@ -254,6 +205,14 @@ void form_prompt_isa_output(
 			char *form_tag_html,
 			LIST *element_list,
 			LIST *button_list );
+
+typedef struct
+{
+	DICTIONARY *row_dictionary;
+	LIST *element_list;
+	int row_number;
+	char *background_color;
+} FORM_TABLE_ROW;
 
 /* FORM_TABLE_ROW operations */
 /* ------------------------- */

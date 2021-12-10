@@ -24,155 +24,8 @@
 #include "pair_one2m.h"
 #include "element.h"
 #include "javascript.h"
+#include "button.h"
 #include "form.h"
-
-#ifdef NOT_DEFINED
-LIST *form_hydrology_validation_element_list(
-			HASH_TABLE *attribute_hash_table,
-			LIST *attribute_name_list )
-{
-	LIST *return_list;
-	ATTRIBUTE *attribute;
-	char *attribute_name;
-	APPASERVER_ELEMENT *element = {0};
-
-	return_list = list_new();
-
-	/* For each attribute */
-	/* ------------------ */
-	if ( list_reset( attribute_name_list ) )
-		do {
-			attribute_name = list_get( attribute_name_list );
-
-			attribute = (ATTRIBUTE *)hash_table_get( 
-							attribute_hash_table,
-							attribute_name );
-
-			if ( !attribute )
-			{
-				fprintf(stderr,
-				"%s cannot find attribute = (%s)\n",
-					__FUNCTION__,
-					attribute_name );
-				exit( 1 );
-			}
-
-			/* Ignore station and datatype */
-			/* --------------------------- */
-			if ( strcmp( 	attribute->attribute_name,
-					"station" ) == 0 
-			||   strcmp(	attribute->attribute_name,
-					"datatype" ) == 0 )
-			{
-				continue;
-			}
-			else
-			/* ----------------------------------------- */
-			/* Measurement value get a text item element */
-			/* ----------------------------------------- */
-			if ( strcmp( 	attribute->attribute_name, 
-					"measurement_value" ) == 0 )
-			{
-				element =
-					appaserver_element_new(
-						text_item,
-						attribute->attribute_name);
-
-				element_text_item_set_attribute_width(
-						element->text_item, 
-						attribute->width );
-
-				element_text_item_set_heading(
-						element->text_item,
-						attribute->attribute_name );
-			}
-			else
-			/* --------------------------------------------- */
-			/* Measurement date and time get hidden elements */
-			/* --------------------------------------------- */
-			if ( strcmp( 	attribute->attribute_name,
-					"measurement_date" ) == 0 
-			||   strcmp(	attribute->attribute_name,
-					"measurement_time" ) == 0 )
-			{
-				element =
-					element_appaserver_new(
-						prompt_data,
-						attribute->attribute_name );
-
-				element->prompt_data->heading = element->name;
-
-				list_append( 	return_list, 
-						element, 
-						sizeof( APPASERVER_ELEMENT ) );
-
-				element =
-					element_appaserver_new(
-						hidden,
-						attribute->attribute_name);
-			}
-
-			list_append( 	return_list, 
-					element, 
-					sizeof( APPASERVER_ELEMENT ) );
-
-		} while( list_next( attribute_name_list ) );
-	return return_list;
-}
-#endif
-
-FORM_BUTTON *form_button_back_to_drillthru( char *action_string )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 1024 ];
-	char *ptr = html;
-
-	/* Close form[0] */
-	/* ------------- */
-	ptr += sprintf(
-		ptr,
-		"</form>\n" );
-
-	/* Open form[1] */
-	/* ------------ */
-	ptr += sprintf(
-		ptr,
-"<form enctype=\"multipart/form-data\" method=post action=\"%s\" target=%s>\n"
-"<input type=button value=\"Back to Drillthru\" onClick=\"document.forms[1].submit()\"\n",
-		action_string,
-		PROMPT_FRAME );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-FORM_BUTTON *form_button_back_to_top( void )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 256 ];
-
-	sprintf(html,
-"<td><a onClick=\"%s\"><img src=\"/%s/top.png\"></a>",
-		"window.scrollTo(0,0)",
-		IMAGE_RELATIVE_DIRECTORY );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-FORM_BUTTON *form_button_remember_html(
-			char *action_string )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 1024 ];
-
-	sprintf(html,
-"<td><input type=\"button\" value=\"Recall\" onClick=\"%s\">",
-		action_string );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
 
 char *form_next_reference_number(
 			int *form_current_reference_number )
@@ -360,177 +213,6 @@ char **form_table_row_background_color_array(
 		*background_color_array_length = 5;
 	}
 	return background_color_array;
-}
-
-FORM_BUTTON *form_button_back_forward( void )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 1024 ];
-
-	sprintf(html,
-"<td><input type=\"button\" value=\"Back\" onClick=\"history.back()\">\n"
-"<td><input type=\"button\" value=\"Forward\" onClick=\"timlib_history_forward()\">" );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-FORM_BUTTON *form_button_reset(
-			int form_number,
-			char *post_change_javascript )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 1024 ];
-	char *ptr = html;
-
-	ptr += sprintf(
-		ptr,
-"<td><input type=\"button\" value=\"Reset\" onClick=\"form_reset(document.forms[%d], '%c')",
-		form_number,
-		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
-
-	if ( post_change_javascript && *post_change_javascript )
-	{
-		ptr += sprintf(
-			ptr,
-			"&& %s",
-			javascript_replace_row(
-				post_change_javascript,
-			"0" /* row_string */ ) );
-	}
-
-	ptr += sprintf( ptr, "\">" );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-FORM_BUTTON *form_button_drillthru_skip( void )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 1024 ];
-
-	sprintf(html,
-"<td><input type=\"button\" value=\"Skip\" title=\"Skip this form if you don't know exactly what you're looking for.\" onClick=\"form_reset(document.forms[0], '%c'); document.forms[0].submit()\">",
-		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-FORM_BUTTON *form_button_html_help(
-			char *application_name,
-			char *html_help_file_anchor )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char full_pathname[ 512 ];
-	char *appaserver_mount_point;
-	char *relative_source_directory;
-	char source_directory[ 128 ];
-	char source_directory_filename[ 512 ];
-	int index;
-	char html[ 1024 ];
-
-	if ( !html_help_file_anchor || !*html_help_file_anchor )
-		return (FORM_BUTTON *)0;
-
-	appaserver_mount_point =
-		appaserver_parameter_file_mount_point();
-
-	relative_source_directory =
-		application_relative_source_directory(
-			application_name );
-
-	for(	index = 0;
-		piece(	source_directory,
-			PATH_DELIMITER,
-			relative_source_directory,
-			index );
-		index++ )
-	{
-		sprintf(source_directory_filename, 
-		 	"%s/%s/%s",
-		 	appaserver_mount_point,
-		 	source_directory,
-		 	html_help_file_anchor );
-
-		if ( timlib_file_exists( source_directory_filename ) ) break;
-	}
-
-	if ( !*source_directory )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: cannot html_help_file_anchor = [%s] in any of (%s)\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 html_help_file_anchor,
-			 relative_source_directory );
-		return (FORM_BUTTON *)0;
-	}
-
-	if ( *html_help_file_anchor == '/' )
-	{
-		strcpy( full_pathname, html_help_file_anchor );
-	}
-	else
-	{
-		sprintf(	full_pathname,
-				"/appaserver/%s/%s",
-				source_directory,
-				html_help_file_anchor );
-	}
-
-	sprintf(html,
-"<td><input type=button value=Help onclick='window.open(\"%s\",\"help_window\",\"width=600,height=350,resizable=yes,scrollbars=yes\")'>",
-		full_pathname );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-LIST *form_button_insert_pair_one2m_submit_list(
-			LIST *pair_one2m_folder_list )
-{
-	PAIR_ONE2M_FOLDER *pair_one2m_folder;
-	LIST *button_list;
-	FORM_BUTTON *form_button;
-
-	if ( !list_rewind( pair_one2m_folder_list ) )
-	{
-		return (LIST *)0;
-	}
-
-	button_list = list_new();
-
-	do {
-		pair_one2m_folder =
-			list_get( 
-				pair_one2m_folder_list );
-
-		form_button = form_button_calloc();
-
-		if ( !pair_one2m_folder->folder_button_string )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: folder_button_string is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		form_button->html =
-			pair_one2m_folder->
-				folder_button_string;
-
-		list_set(
-			button_list,
-			form_button );
-
-	} while( list_next( pair_one2m_folder_list ) );
-
-	return button_list;
 }
 
 FORM_PROMPT *form_prompt_calloc( void )
@@ -999,18 +681,27 @@ LIST *form_prompt_isa_button_list( void )
 
 	list_set(
 		button_list,
-		form_button_submit(
+		button_submit(
+			(char *)0,
+			(char *)0,
+			(char *)0,
+			(char *)0,
 			0 /* form_number */ ) );
 
 	list_set(
 		button_list,
-		form_button_reset(
-			0 /* form_number */,
-			(char *)0 /* post_change_javascript */ ) );
+		button_reset(
+			(char *)0 /* post_change_javascript */,
+			(char *)0 /* state */,
+			0 /* form_number */ );
 
 	list_set(
 		button_list,
-		form_button_back_forward() );
+		button_back() );
+
+	list_set(
+		button_list,
+		button_forward() );
 
 	return button_list;
 }
@@ -1035,45 +726,18 @@ void form_prompt_isa_output(
 		output_stream,
 		element_list );
 
-	form_button_list_output(
-		output_stream,
-		button_list );
+	fprintf(output_stream,
+		"%s\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		button_list_html(
+			button_list ) );
 
 	/* Close form then table */
 	/* --------------------- */
 	fprintf( output_stream, "</form>\n" );
 	fprintf( output_stream, "</table>\n" );
-}
-
-FORM_BUTTON *form_button_submit(
-			int form_number )
-{
-	FORM_BUTTON *form_button = form_button_calloc();
-	char html[ 1024 ];
-
-	sprintf(html,
-"<td><input type=button value=\"|    Submit    |\" onClick=\"document.forms[%d].submit();\">",
-		form_number );
-
-	form_button->html = strdup( html );
-	return form_button;
-}
-
-FORM_BUTTON *form_button_calloc( void )
-{
-	FORM_BUTTON *form_button;
-
-	if ( ! ( form_button = calloc( 1, sizeof( FORM_BUTTON ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return form_button;
 }
 
 char *form_table_row_background_color( void )
@@ -1108,43 +772,36 @@ char *form_table_row_background_color( void )
 	return background_color;
 }
 
-char *form_button_submit_html(
-			char *submit_control_string,
-			char *button_label,
-			int form_number )
+FORM_EDIT_TABLE *form_edit_table_calloc( void )
 {
-	char submit_button[ 1024 ];
-	char *ptr = submit_button;
+	FORM_EDIT_TABLE *form_edit_table;
 
-	if ( !button_label || !*button_label )
-		button_label = FORM_SUBMIT_BUTTON_LABEL;
-
-	ptr += sprintf( ptr, "<td>" );
-
-	if ( submit_control_string && *submit_control_string )
+	if ( ! ( form_edit_table = calloc( 1, sizeof( FORM_EDIT_TABLE ) ) ) )
 	{
-		/* -------------------------------------------- */
-		/* The submit_control_string is assumed to	*/
-		/* have "&&" appended to it.			*/
-		/* -------------------------------------------- */
-		ptr += sprintf(
-			ptr,
-"<td><input type=button value=\"%s\" "
-"onClick=\"%s document.forms[%d].submit();\">\n",
-			button_label,
-			submit_control_string,
-			form_number );
-	}
-	else
-	{
-		ptr += sprintf(
-			ptr,
-"<td><input type=button value=\"%s\" "
-"onClick=\"document.forms[%d].submit();\">\n",
-			button_label,
-		     	form_number );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	return strdup( submit_button );
+	return form_edit_table;
 }
+
+FORM_EDIT_TABLE *form_edit_table_new(
+			int dictionary_list_length,
+			char *submit_action_string,
+			LIST *heading_list,
+			LIST *operation_list )
+{
+	FORM_EDIT_TABLE *form_edit_table = form_edit_table_calloc();
+
+	form_edit_table->dictionary_list_length = dictionary_list_length;
+
+	return form_edit_table;
+}
+
+LIST *form_edit_table_button_list(
+			int dictionary_list_length );
 

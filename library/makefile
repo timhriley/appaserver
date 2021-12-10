@@ -61,6 +61,7 @@ APPASERVER_LIBRARY=						\
 		element.o					\
 		sed.o						\
 		form.o						\
+		button.o					\
 		email.o						\
 		query.o 					\
 		stack.o 					\
@@ -754,6 +755,9 @@ operation.o: operation.c operation.h process.h
 
 form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c
+
+button.o: button.c button.h
+	${CC} ${CFLAGS} -c button.c
 
 query.o: query.c query.h
 	${CC} ${CFLAGS} -c query.c
