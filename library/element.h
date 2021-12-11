@@ -42,7 +42,9 @@
 #define ELEMENT_NOT_NULL_OPERATOR		"not_empty"
 #define ELEMENT_SELECT_OPERATOR			"select"
 
-enum element_type {	table_row,
+enum element_type {	table_open,
+			table_row,
+			table_close,
 			checkbox,
 			drop_down,
 			button,
@@ -72,6 +74,21 @@ enum element_type {	table_row,
 typedef struct
 {
 	/* stub */
+} ELEMENT_TABLE_OPEN;
+
+/* ELEMENT_TABLE_OPEN operations */
+/* ----------------------------- */
+ELEMENT_TABLE_OPEN *element_table_open_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_table_open_html(
+			void );
+
+typedef struct
+{
+	/* stub */
 } ELEMENT_TABLE_ROW;
 
 /* ELEMENT_TABLE_ROW operations */
@@ -82,6 +99,21 @@ ELEMENT_TABLE_ROW *element_table_row_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *element_table_row_html(
+			void );
+
+typedef struct
+{
+	/* stub */
+} ELEMENT_TABLE_CLOSE;
+
+/* ELEMENT_TABLE_CLOSE operations */
+/* ------------------------------ */
+ELEMENT_TABLE_CLOSE *element_table_close_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_table_close_html(
 			void );
 
 typedef struct
@@ -132,6 +164,7 @@ typedef struct
 	boolean multi_select;
 	char *post_change_javascript;
 	char *state;
+	char *initial_data;
 
 	/* Process */
 	/* ------- */
@@ -535,10 +568,13 @@ typedef struct
 	/* Input */
 	/* ----- */
 	enum element_type element_type;
+	char *element_name;
 
 	/* Attributes */
 	/* ---------- */
+	ELEMENT_TABLE_OPEN *table_open;
 	ELEMENT_TABLE_ROW *table_row;
+	ELEMENT_TABLE_CLOSE *table_close;
 	ELEMENT_CHECKBOX *checkbox;
 	ELEMENT_DROP_DOWN *drop_down;
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
@@ -565,7 +601,12 @@ typedef struct
 /* APPASERVER_ELEMENT operations */
 /* ----------------------------- */
 APPASERVER_ELEMENT *appaserver_element_new(
-			enum element_type element_type );
+			enum element_type element_type,
+			char *element_name );
+
+APPASERVER_ELEMENT *appaserver_element_seek(
+			char *element_name,
+			LIST *element_list );
 
 int appaserver_element_tab_order(
 			int tab_order );

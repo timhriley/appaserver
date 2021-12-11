@@ -45,15 +45,25 @@ APPASERVER_ELEMENT *appaserver_element_calloc( void )
 }
 
 APPASERVER_ELEMENT *appaserver_element_new(
-			enum element_type element_type )
+			enum element_type element_type,
+			char *element_name )
 {
 	APPASERVER_ELEMENT *element = appaserver_element_calloc();
 
 	element->element_type = element_type;
+	element->element_name = element_name;
 
+	if ( element_type == table_open )
+		element->table_open =
+			element_table_open_calloc();
+	else
 	if ( element_type == table_row )
 		element->table_row =
 			element_table_row_calloc();
+	else
+	if ( element_type == table_close )
+		element->table_close =
+			element_table_close_calloc();
 	else
 	if ( element_type == non_edit_text )
 		element->non_edit_text =
@@ -375,9 +385,70 @@ char *element_drop_down_html(
 	return strdup( html );
 }
 
+ELEMENT_TABLE_OPEN *element_table_open_calloc( void )
+{
+	ELEMENT_TABLE_OPEN *table_open;
+
+	if ( ! ( table_open = calloc( 1, sizeof( ELEMENT_TABLE_OPEN ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return table_open;
+}
+
+char *element_table_open_html( void )
+{
+	return strdup( "<table border=0>" );
+}
+
+ELEMENT_TABLE_ROW *element_table_row_calloc( void )
+{
+	ELEMENT_TABLE_ROW *table_row;
+
+	if ( ! ( table_row = calloc( 1, sizeof( ELEMENT_TABLE_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return table_row;
+}
+
 char *element_table_row_html( void )
 {
 	return strdup( "<tr>" );
+}
+
+ELEMENT_TABLE_CLOSE *element_table_close_calloc( void )
+{
+	ELEMENT_TABLE_CLOSE *table_close;
+
+	if ( ! ( table_close = calloc( 1, sizeof( ELEMENT_TABLE_CLOSE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return table_close;
+}
+
+char *element_table_close_html( void )
+{
+	return strdup( "</table>" );
 }
 
 #ifdef NOT_DEFINED
@@ -613,23 +684,6 @@ char *element_non_edit_text_html( char *message )
 	sprintf( html, "<td align=left>%s", message );
 
 	return strdup( html );
-}
-
-ELEMENT_TABLE_ROW *element_table_row_calloc( void )
-{
-	ELEMENT_TABLE_ROW *table_row;
-
-	if ( ! ( table_row = calloc( 1, sizeof( ELEMENT_TABLE_ROW ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return table_row;
 }
 
 char *element_drop_down_name(
@@ -1667,11 +1721,25 @@ char *appaserver_element_html(
 		return (char *)0;
 	}
 
+	if ( appaserver_element->element_type == table_open )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_table_open_html();
+	}
+	else
 	if ( appaserver_element->element_type == table_row )
 	{
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_table_row_html();
+	}
+	else
+	if ( appaserver_element->element_type == table_close )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_table_close_html();
 	}
 	else
 	if ( appaserver_element->element_type == checkbox )
@@ -2105,3 +2173,26 @@ char *element_hidden_html(
 	return strdup( html );
 }
 
+APPASERVER_ELEMENT *appaserver_element_seek(
+			char *element_name,
+			LIST *element_list )
+{
+	APPASERVER_ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return (APPASERVER_ELEMENT *)0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( element->element_name
+		&&   strcmp(
+			element_name,
+			element->element_name ) == 0 )
+		{
+			return element;
+		}
+
+	} while ( list_next( element_list ) );
+
+	return (APPASERVER_ELEMENT *)0;
+}

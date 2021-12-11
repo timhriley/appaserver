@@ -248,7 +248,8 @@ LIST *form_prompt_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				table_row ) ) );
+				table_row,
+				(char *) /* element_name */ ) ) );
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -260,7 +261,8 @@ LIST *form_prompt_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				non_edit_text ) ) );
+				non_edit_text,
+				(char *) /* element_name */ ) ) );
 
 	element->non_edit_text->html =
 		/* --------------------------- */
@@ -277,7 +279,9 @@ LIST *form_prompt_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				drop_down ) ) );
+				drop_down,
+				one2m_isa_folder_name
+					/* element_name */ ) );
 
 	free( element->drop_down );
 
@@ -305,7 +309,8 @@ LIST *form_prompt_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				table_row ) ) );
+				table_row,
+				(char *)0 /* element_name */ ) ) );
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -317,7 +322,8 @@ LIST *form_prompt_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				checkbox ) ) );
+				checkbox,
+				(char *)0 /* element_name */ ) ) );
 
 	element->checkbox->html =
 		/* ---------------------------- */
@@ -790,18 +796,103 @@ FORM_EDIT_TABLE *form_edit_table_calloc( void )
 }
 
 FORM_EDIT_TABLE *form_edit_table_new(
+			char *folder_name,
+			char *javascript_replace,
 			int dictionary_list_length,
 			char *submit_action_string,
+			LIST *operation_list,
 			LIST *heading_list,
-			LIST *operation_list )
+			char *target_frame )
 {
 	FORM_EDIT_TABLE *form_edit_table = form_edit_table_calloc();
 
-	form_edit_table->dictionary_list_length = dictionary_list_length;
+	form_edit_table->tag =
+		form_edit_table_tag(
+			submit_action_string,
+			target_frame );
+
+	form_edit_table->top_button_element_list =
+		form_edit_table_button_element_list(
+			javascript_replace,
+			0 /* dictionary_list_length */ );
+
+	form_edit_table->bottom_button_element_list =
+		form_edit_table_button_element_list(
+			javascript_replace,
+			dictionary_list_length );
+
+	form_edit_table->sort_checkbox_element_list =
+		form_edit_table_sort_checkbox_element_list(
+			list_length( operation_list ),
+			heading_list );
+
+	form_edit_table->heading_element_list =
+		form_edit_table_heading_element_list(
+			operation_list,
+			heading_list );
 
 	return form_edit_table;
 }
 
-LIST *form_edit_table_button_list(
-			int dictionary_list_length );
+char *form_edit_table_tag(
+			char *edit_table_submit_action_string,
+			char *target_frame )
+{
+	char tag[ 1024 ];
 
+	if ( !edit_table_submit_action_string
+	||   !target_frame )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(tag,
+"<form enctype=\"multipart/form-data\" method=post action=\"%s\" target=\"%\">",
+		edit_table_submit_action_string,
+		target_frame );
+
+	return strdup( tag );
+}
+
+LIST *form_edit_table_button_element_list(
+			char *post_change_javascript,
+			int dictionary_list_length )
+{
+	APPASERVER_ELEMENT *element;
+	LIST *element_list = list_new();
+
+	element =
+		appaserver_element_new(
+			table_open,
+			(char *)0 /* element_name */ );
+
+	return element_list;
+}
+
+LIST *form_edit_table_sort_checkbox_element_list(
+			int operation_list_length,
+			LIST *edit_table_heading_list )
+{
+}
+
+void form_edit_table_dictionary_list_output(
+			FILE *output_stream,
+			LIST *operation_list,
+			LIST *dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			LIST *edit_table_heading_list )
+{
+}
+
+char *form_edit_table_dictionary_html(
+			DICTIONARY *query_dictioanry,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *sort_dictionary )
+{
+}

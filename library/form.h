@@ -67,17 +67,13 @@ typedef struct
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	int dictionary_list_length;
-	char *edit_table_submit_action_string;
-	LIST *edit_table_heading_list;
-	LIST *operation_list );
-
 	/* Process */
 	/* ------- */
-	LIST *top_button_list;
-	LIST *bottom_button_list;
+	char *tag;
+	LIST *top_button_element_list;
+	LIST *bottom_button_element_list;
+	LIST *sort_checkbox_element_list;
+	LIST *heading_element_list;
 } FORM_EDIT_TABLE;
 
 /* FORM_EDIT_TABLE operations */
@@ -86,13 +82,40 @@ FORM_EDIT_TABLE *form_edit_table_calloc(
 			void );
 
 FORM_EDIT_TABLE *form_edit_table_new(
+			char *folder_name,
+			char *javascript_replace,
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
+			LIST *operation_list,
 			LIST *edit_table_heading_list,
-			LIST *operation_list );
+			char *target_frame );
 
-LIST *form_edit_table_button_list(
+/* Safely returns heap memory */
+/* -------------------------- */
+char *form_edit_table_tag(
+			char *edit_table_submit_action_string,
+			char *target_frame );
+
+LIST *form_edit_table_button_element_list(
+			char *javascript_replace,
 			int dictionary_list_length );
+
+LIST *form_edit_table_sort_checkbox_element_list(
+			int operation_list_length,
+			LIST *edit_table_heading_list );
+
+void form_edit_table_dictionary_list_output(
+			FILE *output_stream,
+			LIST *operation_list,
+			LIST *dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			LIST *edit_table_heading_list );
+
+char *form_edit_table_dictionary_html(
+			DICTIONARY *query_dictioanry,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *sort_dictionary );
 
 typedef struct
 {
