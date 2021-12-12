@@ -15,7 +15,7 @@
 /* Constants */
 /* --------- */
 #define QUERY_PREFIX				"qqery_"
-#define SORT_BUTTON_PREFIX			"ssort_button_"
+#define SORT_CHECKBOX_PREFIX			"ssort_checkbox_"
 #define DRILLTHRU_PREFIX			"ddrillthru_"
 #define PAIR_ONE2M_PREFIX			"ppair_one2m_"
 #define IGNORE_SELECT_PUSH_BUTTON_PREFIX	"ignore_"

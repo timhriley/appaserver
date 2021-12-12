@@ -586,10 +586,10 @@ char *query_order(
 			LIST *append_isa_attribute_list,
 			DICTIONARY *sort_dictionary );
 
-/* Sample: ssort_button_descend_full_name^street_address_0 */
-/* ------------------------------------------------------- */
-/* Returns heap memory					   */
-/* ------------------------------------------------------- */
+/* Sample: ssort_button_assend|descend_full_name^street_address */
+/* ------------------------------------------------------------ */
+/* Returns heap memory						*/
+/* ------------------------------------------------------------ */
 char *query_sort_prefix_direction_attribute_index(
 			DICTIONARY *sort_dictionary );
 

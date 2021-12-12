@@ -65,10 +65,6 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->table_close =
 			element_table_close_calloc();
 	else
-	if ( element_type == non_edit_text )
-		element->non_edit_text =
-			element_non_edit_text_calloc();
-	else
 	if ( element_type == checkbox )
 		element->checkbox =
 			element_checkbox_calloc();
@@ -76,11 +72,6 @@ APPASERVER_ELEMENT *appaserver_element_new(
 	if ( element_type == drop_down )
 		element->drop_down =
 			element_drop_down_calloc();
-
-	else
-	if ( element_type == multi_drop_down )
-		element->multi_drop_down =
-			element_multi_drop_down_calloc();
 	else
 	if ( element_type == button )
 		element->button =
@@ -94,13 +85,17 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->hidden =
 			element_hidden_calloc();
 	else
-	if ( element_type == break_tag )
-		element->break_tag =
-			element_break_tag_calloc();
+	if ( element_type == line_break )
+		element->line_break =
+			element_line_break_calloc();
 	else
-	if ( element_type == blank_tag )
-		element->blank_tag =
-			element_blank_tag_calloc();
+	if ( element_type == table_data )
+		element->table_data =
+			element_table_data_calloc();
+	else
+	if ( element_type == multi_drop_down )
+		element->multi_drop_down =
+			element_multi_drop_down_calloc();
 	else
 	{
 		fprintf( stderr, 
@@ -1149,6 +1144,9 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 				attribute_name_list,
 				ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX ) );
 
+	element_multi_drop_down->table_data =
+		element_table_data_calloc();
+
 	element_multi_drop_down->move_right_button =
 		element_button_new(
 			/* ---------------------- */
@@ -1159,11 +1157,10 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			/* Returns heap memory */
 			/* ------------------- */
 			element_multi_drop_down_move_right_action_string(
-				attribute_name_list ),
-			1 /* with_table_data_tag */ );
+				attribute_name_list ) );
 
-	element_multi_drop_down->element_break_tag =
-		element_break_tag_calloc();
+	element_multi_drop_down->element_line_break =
+		element_line_break_calloc();
 
 	element_multi_drop_down->move_left_button =
 		element_button_new(
@@ -1175,8 +1172,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			/* Returns heap memory */
 			/* ------------------- */
 			element_multi_drop_down_move_left_action_string(
-				attribute_name_list ),
-			0 /* not with_table_data_tag */ );
+				attribute_name_list ) );
 
 	element_multi_drop_down->empty_drop_down =
 		element_drop_down_empty_new(
@@ -1213,51 +1209,32 @@ ELEMENT_BUTTON *element_button_calloc( void )
 
 ELEMENT_BUTTON *element_button_new(
 			char *label,
-			char *action_string,
-			boolean with_table_data_tag )
+			char *action_string )
 {
 	ELEMENT_BUTTON *element_button = element_button_calloc();
 
-	element_button->label = label;
-	element_button->action_string = action_string;
-
-	element_button->html =
-		element_button_html(
+	element_button->button =
+		/* --------- */
+		/* Sets html */
+		/* --------- */
+		button_new(
 			label,
-			action_string,
-			with_table_data_tag );
+			action_string );
 
 	return element_button;
 }
 
-char *element_button_html(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag )
+char *element_button_html( char *html )
 {
-	char html[ 1024 ];
-	char *ptr = html;
-
-	if ( !label || !action_string )
+	if ( !html )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: input parameter is empty.\n",
+			"ERROR in %s/%s()/%d: html is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
-
-	if ( with_table_data_tag )
-	{
-		ptr += sprintf( ptr, "<td>" );
-	}
-
-	ptr += sprintf(
-		ptr,
-		"<input type=button value=\"%s\" onclick=\"%s\">\n",
-		label,
-		action_string );
 
 	return strdup( html );
 }
@@ -1394,12 +1371,12 @@ char *element_multi_drop_down_move_left_action_string(
 	return strdup( action_string );
 }
 
-ELEMENT_BREAK_TAG *element_break_tag_calloc( void )
+ELEMENT_LINE_BREAK *element_line_break_calloc( void )
 {
-	ELEMENT_BREAK_TAG *element_break_tag;
+	ELEMENT_LINE_BREAK *element_line_break;
 
-	if ( ! ( element_break_tag =
-			calloc( 1, sizeof( ELEMENT_BREAK_TAG ) ) ) )
+	if ( ! ( element_line_break =
+			calloc( 1, sizeof( ELEMENT_LINE_BREAK ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1409,15 +1386,15 @@ ELEMENT_BREAK_TAG *element_break_tag_calloc( void )
 		exit( 1 );
 	}
 
-	return element_break_tag;
+	return element_line_break;
 }
 
-char *element_break_tag_html( void )
+char *element_line_break_html( void )
 {
 	return strdup( "<br>" );
 }
 
-char *element_blank_tag_html( void )
+char *element_table_data_html( void )
 {
 	return strdup( "<td>" );
 }
@@ -1810,35 +1787,13 @@ char *appaserver_element_html(
 				row_number ),
 			background_color );
 	}
-	if ( appaserver_element->element_type == multi_drop_down )
+	else
+	if ( appaserver_element->element_type == button )
 	{
 		/* Returns heap memory */
 		/* ------------------- */
-		return element_multi_drop_down_html(
-			appaserver_element->
-				multi_drop_down->
-				original_drop_down,
-			appaserver_element->
-				multi_drop_down->
-				move_right_button,
-			appaserver_element->
-				multi_drop_down->
-				element_break_tag,
-			appaserver_element->
-				multi_drop_down->
-				move_left_button,
-			appaserver_element->
-				multi_drop_down->
-				empty_drop_down,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			appaserver_element_javascript(
-				appaserver_element->
-					multi_drop_down->
-					post_change_javascript,
-				state,
-				row_number ) );
+		return element_button_html(
+			appaserver_element->button->button->html );
 	}
 	else
 	if ( appaserver_element->element_type == non_edit_text )
@@ -1872,18 +1827,52 @@ char *appaserver_element_html(
 			row_number );
 	}
 	else
-	if ( appaserver_element->element_type == break_tag )
+	if ( appaserver_element->element_type == line_break)
 	{
 		/* Returns heap memory */
 		/* ------------------- */
-		return element_break_tag_html();
+		return element_line_break_html();
 	}
 	else
-	if ( appaserver_element->element_type == blank_tag )
+	if ( appaserver_element->element_type == table_data )
 	{
 		/* Returns heap memory */
 		/* ------------------- */
-		return element_blank_tag_html();
+		return element_table_data_html();
+	}
+	else
+	if ( appaserver_element->element_type == multi_drop_down )
+	{
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_multi_drop_down_html(
+			appaserver_element->
+				multi_drop_down->
+				original_drop_down,
+			appaserver_element->
+				multi_drop_down->
+				table_data,
+			appaserver_element->
+				multi_drop_down->
+				move_right_button,
+			appaserver_element->
+				multi_drop_down->
+				element_line_break,
+			appaserver_element->
+				multi_drop_down->
+				move_left_button,
+			appaserver_element->
+				multi_drop_down->
+				empty_drop_down,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_javascript(
+				appaserver_element->
+					multi_drop_down->
+					post_change_javascript,
+				state,
+				row_number ) );
 	}
 	else
 	{
@@ -1938,8 +1927,9 @@ char *element_drop_down_heading( LIST *attribute_name_list )
 
 char *element_multi_drop_down_html(
 			ELEMENT_DROP_DOWN *original_drop_down,
+			ELEMENT_TABLE_DATA *table_data,
 			ELEMENT_BUTTON *move_right_button,
-			ELEMENT_BREAK_TAG *element_break_tag,
+			ELEMENT_LINE_BREAK *element_line_break,
 			ELEMENT_BUTTON *move_left_button,
 			ELEMENT_DROP_DOWN *empty_drop_down,
 			char *appaserver_element_javascript )
@@ -2008,29 +1998,10 @@ char *element_multi_drop_down_html(
 	/* Create the move-right button */
 	/* ---------------------------- */
 
-	if ( !move_right_button || !move_right_button->html )
+	if ( !table_data )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: move_right_button is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	ptr += sprintf(
-		ptr,
-		"%s\n",
-		move_right_button->html );
-
-	/* ---------------- */
-	/* Create break tag */
-	/* ---------------- */
-
-	if ( !element_break_tag )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: element_break_tag is empty.\n",
+			"ERROR in %s/%s()/%d: table_data is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -2043,7 +2014,53 @@ char *element_multi_drop_down_html(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		(element_html = element_break_tag_html() ) );
+		( element_html = element_table_data_html() ) );
+
+	free( element_html );
+
+	if ( !move_right_button )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: move_right_button is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( element_html =
+			element_button_html(
+				move_right_button->button->html ) ) );
+
+	free( element_html );
+
+	/* ----------------- */
+	/* Create line break */
+	/* ----------------- */
+
+	if ( !element_line_break )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_line_break is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		(element_html = element_line_break_html() ) );
 
 	free( element_html );
 
@@ -2051,7 +2068,7 @@ char *element_multi_drop_down_html(
 	/* Create the move-left button */
 	/* --------------------------- */
 
-	if ( !move_left_button || !move_left_button->html )
+	if ( !move_left_button )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: move_left_button is empty.\n",
@@ -2064,7 +2081,14 @@ char *element_multi_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		move_left_button->html );
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( element_html =
+			element_button_html(
+				move_left_button->button->html ) ) );
+
+	free( element_html );
 
 	/* -------------------------- */
 	/* Create the empty drop-down */
@@ -2196,3 +2220,4 @@ APPASERVER_ELEMENT *appaserver_element_seek(
 
 	return (APPASERVER_ELEMENT *)0;
 }
+

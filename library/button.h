@@ -28,6 +28,16 @@ typedef struct
 /* ----------------- */
 BUTTON *button_calloc(	void );
 
+/* Sets html */
+/* --------- */
+BUTTON *button_new(	char *label,
+			char *action_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *button_html(	char *label,
+			char *action_string );
+
 BUTTON *button_submit(
 			char *form_post_change_multi_select_all_javascript,
 			char *form_keystrokes_save_javascript,
@@ -44,15 +54,13 @@ char *button_submit_html(
 			char *form_verify_attribute_widths_javascript,
 			int form_number );
 
-BUTTON *button_reset(	char *post_change_javascript,
-			char *state,
+BUTTON *button_reset(	char *javascript_replace,
 			int form_number );
 
 /* Safely returns heap memory */
 /* -------------------------- */
 char *button_reset_html(
-			char *post_change_javascript,
-			char *state,
+			char *javascript_replace,
 			int form_number );
 
 BUTTON *button_back(

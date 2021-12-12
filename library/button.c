@@ -36,9 +36,54 @@ BUTTON *button_calloc( void )
 	return button;
 }
 
+BUTTON *button_new(	char *label,
+			char *action_string )
+{
+	BUTTON *button = button_calloc();
+
+	if ( !label || !action_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	button->html =
+		button_html(
+			label,
+			action_string );
+
+	return button;
+}
+
+char *button_html(	char *label,
+			char *action_string )
+{
+	char html[ 1024 ];
+
+	if ( !label || !action_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+"<input type=button value=\"%s\" onClick=\"%s\">",
+		label,
+		action_string );
+
+	return strdup( html );
+}
+
 char *button_reset_html(
-			char *post_change_javascript,
-			char *state,
+			char *javascript_replace,
 			int form_number )
 {
 	char html[ 1024 ];
@@ -50,18 +95,12 @@ char *button_reset_html(
 		form_number,
 		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
 
-	if ( post_change_javascript && *post_change_javascript )
+	if ( javascript_replace && *javascript_replace )
 	{
 		ptr += sprintf(
 			ptr,
 			" && %s",
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			javascript_replace(
-				post_change_javascript,
-				state,
-				0 /* row_number */ ) );
+			javascript_replace );
 	}
 
 	ptr += sprintf( ptr, "\">" );
@@ -105,7 +144,7 @@ char *button_submit_html(
 
 	ptr += sprintf(
 		ptr,
-"<td><input type=button value=\"%s\" onClick=\"",
+"<input type=button value=\"%s\" onClick=\"",
 		BUTTON_SUBMIT_LABEL );
 
 	if ( form_post_change_multi_select_all_javascript )
@@ -315,9 +354,7 @@ char *button_forward_html( void )
 
 }
 
-BUTTON *button_reset(
-			char *post_change_javascript,
-			char *state,
+BUTTON *button_reset(	char *javascript_replace,
 			int form_number )
 {
 	BUTTON *button = button_calloc();
@@ -327,8 +364,7 @@ BUTTON *button_reset(
 		/* Safely returns heap memory */
 		/* -------------------------- */
 		button_reset_html(
-			post_change_javascript,
-			state,
+			javascript_replace,
 			form_number );
 
 	return button;
@@ -538,3 +574,4 @@ char *button_list_html( LIST *button_list )
 
 	return strdup( html );
 }
+

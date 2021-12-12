@@ -18,17 +18,16 @@
 
 /* Constants */
 /* --------- */
-#define FORM_COLOR1				"#dccdde"
-#define FORM_COLOR2				"#ffe6ca"
-#define FORM_COLOR3				"#d2ecf2"
-#define FORM_COLOR4				"#f7ffce"
-#define FORM_COLOR5				"#f2e0b8"
+#define FORM_COLOR1			"#dccdde"
+#define FORM_COLOR2			"#ffe6ca"
+#define FORM_COLOR3			"#d2ecf2"
+#define FORM_COLOR4			"#f7ffce"
+#define FORM_COLOR5			"#f2e0b8"
 
-#define FORM_MAX_BACKGROUND_COLOR_ARRAY		10
-#define FORM_ROWS_BETWEEN_HEADINGS		10
-#define FORM_SORT_ASSEND_LABEL			"assend_"
-#define FORM_SORT_DESCEND_LABEL			"descend_"
-#define FORM_SUBMIT_BUTTON_LABEL		"|    Submit    |"
+#define FORM_MAX_BACKGROUND_COLOR_ARRAY	10
+#define FORM_ROWS_BETWEEN_HEADINGS	10
+#define FORM_SORT_ASSEND_LABEL		"assend_"
+#define FORM_SORT_DESCEND_LABEL		"descend_"
 
 #define FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER	'~'
 
@@ -97,10 +96,12 @@ char *form_edit_table_tag(
 			char *target_frame );
 
 LIST *form_edit_table_button_element_list(
+			char *edit_table_submit_action_string,
 			char *javascript_replace,
 			int dictionary_list_length );
 
 LIST *form_edit_table_sort_checkbox_element_list(
+			char *folder_name,
 			int operation_list_length,
 			LIST *edit_table_heading_list );
 

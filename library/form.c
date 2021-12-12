@@ -799,7 +799,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			char *folder_name,
 			char *javascript_replace,
 			int dictionary_list_length,
-			char *submit_action_string,
+			char *edit_table_submit_action_string,
 			LIST *operation_list,
 			LIST *heading_list,
 			char *target_frame )
@@ -813,16 +813,19 @@ FORM_EDIT_TABLE *form_edit_table_new(
 
 	form_edit_table->top_button_element_list =
 		form_edit_table_button_element_list(
+			edit_table_submit_action_string,
 			javascript_replace,
 			0 /* dictionary_list_length */ );
 
 	form_edit_table->bottom_button_element_list =
 		form_edit_table_button_element_list(
+			edit_table_submit_action_string,
 			javascript_replace,
 			dictionary_list_length );
 
 	form_edit_table->sort_checkbox_element_list =
 		form_edit_table_sort_checkbox_element_list(
+			folder_name,
 			list_length( operation_list ),
 			heading_list );
 
@@ -860,24 +863,232 @@ char *form_edit_table_tag(
 }
 
 LIST *form_edit_table_button_element_list(
-			char *post_change_javascript,
+			char *edit_table_submit_action_string,
+			char *javascript_replace,
 			int dictionary_list_length )
 {
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
 
-	element =
+	list_set(
+		element_list,
 		appaserver_element_new(
 			table_open,
-			(char *)0 /* element_name */ );
+			(char *)0 /* element_name */ ) );
+
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_row,
+			(char *)0 /* element_name */ ) );
+
+	/* Create <Submit> */
+	/* --------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button =
+		button_submit(
+			(char *)0,
+			(char *)0,
+			(char *)0,
+			(char *)0,
+			0 /* form_number */ ) );
+
+	/* Create <Reset> */
+	/* -------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button =
+		button_reset(
+			javascript_replace,
+			0 /* form_number */ );
+
+	/* Create <Back> */
+	/* ------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button = button_back();
+
+	/* Create <Forward> */
+	/* ---------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button = button_forward();
+
+	/* Create <Top> */
+	/* ------------ */
+	if ( dictionary_list_length > 10 )
+	{
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) );
+
+		list_set(
+			element_list,
+			( element =
+				appaserver_element_new(
+					button,
+					(char *)0 /* element_name */ ) ) );
+
+		element->button = button_back_to_top();
+	}
+
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_close,
+			(char *)0 /* element_name */ ) );
 
 	return element_list;
 }
 
 LIST *form_edit_table_sort_checkbox_element_list(
+			char *folder_name,
 			int operation_list_length,
 			LIST *edit_table_heading_list )
 {
+	APPASERVER_ELEMENT *element;
+	LIST *element_list = list_new();
+	char *heading;
+	char element_name[ 128 ];
+	char action_string[ 128 ];
+	int i;
+
+	if ( !list_length( edit_table_heading_list ) ) return( LIST *)0;
+
+	sprintf( action_string, "push_button_submit('%s')", folder_name );
+
+	/* Create the assend checkboxes */
+	/* ---------------------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_row,
+			(char *)0 /* element_name */ ) );
+
+	for(	i = 0;
+		i < operation_list_length;
+		i++ )
+	{
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) );
+	}
+
+	list_rewind( edit_table_heading_list );
+
+	do {
+		sprintf(element_name,
+			%s%s%s",
+			SORT_CHECKBOX_PREFIX,
+			FORM_SORT_ASSEND_LABEL,
+			(char *)list_get( edit_table_heading_list ) );
+
+		list_set(
+			element_list,
+			( element =
+				appaserver_element_new(
+					checkbox,
+					strdup( element_name ) ) ) );
+
+		element->checkbox->name = element->element_name;
+		element->checkbox->prompt_string = "Sort";
+		element->checkbox->action_string = strdup( action_string );
+		element->checkbox->value = "yes";
+
+	} while ( list_next( edit_table_heading_list ) );
+
+	/* Create the descend checkboxes */
+	/* ----------------------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_row,
+			(char *)0 /* element_name */ ) );
+
+	for(	i = 0;
+		i < operation_list_length;
+		i++ )
+	{
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) );
+	}
+
+	list_rewind( edit_table_heading_list );
+
+	do {
+		sprintf(element_name,
+			%s%s%s",
+			SORT_CHECKBOX_PREFIX,
+			FORM_SORT_DESCEND_LABEL,
+			(char *)list_get( edit_table_heading_list ) );
+
+		list_set(
+			element_list,
+			( element =
+				appaserver_element_new(
+					checkbox,
+					strdup( element_name ) ) ) );
+
+		element->checkbox->name = element->element_name;
+		element->checkbox->prompt_string = "Descend";
+		element->checkbox->action_string = strdup( action_string );
+		element->checkbox->value = "yes";
+
+	} while ( list_next( edit_table_heading_list ) );
+
+	return element_list;
 }
 
 void form_edit_table_dictionary_list_output(

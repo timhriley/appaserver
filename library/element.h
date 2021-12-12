@@ -12,6 +12,7 @@
 #include "dictionary.h"
 #include "date_convert.h"
 #include "folder_attribute.h"
+#include "button.h"
 #include "boolean.h"
 
 /* Constants */
@@ -50,8 +51,8 @@ enum element_type {	table_open,
 			button,
 			non_edit_text,
 			hidden,
-			break_tag,
-			blank_tag,
+			line_break,
+			table_data,
 			multi_drop_down,
 			radio_button,
 			notepad,
@@ -59,7 +60,6 @@ enum element_type {	table_open,
 			password,
 			upload_filename,
 			reference_number,
-			anchor,
 			javascript_filename,
 			element_date,
 			element_current_date,
@@ -273,14 +273,9 @@ int element_drop_down_size(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *label;
-	char *action_string;
-
 	/* Process */
 	/* ------- */
-	char *html;
+	BUTTON *button;
 } ELEMENT_BUTTON;
 
 /* ELEMENT_BUTTON operations */
@@ -290,15 +285,12 @@ ELEMENT_BUTTON *element_button_calloc(
 
 ELEMENT_BUTTON *element_button_new(
 			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
+			char *action_string );
 
 /* Returns heap memory */
 /* ------------------- */
 char *element_button_html(
-			char *label,
-			char *action_string,
-			boolean with_table_data_tag );
+			char *html );
 
 typedef struct
 {
@@ -351,31 +343,31 @@ char *element_hidden_html(
 typedef struct
 {
 	/* stub */
-} ELEMENT_BREAK_TAG;
+} ELEMENT_LINE_BREAK;
 
-/* ELEMENT_BREAK_TAG operations */
-/* ---------------------------- */
-ELEMENT_BREAK_TAG *element_break_tag_calloc(
+/* ELEMENT_LINE_BREAK operations */
+/* ----------------------------- */
+ELEMENT_LINE_BREAK *element_line_break_calloc(
 			void );
 
 /* Returns heap memory */
 /* ------------------- */
-char *element_break_tag_html(
+char *element_line_break_html(
 			void );
 
 typedef struct
 {
 	/* stub */
-} ELEMENT_BLANK_TAG;
+} ELEMENT_TABLE_DATA;
 
-/* ELEMENT_BLANK_TAG operations */
-/* ---------------------------- */
-ELEMENT_BLANK_TAG *element_blank_tag_calloc(
+/* ELEMENT_TABLE_DATA operations */
+/* ----------------------------- */
+ELEMENT_TABLE_DATA *element_table_data_calloc(
 			void );
 
 /* Returns heap memory */
 /* ------------------- */
-char *element_blank_tag_html(
+char *element_table_data_html(
 			void );
 
 typedef struct
@@ -391,8 +383,9 @@ typedef struct
 	/* Process */
 	/* ------- */
 	ELEMENT_DROP_DOWN *original_drop_down;
+	ELEMENT_TABLE_DATA *table_data;
 	ELEMENT_BUTTON *move_right_button;
-	ELEMENT_BREAK_TAG *element_break_tag;
+	ELEMENT_LINE_BREAK *element_line_break;
 	ELEMENT_BUTTON *move_left_button;
 	ELEMENT_DROP_DOWN *empty_drop_down;
 	char *name;
@@ -452,11 +445,19 @@ char *element_multi_drop_down_name(
 /* ------------------- */
 char *element_multi_drop_down_html(
 			ELEMENT_DROP_DOWN *original_drop_down,
+			ELEMENT_TABLE_DATA *table_data,
 			ELEMENT_BUTTON *move_right_button,
-			ELEMENT_BREAK_TAG *element_break_tag,
+			ELEMENT_LINE_BREAK *element_line_break,
 			ELEMENT_BUTTON *move_left_button,
 			ELEMENT_DROP_DOWN *empty_drop_down,
 			char *appaserver_element_javascript );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_anchor_html(
+			char *image_source,
+			char *action_string,
+			boolean with_table_data_tag );
 
 typedef struct
 {
@@ -472,12 +473,6 @@ typedef struct
 {
 	int attribute_width;
 } ELEMENT_UPLOAD_FILENAME;
-
-typedef struct
-{
-	char *prompt;
-	char *href;
-} ELEMENT_ANCHOR;
 
 typedef struct
 {
@@ -577,12 +572,12 @@ typedef struct
 	ELEMENT_TABLE_CLOSE *table_close;
 	ELEMENT_CHECKBOX *checkbox;
 	ELEMENT_DROP_DOWN *drop_down;
-	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
 	ELEMENT_BUTTON *button;
 	ELEMENT_NON_EDIT_TEXT *non_edit_text;
 	ELEMENT_HIDDEN *hidden;
-	ELEMENT_BREAK_TAG *break_tag;
-	ELEMENT_BLANK_TAG *blank_tag;
+	ELEMENT_LINE_BREAK *line_break;
+	ELEMENT_TABLE_DATA *table_data;
+	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
 
 /*
 	ELEMENT_RADIO_BUTTON *radio_button;
@@ -591,7 +586,6 @@ typedef struct
 	ELEMENT_PASSWORD *password;
 	ELEMENT_UPLOAD_FILENAME *upload_filename;
 	ELEMENT_HTTP_FILENAME *http_filename;
-	ELEMENT_ANCHOR *anchor;
 	ELEMENT_EMPTY_COLUMN *empty_column;
 	ELEMENT_REFERENCE_NUMBER *reference_number;
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
