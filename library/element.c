@@ -2197,7 +2197,7 @@ char *element_hidden_html(
 	return strdup( html );
 }
 
-APPASERVER_ELEMENT *appaserver_element_seek(
+APPASERVER_ELEMENT *appaserver_element_name_seek(
 			char *element_name,
 			LIST *element_list )
 {
@@ -2209,9 +2209,33 @@ APPASERVER_ELEMENT *appaserver_element_seek(
 		element = list_get( element_list );
 
 		if ( element->element_name
-		&&   strcmp(
+		&&   string_strcmp(
 			element_name,
 			element->element_name ) == 0 )
+		{
+			return element;
+		}
+
+	} while ( list_next( element_list ) );
+
+	return (APPASERVER_ELEMENT *)0;
+}
+
+APPASERVER_ELEMENT *appaserver_element_key_seek(
+			char *element_key,
+			LIST *element_list )
+{
+	APPASERVER_ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return (APPASERVER_ELEMENT *)0;
+
+	do {
+		element = list_get( element_list );
+
+		if ( element->element_key
+		&&   string_strcmp(
+			element_key,
+			element->element_key ) == 0 )
 		{
 			return element;
 		}

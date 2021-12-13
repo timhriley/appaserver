@@ -14,10 +14,12 @@
 
 /* Constants */
 /* --------- */
-#define QUERY_PREFIX				"qqery_"
-#define SORT_CHECKBOX_PREFIX			"ssort_checkbox_"
-#define DRILLTHRU_PREFIX			"ddrillthru_"
-#define PAIR_ONE2M_PREFIX			"ppair_one2m_"
+#define DICTIONARY_SEPARATE_QUERY_PREFIX	"qquery_"
+#define DICTIONARY_SEPARATE_SORT_PREFIX		"ssort_"
+#define DICTIONARY_SEPARATE_DRILLTHRU_PREFIX	"ddrillthru_"
+#define DICTIONARY_SEPARATE_IGNORE_PREFIX	"iignore_"
+#define DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX	"ppair_one2m_"
+
 #define IGNORE_SELECT_PUSH_BUTTON_PREFIX	"ignore_"
 #define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
 #define FROM_PREFIX				"from_"
@@ -187,5 +189,11 @@ DICTIONARY *dictionary_separate_original_post_dictionary(
 DICTIONARY *dictionary_separate_prefixed(
 			DICTIONARY *post_dictionary,
 			char *prefix );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *dictionary_separate_hidden_html(
+			char *prefix,
+			DICTIONARY *dictionary );
 
 #endif

@@ -24,7 +24,6 @@
 /* Constants */
 /* --------- */
 #define QUERY_MAX_ROWS				500
-#define QUERY_STARTING_LABEL			"qquery_"
 #define QUERY_FROM_STARTING_LABEL		"from_"
 #define QUERY_TO_STARTING_LABEL			"to_"
 #define QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL	"original_"

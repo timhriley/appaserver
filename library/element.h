@@ -560,10 +560,12 @@ ELEMENT_RADIO_BUTTON *element_radio_button_calloc(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	enum element_type element_type;
 	char *element_name;
+	char *heading_string;
+	char *key_string;
 
 	/* Attributes */
 	/* ---------- */
@@ -595,11 +597,14 @@ typedef struct
 /* APPASERVER_ELEMENT operations */
 /* ----------------------------- */
 APPASERVER_ELEMENT *appaserver_element_new(
-			enum element_type element_type,
-			char *element_name );
+			enum element_type element_type );
 
-APPASERVER_ELEMENT *appaserver_element_seek(
+APPASERVER_ELEMENT *appaserver_element_name_seek(
 			char *element_name,
+			LIST *element_list );
+
+APPASERVER_ELEMENT *appaserver_element_key_seek(
+			char *element_key,
 			LIST *element_list );
 
 int appaserver_element_tab_order(

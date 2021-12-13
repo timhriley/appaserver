@@ -253,19 +253,19 @@ DICTIONARY *dictionary_separate_working_post(
 
 	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
-		QUERY_PREFIX );
+		DICTIONARY_SEPARATE_QUERY_PREFIX );
 
 	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
-		DRILLTHRU_PREFIX );
+		DICTIONARY_SEPARATE_DRILLTHRU_PREFIX );
 
 	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
-		SORT_BUTTON_PREFIX );
+		DICTIONARY_SEPARATE_SORT_PREFIX );
 
 	dictionary_separate_parse_multi_attribute_keys(
 		working_post_dictionary,
-		PAIR_ONE2M_PREFIX );
+		DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX );
 
 	if ( list_length( folder_attribute_date_name_list ) )
 	{
@@ -297,7 +297,7 @@ DICTIONARY *dictionary_separate_sort(
 {
 	return dictionary_separate_prefixed(
 		working_post_dictionary,
-		SORT_BUTTON_PREFIX );
+		DICTIONARY_SEPARATE_SORT_PREFIX );
 
 }
 
@@ -326,7 +326,7 @@ DICTIONARY *dictionary_separate_drillthru(
 	if ( ! ( dictionary =
 			dictionary_without_prefix(
 				working_post_dictionary,
-				DRILLTHRU_PREFIX ) ) )
+				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX ) ) )
 	{
 		dictionary = dictionary_small();
 	}
@@ -373,7 +373,7 @@ DICTIONARY *dictionary_separate_pair_one2m_dictionary(
 	if ( ! ( dictionary =
 		dictionary_without_prefix(
 			working_post_dictionary,
-			PAIR_ONE2M_PREFIX ) ) )
+			DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX ) ) )
 	{
 		dictionary = dictionary_small();
 	}
@@ -389,7 +389,7 @@ DICTIONARY *dictionary_separate_query(
 	if ( ! ( dictionary =
 			dictionary_without_prefix(
 				working_post_dictionary,
-				QUERY_PREFIX ) ) )
+				DICTIONARY_SEPARATE_QUERY_PREFIX ) ) )
 	{
 		dictionary = dictionary_small();
 	}
@@ -642,19 +642,19 @@ DICTIONARY *dictionary_separate_non_prefixed(
 
 		if ( string_strncmp(
 				key,
-				SORT_BUTTON_PREFIX ) == 0
+				DICTIONARY_SEPARATE_SORT_PREFIX ) == 0
 		||   string_strncmp(
 				key,
-				QUERY_PREFIX ) == 0
+				DICTIONARY_SEPARATE_QUERY_PREFIX ) == 0
 		||   string_strncmp(
 				key,
-				DRILLTHRU_PREFIX ) == 0
+				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX ) == 0
 		||   string_strncmp(
 				key,
 				IGNORE_SELECT_PUSH_BUTTON_PREFIX ) == 0
 		||   string_strncmp(
 				key,
-				PAIR_ONE2M_PREFIX ) == 0
+				DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX ) == 0
 		||   string_strncmp(
 				key,
 				NO_DISPLAY_PUSH_BUTTON_PREFIX ) == 0 )
@@ -686,7 +686,7 @@ void dictionary_separate_output_as_hidden(
 		dictionary_output_as_hidden(
 			dictionary_prepend_key(
 				dictionary_separate->drillthru_dictionary,
-				DRILLTHRU_PREFIX ) );
+				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX ) );
 	}
 
 	if ( dictionary_length( dictionary_separate->query_dictionary ) )
@@ -695,7 +695,7 @@ void dictionary_separate_output_as_hidden(
 			dictionary_prepend_key(
 				dictionary_separate->
 					query_dictionary,
-				QUERY_PREFIX ) );
+				DICTIONARY_SEPARATE_QUERY_PREFIX ) );
 	}
 
 	if ( dictionary_length( dictionary_separate->ignore_dictionary ) )
@@ -713,7 +713,7 @@ void dictionary_separate_output_as_hidden(
 			dictionary_prepend_key(
 				dictionary_separate->
 					pair_one2m_dictionary,
-				PAIR_ONE2M_PREFIX ) );
+				DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX ) );
 	}
 
 	if ( with_non_prefixed_dictionary
@@ -1117,7 +1117,7 @@ DICTIONARY *dictionary_separate_send_dictionary(
 			send_dictionary,
 			dictionary_prefix(
 				sort_dictionary,
-				SORT_BUTTON_PREFIX ) );
+				DICTIONARY_SEPARATE_SORT_PREFIX ) );
 	}
 
 	if ( dictionary_length( query_dictionary ) )
@@ -1126,7 +1126,7 @@ DICTIONARY *dictionary_separate_send_dictionary(
 			send_dictionary,
 			dictionary_prefix(
 				query_dictionary,
-				QUERY_PREFIX ) );
+				DICTIONARY_SEPARATE_QUERY_PREFIX ) );
 	}
 
 	if ( dictionary_length( drillthru_dictionary ) )
@@ -1135,7 +1135,7 @@ DICTIONARY *dictionary_separate_send_dictionary(
 			send_dictionary,
 			dictionary_prefix(
 				drillthru_dictionary,
-				DRILLTHRU_PREFIX ) );
+				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX ) );
 	}
 
 	if ( dictionary_length( ignore_dictionary ) )
@@ -1153,7 +1153,7 @@ DICTIONARY *dictionary_separate_send_dictionary(
 			send_dictionary,
 			dictionary_prefix(
 				pair_one2m_dictionary,
-				PAIR_ONE2M_PREFIX ) );
+				DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX ) );
 	}
 
 	if ( dictionary_length( non_prefixed_dictionary ) )
@@ -1186,3 +1186,39 @@ char *dictionary_separate_send_string(
 	return strdup( escaped_dictionary_string );
 }
 
+char *dictionary_separate_hidden_html(
+			char *prefix,
+			DICTIONARY *dictionary )
+{
+	char html[ 65536 ];
+	char *ptr = html;
+	LIST *key_list;
+	char *key;
+	char *data;
+	char input_name[ 128 ];
+
+	key_list = dictionary_key_list( dictionary );
+
+	if ( !list_rewind( key_list ) ) return (char *)0;
+
+	do {
+		key = list_get( key_list );
+		data = dictionary_get( key, dictionary );
+
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		sprintf(input_name,
+			"%s%s",
+			prefix,
+			key );
+
+		ptr += sprintf(
+			ptr,
+			"<input name=\"%s\" type=hidden value=\"%s\">",
+			input_name,
+			data );
+
+	} while ( list_next( key_list ) );
+
+	return strdup( html );
+}
