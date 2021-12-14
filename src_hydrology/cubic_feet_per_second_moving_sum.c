@@ -1,8 +1,8 @@
-/* -------------------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_hydrology/cubic_feet_per_second_sum.c		*/
-/* -------------------------------------------------------------- 	*/
+/* ----------------------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_hydrology/cubic_feet_per_second_moving_sum.c	*/
+/* ----------------------------------------------------------------- 	*/
 /* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------- 	*/
+/* ----------------------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -28,7 +28,6 @@
 #include "station_datatype.h"
 #include "grace.h"
 #include "julian.h"
-#include "hash_table.h"
 #include "session.h"
 #include "appaserver_link_file.h"
 
@@ -60,9 +59,34 @@
 
 /* Prototypes */
 /* ---------- */
+char *cubic_where_clause(
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum );
+
 void cubic_stdout(	char *input_system_string );
 
-void cubic_feet_per_second_sum(
+void cubic_table(	char *input_system_string,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *units_display,
+			char *where_clause );
+
+void cubic_text_file(	char *input_system_string,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *units_display,
+			char *where_clause );
+
+void cubic_feet_per_second_moving_sum(
 			char *application_name,
 			char *role_name,
 			LIST *station_list,
@@ -77,8 +101,7 @@ void cubic_feet_per_second_sum(
 
 char *cubic_input_system_string(
 			char *application_name,
-			LIST *station_list,
-			char *datatype_name,
+			char *where_clause,
 			char *begin_date_string,
 			char *end_date_string,
 			int days_to_sum,
@@ -159,7 +182,7 @@ int main( int argc, char **argv )
 			units_converted,
 			sum /* aggregate_statistic */ );
 
-	cubic_feet_per_second_sum(
+	cubic_feet_per_second_moving_sum(
 			application_name,
 			role_name,
 			station_list,
@@ -976,7 +999,7 @@ void daily_moving_average_output_transmit_exceedance_format(
 }
 #endif
 
-void cubic_feet_per_second_sum(
+void cubic_feet_per_second_moving_sum(
 			char *application_name,
 			char *role_name,
 			LIST *station_list,
@@ -990,12 +1013,20 @@ void cubic_feet_per_second_sum(
 			char *units_display )
 {
 	char *input_system_string;
+	char *where_clause;
+
+	where_clause =
+		cubic_where_clause(
+			station_list,
+			datatype_name,
+			begin_date_string,
+			end_date_string,
+			days_to_sum );
 
 	input_system_string =
 		cubic_input_system_string(
 			application_name,
-			station_list,
-			datatype_name,
+			where_clause,
 			begin_date_string,
 			end_date_string,
 			days_to_sum,
@@ -1006,19 +1037,69 @@ void cubic_feet_per_second_sum(
 	{
 		cubic_stdout( input_system_string );
 	}
+	else
+	if ( strcmp( output_medium, "table" ) == 0 )
+	{
+		cubic_table(
+			input_system_string,
+			station_list,
+			datatype_name,
+			begin_date_string,
+			end_date_string,
+			days_to_sum,
+			units_display,
+			where_clause );
+	}
+	else
+	if ( strcmp( output_medium, "text_file" ) == 0 )
+	{
+		cubic_text_file(
+			input_system_string,
+			station_list,
+			datatype_name,
+			begin_date_string,
+			end_date_string,
+			days_to_sum,
+			units_display,
+			where_clause );
+	}
+}
+
+char *cubic_where_clause(
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum )
+{
+	char where_clause[ 512 ];
+	JULIAN *new_begin_date;
+
+	new_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
+	julian_decrement_days( new_begin_date, days_to_sum - 1 );
+
+	sprintf( where_clause,
+ 	"station in (%s) and 				      "
+ 	"datatype = '%s' and				      "
+	"measurement_date between '%s' and '%s' and	      "
+	"measurement_value is not null 			      ",
+		timlib_in_clause( station_list ),
+		datatype_name,
+		julian_display_yyyy_mm_dd( new_begin_date->current ),
+		end_date_string );
+
+	return strdup( where_clause );
 }
 
 char *cubic_input_system_string(
 			char *application_name,
-			LIST *station_list,
-			char *datatype_name,
+			char *where_clause,
 			char *begin_date_string,
 			char *end_date_string,
 			int days_to_sum,
 			char *units,
 			char *units_converted )
 {
-	char where_clause[ 512 ];
 	char aggregation_process[ 1024 ];
 	char units_converted_process[ 128 ];
 	JULIAN *new_begin_date;
@@ -1032,7 +1113,7 @@ char *cubic_input_system_string(
 	&&   strcmp( units_converted, "units_converted" ) != 0 )
 	{
 		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s 1 '%c' 2",
+			 "measurement_convert_units.e %s %s 1 '%c'",
 			 units,
 			 units_converted,
 			 INPUT_DELIMITER );
@@ -1042,22 +1123,12 @@ char *cubic_input_system_string(
 		strcpy( units_converted_process, "cat" );
 	}
 
-	sprintf( where_clause,
- 	"station in (%s) and 				      "
- 	"datatype = '%s' and				      "
-	"measurement_date between '%s' and '%s' and	      "
-	"measurement_value is not null 			      ",
-		timlib_in_clause( station_list ),
-		datatype_name,
-		julian_display_yyyy_mm_dd( new_begin_date->current ),
-		end_date_string );
-
 	sprintf(
 			aggregation_process, 
 	 "real_time2aggregate_value.e sum %d %d %d '%c' daily n %s	|"
 	 "piece_inverse.e 3 '%c'					|"
-	 "sort								|"
 	 "%s								|"
+	 "pad_missing_times.e ',' 0,-1,1 daily %s 0000 %s 2359 0 '' 	|"
 	 "moving_average.e %d '%c' %s %s				 ",
 	 		DATE_PIECE,
 	 		TIME_PIECE,
@@ -1066,6 +1137,8 @@ char *cubic_input_system_string(
 			end_date_string,
 			INPUT_DELIMITER,
 			units_converted_process,
+			julian_display_yyyy_mm_dd( new_begin_date->current ),
+			end_date_string,
 			days_to_sum,
 			INPUT_DELIMITER,
 			"sum",
@@ -1079,7 +1152,6 @@ char *cubic_input_system_string(
 	"			quick=yes		   |"
 	"tr '%c' '%c' 					   |"
 	"sort						   |"
-"tee /dev/tty |"
 	"%s						   |"
 	"sort						    ",
 		application_name,
@@ -1105,3 +1177,155 @@ void cubic_stdout( char *input_system_string )
 
 	pclose( input_pipe );
 }
+
+void cubic_table(	char *input_system_string,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *units_display,
+			char *where_clause )
+{
+	FILE *input_pipe = popen( input_system_string, "r" );
+	char input_buffer[ 1024 ];
+	LIST *heading_list;
+	HTML_TABLE *html_table = {0};
+	char units_buffer[ 128 ];
+	char title[ 512 ];
+	char title_buffer[ 512 ];
+	char date_string[ 128 ];
+	char value_string[ 128 ];
+	int count = 0;
+
+	sprintf(	title,
+	"%d Day Moving Sum<br>%s/%s<br>from: %s to: %s",
+			days_to_sum,
+			list_display_delimited( station_list, ',' ),
+			datatype_name,
+			begin_date_string,
+			end_date_string );
+
+	html_table =
+		html_table_new(
+			format_initial_capital(
+				title_buffer,
+				title ),
+			where_clause /* sub_title */,
+			(char *)0 /* sub_sub_title */ );
+
+	heading_list = new_list();
+
+	list_set( heading_list, "Date" );
+
+	list_set(
+		heading_list,
+		format_initial_capital(
+			units_buffer,
+			units_display ) );
+
+	html_table->number_left_justified_columns = 1;
+	html_table->number_right_justified_columns = 1;
+
+	html_table_set_heading_list( html_table, heading_list );
+
+	html_table_output_table_heading(
+		html_table->title,
+		html_table->sub_title );
+
+	html_table_output_data_heading(
+		html_table->heading_list,
+		html_table->number_left_justified_columns,
+		html_table->number_right_justified_columns,
+		html_table->justify_list );
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		piece( date_string, INPUT_DELIMITER, input_buffer, 0 );
+		piece( value_string, INPUT_DELIMITER, input_buffer, 1 );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( date_string ) );
+
+		html_table_set_data(
+			html_table->data_list,
+			strdup( place_commas_in_number_string(
+					value_string ) ) );
+
+		if ( !(++count % ROWS_BETWEEN_HEADING ) )
+		{
+			html_table_output_data_heading(
+				html_table->heading_list,
+				html_table->number_left_justified_columns,
+				html_table->number_right_justified_columns,
+				html_table->justify_list );
+		}
+
+		html_table_output_data(
+			html_table->data_list,
+			html_table->number_left_justified_columns,
+			html_table->number_right_justified_columns,
+			html_table->background_shaded,
+			html_table->justify_list );
+
+		list_free_string_list( html_table->data_list );
+		html_table->data_list = list_new();
+	}
+
+	pclose( input_pipe );
+	html_table_close();
+}
+
+void cubic_text_file(	char *input_system_string,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *units_display,
+			char *where_clause )
+{
+	char buffer[ 512 ];
+	char date_string[ 128 ];
+	char value_string[ 128 ];
+	FILE *input_pipe;
+	FILE *output_pipe;
+
+	output_pipe = popen( "html_paragraph_wrapper.e", "w" );
+
+	fprintf(	output_pipe,
+	"#%d Day Moving Sum for: %s/%s from: %s to: %s\n",
+			days_to_sum,
+			list_display_delimited( station_list, ',' ),
+			datatype_name,
+			begin_date_string,
+			end_date_string );
+
+	fprintf(	output_pipe,
+			"#%s\n",
+			where_clause );
+
+	fprintf(	output_pipe,
+			"#Date|MovingSum(%d)(%s)\n",
+			days_to_sum,
+			units_display );
+
+	input_pipe = popen( input_system_string, "r" );
+
+	while( get_line( buffer, input_pipe ) )
+	{
+		piece( date_string, INPUT_DELIMITER, buffer, 0 );
+		piece( value_string, INPUT_DELIMITER, buffer, 1 );
+
+		fprintf( output_pipe,
+			 "%s|%s\n",
+			 date_string,
+			 strdup( place_commas_in_number_string(
+					value_string ) ) );
+	}
+
+	pclose( input_pipe );
+	pclose( output_pipe );
+}
+

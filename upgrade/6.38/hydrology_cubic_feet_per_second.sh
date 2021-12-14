@@ -34,19 +34,19 @@ role_process_set_member="role_process_set_member"
 role_operation="role_operation"
 (
 cat << all_done
-delete from $process where process = 'cubic_feet_per_second_sum';
-insert into $process (process,command_line,notepad,html_help_file_anchor,process_set_display,appaserver_yn,process_group,preprompt_help_text,post_change_javascript) values ('cubic_feet_per_second_sum','cubic_feet_per_second_sum \$process \$role station datatype begin_date end_date days_to_sum output_medium units_converted',null,'process_moving_statistic_help.html',null,null,'output',null,'post_change_output_daily_moving_average(this)');
-insert into $role_process (role,process) values ('supervisor','cubic_feet_per_second_sum');
-delete from $process_parameter where process = 'cubic_feet_per_second_sum';
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','datatype','null','null','null','10',null,'y','datatype_cfs_list',null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','null','null','begin_date','null','30',null,null,null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','null','null','days_to_sum','null','70',null,null,null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','null','null','end_date','null','40',null,null,null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','null','null','null','output_medium','100',null,null,null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','station_datatype','null','null','null','20','y',null,null,null);
-insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_sum','units_converted','null','null','null','90',null,null,null,null);
-delete from $javascript_processes where process = 'cubic_feet_per_second_sum';
-delete from $process_generic_output where process = 'cubic_feet_per_second_sum';
+delete from $process where process = 'cubic_feet_per_second_moving_sum';
+insert into $process (process,command_line,notepad,html_help_file_anchor,process_set_display,appaserver_yn,process_group,preprompt_help_text,post_change_javascript) values ('cubic_feet_per_second_moving_sum','cubic_feet_per_second_moving_sum \$process \$role station datatype begin_date end_date days_to_sum output_medium units_converted',null,'process_moving_statistic_help.html',null,null,'output',null,'post_change_output_daily_moving_average(this)');
+insert into $role_process (role,process) values ('supervisor','cubic_feet_per_second_moving_sum');
+delete from $process_parameter where process = 'cubic_feet_per_second_moving_sum';
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','datatype','null','null','null','10',null,'y','datatype_cfs_list',null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','null','null','begin_date','null','30',null,null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','null','null','days_to_sum','null','70',null,null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','null','null','end_date','null','40',null,null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','null','null','null','output_medium','100',null,null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','station_datatype','null','null','null','20','y',null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('cubic_feet_per_second_moving_sum','units_converted','null','null','null','90',null,null,null,null);
+delete from $javascript_processes where process = 'cubic_feet_per_second_moving_sum';
+delete from $process_generic_output where process = 'cubic_feet_per_second_moving_sum';
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('begin_date','Format:  YYYY-MM-DD',null,'y','10');
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('days_to_sum',null,null,null,'5');
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('end_date','Format:  YYYY-MM-DD',null,'y','10');

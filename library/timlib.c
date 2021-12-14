@@ -475,6 +475,7 @@ char *format_initial_capital_delimiter(
 void output_starting_argv_stderr( int argc, char **argv )
 {
 
+	fflush( stderr );
 	fprintf( stderr, "%s %s: %s",
 		 date_get_now_yyyy_mm_dd( date_get_utc_offset() ),
 		 date_get_now_hhmm( date_get_utc_offset() ),

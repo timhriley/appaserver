@@ -37,7 +37,7 @@ post_change_patient_count
 # -------------
 # src_hydrology
 # -------------
-cubic_feet_per_second_sum
+cubic_feet_per_second_moving_sum
 on_the_hour_measurements
 measurement_value_manipulation_history
 output_merged_waterquality
