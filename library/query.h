@@ -730,7 +730,6 @@ char *query_edit_table_where(
 			LIST *query_drop_down_list,
 			LIST *query_attribute_list,
 			char *application_name,
-			char *folder_name,
 			boolean combine_date_time );
 
 char *query_drop_down_where(

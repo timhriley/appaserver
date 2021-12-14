@@ -7178,7 +7178,6 @@ QUERY_OUTPUT *query_edit_table_output_new(
 		query_output->query_drop_down_list,
 		query_output->query_attribute_list,
 		folder->application_name,
-		first_folder_name,
 		0 /* not combine_date_time */ );
 
 	if ( !query_output->where_clause
@@ -7847,7 +7846,6 @@ char *query_edit_table_where(
 			LIST *query_drop_down_list,
 			LIST *query_attribute_list,
 			char *application_name,
-			char *folder_name,
 			boolean combine_date_time )
 {
 	if ( !list_length( query_drop_down_list )
@@ -8659,7 +8657,6 @@ QUERY_OUTPUT *query_sort_order_output_new(
 		query_output->query_drop_down_list,
 		query_output->query_attribute_list,
 		query->folder->application_name,
-		query->folder->folder_name,
 		0 /* not combine_date_time */ );
 
 	if ( !query_output->where_clause

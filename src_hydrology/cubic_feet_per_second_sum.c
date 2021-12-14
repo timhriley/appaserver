@@ -34,6 +34,7 @@
 
 /* Constants */
 /* --------- */
+#define UNITS				"cfs"
 #define EXCEEDANCE_DELIMITER		'|'
 #define DEFAULT_DAYS_TO_SUM		30
 #define DEFAULT_OUTPUT_MEDIUM		"chart"
@@ -46,7 +47,7 @@
 #define KEY_DELIMITER			'/'
 
 #define ROWS_BETWEEN_HEADING			20
-#define SELECT_LIST			"measurement_date,measurement_value,station"
+#define SELECT_LIST			"measurement_date,measurement_value"
 
 #define DATE_PIECE		 		0
 #define TIME_PIECE		 		-1
@@ -59,19 +60,44 @@
 
 /* Prototypes */
 /* ---------- */
+void cubic_stdout(	char *input_system_string );
+
+void cubic_feet_per_second_sum(
+			char *application_name,
+			char *role_name,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *output_medium,
+			char *units,
+			char *units_converted,
+			char *units_display );
+
+char *cubic_input_system_string(
+			char *application_name,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *units,
+			char *units_converted );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
 	char *role_name;
-	char *station_list_string;
-	char *datatype_list_string;
+	LIST *station_list;
+	char datatype_name[ 128 ];
 	char *begin_date_string;
 	char *end_date_string;
 	int days_to_sum;
 	char *output_medium;
 	char *units_converted;
+	char *units_display;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -91,8 +117,8 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	role_name = argv[ 2 ];
-	station_list_string = argv[ 3 ];
-	datatype_list_string = argv[ 4 ];
+	station_list = list_string_list( argv[ 3 ], ',' );
+	piece( datatype_name, ',', argv[ 4 ], 0 );
 	begin_date_string = argv[ 5 ];
 	end_date_string = argv[ 6 ];
 	days_to_sum = atoi( argv[ 7 ] );
@@ -125,448 +151,26 @@ int main( int argc, char **argv )
 				appaserver_mount_point );
 	}
 
-#ifdef NOT_DEFINED
 	units_display =
 		hydrology_library_get_datatype_units_display(
 			application_name,
 			datatype_name,
-			"cfs" /* units */,
+			UNITS,
 			units_converted,
-			aggregate_statistic );
+			sum /* aggregate_statistic */ );
 
-	build_sys_string(	sys_string,
-				application_name,
-				station_name,
-				datatype_name,
-				begin_date_string,
-				end_date_string,
-				aggregate_statistic,
-				datatype_aggregate_statistic,
-				exceedance_format_yn,
-				days_to_average,
-				units,
-				units_converted,
-				validation_level );
-
-	if ( units_converted
-	&&   *units_converted
-	&&   strcmp( units_converted, "units_converted" ) != 0 )
-	{
-		units = units_converted;
-	}
-
-	if ( strcmp( output_medium, "table" ) == 0 )
-	{
-		if ( exceedance_format_yn == 'y' )
-		{
-			daily_moving_average_output_table_exceedance_format(
-					station_name,
-					datatype_name,
-					sys_string,
-					begin_date_string,
-					end_date_string,
-					days_to_average,
-					units_display,
-					aggregate_statistic,
-					application_name );
-		}
-		else
-		{
-			daily_moving_average_output_table(
-					station_name,
-					datatype_name,
-					sys_string,
-					begin_date_string,
-					end_date_string,
-					days_to_average,
-					units_display,
-					aggregate_statistic,
-					application_name );
-		}
-	}
-	else
-	if ( strcmp( output_medium, "chart" ) == 0 )
-	{
-		int results;
-
-		if ( exceedance_format_yn == 'y' )
-		{
-			results =
-			daily_moving_average_output_chart_exceedance_format(
-					application_name,
-					role_name,
-					station_name,
-					datatype_name,
-					begin_date_string,
-					end_date_string,
-					sys_string,
-					appaserver_parameter_file->
-						document_root,
-					days_to_average,
-					units_display,
-					aggregate_statistic );
-		}
-		else
-		{
-			results = daily_moving_average_output_chart(
-					application_name,
-					role_name,
-					station_name,
-					datatype_name,
-					begin_date_string,
-					end_date_string,
-					sys_string,
-					appaserver_parameter_file->
-						document_root,
-					argv[ 0 ],
-					days_to_average,
-					units_display,
-					aggregate_statistic );
-		}
-
-		if ( !results )
-		{
-			printf( "<p>Warning: nothing selected to output.\n" );
-			document_close();
-			exit( 0 ); 
-		}
-	}
-	else
-	if ( strcmp( output_medium, "transmit" ) == 0
-	||   strcmp( output_medium, "text_file" ) == 0 )
-	{
-		char *ftp_filename;
-		char *output_filename;
-		pid_t process_id = getpid();
-		FILE *output_pipe;
-		FILE *output_file;
-		char output_sys_string[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
-
-		appaserver_link_file =
-			appaserver_link_file_new(
-				application_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
-				( application_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-	 			appaserver_parameter_file->
-					document_root,
-				PROCESS_NAME,
-				application_name,
-				process_id,
-				(char *)0 /* session */,
-				"txt" );
-
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_TEXT_FILE,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-	
-		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
-		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
-				output_filename );
-			document_close();
-			exit( 1 );
-		}
-		else
-		{
-			fclose( output_file );
-		}
-
-		if ( exceedance_format_yn == 'y' )
-		{
-/*
-			sprintf( output_sys_string,
-			 	"delimiter2padded_columns.e '|' 2 > %s",
-			 	output_filename );
-*/
-			sprintf(output_sys_string,
-		 		"tr '|' '%c' > %s",
-				OUTPUT_TEXT_FILE_DELIMITER,
-		 		output_filename );
-
-			output_pipe = popen( output_sys_string, "w" );
-
-			daily_moving_average_output_transmit_exceedance_format(
-				output_pipe,
-				station_name,
-				datatype_name,
-				sys_string,
-				days_to_average,
-				units_display,
-				aggregate_statistic,
-				begin_date_string,
-				end_date_string,
-				application_name );
-		}
-		else
-		{
-/*
-			sprintf( output_sys_string,
-			 	"delimiter2padded_columns.e '|' 1 > %s",
-			 	output_filename );
-*/
-			sprintf(output_sys_string,
-		 		"tr '|' '%c' > %s",
-				OUTPUT_TEXT_FILE_DELIMITER,
-		 		output_filename );
-
-			output_pipe = popen( output_sys_string, "w" );
-
-			daily_moving_average_output_transmit(
-				output_pipe,
-				station_name,
-				datatype_name,
-				sys_string,
-				days_to_average,
-				units_display,
-				aggregate_statistic,
-				begin_date_string,
-				end_date_string,
-				application_name );
-		}
-
-		pclose( output_pipe );
-
-		printf( "<h1>%d Day Moving %s Transmission<br></h1>\n",
-			days_to_average,
-			format_initial_capital(
-				buffer,
-				aggregate_statistic_get_string(
-					aggregate_statistic ) ) );
-		printf( "<h2>\n" );
-		fflush( stdout );
-		if ( system( timlib_system_date_string() ) ){};
-		fflush( stdout );
-		printf( "</h2>\n" );
-	
-		appaserver_library_output_ftp_prompt(
-				ftp_filename,
-				TRANSMIT_PROMPT,
-				(char *)0 /* target */,
-				(char *)0 /* application_type */ );
-	}
-	else
-	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
-	{
-		char *ftp_filename;
-		char *output_filename;
-		pid_t process_id = getpid();
-		FILE *output_pipe;
-		FILE *output_file;
-		char output_sys_string[ 512 ];
-		APPASERVER_LINK_FILE *appaserver_link_file;
-
-		appaserver_link_file =
-			appaserver_link_file_new(
-				application_http_prefix( application_name ),
-				appaserver_library_get_server_address(),
-				( application_prepend_http_protocol_yn(
-					application_name ) == 'y' ),
-	 			appaserver_parameter_file->
-					document_root,
-				PROCESS_NAME,
-				application_name,
-				process_id,
-				(char *)0 /* session */,
-				"csv" );
-
-		output_filename =
-			appaserver_link_get_output_filename(
-				appaserver_link_file->
-					output_file->
-					document_root_directory,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-		ftp_filename =
-			appaserver_link_get_link_prompt(
-				appaserver_link_file->
-					link_prompt->
-					prepend_http_boolean,
-				appaserver_link_file->
-					link_prompt->
-					http_prefix,
-				appaserver_link_file->
-					link_prompt->server_address,
-				appaserver_link_file->application_name,
-				appaserver_link_file->filename_stem,
-				appaserver_link_file->begin_date_string,
-				appaserver_link_file->end_date_string,
-				appaserver_link_file->process_id,
-				appaserver_link_file->session,
-				appaserver_link_file->extension );
-
-/*
-		sprintf( output_filename, 
-			 OUTPUT_FILE_SPREADSHEET,
-			 appaserver_parameter_file->appaserver_mount_point,
-			 application_name, 
-			 process_id );
-*/
-	
-		if ( ! ( output_file = fopen( output_filename, "w" ) ) )
-		{
-			printf( "<H2>ERROR: Cannot open output file %s\n",
-				output_filename );
-			document_close();
-			exit( 1 );
-		}
-		else
-		{
-			fclose( output_file );
-		}
-
-		if ( exceedance_format_yn == 'y' )
-		{
-			sprintf( output_sys_string,
-			 	"tr '|' ',' > %s",
-			 	output_filename );
-
-			output_pipe = popen( output_sys_string, "w" );
-
-			daily_moving_average_output_transmit_exceedance_format(
-				output_pipe,
-				station_name,
-				datatype_name,
-				sys_string,
-				days_to_average,
-				units_display,
-				aggregate_statistic,
-				begin_date_string,
-				end_date_string,
-				application_name );
-		}
-		else
-		{
-			sprintf( output_sys_string,
-			 	"tr '|' ',' > %s",
-			 	output_filename );
-
-			output_pipe = popen( output_sys_string, "w" );
-
-			daily_moving_average_output_transmit(
-				output_pipe,
-				station_name,
-				datatype_name,
-				sys_string,
-				days_to_average,
-				units_display,
-				aggregate_statistic,
-				begin_date_string,
-				end_date_string,
-				application_name );
-		}
-
-		pclose( output_pipe );
-
-		printf( "<h1>%d Day Moving %s Transmission<br></h1>\n",
-			days_to_average,
-			format_initial_capital(
-				buffer,
-				aggregate_statistic_get_string(
-					aggregate_statistic ) ) );
-		printf( "<h2>\n" );
-		fflush( stdout );
-		if ( system( timlib_system_date_string() ) ){};
-		fflush( stdout );
-		printf( "</h2>\n" );
-	
-		appaserver_library_output_ftp_prompt(
-				ftp_filename,
-				TRANSMIT_PROMPT,
-				(char *)0 /* target */,
-				(char *)0 /* application_type */ );
-	}
-	else
-	if ( strcmp( output_medium, "stdout" ) == 0 )
-	{
-		FILE *output_pipe;
-		char output_sys_string[ 512 ];
-
-		if ( exceedance_format_yn == 'y' )
-		{
-			sprintf(output_sys_string,
-		 		"tr '|' '%c'",
-				OUTPUT_TEXT_FILE_DELIMITER );
-
-			output_pipe = popen( output_sys_string, "w" );
-
-			daily_moving_average_output_transmit_exceedance_format(
-				output_pipe,
-				station_name,
-				datatype_name,
-				sys_string,
-				days_to_average,
-				units_display,
-				aggregate_statistic,
-				begin_date_string,
-				end_date_string,
-				application_name );
-		}
-		else
-		{
-			sprintf(output_sys_string,
-		 		"tr '|' '%c'",
-				OUTPUT_TEXT_FILE_DELIMITER );
-
-			output_pipe = popen( output_sys_string, "w" );
-
-			daily_moving_average_output_transmit(
-				output_pipe,
-				station_name,
-				datatype_name,
-				sys_string,
-				days_to_average,
-				units_display,
-				aggregate_statistic,
-				begin_date_string,
-				end_date_string,
-				application_name );
-		}
-		pclose( output_pipe );
-	}
-#endif
+	cubic_feet_per_second_sum(
+			application_name,
+			role_name,
+			station_list,
+			datatype_name,
+			begin_date_string,
+			end_date_string,
+			days_to_sum,
+			output_medium,
+			UNITS,
+			units_converted,
+			units_display );
 
 	if ( strcmp( output_medium, "stdout" ) != 0 )
 	{
@@ -579,132 +183,9 @@ int main( int argc, char **argv )
 		appaserver_parameter_file_get_dbms() );
 
 	return 0;
-
 }
 
 #ifdef NOT_DEFINED
-void build_sys_string(	char *sys_string,
-			char *application_name,
-			char *station_name,
-			char *datatype_name,
-			char *begin_date_string,
-			char *end_date_string,
-			enum aggregate_statistic aggregate_statistic,
-			enum aggregate_statistic datatype_aggregate_statistic,
-			char exceedance_format_yn,
-			int days_to_average,
-			char *units,
-			char *units_converted,
-			char *validation_level )
-{
-	char where_clause[ 512 ];
-	char aggregation_process[ 1024 ];
-	char exceedance_process[ 256 ];
-	char units_converted_process[ 128 ];
-	JULIAN *new_begin_date;
-
-	new_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
-	julian_decrement_days( new_begin_date, days_to_average - 1 );
-
-	if ( units_converted
-	&&   *units_converted
-	&&   strcmp( units_converted, "units_converted" ) != 0 )
-	{
-		sprintf( units_converted_process,
-			 "measurement_convert_units.e %s %s 1 '%c' 2",
-			 units,
-			 units_converted,
-			 INPUT_DELIMITER );
-	}
-	else
-	{
-		strcpy( units_converted_process, "cat" );
-	}
-
-	if ( exceedance_format_yn == 'y' )
-	{
-		sprintf(	exceedance_process,
-				"piece_shift_left.e '%c'	|"
-				"piece_exceedance.e '%c'	|"
-				"sed 's/%c/%c/g'		|"
-				"cat				 ",
-				INPUT_DELIMITER,
-				INPUT_DELIMITER,
-				INPUT_DELIMITER,
-				EXCEEDANCE_DELIMITER );
-	}
-	else
-	{
-		strcpy( exceedance_process, "cat" );
-	}
-
-	sprintf( where_clause,
- 	"station = '%s' and 				      "
- 	"datatype = '%s' and				      "
-	"measurement_date between '%s' and '%s' and	      "
-	"measurement_value is not null 			      "
-	"%s						      ",
-		station_name,
-		datatype_name,
-		julian_display_yyyy_mm_dd( new_begin_date->current ),
-		end_date_string,
-		/* ----------------------- */
-		/* Returns program memory. */
-		/* ----------------------- */
-		hydrology_library_provisional_where(
-			validation_level_string_resolve(
-				validation_level ) ) );
-
-	sprintf(
-			aggregation_process, 
-	 "real_time2aggregate_value.e %s %d %d %d '%c' daily n %s	|"
-	 "piece_inverse.e 3 '%c'					|"
-	 "%s								|"
-	 "pad_missing_times.e ',' 0,-1,1 daily %s 0000 %s 2359 0 '%s' 	|"
-	 "moving_average.e %d '%c' %s %s				 ",
-	 		aggregate_statistic_get_string(
-				datatype_aggregate_statistic ),
-	 		DATE_PIECE,
-	 		TIME_PIECE,
-	 		VALUE_PIECE,
-			INPUT_DELIMITER,
-			end_date_string,
-			INPUT_DELIMITER,
-			units_converted_process,
-			julian_display_yyyy_mm_dd( new_begin_date->current ),
-			end_date_string,
-		 	hydrology_library_get_expected_count_list_string(
-				application_name,
-				station_name,
-				datatype_name,
-				'|' ),
-			days_to_average,
-			INPUT_DELIMITER,
-	 		aggregate_statistic_get_string(
-				aggregate_statistic ),
-			begin_date_string );
-
-	sys_string += sprintf( sys_string,
-	"get_folder_data	application=%s		    "
-	"			folder=measurement	    "
-	"			select=\"%s\"		    "
-	"			where=\"%s\"		    "
-	"			quick=yes		   |"
-	"tr '%c' '%c' 					   |"
-	"%s						   |"
-	"sort						   |"
-	"%s						   |"
-	"cat						    ",
-		application_name,
-		SELECT_LIST,
-		where_clause,
-		FOLDER_DATA_DELIMITER,
-		INPUT_DELIMITER,
-		aggregation_process,
-		exceedance_process );
-
-}
-
 int daily_moving_average_output_chart(
 				char *application_name,
 				char *role_name,
@@ -1494,3 +975,133 @@ void daily_moving_average_output_transmit_exceedance_format(
 
 }
 #endif
+
+void cubic_feet_per_second_sum(
+			char *application_name,
+			char *role_name,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *output_medium,
+			char *units,
+			char *units_converted,
+			char *units_display )
+{
+	char *input_system_string;
+
+	input_system_string =
+		cubic_input_system_string(
+			application_name,
+			station_list,
+			datatype_name,
+			begin_date_string,
+			end_date_string,
+			days_to_sum,
+			units,
+			units_converted );
+
+	if ( strcmp( output_medium, "stdout" ) == 0 )
+	{
+		cubic_stdout( input_system_string );
+	}
+}
+
+char *cubic_input_system_string(
+			char *application_name,
+			LIST *station_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *units,
+			char *units_converted )
+{
+	char where_clause[ 512 ];
+	char aggregation_process[ 1024 ];
+	char units_converted_process[ 128 ];
+	JULIAN *new_begin_date;
+	char system_string[ 1024 ];
+
+	new_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
+	julian_decrement_days( new_begin_date, days_to_sum - 1 );
+
+	if ( units_converted
+	&&   *units_converted
+	&&   strcmp( units_converted, "units_converted" ) != 0 )
+	{
+		sprintf( units_converted_process,
+			 "measurement_convert_units.e %s %s 1 '%c' 2",
+			 units,
+			 units_converted,
+			 INPUT_DELIMITER );
+	}
+	else
+	{
+		strcpy( units_converted_process, "cat" );
+	}
+
+	sprintf( where_clause,
+ 	"station in (%s) and 				      "
+ 	"datatype = '%s' and				      "
+	"measurement_date between '%s' and '%s' and	      "
+	"measurement_value is not null 			      ",
+		timlib_in_clause( station_list ),
+		datatype_name,
+		julian_display_yyyy_mm_dd( new_begin_date->current ),
+		end_date_string );
+
+	sprintf(
+			aggregation_process, 
+	 "real_time2aggregate_value.e sum %d %d %d '%c' daily n %s	|"
+	 "piece_inverse.e 3 '%c'					|"
+	 "sort								|"
+	 "%s								|"
+	 "moving_average.e %d '%c' %s %s				 ",
+	 		DATE_PIECE,
+	 		TIME_PIECE,
+	 		VALUE_PIECE,
+			INPUT_DELIMITER,
+			end_date_string,
+			INPUT_DELIMITER,
+			units_converted_process,
+			days_to_sum,
+			INPUT_DELIMITER,
+			"sum",
+			begin_date_string );
+
+	sprintf( system_string,
+	"get_folder_data	application=%s		    "
+	"			folder=measurement	    "
+	"			select=\"%s\"		    "
+	"			where=\"%s\"		    "
+	"			quick=yes		   |"
+	"tr '%c' '%c' 					   |"
+	"sort						   |"
+"tee /dev/tty |"
+	"%s						   |"
+	"sort						    ",
+		application_name,
+		SELECT_LIST,
+		where_clause,
+		FOLDER_DATA_DELIMITER,
+		INPUT_DELIMITER,
+		aggregation_process );
+
+	return strdup( system_string );
+}
+
+void cubic_stdout( char *input_system_string )
+{
+	FILE *input_pipe = popen( input_system_string, "r" );
+	char input_buffer[ 1024 ];
+
+	while( get_line( input_buffer, input_pipe ) )
+	{
+		printf( "%s\n",
+			input_buffer );
+	}
+
+	pclose( input_pipe );
+}
