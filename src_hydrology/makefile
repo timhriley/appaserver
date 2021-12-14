@@ -125,6 +125,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		measurement_both_null_and_zero_time			\
 		datatype_overlay_output					\
 		daily_moving_statistic_output				\
+		cubic_feet_per_second_sum				\
 		merged_datasets_output					\
 		output_merged_waterquality				\
 		water_budget_flow					\
@@ -727,6 +728,18 @@ daily_moving_statistic_output: daily_moving_statistic_output.c		\
 		daily_moving_statistic_output.c				\
 		${LIBRARY}/grace.o					\
 		-o daily_moving_statistic_output
+
+cubic_feet_per_second_sum: cubic_feet_per_second_sum.c			\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
+		${LIBRARY}/grace.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		cubic_feet_per_second_sum.c				\
+		${LIBRARY}/grace.o					\
+		-o cubic_feet_per_second_sum
 
 merged_datasets_output: merged_datasets_output.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
