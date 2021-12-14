@@ -125,6 +125,7 @@ EXECUTABLES=	hydrology_verification_process				\
 		measurement_both_null_and_zero_time			\
 		datatype_overlay_output					\
 		daily_moving_statistic_output				\
+		cubic_feet_per_second_sum				\
 		merged_datasets_output					\
 		output_merged_waterquality				\
 		water_budget_flow					\
@@ -171,21 +172,23 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/frameset.o					\
 		${SOURCE_EVERGLADES}/datatype.o				\
 		${LIBRARY}/validation_level.o				\
-		${LIBRARY}/dictionary_separate.o			\
+		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/related_folder.o				\
 		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
+		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
+		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/expected_count.o				\
-		${LIBRARY}/post_dictionary.o				\
+		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o
@@ -725,6 +728,18 @@ daily_moving_statistic_output: daily_moving_statistic_output.c		\
 		daily_moving_statistic_output.c				\
 		${LIBRARY}/grace.o					\
 		-o daily_moving_statistic_output
+
+cubic_feet_per_second_sum: cubic_feet_per_second_sum.c			\
+		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
+		${LIBRARY}/grace.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		cubic_feet_per_second_sum.c				\
+		${LIBRARY}/grace.o					\
+		-o cubic_feet_per_second_sum
 
 merged_datasets_output: merged_datasets_output.c			\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
