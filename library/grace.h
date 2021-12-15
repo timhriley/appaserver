@@ -112,7 +112,7 @@ typedef struct
 	LIST *dataset_list;
 	char *datatype_type_bar_xy_xyhilo;
 	char *legend;
-	float symbol_size;
+	double symbol_size;
 	boolean nodisplay_legend;
 	int datatype_number;
 	char *annotated_value_on_off;
@@ -141,8 +141,8 @@ typedef struct
 	double world_min_y;
 	double world_max_y;
 	LIST *datatype_list;
-	float y_label_size;
-	float legend_char_size;
+	double y_label_size;
+	double legend_char_size;
 	char *yaxis_label_place_string;
 	char *yaxis_ticklabel_place_string;
 	int scale_to_zero;
@@ -185,7 +185,7 @@ typedef struct
 	char *title;
 	char *sub_title;
 	char *xaxis_ticklabel_format;
-	float x_label_size;
+	double x_label_size;
 	LIST *anchor_graph_list;
 	LIST *graph_list;
 	char *agr_filename;
@@ -327,14 +327,14 @@ void grace_output_full_dataset_heading(
 				char *annotated_value_on_off,
 				boolean symbols,
 				char *datatype_type_bar_xy_hilo,
-				float symbol_size );
+				double symbol_size );
 void grace_output_abbreviated_dataset_heading(	
 				FILE *output_pipe,
 			   	int dataset_number,
 			   	int line_color,
 			   	int line_linestyle,
 				boolean symbols,
-				float symbol_size,
+				double symbol_size,
 				char *datatype_type_bar_xy_xyhilo,
 				char *legend );
 
@@ -348,10 +348,10 @@ void grace_output_graph_heading(FILE *output_pipe,
 				char *title,
 				char *sub_title,
 				char *xaxis_ticklabel_format,
-				float x_label_size,
-				float legend_char_size,
+				double x_label_size,
+				double legend_char_size,
 				char *units,
-				float y_label_size,
+				double y_label_size,
 				char *yaxis_label_place_string,
 				char *yaxis_ticklabel_place_string,
 				char *xaxis_ticklabel_on_off,
@@ -422,7 +422,7 @@ boolean grace_output_to_file(
 				char *sub_title,
 				char *xaxis_ticklabel_format,
 				enum grace_graph_type grace_graph_type,
-				float x_label_size,
+				double x_label_size,
 				int page_width_pixels,
 				int page_length_pixels,
 				char *grace_home_directory,
@@ -478,7 +478,7 @@ void grace_set_aggregate_variables(
 				double view_min_y,
 				double view_y_offset,
 				double view_y_increment,
-				float view_x_range,
+				double view_x_range,
 				int landscape_mode,
 				boolean is_datatype_overlay_anchor );
 
@@ -486,16 +486,16 @@ void grace_get_portrait_view_y_minimum_offset_and_increment(
 				double *view_min_y,
 				double *view_y_offset,
 				double *view_y_increment,
-				float starting_single_view_min_y,
-				float starting_view_min_y,
+				double starting_single_view_min_y,
+				double starting_view_min_y,
 				int graph_list_length );
 
 void grace_get_landscape_view_y_minimum_offset_and_increment(
 				double *view_min_y,
 				double *view_y_offset,
 				double *view_y_increment,
-				float starting_single_view_min_y,
-				float starting_view_min_y,
+				double starting_single_view_min_y,
+				double starting_view_min_y,
 				int graph_list_length );
 
 void grace_graph_set_graph_type(GRACE_GRAPH *graph,
@@ -556,7 +556,7 @@ int grace_set_begin_end_date(	GRACE *grace,
 				char *begin_date_string,
 				char *end_date_string );
 
-float grace_get_legend_char_size(
+double grace_get_legend_char_size(
 				LIST *datatype_list,
 				enum grace_graph_type grace_graph_type );
 
@@ -569,7 +569,7 @@ void grace_output_data(		FILE *output_pipe,
 				char *title,
 				char *sub_title,
 				char *xaxis_ticklabel_format,
-				float x_label_size,
+				double x_label_size,
 				enum grace_graph_type grace_graph_type,
 				int xaxis_ticklabel_precision,
 				LIST *optional_label_list,
@@ -617,7 +617,7 @@ void grace_populate_datatype_overlay_graph_list(
 char *grace_datatype_list_get_datatype_type_bar_xy_xyhilo(
 				LIST *datatype_list );
 
-float grace_get_x_label_size( 	int number_of_days,
+double grace_get_x_label_size( 	int number_of_days,
 				int length_graph_list );
 
 void grace_make_same_units_have_same_y_tick_marks(
@@ -634,8 +634,8 @@ void grace_get_widest_world_y(	double *new_world_min_y,
 void grace_set_landscape(	int *page_width_pixels,
 				int *page_length_pixels,
 				char **distill_landscape_flag,
-				float *starting_single_view_min_y,
-				float *view_x_range );
+				double *starting_single_view_min_y,
+				double *view_x_range );
 
 boolean grace_graph_datatype_populated(
 				LIST *datatype_list );
@@ -682,7 +682,7 @@ boolean grace_output_charts(	char *output_filename,
 				char *sub_title,
 				char *xaxis_ticklabel_format,
 				enum grace_graph_type grace_graph_type,
-				float x_label_size,
+				double x_label_size,
 				int page_width_pixels,
 				int page_length_pixels,
 				char *grace_home_directory,
@@ -795,7 +795,7 @@ void grace_set_yaxis_ticklabel_precision(
 					int yaxis_ticklabel_precision );
 
 void grace_set_symbol_size(		LIST *graph_list,
-					float symbol_size );
+					double symbol_size );
 
 void grace_set_x_minor_tickmarks_to_zero(
 					LIST *graph_list );
@@ -812,7 +812,7 @@ void grace_set_xaxis_tickmarks_off(	LIST *graph_list );
 boolean grace_no_legend_set(		LIST *grace_graph );
 
 void grace_lower_legend(		LIST *graph_list,
-					float pixels );
+					double pixels );
 void grace_graph_make_yaxis_opposite(	GRACE_GRAPH *grace_graph );
 
 void grace_set_first_graph_top_of_second(
@@ -859,7 +859,7 @@ GRACE_DATASET *grace_new_grace_dataset(
 					int datatype_number,
 					boolean dataset_no_cycle_color );
 
-float grace_get_symbol_size(		float symbol_size,
+double grace_get_symbol_size(		double symbol_size,
 					boolean symbols,
 					char *datatype_type_bar_xy_xyhilo );
 void grace_set_to_point_list(

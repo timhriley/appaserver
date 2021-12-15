@@ -481,7 +481,7 @@ void output_starting_argv_stderr( int argc, char **argv )
 		 date_get_now_hhmm( date_get_utc_offset() ),
 		 argv[ 0 ] );
 	while( --argc ) fprintf( stderr, " %s", *++argv );
-	fprintf( stderr, "\n\n" );
+	fprintf( stderr, "\n" );
 	fflush( stderr );
 }
 
