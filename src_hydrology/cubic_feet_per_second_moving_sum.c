@@ -735,7 +735,6 @@ void cubic_chart(	char *argv_0,
 	char *distill_landscape_flag;
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
-	char legend[ 128 ];
 	char grace_string[ 128 ];
 
 	printf( "<h1>%s</h1><h2>%s</h2>\n",
@@ -793,15 +792,17 @@ void cubic_chart(	char *argv_0,
 
 	grace_graph->xaxis_ticklabel_angle = GRACE_TICKLABEL_ANGLE;
 
-	strcpy( legend, datatype_name );
-
-	strcpy(	legend,
-		format_initial_capital(
-			buffer1,
-			legend ) );
-
-	grace_datatype->datatype_type_bar_xy_xyhilo = "bar";
-	grace_datatype->line_linestyle = 0;
+	if ( hydrology_library_get_bar_graph(
+					application_name,
+					datatype_name ) )
+	{
+		grace_datatype->datatype_type_bar_xy_xyhilo = "bar";
+		grace_datatype->line_linestyle = 0;
+	}
+	else
+	{
+		grace_datatype->datatype_type_bar_xy_xyhilo = "xy";
+	}
 
 	list_set(	grace_graph->datatype_list,
 			grace_datatype );
