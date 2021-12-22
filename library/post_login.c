@@ -50,10 +50,11 @@ POST_LOGIN *post_login_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		security_sql_injection_escape(
-			post_login_application_name(
-				argc,
-				argv,
-				post_login->post_dictionary ) );
+			string_low(
+				post_login_application_name(
+					argc,
+					argv,
+					post_login->post_dictionary ) ) );
 
 	if ( !post_login->sql_injection_escape_application_name
 	||   !*post_login->sql_injection_escape_application_name )
@@ -71,10 +72,20 @@ POST_LOGIN *post_login_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		security_sql_injection_escape(
-			dictionary_fetch(
-				"login_name",
-				post_login->
-					post_login_dictionary ) );
+			string_low(
+				dictionary_fetch(
+					"login_name",
+					post_login->
+						post_login_dictionary ) ) );
+
+	if ( ( post_login->missing_name =
+		post_login_missing_name(
+			post_login->sql_injection_escape_login_name ) ) )
+	{
+		/* Generates an error */
+		/* ------------------ */
+		return post_login;
+	}
 
 	post_login->sql_injection_escape_password =
 		/* ------------------- */
@@ -86,15 +97,6 @@ POST_LOGIN *post_login_new(
 				post_login->
 					post_login_dictionary ) );
 
-	if ( ( post_login->missing_name =
-		post_login_missing_name(
-			post_login->sql_injection_escape_login_name ) ) )
-	{
-		/* Generates an error */
-		/* ------------------ */
-		return post_login;
-	}
-
 	post_login->public_name =
 		post_login_public_name(
 			post_login->
@@ -105,31 +107,34 @@ POST_LOGIN *post_login_new(
 			post_login->sql_injection_escape_application_name,
 			post_login->sql_injection_escape_login_name );
 
-	if ( ( post_login->missing_database_password =
+	post_login->missing_database_password =
 		post_login_missing_database_password(
-			post_login->post_login_database_password ) ) )
-	{
-		/* Generates an error */
-		/* ------------------ */
-		return post_login;
-	}
+			post_login->post_login_database_password );
 
-	post_login->name_email_address =
-		post_login_name_email_address(
+	post_login->name_email_login =
+		post_login_name_email_login(
 			post_login->sql_injection_escape_login_name );
 
 	post_login->password_match_return =
 		post_login_password_match(
-			post_login->post_login_application_name,
-			post_login->post_login_name_email_address,
-			post_login->post_login_public_name,
-			post_login->sql_injection_escape_password,
-			post_login->post_login_database_password );
-
-	post_login->session_key =
-		post_login_session_key(
 			post_login->sql_injection_escape_application_name,
-			post_login->sql_injection_escape_login_name );
+			post_login->missing_database_password,
+			post_login->name_email_login,
+			post_login->public_name,
+			post_login->sql_injection_escape_password,
+			post_login->database_password );
+
+	if ( post_login->password_match_return == password_match
+	||   post_login->password_match_return == public_login
+	||   post_login->password_match_return == email_login )
+	{
+		post_login->session_key =
+			post_login_session_key(
+				post_login->
+					sql_injection_escape_application_name,
+				post_login->
+					sql_injection_escape_login_name );
+	}
 
 	return post_login;
 }
@@ -156,7 +161,7 @@ boolean post_login_missing_name(
 boolean post_login_missing_database_password(
 			char *database_password )
 {
-	return (database_password) ? 1 : 0;
+	return (!database_password || !*database_password) ? 1 : 0;
 }
 
 DICTIONARY *post_login_dictionary( void )
@@ -299,7 +304,7 @@ boolean post_login_public_name(
 	}
 }
 
-boolean post_login_name_email_address(
+boolean post_login_name_email_login(
 			char *login_name )
 {
 	return ( timlib_login_name_email_address( login_name ) );
@@ -308,29 +313,23 @@ boolean post_login_name_email_address(
 enum post_login_password_match_return
 	post_login_password_match(
 			char *application_name,
-			boolean post_login_name_email_address,
-			boolean post_login_public_name,
+			boolean missing_database_password,
+			boolean name_email_login,
+			boolean public_name,
 			char *sql_injection_escape_password,
 			char *database_password )
 {
-	if ( post_login_public_name )
+	if ( public_name )
 	{
-		/* Any password is okay, including the empty string. */
-		/* ------------------------------------------------- */
 		return public_login;
 	}
 
-	/* -------------------------------------- */
-	/* If the user has a blanked out password */
-	/* -------------------------------------- */
-	if ( !database_password
-	||   !*database_password
-	||   string_strcmp( database_password, "null" ) == 0 )
+	if ( missing_database_password )
 	{
-		return password_fail;
+		return database_password_blank;
 	}
 
-	if ( post_login_name_email_address )
+	if ( name_email_address )
 	{
 		return email_login;
 	}
@@ -375,7 +374,12 @@ char *post_login_session_key(
 void post_login_frameset_output(
 			char *application_name,
 			char *login_name,
-			char *session_key )
+			char *session_key,
+			boolean frameset_menu_horizontal,
+			enum post_login_password_match_return
+				password_match_return,
+			char *appaserver_user_default_role_name,
+			LIST *appaserver_user_role_name_list )
 {
 	FRAMESET *frameset;
 	char title[ 1024 ];

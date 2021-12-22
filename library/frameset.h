@@ -23,13 +23,6 @@
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *application_name;
-	char *document_root_directory;
-	char *session_key;
-	char *frame_name;
-
 	/* Process */
 	/* ------- */
 	APPASERVER_LINK *appaserver_link;
@@ -59,11 +52,6 @@ char *frameset_frame_html(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *application_name;
-	char *session_key;
-
 	/* Process */
 	/* ------- */
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;

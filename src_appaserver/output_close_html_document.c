@@ -1,4 +1,4 @@
-/* output_close_html_document.c						*/
+/* $APPASERVER_HOME/src_appaserver/output_close_html_document.c		*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -21,5 +21,5 @@ int main( int argc, char **argv )
 
 	document_close();
 	return 0;
-} /* main() */
+}
 

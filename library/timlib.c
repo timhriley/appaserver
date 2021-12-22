@@ -875,7 +875,7 @@ char *up_string_to_delimiter( char *s, char delimiter )
 
 }
 
-char *up_string ( char *s )
+char *up_string( char *s )
 {
         char *hold = s;
         while ( *s )
@@ -884,10 +884,9 @@ char *up_string ( char *s )
                 s++;
         }
         return hold;
-
 }
 
-char *low_string ( char *s )
+char *low_string( char *s )
 {
         char *hold = s;
         while ( *s )
@@ -896,7 +895,6 @@ char *low_string ( char *s )
                 s++;
         }
         return hold;
-
 }
 
 static boolean get_line_check_utf_16 = 1;

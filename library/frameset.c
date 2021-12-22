@@ -51,20 +51,20 @@ FRAMESET *frameset_new(	char *application_name,
 {
 	FRAMESET *frameset = frameset_calloc();
 
-	frameset->application_name = application_name;
-	frameset->session_key = session_key;
-
 	frameset->appaserver_parameter_file =
 		appaserver_parameter_file_new();
 
-	frameset->frameset_frame_menu =
-		frameset_frame_new(
-			application_name,
-			frameset->
-				appaserver_parameter_file->
-				document_root,
-			session_key,
-			FRAMESET_MENU_FRAME );
+	if ( !frameset_menu_horizontal )
+	{
+		frameset->frameset_frame_menu =
+			frameset_frame_new(
+				application_name,
+				frameset->
+					appaserver_parameter_file->
+					document_root,
+				session_key,
+				FRAMESET_MENU_FRAME );
+	}
 
 	frameset->frameset_frame_prompt =
 		frameset_frame_new(

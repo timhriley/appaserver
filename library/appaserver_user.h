@@ -73,7 +73,6 @@ boolean appaserver_user_frameset_menu_horizontal(
 			char *login_name );
 
 LIST *appaserver_user_role_name_list(
-			char *application_name,
 			char *login_name );
 
 APPASERVER_USER *appaserver_user_calloc(void );

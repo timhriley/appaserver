@@ -17,6 +17,7 @@
 #include "list.h"
 #include "folder.h"
 #include "appaserver_library.h"
+#include "appaserver_user.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
 #include "environ.h"
@@ -164,10 +165,23 @@ int main( int argc, char **argv )
 		post_login->post_login_application_name,
 		post_login->sql_injection_login_name );
 
-	post_login_frameset_output(
-		post_login->post_login_application_name,
-		post_login->sql_injection_login_name );
-		post_login->post_login_session );
+	if ( post_login->session_key )
+	{
+		post_login_frameset_output(
+			post_login->sql_injection_escape_application_name,
+			post_login->sql_injection_login_name,
+			post_login->session_key,
+			frameset_menu_horizontal(
+				post_login->
+					sql_injection_escape_application_name,
+				post_login->
+					sql_injection_login_name ),
+			post_login->password_match_return,
+			appaserver_user_default_role_name(
+				post_login->sql_injection_login_name ),
+			appaserver_user_role_name_list(
+				post_login->sql_injection_login_name ) );
+	}
 
 	return 0;
 }

@@ -76,6 +76,7 @@ EXECUTABLES=								\
 		statistics_folder					\
 		output_open_html_document				\
 		output_close_html_document				\
+		output_vertical_frameset				\
 		output_choose_role_drop_down 				\
 		post_choose_role_drop_down		 		\
 		output_choose_role_folder_process_form			\
@@ -1095,6 +1096,14 @@ output_close_html_document: output_close_html_document.c		\
 		${EXTERNAL_LIBS}					\
 		output_close_html_document.c				\
 		-o output_close_html_document
+
+output_vertical_frameset: output_vertical_frameset.c			\
+			${EXTERNAL_LIBS}
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		output_vertical_frameset.c				\
+		-o output_vertical_frameset
 
 post_edit_table_form: post_edit_table_form.c				\
 			${EXTERNAL_LIBS}				\

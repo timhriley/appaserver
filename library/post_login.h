@@ -18,6 +18,7 @@
 /* ---------------- */
 enum post_login_password_match_return {
 			password_match,
+			database_password_blank,
 			password_fail,
 			public_login,
 			email_login };
@@ -32,7 +33,7 @@ typedef struct
 	char *sql_injection_escape_password;
 	boolean missing_name;
 	boolean public_name;
-	boolean name_email_address;
+	boolean name_email_login;
 	char *database_password;
 	boolean missing_database_password;
 	enum post_login_password_match_return password_match_return;
@@ -73,8 +74,9 @@ void post_login_redraw_index_screen(
 
 enum password_match_return post_login_password_match(
 			char *application_name,
-			boolean post_login_name_email_address,
-			boolean post_login_public_name,
+			boolean missing_database_password,
+			boolean name_email_login,
+			boolean public_name,
 			char *sql_injection_escape_password,
 			char *database_password );
 
@@ -88,13 +90,17 @@ char *post_login_session_key(
 			char *application_name,
 			char *login_name );
 
-boolean post_login_name_email_address(
+boolean post_login_name_email_login(
 			char *login_name );
 
 void post_login_frameset_output(
 			char *application_name,
 			char *login_name,
-			char *session_key );
+			char *session_key,
+			boolean frameset_menu_horizontal,
+			enum post_login_password_match_return,
+			char *appaserver_user_default_role_name,
+			LIST *appaserver_user_role_name_list );
 
 void post_login_horizontal_frameset(
 			char *title,

@@ -307,7 +307,6 @@ APPASERVER_USER *appaserver_user_parse(
 	{
 		appaserver_user->role_name_list =
 			appaserver_user_role_name_list(
-				environment_application_name(),
 				appaserver_user->login_name );
 	}
 
@@ -324,21 +323,16 @@ APPASERVER_USER *appaserver_user_parse(
 }
 
 LIST *appaserver_user_role_name_list(
-			char *application_name,
 			char *login_name )
 {
 	char where[ 128 ];
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	sprintf( where, "login_name = '%s'", login_name );
 
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=role			"
-		 "			folder=role_appaserver_user	"
-		 "			where=\"%s\"			",
-		 application_name,
-		 where );
+	sprintf(system_string,
+		"select.sh role role_appaserver_user \"%s\" select",
+		where );
 
 	return pipe2list( sys_string );
 }

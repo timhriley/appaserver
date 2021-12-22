@@ -1560,3 +1560,27 @@ char string_last_character( char *string )
 	return *(string + str_length - 1);
 }
 
+char *string_up( char *s )
+{
+        char *hold = s;
+
+        while ( *s )
+        {
+                *s = toupper( *s );
+                s++;
+        }
+        return hold;
+}
+
+char *string_low( char *s )
+{
+        char *hold = s;
+
+        while ( *s )
+        {
+                *s = tolower( *s );
+                s++;
+        }
+        return hold;
+}
+

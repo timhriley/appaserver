@@ -265,4 +265,8 @@ char *string_append(	char *message_list_string,
 char string_last_character(
 			char *string );
 
+char *string_up(	char *string );
+
+char *string_low(	char *string );
+
 #endif
