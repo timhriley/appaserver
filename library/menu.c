@@ -1316,11 +1316,12 @@ char *menu_item_horizontal_html(
 	return html;
 }
 
-boolean menu_boolean(
-			char *target_frame,
+boolean menu_boolean(	char *current_frame,
 			boolean frameset_menu_horizontal )
 {
 	return ( frameset_menu_horizontal &&
-		 strcmp( target_frame, FRAMESET_PROMPT_FRAME ) == 0 );
+		 string_strcmp(
+			current_frame,
+			FRAMESET_PROMPT_FRAME ) == 0 );
 }
 

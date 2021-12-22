@@ -32,19 +32,6 @@
 
 /* Prototypes */
 /* ---------- */
-void post_login_frameset_output(
-			char *application_name,
-			char *login_name,
-			char *session_key );
-
-void post_login_horizontal_frameset(
-			char *title,
-			FRAMESET *frameset );
-
-void post_login_vertical_frameset(
-			char *title,
-			FRAMESET *frameset );
-
 int main( int argc, char **argv )
 {
 	POST_LOGIN *post_login;
@@ -65,7 +52,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( post_login->post_login_missing_login_name )
+	if ( post_login->missing_login_name )
 	{
 		char msg[ 1024 ];
 
@@ -105,19 +92,15 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	if ( post_login->post_login_missing_database_password
-	||   post_login->post_login_match_return == password_fail
-	/* ------------------------------ */
-	/* Email login is not implemented */
-	/* ------------------------------ */
-	||   post_login->post_login_match_return == email_login )
+	if ( post_login->missing_database_password
+	||   post_login->password_match_return == password_fail )
 	{
 		char msg[ 1024 ];
 
-		if ( post_login->post_login_missing_database_password )
+		if ( post_login->missing_database_password )
 		{
 			sprintf(msg,
-				"Nonexisting appaserver user %s from %s",
+				"appaserver user %s is forbidden from %s",
 				login_name,
 				environment_get( "REMOTE_ADDR" ) );
 		}
@@ -189,139 +172,3 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-void post_login_frameset_output(
-			char *application_name,
-			char *login_name,
-			char *session_key )
-{
-	FRAMESET *frameset;
-	char title[ 1024 ];
-
-	if ( ! ( frameset =
-			frameset_new(
-				application_name,
-				session_key,
-				appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: frameset_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	strcpy( title,
-		application_title(
-			application_name ) );
-
-	if ( !create_menu_frame )
-	{
-		post_login_horizontal_frameset(
-			title,
-			frameset );
-	}
-	else
-	{
-		post_login_vertical_frameset(
-			title,
-			frameset );
-	}
-}
-
-void post_login_horizontal_frameset(
-			char *title,
-			FRAMESET *frameset )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s > %s 2>>%s",
-		frameset->session_key,
-		frameset->login_name,
-		title,
-		'n' /* content_type_yn */,
-		frameset->
-			frameset_frame_prompt->
-			output_filename,
-		appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	sprintf( sys_string,
-		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
-		 application_background_color( application_name ),
-		 frameset->
-			frameset_frame_edit->
-			output_filename,
-		 appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	if ( system( "content_type_cgi.sh" ) ){};
-
-	printf(
-		"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-		"<HEAD>\n"
-		"<TITLE>%s</TITLE>\n"
-		"</HEAD>\n"
-		"%s\n"
-		"</HTML>\n",
-		title,
-		frameset->html );
-}
-
-void post_login_vertical_frameset(
-			char *title,
-			FRAMESET *frameset )
-{
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' \"%s\" %s > %s 2>>%s",
-		frameset->session_key,
-		frameset->login_name,
-		title,
-		'n' /* content_type_yn */,
-		frameset->
-			frameset_frame_menu->
-			output_filename,
-		appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	sprintf( sys_string,
-		 "output_blank_screen.sh \"%s\" \"%s\" n > %s 2>>%s",
-		 application_background_color( application_name ),
-		 title,
-		 frameset->
-			frameset_frame_prompt->
-			output_filename,
-		 appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	sprintf( sys_string,
-		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
-		 application_background_color( application_name ),
-		 frameset->
-			frameset_frame_edit->
-			output_filename,
-		 appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	if ( system( "content_type_cgi.sh" ) ){};
-
-	printf(
-		"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-		"<HEAD>\n"
-		"<TITLE>%s</TITLE>\n"
-		"</HEAD>\n"
-		"%s\n"
-		"</HTML>\n",
-		title,
-		frameset->html );
-}

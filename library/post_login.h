@@ -30,13 +30,13 @@ typedef struct
 	char *sql_injection_escape_application_name;
 	char *sql_injection_escape_login_name;
 	char *sql_injection_escape_password;
-	boolean post_login_missing_name;
-	boolean post_login_public_name;
-	boolean post_login_name_email_address;
-	char *post_login_database_password;
-	boolean post_login_missing_database_password;
-	enum post_login_password_match_return post_login_password_match_return;
-	char *post_login_session;
+	boolean missing_name;
+	boolean public_name;
+	boolean name_email_address;
+	char *database_password;
+	boolean missing_database_password;
+	enum post_login_password_match_return password_match_return;
+	char *session_key;
 } POST_LOGIN;
 
 /* Operations */
@@ -84,15 +84,24 @@ boolean post_login_missing_database_password(
 boolean post_login_public_name(
 			char *login_name );
 
-char *post_login_session(
+char *post_login_session_key(
 			char *application_name,
 			char *login_name );
 
 boolean post_login_name_email_address(
 			char *login_name );
 
-char *post_login_session_new(
+void post_login_frameset_output(
 			char *application_name,
-			char *login_name );
+			char *login_name,
+			char *session_key );
+
+void post_login_horizontal_frameset(
+			char *title,
+			FRAMESET *frameset );
+
+void post_login_vertical_frameset(
+			char *title,
+			FRAMESET *frameset );
 
 #endif

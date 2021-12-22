@@ -465,3 +465,21 @@ boolean appaserver_user_frameset_menu_horizontal(
 	return appaserver_user->frameset_menu_horizontal;
 }
 
+char *appaserver_user_default_role_name(
+			char *login_name )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"login_name = '%s'",
+		login_name );
+
+	sprintf(system_string,
+		"select.sh role login_default_role \"%s\"",
+		where );
+
+
+	return pipe2string( system_string );
+}
+

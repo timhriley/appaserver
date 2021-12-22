@@ -121,4 +121,8 @@ void appaserver_user_update(
 			FILE *update_pipe,
 			char *injection_escaped_password,
 			char *login_name );
+
+char *appaserver_user_default_role_name(
+			char *login_name );
+
 #endif

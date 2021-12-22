@@ -31,15 +31,9 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *session;
+	char *session_key;
 	char *login_name;
-	char *title;
 	char sys_string[ 1024 ];
-	LIST *role_list;
-	char login_name_buffer[ 128 ];
-	char *content_type_yn;
-	boolean omit_html_head = 0;
-	char *role_name = "";
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -48,23 +42,16 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc < 5 )
+	if ( argc != 3 )
 	{
-		fprintf( stderr, 
-"Usage: %s session login_name title content_type_yn [omit_html_head_yn]\n", 
-		argv[ 0 ] );
-		exit ( 1 );
+		fprintf(stderr, 
+			"Usage: %s session login_name\n", 
+			argv[ 0 ] );
+			exit ( 1 );
 	}
 
 	session = argv[ 1 ];
 	login_name = argv[ 2 ];
-	title = argv[ 3 ];
-	content_type_yn = argv[ 4 ];
-
-	if ( argc == 6 )
-	{
-		omit_html_head = ( *argv[ 5 ] == 'y' );
-	}
 
 	if ( !appaserver_frameset_menu_horizontal(
 		application_name,

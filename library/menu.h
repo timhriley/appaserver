@@ -320,7 +320,7 @@ char *menu_item_horizontal_html(
 			LIST *menu_item_list );
 
 boolean menu_boolean(
-			char *target_frame,
+			char *current_frame,
 			boolean frameset_menu_horizontal );
 
 #endif
