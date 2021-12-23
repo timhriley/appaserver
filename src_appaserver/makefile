@@ -76,8 +76,8 @@ EXECUTABLES=								\
 		statistics_folder					\
 		output_open_html_document				\
 		output_close_html_document				\
-		output_vertical_frameset				\
-		output_choose_role_drop_down 				\
+		output_frameset						\
+		output_choose_role	 				\
 		post_choose_role_drop_down		 		\
 		output_choose_role_folder_process_form			\
 		output_choose_folder_process_menu			\
@@ -1073,13 +1073,13 @@ output_choose_role_menu: output_choose_role_menu.c 			\
 		output_choose_role_menu.c				\
 		-o output_choose_role_menu
 
-output_choose_role_drop_down: output_choose_role_drop_down.c		\
+output_choose_role: output_choose_role.c				\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_choose_role_drop_down.c				\
-		-o output_choose_role_drop_down
+		output_choose_role.c					\
+		-o output_choose_role
 
 output_open_html_document: output_open_html_document.c			\
 			${EXTERNAL_LIBS}
@@ -1097,13 +1097,12 @@ output_close_html_document: output_close_html_document.c		\
 		output_close_html_document.c				\
 		-o output_close_html_document
 
-output_vertical_frameset: output_vertical_frameset.c			\
-			${EXTERNAL_LIBS}
+output_frameset: output_frameset.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_vertical_frameset.c				\
-		-o output_vertical_frameset
+		output_frameset.c					\
+		-o output_frameset
 
 post_edit_table_form: post_edit_table_form.c				\
 			${EXTERNAL_LIBS}				\

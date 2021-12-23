@@ -764,3 +764,39 @@ LIST *role_name_list( LIST *role_list )
 
 	return name_list;
 }
+
+char *role_post_choose_role_action_string(
+			char *application_name,
+			char *session_key,
+			char *login_name )
+{
+	char action_string[ 1024 ];
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(action_string,
+		"%s/post_choose_role?%s+%s+%s",
+		appaserver_library_http_prompt(
+			appaserver_parameter_file_get_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		application_name,
+		session_key,
+		login_name );
+
+	return strdup( action_string );
+}
+

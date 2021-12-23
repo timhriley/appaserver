@@ -148,10 +148,13 @@ char *document_body_close_html(
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
 	char *type_string;
 	char *standard_string;
 	DOCUMENT_HEAD *document_head;
 	DOCUMENT_BODY *document_body;
+	char *open_html;
 } DOCUMENT;
 
 /* DOCUMENT operations */

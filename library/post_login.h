@@ -42,8 +42,6 @@ typedef struct
 
 /* Operations */
 /* ---------- */
-boolean post_login_missing_name(
-			char *post_login_name );
 
 /* Inserts into APPASERVER_SESSIONS */
 /* -------------------------------- */
@@ -59,18 +57,21 @@ char *post_login_application_name(
 			char **argv,
 			DICTIONARY *post_dictionary );
 
+boolean post_login_missing_name(
+			char *post_login_name );
+
+boolean post_login_public_name(
+			char *login_name );
+
 char *post_login_database_password(
 			char *application_name,
 			char *login_name );
 
-boolean post_login_email_login(
-			char *login_name,
-			char *email_http_filename );
+boolean post_login_missing_database_password(
+			char *database_password );
 
-void post_login_redraw_index_screen(
-			char *application_name,
-			char *location,
-			char *message );
+boolean post_login_name_email_login(
+			char *login_name );
 
 enum password_match_return post_login_password_match(
 			char *application_name,
@@ -80,34 +81,21 @@ enum password_match_return post_login_password_match(
 			char *sql_injection_escape_password,
 			char *database_password );
 
-boolean post_login_missing_database_password(
-			char *database_password );
-
-boolean post_login_public_name(
-			char *login_name );
-
 char *post_login_session_key(
 			char *application_name,
-			char *login_name );
-
-boolean post_login_name_email_login(
 			char *login_name );
 
 void post_login_frameset_output(
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			boolean frameset_menu_horizontal,
 			enum post_login_password_match_return,
 			char *appaserver_user_default_role_name,
 			LIST *appaserver_user_role_name_list );
 
-void post_login_horizontal_frameset(
-			char *title,
-			FRAMESET *frameset );
-
-void post_login_vertical_frameset(
-			char *title,
-			FRAMESET *frameset );
+void post_login_redraw_index_screen(
+			char *application_name,
+			char *location,
+			char *message );
 
 #endif

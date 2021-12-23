@@ -1,4 +1,4 @@
-/* src_appaserver/output_choose_role_drop_down.c			*/
+/* $APPASERVER_HOME/src_appaserver/output_choose_role.c			*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -8,161 +8,74 @@
 #include <stdlib.h>
 #include <string.h>
 #include "timlib.h"
-#include "list.h"
-#include "application.h"
-#include "appaserver.h"
-#include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "document.h"
-#include "element.h"
-#include "form.h"
 #include "environ.h"
-#include "appaserver_parameter_file.h"
-
-#define FORM_NAME		"choose_role_drop_down"
+#include "frameset.h"
+#include "choose_role.h"
 
 /* Prototypes */
 /* ---------- */
-void output_horizontal_frameset_choose_role_drop_down(
+void output_choose_role_horizontal(
 			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *action_string,
-			LIST *role_list,
-			char *title );
+			char *session_key,
+			char *login_name );
 
-void output_vertical_frameset_choose_role_drop_down(
+void output_choose_role_vertical(
 			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *action_string,
-			LIST *role_list,
-			DICTIONARY *hidden_dictionary );
+			char *session_key,
+			char *login_name );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *session;
+	char *session_key;
 	char *login_name;
-	char *role_name;
-	char *title;
-	LIST *role_list;
-	DICTIONARY *hidden_dictionary = dictionary_new();
-	char action_string[ 512 ];
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 3 )
 	{
-		fprintf( stderr,
-"Usage: %s ignored session login_name role title role_comma_list\n",
+		fprintf(stderr,
+			"Usage: %s session login_name\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	session = argv[ 2 ];
-	login_name = argv[ 3 ];
-	role_name = argv[ 4 ];
-	title = argv[ 5 ];
-
-	sprintf(	action_string,
-			"%s/post_choose_role_drop_down",
-			appaserver_library_http_prompt(
-				appaserver_parameter_file_get_cgi_directory(),
-				appaserver_library_server_address(),
-				application_ssl_support_yn(
-					application_name ),
-				application_prepend_http_protocol_yn(
-					application_name ) ) );
-
-	role_list = list_string2list( argv[ 6 ], ',' );
-
-	dictionary_set_string(	hidden_dictionary,
-				"application",
-				application_name );
-
-	dictionary_set_string(	hidden_dictionary,
-				"session",
-				session );
-
-	dictionary_set_string(	hidden_dictionary,
-				"login_name",
-				login_name );
-
-	dictionary_set_string(	hidden_dictionary,
-				"title",
-				title );
+	session_key = argv[ 1 ];
+	login_name = argv[ 2 ];
 
 	if ( appaserver_frameset_menu_horizontal(
 		application_name,
 		login_name ) )
 	{
-		output_horizontal_frameset_choose_role_drop_down(
+		output_choose_role_horizontal(
 				application_name,
 				session,
-				login_name,
-				role_name,
-				action_string,
-				role_list,
-				title );
+				login_name );
 	}
 	else
 	{
-		output_vertical_frameset_choose_role_drop_down(
+		output_choose_role_vertical(
 				application_name,
 				session,
-				login_name,
-				role_name,
-				action_string,
-				role_list,
-				hidden_dictionary );
+				login_name );
 	}
 
 	exit( 0 );
 
 }
 
-void output_vertical_frameset_choose_role_drop_down(
+void output_choose_role_vertical(
 			char *application_name,
 			char *session,
-			char *login_name,
-			char *role_name,
-			char *action_string,
-			LIST *role_list,
-			DICTIONARY *hidden_dictionary )
+			char *login_name )
 {
 	APPASERVER_ELEMENT *element;
-	FORM *form;
-	char post_change_javascript[ 512 ];
-	LIST *option_data_list = list_new();
-
-	form = form_new_form();
-	form->form_name = FORM_NAME;
-
-	form_output_heading(
-		login_name,
-		application_name,
-		session,
-		form->form_name,
-		(char *)0 /* post_process */,
-		action_string,
-		(char *)0 /* folder_name */,
-		(char *)0 /* role_name */,
-		(char *)0 /* state */,
-		(char *)0 /* insert_update_key */,
-		MENU_FRAME /* target_frame is menu */,
-		0 /* output_submit_reset_buttons */,
-		0 /* not with_prelookup_skip_button */,
-		(char *)0 /* submit_control_string */,
-		0 /* table_border */,
-		(char *)0 /* caption_string */,
 		form->html_help_file_anchor,
 		form->process_id,
 		appaserver_library_server_address(),
@@ -242,14 +155,10 @@ void output_vertical_frameset_choose_role_drop_down(
 
 }
 
-void output_horizontal_frameset_choose_role_drop_down(
+void output_choose_role_horizontal(
 			char *application_name,
 			char *session,
-			char *login_name,
-			char *role_name,
-			char *action_string,
-			LIST *role_list,
-			char *title )
+			char *login_name )
 {
 	char *new_role_name;
 	char buffer[ 128 ];

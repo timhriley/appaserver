@@ -256,6 +256,10 @@ boolean post_login_email_login(
 }
 */
 
+boolean post_login_email_login( char *login_name )
+{
+}
+
 void post_login_redraw_index_screen(	char *application_name,
 					char *location,
 					char *message )
@@ -381,40 +385,72 @@ void post_login_frameset_output(
 			char *appaserver_user_default_role_name,
 			LIST *appaserver_user_role_name_list )
 {
-	FRAMESET *frameset;
-	char title[ 1024 ];
+	char system_string[ 1024 ];
 
-	if ( ! ( frameset =
-			frameset_new(
-				application_name,
-				session_key,
-				appaserver_frameset_menu_horizontal(
-					application_name,
-					login_name ) ) ) )
+	if ( ( !appaserver_user_default_role_name
+	||     !*appaserver_user_default_role_name )
+	&&     list_length( appaserver_user_role_name_list ) > 1 )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: frameset_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		sprintf(system_string,
+			"output_choose_role %s %s 2>>%s",
+			login_name,
+			session_key,
+			appaserver_error_filename(
+				application_name ) );
+
+		if ( system( system_string ) ){}
 	}
 
-	strcpy( title,
-		application_title(
-			application_name ) );
-
-	if ( !create_menu_frame )
+	if ( ( appaserver_user_default_role_name
+	&&     *appaserver_user_default_role_name )
+	||     list_length( appaserver_user_role_name_list ) == 1 )
 	{
-		post_login_horizontal_frameset(
-			title,
-			frameset );
+		char *role_name;
+
+		if ( appaserver_user_default_role_name
+		&&   *appaserver_user_default_role_name )
+		{
+			role_name = appaserver_user_default_role_name;
+		}
+		else
+		{
+			role_name =
+				list_first(
+					appaserver_user_role_name_list );
+		}
+
+		sprintf(system_string,
+			"output_choose_role_folder_process %s %s %s 2>>%s",
+			login_name,
+			session_key,
+			role_name,
+			appaserver_error_filename(
+				application_name ) );
+
+		if ( system( system_string ) ){}
+	}
+
+	if ( post_login_password_return != email_login )
+	{
+		sprintf(system_string,
+			"output_frameset %s %s 2>>%s",
+			login_name,
+			session_key,
+			appaserver_error_filename(
+				application_name ) );
+
+		if ( system( system_string ) ){}
 	}
 	else
 	{
-		post_login_vertical_frameset(
-			title,
-			frameset );
+		sprintf(system_string,
+			"output_email_link %s %s 2>>%s",
+			login_name,
+			session_key,
+			appaserver_error_filename(
+				application_name ) );
+
+		if ( system( system_string ) ){}
 	}
 }
 

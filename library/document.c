@@ -84,6 +84,14 @@ DOCUMENT *document_new(	char *application_name,
 	/* ---------------------- */
 	document->standard_string = document_standard_string();
 
+	document->open_html =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		document_open_html(
+			document->type_string,
+			document->standard_string );
+
 	return document;
 }
 
