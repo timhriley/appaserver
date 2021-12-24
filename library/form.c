@@ -232,15 +232,46 @@ FORM_PROMPT *form_prompt_calloc( void )
 	return form_prompt;
 }
 
-LIST *form_prompt_isa_element_list(
-			char *one2m_isa_folder_name,
+FORM_CHOOSE_ISA *form_choose_isa_calloc( void )
+{
+	FORM_CHOOSE_ISA *form_choose_isa;
+
+	if ( ! ( form_choose_isa = calloc( 1, sizeof( FORM_CHOOSE_ISA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_choose_isa;
+}
+
+LIST *form_choose_isa_element_list(
+			char *choose_isa_message,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital )
 {
 	LIST *element_list = list_new();
 	APPASERVER_ELEMENT *element;
+	char prompt_message[ 512 ];
 	char buffer[ 512 ];
+
+	/* Create a table */
+	/* -------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table,
+				(char *) /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table->html = element_table_html();
 
 	/* Create a table row */
 	/* ------------------ */
@@ -255,8 +286,8 @@ LIST *form_prompt_isa_element_list(
 	/* ---------------------- */
 	element->table_row->html = element_table_row_html();
 
-	/* Create a prompt */
-	/* --------------- */
+	/* Create the choose is prompt */
+	/* --------------------------- */
 	list_set(
 		element_list,
 		( element =
@@ -271,7 +302,7 @@ LIST *form_prompt_isa_element_list(
 		element_non_edit_text_html(
 			string_initial_capital(
 				buffer /* prompt_string */,
-				one2m_isa_folder_name /* source */ ) );
+				choose_isa_message /* source */ ) );
 
 	/* Create a drop-down */
 	/* ------------------ */

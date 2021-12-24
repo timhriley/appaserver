@@ -263,7 +263,7 @@ DOCUMENT_CHOOSE_ISA *document_choose_isa_calloc(
 DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
 			char *application_name,
 			char *choose_isa_title_string,
-			char *chose_isa_prompt_html,
+			char *choose_isa_prompt_html,
 			char *one2m_isa_folder_name,
 			MENU *menu,
 			boolean menu_boolean,

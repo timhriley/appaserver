@@ -36,15 +36,6 @@
 
 typedef struct
 {
-	char *title_html;
-	char *message_html;
-	char *tag_html;
-	LIST *element_list;
-	LIST *button_list;
-} FORM_PROMPT_ISA;
-	
-typedef struct
-{
 	LIST *value_list;
 	char *html;
 } FORM_RADIO_VALUE;
@@ -199,37 +190,6 @@ FORM_PROMPT *form_new(
 FORM_PROMPT *form_prompt_calloc(
 			void );
 
-/* FORM_PROMPT_ISA operations */
-/* --------------------------------- */
-FORM_PROMPT_ISA *form_prompt_isa_calloc(
-			void );
-
-FORM_PROMPT_ISA *form_prompt_isa_new(
-			char *title,
-			char *prompt_message,
-			char *one2m_folder_name,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *action_string );
-
-LIST *form_prompt_isa_element_list(
-			char *one2m_folder_name,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			boolean no_initial_capital );
-
-LIST *form_prompt_isa_button_list(
-			void );
-
-void form_prompt_isa_output(
-			FILE *output_stream,
-			char *title_html,
-			char *message_html,
-			char *form_tag_html,
-			LIST *element_list,
-			LIST *button_list );
-
 typedef struct
 {
 	DICTIONARY *row_dictionary;
@@ -259,5 +219,43 @@ void form_table_row_output(
 
 void form_table_row_free(
 			FORM_TABLE_ROW *form_table_row );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	char *message_html;
+	char *tag_html;
+	LIST *element_list;
+	LIST *button_element_list;
+	char *html;
+} FORM_CHOOSE_ISA;
+
+/* FORM_CHOOSE_ISA operations */
+/* -------------------------- */
+FORM_CHOOSE_ISA *form_choose_isa_calloc(
+			void );
+
+FORM_CHOOSE_ISA *form_choose_isa_new(
+			char *prompt_html,
+			LIST *primary_key_list,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			char *action_string );
+
+LIST *form_choose_isa_element_list(
+			char *one2m_folder_name,
+			LIST *primary_key_list,
+			LIST *delimited_list,
+			boolean no_initial_capital );
+
+LIST *form_choose_isa_button_list(
+			void );
+
+char *form_prompt_isa_html(
+			char *message_html,
+			char *tag_html,
+			LIST *element_list,
+			LIST *button_element_list );
 
 #endif

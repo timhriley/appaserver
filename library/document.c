@@ -16,6 +16,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "form.h"
 #include "document.h"
 
 DOCUMENT *document_calloc( void )
@@ -632,9 +633,15 @@ DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
 			choose_isa_post_action_string );
 
 	document_choose_isa->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		document_choose_isa_html(
 			document_choose_isa->document->html,
 			document_choose_isa->document_body_choose_isa->html,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
 			document_close_html() );
 
 	return document_choose_isa;
@@ -749,6 +756,9 @@ DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
 			choose_isa_post_action_string );
 
 	document_body_choose_isa->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		document_body_choose_isa_html(
 			document_body_choose_isa->document_body->html,
 			document_body_choose_isa->form_choose_isa->html,
@@ -811,6 +821,27 @@ char *document_choose_isa_html(
 			char *document_body_choose_isa_html,
 			char *document_close_html )
 {
+	char html[ STRING_ONE_MEG ];
+
+	if ( !document_html
+	||   !document_body_choose_isa_html
+	||   !document_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s",
+		document_html,
+		document_body_choose_isa_html,
+		document_close_html );
+
+	return strdup( html );
 }
 
 DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_calloc( void )

@@ -230,29 +230,85 @@ char *choose_isa_action_string(
 	return strdup( action_string );
 }
 
-char *choose_isa_drop_down_title(
-			char *one2m_isa_folder_name )
+char *choose_isa_title_string(
+			char *folder_name )
 {
-	char title[ 256 ];
+	char title_string[ 256 ];
 	char buffer[ 128 ];
 
-	if ( !one2m_isa_folder_name )
+	if ( !folder_name )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: one2m_isa_folder_name is empty.\n",
+		"ERROR in %s/%s()/%d: folder_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	sprintf(title,
-		"%s Insert %s",
-		application_title_string(
-			environment_application_name() ),
+	sprintf(title_string,
+		"Insert %s",
 		string_initial_capital(
 			buffer,
+			folder_name ) );
+
+	return strdup( title_string );
+}
+
+char *choose_isa_subtitle_html(
+			char *folder_name,
+			char *one2m_isa_folder_name )
+{
+	char subtitle_html[ 256 ];
+	char buffer1[ 128 ];
+	char buffer2[ 128 ];
+
+	if ( !folder_name
+	||   !one2m_isa_folder_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(subtitle_html,
+		"<h3> Is this %s an existing %s?</h3>",
+		string_initial_capital(
+			buffer1,
+			folder_name ),
+		string_initial_capital(
+			buffer2,
 			one2m_isa_folder_name ) );
 
-	return strdup( title );
+	return strdup( subtitle_html );
 }
+
+char *choose_isa_prompt_message( LIST *primary_key_list )
+{
+	char prompt_message[ 512 ];
+	char buffer[ 256 ];
+
+	if ( !list_length( primary_key_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(prompt_message,
+		"Choose %s",
+		string_initial_capital(
+			buffer,
+			list_display_delimited(
+				primary_key_list,
+				ELEMENT_LONG_DASH_DELIMITER ) ) );
+
+	return strdup( prompt_message );
+}
+

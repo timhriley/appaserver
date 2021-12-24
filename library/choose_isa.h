@@ -65,15 +65,21 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 			char *one2m_isa_folder_name,
 			char *role_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *choose_isa_title(
+/* Returns heap memory */
+/* ------------------- */
+char *choose_isa_title_string(
+			char *folder_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *choose_isa_subtitle_html(
+			char *folder_name,
 			char *one2m_isa_folder_name );
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *choose_isa_prompt_message(
-			char *one2m_isa_folder_name );
+			LIST *primary_key_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */
