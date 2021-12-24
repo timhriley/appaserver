@@ -42,6 +42,7 @@ DOCUMENT_HEAD *document_head_calloc(
 /* Always succeeds */
 /* --------------- */
 DOCUMENT_HEAD *document_head_new(
+			char *application_name,
 			char *title_string,
 			char *menu_setup_string,
 			char *calendar_setup_string,
@@ -80,7 +81,12 @@ char *document_head_javascript_include_string(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *document_head_open_html(
-			DOCUMENT_HEAD *document_head );
+			char *meta_string,
+			char *stylesheet_string,
+			char *title_tag,
+			char *menu_setup_string,
+			char *calendar_setup_string,
+			char *javascript_include_string );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -153,8 +159,11 @@ typedef struct
 	char *type_string;
 	char *standard_string;
 	DOCUMENT_HEAD *document_head;
+	char *html;
+
+	/* External */
+	/* -------- */
 	DOCUMENT_BODY *document_body;
-	char *open_html;
 } DOCUMENT;
 
 /* DOCUMENT operations */
@@ -165,10 +174,8 @@ DOCUMENT *document_calloc(
 /* Always succeeds */
 /* --------------- */
 DOCUMENT *document_new(	char *application_name,
-			MENU *menu,
+			char *title,
 			boolean menu_boolean,
-			char *document_title,
-			char *javascript_replace,
 			int folder_attribute_date_name_list_length );
 
 /* Returns program memory */
@@ -196,7 +203,7 @@ void document_begin(	FILE *output_stream,
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *document_open_html(
+char *document_html(
 			char *type_string,
 			char *standard_string );
 
@@ -207,27 +214,123 @@ char *document_close_html(
 
 void document_close(	void );
 
-/* DOCUMENT choose_isa operations */
-/* ------------------------------ */
-DOCUMENT *document_choose_isa_new(
-			char *title,
-			char *prompt_message,
-			char *one2m_isa_folder_name,
-			MENU *menu,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *action_string );
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	DOCUMENT_BODY *document_body;
+	FORM_CHOOSE_ISA *form_choose_isa;
+	char *html;
+} DOCUMENT_BODY_CHOOSE_ISA;
 
-DOCUMENT_BODY *document_body_choose_isa_new(
-			char *title,
-			char *prompt_message,
+/* DOCUMENT_BODY_CHOOSE_ISA operations */
+/* ----------------------------------- */
+DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_calloc(
+			void );
+
+DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
+			char *choose_isa_title_string,
+			char *choose_isa_prompt_html,
 			char *one2m_isa_folder_name,
 			MENU *menu,
+			boolean menu_boolean,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
-			char *action_string );
+			char *choose_isa_post_action_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *document_body_choose_isa_html(
+			char *document_body_html,
+			char *form_choose_isa_html,
+			char *document_body_close_html );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	DOCUMENT *document;
+	DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa;
+	char *html;
+} DOCUMENT_CHOOSE_ISA;
+
+/* DOCUMENT_CHOOSE_ISA operations */
+/* ------------------------------ */
+DOCUMENT_CHOOSE_ISA *document_choose_isa_calloc(
+			void );
+
+DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
+			char *application_name,
+			char *choose_isa_title_string,
+			char *chose_isa_prompt_html,
+			char *one2m_isa_folder_name,
+			MENU *menu,
+			boolean menu_boolean,
+			LIST *primary_key_list,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			char *choose_isa_post_action_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *document_choose_isa_html(
+			char *document_html,
+			char *document_body_choose_isa_html,
+			char *document_close_html );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	DOCUMENT_BODY *document_body;
+	FORM_CHOOSE_ROLE *form_choose_role;
+	char *html;
+} DOCUMENT_BODY_CHOOSE_ROLE;
+
+/* DOCUMENT_BODY_CHOOSE_ROLE operations */
+/* ------------------------------------ */
+DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_calloc(
+			void );
+
+DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
+			char *choose_title_title_string,
+			LIST *role_name_list,
+			char *choose_role_post_action_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *document_body_choose_role_html(
+			char *document_body_html,
+			char *form_choose_role_html,
+			char *document_body_close_html );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	DOCUMENT *document;
+	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role;
+	char *html;
+} DOCUMENT_CHOOSE_ROLE;
+
+/* DOCUMENT_CHOOSE_ROLE operations */
+/* ------------------------------- */
+DOCUMENT_CHOOSE_ROLE *document_choose_role_calloc(
+			void );
+
+DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
+			char *application_name,
+			char *choose_role_title_string,
+			LIST *role_name_list,
+			char *choose_role_post_action_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *document_choose_role_html(
+			char *document_html,
+			char *document_body_choose_role_html,
+			char *document_close_html );
 
 typedef struct
 {

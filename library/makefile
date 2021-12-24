@@ -113,7 +113,8 @@ APPASERVER_LIBRARY=						\
 		frameset_link_file.o				\
 		menu.o						\
 		remember.o					\
-		choose_isa.o
+		choose_isa.o					\
+		choose_role.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -985,4 +986,7 @@ remember.o: remember.c remember.h
 
 choose_isa.o: choose_isa.c choose_isa.h
 	${CC} ${CFLAGS} -c choose_isa.c
+
+choose_role.o: choose_role.c choose_role.h
+	${CC} ${CFLAGS} -c choose_role.c
 
