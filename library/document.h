@@ -230,8 +230,8 @@ DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_calloc(
 
 DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
 			char *choose_isa_title_string,
-			char *choose_isa_prompt_html,
-			char *one2m_isa_folder_name,
+			char *choose_isa_subtitle_html,
+			char *choose_isa_prompt_message,
 			MENU *menu,
 			boolean menu_boolean,
 			LIST *primary_key_list,
@@ -263,8 +263,8 @@ DOCUMENT_CHOOSE_ISA *document_choose_isa_calloc(
 DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
 			char *application_name,
 			char *choose_isa_title_string,
-			char *choose_isa_prompt_html,
-			char *one2m_isa_folder_name,
+			char *choose_isa_subtitle_html,
+			char *choose_isa_prompt_message,
 			MENU *menu,
 			boolean menu_boolean,
 			LIST *primary_key_list,

@@ -258,11 +258,17 @@ char *list_display(	LIST *list );
 void list_display_lines(
 			LIST *list );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or "" */
+/* ------------------------- */
 char *list_display_delimited(
 			LIST *list,
 			char delimiter );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *list_display_string_delimited(
+			LIST *list,
+			char *delimited_string );
 
 /* Returns heap memory or empty string */
 /* ----------------------------------- */
@@ -271,20 +277,35 @@ char *list_display_limited(
 			char delimiter,
 			int length );
 
-char *list_display_delimited_plus_space( LIST *list, char delimiter );
+char *list_display_delimited_plus_space(
+			LIST *list,
+			char delimiter );
 
-boolean is_subset_of( LIST *subset, LIST *set );
+boolean is_subset_of(	LIST *subset,
+			LIST *set );
 
-boolean list_is_subset_of( LIST *subset, LIST *set );
-void list_delete_from_list( LIST *set, LIST *delete_list );
-void list_delete_string( LIST *list, char *string );
-LIST *dictionary_string2list( char *dictionary_string, 
-			      int attribute_or_data );
-LIST *list_trim_indices( LIST *string_list );
+boolean list_is_subset_of(
+			LIST *subset,
+			LIST *set );
+
+void list_delete_from_list(
+			LIST *set,
+			LIST *delete_list );
+
+void list_delete_string(
+			LIST *list,
+			char *string );
+
+LIST *dictionary_string2list(
+			char *dictionary_string, 
+			int attribute_or_data );
+
+LIST *list_trim_indices(
+			LIST *string_list );
 
 LIST *list_unique(	LIST *string_list );
 
-char *list_get_string( LIST *list );
+char *list_get_string(	LIST *list );
 
 void *list_first_pointer(
 			LIST *list );
@@ -628,22 +649,26 @@ LIST *list_delimiter_list_piece_list(
 LIST *list_string_to_double_list(
 			LIST *string_list );
 
-char *list_double_list_display(	char *destination,
-				LIST *double_list );
+char *list_double_list_display(
+			char *destination,
+			LIST *double_list );
 
-char *list_double_display(	LIST *double_list, 
-				char delimiter );
+char *list_double_display(
+			LIST *double_list, 
+			char delimiter );
 
 
 /* -------------------------------------------- */
 /* Returns zero-based index of matching double. */
 /* Returns -1 if no match.			*/
 /* -------------------------------------------- */
-int list_double_list_match(	LIST *double_list,
-				double match );
+int list_double_list_match(
+			LIST *double_list,
+			double match );
 
-LIST *list_append_current_list(	LIST *destination_list,
-				LIST *source_list );
+LIST *list_append_current_list(
+			LIST *destination_list,
+			LIST *source_list );
 
 void list_html_display(
 			LIST *list );
@@ -652,16 +677,18 @@ void list_html_table_display(
 			LIST *list,
 			char *heading_string );
 
-LIST *list_cycle_right(		LIST *list );
+LIST *list_cycle_right(	LIST *list );
 
-void *list_data(		LIST *list );
+void *list_data(	LIST *list );
 
-char *list_integer_display(	LIST *integer_list,
-				char delimiter );
+char *list_integer_display(
+			LIST *integer_list,
+			char delimiter );
 
-void list_linktype_free(	struct LINKTYPE *linktype );
+void list_linktype_free(
+			struct LINKTYPE *linktype );
 
-LIST *list_string_new(		char *string );
+LIST *list_string_new(	char *string );
 
 char *list_length_display(
 			LIST *string_list,

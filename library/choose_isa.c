@@ -305,7 +305,7 @@ char *choose_isa_prompt_message( LIST *primary_key_list )
 		"Choose %s",
 		string_initial_capital(
 			buffer,
-			list_display_delimited(
+			list_display_string_delimited(
 				primary_key_list,
 				ELEMENT_LONG_DASH_DELIMITER ) ) );
 

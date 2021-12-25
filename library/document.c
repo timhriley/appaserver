@@ -602,7 +602,8 @@ char *document_head_calendar_setup_string(
 DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
 			char *application_name,
 			char *choose_isa_title_string,
-			char *choose_isa_prompt_html,
+			char *choose_isa_subtitle_html,
+			char *choose_isa_prompt_message,
 			char *one2m_isa_folder_name,
 			MENU *menu,
 			boolean menu_boolean,
@@ -623,8 +624,8 @@ DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
 	document_choose_isa->document_body_choose_isa =
 		document_body_choose_isa_new(
 			choose_isa_title_string,
-			choose_isa_prompt_html,
-			one2m_isa_folder_name,
+			choose_isa_subtitle_html,
+			choose_isa_prompt_message,
 			menu,
 			menu_boolean,
 			primary_key_list,
@@ -728,7 +729,8 @@ DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_calloc( void )
 
 DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
 			char *choose_isa_title_string,
-			char *choose_isa_prompt_html,
+			char *choose_isa_subtitle_html,
+			char *choose_isa_prompt_message,
 			MENU *menu,
 			boolean menu_boolean,
 			LIST *primary_key_list,
@@ -746,14 +748,34 @@ DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
 			choose_isa_title_string,
 			(char *)0 /* javascript_replace */ );
 
+	if ( !document_body_choose_isa->document_body )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: document_body_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	document_body_choose_isa->form_choose_isa =
 		form_choose_isa_new(
-			choose_isa_prompt_html,
-			one2m_folder_name,
+			choose_isa_subtitle_html,
+			choose_isa_prompt_message,
 			primary_key_list,
 			delimited_list,
 			no_initial_capital,
 			choose_isa_post_action_string );
+
+	if ( !document_body_choose_isa->form_choose_isa )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_choose_isa_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	document_body_choose_isa->html =
 		/* ------------------- */

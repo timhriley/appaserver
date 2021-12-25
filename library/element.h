@@ -73,7 +73,7 @@ enum element_type {	table_open,
 
 typedef struct
 {
-	/* stub */
+	char *html;
 } ELEMENT_TABLE_OPEN;
 
 /* ELEMENT_TABLE_OPEN operations */
@@ -88,7 +88,7 @@ char *element_table_open_html(
 
 typedef struct
 {
-	/* stub */
+	char *html;
 } ELEMENT_TABLE_ROW;
 
 /* ELEMENT_TABLE_ROW operations */
@@ -103,7 +103,7 @@ char *element_table_row_html(
 
 typedef struct
 {
-	/* stub */
+	char *html;
 } ELEMENT_TABLE_CLOSE;
 
 /* ELEMENT_TABLE_CLOSE operations */
@@ -342,7 +342,7 @@ char *element_hidden_html(
 
 typedef struct
 {
-	/* stub */
+	char *html;
 } ELEMENT_LINE_BREAK;
 
 /* ELEMENT_LINE_BREAK operations */
@@ -357,7 +357,7 @@ char *element_line_break_html(
 
 typedef struct
 {
-	/* stub */
+	char *html;
 } ELEMENT_TABLE_DATA;
 
 /* ELEMENT_TABLE_DATA operations */
@@ -565,7 +565,7 @@ typedef struct
 	enum element_type element_type;
 	char *element_name;
 	char *heading_string;
-	char *key_string;
+	char *element_key;
 
 	/* Attributes */
 	/* ---------- */
@@ -597,7 +597,8 @@ typedef struct
 /* APPASERVER_ELEMENT operations */
 /* ----------------------------- */
 APPASERVER_ELEMENT *appaserver_element_new(
-			enum element_type element_type );
+			enum element_type element_type,
+			char *element_name );
 
 APPASERVER_ELEMENT *appaserver_element_name_seek(
 			char *element_name,

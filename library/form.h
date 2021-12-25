@@ -61,9 +61,17 @@ typedef struct
 	/* ------- */
 	char *tag;
 	LIST *top_button_element_list;
+	char *top_button_element_list_html;
 	LIST *bottom_button_element_list;
+	char *bottom_button_element_list_html;
 	LIST *sort_checkbox_element_list;
+	char *sort_checkbox_element_list_html;
 	LIST *heading_element_list;
+	char *heading_element_list_html;
+	char *query_dictionary_hidden_html;
+	char *sort_dictionary_hidden_html;
+	char *drillthru_dictionary_hidden_html;
+	char *ignore_dictionary_hidden_html;
 } FORM_EDIT_TABLE;
 
 /* FORM_EDIT_TABLE operations */
@@ -78,10 +86,14 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
 			LIST *edit_table_heading_list,
-			char *target_frame );
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *form_edit_table_tag(
 			char *edit_table_submit_action_string,
 			char *target_frame );
@@ -96,6 +108,10 @@ LIST *form_edit_table_sort_checkbox_element_list(
 			int operation_list_length,
 			LIST *edit_table_heading_list );
 
+LIST *form_edit_table_heading_element_list(
+			LIST *operation_list,
+			LIST *edit_table_heading_list );
+
 void form_edit_table_dictionary_list_output(
 			FILE *output_stream,
 			LIST *operation_list,
@@ -103,11 +119,6 @@ void form_edit_table_dictionary_list_output(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			LIST *edit_table_heading_list );
-
-char *form_edit_table_dictionary_html(
-			DICTIONARY *query_dictioanry,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *sort_dictionary );
 
 typedef struct
 {
@@ -119,28 +130,6 @@ typedef struct
 	REMEMBER *remember;
 	LIST *element_list;
 } FORM_PROMPT;
-
-/* FORM operations */
-/* --------------- */
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *form_title_html(
-			char *title );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *form_message_html(
-			char *message );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *form_tag_html(
-			char *action_string,
-			char *target_frame );
-
-char *form_next_reference_number(
-			int *form_current_reference_number );
 
 /* FORM_RADIO_VALUE operations */
 /* --------------------------- */
@@ -237,25 +226,45 @@ FORM_CHOOSE_ISA *form_choose_isa_calloc(
 			void );
 
 FORM_CHOOSE_ISA *form_choose_isa_new(
-			char *prompt_html,
+			char *choose_isa_subtitle_html,
+			char *choose_isa_prompt_message,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
-			char *action_string );
+			char *choose_isa_post_action_string );
 
 LIST *form_choose_isa_element_list(
-			char *one2m_folder_name,
+			char *choose_isa_prompt_message,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital );
 
-LIST *form_choose_isa_button_list(
+LIST *form_choose_isa_button_element_list(
 			void );
 
-char *form_prompt_isa_html(
-			char *message_html,
+/* Returns heap memory */
+/* ------------------- */
+char *form_choose_isa_html(
+			char *choose_isa_subtitle_html,
 			char *tag_html,
 			LIST *element_list,
 			LIST *button_element_list );
+
+/* FORM external operations */
+/* ------------------------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_title_html(
+			char *title );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_tag_html(	char *form_name,
+			char *action_string,
+			char *target_frame );
+
+char *form_next_reference_number(
+			int *form_current_reference_number );
 
 #endif

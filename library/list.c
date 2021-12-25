@@ -592,6 +592,39 @@ char *list_display_delimited( LIST *list, char delimiter )
 	return strdup( buffer );
 }
 
+char *list_display_string_delimited(
+			LIST *list,
+			char *delimited_string )
+{
+	char buffer[ 65536 ];
+	char *buf_ptr = buffer;
+	boolean first_time = 1;
+
+	if ( !list_rewind( list ) ) return (char *)0;
+
+	*buf_ptr = '\0';
+
+	do {
+		if ( first_time )
+		{
+			first_time = 0;
+
+			buf_ptr += sprintf( buf_ptr, 
+					    "%s",
+					    (char *)list_get( list ) );
+		}
+		else
+		{
+			buf_ptr += sprintf( buf_ptr, 
+					    "%s%s",
+					    delimited_string,
+					    (char *)list_get( list ) );
+		}
+	} while( next_item( list ) );
+
+	return strdup( buffer );
+}
+
 char *list_buffered_display(	char *destination,
 				LIST *list, 
 				char delimiter )

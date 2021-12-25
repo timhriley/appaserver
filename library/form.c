@@ -24,6 +24,7 @@
 #include "pair_one2m.h"
 #include "element.h"
 #include "javascript.h"
+#include "frameset.h"
 #include "button.h"
 #include "form.h"
 
@@ -250,14 +251,13 @@ FORM_CHOOSE_ISA *form_choose_isa_calloc( void )
 }
 
 LIST *form_choose_isa_element_list(
-			char *choose_isa_message,
+			char *choose_isa_prompt_message,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital )
 {
 	LIST *element_list = list_new();
 	APPASERVER_ELEMENT *element;
-	char prompt_message[ 512 ];
 	char buffer[ 512 ];
 
 	/* Create a table */
@@ -266,12 +266,12 @@ LIST *form_choose_isa_element_list(
 		element_list,
 		( element =
 			appaserver_element_new(
-				table,
-				(char *) /* element_name */ ) ) );
+				table_open,
+				(char *)0 /* element_name */ ) ) );
 
 	/* Returns program memory */
 	/* ---------------------- */
-	element->table->html = element_table_html();
+	element->table_open->html = element_table_open_html();
 
 	/* Create a table row */
 	/* ------------------ */
@@ -280,7 +280,7 @@ LIST *form_choose_isa_element_list(
 		( element =
 			appaserver_element_new(
 				table_row,
-				(char *) /* element_name */ ) ) );
+				(char *)0 /* element_name */ ) ) );
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -293,7 +293,7 @@ LIST *form_choose_isa_element_list(
 		( element =
 			appaserver_element_new(
 				non_edit_text,
-				(char *) /* element_name */ ) ) );
+				(char *)0 /* element_name */ ) ) );
 
 	element->non_edit_text->html =
 		/* --------------------------- */
@@ -302,7 +302,7 @@ LIST *form_choose_isa_element_list(
 		element_non_edit_text_html(
 			string_initial_capital(
 				buffer /* prompt_string */,
-				choose_isa_message /* source */ ) );
+				choose_isa_prompt_message /* source */ ) );
 
 	/* Create a drop-down */
 	/* ------------------ */
@@ -311,15 +311,13 @@ LIST *form_choose_isa_element_list(
 		( element =
 			appaserver_element_new(
 				drop_down,
-				one2m_isa_folder_name
-					/* element_name */ ) );
+				(char *)0 /* element_name */ ) ) );
 
 	free( element->drop_down );
 
 	element->drop_down =
 		element_drop_down_new(
 			primary_key_list /* attribute_name_list */,
-			(char *)0 /* initial_data */,
 			delimited_list,
 			no_initial_capital,
 			0 /* not output_null_option */,
@@ -361,12 +359,13 @@ LIST *form_choose_isa_element_list(
 		/* Returns heap memory or null. */
 		/* ---------------------------- */
 		element_checkbox_html(
-			ELEMENT_NAME_LOOKUP_STATE,
-			"Lookup",
+			ELEMENT_NAME_LOOKUP_STATE /* element_name */,
+			"Lookup" /* prompt_display */,
 			0 /* not checked */,
 			(char *)0 /* action_string */,
 			-1 /* tab_order */,
-			"yes" /* value */ );
+			"yes" /* value */,
+			(char *)0 /* image_source */ );
 
 	if ( !element->checkbox->html )
 	{
@@ -377,6 +376,21 @@ LIST *form_choose_isa_element_list(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	/* Close the table */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_close->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_close_html();
 
 	return element_list;
 }
@@ -593,31 +607,12 @@ char *form_title_html( char *title )
 	return strdup( title_html );
 }
 
-char *form_message_html( char *prompt_message )
-{
-	char message_html[ 256 ];
-
-	if ( !prompt_message )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: prompt_message is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(message_html,
-		"<h1>%s</h1>\n",
-		prompt_message );
-
-	return strdup( message_html );
-}
-
-char *form_tag_html(	char *action_string,
+char *form_tag_html(	char *form_name,
+			char *action_string,
 			char *target_frame )
 {
 	char tag_html[ STRING_INPUT_BUFFER ];
+	char *ptr = tag_html;
 
 	if ( !action_string )
 	{
@@ -639,108 +634,170 @@ char *form_tag_html(	char *action_string,
 		exit( 1 );
 	}
 
-	sprintf(tag_html,
-		"<form enctype=\"multipart/form-data\"\n"
-		"\tmethod=post name=\"prompt\"\n"
-		"\taction=\"%s\"\n"
-		"\ttarget=\"%s\">\n",
+	ptr += sprintf(
+		ptr,
+		"<form enctype=\"multipart/form-data\" method=post" );
+
+	if ( form_name && *form_name )
+	{
+		ptr += sprintf(
+			ptr,
+			" name=\"%s\"",
+			form_name );
+	}
+
+	ptr += sprintf(
+		ptr,
+		" action=\"%s\" target=\"%s\">",
 		action_string,
 		target_frame );
 
 	return strdup( tag_html );
 }
 
-FORM_PROMPT_ISA *form_prompt_isa_calloc( void )
+LIST *form_choose_isa_button_element_list( void )
 {
-	FORM_PROMPT_ISA *form_prompt_isa;
-
-	if ( ! ( form_prompt_isa =
-			calloc( 1, sizeof( FORM_PROMPT_ISA ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return form_prompt_isa;
-}
-
-FORM_PROMPT_ISA *form_prompt_isa_new(
-			char *title,
-			char *prompt_message,
-			char *one2m_folder_name,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *action_string )
-{
-	FORM_PROMPT_ISA *form_prompt_isa = form_prompt_isa_calloc();
-
-	form_prompt_isa->title_html =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		form_title_html( title );
-
-	form_prompt_isa->message_html =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		form_message_html( prompt_message );
-
-	form_prompt_isa->tag_html =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		form_tag_html(
-			action_string,
-			PROMPT_FRAME );
-
-	form_prompt_isa->element_list =
-		form_prompt_isa_element_list(
-			one2m_folder_name,
-			primary_key_list,
-			delimited_list,
-			no_initial_capital );
-
-	form_prompt_isa->button_list =
-		form_prompt_isa_button_list();
-
-	return form_prompt_isa;
-}
-
-LIST *form_prompt_isa_button_list( void )
-{
-	LIST *button_list = list_new();
+	APPASERVER_ELEMENT *element;
+	LIST *element_list = list_new();
 
 	list_set(
-		button_list,
+		element_list,
+		appaserver_element_new(
+			table_open,
+			(char *)0 /* element_name */ ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_open->html = element_table_open_html();
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_row->html = element_table_row_html();
+
+	/* Create <Submit> */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button =
 		button_submit(
-			(char *)0,
-			(char *)0,
-			(char *)0,
-			(char *)0,
-			0 /* form_number */ ) );
-
-	list_set(
-		button_list,
-		button_reset(
-			(char *)0 /* post_change_javascript */,
-			(char *)0 /* state */,
+			(char *)0 /* multi_select_all_javascript */,
+			(char *)0 /* keystrokes_save_javascript */,
+			(char *)0 /* keystrokes_multi_save_javascript */,
+			(char *)0 /* verify_attribute_widths_javascript */,
 			0 /* form_number */ );
 
+	/* Create <Reset> */
+	/* -------------- */
 	list_set(
-		button_list,
-		button_back() );
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
 
 	list_set(
-		button_list,
-		button_forward() );
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
 
-	return button_list;
+	element->button->button =
+		button_reset(
+			(char *)0 /* javascript_replace */,
+			0 /* form_number */ );
+
+	/* Create <Back> */
+	/* ------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button = button_back();
+
+	/* Create <Forward> */
+	/* ---------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button = button_forward();
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_close->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_close_html();
+
+	return element_list;
 }
 
 void form_prompt_isa_output(
@@ -833,13 +890,20 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
 			LIST *heading_list,
-			char *target_frame )
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary )
 {
 	FORM_EDIT_TABLE *form_edit_table = form_edit_table_calloc();
 
 	form_edit_table->tag =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		form_edit_table_tag(
-			submit_action_string,
+			edit_table_submit_action_string,
 			target_frame );
 
 	form_edit_table->top_button_element_list =
@@ -848,11 +912,31 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			javascript_replace,
 			0 /* dictionary_list_length */ );
 
+	form_edit_table->top_button_element_list_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_list_html(
+			(char *)0 /* background_color */,
+			(char *)0 /* state */,
+			0 /* row_number */,
+			form_edit_table->top_button_element_list );
+
 	form_edit_table->bottom_button_element_list =
 		form_edit_table_button_element_list(
 			edit_table_submit_action_string,
 			javascript_replace,
 			dictionary_list_length );
+
+	form_edit_table->bottom_button_element_list_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_list_html(
+			(char *)0 /* background_color */,
+			(char *)0 /* state */,
+			0 /* row_number */,
+			form_edit_table->bottom_button_element_list );
 
 	form_edit_table->sort_checkbox_element_list =
 		form_edit_table_sort_checkbox_element_list(
@@ -860,10 +944,50 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			list_length( operation_list ),
 			heading_list );
 
+	form_edit_table->sort_checkbox_element_list_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_list_html(
+			(char *)0 /* background_color */,
+			(char *)0 /* state */,
+			0 /* row_number */,
+			form_edit_table->sort_checkbox_element_list );
+
 	form_edit_table->heading_element_list =
 		form_edit_table_heading_element_list(
 			operation_list,
 			heading_list );
+
+	form_edit_table->heading_element_list_html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_list_html(
+			(char *)0 /* background_color */,
+			(char *)0 /* state */,
+			0 /* row_number */,
+			form_edit_table->heading_element_list );
+
+	form_edit_table->query_dictionary_hidden_html =
+		dictionary_separate_hidden_html(
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			query_dictionary );
+
+	form_edit_table->sort_dictionary_hidden_html =
+		dictionary_separate_hidden_html(
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			sort_dictionary );
+
+	form_edit_table->drillthru_dictionary_hidden_html =
+		dictionary_separate_hidden_html(
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			drillthru_dictionary );
+
+	form_edit_table->ignore_dictionary_hidden_html =
+		dictionary_separate_hidden_html(
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			ignore_dictionary );
 
 	return form_edit_table;
 }
@@ -886,7 +1010,7 @@ char *form_edit_table_tag(
 	}
 
 	sprintf(tag,
-"<form enctype=\"multipart/form-data\" method=post action=\"%s\" target=\"%\">",
+"<form enctype=\"multipart/form-data\" method=post action=\"%s\" target=\"%s\">",
 		edit_table_submit_action_string,
 		target_frame );
 
@@ -903,23 +1027,40 @@ LIST *form_edit_table_button_element_list(
 
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_open,
-			(char *)0 /* element_name */ ) );
+		( elemement =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_open->html = element_table_open_html();
 
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_row,
-			(char *)0 /* element_name */ ) );
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_row->html = element_table_row_html();
 
 	/* Create <Submit> */
 	/* --------------- */
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_data,
-			(char *)0 /* element_name */ ) );
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
 
 	list_set(
 		element_list,
@@ -930,19 +1071,26 @@ LIST *form_edit_table_button_element_list(
 
 	element->button->button =
 		button_submit(
-			(char *)0,
-			(char *)0,
-			(char *)0,
-			(char *)0,
-			0 /* form_number */ ) );
+			(char *)0 /* multi_select_all_javascript */,
+			(char *)0 /* keystrokes_save_javascript */,
+			(char *)0 /* keystrokes_multi_save_javascript */,
+			(char *)0 /* verify_attribute_widths_javascript */,
+			0 /* form_number */ );
 
 	/* Create <Reset> */
 	/* -------------- */
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_data,
-			(char *)0 /* element_name */ ) );
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
 
 	list_set(
 		element_list,
@@ -951,7 +1099,7 @@ LIST *form_edit_table_button_element_list(
 				button,
 				(char *)0 /* element_name */ ) ) );
 
-	element->button =
+	element->button->button =
 		button_reset(
 			javascript_replace,
 			0 /* form_number */ );
@@ -960,9 +1108,16 @@ LIST *form_edit_table_button_element_list(
 	/* ------------- */
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_data,
-			(char *)0 /* element_name */ ) );
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
 
 	list_set(
 		element_list,
@@ -971,15 +1126,22 @@ LIST *form_edit_table_button_element_list(
 				button,
 				(char *)0 /* element_name */ ) ) );
 
-	element->button = button_back();
+	element->button->button = button_back();
 
 	/* Create <Forward> */
 	/* ---------------- */
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_data,
-			(char *)0 /* element_name */ ) );
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_data->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_data_html();
 
 	list_set(
 		element_list,
@@ -988,7 +1150,7 @@ LIST *form_edit_table_button_element_list(
 				button,
 				(char *)0 /* element_name */ ) ) );
 
-	element->button = button_forward();
+	element->button->button = button_forward();
 
 	/* Create <Top> */
 	/* ------------ */
@@ -996,9 +1158,16 @@ LIST *form_edit_table_button_element_list(
 	{
 		list_set(
 			element_list,
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) );
+			(element =
+				appaserver_element_new(
+					table_data,
+					(char *)0 /* element_name */ ) ) );
+
+		element->table_data->html =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_table_data_html();
 
 		list_set(
 			element_list,
@@ -1007,14 +1176,20 @@ LIST *form_edit_table_button_element_list(
 					button,
 					(char *)0 /* element_name */ ) ) );
 
-		element->button = button_back_to_top();
+		element->button->button = button_back_to_top();
 	}
 
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_close,
-			(char *)0 /* element_name */ ) );
+		( element = appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_close->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_close_html();
 
 	return element_list;
 }
@@ -1039,9 +1214,13 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	/* ---------------------------- */
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_row,
-			(char *)0 /* element_name */ ) );
+		( element = appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_row->html = element_table_row_html();
 
 	for(	i = 0;
 		i < operation_list_length;
@@ -1049,16 +1228,23 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	{
 		list_set(
 			element_list,
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) );
+			( element =
+				appaserver_element_new(
+					table_data,
+					(char *)0 /* element_name */ ) ) );
+
+		element->table_data->html =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_table_data_html();
 	}
 
 	list_rewind( edit_table_heading_list );
 
 	do {
 		sprintf(element_name,
-			%s%s%s",
+			"%s%s%s",
 			SORT_CHECKBOX_PREFIX,
 			FORM_SORT_ASSEND_LABEL,
 			(char *)list_get( edit_table_heading_list ) );
@@ -1081,9 +1267,13 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	/* ----------------------------- */
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_row,
-			(char *)0 /* element_name */ ) );
+		( element = appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_row->html = element_table_row_html();
 
 	for(	i = 0;
 		i < operation_list_length;
@@ -1091,16 +1281,23 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	{
 		list_set(
 			element_list,
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) );
+			( element =
+				appaserver_element_new(
+					table_data,
+					(char *)0 /* element_name */ ) ) );
+
+		element->table_data->html =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_table_data_html();
 	}
 
 	list_rewind( edit_table_heading_list );
 
 	do {
 		sprintf(element_name,
-			%s%s%s",
+			"%s%s%s",
 			SORT_CHECKBOX_PREFIX,
 			FORM_SORT_DESCEND_LABEL,
 			(char *)list_get( edit_table_heading_list ) );
@@ -1122,19 +1319,96 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	return element_list;
 }
 
-void form_edit_table_dictionary_list_output(
-			FILE *output_stream,
-			LIST *operation_list,
-			LIST *dictionary_list,
-			LIST *regular_element_list,
-			LIST *viewonly_element_list,
-			LIST *edit_table_heading_list )
+FORM_CHOOSE_ISA *form_choose_isa_new(
+			char *choose_isa_subtitle_html,
+			char *choose_isa_prompt_message,
+			LIST *primary_key_list,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			char *choose_isa_post_action_string )
 {
+	FORM_CHOOSE_ISA *form_choose_isa = form_choose_isa_calloc();
+
+	form_choose_isa->tag_html =
+		form_tag_html(
+			"prompt" /* form_name */,
+			choose_isa_post_action_string,
+			FRAMESET_PROMPT_FRAME /* target_frame */ );
+
+	form_choose_isa->element_list =
+		form_choose_isa_element_list(
+			choose_isa_prompt_message,
+			primary_key_list,
+			delimited_list,
+			no_initial_capital );
+
+	form_choose_isa->button_element_list =
+		form_choose_isa_button_element_list();
+
+	form_choose_isa->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		form_choose_isa_html(
+			choose_isa_subtitle_html,
+			form_choose_isa->tag_html,
+			form_choose_isa->element_list,
+			form_choose_isa->button_element_list );
+
+	return form_choose_isa;
 }
 
-char *form_edit_table_dictionary_html(
-			DICTIONARY *query_dictioanry,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *sort_dictionary )
+char *form_choose_isa_html(
+			char *choose_isa_subtitle_html,
+			char *tag_html,
+			LIST *element_list,
+			LIST *button_element_list )
 {
+	char html[ STRING_ONE_MEG ];
+	char *tmp1;
+	char *tmp2;
+
+	if ( !choose_isa_subtitle_html
+	||   !tag_html
+	||   !list_length( element_list )
+	||   !list_length( button_element_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s\n%s",
+		choose_isa_subtitle_html,
+		tag_html,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		( tmp1 = appaserver_element_list_html(
+				(char *)0 /* background_color */,
+				(char *)0 /* state */,
+				0 /* row_number */,
+				element_list ) ),
+		( tmp2 = appaserver_element_list_html(
+				(char *)0 /* background_color */,
+				(char *)0 /* state */,
+				0 /* row_number */,
+				button_element_list ) ) );
+
+		free( tmp1 );
+		free( tmp2 );
+
+	return strdup( html );
 }
+
+LIST *form_edit_table_heading_element_list(
+			LIST *operation_list,
+			LIST *edit_table_heading_list )
+{
+	return (LIST *)0;
+}
+
