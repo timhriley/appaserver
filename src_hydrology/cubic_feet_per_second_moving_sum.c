@@ -343,7 +343,7 @@ char *cubic_where_clause(
 	JULIAN *new_begin_date;
 
 	new_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
-	julian_decrement_days( new_begin_date, days_to_sum - 1 );
+	julian_decrement_days( new_begin_date, ( days_to_sum + 1 ) );
 
 	sprintf( where_clause,
  	"station in (%s) and 				      "
@@ -368,11 +368,11 @@ char *cubic_input_system_string(
 {
 	char aggregation_process[ 1024 ];
 	char units_converted_process[ 128 ];
-	JULIAN *new_begin_date;
+	JULIAN *start_begin_date;
 	char system_string[ 1024 ];
 
-	new_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
-	julian_decrement_days( new_begin_date, days_to_sum - 1 );
+	start_begin_date = julian_new_yyyy_mm_dd( begin_date_string );
+	julian_decrement_days( start_begin_date, ( days_to_sum + 1 ) );
 
 	if ( units_converted
 	&&   *units_converted
@@ -391,7 +391,7 @@ char *cubic_input_system_string(
 
 	sprintf(
 			aggregation_process, 
-	 "real_time2aggregate_value.e sum %d %d %d '%c' daily n %s	|"
+	 "real_time2aggregate_value.e average %d %d %d '%c' daily n %s	|"
 	 "piece_inverse.e 3 '%c'					|"
 	 "%s								|"
 	 "pad_missing_times.e ',' 0,-1,1 daily %s 0000 %s 2359 0 '' 	|"
@@ -403,7 +403,7 @@ char *cubic_input_system_string(
 			end_date_string,
 			INPUT_DELIMITER,
 			units_converted_process,
-			julian_display_yyyy_mm_dd( new_begin_date->current ),
+			julian_display_yyyy_mm_dd( start_begin_date->current ),
 			end_date_string,
 			days_to_sum,
 			INPUT_DELIMITER,

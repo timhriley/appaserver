@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/measurement_convert_units.c		*/
-/* ----------------------------------------------------------------	*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* ----------------------------------------------------------------	*/
+/* ------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/measurement_convert_units.c		*/
+/* ----------------------------------------------------------	*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ----------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -59,10 +59,6 @@ int main( int argc, char **argv )
 	char *delimiter_string;
 	boolean is_temperature_boolean;
 	boolean is_navd88_boolean;
-
-	/* Exits if failure. */
-	/* ----------------- */
-	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	output_starting_argv_stderr( argc, argv );
 
