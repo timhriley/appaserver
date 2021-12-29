@@ -31,9 +31,7 @@
 
 /* Constants */
 /* --------- */
-#define UNITS				"cfs"
 #define EXCEEDANCE_DELIMITER		'|'
-#define DEFAULT_DAYS_TO_SUM		30
 #define DEFAULT_OUTPUT_MEDIUM		"chart"
 #define GRACE_DATATYPE_ENTITY_PIECE	0
 #define GRACE_DATATYPE_PIECE		1

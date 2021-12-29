@@ -1,0 +1,603 @@
+/* $APPASERVER_HOME/src_hydrology/cubic_feet.h		*/
+/* ==================================================== */
+/*                                                      */
+/* Freely available software: see Appaserver.org	*/
+/* ==================================================== */
+
+#ifndef CUBIC_FEET_H
+#define CUBIC_FEET_H
+
+/* Includes */
+/* -------- */
+#include <stdio.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdlib.h>
+#include "timlib.h"
+#include "hydrology_library.h"
+#include "aggregate_statistic.h"
+#include "date_convert.h"
+#include "cubic_feet.h"
+
+CUBIC_FEET_MEASUREMENT *cubic_feet_measurement_calloc( void )
+{
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
+
+	if ( ! ( cubic_feet_measurement =
+			calloc( 1, sizeof( CUBIC_FEET_MEASUREMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return cubic_feet_measurement;
+}
+
+CUBIC_FEET_MEASUREMENT *cubic_feet_measurement_new(
+			char *measurement_date )
+{
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement =
+		cubic_feet_measurement_calloc();
+
+	cubic_feet_measurement->measurement_date = measurement_date;
+
+	return cubic_feet_measurement;
+}
+
+char *cubic_feet_measurement_system_string(
+			char *application_name,
+			char *cubic_feet_station_where,
+			char *end_date_string,
+			char *cubic_feet_units_convert_process )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+	"get_folder_data	application=%s		    		 "
+	"			folder=measurement	    		 "
+	"			select=\"%s\"		    		 "
+	"			where=\"%s\"		    		 "
+	"			quick=yes		   		|"
+	"tr '%c' '%c' 					   		|"
+	"sort						   		|"
+	"real_time2aggregate_value.e average %d %d %d '%c' daily n %s	|"
+	"piece_inverse.e 3 '%c'						|"
+	"%s								|"
+	"cat								 ",
+			application_name,
+			SELECT_LIST,
+			cubic_feet_station_where,
+			FOLDER_DATA_DELIMITER,
+			INPUT_DELIMITER,
+	 		DATE_PIECE,
+	 		TIME_PIECE,
+	 		VALUE_PIECE,
+			INPUT_DELIMITER,
+			end_date_string,
+			INPUT_DELIMITER,
+			units_converted_process );
+
+	return strdup( system_string );
+}
+
+CUBIC_FEET_STATION *cubic_feet_station_calloc( void )
+{
+	CUBIC_FEET_STATION *cubic_feet_station;
+
+	if ( ! ( cubic_feet_station =
+			calloc( 1, sizeof( CUBIC_FEET_STATION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return cubic_feet_station;
+}
+
+LIST *cubic_feet_station_list(
+			char *application_name,
+			LIST *station_name_list,
+			char *datatype_name,
+			JULIAN *cubic_feet_start_date_julian,
+			char *end_date_string,
+			char *cubic_feet_units_convert_process )
+{
+	LIST *station_list;
+
+	if ( !cubic_feet_start_date_julian )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: cubic_feet_start_date_julian is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( station_name_list ) ) return (LIST *)0;
+
+	station_list = list_new();
+
+	do {
+		list_set(
+			station_list,
+			cubic_feet_station_new(
+				application_name,
+				(char *)list_get( station_name_list ),
+				cubic_feet_start_date_julian,
+				end_date_string,
+				cubic_feet_units_convert_process ) );
+
+	} while ( list_next( station_name_list ) );
+
+	return station_list;
+}
+
+CUBIC_FEET_STATION *cubic_feet_station_new(
+			char *application_name,
+			char *station_name,
+			char *datatype_name,
+			JULIAN *cubic_feet_start_date_julian,
+			char *end_date_string,
+			char *cubic_feet_units_convert_process )
+{
+	CUBIC_FEET_STATION *cubic_feet_station =
+		cubic_feet_station_calloc();
+
+	if ( !application_name
+	||   !station_name
+	||   !datatype_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !cubic_feet_start_date_julian )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: cubic_feet_start_date_julian is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	cubic_feet_station->where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		cubic_feet_station_where(
+			station_name,
+			datatype_name,
+			cubic_feet_start_date_julian,
+			end_date_string );
+
+	cubic_feet_station->measurement_list =
+		cubic_feet_measurement_list(
+			cubic_feet_measurement_system_string(
+				application_name,
+				cubic_feet_station->where,
+				end_date_string,
+				cubic_feet_units_convert_process ) );
+
+	return cubic_feet_station;
+}
+
+char *cubic_feet_station_where(
+			char *station_name,
+			char *datatype_name,
+			JULIAN *cubic_feet_start_date_julian,
+			char *end_date_string )
+{
+	char where[ 512 ];
+
+	sprintf(where,
+ 	"station in (%s) and 				      "
+ 	"datatype = '%s' and				      "
+	"measurement_date between '%s' and '%s' 	      ",
+		timlib_in_clause( station_list ),
+		datatype_name,
+		julian_display_yyyy_mm_dd(
+			cubic_feet_start_date_julian->
+				current ),
+		end_date_string );
+
+	return strdup( where);
+}
+
+CUBIC_FEET *cubic_feet_calloc( void )
+{
+	CUBIC_FEET *cubic_feet;
+
+	if ( ! ( cubic_feet = calloc( 1, sizeof( CUBIC_FEET ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return cubic_feet;
+}
+
+CUBIC_FEET *cubic_feet_new(
+			char *application_name,
+			LIST *station_name_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
+			char *output_medium,
+			char *units_converted )
+{
+	CUBIC_FEET *cubic_feet = cubic_feet_calloc();
+
+	if ( !application_name
+	||   !list_length( station_list )
+	||   !datatype_name
+	||   !begin_date_string
+	||   !end_date_string )
+	{
+	}
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	cubic_feet->start_date_julian =
+		cubic_feet_start_date_julian(
+			begin_date_string,
+			days_to_sum );
+
+	cubic_feet->units_display =
+		cubic_feet_units_display(
+			application_name,
+			datatype_name,
+			units_converted );
+
+	cubic_feet->title =
+		cubic_feet_title(
+			station_list,
+			datatype_name );
+
+	cubic_feet->subtitle =
+		cubic_feet_subtitle(
+			begin_date_string,
+			end_date_string,
+			days_to_sum );
+
+	cubic_feet->units_convert_process =
+		cubic_feet_units_convert_process(
+			units_converted );
+
+	cubic_feet->station_list =
+		cubic_feet_station_list(
+			application_name,
+			station_name_list,
+			datatype_name,
+			cubic_feet->start_date_julian,
+			end_date_string,
+			cubic_feet->units_convert_process );
+
+	cubic_feet->hash_table =
+		cubic_feet_hash_table(
+			cubic_feet->start_date_julian,
+			end_date_string );
+
+	cubic_feet->hash_table =
+		cubic_feet_station_total_hash_table(
+			/* ------------------ */
+			/* Returns hash_table */
+			/* ------------------ */
+			cubic_feet->hash_table,
+			cubic_feet->cubic_feet_station_list );
+
+	cubic_feet->total_measurement_list =
+		cubic_feet_total_measurement_list(
+			cubic_feet->hash_table );
+
+	cubic_feet->moving_sum_measurement_list =
+		cubic_feet_moving_sum_measurement_list(
+			days_to_sum,
+			cubic_feet->total_measurement_list );
+			
+	return cubic_feet;
+}
+
+JULIAN *cubic_feet_start_date_julian(
+			char *begin_date_string,
+			int days_to_sum )
+{
+	JULIAN *start_date_julian;
+
+	if ( days_to_sum < 1 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid days_to_sum = %d\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			days_to_sum );
+		exit( 1 );
+	}
+
+	start_date_julian = julian_new_yyyy_mm_dd( begin_date_string );
+	julian_decrement_days( start_date_julian, ( days_to_sum + 1 ) );
+
+	return  start_date_julian;
+}
+
+char *cubic_feet_units_display(
+			char *application_name,
+			char *datatype_name,
+			char *units_converted )
+{
+	return
+		hydrology_library_get_datatype_units_display(
+			application_name,
+			datatype_name,
+			UNITS,
+			units_converted,
+			sum /* aggregate_statistic */ );
+}
+
+char *cubic_feet_title(
+			LIST *station_list,
+			char *datatype_name )
+{
+	char title[ 1024 ];
+
+	sprintf(title,
+		"Cubic Feet Moving Sum<br>%s/%s",
+		list_display_delimited( station_list, ',' ),
+		datatype_name );
+
+	return strdup( title );
+}
+
+char *cubic_feet_subtitle(
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum )
+{
+	char subtitle[ 1024 ];
+
+	sprintf(subtitle,
+		"%d Days From: %s To: %s",
+		days_to_sum,
+		begin_date_string,
+		end_date_string );
+
+	return strdup( subtitle );
+}
+
+char *cubic_feet_units_convert_process(
+			char *units_converted )
+{
+	char units_convert_process[ 1024 ];
+
+	if ( units_converted
+	&&   *units_converted
+	&&   strcmp( units_converted, "units_converted" ) != 0 )
+	{
+		sprintf( units_convert_process,
+			 "measurement_convert_units.e %s %s 1 '%c'",
+			 UNITS,
+			 units_converted,
+			 INPUT_DELIMITER );
+	}
+	else
+	{
+		strcpy( units_convert_process, "cat" );
+	}
+
+	return strdup( units_convert_process );
+}
+
+HASH_TABLE *cubic_feet_hash_table(
+			JULIAN *cubic_feet_start_date_julian,
+			char *cubic_feet_end_date_string )
+{
+	HASH_TABLE *hash_table;
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
+	char *measurement_date;
+	JULIAN *julian;
+
+	if ( !cubic_feet_start_date_julian )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: cubic_feet_start_date_julian is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !cubic_feet_end_date_string
+	||   !date_convert_is_valid_international(
+		cubic_feet_end_date_string ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: cubic_feet_end_date_string is invalid.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	julian =
+		julian_new(
+			cubic_feet_start_date_julian->
+				current );
+
+	hash_table = hash_table_new( hash_table_large );
+
+	while ( 1 )
+	{
+		cubic_feet_measurement =
+			cubic_feet_measurement_new(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				julian_display_yyyy_mm_dd(
+					julian->current ) );
+
+		hash_table_set(
+			hash_table,
+			cubic_feet_measurement->measurement_date, 
+			cubic_feet_measurement );
+
+		if ( strcmp(
+			cubic_feet_measurement->measurement_date,
+			cubic_feet_end_date_string ) == 0 )
+		{
+			break;
+		}
+
+		julian->current =
+			julian_increment_day(
+				julian->current );
+	}
+
+	return hash_table;
+}
+
+HASH_TABLE *cubic_feet_station_total_hash_table(
+			HASH_TABLE *hash_table,
+			LIST *cubic_feet_station_list )
+{
+	CUBIC_FEET_STATION *cubic_feet_station;
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
+	CUBIC_FEET_MEASUREMENT *cubic_feet_station_measurement;
+
+	if ( !hash_table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: hash_table is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( cubic_feet_station_list ) )
+		return hash_table;
+
+	do {
+		cubic_feet_station = list_get( cubic_feet_station_list );
+
+		if ( !list_rewind( cubic_feet_station->measurement_list ) )
+			continue;
+
+		do {
+			cubic_feet_station_measurement =
+				list_get(
+					cubic_feet_station->
+						measurement_list );
+
+			if ( ! ( cubic_feet_measurement =
+					hash_table_get(
+						hash_table,
+						cubic_feet_station_measurement->
+							measurement_date ) ) )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: hash_table_get(%s) returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					cubic_feet_station_measurement->
+						measurement_date );
+				exit( 1 );
+			}
+
+			cubic_feet_measurement->
+				measurement_station_total +=
+					cubic_feet_station_measurement->
+						measurement_daily_average;
+
+		} while ( list_next(
+				cubic_feet_station->
+					measurement_list ) );
+
+	} while ( list_next( cubic_feet_station_list ) );
+
+	return hash_table;
+}
+
+LIST *cubic_feet_total_measurement_list(
+			HASH_TABLE *cubic_feet_station_total_hash_table )
+{
+	LIST *key_list;
+	LIST *measurement_list;
+
+	key_list = hash_table_key_list( cubic_feet_station_total_hash_table );
+
+	if ( !list_rewind( key_list ) ) return (LIST *)0;
+
+	measurement_list = list_new();
+
+	do {
+		list_set(
+			measurement_list,
+			hash_table_get(
+				cubic_feet_station_total_hash_table,
+				list_get( key_list ) ) );
+
+	} while ( list_next( key_list ) );
+
+	return measurement_list;
+}
+
+LIST *cubic_feet_moving_sum_measurement_list(
+			int days_to_sum,
+			LIST *cubic_feet_total_measurement_list )
+{
+}
+
+LIST *cubic_feet_measurement_list( char *system_string )
+{
+	char input_buffer[ 128 ];
+	char measurement_date[ 64 ];
+	char daily_average[ 64 ];
+	FILE *input_pipe = popen( system_string, "r" );
+	LIST *measurement_list = list_new();
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
+
+	while( timlib_get_line( input_buffer, input_pipe, 64 ) )
+	{
+		piece( measurement_date, INPUT_DELIMITER, input_buffer, 0 );
+		piece( daily_average, INPUT_DELIMITER, input_buffer, 1 );
+
+		list_set(
+			measurement_list,
+			( cubic_feet_measurement =
+				cubic_feet_measurement_new(
+					strdup( measurement_date ) ) ) );
+
+		cubic_feet_measurement->measurement_daily_average =
+			atof( daily_average );
+	} 
+
+	pclose( input_pipe );
+
+	return measurement_list;
+}
+
