@@ -20,6 +20,7 @@
 #define VALUE_PIECE		 	1
 #define INPUT_DELIMITER			','
 #define DEFAULT_DAYS_TO_SUM		30
+#define SELECT_LIST			"measurement_date,measurement_value"
 
 typedef struct
 {
@@ -118,7 +119,7 @@ char *cubic_feet_units_display(
 			char *units_converted );
 
 char *cubic_feet_title(
-			LIST *station_list,
+			LIST *station_name_list,
 			char *datatype_name );
 
 char *cubic_feet_subtitle(
@@ -141,10 +142,22 @@ HASH_TABLE *cubic_feet_station_total_hash_table(
 			LIST *cubic_feet_station_list );
 
 LIST *cubic_feet_total_measurement_list(
-			HASH_TABLE *cubic_feet_station_total_hash_table );
+			HASH_TABLE *hash_table );
 
 LIST *cubic_feet_moving_sum_measurement_list(
+			char *begin_date_string,
 			int days_to_sum,
+			LIST *cubic_feet_total_measurement_list,
+			HASH_TABLE *hash_table );
+
+char *cubic_feet_moving_sum_produce(
+			char *begin_date_string,
+			int days_to_sum,
+			LIST *cubic_feet_total_measurement_list );
+
+LIST *cubic_feet_moving_sum_consume(
+			char *temp_filename,
+			HASH_TABLE *hash_table,
 			LIST *cubic_feet_total_measurement_list );
 
 #endif
