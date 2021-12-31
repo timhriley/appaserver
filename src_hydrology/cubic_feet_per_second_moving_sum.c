@@ -42,24 +42,46 @@
 
 #define ROWS_BETWEEN_HEADING			20
 
-void cubic_stdout(	LIST *moving_sum_measurement_list );
+void cubic_stdout(	char *begin_date_string,
+			LIST *moving_sum_measurement_list );
 
 void cubic_table(	char *title,
 			char *subtitle,
+			char *subsubtitle,
 			char *units_display,
+			char *begin_date_string,
 			LIST *moving_sum_measurement_list );
 
-void cubic_text_file(	LIST *moving_sum_measurement_list );
+void cubic_text_file(	char *title,
+			char *subtitle,
+			char *subsubtitle,
+			char *units_display,
+			char *begin_date_string,
+			LIST *moving_sum_measurement_list );
 
 void cubic_spreadsheet(	char *application_name,
 			char *process_name,
 			char *document_root_directory,
+			char *title,
+			char *subtitle,
+			char *subsubtitle,
+			char *units_display,
+			char *begin_date_string,
 			LIST *moving_sum_measurement_list );
 
 void cubic_chart(	char *argv_0,
 			char *application_name,
 			char *role_name,
 			char *document_root_directory,
+			char *title,
+			char *subtitle,
+			char *subsubtitle,
+			char *units_display,
+			LIST *station_name_list,
+			char *datatype_name,
+			char *begin_date_string,
+			char *end_date_string,
+			int days_to_sum,
 			LIST *moving_sum_measurement_list );
 
 boolean cubic_feet_per_second_moving_sum(
@@ -200,9 +222,7 @@ boolean cubic_feet_per_second_moving_sum(
 		return 0;
 	}
 
-	if ( !list_length(
-		cubic_feet->
-			moving_sum_measurement_list ) )
+	if ( !list_length( cubic_feet->moving_sum_measurement_list ) )
 	{
 		return 0;
 	}
@@ -210,8 +230,8 @@ boolean cubic_feet_per_second_moving_sum(
 	if ( strcmp( output_medium, "stdout" ) == 0 )
 	{
 		cubic_stdout(
-			cubic_feet->
-				moving_sum_measurement_list );
+			begin_date_string,
+			cubic_feet->moving_sum_measurement_list );
 	}
 	else
 	if ( strcmp( output_medium, "table" ) == 0 )
@@ -219,48 +239,61 @@ boolean cubic_feet_per_second_moving_sum(
 		cubic_table(
 			cubic_feet->title,
 			cubic_feet->subtitle,
+			cubic_feet->subsubtitle,
 			cubic_feet->units_display,
+			begin_date_string,
 			cubic_feet->
 				moving_sum_measurement_list );
 	}
 	else
 	if ( strcmp( output_medium, "text_file" ) == 0 )
 	{
-/*
 		cubic_text_file(
-			cubic_feet->
-				moving_sum_measurement_list );
-*/
+			cubic_feet->title,
+			cubic_feet->subtitle,
+			cubic_feet->subsubtitle,
+			cubic_feet->units_display,
+			begin_date_string,
+			cubic_feet->moving_sum_measurement_list );
 	}
 	else
 	if ( strcmp( output_medium, "spreadsheet" ) == 0 )
 	{
-/*
 		cubic_spreadsheet(
 			application_name,
 			process_name,
 			document_root_directory,
-			cubic_feet->
-				moving_sum_measurement_list );
-*/
+			cubic_feet->title,
+			cubic_feet->subtitle,
+			cubic_feet->subsubtitle,
+			cubic_feet->units_display,
+			begin_date_string,
+			cubic_feet->moving_sum_measurement_list );
 	}
 	if ( strcmp( output_medium, "chart" ) == 0 )
 	{
-/*
 		cubic_chart(
 			argv_0,
 			application_name,
 			role_name,
 			document_root_directory,
-			cubic_feet->
-				moving_sum_measurement_list );
-*/
+			cubic_feet->title,
+			cubic_feet->subtitle,
+			cubic_feet->subsubtitle,
+			cubic_feet->units_display,
+			station_name_list,
+			datatype_name,
+			begin_date_string,
+			end_date_string,
+			days_to_sum,
+			cubic_feet->moving_sum_measurement_list );
 	}
 
 	return 1;
 }
 
-void cubic_stdout( LIST *moving_sum_measurement_list )
+void cubic_stdout(	char *begin_date_string,
+			LIST *moving_sum_measurement_list )
 {
 	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
 
@@ -272,18 +305,24 @@ void cubic_stdout( LIST *moving_sum_measurement_list )
 			list_get(
 				moving_sum_measurement_list );
 
-		if ( cubic_feet_measurement->moving_sum )
+		if ( strcmp(	cubic_feet_measurement->measurement_date,
+				begin_date_string ) < 0 )
 		{
-			printf( "%s,%.4lf\n",
-				cubic_feet_measurement->measurement_date,
-				cubic_feet_measurement->moving_sum );
+			continue;
 		}
+
+		printf( "%s,%.4lf\n",
+			cubic_feet_measurement->measurement_date,
+			cubic_feet_measurement->moving_sum );
+
 	} while ( list_next( moving_sum_measurement_list ) );
 }
 
 void cubic_table(	char *title,
 			char *subtitle,
+			char *subsubtitle,
 			char *units_display,
+			char *begin_date_string,
 			LIST *moving_sum_measurement_list )
 {
 	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
@@ -292,17 +331,23 @@ void cubic_table(	char *title,
 	char title_buffer[ 128 ];
 	char units_buffer[ 128 ];
 	char number_string[ 32 ];
+	char subtitle_buffer[ 128 ];
 	int count = 0;
 
 	if ( !list_rewind( moving_sum_measurement_list ) )
 		return;
+
+	sprintf(subtitle_buffer,
+		"%s<br>Where %s",
+		subtitle,
+		subsubtitle );
 
 	html_table =
 		html_table_new(
 			format_initial_capital(
 				title_buffer,
 				title ),
-			subtitle,
+			subtitle_buffer,
 			(char *)0 /* sub_sub_title */ );
 
 	heading_list = new_list();
@@ -320,9 +365,10 @@ void cubic_table(	char *title,
 
 	html_table_set_heading_list( html_table, heading_list );
 
-	html_table_output_table_heading(
+	html_table_output_table_heading2(
 		html_table->title,
-		html_table->sub_title );
+		html_table->sub_title,
+		html_table->sub_sub_title );
 
 	html_table_output_data_heading(
 		html_table->heading_list,
@@ -335,7 +381,8 @@ void cubic_table(	char *title,
 			list_get(
 				moving_sum_measurement_list );
 
-		if ( !cubic_feet_measurement->moving_sum )
+		if ( strcmp(	cubic_feet_measurement->measurement_date,
+				begin_date_string ) < 0 )
 		{
 			continue;
 		}
@@ -380,68 +427,73 @@ void cubic_table(	char *title,
 	html_table_close();
 }
 
-#ifdef NOT_DEFINED
-void cubic_text_file(	char *input_system_string,
-			int days_to_sum,
+void cubic_text_file(	char *title,
+			char *subtitle,
+			char *subsubtitle,
 			char *units_display,
-			char *title,
-			char *where_clause )
+			char *begin_date_string,
+			LIST *moving_sum_measurement_list )
 {
-	char buffer[ 512 ];
-	char date_string[ 128 ];
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
 	char value_string[ 128 ];
-	FILE *input_pipe;
 	FILE *output_pipe;
 
 	printf( "<h1>%s</h1>\n", title );
-	printf( "<h2>%s</h2>\n", where_clause );
+	printf( "<h2>%s<br>Where %s</h2>\n", subtitle, subsubtitle );
 	fflush( stdout );
+
+	if ( !list_rewind( moving_sum_measurement_list ) ) return;
 
 	output_pipe = popen( "html_paragraph_wrapper.e", "w" );
 
-	fprintf(	output_pipe,
-			"Date|MovingSum(%d)(%s)\n",
-			days_to_sum,
-			units_display );
+	fprintf(output_pipe,
+		"Date|MovingSum(%s)\n",
+		units_display );
 
-	input_pipe = popen( input_system_string, "r" );
+	do {
+		cubic_feet_measurement =
+			list_get(
+				moving_sum_measurement_list );
 
-	while( get_line( buffer, input_pipe ) )
-	{
-		piece( date_string, INPUT_DELIMITER, buffer, 0 );
-		piece( value_string, INPUT_DELIMITER, buffer, 1 );
+		if ( strcmp(	cubic_feet_measurement->measurement_date,
+				begin_date_string ) < 0 )
+		{
+			continue;
+		}
+
+		sprintf(value_string,
+			"%.4lf",
+			cubic_feet_measurement->moving_sum );
 
 		fprintf( output_pipe,
 			 "%s|%s\n",
-			 date_string,
+			 cubic_feet_measurement->measurement_date,
 			 strdup( place_commas_in_number_string(
 					value_string ) ) );
-	}
 
-	pclose( input_pipe );
+	} while ( list_next( moving_sum_measurement_list ) );
+
 	pclose( output_pipe );
 }
-#endif
 
-#ifdef NOT_DEFINED
 void cubic_spreadsheet(	char *application_name,
-			char *input_system_string,
-			char *units_display,
-			char *title,
-			char *where_clause,
 			char *process_name,
-			char *document_root_directory )
+			char *document_root_directory,
+			char *title,
+			char *subtitle,
+			char *subsubtitle,
+			char *units_display,
+			char *begin_date_string,
+			LIST *moving_sum_measurement_list )
 {
 	char *ftp_filename;
 	char *output_filename;
 	pid_t process_id = getpid();
-	FILE *input_pipe;
-	FILE *output_pipe;
 	FILE *output_file;
-	char output_system_string[ 512 ];
-	char input_buffer[ 1024 ];
-
 	APPASERVER_LINK_FILE *appaserver_link_file;
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
+
+	if ( !list_rewind( moving_sum_measurement_list ) ) return;
 
 	appaserver_link_file =
 		appaserver_link_file_new(
@@ -455,6 +507,8 @@ void cubic_spreadsheet(	char *application_name,
 			process_id,
 			(char *)0 /* session */,
 			"csv" );
+
+	appaserver_link_file->begin_date_string = begin_date_string;
 
 	output_filename =
 		appaserver_link_get_output_filename(
@@ -494,34 +548,33 @@ void cubic_spreadsheet(	char *application_name,
 		document_close();
 		exit( 1 );
 	}
-	else
-	{
-		fclose( output_file );
-	}
 
-	sprintf( output_system_string,
-	 	"tr '|' ',' > %s",
-	 	output_filename );
+	fprintf( output_file, "Date,%s\n", units_display );
 
-	output_pipe = popen( output_system_string, "w" );
+	do {
+		cubic_feet_measurement =
+			list_get(
+				moving_sum_measurement_list );
 
-	fprintf( output_pipe, "Date,%s\n", units_display );
+		if ( strcmp(	cubic_feet_measurement->measurement_date,
+				begin_date_string ) < 0 )
+		{
+			continue;
+		}
 
-	input_pipe = popen( input_system_string, "r" );
+		fprintf(output_file,
+			"%s,%.4lf\n",
+			cubic_feet_measurement->measurement_date,
+			cubic_feet_measurement->moving_sum );
 
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		fprintf(output_pipe,
-			"%s\n",
-			input_buffer );
-	}
+	} while ( list_next( moving_sum_measurement_list ) );
 
-	pclose( input_pipe );
-	pclose( output_pipe );
+	fclose( output_file );
 
-	printf( "<h1>%s</h1><h2>%s</h2>\n",
+	printf( "<h1>%s</h1><h2>%s<br>Where %s</h2>\n",
 		title,
-		where_clause );
+		subtitle,
+		subsubtitle );
 
 	printf( "<h2>\n" );
 	fflush( stdout );
@@ -535,28 +588,25 @@ void cubic_spreadsheet(	char *application_name,
 		(char *)0 /* target */,
 		(char *)0 /* application_type */ );
 }
-#endif
 
-#ifdef NOT_DEFINED
 void cubic_chart(	char *argv_0,
 			char *application_name,
 			char *role_name,
-			char *input_system_string,
-			LIST *station_list,
+			char *document_root_directory,
+			char *title,
+			char *subtitle,
+			char *subsubtitle,
+			char *units_display,
+			LIST *station_name_list,
 			char *datatype_name,
 			char *begin_date_string,
 			char *end_date_string,
 			int days_to_sum,
-			char *units_display,
-			char *title,
-			char *where_clause,
-			char *document_root_directory )
+			LIST *moving_sum_measurement_list )
 {
-	char input_buffer[ 512 ];
 	char graph_title[ 512 ];
 	char graph_sub_title[ 512 ];
 	char buffer1[ 512 ];
-	char date_string[ 128 ];
 	char value_string[ 128 ];
 	GRACE *grace;
 	char graph_identifier[ 128 ];
@@ -565,17 +615,20 @@ void cubic_chart(	char *argv_0,
 	char *postscript_filename;
 	char *output_filename;
 	char *ftp_output_filename;
-	FILE *input_pipe;
 	int page_width_pixels;
 	int page_length_pixels;
 	char *distill_landscape_flag;
 	GRACE_GRAPH *grace_graph;
 	GRACE_DATATYPE *grace_datatype;
 	char grace_string[ 128 ];
+	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
 
-	printf( "<h1>%s</h1><h2>%s</h2>\n",
+	printf( "<h1>%s</h1><h2>%s<br>Where %s</h2>\n",
 		title,
-		where_clause );
+		subtitle,
+		subsubtitle );
+
+	if ( !list_rewind( moving_sum_measurement_list ) ) return;
 
 	sprintf(graph_title,
 		"%d Day Moving Sum",
@@ -583,7 +636,7 @@ void cubic_chart(	char *argv_0,
 
 	sprintf(graph_sub_title,
 		"%s/%s From %s To %s",
-			list_display_delimited( station_list, ',' ),
+			list_display_delimited( station_name_list, ',' ),
 			format_initial_capital( buffer1, datatype_name ),
 			begin_date_string,
 			end_date_string );
@@ -665,12 +718,20 @@ void cubic_chart(	char *argv_0,
 		graph_identifier,
 		grace->grace_output );
 
-	input_pipe = popen( input_system_string, "r" );
+	do {
+		cubic_feet_measurement =
+			list_get(
+				moving_sum_measurement_list );
 
-	while( get_line( input_buffer, input_pipe ) )
-	{
-		piece( date_string, INPUT_DELIMITER, input_buffer, 0 );
-		piece( value_string, INPUT_DELIMITER, input_buffer, 1 );
+		if ( strcmp(	cubic_feet_measurement->measurement_date,
+				begin_date_string ) < 0 )
+		{
+			continue;
+		}
+
+		sprintf(value_string,
+			"%.4lf",
+			cubic_feet_measurement->moving_sum );
 
 		/* -------------------------------------------- */
 		/* Sample grace_string:				*/
@@ -679,7 +740,7 @@ void cubic_chart(	char *argv_0,
 		sprintf( grace_string,
 			 "|%s|%s|%s|1",
 			 datatype_name,
-			 date_string,
+			 cubic_feet_measurement->measurement_date,
 			 value_string );
 
 		grace_set_string_to_point_list(
@@ -694,9 +755,8 @@ void cubic_chart(	char *argv_0,
 			grace->datatype_type_xyhilo,
 			grace->dataset_no_cycle_color,
 			(char *)0 /* optional_label */ );
-	}
 
-	pclose( input_pipe );
+	} while ( list_next( moving_sum_measurement_list ) );
 
 	if ( !grace_set_structures(
 			&page_width_pixels,
@@ -763,4 +823,3 @@ void cubic_chart(	char *argv_0,
 			(char *)0 /* where_clause */ );
 	}
 }
-#endif

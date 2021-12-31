@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make post_edit_table_form output_insert_table_form
+	cd ../src_hydrology
+	make cubic_feet_per_second_moving_sum
 fi
 

@@ -62,7 +62,7 @@ LIST *cubic_feet_station_list(
 			char *application_name,
 			LIST *station_name_list,
 			char *datatype_name,
-			JULIAN *cubic_feet_start_date_julian,
+			char *date_where,
 			char *end_date_string,
 			char *cubic_feet_units_convert_process );
 
@@ -70,7 +70,7 @@ CUBIC_FEET_STATION *cubic_feet_station_new(
 			char *application_name,
 			char *station_name,
 			char *datatype_name,
-			JULIAN *cubic_feet_start_date_julian,
+			char *date_where,
 			char *end_date_string,
 			char *cubic_feet_units_convert_process );
 
@@ -79,18 +79,19 @@ CUBIC_FEET_STATION *cubic_feet_station_new(
 char *cubic_feet_station_where(
 			char *station_name,
 			char *datatype_name,
-			JULIAN *cubic_feet_start_date_julian,
-			char *end_date_string );
+			char *date_where );
 
 typedef struct
 {
 	JULIAN *start_date_julian;
 	char *units_display;
+	char *date_where;
 	char *title;
 	char *subtitle;
+	char *subsubtitle;
 	char *units_convert_process;
 	LIST *station_list;
-	HASH_TABLE *hash_table;
+	HASH_TABLE *measurement_hash_table;
 	LIST *total_measurement_list;
 	LIST *moving_sum_measurement_list;
 } CUBIC_FEET;
@@ -118,6 +119,12 @@ char *cubic_feet_units_display(
 			char *datatype_name,
 			char *units_converted );
 
+/* Returns static memory */
+/* --------------------- */
+char *cubic_feet_date_where(
+			JULIAN *start_date_julian,
+			char *end_date_string );
+
 char *cubic_feet_title(
 			LIST *station_name_list,
 			char *datatype_name );
@@ -127,28 +134,33 @@ char *cubic_feet_subtitle(
 			char *end_date_string,
 			int days_to_sum );
 
+/* Returns date_where */
+/* ------------------ */
+char *cubic_feet_subsubtitle(
+			char *date_where );
+
 char *cubic_feet_units_convert_process(
 			char *units_converted );
 
-HASH_TABLE *cubic_feet_hash_table(
+HASH_TABLE *cubic_feet_measurement_hash_table(
 			JULIAN *cubic_feet_start_date_julian,
 			char *cubic_feet_end_date_string );
 
 HASH_TABLE *cubic_feet_station_total_hash_table(
-			/* ------------------ */
-			/* Returns hash_table */
-			/* ------------------ */
-			HASH_TABLE *hash_table,
+			/* ------------------------------ */
+			/* Returns measurement_hash_table */
+			/* ------------------------------ */
+			HASH_TABLE *measurement_hash_table,
 			LIST *cubic_feet_station_list );
 
 LIST *cubic_feet_total_measurement_list(
-			HASH_TABLE *hash_table );
+			HASH_TABLE *measurement_hash_table );
 
 LIST *cubic_feet_moving_sum_measurement_list(
 			char *begin_date_string,
 			int days_to_sum,
 			LIST *cubic_feet_total_measurement_list,
-			HASH_TABLE *hash_table );
+			HASH_TABLE *measurement_hash_table );
 
 char *cubic_feet_moving_sum_produce(
 			char *begin_date_string,
@@ -157,7 +169,7 @@ char *cubic_feet_moving_sum_produce(
 
 LIST *cubic_feet_moving_sum_consume(
 			char *temp_filename,
-			HASH_TABLE *hash_table,
+			HASH_TABLE *measurement_hash_table,
 			LIST *cubic_feet_total_measurement_list );
 
 #endif

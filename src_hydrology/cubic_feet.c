@@ -106,16 +106,16 @@ LIST *cubic_feet_station_list(
 			char *application_name,
 			LIST *station_name_list,
 			char *datatype_name,
-			JULIAN *cubic_feet_start_date_julian,
+			char *date_where,
 			char *end_date_string,
 			char *cubic_feet_units_convert_process )
 {
 	LIST *station_list;
 
-	if ( !cubic_feet_start_date_julian )
+	if ( !date_where )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: cubic_feet_start_date_julian is empty.\n",
+			"ERROR in %s/%s()/%d: date_where is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -133,7 +133,7 @@ LIST *cubic_feet_station_list(
 				application_name,
 				(char *)list_get( station_name_list ),
 				datatype_name,
-				cubic_feet_start_date_julian,
+				date_where,
 				end_date_string,
 				cubic_feet_units_convert_process ) );
 
@@ -146,7 +146,7 @@ CUBIC_FEET_STATION *cubic_feet_station_new(
 			char *application_name,
 			char *station_name,
 			char *datatype_name,
-			JULIAN *cubic_feet_start_date_julian,
+			char *date_where,
 			char *end_date_string,
 			char *cubic_feet_units_convert_process )
 {
@@ -165,10 +165,10 @@ CUBIC_FEET_STATION *cubic_feet_station_new(
 		exit( 1 );
 	}
 
-	if ( !cubic_feet_start_date_julian )
+	if ( !date_where )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: cubic_feet_start_date_julian is empty.\n",
+			"ERROR in %s/%s()/%d: date_where is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -182,15 +182,7 @@ CUBIC_FEET_STATION *cubic_feet_station_new(
 		cubic_feet_station_where(
 			station_name,
 			datatype_name,
-			cubic_feet_start_date_julian,
-			end_date_string );
-
-fprintf(stderr,
-	"%s/%s()/%d: where = %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-cubic_feet_station->where );
+			date_where );
 
 	cubic_feet_station->measurement_list =
 		cubic_feet_measurement_list(
@@ -206,23 +198,19 @@ cubic_feet_station->where );
 char *cubic_feet_station_where(
 			char *station_name,
 			char *datatype_name,
-			JULIAN *cubic_feet_start_date_julian,
-			char *end_date_string )
+			char *date_where )
 {
 	char where[ 512 ];
 
 	sprintf(where,
- 	"station = '%s' and 				      "
- 	"datatype = '%s' and				      "
-	"measurement_date between '%s' and '%s' 	      ",
+ 		"station = '%s' and	"
+ 		"datatype = '%s' and	"
+		"%s			",
 		station_name,
 		datatype_name,
-		julian_display_yyyy_mm_dd(
-			cubic_feet_start_date_julian->
-				current ),
-		end_date_string );
+		date_where );
 
-	return strdup( where);
+	return strdup( where );
 }
 
 CUBIC_FEET *cubic_feet_calloc( void )
@@ -278,6 +266,14 @@ CUBIC_FEET *cubic_feet_new(
 			datatype_name,
 			units_converted );
 
+	cubic_feet->date_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		cubic_feet_date_where(
+			cubic_feet->start_date_julian,
+			end_date_string );
+
 	cubic_feet->title =
 		cubic_feet_title(
 			station_name_list,
@@ -289,6 +285,13 @@ CUBIC_FEET *cubic_feet_new(
 			end_date_string,
 			days_to_sum );
 
+	cubic_feet->subsubtitle =
+		/* ------------------ */
+		/* Returns date_where */
+		/* ------------------ */
+		cubic_feet_subsubtitle(
+			cubic_feet->date_where );
+
 	cubic_feet->units_convert_process =
 		cubic_feet_units_convert_process(
 			units_converted );
@@ -298,33 +301,33 @@ CUBIC_FEET *cubic_feet_new(
 			application_name,
 			station_name_list,
 			datatype_name,
-			cubic_feet->start_date_julian,
+			cubic_feet->date_where,
 			end_date_string,
 			cubic_feet->units_convert_process );
 
-	cubic_feet->hash_table =
-		cubic_feet_hash_table(
+	cubic_feet->measurement_hash_table =
+		cubic_feet_measurement_hash_table(
 			cubic_feet->start_date_julian,
 			end_date_string );
 
-	cubic_feet->hash_table =
+	cubic_feet->measurement_hash_table =
 		cubic_feet_station_total_hash_table(
-			/* ------------------ */
-			/* Returns hash_table */
-			/* ------------------ */
-			cubic_feet->hash_table,
+			/* ------------------------------ */
+			/* Returns measurement_hash_table */
+			/* ------------------------------ */
+			cubic_feet->measurement_hash_table,
 			cubic_feet->station_list );
 
 	cubic_feet->total_measurement_list =
 		cubic_feet_total_measurement_list(
-			cubic_feet->hash_table );
+			cubic_feet->measurement_hash_table );
 
 	cubic_feet->moving_sum_measurement_list =
 		cubic_feet_moving_sum_measurement_list(
 			begin_date_string,
 			days_to_sum,
 			cubic_feet->total_measurement_list,
-			cubic_feet->hash_table );
+			cubic_feet->measurement_hash_table );
 			
 	return cubic_feet;
 }
@@ -419,11 +422,11 @@ char *cubic_feet_units_convert_process(
 	return strdup( units_convert_process );
 }
 
-HASH_TABLE *cubic_feet_hash_table(
+HASH_TABLE *cubic_feet_measurement_hash_table(
 			JULIAN *cubic_feet_start_date_julian,
 			char *cubic_feet_end_date_string )
 {
-	HASH_TABLE *hash_table;
+	HASH_TABLE *measurement_hash_table;
 	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
 	JULIAN *julian;
 
@@ -454,7 +457,7 @@ HASH_TABLE *cubic_feet_hash_table(
 			cubic_feet_start_date_julian->
 				current );
 
-	hash_table = hash_table_new( hash_table_large );
+	measurement_hash_table = hash_table_new( hash_table_large );
 
 	while ( 1 )
 	{
@@ -467,7 +470,7 @@ HASH_TABLE *cubic_feet_hash_table(
 					julian->current ) );
 
 		hash_table_set(
-			hash_table,
+			measurement_hash_table,
 			cubic_feet_measurement->measurement_date, 
 			cubic_feet_measurement );
 
@@ -483,21 +486,21 @@ HASH_TABLE *cubic_feet_hash_table(
 				julian->current );
 	}
 
-	return hash_table;
+	return measurement_hash_table;
 }
 
 HASH_TABLE *cubic_feet_station_total_hash_table(
-			HASH_TABLE *hash_table,
+			HASH_TABLE *measurement_hash_table,
 			LIST *cubic_feet_station_list )
 {
 	CUBIC_FEET_STATION *cubic_feet_station;
 	CUBIC_FEET_MEASUREMENT *cubic_feet_measurement;
 	CUBIC_FEET_MEASUREMENT *cubic_feet_station_measurement;
 
-	if ( !hash_table )
+	if ( !measurement_hash_table )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: hash_table is empty.\n",
+		"ERROR in %s/%s()/%d: measurement_hash_table is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -505,7 +508,7 @@ HASH_TABLE *cubic_feet_station_total_hash_table(
 	}
 
 	if ( !list_rewind( cubic_feet_station_list ) )
-		return hash_table;
+		return measurement_hash_table;
 
 	do {
 		cubic_feet_station = list_get( cubic_feet_station_list );
@@ -521,7 +524,7 @@ HASH_TABLE *cubic_feet_station_total_hash_table(
 
 			if ( ! ( cubic_feet_measurement =
 					hash_table_get(
-						hash_table,
+						measurement_hash_table,
 						cubic_feet_station_measurement->
 							measurement_date ) ) )
 			{
@@ -546,18 +549,18 @@ HASH_TABLE *cubic_feet_station_total_hash_table(
 
 	} while ( list_next( cubic_feet_station_list ) );
 
-	return hash_table;
+	return measurement_hash_table;
 }
 
 LIST *cubic_feet_total_measurement_list(
-			HASH_TABLE *cubic_feet_station_total_hash_table )
+			HASH_TABLE *measurement_hash_table )
 {
 	LIST *key_list;
 	LIST *measurement_list;
 
 	key_list =
 		hash_table_ordered_key_list(
-			cubic_feet_station_total_hash_table );
+			measurement_hash_table );
 
 	if ( !list_rewind( key_list ) ) return (LIST *)0;
 
@@ -567,7 +570,7 @@ LIST *cubic_feet_total_measurement_list(
 		list_set(
 			measurement_list,
 			hash_table_get(
-				cubic_feet_station_total_hash_table,
+				measurement_hash_table,
 				list_get( key_list ) ) );
 
 	} while ( list_next( key_list ) );
@@ -608,7 +611,7 @@ LIST *cubic_feet_moving_sum_measurement_list(
 			char *begin_date_string,
 			int days_to_sum,
 			LIST *cubic_feet_total_measurement_list,
-			HASH_TABLE *hash_table )
+			HASH_TABLE *measurement_hash_table )
 {
 	char *temp_filename;
 
@@ -621,7 +624,7 @@ LIST *cubic_feet_moving_sum_measurement_list(
 	return 
 	cubic_feet_moving_sum_consume(
 		temp_filename,
-		hash_table,
+		measurement_hash_table,
 		cubic_feet_total_measurement_list );
 }
 
@@ -640,7 +643,7 @@ char *cubic_feet_moving_sum_produce(
 		getpid() );
 
 	sprintf(system_string,
-		"moving_average.e %d '%c' sum %s > %s",
+		"moving_average.e %d '%c' average %s > %s",
 		days_to_sum,
 		INPUT_DELIMITER,
 		begin_date_string,
@@ -672,7 +675,7 @@ char *cubic_feet_moving_sum_produce(
 
 LIST *cubic_feet_moving_sum_consume(
 			char *temp_filename,
-			HASH_TABLE *hash_table,
+			HASH_TABLE *measurement_hash_table,
 			LIST *cubic_feet_total_measurement_list )
 {
 	FILE *input_file;
@@ -699,7 +702,7 @@ LIST *cubic_feet_moving_sum_consume(
 
 		if ( ! ( cubic_feet_measurement =
 				hash_table_get(
-					hash_table,
+					measurement_hash_table,
 					measurement_date ) ) )
 		{
 			fprintf(stderr,
@@ -719,5 +722,25 @@ LIST *cubic_feet_moving_sum_consume(
 	fclose( input_file );
 
 	return cubic_feet_total_measurement_list;
+}
+
+char *cubic_feet_date_where(
+			JULIAN *start_date_julian,
+			char *end_date_string )
+{
+	static char date_where[ 128 ];
+
+	sprintf(date_where,
+		"measurement_date between '%s' and '%s'",
+		julian_display_yyyy_mm_dd(
+			start_date_julian->current ),
+		end_date_string );
+
+	return date_where;
+}
+
+char *cubic_feet_subsubtitle( char *date_where )
+{
+	return date_where;
 }
 
