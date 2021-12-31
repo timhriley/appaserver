@@ -311,7 +311,7 @@ void cubic_stdout(	char *begin_date_string,
 			continue;
 		}
 
-		printf( "%s,%.4lf\n",
+		printf( "%s,%.3lf\n",
 			cubic_feet_measurement->measurement_date,
 			cubic_feet_measurement->moving_sum );
 
@@ -393,7 +393,7 @@ void cubic_table(	char *title,
 					measurement_date ) );
 
 		sprintf(number_string,
-			"%.4lf",
+			"%.3lf",
 			cubic_feet_measurement->moving_sum );
 
 		html_table_set_data(
@@ -462,7 +462,7 @@ void cubic_text_file(	char *title,
 		}
 
 		sprintf(value_string,
-			"%.4lf",
+			"%.3lf",
 			cubic_feet_measurement->moving_sum );
 
 		fprintf( output_pipe,
@@ -563,7 +563,7 @@ void cubic_spreadsheet(	char *application_name,
 		}
 
 		fprintf(output_file,
-			"%s,%.4lf\n",
+			"%s,%.3lf\n",
 			cubic_feet_measurement->measurement_date,
 			cubic_feet_measurement->moving_sum );
 
@@ -730,7 +730,7 @@ void cubic_chart(	char *argv_0,
 		}
 
 		sprintf(value_string,
-			"%.4lf",
+			"%.3lf",
 			cubic_feet_measurement->moving_sum );
 
 		/* -------------------------------------------- */

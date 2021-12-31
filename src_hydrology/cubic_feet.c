@@ -659,7 +659,7 @@ char *cubic_feet_moving_sum_produce(
 					cubic_feet_total_measurement_list );
 
 			fprintf(output_pipe,
-				"%s%c%.4lf\n",
+				"%s%c%.3lf\n",
 				cubic_feet_measurement->measurement_date,
 				INPUT_DELIMITER,
 				cubic_feet_measurement->
