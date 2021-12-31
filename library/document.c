@@ -65,6 +65,16 @@ DOCUMENT *document_new(	char *application_name,
 			       folder_attribute_date_name_list_length ),
 			document_head_javascript_include_string() );
 
+	if ( !document->document_head )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: document_head_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	/* Returns program memory */
 	/* ---------------------- */
 	document->type_string = document_type_string();
@@ -74,9 +84,9 @@ DOCUMENT *document_new(	char *application_name,
 	document->standard_string = document_standard_string();
 
 	document->html =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		document_html(
 			document->type_string,
 			document->standard_string );
@@ -615,6 +625,9 @@ DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
 	DOCUMENT_CHOOSE_ISA *document_choose_isa = document_choose_isa_calloc();
 
 	document_choose_isa->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		document_new(
 			application_name,
 			application_title_string( application_name ),
@@ -742,21 +755,14 @@ DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
 		document_body_choose_isa_calloc();
 
 	document_body_choose_isa->document_body =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		document_body_new(
 			menu,
 			menu_boolean,
 			choose_isa_title_string,
 			(char *)0 /* javascript_replace */ );
-
-	if ( !document_body_choose_isa->document_body )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: document_body_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 
 	document_body_choose_isa->form_choose_isa =
 		form_choose_isa_new(
@@ -868,13 +874,64 @@ char *document_choose_isa_html(
 
 DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_calloc( void )
 {
+	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role;
+
+	if ( ! ( document_choose_role =
+			calloc( 1, sizeof( DOCUMENT_BODY_CHOOSE_ROLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_body_choose_role;
 }
 
 DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
-			char *choose_title_title_string,
+			char *choose_role_title_string,
 			LIST *role_name_list,
-			char *choose_role_post_action_string )
+			char *choose_role_post_action_string,
+			char *choose_role_target_frame )
 {
+	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role =
+		document_body_choose_role_calloc();
+
+	document_body_choose_role->document_body =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_body_new(
+			(MENU *)0,
+			0 /* not menu_boolean */,
+			choose_role_title_string,
+			(char *)0 /* javascript_replace */ );
+
+	if ( ! ( document_body_choose_role->form_choose_role =
+			form_choose_role_new(
+				role_name_list,
+				choose_role_post_action_string ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: form_choose_role_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (DOCUMENT_BODY_CHOOSE_ROLE *)0;
+	}
+
+	document_body_choose_role->html =
+		document_body_choose_role_html(
+			document_body_choose_role->document_body->html,
+			document_body_choose_role->form_choose_role->html,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_body_close_html() );
+
+	return document_body_choose_role;
 }
 
 char *document_body_choose_role_html(
@@ -882,18 +939,93 @@ char *document_body_choose_role_html(
 			char *form_choose_role_html,
 			char *document_body_close_html )
 {
+	char html[ 65536 ];
+
+	if ( !document_body_html
+	||   !form_choose_role_html
+	||   !document_body_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s",
+		document_body_html,
+		form_choose_role_html,
+		document_body_close_html );
+
+	return strdup( html );
 }
 
 DOCUMENT_CHOOSE_ROLE *document_choose_role_calloc( void )
 {
+	DOCUMENT_CHOOSE_ROLE *document_choose_role;
+
+	if ( ! ( document_choose_role =
+			calloc( 1, sizeof( DOCUMENT_CHOOSE_ROLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_choose_role;
 }
 
 DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
 			char *application_name,
 			char *choose_role_title_string,
 			LIST *role_name_list,
-			char *choose_role_post_action_string )
+			char *choose_role_post_action_string,
+			char *choose_role_target_frame )
 {
+	DOCUMENT_CHOOSE_ROLE *document_choose_role =
+		document_choose_role_calloc();
+
+	document_choose_role->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			application_title_string( application_name ),
+			0 /* not menu_boolean */,
+			0 /* folder_attribute_date_name_list_length */ );
+
+	document_choose_role->document_body_choose_role =
+		document_body_choose_role_new(
+			choose_role_title_string,
+			role_name_list,
+			choose_role_post_action_string,
+			choose_role_target_frame );
+
+	if ( !document_choose_role->document_body_choose_role )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: document_body_choose_role_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	document_choose_role->html =
+		document_choose_role->document->html,
+		document_choose_role->document_body_choose_role->html,
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_close_html() );
+
+	return document_choose_role;
 }
 
 char *document_choose_role_html(

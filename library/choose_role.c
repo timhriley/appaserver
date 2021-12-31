@@ -10,7 +10,6 @@
 #include "boolean.h"
 #include "String.h"
 #include "appaserver_user.h"
-#include "document.h"
 #include "choose_role.h"
 
 CHOOSE_ROLE *choose_role_calloc( void )
@@ -32,7 +31,7 @@ CHOOSE_ROLE *choose_role_calloc( void )
 
 char *choose_role_title_string( char *login_name )
 {
-	char title[ 256 ];
+	static char title[ 256 ];
 	char buffer[ 128 ];
 
 	if ( !login_name )
@@ -46,14 +45,14 @@ char *choose_role_title_string( char *login_name )
 	}
 
 	sprintf(title,
-		"%s choose role for  %s",
+		"%s choose role for %s",
 		application_title_string(
 			environment_application_name() ),
 		string_initial_capital(
 			buffer,
 			login_name ) );
 
-	return strdup( title );
+	return title;
 }
 
 char *choose_role_post_action_string(
@@ -98,10 +97,20 @@ char *choose_role_document_html(
 {
 }
 
+char *choose_role_target_frame(
+			boolean frameset_menu_horizontal )
+{
+	if ( !frameset_menu_horizontal )
+		return FRAMESET_MENU_FRAME
+	else
+		return FRAMESET_PROMPT_FRAME
+}
+
 CHOOSE_ROLE *choose_role_prompt_new(
 			char *application_name,
 			char *session_key,
-			char *login_name )
+			char *login_name,
+			boolean frameset_menu_horizontal )
 {
 	CHOOSE_ROLE *choose_role = choose_role_calloc();
 
@@ -113,20 +122,49 @@ CHOOSE_ROLE *choose_role_prompt_new(
 			login_name );
 
 	choose_role->post_action_string =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		choose_role_post_action_string(
 			application_name,
 			session_key,
 			login_name );
+
+	choose_role->target_frame =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		choose_role_target_frame(
+			frameset_menu_horizontal );
 
 	choose_role->document_choose_role =
 		document_choose_role_new(
 			application_name,
 			choose_role->title_string,
 			appaserver_user_role_name_list( login_name ),
-			choose_role->post_action_string );
+			choose_role->post_action_string,
+			choose_role->target_frame );
+
+	if ( !choose_role->document_choose_role )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: document_choose_role_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	choose_role->html =
+		choose_role_html(
+			choose_role->
+				document_choose_role->
+				html );
 
 	return choose_role;
+}
+
+char *choose_role_html( char *document_choose_role_html )
+{
+	return document_choose_role_html;
 }

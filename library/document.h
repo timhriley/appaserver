@@ -108,6 +108,8 @@ typedef struct
 DOCUMENT_BODY *document_body_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 DOCUMENT_BODY *document_body_new(
 			MENU *menu,
 			boolean menu_boolean,
@@ -201,8 +203,8 @@ void document_quick_output(
 void document_begin(	FILE *output_stream,
 			DOCUMENT *document );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *document_html(
 			char *type_string,
 			char *standard_string );
@@ -294,9 +296,10 @@ DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_calloc(
 			void );
 
 DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
-			char *choose_title_title_string,
+			char *choose_role_title_string,
 			LIST *role_name_list,
-			char *choose_role_post_action_string );
+			char *choose_role_post_action_string,
+			char *choose_role_target_frame );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -323,7 +326,8 @@ DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
 			char *application_name,
 			char *choose_role_title_string,
 			LIST *role_name_list,
-			char *choose_role_post_action_string );
+			char *choose_role_post_action_string,
+			char *choose_role_target_frame );
 
 /* Returns heap memory */
 /* ------------------- */

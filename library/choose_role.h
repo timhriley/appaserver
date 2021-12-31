@@ -25,38 +25,46 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
-	char *post_action_string;
 	char *title_string;
+	char *post_action_string;
 	DOCUMENT_CHOOSE_ROLE *document_choose_role;
-	char *document_html;
+	char *html;
 } CHOOSE_ROLE;
 
-/* Prompt operations */
-/* ----------------- */
+/* CHOOSE_ROLE prompt operations */
+/* ----------------------------- */
 CHOOSE_ROLE *choose_role_calloc(
 			void );
 
 CHOOSE_ROLE *choose_role_prompt_new(
 			char *application_name,
 			char *session_key,
-			char *login_name );
+			char *login_name,
+			boolean frameset_menu_horizontal );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *choose_role_title_string(
 			char *login_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *choose_role_post_action_string(
 			char *application_name,
 			char *session_key,
 			char *login_name );
 
-char *choose_role_document_html(
-			DOCUMENT_CHOOSE_ROLE *document_choose_role );
+/* Returns program memory */
+/* ---------------------- */
+char *choose_role_target_frame(
+			boolean frameset_menu_horizontal );
 
-/* Post operations */
-/* --------------- */
+/* Returns document_choose_role_html */
+/* --------------------------------- */
+char *choose_role_html(
+			char *document_choose_role_html );
+
+/* CHOOSE_ROLE post operations */
+/* --------------------------- */
 
 #endif
