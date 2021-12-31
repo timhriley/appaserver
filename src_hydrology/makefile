@@ -731,7 +731,8 @@ daily_moving_statistic_output: daily_moving_statistic_output.c		\
 
 cubic_feet_per_second_moving_sum: cubic_feet_per_second_moving_sum.c	\
 		${EXTERNAL_LIBS} ${SOURCE_LIBS}				\
-		${LIBRARY}/grace.o
+		${LIBRARY}/grace.o					\
+		cubic_feet.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
@@ -739,6 +740,7 @@ cubic_feet_per_second_moving_sum: cubic_feet_per_second_moving_sum.c	\
 		${STANDARD_LIBRARY} 					\
 		cubic_feet_per_second_moving_sum.c			\
 		${LIBRARY}/grace.o					\
+		cubic_feet.o						\
 		-o cubic_feet_per_second_moving_sum
 
 merged_datasets_output: merged_datasets_output.c			\
@@ -1756,4 +1758,9 @@ spreadsheet.o: spreadsheet.c spreadsheet.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		-c spreadsheet.c
+
+cubic_feet.o: cubic_feet.c cubic_feet.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		-c cubic_feet.c
 
