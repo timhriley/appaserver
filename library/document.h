@@ -100,7 +100,7 @@ typedef struct
 	char *hide_preload_html;
 	char *horizontal_menu_html;
 	char *title_html;
-	char *open_html;
+	char *html;
 } DOCUMENT_BODY;
 
 /* DOCUMENT_BODY operations */
@@ -134,7 +134,7 @@ char *document_body_hide_preload_html(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *document_body_menu_horizontal_html(
+char *document_body_horizontal_menu_html(
 			char *hide_preload_html,
 			MENU *menu,
 			boolean menu_boolean );
@@ -144,7 +144,9 @@ char *document_body_menu_horizontal_html(
 char *document_body_title_html(
 			char *document_title );
 
-char *document_body_open_html(
+/* Returns heap memory */
+/* ------------------- */
+char *document_body_html(
 			char *tag,
 			char *horizontal_menu_html,
 			char *title_html );
@@ -365,15 +367,23 @@ DOCUMENT_EDIT_TABLE *document_edit_table_calloc(
 			void );
 
 DOCUMENT_EDIT_TABLE *document_edit_table_new(
+			char *application_name,
+			char *folder_name,
 			char *edit_table_title,
 			char *edit_table_subtitle_html,
 			MENU *menu,
 			boolean menu_boolean,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *edit_table_heading_list,
 			char *javascript_replace,
 			SECURITY_ENTITY *security_entity );
+
+/* To be retired */
+/* ------------- */
+void document_output_html_stream(
+			FILE *output_stream );
 
 #endif

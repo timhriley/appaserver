@@ -1863,6 +1863,7 @@ GOOGLE_OUTPUT_CHART *google_chart_unit_output_chart(
 
 }
 
+#ifdef NOT_DEFINED
 void google_chart_output_all_charts(
 			FILE *output_file,
 			LIST *output_chart_list,
@@ -1976,6 +1977,93 @@ void google_chart_output_all_charts(
 		/* ---------------------- */
 		document_close_html() );
 }
+#endif
+
+
+void google_chart_output_all_charts(
+			FILE *output_file,
+			LIST *output_chart_list,
+			char *title,
+			char *sub_title,
+			char *stylesheet )
+{
+
+	GOOGLE_OUTPUT_CHART *google_chart;
+
+	document_output_html_stream( output_file );
+
+	fprintf( output_file, "<head>\n" );
+
+	google_chart_include( output_file );
+
+	if ( stylesheet && *stylesheet )
+	{
+		fprintf( output_file,
+			 "<link rel=stylesheet type=text/css href=\"%s\">\n",
+			 stylesheet );
+	}
+
+	fprintf( output_file, "</head>\n" );
+
+	fprintf( output_file, "<body>\n" );
+
+	if ( title && *title )
+	{
+		fprintf( output_file, "<h1>%s</h1>\n", title );
+	}
+
+	if ( sub_title && *sub_title )
+	{
+		fprintf( output_file, "<h2>%s</h2>\n", sub_title );
+	}
+
+	if ( list_rewind( output_chart_list ) )
+	{
+		do {
+			google_chart = list_get_pointer( output_chart_list );
+
+			google_chart_output_visualization_non_annotated(
+				output_file,
+				google_chart->google_chart_type,
+				google_chart->timeline_list,
+				google_chart->barchart_list,
+				google_chart->datatype_name_list,
+				(char *)0 /* chart_title */,
+				google_chart->yaxis_label,
+				google_chart->width,
+				google_chart->height,
+				google_chart->background_color,
+				google_chart->legend_position_bottom,
+				0 /* not chart_type_bar */,
+				google_chart->google_package_name,
+				0 /* not dont_display_range_selector */,
+				aggregate_level_none,
+				google_chart->chart_number );
+
+			google_chart_float_chart(
+				output_file,
+				(char *)0 /* chart_title */,
+				google_chart->width,
+				google_chart->height,
+				google_chart->chart_number );
+
+			fprintf( output_file, "<br>\n" );
+			fprintf( output_file, "<hr>\n" );
+			fprintf( output_file, "<br>\n" );
+
+			google_chart_output_chart_instantiation(
+				output_file,
+				google_chart->chart_number );
+
+		} while( list_next( output_chart_list ) );
+
+	} /* if list_rewind() */
+
+	fprintf( output_file, "</body>\n" );
+	fprintf( output_file, "</html>\n" );
+
+}
+
 
 void google_chart_output_graph_window(
 			char *application_name,
