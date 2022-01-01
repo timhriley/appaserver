@@ -23,9 +23,9 @@ content_type_cgi.sh
 
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 4 ]
+if [ "$#" -ne 5 ]
 then
-	echo "Usage: $0 process_name as_of_date institution_full_name institution_street_address" 1>&2
+	echo "Usage: $0 process_name as_of_date institution_full_name institution_street_address investment_purpose" 1>&2
 	exit 1
 fi
 
@@ -39,6 +39,7 @@ fi
 
 institution_full_name=$3
 street_address=$4
+investment_purpose=$5
 
 if [ "$institution_full_name" = "" -o "$institution_full_name" = "full_name" ]
 then
@@ -47,10 +48,18 @@ else
 	institution_where="full_name = '$institution_full_name' and street_address = '$street_address'"
 fi
 
-heading="institution_full_name, account_number, As Of Date, Book Value, Certificate Maturity"
-justification="left, left, left, right, left"
+if [ "$investment_purpose" = "" -o "$investment_purpose" = "investment_purpose" ]
+then
+	investment_purpose_where="1 = 1"
+else
+	investment_purpose_where="investment_purpose = '$investment_purpose'"
+fi
 
-account_process='echo "select full_name, street_address, account_number, certificate_maturity_date from investment_account where $institution_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
+
+heading="institution_full_name, account_number, As Of Date, Book Value, Certificate Maturity, Investment Purpose"
+justification="left, left, left, right, left, left"
+
+account_process='echo "select full_name, street_address, account_number, certificate_maturity_date, investment_purpose from investment_account where $institution_where and $investment_purpose_where order by full_name, street_address, certificate_maturity_date;" | sql "^"'
 
 (
 eval $account_process						|
@@ -60,8 +69,9 @@ do
 	street_address=`echo $record | piece.e '^' 1`
 	account_number=`echo $record | piece.e '^' 2`
 	certificate_maturity_date=`echo $record | piece.e '^' 3`
+	investment_purpose=`echo $record | piece.e '^' 4`
 
-	select="full_name, account_number, date, balance, '$certificate_maturity_date'"
+	select="full_name, account_number, date, balance, '$certificate_maturity_date', '$investment_purpose'"
 	from="account_balance"
 	where="full_name = '$institution_full_name' and street_address = '$street_address' and account_number = '$account_number' and date <= '$as_of_date 23:59:59'"
 	order="date desc"
