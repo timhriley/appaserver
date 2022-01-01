@@ -143,7 +143,9 @@ CHOOSE_ROLE *choose_role_prompt_new(
 			choose_role->title_string,
 			appaserver_user_role_name_list( login_name ),
 			choose_role->post_action_string,
-			choose_role->target_frame );
+			choose_role->target_frame,
+			CHOOSE_ROLE_FORM_NAME,
+			CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME );
 
 	if ( !choose_role->document_choose_role )
 	{

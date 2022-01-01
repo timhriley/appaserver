@@ -15,6 +15,8 @@
 
 /* Constants */
 /* --------- */
+#define CHOOSE_ROLE_FORM_NAME			"choose_role_form"
+#define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
 
 /* Enumerated types */
 /* ---------------- */

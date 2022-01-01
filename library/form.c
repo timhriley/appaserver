@@ -317,6 +317,7 @@ LIST *form_choose_isa_element_list(
 
 	element->drop_down =
 		element_drop_down_new(
+			(char *)0 /* name */,
 			primary_key_list /* attribute_name_list */,
 			delimited_list,
 			no_initial_capital,
@@ -662,9 +663,10 @@ LIST *form_choose_isa_button_element_list( void )
 
 	list_set(
 		element_list,
-		appaserver_element_new(
-			table_open,
-			(char *)0 /* element_name */ ) );
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -672,7 +674,8 @@ LIST *form_choose_isa_button_element_list( void )
 
 	list_set(
 		element_list,
-		( element = appaserver_element_new(
+		( element =
+			appaserver_element_new(
 				table_row,
 				(char *)0 /* element_name */ ) ) );
 
@@ -800,40 +803,6 @@ LIST *form_choose_isa_button_element_list( void )
 	return element_list;
 }
 
-void form_prompt_isa_output(
-			FILE *output_stream,
-			char *title_html,
-			char *message_html,
-			char *form_tag_html,
-			LIST *element_list,
-			LIST *button_list )
-{
-	fprintf( output_stream, "%s\n", title_html );
-	fprintf( output_stream, "%s\n", message_html );
-
-	/* Open table then form */
-	/* -------------------- */
-	fprintf( output_stream, "<table border=0>\n" );
-	fprintf( output_stream, "%s\n", form_tag_html );
-
-	appaserver_element_list_output(
-		output_stream,
-		element_list );
-
-	fprintf(output_stream,
-		"%s\n",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		button_list_html(
-			button_list ) );
-
-	/* Close form then table */
-	/* --------------------- */
-	fprintf( output_stream, "</form>\n" );
-	fprintf( output_stream, "</table>\n" );
-}
-
 char *form_table_row_background_color( void )
 {
 	static int cycle_count = 0;
@@ -908,7 +877,6 @@ FORM_EDIT_TABLE *form_edit_table_new(
 
 	form_edit_table->top_button_element_list =
 		form_edit_table_button_element_list(
-			edit_table_submit_action_string,
 			javascript_replace,
 			0 /* dictionary_list_length */ );
 
@@ -924,7 +892,6 @@ FORM_EDIT_TABLE *form_edit_table_new(
 
 	form_edit_table->bottom_button_element_list =
 		form_edit_table_button_element_list(
-			edit_table_submit_action_string,
 			javascript_replace,
 			dictionary_list_length );
 
@@ -992,33 +959,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 	return form_edit_table;
 }
 
-char *form_edit_table_tag(
-			char *edit_table_submit_action_string,
-			char *target_frame )
-{
-	char tag[ 1024 ];
-
-	if ( !edit_table_submit_action_string
-	||   !target_frame )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(tag,
-"<form enctype=\"multipart/form-data\" method=post action=\"%s\" target=\"%s\">",
-		edit_table_submit_action_string,
-		target_frame );
-
-	return strdup( tag );
-}
-
 LIST *form_edit_table_button_element_list(
-			char *edit_table_submit_action_string,
 			char *javascript_replace,
 			int dictionary_list_length )
 {
@@ -1027,7 +968,7 @@ LIST *form_edit_table_button_element_list(
 
 	list_set(
 		element_list,
-		( elemement =
+		( element =
 			appaserver_element_new(
 				table_open,
 				(char *)0 /* element_name */ ) ) );
@@ -1201,7 +1142,6 @@ LIST *form_edit_table_sort_checkbox_element_list(
 {
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
-	char *heading;
 	char element_name[ 128 ];
 	char action_string[ 128 ];
 	int i;
@@ -1245,7 +1185,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	do {
 		sprintf(element_name,
 			"%s%s%s",
-			SORT_CHECKBOX_PREFIX,
+			DICTIONARY_SEPARATE_SORT_PREFIX,
 			FORM_SORT_ASSEND_LABEL,
 			(char *)list_get( edit_table_heading_list ) );
 
@@ -1298,7 +1238,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	do {
 		sprintf(element_name,
 			"%s%s%s",
-			SORT_CHECKBOX_PREFIX,
+			DICTIONARY_SEPARATE_SORT_PREFIX,
 			FORM_SORT_DESCEND_LABEL,
 			(char *)list_get( edit_table_heading_list ) );
 
@@ -1412,3 +1352,240 @@ LIST *form_edit_table_heading_element_list(
 	return (LIST *)0;
 }
 
+FORM_CHOOSE_ROLE *form_choose_role_calloc( void )
+{
+	FORM_CHOOSE_ROLE *form_choose_role;
+
+	if ( ! ( form_choose_role = calloc( 1, sizeof( FORM_CHOOSE_ROLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_choose_role;
+}
+
+FORM_CHOOSE_ROLE *form_choose_role_new(
+			LIST *role_name_list,
+			char *post_action_string,
+			char *target_frame,
+			char *form_name,
+			char *drop_down_element_name )
+{
+	FORM_CHOOSE_ROLE *form_choose_role = form_choose_role_calloc();
+
+	form_choose_role->tag_html =
+		form_tag_html(
+			form_name,
+			post_action_string,
+			target_frame );
+
+	form_choose_role->drop_down_onchange_javascript =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		form_choose_role_drop_down_onchange_javascript(
+			form_name );
+
+	form_choose_role->element_list =
+		form_choose_role_element_list(
+			role_name_list,
+			form_choose_role->drop_down_onchange_javascript,
+			drop_down_element_name );
+
+	if ( !list_length( form_choose_role->element_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: form_choose_role_element_list() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_choose_role->html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		form_choose_role_html(
+			form_choose_role->tag_html,
+			form_choose_role->element_list,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			form_close_tag_html() );
+
+	if ( !form_choose_role->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: form_choose_role_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_choose_role;
+}
+
+char *form_choose_role_drop_down_onchange_javascript(
+			char *form_name )
+{
+	static char onchange_javascript[ 128 ];
+
+	if ( !form_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: form_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(onchange_javascript,
+		"%s.submit()",
+		form_name );
+
+	return onchange_javascript;
+}
+
+LIST *form_choose_role_element_list(
+			LIST *role_name_list,
+			char *drop_down_onchange_javascript,
+			char *drop_down_element_name )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	/* Create a table */
+	/* -------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_open->html = element_table_open_html();
+
+	/* Create a table row */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	element->table_row->html = element_table_row_html();
+
+	/* Create a drop-down */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				drop_down,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->drop_down );
+
+	element->drop_down =
+		element_drop_down_new(
+			drop_down_element_name,
+			(LIST *)0 /* attribute_name_list */,
+			role_name_list /* delimited_list */,
+			0 /* not no_initial_capital */,
+			0 /* not output_null_option */,
+			0 /* not output_not_null_option */,
+			0 /* not output_select_option */,
+			1 /* column_span */,
+			element_drop_down_size(
+				list_length(
+					role_name_list ) ),
+			-1 /* tab order */,
+			0 /* not multi_select */,
+			drop_down_onchange_javascript
+				/* post_change_javascript */,
+			(char *)0 /* state */ );
+
+	/* Close the table */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_close->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_close_html();
+
+	return element_list;
+}
+
+char *form_choose_role_html(
+			char *tag_html,
+			LIST *element_list,
+			char *form_close_tag_html )
+{
+	char html[ 65536 ];
+	char *element_list_html;
+
+	if ( !tag_html
+	||   !list_length( element_list )
+	||   !form_close_tag_html )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
+
+	if ( ! ( element_list_html =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_list_html(
+				(char *)0 /* background_color */,
+				(char *)0 /* state */,
+				0 /* row_number */,
+				element_list ) ) )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s",
+		tag_html,
+		element_list_html,
+		form_close_tag_html );
+
+	free( element_list_html );
+
+	return strdup( html );
+}
+
+char *form_close_tag_html( void )
+{
+	return "</form>";
+}

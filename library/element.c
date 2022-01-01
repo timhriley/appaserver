@@ -1017,6 +1017,7 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 }
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
+			char *name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
@@ -1032,6 +1033,7 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
+	element_drop_down->name = name;
 	element_drop_down->attribute_name_list = attribute_name_list;
 	element_drop_down->delimited_list = delimited_list;
 	element_drop_down->no_initial_capital = no_initial_capital;
@@ -1120,7 +1122,14 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 
 	element_multi_drop_down->original_drop_down =
 		element_drop_down_new(
-			attribute_name_list,
+			strdup(
+			    /* --------------------- */
+			    /* Returns static memory */
+			    /* --------------------- */
+			    element_multi_drop_down_original_name(
+			    	attribute_name_list,
+			    	ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX ) ),
+			(LIST *)0 /* attribute_name_list */,
 			delimited_list,
 			no_initial_capital,
 			0 /* not output_null_option */,
@@ -1132,17 +1141,6 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			1 /* multi_select */,
 			(char *)0 /* post_change_javascript */,
 			(char *)0 /* state */ );
-
-	/* Override element_drop_down_html() */
-	/* --------------------------------- */
-	element_multi_drop_down->original_drop_down->name =
-		strdup(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			element_multi_drop_down_original_name(
-				attribute_name_list,
-				ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX ) );
 
 	element_multi_drop_down->table_data =
 		element_table_data_calloc();
@@ -1749,14 +1747,16 @@ char *appaserver_element_html(
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_drop_down_html(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			element_drop_down_name(
-				appaserver_element->
-					drop_down->
-					attribute_name_list,
-				row_number ),
+			(appaserver_element->drop_down->name)
+				? appaserver_element->drop_down->name
+				: /* --------------------- */
+				  /* Returns static memory */
+				  /* --------------------- */
+				  element_drop_down_name(
+					  appaserver_element->
+						  drop_down->
+						  attribute_name_list,
+					  row_number ),
 			appaserver_element->drop_down->initial_data,
 			appaserver_element->drop_down->delimited_list,
 			element_drop_down_display_list(

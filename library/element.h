@@ -153,6 +153,7 @@ typedef struct
 {
 	/* Attributes */
 	/* ---------- */
+	char *name;
 	LIST *attribute_name_list;
 	LIST *delimited_list;
 	boolean no_initial_capital;
@@ -168,7 +169,6 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *name;
 	char *heading;
 	int size;
 	char *html;
@@ -180,6 +180,7 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc(
 			void );
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
+			char *name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
@@ -194,8 +195,8 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			char *state );
 
 ELEMENT_DROP_DOWN *element_drop_down_empty_new(
-			char *drop_down_name,
-			int drop_down_size,
+			char *name,
+			int size,
 			boolean multi_select,
 			char *post_change_javascript,
 			char *state );
@@ -203,7 +204,7 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 /* Returns heap memory */
 /* ------------------- */
 char *element_drop_down_html( 	
-			char *drop_down_name,
+			char *element_drop_down_name,
 			char *initial_data,
 			LIST *delimited_list,
 			LIST *display_list,

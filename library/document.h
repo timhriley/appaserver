@@ -299,7 +299,9 @@ DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
 			char *choose_role_title_string,
 			LIST *role_name_list,
 			char *choose_role_post_action_string,
-			char *choose_role_target_frame );
+			char *choose_role_target_frame,
+			char *choose_role_form_name,
+			char *choose_role_drop_down_element_name );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -327,7 +329,9 @@ DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
 			char *choose_role_title_string,
 			LIST *role_name_list,
 			char *choose_role_post_action_string,
-			char *choose_role_target_frame );
+			char *choose_role_target_frame,
+			char *choose_role_form_name,
+			char *choose_role_drop_down_element_name );
 
 /* Returns heap memory */
 /* ------------------- */

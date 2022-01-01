@@ -894,7 +894,9 @@ DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
 			char *choose_role_title_string,
 			LIST *role_name_list,
 			char *choose_role_post_action_string,
-			char *choose_role_target_frame )
+			char *choose_role_target_frame,
+			char *choose_role_form_name,
+			char *choose_role_drop_down_element_name )
 {
 	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role =
 		document_body_choose_role_calloc();
@@ -912,7 +914,9 @@ DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
 	if ( ! ( document_body_choose_role->form_choose_role =
 			form_choose_role_new(
 				role_name_list,
-				choose_role_post_action_string ) ) )
+				choose_role_post_action_string,
+				choose_role_form_name,
+				choose_role_drop_down_element_name ) ) )
 	{
 		fprintf(stderr,
 	"Warning in %s/%s()/%d: form_choose_role_new() returned empty.\n",
@@ -985,7 +989,9 @@ DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
 			char *choose_role_title_string,
 			LIST *role_name_list,
 			char *choose_role_post_action_string,
-			char *choose_role_target_frame )
+			char *choose_role_target_frame,
+			char *choose_role_form_name,
+			char *choose_role_drop_down_element_name )
 {
 	DOCUMENT_CHOOSE_ROLE *document_choose_role =
 		document_choose_role_calloc();
