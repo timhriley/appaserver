@@ -15,6 +15,7 @@
 #include "role.h"
 #include "folder.h"
 #include "security.h"
+#include "folder_menu.h"
 #include "menu.h"
 #include "row_security.h"
 #include "query.h"
@@ -33,6 +34,7 @@ typedef struct
 	SECURITY_ENTITY *security_entity;
 	char *state;
 	boolean menu_boolean;
+	FOLDER_MENU *folder_menu;
 	MENU *menu;
 	boolean primary_keys_non_edit;
 	ROW_SECURITY_EDIT_TABLE *row_security_edit_table;
@@ -52,11 +54,10 @@ EDIT_TABLE *edit_table_new(
 			char *folder_name,
 			char *role_name,
 			char *target_frame,
-			boolean frameset_menu_horizontal,
+			boolean menu_boolean,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *sort_dictionary,
 			LIST *ignore_select_attribute_name_list );
@@ -87,5 +88,50 @@ boolean edit_table_content_type(
 
 boolean edit_table_primary_keys_non_edit(
 			int relation_mto1_isa_list_length );
+
+/* Returns document_edit_table_html */
+/* -------------------------------- */
+char *edit_table_html(
+			char *document_edit_table_html );
+
+/* Returns document_edit_table_trailer_html */
+/* ---------------------------------------- */
+char *edit_table_trailer_html(
+			char *document_edit_table_trailer_html );
+
+/* External */
+/* -------- */
+void edit_table_output(
+			FILE *output_stream,
+			char *edit_table_html,
+			LIST *row_dictionary_list,
+			LIST *edit_table_key_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			ROW_SECURITY_ROLE *row_security_role,
+			char *edit_table_trailer_html );
+
+/* Internal */
+/*--------- */
+LIST *edit_table_apply_element_list(
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			DICTIONARY *row_dictionary,
+			ROW_SECURITY_ROLE *row_security_role );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *edit_table_row_html(
+			DICTIONARY *row_dictionary,
+			LIST *edit_table_apply_element_list,
+			LIST *edit_table_key_list,
+			char *edit_table_background_color );
+
+char *edit_table_background_color(
+			void );
+
+static char **edit_table_background_color_array(
+			int *background_color_array_length,
+			char *application_name );
 
 #endif

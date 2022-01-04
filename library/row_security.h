@@ -82,8 +82,14 @@ ROW_SECURITY_ROLE *row_security_role_new(
 			LIST *primary_key_list,
 			boolean role_override_row_restrictions );
 
+LIST *row_security_role_apply_element_list(
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			DICTIONARY *row_dictionary,
+			ROW_SECURITY_ROLE *row_security_role );
+
 boolean row_security_role_viewonly(
-			char *delimited_string,
+			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_row );
 
 typedef struct
@@ -143,12 +149,6 @@ LIST *row_security_viewonly_element_list(
 /* -------------- */
 LIST *row_security_operation_element_list(
 			LIST *role_operation_list );
-
-LIST *row_security_apply_element_list(
-			LIST *regular_element_list,
-			LIST *viewonly_element_list,
-			char *delimited_string,
-			ROW_SECURITY_ROLE *row_security_role );
 
 typedef struct
 {

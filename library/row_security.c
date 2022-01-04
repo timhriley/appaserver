@@ -13,7 +13,6 @@
 #include "list.h"
 #include "sql.h"
 #include "piece.h"
-#include "appaserver_parameter_file.h"
 #include "dictionary.h"
 #include "role_folder.h"
 #include "folder_attribute.h"
@@ -148,14 +147,22 @@ ROW_SECURITY_ROLE *row_security_role_new(
 }
 
 boolean row_security_role_viewonly(
-			char *delimited_string,
+			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role )
 {
+	char *data;
+
 	if ( !row_security_role ) return 0;
 
-	/* attribute_not_null must be the last attribute selected. */
-	/* ------------------------------------------------------- */
-	return ( string_last_character( delimited_string ) == SQL_DELIMITER );
+	data =
+		dictionary_get(
+			row_dictionary,
+			row_security_role->attribute_not_null_string );
+
+	if ( data && *data )
+		return 1;
+	else
+		return 0;
 }
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc( void )
@@ -561,14 +568,14 @@ LIST *row_security_viewonly_element_list(
 LIST *row_security_apply_element_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
-			char *delimited_string,
+			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role )
 {
 	LIST *apply_element_list;
 
 	if ( row_security_role
 	&&   row_security_role_viewonly(
-			delimited_string,
+			row_dictionary,
 			row_security_role ) )
 	{
 		apply_element_list = viewonly_element_list;

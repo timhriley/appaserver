@@ -938,10 +938,14 @@ char *element_checkbox_html(
 			image_source );
 	}
 
+	if ( prompt_display && *prompt_display )
+	{
+		ptr += sprintf( ptr, "%s", prompt_display );
+	}
+
 	ptr += sprintf(
 		ptr,
-"%s<input name=\"%s\" type=\"checkbox\" value=\"%s\"",
-		prompt_display,
+"<input name=\"%s\" type=\"checkbox\" value=\"%s\"",
 		element_name,
 		value );
 

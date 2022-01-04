@@ -1,4 +1,4 @@
-/* library/appaserver_parameter_file.c					*/
+/* library/appaserver_parameter.c					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -14,75 +14,75 @@
 #include "appaserver_error.h"
 #include "appaserver_library.h"
 #include "fopen_path.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 
-static APPASERVER_PARAMETER_FILE *global_appaserver_parameter_file = {0};
+static APPASERVER_PARAMETER *global_appaserver_parameter = {0};
 
-char *appaserver_parameter_file_mount_point( void )
+char *appaserver_parameter_mount_point( void )
 {
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			appaserver_parameter_file_new();
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
 
-	return global_appaserver_parameter_file->appaserver_mount_point;
+	return global_appaserver_parameter->appaserver_mount_point;
 }
 
-char *appaserver_parameter_file_cgi_directory( void )
+char *appaserver_parameter_cgi_directory( void )
 {
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			appaserver_parameter_file_new();
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
 
 	return timlib_trim_trailing_character(
-			global_appaserver_parameter_file->
+			global_appaserver_parameter->
 				apache_cgi_directory,
 			'/' );
 }
 
-char *appaserver_parameter_file_error_directory( void )
+char *appaserver_parameter_error_directory( void )
 {
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			appaserver_parameter_file_new();
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
 
 	return timlib_trim_trailing_character(
-			global_appaserver_parameter_file->
+			global_appaserver_parameter->
 				appaserver_error_directory,
 			'/' );
 }
 
-char *appaserver_parameter_file_data_directory( void )
+char *appaserver_parameter_data_directory( void )
 {
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			appaserver_parameter_file_new();
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
 
 	return timlib_trim_trailing_character(
-			global_appaserver_parameter_file->
+			global_appaserver_parameter->
 				appaserver_data_directory,
 			'/' );
 
 }
 
-char *appaserver_parameter_file_cgi_home( void )
+char *appaserver_parameter_cgi_home( void )
 {
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			appaserver_parameter_file_new();
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
 
-	return global_appaserver_parameter_file->cgi_home;
+	return global_appaserver_parameter->cgi_home;
 }
 
-char *appaserver_parameter_file_document_root( void )
+char *appaserver_parameter_document_root( void )
 {
-	if ( !global_appaserver_parameter_file )
-		global_appaserver_parameter_file =
-			appaserver_parameter_file_new();
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
 
-	return global_appaserver_parameter_file->document_root;
+	return global_appaserver_parameter->document_root;
 }
 
-FILE *appaserver_parameter_file_open(
+FILE *appaserver_parameter_open(
 			char *filename,
 			char *application_name )
 {
@@ -93,7 +93,7 @@ FILE *appaserver_parameter_file_open(
 		sprintf(filename,
 			"%s/%s",
 			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-			APPASERVER_PARAMETER_FILE_NAME );
+			APPASERVER_PARAMETER_NAME );
 	}
 	else
 	{
@@ -113,7 +113,7 @@ FILE *appaserver_parameter_file_open(
 		return fopen( filename, "r" );
 }
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
+APPASERVER_PARAMETER *appaserver_parameter_new( void )
 {
 	char *application;
 
@@ -128,23 +128,23 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new( void )
 				"DATABASE" );
 	}
 
-	return appaserver_parameter_file_application( application );
+	return appaserver_parameter_application( application );
 }
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
+APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			FILE *f,
 			char *parameter_file_full_path )
 {
-	APPASERVER_PARAMETER_FILE *s;
+	APPASERVER_PARAMETER *s;
 	DICTIONARY *d;
 	char *a;
 
-	s = (APPASERVER_PARAMETER_FILE *)
-		calloc( 1, sizeof( APPASERVER_PARAMETER_FILE ) );
+	s = (APPASERVER_PARAMETER *)
+		calloc( 1, sizeof( APPASERVER_PARAMETER ) );
 
 	s->parameter_file_full_path = parameter_file_full_path;
 
-	d = appaserver_parameter_file_load_record_dictionary( f, '=' );
+	d = appaserver_parameter_load_record_dictionary( f, '=' );
 
 	a = "mysql_user";
 	if ( ! ( s->user = dictionary_fetch( a, d ) ) )
@@ -243,7 +243,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
 	return s;
 }
 
-DICTIONARY *appaserver_parameter_file_load_record_dictionary(
+DICTIONARY *appaserver_parameter_load_record_dictionary(
 			FILE *input_pipe,
 			int delimiter )
 {
@@ -285,28 +285,28 @@ DICTIONARY *appaserver_parameter_file_load_record_dictionary(
 	return d;
 }
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
+APPASERVER_PARAMETER *appaserver_parameter_application(
 			char *application_name )
 {
-	APPASERVER_PARAMETER_FILE *s;
+	APPASERVER_PARAMETER *s;
 	char filename[ 128 ];
 	FILE *f = {0};
 
 	if ( !application_name || !*application_name )
 	{
-		f = appaserver_parameter_file_open(
+		f = appaserver_parameter_open(
 			filename,
 			(char *)0 );
 	}
 	else
 	{
-		f = appaserver_parameter_file_open(
+		f = appaserver_parameter_open(
 			filename,
 			application_name );
 
 		if ( !f )
 		{
-			f = appaserver_parameter_file_open(
+			f = appaserver_parameter_open(
 				filename,
 				(char *)0 );
 		}
@@ -335,7 +335,7 @@ APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
 		exit( 1 );
 	}
 
-	s = appaserver_parameter_file_fetch( f, strdup( filename ) );
+	s = appaserver_parameter_fetch( f, strdup( filename ) );
 
 	fclose( f );
 

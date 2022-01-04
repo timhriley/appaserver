@@ -1,10 +1,10 @@
-/* library/appaserver_parameter_file.h					*/
+/* library/appaserver_parameter.h					*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef APPASERVER_PARAMETER_FILE_H
-#define APPASERVER_PARAMETER_FILE_H
+#ifndef APPASERVER_PARAMETER_H
+#define APPASERVER_PARAMETER_H
 
 #include "boolean.h"
 #include "dictionary.h"
@@ -12,9 +12,8 @@
 /* Constants */
 /* --------- */
 #define APPASERVER_PARAMETER_DEFAULT_DIRECTORY		"/etc"
-#define APPASERVER_PARAMETER_FILE_NAME			"appaserver.config"
+#define APPASERVER_PARAMETER_NAME			"appaserver.config"
 #define APPASERVER_PARAMETER_APPLICATION_FILE_NAME	"appaserver_%s.config"
-#define APPASERVER_PARAMETER_FILE_DBMS			"mysql"
 
 /* Type definitions */
 /* ---------------- */
@@ -34,47 +33,43 @@ typedef struct
 	char *parameter_file_full_path;
 	boolean mysql_password_syntax;
 
-	/* Not used anymore */
-	/* ---------------- */
-	char *database_management_system;
-
-} APPASERVER_PARAMETER_FILE;
+} APPASERVER_PARAMETER;
 
 /* Prototypes */
 /* ---------- */
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_new(
+APPASERVER_PARAMETER *appaserver_parameter_new(
 			void );
 
-char *appaserver_parameter_file_mount_point(
+char *appaserver_parameter_mount_point(
 			void );
 
-char *appaserver_parameter_file_cgi_directory(
+char *appaserver_parameter_cgi_directory(
 			void );
 
-char *appaserver_parameter_file_error_directory(
+char *appaserver_parameter_error_directory(
 			void );
 
-char *appaserver_parameter_file_data_directory(
+char *appaserver_parameter_data_directory(
 			void );
 
-char *appaserver_parameter_file_cgi_home(
+char *appaserver_parameter_cgi_home(
 			void );
 
-char *appaserver_parameter_file_document_root(
+char *appaserver_parameter_document_root(
 			void );
 
-DICTIONARY *appaserver_parameter_file_load_record_dictionary(
+DICTIONARY *appaserver_parameter_load_record_dictionary(
 			FILE *input_pipe,
 			int delimiter );
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_fetch(
+APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			FILE *f,
 			char *parameter_file_full_path );
 
-APPASERVER_PARAMETER_FILE *appaserver_parameter_file_application(
+APPASERVER_PARAMETER *appaserver_parameter_application(
 			char *application_name );
 
-FILE *appaserver_parameter_file_open(
+FILE *appaserver_parameter_open(
 			char *filename,
 			char *application_name );
 

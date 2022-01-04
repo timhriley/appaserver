@@ -78,7 +78,7 @@ APPASERVER_LIBRARY=						\
 		update.o					\
 		delete.o					\
 		start_stop_time.o				\
-		appaserver_parameter_file.o			\
+		appaserver_parameter.o				\
 		prompt_recursive.o				\
 		appaserver_link.o				\
 		process.o					\
@@ -169,7 +169,7 @@ google_map_dvr.e: google_map_dvr.c google_map.o environ.h application.h	\
 		appaserver_error.o					\
 		environ.o						\
 		application.o						\
-		appaserver_parameter_file.o				\
+		appaserver_parameter.o					\
 		fopen_path.o						\
 		application_constants.o					\
 		google_map.o						\
@@ -311,7 +311,7 @@ parse_report_dvr.e: parse_report_dvr.c parse_report.o hash_table.o
 		column.o						\
 		hash_table.o						\
 		piece.o							\
-		appaserver_parameter_file.o				\
+		appaserver_parameter.o					\
 		parse_report.o						\
 	   -o parse_report_dvr.e
 	touch ${UTILITY}/parse_report
@@ -665,26 +665,9 @@ fopen_path.o: fopen_path.c fopen_path.h
 update_statement.o: update_statement.c update_statement.h
 	${CC} ${CFLAGS} -c update_statement.c
 
-appaserver_parameter_file_dvr.e:				\
-	appaserver_parameter_file_dvr.c 			\
-	appaserver_parameter_file.o hash_table.o
-	${CC} ${CFLAGS} appaserver_parameter_file_dvr.c		\
-			piece.o 				\
-			date.o 					\
-			julian.o 				\
-			timlib.o 				\
-			list_usage.o 				\
-			date_convert.o 				\
-			dictionary.o 				\
-			hash_table.o 				\
-			column.o 				\
-			list.o 					\
-			appaserver_parameter_file.o 		\
-			-o appaserver_parameter_file_dvr
-
-appaserver_parameter_file.o: appaserver_parameter_file.c	\
-	appaserver_parameter_file.h
-	${CC} ${CFLAGS} -c appaserver_parameter_file.c
+appaserver_parameter.o: appaserver_parameter.c			\
+	appaserver_parameter.h
+	${CC} ${CFLAGS} -c appaserver_parameter.c
 
 appaserver_link.o: appaserver_link.c appaserver_link.h
 	${CC} ${CFLAGS} -c appaserver_link.c
