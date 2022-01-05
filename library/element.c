@@ -96,6 +96,10 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->multi_drop_down =
 			element_multi_drop_down_calloc();
 	else
+	if ( element_type == text )
+		element->text =
+			element_text_calloc();
+	else
 	{
 		fprintf( stderr, 
 			 "Error: %s/%s() got invalid element type.\n",
@@ -1612,6 +1616,23 @@ char *appaserver_element_heading( APPASERVER_ELEMENT *element )
 			: "";
 	}
 	else
+	if ( element->element_type == text )
+	{
+		if ( element->text->name
+		&&   !element->text->heading_string )
+		{
+			element->text->heading_string =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				appaserver_element_heading_string(
+					element->text->name );
+		}
+		return (element->text->heading_string)
+			? element->text->heading_string
+			: "";
+	}
+	else
 /*
 	if ( element->element_type == text_item
 	||   element->element_type == element_date
@@ -1970,6 +1991,50 @@ char *appaserver_element_html(
 					post_change_javascript,
 				state,
 				row_number ) );
+	}
+	else
+	if ( appaserver_element->element_type == text )
+	{
+		if ( !appaserver_element->text->value )
+		{
+			appaserver_element->text->key_string =
+				/* ------------ */
+				/* Returns name */
+				/* ------------ */
+				element_text_key_string(
+					appaserver_element->
+						text->
+						name );
+
+			appaserver_element->text->value =
+				/* ---------------------------------- */
+				/* Returns heap memory, name, or null */
+				/* ---------------------------------- */
+				element_text_value(
+					appaserver_element->
+						text->
+						name,
+					appaserver_element->
+						text->
+						value,
+					appaserver_element->
+						text->
+						key_string,
+					row_dictionary,
+					attribute_is_number(
+						appaserver_element->
+							text->
+							datatype_name ) );
+		}
+
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_text_html(
+			appaserver_element_name(
+				appaserver_element->
+					text->
+					name ),
 	}
 	else
 	{
