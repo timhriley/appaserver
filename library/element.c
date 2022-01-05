@@ -652,10 +652,40 @@ ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc( void )
 	return non_edit_text;
 }
 
+char *element_non_edit_text_key_string( char *name )
+{
+}
+
+char *element_non_edit_text_name(
+			char *name,
+			char *key_string,
+			DICTIONARY *row_dictionary )
+{
+}
+
+/* Safely returns heap memory */
+/* -------------------------- */
+char *element_non_edit_text_html(
+			char *message );
+
 char *element_non_edit_text_message(
-			char *message,
 			char *name )
 {
+	static char message[ 256 ];
+
+	if ( !name ) return (char *)0;
+
+	if ( strcmp( name ) > 255 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid length = %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			strlen( name ) );
+		exit( 1 );
+	}
+
 	return
 	string_initial_capital(
 		message,
@@ -664,7 +694,7 @@ char *element_non_edit_text_message(
 
 char *element_non_edit_text_html( char *message )
 {
-	char html[ 128 ];
+	char html[ 1024 ];
 
 	if ( !message || !*message )
 	{
@@ -910,15 +940,13 @@ char *element_checkbox_html(
 			boolean checked,
 			char *action_string,
 			int tab_order,
-			char *value,
 			char *image_source )
 {
 	char html[ 1024 ];
 	char *ptr = html;
 
 	if ( !element_name
-	||   !prompt_display
-	||   !value )
+	||   !prompt_displa )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -945,9 +973,8 @@ char *element_checkbox_html(
 
 	ptr += sprintf(
 		ptr,
-"<input name=\"%s\" type=\"checkbox\" value=\"%s\"",
-		element_name,
-		value );
+"<input name=\"%s\" type=\"checkbox\" value=y"",
+		element_name );
 
 	if ( action_string && *action_string )
 	{
@@ -1402,10 +1429,11 @@ char *element_table_data_html( void )
 }
 
 char *appaserver_element_list_html(
+			LIST *appaserver_element_list /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
-			LIST *appaserver_element_list )
+			DICTIONARY *row_dictionary )
 {
 	APPASERVER_ELEMENT *appaserver_element;
 	char html[ STRING_FOUR_MEG ];
@@ -1432,10 +1460,11 @@ char *appaserver_element_list_html(
 		/* --------------------------- */
 		if ( ! ( element_html =
 				appaserver_element_html(
+					appaserver_element /* in/out */,
 					background_color,
 					state,
 					row_number,
-					appaserver_element ) ) )
+					row_dictionary ) ) )
 		{
 			fprintf(stderr,
 	"Warning in %s/%s()/%d: appaserver_element_html(%d) returned empty.\n",
@@ -1459,11 +1488,12 @@ char *appaserver_element_list_html(
 }
 
 char *appaserver_hidden_element_list_html(
+			LIST *appaserver_element_list /* in/out */,
 			int row_number,
-			LIST *appaserver_element_list )
+			DICTIONARY *row_dictionary )
 {
 	APPASERVER_ELEMENT *appaserver_element;
-	char html[ 65536 ];
+	char html[ STRING_64K ];
 	char *ptr = html;
 	char *element_html;
 
@@ -1487,10 +1517,11 @@ char *appaserver_hidden_element_list_html(
 		/* --------------------------- */
 		if ( ! ( element_html =
 				appaserver_element_html(
+					appaserver_element /* in/out */,
 					(char *)0 /* background_color */,
 					(char *)0 /* state */,
 					row_number,
-					appaserver_element ) ) )
+					row_dictionary ) ) )
 		{
 			fprintf(stderr,
 	"Warning in %s/%s()/%d: appaserver_element_html(%d) returned empty.\n",
@@ -1532,26 +1563,40 @@ char *appaserver_element_heading( APPASERVER_ELEMENT *element )
 			: "";
 	}
 	else
-	if ( element->element_type == multi_drop_down )
-	{
-		return element->multi_drop_down->heading;
-	}
-	else
 	if ( element->element_type == drop_down )
 	{
-		if ( !element->drop_down->heading )
+		if ( !element->drop_down->heading_string )
 		{
-			element->drop_down->heading =
+			element->drop_down->heading_string =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				element_drop_down_heading_string(
+					element->
+						drop_down->
+						attribute_name_list );
+		}
+		return (element->drop_down->heading_string)
+			? element->drop_down->heading_string
+			: "";
+	}
+	if ( element->element_type == checkbox )
+	{
+		if ( element->checkbox->name
+		&&   !element->checkbox->heading_string )
+		{
+			element->checkbox->heading_string =
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
 				appaserver_element_heading_string(
-					element->drop_down->name );
+					element->checkbox->name );
 		}
-		return (element->drop_down->heading)
-			? element->drop_down->heading
+		return (element->checkbox->heading_string)
+			? element->checkbox->heading_string
 			: "";
 	}
+	else
 /*
 	if ( element->element_type == text_item
 	||   element->element_type == element_date
@@ -1685,10 +1730,11 @@ char *appaserver_element_heading_string( char *name )
 }
 
 char *appaserver_element_html(
+			APPASERVER_ELEMENT *appaserver_element /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
-			APPASERVER_ELEMENT *appaserver_element )
+			DICTIONARY *row_dictionary )
 {
 	if ( !appaserver_element )
 	{
@@ -1725,6 +1771,17 @@ char *appaserver_element_html(
 	{
 		char prompt_display[ 256 ];
 
+		appaserver_element->checkbox->key_string =
+			element_checkbox_key_string(
+				appaserver_element->
+					checkbox->
+					name );
+
+		appaserver_element->checkbox->checked =
+			element_checkbox_checked(
+				appaserver_element->checkbox->key_string,
+				row_dictionary );
+
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_checkbox_html(
@@ -1742,7 +1799,6 @@ char *appaserver_element_html(
 			appaserver_element->checkbox->checked,
 			appaserver_element->checkbox->action_string,
 			appaserver_element->checkbox->tab_order,
-			appaserver_element->checkbox->value,
 			appaserver_element->checkbox->image_source );
 	}
 	else
@@ -1802,23 +1858,38 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == non_edit_text )
 	{
-		if ( appaserver_element->non_edit_text->message )
+		if ( !appaserver_element->non_edit_text->message )
 		{
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			return element_non_edit_text_html(
-				appaserver_element->
-					non_edit_text->
-					message );
+			appaserver_element->non_edit_text->key_string =
+				element_non_edit_text_key_string(
+					appaserver_element->
+						non_edit_text->
+						name );
+
+			appaserver_element->non_edit_text->name =
+				element_non_edit_text_name(
+					appaserver_element->
+						non_edit_text->
+						name,
+					appaserver_element->
+						non_edit_text->
+						key_string,
+					row_dictionary );
+
+			appaserver_element->non_edit_text->message =
+				element_non_edit_text_message(
+					appaserver_element->
+						non_edit_text->
+						name );
 		}
-		else
-		{
-			return element_non_edit_text_html(
-				appaserver_element->
-					non_edit_text->
-					name );
-		}
+
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		return element_non_edit_text_html(
+			appaserver_element->
+				non_edit_text->
+				message );
 	}
 	else
 	if ( appaserver_element->element_type == hidden )
@@ -2247,5 +2318,41 @@ APPASERVER_ELEMENT *appaserver_element_key_seek(
 	} while ( list_next( element_list ) );
 
 	return (APPASERVER_ELEMENT *)0;
+}
+
+char *element_checkbox_heading_string( char *name )
+{
+	static char heading_string[ 128 ];
+
+	return string_initial_capital( heading_string, name );
+}
+
+char *element_checkbox_key_string( char *name )
+{
+	return name;
+}
+
+boolean element_checkbox_checked(
+			char *key_string,
+			DICTIONARY *row_dictionary )
+{
+	char *data;
+
+	if ( !key_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: key_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	data = dictionary_get( key_string, row_dictionary );
+
+	if ( data && *data == 'y' )
+		return 1;
+	else
+		return 0;
 }
 

@@ -13,6 +13,7 @@
 #include "date_convert.h"
 #include "folder_attribute.h"
 #include "button.h"
+#include "dictionary.h"
 #include "boolean.h"
 
 /* Constants */
@@ -20,9 +21,6 @@
 /* #define ELEMENT_LONG_DASH_DELIMITER		"&#151;" */
 #define ELEMENT_LONG_DASH_DELIMITER		"---"
 
-#define ELEMENT_CHECKBOX_REMEMBER		1
-#define ELEMENT_DROP_DOWN_REMEMBER		1
-#define ELEMENT_MULTI_DROP_DOWN_REMEMBER	1
 #define ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX	"original_"
 #define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER '|'
 #define ELEMENT_NAME_LOOKUP_STATE		"lookup_button"
@@ -125,11 +123,11 @@ typedef struct
 	boolean checked;
 	char *action_string;
 	int tab_order;
-	char *value;
 	char *image_source;
+	boolean remember;
 
-	/* External */
-	/* -------- */
+	/* Public */
+	/* ------ */
 	char *html;
 } ELEMENT_CHECKBOX;
 
@@ -140,13 +138,26 @@ ELEMENT_CHECKBOX *element_checkbox_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
+char *element_checkbox_heading_string(
+			char *name );
+
+/* Returns name */
+/* ------------ */
+char *element_checkbox_key_string(
+			char *name );
+
+boolean element_checkbox_checked(
+			char *key_string,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
 char *element_checkbox_html(
 			char *element_name,
 			char *prompt_display,
 			boolean checked,
 			char *action_string,
 			int tab_order,
-			char *value,
 			char *image_source );
 
 typedef struct
@@ -298,15 +309,16 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	char *name;
-	char *text_html;
-	int column_span;
-	int padding_em;
 
-	/* External */
-	/* -------- */
-	char *message;
+	/* Public */
+	/* ------ */
+	char *key_string;
 	char *html;
-	char *heading;
+	char *message;
+
+	/* Private */
+	/* ------- */
+	char *heading_string;
 } ELEMENT_NON_EDIT_TEXT;
 
 /* ELEMENT_NON_EDIT_TEXT operations */
@@ -314,8 +326,17 @@ typedef struct
 ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
 			void );
 
+char *element_non_edit_text_key_string(
+			char *name );
+
+char *element_non_edit_text_name(
+			char *name,
+			char *key_string,
+			DICTIONARY *row_dictionary );
+
+/* Returns static memory or null */
+/* ----------------------------- */
 char *element_non_edit_text_message(
-			char *message,
 			char *name );
 
 /* Safely returns heap memory */
@@ -601,6 +622,8 @@ APPASERVER_ELEMENT *appaserver_element_new(
 			enum element_type element_type,
 			char *element_name );
 
+/* Public */
+/* ------ */
 APPASERVER_ELEMENT *appaserver_element_name_seek(
 			char *element_name,
 			LIST *element_list );
@@ -638,7 +661,9 @@ void appaserver_element_output(
 			FILE *output_stream,
 			APPASERVER_ELEMENT *element );
 
-char *appaserver_element_heading(
+/* Returns heap memory or "" */
+/* ------------------------- */
+char *appaserver_element_heading_string(
 			APPASERVER_ELEMENT *element );
 
 /* Returns heap memory */
@@ -649,24 +674,27 @@ char *appaserver_element_heading_string(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_list_html(
+			LIST *appaserver_element_list /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
-			LIST *appaserver_element_list );
+			DICTIONARY *row_dictionary );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_hidden_element_list_html(
+			LIST *appaserver_element_list /* in/out */,
 			int row_number,
-			LIST *appaserver_element_list );
+			DICTIONARY *row_dictionary );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_html(
+			APPASERVER_ELEMENT *appaserver_element /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
-			APPASERVER_ELEMENT *appaserver_element );
+			DICTIONARY *row_dictionary );
 
 /* Returns static memory */
 /* --------------------- */
