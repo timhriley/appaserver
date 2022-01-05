@@ -29,10 +29,10 @@
 #define ELEMENT_DICTIONARY_DELIMITER		'~'
 #define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER	'|'
 #define ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER '~'
-#define ELEMENT_TEXT_ITEM_LOOKUP_LENGTH 	100
-#define ELEMENT_TEXT_ITEM_LARGE_WIDGET_SIZE	25
-#define ELEMENT_TEXT_ITEM_SMALL_WIDGET_SIZE	10
-#define ELEMENT_MAX_TEXT_WIDTH			30
+#define ELEMENT_TEXT_LOOKUP_LENGTH 		100
+#define ELEMENT_TEXT_LARGE_WIDGET_SIZE		25
+#define ELEMENT_TEXT_SMALL_WIDGET_SIZE		10
+#define ELEMENT_TEXT_MAX_SIZE			30
 #define ELEMENT_NOTEPAD_DEFAULT_NUMBER_ROWS	4
 #define ELEMENT_LARGE_NOTEPAD_THRESHOLD		10000
 #define ELEMENT_LARGE_NOTEPAD_WIDTH		70
@@ -121,7 +121,7 @@ typedef struct
 	char *name;
 	char *prompt_string;
 	boolean checked;
-	char *action_string;
+	char *on_click;
 	int tab_order;
 	char *image_source;
 	boolean remember;
@@ -153,10 +153,10 @@ boolean element_checkbox_checked(
 /* Returns heap memory */
 /* ------------------- */
 char *element_checkbox_html(
-			char *element_name,
+			char *name,
 			char *prompt_display,
 			boolean checked,
-			char *action_string,
+			char *on_click,
 			int tab_order,
 			char *image_source );
 
@@ -326,9 +326,13 @@ typedef struct
 ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
 			void );
 
+/* Returns name */
+/* ------------ */
 char *element_non_edit_text_key_string(
 			char *name );
 
+/* Returns heap memory, name, or null */
+/* ---------------------------------- */
 char *element_non_edit_text_name(
 			char *name,
 			char *key_string,
@@ -379,6 +383,12 @@ char *element_line_break_html(
 
 typedef struct
 {
+	/* Attribute */
+	/* --------- */
+	boolean align_right;
+
+	/* Public */
+	/* ------ */
 	char *html;
 } ELEMENT_TABLE_DATA;
 
@@ -390,7 +400,7 @@ ELEMENT_TABLE_DATA *element_table_data_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *element_table_data_html(
-			void );
+			boolean align_right );
 
 typedef struct
 {
@@ -527,18 +537,79 @@ typedef struct
 
 typedef struct
 {
-	char *data;
-	int attribute_width;
-	int widget_size;
-	char *heading;
-	char onchange_null2slash_yn;
-	char *post_change_javascript;
-	char *on_focus_javascript_function;
-	char *state;
-	boolean dont_create_current_date;
-	boolean readonly;
-	boolean is_numeric;
-} ELEMENT_TEXT_ITEM;
+	/* Attributes */
+	/* ---------- */
+	char *name;
+	char *datatype_name;
+	char *value;
+	int max_length;
+	int size;
+	boolean null_to_slash;
+	boolean prevent_carrot;
+	char *on_change;
+	char *on_focus;
+	char *on_keyup;
+	int tab_index;
+	boolean remember;
+
+	/* Private */
+	/* ------- */
+	char *heading_string;
+} ELEMENT_TEXT;
+
+/* ELEMENT_TEXT operations */
+/* ----------------------- */
+ELEMENT_TEXT *element_text_calloc(
+			void );
+
+/* Returns name */
+/* ------------ */
+char *element_text_key_string(
+			char *name );
+
+/* Returns value, heap memory, or null */
+/* ----------------------------------- */
+char *element_text_value(
+			char *name,
+			char *value,
+			char *key_string,
+			DICTIONARY *row_dictionary,
+			boolean is_number );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_text_on_change(
+			char *on_change,
+			int row_number,
+			char *state,
+			boolean null_to_slash );
+
+char *element_text_on_focus(
+			char *on_focus,
+			int row_number,
+			char *state );
+
+char *element_text_on_keyup(
+			char *on_keyup,
+			boolean prevent_carrot );
+
+boolean element_text_autocomplete_off(
+			char *name );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_text_html(
+			char *element_name,
+			char *value,
+			int max_length,
+			int size,
+			int max_size,
+			char *on_change,
+			char *on_focus,
+			char *on_keyup,
+			boolean autocomplete_off,
+			int tab_index,
+			char *background_color );
 
 typedef struct
 {
@@ -602,11 +673,11 @@ typedef struct
 	ELEMENT_LINE_BREAK *line_break;
 	ELEMENT_TABLE_DATA *table_data;
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
+	ELEMENT_TEXT *text;
 
 /*
 	ELEMENT_RADIO_BUTTON *radio_button;
 	ELEMENT_NOTEPAD *notepad;
-	ELEMENT_TEXT_ITEM *text_item;
 	ELEMENT_PASSWORD *password;
 	ELEMENT_UPLOAD_FILENAME *upload_filename;
 	ELEMENT_HTTP_FILENAME *http_filename;
@@ -705,5 +776,11 @@ char *appaserver_element_javascript_html(
 /* --------------------- */
 char *appaserver_element_background_color_html(
 			char *background_color );
+
+/* Returns data or heap memory */
+/* --------------------------- */
+char *element_place_commas_in_number_string(
+				char *element_name,
+				char *data );
 
 #endif

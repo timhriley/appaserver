@@ -31,8 +31,7 @@ APPASERVER_ELEMENT *appaserver_element_calloc( void )
 {
 	APPASERVER_ELEMENT *element;
 
-	if ( ! ( element =
-			calloc( 1, sizeof( APPASERVER_ELEMENT ) ) ) )
+	if ( ! ( element = calloc( 1, sizeof( APPASERVER_ELEMENT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -598,9 +597,19 @@ char *element_place_commas_in_number_string(
 				char *data )
 {
 	if ( timlib_exists_string( element_name, "year" ) )
+	{
 		return data;
+	}
 	else
-		return place_commas_in_number_string( data );
+	{
+		return
+		strdup(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			place_commas_in_number_string(
+				data ) );
+	}
 }
 
 #ifdef NOT_DEFINED
@@ -654,6 +663,7 @@ ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc( void )
 
 char *element_non_edit_text_key_string( char *name )
 {
+	return name;
 }
 
 char *element_non_edit_text_name(
@@ -661,12 +671,17 @@ char *element_non_edit_text_name(
 			char *key_string,
 			DICTIONARY *row_dictionary )
 {
-}
+	char non_edit_text_name[ 1024 ];
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_non_edit_text_html(
-			char *message );
+	if ( name && *name ) return name;
+
+	if ( !key_string || !row_dictionary ) return (char *)0;
+
+	return
+	dictionary_get(
+		key_string,
+		row_dictionary );
+}
 
 char *element_non_edit_text_message(
 			char *name )
@@ -694,21 +709,10 @@ char *element_non_edit_text_message(
 
 char *element_non_edit_text_html( char *message )
 {
-	char html[ 1024 ];
-
 	if ( !message || !*message )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: message is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf( html, "<td align=left>%s", message );
-
-	return strdup( html );
+		return strdup( "" );
+	else
+		return strdup( message );
 }
 
 char *element_drop_down_name(
@@ -935,21 +939,20 @@ char *element_drop_down_close_html(
 }
 
 char *element_checkbox_html(
-			char *element_name,
+			char *name,
 			char *prompt_display,
 			boolean checked,
-			char *action_string,
+			char *on_click,
 			int tab_order,
 			char *image_source )
 {
 	char html[ 1024 ];
 	char *ptr = html;
 
-	if ( !element_name
-	||   !prompt_displa )
+	if ( !name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -976,12 +979,12 @@ char *element_checkbox_html(
 "<input name=\"%s\" type=\"checkbox\" value=y"",
 		element_name );
 
-	if ( action_string && *action_string )
+	if ( on_click && *on_click )
 	{
 		ptr += sprintf(
 			ptr,
 			" onClick=\"%s\"",
-			action_string );
+			on_click );
 	}
 
 	if ( tab_order > 0 )
@@ -1423,9 +1426,21 @@ char *element_line_break_html( void )
 	return strdup( "<br>" );
 }
 
-char *element_table_data_html( void )
+char *element_table_data_html( boolean align_right )
 {
-	return strdup( "<td>" );
+	char html[ 128 ];
+	char *ptr = html;
+
+	ptr += sprintf( ptr, "<td" );
+
+	if ( align_right )
+	{
+		ptr += sprintf( ptr, " align=right" );
+	}
+
+	ptr += sprintf( ptr, ">" );
+
+	return strdup( html );
 }
 
 char *appaserver_element_list_html(
@@ -1861,12 +1876,18 @@ char *appaserver_element_html(
 		if ( !appaserver_element->non_edit_text->message )
 		{
 			appaserver_element->non_edit_text->key_string =
+				/* ------------ */
+				/* Returns name */
+				/* ------------ */
 				element_non_edit_text_key_string(
 					appaserver_element->
 						non_edit_text->
 						name );
 
 			appaserver_element->non_edit_text->name =
+				/* ---------------------------------- */
+				/* Returns heap memory, name, or null */
+				/* ---------------------------------- */
 				element_non_edit_text_name(
 					appaserver_element->
 						non_edit_text->
@@ -1913,7 +1934,8 @@ char *appaserver_element_html(
 	{
 		/* Returns heap memory */
 		/* ------------------- */
-		return element_table_data_html();
+		return element_table_data_html(
+			appaserver_element->table_data->align_right );
 	}
 	else
 	if ( appaserver_element->element_type == multi_drop_down )
@@ -2354,5 +2376,260 @@ boolean element_checkbox_checked(
 		return 1;
 	else
 		return 0;
+}
+
+char *element_text_html(
+			char *element_name,
+			char *value,
+			int max_length,
+			int size,
+			int max_size,
+			char *on_change,
+			char *on_focus,
+			char *on_keyup,
+			boolean autocomplete_off,
+			int tax_index,
+			char *background_color )
+{
+	char html[ STRING_64K ];
+	char *ptr = html;
+
+	if ( !element_name || !*element_name ) return (char *)0;
+
+	if ( size > max_size ) size = max_size;
+
+	if ( !value ) value = "";
+
+	ptr += sprintf(
+		ptr,
+	"<input name=\"%s\" type=\"text\" size=\"%d\" value=\"%s\"",
+		element_name, type, size, value );
+
+	if ( autocomplete_off )
+	{
+		ptr += sprintf( ptr, " autocomplete=\"off\"" );
+	}
+
+	ptr += sprintf( ptr, " maxlength=\"%d\"", max_length );
+
+	if ( max_length > size )
+	{
+		ptr += sprintf( ptr, " title=\"%s\"", value );
+	}
+
+	if ( tab_index )
+	{
+		ptr += sprintf(
+			ptr,
+			" tabindex=%d",
+			tab_index );
+	}
+
+	if ( on_change && *on_change )
+	{
+		ptr += sprintf(
+			ptr,
+			" onChange=\"%s\"",
+			on_change );
+	}
+
+	if ( on_focus && *on_focus )
+	{
+		ptr += sprintf(
+			ptr,
+			" onFocus=\"%s\"",
+			on_focus );
+	}
+
+	if ( on_keyup && *on_keyup )
+	{
+		ptr += sprintf(
+			ptr,
+			" onKeyup=\"%s\"",
+			on_keyup );
+	}
+
+	if ( background_color && *background_color )
+	{
+		ptr += sprintf(
+			ptr,
+			" style=\"{background:%s}\"",
+			background_color );
+	}
+
+	ptr += sprintf( ptr, ">" );
+
+	return strdup( html );
+}
+
+ELEMENT_TEXT *element_text_calloc( void )
+{
+	ELEMENT_TEXT *element_text;
+
+	if ( ! ( element_text = calloc( 1, sizeof( ELEMENT_TEXT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+	}
+	return element_text;
+}
+
+char *element_text_key_string( char *name )
+{
+	return name;
+}
+
+char *element_text_value(
+			char *name,
+			char *value,
+			char *key_string,
+			DICTIONARY *row_dictionary,
+			boolean is_number )
+{
+	char text_value[ 1024 ];
+	char *data;
+
+	if ( value && *value ) return value;
+
+	if ( !key_string || !row_dictionary ) return (char *)0;
+
+	if ( ! ( data = dictionary_get( key_string, row_dictionary ) ) )
+	{
+		return (char *)0;
+	}
+
+	if ( is_number )
+	{
+		data =
+			/* --------------------------- */
+			/* Returns data or heap memory */
+			/* --------------------------- */
+			element_place_commas_in_number_string(
+				name,
+				data );
+	}
+
+	return data;
+}
+
+char *element_text_on_change(
+			char *on_change,
+			int row_number,
+			char *state,
+			boolean null_to_slash )
+{
+	char text_on_change[ 1024 ];
+	char *ptr = text_on_change;
+
+	if ( ( !on_change || !*on_change ) && !null_to_slash )
+	{
+		return (char *)0;
+	}
+
+	if ( on_change && *on_change )
+	{
+		char *tmp;
+
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		if ( tmp =
+			javascript_replace(
+				on_change,
+				state,
+				row_number ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s",
+				tmp );
+			free( tmp );
+		}
+	}
+
+	if ( null_to_slash )
+	{
+		if ( ptr != text_on_change )
+		{
+			ptr += sprintf( ptr, ";" );
+		}
+
+		ptr += sprintf(
+			ptr,
+		 	"null2slash(this)" );
+	}
+
+	return strdup( text_on_change );
+}
+
+char *element_text_on_focus(
+			char *on_focus,
+			int row_number,
+			char *state )
+{
+	char text_on_focus[ 1024 ];
+
+	if ( !on_focus || !*on_focus ) return (char *)0;
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	javascript_replace(
+		on_focus,
+		state,
+		row_number ) );
+}
+
+char *element_text_on_keyup(
+			char *on_keyup,
+			boolean prevent_carrot )
+{
+	char text_on_keyup[ 1024 ];
+	char *ptr = text_on_keyup;
+
+	if ( ( !on_keyup || !*on_keyup ) && !prevent_carrot )
+	{
+		return (char *)0;
+	}
+
+	if ( on_keyup && *on_keyup )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			on_keyup );
+	}
+
+	if ( prevent_carrot )
+	{
+		if ( ptr != text_on_keyup )
+		{
+			ptr += sprintf( ptr, ";" );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"timlib_prevent_carrot(event,this)" );
+	}
+
+	return strdup( text_on_keyup );
+}
+
+boolean element_text_autocomplete_off( char *name )
+{
+	if ( string_instr( "password", name, 1 ) != -1
+	||   string_instr( "login_name", name, 1 ) != -1 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 
