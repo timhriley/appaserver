@@ -539,9 +539,8 @@ typedef struct
 {
 	/* Attributes */
 	/* ---------- */
-	char *name;
+	char *attribute_name;
 	char *datatype_name;
-	char *value;
 	int max_length;
 	int size;
 	boolean null_to_slash;
@@ -551,6 +550,13 @@ typedef struct
 	char *on_keyup;
 	int tab_index;
 	boolean remember;
+
+	/* Public */
+	/* ------ */
+	char *value;
+	char *javascript_replace_on_change;
+	char *javascript_replace_on_focus;
+	char *prevent_carrot_on_keyup;
 
 	/* Private */
 	/* ------- */
@@ -562,39 +568,36 @@ typedef struct
 ELEMENT_TEXT *element_text_calloc(
 			void );
 
-/* Returns name */
-/* ------------ */
-char *element_text_key_string(
-			char *name );
-
-/* Returns value, heap memory, or null */
-/* ----------------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *element_text_value(
-			char *name,
-			char *value,
-			char *key_string,
+			char *attribute_name,
 			DICTIONARY *row_dictionary,
 			boolean is_number );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *element_text_on_change(
+char *element_text_javascript_replace_on_change(
 			char *on_change,
 			int row_number,
 			char *state,
 			boolean null_to_slash );
 
-char *element_text_on_focus(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_text_javascript_replace_on_focus(
 			char *on_focus,
 			int row_number,
 			char *state );
 
-char *element_text_on_keyup(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_text_prevent_carrot_on_keyup(
 			char *on_keyup,
 			boolean prevent_carrot );
 
 boolean element_text_autocomplete_off(
-			char *name );
+			char *attribute_name );
 
 /* Returns heap memory or null */
 /* --------------------------- */

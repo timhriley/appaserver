@@ -1995,46 +1995,105 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == text )
 	{
-		if ( !appaserver_element->text->value )
+		if ( !appaserver_element->text->datatype_name )
 		{
-			appaserver_element->text->key_string =
-				/* ------------ */
-				/* Returns name */
-				/* ------------ */
-				element_text_key_string(
-					appaserver_element->
-						text->
-						name );
-
-			appaserver_element->text->value =
-				/* ---------------------------------- */
-				/* Returns heap memory, name, or null */
-				/* ---------------------------------- */
-				element_text_value(
-					appaserver_element->
-						text->
-						name,
-					appaserver_element->
-						text->
-						value,
-					appaserver_element->
-						text->
-						key_string,
-					row_dictionary,
-					attribute_is_number(
-						appaserver_element->
-							text->
-							datatype_name ) );
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: datatype_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
+
+		appaserver_element->text->value =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			element_text_value(
+				appaserver_element->
+					text->
+					attribute_name,
+				row_dictionary,
+				attribute_is_number(
+					appaserver_element->
+						text->
+						datatype_name ) );
+
+		appaserver_element->text->javascript_replace_on_change =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			element_text_javascript_replace_on_change(
+				appaserver_element->text->on_change,
+				row_number,
+				state,
+				appaserver_element->text->null_to_slash );
+
+		appaserver_element->text->javascript_replace_on_focus =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			element_text_javascript_replace_on_focus(
+				appaserver_element->text->on_focus,
+				row_number,
+				state,
+				appaserver_element->text->null_to_slash );
+
+		appaserver_element->text->prevent_carrot_on_keyup =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			element_text_prevent_carrot_on_keyup(
+				appaserver_element->text->on_keyup,
+				appaserver_element->text->prevent_carrot );
+
+		appaserver_element->text->autocomplete_off =
+			element_text_autocomplete_off(
+				appaserver_element->text->attribute_name );
 
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_text_html(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			appaserver_element_name(
 				appaserver_element->
 					text->
-					name ),
+					attribute_name,
+				row_number ),
+			appaserver_element->text->value,
+			appaserver_element->text->max_length,
+			appaserver_element->text->size,
+			ELEMENT_TEXT_MAX_SIZE,
+			appaserver_element->text->javascript_replace_on_change,
+			appaserver_element->text->javascript_replace_on_focus,
+			appaserver_element->text->prevent_carrot_on_keyup,
+			appaserver_element->text->autocomplete_off,
+			appaserver_element->text->tab_index,
+			background_color );
+
+		if ( appaserver_element->text->javascript_replace_on_change )
+		{
+			free( appaserver_element->
+				text->
+				javascript_replace_on_change );
+		}
+
+		if ( appaserver_element->text->javascript_replace_on_focus )
+		{
+			free( appaserver_element->
+				text->
+				javascript_replace_on_focus );
+		}
+
+		if ( appaserver_element->text->prevent_carrot_on_keyup )
+		{
+			free( appaserver_element->
+				text->
+				prevent_carrot_on_keyup );
+		}
 	}
 	else
 	{
@@ -2467,15 +2526,24 @@ char *element_text_html(
 
 	ptr += sprintf(
 		ptr,
-	"<input name=\"%s\" type=\"text\" size=\"%d\" value=\"%s\"",
-		element_name, type, size, value );
+		"<input name=\"%s\" type=text size=%d maxlength=%d",
+		element_name,
+		type,
+		size,
+		max_length );
+
+	if ( value && *value )
+	{
+		ptr += sprintf(
+			ptr,
+			" value=\"%s\"",
+			value );
+	}
 
 	if ( autocomplete_off )
 	{
 		ptr += sprintf( ptr, " autocomplete=\"off\"" );
 	}
-
-	ptr += sprintf( ptr, " maxlength=\"%d\"", max_length );
 
 	if ( max_length > size )
 	{
@@ -2558,8 +2626,6 @@ char *element_text_value(
 	char text_value[ 1024 ];
 	char *data;
 
-	if ( value && *value ) return value;
-
 	if ( !key_string || !row_dictionary ) return (char *)0;
 
 	if ( ! ( data = dictionary_get( key_string, row_dictionary ) ) )
@@ -2581,7 +2647,7 @@ char *element_text_value(
 	return data;
 }
 
-char *element_text_on_change(
+char *element_text_javascript_replace_on_change(
 			char *on_change,
 			int row_number,
 			char *state,
@@ -2631,7 +2697,7 @@ char *element_text_on_change(
 	return strdup( text_on_change );
 }
 
-char *element_text_on_focus(
+char *element_text_javascript_replace_on_focus(
 			char *on_focus,
 			int row_number,
 			char *state )
@@ -2650,7 +2716,7 @@ char *element_text_on_focus(
 		row_number ) );
 }
 
-char *element_text_on_keyup(
+char *element_text_prevent_carrot_on_keyup(
 			char *on_keyup,
 			boolean prevent_carrot )
 {
@@ -2685,10 +2751,10 @@ char *element_text_on_keyup(
 	return strdup( text_on_keyup );
 }
 
-boolean element_text_autocomplete_off( char *name )
+boolean element_text_autocomplete_off( char *attribute_name )
 {
-	if ( string_instr( "password", name, 1 ) != -1
-	||   string_instr( "login_name", name, 1 ) != -1 )
+	if ( string_instr( "password", attribute_name, 1 ) != -1
+	||   string_instr( "login_name", attribute_name, 1 ) != -1 )
 	{
 		return 1;
 	}
