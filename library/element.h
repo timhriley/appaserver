@@ -167,6 +167,7 @@ typedef struct
 	char *name;
 	LIST *attribute_name_list;
 	LIST *delimited_list;
+	LIST *display_list;
 	boolean no_initial_capital;
 	boolean output_null_option;
 	boolean output_not_null_option;
@@ -175,14 +176,18 @@ typedef struct
 	int tab_order;
 	boolean multi_select;
 	char *post_change_javascript;
-	char *state;
-	char *initial_data;
+	boolean remember;
 
-	/* Process */
+	/* Public */
+	/* ------ */
+	char *key_string;
+	char *value;
+	int display_size;
+	char *html;
+
+	/* Private */
 	/* ------- */
 	char *heading;
-	int size;
-	char *html;
 } ELEMENT_DROP_DOWN;
 
 /* ELEMENT_DROP_DOWN operations */
@@ -194,16 +199,16 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			char *name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
+			LIST *display_list,
 			boolean no_initial_capital,
 			boolean output_null_option,
 			boolean output_not_null_option,
 			boolean output_select_option,
-			int column_span,
-			int drop_down_size,
+			int display_size,
 			int tab_order,
 			boolean multi_select,
 			char *post_change_javascript,
-			char *state );
+			boolean remember );
 
 ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			char *name,
@@ -212,19 +217,33 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			char *post_change_javascript,
 			char *state );
 
+/* Returns row_dictionary->hash_table->other_data */
+/* ---------------------------------------------- */
+char *element_drop_down_value(
+			char *key_string,
+			DICTIONARY *row_dictionary );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_drop_down_name(
+			LIST *attribute_name_list,
+			int row_number );
+
+int element_drop_down_display_size(
+			int delimited_list_length );
+
 /* Returns heap memory */
 /* ------------------- */
 char *element_drop_down_html( 	
-			char *element_drop_down_name,
-			char *initial_data,
+			char *name,
+			char *value,
 			LIST *delimited_list,
 			LIST *display_list,
 			boolean no_initial_capital,
 			boolean output_null_option,
 			boolean output_not_null_option,
 			boolean output_select_option,
-			int column_span,
-			int drop_down_size,
+			int display_size,
 			boolean multi_select,
 			int tab_order,
 			char *appaserver_element_javascript,
@@ -239,29 +258,30 @@ char *element_drop_down_empty_html(
 			char *appaserver_element_javascript,
 			char *background_color );
 
+/* Private */
+/* ------- */
 LIST *element_drop_down_display_list(
 			LIST *delimited_list,
 			boolean no_initial_capital );
 
-/* Returns static memory or null. */
-/* ------------------------------ */
-char *element_drop_down_initial_data_html(
-			char *initial_data,	
-			char *initial_display,
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_value_display(
+			char *value,
 			boolean no_initial_capital );
-
-/* Returns heap memory or null. */
-/* ---------------------------- */
-char *element_drop_down_option_value_list_html(
-			LIST *delimited_list,
-			LIST *display_list,
-			char *initial_data );
 
 /* Returns static memory */
 /* --------------------- */
 char *element_drop_down_option_value_html(
-			char *data,
-			char *display );
+			char *value,
+			char *value_display );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_drop_down_option_value_list_html(
+			LIST *delimited_list,
+			LIST *display_list,
+			char *value );
 
 /* Returns static memory. */
 /* ---------------------- */
@@ -269,19 +289,10 @@ char *element_drop_down_close_html(
 			boolean output_null_option,
 			boolean output_not_null_option );
 
-/* Returns static memory */
-/* --------------------- */
-char *element_drop_down_name(
-			LIST *attribute_name_list,
-			int row_number );
-
 /* Returns heap memory */
 /* ------------------- */
 char *element_drop_down_heading(
 			LIST *attribute_name_list );
-
-int element_drop_down_size(
-			int delimited_list_length );
 
 typedef struct
 {
@@ -308,13 +319,12 @@ typedef struct
 {
 	/* Attributes */
 	/* ---------- */
-	char *name;
+	char *attribute_name;
+	char *message;
 
 	/* Public */
 	/* ------ */
-	char *key_string;
-	char *html;
-	char *message;
+	char *initial_capital;
 
 	/* Private */
 	/* ------- */
@@ -326,27 +336,23 @@ typedef struct
 ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
 			void );
 
-/* Returns name */
-/* ------------ */
-char *element_non_edit_text_key_string(
-			char *name );
-
-/* Returns heap memory, name, or null */
-/* ---------------------------------- */
-char *element_non_edit_text_name(
-			char *name,
-			char *key_string,
-			DICTIONARY *row_dictionary );
-
-/* Returns static memory or null */
-/* ----------------------------- */
-char *element_non_edit_text_message(
-			char *name );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_non_edit_text_html(
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_new(
+			char *attribute_name,
 			char *message );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_non_edit_text_initial_capital(
+			char *value,
+			char *message );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_non_edit_text_html(
+			char *initial_capital );
 
 typedef struct
 {
@@ -383,9 +389,10 @@ char *element_line_break_html(
 
 typedef struct
 {
-	/* Attribute */
-	/* --------- */
+	/* Attributes */
+	/* ---------- */
 	boolean align_right;
+	int column_span;
 
 	/* Public */
 	/* ------ */
@@ -397,10 +404,15 @@ typedef struct
 ELEMENT_TABLE_DATA *element_table_data_calloc(
 			void );
 
+ELEMENT_TABLE_DATA *element_table_data_new(
+			boolean align_right,
+	 		int column_span );
+
 /* Returns heap memory */
 /* ------------------- */
 char *element_table_data_html(
-			boolean align_right );
+			boolean align_right,
+			int column_span );
 
 typedef struct
 {
@@ -438,7 +450,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			char *post_change_javascript,
 			char *state );
 
-int element_multi_drop_down_size(
+int element_multi_display_size(
 			void );
 
 /* Returns program memory */
@@ -567,6 +579,19 @@ typedef struct
 /* ----------------------- */
 ELEMENT_TEXT *element_text_calloc(
 			void );
+
+ELEMENT_TEXT *element_text_new(
+			char *attribute_name,
+			char *datatype_name,
+			int max_length,
+			int size,
+			boolean null_to_slash,
+			boolean prevent_carrot,
+			char *on_change,
+			char *on_focus,
+			char *on_keyup,
+			int tab_index,
+			boolean remember );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -727,24 +752,6 @@ char *appaserver_element_name(
 			char *name,
 			int row_number );
 
-void appaserver_element_list_output(
-			FILE *output_stream,
-			LIST *element_list );
-
-void appaserver_element_output(
-			FILE *output_stream,
-			APPASERVER_ELEMENT *element );
-
-/* Returns heap memory or "" */
-/* ------------------------- */
-char *appaserver_element_heading_string(
-			APPASERVER_ELEMENT *element );
-
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_element_heading_string(
-			char *name );
-
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_list_html(
@@ -761,14 +768,6 @@ char *appaserver_hidden_element_list_html(
 			int row_number,
 			DICTIONARY *row_dictionary );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *appaserver_element_html(
-			APPASERVER_ELEMENT *appaserver_element /* in/out */,
-			char *background_color,
-			char *state,
-			int row_number,
-			DICTIONARY *row_dictionary );
 
 /* Returns static memory */
 /* --------------------- */
@@ -782,8 +781,49 @@ char *appaserver_element_background_color_html(
 
 /* Returns data or heap memory */
 /* --------------------------- */
-char *element_place_commas_in_number_string(
-				char *element_name,
-				char *data );
+char *appaserver_element_number_commas_string(
+			char *element_name,
+			char *data );
+
+/* Returns row_dictionary->hash_table->other_data or null */
+/* ------------------------------------------------------ */
+char *appaserver_element_value(
+			char *attribute_name,
+			DICTIONARY *row_dictionary );
+
+/* Private */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_element_heading_string(
+			char *name );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_html(
+			APPASERVER_ELEMENT *appaserver_element /* in/out */,
+			char *background_color,
+			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_element_drop_down_html(
+			ELEMENT_DROP_DOWN *drop_down,
+			char *background_color,
+			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_element_text_html(
+			ELEMENT_TEXT *text,
+			char *background_color,
+			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary );
 
 #endif

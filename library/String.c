@@ -1584,3 +1584,55 @@ char *string_low( char *s )
         return hold;
 }
 
+char *string_commas_number_string( char *s )
+{
+	static char return_string[ 64 ];
+	char *r_ptr;
+	char *s_ptr;
+	int c = 0;
+ 
+	if ( !timlib_strlen( s ) ) return "";
+
+	r_ptr = &return_string[ 63 ];
+	*r_ptr-- = '\0';
+ 
+	s_ptr = s + strlen( s ) - 1;
+
+	if ( *s_ptr != '.' && !isdigit( *s_ptr ) ) return s;
+
+	if ( instr( ".", s, 1 ) != -1 )
+	{
+		while( s_ptr >= s )
+		{
+			if ( *s_ptr == '.' )
+			{
+				*r_ptr-- = *s_ptr--;
+				break;
+			}
+			else
+			{
+				*r_ptr-- = *s_ptr--;
+			}
+		}
+	}
+
+	while( s_ptr >= s )
+	{
+		*r_ptr-- = *s_ptr--;
+
+		if ( *s_ptr == '-' )
+		{
+			*r_ptr-- = *s_ptr--;
+			continue;
+		}
+
+		if ( ++c == 3 )
+		{
+			if ( s_ptr != s - 1 ) *r_ptr-- = ',';
+			c = 0;
+		}
+	}
+
+	return r_ptr + 1;
+}
+
