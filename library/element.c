@@ -111,94 +111,6 @@ APPASERVER_ELEMENT *appaserver_element_new(
 	return element;
 }
 
-char *element_password_html(
-			char *element_name,
-			char *data,
-			int attribute_width,
-			int row,
-			int tab_order )
-{
-	char html[ 1024 ];
-	char *ptr = html;
-	int maxlength;
-	int size;
-
-	maxlength = attribute_width;
-
-	if ( attribute_width > ELEMENT_MAX_TEXT_WIDTH )
-		size = ELEMENT_MAX_TEXT_WIDTH;
-	else
-		size = attribute_width;
-
-	if ( !data ) data = "";
-
-	ptr += sprintf( ptr, "<td>\n" );
-
-	ptr += sprintf( ptr, "<table border=0>\n" );
-
-	ptr += sprintf( ptr, "<tr><td>Type\n" );
-
-	ptr += sprintf( ptr,
-	"<td><input name=\"%s_%d\" type=\"password\" size=\"%d\" value=\"%s\"",
-		element_name, row, size, data );
-
-	ptr += sprintf( ptr, " maxlength=\"%d\"", maxlength );
-
-	ptr += sprintf( ptr,
-		 " onChange=\"null2slash(this)\"" );
-
-	ptr += sprintf( ptr, " Autocomplete=Off" );
-
-	if ( tab_order > 0 )
-	{
-		ptr += sprintf(
-			ptr,
-			" taborder=%d",
-			tab_order );
-	}
-
-	ptr += sprintf( ptr, ">\n" );
-
-	/* Output the password compare field */
-	/* --------------------------------- */
-	ptr += sprintf( ptr, "<tr><td>Retype\n" );
-
-	ptr += sprintf( ptr,
-"<td><input name=\"%s_compare_%d\" type=\"password\" size=\"%d\"",
-		element_name, row, size );
-
-	ptr += sprintf( ptr, " maxlength=\"%d\"", maxlength );
-
-	ptr += sprintf( ptr,
-		 " onChange=\"password_compare('%s_%d','%s_compare_%d')\"",
-		 element_name,
-		 row,
-		 element_name,
-		 row );
-
-	ptr += sprintf( ptr, " Autocomplete=Off" );
-
-	if ( tab_order > 0 )
-	{
-		ptr += sprintf(
-			ptr,
-			" taborder=%d",
-			tab_order +1 );
-	}
-
-	ptr += sprintf( ptr, ">\n" );
-
-	ptr += sprintf( ptr, "</table>\n" );
-	ptr += sprintf( ptr, "</td>\n" );
-
-	return strdup( html );
-}
-
-void element_password_erase_data( char *data )
-{
-	while( *data ) *data++ = '*';
-}
-
 char *element_drop_down_html(
 			char *drop_down_name,
 			char *value,
@@ -255,6 +167,7 @@ char *element_drop_down_html(
 		ptr += sprintf(
 			ptr,
 			"%s",
+			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			appaserver_element_background_color_html(
@@ -1278,6 +1191,7 @@ char *element_drop_down_empty_html(
 		ptr += sprintf(
 			ptr,
 			"%s",
+			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			appaserver_element_background_color_html(
@@ -1835,6 +1749,16 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == button )
 	{
+		if ( !appaserver_element->button )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: button is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_button_html(
@@ -1843,6 +1767,16 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == non_edit_text )
 	{
+		if ( !appaserver_element->non_edit_text )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: non_edit_text is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		return
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -1870,7 +1804,6 @@ char *appaserver_element_html(
 			exit( 1 );
 		}
 
-
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		return appaserver_element_hidden_html(
@@ -1891,7 +1824,6 @@ char *appaserver_element_html(
 			exit( 1 );
 		}
 
-
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		return appaserver_element_notepad_html(
@@ -1900,7 +1832,7 @@ char *appaserver_element_html(
 			row_dictionary );
 	}
 	else
-	if ( appaserver_element->element_type == line_break)
+	if ( appaserver_element->element_type == line_break )
 	{
 		/* Returns heap memory */
 		/* ------------------- */
@@ -1909,6 +1841,16 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == table_data )
 	{
+		if ( !appaserver_element->table_data )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: table_data is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_table_data_html(
@@ -1918,6 +1860,16 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == multi_drop_down )
 	{
+		if ( !appaserver_element->multi_drop_down )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: multi_drop_down is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		/* Returns heap memory */
 		/* ------------------- */
 		return element_multi_drop_down_html(
@@ -1952,6 +1904,16 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == text )
 	{
+		if ( !appaserver_element->text )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: text is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		if ( !appaserver_element->text->datatype_name )
 		{
 			fprintf(stderr,
@@ -1970,6 +1932,49 @@ char *appaserver_element_html(
 			state,
 			row_number,
 			row_dictionary );
+	}
+	else
+	if ( appaserver_element->element_type == password )
+	{
+		if ( !appaserver_element->password )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: password is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		return
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		element_password_html(
+			appaserver_element_name(
+				appaserver_element->
+					password->
+					attribute_name,
+				row_number ),
+			element_password_compare_element_name(
+				appaserver_element->
+					password->
+					attribute_name,
+				row_number ),
+			appaserver_element_value(
+				appaserver_element->
+					password->
+					attribute_name,
+				row_dictionary ),
+			appaserver_element->
+				password->
+				attribute_width_max_length,
+			appaserver_element->
+				password->
+				element_text_max_display_size,
+			appaserver_element->
+				password->
+				tab_index );
 	}
 	else
 	{
@@ -2371,30 +2376,36 @@ boolean element_checkbox_checked(
 char *element_text_html(
 			char *element_name,
 			char *value,
-			int max_length,
-			int size,
-			int max_size,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
 			char *on_change,
 			char *on_focus,
 			char *on_keyup,
 			boolean autocomplete_off,
-			int tax_index,
+			int tab_index,
 			char *background_color )
 {
 	char html[ STRING_64K ];
 	char *ptr = html;
+	int size;
 
 	if ( !element_name || !*element_name ) return (char *)0;
 
-	if ( size > max_size ) size = max_size;
+	if ( attribute_width_max_length > element_text_max_display_size )
+	{
+		size = element_text_display_size;
+	}
+	else
+	{
+		size = attribute_width_max_length;
+	}
 
 	ptr += sprintf(
 		ptr,
 		"<input name=\"%s\" type=text size=%d maxlength=%d",
 		element_name,
-		type,
 		size,
-		max_length );
+		attribute_width_max_length );
 
 	if ( value && *value )
 	{
@@ -2409,7 +2420,7 @@ char *element_text_html(
 		ptr += sprintf( ptr, " autocomplete=\"off\"" );
 	}
 
-	if ( max_length > size )
+	if ( attribute_width_max_length > size )
 	{
 		ptr += sprintf( ptr, " title=\"%s\"", value );
 	}
@@ -2450,8 +2461,12 @@ char *element_text_html(
 	{
 		ptr += sprintf(
 			ptr,
-			" style=\"{background:%s}\"",
-			background_color );
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_background_color_html(
+				background_color ) );
 	}
 
 	ptr += sprintf( ptr, ">" );
@@ -3259,3 +3274,148 @@ char *appaserver_element_notepad_html(
 		notepad->null_to_slash,
 		notepad->tab_index );
 }
+
+ELEMENT_PASSWORD *element_password_calloc( void )
+{
+	ELEMENT_PASSWORD *element_password;
+
+	if ( ! ( element_password = calloc( 1, sizeof( ELEMENT_PASSWORD ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+	}
+	return element_password;
+}
+
+ELEMENT_PASSWORD *element_password_new(
+			char *attribute_name,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
+			int tab_index )
+{
+	ELEMENT_PASSWORD *element_password = element_password_calloc();
+
+	element_password->attribute_name = attribute_name;
+
+	element_password->attribute_width_max_length =
+		attribute_width_max_length;
+
+	element_password->element_text_max_display_size =
+		element_text_max_display_size;
+
+	element_password->tab_index = tab_index;
+
+	return element_password;
+}
+
+char *element_password_compare_element_name(
+			char *attribute_name,
+			int row_number )
+{
+	static char element_name[ 128 ];
+
+	sprintf(element_name,
+		"%s_compare_%d",
+		attribute_name,
+		row_number );
+
+	return element_name;
+}
+
+char *element_password_html(
+			char *element_name,
+			char *compare_element_name,
+			char *value,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
+			int tab_index )
+{
+	char html[ STRING_16K ];
+	char *ptr = html;
+	int size;
+
+	if ( !element_name || !*element_name ) return (char *)0;
+	if ( !compare_element_name || !*compare_element_name ) return (char *)0;
+
+	if ( attribute_width_max_length > element_text_max_display_size )
+	{
+		size = element_text_display_size;
+	}
+	else
+	{
+		size = attribute_width_max_length;
+	}
+
+	ptr += sprintf( ptr, "<table border=0>\n" );
+
+	/* Output the password field */
+	/* ------------------------- */
+	ptr += sprintf( ptr, "<tr><td>Type\n" );
+
+	ptr += sprintf(
+		ptr,
+		"<td><input name=\"%s\" type=password size=%d maxlength=%d",
+		element_name,
+		size,
+		attribute_width_max_length );
+
+	if ( value && *value )
+	{
+		ptr += sprintf(
+			ptr,
+			" value=\"%s\"",
+			value );
+	}
+
+	ptr += sprintf( ptr, " autocomplete=off" );
+
+	ptr += sprintf( ptr, " onChange=\"null2slash(this)\"" );
+
+	if ( tab_index )
+	{
+		ptr += sprintf(
+			ptr,
+			" tabindex=%d",
+			tab_index );
+	}
+
+	ptr += sprintf( ptr, ">\n" );
+
+	/* Output the password compare field */
+	/* --------------------------------- */
+	ptr += sprintf( ptr, "<tr><td>Retype\n" );
+
+	ptr += sprintf(
+		ptr,
+"<td><input name=\"%s\" type=password size=%d maxlength=%d",
+		compare_element_name,
+		size,
+		attribute_width_max_length );
+
+	ptr += sprintf(
+		ptr,
+		" onChange=\"password_compare('%s','%s')\"",
+		element_name,
+		compare_element_name );
+
+	ptr += sprintf( ptr, " autocomplete=off" );
+
+	if ( tab_index )
+	{
+		ptr += sprintf(
+			ptr,
+			" tabindex=%d",
+			tab_index + 1 );
+	}
+
+	ptr += sprintf( ptr, ">\n" );
+
+	ptr += sprintf( ptr, "</table>\n" );
+
+	return strdup( html );
+}
+

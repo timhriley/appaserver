@@ -32,7 +32,7 @@
 #define ELEMENT_TEXT_LOOKUP_LENGTH 		100
 #define ELEMENT_TEXT_LARGE_WIDGET_SIZE		25
 #define ELEMENT_TEXT_SMALL_WIDGET_SIZE		10
-#define ELEMENT_TEXT_MAX_SIZE			30
+#define ELEMENT_TEXT_MAX_DISPLAY_SIZE		30
 #define ELEMENT_NOTEPAD_COLUMNS			30
 #define ELEMENT_NOTEPAD_ROWS			4
 #define ELEMENT_LARGE_NOTEPAD_THRESHOLD		10000
@@ -679,9 +679,8 @@ boolean element_text_autocomplete_off(
 char *element_text_html(
 			char *element_name,
 			char *value,
-			int max_length,
-			int size,
-			int max_size,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
 			char *on_change,
 			char *on_focus,
 			char *on_keyup,
@@ -697,11 +696,46 @@ typedef struct
 
 typedef struct
 {
-	char *data;
+	/* Input */
+	/* ----- */
+	char *attribute_name;
 	int attribute_width;
-	char *heading;
-	char *state;
+	int tab_index;
+
+	/* Private */
+	/* ------- */
+	char *heading_string;
 } ELEMENT_PASSWORD;
+
+/* ELEMENT_PASSWORD operations */
+/* --------------------------- */
+ELEMENT_PASSWORD *element_password_calloc(
+			void );
+
+ELEMENT_PASSWORD *element_password_new(
+			char *attribute_name,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
+			int tab_index );
+
+/* Public */
+/* ------ */
+
+/* Returns static memory */
+/* --------------------- */
+char *element_password_compare_element_name(
+			char *attribute_name,
+			int row_number );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_password_html(
+			char *element_name,
+			char *compare_element_name,
+			char *value,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
+			int tab_index );
 
 typedef struct
 {
