@@ -37,21 +37,22 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-char *string_enforce_utf16(	char *destination,
-				char *source );
+char *string_enforce_utf16(
+			char *destination,
+			char *source );
 
 LIST *string_negative_sequence_integer_list(
-				char *source );
+			char *source );
 
 char *string_occurrance_list_display(
-				char *destination,
-				LIST *occurrance_list );
+			char *destination,
+			LIST *occurrance_list );
 
 LIST *string_negative_sequence_occurrance_list(
-				char *source );
+			char *source );
 
-/* Returns input_buffer or (char *)0 if all done. */
-/* ---------------------------------------------- */
+/* Returns input_buffer or null if all done. */
+/* ----------------------------------------- */
 char *string_input(	char *input_buffer,
 			FILE *infile,
 			int buffer_size );

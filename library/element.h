@@ -33,10 +33,11 @@
 #define ELEMENT_TEXT_LARGE_WIDGET_SIZE		25
 #define ELEMENT_TEXT_SMALL_WIDGET_SIZE		10
 #define ELEMENT_TEXT_MAX_SIZE			30
-#define ELEMENT_NOTEPAD_DEFAULT_NUMBER_ROWS	4
+#define ELEMENT_NOTEPAD_COLUMNS			30
+#define ELEMENT_NOTEPAD_ROWS			4
 #define ELEMENT_LARGE_NOTEPAD_THRESHOLD		10000
-#define ELEMENT_LARGE_NOTEPAD_WIDTH		70
-#define ELEMENT_LARGE_NOTEPAD_NUMBER_ROWS	12
+#define ELEMENT_LARGE_NOTEPAD_COLUMNS		70
+#define ELEMENT_LARGE_NOTEPAD_ROWS		12
 #define ELEMENT_NULL_OPERATOR			"is_empty"
 #define ELEMENT_NOT_NULL_OPERATOR		"not_empty"
 #define ELEMENT_SELECT_OPERATOR			"select"
@@ -139,21 +140,18 @@ ELEMENT_CHECKBOX *element_checkbox_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *element_checkbox_heading_string(
-			char *name );
+			char *attribute_name );
 
 /* Returns name */
 /* ------------ */
-char *element_checkbox_key_string(
-			char *name );
-
 boolean element_checkbox_checked(
-			char *key_string,
+			char *attribute_name,
 			DICTIONARY *row_dictionary );
 
 /* Returns heap memory */
 /* ------------------- */
 char *element_checkbox_html(
-			char *name,
+			char *attribute_name,
 			char *prompt_display,
 			boolean checked,
 			char *on_click,
@@ -343,21 +341,24 @@ ELEMENT_NON_EDIT_TEXT *element_non_edit_text_new(
 /* Public */
 /* ------ */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* ---------------------------- */
 char *element_non_edit_text_initial_capital(
 			char *value,
 			char *message );
 
-/* Returns heap memory */
-/* ------------------- */
-char *element_non_edit_text_html(
-			char *initial_capital );
-
 typedef struct
 {
-	char *name;
-	char *data;
+	/* Input */
+	/* ----- */
+	char *attribute_name;
+	LIST *attribute_name_list;
+
+	/* Public */
+	/* ------ */
+	char *key_string;
+	char *element_name;
+	char *value;
 } ELEMENT_HIDDEN;
 
 /* ELEMENT_HIDDEN operations */
@@ -365,12 +366,27 @@ typedef struct
 ELEMENT_HIDDEN *element_hidden_calloc(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *element_hidden_html(
-			char *name,
-			char *data,
+ELEMENT_HIDDEN *element_hidden_new(
+			char *attribute_name,
+			LIST *attribute_name_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_hidden_key_string(
+			char *attribute_name,
+			LIST *attribute_name_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_hidden_name(
+			char *key_string,
 			int row_number );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_hidden_html(
+			char *element_name,
+			char *value );
 
 typedef struct
 {
@@ -539,13 +555,47 @@ typedef struct
 
 typedef struct
 {
-	char *data;
-	int attribute_width;
-	int number_rows;
-	char *heading;
-	char onchange_null2slash_yn;
-	char *state;
+	/* Input */
+	/* ----- */
+	char *attribute_name;
+	int attribute_size;
+	int columns;
+	int rows;
+	boolean null_to_slash;
+	int tab_index;
+
+	/* Public */
+	/* ------ */
+	char *value;
+
+	/* Private */
+	/* ------- */
+	char *heading_string;
 } ELEMENT_NOTEPAD;
+
+/* ELEMENT_NOTEPAD operations */
+/* -------------------------- */
+ELEMENT_NOTEPAD *element_notepad_calloc(
+			void );
+
+ELEMENT_NOTEPAD *element_notepad_new(
+			char *attribute_name,
+			int attribute_size,
+			int columns,
+			int rows,
+			boolean null_to_slash,
+			int tab_index );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_notepad_html(
+			char *element_name,
+			char *value,
+			int attribute_size,
+			int element_notepad_columns,
+			int element_notepad_rows,
+			boolean null_to_slash,
+			int tab_index );
 
 typedef struct
 {
@@ -702,10 +752,10 @@ typedef struct
 	ELEMENT_TABLE_DATA *table_data;
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
 	ELEMENT_TEXT *text;
+	ELEMENT_NOTEPAD *notepad;
 
 /*
 	ELEMENT_RADIO_BUTTON *radio_button;
-	ELEMENT_NOTEPAD *notepad;
 	ELEMENT_PASSWORD *password;
 	ELEMENT_UPLOAD_FILENAME *upload_filename;
 	ELEMENT_HTTP_FILENAME *http_filename;
@@ -749,7 +799,7 @@ char *appaserver_element_javascript(
 /* Returns static memory */
 /* --------------------- */
 char *appaserver_element_name(
-			char *name,
+			char *attribute_name,
 			int row_number );
 
 /* Returns heap memory or null */
@@ -785,10 +835,15 @@ char *appaserver_element_number_commas_string(
 			char *element_name,
 			char *data );
 
+/* Returns static memory or null */
+/* ----------------------------- */
+char *appaserver_element_key_string(
+			LIST *attribute_name_list );
+
 /* Returns row_dictionary->hash_table->other_data or null */
 /* ------------------------------------------------------ */
 char *appaserver_element_value(
-			char *attribute_name,
+			char *key_string,
 			DICTIONARY *row_dictionary );
 
 /* Private */
@@ -808,8 +863,8 @@ char *appaserver_element_html(
 			int row_number,
 			DICTIONARY *row_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *appaserver_element_drop_down_html(
 			ELEMENT_DROP_DOWN *drop_down,
 			char *background_color,
@@ -817,12 +872,26 @@ char *appaserver_element_drop_down_html(
 			int row_number,
 			DICTIONARY *row_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *appaserver_element_text_html(
 			ELEMENT_TEXT *text,
 			char *background_color,
 			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_hidden_html(
+			ELEMENT_HIDDEN *hidden,
+			int row_number,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_notepad_html(
+			ELEMENT_NOTEPAD *notepad,
 			int row_number,
 			DICTIONARY *row_dictionary );
 

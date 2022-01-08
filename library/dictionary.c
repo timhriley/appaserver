@@ -955,20 +955,14 @@ char *dictionary_get(	char *key,
 			DICTIONARY *d )
 {
 	int duplicate_indicator = 0;
-	char *memory;
 
-	if ( !d ) return (void *)0;
+	if ( !key || !d ) return (char *)0;
 
-	memory =
-		(char *)hash_table_retrieve_other_data( 
-			d->hash_table, 
-			key,
-			&duplicate_indicator );
-
-	if ( !memory )
-		return (void *)0;
-	else
-		return (void *)memory;
+	return
+	(char *)hash_table_retrieve_other_data( 
+		d->hash_table, 
+		key,
+		&duplicate_indicator );
 }
 
 void dictionary_free_data( DICTIONARY *d, LIST *key_list )

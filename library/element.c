@@ -647,6 +647,13 @@ ELEMENT_NON_EDIT_TEXT *element_non_edit_text_new(
 			char *attribute_name,
 			char *message )
 {
+	ELEMENT_NON_EDIT_TEXT *element_non_edit_text =
+		element_non_edit_text_calloc();
+
+	element_non_edit_text->attribute_name = attribute_name;
+	element_non_edit_text->message = message;
+
+	return element_non_edit_text;
 }
 
 char *element_non_edit_text_initial_capital(
@@ -655,15 +662,7 @@ char *element_non_edit_text_initial_capital(
 {
 	char initial_capital[ 2048 ];
 
-	if ( !value && !message )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: value and message are empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !value && !message ) return strdup( "" );
 
 	if ( value )
 	{
@@ -681,40 +680,12 @@ char *element_non_edit_text_initial_capital(
 	}
 }
 
-char *element_non_edit_text_html(
-			char *initial_capital )
-{
-}
-
-char *element_non_edit_text_message(
-			char *name )
-{
-	static char message[ 256 ];
-
-	if ( !name ) return (char *)0;
-
-	if ( strcmp( name ) > 255 )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: invalid length = %d.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			strlen( name ) );
-		exit( 1 );
-	}
-
-	return
-	string_initial_capital(
-		message,
-		name );
-}
-
 char *element_drop_down_name(
 			LIST *attribute_name_list,
 			int row_number )
 {
 	static char drop_down_name[ 1024 ];
+	char *results;
 
 	if ( !list_length( attribute_name_list ) )
 	{
@@ -726,13 +697,20 @@ char *element_drop_down_name(
 		exit( 1 );
 	}
 
-	sprintf(drop_down_name,
-		"%s_%d",
+	results =
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
 		list_display_delimited(
 			attribute_name_list,
-			SQL_DELIMITER ),
+			SQL_DELIMITER );
+
+	sprintf(drop_down_name,
+		"%s_%d",
+		results,
 		row_number );
 
+	free( results );
 	return drop_down_name;
 }
 
@@ -1063,13 +1041,30 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 char *element_multi_drop_down_name(
 			LIST *attribute_name_list )
 {
-	static char drop_down_name[ 256 ];
+	static char drop_down_name[ 1024 ];
+	char *results;
 
-	strcpy(	drop_down_name,
+	if ( !list_length( attribute_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: list_length() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	results =
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
 		list_display_delimited(
 			attribute_name_list,
-			SQL_DELIMITER ) );
+			SQL_DELIMITER );
 
+	strcpy(	drop_down_name, results );
+
+	free( results );
 	return drop_down_name;
 }
 
@@ -1102,6 +1097,9 @@ char *element_multi_drop_down_original_name(
 	sprintf(drop_down_name,
 		"%s%s",
 		element_name_prefix,	
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
 		list_display_delimited(
 			attribute_name_list,
 			SQL_DELIMITER ) );
@@ -1786,15 +1784,9 @@ char *appaserver_element_html(
 	{
 		char prompt_display[ 256 ];
 
-		appaserver_element->checkbox->key_string =
-			element_checkbox_key_string(
-				appaserver_element->
-					checkbox->
-					name );
-
 		appaserver_element->checkbox->checked =
 			element_checkbox_checked(
-				appaserver_element->checkbox->key_string,
+				appaserver_element->checkbox->attribute_name,
 				row_dictionary );
 
 		/* Returns heap memory */
@@ -1806,7 +1798,7 @@ char *appaserver_element_html(
 			appaserver_element_name(
 				appaserver_element->
 					checkbox->
-					name,
+					attribute_name,
 				row_number ),
 			string_initial_capital(
 				prompt_display,
@@ -1819,22 +1811,26 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == drop_down )
 	{
-		char *html;
+		if ( !appaserver_element->drop_down )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: drop_down is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-		html =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
+		return
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			appaserver_element_drop_down_html(
 				appaserver_element->drop_down,
 				background_color,
 				state,
 				row_number,
 				row_dictionary );
-
-		appaserver_element->drop_down->value = (char *)0;
-
-		return html;
 	}
 	else
 	if ( appaserver_element->element_type == button )
@@ -1848,9 +1844,9 @@ char *appaserver_element_html(
 	if ( appaserver_element->element_type == non_edit_text )
 	{
 		return
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		element_non_edit_text_initial_capital(
 			appaserver_element_value(
 				appaserver_element->
@@ -1864,12 +1860,44 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == hidden )
 	{
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_hidden_html(
-			appaserver_element->hidden->name,
-			appaserver_element->hidden->data,
-			row_number );
+		if ( !appaserver_element->hidden )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: hidden is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		return appaserver_element_hidden_html(
+			appaserver_element->hidden,
+			row_number,
+			row_dictionary );
+	}
+	else
+	if ( appaserver_element->element_type == notepad )
+	{
+		if ( !appaserver_element->notepad )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: notepad is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		return appaserver_element_notepad_html(
+			appaserver_element->hidden,
+			row_number,
+			row_dictionary );
 	}
 	else
 	if ( appaserver_element->element_type == line_break)
@@ -1934,8 +1962,8 @@ char *appaserver_element_html(
 			exit( 1 );
 		}
 
-		/* Returns heap memory */
-		/* ------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		return appaserver_element_text_html(
 			appaserver_element->text,
 			background_color,
@@ -1983,6 +2011,9 @@ char *element_drop_down_heading( LIST *attribute_name_list )
 
 	sprintf(heading,
 		"%s", 
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
 		list_display_delimited(
 			attribute_name_list,
 			SQL_DELIMITER ) );
@@ -2313,28 +2344,23 @@ char *element_checkbox_heading_string( char *name )
 	return string_initial_capital( heading_string, name );
 }
 
-char *element_checkbox_key_string( char *name )
-{
-	return name;
-}
-
 boolean element_checkbox_checked(
-			char *key_string,
+			char *attribute_name,
 			DICTIONARY *row_dictionary )
 {
 	char *data;
 
-	if ( !key_string )
+	if ( !attribute_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: key_string is empty.\n",
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	data = dictionary_get( key_string, row_dictionary );
+	data = dictionary_get( attribute_name, row_dictionary );
 
 	if ( data && *data == 'y' )
 		return 1;
@@ -2361,8 +2387,6 @@ char *element_text_html(
 	if ( !element_name || !*element_name ) return (char *)0;
 
 	if ( size > max_size ) size = max_size;
-
-	if ( !value ) value = "";
 
 	ptr += sprintf(
 		ptr,
@@ -2650,18 +2674,32 @@ char *appaserver_element_drop_down_html(
 			int row_number,
 			DICTIONARY *row_dictionary )
 {
+	char *html;
+
+	if ( !drop_down )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: drop_down is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( list_length( drop_down->attribute_name_list
 	&&   dictionary_length( row_dictionary ) )
 	{
-		drop_down->key_string =
-			element_drop_down_key_string(
-				drop_down->attribute_name_list );
-
 		drop_down->value =
-			element_drop_down_value(
-				drop_down->key_string,
+			appaserver_element_value(
+				/* ----------------------------- */
+				/* Returns static memory or null */
+				/* ----------------------------- */
+				appaserver_element_key_string(
+					drop_down->attribute_name_list ),
 				row_dictionary );
 	}
+
+	if ( !drop_down->value ) return (char *)0;
 
 	/* Returns heap memory */
 	/* ------------------- */
@@ -2702,6 +2740,9 @@ char *appaserver_element_drop_down_html(
 			state,
 			row_number ),
 		background_color );
+
+	drop_down->value = 0.0;
+	return html;
 }
 
 ELEMENT_TABLE_DATA *element_table_data_calloc( void )
@@ -2884,3 +2925,337 @@ char *appaserver_element_text_html(
 	return htm;
 }
 
+char *appaserver_element_value(
+			char *key_string,
+			DICTIONARY *row_dictionary )
+{
+	if ( !string_strlen( key_string )
+	||   !dictionary_length( row_dictionary ) )
+	{
+		return (char *)0;
+	}
+
+	return dictionary_get( key_string, row_dictionary );
+}
+
+char *appaserver_element_key_string( LIST *attribute_name_list )
+{
+	static char key_string[ 1024 ];
+	char *results;
+
+	if ( !list_length( attribute_name_list ) ) return (char *)0;
+
+	results =
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		list_display_delimited(
+			attribute_name_list,
+			',' /* delimiter */ );
+
+	strcpy( key_string, results );
+	free( results );
+
+	return key_string;
+}
+
+ELEMENT_HIDDEN *element_hidden_calloc( void )
+{
+	ELEMENT_HIDDEN *element_hidden;
+
+	if ( ! ( element_hidden = calloc( 1, sizeof( ELEMENT_HIDDEN ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return element_hidden;
+}
+
+ELEMENT_HIDDEN *element_hidden_new(
+			char *attribute_name,
+			LIST *attribute_name_list )
+{
+	ELEMENT_HIDDEN *element_hidden = element_hidden_calloc();
+
+	element_hidden->attribute_name = attribute_name;
+	element_hidden->attribute_name_list = attribute_name_list;
+
+	return element_hidden;
+}
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_hidden_html(
+			char *element_name,
+			char *value )
+{
+	char html[ 1024 ];
+
+	if ( !element_name || !value )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"<input name=%s type=hidden value=\"%s\">",
+		element_name,
+		value );
+
+	return strdup( html );
+}
+
+char *appaserver_element_hidden_html(
+			ELEMENT_HIDDEN *hidden,
+			int row_number,
+			DICTIONARY *row_dictionary )
+{
+	char *html;
+
+	if ( !hidden )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: hidden is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( hidden->key_string =
+			element_hidden_key_string(
+				hidden->attribute_name,
+				hidden->attribute_name_list ) ) )
+	{
+		return (char *)0;
+	}
+
+	hidden->element_name =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		element_hidden_name(
+			hidden->key_string,
+			row_number );
+
+	hidden->value =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_value(
+			hidden->key_string,
+			row_dictionary );
+
+	if ( !hidden->value ) return (char *)0;
+
+	html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_hidden_html(
+			hidden->element_name,
+			hidden->value );
+
+	free( hidden->value );
+
+	return html;
+}
+
+char *element_hidden_name(
+			char *key_string,
+			int row_number )
+{
+	static char name[ 1024 ];
+
+	if ( !key_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: key_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf( name, "%s_%d", key_string, row_number );
+
+	return name;
+}
+
+char *element_hidden_key_string(
+			char *attribute_name,
+			LIST *attribute_name_list )
+{
+
+	if ( attribute_name )
+	{
+		static char key_string[ 1024 ];
+
+		strcpy( key_string, attribute_name );
+		return key_string;
+	}
+	else
+	if ( list_length( attribute_name_list ) )
+	{
+		return
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		appaserver_element_key_string(
+			attribute_name_list );
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+
+char *element_notepad_html(
+			char *element_name,
+			char *value,
+			int attribute_size,
+			int columns,
+			int rows,
+			boolean null_to_slash,
+			int tab_index )
+{
+	char html[ STRING_128K ];
+	char *ptr = html;
+
+	if ( !element_name ) return (char *)0;
+
+	if ( attribute_size >= ELEMENT_LARGE_NOTEPAD_THRESHOLD )
+	{
+		columns = ELEMENT_LARGE_NOTEPAD_COLUMNS;
+		rows = ELEMENT_LARGE_NOTEPAD_ROWS;
+	}
+
+	ptr += sprintf(
+		ptr,
+		"<textarea name=\"%s\" cols=%d rows=%d",
+		element_name,
+		columns,
+		rows );
+
+	if ( null_to_slash )
+	{
+		ptr += sprintf(
+			ptr,
+			" onChange=\"null2slash(this)\"" );
+	}
+
+	ptr += sprintf(
+		ptr,
+		" onblur=\"timlib_check_notepad_size(this, %d);\"",
+		attribute_size );
+
+	ptr += sprintf(
+		ptr,
+		" onkeyup=\"timlib_prevent_carrot(event,this)\"" );
+
+	if ( tab_index )
+	{
+		ptr += sprintf(
+			ptr,
+			" tabindex=%d",
+			 tab_index );
+	}
+
+	ptr += sprintf(
+		ptr,
+		 " wrap=%s>\n",
+		 ELEMENT_TEXTAREA_WRAP );
+
+	if ( value && *value )
+	{
+		ptr += sprintf(
+			ptr,
+		 	"%s\n",
+		 	value );
+	}
+
+	ptr += sprintf(
+		ptr,
+		 "</textarea>\n" );
+
+	return strdup( html );
+}
+
+ELEMENT_NOTEPAD *element_notepad_calloc( void )
+{
+	ELEMENT_NOTEPAD *element_notepad;
+
+	if ( ! ( element_notepad = calloc( 1, sizeof( ELEMENT_NOTEPAD ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return element_notepad;
+}
+
+ELEMENT_NOTEPAD *element_notepad_new(
+			char *attribute_name,
+			int attribute_size,
+			int columns,
+			int rows,
+			boolean null_to_slash,
+			int tab_index )
+{
+	ELEMENT_NOTEPAD *element_notepad = element_notepad_calloc();
+
+	element_notepad->attribute_name = attribute_name;
+	element_notepad->attribute_size = attribute_size;
+	element_notepad->columns = columns;
+	element_notepad->rows = rows;
+	element_notepad->null_to_slash = null_to_slash;
+	element_notepad->tab_index = tab_index;
+
+	return element_notepad;
+}
+
+char *appaserver_element_notepad_html(
+			ELEMENT_NOTEPAD *notepad,
+			int row_number,
+			DICTIONARY *row_dictionary )
+{
+	if ( !notepad )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: notepad is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	element_notepad_html(
+		appaserver_element_name(
+			notepad->attribute_name,
+			row_number ),
+		appaserver_element_value(
+			notepad->attribute_name,
+			row_dictionary ),
+		notepad->attribute_size,
+		notepad->columns,
+		notepad->rows,
+		notepad->null_to_slash,
+		notepad->tab_index );
+}
