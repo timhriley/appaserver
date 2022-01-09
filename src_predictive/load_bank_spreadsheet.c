@@ -81,9 +81,9 @@ int main( int argc, char **argv )
 	application_name = environ_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
 	if ( argc != 14 )
 	{

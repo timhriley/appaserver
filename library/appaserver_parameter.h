@@ -11,15 +11,21 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_PARAMETER_DEFAULT_DIRECTORY		"/etc"
-#define APPASERVER_PARAMETER_NAME			"appaserver.config"
-#define APPASERVER_PARAMETER_APPLICATION_FILE_NAME	"appaserver_%s.config"
+#define APPASERVER_PARAMETER_APPLICATION_NAME	"/etc/appaserver_%s.config"
+#define APPASERVER_PARAMETER_GENERIC_NAME	"/etc/appaserver.config"
 
-/* Type definitions */
-/* ---------------- */
 typedef struct
 {
-	char *user;
+	/* Input */
+	/* ----- */
+	char *application_name;
+
+	/* Attributes */
+	/* ---------- */
+	char *filename;
+	FILE *file;
+	DICTIONARY *dictionary;
+	char *mysql_user;
 	char *password;
 	char *flags;
 	char *MYSQL_HOST;
@@ -30,15 +36,38 @@ typedef struct
 	char *document_root;
 	char *appaserver_error_directory;
 	char *appaserver_data_directory;
-	char *parameter_file_full_path;
+	char *upload_directory;
 	boolean mysql_password_syntax;
-
 } APPASERVER_PARAMETER;
 
-/* Prototypes */
-/* ---------- */
+/* APPASERVER_PARAMETER operations */
+/* -------------------------------- */
+APPASERVER_PARAMETER *appaserver_parameter_calloc(
+			void );
+
 APPASERVER_PARAMETER *appaserver_parameter_new(
 			void );
+
+APPASERVER_PARAMETER *appaserver_parameter_application(
+			char *application_name );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_parameter_filename(
+			char *application_name );
+
+FILE *appaserver_parameter_open(
+			char *filename );
+
+DICTIONARY *appaserver_parameter_dictionary(
+			FILE *file );
+
+/* ---------------------------- */
+/* Returns appaserver_parameter */
+/* ---------------------------- */
+APPASERVER_PARAMETER *appaserver_parameter_fetch(
+			APPASERVER_PARAMETER *appaserver_parameter,
+			DICTIONARY *dictionary );
 
 char *appaserver_parameter_mount_point(
 			void );
@@ -58,19 +87,7 @@ char *appaserver_parameter_cgi_home(
 char *appaserver_parameter_document_root(
 			void );
 
-DICTIONARY *appaserver_parameter_load_record_dictionary(
-			FILE *input_pipe,
-			int delimiter );
-
-APPASERVER_PARAMETER *appaserver_parameter_fetch(
-			FILE *f,
-			char *parameter_file_full_path );
-
-APPASERVER_PARAMETER *appaserver_parameter_application(
-			char *application_name );
-
-FILE *appaserver_parameter_open(
-			char *filename,
-			char *application_name );
+char *appaserver_parameter_upload_directory(
+			void );
 
 #endif

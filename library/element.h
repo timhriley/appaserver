@@ -57,7 +57,7 @@ enum element_type {	table_open,
 			radio_button,
 			notepad,
 			password,
-			upload_filename,
+			upload,
 			reference_number,
 			javascript_filename,
 			element_date,
@@ -531,11 +531,6 @@ typedef struct
 
 typedef struct
 {
-	int attribute_width;
-} ELEMENT_UPLOAD_FILENAME;
-
-typedef struct
-{
 	char *heading;
 	char *data;
 	char *align;
@@ -739,6 +734,63 @@ char *element_password_html(
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *attribute_name;
+	int quantity;
+} ELEMENT_UPLOAD;
+
+/* ELEMENT_UPLOAD operations */
+/* ------------------------- */
+ELEMENT_UPLOAD *element_upload_calloc(
+			void );
+
+ELEMENT_UPLOAD *element_upload_new(
+			char *attribute_name,
+			int quantity );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_upload_html(
+			char *attribute_name,
+			int quantity );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_upload_filename(
+			char *attribute_name,
+			int index );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_upload_filename_html(
+			char *filename );
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *attribute_name;
+	int quantity;
+} ELEMENT_HTTP_FILENAME;
+
+/* ELEMENT_HTTP_FILENAME operations */
+/* ------------------------- */
+ELEMENT_HTTP_FILENAME *element_http_filename_calloc(
+			void );
+
+ELEMENT_HTTP_FILENAME *element_http_filename_new(
+			char *attribute_name,
+			int quantity );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_http_filename_html(
+			char *attribute_name,
+			int quantity );
+
+typedef struct
+{
 	char *data;
 	int attribute_width;
 	char *heading;
@@ -862,6 +914,11 @@ char *appaserver_element_javascript_html(
 /* --------------------- */
 char *appaserver_element_background_color_html(
 			char *background_color );
+
+/* Returns static memory */
+/* --------------------- */
+char *appaserver_element_tab_index_html(
+			int tab_index );
 
 /* Returns data or heap memory */
 /* --------------------------- */

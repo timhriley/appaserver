@@ -1533,14 +1533,14 @@ char *appaserver_element_heading( APPASERVER_ELEMENT *element )
 	{
 		return element_text_item_heading(
 				element->name,
-				element->text_item->heading );
+				element->text_item->heading_string );
 	}
 	else
 	if ( element->element_type == password )
 	{
 		return element_password_heading(
 				element->name,
-				element->password->heading );
+				element->password->heading_string );
 	}
 	else
 	if ( element->element_type == toggle_button )
@@ -1977,6 +1977,31 @@ char *appaserver_element_html(
 				tab_index );
 	}
 	else
+	if ( appaserver_element->element_type == upload )
+	{
+		if ( !appaserver_element->upload )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: upload is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		return
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		element_upload_html(
+			appaserver_element->
+				password->
+				attribute_name,
+			appaserver_element->
+				password->
+				quantity );
+	}
+	else
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: invalid element_type = %d.\n",
@@ -2249,10 +2274,27 @@ char *appaserver_element_javascript_html(
 	return html;
 }
 
+char *appaserver_element_tab_index_html(
+			int tab_index )
+{
+	static char html[ 32 ];
+
+	*html = '\0';
+
+	if ( tab_index )
+	{
+		sprintf(html,
+			" tabindex=%d",
+			tab_index );
+	}
+
+	return html;
+}
+
 char *appaserver_element_background_color_html(
 			char *background_color )
 {
-	static char html[ 256 ];
+	static char html[ 128 ];
 
 	*html = '\0';
 
@@ -2429,8 +2471,12 @@ char *element_text_html(
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			tab_index );
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_tab_index_html(
+				tab_index ) );
 	}
 
 	if ( on_change && *on_change )
@@ -3181,8 +3227,12 @@ char *element_notepad_html(
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			 tab_index );
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_tab_index_html(
+				tab_index ) );
 	}
 
 	ptr += sprintf(
@@ -3350,7 +3400,13 @@ char *element_password_html(
 		size = attribute_width_max_length;
 	}
 
-	ptr += sprintf( ptr, "<table border=0>\n" );
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_table_open_html() );
 
 	/* Output the password field */
 	/* ------------------------- */
@@ -3379,8 +3435,12 @@ char *element_password_html(
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			tab_index );
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_tab_index_html(
+				tab_index ) );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
@@ -3408,8 +3468,12 @@ char *element_password_html(
 	{
 		ptr += sprintf(
 			ptr,
-			" tabindex=%d",
-			tab_index + 1 );
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_tab_index_html(
+				tab_index ) );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
@@ -3418,4 +3482,223 @@ char *element_password_html(
 
 	return strdup( html );
 }
+
+ELEMENT_UPLOAD *element_upload_calloc( void )
+{
+	ELEMENT_UPLOAD *element_upload;
+
+	if ( ! ( element_upload =
+			calloc( 1, sizeof( ELEMENT_UPLOAD ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return element_upload;
+}
+
+ELEMENT_UPLOAD *element_upload_new(
+			char *attribute_name,
+			int quantity )
+{
+	ELEMENT_UPLOAD *element_upload = element_upload_calloc();
+
+	element_upload->attribute_name = attribute_name;
+	element_upload->quantity = quantity;
+
+	return element_upload;
+}
+
+char *element_upload_filename(
+			char *attribute_name,
+			int index )
+{
+	static char filename[ 128 ];
+
+	if ( !attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(filename,
+		"%s_%d",
+		attribute_name,
+		index );
+
+	return filename;
+}
+
+char *element_upload_html(
+			char *attribute_name,
+			int quantity )
+{
+	char html[ 1024 ];
+	char *ptr = html;
+	int index;
+
+	if ( !attribute_name || quantity < 1 )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: invalid parameter.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
+	}
+
+	if ( quantity > 1 )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s<tr><td>\n",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_table_open_html() );
+	}
+
+	for( index = 0; index < quantity; index++ )
+	{
+		if ( quantity > 1 && index )
+		{
+			ptr += sprintf( ptr, "\n<tr><td>" );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			element_upload_filename_html(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				element_upload_filename(
+					attribute_name,
+					index ) ) );
+	}
+
+	sprintf(html,
+		"<input name=\"%s\"", name );
+	}
+	else
+	{
+		fprintf( output_file,
+		"<td><input name=\"%s_%d\"", name, row );
+	}
+
+	fprintf( output_file,
+	" type=\"file\" size=\"%d\"", size );
+
+	fprintf( output_file,
+	" accept=\"*\"" );
+
+	fprintf( output_file, " maxlength=\"%d\"", maxlength );
+
+	if ( quantity > 1 )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_table_close_html() );
+	}
+
+	return strdup( html );
+}
+
+char *element_upload_filename_html( char *filename )
+{
+	static char html[ 256 ];
+
+	sprintf(html,
+		"<input name=\"%s\" type=file value=\"\" accept=\"*\">",
+		filename );
+
+	return html;
+}
+
+
+char *element_http_filename_html(
+	char *filename;
+	char filename_link[ 512 ];
+	static int target_offset = 0;
+
+	if ( !http_filename->data ) http_filename->data = "";
+
+	filename = basename_get_filename( http_filename->data );
+
+	if ( timlib_strncmp( http_filename->data, "http" ) != 0
+	&&   *http_filename->data != '/' )
+	{
+		sprintf(	filename_link,
+				"/appaserver/%s/%s",
+				application_name,
+				http_filename->data );
+	}
+	else
+	{
+		strcpy( filename_link, http_filename->data );
+		filename = http_filename->data;
+	}
+
+	fprintf(output_file,
+		"<td><a href=\"%s\" target=%s_%d>%s</a>", 
+		filename_link,
+		element_name,
+		++target_offset,
+		filename );
+/*
+		(*filename) ? filename : http_filename->data );
+*/
+
+	if ( http_filename->update_text_item )
+	{
+		ELEMENT_TEXT_ITEM *element_text_item;
+
+		element_text_item = http_filename->update_text_item;
+
+		fprintf( output_file, "<br>" );
+
+		element_text_item_output(
+			output_file,
+			element_name,
+			http_filename->data,
+			element_text_item->attribute_width,
+			row,
+			element_text_item->onchange_null2slash_yn,
+			element_text_item->post_change_javascript,
+			element_text_item->on_focus_javascript_function,
+			element_text_item->widget_size,
+			background_color,
+			0 /* tab_index */,
+			1 /* without_td_tags */,
+			element_text_item->readonly,
+			element_text_item->state,
+			element_text_item->is_numeric );
+	}
+
+	fprintf(output_file, "</td>\n" );
+
+	if ( !http_filename->update_text_item )
+	{
+		element_hidden_name_dictionary_output(
+			output_file,
+			(DICTIONARY *)0 /* hidden_name_dictionary */,
+			row,
+			element_name,
+			http_filename->data );
+	}
 

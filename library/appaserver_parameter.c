@@ -8,12 +8,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "environ.h"
 #include "dictionary.h"
-#include "appaserver_error.h"
-#include "appaserver_library.h"
-#include "fopen_path.h"
+#include "boolean.h"
 #include "appaserver_parameter.h"
 
 static APPASERVER_PARAMETER *global_appaserver_parameter = {0};
@@ -82,35 +81,68 @@ char *appaserver_parameter_document_root( void )
 	return global_appaserver_parameter->document_root;
 }
 
-FILE *appaserver_parameter_open(
-			char *filename,
+char *appaserver_parameter_upload_directory( void )
+{
+	if ( !global_appaserver_parameter )
+		global_appaserver_parameter =
+			appaserver_parameter_new();
+
+	return global_appaserver_parameter->upload_directory;
+}
+
+char *appaserver_parameter_filename(
 			char *application_name )
 {
-	char appaserver_filename[ 128 ];
+	char filename[ 128 ];
 
 	if ( !application_name || !*application_name )
 	{
-		sprintf(filename,
-			"%s/%s",
-			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-			APPASERVER_PARAMETER_NAME );
-	}
-	else
-	{
-		sprintf(appaserver_filename,
-			APPASERVER_PARAMETER_APPLICATION_FILE_NAME,
-			application_name );
-	
-		sprintf(filename,
-			"%s/%s",
-			APPASERVER_PARAMETER_DEFAULT_DIRECTORY,
-			appaserver_filename );
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (char *)0;
 	}
 
-	if ( !timlib_file_exists( filename ) )
+	sprintf(filename,
+		APPASERVER_PARAMETER_APPLICATION_NAME,
+		application_name );
+
+	if ( timlib_file_exists( filename ) )
+		return strdup( filename );
+
+	strcpy( filename, APPASERVER_PARAMETER_GENERIC_NAME );
+
+	if ( timlib_file_exists( filename ) )
+		return strdup( filename );
+
+	fprintf(stderr,
+		"Warning in %s/%s()/%d: cannot find %s.\n",
+		__FILE__,
+		__FUNCTION__,
+		__LINE__,
+		filename );
+
+	return (char *)0;
+}
+
+FILE *appaserver_parameter_open_file( char *filename )
+{
+	FILE *file;
+
+	if ( ! ( file = fopen( filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filename );
 		return (FILE *)0;
-	else
-		return fopen( filename, "r" );
+	}
+
+	return file;
 }
 
 APPASERVER_PARAMETER *appaserver_parameter_new( void )
@@ -131,23 +163,34 @@ APPASERVER_PARAMETER *appaserver_parameter_new( void )
 	return appaserver_parameter_application( application );
 }
 
-APPASERVER_PARAMETER *appaserver_parameter_fetch(
-			FILE *f,
-			char *parameter_file_full_path )
+APPASERVER_PARAMETER *appaserver_parameter_calloc( void )
 {
-	APPASERVER_PARAMETER *s;
-	DICTIONARY *d;
+	APPASERVER_PARAMETER *appaserver_parameter;
+
+	if ( ! ( appaserver_parameter =
+			calloc( 1, sizeof( APPASERVER_PARAMETER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver_parameter;
+}
+
+APPASERVER_PARAMETER *appaserver_parameter_fetch(
+			APPASERVER_PARAMETER *appaserver_parameter,
+			DICTIONARY *dictionary )
+{
+	APPASERVER_PARAMETER *s = appaserver_parameter;
+	DICTIONARY *d = dictionary;
 	char *a;
 
-	s = (APPASERVER_PARAMETER *)
-		calloc( 1, sizeof( APPASERVER_PARAMETER ) );
-
-	s->parameter_file_full_path = parameter_file_full_path;
-
-	d = appaserver_parameter_load_record_dictionary( f, '=' );
-
 	a = "mysql_user";
-	if ( ! ( s->user = dictionary_fetch( a, d ) ) )
+	if ( ! ( s->mysql_user = dictionary_fetch( a, d ) ) )
 	{
 		fprintf( stderr,
 			 "Error in %s/%s()/%d: Cannot fetch %s\n",
@@ -155,7 +198,6 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			 __FUNCTION__,
 			 __LINE__,
 			 a );
-		fclose( f );
 		exit( 1 );
 	}
 
@@ -168,7 +210,6 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			 __FUNCTION__,
 			 __LINE__,
 			 a );
-		fclose( f );
 		exit( 1 );
 	}
 
@@ -184,12 +225,10 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			 	__FUNCTION__,
 			 	__LINE__,
 			 	a );
-			fclose( f );
 			exit( 1 );
 		}
 		s->mysql_password_syntax = 1;
 	}
-
 
 	a = "mysql_host";
 	s->MYSQL_HOST = dictionary_fetch( a, d );
@@ -207,7 +246,6 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			 __FUNCTION__,
 			 __LINE__,
 			 a );
-		fclose( f );
 		exit( 1 );
 	}
 
@@ -222,7 +260,6 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 			 __FUNCTION__,
 			 __LINE__,
 			 a );
-		fclose( f );
 		exit( 1 );
 	}
 
@@ -240,112 +277,99 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	a = "appaserver_data_directory";
 	s->appaserver_data_directory = dictionary_fetch( a, d );
 
-	return s;
+	a = "upload_directory";
+	s->upload_directory = dictionary_fetch( a, d );
+
+	return appaserver_parameter;
 }
 
-DICTIONARY *appaserver_parameter_load_record_dictionary(
-			FILE *input_pipe,
-			int delimiter )
+DICTIONARY *appaserver_parameter_dictionary( FILE *file )
 {
 	char buffer[ 4096 ];
 	char key[ 1024 ];
 	char data[ 3072 ];
-	char first_key[ 1024 ];
-	DICTIONARY *d = (DICTIONARY *)0;
-	int first_time = 1;
+	DICTIONARY *dictionary = dictionary_new();
 
-	while( get_line( buffer, input_pipe ) )
+	while( string_input( buffer, file, 1024 ) )
 	{
 		if ( *buffer == '[' ) continue;
 
-		piece( key, delimiter, buffer, 0 );
+		piece( key, '=', buffer, 0 );
 
-		if ( first_time )
+		if ( piece( data, '=', buffer, 1 ) )
 		{
-			d = dictionary_new();
-			strcpy( first_key, key );
-			first_time = 0;
-		}
-		else
-		{
-			if ( strcmp( key, first_key ) == 0 )
-			{
-				break;
-			}
-		}
-		
-		if ( piece( data, delimiter, buffer, 1 ) )
-		{
-			dictionary_set_pointer(	d,
-						strdup( key ),
-						strdup( data ) );
+			dictionary_set(
+				dictionary,
+				strdup( key ),
+				strdup( data ) );
 		}
 	}
 
-	return d;
+	return dictionary;
 }
 
 APPASERVER_PARAMETER *appaserver_parameter_application(
 			char *application_name )
 {
-	APPASERVER_PARAMETER *s;
-	char filename[ 128 ];
-	FILE *f = {0};
+	APPASERVER_PARAMETER *appaserver_parameter;
 
 	if ( !application_name || !*application_name )
 	{
-		f = appaserver_parameter_open(
-			filename,
-			(char *)0 );
-	}
-	else
-	{
-		f = appaserver_parameter_open(
-			filename,
-			application_name );
-
-		if ( !f )
-		{
-			f = appaserver_parameter_open(
-				filename,
-				(char *)0 );
-		}
-	}
-
-	if ( !f )
-	{
-		if ( !application_name || !*application_name )
-		{
-			fprintf(stderr,
-"ERROR in %s/%s()/%d: Set either DATABASE or %s.\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-				"APPASERVER_DATABASE" );
-		}
-		else
-		{
-			fprintf(stderr,
-"ERROR in %s/%s()/%d: cannot open appaserver parameter file for read with application = (%s).\n",
-		 		__FILE__,
-		 		__FUNCTION__,
-		 		__LINE__,
-				application_name );
-		}
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 
-	s = appaserver_parameter_fetch( f, strdup( filename ) );
+	appaserver_parameter = appaserver_parameter_calloc();
 
-	fclose( f );
+	appaserver_parameter->application_name = application_name;
 
-	/* ------------------------------------------------------------ */
-	/* umask() is here for convenience. However, it should be moved */
-	/* to the many places where it's truly needed. However, it      */
-	/* probably won't be.						*/
-	/* ------------------------------------------------------------ */
-	umask( APPASERVER_UMASK );
+	appaserver_parameter->filename =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_parameter_filename(
+			application_name );
 
-	return s;
+	if ( !appaserver_parameter->filename )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: appaserver_parameter_filename() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	appaserver_parameter->file =
+		appaserver_parameter_open_file(
+			appaserver_parameter->filename );
+
+	if ( !appaserver_parameter->file )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: appaserver_parameter_open_file() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	appaserver_parameter->dictionary =
+		appaserver_parameter_dictionary(
+			appaserver_parameter->file );
+
+	fclose( appaserver_parameter->file );
+
+	return
+	/* ---------------------------- */
+	/* Returns appaserver_parameter */
+	/* ---------------------------- */
+	appaserver_parameter_fetch(
+			appaserver_parameter,
+			appaserver_parameter->dictionary );
 }
 

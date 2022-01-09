@@ -9,9 +9,10 @@
 #include <ctype.h>
 #include "timlib.h"
 #include "piece.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "application_constants.h"
 #include "appaserver.h"
+#include "appaserver_library.h"
 #include "application.h"
 #include "environ.h"
 
@@ -360,7 +361,7 @@ void add_utility_to_path( void )
 	char utility_path[ 128 ];
 
 	appaserver_mount_point =
-		appaserver_parameter_file_mount_point();
+		appaserver_parameter_mount_point();
 
 	sprintf( utility_path, "%s/utility", appaserver_mount_point );
 	set_path( utility_path );
@@ -375,7 +376,14 @@ void environ_appaserver_home( void )
 {
 	environ_set_environment(
 		"APPASERVER_HOME",
-		appaserver_parameter_file_mount_point() );
+		appaserver_parameter_mount_point() );
+
+	/* ------------------------------------------------------------ */
+	/* umask() is here for convenience. However, it should be moved */
+	/* to the many places where it's truly needed. However, it      */
+	/* probably won't be.						*/
+	/* ------------------------------------------------------------ */
+	umask( APPASERVER_UMASK );
 }
 
 void add_src_appaserver_to_path( void )
@@ -384,7 +392,7 @@ void add_src_appaserver_to_path( void )
 	char bin_path[ 256 ];
 
 	appaserver_mount_point =
-		appaserver_parameter_file_mount_point();
+		appaserver_parameter_mount_point();
 
 	sprintf(	bin_path,
 			"%s/%s",
@@ -405,7 +413,7 @@ void add_library_to_python_path( void )
 	char python_library_path[ 128 ];
 
 	appaserver_mount_point = 
-		appaserver_parameter_file_mount_point();
+		appaserver_parameter_mount_point();
 	sprintf( python_library_path,
 		 "%s/library", 
 		 appaserver_mount_point );
@@ -432,7 +440,7 @@ void add_appaserver_home_to_python_path( void )
 	char *appaserver_mount_point;
 
 	appaserver_mount_point = 
-		appaserver_parameter_file_mount_point();
+		appaserver_parameter_mount_point();
 
 	set_environment( "PYTHONPATH", appaserver_mount_point );
 }
@@ -452,7 +460,7 @@ void add_relative_source_directory_to_path( char *application_name )
 	char delimiter;
 
 	appaserver_mount_point =
-		appaserver_parameter_file_mount_point();
+		appaserver_parameter_mount_point();
 
 	relative_source_directory =
 		application_relative_source_directory(
