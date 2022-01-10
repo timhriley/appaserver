@@ -85,9 +85,9 @@ DICTIONARY *post_dictionary_fetch(
 {
 	char input[ 1024 ];
 	char *apache_label;
-	char *separate_key;
+	char *attribute_name;
 	char *input_filename;
-	char *clean_filename;
+	char *store_filename;
 	char *spool_filename;
 	DICTIONARY *original_post_dictionary = dictionary_huge();
 
@@ -109,17 +109,17 @@ DICTIONARY *post_dictionary_fetch(
 			apache_label,
 			"Content-Disposition: form-data; name=" ) == 0 )
 		{
-			separate_key =
+			attribute_name =
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
-				post_dictionary_separate_key(
+				post_dictionary_attribute_name(
 					input );
 
-			if ( !*separate_key )
+			if ( !*attribute_name )
 			{
 				fprintf(stderr,
-"Warning in %s/%s()/%d: post_dictionary_separate_key(%s) returned empty.\n",
+"Warning in %s/%s()/%d: post_dictionary_attribute_name(%s) returned empty.\n",
 					__FILE__,
 					__FUNCTION__,
 					__LINE__,
@@ -152,21 +152,21 @@ DICTIONARY *post_dictionary_fetch(
 					exit( 1 );
 				}
 
-				clean_filename =
-					/* ---------------------- */
-					/* Returns spool_filename */
-					/* ---------------------- */
-					post_dictionary_clean_filename(
-						input_filename );
+				store_filename =
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					post_dictionary_store_filename(
+						input_filename,
+						session_key );
 
 				spool_filename =
 					/* ------------------- */
 					/* Returns heap memory */
 					/* ------------------- */
 					post_dictionary_spool_filename(
-						clean_filename,
-						upload_directory,
-						session_key );
+						store_filename,
+						upload_directory );
 
 				post_dictionary_spool_file(
 					spool_filename,
@@ -175,8 +175,8 @@ DICTIONARY *post_dictionary_fetch(
 
 				dictionary_set(
 					original_post_dictionary,
-					strdup( separate_key ),
-					clean_filename );
+					strdup( attribute_name ),
+					store_filename );
 			}
 			else
 			{
@@ -186,7 +186,7 @@ DICTIONARY *post_dictionary_fetch(
 				post_dictionary_stream_set(
 					original_post_dictionary,
 					stdin,
-					separate_key,
+					attribute_name,
 					apache_key );
 			}
 		}
@@ -220,13 +220,7 @@ char *post_dictionary_apache_key( char *input )
 void post_dictionary_stream_set(
 			DICTIONARY *dictionary,
 			FILE *stdin,
-			/* ------------- */
-			/* static memory */
-			/* ------------- */
-			char *separate_key,
-			/* ------------- */
-			/* static memory */
-			/* ------------- */
+			char *attribute_name,
 			char *apache_key )
 {
 	char input[ STRING_INPUT_BUFFER ];
@@ -236,18 +230,18 @@ void post_dictionary_stream_set(
 
 	*key = '0';
 
-	multi_drop_down_index = string_index( separate_key );
+	multi_drop_down_index = string_index( attribute_name );
 
 	/* May be a multi-select drop-down or the first edit table row */
 	/* ----------------------------------------------------------- */
 	if ( multi_drop_down_index == 1 )
 	{
-		string_trim_index( separate_key );
+		string_trim_index( attribute_name );
 		row = 1;
 	}
 	else
 	{
-		string_strcpy( key, separate_key, 256 );
+		string_strcpy( key, attribute_name, 256 );
 	}
 
 	while( string_input(
@@ -267,7 +261,7 @@ void post_dictionary_stream_set(
 		{
 			sprintf(key,
 				"%s_%d",
-				separate_key,
+				attribute_name,
 				row++ );
 
 			dictionary_set(
@@ -388,15 +382,12 @@ void post_dictionary_spool_file(
 }
 
 char *post_dictionary_spool_filename(
-			char *clean_filename,
-			char *upload_directory,
-			char *session_key )
+			char *store_filename,
+			char *upload_directory )
 {
 	char spool_filename[ 1024 ];
 
-	if ( !*clean_filename
-	||   !upload_directory
-	||   !session_key )
+	if ( !*store_filename || !upload_directory )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: a parameter is empty.\n",
@@ -407,10 +398,9 @@ char *post_dictionary_spool_filename(
 	}
 
 	sprintf(spool_filename,
-	 	"%s/%s_%s",
+	 	"%s/%s",
 	 	upload_directory,
-	 	clean_filename,
-		session_key );
+	 	store_filename );
 
 	return strdup( spool_filename );
 }
@@ -422,13 +412,13 @@ char *post_dictionary_apache_label( char *input )
 	return piece( apache_label, '"', input, 0 );
 }
 
-char *post_dictionary_separate_key( char *input )
+char *post_dictionary_attribute_name( char *input )
 {
-	static char separate_key[ 256 ];
+	static char attribute_name[ 256 ];
 
-	*separate_key = '\0';
+	*attribute_name = '\0';
 
-	return piece( separate_key, '"', input, 1 );
+	return piece( attribute_name, '"', input, 1 );
 }
 
 char *post_dictionary_input_filename( char *input )
@@ -443,9 +433,17 @@ char *post_dictionary_input_filename( char *input )
 		return input_filename;
 }
 
-char *post_dictionary_clean_filename( char *input_filename )
+char *post_dictionary_store_filename(
+			char *input_filename,
+			char *session_key )
 {
-	return
-	search_replace_character( input_filename, ' ', '_' );
+	char store_filename[ 256 ];
+
+	sprintf(store_filename,
+		"%s_%s",
+		search_replace_character( input_filename, ' ', '_' ),
+		session_key );
+
+	return strdup( store_filename );
 }
 

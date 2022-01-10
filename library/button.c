@@ -12,7 +12,7 @@
 #include "frameset.h"
 #include "javascript.h"
 #include "piece.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "element.h"
 #include "application.h"
 #include "appaserver_library.h"
@@ -431,7 +431,7 @@ char *button_help_html(	char *application_name,
 	}
 
 
-	appaserver_mount_point = appaserver_parameter_file_mount_point();
+	appaserver_mount_point = appaserver_parameter_mount_point();
 
 	relative_source_directory =
 		application_relative_source_directory(

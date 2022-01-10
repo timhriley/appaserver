@@ -11,7 +11,7 @@
 #include "String.h"
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "environ.h"
 #include "element.h"
@@ -148,7 +148,7 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 		folder_menu_fetch(
 			application_name,
 			session_key,
-			appaserver_parameter_file_data_directory(),
+			appaserver_parameter_data_directory(),
 			role_name );
 
 	if ( !choose_isa->folder_menu )
@@ -213,7 +213,7 @@ char *choose_isa_action_string(
 	sprintf(action_string,
 		" action=\"%s/%s?%s+%s+%s+%s+%s+%s\"",
 			appaserver_library_http_prompt(
-				appaserver_parameter_file_cgi_directory(),
+				appaserver_parameter_cgi_directory(),
 				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),

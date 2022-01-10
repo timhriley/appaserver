@@ -49,7 +49,6 @@ APPASERVER_LIBRARY=						\
 		drillthru.o					\
 		appaserver_library.o				\
 		appaserver_error.o				\
-		appaserver.o					\
 		folder.o					\
 		attribute.o					\
 		date_aggregate.o				\
@@ -712,9 +711,6 @@ application.o: application.c application.h
 
 appaserver_user.o: appaserver_user.c appaserver_user.h
 	${CC} ${CFLAGS} -c appaserver_user.c
-
-appaserver.o: appaserver.c appaserver.h
-	${CC} ${CFLAGS} -c appaserver.c
 
 folder.o: folder.c folder.h
 	${CC} ${CFLAGS} -c folder.c

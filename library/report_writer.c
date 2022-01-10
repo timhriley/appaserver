@@ -17,7 +17,7 @@
 #include "related_folder.h"
 #include "appaserver_error.h"
 #include "role.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "report_writer.h"
 
 REPORT_WRITER *report_writer_new(	char *application_name,

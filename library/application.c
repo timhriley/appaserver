@@ -14,7 +14,7 @@
 #include "sql.h"
 #include "environ.h"
 #include "appaserver_error.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "application.h"
 
 static APPLICATION *global_application = {0};
@@ -56,7 +56,7 @@ APPLICATION *application_new_application( char *application_name )
 
 	sprintf(sys_string, 
 		"%s/src_appaserver/application_record.sh %s '%c'",
-		appaserver_parameter_file_mount_point(),
+		appaserver_parameter_mount_point(),
 		application_name,
 		SQL_DELIMITER );
 

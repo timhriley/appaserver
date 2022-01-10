@@ -23,7 +23,7 @@
 #include "appaserver_library.h"
 #include "appaserver_user.h"
 #include "sql.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "update.h"
 
 UPDATE *update_calloc( void )

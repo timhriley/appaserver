@@ -19,9 +19,8 @@
 #include "application.h"
 #include "attribute.h"
 #include "element.h"
-#include "appaserver.h"
 #include "document.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "operation.h"
 #include "date.h"
 #include "column.h"
@@ -1280,7 +1279,7 @@ void appaserver_library_output_style_sheet(
 
 	sprintf( buffer,
 		 "%s/appaserver/%s/style.css",
-		 appaserver_parameter_file_document_root(),
+		 appaserver_parameter_document_root(),
 		 application_name );
 
 	input_file = fopen( buffer, "r" );

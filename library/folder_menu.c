@@ -12,7 +12,7 @@
 #include "sql.h"
 #include "list.h"
 #include "appaserver_error.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "folder.h"
 #include "role_folder.h"
 #include "folder_menu.h"

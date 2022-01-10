@@ -17,7 +17,7 @@
 #include "column.h"
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "security.h"
 #include "dictionary.h"
 #include "attribute.h"

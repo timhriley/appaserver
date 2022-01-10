@@ -17,7 +17,7 @@
 #include "column.h"
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "security.h"
 #include "process_parameter.h"
 #include "process.h"
@@ -86,7 +86,7 @@ boolean process_executable_ok( char *executable )
 	/* Must execute from $APPASERVER_HOME/src_* */
 	/* ---------------------------------------- */
 	appaserver_mount_point =
-		appaserver_parameter_file_mount_point();
+		appaserver_parameter_mount_point();
 
 	sprintf( check_directory,
 		 "%s/src_",

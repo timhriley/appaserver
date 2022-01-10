@@ -1340,6 +1340,7 @@ char *element_table_data_html(
 
 char *appaserver_element_list_html(
 			LIST *appaserver_element_list /* in/out */,
+			char *application_name,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -1371,6 +1372,7 @@ char *appaserver_element_list_html(
 		if ( ! ( element_html =
 				appaserver_element_html(
 					appaserver_element /* in/out */,
+					application_name,
 					background_color,
 					state,
 					row_number,
@@ -1428,6 +1430,7 @@ char *appaserver_hidden_element_list_html(
 		if ( ! ( element_html =
 				appaserver_element_html(
 					appaserver_element /* in/out */,
+					application_name,
 					(char *)0 /* background_color */,
 					(char *)0 /* state */,
 					row_number,
@@ -1589,9 +1592,6 @@ char *appaserver_element_heading( APPASERVER_ELEMENT *element )
 	if ( element->element_type == javascript_filename )
 		return "";
 	else
-	if ( element->element_type == http_filename )
-		return element->name;
-	else
 	if ( element->element_type == linebreak )
 		return "";
 	else
@@ -1658,6 +1658,7 @@ char *appaserver_element_heading_string( char *name )
 
 char *appaserver_element_html(
 			APPASERVER_ELEMENT *appaserver_element /* in/out */,
+			char *application_name,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -1989,17 +1990,70 @@ char *appaserver_element_html(
 			exit( 1 );
 		}
 
-		return
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		element_upload_html(
-			appaserver_element->
-				password->
-				attribute_name,
-			appaserver_element->
-				password->
-				quantity );
+		if ( strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
+		{
+			return
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_upload_insert_html(
+				appaserver_element_name(
+					appaserver_element->
+						upload->
+						attribute_name,
+					row_number ) );
+		}
+		else
+		{
+			char *value =
+				/* ------------------------------------ */
+				/* Returns row_dictionary->		*/
+				/*		hash_table->		*/
+				* 		other_data or null	*/
+				/* ------------------------------------ */
+				appaserver_element_value(
+					appaserver_element->
+						upload->
+						attribute_name,
+					row_dictionary );
+
+			if ( !value )
+			{
+				fprintf(stderr,
+	"Warning in %s/%s()/%d: appaserver_element_value(%s) returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					appaserver_element->
+						upload->
+						attribute_name );
+ 				return (char *)0;
+			}
+
+			element_upload_update_link(
+				application_name,
+				value,
+				appaserver_parameter_upload_directory(),
+				appaserver_parameter_document_root() );
+
+			return
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_upload_update_html(
+				appaserver_element_name(
+					appaserver_element->
+						upload->
+						attribute_name,
+					row_number ),
+				value,
+				application_name,
+				appaserver_parameter_upload_directory(),
+				appaserver_parameter_document_root() );
+
+
+
+		}
 	}
 	else
 	{
@@ -3503,202 +3557,118 @@ ELEMENT_UPLOAD *element_upload_calloc( void )
 
 ELEMENT_UPLOAD *element_upload_new(
 			char *attribute_name,
-			int quantity )
+			boolean remember )
 {
 	ELEMENT_UPLOAD *element_upload = element_upload_calloc();
 
 	element_upload->attribute_name = attribute_name;
-	element_upload->quantity = quantity;
+	element_upload->remember = remember;
 
 	return element_upload;
 }
 
-char *element_upload_filename(
-			char *attribute_name,
-			int index )
+char *element_upload_insert_html( char *element_name )
 {
-	static char filename[ 128 ];
+	char html[ 128 ];
 
-	if ( !attribute_name )
+	if ( !element_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	sprintf(filename,
-		"%s_%d",
-		attribute_name,
-		index );
-
-	return filename;
-}
-
-char *element_upload_html(
-			char *attribute_name,
-			int quantity )
-{
-	char html[ 1024 ];
-	char *ptr = html;
-	int index;
-
-	if ( !attribute_name || quantity < 1 )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: invalid parameter.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (char *)0;
-	}
-
-	if ( quantity > 1 )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s<tr><td>\n",
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_table_open_html() );
-	}
-
-	for( index = 0; index < quantity; index++ )
-	{
-		if ( quantity > 1 && index )
-		{
-			ptr += sprintf( ptr, "\n<tr><td>" );
-		}
-
-		ptr += sprintf(
-			ptr,
-			"%s",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			element_upload_filename_html(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				element_upload_filename(
-					attribute_name,
-					index ) ) );
-	}
-
 	sprintf(html,
-		"<input name=\"%s\"", name );
-	}
-	else
-	{
-		fprintf( output_file,
-		"<td><input name=\"%s_%d\"", name, row );
-	}
-
-	fprintf( output_file,
-	" type=\"file\" size=\"%d\"", size );
-
-	fprintf( output_file,
-	" accept=\"*\"" );
-
-	fprintf( output_file, " maxlength=\"%d\"", maxlength );
-
-	if ( quantity > 1 )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_table_close_html() );
-	}
+		"<input name=\"%s\" type=file accept=\"*\" value=\"\">",
+		element_name );
 
 	return strdup( html );
 }
 
-char *element_upload_filename_html( char *filename )
+char *element_upload_update_html(
+			char *element_name,
+			char *value,
+			char *application_name,
+			char *upload_directory,
+			char *document_root )
 {
-	static char html[ 256 ];
+	char html[ 1024 ];
+	char *ptr = html;
 
-	sprintf(html,
-		"<input name=\"%s\" type=file value=\"\" accept=\"*\">",
-		filename );
+	ptr += sprintf(
+		ptr,
+		"<a href=\"%s\" target=\"%s\">%s</a>",
+		/* Returns static memory */
+		/* --------------------- */
+		element_upload_update_hypertext_reference(
+			application_name,
+			value ),
+		value,
+		value );
 
-	return html;
+	return strdup( html );
 }
 
 
-char *element_http_filename_html(
-	char *filename;
-	char filename_link[ 512 ];
-	static int target_offset = 0;
+char *element_upload_update_hypertext_reference(
+			char *application_name,
+			char *value )
+{
+	static char hypertext_reference[ 256 ];
 
-	if ( !http_filename->data ) http_filename->data = "";
-
-	filename = basename_get_filename( http_filename->data );
-
-	if ( timlib_strncmp( http_filename->data, "http" ) != 0
-	&&   *http_filename->data != '/' )
+	if ( !application_name
+	||   !value
+	||   !*value )
 	{
-		sprintf(	filename_link,
-				"/appaserver/%s/%s",
-				application_name,
-				http_filename->data );
-	}
-	else
-	{
-		strcpy( filename_link, http_filename->data );
-		filename = http_filename->data;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	fprintf(output_file,
-		"<td><a href=\"%s\" target=%s_%d>%s</a>", 
-		filename_link,
-		element_name,
-		++target_offset,
-		filename );
-/*
-		(*filename) ? filename : http_filename->data );
-*/
+	sprintf(hypertext_reference,
+		"/appaserver/%s/data/%s",
+		application_name,
+		value );
 
-	if ( http_filename->update_text_item )
+	return hypertext_reference;
+}
+
+void element_upload_update_link(
+			char *application_name,
+			char *value,
+			char *upload_directory,
+			char *document_root )
+{
+	char system_string[ 1024 ];
+
+	if ( !application_name
+	||   !value
+	||   !upload_directory
+	||   !document_root )
 	{
-		ELEMENT_TEXT_ITEM *element_text_item;
-
-		element_text_item = http_filename->update_text_item;
-
-		fprintf( output_file, "<br>" );
-
-		element_text_item_output(
-			output_file,
-			element_name,
-			http_filename->data,
-			element_text_item->attribute_width,
-			row,
-			element_text_item->onchange_null2slash_yn,
-			element_text_item->post_change_javascript,
-			element_text_item->on_focus_javascript_function,
-			element_text_item->widget_size,
-			background_color,
-			0 /* tab_index */,
-			1 /* without_td_tags */,
-			element_text_item->readonly,
-			element_text_item->state,
-			element_text_item->is_numeric );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	fprintf(output_file, "</td>\n" );
+	sprintf(system_string,
+		"ln -s %s/%s/%s %s/appaserver/%s/data/%s",
+		upload_directory,
+		application_name,
+		value,
+		document_root,
+		application_name,
+		value );
 
-	if ( !http_filename->update_text_item )
-	{
-		element_hidden_name_dictionary_output(
-			output_file,
-			(DICTIONARY *)0 /* hidden_name_dictionary */,
-			row,
-			element_name,
-			http_filename->data );
-	}
+	if ( system( system_string ) ){};
+}
 

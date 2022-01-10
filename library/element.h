@@ -53,11 +53,11 @@ enum element_type {	table_open,
 			line_break,
 			table_data,
 			multi_drop_down,
-			text,
-			radio_button,
 			notepad,
+			text,
 			password,
 			upload,
+			radio_button,
 			reference_number,
 			javascript_filename,
 			element_date,
@@ -66,7 +66,6 @@ enum element_type {	table_open,
 			element_current_time,
 			element_date_time,
 			element_current_date_time,
-			http_filename,
 			timestamp,
 			empty_column };
 
@@ -685,12 +684,6 @@ char *element_text_html(
 
 typedef struct
 {
-	char *data;
-	ELEMENT_TEXT_ITEM *update_text_item;
-} ELEMENT_HTTP_FILENAME;
-
-typedef struct
-{
 	/* Input */
 	/* ----- */
 	char *attribute_name;
@@ -737,7 +730,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *attribute_name;
-	int quantity;
+	boolean remember;
 } ELEMENT_UPLOAD;
 
 /* ELEMENT_UPLOAD operations */
@@ -747,47 +740,33 @@ ELEMENT_UPLOAD *element_upload_calloc(
 
 ELEMENT_UPLOAD *element_upload_new(
 			char *attribute_name,
-			int quantity );
+			boolean remember );
 
 /* Returns heap memory */
 /* ------------------- */
-char *element_upload_html(
-			char *attribute_name,
-			int quantity );
-
-/* Returns static memory */
-/* --------------------- */
-char *element_upload_filename(
-			char *attribute_name,
-			int index );
-
-/* Returns static memory */
-/* --------------------- */
-char *element_upload_filename_html(
-			char *filename );
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *attribute_name;
-	int quantity;
-} ELEMENT_HTTP_FILENAME;
-
-/* ELEMENT_HTTP_FILENAME operations */
-/* ------------------------- */
-ELEMENT_HTTP_FILENAME *element_http_filename_calloc(
-			void );
-
-ELEMENT_HTTP_FILENAME *element_http_filename_new(
-			char *attribute_name,
-			int quantity );
+char *element_upload_insert_html(
+			char *element_name );
 
 /* Returns heap memory */
 /* ------------------- */
-char *element_http_filename_html(
-			char *attribute_name,
-			int quantity );
+char *element_upload_update_html(
+			char *element_name,
+			char *value,
+			char *application_name,
+			char *upload_directory,
+			char *document_root );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_upload_update_hypertext_reference(
+			char *application_name,
+			char *value );
+
+void element_upload_update_link(
+			char *application_name,
+			char *value,
+			char *upload_directory,
+			char *document_root );
 
 typedef struct
 {
@@ -837,14 +816,13 @@ typedef struct
 	ELEMENT_LINE_BREAK *line_break;
 	ELEMENT_TABLE_DATA *table_data;
 	ELEMENT_MULTI_DROP_DOWN *multi_drop_down;
-	ELEMENT_TEXT *text;
 	ELEMENT_NOTEPAD *notepad;
+	ELEMENT_TEXT *text;
+	ELEMENT_UPLOAD *upload;
+	ELEMENT_PASSWORD *password;
 
 /*
 	ELEMENT_RADIO_BUTTON *radio_button;
-	ELEMENT_PASSWORD *password;
-	ELEMENT_UPLOAD_FILENAME *upload_filename;
-	ELEMENT_HTTP_FILENAME *http_filename;
 	ELEMENT_EMPTY_COLUMN *empty_column;
 	ELEMENT_REFERENCE_NUMBER *reference_number;
 	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
@@ -892,6 +870,7 @@ char *appaserver_element_name(
 /* --------------------------- */
 char *appaserver_element_list_html(
 			LIST *appaserver_element_list /* in/out */,
+			char *application_name,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -949,6 +928,7 @@ char *appaserver_element_heading_string(
 /* --------------------------- */
 char *appaserver_element_html(
 			APPASERVER_ELEMENT *appaserver_element /* in/out */,
+			char *application_name,
 			char *background_color,
 			char *state,
 			int row_number,

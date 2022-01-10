@@ -18,7 +18,7 @@
 #include "related_folder.h"
 #include "appaserver_error.h"
 #include "role.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "generic_load.h"
 
 GENERIC_LOAD *generic_load_new( void )

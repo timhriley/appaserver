@@ -15,9 +15,11 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
+#include "appaserver_parameter.h"
 #include "environ.h"
 #include "security.h"
 #include "folder_attribute.h"
+#include "application.h"
 #include "process.h"
 #include "role.h"
 
@@ -787,7 +789,7 @@ char *role_post_choose_role_action_string(
 	sprintf(action_string,
 		"%s/post_choose_role?%s+%s+%s",
 		appaserver_library_http_prompt(
-			appaserver_parameter_file_get_cgi_directory(),
+			appaserver_parameter_cgi_directory(),
 			appaserver_library_server_address(),
 			application_ssl_support_yn(
 				application_name ),

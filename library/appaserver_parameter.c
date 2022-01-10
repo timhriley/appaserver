@@ -280,6 +280,12 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	a = "upload_directory";
 	s->upload_directory = dictionary_fetch( a, d );
 
+	if ( !s->upload_directory )
+	{
+		s->upload_directory =
+			s->appaserver_data_directory;
+	}
+
 	return appaserver_parameter;
 }
 

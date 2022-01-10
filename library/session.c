@@ -12,7 +12,7 @@
 #include "list.h"
 #include "environ.h"
 #include "String.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "folder.h"
 #include "document.h"
@@ -35,7 +35,7 @@ void session_message_ip_address_changed_exit(
 			char *current_ip_address,
 			char *login_name )
 {
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	APPASERVER_PARAMETER *appaserver_parameter;
 	char msg[ 1024 ];
 
 	fprintf(stderr,
@@ -49,11 +49,11 @@ void session_message_ip_address_changed_exit(
 		remote_ip_address,
 		current_ip_address );
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter = appaserver_parameter_new();
 
 	document_quick_output_body(
 		application_name,
-		appaserver_parameter_file->
+		appaserver_parameter->
 			appaserver_mount_point );
 
 	sprintf(msg,
@@ -86,14 +86,14 @@ void session_access_failed_message_exit(
 			char *current_ip_address,
 			char *login_name )
 {
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	APPASERVER_PARAMETER *appaserver_parameter;
 	char msg[ 1024 ];
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter = appaserver_parameter_new();
 
 	document_quick_output_body(
 		application_name,
-		appaserver_parameter_file->
+		appaserver_parameter->
 			appaserver_mount_point );
 
 	sprintf(msg,

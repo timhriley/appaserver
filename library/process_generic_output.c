@@ -14,7 +14,7 @@
 #include "dictionary.h"
 #include "attribute.h"
 #include "appaserver_error.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "aggregate_statistic.h"
 #include "aggregate_level.h"
 #include "document.h"

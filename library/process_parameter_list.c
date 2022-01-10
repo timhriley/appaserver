@@ -20,7 +20,7 @@
 #include "list.h"
 #include "piece.h"
 #include "appaserver.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "populate_helper_process.h"
 
 PROCESS_PARAMETER_LIST *process_parameter_list_new( 

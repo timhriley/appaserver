@@ -78,7 +78,7 @@ char *choose_role_post_action_string(
 	sprintf(action_string,
 		" action=\"%s/%s?%s+%s+%s\"",
 			appaserver_library_http_prompt(
-				appaserver_parameter_file_cgi_directory(),
+				appaserver_parameter_cgi_directory(),
 				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),

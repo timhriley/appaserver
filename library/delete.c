@@ -20,7 +20,7 @@
 #include "query.h"
 #include "appaserver_library.h"
 #include "folder_menu.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "role_operation.h"
 #include "element.h"
 #include "delete.h"

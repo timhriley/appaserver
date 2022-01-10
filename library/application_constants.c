@@ -7,7 +7,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "application_constants.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_library.h"
 #include "timlib.h"
 #include "sql.h"

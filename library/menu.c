@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include "String.h"
 #include "timlib.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_library.h"
 #include "application.h"
 #include "frameset.h"
@@ -64,7 +64,7 @@ MENU_ITEM *menu_item_folder_new(
 			/* Returns static memory */
 			/* --------------------- */
 			appaserver_library_http_prompt(
-				appaserver_parameter_file_cgi_directory(),
+				appaserver_parameter_cgi_directory(),
 				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),
@@ -122,7 +122,7 @@ MENU_ITEM *menu_item_process_new(
 			/* Returns static memory */
 			/* --------------------- */
 			appaserver_library_http_prompt(
-				appaserver_parameter_file_cgi_directory(),
+				appaserver_parameter_cgi_directory(),
 				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),
@@ -1058,7 +1058,7 @@ MENU_ITEM *menu_item_role_change_new(
 			/* Returns static memory */
 			/* --------------------- */
 			appaserver_library_http_prompt(
-				appaserver_parameter_file_cgi_directory(),
+				appaserver_parameter_cgi_directory(),
 				appaserver_library_server_address(),
 				application_ssl_support_yn(
 					application_name ),

@@ -13,7 +13,7 @@
 #include "frameset.h"
 #include "folder_menu.h"
 #include "document.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_link.h"
 #include "vertical_new_button.h"
 

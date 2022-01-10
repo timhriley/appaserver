@@ -11,7 +11,7 @@
 #include "timlib.h"
 #include "application.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
 #include "security.h"

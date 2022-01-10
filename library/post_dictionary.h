@@ -62,17 +62,12 @@ char *post_dictionary_apache_label(
 
 /* Returns static memory */
 /* --------------------- */
-char *post_dictionary_separate_key(
+char *post_dictionary_attribute_name(
 			char *input );
 
 /* Returns static memory */
 /* --------------------- */
 char *post_dictionary_input_filename(
-			char *input );
-
-/* Returns static memory */
-/* --------------------- */
-char *post_dictionary_separate_key(
 			char *input );
 
 void post_dictionary_stream_set(
@@ -81,17 +76,17 @@ void post_dictionary_stream_set(
 			char *appaserver_key,
 			char *apache_key );
 
-/* Returns input_filename */
-/* ---------------------- */
-char *post_dictionary_clean_filename(
-			char *input_filename );
+/* Returns heap memory */
+/* ------------------- */
+char *post_dictionary_store_filename(
+			char *input_filename,
+			char *session_key );
 
 /* Returns heap memory */
 /* ------------------- */
 char *post_dictionary_spool_filename(
-			char *clean_filename,
-			char *upload_directory,
-			char *session_key );
+			char *store_filename,
+			char *upload_directory );
 
 void post_dictionary_spool_file(
 			char *spool_filename,

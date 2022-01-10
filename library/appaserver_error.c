@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "date.h"
 #include "timlib.h"
 #include "environ.h"
@@ -65,7 +65,7 @@ char *appaserver_error_filename( char *application_name )
 		sprintf(
 		filename,
 		"%s/appaserver_%s.err",
-		appaserver_parameter_file_error_directory(),
+		appaserver_parameter_error_directory(),
 		local_application_name );
 
 		if ( !timlib_file_exists( filename ) )

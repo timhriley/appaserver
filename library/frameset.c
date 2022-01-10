@@ -51,8 +51,8 @@ FRAMESET *frameset_new(	char *application_name,
 {
 	FRAMESET *frameset = frameset_calloc();
 
-	frameset->appaserver_parameter_file =
-		appaserver_parameter_file_new();
+	frameset->appaserver_parameter =
+		appaserver_parameter_new();
 
 	if ( !frameset_menu_horizontal )
 	{
@@ -60,7 +60,7 @@ FRAMESET *frameset_new(	char *application_name,
 			frameset_frame_new(
 				application_name,
 				frameset->
-					appaserver_parameter_file->
+					appaserver_parameter->
 					document_root,
 				session_key,
 				FRAMESET_MENU_FRAME );
@@ -70,7 +70,7 @@ FRAMESET *frameset_new(	char *application_name,
 		frameset_frame_new(
 			application_name,
 			frameset->
-				appaserver_parameter_file->
+				appaserver_parameter->
 				document_root,
 			session_key,
 			FRAMESET_PROMPT_FRAME );
@@ -79,7 +79,7 @@ FRAMESET *frameset_new(	char *application_name,
 		frameset_frame_new(
 			application_name,
 			frameset->
-				appaserver_parameter_file->
+				appaserver_parameter->
 				document_root,
 			session_key,
 			FRAMESET_EDIT_FRAME );
