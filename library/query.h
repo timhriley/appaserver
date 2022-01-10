@@ -18,12 +18,13 @@
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
+#include "row_security.h"
 #include "date_convert.h"
 #include "folder.h"
 
 /* Constants */
 /* --------- */
-#define QUERY_MAX_ROWS				500
+#define QUERY_EDIT_TABLE_MAX_ROWS		500
 #define QUERY_FROM_STARTING_LABEL		"from_"
 #define QUERY_TO_STARTING_LABEL			"to_"
 #define QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL	"original_"
@@ -63,6 +64,33 @@ typedef struct
 	char *datatype_name;
 	char *escaped_replaced_data;
 } QUERY_DATA;
+
+/* QUERY_DATA operations */
+/* --------------------- */
+QUERY_DATA *query_data_calloc(
+			void );
+
+LIST *query_data_list(
+			LIST *foreign_key_list,
+			LIST *many_folder_attribute_list,
+			LIST *data_string_list );
+
+QUERY_DATA *query_data_new(
+			char *attribute_name,
+			char *datatype_name,
+			char *escaped_replaced_data );
+
+char *query_data_convert_date_international(
+			char *datatype_name,
+			char *escaped_replaced_data );
+
+QUERY_DATA *query_data_escaped(
+			DICTIONARY *dictionary,
+			char *attribute_name,
+			char *datatype_name,
+			int dictionary_offset,
+			char *starting_label,
+			char *dictionary_prepend_folder_name );
 
 typedef struct 
 {
@@ -133,7 +161,8 @@ LIST *query_edit_table_select_list(
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			int relation_mto1_isa_length,
-			QUERY_DATE_CONVERT *query_date_convert );
+			QUERY_DATE_CONVERT *query_date_convert,
+			ROW_SECURITY_ROLE *row_security_role );
 
 LIST *query_widget_select_list(
 			LIST *primary_key_list,
@@ -166,7 +195,7 @@ char *query_select_list_string(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *query_select_clause(
-			query_select_list_string );
+			char *query_select_list_string );
 
 typedef struct
 {
@@ -316,14 +345,6 @@ char *query_attribute_list_where(
 char *query_attribute_operator_key(
 			char *operator_name );
 
-QUERY_DATA *query_data_escaped(
-			DICTIONARY *dictionary,
-			char *attribute_name,
-			char *datatype_name,
-			int dictionary_offset,
-			char *starting_label,
-			char *dictionary_prepend_folder_name );
-
 LIST *query_attribute_list(
 			LIST *append_isa_attribute_list,
 			DICTIONARY *dictionary,
@@ -441,6 +462,7 @@ char *query_or_sequence_where_clause(
 
 /* QUERY detail operations */
 /* ----------------------- */
+/*
 QUERY *query_detail_new(
 			LIST *where_attribute_data_list,
 			char *folder_name,
@@ -449,6 +471,7 @@ QUERY *query_detail_new(
 			LIST *ignore_select_attribute_name_list,
 			char *attribute_not_null_join,
 			char *attribute_not_null_folder_name );
+*/
 
 char *query_folder_where_clause(
 			FOLDER *folder,
@@ -490,22 +513,6 @@ char *query_date_convert_select_string(
 			boolean attribute_is_date_time,
 			enum date_convert_format date_convert_format );
 
-/* QUERY_DATA operations */
-/* --------------------- */
-LIST *query_data_list(
-			LIST *foreign_key_list,
-			LIST *many_folder_attribute_list,
-			LIST *data_string_list );
-
-QUERY_DATA *query_data_new(
-			char *attribute_name,
-			char *datatype_name,
-			char *escaped_replaced_data );
-
-char *query_data_convert_date_international(
-			char *datatype_name,
-			char *escaped_replaced_data );
-
 char *query_drop_down_data_where(
 			char *folder_name,
 			char *attribute_name,
@@ -543,10 +550,8 @@ char *query_drop_down_row_data_list_string(
 LIST *query_drop_down_row_data_string_list(
 			char *data_list_string );
 
-/* QUERY generic operations */
-/* ------------------------ */
-QUERY *query_calloc(	void );
-
+/* QUERY public operations */
+/* ----------------------- */
 char *query_yes_no_operator_name(
 			char *attribute_name );
 
@@ -657,24 +662,33 @@ LIST *query_primary_delimited_list(
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
+	LIST *select_list;
+	char *select_list_string;
+	char *select_clause;
+	char *from_clause;
+	QUERY_EDIT_TABLE_WHERE *query_edit_table_where;
+	chare *order_clause;
+	LIST *dictionary_list;
 } QUERY_EDIT_TABLE;
 
 /* QUERY_EDIT_TABLE operations */
 /* --------------------------- */
+QUERY_EDIT_TABLE *query_edit_table_calloc(
+			void );
+
 QUERY_EDIT_TABLE *query_edit_table_new(
 			char *folder_name,
 			SECURITY_ENTITY *security_entity,
 			LIST *relation_join_one2m_list,
 			LIST *ignore_select_attribute_name_list,
+			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictionary );
-
-LIST *query_edit_table_select_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *ignore_select_attribute_name_list,
-			DATE_CONVERT *date_convert );
+			DICTIONARY *sort_dictionary,
+			ROW_SECURITY_ROLE *row_security_role );
 
 typedef struct
 {

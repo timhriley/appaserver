@@ -994,15 +994,9 @@ char *query_date_convert_select_string(
 	return select_string;
 }
 
-QUERY_DATA *query_data_new(
-			char *attribute_name,
-			char *datatype_name,
-			char *escaped_replaced_data )
+QUERY_DATA *query_data_calloc( void )
 {
 	QUERY_DATA *query_data;
-
-	if ( !escaped_replaced_data || !*escaped_replaced_data )
-		return (QUERY_DATA *)0;
 
 	if ( ! ( query_data = calloc( 1, sizeof( QUERY_DATA ) ) ) )
 	{
@@ -1014,6 +1008,21 @@ QUERY_DATA *query_data_new(
 
 		exit( 1 );
 	}
+
+	return query_data;
+}
+
+QUERY_DATA *query_data_new(
+			char *attribute_name,
+			char *datatype_name,
+			char *escaped_replaced_data )
+{
+	QUERY_DATA *query_data;
+
+	if ( !escaped_replaced_data || !*escaped_replaced_data )
+		return (QUERY_DATA *)0;
+
+	query_data = query_data_calloc();
 
 	query_data->attribute_name = attribute_name;
 	query_data->datatype_name = datatype_name;
@@ -1694,7 +1703,8 @@ LIST *query_edit_table_select_list(
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			int relation_mto1_isa_length,
-			QUERY_DATE_CONVERT *query_date_convert )
+			QUERY_DATE_CONVERT *query_date_convert,
+			ROW_SECURITY_ROLE *row_security_role )
 {
 	LIST *select_list;
 	FOLDER_ATTRIBUTE *folder_attribute;
@@ -2928,17 +2938,36 @@ LIST *query_primary_delimited_fetch_list(
 		0 /* max_rows */ );
 }
 
-QUERY *query_edit_table(
+QUERY_EDIT_TABLE *query_edit_table_calloc( void )
+{
+	QUERY_EDIT_TABLE *query_edit_table;
+
+	if ( ! ( query_edit_table = calloc( 1, sizeof( QUERY_EDIT_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_edit_table;
+}
+
+QUERY_EDIT_TABLE *query_edit_table_new(
 			char *folder_name,
 			SECURITY_ENTITY *security_entity,
 			LIST *relation_join_one2m_list,
 			LIST *ignore_select_attribute_name_list,
+			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictionary )
+			DICTIONARY *sort_dictionary,
+			ROW_SECURITY_ROLE *row_security_role )
 {
-	QUERY *query = query_calloc();
+	QUERY_EDIT_TABLE *query_edit_table = query_edit_table_calloc();
 
 	if ( !security_entity )
 	{
@@ -2947,93 +2976,41 @@ QUERY *query_edit_table(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (QUERY )0;
+		return (QUERY_EDIT_TABLE )0;
 	}
 
-	query->select_list =
+	if ( !list_length( folder_attribute_append_isa_list ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: folder_attribute_append_isa_list empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (QUERY_EDIT_TABLE *)0;
+	}
+
+
+	query_edit_table->select_list =
 		query_edit_table_select_list(
 			folder_attribute_append_isa_list,
 			ignore_select_attribute_name_list,
+			exclude_lookup_attribute_name_list,
+			list_length( relation_mto1_isa_list ),
 			query_date_convert_new(
-				security_entity->login_name ) );
+				security_entity->login_name ),
+			row_security_role );
 
-	if ( !list_length( query->select_list ) )
+	if ( !list_length( query_edit_table->select_list ) )
 	{
 		fprintf(stderr,
 "Warning in %s/%s()/%d: query_edit_table_select_list() returned  empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (QUERY )0;
+		return (QUERY_EDIT_TABLE )0;
 	}
 
-	return query;
-}
-
-LIST *query_edit_table_select_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *ignore_select_attribute_name_list,
-			QUERY_DATE_CONVERT *date_convert )
-{
-	LIST *select_list = list_new();
-	FOLDER_ATTRIBUTE *folder_attribute;
-	boolean select_ok;
-
-	if ( !list_rewind( folder_attribute_append_isa_list ) )
-		return (LIST *)0;
-
-	do {
-		folder_attribute =
-			list_get(
-				folder_attribute_append_isa_list );
-
-		if ( !folder_attribute->attribute )
-		{
-			fprintf(stderr,
-			"Warning in %s/%s()/%d: attribute is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			return (LIST *)0;
-		}
-
-		select_ok = 1;
-
-		if ( list_string_exists(
-			folder_attribute->attribute_name,
-			ignore_select_attribute_name_list ) )
-		{
-			select_ok = 0;
-		}
-
-		if ( folder_attribute->primary_key_index )
-		{
-			select_ok = 1;
-		}
-
-		if ( !select_ok ) continue;
-
-		list_set(
-			select_list,
-			/* --------------- */
-			/* Always succeeds */
-			/* --------------- */
-			query_select_new(
-				folder_attribute->folder_name,
-				folder_attribute->attribute_name,
-				attribute_is_date(
-					folder_attribute->
-						attribute->
-						datatype_name ),
-				attribute_is_date_time(
-					folder_attribute->
-						attribute->
-						datatype_name ),
-				query_date_convert ) );
-
-	} while ( list_next( folder_attribute_append_isa_list ) );
-
-	return select_list;
+	return query_edit_table;
 }
 
 QUERY_WIDGET_WHERE *query_widget_where_calloc( void )
