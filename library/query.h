@@ -3,7 +3,6 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-
 #ifndef QUERY_H
 #define QUERY_H
 
@@ -688,6 +687,11 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
+			ROW_SECURITY_ROLE *row_security_role );
+
+char *query_edit_table_from_clause(
+			char *folder_name,
+			LIST *relation_mto1_isa_list,
 			ROW_SECURITY_ROLE *row_security_role );
 
 typedef struct

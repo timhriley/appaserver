@@ -18,6 +18,7 @@
 #include "environ.h"
 #include "prompt_recursive.h"
 #include "relation.h"
+#include "row_security.h"
 #include "query.h"
 
 QUERY *query_calloc( void )
@@ -1758,6 +1759,15 @@ LIST *query_edit_table_select_list(
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
+	if ( row_security_role )
+	{
+		list_set(
+			select_list,
+			row_security_role_query_select(
+				row_security_role,
+				query_date_convert ) );
+	}
+
 	return select_list;
 }
 
@@ -2988,7 +2998,6 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			__LINE__ );
 		return (QUERY_EDIT_TABLE *)0;
 	}
-
 
 	query_edit_table->select_list =
 		query_edit_table_select_list(
