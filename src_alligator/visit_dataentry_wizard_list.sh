@@ -1,6 +1,6 @@
 :
 
-days_ago=270
+#days_ago=270
 
 if [ $# -ne 1 ]
 then
@@ -10,16 +10,17 @@ fi
 
 application=$1
 
-minimum_discovery_date=`now.sh ymd -${days_ago}`
-where_clause="discovery_date >= '${minimum_discovery_date}'"
+#minimum_discovery_date=`now.sh ymd -${days_ago}`
+#where_clause="discovery_date >= '${minimum_discovery_date}'"
+where_clause="1 = 1"
 
 table_name=`get_table_name $application nest`
 
 echo "	select nest_number				\
 	from $table_name				\
-	where $where_clause				\
-	order by nest_number;"				|
-sql.e
+	where $where_clause;"				|
+sql.e							|
+sort -nr
 
 exit 0
 
