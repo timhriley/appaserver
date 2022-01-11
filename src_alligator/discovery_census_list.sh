@@ -6,7 +6,7 @@
 # Freely available software: see Appaserver.org
 # ---------------------------------------------
 
-days_ago=1000
+#days_ago=1000
 
 if [ "$#" -lt 1 ]
 then
@@ -18,8 +18,9 @@ application=$1
 
 discovery_census=`get_table_name $application alligator_census`
 
-minimum_discovery_date=`now.sh ymd -${days_ago}`
-where_clause="discovery_date >= '${minimum_discovery_date}'"
+#minimum_discovery_date=`now.sh ymd -${days_ago}`
+#where_clause="discovery_date >= '${minimum_discovery_date}'"
+where_clause="1 = 1 "
 
 echo "	select discovery_date, primary_researcher			\
 	from $discovery_census						\
