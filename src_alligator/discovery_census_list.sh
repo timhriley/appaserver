@@ -24,8 +24,8 @@ where_clause="1 = 1 "
 
 echo "	select discovery_date, primary_researcher			\
 	from $discovery_census						\
-	where $where_clause						\
-	order by discovery_date desc;"					|
-sql.e
+	where $where_clause;"						|
+sql.e									|
+sort_alligator_census.e
 
 exit 0

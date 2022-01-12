@@ -20,7 +20,7 @@ echo "	select nest_number				\
 	from $table_name				\
 	where $where_clause;"				|
 sql.e							|
-sort_delimited_numbers.e '-' y
+sort_nest_numbers.e
 
 exit 0
 

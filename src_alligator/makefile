@@ -39,7 +39,9 @@ EXECUTABLES=	load_srf_spreadsheet					\
 		alligator_dvr						\
 		locate_cell_basin					\
 		assign_nest_basin					\
-		update_transect_basin
+		update_transect_basin					\
+		sort_nest_numbers.e					\
+		sort_alligator_census.e
 
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
@@ -300,6 +302,26 @@ load_visit_spreadsheet: load_visit_spreadsheet.c			\
 		load_visit_spreadsheet.c				\
 		alligator.o						\
 		-o load_visit_spreadsheet
+
+sort_nest_numbers.e: sort_nest_numbers.c				\
+		${STANDARD_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sort_nest_numbers.c					\
+		-o sort_nest_numbers.e
+
+sort_alligator_census.e: sort_alligator_census.c			\
+		${STANDARD_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sort_alligator_census.c					\
+		-o sort_alligator_census.e
 
 google_map_basin_process: 						\
 		google_map_basin_process.c				\
