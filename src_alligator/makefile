@@ -39,7 +39,9 @@ EXECUTABLES=	load_srf_spreadsheet					\
 		alligator_dvr						\
 		locate_cell_basin					\
 		assign_nest_basin					\
-		update_transect_basin
+		update_transect_basin					\
+		sort_nest_numbers.e					\
+		sort_alligator_census.e
 
 EXTERNAL_LIBS=								\
 		${LIBRARY}/aggregate_level.o 				\
@@ -62,7 +64,7 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/attribute.o					\
 		${LIBRARY}/application.o				\
-		${LIBRARY}/dictionary_separate.o			\
+		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security.o					\
 		${LIBRARY}/element.o					\
@@ -73,17 +75,19 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/related_folder.o				\
 		${LIBRARY}/vertical_new_button.o			\
 		${LIBRARY}/relation.o					\
+		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/operation.o					\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
+		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/appaserver_parameter_file.o			\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/expected_count.o				\
-		${LIBRARY}/post_dictionary.o				\
+		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
 		${LIBRARY}/foreign_attribute.o				\
 		${LIBRARY}/session.o
@@ -298,6 +302,26 @@ load_visit_spreadsheet: load_visit_spreadsheet.c			\
 		load_visit_spreadsheet.c				\
 		alligator.o						\
 		-o load_visit_spreadsheet
+
+sort_nest_numbers.e: sort_nest_numbers.c				\
+		${STANDARD_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sort_nest_numbers.c					\
+		-o sort_nest_numbers.e
+
+sort_alligator_census.e: sort_alligator_census.c			\
+		${STANDARD_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${SOURCE_LIBS}						\
+		${STANDARD_LIBRARY} 					\
+		sort_alligator_census.c					\
+		-o sort_alligator_census.e
 
 google_map_basin_process: 						\
 		google_map_basin_process.c				\
