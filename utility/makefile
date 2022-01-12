@@ -202,7 +202,8 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	subtract_list.e							\
 	label_dictionary.e						\
 	measurement_convert_units.e					\
-	bracket_line.e
+	bracket_line.e							\
+	sort_delimited_numbers.e
 
 touch:
 	/usr/bin/touch *.c
@@ -1844,3 +1845,12 @@ payroll_period.e: payroll_period.c ${APPASERVER_LIBRARY}		\
 
 bracket_line.e: bracket_line.c
 	$(CC)	${CFLAGS} bracket_line.c -o bracket_line.e
+
+sort_delimited_numbers.e: sort_delimited_numbers.c			\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}
+	$(CC)	${CFLAGS} -I${LIBRARY} sort_delimited_numbers.c		\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		-o sort_delimited_numbers.e
+
