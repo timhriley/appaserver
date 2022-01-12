@@ -35,9 +35,9 @@
 
 int main( int argc, char **argv )
 {
+	char *application_name;
 	char *login_name;
 	char *session_key;
-	char *application_name;
 	char *folder_name;
 	char *one2m_isa_folder_name;
 	char *role_name;
@@ -55,8 +55,8 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
+	application_name = argv[ 1 ];
+	login_name = argv[ 2 ];
 	session_key = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	one2m_isa_folder_name = security_sql_injectionary_escape( argv[ 5 ] );

@@ -21,7 +21,7 @@ EXECUTABLES=								\
 		output_choose_isa_drop_down				\
 		output_edit_table_form					\
 		output_insert_table_form				\
-		post_edit_table_form					\
+		post_edit_table						\
 		post_maintain_user_account				\
 		output_results 						\
 		post_login						\
@@ -186,7 +186,7 @@ clean:
 	${CGI_HOME}/output_prompt_insert_form				\
 	${CGI_HOME}/post_choose_folder					\
 	${CGI_HOME}/post_choose_process					\
-	${CGI_HOME}/post_edit_table_form				\
+	${CGI_HOME}/post_edit_table					\
 	${CGI_HOME}/post_generic_load					\
 	${CGI_HOME}/post_merge_purge					\
 	${CGI_HOME}/post_maintain_user_account				\
@@ -1104,21 +1104,21 @@ output_frameset: output_frameset.c ${EXTERNAL_LIBS}
 		output_frameset.c					\
 		-o output_frameset
 
-post_edit_table_form: post_edit_table_form.c				\
+post_edit_table: post_edit_table.c					\
 			${EXTERNAL_LIBS}				\
 			${LIB}/folder_menu.o				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		post_edit_table_form.c					\
+		post_edit_table.c					\
 		${LIB}/folder_menu.o					\
 		${LIB}/pair_one2m.o					\
 		-o post_edit_table_form
-	touch ${CGI_HOME}/post_edit_table_form
-	/bin/rm -f ${CGI_HOME}/post_edit_table_form
+	touch ${CGI_HOME}/post_edit_table
+	/bin/rm -f ${CGI_HOME}/post_edit_table
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_edit_table_form		\
+	${APPASERVER_HOME}/src_appaserver/post_edit_table		\
 	${CGI_HOME}
 
 post_maintain_user_account: post_maintain_user_account.c		\

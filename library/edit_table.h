@@ -8,7 +8,6 @@
 
 /* Includes */
 /* -------- */
-#include "dictionary.h"
 #include "boolean.h"
 #include "list.h"
 #include "dictionary.h"
@@ -19,6 +18,7 @@
 #include "menu.h"
 #include "row_security.h"
 #include "query.h"
+#include "document.h"
 
 /* Constants */
 /* --------- */
@@ -39,7 +39,18 @@ typedef struct
 	boolean primary_keys_non_edit;
 	ROW_SECURITY_EDIT_TABLE *row_security_edit_table;
 	QUERY_EDIT_TABLE *query_edit_table;
+	int row_insert_count;
+	int cell_update_count;
+	char *cell_update_folder_list_string;
+	char *results_string;
+	char *submit_action_string;
+	LIST *heading_list;
+	LIST *key_list;
+	char *title;
+	char *message_html;
 	DOCUMENT_EDIT_TABLE *document_edit_table;
+	char *html;
+	char *trailer_html;
 } EDIT_TABLE;
 
 /* Prototypes */
@@ -62,6 +73,9 @@ EDIT_TABLE *edit_table_new(
 			DICTIONARY *sort_dictionary,
 			LIST *ignore_select_attribute_name_list );
 
+/* Process */
+/* ------- */
+
 /* Returns program memory */
 /* ---------------------- */
 char *edit_table_state(
@@ -73,21 +87,46 @@ int edit_table_row_insert_count(
 int edit_table_cell_update_count(
 			DICTIONARY *non_prefixed_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns non_prefixed_dictionary->hash_table->other_data */
+/* ------------------------------------------------------- */
 char *edit_table_cell_update_folder_list_string(
 			DICTIONARY *non_prefixed_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns non_prefixed_dictionary->hash_table->other_data */
+/* ------------------------------------------------------- */
 char *edit_table_results_string(
 			DICTIONARY *non_prefixed_dictionary );
 
-boolean edit_table_content_type(
-			boolean with_dynarch_menu );
+/* Returns heap memory */
+/* ------------------- */
+char *edit_table_submit_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *detail_base_folder_name );
 
-boolean edit_table_primary_keys_non_edit(
-			int relation_mto1_isa_list_length );
+LIST *edit_table_heading_list(
+			LIST *regular_element_list,
+			LIST *viewonly_element_list );
+
+LIST *edit_table_key_list(
+			LIST *regular_element_list,
+			LIST *viewonly_element_list );
+
+char *edit_table_title(
+			char *folder_name,
+			char *edit_table_state );
+
+/* Returns heap memory */
+/* ------------------- */
+char *edit_table_message_html(
+			char *edit_table_title,
+			int edit_table_row_insert_count,
+			int edit_table_cell_update_count,
+			char *edit_table_results_string );
 
 /* Returns document_edit_table_html */
 /* -------------------------------- */
@@ -99,8 +138,8 @@ char *edit_table_html(
 char *edit_table_trailer_html(
 			char *document_edit_table_trailer_html );
 
-/* External */
-/* -------- */
+/* Public */
+/* ------ */
 void edit_table_output(
 			FILE *output_stream,
 			char *edit_table_html,
@@ -133,5 +172,36 @@ char *edit_table_background_color(
 static char **edit_table_background_color_array(
 			int *background_color_array_length,
 			char *application_name );
+
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
+	char *target_frame;
+	char *detail_base_folder_name;
+
+	/* Process */
+	/* ------- */
+	SESSION *session;
+} EDIT_TABLE_POST;
+
+/* EDIT_TABLE_POST operations */
+/* -------------------------- */
+EDIT_TABLE_POST *edit_table_post_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+EDIT_TABLE_POST *edit_table_post_new(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *folder_name,
+			char *state,
+			char *target_frame,
+			char *detail_base_folder_name );
 
 #endif

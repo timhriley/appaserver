@@ -377,12 +377,10 @@ void environ_appaserver_home( void )
 	environ_set_environment(
 		"APPASERVER_HOME",
 		appaserver_parameter_mount_point() );
+}
 
-	/* ------------------------------------------------------------ */
-	/* umask() is here for convenience. However, it should be moved */
-	/* to the many places where it's truly needed. However, it      */
-	/* probably won't be.						*/
-	/* ------------------------------------------------------------ */
+void environ_umask( void )
+{
 	umask( APPASERVER_UMASK );
 }
 

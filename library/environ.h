@@ -117,4 +117,6 @@ void environ_display(	FILE *output_pipe );
 char *environment_application_name(
 			void );
 
+void environ_umask(	void );
+
 #endif

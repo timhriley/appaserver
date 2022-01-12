@@ -679,12 +679,12 @@ QUERY_EDIT_TABLE *query_edit_table_calloc(
 
 QUERY_EDIT_TABLE *query_edit_table_new(
 			char *folder_name,
-			SECURITY_ENTITY *security_entity,
+			char *login_name,
+			char *security_entity_where,
 			LIST *relation_join_one2m_list,
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			ROW_SECURITY_ROLE *row_security_role );

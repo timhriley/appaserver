@@ -1,9 +1,6 @@
 /* ------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/post_edit_table_form.c	*/
+/* $APPASERVER_HOME/src_appaserver/post_edit_table.c		*/
 /* ------------------------------------------------------	*/
-/* This script is attached to the submit button on 		*/
-/* the edit table form.						*/
-/*								*/
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------	*/
 
@@ -17,14 +14,13 @@
 #include "dictionary2file.h"
 #include "folder.h"
 #include "document.h"
-#include "operation_list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "process.h"
 #include "insert_database.h"
 #include "update_database.h"
 #include "query.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver.h"
 #include "environ.h"
 #include "dictionary.h"
@@ -32,11 +28,12 @@
 #include "form.h"
 #include "session.h"
 #include "role.h"
-#include "lookup_before_drop_down.h"
+#include "drillthru.h"
 #include "dictionary_appaserver.h"
 #include "pair_one2m.h"
 #include "folder_menu.h"
 #include "vertical_new_button.h"
+#include "edit_table.h"
 
 /* Constants */
 /* --------- */
@@ -136,114 +133,48 @@ void post_state_lookup(	DICTIONARY_APPASERVER *dictionary_appaserver,
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
-	char *role_name, *state;
-	char *insert_update_key;
-	char detail_base_folder_name[ 128 ] = {0};
+	char *application_name;
+	char *login_name;
+	char *session_key;
+	char *role_name;
+	char *folder_name;
+	char *state;
 	char *target_frame;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
-	DICTIONARY *original_post_dictionary;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	boolean insert_flag;
-	pid_t dictionary_process_id;
-	ROLE *role;
-	char *optional_related_attribute_name;
-	FOLDER *folder;
-	char *primary_data_list_string;
-	OPERATION_LIST_STRUCTURE *operation_list_structure = {0};
-	VERTICAL_NEW_BUTTON *vertical_new_button;
+	char *detail_base_folder_name;
+	EDIT_TABLE_POST *edit_table_post;
 
-	if ( argc < 10 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s login_name application session folder role state insert_update_key target_frame dictionary_process_id [optional_related_attribute_name]\n",
+"Usage: %s application login_name session role folder state target_frame detail_base\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
+	application_name = argv[ 1 ];
+	login_name = argv[ 2 ];
+	session_key = argv[ 3 ];
+	role_name = argv[ 4 ];
+	folder_name = argv[ 5 ];
 	state = argv[ 6 ];
-	insert_update_key = argv[ 7 ];
-	target_frame = argv[ 8 ];
-	dictionary_process_id = atoi( argv[ 9 ] );
+	target_frame = argv[ 7 ];
+	detail_base_folder_name = argv[ 8 ];
 
-	if ( argc == 11 )
-		optional_related_attribute_name = argv[ 10 ];
-	else
-		optional_related_attribute_name = (char *)0;
-
-	environ_set_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-		application_name );
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_local_bin_to_path();
-	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
-
-	/* ------------------------------------------------------------ */
-	/* Coming from the detail screen is communicated via the	*/
-	/* insert_update_key. The syntax is:				*/
-	/* detail!${detail_base_folder_name}				*/
-	/* ------------------------------------------------------------ */
-	if ( instr( "!", insert_update_key, 1 ) > -1 )
-	{
-		piece( detail_base_folder_name, '!', insert_update_key, 1 );
-		insert_update_key[
-			instr( "!", insert_update_key, 1 ) ] = '\0';
-	}
-
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
-	{
-		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
-	}
-
-	if ( !session_access_folder(
+	edit_table_post =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		edit_table_post_new(
+			argc,
+			argv,
 			application_name,
-			session,
-			folder_name,
+			login_name,
+			session_key,
 			role_name,
-			state ) )
-	{
-		if ( strcmp( state, "update" ) == 0
-		&&  !( state = session_degrade_state(
-				application_name,
-				session,
-				folder_name,
-				role_name ) ) )
-		{
-			session_access_failed_message_and_exit(
-				application_name, session, login_name );
-		}
-	}
-
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
+			folder_name,
+			state,
+			target_frame,
+			detail_base_folder_name );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 

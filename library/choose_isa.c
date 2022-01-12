@@ -212,16 +212,16 @@ char *choose_isa_action_string(
 
 	sprintf(action_string,
 		" action=\"%s/%s?%s+%s+%s+%s+%s+%s\"",
-			appaserver_library_http_prompt(
-				appaserver_parameter_cgi_directory(),
-				appaserver_library_server_address(),
-				application_ssl_support_yn(
-					application_name ),
-				application_prepend_http_protocol_yn(
-					application_name ) ),
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
 		"post_choose_isa_drop_down",
-		login_name,
 		application_name,
+		login_name,
 		session_key,
 		folder_name,
 		one2m_isa_folder_name,

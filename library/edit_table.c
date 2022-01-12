@@ -43,7 +43,6 @@ EDIT_TABLE *edit_table_new(
 			char *role_name,
 			char *target_frame,
 			boolean menu_boolean,
-			boolean frameset_menu_horizontal,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
@@ -53,8 +52,6 @@ EDIT_TABLE *edit_table_new(
 {
 	EDIT_TABLE *edit_table = edit_table_calloc();
 
-	/* Process */
-	/* ------- */
 	if ( ! ( edit_table->role =
 			role_fetch(
 				role_name,
@@ -137,8 +134,8 @@ EDIT_TABLE *edit_table_new(
 		/* -------------- */
 		security_entity_new(
 			login_name,
-			folder->non_owner_forbid,
-			role->override_row_restrictions );
+			edit_table->folder->non_owner_forbid,
+			edit_table->role->override_row_restrictions );
 
 	edit_table->state =
 		/* ---------------------- */
@@ -151,12 +148,17 @@ EDIT_TABLE *edit_table_new(
 
 	edit_table->primary_keys_non_edit =
 		edit_table_primary_keys_non_edit(
-			list_length( folder->relation_mto1_isa_list ) );
+			list_length(
+				edit_table->
+					folder->
+					relation_mto1_isa_list ) );
 
-	edit_table->row_security =
-		row_security_edit_table(
+	edit_table->row_security_edit_table =
+		row_security_edit_table_new(
 			folder_name,
 			edit_table->folder->folder_attribute_append_isa_list,
+			edit_table->folder->relation_mto1_non_isa_list,
+			edit_table->folder->relation_join_one2m_list,
 			drillthru_dictionary,
 			edit_table->primary_keys_non_edit,
 			edit_table->folder->role_operation_list,
@@ -169,28 +171,42 @@ EDIT_TABLE *edit_table_new(
 			login_name,
 			security_entity );
 
-	if ( !edit_table->row_security )
+	if ( !edit_table->row_security_edit_table )
 	{
 		fprintf(stderr,
 "Warning in %s/%s()/%d: row_security_edit_table_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
+
+		return (EDIT_TABLE *)0;
+	}
+
+	if ( !edit_table->row_security_edit_table->row_security_element_list )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: row_security_element_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
 		return (EDIT_TABLE *)0;
 	}
 
 	edit_table->query_edit_table =
 		query_edit_table_new(
 			folder_name,
-			security_entity_where(
-				edit_table->security_entity ),
+			login_name,
+			security_entity_where( edit_table->security_entity ),
 			edit_table->folder->relation_join_one2m_list,
 			ignore_select_attribute_name_list,
+			edit_table->role->exclude_lookup_attribute_name_list,
 			edit_table->folder->folder_attribute_append_isa_list,
 			query_dictionary,
 			sort_dictionary,
-			edit_table->row_security_edit_table->row_security_role,
-			edit_table->state );
+			edit_table->
+				row_security_edit_table->
+				row_security_role );
 
 	if ( !edit_table->query_edit_table )
 	{
@@ -227,7 +243,8 @@ EDIT_TABLE *edit_table_new(
 			session_key,
 			folder_name,
 			role_name,
-			target_frame );
+			target_frame,
+			(char *)0 /* detail_base_folder_name */ );
 
 	edit_table->heading_list =
 		edit_table_heading_list(
@@ -257,6 +274,9 @@ EDIT_TABLE *edit_table_new(
 			edit_table->state );
 
 	edit_table->message_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		edit_table_message_html(
 			edit_table->title,
 			edit_table->row_insert_count,
@@ -840,5 +860,104 @@ static char **edit_table_background_color_array(
 		*background_color_array_length = 5;
 	}
 	return background_color_array;
+}
+
+char *edit_table_submit_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *detail_base_folder_name )
+{
+	char action_string[ 1024 ];
+
+	sprintf(action_string,
+		" action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s\"",
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		"post_edit_table",
+		application_name,
+		login_name,
+		session_key,
+		folder_name,
+		role_name,
+		target_frame,
+		(detail_base_folder_name)
+			? detail_base_folder_name
+			: "" );
+
+	return strdup( action_string );
+}
+
+EDIT_TABLE_POST *edit_table_post_calloc( void )
+{
+	EDIT_TABLE_POST *edit_table_post;
+
+	if ( ! ( edit_table_post = calloc( 1, sizeof( EDIT_TABLE_POST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return edit_table_post;
+}
+
+EDIT_TABLE_POST *edit_table_post_new(
+			int argc,
+			char *argv,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *detail_base_folder_name )
+{
+	EDIT_TABLE_POST *edit_table_post = edit_table_post_calloc();
+
+	edit_table_post->target_frame = target_frame;
+	edit_table_post->detail_base_folder_name = detail_base_folder_name;
+
+	edit_table_post->session =
+		/* --------------------------------------------- */
+		/* Sets appaserver environment and outputs argv. */
+		/* Each parameter is security inspected.	 */
+		/* --------------------------------------------- */
+		session_folder_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			state );
+
+	return edit_table_post;
+}
+
+char *edit_table_message_html(
+			char *edit_table_title,
+			int edit_table_row_insert_count,
+			int edit_table_cell_update_count,
+			char *edit_table_results_string )
+{
+	char html[ 1024 ];
+	char *ptr = html;
+
+	*ptr = '\0';
+
+	return strdup( html );
 }
 

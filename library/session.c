@@ -489,4 +489,6 @@ void session_environment_set(
 	add_local_bin_to_path();
 	environ_appaserver_home();
 	environ_prepend_dot_to_path();
+	environ_umask();
+
 }
