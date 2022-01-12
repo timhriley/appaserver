@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_hydrology/measurement_convert_units.c		*/
+/* $APPASERVER_HOME/utility/measurement_convert_units.c			*/
 /* ----------------------------------------------------------------	*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
