@@ -16,7 +16,6 @@
 #include "dictionary.h"
 #include "role_folder.h"
 #include "folder_attribute.h"
-#include "appaserver.h"
 #include "appaserver_error.h"
 #include "application.h"
 #include "relation.h"
@@ -117,7 +116,6 @@ ROW_SECURITY_ROLE *row_security_role_new(
 			boolean role_override_row_restrictions )
 {
 	ROW_SECURITY_ROLE *row_security_role;
-	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
 
 	/* If supervisor role, then not participating. */
 	/* ------------------------------------------- */
@@ -126,38 +124,138 @@ ROW_SECURITY_ROLE *row_security_role_new(
 		return (ROW_SECURITY_ROLE *)0;
 	}
 
-	row_security_role_update =
-		row_security_role_update_fetch(
-			folder_name /* check_folder_name */,
-			primary_key_list );
+	row_security_role = row_security_role_calloc();
 
-	/* If no fetch, then not participating. */
-	/* ------------------------------------ */
-	if ( !row_security_role_update ) )
+	row_security_role->update_list =
+		row_security_role_update_list();
+
+	if ( !list_length( row_security_role->update_list ) )
+	{
+		free( row_security_role );
+		return (ROW_SECURITY_ROLE *)0;
+	}
+
+	row_security_role->root_folder_name =
+		row_security_role_root_folder_name(
+			folder_name,
+			row_security_role->update_list );
+
+	row_security_role->relation =
+		row_security_role_relation(
+			folder_name,
+			row_security_role->update_list );
+
+	row_security_role->participating =
+		row_security_role_participating(
+			row_security_role->root_folder_name,
+			row_security_role->relation );
+
+	if ( !row_security_role->participating )
 	{
 		return (ROW_SECURITY_ROLE *)0;
 	}
 
-	row_security_role = row_security_role_calloc();
+	row_security_role->attribute_not_null =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		row_security_role_update_attribute_not_null(
+			row_security_role->root_folder_name,
+			row_security_role->relation,
+			row_security_role->update_list );
 
-	row_security_role_update->row_security_role_update =
-		row_security_role_update;
+	if ( row_security_role->relation )
+	{
+		row_security_role->join =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			row_security_role_join(
+				folder_name,
+				primary_key_list,
+				row_security_role->relation );
+	}
 
 	return row_security_role;
 }
 
+char *row_security_role_update_attribute_not_null(
+			char *root_folder_name,
+			RELATION *relation,
+			LIST *update_list )
+{
+	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
+
+	if ( relation && !relation->many_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: many_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( update_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		row_security_role_update =
+			list_get(
+				update_list );
+
+		if ( string_strcmp(
+			root_folder_name,
+			row_security_role_update->folder_name ) == 0 )
+		{
+			return row_security_role_update->attribute_not_null );
+		}
+		else
+		if ( string_strcmp(
+			relation->
+				many_folder->
+				folder_name,
+			row_security_role_update->folder_name  ) == 0 )
+		{
+			return row_security_role_update->attribute_not_null );
+		}
+	} while ( list_next( update_list ) );
+
+	fprintf(stderr,
+		"ERROR in %s/%s()/%d: cannot seek attribute_not_null.\n",
+		__FILE__,
+		__FUNCTION__,
+		__LINE__ );
+	exit( 1 );
+}
+
 boolean row_security_role_viewonly(
 			DICTIONARY *row_dictionary,
-			ROW_SECURITY_ROLE *row_security_role )
+			char *attribute_not_null )
 {
 	char *data;
 
-	if ( !row_security_role ) return 0;
+	if ( !attribute_not_null )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: attribute_not_null is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	data =
 		dictionary_get(
 			row_dictionary,
-			row_security_role->attribute_not_null_string );
+			attribute_not_null );
 
 	if ( data && *data )
 		return 1;
@@ -199,63 +297,6 @@ char *row_security_role_system_string( void )
 	return system_string;
 }
 
-ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
-			char *check_folder_name,
-			LIST *primary_key_list )
-{
-	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
-	LIST *role_update_list;
-
-	if ( !check_folder_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: check_folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	role_update_list =
-		row_security_role_update_list(
-			primary_key_list );
-
-	if ( !list_rewind( role_update_list ) )
-	{
-		return (ROW_SECURITY_ROLE_UPDATE *)0;
-	}
-
-	do {
-		row_security_role_update =
-			list_get(
-				role_update_list );
-
-		if ( row_security_role_update_participating(
-			check_folder_name,
-			row_security_role_update->folder_name
-			row_security_role_update->
-				relation_one2m_recursive_list ) )
-		{
-			if ( strcmp(
-				row_security_role_update->folder_name,
-				check_folder_name ) != 0 )
-			{
-				row_security_role_update->join =
-					row_security_role_update_join(
-					   check_folder_name,
-					   primary_key_list,
-					   row_security_role_update->
-					      relation_one2m_recursive_list );
-			}
-
-			return row_security_role_update;
-		}
-
-	} while ( list_next( role_update_list ) );
-
-	return (ROW_SECURITY_ROLE_UPDATE *)0;
-}
-
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 			char *input )
 {
@@ -288,48 +329,119 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 	return row_security_role_update;
 }
 
-boolean row_security_role_update_participating(
-			char *check_folder_name,
+RELATION *row_security_role_relation(
 			char *folder_name,
-			LIST *relation_one2m_recursive_list )
+			LIST *update_list )
 {
-	if ( !check_folder_name || !folder_name )
+	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
+	RELATION *relation;
+
+	if ( !list_rewind( update_list ) )
+		return (RELATION *)0;
+
+	do {
+		row_security_role_update =
+			list_get(
+				update_list );
+
+		if ( !list_rewind( row_security_role_update->
+					relation_one2m_recursive_list ) )
+		{
+			continue;
+		}
+
+		do {
+			relation =
+				list_get(
+					row_security_role_update->
+						relation_one2m_recursive_list );
+
+			if ( !relation->many_folder )
+			{
+				fprintf(stderr,
+				"ERROR in %s/%s()/%d: many_folder is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( strcmp(	relation->many_folder->folder_name,
+					folder_name ) == 0 )
+			{
+				return relation;
+			}
+
+		} while ( list_next(
+				row_security_role_update->
+					relation_one2m_recursive_list ) );
+
+	} while ( list_next( update_list ) );
+
+	return (RELATION *)0;
+}
+
+char *row_security_role_root_folder_name(
+			char *folder_name,
+			LIST *update_list )
+{
+	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
+
+	if ( !folder_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: a parameter is empty.\n",
+			"ERROR in %s/%s()/%d: folder_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( strcmp( check_folder_name, folder_name ) == 0 )
-	{
-		return 1;
-	}
+	do {
+		row_security_role_update =
+			list_get(
+				update_list );
 
-	if ( ( relation_one2m_seek(
-			check_folder_name,
-			relation_one2m_recursive_list ) ) )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
+		if ( !row_security_role_update->folder_name )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( strcmp(	folder_name,
+				row_security_role_update->folder_name ) == 0 )
+		{
+			return 1;
+		}
+
+	} while ( list_next( update_list ) );
+
+	return 0;
 }
 
-char *row_security_role_update_join(
-			char *check_folder_name,
+boolean row_security_role_update_participating(
+			char *root_folder_name,
+			RELATION *relation )
+{
+	if ( root_folder_name || relation )
+		return  1;
+	else
+		return 0;
+}
+
+char *row_security_role_join(
+			char *folder_name,
 			LIST *primary_key_list,
-			LIST *relation_one2m_recursive_list )
+			RELATION *relation )
 {
 	char join[ 1024 ];
 	char *ptr = join;
 	char *primary_key;
 	char *foreign_key;
-	RELATION *relation;
 
 	if ( !list_rewind( primary_key_list ) )
 	{
@@ -341,24 +453,20 @@ char *row_security_role_update_join(
 		exit( 1 );
 	}
 
-	if ( ! ( relation =
-			relation_one2m_seek(
-				check_folder_name,
-				relation_one2m_recursive_list ) ) )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: relation_one2m_seek(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			check_folder_name );
-		exit( 1 );
-	}
-
 	if ( !list_rewind( relation->foreign_key_list ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !relation->many_folder ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: many_folder is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -374,9 +482,9 @@ char *row_security_role_update_join(
 		ptr += sprintf(
 			ptr,
 			"%s.%s = %s.%",
-			check_folder_name,
+			folder_name,
 			primary_key,
-			relation->one_folder->folder_name,
+			relation->many_folder->folder_name,
 			foreign_key );
 
 		list_next( relation->foreign_key_list );
@@ -526,34 +634,6 @@ LIST *row_security_operation_element_list( LIST *role_operation_list )
 	return element_list;
 }
 
-LIST *row_security_role_update_folder_list(
-			LIST *primary_key_list )
-{
-	LIST *role_update_folder_list = {0};
-	char input[ 256 ];
-	FILE *input_pipe =
-		popen(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			row_security_role_update_system_string(),
-			"r" );
-
-	while( string_input( input, input_pipe, 256 ) )
-	{
-		row_security_role_update_folder =
-
-		if ( !update_folder_list ) update_folder_list = list_new();
-
-		list_set(
-			role_update_folder_list,
-			row_security_role_update_folder_parse( input ) );
-	}
-
-	pclose( input_pipe );
-	return role_update_folder_list;
-}
-
 LIST *row_security_viewonly_element_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
@@ -571,26 +651,24 @@ LIST *row_security_apply_element_list(
 			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role )
 {
-	LIST *apply_element_list;
-
-	if ( row_security_role
-	&&   row_security_role_viewonly(
+	if ( !row_security_role )
+	{
+		if ( regular_element_list )
+			return regular_element_list;
+		else
+			return viewonly_element_list;
+	}
+	else
+	if ( row_security_role_viewonly(
 			row_dictionary,
-			row_security_role ) )
+			row_security_role->attribute_not_null ) )
 	{
-		apply_element_list = viewonly_element_list;
-	}
-	else
-	if ( regular_element_list )
-	{
-		apply_element_list = regular_element_list;
+		return viewonly_element_list;
 	}
 	else
 	{
-		apply_element_list = viewonly_element_list;
+		return regular_element_list;
 	}
-
-	return apply_element_list;
 }
 
 LIST *row_security_regular_element_list(
@@ -748,3 +826,46 @@ LIST *row_security_widget_delimited_list(
 
 	return delimited_list;
 }
+
+LIST *row_security_role_update_list( void )
+{
+	LIST *update_list = {0};
+	FILE *input_pipe;
+	char input[ 1024 ];
+
+	input_pipe =
+		popen(
+			row_security_role_update_system_string(),
+			"r" );
+
+	while ( string_input( input, input_pipe ) )
+	{
+		if ( !update_list ) update_list = list_new();
+
+		list_set(
+			update_list,
+			row_security_role_update_parse(
+				input ) );
+	}
+
+	pclose( input_pipe );
+
+	return update_list;
+}
+
+char *row_security_role_update_system_string( void )
+{
+	static char system_string[ 256 ];
+
+	sprintf(system_string,
+		"select.sh %s %s",
+		"folder,attribute_not_null",
+		"row_security_role_update" );
+
+	return system_string;
+}
+
+ROW_SECURITY_ROLE_UPDATE *row_security_role_update_new(
+			char *folder_name,
+			char *attribute_not_null );
+

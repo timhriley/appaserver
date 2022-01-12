@@ -10,15 +10,11 @@
 #include "folder.h"
 #include "attribute.h"
 #include "element.h"
+#include "relation.h"
 #include "role.h"
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *check_folder_name;
-	LIST *primary_key_list;
-
 	/* Attributes */
 	/* ---------- */
 	char *folder_name;
@@ -26,9 +22,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *system_string;
 	LIST *relation_one2m_recursive_list;
-	boolean participating;
-	char *join;
 } ROW_SECURITY_ROLE_UPDATE;
 
 /* ROW_SECURITY_ROLE_UPDATE operations */
@@ -36,38 +31,38 @@ typedef struct
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc(
 			void );
 
-ROW_SECURITY_ROLE_UPDATE *row_security_role_update_fetch(
-			char *check_folder_name,
-			LIST *primary_key_list );
-
 LIST *row_security_role_update_list(
-			LIST *primary_key_list );
-
-ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
-			char *input );
-
-boolean row_security_role_update_participating(
-			char *check_folder_name,
-			char *folder_name,
-			LIST *relation_one2m_recursive_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *row_security_role_update_join(
-			char *folder_name,
-			LIST *primary_key_list,
-			LIST *relation_one2m_recursive_list );
+			void );
 
 /* Returns static memory */
 /* --------------------- */
 char *row_security_role_update_system_string(
 			void );
 
+ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
+			char *input );
+
+/* Always succeeds */
+/* --------------- */
+char *row_security_role_update_attribute_not_null(
+			char *row_security_role_root_folder_name,
+			RELATION *row_security_role_relation,
+			LIST *row_security_role_update_list );
+
 typedef struct
 {
+	/* Attribute */
+	/* --------- */
+	boolean role_override_row_restrictions;
+
 	/* Process */
 	/* ------- */
-	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
+	LIST *update_list;
+	char *root_folder_name;
+	RELATION *relation;
+	boolean participating;
+	char *attribute_not_null;
+	char *join;
 } ROW_SECURITY_ROLE;
 
 /* ROW_SECURITY_ROLE operations */
@@ -82,15 +77,38 @@ ROW_SECURITY_ROLE *row_security_role_new(
 			LIST *primary_key_list,
 			boolean role_override_row_restrictions );
 
+char *row_security_role_root_folder_name(
+			char *folder_name,
+			LIST *row_security_role_update_list );
+
+RELATION *row_security_role_relation(
+			char *folder_name,
+			LIST *row_security_role_update_list );
+
+boolean row_security_role_participating(
+			char *row_security_role_root_folder_name,
+			RELATION *row_security_role_relation );
+
+/* Returns heap memory */
+/* ------------------- */
+char *row_security_role_join(
+			char *folder_name,
+			LIST *primary_key_list,
+			RELATION *row_security_role_relation );
+
+/* Public */
+/* ------ */
 LIST *row_security_role_apply_element_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role );
 
+/* Private */
+/* ------- */
 boolean row_security_role_viewonly(
 			DICTIONARY *row_dictionary,
-			ROW_SECURITY_ROLE *row_security_row );
+			char *row_security_role_update_attribute_not_null );
 
 typedef struct
 {
