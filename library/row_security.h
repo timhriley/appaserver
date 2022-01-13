@@ -132,7 +132,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			LIST *ignore_select_attribute_name_list,
 			char *state,
 			char *login_name,
-			SECURITY_ENTITY *security_entity,
+			char *security_entity_where,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			/* ------------------------- */
@@ -146,7 +146,7 @@ LIST *row_security_regular_element_list(
 			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
-			LIST *role_operation_list,
+			LIST *row_security_operation_element_list,
 			LIST *ignore_select_attribute_name_list,
 			char *login_name,
 			SECURITY_ENTITY *security_entity,
@@ -158,7 +158,7 @@ LIST *row_security_viewonly_element_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
-			LIST *role_operation_list,
+			LIST *row_security_operation_element_list,
 			LIST *ignore_select_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			ROW_SECURITY_ROLE *row_security_role );
@@ -166,7 +166,8 @@ LIST *row_security_viewonly_element_list(
 /* Always returns */
 /* -------------- */
 LIST *row_security_operation_element_list(
-			LIST *role_operation_list );
+			LIST *role_operation_list,
+			boolean viewonly );
 
 typedef struct
 {
@@ -179,7 +180,7 @@ typedef struct
 ROW_SECURITY *row_security_calloc(
 			void );
 
-ROW_SECURITY *row_security_edit_table(
+ROW_SECURITY *row_security_edit_table_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
@@ -193,7 +194,8 @@ ROW_SECURITY *row_security_edit_table(
 			LIST *role_exclude_lookup_attribute_name_list,
 			boolean folder_non_owner_forbid,
 			boolean role_override_row_restrictions,
-			char *login_name );
+			char *login_name,
+			char *security_entity_where );
 
 LIST *row_security_update_state_regular_element_list(
 			LIST *folder_attribute_append_isa_list,

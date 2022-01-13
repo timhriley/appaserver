@@ -40,7 +40,7 @@ ROW_SECURITY *row_security_calloc( void )
 	return row_security;
 }
 
-ROW_SECURITY *row_security_edit_table(
+ROW_SECURITY *row_security_edit_table_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
@@ -54,7 +54,8 @@ ROW_SECURITY *row_security_edit_table(
 			LIST *role_exclude_lookup_attribute_name_list,
 			boolean folder_non_owner_forbid,
 			boolean role_override_row_restrictions,
-			char *login_name )
+			char *login_name,
+			char *security_entity_where )
 {
 	ROW_SECURITY *row_security = row_security_calloc();
 
@@ -533,7 +534,17 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 	ROW_SECURITY_ELEMENT_LIST *row_security_element_list =
 		row_security_element_list_calloc();
 
-	if ( string_strcmp( state, APPASERVER_UPDATE_STATE ) == 0 )
+	if ( !state )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: state is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( strcmp( state, APPASERVER_UPDATE_STATE ) == 0 )
 	{
 		row_security_element_list->regular_element_list =
 			row_security_regular_element_list(
@@ -590,7 +601,9 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 	return row_security_element_list;
 }
 
-LIST *row_security_operation_element_list( LIST *role_operation_list )
+LIST *row_security_operation_element_list(
+			LIST *role_operation_list,
+			boolean viewonly )
 {
 	LIST *element_list = list_new();
 	OPERATION *operation;
@@ -604,17 +617,22 @@ LIST *row_security_operation_element_list( LIST *role_operation_list )
 			list_get(
 				role_operation_list );
 
-		if ( operation->empty_placeholder )
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* name */ ) );
+
+		if ( viewonly
+		&&   operation_delete_name(
+			operation->operation_name ) )
 		{
-			element =
-				appaserver_element_new(
-					blank_tag );
+			continue;
 		}
-		else
-		{
-			element =
-				appaserver_element_new(
-					checkbox );
+
+		element =
+			appaserver_element_new(
+				checkbox );
 
 			element->checkbox->name = operation->operation_name;
 
@@ -708,12 +726,7 @@ LIST *row_security_regular_element_list(
 		exit( 1 );
 	}
 
-	element_list =
-		/* -------------- */
-		/* Always returns */
-		/* -------------- */
-		row_security_operation_element_list(
-			role_operation_list );
+	element_list = list_copy( operation_element_list );
 
 	do {
 		attribute_name = list_get( name_list );
@@ -723,18 +736,29 @@ LIST *row_security_regular_element_list(
 				attribute_name /* many_attribute_name */,
 				relation_mto1_non_isa_list ) )
 		{
-			LIST *delimited_list =
-				row_security_widget_delimited_list(
-					relation->one_folder->folder_name
-						/* widget_folder_name */,
-					login_name,
-					folder_attribute_primary_key_list(
-						relation->
-					LIST *relation_mto1_non_isa_list,
-					char *security_entity_where,
-					char *one_folder_name,
-					DICTIONARY *drillthru_dictionary,
-					PROCESS *populate_drop_down_process );
+			QUERY *query;
+
+			if ( !relation->one_folder )
+			{
+				fprintf(stderr,
+				"ERROR in %s/%s()/%d: one_folder is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( !list_length( relation->
+						one_folder->
+						folder_attribute_list ) )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
 
 			element =
 				appaserver_element_new(
@@ -744,8 +768,16 @@ LIST *row_security_regular_element_list(
 
 			query =
 				query_widget_new(
-					relation->one_folder->folder_name,
+					relation->one_folder->folder_name
+						/* widget_folder_name */,
 					login_name,
+					relation->
+						one_folder->
+						folder_attribute_list,
+					relation->
+						one_folder->
+						relation_mto1_non_isa_list,
+
 			element->drop_down =
 				element_drop_down_new(
 					relation->one_folder->primary_key_list

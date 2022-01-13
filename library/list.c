@@ -1925,30 +1925,32 @@ int list_max_string_width( LIST *list )
 	return max;
 }
 
-LIST *list_strdup_copy( LIST *source )
+LIST *list_strdup_copy( LIST *list )
 {
 	LIST *return_list = list_new();
 	char *data;
 
-	if ( !list_rewind( source ) ) return return_list;
+	if ( !list_rewind( list ) ) return return_list;
 
 	do {
-		data = list_get( source );
+		data = list_get( list );
 		list_set( return_list, strdup( data ) );
-	} while( list_next( source ) );
+
+	} while( list_next( list ) );
 
 	return return_list;
 }
 
-LIST *list_copy( LIST *source )
+LIST *list_copy( LIST *list )
 {
-	LIST *return_list = list_new_list();
+	LIST *return_list = list_new();
 
-	if ( !list_rewind( source ) ) return return_list;
+	if ( !list_rewind( list ) ) return return_list;
 
 	do {
-		list_set( return_list, list_get( source ) );
-	} while( list_next( source ) );
+		list_set( return_list, list_get( list ) );
+
+	} while( list_next( list ) );
 
 	return return_list;
 }

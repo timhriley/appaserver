@@ -362,9 +362,9 @@ LIST *pipe2list_append(	LIST *source_list,
 			char *pipe_string );
 
 LIST *list_strdup_copy(
-			LIST *source );
+			LIST *list );
 
-LIST *list_copy(	LIST *source );
+LIST *list_copy(	LIST *list );
 
 void list_push_current(	LIST *list );
 
