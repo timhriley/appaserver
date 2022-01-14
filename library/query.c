@@ -379,7 +379,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 	query_drop_down_row->query_data_list =
 		query_data_list(
 			query_drop_down_row->foreign_key_list,
-			query_drop_down_row->many_folder_attribute_list,
+			query_drop_down_row->folder_attribute_list,
 			query_drop_down_row->data_string_list );
 
 	return query_drop_down_row;
@@ -1014,31 +1014,40 @@ QUERY_DATA *query_data_calloc( void )
 }
 
 QUERY_DATA *query_data_new(
+			char *folder_name,
 			char *attribute_name,
 			char *datatype_name,
-			char *escaped_replaced_data )
+			char *data )
 {
 	QUERY_DATA *query_data;
 
-	if ( !escaped_replaced_data || !*escaped_replaced_data )
-		return (QUERY_DATA *)0;
+	if ( !data || !*data ) return (QUERY_DATA *)0;
 
 	query_data = query_data_calloc();
 
+	query_data->folder_name = folder_name;
 	query_data->attribute_name = attribute_name;
 	query_data->datatype_name = datatype_name;
+	query_data->data = data;
 
 	query_data->escaped_replaced_data =
-		query_data_convert_date_international(
-			query_data->datatype_name,
-			escaped_replaced_data );
+		security_sql_injection_escape(
+			security_replace_special_characters(
+				/* --------------------------- */
+				/* Returns heap memory or data */
+				/* --------------------------- */
+				query_data_date_international(
+					string_trim_number_characters(
+						data,
+						datatype_name ),
+					datatype_name ) ) );
 
 	return query_data;
 }
 
-char *query_data_convert_date_international(
-			char *datatype_name,
-			char *escaped_replaced_data )
+char *query_data_date_international(
+			char *data
+			char *datatype_name )
 {
 	char date_string[ 64 ];
 	char time_string[ 64 ];
@@ -1046,28 +1055,26 @@ char *query_data_convert_date_international(
 	enum date_convert_format date_convert_format;
 	DATE_CONVERT *date;
 
-	if ( !escaped_replaced_data || !*escaped_replaced_data )
-		return escaped_replaced_data;
+	if ( !data || !*data ) return data;
 
 	if ( !attribute_is_date( datatype_name )
 	&&   !attribute_is_time( datatype_name )
 	&&   !attribute_is_date_time( datatype_name ) )
 	{
-		return escaped_replaced_data;
+		return data;
 	}
 
 	date_convert_format =
 		date_convert_date_time_evaluate(
-			escaped_replaced_data
-				/* date_time_string */ );
+			data /* date_time_string */ );
 
 	if ( date_convert_format == date_convert_unknown )
-		return escaped_replaced_data;
+		return data;
 
 	*time_string = '\0';
 
-	column( date_string, 0, escaped_replaced_data );
-	column( time_string, 1, escaped_replaced_data );
+	column( date_string, 0, data );
+	column( time_string, 1, data );
 
 	date =
 		date_convert_string_international(
@@ -1110,15 +1117,57 @@ LIST *query_data_string_list(
 }
 
 LIST *query_data_list(	LIST *foreign_key_list,
-			LIST *many_folder_attribute_list,
+			LIST *folder_attribute_list,
 			LIST *data_string_list )
 {
 	char *foreign_key;
 	FOLDER_ATTRIBUTE *folder_attribute;
-	LIST *query_data_list;
+	LIST *data_list;
 
 	if ( !list_length( data_string_list ) ) return (LIST *)0;
 
+	/* If is_empty or not_empty */
+	/* ------------------------ */
+	if ( list_length( data_string_list ) == 1
+	&&   list_length( foreign_key_list ) > 1 )
+	{
+		data_string = list_first( data_string_list );
+		data_list = list_new();
+
+		list_rewind( foreign_key_list );
+
+		do {
+			foreign_key = list_get( foreign_key_list );
+
+			if ( ! ( folder_attribute =
+					folder_attribute_list_seek( 
+						foreign_key,
+						folder_attribute_list ) ) )
+			{
+				fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_attribute_seek(%s) returned empty.\n",
+			 		__FILE__,
+			 		__FUNCTION__,
+			 		__LINE__,
+			 		foreign_key );
+				exit( 1 );
+			}
+
+			list_set(
+				data_list,
+				query_data_new(
+					folder_attribute->folder_name,
+					foreign_key /* attribute_name */,
+					folder_attribute->
+						attribute->
+						datatype_name,
+					data_string ) );
+
+		} while ( list_next( foreign_key_list ) );
+
+		return data_list;
+	}
+	else
 	if (	list_length( data_string_list ) !=
 		list_length( foreign_key_list ) )
 	{
@@ -1132,7 +1181,7 @@ LIST *query_data_list(	LIST *foreign_key_list,
 		exit( 1 );
 	}
 
-	query_data_list = list_new();
+	data_list = list_new();
 
 	list_rewind( data_string_list );
 	list_rewind( foreign_key_list );
@@ -1145,7 +1194,7 @@ LIST *query_data_list(	LIST *foreign_key_list,
 		if ( ! ( folder_attribute =
 				folder_attribute_list_seek( 
 					foreign_key,
-					many_folder_attribute_list ) ) )
+					folder_attribute_list ) ) )
 		{
 			fprintf( stderr,
 	"ERROR in %s/%s()/%d: folder_attribute_seek(%s) returned empty.\n",
@@ -1157,24 +1206,18 @@ LIST *query_data_list(	LIST *foreign_key_list,
 		}
 
 		list_set(
-			query_data_list,
+			data_list,
 			query_data_new(
+				folder_attribute->folder_name,
 				foreign_key /* attribute_name */,
 				folder_attribute->attribute->datatype_name,
-				security_sql_injection_escape(
-					security_replace_special_characters(
-					     string_trim_number_characters(
-						  (char *)list_get(
-						  data_string_list ),
-						  folder_attribute->
-							attribute->
-							datatype_name ) ) ) ) );
+				(char *)list_get( data_string_list ) ) );
 
 		list_next( data_string_list );
 
 	} while ( list_next( foreign_key_list ) );
 
-	return query_data_list;
+	return data_list;
 }
 
 char *query_isa_join_where(
@@ -2140,38 +2183,32 @@ LIST *query_attribute_list(
 
 		if ( ! ( from_data =
 				query_data_new(
+					folder_attribute->folder_name,
 					folder_attribute->attribute_name,
 					folder_attribute->
 						attribute->
 						datatype_name,
-					security_sql_injection_escape(
-					    security_replace_special_characters(
-					     string_trim_number_characters(
-						dictionary_starting_label_get(
-						    folder_attribute->
-								attribute_name,
-						    QUERY_FROM_STARTING_LABEL,
-						    dictionary ),
+					dictionary_starting_label_get(
 						folder_attribute->
-						     attribute->
-						     datatype_name ) ) ) ) ) )
+						     attribute_name,
+						QUERY_FROM_STARTING_LABEL,
+						dictionary ) ) ) )
 		{
 			continue;
 		}
 
 		to_data =
 			query_data_new(
+				folder_attribute->folder_name,
 				folder_attribute->attribute_name,
 				folder_attribute->
 					attribute->
 					datatype_name,
-				security_sql_injection_escape(
-				    security_replace_special_characters(
-					dictionary_starting_label_get(
-						folder_attribute->
-							attribute_name,
-						QUERY_TO_STARTING_LABEL,
-						dictionary ) ) ) );
+				dictionary_starting_label_get(
+					folder_attribute->
+						attribute_name,
+					QUERY_TO_STARTING_LABEL,
+					dictionary ) );
 
 		query_attribute =
 			query_attribute_new(
@@ -3783,7 +3820,6 @@ LIST *query_edit_table_drop_down_row_data_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *data_string_list )
 {
-	LIST *data_list = list_new();
 	char *data_string;
 	QUERY_DATA *query_data;
 
@@ -3792,6 +3828,8 @@ LIST *query_edit_table_drop_down_row_data_list(
 	if ( list_length( data_string_list ) == 1
 	&&   list_length( foreign_key_list ) > 1 )
 	{
+		LIST *data_list = list_new();
+
 		int length = list_length( foreign_key_list );
 		data_string = list_first( data_string_list );
 
@@ -3799,8 +3837,16 @@ LIST *query_edit_table_drop_down_row_data_list(
 		{
 			list_set( data_list, data );
 		}
+		return data_list;
 	}
-	return data_list;
+	else
+	{
+		return
+		query_data_list(
+			foreign_key_list,
+			folder_attribute_append_isa_list,
+			data_string_list );
+	}
 }
 
 QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc( void )

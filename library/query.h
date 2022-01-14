@@ -59,8 +59,15 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	/* ----- */
+	char *folder_name;
 	char *attribute_name;
 	char *datatype_name;
+	char *data;
+
+	/* Process */
+	/* ------- */
 	char *escaped_replaced_data;
 } QUERY_DATA;
 
@@ -71,17 +78,20 @@ QUERY_DATA *query_data_calloc(
 
 LIST *query_data_list(
 			LIST *foreign_key_list,
-			LIST *many_folder_attribute_list,
-			LIST *data_string_list );
+			LIST *folder_attribute_list,
+			LIST *query_drop_down_row_data_string_list );
 
 QUERY_DATA *query_data_new(
+			char *folder_name,
 			char *attribute_name,
 			char *datatype_name,
-			char *escaped_replaced_data );
+			char *data );
 
-char *query_data_convert_date_international(
-			char *datatype_name,
-			char *escaped_replaced_data );
+/* Returns heap memory or data */
+/* --------------------------- */
+char *query_data_date_international(
+			char *data,
+			char *datatype_name );
 
 QUERY_DATA *query_data_escaped(
 			DICTIONARY *dictionary,
@@ -139,13 +149,25 @@ typedef struct
 	char *key;
 	char *data_list_string;
 	LIST *data_string_list;
-	LIST *data_list;
+	LIST *query_data_list;
 } QUERY_EDIT_TABLE_DROP_DOWN_ROW;
 
 /* QUERY_EDIT_TABLE_DROP_DOWN_ROW operations */
 /* ----------------------------------------- */
 QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_calloc(
 			void );
+
+LIST *query_edit_table_drop_down_row_list(
+			LIST *foreign_key_list,
+			LIST *folder_attribute_append_isa_list,
+			DICTIONARY *query_dictionary,
+			int dictionary_string_list_highest_index );
+
+QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_new(
+			LIST *foreign_key_list,
+			LIST *folder_attribute_append_isa_list,
+			DICTIONARY *query_dictionary,
+			int index );
 
 /* Returns static memory */
 /* --------------------- */
@@ -164,6 +186,7 @@ LIST *query_edit_table_drop_down_row_data_string_list(
 
 LIST *query_edit_table_drop_down_row_data_list(
 			LIST *foreign_key_list,
+			LIST *folder_attribute_append_isa_list,
 			LIST *query_edit_table_drop_down_row_data_string_list );
 
 typedef struct
