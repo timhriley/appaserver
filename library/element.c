@@ -806,7 +806,7 @@ char *element_drop_down_close_html(
 }
 
 char *element_checkbox_html(
-			char *name,
+			char *element_name,
 			char *prompt_display,
 			boolean checked,
 			char *on_click,
@@ -816,17 +816,15 @@ char *element_checkbox_html(
 	char html[ 1024 ];
 	char *ptr = html;
 
-	if ( !name )
+	if ( !element_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: name is empty.\n",
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
-
-	ptr += sprintf( ptr, "<td>" );
 
 	if ( image_source && *image_source )
 	{
@@ -1384,13 +1382,19 @@ char *appaserver_element_list_html(
 				__FUNCTION__,
 				__LINE__,
 				appaserver_element->element_type );
-			return (char *)0;
+
+			continue;
 		}
 
 		ptr += sprintf(
 			ptr,
-			"%s\n", 
+			"%s", 
 			element_html );
+
+		if ( appaserver_element->element_type != table_data )
+		{
+			ptr += sprintf( ptr, "\n" );
+		}
 
 		free( element_html );
 
@@ -1698,15 +1702,41 @@ char *appaserver_element_html(
 	if ( appaserver_element->element_type == checkbox )
 	{
 		char prompt_display[ 256 ];
+		char *html;
+
+		if ( !appaserver_element->checkbox )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: checkbox is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		appaserver_element->checkbox->checked =
 			element_checkbox_checked(
 				appaserver_element->checkbox->attribute_name,
 				row_dictionary );
 
+		appaserver_element->
+			checkbox->
+			javascript_replace_on_click =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				element_checkbox_javascript_replace_on_click(
+					appaserver_element->
+						checkbox->
+						on_click,
+					row_number,
+					state );
+
+		html =
+		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		return element_checkbox_html(
+		element_checkbox_html(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -1719,9 +1749,22 @@ char *appaserver_element_html(
 				prompt_display,
 				appaserver_element->checkbox->prompt_string ),
 			appaserver_element->checkbox->checked,
-			appaserver_element->checkbox->action_string,
+			appaserver_element->
+				checkbox->
+				javascript_replace_on_click,
 			appaserver_element->checkbox->tab_order,
 			appaserver_element->checkbox->image_source );
+
+		if ( appaserver_element->
+			checkbox->
+			javascript_replace_on_click )
+		{
+			free( appaserver_element->
+				checkbox->
+				javascript_replace_on_click );
+		}
+
+		return html;
 	}
 	else
 	if ( appaserver_element->element_type == drop_down )
@@ -2438,13 +2481,6 @@ APPASERVER_ELEMENT *appaserver_element_key_seek(
 	return (APPASERVER_ELEMENT *)0;
 }
 
-char *element_checkbox_heading_string( char *name )
-{
-	static char heading_string[ 128 ];
-
-	return string_initial_capital( heading_string, name );
-}
-
 boolean element_checkbox_checked(
 			char *attribute_name,
 			DICTIONARY *row_dictionary )
@@ -2680,10 +2716,7 @@ char *element_text_javascript_replace_on_change(
 				state,
 				row_number ) )
 		{
-			ptr += sprintf(
-				ptr,
-				"%s",
-				tmp );
+			ptr += sprintf( ptr, "%s", tmp );
 			free( tmp );
 		}
 	}
@@ -3670,5 +3703,73 @@ void element_upload_update_link(
 		value );
 
 	if ( system( system_string ) ){};
+}
+
+ELEMENT_CHECKBOX *element_checkbox_calloc( void )
+{
+	ELEMENT_CHECKBOX *element_checkbox;
+
+	if ( ! ( element_checkbox = calloc( 1, sizeof( ELEMENT_CHECKBOX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return element_checkbox;
+}
+
+ELEMENT_CHECKBOX *element_checkbox_new(
+			char *attribute_name,
+			char *prompt_string,
+			char *on_click,
+			int tab_order,
+			char *image_source,
+			boolean remember )
+{
+	ELEMENT_CHECKBOX *element_checkbox = element_checkbox_calloc();
+
+	element_checkbox->attribute_name = attribute_name;
+	element_checkbox->prompt_string = prompt_string;
+	element_checkbox->on_click = on_click;
+	element_checkbox->tab_order = tab_order;
+	element_checkbox->image_source = image_source;
+	element_checkbox->remember = remember;
+
+	return element_checkbox;
+}
+
+char *element_checkbox_javascript_replace_on_click(
+			char *on_click,
+			int row_number,
+			char *state )
+{
+	char replace_on_click[ 1024 ];
+	char *ptr = replace_on_click;
+	char *tmp;
+
+	if ( ( !on_click || !*on_click )
+	{
+		return (char *)0;
+	}
+
+
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	if ( tmp =
+		javascript_replace(
+			on_click,
+			state,
+			row_number ) )
+	{
+		ptr += sprintf( ptr, "%s", tmp );
+		free( tmp );
+	}
+
+	return strdup( replace_on_click );
 }
 

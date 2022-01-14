@@ -134,6 +134,100 @@ typedef struct
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
+	char *key;
+	char *data_list_string;
+	LIST *data_string_list;
+	LIST *data_list;
+} QUERY_EDIT_TABLE_DROP_DOWN_ROW;
+
+/* QUERY_EDIT_TABLE_DROP_DOWN_ROW operations */
+/* ----------------------------------------- */
+QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_edit_table_drop_down_row_key(
+			LIST *foreign_key_list,
+			int index );
+
+/* Returns query_dictionary->hash_table->other_data */
+/* ------------------------------------------------ */
+char *query_edit_table_drop_down_row_data_list_string(
+			char *query_edit_table_drop_down_row_key,
+			DICTIONARY *query_dictionary );
+
+LIST *query_edit_table_drop_down_row_data_string_list(
+			char *query_edit_table_drop_down_row_data_list_string );
+
+LIST *query_edit_table_drop_down_row_data_list(
+			LIST *foreign_key_list,
+			LIST *query_edit_table_drop_down_row_data_string_list );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	int highest_index;
+	LIST *row_list;
+} QUERY_EDIT_TABLE_DROP_DOWN;
+
+/* QUERY_EDIT_TABLE_DROP_DOWN operations */
+/* ------------------------------------- */
+QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down_calloc(
+			void );
+
+LIST *query_edit_table_drop_down_list(
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *query_dictionary );
+
+QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down_new(
+			LIST *foreign_key_list,
+			DICTIONARY *query_dictionary );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	int relation_mto1_isa_list_length;
+	LIST *query_edit_table_drop_down_list;
+	char *query_edit_table_drop_down_list_where;
+	LIST *prompt_recursive_drop_down_list;
+	char *prompt_recursive_drop_down_list_where;
+	LIST *query_attribute_list;
+	char *query_attribute_list_where;
+	char *query_join_where;
+	char *query_edit_table_where;
+} QUERY_EDIT_TABLE_WHERE;
+
+/* QUERY_EDIT_TABLE_WHERE operations */
+/* --------------------------------- */
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc(
+			void );
+
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_mto1_isa_list,
+			PROMPT_RECURSIVE *prompt_recursive,
+			ROW_SECURITY_ROLE *row_security_role,
+			char *security_entity_where,
+			DICTIONARY *query_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_edit_table_where(
+			char *query_edit_table_drop_down_list_where,
+			char *prompt_recursive_drop_down_list_where,
+			char *query_attribute_list_where,
+			char *query_join_where,
+			char *security_entity_where );
+
+typedef struct
+{
 	char *attribute_name;
 	char *folder_name;
 	char *datatype_name;
@@ -663,12 +757,42 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
+	LIST *exclude_attribute_name_list;
+	LIST *query_drop_down_list;
+	LIST *query_attribute_list;
+	char *query_drop_down_list_where;
+	char *query_drop_down_data_where;
+	char *query_attribute_list_where;
+	char *query_widget_where_evaluate;
+	LIST *query_prompt_recursive_drop_down_list;
+	LIST *query_search_replace_where_drop_down_list;
+	char *query_join_where;
+	char *query_related_join;
+	char *query_primary_key_where_clause;
+} QUERY_EDIT_TABLE_WHERE;
+
+/* QUERY_EDIT_TABLE_WHERE operations */
+/* --------------------------------- */
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc(
+			void );
+
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			char *security_entity_where,
+			DICTIONARY *query_dictionary,
+			ROW_SECURITY_ROLE *row_security_role );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
 	LIST *select_list;
 	char *select_list_string;
 	char *select_clause;
 	char *from_clause;
 	QUERY_EDIT_TABLE_WHERE *query_edit_table_where;
-	chare *order_clause;
+	char *order_clause;
 	LIST *dictionary_list;
 } QUERY_EDIT_TABLE;
 
@@ -808,8 +932,8 @@ typedef struct
 /* QUERY_WHERE operations */
 /* ---------------------- */
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *query_where_clause(
 			char *where_string );
 

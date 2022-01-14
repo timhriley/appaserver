@@ -11,7 +11,6 @@
 #include "piece.h"
 #include "appaserver_parameter.h"
 #include "application_constants.h"
-#include "appaserver.h"
 #include "appaserver_library.h"
 #include "application.h"
 #include "environ.h"
@@ -386,16 +385,12 @@ void environ_umask( void )
 
 void add_src_appaserver_to_path( void )
 {
-	char *appaserver_mount_point;
 	char bin_path[ 256 ];
 
-	appaserver_mount_point =
-		appaserver_parameter_mount_point();
-
-	sprintf(	bin_path,
-			"%s/%s",
-			appaserver_mount_point,
-			APPASERVER_RELATIVE_SOURCE_DIRECTORY );
+	sprintf(bin_path,
+		"%s/%s",
+		appaserver_parameter_mount_point(),
+		"src_appaserver" );
 
 	set_path( bin_path );
 }

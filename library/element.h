@@ -116,11 +116,10 @@ char *element_table_close_html(
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
-	char *name;
+	/* Input */
+	/* ----- */
+	char *attribute_name;
 	char *prompt_string;
-	boolean checked;
 	char *on_click;
 	int tab_order;
 	char *image_source;
@@ -128,7 +127,8 @@ typedef struct
 
 	/* Public */
 	/* ------ */
-	char *html;
+	boolean checked;
+	char *javascript_replace_on_click;
 } ELEMENT_CHECKBOX;
 
 /* ELEMENT_CHECKBOX operations */
@@ -136,10 +136,16 @@ typedef struct
 ELEMENT_CHECKBOX *element_checkbox_calloc(
 			void );
 
-/* Returns heap memory */
-/* ------------------- */
-char *element_checkbox_heading_string(
-			char *attribute_name );
+ELEMENT_CHECKBOX *element_checkbox_new(
+			char *attribute_name,
+			char *prompt_string,
+			char *on_click,
+			int tab_order,
+			char *image_source,
+			boolean remember );
+
+/* Public */
+/* ------ */
 
 /* Returns name */
 /* ------------ */
@@ -147,13 +153,20 @@ boolean element_checkbox_checked(
 			char *attribute_name,
 			DICTIONARY *row_dictionary );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_checkbox_javascript_replace_on_click(
+			char *on_click,
+			int row_number,
+			char *state );
+
 /* Returns heap memory */
 /* ------------------- */
 char *element_checkbox_html(
-			char *attribute_name,
+			char *element_name,
 			char *prompt_display,
-			boolean checked,
-			char *on_click,
+			boolean element_checkbox_checked,
+			char *javascript_replace_on_click,
 			int tab_order,
 			char *image_source );
 

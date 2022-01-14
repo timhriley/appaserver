@@ -171,8 +171,8 @@ LIST *row_security_operation_element_list(
 
 typedef struct
 {
-	ROW_SECURITY_ELEMENT_LIST *element_list;
-	ROW_SECURITY_ROLE_UPDATE *role_update;
+	ROW_SECURITY_ROLE *row_security_role;
+	ROW_SECURITY_ELEMENT_LIST *row_security_element_list;
 } ROW_SECURITY;
 
 /* ROW_SECURITY operations */
@@ -180,7 +180,7 @@ typedef struct
 ROW_SECURITY *row_security_calloc(
 			void );
 
-ROW_SECURITY *row_security_edit_table_new(
+ROW_SECURITY *row_security_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,

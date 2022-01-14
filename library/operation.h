@@ -12,11 +12,13 @@
 #include "process.h"
 #include "boolean.h"
 #include "list.h"
+#include "element.h"
 #include "dictionary.h"
 
 /* Constants */
 /* --------- */
 #define OPERATION_TABLE			"operation"
+#define ROLE_OPERATION_TABLE		"role_operation"
 #define OPERATION_ROW_TOTAL_LABEL	"operation_row_total"
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
 
@@ -26,8 +28,45 @@ typedef struct
 {
 	boolean checked;
 	LIST *primary_data_list;
-	DICTIONARY *dictionary;
+	DICTIONARY *single_dictionary;
 } OPERATION_ROW;
+
+/* OPERATION_ROW operations */
+/* ------------------------ */
+OPERATION_ROW *operation_row_calloc(
+			void );
+
+LIST *operation_row_list(
+			DICTIONARY *dictionary_separate_row_dictionary,
+			char *operation_name,
+			LIST *primary_key_list,
+			LIST *attribute_name_list,
+			int operation_row_total );
+
+OPERATION_ROW *operation_row_fetch(
+			DICTIONARY *row_dictionary,
+			char *operation_name,
+			LIST *primary_key_list,
+			LIST *attribute_name_list,
+			int row_number );
+
+LIST *operation_row_primary_data_list(
+			DICTIONARY *row_dictionary,
+			LIST *primary_key_list,
+			int row_number );
+
+DICTIONARY *operation_row_single_dictionary(
+			DICTIONARY *row_dictionary,
+			LIST *attribute_name_list,
+			int row_number );
+
+void operation_row_execute(
+			char *command_line );
+
+boolean operation_row_checked(
+			DICTIONARY *row_dictionary,
+			char *attribute_name,
+			int row_number );
 
 typedef struct
 {
@@ -47,53 +86,11 @@ typedef struct
 	boolean group_last_time;
 } OPERATION_SEMAPHORE;
 
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *operation_name;
-	boolean output;
-	boolean empty_placeholder;
-
-	/* Process */
-	/* ------- */
-	PROCESS *process;
-	boolean delete_name;
-	boolean detail_name;
-	char *image_source;
-	char *delete_warning_javascript;
-	char *html;
-} OPERATION;
-
-/* OPERATION operations */
-/* -------------------- */
-OPERATION *operation_calloc(
-			void );
-
-OPERATION *operation_new(
-			char *operation_name );
-
-int operation_row_total(
-			DICTIONARY *row_dictionary,
-			char *operation_name,
-			int highest_index );
-
-boolean operation_delete_name(
-			char *operation_name );
-
-boolean operation_detail_name(
-			char *operation_name );
-
-/* Always succeeds */
-/* --------------- */
-OPERATION *operation_fetch(
-			char *operation_name );
-
-void operation_perform(
-			char *command_line );
-
 /* OPERATION_SEMAPHORE operations */
 /* ------------------------------ */
+OPERATION_SEMAPHORE *operation_semaphore_calloc(
+			void );
+
 OPERATION_SEMAPHORE *operation_semaphore_fetch(
 			char *operation_name,
 			char *appaserver_data_directory,
@@ -106,9 +103,6 @@ char *operation_semaphore_filename(
 			char *operation_name,
 			char *appaserver_data_directory,
 			pid_t parent_process_id );
-
-OPERATION_SEMAPHORE *operation_semaphore_calloc(
-			void );
 
 boolean operation_semaphore_group_first_time(
 			char *filename );
@@ -130,32 +124,54 @@ void operation_semaphore_increment(
 void operation_semaphore_remove_file(
 			char *filename );
 
-/* OPERATION_ROW operations */
-/* ------------------------ */
-OPERATION_ROW *operation_row_fetch(
-			DICTIONARY *row_dictionary,
-			char *operation_name,
-			LIST *primary_key_list,
-			LIST *attribute_name_list,
-			int row_number );
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
+	char *operation_name;
+	boolean output;
 
-OPERATION_ROW *operation_row_calloc(
+	/* Process */
+	/* ------- */
+	PROCESS *process;
+	boolean delete_name;
+	boolean detail_name;
+	char *image_source;
+	char *delete_warning_javascript;
+	APPASERVER_ELEMENT *operation_element;
+} OPERATION;
+
+/* OPERATION operations */
+/* -------------------- */
+OPERATION *operation_calloc(
 			void );
 
-boolean operation_row_checked(
+OPERATION *operation_parse(
+			char *input );
+
+boolean operation_delete_boolean(
+			char *operation_name );
+
+boolean operation_detail_boolean(
+			char *operation_name );
+
+char *operation_image_source(
+			boolean operation_delete_boolean,
+			boolean operation_detail_boolean );
+
+char *operation_delete_warning_javascript(
+			boolean operation_delete_boolean );
+
+/* Public */
+/* ------ */
+char *operation_html(
+			APPASERVER_ELEMENT *operation_element,
+			int row_number );
+
+int operation_row_total(
 			DICTIONARY *row_dictionary,
 			char *operation_name,
-			int row_number );
-
-LIST *operation_row_primary_data_list(
-			DICTIONARY *row_dictionary,
-			LIST *primary_key_list,
-			int row_number );
-
-DICTIONARY *operation_single_row_dictionary(
-			DICTIONARY *row_dictionary,
-			LIST *attribute_name_list,
-			int row_number );
+			int highest_index );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -167,6 +183,50 @@ char *operation_image_source(
 /* ------------------------------ */
 char *operation_delete_warning_javascript(
 			boolean operation_delete_name );
+
+APPASERVER_ELEMENT *operation_element(
+			char *operation_name,
+			char *operation_image_source,
+			char *operation_delete_warning_javascript );
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *folder_name;
+	char *role_name;
+
+	/* Process */
+	/* ------- */
+	char *where;
+	char *system_string;
+} OPERATION_LIST;
+
+/* OPERATION_LIST operations */
+/* ------------------------- */
+OPERATION_LIST *operation_list_calloc(
+			void );
+
+OPERATION_LIST *operation_list_new(
+			char *folder_name,
+			char *role_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *operation_list_select(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *operation_list_where(
+			char *folder_name,
+			char *role_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *operation_list_system_string(
+			char *operation_list_select,
+			char *operation_list_where );
 
 #endif
 

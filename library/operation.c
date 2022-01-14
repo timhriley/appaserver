@@ -12,88 +12,7 @@
 #include "appaserver_library.h"
 #include "operation.h"
 
-OPERATION *operation_fetch( char *operation_name )
-{
-	char system_string[ 1024 ];
-	char where[ 128 ];
-	char *results;
-	OPERATION *operation;
-
-	sprintf(where,
-		"operation = '%s'",
-		operation_name );
-
-	sprintf(system_string,
-		"select.sh output_yn %s \"%s\"",
-		OPERATION_TABLE,
-		where );
-
-	if ( ! ( results = string_pipe_fetch( system_string ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			system_string );
-		exit( 1 );
-	}
-
-	operation = operation_calloc();
-	operation->operation_name = operation_name;
-	operation->output = (*results == 'y');
-
-	return operation;
-}
-
-OPERATION *operation_new( char *operation_name )
-{
-	OPERATION *operation =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		operation_fetch(
-			operation_name );
-
-	operation->process =
-		process_fetch(
-			operation_name,
-			(char *)0 /* document_root_directory */,
-			(char *)0 /* relative_source_directory */,
-			1 /* check_executable_inside_filesystem */ );
-
-	if ( !operation->process )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: process_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			operation_name );
-		exit( 1 );
-	}
-
-	operation->delete_name =
-		operation_delete_name(
-			operation_name );
-
-	operation->detail_name =
-		operation_detail_name(
-			operation_name );
-
-	operation->image_source =
-		operation_image_source(
-			operation->delete_name,
-			operation->detail_name );
-
-	operation->delete_warning_javascript =
-		operation_delete_warning_javascript(
-			operation->delete_name );
-
-	return operation;
-}
-
-void operation_perform( char *command_line )
+void operation_row_execute( char *command_line )
 {
 	if ( system( command_line ) ){};
 }
@@ -324,8 +243,8 @@ OPERATION_ROW *operation_row_fetch(
 		exit( 1 );
 	}
 
-	operation_row->dictionary =
-		operation_single_row_dictionary(
+	operation_row->single_dictionary =
+		operation_row_single_dictionary(
 			row_dictionary,
 			attribute_name_list,
 			row_number );
@@ -337,8 +256,7 @@ OPERATION_ROW *operation_row_calloc( void )
 {
 	OPERATION_ROW *operation_row;
 
-	if ( ! ( operation_row =
-			calloc( 1, sizeof( OPERATION_ROW ) ) ) )
+	if ( ! ( operation_row = calloc( 1, sizeof( OPERATION_ROW ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -347,6 +265,7 @@ OPERATION_ROW *operation_row_calloc( void )
 			__LINE__ );
 		exit( 1 );
 	}
+
 	return operation_row;
 }
 
@@ -380,7 +299,7 @@ LIST *operation_row_primary_data_list(
 		row_number );
 }
 
-DICTIONARY *operation_single_row_dictionary(
+DICTIONARY *operation_row_single_dictionary(
 			DICTIONARY *row_dictionary,
 			LIST *attribute_name_list,
 			int row_number )
@@ -425,12 +344,12 @@ DICTIONARY *operation_single_row_dictionary(
 	return single_row_dictionary;
 }
 
-boolean operation_delete_name( char *operation_name )
+boolean operation_delete_boolean( char *operation_name )
 {
 	return ( string_strncmp( operation_name, "delete" ) == 0 );
 }
 
-boolean operation_detail_name( char *operation_name )
+boolean operation_detail_boolean( char *operation_name )
 {
 	return ( string_strcmp( operation_name, "detail" ) == 0 );
 }
@@ -448,25 +367,26 @@ OPERATION *operation_calloc( void )
 			__LINE__ );
 		exit( 1 );
 	}
+
 	return operation;
 }
 
 char *operation_image_source(
-			boolean delete_name,
-			boolean detail_name )
+			boolean delete_boolean,
+			boolean detail_boolean )
 {
 	char image_source[ 128 ];
 
 	*image_source = '\0';
 
-	if ( delete_name )
+	if ( delete_boolean )
 	{
 		sprintf(image_source,
 		 	"/%s/trashcan.gif",
 		 	IMAGE_RELATIVE_DIRECTORY );
 	}
-
-	if ( detail_name )
+	else
+	if ( detail_boolean )
 	{
 		sprintf(image_source,
 			"/%s/magnify_glass.gif",
@@ -479,9 +399,9 @@ char *operation_image_source(
 		return (char *)0;
 }
 
-char *operation_delete_warning_javascript( boolean delete_name )
+char *operation_delete_warning_javascript( boolean delete_boolean )
 {
-	if ( delete_name )
+	if ( delete_boolean )
 	{
 		return "timlib_delete_button_warning()";
 	}
@@ -490,3 +410,183 @@ char *operation_delete_warning_javascript( boolean delete_name )
 		return (char *)0;
 	}
 }
+
+OPERATION_LIST *operation_list_calloc( void )
+{
+	OPERATION_LIST *operation_list;
+
+	if ( ! ( operation_list = calloc( 1, sizeof( OPERATION_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return operation_list;
+}
+
+OPERATION_LIST *operation_list_new(
+			char *folder_name,
+			char *role_name )
+{
+	OPERATION_LIST *operation_list = operation_list_calloc();
+	FILE *input_pipe;
+	char input[ 128 ];
+
+	operation_list->select =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		operation_list_select();
+
+	operation_list->where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		operation_list_where(
+			folder_name,
+			role_name );
+
+	operation_list->system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		operation_list_system_string(
+			operation_list->select,
+			operation_list->where );
+
+	input_pipe = popen( operation_list->system_string, "r" );
+	operation_list->operation_list = list_new();
+
+	while ( string_input( input, input_pipe, 128 ) )
+	{
+		list_set(
+			operation_list->operation_list,
+			operation_parse( input ) );
+	}
+
+	pclose( input_pipe );
+	return operation_list;
+}
+
+char *operation_list_select( void )
+{
+	char select[ 128 ];
+
+	sprintf(select,
+		"%s.operation,output_yn",
+		OPERATION_TABLE );
+
+	return select;
+}
+
+char *operation_list_where(
+			char *folder_name,
+			char *role_name )
+{
+	static char where[ 256 ];
+
+	sprintf(where,
+		"folder = '%s' and role = '%s' and"
+		"%s.operation = %s.operation",
+		folder_name,
+		role_name,
+		ROLE_OPERATION_TABLE,
+		OPERATION_TABLE );
+
+	return where;
+}
+
+char *operation_list_system_string(
+			char *select,
+			char *where )
+{
+	static char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s,%s \"%s\"",
+		select,
+		ROLE_OPERATION_TABLE,
+		OPERATION_TABLE,
+		where );
+
+	return system_string;
+}
+
+OPERATION *operation_parse( char *input )
+{
+	OPERATION *operation = operation_calloc();
+	char operation_name[ 128 ];
+	char output_yn[ 128 ];
+
+	piece( operation_name, SQL_DELIMITER, input, 0 );
+	piece( output_yn, SQL_DELIMITER, input, 1 );
+
+	operation->operation_name = strdup( operation_name );
+	operation->output = (*output_yn == 'y');
+
+	operation->process =
+		process_fetch(
+			operation_name,
+			(char *)0 /* document_root_directory */,
+			(char *)0 /* relative_source_directory */,
+			1 /* check_executable_inside_filesystem */ );
+
+	if ( !operation->process )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: process_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			operation_name );
+		exit( 1 );
+	}
+
+	operation->delete_boolean =
+		operation_delete_boolean(
+			operation_name );
+
+	operation->detail_boolean =
+		operation_detail_boolean(
+			operation_name );
+
+	operation->image_source =
+		operation_image_source(
+			operation->delete_boolean,
+			operation->detail_boolean );
+
+	operation->delete_warning_javascript =
+		operation_delete_warning_javascript(
+			operation->delete_boolean );
+
+	operation->operation_element =
+		operation_element(
+			operation_name,
+			operation->imagage_source,
+			operation->delete_warning_javascript );
+
+	return operation;
+}
+
+APPASERVER_ELEMENT *operation_element(
+			char *operation_name,
+			char *image_source,
+			char *delete_warning_javascript )
+{
+	APPASERVER_ELEMENT *element;
+
+	element = appaserver_element_new( checkbox, (char *)0 /* name */ );
+
+	free( element->checkbox );
+
+	element->checkbox =
+		element_checkbox_new(
+			operation_name /* attribute_name */,
+			operation_name /* prompt_string */,
+			0 /* not checked */,
+}
+

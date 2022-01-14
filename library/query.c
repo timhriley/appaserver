@@ -269,10 +269,10 @@ char *query_drop_down_operator_key(
 	sprintf(key,
 		"%s%s_0",
 		QUERY_RELATION_OPERATOR_STARTING_LABEL,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
 		( tmp =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			list_display_delimited(
 				foreign_key_list,
 				SQL_DELIMITER ) ) );
@@ -3564,3 +3564,502 @@ char *query_order_key_list_clause( LIST *key_list )
 	}
 	return strdup( order_clause );
 }
+
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			char *security_entity_where,
+			DICTIONARY *query_dictionary,
+			ROW_SECURITY_ROLE *row_security_role )
+{
+	QUERY_WIDGET_WHERE *where =
+		query_widget_where_calloc();
+
+	where->exclude_attribute_name_list = list_new();
+
+	where->query_drop_down_list =
+		query_drop_down_list(
+			where->exclude_attribute_name_list,
+			(char *)0 /* folder_name */,
+			folder_attribute_list,
+			relation_mto1_non_isa_list,
+			drillthru_dictionary );
+
+	if ( list_length( where->query_drop_down_list ) )
+	{
+		where->query_drop_down_list_where =
+			query_drop_down_list_where(
+				where->query_drop_down_list,
+				0 /* relation_mto1_isa_list_length */ );
+	}
+
+	where->query_attribute_list =
+		query_attribute_list(
+			folder_attribute_list,
+			drillthru_dictionary,
+			where->exclude_attribute_name_list );
+
+	if ( list_length( where->query_attribute_list ) )
+	{
+		where->query_attribute_list_where =
+			query_attribute_list_where(
+				where->query_attribute_list );
+	}
+
+	where->query_widget_where =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		query_widget_where(
+			where->query_drop_down_list_where,
+			where->query_attribute_list_where,
+			security_entity_where );
+
+	where->clause =
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		query_widget_where_clause(
+			where->query_widget_where );
+
+	return query_widget_where;
+}
+
+QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down_calloc( void )
+{
+	QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down;
+
+	if ( ! ( query_edit_table_drop_down =
+		   calloc( 1, sizeof( QUERY_EDIT_TABLE_DROP_DOWN ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_edit_table_drop_down;
+}
+
+LIST *query_edit_table_drop_down_list(
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *query_dictionary )
+{
+	RELATION *relation_mto1;
+	QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down;
+	LIST *drop_down_list = {0};
+
+	if ( !list_rewind( relation_mto1_non_isa_list ) ) return (LIST *)0;
+
+	do {
+		relation_mto1 =
+			list_get(
+				relation_mto1_non_isa_list );
+
+		if ( !list_length( relation_mto1->foreign_key_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( drop_down_list ) drop_down_list = list_new();
+
+		query_edit_table_drop_down =
+			query_edit_table_drop_down_new(
+				relation_mto1->foreign_key_list,
+				query_dictionary );
+
+		if query_edit_table_drop_down )
+		{
+			list_set(
+				drop_down_list,
+				query_edit_table_drop_down );
+		}
+
+	} while ( list_next( relation_mto1_non_isa_list ) );
+
+	return drop_down_list;
+}
+
+QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down_new(
+			LIST *foreign_key_list,
+			DICTIONARY *query_dictionary )
+{
+	QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down =
+		query_edit_table_drop_down_calloc();
+
+	query_edit_table_drop_down->highest_index =
+		dictionary_string_list_highest_index(
+			foreign_key_list,
+			query_dictionary );
+
+	if ( query_edit_table_drop_down->highest_index < 0 )
+		return *(QUERY_EDIT_TABLE_DROP_DOWN *)0;
+
+	query_edit_table_drop_down->row_list =
+		query_edit_table_drop_down_row_list(
+			foreign_key_list,
+			query_dictionary,
+			query_edit_table_drop_down->highest_index );
+
+	return query_edit_table_drop_down;
+}
+
+QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_calloc( void )
+{
+	QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row;
+
+	if ( ! ( query_edit_table_drop_down_row =
+		   calloc( 1, sizeof( QUERY_EDIT_TABLE_DROP_DOWN_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_edit_table_drop_down_row;
+}
+
+char *query_edit_table_drop_down_row_key(
+			LIST *foreign_key_list,
+			int index )
+{
+	static char key[ 256 ];
+	char *tmp;
+
+	if ( !list_length( foreign_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(key,
+		"%s_%d",
+		( tmp =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			list_display_delimited(
+				foreign_key_list,
+				SQL_DELIMITER ) ),
+		index );
+
+	free( tmp );
+
+	return key;
+}
+
+char *query_edit_table_drop_down_row_data_list_string(
+			char *key,
+			DICTIONARY *query_dictionary )
+{
+	return dictionary_get( key, query_dictionary );
+}
+
+LIST *query_edit_table_drop_down_row_data_string_list(
+			char *data_list_string )
+{
+	return
+	list_string_list(
+		data_list_string,
+		SQL_DELIMITER );
+}
+
+LIST *query_edit_table_drop_down_row_data_list(
+			LIST *foreign_key_list,
+			LIST *folder_attribute_append_isa_list,
+			LIST *data_string_list )
+{
+	LIST *data_list = list_new();
+	char *data_string;
+	QUERY_DATA *query_data;
+
+	/* If is_empty or not_empty */
+	/* ------------------------ */
+	if ( list_length( data_string_list ) == 1
+	&&   list_length( foreign_key_list ) > 1 )
+	{
+		int length = list_length( foreign_key_list );
+		data_string = list_first( data_string_list );
+
+		while ( length-- )
+		{
+			list_set( data_list, data );
+		}
+	}
+	return data_list;
+}
+
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc( void )
+{
+	QUERY_EDIT_TABLE_WHERE *query_edit_table_where;
+
+	if ( ! ( query_edit_table_where =
+			calloc( 1, sizeof( QUERY_EDIT_TABLE_WHERE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_edit_table_where;
+}
+
+QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_mto1_isa_list,
+			PROMPT_RECURSIVE *prompt_recursive,
+			ROW_SECURITY_ROLE *row_security_role,
+			char *security_entity_where,
+			DICTIONARY *query_dictionary )
+{
+	QUERY_EDIT_TABLE_WHERE *where = query_edit_table_where_calloc();
+
+	where->relation_mto1_isa_list_length =
+		list_length( relation_mto1_isa_list );
+
+	where->query_edit_table_drop_down_list =
+		query_edit_table_drop_down_list(
+			relation_mto1_non_isa_list,
+			query_dictionary );
+
+	if ( list_length( where->query_edit_table_drop_down_list ) )
+	{
+		where->query_edit_table_drop_down_list_where =
+			query_edit_table_drop_down_list_where(
+				where->query_edit_table_drop_down_list,
+				folder_name,
+				where->relation_mto1_isa_list_length );
+	}
+
+	if ( prompt_recursive )
+	{
+		where->prompt_recursive_drop_down_list =
+			prompt_recursive_drop_down_list(
+				prompt_recursive->
+					prompt_recursive_folder_list );
+
+		if ( list_length(
+			where->
+				prompt_recursive_drop_down_list ) )
+		{
+			where->prompt_recursive_drop_down_list_where =
+				prompt_recursive_drop_down_list_where(
+					where->prompt_recursive_drop_down_list,
+					folder_name,
+					where->relation_mto1_isa_list_length );
+		}
+	}
+
+	where->query_attribute_list =
+		query_attribute_list(
+			folder_attribute_append_isa_list,
+			query_dictionary );
+
+	if ( list_length( where->query_attribute_list ) )
+	{
+		where->query_attribute_list_where =
+			query_attribute_list_where(
+				where->query_attribute_list,
+				folder_name,
+				where->relation_mto1_isa_list_length );
+	}
+
+	where->query_join_where =
+		query_join_where(
+			folder_name,
+			folder_attribute_primary_key_list(
+				folder_attribute_append_isa_list ),
+			relation_mto1_isa_list,
+			row_security_role );
+
+	where->query_edit_table_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		query_edit_table_where(
+			where->query_edit_table_drop_down_list_where,
+			where->prompt_recursive_drop_down_list_where,
+			where->query_attribute_list_where,
+			where->query_join_where,
+			security_entity_where );
+
+	return where;
+}
+
+char *query_edit_table_where(
+			char *query_edit_table_drop_down_list_where,
+			char *prompt_recursive_drop_down_list_where,
+			char *query_attribute_list_where,
+			char *query_join_where,
+			char *security_entity_where )
+{
+	char where[ STRING_FOUR_MEG ];
+	char *ptr = where;
+
+	if ( query_edit_table_drop_down_list_where )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			query_edit_table_drop_down_list_where );
+	}
+
+	if ( prompt_recursive_drop_down_list_where )
+	{
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			prompt_recursive_drop_down_list_where );
+	}
+
+	if ( query_attribute_list_where )
+	{
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			query_attribute_list_where );
+	}
+
+	if ( query_join_where )
+	{
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			query_join_where );
+	}
+
+	if ( security_entity_where )
+	{
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			security_entity_where );
+	}
+
+	if ( ptr == where )
+		return (char *)0;
+	else
+		return strdup( where );
+}
+
+QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_calloc( void )
+{
+	QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row;
+
+	query_edit_table_drop_down_row =
+		calloc( 1, sizeof( QUERY_EDIT_TABLE_DROP_DOWN_ROW ) );
+
+	if ( !query_edit_table_drop_down_row )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_edit_table_drop_down_row;
+}
+
+LIST *query_edit_table_drop_down_row_list(
+			LIST *foreign_key_list,
+			DICTIONARY *query_dictionary,
+			int highest_index )
+{
+	int index;
+	LIST *row_list = list_new();
+
+	for (	index = 0;
+		index <= highest_index;
+		index++ )
+	{
+		query_edit_table_drop_down_row =
+			query_edit_table_drop_down_row_new(
+				foreign_key_list,
+				query_dictionary,
+				index );
+
+		if ( query_edit_table_drop_down_row )
+		{
+			list_set(
+				row_list,
+				query_edit_table_drop_down_row );
+		}
+	}
+
+	return row_list;
+}
+
+QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_new(
+			LIST *foreign_key_list,
+			DICTIONARY *query_dictionary,
+			int index )
+{
+	QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row;
+
+	query_edit_table_drop_down_row =
+		query_edit_table_drop_down_row_calloc();
+
+	query_edit_table_drop_down_row->key =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		query_edit_table_drop_down_row_key(
+			foreign_key_list,
+			index );
+
+	query_edit_table_drop_down_row->data_list_string =
+		query_edit_table_drop_down_row_data_list_string(
+			query_edit_table_drop_down_row->key,
+			query_dictionary );
+
+	if ( !query_edit_table_drop_down_row->data_list_string )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: data_list_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (QUERY_EDIT_TABLE_DROP_DOWN_ROW *)0;
+	}
+
+	query_edit_table_drop_down_row->data_string_list =
+		query_edit_table_drop_down_row_data_string_list(
+			query_edit_table_drop_down_row->data_list_string );
+
+	query_edit_table_drop_down_row->data_list =
+		query_edit_table_drop_down_row_data_list(
+			foreign_key_list,
+			query_edit_table_drop_down_row->data_string_list );
+
+	return query_edit_table_drop_down_row;
+}
+

@@ -99,8 +99,14 @@ DOCUMENT *document_new(	char *application_name,
 
 void document_output_content_type( void )
 {
-	printf( "Content-type: text/html\n\n" );
-	fflush( stdout );
+	static boolean did_already = 0;
+
+	if ( !did_already )
+	{
+		printf( "Content-type: text/html\n\n" );
+		fflush( stdout );
+		did_already = 1;
+	}
 }
 
 char *document_html(
