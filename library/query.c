@@ -3399,17 +3399,32 @@ LIST *query_widget_select_list(
 
 char *query_where_clause( char *where_string )
 {
-	char where_clause[ STRING_TWO_MEG ];
+	char *where_clause;
 
 	if ( !where_string || !*where_string )
-		strcpy( where_clause, "where 1 = 1" );
+	{
+		return strdup( "where 1 = 1" );
+	}
 	else
 	{
+		if ( ! ( where_clause =
+				calloc( strlen( where_string ) + 7, 
+				sizeof( char ) ) ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		sprintf(where_clause,
 			"where %s",
 			where_string );
+
+		return where_clause;
 	}
-	return strdup( where_clause );
 }
 
 char *query_from_clause( char *folder_name )

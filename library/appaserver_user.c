@@ -334,7 +334,7 @@ LIST *appaserver_user_role_name_list(
 		"select.sh role role_appaserver_user \"%s\" select",
 		where );
 
-	return pipe2list( sys_string );
+	return pipe2list( system_string );
 }
 
 char *appaserver_user_person_full_name(

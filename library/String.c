@@ -726,10 +726,10 @@ boolean string_exists(
 			char *string,
 			char *substring )
 {
-	return string_exists_substr( string, substring );
+	return string_exists_substring( string, substring );
 }
 
-boolean string_exists_substr(
+boolean string_exists_substring(
 			char *string,
 			char *substring )
 {

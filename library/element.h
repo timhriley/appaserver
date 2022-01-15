@@ -41,6 +41,10 @@
 #define ELEMENT_NULL_OPERATOR			"is_empty"
 #define ELEMENT_NOT_NULL_OPERATOR		"not_empty"
 #define ELEMENT_SELECT_OPERATOR			"select"
+#define ELEMENT_INSERT_STATE			"insert"
+#define ELEMENT_UPDATE_STATE			"update"
+#define ELEMENT_LOOKUP_STATE			"lookup"
+#define ELEMENT_VIEWONLY_STATE			"viewonly"
 
 enum element_type {	table_open,
 			table_row,
@@ -222,10 +226,9 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 
 ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			char *name,
-			int size,
+			int display_size,
 			boolean multi_select,
-			char *post_change_javascript,
-			char *state );
+			char *post_change_javascript );
 
 /* Returns row_dictionary->hash_table->other_data */
 /* ---------------------------------------------- */
@@ -249,7 +252,6 @@ char *element_drop_down_html(
 			char *value,
 			LIST *delimited_list,
 			LIST *display_list,
-			boolean no_initial_capital,
 			boolean output_null_option,
 			boolean output_not_null_option,
 			boolean output_select_option,
@@ -369,7 +371,7 @@ typedef struct
 	/* Public */
 	/* ------ */
 	char *key_string;
-	char *element_name;
+	char *element_hidden_name;
 	char *value;
 } ELEMENT_HIDDEN;
 
@@ -397,7 +399,7 @@ char *element_hidden_name(
 /* Returns heap memory */
 /* ------------------- */
 char *element_hidden_html(
-			char *element_name,
+			char *element_hidden_name,
 			char *value );
 
 typedef struct
@@ -474,9 +476,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			LIST *attribute_name_list,
 			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *post_change_javascript,
-			char *state );
+			char *post_change_javascript );
 
 int element_multi_display_size(
 			void );
@@ -533,35 +533,6 @@ char *element_anchor_html(
 
 typedef struct
 {
-	LIST *option_label_list;
-} ELEMENT_NON_EDIT_MULTI_SELECT;
-
-typedef struct
-{
-	char *null;
-} ELEMENT_EMPTY_COLUMN;
-
-typedef struct
-{
-	char *heading;
-	char *data;
-	char *align;
-	boolean format_initial_capital;
-} ELEMENT_PROMPT_DATA;
-
-typedef struct
-{
-	char *heading;
-	boolean checked;
-	char onchange_submit_yn;
-	char *form_name;
-	char *image_source;
-	char *onclick_keystrokes_save_string;
-	char *onclick_function;
-} ELEMENT_TOGGLE_BUTTON;
-
-typedef struct
-{
 	/* Input */
 	/* ----- */
 	char *attribute_name;
@@ -610,8 +581,8 @@ typedef struct
 	/* ---------- */
 	char *attribute_name;
 	char *datatype_name;
-	int max_length;
-	int size;
+	int attribute_width_max_length;
+	int element_text_max_display_size;
 	boolean null_to_slash;
 	boolean prevent_carrot;
 	char *on_change;
@@ -626,6 +597,7 @@ typedef struct
 	char *javascript_replace_on_change;
 	char *javascript_replace_on_focus;
 	char *prevent_carrot_on_keyup;
+	boolean autocomplete_off;
 
 	/* Private */
 	/* ------- */
@@ -640,8 +612,8 @@ ELEMENT_TEXT *element_text_calloc(
 ELEMENT_TEXT *element_text_new(
 			char *attribute_name,
 			char *datatype_name,
-			int max_length,
-			int size,
+			int attribute_width_max_length,
+			int element_text_max_display_size,
 			boolean null_to_slash,
 			boolean prevent_carrot,
 			char *on_change,
@@ -700,7 +672,8 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *attribute_name;
-	int attribute_width;
+	int attribute_width_max_length;
+	int element_text_max_display_size;
 	int tab_index;
 
 	/* Private */
@@ -833,13 +806,6 @@ typedef struct
 	ELEMENT_TEXT *text;
 	ELEMENT_UPLOAD *upload;
 	ELEMENT_PASSWORD *password;
-
-/*
-	ELEMENT_RADIO_BUTTON *radio_button;
-	ELEMENT_EMPTY_COLUMN *empty_column;
-	ELEMENT_REFERENCE_NUMBER *reference_number;
-	ELEMENT_NON_EDIT_MULTI_SELECT *non_edit_multi_select;
-*/
 } APPASERVER_ELEMENT;
 
 /* APPASERVER_ELEMENT operations */

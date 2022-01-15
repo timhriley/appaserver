@@ -215,8 +215,8 @@ typedef struct
 	/* Process */
 	/* ------- */
 	int relation_mto1_isa_list_length;
-	LIST *query_edit_table_drop_down_list;
-	char *query_edit_table_drop_down_list_where;
+	LIST *query_drop_down_list;
+	char *query_drop_down_list_where;
 	LIST *prompt_recursive_drop_down_list;
 	char *prompt_recursive_drop_down_list_where;
 	LIST *query_attribute_list;
@@ -231,6 +231,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc(
 			void );
 
 QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+			char *application_name,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
@@ -243,7 +244,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_edit_table_where(
-			char *query_edit_table_drop_down_list_where,
+			char *query_drop_down_list_where,
 			char *prompt_recursive_drop_down_list_where,
 			char *query_attribute_list_where,
 			char *query_join_where,
@@ -358,10 +359,7 @@ char *query_isa_related_join(
 /* Returns heap memory */
 /* ------------------- */
 char *query_where_clause(
-			char *query_output_drop_down_where,
-			char *query_output_attribute_where,
-			char *query_output_join_where,
-			char *attribute_not_null_join );
+			char *where_string );
 
 boolean query_attribute_date_time_between(
 			QUERY_ATTRIBUTE **date_between_attribute,
@@ -775,36 +773,6 @@ LIST *query_primary_delimited_list(
 			LIST *primary_key_list,
 			LIST *foreign_key_list,
 			LIST *foreign_data_list );
-
-typedef struct
-{
-	/* Process */
-	/* ------- */
-	LIST *exclude_attribute_name_list;
-	LIST *query_drop_down_list;
-	LIST *query_attribute_list;
-	char *query_drop_down_list_where;
-	char *query_drop_down_data_where;
-	char *query_attribute_list_where;
-	char *query_widget_where_evaluate;
-	LIST *query_prompt_recursive_drop_down_list;
-	LIST *query_search_replace_where_drop_down_list;
-	char *query_join_where;
-	char *query_related_join;
-	char *query_primary_key_where_clause;
-} QUERY_EDIT_TABLE_WHERE;
-
-/* QUERY_EDIT_TABLE_WHERE operations */
-/* --------------------------------- */
-QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc(
-			void );
-
-QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_isa_list,
-			char *security_entity_where,
-			DICTIONARY *query_dictionary,
-			ROW_SECURITY_ROLE *row_security_role );
 
 typedef struct
 {

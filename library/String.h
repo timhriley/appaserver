@@ -18,6 +18,7 @@
 #define STRING_16K			16384
 #define STRING_32K			32768
 #define STRING_64K			65536
+#define STRING_128K			131072
 #define STRING_192K			196608
 #define STRING_SYSTEM_BUFFER		196608
 #define STRING_WHERE_BUFFER		196608
@@ -163,7 +164,7 @@ char *string_rtrim(	char *buffer );
 boolean string_exists(	char *string,
 			char *substring );
 
-boolean string_exists_substr(
+boolean string_exists_substring(
 			char *string,
 			char *substring );
 
