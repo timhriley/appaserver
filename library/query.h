@@ -109,14 +109,6 @@ typedef struct
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
-	LIST *one_primary_key_list;
-	LIST *foreign_key_list;
-	LIST *many_folder_attribute_list;
-	DICTIONARY *drillthru_dictionary;
-	int index;
-
 	/* Process */
 	/* ------- */
 	char *key;
@@ -127,88 +119,33 @@ typedef struct
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
-	char *many_folder_name;
-	char *one_folder_name;
-	LIST *one_primary_key_list;
-	LIST *foreign_key_list;
-	DICTIONARY *drillthru_dictionary;
-	int highest_index;
-
 	/* Process */
 	/* ------- */
-	enum relational_operator relational_operator;
+	int highest_index;
 	LIST *row_list;
 } QUERY_DROP_DOWN;
 
-typedef struct
-{
-	/* Process */
-	/* ------- */
-	char *key;
-	char *data_list_string;
-	LIST *data_string_list;
-	LIST *query_data_list;
-} QUERY_EDIT_TABLE_DROP_DOWN_ROW;
-
-/* QUERY_EDIT_TABLE_DROP_DOWN_ROW operations */
-/* ----------------------------------------- */
-QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_calloc(
-			void );
-
-LIST *query_edit_table_drop_down_row_list(
-			LIST *foreign_key_list,
-			LIST *folder_attribute_append_isa_list,
-			DICTIONARY *query_dictionary,
-			int dictionary_string_list_highest_index );
-
-QUERY_EDIT_TABLE_DROP_DOWN_ROW *query_edit_table_drop_down_row_new(
-			LIST *foreign_key_list,
-			LIST *folder_attribute_append_isa_list,
-			DICTIONARY *query_dictionary,
-			int index );
-
-/* Returns static memory */
-/* --------------------- */
-char *query_edit_table_drop_down_row_key(
-			LIST *foreign_key_list,
-			int index );
-
-/* Returns query_dictionary->hash_table->other_data */
-/* ------------------------------------------------ */
-char *query_edit_table_drop_down_row_data_list_string(
-			char *query_edit_table_drop_down_row_key,
-			DICTIONARY *query_dictionary );
-
-LIST *query_edit_table_drop_down_row_data_string_list(
-			char *query_edit_table_drop_down_row_data_list_string );
-
-LIST *query_edit_table_drop_down_row_data_list(
-			LIST *foreign_key_list,
-			LIST *folder_attribute_append_isa_list,
-			LIST *query_edit_table_drop_down_row_data_string_list );
-
-typedef struct
-{
-	/* Process */
-	/* ------- */
-	int highest_index;
-	LIST *row_list;
-} QUERY_EDIT_TABLE_DROP_DOWN;
-
-/* QUERY_EDIT_TABLE_DROP_DOWN operations */
-/* ------------------------------------- */
-QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down_calloc(
-			void );
-
-LIST *query_edit_table_drop_down_list(
+/* QUERY_DROP_DOWN operations */
+/* -------------------------- */
+LIST *query_drop_down_list(
+			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
-			DICTIONARY *query_dictionary );
+			DICTIONARY *dictionary );
 
-QUERY_EDIT_TABLE_DROP_DOWN *query_edit_table_drop_down_new(
+QUERY_DROP_DOWN *query_drop_down_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+QUERY_DROP_DOWN *query_drop_down_new(
+			LIST *folder_attribute_list,
 			LIST *foreign_key_list,
-			DICTIONARY *query_dictionary );
+			DICTIONARY *dictionary );
+
+char *query_drop_down_list_where(
+			char *application_name,
+			LIST *query_drop_down_list,
+			int relation_mto1_isa_list_length );
 
 typedef struct
 {
@@ -385,40 +322,8 @@ char *query_primary_key_where_clause(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *query_drop_down_list_where(
-			LIST *drop_down_list,
-			int relation_mto1_isa_list_length );
-
-/* Returns heap memory or null */
-/* --------------------------- */
 char *query_attribute_list_where(
 			LIST *query_attribute_list );
-
-/* QUERY_DROP_DOWN operations */
-/* -------------------------- */
-LIST *query_drop_down_list(
-			LIST *exclude_attribute_name_list /* out */,
-			char *many_folder_name,
-			LIST *many_folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			DICTIONARY *drillthru_dictionary );
-
-QUERY_DROP_DOWN *query_drop_down_calloc(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-QUERY_DROP_DOWN *query_drop_down_new(
-			char *many_folder_name,
-			LIST *many_folder_attribute_list,
-			char *one_folder_name,
-			LIST *one_primary_key_list,
-			LIST *foreign_key_list,
-			DICTIONARY *drillthru_dictionary,
-			int highest_index );
-
-char *query_drop_down_operator_key(
-			LIST *foreign_key_list );
 
 /* QUERY_ROW operations */
 /* -------------------- */
@@ -446,8 +351,7 @@ char *query_dictionary_operator_name(
 /* -------------------------- */
 LIST *query_attribute_list(
 			LIST *folder_attribute_list,
-			DICTIONARY *dictionary,
-			LIST *exclude_attribute_name_list );
+			DICTIONARY *dictionary );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -458,11 +362,6 @@ char *query_attribute_list_where(
 /* --------------------- */
 char *query_attribute_operator_key(
 			char *operator_name );
-
-LIST *query_attribute_list(
-			LIST *append_isa_attribute_list,
-			DICTIONARY *dictionary,
-			LIST *exclude_attribute_name_list );
 
 enum relational_operator query_relational_operator(
 			char *operator_name,
@@ -538,14 +437,6 @@ char *query_system_string(
 			char *where_clause,
 			char *order_clause,
 			int max_rows );
-
-char *query_drop_down_list_display(
-			char *folder_name,
-			LIST *query_drop_down_list );
-
-char *query_attribute_list_display(
-			char *folder_name,
-			LIST *query_attribute_list );
 
 char *query_relational_operator_display(
 			enum relational_operator );
@@ -635,31 +526,31 @@ char *query_drop_down_data_where(
 /* QUERY_DROP_DOWN_ROW operations */
 /* ------------------------------ */
 LIST *query_drop_down_row_list(
-			LIST *one_primary_key_list,
 			LIST *foreign_key_list,
-			LIST *many_folder_attribute_list,
-			DICTIONARY *drillthru_dictionary,
+			LIST *folder_attribute_list,
+			DICTIONARY *dictionary,
 			int highest_index );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
-			LIST *one_primary_key_list,
 			LIST *foreign_key_list,
-			LIST *many_folder_attribute_list,
-			DICTIONARY *drillthru_dictionary,
+			LIST *folder_attribute_list,
+			DICTIONARY *dictionary,
 			int index );
 
 QUERY_DROP_DOWN_ROW *query_drop_down_row_calloc(
 			void );
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *query_drop_down_row_key(
 			LIST *foreign_key_list,
 			int index );
 
+/* Returns dictionary->hash_table->other_data */
+/* ------------------------------------------ */
 char *query_drop_down_row_data_list_string(
 			char *key,
-			DICTIONARY *query_dictionary );
+			DICTIONARY *dictionary );
 
 LIST *query_drop_down_row_data_string_list(
 			char *data_list_string );

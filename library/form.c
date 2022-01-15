@@ -1070,7 +1070,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 		sprintf(element_name,
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
-			FORM_SORT_ASSEND_LABEL,
+			FORM_SORT_ASCEND_LABEL,
 			(char *)list_get( edit_table_heading_list ) );
 
 		list_set(
