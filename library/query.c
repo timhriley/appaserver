@@ -21,23 +21,6 @@
 #include "row_security.h"
 #include "query.h"
 
-QUERY *query_calloc( void )
-{
-	QUERY *query;
-
-	if ( ! ( query = calloc( 1, sizeof( QUERY ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return query;
-}
-
 char *query_system_string(
 			char *select_clause,
 			char *from_clause,
@@ -2920,6 +2903,7 @@ char *query_data_where(
 	return strdup( where_clause );
 }
 
+#ifdef NOT_DEFINED
 LIST *query_primary_delimited_fetch_list(
 			char *folder_name,
 			LIST *primary_key_list,
@@ -2984,6 +2968,7 @@ LIST *query_primary_delimited_fetch_list(
 		query->order_clause,
 		0 /* max_rows */ );
 }
+#endif
 
 QUERY_EDIT_TABLE *query_edit_table_calloc( void )
 {

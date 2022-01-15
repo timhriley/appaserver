@@ -10,7 +10,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver_link.h"
 
 /* Constants */
@@ -54,7 +54,7 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	APPASERVER_PARAMETER *appaserver_parameter;
 	FRAMESET_FRAME *frameset_frame_menu;
 	FRAMESET_FRAME *frameset_frame_prompt;
 	FRAMESET_FRAME *frameset_frame_edit;

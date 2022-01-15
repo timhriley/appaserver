@@ -122,7 +122,8 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
-	char *attribute_name;
+	char *attribute_name /* mutually exclusive */;
+	char *element_name /* mutually exclusive */;
 	char *prompt_string;
 	char *on_click;
 	int tab_order;
@@ -141,7 +142,8 @@ ELEMENT_CHECKBOX *element_checkbox_calloc(
 			void );
 
 ELEMENT_CHECKBOX *element_checkbox_new(
-			char *attribute_name,
+			char *attribute_name /* mutually exclusive */,
+			char *element_name /* mutually exclusive */,
 			char *prompt_string,
 			char *on_click,
 			int tab_order,
@@ -172,6 +174,7 @@ char *element_checkbox_html(
 			boolean element_checkbox_checked,
 			char *javascript_replace_on_click,
 			int tab_order,
+			char *background_color,
 			char *image_source );
 
 typedef struct
@@ -228,7 +231,8 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			char *name,
 			int display_size,
 			boolean multi_select,
-			char *post_change_javascript );
+			char *post_change_javascript,
+			boolean remember );
 
 /* Returns row_dictionary->hash_table->other_data */
 /* ---------------------------------------------- */
@@ -476,6 +480,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			LIST *attribute_name_list,
 			LIST *delimited_list,
+			boolean no_initial_capital,
 			char *post_change_javascript );
 
 int element_multi_display_size(
@@ -582,7 +587,6 @@ typedef struct
 	char *attribute_name;
 	char *datatype_name;
 	int attribute_width_max_length;
-	int element_text_max_display_size;
 	boolean null_to_slash;
 	boolean prevent_carrot;
 	char *on_change;
@@ -613,7 +617,6 @@ ELEMENT_TEXT *element_text_new(
 			char *attribute_name,
 			char *datatype_name,
 			int attribute_width_max_length,
-			int element_text_max_display_size,
 			boolean null_to_slash,
 			boolean prevent_carrot,
 			char *on_change,
@@ -736,11 +739,8 @@ char *element_upload_insert_html(
 /* Returns heap memory */
 /* ------------------- */
 char *element_upload_update_html(
-			char *element_name,
 			char *value,
-			char *application_name,
-			char *upload_directory,
-			char *document_root );
+			char *application_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -942,6 +942,15 @@ char *appaserver_element_hidden_html(
 /* --------------------------- */
 char *appaserver_element_notepad_html(
 			ELEMENT_NOTEPAD *notepad,
+			int row_number,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_checkbox_html(
+			ELEMENT_CHECKBOX *checkbox,
+			char *background_color,
+			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary );
 
