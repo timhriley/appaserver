@@ -670,6 +670,7 @@ RELATION *relation_consumes(
 			many_attribute_name,
 			relation->foreign_key_list ) )
 		{
+			relation->consumes_taken = 1;
 			return relation;
 		}
 

@@ -99,21 +99,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define PROMPT_NEW_BUTTON_FOLDER_NAME		"prompt_new_button_folder_name"
 #define PRIMARY_DATA_LIST_KEY			"primary_data_list"
 
-#define EQUAL_OPERATOR				"equals"
-#define NOT_EQUAL_OPERATOR			"not_equal"
-#define NOT_EQUAL_OR_NULL_OPERATOR		"not_equal_or_empty"
-#define LESS_THAN_OPERATOR			"less_than"
-#define LESS_THAN_EQUAL_TO_OPERATOR		"less_than_equal_to"
-#define GREATER_THAN_OPERATOR			"greater_than"
-#define GREATER_THAN_EQUAL_TO_OPERATOR		"greater_than_equal_to"
-#define BETWEEN_OPERATOR			"between"
-#define BEGINS_OPERATOR				"begins"
-#define CONTAINS_OPERATOR			"contains"
-#define NOT_CONTAINS_OPERATOR			"not_contains"
-#define OR_OPERATOR				"or,"
-#define NULL_OPERATOR				"is_empty"
-#define NOT_NULL_OPERATOR			"not_empty"
-
 #ifndef APPASERVER_DATABASE_ERROR_FILE
 #define APPASERVER_DATABASE_ERROR_FILE		"/var/log/appaserver_%s.err"
 #endif

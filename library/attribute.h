@@ -100,7 +100,7 @@ ATTRIBUTE *attribute_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *attribute_full_attribute_name(
-			char *folder_name,
+			char *folder_table_name,
 			char *attribute_name );
 
 #endif

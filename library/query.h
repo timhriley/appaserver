@@ -27,12 +27,27 @@
 #define QUERY_FROM_STARTING_LABEL		"from_"
 #define QUERY_TO_STARTING_LABEL			"to_"
 #define QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL	"original_"
-#define QUERY_RELATION_OPERATOR_STARTING_LABEL	"relation_operator_"
+#define QUERY_RELATION_STARTING_LABEL		"relation_operator_"
 #define QUERY_LOGIN_NAME_ATTRIBUTE_NAME		"login_name"
+
+#define QUERY_EQUAL				"equal"
+#define QUERY_NOT_EQUAL				"not_equal"
+#define QUERY_NOT_EQUAL_OR_NULL			"not_equal_or_empty"
+#define QUERY_LESS_THAN				"less_than"
+#define QUERY_LESS_THAN_EQUAL_TO		"less_than_equal_to"
+#define QUERY_GREATER_THAN			"greater_than"
+#define QUERY_GREATER_THAN_EQUAL_TO		"greater_than_equal_to"
+#define QUERY_BETWEEN				"between"
+#define QUERY_BEGINS				"begins"
+#define QUERY_CONTAINS				"contains"
+#define QUERY_NOT_CONTAINS			"not_contains"
+#define QUERY_OR				"or_,"
+#define QUERY_NULL				"is_empty"
+#define QUERY_NOT_NULL				"not_empty"
 
 /* Enumerated types */
 /* ---------------- */
-enum relational_operator {	equals,
+enum query_relation {		equal,
 				not_equal,
 				not_equal_or_null,
 				less_than,
@@ -45,12 +60,52 @@ enum relational_operator {	equals,
 				not_contains,
 				query_or,
 				is_null,
-				not_null,
-				relational_operator_empty,
-				relational_operator_unknown };
+				not_null};
 
 /* Structures */
 /* ---------- */
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	char *key;
+	char *yes_no_key;
+	char *operator_fetch;
+	enum query_relation query_relation_enum;
+} QUERY_RELATION;
+
+/* QUERY_RELATION operators */
+/* ------------------------ */
+QUERY_RELATION *query_relation_calloc(
+			void );
+
+QUERY_RELATION *query_relation_new(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_relation_key(
+			char *attribute_name,
+			char *query_relation_starting_label );
+
+/* Returns program memory */
+/* ---------------------- */
+char *query_relation_yes_no_key(
+			char *attribute_name );
+
+/* Returns dictionary->hash_table->other_data or null */
+/* -------------------------------------------------- */
+char *query_relation_fetch(
+			char *query_relation_key,
+			char *query_relation_yes_no_key,
+			DICTIONARY *dictionary );
+
+enum query_relation query_relation_enum(
+			char *query_relation_fetch,
+			char *datatype_name );
+
 typedef struct
 {
 	char *login_name;
@@ -119,6 +174,9 @@ typedef struct
 
 typedef struct
 {
+	/* Input */
+	char *many_folder_name;
+
 	/* Process */
 	/* ------- */
 	int highest_index;
@@ -128,6 +186,7 @@ typedef struct
 /* QUERY_DROP_DOWN operations */
 /* -------------------------- */
 LIST *query_drop_down_list(
+			char *many_folder_name,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *dictionary );
@@ -138,10 +197,14 @@ QUERY_DROP_DOWN *query_drop_down_calloc(
 /* Always succeeds */
 /* --------------- */
 QUERY_DROP_DOWN *query_drop_down_new(
+			char *many_folder_name,
 			LIST *folder_attribute_list,
 			LIST *foreign_key_list,
-			DICTIONARY *dictionary );
+			DICTIONARY *dictionary,
+			int highest_index );
 
+/* Public */
+/* ------ */
 char *query_drop_down_list_where(
 			char *application_name,
 			LIST *query_drop_down_list,
@@ -343,7 +406,7 @@ boolean query_get_drop_down_dictionary_data(
 			char *primary_key,
 			int dictionary_offset );
 
-char *query_dictionary_operator_name(
+char *query_relation_operator_name(
 			char *key,
 			DICTIONARY *dictionary );
 
@@ -360,10 +423,11 @@ char *query_attribute_list_where(
 
 /* Returns static memory */
 /* --------------------- */
-char *query_attribute_operator_key(
-			char *operator_name );
+char *query_relation_operator_key(
+			char *operator_name,
+			char *query_starting_label );
 
-enum relational_operator query_relational_operator(
+enum relation_operator query_relation_operator(
 			char *operator_name,
 			char *datatype_name );
 
@@ -518,11 +582,6 @@ char *query_date_convert_select_string(
 			boolean attribute_is_date_time,
 			enum date_convert_format date_convert_format );
 
-char *query_drop_down_data_where(
-			char *folder_name,
-			char *attribute_name,
-			char *data );
-
 /* QUERY_DROP_DOWN_ROW operations */
 /* ------------------------------ */
 LIST *query_drop_down_row_list(
@@ -554,6 +613,30 @@ char *query_drop_down_row_data_list_string(
 
 LIST *query_drop_down_row_data_string_list(
 			char *data_list_string );
+
+/* Public */
+/* ------ */
+char *query_drop_down_row_list_where(
+			char *folder_table_name,
+			LIST *query_drop_down_row_list,
+			int relation_mto1_isa_list_length );
+
+/* Private */
+/* ------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_drop_down_row_where(
+			char *folder_table_name,
+			LIST *query_data_list,
+			int relation_mto1_isa_list_length );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_drop_down_row_data_where(
+			char *folder_name,
+			char *attribute_name,
+			char *data );
 
 /* QUERY public operations */
 /* ----------------------- */
@@ -670,12 +753,10 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *select_list;
-	char *select_list_string;
-	char *select_clause;
-	char *from_clause;
+	char *query_select_string;
+	char *from_string;
 	QUERY_EDIT_TABLE_WHERE *query_edit_table_where;
-	char *order_clause;
-	LIST *dictionary_list;
+	char *query_order_string;
 } QUERY_EDIT_TABLE;
 
 /* QUERY_EDIT_TABLE operations */
@@ -684,6 +765,7 @@ QUERY_EDIT_TABLE *query_edit_table_calloc(
 			void );
 
 QUERY_EDIT_TABLE *query_edit_table_new(
+			char *application_name,
 			char *folder_name,
 			char *login_name,
 			char *security_entity_where,
