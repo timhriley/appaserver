@@ -3918,9 +3918,9 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 {
 	QUERY_BETWEEN_DATA *query_between_data;
 	char *date_attribute_base;
-	char *time_attribute_name;
-	QUERY_DATA *from_date;
-	QUERY_DATA *from_time;
+	char *time_attribute_name = {0};
+	QUERY_DATA *from_date = {0};
+	QUERY_DATA *from_time = {0};
 
 	if ( !attribute_name || !datatype_name )
 	{
@@ -3934,31 +3934,37 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 
 	if ( !dictionary_length( dictionary ) ) return (QUERY_BETWEEN_DATA *)0;
 
-	date_attribute_base =
+	if ( ( date_attribute_base =
 		query_between_data_date_attribute_base(
 			attribute_name,
-			datatype_name );
+			attribute_is_date( datatype_name ) ||
+			attribute_is_time( datatype_name ) ) ) )
+	{
+		time_attribute_name =
+			query_between_data_time_attribute_name(
+				date_attribute_base );
 
-	time_attribute_name =
-		query_between_data_time_attribute_name(
-			date_attribute_base,
-			datatype_name );
+		if ( time_attribute_name )
+		{
+			from_date =
+				query_between_data_from_date(
+					attribute_name,
+					datatype_name,
+					dictionary );
 
-	from_date =
-		query_between_data_from_date(
-			attribute_name,
-			datatype_name,
-			dictionary );
-
-	from_time =
-		query_between_data_from_time(
-			time_attribute_name,
-			dictionary );
+			from_time =
+				query_between_data_from_time(
+					time_attribute_name,
+					dictionary );
+		}
+	}
 
 	if ( attribute_is_time( datatype_name )
 	&&   from_date
 	&&   from_time )
 	{
+		/* Ignore the time attribute */
+		/* ------------------------- */
 		return (QUERY_BETWEEN_DATA *)0;
 	}
 
@@ -3968,22 +3974,51 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 	query_between_data->from_date = from_date;
 	query_between_data->from_time = from_time;
 
-	query_between_data->to_date =
-		query_between_data_to_date(
-			attribute_name,
-			datatype_name,
+	if ( attribute_is_date( datatype_name ) )
+	{
+		query_between_data->to_date =
+			query_between_data_to_date(
+				attribute_name,
+				datatype_name,
+				dictionary );
+	}
+
 	return query_between_data;
 }
 
-char *query_between_data_attribute_base(
+char *query_between_data_date_attribute_base(
 			char *attribute_name,
-			char *datatype_name )
+			boolean is_date_or_time )
 {
+	char attribute_base[ 128 ];
+	int offset;
+
+	if ( !is_date_or_time ) return (char *)0;
+
+	offset =
+		string_instr(
+			"_date" /* substr */,
+			attribute_name /* string */,
+			1 /* occurrence */ );
+
+	if ( offset < 0 ) return (char *)0;
+
+	strcpy( attribute_base, attribute_name );
+	*( attribute_base + offset ) = '\0';
+
+	return strdup( attribute_base );
 }
 
 char *query_between_data_time_attribute_name(
-			char *query_between_data_attribute_base )
+			char *attribute_base )
 {
+	char time_attribute_name[ 128 ];
+
+	if ( !attribute_base ) return (char *)0;
+
+	sprintf( time_attribute_name, "%s_time", attribute_base );
+
+	return strdup( time_attribute_name );
 }
 
 QUERY_DATA *query_between_data_from_date(
@@ -3991,12 +4026,34 @@ QUERY_DATA *query_between_data_from_date(
 			char *datatype_name,
 			DICTIONARY *dictionary )
 {
+	if ( attribute_is_date( datatype_name ) )
+	{
+		return
+		query_data_fetch(
+			(char *)0 /* folder_name */,
+			attribute_name,
+			datatype_name,
+			dictionary );
+	}
+
+	return (QUERY_DATA *)0;
 }
 
 QUERY_DATA *query_between_data_from_time(
-			char *query_between_data_time_attribute_name,
+			char *time_attribute_name,
 			DICTIONARY *dictionary )
 {
+	if ( time_attribute_name )
+	{
+		return
+		query_data_fetch(
+			(char *)0 /* folder_name */,
+			time_attribute_name,
+			(char *)0 /* datatype_name */,
+			dictionary );
+	}
+
+	return (QUERY_DATA *)0;
 }
 
 QUERY_DATA *query_between_data_to_date(
@@ -4004,12 +4061,62 @@ QUERY_DATA *query_between_data_to_date(
 			char *datatype_name,
 			DICTIONARY *dictionary )
 {
+	char to_attribute_name[ 128 ];
+
+	if ( !attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( dictionary ) ) return (QUERY_DATA *)0;
+	if ( !attribute_is_date( datatype_name ) ) return (QUERY_DATA *)0;
+
+	sprintf(to_attribute_name,
+		"to_%s",
+		attribute_name );
+
+	return
+	query_data_fetch(
+		(char *)0 /* folder_name */,
+		strdup( to_attribute_name ),
+		datatype_name,
+		dictionary );
 }
 
 QUERY_DATA *query_between_data_to_time(
-			char *query_between_data_time_attribute_name,
+			char *time_attribute_name,
 			DICTIONARY *dictionary )
 {
+	char to_attribute_name[ 128 ];
+
+	if ( !attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !time_attribute_name ) return (QUERY_DATA *)0;
+	if ( !dictionary_length( dictionary ) ) return (QUERY_DATA *)0;
+
+	sprintf(to_attribute_name,
+		"to_%s",
+		time_attribute_name );
+
+	return
+	query_data_fetch(
+		(char *)0 /* folder_name */,
+		strdup( to_attribute_name ),
+		(char *)0 /* datatype_name */,
+		dictionary );
 }
 
 QUERY_DATA *query_between_data_from(
@@ -4017,6 +4124,12 @@ QUERY_DATA *query_between_data_from(
 			char *datatype_name,
 			DICTIONARY *dictionary )
 {
+	return
+	query_data_fetch(
+		(char *)0 /* folder_name */,
+		attribute_name,
+		datatype_name,
+		dictionary );
 }
 
 QUERY_DATA *query_between_data_to(
@@ -4024,6 +4137,30 @@ QUERY_DATA *query_between_data_to(
 			char *datatype_name,
 			DICTIONARY *dictionary )
 {
+	char to_attribute_name[ 128 ];
+
+	if ( !attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( dictionary ) ) return (QUERY_DATA *)0;
+
+	sprintf(to_attribute_name,
+		"to_%s",
+		attribute_name );
+
+	return
+	query_data_fetch(
+		(char *)0 /* folder_name */,
+		strdup( to_attribute_name ),
+		datatype_name,
+		dictionary );
 }
 
 char *query_between_data_date_time_where(
@@ -4240,5 +4377,26 @@ char *query_between_data_where(
 		strcpy( where, query_between_data_non_date_time_where );
 
 	return strdup( where );
+}
+
+QUERY_DATA *query_data_fetch(
+			char *folder_name,
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary )
+{
+	char *data;
+
+	if ( ( data = dictionary_get( attribute_name, dictionary ) ) )
+	{
+		return
+		query_data_new(
+			folder_name,
+			attribute_name,
+			datatype_name,
+			data );
+	}
+
+	return (QUERY_DATA *)0;
 }
 

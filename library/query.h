@@ -129,14 +129,14 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 			char *folder_table_name,
 			int relation_mto1_isa_list_length );
 
-/* Returns heap memory */
-/* ------------------- */
-char *query_between_data_attribute_base(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_between_data_date_attribute_base(
 			char *attribute_name,
-			char *datatype_name );
+			boolean is_date_or_time );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *query_between_data_time_attribute_name(
 			char *query_between_data_attribute_base );
 
@@ -202,12 +202,9 @@ typedef struct
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attribute */
+	/* --------- */
 	char *folder_name;
-	char *attribute_name;
-	char *datatype_name;
-	char *data;
 
 	/* Process */
 	/* ------- */
@@ -223,6 +220,12 @@ LIST *query_data_list(
 			LIST *foreign_key_list,
 			LIST *folder_attribute_list,
 			LIST *query_drop_down_row_data_string_list );
+
+QUERY_DATA *query_data_fetch(
+			char *folder_name,
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
 
 QUERY_DATA *query_data_new(
 			char *folder_name,
