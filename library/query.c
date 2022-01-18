@@ -3891,3 +3891,354 @@ enum query_relation query_relation_enum(
 	return query_relation;
 }
 
+QUERY_BETWEEN_DATA *query_between_data_calloc( void )
+{
+	QUERY_BETWEEN_DATA *query_between_data;
+
+	if ( ! ( query_between_data =
+			calloc( 1, sizeof( QUERY_BETWEEN_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return query_between_data;
+}
+
+QUERY_BETWEEN_DATA *query_between_data_new(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary,
+			char *folder_table_name,
+			int relation_mto1_isa_list_length )
+{
+	QUERY_BETWEEN_DATA *query_between_data;
+	char *date_attribute_base;
+	char *time_attribute_name;
+	QUERY_DATA *from_date;
+	QUERY_DATA *from_time;
+
+	if ( !attribute_name || !datatype_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( dictionary ) ) return (QUERY_BETWEEN_DATA *)0;
+
+	date_attribute_base =
+		query_between_data_date_attribute_base(
+			attribute_name,
+			datatype_name );
+
+	time_attribute_name =
+		query_between_data_time_attribute_name(
+			date_attribute_base,
+			datatype_name );
+
+	from_date =
+		query_between_data_from_date(
+			attribute_name,
+			datatype_name,
+			dictionary );
+
+	from_time =
+		query_between_data_from_time(
+			time_attribute_name,
+			dictionary );
+
+	if ( attribute_is_time( datatype_name )
+	&&   from_date
+	&&   from_time )
+	{
+		return (QUERY_BETWEEN_DATA *)0;
+	}
+
+	query_between_data = query_between_data_calloc();
+	query_between_data->date_attribute_base = date_attribute_base;
+	query_between_data->time_attribute_name = time_attribute_name;
+	query_between_data->from_date = from_date;
+	query_between_data->from_time = from_time;
+
+	query_between_data->to_date =
+		query_between_data_to_date(
+			attribute_name,
+			datatype_name,
+	return query_between_data;
+}
+
+char *query_between_data_attribute_base(
+			char *attribute_name,
+			char *datatype_name )
+{
+}
+
+char *query_between_data_time_attribute_name(
+			char *query_between_data_attribute_base )
+{
+}
+
+QUERY_DATA *query_between_data_from_date(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary )
+{
+}
+
+QUERY_DATA *query_between_data_from_time(
+			char *query_between_data_time_attribute_name,
+			DICTIONARY *dictionary )
+{
+}
+
+QUERY_DATA *query_between_data_to_date(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary )
+{
+}
+
+QUERY_DATA *query_between_data_to_time(
+			char *query_between_data_time_attribute_name,
+			DICTIONARY *dictionary )
+{
+}
+
+QUERY_DATA *query_between_data_from(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary )
+{
+}
+
+QUERY_DATA *query_between_data_to(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary )
+{
+}
+
+char *query_between_data_date_time_where(
+			QUERY_DATA *from_date,
+			QUERY_DATA *from_time,
+			QUERY_DATA *to_date,
+			QUERY_DATA *to_time,
+			char *folder_table_name,
+			int relation_mto1_isa_list_length )
+{
+	static char where[ 1024 ];
+	char *where_ptr = where;
+	char *start_end_time;
+	char *finish_begin_time;
+	char *begin_date;
+	char *end_date;
+	char *begin_time;
+	char *end_time;
+	char *date_attribute_name;
+	char *time_attribute_name;
+
+	if ( !from_date || !from_time || !to_date || !to_time )
+	{
+		return (char *)0;
+	}
+
+	if ( !relation_mto1_isa_list_length )
+	{
+		folder_table_name = (char *)0;
+	}
+
+	begin_date = from_date->escaped_replaced_data;
+	end_date = to_date->escaped_replaced_data;
+	begin_time = from_time->escaped_replaced_data;
+	end_time = to_time->escaped_replaced_data;
+	date_attribute_name = from_date->attribute_name;
+	time_attribute_name = from_time->attribute_name;
+
+	if ( string_strcmp( begin_date, end_date ) != 0 )
+	{
+		start_end_time = "2359";
+		finish_begin_time = "0000";
+	}
+	else
+	{
+		start_end_time = end_time;
+		finish_begin_time = begin_time;
+	}
+
+	where_ptr +=
+		sprintf(
+		   where_ptr,
+		  " ( ( %s = '%s' and %s >= '%s' and %s <= '%s' )",
+			attribute_full_attribute_name(
+				folder_table_name,
+				date_attribute_name ),
+		 	begin_date,
+			attribute_full_attribute_name(
+				folder_table_name,
+				time_attribute_name ),
+		 	begin_time,
+			attribute_full_attribute_name(
+				folder_table_name,
+				time_attribute_name ),
+			start_end_time );
+
+	where_ptr +=
+		sprintf(
+		   where_ptr,
+		   " or ( %s = '%s' and %s = 'null' )",
+			attribute_full_attribute_name(
+				folder_table_name,
+				date_attribute_name ),
+		 	begin_date,
+			attribute_full_attribute_name(
+				folder_table_name,
+				time_attribute_name ) );
+
+	where_ptr +=
+		sprintf(
+		   where_ptr,
+		   " or ( %s = '%s' and %s = 'null' )",
+			attribute_full_attribute_name(
+				folder_table_name,
+				date_attribute_name ),
+		 	end_date,
+			attribute_full_attribute_name(
+				folder_table_name,
+				time_attribute_name ) );
+
+	where_ptr +=
+		sprintf(
+		   where_ptr,
+		   " or ( %s > '%s' and %s < '%s' )",
+			attribute_full_attribute_name(
+				folder_table_name,
+				date_attribute_name ),
+		 	begin_date,
+			attribute_full_attribute_name(
+				folder_table_name,
+				date_attribute_name ),
+			end_date );
+
+	where_ptr +=
+		sprintf(
+		   where_ptr,
+		   " or ( %s = '%s' and %s >= '%s' and %s <= '%s' ) )",
+			attribute_full_attribute_name(
+				folder_table_name,
+				date_attribute_name ),
+		 	end_date,
+			attribute_full_attribute_name(
+				folder_table_name,
+				time_attribute_name ),
+			finish_begin_time,
+			attribute_full_attribute_name(
+				folder_table_name,
+				time_attribute_name ),
+		 	end_time );
+
+	return where;
+}
+
+char *query_between_data_non_date_time_where(
+			QUERY_DATA *data_from,
+			QUERY_DATA *data_to,
+			char *datatype_name,
+			char *folder_table_name,
+			int relation_mto1_isa_list_length )
+{
+	static char where[ 1024 ];
+
+	if ( !data_from || !data_to ) return (char *)0;
+
+	if ( !datatype_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: datatype_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( relation_mto1_isa_list_length )
+	{
+		if ( !folder_name_name )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_table_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( attribute_is_number( datatype_name ) )
+		{
+			sprintf(where,
+				"where %s.%s between %s and %s",
+				folder_table_name,
+				data_from->attribute_name,
+				data_from->escaped_replaced_data,
+				data_to->escaped_replaced_data );
+		}
+		else
+		{
+			sprintf(where,
+				"where %s.%s between '%s' and '%s'",
+				folder_table_name,
+				data_from->attribute_name,
+				data_from->escaped_replaced_data,
+				data_to->escaped_replaced_data );
+		}
+	}
+	else
+	{
+		if ( attribute_is_number( datatype_name ) )
+		{
+			sprintf(where,
+				"where %s between %s and %s",
+				data_from->attribute_name,
+				data_from->escaped_replaced_data,
+				data_to->escaped_replaced_data );
+		}
+		else
+		{
+			sprintf(where,
+				"where %s between '%s' and '%s'",
+				data_from->attribute_name,
+				data_from->escaped_replaced_data,
+				data_to->escaped_replaced_data );
+		}
+	}
+
+	return where;
+}
+
+char *query_between_data_where(
+			char *query_between_data_date_time_where,
+			char *query_between_data_non_date_time_where )
+{
+	char where[ 1024 ];
+
+	if ( !query_between_data_date_time_where
+	&&   !query_between_data_non_date_time_where )
+	{
+		return (char *)0;
+	}
+
+	if ( query_between_data_date_time_where )
+		strcpy( where, query_between_data_date_time_where );
+	else
+		strcpy( where, query_between_data_non_date_time_where );
+
+	return strdup( where );
+}
+

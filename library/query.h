@@ -108,6 +108,94 @@ enum query_relation query_relation_enum(
 
 typedef struct
 {
+	/* Attribute */
+	/* --------- */
+	char *folder_name;
+
+	/* Process */
+	/* ------- */
+	char *attribute_base;
+} QUERY_BETWEEN_DATA;
+
+/* QUERY_BETWEEN_DATA operations */
+/* ----------------------------- */
+QUERY_BETWEEN_DATA *query_between_data_calloc(
+			void );
+
+QUERY_BETWEEN_DATA *query_between_data_new(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary,
+			char *folder_table_name,
+			int relation_mto1_isa_list_length );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_between_data_attribute_base(
+			char *attribute_name,
+			char *datatype_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_between_data_time_attribute_name(
+			char *query_between_data_attribute_base );
+
+
+QUERY_DATA *query_between_data_from_date(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
+
+QUERY_DATA *query_between_data_from_time(
+			char *query_between_data_time_attribute_name,
+			DICTIONARY *dictionary );
+
+QUERY_DATA *query_between_data_to_date(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
+
+QUERY_DATA *query_between_data_to_time(
+			char *query_between_data_time_attribute_name,
+			DICTIONARY *dictionary );
+
+QUERY_DATA *query_between_data_from(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
+
+QUERY_DATA *query_between_data_to(
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *query_between_data_date_time_where(
+			QUERY_DATA *from_date,
+			QUERY_DATA *from_time,
+			QUERY_DATA *to_date,
+			QUERY_DATA *to_time,
+			char *datatype_name,
+			char *folder_table_name,
+			int relation_mto1_isa_list_length );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *query_between_data_non_date_time_where(
+			QUERY_DATA *data_from,
+			QUERY_DATA *data_to,
+			char *folder_table_name,
+			int relation_mto1_isa_list_length );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_between_data_where(
+			char *query_between_data_date_time_where,
+			char *query_between_data_where );
+
+typedef struct
+{
 	char *login_name;
 	enum date_convert_format date_convert_format;
 } QUERY_DATE_CONVERT;
