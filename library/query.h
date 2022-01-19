@@ -45,6 +45,10 @@
 #define QUERY_NULL				"is_empty"
 #define QUERY_NOT_NULL				"not_empty"
 
+#define QUERY_NULL_EXPRESSION			\
+			 " (%s = 'null' or %s = '' or %s is null)"
+#define QUERY_NOT_NULL_EXPRESSION		\
+			 " (%s <> 'null' or %s <> '' or %s is not null)"
 /* Enumerated types */
 /* ---------------- */
 enum query_relation {		equal,
@@ -72,6 +76,7 @@ typedef struct
 	char *yes_no_key;
 	char *operator_fetch;
 	enum query_relation query_relation_enum;
+	char *character_string;
 } QUERY_RELATION;
 
 /* QUERY_RELATION operators */
@@ -105,6 +110,11 @@ char *query_relation_fetch(
 enum query_relation query_relation_enum(
 			char *query_relation_fetch,
 			char *datatype_name );
+
+/* Returns program memory */
+/* ---------------------- */
+char *query_relation_character_string(
+			enum query_relation query_relation_enum );
 
 typedef struct
 {
@@ -141,30 +151,30 @@ char *query_between_data_time_attribute_name(
 			char *query_between_data_attribute_base );
 
 
-QUERY_DATA *query_between_data_from_date(
+QUERY_BETWEEN_DATA *query_between_data_from_date(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
 
-QUERY_DATA *query_between_data_from_time(
+QUERY_BETWEEN_DATA *query_between_data_from_time(
 			char *query_between_data_time_attribute_name,
 			DICTIONARY *dictionary );
 
-QUERY_DATA *query_between_data_to_date(
+QUERY_BETWEEN_DATA *query_between_data_to_date(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
 
-QUERY_DATA *query_between_data_to_time(
+QUERY_BETWEEN_DATA *query_between_data_to_time(
 			char *query_between_data_time_attribute_name,
 			DICTIONARY *dictionary );
 
-QUERY_DATA *query_between_data_from(
+QUERY_BETWEEN_DATA *query_between_data_from(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
 
-QUERY_DATA *query_between_data_to(
+QUERY_BETWEEN_DATA *query_between_data_to(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
@@ -202,9 +212,11 @@ typedef struct
 
 typedef struct
 {
-	/* Attribute */
-	/* --------- */
+	/* Attributes */
+	/* ---------- */
 	char *folder_name;
+	char *attribute_name;
+	char *datatype_name;
 
 	/* Process */
 	/* ------- */
@@ -343,14 +355,50 @@ char *query_edit_table_where(
 
 typedef struct
 {
-	char *attribute_name;
+	/* Attributes */
+	/* ---------- */
+	char *application_name;
 	char *folder_name;
-	char *datatype_name;
-	enum relational_operator relational_operator;
-	QUERY_DATA *from_data;
-	QUERY_DATA *to_data;
-	int primary_key_index;
+	int relation_mto1_isa_list_length;
+
+	/* Process */
+	/* ------- */
+	QUERY_RELATION *query_relation;
+	QUERY_BETWEEN_DATA *query_between_data;
+	QUERY_DATA *query_data;
 } QUERY_ATTRIBUTE;
+
+/* QUERY_ATTRIBUTE operations */
+/* -------------------------- */
+QUERY_ATTRIBUTE *query_attribute_calloc(
+			void );
+
+LIST *query_attribute_list(
+			char *application_name,
+			LIST *folder_attribute_list,
+			DICTIONARY *dictionary );
+
+QUERY_ATTRIBUTE *query_attribute_new(
+			char *application_name,
+			char *folder_name,
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary,
+			int relation_mto1_isa_list_length );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_attribute_list_where(
+			LIST *query_attribute_list );
+
+/* Returns static memory, structure memory, or null */
+/* ------------------------------------------------ */
+char *query_attribute_where(
+			char *folder_table_name,
+			int relation_mto1_isa_list_length,
+			QUERY_RELATION *query_relation,
+			QUERY_BETWEEN_DATA *query_between_data,
+			QUERY_DATA *query_data );
 
 typedef struct
 {
@@ -452,33 +500,6 @@ char *query_isa_related_join(
 char *query_where_clause(
 			char *where_string );
 
-boolean query_attribute_date_time_between(
-			QUERY_ATTRIBUTE **date_between_attribute,
-			QUERY_ATTRIBUTE **time_between_attribute,
-			LIST *query_attribute_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *query_attribute_between_date_time_where(
-			char *date_attribute_name,
-			char *time_attribute_name,
-			QUERY_DATA *date_from_data,
-			QUERY_DATA *time_from_data,
-			QUERY_DATA *date_to_data,
-			QUERY_DATA *time_to_data,
-			char *folder_table_name );
-
-char *query_primary_key_where_clause(
-			LIST *primary_key_list,
-			char *input_buffer,
-			char delimiter );
-
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *query_attribute_list_where(
-			LIST *query_attribute_list );
-
 /* QUERY_ROW operations */
 /* -------------------- */
 LIST *query_row_dictionary_list(
@@ -500,40 +521,6 @@ boolean query_get_drop_down_dictionary_data(
 char *query_relation_operator_name(
 			char *key,
 			DICTIONARY *dictionary );
-
-/* QUERY_ATTRIBUTE operations */
-/* -------------------------- */
-LIST *query_attribute_list(
-			LIST *folder_attribute_list,
-			DICTIONARY *dictionary );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_attribute_list_where(
-			LIST *query_attribute_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *query_relation_operator_key(
-			char *operator_name,
-			char *query_starting_label );
-
-enum relation_operator query_relation_operator(
-			char *operator_name,
-			char *datatype_name );
-
-QUERY_ATTRIBUTE *query_attribute_new(
-			char *attribute_name,
-			char *folder_name,
-			char *datatype_name,
-			enum relational_operator,
-			QUERY_DATA *from_data,
-			QUERY_DATA *to_data,
-			int primary_key_index );
-
-boolean query_attribute_exists(
-			LIST *query_attribute_list,
-			char *attribute_name );
 
 char *query_process_where_clause(
 			char **drop_down_where_clause,
