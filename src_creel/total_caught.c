@@ -328,7 +328,7 @@ LIST *total_caught_get_species_list(
 			char *species_list_string )
 {
 	QUERY_OR_SEQUENCE *query_or_sequence = {0};
-	char *query_or_sequence_where_clause;
+	char *where;
 	LIST *column_name_list;
 	char sys_string[ 1024 ];
 	char *select;
@@ -368,11 +368,10 @@ LIST *total_caught_get_species_list(
 			query_or_sequence->data_list_list,
 			species_list_string );
 	
-		query_or_sequence_where_clause =
-			query_or_sequence_where_clause(
-					query_or_sequence->attribute_name_list,
-				query_or_sequence->data_list_list,
-				0 /* not with_and_prefix */ );
+		where =
+			query_or_sequence_where(
+				query_or_sequence->attribute_name_list,
+				query_or_sequence->data_list_list );
 	}
 
 	select = "family,genus,species,florida_state_code";
@@ -385,7 +384,7 @@ LIST *total_caught_get_species_list(
 		 "			order=florida_state_code	",
 		 application_name,
 		 select,
-		 query_or_sequence_where_clause );
+		 where );
 
 	input_pipe = popen( sys_string, "r" );
 

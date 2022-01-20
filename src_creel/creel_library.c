@@ -1537,7 +1537,7 @@ void creel_library_get_fishing_trips_census_date_where_clause(
 		"hours_fishing is not null and hours_fishing > 0";
 
 	sprintf(where_clause,
-" and %s.census_date between '%s' and '%s' %s and %s and %s",
+" and %s.census_date between '%s' and '%s' and %s and %s and %s",
 			fishing_trips_table_name,
 	 	begin_date_string,
 	 	end_date_string,
@@ -4157,7 +4157,7 @@ char *creel_library_get_species_where(
 char *creel_library_get_fishing_area_where(
 				char *fishing_area_list_string )
 {
-	char *fishing_area_where = "and 1 = 1";
+	char *fishing_area_where = "1 = 1";
 
 	if (	fishing_area_list_string
 	&&	*fishing_area_list_string
@@ -4176,10 +4176,9 @@ char *creel_library_get_fishing_area_where(
 			fishing_area_list_string );
 
 		fishing_area_where =
-			query_or_sequence_where_clause(
+			query_or_sequence_where(
 				query_or_sequence->attribute_name_list,
-				query_or_sequence->data_list_list,
-				1 /* with_and_prefix */ );
+				query_or_sequence->data_list_list );
 	}
 
 	return fishing_area_where;

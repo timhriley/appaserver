@@ -45,10 +45,6 @@
 #define QUERY_NULL				"is_empty"
 #define QUERY_NOT_NULL				"not_empty"
 
-#define QUERY_NULL_EXPRESSION			\
-			 " (%s = 'null' or %s = '' or %s is null)"
-#define QUERY_NOT_NULL_EXPRESSION		\
-			 " (%s <> 'null' or %s <> '' or %s is not null)"
 /* Enumerated types */
 /* ---------------- */
 enum query_relation {		equal,
@@ -115,6 +111,109 @@ enum query_relation query_relation_enum(
 /* ---------------------- */
 char *query_relation_character_string(
 			enum query_relation query_relation_enum );
+
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
+	char *folder_name;
+	char *attribute_name;
+	char *datatype_name;
+
+	/* Process */
+	/* ------- */
+	char *escaped_replaced_data;
+} QUERY_DATA;
+
+/* QUERY_DATA operations */
+/* --------------------- */
+QUERY_DATA *query_data_calloc(
+			void );
+
+LIST *query_data_list(
+			LIST *foreign_key_list,
+			LIST *folder_attribute_list,
+			LIST *query_drop_down_row_data_string_list );
+
+QUERY_DATA *query_data_fetch(
+			char *folder_name,
+			char *attribute_name,
+			char *datatype_name,
+			DICTIONARY *dictionary );
+
+QUERY_DATA *query_data_new(
+			char *folder_name,
+			char *attribute_name,
+			char *datatype_name,
+			char *data );
+
+/* Returns heap memory or data */
+/* --------------------------- */
+char *query_data_date_international(
+			char *data,
+			char *datatype_name );
+
+QUERY_DATA *query_data_escaped(
+			DICTIONARY *dictionary,
+			char *attribute_name,
+			char *datatype_name,
+			int dictionary_offset,
+			char *starting_label,
+			char *dictionary_prepend_folder_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_is_null_where(
+			char *attribute_full_attribute_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_not_null_where(
+			char *attribute_full_attribute_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_or_where(
+			char *attribute_full_attribute_name,
+			char *escaped_replaced_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_begins_where(
+			char *attribute_full_attribute_name,
+			char *escaped_replaced_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_contains_where(
+			char *attribute_full_attribute_name,
+			char *escaped_replaced_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_not_contains_where(
+			char *attribute_full_attribute_name,
+			char *escaped_replaced_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_not_equal_or_null_where(
+			char *full_attribute_name,
+			char *escaped_replaced_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_number_where(
+			char *full_attribute_name,
+			char *character_string,
+			char *escaped_replaced_data );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_data_string_where(
+			char *full_attribute_name,
+			char *character_string,
+			char *escaped_replaced_data );
 
 typedef struct
 {
@@ -209,55 +308,6 @@ typedef struct
 	char *login_name;
 	enum date_convert_format date_convert_format;
 } QUERY_DATE_CONVERT;
-
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *folder_name;
-	char *attribute_name;
-	char *datatype_name;
-
-	/* Process */
-	/* ------- */
-	char *escaped_replaced_data;
-} QUERY_DATA;
-
-/* QUERY_DATA operations */
-/* --------------------- */
-QUERY_DATA *query_data_calloc(
-			void );
-
-LIST *query_data_list(
-			LIST *foreign_key_list,
-			LIST *folder_attribute_list,
-			LIST *query_drop_down_row_data_string_list );
-
-QUERY_DATA *query_data_fetch(
-			char *folder_name,
-			char *attribute_name,
-			char *datatype_name,
-			DICTIONARY *dictionary );
-
-QUERY_DATA *query_data_new(
-			char *folder_name,
-			char *attribute_name,
-			char *datatype_name,
-			char *data );
-
-/* Returns heap memory or data */
-/* --------------------------- */
-char *query_data_date_international(
-			char *data,
-			char *datatype_name );
-
-QUERY_DATA *query_data_escaped(
-			DICTIONARY *dictionary,
-			char *attribute_name,
-			char *datatype_name,
-			int dictionary_offset,
-			char *starting_label,
-			char *dictionary_prepend_folder_name );
 
 typedef struct 
 {
@@ -375,8 +425,9 @@ QUERY_ATTRIBUTE *query_attribute_calloc(
 
 LIST *query_attribute_list(
 			char *application_name,
-			LIST *folder_attribute_list,
-			DICTIONARY *dictionary );
+			LIST *folder_attribute_append_isa_list,
+			DICTIONARY *dictionary,
+			int relation_mto1_isa_list_length );
 
 QUERY_ATTRIBUTE *query_attribute_new(
 			char *application_name,
@@ -434,24 +485,22 @@ QUERY_SELECT *query_select_new(
 			boolean attribute_is_date_time,
 			QUERY_DATE_CONVERT *query_date_convert );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *query_select_column_string(
 			char *folder_name,
 			char *attribute_name,
 			boolean attribute_is_date,
 			boolean attribute_is_date_time,
-			enum date_convert_format query_date_convert_format );
+			enum date_convert_format date_convert_format );
+
+/* Public */
+/* ------ */
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_select_list_string(
 			LIST *select_list );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *query_select_clause(
-			char *query_select_list_string );
 
 typedef struct
 {
@@ -459,10 +508,9 @@ typedef struct
 	/* ------- */
 	LIST *query_widget_select_list;
 	char *query_select_list_string;
-	char *query_select_clause;
-	char *query_from_clause;
-	char *query_where_clause;
-	char *query_order_clause;
+	char *query_from_string;
+	char *query_where_string;
+	char *query_order_string;
 	LIST *delimited_list;
 } QUERY_ISA_WIDGET;
 
@@ -480,115 +528,6 @@ QUERY_ISA_WIDGET *query_isa_widget_new(
 			char *login_name,
 			char *security_entity_where );
 
-/* Returns heap memory */
-/* ------------------- */
-char *query_join_where(
-			char *folder_name,
-			LIST *primary_key_list,
-			LIST *mto1_isa_related_folder_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *query_isa_related_join(
-			char *folder_name,
-			LIST *primary_key_list,
-			char *isa_folder_name,
-			LIST *isa_foreign_attribute_name_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_where_clause(
-			char *where_string );
-
-/* QUERY_ROW operations */
-/* -------------------- */
-LIST *query_row_dictionary_list(
-			char *application_name,
-			char *select_clause,
-			char *from_clause,
-			char *where_clause,
-			char *order_clause,
-			int max_rows,
-			LIST *append_isa_attribute_list,
-			char *login_name );
-
-boolean query_get_drop_down_dictionary_data(
-			char **data,
-			DICTIONARY *dictionary, 
-			char *primary_key,
-			int dictionary_offset );
-
-char *query_relation_operator_name(
-			char *key,
-			DICTIONARY *dictionary );
-
-char *query_process_where_clause(
-			char **drop_down_where_clause,
-			char **attribute_where_clause,
-			LIST *query_drop_down_list,
-			LIST *query_attribute_list,
-			char *application_name,
-			char *folder_name );
-
-char *query_get_drop_down_where_clause(
-			LIST *query_drop_down_list,
-			char *application_name,
-			char *folder_name );
-
-char *query_get_attribute_where_clause(
-			LIST *query_attribute_list,
-			char *application_name,
-			boolean combine_date_time );
-
-char *query_get_simple_where_clause(
-			FOLDER *folder,
-			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list,
-			char *login_name );
-
-char *query_append_where_clause_related_join(
-			char *application_name,
-			char *source_where_clause,
-			LIST *primary_key_list,
-			LIST *related_attribute_name_list,
-			char *folder_name,
-			char *related_folder_name );
-
-char *query_append_folder_name(
-			char *folder_name,
-			char *append_folder_name );
-
-char *query_between_date_time_where(
-			char *date_column_name,
-			char *time_column_name,
-			char *begin_date,
-			char *begin_time,
-			char *end_date,
-			char *end_time,
-			char *application_name,
-			char *folder_name );
-
-LIST *query_get_drop_down_data_list(
-			LIST *attribute_name_list,
-			DICTIONARY *dictionary,
-			int index );
-
-char *query_system_string(
-			char *select_clause,
-			char *from_clause,
-			char *where_clause,
-			char *order_clause,
-			int max_rows );
-
-char *query_relational_operator_display(
-			enum relational_operator );
-
-boolean query_date_time_between_attributes(
-			QUERY_ATTRIBUTE **date_between_attribute,
-			QUERY_ATTRIBUTE **time_between_attribute,
-			LIST *query_attribute_list,
-			boolean combine_date_time );
-
 /* QUERY_OR_SEQUENCE operations */
 /* ---------------------------- */
 QUERY_OR_SEQUENCE *query_or_sequence_new(
@@ -602,10 +541,9 @@ boolean query_or_sequence_set_data_list(
 			LIST *data_list_list,
 			LIST *data_list );
 
-char *query_or_sequence_where_clause(
+char *query_or_sequence_where(
 			LIST *attribute_name_list,
-			LIST *data_list_list,
-			boolean with_and_prefix );
+			LIST *data_list_list );
 
 /* QUERY detail operations */
 /* ----------------------- */
@@ -716,20 +654,6 @@ char *query_drop_down_row_data_where(
 			char *attribute_name,
 			char *data );
 
-/* QUERY public operations */
-/* ----------------------- */
-char *query_yes_no_operator_name(
-			char *attribute_name );
-
-char *query_operator_name(
-			char *operator_key,
-			DICTIONARY *dictionary );
-
-enum relational_operator
-	query_relational_operator(
-			char *operator_name,
-			char *datatype_name );
-
 /* Returns program memory */
 /* ---------------------- */
 char *query_operator_character_string(
@@ -788,44 +712,6 @@ char *query_data_where(
 			LIST *where_attribute_data_list,
 			LIST *folder_attribute_list );
 
-/* QUERY (Primary) operations */
-/* -------------------------- */
-LIST *query_primary_delimited_fetch_list(
-			char *folder_name,
-			LIST *primary_key_list,
-			LIST *folder_attribute_primary_list,
-			LIST *relation_mto1_non_isa_list,
-			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *security_entity_where );
-
-/* QUERY (Output) operations */
-/* ------------------------- */
-LIST *query_dictionary_list(
-			char *select_clause,
-			LIST *select_list,
-			char *from_clause,
-			char *where_clause,
-			char *order_clause,
-			int max_rows );
-
-LIST *query_delimited_list(
-			char *select_clause,
-			char *from_clause,
-			char *where_clause,
-			char *order_clause,
-			int max_rows );
-
-LIST *query_system_dictionary_list(
-			char *system_string,
-			LIST *select_list );
-
-LIST *query_primary_delimited_list(
-			char *folder_table_name,
-			LIST *primary_key_list,
-			LIST *foreign_key_list,
-			LIST *foreign_data_list );
-
 typedef struct
 {
 	/* Process */
@@ -864,13 +750,12 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
-	LIST *exclude_attribute_name_list;
 	LIST *query_drop_down_list;
 	char *query_drop_down_list_where;
 	LIST *query_attribute_list;
 	char *query_attribute_list_where;
 	char *query_widget_where;
-	char *clause;
+	char *string;
 } QUERY_WIDGET_WHERE;
 
 /* QUERY_WIDGET_WHERE operations */
@@ -884,23 +769,12 @@ QUERY_WIDGET_WHERE *query_widget_where_new(
 			char *security_entity_where,
 			DICTIONARY *drillthru_dictionary );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *query_widget_where(
+/* Returns heap memory */
+/* ------------------- */
+char *query_widget_where_string(
 			char *query_drop_down_where,
 			char *query_attribute_list_where,
 			char *security_entity_where );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *query_widget_where_clause(
-			char *query_widget_where );
-
-char *query_widget_where_string(
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			DICTIONARY *drillthru_dictionary );
 
 typedef struct
 {
@@ -908,10 +782,8 @@ typedef struct
 	/* ------- */
 	LIST *select_list;
 	char *query_select_list_string;
-	char *query_select_clause;
-	char *query_from_clause;
 	QUERY_WIDGET_WHERE *where;
-	char *query_order_clause;
+	char *query_order_string;
 	LIST *delimited_list;
 } QUERY_WIDGET;
 
@@ -939,12 +811,7 @@ typedef struct
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *query_from_clause(
-			char *folder_name );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *query_edit_table_from_clause(
+char *query_edit_table_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
 			ROW_SECURITY_ROLE *row_security_role );
@@ -957,13 +824,15 @@ typedef struct
 /* QUERY_ORDER operations */
 /* ---------------------- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *query_order_clause(
+/* Returns query_select_list_string or heap memory */
+/* ----------------------------------------------- */
+char *query_order_string(
 			char *query_select_list_string,
 			DICTIONARY *sort_dictionary );
 
-char *query_order_key_list_clause(
+/* Returns heap memory */
+/* ------------------- */
+char *query_order_key_list_string(
 			LIST *key_list );
 
 typedef struct
@@ -978,5 +847,39 @@ typedef struct
 /* ------------------- */
 char *query_where_clause(
 			char *where_string );
+
+typedef struct
+{
+	/* stub */
+} QUERY;
+
+/* QUERY operations */
+/* ---------------- */
+LIST *query_dictionary_list(
+			char *select_string,
+			LIST *select_name_list,
+			char *from_string,
+			char *where_string,
+			char *order_string,
+			int query_max_edit_table_rows );
+
+LIST *query_delimited_list(
+			char *select_string,
+			char *from_string,
+			char *where_string,
+			char *order_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_system_string(
+			char *select_string,
+			char *from_string,
+			char *where_string,
+			char *order_string,
+			int max_rows );
+
+LIST *query_system_dictionary_list(
+			char *system_string,
+			LIST *select_name_list );
 
 #endif
