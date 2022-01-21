@@ -127,6 +127,11 @@ ROW_SECURITY_ROLE *row_security_role_new(
 
 	row_security_role = row_security_role_calloc();
 
+	row_security_role->folder_name = folder_name;
+
+	row_security_role->role_override_row_restrictions =
+		role_override_role_restrictions;
+
 	row_security_role->update_list =
 		row_security_role_update_list();
 
@@ -153,6 +158,7 @@ ROW_SECURITY_ROLE *row_security_role_new(
 
 	if ( !row_security_role->participating )
 	{
+		free( row_security_role );
 		return (ROW_SECURITY_ROLE *)0;
 	}
 

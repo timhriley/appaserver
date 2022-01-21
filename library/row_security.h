@@ -51,8 +51,9 @@ char *row_security_role_update_attribute_not_null(
 
 typedef struct
 {
-	/* Attribute */
-	/* --------- */
+	/* Attributes */
+	/* ---------- */
+	char *folder_name;
 	boolean role_override_row_restrictions;
 
 	/* Process */

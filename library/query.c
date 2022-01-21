@@ -16,10 +16,11 @@
 #include "attribute.h"
 #include "form.h"
 #include "environ.h"
-#include "prompt_recursive.h"
 #include "relation.h"
 #include "row_security.h"
 #include "dictionary_separate.h"
+#include "element.h"
+#include "relation.h"
 #include "query.h"
 
 char *query_system_string(
@@ -68,19 +69,20 @@ char *query_system_string(
 	return strdup( system_string );
 }
 
-LIST *query_dictionary_list(
-			char *select_string,
+LIST *query_edit_table_dictionary_list(
+			char *query_select_string,
 			LIST *select_name_list,
-			char *from_string,
+			char *query_edit_table_from_string,
 			char *where_string,
-			char *order_string,
-			int max_rows )
+			char *query_order_string,
+			LIST *primary_key_list,
+			LIST *relation_join_one2m_list,
+			int query_edit_table_max_rows )
 {
 	return
-		query_system_dictionary_list(
+		query_edit_table_system_dictionary_list(
 			query_system_string(
 				select_string,
-				select_name_list,
 				from_string,
 				where_string,
 				order_string,
@@ -330,6 +332,7 @@ QUERY_ATTRIBUTE *query_attribute_calloc( void )
 }
 
 QUERY_ATTRIBUTE *query_attribute_new(
+			char *application_name,
 			char *attribute_name,
 			char *folder_name,
 			char *datatype_name,
@@ -446,7 +449,7 @@ char *query_drop_down_row_data_where(
 
 	*where = '\0';
 
-	if ( string_strcmp( data, NULL_OPERATOR ) == 0 )
+	if ( string_strcmp( data, ELEMENT_NULL_OPERATOR ) == 0 )
 	{
 		sprintf(where,
 			" (%s = 'null' or %s = '' or %s is null)",
@@ -464,7 +467,7 @@ char *query_drop_down_row_data_where(
 		 		attribute_name ) );
 	}
 	else
-	if ( string_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
+	if ( string_strcmp( data, ELEMENT_NOT_NULL_OPERATOR ) == 0 )
 	{
 		sprintf(where,
 			" (%s <> 'null' or %s <> '' or %s is not null)",
@@ -1379,18 +1382,35 @@ QUERY_ISA_WIDGET *query_isa_widget_new(
 		exit( 1 );
 	}
 
-	query_isa_widget->query_from_clause =
-		query_from_clause(
-			one2m_isa_folder_name );
+	query_isa_widget->where =
+		query_widget_where_new(
+			(LIST *)0 /* folder_attribute_list */,
+			(LIST *)0 /* relation_mto1_non_isa_list */,
+			security_entity_where,
+			(DICTIONARY *)0 /* drillthru dictionary */ );
 
-	query_isa_widget->query_where_clause =
-		query_where_clause(
-			security_entity_where );
+	if ( !query_isa_widget->where )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: query_widget_where_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	query_isa_widget->query_order_clause =
-		query_order_clause(
+
+	query_isa_widget->query_order_string =
+		query_order_string(
 			query_isa_widget->query_select_list_string,
 			(DICTIONARY *)0 /* sort_dictionary */ );
+
+	query_isa_widget->delimited_list =
+		query_delimited_list(
+			query_isa_widget->query_select_list_string,
+			one2m_isa_folder_name,
+			query_isa_widget->where->string,
+			query_isa_widget->query_order_string );
 
 	return query_isa_widget;
 }
@@ -2075,28 +2095,28 @@ char *query_relation_character_string(
 		return "<=";
 	else
 	if ( query_relation_enum == begins )
-		return BEGINS_OPERATOR;
+		return QUERY_BEGINS;
 	else
 	if ( query_relation_enum == contains )
-		return CONTAINS_OPERATOR;
+		return QUERY_CONTAINS;
 	else
 	if ( query_relation_enum == query_or )
-		return OR_OPERATOR;
+		return QUERY_OR;
 	else
 	if ( query_relation_enum == not_contains )
-		return NOT_CONTAINS_OPERATOR;
+		return QUERY_NOT_CONTAINS;
 	else
 	if ( query_relation_enum == not_equal_or_null )
-		return NOT_EQUAL_OR_NULL_OPERATOR;
+		return QUERY_NOT_EQUAL_OR_NULL;
 	else
 	if ( query_relation_enum == between )
-		return BETWEEN_OPERATOR;
+		return QUERY_BETWEEN;
 	else
 	if ( query_relation_enum == is_null )
-		return NULL_OPERATOR;
+		return QUERY_NULL;
 	else
 	if ( query_relation_enum == not_null )
-		return NOT_NULL_OPERATOR;
+		return QUERY_NOT_NULL;
 
 	fprintf(stderr,
 		"ERROR in %s/%s()/%d: invalid query_relation_enum = %d.\n",
@@ -2300,6 +2320,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			ROW_SECURITY_ROLE *row_security_role )
@@ -2342,6 +2363,48 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 	query_edit_table->query_select_string =
 		query_select_string(
 			query_edit_table->select_list );
+
+	query_edit_table->select_name_list =
+		query_edit_table_select_name_list(
+			query_edit_table->select_list );
+
+	query_edit_table->from_string =
+		query_edit_table_from_string(
+			folder_name,
+			relation_mto1_isa_list,
+			role_security_role );
+
+	query_edit_table->where =
+		query_edit_table_where_new(
+			application_name,
+			folder_name,
+			folder_attribute_append_isa_list,
+			list_length( relation_mto1_isa_list ),
+			security_entity_where,
+			query_dictionary,
+			row_security_role );
+
+	query_edit_table->query_order_string =
+		query_order_string(
+			query_edit_table->query_select_string,
+			sort_dictionary );
+
+	query_edit_table->query_system_string =
+		query_system_string(
+			query_edit_table->query_select_string,
+			query_edit_table->from_string,
+			(query_edit_table->where)
+				? query_edit_table->where->string
+				: (char *)0,
+			query_edit_table->query_order_string,
+			QUERY_EDIT_TABLE_MAX_ROWS );
+
+	query_edit_table->dictionary_list =
+		query_edit_table_dictionary_list(
+			query_edit_table->query_system_string =
+			folder_attribute_primary_key_list(
+				folder_attribute_append_isa_list ),
+			relation_join_one2m_list );
 
 	return query_edit_table;
 }
@@ -3200,7 +3263,8 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary,
-			char *folder_table_name,
+			char *application_name,
+			char *folder_name,
 			int relation_mto1_isa_list_length )
 {
 	QUERY_BETWEEN_DATA *query_between_data;
@@ -4124,5 +4188,47 @@ char *query_data_string_where(
 		escaped_replaced_data );
 
 	return where;
+}
+
+char *query_edit_table_from_string(
+			char *folder_name,
+			LIST *relation_mto1_isa_list,
+			ROW_SECURITY_ROLE *row_security_role )
+{
+	char from_string[ 1024 ];
+	char *ptr = from_string;
+
+	if ( !folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf( ptr, "%s", folder_name );
+
+	if ( list_length( relation_mto1_isa_list ) )
+	{
+		ptr += sprintf(
+			ptr,
+			",%s",
+			list_display_delimited(
+				relation_mto1_folder_name_list(
+					relation_mto1_isa_list ),
+				',' ) );
+	}
+
+	if ( row_security_role )
+	{
+		ptr += sprintf(
+			ptr,
+			",%s",
+			row_security_role->folder_name );
+	}
+
+	return strdup( from_string );
 }
 

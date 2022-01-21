@@ -235,7 +235,8 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary,
-			char *folder_table_name,
+			char *application_name,
+			char *folder_name,
 			int relation_mto1_isa_list_length );
 
 /* Returns heap memory or null */
@@ -375,7 +376,7 @@ typedef struct
 	LIST *query_attribute_list;
 	char *query_attribute_list_where;
 	char *query_join_where;
-	char *query_edit_table_where;
+	char *string;
 } QUERY_EDIT_TABLE_WHERE;
 
 /* QUERY_EDIT_TABLE_WHERE operations */
@@ -506,10 +507,39 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
+	LIST *query_drop_down_list;
+	char *query_drop_down_list_where;
+	LIST *query_attribute_list;
+	char *query_attribute_list_where;
+	char *query_widget_where;
+	char *string;
+} QUERY_WIDGET_WHERE;
+
+/* QUERY_WIDGET_WHERE operations */
+/* ----------------------------- */
+QUERY_WIDGET_WHERE *query_widget_where_calloc(
+			void );
+
+QUERY_WIDGET_WHERE *query_widget_where_new(
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_widget_where_string(
+			char *query_drop_down_where,
+			char *query_attribute_list_where,
+			char *security_entity_where );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
 	LIST *query_widget_select_list;
 	char *query_select_list_string;
-	char *query_from_string;
-	char *query_where_string;
+	QUERY_WIDGET_WHERE *where;
 	char *query_order_string;
 	LIST *delimited_list;
 } QUERY_ISA_WIDGET;
@@ -719,8 +749,10 @@ typedef struct
 	LIST *select_list;
 	char *query_select_string;
 	char *from_string;
-	QUERY_EDIT_TABLE_WHERE *query_edit_table_where;
+	QUERY_EDIT_TABLE_WHERE *where;
 	char *query_order_string;
+	char *query_system_string;
+	LIST *dictionary_list;
 } QUERY_EDIT_TABLE;
 
 /* QUERY_EDIT_TABLE operations */
@@ -737,44 +769,21 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			ROW_SECURITY_ROLE *row_security_role );
 
-char *query_edit_table_from_clause(
+char *query_edit_table_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
 			ROW_SECURITY_ROLE *row_security_role );
 
-typedef struct
-{
-	/* Process */
-	/* ------- */
-	LIST *query_drop_down_list;
-	char *query_drop_down_list_where;
-	LIST *query_attribute_list;
-	char *query_attribute_list_where;
-	char *query_widget_where;
-	char *string;
-} QUERY_WIDGET_WHERE;
-
-/* QUERY_WIDGET_WHERE operations */
-/* ----------------------------- */
-QUERY_WIDGET_WHERE *query_widget_where_calloc(
-			void );
-
-QUERY_WIDGET_WHERE *query_widget_where_new(
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			DICTIONARY *drillthru_dictionary );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_widget_where_string(
-			char *query_drop_down_where,
-			char *query_attribute_list_where,
-			char *security_entity_where );
+LIST *query_edit_table_dictionary_list(
+			char *query_system_string,
+			LIST *select_name_list,
+			LIST *primary_key_list,
+			LIST *relation_join_one2m_list );
 
 typedef struct
 {
@@ -803,66 +812,10 @@ QUERY_WIDGET *query_widget_new(
 typedef struct
 {
 	/* stub */
-} QUERY_FROM;
-
-/* QUERY_FROM operations */
-/* --------------------- */
-
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *query_edit_table_from_string(
-			char *folder_name,
-			LIST *relation_mto1_isa_list,
-			ROW_SECURITY_ROLE *row_security_role );
-
-typedef struct
-{
-	/* stub */
-} QUERY_ORDER;
-
-/* QUERY_ORDER operations */
-/* ---------------------- */
-
-/* Returns query_select_list_string or heap memory */
-/* ----------------------------------------------- */
-char *query_order_string(
-			char *query_select_list_string,
-			DICTIONARY *sort_dictionary );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_order_key_list_string(
-			LIST *key_list );
-
-typedef struct
-{
-	/* stub */
-} QUERY_WHERE;
-
-/* QUERY_WHERE operations */
-/* ---------------------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_where_clause(
-			char *where_string );
-
-typedef struct
-{
-	/* stub */
 } QUERY;
 
 /* QUERY operations */
 /* ---------------- */
-LIST *query_dictionary_list(
-			char *select_string,
-			LIST *select_name_list,
-			char *from_string,
-			char *where_string,
-			char *order_string,
-			int query_max_edit_table_rows );
-
 LIST *query_delimited_list(
 			char *select_string,
 			char *from_string,
@@ -878,8 +831,13 @@ char *query_system_string(
 			char *order_string,
 			int max_rows );
 
-LIST *query_system_dictionary_list(
-			char *system_string,
-			LIST *select_name_list );
+char *query_order_string(
+			char *query_select_list_string,
+			DICTIONARY *sort_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_order_key_list_string(
+			LIST *key_list );
 
 #endif
