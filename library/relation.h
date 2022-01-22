@@ -66,7 +66,7 @@ typedef struct
 	/* ------- */
 	LIST *foreign_key_list;
 
-	/* Generic */
+	/* Private */
 	/* ------- */
 	boolean is_primary_key_subset;
 	boolean consumes_taken;
@@ -181,6 +181,16 @@ LIST *relation_mto1_folder_name_list(
 
 LIST *relation_one2m_folder_name_list(
 			LIST *relation_one2m_list );
+
+void relation_join_one2m_list_set(
+			DICTIONARY *dictionary,
+			LIST *relation_join_one2m_list,
+			LIST *primary_key_list );
+
+void relation_join_one2m_set(
+			DICTIONARY *dictionary,
+			RELATION *relation_join_one2m,
+			LIST *primary_key_list );
 
 #endif
 

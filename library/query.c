@@ -70,24 +70,71 @@ char *query_system_string(
 }
 
 LIST *query_edit_table_dictionary_list(
-			char *query_select_string,
+			char *query_system_string,
 			LIST *select_name_list,
-			char *query_edit_table_from_string,
-			char *where_string,
-			char *query_order_string,
 			LIST *primary_key_list,
 			LIST *relation_join_one2m_list,
 			int query_edit_table_max_rows )
 {
-	return
-		query_edit_table_system_dictionary_list(
-			query_system_string(
-				select_string,
-				from_string,
-				where_string,
-				order_string,
-				max_rows ),
-			select_name_list );
+	char buffer[ STRING_WHERE_BUFFER ];
+	char data[ STRING_64K ];
+	LIST *list = list_new();
+	DICTIONARY *dictionary;
+	int i;
+	FILE *pipe;
+
+	if ( !list_length( select_name_list ) )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d select_name_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return (LIST *)0;
+	}
+
+	pipe = popen( system_string, "r" );
+
+	while( string_input( buffer, pipe, STRING_WHERE_BUFFER ) )
+	{
+		dictionary = dictionary_small();
+		list_set( list, dictionary );
+		i = 0;
+
+		list_rewind( select_name_list );
+
+		do {
+			if ( !piece( data, SQL_DELIMITER, buffer, i++ ) )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: piece(%d) returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					i - 1 );
+
+				pclose( pipe );
+				exit( 1 );
+			}
+
+			dictionary_set(
+				dictionary, 
+				list_get( select_name_list ),
+				strdup( data ) );
+
+		} while ( list_next( select_name_list ) );
+
+		if ( list_length( relation_join_one2m_list ) )
+		{
+			relation_join_one2m_list_set(
+				dictionary,
+				relation_join_one2m_list,
+				primary_key_list );
+		}
+	}
+
+	pclose( pipe );
+	return list;
 }
 
 LIST *query_delimited_list(
@@ -1266,63 +1313,6 @@ char *query_output_select_display(
 	return strdup( display_string );
 }
 
-LIST *query_system_dictionary_list(
-			char *system_string,
-			LIST *select_name_list )
-{
-	char buffer[ STRING_WHERE_BUFFER ];
-	char data[ STRING_64K ];
-	LIST *list = list_new();
-	DICTIONARY *dictionary;
-	int i;
-	FILE *pipe;
-
-	if ( !list_length( select_name_list ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d select_name_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	pipe = popen( system_string, "r" );
-
-	while( string_input( buffer, pipe, STRING_WHERE_BUFFER ) )
-	{
-		dictionary = dictionary_small();
-		list_set( list, dictionary );
-		i = 0;
-
-		list_rewind( select_name_list );
-
-		do {
-			if ( !piece( data, SQL_DELIMITER, buffer, i++ ) )
-			{
-				fprintf(stderr,
-			"ERROR in %s/%s()/%d: piece(%d) returned empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					i - 1 );
-
-				pclose( pipe );
-				exit( 1 );
-			}
-
-			dictionary_set(
-				dictionary, 
-				list_get( select_name_list ),
-				strdup( data ) );
-
-		} while ( list_next( select_name_list ) );
-	}
-
-	pclose( pipe );
-	return list;
-}
-
 QUERY_ISA_WIDGET *query_isa_widget_calloc( void )
 {
 	QUERY_ISA_WIDGET *query_isa_widget;
@@ -2401,7 +2391,8 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 
 	query_edit_table->dictionary_list =
 		query_edit_table_dictionary_list(
-			query_edit_table->query_system_string =
+			query_edit_table->query_system_string,
+			query_edit_table->select_name_list,
 			folder_attribute_primary_key_list(
 				folder_attribute_append_isa_list ),
 			relation_join_one2m_list );
