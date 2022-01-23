@@ -969,3 +969,6 @@ choose_isa.o: choose_isa.c choose_isa.h
 choose_role.o: choose_role.c choose_role.h
 	${CC} ${CFLAGS} -c choose_role.c
 
+relation_join.o: relation_join.c relation_join.h
+	${CC} ${CFLAGS} -c relation_join.c
+

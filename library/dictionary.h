@@ -593,21 +593,11 @@ DICTIONARY *dictionary_huge(
 
 LIST *dictionary_data_list(
 			LIST *attribute_name_list,
-			DICTIONARY *dictionary,
-			int row );
+			DICTIONARY *dictionary );
 
 LIST *dictionary_key_list_fetch(
 			LIST *key_list,
 			DICTIONARY *dictionary );
-
-char *dictionary_attribute_where_clause(
-			DICTIONARY *dictionary,
-			LIST *attribute_name_list );
-
-void dictionary_add_login_name_if_necessary(
-			DICTIONARY *dictionary,
-			LIST *attribute_name_list,
-			char *login_name );
 
 void dictionary_list_output_to_file(
 			char *output_filename, 
@@ -684,6 +674,10 @@ int dictionary_highest_row(
 char *dictionary_row_get(
 			char *attribute_name,
 			int row,
+			DICTIONARY *dictionary );
+
+LIST *dictionary_attribute_data_list(
+			LIST *attribute_name_list,
 			DICTIONARY *dictionary );
 
 #endif

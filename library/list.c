@@ -560,33 +560,24 @@ char *list_display_limited(
 
 char *list_display_delimited( LIST *list, char delimiter )
 {
+	return list_delimited( list, delimiter );
+}
+
+char *list_delimited( LIST *list, char delimiter )
+{
 	char buffer[ 65536 ];
-	char *buf_ptr = buffer;
-	char *ptr;
-	boolean first_time = 1;
+	char *ptr = buffer;
 
 	if ( !list_rewind( list ) ) return "";
 
-	*buf_ptr = '\0';
-
 	do {
-		ptr = retrieve_item_ptr( list );
-
-		if ( first_time )
+		if ( ptr != buffer )
 		{
-			first_time = 0;
+			ptr += sprintf( ptr, "%c", delimiter );
+		}
 
-			buf_ptr += sprintf( buf_ptr, 
-					    "%s", 
-					    ptr );
-		}
-		else
-		{
-			buf_ptr += sprintf( buf_ptr, 
-					    "%c%s", 
-					    delimiter,
-					    ptr );
-		}
+		ptr += sprintf( ptr, "%s", (char *)list_get( list ) );
+
 	} while( next_item( list ) );
 
 	return strdup( buffer );
@@ -597,29 +588,18 @@ char *list_display_string_delimited(
 			char *delimited_string )
 {
 	char buffer[ 65536 ];
-	char *buf_ptr = buffer;
-	boolean first_time = 1;
+	char *ptr = buffer;
 
-	if ( !list_rewind( list ) ) return (char *)0;
-
-	*buf_ptr = '\0';
+	if ( !list_rewind( list ) ) return "";
 
 	do {
-		if ( first_time )
+		if ( ptr != buffer )
 		{
-			first_time = 0;
+			ptr += sprintf( ptr, "%s", delimited_string );
+		}
 
-			buf_ptr += sprintf( buf_ptr, 
-					    "%s",
-					    (char *)list_get( list ) );
-		}
-		else
-		{
-			buf_ptr += sprintf( buf_ptr, 
-					    "%s%s",
-					    delimited_string,
-					    (char *)list_get( list ) );
-		}
+		ptr += sprintf( ptr, "%s", (char *)list_get( list ) );
+
 	} while( next_item( list ) );
 
 	return strdup( buffer );
@@ -629,59 +609,42 @@ char *list_buffered_display(	char *destination,
 				LIST *list, 
 				char delimiter )
 {
-	char *buf_ptr = destination;
-	char *ptr;
-	boolean first_time = 1;
+	char *ptr = destination;
 
-	if ( !go_head( list ) ) return "";
-
-	*buf_ptr = '\0';
+	if ( !list_rewind( list ) ) return "";
 
 	do {
-		ptr = retrieve_item_ptr( list );
-		if ( first_time )
+		if ( ptr == destination )
 		{
-			first_time = 0;
-			buf_ptr += sprintf( buf_ptr, 
-					    "%s", 
-					    ptr );
+			ptr += sprintf( ptr, "%c", delimiter );
 		}
-		else
-			buf_ptr += sprintf( buf_ptr, 
-					    "%c%s", 
-					    delimiter,
-					    ptr );
-	} while( next_item( list ) );
+
+		ptr += sprintf( ptr, "%s", (char *)list_get( list ) );
+
+	} while( list_next( list ) );
+
 	return destination;
 }
 
-char *list_display_delimited_plus_space(LIST *list, 
-					char delimiter )
+char *list_display_delimited_plus_space(
+			LIST *list, 
+			char delimiter )
 {
 	char buffer[ 65536 ];
-	char *buf_ptr = buffer;
-	char *ptr;
-	boolean first_time = 1;
+	char *ptr = buffer;
 
-	if ( !go_head( list ) ) return "";
-
-	*buf_ptr = '\0';
+	if ( !list_rewind( list ) ) return "";
 
 	do {
-		ptr = retrieve_item_ptr( list );
-		if ( first_time )
+		if ( ptr != buffer )
 		{
-			first_time = 0;
-			buf_ptr += sprintf( buf_ptr, 
-					    "%s", 
-					    ptr );
+			ptr += sprintf( ptr, "%c ", delimiter );
 		}
-		else
-			buf_ptr += sprintf( buf_ptr, 
-					    "%c %s", 
-					    delimiter,
-					    ptr );
-	} while( next_item( list ) );
+
+		ptr += sprintf( ptr, "%s", (char *)list_get( list ) );
+
+	} while( list_next( list ) );
+
 	return strdup( buffer );
 }
 
@@ -689,37 +652,24 @@ char *list_double_display(	LIST *double_list,
 				char delimiter )
 {
 	char buffer[ 65536 ];
-	char *buf_ptr = buffer;
-	double *ptr;
-	boolean first_time = 1;
+	char *ptr = buffer;
+	double *ptr_double;
 
 	if ( !list_rewind( double_list ) ) return "";
 
-	*buf_ptr = '\0';
-
 	do {
-		ptr = (double *)retrieve_item_ptr( double_list );
-
-		if ( first_time )
+		if ( ptr != buffer )
 		{
-			first_time = 0;
-		}
-		else
-		{
-			buf_ptr += sprintf( buf_ptr, 
-					    "%c", 
-					    delimiter );
+			ptr += sprintf( ptr, "%c", delimiter );
 		}
 
-		buf_ptr += sprintf(
-				buf_ptr, 
-				"%.2lf", 
-				*ptr );
+		ptr_double = (double *)list_get( double_list );
+
+		ptr += sprintf( ptr, "%.2lf", *ptr_double );
 
 	} while( list_next( double_list ) );
 
 	return strdup( buffer );
-
 }
 
 char *list_display_delimited_prefixed(	LIST *list, 
@@ -727,33 +677,20 @@ char *list_display_delimited_prefixed(	LIST *list,
 					char *prefix )
 {
 	char buffer[ 65536 ];
-	char *buf_ptr = buffer;
-	char *ptr;
-	boolean first_time = 1;
+	char *ptr = buffer;
 
 	if ( !list_rewind( list ) ) return "";
-
 	if ( !prefix ) prefix = "";
 
-	*buf_ptr = '\0';
-
 	do {
-		ptr = retrieve_item_ptr( list );
-		if ( first_time )
+		if ( ptr != buffer )
 		{
-			first_time = 0;
-			buf_ptr += sprintf( buf_ptr, 
-					    "%s%s", 
-					    prefix,
-					    ptr );
+			ptr += sprintf( ptr, "%c", delimiter );
 		}
-		else
-			buf_ptr += sprintf( buf_ptr, 
-					    "%c%s%s", 
-					    delimiter,
-					    prefix,
-					    ptr );
-	} while( next_item( list ) );
+
+		ptr += sprintf( ptr, "%s%s", prefix, (char *)list_get( list ) );
+
+	} while( list_next( list ) );
 
 	return strdup( buffer );
 
@@ -782,15 +719,19 @@ LIST *list_subtract_list( LIST *big_list, LIST *subtract_this )
 LIST *list_subtract( LIST *big_list, LIST *subtract_this )
 {
 	char *item;
-	LIST *return_list = create_list();
+	LIST *return_list = list_new();
 
-	if ( go_head( big_list ) )
+	if ( list_rewind( big_list ) )
+	{
 		do {
-			item = (char *)retrieve_item_ptr( big_list );
+			item = list_get( big_list );
+
 			if ( !item_exists( subtract_this, item, list_strcmp ) )
-				list_append_pointer( 	return_list, 
-							item );
-		} while( next_item( big_list ) );
+			{
+				list_set( return_list, item );
+			}
+		} while( list_next( big_list ) );
+	}
 	return return_list;
 }
 

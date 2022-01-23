@@ -264,6 +264,11 @@ char *list_display_delimited(
 			LIST *list,
 			char delimiter );
 
+/* Returns heap memory or "" */
+/* ------------------------- */
+char *list_delimited(	LIST *list,
+			char delimiter );
+
 /* Returns heap memory or null */
 /* --------------------------- */
 char *list_display_string_delimited(

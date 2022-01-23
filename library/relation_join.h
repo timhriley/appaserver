@@ -20,6 +20,36 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
+	LIST *dictionary_data_list;
+	LIST *relation_foreign_key_list;
+	char *string;
+} RELATION_JOIN_FOLDER_WHERE;
+
+/* RELATION_JOIN_FOLDER_WHERE operations */
+/* ------------------------------------- */
+RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_calloc(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
+			DICTIONARY *row_dictionary,
+			RELATION *relation_join_one2m,
+			LIST *primary_key_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *relation_join_folder_where_string(
+			LIST *relation_foreign_key_list,
+			LIST *dictionary_data_list );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	RELATION_JOIN_FOLDER_WHERE *where;
+	char *system_string;
+	char *delimited_string;
 } RELATION_JOIN_FOLDER;
 
 RELATION_JOIN_FOLDER *relation_join_folder_calloc(
@@ -28,12 +58,25 @@ RELATION_JOIN_FOLDER *relation_join_folder_calloc(
 /* Always succeeds */
 /* --------------- */
 RELATION_JOIN_FOLDER *relation_join_folder_new(
-			DICTIONARY *dictionary /* in only */,
-			FOLDER *many_folder,
-			LIST *foreign_key_list,
+			DICTIONARY *row_dictionary /* in */,
+			char *application_name,
+			RELATION *relation_join_one2m,
 			LIST *primary_key_list );
 
+/* Returns heap memory */
+/* ------------------- */
+char *relation_join_folder_system_string(
+			char *application_name,
+			char *select_name_list_string,
+			char *folder_name,
+			char *relation_join_folder_where_string,
+			int multi_attribute_data_label_delimiter );
+
+char *relation_join_folder_delimited_string(
+			char *relation_join_folder_system_string );
+
 typedef struct
+
 {
 	/* Process */
 	/* ------- */
@@ -46,7 +89,8 @@ RELATION_JOIN *relation_join_calloc(
 			void );
 
 RELATION_JOIN *relation_join_new(
-			DICTIONARY *dictionary /* in/out */,
+			DICTIONARY *row_dictionary /* in/out */,
+			char *application_name,
 			LIST *relation_join_one2m_list,
 			LIST *primary_key_list );
-
+#endif

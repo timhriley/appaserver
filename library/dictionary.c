@@ -3383,8 +3383,7 @@ void dictionary_zap_where_key_contains_character(
 
 LIST *dictionary_data_list(
 			LIST *attribute_name_list,
-			DICTIONARY *dictionary,
-			int row )
+			DICTIONARY *dictionary )
 {
 	LIST *data_list;
 	char *data;
@@ -3397,11 +3396,7 @@ LIST *dictionary_data_list(
 	do {
 		attribute_name = list_get( attribute_name_list );
 
-		if ( dictionary_index_data(
-				&data,
-				dictionary,
-				attribute_name,
-				row ) )
+		if ( ( data = dictionary_get( attribute_name, dictionary ) ) )
 		{
 			list_set( data_list, data );
 		}
@@ -3411,69 +3406,7 @@ LIST *dictionary_data_list(
 	return data_list;
 }
 
-char *dictionary_attribute_where_clause(
-			DICTIONARY *dictionary,
-			LIST *attribute_name_list )
-{
-	LIST *key_list;
-	char *key;
-	char *data;
-	char *translated_data;
-	char where_clause[ 65536 ];
-	char *where_ptr = where_clause;
-	char return_date[ 128 ];
-	char escaped_data[ 512 ];
-
-	key_list = dictionary_key_list( dictionary );
-
-	where_ptr += sprintf( where_ptr, "1 = 1" );
-
-	if ( !list_rewind( key_list ) ) return strdup( where_clause );
-
-	do {
-		key = list_get( key_list );
-
-		if ( list_exists_string(
-			key,
-			attribute_name_list ) )
-		{
-			data = dictionary_get( key, dictionary );
-
-			translated_data =
-				dictionary_get(
-					data,
-					dictionary );
-
-			if ( translated_data ) data = translated_data;
-
-			if ( date_convert_date_time_source_unknown(
-				return_date,
-				international,
-				data ) )
-			{
-				where_ptr += sprintf(
-						where_ptr,
-						" and %s = '%s'",
-						key,
-						return_date );
-			}
-			else
-			{
-				strcpy( escaped_data, data );
-				timlib_escape_field( escaped_data );
-
-				where_ptr += sprintf(
-						where_ptr,
-						" and %s = '%s'",
-						key,
-						escaped_data );
-			}
-		}
-	} while( list_next( key_list ) );
-
-	return strdup( where_clause );
-}
-
+#ifdef NOT_DEFINED
 void dictionary_add_login_name_if_necessary(
 			DICTIONARY *dictionary,
 			LIST *attribute_name_list,
@@ -3507,6 +3440,7 @@ void dictionary_add_login_name_if_necessary(
 		}
 	}
 }
+#endif
 
 void dictionary_list_output_to_file(
 			char *output_filename, 
@@ -4098,5 +4032,39 @@ char *dictionary_row_get(
 		}
 	}
 	return data;
+}
+
+LIST *dictionary_attribute_data_list(
+			LIST *attribute_name_list,
+			DICTIONARY *dictionary )
+{
+	LIST *data_list;
+	char *data;
+
+	if ( !list_rewind( attribute_name_list ) ) return (LIST *)0;
+
+	data_list = list_new();
+
+	do {
+		if ( ! ( data =
+				dictionary_get( 
+					(char *)list_get(
+						attribute_name_list ),
+					dictionary ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: dictionary_get(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				(char *)list_get( attribute_name_list ) );
+			exit( 1 );
+		}
+
+		list_set( data_list, data );
+
+	} while ( list_next( attribute_name_list ) );
+
+	return data_list;
 }
 
