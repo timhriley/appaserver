@@ -78,7 +78,6 @@ APPASERVER_LIBRARY=						\
 		delete.o					\
 		start_stop_time.o				\
 		appaserver_parameter.o				\
-		prompt_recursive.o				\
 		appaserver_link.o				\
 		process.o					\
 		process_parameter.o				\
@@ -739,13 +738,8 @@ form.o: form.c form.h
 button.o: button.c button.h
 	${CC} ${CFLAGS} -c button.c
 
-query.o: query.c query.h
+query.o: query.c query.h relation_join.o
 	${CC} ${CFLAGS} -c query.c
-
-prompt_recursive.o: prompt_recursive.c					\
-	prompt_recursive.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c prompt_recursive.c
 
 vertical_new_button.o: vertical_new_button.c vertical_new_button.h
 	${CC} ${CFLAGS} -c vertical_new_button.c

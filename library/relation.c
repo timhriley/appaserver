@@ -290,55 +290,7 @@ LIST *relation_mto1_non_isa_list(
 			0 /* not fetch_process */ );
 }
 
-LIST *relation_mto1_primary_key_subset_list(
-			char *many_folder_name,
-			LIST *primary_key_list )
-{
-	LIST *mto1_primary_key_subset_list = {0};
-	LIST *mto1_non_isa_list;
-	RELATION *relation;
-
-	mto1_non_isa_list =
-		relation_mto1_non_isa_list(
-			many_folder_name );
-
-	if ( !list_rewind( mto1_non_isa_list ) ) return (LIST *)0;
-
-	do {
-		relation = list_get( mto1_non_isa_list );
-
-		if ( !list_length( relation->one_folder->primary_key_list ) )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: one_folder->primary_key_list is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !list_is_subset_of(
-			relation->one_folder->primary_key_list,
-			primary_key_list ) )
-		{
-			continue;
-		}
-
-		if ( !mto1_primary_key_subset_list )
-			mto1_primary_key_subset_list =
-				list_new();
-
-		list_set(
-			mto1_primary_key_subset_list,
-			relation );
-
-	} while ( list_next( mto1_non_isa_list ) );
-
-	return mto1_primary_key_subset_list;
-}
-
-LIST *relation_one2m_list(
-			char *one_folder_name )
+LIST *relation_one2m_list( char *one_folder_name )
 {
 	char where[ 128 ];
 
@@ -421,16 +373,13 @@ LIST *relation_join_one2m_list(
 
 LIST *relation_one2m_recursive_list(
 			LIST *relation_list,
-			char *one_folder_name,
-			boolean fetch_process )
+			char *one_folder_name )
 {
 	LIST *local_relation_list;
 	RELATION *relation;
 	char where[ 128 ];
 
-	sprintf(where,
-		"related_folder = '%s'",
-		one_folder_name );
+	sprintf(where, "related_folder = '%s'", one_folder_name );
 
 	local_relation_list =
 		relation_system_list(
@@ -442,7 +391,7 @@ LIST *relation_one2m_recursive_list(
 			/* ---------------------------------- */
 			1 /* fetch_folder */,
 			1 /* fetch_attribute_list */,
-			fetch_process );
+			0 /* not fetch_process */ );
 
 	if ( !list_rewind( local_relation_list ) )
 		return relation_list;
@@ -467,12 +416,13 @@ LIST *relation_one2m_recursive_list(
 					relation_list,
 					relation->
 						many_folder->
-						folder_name,
-					fetch_process );
+						folder_name );
 		}
+
 	} while ( list_next( local_relation_list ) );
 
 	list_free_container( local_relation_list );
+
 	return relation_list;
 }
 
@@ -542,7 +492,6 @@ char *relation_list_display(
 	char display[ 65536 ];
 	char *ptr = display;
 	RELATION *relation;
-	boolean first_time = 1;
 
 	if ( !list_rewind( relation_list ) ) return "";
 
@@ -551,10 +500,7 @@ char *relation_list_display(
 	do {
 		relation = list_get( relation_list );
 
-		if ( first_time )
-			first_time = 0;
-		else
-			ptr += sprintf( ptr, "; " );
+		if ( ptr != display ) ptr += sprintf( ptr, "; " );
 
 		ptr += sprintf(
 			ptr,

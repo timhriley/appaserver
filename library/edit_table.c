@@ -195,6 +195,7 @@ EDIT_TABLE *edit_table_new(
 
 	edit_table->query_edit_table =
 		query_edit_table_new(
+			application_name,
 			folder_name,
 			login_name,
 			security_entity_where( edit_table->security_entity ),
@@ -202,6 +203,8 @@ EDIT_TABLE *edit_table_new(
 			ignore_select_attribute_name_list,
 			edit_table->role->exclude_lookup_attribute_name_list,
 			edit_table->folder->folder_attribute_append_isa_list,
+			edit_table->folder->relation_mto1_non_isa_list,
+			edit_table->folder->relation_mto1_isa_list,
 			query_dictionary,
 			sort_dictionary,
 			edit_table->

@@ -13,7 +13,6 @@
 #include "dictionary.h"
 #include "boolean.h"
 #include "piece.h"
-#include "prompt_recursive.h"
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
@@ -32,7 +31,6 @@
 
 #define QUERY_EQUAL				"equal"
 #define QUERY_NOT_EQUAL				"not_equal"
-#define QUERY_NOT_EQUAL_OR_NULL			"not_equal_or_empty"
 #define QUERY_LESS_THAN				"less_than"
 #define QUERY_LESS_THAN_EQUAL_TO		"less_than_equal_to"
 #define QUERY_GREATER_THAN			"greater_than"
@@ -49,7 +47,6 @@
 /* ---------------- */
 enum query_relation {		equal,
 				not_equal,
-				not_equal_or_null,
 				less_than,
 				less_than_equal_to,
 				greater_than,
@@ -98,13 +95,13 @@ char *query_relation_yes_no_key(
 
 /* Returns dictionary->hash_table->other_data or null */
 /* -------------------------------------------------- */
-char *query_relation_fetch(
+char *query_relation_operator_fetch(
 			char *query_relation_key,
 			char *query_relation_yes_no_key,
 			DICTIONARY *dictionary );
 
 enum query_relation query_relation_enum(
-			char *query_relation_fetch,
+			char *query_relation_operator_fetch,
 			char *datatype_name );
 
 /* Returns program memory */
@@ -251,30 +248,30 @@ char *query_between_data_time_attribute_name(
 			char *query_between_data_attribute_base );
 
 
-QUERY_BETWEEN_DATA *query_between_data_from_date(
+QUERY_DATA *query_between_data_from_date(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
 
-QUERY_BETWEEN_DATA *query_between_data_from_time(
+QUERY_DATA *query_between_data_from_time(
 			char *query_between_data_time_attribute_name,
 			DICTIONARY *dictionary );
 
-QUERY_BETWEEN_DATA *query_between_data_to_date(
+QUERY_DATA *query_between_data_to_date(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
 
-QUERY_BETWEEN_DATA *query_between_data_to_time(
+QUERY_DATA *query_between_data_to_time(
 			char *query_between_data_time_attribute_name,
 			DICTIONARY *dictionary );
 
-QUERY_BETWEEN_DATA *query_between_data_from(
+QUERY_DATA *query_between_data_from(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
 
-QUERY_BETWEEN_DATA *query_between_data_to(
+QUERY_DATA *query_between_data_to(
 			char *attribute_name,
 			char *datatype_name,
 			DICTIONARY *dictionary );
@@ -389,17 +386,15 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
-			LIST *relation_mto1_isa_list,
-			PROMPT_RECURSIVE *prompt_recursive,
-			ROW_SECURITY_ROLE *row_security_role,
+			int relation_mto1_isa_list_length,
 			char *security_entity_where,
-			DICTIONARY *query_dictionary );
+			DICTIONARY *query_dictionary,
+			ROW_SECURITY_ROLE *row_security_role );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *query_edit_table_where(
+char *query_edit_table_where_string(
 			char *query_drop_down_list_where,
-			char *prompt_recursive_drop_down_list_where,
 			char *query_attribute_list_where,
 			char *query_join_where,
 			char *security_entity_where );
@@ -486,6 +481,9 @@ QUERY_SELECT *query_select_new(
 			boolean attribute_is_date_time,
 			QUERY_DATE_CONVERT *query_date_convert );
 
+/* Process */
+/* ------- */
+
 /* Returns heap memory */
 /* ------------------- */
 char *query_select_column_string(
@@ -497,6 +495,9 @@ char *query_select_column_string(
 
 /* Public */
 /* ------ */
+
+LIST *query_select_name_list(
+			LIST *select_list );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -574,41 +575,6 @@ boolean query_or_sequence_set_data_list(
 char *query_or_sequence_where(
 			LIST *attribute_name_list,
 			LIST *data_list_list );
-
-/* QUERY detail operations */
-/* ----------------------- */
-/*
-QUERY *query_detail_new(
-			LIST *where_attribute_data_list,
-			char *folder_name,
-			char *role_name,
-			char *login_name,
-			LIST *ignore_select_attribute_name_list,
-			char *attribute_not_null_join,
-			char *attribute_not_null_folder_name );
-*/
-
-char *query_folder_where_clause(
-			FOLDER *folder,
-			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list,
-			LIST *append_isa_attribute_list );
-
-char *query_related_join_where(
-			char *application_name,
-			char *source_where_clause,
-			LIST *primary_key_list,
-			LIST *foreign_attribute_name_list,
-			char *folder_name,
-			char *related_folder_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_join_where_clause(
-			LIST *primary_key_list,
-			LIST *related_attribute_name_list,
-			char *folder_name,
-			char *related_folder_name );
 
 /* QUERY_DATE_CONVERT operations */
 /* ----------------------------- */
@@ -690,11 +656,6 @@ char *query_operator_character_string(
 			char *operator_string );
 
 
-LIST *query_select_name_list(
-			LIST *append_isa_attribute_list,
-			LIST *ignore_select_attribute_name_list,
-			LIST *lookup_attribute_exclude_name_list );
-
 /* Returns heap memory */
 /* ------------------- */
 char *query_from(
@@ -747,7 +708,8 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *select_list;
-	char *query_select_string;
+	char *query_select_list_string;
+	LIST *query_select_name_list;
 	char *from_string;
 	QUERY_EDIT_TABLE_WHERE *where;
 	char *query_order_string;
@@ -769,6 +731,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
@@ -781,9 +744,11 @@ char *query_edit_table_from_string(
 
 LIST *query_edit_table_dictionary_list(
 			char *query_system_string,
-			LIST *select_name_list,
-			LIST *primary_key_list,
-			LIST *relation_join_one2m_list );
+			LIST *query_select_name_list,
+			LIST *one_folder_primary_key_list,
+			char *application_name,
+			LIST *relation_join_one2m_list,
+			char *one_folder_name );
 
 typedef struct
 {
@@ -839,5 +804,31 @@ char *query_order_string(
 /* ------------------- */
 char *query_order_key_list_string(
 			LIST *key_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_join_where(
+			char *application_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *relation_mto1_isa_list,
+			ROW_SECURITY_ROLE *row_security_role );
+
+/* Private */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *query_join_relation_where(
+			char *primary_folder_table_name,
+			LIST *relation_mto1_isa_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *query_string_join_where(
+			char *primary_folder_table_name,
+			char *relation_folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list );
 
 #endif

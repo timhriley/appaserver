@@ -15,6 +15,7 @@
 /* --------- */
 #define STRING_LF			10
 #define STRING_CR			13
+#define STRING_8K			8192
 #define STRING_16K			16384
 #define STRING_32K			32768
 #define STRING_64K			65536

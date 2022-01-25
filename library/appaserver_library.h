@@ -140,9 +140,6 @@ void output_dictionary_string_as_hidden(
 LIST *get_relation_operator_list(
 			char *datatype );
 
-char *appaserver_library_operator_character(
-			char *operator_string );
-
 boolean is_system_folder(
 			char *folder_name );
 

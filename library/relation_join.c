@@ -36,8 +36,10 @@ RELATION_JOIN *relation_join_new(
 			DICTIONARY *row_dictionary,
 			char *application_name,
 			LIST *relation_join_one2m_list,
-			LIST *primary_key_list )
+			char *one_folder_name,
+			LIST *one_primary_key_list )
 {
+	RELATION_JOIN *relation_join;
 	RELATION *relation_join_one2m;
 
 	if ( !list_rewind( relation_join_one2m_list ) )
@@ -66,13 +68,14 @@ RELATION_JOIN *relation_join_new(
 				row_dictionary,
 				application_name,
 				relation_join_one2m,
-				primary_key_list );
+				one_folder_name,
+				one_primary_key_list );
 
 		if ( relation_join->relation_join_folder->delimited_string )
 		{
 			dictionary_set(
 				row_dictionary,
-				relation_join->many_folder->folder_name,
+				relation_join_one2m->many_folder->folder_name,
 				relation_join->
 					relation_join_folder->
 					delimited_string );
@@ -81,94 +84,6 @@ RELATION_JOIN *relation_join_new(
 	} while ( list_next( relation_join_one2m_list ) );
 
 	return relation_join;
-}
-
-void relation_join_one2m_list_set(
-			DICTIONARY *dictionary,
-			LIST *relation_join_one2m_list,
-			LIST *primary_key_list )
-{
-	RELATION *relation_join_one2m;
-
-	if ( !list_rewind( relation_join_one2m_list ) ) return;
-
-	do {
-		relation_join_one2m = list_get( relation_join_one2m_list );
-
-		relation_join_one2m_set(
-			dictionary,
-			relation_join_one2m,
-			primary_key_list );
-
-	} while ( list_next( relation_join_one2m_list ) );
-}
-
-void relation_join_one2m_set(
-			DICTIONARY *dictionary,
-			RELATION *relation_join_one2m,
-			LIST *primary_key_list )
-{
-	char *related_data_list_string;
-	char *where_clause;
-	char sys_string[ 1024 ];
-	LIST *select_list;
-
-	select_list = list_subtract(
-			related_folder->
-				one2m_folder->
-				primary_attribute_name_list,
-			primary_attribute_name_list );
-
-	where_clause =
-		dictionary_get_attribute_where_clause(
-			row_dictionary,
-			related_folder_foreign_attribute_name_list( 
-				primary_attribute_name_list,
-				related_folder->related_attribute_name,
-				related_folder->
-					folder_foreign_attribute_name_list ) );
-
-	if ( strcmp( where_clause, "1 = 1" ) == 0 )
-	{
-		where_clause =
-			dictionary_get_attribute_where_clause(
-				row_dictionary,
-				primary_attribute_name_list );
-	}
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s		 "
-		 "			select=%s		 "
-		 "			folder=%s		 "
-		 "			where=\"%s\"		 "
-		 "			order=select		|"
-		 "joinlines.e '%c'				 ",
-		 application_name,
-		 list_display( select_list ),
-		 related_folder->one2m_folder->folder_name,
-		 where_clause,
-		 MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER );
-
-	related_data_list_string = pipe2string( sys_string );
-
-	if ( related_data_list_string && *related_data_list_string )
-	{
-		dictionary_set_pointer(
-			row_dictionary,
-		 	related_folder->
-				one2m_folder->
-				folder_name,
-		 	related_data_list_string );
-	}
-	else
-	{
-		dictionary_set_pointer(
-			row_dictionary,
-		 	related_folder->
-				one2m_folder->
-				folder_name,
-		 	"" );
-	}
 }
 
 RELATION_JOIN_FOLDER *relation_join_folder_calloc( void )
@@ -192,7 +107,8 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 			DICTIONARY *row_dictionary,
 			char *application_name,
 			RELATION *relation_join_one2m,
-			LIST *primary_key_list )
+			char *one_folder_name,
+			LIST *one_primary_key_list )
 {
 	RELATION_JOIN_FOLDER *relation_join_folder =
 		relation_join_folder_calloc();
@@ -220,10 +136,10 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 		exit( 1 );
 	}
 
-	if ( !list_length( primary_key_list ) )
+	if ( !list_length( one_primary_key_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			"ERROR in %s/%s()/%d: one_primary_key_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -233,7 +149,7 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 	relation_join_folder->select_name_list =
 		list_subtract(
 			relation_join_one2m->many_folder->primary_key_list,
-			primary_key_list );
+			one_primary_key_list );
 
 	if ( !list_length( relation_join_folder->select_name_list ) )
 	{
@@ -252,7 +168,8 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 		relation_join_folder_where_new(
 			row_dictionary,
 			relation_join_one2m,
-			primary_key_list );
+			one_folder_name,
+			one_primary_key_list );
 
 	relation_join_folder->system_string =
 		/* ------------------- */
@@ -262,8 +179,9 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 			application_name,
 			list_delimited(
 				relation_join_folder->
-					select_name_list ),
-			many_folder->folder_name,
+					select_name_list,
+				',' ),
+			relation_join_one2m->many_folder->folder_name,
 			relation_join_folder->where->string,
 			MULTI_ATTRIBUTE_DATA_LABEL_DELIMITER );
 
@@ -319,7 +237,7 @@ char *relation_join_folder_system_string(
 		 "joinlines.e '%c'				 ",
 		 application_name,
 		 select_name_list_string,
-		 related_folder->one2m_folder->folder_name,
+		 folder_name,
 		 where,
 		 multi_attribute_data_label_delimiter );
 
@@ -335,14 +253,15 @@ char *relation_join_folder_delimited_string(
 RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
 			DICTIONARY *row_dictionary,
 			RELATION *relation_join_one2m,
-			LIST *primary_key_list )
+			char *one_folder_name,
+			LIST *one_primary_key_list )
 {
 	RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where =
 		relation_join_folder_where_calloc();
 
 	relation_join_folder_where->dictionary_data_list =
 		dictionary_data_list(
-			primary_key_list,
+			one_primary_key_list,
 			row_dictionary );
 
 	if ( !list_length( relation_join_folder_where->dictionary_data_list ) )
@@ -352,15 +271,25 @@ RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			list_display( primary_key_list ) );
+			list_display( one_primary_key_list ) );
 		exit( 1 );
 	}
 
+	relation_join_folder_where->foreign_attribute_list =
+		foreign_attribute_list(
+			relation_join_one2m->many_folder->folder_name,
+			one_folder_name );
+
+	relation_join_folder_where->foreign_attribute_name_list =
+		foreign_attribute_name_list(
+			relation_join_folder_where->foreign_attribute_list );
+
 	relation_join_folder_where->relation_foreign_key_list =
 		relation_foreign_key_list(
-			primary_key_list,
+			one_primary_key_list,
 			relation_join_one2m->related_attribute_name,
-			relation_join_one2m->foreign_attribute_name_list );
+			relation_join_folder_where->
+				foreign_attribute_name_list );
 
 	if ( !list_length(
 		relation_join_folder_where->
@@ -371,7 +300,7 @@ RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			list_display( primary_key_list ) );
+			list_display( one_primary_key_list ) );
 		exit( 1 );
 	}
 
@@ -430,3 +359,55 @@ char *relation_join_folder_where_string(
 	return strdup( where );
 }
 
+void relation_join_free( RELATION_JOIN *relation_join )
+{
+	list_free_container(
+		relation_join->
+			relation_join_folder->
+			where->
+			dictionary_data_list );
+
+	list_free_container(
+		relation_join->
+			relation_join_folder->
+			where->
+			foreign_attribute_list );
+
+	list_free_container(
+		relation_join->
+			relation_join_folder->
+			where->
+			foreign_attribute_name_list );
+
+	list_free_container(
+		relation_join->
+			relation_join_folder->
+			where->
+			relation_foreign_key_list );
+
+	free(	relation_join->
+			relation_join_folder->
+			where->
+			string );
+
+	free(	relation_join->
+			relation_join_folder->
+			where );
+
+	list_free_container(
+		relation_join->
+			relation_join_folder->
+			select_name_list );
+
+	list_free_container(
+		relation_join->
+			relation_join_folder->
+			select_name_list );
+
+	free(	relation_join->
+			relation_join_folder->
+			system_string );
+
+	free( relation_join->relation_join_folder );
+	free( relation_join );
+}

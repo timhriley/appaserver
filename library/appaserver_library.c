@@ -29,6 +29,7 @@
 #include "appaserver_error.h"
 #include "basename.h"
 #include "element.h"
+#include "query.h"
 #include "appaserver_library.h"
 
 static char *system_folder_list[] = {
@@ -258,120 +259,58 @@ LIST *get_relation_operator_list( char *datatype )
 	if ( strcmp( datatype, "date" ) == 0
 	||   strcmp( datatype, "time" ) == 0 )
 	{
-		list_append_string( list, BEGINS_OPERATOR );
-		list_append_string( list, EQUAL_OPERATOR );
-		list_append_string( list, BETWEEN_OPERATOR );
-		list_append_string( list, OR_OPERATOR );
-		list_append_string( list, GREATER_THAN_OPERATOR );
-		list_append_string( list, GREATER_THAN_EQUAL_TO_OPERATOR );
-		list_append_string( list, LESS_THAN_OPERATOR );
-		list_append_string( list, LESS_THAN_EQUAL_TO_OPERATOR );
-		list_append_string( list, NOT_EQUAL_OPERATOR );
-		list_append_string( list, NOT_EQUAL_OR_NULL_OPERATOR );
-		list_append_string( list, NULL_OPERATOR );
-		list_append_string( list, NOT_NULL_OPERATOR );
+		list_append_string( list, QUERY_BEGINS );
+		list_append_string( list, QUERY_EQUAL );
+		list_append_string( list, QUERY_BETWEEN );
+		list_append_string( list, QUERY_OR );
+		list_append_string( list, QUERY_GREATER_THAN );
+		list_append_string( list, QUERY_GREATER_THAN_EQUAL_TO );
+		list_append_string( list, QUERY_LESS_THAN );
+		list_append_string( list, QUERY_LESS_THAN_EQUAL_TO );
+		list_append_string( list, QUERY_NOT_EQUAL );
+		list_append_string( list, QUERY_NULL );
+		list_append_string( list, QUERY_NOT_NULL );
 	}
 	else
 	if ( strcmp( datatype, "notepad" ) == 0 )
 	{
-		list_append_string( list, CONTAINS_OPERATOR );
-		list_append_string( list, NOT_CONTAINS_OPERATOR );
-		list_append_string( list, NULL_OPERATOR );
-		list_append_string( list, NOT_NULL_OPERATOR );
+		list_append_string( list, QUERY_CONTAINS );
+		list_append_string( list, QUERY_NOT_CONTAINS );
+		list_append_string( list, QUERY_NULL );
+		list_append_string( list, QUERY_NOT_NULL );
 	}
 	else
 	if ( strcmp( datatype, "text" ) == 0
 	||   strcmp( datatype, "http_filename" ) == 0 )
 	{
-		list_append_string( list, BEGINS_OPERATOR );
-		list_append_string( list, EQUAL_OPERATOR );
-		list_append_string( list, CONTAINS_OPERATOR );
-		list_append_string( list, OR_OPERATOR );
-		list_append_string( list, GREATER_THAN_EQUAL_TO_OPERATOR );
-		list_append_string( list, NOT_CONTAINS_OPERATOR );
-		list_append_string( list, NOT_EQUAL_OPERATOR );
-		list_append_string( list, NOT_EQUAL_OR_NULL_OPERATOR );
-		list_append_string( list, NULL_OPERATOR );
-		list_append_string( list, NOT_NULL_OPERATOR );
+		list_append_string( list, QUERY_BEGINS );
+		list_append_string( list, QUERY_EQUAL );
+		list_append_string( list, QUERY_CONTAINS );
+		list_append_string( list, QUERY_OR );
+		list_append_string( list, QUERY_GREATER_THAN_EQUAL_TO );
+		list_append_string( list, QUERY_NOT_CONTAINS );
+		list_append_string( list, QUERY_NOT_EQUAL );
+		list_append_string( list, QUERY_NULL );
+		list_append_string( list, QUERY_NOT_NULL );
 	}
 	else
 	{
-		list_append_string( list, EQUAL_OPERATOR );
-		list_append_string( list, BETWEEN_OPERATOR );
-		list_append_string( list, BEGINS_OPERATOR );
-		list_append_string( list, CONTAINS_OPERATOR );
-		list_append_string( list, NOT_CONTAINS_OPERATOR );
-		list_append_string( list, OR_OPERATOR );
-		list_append_string( list, NOT_EQUAL_OPERATOR );
-		list_append_string( list, NOT_EQUAL_OR_NULL_OPERATOR );
-		list_append_string( list, GREATER_THAN_OPERATOR );
-		list_append_string( list, GREATER_THAN_EQUAL_TO_OPERATOR );
-		list_append_string( list, LESS_THAN_OPERATOR );
-		list_append_string( list, LESS_THAN_EQUAL_TO_OPERATOR );
-		list_append_string( list, NULL_OPERATOR );
-		list_append_string( list, NOT_NULL_OPERATOR );
+		list_append_string( list, QUERY_EQUAL );
+		list_append_string( list, QUERY_BETWEEN );
+		list_append_string( list, QUERY_BEGINS );
+		list_append_string( list, QUERY_CONTAINS );
+		list_append_string( list, QUERY_NOT_CONTAINS );
+		list_append_string( list, QUERY_OR );
+		list_append_string( list, QUERY_NOT_EQUAL );
+		list_append_string( list, QUERY_GREATER_THAN );
+		list_append_string( list, QUERY_GREATER_THAN_EQUAL_TO );
+		list_append_string( list, QUERY_LESS_THAN );
+		list_append_string( list, QUERY_LESS_THAN_EQUAL_TO );
+		list_append_string( list, QUERY_NULL );
+		list_append_string( list, QUERY_NOT_NULL );
 	}
 
 	return list;
-}
-
-LIST *get_relation_operator_equal_list()
-{
-	static LIST *list = {0};
-
-	if ( list ) return list;
-
-	list = list_new();
-	list_append_string( list, EQUAL_OPERATOR );
-	return list;
-}
-
-char *appaserver_library_operator_character(
-			char *operator_string )
-{
-	if ( strcmp( operator_string, EQUAL_OPERATOR ) == 0 )
-		return "=";
-	else
-	if ( strcmp( operator_string, NOT_EQUAL_OPERATOR ) == 0 )
-		return "<>";
-	else
-	if ( strcmp( operator_string, GREATER_THAN_OPERATOR ) == 0 )
-		return ">";
-	else
-	if ( strcmp( operator_string, GREATER_THAN_EQUAL_TO_OPERATOR ) == 0 )
-		return ">=";
-	else
-	if ( strcmp( operator_string, LESS_THAN_OPERATOR ) == 0 )
-		return "<";
-	else
-	if ( strcmp( operator_string, LESS_THAN_EQUAL_TO_OPERATOR ) == 0 )
-		return "<=";
-	else
-	if ( strcmp( operator_string, BEGINS_OPERATOR ) == 0 )
-		return BEGINS_OPERATOR;
-	else
-	if ( strcmp( operator_string, CONTAINS_OPERATOR ) == 0 )
-		return CONTAINS_OPERATOR;
-	else
-	if ( strcmp( operator_string, OR_OPERATOR ) == 0 )
-		return OR_OPERATOR;
-	else
-	if ( strcmp( operator_string, NOT_CONTAINS_OPERATOR ) == 0 )
-		return NOT_CONTAINS_OPERATOR;
-	else
-	if ( strcmp( operator_string, NOT_EQUAL_OR_NULL_OPERATOR ) == 0 )
-		return NOT_EQUAL_OR_NULL_OPERATOR;
-	else
-	if ( strcmp( operator_string, BETWEEN_OPERATOR ) == 0 )
-		return BETWEEN_OPERATOR;
-	else
-	if ( strcmp( operator_string, NULL_OPERATOR ) == 0 )
-		return NULL_OPERATOR;
-	else
-	if ( strcmp( operator_string, NOT_NULL_OPERATOR ) == 0 )
-		return NOT_NULL_OPERATOR;
-	else
-		return "unknown operator";
 }
 
 boolean appaserver_library_is_system_folder( char *folder_name )

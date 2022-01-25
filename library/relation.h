@@ -72,14 +72,56 @@ typedef struct
 	boolean consumes_taken;
 } RELATION;
 
-/* Operations */
-/* ---------- */
+/* RELATION Operations */
+/* ------------------- */
+
+/* Usage */
+/* ----- */
+LIST *relation_mto1_non_isa_list(
+			char *many_folder_name );
+
+/* folder_attribute_list is set */
+/* ---------------------------- */
+LIST *relation_mto1_isa_list(
+			LIST *relation_list /* in/out */,
+			char *many_folder_name,
+			boolean fetch_process );
+
+LIST *relation_one2m_list(
+			char *one_folder_name );
+
+LIST *relation_one2m_recursive_list(
+			LIST *relation_list /* in/out */,
+			char *one_folder_name );
+
+/* ----------------------- */
+/* foreign_key_list is set */
+/* ----------------------- */
+LIST *relation_one2m_pair_list(
+			char *one_folder_name );
+
+LIST *relation_mto1_drillthru_list(
+			LIST *relation_list,
+			char *base_folder_name,
+			LIST *fulfilled_folder_name_list );
+
+/* Process */
+/* ------- */
 RELATION *relation_calloc(
 			void );
 
-RELATION *relation_new(
-			char *many_folder_name,
-			char *one_folder_name );
+char *relation_system_string(
+			char *where,
+			char *order_clause );
+
+LIST *relation_system_list(
+			char *system_string,
+			/* -------------------------------------- */
+			/* Setting both will set foreign_key_list */
+			/* -------------------------------------- */
+			boolean fetch_folder,
+			boolean fetch_attribute_list,
+			boolean fetch_process );
 
 RELATION *relation_parse(
 			char *input,
@@ -93,23 +135,6 @@ RELATION *relation_parse(
 			/* ---------------------- */
 			boolean fetch_process );
 
-LIST *relation_system_list(
-			char *system_string,
-			/* -------------------------------------- */
-			/* Setting both will set foreign_key_list */
-			/* -------------------------------------- */
-			boolean fetch_folder,
-			boolean fetch_attribute_list,
-			boolean fetch_process );
-
-char *relation_system_string(
-			char *where,
-			char *order_clause );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *relation_display(	RELATION *relation );
-
 LIST *relation_foreign_key_list(
 			/* ------------------------------------------- */
 			/* Send in folder_attribute_primary_key_list() */
@@ -118,55 +143,17 @@ LIST *relation_foreign_key_list(
 			char *related_attribute_name,
 			LIST *foreign_attribute_name_list );
 
-LIST *relation_mto1_non_isa_list(
-			char *many_folder_name );
-
-LIST *relation_mto1_primary_key_subset_list(
-			char *many_folder_name,
-			LIST *primary_key_list );
-
-LIST *relation_one2m_recursive_list(
-			LIST *relation_list /* in/out */,
-			char *one_folder_name,
-			boolean fetch_process );
-
-/* ----------------------- */
-/* foreign_key_list is set */
-/* ----------------------- */
-LIST *relation_one2m_pair_list(
-			char *one_folder_name );
-
-/* folder_attribute_list is set */
-/* ---------------------------- */
-LIST *relation_mto1_isa_list(
-			LIST *relation_list /* in/out */,
-			char *many_folder_name,
-			boolean fetch_process );
-
-LIST *relation_mto1_non_isa_list(
-			char *many_folder_name );
-
-boolean relation_is_primary_key_subset(
-			LIST *foreign_key_list,
-			LIST *many_primary_key_list );
-
-char *relation_list_display(
-			LIST *one2m_relation_list );
+/* Public */
+/* ------ */
+LIST *relation_pair_one2m_list(
+			LIST *relation_one2m_list );
 
 LIST *relation_join_one2m_list(
 			LIST *relation_one2m_recursive_list,
 			DICTIONARY *ignore_dictionary );
 
-LIST *relation_pair_one2m_list(
-			LIST *relation_one2m_list );
-
-LIST *relation_mto1_drillthru_list(
-			LIST *relation_list,
-			char *base_folder_name,
-			LIST *fulfilled_folder_name_list );
-
-LIST *relation_one2m_list(
-			char *one_folder_name );
+LIST *relation_mto1_non_isa_list(
+			char *many_folder_name );
 
 RELATION *relation_consumes(
 			char *many_attribute_name,
@@ -176,21 +163,32 @@ RELATION *relation_one2m_seek(
 			char *folder_name,
 			LIST *relation_one2m_list );
 
+RELATION *relation_mto1_seek(
+			char *folder_name,
+			LIST *relation_mto1_list );
+
 LIST *relation_mto1_folder_name_list(
 			LIST *relation_mto1_list );
 
 LIST *relation_one2m_folder_name_list(
 			LIST *relation_one2m_list );
 
-void relation_join_one2m_list_set(
-			DICTIONARY *dictionary,
-			LIST *relation_join_one2m_list,
-			LIST *primary_key_list );
+char *relation_list_display(
+			LIST *relation_list );
 
-void relation_join_one2m_set(
-			DICTIONARY *dictionary,
-			RELATION *relation_join_one2m,
-			LIST *primary_key_list );
+/* Private */
+/* ------- */
+RELATION *relation_new(
+			char *many_folder_name,
+			char *one_folder_name );
+
+boolean relation_is_primary_key_subset(
+			LIST *foreign_key_list,
+			LIST *many_primary_key_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_display(	RELATION *relation );
 
 #endif
 

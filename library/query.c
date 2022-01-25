@@ -21,6 +21,7 @@
 #include "dictionary_separate.h"
 #include "element.h"
 #include "relation.h"
+#include "relation_join.h"
 #include "query.h"
 
 char *query_system_string(
@@ -71,37 +72,41 @@ char *query_system_string(
 
 LIST *query_edit_table_dictionary_list(
 			char *query_system_string,
-			LIST *select_name_list,
-			LIST *primary_key_list,
+			LIST *query_select_name_list,
+			LIST *one_folder_primary_key_list,
+			char *application_name,
 			LIST *relation_join_one2m_list,
-			int query_edit_table_max_rows )
+			char *one_folder_name )
 {
 	char buffer[ STRING_WHERE_BUFFER ];
 	char data[ STRING_64K ];
 	LIST *list = list_new();
-	DICTIONARY *dictionary;
+	DICTIONARY *row_dictionary;
 	int i;
 	FILE *pipe;
+	RELATION_JOIN *relation_join;
 
-	if ( !list_length( select_name_list ) )
+	if ( !list_length( query_select_name_list ) )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d select_name_list is empty.\n",
+		"Warning in %s/%s()/%d query_select_name_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		return (LIST *)0;
 	}
 
-	pipe = popen( system_string, "r" );
+	pipe = popen( query_system_string, "r" );
 
 	while( string_input( buffer, pipe, STRING_WHERE_BUFFER ) )
 	{
-		dictionary = dictionary_small();
-		list_set( list, dictionary );
 		i = 0;
 
-		list_rewind( select_name_list );
+		list_set(
+			list,
+			( row_dictionary = dictionary_small() ) );
+
+		list_rewind( query_select_name_list );
 
 		do {
 			if ( !piece( data, SQL_DELIMITER, buffer, i++ ) )
@@ -118,18 +123,23 @@ LIST *query_edit_table_dictionary_list(
 			}
 
 			dictionary_set(
-				dictionary, 
-				list_get( select_name_list ),
+				row_dictionary, 
+				list_get( query_select_name_list ),
 				strdup( data ) );
 
-		} while ( list_next( select_name_list ) );
+		} while ( list_next( query_select_name_list ) );
 
 		if ( list_length( relation_join_one2m_list ) )
 		{
-			relation_join_one2m_list_set(
-				dictionary,
-				relation_join_one2m_list,
-				primary_key_list );
+			relation_join =
+				relation_join_new(
+					row_dictionary /* in/out */,
+					application_name,
+					relation_join_one2m_list,
+					one_folder_name,
+					one_folder_primary_key_list );
+
+			relation_join_free( relation_join );
 		}
 	}
 
@@ -429,6 +439,7 @@ QUERY_ATTRIBUTE *query_attribute_new(
 	return query_attribute;
 }
 
+#ifdef NOT_DEFINED
 char *query_isa_related_join(
 			char *folder_name,
 			LIST *primary_key_list,
@@ -486,6 +497,7 @@ char *query_isa_related_join(
 
 	return where;
 }
+#endif
 
 char *query_drop_down_row_data_where(
 			char *folder_table_name,
@@ -1039,6 +1051,7 @@ LIST *query_data_list(	LIST *foreign_key_list,
 	return data_list;
 }
 
+#ifdef NOT_DEFINED
 char *query_isa_join_where(
 			char *folder_name,
 			LIST *primary_key_list,
@@ -1088,6 +1101,7 @@ char *query_isa_join_where(
 
 	return strdup( where );
 }
+#endif
 
 char *query_output_where(
 			char *query_drop_down_data_where,
@@ -1278,39 +1292,6 @@ char *query_output_order(
 				SQL_DELIMITER )
 					/* primary_key_list */,
 			descending_label );
-}
-
-char *query_output_select_display(
-			char *mto1_folder_name,
-			LIST *query_output_select_name_list,
-			int mto1_isa_related_folder_list_length )
-{
-	char *select_name;
-	char display_string[ STRING_WHERE_BUFFER ];
-	char *ptr = display_string;
-
-	if ( !list_rewind( query_output_select_name_list ) )
-		return (char *)0;
-
-	*ptr = '\0';
-
-	do {
-		select_name =
-			list_get(
-				query_output_select_name_list );
-
-		if ( mto1_isa_related_folder_list_length )
-		{
-			ptr += sprintf( ptr, "%s.", mto1_folder_name );
-		}
-
-		if ( *ptr ) ptr += sprintf( ptr, "," );
-
-		ptr += sprintf( ptr, "%s", select_name );
-
-	} while ( list_next( query_output_select_name_list ) );
-
-	return strdup( display_string );
 }
 
 QUERY_ISA_WIDGET *query_isa_widget_calloc( void )
@@ -1662,6 +1643,35 @@ LIST *query_primary_select_list(
 	} while ( list_next( primary_key_list ) );
 
 	return select_list;
+}
+
+LIST *query_select_name_list( LIST *select_list )
+{
+	QUERY_SELECT *query_select;
+	LIST *name_list;
+
+	if ( !list_rewind( select_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		query_select = list_get( select_list );
+
+		if ( !query_select->column_string )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: column_string is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set( name_list, query_select->column_string );
+
+	} while ( list_next( select_list ) );
+
+	return name_list;
 }
 
 char *query_select_list_string( LIST *select_list )
@@ -2096,9 +2106,6 @@ char *query_relation_character_string(
 	if ( query_relation_enum == not_contains )
 		return QUERY_NOT_CONTAINS;
 	else
-	if ( query_relation_enum == not_equal_or_null )
-		return QUERY_NOT_EQUAL_OR_NULL;
-	else
 	if ( query_relation_enum == between )
 		return QUERY_BETWEEN;
 	else
@@ -2310,6 +2317,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *ignore_select_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
@@ -2347,28 +2355,29 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			__FUNCTION__,
 			__LINE__ );
 
-		return (QUERY_EDIT_TABLE )0;
+		return (QUERY_EDIT_TABLE *)0;
 	}
 
-	query_edit_table->query_select_string =
-		query_select_string(
+	query_edit_table->query_select_list_string =
+		query_select_list_string(
 			query_edit_table->select_list );
 
-	query_edit_table->select_name_list =
-		query_edit_table_select_name_list(
+	query_edit_table->query_select_name_list =
+		query_select_name_list(
 			query_edit_table->select_list );
 
 	query_edit_table->from_string =
 		query_edit_table_from_string(
 			folder_name,
 			relation_mto1_isa_list,
-			role_security_role );
+			row_security_role );
 
 	query_edit_table->where =
 		query_edit_table_where_new(
 			application_name,
 			folder_name,
 			folder_attribute_append_isa_list,
+			relation_mto1_non_isa_list,
 			list_length( relation_mto1_isa_list ),
 			security_entity_where,
 			query_dictionary,
@@ -2376,12 +2385,12 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 
 	query_edit_table->query_order_string =
 		query_order_string(
-			query_edit_table->query_select_string,
+			query_edit_table->query_select_list_string,
 			sort_dictionary );
 
 	query_edit_table->query_system_string =
 		query_system_string(
-			query_edit_table->query_select_string,
+			query_edit_table->query_select_list_string,
 			query_edit_table->from_string,
 			(query_edit_table->where)
 				? query_edit_table->where->string
@@ -2392,32 +2401,16 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 	query_edit_table->dictionary_list =
 		query_edit_table_dictionary_list(
 			query_edit_table->query_system_string,
-			query_edit_table->select_name_list,
+			query_edit_table->query_select_name_list,
 			folder_attribute_primary_key_list(
-				folder_attribute_append_isa_list ),
-			relation_join_one2m_list );
+				folder_attribute_append_isa_list )
+					/* one_folder_primary_key_list */,
+			application_name,
+			relation_join_one2m_list,
+			folder_name
+					/* one_folder_name */ );
 
 	return query_edit_table;
-}
-
-QUERY_WIDGET_WHERE *query_widget_where_calloc( void )
-{
-	QUERY_WIDGET_WHERE *query_widget_where;
-
-	if ( ! ( query_widget_where =
-			calloc(
-				1,
-				sizeof( QUERY_WIDGET_WHERE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return query_widget_where;
 }
 
 QUERY_WIDGET_WHERE *query_widget_where_new(
@@ -2467,7 +2460,7 @@ QUERY_WIDGET_WHERE *query_widget_where_new(
 			where->query_attribute_list_where,
 			security_entity_where );
 
-	return query_widget_where;
+	return where;
 }
 
 char *query_widget_where_string(
@@ -2490,7 +2483,7 @@ char *query_widget_where_string(
 
 	if ( query_attribute_list_where && *query_attribute_list_where )
 	{
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
@@ -2500,7 +2493,7 @@ char *query_widget_where_string(
 
 	if ( security_entity_where && *security_entity_where )
 	{
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
@@ -2707,40 +2700,15 @@ char *query_where_clause( char *where_string )
 	}
 }
 
-char *query_from_clause( char *folder_name )
-{
-	char from_clause[ 128 ];
-
-	if ( !folder_name || !*folder_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(from_clause,
-		"from %s",
-		/* ----------------------------- */
-		/* Returns static memory or null */
-		/* ----------------------------- */
-		folder_table_name(
-			environment_application_name(),
-			folder_name ) );
-
-	return strdup( from_clause );
-}
-
-char *query_edit_table_from_clause(
+char *query_edit_table_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
 			ROW_SECURITY_ROLE *row_security_role )
 {
-	char from_clause[ 1024 ];
-	*ptr = from_clause;
+	char from_string[ 1024 ];
+	char *ptr = from_string;
 	LIST *mto1_folder_name_list;
+	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
 
 	if ( !folder_name || !*folder_name )
 	{
@@ -2772,31 +2740,29 @@ char *query_edit_table_from_clause(
 			ptr += sprintf(
 				ptr,
 				",%s",
-				list_get( mto1_folder_name_list ) );
+				(char *)list_get( mto1_folder_name_list ) );
 		} while ( list_next( mto1_folder_name_list ) );
 	}
 
 	if ( row_security_role )
 	{
-		if ( !row_security_role->row_security_role_update )
+		if ( list_rewind( row_security_role->update_list ) )
 		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: row_security_role_update is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
+			do {
+				row_security_role_update =
+					list_get(
+						row_security_role->
+							update_list );
 
-		ptr += sprintf(
-			ptr,
-			",%s",
-			row_security_role->
-				row_security_role_update->
-					check_folder_name );
+				ptr += sprintf(
+					ptr,
+					",%s",
+					row_security_role_update->folder_name );
+
+			} while ( list_next( row_security_role->update_list ) );
 	}
 
-	return strdup( from_clause );
+	return strdup( from_string );
 }
 
 char *query_order_string(
@@ -2870,18 +2836,18 @@ char *query_order_key_list_string( LIST *key_list )
 			longest_key,
 			key_list );
 
-	if ( string_strncmp( found_key, FORM_SORT_ASSEND_LABEL ) == 0 )
+	if ( string_strncmp( found_key, FORM_SORT_ASCEND_LABEL ) == 0 )
 	{
 		strcpy(	order_string,
 			string_search_replace_character(
 				found_key +
-				strlen( FORM_SORT_ASSEND_LABEL ),
+				strlen( FORM_SORT_ASCEND_LABEL ),
 				SQL_DELIMITER,
 				',' ) );
 	}
 	else
 	{
-		sprintf(order_clause,
+		sprintf(order_string,
 			"%s desc",
 			string_search_replace_character(
 				found_key +
@@ -2916,10 +2882,9 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			int relation_mto1_isa_list_length,
-			PROMPT_RECURSIVE *prompt_recursive,
-			ROW_SECURITY_ROLE *row_security_role,
 			char *security_entity_where,
-			DICTIONARY *query_dictionary )
+			DICTIONARY *query_dictionary,
+			ROW_SECURITY_ROLE *row_security_role )
 {
 	QUERY_EDIT_TABLE_WHERE *where = query_edit_table_where_calloc();
 
@@ -2939,26 +2904,6 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 				relation_mto1_isa_list_length );
 	}
 
-	if ( prompt_recursive )
-	{
-		where->prompt_recursive_drop_down_list =
-			prompt_recursive_drop_down_list(
-				folder_name /* many_folder_name */,
-				prompt_recursive->
-					prompt_recursive_folder_list );
-
-		if ( list_length(
-			where->
-				prompt_recursive_drop_down_list ) )
-		{
-			where->prompt_recursive_drop_down_list_where =
-				prompt_recursive_drop_down_list_where(
-					application_name,
-					where->prompt_recursive_drop_down_list,
-					relation_mto1_isa_list_length );
-		}
-	}
-
 	where->query_attribute_list =
 		query_attribute_list(
 			application_name,
@@ -2974,20 +2919,23 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 	}
 
 	where->query_join_where =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		query_join_where(
+			application_name,
 			folder_name,
 			folder_attribute_primary_key_list(
 				folder_attribute_append_isa_list ),
 			relation_mto1_isa_list,
 			row_security_role );
 
-	where->query_edit_table_where =
+	where->string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		query_edit_table_where(
-			where->query_edit_table_drop_down_list_where,
-			where->prompt_recursive_drop_down_list_where,
+		query_edit_table_where_string(
+			where->query_drop_down_list_where,
 			where->query_attribute_list_where,
 			where->query_join_where,
 			security_entity_where );
@@ -2995,37 +2943,26 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 	return where;
 }
 
-char *query_edit_table_where(
-			char *query_edit_table_drop_down_list_where,
-			char *prompt_recursive_drop_down_list_where,
+char *query_edit_table_where_string(
+			char *query_drop_down_list_where,
 			char *query_attribute_list_where,
 			char *query_join_where,
 			char *security_entity_where )
 {
-	char where[ STRING_FOUR_MEG ];
-	char *ptr = where;
+	char string[ STRING_FOUR_MEG ];
+	char *ptr = string;
 
-	if ( query_edit_table_drop_down_list_where )
+	if ( query_drop_down_list_where )
 	{
 		ptr += sprintf(
 			ptr,
 			"%s",
-			query_edit_table_drop_down_list_where );
-	}
-
-	if ( prompt_recursive_drop_down_list_where )
-	{
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
-
-		ptr += sprintf(
-			ptr,
-			"%s",
-			prompt_recursive_drop_down_list_where );
+			query_drop_down_list_where );
 	}
 
 	if ( query_attribute_list_where )
 	{
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
@@ -3035,7 +2972,7 @@ char *query_edit_table_where(
 
 	if ( query_join_where )
 	{
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
@@ -3045,7 +2982,7 @@ char *query_edit_table_where(
 
 	if ( security_entity_where )
 	{
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
@@ -3053,10 +2990,10 @@ char *query_edit_table_where(
 			security_entity_where );
 	}
 
-	if ( ptr == where )
+	if ( ptr == string )
 		return (char *)0;
 	else
-		return strdup( where );
+		return strdup( string );
 }
 
 QUERY_RELATION *query_relation_calloc( void )
@@ -3084,7 +3021,7 @@ QUERY_RELATION *query_relation_new(
 	QUERY_RELATION *query_relation;
 	char *key;
 	char *yes_no_key = {0};
-	char *fetch;
+	char *operator_fetch;
 
 	if ( ! ( key =
 			query_relation_key(
@@ -3094,8 +3031,8 @@ QUERY_RELATION *query_relation_new(
 		yes_no_key = query_relation_yes_no_key( attribute_name );
 	}
 
-	if ( ! ( fetch =
-			query_relation_fetch(
+	if ( ! ( operator_fetch =
+			query_relation_operator_fetch(
 				key,
 				yes_no_key,
 				dictionary ) ) )
@@ -3106,11 +3043,11 @@ QUERY_RELATION *query_relation_new(
 	query_relation = query_relation_calloc();
 	query_relation->key = key;
 	query_relation->yes_no_key = yes_no_key;
-	query_relation->fetch = fetch;
+	query_relation->operator_fetch = operator_fetch;
 
 	query_relation->query_relation_enum =
 		query_relation_enum(
-			query_relation->fetch,
+			query_relation->operator_fetch,
 			datatype_name );
 
 	query_relation->character_string =
@@ -3128,7 +3065,7 @@ char *query_relation_key(
 
 	sprintf(key,
 		"%s%s",
-		query_relation_operator_starting_label,
+		query_relation_starting_label,
 		attribute_name );
 
 	return key;
@@ -3139,7 +3076,7 @@ char *query_relation_yes_no_key(
 {
 	if ( attribute_is_yes_no( attribute_name ) )
 	{
-		return QUERY_EQUAL_OPERATOR;
+		return QUERY_EQUAL;
 	}
 	else
 	{
@@ -3147,7 +3084,7 @@ char *query_relation_yes_no_key(
 	}
 }
 
-char *query_relation_fetch(
+char *query_relation_operator_fetch(
 			char *query_relation_key,
 			char *query_relation_yes_no_key,
 			DICTIONARY *dictionary )
@@ -3166,64 +3103,61 @@ char *query_relation_fetch(
 }
 
 enum query_relation query_relation_enum(
-			char *fetch,
+			char *operator_fetch,
 			char *datatype_name )
 {
 	enum query_relation query_relation;
 
-	if ( !query_relation_fetch )
+	if ( !operator_fetch )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: query_relation_fetch is empty.\n",
+			"ERROR in %s/%s()/%d: operator_fetch is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( strcmp( fetch, QUERY_EQUAL ) == 0 )
-		equal_relation = equal;
+	if ( strcmp( operator_fetch, QUERY_EQUAL ) == 0 )
+		query_relation = equal;
 	else
-	if ( strcmp( fetch, QUERY_NOT_EQUAL ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_NOT_EQUAL ) == 0 )
 		query_relation = not_equal;
 	else
-	if ( strcmp( fetch, QUERY_NOT_EQUAL_OR_NULL ) == 0 )
-		query_relation = not_equal_or_null;
-	else
-	if ( strcmp( fetch, QUERY_LESS_THAN ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_LESS_THAN ) == 0 )
 		query_relation = less_than;
 	else
-	if ( strcmp( fetch, QUERY_LESS_THAN_EQUAL_TO ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_LESS_THAN_EQUAL_TO ) == 0 )
 		query_relation = less_than_equal_to;
 	else
-	if ( strcmp( fetch, QUERY_GREATER_THAN ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_GREATER_THAN ) == 0 )
 		query_relation = greater_than;
 	else
-	if ( strcmp( fetch, QUERY_GREATER_THAN_EQUAL_TO ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_GREATER_THAN_EQUAL_TO ) == 0 )
 		query_relation = greater_than_equal_to;
 	else
-	if ( strcmp( fetch, QUERY_BETWEEN ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_BETWEEN ) == 0 )
 		query_relation = between;
 	else
-	if ( strcmp( fetch, QUERY_BEGINS ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_BEGINS ) == 0 )
 		query_relation = begins;
 	else
-	if ( strcmp( fetch, QUERY_CONTAINS ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_CONTAINS ) == 0 )
 		query_relation = contains;
 	else
-	if ( strcmp( fetch, QUERY_NOT_CONTAINS ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_NOT_CONTAINS ) == 0 )
 		query_relation = not_contains;
 	else
-	if ( strcmp( fetch, QUERY_OR ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_OR ) == 0 )
 		query_relation = query_or;
 	else
-	if ( strcmp( fetch, QUERY_NULL ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_NULL ) == 0 )
 		query_relation = is_null;
 	else
-	if ( strcmp( fetch, QUERY_NOT_NULL ) == 0 )
+	if ( strcmp( operator_fetch, QUERY_NOT_NULL ) == 0 )
 		query_relation = not_null;
 
-	if ( query_relation == equals
+	if ( query_relation == equal
 	&&   attribute_is_date_time( datatype_name ) )
 	{
 		query_relation = begins;
@@ -4221,5 +4155,270 @@ char *query_edit_table_from_string(
 	}
 
 	return strdup( from_string );
+}
+
+char *query_join_where(
+			char *application_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *relation_mto1_isa_list,
+			ROW_SECURITY_ROLE *row_security_role )
+{
+	char where[ STRING_8K ];
+	char *ptr = where;
+	char *primary_folder_table_name = {0};
+
+	if ( !application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( primary_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( list_rewind( relation_mto1_isa_list ) )
+	{
+		primary_folder_table_name =
+			strdup(
+				/* ----------------------------- */
+				/* Returns static memory or null */
+				/* ----------------------------- */
+				folder_table_name(
+					application_name,
+					folder_name ) );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			query_join_relation_where(
+				primary_folder_table_name,
+				relation_mto1_isa_list ) );
+	}
+
+	if ( row_security_role )
+	{
+		if ( !row_security_role->relation )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: relation is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !row_security_role->relation->many_folder )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: relation->many_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !primary_folder_table_name )
+		{
+			primary_folder_table_name =
+				strdup(
+					/* ----------------------------- */
+					/* Returns static memory or null */
+					/* ----------------------------- */
+					folder_table_name(
+						application_name,
+						folder_name ) );
+		}
+
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			query_string_join_where(
+				primary_folder_table_name,
+				folder_table_name(
+					application_name,
+					row_security_role->
+						relation->
+						many_folder ),
+				primary_key_list,
+				row_security_role->
+					relation->
+					foreign_key_list ) );
+					
+	}
+
+	if ( primary_folder_table_name )
+	{
+		free( primary_folder_table_name );
+	}
+
+	return strdup( where_clause );
+}
+
+char *query_join_relation_where(
+			char *primary_folder_table_name,
+			LIST *relation_mto1_isa_list )
+{
+	static char where[ 2048 ];
+	char *ptr = where;
+	RELATION *relation;
+	char *relation_folder_table_name;
+
+	if ( !list_rewind( relation_mto1_isa_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: relation_mto1_isa_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		relation = list_get( relation_mto1_isa_list );
+
+		if (	list_length( primary_key_list ) !=
+			list_length( relation->foreign_key_list ) )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: length primary_key_list:%d != length foreign_key_list:%d.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				list_length( primary_key_list ),
+				list_length( relation->foreign_key_list ) );
+			exit( 1 );
+		}
+
+		if ( !relation->one_folder )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !relation->one_folder->folder_name )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: one_folder->folder_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			query_string_join_where(
+				primary_folder_table_name,
+				/* ----------------------------- */
+				/* Returns static memory or null */
+				/* ----------------------------- */
+				folder_table_name(
+					application_name,
+					relation->one_folder->folder_name ),
+					/* relation_folder_table_name */,
+				primary_key_list,
+				relation->foreign_key_list ) );
+
+	} while ( list_next( relation_mto1_isa_list ) );
+
+	return where;
+}
+
+char *query_string_join_where(
+			char *primary_folder_table_name,
+			char *relation_folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list )
+{
+	static char where[ 1024 ];
+	char *ptr = where;
+
+	if ( !list_length( primary_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: primary_key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if (	list_length( primary_key_list ) !=
+		list_length( foreign_key_list ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: length primary_key_list:%d != length foreign_key_list:%d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( primary_key_list ),
+			list_length( foreign_key_list ) );
+		exit( 1 );
+	}
+
+	if ( !primary_folder_table_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: primary_folder_table_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !relation_folder_table_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: relation_folder_table_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	while ( 1 )
+	{
+		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s.%s = %s.%s",
+			primary_folder_table_name,
+			(char *)list_get( primary_key_list ),
+			relation_folder_table_name,
+			(char *)list_get( foreign_key_list ) );
+
+		if ( !list_next( primary_key_list ) ) break;
+		list_next( foreign_key_list );
+	}
+
+	return where;
 }
 

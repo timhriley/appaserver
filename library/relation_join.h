@@ -21,6 +21,8 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *dictionary_data_list;
+	LIST *foreign_attribute_list;
+	LIST *foreign_attribute_name_list;
 	LIST *relation_foreign_key_list;
 	char *string;
 } RELATION_JOIN_FOLDER_WHERE;
@@ -35,7 +37,8 @@ RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_calloc(
 RELATION_JOIN_FOLDER_WHERE *relation_join_folder_where_new(
 			DICTIONARY *row_dictionary,
 			RELATION *relation_join_one2m,
-			LIST *primary_key_list );
+			char *one_folder_name,
+			LIST *one_primary_key_list );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -47,6 +50,7 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
+	LIST *select_name_list;
 	RELATION_JOIN_FOLDER_WHERE *where;
 	char *system_string;
 	char *delimited_string;
@@ -61,7 +65,8 @@ RELATION_JOIN_FOLDER *relation_join_folder_new(
 			DICTIONARY *row_dictionary /* in */,
 			char *application_name,
 			RELATION *relation_join_one2m,
-			LIST *primary_key_list );
+			char *one_folder_name,
+			LIST *one_primary_key_list );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -92,5 +97,11 @@ RELATION_JOIN *relation_join_new(
 			DICTIONARY *row_dictionary /* in/out */,
 			char *application_name,
 			LIST *relation_join_one2m_list,
-			LIST *primary_key_list );
+			char *one_folder_name,
+			LIST *one_primary_key_list );
+
+/* Public */
+/* ------ */
+void relation_join_free(RELATION_JOIN *relation_join );
+
 #endif
