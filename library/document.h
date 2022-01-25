@@ -345,6 +345,8 @@ char *document_choose_role_html(
 typedef struct
 {
 	FORM_EDIT_TABLE *form_edit_table;
+	char *html;
+	char *trailer_html;
 } DOCUMENT_BODY_EDIT_TABLE;
 
 /* DOCUMENT_BODY_EDIT_TABLE operations */
@@ -353,11 +355,31 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc(
 			void );
 
 DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
-			char * );
+			char *folder_name,
+			MENU *menu,
+			boolean menu_boolean,
+			int dictionary_list_length,
+			char *edit_table_submit_action_string,
+			LIST *operation_list,
+			LIST *edit_table_heading_list,
+			char *edit_table_title,
+			char *javascript_replace,
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary );
+
+char *document_body_edit_table_html(
+			char *document_body_html,
+			char *form_edit_table_html );
+
+char *document_body_edit_table_trailer_html(
+			char *form_edit_table_trailer_html );
 
 typedef struct
 {
-	DOCUMENT_HEAD *document_head;
+	DOCUMENT *document;
 	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table;
 } DOCUMENT_EDIT_TABLE;
 
@@ -370,16 +392,19 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			char *application_name,
 			char *folder_name,
 			char *edit_table_title,
-			char *edit_table_subtitle_html,
 			MENU *menu,
 			boolean menu_boolean,
 			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
+			LIST *operation_list,
 			LIST *edit_table_heading_list,
 			char *javascript_replace,
-			SECURITY_ENTITY *security_entity );
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary );
 
 /* To be retired */
 /* ------------- */

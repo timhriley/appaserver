@@ -15,7 +15,6 @@
 #include "application_constants.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver.h"
 #include "form.h"
 #include "document.h"
 
@@ -712,36 +711,107 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			char *application_name,
 			char *folder_name,
 			char *edit_table_title,
-			char *edit_table_subtitle_html,
 			MENU *menu,
 			boolean menu_boolean,
 			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
+			LIST *operation_list,
 			LIST *edit_table_heading_list,
 			char *javascript_replace,
-			SECURITY_ENTITY *security_entity )
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary )
 {
 	DOCUMENT_EDIT_TABLE *document_edit_table =
 		document_edit_table_calloc();
 
-	document_edit_table->document_head =
-		document_head_new(
+	document_edit_table->document =
+		document_new(
 			application_name,
 			edit_table_title,
-			document_head_menu_setup_string( menu_boolean ),
-			document_head_calendar_setup_string(
-				list_length(
-					folder_attribute_date_name_list(
-					 folder_attribute_append_isa_list ) ) ),
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			document_head_javascript_include_string() );
+			menu_boolean,
+			list_length(
+				folder_attribute_date_name_list(
+					folder_attribute_append_isa_list ) ) );
+
+	if ( !document_edit_table->document )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !document_edit_table->document->html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	document_edit_table->document_body_edit_table =
 		document_body_edit_table_new(
+			folder_name,
+			menu,
+			menu_boolean,
+			dictionary_list_length,
+			edit_table_submit_action_string,
+			LIST *operation_list,
+			LIST *edit_table_heading_list,
+			char *edit_table_title,
+			char *javascript_replace,
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary );
+
+	if ( !document_edit_table->document_body_edit_table )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: document_body_edit_table_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !document_edit_table->document_body_edit_table->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: document_body_edit_table->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !document_edit_table->document_body_edit_table->trailer_html )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: document_body_edit_table->trailer_html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	document_edit_table->html =
+		document_edit_table_html(
+			document_edit_table->document->html,
+			document_edit_table->document_body_edit_table->html );
+
+	document_edit_table->trailer_html =
+		document_edit_table_trailer_html(
+			document_body_edit_table->trailer_html );
 
 	return document_edit_table;
 }
@@ -1097,5 +1167,38 @@ void document_output_html_stream( FILE *output_stream )
 
 	fflush( output_stream );
 
+}
+
+DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc( void )
+{
+}
+
+DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
+			char *folder_name,
+			MENU *menu,
+			boolean menu_boolean,
+			int dictionary_list_length,
+			char *edit_table_submit_action_string,
+			LIST *operation_list,
+			LIST *edit_table_heading_list,
+			char *edit_table_title,
+			char *javascript_replace,
+			char *target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *ignore_dictionary )
+{
+}
+
+char *document_body_edit_table_html(
+			char *document_body_html,
+			char *form_edit_table_html )
+{
+}
+
+char *document_body_edit_table_trailer_html(
+			char *form_edit_table_trailer_html )
+{
 }
 

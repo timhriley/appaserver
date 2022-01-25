@@ -20,11 +20,6 @@ static int num_piece_buffer;
 /* -------------------------- */
 static int piece_do_trim = 1;
 
-/* --------------------------------
-  assume s = "abc|def|ghi"
-         piece( buffer, '|', s, 2 )
-	 buffer = "ghi"
-  --------------------------------- */
 char *piece( char *destination, char delimiter, char *source, int offset )
 {
         int mark = 0;
@@ -32,7 +27,11 @@ char *piece( char *destination, char delimiter, char *source, int offset )
  
 	*destination = '\0';
 
-	if ( !delimiter ) return (char *)0;
+	if ( !delimiter )
+	{
+		strcpy( destination, source );
+		return destination;
+	}
 
 	if ( delimiter == PIECE_QUOTE_COMMA_DELIMITER_CODE )
 	{
@@ -98,7 +97,7 @@ char *piece( char *destination, char delimiter, char *source, int offset )
 	if ( piece_do_trim ) trim( destination );
 	return destination;
  
-} /* piece */
+}
  
 LIST *piece_list(	LIST *source_list,
 			char delimiter,
@@ -127,7 +126,7 @@ LIST *piece_list(	LIST *source_list,
 
 	return return_list;
 
-} /* piece_list() */
+}
 
 char *piece_double_quoted(
 			char *destination,
@@ -257,7 +256,7 @@ char *piece_quoted(	char *destination,
 
 	return destination;
  
-} /* piece_quoted */
+}
  
 char *piece_multiple(	char *destination, 
 			char delimiter, 
@@ -302,7 +301,7 @@ char *piece_multiple(	char *destination,
 	if ( piece_do_trim ) trim( destination );
 	return destination;
  
-} /* piece_mulitple */
+}
  
 
 /* --------------------------------------------------------------------
@@ -351,7 +350,7 @@ int piece_record_to_string( char *str, char delimiter )
 		}
 	}
 	return 1;
-} /* piece_record_to_string() */
+}
 
 
 
@@ -387,7 +386,7 @@ char *replace_piece(	char *source_destination,
 			new_data, 
 			piece_offset );
 
-} /* replace_piece() */
+}
 
 
 void piece_set_notrim()
@@ -447,8 +446,7 @@ char *piece_insert( 	char *source_destination,
 					insert_buffer,
 					here );
 	}
-
-} /* piece_insert() */
+}
 
 char *piece_delete( char *source_destination, char delimiter, int piece_offset )
 {
@@ -473,8 +471,7 @@ char *piece_delete_multiple(
 	} while( --columns_to_piece );
 
 	return source_destination;
-
-} /* piece_delete_multiple() */
+}
 
 char *piece_inverse( 	char *source_destination, 
 			char delimiter, 
@@ -509,7 +506,7 @@ char *piece_inverse( 	char *source_destination,
 	piece_trim( s_here, s, piece_offset );
 	return source_destination;
 
-} /* piece_inverse() */
+}
 
 char *piece_swap( 	char *source_destination, 
 			char delimiter, 
@@ -538,7 +535,7 @@ char *piece_swap( 	char *source_destination,
 				data1, 
 				piece2_offset );
 
-} /* piece_swap() */
+}
 
 
 char *piece_split_in_two( char *destination, 
@@ -592,7 +589,7 @@ char *piece_split_in_two( char *destination,
 		return destination;
  
 
-} /* piece_split_in_two() */
+}
 
 
 char *piece_trim( char *s_here, char *s, int piece_offset )
@@ -612,7 +609,7 @@ char *piece_trim( char *s_here, char *s, int piece_offset )
 		return s_here;
 	}
 
-} /* piece_trim() */
+}
 
 /* Sample fmt_str = "where last_activity_date = '&2'" */
 /* -------------------------------------------------- */
@@ -660,7 +657,7 @@ char *piece_replace_with_fmt_str(	char *destination,
 
 	return destination;
 
-} /* piece_replace_with_fmt_str() */
+}
 
 void piece_bar_or_error( char *d, char *s, int piece_offset )
 {
@@ -671,7 +668,7 @@ void piece_bar_or_error( char *d, char *s, int piece_offset )
 			 s );
 		exit( 1 );
 	}
-} /* piece_bar_or_error() */
+}
 
 
 char *piece_last( char *destination, char delimiter, char *source )
@@ -728,7 +725,7 @@ char *piece_replace(	char *source_destination,
 
 	return source_destination;
 
-} /* piece_replace() */
+}
 
 char *piece_grep(	char *source,
 			char delimiter,
@@ -780,7 +777,7 @@ char *piece_grep(	char *source,
 
 	return (char *)0;
 
-} /* piece_grep() */
+}
 
 char *piece_shift_left(	char *source_destination, 
 			char delimiter )
@@ -797,7 +794,7 @@ char *piece_shift_left(	char *source_destination,
 	piece_delete( source_destination, delimiter, 0 );
 	return source_destination;
 
-} /* piece_shift_left() */
+}
 
 char *piece_shift_right(char *source_destination, 
 			char delimiter )
@@ -814,35 +811,13 @@ char *piece_shift_right(char *source_destination,
 			data,
 			0 );
 
-/*
-	piece_delete(
-		source_destination,
-		delimiter,
-		1 );
-*/
-
 	piece_delete(
 		source_destination,
 		delimiter,
 		count_characters( delimiter, source_destination ) + 1 );
-/*
-	piece_delete(
-		source_destination,
-		delimiter,
-		count_characters( delimiter, source_destination ) );
-*/
-
-/*
-	{
-		int str_len = strlen( source_destination );
-		*(source_destination + str_len) = delimiter;
-		*(source_destination + str_len + 1) = '\0';
-	}
-*/
-
 	return source_destination;
 
-} /* piece_shift_right() */
+}
 
 int piece_delimiter_position(
 			char *source,

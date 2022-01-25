@@ -172,6 +172,7 @@ char *query_data_not_null_where(
 /* --------------------- */
 char *query_data_or_where(
 			char *attribute_full_attribute_name,
+			boolean attribute_is_number,
 			char *escaped_replaced_data );
 
 /* Returns static memory */
@@ -194,8 +195,9 @@ char *query_data_not_contains_where(
 
 /* Returns static memory */
 /* --------------------- */
-char *query_data_not_equal_or_null_where(
+char *query_data_not_equal_where(
 			char *full_attribute_name,
+			boolean attribute_is_number,
 			char *escaped_replaced_data );
 
 /* Returns static memory */
@@ -220,7 +222,17 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *attribute_base;
+	char *date_attribute_base;
+	char *time_attribute_name;
+	QUERY_DATA *from_date;
+	QUERY_DATA *from_time;
+	QUERY_DATA *to_date;
+	QUERY_DATA *to_time;
+	QUERY_DATA *from;
+	QUERY_DATA *to;
+	char *date_time_where;
+	char *non_date_time_where;
+	char *where_string;
 } QUERY_BETWEEN_DATA;
 
 /* QUERY_BETWEEN_DATA operations */
@@ -283,7 +295,6 @@ char *query_between_data_date_time_where(
 			QUERY_DATA *from_time,
 			QUERY_DATA *to_date,
 			QUERY_DATA *to_time,
-			char *datatype_name,
 			char *folder_table_name,
 			int relation_mto1_isa_list_length );
 
@@ -292,12 +303,13 @@ char *query_between_data_date_time_where(
 char *query_between_data_non_date_time_where(
 			QUERY_DATA *data_from,
 			QUERY_DATA *data_to,
+			char *datatype_name,
 			char *folder_table_name,
 			int relation_mto1_isa_list_length );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *query_between_data_where(
+char *query_between_data_where_string(
 			char *query_between_data_date_time_where,
 			char *query_between_data_where );
 
@@ -386,7 +398,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
-			int relation_mto1_isa_list_length,
+			LIST *relation_mto1_isa_list,
 			char *security_entity_where,
 			DICTIONARY *query_dictionary,
 			ROW_SECURITY_ROLE *row_security_role );
@@ -820,7 +832,9 @@ char *query_join_where(
 /* Returns static memory */
 /* --------------------- */
 char *query_join_relation_where(
+			char *application_name,
 			char *primary_folder_table_name,
+			LIST *primary_key_list,
 			LIST *relation_mto1_isa_list );
 
 /* Returns static memory */

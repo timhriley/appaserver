@@ -2378,7 +2378,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			folder_name,
 			folder_attribute_append_isa_list,
 			relation_mto1_non_isa_list,
-			list_length( relation_mto1_isa_list ),
+			relation_mto1_isa_list,
 			security_entity_where,
 			query_dictionary,
 			row_security_role );
@@ -2700,71 +2700,6 @@ char *query_where_clause( char *where_string )
 	}
 }
 
-char *query_edit_table_from_string(
-			char *folder_name,
-			LIST *relation_mto1_isa_list,
-			ROW_SECURITY_ROLE *row_security_role )
-{
-	char from_string[ 1024 ];
-	char *ptr = from_string;
-	LIST *mto1_folder_name_list;
-	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
-
-	if ( !folder_name || !*folder_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	ptr += sprintf(
-		ptr,
-		"from %s",
-		/* ----------------------------- */
-		/* Returns static memory or null */
-		/* ----------------------------- */
-		folder_table_name(
-			environment_application_name(),
-			folder_name ) );
-
-	mto1_folder_name_list =
-		relation_mto1_folder_name_list(
-			relation_mto1_isa_list );
-
-	if ( list_rewind( mto1_folder_name_list ) )
-	{
-		do {
-			ptr += sprintf(
-				ptr,
-				",%s",
-				(char *)list_get( mto1_folder_name_list ) );
-		} while ( list_next( mto1_folder_name_list ) );
-	}
-
-	if ( row_security_role )
-	{
-		if ( list_rewind( row_security_role->update_list ) )
-		{
-			do {
-				row_security_role_update =
-					list_get(
-						row_security_role->
-							update_list );
-
-				ptr += sprintf(
-					ptr,
-					",%s",
-					row_security_role_update->folder_name );
-
-			} while ( list_next( row_security_role->update_list ) );
-	}
-
-	return strdup( from_string );
-}
-
 char *query_order_string(
 			char *query_select_list_string,
 			DICTIONARY *sort_dictionary )
@@ -2881,12 +2816,15 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
-			int relation_mto1_isa_list_length,
+			LIST *relation_mto1_isa_list,
 			char *security_entity_where,
 			DICTIONARY *query_dictionary,
 			ROW_SECURITY_ROLE *row_security_role )
 {
 	QUERY_EDIT_TABLE_WHERE *where = query_edit_table_where_calloc();
+
+	where->relation_mto1_isa_list_length =
+		list_length( relation_mto1_isa_list );
 
 	where->query_drop_down_list =
 		query_drop_down_list(
@@ -2901,7 +2839,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			query_drop_down_list_where(
 				application_name,
 				where->query_drop_down_list,
-				relation_mto1_isa_list_length );
+				where->relation_mto1_isa_list_length );
 	}
 
 	where->query_attribute_list =
@@ -2909,7 +2847,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			application_name,
 			folder_attribute_append_isa_list,
 			query_dictionary,
-			relation_mto1_isa_list_length );
+			where->relation_mto1_isa_list_length );
 
 	if ( list_length( where->query_attribute_list ) )
 	{
@@ -3106,7 +3044,7 @@ enum query_relation query_relation_enum(
 			char *operator_fetch,
 			char *datatype_name )
 {
-	enum query_relation query_relation;
+	enum query_relation query_relation = {0};
 
 	if ( !operator_fetch )
 	{
@@ -3267,7 +3205,6 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 		query_between_data->to_time =
 			query_between_data_to_time(
 				time_attribute_name,
-				(char *)0 /* datatype_name */,
 				dictionary );
 
 		query_between_data->date_time_where =
@@ -3306,8 +3243,8 @@ QUERY_BETWEEN_DATA *query_between_data_new(
 				relation_mto1_isa_list_length );
 	}
 
-	query_between_data->where =
-		query_between_data_where(
+	query_between_data->where_string =
+		query_between_data_where_string(
 			query_between_data->date_time_where,
 			query_between_data->non_date_time_where );
 
@@ -3421,16 +3358,6 @@ QUERY_DATA *query_between_data_to_time(
 			DICTIONARY *dictionary )
 {
 	char to_attribute_name[ 128 ];
-
-	if ( !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 
 	if ( !time_attribute_name ) return (QUERY_DATA *)0;
 	if ( !dictionary_length( dictionary ) ) return (QUERY_DATA *)0;
@@ -3635,7 +3562,7 @@ char *query_between_data_non_date_time_where(
 
 	if ( relation_mto1_isa_list_length )
 	{
-		if ( !folder_name_name )
+		if ( !folder_table_name )
 		{
 			fprintf(stderr,
 			"ERROR in %s/%s()/%d: folder_table_name is empty.\n",
@@ -3687,22 +3614,22 @@ char *query_between_data_non_date_time_where(
 	return where;
 }
 
-char *query_between_data_where(
-			char *query_between_data_date_time_where,
-			char *query_between_data_non_date_time_where )
+char *query_between_data_where_string(
+			char *date_time_where,
+			char *non_date_time_where )
 {
 	char where[ 1024 ];
 
-	if ( !query_between_data_date_time_where
-	&&   !query_between_data_non_date_time_where )
+	if ( !date_time_where
+	&&   !non_date_time_where )
 	{
 		return (char *)0;
 	}
 
-	if ( query_between_data_date_time_where )
-		strcpy( where, query_between_data_date_time_where );
+	if ( date_time_where )
+		strcpy( where, date_time_where );
 	else
-		strcpy( where, query_between_data_non_date_time_where );
+		strcpy( where, non_date_time_where );
 
 	return strdup( where );
 }
@@ -3732,7 +3659,7 @@ char *query_attribute_list_where( LIST *query_attribute_list )
 {
 	char where[ STRING_64K ];
 	char *ptr = where;
-	QUERY_ATTRIBUTE *query_attibute;
+	QUERY_ATTRIBUTE *query_attribute;
 	char *tmp;
 
 	if ( !list_rewind( query_attribute_list ) ) return (char *)0;
@@ -3785,7 +3712,7 @@ char *query_attribute_where(
 
 	if ( query_between_data )
 	{
-		return query_between_data->where;
+		return query_between_data->where_string;
 	}
 
 	if ( !query_relation )
@@ -3802,6 +3729,26 @@ char *query_attribute_where(
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: query_data is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query_data->folder_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_data->folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !query_data->datatype_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_data->datatype_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -3856,6 +3803,8 @@ char *query_attribute_where(
 			attribute_full_attribute_name(
 				folder_table_name,
 				query_data->attribute_name ),
+			attribute_is_number(
+				query_data->datatype_name ),
 			query_data->escaped_replaced_data );
 	}
 	else
@@ -3907,19 +3856,21 @@ char *query_attribute_where(
 			query_data->escaped_replaced_data );
 	}
 	else
-	if ( query_relation->query_relation_enum == not_equal_or_null )
+	if ( query_relation->query_relation_enum == not_equal )
 	{
 		return
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		query_data_not_equal_or_null_where(
+		query_data_not_equal_where(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			attribute_full_attribute_name(
 				folder_table_name,
 				query_data->attribute_name ),
+			attribute_is_number(
+				query_data->datatype_name ),
 			query_data->escaped_replaced_data );
 	}
 	else
@@ -3965,8 +3916,7 @@ char *query_data_is_null_where(
 	static char where[ 128 ];
 
 	sprintf(where,
-		"(%s = 'null' or %s = '' or %s is null)"
-		full_attribute_name,
+		"(%s = 'null' or %s is null)",
 		full_attribute_name,
 		full_attribute_name );
 
@@ -3979,8 +3929,7 @@ char *query_data_not_null_where(
 	static char where[ 128 ];
 
 	sprintf(where,
-		"(%s <> 'null' or %s <> '' or %s is not null)"
-		full_attribute_name,
+		"(%s <> 'null' or %s is not null)",
 		full_attribute_name,
 		full_attribute_name );
 
@@ -3989,31 +3938,48 @@ char *query_data_not_null_where(
 
 char *query_data_or_where(
 			char *full_attribute_name,
+			boolean attribute_is_number,
 			char *escaped_replaced_data )
 {
 	static char where[ 1024 ];
 	char *ptr = where;
-	char piece_buffer[ 128 ];
+	char piece_buffer[ 256 ];
 	int i;
+	char delimiter;
+	char expression[ 256 ];
+
+	delimiter = string_delimiter( escaped_replaced_data );
 
 	ptr += sprintf( ptr, "(" );
 
 	for(	i = 0;
 		piece(	piece_buffer,
-			',',
+			delimiter,
 			escaped_replaced_data,
 			i );
 		i++ )
 	{
 		if ( ptr != where ) ptr += sprintf( ptr, " or " );
 
+		if ( attribute_is_number )
+		{
+			sprintf(expression,
+				"%s = %s",
+				full_attribute_name,
+				piece_buffer );
+		}
+		else
+		{
+			sprintf(expression,
+				"%s = '%s'",
+				full_attribute_name,
+				piece_buffer );
+		}
+
 		ptr += sprintf(
 	   		ptr,
-	   		"%s = '%s'",
-			attribute_full_attribute_name(
-	   			folder_table_name,
-	   			attribute_name ),
-	   		piece_buffer );
+			"%s",
+			expression );
 	}
 
 	ptr += sprintf( ptr, ")" );
@@ -4068,16 +4034,32 @@ char *query_data_not_contains_where(
 	return where;
 }
 
-char *query_data_not_equal_or_null_where(
+char *query_data_not_equal_where(
 			char *full_attribute_name,
+			boolean attribute_is_number,
 			char *escaped_replaced_data )
 {
-	static char where[ 256 ];
+	static char where[ 512 ];
+	char expression[ 256 ];
+
+	if ( attribute_is_number )
+	{
+		sprintf(expression,
+			"%s <> %s",
+			full_attribute_name,
+			escaped_replaced_data );
+	}
+	else
+	{
+		sprintf(expression,
+			"%s <> '%s'",
+			full_attribute_name,
+			escaped_replaced_data );
+	}
 
 	sprintf(where,
-	   	"(%s <> '%s' or %s is null)",
-		full_attribute_name,
-		query_data->from_data,
+	   	"(%s or %s is null)",
+		expression,
 		full_attribute_name );
 
 	return where;
@@ -4202,8 +4184,13 @@ char *query_join_where(
 		ptr += sprintf(
 			ptr,
 			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			query_join_relation_where(
+				application_name,
 				primary_folder_table_name,
+				primary_key_list,
 				relation_mto1_isa_list ) );
 	}
 
@@ -4255,7 +4242,8 @@ char *query_join_where(
 					application_name,
 					row_security_role->
 						relation->
-						many_folder ),
+						many_folder->
+						folder_name ),
 				primary_key_list,
 				row_security_role->
 					relation->
@@ -4268,17 +4256,18 @@ char *query_join_where(
 		free( primary_folder_table_name );
 	}
 
-	return strdup( where_clause );
+	return strdup( where );
 }
 
 char *query_join_relation_where(
+			char *application_name,
 			char *primary_folder_table_name,
+			LIST *primary_key_list,
 			LIST *relation_mto1_isa_list )
 {
 	static char where[ 2048 ];
 	char *ptr = where;
 	RELATION *relation;
-	char *relation_folder_table_name;
 
 	if ( !list_rewind( relation_mto1_isa_list ) )
 	{
@@ -4341,7 +4330,7 @@ char *query_join_relation_where(
 				/* ----------------------------- */
 				folder_table_name(
 					application_name,
-					relation->one_folder->folder_name ),
+					relation->one_folder->folder_name )
 					/* relation_folder_table_name */,
 				primary_key_list,
 				relation->foreign_key_list ) );

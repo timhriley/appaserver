@@ -8,7 +8,6 @@
 #include "String.h"
 #include "element.h"
 #include "application.h"
-#include "appaserver.h"
 #include "dictionary.h"
 #include "frameset.h"
 #include "folder_menu.h"
