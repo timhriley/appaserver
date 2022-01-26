@@ -894,6 +894,26 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			ignore_dictionary );
 
+	form_edit_table->html =
+		form_edit_table_html(
+			form_edit_table->tag,
+			form_edit_table->top_button_element_list_html,
+			form_edit_table->sort_checkbox_element_list_html,
+			form_edit_table->heading_element_list_html );
+
+	form_edit_table->trailer_html =
+		form_edit_table_trailer_html(
+			form_edit_table->bottom_button_element_list_html,
+			form_edit_table->element_table_close_html,
+			form_edit_table->query_dictionary_hidden_html,
+			form_edit_table->sort_dictionary_hidden_html,
+			form_edit_table->drillthru_dictionary_hidden_html,
+			form_edit_table->ignore_dictionary_hidden_html,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			form_close_html() );
+
 	return form_edit_table;
 }
 
@@ -1293,7 +1313,7 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
-			form_close_tag_html() );
+			form_close_html() );
 
 	if ( !form_choose_role->html )
 	{
@@ -1401,14 +1421,14 @@ LIST *form_choose_role_element_list(
 char *form_choose_role_html(
 			char *tag_html,
 			LIST *element_list,
-			char *form_close_tag_html )
+			char *form_close_html )
 {
 	char html[ 65536 ];
 	char *element_list_html;
 
 	if ( !tag_html
 	||   !list_length( element_list )
-	||   !form_close_tag_html )
+	||   !form_close_html )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: parameter is empty.\n",
@@ -1442,14 +1462,40 @@ char *form_choose_role_html(
 		"%s\n%s\n%s",
 		tag_html,
 		element_list_html,
-		form_close_tag_html );
+		form_close_html );
 
 	free( element_list_html );
 
 	return strdup( html );
 }
 
-char *form_close_tag_html( void )
+char *form_close_html( void )
 {
 	return "</form>";
 }
+
+char *form_edit_table_html(
+			char *form_edit_table_tag,
+			char *top_button_element_list_html,
+			char *sort_checkbox_element_list_html,
+			char *heading_element_list_html )
+{
+	char html[ STRING_64K ];
+
+	return html;
+}
+
+char *form_edit_table_trailer_html(
+			char *bottom_button_element_list_html,
+			char *element_table_close_html,
+			char *query_dictionary_hidden_html,
+			char *sort_dictionary_hidden_html,
+			char *drillthru_dictionary_hidden_html,
+			char *ignore_dictionary_hidden_html,
+			char *form_close_html )
+{
+	char html[ STRING_ONE_MEG ];
+
+	return html;
+}
+

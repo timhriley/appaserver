@@ -729,6 +729,9 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 		document_edit_table_calloc();
 
 	document_edit_table->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		document_new(
 			application_name,
 			edit_table_title,
@@ -737,27 +740,10 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 				folder_attribute_date_name_list(
 					folder_attribute_append_isa_list ) ) );
 
-	if ( !document_edit_table->document )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: document_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !document_edit_table->document->html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: document->html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	document_edit_table->document_body_edit_table =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		document_body_edit_table_new(
 			folder_name,
 			menu,
@@ -774,40 +760,18 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *ignore_dictionary );
 
-	if ( !document_edit_table->document_body_edit_table )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: document_body_edit_table_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !document_edit_table->document_body_edit_table->html )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: document_body_edit_table->html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !document_edit_table->document_body_edit_table->trailer_html )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: document_body_edit_table->trailer_html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	document_edit_table->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		document_edit_table_html(
 			document_edit_table->document->html,
 			document_edit_table->document_body_edit_table->html );
+
+/*
+	free( document_edit_table->document->html );
+	free( document_edit_table->document_body_edit_table->html );
+*/
 
 	document_edit_table->trailer_html =
 		document_edit_table_trailer_html(
@@ -1171,6 +1135,20 @@ void document_output_html_stream( FILE *output_stream )
 
 DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc( void )
 {
+	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table;
+
+	if ( ! ( document_body_edit_table =
+			calloc( 1, sizeof( DOCUMENT_BODY_EDIT_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return document_body_edit_table;
 }
 
 DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
@@ -1189,16 +1167,140 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *ignore_dictionary )
 {
+	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table =
+		document_body_edit_table_calloc();
+
+	document_body_edit_table->document_body =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_body_new(
+			menu,
+			menu_boolean,
+			edit_table_title,
+			javascript_replace );
+
+	document_body_edit_table->form_edit_table =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		form_edit_table_new(
+			folder_name,
+			javascript_replace,
+			dictionary_list_length,
+			edit_table_submit_action_string,
+			operation_list,
+			edit_table_heading_list,
+			target_frame,
+			query_dictionary,
+			sort_dictionary,
+			drillthru_dictionary,
+			ignore_dictionary );
+
+	if ( !document_body_edit_table->document_body->html )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: document_body_edit_table->document_body->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !document_body_edit_table->form_edit_table->html )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: document_body_edit_table->form_edit_table->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	document_body_edit_table->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		document_body_edit_table_html(
+			document_body_edit_table->document_body->html,
+			document_body_edit_table->form_edit_table->html );
+
+/*
+	free( document_body_edit_table->document_body->html );
+	free( document_body_edit_table->form_edit_table->html );
+*/
+
+	document_body_edit_table->trailer_html =
+		/* ------------------------------------- */
+		/* Returns form_edit_table_trailer->html */
+		/* ------------------------------------- */
+		document_body_edit_table_trailer_html(
+			document_body_edit_table->
+				form_edit_table->
+				trailer_html );
+
+	return document_body_edit_table;
 }
 
 char *document_body_edit_table_html(
 			char *document_body_html,
 			char *form_edit_table_html )
 {
+	char html[ STRING_FOUR_MEG ];
+
+	if ( !document_body_html
+	||   !form_edit_table_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s",
+		document_body_html,
+		form_edit_table_html );
+
+	return strdup( html );
 }
 
 char *document_body_edit_table_trailer_html(
 			char *form_edit_table_trailer_html )
 {
+	return form_edit_table_trailer_html;
+}
+
+char *document_edit_table_html(
+			char *document_html,
+			char *document_body_edit_table_html )
+{
+	char html[ STRING_FOUR_MEG ];
+
+	if ( !document_html
+	||   !document_body_edit_table_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s",
+		document_html,
+		document_body_edit_table_html );
+
+	return strdup( html );
+}
+
+char *document_edit_table_trailer_html(
+			char *document_body_edit_table_trailer_html )
+{
+	return document_body_edit_table_trailer_html;
 }
 

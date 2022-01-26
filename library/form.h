@@ -72,6 +72,8 @@ typedef struct
 	char *sort_dictionary_hidden_html;
 	char *drillthru_dictionary_hidden_html;
 	char *ignore_dictionary_hidden_html;
+	char *html;
+	char *trailer_html;
 } FORM_EDIT_TABLE;
 
 /* FORM_EDIT_TABLE operations */
@@ -79,6 +81,8 @@ typedef struct
 FORM_EDIT_TABLE *form_edit_table_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 FORM_EDIT_TABLE *form_edit_table_new(
 			char *folder_name,
 			char *javascript_replace,
@@ -111,13 +115,24 @@ LIST *form_edit_table_heading_element_list(
 			LIST *operation_list,
 			LIST *edit_table_heading_list );
 
-void form_edit_table_dictionary_list_output(
-			FILE *output_stream,
-			LIST *operation_list,
-			LIST *dictionary_list,
-			LIST *regular_element_list,
-			LIST *viewonly_element_list,
-			LIST *edit_table_heading_list );
+/* Returns heap memory */
+/* ------------------- */
+char *form_edit_table_html(
+			char *form_edit_table_tag,
+			char *top_button_element_list_html,
+			char *sort_checkbox_element_list_html,
+			char *heading_element_list_html );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_edit_table_trailer_html(
+			char *bottom_button_element_list_html,
+			char *element_table_close_html,
+			char *query_dictionary_hidden_html,
+			char *sort_dictionary_hidden_html,
+			char *drillthru_dictionary_hidden_html,
+			char *ignore_dictionary_hidden_html,
+			char *form_close_html );
 
 typedef struct
 {
@@ -245,7 +260,7 @@ LIST *form_choose_role_element_list(
 char *form_choose_role_html(
 			char *tag_html,
 			LIST *element_list,
-			char *form_close_tag_html );
+			char *form_close_html );
 
 typedef struct
 {
@@ -304,7 +319,7 @@ char *form_tag_html(	char *form_name,
 
 /* Returns program memory */
 /* ---------------------- */
-char *form_close_tag_html(
+char *form_close_html(
 			void );
 
 char *form_next_reference_number(

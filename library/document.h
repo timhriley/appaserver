@@ -344,6 +344,9 @@ char *document_choose_role_html(
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
+	DOCUMENT_BODY *document_body;
 	FORM_EDIT_TABLE *form_edit_table;
 	char *html;
 	char *trailer_html;
@@ -354,6 +357,8 @@ typedef struct
 DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 			char *folder_name,
 			MENU *menu,
@@ -370,10 +375,14 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *ignore_dictionary );
 
+/* Returns heap memory */
+/* ------------------- */
 char *document_body_edit_table_html(
 			char *document_body_html,
 			char *form_edit_table_html );
 
+/* Returns form_edit_table_trailer_html */
+/* ------------------------------------ */
 char *document_body_edit_table_trailer_html(
 			char *form_edit_table_trailer_html );
 
@@ -405,6 +414,17 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *ignore_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *document_edit_table_html(
+			char *document_html,
+			char *document_body_edit_table_html );
+
+/* Returns document_body_edit_table_trailer_html */
+/* --------------------------------------------- */
+char *document_edit_table_trailer_html(
+			char *document_body_edit_table_trailer_html );
 
 /* To be retired */
 /* ------------- */
