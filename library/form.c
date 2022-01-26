@@ -788,7 +788,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
-			LIST *heading_list,
+			LIST *edit_table_heading_name_list,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
@@ -843,7 +843,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		form_edit_table_sort_checkbox_element_list(
 			folder_name,
 			list_length( operation_list ),
-			heading_list );
+			edit_table_heading_name_list );
 
 	form_edit_table->sort_checkbox_element_list_html =
 		/* --------------------------- */
@@ -860,7 +860,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 	form_edit_table->heading_element_list =
 		form_edit_table_heading_element_list(
 			operation_list,
-			heading_list );
+			edit_table_heading_name_list );
 
 	form_edit_table->heading_element_list_html =
 		/* --------------------------- */
@@ -904,7 +904,10 @@ FORM_EDIT_TABLE *form_edit_table_new(
 	form_edit_table->trailer_html =
 		form_edit_table_trailer_html(
 			form_edit_table->bottom_button_element_list_html,
-			form_edit_table->element_table_close_html,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			element_table_close_html(),
 			form_edit_table->query_dictionary_hidden_html,
 			form_edit_table->sort_dictionary_hidden_html,
 			form_edit_table->drillthru_dictionary_hidden_html,
@@ -1052,7 +1055,7 @@ LIST *form_edit_table_button_element_list(
 LIST *form_edit_table_sort_checkbox_element_list(
 			char *folder_name,
 			int operation_list_length,
-			LIST *edit_table_heading_list )
+			LIST *edit_table_heading_name_list )
 {
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
@@ -1060,7 +1063,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	char action_string[ 128 ];
 	int i;
 
-	if ( !list_length( edit_table_heading_list ) ) return( LIST *)0;
+	if ( !list_length( edit_table_heading_name_list ) ) return( LIST *)0;
 
 	sprintf( action_string, "push_button_submit('%s')", folder_name );
 
@@ -1084,14 +1087,14 @@ LIST *form_edit_table_sort_checkbox_element_list(
 					(char *)0 /* element_name */ ) ) );
 	}
 
-	list_rewind( edit_table_heading_list );
+	list_rewind( edit_table_heading_name_list );
 
 	do {
 		sprintf(element_name,
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			FORM_SORT_ASCEND_LABEL,
-			(char *)list_get( edit_table_heading_list ) );
+			(char *)list_get( edit_table_heading_name_list ) );
 
 		list_set(
 			element_list,
@@ -1104,7 +1107,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 		element->checkbox->prompt_string = "Sort";
 		element->checkbox->on_click = strdup( action_string );
 
-	} while ( list_next( edit_table_heading_list ) );
+	} while ( list_next( edit_table_heading_name_list ) );
 
 	/* Create the descend checkboxes */
 	/* ----------------------------- */
@@ -1126,14 +1129,14 @@ LIST *form_edit_table_sort_checkbox_element_list(
 					(char *)0 /* element_name */ ) ) );
 	}
 
-	list_rewind( edit_table_heading_list );
+	list_rewind( edit_table_heading_name_list );
 
 	do {
 		sprintf(element_name,
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			FORM_SORT_DESCEND_LABEL,
-			(char *)list_get( edit_table_heading_list ) );
+			(char *)list_get( edit_table_heading_name_list ) );
 
 		list_set(
 			element_list,
@@ -1146,7 +1149,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 		element->checkbox->prompt_string = "Descend";
 		element->checkbox->on_click = strdup( action_string );
 
-	} while ( list_next( edit_table_heading_list ) );
+	} while ( list_next( edit_table_heading_name_list ) );
 
 	return element_list;
 }
@@ -1243,9 +1246,34 @@ char *form_choose_isa_html(
 
 LIST *form_edit_table_heading_element_list(
 			LIST *operation_list,
-			LIST *edit_table_heading_list )
+			LIST *heading_name_list )
 {
-	return (LIST *)0;
+	OPERATION *operation;
+	char *heading_name;
+	APPASERVER_ELEMENT *element;
+	LIST *element_list = {0};
+
+	if ( list_rewind( operation_list ) )
+	{
+		do {
+			operation = list_get( operation_list );
+
+			if ( !element_list ) element_list = list_new();
+
+		} while ( list_next( operation_list ) );
+	}
+
+	if ( list_rewind( heading_name_list ) )
+	{
+		do {
+			heading_name = list_get( heading_name_list );
+
+			if ( !element_list ) element_list = list_new();
+
+		} while ( list_next( heading_name_list ) );
+	}
+
+	return element_list;
 }
 
 FORM_CHOOSE_ROLE *form_choose_role_calloc( void )
@@ -1481,8 +1509,47 @@ char *form_edit_table_html(
 			char *heading_element_list_html )
 {
 	char html[ STRING_64K ];
+	char *ptr = html;
 
-	return html;
+	if ( form_edit_table_tag )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			form_edit_table_tag );
+	}
+
+	if ( top_button_element_list_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			top_button_element_list_html );
+	}
+
+	if ( sort_checkbox_element_list_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			sort_checkbox_element_list_html );
+	}
+
+	if ( heading_element_list_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			heading_element_list_html );
+	}
+
+	return strdup( html );
 }
 
 char *form_edit_table_trailer_html(
@@ -1495,7 +1562,76 @@ char *form_edit_table_trailer_html(
 			char *form_close_html )
 {
 	char html[ STRING_ONE_MEG ];
+	char *ptr = html;
 
-	return html;
+	if ( bottom_button_element_list_html )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			bottom_button_element_list_html );
+	}
+
+	if ( element_table_close_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			element_table_close_html );
+	}
+
+	if ( query_dictionary_hidden_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			query_dictionary_hidden_html );
+	}
+
+	if ( sort_dictionary_hidden_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			sort_dictionary_hidden_html );
+	}
+
+	if ( drillthru_dictionary_hidden_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			drillthru_dictionary_hidden_html );
+	}
+
+	if ( ignore_dictionary_hidden_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			ignore_dictionary_hidden_html );
+	}
+
+	if ( form_close_html )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			form_close_html );
+	}
+
+	return strdup( html );
 }
 

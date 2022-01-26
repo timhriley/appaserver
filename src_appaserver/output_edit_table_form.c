@@ -83,12 +83,18 @@ int main( int argc, char **argv )
 			folder_name,
 			role_name,
 			target_frame,
+			menu_boolean(
+				current_frame,
+				frameset_menu_horizontal(
+					application_name,
+					login_name ) ),
 			dictionary_separate->query_dictionary,
 			dictionary_separate->ignore_dictionary,
 			dictionary_separate->non_prefixed_dictionary,
 			dictionary_separate->drillthru_dictionary,
 			dictionary_separate->sort_dictionary,
-			dictionary_separate->ignore_select_attribute_name_list);
+			dictionary_separate->
+				ignore_select_attribute_name_list );
 
 	if ( !edit_table )
 	{
@@ -101,7 +107,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	edit_table_output( edit_table );
+	edit_table_output( stdout, edit_table );
 
 	return 0;
 }

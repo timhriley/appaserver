@@ -113,8 +113,8 @@ typedef struct
 ELEMENT_TABLE_CLOSE *element_table_close_calloc(
 			void );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns program memory */
+/* ---------------------- */
 char *element_table_close_html(
 			void );
 
@@ -824,6 +824,11 @@ APPASERVER_ELEMENT *appaserver_element_key_seek(
 			char *element_key,
 			LIST *element_list );
 
+/* Returns list of heap memory */
+/* --------------------------- */
+LIST *appaserver_element_heading_name_list(
+			LIST *appaserver_element_list );
+
 int appaserver_element_tab_order(
 			int tab_order );
 
@@ -898,10 +903,10 @@ char *appaserver_element_value(
 /* Private */
 /* ------- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_element_heading_string(
-			char *name );
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_heading_name(
+			char *element_name );
 
 /* Returns heap memory or null */
 /* --------------------------- */

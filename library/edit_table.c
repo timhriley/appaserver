@@ -153,8 +153,8 @@ EDIT_TABLE *edit_table_new(
 					folder->
 					relation_mto1_isa_list ) );
 
-	edit_table->row_security_edit_table =
-		row_security_edit_table_new(
+	edit_table->row_security =
+		row_security_new(
 			folder_name,
 			edit_table->folder->folder_attribute_append_isa_list,
 			edit_table->folder->relation_mto1_non_isa_list,
@@ -169,12 +169,12 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->non_owner_forbid,
 			edit_table->role->override_row_restrictions,
 			login_name,
-			security_entity );
+			security_entity_where( security_entity ) );
 
-	if ( !edit_table->row_security_edit_table )
+	if ( !edit_table->row_security )
 	{
 		fprintf(stderr,
-"Warning in %s/%s()/%d: row_security_edit_table_new() returned empty.\n",
+"Warning in %s/%s()/%d: row_security_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -182,7 +182,7 @@ EDIT_TABLE *edit_table_new(
 		return (EDIT_TABLE *)0;
 	}
 
-	if ( !edit_table->row_security_edit_table->row_security_element_list )
+	if ( !edit_table->row_security->row_security_element_list )
 	{
 		fprintf(stderr,
 		"Warning in %s/%s()/%d: row_security_element_list is empty.\n",
@@ -198,7 +198,7 @@ EDIT_TABLE *edit_table_new(
 			application_name,
 			folder_name,
 			login_name,
-			security_entity_where( edit_table->security_entity ),
+			edit_table->security_entity_where,
 			edit_table->folder->relation_join_one2m_list,
 			ignore_select_attribute_name_list,
 			edit_table->role->exclude_lookup_attribute_name_list,
@@ -249,8 +249,11 @@ EDIT_TABLE *edit_table_new(
 			target_frame,
 			(char *)0 /* detail_base_folder_name */ );
 
-	edit_table->heading_list =
-		edit_table_heading_list(
+	edit_table->heading_name_list =
+		/* --------------------------- */
+		/* Returns list of heap memory */
+		/* --------------------------- */
+		edit_table_heading_name_list(
 			edit_table->
 				row_security_edit_table->
 				row_security_element_list->
@@ -298,14 +301,14 @@ EDIT_TABLE *edit_table_new(
 			list_length(
 				edit_table->query_edit_table->dictionary_list ),
 			edit_table->submit_action_string,
-			edit_table->heading_list,
+			edit_table->heading_name_list,
 			javascript_replace(
 				folder->post_change_javascript,
 				edit_table->state,
 				0 /* row_number */ ),
 			edit_table->security_entity );
 
-	if ( ! edit_table->document_edit_table )
+	if ( !edit_table->document_edit_table )
 	{
 		fprintf(stderr,
 	"Warning in %s/%s()/%d: document_edit_table_new() returned empty.\n",
@@ -962,5 +965,37 @@ char *edit_table_message_html(
 	*ptr = '\0';
 
 	return strdup( html );
+}
+
+LIST *edit_table_heading_name_list(
+			LIST *regular_element_list,
+			LIST *viewonly_element_list )
+{
+	LIST *apply_element_list;
+
+	if ( regular_element_list )
+	{
+		apply_element_list = regular_element_list;
+	}
+	else
+	{
+		apply_element_list = viewonly_element_list;
+	}
+
+	if ( !list_length( apply_element_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: both parameters are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	/* --------------------------- */
+	/* Returns list of heap memory */
+	/* --------------------------- */
+	appaserver_element_heading_name_list( apply_element_list );
 }
 

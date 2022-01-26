@@ -89,7 +89,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
-			LIST *edit_table_heading_list,
+			LIST *edit_table_heading_name_list,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
@@ -109,11 +109,11 @@ LIST *form_edit_table_button_element_list(
 LIST *form_edit_table_sort_checkbox_element_list(
 			char *folder_name,
 			int operation_list_length,
-			LIST *edit_table_heading_list );
+			LIST *edit_table_heading_name_list );
 
 LIST *form_edit_table_heading_element_list(
 			LIST *operation_list,
-			LIST *edit_table_heading_list );
+			LIST *edit_table_heading_name_list );
 
 /* Returns heap memory */
 /* ------------------- */

@@ -36,15 +36,16 @@ typedef struct
 	boolean menu_boolean;
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
+	SECURITY_ENTITY *security_entity;
+	char *state;
 	boolean primary_keys_non_edit;
-	ROW_SECURITY_EDIT_TABLE *row_security_edit_table;
+	ROW_SECURITY *row_security;
 	QUERY_EDIT_TABLE *query_edit_table;
 	int row_insert_count;
 	int cell_update_count;
 	char *cell_update_folder_list_string;
 	char *results_string;
-	char *submit_action_string;
-	LIST *heading_list;
+	LIST *heading_name_list;
 	LIST *key_list;
 	char *title;
 	char *message_html;
@@ -108,7 +109,9 @@ char *edit_table_submit_action_string(
 			char *target_frame,
 			char *detail_base_folder_name );
 
-LIST *edit_table_heading_list(
+/* Returns list of heap memory */
+/* --------------------------- */
+LIST *edit_table_heading_name_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list );
 

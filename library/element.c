@@ -334,7 +334,7 @@ ELEMENT_TABLE_CLOSE *element_table_close_calloc( void )
 
 char *element_table_close_html( void )
 {
-	return strdup( "</table>" );
+	return "</table>";
 }
 
 #ifdef NOT_DEFINED
@@ -1651,24 +1651,47 @@ char *appaserver_element_button_set_all_control_string(
 }
 #endif
 
-char *appaserver_element_heading_string( char *name )
+LIST *appaserver_element_heading_name_list(
+			LIST *appaserver_element_list )
 {
-	char heading_string[ 128 ];
+	LIST *heading_name_list;
+	char *heading_name;
+	APPASERVER_ELEMENT *appaserver_element;
+
+	if ( !list_rewind( appaserver_element_list ) ) return (LIST *)0;
+
+	heading_name_list = list_new();
+
+	do {
+		appaserver_element =
+			list_get(
+				appaserver_element_list );
+
+		if ( ( heading_name =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_heading_name(
+				appaserver_element->element_name ) ) )
+		{
+			list_set( heading_name_list, heading_name );
+		}
+	} while ( list_next( appaserver_element_list ) );
+
+	return heading_name_list;
+}
+
+char *appaserver_element_heading_name( char *element_name )
+{
+	char heading_name[ 128 ];
 	char trimmed_name[ 128 ];
 
-	if ( !name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !element_name ) return (char *)0;
 
-	trim_index( trimmed_name, name );
-	string_initial_capital( heading_string, trimmed_name );
-	return strdup( heading_string );
+	trim_index( trimmed_name, element_name );
+	string_initial_capital( heading_name, trimmed_name );
+
+	return strdup( heading_name );
 }
 
 char *appaserver_element_html(
@@ -1705,9 +1728,11 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == table_close )
 	{
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_table_close_html();
+		return strdup(
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			element_table_close_html() );
 	}
 	else
 	if ( appaserver_element->element_type == checkbox )
