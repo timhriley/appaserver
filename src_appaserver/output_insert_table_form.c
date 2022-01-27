@@ -148,15 +148,9 @@ int main( int argc, char **argv )
 
 	/* Vertical new button */
 	/* ------------------- */ 
-	vertical_new_button = vertical_new_button_calloc();
-
-	vertical_new_button->one_folder_name =
-		vertical_new_button_dictionary_one_folder_name(
+	vertical_new_button =
+		vertical_new_button_output_insert_table_new(
 			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			dictionary_separate->non_prefixed_dictionary );
-
-	vertical_new_button->many_folder_name =
-		vertical_new_button_dictionary_folder_name(
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
 			dictionary_separate->non_prefixed_dictionary );
 
@@ -269,7 +263,7 @@ int main( int argc, char **argv )
 		/* So only capture the posted attributes if not		*/
 		/* from the vertical new button.			*/
 		/* ---------------------------------------------------- */
-		if ( !vertical_new_button->one_folder_name )
+		if ( !vertical_new_button )
 		{
 			list_append_string_list(	
 				ignore_attribute_name_list,
@@ -289,7 +283,7 @@ int main( int argc, char **argv )
 
 	/* If pair 1tom and not the vertical new button */
 	/* -------------------------------------------- */
-	if ( !vertical_new_button->one_folder_name
+	if ( !vertical_new_button
 	&&   pair_one2m_participating(
 		dictionary_separate->
 			pair_one2m_dictionary ) )
@@ -539,7 +533,7 @@ int main( int argc, char **argv )
 
 	/* If any new button (along the left column) is pressed. */
 	/* ----------------------------------------------------- */
-	if ( vertical_new_button->one_folder_name )
+	if ( vertical_new_button )
 	{
 		char *prompt_filename;
 		char *onload_control_string;

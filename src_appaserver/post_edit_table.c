@@ -253,13 +253,10 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				non_prefixed_dictionary );
 
-	vertical_new_button = vertical_new_button_calloc();
-
-	vertical_new_button->many_folder_name =
-		vertical_new_button_dictionary_folder_name(
+	vertical_new_button =
+		vertical_new_button_post_edit_table_new(
 			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
-			dictionary_appaserver->
-				non_prefixed_dictionary );
+			dictionary_separate->non_prefixed_dictionary );
 
 	primary_data_list_string =
 		dictionary_get_string(
@@ -309,8 +306,10 @@ int main( int argc, char **argv )
 				detail_base_folder_name,
 				role_get_override_row_restrictions(
 					role->override_row_restrictions_yn ),
-				vertical_new_button->
-					many_folder_name,
+				(vertical_new_button)
+					? vertical_new_button->
+						many_folder_name
+					: (char *)0,
 				primary_data_list_string );
 	}
 	else

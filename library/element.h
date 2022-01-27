@@ -47,6 +47,7 @@
 #define ELEMENT_VIEWONLY_STATE			"viewonly"
 
 enum element_type {	table_open,
+			table_heading,
 			table_row,
 			table_close,
 			checkbox,
@@ -83,10 +84,34 @@ typedef struct
 ELEMENT_TABLE_OPEN *element_table_open_calloc(
 			void );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns program memory */
+/* ---------------------- */
 char *element_table_open_html(
 			void );
+
+typedef struct
+{
+	/* Input */
+	/* ----- */
+	char *heading_string;
+
+	/* Public */
+	/* ------ */
+	char *html;
+} ELEMENT_TABLE_HEADING;
+
+/* ELEMENT_TABLE_HEADING operations */
+/* ------------------------------- */
+ELEMENT_TABLE_HEADING *element_table_heading_calloc(
+			void );
+
+ELEMENT_TABLE_HEADING *element_table_heading_new(
+			char *heading_string );
+
+/* Returns program memory */
+/* ---------------------- */
+char *element_table_heading_html(
+			char *heading_string );
 
 typedef struct
 {
@@ -98,8 +123,8 @@ typedef struct
 ELEMENT_TABLE_ROW *element_table_row_calloc(
 			void );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns program memory */
+/* ---------------------- */
 char *element_table_row_html(
 			void );
 
@@ -326,10 +351,13 @@ ELEMENT_BUTTON *element_button_new(
 			char *label,
 			char *action_string );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Pubic */
+/* ------ */
+
+/* Returns button_html */
+/* -------------------- */
 char *element_button_html(
-			char *html );
+			char *button_html );
 
 typedef struct
 {
@@ -792,6 +820,7 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	ELEMENT_TABLE_OPEN *table_open;
+	ELEMENT_TABLE_HEADING *table_heading;
 	ELEMENT_TABLE_ROW *table_row;
 	ELEMENT_TABLE_CLOSE *table_close;
 	ELEMENT_CHECKBOX *checkbox;
@@ -810,6 +839,9 @@ typedef struct
 
 /* APPASERVER_ELEMENT operations */
 /* ----------------------------- */
+
+/* Usage */
+/* ----- */
 APPASERVER_ELEMENT *appaserver_element_new(
 			enum element_type element_type,
 			char *element_name );
@@ -899,6 +931,15 @@ char *appaserver_element_key_string(
 char *appaserver_element_value(
 			char *key_string,
 			DICTIONARY *row_dictionary );
+
+/* Usage */
+/* ----- */
+APPASERVER_ELEMENT *appaserver_element_operation_table_heading(
+			char *process_name,
+			char *delete_warning_javascript );
+
+APPASERVER_ELEMENT *appaserver_element_table_heading(
+			char *heading_name );
 
 /* Private */
 /* ------- */

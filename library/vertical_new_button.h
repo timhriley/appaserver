@@ -29,14 +29,69 @@ typedef struct
 {
 	char *many_folder_name;
 	char *one_folder_name;
+	char *system_string;
 } VERTICAL_NEW_BUTTON;
 
-/* ---------- */
-/* Prototypes */
-/* ---------- */
+/* VERTICAL_NEW_BUTTON operations */
+/* ------------------------------ */
 VERTICAL_NEW_BUTTON *vertical_new_button_calloc(
 			void );
 
+/* Usage */
+/* ----- */
+VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
+			char *many_folder_name,
+			char *vertical_new_button_one_prefix,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Process */
+/* ------- */
+char *vertical_new_button_one_folder_name(
+			char *vertical_new_button_one_prefix,
+			DICTIONARY *non_prefixed_dictionary );
+
+
+void vertical_new_button_dictionary_set(
+			DICTIONARY *non_prefixed_dictionary,
+			char *hidden_label,
+			char *folder_name );
+
+/* Public */
+/* ------ */
+char *vertical_new_button_system_string(
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *pair_one2m_dictionary,
+			DICTIONARY *non_prefixed_dictionary,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *one_folder_name,
+			char *role_name,
+			char *target_frame );
+
+/* Usage */
+/* ----- */
+VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
+			char *vertical_new_button_many_hidden_label,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Process */
+/* ------- */
+char *vertical_new_button_many_folder_name(
+			char *vertical_new_button_many_hidden_label,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Usage */
+/* ----- */
+VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
+			char *vertical_new_button_one_prefix,
+			char *vertical_new_button_many_hidden_label,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Usage */
+/* ----- */
 char *vertical_new_button_one_element_name(
 			char *vertical_new_button_one_prefix,
 			char *one_folder_name );
@@ -48,18 +103,9 @@ APPASERVER_ELEMENT *vertical_new_button_element(
 			char *vertical_new_button_one_prefix,
 			char *vertical_new_button_display );
 
-char *vertical_new_button_dictionary_one_folder_name(
-			char *vertical_new_button_one_prefix,
-			DICTIONARY *non_prefixed_dictionary );
-
-char *vertical_new_button_dictionary_folder_name(
+char *vertical_new_button_dictionary_many_folder_name(
 			char *hidden_label,
 			DICTIONARY *non_prefixed_dictionary );
-
-void vertical_new_button_dictionary_set(
-			DICTIONARY *non_prefixed_dictionary,
-			char *hidden_label,
-			char *folder_name );
 
 /* Returns prompt_filename */
 /* ----------------------- */

@@ -23,10 +23,9 @@
 #include "appaserver_user.h"
 #include "document.h"
 #include "application.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "appaserver.h"
 #include "environ.h"
-#include "related_folder.h"
 #include "relation.h"
 #include "session.h"
 #include "role.h"
@@ -62,7 +61,7 @@ int post_prompt_insert_database(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *ignore_dictionary,
 			char *application_name,
-			char *session,
+			char *session_key,
 			char *login_name,
 			char *folder_name,
 			char *role_name,
@@ -76,14 +75,14 @@ int post_prompt_insert_database(
 
 int main( int argc, char **argv )
 {
+	char *application_name;
 	char *login_name;
 	char *session_key;
-	char *application_name;
 	char *folder_name;
 	char *role_name;
 	SESSION *session;
-	DICTIONARY_SEPARATE *dictionary_separate;
 	POST_DICTIONARY *post_dictionary;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	PROMPT_INSERT_FORM *prompt_insert_form;
 	LIST *posted_attribute_name_list;
 	LIST *non_populated_attribute_name_list;
@@ -92,8 +91,7 @@ int main( int argc, char **argv )
 	LIST *insert_required_attribute_name_list;
 	char sys_string[ 65536 ];
 	int rows_inserted;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *insert_update_key;
+	APPASERVER_PARAMETER *appaserver_parameter;
 	char *target_frame;
 	LIST *mto1_isa_related_folder_list = {0};
 	ROLE *role;
@@ -107,14 +105,14 @@ int main( int argc, char **argv )
 
 	if ( argc != 7 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name application session folder role target_frame\n",
+		fprintf( stderr,
+"Usage: %s application login_name session folder role target_frame\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	application_name = argv[ 2 ];
+	application_name = argv[ 1 ];
+	login_name = argv[ 2 ];
 	session_key = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	role_name = argv[ 5 ];
@@ -131,7 +129,7 @@ int main( int argc, char **argv )
 			role_name,
 			"insert" /* state */ );
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter = appaserver_parameter_new();
 
 	role =
 		role_fetch(
@@ -181,58 +179,33 @@ int main( int argc, char **argv )
 			folder_attribute_date_name_list(
 				folder->folder_attribute_list ) );
 
-	/* If pressed the new button next to a drop-down. */
-	/* ---------------------------------------------- */
-	vertical_new_button = vertical_new_button_calloc();
-
-	if ( ( vertical_new_button->one_folder_name =
-		vertical_new_button_dictionary_one_folder_name(
+	vertical_new_button =
+		vertical_new_button_post_prompt_insert_new(
+			folder_name /* many_folder_name */,
 			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			dictionary_separate->
-				non_prefixed_dictionary ) ) )
+			dictionary_separate->non_prefixed_dictionary );
+
+	if ( vertical_new_button )
 	{
-		vertical_new_button_dictionary_set(
-			dictionary_separate->non_prefixed_dictionary,
-			VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
-			vertical_new_button->one_folder_name );
-
-		vertical_new_button_dictionary_set(
-			dictionary_separate->non_prefixed_dictionary,
-			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
-			folder_name );
-
-		sprintf(sys_string,
-"echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					dictionary_separate->
-						sort_dictionary,
-					dictionary_separate->
-						query_dictionary,
-					dictionary_separate->
-						drilldown_dictionary,
-					dictionary_separate->
-						ignore_dictionary,
-					dictionary_separate->
-						pair_one2m_dictionary,
-					dictionary_separate->
-						non_prefixed_dictionary ) ),
-		 	login_name,
-			application_name,
-		 	session,
-		 	vertical_new_button->one_folder_name,
-			role_name,
-			insert_update_key,
-			target_frame,
-			appaserver_error_filename(
-				application_name ) );
+		/* If pressed the new button next to a drop-down. */
+		/* ---------------------------------------------- */
+		vertical_new_button->system_string =
+			vertical_new_button_system_string(
+				dictionary_separate->sort_dictionary,
+				dictionary_separate->query_dictionary,
+				dictionary_separate->drillthru_dictionary,
+				dictionary_separate->pair_one2m_dictionary,
+				dictionary_separate->non_prefixed_dictionary,
+				application_name,
+				login_name,
+				session_key,
+				one_folder_name,
+				role_name,
+				target_frame );
 
 		if ( system( sys_string ) ){};
-
 		exit( 0 );
-
-	} /* if vertical_new_button_folder_name */
+	}
 
 	/* =================================== */
 	/* Process the non_prefixed_dictionary */
@@ -279,7 +252,7 @@ int main( int argc, char **argv )
 					(DICTIONARY *)0
 					      /* non_prefixed_dictionary */ ) ),
 		 	login_name,
-		 	session,
+		 	session_key,
 		 	folder_name,
 			role_name,
 			insert_update_key,
@@ -329,7 +302,7 @@ int main( int argc, char **argv )
 	mto1_isa_related_folder_list =
 		related_folder_get_isa_related_folder_list(
 			application_name,
-			session,
+			session_key,
 			folder_name,
 			role_name,
 			role_get_override_row_restrictions(
@@ -402,7 +375,7 @@ int main( int argc, char **argv )
 					/* row_dictionary */,
 				dictionary_separate->ignore_dictionary,
 				application_name,
-				session,
+				session_key,
 				login_name,
 				folder_name,
 				role_name,
@@ -427,7 +400,7 @@ int main( int argc, char **argv )
 			folder_menu_refresh_row_count(
 				application_name,
 				folder_name,
-				session,
+				session_key,
 				appaserver_parameter_file->
 					appaserver_data_directory,
 				role_name );
@@ -460,7 +433,7 @@ int main( int argc, char **argv )
 				sprintf(sys_string,
 	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
 	 				pair_one2m->one_folder_name,
-					session,
+					session_key,
 					login_name,
 					role_name,
 					rows_inserted,
@@ -513,7 +486,7 @@ int main( int argc, char **argv )
 					     /* non_prefixed_dictionary */ ) ),
 		 	login_name,
 			application_name,
-		 	session,
+		 	session_key,
 		 	pair_one2m->one_folder_name,
 			role_name,
 			insert_update_key,
@@ -525,7 +498,7 @@ int main( int argc, char **argv )
 			sprintf(sys_string,
 	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
 	 			folder_name,
-				session,
+				session_key,
 				login_name,
 				role_name,
 				rows_inserted,
@@ -555,7 +528,7 @@ int main( int argc, char **argv )
 					     /* non_prefixed_dictionary */ ) ),
 		 	login_name,
 			application_name,
-		 	session,
+		 	session_key,
 		 	folder_name,
 			role_name,
 			insert_update_key,
@@ -577,7 +550,7 @@ int post_prompt_insert_database(
 			DICTIONARY *row_dictionary,
 			DICTIONARY *ignore_dictionary,
 			char *application_name,
-			char *session,
+			char *session_key,
 			char *login_name,
 			char *folder_name,
 			char *role_name,
@@ -599,7 +572,7 @@ int post_prompt_insert_database(
 	insert_database =
 		insert_database_new(
 				application_name,
-				session,
+				session_key,
 				folder_name,
 				primary_key_list,
 				attribute_name_list,
@@ -616,7 +589,7 @@ int post_prompt_insert_database(
 	insert_database_execute(
 		message,
 		insert_database->application_name,
-		insert_database->session,
+		insert_database->session_key,
 		insert_database->folder_name,
 		role_name,
 		insert_database->primary_key_list,
@@ -677,7 +650,7 @@ int post_prompt_insert_database(
 			insert_database =
 				insert_database_new(
 					application_name,
-					session,
+					session_key,
 					isa_related_folder->
 						folder->
 						folder_name,
@@ -697,7 +670,7 @@ int post_prompt_insert_database(
 			insert_database_execute(
 				isa_message,
 				insert_database->application_name,
-				insert_database->session,
+				insert_database->session_key,
 				insert_database->folder_name,
 				role_name,
 				insert_database->primary_key_list,

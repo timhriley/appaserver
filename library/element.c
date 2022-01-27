@@ -57,6 +57,10 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->table_open =
 			element_table_open_calloc();
 	else
+	if ( element_type == table_heading )
+		element->table_heading =
+			element_table_heading_calloc();
+	else
 	if ( element_type == table_row )
 		element->table_row =
 			element_table_row_calloc();
@@ -290,7 +294,50 @@ ELEMENT_TABLE_OPEN *element_table_open_calloc( void )
 
 char *element_table_open_html( void )
 {
-	return strdup( "<table border=0>" );
+	return "<table border=0>";
+}
+
+ELEMENT_TABLE_HEADING *element_table_heading_calloc( void )
+{
+	ELEMENT_TABLE_HEADING *table_heading;
+
+	if ( ! ( table_heading =
+			calloc( 1, sizeof( ELEMENT_TABLE_HEADING ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return table_heading;
+}
+
+ELEMENT_TABLE_HEADING *element_table_heading_new( char *heading_string )
+{
+	ELEMENT_TABLE_HEADING *table_heading = element_table_heading_calloc();
+
+	table_heading->heading_string = heading_string;
+
+	return table_heading;
+}
+
+char *element_table_heading_html( char *heading_string )
+{
+	char heading_html[ 128 ];
+
+	if ( heading_string )
+	{
+		sprintf( heading_html, "<th>%s", heading_string );
+	}
+	else
+	{
+		strcpy( heading_html, "<th>" );
+	}
+
+	return strdup( heading_html );
 }
 
 ELEMENT_TABLE_ROW *element_table_row_calloc( void )
@@ -312,7 +359,7 @@ ELEMENT_TABLE_ROW *element_table_row_calloc( void )
 
 char *element_table_row_html( void )
 {
-	return strdup( "<tr>" );
+	return "<tr>";
 }
 
 ELEMENT_TABLE_CLOSE *element_table_close_calloc( void )
@@ -1150,19 +1197,19 @@ ELEMENT_BUTTON *element_button_new(
 	return element_button;
 }
 
-char *element_button_html( char *html )
+char *element_button_html( char *button_html )
 {
-	if ( !html )
+	if ( !button_html )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: html is empty.\n",
+			"ERROR in %s/%s()/%d: button_html is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	return strdup( html );
+	return button_html;
 }
 
 char *element_drop_down_empty_html(
@@ -1714,16 +1761,42 @@ char *appaserver_element_html(
 
 	if ( appaserver_element->element_type == table_open )
 	{
+		return
+		strdup(
+			/* Returns program memory */
+			/* ---------------------- */
+			element_table_open_html() );
+	}
+	else
+	if ( appaserver_element->element_type == table_heading )
+	{
+		if ( !appaserver_element->table_heading )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: table_heading is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		return
+		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		return element_table_open_html();
+		element_table_heading_html(
+			appaserver_element->
+				table_heading->
+				heading_string );
 	}
 	else
 	if ( appaserver_element->element_type == table_row )
 	{
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_table_row_html();
+		return
+		strdup(
+			/* Returns program memory */
+			/* ---------------------- */
+			element_table_row_html() );
 	}
 	else
 	if ( appaserver_element->element_type == table_close )
@@ -3434,9 +3507,9 @@ char *element_password_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
 		element_table_open_html() );
 
 	/* Output the password field */
@@ -3772,10 +3845,70 @@ char *appaserver_element_checkbox_html(
 			background_color,
 			checkbox->image_source );
 
+/*
 	if ( checkbox->javascript_replace_on_click )
 	{
 		free( checkbox->javascript_replace_on_click );
 	}
+*/
 
 	return html;
 }
+
+APPASERVER_ELEMENT *appaserver_element_operation_table_heading(
+			char *process_name,
+			char *delete_warning_javascript )
+{
+	APPASERVER_ELEMENT *element;
+	char on_click[ 128 ];
+
+	if ( !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element =
+		appaserver_element_new(
+			checkbox,
+			(char *)0 /* element_name */ );
+
+	if ( delete_warning_javascript )
+	{
+		sprintf(on_click, 
+			"%s;form_push_button_set_all('%s',0);",
+			delete_warning_javascript,
+			process_name );
+	}
+	else
+	{
+		sprintf(on_click, 
+			"form_push_button_set_all('%s',0);",
+			process_name );
+	}
+
+	element->checkbox->element_name = process_name;
+	element->checkbox->on_click = strdup( on_click );
+
+	return element;
+}
+
+APPASERVER_ELEMENT *appaserver_element_table_heading(
+			char *heading_string )
+{
+	APPASERVER_ELEMENT *element;
+
+	element =
+		appaserver_element_new(
+			table_heading,
+			(char *)0 /* element_name */ );
+
+	element->table_heading->heading_string = heading_string;
+
+	return element;
+}
+

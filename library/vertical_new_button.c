@@ -33,7 +33,7 @@ VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
 	return vertical_new_button;
 }
 
-char *vertical_new_button_dictionary_one_folder_name(
+char *vertical_new_button_one_folder_name(
 			char *vertical_new_button_one_prefix,
 			DICTIONARY *non_prefixed_dictionary )
 {
@@ -123,12 +123,12 @@ APPASERVER_ELEMENT *vertical_new_button_element(
 }
 */
 
-char *vertical_new_button_dictionary_folder_name(
-			char *hidden_label,
+char *vertical_new_button_many_folder_name(
+			char *vertical_new_button_many_hidden_label,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	return dictionary_get(
-			hidden_label,
+			vertical_new_button_many_hidden_label,
 			non_prefixed_dictionary );
 }
 
@@ -259,4 +259,116 @@ char *vertical_new_button_blank_prompt_screen(
 	fclose( output_stream );
 
 	return prompt_filename;
+}
+
+VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
+			char *many_folder_name,
+			char *vertical_new_button_one_prefix,
+			DICTIONARY *non_prefixed_dictionary )
+{
+	VERTICAL_NEW_BUTTON *vertical_new_button;
+	char *one_folder_name;
+
+	if ( ! ( one_folder_name =
+			vertical_new_button_one_folder_name(
+				vertical_new_button_one_prefix,
+				non_prefixed_dictionary ) ) )
+	{
+		return (VERTICAL_NEW_BUTTON *)0;
+	}
+
+	vertical_new_button = vertical_new_button_calloc();
+	vertical_new_button->many_folder_name = many_folder_name;
+	vertical_new_button->one_folder_name = one_folder_name;
+
+	return vertical_new_button;
+}
+
+char *vertical_new_button_system_string(
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *pair_one2m_dictionary,
+			DICTIONARY *non_prefixed_dictionary,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *one_folder_name,
+			char *role_name,
+			char *target_frame )
+{
+	char system_string[ 65536 ];
+
+	sprintf(system_string,
+"echo \"%s\" 								|"
+"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
+		dictionary_separate_send_string(
+			sort_dictionary,
+			query_dictionary,
+			drillthru_dictionary,
+			ignore_dictionary,
+			pair_one2m_dictionary,
+			non_prefixed_dictionary ),
+		application_name,
+		login_name,
+		session,
+		one_folder_name,
+		role_name,
+		target_frame,
+		appaserver_error_filename(
+			application_name ) );
+
+	return strdup( system_string );
+}
+
+VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
+			char *vertical_new_button_many_hidden_label,
+			DICTIONARY *non_prefixed_dictionary )
+{
+	VERTICAL_NEW_BUTTON *vertical_new_button;
+	char *many_folder_name;
+
+	many_folder_name =
+		vertical_new_button_many_folder_name(
+			vertical_new_button_many_hidden_label,
+			non_prefixed_dictionary );
+
+	if ( !many_folder_name )
+	{
+		return (VERTICAL_NEW_BUTTON *)0;
+	}
+
+	vertical_new_button = vertical_new_button_calloc();
+	vertical_new_button->many_folder_name = many_folder_name;
+
+	return vertical_new_button;
+}
+
+VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
+			char *vertical_new_button_one_prefix,
+			char *vertical_new_button_many_hidden_label,
+			DICTIONARY *non_prefixed_dictionary )
+{
+	VERTICAL_NEW_BUTTON *vertical_new_button;
+	char *one_folder_name;
+
+	one_folder_name =
+		vertical_new_button_one_folder_name(
+			vertical_new_button_one_prefix,
+			non_prefixed_dictionary );
+
+	if ( !one_folder_name )
+	{
+		return (VERTICAL_NEW_BUTTON *)0;
+	}
+
+	vertical_new_button = vertical_new_button_calloc();
+	vertical_new_button->one_folder_name = one_folder_name;
+
+	vertical_new_button->many_folder_name =
+		vertical_new_button_many_folder_name(
+			vertical_new_button_many_hidden_label,
+			non_prefixed_dictionary );
+
+	return vertical_new_button;
 }

@@ -1244,38 +1244,6 @@ char *form_choose_isa_html(
 	return strdup( html );
 }
 
-LIST *form_edit_table_heading_element_list(
-			LIST *operation_list,
-			LIST *heading_name_list )
-{
-	OPERATION *operation;
-	char *heading_name;
-	APPASERVER_ELEMENT *element;
-	LIST *element_list = {0};
-
-	if ( list_rewind( operation_list ) )
-	{
-		do {
-			operation = list_get( operation_list );
-
-			if ( !element_list ) element_list = list_new();
-
-		} while ( list_next( operation_list ) );
-	}
-
-	if ( list_rewind( heading_name_list ) )
-	{
-		do {
-			heading_name = list_get( heading_name_list );
-
-			if ( !element_list ) element_list = list_new();
-
-		} while ( list_next( heading_name_list ) );
-	}
-
-	return element_list;
-}
-
 FORM_CHOOSE_ROLE *form_choose_role_calloc( void )
 {
 	FORM_CHOOSE_ROLE *form_choose_role;
@@ -1633,5 +1601,75 @@ char *form_edit_table_trailer_html(
 	}
 
 	return strdup( html );
+}
+
+LIST *form_edit_table_heading_element_list(
+			LIST *operation_list,
+			LIST *heading_name_list )
+{
+	OPERATION *operation;
+	char heading_string[ 128 ];
+	APPASERVER_ELEMENT *element;
+	LIST *element_list = list_new();
+
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_row,
+			(char *)0 /* element_name */ ) );
+
+	if ( list_rewind( operation_list ) )
+	{
+		do {
+			operation = list_get( operation_list );
+
+			if ( !operation->process )
+			{
+				fprintf(stderr,
+				"ERROR in %s/%s()/%d: process is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+
+			list_set(
+				element_list,
+				( element =
+					appaserver_element_new(
+					    table_heading,
+					    (char *)0 /* element_name */ ) ) );
+
+			element->table_heading->heading_string =
+				strdup(
+					string_initial_capital(
+						heading_string,
+						operation->
+						    process->
+						    process_name ) );
+
+			list_set(
+				element_list,
+				appaserver_element_operation_table_heading(
+					operation->process->process_name,
+					operation->
+						delete_warning_javascript ) );
+
+		} while ( list_next( operation_list ) );
+	}
+
+	if ( list_rewind( heading_name_list ) )
+	{
+		do {
+			list_set(
+				element_list,
+				appaserver_element_table_heading(
+					list_get( heading_name_list ) ) );
+
+		} while ( list_next( heading_name_list ) );
+	}
+
+	return element_list;
 }
 
