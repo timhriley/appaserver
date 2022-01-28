@@ -19,7 +19,6 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
 #include "application_constants.h"
-#include "vertical_new_button.h"
 #include "dictionary_separate.h"
 #include "pair_one2m.h"
 #include "element.h"

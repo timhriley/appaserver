@@ -13,7 +13,6 @@
 #include "folder_menu.h"
 #include "document.h"
 #include "appaserver_parameter.h"
-#include "appaserver_link.h"
 #include "vertical_new_button.h"
 
 VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
@@ -156,115 +155,20 @@ char *vertical_new_button_onload_control_string( char *prompt_filename )
 
 }
 
-char *vertical_new_button_blank_prompt_screen(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *document_root_directory,
-			char *appaserver_data_directory )
-{
-	char *prompt_filename;
-	char *output_filename;
-	APPASERVER_LINK *appaserver_link;
-	DOCUMENT *document;
-	FILE *output_stream;
-
-	appaserver_link =
-		appaserver_link_new(
-			application_http_prefix( application_name ),
-			appaserver_library_server_address(),
-			( application_prepend_http_protocol_yn(
-				application_name ) == 'y' ),
-			document_root_directory,
-			"blank_screen" /* filename_stem */,
-			application_name,
-			0 /* process_id */,
-			session_key,
-			(char *)0 /* begin_date_string */,
-			(char *)0 /* end_date_string */,
-			"html" );
-
-	output_filename = appaserver_link->output->filename;
-
-	prompt_filename = appaserver_link->prompt->filename;
-
-	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			output_filename );
-		exit( 1 );
-	}
-
-	if ( appaserver_frameset_menu_horizontal(
-		application_name,
-		login_name ) )
-	{
-		FOLDER_MENU *folder_menu;
-
-		if ( ! ( folder_menu =
-				folder_menu_fetch(
-					application_name,
-					session_key,
-					appaserver_data_directory,
-					role_name ) ) )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		document =
-			/* --------------- */
-			/* Always succeeds */
-			/* --------------- */
-			document_new(
-				application_name,
-				menu_fetch(
-					application_name,
-					login_name,
-					session_key,
-					role_name,
-					FRAMESET_PROMPT_FRAME
-						/* target_frame */,
-					folder_menu->lookup_count_list ) );
-	}
-	else
-	{
-		document =
-			/* --------------- */
-			/* Always succeeds */
-			/* --------------- */
-			document_new(
-				application_name,
-				(MENU *)0 /* menu */ );
-	}
-
-	document_begin( output_stream, document );
-
-	fprintf(output_stream,
-		"%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_close_html() );
-
-	fclose( output_stream );
-
-	return prompt_filename;
-}
-
 VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
+			DICTIONARY *non_prefixed_dictionary,
 			char *many_folder_name,
 			char *vertical_new_button_one_prefix,
-			DICTIONARY *non_prefixed_dictionary )
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *pair_one2m_dictionary,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *one_folder_name,
+			char *role_name,
+			char *target_frame )
 {
 	VERTICAL_NEW_BUTTON *vertical_new_button;
 	char *one_folder_name;
@@ -280,6 +184,20 @@ VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
 	vertical_new_button = vertical_new_button_calloc();
 	vertical_new_button->many_folder_name = many_folder_name;
 	vertical_new_button->one_folder_name = one_folder_name;
+
+	vertical_new_button->system_string =
+		vertical_new_button_system_string(
+			sort_dictionary,
+			query_dictionary,
+			drillthru_dictionary,
+			pair_one2m_dictionary,
+			non_prefixed_dictionary,
+			application_name,
+			login_name,
+			session_key,
+			one_folder_name,
+			role_name,
+			target_frame );
 
 	return vertical_new_button;
 }
@@ -345,6 +263,9 @@ VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
 }
 
 VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
+			char *application_name,
+			char *session_key,
+			char *document_root_directory,
 			char *vertical_new_button_one_prefix,
 			char *vertical_new_button_many_hidden_label,
 			DICTIONARY *non_prefixed_dictionary )
@@ -370,5 +291,162 @@ VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
 			vertical_new_button_many_hidden_label,
 			non_prefixed_dictionary );
 
+	vertical_new_button->filename =
+		/* ------------------- */
+		/* Always returns true */
+		/* ------------------- */
+		vertical_new_button_filename_new(
+			application_name,
+			session_key,
+			document_root_directory );
+
+	vertical_new_button->prompt_filename =
+		vertical_new_button_prompt_filename(
+
 	return vertical_new_button;
 }
+
+VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_calloc( void )
+{
+	VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename;
+
+	if ( ! ( vertical_new_button_filename =
+			calloc(	1, sizeof( VERTICAL_NEW_BUTTON_FILENAME ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return vertical_new_button_filename;
+}
+
+VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
+			char *application_name,
+			char *session_key,
+			char *document_root_directory )
+{
+	VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename =
+		vertical_new_button_filename_calloc();
+
+	vertical_new_button_filename->appaserver_link =
+		appaserver_link_new(
+			application_http_prefix( application_name ),
+			appaserver_library_server_address(),
+			( application_prepend_http_protocol_yn(
+				application_name ) == 'y' ),
+			document_root_directory,
+			"blank_screen" /* filename_stem */,
+			application_name,
+			0 /* process_id */,
+			session_key,
+			(char *)0 /* begin_date_string */,
+			(char *)0 /* end_date_string */,
+			"html" );
+
+	if ( !vertical_new_button_filename->appaserver_link )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_link_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			document_root_directory );
+		exit( 1 );
+	}
+
+
+	vertical_new_button_filename->output_filename =
+		appaserver_link->output->filename;
+
+	vertical_new_button_filename->prompt_filename =
+		appaserver_link->prompt->filename;
+
+	return vertical_new_button_filename;
+}
+
+void vertical_new_button_blank_prompt_screen(
+			char *output_filename,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *document_root_directory,
+			char *data_directory )
+{
+	DOCUMENT *document;
+	FILE *output_stream;
+
+	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			output_filename );
+		exit( 1 );
+	}
+
+	if ( appaserver_frameset_menu_horizontal(
+		application_name,
+		login_name ) )
+	{
+		FOLDER_MENU *folder_menu;
+
+		if ( ! ( folder_menu =
+				folder_menu_fetch(
+					application_name,
+					session_key,
+					data_directory,
+					role_name ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		document =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			document_new(
+				application_name,
+				menu_fetch(
+					application_name,
+					login_name,
+					session_key,
+					role_name,
+					FRAMESET_PROMPT_FRAME
+						/* target_frame */,
+					folder_menu->lookup_count_list ) );
+	}
+	else
+	{
+		document =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			document_new(
+				application_name,
+				(MENU *)0 /* menu */ );
+	}
+
+	document_begin( output_stream, document );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_close_html() );
+
+	fclose( output_stream );
+}
+

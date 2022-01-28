@@ -282,7 +282,7 @@ view_pdf_files
 upgrade-appaserver-database
 clone_application
 get_appaserver_error_directory
-post_prompt_insert_form
+post_prompt_insert
 append_reference_number
 insert_mysql
 post_choose_folder
@@ -291,7 +291,7 @@ post_choose_isa_drop_down
 output_choose_isa_drop_down
 output_edit_table_form
 output_insert_table_form
-post_edit_table_form
+post_edit_table
 post_maintain_user_account
 output_results
 post_login
@@ -302,7 +302,7 @@ get_table_name
 dot_process2option_value
 table_rectification
 output_prompt_process_form
-post_prompt_process_form
+post_prompt_process
 post_choose_process
 output_email
 output_transmit

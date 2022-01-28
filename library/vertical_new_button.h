@@ -13,6 +13,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "element.h"
+#include "appaserver_link.h"
 
 /* --------- */
 /* Constants */
@@ -25,11 +26,36 @@
 /* ---------- */
 /* Structures */
 /* ---------- */
+
 typedef struct
 {
+	/* Process */
+	/* ------- */
+	APPASERVER_LINK *appaserver_link;
+	char *output_filename;
+	char *prompt_filename;
+} VERTICAL_NEW_BUTTON_FILENAME;
+
+/* VERTICAL_NEW_BUTTON_FILENAME operations */
+/* --------------------------------------- */
+VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_calloc(
+			void );
+
+/* Always returns true */
+/* ------------------- */
+VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
+			char *application_name,
+			char *session_key,
+			char *document_root_directory );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
 	char *many_folder_name;
 	char *one_folder_name;
 	char *system_string;
+	VERTICAL_NEW_BUTTON_FILENAME *filename;
 } VERTICAL_NEW_BUTTON;
 
 /* VERTICAL_NEW_BUTTON operations */
@@ -39,10 +65,23 @@ VERTICAL_NEW_BUTTON *vertical_new_button_calloc(
 
 /* Usage */
 /* ----- */
+
+/* Returns true if selected */
+/* ------------------------ */
 VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
+			DICTIONARY *non_prefixed_dictionary,
 			char *many_folder_name,
 			char *vertical_new_button_one_prefix,
-			DICTIONARY *non_prefixed_dictionary );
+			DICTIONARY *sort_dictionary,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *pair_one2m_dictionary,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *one_folder_name,
+			char *role_name,
+			char *target_frame );
 
 /* Process */
 /* ------- */
@@ -56,8 +95,6 @@ void vertical_new_button_dictionary_set(
 			char *hidden_label,
 			char *folder_name );
 
-/* Public */
-/* ------ */
 char *vertical_new_button_system_string(
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *query_dictionary,
@@ -86,6 +123,9 @@ char *vertical_new_button_many_folder_name(
 /* Usage */
 /* ----- */
 VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
+			char *application_name,
+			char *session_key,
+			char *document_root_directory,
 			char *vertical_new_button_one_prefix,
 			char *vertical_new_button_many_hidden_label,
 			DICTIONARY *non_prefixed_dictionary );

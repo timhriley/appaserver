@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/post_prompt_insert_form.c	*/
+/* $APPASERVER_HOME/src_appaserver/post_prompt_insert.c		*/
 /* ---------------------------------------------------------	*/
 /*								*/
 /* This script is attached to the submit button on 		*/
@@ -180,30 +180,36 @@ int main( int argc, char **argv )
 				folder->folder_attribute_list ) );
 
 	vertical_new_button =
+		/* ------------------------ */
+		/* Returns true if selected */
+		/* ------------------------ */
 		vertical_new_button_post_prompt_insert_new(
+			dictionary_separate->non_prefixed_dictionary,
 			folder_name /* many_folder_name */,
 			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			dictionary_separate->non_prefixed_dictionary );
+			dictionary_separate->sort_dictionary,
+			dictionary_separate->query_dictionary,
+			dictionary_separate->drillthru_dictionary,
+			dictionary_separate->pair_one2m_dictionary,
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			target_frame );
 
 	if ( vertical_new_button )
 	{
-		/* If pressed the new button next to a drop-down. */
-		/* ---------------------------------------------- */
-		vertical_new_button->system_string =
-			vertical_new_button_system_string(
-				dictionary_separate->sort_dictionary,
-				dictionary_separate->query_dictionary,
-				dictionary_separate->drillthru_dictionary,
-				dictionary_separate->pair_one2m_dictionary,
-				dictionary_separate->non_prefixed_dictionary,
-				application_name,
-				login_name,
-				session_key,
-				one_folder_name,
-				role_name,
-				target_frame );
+		if ( !vertical_new_button->system_string )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-		if ( system( sys_string ) ){};
+		if ( system( vertical_new_button->system_string ) ){};
 		exit( 0 );
 	}
 

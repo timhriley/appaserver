@@ -12,15 +12,15 @@ CFLAGS=-O3 -s ${WARN}
 LIB=${APPASERVER_HOME}/library
 
 EXECUTABLES=								\
-		post_prompt_insert_form					\
+		post_prompt_insert					\
 		append_reference_number					\
 		insert_mysql						\
 		post_choose_folder					\
 		get_random_session					\
 		post_choose_isa_drop_down				\
 		output_choose_isa_drop_down				\
-		output_edit_table_form					\
-		output_insert_table_form				\
+		output_edit_table					\
+		output_insert_table					\
 		post_edit_table						\
 		post_maintain_user_account				\
 		output_results 						\
@@ -31,8 +31,8 @@ EXECUTABLES=								\
 		get_table_name						\
 		dot_process2option_value				\
 		table_rectification					\
-		output_prompt_process_form				\
-		post_prompt_process_form				\
+		output_prompt_process					\
+		post_prompt_process					\
 		post_choose_process					\
 		output_email						\
 		output_transmit						\
@@ -79,7 +79,7 @@ EXECUTABLES=								\
 		output_frameset						\
 		output_choose_role	 				\
 		post_choose_role_drop_down		 		\
-		output_choose_role_folder_process_form			\
+		output_choose_role_folder_process			\
 		output_choose_folder_process_menu			\
 		maintain_user_account					\
 		synchronize_mysql_produce				\
@@ -99,13 +99,13 @@ EXECUTABLES=								\
 		generic_overlay_output					\
 		generic_output_merged_datasets				\
 		post_merge_purge					\
-		post_prompt_edit_form					\
-		output_prompt_edit_form					\
+		post_prompt_edit					\
+		output_prompt_edit					\
 		upgrade_appaserver_database				\
 		grant_select_to_user					\
 		google_map_operation					\
 		upload_source_file					\
-		output_prompt_insert_form				\
+		output_prompt_insert					\
 		appaserver_user_trigger
 
 EXTERNAL_LIBS=	${LIB}/piece.o 						\
@@ -180,17 +180,17 @@ clean:
 	${CGI_HOME}/post_login						\
 	${CGI_HOME}/post_login_cloudacus				\
 	${CGI_HOME}/post_choose_role_drop_down 				\
-	${CGI_HOME}/post_prompt_edit_form				\
-	${CGI_HOME}/post_prompt_insert_form				\
+	${CGI_HOME}/post_prompt_edit					\
+	${CGI_HOME}/post_prompt_insert					\
 	${CGI_HOME}/post_choose_isa_drop_down				\
-	${CGI_HOME}/output_prompt_insert_form				\
+	${CGI_HOME}/output_prompt_insert				\
 	${CGI_HOME}/post_choose_folder					\
 	${CGI_HOME}/post_choose_process					\
 	${CGI_HOME}/post_edit_table					\
 	${CGI_HOME}/post_generic_load					\
 	${CGI_HOME}/post_merge_purge					\
 	${CGI_HOME}/post_maintain_user_account				\
-	${CGI_HOME}/post_prompt_process_form				\
+	${CGI_HOME}/post_prompt_process					\
 	${CGI_HOME}/drop_column						\
 	${CGI_HOME}/drop_table						\
 	get_appaserver_error_directory					\
@@ -512,16 +512,16 @@ post_choose_role_drop_down:						\
 	${APPASERVER_HOME}/src_appaserver/post_choose_role_drop_down 	\
 	${CGI_HOME}
 
-output_choose_role_folder_process_form:					\
-	output_choose_role_folder_process_form.c			\
+output_choose_role_folder_process:					\
+	output_choose_role_folder_process.c				\
 			${EXTERNAL_LIBS}				\
 			${LIB}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/folder_menu.o					\
-		output_choose_role_folder_process_form.c		\
-		-o output_choose_role_folder_process_form
+		output_choose_role_folder_process.c			\
+		-o output_choose_role_folder_process
 
 output_choose_role_folder_process_frameset:				\
 	output_choose_role_folder_process_frameset.c			\
@@ -548,17 +548,17 @@ output_results: output_results.c					\
 		output_results.c					\
 		-o output_results
 
-output_insert_table_form: output_insert_table_form.c			\
+output_insert_table: output_insert_table.c				\
 			${EXTERNAL_LIBS}				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_insert_table_form.c				\
+		output_insert_table.c					\
 		${LIB}/pair_one2m.o					\
-		-o output_insert_table_form
+		-o output_insert_table
 
-output_edit_table_form: output_edit_table_form.c			\
+output_edit_table: output_edit_table.c					\
 			${EXTERNAL_LIBS}				\
 			${LIB}/lookup_before_drop_down.o		\
 			${LIB}/row_security.o
@@ -567,8 +567,8 @@ output_edit_table_form: output_edit_table_form.c			\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
 		${LIB}/row_security.o					\
-		output_edit_table_form.c				\
-		-o output_edit_table_form
+		output_edit_table.c					\
+		-o output_edit_table
 
 add_column: add_column.c						\
 			${EXTERNAL_LIBS}
@@ -780,19 +780,19 @@ create_empty_application: create_empty_application.c			\
 		create_empty_application.c				\
 		-o create_empty_application
 
-post_prompt_edit_form: post_prompt_edit_form.c 				\
+post_prompt_edit: post_prompt_edit.c 					\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
-		post_prompt_edit_form.c					\
-		-o post_prompt_edit_form
-	touch ${CGI_HOME}/post_prompt_edit_form
-	/bin/rm -f ${CGI_HOME}/post_prompt_edit_form
+		post_prompt_edit.c					\
+		-o post_prompt_edit
+	touch ${CGI_HOME}/post_prompt_edit
+	/bin/rm -f ${CGI_HOME}/post_prompt_edit
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_prompt_edit_form		\
+	${APPASERVER_HOME}/src_appaserver/post_prompt_edit		\
 	${CGI_HOME}
 
 get_table_name: get_table_name.c 					\
@@ -811,21 +811,21 @@ dot_process2option_value: dot_process2option_value.c			\
 		dot_process2option_value.c				\
 		-o dot_process2option_value
 
-post_prompt_insert_form: post_prompt_insert_form.c 			\
+post_prompt_insert: post_prompt_insert.c 				\
 			${EXTERNAL_LIBS}				\
 			${LIB}/pair_one2m.o				\
 			${LIB}/folder_menu.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		post_prompt_insert_form.c				\
+		post_prompt_insert.c					\
 		${LIB}/pair_one2m.o					\
 		${LIB}/folder_menu.o					\
-		-o post_prompt_insert_form
-	touch ${CGI_HOME}/post_prompt_insert_form
-	/bin/rm -f ${CGI_HOME}/post_prompt_insert_form
+		-o post_prompt_insert
+	touch ${CGI_HOME}/post_prompt_insert
+	/bin/rm -f ${CGI_HOME}/post_prompt_insert
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_prompt_insert_form	\
+	${APPASERVER_HOME}/src_appaserver/post_prompt_insert		\
 	${CGI_HOME}
 
 table_rectification: table_rectification.c 				\
@@ -941,7 +941,7 @@ post_choose_isa_drop_down: post_choose_isa_drop_down.c 			\
 	${APPASERVER_HOME}/src_appaserver/post_choose_isa_drop_down	\
 	${CGI_HOME}
 
-output_prompt_edit_form: output_prompt_edit_form.c 			\
+output_prompt_edit: output_prompt_edit.c 				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
 		${LIB}/row_security.o
@@ -950,10 +950,10 @@ output_prompt_edit_form: output_prompt_edit_form.c 			\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
 		${LIB}/row_security.o					\
-		output_prompt_edit_form.c				\
-		-o output_prompt_edit_form
+		output_prompt_edit.c					\
+		-o output_prompt_edit
 
-output_prompt_insert_form: output_prompt_insert_form.c 			\
+output_prompt_insert: output_prompt_insert.c 				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
 		${LIB}/pair_one2m.o
@@ -962,13 +962,13 @@ output_prompt_insert_form: output_prompt_insert_form.c 			\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
 		${LIB}/pair_one2m.o					\
-		output_prompt_insert_form.c				\
-		-o output_prompt_insert_form
+		output_prompt_insert.c					\
+		-o output_prompt_insert
 	# Called from a window. See output_results.c
-	touch ${CGI_HOME}/output_prompt_insert_form
-	/bin/rm -f ${CGI_HOME}/output_prompt_insert_form
+	touch ${CGI_HOME}/output_prompt_insert
+	/bin/rm -f ${CGI_HOME}/output_prompt_insert
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/output_prompt_insert_form	\
+	${APPASERVER_HOME}/src_appaserver/output_prompt_insert		\
 	${CGI_HOME}
 
 output_choose_isa_drop_down: output_choose_isa_drop_down.c		\
@@ -1114,7 +1114,7 @@ post_edit_table: post_edit_table.c					\
 		post_edit_table.c					\
 		${LIB}/folder_menu.o					\
 		${LIB}/pair_one2m.o					\
-		-o post_edit_table_form
+		-o post_edit_table
 	touch ${CGI_HOME}/post_edit_table
 	/bin/rm -f ${CGI_HOME}/post_edit_table
 	ln ${APPASERVER_LINK_FLAGS}					\
@@ -1253,27 +1253,27 @@ fix_orphans: fix_orphans.c						\
 		fix_orphans.c						\
 		-o fix_orphans
 
-output_prompt_process_form: output_prompt_process_form.c		\
+output_prompt_process: output_prompt_process.c				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/lookup_before_drop_down.o			\
-		output_prompt_process_form.c				\
-		-o output_prompt_process_form
+		output_prompt_process.c					\
+		-o output_prompt_process
 
-post_prompt_process_form: post_prompt_process_form.c			\
+post_prompt_process: post_prompt_process.c				\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		post_prompt_process_form.c				\
-		-o post_prompt_process_form
-	touch ${CGI_HOME}/post_prompt_process_form
-	/bin/rm -f ${CGI_HOME}/post_prompt_process_form
+		post_prompt_process.c					\
+		-o post_prompt_process
+	touch ${CGI_HOME}/post_prompt_process
+	/bin/rm -f ${CGI_HOME}/post_prompt_process
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_prompt_process_form	\
+	${APPASERVER_HOME}/src_appaserver/post_prompt_process		\
 	${CGI_HOME}
 
 dynamic_sql.o: dynamic_sql.c dynamic_sql.h
