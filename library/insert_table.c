@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/insert_table_form.c				*/
+/* $APPASERVER_HOME/library/insert_table.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -11,14 +11,13 @@
 #include <ctype.h>
 #include <malloc.h>
 #include "environ.h"
-#include "insert_table_form.h"
+#include "insert_table.h"
 
-INSERT_TABLE_FORM *insert_table_form_calloc( void )
+INSERT_TABLE *insert_table_calloc( void )
 {
-	INSERT_TABLE_FORM *insert_table_form;
+	INSERT_TABLE *insert_table;
 
-	if ( ! ( insert_table_form =
-			calloc( 1, sizeof( INSERT_TABLE_FORM ) ) ) )
+	if ( ! ( insert_table = calloc( 1, sizeof( INSERT_TABLE ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -28,31 +27,20 @@ INSERT_TABLE_FORM *insert_table_form_calloc( void )
 		exit( 1 );
 	}
 
-	return insert_table_form;
+	return insert_table;
 }
 
-INSERT_TABLE_FORM *insert_table_form_fetch(
+INSERT_TABLE *insert_table_output_new(
 			char *application_name,
 			char *login_name,
-			char *session,
+			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *state,
 			char *target_frame,
-			POST_DICTIONARY *post_dictionary )
+			char *message,
+			char *dictionary_string )
 {
-	INSERT_TABLE_FORM *insert_table_form = insert_table_form_calloc();
-
-	/* Input */
-	/* ----- */
-	insert_table_form->application_name = application_name;
-	insert_table_form->login_name = login_name;
-	insert_table_form->session = session;
-	insert_table_form->folder_name = folder_name;
-	insert_table_form->role_name = role_name;
-	insert_table_form->insert_update_key = insert_update_key;
-	insert_table_form->target_frame = target_frame;
-	insert_table_form->post_dictionary = post_dictionary;
+	INSERT_TABLE *insert_table = insert_table_calloc();
 
 	/* Process */
 	/* ------- */
@@ -67,7 +55,7 @@ INSERT_TABLE_FORM *insert_table_form_fetch(
 			__FUNCTION__,
 			__LINE__,
 			role_name );
-		return (INSERT_TABLE_FORM *)0;
+		exit( 1 );
 	}
 
 	if ( ! ( insert_table_form->folder =

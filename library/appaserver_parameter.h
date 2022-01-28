@@ -33,7 +33,7 @@ typedef struct
 	char *appaserver_mount_point;
 	char *apache_cgi_directory;
 	char *cgi_home;
-	char *document_root;
+	char *document_root_directory;
 	char *appaserver_error_directory;
 	char *appaserver_data_directory;
 	char *upload_directory;
@@ -84,7 +84,7 @@ char *appaserver_parameter_data_directory(
 char *appaserver_parameter_cgi_home(
 			void );
 
-char *appaserver_parameter_document_root(
+char *appaserver_parameter_document_root_directory(
 			void );
 
 char *appaserver_parameter_upload_directory(

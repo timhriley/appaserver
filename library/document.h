@@ -32,6 +32,7 @@ typedef struct
 	char *meta_string;
 	char *stylesheet_string;
 	char *title_tag;
+	char *html;
 } DOCUMENT_HEAD;
 
 /* DOCUMENT_HEAD operations */
@@ -53,15 +54,34 @@ DOCUMENT_HEAD *document_head_new(
 char *document_head_meta_string(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *document_head_stylesheet_string(
 			char *application_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *document_head_title_tag(
 			char *title_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *document_head_html(
+			char *document_head_meta_string,
+			char *document_head_stylesheet_string,
+			char *document_head_title_tag,
+			/* ------------------------------ */
+			/* Returns program memory or null */
+			/* ------------------------------ */
+			char *document_head_menu_setup_string,
+			/* ------------------------------ */
+			/* Returns program memory or null */
+			/* ------------------------------ */
+			char *document_head_calendar_setup_string,
+			char *document_head_javascript_include_string );
+
+/* Public */
+/* ------ */
 
 /* Returns program memory or null */
 /* ------------------------------ */
@@ -78,8 +98,8 @@ char *document_head_calendar_setup_string(
 char *document_head_javascript_include_string(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *document_head_open_html(
 			char *meta_string,
 			char *stylesheet_string,
@@ -113,7 +133,7 @@ DOCUMENT_BODY *document_body_calloc(
 DOCUMENT_BODY *document_body_new(
 			MENU *menu,
 			boolean menu_boolean,
-			char *document_title,
+			char *application_title_string,
 			char *javascript_replace );
 
 /* Returns program memory or null */
@@ -192,31 +212,29 @@ char *document_type_string(
 char *document_standard_string(
 			void );
 
-void document_output_content_type(
-			void );
-
-/* Need to execute document_tag_close( stdout ) */
-/* -------------------------------------------- */
-void document_quick_output(
-			char *application_name );
-
-/* Need to output document_tag_close_html() */
-/* ---------------------------------------- */
-void document_begin(	FILE *output_stream,
-			DOCUMENT *document );
-
 /* Returns heap memory */
 /* ------------------- */
 char *document_html(
 			char *type_string,
 			char *standard_string );
 
+/* Public */
+/* ------ */
+void document_output_html_stream(
+			FILE *output_stream );
+
+void document_output_content_type(
+			void );
+
+/* Need to output document_close_html() */
+/* ------------------------------------ */
+void document_quick_output(
+			char *application_name );
+
 /* Returns program memory */
 /* ---------------------- */
 char *document_close_html(
 			void );
-
-void document_close(	void );
 
 typedef struct
 {
@@ -366,7 +384,7 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
-			LIST *edit_table_heading_list,
+			LIST *edit_table_heading_name_list,
 			char *edit_table_title,
 			char *javascript_replace,
 			char *target_frame,
@@ -388,8 +406,12 @@ char *document_body_edit_table_trailer_html(
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
 	DOCUMENT *document;
 	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table;
+	char *html;
+	char *trailer_html;
 } DOCUMENT_EDIT_TABLE;
 
 /* DOCUMENT_EDIT_TABLE operations */
@@ -407,7 +429,7 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
-			LIST *edit_table_heading_list,
+			LIST *edit_table_heading_name_list,
 			char *javascript_replace,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
@@ -425,10 +447,5 @@ char *document_edit_table_html(
 /* --------------------------------------------- */
 char *document_edit_table_trailer_html(
 			char *document_body_edit_table_trailer_html );
-
-/* To be retired */
-/* ------------- */
-void document_output_html_stream(
-			FILE *output_stream );
 
 #endif

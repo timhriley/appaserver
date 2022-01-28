@@ -72,13 +72,13 @@ char *appaserver_parameter_cgi_home( void )
 	return global_appaserver_parameter->cgi_home;
 }
 
-char *appaserver_parameter_document_root( void )
+char *appaserver_parameter_document_root_directory( void )
 {
 	if ( !global_appaserver_parameter )
 		global_appaserver_parameter =
 			appaserver_parameter_new();
 
-	return global_appaserver_parameter->document_root;
+	return global_appaserver_parameter->document_root_directory;
 }
 
 char *appaserver_parameter_upload_directory( void )
@@ -269,7 +269,7 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	s->cgi_home = dictionary_fetch( a, d );
 
 	a = "document_root";
-	s->document_root = dictionary_fetch( a, d );
+	s->document_root_directory = dictionary_fetch( a, d );
 
 	a = "appaserver_error_directory";
 	s->appaserver_error_directory = dictionary_fetch( a, d );

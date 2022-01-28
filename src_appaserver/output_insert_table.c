@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/src_appaserver/output_insert_table_form.c		*/
+/* $APPASERVER_HOME/src_appaserver/output_insert_table.c		*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -12,12 +12,8 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "list.h"
-#include "list_usage.h"
-#include "form.h"
 #include "folder.h"
-#include "related_folder.h"
 #include "relation.h"
-#include "appaserver.h"
 #include "operation_list.h"
 #include "document.h"
 #include "application.h"
@@ -26,18 +22,17 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "environ.h"
 #include "decode_html_post.h"
 #include "dictionary2file.h"
 #include "attribute.h"
 #include "session.h"
 #include "role.h"
-#include "drilldown.h"
-#include "dictionary_separate.h"
+#include "drillthru.h"
 #include "pair_one2m.h"
 #include "vertical_new_button.h"
-#include "insert_table_form.h"
+#include "insert_table.h"
 
 /* Constants */
 /* --------- */
@@ -86,15 +81,15 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *target_frame;
 	char *message;
-	char *dictionary_string;
-	INSERT_TABLE_FORM *insert_table_form;
+	INSERT_TABLE *insert_table;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	DOCUMENT *document;
 	int number_rows_outputted = 0;
 	LIST *posted_attribute_name_list = {0};
 	LIST *no_display_pressed_attribute_name_list = {0};
 	LIST *ignore_attribute_name_list;
 	LIST *include_attribute_name_list;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	APPASERVER_PARAMETER *appaserver_parameter;
 	int output_submit_reset_buttons_in_trailer = 1;
 	int output_submit_reset_buttons_in_heading = 1;
 	char detail_base_folder_name[ 128 ];
@@ -131,12 +126,32 @@ int main( int argc, char **argv )
 	role_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
 	message = argv[ 6 ];
-	dictionary_string = argv[ 7 ];
+	dictionary_separate =
+		dictionary_separate_string_new(
+			argv[ 7 ] );
 
 	session_environment_set( application_name );
 
-	insert_table_form =
-		insert_table_form_fetch(
+	appaserver_parameter = appaserver_parameter_new();
+
+	vertical_new_button =
+		vertical_new_button_output_insert_table_new(
+			insert_table->
+				dictionary_separate->
+				non_prefixed_dictionary /* in/out */,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_name, /* many_folder_name */,
+			appaserver_parameter->document_root_directory,
+			VERTICAL_NEW_BUTTON_ONE_PREFIX );
+
+	insert_table =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		insert_table_output_new(
 			application_name,
 			login_name,
 			session_key,
@@ -145,14 +160,6 @@ int main( int argc, char **argv )
 			target_frame,
 			message,
 			dictionary_string );
-
-	/* Vertical new button */
-	/* ------------------- */ 
-	vertical_new_button =
-		vertical_new_button_output_insert_table_new(
-			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
-			dictionary_separate->non_prefixed_dictionary );
 
 	primary_data_list_string =
 		dictionary_get(
@@ -184,8 +191,6 @@ int main( int argc, char **argv )
 	}
 
 	ignore_attribute_name_list = list_new_list();
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	if ( list_length( folder->mto1_isa_related_folder_list ) )
 	{
@@ -351,7 +356,7 @@ int main( int argc, char **argv )
 		{
 			document_quick_output_body(
 					application_name,
-					appaserver_parameter_file->
+					appaserver_parameter->
 						appaserver_mount_point );
 
 			if ( message && *message )
@@ -495,7 +500,7 @@ int main( int argc, char **argv )
 			document->application_name,
 			document->title,
 			document->output_content_type,
-			appaserver_parameter_file->appaserver_mount_point,
+			appaserver_parameter->appaserver_mount_point,
 			document->javascript_module_list,
 			document->stylesheet_filename,
 			application_relative_source_directory(
@@ -524,7 +529,7 @@ int main( int argc, char **argv )
 				"$state",
 				"insert" );
 
-		document->onload_control_string =
+		document_body->onload_control_string =
 			document_set_onload_control_string(
 				document->onload_control_string,
 				form_set_post_change_javascript_row_zero(
@@ -535,31 +540,10 @@ int main( int argc, char **argv )
 	/* ----------------------------------------------------- */
 	if ( vertical_new_button )
 	{
-		char *prompt_filename;
-		char *onload_control_string;
-
-		prompt_filename =
-			vertical_new_button_blank_prompt_screen(
-				application_name );
-
-		onload_control_string =
-			vertical_new_button_onload_control_string(
-				prompt_filename );
-
-		document->onload_control_string =
-			document_set_onload_control_string(
+		document_body->onload_control_string =
+			document_body_set_onload_control_string(
 				document->onload_control_string,
-				onload_control_string );
-
-		vertical_new_button_dictionary_set(
-			dictionary_separate->non_prefixed_dictionary,
-			VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
-			vertical_new_button->one_folder_name );
-
-		vertical_new_button_dictionary_set(
-			dictionary_separate->non_prefixed_dictionary,
-			VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
-			vertical_new_button->many_folder_name );
+				vertical_new_button->onload_control_string );
 
 		query_dictionary = dictionary_small();
 
@@ -639,7 +623,7 @@ int main( int argc, char **argv )
 	{
 		sprintf(	action_string,
 		"%s/post_edit_table_form?%s+%s+%s+%s+%s+%s+detail!%s+%s+%d+",
-				appaserver_parameter_file_get_cgi_directory(),
+				appaserver_parameter_cgi_directory(),
 				login_name,
 				application_name,
 				session,

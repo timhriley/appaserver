@@ -52,7 +52,6 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
-	char *many_folder_name;
 	char *one_folder_name;
 	char *system_string;
 	VERTICAL_NEW_BUTTON_FILENAME *filename;
@@ -69,17 +68,13 @@ VERTICAL_NEW_BUTTON *vertical_new_button_calloc(
 /* Returns true if selected */
 /* ------------------------ */
 VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
-			DICTIONARY *non_prefixed_dictionary,
+			DICTIONARY *non_prefixed_dictionary /* in/out */,
 			char *many_folder_name,
 			char *vertical_new_button_one_prefix,
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *pair_one2m_dictionary,
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			char *one_folder_name,
 			char *role_name,
 			char *target_frame );
 
@@ -89,17 +84,8 @@ char *vertical_new_button_one_folder_name(
 			char *vertical_new_button_one_prefix,
 			DICTIONARY *non_prefixed_dictionary );
 
-
-void vertical_new_button_dictionary_set(
-			DICTIONARY *non_prefixed_dictionary,
-			char *hidden_label,
-			char *folder_name );
-
-char *vertical_new_button_system_string(
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *query_dictionary,
+char *vertical_new_button_output_insert_table_system_string(
 			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *pair_one2m_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
 			char *application_name,
 			char *login_name,
@@ -123,12 +109,29 @@ char *vertical_new_button_many_folder_name(
 /* Usage */
 /* ----- */
 VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
+			DICTIONARY *non_prefixed_dictionary /* in/out */,
 			char *application_name,
 			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *many_folder_name,
 			char *document_root_directory,
-			char *vertical_new_button_one_prefix,
-			char *vertical_new_button_many_hidden_label,
-			DICTIONARY *non_prefixed_dictionary );
+			char *vertical_new_button_one_prefix );
+
+/* Process */
+/* ------- */
+void vertical_new_button_blank_prompt_screen(
+			char *output_filename,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *appaserver_parameter_data_directory );
+
+/* Returns heap memory */
+/* ------------------- */
+char *vertical_new_button_onload_control_string(
+			char *prompt_filename );
 
 /* Usage */
 /* ----- */
@@ -147,15 +150,12 @@ char *vertical_new_button_dictionary_many_folder_name(
 			char *hidden_label,
 			DICTIONARY *non_prefixed_dictionary );
 
-/* Returns prompt_filename */
-/* ----------------------- */
-char *vertical_new_button_blank_prompt_screen(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *document_root_directory,
-			char *appaserver_data_directory );
+/* Private */
+/* ------- */
+void vertical_new_button_dictionary_set(
+			DICTIONARY *non_prefixed_dictionary,
+			char *hidden_label,
+			char *folder_name );
 
 #endif
 

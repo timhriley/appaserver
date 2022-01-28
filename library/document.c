@@ -214,7 +214,7 @@ DOCUMENT_BODY *document_body_calloc( void )
 DOCUMENT_BODY *document_body_new(
 			MENU *menu,
 			boolean menu_boolean,
-			char *document_title,
+			char *application_title_string,
 			char *javascript_replace )
 {
 	DOCUMENT_BODY *document_body = document_body_calloc();
@@ -249,7 +249,7 @@ DOCUMENT_BODY *document_body_new(
 		/* Returns static memory or null */
 		/* ----------------------------- */
 		document_body_title_html(
-			document_title );
+			application_title_string );
 
 	document_body->html =
 		/* ------------------- */
@@ -444,6 +444,15 @@ DOCUMENT_HEAD *document_head_new(
 	document_head->title_tag =
 		document_head_title_tag(
 			title_string );
+
+	document_head->html =
+		document_head_html(
+			document_head->meta_string,
+			document_head->stylesheet_string,
+			document_head->title_tag,
+			document_head->menu_setup_string,
+			document_head->calendar_setup_string,
+			document_head->javascript_include_string );
 
 	return document_head;
 }
@@ -717,7 +726,7 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
-			LIST *edit_table_heading_list,
+			LIST *edit_table_heading_name_list,
 			char *javascript_replace,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
@@ -750,15 +759,15 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 			menu_boolean,
 			dictionary_list_length,
 			edit_table_submit_action_string,
-			LIST *operation_list,
-			LIST *edit_table_heading_list,
-			char *edit_table_title,
-			char *javascript_replace,
-			char *target_frame,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *ignore_dictionary );
+			operation_list,
+			edit_table_heading_name_list,
+			edit_table_title,
+			javascript_replace,
+			target_frame,
+			query_dictionary,
+			sort_dictionary,
+			drillthru_dictionary,
+			ignore_dictionary );
 
 	document_edit_table->html =
 		/* ------------------- */
@@ -775,7 +784,9 @@ DOCUMENT_EDIT_TABLE *document_edit_table_new(
 
 	document_edit_table->trailer_html =
 		document_edit_table_trailer_html(
-			document_body_edit_table->trailer_html );
+			document_edit_table->
+				document_body_edit_table->
+				trailer_html );
 
 	return document_edit_table;
 }
@@ -819,7 +830,8 @@ DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
 		document_body_new(
 			menu,
 			menu_boolean,
-			choose_isa_title_string,
+			choose_isa_title_string
+				/* application_title_string */,
 			(char *)0 /* javascript_replace */ );
 
 	document_body_choose_isa->form_choose_isa =
@@ -934,7 +946,7 @@ DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_calloc( void )
 {
 	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role;
 
-	if ( ! ( document_choose_role =
+	if ( ! ( document_body_choose_role =
 			calloc( 1, sizeof( DOCUMENT_BODY_CHOOSE_ROLE ) ) ) )
 	{
 		fprintf(stderr,
@@ -966,13 +978,15 @@ DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
 		document_body_new(
 			(MENU *)0,
 			0 /* not menu_boolean */,
-			choose_role_title_string,
+			choose_role_title_string
+				/* application_title_string */,
 			(char *)0 /* javascript_replace */ );
 
 	if ( ! ( document_body_choose_role->form_choose_role =
 			form_choose_role_new(
 				role_name_list,
 				choose_role_post_action_string,
+				choose_role_target_frame,
 				choose_role_form_name,
 				choose_role_drop_down_element_name ) ) )
 	{
@@ -1069,7 +1083,9 @@ DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
 			choose_role_title_string,
 			role_name_list,
 			choose_role_post_action_string,
-			choose_role_target_frame );
+			choose_role_target_frame,
+			choose_role_form_name,
+			choose_role_drop_down_element_name );
 
 	if ( !document_choose_role->document_body_choose_role )
 	{
@@ -1121,18 +1137,6 @@ char *document_choose_role_html(
 	return strdup( html );
 }
 
-void document_output_html_stream( FILE *output_stream )
-{
-	fprintf( output_stream,
-"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">\n" );
-
-	fprintf( output_stream,
-"<html xmlns=\"http://www.w3.org/1999/xhtml\">\n" );
-
-	fflush( output_stream );
-
-}
-
 DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc( void )
 {
 	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table;
@@ -1158,7 +1162,7 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
 			LIST *operation_list,
-			LIST *edit_table_heading_list,
+			LIST *edit_table_heading_name_list,
 			char *edit_table_title,
 			char *javascript_replace,
 			char *target_frame,
@@ -1177,7 +1181,8 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 		document_body_new(
 			menu,
 			menu_boolean,
-			edit_table_title,
+			edit_table_title
+				/* application_title_string */,
 			javascript_replace );
 
 	document_body_edit_table->form_edit_table =
@@ -1190,7 +1195,7 @@ DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
 			dictionary_list_length,
 			edit_table_submit_action_string,
 			operation_list,
-			edit_table_heading_list,
+			edit_table_heading_name_list,
 			target_frame,
 			query_dictionary,
 			sort_dictionary,
@@ -1302,5 +1307,87 @@ char *document_edit_table_trailer_html(
 			char *document_body_edit_table_trailer_html )
 {
 	return document_body_edit_table_trailer_html;
+}
+
+void document_output_html_stream( FILE *output_stream )
+{
+	DOCUMENT *document;
+	char *tmp;
+	char *application_name = environment_application_name();
+
+	document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			application_title_string( application_name ),
+			0 /* not menu_boolean */,
+			0 /* folder_attribute_date_name_list */ );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		( tmp = document_html(
+				document->type_string,
+				document->standard_string ) ) );
+
+	free( tmp );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		( tmp =
+			document_head_open_html(
+				document->document_head->meta_string,
+				document->document_head->stylesheet_string,
+				document->document_head->title_tag,
+				document->document_head->menu_setup_string,
+				document->document_head->calendar_setup_string,
+				document->
+					document_head->
+					javascript_include_string ) ) );
+
+	free( tmp );
+}
+
+char *document_head_html(
+			char *meta_string,
+			char *stylesheet_string,
+			char *title_tag,
+			/* ------------------------------ */
+			/* Returns program memory or null */
+			/* ------------------------------ */
+			char *menu_setup_string,
+			/* ------------------------------ */
+			/* Returns program memory or null */
+			/* ------------------------------ */
+			char *calendar_setup_string,
+			char *javascript_include_string )
+{
+	char html[ STRING_64K ];
+	char *ptr = html;
+
+	ptr += sprintf( ptr, "%s\n", meta_string );
+	ptr += sprintf( ptr, "%s\n", stylesheet_string );
+	ptr += sprintf( ptr, "%s\n", title_tag );
+
+	if ( menu_setup_string )
+	{
+		ptr += sprintf( ptr, "%s\n", menu_setup_string );
+	}
+
+	if ( calendar_setup_string )
+	{
+		ptr += sprintf( ptr, "%s\n", calendar_setup_string );
+	}
+
+	ptr += sprintf( ptr, "%s\n", javascript_include_string );
+
+	return strdup( html );
 }
 

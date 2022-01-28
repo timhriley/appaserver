@@ -181,6 +181,8 @@ void dictionary_separate_trim_multi_drop_down_index(
 void dictionary_separate_trim_double_bracked_data(
 			DICTIONARY *working_post_dictionary );
 
+/* Returns heap memory */
+/* ------------------- */
 char *dictionary_separate_send_string(
 			DICTIONARY *send_dictionary );
 

@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/insert_table_form.h				*/
+/* $APPASERVER_HOME/library/insert_table.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef INSERT_TABLE_FORM_H
-#define INSERT_TABLE_FORM_H
+#ifndef INSERT_TABLE_H
+#define INSERT_TABLE_H
 
 /* Includes */
 /* -------- */
@@ -14,7 +14,7 @@
 #include "role.h"
 #include "role_folder.h"
 #include "folder.h"
-#include "dictionary_appaserver.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -23,42 +23,31 @@
 /* --------------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *application_name;
-	char *login_name;
-	char *session;
-	char *folder_name;
-	char *role_name;
-	char *insert_update_key;
-	char *target_frame;
-	DICTIONARY *post_dictionary;
-
 	/* Process */
 	/* ------- */
 	FOLDER *folder;
 	ROLE *role;
 	ROLE_FOLDER *role_folder;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	char *insert_table_form_state;
 	boolean primary_keys_non_edit;
-
-} INSERT_TABLE_FORM;
+} INSERT_TABLE;
 
 /* Prototypes */
 /* ---------- */
-INSERT_TABLE_FORM *insert_table_form_calloc(
+INSERT_TABLE *insert_table_calloc(
 			void );
 
-INSERT_TABLE_FORM *insert_table_form_fetch(
+/* Always succeeds */
+/* --------------- */
+INSERT_TABLE *insert_table_output_new(
 			char *application_name,
 			char *login_name,
-			char *session,
+			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *state,
 			char *target_frame,
-			DICTIONARY *post_dictionary );
+			char *dictionary_string );
 
 boolean insert_table_form_forbid(
 			boolean role_folder_insert );

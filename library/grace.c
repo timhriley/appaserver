@@ -4424,7 +4424,12 @@ void grace_output_graph_window(
 		"application/agr" );
 
 	grace_output_grace_home_link();
-	if ( with_document_output ) document_close();
+
+	if ( with_document_output )
+	{
+		printf( "%s\n", document_close_html() );
+	}
+
 	fflush( stdout );
 }
 
@@ -4468,7 +4473,11 @@ void grace_email_graph(	char *application_name,
 		search_replace_command_line );
 
 	if ( system( sys_string ) ) {};
-	if ( with_document_output ) document_close();
+
+	if ( with_document_output )
+	{
+		printf( "%s\n", document_close_html() );
+	}
 }
 
 void grace_error_exit( char *function_name, int line_number )

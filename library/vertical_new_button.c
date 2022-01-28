@@ -13,6 +13,8 @@
 #include "folder_menu.h"
 #include "document.h"
 #include "appaserver_parameter.h"
+#include "appaserver_error.h"
+#include "dictionary_separate.h"
 #include "vertical_new_button.h"
 
 VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
@@ -149,24 +151,20 @@ char *vertical_new_button_onload_control_string( char *prompt_filename )
 	sprintf(onload_control_string,
 		"window.open('%s','%s');",
 		prompt_filename,
-		PROMPT_FRAME );
+		FRAMESET_PROMPT_FRAME );
 
 	return strdup( onload_control_string );
 
 }
 
 VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
-			DICTIONARY *non_prefixed_dictionary,
+			DICTIONARY *non_prefixed_dictionary /* in/out */,
 			char *many_folder_name,
 			char *vertical_new_button_one_prefix,
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *query_dictionary,
 			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *pair_one2m_dictionary,
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			char *one_folder_name,
 			char *role_name,
 			char *target_frame )
 {
@@ -186,11 +184,8 @@ VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
 	vertical_new_button->one_folder_name = one_folder_name;
 
 	vertical_new_button->system_string =
-		vertical_new_button_system_string(
-			sort_dictionary,
-			query_dictionary,
+		vertical_new_button_output_insert_table_system_string(
 			drillthru_dictionary,
-			pair_one2m_dictionary,
 			non_prefixed_dictionary,
 			application_name,
 			login_name,
@@ -200,43 +195,6 @@ VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
 			target_frame );
 
 	return vertical_new_button;
-}
-
-char *vertical_new_button_system_string(
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *pair_one2m_dictionary,
-			DICTIONARY *non_prefixed_dictionary,
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *one_folder_name,
-			char *role_name,
-			char *target_frame )
-{
-	char system_string[ 65536 ];
-
-	sprintf(system_string,
-"echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-		dictionary_separate_send_string(
-			sort_dictionary,
-			query_dictionary,
-			drillthru_dictionary,
-			ignore_dictionary,
-			pair_one2m_dictionary,
-			non_prefixed_dictionary ),
-		application_name,
-		login_name,
-		session,
-		one_folder_name,
-		role_name,
-		target_frame,
-		appaserver_error_filename(
-			application_name ) );
-
-	return strdup( system_string );
 }
 
 VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
@@ -263,12 +221,14 @@ VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
 }
 
 VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
+			DICTIONARY *non_prefixed_dictionary /* in/out */,
 			char *application_name,
 			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *many_folder_name,
 			char *document_root_directory,
-			char *vertical_new_button_one_prefix,
-			char *vertical_new_button_many_hidden_label,
-			DICTIONARY *non_prefixed_dictionary )
+			char *vertical_new_button_one_prefix )
 {
 	VERTICAL_NEW_BUTTON *vertical_new_button;
 	char *one_folder_name;
@@ -286,11 +246,6 @@ VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
 	vertical_new_button = vertical_new_button_calloc();
 	vertical_new_button->one_folder_name = one_folder_name;
 
-	vertical_new_button->many_folder_name =
-		vertical_new_button_many_folder_name(
-			vertical_new_button_many_hidden_label,
-			non_prefixed_dictionary );
-
 	vertical_new_button->filename =
 		/* ------------------- */
 		/* Always returns true */
@@ -300,8 +255,32 @@ VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
 			session_key,
 			document_root_directory );
 
-	vertical_new_button->prompt_filename =
-		vertical_new_button_prompt_filename(
+	vertical_new_button_blank_prompt_screen(
+			vertical_new_button->filename->output_filename,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			appaserver_parameter_data_directory() );
+
+	vertical_new_button->onload_control_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		vertical_new_button_onload_control_string(
+			vertical_new_button->
+				filename->
+				prompt_filename );
+
+	vertical_new_button_dictionary_set(
+		non_prefixed_dictionary,
+		VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
+		vertical_new_button->one_folder_name );
+
+	vertical_new_button_dictionary_set(
+		non_prefixed_dictionary,
+		VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
+		many_folder_name );
 
 	return vertical_new_button;
 }
@@ -358,12 +337,11 @@ VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
 		exit( 1 );
 	}
 
-
 	vertical_new_button_filename->output_filename =
-		appaserver_link->output->filename;
+		vertical_new_button_filename->appaserver_link->output->filename;
 
 	vertical_new_button_filename->prompt_filename =
-		appaserver_link->prompt->filename;
+		vertical_new_button_filename->appaserver_link->prompt->filename;
 
 	return vertical_new_button_filename;
 }
@@ -374,13 +352,15 @@ void vertical_new_button_blank_prompt_screen(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *document_root_directory,
 			char *data_directory )
 {
 	DOCUMENT *document;
-	FILE *output_stream;
+	DOCUMENT_BODY *document_body;
+	FILE *output_file;
+	boolean menu_b;
+	MENU *menu = {0};
 
-	if ( ! ( output_stream = fopen( output_filename, "w" ) ) )
+	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
@@ -391,9 +371,13 @@ void vertical_new_button_blank_prompt_screen(
 		exit( 1 );
 	}
 
-	if ( appaserver_frameset_menu_horizontal(
-		application_name,
-		login_name ) )
+	if ( ( menu_b =
+		menu_boolean(
+			FRAMESET_PROMPT_FRAME
+				/* current_frame */,
+			frameset_menu_horizontal(
+				application_name,
+				login_name ) ) ) )
 	{
 		FOLDER_MENU *folder_menu;
 
@@ -412,41 +396,99 @@ void vertical_new_button_blank_prompt_screen(
 			exit( 1 );
 		}
 
-		document =
-			/* --------------- */
-			/* Always succeeds */
-			/* --------------- */
-			document_new(
+		menu =
+			menu_fetch(
 				application_name,
-				menu_fetch(
-					application_name,
-					login_name,
-					session_key,
-					role_name,
-					FRAMESET_PROMPT_FRAME
-						/* target_frame */,
-					folder_menu->lookup_count_list ) );
-	}
-	else
-	{
-		document =
-			/* --------------- */
-			/* Always succeeds */
-			/* --------------- */
-			document_new(
-				application_name,
-				(MENU *)0 /* menu */ );
+				login_name,
+				session_key,
+				role_name,
+				FRAMESET_PROMPT_FRAME
+					/* target_frame */,
+				folder_menu->lookup_count_list );
 	}
 
-	document_begin( output_stream, document );
+	document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			application_title_string( application_name ),
+			menu_b /* menu_boolean */,
+			0 /* folder_attribute_date_name_list_length */ );
 
-	fprintf(output_stream,
+	fprintf(output_file,
+		"%s\n%s\n%s\n",
+		document->html,
+		document->document_head->html,
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_head_close_html() );
+
+	document_body =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_body_new(
+			menu,
+			menu_b,
+			application_title_string( application_name ),
+			(char *)0 /* javascript_replace */ );
+
+	fprintf(output_file,
+		"%s\n%s\n",
+		document_body->html,
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_body_close_html() );
+
+	fprintf(output_file,
 		"%s\n",
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
 		document_close_html() );
 
-	fclose( output_stream );
+	fclose( output_file );
+}
+
+char *vertical_new_button_output_insert_table_system_string(
+			DICTIONARY *drillthru_dictionary,
+			DICTIONARY *non_prefixed_dictionary,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *one_folder_name,
+			char *role_name,
+			char *target_frame )
+{
+	char system_string[ 65536 ];
+	char *send_string;
+
+	send_string =
+		dictionary_separate_send_string(
+			dictionary_separate_send_dictionary(
+				(DICTIONARY *)0 /* sort_dictionary */,
+				(DICTIONARY *)0 /* query_dictionary */,
+				drillthru_dictionary,
+				(DICTIONARY *)0 /* ignore_dictionary */,
+				(DICTIONARY *)0 /* pair_one2m_dictionary */,
+				non_prefixed_dictionary ) );
+
+	sprintf(system_string,
+		"echo \"%s\" |"
+		"output_insert_table %s %s %s %s %s %s 2>>%s",
+		send_string,
+		application_name,
+		login_name,
+		session_key,
+		one_folder_name,
+		role_name,
+		target_frame,
+		appaserver_error_filename( application_name ) );
+
+	return strdup( system_string );
 }
 
