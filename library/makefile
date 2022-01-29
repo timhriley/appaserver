@@ -68,8 +68,7 @@ APPASERVER_LIBRARY=						\
 		frameset.o					\
 		validation_level.o				\
 		relation.o					\
-		vertical_new_button.o				\
-		relation.o					\
+		vertical_new.o					\
 		operation.o					\
 		document.o					\
 		insert.o					\
@@ -741,8 +740,8 @@ button.o: button.c button.h
 query.o: query.c query.h relation_join.o
 	${CC} ${CFLAGS} -c query.c
 
-vertical_new_button.o: vertical_new_button.c vertical_new_button.h
-	${CC} ${CFLAGS} -c vertical_new_button.c
+vertical_new.o: vertical_new.c vertical_new.h
+	${CC} ${CFLAGS} -c vertical_new.c
 
 role_folder.o: role_folder.c role_folder.h
 	${CC} ${CFLAGS} -c role_folder.c

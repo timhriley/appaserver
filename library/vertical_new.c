@@ -1,4 +1,4 @@
-/* APPASERVER_HOME/library/vertical_new_button.c			*/
+/* APPASERVER_HOME/library/vertical_new.c				*/
 /* -------------------------------------------------------------------- */
 /* This controls the vertical new buttons on the prompt insert form.	*/
 /* Freely available software: see Appaserver.org			*/
@@ -15,7 +15,7 @@
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "dictionary_separate.h"
-#include "vertical_new_button.h"
+#include "vertical_new.h"
 
 VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
 {
@@ -34,8 +34,8 @@ VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
 	return vertical_new_button;
 }
 
-char *vertical_new_button_one_folder_name(
-			char *vertical_new_button_one_prefix,
+char *vertical_new_post_prompt_insert_one_folder_name(
+			char *vertical_new_one_prefix,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	LIST *key_list;
@@ -48,7 +48,7 @@ char *vertical_new_button_one_folder_name(
 	key_list =
 		dictionary_extract_prefixed_key_list(
 			non_prefixed_dictionary,
-			vertical_new_button_one_prefix );
+			vertical_new_one_prefix );
 
 	if ( !list_rewind( key_list ) ) return (char *)0;
 
@@ -60,13 +60,13 @@ char *vertical_new_button_one_folder_name(
 				key,
 				non_prefixed_dictionary );
 
-		if ( string_strcmp( data, "yes" ) == 0 )
+		if ( *data == 'y' )
 		{
 			return strdup(
 				trim_index(
 				return_key,
 				key +
-				strlen( vertical_new_button_one_prefix ) ) );
+				strlen( vertical_new_one_prefix ) ) );
 		}
 	} while( list_next( key_list ) );
 
@@ -124,16 +124,16 @@ APPASERVER_ELEMENT *vertical_new_button_element(
 }
 */
 
-char *vertical_new_button_many_folder_name(
-			char *vertical_new_button_many_hidden_label,
+char *vertical_new_button_folder_name(
+			char *hidden_label,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	return dictionary_get(
-			vertical_new_button_many_hidden_label,
+			hidden_label,
 			non_prefixed_dictionary );
 }
 
-void vertical_new_button_dictionary_set(
+void vertical_new_dictionary_set(
 			DICTIONARY *non_prefixed_dictionary,
 			char *hidden_label,
 			char *folder_name )
@@ -144,57 +144,73 @@ void vertical_new_button_dictionary_set(
 		folder_name );
 }
 
-char *vertical_new_button_onload_control_string( char *prompt_filename )
+char *vertical_new_output_insert_table_onload_control_string(
+			char *prompt_filename,
+			char *frameset_prompt_frame )
 {
 	char onload_control_string[ 128 ];
 
 	sprintf(onload_control_string,
 		"window.open('%s','%s');",
 		prompt_filename,
-		FRAMESET_PROMPT_FRAME );
+		frameset_prompt_frame );
 
 	return strdup( onload_control_string );
 
 }
 
-VERTICAL_NEW_BUTTON *vertical_new_button_post_prompt_insert_new(
+VERTICAL_NEW_POST_PROMPT_INSERT *
+	vertical_new_post_prompt_insert_new(
 			DICTIONARY *non_prefixed_dictionary /* in/out */,
 			char *many_folder_name,
-			char *vertical_new_button_one_prefix,
 			DICTIONARY *drillthru_dictionary,
 			char *application_name,
 			char *login_name,
 			char *session_key,
 			char *role_name,
-			char *target_frame )
+			char *vertical_new_one_prefix,
+			char *vertical_new_one_hidden_label,
+			char *vertical_new_many_hidden_label,
+			char *frameset_prompt_frame )
 {
-	VERTICAL_NEW_BUTTON *vertical_new_button;
+	VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert;
 	char *one_folder_name;
 
 	if ( ! ( one_folder_name =
-			vertical_new_button_one_folder_name(
+			vertical_new_post_prompt_insert_one_folder_name(
 				vertical_new_button_one_prefix,
 				non_prefixed_dictionary ) ) )
 	{
 		return (VERTICAL_NEW_BUTTON *)0;
 	}
 
-	vertical_new_button = vertical_new_button_calloc();
-	vertical_new_button->many_folder_name = many_folder_name;
-	vertical_new_button->one_folder_name = one_folder_name;
+	vertical_new_post_prompt_insert =
+		vertical_new_post_prompt_insert_calloc();
 
-	vertical_new_button->system_string =
-		vertical_new_button_output_insert_table_system_string(
+	vertical_new_post_prompt_insert->one_folder_name = one_folder_name;
+
+	vertical_new_dictionary_set(
+		non_prefixed_dictionary,
+		vertical_new_one_hidden_label,
+		vertical_new_post_prompt_insert->one_folder_name );
+
+	vertical_new_dictionary_set(
+		non_prefixed_dictionary,
+		vertical_new_many_hidden_label,
+		many_folder_name );
+
+	vertical_new_post_prompt_insert->system_string =
+		vertical_new_post_prompt_insert_system_string(
 			drillthru_dictionary,
 			non_prefixed_dictionary,
 			application_name,
 			login_name,
 			session_key,
-			one_folder_name,
+			vertical_new_post_prompt_insert->one_folder_name,
 			role_name,
-			target_frame );
+			frameset_prompt_frame );
 
-	return vertical_new_button;
+	return vertical_new_post_prompt_insert;
 }
 
 VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
@@ -220,69 +236,80 @@ VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
 	return vertical_new_button;
 }
 
-VERTICAL_NEW_BUTTON *vertical_new_button_output_insert_table_new(
-			DICTIONARY *non_prefixed_dictionary /* in/out */,
+VERTICAL_NEW_OUTPUT_INSERT_TABLE *
+	vertical_new_button_output_insert_table_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *many_folder_name,
+			char *folder_name,
 			char *document_root_directory,
-			char *vertical_new_button_one_prefix )
+			DICTIONARY *non_prefixed_dictionary,
+			char *vertical_new_one_hidden_label,
+			char *frameset_prompt_frame,
+			char *data_directory )
 {
-	VERTICAL_NEW_BUTTON *vertical_new_button;
+	VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table;
 	char *one_folder_name;
 
 	one_folder_name =
-		vertical_new_button_one_folder_name(
-			vertical_new_button_one_prefix,
+		vertical_new_dictionary_folder_name(
+			vertical_new_one_hidden_label,
 			non_prefixed_dictionary );
 
 	if ( !one_folder_name )
 	{
-		return (VERTICAL_NEW_BUTTON *)0;
+		return (VERTICAL_NEW_OUTPUT_INSERT_TABLE *)0;
 	}
 
-	vertical_new_button = vertical_new_button_calloc();
-	vertical_new_button->one_folder_name = one_folder_name;
+	if ( strcmp( folder_name, one_folder_name ) != 0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: strcmp(%s,%s) returned error.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name,
+			one_folder_name );
+		exit( 1 );
+	}
 
-	vertical_new_button->filename =
+	vertical_new_output_insert_table =
+		vertical_new_output_insert_table_calloc();
+
+	vertical_new_output_insert_table->one_folder_name = one_folder_name;
+
+	vertical_new_output_insert_table->vertical_new_blank_filename =
 		/* ------------------- */
 		/* Always returns true */
 		/* ------------------- */
-		vertical_new_button_filename_new(
+		vertical_new_blank_filename_new(
 			application_name,
 			session_key,
 			document_root_directory );
 
-	vertical_new_button_blank_prompt_screen(
-			vertical_new_button->filename->output_filename,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			appaserver_parameter_data_directory() );
+	vertical_new_output_insert_table_blank_prompt_frame(
+		vertical_new_output_insert_table->
+			vertical_new_blank_filename->
+			output_filename,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		frameset_prompt_frame,
+		data_directory );
 
-	vertical_new_button->onload_control_string =
+	vertical_new_output_insert_table->onload_control_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		vertical_new_button_onload_control_string(
-			vertical_new_button->
-				filename->
-				prompt_filename );
+		vertical_new_output_insert_table_onload_control_string(
+			vertical_new_output_insert_table->
+				vertical_new_blank_filename->
+				prompt_filename,
+			frameset_prompt_frame );
 
-	vertical_new_button_dictionary_set(
-		non_prefixed_dictionary,
-		VERTICAL_NEW_BUTTON_ONE_HIDDEN_LABEL,
-		vertical_new_button->one_folder_name );
-
-	vertical_new_button_dictionary_set(
-		non_prefixed_dictionary,
-		VERTICAL_NEW_BUTTON_MANY_HIDDEN_LABEL,
-		many_folder_name );
-
-	return vertical_new_button;
+	return vertical_new_output_insert_table;
 }
 
 VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_calloc( void )
@@ -346,12 +373,13 @@ VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
 	return vertical_new_button_filename;
 }
 
-void vertical_new_button_blank_prompt_screen(
+void vertical_new_output_insert_table_blank_prompt_frame(
 			char *output_filename,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
+			char *frameset_prompt_frame,
 			char *data_directory )
 {
 	DOCUMENT *document;
@@ -373,8 +401,7 @@ void vertical_new_button_blank_prompt_screen(
 
 	if ( ( menu_b =
 		menu_boolean(
-			FRAMESET_PROMPT_FRAME
-				/* current_frame */,
+			frameset_prompt_frame /* current_frame */,
 			frameset_menu_horizontal(
 				application_name,
 				login_name ) ) ) )
@@ -402,8 +429,7 @@ void vertical_new_button_blank_prompt_screen(
 				login_name,
 				session_key,
 				role_name,
-				FRAMESET_PROMPT_FRAME
-					/* target_frame */,
+				frameset_prompt_frame /* target_frame */,
 				folder_menu->lookup_count_list );
 	}
 
@@ -462,7 +488,7 @@ char *vertical_new_button_output_insert_table_system_string(
 			char *session_key,
 			char *one_folder_name,
 			char *role_name,
-			char *target_frame )
+			char *frameset_prompt_frame )
 {
 	char system_string[ 65536 ];
 	char *send_string;
@@ -486,7 +512,7 @@ char *vertical_new_button_output_insert_table_system_string(
 		session_key,
 		one_folder_name,
 		role_name,
-		target_frame,
+		frameset_prompt_frame,
 		appaserver_error_filename( application_name ) );
 
 	return strdup( system_string );
