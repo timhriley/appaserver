@@ -289,9 +289,10 @@ post_choose_folder
 get_random_session
 post_choose_isa_drop_down
 output_choose_isa_drop_down
-output_edit_table_form
-output_insert_table_form
+output_edit_table
+output_insert_table
 post_edit_table
+post_insert_table
 post_maintain_user_account
 output_results
 post_login
@@ -301,7 +302,7 @@ get_folder_data
 get_table_name
 dot_process2option_value
 table_rectification
-output_prompt_process_form
+output_prompt_process
 post_prompt_process
 post_choose_process
 output_email
@@ -348,7 +349,7 @@ output_open_html_document
 output_close_html_document
 output_choose_role
 post_choose_role_drop_down
-output_choose_role_folder_process_form
+output_choose_role_folder_process
 output_choose_folder_process_menu
 maintain_user_account
 output_frameset
@@ -370,13 +371,13 @@ generic_histogram
 generic_overlay_output
 generic_output_merged_datasets
 post_merge_purge
-post_prompt_edit_form
-output_prompt_edit_form
+post_prompt_edit
+output_prompt_edit
 upgrade_appaserver_database
 grant_select_to_user
 google_map_operation
 upload_source_file
-output_prompt_insert_form
+output_prompt_insert
 post_ajax_fill_drop_down
 # ------------------
 # src_freshwaterfish

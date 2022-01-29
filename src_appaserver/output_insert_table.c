@@ -31,7 +31,7 @@
 #include "role.h"
 #include "drillthru.h"
 #include "pair_one2m.h"
-#include "vertical_new_button.h"
+#include "vertical_new.h"
 #include "insert_table.h"
 
 /* Constants */
@@ -103,7 +103,7 @@ int main( int argc, char **argv )
 	char *primary_data_list_string;
 	PAIR_ONE2M *pair_one2m = {0};
 	boolean output_content_type = 1;
-	VERTICAL_NEW_BUTTON *vertical_new_button;
+	VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -134,8 +134,8 @@ int main( int argc, char **argv )
 
 	appaserver_parameter = appaserver_parameter_new();
 
-	vertical_new_button =
-		vertical_new_button_output_insert_table_new(
+	vertical_new_output_insert_table =
+		vertical_new_output_insert_table_new(
 			insert_table->
 				dictionary_separate->
 				non_prefixed_dictionary /* in/out */,

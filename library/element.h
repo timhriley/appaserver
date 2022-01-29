@@ -177,9 +177,6 @@ ELEMENT_CHECKBOX *element_checkbox_new(
 
 /* Public */
 /* ------ */
-
-/* Returns name */
-/* ------------ */
 boolean element_checkbox_checked(
 			char *attribute_name,
 			DICTIONARY *row_dictionary );
@@ -201,6 +198,12 @@ char *element_checkbox_html(
 			int tab_order,
 			char *background_color,
 			char *image_source );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_checkbox_submit_javascript(
+			char *on_click_javascript,
+			char *form_name );
 
 typedef struct
 {

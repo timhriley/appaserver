@@ -73,58 +73,103 @@ char *vertical_new_post_prompt_insert_one_folder_name(
 	return (char *)0;
 }
 
-char *vertical_new_button_one_element_name(
-			char *vertical_new_button_one_prefix,
+char *vertical_new_output_prompt_insert_element_name(
+			char *vertical_new_one_prefix,
 			char *one_folder_name )
 {
 	char element_name[ 128 ];
 
+	if ( !one_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf( element_name,
 		 "%s%s",
-		 vertical_new_button_one_prefix,
+		 vertical_new_one_prefix,
 		 one_folder_name );
 
 	return strdup( element_name );
 }
 
-/*
-APPASERVER_ELEMENT *vertical_new_button_element(
+APPASERVER_ELEMENT *vertical_new_output_prompt_insert_element(
 			char *one_folder_name,
 			LIST *role_folder_insert_list,
 			char *form_name,
-			char *vertical_new_button_one_prefix,
-			char *vertical_new_button_display )
+			char *vertical_new_one_prefix,
+			char *vertical_new_display,
+			char *submit_javascript )
 {
 	APPASERVER_ELEMENT *element;
 
-	if ( list_exists_string(
+	if ( !one_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !form_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: form_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !submit_javascript )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: submit_javascript is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_exists_string(
 		one_folder_name,
 		role_folder_insert_list ) )
 	{
-		element =
-			element_appaserver_new(
-				toggle_button, 
-				vertical_new_button_one_element_name(
-					vertical_new_button_one_prefix,
-					one_folder_name ) );
-
-		element_toggle_button_set_heading(
-			element->toggle_button,
-			vertical_new_button_display );
-
-		element->toggle_button->form_name = form_name;
-		element->toggle_button->onchange_submit_yn = 'y';
-	
-		return element;
-	}
-	else
-	{
 		return (APPASERVER_ELEMENT *)0;
 	}
-}
-*/
 
-char *vertical_new_button_folder_name(
+	element =
+		element_appaserver_new(
+			checkbox, 
+			(char *)0 /* element_name */ );
+
+	free( element->checkbox );
+
+	element->checkbox =
+		element_checkbox_new(
+			(char *)0 /* attribute_name */,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			vertical_new_output_prompt_insert_element_name(
+				vertical_new_one_prefix,
+				one_folder_name ),
+			vertical_new_display /* prompt_string */,
+			submit_javascript /* on_click */,
+			0 /* tab_order */,
+			(char *)0 /* image_source */,
+			0 /* not recall */ );
+
+	return element;
+}
+
+char *vertical_new_dictionary_folder_name(
 			char *hidden_label,
 			DICTIONARY *non_prefixed_dictionary )
 {
@@ -211,29 +256,6 @@ VERTICAL_NEW_POST_PROMPT_INSERT *
 			frameset_prompt_frame );
 
 	return vertical_new_post_prompt_insert;
-}
-
-VERTICAL_NEW_BUTTON *vertical_new_button_post_edit_table_new(
-			char *vertical_new_button_many_hidden_label,
-			DICTIONARY *non_prefixed_dictionary )
-{
-	VERTICAL_NEW_BUTTON *vertical_new_button;
-	char *many_folder_name;
-
-	many_folder_name =
-		vertical_new_button_many_folder_name(
-			vertical_new_button_many_hidden_label,
-			non_prefixed_dictionary );
-
-	if ( !many_folder_name )
-	{
-		return (VERTICAL_NEW_BUTTON *)0;
-	}
-
-	vertical_new_button = vertical_new_button_calloc();
-	vertical_new_button->many_folder_name = many_folder_name;
-
-	return vertical_new_button;
 }
 
 VERTICAL_NEW_OUTPUT_INSERT_TABLE *
@@ -480,7 +502,7 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 	fclose( output_file );
 }
 
-char *vertical_new_button_output_insert_table_system_string(
+char *vertical_new_post_prompt_insert_system_string(
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
 			char *application_name,
@@ -516,5 +538,33 @@ char *vertical_new_button_output_insert_table_system_string(
 		appaserver_error_filename( application_name ) );
 
 	return strdup( system_string );
+}
+
+VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_calloc( void )
+{
+	VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table;
+
+	if ( ! ( vertical_new_post_insert_table =
+		    calloc( 1, sizeof( VERTICAL_NEW_POST_INSERT_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return vertical_new_post_insert_table;
+}
+
+VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_new(
+{
+	VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table;
+
+	vertical_new_post_insert_table =
+		vertical_new_post_insert_table_calloc();
+
+	return vertical_new_post_insert_table;
 }
 

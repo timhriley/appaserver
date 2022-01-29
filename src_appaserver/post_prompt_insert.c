@@ -34,7 +34,7 @@
 #include "post_dictionary.h"
 #include "pair_one2m.h"
 #include "folder_menu.h"
-#include "vertical_new_button.h"
+#include "vertical_new.h"
 #include "prompt_insert_form.h"
 
 /* Constants */
@@ -100,7 +100,7 @@ int main( int argc, char **argv )
 	PAIR_ONE2M *pair_one2m;
 	LIST *missing_attribute_name_list;
 	LIST *ignore_attribute_name_list;
-	VERTICAL_NEW_BUTTON *vertical_new_button;
+	VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert;
 	FOLDER *folder;
 
 	if ( argc != 7 )
@@ -179,11 +179,11 @@ int main( int argc, char **argv )
 			folder_attribute_date_name_list(
 				folder->folder_attribute_list ) );
 
-	vertical_new_button =
+	vertical_new_post_prompt_insert =
 		/* ------------------------ */
 		/* Returns true if selected */
 		/* ------------------------ */
-		vertical_new_button_post_prompt_insert_new(
+		vertical_new_post_prompt_insert_new(
 			dictionary_separate->non_prefixed_dictionary,
 			folder_name /* many_folder_name */,
 			VERTICAL_NEW_BUTTON_ONE_PREFIX,
@@ -197,9 +197,9 @@ int main( int argc, char **argv )
 			role_name,
 			target_frame );
 
-	if ( vertical_new_button )
+	if ( vertical_new_post_prompt_insert )
 	{
-		if ( !vertical_new_button->system_string )
+		if ( !vertical_new_post_prompt_insert->system_string )
 		{
 			fprintf(stderr,
 			"ERROR in %s/%s()/%d: system_string is empty.\n",
@@ -209,7 +209,8 @@ int main( int argc, char **argv )
 			exit( 1 );
 		}
 
-		if ( system( vertical_new_button->system_string ) ){};
+		if ( system( vertical_new_post_prompt_insert->
+				system_string ) ){};
 		exit( 0 );
 	}
 

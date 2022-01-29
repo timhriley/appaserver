@@ -3912,3 +3912,32 @@ APPASERVER_ELEMENT *appaserver_element_table_heading(
 	return element;
 }
 
+char *element_checkbox_submit_javascript(
+			char *on_click_javascript,
+			char *form_name )
+{
+	char submit_javascript[ 1024 ];
+	char *ptr = submit_javascript;
+
+	if ( !form_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: form_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( on_click_javascript )
+	{
+		ptr += sprintf( ptr, "%s &&", on_click_javascript );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"push_button_submit('%s')",
+		form_name );
+
+	return strdup( submit_javascript );
+}

@@ -35,7 +35,12 @@ APPASERVER_ELEMENT *vertical_new_output_prompt_insert_element(
 			LIST *role_folder_insert_list,
 			char *form_name,
 			char *vertical_new_one_prefix,
-			char *vertical_new_display );
+			char *vertical_new_display,
+			char *element_checkbox_submit_javascript );
+
+char *vertical_new_output_prompt_insert_element_name(
+			char *vertical_new_one_prefix,
+			char *one_folder_name );
 
 typedef struct
 {
