@@ -1003,4 +1003,9 @@ char *appaserver_element_checkbox_html(
 			int row_number,
 			DICTIONARY *row_dictionary );
 
+void appaserver_element_initial_data(
+			APPASERVER_ELEMENT *element,
+			DICTIONARY *row_dictionary,
+			LIST *key_string_list );
+
 #endif

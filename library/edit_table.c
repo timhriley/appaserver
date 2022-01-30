@@ -263,17 +263,6 @@ EDIT_TABLE *edit_table_new(
 				row_security_element_list->
 				viewonly_element_list );
 
-	edit_table->key_list =
-		edit_table_key_list(
-			edit_table->
-				row_security_edit_table->
-				row_security_element_list->
-				regular_element_list,
-			edit_table->
-				row_security_edit_table->
-				row_security_element_list->
-				viewonly_element_list );
-
 	edit_table->title =
 		edit_table_title(
 			folder_name,
@@ -424,11 +413,11 @@ void edit_table_output(
 			FILE *output_stream,
 			char *edit_table_html,
 			LIST *row_dictionary_list,
-			LIST *edit_table_key_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *edit_table_trailer_html )
+			char *state,
+			char *trailer_html )
 {
 	DICTIONARY *row_dictionary;
 	LIST *apply_element_list;
@@ -484,15 +473,14 @@ void edit_table_output(
 				edit_table_row_html(
 					row_dictionary,
 					apply_element_list,
-					edit_table_key_list,
 					edit_table_background_color() ) ) )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: edit_table_row_html() returned empty.\n",
+	"Warning in %s/%s()/%d: edit_table_row_html() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+			continue;
 		}
 
 		fprintf(output_stream,
@@ -526,13 +514,14 @@ LIST *edit_table_apply_element_list(
 char *edit_table_row_html(
 			DICTIONARY *row_dictionary,
 			LIST *apply_element_list,
-			LIST *key_list,
-			char *background_color )
+			char *background_color,
+			char *state,
+			int row_number )
 {
-	char html[ STRING_64K ];
+	char html[ STRING_FOUR_MEG ];
 	char *ptr = html;
+	char *element_list_html;
 	ELEMENT_APPASERVER *element;
-	char current_value[ 4096 ];
 
 	if ( !background_color )
 	{
@@ -548,119 +537,29 @@ char *edit_table_row_html(
 
 	ptr += sprintf( ptr, "<tr bgcolor=%s>\n", background_color );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *appaserver_element_list_html(
-			char *background_color,
-			char *state,
-			int row_number,
-			LIST *appaserver_element_list )
 	do {
 		element = list_get( apply_element_list );
 
-		ptr += sprintf(
-			ptr,
-			"\n%s",
-			appaserver_element_html(
-
-			element->drop_down->folder_name,
-			non_edit_folder_name_list ) )
+		if ( ( element_list_html =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_list_html(
+				apply_element_list,
+				application_name,
+				background_color,
+				state,
+				row_number,
+				row_dictionary ) ) )
 		{
-			element->drop_down->readonly = 1;
+			ptr += sprintf(
+				ptr,
+				"%s\n",
+				element_list_html );
+
+			free( element_list_html );
 		}
 
-		set_data_flag = 1;
-
-		if ( row_level_non_owner_view_only
-		&&   element->element_type == password
-		&&   dictionary_login_name
-		&&   strcasecmp(
-			dictionary_login_name,
-			login_name ) != 0 )
-		{
-			non_edit_element->name = element->name;
-
-			element = non_edit_element;
-
-			element_set_data( element, "hidden" );
-
-			set_data_flag = 0;
-		}
-		else
-		if ( row_level_non_owner_view_only
-		&&   element->element_type != toggle_button
-		&&   element->element_type != hidden
-		&&   dictionary_login_name
-		&&   strcasecmp(
-			dictionary_login_name,
-			login_name ) != 0 )
-		{
-			non_edit_element->name = element->name;
-			element = non_edit_element;
-		}
-		else
-		if ( row_level_non_owner_view_only
-		&&   element->element_type == toggle_button
-		&&   element->name
-		&&   strcmp( element->name, "delete" ) == 0
-		&&   dictionary_login_name
-		&&   strcasecmp(
-			dictionary_login_name,
-			login_name ) != 0 )
-		{
-			non_edit_element->name = "";
-			element = non_edit_element;
-			set_data_flag = 0;
-		}
-		else
-		if ( element->element_type == reference_number )
-		{
-			element_set_data(	
-				element,
-				form_get_next_reference_number(
-					form_current_reference_number ) );
-
-			set_data_flag = 0;
-		}
-
-		if ( set_data_flag )
-		{
-			*current_value = '\0';
-
-			if ( dictionary
-			&&   element->name
-			&&   dictionary_get_index_data_multi(
-				current_value,
-				dictionary,
-				element->name,
-				row,
-				MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER ) != -1 )
-			{
-				element_set_data(
-					element,
-					strdup( current_value ) );
-			}
-		}
-
-		element_output(
-			hidden_name_dictionary,
-			element,
-			row,
-			with_push_buttons,
-			stdout,
-			background_color,
-			application_name,
-			login_name );
-
-		fflush( stdout );
-
-		if ( spool_file )
-		{
-			element_output_as_dictionary(
-				spool_file,
-				element,
-				row );
-		}
 	} while( list_next( apply_element_list ) );
 
 	return strdup( html );
@@ -998,4 +897,3 @@ LIST *edit_table_heading_name_list(
 	/* --------------------------- */
 	appaserver_element_heading_name_list( apply_element_list );
 }
-

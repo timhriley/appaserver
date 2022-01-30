@@ -115,10 +115,6 @@ LIST *edit_table_heading_name_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list );
 
-LIST *edit_table_key_list(
-			LIST *regular_element_list,
-			LIST *viewonly_element_list );
-
 char *edit_table_title(
 			char *folder_name,
 			char *edit_table_state );
@@ -147,14 +143,12 @@ void edit_table_output(
 			FILE *output_stream,
 			char *edit_table_html,
 			LIST *row_dictionary_list,
-			LIST *edit_table_key_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
+			char *state,
 			char *edit_table_trailer_html );
 
-/* Internal */
-/*--------- */
 LIST *edit_table_apply_element_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
@@ -166,15 +160,18 @@ LIST *edit_table_apply_element_list(
 char *edit_table_row_html(
 			DICTIONARY *row_dictionary,
 			LIST *edit_table_apply_element_list,
-			LIST *edit_table_key_list,
-			char *edit_table_background_color );
+			char *edit_table_background_color,
+			char *state,
+			int row_number );
 
-char *edit_table_background_color(
-			void );
-
+/* Private */
+/* ------- */
 static char **edit_table_background_color_array(
 			int *background_color_array_length,
 			char *application_name );
+
+char *edit_table_background_color(
+			void );
 
 typedef struct
 {

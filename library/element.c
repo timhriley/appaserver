@@ -1401,7 +1401,7 @@ char *appaserver_element_list_html(
 			DICTIONARY *row_dictionary )
 {
 	APPASERVER_ELEMENT *appaserver_element;
-	char html[ STRING_FOUR_MEG ];
+	char html[ STRING_THREE_MEG ];
 	char *ptr = html;
 	char *element_html;
 
@@ -3941,3 +3941,11 @@ char *element_checkbox_submit_javascript(
 
 	return strdup( submit_javascript );
 }
+
+void appaserver_element_initial_data(
+			APPASERVER_ELEMENT *element,
+			DICTIONARY *row_dictionary,
+			LIST *key_string_list )
+{
+}
+
