@@ -17,8 +17,8 @@ EXECUTABLES=								\
 		insert_mysql						\
 		post_choose_folder					\
 		get_random_session					\
-		post_choose_isa_drop_down				\
-		output_choose_isa_drop_down				\
+		post_choose_isa						\
+		output_choose_isa					\
 		output_edit_table					\
 		output_insert_table					\
 		post_edit_table						\
@@ -183,7 +183,7 @@ clean:
 	${CGI_HOME}/post_choose_role_drop_down 				\
 	${CGI_HOME}/post_prompt_edit					\
 	${CGI_HOME}/post_prompt_insert					\
-	${CGI_HOME}/post_choose_isa_drop_down				\
+	${CGI_HOME}/post_choose_isa					\
 	${CGI_HOME}/output_prompt_insert				\
 	${CGI_HOME}/post_choose_folder					\
 	${CGI_HOME}/post_choose_process					\
@@ -930,17 +930,17 @@ generic_output_merged_datasets: generic_output_merged_datasets.c	\
 		${LIB}/grace.o						\
 		-o generic_output_merged_datasets
 
-post_choose_isa_drop_down: post_choose_isa_drop_down.c 			\
+post_choose_isa: post_choose_isa.c 					\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		post_choose_isa_drop_down.c				\
-		-o post_choose_isa_drop_down
-	touch ${CGI_HOME}/post_choose_isa_drop_down
-	/bin/rm -f ${CGI_HOME}/post_choose_isa_drop_down
+		post_choose_isa.c					\
+		-o post_choose_isa
+	touch ${CGI_HOME}/post_choose_isa
+	/bin/rm -f ${CGI_HOME}/post_choose_isa
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_choose_isa_drop_down	\
+	${APPASERVER_HOME}/src_appaserver/post_choose_isa		\
 	${CGI_HOME}
 
 output_prompt_edit: output_prompt_edit.c 				\
@@ -973,15 +973,15 @@ output_prompt_insert: output_prompt_insert.c 				\
 	${APPASERVER_HOME}/src_appaserver/output_prompt_insert		\
 	${CGI_HOME}
 
-output_choose_isa_drop_down: output_choose_isa_drop_down.c		\
+output_choose_isa: output_choose_isa.c					\
 			${EXTERNAL_LIBS}				\
-			${LIB}/choose_isa_drop_down.o
+			${LIB}/choose_isa.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_choose_isa_drop_down.c				\
-		${LIB}/choose_isa_drop_down.o				\
-		-o output_choose_isa_drop_down
+		output_choose_isa.c					\
+		${LIB}/choose_isa.o					\
+		-o output_choose_isa
 
 view_source: view_source.c						\
 			${EXTERNAL_LIBS}

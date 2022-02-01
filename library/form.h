@@ -279,8 +279,7 @@ FORM_CHOOSE_ISA *form_choose_isa_calloc(
 			void );
 
 FORM_CHOOSE_ISA *form_choose_isa_new(
-			char *choose_isa_subtitle_html,
-			char *choose_isa_prompt_message,
+			char *prompt_message,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,

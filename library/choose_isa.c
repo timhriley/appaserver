@@ -17,14 +17,14 @@
 #include "element.h"
 #include "query.h"
 #include "process.h"
+#include "frameset.h"
 #include "choose_isa.h"
 
 CHOOSE_ISA *choose_isa_calloc( void )
 {
 	CHOOSE_ISA *choose_isa;
 
-	if ( ! ( choose_isa =
-			calloc( 1, sizeof( CHOOSE_ISA ) ) ) )
+	if ( ! ( choose_isa = calloc( 1, sizeof( CHOOSE_ISA ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -36,27 +36,19 @@ CHOOSE_ISA *choose_isa_calloc( void )
 	return choose_isa;
 }
 
-CHOOSE_ISA *choose_isa_prompt_fetch(
+CHOOSE_ISA *choose_isa_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *application_name,
-			char *session_key,
 			char *login_name,
+			char *session_key,
 			char *folder_name,
 			char *one2m_isa_folder_name,
-			char *role_name )
+			char *role_name,
+			boolean menu_boolean )
 {
 	CHOOSE_ISA *choose_isa = choose_isa_calloc();
-
-	/* Input */
-	/* ----- */
-	choose_isa->application_name = application_name;
-	choose_isa->session_key = session_key;
-	choose_isa->login_name = login_name;
-	choose_isa->folder_name = folder_name;
-	choose_isa->one2m_isa_folder_name = one2m_isa_folder_name;
-	choose_isa->role_name = role_name;
 
 	/* Process */
 	/* ------- */
@@ -66,8 +58,8 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 			(char *)0 /* not fetching role_folder_list */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* --------------------------------------- */
-			/* Also sets folder_primary_attribute_list */
-			/* and folder_key_list			   */
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list			   */
 			/* --------------------------------------- */
 			1 /* fetch_folder_attribute_list */,
 			0 /* not fetch_relation_mto1_non_isa_list */,
@@ -76,7 +68,7 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 			0 /* not fetch_relation_one2m_recursive_list */,
 			1 /* fetch_process */,
 			0 /* not fetch_role_folder_list */,
-			0 /* not fetch_row_level_restriction */,
+			1 /* fetch_row_level_restriction */,
 			0 /* not fetch_role_operation_list */ );
 
 	choose_isa->role =
@@ -104,28 +96,34 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 					application_name,
 					security_entity_where(
 						choose_isa->
-							security_entity ),
+							security_entity,
+						choose_isa->
+							folder->
+							folder_attribute_list ),
 					login_name,
 					role_name,
 					one2m_isa_folder_name ) );
 	}
 	else
 	{
-		QUERY *query;
+		choose_isa->query_isa_widget =
+			query_isa_widget_new(
+				one2m_isa_folder_name,
+				choose_isa->
+					folder->
+					primary_key_list,
+				choose_isa->
+					folder->
+					folder_attribute_primary_list,
+				login_name,
+				security_entity_where(
+					choose_isa->
+						security_entity,
+					choose_isa->
+						folder->
+						folder_attribute_list ) );
 
-		if ( ! ( query =
-				query_isa_widget_new(
-					one2m_isa_folder_name,
-					choose_isa->
-						folder->
-						primary_key_list,
-					choose_isa->
-						folder->
-						folder_attribute_primary_list,
-					login_name,
-					security_entity_where(
-						choose_isa->
-							security_entity ) ) ) )
+		if ( !choose_isa->query_isa_widget )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: query_isa_widget_new() returned empty.\n",
@@ -136,33 +134,62 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 		}
 
 		choose_isa->delimited_list =
-			query_delimited_list(
-				query->select_clause,
-				query->from_clause,
-				query->where_clause,
-				query->order_clause,
-				0 /* max_rows */ );
+			choose_isa->
+				query_isa_widget->
+					delimited_list;
 	}
 
-	choose_isa->folder_menu =
-		folder_menu_fetch(
-			application_name,
-			session_key,
-			appaserver_parameter_data_directory(),
-			role_name );
+	choose_isa->prompt_message =
+		choose_isa_prompt_message(
+			choose_isa->folder->primary_key_list );
 
-	if ( !choose_isa->folder_menu )
+	if ( menu_boolean )
 	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		choose_isa->folder_menu =
+			folder_menu_fetch(
+				application_name,
+				session_key,
+				appaserver_parameter_data_directory(),
+				role_name );
+
+		if ( !choose_isa->folder_menu )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_menu_fetch(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				role_name );
+			exit( 1 );
+		}
+
+		choose_isa->menu =
+			menu_fetch(
+				application_name,
+				login_name,
+				session_key,
+				role_name,
+				FRAMESET_PROMPT_FRAME,
+				choose_isa->folder_menu->lookup_count_list );
+
+		if ( !choose_isa->menu )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: menu_fetch(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				login_name );
+			exit( 1 );
+		}
+
 	}
 
-	choose_isa->action_string =
-		choose_isa_action_string(
+	choose_isa->post_action_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		choose_isa_post_action_string(
 			application_name,
 			login_name,
 			session_key,
@@ -170,10 +197,10 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 			one2m_isa_folder_name,
 			role_name );
 
-	if ( !choose_isa->action_string )
+	if ( !choose_isa->post_action_string )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: choose_isa_action_string() returned empty.\n",
+"ERROR in %s/%s()/%d: choose_isa_post_action_string() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -181,26 +208,48 @@ CHOOSE_ISA *choose_isa_prompt_fetch(
 	}
 
 	choose_isa->document =
-		document_choose_isa_new(
-			choose_isa->title,
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			choose_isa->title_string,
+			choose_isa->subtitle_html,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
+			menu_boolean,
+			choose_isa->menu,
+			document_head_menu_setup_string( menu_boolean ),
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */,
+			(char *)0 /* input_onload_string */ );
+
+
+	choose_isa->form_choose_isa =
+		form_choose_isa_new(
 			choose_isa->prompt_message,
-			one2m_isa_folder_name,
-			menu_fetch(
-				application_name,
-				login_name,
-				session_key,
-				role_name,
-				PROMPT_FRAME /* target_frame */,
-				choose_isa->folder_menu->lookup_count_list ),
 			choose_isa->folder->primary_key_list,
 			choose_isa->delimited_list,
 			choose_isa->folder->no_initial_capital,
-			choose_isa->action_string );
+			choose_isa->post_action_string );
+
+	choose_isa->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		choose_isa_html(
+			choose_isa->document->html,
+			choose_isa->document->document_head->html,
+			document_head_close_html(),
+			choose_isa->document->document_body->html,
+			choose_isa->form_choose_isa->html,
+			document_body_close_html(),
+			document_close_html() );
 
 	return choose_isa;
 }
 
-char *choose_isa_action_string(
+char *choose_isa_post_action_string(
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -209,6 +258,21 @@ char *choose_isa_action_string(
 			char *role_name )
 {
 	char action_string[ 1024 ];
+
+	if ( !application_name
+	||   !login_name
+	||   !session_key
+	||   !folder_name
+	||   !one2m_isa_folder_name
+	||   !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(action_string,
 		" action=\"%s/%s?%s+%s+%s+%s+%s+%s\"",
@@ -219,7 +283,7 @@ char *choose_isa_action_string(
 				application_name ),
 			application_prepend_http_protocol_yn(
 				application_name ) ),
-		"post_choose_isa_drop_down",
+		"post_choose_isa",
 		application_name,
 		login_name,
 		session_key,
@@ -310,5 +374,45 @@ char *choose_isa_prompt_message( LIST *primary_key_list )
 				ELEMENT_LONG_DASH_DELIMITER ) ) );
 
 	return strdup( prompt_message );
+}
+
+char *choose_isa_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html,
+			char *form_choose_isa_html,
+			char *document_body_close_html,
+			char *document_close_html )
+{
+	char html[ STRING_ONE_MEG ];
+
+	if ( !document_html
+	||   !document_head_html
+	||   !document_head_close_html
+	||   !document_body_html
+	||   !form_choose_isa_html
+	||   !document_body_close_html
+	||   !document_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		document_html,
+		document_head_html,
+		document_head_close_html,
+		document_body_html,
+		form_choose_isa_html,
+		document_body_close_html,
+		document_close_html );
+
+	return strdup( html );
 }
 

@@ -287,8 +287,8 @@ append_reference_number
 insert_mysql
 post_choose_folder
 get_random_session
-post_choose_isa_drop_down
-output_choose_isa_drop_down
+post_choose_isa
+output_choose_isa
 output_edit_table
 output_insert_table
 post_edit_table

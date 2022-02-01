@@ -14,6 +14,7 @@
 #include "security.h"
 #include "folder.h"
 #include "folder_menu.h"
+#include "menu.h"
 #include "document.h"
 
 /* Constants */
@@ -26,44 +27,40 @@
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ------*/
-	char *application_name;
-	char *session_key;
-	char *login_name;
-	char *folder_name;
-	char *one2m_isa_folder_name;
-	char *role_name;
-
 	/* Process */
 	/* ------- */
 	FOLDER *folder;
 	ROLE *role;
 	SECURITY_ENTITY *security_entity;
 	LIST *delimited_list;
-	QUERY *query;
-	char *title;
+	QUERY_ISA_WIDGET *query_isa_widget;
+	char *title_string;
+	char *subtitle_html;
 	char *prompt_message;
-	char *action_string;
 	FOLDER_MENU *folder_menu;
+	MENU *menu;
+	char *post_action_string;
 	DOCUMENT *document;
+	FORM_CHOOSE_ISA *form_choose_isa;
+	char *html;
 } CHOOSE_ISA;
 
-/* Prompt operations */
-/* ----------------- */
+/* CHOOSE_ISA operations */
+/* --------------------- */
 CHOOSE_ISA *choose_isa_calloc(
 			void );
 
-CHOOSE_ISA *choose_isa_prompt_fetch(
+CHOOSE_ISA *choose_isa_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *application_name,
-			char *session_key,
 			char *login_name,
+			char *session_key,
 			char *folder_name,
 			char *one2m_isa_folder_name,
-			char *role_name );
+			char *role_name,
+			boolean menu_boolean );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -81,9 +78,9 @@ char *choose_isa_subtitle_html(
 char *choose_isa_prompt_message(
 			LIST *primary_key_list );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *choose_isa_action_string(
+/* Returns heap memory */
+/* ------------------- */
+char *choose_isa_post_action_string(
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -91,9 +88,24 @@ char *choose_isa_action_string(
 			char *one2m_isa_folder_name,
 			char *role_name );
 
-/* Post operations */
-/* --------------- */
-CHOOSE_ISA *choose_isa_post_fetch(
+/* Returns heap memory */
+/* ------------------- */
+char *choose_isa_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html,
+			char *form_choose_isa_html,
+			char *document_body_close_html,
+			char *document_close_html );
+
+typedef struct
+{
+} CHOOSE_ISA_POST;
+
+/* CHOOSE_ISA_POST operations */
+/* -------------------------- */
+CHOOSE_ISA_POST *choose_isa_post_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */

@@ -1154,24 +1154,23 @@ LIST *form_edit_table_sort_checkbox_element_list(
 }
 
 FORM_CHOOSE_ISA *form_choose_isa_new(
-			char *choose_isa_subtitle_html,
-			char *choose_isa_prompt_message,
+			char *prompt_message,
 			LIST *primary_key_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
-			char *choose_isa_post_action_string )
+			char *post_action_string )
 {
 	FORM_CHOOSE_ISA *form_choose_isa = form_choose_isa_calloc();
 
 	form_choose_isa->tag_html =
 		form_tag_html(
-			"prompt" /* form_name */,
-			choose_isa_post_action_string,
+			"choose_isa" /* form_name */,
+			post_action_string,
 			FRAMESET_PROMPT_FRAME /* target_frame */ );
 
 	form_choose_isa->element_list =
 		form_choose_isa_element_list(
-			choose_isa_prompt_message,
+			prompt_message,
 			primary_key_list,
 			delimited_list,
 			no_initial_capital );
@@ -1184,7 +1183,6 @@ FORM_CHOOSE_ISA *form_choose_isa_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		form_choose_isa_html(
-			choose_isa_subtitle_html,
 			form_choose_isa->tag_html,
 			form_choose_isa->element_list,
 			form_choose_isa->button_element_list );
