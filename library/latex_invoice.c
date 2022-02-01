@@ -9,7 +9,6 @@
 #include "latex_invoice.h"
 #include "timlib.h"
 #include "String.h"
-#include "appaserver.h"
 
 LATEX_INVOICE *latex_invoice_new(
 			char *invoice_date,
@@ -164,6 +163,8 @@ void latex_invoice_education_invoice_header(
 			char *title,
 			char *logo_filename )
 {
+	char escape_street_address[ 128 ];
+
 	if ( title && *title )
 	{
 		fprintf(output_stream,
@@ -196,10 +197,8 @@ void latex_invoice_education_invoice_header(
 "%s & %s \\\\\n"
 "%s, %s %s & %s \\\\\n"
 "\\end{tabular}\n\n",
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-	 		appaserver_escape_street_address(
+	 		string_escape_full(
+				escape_street_address,
 				invoice_self->street_address ),
 			(invoice_self->phone_number)
 				? invoice_self->phone_number
@@ -217,10 +216,8 @@ void latex_invoice_education_invoice_header(
 "\\begin{tabular}[t]{l}\n"
 "%s\\\\\n"
 "\\end{tabular}\n\n",
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-	 		appaserver_escape_street_address(
+	 		string_escape_full(
+				escape_street_address,
 				invoice_self->street_address ) );
 	}
 
@@ -240,10 +237,8 @@ void latex_invoice_education_invoice_header(
 "& %s, %s %s\n"
 "\\end{tabular}\n\n",
 		 	invoice_customer->full_name,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-	 		appaserver_escape_street_address(
+	 		string_escape_full(
+				escape_street_address,
 				invoice_customer->street_address ),
 		 	invoice_customer->city,
 		 	invoice_customer->state_code,
@@ -297,6 +292,8 @@ void latex_invoice_output_invoice_header(
 			char *last_column_label,
 			char *customer_label )
 {
+	char escape_street_address[ 128 ];
+
 	if ( title && *title )
 	{
 		fprintf(output_stream,
@@ -336,10 +333,8 @@ void latex_invoice_output_invoice_header(
 "%s & %s \\\\\n"
 "%s, %s %s & %s \\\\\n"
 "\\end{tabular}\n\n",
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-	 		appaserver_escape_street_address(
+	 		string_escape_full(
+				escape_street_address,
 				invoice_self->street_address ),
 			(invoice_self->phone_number)
 				? invoice_self->phone_number
@@ -357,10 +352,8 @@ void latex_invoice_output_invoice_header(
 "\\begin{tabular}[t]{l}\n"
 "%s\\\\\n"
 "\\end{tabular}\n\n",
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-	 		appaserver_escape_street_address(
+	 		string_escape_full(
+				escape_street_address,
 				invoice_self->street_address ) );
 	}
 
@@ -380,10 +373,8 @@ void latex_invoice_output_invoice_header(
 "& %s, %s %s\n"
 "\\end{tabular}\n\n",
 		 	invoice_customer->full_name,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-	 		appaserver_escape_street_address(
+	 		string_escape_full(
+				escape_street_address,
 				invoice_customer->street_address ),
 		 	invoice_customer->city,
 		 	invoice_customer->state_code,

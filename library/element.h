@@ -123,10 +123,10 @@ typedef struct
 ELEMENT_TABLE_ROW *element_table_row_calloc(
 			void );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *element_table_row_html(
-			void );
+			char *background_color );
 
 typedef struct
 {
@@ -897,7 +897,7 @@ char *appaserver_element_list_html(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *appaserver_hidden_element_list_html(
+char *appaserver_element_hidden_list_html(
 			LIST *appaserver_element_list /* in/out */,
 			int row_number,
 			DICTIONARY *row_dictionary );
@@ -1002,10 +1002,5 @@ char *appaserver_element_checkbox_html(
 			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary );
-
-void appaserver_element_initial_data(
-			APPASERVER_ELEMENT *element,
-			DICTIONARY *row_dictionary,
-			LIST *key_string_list );
 
 #endif

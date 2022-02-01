@@ -357,9 +357,22 @@ ELEMENT_TABLE_ROW *element_table_row_calloc( void )
 	return table_row;
 }
 
-char *element_table_row_html( void )
+char *element_table_row_html( char *background_color )
 {
-	return "<tr>";
+	static char html[ 128 ];
+
+	if ( !background_color )
+	{
+		strcpy( html, "<tr>" );
+	}
+	else
+	{
+		sprintf(html,
+			"<tr bgcolor=%s",
+			background_color );
+	}
+
+	return html;
 }
 
 ELEMENT_TABLE_CLOSE *element_table_close_calloc( void )
@@ -1401,7 +1414,7 @@ char *appaserver_element_list_html(
 			DICTIONARY *row_dictionary )
 {
 	APPASERVER_ELEMENT *appaserver_element;
-	char html[ STRING_THREE_MEG ];
+	char html[ STRING_FOUR_MEG ];
 	char *ptr = html;
 	char *element_html;
 
@@ -1420,10 +1433,10 @@ char *appaserver_element_list_html(
 
 		if ( appaserver_element->hidden ) continue;
 
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
 		if ( ! ( element_html =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
 				appaserver_element_html(
 					appaserver_element /* in/out */,
 					application_name,
@@ -1459,7 +1472,7 @@ char *appaserver_element_list_html(
 	return strdup( html );
 }
 
-char *appaserver_hidden_element_list_html(
+char *appaserver_element_hidden_list_html(
 			LIST *appaserver_element_list /* in/out */,
 			int row_number,
 			DICTIONARY *row_dictionary )
@@ -1484,10 +1497,10 @@ char *appaserver_hidden_element_list_html(
 
 		if ( !appaserver_element->hidden ) continue;
 
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
 		if ( ! ( element_html =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
 				appaserver_element_html(
 					appaserver_element /* in/out */,
 					(char *)0 /* application_name */,
@@ -1516,151 +1529,6 @@ char *appaserver_hidden_element_list_html(
 
 	return strdup( html );
 }
-
-#ifdef NOT_DEFINED
-char *appaserver_element_heading( APPASERVER_ELEMENT *element )
-{
-	if ( element->element_type == non_edit_text )
-	{
-		if ( element->non_edit_text->name
-		&&   !element->non_edit_text->heading )
-		{
-			element->non_edit_text->heading =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				appaserver_element_heading_string(
-					element->non_edit_text->name );
-		}
-		return (element->non_edit_text->heading)
-			? element->non_edit_text->heading
-			: "";
-	}
-	else
-	if ( element->element_type == drop_down )
-	{
-		if ( !element->drop_down->heading_string )
-		{
-			element->drop_down->heading_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				element_drop_down_heading_string(
-					element->
-						drop_down->
-						attribute_name_list );
-		}
-		return (element->drop_down->heading_string)
-			? element->drop_down->heading_string
-			: "";
-	}
-	if ( element->element_type == checkbox )
-	{
-		if ( element->checkbox->name
-		&&   !element->checkbox->heading_string )
-		{
-			element->checkbox->heading_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				appaserver_element_heading_string(
-					element->checkbox->name );
-		}
-		return (element->checkbox->heading_string)
-			? element->checkbox->heading_string
-			: "";
-	}
-	else
-	if ( element->element_type == text )
-	{
-		if ( element->text->name
-		&&   !element->text->heading_string )
-		{
-			element->text->heading_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				appaserver_element_heading_string(
-					element->text->name );
-		}
-		return (element->text->heading_string)
-			? element->text->heading_string
-			: "";
-	}
-	else
-/*
-	if ( element->element_type == text_item
-	||   element->element_type == element_date
-	||   element->element_type == element_current_date
-	||   element->element_type == element_current_date_time
-	||   element->element_type == element_date_time )
-	{
-		return element_text_item_heading(
-				element->name,
-				element->text_item->heading_string );
-	}
-	else
-	if ( element->element_type == password )
-	{
-		return element_password_heading(
-				element->name,
-				element->password->heading_string );
-	}
-	else
-	if ( element->element_type == toggle_button )
-	{
-		return element_toggle_button_heading(
-				element->name,
-				element->toggle_button->heading );
-	}
-	else
-	if ( element->element_type == radio_button )
-	{
-		return element_radio_button_heading(
-				element->radio_button->heading,
-				element->name );
-	}
-	else
-	if ( element->element_type == notepad )
-		return element_notepad_heading( element->notepad );
-	else
-	if ( element->element_type == drop_down )
-		return element_drop_down_get_heading(
-				element->name,
-				element->drop_down->heading );
-	else
-	if ( element->element_type == non_edit_multi_select )
-		return element_non_edit_multi_select_heading(
-				element->name );
-	else
-	if ( element->element_type == prompt_data )
-		return element_prompt_data_heading(
-				element->name,
-				element->prompt_data->heading );
-	else
-	if ( element->element_type == reference_number )
-		return
-		element_reference_number_heading(
-				element->name,
-				element->reference_number->heading );
-	else
-	if ( element->element_type == hidden )
-		return "";
-	else
-	if ( element->element_type == upload )
-		return "";
-	else
-	if ( element->element_type == javascript_filename )
-		return "";
-	else
-	if ( element->element_type == linebreak )
-		return "";
-	else
-		return (char *)0;
-*/
-	return "";
-}
-#endif
 
 #ifdef NOT_DEFINED
 char *appaserver_element_button_set_all_control_string(
@@ -1794,9 +1662,9 @@ char *appaserver_element_html(
 	{
 		return
 		strdup(
-			/* Returns program memory */
-			/* ---------------------- */
-			element_table_row_html() );
+			/* Returns static memory */
+			/* --------------------- */
+			element_table_row_html( background_color ) );
 	}
 	else
 	if ( appaserver_element->element_type == table_close )
@@ -3940,12 +3808,5 @@ char *element_checkbox_submit_javascript(
 		form_name );
 
 	return strdup( submit_javascript );
-}
-
-void appaserver_element_initial_data(
-			APPASERVER_ELEMENT *element,
-			DICTIONARY *row_dictionary,
-			LIST *key_string_list )
-{
 }
 

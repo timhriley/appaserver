@@ -15,7 +15,6 @@
 #include "application_constants.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "form.h"
 #include "document.h"
 
 DOCUMENT *document_calloc( void )
@@ -48,34 +47,91 @@ char *document_html_standard_url( void )
 }
 
 DOCUMENT *document_new(	char *application_name,
-			char *title_string,
+			char *application_title_string,
+			char *subtitle_html,
+			char *subsubtitle_html,
+			char *javascript_replace,
 			boolean menu_boolean,
-			int folder_attribute_date_name_list_length )
+			MENU *menu,
+			char *menu_setup_string,
+			char *calendar_setup_string,
+			char *javascript_include_string,
+			char *input_onload_string )
 {
 	DOCUMENT *document = document_calloc();
 
 	document->document_head =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		document_head_new(
 			application_name,
-			title_string,
-			document_head_menu_setup_string(
-				menu_boolean ),
-			document_head_calendar_setup_string(
-			       folder_attribute_date_name_list_length ),
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			document_head_javascript_include_string() );
+			application_title_string,
+			menu_setup_string,
+			calendar_setup_string,
+			javascript_include_string );
 
-	if ( !document->document_head )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: document_head_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	document->document_body =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_body_new(
+			menu_boolean,
+			menu,
+			application_title_string,
+			subtitle_html,
+			subsubtitle_html,
+			javascript_replace,
+			input_onload_string );
+
+	/* Returns program memory */
+	/* ---------------------- */
+	document->type_string = document_type_string();
+
+	/* Returns program memory */
+	/* ---------------------- */
+	document->standard_string = document_standard_string();
+
+	document->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		document_html(
+			document->type_string,
+			document->standard_string );
+
+	return document;
+}
+
+DOCUMENT *document_quick_new(
+			char *application_name,
+			char *application_title_string )
+{
+	DOCUMENT *document = document_calloc();
+
+	document->document_head =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_head_new(
+			application_name,
+			application_title_string,
+			(char *)0 /* menu_setup_string */,
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */ );
+
+	document->document_body =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_body_new(
+			0 /* not menu_boolean */,
+			(MENU *)0,
+			application_title_string,
+			(char *)0 /* subtitle_html */,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
+			(char *)0 /* input_onload_string */ );
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -108,8 +164,7 @@ void document_output_content_type( void )
 	}
 }
 
-char *document_html(
-			char *type_string,
+char *document_html(	char *type_string,
 			char *standard_string )
 {
 	char html[ 1024 ];
@@ -135,7 +190,6 @@ char *document_html(
 void document_quick_output( char *application_name )
 {
 	DOCUMENT *document;
-	char *tmp;
 
 	document_output_content_type();
 
@@ -143,55 +197,14 @@ void document_quick_output( char *application_name )
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		document_new(
+		document_quick_new(
 			application_name,
-			application_title_string( application_name ),
-			0 /* not menu_boolean */,
-			0 /* folder_attribute_date_name_list */ );
+			application_title_string( application_name ) );
 
-	printf("%s\n",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		( tmp = document_html(
-				document->type_string,
-				document->standard_string ) ) );
-
-	free( tmp );
-
-	printf( "%s\n",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		( tmp =
-			document_head_open_html(
-				document->document_head->meta_string,
-				document->document_head->stylesheet_string,
-				document->document_head->title_tag,
-				document->document_head->menu_setup_string,
-				document->document_head->calendar_setup_string,
-				document->
-					document_head->
-					javascript_include_string ) ) );
-
-	free( tmp );
-
-	printf( "%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_head_close_html() );
-
-	printf( "%s\n",
-		( tmp =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-			document_body_tag(
-				(char *)0 /* onload_string */,
-				(char *)0 /* javascript_replace */ ) ) );
-
-	free( tmp );
+	printf( "%s\n", document->html );
+	printf( "%s\n", document->document_head->html );
+	printf( "%s\n", document_head_close_html() );
+	printf( "%s\n", document->document_body->html );
 }
 
 DOCUMENT_BODY *document_body_calloc( void )
@@ -212,10 +225,13 @@ DOCUMENT_BODY *document_body_calloc( void )
 }
 
 DOCUMENT_BODY *document_body_new(
-			MENU *menu,
 			boolean menu_boolean,
+			MENU *menu,
 			char *application_title_string,
-			char *javascript_replace )
+			char *subtitle_html,
+			char *subsubtitle_html,
+			char *javascript_replace,
+			char *input_onload_string )
 {
 	DOCUMENT_BODY *document_body = document_body_calloc();
 
@@ -228,6 +244,7 @@ DOCUMENT_BODY *document_body_new(
 
 	document_body->tag =
 		document_body_tag(
+			input_onload_string,
 			document_body->menu_onload_string,
 			javascript_replace );
 
@@ -241,8 +258,8 @@ DOCUMENT_BODY *document_body_new(
 		/* --------------------------- */
 		document_body_horizontal_menu_html(
 			document_body->hide_preload_html,
-			menu,
-			menu_boolean );
+			menu_boolean,
+			menu );
 
 	document_body->title_html =
 		/* ----------------------------- */
@@ -258,47 +275,60 @@ DOCUMENT_BODY *document_body_new(
 		document_body_html(
 			document_body->tag,
 			document_body->horizontal_menu_html,
-			document_body->title_html );
+			document_body->title_html,
+			subtitle_html,
+			subsubtitle_html );
 
 	return document_body;
 }
 
 char *document_body_tag(
+			char *input_onload_string,
 			char *menu_onload_string,
 			char *javascript_replace )
 {
 	char tag[ 2048 ];
 	char *ptr = tag;
+	boolean did_one = 0;
 
 	ptr += sprintf(
 		ptr,
 		"<body leftmargin=0 topmargin=0 marginwidth=0 marginheight=0" );
 
-	if ( ( menu_onload_string && *menu_onload_string )
+	if ( ( input_onload_string && *input_onload_string )
+	||   ( menu_onload_string && *menu_onload_string )
 	||   ( javascript_replace && *javascript_replace ) )
 	{
 		ptr += sprintf(
 			ptr,
 			"<onload=\"" );
 
-		if ( menu_onload_string && *menu_onload_string )
+		if ( input_onload_string && *input_onload_string )
 		{
 			ptr += sprintf(
 				ptr,
 				"%s",
-				menu_onload_string );
+				input_onload_string );
+
+			did_one = 1;
 		}
 
-		if ( menu_onload_string && *menu_onload_string
-		&&   javascript_replace && *javascript_replace )
+		if ( menu_onload_string && *menu_onload_string )
 		{
+			if ( did_one ) ptr += sprintf( ptr, " && " );
+
 			ptr += sprintf(
 				ptr,
-				";" );
+				"%s",
+				menu_onload_string );
+
+			did_one = 1;
 		}
 
 		if ( javascript_replace && *javascript_replace )
 		{
+			if ( did_one ) ptr += sprintf( ptr, " && " );
+
 			ptr += sprintf(
 				ptr,
 				"%s",
@@ -323,20 +353,11 @@ char *document_body_hide_preload_html( boolean menu_boolean )
 
 char *document_body_horizontal_menu_html(
 			char *hide_preload_html,
-			MENU *menu,
-			boolean menu_boolean )
+			boolean menu_boolean,
+			MENU *menu )
 {
 	if ( !menu_boolean ) return (char *)0;
-
-	if ( !menu )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: menu is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !menu ) return (char *)0;
 
 	/* Returns heap memory or null */
 	/* --------------------------- */
@@ -345,15 +366,16 @@ char *document_body_horizontal_menu_html(
 			menu->menu_verb_list );
 }
 
-char *document_body_title_html( char *document_title )
+char *document_body_title_html( char *application_title_string )
 {
 	static char title_html[ 256 ];
 
-	if ( !document_title || !*document_title ) return (char *)0;
+	if ( !application_title_string || !*application_title_string )
+		return (char *)0;
 
 	sprintf(title_html,
 		"<h1>%s</h1",
-		document_title );
+		application_title_string );
 
 	return title_html;
 }
@@ -361,9 +383,11 @@ char *document_body_title_html( char *document_title )
 char *document_body_html(
 			char *tag,
 			char *horizontal_menu_html,
-			char *title_html )
+			char *title_html,
+			char *subtitle_html,
+			char *subsubtitle_html )
 {
-	char html[ STRING_INPUT_BUFFER ];
+	char html[ STRING_64K ];
 	char *ptr = html;
 
 	if ( !tag )
@@ -394,7 +418,51 @@ char *document_body_html(
 			title_html );
 	}
 
+	if ( subtitle_html )
+	{
+		ptr += sprintf(
+			ptr,
+			"\n%s",
+			subtitle_html );
+	}
+
+	if ( subsubtitle_html )
+	{
+		ptr += sprintf(
+			ptr,
+			"\n%s",
+			subsubtitle_html );
+	}
+
 	return strdup( html );
+}
+
+char *document_body_set_onload_control_string(
+			char *onload_control_string,
+			char *append_onload_control_string )
+{
+	char control_string[ STRING_64K ];
+
+	if ( !onload_control_string && !append_onload_control_string )
+	{
+		return (char *)0;
+	}
+
+	if ( !onload_control_string )
+	{
+		strcpy( control_string, append_onload_control_string );
+	}
+	else
+	{
+		sprintf(control_string,
+			"%s && %s",
+			onload_control_string,
+			append_onload_control_string );
+
+		free( onload_control_string );
+	}
+
+	return strdup( control_string );
 }
 
 char *document_body_close_html( void )
@@ -421,17 +489,12 @@ DOCUMENT_HEAD *document_head_calloc( void )
 
 DOCUMENT_HEAD *document_head_new(
 			char *application_name,
-			char *title_string,
+			char *application_title_string,
 			char *menu_setup_string,
 			char *calendar_setup_string,
 			char *javascript_include_string )
 {
 	DOCUMENT_HEAD *document_head = document_head_calloc();
-
-	document_head->title_string = title_string;
-	document_head->menu_setup_string = menu_setup_string;
-	document_head->calendar_setup_string = calendar_setup_string;
-	document_head->javascript_include_string = javascript_include_string;
 
 	/* Returns program memory */
 	/* ---------------------- */
@@ -443,16 +506,19 @@ DOCUMENT_HEAD *document_head_new(
 
 	document_head->title_tag =
 		document_head_title_tag(
-			title_string );
+			application_title_string );
 
 	document_head->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		document_head_html(
 			document_head->meta_string,
 			document_head->stylesheet_string,
 			document_head->title_tag,
-			document_head->menu_setup_string,
-			document_head->calendar_setup_string,
-			document_head->javascript_include_string );
+			menu_setup_string,
+			calendar_setup_string,
+			javascript_include_string );
 
 	return document_head;
 }
@@ -641,718 +707,29 @@ char *document_head_calendar_setup_string(
 	}
 }
 
-DOCUMENT_CHOOSE_ISA *document_choose_isa_new(
-			char *application_name,
-			char *choose_isa_title_string,
-			char *choose_isa_subtitle_html,
-			char *choose_isa_prompt_message,
-			MENU *menu,
-			boolean menu_boolean,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *choose_isa_post_action_string )
-{
-	DOCUMENT_CHOOSE_ISA *document_choose_isa = document_choose_isa_calloc();
-
-	document_choose_isa->document =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_new(
-			application_name,
-			application_title_string( application_name ),
-			menu_boolean,
-			0 /* folder_attribute_date_name_list_length */ );
-
-	document_choose_isa->document_body_choose_isa =
-		document_body_choose_isa_new(
-			choose_isa_title_string,
-			choose_isa_subtitle_html,
-			choose_isa_prompt_message,
-			menu,
-			menu_boolean,
-			primary_key_list,
-			delimited_list,
-			no_initial_capital,
-			choose_isa_post_action_string );
-
-	document_choose_isa->html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		document_choose_isa_html(
-			document_choose_isa->document->html,
-			document_choose_isa->document_body_choose_isa->html,
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			document_close_html() );
-
-	return document_choose_isa;
-}
-
 void document_close( void )
 {
 	printf( "%s\n",
 		document_close_html() );
 }
 
-DOCUMENT_EDIT_TABLE *document_edit_table_calloc( void )
-{
-	DOCUMENT_EDIT_TABLE *document_edit_table;
-
-	if ( ! ( document_edit_table =
-			calloc( 1, sizeof( DOCUMENT_EDIT_TABLE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return document_edit_table;
-}
-
-DOCUMENT_EDIT_TABLE *document_edit_table_new(
-			char *application_name,
-			char *folder_name,
-			char *edit_table_title,
-			MENU *menu,
-			boolean menu_boolean,
-			LIST *folder_attribute_append_isa_list,
-			int dictionary_list_length,
-			char *edit_table_submit_action_string,
-			LIST *operation_list,
-			LIST *edit_table_heading_name_list,
-			char *javascript_replace,
-			char *target_frame,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *ignore_dictionary )
-{
-	DOCUMENT_EDIT_TABLE *document_edit_table =
-		document_edit_table_calloc();
-
-	document_edit_table->document =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_new(
-			application_name,
-			edit_table_title,
-			menu_boolean,
-			list_length(
-				folder_attribute_date_name_list(
-					folder_attribute_append_isa_list ) ) );
-
-	document_edit_table->document_body_edit_table =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_body_edit_table_new(
-			folder_name,
-			menu,
-			menu_boolean,
-			dictionary_list_length,
-			edit_table_submit_action_string,
-			operation_list,
-			edit_table_heading_name_list,
-			edit_table_title,
-			javascript_replace,
-			target_frame,
-			query_dictionary,
-			sort_dictionary,
-			drillthru_dictionary,
-			ignore_dictionary );
-
-	document_edit_table->html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		document_edit_table_html(
-			document_edit_table->document->html,
-			document_edit_table->document_body_edit_table->html );
-
-/*
-	free( document_edit_table->document->html );
-	free( document_edit_table->document_body_edit_table->html );
-*/
-
-	document_edit_table->trailer_html =
-		document_edit_table_trailer_html(
-			document_edit_table->
-				document_body_edit_table->
-				trailer_html );
-
-	return document_edit_table;
-}
-
-DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_calloc( void )
-{
-	DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa;
-
-	if ( ! ( document_body_choose_isa =
-			calloc( 1, sizeof( DOCUMENT_BODY_CHOOSE_ISA ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return document_body_choose_isa;
-}
-
-DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa_new(
-			char *choose_isa_title_string,
-			char *choose_isa_subtitle_html,
-			char *choose_isa_prompt_message,
-			MENU *menu,
-			boolean menu_boolean,
-			LIST *primary_key_list,
-			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *choose_isa_post_action_string )
-{
-	DOCUMENT_BODY_CHOOSE_ISA *document_body_choose_isa =
-		document_body_choose_isa_calloc();
-
-	document_body_choose_isa->document_body =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_body_new(
-			menu,
-			menu_boolean,
-			choose_isa_title_string
-				/* application_title_string */,
-			(char *)0 /* javascript_replace */ );
-
-	document_body_choose_isa->form_choose_isa =
-		form_choose_isa_new(
-			choose_isa_subtitle_html,
-			choose_isa_prompt_message,
-			primary_key_list,
-			delimited_list,
-			no_initial_capital,
-			choose_isa_post_action_string );
-
-	if ( !document_body_choose_isa->form_choose_isa )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: form_choose_isa_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	document_body_choose_isa->html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		document_body_choose_isa_html(
-			document_body_choose_isa->document_body->html,
-			document_body_choose_isa->form_choose_isa->html,
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			document_body_close_html() );
-
-	return document_body_choose_isa;
-}
-
-char *document_body_choose_isa_html(
-			char *document_body_html,
-			char *form_choose_isa_html,
-			char *document_body_close_html )
-{
-	char html[ STRING_ONE_MEG ];
-
-	if ( !document_body_html
-	||   !form_choose_isa_html
-	||   !document_body_close_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s",
-		document_body_html,
-		form_choose_isa_html,
-		document_body_close_html );
-
-	return strdup( html );
-}
-
-DOCUMENT_CHOOSE_ISA *document_choose_isa_calloc( void )
-{
-	DOCUMENT_CHOOSE_ISA *document_choose_isa;
-
-	if ( ! ( document_choose_isa =
-			calloc( 1, sizeof( DOCUMENT_CHOOSE_ISA ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return document_choose_isa;
-}
-
-char *document_choose_isa_html(
-			char *document_html,
-			char *document_body_choose_isa_html,
-			char *document_close_html )
-{
-	char html[ STRING_ONE_MEG ];
-
-	if ( !document_html
-	||   !document_body_choose_isa_html
-	||   !document_close_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s",
-		document_html,
-		document_body_choose_isa_html,
-		document_close_html );
-
-	return strdup( html );
-}
-
-DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_calloc( void )
-{
-	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role;
-
-	if ( ! ( document_body_choose_role =
-			calloc( 1, sizeof( DOCUMENT_BODY_CHOOSE_ROLE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return document_body_choose_role;
-}
-
-DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role_new(
-			char *choose_role_title_string,
-			LIST *role_name_list,
-			char *choose_role_post_action_string,
-			char *choose_role_target_frame,
-			char *choose_role_form_name,
-			char *choose_role_drop_down_element_name )
-{
-	DOCUMENT_BODY_CHOOSE_ROLE *document_body_choose_role =
-		document_body_choose_role_calloc();
-
-	document_body_choose_role->document_body =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_body_new(
-			(MENU *)0,
-			0 /* not menu_boolean */,
-			choose_role_title_string
-				/* application_title_string */,
-			(char *)0 /* javascript_replace */ );
-
-	if ( ! ( document_body_choose_role->form_choose_role =
-			form_choose_role_new(
-				role_name_list,
-				choose_role_post_action_string,
-				choose_role_target_frame,
-				choose_role_form_name,
-				choose_role_drop_down_element_name ) ) )
-	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: form_choose_role_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (DOCUMENT_BODY_CHOOSE_ROLE *)0;
-	}
-
-	document_body_choose_role->html =
-		document_body_choose_role_html(
-			document_body_choose_role->document_body->html,
-			document_body_choose_role->form_choose_role->html,
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			document_body_close_html() );
-
-	return document_body_choose_role;
-}
-
-char *document_body_choose_role_html(
-			char *document_body_html,
-			char *form_choose_role_html,
-			char *document_body_close_html )
-{
-	char html[ STRING_INPUT_BUFFER ];
-
-	if ( !document_body_html
-	||   !form_choose_role_html
-	||   !document_body_close_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s",
-		document_body_html,
-		form_choose_role_html,
-		document_body_close_html );
-
-	return strdup( html );
-}
-
-DOCUMENT_CHOOSE_ROLE *document_choose_role_calloc( void )
-{
-	DOCUMENT_CHOOSE_ROLE *document_choose_role;
-
-	if ( ! ( document_choose_role =
-			calloc( 1, sizeof( DOCUMENT_CHOOSE_ROLE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return document_choose_role;
-}
-
-DOCUMENT_CHOOSE_ROLE *document_choose_role_new(
-			char *application_name,
-			char *choose_role_title_string,
-			LIST *role_name_list,
-			char *choose_role_post_action_string,
-			char *choose_role_target_frame,
-			char *choose_role_form_name,
-			char *choose_role_drop_down_element_name )
-{
-	DOCUMENT_CHOOSE_ROLE *document_choose_role =
-		document_choose_role_calloc();
-
-	document_choose_role->document =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_new(
-			application_name,
-			application_title_string( application_name ),
-			0 /* not menu_boolean */,
-			0 /* folder_attribute_date_name_list_length */ );
-
-	document_choose_role->document_body_choose_role =
-		document_body_choose_role_new(
-			choose_role_title_string,
-			role_name_list,
-			choose_role_post_action_string,
-			choose_role_target_frame,
-			choose_role_form_name,
-			choose_role_drop_down_element_name );
-
-	if ( !document_choose_role->document_body_choose_role )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: document_body_choose_role_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	document_choose_role->html =
-		document_choose_role_html(
-			document_choose_role->document->html,
-			document_choose_role->document_body_choose_role->html,
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			document_close_html() );
-
-	return document_choose_role;
-}
-
-char *document_choose_role_html(
-			char *document_html,
-			char *document_body_choose_role_html,
-			char *document_close_html )
-{
-	char html[ STRING_INPUT_BUFFER ];
-
-	if ( !document_html
-	||   !document_body_choose_role_html
-	||   !document_close_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s",
-		document_html,
-		document_body_choose_role_html,
-		document_close_html );
-
-	return strdup( html );
-}
-
-DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_calloc( void )
-{
-	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table;
-
-	if ( ! ( document_body_edit_table =
-			calloc( 1, sizeof( DOCUMENT_BODY_EDIT_TABLE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return document_body_edit_table;
-}
-
-DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table_new(
-			char *folder_name,
-			MENU *menu,
-			boolean menu_boolean,
-			int dictionary_list_length,
-			char *edit_table_submit_action_string,
-			LIST *operation_list,
-			LIST *edit_table_heading_name_list,
-			char *edit_table_title,
-			char *javascript_replace,
-			char *target_frame,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictionary,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *ignore_dictionary )
-{
-	DOCUMENT_BODY_EDIT_TABLE *document_body_edit_table =
-		document_body_edit_table_calloc();
-
-	document_body_edit_table->document_body =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_body_new(
-			menu,
-			menu_boolean,
-			edit_table_title
-				/* application_title_string */,
-			javascript_replace );
-
-	document_body_edit_table->form_edit_table =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		form_edit_table_new(
-			folder_name,
-			javascript_replace,
-			dictionary_list_length,
-			edit_table_submit_action_string,
-			operation_list,
-			edit_table_heading_name_list,
-			target_frame,
-			query_dictionary,
-			sort_dictionary,
-			drillthru_dictionary,
-			ignore_dictionary );
-
-	if ( !document_body_edit_table->document_body->html )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: document_body_edit_table->document_body->html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !document_body_edit_table->form_edit_table->html )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: document_body_edit_table->form_edit_table->html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	document_body_edit_table->html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		document_body_edit_table_html(
-			document_body_edit_table->document_body->html,
-			document_body_edit_table->form_edit_table->html );
-
-/*
-	free( document_body_edit_table->document_body->html );
-	free( document_body_edit_table->form_edit_table->html );
-*/
-
-	document_body_edit_table->trailer_html =
-		/* ------------------------------------- */
-		/* Returns form_edit_table_trailer->html */
-		/* ------------------------------------- */
-		document_body_edit_table_trailer_html(
-			document_body_edit_table->
-				form_edit_table->
-				trailer_html );
-
-	return document_body_edit_table;
-}
-
-char *document_body_edit_table_html(
-			char *document_body_html,
-			char *form_edit_table_html )
-{
-	char html[ STRING_FOUR_MEG ];
-
-	if ( !document_body_html
-	||   !form_edit_table_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s",
-		document_body_html,
-		form_edit_table_html );
-
-	return strdup( html );
-}
-
-char *document_body_edit_table_trailer_html(
-			char *form_edit_table_trailer_html )
-{
-	return form_edit_table_trailer_html;
-}
-
-char *document_edit_table_html(
-			char *document_html,
-			char *document_body_edit_table_html )
-{
-	char html[ STRING_FOUR_MEG ];
-
-	if ( !document_html
-	||   !document_body_edit_table_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s",
-		document_html,
-		document_body_edit_table_html );
-
-	return strdup( html );
-}
-
-char *document_edit_table_trailer_html(
-			char *document_body_edit_table_trailer_html )
-{
-	return document_body_edit_table_trailer_html;
-}
-
 void document_output_html_stream( FILE *output_stream )
 {
 	DOCUMENT *document;
-	char *tmp;
 	char *application_name = environment_application_name();
 
 	document =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		document_new(
+		document_quick_new(
 			application_name,
-			application_title_string( application_name ),
-			0 /* not menu_boolean */,
-			0 /* folder_attribute_date_name_list */ );
+			application_title_string( application_name ) );
 
-	fprintf(output_stream,
-		"%s\n",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		( tmp = document_html(
-				document->type_string,
-				document->standard_string ) ) );
-
-	free( tmp );
-
-	fprintf(output_stream,
-		"%s\n",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		( tmp =
-			document_head_open_html(
-				document->document_head->meta_string,
-				document->document_head->stylesheet_string,
-				document->document_head->title_tag,
-				document->document_head->menu_setup_string,
-				document->document_head->calendar_setup_string,
-				document->
-					document_head->
-					javascript_include_string ) ) );
-
-	free( tmp );
+	fprintf( output_stream, "%s\n", document->html );
+	fprintf( output_stream, "%s\n", document->document_head->html );
+	fprintf( output_stream, "%s\n", document_head_close_html() );
+	fprintf( output_stream, "%s\n", document->document_body->html );
 }
 
 char *document_head_html(

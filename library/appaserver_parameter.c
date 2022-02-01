@@ -72,6 +72,12 @@ char *appaserver_parameter_cgi_home( void )
 	return global_appaserver_parameter->cgi_home;
 }
 
+char *appaserver_parameter_document_root( void )
+{
+	return
+	appaserver_parameter_document_root_directory();
+}
+
 char *appaserver_parameter_document_root_directory( void )
 {
 	if ( !global_appaserver_parameter )

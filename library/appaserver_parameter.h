@@ -87,6 +87,9 @@ char *appaserver_parameter_cgi_home(
 char *appaserver_parameter_document_root_directory(
 			void );
 
+char *appaserver_parameter_document_root(
+			void );
+
 char *appaserver_parameter_upload_directory(
 			void );
 

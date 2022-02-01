@@ -132,22 +132,35 @@ char *edit_table_message_html(
 char *edit_table_html(
 			char *document_edit_table_html );
 
-/* Returns document_edit_table_trailer_html */
-/* ---------------------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *edit_table_trailer_html(
-			char *document_edit_table_trailer_html );
+			char *document_body_close_html,
+			char *document_close_html );
 
 /* Public */
 /* ------ */
 void edit_table_output(
 			FILE *output_stream,
+			char *application_name,
 			char *edit_table_html,
+			char *form_edit_table_html,
 			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
 			char *state,
+			char *form_edit_table_trailer_html,
 			char *edit_table_trailer_html );
+
+void edit_table_regular_output(
+			FILE *output_stream,
+			char *application_name,
+			LIST *row_dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			ROW_SECURITY_ROLE *row_security_role,
+			char *state );
 
 LIST *edit_table_apply_element_list(
 			LIST *regular_element_list,
@@ -158,11 +171,24 @@ LIST *edit_table_apply_element_list(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *edit_table_row_html(
-			DICTIONARY *row_dictionary,
-			LIST *edit_table_apply_element_list,
+			LIST *edit_table_apply_element_list /* in/out */,
+			char *application_name,
 			char *edit_table_background_color,
 			char *state,
 			int row_number );
+			DICTIONARY *row_dictionary );
+
+void edit_table_hidden_output(
+			FILE *output_stream,
+			LIST *row_dictionary_list,
+			LIST *regular_element_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *edit_table_hidden_row_html(
+			LIST *regular_element_list /* in/out */,
+			int row_number,
+			DICTIONARY *row_dictionary );
 
 /* Private */
 /* ------- */

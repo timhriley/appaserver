@@ -317,13 +317,15 @@ EDIT_TABLE *edit_table_new(
 				html );
 
 	edit_table->trailer_html =
-		/* ----------------------------------------- */
-		/* Returns document_edit_table->trailer_html */
-		/* ----------------------------------------- */
 		edit_table_trailer_html(
-			edit_table->
-				document_edit_table->
-				trailer_html );
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_body_close_html(),
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_close_html() );
 
 	return edit_table;
 }
@@ -404,96 +406,18 @@ char *edit_table_html( char *document_edit_table_html )
 	return document_edit_table_html;
 }
 
-char *edit_table_trailer_html( char *document_edit_table_trailer_html )
+char *edit_table_trailer_html(
+			char *document_body_close_html,
+			char *document_close_html )
 {
-	return document_edit_table_tailer_html;
-}
+	char trailer_html[ 1024 ];
 
-void edit_table_output(
-			FILE *output_stream,
-			char *edit_table_html,
-			LIST *row_dictionary_list,
-			LIST *regular_element_list,
-			LIST *viewonly_element_list,
-			ROW_SECURITY_ROLE *row_security_role,
-			char *state,
-			char *trailer_html )
-{
-	DICTIONARY *row_dictionary;
-	LIST *apply_element_list;
-	char *html;
+	sprintf(trailer_html,
+		"%s\n%s",
+		document_body_close_html,
+		document_close_html );
 
-	if ( !edit_table_html
-	||   !edit_table_trailer_html )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return;
-	}
-
-	fprintf(output_stream,
-		"%s\n",
-		edit_table_html );
-
-	if ( !list_rewind( row_dictionary_list ) )
-	{
-		fprintf(output_stream,
-			"%s\n",
-			edit_table_trailer_html );
-		return;
-	}
-
-	do {
-		row_dictionary = list_get( row_dictionary_list );
-
-		apply_element_list =
-			edit_table_apply_element_list(
-				regular_element_list,
-				viewonly_element_list,
-				row_dictionary,
-				row_security_role );
-
-		if ( !apply_element_list )
-		{
-			fprintf(stderr,
-"Warning in %s/%s()/%d: edit_table_apply_element_list() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( ! ( html =
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				edit_table_row_html(
-					row_dictionary,
-					apply_element_list,
-					edit_table_background_color() ) ) )
-		{
-			fprintf(stderr,
-	"Warning in %s/%s()/%d: edit_table_row_html() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
-		}
-
-		fprintf(output_stream,
-			"%s\n",
-			html );
-
-		free( html );
-
-	} while ( list_next( row_dictionary_list ) );
-
-	fprintf(output_stream,
-		"%s\n",
-		edit_table_trailer_html );
+	return strdup( trailer_html );
 }
 
 LIST *edit_table_apply_element_list(
@@ -504,7 +428,7 @@ LIST *edit_table_apply_element_list(
 {
 	if ( !row_security_role ) return regular_element_list;
 
-	return row_security_row_apply_element_list(
+	return row_security_role_apply_element_list(
 			regular_element_list,
 			viewonly_element_list,
 			row_dictionary,
@@ -512,57 +436,24 @@ LIST *edit_table_apply_element_list(
 }
 
 char *edit_table_row_html(
-			DICTIONARY *row_dictionary,
 			LIST *apply_element_list,
+			char *application_name,
 			char *background_color,
 			char *state,
-			int row_number )
+			int row_number,
+			DICTIONARY *row_dictionary )
 {
-	char html[ STRING_FOUR_MEG ];
-	char *ptr = html;
-	char *element_list_html;
-	ELEMENT_APPASERVER *element;
-
-	if ( !background_color )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: background_color is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( apply_element_list ) ) return (char *)0;
-
-	ptr += sprintf( ptr, "<tr bgcolor=%s>\n", background_color );
-
-	do {
-		element = list_get( apply_element_list );
-
-		if ( ( element_list_html =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			appaserver_element_list_html(
-				apply_element_list,
-				application_name,
-				background_color,
-				state,
-				row_number,
-				row_dictionary ) ) )
-		{
-			ptr += sprintf(
-				ptr,
-				"%s\n",
-				element_list_html );
-
-			free( element_list_html );
-		}
-
-	} while( list_next( apply_element_list ) );
-
-	return strdup( html );
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	appaserver_element_list_html(
+			apply_element_list /* in/out */,
+			application_name,
+			background_color,
+			state,
+			row_number,
+			row_dictionary );
 }
 
 char *edit_table_background_color( void )
@@ -897,3 +788,179 @@ LIST *edit_table_heading_name_list(
 	/* --------------------------- */
 	appaserver_element_heading_name_list( apply_element_list );
 }
+
+void edit_table_output(	FILE *output_stream,
+			char *application_name,
+			char *edit_table_html,
+			char *form_edit_table_html,
+			LIST *row_dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			ROW_SECURITY_ROLE *row_security_role,
+			char *state,
+			char *form_edit_table_trailer_html,
+			char *edit_table_trailer_html )
+{
+	if ( !edit_table_html
+	||   !edit_table_trailer_html )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
+
+	fprintf(output_stream,
+		"%s\n%s\n",
+		edit_table_html,
+		form_edit_table_html );
+
+	edit_table_regular_output(
+		output_stream,
+		application_name,
+		row_dictionary_list,
+		regular_element_list,
+		viewonly_element_list,
+		row_security_role,
+		state );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		element_table_close_html() );
+
+	edit_table_hidden_output(
+		output_stream,
+		row_dictionary_list,
+		regular_element_list );
+
+	fprintf(output_stream,
+		"%s\n%s\n",
+		form_edit_table_trailer_html,
+		edit_table_trailer_html );
+}
+
+void edit_table_regular_output(
+			FILE *output_stream,
+			char *application_name,
+			LIST *row_dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list,
+			ROW_SECURITY_ROLE *row_security_role,
+			char *state )
+{
+	DICTIONARY *row_dictionary;
+	LIST *apply_element_list;
+	char *html;
+	int row_number = 0;
+
+	if ( !list_rewind( row_dictionary_list ) ) return;
+
+	do {
+		row_dictionary = list_get( row_dictionary_list );
+
+		apply_element_list =
+			edit_table_apply_element_list(
+				regular_element_list,
+				viewonly_element_list,
+				row_dictionary,
+				row_security_role );
+
+		if ( !apply_element_list )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: edit_table_apply_element_list() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ! ( html =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				edit_table_row_html(
+					apply_element_list /* in/out */,
+					application_name,
+					edit_table_background_color(),
+					state,
+					++row_number,
+					row_dictionary ) ) )
+		{
+			fprintf(stderr,
+	"Warning in %s/%s()/%d: edit_table_row_html() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		fprintf(output_stream,
+			"%s\n",
+			html );
+
+		free( html );
+
+	} while ( list_next( row_dictionary_list ) );
+}
+
+void edit_table_hidden_output(
+			FILE *output_stream,
+			LIST *row_dictionary_list,
+			LIST *regular_element_list )
+{
+	DICTIONARY *row_dictionary;
+	char *html;
+	int row_number = 0;
+
+	if ( !list_rewind( row_dictionary_list ) ) return;
+
+	do {
+		row_dictionary = list_get( row_dictionary_list );
+
+		if ( ! ( html =
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				edit_table_hidden_row_html(
+					regular_element_list /* in/out */,
+					++row_number,
+					row_dictionary ) ) )
+		{
+			fprintf(stderr,
+	"Warning in %s/%s()/%d: edit_table_hidden_row_html() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		fprintf(output_stream,
+			"%s\n",
+			html );
+
+		free( html );
+
+	} while ( list_next( row_dictionary_list ) );
+}
+
+char *edit_table_hidden_row_html(
+			LIST *regular_element_list /* in/out */,
+			int row_number,
+			DICTIONARY *row_dictionary )
+{
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	appaserver_element_hidden_list_html(
+		regular_element_list /* in/out */,
+		row_number,
+		row_dictionary );
+}
+

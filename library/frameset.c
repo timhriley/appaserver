@@ -61,7 +61,7 @@ FRAMESET *frameset_new(	char *application_name,
 				application_name,
 				frameset->
 					appaserver_parameter->
-					document_root,
+					document_root_directory,
 				session_key,
 				FRAMESET_MENU_FRAME );
 	}
@@ -71,7 +71,7 @@ FRAMESET *frameset_new(	char *application_name,
 			application_name,
 			frameset->
 				appaserver_parameter->
-				document_root,
+				document_root_directory,
 			session_key,
 			FRAMESET_PROMPT_FRAME );
 
