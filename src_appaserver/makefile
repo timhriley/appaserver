@@ -79,7 +79,7 @@ EXECUTABLES=								\
 		output_close_html_document				\
 		output_frameset						\
 		output_choose_role	 				\
-		post_choose_role_drop_down		 		\
+		post_choose_role_			 		\
 		output_choose_role_folder_process			\
 		output_choose_folder_process_menu			\
 		maintain_user_account					\
@@ -180,7 +180,7 @@ clean:
 	${CGI_HOME}/post_change_sort_order				\
 	${CGI_HOME}/post_login						\
 	${CGI_HOME}/post_login_cloudacus				\
-	${CGI_HOME}/post_choose_role_drop_down 				\
+	${CGI_HOME}/post_choose_role	 				\
 	${CGI_HOME}/post_prompt_edit					\
 	${CGI_HOME}/post_prompt_insert					\
 	${CGI_HOME}/post_choose_isa					\
@@ -498,20 +498,19 @@ output_prompt_edit_frameset: output_prompt_edit_frameset.c		\
 		output_prompt_edit_frameset.c				\
 		-o output_prompt_edit_frameset
 
-post_choose_role_drop_down:						\
-	post_choose_role_drop_down.c					\
+post_choose_role: post_choose_role.c					\
 			${LIB}/folder_menu.o				\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/folder_menu.o					\
-		post_choose_role_drop_down.c				\
+		post_choose_role.c					\
 		-o post_choose_role_drop_down
-	touch ${CGI_HOME}/post_choose_role_drop_down
-	/bin/rm -f ${CGI_HOME}/post_choose_role_drop_down
+	touch ${CGI_HOME}/post_choose_role
+	/bin/rm -f ${CGI_HOME}/post_choose_role
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_choose_role_drop_down 	\
+	${APPASERVER_HOME}/src_appaserver/post_choose_role	 	\
 	${CGI_HOME}
 
 output_choose_role_folder_process:					\

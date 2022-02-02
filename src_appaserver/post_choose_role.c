@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------ */
-/* $APPASERVER_HOME/src_appaserver/post_choose_role_drop_down.c	*/
+/* $APPASERVER_HOME/src_appaserver/post_choose_role.c		*/
 /* ------------------------------------------------------------ */
 /* 						       		*/
 /* Freely available software: see Appaserver.org		*/
@@ -40,15 +40,15 @@ int main( int argc, char **argv )
 	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s application session login role\n",
+			"Usage: %s application login session role\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	application_name = argv[ 1 ];
+	login_name = argv[ 2 ];
 	session = argv[ 3 ];
-	login_name = argv[ 4 ];
-	role_name = argv[ 5 ];
+	role_name = argv[ 4 ];
 
 	environ_set_utc_offset( application_name );
 

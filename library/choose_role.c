@@ -10,13 +10,18 @@
 #include "boolean.h"
 #include "String.h"
 #include "appaserver_user.h"
+#include "appaserver_library.h"
+#include "appaserver_parameter.h"
+#include "application.h"
+#include "environ.h"
+#include "frameset.h"
 #include "choose_role.h"
 
 CHOOSE_ROLE *choose_role_calloc( void )
 {
 	CHOOSE_ROLE *choose_role;
 
-	if ( ! ( choose_isa =
+	if ( ! ( choose_role =
 			calloc( 1, sizeof( CHOOSE_ROLE ) ) ) )
 	{
 		fprintf(stderr,
@@ -57,8 +62,8 @@ char *choose_role_title_string( char *login_name )
 
 char *choose_role_post_action_string(
 			char *application_name,
-			char *session_key,
-			char *login_name )
+			char *login_name,
+			char *session_key )
 {
 	char action_string[ 1024 ];
 
@@ -73,7 +78,6 @@ char *choose_role_post_action_string(
 			__LINE__ );
 		exit( 1 );
 	}
-
 
 	sprintf(action_string,
 		" action=\"%s/%s?%s+%s+%s\"",
@@ -92,18 +96,13 @@ char *choose_role_post_action_string(
 	return strdup( action_string );
 }
 
-char *choose_role_document_html(
-			DOCUMENT_CHOOSE_ROLE *document_choose_role )
-{
-}
-
 char *choose_role_target_frame(
 			boolean frameset_menu_horizontal )
 {
 	if ( !frameset_menu_horizontal )
-		return FRAMESET_MENU_FRAME
+		return FRAMESET_MENU_FRAME;
 	else
-		return FRAMESET_PROMPT_FRAME
+		return FRAMESET_PROMPT_FRAME;
 }
 
 CHOOSE_ROLE *choose_role_prompt_new(
@@ -114,10 +113,22 @@ CHOOSE_ROLE *choose_role_prompt_new(
 {
 	CHOOSE_ROLE *choose_role = choose_role_calloc();
 
+	if ( !application_name
+	||   !session_key
+	||   !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	choose_role->title_string =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
 		choose_role_title_string(
 			login_name );
 
@@ -127,8 +138,8 @@ CHOOSE_ROLE *choose_role_prompt_new(
 		/* ------------------- */
 		choose_role_post_action_string(
 			application_name,
-			session_key,
-			login_name );
+			login_name,
+			session_key );
 
 	choose_role->target_frame =
 		/* ---------------------- */
@@ -137,36 +148,152 @@ CHOOSE_ROLE *choose_role_prompt_new(
 		choose_role_target_frame(
 			frameset_menu_horizontal );
 
-	choose_role->document_choose_role =
-		document_choose_role_new(
+	choose_role->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
 			application_name,
-			choose_role->title_string,
+			choose_role_title_string( login_name ),
+			(char *)0 /* subtitle_html */,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
+			0 /* menu_boolean */,
+			(MENU *)0,
+			(char *)0 /* menu_setup_string */,
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */,
+			(char *)0 /* input_onload_string */ );
+
+	choose_role->form_choose_role =
+		form_choose_role_new(
 			appaserver_user_role_name_list( login_name ),
 			choose_role->post_action_string,
 			choose_role->target_frame,
 			CHOOSE_ROLE_FORM_NAME,
 			CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME );
 
-	if ( !choose_role->document_choose_role )
+	if ( !choose_role->form_choose_role )
+	{
+		return (CHOOSE_ROLE *)0;
+	}
+
+	choose_role->html =
+		choose_role_html(
+			choose_role->document->html,
+			choose_role->document->document_head->html,
+			document_head_close_html(),
+			choose_role->document->document_body->html,
+			choose_role->form_choose_role->html,
+			document_body_close_html(),
+			document_close_html() );
+
+	return choose_role;
+}
+
+char *choose_role_html(	char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html,
+			char *form_choose_role_html,
+			char *document_body_close_html,
+			char *document_close_html )
+{
+	char html[ STRING_64K ];
+
+	if ( !document_html
+	||   !document_head_html
+	||   !document_head_close_html
+	||   !document_body_html
+	||   !form_choose_role_html
+	||   !document_body_close_html
+	||   !document_close_html )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: document_choose_role_new() returned empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	choose_role->html =
-		choose_role_html(
-			choose_role->
-				document_choose_role->
-				html );
+	sprintf(html,
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		document_html,
+		document_head_html,
+		document_head_close_html,
+		document_body_html,
+		form_choose_role_html,
+		document_body_close_html,
+		document_close_html );
 
-	return choose_role;
+	return strdup( html );
 }
 
-char *choose_role_html( char *document_choose_role_html )
+CHOOSE_ROLE *choose_role_default_new( char *login_name )
 {
-	return document_choose_role_html;
+	char *default_where;
+	char *default_system_string;
+	char *default_role_name;
+
+	default_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		choose_role_default_where(
+			login_name );
+
+	default_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		choose_role_default_system_string(
+			default_where );
+
+	if ( ( default_role_name =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			choose_role_default_role_name(
+				default_system_string ) ) )
+	{
+		CHOOSE_ROLE *choose_role = choose_role_calloc();
+
+		choose_role->default_where = default_where;
+		choose_role->default_system_string = default_system_string;
+		choose_role->default_role_name = default_role_name;
+
+		return choose_role;
+	}
+
+	return (CHOOSE_ROLE *)0;
+}
+
+char *choose_role_default_where( char *login_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"login_name = '%s'",
+		login_name );
+
+	return where;
+}
+
+char *choose_role_default_system_string( char *where )
+{
+	static char system_string[ 256 ];
+
+	sprintf(system_string,
+		"select.sh role login_default_role \"%s\"",
+		where );
+
+	return system_string;
+}
+
+char *choose_role_default_role_name( char *system_string )
+{
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	return string_pipe_fetch( system_string );
 }

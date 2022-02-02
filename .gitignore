@@ -348,7 +348,7 @@ statistics_folder
 output_open_html_document
 output_close_html_document
 output_choose_role
-post_choose_role_drop_down
+post_choose_role
 output_choose_role_folder_process
 output_choose_folder_process_menu
 maintain_user_account

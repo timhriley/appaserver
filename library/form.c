@@ -1265,7 +1265,14 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 			char *form_name,
 			char *drop_down_element_name )
 {
-	FORM_CHOOSE_ROLE *form_choose_role = form_choose_role_calloc();
+	FORM_CHOOSE_ROLE *form_choose_role;
+
+	if ( !list_length( role_name_list ) )
+	{
+		return (FORM_CHOOSE_ROLE *)0;
+	}
+
+	form_choose_role = form_choose_role_calloc();
 
 	form_choose_role->tag_html =
 		form_tag_html(

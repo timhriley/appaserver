@@ -11,6 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "role.h"
+#include "form.h"
 #include "document.h"
 
 /* Constants */
@@ -27,21 +28,44 @@ typedef struct
 {
 	/* Process */
 	/* ------- */
+	char *default_where;
+	char *default_system_string;
+	char *default_role_name;
 	char *title_string;
 	char *post_action_string;
-	DOCUMENT_CHOOSE_ROLE *document_choose_role;
+	char *target_frame;
+	DOCUMENT *document;
+	FORM_CHOOSE_ROLE *form_choose_role;
 	char *html;
 } CHOOSE_ROLE;
 
-/* CHOOSE_ROLE prompt operations */
-/* ----------------------------- */
+/* CHOOSE_ROLE operations */
+/* ---------------------- */
 CHOOSE_ROLE *choose_role_calloc(
 			void );
 
-CHOOSE_ROLE *choose_role_prompt_new(
+CHOOSE_ROLE *choose_role_default_new(
+			char *login_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *choose_role_default_where(
+			char *login_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *choose_role_default_system_string(
+			char *choose_role_default_where );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *choose_role_default_role_name(
+			char *choose_role_default_system_string );
+
+CHOOSE_ROLE *choose_role_new(
 			char *application_name,
-			char *session_key,
 			char *login_name,
+			char *session_key,
 			boolean frameset_menu_horizontal );
 
 /* Returns static memory */
@@ -53,20 +77,32 @@ char *choose_role_title_string(
 /* ------------------- */
 char *choose_role_post_action_string(
 			char *application_name,
-			char *session_key,
-			char *login_name );
+			char *login_name,
+			char *session_key );
 
 /* Returns program memory */
 /* ---------------------- */
 char *choose_role_target_frame(
 			boolean frameset_menu_horizontal );
 
-/* Returns document_choose_role_html */
-/* --------------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *choose_role_html(
-			char *document_choose_role_html );
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close,
+			char *document_body_html,
+			char *form_choose_role_html,
+			char *document_body_close_html,
+			char *document_close_html );
 
-/* CHOOSE_ROLE post operations */
+typedef struct
+{
+} CHOOSE_ROLE_POST;
+
+/* CHOOSE_ROLE_POST operations */
 /* --------------------------- */
+CHOOSE_ROLE_POST *choose_role_post_calloc(
+			void );
 
 #endif
