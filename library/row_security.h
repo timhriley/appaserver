@@ -150,7 +150,7 @@ LIST *row_security_regular_element_list(
 			LIST *row_security_operation_element_list,
 			LIST *ignore_select_attribute_name_list,
 			char *login_name,
-			SECURITY_ENTITY *security_entity,
+			char *security_entity_where,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			ROW_SECURITY_ROLE *row_security_role );

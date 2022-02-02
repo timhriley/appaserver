@@ -20,7 +20,9 @@
 #include "application.h"
 #include "relation.h"
 #include "environ.h"
+#include "element.h"
 #include "query.h"
+#include "operation.h"
 #include "row_security.h"
 
 ROW_SECURITY *row_security_calloc( void )
@@ -36,57 +38,6 @@ ROW_SECURITY *row_security_calloc( void )
 			 __LINE__ );
 		exit( 1 );
 	}
-
-	return row_security;
-}
-
-ROW_SECURITY *row_security_edit_table_new(
-			char *folder_name,
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary,
-			boolean primary_keys_non_edit,
-			LIST *role_operation_list,
-			LIST *ignore_select_attribute_name_list,
-			char *state,
-			LIST *role_exclude_update_attribute_name_list,
-			LIST *role_exclude_lookup_attribute_name_list,
-			boolean folder_non_owner_forbid,
-			boolean role_override_row_restrictions,
-			char *login_name,
-			char *security_entity_where )
-{
-	ROW_SECURITY *row_security = row_security_calloc();
-
-	row_security->row_security_role =
-		/* ---------------------------------- */
-		/* Returns null if not participating. */
-		/* ---------------------------------- */
-		row_security_role_new(
-			folder_name,
-			folder_attribute_primary_key_list(
-				folder_attribute_append_isa_list ),
-			role_override_row_restrictions );
-
-	row_security->row_security_element_list =
-		row_security_element_list_new(
-			folder_attribute_append_isa_list,
-			relation_mto1_non_isa_list,
-			relation_join_one2m_list,
-			drillthru_dictionary,
-			primary_keys_non_edit,
-			role_operation_list,
-			ignore_select_attribute_name_list,
-			state,
-			login_name,
-			security_entity_new(
-				login_name,
-				folder_non_owner_forbid,
-				role_override_row_restrictions ),
-			role_exclude_update_attribute_name_list,
-			role_exclude_lookup_attribute_name_list,
-			row_security->row_security_role );
 
 	return row_security;
 }
@@ -130,7 +81,7 @@ ROW_SECURITY_ROLE *row_security_role_new(
 	row_security_role->folder_name = folder_name;
 
 	row_security_role->role_override_row_restrictions =
-		role_override_role_restrictions;
+		role_override_row_restrictions;
 
 	row_security_role->update_list =
 		row_security_role_update_list();
@@ -222,7 +173,7 @@ char *row_security_role_update_attribute_not_null(
 			root_folder_name,
 			row_security_role_update->folder_name ) == 0 )
 		{
-			return row_security_role_update->attribute_not_null );
+			return row_security_role_update->attribute_not_null;
 		}
 		else
 		if ( string_strcmp(
@@ -231,7 +182,7 @@ char *row_security_role_update_attribute_not_null(
 				folder_name,
 			row_security_role_update->folder_name  ) == 0 )
 		{
-			return row_security_role_update->attribute_not_null );
+			return row_security_role_update->attribute_not_null;
 		}
 	} while ( list_next( update_list ) );
 
@@ -261,8 +212,8 @@ boolean row_security_role_viewonly(
 
 	data =
 		dictionary_get(
-			row_dictionary,
-			attribute_not_null );
+			attribute_not_null,
+			row_dictionary );
 
 	if ( data && *data )
 		return 1;
@@ -272,7 +223,7 @@ boolean row_security_role_viewonly(
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc( void )
 {
-	ROW_SECURITY_ROLE_UPDATE *row_security_role_folder;
+	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
 
 	if ( ! ( row_security_role_update =
 			calloc(	1,
@@ -287,21 +238,6 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc( void )
 	}
 
 	return row_security_role_update;
-}
-
-char *row_security_role_system_string( void )
-{
-	char *select = "folder,attribute_not_null";
-	char *from = "row_security_role_update";
-	static char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh %s %s \"%s\"",
-		select,
-		from,
-		where );
-
-	return system_string;
 }
 
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
@@ -330,8 +266,7 @@ ROW_SECURITY_ROLE_UPDATE *row_security_role_update_parse(
 	row_security_role_update->relation_one2m_recursive_list =
 		relation_one2m_recursive_list(
 			(LIST *)0 /* relation_list */,
-			folder_name,
-			0 /* not fetch_process */ );
+			folder_name );
 
 	return row_security_role_update;
 }
@@ -422,12 +357,12 @@ char *row_security_role_root_folder_name(
 		if ( strcmp(	folder_name,
 				row_security_role_update->folder_name ) == 0 )
 		{
-			return 1;
+			return row_security_role_update->folder_name;
 		}
 
 	} while ( list_next( update_list ) );
 
-	return 0;
+	return (char *)0;
 }
 
 boolean row_security_role_update_participating(
@@ -470,7 +405,7 @@ char *row_security_role_join(
 		exit( 1 );
 	}
 
-	if ( !relation->many_folder ) )
+	if ( !relation->many_folder )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: many_folder is empty.\n",
@@ -488,7 +423,7 @@ char *row_security_role_join(
 
 		ptr += sprintf(
 			ptr,
-			"%s.%s = %s.%",
+			"%s.%s = %s.%s",
 			folder_name,
 			primary_key,
 			relation->many_folder->folder_name,
@@ -529,7 +464,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			LIST *ignore_select_attribute_name_list,
 			char *state,
 			char *login_name,
-			SECURITY_ENTITY *security_entity,
+			char *security_entity_where,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			/* ------------------------- */
@@ -550,7 +485,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 		exit( 1 );
 	}
 
-	if ( strcmp( state, APPASERVER_UPDATE_STATE ) == 0 )
+	if ( strcmp( state, ELEMENT_UPDATE_STATE ) == 0 )
 	{
 		row_security_element_list->regular_element_list =
 			row_security_regular_element_list(
@@ -562,7 +497,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 				role_operation_list,
 				ignore_select_attribute_name_list,
 				login_name,
-				security_entity,
+				security_entity_where,
 				role_exclude_update_attribute_name_list,
 				role_exclude_lookup_attribute_name_list,
 				row_security_role );
@@ -581,7 +516,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 		}
 	}
 	else
-	if ( string_strcmp( state, APPASERVER_VIEWONLY_STATE ) == 0 )
+	if ( string_strcmp( state, ELEMENT_VIEWONLY_STATE ) == 0 )
 	{
 		row_security_element_list->viewonly_element_list =
 			row_security_viewonly_element_list(
@@ -630,7 +565,7 @@ LIST *row_security_operation_element_list(
 				(char *)0 /* name */ ) );
 
 		if ( viewonly
-		&&   operation_delete_name(
+		&&   operation_delete_boolean(
 			operation->operation_name ) )
 		{
 			continue;
@@ -638,18 +573,18 @@ LIST *row_security_operation_element_list(
 
 		element =
 			appaserver_element_new(
-				checkbox );
+				checkbox,
+				operation->operation_name
+					/* element_name */ );
 
-			element->checkbox->name = operation->operation_name;
+		element->checkbox->element_name =
+			operation->operation_name;
 
-			element->checkbox->prompt_string =
-				operation->operation_name;
+		element->checkbox->prompt_string =
+			operation->operation_name;
 
-			element->checkbox->action_string =
-				operation->delete_warning_javascript;
-
-			element->checkbox->value = "yes";
-		}
+		element->checkbox->on_click =
+			operation->delete_warning_javascript;
 
 		list_set( element_list, element );
 
@@ -667,6 +602,7 @@ LIST *row_security_viewonly_element_list(
 			LIST *role_exclude_lookup_attribute_name_list,
 			ROW_SECURITY_ROLE *row_security_role )
 {
+	return (LIST *)0;
 }
 
 LIST *row_security_apply_element_list(
@@ -704,7 +640,7 @@ LIST *row_security_regular_element_list(
 			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			char *login_name,
-			SECURITY_ENTITY *security_entity,
+			char *security_entity_where,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			ROW_SECURITY_ROLE *row_security_role )
@@ -732,17 +668,20 @@ LIST *row_security_regular_element_list(
 		exit( 1 );
 	}
 
+/*
 	element_list = list_copy( operation_element_list );
+*/
+	element_list = list_new();
 
 	do {
 		attribute_name = list_get( name_list );
 
-		if ( relation =
+		if ( ( relation =
 			relation_consumes(
 				attribute_name /* many_attribute_name */,
-				relation_mto1_non_isa_list ) )
+				relation_mto1_non_isa_list ) ) )
 		{
-			QUERY *query;
+			QUERY_WIDGET *query_widget;
 
 			if ( !relation->one_folder )
 			{
@@ -768,11 +707,14 @@ LIST *row_security_regular_element_list(
 
 			element =
 				appaserver_element_new(
-					drop_down );
+					drop_down,
+					list_display_delimited(
+						relation->foreign_key_list,
+						'^' ) );
 
 			free( element->drop_down );
 
-			query =
+			query_widget =
 				query_widget_new(
 					relation->one_folder->folder_name
 						/* widget_folder_name */,
@@ -783,86 +725,60 @@ LIST *row_security_regular_element_list(
 					relation->
 						one_folder->
 						relation_mto1_non_isa_list,
+					security_entity_where,
+					drillthru_dictionary );
+
+			if ( !query_widget )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
 
 			element->drop_down =
 				element_drop_down_new(
-					relation->one_folder->primary_key_list
+					element->element_name,
+					relation->foreign_key_list
 						/* attribute_name_list */,
-					row_security_widget_delimited_list
+					query_widget->delimited_list,
+					(LIST *)0 /* display_list */,
+					relation->
+						one_folder->
+						no_initial_capital,
+					1 /* output_null_option */,
+					1 /* output_not_null_option */,
+					1 /* output_select_option */,
+					element_drop_down_display_size(
+						list_length(
+							query_widget->
+							     delimited_list ) ),
+					-1 /* tab_order */,
+					0 /* not multi_select */,
+					relation->
+						one_folder->
+						post_change_javascript,
+					0 /* not read only */,
+					1 /* recall */ );
 
-					query_primary_delimited_list(
+			if ( !element->drop_down )
+			{
+				fprintf(stderr,
+	"ERROR in %s/%s()/%d: element_drop_down_new() returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			list_set( element_list, element );
 		}
 
 	} while ( list_next( name_list ) );
 
 	return element_list;
-}
-
-{
-if ( folder->populate_drop_down_process )
-{
-	delimited_list =
-		list_pipe_fetch(
-			process_choose_isa_command_line(
-				folder->
-					populate_drop_down_process->
-					command_line,
-				security_entity_where(
-					security_entity,
-					folder->folder_attribute_list ),
-				application_name,
-				login_name,
-				role_name,
-				one2m_isa_folder_name  ) );
-}
-
-LIST *row_security_widget_delimited_list(
-			char *widget_folder_name,
-			char *login_name,
-			LIST *primary_key_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			char *one_folder_name,
-			DICTIONARY *drillthru_dictionary,
-			PROCESS *populate_drop_down_process )
-{
-	LIST *delimited_list;
-
-	if ( !populate_drop_down_process )
-	{
-		QUERY *query =
-			query_widget_new(
-				char *widget_folder_name,
-				char *login_name,
-				LIST *folder_attribute_primary_key_list(),
-				LIST *folder_attribute_list(),
-				LIST *relation_mto1_non_isa_list,
-				char *security_entity_where(),
-				DICTIONARY *drillthru_dictionary );
-
-		delimited_list =
-			query_delimited_list(
-				query->select_clause,
-				query->from_clause,
-				query->where_clause,
-				query->order_clause,
-				0 /* max_rows */ );
-	}
-	else
-	{
-		delimited_list =
-			list_pipe_fetch(
-				process_widget_command_line(
-					populate_drop_down_process->
-						command_line,
-					application_name,
-					security_entity_where,
-					login_name,
-					role_name,
-					one2m_isa_folder_name  ) );
-	}
-
-	return delimited_list;
 }
 
 LIST *row_security_role_update_list( void )
@@ -876,7 +792,7 @@ LIST *row_security_role_update_list( void )
 			row_security_role_update_system_string(),
 			"r" );
 
-	while ( string_input( input, input_pipe ) )
+	while ( string_input( input, input_pipe, 1024 ) )
 	{
 		if ( !update_list ) update_list = list_new();
 

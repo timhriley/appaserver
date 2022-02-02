@@ -20,6 +20,7 @@
 #include "appaserver_parameter.h"
 #include "security.h"
 #include "process_parameter.h"
+#include "query.h"
 #include "process.h"
 
 void process_execution_count_increment(
@@ -124,7 +125,6 @@ boolean process_interpreted_executable_ok( char *which_string )
 		 which_string );
 
 	return (boolean)atoi( pipe2string( sys_string ) );
-
 }
 
 char *process_primary_where( char *process_name )
@@ -145,7 +145,7 @@ PROCESS *process_parse(	char *input,
 {
 	PROCESS *process;
 	char process_name[ 128 ];
-	char buffer[ COMMAND_LINE_BUFFER ];
+	char buffer[ STRING_COMMAND_BUFFER ];
 
 	if ( !input || !*input ) return (PROCESS *)0;
 
@@ -296,7 +296,7 @@ PROCESS_SET *process_set_parse(
 {
 	PROCESS_SET *process_set;
 	char process_set_name[ 128 ];
-	char buffer[ COMMAND_LINE_BUFFER ];
+	char buffer[ STRING_COMMAND_BUFFER ];
 
 	/* See PROCESS_SET_SELECT */
 	/* ---------------------- */
@@ -444,7 +444,7 @@ LIST *process_set_role_process_name_list(
 char *process_set_process_where(
 			LIST *process_name_list )
 {
-	char where[ COMMAND_LINE_BUFFER ];
+	char where[ STRING_COMMAND_BUFFER ];
 
 	if ( !list_length( process_name_list ) )
 	{
@@ -468,10 +468,13 @@ char *process_prompt_submit_command_line(
 			char *login_name,
 			DICTIONARY *working_post_dictionary )
 {
-	char buffer[ COMMAND_LINE_BUFFER ];
-	char local_command_line[ COMMAND_LINE_BUFFER ];
+	char buffer[ STRING_COMMAND_BUFFER ];
+	char local_command_line[ STRING_COMMAND_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
+	string_strcpy(
+		local_command_line,
+		command_line,
+		STRING_COMMAND_BUFFER );
 
 	if ( process_name && *process_name )
 	{
@@ -529,14 +532,14 @@ char *process_prompt_submit_command_line(
 }
 
 void process_replace_where_command_line(
-			char *command_line,
-			DICTIONARY *drillthru_dictionary,
-			char *folder_name,
-			char *role_name,
-			char *login_name )
+			char *command_line /* in/out */,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary )
 {
-	QUERY *query;
-	char buffer[ COMMAND_LINE_BUFFER ];
+	QUERY_WIDGET_WHERE *query_widget_where;
+	char buffer[ STRING_COMMAND_BUFFER ];
 
 	if ( !command_line )
 	{
@@ -548,30 +551,20 @@ void process_replace_where_command_line(
 		exit( 1 );
 	}
 
-	if ( !folder_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	if ( !string_exists( command_line, "$where" ) )
 	{
 		return;
 	}
 
-	if ( ! ( query =
-			query_command_line_where_new(
-				drillthru_dictionary,
-				folder_name,
-				role_name,
-				login_name ) ) )
+	if ( ! ( query_widget_where =
+			query_widget_where_new(
+				folder_attribute_list,
+				relation_mto1_non_isa_list,
+				security_entity_where,
+				drillthru_dictionary ) ) )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: query_command_line_where_new() returned empty.\n",
+	"ERROR in %s/%s()/%d: query_widget_where_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -581,9 +574,12 @@ void process_replace_where_command_line(
 	search_replace_word(
 		command_line, 
 		"$where", 
-		double_quotes_around( 	
+		double_quotes_around(
 			buffer,
-			query->where_clause ) );
+			query_widget_where->string ) );
+
+	free( query_widget_where->string );
+	free( query_widget_where );
 }
 
 PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc( void )
@@ -710,7 +706,7 @@ char *process_choose_isa_command_line(
 			char *role_name,
 			char *one2m_isa_folder_name )
 {
-	char local_command_line[ COMMAND_LINE_BUFFER ];
+	char local_command_line[ STRING_COMMAND_BUFFER ];
 	char buffer[ 1024 ];
 
 	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
@@ -811,10 +807,13 @@ char *process_operation_command_line(
 			LIST *primary_data_list,
 			DICTIONARY *single_row_dictionary )
 {
-	char local_command_line[ COMMAND_LINE_BUFFER ];
-	char buffer[ COMMAND_LINE_BUFFER ];
+	char local_command_line[ STRING_COMMAND_BUFFER ];
+	char buffer[ STRING_COMMAND_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
+	string_strcpy(
+		local_command_line,
+		command_line,
+		STRING_COMMAND_BUFFER );
 
 	if ( application_name )
 	{
@@ -993,10 +992,13 @@ char *process_widget_command_line(
 			char *state,
 			DICTIONARY *drillthru_dictionary )
 {
-	char buffer[ COMMAND_LINE_BUFFER ];
-	char local_command_line[ COMMAND_LINE_BUFFER ];
+	char buffer[ STRING_COMMAND_BUFFER ];
+	char local_command_line[ STRING_COMMAND_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
+	string_strcpy(
+		local_command_line,
+		command_line,
+		STRING_COMMAND_BUFFER );
 
 	if ( security_entity_where
 	&&   *security_entity_where )
@@ -1041,10 +1043,13 @@ char *process_parameter_command_line(
 			char *role_name,
 			DICTIONARY *drillthru_dictionary )
 {
-	char buffer[ COMMAND_LINE_BUFFER ];
-	char local_command_line[ COMMAND_LINE_BUFFER ];
+	char buffer[ STRING_COMMAND_BUFFER ];
+	char local_command_line[ STRING_COMMAND_BUFFER ];
 
-	string_strcpy( local_command_line, command_line, COMMAND_LINE_BUFFER );
+	string_strcpy(
+		local_command_line,
+		command_line,
+		STRING_COMMAND_BUFFER );
 
 	if ( process_name && *process_name )
 	{

@@ -134,8 +134,8 @@ typedef struct
 	/* Process */
 	/* ------- */
 	PROCESS *process;
-	boolean delete_name;
-	boolean detail_name;
+	boolean delete_boolean;
+	boolean detail_boolean;
 	char *image_source;
 	char *delete_warning_javascript;
 	APPASERVER_ELEMENT *operation_element;
@@ -198,6 +198,8 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	LIST *operation_list;
+	char *select;
 	char *where;
 	char *system_string;
 } OPERATION_LIST;

@@ -8,8 +8,10 @@
 #include <string.h>
 #include "timlib.h"
 #include "String.h"
+#include "piece.h"
 #include "appaserver_error.h"
 #include "appaserver_library.h"
+#include "button.h"
 #include "operation.h"
 
 void operation_row_execute( char *command_line )
@@ -383,14 +385,14 @@ char *operation_image_source(
 	{
 		sprintf(image_source,
 		 	"/%s/trashcan.gif",
-		 	IMAGE_RELATIVE_DIRECTORY );
+		 	BUTTON_IMAGE_RELATIVE_DIRECTORY );
 	}
 	else
 	if ( detail_boolean )
 	{
 		sprintf(image_source,
 			"/%s/magnify_glass.gif",
-			IMAGE_RELATIVE_DIRECTORY );
+			BUTTON_IMAGE_RELATIVE_DIRECTORY );
 	}
 
 	if ( *image_source )
@@ -436,6 +438,8 @@ OPERATION_LIST *operation_list_new(
 	FILE *input_pipe;
 	char input[ 128 ];
 
+	operation_list->operation_list = list_new();
+
 	operation_list->select =
 		/* --------------------- */
 		/* Returns static memory */
@@ -459,7 +463,6 @@ OPERATION_LIST *operation_list_new(
 			operation_list->where );
 
 	input_pipe = popen( operation_list->system_string, "r" );
-	operation_list->operation_list = list_new();
 
 	while ( string_input( input, input_pipe, 128 ) )
 	{
@@ -474,7 +477,7 @@ OPERATION_LIST *operation_list_new(
 
 char *operation_list_select( void )
 {
-	char select[ 128 ];
+	static char select[ 128 ];
 
 	sprintf(select,
 		"%s.operation,output_yn",
@@ -566,7 +569,7 @@ OPERATION *operation_parse( char *input )
 	operation->operation_element =
 		operation_element(
 			operation_name,
-			operation->imagage_source,
+			operation->image_source,
 			operation->delete_warning_javascript );
 
 	return operation;
@@ -585,8 +588,14 @@ APPASERVER_ELEMENT *operation_element(
 
 	element->checkbox =
 		element_checkbox_new(
-			operation_name /* attribute_name */,
-			operation_name /* prompt_string */,
-			0 /* not checked */,
+			(char *)0 /* attribute_name */,
+			operation_name /* operation_name */,
+			(char *)0 /* prompt_string */,
+			delete_warning_javascript /* on_click */,
+			-1 /* tab_order */,
+			image_source,
+			0 /* not recall */ );
+
+	return element;
 }
 

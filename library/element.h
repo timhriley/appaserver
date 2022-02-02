@@ -153,7 +153,7 @@ typedef struct
 	char *on_click;
 	int tab_order;
 	char *image_source;
-	boolean remember;
+	boolean recall;
 
 	/* Public */
 	/* ------ */
@@ -173,7 +173,7 @@ ELEMENT_CHECKBOX *element_checkbox_new(
 			char *on_click,
 			int tab_order,
 			char *image_source,
-			boolean remember );
+			boolean recall );
 
 /* Public */
 /* ------ */
@@ -217,22 +217,18 @@ typedef struct
 	boolean output_null_option;
 	boolean output_not_null_option;
 	boolean output_select_option;
-	int column_span;
+	int display_size;
 	int tab_order;
 	boolean multi_select;
 	char *post_change_javascript;
-	boolean remember;
+	boolean readonly;
+	boolean recall;
 
 	/* Public */
 	/* ------ */
 	char *key_string;
 	char *value;
-	int display_size;
 	char *html;
-
-	/* Private */
-	/* ------- */
-	char *heading;
 } ELEMENT_DROP_DOWN;
 
 /* ELEMENT_DROP_DOWN operations */
@@ -253,14 +249,15 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			int tab_order,
 			boolean multi_select,
 			char *post_change_javascript,
-			boolean remember );
+			boolean readonly,
+			boolean recall );
 
 ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			char *name,
 			int display_size,
 			boolean multi_select,
 			char *post_change_javascript,
-			boolean remember );
+			boolean recall );
 
 /* Returns row_dictionary->hash_table->other_data */
 /* ---------------------------------------------- */
@@ -624,7 +621,7 @@ typedef struct
 	char *on_focus;
 	char *on_keyup;
 	int tab_index;
-	boolean remember;
+	boolean recall;
 
 	/* Public */
 	/* ------ */
@@ -654,7 +651,7 @@ ELEMENT_TEXT *element_text_new(
 			char *on_focus,
 			char *on_keyup,
 			int tab_index,
-			boolean remember );
+			boolean recall );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -750,7 +747,7 @@ typedef struct
 	/* Input */
 	/* ----- */
 	char *attribute_name;
-	boolean remember;
+	boolean recall;
 } ELEMENT_UPLOAD;
 
 /* ELEMENT_UPLOAD operations */
@@ -760,7 +757,7 @@ ELEMENT_UPLOAD *element_upload_calloc(
 
 ELEMENT_UPLOAD *element_upload_new(
 			char *attribute_name,
-			boolean remember );
+			boolean recall );
 
 /* Returns heap memory */
 /* ------------------- */

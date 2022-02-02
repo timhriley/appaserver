@@ -201,26 +201,6 @@ char *process_populate_drop_down_command_line(
 			char *login_name,
 			char *role_name );
 
-char *process_name_fetch(
-			char *process_or_set_name );
-
-char *process_set_name_fetch(
-			char *process_or_set_name );
-
-/* PROCESS generic operations */
-/* -------------------------- */
-
-void process_execution_count_increment(
-			char *process_name );
-
-char *process_dictionary_process_member(
-			char *process_set,
-			DICTIONARY *parsed_decoded_post_dictionary,
-			char *from_starting_label );
-
-boolean process_executable_ok(
-			char *executable );
-
 void process_set_one2m_folder_name_for_process(
 			DICTIONARY *dictionary,
 			char *one2m_folder_name );
@@ -296,8 +276,8 @@ char *process_parameter_command_line(
 			char *role_name,
 			DICTIONARY *drillthru_dictionary );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *process_widget_command_line(
 			char *command_line,
 			char *application_name,
@@ -306,10 +286,12 @@ char *process_widget_command_line(
 			char *state,
 			DICTIONARY *drillthru_dictionary );
 
-/* PROCESS output */
-/* -------------- */
-LIST *process_delimited_list(
-			char *command_line );
+void process_replace_where_command_line(
+			char *command_line /* in/out */,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary );
 
 void process_replace_state_command_line(
 			/* -------------------- */
@@ -317,6 +299,31 @@ void process_replace_state_command_line(
 			/* -------------------- */
 			char *command_line,
 			char *state );
+
+/* PROCESS public */
+/* -------------- */
+boolean process_executable_ok(
+			char *executable );
+
+char *process_name_fetch(
+			char *process_or_set_name );
+
+char *process_set_name_fetch(
+			char *process_or_set_name );
+
+char *process_dictionary_process_member(
+			char *process_set_name,
+			DICTIONARY *parsed_decoded_post_dictionary,
+			char *from_starting_label );
+
+LIST *process_role_process_name_list(
+			char *role_primary_where );
+
+LIST *process_delimited_list(
+			char *command_line );
+
+void process_execution_count_increment(
+			char *process_name );
 
 #endif
 

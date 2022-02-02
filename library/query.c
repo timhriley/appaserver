@@ -2591,7 +2591,10 @@ QUERY_WIDGET *query_widget_new(
 	query_widget->delimited_list =
 		query_delimited_list(
 			query_widget->query_select_list_string,
-			widget_folder_name,
+			folder_table_name(
+				environment_application_name(),
+				widget_folder_name )
+					/* from_string */,
 			query_widget->where->string,
 			query_widget->query_order_string );
 

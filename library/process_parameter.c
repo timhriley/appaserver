@@ -529,7 +529,7 @@ LIST *process_parameter_folder_delimited_list(
 	ROLE *role;
 	FOLDER *folder;
 	SECURITY_ENTITY *security_entity;
-	QUERY *query;
+	QUERY_WIDGET *query_widget;
 
 	if ( ! ( folder =
 		     folder_fetch(
@@ -582,11 +582,10 @@ LIST *process_parameter_folder_delimited_list(
 			folder->non_owner_forbid,
 			role->override_row_restrictions );
 
-	query =
+	query_widget =
 		query_widget_new(
 			widget_folder_name,
 			login_name,
-			folder->primary_key_list,
 			folder->folder_attribute_list,
 			folder->relation_mto1_non_isa_list,
 			security_entity_where(
@@ -594,7 +593,7 @@ LIST *process_parameter_folder_delimited_list(
 				folder->folder_attribute_list ),
 			drillthru_dictionary );
 
-	if ( !query )
+	if ( !query_widget )
 	{
 		fprintf(stderr,
 "ERROR in %s/%s()/%d: query_widget_new(%s) returned empty.\n",
@@ -605,12 +604,6 @@ LIST *process_parameter_folder_delimited_list(
 		exit( 1 );
 	}
 
-	return
-	query_delimited_list(
-		query->select_clause,
-		query->from_clause,
-		query->where_clause,
-		query->order_clause,
-		0 /* max_rows */ );
+	return query_widget->delimited_list;
 }
 

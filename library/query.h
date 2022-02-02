@@ -707,14 +707,6 @@ char *query_output_order(
 			LIST *primary_key_list,
 			DICTIONARY *sort_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
-char *query_data_where(
-			char *folder_name,
-			LIST *where_attribute_name_list,
-			LIST *where_attribute_data_list,
-			LIST *folder_attribute_list );
-
 typedef struct
 {
 	/* Process */
@@ -793,11 +785,20 @@ typedef struct
 
 /* QUERY operations */
 /* ---------------- */
+char *query_order_string(
+			char *query_select_list_string,
+			DICTIONARY *sort_dictionary );
+
 LIST *query_delimited_list(
 			char *select_string,
 			char *from_string,
 			char *where_string,
 			char *order_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_order_key_list_string(
+			LIST *key_list );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -808,15 +809,6 @@ char *query_system_string(
 			char *order_string,
 			int max_rows );
 
-char *query_order_string(
-			char *query_select_list_string,
-			DICTIONARY *sort_dictionary );
-
-/* Returns heap memory */
-/* ------------------- */
-char *query_order_key_list_string(
-			LIST *key_list );
-
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_join_where(
@@ -825,6 +817,12 @@ char *query_join_where(
 			LIST *primary_key_list,
 			LIST *relation_mto1_isa_list,
 			ROW_SECURITY_ROLE *row_security_role );
+
+LIST *query_primary_delimited_list(
+			char *folder_table_name,
+			LIST *primary_key_list,
+			LIST *foreign_key_list,
+			LIST *foreign_data_list );
 
 /* Private */
 /* ------- */
@@ -844,5 +842,13 @@ char *query_string_join_where(
 			char *relation_folder_table_name,
 			LIST *primary_key_list,
 			LIST *foreign_key_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_data_where(
+			char *folder_name,
+			LIST *where_attribute_name_list,
+			LIST *where_attribute_data_list,
+			LIST *folder_attribute_list );
 
 #endif

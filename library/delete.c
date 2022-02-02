@@ -13,7 +13,6 @@
 #include "sql.h"
 #include "dictionary.h"
 #include "process.h"
-#include "appaserver.h"
 #include "appaserver_error.h"
 #include "relation.h"
 #include "folder.h"
@@ -1080,8 +1079,7 @@ LIST *delete_mto1_isa_one2m_list(
 	relation_list =
 		relation_one2m_recursive_list(
 			(LIST *)0 /* relation_list */,
-			folder_name,
-			1 /* fetch_process */ );
+			folder_name /* one_folder_name */ );
 
 	if ( !list_length( relation_list ) ) return (LIST *)0;
 

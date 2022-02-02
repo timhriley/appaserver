@@ -13,7 +13,6 @@
 #include "dictionary.h"
 #include "process.h"
 #include "environ.h"
-#include "appaserver.h"
 #include "appaserver_error.h"
 #include "folder_attribute.h"
 #include "attribute.h"

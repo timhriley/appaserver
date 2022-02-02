@@ -972,7 +972,7 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 			int display_size,
 			boolean multi_select,
 			char *post_change_javascript,
-			boolean remember )
+			boolean recall )
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
@@ -980,7 +980,7 @@ ELEMENT_DROP_DOWN *element_drop_down_empty_new(
 	element_drop_down->display_size = display_size;
 	element_drop_down->multi_select = multi_select;
 	element_drop_down->post_change_javascript = post_change_javascript;
-	element_drop_down->remember = remember;
+	element_drop_down->recall = recall;
 
 	return element_drop_down;
 }
@@ -998,7 +998,8 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			int tab_order,
 			boolean multi_select,
 			char *post_change_javascript,
-			boolean remember )
+			boolean readonly,
+			boolean recall )
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
@@ -1014,7 +1015,8 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 	element_drop_down->tab_order = tab_order;
 	element_drop_down->multi_select = multi_select;
 	element_drop_down->post_change_javascript = post_change_javascript;
-	element_drop_down->remember = remember;
+	element_drop_down->readonly = readonly;
+	element_drop_down->recall = recall;
 
 	return element_drop_down;
 }
@@ -1128,7 +1130,8 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			-1 /* tab_order */,
 			1 /* multi_select */,
 			(char *)0 /* post_change_javascript */,
-			1 /* remember */ );
+			0 /* not readonly */,
+			1 /* recall */ );
 
 	element_multi_drop_down->table_data =
 		element_table_data_calloc();
@@ -1171,7 +1174,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			element_multi_display_size(),
 			1 /* multi_select */,
 			post_change_javascript,
-			1 /* remember */ );
+			1 /* recall */ );
 
 	return element_multi_drop_down;
 }
@@ -2537,7 +2540,7 @@ ELEMENT_TEXT *element_text_new(
 			char *on_focus,
 			char *on_keyup,
 			int tab_index,
-			boolean remember )
+			boolean recall )
 {
 	ELEMENT_TEXT *element_text = element_text_calloc();
 
@@ -2553,7 +2556,7 @@ ELEMENT_TEXT *element_text_new(
 	element_text->on_focus = on_focus;
 	element_text->on_keyup = on_keyup;
 	element_text->tab_index = tab_index;
-	element_text->remember = remember;
+	element_text->recall = recall;
 
 	return element_text;
 }
@@ -3475,12 +3478,12 @@ ELEMENT_UPLOAD *element_upload_calloc( void )
 
 ELEMENT_UPLOAD *element_upload_new(
 			char *attribute_name,
-			boolean remember )
+			boolean recall )
 {
 	ELEMENT_UPLOAD *element_upload = element_upload_calloc();
 
 	element_upload->attribute_name = attribute_name;
-	element_upload->remember = remember;
+	element_upload->recall = recall;
 
 	return element_upload;
 }
@@ -3612,7 +3615,7 @@ ELEMENT_CHECKBOX *element_checkbox_new(
 			char *on_click,
 			int tab_order,
 			char *image_source,
-			boolean remember )
+			boolean recall )
 {
 	ELEMENT_CHECKBOX *element_checkbox = element_checkbox_calloc();
 
@@ -3622,7 +3625,7 @@ ELEMENT_CHECKBOX *element_checkbox_new(
 	element_checkbox->on_click = on_click;
 	element_checkbox->tab_order = tab_order;
 	element_checkbox->image_source = image_source;
-	element_checkbox->remember = remember;
+	element_checkbox->recall = recall;
 
 	return element_checkbox;
 }
