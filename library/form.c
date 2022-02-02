@@ -1191,7 +1191,6 @@ FORM_CHOOSE_ISA *form_choose_isa_new(
 }
 
 char *form_choose_isa_html(
-			char *choose_isa_subtitle_html,
 			char *tag_html,
 			LIST *element_list,
 			LIST *button_element_list )
@@ -1200,8 +1199,7 @@ char *form_choose_isa_html(
 	char *tmp1;
 	char *tmp2;
 
-	if ( !choose_isa_subtitle_html
-	||   !tag_html
+	if ( !tag_html
 	||   !list_length( element_list )
 	||   !list_length( button_element_list ) )
 	{
@@ -1214,8 +1212,7 @@ char *form_choose_isa_html(
 	}
 
 	sprintf(html,
-		"%s\n%s\n%s\n%s",
-		choose_isa_subtitle_html,
+		"%s\n%s\n%s",
 		tag_html,
 		/* --------------------------- */
 		/* Returns heap memory or null */

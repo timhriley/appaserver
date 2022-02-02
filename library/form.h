@@ -297,7 +297,6 @@ LIST *form_choose_isa_button_element_list(
 /* Returns heap memory */
 /* ------------------- */
 char *form_choose_isa_html(
-			char *choose_isa_subtitle_html,
 			char *tag_html,
 			LIST *element_list,
 			LIST *button_element_list );

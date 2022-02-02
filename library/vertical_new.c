@@ -12,27 +12,11 @@
 #include "frameset.h"
 #include "folder_menu.h"
 #include "document.h"
+#include "element.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "dictionary_separate.h"
 #include "vertical_new.h"
-
-VERTICAL_NEW_BUTTON *vertical_new_button_calloc( void )
-{
-	VERTICAL_NEW_BUTTON *vertical_new_button;
-
-	if ( ! ( vertical_new_button =
-			calloc( 1, sizeof ( VERTICAL_NEW_BUTTON ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-	return vertical_new_button;
-}
 
 char *vertical_new_post_prompt_insert_one_folder_name(
 			char *vertical_new_one_prefix,
@@ -145,7 +129,7 @@ APPASERVER_ELEMENT *vertical_new_output_prompt_insert_element(
 	}
 
 	element =
-		element_appaserver_new(
+		appaserver_element_new(
 			checkbox, 
 			(char *)0 /* element_name */ );
 
@@ -223,10 +207,10 @@ VERTICAL_NEW_POST_PROMPT_INSERT *
 
 	if ( ! ( one_folder_name =
 			vertical_new_post_prompt_insert_one_folder_name(
-				vertical_new_button_one_prefix,
+				vertical_new_one_prefix,
 				non_prefixed_dictionary ) ) )
 	{
-		return (VERTICAL_NEW_BUTTON *)0;
+		return (VERTICAL_NEW_POST_PROMPT_INSERT *)0;
 	}
 
 	vertical_new_post_prompt_insert =
@@ -334,12 +318,12 @@ VERTICAL_NEW_OUTPUT_INSERT_TABLE *
 	return vertical_new_output_insert_table;
 }
 
-VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_calloc( void )
+VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_calloc( void )
 {
-	VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename;
+	VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename;
 
-	if ( ! ( vertical_new_button_filename =
-			calloc(	1, sizeof( VERTICAL_NEW_BUTTON_FILENAME ) ) ) )
+	if ( ! ( vertical_new_blank_filename =
+			calloc(	1, sizeof( VERTICAL_NEW_BLANK_FILENAME ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -349,18 +333,18 @@ VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_calloc( void )
 		exit( 1 );
 	}
 
-	return vertical_new_button_filename;
+	return vertical_new_blank_filename;
 }
 
-VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
+VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_new(
 			char *application_name,
 			char *session_key,
 			char *document_root_directory )
 {
-	VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename =
-		vertical_new_button_filename_calloc();
+	VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename =
+		vertical_new_blank_filename_calloc();
 
-	vertical_new_button_filename->appaserver_link =
+	vertical_new_blank_filename->appaserver_link =
 		appaserver_link_new(
 			application_http_prefix( application_name ),
 			appaserver_library_server_address(),
@@ -375,7 +359,7 @@ VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
 			(char *)0 /* end_date_string */,
 			"html" );
 
-	if ( !vertical_new_button_filename->appaserver_link )
+	if ( !vertical_new_blank_filename->appaserver_link )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: appaserver_link_new(%s) returned empty.\n",
@@ -386,13 +370,13 @@ VERTICAL_NEW_BUTTON_FILENAME *vertical_new_button_filename_new(
 		exit( 1 );
 	}
 
-	vertical_new_button_filename->output_filename =
-		vertical_new_button_filename->appaserver_link->output->filename;
+	vertical_new_blank_filename->output_filename =
+		vertical_new_blank_filename->appaserver_link->output->filename;
 
-	vertical_new_button_filename->prompt_filename =
-		vertical_new_button_filename->appaserver_link->prompt->filename;
+	vertical_new_blank_filename->prompt_filename =
+		vertical_new_blank_filename->appaserver_link->prompt->filename;
 
-	return vertical_new_button_filename;
+	return vertical_new_blank_filename;
 }
 
 void vertical_new_output_insert_table_blank_prompt_frame(
@@ -405,7 +389,6 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 			char *data_directory )
 {
 	DOCUMENT *document;
-	DOCUMENT_BODY *document_body;
 	FILE *output_file;
 	boolean menu_b;
 	MENU *menu = {0};
@@ -462,38 +445,29 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 		document_new(
 			application_name,
 			application_title_string( application_name ),
+			(char *)0 /* subtitle_html */,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
 			menu_b /* menu_boolean */,
-			0 /* folder_attribute_date_name_list_length */ );
+			menu,
+			document_head_menu_setup_string( menu_b ),
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */,
+			(char *)0 /* input_onload_string */ );
 
 	fprintf(output_file,
-		"%s\n%s\n%s\n",
+		"%s\n%s\n%s\n%s\n%s\n%s\n",
 		document->html,
 		document->document_head->html,
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		document_head_close_html() );
-
-	document_body =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		document_body_new(
-			menu,
-			menu_b,
-			application_title_string( application_name ),
-			(char *)0 /* javascript_replace */ );
-
-	fprintf(output_file,
-		"%s\n%s\n",
-		document_body->html,
+		document_head_close_html(),
+		document->document_body->html,
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		document_body_close_html() );
-
-	fprintf(output_file,
-		"%s\n",
+		document_body_close_html(),
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
@@ -559,6 +533,8 @@ VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_calloc( void )
 }
 
 VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_new(
+			char *vertical_new_button_many_hidden_label,
+			DICTIONARY *non_prefixed_dictionary )
 {
 	VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table;
 

@@ -112,7 +112,7 @@ typedef struct
 	char *one_folder_name;
 	VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename;
 	char *onload_control_string;
-} VERTICAL_NEW_OUTPUT_INSERT_TABLE
+} VERTICAL_NEW_OUTPUT_INSERT_TABLE;
 
 /* VERTICAL_NEW_OUTPUT_INSERT_TABLE operations */
 /* ------------------------------------------- */

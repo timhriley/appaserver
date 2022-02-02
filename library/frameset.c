@@ -80,7 +80,7 @@ FRAMESET *frameset_new(	char *application_name,
 			application_name,
 			frameset->
 				appaserver_parameter->
-				document_root,
+				document_root_directory,
 			session_key,
 			FRAMESET_EDIT_FRAME );
 
