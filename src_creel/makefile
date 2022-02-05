@@ -385,24 +385,20 @@ delete_sport_creel_census:						\
 		creel_library.o						\
 		-o delete_sport_creel_census
 
-species_list:								\
-	species_list.c ${LIBRARY}/additional_drop_down_attribute.o
+species_list: species_list.c
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
 		species_list.c						\
-		${LIBRARY}/additional_drop_down_attribute.o		\
 		-o species_list
 
-families_list:								\
-	families_list.c ${LIBRARY}/additional_drop_down_attribute.o
+families_list: families_list.c
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
 		families_list.c						\
-		${LIBRARY}/additional_drop_down_attribute.o		\
 		-o families_list
 
 permits_merge:								\

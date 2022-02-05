@@ -558,8 +558,7 @@ LIST *folder_attribute_non_primary_list(
 }
 
 LIST *folder_attribute_name_list(
-			LIST *folder_attribute_list,
-			char *folder_name )
+			LIST *folder_attribute_list )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
 	LIST *name_list;
@@ -573,21 +572,9 @@ LIST *folder_attribute_name_list(
 			list_get(
 				folder_attribute_list );
 
-		if ( !folder_name )
-		{
-			list_set(
-				name_list,
-				folder_attribute->attribute_name );
-		}
-		else
-		if ( strcmp(
-			folder_name,
-			folder_attribute->folder_name ) == 0 )
-		{
-			list_set(
-				name_list,
-				folder_attribute->attribute_name );
-		}
+		list_set(
+			name_list,
+			folder_attribute->attribute_name );
 
 	} while ( list_next( folder_attribute_list ) );
 

@@ -6,14 +6,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "additional_drop_down_attribute.h"
 #include "appaserver_library.h"
 #include "dictionary.h"
 #include "folder.h"
 #include "timlib.h"
 #include "query.h"
 #include "attribute.h"
-#include "appaserver_parameter_file.h"
 
 /* Prototypes */
 /* ---------- */
@@ -42,11 +40,6 @@ char *get_species_sys_string(
 			DICTIONARY *post_dictionary );
 
 char *get_species_sys_string(
-			char *application_name,
-			char *login_name,
-			DICTIONARY *post_dictionary );
-
-char *get_fish_families_sys_string(
 			char *application_name,
 			char *login_name,
 			DICTIONARY *post_dictionary );
@@ -118,91 +111,6 @@ int main( int argc, char **argv )
 	return 0;
 }
 
-char *get_fish_families_sys_string(
-			char *application_name,
-			char *login_name,
-			DICTIONARY *post_dictionary )
-{
-	char sys_string[ 1024 ];
-	char *fish_families_table_name;
-	char *families_table_name;
-	char where_clause[ 1024 ];
-	ADDITIONAL_DROP_DOWN_ATTRIBUTE *additional_drop_down_attribute;
-	char select_clause[ 1024 ];
-	char *constant_select = "family";
-	char *first_attribute_name = "";
-	char sort_clause[ 16 ];
-	char *one2m_folder_name = {0};
-	char catches_family_in_clause[ 1024 ];
-
-	if ( post_dictionary )
-	{
-		one2m_folder_name =
-			dictionary_get(
-				ONE2M_FOLDER_NAME_FOR_PROCESS,
-				post_dictionary );
-	}
-
-	if ( one2m_folder_name
-	&&   strcmp(	one2m_folder_name,
-			"catch_measurements_family" ) == 0 )
-	{
-		get_catches_family_in_clause(
-			catches_family_in_clause,
-			application_name,
-			post_dictionary );
-	}
-	else
-	{
-		strcpy( catches_family_in_clause, "1 = 1" );
-	}
-
-	additional_drop_down_attribute =
-		additional_drop_down_attribute_new(
-			application_name,
-			login_name,
-			"fish_families" );
-
-	additional_drop_down_attribute_get_select_clause(
-		select_clause,
-		&first_attribute_name,
-		additional_drop_down_attribute->application_name,
-		constant_select,
-		additional_drop_down_attribute->
-			drop_down_folder_name,
-		additional_drop_down_attribute );
-
-	if ( strcmp( first_attribute_name, "florida_state_code" ) == 0 )
-		strcpy( sort_clause, "sort -n" );
-	else
-		strcpy( sort_clause, "sort" );
-
-	families_table_name =
-		get_table_name(	application_name,
-				"families" );;
-
-	fish_families_table_name =
-		get_table_name(	application_name,
-				"fish_families" );;
-
-	sprintf( where_clause,
-		 "%s.family = %s.family and	"
-		 "%s				",
-		 families_table_name,
-		 fish_families_table_name,
-		 catches_family_in_clause );
-
-	sprintf( sys_string,
-"echo \"select %s from %s,%s where %s;\" | sql.e | %s | sed 's/\\^|\\^/|/'",
-		 select_clause,
-		 families_table_name,
-		 fish_families_table_name,
-		 where_clause,
-		 sort_clause );
-
-	return strdup( sys_string );
-}
-
 char *get_families_sys_string(
 			char *application_name,
 			char *login_name,
@@ -210,7 +118,6 @@ char *get_families_sys_string(
 {
 	char sys_string[ 1024 ];
 	char *families_table_name;
-	ADDITIONAL_DROP_DOWN_ATTRIBUTE *additional_drop_down_attribute;
 	char select_clause[ 1024 ];
 	char *constant_select = "family";
 	char *first_attribute_name = "";
@@ -274,22 +181,6 @@ char *get_families_sys_string(
 		query->query_output->where_clause;
 
 skip_query:
-
-	additional_drop_down_attribute =
-		additional_drop_down_attribute_new(
-			application_name,
-			login_name,
-			"families" );
-
-	additional_drop_down_attribute_get_select_clause(
-		select_clause,
-		&first_attribute_name,
-		additional_drop_down_attribute->
-			application_name,
-		constant_select,
-		additional_drop_down_attribute->
-			drop_down_folder_name,
-		additional_drop_down_attribute );
 
 	strcpy( sort_clause, "sort" );
 

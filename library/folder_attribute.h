@@ -137,7 +137,6 @@ LIST *folder_attribute_non_primary_list(
 			LIST *folder_attribute_list );
 
 LIST *folder_attribute_name_list(
-			LIST *folder_attribute_list,
-			char *folder_name );
+			LIST *folder_attribute_list );
 
 #endif

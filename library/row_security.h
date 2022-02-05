@@ -13,6 +13,8 @@
 #include "relation.h"
 #include "role.h"
 
+#define ROW_SECURITY_DELETE_WARNING_JAVASCRIPT "timlib_delete_button_warning();"
+
 typedef struct
 {
 	/* Attributes */
@@ -113,9 +115,135 @@ boolean row_security_role_viewonly(
 
 typedef struct
 {
-	LIST *regular_element_list;
-	LIST *viewonly_element_list;
-	LIST *apply_element_list;
+	LIST *element_list;
+} ROW_SECURITY_ATTRIBUTE;
+
+/* ROW_SECURITY_ATTRIBUTE operations */
+/* --------------------------------- */
+ROW_SECURITY_ATTRIBUTE *row_security_attribute_calloc(
+			void );
+
+ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
+			char *attribute_name,
+			boolean primary_keys_non_edit,
+			int primary_key_index,
+			char *datatype_name,
+			int attribute_width,
+			LIST *exclude_update_attribute_name_list,
+			char *post_change_javascript,
+			LIST *row_security_relation_list );
+
+LIST *row_security_attribute_element_list(
+			char *attribute_name,
+			boolean primary_keys_non_edit,
+			int primary_key_index,
+			char *datatype_name,
+			int attribute_width,
+			LIST *exclude_update_attribute_name_list,
+			char *post_change_javascript );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	LIST *attribute_name_list;
+	LIST *element_list;
+
+	/* Private */
+	/* ------- */
+	QUERY_WIDGET *query_widget;
+	ELEMENT_DROP_DOWN *element_drop_down;
+	APPASERVER_ELEMENT *table_data_appaserver_element;
+
+} ROW_SECURITY_RELATION;
+
+/* ROW_SECURITY_RELATION operations */
+/* -------------------------------- */
+ROW_SECURITY_RELATION *row_security_relation_calloc(
+			void );
+
+ROW_SECURITY_RELATION *row_security_relation_new(
+			char *attribute_name,
+			LIST *relation_mto1_non_isa_list,
+			char *post_change_javascript,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where,
+			LIST *row_security_relation_list );
+
+boolean row_security_relation_attribute_name_exists(
+			char *attribute_name,
+			LIST *row_security_relation_list );
+
+LIST *row_security_relation_attribute_name_list(
+			LIST *foreign_key_list );
+
+LIST *row_security_relation_element_list(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list,
+			char *post_change_javascript,
+			DICTIONARY *drillthru_dictionary,
+			LIST *folder_attribute_list,
+			LIST *one_relation_mto1_non_isa_list,
+			boolean no_initial_capital,
+			char *login_name,
+			char *security_entity_where );
+
+/* Private */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *row_security_relation_element_name(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list );
+
+typedef struct
+{
+	/* Process */
+	/* ------- */
+	LIST *element_list;
+	LIST *attribute_name_list;
+
+} ROW_SECURITY_REGULAR_ELEMENT_LIST;
+
+/* ROW_SECURITY_REGULAR_ELEMENT_LIST operations */
+/* -------------------------------------------- */
+ROW_SECURITY_REGULAR_ELEMENT_LIST *
+	row_security_regular_element_list_calloc(
+			void );
+ROW_SECURITY_REGULAR_ELEMENT_LIST *
+	row_security_regular_element_list_new(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean primary_keys_non_edit,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
+			char *state,
+			char *login_name,
+			char *security_entity_where,
+			LIST *exclude_update_attribute_name_list,
+			LIST *exclude_lookup_attribute_name_list,
+			/* ------------------------- */
+			/* Null if not participating */
+			/* ------------------------- */
+			ROW_SECURITY_ROLE *row_security_role );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+} ROW_SECURITY_VIEWONLY_ELEMENT_LIST;
+
+typedef struct
+{
+	ROW_SECURITY_REGULAR_ELEMENT_LIST *regular_element_list;
+	ROW_SECURITY_VIEWONLY_ELEMENT_LIST *viewonly_element_list;
 } ROW_SECURITY_ELEMENT_LIST;
 
 /* ROW_SECURITY_ELEMENT_LIST operations */
@@ -127,6 +255,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
+			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
 			LIST *role_operation_list,
@@ -186,6 +315,7 @@ ROW_SECURITY *row_security_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
+			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean edit_table_primary_keys_non_edit,
 			LIST *role_operation_list,

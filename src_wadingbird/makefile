@@ -100,14 +100,12 @@ wadingbird_google_map_operation: wadingbird_google_map_operation.c	\
 		${LIBRARY}/google_map.o					\
 		-o wadingbird_google_map_operation
 
-species_list:								\
-	species_list.c ${LIBRARY}/additional_drop_down_attribute.o
+species_list: species_list.c
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
 		species_list.c						\
-		${LIBRARY}/additional_drop_down_attribute.o		\
 		-o species_list
 
 load_tablet_file:							\

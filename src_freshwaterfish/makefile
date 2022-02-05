@@ -152,14 +152,12 @@ output_lab_input_spreadsheet: output_lab_input_spreadsheet.c		\
 		-o output_lab_input_spreadsheet
 
 species_list: species_list.c						\
-	${EXTERNAL_LIBS} freshwaterfish_library.o			\
-	${LIBRARY}/additional_drop_down_attribute.o
+	${EXTERNAL_LIBS} freshwaterfish_library.o
 	${CC}	${CFLAGS} -I${LIBRARY} -I${SOURCE_EVERGLADES}		\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${STANDARD_LIBRARY} 					\
 		freshwaterfish_library.o				\
-		${LIBRARY}/additional_drop_down_attribute.o		\
 		species_list.c						\
 		-o species_list
 

@@ -89,7 +89,6 @@ APPASERVER_LIBRARY=						\
 		table.o						\
 		row_security.o					\
 		dictionary_separate.o				\
-		additional_drop_down_attribute.o		\
 		scatterplot.o					\
 		regression.o					\
 		pivot_table.o					\
@@ -883,12 +882,6 @@ parse_report.o: parse_report.c parse_report.h list.h
 statistics_weighted.o: statistics_weighted.c statistics_weighted.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c statistics_weighted.c
-
-additional_drop_down_attribute.o:					\
-		additional_drop_down_attribute.c			\
-		additional_drop_down_attribute.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c additional_drop_down_attribute.c
 
 date_convert.o: date_convert.c date_convert.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\

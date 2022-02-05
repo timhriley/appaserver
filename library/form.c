@@ -319,7 +319,8 @@ LIST *form_choose_isa_element_list(
 			-1 /* tab order */,
 			0 /* not multi_select */,
 			(char *)0 /* post_change_javascript */,
-			0 /* not remember */ );
+			0 /* not readonly */,
+			0 /* not recall */ );
 
 	/* Create a table row */
 	/* ------------------ */
@@ -1401,7 +1402,8 @@ LIST *form_choose_role_element_list(
 			0 /* not multi_select */,
 			drop_down_onchange_javascript
 				/* post_change_javascript */,
-			0 /* not remember */ );
+			0 /* not readonly */,
+			0 /* not recall */ );
 
 	/* Close the table */
 	/* --------------- */
