@@ -930,6 +930,11 @@ ROW_SECURITY_REGULAR_ELEMENT_LIST *
 			goto skip_relation;
 		}
 
+		if ( !list_length( relation_mto1_non_isa_list ) )
+		{
+			goto skip_relation;
+		}
+
 		if ( ( row_security_relation =
 			row_security_relation_new(
 				attribute_name,
@@ -960,6 +965,8 @@ ROW_SECURITY_REGULAR_ELEMENT_LIST *
 			continue;
 		}
 
+skip_relation:
+
 		if ( ( row_security_attribute =
 			row_security_attribute_new(
 				attribute_name,
@@ -989,9 +996,8 @@ ROW_SECURITY_REGULAR_ELEMENT_LIST *
 				row_security_attribute );
 
 			list_set_list(
-				element_list,
-				row_security_attribute->
-					row_security_attribute_element_list );
+				row_security_regular_element_list->element_list,
+				row_security_attribute->element_list );
 		}
 
 	} while ( list_next( row_security_regular_element_list->
@@ -1040,7 +1046,10 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 		exit( 1 );
 	}
 
-	if ( !list_length( relation_Mto1_non_isa_list ) ) return 0;
+	if ( !list_length( relation_mto1_non_isa_list ) )
+	{
+		return (ROW_SECURITY_RELATION *)0;
+	}
 
 	if ( row_security_relation_attribute_name_exists(
 			attribute_name,
@@ -1055,6 +1064,26 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 				relation_mto1_non_isa_list ) ) )
 	{
 		return (ROW_SECURITY_RELATION *)0;
+	}
+
+	if ( !relation->one_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: relation->one_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !relation->one_folder->folder_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: one_folder->folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	if ( !list_length( relation->foreign_key_list ) )
@@ -1074,17 +1103,90 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 		row_security_relation_attribute_name_list(
 			relation->foreign_key_list );
 
-	row_security_relation->element_list =
-		row_security_relation_element_list(
-			relation->one_folder->folder_name,
-			relation->related_attribute_name,
-			relation->foreign_key_list,
-			post_change_javascript,
-			relation->one_folder->relation_mto1_non_isa_list
-				/* one_relation_mto1_non_isa_list */,
-			drillthru_dictionary,
+	row_security_relation->element_list = list_new();
+
+	row_security_relation->table_data_appaserver_element =
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
+
+	row_security_relation->element_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		row_security_relation_element_name(
+			one_folder_name,
+			related_attribute_name,
+			foreign_key_list );
+
+	row_security_relation->drop_down_appaserver_element =
+		appaserver_element_new(
+			drop_down,
+			row_security_relation->element_name );
+
+	row_security_relation->query_widget =
+		query_widget_new(
+			one_folder_name /* widget_folder_name */,
 			login_name,
-			security_entity_where );
+			folder_attribute_list,
+			one_relation_mto1_non_isa_list,
+			security_entity_where,
+			drillthru_dictionary );
+
+	if ( !row_security_relation->query_widget )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	free( row_security_relation->
+		drop_down_appaserver_element->
+		drop_down );
+
+	row_security_relation->drop_down_appaserver_element->drop_down =
+		element_drop_down_new(
+			row_security_relation->element_name,
+			(LIST *)0 /* attribute_name_list */,
+			row_security_relation->query_widget->delimited_list,
+			(LIST *)0 /* display_list */,
+			relation->one_folder->no_initial_capital,
+			1 /* output_null_option */,
+			1 /* output_not_null_option */,
+			1 /* output_select_option */,
+			element_drop_down_display_size(
+				list_length(
+					row_security_relation->
+						query_widget->
+						delimited_list ) ),
+			-1 /* tab_order */,
+			0 /* not multi_select */,
+			post_change_javascript,
+			0 /* not read only */,
+			0 /* not recall */ );
+
+	if ( !row_security_relation->drop_down_appaserver_element->drop_down )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: element_drop_down_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_security_relation->element_list = list_new();
+
+	list_set(
+		row_security_relation->element_list,
+		row_security_relation->table_data_appaserver_element );
+
+	list_set(
+		row_security_relation->element_list,
+		row_security_relation->drop_down_appaserver_element );
 
 	return row_security_relation;
 }
@@ -1132,93 +1234,6 @@ LIST *row_security_relation_element_list(
 			char *login_name,
 			char *security_entity_where )
 {
-	LIST *element_list;
-	APPASERVER_ELEMENT *element;
-	QUERY_WIDGET *query_widget;
-
-	if ( !one_folder_name )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: one_folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	element_list = list_new();
-
-	list_set(
-		element_list,
-		appaserver_element_new(
-			table_data,
-			(char *)0 /* element_name */ ) );
-
-	element =
-		appaserver_element_new(
-			drop_down,
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			row_security_relation_element_name(
-				one_folder_name,
-				related_attribute_name,
-				foreign_key_list ) );
-
-	free( element->drop_down );
-
-	query_widget =
-		query_widget_new(
-			one_folder_name /* widget_folder_name */,
-			login_name,
-			folder_attribute_list,
-			one_relation_mto1_non_isa_list,
-			security_entity_where,
-			drillthru_dictionary );
-
-	if ( !query_widget )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	element->drop_down =
-		element_drop_down_new(
-			element->element_name,
-			foreign_key_list /* attribute_name_list */,
-			query_widget->delimited_list,
-			(LIST *)0 /* display_list */,
-			no_initial_capital,
-			1 /* output_null_option */,
-			1 /* output_not_null_option */,
-			1 /* output_select_option */,
-			element_drop_down_display_size(
-				list_length(
-					query_widget->
-					     delimited_list ) ),
-			-1 /* tab_order */,
-			0 /* not multi_select */,
-			post_change_javascript,
-			0 /* not read only */,
-			1 /* recall */ );
-
-	if ( !element->drop_down )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: element_drop_down_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	list_set( element_list, element );
-
-	return element_list;
 }
 
 char *row_security_relation_element_name(
@@ -1293,40 +1308,6 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 {
 	ROW_SECURITY_ATTRIBUTE *row_security_attribute;
 
-	if ( row_security_relation_attribute_name_exists(
-		attribute_name,
-		row_security_relation_list ) )
-	{
-		return (ROW_SECURITY_ATTRIBUTE *)0;
-	}
-
-	row_security_attribute = row_security_attribute_calloc();
-
-	row_security_attribute->element_list =
-		row_security_attribute_element_list(
-			attribute_name,
-			primary_keys_non_edit,
-			primary_key_index,
-			datatype_name,
-			attribute_width,
-			exclude_update_attribute_name_list,
-			post_change_javascript );
-
-	return row_security_attribute;
-}
-
-LIST *row_security_attribute_element_list(
-			char *attribute_name,
-			boolean primary_keys_non_edit,
-			int primary_key_index,
-			char *datatype_name,
-			int attribute_width,
-			LIST *exclude_update_attribute_name_list,
-			char *post_change_javascript )
-{
-	LIST *element_list;
-	APPASERVER_ELEMENT *element;
-
 	if ( !attribute_name )
 	{
 		fprintf(stderr,
@@ -1337,421 +1318,220 @@ LIST *row_security_attribute_element_list(
 		exit( 1 );
 	}
 
-	element_list = list_new();
+	if ( !datatype_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: datatype_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	list_set(
-		element_list,
+	if ( row_security_relation_attribute_name_exists(
+		attribute_name,
+		row_security_relation_list ) )
+	{
+		return (ROW_SECURITY_ATTRIBUTE *)0;
+	}
+
+	row_security_attribute = row_security_attribute_calloc();
+
+	if ( ( primary_keys_non_edit && primary_key_index )
+	||     list_string_exists(
+			attribute_name,
+			exclude_update_attribute_name_list )
+	||     attribute_is_timestamp( datatype_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				non_edit_text,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			non_edit_text );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			non_edit_text =
+				element_non_edit_text_new(
+					attribute_name,
+					(char *)0 /* message */ );
+
+		row_security_attribute->element_non_edit_text =
+			row_security_attribute->
+				attribute_appaserver_element->
+				non_edit_text;
+	}
+	else
+	if ( attribute_is_text( datatype_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				text,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			text );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			text =
+				element_text_new(
+					attribute_name,
+					datatype_name,
+					attribute_width,
+					1 /* null_to_slash */,
+					1 /* prevent_carrot */,
+					post_change_javascript /* on_change */,
+					(char *)0 /* on_focus */,
+					(char *)0 /* on_keyup */,
+					-1 /* tab_order */,
+					0 /* not recall */ );
+
+		row_security_attribute->element_text =
+			row_security_attribute->
+				attribute_appaserver_element->
+				text;
+	}
+	else
+	if ( attribute_is_notepad( datatype_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				notepad,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			notepad );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			notepad =
+				element_notepad_new(
+					attribute_name,
+					attribute_width /* attribute_size */,
+					ELEMENT_NOTEPAD_COLUMNS.
+					ELEMENT_NOTEPAD_ROWS,
+					1 /* null_to_slash */,
+					post_change_javascript,
+					-1 /* tab_order */ );
+
+		row_security_attribute->element_notepad =
+			row_security_attribute->
+				attribute_appaserver_element->
+				notepad;
+	}
+	else
+	if ( attribute_is_yes_no( attribute_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				checkbox,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			checkbox );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			checkbox =
+				element_checkbox_new(
+					attribute_name,
+					(char *)0 /* element_name */,
+					(char *)0 /* prompt_string */,
+					post_change_javascript /* on_click */,
+					(char *)0 /* image_source */,
+					-1 /* tab_order */,
+					0 /* not recall */ );
+
+		row_security_attribute->element_checkbox =
+			row_security_attribute->
+				attribute_appaserver_element->
+				checkbox;
+	}
+	else
+	if ( attribute_is_password( datatype_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				password,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			password );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			password =
+				element_password_new(
+					attribute_name,
+					attribute_width
+					       /* attribute_width_max_length */,
+					ELEMENT_TEXT_MAX_DISPLAY_SIZE,
+					-1 /* tab_order */ );
+
+		row_security_attribute->element_password =
+			row_security_attribute->
+				attribute_appaserver_element->
+				password;
+	}
+	else
+	if ( attribute_is_upload( datatype_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				upload,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			upload );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			upload =
+				element_upload_new(
+					attribute_name,
+					-1 /* tab_order */,
+					0 /* not recall */ );
+
+		row_security_attribute->element_upload =
+			row_security_attribute->
+				attribute_appaserver_element->
+				upload;
+	}
+
+	if ( !row_security_attribute->attribute_appaserver_element )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: attribute_appaserver_element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_security_attribute->element_list = list_new();
+
+	row_security_attribute->table_data_appaserver_element =
 		appaserver_element_new(
 			table_data,
 			(char *)0 /* element_name */ ) );
 
-	if ( primary_keys_non_edit && primary_key_index )
-	{
-	}
-	else
-	{
-	}
+	list_set(
+		row_security_attribute->element_list,
+		row_security_attribute->table_data_appaserver_element );
 
-	list_set( element_list, element );
+	list_set(
+		row_security_attribute->element_list,
+		row_security_attribute->attribute_appaserver_element );
 
-	return element_list;
+	return row_security_attribute;
 }
 
-
-	LIST *return_list;
-	ELEMENT_APPASERVER *element = {0};
-
-	return_list = list_new();
-
-	if ( timlib_strcmp(
-			datatype,
-			element_get_type_string( http_filename ) ) == 0 )
-	{
-		element =
-			element_appaserver_new(
-				http_filename, 
-				attribute_name );
-
-		if ( update_yn == 'y' )
-		{
-			ELEMENT_APPASERVER *temp_element;
-
-			temp_element =
-				element_text_item_variant_element(
-					attribute_name,
-					element_get_type_string( text_item ),
-					width,
-					post_change_javascript,
-					on_focus_javascript_function );
-
-			element_text_item_set_onchange_null2slash(
-					temp_element->text_item );
-
-			element->http_filename->update_text_item =
-				temp_element->text_item;
-		}
-
-		list_append_pointer( return_list, element );
-		return return_list;
-	}
-
-	if ( update_yn != 'y' 
-	||   appaserver_exclude_permission(
-			exclude_permission_list,
-			"update" ) )
-	{
-		if ( appaserver_exclude_permission(
-			exclude_permission_list,
-			"lookup" ) )
-		{
-			return (LIST *)0;
-		}
-
-		if ( timlib_strcmp(
-				datatype, 
-				"password" ) == 0 )
-		{
-			return (LIST *)0;
-		}
-
-		element =
-			element_appaserver_new( 
-				prompt_data_plus_hidden,
-				attribute_name );
-
-		element->prompt_data->heading = element->name;
-
-		if ( timlib_strcmp( datatype, "float" ) == 0
-		||   timlib_strcmp( datatype, "integer" ) == 0 )
-		{
-			element->prompt_data->align = "right";
-		}
-
-		list_append_pointer(
-				return_list, 
-				element );
-
-		if ( list_exists_string(
-			attribute_name,
-			primary_attribute_name_list ) )
-		{
-			element =
-				element_appaserver_new(
-					hidden,
-					attribute_name );
-
-			list_append_pointer( return_list, element );
-		}
-
-		return return_list;
-
-	} /* if view only */
-
-	if ( timlib_strcmp( datatype, "notepad" ) == 0 )
-	{
-		element = element_appaserver_new(
-				notepad,
-				attribute_name );
-
-		element_notepad_set_attribute_width(
-				element->notepad,
-				width );
-
-		element->notepad->heading = element->name;
-
-		element_notepad_set_onchange_null2slash(
-				element->notepad );
-
-		element->notepad->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "password" ) == 0 )
-	{
-		element = element_appaserver_new(
-				password,
-				attribute_name );
-
-		element_password_set_attribute_width(
-				element->password,
-				width );
-
-		element_password_set_heading(
-				element->password, 
-				element->name );
-
-		element->password->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "hidden_text" ) == 0 )
-	{
-		element = element_appaserver_new(
-				hidden, 
-				attribute_name );
-	}
-	else
-	if ( timlib_strcmp( datatype, "timestamp" ) == 0 )
-	{
-		element =
-			element_appaserver_new( 
-				prompt_data,
-				attribute_name );
-
-		element->prompt_data->heading = element->name;
-	}
-	else
-	if ( process_parameter_list_element_name_boolean( attribute_name ) )
-	{
-		element =
-			element_get_yes_no_element(
-				attribute_name,
-				(char *)0 /* prepend_folder_name */,
-				post_change_javascript,
-				1 /* with_is_null */,
-				0 /* not with_not_null */ );
-
-		element->drop_down->state = "update";
-		element->drop_down->attribute_width = 1;
-	}
-	else
-	if ( timlib_strcmp( datatype, "reference_number" ) == 0 )
-	{
-		element = element_appaserver_new(
-				hidden, 
-				attribute_name );
-
-		list_append_pointer( return_list, element );
-
-		element = element_appaserver_new( 
-				prompt_data,
-				attribute_name );
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element->prompt_data->heading = strdup( heading );
-		}
-		else
-		{
-			element->prompt_data->heading = element->name;
-		}
-	}
-	else
-	if ( timlib_strcmp( datatype, "date" ) == 0
-	||   timlib_strcmp( datatype, "date_time" ) == 0 )
-	{
-		element = element_appaserver_new(
-				element_date,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "current_date" ) == 0 )
-	{
-		element = element_appaserver_new(
-				element_current_date,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		element->text_item->dont_create_current_date = 1;
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "current_date_time" ) == 0 )
-	{
-		element = element_appaserver_new(
-				element_current_date_time,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		element->text_item->dont_create_current_date = 1;
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-
-			sprintf( heading, "*%s", element->name );
-
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "text" ) == 0
-	||   timlib_strcmp( datatype, "time" ) == 0 )
-	{
-		element = element_appaserver_new(
-				text_item,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-			sprintf( heading, "*%s", element->name );
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-	else
-	if ( timlib_strcmp( datatype, "integer" ) == 0
-	||   timlib_strcmp( datatype, "float" ) == 0 )
-	{
-		element = element_appaserver_new(
-				text_item,
-				attribute_name );
-
-		element_text_item_set_attribute_width(
-				element->text_item, 
-				width );
-
-		element->text_item->is_numeric = 1;
-
-		if ( is_primary_attribute )
-		{
-			char heading[ 128 ];
-			sprintf( heading, "*%s", element->name );
-			element_text_item_set_heading(
-					element->text_item,
-					strdup( heading ) );
-		}
-		else
-		{
-			element_text_item_set_heading(
-					element->text_item,
-					element->name );
-		}
-
-		element_text_item_set_onchange_null2slash(
-				element->text_item );
-
-		element->text_item->post_change_javascript =
-			post_change_javascript;
-
-		element->text_item->on_focus_javascript_function =
-			on_focus_javascript_function;
-
-		element->text_item->state = "update";
-	}
-
-	if ( element )
-	{
-		list_append_pointer( return_list, element );
-	}
-	else
-	if ( datatype && *datatype )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: could not assign an element to datatype = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 datatype );
-	}
-
-	return return_list;

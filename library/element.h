@@ -444,8 +444,8 @@ typedef struct
 ELEMENT_LINE_BREAK *element_line_break_calloc(
 			void );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns program memory */
+/* ---------------------- */
 char *element_line_break_html(
 			void );
 
@@ -573,7 +573,7 @@ typedef struct
 	int columns;
 	int rows;
 	boolean null_to_slash;
-	int tab_index;
+	int tab_order;
 
 	/* Public */
 	/* ------ */
@@ -595,7 +595,7 @@ ELEMENT_NOTEPAD *element_notepad_new(
 			int columns,
 			int rows,
 			boolean null_to_slash,
-			int tab_index );
+			int tab_order );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -606,7 +606,7 @@ char *element_notepad_html(
 			int element_notepad_columns,
 			int element_notepad_rows,
 			boolean null_to_slash,
-			int tab_index );
+			int tab_order );
 
 typedef struct
 {
@@ -620,7 +620,7 @@ typedef struct
 	char *on_change;
 	char *on_focus;
 	char *on_keyup;
-	int tab_index;
+	int tab_order;
 	boolean recall;
 
 	/* Public */
@@ -650,7 +650,7 @@ ELEMENT_TEXT *element_text_new(
 			char *on_change,
 			char *on_focus,
 			char *on_keyup,
-			int tab_index,
+			int tab_order,
 			boolean recall );
 
 /* Returns heap memory or null */
@@ -695,7 +695,7 @@ char *element_text_html(
 			char *on_focus,
 			char *on_keyup,
 			boolean autocomplete_off,
-			int tab_index,
+			int tab_order,
 			char *background_color );
 
 typedef struct
@@ -705,7 +705,7 @@ typedef struct
 	char *attribute_name;
 	int attribute_width_max_length;
 	int element_text_max_display_size;
-	int tab_index;
+	int tab_order;
 
 	/* Private */
 	/* ------- */
@@ -721,7 +721,7 @@ ELEMENT_PASSWORD *element_password_new(
 			char *attribute_name,
 			int attribute_width_max_length,
 			int element_text_max_display_size,
-			int tab_index );
+			int tab_order );
 
 /* Public */
 /* ------ */
@@ -740,13 +740,14 @@ char *element_password_html(
 			char *value,
 			int attribute_width_max_length,
 			int element_text_max_display_size,
-			int tab_index );
+			int tab_order );
 
 typedef struct
 {
 	/* Input */
 	/* ----- */
 	char *attribute_name;
+	int tab_order;
 	boolean recall;
 } ELEMENT_UPLOAD;
 
@@ -757,12 +758,14 @@ ELEMENT_UPLOAD *element_upload_calloc(
 
 ELEMENT_UPLOAD *element_upload_new(
 			char *attribute_name,
+			int tab_order,
 			boolean recall );
 
 /* Returns heap memory */
 /* ------------------- */
 char *element_upload_insert_html(
-			char *element_name );
+			char *element_name,
+			int tab_order );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -912,8 +915,8 @@ char *appaserver_element_background_color_html(
 
 /* Returns static memory */
 /* --------------------- */
-char *appaserver_element_tab_index_html(
-			int tab_index );
+char *appaserver_element_tab_order_html(
+			int tab_order );
 
 /* Returns data or heap memory */
 /* --------------------------- */

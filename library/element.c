@@ -1381,7 +1381,7 @@ ELEMENT_LINE_BREAK *element_line_break_calloc( void )
 
 char *element_line_break_html( void )
 {
-	return strdup( "<br>" );
+	return "<br>";
 }
 
 char *element_table_data_html(
@@ -1818,9 +1818,12 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == line_break )
 	{
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_line_break_html();
+		return
+		strdup(
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			element_line_break_html() );
 	}
 	else
 	if ( appaserver_element->element_type == table_data )
@@ -1958,7 +1961,7 @@ char *appaserver_element_html(
 				element_text_max_display_size,
 			appaserver_element->
 				password->
-				tab_index );
+				tab_order );
 	}
 	else
 	if ( appaserver_element->element_type == upload )
@@ -1984,7 +1987,10 @@ char *appaserver_element_html(
 					appaserver_element->
 						upload->
 						attribute_name,
-					row_number ) );
+					row_number ),
+					appaserver_element->
+						upload->
+						tab_order );
 		}
 		else
 		{
@@ -2208,12 +2214,10 @@ char *element_multi_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		(element_html = element_line_break_html() ) );
-
-	free( element_html );
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		element_line_break_html() );
 
 	/* --------------------------- */
 	/* Create the move-left button */
@@ -2303,18 +2307,18 @@ char *appaserver_element_javascript_html(
 	return html;
 }
 
-char *appaserver_element_tab_index_html(
-			int tab_index )
+char *appaserver_element_tab_order_html(
+			int tab_order )
 {
 	static char html[ 32 ];
 
 	*html = '\0';
 
-	if ( tab_index )
+	if ( tab_order >= 1 )
 	{
 		sprintf(html,
 			" tabindex=%d",
-			tab_index );
+			tab_order );
 	}
 
 	return html;
@@ -2418,7 +2422,7 @@ char *element_text_html(
 			char *on_focus,
 			char *on_keyup,
 			boolean autocomplete_off,
-			int tab_index,
+			int tab_order,
 			char *background_color )
 {
 	char html[ STRING_64K ];
@@ -2461,7 +2465,7 @@ char *element_text_html(
 		ptr += sprintf( ptr, " title=\"%s\"", value );
 	}
 
-	if ( tab_index )
+	if ( tab_order >= 1 )
 	{
 		ptr += sprintf(
 			ptr,
@@ -2469,8 +2473,8 @@ char *element_text_html(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			appaserver_element_tab_index_html(
-				tab_index ) );
+			appaserver_element_tab_order_html(
+				tab_order ) );
 	}
 
 	if ( on_change && *on_change )
@@ -2539,7 +2543,7 @@ ELEMENT_TEXT *element_text_new(
 			char *on_change,
 			char *on_focus,
 			char *on_keyup,
-			int tab_index,
+			int tab_order,
 			boolean recall )
 {
 	ELEMENT_TEXT *element_text = element_text_calloc();
@@ -2555,7 +2559,7 @@ ELEMENT_TEXT *element_text_new(
 	element_text->on_change = on_change;
 	element_text->on_focus = on_focus;
 	element_text->on_keyup = on_keyup;
-	element_text->tab_index = tab_index;
+	element_text->tab_order = tab_order;
 	element_text->recall = recall;
 
 	return element_text;
@@ -2945,7 +2949,7 @@ char *appaserver_element_text_html(
 			text->javascript_replace_on_focus,
 			text->prevent_carrot_on_keyup,
 			text->autocomplete_off,
-			text->tab_index,
+			text->tab_order,
 			background_color );
 
 	/* Reset value for next iteration */
@@ -3162,7 +3166,7 @@ char *element_notepad_html(
 			int columns,
 			int rows,
 			boolean null_to_slash,
-			int tab_index )
+			int tab_order )
 {
 	char html[ STRING_128K ];
 	char *ptr = html;
@@ -3198,7 +3202,7 @@ char *element_notepad_html(
 		ptr,
 		" onkeyup=\"timlib_prevent_carrot(event,this)\"" );
 
-	if ( tab_index )
+	if ( tab_order >= 1 )
 	{
 		ptr += sprintf(
 			ptr,
@@ -3206,8 +3210,8 @@ char *element_notepad_html(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			appaserver_element_tab_index_html(
-				tab_index ) );
+			appaserver_element_tab_order_html(
+				tab_order ) );
 	}
 
 	ptr += sprintf(
@@ -3253,7 +3257,7 @@ ELEMENT_NOTEPAD *element_notepad_new(
 			int columns,
 			int rows,
 			boolean null_to_slash,
-			int tab_index )
+			int tab_order )
 {
 	ELEMENT_NOTEPAD *element_notepad = element_notepad_calloc();
 
@@ -3262,7 +3266,7 @@ ELEMENT_NOTEPAD *element_notepad_new(
 	element_notepad->columns = columns;
 	element_notepad->rows = rows;
 	element_notepad->null_to_slash = null_to_slash;
-	element_notepad->tab_index = tab_index;
+	element_notepad->tab_order = tab_order;
 
 	return element_notepad;
 }
@@ -3297,7 +3301,7 @@ char *appaserver_element_notepad_html(
 		notepad->columns,
 		notepad->rows,
 		notepad->null_to_slash,
-		notepad->tab_index );
+		notepad->tab_order );
 }
 
 ELEMENT_PASSWORD *element_password_calloc( void )
@@ -3320,7 +3324,7 @@ ELEMENT_PASSWORD *element_password_new(
 			char *attribute_name,
 			int attribute_width_max_length,
 			int element_text_max_display_size,
-			int tab_index )
+			int tab_order )
 {
 	ELEMENT_PASSWORD *element_password = element_password_calloc();
 
@@ -3332,7 +3336,7 @@ ELEMENT_PASSWORD *element_password_new(
 	element_password->element_text_max_display_size =
 		element_text_max_display_size;
 
-	element_password->tab_index = tab_index;
+	element_password->tab_order = tab_order;
 
 	return element_password;
 }
@@ -3357,7 +3361,7 @@ char *element_password_html(
 			char *value,
 			int attribute_width_max_length,
 			int element_text_max_display_size,
-			int tab_index )
+			int tab_order )
 {
 	char html[ STRING_16K ];
 	char *ptr = html;
@@ -3406,7 +3410,7 @@ char *element_password_html(
 
 	ptr += sprintf( ptr, " onChange=\"null2slash(this)\"" );
 
-	if ( tab_index )
+	if ( tab_order >= 1 )
 	{
 		ptr += sprintf(
 			ptr,
@@ -3414,8 +3418,8 @@ char *element_password_html(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			appaserver_element_tab_index_html(
-				tab_index ) );
+			appaserver_element_tab_order_html(
+				tab_order ) );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
@@ -3439,7 +3443,7 @@ char *element_password_html(
 
 	ptr += sprintf( ptr, " autocomplete=off" );
 
-	if ( tab_index )
+	if ( tab_order >= 1 )
 	{
 		ptr += sprintf(
 			ptr,
@@ -3447,8 +3451,8 @@ char *element_password_html(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			appaserver_element_tab_index_html(
-				tab_index ) );
+			appaserver_element_tab_order_html(
+				tab_order ) );
 	}
 
 	ptr += sprintf( ptr, ">\n" );
@@ -3478,19 +3482,24 @@ ELEMENT_UPLOAD *element_upload_calloc( void )
 
 ELEMENT_UPLOAD *element_upload_new(
 			char *attribute_name,
+			int tab_order,
 			boolean recall )
 {
 	ELEMENT_UPLOAD *element_upload = element_upload_calloc();
 
 	element_upload->attribute_name = attribute_name;
+	element_upload->tab_order = tab_order;
 	element_upload->recall = recall;
 
 	return element_upload;
 }
 
-char *element_upload_insert_html( char *element_name )
+char *element_upload_insert_html(
+			char *element_name,
+			int tab_order )
 {
 	char html[ 128 ];
+	char *ptr = html;
 
 	if ( !element_name )
 	{
@@ -3502,9 +3511,24 @@ char *element_upload_insert_html( char *element_name )
 		exit( 1 );
 	}
 
-	sprintf(html,
-		"<input name=\"%s\" type=file accept=\"*\" value=\"\">",
+	ptr += sprintf(
+		ptr,
+		"<input name=\"%s\" type=file accept=\"*\" value=\"\"",
 		element_name );
+
+	if ( tab_order >= 1 )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_tab_order_html(
+				tab_order ) );
+	}
+
+	ptr += sprintf( ptr, ">" );
 
 	return strdup( html );
 }

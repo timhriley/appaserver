@@ -83,6 +83,18 @@ boolean attribute_is_number(
 boolean attribute_is_date_time(
 			char *datatype );
 
+boolean attribute_is_text(
+			char *datatype );
+
+boolean attribute_is_notepad(
+			char *datatype );
+
+boolean attribute_is_password(
+			char *datatype );
+
+boolean attribute_is_upload(
+			char *datatype );
+
 LIST *attribute_extract_float_list(
 			LIST *attribute_list );
 

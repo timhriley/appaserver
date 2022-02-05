@@ -115,6 +115,14 @@ boolean row_security_role_viewonly(
 
 typedef struct
 {
+	APPASERVER_ELEMENT *table_data_appaserver_element;
+	APPASERVER_ELEMENT *attribute_appaserver_element;
+	ELEMENT_TEXT *element_text;
+	ELEMENT_NOTEPAD *element_notepad;
+	ELEMENT_CHECKBOX *element_checkbox;
+	ELEMENT_PASSWORD *element_password;
+	ELEMENT_NON_EDIT_TEXT *element_non_edit_text;
+	ELEMENT_UPLOAD *element_upload;
 	LIST *element_list;
 } ROW_SECURITY_ATTRIBUTE;
 
@@ -133,28 +141,17 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 			char *post_change_javascript,
 			LIST *row_security_relation_list );
 
-LIST *row_security_attribute_element_list(
-			char *attribute_name,
-			boolean primary_keys_non_edit,
-			int primary_key_index,
-			char *datatype_name,
-			int attribute_width,
-			LIST *exclude_update_attribute_name_list,
-			char *post_change_javascript );
-
 typedef struct
 {
 	/* Process */
 	/* ------- */
+	RELATION *relation;
 	LIST *attribute_name_list;
-	LIST *element_list;
-
-	/* Private */
-	/* ------- */
 	QUERY_WIDGET *query_widget;
-	ELEMENT_DROP_DOWN *element_drop_down;
 	APPASERVER_ELEMENT *table_data_appaserver_element;
-
+	char *element_name;
+	APPASERVER_ELEMENT *drop_down_appaserver_element;
+	LIST *element_list;
 } ROW_SECURITY_RELATION;
 
 /* ROW_SECURITY_RELATION operations */
@@ -177,21 +174,6 @@ boolean row_security_relation_attribute_name_exists(
 
 LIST *row_security_relation_attribute_name_list(
 			LIST *foreign_key_list );
-
-LIST *row_security_relation_element_list(
-			char *one_folder_name,
-			char *related_attribute_name,
-			LIST *foreign_key_list,
-			char *post_change_javascript,
-			DICTIONARY *drillthru_dictionary,
-			LIST *folder_attribute_list,
-			LIST *one_relation_mto1_non_isa_list,
-			boolean no_initial_capital,
-			char *login_name,
-			char *security_entity_where );
-
-/* Private */
-/* ------- */
 
 /* Returns heap memory */
 /* ------------------- */

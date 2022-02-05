@@ -155,8 +155,7 @@ boolean attribute_is_date( char *datatype )
 	}
 }
 
-boolean attribute_is_time(
-			char *datatype )
+boolean attribute_is_time( char *datatype )
 {
 	if (  string_strcmp( datatype, "time" ) == 0
 	||    string_strcmp( datatype, "current_time" ) == 0 )
@@ -169,8 +168,7 @@ boolean attribute_is_time(
 	}
 }
 
-boolean attribute_is_number(
-			char *datatype )
+boolean attribute_is_number( char *datatype )
 {
 	if (  string_strcmp( datatype, "float" ) == 0
 	||    string_strcmp( datatype, "integer" ) == 0
@@ -184,8 +182,7 @@ boolean attribute_is_number(
 	}
 }
 
-boolean attribute_is_float(
-			char *datatype )
+boolean attribute_is_float( char *datatype )
 {
 	if (  string_strcmp( datatype, "float" ) == 0 )
 	{
@@ -201,6 +198,69 @@ boolean attribute_is_date_time( char *datatype )
 {
 	if (  string_strcmp( datatype, "date_time" ) == 0
 	||    string_strcmp( datatype, "current_date_time" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_text( char *datatype )
+{
+	if ( string_strcmp( datatype, "text" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	if ( attribute_is_date_time( datatype ) )
+	{
+		return 1;
+	}
+	else
+	if ( attribute_is_date( datatype ) )
+	{
+		return 1;
+	}
+	else
+	if ( attribute_is_time( datatype ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_notepad( char *datatype )
+{
+	if ( string_strcmp( datatype, "notepad" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_password( char *datatype )
+{
+	if ( string_strcmp( datatype, "password" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+boolean attribute_is_upload( char *datatype )
+{
+	if ( string_strcmp( datatype, "http_filename" ) == 0 )
 	{
 		return 1;
 	}
