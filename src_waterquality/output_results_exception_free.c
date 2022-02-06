@@ -104,11 +104,11 @@ int main( int argc, char **argv )
 
 	dictionary_add_elements_by_removing_prefix(
 				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+				    	APPASERVER_FROM_STARTING_LABEL );
 
 	dictionary_add_elements_by_removing_prefix(
 				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+				    	APPASERVER_QUERY_STARTING_LABEL );
 
 	add_dot_to_path();
 	add_utility_to_path();

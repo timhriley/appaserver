@@ -95,6 +95,9 @@ boolean attribute_is_password(
 boolean attribute_is_upload(
 			char *datatype );
 
+boolean attribute_is_timestamp(
+			char *datatype );
+
 LIST *attribute_extract_float_list(
 			LIST *attribute_list );
 

@@ -16,32 +16,11 @@
 #include "role.h"
 #include "role_folder.h"
 #include "security.h"
-#include "row_security.h"
 #include "date_convert.h"
 #include "folder.h"
 
 /* Constants */
 /* --------- */
-#define QUERY_EDIT_TABLE_MAX_ROWS		500
-#define QUERY_FROM_STARTING_LABEL		"from_"
-#define QUERY_TO_STARTING_LABEL			"to_"
-#define QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL	"original_"
-#define QUERY_RELATION_STARTING_LABEL		"relation_operator_"
-#define QUERY_LOGIN_NAME_ATTRIBUTE_NAME		"login_name"
-
-#define QUERY_EQUAL				"equal"
-#define QUERY_NOT_EQUAL				"not_equal"
-#define QUERY_LESS_THAN				"less_than"
-#define QUERY_LESS_THAN_EQUAL_TO		"less_than_equal_to"
-#define QUERY_GREATER_THAN			"greater_than"
-#define QUERY_GREATER_THAN_EQUAL_TO		"greater_than_equal_to"
-#define QUERY_BETWEEN				"between"
-#define QUERY_BEGINS				"begins"
-#define QUERY_CONTAINS				"contains"
-#define QUERY_NOT_CONTAINS			"not_contains"
-#define QUERY_OR				"or_,"
-#define QUERY_NULL				"is_empty"
-#define QUERY_NOT_NULL				"not_empty"
 
 /* Enumerated types */
 /* ---------------- */
@@ -401,7 +380,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			LIST *relation_mto1_isa_list,
 			char *security_entity_where,
 			DICTIONARY *query_dictionary,
-			ROW_SECURITY_ROLE *row_security_role );
+			RELATION *row_security_role_relation );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -477,7 +456,7 @@ LIST *query_edit_table_select_list(
 			LIST *exclude_lookup_attribute_name_list,
 			int relation_mto1_isa_length,
 			QUERY_DATE_CONVERT *query_date_convert,
-			ROW_SECURITY_ROLE *row_security_role );
+			char *row_security_role_attribute_not_null );
 
 LIST *query_widget_select_list(
 			LIST *primary_key_list,
@@ -739,12 +718,14 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			ROW_SECURITY_ROLE *row_security_role );
+			char *row_security_role_folder_name,
+			RELATION *row_security_role_relation,
+			char *row_security_role_attribute_not_null );
 
 char *query_edit_table_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
-			ROW_SECURITY_ROLE *row_security_role );
+			char *row_security_role_folder_name );
 
 LIST *query_edit_table_dictionary_list(
 			char *query_system_string,
@@ -816,7 +797,7 @@ char *query_join_where(
 			char *folder_name,
 			LIST *primary_key_list,
 			LIST *relation_mto1_isa_list,
-			ROW_SECURITY_ROLE *row_security_role );
+			RELATION *row_security_role_relation );
 
 LIST *query_primary_delimited_list(
 			char *folder_table_name,

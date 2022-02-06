@@ -11,7 +11,6 @@
 #include "timlib.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "query.h"
 #include "application.h"
 #include "process_parameter_list.h"
 #include "element.h"
@@ -21,6 +20,7 @@
 #include "piece.h"
 #include "appaserver.h"
 #include "appaserver_parameter.h"
+#include "appaserver.h"
 #include "populate_helper_process.h"
 
 PROCESS_PARAMETER_LIST *process_parameter_list_new( 

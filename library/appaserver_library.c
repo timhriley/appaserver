@@ -29,7 +29,7 @@
 #include "appaserver_error.h"
 #include "basename.h"
 #include "element.h"
-#include "query.h"
+#include "appaserver.h"
 #include "appaserver_library.h"
 
 static char *system_folder_list[] = {
@@ -259,55 +259,55 @@ LIST *get_relation_operator_list( char *datatype )
 	if ( strcmp( datatype, "date" ) == 0
 	||   strcmp( datatype, "time" ) == 0 )
 	{
-		list_append_string( list, QUERY_BEGINS );
-		list_append_string( list, QUERY_EQUAL );
-		list_append_string( list, QUERY_BETWEEN );
-		list_append_string( list, QUERY_OR );
-		list_append_string( list, QUERY_GREATER_THAN );
-		list_append_string( list, QUERY_GREATER_THAN_EQUAL_TO );
-		list_append_string( list, QUERY_LESS_THAN );
-		list_append_string( list, QUERY_LESS_THAN_EQUAL_TO );
-		list_append_string( list, QUERY_NOT_EQUAL );
-		list_append_string( list, QUERY_NULL );
-		list_append_string( list, QUERY_NOT_NULL );
+		list_append_string( list, APPASERVER_BEGINS );
+		list_append_string( list, APPASERVER_EQUAL );
+		list_append_string( list, APPASERVER_BETWEEN );
+		list_append_string( list, APPASERVER_OR );
+		list_append_string( list, APPASERVER_GREATER_THAN );
+		list_append_string( list, APPASERVER_GREATER_THAN_EQUAL_TO );
+		list_append_string( list, APPASERVER_LESS_THAN );
+		list_append_string( list, APPASERVER_LESS_THAN_EQUAL_TO );
+		list_append_string( list, APPASERVER_NOT_EQUAL );
+		list_append_string( list, APPASERVER_NULL );
+		list_append_string( list, APPASERVER_NOT_NULL );
 	}
 	else
 	if ( strcmp( datatype, "notepad" ) == 0 )
 	{
-		list_append_string( list, QUERY_CONTAINS );
-		list_append_string( list, QUERY_NOT_CONTAINS );
-		list_append_string( list, QUERY_NULL );
-		list_append_string( list, QUERY_NOT_NULL );
+		list_append_string( list, APPASERVER_CONTAINS );
+		list_append_string( list, APPASERVER_NOT_CONTAINS );
+		list_append_string( list, APPASERVER_NULL );
+		list_append_string( list, APPASERVER_NOT_NULL );
 	}
 	else
 	if ( strcmp( datatype, "text" ) == 0
 	||   strcmp( datatype, "http_filename" ) == 0 )
 	{
-		list_append_string( list, QUERY_BEGINS );
-		list_append_string( list, QUERY_EQUAL );
-		list_append_string( list, QUERY_CONTAINS );
-		list_append_string( list, QUERY_OR );
-		list_append_string( list, QUERY_GREATER_THAN_EQUAL_TO );
-		list_append_string( list, QUERY_NOT_CONTAINS );
-		list_append_string( list, QUERY_NOT_EQUAL );
-		list_append_string( list, QUERY_NULL );
-		list_append_string( list, QUERY_NOT_NULL );
+		list_append_string( list, APPASERVER_BEGINS );
+		list_append_string( list, APPASERVER_EQUAL );
+		list_append_string( list, APPASERVER_CONTAINS );
+		list_append_string( list, APPASERVER_OR );
+		list_append_string( list, APPASERVER_GREATER_THAN_EQUAL_TO );
+		list_append_string( list, APPASERVER_NOT_CONTAINS );
+		list_append_string( list, APPASERVER_NOT_EQUAL );
+		list_append_string( list, APPASERVER_NULL );
+		list_append_string( list, APPASERVER_NOT_NULL );
 	}
 	else
 	{
-		list_append_string( list, QUERY_EQUAL );
-		list_append_string( list, QUERY_BETWEEN );
-		list_append_string( list, QUERY_BEGINS );
-		list_append_string( list, QUERY_CONTAINS );
-		list_append_string( list, QUERY_NOT_CONTAINS );
-		list_append_string( list, QUERY_OR );
-		list_append_string( list, QUERY_NOT_EQUAL );
-		list_append_string( list, QUERY_GREATER_THAN );
-		list_append_string( list, QUERY_GREATER_THAN_EQUAL_TO );
-		list_append_string( list, QUERY_LESS_THAN );
-		list_append_string( list, QUERY_LESS_THAN_EQUAL_TO );
-		list_append_string( list, QUERY_NULL );
-		list_append_string( list, QUERY_NOT_NULL );
+		list_append_string( list, APPASERVER_EQUAL );
+		list_append_string( list, APPASERVER_BETWEEN );
+		list_append_string( list, APPASERVER_BEGINS );
+		list_append_string( list, APPASERVER_CONTAINS );
+		list_append_string( list, APPASERVER_NOT_CONTAINS );
+		list_append_string( list, APPASERVER_OR );
+		list_append_string( list, APPASERVER_NOT_EQUAL );
+		list_append_string( list, APPASERVER_GREATER_THAN );
+		list_append_string( list, APPASERVER_GREATER_THAN_EQUAL_TO );
+		list_append_string( list, APPASERVER_LESS_THAN );
+		list_append_string( list, APPASERVER_LESS_THAN_EQUAL_TO );
+		list_append_string( list, APPASERVER_NULL );
+		list_append_string( list, APPASERVER_NOT_NULL );
 	}
 
 	return list;

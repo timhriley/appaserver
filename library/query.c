@@ -17,11 +17,11 @@
 #include "form.h"
 #include "environ.h"
 #include "relation.h"
-#include "row_security.h"
 #include "dictionary_separate.h"
 #include "element.h"
 #include "relation.h"
 #include "relation_join.h"
+#include "appaserver.h"
 #include "query.h"
 
 char *query_system_string(
@@ -1511,7 +1511,7 @@ LIST *query_edit_table_select_list(
 			LIST *exclude_lookup_attribute_name_list,
 			int relation_mto1_isa_length,
 			QUERY_DATE_CONVERT *query_date_convert,
-			ROW_SECURITY_ROLE *row_security_role )
+			char *row_security_role_attribute_not_null )
 {
 	LIST *select_list;
 	FOLDER_ATTRIBUTE *folder_attribute;
@@ -1565,7 +1565,7 @@ LIST *query_edit_table_select_list(
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
-	if ( row_security_role )
+	if ( row_security_role_attribute_not_null )
 	{
 		list_set(
 			select_list,
@@ -1574,7 +1574,7 @@ LIST *query_edit_table_select_list(
 			/* --------------- */
 			query_select_new(
 				(char *)0 /* folder_name */,
-				row_security_role->attribute_not_null,
+				row_security_role_attribute_not_null,
 				0 /* not attribute_is_date */,
 				0 /* not attribute_is_date_time */,
 				(QUERY_DATE_CONVERT *)0 ) );
@@ -2321,7 +2321,9 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			LIST *relation_mto1_isa_list,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
-			ROW_SECURITY_ROLE *row_security_role )
+			char *row_security_role_folder_name,
+			RELATION *row_security_role_relation,
+			char *row_security_role_attribute_not_null )
 {
 	QUERY_EDIT_TABLE *query_edit_table;
 
@@ -2345,7 +2347,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			exclude_lookup_attribute_name_list,
 			list_length( relation_mto1_isa_list ),
 			query_date_convert_new( login_name ),
-			row_security_role );
+			row_security_role_attribute_not_null );
 
 	if ( !list_length( query_edit_table->select_list ) )
 	{
@@ -2370,7 +2372,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 		query_edit_table_from_string(
 			folder_name,
 			relation_mto1_isa_list,
-			row_security_role );
+			row_security_role_folder_name );
 
 	query_edit_table->where =
 		query_edit_table_where_new(
@@ -2381,7 +2383,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			relation_mto1_isa_list,
 			security_entity_where,
 			query_dictionary,
-			row_security_role );
+			row_security_role_relation );
 
 	query_edit_table->query_order_string =
 		query_order_string(
@@ -2822,7 +2824,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			LIST *relation_mto1_isa_list,
 			char *security_entity_where,
 			DICTIONARY *query_dictionary,
-			ROW_SECURITY_ROLE *row_security_role )
+			RELATION *row_security_role_relation )
 {
 	QUERY_EDIT_TABLE_WHERE *where = query_edit_table_where_calloc();
 
@@ -2869,7 +2871,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			folder_attribute_primary_key_list(
 				folder_attribute_append_isa_list ),
 			relation_mto1_isa_list,
-			row_security_role );
+			row_security_role_relation );
 
 	where->string =
 		/* --------------------------- */
@@ -4103,7 +4105,7 @@ char *query_data_string_where(
 char *query_edit_table_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
-			ROW_SECURITY_ROLE *row_security_role )
+			char *row_security_role_folder_name )
 {
 	char from_string[ 1024 ];
 	char *ptr = from_string;
@@ -4131,12 +4133,12 @@ char *query_edit_table_from_string(
 				',' ) );
 	}
 
-	if ( row_security_role )
+	if ( row_security_role_folder_name )
 	{
 		ptr += sprintf(
 			ptr,
 			",%s",
-			row_security_role->folder_name );
+			row_security_role_folder_name );
 	}
 
 	return strdup( from_string );
@@ -4147,7 +4149,7 @@ char *query_join_where(
 			char *folder_name,
 			LIST *primary_key_list,
 			LIST *relation_mto1_isa_list,
-			ROW_SECURITY_ROLE *row_security_role )
+			RELATION *row_security_role_relation )
 {
 	char where[ STRING_8K ];
 	char *ptr = where;
@@ -4197,22 +4199,12 @@ char *query_join_where(
 				relation_mto1_isa_list ) );
 	}
 
-	if ( row_security_role )
+	if ( row_security_role_relation )
 	{
-		if ( !row_security_role->relation )
+		if ( !row_security_role_relation->many_folder )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: relation is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !row_security_role->relation->many_folder )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: relation->many_folder is empty.\n",
+		"ERROR in %s/%s()/%d: many_folder is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -4243,15 +4235,12 @@ char *query_join_where(
 				primary_folder_table_name,
 				folder_table_name(
 					application_name,
-					row_security_role->
-						relation->
+					row_security_role_relation->
 						many_folder->
 						folder_name ),
 				primary_key_list,
-				row_security_role->
-					relation->
+				row_security_role_relation->
 					foreign_key_list ) );
-					
 	}
 
 	if ( primary_folder_table_name )

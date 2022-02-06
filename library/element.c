@@ -26,6 +26,7 @@
 #include "basename.h"
 #include "environ.h"
 #include "javascript.h"
+#include "appaserver.h"
 #include "element.h"
 
 APPASERVER_ELEMENT *appaserver_element_calloc( void )
@@ -1812,6 +1813,8 @@ char *appaserver_element_html(
 		/* --------------------------- */
 		return appaserver_element_notepad_html(
 			appaserver_element->notepad,
+			background_color,
+			state,
 			row_number,
 			row_dictionary );
 	}
@@ -1976,7 +1979,7 @@ char *appaserver_element_html(
 			exit( 1 );
 		}
 
-		if ( string_strcmp( state, ELEMENT_INSERT_STATE ) == 0 )
+		if ( string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
 		{
 			return
 			/* ------------------- */
@@ -1994,47 +1997,12 @@ char *appaserver_element_html(
 		}
 		else
 		{
-			char *value =
-				/* ------------------------------------ */
-				/* Returns row_dictionary->		*/
-				/*		hash_table->		*/
-				/* 		other_data or null	*/
-				/* ------------------------------------ */
-				appaserver_element_value(
-					appaserver_element->
-						upload->
-						attribute_name,
-					row_dictionary );
-
-			if ( !value )
-			{
-				fprintf(stderr,
-	"Warning in %s/%s()/%d: appaserver_element_value(%s) returned empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					appaserver_element->
-						upload->
-						attribute_name );
- 				return (char *)0;
-			}
-
-			element_upload_update_link(
-				application_name,
-				value,
-				appaserver_parameter_upload_directory(),
-				appaserver_parameter_document_root() );
-
 			return
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_upload_update_html(
-				value,
+			appaserver_element_upload_update_html(
+				appaserver_element->upload,
+				background_color,
+				row_dictionary,
 				application_name );
-
-
-
 		}
 	}
 	else
@@ -2615,10 +2583,10 @@ char *element_text_javascript_replace_on_change(
 	{
 		char *tmp;
 
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
 		if ( ( tmp =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			javascript_replace(
 				on_change,
 				state,
@@ -3166,10 +3134,13 @@ char *element_notepad_html(
 			int columns,
 			int rows,
 			boolean null_to_slash,
-			int tab_order )
+			char *javascript_replace,
+			int tab_order,
+			char *background_color )
 {
 	char html[ STRING_128K ];
 	char *ptr = html;
+	char *on_change;
 
 	if ( !element_name ) return (char *)0;
 
@@ -3186,11 +3157,12 @@ char *element_notepad_html(
 		columns,
 		rows );
 
-	if ( null_to_slash )
+	if ( ( on_change =
+		element_notepad_onchange(
+			null_to_slash,
+			javascript_replace ) ) )
 	{
-		ptr += sprintf(
-			ptr,
-			" onChange=\"null2slash(this)\"" );
+		ptr += sprintf( ptr, "%s", on_change );
 	}
 
 	ptr += sprintf(
@@ -3214,6 +3186,18 @@ char *element_notepad_html(
 				tab_order ) );
 	}
 
+	if ( background_color && *background_color )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_background_color_html(
+				background_color ) );
+	}
+
 	ptr += sprintf(
 		ptr,
 		 " wrap=%s>\n",
@@ -3232,6 +3216,40 @@ char *element_notepad_html(
 		 "</textarea>\n" );
 
 	return strdup( html );
+}
+
+char *element_notepad_onchange(
+			boolean null_to_slash,
+			char *javascript_replace )
+{
+	char on_change[ 512 ];
+	char *ptr = on_change;
+	boolean got_one = 0;
+
+	ptr += sprintf( ptr, " onChange=\"" );
+
+	if ( null_to_slash )
+	{
+		ptr += sprintf( ptr, "null2slash(this)" );
+		got_one = 1;
+	}
+
+	if ( javascript_replace && *javascript_replace )
+	{
+		if ( got_one ) ptr += sprintf( ptr, " && " );
+		ptr += sprintf( ptr, "%s", javascript_replace );
+		got_one = 1;
+	}
+
+	if ( got_one )
+	{
+		ptr += sprintf( ptr, "\"" );
+		return strdup( on_change );
+	}
+	else
+	{
+		return (char *)0;
+	}
 }
 
 ELEMENT_NOTEPAD *element_notepad_calloc( void )
@@ -3257,6 +3275,7 @@ ELEMENT_NOTEPAD *element_notepad_new(
 			int columns,
 			int rows,
 			boolean null_to_slash,
+			char *post_change_javascript,
 			int tab_order )
 {
 	ELEMENT_NOTEPAD *element_notepad = element_notepad_calloc();
@@ -3266,6 +3285,7 @@ ELEMENT_NOTEPAD *element_notepad_new(
 	element_notepad->columns = columns;
 	element_notepad->rows = rows;
 	element_notepad->null_to_slash = null_to_slash;
+	element_notepad->post_change_javascript = post_change_javascript;
 	element_notepad->tab_order = tab_order;
 
 	return element_notepad;
@@ -3273,6 +3293,8 @@ ELEMENT_NOTEPAD *element_notepad_new(
 
 char *appaserver_element_notepad_html(
 			ELEMENT_NOTEPAD *notepad,
+			char *background_color,
+			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary )
 {
@@ -3301,7 +3323,15 @@ char *appaserver_element_notepad_html(
 		notepad->columns,
 		notepad->rows,
 		notepad->null_to_slash,
-		notepad->tab_order );
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		javascript_replace(
+			notepad->post_change_javascript,
+			state,
+			row_number ),
+		notepad->tab_order,
+		background_color );
 }
 
 ELEMENT_PASSWORD *element_password_calloc( void )
@@ -3535,6 +3565,7 @@ char *element_upload_insert_html(
 
 char *element_upload_update_html(
 			char *value,
+			char *background_color,
 			char *application_name )
 {
 	char html[ 1024 ];
@@ -3543,13 +3574,19 @@ char *element_upload_update_html(
 
 	ptr += sprintf(
 		ptr,
-		"<a href=\"%s\" target=upload_%d>%s</a>",
+		"<a href=\"%s\" target=upload_%d %s>%s</a>",
+		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		element_upload_update_hypertext_reference(
 			application_name,
 			value ),
 		++target_offset,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		appaserver_element_background_color_html(
+			background_color ),
 		value );
 
 	return strdup( html );
@@ -3668,10 +3705,10 @@ char *element_checkbox_javascript_replace_on_click(
 		return (char *)0;
 	}
 
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
 	if ( ( tmp =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		javascript_replace(
 			on_click,
 			state,
@@ -3837,3 +3874,47 @@ char *element_checkbox_submit_javascript(
 	return strdup( submit_javascript );
 }
 
+char *appaserver_element_upload_update_html(
+			ELEMENT_UPLOAD *upload,
+			char *background_color,
+			DICTIONARY *row_dictionary,
+			char *application_name )
+{
+	char *value =
+		/* ------------------------------------ */
+		/* Returns row_dictionary->		*/
+		/*		hash_table->		*/
+		/* 		other_data or null	*/
+		/* ------------------------------------ */
+		appaserver_element_value(
+			upload->attribute_name,
+			row_dictionary );
+
+	if ( !value )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: appaserver_element_value(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			upload->attribute_name );
+ 		return (char *)0;
+	}
+
+	/* Set a link to $DOCUMENT_ROOT */
+	/* ---------------------------- */
+	element_upload_update_link(
+		application_name,
+		value,
+		appaserver_parameter_upload_directory(),
+		appaserver_parameter_document_root() );
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	element_upload_update_html(
+		value,
+		background_color,
+		application_name );
+}

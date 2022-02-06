@@ -270,6 +270,18 @@ boolean attribute_is_upload( char *datatype )
 	}
 }
 
+boolean attribute_is_timestamp( char *datatype )
+{
+	if ( string_strcmp( datatype, "timestamp" ) == 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
 LIST *attribute_list( void )
 {
 	static LIST *list = {0};

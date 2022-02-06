@@ -22,7 +22,8 @@
 #include "environ.h"
 #include "date.h"
 #include "process.h"
-#include "query.h"
+#include "appaserver.h"
+#include "dictionary_separate.h"
 #include "date_convert.h"
 #include "application.h"
 #include "process_generic_output.h"
@@ -76,11 +77,11 @@ int main( int argc, char **argv )
 
 	dictionary_add_elements_by_removing_prefix(
 				    	post_dictionary,
-				    	QUERY_FROM_STARTING_LABEL );
+				    	APPASERVER_FROM_STARTING_LABEL );
 
 	dictionary_add_elements_by_removing_prefix(
 				    	post_dictionary,
-				    	QUERY_STARTING_LABEL );
+				    	DICTIONARY_SEPARATE_QUERY_PREFIX );
 
 	if ( timlib_parse_database_string(	&database_string,
 						application_name ) )

@@ -10,7 +10,6 @@
 #include <string.h>
 #include "timlib.h"
 #include "piece.h"
-#include "query.h"
 #include "dictionary.h"
 #include "attribute.h"
 #include "appaserver_error.h"
@@ -21,7 +20,6 @@
 #include "folder.h"
 #include "list_usage.h"
 #include "appaserver.h"
-#include "query.h"
 #include "appaserver_library.h"
 #include "process_generic_output.h"
 
@@ -2864,6 +2862,7 @@ char *process_generic_output_get_datatype_heading_string(
 
 }
 
+#ifdef NOT_DEFINED
 QUERY_OUTPUT *process_generic_query_output(
 				char *application_name,
 				char *value_folder_name,
@@ -2894,6 +2893,7 @@ QUERY_OUTPUT *process_generic_query_output(
 	return query_output;
 
 }
+#endif
 
 /* ------------------------------- */
 /* Returns static (program) memory */

@@ -51,6 +51,7 @@ EDIT_TABLE *edit_table_new(
 			LIST *ignore_select_attribute_name_list )
 {
 	EDIT_TABLE *edit_table = edit_table_calloc();
+	ROW_SECURITY_ROLE *row_security_role;
 
 	if ( ! ( edit_table->role =
 			role_fetch(
@@ -166,7 +167,6 @@ EDIT_TABLE *edit_table_new(
 			edit_table->state,
 			edit_table->role->exclude_update_attribute_name_list,
 			edit_table->role->exclude_lookup_attribute_name_list,
-			edit_table->folder->non_owner_forbid,
 			edit_table->role->override_row_restrictions,
 			login_name,
 			security_entity_where( security_entity ) );
@@ -193,6 +193,22 @@ EDIT_TABLE *edit_table_new(
 		return (EDIT_TABLE *)0;
 	}
 
+	if ( !edit_table->row_security->row_security_edit_table )
+	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: row_security_edit_table is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (EDIT_TABLE *)0;
+	}
+
+	row_security_role =
+		edit_table->
+			row_security_edit_table->
+			row_security_role;
+
 	edit_table->query_edit_table =
 		query_edit_table_new(
 			application_name,
@@ -207,9 +223,15 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->relation_mto1_isa_list,
 			query_dictionary,
 			sort_dictionary,
-			edit_table->
-				row_security_edit_table->
-				row_security_role );
+			(row_security_role)
+				? row_security_role->folder_name
+				: (char *)0,
+			(row_security_role)
+				? row_security_role->relation
+				: (RELATION *)0,
+			(row_security_role)
+				? row_security_role->attribute_not_null
+				: (char *)0 );
 
 	if ( !edit_table->query_edit_table )
 	{

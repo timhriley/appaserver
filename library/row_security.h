@@ -8,9 +8,9 @@
 
 #include "list.h"
 #include "folder.h"
-#include "attribute.h"
 #include "element.h"
 #include "relation.h"
+#include "query.h"
 #include "role.h"
 
 #define ROW_SECURITY_DELETE_WARNING_JAVASCRIPT "timlib_delete_button_warning();"
@@ -166,6 +166,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where,
+			boolean viewonly,
 			LIST *row_security_relation_list );
 
 boolean row_security_relation_attribute_name_exists(
@@ -184,28 +185,28 @@ char *row_security_relation_element_name(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
+	LIST *row_security_relation_list;
+	LIST *row_security_attribute_list;
 	LIST *element_list;
 	LIST *attribute_name_list;
+} ROW_SECURITY_ELEMENT_LIST_REGULAR;
 
-} ROW_SECURITY_REGULAR_ELEMENT_LIST;
-
-/* ROW_SECURITY_REGULAR_ELEMENT_LIST operations */
+/* ROW_SECURITY_ELEMENT_LIST_REGULAR operations */
 /* -------------------------------------------- */
-ROW_SECURITY_REGULAR_ELEMENT_LIST *
-	row_security_regular_element_list_calloc(
+ROW_SECURITY_ELEMENT_LIST_REGULAR *
+	row_security_element_list_regular_calloc(
 			void );
-ROW_SECURITY_REGULAR_ELEMENT_LIST *
-	row_security_regular_element_list_new(
+
+ROW_SECURITY_ELEMENT_LIST_REGULAR *
+	row_security_element_list_regular_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
+			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
 			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
-			char *state,
 			char *login_name,
 			char *security_entity_where,
 			LIST *exclude_update_attribute_name_list,
@@ -220,12 +221,30 @@ ROW_SECURITY_REGULAR_ELEMENT_LIST *
 
 typedef struct
 {
-} ROW_SECURITY_VIEWONLY_ELEMENT_LIST;
+	LIST *element_list;
+	LIST *attribute_name_list;
+} ROW_SECURITY_ELEMENT_LIST_VIEWONLY;
+
+/* ROW_SECURITY_ELEMENT_LIST_VIEWONLY operations */
+/* --------------------------------------------- */
+ROW_SECURITY_ELEMENT_LIST_VIEWONLY *
+	row_security_element_list_viewonly_calloc(
+			void );
+
+ROW_SECURITY_ELEMENT_LIST_VIEWONLY *
+	row_security_element_list_viewonly_new(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			LIST *role_operation_list,
+			LIST *ignore_select_attribute_name_list,
+			char *security_entity_where,
+			LIST *exclude_lookup_attribute_name_list );
 
 typedef struct
 {
-	ROW_SECURITY_REGULAR_ELEMENT_LIST *regular_element_list;
-	ROW_SECURITY_VIEWONLY_ELEMENT_LIST *viewonly_element_list;
+	ROW_SECURITY_ELEMENT_LIST_REGULAR *regular;
+	ROW_SECURITY_ELEMENT_LIST_VIEWONLY *viewonly;
 } ROW_SECURITY_ELEMENT_LIST;
 
 /* ROW_SECURITY_ELEMENT_LIST operations */
@@ -252,29 +271,6 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			/* ------------------------- */
 			ROW_SECURITY_ROLE *row_security_role );
 
-LIST *row_security_regular_element_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary,
-			boolean primary_keys_non_edit,
-			LIST *row_security_operation_element_list,
-			LIST *ignore_select_attribute_name_list,
-			char *login_name,
-			char *security_entity_where,
-			LIST *role_exclude_update_attribute_name_list,
-			LIST *role_exclude_lookup_attribute_name_list,
-			ROW_SECURITY_ROLE *row_security_role );
-
-LIST *row_security_viewonly_element_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			LIST *row_security_operation_element_list,
-			LIST *ignore_select_attribute_name_list,
-			LIST *role_exclude_lookup_attribute_name_list,
-			ROW_SECURITY_ROLE *row_security_role );
-
 /* Always returns */
 /* -------------- */
 LIST *row_security_operation_element_list(
@@ -292,6 +288,8 @@ typedef struct
 ROW_SECURITY *row_security_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 ROW_SECURITY *row_security_new(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -305,7 +303,6 @@ ROW_SECURITY *row_security_new(
 			char *state,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
-			boolean folder_non_owner_forbid,
 			boolean role_override_row_restrictions,
 			char *login_name,
 			char *security_entity_where );

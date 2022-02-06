@@ -41,10 +41,6 @@
 #define ELEMENT_NULL_OPERATOR			"is_empty"
 #define ELEMENT_NOT_NULL_OPERATOR		"not_empty"
 #define ELEMENT_SELECT_OPERATOR			"select"
-#define ELEMENT_INSERT_STATE			"insert"
-#define ELEMENT_UPDATE_STATE			"update"
-#define ELEMENT_LOOKUP_STATE			"lookup"
-#define ELEMENT_VIEWONLY_STATE			"viewonly"
 
 enum element_type {	table_open,
 			table_heading,
@@ -573,6 +569,7 @@ typedef struct
 	int columns;
 	int rows;
 	boolean null_to_slash;
+	char *post_change_javascript;
 	int tab_order;
 
 	/* Public */
@@ -595,6 +592,7 @@ ELEMENT_NOTEPAD *element_notepad_new(
 			int columns,
 			int rows,
 			boolean null_to_slash,
+			char *post_change_javascript,
 			int tab_order );
 
 /* Returns heap memory or null */
@@ -606,7 +604,15 @@ char *element_notepad_html(
 			int element_notepad_columns,
 			int element_notepad_rows,
 			boolean null_to_slash,
-			int tab_order );
+			char *javascript_replace,
+			int tab_order,
+			char *background_color );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_notepad_onchange(
+			boolean null_to_slash,
+			char *javascript_replace );
 
 typedef struct
 {
@@ -749,6 +755,7 @@ typedef struct
 	char *attribute_name;
 	int tab_order;
 	boolean recall;
+
 } ELEMENT_UPLOAD;
 
 /* ELEMENT_UPLOAD operations */
@@ -771,6 +778,7 @@ char *element_upload_insert_html(
 /* ------------------- */
 char *element_upload_update_html(
 			char *value,
+			char *background_color,
 			char *application_name );
 
 /* Returns static memory */
@@ -779,6 +787,8 @@ char *element_upload_update_hypertext_reference(
 			char *application_name,
 			char *value );
 
+/* Set a link to $DOCUMENT_ROOT */
+/* ---------------------------- */
 void element_upload_update_link(
 			char *application_name,
 			char *value,
@@ -991,6 +1001,8 @@ char *appaserver_element_hidden_html(
 /* --------------------------- */
 char *appaserver_element_notepad_html(
 			ELEMENT_NOTEPAD *notepad,
+			char *background_color,
+			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary );
 
@@ -1002,5 +1014,13 @@ char *appaserver_element_checkbox_html(
 			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_upload_update_html(
+			ELEMENT_UPLOAD *upload,
+			char *background_color,
+			DICTIONARY *row_dictionary,
+			char *application_name );
 
 #endif
