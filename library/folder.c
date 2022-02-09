@@ -375,6 +375,24 @@ FOLDER *folder_quick_fetch( char *folder_name )
 		0 /* not fetch_role_operation_list */ );
 }
 
+FOLDER *folder_mto1_fetch( char *folder_name )
+{
+	return
+	folder_fetch(
+		folder_name,
+		(char *)0 /* role_name */,
+		(LIST *)0 /* exclude_attribute_name_list */,
+		1 /* fetch_folder_attribute_list */,
+		1 /* fetch_relation_mto1_non_isa_list */,
+		0 /* not fetch_relation_mto1_isa_list */,
+		0 /* not fetch_relation_one2m_list */,
+		0 /* not fetch_relation_one2m_recursive_list */,
+		0 /* not fetch_process */,
+		0 /* not fetch_role_folder_list */,
+		0 /* not fetch_row_level_restriction */,
+		0 /* not fetch_role_operation_list */ );
+}
+
 FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 			char *sql_injection_escape_role_name,
 			LIST *exclude_attribute_name_list,

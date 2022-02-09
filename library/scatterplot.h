@@ -97,7 +97,6 @@ void scatterplot_output_scatter_plot(
 				char *anchor_entity,
 				char *anchor_datatype,
 				char *sub_title,
-				char *appaserver_mount_point,
 				char *appaserver_data_directory,
 				LIST *compare_entity_name_list,
 				LIST *compare_datatype_name_list,

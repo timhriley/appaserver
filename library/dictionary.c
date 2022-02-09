@@ -931,6 +931,11 @@ void dictionary_add_pointer(	DICTIONARY *d,
 
 }
 
+char *dictionary_pointer( char *key, DICTIONARY *d )
+{
+	return dictionary_get( d, key );
+}
+
 char *dictionary_get_pointer( DICTIONARY *d, char *key )
 {
 	return dictionary_get( key, d );

@@ -46,7 +46,8 @@ char *document_html_standard_url( void )
 	"http://www.w3.org/1999/xhtml";
 }
 
-DOCUMENT *document_new(	char *application_name,
+DOCUMENT *document_new(
+			char *application_name,
 			char *application_title_string,
 			char *subtitle_html,
 			char *subsubtitle_html,
@@ -646,6 +647,13 @@ char *document_head_title_tag(
 	return strdup( title_tag );
 }
 
+void document_close( void )
+{
+	/* Returns program memory */
+	/* ---------------------- */
+	printf( "%s\n", document_close_html() );
+}
+
 char *document_close_html( void )
 {
 	return "</body>\n</html>";
@@ -705,12 +713,6 @@ char *document_head_calendar_setup_string(
 "<script type=text/javascript src=/appaserver/zscal2/src/js/jscal2.js></script>\n"
 "<script type=text/javascript src=/appaserver/zscal2/src/js/lang/en.js></script>";
 	}
-}
-
-void document_close( void )
-{
-	printf( "%s\n",
-		document_close_html() );
 }
 
 void document_output_html_stream( FILE *output_stream )

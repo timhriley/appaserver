@@ -30,8 +30,7 @@ typedef struct
 
 /* ROLE_FOLDER operations */
 /* ---------------------- */
-LIST *role_folder_list(
-			char *role_name,
+LIST *role_folder_list(	char *role_name,
 			char *folder_name );
 
 ROLE_FOLDER *role_folder_calloc(
@@ -68,9 +67,6 @@ char *role_folder_primary_where(
 			char *role_name,
 			char *folder_name );
 
-LIST *role_folder_name_list(
-			LIST *role_folder_list );
-
 /* ROLE_FOLDER subschema operations */
 /* -------------------------------- */
 LIST *role_folder_lookup_list(
@@ -106,5 +102,8 @@ LIST *role_folder_subschema_missing_folder_name_list(
 LIST *role_folder_subschema_folder_name_list(
 			char *subschema_name,
 			LIST *role_folder_lookup_insert_list );
+
+LIST *role_folder_name_list(
+			LIST *role_folder_list );
 
 #endif

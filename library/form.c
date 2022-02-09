@@ -580,7 +580,7 @@ char *form_tag_html(	char *form_name,
 			char *action_string,
 			char *target_frame )
 {
-	char tag_html[ STRING_INPUT_BUFFER ];
+	char tag_html[ 1024 ];
 	char *ptr = tag_html;
 
 	if ( !action_string )
@@ -1164,6 +1164,9 @@ FORM_CHOOSE_ISA *form_choose_isa_new(
 	FORM_CHOOSE_ISA *form_choose_isa = form_choose_isa_calloc();
 
 	form_choose_isa->tag_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		form_tag_html(
 			"choose_isa" /* form_name */,
 			post_action_string,
@@ -1186,7 +1189,11 @@ FORM_CHOOSE_ISA *form_choose_isa_new(
 		form_choose_isa_html(
 			form_choose_isa->tag_html,
 			form_choose_isa->element_list,
-			form_choose_isa->button_element_list );
+			form_choose_isa->button_element_list,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			form_close_html() );
 
 	return form_choose_isa;
 }
@@ -1194,7 +1201,8 @@ FORM_CHOOSE_ISA *form_choose_isa_new(
 char *form_choose_isa_html(
 			char *tag_html,
 			LIST *element_list,
-			LIST *button_element_list )
+			LIST *button_element_list,
+			char *form_close_html )
 {
 	char html[ STRING_ONE_MEG ];
 	char *tmp1;
@@ -1202,7 +1210,8 @@ char *form_choose_isa_html(
 
 	if ( !tag_html
 	||   !list_length( element_list )
-	||   !list_length( button_element_list ) )
+	||   !list_length( button_element_list )
+	||   !form_close_html )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1213,7 +1222,7 @@ char *form_choose_isa_html(
 	}
 
 	sprintf(html,
-		"%s\n%s\n%s",
+		"%s\n%s\n%s\n%s",
 		tag_html,
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -1231,7 +1240,8 @@ char *form_choose_isa_html(
 				(char *)0 /* background_color */,
 				(char *)0 /* state */,
 				0 /* row_number */,
-				(DICTIONARY *)0 /* row_dictionary */ ) ) );
+				(DICTIONARY *)0 /* row_dictionary */ ) ),
+		form_close_html );
 
 		free( tmp1 );
 		free( tmp2 );
@@ -1273,6 +1283,9 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 	form_choose_role = form_choose_role_calloc();
 
 	form_choose_role->tag_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		form_tag_html(
 			form_name,
 			post_action_string,
@@ -1391,7 +1404,7 @@ LIST *form_choose_role_element_list(
 			(LIST *)0 /* attribute_name_list */,
 			role_name_list /* delimited_list */,
 			(LIST *)0 /* display_list */,
-			1 /* no_initial_capital */,
+			0 /* not no_initial_capital */,
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
 			0 /* not output_select_option */,
@@ -1674,5 +1687,58 @@ LIST *form_edit_table_heading_element_list(
 	}
 
 	return element_list;
+}
+
+char *form_element_list_html(
+			char *tag_html,
+			LIST *element_list,
+			char *form_close_html )
+{
+	char html[ STRING_64K ];
+	char *tmp;
+
+	if (	!tag_html
+	||	!list_length( element_list )
+	||	!form_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ( tmp =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_list_html(
+			element_list /* in/out */,
+			(char *)0 /* application_name */,
+			(char *)0 /* background_color */,
+			(char *)0 /* state */,
+			0 /* row_number */,
+			(DICTIONARY *)0 /* row_dictionary */ ) ) )
+	{ 
+		sprintf(html,
+			"%s\n%s\n%s",
+			tag_html,
+			tmp,
+			form_close_html );
+
+		free( tmp );
+	}
+	else
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return strdup( html );
 }
 

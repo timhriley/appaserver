@@ -42,61 +42,19 @@ typedef struct
 	/* ------- */
 	char *sql_injection_escape_role_name;
 	char *sql_injection_escape_folder_name;
+	char *sql_injection_escape_process_name;
 	char *session_current_ip_address;
 
-	/* Generic */
+	/* Private */
 	/* ------- */
-	char *session_state_integrity;
+	boolean state_valid;
+	boolean process_name_valid;
 } SESSION;
 
-SESSION *session_calloc(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-SESSION *session_fetch(
-			/* Sets ENVIRONMENT_DATABASE */
-			/* ------------------------- */
-			char *sql_injection_escape_application_name,
-			char *sql_injection_escape_session_key,
-			char *integrity_check_login_name );
-
-void session_access_failed_message_exit(
-			char *application_name,
-			char *current_ip_address,
-			char *login_name );
-
-SESSION *session_parse(	char *input );
-
-void session_update_access_date_time(
-			char *session_key );
-
-boolean session_remote_ip_address_changed(
-			char *remote_ip_address,
-			char *current_ip_address );
-
-LIST *session_list_fetch(
-			char *login_name );
-
-LIST *session_system_list(
-			char *system_string );
-
-/* Returns heap memory */
-/* ------------------- */
-char *session_system_string(
-			char *where );
-
-/* Returns static memory */
-/* --------------------- */
-char *session_primary_where(
-			char *session_key );
-
-void session_message_ip_address_changed_exit(
-			char *application_name,
-			char *session_key,
-			char *remote_ip_address,
-			char *current_ip_address,
-			char *login_name );
+/* SESSION operations */
+/* ------------------ */
+/* Usage */
+/* ----- */
 
 /* --------------------------------------------- */
 /* Sets appaserver environment and outputs argv. */
@@ -125,18 +83,79 @@ SESSION *session_process_integrity_exit(
 			char *process_name,
 			char *role_name );
 
-/* Returns state, program memory, or null */
-/* -------------------------------------- */
-char *session_state_integrity(
-			char *state,
-			LIST *role_folder_list );
+/* Always succeeds */
+/* --------------- */
+SESSION *session_fetch(
+			/* Sets ENVIRONMENT_DATABASE */
+			/* ------------------------- */
+			char *sql_injection_escape_application_name,
+			char *sql_injection_escape_session_key,
+			char *integrity_check_login_name );
+
+LIST *session_system_list(
+			char *system_string );
+
+/* Process */
+/* ------- */
 
 /* Returns heap memory or exits */
 /* ---------------------------- */
 char *session_current_ip_address(
 			void );
 
+/* Returns static memory */
+/* --------------------- */
+char *session_primary_where(
+			char *session_key );
+
+/* Returns heap memory */
+/* ------------------- */
+char *session_system_string(
+			char *where );
+
+SESSION *session_parse(	char *input );
+
+void session_access_failed_message_exit(
+			char *application_name,
+			char *current_ip_address,
+			char *login_name );
+
+boolean session_remote_ip_address_changed(
+			char *remote_ip_address,
+			char *current_ip_address );
+
+void session_message_ip_address_changed_exit(
+			char *application_name,
+			char *session_key,
+			char *remote_ip_address,
+			char *current_ip_address,
+			char *login_name );
+
+boolean session_state_valid(
+			char *state,
+			LIST *role_folder_list );
+
+boolean session_process_name_valid(
+			char *process_name,
+			LIST *role_process_list );
+
+void session_update_access_date_time(
+			char *session_key );
+
+LIST *session_list_fetch(
+			char *login_name );
+
 void session_environment_set(
 			char *application_name );
+
+/* Public */
+/* ------ */
+char *session_login_name(
+			char *session_key );
+
+/* Private */
+/* ------- */
+SESSION *session_calloc(
+			void );
 
 #endif

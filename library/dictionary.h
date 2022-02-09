@@ -52,6 +52,9 @@ void dictionary_set( 	DICTIONARY *d,
 			char *key, 
 			char *data );
 
+char *dictionary_pointer(DICTIONARY *d,
+			char *key );
+
 char *dictionary_get(	char *key,
 			DICTIONARY *d );
 

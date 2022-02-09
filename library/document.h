@@ -194,7 +194,8 @@ DOCUMENT *document_calloc(
 
 /* Always succeeds */
 /* --------------- */
-DOCUMENT *document_new(	char *application_name,
+DOCUMENT *document_new(
+			char *application_name,
 			char *application_title_string,
 			char *subtitle_html,
 			char *subsubtitle_html,
@@ -246,5 +247,7 @@ void document_quick_output(
 /* ---------------------- */
 char *document_close_html(
 			void );
+
+void document_close(	void );
 
 #endif

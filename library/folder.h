@@ -180,6 +180,9 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 FOLDER *folder_quick_fetch(
 			char *folder_name );
 
+FOLDER *folder_mto1_fetch(
+			char *folder_name );
+
 char *folder_row_level_restriction_string(
 			char *folder_name );
 

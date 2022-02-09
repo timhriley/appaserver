@@ -299,10 +299,12 @@ LIST *form_choose_isa_button_element_list(
 char *form_choose_isa_html(
 			char *tag_html,
 			LIST *element_list,
-			LIST *button_element_list );
+			LIST *button_element_list,
+			char *form_close_tag_html );
 
-/* FORM external operations */
-/* ------------------------ */
+/* ---------------------- */
+/* FORM Public operations */
+/* ---------------------- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -317,10 +319,16 @@ char *form_tag_html(	char *form_name,
 
 /* Returns program memory */
 /* ---------------------- */
-char *form_close_html(
-			void );
+char *form_close_html(	void );
 
 char *form_next_reference_number(
 			int *form_current_reference_number );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_element_list_html(
+			char *tag_html,
+			LIST *element_list,
+			char *form_close_html );
 
 #endif

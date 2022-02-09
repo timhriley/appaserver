@@ -234,7 +234,7 @@ int main( int argc, char **argv )
 
 	document_close();
 	return 0;
-} /* main() */
+}
 
 void post_generic_measurement_load(
 			char *application_name,
@@ -287,6 +287,7 @@ void post_generic_measurement_load(
 		document_close();
 		exit( 0 );
 	}
+
 	fclose( input_file );
 
 	if ( ( skip_header_rows =
@@ -299,13 +300,7 @@ void post_generic_measurement_load(
 
 	generic_load = generic_load_new();
 
-	generic_load->folder =
-		generic_load_get_database_folder(
-			application_name,
-			session,
-			folder_name,
-			role_name,
-			1 /* with_mto1_related_folders */ );
+	generic_load->folder = folder_mto1_fetch( folder_name );
 
 	position_dictionary =
 		dictionary_get_without_prefix(
@@ -704,7 +699,7 @@ enum event_parameter_return_value
 
 	return event_parameter_return_value;
 
-} /* get_measurement_update_event_parameters() */
+}
 
 int get_measurements_to_delete(
 				char *application_name,
@@ -748,7 +743,7 @@ int get_measurements_to_delete(
 
 	return atoi( pipe2string( sys_string ) );
 
-} /* get_measurements_to_delete() */
+}
 
 void execute_measurement_block_delete(
 				char *application_name,

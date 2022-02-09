@@ -1,4 +1,4 @@
-/* library/generic_load.h				*/
+/* $APPASERVER_HOME/library/generic_load.h		*/
 /* ---------------------------------------------------- */
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------- */
@@ -8,17 +8,175 @@
 
 #include <stdio.h>
 #include "list.h"
+#include "folder_menu.h"
+#include "menu.h"
+#include "document.h"
+#include "form.h"
 
 /* Constants */
 /* --------- */
-/* #define DEBUG_MODE			1 */
-#define SKIP_HEADER_ROWS		"skip_header_rows"
+#define GENERIC_LOAD_SKIP_HEADER_ROWS	"skip_header_rows"
 #define REPLACE_EXISTING_RECORDS_YN	"replace_existing_records_yn"
-#define INSERT_DELIMITER		'^'
-#define TEST_RECORD_OUTPUT_COUNT	10
+#define GENERIC_LOAD_DROP_DOWN_NAME 	"generic_load_drop_down"
+#define GENERIC_LOAD_UPLOAD_LABEL 	"generic_load_upload"
 
-/* Structures */
-/* ---------- */
+typedef struct
+{
+	char *tag_html;
+	LIST *element_list;
+	char *html;
+} GENERIC_LOAD_FOLDER_FORM;
+
+/* GENERIC_LOAD_FOLDER_FORM operations */
+/* ----------------------------------- */
+GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
+			char *generic_load_folder_prompt_html,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *generic_load_folder_post_action_string );
+
+LIST *generic_load_folder_form_element_list(
+			char *generic_load_folder_prompt_html,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *generic_load_upload_label,
+			char *generic_load_skip_header_rows );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_folder_form_html(
+			char *tag_html,
+			LIST *generic_load_folder_form_element_list,
+			char *form_close_html );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_calloc(
+			void );
+
+typedef struct
+{
+	char *tag_html;
+	LIST *element_list;
+	char *html;
+} GENERIC_LOAD_CHOOSE_FORM;
+
+/* GENERIC_LOAD_CHOOSE_FORM operations */
+/* ----------------------------------- */
+GENERIC_LOAD_CHOOSE_FORM *generic_load_choose_form_calloc(
+			void );
+
+GENERIC_LOAD_CHOOSE_FORM *generic_load_choose_form_new(
+			char *generic_load_choose_prompt_html,
+			char *generic_load_choose_drop_down_name,
+			LIST *role_folder_insert_name_list,
+			char *generic_load_choose_post_action_string );
+
+LIST *generic_load_choose_form_element_list(
+			LIST *role_folder_insert_name_list,
+			char *generic_load_choose_drop_down_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_choose_form_html(
+			char *tag_html,
+			LIST *generic_load_choose_form_element_list,
+			char *form_close_html );
+
+typedef struct
+{
+	ROLE *role;
+	FOLDER_MENU *folder_menu;
+	MENU *menu;
+	char *post_action_string;
+	char *prompt_html;
+	char *title_string;
+	DOCUMENT *document;
+	FORM_GENERIC_LOAD_CHOOSE *form_generic_load_choose;
+	char *html;
+} GENERIC_LOAD_CHOOSE;
+
+/* GENERIC_LOAD_CHOOSE operations */
+/* ------------------------------ */
+GENERIC_LOAD_CHOOSE *generic_load_choose_new(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *process_name,
+			char *role_name,
+			boolean menu_boolean );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_choose_post_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name );
+
+/* Return static memory */
+/* -------------------- */
+char *generic_load_choose_prompt_html(
+			char *process_name );
+
+/* Return static memory */
+/* -------------------- */
+char *generic_load_choose_title_string(
+			char *process_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_choose_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_body_html,
+			char *form_generic_load_html,
+			char *document_body_close_html,
+			char *document_close_html );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_CHOOSE *generic_load_choose_calloc(
+			void );
+
+typedef struct
+{
+	char *folder_name;
+	char *system_string;
+} GENERIC_LOAD_CHOOSE_POST;
+
+/* GENERIC_LOAD_CHOOSE_POST operations */
+/* ----------------------------------- */
+GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *working_post_dictionary );
+
+/* Process */
+/* ------- */
+
+/* Returns working_post_dictionary->hash_table->other_data or null */
+/* --------------------------------------------------------------- */
+char *generic_load_choose_post_folder_name,
+			char *generic_load_choose_drop_down_name,
+			DICTIONARY *working_post_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_choose_post_system_string(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *generic_load_choose_post_folder_name );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_calloc(
+			void );
+
 typedef struct
 {
 	char *attribute_name;
@@ -120,12 +278,14 @@ GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
 				char *attribute_name,
 				boolean is_primary_key );
 
+/*
 FOLDER *generic_load_get_database_folder(
 				char *application_name,
 				char *session,
 				char *folder_name,
 				char *role_name,
 				boolean with_mto1_related_folders );
+*/
 
 LIST *generic_load_get_folder_list(
 				FOLDER *folder,

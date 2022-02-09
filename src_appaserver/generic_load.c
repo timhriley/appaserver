@@ -1,5 +1,5 @@
 /* --------------------------------------------------- 	*/
-/* src_appaserver/generic_load.c	      	 	*/
+/* $APPASERVER_HOME/src_appaserver/generic_load.c 	*/
 /* --------------------------------------------------- 	*/
 /* 						       	*/
 /* Freely available software: see Appaserver.org	*/
@@ -19,9 +19,10 @@
 #include "attribute.h"
 #include "application.h"
 #include "appaserver.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "folder.h"
 #include "session.h"
+#include "generic_load.h"
 
 /* Constants */
 /* --------- */
@@ -32,29 +33,18 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	DOCUMENT *document;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *session;
+	char *session_key;
 	char *role_name;
-	char *login_name;
 	char *process_name;
-	char process_title_initial_capital[ 256 ];
-	char buffer[ 256 ];
-	char title[ 256 ];
-	LIST *folder_name_list;
-	char *folder_name;
+	SESSION *session;
+	GENERIC_LOAD *generic_load;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
-	appaserver_error_starting_argv_append_file(
-		argc,
-		argv,
-		application_name );
-
-	if ( argc != 5 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr,
-			"Usage: %s ignored session role process\n",
+			"Usage: %s session role process\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
@@ -63,11 +53,32 @@ int main( int argc, char **argv )
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter = appaserver_parameter_new();
 
-	login_name = session_get_login_name(
-					application_name,
-					session );
+	session =
+		session_process_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			login_name,
+			session_login_name( session_key ),
+			session_key,
+			process_name,
+			role_name );
+
+	generic_load =
+		generic_load_new(
+			role_name );
+
+	if ( !generic_load )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: generic_load_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	format_initial_capital( process_title_initial_capital,
 				process_name );

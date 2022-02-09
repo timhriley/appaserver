@@ -12,13 +12,18 @@
 #include "column.h"
 #include "date_convert.h"
 #include "document.h"
+#include "dictionary.h"
 #include "date.h"
 #include "timlib.h"
 #include "folder.h"
-#include "related_folder.h"
+#include "relation.h"
 #include "appaserver_error.h"
 #include "role.h"
 #include "appaserver_parameter.h"
+#include "role_folder.h"
+#include "form.h"
+#include "frameset.h"
+#include "element.h"
 #include "generic_load.h"
 
 GENERIC_LOAD *generic_load_new( void )
@@ -85,6 +90,7 @@ GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
 	return generic_load_attribute;
 }
 
+#ifdef NOT_DEFINED
 FOLDER *generic_load_get_database_folder(
 			char *application_name,
 			char *session,
@@ -153,6 +159,7 @@ FOLDER *generic_load_get_database_folder(
 
 	return folder;
 }
+#endif
 
 LIST *generic_load_get_folder_list(
 			FOLDER *folder,
@@ -1390,5 +1397,1043 @@ void generic_load_set_international_date(
 				primary_key_date_offset );
 	}
 
+}
+
+GENERIC_LOAD_CHOOSE *generic_load_choose_new(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *process_name,
+			char *role_name,
+			boolean menu_boolean )
+{
+	GENERIC_LOAD_CHOOSE *generic_load_choose;
+
+	if ( !application_name
+	||   !login_name
+	||   !session_key
+	||   !process_name
+	||   !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	generic_load_choose = generic_load_choose_calloc();
+
+	generic_load_choose->role =
+		role_fetch(
+			role_name,
+			0 /* not fetch_attribute_exclude_list */ );
+
+	if ( menu_boolean )
+	{
+		generic_load_choose->folder_menu =
+			folder_menu_fetch(
+				application_name,
+				session_key,
+				appaserver_parameter_data_directory(),
+				role_name );
+
+		if ( !generic_load_choose->folder_menu )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		generic_load_choose->menu =
+			menu_fetch(
+				application_name,
+				login_name,
+				session_key,
+				role_name,
+				FRAMESET_PROMPT_FRAME,
+				folder_menu->lookup_count_list );
+
+		if ( !generic_load_choose->menu )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: menu_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	} /* if menu_boolean */
+
+	generic_load_choose->post_action_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		generic_load_choose_post_action_string(
+			application_name,
+			login_name,
+			session_key,
+			role_name );
+
+	generic_load_choose->prompt_html =
+		/* -------------------- */
+		/* Return static memory */
+		/* -------------------- */
+		generic_load_choose_prompt_html(
+			process_name );
+
+	generic_load_choose->title_string =
+		/* -------------------- */
+		/* Return static memory */
+		/* -------------------- */
+		generic_load_choose_title_string(
+			process_name );
+
+	generic_load_choose->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			generic_load_choose->title_string,
+			(char *)0 /* subtitle_html */,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
+			menu_boolean,
+			menu,
+			document_head_menu_setup_string( 
+				menu_boolean ),
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */,
+			(char *)0 /* input_onload_string */ );
+
+	generic_load_choose->form_generic_load_choose =
+		form_generic_load_choose_new(
+			generic_load_choose->prompt_html,
+			role_folder_name_list(
+				role_folder_insert_list(
+					role_name ) ),
+			generic_load_choose->post_action_string );
+
+
+	if ( !generic_load_choose->form_generic_load_choose )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: form_generic_load_choose_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	generic_load_choose->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		generic_load_choose_html(
+			generic_load_choose->document->html,
+			generic_load_choose->document->document_head->html,
+			document_head_close_html(),
+			generic_load_choose->document->document_body->html,
+			generic_load_choose->form_generic_load_choose->html,
+			document_body_close_html(),
+			document_close_html() );
+
+	return generic_load_choose;
+}
+
+char *generic_load_choose_post_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name )
+{
+	char post_action_string[ 1024 ];
+
+	if ( !application_name
+	||   !login_name
+	||   !session_key
+	||   !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(post_action_string,
+		" action=\"%s/%s?%s+%s+%s+%s\"",
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		"generic_load_choose_post",
+		application_name,
+		login_name,
+		session_key,
+		role_name );
+
+	return strdup( post_action_string );
+}
+
+char *generic_load_choose_prompt_html(
+			char *process_name )
+{
+	static char prompt_html[ 128 ];
+	char buffer[ 64 ];
+
+	sprintf(prompt_html,
+		"<h3>%s choose a table:</h3>",
+		string_initial_capital(
+			buffer,
+			process_name ) );
+
+	return prompt_html;
+}
+
+char *generic_load_choose_title_string(
+			char *process_name )
+{
+	static char title_string[ 128 ];
+
+	string_initial_capital(
+		title_string,
+		process_name ) );
+
+	return title_string;
+}
+
+char *generic_load_choose_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_body_html,
+			char *form_generic_load_html,
+			char *document_body_close_html,
+			char *document_close_html )
+{
+	char html[ STRING_64K ];
+
+	if ( !document_html,
+	||   !document_head_html,
+	||   !document_body_html,
+	||   !form_generic_load_html,
+	||   !document_body_close_html,
+	||   !document_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s\n%s\n%s\n%s",
+		document_html,
+		document_head_html,
+		document_body_html,
+		form_generic_load_html,
+		document_body_close_html,
+		document_close_html );
+
+	return strdup( html );
+}
+
+GENERIC_LOAD_CHOOSE *generic_load_choose_calloc( void )
+{
+	GENERIC_LOAD_CHOOSE *generic_load_choose;
+
+	if ( ! ( generic_load_choose =
+			calloc( 1, sizeof( GENERIC_LOAD_CHOSE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_choose;
+}
+
+GENERIC_LOAD_CHOOSE_FORM *generic_load_choose_form_calloc( void )
+{
+	GENERIC_LOAD_CHOOSE_FORM *generic_load_choose_form;
+
+	if ( ! ( generic_load_choose_form =
+			calloc( 1, sizeof( GENERIC_LOAD_CHOOSE_FORM ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_choose_form;
+}
+
+GENERIC_LOAD_CHOOSE_FORM *generic_load_choose_form_new(
+			char *prompt_html,
+			char *drop_down_name,
+			LIST *role_folder_insert_name_list,
+			char *post_action_string )
+{
+	GENERIC_LOAD_CHOOSE_FORM *generic_load_choose_form =
+		generic_load_choose_form_calloc();
+
+	generic_load_choose_form->tag_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		form_tag_html(
+			"generic_load_choose" /* form_name */,
+			post_action_string,
+			FRAMESET_PROMPT_FRAME /* target_frame */ );
+
+	generic_load_choose_form->element_list =
+		generic_load_choose_form_element_list(
+			role_folder_insert_name_list,
+			drop_down_name );
+
+	generic_load_choose_form->html =
+		generic_load_choose_form_html(
+			generic_load_choose_form->tag_html,
+			generic_load_choose_form->element_list,
+			form_close_html() );
+
+	return generic_load_choose_form;
+}
+
+LIST *generic_load_choose_form_element_list(
+			LIST *role_folder_insert_name_list,
+			char *drop_down_name )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	/* Create a table */
+	/* -------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create a table row */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create a drop-down */
+	/* ------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				drop_down,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->drop_down );
+
+	element->drop_down =
+		element_drop_down_new(
+			drop_down_name,
+			(LIST *)0 /* attribute_name_list */,
+			role_folder_insert_name_list /* delimited_list */,
+			(LIST *)0 /* display_list */,
+			0 /* not no_initial_capital */,
+			0 /* not output_null_option */,
+			0 /* not output_not_null_option */,
+			0 /* not output_select_option */,
+			element_drop_down_display_size(
+				list_length(
+					role_folder_insert_name_list ) ),
+			-1 /* tab order */,
+			0 /* not multi_select */,
+			(char *)0 /* post_change_javascript */,
+			0 /* not readonly */,
+			0 /* not recall */ );
+
+	/* Close the table */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	return element_list;
+}
+
+char *generic_load_choose_form_html(
+			char *tag_html,
+			LIST *element_list,
+			char *form_close_html )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	form_element_list_html(
+		tag_html,
+		element_list,
+		form_close_html );
+}
+
+GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *working_post_dictionary )
+{
+	GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post =
+		generic_load_choose_post_calloc();
+
+	generic_load_choose_post->folder_name =
+	/* --------------------------------------------------------------- */
+	/* Returns working_post_dictionary->hash_table->other_data or null */
+	/* --------------------------------------------------------------- */
+		generic_load_choose_post_folder_name(
+			GENERIC_LOAD_CHOOSE_POST_DROP_DOWN_NAME,
+			working_post_dictionary );
+
+	if ( !generic_load_choose_post->folder_name )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: generic_load_choose_post_folder_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	generic_load_choose_post->system_string =
+		generic_load_choose_post-system_string(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			generic_load_choose_post->folder_name );
+
+	return generic_load_choose_post;
+}
+
+char *generic_load_choose_post_folder_name,
+			char *drop_down_name,
+			DICTIONARY *working_post_dictionary )
+{
+	return
+	dictionary_get(
+		drop_down_name,
+		working_post_dictionary );
+}
+
+char *generic_load_choose_post_system_string(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *post_folder_name )
+{
+	char system_string[ 1024 ];
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !post_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"generic_load_folder %s %s %s %s %s",
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		post_folder_name );
+
+	return strdup( system_string );
+}
+
+GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_calloc( void )
+{
+	GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post;
+
+	if ( ! ( generic_load_choose_post =
+			calloc( 1, sizeof( GENERIC_LOAD_CHOOSE_POST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_choose_post;
+}
+
+GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
+			char *prompt_html,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *post_action_string )
+{
+	GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form =
+		generic_load_folder_form_calloc();
+
+	generic_load_folder_form->tag_html =
+		form_tag_html(
+			“generic_load_folder” /* form_name */,
+			post_action_string,
+			FRAMESET_EDIT_FRAME /* target_frame */ );
+
+	generic_load_folder_form->element_list =
+		generic_load_folder_form_element_list(
+			prompt_html,
+			folder_attribute_list,
+			relation_mto1_non_isa_list,
+			GENERIC_LOAD_UPLOAD_LABEL,
+			GENERIC_LOAD_SKIP_HEADER_ROWS );
+
+	generic_load_folder_form->html =
+		generic_load_folder_form_html(
+			generic_load_folder_form->tag_html,
+			generic_load_folder_form->element_list,
+			form_close_html() );
+
+	return generic_load_folder_form;
+}
+
+char *generic_load_folder_form_html(
+			char *tag_html,
+			LIST *element_list,
+			char *form_close_html )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	form_element_list_html(
+		tag_html,
+		element_list,
+		form_close_html );
+}
+
+GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_calloc(
+			void )
+{
+	GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form;
+
+	if ( ! ( generic_load_folder_form =
+			calloc( 1, sizeof( GENERIC_LOAD_FOLDER_FORM ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_folder_form;
+}
+
+LIST *generic_load_folder_form_element_list(
+			char *generic_load_folder_prompt_html,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_listd,
+			char *generic_load_upload_label,
+			char *generic_load_skip_header_rows )
+{
+	RELATION *relation;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	int default_position = 1;
+	int primary_key_default_position;
+	char buffer[ 256 ];
+	char post_change_javascript[ 128 ];
+	APPASERVER_ELEMENT *element;
+	LIST *element_list = list_new();
+
+	/* Create the buttons table */
+	/* ------------------------ */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create <Submit> */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button =
+		button_submit(
+			(char *)0 /* multi_select_all_javascript */,
+			(char *)0 /* keystrokes_save_javascript */,
+			(char *)0 /* keystrokes_multi_save_javascript */,
+			(char *)0 /* verify_attribute_widths_javascript */,
+			0 /* form_number */ );
+
+	/* Create <Reset> */
+	/* -------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button =
+		button_reset(
+			(char *)0 /* javascript_replace */,
+			0 /* form_number */ );
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create the filename table */
+	/* ------------------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create the filename prompt */
+	/* -------------------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->non_edit_text );
+
+	element->non_edit_text =
+		element_non_edit_text_new(
+			(char *)0 /* attribute_name */,
+			"Filename" /* message */ );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				upload,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->upload );
+
+	element->upload =
+		element_upload_new(
+			generic_load_upload_label /* attribute_name */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	element->upload->html =
+		element_upload_insert_html(
+			generic_load_upload_label /* element_name */,
+			-1 /* tab_order */ );
+
+	/* Create skip header rows */
+	/* ----------------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->non_edit_text->message = "Skip Header Rows";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->text->attribute_name = generic_load_skip_header_rows;
+	element->text->attribute_width_max_length = 3;
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->non_edit_text->message = "How many header rows to skip?";
+
+	/* Create the execute checkbox */
+	/* --------------------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				checkbox,
+				(char *)0 /* element_name */ ) ) );
+
+	element->checkbox->prompt_string = "Execute?";
+	element->checkbox->element_name = "execute_yn";
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create the dialog box table */
+	/* --------------------------- */
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				line_break,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_heading->heading_string = "Attribute";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_heading->heading_string = "Position";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_heading->heading_string = "Constant";
+
+	list_rewind( attribute_list );
+
+	do {
+		attribute = list_get( attribute_list );
+
+		element = (APPASERVER_ELEMENT *)0;
+
+		if ( ( relation =
+	       		relation_consumes(
+				attribute->attribute_name,
+				relation_mto1_non_isa_list ) ) )
+		{
+			char element_name[ 128 ];
+
+			relation->
+			one_folder->
+			primary_key_list =
+				folder_get_primary_key_list(
+					related_folder->
+						folder->
+						attribute_list );
+
+			if ( list_length(
+					related_folder->
+					folder->
+					primary_key_list ) == 1 )
+			{
+				sprintf(element_name,
+					"constant_%s",
+					attribute->attribute_name );
+
+				element = element_appaserver_new(
+						drop_down,
+						strdup( element_name ) );
+
+			element->drop_down->option_data_list =
+				folder_primary_data_list(
+					application_name,
+					BOGUS_SESSION,
+					related_folder->
+						folder->
+						folder_name,
+					login_name,
+					(DICTIONARY *)0
+						/* parameter_dictionary */,
+					(DICTIONARY *)0
+						/* where_clause_dictionary */,
+					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
+					related_folder->
+						folder->
+						populate_drop_down_process,
+					related_folder->
+						folder->attribute_list,
+					(LIST *)0
+					/* common_non_pr...bute_name_list */,
+					related_folder->
+						folder->
+						row_level_non_owner_forbid,
+					(LIST *)0
+					/* preprompt_accou...e_name_list */,
+					role_name,
+					(char *)0 /* state */,
+					(char *)0
+					/* one2m_folder_name_for_processes */,
+					(char *)0,
+					/* appaserver_user_foreign_login_name */
+					0 /* not include_root_folder */ );
+			}
+		}
+
+		printf( "<tr><td>" );
+
+		if ( attribute->primary_key_index )
+		{
+			printf( "*" );
+			primary_key_default_position = default_position;
+		}
+		else
+		{
+			primary_key_default_position = 0;
+		}
+
+		printf( "%s",
+			format_initial_capital( buffer,
+						attribute->attribute_name ) );
+		if ( attribute->hint_message
+		&&   *attribute->hint_message )
+		{
+			printf( "(%s)", attribute->hint_message );
+		}
+
+		printf( "</td>\n" );
+		printf(
+	"<td><input name=%s%s type=text size=3 value=%d\n"
+	" onChange=\"after_field('%s%s','%s%s',%d)\"></td>\n",
+			POSITION_PREFIX,
+			attribute->attribute_name,
+			default_position,
+			POSITION_PREFIX,
+			attribute->attribute_name,
+			CONSTANT_PREFIX,
+			attribute->attribute_name,
+			primary_key_default_position );
+
+		/* If drop-down element */
+		/* -------------------- */
+		if ( element )
+		{
+			sprintf(post_change_javascript,
+				"after_field('%s%s','%s%s',%d)",
+				POSITION_PREFIX,
+				attribute->attribute_name,
+				CONSTANT_PREFIX,
+				attribute->attribute_name,
+				primary_key_default_position );
+
+			element_drop_down_output(
+				stdout,
+				element->name,
+				element->drop_down->option_data_list,
+				element->drop_down->option_label_list,
+				element->drop_down->number_columns,
+				element->drop_down->multi_select,
+				-1 /* row */,
+				element->drop_down->initial_data,
+				element->drop_down->output_null_option,
+				element->drop_down->output_not_null_option,
+				element->drop_down->output_select_option,
+				post_change_javascript,
+				element->drop_down->max_drop_down_size,
+				element->drop_down->multi_select_element_name,
+				element->drop_down->onblur_javascript_function,
+				(char *)0 /* background_color */,
+				element->drop_down->date_piece_offset,
+				element->drop_down->no_initial_capital,
+				element->drop_down->readonly,
+				0 /* tab_index */,
+				element->drop_down->state );
+			fflush( stdout );
+		}
+		else
+		/* ------------------ */
+		/* Else field element */
+		/* ------------------ */
+		{
+			printf(
+	"<td><input name=%s%s type=text size=20 maxlength=%d"
+	" onChange=\"after_field('%s%s','%s%s',%d)",
+				CONSTANT_PREFIX,
+				attribute->attribute_name,
+				attribute->width,
+				POSITION_PREFIX,
+				attribute->attribute_name,
+				CONSTANT_PREFIX,
+				attribute->attribute_name,
+				primary_key_default_position );
+
+			if ( strcmp( attribute->datatype, "time" ) == 0)
+				printf( " && validate_time_insert(this)" );
+			printf( "\"></td>\n" );
+		}
+
+		if ( !attribute->primary_key_index )
+		{
+			printf(
+	"<td><input name=ignore_%s type=checkbox value=yes"
+	" onChange=\"after_ignore(this, '%s%s','%s%s')\">"
+	"Ignore</td>\n",
+				attribute->attribute_name,
+				POSITION_PREFIX,
+				attribute->attribute_name,
+				CONSTANT_PREFIX,
+				attribute->attribute_name );
+		}
+
+		default_position++;
+
+	} while( list_next( attribute_list ) );
+
+	return element_list;
 }
 

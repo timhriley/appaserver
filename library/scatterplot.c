@@ -33,7 +33,7 @@ SCATTERPLOT *scatterplot_new( void )
 	}
 
 	return scatterplot;
-} /* scatterplot_new() */
+}
 
 PLOT *scatterplot_plot_new(	char *anchor_entity_datatype,
 				char *compare_entity_datatype )
@@ -52,7 +52,7 @@ PLOT *scatterplot_plot_new(	char *anchor_entity_datatype,
 	plot->compare_entity_datatype = compare_entity_datatype;
 	plot->point_list = list_new();
 	return plot;
-} /* scatterplot_plot_new() */
+}
 
 POINT *scatterplot_point_new(	double anchor_value,
 				double compare_value )
@@ -69,7 +69,7 @@ POINT *scatterplot_point_new(	double anchor_value,
 	point->anchor_value = anchor_value;
 	point->compare_value = compare_value;
 	return point;
-} /* scatterplot_point_new() */
+}
 
 LIST *scatterplot_get_plot_list(	char *anchor_entity,
 					char *anchor_datatype,
@@ -108,7 +108,7 @@ LIST *scatterplot_get_plot_list(	char *anchor_entity,
 			value_piece,
 			record_delimiter );
 
-	anchor_key_list = dictionary_get_key_list( anchor_value_dictionary );
+	anchor_key_list = dictionary_key_list( anchor_value_dictionary );
 
 	if ( !list_rewind( anchor_key_list ) ) return (LIST *)0;
 
@@ -118,7 +118,7 @@ LIST *scatterplot_get_plot_list(	char *anchor_entity,
 		anchor_key = list_get_pointer( anchor_key_list );
 
 		anchor_value_string =
-			dictionary_get_pointer(
+			dictionary_pointer(
 				anchor_value_dictionary,
 				anchor_key );
 
@@ -130,7 +130,7 @@ LIST *scatterplot_get_plot_list(	char *anchor_entity,
 					compare_value_dictionary_list );
 
 			if ( !( compare_value_string =
-				dictionary_get_pointer(
+				dictionary_pointer(
 					compare_value_dictionary->dictionary,
 					anchor_key ) ) )
 			{
@@ -156,7 +156,7 @@ LIST *scatterplot_get_plot_list(	char *anchor_entity,
 
 	return plot_list;
 
-} /* scatterplot_get_plot_list() */
+}
 
 COMPARE_VALUE_DICTIONARY *compare_value_dictionary_new(
 				char *entity_datatype )
@@ -175,7 +175,7 @@ COMPARE_VALUE_DICTIONARY *compare_value_dictionary_new(
 	compare_value_dictionary->entity_datatype = entity_datatype;
 	compare_value_dictionary->dictionary = dictionary_new();
 	return compare_value_dictionary;
-} /* compare_value_dictionary_new() */
+}
 
 LIST *scatterplot_get_compare_value_dictionary_list(
 			LIST *compare_entity_name_list,
@@ -230,7 +230,7 @@ LIST *scatterplot_get_compare_value_dictionary_list(
 
 	return compare_value_dictionary_list;
 			
-} /* scatterplot_get_compare_value_dictionary_list() */
+}
 
 COMPARE_VALUE_DICTIONARY *scatterplot_compare_value_dictionary_seek(
 				char *compare_entity_datatype,
@@ -269,7 +269,7 @@ COMPARE_VALUE_DICTIONARY *scatterplot_compare_value_dictionary_seek(
 		 __LINE__,
 		 compare_entity_datatype );
 	exit( 1 );
-} /* scatterplot_compare_value_dictionary_seek() */
+}
 
 PLOT *scatterplot_get_or_set_plot(	LIST *plot_list,
 					char *anchor_entity_datatype,
@@ -297,7 +297,7 @@ PLOT *scatterplot_get_or_set_plot(	LIST *plot_list,
 	list_append_pointer( plot_list, plot );
 	return plot;
 
-} /* scatterplot_get_or_set_plot() */
+}
 
 void scatterplot_populate_compare_value_dictionary_list(
 			DICTIONARY **anchor_value_dictionary_pointer,
@@ -367,7 +367,7 @@ void scatterplot_populate_compare_value_dictionary_list(
 
 	pclose( input_pipe );
 
-} /* scatterplot_populate_compare_value_dictionary_list() */
+}
 
 void scatterplot_output_scatter_plot(
 				char *application_name,
@@ -375,7 +375,6 @@ void scatterplot_output_scatter_plot(
 				char *anchor_entity,
 				char *anchor_datatype,
 				char *sub_title,
-				char *appaserver_mount_point,
 				char *appaserver_data_directory,
 				LIST *compare_entity_name_list,
 				LIST *compare_datatype_name_list,
@@ -388,7 +387,6 @@ void scatterplot_output_scatter_plot(
 				char record_delimiter,
 				char entity_datatype_delimiter )
 {
-	DOCUMENT *document;
 	char scatterplot_key[ 512 ];
 	char grace_scatterplot_filename[ 512 ];
 	FILE *scatterplot_pipe;
@@ -420,9 +418,7 @@ void scatterplot_output_scatter_plot(
 
 	if ( !list_length( scatterplot->compare_value_dictionary_list ) )
 	{
-		document_quick_output_body(
-			application_name,
-			appaserver_mount_point );
+		document_quick_output( application_name );
 
 		printf( "<h3>ERROR: please select datatypes to compare.</h3>" );
 		document_close();
@@ -443,32 +439,14 @@ void scatterplot_output_scatter_plot(
 
 	if ( !list_length( scatterplot->plot_list ) )
 	{
-		document_quick_output_body(
-			application_name,
-			appaserver_mount_point );
+		document_quick_output( application_name );
 
 		printf( "<h3>ERROR: no data retrieved.</h3>" );
 		document_close();
 		exit( 0 );
 	}
 
-	document = document_new( "scatter", application_name );
-	document_set_output_content_type( document );
-
-	document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			document->application_name,
-			document->onload_control_string );
+	document_quick_output( application_name );
 
 	grace_output_screen_title();
 
@@ -615,5 +593,5 @@ void scatterplot_output_scatter_plot(
 
 	document_close();
 
-} /* scatterplot_output_scatter_plot() */
+}
 
