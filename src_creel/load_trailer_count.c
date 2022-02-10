@@ -71,9 +71,9 @@ int main( int argc, char **argv )
 
 	if ( argc != 4 )
 	{
-		fprintf( stderr, 
-"Usage: %s process filename really_yn\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s process filename really_yn\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
@@ -120,6 +120,7 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
+
 	if ( !parking_lot_exists(	application_name,
 					PARKING_LOT_WHITE_WATER_BAY ) )
 	{
