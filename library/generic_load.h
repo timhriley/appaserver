@@ -19,6 +19,9 @@
 #define REPLACE_EXISTING_RECORDS_YN	"replace_existing_records_yn"
 #define GENERIC_LOAD_DROP_DOWN_NAME 	"generic_load_drop_down"
 #define GENERIC_LOAD_UPLOAD_LABEL 	"generic_load_upload"
+#define GENERIC_LOAD_CONSTANT_PREFIX	"constant_"
+#define GENERIC_LOAD_POSITION_PREFIX	"position_"
+#define GENERIC_LOAD_IGNORE_PREFIX	"ignore_"
 
 typedef struct
 {
@@ -379,4 +382,9 @@ LIST *generic_load_execute_checkbox_element_list(
 LIST *generic_load_dialog_box_element_list(
 			void );
 
+LIST *generic_load_position_element_list(
+			char *attribute_name,
+			int primary_key_index,
+			char *hint_message,
+			int position );
 #endif

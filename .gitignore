@@ -313,7 +313,8 @@ output_histogram
 output_group
 add_column
 generic_load
-post_generic_load
+post_generic_load_choose
+post_generic_load_folder
 merge_purge
 alter_column_datatype
 rename_table

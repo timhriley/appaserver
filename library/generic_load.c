@@ -1980,12 +1980,11 @@ GENERIC_LOAD_FOLDER_ELEMENT_LIST *
 {
 	ROW_SECURITY_RELATION *row_security_relation;
 	FOLDER_ATTRIBUTE *folder_attribute;
-	int default_position = 1;
-	int primary_key_default_position;
-	char buffer[ 256 ];
 	char post_change_javascript[ 128 ];
+	char element_name[ 128 ];
 	APPASERVER_ELEMENT *element;
 	LIST *row_security_relation_list = {0};
+	int position = 0;
 	LIST *element_list = list_new();
 
 	if ( !list_length( folder_attribute_list ) )
@@ -2025,6 +2024,26 @@ GENERIC_LOAD_FOLDER_ELEMENT_LIST *
 	do {
 		folder_attribute = list_get( folder_attribute_list );
 
+		if ( !folder_attribute->attribute )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set_list(
+			element_list,
+			generic_load_position_element_list(
+				folder_attribute->attribute_name,
+				folder_attribute->primary_key_index,
+				folder_attribute->
+					attribute->
+					hint_message,
+				++position ) );
+
 		if ( ( row_security_relation =
 			row_security_relation_new(
 				folder_attribute->attribute_name,
@@ -2041,6 +2060,10 @@ GENERIC_LOAD_FOLDER_ELEMENT_LIST *
 					relation->
 					foreign_key_list ) > 1 )
 			{
+				row_security_relation->
+					relation->
+					consumes_taken = 1;
+
 				goto skip_relation;
 			}
 
@@ -2051,7 +2074,7 @@ GENERIC_LOAD_FOLDER_ELEMENT_LIST *
 
 			list_set(
 				row_security_relation_list,
-				row_security_relation);
+				row_security_relation );
 
 			list_set(
 				element_list,
@@ -2059,121 +2082,109 @@ GENERIC_LOAD_FOLDER_ELEMENT_LIST *
 					table_row,
 					(char *)0 ) );
 
+			list_set_list(
+				element_list,
+				row_security_relation->element_list );
+
+			goto skip_attribute;
+		}
+
+skip_relation:
+
+		/* Create the text field */
+		/* --------------------- */
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data,
+				(char *)0 ) );
+
+		list_set(
+			element_list,
+			( element =
+				appaserver_element_new(
+					text,
+					(char *)0 /* element_name */ ) ) );
+
+		free( element->text );
+
+		sprintf(element_name,
+			"%s%s",
+			GENERIC_LOAD_CONSTANT_PREFIX,
+			folder_attribute->attribute_name );
+
+		if ( attribute_is_time(
+			folder_attribute->
+				attribute->
+				datatype_name ) )
+		{
+			strcpy(	post_change_javascript,
+				"validate_time_insert(this)" );
+		}
+		else
+		{
+			*post_change_javascript = (char *)0;
+		}
+
+		element->text =
+			element_text_new(
+				strdup( element_name ) /* attribute_name */,
+				(char *)0 /* datatype_name */,
+				folder_attribute->
+					attribute->
+					width /* attribute_width_max_length */,
+				0 /* not null_to_slash */,
+				0 /* not prevent_carrot */,
+				post_change_javascript /* on_change */,
+				(char *)0 /* on_focus */,
+				(char *)0 /* on_keyup */,
+				-1 /* tab_order */,
+				1 /* recall */ );
+
+skip_attribute:
+
+		if ( !attribute->primary_key_index )
+		{
+			/* Create the ignore checkbox */
+			/* -------------------------- */
 			list_set(
 				element_list,
 				appaserver_element_new(
 					table_data,
-					(char *)0 ) );
+					(char *)0 );
 
-			list_set_list(
+			list_set(
 				element_list,
-				row_security_relation->element_list );
-		}
+				( element =
+					appaserver_element_new(
+						checkbox,
+						(char *)0 ) );
 
-		if ( attribute->primary_key_index )
-		{
-			printf( "*" );
-			primary_key_default_position = default_position;
-		}
-		else
-		{
-			primary_key_default_position = 0;
-		}
+			free( element->checkbox );
 
-		printf( "%s",
-			format_initial_capital( buffer,
-						attribute->attribute_name ) );
-		if ( attribute->hint_message
-		&&   *attribute->hint_message )
-		{
-			printf( "(%s)", attribute->hint_message );
-		}
-
-		printf( "</td>\n" );
-		printf(
-	"<td><input name=%s%s type=text size=3 value=%d\n"
-	" onChange=\"after_field('%s%s','%s%s',%d)\"></td>\n",
-			POSITION_PREFIX,
-			attribute->attribute_name,
-			default_position,
-			POSITION_PREFIX,
-			attribute->attribute_name,
-			CONSTANT_PREFIX,
-			attribute->attribute_name,
-			primary_key_default_position );
-
-		/* If drop-down element */
-		/* -------------------- */
-		if ( element )
-		{
 			sprintf(post_change_javascript,
-				"after_field('%s%s','%s%s',%d)",
-				POSITION_PREFIX,
-				attribute->attribute_name,
-				CONSTANT_PREFIX,
-				attribute->attribute_name,
-				primary_key_default_position );
+				"after_ignore(this, '%s%s','%s%s')",
+				GENERIC_LOAD_POSITION_PREFIX,
+				folder_attribute->attribute_name,
+				GENERIC_LOAD_CONSTANT_PREFIX,
+				folder_attribute->attribute_name );
 
-			element_drop_down_output(
-				stdout,
-				element->name,
-				element->drop_down->option_data_list,
-				element->drop_down->option_label_list,
-				element->drop_down->number_columns,
-				element->drop_down->multi_select,
-				-1 /* row */,
-				element->drop_down->initial_data,
-				element->drop_down->output_null_option,
-				element->drop_down->output_not_null_option,
-				element->drop_down->output_select_option,
-				post_change_javascript,
-				element->drop_down->max_drop_down_size,
-				element->drop_down->multi_select_element_name,
-				element->drop_down->onblur_javascript_function,
-				(char *)0 /* background_color */,
-				element->drop_down->date_piece_offset,
-				element->drop_down->no_initial_capital,
-				element->drop_down->readonly,
-				0 /* tab_index */,
-				element->drop_down->state );
-			fflush( stdout );
+			sprintf(element_name,
+				%s%s",
+				GENERIC_LOAD_IGNORE_PREFIX,
+				folder_attribute->attribute_name );
+
+			element->checkbox =
+				element_checkbox_new(
+					(char *)0 /* attribute_name */,
+					strdup( element_name ),
+					"Ignore" /* prompt_string */,
+					strdup( post_change_javascript )
+						/* on_click */,
+					-1 /* tab_order */,
+					(char *)0 /* image_source */,
+					1 /* recall */ );
 		}
-		else
-		/* ------------------ */
-		/* Else field element */
-		/* ------------------ */
-		{
-			printf(
-	"<td><input name=%s%s type=text size=20 maxlength=%d"
-	" onChange=\"after_field('%s%s','%s%s',%d)",
-				CONSTANT_PREFIX,
-				attribute->attribute_name,
-				attribute->width,
-				POSITION_PREFIX,
-				attribute->attribute_name,
-				CONSTANT_PREFIX,
-				attribute->attribute_name,
-				primary_key_default_position );
-
-			if ( strcmp( attribute->datatype, "time" ) == 0)
-				printf( " && validate_time_insert(this)" );
-			printf( "\"></td>\n" );
-		}
-
-		if ( !attribute->primary_key_index )
-		{
-			printf(
-	"<td><input name=ignore_%s type=checkbox value=yes"
-	" onChange=\"after_ignore(this, '%s%s','%s%s')\">"
-	"Ignore</td>\n",
-				attribute->attribute_name,
-				POSITION_PREFIX,
-				attribute->attribute_name,
-				CONSTANT_PREFIX,
-				attribute->attribute_name );
-		}
-
-		default_position++;
 
 	} while( list_next( attribute_list ) );
 
@@ -2203,10 +2214,9 @@ LIST *generic_load_buttons_element_list( void )
 	/* --------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
 
 	list_set(
 		element_list,
@@ -2227,10 +2237,9 @@ LIST *generic_load_buttons_element_list( void )
 	/* -------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2277,10 +2286,9 @@ LIST *generic_load_upload_element_list(
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2289,19 +2297,13 @@ LIST *generic_load_upload_element_list(
 				non_edit_text,
 				(char *)0 /* element_name */ ) ) );
 
-	free( element->non_edit_text );
-
-	element->non_edit_text =
-		element_non_edit_text_new(
-			(char *)0 /* attribute_name */,
-			"Filename" /* message */ );
+	element->non_edit_text->message = "Filename";
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2343,10 +2345,9 @@ LIST *generic_load_skip_header_rows_element_list(
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2359,10 +2360,9 @@ LIST *generic_load_skip_header_rows_element_list(
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2376,10 +2376,9 @@ LIST *generic_load_skip_header_rows_element_list(
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2407,11 +2406,9 @@ LIST *generic_load_execute_checkbox_element_list( void )
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
 
 	list_set(
 		element_list,
@@ -2482,7 +2479,120 @@ LIST *generic_load_dialog_box_element_list( void )
 				table_heading,
 				(char *)0 /* element_name */ ) ) );
 
+	element->table_heading->heading_string = "Ignore";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
 	element->table_heading->heading_string = "Constant";
+
+	return element_list;
+}
+
+LIST *generic_load_position_element_list(
+			char *attribute_name,
+			int primary_key_index,
+			char *hint_message,
+			int position )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+	int primary_key_default_position;
+	char buffer[ 256 ];
+	char element_name[ 256 ];
+	char message[ 256 ];
+	char *ptr = message;
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Set the attribute label */
+	/* ----------------------- */
+	if ( primary_key_index )
+	{
+		ptr += sprintf( ptr, "*" );
+		primary_key_default_position = default_position;
+	}
+	else
+	{
+		primary_key_default_position = 0;
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s",
+		format_initial_capital(
+			buffer,
+			attribute_name ) );
+
+	if ( hint_message && *hint_message )
+	{
+		ptr += sprintf(
+			ptr,
+			"(%s)",
+			hint_message );
+	}
+
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->non_edit_text->message = strdup( message );
+
+	/* Set the position */
+	/* ---------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				text,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->text );
+
+	sprintf(element_name,
+		"%s%s",
+		GENERIC_LOAD_POSITION_PREFIX,
+		attribute_name );
+
+	element->text =
+		element_text_new(
+			element_name /* attribute_name */,
+			(char *)0 /* datatype_name */,
+			3 /* attribute_width_max_length */,
+			0 /* not null_to_slash */,
+			0 /* not prevent_carrot */,
+			(char *)0 /* on_change */,
+			(char *)0 /* on_focus */,
+			(char *)0 /* on_keyup */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	sprintf( buffer, "%d", position );
+	element->text->value = strdup( buffer );
 
 	return element_list;
 }

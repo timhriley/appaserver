@@ -43,7 +43,8 @@ EXECUTABLES=								\
 		output_group						\
 		add_column						\
 		generic_load						\
-		post_generic_load					\
+		post_generic_load_choose				\
+		post_generic_load_folder				\
 		merge_purge						\
 		alter_column_datatype					\
 		rename_table						\
@@ -189,7 +190,8 @@ clean:
 	${CGI_HOME}/post_choose_process					\
 	${CGI_HOME}/post_edit_table					\
 	${CGI_HOME}/post_insert_table					\
-	${CGI_HOME}/post_generic_load					\
+	${CGI_HOME}/post_generic_load_choose				\
+	${CGI_HOME}/post_generic_load_folder				\
 	${CGI_HOME}/post_merge_purge					\
 	${CGI_HOME}/post_maintain_user_account				\
 	${CGI_HOME}/post_prompt_process					\
@@ -1212,18 +1214,32 @@ post_choose_folder: post_choose_folder.c 				\
 	${APPASERVER_HOME}/src_appaserver/post_choose_folder		\
 	${CGI_HOME}
 
-post_generic_load: post_generic_load.c					\
+post_generic_load_choose: post_generic_load_choose.c			\
 		${EXTERNAL_LIBS} ${LIB}/generic_load.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/generic_load.o					\
-		post_generic_load.c					\
-		-o post_generic_load
-	touch ${CGI_HOME}/post_generic_load
-	/bin/rm -f ${CGI_HOME}/post_generic_load
+		post_generic_load_choose.c				\
+		-o post_generic_load_choose
+	touch ${CGI_HOME}/post_generic_load_choose
+	/bin/rm -f ${CGI_HOME}/post_generic_load_choose
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_generic_load		\
+	${APPASERVER_HOME}/src_appaserver/post_generic_load_choose	\
+	${CGI_HOME}
+
+post_generic_load_folder: post_generic_load_folder.c			\
+		${EXTERNAL_LIBS} ${LIB}/generic_load.o
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		${LIB}/generic_load.o					\
+		post_generic_load_folder.c				\
+		-o post_generic_load_folder
+	touch ${CGI_HOME}/post_generic_load_folder
+	/bin/rm -f ${CGI_HOME}/post_generic_load_folder
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_appaserver/post_generic_load_folder	\
 	${CGI_HOME}
 
 post_merge_purge: post_merge_purge.c					\
