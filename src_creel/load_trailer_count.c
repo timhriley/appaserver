@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_creel/load_trailer_count.c			*/
+/* $APPASERVER_HOME/src_creel/load_trailer_count.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -62,31 +62,24 @@ int main( int argc, char **argv )
 	int trailer_count_record_count = 0;
 	int results;
 
-	if ( argc != 5 )
+	application_name = environ_exit_application_name( argv[ 0 ] );
+
+	appaserver_output_starting_argv_append_file(
+		argc,
+		argv,
+		application_name );
+
+	if ( argc != 4 )
 	{
 		fprintf( stderr, 
-"Usage: %s application process filename really_yn\n",
+"Usage: %s process filename really_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	application_name = argv[ 1 ];
-	process_name = argv[ 2 ];
-	input_filename = argv[ 3 ];
-	really_yn = *argv[ 4 ];
-
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-
-	appaserver_error_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+	process_name = argv[ 1 ];
+	input_filename = argv[ 2 ];
+	really_yn = *argv[ 3 ];
 
 	add_dot_to_path();
 	add_utility_to_path();
