@@ -22,8 +22,31 @@
 
 typedef struct
 {
-	char *tag_html;
+	LIST *row_security_relation_list;
 	LIST *element_list;
+} GENERIC_LOAD_FOLDER_ELEMENT_LIST;
+
+/* GENERIC_LOAD_FOLDER_ELEMENT_LIST operations */
+/* ------------------------------------------- */
+GENERIC_LOAD_FOLDER_ELEMENT_LIST *
+	generic_load_folder_element_list_new(
+			char *generic_load_folder_prompt_html,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *generic_load_upload_label,
+			char *generic_load_skip_header_rows,
+			char *login_name  );
+
+GENERIC_LOAD_FOLDER_ELEMENT_LIST *generic_load_folder_element_list_calloc(
+			void );
+
+typedef struct
+{
+	char *tag_html;
+
+	GENERIC_LOAD_FOLDER_ELEMENT_LIST *
+		generic_load_folder_element_list;
+
 	char *html;
 } GENERIC_LOAD_FOLDER_FORM;
 
@@ -33,7 +56,8 @@ GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
 			char *generic_load_folder_prompt_html,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
-			char *generic_load_folder_post_action_string );
+			char *generic_load_folder_post_action_string,
+			char *login_name );
 
 LIST *generic_load_folder_form_element_list(
 			char *generic_load_folder_prompt_html,
@@ -337,5 +361,22 @@ void generic_load_set_international_date(
 int generic_load_get_position_integer(	DICTIONARY *position_dictionary,
 				char *attribute_name,
 				char *related_attribute_name );
+
+/* Private */
+/* ------- */
+LIST *generic_load_buttons_element_list(
+			void );
+
+LIST *generic_load_upload_element_list(
+			char *generic_load_upload_label );
+
+LIST *generic_load_skip_header_rows_element_list(
+			char *generic_load_skip_header_rows );
+
+LIST *generic_load_execute_checkbox_element_list(
+			void );
+
+LIST *generic_load_dialog_box_element_list(
+			void );
 
 #endif

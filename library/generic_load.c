@@ -24,6 +24,7 @@
 #include "form.h"
 #include "frameset.h"
 #include "element.h"
+#include "row_security.h"
 #include "generic_load.h"
 
 GENERIC_LOAD *generic_load_new( void )
@@ -1904,7 +1905,8 @@ GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
 			char *prompt_html,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
-			char *post_action_string )
+			char *post_action_string,
+			char *login_name )
 {
 	GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form =
 		generic_load_folder_form_calloc();
@@ -1915,18 +1917,19 @@ GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
 			post_action_string,
 			FRAMESET_EDIT_FRAME /* target_frame */ );
 
-	generic_load_folder_form->element_list =
-		generic_load_folder_form_element_list(
+	generic_load_folder_form->generic_load_folder_element_list =
+		generic_load_folder_element_list_new(
 			prompt_html,
 			folder_attribute_list,
 			relation_mto1_non_isa_list,
 			GENERIC_LOAD_UPLOAD_LABEL,
-			GENERIC_LOAD_SKIP_HEADER_ROWS );
+			GENERIC_LOAD_SKIP_HEADER_ROWS,
+			login_name );
 
 	generic_load_folder_form->html =
 		generic_load_folder_form_html(
 			generic_load_folder_form->tag_html,
-			generic_load_folder_form->element_list,
+			generic_load_folder_element_list->html,
 			form_close_html() );
 
 	return generic_load_folder_form;
@@ -1966,366 +1969,106 @@ GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_calloc(
 	return generic_load_folder_form;
 }
 
-LIST *generic_load_folder_form_element_list(
+GENERIC_LOAD_FOLDER_ELEMENT_LIST *
+	generic_load_folder_element_list_new(
 			char *generic_load_folder_prompt_html,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_listd,
 			char *generic_load_upload_label,
-			char *generic_load_skip_header_rows )
+			char *generic_load_skip_header_rows,
+			char *login_name )
 {
-	RELATION *relation;
+	ROW_SECURITY_RELATION *row_security_relation;
 	FOLDER_ATTRIBUTE *folder_attribute;
 	int default_position = 1;
 	int primary_key_default_position;
 	char buffer[ 256 ];
 	char post_change_javascript[ 128 ];
 	APPASERVER_ELEMENT *element;
+	LIST *row_security_relation_list = {0};
 	LIST *element_list = list_new();
 
-	/* Create the buttons table */
-	/* ------------------------ */
-	list_set(
+	if ( !list_length( folder_attribute_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	list_set_list(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_open,
-				(char *)0 /* element_name */ ) ) );
+		generic_load_buttons_element_list() );
 
-	list_set(
+	list_set_list(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
+		generic_load_upload_element_list(
+			generic_load_upload_label ) );
 
-	/* Create <Submit> */
-	/* --------------- */
-	list_set(
+	list_set_list(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		generic_load_skip_header_rows_element_list(
+			generic_load_skip_header_rows ) );
 
-	list_set(
+	list_set_list(
 		element_list,
-		( element =
-			appaserver_element_new(
-				button,
-				(char *)0 /* element_name */ ) ) );
+		generic_load_execute_checkbox_element_list() );
 
-	element->button->button =
-		button_submit(
-			(char *)0 /* multi_select_all_javascript */,
-			(char *)0 /* keystrokes_save_javascript */,
-			(char *)0 /* keystrokes_multi_save_javascript */,
-			(char *)0 /* verify_attribute_widths_javascript */,
-			0 /* form_number */ );
-
-	/* Create <Reset> */
-	/* -------------- */
-	list_set(
+	list_set_list(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		generic_load_dialog_box_element_list() );
 
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				button,
-				(char *)0 /* element_name */ ) ) );
-
-	element->button->button =
-		button_reset(
-			(char *)0 /* javascript_replace */,
-			0 /* form_number */ );
-
-	list_set(
-		element_list,
-		( element = appaserver_element_new(
-				table_close,
-				(char *)0 /* element_name */ ) ) );
-
-	/* Create the filename table */
-	/* ------------------------- */
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_open,
-				(char *)0 /* element_name */ ) ) );
-
-	/* Create the filename prompt */
-	/* -------------------------- */
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				non_edit_text,
-				(char *)0 /* element_name */ ) ) );
-
-	free( element->non_edit_text );
-
-	element->non_edit_text =
-		element_non_edit_text_new(
-			(char *)0 /* attribute_name */,
-			"Filename" /* message */ );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				upload,
-				(char *)0 /* element_name */ ) ) );
-
-	free( element->upload );
-
-	element->upload =
-		element_upload_new(
-			generic_load_upload_label /* attribute_name */,
-			-1 /* tab_order */,
-			1 /* recall */ );
-
-	element->upload->html =
-		element_upload_insert_html(
-			generic_load_upload_label /* element_name */,
-			-1 /* tab_order */ );
-
-	/* Create skip header rows */
-	/* ----------------------- */
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				non_edit_text,
-				(char *)0 /* element_name */ ) ) );
-
-	element->non_edit_text->message = "Skip Header Rows";
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				text,
-				(char *)0 /* element_name */ ) ) );
-
-	element->text->attribute_name = generic_load_skip_header_rows;
-	element->text->attribute_width_max_length = 3;
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				non_edit_text,
-				(char *)0 /* element_name */ ) ) );
-
-	element->non_edit_text->message = "How many header rows to skip?";
-
-	/* Create the execute checkbox */
-	/* --------------------------- */
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
-
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				checkbox,
-				(char *)0 /* element_name */ ) ) );
-
-	element->checkbox->prompt_string = "Execute?";
-	element->checkbox->element_name = "execute_yn";
-
-	list_set(
-		element_list,
-		( element = appaserver_element_new(
-				table_close,
-				(char *)0 /* element_name */ ) ) );
-
-	/* Create the dialog box table */
-	/* --------------------------- */
-	list_set(
-		element_list,
-		( element = appaserver_element_new(
-				line_break,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_open,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_heading,
-				(char *)0 /* element_name */ ) ) );
-
-	element->table_heading->heading_string = "Attribute";
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_heading,
-				(char *)0 /* element_name */ ) ) );
-
-	element->table_heading->heading_string = "Position";
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_heading,
-				(char *)0 /* element_name */ ) ) );
-
-	element->table_heading->heading_string = "Constant";
-
-	list_rewind( attribute_list );
+	list_rewind( folder_attribute_list );
 
 	do {
-		attribute = list_get( attribute_list );
+		folder_attribute = list_get( folder_attribute_list );
 
-		element = (APPASERVER_ELEMENT *)0;
-
-		if ( ( relation =
-	       		relation_consumes(
-				attribute->attribute_name,
-				relation_mto1_non_isa_list ) ) )
+		if ( ( row_security_relation =
+			row_security_relation_new(
+				folder_attribute->attribute_name,
+				relation_mto1_non_isa_list,
+				(char *)0 /* post_change_javascript */,
+				(DICTIONARY *)0 /* drillthru_dictionary */,
+				login_name,
+				(char *)0 /* security_entity_where */,
+				0 /* not viewonly */,
+				row_security_relation_list ) ) )
 		{
-			char element_name[ 128 ];
-
-			relation->
-			one_folder->
-			primary_key_list =
-				folder_get_primary_key_list(
-					related_folder->
-						folder->
-						attribute_list );
-
 			if ( list_length(
-					related_folder->
-					folder->
-					primary_key_list ) == 1 )
+				row_security_relation->
+					relation->
+					foreign_key_list ) > 1 )
 			{
-				sprintf(element_name,
-					"constant_%s",
-					attribute->attribute_name );
-
-				element = element_appaserver_new(
-						drop_down,
-						strdup( element_name ) );
-
-			element->drop_down->option_data_list =
-				folder_primary_data_list(
-					application_name,
-					BOGUS_SESSION,
-					related_folder->
-						folder->
-						folder_name,
-					login_name,
-					(DICTIONARY *)0
-						/* parameter_dictionary */,
-					(DICTIONARY *)0
-						/* where_clause_dictionary */,
-					MULTI_ATTRIBUTE_DROP_DOWN_DELIMITER,
-					related_folder->
-						folder->
-						populate_drop_down_process,
-					related_folder->
-						folder->attribute_list,
-					(LIST *)0
-					/* common_non_pr...bute_name_list */,
-					related_folder->
-						folder->
-						row_level_non_owner_forbid,
-					(LIST *)0
-					/* preprompt_accou...e_name_list */,
-					role_name,
-					(char *)0 /* state */,
-					(char *)0
-					/* one2m_folder_name_for_processes */,
-					(char *)0,
-					/* appaserver_user_foreign_login_name */
-					0 /* not include_root_folder */ );
+				goto skip_relation;
 			}
-		}
 
-		printf( "<tr><td>" );
+			if ( !row_security_relation_list )
+			{
+				row_security_relation_list = list_new();
+			}
+
+			list_set(
+				row_security_relation_list,
+				row_security_relation);
+
+			list_set(
+				element_list,
+				appaserver_element_new(
+					table_row,
+					(char *)0 ) );
+
+			list_set(
+				element_list,
+				appaserver_element_new(
+					table_data,
+					(char *)0 ) );
+
+			list_set_list(
+				element_list,
+				row_security_relation->element_list );
+		}
 
 		if ( attribute->primary_key_index )
 		{
@@ -2437,3 +2180,309 @@ LIST *generic_load_folder_form_element_list(
 	return element_list;
 }
 
+LIST *generic_load_buttons_element_list( void )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create <Submit> */
+	/* --------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button =
+		button_submit(
+			(char *)0 /* multi_select_all_javascript */,
+			(char *)0 /* keystrokes_save_javascript */,
+			(char *)0 /* keystrokes_multi_save_javascript */,
+			(char *)0 /* verify_attribute_widths_javascript */,
+			0 /* form_number */ );
+
+	/* Create <Reset> */
+	/* -------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				button,
+				(char *)0 /* element_name */ ) ) );
+
+	element->button->button =
+		button_reset(
+			(char *)0 /* javascript_replace */,
+			0 /* form_number */ );
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	return element_list;
+}
+
+LIST *generic_load_upload_element_list(
+			char *generic_load_upload_label )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	/* Create the filename prompt */
+	/* -------------------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->non_edit_text );
+
+	element->non_edit_text =
+		element_non_edit_text_new(
+			(char *)0 /* attribute_name */,
+			"Filename" /* message */ );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				upload,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->upload );
+
+	element->upload =
+		element_upload_new(
+			generic_load_upload_label /* attribute_name */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	element->upload->html =
+		element_upload_insert_html(
+			generic_load_upload_label /* element_name */,
+			-1 /* tab_order */ );
+
+	return element_list;
+}
+
+LIST *generic_load_skip_header_rows_element_list(
+			char *generic_load_upload_label )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	/* Create skip header rows */
+	/* ----------------------- */
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->non_edit_text->message = "Skip Header Rows";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->text->attribute_name = generic_load_skip_header_rows;
+	element->text->attribute_width_max_length = 3;
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				non_edit_text,
+				(char *)0 /* element_name */ ) ) );
+
+	element->non_edit_text->message = "How many header rows to skip?";
+
+	return element_list;
+}
+
+LIST *generic_load_execute_checkbox_element_list( void )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* element_name */ ) ) );
+
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				checkbox,
+				(char *)0 /* element_name */ ) ) );
+
+	element->checkbox->prompt_string = "Execute?";
+	element->checkbox->element_name = "execute_yn";
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				table_close,
+				(char *)0 /* element_name */ ) ) );
+
+	return element_list;
+}
+
+LIST *generic_load_dialog_box_element_list( void )
+{
+	LIST *element_list = list_new();
+	APPASERVER_ELEMENT *element;
+
+	list_set(
+		element_list,
+		( element = appaserver_element_new(
+				line_break,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_heading->heading_string = "Attribute";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_heading->heading_string = "Position";
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_heading,
+				(char *)0 /* element_name */ ) ) );
+
+	element->table_heading->heading_string = "Constant";
+
+	return element_list;
+}
