@@ -10,262 +10,93 @@
 #include <string.h>
 #include <ctype.h>
 #include <unistd.h>
-#include "timlib.h"
-#include "list.h"
-#include "piece.h"
-#include "column.h"
-#include "appaserver_library.h"
-#include "appaserver_error.h"
-#include "appaserver.h"
-#include "attribute.h"
-#include "environ.h"
-#include "application.h"
-#include "boolean.h"
-#include "document.h"
-#include "appaserver_parameter_file.h"
-#include "post2dictionary.h"
-#include "appaserver_user.h"
-#include "dictionary.h"
+#include "post_dictionary.h"
 #include "session.h"
-#include "role.h"
-#include "date.h"
 #include "generic_load.h"
-
-/* Prototypes */
-/* ---------- */
-void post_generic_load_choose(	char *application_name,
-				char *session,
-				char *role_name,
-				char *folder_name,
-				LIST *attribute_list,
-				char *login_name );
-
-void post_state_two(		char *application_name,
-				char *session,
-				char *role_name,
-				char *folder_name,
-				char *appaserver_data_directory,
-				char *login_name );
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
-	char *role_name, *state;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char title[ 256 ];
-	LIST *attribute_list;
-	char buffer[ 256 ];
-	char *database_string = {0};
-	DOCUMENT *document;
-	int with_dynarch_menu;
+	char *application_name;
+	char *login_name;
+	char *session_key;
+	char *process_name;
+	char *role_name;
+	SESSION *session;
+	POST_DICTIONARY *post_dictionary;
+	GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post;
 
 	if ( argc != 6 )
 	{
-		fprintf( stderr, 
-"Usage: %s application session role folder state\n",
-		argv[ 0 ] );
+		fprintf(stderr, 
+		"Usage: %s application login_name session process role\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	session = argv[ 2 ];
-	role_name = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	state = argv[ 5 ];
+	login_name = argv[ 2 ];
+	session_key = argv[ 3 ];
+	process_name = argv[ 4 ];
+	role_name = argv[ 5 ];
 
-	if ( timlib_parse_database_string(	&database_string,
-						application_name ) )
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			database_string );
-	}
-	else
-	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-			application_name );
-	}
-
-	add_src_appaserver_to_path();
-	environ_set_utc_offset( application_name );
-
-	appaserver_output_starting_argv_append_file(
+	if ( ! ( session =
+			session_process_integrity_exit(
 				argc,
 				argv,
-				application_name );
-
-	environ_prepend_dot_to_path();
-	add_utility_to_path();
-	add_relative_source_directory_to_path( application_name );
-	environ_appaserver_home();
-
-	login_name = session_get_login_name(
 				application_name,
-				session );
-
-	if ( session_remote_ip_address_changed(
-		application_name,
-		session ) )
-	{
-		session_message_ip_address_changed_exit(
-				application_name,
-				login_name );
-	}
-
-	if ( !login_name || !session_access_folder(
-				application_name,
-				session,
-				folder_name,
-				role_name,
-				"insert" ) )
-	{
-		session_access_failed_message_and_exit(
-					application_name, session, login_name );
-	}
-
-	if ( !appaserver_user_exists_role(
-		login_name,
-		role_name ) )
-	{
-		session_access_failed_message_and_exit(
-				application_name, session, login_name );
-	}
-
-	session_update_access_date_time( application_name, session );
-	appaserver_library_purge_temporary_files( application_name );
-
-	appaserver_parameter_file = appaserver_parameter_file_new();
-
-	document = document_new(
-				application_title_string(
-					application_name ),
-				application_name );
-
-	document->output_content_type = 1;
-
-	with_dynarch_menu =
-		appaserver_frameset_menu_horizontal(
-			application_name,
-			login_name );
-
-	document_set_javascript_module( document, "timlib" );
-	document_set_javascript_module( document, "validate_date" );
-	document_set_javascript_module( document, "post_generic_load" );
-
-	if ( strcmp( state, "one" ) == 0 && with_dynarch_menu )
-	{
-		char sys_string[ 1024 ];
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			with_dynarch_menu );
-
-		document_output_dynarch_html_body(
-				DOCUMENT_DYNARCH_MENU_ONLOAD_CONTROL_STRING,
-				document->onload_control_string );
-
-		printf( "<ul id=menu>\n" );
-
-		sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' '%s' '%s' '%s' %c %c 2>>%s",
-				application_name,
-				session,
 				login_name,
-				role_name,
-				"" /* title */,
-				'n' /* not content_type_yn */,
-				'y' /* omit_html_head_yn */,
-				appaserver_error_get_filename(
-					application_name ) );
-
-		fflush( stdout );
-		system( sys_string );
-		fflush( stdout );
-		printf( "</ul>\n" );
-	}
-	else
+				session_key,
+				process_name,
+				role_name ) ) )
 	{
-		with_dynarch_menu = 0;
-
-		document_output_head(
-			document->application_name,
-			document->title,
-			document->output_content_type,
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			document->javascript_module_list,
-			document->stylesheet_filename,
-			application_relative_source_directory(
-				application_name ),
-			with_dynarch_menu );
-
-		document_output_body(
-			document->application_name,
-			document->onload_control_string );
-	}
-
-	sprintf( title,
-		 "%s Load %s",
-		 application_title_string( application_name ),
-		 format_initial_capital( buffer,
-					 folder_name ) );
-
-	printf( "<h1>%s</h1>\n", title );
-
-	attribute_list =
-	attribute_get_attribute_list(
-		application_name,
-		folder_name,
-		(char *)0 /* attribute_name */,
-		(LIST *)0 /* mto1_isa_related_folder_list */,
-		role_name );
-
-	if ( !list_rewind( attribute_list ) )
-	{
-		printf( 
-	"<h4> Error: there are no attributes assigned folder = %s.</h4>\n",
-			folder_name );
-		document_close();
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: session_process_integrity_exit(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			process_name );
 		exit( 1 );
 	}
 
-	fflush( stdout );
 
-	if ( strcmp( state, "one" ) == 0 )
+	if ( ! ( post_dictionary =
+			post_dictionary_stdin_new(
+				(char *)0 /* upload_directory */,
+				session_key ) ) )
 	{
-		post_state_one(	application_name,
-				session,
-				role_name,
-				folder_name,
-				attribute_list,
-				login_name );
-	}
-	else
-	if ( strcmp( state, "two" ) == 0 )
-	{
-		post_state_two(	application_name,
-				session,
-				role_name,
-				folder_name,
-				appaserver_parameter_file->
-					appaserver_data_directory,
-				login_name );
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: post_dictionary_stdin_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	document_close();
+	generic_load_choose_post =
+		generic_load_choose_post_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			post_dictionary->working_post_dictionary );
+
+	if ( !generic_load_choose_post )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: generic_load_choose_post_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	if ( system( generic_load_choose_post->system_string ) ){}
+
 	return 0;
+}
 
-} /* main() */
-
+#ifdef NOT_DEFINED
 void post_state_one(	char *application_name,
 			char *session,
 			char *role_name,
@@ -675,3 +506,4 @@ void post_state_two(	char *application_name,
 	}
 
 } /* post_state_two() */
+#endif

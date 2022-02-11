@@ -170,7 +170,7 @@ int main( int argc, char **argv )
 	document_close();
 
 	exit( 0 );
-} /* main() */
+}
 
 #define DELETE_FIELD_LIST	"date,parking_lot"
 
@@ -304,7 +304,7 @@ void delete_trailer_count(	char *application_name,
 	fclose( input_file );
 	pclose( delete_pipe );
 
-} /* delete_trailer_count() */
+}
 
 #define INSERT_FIELD_LIST	"date,parking_lot,trailer_count"
 
@@ -515,7 +515,7 @@ void insert_trailer_count(	int *trailer_count_record_count,
 	sprintf( sys_string, "rm %s", error_filename );
 	results = system( sys_string );
 
-} /* insert_trailer_count() */
+}
 
 boolean parking_lot_exists(	char *application_name,
 				char *parking_lot )
@@ -532,5 +532,5 @@ boolean parking_lot_exists(	char *application_name,
 		 application_name,
 		 where );
 	return atoi( pipe2string( sys_string ) );
-} /* parking_lot_exists() */
+}
 

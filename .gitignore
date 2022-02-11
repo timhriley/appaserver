@@ -313,6 +313,7 @@ output_histogram
 output_group
 add_column
 generic_load
+generic_load_folder
 post_generic_load_choose
 post_generic_load_folder
 merge_purge

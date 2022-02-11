@@ -461,10 +461,13 @@ SESSION *session_folder_integrity_exit(
 			login_name );
 	}
 
-	appaserver_error_argv_append_file(
-		argc,
-		argv,
-		session->sql_injection_escape_application_name );
+	if ( argc )
+	{
+		appaserver_error_argv_append_file(
+			argc,
+			argv,
+			session->sql_injection_escape_application_name );
+	}
 
 	if ( session_remote_ip_address_changed(
 		session->remote_ip_address,

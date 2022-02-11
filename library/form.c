@@ -1694,7 +1694,7 @@ char *form_element_list_html(
 			LIST *element_list,
 			char *form_close_html )
 {
-	char html[ STRING_64K ];
+	char html[ STRING_FOUR_MEG ];
 	char *tmp;
 
 	if (	!tag_html

@@ -1,9 +1,9 @@
-/* --------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_appaserver/generic_load.c 	*/
-/* --------------------------------------------------- 	*/
-/* 						       	*/
-/* Freely available software: see Appaserver.org	*/
-/* --------------------------------------------------- 	*/
+/* ----------------------------------------------------- 	*/
+/* $APPASERVER_HOME/src_appaserver/generic_load_folder.c 	*/
+/* ----------------------------------------------------- 	*/
+/* 						       		*/
+/* Freely available software: see Appaserver.org		*/
+/* ----------------------------------------------------- 	*/
 
 /* Includes */
 /* -------- */
@@ -22,31 +22,34 @@ int main( int argc, char **argv )
 	char *session_key;
 	char *process_name;
 	char *role_name;
+	char *folder_name;
 	boolean menu_horizontal;
-	GENERIC_LOAD_CHOOSE *generic_load_choose;
+	GENERIC_LOAD_FOLDER *generic_load_folder;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
-	if ( argc != 5 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-			"Usage: %s login session process role\n",
+			"Usage: %s login session process role folder\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 2 ];
-	role_name = argv[ 3 ];
-	process_name = argv[ 4 ];
+	session_key = argv[ 2 ];
+	process_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	folder_name = argv[ 5 ];
 
-	generic_load_choose =
-		generic_load_choose_new(
+	generic_load_folder =
+		generic_load_folder_new(
 			application_name,
 			login_name,
 			session_key,
 			process_name,
 			role_name,
+			folder_name,
 			menu_boolean(
 				FRAMESET_PROMPT_FRAME /* current_frame */,
 				( menu_horizontal =
@@ -54,14 +57,15 @@ int main( int argc, char **argv )
 						application_name,
 						login_name ) ) ) );
 
-	if ( !generic_load_choose )
+	if ( !generic_load_folder )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: generic_load_choose_new(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: generic_load_folder_new(%s/%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			login_name );
+			login_name,
+			folder_name );
 		exit( 1 );
 	}
 
@@ -70,7 +74,7 @@ int main( int argc, char **argv )
 		document_output_content_type();
 	}
 
-	printf( "%s\n", generic_load_choose->html );
+	printf( "%s\n", generic_load_folder->html );
 
 	return 0;
 }

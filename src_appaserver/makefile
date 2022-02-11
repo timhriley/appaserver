@@ -43,6 +43,7 @@ EXECUTABLES=								\
 		output_group						\
 		add_column						\
 		generic_load						\
+		generic_load_folder					\
 		post_generic_load_choose				\
 		post_generic_load_folder				\
 		merge_purge						\
@@ -588,6 +589,14 @@ generic_load: generic_load.c						\
 		${EXTERNAL_LIBS}					\
 		generic_load.c						\
 		-o generic_load
+
+generic_load_folder: generic_load_folder.c				\
+			${EXTERNAL_LIBS}
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		generic_load.c						\
+		-o generic_load_folder
 
 merge_purge: merge_purge.c						\
 			${EXTERNAL_LIBS}

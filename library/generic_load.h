@@ -11,6 +11,8 @@
 #include "folder_menu.h"
 #include "menu.h"
 #include "document.h"
+#include "element.h"
+#include "dictionary.h"
 #include "form.h"
 
 /* Constants */
@@ -19,37 +21,95 @@
 #define REPLACE_EXISTING_RECORDS_YN	"replace_existing_records_yn"
 #define GENERIC_LOAD_DROP_DOWN_NAME 	"generic_load_drop_down"
 #define GENERIC_LOAD_UPLOAD_LABEL 	"generic_load_upload"
-#define GENERIC_LOAD_CONSTANT_PREFIX	"constant_"
 #define GENERIC_LOAD_POSITION_PREFIX	"position_"
 #define GENERIC_LOAD_IGNORE_PREFIX	"ignore_"
 
 typedef struct
 {
-	LIST *row_security_relation_list;
+	char *folder_name;
+	char *system_string;
+} GENERIC_LOAD_CHOOSE_POST;
+
+/* GENERIC_LOAD_CHOOSE_POST operations */
+/* ----------------------------------- */
+
+GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *working_post_dictionary );
+
+/* Returns working_post_dictionary->hash_table->other_data */
+/* ------------------------------------------------------- */
+char *generic_load_choose_post_folder_name(
+			char *generic_load_drop_down_name,
+			DICTIONARY *working_post_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_choose_post_system_string(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *generic_load_choose_post_folder_name );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_calloc(
+			void );
+
+typedef struct
+{
 	LIST *element_list;
+	ROW_SECURITY_RELATION *row_security_relation;
+} GENERIC_LOAD_ATTRIBUTE_ELEMENT_LIST;
+
+/* GENERIC_LOAD_ATTRIBUTE_ELEMENT_LIST operations */
+/* ---------------------------------------------- */
+GENERIC_LOAD_ATTRIBUTE_ELEMENT_LIST *
+	generic_load_attribute_element_list_new(
+			LIST *relation_mto1_non_isa_list,
+			FOLDER_ATTRIBUTE *folder_attribute,
+			char *login_name,
+			int position );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_ATTRIBUTE_ELEMENT_LIST *
+	generic_load_attribute_element_list_calloc(
+			void );
+
+typedef struct
+{
+	LIST *element_list;
+	int position;
+
+	GENERIC_LOAD_ATTRIBUTE_ELEMENT_LIST *
+		generic_load_attribute_element_list;
+
 } GENERIC_LOAD_FOLDER_ELEMENT_LIST;
 
 /* GENERIC_LOAD_FOLDER_ELEMENT_LIST operations */
 /* ------------------------------------------- */
 GENERIC_LOAD_FOLDER_ELEMENT_LIST *
 	generic_load_folder_element_list_new(
-			char *generic_load_folder_prompt_html,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *generic_load_upload_label,
 			char *generic_load_skip_header_rows,
 			char *login_name  );
 
+/* Private */
+/* ------- */
 GENERIC_LOAD_FOLDER_ELEMENT_LIST *generic_load_folder_element_list_calloc(
 			void );
 
 typedef struct
 {
 	char *tag_html;
-
-	GENERIC_LOAD_FOLDER_ELEMENT_LIST *
-		generic_load_folder_element_list;
-
+	GENERIC_LOAD_FOLDER_ELEMENT_LIST *generic_load_folder_element_list;
 	char *html;
 } GENERIC_LOAD_FOLDER_FORM;
 
@@ -62,18 +122,12 @@ GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
 			char *generic_load_folder_post_action_string,
 			char *login_name );
 
-LIST *generic_load_folder_form_element_list(
-			char *generic_load_folder_prompt_html,
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *generic_load_upload_label,
-			char *generic_load_skip_header_rows );
-
 /* Returns heap memory */
 /* ------------------- */
 char *generic_load_folder_form_html(
 			char *tag_html,
-			LIST *generic_load_folder_form_element_list,
+			char *prompt_html,
+			char *generic_load_folder_element_list_html,
 			char *form_close_html );
 
 /* Private */
@@ -85,6 +139,7 @@ typedef struct
 {
 	char *tag_html;
 	LIST *element_list;
+	char *element_list_html;
 	char *html;
 } GENERIC_LOAD_CHOOSE_FORM;
 
@@ -105,9 +160,14 @@ LIST *generic_load_choose_form_element_list(
 
 /* Returns heap memory */
 /* ------------------- */
+char *generic_load_choose_form_element_list_html(
+			LIST *generic_load_choose_form_element_list );
+
+/* Returns heap memory */
+/* ------------------- */
 char *generic_load_choose_form_html(
 			char *tag_html,
-			LIST *generic_load_choose_form_element_list,
+			char *generic_load_choose_form_element_list_html,
 			char *form_close_html );
 
 typedef struct
@@ -139,6 +199,7 @@ char *generic_load_choose_post_action_string(
 			char *application_name,
 			char *login_name,
 			char *session_key,
+			char *process_name,
 			char *role_name );
 
 /* Return static memory */
@@ -164,44 +225,6 @@ char *generic_load_choose_html(
 /* Private */
 /* ------- */
 GENERIC_LOAD_CHOOSE *generic_load_choose_calloc(
-			void );
-
-typedef struct
-{
-	char *folder_name;
-	char *system_string;
-} GENERIC_LOAD_CHOOSE_POST;
-
-/* GENERIC_LOAD_CHOOSE_POST operations */
-/* ----------------------------------- */
-GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_new(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *working_post_dictionary );
-
-/* Process */
-/* ------- */
-
-/* Returns working_post_dictionary->hash_table->other_data or null */
-/* --------------------------------------------------------------- */
-char *generic_load_choose_post_folder_name,
-			char *generic_load_choose_drop_down_name,
-			DICTIONARY *working_post_dictionary );
-
-/* Returns heap memory */
-/* ------------------- */
-char *generic_load_choose_post_system_string(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *generic_load_choose_post_folder_name );
-
-/* Private */
-/* ------- */
-GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_calloc(
 			void );
 
 typedef struct
@@ -387,4 +410,26 @@ LIST *generic_load_position_element_list(
 			int primary_key_index,
 			char *hint_message,
 			int position );
+
+APPASERVER_ELEMENT *generic_load_prompt_element(
+			char *attribute_name,
+			int primary_key_index,
+			char *hint_message );
+
+APPASERVER_ELEMENT *generic_load_position_element(
+			char *attribute_name,
+			int position,
+			char *generic_load_position_prefix );
+
+APPASERVER_ELEMENT *generic_load_constant_element(
+			char *attribute_name,
+			char *datatype_name,
+			int width );
+
+APPASERVER_ELEMENT *generic_load_ignore_element(
+			char *attribute_name,
+			char *generic_load_position_prefix,
+			char *generic_load_ignore_prefix );
+
 #endif
+
