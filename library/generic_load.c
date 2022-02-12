@@ -44,53 +44,6 @@ GENERIC_LOAD *generic_load_new( void )
 	return generic_load;
 }
 
-GENERIC_LOAD_FOLDER *generic_load_folder_new( char *folder_name )
-{
-	GENERIC_LOAD_FOLDER *generic_load_folder;
-
-	generic_load_folder =
-		(GENERIC_LOAD_FOLDER *)
-			calloc( 1, sizeof( GENERIC_LOAD_FOLDER ) );
-	if ( !generic_load_folder )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	generic_load_folder->folder_name = folder_name;
-	generic_load_folder->generic_load_attribute_list = list_new();
-	generic_load_folder->primary_key_date_offset = -1;
-	generic_load_folder->primary_key_time_offset = -1;
-
-	return generic_load_folder;
-}
-
-GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
-			char *attribute_name,
-			boolean is_primary_key )
-{
-	GENERIC_LOAD_ATTRIBUTE *generic_load_attribute;
-
-	generic_load_attribute =
-		(GENERIC_LOAD_ATTRIBUTE *)
-			calloc( 1, sizeof( GENERIC_LOAD_ATTRIBUTE ) );
-	if ( !generic_load_attribute )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-
-	generic_load_attribute->attribute_name = attribute_name;
-	generic_load_attribute->is_primary_key = is_primary_key;
-	return generic_load_attribute;
-}
-
 #ifdef NOT_DEFINED
 FOLDER *generic_load_get_database_folder(
 			char *application_name,
@@ -1478,8 +1431,9 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 			application_name,
 			login_name,
 			session_key,
-			char *process_name,
-			role_name );
+			process_name,
+			role_name,
+			GENERIC_LOAD_CHOOSE_POST_EXECUTABLE );
 
 	generic_load_choose->prompt_html =
 		/* -------------------- */
@@ -1553,7 +1507,8 @@ char *generic_load_choose_post_action_string(
 			char *login_name,
 			char *session_key,
 			char *process_name,
-			char *role_name )
+			char *role_name,
+			char *choose_post_executable )
 {
 	char post_action_string[ 1024 ];
 
@@ -1561,7 +1516,8 @@ char *generic_load_choose_post_action_string(
 	||   !login_name
 	||   !session_key
 	||   !process_name
-	||   !role_name )
+	||   !role_name
+	||   !choose_post_executable )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1580,7 +1536,7 @@ char *generic_load_choose_post_action_string(
 				application_name ),
 			application_prepend_http_protocol_yn(
 				application_name ) ),
-		"generic_load_choose_post",
+		choose_post_executable,
 		application_name,
 		login_name,
 		session_key,
@@ -1620,6 +1576,7 @@ char *generic_load_choose_title_string(
 char *generic_load_choose_html(
 			char *document_html,
 			char *document_head_html,
+			char *document_head_close_html,
 			char *document_body_html,
 			char *form_generic_load_html,
 			char *document_body_close_html,
@@ -1629,6 +1586,7 @@ char *generic_load_choose_html(
 
 	if ( !document_html,
 	||   !document_head_html,
+	||   !document_head_close_html,
 	||   !document_body_html,
 	||   !form_generic_load_html,
 	||   !document_body_close_html,
@@ -1643,9 +1601,10 @@ char *generic_load_choose_html(
 	}
 
 	sprintf(html,
-		"%s\n%s\n%s\n%s\n%s\n%s",
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
 		document_html,
 		document_head_html,
+		document_head_close_html,
 		document_body_html,
 		form_generic_load_html,
 		document_body_close_html,
@@ -2854,5 +2813,245 @@ APPASERVER_ELEMENT *generic_load_ignore_element(
 			1 /* recall */ );
 
 	return element;
+}
+
+GENERIC_LOAD_FOLDER *generic_load_folder_new(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *folder_name,
+			boolean menu_boolean )
+{
+	GENERIC_LOAD_FOLDER *generic_load_folder =
+		generic_load_folder_calloc();
+
+	generic_load_folder->folder =
+		folder_fetch(
+			folder_name,
+			role_name,
+			(LIST *)0 /* exclude_lookup_attribute_name_list */,
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_non_isa_list */,
+			0 /* not fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* not fetch_relation_one2m_recursive_list */,
+			0 /* not fetch_process */,
+			1 /* fetch_role_folder_list */,
+			0 /* not fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
+
+	if ( generic_load_folder_forbid(
+		role_folder_insert(
+			generic_load_folder->folder->role_folder_list ) ) )
+	{
+		return (GENERIC_LOAD_FOLDER *)0;
+	}
+
+	if ( menu_boolean )
+	{
+		generic_load_folder->folder_menu =
+			folder_menu_fetch(
+				application_name,
+				session_key,
+				appaserver_parameter_data_directory(),
+				role_name );
+
+		generic_load_folder->menu =
+			menu_fetch(
+				application_name,
+				login_name,
+				session_key,
+				role_name,
+				FRAMESET_PROMPT_FRAME,
+				generic_load_folder->
+					folder_menu->
+					lookup_count_list );
+	}
+
+	generic_load_folder->post_action_string =
+		generic_load_folder_post_action_string(
+			application_name,
+			login_name,
+			session_key,
+			role_name,
+			folder_name,
+			GENERIC_LOAD_FOLDER_POST_EXECUTABLE );
+
+	generic_load_folder->prompt_html =
+		generic_load_folder_prompt_html(
+			folder_name );
+
+	generic_load_folder->title_string =
+		generic_load_folder_title_string(
+			folder_name );
+
+	generic_load_folder->document =
+		document_new(
+			application_name,
+			generic_load_folder->title_string,
+			(char *)0 /* subtitle_html */,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
+			menu_boolean,
+			generic_load_folder->menu,
+			document_head_menu_setup_string( 
+				menu_boolean ),
+			(char *)0 /* calendar_setup_string */,
+			(char *)0 /* javascript_include_string */,
+			(char *)0 /* input_onload_string */ );
+
+	generic_load_folder->generic_load_folder_form =
+		generic_load_folder_form_new(
+			generic_load_folder_prompt_html(),
+			generic_load_folder->
+				folder->
+				folder_attribute_list,
+			generic_load_folder->
+				folder->
+				relation_mto1_non_isa_list,
+			generic_load_folder_post_action_string(),
+			login_name );
+
+	generic_load_folder->html =
+		generic_load_folder_html(
+			generic_load_folder->document->html,
+			generic_load_folder->document->document_head->html,
+			document_head_close_html(),
+			generic_load_folder->document->document_body->html,
+			generic_load_folder->generic_load_folder_form->html,
+			document_body_close_html(),
+			document_close_html() );
+
+	free( generic_load_folder->generic_load_folder_form->html );
+
+	return generic_load_folder;
+}
+
+char *generic_load_folder_post_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *folder_name,
+			char *folder_post_executable )
+{
+	char post_action_string[ 1024 ];
+
+	if ( !application_name
+	||   !login_name
+	||   !session_key
+	||   !role_name
+	||   !folder_name
+	||   !folder_post_executable )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(post_action_string,
+		" action=\"%s/%s?%s+%s+%s+%s+%s\"",
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		folder_post_executable,
+		application_name,
+		login_name,
+		session_key,
+		role_name,
+		folder_name );
+
+	return strdup( post_action_string );
+}
+
+char *generic_load_folder_prompt_html( char *folder_name )
+{
+	static char html[ 128 ];
+	char buffer[ 64 ];
+
+	sprintf(html,
+		"<h3>Load %s</h3>",
+		string_initial_capital(
+			buffer,
+			folder_name ) );
+	return html;
+}
+
+char *generic_load_folder_title_string( char *folder_name )
+{
+	static char title_string[ 128 ];
+	char buffer[ 64 ];
+
+	sprintf(title_string,
+		"Load %s",
+		string_initial_capital(
+			buffer,
+			folder_name ) );
+	return title_string;
+}
+
+char *generic_load_folder_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *generic_load_folder_form_html,
+			char *document_body_close_html,
+			char *document_close_html )
+{
+	char html[ STRING_64K ];
+
+	if ( !document_html,
+	||   !document_head_html,
+	||   !document_head_close_html,
+	||   !document_body_html,
+	||   !generic_load_folder_form_html,
+	||   !document_body_close_html,
+	||   !document_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		document_html,
+		document_head_html,
+		document_head_close_html,
+		document_body_html,
+		generic_load_folder_form_html,
+		document_body_close_html,
+		document_close_html );
+
+	return strdup( html );
+}
+
+GENERIC_LOAD_FOLDER *generic_load_folder_calloc( void )
+{
+	GENERIC_LOAD_FOLDER *generic_load_folder;
+
+	if ( ! ( generic_load_folder =
+			calloc( 1, sizeof( GENERIC_LOAD_FOLDER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_folder;
 }
 

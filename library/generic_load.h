@@ -12,6 +12,7 @@
 #include "menu.h"
 #include "document.h"
 #include "element.h"
+#include "folder.h"
 #include "dictionary.h"
 #include "form.h"
 
@@ -23,6 +24,12 @@
 #define GENERIC_LOAD_UPLOAD_LABEL 	"generic_load_upload"
 #define GENERIC_LOAD_POSITION_PREFIX	"position_"
 #define GENERIC_LOAD_IGNORE_PREFIX	"ignore_"
+
+#define GENERIC_LOAD_CHOOSE_POST_EXECUTABLE \
+					"post_generic_load_choose"
+
+#define GENERIC_LOAD_FOLDER_POST_EXECUTABLE \
+					"post_generic_load_folder"
 
 typedef struct
 {
@@ -200,7 +207,8 @@ char *generic_load_choose_post_action_string(
 			char *login_name,
 			char *session_key,
 			char *process_name,
-			char *role_name );
+			char *role_name,
+			char *generic_load_choose_post_executable );
 
 /* Return static memory */
 /* -------------------- */
@@ -217,6 +225,7 @@ char *generic_load_choose_title_string(
 char *generic_load_choose_html(
 			char *document_html,
 			char *document_head_html,
+			char *document_head_close_html,
 			char *document_body_html,
 			char *form_generic_load_html,
 			char *document_body_close_html,
@@ -241,18 +250,59 @@ typedef struct
 
 typedef struct
 {
-	char *folder_name;
-	LIST *generic_load_attribute_list;
-	int primary_key_date_offset;
-	int primary_key_time_offset;
+	FOLDER_MENU *folder_menu;
+	MENU *menu;
+	DOCUMENT *document;
+	char *post_action_string;
+	char *prompt_html;
+	char *title_string;
+	FOLDER *folder;
+	GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form;
+	char *html;
 } GENERIC_LOAD_FOLDER;
 
-typedef struct
-{
-	FOLDER *folder;
-	LIST *generic_load_folder_list;
-} GENERIC_LOAD;
+/* GENERIC_LOAD_FOLDER operations */
+/* ------------------------------ */
+GENERIC_LOAD_FOLDER *generic_load_folder_new(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *folder_name,
+			boolean menu_boolean );
 
+char *generic_load_folder_post_action_string(
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *role_name,
+			char *folder_name,
+			char *generic_load_folder_post_executable );
+
+/* Returns static memory */
+/* --------------------- */
+char *generic_load_folder_prompt_html(
+			char *folder_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *generic_load_folder_title_string(
+			char *folder_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_folder_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *generic_load_folder_form_html,
+			char *document_body_close_html,
+			char *document_close_html );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_FOLDER *generic_load_folder_calloc(
+			void );
 
 /* Prototypes */
 /* ---------- */
