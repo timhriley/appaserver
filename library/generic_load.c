@@ -3076,7 +3076,7 @@ GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_fetch(
 	generic_load_attribute->constant_data =
 		generic_load_attribute_constant_data(
 			working_post_dictionary,
-			folder_attribute->attribute_name );
+			folder_attribute->attribute_name,);
 
 	generic_load_attribute->position =
 		generic_load_attribute_position(
@@ -3201,5 +3201,143 @@ boolean generic_load_attribute_is_primary_key_time(
 	return
 	attribute_is_time( datatype_name ) &&
 	primary_key_index;
+}
+
+LIST *generic_load_sql_attribute_list(
+			LIST *generic_load_attribute_list,
+			char *input_line )
+{
+	GENERIC_LOAD_ATTRIBUTE *generic_load_attribute;
+	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute;
+	LIST *list;
+
+	if ( !list_rewind( generic_load_attribute_list ) )
+		return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		generic_load_attribute =
+			list_get(
+				generic_load_attribute_list );
+
+		if ( ( generic_load_sql_attribute =
+			generic_load_sql_attribute_fetch(
+				generic_load_attribute->attribute_name,
+				generic_load_attribute->constant_data,
+				generic_load_attribute->position,
+				generic_load_attribute->ignore,
+				input_line ) ) )
+		{
+			list_set(
+				list,
+				generic_load_sql_attribute );
+		}
+
+	} while ( list_next( generic_load_attribute_list ) );
+
+	return list;
+}
+
+GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_fetch(
+			char *attribute_name,
+			char *constant_data,
+			int position,
+			boolean ignore,
+			char *input_line )
+{
+	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute =
+		generic_load_sql_attribute_calloc();
+
+	if ( ! ( generic_load_sql_attribute->data =
+			generic_load_sql_attribute_data(
+				constant_data,
+				position,
+				ignore,
+				input_line ) ) )
+	{
+		free( generic_load_attribute );
+		return (GENERIC_LOAD_SQL_ATTRIBUTE *)0;
+	}
+
+	generic_load_sql_attribute->attribute_name = attribute_name;
+
+	return generic_load_sql_attribute;
+}
+
+char *generic_load_sql_attribute_data(
+			char *constant_data,
+			int position,
+			boolean ignored,
+			char *input_line )
+{
+	char *data = {};
+
+	if ( ignore )
+	{
+		/* Do nothing */
+	}
+	else
+	if ( constant_data && *constant_data )
+	{
+		data = constant_data;
+	}
+	else
+	{
+		char buffer[ 1024 ];
+
+		if ( piece( buffer, SQL_DELIMITER, input_line, position - 1 ) )
+		{
+			data = strdup( buffer );
+		}
+	}
+
+	return data;
+}
+
+GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_seek(
+			char *attribute_name,
+			LIST *generic_load_sql_attribute_list )
+{
+	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute;
+
+	if ( ! list_rewind( generic_load_sql_attribute_list ) )
+	{
+		return (GENERIC_LOAD_SQL_ATTRIBUTE *)0;
+	}
+
+	do {
+		generic_load_sql_attribute =
+			list_get(
+				generic_load_sql_attribute_list );
+
+		if ( string_strcmp(
+			attribute_name,
+			generic_load_sql_attribute->attribute_name ) == 0 )
+		{
+			return generic_load_sql_attribute;
+		}
+
+	} while ( list_next( generic_load_sql_attribute_list ) );
+
+	return (GENERIC_LOAD_SQL_ATTRIBUTE *)0;
+}
+
+GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_calloc( void )
+{
+	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute;
+
+	if ( ! ( generic_load_sql_attribute =
+			calloc( 1, sizeof( GENERIC_LOAD_SQL_ATTRIBUTE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_sql_attribute;
 }
 

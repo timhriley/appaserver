@@ -39,6 +39,45 @@
 
 typedef struct
 {
+	char *attribute_name;
+	char *data;
+} GENERIC_LOAD_SQL_ATTRIBUTE;
+
+/* GENERIC_LOAD_SQL_ATTRIBUTE operations */
+/* ------------------------------------- */
+LIST *generic_load_sql_attribute_list(
+			LIST *generic_load_attribute_list,
+			char *input_line );
+
+GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_fetch(
+			char *attribute_name,
+			char *constant_data,
+			int position,
+			boolean ignore,
+			char *input_line );
+
+/* Process */
+/* ------- */
+char *generic_load_sql_attribute_data(
+			char *constant_data,
+			int position,
+			boolean ignore,
+			char *input_line );
+
+/* Public */
+/* ------ */
+GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_seek(
+			char *attribute_name,
+			LIST *generic_load_sql_attribute_list );
+
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_calloc(
+			void );
+
+typedef struct
+{
 	char *constant_data;
 	int position;
 	boolean ignore;
