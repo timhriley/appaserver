@@ -176,6 +176,9 @@ LIST *relation_one2m_folder_name_list(
 char *relation_list_display(
 			LIST *relation_list );
 
+void relation_set_one_folder_primary_delimited_list(
+			LIST *relation_mto1_list );
+
 /* Private */
 /* ------- */
 RELATION *relation_new(

@@ -967,6 +967,8 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 		return (ROW_SECURITY_RELATION *)0;
 	}
 
+	relation->consumes_taken = 1;
+
 	if ( !relation->one_folder )
 	{
 		fprintf(stderr,

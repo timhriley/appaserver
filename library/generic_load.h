@@ -13,23 +13,84 @@
 #include "document.h"
 #include "element.h"
 #include "folder.h"
+#include "folder_attribute.h"
 #include "dictionary.h"
+#include "relation.h"
 #include "form.h"
 
 /* Constants */
 /* --------- */
 #define GENERIC_LOAD_SKIP_HEADER_ROWS	"skip_header_rows"
-#define REPLACE_EXISTING_RECORDS_YN	"replace_existing_records_yn"
 #define GENERIC_LOAD_DROP_DOWN_NAME 	"generic_load_drop_down"
 #define GENERIC_LOAD_UPLOAD_LABEL 	"generic_load_upload"
 #define GENERIC_LOAD_POSITION_PREFIX	"position_"
 #define GENERIC_LOAD_IGNORE_PREFIX	"ignore_"
+
+#define GENERIC_LOAD_REPLACE_EXISTING_YN \
+					"replace_existing_records_yn"
+
+#define GENERIC_LOAD_FOLDER_EXECUTABLE	"generic_load_folder"
 
 #define GENERIC_LOAD_CHOOSE_POST_EXECUTABLE \
 					"post_generic_load_choose"
 
 #define GENERIC_LOAD_FOLDER_POST_EXECUTABLE \
 					"post_generic_load_folder"
+
+typedef struct
+{
+	char *constant_data;
+	int position;
+	boolean ignore;
+	boolean is_primary_key_date;
+	boolean is_primary_key_time;
+	RELATION *consumes_relation;
+} GENERIC_LOAD_ATTRIBUTE;
+
+/* GENERIC_LOAD_ATTRIBUTE operations */
+/* --------------------------------- */
+LIST *generic_load_attribute_list(
+			DICTIONARY *working_post_dictionary,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list );
+
+GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_fetch(
+			DICTIONARY *working_post_dictionary,
+			FOLDER_ATTRIBUTE *folder_attribute,
+			LIST *relation_mto1_non_isa_list );
+
+/* Process */
+/* ------- */
+char *generic_load_attribute_constant_data(
+			DICTIONARY *working_post_dictionary,
+			char *attribute_name );
+
+int generic_load_attribute_position(
+			DICTIONARY *working_post_dictionary,
+			char *attribute_name,
+			char *generic_load_position_prefix );
+
+boolean generic_load_attribute_ignore(
+			DICTIONARY *working_post_dictionary,
+			char *attribute_name,
+			char *GENERIC_LOAD_IGNORE_PREFIX );
+
+boolean generic_load_attribute_is_primary_key_date(
+			char *datatype_name,
+			int primary_key_index );
+
+boolean generic_load_attribute_is_primary_key_time(
+			char *datatype_name,
+			int primary_key_index );
+
+RELATION *generic_load_attribute_relation(
+			char *attribute_name,
+			LIST *relation_mto1_non_isa_list );
+
+/* Private */
+/* ------- */
+GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_calloc(
+			void );
 
 typedef struct
 {
@@ -60,6 +121,7 @@ char *generic_load_choose_post_system_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
+			char *generic_load_folder_executable,
 			char *generic_load_choose_post_folder_name );
 
 /* Private */

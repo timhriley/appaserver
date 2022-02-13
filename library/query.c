@@ -1732,6 +1732,8 @@ LIST *query_drop_down_list(
 			continue;
 		}
 
+		relation->consumes_taken = 1;
+
 		if ( !relation_mto1->one_folder )
 		{
 			fprintf(stderr,

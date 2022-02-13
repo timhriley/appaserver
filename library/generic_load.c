@@ -1850,6 +1850,7 @@ GENERIC_LOAD_CHOOSE_POST *generic_load_choose_post_new(
 			session_key,
 			login_name,
 			role_name,
+			GENERIC_LOAD_FOLDER_EXECUTABLE,
 			generic_load_choose_post->folder_name );
 
 	return generic_load_choose_post;
@@ -1870,6 +1871,7 @@ char *generic_load_choose_post_system_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
+			char *generic_load_folder_executable,
 			char *post_folder_name )
 {
 	char system_string[ 1024 ];
@@ -1889,7 +1891,8 @@ char *generic_load_choose_post_system_string(
 	}
 
 	sprintf(system_string,
-		"generic_load_folder %s %s %s %s %s",
+		"%s %s %s %s %s %s",
+		generic_load_folder_executable,
 		application_name,
 		session_key,
 		login_name,
@@ -3053,5 +3056,150 @@ GENERIC_LOAD_FOLDER *generic_load_folder_calloc( void )
 	}
 
 	return generic_load_folder;
+}
+
+LIST *generic_load_attribute_list(
+			DICTIONARY *working_post_dictionary,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list )
+{
+}
+
+GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_fetch(
+			DICTIONARY *working_post_dictionary,
+			FOLDER_ATTRIBUTE *folder_attribute,
+			LIST *relation_mto1_non_isa_list )
+{
+	GENERIC_LOAD_ATTRIBUTE *generic_load_attribute =
+		generic_load_attribute_calloc();
+
+	generic_load_attribute->constant_data =
+		generic_load_attribute_constant_data(
+			working_post_dictionary,
+			folder_attribute->attribute_name );
+
+	generic_load_attribute->position =
+		generic_load_attribute_position(
+			working_post_dictionary,
+			folder_attribute->attribute_name,
+			GENERIC_LOAD_POSITION_PREFIX );
+
+	generic_load_attribute->ignore =
+		generic_load_attribute_ignore(
+			working_post_dictionary,
+			folder_attribute->attribute_name,
+			GENERIC_LOAD_IGNORE_PREFIX );
+
+	generic_load_attribute->is_primary_key_date =
+		generic_load_attribute_is_primary_key_date(
+			folder_attribute->
+				attribute->
+				datatype_name,
+			folder_attribute->primary_key_index );
+
+	generic_load_attribute->is_primary_key_time =
+		generic_load_attribute_is_primary_key_time(
+			folder_attribute->
+				attribute->
+				datatype_name,
+			folder_attribute->primary_key_index );
+
+	generic_load_attribute->consumes_relation =
+		generic_load_attribute_consumes_relation(
+			folder_attribute->attribute_name,
+			relation_mto1_non_isa_list );
+
+	return generic_load_attribute;
+}
+
+char *generic_load_attribute_constant_data(
+			DICTIONARY *working_post_dictionary,
+			char *attribute_name )
+{
+	return
+	dictionary_get(
+		attribute_name,
+		working_post_dictionary );
+}
+
+int generic_load_attribute_position(
+			DICTIONARY *working_post_dictionary,
+			char *attribute_name,
+			char *generic_load_position_prefix )
+{
+	char key[ 128 ];
+	char *results;
+
+	sprintf(key,
+		"%s%s",
+		generic_load_position_prefix,
+		attribute_name );
+
+	results = dictionary_get( key, working_post_dictionary );
+
+	if ( results )
+		return atoi( results );
+	else
+		return 0;
+}
+
+boolean generic_load_attribute_ignore(
+			DICTIONARY *working_post_dictionary,
+			char *attribute_name,
+			char *generic_load_ignore_prefix )
+{
+	char key[ 128 ];
+
+	sprintf(key,
+		"%s%s",
+		generic_load_ignore_prefix,
+		attribute_name );
+
+	return dictionary_get( key, working_post_dictionary );
+}
+
+RELATION *generic_load_attribute_consumes_relation(
+			char *attribute_name,
+			LIST *relation_mto1_non_isa_list )
+{
+	return relation_consumes(
+			attribute_name,
+			relation_mto1_list );
+}
+
+GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_calloc( void )
+{
+	GENERIC_LOAD_ATTRIBUTE *generic_load_attribute;
+
+	if ( ! ( generic_load_attribute =
+			calloc( 1, sizeof( GENERIC_LOAD_ATTRIBUTE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	generic_load_attribute;
+}
+
+boolean generic_load_attribute_is_primary_key_date(
+			char *datatype_name,
+			int primary_key_index )
+{
+	return
+	attribute_is_date( datatype_name ) &&
+	primary_key_index;
+}
+
+boolean generic_load_attribute_is_primary_key_time(
+			char *datatype_name,
+			int primary_key_index )
+{
+	return
+	attribute_is_time( datatype_name ) &&
+	primary_key_index;
 }
 

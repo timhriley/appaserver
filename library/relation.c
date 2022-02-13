@@ -616,7 +616,6 @@ RELATION *relation_consumes(
 			many_attribute_name,
 			relation->foreign_key_list ) )
 		{
-			relation->consumes_taken = 1;
 			return relation;
 		}
 
@@ -753,5 +752,50 @@ LIST *relation_one2m_folder_name_list(
 	} while ( list_next( relation_one2m_list ) );
 
 	return folder_name_list;
+}
+
+void relation_set_one_folder_primary_delimited_list(
+			LIST *relation_mto1_list )
+{
+	RELATION *relation;
+
+	if ( !list_rewind( relation_mto1_list ) ) return;
+
+	do {
+		relation = list_get( relation_mto1_list );
+
+		if ( !relation->one_folder )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_length(
+			relation->
+				one_folder->
+				folder_attribute_list ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		relation->one_folder->delimited_list =
+			folder_primary_delimited_list(
+				relation->one_folder->folder_name,
+				relation->one_folder->primary_key_list,
+				relation->one_folder->folder_attribute_list,
+				(SECURITY_ENTITY *)0 /* security_entity */,
+				(DICTIONARY *)0 /* drillthru_dictionary */,
+				(char *)0 /* login_name  */ );
+
+	} while ( list_next( relation_mto1_list ) );
 }
 
