@@ -426,6 +426,9 @@ LIST *insert_data_relation_extract_list(
 			insert_data =
 				insert_data_new(
 					foreign_key,
+					/* --------------------------- */
+					/* Returns heap memory or null */
+					/* --------------------------- */
 					security_sql_injection_escape(
 					   security_replace_special_characters(
 						string_trim_number_characters(
@@ -486,6 +489,9 @@ INSERT_DATA *insert_data_attribute_extract(
 		return
 		insert_data_new(
 			attribute_name,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			security_sql_injection_escape(
 				security_replace_special_characters(
 					string_trim_number_characters(

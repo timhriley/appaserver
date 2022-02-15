@@ -5,8 +5,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "String.h"
-#include "related_folder.h"
 #include "relation.h"
 #include "dictionary_separate.h"
 #include "timlib.h"
@@ -288,7 +288,7 @@ LIST *pair_one2m_prompt_form_folder_list(
 		pair_one2m_folder->copy_function =
 			pair_folder_element_copy_function(
 				pair_one2m_prompt_element_name(
-					PAIR_ONE2M_PREFIX,
+					DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX,
 					PAIR_ONE2M_MANY_FOLDER_LABEL ),
 				pair_one2m_folder->many_folder_name );
 

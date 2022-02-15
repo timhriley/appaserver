@@ -23,6 +23,7 @@
 #include "form.h"
 #include "frameset.h"
 #include "element.h"
+#include "security.h"
 #include "row_security.h"
 #include "application.h"
 #include "generic_load.h"
@@ -1688,7 +1689,7 @@ LIST *generic_load_attribute_list(
 			/* --------------- */
 			/* Always succeeds */
 			/* --------------- */
-			generic_load_attribute_fetch(
+			generic_load_attribute_new(
 				working_post_dictionary,
 				folder_attribute ) );
 
@@ -1697,7 +1698,7 @@ LIST *generic_load_attribute_list(
 	return list;
 }
 
-GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_fetch(
+GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
 			DICTIONARY *working_post_dictionary,
 			FOLDER_ATTRIBUTE *folder_attribute )
 {
@@ -1805,16 +1806,15 @@ GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_calloc( void )
 	return generic_load_attribute;
 }
 
-LIST *generic_load_sql_attribute_list(
+LIST *generic_load_attribute_data_list(
 			LIST *generic_load_attribute_list,
 			char *input_line )
 {
-	GENERIC_LOAD_ATTRIBUTE *generic_load_attribute;
-	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute;
 	LIST *list;
+	GENERIC_LOAD_ATTRIBUTE *generic_load_attribute;
+	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data;
 
-	if ( !list_rewind( generic_load_attribute_list ) )
-		return (LIST *)0;
+	if ( !list_rewind( generic_load_attribute_list ) ) return (LIST *)0;
 
 	list = list_new();
 
@@ -1823,19 +1823,29 @@ LIST *generic_load_sql_attribute_list(
 			list_get(
 				generic_load_attribute_list );
 
-		if ( ( generic_load_sql_attribute =
-			generic_load_sql_attribute_fetch(
+		if ( !generic_load_attribute->folder_attribute )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_attribute is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		generic_load_attribute_data =
+			generic_load_attribute_data_new(
 				generic_load_attribute->
 					folder_attribute->
 					attribute_name,
 				generic_load_attribute->constant_data,
 				generic_load_attribute->position,
 				generic_load_attribute->ignore,
-				input_line ) ) )
+				input_line );
+
+		if ( generic_load_attribute_data )
 		{
-			list_set(
-				list,
-				generic_load_sql_attribute );
+			list_set( list, generic_load_attribute_data );
 		}
 
 	} while ( list_next( generic_load_attribute_list ) );
@@ -1843,33 +1853,41 @@ LIST *generic_load_sql_attribute_list(
 	return list;
 }
 
-GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_fetch(
+GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data_new(
 			char *attribute_name,
 			char *constant_data,
 			int position,
 			boolean ignore,
 			char *input_line )
 {
-	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute =
-		generic_load_sql_attribute_calloc();
+	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data =
+		generic_load_attribute_data_calloc();
 
-	if ( ! ( generic_load_sql_attribute->data =
-			generic_load_sql_attribute_data(
+	generic_load_attribute_data->attribute_name = attribute_name;
+
+	if ( ! ( generic_load_attribute_data->string =
+			generic_load_attribute_data_string(
 				constant_data,
 				position,
 				ignore,
 				input_line ) ) )
 	{
-		free( generic_load_sql_attribute );
-		return (GENERIC_LOAD_SQL_ATTRIBUTE *)0;
+		free( generic_load_attribute_data );
+		return (GENERIC_LOAD_ATTRIBUTE_DATA *)0;
 	}
 
-	generic_load_sql_attribute->attribute_name = attribute_name;
+	generic_load_attribute_data->
+		security_sql_injection_escape_quote_delimit =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape_quote_delimit(
+				generic_load_attribute_data->string );
 
-	return generic_load_sql_attribute;
+	return generic_load_attribute_data;
 }
 
-char *generic_load_sql_attribute_data(
+char *generic_load_attribute_data_string(
 			char *constant_data,
 			int position,
 			boolean ignored,
@@ -1879,7 +1897,7 @@ char *generic_load_sql_attribute_data(
 
 	if ( ignored )
 	{
-		/* Do nothing */
+		return (char *)0;
 	}
 	else
 	if ( constant_data && *constant_data )
@@ -1899,40 +1917,95 @@ char *generic_load_sql_attribute_data(
 	return data;
 }
 
-GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_seek(
-			char *attribute_name,
-			LIST *generic_load_sql_attribute_list )
+LIST *generic_load_attribute_data_name_list(
+			LIST *generic_load_attribute_data_list )
 {
-	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute;
+	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data;
+	LIST *list;
 
-	if ( ! list_rewind( generic_load_sql_attribute_list ) )
+	if ( !list_rewind( generic_load_attribute_data_list ) )
 	{
-		return (GENERIC_LOAD_SQL_ATTRIBUTE *)0;
+		return (LIST *)0;
+	}
+
+	list = list_new();
+
+	do {
+		generic_load_attribute_data =
+			list_get(
+				generic_load_attribute_data_list );
+
+		list_set(
+			list,
+			generic_load_attribute_data->attribute_name );
+
+	} while ( list_next( generic_load_attribute_data_list ) );
+
+	return list;
+}
+
+LIST *generic_load_attribute_data_escape_list(
+			LIST *generic_load_attribute_data_list )
+{
+	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data;
+	LIST *list;
+
+	if ( !list_rewind( generic_load_attribute_data_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	list = list_new();
+
+	do {
+		generic_load_attribute_data =
+			list_get(
+				generic_load_attribute_data_list );
+
+		list_set(
+			list,
+			generic_load_attribute_data->
+				security_sql_injection_escape_quote_delimit );
+
+	} while ( list_next( generic_load_attribute_data_list ) );
+
+	return list;
+}
+
+GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data_seek(
+			char *attribute_name,
+			LIST *generic_load_attribute_data_list )
+{
+	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data;
+
+	if ( ! list_rewind( generic_load_attribute_data_list ) )
+	{
+		return (GENERIC_LOAD_ATTRIBUTE_DATA *)0;
 	}
 
 	do {
-		generic_load_sql_attribute =
+		generic_load_attribute_data =
 			list_get(
-				generic_load_sql_attribute_list );
+				generic_load_attribute_data_list );
 
 		if ( string_strcmp(
 			attribute_name,
-			generic_load_sql_attribute->attribute_name ) == 0 )
+			generic_load_attribute_data->attribute_name ) == 0 )
 		{
-			return generic_load_sql_attribute;
+			return generic_load_attribute_data;
 		}
 
-	} while ( list_next( generic_load_sql_attribute_list ) );
+	} while ( list_next( generic_load_attribute_data_list ) );
 
-	return (GENERIC_LOAD_SQL_ATTRIBUTE *)0;
+	return (GENERIC_LOAD_ATTRIBUTE_DATA *)0;
 }
 
-GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_calloc( void )
+GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data_calloc( void )
 {
-	GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute;
+	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data;
 
-	if ( ! ( generic_load_sql_attribute =
-			calloc( 1, sizeof( GENERIC_LOAD_SQL_ATTRIBUTE ) ) ) )
+	if ( ! ( generic_load_attribute_data =
+			calloc( 1, sizeof( GENERIC_LOAD_ATTRIBUTE_DATA ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1942,7 +2015,7 @@ GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_calloc( void )
 		exit( 1 );
 	}
 
-	return generic_load_sql_attribute;
+	return generic_load_attribute_data;
 }
 
 LIST *generic_load_sql_statement_list(
@@ -1950,6 +2023,7 @@ LIST *generic_load_sql_statement_list(
 			LIST *generic_load_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *post_filename,
+			boolean replace_existing,
 			int skip_header_rows )
 {
 	LIST *list = {0};
@@ -1977,10 +2051,11 @@ LIST *generic_load_sql_statement_list(
 		}
 
 		generic_load_sql_statement =
-			generic_load_sql_statement_fetch(
+			generic_load_sql_statement_new(
 				folder_table_name,
 				generic_load_attribute_list,
 				relation_mto1_non_isa_list,
+				replace_existing,
 				input_line );
 
 		if ( generic_load_sql_statement )
@@ -1996,10 +2071,11 @@ LIST *generic_load_sql_statement_list(
 	return list;
 }
 
-GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_fetch(
+GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_new(
 			char *folder_table_name,
 			LIST *generic_load_attribute_list,
 			LIST *relation_mto1_non_isa_list,
+			boolean replace_existing,
 			char *input_line )
 {
 	GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement =
@@ -2033,7 +2109,9 @@ GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_fetch(
 		generic_load_sql_statement->string =
 			generic_load_sql_statement_string(
 				folder_table_name,
-				generic_load_attribute_data_list );
+				generic_load_sql_statement->
+					generic_load_attribute_data_list,
+				replace_existing );
 	}
 			
 	return generic_load_sql_statement;
@@ -2041,11 +2119,54 @@ GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_fetch(
 
 char *generic_load_sql_statement_string(
 			char *folder_table_name,
-			LIST *generic_load_sql_attribute_list )
+			LIST *generic_load_attribute_data_list,
+			boolean replace_existing )
 {
-	char *string = {0};
+	char string[ 65536 ];
+	char *ptr = string;
 
-	return string;
+	if ( !folder_table_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_table_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( generic_load_attribute_data_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: list_rewind() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( replace_existing )
+		ptr += sprintf( ptr, "replace into %s", folder_table_name );
+	else
+		ptr += sprintf( ptr, "insert into %s", folder_table_name );
+
+	ptr += sprintf(
+		ptr,
+		" (%s) values",
+		list_display_delimited(
+			generic_load_attribute_data_name_list(
+				generic_load_attribute_data_list ),
+			',' ) );
+
+	ptr += sprintf(
+		ptr,
+		" (%s);",
+		list_display_delimited(
+			generic_load_attribute_data_escape_list(
+				generic_load_attribute_data_list ),
+			',' ) );
+
+	return strdup( string );
 }
 
 GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_calloc( void )
@@ -2067,7 +2188,7 @@ GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_calloc( void )
 }
 
 GENERIC_LOAD_RELATION *generic_load_relation_new(
-			LIST *generic_load_attribute_data_list,
+			LIST *attribute_data_list,
 			LIST *relation_mto1_non_isa_list )
 {
 	RELATION *relation;
@@ -2106,7 +2227,7 @@ GENERIC_LOAD_RELATION *generic_load_relation_new(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			generic_load_relation_foreign_data_delimited(
-				generic_load_attribute_data_list,
+				attribute_data_list,
 				relation->foreign_key_list );
 
 		if ( generic_load_relation->foreign_data_delimited )
@@ -2131,7 +2252,7 @@ GENERIC_LOAD_RELATION *generic_load_relation_new(
 }
 
 char *generic_load_relation_foreign_data_delimited(
-			LIST *attributge_data_list,
+			LIST *attribute_data_list,
 			LIST *foreign_key_list )
 {
 	GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data;
@@ -2155,7 +2276,7 @@ char *generic_load_relation_foreign_data_delimited(
 		if ( ! ( generic_load_attribute_data =
 				generic_load_attribute_data_seek(
 					foreign_key /* attribute_name */,
-					generic_load_attribute_data_list ) ) )
+					attribute_data_list ) ) )
 		{
 			fprintf(stderr,
 "ERROR in %s/%s()/%d: generic_load_attribute_data_seek(%s) returned empty.\n",
@@ -2249,39 +2370,166 @@ boolean generic_load_folder_forbid(
 
 GENERIC_LOAD_FOLDER_POST *generic_load_folder_post_new(
 			char *application_name,
-			char *session_key,
-			char *login_name,
 			char *folder_name,
 			char *role_name,
 			DICTIONARY *working_post_dictionary )
 {
+	GENERIC_LOAD_FOLDER_POST *generic_load_folder_post =
+		generic_load_folder_post_calloc();
+
+	generic_load_folder_post->folder =
+		folder_fetch(
+			folder_name,
+			role_name,
+			(LIST *)0 /* exclude_lookup_attribute_name_list */,
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_non_isa_list */,
+			0 /* not fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* not fetch_relation_one2m_recursive_list */,
+			0 /* not fetch_process */,
+			1 /* fetch_role_folder_list */,
+			0 /* not fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
+
+	generic_load_folder_post->generic_load_folder_forbid =
+		generic_load_folder_forbid(
+			role_folder_insert(
+				generic_load_folder_post->
+					folder->
+					role_folder_list ) );
+
+	if ( generic_load_folder_post->generic_load_folder_forbid )
+	{
+		free( generic_load_folder_post );
+		return (GENERIC_LOAD_FOLDER_POST *)0;
+	}
+
+	relation_set_one_folder_primary_delimited_list(
+		generic_load_folder_post->
+			folder->
+			relation_mto1_non_isa_list );
+
+	generic_load_folder_post->generic_load_attribute_list =
+		generic_load_attribute_list(
+			working_post_dictionary,
+			generic_load_folder_post->
+				folder->
+				folder_attribute_list );
+
+	generic_load_folder_post->filename =
+		generic_load_folder_post_filename(
+		GENERIC_LOAD_UPLOAD_LABEL,
+		working_post_dictionary );
+
+	generic_load_folder_post->replace_existing =
+		generic_load_folder_post_replace_existing(
+		GENERIC_LOAD_REPLACE_EXISTING_YN,
+		working_post_dictionary );
+
+	generic_load_folder_post->execute =
+		generic_load_folder_post_execute(
+		GENERIC_LOAD_EXECUTE_YN,
+		working_post_dictionary );
+
+	generic_load_folder_post->skip_header_rows =
+		generic_load_folder_post_skip_header_rows(
+		GENERIC_LOAD_SKIP_HEADER_ROWS,
+		working_post_dictionary );
+
+	generic_load_folder_post->generic_load_sql_statement_list =
+		generic_load_sql_statement_list(
+			folder_table_name(
+				application_name,
+				folder_name ),
+			generic_load_folder_post->
+				generic_load_attribute_list,
+			generic_load_folder_post->
+				folder->
+				relation_mto1_non_isa_list,
+			generic_load_folder_post->filename,
+			generic_load_folder_post->replace_existing,
+			generic_load_folder_post->skip_header_rows );
+
+	return generic_load_folder_post;
 }
 
 char *generic_load_folder_post_filename(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_upload_label )
+			char *generic_load_upload_label,
+			DICTIONARY *working_post_dictionary )
 {
+	return
+	dictionary_get(
+		generic_load_upload_label,
+		working_post_dictionary );
 }
 
 boolean generic_load_folder_post_replace_existing(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_replace_existing_yn )
+			char *generic_load_replace_existing_yn,
+			DICTIONARY *working_post_dictionary )
 {
+	char *results;
+
+	results =
+		dictionary_get(
+			generic_load_replace_existing_yn,
+			working_post_dictionary );
+
+	if ( results && *results == 'y' )
+		return 1;
+	else
+		return 0;
 }
 
 boolean generic_load_folder_post_execute(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_execute_yn )
+			char *generic_load_execute_yn,
+			DICTIONARY *working_post_dictionary )
 {
+	char *results;
+
+	results =
+		dictionary_get(
+			generic_load_execute_yn,
+			working_post_dictionary );
+
+	if ( results && *results == 'y' )
+		return 1;
+	else
+		return 0;
 }
 
 int generic_load_folder_post_skip_header_rows(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_skip_header_rows )
+			char *generic_load_skip_header_rows,
+			DICTIONARY *working_post_dictionary )
 {
+	char *results;
+
+	results =
+		dictionary_get(
+			generic_load_skip_header_rows,
+			working_post_dictionary );
+
+	if ( results )
+		return atoi( results );
+	else
+		return 0;
 }
 
 GENERIC_LOAD_FOLDER_POST *generic_load_folder_post_calloc( void )
 {
+	GENERIC_LOAD_FOLDER_POST *generic_load_folder_post;
+
+	if ( ! ( generic_load_folder_post =
+			calloc( 1, sizeof( GENERIC_LOAD_FOLDER_POST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return generic_load_folder_post;
 }
 

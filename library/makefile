@@ -94,7 +94,6 @@ APPASERVER_LIBRARY=						\
 		pivot_table.o					\
 		generic_load.o					\
 		statistics_weighted.o				\
-		report_writer.o					\
 		semaphore.o					\
 		dollar.o					\
 		array.o						\
@@ -103,7 +102,7 @@ APPASERVER_LIBRARY=						\
 		moving_average.o				\
 		pair_one2m.o					\
 		mysqldump.o					\
-		prompt_edit_form.o				\
+		prompt_edit.o					\
 		edit_table.o					\
 		insert_table_form.o				\
 		frameset_link_file.o				\
@@ -772,9 +771,6 @@ pivot_table.o: pivot_table.c pivot_table.h
 generic_load.o: generic_load.c generic_load.h
 	${CC} ${CFLAGS} -c generic_load.c
 
-report_writer.o: report_writer.c report_writer.h
-	${CC} ${CFLAGS} -c report_writer.c
-
 scatterplot.o: scatterplot.c scatterplot.h
 	${CC} ${CFLAGS} -c scatterplot.c
 
@@ -931,8 +927,8 @@ relation.o: relation.c relation.h
 javascript.o: javascript.c javascript.h
 	${CC} ${CFLAGS} -c javascript.c
 
-prompt_edit_form.o: prompt_edit_form.c prompt_edit_form.h
-	${CC} ${CFLAGS} -c prompt_edit_form.c
+prompt_edit.o: prompt_edit.c prompt_edit.h
+	${CC} ${CFLAGS} -c prompt_edit.c
 
 insert_table_form.o: insert_table_form.c insert_table_form.h
 	${CC} ${CFLAGS} -c insert_table_form.c

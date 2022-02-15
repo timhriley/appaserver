@@ -78,11 +78,21 @@ char *appaserver_user_primary_where(
 	static char where[ 128 ];
 	char *tmp;
 
+	if ( !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: login_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(where,
 		"login_name = '%s'",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		( tmp = security_sql_injection_escape(
 			login_name ) ) );
 

@@ -14,6 +14,7 @@
 
 /* Constants */
 /* --------- */
+#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=_"
 
 /* Enumerated types */
 /* ---------------- */
@@ -78,9 +79,14 @@ boolean security_password_encrypted(
 char *security_replace_special_characters(
 			char *data );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *security_sql_injection_escape(
+			char *data );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *security_sql_injection_escape_quote_delimit(
 			char *data );
 
 /* Returns destination */
@@ -117,5 +123,10 @@ char *security_login_name_full_name_only(
 char *security_entity_where(
 			SECURITY_ENTITY *security_entity,
 			LIST *folder_attribute_list );
+
+/* Public */
+/* ------ */
+LIST *security_sql_injection_escape_list(
+			LIST *data_list );
 
 #endif

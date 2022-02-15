@@ -29,6 +29,8 @@
 #define GENERIC_LOAD_REPLACE_EXISTING_YN \
 					"replace_existing_records_yn"
 
+#define GENERIC_LOAD_EXECUTE_YN		"execute_yn"
+
 #define GENERIC_LOAD_FOLDER_EXECUTABLE	"generic_load_folder"
 
 #define GENERIC_LOAD_CHOOSE_POST_EXECUTABLE \
@@ -53,34 +55,25 @@ typedef struct
 /* ----------------------------------- */
 GENERIC_LOAD_FOLDER_POST *generic_load_folder_post_new(
 			char *application_name,
-			char *session_key,
-			char *login_name,
 			char *folder_name,
 			char *role_name,
 			DICTIONARY *working_post_dictionary );
 
 char *generic_load_folder_post_filename(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_upload_label );
+			char *generic_load_upload_label,
+			DICTIONARY *working_post_dictionary );
 
 boolean generic_load_folder_post_replace_existing(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_replace_existing_yn );
+			char *generic_load_replace_existing_yn,
+			DICTIONARY *working_post_dictionary );
 
 boolean generic_load_folder_post_execute(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_execute_yn );
+			char *generic_load_execute_yn,
+			DICTIONARY *working_post_dictionary );
 
 int generic_load_folder_post_skip_header_rows(
-			DICTIONARY *working_post_dictionary,
-			char *generic_load_skip_header_rows );
-
-LIST *generic_load_sql_statement_list(
-			char *folder_table_name,
-			LIST *generic_load_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *generic_load_folder_post_filename,
-			generic_load_folder_post_skip_header_rows );
+			char *generic_load_skip_header_rows,
+			DICTIONARY *working_post_dictionary );
 
 /* Private */
 /* ------- */
@@ -90,16 +83,17 @@ GENERIC_LOAD_FOLDER_POST *generic_load_folder_post_calloc(
 typedef struct
 {
 	char *attribute_name;
-	char *data;
-} GENERIC_LOAD_SQL_ATTRIBUTE;
+	char *string;
+	char *security_sql_injection_escape_quote_delimit;
+} GENERIC_LOAD_ATTRIBUTE_DATA;
 
-/* GENERIC_LOAD_SQL_ATTRIBUTE operations */
-/* ------------------------------------- */
-LIST *generic_load_sql_attribute_list(
+/* GENERIC_LOAD_ATTRIBUTE_DATA operations */
+/* -------------------------------------- */
+LIST *generic_load_attribute_data_list(
 			LIST *generic_load_attribute_list,
 			char *input_line );
 
-GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_fetch(
+GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data_new(
 			char *attribute_name,
 			char *constant_data,
 			int position,
@@ -108,7 +102,7 @@ GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_fetch(
 
 /* Process */
 /* ------- */
-char *generic_load_sql_attribute_data(
+char *generic_load_attribute_data_string(
 			char *constant_data,
 			int position,
 			boolean ignore,
@@ -116,14 +110,19 @@ char *generic_load_sql_attribute_data(
 
 /* Public */
 /* ------ */
-GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_seek(
+GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data_seek(
 			char *attribute_name,
-			LIST *generic_load_sql_attribute_list );
+			LIST *generic_load_attribute_data_list );
 
+LIST *generic_load_attribute_data_name_list(
+			LIST *generic_load_attribute_data_list );
+
+LIST *generic_load_attribute_data_escape_list(
+			LIST *generic_load_attribute_data_list );
 
 /* Private */
 /* ------- */
-GENERIC_LOAD_SQL_ATTRIBUTE *generic_load_sql_attribute_calloc(
+GENERIC_LOAD_ATTRIBUTE_DATA *generic_load_attribute_data_calloc(
 			void );
 
 typedef struct
@@ -141,7 +140,7 @@ GENERIC_LOAD_RELATION *generic_load_relation_new(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *generic_load_relation_foreign_data_delimited(
-			LIST *generic_load_attributge_data_list,
+			LIST *generic_load_attribute_data_list,
 			LIST *foreign_key_list );
 
 boolean generic_load_relation_orphan(
@@ -155,7 +154,7 @@ GENERIC_LOAD_RELATION *generic_load_relation_calloc(
 
 typedef struct
 {
-	LIST *generic_load_sql_attribute_list;
+	LIST *generic_load_attribute_data_list;
 	GENERIC_LOAD_RELATION *generic_load_relation;
 	char *string;
 } GENERIC_LOAD_SQL_STATEMENT;
@@ -167,17 +166,22 @@ LIST *generic_load_sql_statement_list(
 			LIST *generic_load_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *generic_load_folder_post_filename,
+			boolean generic_load_folder_post_replace_existing,
 			int generic_load_folder_post_skip_header_rows );
 
-GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_fetch(
+GENERIC_LOAD_SQL_STATEMENT *generic_load_sql_statement_new(
 			char *folder_table_name,
 			LIST *generic_load_attribute_list,
 			LIST *relation_mto1_non_isa_list,
+			boolean generic_load_folder_post_replace_existing,
 			char *input_line );
 
-LIST *generic_load_sql_statement_string(
+/* Returns heap memory */
+/* ------------------- */
+char *generic_load_sql_statement_string(
 			char *folder_table_name,
-			LIST *generic_load_sql_attribute_list );
+			LIST *generic_load_attribute_data_list,
+			boolean generic_load_folder_post_replace_existing );
 
 /* Private */
 /* ------- */
@@ -201,7 +205,7 @@ LIST *generic_load_attribute_list(
 
 /* Always succeeds */
 /* --------------- */
-GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_fetch(
+GENERIC_LOAD_ATTRIBUTE *generic_load_attribute_new(
 			DICTIONARY *working_post_dictionary,
 			FOLDER_ATTRIBUTE *folder_attribute );
 

@@ -324,13 +324,16 @@ SESSION *session_process_integrity_exit(
 	SESSION *session;
 
 	session =
+		/* ------------------------ */
+		/* Sets APPASERVER_DATABASE */
+		/* ------------------------ */
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
 		session_fetch(
-			/* ------------------------ */
-			/* Sets APPASERVER_DATABASE */
-			/* ------------------------ */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			security_sql_injection_escape(
 				application_name ),
 			security_sql_injection_escape(
@@ -366,6 +369,9 @@ SESSION *session_process_integrity_exit(
 	}
 
 	session->sql_injection_escape_role_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			role_name );
 
@@ -437,13 +443,16 @@ SESSION *session_folder_integrity_exit(
 	SESSION *session;
 
 	session =
+		/* ------------------------ */
+		/* Sets APPASERVER_DATABASE */
+		/* ------------------------ */
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
 		session_fetch(
-			/* ------------------------ */
-			/* Sets APPASERVER_DATABASE */
-			/* ------------------------ */
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			security_sql_injection_escape(
 				application_name ),
 			security_sql_injection_escape(
@@ -482,6 +491,9 @@ SESSION *session_folder_integrity_exit(
 	}
 
 	session->sql_injection_escape_role_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			role_name );
 

@@ -122,11 +122,21 @@ char *role_primary_where( char *role_name )
 {
 	static char where[ 128 ];
 
+	if ( !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(where,
 		"role = '%s'",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			role_name ) );
 

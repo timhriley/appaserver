@@ -73,6 +73,16 @@ char *security_encrypted_password(
 	char *select_clause;
 	char *results;
 
+	if ( !password_sql_injection_escape )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: password_sql_injection_escape is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( ! ( select_clause = 
 			security_encryption_select_clause(
 				password_function,
@@ -146,6 +156,16 @@ char *security_encryption_select_clause(
 {
 	char select_clause[ 128 ];
 
+	if ( !password )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: password is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( password_function == no_encryption )
 	{
 		sprintf(select_clause,
@@ -213,13 +233,34 @@ char *security_sql_injection_escape( char *data )
 {
 	char destination[ STRING_WHERE_BUFFER ];
 
-	if ( !data || !*data ) return strdup( "" );
+	if ( !data ) return (char *)0;
+	if ( !*data ) return strdup( "" );
 
 	return strdup(
 		string_escape_character_array(
 			destination,
 			data,
-			"`'$;%&=_" ) );
+			SECURITY_ESCAPE_CHARACTER_STRING ) );
+}
+
+char *security_sql_injection_escape_quote_delimit( char *data )
+{
+	char destination[ STRING_WHERE_BUFFER ];
+	char *ptr = destination;
+
+	if ( !data ) return (char *)0;
+	if ( !*data ) return strdup( "''" );
+
+	ptr += sprintf( ptr, "'" );
+
+	string_escape_character_array(
+		ptr,
+		data,
+		SECURITY_ESCAPE_CHARACTER_STRING );
+
+	ptr += sprintf( ptr, "'" );
+
+	return strdup( destination );
 }
 
 SECURITY_ENTITY *security_entity_calloc( void )
@@ -332,6 +373,9 @@ char *security_entity_where(
 	{
 		sprintf(where,
 			"full_name = '%s' and street_address = '%s'",
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			security_sql_injection_escape(
 				security_entity->full_name_only ),
 			security_sql_injection_escape(
@@ -348,6 +392,9 @@ char *security_entity_where(
 	{
 		sprintf(where,
 			"login_name = '%s'",
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			security_sql_injection_escape(
 				security_entity->login_name_only ) );
 
@@ -356,3 +403,25 @@ char *security_entity_where(
 
 	return (char *)0;
 }
+
+LIST *security_sql_injection_escape_list(
+			LIST *data_list )
+{
+	LIST *escape_list = list_new();
+
+	if ( !list_rewind( data_list ) ) return escape_list;
+
+	do {
+		list_set(
+			escape_list,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape(
+				(char *)list_get( data_list ) ) );
+
+	} while ( list_next( data_list ) );
+
+	return escape_list;
+}
+

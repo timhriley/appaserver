@@ -86,9 +86,9 @@ void appaserver_user_trigger_insert_update(
 			/* Returns heap memory */
 			/* ------------------- */
 			security_encrypted_password(
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
 				security_sql_injection_escape(
 					appaserver_user->database_password )
 					    /* password_sql_injection_escape */,

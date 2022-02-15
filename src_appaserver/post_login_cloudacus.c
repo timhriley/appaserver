@@ -99,6 +99,9 @@ int main( int argc, char **argv )
 	environ_set_utc_offset( application_name );
 
 	login_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			login_name );
 

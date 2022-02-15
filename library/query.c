@@ -862,6 +862,9 @@ QUERY_DATA *query_data_new(
 	query_data->datatype_name = datatype_name;
 
 	query_data->escaped_replaced_data =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			security_replace_special_characters(
 				/* --------------------------- */
@@ -1732,8 +1735,6 @@ LIST *query_drop_down_list(
 			continue;
 		}
 
-		relation->consumes_taken = 1;
-
 		if ( !relation_mto1->one_folder )
 		{
 			fprintf(stderr,
@@ -1756,6 +1757,8 @@ LIST *query_drop_down_list(
 				relation_mto1->one_folder->folder_name );
 			exit( 1 );
 		}
+
+		relation_mto1->consumes_taken = 1;
 
 		highest_index =
 			dictionary_string_list_highest_index(

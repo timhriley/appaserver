@@ -72,7 +72,13 @@ int main( int argc, char **argv )
 	login_name = argv[ 1 ];
 	session_key = argv[ 2 ];
 	folder_name = argv[ 3 ];
-	one2m_isa_folder_name = security_sql_injection_escape( argv[ 4 ] );
+
+	one2m_isa_folder_name =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		security_sql_injection_escape( argv[ 4 ] );
+
 	role_name = argv[ 5 ];
 
 	session =

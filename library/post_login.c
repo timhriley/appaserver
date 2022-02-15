@@ -46,9 +46,9 @@ POST_LOGIN *post_login_new(
 	}
 
 	post_login->sql_injection_escape_application_name =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			string_low(
 				post_login_application_name(
@@ -56,8 +56,7 @@ POST_LOGIN *post_login_new(
 					argv,
 					post_login->post_dictionary ) ) );
 
-	if ( !post_login->sql_injection_escape_application_name
-	||   !*post_login->sql_injection_escape_application_name )
+	if ( !post_login->sql_injection_escape_application_name )
 	{
 		fprintf(stderr,
 "Warning in %s/%s()/%d: post_login_application_name() returned empty.\n",
@@ -68,9 +67,9 @@ POST_LOGIN *post_login_new(
 	}
 
 	post_login->sql_injection_escape_login_name =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			string_low(
 				dictionary_fetch(
@@ -88,9 +87,9 @@ POST_LOGIN *post_login_new(
 	}
 
 	post_login->sql_injection_escape_password =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			dictionary_fetch(
 				"password",

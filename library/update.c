@@ -542,6 +542,9 @@ LIST *update_where_attribute_list(
 					folder_attribute->
 						attribute->
 						datatype_name,
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
 				security_sql_injection_escape(
 					update_attribute->file_data ) );
 
@@ -729,6 +732,9 @@ UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_new(
 	update_attribute_changed->attribute_changed = attribute_changed;
 
 	update_attribute_changed->sql_injection_escape_post_data =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			security_replace_special_characters(
 				string_trim_number_characters(
@@ -813,6 +819,9 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 	}
 
 	update_attribute->sql_injection_escape_file_data =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		security_sql_injection_escape(
 			update_attribute->file_data );
 
