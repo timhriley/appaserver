@@ -39,7 +39,7 @@ char *string_input(	char *input_buffer,
 			int buffer_size )
 {
 	int in_char;
-	int size = 0;
+	register int size = 0;
 	char *anchor = input_buffer;
 
 	*anchor = '\0';

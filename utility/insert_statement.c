@@ -27,8 +27,8 @@ void output_compress_insert_statements(
 		char delimiter,
 		char replace_yn );
 
-void fix_any_dollar_signs( char *d );
-void fix_any_quotes( char *d );
+void fix_dollar_signs( char *d );
+void fix_quotes( char *d );
 
 int main( int argc, char **argv )
 {
@@ -142,7 +142,7 @@ void output_compress_insert_statements(
 	{
 		if ( !*buffer ) continue;
 
-		fix_any_quotes( buffer );
+		fix_quotes( buffer );
 
 		if ( first_time )
 			first_time = 0;
@@ -176,7 +176,7 @@ void output_insert_statements(	char *table_name,
 	{
 		if ( !*buffer ) continue;
 
-		fix_any_quotes( buffer );
+		fix_quotes( buffer );
 
 		if ( replace_yn == 'y' )
 		{
@@ -198,9 +198,9 @@ void output_insert_statements(	char *table_name,
 		printf( " values (" );
 		output_row( buffer, delimiter, max_piece );
 		printf(");\n" );
+
 		fflush( stdout );
 	}
-
 }
 
 void output_row( char *row, char delimiter, int max_piece )
@@ -212,7 +212,7 @@ void output_row( char *row, char delimiter, int max_piece )
 	{
 		if ( max_piece && p > max_piece ) break;
 
-		fix_any_dollar_signs( field );
+		fix_dollar_signs( field );
 		trim( field );
 
 		if ( p ) printf( "," );
@@ -230,7 +230,7 @@ void output_row( char *row, char delimiter, int max_piece )
 	}
 }
 
-void fix_any_dollar_signs( char *d )
+void fix_dollar_signs( char *d )
 {
 	static char tmp[ MAX_BUFFER + 1 ];
 	char *tmp_ptr = tmp;
@@ -252,7 +252,7 @@ void fix_any_dollar_signs( char *d )
 
 }
 
-void fix_any_quotes( char *d )
+void fix_quotes( char *d )
 {
 	static char tmp[ MAX_BUFFER + 1 ];
 	char *tmp_ptr = tmp;

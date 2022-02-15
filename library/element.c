@@ -1979,6 +1979,11 @@ char *appaserver_element_html(
 			exit( 1 );
 		}
 
+		if ( appaserver_element->upload->html )
+		{
+			return appaserver_element->upload->html;
+		}
+		else
 		if ( string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
 		{
 			return

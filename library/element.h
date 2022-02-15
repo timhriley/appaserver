@@ -756,6 +756,9 @@ typedef struct
 	int tab_order;
 	boolean recall;
 
+	/* Process */
+	/* ------- */
+	char *html;
 } ELEMENT_UPLOAD;
 
 /* ELEMENT_UPLOAD operations */
