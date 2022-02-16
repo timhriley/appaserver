@@ -42,7 +42,7 @@ typedef struct
 	char *post_action_string;
 	DOCUMENT *document;
 	FORM_CHOOSE_ISA *form_choose_isa;
-	char *html;
+	char *document_form_html;
 } CHOOSE_ISA;
 
 /* CHOOSE_ISA operations */
@@ -87,17 +87,6 @@ char *choose_isa_post_action_string(
 			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *choose_isa_html(
-			char *document_html,
-			char *document_head_html,
-			char *document_head_close_html,
-			char *document_body_html,
-			char *form_choose_isa_html,
-			char *document_body_close_html,
-			char *document_close_html );
 
 typedef struct
 {

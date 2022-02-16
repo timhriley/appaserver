@@ -36,7 +36,7 @@ typedef struct
 	char *target_frame;
 	DOCUMENT *document;
 	FORM_CHOOSE_ROLE *form_choose_role;
-	char *html;
+	char *document_form_html;
 } CHOOSE_ROLE;
 
 /* CHOOSE_ROLE operations */
@@ -84,17 +84,6 @@ char *choose_role_post_action_string(
 /* ---------------------- */
 char *choose_role_target_frame(
 			boolean frameset_menu_horizontal );
-
-/* Returns heap memory */
-/* ------------------- */
-char *choose_role_html(
-			char *document_html,
-			char *document_head_html,
-			char *document_head_close,
-			char *document_body_html,
-			char *form_choose_role_html,
-			char *document_body_close_html,
-			char *document_close_html );
 
 typedef struct
 {

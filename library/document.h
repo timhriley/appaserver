@@ -250,4 +250,15 @@ char *document_close_html(
 
 void document_close(	void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *document_form_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html,
+			char *form_html,
+			char *document_body_close_html,
+			char *document_close_html );
+
 #endif

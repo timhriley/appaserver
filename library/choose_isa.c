@@ -233,11 +233,11 @@ CHOOSE_ISA *choose_isa_new(
 			choose_isa->folder->no_initial_capital,
 			choose_isa->post_action_string );
 
-	choose_isa->html =
+	choose_isa->document_form_html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		choose_isa_html(
+		document_form_html(
 			choose_isa->document->html,
 			choose_isa->document->document_head->html,
 			document_head_close_html(),
@@ -374,45 +374,5 @@ char *choose_isa_prompt_message( LIST *primary_key_list )
 				ELEMENT_LONG_DASH_DELIMITER ) ) );
 
 	return strdup( prompt_message );
-}
-
-char *choose_isa_html(
-			char *document_html,
-			char *document_head_html,
-			char *document_head_close_html,
-			char *document_body_html,
-			char *form_choose_isa_html,
-			char *document_body_close_html,
-			char *document_close_html )
-{
-	char html[ STRING_ONE_MEG ];
-
-	if ( !document_html
-	||   !document_head_html
-	||   !document_head_close_html
-	||   !document_body_html
-	||   !form_choose_isa_html
-	||   !document_body_close_html
-	||   !document_close_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
-		document_html,
-		document_head_html,
-		document_head_close_html,
-		document_body_html,
-		form_choose_isa_html,
-		document_body_close_html,
-		document_close_html );
-
-	return strdup( html );
 }
 

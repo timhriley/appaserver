@@ -770,3 +770,43 @@ char *document_head_html(
 	return strdup( html );
 }
 
+char *document_form_html(
+			char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html,
+			char *form_html,
+			char *document_body_close_html,
+			char *document_close_html )
+{
+	char html[ STRING_FOUR_MEG ];
+
+	if ( !document_html
+	||   !document_head_html
+	||   !document_head_close_html
+	||   !document_body_html
+	||   !form_html
+	||   !document_body_close_html
+	||   !document_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		document_html,
+		document_head_html,
+		document_head_close_html,
+		document_body_html,
+		form_html,
+		document_body_close_html,
+		document_close_html );
+
+	return strdup( html );
+}
+

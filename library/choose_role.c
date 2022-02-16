@@ -178,8 +178,8 @@ CHOOSE_ROLE *choose_role_prompt_new(
 		return (CHOOSE_ROLE *)0;
 	}
 
-	choose_role->html =
-		choose_role_html(
+	choose_role->document_form_html =
+		document_form_html(
 			choose_role->document->html,
 			choose_role->document->document_head->html,
 			document_head_close_html(),
@@ -189,45 +189,6 @@ CHOOSE_ROLE *choose_role_prompt_new(
 			document_close_html() );
 
 	return choose_role;
-}
-
-char *choose_role_html(	char *document_html,
-			char *document_head_html,
-			char *document_head_close_html,
-			char *document_body_html,
-			char *form_choose_role_html,
-			char *document_body_close_html,
-			char *document_close_html )
-{
-	char html[ STRING_64K ];
-
-	if ( !document_html
-	||   !document_head_html
-	||   !document_head_close_html
-	||   !document_body_html
-	||   !form_choose_role_html
-	||   !document_body_close_html
-	||   !document_close_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(html,
-		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
-		document_html,
-		document_head_html,
-		document_head_close_html,
-		document_body_html,
-		form_choose_role_html,
-		document_body_close_html,
-		document_close_html );
-
-	return strdup( html );
 }
 
 CHOOSE_ROLE *choose_role_default_new( char *login_name )
