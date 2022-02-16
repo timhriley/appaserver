@@ -15,6 +15,10 @@
 #include "folder.h"
 #include "drillthru.h"
 #include "post_dictionary.h"
+#include "frameset.h"
+#include "folder_menu.h"
+#include "menu.h"
+#include "frameset.h"
 #include "dictionary_separate.h"
 
 /* Constants */
@@ -24,6 +28,8 @@ typedef struct
 {
 	LIST *role_folder_list;
 	boolean forbid;
+	FOLDER_MENU *folder_menu;
+	MENU *menu;
 	ROLE *role;
 	FOLDER *folder;
 	DICTIONARY_SEPARATE *dictionary_separate;
@@ -49,7 +55,9 @@ PROMPT_EDIT *prompt_edit_new(
 			char *role_name,
 			char *target_frame,
 			char *state,
+			boolean menu_boolean,
 			char *appasever_mount_point,
+			char *data_directory,
 			POST_DICTIONARY *post_dictionary );
 
 boolean prompt_edit_forbid(
@@ -65,8 +73,9 @@ boolean prompt_edit_omit_delete_button(
 boolean prompt_edit_omit_new_button(
 			boolean relation_exists_multi_select );
 
-/* Returns relation_mto1_non_isa_list or null */
-/* ------------------------------------------ */
+/* Returns relation_mto1_non_isa_list or	*/
+/* those with only a single foreign key.	*/
+/* -------------------------------------------- */
 LIST *prompt_edit_drillthru_skipped(
 			LIST *relation_mto1_non_isa_list,
 			boolean drillthru_skipped );

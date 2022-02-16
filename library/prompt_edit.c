@@ -12,9 +12,6 @@
 #include "String.h"
 #include "environ.h"
 #include "appaserver_library.h"
-#include "drillthru.h"
-#include "folder_attribute.h"
-#include "dictionary_separate.h"
 #include "prompt_edit.h"
 
 PROMPT_EDIT *prompt_edit_calloc( void )
@@ -42,7 +39,9 @@ PROMPT_EDIT *prompt_edit_new(
 			char *role_name,
 			char *target_frame,
 			char *state,
+			boolean menu_boolean,
 			char *appaserver_mount_point,
+			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
 {
 	PROMPT_EDIT *prompt_edit = prompt_edit_calloc();
@@ -129,6 +128,25 @@ PROMPT_EDIT *prompt_edit_new(
 		return prompt_edit;
 	}
 
+	if ( menu_boolean )
+	{
+		prompt_edit->folder_menu =
+			folder_menu_fetch(
+				application_name,
+				session_key,
+				data_directory,
+				role_name );
+	
+		prompt_edit->menu =
+			menu_fetch(
+				application_name,
+				login_name,
+				session_key,
+				role_name,
+				target_frame,
+				folder_menu->lookup_count_list );
+	}
+
 	prompt_edit_form->dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
@@ -143,18 +161,6 @@ PROMPT_EDIT *prompt_edit_new(
 				prompt_edit->
 					folder->
 					folder_attribute_list ) );
-
-	if ( !prompt_edit->dictionary_separate )
-	{
-		fprintf(stderr,
-"Warning in %s/%s()/%d: dictionary_separate_folder_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-
-		prompt_edit->forbid = 1;
-		return prompt_edit;
-	}
 
 	prompt_edit->drillthru =
 		drillthru_fetch(
@@ -178,10 +184,24 @@ PROMPT_EDIT *prompt_edit_new(
 				: 0 );
 
 	prompt_edit->omit_insert_button =
-		prompt_insert_omit_insert_button(
+		prompt_edit_omit_insert_button(
 			prompt_edit->drillthru_skipped );
 
-	prompt_edit->target_frame(
+	prompt_edit->omit_delete_button =
+		prompt_edit_omit_delete_button(
+			list_length(
+				prompt_edit->
+					folder->
+					relation_mto1_isa_list ) );
+
+	prompt_edit->omit_new_button =
+		prompt_edit_omit_new_button(
+			relation_exists_multi_select(
+				prompt_edit->
+					folder->
+					relation_mto1_non_isa_list ) );
+
+	prompt_edit->target_frame =
 		/* ------------------------------------------- */
 		/* Returns target_frame or frameset_edit_frame */
 		/* ------------------------------------------- */
@@ -190,6 +210,21 @@ PROMPT_EDIT *prompt_edit_new(
 			FRAMESET_EDIT_FRAME,
 			prompt_edit->drillthru_skipped );
 
+	prompt_edit->folder->relation_mto1_non_isa_list =
+		/* -------------------------------------------- */
+		/* Returns relation_mto1_non_isa_list or	*/
+		/* those with only a single foreign key.	*/
+		/* -------------------------------------------- */
+		prompt_edit_drillthru_skipped(
+			prompt_edit->folder->relation_mto1_non_isa_list,
+			prompt_edit->drillthru_skipped );
+
+	prompt_edit->title =
+		prompt_edit_title(
+			state,
+			folder_name );
+
+	prompt_edit->
 	return prompt_edit;
 }
 
@@ -221,8 +256,6 @@ boolean prompt_edit_omit_new_button(
 	return relation_exists_multi_select;
 }
 
-/* Returns relation_mto1_non_isa_list or null */
-/* ------------------------------------------ */
 LIST *prompt_edit_drillthru_skipped(
 			LIST *relation_mto1_non_isa_list,
 			boolean drillthru_skipped )

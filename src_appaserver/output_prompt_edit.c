@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/src_appaserver/output_prompt_edit_form.c		*/
-/* --------------------------------------------------------------------	*/
-/*									*/
-/* This is the form that displays the blank cells for data entry forms.	*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* --------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/output_prompt_edit.c		*/
+/* ------------------------------------------------------------	*/
+/*								*/
+/* This displays the query cells for the lookup form.		*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* -----------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -13,32 +13,24 @@
 #include <string.h>
 #include <unistd.h>
 #include "timlib.h"
-#include "appaserver_parameter_file.h"
-#include "environ.h"
+#include "appaserver_parameter.h"
 #include "session.h"
 #include "post_dictionary.h"
-#include "prompt_edit_form.h"
-
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
-void output_prompt_edit_form(
-			PROMPT_EDIT_FORM *prompt_edit_form );
+#include "frameset.h"
+#include "prompt_edit.h"
 
 int main( int argc, char **argv )
 {
-	char *login_name;
 	char *application_name;
+	char *login_name;
 	char *session_key;
 	char *folder_name;
 	char *role_name;
 	char *target_frame;
 	char *state;
 	POST_DICTIONARY *post_dictionary;
-	PROMPT_EDIT_FORM *prompt_edit_form;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
+	APPASERVER_PARAMETER *appaserver_parameter;
+	PROMPT_EDIT *prompt_edit;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -68,23 +60,33 @@ int main( int argc, char **argv )
 
 	session_environment_set( application_name );
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter = appaserver_parameter_file();
 
-	if ( ! ( prompt_edit_form =
-			prompt_edit_form_fetch(
-				application_name,
-				login_name,
-				session,
-				folder_name,
-				role_name,
-				target_frame,
-				state,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				post_dictionary ) ) )
+	prompt_edit =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		prompt_edit_new(
+			application_name,
+			login_name,
+			session,
+			folder_name,
+			role_name,
+			target_frame,
+			state,
+			menu_boolean(
+				FRAMESET_PROMPT_FRAME,
+				frameset_menu_horizontal(
+					application_name,
+					login_name ) ),
+			appaserver_parameter->
+				appaserver_mount_point,
+			appaserver_parameter->
+				data_directory,
+			post_dictionary );
+
+	if ( prompt_edit->forbid )
 	{
-		/* Later execute document_close() */
-		/* ------------------------------ */
 		document_quick_output( application_name );
 
 		printf(
@@ -94,11 +96,17 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	output_prompt_edit_form( prompt_edit_form );
+	if ( !prompt_edit->menu_boolean )
+	{
+		document_output_content_type();
+	}
+
+	printf( "%s\n", prompt_edit->html );
 
 	return 0;
 }
 
+#ifdef NOT_DEFINED
 void output_prompt_edit_form(
 			PROMPT_EDIT_FORM *prompt_edit_form )
 {
@@ -1351,8 +1359,6 @@ LIST *get_radio_button_element_list(
 			return_list, 
 			element );
 
-#ifdef NOT_DEFINED
-# Retired 2020-08-03
 int folder_lookup_email_output,
 	/* Create the email_output text field (maybe) */
 	/* ------------------------------------------ */
@@ -1400,7 +1406,6 @@ int folder_lookup_email_output,
 					element );
 
 	} /* if folder_lookup_email_output */
-#endif
 
 	return return_list;
 }
@@ -1724,7 +1729,6 @@ char *get_done_folder_name(	char *folder_name,
 	return strdup( done_folder_name );
 }
 
-#ifdef NOT_DEFINED
 boolean get_omit_delete_button(
 			char *application_name,
 			FOLDER *folder,
@@ -1766,7 +1770,6 @@ boolean get_omit_delete_button(
 
 	return return_value;
 }
-#endif
 
 void build_related_folder_element_list(
 			RELATED_FOLDER **ajax_fill_drop_down_related_folder,
@@ -1947,4 +1950,4 @@ void build_related_folder_element_list(
 
 	related_folder->ignore_output = 1;
 }
-
+#endif

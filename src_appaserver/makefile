@@ -1,5 +1,5 @@
-# src_appaserver/makefile
-# -----------------------
+# $APPASERVER_HOME/src_appaserver/makefile
+# ----------------------------------------
 
 CC=gcc
 #WARN=-Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations
@@ -485,22 +485,6 @@ maintain_user_account: maintain_user_account.c				\
 		maintain_user_account.c					\
 		-o maintain_user_account
 
-output_prompt_insert_frameset: output_prompt_insert_frameset.c		\
-			${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		output_prompt_insert_frameset.c				\
-		-o output_prompt_insert_frameset
-
-output_prompt_edit_frameset: output_prompt_edit_frameset.c		\
-			${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		output_prompt_edit_frameset.c				\
-		-o output_prompt_edit_frameset
-
 post_choose_role: post_choose_role.c					\
 			${LIB}/folder_menu.o				\
 			${EXTERNAL_LIBS}
@@ -526,23 +510,6 @@ output_choose_role_folder_process:					\
 		${LIB}/folder_menu.o					\
 		output_choose_role_folder_process.c			\
 		-o output_choose_role_folder_process
-
-output_choose_role_folder_process_frameset:				\
-	output_choose_role_folder_process_frameset.c			\
-			${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		output_choose_role_folder_process_frameset.c		\
-		-o output_choose_role_folder_process_frameset
-
-output_edit_table_frameset: output_edit_table_frameset.c		\
-			${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		output_edit_table_frameset.c				\
-		-o output_edit_table_frameset
 
 output_results: output_results.c					\
 			${EXTERNAL_LIBS}
