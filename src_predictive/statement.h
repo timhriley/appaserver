@@ -260,15 +260,13 @@ char *statement_subtitle(
 void statement_fund_list_steady_state(
 			LIST *statement_fund_list,
 			char *title,
-			char *subtitle,
-			boolean exists_logo_filename );
+			char *subtitle );
 
 STATEMENT_FUND *statement_fund_steady_state(
 			LIST *preclose_element_list,
 			LIST *postclose_element_list,
 			char *title,
 			char *subtitle,
-			boolean exists_logo_filename,
 			STATEMENT_FUND *statement_fund );
 
 boolean statement_fund_exists_postclose(
@@ -381,8 +379,7 @@ LIST *statement_PDF_heading_list(
 char *statement_fund_caption(
 			char *title,
 			char *subtitle,
-			char *fund_name,
-			boolean exists_logo_filename );
+			char *fund_name );
 
 void statement_html_display_element_list(
 			HTML_TABLE *html_table,
