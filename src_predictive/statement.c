@@ -344,8 +344,7 @@ STATEMENT *statement_steady_state(
 	statement_fund_list_steady_state(
 		statement->statement_fund_list,
 		statement->title,
-		statement->subtitle,
-		statement->exists_logo_filename );
+		statement->subtitle );
 
 	return statement;
 }
@@ -752,7 +751,6 @@ STATEMENT_FUND *statement_fund_steady_state(
 			LIST *postclose_element_list,
 			char *title,
 			char *subtitle,
-			boolean exists_logo_filename,
 			STATEMENT_FUND *statement_fund )
 {
 	if ( list_length( postclose_element_list ) )
@@ -812,8 +810,7 @@ STATEMENT_FUND *statement_fund_steady_state(
 		statement_fund_caption(
 			title,
 			subtitle,
-			statement_fund->fund_name,
-			exists_logo_filename );
+			statement_fund->fund_name );
 
 	return statement_fund;
 }
@@ -962,8 +959,7 @@ LIST *statement_fund_steady_state_prior_year_list(
 void statement_fund_list_steady_state(
 			LIST *statement_fund_list,
 			char *title,
-			char *subtitle,
-			boolean exists_logo_filename )
+			char *subtitle )
 {
 	STATEMENT_FUND *statement_fund;
 
@@ -978,7 +974,6 @@ void statement_fund_list_steady_state(
 				statement_fund->postclose_element_list,
 				title,
 				subtitle,
-				exists_logo_filename,
 				statement_fund );
 
 	} while ( list_next( statement_fund_list ) );
@@ -1939,8 +1934,7 @@ LIST *statement_PDF_net_income_delta_list(
 char *statement_fund_caption(
 			char *title,
 			char *subtitle,
-			char *fund_name,
-			boolean exists_logo_filename )
+			char *fund_name )
 {
 	char caption[ 256 ];
 	char fund_string[ 128 ];
@@ -1956,21 +1950,11 @@ char *statement_fund_caption(
 		*fund_string = '\0';
 	}
 
-	if ( exists_logo_filename )
-	{
-		sprintf(caption,
-			"%s%s",
-			subtitle,
-			fund_string);
-	}
-	else
-	{
-		sprintf(caption,
-			"%s %s%s",
-			title,
-			subtitle,
-			fund_string);
-	}
+	sprintf(caption,
+		"%s %s%s",
+		title,
+		subtitle,
+		fund_string);
 
 	return strdup( caption );
 }
