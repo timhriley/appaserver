@@ -203,11 +203,11 @@ LIST *reoccurring_transaction_list( void )
 	char sys_string[ 1024 ];
 
 	sprintf(sys_string,
-		"select.sh '%s' %s \"%s\" %s",
+		"select.sh '%s' %s \"%s\" \"%s\"",
 		reoccurring_transaction_select(),
 		"reoccurring_transaction",
 		"bank_upload_feeder_phrase is not null",
-		"select" );
+		"bank_upload_feeder_phrase desc" );
 
 	return reoccurring_transaction_system_list( sys_string );
 }
