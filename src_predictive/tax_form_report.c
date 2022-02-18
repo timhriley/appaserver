@@ -791,7 +791,7 @@ LIST *tax_form_report_account_PDF_table_list(
 	do {
 		tax_form_line = list_get( tax_form_line_list );
 
-		if ( !tax_form_line->itemize_accounts ) continue;
+		/* if ( !tax_form_line->itemize_accounts ) continue; */
 
 		if ( !list_rewind( tax_form_line->tax_form_line_account_list ) )
 			continue;
