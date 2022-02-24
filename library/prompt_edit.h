@@ -28,10 +28,10 @@ typedef struct
 {
 	LIST *role_folder_list;
 	boolean forbid;
-	FOLDER_MENU *folder_menu;
-	MENU *menu;
 	ROLE *role;
 	FOLDER *folder;
+	FOLDER_MENU *folder_menu;
+	MENU *menu;
 	DICTIONARY_SEPARATE *dictionary_separate;
 	DRILLTHRU *drillthru;
 	boolean drillthru_skipped;
@@ -61,8 +61,10 @@ PROMPT_EDIT *prompt_edit_new(
 			POST_DICTIONARY *post_dictionary );
 
 boolean prompt_edit_forbid(
-			boolean update,
-			boolean lookup );
+			boolean role_folder_update,
+			boolean role_folder_lookup,
+			char *state,
+			char *appaserver_update_state );
 
 boolean prompt_edit_omit_insert_button(
 			boolean drillthru_skipped );

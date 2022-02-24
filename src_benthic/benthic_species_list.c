@@ -1,4 +1,4 @@
-/* src_benthic/benthic_species_list.c			   */
+/* $APPASERVER_HOME/src_benthic/benthic_species_list.c	   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 	if ( argc < 2 )
 	{
 		fprintf( stderr,
-	"Usage: %s application [dictionary]\n",
+			 "Usage: %s application [dictionary]\n",
 			 argv[ 0 ] );
 		exit( 1 );
 	}
@@ -77,10 +77,10 @@ int main( int argc, char **argv )
 fprintf( stderr, "\ngot sys_string = (%s)\n", sys_string );
 */
 
-	system( sys_string );
+	if ( system( sys_string ) ){};
 
 	return 0;
-} /* main() */
+}
 
 char *get_species_sys_string(	char *application_name,
 				DICTIONARY *post_dictionary )
@@ -98,8 +98,8 @@ char *get_species_sys_string(	char *application_name,
 	{
 		one2m_folder_name =
 			dictionary_get(
-				ONE2M_FOLDER_NAME_FOR_PROCESS,
-				post_dictionary );
+				post_dictionary,
+				ONE2M_FOLDER_NAME_FOR_PROCESS );
 	}
 
 	if ( one2m_folder_name
@@ -121,14 +121,14 @@ char *get_species_sys_string(	char *application_name,
 				"benthic_species" );;
 
 	sprintf( sys_string,
-"echo \"select %s from %s where %s;\" | sql.e | sort",
+		 "echo \"select %s from %s where %s;\" | sql.e | sort",
 		 select,
 		 benthic_species_table_name,
 		 species_where_clause );
 
 	return strdup( sys_string );
 
-} /* get_species_sys_string() */
+}
 
 boolean get_dictionary_variables(
 			char **anchor_date,
@@ -183,7 +183,7 @@ boolean get_dictionary_variables(
 	}
 
 	return 1;
-} /* get_dictionary_variables() */
+}
 
 LIST *get_species_record_list(
 			char *application_name,
@@ -226,7 +226,7 @@ LIST *get_species_record_list(
 
 	return pipe2list( sys_string );
 
-} /* get_species_record_list() */
+}
 
 char *get_species_where_clause(
 			char *application_name,

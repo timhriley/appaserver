@@ -28,7 +28,6 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *target_frame;
 	char *state;
-	POST_DICTIONARY *post_dictionary;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	PROMPT_EDIT *prompt_edit;
 
@@ -54,13 +53,8 @@ int main( int argc, char **argv )
 	target_frame = argv[ 5 ];
 	state = argv[ 6 ];
 
-	post_dictionary =
-		post_dictionary_string_new(
-			argv[ 7 ] );
-
 	session_environment_set( application_name );
-
-	appaserver_parameter = appaserver_parameter_file();
+	appaserver_parameter = appaserver_parameter_new();
 
 	prompt_edit =
 		/* --------------- */
@@ -69,7 +63,7 @@ int main( int argc, char **argv )
 		prompt_edit_new(
 			application_name,
 			login_name,
-			session,
+			session_key,
 			folder_name,
 			role_name,
 			target_frame,
@@ -83,7 +77,8 @@ int main( int argc, char **argv )
 				appaserver_mount_point,
 			appaserver_parameter->
 				data_directory,
-			post_dictionary );
+			post_dictionary_string_new(
+				argv[ 7 ] ) );
 
 	if ( prompt_edit->forbid )
 	{
@@ -92,7 +87,7 @@ int main( int argc, char **argv )
 		printf(
 	"<h3>An internal error occurred. Check the system log.</h3>\n" );
 
-		document_tag_close( stdout );
+		printf( "%s\n", document_close_html() );
 		exit( 1 );
 	}
 

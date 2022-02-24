@@ -24,78 +24,84 @@
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *base_folder_name;
-	DICTIONARY *drillthru_dictionary;
-
-	/* Process */
-	/* ------- */
 	boolean drillthru_participating;
+	char *start_current_folder_name;
+	boolean skipped;
+	char *base_folder_name;
 	LIST *fulfilled_folder_name_list;
 	LIST *relation_mto1_drillthru_list;
 	char *current_folder_name;
+	boolean finished;
+	LIST *current_fulfilled_folder_name_list;
 } DRILLTHRU;
 
-/* Operations */
-/* ---------- */
-DRILLTHRU *drillthru_calloc(
-			void );
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
 DRILLTHRU *drillthru_start(
+			DICTIONARY *drillthru_dictionary /* out */,
 			char *folder_name );
+
+/* Process */
+/* ------- */
+boolean drillthru_start_participating(
+			int relation_mto1_drillthru_list_length );
+
+char *drillthru_start_current_folder_name(
+			LIST *relation_mto1_drillthru_list );
+
+void drillthru_base_set(
+			DICTIONARY *drillthru_dictionary,
+			char *drillthru_base_key,
+			char *folder_name );
+
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
-DRILLTHRU *drillthru_fetch(
+DRILLTHRU *drillthru_continue(
+			DICTIONARY *drillthru_dictionary /* in/out */,
+			char *folder_name );
+
+/* Process */
+/* ------- */
+char *drillthru_base_folder_name(
+			char *drillthru_base_key,
 			DICTIONARY *drillthru_dictionary );
+
+boolean drillthru_continue_participating(
+			char *base_folder_name );
+
+boolean drillthru_skipped(
+			int drillthru_dictionary_length );
 
 LIST *drillthru_fulfilled_folder_name_list(
-			DICTIONARY *drillthru_dictionary );
-
-char *drillthru_base_folder_name(
+			char *drillthru_fulfilled_key,
 			DICTIONARY *drillthru_dictionary );
 
 char *drillthru_current_folder_name(
 			LIST *relation_mto1_drillthru_list,
 			char *base_folder_name );
 
-void drillthru_base_set(
-			DICTIONARY *drillthru_dictionary,
-			char *folder_name );
-
-void drillthru_fulfilled_current_set(
-			DICTIONARY *drillthru_dictionary,
-			LIST *fulfilled_folder_name_list,
-			char *current_folder_name );
-
-void drillthru_fulfilled_set(
-			DICTIONARY *drillthru_dictionary,
-			LIST *fulfilled_folder_name_list );
-
-boolean drillthru_participating(
-			char *base_folder_name );
-
-boolean drillthru_start_participating(
-			int relation_mto1_drillthru_list_length );
-
-boolean drillthru_skipped(
-			char *folder_name,
-			char *base_folder_name,
-			int drillthru_fulfilled_folder_name_list_length );
-
-boolean drillthru_middle(
-			char *folder_name,
-			char *current_folder_name );
-
 boolean drillthru_finished(
 			char *folder_name,
 			char *current_folder_name );
 
-char *drillthru_participating_folder_name(
-			char *folder_name,
-			DRILLTHRU *drillthru );
+LIST *drillthru_current_fulfilled_folder_name_list(
+			LIST *drillthru_fulfilled_folder_name_list /* out */,
+			char *drillthru_current_folder_name );
+
+void drillthru_dictionary_fulfilled_set(
+			DICTIONARY *drillthru_dictionary /* out */,
+			char *drillthru_fulfilled_key,
+			LIST *drillthru_current_fulfilled_folder_name_list );
+
+/* Public */
+/* ------ */
+DRILLTHRU *drillthru_calloc(
+			void );
 
 #endif

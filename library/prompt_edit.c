@@ -63,15 +63,22 @@ PROMPT_EDIT *prompt_edit_new(
 		return prompt_edit;
 	}
 
-	if ( ( prompt_edit->forbid = prompt_edit_forbid(
-		role_folder_update( prompt_edit->role_folder_list ),
-		role_folder_lookup( prompt_edit->role_folder_list ) ) ) )
+	if ( ( prompt_edit->forbid =
+		prompt_edit_forbid(
+			role_folder_update(
+				prompt_edit->role_folder_list ),
+			role_folder_lookup(
+				prompt_edit->role_folder_list ),
+			state,
+			APPASERVER_UPDATE_STATE ) ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: update or lookup permissions not set.\n",
+	"Warning in %s/%s()/%d: prompt_edit_forbid(%s/%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__ );
+			__LINE__,
+			login_name,
+			state );
 
 		return prompt_edit;
 	}
@@ -110,11 +117,11 @@ PROMPT_EDIT *prompt_edit_new(
 				/* Also sets folder_attribute_append_isa_list */
 				/* ------------------------------------------ */
 				1 /* fetch_relation_mto1_isa_list */,
-				1 /* fetch_relation_one2m_list */,
-				1 /* fetch_relation_one2m_recursive_list */,
+				0 /* not fetch_relation_one2m_list */,
+				0 /* not fetch_relation_one2m_recursive_list */,
 				0 /* not fetch_process */,
 				0 /* not fetch_role_folder_list */,
-				0 /* not fetch_row_level_restriction */,
+				1 /* fetch_row_level_restriction */,
 				0 /* not fetch_role_operation_list */ ) ) )
 	{
 		fprintf(stderr,
@@ -144,7 +151,9 @@ PROMPT_EDIT *prompt_edit_new(
 				session_key,
 				role_name,
 				target_frame,
-				folder_menu->lookup_count_list );
+				prompt_edit->
+					folder_menu->
+					lookup_count_list );
 	}
 
 	prompt_edit_form->dictionary_separate =
@@ -152,18 +161,16 @@ PROMPT_EDIT *prompt_edit_new(
 		/* Always succeeds */
 		/* --------------- */
 		dictionary_separate_folder_new(
-			prompt_edit->
-				post_dictionary->
-				original_post_dictionary,
+			post_dictionary->original_post_dictionary,
 			application_name,
 			login_name,
 			folder_attribute_date_name_list(
 				prompt_edit->
 					folder->
-					folder_attribute_list ) );
+					folder_attribute_append_isa_list ) );
 
 	prompt_edit->drillthru =
-		drillthru_fetch(
+		drillthru_continue(
 			prompt_edit->
 				dictionary_separate->
 				drillthru_dictionary );
@@ -230,12 +237,21 @@ PROMPT_EDIT *prompt_edit_new(
 
 boolean prompt_edit_forbid(
 			boolean update,
-			boolean lookup )
+			boolean lookup,
+			char *state,
+			char *appaserver_update_state )
 {
-	if ( !update || !lookup )
+	if ( !state || !*state ) return 1;
+
+	if ( !update && !lookup ) return 1;
+
+	if ( string_strcmp( state, appaserver_update_state ) == 0
+	&&   !update )
+	{
 		return 1;
-	else
-		return 0;
+	}
+
+	return 0;
 }
 
 boolean prompt_edit_omit_insert_button(

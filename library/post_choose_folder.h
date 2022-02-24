@@ -24,15 +24,6 @@
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ------*/
-	char *application_name;
-	char *login_name;
-	char *session_key;
-	char *folder_name;
-	char *role_name;
-	char *state;
-
 	/* Process */
 	/* ------- */
 	boolean fetch_relation_mto1_isa_list;
