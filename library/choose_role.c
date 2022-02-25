@@ -34,6 +34,27 @@ CHOOSE_ROLE *choose_role_calloc( void )
 	return choose_role;
 }
 
+char *choose_role_title_html( char *title_string )
+{
+	static char html[ 256 ];
+
+	if ( !title_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: title_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"<h1>%s</h1>",
+		title_string );
+
+	return html;
+}
+
 char *choose_role_title_string( char *login_name )
 {
 	static char title[ 256 ];
@@ -148,6 +169,13 @@ CHOOSE_ROLE *choose_role_prompt_new(
 		choose_role_target_frame(
 			frameset_menu_horizontal );
 
+	choose_role->title_html =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		choose_role_title_html(
+			choose_role->title_string );
+
 	choose_role->document =
 		/* --------------- */
 		/* Always succeeds */
@@ -155,6 +183,7 @@ CHOOSE_ROLE *choose_role_prompt_new(
 		document_new(
 			application_name,
 			choose_role_title_string( login_name ),
+			choose_role->title_html,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,

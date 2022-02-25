@@ -156,6 +156,13 @@ PROMPT_EDIT *prompt_edit_new(
 					lookup_count_list );
 	}
 
+	prompt_edit->folder_attribute_date_name_list_length =
+		list_length(
+			folder_attribute_date_name_list(
+				prompt_edit->
+					folder->
+					folder_attribute_append_isa_list ) );
+
 	prompt_edit_form->dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
@@ -170,25 +177,14 @@ PROMPT_EDIT *prompt_edit_new(
 					folder_attribute_append_isa_list ) );
 
 	prompt_edit->drillthru =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		drillthru_continue(
 			prompt_edit->
 				dictionary_separate->
-				drillthru_dictionary );
-
-	prompt_edit->drillthru_skipped =
-		drillthru_skipped(
-			folder_name,
-			(prompt_edit->drillthru)
-				? prompt_edit->
-					drillthru->
-					base_folder_name
-				: (char *)0,
-			(prompt_edit->drillthru)
-				? list_length(
-					prompt_edit->
-				     	    drillthru->
-				     	    fulfilled_folder_name_list )
-				: 0 );
+				drillthru_dictionary /* in/out */,
+			folder_name );
 
 	prompt_edit->omit_insert_button =
 		prompt_edit_omit_insert_button(
@@ -210,7 +206,7 @@ PROMPT_EDIT *prompt_edit_new(
 
 	prompt_edit->target_frame =
 		/* ------------------------------------------- */
-		/* Returns target_frame or frameset_edit_frame */
+		/* Returns target_frame or FRAMESET_EDIT_FRAME */
 		/* ------------------------------------------- */
 		prompt_edit_target_frame(
 			target_frame,
@@ -226,12 +222,84 @@ PROMPT_EDIT *prompt_edit_new(
 			prompt_edit->folder->relation_mto1_non_isa_list,
 			prompt_edit->drillthru_skipped );
 
-	prompt_edit->title =
-		prompt_edit_title(
+	prompt_edit->title_html =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		prompt_edit_title_html(
 			state,
 			folder_name );
 
-	prompt_edit->
+	prompt_edit->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
+			application_name,
+			application_title_string(
+				application_name ),
+			prompt_edit->title_html,
+			(char *)0 /* subtitle_html */,
+			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
+			menu_boolean,
+			prompt_edit->menu,
+			document_head_menu_setup_string(
+				menu_boolean ),
+			document_head_calendar_setup_string(
+				prompt_edit->
+				       folder_attribute_date_name_list_length ),
+			document_head_javascript_include_string(),
+			keystrokes_recall_onload_string( folder_name )
+				/* input_onload_string */ );
+
+	prompt_edit->action_string =
+		prompt_edit_action_string(
+			PROMPT_EDIT_POST_EXECUTABLE,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			prompt_edit->target_frame,
+			state );
+
+	prompt_edit->form_prompt_edit =
+		form_prompt_edit_new(
+			prompt_edit->action_string,
+			prompt_edit->omit_insert_button,
+			prompt_edit->omit_delete_button,
+			prompt_edit->omit_new_button,
+			prompt_edit->folder->folder_attribute_append_isa_list,
+			prompt_edit->folder->relation_mto1_non_isa_list,
+			prompt_edit->dictionary_separate->drillthru_dictionary,
+			prompt_edit->drillthru->skipped );
+
+	if ( !prompt_edit->form_prompt_edit )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_prompt_edit_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	prompt_edit->document_form_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		document_form_html(
+			prompt_edit->document->html,
+			prompt_edit->document->document_head->html,
+			document_head_close_html(),
+			prompt_edit->document->document_body->html,
+			prompt_edit->form_prompt_edit->html,
+			document_body_close_html(),
+			document_close_html() );
+
+	free( prompt_edit->form_prompt_edit->html );
+
 	return prompt_edit;
 }
 
@@ -291,5 +359,74 @@ char *prompt_edit_target_frame(
 		return frameset_edit_frame;
 	else
 		return target_frame;
+}
+
+char *prompt_edit_title_html(
+			char *state,
+			char *folder_name )
+{
+	static char title_html[ 128 ];
+	char buffer1[ 16 ];
+	char buffer2[ 128 ];
+
+	sprintf(title_html,
+		"<h1>%s %s</h1>",
+		string_format_capital(
+			buffer1,
+			state ),
+		string_format_capital(
+			buffer2,
+			folder_name ) );
+
+	return title_html;
+}
+
+char *prompt_edit_action_string(
+			char *prompt_edit_post_executable,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *prompt_edit_target_frame,
+			char *state )
+{
+	char action_string[ 1024 ];
+
+	if ( !prompt_edit_post_executable
+	||   !application_name
+	||   !login_name
+	||   !session_key
+	||   !folder_name
+	||   !one2m_isa_folder_name
+	||   !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(action_string,
+		" action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s\"",
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		prompt_edit_post_executable,
+		application_name,
+		login_name,
+		session_key,
+		folder_name,
+		role_name,
+		target_frame,
+		state );
+
+	return strdup( action_string );
 }
 

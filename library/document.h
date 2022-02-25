@@ -118,7 +118,7 @@ DOCUMENT_BODY *document_body_calloc(
 DOCUMENT_BODY *document_body_new(
 			boolean menu_boolean,
 			MENU *menu,
-			char *application_title_string,
+			char *title_html,
 			char *subtitle_html,
 			char *subsubtitle_html,
 			char *javascript_replace,
@@ -158,7 +158,7 @@ char *document_body_title_html(
 char *document_body_html(
 			char *document_body_tag,
 			char *document_body_horizontal_menu_html,
-			char *document_body_title_html,
+			char *title_html,
 			char *subtitle_html,
 			char *subsubtitle_html );
 
@@ -178,8 +178,6 @@ char *document_body_close_html(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	DOCUMENT_HEAD *document_head;
 	DOCUMENT_BODY *document_body;
 	char *type_string;
@@ -197,6 +195,7 @@ DOCUMENT *document_calloc(
 DOCUMENT *document_new(
 			char *application_name,
 			char *application_title_string,
+			char *title_html,
 			char *subtitle_html,
 			char *subsubtitle_html,
 			char *javascript_replace,

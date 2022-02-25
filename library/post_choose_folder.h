@@ -46,7 +46,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_calloc(
 
 /* Always succeeds */
 /* --------------- */
-POST_CHOOSE_FOLDER *post_choose_folder_fetch(
+POST_CHOOSE_FOLDER *post_choose_folder_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
@@ -83,6 +83,10 @@ boolean post_choose_folder_prompt_edit_form(
 boolean post_choose_folder_edit_table_form(
 			char *folder_form_name,
 			char *state );
+
+char *post_choose_folder_name(
+			char *folder_name,
+			char *drillthru_start_current_folder_name );
 
 /* Returns heap memory */
 /* ------------------- */

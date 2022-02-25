@@ -49,6 +49,7 @@ char *document_html_standard_url( void )
 DOCUMENT *document_new(
 			char *application_name,
 			char *application_title_string,
+			char *title_html,
 			char *subtitle_html,
 			char *subsubtitle_html,
 			char *javascript_replace,
@@ -79,7 +80,7 @@ DOCUMENT *document_new(
 		document_body_new(
 			menu_boolean,
 			menu,
-			application_title_string,
+			title_html,
 			subtitle_html,
 			subsubtitle_html,
 			javascript_replace,
@@ -128,7 +129,7 @@ DOCUMENT *document_quick_new(
 		document_body_new(
 			0 /* not menu_boolean */,
 			(MENU *)0,
-			application_title_string,
+			(char *)0 /* title_html */,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
@@ -228,7 +229,7 @@ DOCUMENT_BODY *document_body_calloc( void )
 DOCUMENT_BODY *document_body_new(
 			boolean menu_boolean,
 			MENU *menu,
-			char *application_title_string,
+			char *title_html,
 			char *subtitle_html,
 			char *subsubtitle_html,
 			char *javascript_replace,
@@ -262,13 +263,6 @@ DOCUMENT_BODY *document_body_new(
 			menu_boolean,
 			menu );
 
-	document_body->title_html =
-		/* ----------------------------- */
-		/* Returns static memory or null */
-		/* ----------------------------- */
-		document_body_title_html(
-			application_title_string );
-
 	document_body->html =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -276,7 +270,7 @@ DOCUMENT_BODY *document_body_new(
 		document_body_html(
 			document_body->tag,
 			document_body->horizontal_menu_html,
-			document_body->title_html,
+			title_html,
 			subtitle_html,
 			subsubtitle_html );
 

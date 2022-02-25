@@ -185,11 +185,24 @@ CHOOSE_ISA *choose_isa_new(
 
 	}
 
-	choose_isa->post_action_string =
+	choose_isa->title_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		choose_isa_title_string( folder_name );
+
+	choose_isa->title_html =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		choose_isa_title_html( choose_isa->title_string );
+
+	choose_isa->action_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		choose_isa_post_action_string(
+		choose_isa_action_string(
+			CHOOSE_ISA_POST_EXECUTABLE,
 			application_name,
 			login_name,
 			session_key,
@@ -197,10 +210,10 @@ CHOOSE_ISA *choose_isa_new(
 			one2m_isa_folder_name,
 			role_name );
 
-	if ( !choose_isa->post_action_string )
+	if ( !choose_isa->action_string )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: choose_isa_post_action_string() returned empty.\n",
+"ERROR in %s/%s()/%d: choose_isa_action_string() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -214,7 +227,8 @@ CHOOSE_ISA *choose_isa_new(
 		document_new(
 			application_name,
 			choose_isa->title_string,
-			choose_isa->subtitle_html,
+			choose_isa->title_html,
+			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
 			menu_boolean,
@@ -231,7 +245,7 @@ CHOOSE_ISA *choose_isa_new(
 			choose_isa->folder->primary_key_list,
 			choose_isa->delimited_list,
 			choose_isa->folder->no_initial_capital,
-			choose_isa->post_action_string );
+			choose_isa->action_string );
 
 	choose_isa->document_form_html =
 		/* ------------------- */
@@ -249,7 +263,8 @@ CHOOSE_ISA *choose_isa_new(
 	return choose_isa;
 }
 
-char *choose_isa_post_action_string(
+char *choose_isa_action_string(
+			char *choose_isa_post_executable,
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -259,7 +274,8 @@ char *choose_isa_post_action_string(
 {
 	char action_string[ 1024 ];
 
-	if ( !application_name
+	if ( !choose_isa_post_executable
+	||   !application_name
 	||   !login_name
 	||   !session_key
 	||   !folder_name
@@ -283,7 +299,7 @@ char *choose_isa_post_action_string(
 				application_name ),
 			application_prepend_http_protocol_yn(
 				application_name ) ),
-		"post_choose_isa",
+		choose_isa_post_executable,
 		application_name,
 		login_name,
 		session_key,
@@ -294,10 +310,9 @@ char *choose_isa_post_action_string(
 	return strdup( action_string );
 }
 
-char *choose_isa_title_string(
-			char *folder_name )
+char *choose_isa_title_string( char *folder_name )
 {
-	char title_string[ 256 ];
+	static char title_string[ 256 ];
 	char buffer[ 128 ];
 
 	if ( !folder_name )
@@ -316,7 +331,28 @@ char *choose_isa_title_string(
 			buffer,
 			folder_name ) );
 
-	return strdup( title_string );
+	return title_string;
+}
+
+char *choose_isa_title_html( char *title_string )
+{
+	static char html[ 128 ];
+
+	if ( !title_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: title_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"<h1>%s</h1>",
+		title_string );
+
+	return html;
 }
 
 char *choose_isa_subtitle_html(

@@ -13,7 +13,7 @@
 #include "list.h"
 #include "dictionary.h"
 #include "element.h"
-#include "remember.h"
+#include "radio.h"
 #include "dictionary_separate.h"
 
 /* Constants */
@@ -33,19 +33,6 @@
 
 #define FORM_LOOKUP_SUBTITLE_MESSAGE	\
 	"Enter only the minimum information sufficient to search."
-
-typedef struct
-{
-	LIST *value_list;
-	char *html;
-} FORM_RADIO_VALUE;
-
-typedef struct
-{
-	char *radio_name;
-	LIST *value_list;
-	char *html;
-} FORM_RADIO;
 
 typedef struct
 {
@@ -140,49 +127,9 @@ typedef struct
 	char *subtitle;
 	char *action_string;
 	LIST *form_button_bottom_list;
-	LIST *form_radio_list;
-	REMEMBER *remember;
+	RADIO_LIST *radio_list;
 	LIST *element_list;
 } FORM_PROMPT;
-
-/* FORM_RADIO_VALUE operations */
-/* --------------------------- */
-FORM_RADIO_VALUE *form_radio_value_calloc(
-			void );
-
-LIST *form_radio_value_list(
-			char *radio_value,
-			char *initial_value,
-			LIST *value_string_list );
-
-FORM_RADIO_VALUE *form_radio_value_new(
-			char *radio_name,
-			char *initial_value,
-			char *value_string );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *form_radio_value_html(
-			char *radio_name,
-			char *initial_value,
-			char *value_string );
-
-/* FORM_RADIO operations */
-/* --------------------- */
-FORM_RADIO *form_radio_calloc(
-			void );
-
-FORM_RADIO *form_radio_new(
-			char *radio_name,
-			char *initial_value,
-			LIST *value_string_list,
-			char *set_all_push_buttons_html );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *form_radio_html(
-			LIST *value_list,
-			char *set_all_push_buttons_html );
 
 /* FORM_PROMPT operations */
 /* ---------------------- */
@@ -302,9 +249,41 @@ char *form_choose_isa_html(
 			LIST *button_element_list,
 			char *form_close_tag_html );
 
-/* ---------------------- */
-/* FORM Public operations */
-/* ---------------------- */
+typedef struct
+{
+	LIST *radio_pair_list;
+	RADIO_LIST *radio_list;
+	char *html;
+} FORM_PROMPT_EDIT;
+
+/* FORM_PROMPT_EDIT operations */
+/* --------------------------- */
+FORM_PROMPT_EDIT *form_prompt_edit_new(
+			char *prompt_edit_action_string,
+			boolean prompt_edit_omit_insert_button,
+			boolean prompt_edit_omit_delete_button,
+			boolean prompt_edit_omit_new_button,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean drillthru_skipped );
+
+/* Process */
+/* ------- */
+LIST *form_prompt_edit_radio_pair_list(
+			boolean prompt_edit_omit_insert_button,
+			boolean prompt_edit_omit_delete_button,
+			boolean prompt_edit_omit_new_button,
+			int relation_mto1_non_isa_list_length );
+
+/* Private */
+/* ------- */
+FORM_PROMPT_EDIT *form_prompt_edit_calloc(
+			void );
+
+/* --------------- */
+/* FORM operations */
+/* --------------- */
 
 /* Returns heap memory */
 /* ------------------- */

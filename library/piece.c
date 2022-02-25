@@ -1,4 +1,5 @@
-/* library/piece.c					   */
+/* ------------------------------------------------------- */
+/* $APPASERVER_HOME/library/piece.c			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -7,9 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "String.h"
-#include "piece.h"
 #include "column.h"
 #include "timlib.h"
+#include "piece.h"
  
 /* Package variable */
 /* ---------------- */

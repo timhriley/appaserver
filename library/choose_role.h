@@ -26,14 +26,13 @@
 /* ---------- */
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	char *default_where;
 	char *default_system_string;
 	char *default_role_name;
 	char *title_string;
 	char *post_action_string;
 	char *target_frame;
+	char *title_html;
 	DOCUMENT *document;
 	FORM_CHOOSE_ROLE *form_choose_role;
 	char *document_form_html;
@@ -84,6 +83,11 @@ char *choose_role_post_action_string(
 /* ---------------------- */
 char *choose_role_target_frame(
 			boolean frameset_menu_horizontal );
+
+/* Returns static memory */
+/* --------------------- */
+char *choose_role_title_html(
+			char *choose_role_title_string );
 
 typedef struct
 {

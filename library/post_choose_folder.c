@@ -19,6 +19,7 @@
 #include "security.h"
 #include "environ.h"
 #include "relation.h"
+#include "frameset.h"
 #include "dictionary_separate.h"
 #include "post_choose_folder.h"
 
@@ -39,7 +40,22 @@ POST_CHOOSE_FOLDER *post_choose_folder_calloc( void )
 	return post_choose_folder;
 }
 
-POST_CHOOSE_FOLDER *post_choose_folder_fetch(
+char *post_choose_folder_name(
+			char *folder_name,
+			char *drillthru_start_current_folder_name )
+{
+	if ( drillthru_start_current_folder_name
+	&&   *drillthru_start_current_folder_name )
+	{
+		return drillthru_start_current_folder_name;
+	}
+	else
+	{
+		return folder_name;
+	}
+}
+
+POST_CHOOSE_FOLDER *post_choose_folder_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
@@ -50,6 +66,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 			char *folder_name,
 			char *state )
 {
+	DICTIONARY *drillthru_dictionary;
+
 	POST_CHOOSE_FOLDER *post_choose_folder =
 		post_choose_folder_calloc();
 
@@ -57,12 +75,9 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		drillthru_start( folder_name );
-
-	folder_name =
-		drillthru_participating_folder_name(
-			folder_name,
-			post_choose_folder->drillthru );
+		drillthru_start(
+			( drillthru_dictionary = dictionary_small() ) /* out */,
+			folder_name );
 
 	post_choose_folder->fetch_relation_mto1_isa_list =
 		post_choose_folder_fetch_relation_mto1_isa_list(
@@ -70,7 +85,12 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 
 	post_choose_folder->folder =
 		folder_fetch(
-			folder_name,
+			post_choose_folder_name(
+				folder_name,
+				drillthru_start_current_folder_name(
+					post_choose_folder->
+					     drillthru->
+					     relation_mto1_drillthru_list ) ),
 			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
@@ -148,7 +168,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 			application_name,
 			login_name,
 			session_key,
-			folder_name,
+			post_choose_folder->folder->folder_name,
 			role_name,
 			post_choose_folder_target_frame(
 				post_choose_folder->insert_table_form,
@@ -157,9 +177,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_fetch(
 					drillthru->
 					drillthru_participating ),
 			state,
-			post_choose_folder->
-				drillthru->
-				drillthru_dictionary,
+			drillthru_dictionary,
 			list_first(
 				post_choose_folder->
 					folder->
@@ -414,7 +432,7 @@ char *post_choose_folder_target_frame(
 	return (	insert_table_form ||
 	     		edit_table_form   ||
 	     		drillthru_participating )
-		? PROMPT_FRAME
-		: EDIT_FRAME;
+		? FRAMESET_PROMPT_FRAME
+		: FRAMESET_EDIT_FRAME;
 }
 

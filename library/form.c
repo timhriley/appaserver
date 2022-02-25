@@ -1,3 +1,4 @@
+/* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/library/form.c					*/
 /* -------------------------------------------------------------------- */
 /*									*/
@@ -363,197 +364,6 @@ LIST *form_choose_isa_element_list(
 
 	return element_list;
 }
-
-FORM_RADIO *form_radio_calloc( void )
-{
-	FORM_RADIO *form_radio;
-
-	if ( ! ( form_radio = calloc( 1, sizeof( FORM_RADIO ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return form_radio;
-}
-
-FORM_RADIO *form_radio_new(
-			char *radio_name,
-			char *initial_value,
-			LIST *value_string_list,
-			char *set_all_push_buttons_html )
-{
-	FORM_RADIO *form_radio = form_radio_calloc();
-
-	form_radio->value_list =
-		form_radio_value_list(
-			radio_name,
-			initial_value,
-			value_string_list );
-
-	form_radio->html =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_radio_html(
-			form_radio->value_list,
-			set_all_push_buttons_html );
-
-	if ( !form_radio->html )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: form_radio_html() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-
-	return form_radio;
-}
-
-char *form_radio_html(
-			LIST *value_list,
-			char *set_all_push_buttons_html )
-{
-	char html[ STRING_INPUT_BUFFER ];
-	char *ptr = html;
-	FORM_RADIO_VALUE *form_radio_value;
-
-	if ( !list_rewind( value_list ) ) return (char *)0;
-
-	ptr += sprintf(
-		ptr,
-		"<table cellspacing=0 cellpadding=0 border>\n<tr>\n" );
-
-	if ( set_all_push_buttons_html && *set_all_push_buttons_html )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			set_all_push_buttons_html );
-	}
-
-	do {
-		form_radio_value =
-			list_get(
-				value_list );
-
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			form_radio_value->html );
-
-	} while ( list_next( value_list ) );
-
-	ptr += sprintf(
-		ptr,
-		"</table>\n" );
-
-	return strdup( html );
-}
-
-FORM_RADIO_VALUE *form_radio_value_calloc( void )
-{
-	FORM_RADIO_VALUE *form_radio_value;
-
-	if ( ! ( form_radio_value = calloc( 1, sizeof( FORM_RADIO_VALUE ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return form_radio_value;
-}
-
-LIST *form_radio_value_list(
-			char *radio_value,
-			char *initial_value,
-			LIST *value_string_list )
-{
-	LIST *value_list;
-
-	if ( !list_rewind( value_string_list ) ) return (LIST *)0;
-
-	value_list = list_new();
-
-	do {
-		list_set(
-			value_list,
-			form_radio_value_new(
-				radio_value,
-				initial_value,
-				list_get( value_string_list ) ) );
-
-	} while ( list_next( value_string_list ) );
-
-	return value_list;
-}
-
-FORM_RADIO_VALUE *form_radio_value_new(
-			char *radio_name,
-			char *initial_value,
-			char *value_string )
-{
-	FORM_RADIO_VALUE *form_radio_value = form_radio_value_calloc();
-
-	form_radio_value->html =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_radio_value_html(
-			radio_name,
-			initial_value,
-			value_string );
-
-	if ( !form_radio_value->html ) return (FORM_RADIO_VALUE *)0;
-
-	return form_radio_value;
-}
-
-char *form_radio_value_html(
-			char *radio_name,
-			char *initial_value,
-			char *value_string )
-{
-	char html[ 1024 ];
-	char *ptr = html;
-	char buffer[ 128 ];
-
-	if ( !radio_name || !*radio_name || !value_string || !*value_string )
-		return (char *)0;
-
-	ptr += sprintf(
-		ptr,
-		"<td><input name=\"%s\" type=radio value=\"%s\""
-		" class=lookup_option_radio_button",
-		radio_name,
-		value_string );
-
-	if ( string_strcmp( value_string, initial_value ) == 0 )
-	{
-		ptr += sprintf( ptr, " checked" );
-	}
-
-	ptr += sprintf(
-		ptr,
-		">%s\n",
-		string_initial_capital(
-			buffer,
-			value_string ) );
-
-	return strdup( html );
-}
-
 
 char *form_title_html( char *title )
 {
@@ -1740,5 +1550,106 @@ char *form_element_list_html(
 	}
 
 	return strdup( html );
+}
+
+FORM_PROMPT_EDIT *form_prompt_edit_new(
+			char *action_string,
+			boolean omit_insert_button,
+			boolean omit_delete_button,
+			boolean omit_new_button,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			boolean drillthru_skipped )
+{
+	FORM_PROMPT_EDIT *form_prompt_edit = form_prompt_edit_calloc();
+
+	form_prompt_edit->radio_pair_list =
+		form_prompt_edit_radio_pair_list(
+			prompt_edit_omit_insert_button,
+			prompt_edit_omit_delete_button,
+			prompt_edit_omit_new_button,
+			list_length( relation_mto1_non_isa_list ) );
+
+	form_prompt_edit->radio_list =
+		radio_list_new(
+			FORM_RADIO_LIST_NAME,
+			form_prompt_edit->radio_pair_list,
+			RADIO_LOOKUP_LABEL /* initial_label */ );
+
+	return form_prompt_edit;
+}
+
+LIST *form_prompt_edit_radio_pair_list(
+			boolean prompt_edit_omit_insert_button,
+			boolean prompt_edit_omit_delete_button,
+			boolean prompt_edit_omit_new_button,
+			int relation_mto1_non_isa_list_length )
+{
+	LIST *radio_pair_list = list_new();
+
+	list_set(
+		radio_pair_list,
+		radio_pair_new(
+			RADIO_STATISTICS_NAME,
+			RADIO_STATISTICS_LABEL ) );
+
+	if ( relation_mto1_non_isa_list_length )
+	{
+		list_set(
+			radio_pair_list,
+			radio_pair_new(
+				RADIO_GROUP_COUNT_NAME,
+				RADIO_GROUP_COUNT_LABEL ) );
+	}
+
+	list_set(
+		radio_pair_list,
+		radio_pair_new(
+			RADIO_SPREADSHEET_NAME,
+			RADIO_SPREADSHEET_LABEL ) );
+
+	if ( !prompt_edit_omit_insert_button )
+	{
+		list_set(
+			radio_pair_list,
+			radio_pair_new(
+				RADIO_INSERT_NAME,
+				RADIO_INSERT_LABEL ) );
+	}
+
+	if ( !prompt_edit_omit_delete_button )
+	{
+		list_set(
+			radio_pair_list,
+			radio_pair_new(
+				RADIO_DELETE_NAME,
+				RADIO_DELETE_LABEL ) );
+	}
+
+	list_set(
+		radio_pair_list,
+		radio_pair_new(
+			RADIO_LOOKUP_NAME,
+			RADIO_LOOKUP_LABEL ) );
+
+	return radio_pair_list;
+}
+
+FORM_PROMPT_EDIT *form_prompt_edit_calloc( void )
+{
+	FORM_PROMPT_EDIT *form_prompt_edit;
+
+	if ( ! ( form_prompt_edit = calloc( 1, sizeof( FORM_PROMPT_EDIT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_edit;
 }
 

@@ -50,10 +50,6 @@ DRILLTHRU *drillthru_start(
 		return drillthru;
 	}
 
-	drillthru->start_current_folder_name =
-		drillthru_start_current_folder_name(
-			drillthru->relation_mto1_drillthru_list );
-
 	if ( !drillthru_dictionary )
 	{
 		fprintf(stderr,

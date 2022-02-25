@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define CHOOSE_ISA_POST_EXECUTABLE	"post_choose_isa"
 
 /* Enumerated types */
 /* ---------------- */
@@ -35,11 +36,12 @@ typedef struct
 	LIST *delimited_list;
 	QUERY_ISA_WIDGET *query_isa_widget;
 	char *title_string;
+	char *title_html;
 	char *subtitle_html;
 	char *prompt_message;
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
-	char *post_action_string;
+	char *action_string;
 	DOCUMENT *document;
 	FORM_CHOOSE_ISA *form_choose_isa;
 	char *document_form_html;
@@ -62,10 +64,15 @@ CHOOSE_ISA *choose_isa_new(
 			char *role_name,
 			boolean menu_boolean );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *choose_isa_title_string(
 			char *folder_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *choose_isa_title_html(
+			char *choose_isa_title_string );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -80,7 +87,8 @@ char *choose_isa_prompt_message(
 
 /* Returns heap memory */
 /* ------------------- */
-char *choose_isa_post_action_string(
+char *choose_isa_action_string(
+			char *choose_isa_post_executable,
 			char *application_name,
 			char *login_name,
 			char *session_key,

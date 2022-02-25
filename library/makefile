@@ -60,6 +60,7 @@ APPASERVER_LIBRARY=						\
 		element.o					\
 		sed.o						\
 		form.o						\
+		radio.o						\
 		button.o					\
 		email.o						\
 		query.o 					\
@@ -731,6 +732,9 @@ operation.o: operation.c operation.h process.h
 
 form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c
+
+radio.o: radio.c radio.h
+	${CC} ${CFLAGS} -c radio.c
 
 button.o: button.c button.h
 	${CC} ${CFLAGS} -c button.c

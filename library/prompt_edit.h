@@ -19,10 +19,12 @@
 #include "folder_menu.h"
 #include "menu.h"
 #include "frameset.h"
+#include "form.h"
 #include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
+#define PROMPT_EDIT_POST_EXECUTABLE	"post_prompt_edit"
 
 typedef struct
 {
@@ -32,12 +34,17 @@ typedef struct
 	FOLDER *folder;
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
+	int folder_attribute_date_name_list_length;
 	DICTIONARY_SEPARATE *dictionary_separate;
 	DRILLTHRU *drillthru;
-	boolean drillthru_skipped;
 	boolean omit_insert_button;
 	boolean omit_delete_button;
 	boolean omit_new_button;
+	char *target_frame;
+	char *title_html;
+	char *action_string;
+	FORM_PROMPT_EDIT *form_prompt_edit;
+	char *document_form_html;
 } PROMPT_EDIT;
 
 /* PROMPT_EDIT operations */
@@ -88,6 +95,22 @@ char *prompt_edit_target_frame(
 			char *target_frame,
 			char *frameset_edit_frame,
 			boolean drillthru_skipped );
+
+/* Returns static memory */
+/* --------------------- */
+char *prompt_edit_title_html(
+			char *state,
+			char *folder_name );
+
+char *prompt_edit_action_string(
+			char *prompt_edit_post_executable,
+			char *application_name,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *prompt_edit_target_frame,
+			char *state );
 
 /* Private */
 /* ------- */
