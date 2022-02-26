@@ -28,7 +28,6 @@
 				"related_attribute,"			\
 				"pair_1tom_order,"			\
 				"omit_1tom_detail_yn,"			\
-				"prompt_mto1_recursive_yn,"		\
 				"relation_type_isa_yn,"			\
 				"copy_common_attributes_yn,"		\
 				"automatic_preselection_yn,"		\
@@ -52,7 +51,6 @@ typedef struct
 	char *related_attribute_name;
 	int pair_one2m_order;
 	boolean omit_one2m_detail;
-	boolean prompt_mto1_recursive;
 	boolean relation_type_isa;
 	boolean copy_common_attributes;
 	boolean automatic_preselection;

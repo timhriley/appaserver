@@ -253,6 +253,12 @@ typedef struct
 {
 	LIST *radio_pair_list;
 	RADIO_LIST *radio_list;
+	char *target_frame;
+	char *tag_html;
+	LIST *element_list;
+	LIST *keystrokes_save_string;
+	char *keystrokes_recall_string;
+	LIST *button_element_list;
 	char *html;
 } FORM_PROMPT_EDIT;
 
@@ -265,8 +271,11 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			boolean prompt_edit_omit_new_button,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
-			boolean drillthru_skipped );
+			boolean drillthru_participating,
+			boolean drillthru_skipped,
+			boolean drillthru_finished );
 
 /* Process */
 /* ------- */
@@ -275,6 +284,40 @@ LIST *form_prompt_edit_radio_pair_list(
 			boolean prompt_edit_omit_delete_button,
 			boolean prompt_edit_omit_new_button,
 			int relation_mto1_non_isa_list_length );
+
+/* Returns frameset_prompt_frame or frameset_edit_frame */
+/* ---------------------------------------------------- */
+char *form_prompt_edit_target_frame(
+			boolean drillthru_participating,
+			boolean drillthru_skipped,
+			boolean drillthru_finished,
+			char *frameset_prompt_frame,
+			char *frameset_edit_frame );
+
+LIST *form_prompt_edit_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_keystrokes_save_string(
+			LIST *form_prompt_edit_element_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_keystrokes_recall_string(
+			LIST *form_prompt_edit_element_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_html(
+			char *tag_html,
+			char *radio_list_html,
+			char *element_list_html,
+			char *button_element_list_html,
+			char *form_close_html );
 
 /* Private */
 /* ------- */

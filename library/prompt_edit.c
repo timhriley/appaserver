@@ -118,7 +118,7 @@ PROMPT_EDIT *prompt_edit_new(
 				/* ------------------------------------------ */
 				1 /* fetch_relation_mto1_isa_list */,
 				0 /* not fetch_relation_one2m_list */,
-				0 /* not fetch_relation_one2m_recursive_list */,
+				1 /* fetch_relation_one2m_recursive_list */,
 				0 /* not fetch_process */,
 				0 /* not fetch_role_folder_list */,
 				1 /* fetch_row_level_restriction */,
@@ -185,6 +185,16 @@ PROMPT_EDIT *prompt_edit_new(
 				dictionary_separate->
 				drillthru_dictionary /* in/out */,
 			folder_name );
+
+	if ( !prompt_edit->drillthru->participating
+	||   prompt_edit->drillthru->finished )
+	{
+		prompt_edit->folder->relation_join_one2m_list =
+			relation_join_one2m_list(
+				prompt_edit->folder->
+					relation_one2m_recursive_list,
+				(DICTIONARY *)0 /* ignore_dictionary */ );
+	}
 
 	prompt_edit->omit_insert_button =
 		prompt_edit_omit_insert_button(
@@ -272,8 +282,11 @@ PROMPT_EDIT *prompt_edit_new(
 			prompt_edit->omit_new_button,
 			prompt_edit->folder->folder_attribute_append_isa_list,
 			prompt_edit->folder->relation_mto1_non_isa_list,
+			prompt_edit->folder->relation_join_one2m_list,
 			prompt_edit->dictionary_separate->drillthru_dictionary,
-			prompt_edit->drillthru->skipped );
+			prompt_edit->drillthru->participating,
+			prompt_edit->drillthru->skipped,
+			prompt_edit->drillthru->finished );
 
 	if ( !prompt_edit->form_prompt_edit )
 	{

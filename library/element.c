@@ -1409,6 +1409,21 @@ char *element_table_data_html(
 	return strdup( html );
 }
 
+char *element_list_html( LIST *appaserver_element_list )
+{
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	appaserver_element_list_html(
+		appaserver_element_list,
+		(char *)0 /* application_name */,
+		(char *)0 /* background_color */,
+		(char *)0 /* state */,
+		0 /* row_number */,
+		(DICTIONARY *)0 /* row_dictionary */ );
+}
+
 char *appaserver_element_list_html(
 			LIST *appaserver_element_list /* in/out */,
 			char *application_name,

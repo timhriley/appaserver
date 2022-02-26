@@ -54,7 +54,6 @@ RELATION *relation_parse(
 	char related_attribute_name[ 128 ];
 	char pair_one2m_order[ 128 ];
 	char omit_one2m_detail[ 128 ];
-	char prompt_mto1_recursive[ 128 ];
 	char relation_type_isa[ 128 ];
 	char copy_common_attributes[ 128 ];
 	char automatic_preselection[ 128 ];
@@ -86,32 +85,29 @@ RELATION *relation_parse(
 	piece( omit_one2m_detail, SQL_DELIMITER, input, 4 );
 	relation->omit_one2m_detail = ( *omit_one2m_detail == 'y' );
 
-	piece( prompt_mto1_recursive, SQL_DELIMITER, input, 5 );
-	relation->prompt_mto1_recursive = ( *prompt_mto1_recursive == 'y' );
-
-	piece( relation_type_isa, SQL_DELIMITER, input, 6 );
+	piece( relation_type_isa, SQL_DELIMITER, input, 5 );
 	relation->relation_type_isa = ( *relation_type_isa == 'y' );
 
-	piece( copy_common_attributes, SQL_DELIMITER, input, 7 );
+	piece( copy_common_attributes, SQL_DELIMITER, input, 6 );
 	relation->copy_common_attributes = ( *copy_common_attributes == 'y' );
 
-	piece( automatic_preselection, SQL_DELIMITER, input, 8 );
+	piece( automatic_preselection, SQL_DELIMITER, input, 7 );
 	relation->automatic_preselection = ( *automatic_preselection == 'y' );
 
-	piece( drop_down_multi_select, SQL_DELIMITER, input, 9 );
+	piece( drop_down_multi_select, SQL_DELIMITER, input, 8 );
 	relation->drop_down_multi_select = ( *drop_down_multi_select == 'y' );
 
-	piece( join_one2m_each_row, SQL_DELIMITER, input, 10 );
+	piece( join_one2m_each_row, SQL_DELIMITER, input, 9 );
 	relation->join_one2m_each_row = ( *join_one2m_each_row == 'y' );
 
-	piece( omit_lookup_before_drop_down, SQL_DELIMITER, input, 11 );
+	piece( omit_lookup_before_drop_down, SQL_DELIMITER, input, 10 );
 	relation->omit_lookup_before_drop_down =
 		( *omit_lookup_before_drop_down == 'y' );
 
-	piece( ajax_fill_drop_down, SQL_DELIMITER, input, 12 );
+	piece( ajax_fill_drop_down, SQL_DELIMITER, input, 11 );
 	relation->ajax_fill_drop_down = ( *ajax_fill_drop_down == 'y' );
 
-	piece( hint_message, SQL_DELIMITER, input, 13 );
+	piece( hint_message, SQL_DELIMITER, input, 12 );
 	relation->hint_message = strdup( hint_message );
 
 	if ( fetch_folder )

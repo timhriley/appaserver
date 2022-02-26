@@ -1559,10 +1559,15 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			boolean omit_new_button,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,.
 			DICTIONARY *drillthru_dictionary,
-			boolean drillthru_skipped )
+			boolean drillthru_participating,
+			boolean drillthru_skipped,
+			boolean drillthru_finished )
 {
 	FORM_PROMPT_EDIT *form_prompt_edit = form_prompt_edit_calloc();
+	char *tmp1;
+	char *tmp2;
 
 	form_prompt_edit->radio_pair_list =
 		form_prompt_edit_radio_pair_list(
@@ -1577,7 +1582,115 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			form_prompt_edit->radio_pair_list,
 			RADIO_LOOKUP_LABEL /* initial_label */ );
 
+	form_prompt_edit->target_frame =
+		form_prompt_edit_target_frame(
+			drillthru_participating,
+			drillthru_skipped,
+			drillthru_finished,
+			FRAMESET_PROMPT_FRAME,
+			FRAMESET_EDIT_FRAME );
+
+	form_prompt_edit->tag_html =
+		form_tag_html(
+			"prompt_edit" /* form_name */,
+			action_string,
+			form_prompt_edit->target_frame );
+
+	form_prompt_edit->element_list =
+		form_prompt_edit_element_list(
+			folder_attribute_append_isa_list,
+			relation_mto1_non_isa_list,
+			relation_join_one2m_list,
+			drillthru_dictionary );
+
+	form_prompt_edit->keystrokes_save_string =
+		form_prompt_edit_keystrokes_save_string(
+			form_prompt_edit->element_list );
+
+	form_prompt_edit->keystrokes_recall_string =
+		form_prompt_edit_keystrokes_recall_string(
+			form_prompt_edit->element_list );
+
+	form_prompt_edit->button_element_list =
+		form_prompt_edit_button_element_list(
+			form_prompt_edit->keystrokes_save_string,
+			form_prompt_edit->keystrokes_recall_string );
+
+	form_prompt_edit->html =
+		form_prompt_edit_html(
+			form_prompt_edit->tag_html,
+			form_prompt_edit->radio_list->html,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			( tmp1 = element_list_html(
+					form_prompt_edit->element_list )
+						/* element_list_html */ ),
+			( tmp2 = element_list_html(
+					form_prompt_edit->button_element_list ),
+						/* button_element_list_html */),
+			form_close_html() );
+
+	if ( tmp1 ) free( tmp1 );
+	if ( tmp2 ) free( tmp2 );
+
 	return form_prompt_edit;
+}
+
+char *form_prompt_edit_target_frame(
+			boolean drillthru_participating,
+			boolean drillthru_skipped,
+			boolean drillthru_finished,
+			char *frameset_prompt_frame,
+			char *frameset_edit_frame )
+{
+	if ( !drillthru_participating )
+		return frameset_edit_frame;
+	else
+	if ( drillthru_skipped )
+		return frameset_edit_frame;
+	else
+	if ( drillthru_finished )
+		return frameset_edit_frame;
+	else
+		return frameset_prompt_frame;
+}
+
+char *form_prompt_edit_keystrokes_save_string(
+			LIST *form_prompt_edit_element_list )
+{
+	char string[ 65536 ];
+	char *ptr = string;
+
+	*ptr = '\0';
+
+	return strdup( string );
+}
+
+char *form_prompt_edit_keystrokes_recall_string(
+			LIST *form_prompt_edit_element_list )
+{
+	char string[ 65536 ];
+	char *ptr = string;
+
+	*ptr = '\0';
+
+	return strdup( string );
+}
+
+char *form_prompt_edit_html(
+			char *tag_html,
+			char *radio_list_html,
+			char *element_list_html,
+			char *button_element_list_html,
+			char *form_close_html )
+{
+	char html[ STRING_TWO_MEG ];
+	char *ptr = html;
+
+	*html = '\0';
+
+	return strdup( html );
 }
 
 LIST *form_prompt_edit_radio_pair_list(
@@ -1651,5 +1764,301 @@ FORM_PROMPT_EDIT *form_prompt_edit_calloc( void )
 	}
 
 	return form_prompt_edit;
+}
+
+LIST *form_prompt_edit_element_list(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary )
+{
+	LIST *element_list = list_new();
+	FOLDER_ATTRIBUTE *folder_attribute;
+	RELATION *relation;
+	APPASERVER_ELEMENT *element;
+
+	if ( !list_length( folder_attribute_append_isa_list ) )
+	{
+		fprintf( stderr,
+	"ERROR in %s/%s()/%d: folder_attribute_append_isa_list is empty\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_open,
+				(char *)0 /* element_name */ ) ) );
+
+	list_set(
+		element_list,
+		( element =
+			appaserver_element_new(
+				table_row,
+				(char *)0 /* element_name */ ) ) );
+
+	do {
+		folder_attribute = list_get( folder_attribute_append_isa_list );
+
+		if ( ( relation =
+			relation_consumes(
+				folder_attribute->attribute_name,
+				relation_mto1_non_isa_list ) ) )
+		{
+
+		relation->consumes_taken = 1;
+
+		if ( !relation->one_folder )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: relation->one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !relation->one_folder->folder_name )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: one_folder->folder_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_length( relation->foreign_key_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		&&   !related_folder->omit_lookup_before_drop_down )
+		{
+			build_related_folder_element_list(
+			   	ajax_fill_drop_down_related_folder,
+			   	return_list,
+			   	related_folder,
+			   	done_folder_name_list,
+			   	isa_folder_list,
+			   	attribute,
+			   	lookup_before_drop_down,
+			   	application_name,
+			   	session,
+			   	role_name,
+			   	login_name,
+			   	preprompt_dictionary,
+		  	   	no_display_push_button_prefix,
+		  	   	no_display_push_button_heading,
+			   	row_level_non_owner_forbid,
+			   	folder_name
+					/* one2m_folder_name_for_processes */,
+			 	  attribute_exists_in_preprompt_dictionary,
+			   	state,
+			   	foreign_attribute_name_list );
+
+				continue;
+		}
+
+		if ( strcmp( attribute->datatype, "hidden_text" ) == 0 )
+		{
+			element_list = (LIST *)0;
+		}
+		else
+		{
+			element_list =
+			     attribute_prompt_element_list(
+				attribute->attribute_name,
+				(char *)0 /* prepend_folder_name */,
+				attribute->datatype,
+				attribute->post_change_javascript,
+				attribute->width,
+				attribute->hint_message,
+				attribute->primary_key_index,
+				omit_push_buttons );
+		}
+
+		if ( element_list )
+		{
+			list_append_list(
+				return_list,
+				element_list );
+
+			list_append_pointer(
+				exclude_attribute_name_list,
+				attribute->attribute_name );
+		}
+
+	} while( list_next( attribute_list ) );
+
+	if ( list_rewind( mto1_related_folder_list ) )
+	{
+		LIST *subtract_list;
+
+		do {
+			related_folder =
+				list_get_pointer(
+					mto1_related_folder_list );
+	
+			if ( related_folder->ignore_output ) continue;
+
+			if ( isa_folder_list
+			&&   list_length( isa_folder_list )
+			&&   appaserver_isa_folder_accounted_for(
+				isa_folder_list,
+				related_folder->folder->folder_name,
+				related_folder->related_attribute_name ) )
+			{
+				continue;
+			}
+	
+			foreign_attribute_name_list =
+			related_folder_foreign_attribute_name_list(
+			   folder_get_primary_key_list(
+				related_folder->folder->
+					attribute_list ),
+			   related_folder->related_attribute_name,
+			   related_folder->folder_foreign_attribute_name_list );
+	
+			if ( list_length(
+				list_subtract_string_list(
+					foreign_attribute_name_list,
+					exclude_attribute_name_list ) ) == 0 )
+			{
+				continue;
+			}
+	
+			subtract_list =
+				list_subtract(
+					foreign_attribute_name_list,
+					omit_update_attribute_name_list );
+
+			if (	list_length( subtract_list ) !=
+				list_length( foreign_attribute_name_list ) )
+			{
+				continue;
+			}
+
+			hint_message =
+				related_folder_get_hint_message(
+					attribute->hint_message,
+					related_folder->hint_message,
+					related_folder->folder->notepad );
+
+			list_append_list(
+				return_list,
+				related_folder_prompt_element_list(
+				   (RELATED_FOLDER **)0
+				       /* ajax_fill_drop_down_related_folder */,
+				   application_name,
+				   session,
+				   role_name,
+				   login_name,
+				   related_folder->folder->folder_name,
+				   related_folder->folder->
+					populate_drop_down_process,
+				   related_folder->folder->
+					attribute_list,
+				   foreign_attribute_name_list,
+				   0 /* dont omit_ignore_push_buttons */,
+				   preprompt_dictionary,
+		  		   no_display_push_button_heading,
+		  		   no_display_push_button_prefix,
+				   (char *)0 /* post_change_java... */,
+				   hint_message,
+				   0 /* max_drop_down_size */,
+				   (LIST *)0 /* common_non_primary_a... */,
+				   0 /* not is_primary_attribute */,
+				   related_folder->folder->
+					row_level_non_owner_view_only,
+				   related_folder->folder->
+					row_level_non_owner_forbid,
+			   	   related_folder->
+					related_attribute_name,
+			   	   related_folder->
+					drop_down_multi_select,
+				   related_folder->
+					folder->
+					no_initial_capital,
+				   (char *)0 /* state */,
+				   (char *)0 /* one2m_folder_name...processes*/,
+				   0 /* tab_index */,
+				   0 /* not set_first_initial_data */,
+				   1 /* output_null_option */,
+				   1 /* output_not_null_option */,
+				   1 /* output_select_option */,
+				   (char *)0
+				   /* appaserver_user_foreign_login_name */,
+			           related_folder->omit_lookup_before_drop_down
+				   ) );
+	
+		} while( list_next( mto1_related_folder_list ) );
+	}
+
+	if ( list_rewind( folder->join_1tom_related_folder_list ) )
+	{
+		RELATED_FOLDER *related_folder;
+
+		do {
+			related_folder =
+				list_get(
+					folder->join_1tom_related_folder_list );
+
+			/* Make two line breaks */
+			/* -------------------- */
+			element = element_appaserver_new( linebreak, "" );
+
+			list_set( return_list, element );
+			list_set( return_list, element );
+
+			/* Make the push button element. */
+			/* ----------------------------- */
+			sprintf( element_name,
+		 		 "%s%s",
+				 NO_DISPLAY_PUSH_BUTTON_PREFIX,
+				 related_folder->
+					one2m_folder->
+					folder_name );
+
+			element =
+				element_appaserver_new(
+					toggle_button, 
+					strdup( element_name ) );
+
+			element_toggle_button_set_heading(
+				element->toggle_button,
+				NO_DISPLAY_PUSH_BUTTON_HEADING );
+
+			list_append_pointer(
+					return_list, 
+					element );
+
+			/* Make the prompt. */
+			/* ---------------- */
+			element =
+				element_appaserver_new(
+					prompt,
+				 	related_folder->
+						one2m_folder->
+						folder_name );
+
+			list_append_pointer(
+					return_list, 
+					element );
+
+		} while( list_next( folder->join_1tom_related_folder_list ) );
+	}
+
+	return return_list;
+	return element_list;
 }
 

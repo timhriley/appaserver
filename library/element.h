@@ -1026,4 +1026,9 @@ char *appaserver_element_upload_update_html(
 			DICTIONARY *row_dictionary,
 			char *application_name );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_list_html(
+			LIST *appaserver_element_list );
+
 #endif
