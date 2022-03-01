@@ -47,18 +47,16 @@ typedef struct
 	boolean lookup_time_chart_output;
 } ATTRIBUTE;
 
-/* Operations */
-/* ---------- */
+/* ATTRIBUTE operations */
+/* -------------------- */
+ATTRIBUTE *attribute_fetch(
+			char *attribute_name );
+
 ATTRIBUTE *attribute_new(
 			char *attribute_name );
 
-ATTRIBUTE *attribute_seek(
-			char *attribute_name,
-			LIST *attribute_list );
-
-boolean attribute_exists(
-			char *attribute_name,
-			LIST *attribute_list );
+/* Process */
+/* ------- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -70,6 +68,30 @@ LIST *attribute_system_list(
 
 ATTRIBUTE *attribute_parse(
 			char *input );
+
+/* Public */
+/* ------ */
+
+/* Returns static memory */
+/* --------------------- */
+LIST *attribute_list(	void );
+
+ATTRIBUTE *attribute_seek(
+			char *attribute_name,
+			LIST *attribute_list );
+
+boolean attribute_exists(
+			char *attribute_name,
+			LIST *attribute_list );
+
+LIST *attribute_extract_float_list(
+			LIST *attribute_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *attribute_full_attribute_name(
+			char *folder_table_name,
+			char *attribute_name );
 
 boolean attribute_is_date(
 			char *datatype );
@@ -98,24 +120,10 @@ boolean attribute_is_upload(
 boolean attribute_is_timestamp(
 			char *datatype );
 
-LIST *attribute_extract_float_list(
-			LIST *attribute_list );
-
 boolean attribute_is_yes_no(
 			char *attribute_name );
 
 boolean attribute_is_boolean(
-			char *attribute_name );
-
-LIST *attribute_list(	void );
-
-ATTRIBUTE *attribute_fetch(
-			char *attribute_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *attribute_full_attribute_name(
-			char *folder_table_name,
 			char *attribute_name );
 
 #endif

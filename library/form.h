@@ -264,10 +264,14 @@ char *form_choose_isa_html(
 /* ----------------------------------------------------- */
 typedef struct
 {
+	RELATION *relation;
 } FORM_PROMPT_EDIT_RELATION;
 
 /* FORM_PROMPT_EDIT_RELATION operations */
 /* ------------------------------------ */
+
+/* Always succeeds */
+/* --------------- */
 FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			char *attribute_name,
 			LIST *relation_mto1_non_isa_list,
@@ -282,10 +286,11 @@ boolean form_prompt_edit_relation_attribute_name_exists(
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_prompt_edit_relation_prompt_name(
+char *form_prompt_edit_relation_prompt(
 			char *one_folder_name,
 			char *related_attribute_name,
-			LIST *foreign_key_list );
+			LIST *foreign_key_list,
+			int primary_key_index );
 
 /* Private */
 /* ------- */
@@ -298,7 +303,7 @@ typedef struct
 {
 	LIST *element_list;
 	LIST *operation_list;
-	APPASERVER_ELEMENT *relational_operator_appaserver_element;
+	APPASERVER_ELEMENT *relation_operator_appaserver_element;
 	APPASERVER_ELEMENT *text_from_appaserver_element;
 	APPASERVER_ELEMENT *and_appaserver_element;
 	APPASERVER_ELEMENT *text_to_appaserver_element;
@@ -306,12 +311,16 @@ typedef struct
 
 /* FORM_PROMPT_EDIT_RELATIONAL operations */
 /* -------------------------------------- */
+
+/* Always succeeds */
+/* --------------- */
 FORM_PROMPT_EDIT_RELATIONAL *
 	form_prompt_edit_relational_new(
 			char *form_prompt_edit_attribute_relational_name,
 			char *form_prompt_edit_attribute_from_name,
 			char *form_prompt_edit_attribute_to_name,
 			char *attribute_name,
+			boolean primary_key_index,
 			char *datatype_name,
 			int attribute_width );
 
@@ -322,6 +331,135 @@ LIST *form_prompt_edit_relational_operation_list(
 /* ------- */
 FORM_PROMPT_EDIT_RELATIONAL *
 	form_prompt_edit_relational_calloc(
+			void );
+
+typedef struct
+{
+	LIST *element_list;
+	char *no_display_name;
+	APPASERVER_ELEMENT *no_display_appaserver_element;
+	char *prompt;
+	APPASERVER_ELEMENT *prompt_appaserver_element;
+	char *from_name;
+	APPASERVER_ELEMENT *yes_no_appaserver_element;
+	char *relational_name;
+	char *to_name;
+	FORM_PROMPT_EDIT_RELATIONAL *form_prompt_edit_relational;
+	APPASERVER_ELEMENT *hint_message_appaserver_element;
+} FORM_PROMPT_EDIT_ATTRIBUTE;
+
+/* FORM_PROMPT_EDIT_ATTRIBUTE operations */
+/* ------------------------------------- */
+
+/* Always succeeds */
+/* --------------- */
+FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
+			char *attribute_name,
+			int primary_key_index,
+			char *datatype_name,
+			int attribute_width,
+			char *hint_message,
+			LIST *form_prompt_edit_relation_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_attribute_no_display_name(
+			char *form_prompt_edit_no_display_prefix,
+			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_attribute_prompt(
+			char *attribute_name,
+			int primary_key_index );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_attribute_from_name(
+			char *form_prompt_edit_from_prefix,
+			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_attribute_relational_name(
+			char *form_prompt_edit_attribute_relational_prefix,
+			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_attribute_to_name(
+			char *form_prompt_edit_to_prefix,
+			char *attribute_name );
+
+/* Private */
+/* ------- */
+FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_calloc(
+			void );
+
+typedef struct
+{
+	LIST *element_list;
+	QUERY_WIDGET *query_widget;
+	char *name;
+	char *no_display_name;
+	APPASERVER_ELEMENT *no_display_appaserver_element;
+	char *prompt;
+	APPASERVER_ELEMENT *prompt_appaserver_element;
+	char *element_name;
+	APPASERVER_ELEMENT *drop_down_appaserver_element;
+	APPASERVER_ELEMENT *hint_message_appaserver_element;
+} FORM_PROMPT_EDIT_RELATION;
+
+/* FORM_PROMPT_EDIT_RELATION operations */
+/* ------------------------------------ */
+FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
+			char *attribute_name,
+			int primary_key_index,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where,
+			LIST *form_prompt_edit_relation_list );
+
+/* Process */
+/*-------- */
+boolean form_prompt_edit_relation_attribute_name_exists(
+			char *attribute_name,
+			LIST *form_prompt_edit_relation_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_relation_name(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_relation_no_display_name(
+			char *form_prompt_edit_no_display_prefix,
+			char *form_prompt_edit_relation_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_relation_prompt(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list,
+			int primary_key_index );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_relation_element_name(
+			char *form_prompt_edit_relation_prefix,
+			char *form_prompt_edit_relation_name );
+
+/* Private */
+/* ------- */
+FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc(
 			void );
 
 typedef struct
@@ -344,6 +482,12 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			char *login_name,
 			char *security_entity_where );
 
+/* Private */
+/* ------- */
+FORM_PROMPT_EDIT_ELEMENT_LIST *
+	form_prompt_edit_element_list_calloc(
+			void );
+
 typedef struct
 {
 	LIST *radio_pair_list;
@@ -359,6 +503,9 @@ typedef struct
 
 /* FORM_PROMPT_EDIT operations */
 /* --------------------------- */
+
+/* Always succeeds */
+/* --------------- */
 FORM_PROMPT_EDIT *form_prompt_edit_new(
 			char *prompt_edit_action_string,
 			boolean prompt_edit_omit_insert_button,

@@ -2064,9 +2064,9 @@ LIST *form_prompt_edit_element_list(
 
 FORM_PROMPT_EDIT_RELATIONAL *
 	form_prompt_edit_relational_new(
-			char *form_prompt_edit_attribute_relational_name,
-			char *form_prompt_edit_attribute_from_name,
-			char *form_prompt_edit_attribute_to_name,
+			char *relational_name,
+			char *from_name,
+			char *to_name,
 			char *attribute_name,
 			char *datatype_name,
 			int attribute_width )
@@ -2076,12 +2076,172 @@ FORM_PROMPT_EDIT_RELATIONAL *
 
 	form_prompt_edit_relational->element_list = list_new();
 
+	form_prompt_edit_relational->operation_list =
+		form_prompt_edit_relational_operation_list(
+			datatype_name );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		( form_prompt_edit_relational->
+			relational_operator_appaserver_element =
+				appaserver_element_new(
+					drop_down, (char *)0 ) ) );
+
+	form_prompt_edit_relational->
+		relational_operator_appaserver_element->
+		drop_down =
+			element_drop_down_new(
+				relational_name,
+				(LIST *)0 /* attribute_name_list */,
+				form_prompt_edit_relational->operation_list,
+				(LIST *)0 /* display_list */,
+				0 /* not no_initial_capital */,
+				1 /* output_null_option */,
+				1 /* output_not_null_option */,
+				1 /* output_select_option */,
+				1 /* element_drop_down_display_size */,
+				-1 /* tab_order */,
+				0 /* not multi_select */,
+				(char *)0 /* post_change_javascript */,
+				0 /* not readonly */,
+				1 /* recall */ );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		appaserver_element_new(
+			table_data, (char *)0 ) );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		( form_prompt_edit_relational->
+			text_from_appaserver_element =
+				appaserver_element_new(
+					text, (char *)0 ) ) );
+
+	form_prompt_edit_relational->text_from_appaserver_element->text =
+		element_text_new(
+			from_name,
+			datatype_name,
+			FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH,
+			0 /* not null_to_slash */,
+			1 /* prevent_carrot */,
+			(char *)0 /* on_change */,
+			(char *)0 /* on_focus */,
+			(char *)0 /* on_keyup */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		appaserver_element_new(
+			table_data, (char *)0 ) );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		( form_prompt_edit_relational->
+			and_appaserver_element =
+				appaserver_element_new(
+					non_edit_text, (char *)0 ) ) );
+
+	form_prompt_edit_relational->and_appaserver_element->non_edit_text =
+		element_non_edit_text_new(
+			(char *)0
+			"and" /* message */ );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		appaserver_element_new(
+			table_data, (char *)0 ) );
+
+	list_set(
+		form_prompt_edit_relational->element_list,
+		( form_prompt_edit_relational->
+			text_to_appaserver_element =
+				appaserver_element_new(
+					text, (char *)0 ) ) );
+
+	form_prompt_edit_relational->text_from_appaserver_element->text =
+		element_text_new(
+			to_name,
+			datatype_name,
+			attribute_width,
+			0 /* not null_to_slash */,
+			1 /* prevent_carrot */,
+			(char *)0 /* on_change */,
+			(char *)0 /* on_focus */,
+			(char *)0 /* on_keyup */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
 	return form_prompt_edit_relational;
 }
 
 LIST *form_prompt_edit_relational_operation_list(
 			char *datatype_name )
 {
+	LIST *list;
+
+	list = list_new();
+
+	if ( attribute_is_date( datatype_name )
+	||   attribute_is_time( datatype_name )
+	||   attribute_is_date_time( datatype_name ) )
+	{
+		list_set( list, BEGINS_OPERATOR );
+		list_set( list, EQUAL_OPERATOR );
+		list_set( list, BETWEEN_OPERATOR );
+		list_set( list, OR_OPERATOR );
+		list_set( list, GREATER_THAN_OPERATOR );
+		list_set( list, GREATER_THAN_EQUAL_TO_OPERATOR );
+		list_set( list, LESS_THAN_OPERATOR );
+		list_set( list, LESS_THAN_EQUAL_TO_OPERATOR );
+		list_set( list, NOT_EQUAL_OPERATOR );
+		list_set( list, NOT_EQUAL_OR_NULL_OPERATOR );
+		list_set( list, NULL_OPERATOR );
+		list_set( list, NOT_NULL_OPERATOR );
+	}
+	else
+	if ( attribute_is_notepad( datatype_name ) )
+	{
+		list_set( list, CONTAINS_OPERATOR );
+		list_set( list, NOT_CONTAINS_OPERATOR );
+		list_set( list, NULL_OPERATOR );
+		list_set( list, NOT_NULL_OPERATOR );
+	}
+	else
+	if ( attribute_is_text( datatype_name )
+	||   attribute_is_upload( datatype_name ) )
+	{
+		list_set( list, BEGINS_OPERATOR );
+		list_set( list, EQUAL_OPERATOR );
+		list_set( list, CONTAINS_OPERATOR );
+		list_set( list, OR_OPERATOR );
+		list_set( list, GREATER_THAN_EQUAL_TO_OPERATOR );
+		list_set( list, NOT_CONTAINS_OPERATOR );
+		list_set( list, NOT_EQUAL_OPERATOR );
+		list_set( list, NOT_EQUAL_OR_NULL_OPERATOR );
+		list_set( list, NULL_OPERATOR );
+		list_set( list, NOT_NULL_OPERATOR );
+	}
+	else
+	{
+		list_set( list, EQUAL_OPERATOR );
+		list_set( list, BETWEEN_OPERATOR );
+		list_set( list, BEGINS_OPERATOR );
+		list_set( list, CONTAINS_OPERATOR );
+		list_set( list, NOT_CONTAINS_OPERATOR );
+		list_set( list, OR_OPERATOR );
+		list_set( list, NOT_EQUAL_OPERATOR );
+		list_set( list, NOT_EQUAL_OR_NULL_OPERATOR );
+		list_set( list, GREATER_THAN_OPERATOR );
+		list_set( list, GREATER_THAN_EQUAL_TO_OPERATOR );
+		list_set( list, LESS_THAN_OPERATOR );
+		list_set( list, LESS_THAN_EQUAL_TO_OPERATOR );
+		list_set( list, NULL_OPERATOR );
+		list_set( list, NOT_NULL_OPERATOR );
+	}
+
+	return list;
 }
 
 FORM_PROMPT_EDIT_RELATIONAL *
@@ -2102,5 +2262,773 @@ FORM_PROMPT_EDIT_RELATIONAL *
 	}
 
 	return form_prompt_edit_relational;
+}
+
+FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
+			char *attribute_name,
+			int primary_key_index,
+			char *datatype_name,
+			int attribute_width,
+			char *hint_message,
+			LIST *form_prompt_edit_relation_list )
+{
+	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute =
+		form_prompt_edit_attribute_calloc();
+
+	if ( form_prompt_edit_relation_attribute_name_exists(
+		attribute_name,
+		form_prompt_edit_relation_list ) )
+	{
+		return (FORM_PROMPT_EDIT_ATTRIBUTE *)0;
+	}
+
+	form_prompt_edit_attribute->element_list = list_new();
+
+	form_prompt_edit_attribute->no_display_name =
+		form_prompt_edit_attribute_no_display_name(
+			FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
+			attribute_name );
+
+	list_set(
+		form_prompt_edit_attribute->element_list,
+		( form_prompt_edit_attribute->
+			no_display_appaserver_element =
+				appaserver_element_new(
+					checkbox, (char *)0 ) ) );
+
+	form_prompt_edit_attribute->
+		no_display_appaserver_element->
+		checkbox =
+			element_checkbox_new(
+				form_prompt_edit_attribute->no_display_name,
+				(char *)0 /* element_name */,
+				(char *)0 /* prompt_string */,
+				(char *)0 /* on_click */,
+				-1 /* tab_order */,
+				(char *)0 /* image_source */,
+				1 /* recall */ );
+
+	list_set(
+		form_prompt_edit_attribute->element_list,
+		appaserver_element_new( table_data, (char *)0 ) );
+
+	form_prompt_edit_attribute->prompt =
+		form_prompt_edit_attribute_prompt(
+			attribute_name,
+			primary_key_index );
+
+	list_set(
+		form_prompt_edit_attribute->element_list,
+		( form_prompt_edit_attribute->prompt_appaserver_element =
+			appaserver_element_new(
+				non_edit_text, (char *)0 ) ) );
+
+	form_prompt_edit_attribute->prompt_appaserver_element->non_edit_text =
+		element_non_edit_text_new(
+			(char *)0,
+			form_prompt_edit_attribute->prompt );
+
+	list_set(
+		form_prompt_edit_attribute->element_list,
+		appaserver_element_new( table_data, (char *)0 ) );
+
+	form_prompt_edit_attribute->from_name =
+		form_prompt_edit_attribute_from_name(
+			FORM_PROMPT_EDIT_FROM_PREFIX,
+			attribute_name );
+
+	if ( attribute_is_yes_no( attribute_name ) )
+	{
+		list_set(
+			form_prompt_edit_attribute->element_list,
+			( form_prompt_edit_attribute->
+				yes_no_appaserver_element =
+					appaserver_element_new(
+						yes_no, (char *)0 ) ) );
+
+		form_prompt_edit_attribute->
+			yes_no_appaserver_element =
+			yes_no =
+				element_yes_no_new(
+					form_prompt_edit_attribute->from_name,
+					(char *)0 /* on_click */,
+					-1 /* tab_order */,
+					1 /* recall */ );
+
+		list_set(
+			form_prompt_edit_attribute->element_list,
+			appaserver_element_new( table_data, (char *)0 ) );
+
+		list_set(
+			form_prompt_edit_attribute->element_list,
+			appaserver_element_new( table_data, (char *)0 ) );
+
+		list_set(
+			form_prompt_edit_attribute->element_list,
+			appaserver_element_new( table_data, (char *)0 ) );
+	}
+	else
+	{
+		form_prompt_edit_attribute->relational_name =
+			form_prompt_edit_attribute_relational_name(
+				FORM_PROMPT_EDIT_RELATIONAL_PREFIX,
+				attribute_name );
+
+		form_prompt_edit_attribute->to_name =
+			form_prompt_edit_attribute_to_name(
+			FORM_PROMPT_EDIT_TO_PREFIX,
+			attribute_name );
+
+		form_prompt_edit_attribute->form_prompt_edit_relational =
+			form_prompt_edit_relational_new(
+				form_prompt_edit_attribute->relational_name,
+				form_prompt_edit_attribute->from_name,
+				form_prompt_edit_attribute->to_name,
+				attribute_name,
+				datatype_name,
+				attribute_width );
+
+		if ( !form_prompt_edit_attribute->form_prompt_edit_relational )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: form_prompt_edit_relational_new() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set_list(
+			form_prompt_edit_attribute->element_list,
+			form_prompt_edit_attribute->
+				form_prompt_edit_relational->
+					element_list );
+	}
+
+	if ( hint_message )
+	{
+		list_set(
+			form_prompt_edit_attribute->element_list,
+			appaserver_element_new( table_data, (char *)0 ) );
+
+		list_set(
+			form_prompt_edit_attribute->element_list,
+			( form_prompt_edit_attribute->
+				hint_message_appaserver_element =
+					appaserver_element_new(
+						non_edit_text, (char *)0 ) ) );
+
+		form_prompt_edit_attribute->
+			hint_message_appaserver_element =
+			non_edit_text =
+				element_non_edit_text_new(
+					(char *)0,
+					hint_message );
+	}
+
+	return form_prompt_edit_attribute;
+}
+
+char *form_prompt_edit_attribute_no_display_name(
+			char *form_prompt_edit_no_display_prefix,
+			char *attribute_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_no_display_prefix,
+		attribute_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_attribute_prompt(
+			char *attribute_name,
+			int primary_key_index )
+{
+	char name[ 128 ];
+	char *ptr = name;
+
+	if ( primary_key_index ) ptr += sprintf( ptr, "* " );
+
+	string_initial_capital( ptr, attribute_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_attribute_from_name(
+			char *form_prompt_edit_from_prefix,
+			char *attribute_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_from_prefix,
+		attribute_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_attribute_relational_name(
+			char *form_prompt_edit_attribute_relational_prefix,
+			char *attribute_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_attribute_relational_prefix,
+		attribute_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_attribute_to_name(
+			char *form_prompt_edit_to_prefix,
+			char *attribute_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_to_prefix,
+		attribute_name );
+
+	return strdup( name );
+}
+
+FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_calloc( void )
+{
+	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute;
+
+	if ( ! ( form_prompt_edit_attribute =
+			calloc( 1, sizeof( FORM_PROMPT_EDIT_ATTRIBUTE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_edit_attribute;
+}
+
+FORM_PROMPT_EDIT_ELEMENT_LIST *
+	form_prompt_edit_element_list_new(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
+
+	if ( !list_rewind( folder_attribute_append_isa_list ) )
+		return (FORM_PROMPT_EDIT_ELEMENT_LIST *)0;
+
+	form_prompt_edit_element_list =
+		form_prompt_edit_element_list_calloc();
+
+	form_prompt_edit_element_list->element_list = list_new();
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_append_isa_list );
+
+		list_set(
+			form_prompt_edit_element_list->element_list,
+			appaserver_element_new(
+				table_row, (char *)0 ) );
+
+		list_set(
+			form_prompt_edit_element_list->element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+		if ( ( form_prompt_edit_element_list->
+			form_prompt_edit_relation =
+				form_prompt_edit_relation_new(
+					folder_attribute->attribute_name,
+					folder_attribute->primary_key_index,
+					relation_mto1_non_isa_list,
+					drillthru_dictionary,
+					login_name,
+					security_entity_where,
+					form_prompt_edit_relation_list ) ) )
+		{
+			if ( !form_prompt_edit_element_list->
+				form_prompt_edit_relation_list )
+			{
+				form_prompt_edit_element_list->
+					form_prompt_edit_relation_list =
+						list_new();
+			}
+
+			list_set(
+				form_prompt_edit_element_list->
+					form_prompt_edit_relation_list,
+				form_prompt_edit_element_list->
+					form_prompt_relation );
+
+			list_set_list(
+				form_prompt_edit_element_list->element_list,
+				form_prompt_edit_element_list->
+					form_prompt_edit_relation->
+						element_list );
+
+			continue;
+		}
+
+		if ( ( form_prompt_edit_element_list->
+			form_prompt_edit_attribute =
+				form_prompt_edit_attribute_new(
+					folder_attribute->attribute_name,
+					folder_attribute->primary_key_index,
+					folder_attribute->
+						attribute->
+						datatype_name,
+					folder_attribute->
+						attribute->
+						width,
+					folder_attribute->
+						attribute->
+						hint_message,
+					form_prompt_edit_element_list->
+					    form_prompt_edit_relation_list ) ) )
+		{
+			list_set_list(
+				form_prompt_edit_element_list->element_list,
+				form_prompt_edit_element_list->
+					form_prompt_edit_attribute->
+					element_list );
+		}
+
+	} while ( list_next( folder_attribute_append_isa_list ) );
+
+	if ( ! ( folder_prompt_edit_element_list->element_list_html =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			element_list_html(
+				form_prompt_edit_element_list->
+					element_list ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: element_list_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_edit_element_list;
+}
+
+FORM_PROMPT_EDIT_ELEMENT_LIST *
+	form_prompt_edit_element_list_calloc(
+			void )
+{
+	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
+
+	if ( ! ( form_prompt_edit_element_list =
+			calloc( 1, sizeof( FORM_PROMPT_EDIT_ELEMENT_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_edit_element_list;
+}
+
+FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
+			char *attribute_name,
+			int primary_key_index,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where,
+			LIST *form_prompt_edit_relation_list )
+{
+	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+	RELATION *relation;
+
+	if ( form_prompt_edit_relation_attribute_name_exists(
+		attribute_name,
+		form_prompt_edit_relation_list ) )
+	{
+		return (FORM_PROMPT_EDIT_RELATION *)0;
+	}
+
+	if ( ! ( relation =
+			relation_consumes(
+				attribute_name,
+				relation_mto1_non_isa_list ) ) )
+	{
+		return (FORM_PROMPT_EDIT_RELATION *)0;
+	}
+
+	if ( !relation->one_folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: relation->one_folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !relation->one_folder->folder_name )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: relation->one_folder->folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	relation->consumes_taken = 1;
+	form_prompt_edit_relation = form_prompt_edit_relation_calloc();
+	form_prompt_edit_relation->relation = relation;
+	form_prompt_edit_relation->element_list = list_new();
+
+	form_prompt_edit_relation->query_widget =
+		query_widget_new(
+			relation->one_folder->folder_name
+				/* widget_folder_name */,
+			login_name,
+			relation->
+				one_folder->
+				folder_attribute_list(),
+			relation->
+				one_folder->
+				relation_mto1_non_isa_list,
+			security_entity_where,
+			drillthru_dictionary );
+
+	if ( !form_prompt_edit_relation->query_widget )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_prompt_edit_relation->name =
+		form_prompt_edit_relation_name(
+			relation->one_folder->folder_name
+				/* one_folder_name */,
+			char *relation->related_attribute_name,
+			LIST *relation->foreign_key_list );
+
+	form_prompt_edit_relation->no_display_name =
+		form_prompt_edit_relation_no_display_name(
+			FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
+			form_prompt_edit_relation->name );
+
+	list_set(
+		form_prompt_edit_relation->element_list,
+		( form_prompt_edit_relation->no_display_appaserver_element =
+			appaserver_element_new(
+				checkbox, (char *)0 ) ) );
+
+	form_prompt_edit_relation->
+		no_display_appaserver_element->
+		element_checkbox =
+			element_checkbox_new(
+				form_prompt_edit_relation->no_display_name,
+				(char *)0 /* element_name */,
+				(char *)0 /* prompt_string */,
+				(char *)0 /* on_click */,
+				-1 /* tab_order */,
+				(char *)0 /* image_source */,
+				1 /* recall */ );
+
+	list_set(
+		form_prompt_edit_relation->element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+	form_prompt_edit_relation->prompt =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		form_prompt_edit_relation_prompt(
+			relation->one_folder->folder_name
+				/* one_folder_name */,
+			relation->related_attribute_name,
+			relation->foreign_key_list,
+			primary_key_index );
+
+	list_set(
+		form_prompt_edit_relation->element_list,
+		( form_prompt_edit_relation->prompt_appaserver_element =
+			appaserver_element_new(
+				non_edit_text, (char *)0 ) ) );
+
+	form_prompt_edit_relation->
+		prompt_appaserver_element->
+		non_edit_text =
+			element_non_edit_text_new(
+				(char *)0,
+				form_prompt_edit_relation->prompt );
+
+	list_set(
+		form_prompt_edit_relation->element_list,
+		appaserver_element_new(
+			table_data, (char *)0 ) );
+
+char *form_prompt_edit_relation_element_name(
+	char *FORM_PROMPT_EDIT_RELATION_PREFIX,
+	char *form_prompt_edit_relation_name() );
+
+if ( relation->one_folder->multi_select )
+{
+	list_set(
+		element_list,
+		( drop_down_appaserver_element =
+			appaserver_element_new(
+				multi_drop_down, (char *)0 ) ) );
+
+	ELEMENT_MULTI_DROP_DOWN *
+		multi_drop_down =
+			element_multi_drop_down_new(
+				form_prompt_edit_relation_element_name(),
+				(LIST *)0 /* attribute_name_list */,
+				query_widget->delimited_list,
+				(LIST *)0 /* display_list */,
+				relation->one_folder->no_initial_capital,
+				(char *)0 /* post_change_javascript */ );
+}
+else
+{
+	list_set(
+		element_list,
+		( drop_down_appaserver_element =
+			appaserver_element_new(
+				drop_down, (char *)0 ) ) );
+
+	ELEMENT_DROP_DOWN *drop_down =
+		element_drop_down_new(
+			form_prompt_edit_relation_element_name(),
+			(LIST *)0 /* attribute_name_list */,
+			query_widget->delimited_list,
+			(LIST *)0 /* display_list */,
+			relation->one_folder->no_initial_capital,
+			1 /* output_null_option */,
+			1 /* output_not_null_option */,
+			1 /* output_select_option */,
+			element_drop_down_display_size(),
+			-1 /* tab_order */,
+			0 /* not multi_select */,
+			(char *)0 /* post_change_javascript */,
+			0 /* not readonly */,
+			1 /* recall */ );
+
+	list_set(
+		element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+	list_set(
+		element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+	list_set(
+		element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+}
+
+if ( relation->hint_message )
+{
+	list_set(
+		element_list,
+		( hint_message_appaserver_element =
+			appaserver_element_new(
+				non_edit_text, (char *)0 ) ) );
+
+	ELEMENT_NON_EDIT_TEXT *non_edit_text =
+		element_non_edit_text_new(
+			(char *)0 /* prompt_name */,
+			relation->hint_message );
+}
+
+	return form_prompt_edit_relation;
+}
+
+boolean form_prompt_edit_relation_attribute_name_exists(
+			char *attribute_name,
+			LIST *form_prompt_edit_relation_list )
+{
+	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+
+	if ( !list_rewind( form_prompt_edit_relation_list ) ) return 0;
+
+	do {
+		form_prompt_edit_relation =
+			list_get(
+				form_prompt_edit_relation_list );
+
+		if ( list_string_exists(
+			attribute_name,
+			form_prompt_edit_relation->
+				relation->
+				foreign_key_list ) )
+		{
+			return 1;
+		}
+
+	} while ( list_next( form_prompt_edit_relation_list ) );
+
+	return 0;
+}
+
+char *form_prompt_edit_relation_name(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list )
+{
+	char name[ 256 ];
+
+	if ( strlen( foreign_key_list ) )
+	{
+		strcpy(	name,
+			list_display_delimited(
+				foreign_key_list,
+				'^' ) );
+	}
+	else
+	if ( related_attribute_name && *related_attribute_name )
+	{
+		sprintf(name,
+			%s^%s",
+			one_folder_name,
+			related_attribute_name );
+	}
+	else
+	{
+		strcpy( name, one_folder_name );
+	}
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_relation_no_display_name(
+			char *form_prompt_edit_no_display_prefix,
+			char *relation_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_no_display_prefix,
+		relation_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_relation_prompt(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list,
+			int primary_key_index )
+{
+	char prompt[ 128 ];
+	char *ptr = prompt;
+	char buffer1[ 64 ];
+	char buffer2[ 64 ];
+
+	if ( !one_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( primary_key_index ) ptr += sprintf( ptr, "* " );
+
+	if ( list_length( foreign_key_list ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			list_display_delimited(
+				foreign_key_list,
+				',' ) );
+	}
+	else
+	if ( related_attribute_name && *related_attribute_name )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s (%s)",
+			string_initial_capital(
+				buffer1,
+				one_folder_name ),
+			string_initial_capital(
+				buffer2,
+				related_attribute_name ) );
+	}
+	else
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			string_initial_capital(
+				buffer1,
+				one_folder_name ) );
+	}
+
+	return strdup( prompt );
+}
+
+char *form_prompt_edit_relation_element_name(
+			char *form_prompt_edit_relation_prefix,
+			char *relation_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_relation_prefix,
+		relation_name );
+
+	return strdup( name );
+}
+
+FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
+{
+	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+
+	if ( ! ( form_prompt_edit_relation =
+			calloc( 1, sizeof( FORM_PROMPT_EDIT_RELATION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_edit_relation;
 }
 
