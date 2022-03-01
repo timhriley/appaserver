@@ -34,6 +34,17 @@
 #define FORM_LOOKUP_SUBTITLE_MESSAGE	\
 	"Enter only the minimum information sufficient to search."
 
+#define FORM_PROMPT_EDIT_RELATIONAL_PREFIX \
+					"form_prompt_edit_relational_"
+
+#define FORM_PROMPT_EDIT_FROM_PREFIX \
+					"form_prompt_edit_from_"
+
+#define FORM_PROMPT_EDIT_TO_PREFIX \
+					"form_prompt_edit_to_"
+
+#define FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH 100
+
 typedef struct
 {
 	char *folder_name;
@@ -248,6 +259,90 @@ char *form_choose_isa_html(
 			LIST *element_list,
 			LIST *button_element_list,
 			char *form_close_tag_html );
+
+/* This is a query row having a mto1 relation drop-down. */
+/* ----------------------------------------------------- */
+typedef struct
+{
+} FORM_PROMPT_EDIT_RELATION;
+
+/* FORM_PROMPT_EDIT_RELATION operations */
+/* ------------------------------------ */
+FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
+			char *attribute_name,
+			LIST *relation_mto1_non_isa_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where,
+			LIST *form_prompt_edit_relation_list );
+
+boolean form_prompt_edit_relation_attribute_name_exists(
+			char *attribute_name,
+			LIST *form_prompt_edit_relation_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_relation_prompt_name(
+			char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list );
+
+/* Private */
+/* ------- */
+FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc(
+			void );
+
+/* This is a query row having a relational operation drop-down. */
+/* ------------------------------------------------------------ */
+typedef struct
+{
+	LIST *element_list;
+	LIST *operation_list;
+	APPASERVER_ELEMENT *relational_operator_appaserver_element;
+	APPASERVER_ELEMENT *text_from_appaserver_element;
+	APPASERVER_ELEMENT *and_appaserver_element;
+	APPASERVER_ELEMENT *text_to_appaserver_element;
+} FORM_PROMPT_EDIT_RELATIONAL;
+
+/* FORM_PROMPT_EDIT_RELATIONAL operations */
+/* -------------------------------------- */
+FORM_PROMPT_EDIT_RELATIONAL *
+	form_prompt_edit_relational_new(
+			char *form_prompt_edit_attribute_relational_name,
+			char *form_prompt_edit_attribute_from_name,
+			char *form_prompt_edit_attribute_to_name,
+			char *attribute_name,
+			char *datatype_name,
+			int attribute_width );
+
+LIST *form_prompt_edit_relational_operation_list(
+			char *datatype_name );
+
+/* Private */
+/* ------- */
+FORM_PROMPT_EDIT_RELATIONAL *
+	form_prompt_edit_relational_calloc(
+			void );
+
+typedef struct
+{
+	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+	LIST *form_prompt_edit_relation_list;
+	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute;
+	LIST *element_list;
+	char *element_list_html;
+} FORM_PROMPT_EDIT_ELEMENT_LIST;
+
+/* FORM_PROMPT_EDIT_ELEMENT_LIST operations */
+/* ---------------------------------------- */
+FORM_PROMPT_EDIT_ELEMENT_LIST *
+	form_prompt_edit_element_list_new(
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_non_isa_list,
+			LIST *relation_join_one2m_list,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where );
 
 typedef struct
 {

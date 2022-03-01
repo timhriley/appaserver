@@ -2062,3 +2062,45 @@ LIST *form_prompt_edit_element_list(
 	return element_list;
 }
 
+FORM_PROMPT_EDIT_RELATIONAL *
+	form_prompt_edit_relational_new(
+			char *form_prompt_edit_attribute_relational_name,
+			char *form_prompt_edit_attribute_from_name,
+			char *form_prompt_edit_attribute_to_name,
+			char *attribute_name,
+			char *datatype_name,
+			int attribute_width )
+{
+	FORM_PROMPT_EDIT_RELATIONAL *form_prompt_edit_relational =
+		form_prompt_edit_relational_calloc();
+
+	form_prompt_edit_relational->element_list = list_new();
+
+	return form_prompt_edit_relational;
+}
+
+LIST *form_prompt_edit_relational_operation_list(
+			char *datatype_name )
+{
+}
+
+FORM_PROMPT_EDIT_RELATIONAL *
+	form_prompt_edit_relational_calloc(
+			void )
+{
+	FORM_PROMPT_EDIT_RELATIONAL *form_prompt_edit_relational;
+
+	if ( ! ( form_prompt_edit_relational =
+			calloc( 1, sizeof( FORM_PROMPT_EDIT_RELATIONAL ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_edit_relational;
+}
+
