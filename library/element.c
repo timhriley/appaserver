@@ -1092,7 +1092,8 @@ char *element_multi_drop_down_original_name(
 }
 
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
-			LIST *attribute_name_list,
+			char *original_name,
+			char *element_name,
 			LIST *delimited_list,
 			boolean no_initial_capital,
 			char *post_change_javascript )
@@ -1113,13 +1114,7 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 
 	element_multi_drop_down->original_drop_down =
 		element_drop_down_new(
-			strdup(
-			    /* --------------------- */
-			    /* Returns static memory */
-			    /* --------------------- */
-			    element_multi_drop_down_original_name(
-			    	attribute_name_list,
-			    	ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX ) ),
+			original_name,
 			(LIST *)0 /* attribute_name_list */,
 			delimited_list,
 			(LIST *)0 /* display_list */,

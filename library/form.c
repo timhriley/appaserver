@@ -2791,82 +2791,101 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 		appaserver_element_new(
 			table_data, (char *)0 ) );
 
-char *form_prompt_edit_relation_element_name(
-	char *FORM_PROMPT_EDIT_RELATION_PREFIX,
-	char *form_prompt_edit_relation_name() );
+	form_prompt_edit_relation->element_name =
+		form_prompt_edit_relation_element_name(
+			FORM_PROMPT_EDIT_RELATION_PREFIX,
+			form_prompt_edit_relation->name );
 
-if ( relation->one_folder->multi_select )
-{
-	list_set(
-		element_list,
-		( drop_down_appaserver_element =
-			appaserver_element_new(
-				multi_drop_down, (char *)0 ) ) );
+	if ( relation->one_folder->multi_select )
+	{
+		list_set(
+			element_list,
+			( form_prompt_edit_relation->
+				drop_down_appaserver_element =
+					appaserver_element_new(
+						multi_drop_down,
+						(char *)0 ) ) );
 
-	ELEMENT_MULTI_DROP_DOWN *
-		multi_drop_down =
-			element_multi_drop_down_new(
-				form_prompt_edit_relation_element_name(),
-				(LIST *)0 /* attribute_name_list */,
-				query_widget->delimited_list,
-				(LIST *)0 /* display_list */,
-				relation->one_folder->no_initial_capital,
-				(char *)0 /* post_change_javascript */ );
-}
-else
-{
-	list_set(
-		element_list,
-		( drop_down_appaserver_element =
-			appaserver_element_new(
-				drop_down, (char *)0 ) ) );
+		form_prompt_edit_relation->
+			drop_down_appaserver_element->
+			multi_drop_down =
+				element_multi_drop_down_new(
+					form_prompt_edit_relation->
+						element_name,
+					query_widget->delimited_list,
+					relation->
+						one_folder->
+						no_initial_capital,
+					(char *)0 /* post_change_java... */ );
+	}
+	else
+	{
+		list_set(
+			element_list,
+			( form_prompt_edit_relation->
+				drop_down_appaserver_element =
+					appaserver_element_new(
+						drop_down, (char *)0 ) ) );
 
-	ELEMENT_DROP_DOWN *drop_down =
-		element_drop_down_new(
-			form_prompt_edit_relation_element_name(),
-			(LIST *)0 /* attribute_name_list */,
-			query_widget->delimited_list,
-			(LIST *)0 /* display_list */,
-			relation->one_folder->no_initial_capital,
-			1 /* output_null_option */,
-			1 /* output_not_null_option */,
-			1 /* output_select_option */,
-			element_drop_down_display_size(),
-			-1 /* tab_order */,
-			0 /* not multi_select */,
-			(char *)0 /* post_change_javascript */,
-			0 /* not readonly */,
-			1 /* recall */ );
+		form_prompt_edit_relation->
+			drop_down_appaserver_element->
+			drop_down =
+				element_drop_down_new(
+					form_prompt_edit_relation->element_name,
+					(LIST *)0 /* attribute_name_list */,
+					form_prompt_edit_relation->
+						query_widget->
+						delimited_list,
+					(LIST *)0 /* display_list */,
+					relation->
+						one_folder->
+						no_initial_capital,
+					1 /* output_null_option */,
+					1 /* output_not_null_option */,
+					1 /* output_select_option */,
+					element_drop_down_display_size(
+						list_length(
+						   form_prompt_edit_relation->
+							query_widget->
+							delimited_list ) ),
+					-1 /* tab_order */,
+					0 /* not multi_select */,
+					(char *)0 /* post_change_javascript */,
+					0 /* not readonly */,
+					1 /* recall */ );
 
-	list_set(
-		element_list,
+		list_set(
+			form_prompt_edit_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
-	list_set(
-		element_list,
+		list_set(
+			form_prompt_edit_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
-	list_set(
-		element_list,
+		list_set(
+			form_prompt_edit_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
-}
+	}
 
-if ( relation->hint_message )
-{
-	list_set(
-		element_list,
-		( hint_message_appaserver_element =
-			appaserver_element_new(
-				non_edit_text, (char *)0 ) ) );
+	if ( relation->hint_message )
+	{
+		list_set(
+			form_prompt_edit_relation->element_list,
+			( form_prompt_edit_relation->
+				hint_message_appaserver_element =
+					appaserver_element_new(
+						non_edit_text, (char *)0 ) ) );
 
-	ELEMENT_NON_EDIT_TEXT *non_edit_text =
-		element_non_edit_text_new(
-			(char *)0 /* prompt_name */,
-			relation->hint_message );
-}
+		form_prompt_edit_relation->
+			hint_message_appaserver_element =
+			non_edit_text =
+				element_non_edit_text_new(
+					(char *)0 /* prompt_name */,
+					relation->hint_message );
+	}
 
 	return form_prompt_edit_relation;
 }
@@ -2937,6 +2956,34 @@ char *form_prompt_edit_relation_no_display_name(
 	sprintf(name,
 		"%s%s",
 		form_prompt_edit_no_display_prefix,
+		relation_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_relation_original_name(
+			char *form_prompt_edit_original_prefix,
+			char *relation_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_original_prefix,
+		relation_name );
+
+	return strdup( name );
+}
+
+char *form_prompt_edit_relation_element_name(
+			char *form_prompt_edit_relation_prefix,
+			char *relation_name )
+{
+	char name[ 128 ];
+
+	sprintf(name,
+		"%s%s",
+		form_prompt_edit_relation_prefix,
 		relation_name );
 
 	return strdup( name );
