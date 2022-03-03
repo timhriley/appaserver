@@ -212,7 +212,6 @@ function timlib_get_form_element( search_element_name, form_number )
 	}
 
 	return "";
-
 }
 
 function timlib_get_radio_selected_value( search_element_name )

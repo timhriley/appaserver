@@ -47,6 +47,7 @@ enum element_type {	table_open,
 			table_row,
 			table_close,
 			checkbox,
+			prompt_drop_down,
 			drop_down,
 			button,
 			non_edit_text,
@@ -58,7 +59,8 @@ enum element_type {	table_open,
 			text,
 			password,
 			upload,
-			radio_button,
+			yes_no,
+			radio,
 			reference_number,
 			javascript_filename,
 			element_date,
@@ -203,6 +205,71 @@ char *element_checkbox_submit_javascript(
 
 typedef struct
 {
+	char *element_name;
+	LIST *delimited_list;
+	boolean no_initial_capital;
+	boolean output_null_option;
+	boolean output_not_null_option;
+	boolean output_select_option;
+	int display_size;
+	int tab_order;
+	boolean multi_select;
+	char *post_change_javascript;
+	boolean recall;
+} ELEMENT_PROMPT_DROP_DOWN;
+
+/* ELEMENT_PROMPT_DROP_DOWN operations */
+/* ----------------------------------- */
+ELEMENT_PROMPT_DROP_DOWN *element_prompt_drop_down_new(
+			char *element_name,
+			LIST *delimited_list,
+			boolean no_initial_capital,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			int display_size,
+			int tab_order,
+			boolean multi_select,
+			char *post_change_javascript,
+			boolean recall );
+
+ELEMENT_PROMPT_DROP_DOWN *element_empty_prompt_drop_down_new(
+			char *element_name,
+			int display_size,
+			boolean multi_select,
+			boolean recall );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_prompt_drop_down_html(
+			char *element_name,
+			LIST *delimited_list,
+			LIST *display_list,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			boolean output_select_option,
+			int display_size,
+			boolean multi_select,
+			int tab_order,
+			char *javascript_replace );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_empty_prompt_drop_down_html(
+			char *element_name,
+			int display_size,
+			boolean multi_select );
+
+/* Private */
+/* ------- */
+ELEMENT_PROMPT_DROP_DOWN *element_prompt_drop_down_calloc(
+			void );
+
+typedef struct
+{
 	/* Attributes */
 	/* ---------- */
 	char *name;
@@ -248,13 +315,6 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			boolean readonly,
 			boolean recall );
 
-ELEMENT_DROP_DOWN *element_drop_down_empty_new(
-			char *name,
-			int display_size,
-			boolean multi_select,
-			char *post_change_javascript,
-			boolean recall );
-
 /* Returns row_dictionary->hash_table->other_data */
 /* ---------------------------------------------- */
 char *element_drop_down_value(
@@ -283,15 +343,6 @@ char *element_drop_down_html(
 			int display_size,
 			boolean multi_select,
 			int tab_order,
-			char *appaserver_element_javascript,
-			char *background_color );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_drop_down_empty_html(
-			char *drop_down_name,
-			int drop_down_size,
-			boolean multi_select,
 			char *appaserver_element_javascript,
 			char *background_color );
 
@@ -484,12 +535,12 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	ELEMENT_DROP_DOWN *original_drop_down;
+	ELEMENT_PROMPT_DROP_DOWN *original_drop_down;
 	ELEMENT_TABLE_DATA *table_data;
 	ELEMENT_BUTTON *move_right_button;
 	ELEMENT_LINE_BREAK *element_line_break;
 	ELEMENT_BUTTON *move_left_button;
-	ELEMENT_DROP_DOWN *empty_drop_down;
+	ELEMENT_PROMPT_DROP_DOWN *empty_drop_down;
 	char *name;
 	char *empty_html;
 	char *html;
@@ -504,10 +555,8 @@ ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_new(
 			char *original_name,
 			char *element_name,
-			LIST *attribute_name_list,
 			LIST *delimited_list,
-			boolean no_initial_capital,
-			char *post_change_javascript );
+			boolean no_initial_capital );
 
 int element_multi_display_size(
 			void );
@@ -525,12 +574,16 @@ char *element_multi_drop_down_move_left_label(
 /* Returns heap memory */
 /* ------------------- */
 char *element_multi_drop_down_move_right_action_string(
-			LIST *attribute_name_list );
+			char *original_name,
+			char *element_name,
+			char element_multi_move_left_right_delimiter );
 
 /* Returns heap memory */
 /* ------------------- */
 char *element_multi_drop_down_move_left_action_string(
-			LIST *attribute_name_list );
+			char *original_name,
+			char *element_name,
+			char element_multi_move_left_right_delimiter );
 
 
 /* Returns static memory */
@@ -547,13 +600,12 @@ char *element_multi_drop_down_name(
 /* Returns heap memory */
 /* ------------------- */
 char *element_multi_drop_down_html(
-			ELEMENT_DROP_DOWN *original_drop_down,
+			ELEMENT_PROMPT_DROP_DOWN *original_drop_down,
 			ELEMENT_TABLE_DATA *table_data,
 			ELEMENT_BUTTON *move_right_button,
 			ELEMENT_LINE_BREAK *element_line_break,
 			ELEMENT_BUTTON *move_left_button,
-			ELEMENT_DROP_DOWN *empty_drop_down,
-			char *appaserver_element_javascript );
+			ELEMENT_PROMPT_DROP_DOWN *empty_drop_down );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -802,6 +854,48 @@ void element_upload_update_link(
 
 typedef struct
 {
+	char *attribute_name;
+	char *element_name;
+	boolean output_null_option;
+	boolean output_not_null_option;
+	char *post_change_javascript;
+	int tab_order;
+	boolean recall;
+} ELEMENT_YES_NO;
+
+/* ELEMENT_YES_NO operations */
+/* ------------------------- */
+ELEMENT_YES_NO *element_yes_no_new(
+			char *attribute_name /* mutually exclusive */,
+			char *element_name /* mutually exclusive */,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			char *post_change_javascript,
+			int tab_order,
+			boolean recall );
+
+/* Public */
+/* ------ */
+boolean element_yes_no_affirmative(
+			char *attribute_name,
+			DICTIONARY *row_dictionary );
+
+char *element_yes_no_html(
+			char *element_name,
+			boolean element_yes_no_affirmative,
+			boolean output_null_option,
+			boolean output_not_null_option,
+			char *javascript_replace,
+			int tab_order,
+			char *background_color );
+
+/* Private */
+/* ------- */
+ELEMENT_YES_NO *element_yes_no_calloc(
+			void );
+
+typedef struct
+{
 	char *data;
 	int attribute_width;
 	char *heading;
@@ -842,6 +936,7 @@ typedef struct
 	ELEMENT_TABLE_ROW *table_row;
 	ELEMENT_TABLE_CLOSE *table_close;
 	ELEMENT_CHECKBOX *checkbox;
+	ELEMENT_PROMPT_DROP_DOWN *prompt_drop_down;
 	ELEMENT_DROP_DOWN *drop_down;
 	ELEMENT_BUTTON *button;
 	ELEMENT_NON_EDIT_TEXT *non_edit_text;
@@ -853,6 +948,7 @@ typedef struct
 	ELEMENT_TEXT *text;
 	ELEMENT_UPLOAD *upload;
 	ELEMENT_PASSWORD *password;
+	ELEMENT_YES_NO *yes_no;
 } APPASERVER_ELEMENT;
 
 /* APPASERVER_ELEMENT operations */
@@ -980,7 +1076,7 @@ char *appaserver_element_html(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_drop_down_html(
-			ELEMENT_DROP_DOWN *drop_down,
+			ELEMENT_DROP_DOWN *drop_down /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -988,8 +1084,14 @@ char *appaserver_element_drop_down_html(
 
 /* Returns heap memory or null */
 /* --------------------------- */
+char *appaserver_element_prompt_drop_down_html(
+			ELEMENT_PROMPT_DROP_DOWN *prompt_drop_down /* in/out */,
+			char *state );
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *appaserver_element_text_html(
-			ELEMENT_TEXT *text,
+			ELEMENT_TEXT *text /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -998,14 +1100,14 @@ char *appaserver_element_text_html(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_hidden_html(
-			ELEMENT_HIDDEN *hidden,
+			ELEMENT_HIDDEN *hidden /* in/out */,
 			int row_number,
 			DICTIONARY *row_dictionary );
 
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_notepad_html(
-			ELEMENT_NOTEPAD *notepad,
+			ELEMENT_NOTEPAD *notepad /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -1014,7 +1116,7 @@ char *appaserver_element_notepad_html(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_checkbox_html(
-			ELEMENT_CHECKBOX *checkbox,
+			ELEMENT_CHECKBOX *checkbox /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,
@@ -1023,10 +1125,19 @@ char *appaserver_element_checkbox_html(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_upload_update_html(
-			ELEMENT_UPLOAD *upload,
+			ELEMENT_UPLOAD *upload /* in/out */,
 			char *background_color,
 			DICTIONARY *row_dictionary,
 			char *application_name );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_yes_no_html(
+			ELEMENT_YES_NO *yes_no /* in/out */,
+			char *background_color,
+			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary );
 
 /* Returns heap memory or null */
 /* --------------------------- */

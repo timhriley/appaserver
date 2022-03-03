@@ -198,7 +198,11 @@ PROMPT_EDIT *prompt_edit_new(
 
 	prompt_edit->omit_insert_button =
 		prompt_edit_omit_insert_button(
-			prompt_edit->drillthru_skipped );
+			prompt_edit->drillthru_skipped,
+			relation_exists_multi_select(
+				prompt_edit->
+					folder->
+					relation_mto1_non_isa_list ) );
 
 	prompt_edit->omit_delete_button =
 		prompt_edit_omit_delete_button(
@@ -206,13 +210,6 @@ PROMPT_EDIT *prompt_edit_new(
 				prompt_edit->
 					folder->
 					relation_mto1_isa_list ) );
-
-	prompt_edit->omit_new_button =
-		prompt_edit_omit_new_button(
-			relation_exists_multi_select(
-				prompt_edit->
-					folder->
-					relation_mto1_non_isa_list ) );
 
 	prompt_edit->target_frame =
 		/* ------------------------------------------- */
@@ -279,7 +276,6 @@ PROMPT_EDIT *prompt_edit_new(
 			prompt_edit->action_string,
 			prompt_edit->omit_insert_button,
 			prompt_edit->omit_delete_button,
-			prompt_edit->omit_new_button,
 			prompt_edit->folder->folder_attribute_append_isa_list,
 			prompt_edit->folder->relation_mto1_non_isa_list,
 			prompt_edit->folder->relation_join_one2m_list,
@@ -338,19 +334,13 @@ boolean prompt_edit_forbid(
 boolean prompt_edit_omit_insert_button(
 			boolean drillthru_skipped )
 {
-	return drillthru_skipped;
+	return drillthru_skipped || relation_exists_multi_select;
 }
 
 boolean prompt_edit_omit_delete_button(
 			int relation_mto1_isa_list_length )
 {
 	return (boolean)relation_mto1_isa_list_length;
-}
-
-boolean prompt_edit_omit_new_button(
-			boolean relation_exists_multi_select )
-{
-	return relation_exists_multi_select;
 }
 
 LIST *prompt_edit_drillthru_skipped(

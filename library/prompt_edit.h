@@ -39,7 +39,6 @@ typedef struct
 	DRILLTHRU *drillthru;
 	boolean omit_insert_button;
 	boolean omit_delete_button;
-	boolean omit_new_button;
 	char *target_frame;
 	char *title_html;
 	char *action_string;
@@ -74,13 +73,12 @@ boolean prompt_edit_forbid(
 			char *appaserver_update_state );
 
 boolean prompt_edit_omit_insert_button(
-			boolean drillthru_skipped );
+			boolean drillthru_skipped,
+			boolean relation_exists_multi_select );
+
 
 boolean prompt_edit_omit_delete_button(
 			int relation_mto1_isa_list_length );
-
-boolean prompt_edit_omit_new_button(
-			boolean relation_exists_multi_select );
 
 /* Returns relation_mto1_non_isa_list or	*/
 /* those with only a single foreign key.	*/

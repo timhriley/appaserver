@@ -50,7 +50,12 @@
 #define FORM_PROMPT_EDIT_RELATION_PREFIX \
 					"relation_"
 
+#define FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX \
+					"no_display_"
+
 #define FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH 100
+
+#define FORM_RADIO_LIST_NAME		"form_radio_list"
 
 typedef struct
 {
@@ -292,6 +297,7 @@ typedef struct
 /* --------------- */
 FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			char *attribute_name,
+			int primary_key_index,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
@@ -361,7 +367,6 @@ FORM_PROMPT_EDIT_RELATIONAL *
 			char *form_prompt_edit_attribute_from_name,
 			char *form_prompt_edit_attribute_to_name,
 			char *attribute_name,
-			boolean primary_key_index,
 			char *datatype_name,
 			int attribute_width );
 
@@ -472,8 +477,8 @@ typedef struct
 	RADIO_LIST *radio_list;
 	char *target_frame;
 	char *tag_html;
-	LIST *element_list;
-	LIST *keystrokes_save_string;
+	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
+	char *keystrokes_save_string;
 	char *keystrokes_recall_string;
 	LIST *button_element_list;
 	char *html;
@@ -488,11 +493,12 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			char *prompt_edit_action_string,
 			boolean prompt_edit_omit_insert_button,
 			boolean prompt_edit_omit_delete_button,
-			boolean prompt_edit_omit_new_button,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where,
 			boolean drillthru_participating,
 			boolean drillthru_skipped,
 			boolean drillthru_finished );
@@ -502,7 +508,6 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 LIST *form_prompt_edit_radio_pair_list(
 			boolean prompt_edit_omit_insert_button,
 			boolean prompt_edit_omit_delete_button,
-			boolean prompt_edit_omit_new_button,
 			int relation_mto1_non_isa_list_length );
 
 /* Returns frameset_prompt_frame or frameset_edit_frame */
@@ -523,12 +528,16 @@ LIST *form_prompt_edit_element_list(
 /* Returns heap memory */
 /* ------------------- */
 char *form_prompt_edit_keystrokes_save_string(
-			LIST *form_prompt_edit_element_list );
+			LIST *element_list );
 
 /* Returns heap memory */
 /* ------------------- */
 char *form_prompt_edit_keystrokes_recall_string(
-			LIST *form_prompt_edit_element_list );
+			LIST *element_list );
+
+LIST *form_prompt_edit_button_element_list(
+			char *form_prompt_edit_keystrokes_save_string,
+			char *form_prompt_edit_keystrokes_recall_string );
 
 /* Returns heap memory */
 /* ------------------- */

@@ -26,6 +26,7 @@
 #include "javascript.h"
 #include "frameset.h"
 #include "button.h"
+#include "appaserver.h"
 #include "form.h"
 
 char *form_next_reference_number(
@@ -1556,11 +1557,12 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			char *action_string,
 			boolean omit_insert_button,
 			boolean omit_delete_button,
-			boolean omit_new_button,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,.
+			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
+			char *login_name,
+			char *security_entity_where,
 			boolean drillthru_participating,
 			boolean drillthru_skipped,
 			boolean drillthru_finished )
@@ -1571,9 +1573,8 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 
 	form_prompt_edit->radio_pair_list =
 		form_prompt_edit_radio_pair_list(
-			prompt_edit_omit_insert_button,
-			prompt_edit_omit_delete_button,
-			prompt_edit_omit_new_button,
+			omit_insert_button,
+			omit_delete_button,
 			list_length( relation_mto1_non_isa_list ) );
 
 	form_prompt_edit->radio_list =
@@ -1596,20 +1597,26 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			action_string,
 			form_prompt_edit->target_frame );
 
-	form_prompt_edit->element_list =
-		form_prompt_edit_element_list(
+	form_prompt_edit->form_prompt_edit_element_list =
+		form_prompt_edit_element_list_new(
 			folder_attribute_append_isa_list,
 			relation_mto1_non_isa_list,
 			relation_join_one2m_list,
-			drillthru_dictionary );
+			drillthru_dictionary,
+			login_name,
+			security_entity_where );
 
 	form_prompt_edit->keystrokes_save_string =
 		form_prompt_edit_keystrokes_save_string(
-			form_prompt_edit->element_list );
+			form_prompt_edit->
+				form_prompt_edit_element_list->
+				element_list );
 
 	form_prompt_edit->keystrokes_recall_string =
 		form_prompt_edit_keystrokes_recall_string(
-			form_prompt_edit->element_list );
+			form_prompt_edit->
+				form_prompt_edit_element_list->
+				element_list );
 
 	form_prompt_edit->button_element_list =
 		form_prompt_edit_button_element_list(
@@ -1624,11 +1631,17 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			( tmp1 = element_list_html(
-					form_prompt_edit->element_list )
-						/* element_list_html */ ),
+					form_prompt_edit->
+					     form_prompt_edit_element_list->
+					     element_list ) )
+					     /* element_list_html */,
 			( tmp2 = element_list_html(
-					form_prompt_edit->button_element_list ),
-						/* button_element_list_html */),
+					form_prompt_edit->
+					     button_element_list ) )
+					     /* button_element_list_html */,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
 			form_close_html() );
 
 	if ( tmp1 ) free( tmp1 );
@@ -1656,10 +1669,17 @@ char *form_prompt_edit_target_frame(
 		return frameset_prompt_frame;
 }
 
-char *form_prompt_edit_keystrokes_save_string(
-			LIST *form_prompt_edit_element_list )
+LIST *form_prompt_edit_button_element_list(
+			char *form_prompt_edit_keystrokes_save_string,
+			char *form_prompt_edit_keystrokes_recall_string )
 {
-	char string[ 65536 ];
+	return (LIST *)0;
+}
+
+char *form_prompt_edit_keystrokes_save_string(
+			LIST *element_list )
+{
+	char string[ STRING_64K ];
 	char *ptr = string;
 
 	*ptr = '\0';
@@ -1668,9 +1688,9 @@ char *form_prompt_edit_keystrokes_save_string(
 }
 
 char *form_prompt_edit_keystrokes_recall_string(
-			LIST *form_prompt_edit_element_list )
+			LIST *element_list )
 {
-	char string[ 65536 ];
+	char string[ STRING_64K ];
 	char *ptr = string;
 
 	*ptr = '\0';
@@ -1694,9 +1714,8 @@ char *form_prompt_edit_html(
 }
 
 LIST *form_prompt_edit_radio_pair_list(
-			boolean prompt_edit_omit_insert_button,
-			boolean prompt_edit_omit_delete_button,
-			boolean prompt_edit_omit_new_button,
+			boolean omit_insert_button,
+			boolean omit_delete_button,
 			int relation_mto1_non_isa_list_length )
 {
 	LIST *radio_pair_list = list_new();
@@ -1722,7 +1741,7 @@ LIST *form_prompt_edit_radio_pair_list(
 			RADIO_SPREADSHEET_NAME,
 			RADIO_SPREADSHEET_LABEL ) );
 
-	if ( !prompt_edit_omit_insert_button )
+	if ( !omit_insert_button )
 	{
 		list_set(
 			radio_pair_list,
@@ -1731,7 +1750,7 @@ LIST *form_prompt_edit_radio_pair_list(
 				RADIO_INSERT_LABEL ) );
 	}
 
-	if ( !prompt_edit_omit_delete_button )
+	if ( !omit_delete_button )
 	{
 		list_set(
 			radio_pair_list,
@@ -1766,302 +1785,6 @@ FORM_PROMPT_EDIT *form_prompt_edit_calloc( void )
 	return form_prompt_edit;
 }
 
-LIST *form_prompt_edit_element_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary )
-{
-	LIST *element_list = list_new();
-	FOLDER_ATTRIBUTE *folder_attribute;
-	RELATION *relation;
-	APPASERVER_ELEMENT *element;
-
-	if ( !list_length( folder_attribute_append_isa_list ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: folder_attribute_append_isa_list is empty\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_open,
-				(char *)0 /* element_name */ ) ) );
-
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
-
-	do {
-		folder_attribute = list_get( folder_attribute_append_isa_list );
-
-		if ( ( relation =
-			relation_consumes(
-				folder_attribute->attribute_name,
-				relation_mto1_non_isa_list ) ) )
-		{
-
-		relation->consumes_taken = 1;
-
-		if ( !relation->one_folder )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: relation->one_folder is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !relation->one_folder->folder_name )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: one_folder->folder_name is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( !list_length( relation->foreign_key_list ) )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		&&   !related_folder->omit_lookup_before_drop_down )
-		{
-			build_related_folder_element_list(
-			   	ajax_fill_drop_down_related_folder,
-			   	return_list,
-			   	related_folder,
-			   	done_folder_name_list,
-			   	isa_folder_list,
-			   	attribute,
-			   	lookup_before_drop_down,
-			   	application_name,
-			   	session,
-			   	role_name,
-			   	login_name,
-			   	preprompt_dictionary,
-		  	   	no_display_push_button_prefix,
-		  	   	no_display_push_button_heading,
-			   	row_level_non_owner_forbid,
-			   	folder_name
-					/* one2m_folder_name_for_processes */,
-			 	  attribute_exists_in_preprompt_dictionary,
-			   	state,
-			   	foreign_attribute_name_list );
-
-				continue;
-		}
-
-		if ( strcmp( attribute->datatype, "hidden_text" ) == 0 )
-		{
-			element_list = (LIST *)0;
-		}
-		else
-		{
-			element_list =
-			     attribute_prompt_element_list(
-				attribute->attribute_name,
-				(char *)0 /* prepend_folder_name */,
-				attribute->datatype,
-				attribute->post_change_javascript,
-				attribute->width,
-				attribute->hint_message,
-				attribute->primary_key_index,
-				omit_push_buttons );
-		}
-
-		if ( element_list )
-		{
-			list_append_list(
-				return_list,
-				element_list );
-
-			list_append_pointer(
-				exclude_attribute_name_list,
-				attribute->attribute_name );
-		}
-
-	} while( list_next( attribute_list ) );
-
-	if ( list_rewind( mto1_related_folder_list ) )
-	{
-		LIST *subtract_list;
-
-		do {
-			related_folder =
-				list_get_pointer(
-					mto1_related_folder_list );
-	
-			if ( related_folder->ignore_output ) continue;
-
-			if ( isa_folder_list
-			&&   list_length( isa_folder_list )
-			&&   appaserver_isa_folder_accounted_for(
-				isa_folder_list,
-				related_folder->folder->folder_name,
-				related_folder->related_attribute_name ) )
-			{
-				continue;
-			}
-	
-			foreign_attribute_name_list =
-			related_folder_foreign_attribute_name_list(
-			   folder_get_primary_key_list(
-				related_folder->folder->
-					attribute_list ),
-			   related_folder->related_attribute_name,
-			   related_folder->folder_foreign_attribute_name_list );
-	
-			if ( list_length(
-				list_subtract_string_list(
-					foreign_attribute_name_list,
-					exclude_attribute_name_list ) ) == 0 )
-			{
-				continue;
-			}
-	
-			subtract_list =
-				list_subtract(
-					foreign_attribute_name_list,
-					omit_update_attribute_name_list );
-
-			if (	list_length( subtract_list ) !=
-				list_length( foreign_attribute_name_list ) )
-			{
-				continue;
-			}
-
-			hint_message =
-				related_folder_get_hint_message(
-					attribute->hint_message,
-					related_folder->hint_message,
-					related_folder->folder->notepad );
-
-			list_append_list(
-				return_list,
-				related_folder_prompt_element_list(
-				   (RELATED_FOLDER **)0
-				       /* ajax_fill_drop_down_related_folder */,
-				   application_name,
-				   session,
-				   role_name,
-				   login_name,
-				   related_folder->folder->folder_name,
-				   related_folder->folder->
-					populate_drop_down_process,
-				   related_folder->folder->
-					attribute_list,
-				   foreign_attribute_name_list,
-				   0 /* dont omit_ignore_push_buttons */,
-				   preprompt_dictionary,
-		  		   no_display_push_button_heading,
-		  		   no_display_push_button_prefix,
-				   (char *)0 /* post_change_java... */,
-				   hint_message,
-				   0 /* max_drop_down_size */,
-				   (LIST *)0 /* common_non_primary_a... */,
-				   0 /* not is_primary_attribute */,
-				   related_folder->folder->
-					row_level_non_owner_view_only,
-				   related_folder->folder->
-					row_level_non_owner_forbid,
-			   	   related_folder->
-					related_attribute_name,
-			   	   related_folder->
-					drop_down_multi_select,
-				   related_folder->
-					folder->
-					no_initial_capital,
-				   (char *)0 /* state */,
-				   (char *)0 /* one2m_folder_name...processes*/,
-				   0 /* tab_index */,
-				   0 /* not set_first_initial_data */,
-				   1 /* output_null_option */,
-				   1 /* output_not_null_option */,
-				   1 /* output_select_option */,
-				   (char *)0
-				   /* appaserver_user_foreign_login_name */,
-			           related_folder->omit_lookup_before_drop_down
-				   ) );
-	
-		} while( list_next( mto1_related_folder_list ) );
-	}
-
-	if ( list_rewind( folder->join_1tom_related_folder_list ) )
-	{
-		RELATED_FOLDER *related_folder;
-
-		do {
-			related_folder =
-				list_get(
-					folder->join_1tom_related_folder_list );
-
-			/* Make two line breaks */
-			/* -------------------- */
-			element = element_appaserver_new( linebreak, "" );
-
-			list_set( return_list, element );
-			list_set( return_list, element );
-
-			/* Make the push button element. */
-			/* ----------------------------- */
-			sprintf( element_name,
-		 		 "%s%s",
-				 NO_DISPLAY_PUSH_BUTTON_PREFIX,
-				 related_folder->
-					one2m_folder->
-					folder_name );
-
-			element =
-				element_appaserver_new(
-					toggle_button, 
-					strdup( element_name ) );
-
-			element_toggle_button_set_heading(
-				element->toggle_button,
-				NO_DISPLAY_PUSH_BUTTON_HEADING );
-
-			list_append_pointer(
-					return_list, 
-					element );
-
-			/* Make the prompt. */
-			/* ---------------- */
-			element =
-				element_appaserver_new(
-					prompt,
-				 	related_folder->
-						one2m_folder->
-						folder_name );
-
-			list_append_pointer(
-					return_list, 
-					element );
-
-		} while( list_next( folder->join_1tom_related_folder_list ) );
-	}
-
-	return return_list;
-	return element_list;
-}
-
 FORM_PROMPT_EDIT_RELATIONAL *
 	form_prompt_edit_relational_new(
 			char *relational_name,
@@ -2083,18 +1806,16 @@ FORM_PROMPT_EDIT_RELATIONAL *
 	list_set(
 		form_prompt_edit_relational->element_list,
 		( form_prompt_edit_relational->
-			relational_operator_appaserver_element =
+			relation_operator_appaserver_element =
 				appaserver_element_new(
-					drop_down, (char *)0 ) ) );
+					prompt_drop_down, (char *)0 ) ) );
 
 	form_prompt_edit_relational->
-		relational_operator_appaserver_element->
-		drop_down =
-			element_drop_down_new(
+		relation_operator_appaserver_element->
+		prompt_drop_down =
+			element_prompt_drop_down_new(
 				relational_name,
-				(LIST *)0 /* attribute_name_list */,
 				form_prompt_edit_relational->operation_list,
-				(LIST *)0 /* display_list */,
 				0 /* not no_initial_capital */,
 				1 /* output_null_option */,
 				1 /* output_not_null_option */,
@@ -2103,7 +1824,6 @@ FORM_PROMPT_EDIT_RELATIONAL *
 				-1 /* tab_order */,
 				0 /* not multi_select */,
 				(char *)0 /* post_change_javascript */,
-				0 /* not readonly */,
 				1 /* recall */ );
 
 	list_set(
@@ -2145,7 +1865,7 @@ FORM_PROMPT_EDIT_RELATIONAL *
 
 	form_prompt_edit_relational->and_appaserver_element->non_edit_text =
 		element_non_edit_text_new(
-			(char *)0
+			(char *)0,
 			"and" /* message */ );
 
 	list_set(
@@ -2187,58 +1907,55 @@ LIST *form_prompt_edit_relational_operation_list(
 	||   attribute_is_time( datatype_name )
 	||   attribute_is_date_time( datatype_name ) )
 	{
-		list_set( list, BEGINS_OPERATOR );
-		list_set( list, EQUAL_OPERATOR );
-		list_set( list, BETWEEN_OPERATOR );
-		list_set( list, OR_OPERATOR );
-		list_set( list, GREATER_THAN_OPERATOR );
-		list_set( list, GREATER_THAN_EQUAL_TO_OPERATOR );
-		list_set( list, LESS_THAN_OPERATOR );
-		list_set( list, LESS_THAN_EQUAL_TO_OPERATOR );
-		list_set( list, NOT_EQUAL_OPERATOR );
-		list_set( list, NOT_EQUAL_OR_NULL_OPERATOR );
-		list_set( list, NULL_OPERATOR );
-		list_set( list, NOT_NULL_OPERATOR );
+		list_set( list, APPASERVER_BEGINS );
+		list_set( list, APPASERVER_EQUAL );
+		list_set( list, APPASERVER_BETWEEN );
+		list_set( list, APPASERVER_OR );
+		list_set( list, APPASERVER_GREATER_THAN );
+		list_set( list, APPASERVER_GREATER_THAN_EQUAL_TO );
+		list_set( list, APPASERVER_LESS_THAN );
+		list_set( list, APPASERVER_LESS_THAN_EQUAL_TO );
+		list_set( list, APPASERVER_NOT_EQUAL );
+		list_set( list, APPASERVER_NULL );
+		list_set( list, APPASERVER_NOT_NULL );
 	}
 	else
 	if ( attribute_is_notepad( datatype_name ) )
 	{
-		list_set( list, CONTAINS_OPERATOR );
-		list_set( list, NOT_CONTAINS_OPERATOR );
-		list_set( list, NULL_OPERATOR );
-		list_set( list, NOT_NULL_OPERATOR );
+		list_set( list, APPASERVER_CONTAINS );
+		list_set( list, APPASERVER_NOT_CONTAINS );
+		list_set( list, APPASERVER_NULL );
+		list_set( list, APPASERVER_NOT_NULL );
 	}
 	else
 	if ( attribute_is_text( datatype_name )
 	||   attribute_is_upload( datatype_name ) )
 	{
-		list_set( list, BEGINS_OPERATOR );
-		list_set( list, EQUAL_OPERATOR );
-		list_set( list, CONTAINS_OPERATOR );
-		list_set( list, OR_OPERATOR );
-		list_set( list, GREATER_THAN_EQUAL_TO_OPERATOR );
-		list_set( list, NOT_CONTAINS_OPERATOR );
-		list_set( list, NOT_EQUAL_OPERATOR );
-		list_set( list, NOT_EQUAL_OR_NULL_OPERATOR );
-		list_set( list, NULL_OPERATOR );
-		list_set( list, NOT_NULL_OPERATOR );
+		list_set( list, APPASERVER_BEGINS );
+		list_set( list, APPASERVER_EQUAL );
+		list_set( list, APPASERVER_CONTAINS );
+		list_set( list, APPASERVER_NOT_CONTAINS );
+		list_set( list, APPASERVER_OR );
+		list_set( list, APPASERVER_GREATER_THAN_EQUAL_TO );
+		list_set( list, APPASERVER_NOT_EQUAL );
+		list_set( list, APPASERVER_NULL );
+		list_set( list, APPASERVER_NOT_NULL );
 	}
 	else
 	{
-		list_set( list, EQUAL_OPERATOR );
-		list_set( list, BETWEEN_OPERATOR );
-		list_set( list, BEGINS_OPERATOR );
-		list_set( list, CONTAINS_OPERATOR );
-		list_set( list, NOT_CONTAINS_OPERATOR );
-		list_set( list, OR_OPERATOR );
-		list_set( list, NOT_EQUAL_OPERATOR );
-		list_set( list, NOT_EQUAL_OR_NULL_OPERATOR );
-		list_set( list, GREATER_THAN_OPERATOR );
-		list_set( list, GREATER_THAN_EQUAL_TO_OPERATOR );
-		list_set( list, LESS_THAN_OPERATOR );
-		list_set( list, LESS_THAN_EQUAL_TO_OPERATOR );
-		list_set( list, NULL_OPERATOR );
-		list_set( list, NOT_NULL_OPERATOR );
+		list_set( list, APPASERVER_EQUAL );
+		list_set( list, APPASERVER_BETWEEN );
+		list_set( list, APPASERVER_BEGINS );
+		list_set( list, APPASERVER_CONTAINS );
+		list_set( list, APPASERVER_NOT_CONTAINS );
+		list_set( list, APPASERVER_OR );
+		list_set( list, APPASERVER_NOT_EQUAL );
+		list_set( list, APPASERVER_GREATER_THAN );
+		list_set( list, APPASERVER_GREATER_THAN_EQUAL_TO );
+		list_set( list, APPASERVER_LESS_THAN );
+		list_set( list, APPASERVER_LESS_THAN_EQUAL_TO );
+		list_set( list, APPASERVER_NULL );
+		list_set( list, APPASERVER_NOT_NULL );
 	}
 
 	return list;
@@ -2347,11 +2064,14 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 						yes_no, (char *)0 ) ) );
 
 		form_prompt_edit_attribute->
-			yes_no_appaserver_element =
+			yes_no_appaserver_element->
 			yes_no =
 				element_yes_no_new(
+					(char *)0 /* element_name */,
 					form_prompt_edit_attribute->from_name,
-					(char *)0 /* on_click */,
+					1 /* output_null_option */,
+					1 /* output_not_null_option */,
+					(char *)0 /* post_change_javascript */,
 					-1 /* tab_order */,
 					1 /* recall */ );
 
@@ -2419,7 +2139,7 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 						non_edit_text, (char *)0 ) ) );
 
 		form_prompt_edit_attribute->
-			hint_message_appaserver_element =
+			hint_message_appaserver_element->
 			non_edit_text =
 				element_non_edit_text_new(
 					(char *)0,
@@ -2561,7 +2281,8 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 					drillthru_dictionary,
 					login_name,
 					security_entity_where,
-					form_prompt_edit_relation_list ) ) )
+					form_prompt_edit_element_list->
+					    form_prompt_edit_relation_list ) ) )
 		{
 			if ( !form_prompt_edit_element_list->
 				form_prompt_edit_relation_list )
@@ -2575,7 +2296,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 				form_prompt_edit_element_list->
 					form_prompt_edit_relation_list,
 				form_prompt_edit_element_list->
-					form_prompt_relation );
+					form_prompt_edit_relation );
 
 			list_set_list(
 				form_prompt_edit_element_list->element_list,
@@ -2612,7 +2333,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
-	if ( ! ( folder_prompt_edit_element_list->element_list_html =
+	if ( ! ( form_prompt_edit_element_list->element_list_html =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
@@ -2708,12 +2429,8 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			relation->one_folder->folder_name
 				/* widget_folder_name */,
 			login_name,
-			relation->
-				one_folder->
-				folder_attribute_list(),
-			relation->
-				one_folder->
-				relation_mto1_non_isa_list,
+			relation->one_folder->folder_attribute_list,
+			relation->one_folder->relation_mto1_non_isa_list,
 			security_entity_where,
 			drillthru_dictionary );
 
@@ -2731,8 +2448,8 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 		form_prompt_edit_relation_name(
 			relation->one_folder->folder_name
 				/* one_folder_name */,
-			char *relation->related_attribute_name,
-			LIST *relation->foreign_key_list );
+			relation->related_attribute_name,
+			relation->foreign_key_list );
 
 	form_prompt_edit_relation->no_display_name =
 		form_prompt_edit_relation_no_display_name(
