@@ -1,32 +1,26 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/remember.h					*/
+/* $APPASERVER_HOME/library/cookie.h					*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef REMEMBER_H
-#define REMEMBER_H
+#ifndef COOKIE_H
+#define COOKIE_H
 
-#include "list.h"
 
 /* Constants */
 /* --------- */
 
 /* Structures */
 /* ---------- */
-typedef struct
-{
-	char *control_string;
-} REMEMBER;
 
-/* REMEMBER operations */
-/* ------------------- */
-REMEMBER *remember_calloc(
-			void );
+/* COOKIE operations */
+/* ----------------- */
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *remember_button(	char *control_string );
+/* Returns static memory */
+/* --------------------- */
+char *cookie_key(	char *form_name,
+			char *folder_name );
 
 #endif

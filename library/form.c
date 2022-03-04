@@ -27,6 +27,7 @@
 #include "frameset.h"
 #include "button.h"
 #include "appaserver.h"
+#include "cookie.h"
 #include "form.h"
 
 char *form_next_reference_number(
@@ -273,10 +274,8 @@ LIST *form_choose_isa_element_list(
 	/* ------------------ */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_row, (char *)0 ) );
 
 	/* Create the choose is prompt */
 	/* --------------------------- */
@@ -1554,6 +1553,7 @@ char *form_element_list_html(
 }
 
 FORM_PROMPT_EDIT *form_prompt_edit_new(
+			char *folder_name,
 			char *action_string,
 			boolean omit_insert_button,
 			boolean omit_delete_button,
@@ -1593,7 +1593,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 
 	form_prompt_edit->tag_html =
 		form_tag_html(
-			"prompt_edit" /* form_name */,
+			FORM_PROMPT_EDIT_NAME /* form_name */,
 			action_string,
 			form_prompt_edit->target_frame );
 
@@ -1607,13 +1607,26 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			security_entity_where );
 
 	form_prompt_edit->keystrokes_save_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		form_prompt_edit_keystrokes_save_string(
 			form_prompt_edit->
 				form_prompt_edit_element_list->
 				element_list );
 
 	form_prompt_edit->keystrokes_recall_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		form_prompt_edit_keystrokes_recall_string(
+			FORM_PROMPT_EDIT_NAME,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			cookie_key(
+				FORM_PROMPT_EDIT_NAME /* form_name */,
+				folder_name ),
 			form_prompt_edit->
 				form_prompt_edit_element_list->
 				element_list );
@@ -1667,50 +1680,6 @@ char *form_prompt_edit_target_frame(
 		return frameset_edit_frame;
 	else
 		return frameset_prompt_frame;
-}
-
-LIST *form_prompt_edit_button_element_list(
-			char *form_prompt_edit_keystrokes_save_string,
-			char *form_prompt_edit_keystrokes_recall_string )
-{
-	return (LIST *)0;
-}
-
-char *form_prompt_edit_keystrokes_save_string(
-			LIST *element_list )
-{
-	char string[ STRING_64K ];
-	char *ptr = string;
-
-	*ptr = '\0';
-
-	return strdup( string );
-}
-
-char *form_prompt_edit_keystrokes_recall_string(
-			LIST *element_list )
-{
-	char string[ STRING_64K ];
-	char *ptr = string;
-
-	*ptr = '\0';
-
-	return strdup( string );
-}
-
-char *form_prompt_edit_html(
-			char *tag_html,
-			char *radio_list_html,
-			char *element_list_html,
-			char *button_element_list_html,
-			char *form_close_html )
-{
-	char html[ STRING_TWO_MEG ];
-	char *ptr = html;
-
-	*html = '\0';
-
-	return strdup( html );
 }
 
 LIST *form_prompt_edit_radio_pair_list(
@@ -1790,7 +1759,6 @@ FORM_PROMPT_EDIT_RELATIONAL *
 			char *relational_name,
 			char *from_name,
 			char *to_name,
-			char *attribute_name,
 			char *datatype_name,
 			int attribute_width )
 {
@@ -2104,7 +2072,6 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 				form_prompt_edit_attribute->relational_name,
 				form_prompt_edit_attribute->from_name,
 				form_prompt_edit_attribute->to_name,
-				attribute_name,
 				datatype_name,
 				attribute_width );
 
@@ -2333,6 +2300,15 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
+	if ( list_length( relation_join_one2m_list ) )
+	{
+		form_prompt_edit_element_list->
+			join_element_list =
+				form_prompt_edit_element_list_join_element_list(
+					FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
+					relation_join_one2m_list );
+	}
+
 	if ( ! ( form_prompt_edit_element_list->element_list_html =
 			/* --------------------------- */
 			/* Returns heap memory or null */
@@ -2350,6 +2326,70 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 	}
 
 	return form_prompt_edit_element_list;
+}
+
+LIST *form_prompt_edit_element_list_join_element_list(
+			char *form_prompt_edit_no_display_prefix,
+			LIST *relation_join_one2m_list )
+{
+	LIST *element_list;
+	APPASERVER_ELEMENT *element;
+	RELATION *relation;
+	char element_name[ 128 ];
+
+	if ( !list_rewind( relation_join_one2m_list ) ) return (LIST *)0;
+
+	element_list = list_new();
+
+	do {
+		relation =
+			list_get(
+				relation_join_one2m_list );
+
+		if ( !relation->many_folder )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: many_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		sprintf(element_name,
+			"%s%s",
+			form_prompt_edit_no_display_prefix,
+			relation->many_folder->folder_name );
+
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_row, (char *)0 ) );
+
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+		list_set(
+			element_list,
+			( element =
+				appaserver_element_new(
+					checkbox, (char *)0 ) ) );
+		element->checkbox =
+			element_checkbox_new(
+				(char *)0 /* attribute_name */,
+				strdup( element_name ),
+				NO_DISPLAY_PUSH_BUTTON_HEADING
+					/* prompt_string */,
+				(char *)0 /* on_click */,
+				-1 /* tab_order */,
+				(char *)0 /* image_source */,
+				1 /* recall */ );
+
+	} while ( list_next( relation_join_one2m_list ) );
+
+	return element_list;
 }
 
 FORM_PROMPT_EDIT_ELEMENT_LIST *
@@ -2420,6 +2460,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 	}
 
 	relation->consumes_taken = 1;
+
 	form_prompt_edit_relation = form_prompt_edit_relation_calloc();
 	form_prompt_edit_relation->relation = relation;
 	form_prompt_edit_relation->element_list = list_new();
@@ -2464,11 +2505,12 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 
 	form_prompt_edit_relation->
 		no_display_appaserver_element->
-		element_checkbox =
+		checkbox =
 			element_checkbox_new(
+				(char *)0 /* attribute_name */,
 				form_prompt_edit_relation->no_display_name,
-				(char *)0 /* element_name */,
-				(char *)0 /* prompt_string */,
+				NO_DISPLAY_PUSH_BUTTON_HEADING
+					/* prompt_string */,
 				(char *)0 /* on_click */,
 				-1 /* tab_order */,
 				(char *)0 /* image_source */,
@@ -2513,10 +2555,15 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			FORM_PROMPT_EDIT_RELATION_PREFIX,
 			form_prompt_edit_relation->name );
 
-	if ( relation->one_folder->multi_select )
+	if ( relation->drop_down_multi_select )
 	{
+		form_prompt_edit_relation->original_name =
+			form_prompt_edit_relation_original_name(
+				FORM_PROMPT_EDIT_ORIGINAL_PREFIX,
+				form_prompt_edit_relation->name );
+
 		list_set(
-			element_list,
+			form_prompt_edit_relation->element_list,
 			( form_prompt_edit_relation->
 				drop_down_appaserver_element =
 					appaserver_element_new(
@@ -2528,32 +2575,34 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			multi_drop_down =
 				element_multi_drop_down_new(
 					form_prompt_edit_relation->
+						original_name,
+					form_prompt_edit_relation->
 						element_name,
-					query_widget->delimited_list,
+					form_prompt_edit_relation->
+						query_widget->
+						delimited_list,
 					relation->
 						one_folder->
-						no_initial_capital,
-					(char *)0 /* post_change_java... */ );
+						no_initial_capital );
 	}
 	else
 	{
 		list_set(
-			element_list,
+			form_prompt_edit_relation->element_list,
 			( form_prompt_edit_relation->
 				drop_down_appaserver_element =
 					appaserver_element_new(
-						drop_down, (char *)0 ) ) );
+						prompt_drop_down,
+						(char *)0 ) ) );
 
 		form_prompt_edit_relation->
 			drop_down_appaserver_element->
-			drop_down =
-				element_drop_down_new(
+			prompt_drop_down =
+				element_prompt_drop_down_new(
 					form_prompt_edit_relation->element_name,
-					(LIST *)0 /* attribute_name_list */,
 					form_prompt_edit_relation->
 						query_widget->
 						delimited_list,
-					(LIST *)0 /* display_list */,
 					relation->
 						one_folder->
 						no_initial_capital,
@@ -2568,7 +2617,6 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 					-1 /* tab_order */,
 					0 /* not multi_select */,
 					(char *)0 /* post_change_javascript */,
-					0 /* not readonly */,
 					1 /* recall */ );
 
 		list_set(
@@ -2597,7 +2645,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 						non_edit_text, (char *)0 ) ) );
 
 		form_prompt_edit_relation->
-			hint_message_appaserver_element =
+			hint_message_appaserver_element->
 			non_edit_text =
 				element_non_edit_text_new(
 					(char *)0 /* prompt_name */,
@@ -2641,7 +2689,7 @@ char *form_prompt_edit_relation_name(
 {
 	char name[ 256 ];
 
-	if ( strlen( foreign_key_list ) )
+	if ( list_length( foreign_key_list ) )
 	{
 		strcpy(	name,
 			list_display_delimited(
@@ -2652,7 +2700,7 @@ char *form_prompt_edit_relation_name(
 	if ( related_attribute_name && *related_attribute_name )
 	{
 		sprintf(name,
-			%s^%s",
+			"%s^%s",
 			one_folder_name,
 			related_attribute_name );
 	}
@@ -2764,20 +2812,6 @@ char *form_prompt_edit_relation_prompt(
 	return strdup( prompt );
 }
 
-char *form_prompt_edit_relation_element_name(
-			char *form_prompt_edit_relation_prefix,
-			char *relation_name )
-{
-	char name[ 128 ];
-
-	sprintf(name,
-		"%s%s",
-		form_prompt_edit_relation_prefix,
-		relation_name );
-
-	return strdup( name );
-}
-
 FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
 {
 	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
@@ -2795,4 +2829,136 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
 
 	return form_prompt_edit_relation;
 }
+
+LIST *form_prompt_edit_button_element_list(
+			char *form_prompt_edit_keystrokes_save_string,
+			char *form_prompt_edit_keystrokes_recall_string )
+{
+	return (LIST *)0;
+}
+
+char *form_prompt_edit_keystrokes_save_string(
+			LIST *element_list )
+{
+	char string[ STRING_64K ];
+	char *ptr = string;
+
+	*ptr = '\0';
+
+	return strdup( string );
+}
+
+char *form_prompt_edit_html(
+			char *tag_html,
+			char *radio_list_html,
+			char *element_list_html,
+			char *button_element_list_html,
+			char *form_close_html )
+{
+	char html[ STRING_ONE_MEG ];
+
+	if ( !tag_html
+	||   !radio_list_html
+	||   !element_list_html
+	||   !button_element_list_html
+	||   !form_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s\n%s\n%s\n%s",
+		tag_html,
+		radio_list_html,
+		element_list_html,
+		button_element_list_html,
+		form_close_html );
+
+	return strdup( html );
+}
+
+char *form_prompt_edit_keystrokes_recall_string(
+			char *form_prompt_edit_name,
+			char *cookie_key,
+			LIST *element_list )
+{
+	APPASERVER_ELEMENT *element;
+	char string[ STRING_64K ];
+	char *ptr = string;
+	boolean found_one = 0;
+
+	if ( !list_rewind( element_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"keystrokes_onload(document.%s,'%s','",
+		form_prompt_edit_name,
+		cookie_key );
+
+	do {
+		element = list_get( element_list );
+
+		if ( appaserver_element_recall_boolean( element ) )
+		{
+			if ( !element->element_name )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: for type = %d, element_name is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					element->element_type );
+				exit( 1 );
+			}
+
+			if ( !found_one )
+				found_one = 1;
+			else
+				ptr += sprintf( ptr, "~" );
+
+			ptr += sprintf(
+				ptr,
+				"%s",
+				element->element_name );
+		}
+
+	} while( list_next( element_list ) );
+
+	if ( !found_one )
+	{
+		return (char *)0;
+	}
+	else
+	{
+		ptr += sprintf(
+			ptr,
+			",'%c','%c');",
+		 	FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
+		 	ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
+
+		return strdup( string );
+	}
+}
+
+
+#ifdef NOT_DEFINED
+	if ( multi_element_name_list && list_length( multi_element_name_list ) )
+	{
+		sprintf( buffer + strlen( buffer ),
+"keystrokes_multi_onload(document.%s,'<multi_%s>','%s','%c','%c','%c');",
+		 	local_form_name,
+		 	cookie_key_buffer,
+		 	list_display_delimited(
+				multi_element_name_list,
+				FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER ),
+		 	FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
+			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
+		 	ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER );
+	}
+#endif
 

@@ -108,7 +108,7 @@ APPASERVER_LIBRARY=						\
 		insert_table_form.o				\
 		frameset_link_file.o				\
 		menu.o						\
-		remember.o					\
+		cookie.o					\
 		choose_isa.o					\
 		choose_role.o
 
@@ -946,8 +946,8 @@ frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 menu.o: menu.c menu.h
 	${CC} ${CFLAGS} -c menu.c
 
-remember.o: remember.c remember.h
-	${CC} ${CFLAGS} -c remember.c
+cookie.o: cookie.c cookie.h
+	${CC} ${CFLAGS} -c cookie.c
 
 choose_isa.o: choose_isa.c choose_isa.h
 	${CC} ${CFLAGS} -c choose_isa.c

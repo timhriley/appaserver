@@ -56,6 +56,7 @@
 #define FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH 100
 
 #define FORM_RADIO_LIST_NAME		"form_radio_list"
+#define FORM_PROMPT_EDIT_NAME		"prompt_edit"
 
 typedef struct
 {
@@ -329,14 +330,14 @@ char *form_prompt_edit_relation_prompt(
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_prompt_edit_relation_original_name(
-			char *form_prompt_edit_original_prefix,
+char *form_prompt_edit_relation_element_name(
+			char *form_prompt_edit_relation_prefix,
 			char *form_prompt_edit_relation_name );
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_prompt_edit_relation_element_name(
-			char *form_prompt_edit_relation_prefix,
+char *form_prompt_edit_relation_original_name(
+			char *form_prompt_edit_original_prefix,
 			char *form_prompt_edit_relation_name );
 
 /* Private */
@@ -366,7 +367,6 @@ FORM_PROMPT_EDIT_RELATIONAL *
 			char *form_prompt_edit_attribute_relational_name,
 			char *form_prompt_edit_attribute_from_name,
 			char *form_prompt_edit_attribute_to_name,
-			char *attribute_name,
 			char *datatype_name,
 			int attribute_width );
 
@@ -451,6 +451,7 @@ typedef struct
 	LIST *form_prompt_edit_relation_list;
 	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute;
 	LIST *element_list;
+	LIST *join_element_list;
 	char *element_list_html;
 } FORM_PROMPT_EDIT_ELEMENT_LIST;
 
@@ -464,6 +465,10 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where );
+
+LIST *form_prompt_edit_element_list_join_element_list(
+			char *form_prompt_edit_no_display_prefix,
+			LIST *relation_join_one2m_list );
 
 /* Private */
 /* ------- */
@@ -490,6 +495,7 @@ typedef struct
 /* Always succeeds */
 /* --------------- */
 FORM_PROMPT_EDIT *form_prompt_edit_new(
+			char *folder_name,
 			char *prompt_edit_action_string,
 			boolean prompt_edit_omit_insert_button,
 			boolean prompt_edit_omit_delete_button,
@@ -525,14 +531,16 @@ LIST *form_prompt_edit_element_list(
 			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *form_prompt_edit_keystrokes_save_string(
 			LIST *element_list );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *form_prompt_edit_keystrokes_recall_string(
+			char *form_prompt_edit_name,
+			char *cookie_key,
 			LIST *element_list );
 
 LIST *form_prompt_edit_button_element_list(
