@@ -30,8 +30,6 @@
 #define FORM_SORT_ASCEND_LABEL		"assend_"
 #define FORM_SORT_DESCEND_LABEL		"descend_"
 
-#define FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER	'~'
-
 #define FORM_LOOKUP_SUBTITLE_MESSAGE	\
 	"Enter only the minimum information sufficient to search."
 
@@ -483,8 +481,12 @@ typedef struct
 	char *target_frame;
 	char *tag_html;
 	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
-	char *keystrokes_save_string;
-	char *keystrokes_recall_string;
+	char *cookie_key;
+	char *cookie_multi_key;
+	char *cookie_keystrokes_save_string;
+	char *cookie_keystrokes_multi_save_string;
+	char *cookie_keystrokes_recall_string;
+	char *cookie_keystrokes_multi_recall_string;
 	LIST *button_element_list;
 	char *html;
 } FORM_PROMPT_EDIT;
@@ -531,21 +533,11 @@ LIST *form_prompt_edit_element_list(
 			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *form_prompt_edit_keystrokes_save_string(
-			LIST *element_list );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *form_prompt_edit_keystrokes_recall_string(
-			char *form_prompt_edit_name,
-			char *cookie_key,
-			LIST *element_list );
-
 LIST *form_prompt_edit_button_element_list(
-			char *form_prompt_edit_keystrokes_save_string,
-			char *form_prompt_edit_keystrokes_recall_string );
+			char *cookie_keystrokes_save_string,
+			char *cookie_keystrokes_multi_save_string,
+			char *cookie_keystrokes_recall_string,
+			char *cookie_keystrokes_multi_recall_string );
 
 /* Returns heap memory */
 /* ------------------- */

@@ -1606,35 +1606,73 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			login_name,
 			security_entity_where );
 
-	form_prompt_edit->keystrokes_save_string =
+	form_prompt_edit->cookie_key =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		cookie_key(
+			FORM_PROMPT_EDIT_NAME /* form_name */,
+			folder_name );
+
+	form_prompt_edit->cookie_multi_key =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		cookie_multi_key(
+			FORM_PROMPT_EDIT_NAME /* form_name */,
+			folder_name );
+
+	form_prompt_edit->cookie_keystrokes_save_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		form_prompt_edit_keystrokes_save_string(
+		cookie_keystrokes_save_string(
+			FORM_PROMPT_EDIT_NAME /* form_name */,
+			form_prompt_edit->cookie_key,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
 				element_list );
 
-	form_prompt_edit->keystrokes_recall_string =
+	form_prompt_edit->cookie_keystrokes_multi_save_string =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		form_prompt_edit_keystrokes_recall_string(
-			FORM_PROMPT_EDIT_NAME,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			cookie_key(
-				FORM_PROMPT_EDIT_NAME /* form_name */,
-				folder_name ),
+		cookie_keystrokes_multi_save_string(
+			FORM_PROMPT_EDIT_NAME /* form_name */,
+			form_prompt_edit->cookie_multi_key,
+			form_prompt_edit->
+				form_prompt_edit_element_list->
+				element_list );
+
+	form_prompt_edit->cookie_keystrokes_recall_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		cookie_keystrokes_recall_string(
+			FORM_PROMPT_EDIT_NAME /* form_name */,
+			form_prompt_edit->cookie_key,
+			form_prompt_edit->
+				form_prompt_edit_element_list->
+				element_list );
+
+	form_prompt_edit->cookie_keystrokes_multi_recall_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		cookie_keystrokes_multi_recall_string(
+			FORM_PROMPT_EDIT_NAME /* form_name */,
+			form_prompt_edit->cookie_multi_key,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
 				element_list );
 
 	form_prompt_edit->button_element_list =
 		form_prompt_edit_button_element_list(
-			form_prompt_edit->keystrokes_save_string,
-			form_prompt_edit->keystrokes_recall_string );
+			form_prompt_edit->cookie_keystrokes_save_string,
+			form_prompt_edit->cookie_keystrokes_multi_save_string,
+			form_prompt_edit->cookie_keystrokes_recall_string,
+			form_prompt_edit->
+				cookie_keystrokes_multi_recall_string );
 
 	form_prompt_edit->html =
 		form_prompt_edit_html(
@@ -1776,13 +1814,15 @@ FORM_PROMPT_EDIT_RELATIONAL *
 		( form_prompt_edit_relational->
 			relation_operator_appaserver_element =
 				appaserver_element_new(
-					prompt_drop_down, (char *)0 ) ) );
+					prompt_drop_down, relational_name ) ) );
 
 	form_prompt_edit_relational->
 		relation_operator_appaserver_element->
 		prompt_drop_down =
 			element_prompt_drop_down_new(
-				relational_name,
+				form_prompt_edit_relational->
+					relation_operator_appaserver_element->
+					element_name,
 				form_prompt_edit_relational->operation_list,
 				0 /* not no_initial_capital */,
 				1 /* output_null_option */,
@@ -1804,11 +1844,13 @@ FORM_PROMPT_EDIT_RELATIONAL *
 		( form_prompt_edit_relational->
 			text_from_appaserver_element =
 				appaserver_element_new(
-					text, (char *)0 ) ) );
+					text, from_name ) ) );
 
 	form_prompt_edit_relational->text_from_appaserver_element->text =
 		element_text_new(
-			from_name,
+			form_prompt_edit_relational->
+				text_from_appaserver_element->
+				element_name,
 			datatype_name,
 			FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH,
 			0 /* not null_to_slash */,
@@ -1846,12 +1888,14 @@ FORM_PROMPT_EDIT_RELATIONAL *
 		( form_prompt_edit_relational->
 			text_to_appaserver_element =
 				appaserver_element_new(
-					text, (char *)0 ) ) );
+					text, to_name ) ) );
 
 	form_prompt_edit_relational->text_from_appaserver_element->text =
 		element_text_new(
 			to_name,
-			datatype_name,
+			form_prompt_edit_relational->
+				text_to_appaserver_element->
+				element_name,
 			attribute_width,
 			0 /* not null_to_slash */,
 			1 /* prevent_carrot */,
@@ -1979,13 +2023,17 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 		( form_prompt_edit_attribute->
 			no_display_appaserver_element =
 				appaserver_element_new(
-					checkbox, (char *)0 ) ) );
+					checkbox,
+					form_prompt_edit_attribute->
+						no_display_name ) ) );
 
 	form_prompt_edit_attribute->
 		no_display_appaserver_element->
 		checkbox =
 			element_checkbox_new(
-				form_prompt_edit_attribute->no_display_name,
+				form_prompt_edit_attribute->
+					no_display_appaserver_element->
+					element_name,
 				(char *)0 /* element_name */,
 				(char *)0 /* prompt_string */,
 				(char *)0 /* on_click */,
@@ -2029,14 +2077,18 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 			( form_prompt_edit_attribute->
 				yes_no_appaserver_element =
 					appaserver_element_new(
-						yes_no, (char *)0 ) ) );
+						yes_no,
+						form_prompt_edit_attribute->
+							from_name ) ) );
 
 		form_prompt_edit_attribute->
 			yes_no_appaserver_element->
 			yes_no =
 				element_yes_no_new(
-					(char *)0 /* element_name */,
-					form_prompt_edit_attribute->from_name,
+					(char *)0 /* attribute_name */,
+					form_prompt_edit_attribute->
+						yes_no_appaserver_element->
+						element_name,
 					1 /* output_null_option */,
 					1 /* output_not_null_option */,
 					(char *)0 /* post_change_javascript */,
@@ -2375,11 +2427,13 @@ LIST *form_prompt_edit_element_list_join_element_list(
 			element_list,
 			( element =
 				appaserver_element_new(
-					checkbox, (char *)0 ) ) );
+					checkbox,
+					strdup( element_name ) ) ) );
+
 		element->checkbox =
 			element_checkbox_new(
 				(char *)0 /* attribute_name */,
-				strdup( element_name ),
+				element->element_name,
 				NO_DISPLAY_PUSH_BUTTON_HEADING
 					/* prompt_string */,
 				(char *)0 /* on_click */,
@@ -2501,14 +2555,18 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 		form_prompt_edit_relation->element_list,
 		( form_prompt_edit_relation->no_display_appaserver_element =
 			appaserver_element_new(
-				checkbox, (char *)0 ) ) );
+				checkbox,
+				form_prompt_edit_relation->
+					no_display_name ) ) );
 
 	form_prompt_edit_relation->
 		no_display_appaserver_element->
 		checkbox =
 			element_checkbox_new(
 				(char *)0 /* attribute_name */,
-				form_prompt_edit_relation->no_display_name,
+				form_prompt_edit_relation->
+					no_display_appaserver_element->
+					element_name,
 				NO_DISPLAY_PUSH_BUTTON_HEADING
 					/* prompt_string */,
 				(char *)0 /* on_click */,
@@ -2593,13 +2651,16 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 				drop_down_appaserver_element =
 					appaserver_element_new(
 						prompt_drop_down,
-						(char *)0 ) ) );
+						form_prompt_edit_relation->
+							element_name ) ) );
 
 		form_prompt_edit_relation->
 			drop_down_appaserver_element->
 			prompt_drop_down =
 				element_prompt_drop_down_new(
-					form_prompt_edit_relation->element_name,
+					form_prompt_edit_relation->
+						drop_down_appaserver_element->
+						element_name,
 					form_prompt_edit_relation->
 						query_widget->
 						delimited_list,
@@ -2831,21 +2892,12 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
 }
 
 LIST *form_prompt_edit_button_element_list(
-			char *form_prompt_edit_keystrokes_save_string,
-			char *form_prompt_edit_keystrokes_recall_string )
+			char *cookie_keystrokes_save_string,
+			char *cookie_keystrokes_multi_save_string,
+			char *cookie_keystrokes_recall_string,
+			char *cookie_keystrokes_multi_recall_string )
 {
 	return (LIST *)0;
-}
-
-char *form_prompt_edit_keystrokes_save_string(
-			LIST *element_list )
-{
-	char string[ STRING_64K ];
-	char *ptr = string;
-
-	*ptr = '\0';
-
-	return strdup( string );
 }
 
 char *form_prompt_edit_html(
@@ -2881,84 +2933,4 @@ char *form_prompt_edit_html(
 
 	return strdup( html );
 }
-
-char *form_prompt_edit_keystrokes_recall_string(
-			char *form_prompt_edit_name,
-			char *cookie_key,
-			LIST *element_list )
-{
-	APPASERVER_ELEMENT *element;
-	char string[ STRING_64K ];
-	char *ptr = string;
-	boolean found_one = 0;
-
-	if ( !list_rewind( element_list ) ) return (char *)0;
-
-	ptr += sprintf(
-		ptr,
-		"keystrokes_onload(document.%s,'%s','",
-		form_prompt_edit_name,
-		cookie_key );
-
-	do {
-		element = list_get( element_list );
-
-		if ( appaserver_element_recall_boolean( element ) )
-		{
-			if ( !element->element_name )
-			{
-				fprintf(stderr,
-		"ERROR in %s/%s()/%d: for type = %d, element_name is empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					element->element_type );
-				exit( 1 );
-			}
-
-			if ( !found_one )
-				found_one = 1;
-			else
-				ptr += sprintf( ptr, "~" );
-
-			ptr += sprintf(
-				ptr,
-				"%s",
-				element->element_name );
-		}
-
-	} while( list_next( element_list ) );
-
-	if ( !found_one )
-	{
-		return (char *)0;
-	}
-	else
-	{
-		ptr += sprintf(
-			ptr,
-			",'%c','%c');",
-		 	FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
-		 	ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
-
-		return strdup( string );
-	}
-}
-
-
-#ifdef NOT_DEFINED
-	if ( multi_element_name_list && list_length( multi_element_name_list ) )
-	{
-		sprintf( buffer + strlen( buffer ),
-"keystrokes_multi_onload(document.%s,'<multi_%s>','%s','%c','%c','%c');",
-		 	local_form_name,
-		 	cookie_key_buffer,
-		 	list_display_delimited(
-				multi_element_name_list,
-				FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER ),
-		 	FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
-			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
-		 	ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER );
-	}
-#endif
 

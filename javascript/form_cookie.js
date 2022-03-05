@@ -14,7 +14,7 @@ function form_cookie(	form,
 			element_name_list,
 			with_load,
 			is_multi,
-			move_left_right_index_delimiter,
+			move_left_right_delimiter,
 			multi_select_remember_delimiter )
 {
 	this.cookie = new cookie(	document,
@@ -33,7 +33,7 @@ function form_cookie(	form,
 			this.cookie2form_multi(
 					form,
 					element_name_list,
-					move_left_right_index_delimiter,
+					move_left_right_delimiter,
 					multi_select_remember_delimiter );
 		}
 		else
@@ -89,12 +89,12 @@ form_cookie.prototype.cookie2form = function( form, element_name_list )
 		}
 	}
 	return true;
-} // form_cookie.prototype.cookie2form()
+}
 
 form_cookie.prototype.cookie2form_multi = function(
 			form,
 			element_name_list,
-			move_left_right_index_delimiter,
+			move_left_right_delimiter,
 			multi_select_remember_delimiter )
 {
 	var element_name;
@@ -125,14 +125,14 @@ form_cookie.prototype.cookie2form_multi = function(
 				form_cookie_set_multi_drop_down_element_value(
 					element,
 					value,
-					move_left_right_index_delimiter,
+					move_left_right_delimiter,
 					multi_select_remember_delimiter );
 				}
 			}
 		}
 	}
 	return true;
-} // form_cookie.prototype.cookie2form_multi()
+}
 
 form_cookie.prototype.store = function(	form,
 					element_name_list,
@@ -192,7 +192,7 @@ form_cookie.prototype.store_multi = function(
 	}
 	this.cookie.store();
 	return true;
-} // form_cookie.prototype.store_multi()
+}
 
 form_cookie.prototype.store_non_multi = function( form, element_name_list )
 {
@@ -233,7 +233,7 @@ form_cookie.prototype.store_non_multi = function( form, element_name_list )
 	}
 	this.cookie.store();
 	return true;
-} // form_cookie.prototype.store_non_multi()
+}
 
 form_cookie.prototype.display = function()
 {
@@ -264,7 +264,7 @@ function form_cookie_get_multi_drop_down_element_value(
 		return_string += element.options[ i ].value;
 	}
 	return return_string;
-} // form_cookie_get_multi_drop_down_element_value()
+}
 
 function form_cookie_get_drop_down_element_value( element )
 {
@@ -272,7 +272,7 @@ function form_cookie_get_drop_down_element_value( element )
 		if ( element.options[ i ].selected )
 			return element.options[ i ].value;
 	return null;
-} // form_cookie_get_drop_down_element_value()
+}
 
 function form_cookie_set_drop_down_element_selected( element, element_value )
 {
@@ -297,12 +297,12 @@ function form_cookie_trim_original_underbar_from_element_name_list(
 		}
 	}
 	return element_name_list;
-} // form_cookie_trim_original_underbar_from_element_name_list()
+}
 
 function form_cookie_set_multi_drop_down_element_value(
 					element,
 					element_value_list_string,
-					move_left_right_index_delimiter,
+					move_left_right_delimiter,
 					multi_select_delimiter )
 {
 	var element_value_list;
@@ -324,7 +324,7 @@ function form_cookie_set_multi_drop_down_element_value(
 		element_value =
 			trim_trailing_piece(
 				element_value_list[ i ],
-				move_left_right_index_delimiter );
+				move_left_right_delimiter );
 
 		form_cookie_set_drop_down_element_selected(
 						original_element,
@@ -334,8 +334,8 @@ function form_cookie_set_multi_drop_down_element_value(
 	post_change_multi_select_move_right(
 				original_element_name,
 				element.name,
-				move_left_right_index_delimiter );
+				move_left_right_delimiter );
 
 	return true;
-} // form_cookie_set_multi_drop_down_element_value()
+}
 

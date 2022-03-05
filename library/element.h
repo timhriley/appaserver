@@ -23,11 +23,11 @@
 
 #define ELEMENT_MULTI_DROP_DOWN_ORIGINAL_PREFIX	"original_"
 #define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER '|'
+#define ELEMENT_KEYSTROKES_NAME_DELIMITER	'~'
 #define ELEMENT_NAME_LOOKUP_STATE		"lookup_button"
 #define ELEMENT_TITLE_NOTEPAD_PADDING_EM	3
 #define ELEMENT_TEXTAREA_WRAP			"soft"
 #define ELEMENT_DICTIONARY_DELIMITER		'~'
-#define ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER	'|'
 #define ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER '~'
 #define ELEMENT_TEXT_LOOKUP_LENGTH 		100
 #define ELEMENT_TEXT_LARGE_WIDGET_SIZE		25
@@ -1143,5 +1143,8 @@ char *appaserver_element_yes_no_html(
 /* --------------------------- */
 char *element_list_html(
 			LIST *appaserver_element_list );
+
+boolean appaserver_element_recall_boolean(
+			APPASERVER_ELEMENT *appaserver_element );
 
 #endif

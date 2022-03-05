@@ -4392,3 +4392,31 @@ ELEMENT_YES_NO *element_yes_no_calloc( void )
 	return element_yes_no;
 }
 
+boolean appaserver_element_recall_boolean(
+			APPASERVER_ELEMENT *element )
+{
+	if ( element->element_type == multi_drop_down )
+		return 1;
+	else
+	if ( element->element_type == drop_down )
+		return element->drop_down->recall;
+	else
+	if ( element->element_type == prompt_drop_down )
+		return element->prompt_drop_down->recall;
+	else
+	if ( element->element_type == text )
+		return element->text->recall;
+	else
+	if ( element->element_type == checkbox )
+		return element->checkbox->recall;
+	else
+	if ( element->element_type == upload )
+		return element->upload->recall;
+	else
+	if ( element->element_type == yes_no )
+		return element->yes_no->recall;
+	else
+		return 0;
+}
+
+
