@@ -6,17 +6,13 @@
 
 function verify_attribute_widths(
 					element_name_list_string,
-					element_heading_list_string,
 					element_attribute_width_list_string,
-					database_management_system,
 					source_form )
 {
 	var element;
 	var element_value;
 	var element_name;
 	var element_name_list;
-	var element_heading_list;
-	var element_heading;
 	var element_attribute_width_list;
 	var element_attribute_width;
 	var i;
@@ -40,9 +36,6 @@ function verify_attribute_widths(
 	element_name_list =
 		element_name_list_string.split( ',' );
 
-	element_heading_list =
-		element_heading_list_string.split( ',' );
-
 	element_attribute_width_list =
 		element_attribute_width_list_string.split( ',' );
 
@@ -54,47 +47,15 @@ function verify_attribute_widths(
 
 		element_value_length = element.value.length;
 
-		if ( database_management_system == "oracle" )
-		{
-			element_value_length +=
-				add_oracle_special_character_size(
-						element.value );
-		}
-
 		if ( element_value_length > element_attribute_width )
 		{
-			element_heading = element_heading_list[ i ];
 			alert(
-'Error: ' + element_heading + ' has size of ' + element_value_length + '. This exceeds the maximum size of ' + element_attribute_width + ' by ' + (element_value_length - element_attribute_width) + '.'
+'Error: ' + element_name + ' has size of ' + element_value_length + '. This exceeds the maximum size of ' + element_attribute_width + ' by ' + (element_value_length - element_attribute_width) + '.'
 			);
-
-			if ( database_management_system == "oracle"
-			&&   element_value_length != element.value.length )
-			{
-				alert(
-'Warning: Oracle has restrictions on storing the apostrophe and ampersand; therefore, the size of each is 4 instead of 1.' ); 
-			}
 
 			return_value = false;
 		}
 	}
 	return return_value;
-} // verify_attribute_widths()
-
-function add_oracle_special_character_size( element_value )
-{
-	var i;
-	var special_character_size;
-
-	special_character_size = 0;
-	for( i = 0; i < element_value.length; i++ )
-	{
-		if ( element_value.charAt( i ) == '$'
-		||   element_value.charAt( i ) == '\'' )
-		{
-			special_character_size += 4;
-		}
-	}
-	return special_character_size;
-} // add_oracle_special_character_size()
+}
 

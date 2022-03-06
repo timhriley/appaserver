@@ -4419,4 +4419,3 @@ boolean appaserver_element_recall_boolean(
 		return 0;
 }
 
-

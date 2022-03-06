@@ -60,6 +60,7 @@ APPASERVER_LIBRARY=						\
 		element.o					\
 		sed.o						\
 		form.o						\
+		form_prompt_edit.o				\
 		radio.o						\
 		button.o					\
 		email.o						\
@@ -105,10 +106,8 @@ APPASERVER_LIBRARY=						\
 		mysqldump.o					\
 		prompt_edit.o					\
 		edit_table.o					\
-		insert_table_form.o				\
 		frameset_link_file.o				\
 		menu.o						\
-		cookie.o					\
 		choose_isa.o					\
 		choose_role.o
 
@@ -733,6 +732,9 @@ operation.o: operation.c operation.h process.h
 form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c
 
+form_prompt_edit.o: form_prompt_edit.c form_prompt_edit.h
+	${CC} ${CFLAGS} -c form_prompt_edit.c
+
 radio.o: radio.c radio.h
 	${CC} ${CFLAGS} -c radio.c
 
@@ -934,9 +936,6 @@ javascript.o: javascript.c javascript.h
 prompt_edit.o: prompt_edit.c prompt_edit.h
 	${CC} ${CFLAGS} -c prompt_edit.c
 
-insert_table_form.o: insert_table_form.c insert_table_form.h
-	${CC} ${CFLAGS} -c insert_table_form.c
-
 edit_table.o: edit_table.c edit_table.h
 	${CC} ${CFLAGS} -c edit_table.c
 
@@ -945,9 +944,6 @@ frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 
 menu.o: menu.c menu.h
 	${CC} ${CFLAGS} -c menu.c
-
-cookie.o: cookie.c cookie.h
-	${CC} ${CFLAGS} -c cookie.c
 
 choose_isa.o: choose_isa.c choose_isa.h
 	${CC} ${CFLAGS} -c choose_isa.c
