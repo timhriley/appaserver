@@ -61,6 +61,9 @@ APPASERVER_LIBRARY=						\
 		sed.o						\
 		form.o						\
 		form_prompt_edit.o				\
+		form_edit_table.o				\
+		form_choose_isa.o				\
+		form_choose_role.o				\
 		radio.o						\
 		button.o					\
 		email.o						\
@@ -734,6 +737,15 @@ form.o: form.c form.h
 
 form_prompt_edit.o: form_prompt_edit.c form_prompt_edit.h
 	${CC} ${CFLAGS} -c form_prompt_edit.c
+
+form_edit_table.o: form_edit_table.c form_edit_table.h
+	${CC} ${CFLAGS} -c form_edit_table.c
+
+form_choose_isa.o: form_choose_isa.c form_choose_isa.h
+	${CC} ${CFLAGS} -c form_choose_isa.c
+
+form_choose_role.o: form_choose_role.c form_choose_role.h
+	${CC} ${CFLAGS} -c form_choose_role.c
 
 radio.o: radio.c radio.h
 	${CC} ${CFLAGS} -c radio.c
