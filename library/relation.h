@@ -177,6 +177,9 @@ char *relation_list_display(
 void relation_set_one_folder_primary_delimited_list(
 			LIST *relation_mto1_list );
 
+boolean relation_exists_multi_select(
+			LIST *relation_mto1_non_isa_list );
+
 /* Private */
 /* ------- */
 RELATION *relation_new(

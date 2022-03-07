@@ -445,6 +445,7 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 		document_new(
 			application_name,
 			application_title_string( application_name ),
+			(char *)0 /* title_html */,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,

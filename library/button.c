@@ -594,3 +594,30 @@ char *button_list_html( LIST *button_list )
 	return strdup( html );
 }
 
+void button_list_free( LIST *button_list )
+{
+	BUTTON *button;
+
+	if ( !list_rewind( button_list ) ) return;
+
+	do {
+		button = list_get( button_list );
+
+		if ( !button->html )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: button->html is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		free( button->html );
+		free( button );
+
+	} while ( list_next( button_list ) );
+
+	list_free_container( button_list );
+}
+

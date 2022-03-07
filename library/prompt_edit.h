@@ -19,8 +19,9 @@
 #include "folder_menu.h"
 #include "menu.h"
 #include "frameset.h"
-#include "form.h"
 #include "dictionary_separate.h"
+#include "document.h"
+#include "form_prompt_edit.h"
 
 /* Constants */
 /* --------- */
@@ -42,7 +43,9 @@ typedef struct
 	char *target_frame;
 	char *title_html;
 	char *action_string;
+	SECURITY_ENTITY *security_entity;
 	FORM_PROMPT_EDIT *form_prompt_edit;
+	DOCUMENT *document;
 	char *document_form_html;
 } PROMPT_EDIT;
 
@@ -62,7 +65,6 @@ PROMPT_EDIT *prompt_edit_new(
 			char *target_frame,
 			char *state,
 			boolean menu_boolean,
-			char *appasever_mount_point,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary );
 

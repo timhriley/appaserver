@@ -61,8 +61,7 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list,
-			LIST *operation_name_list );
+			LIST *folder_attribute_date_name_list );
 
 /* Always succeeds */
 /* --------------- */

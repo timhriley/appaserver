@@ -74,8 +74,6 @@ int main( int argc, char **argv )
 					application_name,
 					login_name ) ),
 			appaserver_parameter->
-				appaserver_mount_point,
-			appaserver_parameter->
 				data_directory,
 			post_dictionary_string_new(
 				argv[ 7 ] ) );

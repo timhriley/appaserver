@@ -795,3 +795,22 @@ void relation_set_one_folder_primary_delimited_list(
 	} while ( list_next( relation_mto1_list ) );
 }
 
+boolean relation_exists_multi_select(
+			LIST *relation_mto1_non_isa_list )
+{
+	RELATION *relation;
+
+	if ( !list_rewind( relation_mto1_non_isa_list ) ) return 0;
+
+	do {
+		relation =
+			list_get(
+				relation_mto1_non_isa_list );
+
+		if ( relation->drop_down_multi_select ) return 1;
+
+	} while ( list_next( relation_mto1_non_isa_list ) );
+
+	return 0;
+}
+

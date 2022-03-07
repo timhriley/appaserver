@@ -44,16 +44,12 @@ char *vertical_new_output_prompt_insert_element_name(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	char *one_folder_name;
 	char *system_string;
 } VERTICAL_NEW_POST_PROMPT_INSERT;
 
 /* VERTICAL_NEW_POST_PROMPT_INSERT operations */
 /* ------------------------------------------ */
-VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert_calloc( void );
-
 VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert_new(
 			DICTIONARY *non_prefixed_dictionary /* in/out */,
 			char *many_folder_name,
@@ -84,10 +80,13 @@ char *vertical_new_post_prompt_insert_system_string(
 			char *frameset_prompt_frame );
 
 
+/* Private */
+/* ------- */
+VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert_calloc(
+			void );
+
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	APPASERVER_LINK *appaserver_link;
 	char *output_filename;
 	char *prompt_filename;
@@ -95,8 +94,6 @@ typedef struct
 
 /* VERTICAL_NEW_BLANK_FILENAME operations */
 /* -------------------------------------- */
-VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_calloc(
-			void );
 
 /* Always returns true */
 /* ------------------- */
@@ -105,10 +102,13 @@ VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_new(
 			char *session_key,
 			char *document_root_directory );
 
+/* Private */
+/* ------- */
+VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_calloc(
+			void );
+
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	char *one_folder_name;
 	VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename;
 	char *onload_control_string;
@@ -116,8 +116,6 @@ typedef struct
 
 /* VERTICAL_NEW_OUTPUT_INSERT_TABLE operations */
 /* ------------------------------------------- */
-VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table_calloc(
-			void );
 
 /* Returns true if selected */
 /* ------------------------ */
@@ -150,14 +148,17 @@ char *vertical_new_output_insert_table_onload_control_string(
 			char *frameset_prompt_frame );
 
 
+/* Private */
+/* ------- */
+VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table_calloc(
+			void );
+
 typedef struct
 {
 } VERTICAL_NEW_POST_INSERT_TABLE;
 
 /* Usage */
 /* ----- */
-VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_calloc(
-			void );
 
 VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_new(
 			char *vertical_new_button_many_hidden_label,
@@ -165,6 +166,11 @@ VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_new(
 
 /* Process */
 /* ------- */
+
+/* Private */
+/* ------- */
+VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_calloc(
+			void );
 
 #endif
 

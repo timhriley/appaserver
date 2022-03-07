@@ -45,8 +45,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			boolean drillthru_finished )
 {
 	FORM_PROMPT_EDIT *form_prompt_edit = form_prompt_edit_calloc();
-	char *tmp1;
-	char *tmp2;
+	char *tmp;
 
 	form_prompt_edit->radio_pair_list =
 		form_prompt_edit_radio_pair_list(
@@ -82,6 +81,18 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			drillthru_dictionary,
 			login_name,
 			security_entity_where );
+
+	if ( !form_prompt_edit->
+		form_prompt_edit_element_list->
+		element_list_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_list_html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	form_prompt_edit->form_multi_select_all_javascript =
 		/* --------------------------- */
@@ -184,18 +195,13 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 		form_prompt_edit_html(
 			form_prompt_edit->tag_html,
 			form_prompt_edit->radio_list->html,
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			( tmp1 = element_list_html(
-				   form_prompt_edit->
-				     form_prompt_edit_element_list->
-				     element_list ) )
-					     /* element_list_html */,
+			form_prompt_edit->
+				form_prompt_edit_element_list->
+				element_list_html,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			( tmp2 = button_list_html(
+			( tmp = button_list_html(
 				   form_prompt_edit->button_list ) )
 					     /* button_list_html */,
 			/* ---------------------- */
@@ -203,8 +209,15 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			/* ---------------------- */
 			form_close_html() );
 
-	if ( tmp1 ) free( tmp1 );
-	if ( tmp2 ) free( tmp2 );
+	free( form_prompt_edit->
+		form_prompt_edit_element_list->
+		element_list_html );
+
+	/* Free button_list_html() */
+	/* ----------------------- */
+	if ( tmp ) free( tmp );
+
+	button_list_free( form_prompt_edit->button_list );
 
 	return form_prompt_edit;
 }

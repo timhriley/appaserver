@@ -83,8 +83,7 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list,
-			LIST *operation_name_list )
+			LIST *folder_attribute_date_name_list )
 {
 	DICTIONARY_SEPARATE *dictionary_separate =
 		dictionary_separate_calloc();
@@ -97,7 +96,6 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 	dictionary_separate->folder_attribute_date_name_list =
 		folder_attribute_date_name_list;
 
-	dictionary_separate->operation_name_list = operation_name_list;
 	dictionary_separate->login_name = login_name;
 
 	if ( !dictionary_length(

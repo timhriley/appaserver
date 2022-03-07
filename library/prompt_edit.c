@@ -12,6 +12,9 @@
 #include "String.h"
 #include "environ.h"
 #include "appaserver_library.h"
+#include "appaserver.h"
+#include "application.h"
+#include "relation.h"
 #include "prompt_edit.h"
 
 PROMPT_EDIT *prompt_edit_calloc( void )
@@ -34,13 +37,12 @@ PROMPT_EDIT *prompt_edit_calloc( void )
 PROMPT_EDIT *prompt_edit_new(
 			char *application_name,
 			char *login_name,
-			char *session,
+			char *session_key,
 			char *folder_name,
 			char *role_name,
 			char *target_frame,
 			char *state,
 			boolean menu_boolean,
-			char *appaserver_mount_point,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
 {
@@ -163,7 +165,7 @@ PROMPT_EDIT *prompt_edit_new(
 					folder->
 					folder_attribute_append_isa_list ) );
 
-	prompt_edit_form->dictionary_separate =
+	prompt_edit->dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
@@ -186,7 +188,7 @@ PROMPT_EDIT *prompt_edit_new(
 				drillthru_dictionary /* in/out */,
 			folder_name );
 
-	if ( !prompt_edit->drillthru->participating
+	if ( !prompt_edit->drillthru->drillthru_participating
 	||   prompt_edit->drillthru->finished )
 	{
 		prompt_edit->folder->relation_join_one2m_list =
@@ -198,7 +200,7 @@ PROMPT_EDIT *prompt_edit_new(
 
 	prompt_edit->omit_insert_button =
 		prompt_edit_omit_insert_button(
-			prompt_edit->drillthru_skipped,
+			prompt_edit->drillthru->skipped,
 			relation_exists_multi_select(
 				prompt_edit->
 					folder->
@@ -218,7 +220,7 @@ PROMPT_EDIT *prompt_edit_new(
 		prompt_edit_target_frame(
 			target_frame,
 			FRAMESET_EDIT_FRAME,
-			prompt_edit->drillthru_skipped );
+			prompt_edit->drillthru->skipped );
 
 	prompt_edit->folder->relation_mto1_non_isa_list =
 		/* -------------------------------------------- */
@@ -227,7 +229,7 @@ PROMPT_EDIT *prompt_edit_new(
 		/* -------------------------------------------- */
 		prompt_edit_drillthru_skipped(
 			prompt_edit->folder->relation_mto1_non_isa_list,
-			prompt_edit->drillthru_skipped );
+			prompt_edit->drillthru->skipped );
 
 	prompt_edit->title_html =
 		/* --------------------- */
@@ -236,6 +238,53 @@ PROMPT_EDIT *prompt_edit_new(
 		prompt_edit_title_html(
 			state,
 			folder_name );
+
+	prompt_edit->action_string =
+		prompt_edit_action_string(
+			PROMPT_EDIT_POST_EXECUTABLE,
+			application_name,
+			login_name,
+			session_key,
+			folder_name,
+			role_name,
+			prompt_edit->target_frame,
+			state );
+
+	prompt_edit->security_entity =
+		security_entity_new(
+			login_name,
+			prompt_edit->folder->non_owner_forbid,
+			prompt_edit->role->override_row_restrictions );
+
+	prompt_edit->form_prompt_edit =
+		form_prompt_edit_new(
+			folder_name,
+			prompt_edit->action_string,
+			prompt_edit->omit_insert_button,
+			prompt_edit->omit_delete_button,
+			prompt_edit->folder->folder_attribute_append_isa_list,
+			prompt_edit->folder->relation_mto1_non_isa_list,
+			prompt_edit->folder->relation_join_one2m_list,
+			prompt_edit->dictionary_separate->drillthru_dictionary,
+			login_name,
+			security_entity_where(
+				prompt_edit->security_entity,
+				prompt_edit->
+					folder->
+					folder_attribute_list ),
+			prompt_edit->drillthru->drillthru_participating,
+			prompt_edit->drillthru->skipped,
+			prompt_edit->drillthru->finished );
+
+	if ( !prompt_edit->form_prompt_edit )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_prompt_edit_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	prompt_edit->document =
 		/* --------------- */
@@ -257,42 +306,7 @@ PROMPT_EDIT *prompt_edit_new(
 				prompt_edit->
 				       folder_attribute_date_name_list_length ),
 			document_head_javascript_include_string(),
-			keystrokes_recall_onload_string( folder_name )
-				/* input_onload_string */ );
-
-	prompt_edit->action_string =
-		prompt_edit_action_string(
-			PROMPT_EDIT_POST_EXECUTABLE,
-			application_name,
-			login_name,
-			session_key,
-			folder_name,
-			role_name,
-			prompt_edit->target_frame,
-			state );
-
-	prompt_edit->form_prompt_edit =
-		form_prompt_edit_new(
-			prompt_edit->action_string,
-			prompt_edit->omit_insert_button,
-			prompt_edit->omit_delete_button,
-			prompt_edit->folder->folder_attribute_append_isa_list,
-			prompt_edit->folder->relation_mto1_non_isa_list,
-			prompt_edit->folder->relation_join_one2m_list,
-			prompt_edit->dictionary_separate->drillthru_dictionary,
-			prompt_edit->drillthru->participating,
-			prompt_edit->drillthru->skipped,
-			prompt_edit->drillthru->finished );
-
-	if ( !prompt_edit->form_prompt_edit )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: form_prompt_edit_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+			(char *)0 /* input_onload_string */ );
 
 	prompt_edit->document_form_html =
 		/* ------------------- */
@@ -332,7 +346,8 @@ boolean prompt_edit_forbid(
 }
 
 boolean prompt_edit_omit_insert_button(
-			boolean drillthru_skipped )
+			boolean drillthru_skipped,
+			boolean relation_exists_multi_select )
 {
 	return drillthru_skipped || relation_exists_multi_select;
 }
@@ -374,10 +389,10 @@ char *prompt_edit_title_html(
 
 	sprintf(title_html,
 		"<h1>%s %s</h1>",
-		string_format_capital(
+		string_initial_capital(
 			buffer1,
 			state ),
-		string_format_capital(
+		string_initial_capital(
 			buffer2,
 			folder_name ) );
 
@@ -391,7 +406,7 @@ char *prompt_edit_action_string(
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *prompt_edit_target_frame,
+			char *target_frame,
 			char *state )
 {
 	char action_string[ 1024 ];
@@ -401,8 +416,9 @@ char *prompt_edit_action_string(
 	||   !login_name
 	||   !session_key
 	||   !folder_name
-	||   !one2m_isa_folder_name
-	||   !role_name )
+	||   !role_name
+	||   !target_frame
+	||   !state )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",

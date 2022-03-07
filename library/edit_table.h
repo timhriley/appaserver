@@ -27,18 +27,14 @@
 /* --------------- */
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	ROLE *role;
 	FOLDER *folder;
-	SECURITY_ENTITY *security_entity;
-	char *state;
 	boolean menu_boolean;
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
-	SECURITY_ENTITY *security_entity;
 	char *state;
 	boolean primary_keys_non_edit;
+	SECURITY_ENTITY *security_entity;
 	ROW_SECURITY *row_security;
 	QUERY_EDIT_TABLE *query_edit_table;
 	int row_insert_count;
@@ -46,10 +42,11 @@ typedef struct
 	char *cell_update_folder_list_string;
 	char *results_string;
 	LIST *heading_name_list;
-	LIST *key_list;
 	char *title;
 	char *message_html;
-	DOCUMENT_EDIT_TABLE *document_edit_table;
+	int folder_attribute_date_name_list_length;
+	DOCUMENT *document;
+	FORM_EDIT_TABLE *form_edit_table;
 	char *html;
 	char *trailer_html;
 } EDIT_TABLE;

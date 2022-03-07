@@ -133,6 +133,7 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 		document_new(
 			application_name,
 			generic_load_choose->title_string,
+			(char *)0 /* title_html */,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
@@ -1503,6 +1504,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 		document_new(
 			application_name,
 			generic_load_folder->title_string,
+			(char *)0 /* title_html */,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
