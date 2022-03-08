@@ -109,7 +109,7 @@ char *choose_isa_output_system_string(
 			char *folder_name,
 			char *one_folder_name,
 			char *role_name,
-			char *application_error_filename );
+			char *appaserver_error_filename );
 
 typedef struct
 {

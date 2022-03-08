@@ -20,8 +20,6 @@
 /* ---------- */
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	DICTIONARY *original_post_dictionary;
 	char *apache_key;
 } POST_DICTIONARY;

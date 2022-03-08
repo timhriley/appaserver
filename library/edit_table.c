@@ -64,8 +64,7 @@ EDIT_TABLE *edit_table_new(
 			__FUNCTION__,
 			__LINE__,
 			role_name );
-
-		return (EDIT_TABLE_FORM *)0;
+		return (EDIT_TABLE *)0;
 	}
 
 	if ( ! ( edit_table->folder =
@@ -101,11 +100,17 @@ EDIT_TABLE *edit_table_new(
 				__FUNCTION__,
 				__LINE__,
 				folder_name );
-
 		return (EDIT_TABLE *)0;
 	}
 
-	edit_table->folder->join_one2m_relation_list =
+	edit_table->folder_attribute_date_name_list_length =
+		list_length(
+			folder_attribute_date_name_list(
+				edit_table->
+					folder->
+					folder_attribute_append_isa_list ) );
+
+	edit_table->folder->relation_join_one2m_list =
 		relation_join_one2m_list(
 			edit_table->folder->relation_one2m_recursive_list,
 			ignore_dictionary );
@@ -126,7 +131,7 @@ EDIT_TABLE *edit_table_new(
 				session_key,
 				role_name,
 				target_frame,
-				folder_menu->lookup_count_list );
+				edit_table->folder_menu->lookup_count_list );
 	}
 
 	edit_table->security_entity =
@@ -137,6 +142,13 @@ EDIT_TABLE *edit_table_new(
 			login_name,
 			edit_table->folder->non_owner_forbid,
 			edit_table->role->override_row_restrictions );
+
+	edit_table->security_entity_where =
+		security_entity_where(
+			edit_table->security_entity,
+			edit_table->
+				folder->
+				folder_attribute_list );
 
 	edit_table->state =
 		/* ---------------------- */
@@ -160,25 +172,31 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->folder_attribute_append_isa_list,
 			edit_table->folder->relation_mto1_non_isa_list,
 			edit_table->folder->relation_join_one2m_list,
+			edit_table->folder->post_change_javascript,
 			drillthru_dictionary,
 			edit_table->primary_keys_non_edit,
 			edit_table->folder->role_operation_list,
 			ignore_select_attribute_name_list,
 			edit_table->state,
-			edit_table->role->exclude_update_attribute_name_list,
-			edit_table->role->exclude_lookup_attribute_name_list,
+			role_exclude_update_attribute_name_list(
+				edit_table->
+					role->
+					attribute_exclude_list ),
+			role_exclude_lookup_attribute_name_list(
+				edit_table->
+					role->
+					attribute_exclude_list ),
 			edit_table->role->override_row_restrictions,
 			login_name,
-			security_entity_where( security_entity ) );
+			edit_table->security_entity_where );
 
 	if ( !edit_table->row_security )
 	{
 		fprintf(stderr,
-"Warning in %s/%s()/%d: row_security_new() returned empty.\n",
+		"Warning in %s/%s()/%d: row_security_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-
 		return (EDIT_TABLE *)0;
 	}
 
@@ -189,24 +207,12 @@ EDIT_TABLE *edit_table_new(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-
-		return (EDIT_TABLE *)0;
-	}
-
-	if ( !edit_table->row_security->row_security_edit_table )
-	{
-		fprintf(stderr,
-		"Warning in %s/%s()/%d: row_security_edit_table is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-
 		return (EDIT_TABLE *)0;
 	}
 
 	row_security_role =
 		edit_table->
-			row_security_edit_table->
+			row_security->
 			row_security_role;
 
 	edit_table->query_edit_table =
@@ -217,7 +223,10 @@ EDIT_TABLE *edit_table_new(
 			edit_table->security_entity_where,
 			edit_table->folder->relation_join_one2m_list,
 			ignore_select_attribute_name_list,
-			edit_table->role->exclude_lookup_attribute_name_list,
+			role_exclude_lookup_attribute_name_list(
+				edit_table->
+					role->
+					attribute_exclude_list ),
 			edit_table->folder->folder_attribute_append_isa_list,
 			edit_table->folder->relation_mto1_non_isa_list,
 			edit_table->folder->relation_mto1_isa_list,
@@ -236,12 +245,11 @@ EDIT_TABLE *edit_table_new(
 	if ( !edit_table->query_edit_table )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: query_edit_table(%s) returned empty.\n",
+	"Warning in %s/%s()/%d: query_edit_table_new(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			folder_name );
-
 		return (EDIT_TABLE *)0;
 	}
 
@@ -277,57 +285,67 @@ EDIT_TABLE *edit_table_new(
 		/* --------------------------- */
 		edit_table_heading_name_list(
 			edit_table->
-				row_security_edit_table->
+				row_security->
 				row_security_element_list->
-				regular_element_list,
+				regular->
+				element_list,
 			edit_table->
-				row_security_edit_table->
+				row_security->
 				row_security_element_list->
-				viewonly_element_list );
+				viewonly->
+				element_list );
 
-	edit_table->title =
-		edit_table_title(
+	edit_table->title_html =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		edit_table_title_html(
 			folder_name,
 			edit_table->state );
 
 	edit_table->message_html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		edit_table_message_html(
-			edit_table->title,
 			edit_table->row_insert_count,
 			edit_table->cell_update_count,
 			edit_table->results_string );
 
-	edit_table->document_edit_table =
-		document_edit_table_new(
+	edit_table->document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_new(
 			application_name,
-			folder_name,
-			edit_table->title,
-			edit_table->menu,
+			application_title_string( application_name ),
+			edit_table->title_html,
+			edit_table->message_html,
+			(char *)0 /* subsubtitle_html */,
 			edit_table->menu_boolean,
-			edit_table->folder->folder_attribute_append_isa_list,
-			edit_table->folder->relation_mto1_non_isa_list,
-			list_length(
-				edit_table->query_edit_table->dictionary_list ),
-			edit_table->submit_action_string,
-			edit_table->heading_name_list,
-			javascript_replace(
-				folder->post_change_javascript,
-				edit_table->state,
-				0 /* row_number */ ),
-			edit_table->security_entity );
+			edit_table->menu,
+			document_head_menu_setup_string(
+				edit_table->menu_boolean ),
+			document_head_calendar_setup_string(
+				edit_table->
+				      folder_attribute_date_name_list_length ),
+			document_head_javascript_include_string(),
+			(char *)0 /* input_onload_string */ );
 
-	if ( !edit_table->document_edit_table )
-	{
-		fprintf(stderr,
-	"Warning in %s/%s()/%d: document_edit_table_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (EDIT_TABLE *)0;
-	}
+
+	edit_table->form_edit_table =
+		form_edit_table_new(
+			folder_name,
+			javascript_replace(),
+			dictionary_list_length,
+			edit_table_submit_action_string(),
+			operation_list,
+			edit_table_heading_name_list(),
+			target_frame,
+			DICTIONARY *query_dictionary,
+			DICTIONARY *sort_dictioanry,
+			DICTIONARY *drillthru_dictionary,
+			DICTIOANRY *ignore_dictionary  );
 
 	edit_table->html =
 		/* --------------------------------- */
@@ -766,17 +784,58 @@ EDIT_TABLE_POST *edit_table_post_new(
 }
 
 char *edit_table_message_html(
-			char *edit_table_title,
-			int edit_table_row_insert_count,
-			int edit_table_cell_update_count,
-			char *edit_table_results_string )
+			int row_insert_count,
+			int cell_update_count,
+			char *results_string )
 {
 	char html[ 1024 ];
 	char *ptr = html;
 
-	*ptr = '\0';
+	if ( row_insert_count )
+	{
+		if ( row_insert_count == 1 )
+		{
+			ptr += sprintf(
+				ptr,
+				"<h2>1 row inserted</h2>" );
+		}
+		else
+		{
+			ptr += sprintf(
+				ptr,
+				"<h2>%d rows inserted</h2>",
+				row_insert_count );
+		}
+	}
 
-	return strdup( html );
+	if ( cell_update_count )
+	{
+		if ( cell_update_count == 1 )
+		{
+			ptr += sprintf(
+				ptr,
+				"<h2>1 cell changed</h2>" );
+		}
+		else
+		{
+			ptr += sprintf(
+				ptr,
+				"<h2>%d cells changed</h2>",
+				cell_update_count );
+		}
+	}
+
+	if ( results_string && *results_string )
+	{
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf( ptr, "<h2>%s</h2>", results_string );
+	}
+
+	if ( ptr == html )
+		return (char *)0;
+	else
+		return strdup( html );
 }
 
 LIST *edit_table_heading_name_list(
@@ -984,5 +1043,78 @@ char *edit_table_hidden_row_html(
 		regular_element_list /* in/out */,
 		row_number,
 		row_dictionary );
+}
+
+char *edit_table_output_system_string(
+			char *executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !executable
+	||   !login_name
+	||   !session_key
+	||   !folder_name
+	||   !role_name
+	||   !target_frame
+	||   !dictionary_separate_send_string
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %s %s \"%s\" 2>>%s",
+		executable,
+		login_name,
+		session_key,
+		folder_name,
+		role_name,
+		target_frame,
+		dictionary_separate_send_string,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}
+
+char *edit_table_title_html(
+			char *folder_name,
+			char *state )
+{
+	static char html[ 128 ];
+	char buffer1[ 64 ];
+	char buffer2[ 64 ];
+
+	if ( !folder_name || !state )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"<h1>%s %s</h1>",
+		string_initial_capital(
+			buffer1,
+			state ),
+		string_initial_capital(
+			buffer2,
+			folder_name ) );
+
+	return html;
 }
 

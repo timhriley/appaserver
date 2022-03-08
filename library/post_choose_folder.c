@@ -24,6 +24,8 @@
 #include "choose_isa.h"
 #include "prompt_insert.h"
 #include "insert_table.h"
+#include "prompt_edit.h"
+#include "edit_table.h"
 #include "post_choose_folder.h"
 
 POST_CHOOSE_FOLDER *post_choose_folder_calloc( void )
@@ -159,26 +161,26 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 					folder->
 					relation_mto1_isa_list ) );
 
-	post_choose_folder->prompt_insert_form =
-		post_choose_folder_prompt_insert_form(
+	post_choose_folder->prompt_insert =
+		post_choose_folder_prompt_insert(
 			post_choose_folder->form_name,
 			state );
 
-	post_choose_folder->insert_table_form =
-		post_choose_folder_insert_table_form(
+	post_choose_folder->insert_table =
+		post_choose_folder_insert_table(
 			post_choose_folder->form_name,
 			state );
 
-	post_choose_folder->prompt_edit_form =
-		post_choose_folder_prompt_edit_form(
+	post_choose_folder->prompt_edit =
+		post_choose_folder_prompt_edit(
 			post_choose_folder->form_name,
 			state,
 			post_choose_folder->
 				drillthru->
 				drillthru_participating );
 
-	post_choose_folder->edit_table_form =
-		post_choose_folder_edit_table_form(
+	post_choose_folder->edit_table =
+		post_choose_folder_edit_table(
 			post_choose_folder->form_name,
 			state );
 
@@ -188,10 +190,10 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		/* ------------------- */
 		post_choose_folder_system_string(
 			post_choose_folder->isa_drop_down,
-			post_choose_folder->prompt_insert_form,
-			post_choose_folder->insert_table_form,
-			post_choose_folder->prompt_edit_form,
-			post_choose_folder->edit_table_form,
+			post_choose_folder->prompt_insert,
+			post_choose_folder->insert_table,
+			post_choose_folder->prompt_edit,
+			post_choose_folder->edit_table,
 			application_name,
 			login_name,
 			session_key,
@@ -248,7 +250,7 @@ boolean post_choose_folder_fetch_relation_mto1_isa_list(
 	return ( string_strcmp( state, "insert" ) == 0 );
 }
 
-boolean post_choose_folder_prompt_insert_form(
+boolean post_choose_folder_prompt_insert(
 			char *folder_form_name,
 			char *state )
 {
@@ -258,7 +260,7 @@ boolean post_choose_folder_prompt_insert_form(
 	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
 }
 
-boolean post_choose_folder_insert_table_form(
+boolean post_choose_folder_insert_table(
 			char *folder_form_name,
 			char *state )
 {
@@ -268,7 +270,7 @@ boolean post_choose_folder_insert_table_form(
 	return ( string_strcmp( folder_form_name, "table" ) == 0 );
 }
 
-boolean post_choose_folder_prompt_edit_form(
+boolean post_choose_folder_prompt_edit(
 			char *folder_form_name,
 			char *state,
 			boolean drillthru_participating )
@@ -283,7 +285,7 @@ boolean post_choose_folder_prompt_edit_form(
 	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
 }
 
-boolean post_choose_folder_edit_table_form(
+boolean post_choose_folder_edit_table(
 			char *folder_form_name,
 			char *state )
 {
@@ -425,10 +427,14 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
-	if ( prompt_edit_form )
+	if ( prompt_edit )
 	{
-		sprintf(system_string,
-		"output_prompt_edit_form %s %s %s %s %s %s \"%s\" 2>>%s",
+		return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		prompt_edit_output_system_string(
+			PROMPT_EDIT_OUTPUT_EXECUTABLE,
 			login_name,
 			session_key,
 			folder_name,
@@ -451,10 +457,14 @@ char *post_choose_folder_system_string(
 					) ),
 		 	appaserver_error_filename( application_name ) );
 	}
-	if ( edit_table_form )
+	if ( edit_table )
 	{
-		sprintf(system_string,
-			"output_edit_table_form %s %s %s %s %s \"%s\" 2>>%s",
+		return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		edit_table_output_system_string(
+			EDIT_TABLE_OUTPUT_EXECUTABLE,
 			login_name,
 			session_key,
 			folder_name,

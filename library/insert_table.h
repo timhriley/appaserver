@@ -14,29 +14,27 @@
 #include "role.h"
 #include "role_folder.h"
 #include "folder.h"
+#include "post_dictionary.h"
 #include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
+#define INSERT_TABLE_OUTPUT_EXECUTABLE	"output_insert_table"
 
-/* Data structures */
-/* --------------- */
 typedef struct
 {
-	/* Process */
-	/* ------- */
-	FOLDER *folder;
 	ROLE *role;
-	ROLE_FOLDER *role_folder;
+	FOLDER *folder;
+	LIST *role_folder_list;
 	DICTIONARY_SEPARATE *dictionary_separate;
-	char *insert_table_form_state;
-	boolean primary_keys_non_edit;
+	boolean forbid;
 } INSERT_TABLE;
 
-/* Prototypes */
-/* ---------- */
-INSERT_TABLE *insert_table_calloc(
-			void );
+/* INSERT_TABLE operations */
+/* ----------------------- */
+
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
@@ -47,9 +45,30 @@ INSERT_TABLE *insert_table_output_new(
 			char *folder_name,
 			char *role_name,
 			char *target_frame,
-			char *dictionary_string );
+			char *message,
+			POST_DICTIONARY *post_dictionary );
 
-boolean insert_table_form_forbid(
+/* Process */
+/* ------- */
+boolean insert_table_forbid(
 			boolean role_folder_insert );
 
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *insert_table_output_system_string(
+			char *insert_table_output_executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename );
+
+/* Private */
+/* ------- */
+INSERT_TABLE *insert_table_calloc(
+			void );
 #endif

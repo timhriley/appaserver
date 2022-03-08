@@ -107,6 +107,7 @@ APPASERVER_LIBRARY=						\
 		moving_average.o				\
 		pair_one2m.o					\
 		mysqldump.o					\
+		insert_table.o					\
 		prompt_edit.o					\
 		prompt_insert.o					\
 		edit_table.o					\
@@ -946,6 +947,9 @@ relation.o: relation.c relation.h
 
 javascript.o: javascript.c javascript.h
 	${CC} ${CFLAGS} -c javascript.c
+
+insert_table.o: insert_table.c insert_table.h
+	${CC} ${CFLAGS} -c insert_table.c
 
 prompt_edit.o: prompt_edit.c prompt_edit.h
 	${CC} ${CFLAGS} -c prompt_edit.c

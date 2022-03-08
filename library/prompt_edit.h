@@ -26,6 +26,7 @@
 /* Constants */
 /* --------- */
 #define PROMPT_EDIT_POST_EXECUTABLE	"post_prompt_edit"
+#define PROMPT_EDIT_OUTPUT_EXECUTABLE	"output_prompt_edit"
 
 typedef struct
 {
@@ -111,6 +112,22 @@ char *prompt_edit_action_string(
 			char *role_name,
 			char *prompt_edit_target_frame,
 			char *state );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *prompt_edit_output_system_string(
+			char *prompt_edit_output_executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *state,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename );
 
 /* Private */
 /* ------- */

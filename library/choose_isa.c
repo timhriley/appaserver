@@ -419,7 +419,7 @@ char *choose_isa_output_system_string(
 			char *folder_name,
 			char *one_folder_name,
 			char *role_name,
-			char *application_error_filename )
+			char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
@@ -429,7 +429,7 @@ char *choose_isa_output_system_string(
 	||   !folder_name
 	||   !one_folder_name
 	||   !role_name
-	||   !application_error_filename )
+	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",

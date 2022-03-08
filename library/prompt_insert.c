@@ -56,6 +56,7 @@ char *prompt_insert_output_system_string(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
+			char *role_name,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
 {
@@ -65,8 +66,9 @@ char *prompt_insert_output_system_string(
 	||   !login_name
 	||   !session_key
 	||   !folder_name
-	||   !dictionary_separate_send_dictionary
-	||   !appaserver_aerror_filename )
+	||   !role_name
+	||   !dictionary_separate_send_string
+	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -78,12 +80,13 @@ char *prompt_insert_output_system_string(
 
 	sprintf(system_string,
 		"%s %s %s %s %s \"%s\" 2>>%s",
+		executable,
 		login_name,
 		session_key,
 		folder_name,
 		role_name,
 		dictionary_separate_send_string,
-		 appaserver_error_filename );
+		appaserver_error_filename );
 
 	return strdup( system_string );
 }

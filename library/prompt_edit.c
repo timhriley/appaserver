@@ -449,3 +449,49 @@ char *prompt_edit_action_string(
 	return strdup( action_string );
 }
 
+char *prompt_edit_output_system_string(
+			char *executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *state,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !executable
+	||   !login_name
+	||   !session_key
+	||   !folder_name
+	||   !role_name
+	||   !target_frame
+	||   !state
+	||   !dictionary_separate_send_string
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %s %s %s \"%s\" 2>>%s",
+		executable,
+		login_name,
+		session_key,
+		folder_name,
+		role_name,
+		target_frame,
+		state,
+		dictionary_separate_send_string,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}
+

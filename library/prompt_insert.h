@@ -58,12 +58,13 @@ char *prompt_insert_output_system_string(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
+			char *role_name,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
 
 /* Private */
 /* ------- */
-PROMPT_EDIT *prompt_edit_calloc(
+PROMPT_INSERT *prompt_insert_calloc(
 			void );
 
 #endif

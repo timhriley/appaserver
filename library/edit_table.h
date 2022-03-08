@@ -18,6 +18,8 @@
 #include "menu.h"
 #include "row_security.h"
 #include "query.h"
+#include "session.h"
+#include "form_edit_table.h"
 #include "document.h"
 
 /* Constants */
@@ -29,20 +31,23 @@ typedef struct
 {
 	ROLE *role;
 	FOLDER *folder;
+	int folder_attribute_date_name_list_length;
 	boolean menu_boolean;
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
 	char *state;
 	boolean primary_keys_non_edit;
 	SECURITY_ENTITY *security_entity;
+	char *security_entity_where;
 	ROW_SECURITY *row_security;
 	QUERY_EDIT_TABLE *query_edit_table;
 	int row_insert_count;
 	int cell_update_count;
 	char *cell_update_folder_list_string;
 	char *results_string;
+	char *submit_action_string;
 	LIST *heading_name_list;
-	char *title;
+	char *title_html;
 	char *message_html;
 	int folder_attribute_date_name_list_length;
 	DOCUMENT *document;
@@ -79,6 +84,9 @@ EDIT_TABLE *edit_table_new(
 char *edit_table_state(
 			LIST *role_folder_list );
 
+boolean edit_table_primary_keys_non_edit(
+			int relation_mto1_isa_list_length );
+
 int edit_table_row_insert_count(
 			DICTIONARY *non_prefixed_dictionary );
 
@@ -112,14 +120,16 @@ LIST *edit_table_heading_name_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list );
 
-char *edit_table_title(
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
+char *edit_table_title_html(
 			char *folder_name,
 			char *edit_table_state );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *edit_table_message_html(
-			char *edit_table_title,
 			int edit_table_row_insert_count,
 			int edit_table_cell_update_count,
 			char *edit_table_results_string );
@@ -172,7 +182,7 @@ char *edit_table_row_html(
 			char *application_name,
 			char *edit_table_background_color,
 			char *state,
-			int row_number );
+			int row_number,
 			DICTIONARY *row_dictionary );
 
 void edit_table_hidden_output(
@@ -186,6 +196,21 @@ char *edit_table_hidden_row_html(
 			LIST *regular_element_list /* in/out */,
 			int row_number,
 			DICTIONARY *row_dictionary );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *edit_table_output_system_string(
+			char *edit_table_output_executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *role_name,
+			char *target_frame,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename );
 
 /* Private */
 /* ------- */
