@@ -1,5 +1,5 @@
-# library/makefile
-# -------------------------
+# $APPASERVER_HOME/library/makefile
+# ---------------------------------
 
 CC=gcc
 #CFLAGS=-g
@@ -108,11 +108,13 @@ APPASERVER_LIBRARY=						\
 		pair_one2m.o					\
 		mysqldump.o					\
 		prompt_edit.o					\
+		prompt_insert.o					\
 		edit_table.o					\
 		frameset_link_file.o				\
 		menu.o						\
 		choose_isa.o					\
-		choose_role.o
+		choose_role.o					\
+		post_choose_folder.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -948,6 +950,9 @@ javascript.o: javascript.c javascript.h
 prompt_edit.o: prompt_edit.c prompt_edit.h
 	${CC} ${CFLAGS} -c prompt_edit.c
 
+prompt_insert.o: prompt_insert.c prompt_insert.h
+	${CC} ${CFLAGS} -c prompt_insert.c
+
 edit_table.o: edit_table.c edit_table.h
 	${CC} ${CFLAGS} -c edit_table.c
 
@@ -962,6 +967,9 @@ choose_isa.o: choose_isa.c choose_isa.h
 
 choose_role.o: choose_role.c choose_role.h
 	${CC} ${CFLAGS} -c choose_role.c
+
+post_choose_folder.o: post_choose_folder.c post_choose_folder.h
+	${CC} ${CFLAGS} -c post_choose_folder.c
 
 relation_join.o: relation_join.c relation_join.h
 	${CC} ${CFLAGS} -c relation_join.c

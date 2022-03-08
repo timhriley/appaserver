@@ -21,6 +21,9 @@
 #include "relation.h"
 #include "frameset.h"
 #include "dictionary_separate.h"
+#include "choose_isa.h"
+#include "prompt_insert.h"
+#include "insert_table.h"
 #include "post_choose_folder.h"
 
 POST_CHOOSE_FOLDER *post_choose_folder_calloc( void )
@@ -83,6 +86,30 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		post_choose_folder_fetch_relation_mto1_isa_list(
 			state );
 
+	post_choose_folder->name =
+		post_choose_folder_name(
+			folder_name,
+			drillthru_start_current_folder_name(
+				post_choose_folder->
+				     drillthru->
+				     relation_mto1_drillthru_list ) );
+
+	if ( !post_choose_folder->name )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: post_choose_folder_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		return (POST_CHOOSE_FOLDER *)0;
+	}
+
+	post_choose_folder->relation_isa_boolean =
+		post_choose_folder_relation_isa_boolean(
+			state,
+			APPASERVER_STATE_INSERT );
+
 	post_choose_folder->folder =
 		folder_fetch(
 			post_choose_folder_name(
@@ -95,7 +122,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
 			0 /* not fetch_relation_mto1_non_isa_list */,
-			post_choose_folder->fetch_relation_mto1_isa_list,
+			post_choose_folder->relation_isa_boolean,
 			1 /* fetch_relation_one2m_list */,
 			0 /* not fetch_relation_one2m_recursive_list */,
 			0 /* not fetch_process */,
@@ -106,12 +133,12 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 	if ( !post_choose_folder->folder )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+		"Warning in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			folder_name );
-		exit( 1 );
+		return (POST_CHOOSE_FOLDER *)0;
 	}
 
 	post_choose_folder->relation_pair_one2m_list =
@@ -125,8 +152,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 					relation_pair_one2m_list ),
 			post_choose_folder->folder->folder_form );
 	
-	post_choose_folder->choose_isa_drop_down =
-		post_choose_folder_choose_isa_drop_down(
+	post_choose_folder->isa_drop_down =
+		post_choose_folder_isa_drop_down(
 			list_length(
 				post_choose_folder->
 					folder->
@@ -160,7 +187,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		post_choose_folder_system_string(
-			post_choose_folder->choose_isa_drop_down,
+			post_choose_folder->isa_drop_down,
 			post_choose_folder->prompt_insert_form,
 			post_choose_folder->insert_table_form,
 			post_choose_folder->prompt_edit_form,
@@ -170,12 +197,18 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			session_key,
 			post_choose_folder->folder->folder_name,
 			role_name,
+			/* ------------------------------------ */
+			/* Returns frameset_prompt_frame or	*/
+			/* frameset_edit_frame			*/
+			/* ------------------------------------ */
 			post_choose_folder_target_frame(
-				post_choose_folder->insert_table_form,
-				post_choose_folder->edit_table_form,
+				post_choose_folder->insert_table,
+				post_choose_folder->edit_table,
 				post_choose_folder->
 					drillthru->
-					drillthru_participating ),
+					drillthru_participating,
+				FRAMESET_PROMPT_FRAME,
+				FRAMESET_EDIT_FRAME ),
 			state,
 			drillthru_dictionary,
 			list_first(
@@ -186,11 +219,11 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 	if ( !post_choose_folder->system_string )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: post_choose_folder_system_string() returned empty.\n",
+"Warning in %s/%s()/%d: post_choose_folder_system_string() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+		return (POST_CHOOSE_FOLDER )0;
 	}
 
 	return post_choose_folder;
@@ -260,12 +293,32 @@ boolean post_choose_folder_edit_table_form(
 	return ( string_strcmp( folder_form_name, "table" ) == 0 );
 }
 
+char *post_choose_folder_target_frame(
+			boolean insert_table,
+			boolean edit_table,
+			boolean drillthru_participating,
+			char *frameset_prompt_frame,
+			char *frameset_edit_frame )
+{
+	return (	insert_table_form ||
+	     		edit_table_form   ||
+	     		drillthru_participating )
+		? frameset_prompt_frame
+		: frameset_edit_frame;
+}
+
+boolean post_choose_folder_isa_drop_down(
+			int relation_mto1_isa_list_length )
+{
+	return (boolean)relation_mto1_isa_list_length;
+}
+
 char *post_choose_folder_system_string(
-			boolean choose_isa_drop_down,
-			boolean prompt_insert_form,
-			boolean insert_table_form,
-			boolean prompt_edit_form,
-			boolean edit_table_form,
+			boolean isa_drop_down,
+			boolean prompt_insert,
+			boolean insert_table,
+			boolean prompt_edit,
+			boolean edit_table,
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -278,7 +331,7 @@ char *post_choose_folder_system_string(
 {
 	char system_string[ 1024 ];
 
-	if ( choose_isa_drop_down )
+	if ( isa_drop_down )
 	{
 		if ( !first_one2m_isa_relation )
 		{
@@ -300,8 +353,12 @@ char *post_choose_folder_system_string(
 			exit( 1 );
 		}
 
-		sprintf(system_string,
-			"output_choose_isa_drop_down %s %s %s %s %s 2>>%s",
+		return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		choose_isa_output_system_string(
+			CHOOSE_ISA_OUTPUT_EXECUTABLE,
 			login_name,
 			session_key,
 			folder_name,
@@ -310,10 +367,14 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
-	if ( prompt_insert_form )
+	if ( prompt_insert )
 	{
-		sprintf(system_string,
-			"output_prompt_insert_form %s %s %s %s \"%s\" 2>>%s",
+		return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		prompt_insert_output_system_string(
+			PROMPT_INSERT_OUTPUT_EXECUTABLE,
 			login_name,
 			session_key,
 			folder_name,
@@ -335,10 +396,14 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
-	if ( insert_table_form )
+	if ( insert_table )
 	{
-		sprintf(system_string,
-			"output_insert_table_form %s %s %s %s \"%s\" 2>>%s",
+		return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		insert_table_output_system_string(
+			INSERT_TABLE_OUTPUT_EXECUTABLE,
 			login_name,
 			session_key,
 			folder_name,
@@ -422,17 +487,5 @@ char *post_choose_folder_system_string(
 	}
 
 	return strdup( system_string );
-}
-
-char *post_choose_folder_target_frame(
-			boolean insert_table_form,
-			boolean edit_table_form,
-			boolean drillthru_participating )
-{
-	return (	insert_table_form ||
-	     		edit_table_form   ||
-	     		drillthru_participating )
-		? FRAMESET_PROMPT_FRAME
-		: FRAMESET_EDIT_FRAME;
 }
 

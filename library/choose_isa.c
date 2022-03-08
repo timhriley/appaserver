@@ -412,3 +412,43 @@ char *choose_isa_prompt_message( LIST *primary_key_list )
 	return strdup( prompt_message );
 }
 
+char *choose_isa_output_system_string(
+			char *executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *one_folder_name,
+			char *role_name,
+			char *application_error_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !executable
+	||   !login_name
+	||   !session_key
+	||   !folder_name
+	||   !one_folder_name
+	||   !role_name
+	||   !application_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %s %s 2>>%s",
+		executable,
+		login_name,
+		session_key,
+		folder_name,
+		one_folder_name,
+		role_name,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}
+

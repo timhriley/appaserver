@@ -26,37 +26,15 @@
 #include "dictionary.h"
 #include "post2dictionary.h"
 #include "role.h"
-#include "drilldown.h"
 #include "post_choose_folder.h"
-
-#define TABLE_TARGET_FRAME		PROMPT_FRAME
-#define INSERT_UPDATE_KEY		"prompt"
-
-/* Prototypes */
-/* ---------- */
-char *prompt_edit_form_get_sys_string(
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *state );
-
-char *prompt_insert_form_sys_string(
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *state );
 
 int main( int argc, char **argv )
 {
-	char *login_name;
 	char *application_name;
+	char *login_name;
 	char *session_key;
-	char *folder_name;
 	char *role_name;
+	char *folder_name;
 	char *state;
 	SESSION *session;
 	POST_CHOOSE_FOLDER *post_choose_folder;
@@ -92,10 +70,7 @@ int main( int argc, char **argv )
 			state );
 
 	post_choose_folder =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		post_choose_folder_fetch(
+		post_choose_folder_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
@@ -106,265 +81,28 @@ int main( int argc, char **argv )
 			folder_name,
 			session->session_state_integrity );
 
-	if ( string_strcmp( state, "insert" ) == 0 )
+	if ( !post_choose_folder )
 	{
-		if ( list_length( post_choose_folder->
-				folder->
-				relation_mto1_isa_list ) )
-		{
-			RELATION *is_relation;
-
-			isa_relation =
-				list_first(
-					post_choose_folder->
-						folder->
-						relation_mto1_isa_list );
-
-			sprintf(sys_string, 
-"output_choose_isa_drop_down %s %s %s %s %s %s %s 2>>%s",
-		 		login_name,
-		 		application_name,
-		 		session,
-		 		folder_name,
-		 		isa_relation->one_folder->folder_name,
-		 		role_name,
-				state, 
-			 	appaserver_error_get_filename(
-					application_name ) );
-		}
-		else
-		if ( strcmp( form, "prompt" ) == 0 )
-		{
-			strcpy( sys_string,
-				prompt_insert_form_sys_string(
-					login_name,
-					application_name,
-					session,
-					folder_name,
-					role_name,
-					state ) );
-		}
-		else
-		/* Must be form == "table" */
-		{
-			sprintf( sys_string,
-"output_insert_table_form '%s' '%s' '%s' '%s' '%s' '%s' '%s'",
-		 		login_name,
-				application_name,
-		 		session,
-		 		folder_name,
-		 		role_name,
-		 		TABLE_TARGET_FRAME /* insert_update_key */,
-		 		TABLE_TARGET_FRAME );
-		}
-	}
-	else
-	/* ------------------------------- */
-	/* Must be either update or lookup */
-	/* ------------------------------- */
-	{
-		if ( strcmp( form, "table" ) == 0 )
-		{
-			sprintf(
-			     sys_string,
-			     "output_edit_table_form %s %s %s %s %s %s 2>>%s",
-			     login_name,
-			     session,
-			     folder_name,
-			     role_name,
-			     TABLE_TARGET_FRAME,
-			     TABLE_TARGET_FRAME,
-			     appaserver_error_filename( application_name ) );
-		}
-		else
-		if ( strcmp( form, "prompt" ) == 0 )
-		{
-			strcpy( sys_string,
-				prompt_edit_form_get_sys_string(
-					login_name,
-					application_name,
-					session,
-					folder_name,
-					role_name,
-					state ) );
-		}
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: post_choose_folder_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	if ( system( sys_string ) ){}
+	if ( !post_choose_folder->system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( system( post_choose_folder->system_string ) ){}
 
 	return 0;
-}
-
-char *prompt_edit_form_get_sys_string(
-					char *login_name,
-					char *application_name,
-					char *session,
-					char *folder_name,
-					char *role_name,
-					char *state )
-{
-	static char sys_string[ 1024 ];
-	DICTIONARY *lookup_before_drop_down_dictionary;
-	char *unfulfilled_folder_name;
-	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
-
-	lookup_before_drop_down_dictionary = dictionary_small();
-
-	lookup_before_drop_down_set_dictionary_base_name(
-		lookup_before_drop_down_dictionary,
-		folder_name );
-
-	lookup_before_drop_down =
-		lookup_before_drop_down_new(
-			application_name,
-			lookup_before_drop_down_dictionary,
-			state );
-
-	if ( ! ( unfulfilled_folder_name =
-		lookup_before_drop_down_get_unfulfilled_folder_name(
-			lookup_before_drop_down->
-				lookup_before_drop_down_folder_list ) ) )
-	{
-		/* ---------------- */
-		/* If no prelookups */
-		/* ---------------- */
-		sprintf( sys_string,
-"output_prompt_edit_form %s %s %s %s %s %s '' 2>>%s",
-	 		 login_name,
-			 application_name,
-		 	 session,
-		 	 folder_name,
-			 role_name,
-			 state,
-		 	 appaserver_error_get_filename(
-			 		application_name ) );
-	}
-	else
-	{
-		/* -------------- */
-		/* Has prelookups */
-		/* -------------- */
-		dictionary_set_pointer(
-			lookup_before_drop_down_dictionary,
-			LOOKUP_BEFORE_DROP_DOWN_STATE_KEY,
-			LOOKUP_BEFORE_DROP_DOWN_INITIAL_STATE );
-
-		sprintf( sys_string,
-"output_prompt_edit_form %s %s %s %s %s %s '' '%s' 2>>%s",
-	 		login_name,
-			application_name,
-	 		session,
-	 		unfulfilled_folder_name,
-	 		role_name,
-	 		state,
-			/* ----------------------------------------- */
-			/* Set lookup_before_drop_down inital state. */
-			/* ----------------------------------------- */
-	 		dictionary_display_delimited(
-				dictionary_add_prefix(
-					lookup_before_drop_down_dictionary,
-					LOOKUP_BEFORE_DROP_DOWN_PREFIX ),
-				'&' ),
-	 		appaserver_error_get_filename(
-		 		application_name ) );
-	}
-
-	return sys_string;
-
-}
-
-char *prompt_insert_form_sys_string(
-			char *login_name,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *state )
-{
-	static char sys_string[ 1024 ];
-	DICTIONARY *lookup_before_drop_down_dictionary;
-	char *unfulfilled_folder_name;
-	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
-
-	lookup_before_drop_down_dictionary = dictionary_small();
-
-	lookup_before_drop_down_set_dictionary_base_name(
-		lookup_before_drop_down_dictionary,
-		folder_name );
-
-	lookup_before_drop_down =
-		lookup_before_drop_down_new(
-			application_name,
-			lookup_before_drop_down_dictionary,
-			state );
-
-	if ( !lookup_before_drop_down->omit_lookup_before_drop_down
-	&&   ( lookup_before_drop_down->insert_pair_base_folder_name =
-		lookup_before_drop_down_get_insert_pair_base_folder_name(
-			application_name,
-			folder_name,
-			lookup_before_drop_down->
-				base_folder->
-				pair_one2m_related_folder_list ) ) )
-	{
-		lookup_before_drop_down_set_dictionary_insert_folder_name(
-			lookup_before_drop_down_dictionary,
-			folder_name );
-
-		lookup_before_drop_down_set_dictionary_base_name(
-			lookup_before_drop_down_dictionary,
-			lookup_before_drop_down->insert_pair_base_folder_name );
-
-		lookup_before_drop_down_append_fulfilled_folder_name(
-			lookup_before_drop_down_dictionary,
-			folder_name );
-
-		lookup_before_drop_down =
-			lookup_before_drop_down_new(
-				application_name,
-				lookup_before_drop_down_dictionary,
-				(char *)0 /* state */ );
-	}
-
-	if ( ! ( unfulfilled_folder_name =
-		lookup_before_drop_down_get_unfulfilled_folder_name(
-			lookup_before_drop_down->
-				lookup_before_drop_down_folder_list ) ) )
-	{
-		/* If no prelookups */
-		/* ---------------- */
-		sprintf( sys_string, 
-"output_prompt_insert_form %s %s %s %s %s %s n 2>>%s",
-		 	login_name,
-			application_name,
-		 	session,
-		 	folder_name,
-		 	role_name,
-			state, 
-		 	appaserver_error_get_filename(
-			application_name ) );
-
-		return sys_string;
-	}
-
-	/* Has prelookups */
-	/* -------------- */
-	sprintf( sys_string,
-"output_prompt_edit_form %s %s %s %s %s %s '' '%s' 2>>%s",
-	 	login_name,
-		application_name,
-	 	session,
-	 	unfulfilled_folder_name,
-	 	role_name,
-	 	state,
-	 	dictionary_display_delimited(
-			dictionary_add_prefix(
-				lookup_before_drop_down_dictionary,
-				LOOKUP_BEFORE_DROP_DOWN_PREFIX ),
-			'&' ),
-	 	appaserver_error_get_filename(
-		 	application_name ) );
-
-	return sys_string;
 }
 

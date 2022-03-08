@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define CHOOSE_ISA_OUTPUT_EXECUTABLE	"output_choose_isa"
 #define CHOOSE_ISA_POST_EXECUTABLE	"post_choose_isa"
 
 /* Enumerated types */
@@ -95,6 +96,20 @@ char *choose_isa_action_string(
 			char *folder_name,
 			char *one2m_isa_folder_name,
 			char *role_name );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *choose_isa_output_system_string(
+			char *choose_isa_output_executable,
+			char *login_name,
+			char *session_key,
+			char *folder_name,
+			char *one_folder_name,
+			char *role_name,
+			char *application_error_filename );
 
 typedef struct
 {
