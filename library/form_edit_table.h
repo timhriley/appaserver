@@ -19,6 +19,8 @@
 
 /* Constants */
 /* --------- */
+#define FORM_EDIT_TABLE_NAME	"form_edit_table"
+
 typedef struct
 {
 	char *tag;
@@ -47,10 +49,10 @@ FORM_EDIT_TABLE *form_edit_table_calloc(
 /* --------------- */
 FORM_EDIT_TABLE *form_edit_table_new(
 			char *folder_name,
-			char *javascript_replace,
+			char *post_change_javascript,
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
-			LIST *operation_list,
+			LIST *role_operation_list,
 			LIST *edit_table_heading_name_list,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
@@ -61,11 +63,13 @@ FORM_EDIT_TABLE *form_edit_table_new(
 /* Returns heap memory */
 /* ------------------- */
 char *form_edit_table_tag(
+			char *form_edit_table_name,
 			char *edit_table_submit_action_string,
-			char *target_frame );
+			char *target_frame,
+			char *element_table_open_html );
 
 LIST *form_edit_table_button_element_list(
-			char *javascript_replace,
+			char *post_change_javascript,
 			int dictionary_list_length );
 
 LIST *form_edit_table_sort_checkbox_element_list(
@@ -74,7 +78,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 			LIST *edit_table_heading_name_list );
 
 LIST *form_edit_table_heading_element_list(
-			LIST *operation_list,
+			LIST *role_operation_list,
 			LIST *edit_table_heading_name_list );
 
 /* Returns heap memory */

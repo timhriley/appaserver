@@ -15,6 +15,9 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
 #include "row_security.h"
+#include "application.h"
+#include "application_constants.h"
+#include "appaserver.h"
 #include "edit_table.h"
 
 EDIT_TABLE *edit_table_calloc( void )
@@ -253,20 +256,30 @@ EDIT_TABLE *edit_table_new(
 		return (EDIT_TABLE *)0;
 	}
 
+	edit_table->dictionary_list_length =
+		list_length(
+			edit_table->
+				query_edit_table->
+				dictionary_list );
+
 	edit_table->row_insert_count =
 		edit_table_row_insert_count(
+			ROWS_INSERTED_COUNT_KEY,
 			non_prefixed_dictionary );
 
 	edit_table->cell_update_count =
 		edit_table_cell_update_count(
+			COLUMNS_UPDATED_KEY,
 			non_prefixed_dictionary );
 
 	edit_table->cell_update_folder_list_string =
 		edit_table_cell_update_folder_list_string(
+			COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
 			non_prefixed_dictionary );
 
 	edit_table->results_string =
 		edit_table_results_string(
+			RESULTS_STRING_KEY,
 			non_prefixed_dictionary );
 
 	edit_table->submit_action_string =
@@ -322,6 +335,7 @@ EDIT_TABLE *edit_table_new(
 			edit_table->title_html,
 			edit_table->message_html,
 			(char *)0 /* subsubtitle_html */,
+			(char *)0 /* javascript_replace */,
 			edit_table->menu_boolean,
 			edit_table->menu,
 			document_head_menu_setup_string(
@@ -334,30 +348,35 @@ EDIT_TABLE *edit_table_new(
 
 
 	edit_table->form_edit_table =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		form_edit_table_new(
 			folder_name,
-			javascript_replace(),
-			dictionary_list_length,
-			edit_table_submit_action_string(),
-			operation_list,
-			edit_table_heading_name_list(),
+			edit_table->folder->post_change_javascript,
+			edit_table->dictionary_list_length,
+			edit_table->submit_action_string,
+			edit_table->folder->role_operation_list,
+			edit_table->heading_name_list,
 			target_frame,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *sort_dictioanry,
-			DICTIONARY *drillthru_dictionary,
-			DICTIOANRY *ignore_dictionary  );
+			query_dictionary,
+			sort_dictionary,
+			drillthru_dictionary,
+			ignore_dictionary  );
 
 	edit_table->html =
-		/* --------------------------------- */
-		/* Returns document_edit_table->html */
-		/* --------------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		edit_table_html(
-			edit_table->
-				document_edit_table->
-				html );
+			edit_table->document->html,
+			edit_table->form_edit_table->html );
+
+	free( edit_table->form_edit_table->html );
 
 	edit_table->trailer_html =
 		edit_table_trailer_html(
+			edit_table->form_edit_table->trailer_html,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
@@ -366,6 +385,8 @@ EDIT_TABLE *edit_table_new(
 			/* Returns program memory */
 			/* ---------------------- */
 			document_close_html() );
+
+	free( edit_table->form_edit_table->trailer_html );
 
 	return edit_table;
 }
@@ -376,7 +397,7 @@ char *edit_table_state( LIST *role_folder_list )
 		return APPASERVER_UPDATE_STATE;
 
 	if ( role_folder_lookup( role_folder_list ) )
-		return APPASERVER_VIEW_ONLY_STATE;
+		return APPASERVER_VIEWONLY_STATE;
 
 	return (char *)0;
 }
@@ -388,13 +409,14 @@ boolean edit_table_primary_keys_non_edit(
 }
 
 int edit_table_row_insert_count(
+			char *rows_inserted_count_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	char *row_insert_count;
 
 	if ( ( row_insert_count =
 		dictionary_get(
-			ROWS_INSERTED_COUNT_KEY
+			rows_inserted_count_key,
 			non_prefixed_dictionary ) ) )
 	{
 		return atoi( row_insert_count );
@@ -406,13 +428,14 @@ int edit_table_row_insert_count(
 }
 
 int edit_table_cell_update_count(
+			char *columns_updated_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	char *cell_update_count;
 
 	if ( ( cell_update_count =
 		dictionary_get(
-			COLUMNS_UPDATED_KEY,
+			columns_updated_key,
 			non_prefixed_dictionary ) ) )
 	{
 		return atoi( cell_update_count );
@@ -424,36 +447,72 @@ int edit_table_cell_update_count(
 }
 
 char *edit_table_cell_update_folder_list_string(
+			char *columns_updated_changed_folder_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	return
 		dictionary_get(
-			COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
+			columns_updated_changed_folder_key,
 			non_prefixed_dictionary );
 }
 
 char *edit_table_results_string(
+			char *results_string_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	return
 		dictionary_get(
-			non_prefixed_dictionary,
-			RESULTS_STRING_KEY );
+			results_string_key,
+			non_prefixed_dictionary );
 }
 
-char *edit_table_html( char *document_edit_table_html )
+char *edit_table_html(	char *document_html,
+			char *form_edit_table_html )
 {
-	return document_edit_table_html;
+	char html[ STRING_64K ];
+
+	if ( !document_html
+	||   !form_edit_table_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(html,
+		"%s\n%s",
+		document_html,
+		form_edit_table_html );
+
+	return strdup( html );
 }
 
 char *edit_table_trailer_html(
+			char *form_edit_table_trailer_html,
 			char *document_body_close_html,
 			char *document_close_html )
 {
-	char trailer_html[ 1024 ];
+	char trailer_html[ STRING_64K ];
+
+	if ( !form_edit_table_trailer_html
+	||   !document_body_close_html
+	||   !document_close_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	sprintf(trailer_html,
-		"%s\n%s",
+		"%s\n%s\n%s",
+		form_edit_table_trailer_html,
 		document_body_close_html,
 		document_close_html );
 
@@ -496,7 +555,7 @@ char *edit_table_row_html(
 			row_dictionary );
 }
 
-char *edit_table_background_color( void )
+char *edit_table_background_color( char *application_name )
 {
 	static int cycle_count = 0;
 	static char **background_color_array = {0};
@@ -612,7 +671,7 @@ static char **edit_table_background_color_array(
 		}
 
 
-		if ( ( application_constants =
+		if ( ( application_constants_color =
 			application_constants_fetch(
 				application_constants->dictionary,
 				"color6" ) ) )
@@ -751,12 +810,13 @@ EDIT_TABLE_POST *edit_table_post_calloc( void )
 
 EDIT_TABLE_POST *edit_table_post_new(
 			int argc,
-			char *argv,
+			char **argv,
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			char *folder_name,
 			char *role_name,
+			char *folder_name,
+			char *state,
 			char *target_frame,
 			char *detail_base_folder_name )
 {
@@ -968,7 +1028,8 @@ void edit_table_regular_output(
 				edit_table_row_html(
 					apply_element_list /* in/out */,
 					application_name,
-					edit_table_background_color(),
+					edit_table_background_color(
+						application_name ),
 					state,
 					++row_number,
 					row_dictionary ) ) )

@@ -23,14 +23,9 @@
 /* ---------- */
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
 	char *folder_name;
 	char *role_name;
 	char *operation_name;
-
-	/* Generic */
-	/* ------- */
 	OPERATION *operation;
 } ROLE_OPERATION;
 

@@ -41,6 +41,7 @@ typedef struct
 	char *security_entity_where;
 	ROW_SECURITY *row_security;
 	QUERY_EDIT_TABLE *query_edit_table;
+	int dictionary_list_length;
 	int row_insert_count;
 	int cell_update_count;
 	char *cell_update_folder_list_string;
@@ -49,7 +50,6 @@ typedef struct
 	LIST *heading_name_list;
 	char *title_html;
 	char *message_html;
-	int folder_attribute_date_name_list_length;
 	DOCUMENT *document;
 	FORM_EDIT_TABLE *form_edit_table;
 	char *html;
@@ -88,19 +88,23 @@ boolean edit_table_primary_keys_non_edit(
 			int relation_mto1_isa_list_length );
 
 int edit_table_row_insert_count(
+			char *rows_inserted_count_key,
 			DICTIONARY *non_prefixed_dictionary );
 
 int edit_table_cell_update_count(
+			char *columns_updated_key,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Returns non_prefixed_dictionary->hash_table->other_data */
 /* ------------------------------------------------------- */
 char *edit_table_cell_update_folder_list_string(
+			char *columns_updated_changed_folder_key,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Returns non_prefixed_dictionary->hash_table->other_data */
 /* ------------------------------------------------------- */
 char *edit_table_results_string(
+			char *results_key_string,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Returns heap memory */
@@ -134,14 +138,16 @@ char *edit_table_message_html(
 			int edit_table_cell_update_count,
 			char *edit_table_results_string );
 
-/* Returns document_edit_table_html */
-/* -------------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *edit_table_html(
-			char *document_edit_table_html );
+			char *document_html,
+			char *form_edit_table_html );
 
 /* Returns heap memory */
 /* ------------------- */
 char *edit_table_trailer_html(
+			char *form_edit_table_trailer_html,
 			char *document_body_close_html,
 			char *document_close_html );
 
@@ -219,7 +225,7 @@ static char **edit_table_background_color_array(
 			char *application_name );
 
 char *edit_table_background_color(
-			void );
+			char *application_name );
 
 typedef struct
 {

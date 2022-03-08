@@ -27,6 +27,7 @@
 #include "frameset.h"
 #include "button.h"
 #include "appaserver.h"
+#include "role_operation.h"
 #include "form.h"
 #include "form_edit_table.h"
 
@@ -49,10 +50,10 @@ FORM_EDIT_TABLE *form_edit_table_calloc( void )
 
 FORM_EDIT_TABLE *form_edit_table_new(
 			char *folder_name,
-			char *javascript_replace,
+			char *post_change_javascript,
 			int dictionary_list_length,
 			char *edit_table_submit_action_string,
-			LIST *operation_list,
+			LIST *role_operation_list,
 			LIST *edit_table_heading_name_list,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
@@ -67,77 +68,59 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		form_edit_table_tag(
+			FORM_EDIT_TABLE_NAME,
 			edit_table_submit_action_string,
-			target_frame );
+			target_frame,
+			element_table_open_html() );
 
 	form_edit_table->top_button_element_list =
 		form_edit_table_button_element_list(
-			javascript_replace,
+			post_change_javascript,
 			0 /* dictionary_list_length */ );
 
 	form_edit_table->top_button_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		appaserver_element_list_html(
-			form_edit_table->top_button_element_list,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ );
+		element_list_html(
+			form_edit_table->top_button_element_list );
 
 	form_edit_table->bottom_button_element_list =
 		form_edit_table_button_element_list(
-			javascript_replace,
+			post_change_javascript,
 			dictionary_list_length );
 
 	form_edit_table->bottom_button_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		appaserver_element_list_html(
-			form_edit_table->bottom_button_element_list,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ );
+		element_list_html(
+			form_edit_table->bottom_button_element_list );
 
 	form_edit_table->sort_checkbox_element_list =
 		form_edit_table_sort_checkbox_element_list(
 			folder_name,
-			list_length( operation_list ),
+			list_length( role_operation_list ),
 			edit_table_heading_name_list );
 
 	form_edit_table->sort_checkbox_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		appaserver_element_list_html(
-			form_edit_table->sort_checkbox_element_list,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ );
+		element_list_html(
+			form_edit_table->sort_checkbox_element_list );
 
 	form_edit_table->heading_element_list =
 		form_edit_table_heading_element_list(
-			operation_list,
+			role_operation_list,
 			edit_table_heading_name_list );
 
 	form_edit_table->heading_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		appaserver_element_list_html(
-			form_edit_table->heading_element_list,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ );
+		element_list_html(
+			form_edit_table->heading_element_list );
 
 	form_edit_table->query_dictionary_hidden_html =
 		dictionary_separate_hidden_html(
@@ -186,7 +169,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 }
 
 LIST *form_edit_table_button_element_list(
-			char *javascript_replace,
+			char *post_change_javascript,
 			int dictionary_list_length )
 {
 	APPASERVER_ELEMENT *element;
@@ -194,26 +177,20 @@ LIST *form_edit_table_button_element_list(
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_open,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_open, (char *)0 ) );
 
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_row, (char *)0 ) );
 
 	/* Create <Submit> */
 	/* --------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data, (char *)0 ) );
 
 	list_set(
 		element_list,
@@ -234,10 +211,8 @@ LIST *form_edit_table_button_element_list(
 	/* -------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data, (char *)0 ) );
 
 	list_set(
 		element_list,
@@ -248,17 +223,15 @@ LIST *form_edit_table_button_element_list(
 
 	element->button->button =
 		button_reset(
-			javascript_replace,
+			post_change_javascript,
 			0 /* form_number */ );
 
 	/* Create <Back> */
 	/* ------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data, (char *)0 ) );
 
 	list_set(
 		element_list,
@@ -273,10 +246,8 @@ LIST *form_edit_table_button_element_list(
 	/* ---------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_data,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_data, (char *)0 ) );
 
 	list_set(
 		element_list,
@@ -293,10 +264,8 @@ LIST *form_edit_table_button_element_list(
 	{
 		list_set(
 			element_list,
-			(element =
-				appaserver_element_new(
-					table_data,
-					(char *)0 /* element_name */ ) ) );
+			appaserver_element_new(
+				table_data, (char *)0 ) );
 
 		list_set(
 			element_list,
@@ -310,9 +279,8 @@ LIST *form_edit_table_button_element_list(
 
 	list_set(
 		element_list,
-		( element = appaserver_element_new(
-				table_close,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_close, (char *)0 ) );
 
 	return element_list;
 }
@@ -336,9 +304,8 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	/* ---------------------------- */
 	list_set(
 		element_list,
-		( element = appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_row, (char *)0 ) );
 
 	for(	i = 0;
 		i < operation_list_length;
@@ -346,10 +313,8 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	{
 		list_set(
 			element_list,
-			( element =
-				appaserver_element_new(
-					table_data,
-					(char *)0 /* element_name */ ) ) );
+			appaserver_element_new(
+				table_data, (char *)0 ) );
 	}
 
 	list_rewind( edit_table_heading_name_list );
@@ -378,9 +343,8 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	/* ----------------------------- */
 	list_set(
 		element_list,
-		( element = appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_row, (char *)0 ) );
 
 	for(	i = 0;
 		i < operation_list_length;
@@ -388,10 +352,8 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	{
 		list_set(
 			element_list,
-			( element =
-				appaserver_element_new(
-					table_data,
-					(char *)0 /* element_name */ ) ) );
+			appaserver_element_new(
+				table_data, (char *)0 ) );
 	}
 
 	list_rewind( edit_table_heading_name_list );
@@ -553,10 +515,10 @@ char *form_edit_table_trailer_html(
 }
 
 LIST *form_edit_table_heading_element_list(
-			LIST *operation_list,
+			LIST *role_operation_list,
 			LIST *heading_name_list )
 {
-	OPERATION *operation;
+	ROLE_OPERATION *role_operation;
 	char heading_string[ 128 ];
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
@@ -564,15 +526,24 @@ LIST *form_edit_table_heading_element_list(
 	list_set(
 		element_list,
 		appaserver_element_new(
-			table_row,
-			(char *)0 /* element_name */ ) );
+			table_row, (char *)0 ) );
 
-	if ( list_rewind( operation_list ) )
+	if ( list_rewind( role_operation_list ) )
 	{
 		do {
-			operation = list_get( operation_list );
+			role_operation = list_get( role_operation_list );
 
-			if ( !operation->process )
+			if ( !role_operation->operation )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: operation is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( !role_operation->operation->process )
 			{
 				fprintf(stderr,
 				"ERROR in %s/%s()/%d: process is empty.\n",
@@ -581,7 +552,6 @@ LIST *form_edit_table_heading_element_list(
 					__LINE__ );
 				exit( 1 );
 			}
-
 
 			list_set(
 				element_list,
@@ -594,18 +564,23 @@ LIST *form_edit_table_heading_element_list(
 				strdup(
 					string_initial_capital(
 						heading_string,
-						operation->
+						role_operation->
+						    operation->
 						    process->
 						    process_name ) );
 
 			list_set(
 				element_list,
 				appaserver_element_operation_table_heading(
-					operation->process->process_name,
-					operation->
+					role_operation->
+						operation->
+						process->
+						process_name,
+					role_operation->
+						operation->
 						delete_warning_javascript ) );
 
-		} while ( list_next( operation_list ) );
+		} while ( list_next( role_operation_list ) );
 	}
 
 	if ( list_rewind( heading_name_list ) )
@@ -620,5 +595,45 @@ LIST *form_edit_table_heading_element_list(
 	}
 
 	return element_list;
+}
+
+char *form_edit_table_tag(
+			char *form_edit_table_name,
+			char *submit_action_string,
+			char *target_frame,
+			char *element_table_open_html )
+{
+	char tag[ 1024 ];
+	char *ptr = tag;
+
+	if ( !form_edit_table_name
+	||   !submit_action_string
+	||   !target_frame
+	||   !element_table_open_html )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"<form enctype=\"multipart/form-data\" method=post" );
+
+	ptr += sprintf(
+		ptr,
+		" name=\"%s\"",
+		form_edit_table_name );
+
+	ptr += sprintf(
+		ptr,
+		" action=\"%s\" target=\"%s\">",
+		submit_action_string,
+		target_frame );
+
+	return strdup( tag );
 }
 

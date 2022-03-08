@@ -8,7 +8,7 @@
 
 /* Includes */
 /* -------- */
-#include "appaserver_link_file.h"
+#include "appaserver_link.h"
 
 /* Structures */
 /* ---------- */
@@ -26,8 +26,7 @@ typedef struct
 	char *prompt_frame_create_filename;
 	char *edit_frame_prompt_filename;
 	char *edit_frame_create_filename;
-	APPASERVER_LINK_FILE *appaserver_link_file;
-	
+	APPASERVER_LINK *appaserver_link;
 } FRAMESET_LINK_FILE;
 
 /* Operations */
