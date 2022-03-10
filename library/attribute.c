@@ -350,3 +350,21 @@ boolean attribute_is_yes_no(
 	}
 }
 
+int attribute_width( char *attribute_name )
+{
+	ATTRIBUTE *attribute = attribute_fetch( attribute_name );
+
+	if ( !attribute )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: attribute_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			attribute_name );
+		exit( 1 );
+	}
+
+	return attribute->width;
+}
+

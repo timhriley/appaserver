@@ -305,6 +305,8 @@ SESSION *session_fetch(
 			session_current_ip_address() );
 	}
 
+	session->application_name = application_name;
+
 	session->current_ip_address =
 		/* ---------------------------- */
 		/* Returns heap memory or exits */
@@ -400,7 +402,6 @@ SESSION_PROCESS *session_process_integrity_exit(
 		exit( 1 );
 	}
 
-
 	if ( ! ( session_process->valid =
 			session_process_valid(
 				process_name,
@@ -412,6 +413,9 @@ SESSION_PROCESS *session_process_integrity_exit(
 			login_name,
 			session_process->session->current_ip_address );
 	}
+
+	session_process->role_name = role_name;
+	session_process->process_name = process_name;
 
 	return session_process;
 }
@@ -624,6 +628,10 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			login_name,
 			session_folder->session->current_ip_address );
 	}
+
+	session_folder->role_name = role_name;
+	session_folder->folder_name = folder_name;
+	session_folder->state = state;
 
 	return session_folder;
 }

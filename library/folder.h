@@ -229,6 +229,7 @@ LIST *folder_primary_delimited_list(
 			char *folder_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
 			SECURITY_ENTITY *security_entity,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name );

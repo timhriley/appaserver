@@ -2854,7 +2854,7 @@ DICTIONARY *dictionary_load_record_dictionary(
 
 		if ( first_time )
 		{
-			d = new_dictionary();
+			d = dictionary_new();
 			strcpy( first_key, key );
 			first_time = 0;
 		}

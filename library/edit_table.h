@@ -237,7 +237,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	SESSION *session;
+	SESSION_FOLDER *session_folder;
 } EDIT_TABLE_POST;
 
 /* EDIT_TABLE_POST operations */
@@ -251,8 +251,8 @@ EDIT_TABLE_POST *edit_table_post_new(
 			int argc,
 			char **argv,
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *folder_name,
 			char *state,

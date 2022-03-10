@@ -545,3 +545,45 @@ VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_new(
 	return vertical_new_post_insert_table;
 }
 
+VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table_calloc(
+			void )
+{
+	VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table;
+
+	vertical_new_output_insert_table =
+		calloc( 1, sizeof( VERTICAL_NEW_OUTPUT_INSERT_TABLE ) );
+
+	if ( !vertical_new_output_insert_table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return vertical_new_output_insert_table;
+}
+
+VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert_calloc(
+			void )
+{
+	VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert;
+
+	vertical_new_post_prompt_insert =
+		calloc( 1, sizeof( VERTICAL_NEW_POST_PROMPT_INSERT ) );
+
+	if ( !vertical_new_post_prompt_insert )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return vertical_new_post_prompt_insert;
+}
+

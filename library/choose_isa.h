@@ -62,7 +62,7 @@ CHOOSE_ISA *choose_isa_new(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
-			char *one2m_isa_folder_name,
+			char *one_isa_folder_name,
 			char *role_name,
 			boolean menu_boolean );
 
@@ -80,7 +80,7 @@ char *choose_isa_title_html(
 /* ------------------- */
 char *choose_isa_subtitle_html(
 			char *folder_name,
-			char *one2m_isa_folder_name );
+			char *one_isa_folder_name );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -92,11 +92,11 @@ char *choose_isa_prompt_message(
 char *choose_isa_action_string(
 			char *choose_isa_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
-			char *one2m_isa_folder_name,
-			char *role_name );
+			char *one_isa_folder_name );
 
 /* Public */
 /* ------ */
@@ -105,11 +105,11 @@ char *choose_isa_action_string(
 /* ------------------- */
 char *choose_isa_output_system_string(
 			char *choose_isa_output_executable,
-			char *login_name,
 			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
 			char *one_isa_folder_name,
-			char *role_name,
 			char *appaserver_error_filename );
 
 typedef struct
@@ -126,7 +126,7 @@ CHOOSE_ISA_POST *choose_isa_post_new(
 			char *session_key,
 			char *login_name,
 			char *folder_name,
-			char *one2m_isa_folder_name,
+			char *one_isa_folder_name,
 			char *role_name );
 
 #endif

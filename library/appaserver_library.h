@@ -153,10 +153,6 @@ LIST *get_role_list(	char *application_name,
 			char *person,
 			char *error_file );
 
-int get_attribute_width(
-			char *entity,
-			char *attribute_name );
-
 LIST *folder_name_list2table_name_list( 	
 			char *entity,
 			char *application,
@@ -332,9 +328,6 @@ void appaserver_library_populate_last_foreign_attribute_key(
 
 void appaserver_library_dictionary_convert_dates(
 			DICTIONARY *dictionary,
-			char *application_name );
-
-char *appaserver_library_error_filename(
 			char *application_name );
 
 FILE *appaserver_open_append_file(

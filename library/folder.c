@@ -522,3 +522,17 @@ LIST *folder_fetch_primary_key_list(
 			(LIST *)0 /* exclude_attribute_name_list */ ) );
 }
 
+LIST *folder_primary_delimited_list(
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			SECURITY_ENTITY *security_entity,
+			DICTIONARY *drillthru_dictionary,
+			char *login_name )
+{
+LIST *folder_delimited_list(
+			char *table_name,
+			LIST *attribute_name_list,
+			char *where_clause )
+}

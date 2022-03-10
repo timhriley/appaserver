@@ -145,6 +145,9 @@ LIST *session_list_fetch(
 typedef struct
 {
 	SESSION *session;
+	char *role_name;
+	char *folder_name;
+	char *state;
 	boolean valid;
 } SESSION_FOLDER;
 
@@ -184,6 +187,8 @@ SESSION_FOLDER *session_folder_calloc(
 typedef struct
 {
 	SESSION *session;
+	char *role_name;
+	char *process_name;
 	boolean valid;
 } SESSION_PROCESS;
 

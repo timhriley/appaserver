@@ -544,7 +544,7 @@ QUERY_ISA_WIDGET *query_isa_widget_calloc(
 /* Always succeeds */
 /* --------------- */
 QUERY_ISA_WIDGET *query_isa_widget_new(
-			char *one2m_isa_folder_name,
+			char *one_isa_folder_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_primary_list,
 			char *login_name,

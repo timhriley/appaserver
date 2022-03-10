@@ -97,6 +97,9 @@ void environ_prepend_path(
 void environ_set_utc_offset(
 			char *application_name );
 
+char *environment_exit_application_name(
+			char *argv_0 );
+
 char *environ_exit_application_name(
 			char *argv_0 );
 

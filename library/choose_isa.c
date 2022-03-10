@@ -41,11 +41,11 @@ CHOOSE_ISA *choose_isa_new(
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
-			char *one2m_isa_folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
+			char *one_isa_folder_name,
 			boolean menu_boolean )
 {
 	CHOOSE_ISA *choose_isa = choose_isa_calloc();
@@ -54,7 +54,7 @@ CHOOSE_ISA *choose_isa_new(
 	/* ------- */
 	choose_isa->folder =
 		folder_fetch(
-			one2m_isa_folder_name,
+			one_isa_folder_name,
 			(char *)0 /* not fetching role_folder_list */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			/* --------------------------------------- */
@@ -102,13 +102,13 @@ CHOOSE_ISA *choose_isa_new(
 							folder_attribute_list ),
 					login_name,
 					role_name,
-					one2m_isa_folder_name ) );
+					one_isa_folder_name ) );
 	}
 	else
 	{
 		choose_isa->query_isa_widget =
 			query_isa_widget_new(
-				one2m_isa_folder_name,
+				one_isa_folder_name,
 				choose_isa->
 					folder->
 					primary_key_list,
@@ -204,11 +204,11 @@ CHOOSE_ISA *choose_isa_new(
 		choose_isa_action_string(
 			CHOOSE_ISA_POST_EXECUTABLE,
 			application_name,
-			login_name,
 			session_key,
+			login_name,
+			role_name,
 			folder_name,
-			one2m_isa_folder_name,
-			role_name );
+			one_isa_folder_name );
 
 	if ( !choose_isa->action_string )
 	{
@@ -266,21 +266,21 @@ CHOOSE_ISA *choose_isa_new(
 char *choose_isa_action_string(
 			char *choose_isa_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
-			char *one2m_isa_folder_name,
-			char *role_name )
+			char *one_isa_folder_name )
 {
 	char action_string[ 1024 ];
 
 	if ( !choose_isa_post_executable
 	||   !application_name
-	||   !login_name
 	||   !session_key
+	||   !login_name
+	||   !role_name
 	||   !folder_name
-	||   !one2m_isa_folder_name
-	||   !role_name )
+	||   !one_isa_folder_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -301,11 +301,11 @@ char *choose_isa_action_string(
 				application_name ) ),
 		choose_isa_post_executable,
 		application_name,
-		login_name,
 		session_key,
+		login_name,
+		role_name,
 		folder_name,
-		one2m_isa_folder_name,
-		role_name );
+		one_isa_folder_name );
 
 	return strdup( action_string );
 }
@@ -357,14 +357,14 @@ char *choose_isa_title_html( char *title_string )
 
 char *choose_isa_subtitle_html(
 			char *folder_name,
-			char *one2m_isa_folder_name )
+			char *one_isa_folder_name )
 {
 	char subtitle_html[ 256 ];
 	char buffer1[ 128 ];
 	char buffer2[ 128 ];
 
 	if ( !folder_name
-	||   !one2m_isa_folder_name )
+	||   !one_isa_folder_name )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -381,7 +381,7 @@ char *choose_isa_subtitle_html(
 			folder_name ),
 		string_initial_capital(
 			buffer2,
-			one2m_isa_folder_name ) );
+			one_isa_folder_name ) );
 
 	return strdup( subtitle_html );
 }
@@ -414,21 +414,21 @@ char *choose_isa_prompt_message( LIST *primary_key_list )
 
 char *choose_isa_output_system_string(
 			char *executable,
-			char *login_name,
 			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
 			char *one_isa_folder_name,
-			char *role_name,
 			char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
 	if ( !executable
-	||   !login_name
 	||   !session_key
+	||   !login_name
+	||   !role_name
 	||   !folder_name
 	||   !one_isa_folder_name
-	||   !role_name
 	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
@@ -442,11 +442,11 @@ char *choose_isa_output_system_string(
 	sprintf(system_string,
 		"%s %s %s %s %s %s 2>>%s",
 		executable,
-		login_name,
 		session_key,
+		login_name,
+		role_name,
 		folder_name,
 		one_isa_folder_name,
-		role_name,
 		appaserver_error_filename );
 
 	return strdup( system_string );

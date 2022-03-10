@@ -741,20 +741,11 @@ char *piece_grep(	char *source,
 	string_list = string2list( grep_list, delimiter );
 	if ( !list_rewind( string_list ) ) return (char *)0;
 	do {
-		grep = list_get_string( string_list );
+		grep = list_get( string_list );
+
 		if ( !piece( buffer, delimiter, source, piece_offset ) )
 			return (char *)0;
 
-/*
-		if ( !grep_exclude )
-		{
-			if ( strcmp( grep, buffer ) == 0 ) return source;
-		}
-		else
-		{
-			if ( strcmp( grep, buffer ) != 0 ) return source;
-		}
-*/
 		if ( !grep_exclude )
 		{
 			if ( timlib_exists_string(

@@ -357,9 +357,6 @@ DICTIONARY *dictionary_pipe(
 DICTIONARY *dictionary_new_dictionary(
 			void );
 
-DICTIONARY *new_dictionary(
-			void );
-
 DICTIONARY *dictionary_index_data2dictionary(
 			DICTIONARY *source_dictionary,
 			char *key_wo_index );

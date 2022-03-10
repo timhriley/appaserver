@@ -396,26 +396,6 @@ LIST *appaserver_library_no_display_pressed_attribute_name_list(
 	return return_list;
 }
 
-int get_attribute_width(	char *application,
-				char *attribute_name )
-{
-	char sys_string[ 1024 ];
-	char *results;
-
-	sprintf( sys_string,
-		 "width4attribute.sh %s %s 2>>%s",
-		 application,
-		 attribute_name,
-		 appaserver_library_error_filename( application ) );
-
-	results = pipe2string( sys_string );
-	if ( !results )
-		return 0;
-	else
-		return atoi( results );
-}
-
-
 LIST *get_date_slot_list( 	char *begin_date,
 				char *end_date )
 {
@@ -1295,7 +1275,7 @@ int appaserver_library_reference_number(
 		 "reference_number.sh \"%s\" %d 2>>%s",
 		 application_name,
 		 insert_rows_number,
-		 appaserver_library_error_filename( application_name ) );
+		 appaserver_error_filename( application_name ) );
 
 	return atoi( pipe2string( sys_string ) );
 }

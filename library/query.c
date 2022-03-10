@@ -1314,7 +1314,7 @@ QUERY_ISA_WIDGET *query_isa_widget_calloc( void )
 }
 
 QUERY_ISA_WIDGET *query_isa_widget_new(
-			char *one2m_isa_folder_name,
+			char *one_isa_folder_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_primary_list,
 			char *login_name,
@@ -1382,7 +1382,7 @@ QUERY_ISA_WIDGET *query_isa_widget_new(
 	query_isa_widget->delimited_list =
 		query_delimited_list(
 			query_isa_widget->query_select_list_string,
-			one2m_isa_folder_name,
+			one_isa_folder_name,
 			query_isa_widget->where->string,
 			query_isa_widget->query_order_string );
 

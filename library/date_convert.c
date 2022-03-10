@@ -1072,3 +1072,107 @@ DATE_CONVERT *date_convert_login_name_fetch(
 	}
 }
 
+DATE_CONVERT *date_convert_new_user_format_date_convert(
+				char *application_name,
+				char *login_name,
+				char *date_string )
+{
+	enum date_convert_format user_date_format;
+
+	user_date_format =
+		date_convert_get_user_date_format(
+					application_name,
+					login_name );
+
+	return date_convert_new_date_convert(
+				user_date_format,
+				date_string );
+}
+
+DATE_CONVERT *date_convert_new_date_convert(
+			enum date_convert_format destination_format,
+			char *date_string )
+{
+	DATE_CONVERT *d = date_convert_calloc();
+
+	if ( !d )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s(): cannot allocate memory.\n",
+			__FILE__,
+			__FUNCTION__ );
+		exit( 1 );
+	}
+
+	if ( strcasecmp( date_string, "today" ) == 0 )
+		date_string =
+			date_get_today_yyyy_mm_dd(
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "yesterday" ) == 0 )
+		date_string =
+			date_get_yesterday_yyyy_mm_dd(
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "monday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_MONDAY,
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "tuesday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_TUESDAY,
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "wednesday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_WEDNESDAY,
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "thursday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_THURSDAY,
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "friday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_FRIDAY,
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "saturday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_SATURDAY,
+				date_get_utc_offset() );
+	else
+	if ( strcasecmp( date_string, "sunday" ) == 0 )
+		date_string =
+			date_get_day_of_week_yyyy_mm_dd(
+				WDAY_SUNDAY,
+				date_get_utc_offset() );
+
+	d->source_format = date_convert_date_get_format( date_string );
+	d->destination_format = destination_format;
+
+	if ( d->source_format == date_convert_unknown
+	||   d->destination_format == date_convert_unknown )
+	{
+		strcpy( d->return_date, date_string );
+		return d;
+	}
+
+	d->source_format =
+		date_convert_populate_return_date(
+			d->return_date,
+			d->source_format,
+			d->destination_format,
+			date_string );
+
+	return d;
+}
+

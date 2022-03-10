@@ -483,12 +483,17 @@ void add_relative_source_directory_to_path( char *application_name )
 	}
 }
 
+char *environ_exit_application_name( char *argv_0 )
+{
+	return environment_exit_application_name( argv_0 );
+}
+
 char *environ_application_name( char *argv_0 )
 {
 	return environ_exit_application_name( argv_0 );
 }
 
-char *environ_exit_application_name( char *argv_0 )
+char *environment_exit_application_name( char *argv_0 )
 {
 	char *application_name;
 

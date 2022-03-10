@@ -123,11 +123,10 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/aggregate_statistic.o 				\
 		${LIB}/date.o 						\
 		${LIB}/html_table.o 					\
-		${LIB}/prompt_recursive.o				\
 		${LIB}/dictionary.o 					\
 		${LIB}/sed.o 						\
 		${LIB}/decode_html_post.o				\
-		${LIB}/appaserver_parameter_file.o			\
+		${LIB}/appaserver_parameter.o				\
 		${LIB}/appaserver_library.o				\
 		${LIB}/appaserver_error.o				\
 		${LIB}/application_constants.o				\
@@ -142,17 +141,17 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/appaserver_user.o				\
 		${LIB}/security.o					\
 		${LIB}/populate_helper_process.o			\
-		${LIB}/appaserver_link_file.o				\
-		${LIB}/related_folder.o					\
-		${LIB}/vertical_new_button.o				\
+		${LIB}/appaserver_link.o				\
+		${LIB}/vertical_new.o					\
 		${LIB}/relation.o					\
 		${LIB}/folder.o						\
+		${LIB}/attribute.o					\
+		${LIB}/folder_attribute.o				\
 		${LIB}/role.o						\
 		${LIB}/appaserver.o					\
 		${LIB}/dictionary_separate.o				\
 		${LIB}/query.o						\
 		${LIB}/process.o					\
-		${LIB}/attribute.o					\
 		${LIB}/form.o						\
 		${LIB}/element.o					\
 		${LIB}/operation.o					\
@@ -951,11 +950,15 @@ output_prompt_insert: output_prompt_insert.c 				\
 
 output_choose_isa: output_choose_isa.c					\
 			${EXTERNAL_LIBS}				\
+			${LIB}/form_choose_isa.o			\
+			${LIB}/menu.o					\
 			${LIB}/choose_isa.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
 		output_choose_isa.c					\
+		${EXTERNAL_LIBS}					\
+		${LIB}/form_choose_isa.o				\
+		${LIB}/menu.o						\
 		${LIB}/choose_isa.o					\
 		-o output_choose_isa
 

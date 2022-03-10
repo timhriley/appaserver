@@ -61,6 +61,10 @@ DATE_CONVERT *date_convert_new_user_format_date_convert(
 			char *login_name,
 			char *date_string );
 
+DATE_CONVERT *date_convert_new_date_convert(
+				enum date_convert_format destination_format,
+				char *date_string );
+
 void date_convert_free(	DATE_CONVERT *date_convert );
 
 boolean date_convert_source_american(

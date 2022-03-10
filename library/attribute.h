@@ -126,4 +126,6 @@ boolean attribute_is_yes_no(
 boolean attribute_is_boolean(
 			char *attribute_name );
 
+int attribute_width(	char *attribute_name );
+
 #endif

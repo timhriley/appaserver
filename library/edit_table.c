@@ -812,8 +812,8 @@ EDIT_TABLE_POST *edit_table_post_new(
 			int argc,
 			char **argv,
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *folder_name,
 			char *state,
@@ -825,7 +825,7 @@ EDIT_TABLE_POST *edit_table_post_new(
 	edit_table_post->target_frame = target_frame;
 	edit_table_post->detail_base_folder_name = detail_base_folder_name;
 
-	edit_table_post->session =
+	edit_table_post->session_folder =
 		/* --------------------------------------------- */
 		/* Sets appaserver environment and outputs argv. */
 		/* Each parameter is security inspected.	 */
@@ -834,10 +834,10 @@ EDIT_TABLE_POST *edit_table_post_new(
 			argc,
 			argv,
 			application_name,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
+			folder_name,
 			state );
 
 	return edit_table_post;
