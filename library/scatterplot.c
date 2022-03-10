@@ -119,8 +119,8 @@ LIST *scatterplot_get_plot_list(	char *anchor_entity,
 
 		anchor_value_string =
 			dictionary_pointer(
-				anchor_value_dictionary,
-				anchor_key );
+				anchor_key,
+				anchor_value_dictionary );
 
 		list_rewind( compare_value_dictionary_list );
 
@@ -131,8 +131,9 @@ LIST *scatterplot_get_plot_list(	char *anchor_entity,
 
 			if ( !( compare_value_string =
 				dictionary_pointer(
-					compare_value_dictionary->dictionary,
-					anchor_key ) ) )
+					anchor_key,
+					compare_value_dictionary->
+						dictionary ) ) )
 			{
 				continue;
 			}

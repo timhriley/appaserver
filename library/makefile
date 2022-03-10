@@ -111,7 +111,6 @@ APPASERVER_LIBRARY=						\
 		prompt_edit.o					\
 		prompt_insert.o					\
 		edit_table.o					\
-		frameset_link_file.o				\
 		menu.o						\
 		choose_isa.o					\
 		choose_role.o					\

@@ -15,6 +15,7 @@
 #include "folder.h"
 #include "folder_menu.h"
 #include "menu.h"
+#include "form_choose_isa.h"
 #include "document.h"
 
 /* Constants */
@@ -107,7 +108,7 @@ char *choose_isa_output_system_string(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
-			char *one_folder_name,
+			char *one_isa_folder_name,
 			char *role_name,
 			char *appaserver_error_filename );
 

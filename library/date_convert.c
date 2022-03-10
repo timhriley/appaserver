@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "String.h"
 #include "piece.h"
 #include "column.h"
 #include "timlib.h"

@@ -16,19 +16,24 @@
 /* --------- */
 #define SESSION_TABLE_NAME			"appaserver_sessions"
 #define SESSION_REMOTE_IP_ADDRESS_VARIABLE	"REMOTE_ADDR"
-#define SESSION_MAX_SESSION_SIZE		10
+#define SESSION_SIZE				10
+
+#define SESSION_SELECT				"appasever_session,"	\
+						"login_name,"		\
+						"login_date,"		\
+						"login_time,"		\
+						"last_access_date,"	\
+						"last_access_time,"	\
+						"http_user_agent,"	\
+						"remote_ip_address"
 
 /* Structures */
 /* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *sql_injection_escape_application_name;
-	char *sql_injection_escape_session_key;
-
 	/* Attributes */
 	/* ---------- */
+	char *application_name;
 	char *session_key;
 	char *login_name;
 	char *login_date;
@@ -40,68 +45,25 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	char *sql_injection_escape_role_name;
-	char *sql_injection_escape_folder_name;
-	char *sql_injection_escape_process_name;
-	char *session_current_ip_address;
-
-	/* Private */
-	/* ------- */
-	boolean state_valid;
-	boolean process_name_valid;
+	char *current_ip_address;
+	boolean remote_ip_address_changed;
 } SESSION;
 
 /* SESSION operations */
 /* ------------------ */
+
 /* Usage */
 /* ----- */
 
-/* --------------------------------------------- */
-/* Sets appaserver environment and outputs argv. */
-/* Each parameter is security inspected.	 */
-/* --------------------------------------------- */
-SESSION *session_folder_integrity_exit(
-			int argc,
-			char **argv,
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *folder_name,
-			char *role_name,
-			char *state );
-
-/* --------------------------------------------- */
-/* Sets appaserver environment and outputs argv. */
-/* Each parameter is security inspected.	 */
-/* --------------------------------------------- */
-SESSION *session_process_integrity_exit(
-			int argc,
-			char **argv,
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *process_name,
-			char *role_name );
-
-/* Always succeeds */
-/* --------------- */
+/* If error then exit( 1 ) */
+/* ----------------------- */
 SESSION *session_fetch(
-			/* Sets ENVIRONMENT_DATABASE */
-			/* ------------------------- */
-			char *sql_injection_escape_application_name,
-			char *sql_injection_escape_session_key,
-			char *integrity_check_login_name );
-
-LIST *session_system_list(
-			char *system_string );
+			char *application_name,
+			char *session_key,
+			char *login_name );
 
 /* Process */
 /* ------- */
-
-/* Returns heap memory or exits */
-/* ---------------------------- */
-char *session_current_ip_address(
-			void );
 
 /* Returns static memory */
 /* --------------------- */
@@ -111,14 +73,19 @@ char *session_primary_where(
 /* Returns heap memory */
 /* ------------------- */
 char *session_system_string(
-			char *where );
+			char *session_primary_where );
 
 SESSION *session_parse(	char *input );
 
-void session_access_failed_message_exit(
-			char *application_name,
-			char *current_ip_address,
-			char *login_name );
+/* Returns heap memory or exits */
+/* ---------------------------- */
+char *session_current_ip_address(
+			void );
+
+/* Returns heap memory or exits */
+/* ---------------------------- */
+char *session_current_ip_address(
+			void );
 
 boolean session_remote_ip_address_changed(
 			char *remote_ip_address,
@@ -127,35 +94,127 @@ boolean session_remote_ip_address_changed(
 void session_message_ip_address_changed_exit(
 			char *application_name,
 			char *session_key,
+			char *login_name,
 			char *remote_ip_address,
-			char *current_ip_address,
-			char *login_name );
-
-boolean session_state_valid(
-			char *state,
-			LIST *role_folder_list );
-
-boolean session_process_name_valid(
-			char *process_name,
-			LIST *role_process_list );
+			char *current_ip_address );
 
 void session_update_access_date_time(
 			char *session_key );
 
-LIST *session_list_fetch(
-			char *login_name );
-
 void session_environment_set(
 			char *application_name );
 
-/* Public */
-/* ------ */
-char *session_login_name(
-			char *session_key );
+void session_purge_temporary_files(
+			char *application_name );
 
 /* Private */
 /* ------- */
 SESSION *session_calloc(
+			void );
+
+/* Public */
+/* ------ */
+void session_sql_injection_message_exit(
+			char *argv_0,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *current_ip_address );
+
+boolean session_sql_injection_strcmp_okay(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name );
+
+void session_access_failed_message_exit(
+			char *application_name,
+			char *login_name,
+			char *session_current_ip_address );
+
+char *session_login_name(
+			char *session_key );
+
+LIST *session_system_list(
+			char *session_system_string );
+
+LIST *session_list_fetch(
+			char *login_name );
+
+typedef struct
+{
+	SESSION *session;
+	boolean valid;
+} SESSION_FOLDER;
+
+/* SESSION_FOLDER operations */
+/* ------------------------- */
+
+/* Usage */
+/* ----- */
+
+/* --------------------------------------------- */
+/* Sets appaserver environment and outputs argv. */
+/* Each parameter is security inspected.	 */
+/* Any error will exit(1).			 */
+/* --------------------------------------------- */
+SESSION_FOLDER *session_folder_integrity_exit(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state );
+
+/* Process */
+/* ------- */
+boolean session_folder_valid(
+			char *state,
+			LIST *role_folder_list );
+
+/* Private */
+/* ------- */
+SESSION_FOLDER *session_folder_calloc(
+			void );
+
+
+typedef struct
+{
+	SESSION *session;
+	boolean valid;
+} SESSION_PROCESS;
+
+/* SESSION_PROCESS operations */
+/* -------------------------- */
+
+/* Usage */
+/* ----- */
+
+/* --------------------------------------------- */
+/* Sets appaserver environment and outputs argv. */
+/* Each parameter is security inspected.	 */
+/* --------------------------------------------- */
+SESSION_PROCESS *session_process_integrity_exit(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name );
+
+/* Process */
+/* ------- */
+boolean session_process_valid(
+			char *process_name,
+			LIST *role_process_list );
+
+/* Private */
+/* ------- */
+SESSION_PROCESS *session_process_calloc(
 			void );
 
 #endif

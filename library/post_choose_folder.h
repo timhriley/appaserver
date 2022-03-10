@@ -30,10 +30,10 @@ typedef struct
 	FOLDER *folder;
 	char *form_name;
 	boolean isa_drop_down;
-	boolean prompt_insert_form;
-	boolean insert_table_form;
-	boolean prompt_edit_form;
-	boolean edit_table_form;
+	boolean prompt_insert;
+	boolean insert_table;
+	boolean prompt_edit;
+	boolean edit_table;
 	char *system_string;
 } POST_CHOOSE_FOLDER;
 

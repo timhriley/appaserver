@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "role.h"
-#include "form.h"
+#include "form_choose_role.h"
 #include "document.h"
 
 /* Constants */

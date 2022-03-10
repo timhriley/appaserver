@@ -1,7 +1,7 @@
 :
 if [ "$#" -lt 2 ]
 then
-	echo "Usage:$0 application days_to_keep [backup_subdirectory]" 1>&2
+	echo "Usage: $0 application days_to_keep [backup_subdirectory]" 1>&2
 	exit 1
 fi
 

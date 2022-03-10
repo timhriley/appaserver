@@ -588,11 +588,11 @@ char *edit_table_background_color( char *application_name )
 	return background_color;
 }
 
-static char **edit_table_background_color_array(
+char **edit_table_background_color_array(
 			int *background_color_array_length,
 			char *application_name )
 {
-	char **background_color_array;
+	static char **background_color_array;
 	char *application_constants_color;
 	APPLICATION_CONSTANTS *application_constants;
 

@@ -24,6 +24,7 @@
 
 /* Constants */
 /* --------- */
+#define EDIT_TABLE_OUTPUT_EXECUTABLE	"output_edit_table"
 
 /* Data structures */
 /* --------------- */
@@ -220,7 +221,7 @@ char *edit_table_output_system_string(
 
 /* Private */
 /* ------- */
-static char **edit_table_background_color_array(
+char **edit_table_background_color_array(
 			int *background_color_array_length,
 			char *application_name );
 

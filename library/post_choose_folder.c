@@ -16,6 +16,7 @@
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
+#include "appaserver.h"
 #include "security.h"
 #include "environ.h"
 #include "relation.h"
@@ -84,10 +85,6 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			( drillthru_dictionary = dictionary_small() ) /* out */,
 			folder_name );
 
-	post_choose_folder->fetch_relation_mto1_isa_list =
-		post_choose_folder_fetch_relation_mto1_isa_list(
-			state );
-
 	post_choose_folder->name =
 		post_choose_folder_name(
 			folder_name,
@@ -110,7 +107,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 	post_choose_folder->relation_isa_boolean =
 		post_choose_folder_relation_isa_boolean(
 			state,
-			APPASERVER_STATE_INSERT );
+			APPASERVER_INSERT_STATE );
 
 	post_choose_folder->folder =
 		folder_fetch(
@@ -143,7 +140,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		return (POST_CHOOSE_FOLDER *)0;
 	}
 
-	post_choose_folder->relation_pair_one2m_list =
+	post_choose_folder->folder->relation_pair_one2m_list =
 		relation_pair_one2m_list(
 			post_choose_folder->folder->relation_one2m_list );
 
@@ -151,6 +148,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		post_choose_folder_form_name(
 			list_length(
 				post_choose_folder->
+					folder->
 					relation_pair_one2m_list ),
 			post_choose_folder->folder->folder_form );
 	
@@ -225,7 +223,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (POST_CHOOSE_FOLDER )0;
+		return (POST_CHOOSE_FOLDER *)0;
 	}
 
 	return post_choose_folder;
@@ -302,8 +300,8 @@ char *post_choose_folder_target_frame(
 			char *frameset_prompt_frame,
 			char *frameset_edit_frame )
 {
-	return (	insert_table_form ||
-	     		edit_table_form   ||
+	return (	insert_table ||
+	     		edit_table   ||
 	     		drillthru_participating )
 		? frameset_prompt_frame
 		: frameset_edit_frame;

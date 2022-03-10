@@ -417,7 +417,7 @@ char *choose_isa_output_system_string(
 			char *login_name,
 			char *session_key,
 			char *folder_name,
-			char *one_folder_name,
+			char *one_isa_folder_name,
 			char *role_name,
 			char *appaserver_error_filename )
 {
@@ -427,7 +427,7 @@ char *choose_isa_output_system_string(
 	||   !login_name
 	||   !session_key
 	||   !folder_name
-	||   !one_folder_name
+	||   !one_isa_folder_name
 	||   !role_name
 	||   !appaserver_error_filename )
 	{
@@ -445,7 +445,7 @@ char *choose_isa_output_system_string(
 		login_name,
 		session_key,
 		folder_name,
-		one_folder_name,
+		one_isa_folder_name,
 		role_name,
 		appaserver_error_filename );
 

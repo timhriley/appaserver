@@ -1519,17 +1519,6 @@ boolean appaserver_library_exists_javascript_folder(
 }
 #endif
 
-void appaserver_library_purge_temporary_files( char *application_name )
-{
-	char sys_string[ 128 ];
-
-	sprintf( sys_string,
-		 "appaserver_purge_temporary_files.sh %s &",
-		 application_name );
-
-	if ( system( sys_string ) ){};
-}
-
 char *appaserver_library_change_state_display(
 			enum preupdate_change_state preupdate_change_state )
 {

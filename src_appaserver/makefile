@@ -131,7 +131,6 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/appaserver_library.o				\
 		${LIB}/appaserver_error.o				\
 		${LIB}/application_constants.o				\
-		${LIB}/process_generic_output.o				\
 		${LIB}/process_generic.o				\
 		${LIB}/name_arg.o					\
 		${LIB}/basename.o					\

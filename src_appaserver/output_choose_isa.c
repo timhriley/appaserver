@@ -1,8 +1,5 @@
-/* $APPASERVER_HOME/src_appaserver/output_choose_isa_drop_down.c	*/
+/* $APPASERVER_HOME/src_appaserver/output_choose_isa.c			*/
 /* --------------------------------------------------------------------	*/
-/*									*/
-/* This is the drop down that displays to select a relation that	*/
-/* another folder inherents the attributes of.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* --------------------------------------------------------------------	*/
@@ -12,32 +9,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "hash_table.h"
-#include "timlib.h"
-#include "list.h"
-#include "attribute.h"
-#include "document.h"
-#include "application.h"
-#include "folder.h"
-#include "relation.h"
-#include "dictionary.h"
-#include "form.h"
-#include "query.h"
-#include "appaserver_parameter_file.h"
-#include "appaserver.h"
-#include "appaserver_library.h"
-#include "appaserver_error.h"
 #include "environ.h"
-#include "role.h"
+#include "appaserver.h"
 #include "session.h"
-#include "choose_isa_drop_down.h"
-
-/* Constants */
-/* --------- */
-#define INSERT_UPDATE_KEY		"prompt"
-
-/* Prototypes */
-/* ---------- */
+#include "frameset.h"
+#include "menu.h"
+#include "choose_isa.h"
 
 int main( int argc, char **argv )
 {
@@ -45,39 +22,41 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *session_key;
 	char *folder_name;
-	char *one2m_isa_folder_name;
+	char *one_isa_folder_name;
 	char *role_name;
 	SESSION *session;
-	CHOOSE_ISA_DROP_DOWN *choose_isa_drop_down;
-	FORM *form;
-	DOCUMENT *document;
-	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	boolean with_dynarch_menu;
-	char subtitle_string[ 128 ];
-	char buffer1[ 128 ];
-	char buffer2[ 128 ];
+	CHOOSE_ISA *choose_isa;
 
 	if ( argc != 6 )
 	{
 		fprintf( stderr, 
-	"Usage: %s login_name session folder one2m_isa_folder_name role\n",
+	"Usage: %s login_name session folder one_isa_folder_name role\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name =
-		environ_exit_application_name(
+		environment_exit_application_name(
 			argv[ 0 ] );
 
 	login_name = argv[ 1 ];
 	session_key = argv[ 2 ];
 	folder_name = argv[ 3 ];
 
-	one2m_isa_folder_name =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		security_sql_injection_escape( argv[ 4 ] );
+	if ( ! ( one_isa_folder_name =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape( argv[ 4 ] ) ) )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: security_sql_injection_escape(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			argv[ 4 ] );
+		exit( 1 );
+	}
 
 	role_name = argv[ 5 ];
 
@@ -85,6 +64,7 @@ int main( int argc, char **argv )
 		/* --------------------------------------------- */
 		/* Sets appaserver environment and outputs argv. */
 		/* Each parameter is security inspected.	 */
+		/* Any error will exit(1).			 */
 		/* --------------------------------------------- */
 		session_folder_integrity_exit(
 			argc,
@@ -94,26 +74,22 @@ int main( int argc, char **argv )
 			session_key,
 			folder_name,
 			role_name,
-			"insert" /* state */ );
+			APPASERVER_INSERT_STATE );
 
-	if ( !session )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: session_folder_integrity_exit() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	choose_isa_drop_down =
-		choose_isa_drop_down_fetch(
+	choose_isa =
+		choose_isa_new(
 			session->sql_injection_escape_application_name,
-			session->sql_injection_escape_session_key,
 			session->login_name,
+			session->sql_injection_escape_session_key,
 			folder_name,
-			one2m_folder_name,
-			session->role_name );
+			one_isa_folder_name,
+			session->role_name,
+			menu_boolean(
+				FRAMESET_PROMPT_FRAME,
+				frameset_menu_horizontal(
+					session->
+					  sql_injection_escape_application_name,
+					session->login_name ) ) );
 
 	if ( !choose_isa_drop_down )
 	{

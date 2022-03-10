@@ -351,9 +351,6 @@ char *appaserver_library_default_role_name(
 			char *application_name,
 			char *login_name );
 
-void appaserver_library_purge_temporary_files(
-			char *application_name );
-
 enum preupdate_change_state appaserver_library_preupdate_change_state(
 			char *preupdate_data,
 			char *postupdate_data,

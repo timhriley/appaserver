@@ -24,6 +24,7 @@
 #include "appaserver_user.h"
 #include "role.h"
 #include "role_folder.h"
+#include "security.h"
 #include "session.h"
 
 #define SLEEP_SECONDS	2
@@ -31,9 +32,9 @@
 void session_message_ip_address_changed_exit(
 			char *application_name,
 			char *session_key,
+			char *login_name,
 			char *remote_ip_address,
-			char *current_ip_address,
-			char *login_name )
+			char *current_ip_address )
 {
 	char msg[ 1024 ];
 
@@ -75,10 +76,41 @@ void session_message_ip_address_changed_exit(
 	exit( 1 );
 }
 
+void session_sql_injection_message_exit(
+			char *argv_0,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *current_ip_address )
+{
+	char msg[ 1024 ];
+
+	document_quick_output(
+		security_sql_injection_escape(
+			application_name ) );
+
+	sprintf(msg,
+"Warning from %s for %s@%s: An illegal character was detected in (%s,%s,%s).",
+		argv_0,
+		login_name,
+		current_ip_address,
+		session_key,
+		login_name,
+		role_name );
+
+	appaserver_output_error_message( application_name, msg, login_name );
+	printf( "<h3>%s</h3>\n", msg );
+
+	document_close();
+	sleep( SLEEP_SECONDS );
+	exit( 1 );
+}
+
 void session_access_failed_message_exit(
 			char *application_name,
-			char *current_ip_address,
-			char *login_name )
+			char *login_name,
+			char *current_ip_address )
 {
 	char msg[ 1024 ];
 
@@ -171,7 +203,8 @@ char *session_system_string( char *where )
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"select.sh '*' %s \"%s\" none",
+		"select.sh '%s' %s \"%s\" none",
+		SESSION_SELECT,
 		SESSION_TABLE_NAME,
 		where );
 
@@ -201,8 +234,8 @@ SESSION *session_parse(	char *input )
 
 	session = session_calloc();
 
-	/* See attribute_list appaserver_sessions */
-	/* -------------------------------------- */
+	/* See SESSION_SELECT */
+	/* ------------------ */
 	piece( piece_buffer, SQL_DELIMITER, input, 0 );
 	session->session_key = strdup( piece_buffer );
 
@@ -213,15 +246,18 @@ SESSION *session_parse(	char *input )
 	session->login_date = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	session->last_access_date = strdup( piece_buffer );
+	session->login_time = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	session->last_access_time = strdup( piece_buffer );
+	session->last_access_date = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	session->http_user_agent = strdup( piece_buffer );
+	session->last_access_time = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
+	session->http_user_agent = strdup( piece_buffer );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	session->remote_ip_address = strdup( piece_buffer );
 
 	return session;
@@ -239,55 +275,56 @@ char *session_primary_where( char *session_key )
 }
 
 SESSION *session_fetch(
-			char *sql_injection_escape_application_name,
-			char *sql_injection_escape_session_key,
-			char *integrity_check_login_name )
+			char *application_name,
+			char *session_key,
+			char *login_name )
 {
 	SESSION *session;
 
-	environment_set(
-		"APPASERVER_DATABASE",
-		sql_injection_escape_application_name );
+	session_environment_set( application_name );
 
 	session =
-	   session_parse(
-		string_pipe_fetch(
-			session_system_string(
-				session_primary_where(
-				      sql_injection_escape_session_key ) ) ) );
+		session_parse(
+			string_pipe_fetch(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				session_system_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					session_primary_where(
+					      	session_key ) ) ) );
 
-	/* Always succeeds */
-	/* --------------- */
-	if ( !session ) session = session_calloc();
+	if ( !session
+	||   strcmp( session->login_name, login_name ) != 0 )
+	{
+		session_access_failed_message_exit(
+			application_name,
+			login_name,
+			session_current_ip_address() );
+	}
 
-	session->session_current_ip_address =
+	session->current_ip_address =
 		/* ---------------------------- */
 		/* Returns heap memory or exits */
 		/* ---------------------------- */
 		session_current_ip_address();
 
-	if ( !session->login_name ) return session;
-
-	if ( string_strcmp(
-		session->login_name,
-		integrity_check_login_name ) != 0 )
+	if ( session_remote_ip_address_changed(
+		session->remote_ip_address,
+		session->current_ip_address ) )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: string_strcmp(%s,%s) returned missmatched.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			session->login_name,
-			integrity_check_login_name );
-
-		return (SESSION *)0;
+		session_message_ip_address_changed_exit(
+			application_name,
+			session_key,
+			login_name,
+			session->remote_ip_address,
+			session->current_ip_address );
 	}
 
-	session->sql_injection_escape_application_name =
-		sql_injection_escape_application_name;
-
-	session->sql_injection_escape_session_key =
-		sql_injection_escape_session_key;
+	session_update_access_date_time( session_key );
+	session_purge_temporary_files( application_name );
 
 	return session;
 }
@@ -312,248 +349,74 @@ char *session_current_ip_address( void )
 	return current_ip_address;
 }
 
-SESSION *session_process_integrity_exit(
+SESSION_PROCESS *session_process_integrity_exit(
 			int argc,
 			char **argv,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *process_name,
-			char *role_name )
+			char *login_name,
+			char *role_name,
+			char *process_name )
 {
-	SESSION *session;
+	SESSION_PROCESS *session_process = session_process_calloc();
 
-	session =
-		/* ------------------------ */
-		/* Sets APPASERVER_DATABASE */
-		/* ------------------------ */
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		session_fetch(
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			security_sql_injection_escape(
-				application_name ),
-			security_sql_injection_escape(
-				session_key ),
-			login_name
-				/* integrity_check_login_name */ );
-
-	/* No row in SESSION */
-	/* ----------------- */
-	if ( !session->login_name )
-	{
-		session_access_failed_message_exit(
+	if ( !session_sql_injection_strcmp_okay(
 			application_name,
-			session->session_current_ip_address,
-			login_name );
+			session_key,
+			login_name,
+			role_name ) )
+	{
+		session_sql_injection_message_exit(
+			argv[ 0 ],
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			session_current_ip_address() );
 	}
 
 	appaserver_error_argv_append_file(
-		argc,
-		argv,
-		session->sql_injection_escape_application_name );
+		argc, argv, application_name );
 
-	if ( session_remote_ip_address_changed(
-		session->remote_ip_address,
-		session->session_current_ip_address ) )
-	{
-		session_message_ip_address_changed_exit(
-			session->sql_injection_escape_application_name,
-			session->session_key,
-			session->remote_ip_address,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
-	session->sql_injection_escape_role_name =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		security_sql_injection_escape(
-			role_name );
-
-	session->sql_injection_escape_process_name =
-		security_sql_injection_escape(
-			process_name );
-
-	if ( !role_appaserver_user_fetch(
-		session->login_name,
-		session->sql_injection_escape_role_name ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: for IP=%s, role_appaserver_user_fetch(%s,%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			session->session_current_ip_address,
-			session->login_name,
-			session->sql_injection_escape_role_name );
-
-		session_access_failed_message_exit(
-			session->sql_injection_escape_application_name,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
-	session->process_name_valid =
-		session_process_name_valid(
-			process_name,
-			role_process_list(
-				session->sql_injection_escape_role_name ) );
-
-	if ( !session->process_name_valid )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: session_process_name_valid(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			process_name );
-
-		session_access_failed_message_exit(
-			session->sql_injection_escape_application_name,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
-	session_environment_set(
-		session->sql_injection_escape_application_name );
-
-	session_update_access_date_time( session->session_key );
-
-	appaserver_library_purge_temporary_files(
-		session->sql_injection_escape_application_name );
-
-	return session;
-}
-
-SESSION *session_folder_integrity_exit(
-			int argc,
-			char **argv,
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *folder_name,
-			char *role_name,
-			char *state )
-{
-	SESSION *session;
-
-	session =
-		/* ------------------------ */
-		/* Sets APPASERVER_DATABASE */
-		/* ------------------------ */
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
+	session_process->session =
+		/* ----------------------- */
+		/* If error then exit( 1 ) */
+		/* ----------------------- */
 		session_fetch(
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			security_sql_injection_escape(
-				application_name ),
-			security_sql_injection_escape(
-				session_key ),
-			login_name
-				/* integrity_check_login_name */ );
+			application_name,
+			session_key,
+			login_name );
 
-	/* No row in SESSION */
-	/* ----------------- */
-	if ( !session->login_name )
+	if ( string_strcmp(
+		security_sql_injection_escape( process_name ),
+		process_name ) != 0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid process_name = (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			process_name );
+		exit( 1 );
+	}
+
+
+	if ( ! ( session_process->valid =
+			session_process_valid(
+				process_name,
+				role_process_list(
+					role_name ) ) ) )
 	{
 		session_access_failed_message_exit(
 			application_name,
-			session->session_current_ip_address,
-			login_name );
+			login_name,
+			session_process->session->current_ip_address );
 	}
 
-	if ( argc )
-	{
-		appaserver_error_argv_append_file(
-			argc,
-			argv,
-			session->sql_injection_escape_application_name );
-	}
-
-	if ( session_remote_ip_address_changed(
-		session->remote_ip_address,
-		session->session_current_ip_address ) )
-	{
-		session_message_ip_address_changed_exit(
-			session->sql_injection_escape_application_name,
-			session->session_key,
-			session->remote_ip_address,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
-	session->sql_injection_escape_role_name =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		security_sql_injection_escape(
-			role_name );
-
-	session->sql_injection_escape_folder_name =
-		security_sql_injection_escape(
-			folder_name );
-
-	if ( !role_appaserver_user_fetch(
-		session->login_name,
-		session->sql_injection_escape_role_name ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: for IP=%s, role_appaserver_user_fetch(%s,%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			session->session_current_ip_address,
-			session->login_name,
-			session->sql_injection_escape_role_name );
-
-		session_access_failed_message_exit(
-			session->sql_injection_escape_application_name,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
-	session->state_valid =
-		session_state_valid(
-			state,
-			role_folder_list(
-				session->sql_injection_escape_role_name,
-				session->sql_injection_escape_folder_name ) );
-
-	if ( !session->state_valid )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: session_state_valid(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			state );
-
-		session_access_failed_message_exit(
-			session->sql_injection_escape_application_name,
-			session->session_current_ip_address,
-			session->login_name );
-	}
-
-	session_environment_set(
-		session->sql_injection_escape_application_name );
-
-	session_update_access_date_time( session->session_key );
-
-	appaserver_library_purge_temporary_files(
-		session->sql_injection_escape_application_name );
-
-	return session;
+	return session_process;
 }
 
-boolean session_process_name_valid(
+boolean session_process_valid(
 			char *process_name,
 			LIST *role_process_list )
 {
@@ -576,7 +439,196 @@ boolean session_process_name_valid(
 	return 0;
 }
 
-boolean session_state_valid(
+void session_environment_set( char *application_name )
+{
+	environment_set( "APPASERVER_DATABASE", application_name );
+	environ_set_utc_offset( application_name );
+	add_relative_source_directory_to_path( application_name );
+	add_utility_to_path();
+	add_src_appaserver_to_path();
+	add_local_bin_to_path();
+	environ_appaserver_home();
+	environ_prepend_dot_to_path();
+	environ_umask();
+}
+
+char *session_login_name( char *session_key )
+{
+	SESSION *session;
+
+	if ( ! ( session =
+			session_parse(
+				string_pipe_fetch(
+					session_system_string(
+						session_primary_where(
+							session_key ) ) ) ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: session_parse(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			session_key );
+		exit( 1 );
+	}
+
+	return session->login_name;
+}
+
+void session_purge_temporary_files( char *application_name )
+{
+	char sys_string[ 128 ];
+
+	sprintf( sys_string,
+		 "appaserver_purge_temporary_files.sh %s &",
+		 application_name );
+
+	if ( system( sys_string ) ){};
+}
+
+boolean session_sql_injection_strcmp_okay(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name )
+{
+	char *escape;
+
+	if ( ! ( escape =
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape(
+				application_name ) ) )
+	{
+		return 0;
+	}
+
+	if ( strcmp( application_name, escape ) != 0 )
+		return 0;
+	else
+		free( escape );
+
+	if ( ! ( escape =
+			security_sql_injection_escape(
+				session_key ) ) )
+	{
+		return 0;
+	}
+
+	if ( strcmp( session_key, escape ) != 0 )
+		return 0;
+	else
+		free( escape );
+
+	if ( ! ( escape =
+			security_sql_injection_escape(
+				login_name ) ) )
+	{
+		return 0;
+	}
+
+	if ( strcmp( login_name, escape ) != 0 )
+		return 0;
+	else
+		free( escape );
+
+	if ( ! ( escape =
+			security_sql_injection_escape(
+				role_name ) ) )
+	{
+		return 0;
+	}
+
+	if ( strcmp( role_name, escape ) != 0 )
+		return 0;
+	else
+		free( escape );
+
+	return 1;
+}
+
+SESSION_FOLDER *session_folder_integrity_exit(
+			int argc,
+			char **argv,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state )
+{
+	SESSION_FOLDER *session_folder = session_folder_calloc();
+
+	if ( !session_sql_injection_strcmp_okay(
+			application_name,
+			session_key,
+			login_name,
+			role_name ) )
+	{
+		session_sql_injection_message_exit(
+			argv[ 0 ],
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			session_current_ip_address() );
+	}
+
+	appaserver_error_argv_append_file(
+		argc, argv, application_name );
+
+	session_folder->session =
+		/* ----------------------- */
+		/* If error then exit( 1 ) */
+		/* ----------------------- */
+		session_fetch(
+			application_name,
+			session_key,
+			login_name );
+
+	if ( string_strcmp(
+		security_sql_injection_escape( folder_name ),
+		folder_name ) != 0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid folder_name = (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name );
+		exit( 1 );
+	}
+
+	if ( string_strcmp(
+		security_sql_injection_escape( state ),
+		state ) != 0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid state = (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			state );
+		exit( 1 );
+	}
+
+	if ( ! ( session_folder->valid =
+			session_folder_valid(
+				state,
+				role_folder_list(
+					role_name,
+					folder_name ) ) ) )
+	{
+		session_access_failed_message_exit(
+			application_name,
+			login_name,
+			session_folder->session->current_ip_address );
+	}
+
+	return session_folder;
+}
+
+boolean session_folder_valid(
 			char *state,
 			LIST *role_folder_list )
 {
@@ -615,40 +667,37 @@ boolean session_state_valid(
 	return 0;
 }
 
-void session_environment_set(
-			char *application_name )
+SESSION_FOLDER *session_folder_calloc( void )
 {
-	environ_set_utc_offset( application_name );
-	add_relative_source_directory_to_path( application_name );
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_local_bin_to_path();
-	environ_appaserver_home();
-	environ_prepend_dot_to_path();
-	environ_umask();
+	SESSION_FOLDER *session_folder;
 
-}
-
-char *session_login_name( char *session_key )
-{
-	SESSION *session;
-
-	if ( ! ( session =
-			session_parse(
-				string_pipe_fetch(
-					session_system_string(
-						session_primary_where(
-							session_key ) ) ) ) ) )
+	if ( ! ( session_folder = calloc( 1, sizeof( SESSION_FOLDER ) ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: session_parse(%s) returned empty.\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			session_key );
-		exit( 1 );
+			__LINE__ );
+
 	}
 
-	return session->login_name;
+	return session_folder;
+}
+
+SESSION_PROCESS *session_process_calloc( void )
+{
+	SESSION_PROCESS *session_process;
+
+	if ( ! ( session_process = calloc( 1, sizeof( SESSION_PROCESS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+	}
+
+	return session_process;
 }
 
