@@ -12,7 +12,22 @@
 
 /* Constants */
 /* --------- */
-#define POST_LOGIN_SECONDS_TO_SLEEP		2
+#define POST_LOGIN_SECONDS_TO_SLEEP	2
+
+#define POST_LOGIN_CLOUDACUS_LOCATION	\
+					"https://cloudacus.com:/index.php"
+
+#define POST_LOGIN_RETURN_ADDRESS	\
+					"login@cloudacus.com"
+
+#define POST_LOGIN_SUBJECT		\
+					"Appaserver login"
+
+#define POST_LOGIN_EMAIL_OUTPUT_FILE_TEMPLATE \
+				"%s/appaserver/%s/data/post_login_%s.html"
+
+#define POST_LOGIN_EMAIL_HTTP_FILE_TEMPLATE \
+				"%s://%s/appaserver/%s/data/post_login_%s.html"
 
 /* Enumerated types */
 /* ---------------- */

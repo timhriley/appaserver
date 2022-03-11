@@ -468,7 +468,7 @@ void post_login_frameset_output(
 
 		if ( system( system_string ) ){}
 	}
-	else
+
 	if ( password_match_return != email_login )
 	{
 		char system_string[ 1024 ];

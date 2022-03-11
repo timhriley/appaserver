@@ -63,13 +63,14 @@ APPASERVER_USER *appaserver_user_fetch(
 			boolean fetch_role_name_list,
 			boolean fetch_session_list )
 {
-	return appaserver_user_parse(
-			string_pipe_fetch(
-				appaserver_user_system_string(
-					appaserver_user_primary_where(
-						login_name ) ) ),
-			fetch_role_name_list,
-			fetch_session_list );
+	return
+	appaserver_user_parse(
+		string_pipe_fetch(
+			appaserver_user_system_string(
+				appaserver_user_primary_where(
+					login_name ) ) ),
+		fetch_role_name_list,
+		fetch_session_list );
 }
 
 char *appaserver_user_primary_where(
