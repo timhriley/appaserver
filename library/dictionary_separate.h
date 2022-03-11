@@ -17,11 +17,10 @@
 #define DICTIONARY_SEPARATE_QUERY_PREFIX	"qquery_"
 #define DICTIONARY_SEPARATE_SORT_PREFIX		"ssort_"
 #define DICTIONARY_SEPARATE_DRILLTHRU_PREFIX	"ddrillthru_"
-#define DICTIONARY_SEPARATE_IGNORE_PREFIX	"iignore_"
+#define DICTIONARY_SEPARATE_IGNORE_PREFIX	"ignore_"
 #define DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX	"ppair_one2m_"
 #define DICTIONARY_SEPARATE_SORT_BUTTON_PREFIX	"ssort_button_"
 
-#define IGNORE_SELECT_PUSH_BUTTON_PREFIX	"ignore_"
 #define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
 #define FROM_PREFIX				"from_"
 #define TO_PREFIX				"to_"
@@ -94,12 +93,15 @@ DICTIONARY *dictionary_separate_working_post(
 			char *login_name );
 
 DICTIONARY *dictionary_separate_query(
+			char *dictionary_separate_query_prefix,
 			DICTIONARY *working_post_dictionary );
 
 DICTIONARY *dictionary_separate_sort(
+			char *dictionary_separate_sort_prefix,
 			DICTIONARY *working_post_dictionary );
 
 DICTIONARY *dictionary_separate_drillthru(
+			char *dictionary_separate_drillthru_prefix,
 			DICTIONARY *working_post_dictionary );
 
 DICTIONARY *dictionary_separate_send_dictionary(
@@ -120,9 +122,11 @@ DICTIONARY *dictionary_separate_row(
 			int row );
 
 DICTIONARY *dictionary_separate_ignore(
+			char *dictionary_separate_ignore_prefix,
 			DICTIONARY *working_post_dictionary );
 
 DICTIONARY *dictionary_separate_pair_one2m(
+			char *dictionary_separate_pair_one2m_prefix,
 			DICTIONARY *working_post_dictionary );
 
 char *dictionary_separate_escaped_send_dictionary_string(
@@ -163,8 +167,8 @@ LIST *dictionary_separate_ignore_select_attribute_name_list(
 void dictionary_separate_date_convert(
 			DICTIONARY *working_post_dictionary,
 			char *application_name,
-			LIST *folder_attribute_date_name_list,
-			char *login_name );
+			char *login_name,
+			LIST *folder_attribute_date_name_list );
 
 void dictionary_separate_string_date_convert(
 			DICTIONARY *dictionary,

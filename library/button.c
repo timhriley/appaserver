@@ -355,7 +355,7 @@ char *button_back_html( void )
 "<td><input type=\"button\" value=\"Back\" onClick=\"history.back()\">";
 }
 
-BUTTON *form_button_forward( void )
+BUTTON *button_forward( void )
 {
 	BUTTON *button = button_calloc();
 

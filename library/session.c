@@ -302,7 +302,8 @@ SESSION *session_fetch(
 		session_access_failed_message_exit(
 			application_name,
 			login_name,
-			session_current_ip_address() );
+			session_current_ip_address(
+				environment_remote_ip_address() ) );
 	}
 
 	session->application_name = application_name;
@@ -311,7 +312,8 @@ SESSION *session_fetch(
 		/* ---------------------------- */
 		/* Returns heap memory or exits */
 		/* ---------------------------- */
-		session_current_ip_address();
+		session_current_ip_address(
+				environment_remote_ip_address() );
 
 	if ( session_remote_ip_address_changed(
 		session->remote_ip_address,
@@ -331,24 +333,20 @@ SESSION *session_fetch(
 	return session;
 }
 
-char *session_current_ip_address( void )
+char *session_current_ip_address( char *environment_remote_ip_address )
 {
-	char *current_ip_address;
-
-	if ( ! ( current_ip_address =
-			environment_get(
-				SESSION_REMOTE_IP_ADDRESS_VARIABLE ) ) )
+	if ( !environment_remote_ip_address
+	||   !*environment_remote_ip_address )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: environment_get(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: environment_remote_ip_address is empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			SESSION_REMOTE_IP_ADDRESS_VARIABLE );
+			__LINE__ );
 		exit( 1 );
 	}
 
-	return current_ip_address;
+	return environment_remote_ip_address;
 }
 
 SESSION_PROCESS *session_process_integrity_exit(
@@ -374,7 +372,8 @@ SESSION_PROCESS *session_process_integrity_exit(
 			session_key,
 			login_name,
 			role_name,
-			session_current_ip_address() );
+			session_current_ip_address(
+				environment_remote_ip_address() ) );
 	}
 
 	appaserver_error_argv_append_file(
@@ -575,7 +574,8 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			session_key,
 			login_name,
 			role_name,
-			session_current_ip_address() );
+			session_current_ip_address(
+				environment_remote_ip_address() ) );
 	}
 
 	appaserver_error_argv_append_file(
@@ -707,5 +707,74 @@ SESSION_PROCESS *session_process_calloc( void )
 	}
 
 	return session_process;
+}
+
+char *session_insert(	char *application_name,
+			char *login_name,
+			char *date_now_yyyy_mm_dd_string,
+			char *date_now_hhmm_string,
+			char *http_user_agent,
+			char *remote_ip_address )
+{
+	char *session_key;
+	char *field_list_string;
+	FILE *output_pipe;
+
+	char system_string[ 1024 ];
+
+	if ( !application_name
+	||   !login_name
+	||   !date_now_yyyy_mm_dd_string
+	||   !date_now_hhmm_string
+	||   !http_user_agent
+	||   !remote_ip_address )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"session_number_new.sh %s",
+		application_name );
+
+	if ( ! ( session_key = string_pipe_fetch( system_string ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			system_string );
+		exit( 1 );
+	}
+
+	field_list_string =
+"appaserver_session,login_name,login_date,login_time,last_access_date,last_access_time,http_user_agent,remote_ip_address";
+
+	sprintf( system_string,
+		 "insert_statement.e table=%s field=%s | sql.e",
+		 SESSION_TABLE_NAME,
+		 field_list_string );
+
+	output_pipe = popen( system_string, "w" );
+
+	fprintf(output_pipe,
+		"%s|%s|%s|%s|%s|%s|%s|%s\n",
+		session_key,
+		login_name,
+		date_now_yyyy_mm_dd_string,
+		date_now_hhmm_string,
+		date_now_yyyy_mm_dd_string,
+		date_now_hhmm_string,
+		http_user_agent,
+		remote_ip_address );
+
+	pclose( output_pipe );
+
+	return session_key;
 }
 

@@ -80,12 +80,7 @@ SESSION *session_parse(	char *input );
 /* Returns heap memory or exits */
 /* ---------------------------- */
 char *session_current_ip_address(
-			void );
-
-/* Returns heap memory or exits */
-/* ---------------------------- */
-char *session_current_ip_address(
-			void );
+			char *environment_remote_ip_address );
 
 boolean session_remote_ip_address_changed(
 			char *remote_ip_address,
@@ -141,6 +136,16 @@ LIST *session_system_list(
 
 LIST *session_list_fetch(
 			char *login_name );
+
+/* Returns session_key */
+/* ------------------- */
+char *session_insert(
+			char *application_name,
+			char *login_name,
+			char *date_now_yyyy_mm_dd_string,
+			char *date_now_hhmm_string,
+			char *http_user_agent,
+			char *remote_ip_address );
 
 typedef struct
 {

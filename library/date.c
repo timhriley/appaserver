@@ -1563,9 +1563,19 @@ DATE *date_get_today_new( int utc_offset )
 	return date_today_new( utc_offset );
 }
 
+char *date_now_hhmm_string( int utc_offset )
+{
+	return date_now_hhmm( utc_offset );
+}
+
 char *date_get_now_hhmm( int utc_offset )
 {
 	return date_now_hhmm( utc_offset );
+}
+
+char *date_now_yyyy_mm_dd_string( int utc_offset )
+{
+	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }
 
 char *date_now_yyyy_mm_dd( int utc_offset )

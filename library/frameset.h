@@ -52,8 +52,6 @@ char *frameset_frame_html(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	APPASERVER_PARAMETER *appaserver_parameter;
 	FRAMESET_FRAME *frameset_frame_menu;
 	FRAMESET_FRAME *frameset_frame_prompt;

@@ -10,17 +10,21 @@
 #include "boolean.h"
 #include "String.h"
 #include "application.h"
+#include "timlib.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
 #include "security.h"
 #include "environ.h"
+#include "session.h"
+#include "date.h"
+#include "post_dictionary.h"
+#include "frameset.h"
+#include "choose_role.h"
 #include "post_login.h"
 
-POST_LOGIN *post_login_new(
-			int argc,
-			char **argv )
+POST_LOGIN *post_login_calloc( void )
 {
 	POST_LOGIN *post_login;
 
@@ -34,7 +38,16 @@ POST_LOGIN *post_login_new(
 		exit( 1 );
 	}
 
-	if ( ! ( post_login->post_login_dictionary =
+	return post_login;
+}
+
+POST_LOGIN *post_login_new(
+			int argc,
+			char **argv )
+{
+	POST_LOGIN *post_login = post_login_calloc();
+
+	if ( ! ( post_login->dictionary =
 			post_login_dictionary() ) )
 	{
 		fprintf(stderr,
@@ -54,7 +67,7 @@ POST_LOGIN *post_login_new(
 				post_login_application_name(
 					argc,
 					argv,
-					post_login->post_dictionary ) ) );
+					post_login->dictionary ) ) );
 
 	if ( !post_login->sql_injection_escape_application_name )
 	{
@@ -74,8 +87,7 @@ POST_LOGIN *post_login_new(
 			string_low(
 				dictionary_fetch(
 					"login_name",
-					post_login->
-						post_login_dictionary ) ) );
+					post_login->dictionary ) ) );
 
 	if ( ( post_login->missing_name =
 		post_login_missing_name(
@@ -93,8 +105,7 @@ POST_LOGIN *post_login_new(
 		security_sql_injection_escape(
 			dictionary_fetch(
 				"password",
-				post_login->
-					post_login_dictionary ) );
+				post_login->dictionary ) );
 
 	post_login->public_name =
 		post_login_public_name(
@@ -103,22 +114,20 @@ POST_LOGIN *post_login_new(
 
 	post_login->database_password =
 		post_login_database_password(
-			post_login->sql_injection_escape_application_name,
 			post_login->sql_injection_escape_login_name );
 
 	post_login->missing_database_password =
 		post_login_missing_database_password(
-			post_login->post_login_database_password );
+			post_login->database_password );
 
-	post_login->name_email_login =
-		post_login_name_email_login(
+	post_login->name_email_address =
+		post_login_name_email_address(
 			post_login->sql_injection_escape_login_name );
 
 	post_login->password_match_return =
 		post_login_password_match(
-			post_login->sql_injection_escape_application_name,
 			post_login->missing_database_password,
-			post_login->name_email_login,
+			post_login->name_email_address,
 			post_login->public_name,
 			post_login->sql_injection_escape_password,
 			post_login->database_password );
@@ -133,22 +142,41 @@ POST_LOGIN *post_login_new(
 					sql_injection_escape_application_name,
 				post_login->
 					sql_injection_escape_login_name );
+
+		if ( !post_login->session_key )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: post_login_session_key() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			return (POST_LOGIN *)0;
+		}
 	}
 
 	return post_login;
 }
 
-char *post_login_database_password(
-			char *application_name,
-			char *login_name )
+char *post_login_database_password( char *login_name )
 {
-	sprintf(sys_string,
-	 	"password4appaserver_user.sh \"%s\" \"%s\" 2>>%s",
-	 	login_name,
-		application_name,
-		appaserver_error_filename( application_name ) );
+	APPASERVER_USER *appaserver_user;
 
-	return string_pipe_fetch( sys_string );
+	if ( ! ( appaserver_user =
+			appaserver_user_fetch(
+				login_name,
+				0 /* not fetch_role_name_list */,
+				0 /* not fetch_session_list */ ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			login_name );
+		exit( 1 );
+	}
+
+	return appaserver_user->database_password;
 }
 
 boolean post_login_missing_name(
@@ -160,19 +188,30 @@ boolean post_login_missing_name(
 boolean post_login_missing_database_password(
 			char *database_password )
 {
-	return (!database_password || !*database_password) ? 1 : 0;
+	if ( !database_password || !*database_password )
+		return 1;
+	else
+		return 0;
 }
 
 DICTIONARY *post_login_dictionary( void )
 {
-	DICTIONARY *post_dictionary;
+	POST_DICTIONARY *post_dictionary;
 
-	return
-		post2dictionary(
-			stdin,
-			(char *)0 /* appaserver_data_directory */,
-			(char *)0 /* session */ );
-}
+	post_dictionary =
+		post_dictionary_stdin_new(
+			(char *)0 /* upload_directory */,
+			(char *)0 /* session_key */ );
+
+	if ( post_dictionary )
+	{
+		return post_dictionary->original_post_dictionary;
+	}
+	else
+	{
+		return (DICTIONARY *)0;
+	}
+} 
 
 char *post_login_application_name(
 			int argc,
@@ -255,8 +294,9 @@ boolean post_login_email_login(
 }
 */
 
-boolean post_login_email_login( char *login_name )
+boolean post_login_name_email_address( char *login_name )
 {
+	return ( string_character_exists( login_name, '@' ) );
 }
 
 void post_login_redraw_index_screen(	char *application_name,
@@ -303,21 +343,15 @@ boolean post_login_public_name(
 		return 1;
 	}
 	else
+	{
 		return 0;
 	}
 }
 
-boolean post_login_name_email_login(
-			char *login_name )
-{
-	return ( timlib_login_name_email_address( login_name ) );
-}
-
-enum post_login_password_match_return
+enum password_match_return
 	post_login_password_match(
-			char *application_name,
 			boolean missing_database_password,
-			boolean name_email_login,
+			boolean name_email_address,
 			boolean public_name,
 			char *sql_injection_escape_password,
 			char *database_password )
@@ -352,7 +386,7 @@ enum post_login_password_match_return
 			security_encrypted_password(
 				sql_injection_escape_password,
 				security_database_password_function(
-					database_password ) ) )
+					database_password ) ) ) )
 	{
 		return password_match;
 	}
@@ -364,47 +398,53 @@ char *post_login_session_key(
 			char *application_name,
 			char *login_name )
 {
-	sprintf( sys_string,
-		 "session_new.sh %s %s 2>>%s", 
-		 application_name,
-		 login_name,
-		 appaserver_error_filename(
-			application_name ) );
+	char destination[ 128 ];
 
-	return string_pipe_fetch( sys_string );
+	return
+	session_insert(
+		application_name,
+		login_name,
+		date_now_yyyy_mm_dd_string( date_utc_offset() ),
+		date_now_hhmm_string( date_utc_offset() ),
+		left_string(
+			destination,
+			environment_http_user_agent(),
+			80 ),
+		environment_remote_ip_address() );
 }
 
 void post_login_frameset_output(
 			char *application_name,
 			char *login_name,
 			char *session_key,
-			boolean frameset_menu_horizontal,
-			enum post_login_password_match_return
-				password_match_return,
+			enum password_match_return password_match_return,
 			char *appaserver_user_default_role_name,
 			LIST *appaserver_user_role_name_list )
 {
-	char system_string[ 1024 ];
-
 	if ( ( !appaserver_user_default_role_name
 	||     !*appaserver_user_default_role_name )
 	&&     list_length( appaserver_user_role_name_list ) > 1 )
 	{
-		sprintf(system_string,
-			"output_choose_role %s %s 2>>%s",
-			login_name,
-			session_key,
-			appaserver_error_filename(
-				application_name ) );
+		char *system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			choose_role_output_system_string(
+				CHOOSE_ROLE_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				appaserver_error_filename(
+					application_name ) );
 
 		if ( system( system_string ) ){}
 	}
-
+	else
 	if ( ( appaserver_user_default_role_name
 	&&     *appaserver_user_default_role_name )
 	||     list_length( appaserver_user_role_name_list ) == 1 )
 	{
 		char *role_name;
+		char system_string[ 1024 ];
 
 		if ( appaserver_user_default_role_name
 		&&   *appaserver_user_default_role_name )
@@ -428,9 +468,11 @@ void post_login_frameset_output(
 
 		if ( system( system_string ) ){}
 	}
-
-	if ( post_login_password_return != email_login )
+	else
+	if ( password_match_return != email_login )
 	{
+		char system_string[ 1024 ];
+
 		sprintf(system_string,
 			"output_frameset %s %s 2>>%s",
 			login_name,
@@ -442,6 +484,8 @@ void post_login_frameset_output(
 	}
 	else
 	{
+		char system_string[ 1024 ];
+
 		sprintf(system_string,
 			"output_email_link %s %s 2>>%s",
 			login_name,
@@ -453,6 +497,7 @@ void post_login_frameset_output(
 	}
 }
 
+#ifdef NOT_DEFINED
 void post_login_horizontal_frameset(
 			char *title,
 			FRAMESET *frameset )
@@ -543,4 +588,4 @@ void post_login_vertical_frameset(
 		title,
 		frameset->html );
 }
-
+#endif

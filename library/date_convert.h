@@ -95,9 +95,6 @@ boolean date_convert_source_international(
 char *date_convert_international2american(
 			char *international );
 
-enum date_convert_format date_convert_date_get_format(
-			char *date_string );
-
 enum date_convert_format date_convert_populate_return_date(
 			char *return_date,
 			enum date_convert_format source_format,

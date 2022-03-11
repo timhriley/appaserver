@@ -41,8 +41,8 @@ char *role_process_select(
 char *role_process_where(
 			char *role_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *role_process_system_string(
 			char *where );
 

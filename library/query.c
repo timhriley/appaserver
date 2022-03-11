@@ -359,6 +359,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 
 	query_drop_down_row->data_string_list =
 		query_drop_down_row_data_string_list(
+			SQL_DELIMITER,
 			query_drop_down_row->
 				data_list_string );
 
@@ -4406,5 +4407,23 @@ char *query_string_join_where(
 	}
 
 	return where;
+}
+
+char *query_drop_down_row_data_list_string(
+			char *key,
+			DICTIONARY *dictionary )
+{
+	return dictionary_get( key, dictionary );
+}
+
+LIST *query_drop_down_row_data_string_list(
+			char sql_delimiter,
+			char *data_list_string )
+{
+	return
+	list_string_list(
+		data_list_string,
+		sql_delimiter );
+
 }
 

@@ -812,3 +812,59 @@ char *role_post_choose_role_action_string(
 	return strdup( action_string );
 }
 
+LIST *role_process_set_group_name_list( LIST *role_process_set_list )
+{
+	LIST *name_list;
+	ROLE_PROCESS_SET *role_process_set;
+
+	if ( !list_rewind( role_process_set_list ) )
+		return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		role_process_set = list_get( role_process_set_list );
+
+		if ( !role_process_set->process_group_name
+		||   !*role_process_set->process_group_name )
+		{
+			continue;
+		}
+
+		list_set(
+			name_list,
+			role_process_set->process_group_name );
+
+	} while ( list_next( role_process_set_list ) );
+
+	return name_list;
+}
+
+LIST *role_process_group_name_list( LIST *role_process_list )
+{
+	LIST *name_list;
+	ROLE_PROCESS *role_process;
+
+	if ( !list_rewind( role_process_list ) )
+		return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		role_process = list_get( role_process_list );
+
+		if ( !role_process->process_group_name
+		||   !*role_process->process_group_name )
+		{
+			continue;
+		}
+
+		list_set(
+			name_list,
+			role_process->process_group_name );
+
+	} while ( list_next( role_process_list ) );
+
+	return name_list;
+}
+

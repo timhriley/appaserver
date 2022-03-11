@@ -12,6 +12,7 @@
 #include "piece.h"
 #include "timlib.h"
 #include "sql.h"
+#include "environ.h"
 #include "foreign_attribute.h"
 #include "folder_attribute.h"
 #include "relation.h"
@@ -784,13 +785,13 @@ void relation_set_one_folder_primary_delimited_list(
 		}
 
 		relation->one_folder->delimited_list =
-			folder_primary_delimited_list(
-				relation->one_folder->folder_name,
-				relation->one_folder->primary_key_list,
-				relation->one_folder->folder_attribute_list,
-				(SECURITY_ENTITY *)0 /* security_entity */,
-				(DICTIONARY *)0 /* drillthru_dictionary */,
-				(char *)0 /* login_name  */ );
+			folder_delimited_list(
+				folder_table_name(
+					environment_application_name(),
+					relation->one_folder->folder_name ),
+				relation->one_folder->primary_key_list
+					/* attribute_name_list */,
+				(char *)0 /* where_clause */ );
 
 	} while ( list_next( relation_mto1_list ) );
 }

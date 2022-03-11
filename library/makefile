@@ -114,7 +114,8 @@ APPASERVER_LIBRARY=						\
 		menu.o						\
 		choose_isa.o					\
 		choose_role.o					\
-		post_choose_folder.o
+		post_choose_folder.o				\
+		post_login.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 

@@ -16,6 +16,7 @@
 
 /* Constants */
 /* --------- */
+#define CHOOSE_ROLE_OUTPUT_EXECUTABLE		"output_choose_role"
 #define CHOOSE_ROLE_FORM_NAME			"choose_role_form"
 #define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
 
@@ -88,6 +89,17 @@ char *choose_role_target_frame(
 /* --------------------- */
 char *choose_role_title_html(
 			char *choose_role_title_string );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *choose_role_output_system_string(
+			char *choose_role_output_executable,
+			char *session_key,
+			char *login_name,
+			char *appaserver_error_filename );
 
 typedef struct
 {

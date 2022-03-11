@@ -126,7 +126,7 @@ char *choose_role_target_frame(
 		return FRAMESET_PROMPT_FRAME;
 }
 
-CHOOSE_ROLE *choose_role_prompt_new(
+CHOOSE_ROLE *choose_role_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -287,3 +287,35 @@ char *choose_role_default_role_name( char *system_string )
 	/* --------------------------- */
 	return string_pipe_fetch( system_string );
 }
+
+char *choose_role_output_system_string(
+			char *executable,
+			char *session_key,
+			char *login_name,
+			char *appaserver_error_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !executable
+	||   !session_key
+	||   !login_name
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s 2>>%s",
+		executable,
+		session_key,
+		login_name,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}
+

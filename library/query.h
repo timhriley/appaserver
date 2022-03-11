@@ -615,6 +615,7 @@ char *query_drop_down_row_data_list_string(
 			DICTIONARY *dictionary );
 
 LIST *query_drop_down_row_data_string_list(
+			char sql_delimiter,
 			char *data_list_string );
 
 /* Public */

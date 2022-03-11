@@ -24,10 +24,10 @@
 #include "basename.h"
 #include "boolean.h"
 #include "dictionary.h"
-#include "post2dictionary.h"
-#include "appaserver_parameter_file.h"
+#include "document.h"
 #include "application.h"
 #include "security.h"
+#include "session.h"
 #include "post_login.h"
 
 /* Prototypes */
@@ -37,9 +37,6 @@ int main( int argc, char **argv )
 	POST_LOGIN *post_login;
 
 	if ( ! ( post_login =
-			/* --------------------------------- */
-			/* Executes post_login_session_new() */
-			/* --------------------------------- */
 			post_login_new(
 				argc,
 				argv ) ) )
@@ -52,13 +49,13 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( post_login->missing_login_name )
+	if ( post_login->missing_name )
 	{
 		char msg[ 1024 ];
 
 		sprintf(msg,
 			"Missing login_name from %s",
-			environment_get( "REMOTE_ADDR" ) );
+			environment_remote_ip_address() );
 
 		appaserver_output_error_message(
 			post_login->sql_injection_escape_application_name,
@@ -66,7 +63,7 @@ int main( int argc, char **argv )
 			(char *)0 /* login_name */ );
 
 		if ( !appaserver_library_from_php(
-			post_login->post_login_dictionary ) )
+			post_login->dictionary ) )
 		{
 			document_output_content_type();
 
@@ -99,23 +96,24 @@ int main( int argc, char **argv )
 		{
 			sprintf(msg,
 				"appaserver user %s is forbidden from %s",
-				login_name,
-				environment_get( "REMOTE_ADDR" ) );
+				post_login->sql_injection_escape_login_name,
+				environment_remote_ip_address() );
 		}
 		else
 		{
 			sprintf(msg,
 				"Password missmatch for %s from %s",
-				login_name,
-				environment_get( "REMOTE_ADDR" ) );
+				post_login->sql_injection_escape_login_name,
+				environment_remote_ip_address() );
 		}
 
 		appaserver_output_error_message(
 			post_login->sql_injection_escape_application_name,
 			msg,
-			login_name );
+			post_login->sql_injection_escape_login_name );
 
-		if ( !appaserver_library_from_php( post_dictionary ) )
+		if ( !appaserver_library_from_php(
+			post_login->dictionary ) )
 		{
 			document_output_content_type();
 
@@ -139,39 +137,34 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	environ_set_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-		post_login->sql_injection_escape_application_name );
-
-	environ_set_environment(
-		"DATABASE",
-		post_login->sql_injection_escape_application_name );
-
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	environ_appaserver_home();
-
-	add_relative_source_directory_to_path(
+	session_environment_set(
 		post_login->sql_injection_escape_application_name );
 
 	appaserver_error_login_name_append_file(
 		argc,
 		argv,
 		post_login->sql_injection_escape_application_name,
-		post_login->sql_injection_login_name );
+		post_login->sql_injection_escape_login_name );
 
-	if ( post_login->session_key )
+	if ( !post_login->session_key )
 	{
-		post_login_frameset_output(
-			post_login->sql_injection_escape_application_name,
-			post_login->sql_injection_login_name,
-			post_login->session_key,
-			post_login->password_match_return,
-			appaserver_user_default_role_name(
-				post_login->sql_injection_login_name ),
-			appaserver_user_role_name_list(
-				post_login->sql_injection_login_name ) );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: session_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
+
+	post_login_frameset_output(
+		post_login->sql_injection_escape_application_name,
+		post_login->sql_injection_escape_login_name,
+		post_login->session_key,
+		post_login->password_match_return,
+		appaserver_user_default_role_name(
+			post_login->sql_injection_escape_login_name ),
+		appaserver_user_role_name_list(
+			post_login->sql_injection_escape_login_name ) );
 
 	return 0;
 }

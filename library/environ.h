@@ -120,6 +120,12 @@ void environ_display(	FILE *output_pipe );
 char *environment_application_name(
 			void );
 
+char *environment_http_user_agent(
+			void );
+
+char *environment_remote_ip_address(
+			void );
+
 void environ_umask(	void );
 
 #endif

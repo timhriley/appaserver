@@ -548,3 +548,31 @@ char *environ_shell_snippet( void )
 	return strdup( buffer );
 }
 
+char *environment_http_user_agent( void )
+{
+	char *results;
+
+	if ( ( results = environment_get( "HTTP_USER_AGENT" ) ) )
+	{
+		return results;
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+
+char *environment_remote_ip_address( void )
+{
+	char *results;
+
+	if ( ( results = environment_get( "REMOTE_ADDR" ) ) )
+	{
+		return results;
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+

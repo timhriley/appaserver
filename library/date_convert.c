@@ -1156,7 +1156,7 @@ DATE_CONVERT *date_convert_new_date_convert(
 				WDAY_SUNDAY,
 				date_get_utc_offset() );
 
-	d->source_format = date_convert_date_get_format( date_string );
+	d->source_format = date_convert_date_format( date_string );
 	d->destination_format = destination_format;
 
 	if ( d->source_format == date_convert_unknown

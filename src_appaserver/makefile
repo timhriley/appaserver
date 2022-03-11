@@ -81,7 +81,7 @@ EXECUTABLES=								\
 		output_close_html_document				\
 		output_frameset						\
 		output_choose_role	 				\
-		post_choose_role_			 		\
+		post_choose_role			 		\
 		output_choose_role_folder_process			\
 		output_choose_folder_process_menu			\
 		maintain_user_account					\
@@ -137,6 +137,10 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/fopen_path.o					\
 		${LIB}/environ.o					\
 		${LIB}/document.o					\
+		${LIB}/javascript.o					\
+		${LIB}/process_parameter.o				\
+		${LIB}/folder_menu.o					\
+		${LIB}/menu.o						\
 		${LIB}/application.o					\
 		${LIB}/appaserver_user.o				\
 		${LIB}/security.o					\
@@ -144,24 +148,25 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/appaserver_link.o				\
 		${LIB}/vertical_new.o					\
 		${LIB}/relation.o					\
+		${LIB}/relation_join.o					\
 		${LIB}/folder.o						\
 		${LIB}/attribute.o					\
 		${LIB}/folder_attribute.o				\
 		${LIB}/role.o						\
-		${LIB}/appaserver.o					\
+		${LIB}/role_operation.o					\
 		${LIB}/dictionary_separate.o				\
 		${LIB}/query.o						\
 		${LIB}/process.o					\
 		${LIB}/form.o						\
 		${LIB}/element.o					\
+		${LIB}/button.o						\
 		${LIB}/operation.o					\
 		${LIB}/role_folder.o					\
 		${LIB}/session.o					\
 		${LIB}/foreign_attribute.o				\
 		${LIB}/frameset.o					\
-		${LIB}/insert_database.o				\
-		${LIB}/update_database.o				\
-		${LIB}/validation_form.o				\
+		${LIB}/insert.o						\
+		${LIB}/update.o						\
 		${LIB}/post_dictionary.o				\
 		${LIB}/dictionary2file.o				\
 		${LIB}/date_convert.o					\
@@ -237,14 +242,12 @@ get_appaserver_mount_point: get_appaserver_mount_point.c 		\
 
 delete_folder_row: delete_folder_row.c					\
 	${EXTERNAL_LIBS}						\
-	${LIB}/delete_database.o					\
-	${LIB}/folder_menu.o
+	${LIB}/delete_database.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		delete_folder_row.c					\
 		${LIB}/delete_database.o				\
-		${LIB}/folder_menu.o					\
 		-o delete_folder_row
 
 statistics_folder: statistics_folder.c					\
@@ -301,11 +304,15 @@ post_change_sort_order: post_change_sort_order.c			\
 	${CGI_HOME}
 
 post_login: post_login.c ${EXTERNAL_LIBS}				\
-		${LIB}/post_login_library.o
+		${LIB}/post_login.o					\
+		${LIB}/form_choose_role.o				\
+		${LIB}/choose_role.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/post_login_library.o				\
+		${LIB}/post_login.o					\
+		${LIB}/form_choose_role.o				\
+		${LIB}/choose_role.o					\
 		post_login.c						\
 		-o post_login
 	touch ${CGI_HOME}/post_login
@@ -484,12 +491,10 @@ maintain_user_account: maintain_user_account.c				\
 		-o maintain_user_account
 
 post_choose_role: post_choose_role.c					\
-			${LIB}/folder_menu.o				\
 			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/folder_menu.o					\
 		post_choose_role.c					\
 		-o post_choose_role_drop_down
 	touch ${CGI_HOME}/post_choose_role
@@ -500,12 +505,10 @@ post_choose_role: post_choose_role.c					\
 
 output_choose_role_folder_process:					\
 	output_choose_role_folder_process.c				\
-			${EXTERNAL_LIBS}				\
-			${LIB}/folder_menu.o
+			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/folder_menu.o					\
 		output_choose_role_folder_process.c			\
 		-o output_choose_role_folder_process
 
@@ -790,14 +793,12 @@ dot_process2option_value: dot_process2option_value.c			\
 
 post_prompt_insert: post_prompt_insert.c 				\
 			${EXTERNAL_LIBS}				\
-			${LIB}/pair_one2m.o				\
-			${LIB}/folder_menu.o
+			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_prompt_insert.c					\
 		${LIB}/pair_one2m.o					\
-		${LIB}/folder_menu.o					\
 		-o post_prompt_insert
 	touch ${CGI_HOME}/post_prompt_insert
 	/bin/rm -f ${CGI_HOME}/post_prompt_insert
@@ -951,14 +952,12 @@ output_prompt_insert: output_prompt_insert.c 				\
 output_choose_isa: output_choose_isa.c					\
 			${EXTERNAL_LIBS}				\
 			${LIB}/form_choose_isa.o			\
-			${LIB}/menu.o					\
 			${LIB}/choose_isa.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		output_choose_isa.c					\
 		${EXTERNAL_LIBS}					\
 		${LIB}/form_choose_isa.o				\
-		${LIB}/menu.o						\
 		${LIB}/choose_isa.o					\
 		-o output_choose_isa
 
@@ -1035,15 +1034,11 @@ append_reference_number: append_reference_number.c ${EXTERNAL_LIBS}
 
 output_choose_folder_process_menu: 					\
 		output_choose_folder_process_menu.c 			\
-		${EXTERNAL_LIBS}					\
-		${LIB}/folder_menu.o					\
-		${LIB}/horizontal_menu.o
+		${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		output_choose_folder_process_menu.c			\
-		${LIB}/folder_menu.o					\
-		${LIB}/horizontal_menu.o				\
 		-o output_choose_folder_process_menu
 
 output_choose_role_menu: output_choose_role_menu.c 			\
@@ -1055,11 +1050,15 @@ output_choose_role_menu: output_choose_role_menu.c 			\
 		-o output_choose_role_menu
 
 output_choose_role: output_choose_role.c				\
-			${EXTERNAL_LIBS}
+			${EXTERNAL_LIBS}				\
+			${LIB}/form_choose_role.o			\
+			${LIB}/choose_role.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		output_choose_role.c					\
+		${LIB}/form_choose_role.o				\
+		${LIB}/choose_role.o					\
 		-o output_choose_role
 
 output_open_html_document: output_open_html_document.c			\
@@ -1087,13 +1086,11 @@ output_frameset: output_frameset.c ${EXTERNAL_LIBS}
 
 post_edit_table: post_edit_table.c					\
 			${EXTERNAL_LIBS}				\
-			${LIB}/folder_menu.o				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_edit_table.c					\
-		${LIB}/folder_menu.o					\
 		${LIB}/pair_one2m.o					\
 		-o post_edit_table
 	touch ${CGI_HOME}/post_edit_table
@@ -1104,13 +1101,11 @@ post_edit_table: post_edit_table.c					\
 
 post_insert_table: post_insert_table.c					\
 			${EXTERNAL_LIBS}				\
-			${LIB}/folder_menu.o				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_insert_table.c					\
-		${LIB}/folder_menu.o					\
 		${LIB}/pair_one2m.o					\
 		-o post_insert_table
 	touch ${CGI_HOME}/post_insert_table
@@ -1221,13 +1216,11 @@ post_generic_load_folder: post_generic_load_folder.c			\
 	${CGI_HOME}
 
 post_merge_purge: post_merge_purge.c					\
-		${EXTERNAL_LIBS}					\
-		${LIB}/folder_menu.o
+		${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_merge_purge.c					\
-		${LIB}/folder_menu.o					\
 		-o post_merge_purge
 	touch ${CGI_HOME}/post_merge_purge
 	/bin/rm -f ${CGI_HOME}/post_merge_purge

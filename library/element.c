@@ -1,6 +1,6 @@
 /* $APPASERVER_HOME/library/element.c					*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver element ADT.					*/
+/* This is the appaserver APPASERVER_ELEMENT ADT.			*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -4417,5 +4417,23 @@ boolean appaserver_element_recall_boolean(
 		return element->yes_no->recall;
 	else
 		return 0;
+}
+
+ELEMENT_DROP_DOWN *element_drop_down_calloc( void )
+{
+	ELEMENT_DROP_DOWN *element_drop_down;
+
+	if ( ! ( element_drop_down =
+			calloc( 1, sizeof( ELEMENT_DROP_DOWN ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return element_drop_down;
 }
 

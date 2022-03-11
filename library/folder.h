@@ -225,15 +225,6 @@ LIST *folder_delimited_fetch(
 			LIST *attribute_name_list,
 			char *where );
 
-LIST *folder_primary_delimited_list(
-			char *folder_name,
-			LIST *primary_key_list,
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			SECURITY_ENTITY *security_entity,
-			DICTIONARY *drillthru_dictionary,
-			char *login_name );
-
 LIST *folder_fetch_primary_key_list(
 			char *folder_name );
 
