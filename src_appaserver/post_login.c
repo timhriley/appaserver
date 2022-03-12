@@ -49,96 +49,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( post_login->missing_name )
-	{
-		char msg[ 1024 ];
-
-		sprintf(msg,
-			"Missing login_name from %s",
-			environment_remote_ip_address() );
-
-		appaserver_output_error_message(
-			post_login->sql_injection_escape_application_name,
-			msg,
-			(char *)0 /* login_name */ );
-
-		if ( !appaserver_library_from_php(
-			post_login->dictionary ) )
-		{
-			document_output_content_type();
-
-			document_quick_output(
-				post_login->
-					sql_injection_escape_application_name );
-
-			printf( "<p>Please try again.\n%s\n",
-				document_close_html() );
-		}
-		else
-		{
-			post_login_redraw_index_screen(
-				post_login->
-					sql_injection_escape_application_name,
-				(char *)0 /* location */,
-				"invalid_login_yn=y" );
-		}
-
-		sleep( POST_LOGIN_SECONDS_TO_SLEEP );
-		exit ( 1 );
-	}
-
-	if ( post_login->missing_database_password
-	||   post_login->password_match_return == password_fail )
-	{
-		char msg[ 1024 ];
-
-		if ( post_login->missing_database_password )
-		{
-			sprintf(msg,
-				"appaserver user %s is forbidden from %s",
-				post_login->sql_injection_escape_login_name,
-				environment_remote_ip_address() );
-		}
-		else
-		{
-			sprintf(msg,
-				"Password missmatch for %s from %s",
-				post_login->sql_injection_escape_login_name,
-				environment_remote_ip_address() );
-		}
-
-		appaserver_output_error_message(
-			post_login->sql_injection_escape_application_name,
-			msg,
-			post_login->sql_injection_escape_login_name );
-
-		if ( !appaserver_library_from_php(
-			post_login->dictionary ) )
-		{
-			document_output_content_type();
-
-			document_quick_output(
-				post_login->
-					sql_injection_escape_application_name );
-
-			printf( "<p>Please try again.\n%s\n",
-				document_close_html() );
-		}
-		else
-		{
-			post_login_redraw_index_screen(
-				post_login->
-					sql_injection_escape_application_name,
-				(char *)0 /* location */,
-				"invalid_login_yn=y" );
-		}
-
-		sleep( POST_LOGIN_SECONDS_TO_SLEEP );
-		exit ( 1 );
-	}
-
 	session_environment_set(
-		post_login->sql_injection_escape_application_name );
+		post_login->
+			sql_injection_escape_application_name );
 
 	appaserver_error_login_name_append_file(
 		argc,
@@ -156,15 +69,20 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	post_login_frameset_output(
-		post_login->sql_injection_escape_application_name,
-		post_login->sql_injection_escape_login_name,
-		post_login->session_key,
-		post_login->password_match_return,
-		appaserver_user_default_role_name(
-			post_login->sql_injection_escape_login_name ),
-		appaserver_user_role_name_list(
-			post_login->sql_injection_escape_login_name ) );
+	if ( post_login->frameset_output_system_string )
+	{
+		if ( system( post_login->frameset_output_system_string ) ){}
+	}
+
+	if ( post_login->redraw_index_screen_string )
+	{
+		printf( "%s\n", post_login->redraw_index_screen_string );
+	}
+
+	if ( post_login->password_match_return == password_fail )
+	{
+		sleep( POST_LOGIN_SECONDS_TO_SLEEP );
+	}
 
 	return 0;
 }

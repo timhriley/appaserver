@@ -137,10 +137,12 @@ LIST *session_system_list(
 LIST *session_list_fetch(
 			char *login_name );
 
-/* Returns session_key */
+/* Returns heap memory */
 /* ------------------- */
-char *session_insert(
-			char *application_name,
+char *session_key(	char *application_name );
+
+void session_insert(
+			char *session_key,
 			char *login_name,
 			char *date_now_yyyy_mm_dd_string,
 			char *date_now_hhmm_string,

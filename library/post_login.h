@@ -23,10 +23,10 @@
 #define POST_LOGIN_SUBJECT		\
 					"Appaserver login"
 
-#define POST_LOGIN_EMAIL_OUTPUT_FILE_TEMPLATE \
+#define POST_LOGIN_EMAIL_OUTPUT_TEMPLATE \
 				"%s/appaserver/%s/data/post_login_%s.html"
 
-#define POST_LOGIN_EMAIL_HTTP_FILE_TEMPLATE \
+#define POST_LOGIN_EMAIL_HTTP_TEMPLATE	\
 				"%s://%s/appaserver/%s/data/post_login_%s.html"
 
 /* Enumerated types */
@@ -36,7 +36,8 @@ enum password_match_return {
 			database_password_blank,
 			password_fail,
 			public_login,
-			email_login };
+			email_login,
+			missing_name };
 
 /* Structures */
 /* ---------- */
@@ -53,6 +54,12 @@ typedef struct
 	boolean missing_database_password;
 	enum password_match_return password_match_return;
 	char *session_key;
+	char *output_pipe_string;
+	char *frameset_output_system_string;
+	char *ip_address;
+	char *location;
+	char *message;
+	char *redraw_index_screen_string;
 } POST_LOGIN;
 
 /* POST_LOGIN operations */
@@ -88,36 +95,48 @@ boolean post_login_name_email_address(
 			char *login_name );
 
 enum password_match_return post_login_password_match(
+			boolean post_login_missing_name,
 			boolean missing_database_password,
 			boolean name_email_address,
 			boolean public_name,
 			char *sql_injection_escape_password,
 			char *database_password );
 
-/* Inserts into APPASERVER_SESSIONS */
-/* -------------------------------- */
-char *post_login_session_key(
-			char *application_name,
-			char *login_name );
+/* Returns heap memory */
+/* ------------------- */
+char *post_login_output_pipe_string(
+			char *post_login_email_output_template,
+			boolean post_login_name_email_address,
+			char *sql_injection_escape_application_name,
+			char *appaserver_parameter_document_root,
+			char *session_key );
+
+/* Returns heap memory */
+/* ------------------- */
+char *post_login_ip_address( void );
+
+/* Returns post_login_cloudacus_location or null */
+/* --------------------------------------------- */
+char *post_login_location(
+			char *post_login_cloudacus_location,
+			char *post_login_ip_address );
+
+/* Returns program memory or null */
+/* ------------------------------ */
+char *post_login_message(
+			enum password_match_return );
+
+/* Returns heap memory */
+/* ------------------- */
+char *post_login_redraw_index_screen_string(
+			char *sql_injection_escape_application_name,
+			char *post_login_location,
+			char *post_login_message,
+			boolean appaserver_library_from_php );
 
 /* Private */
 /* ------- */
 POST_LOGIN *post_login_calloc(
 			void );
-
-/* Public */
-/* ------ */
-void post_login_frameset_output(
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			enum password_match_return,
-			char *appaserver_user_default_role_name,
-			LIST *appaserver_user_role_name_list );
-
-void post_login_redraw_index_screen(
-			char *application_name,
-			char *location,
-			char *message );
 
 #endif

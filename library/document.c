@@ -34,16 +34,10 @@ DOCUMENT *document_calloc( void )
 	return document;
 }
 
-char *document_type_string( void )
+char *document_type_html( void )
 {
 	return
 	"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\">";
-}
-
-char *document_html_standard_url( void )
-{
-	return
-	"http://www.w3.org/1999/xhtml";
 }
 
 DOCUMENT *document_new(
@@ -88,19 +82,19 @@ DOCUMENT *document_new(
 
 	/* Returns program memory */
 	/* ---------------------- */
-	document->type_string = document_type_string();
+	document->type_html = document_type_html();
 
 	/* Returns program memory */
 	/* ---------------------- */
-	document->standard_string = document_standard_string();
+	document->standard_html = document_standard_html();
 
 	document->html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		document_html(
-			document->type_string,
-			document->standard_string );
+			document->type_html,
+			document->standard_html );
 
 	return document;
 }
@@ -137,21 +131,26 @@ DOCUMENT *document_quick_new(
 
 	/* Returns program memory */
 	/* ---------------------- */
-	document->type_string = document_type_string();
+	document->type_html = document_type_html();
 
 	/* Returns program memory */
 	/* ---------------------- */
-	document->standard_string = document_standard_string();
+	document->standard_html = document_standard_html();
 
 	document->html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		document_html(
-			document->type_string,
-			document->standard_string );
+			document->type_html,
+			document->standard_html );
 
 	return document;
+}
+
+char *document_content_type_html( void )
+{
+	return "Content-type: text/html\n";
 }
 
 void document_output_content_type( void )
@@ -160,18 +159,19 @@ void document_output_content_type( void )
 
 	if ( !did_already )
 	{
-		printf( "Content-type: text/html\n\n" );
+		fflush( stdout );
+		printf( "%s\n", document_content_type_html() );
 		fflush( stdout );
 		did_already = 1;
 	}
 }
 
-char *document_html(	char *type_string,
-			char *standard_string )
+char *document_html(	char *type_html,
+			char *standard_html )
 {
 	char html[ 1024 ];
 
-	if ( !type_string || !standard_string )
+	if ( !type_html || !standard_html )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -182,9 +182,9 @@ char *document_html(	char *type_string,
 	}
 
 	sprintf(html,
-		"%s\n%s",
-		type_string,
-		standard_string );
+		"%s\n<html %s>\n",
+		type_html,
+		standard_html );
 
 	return strdup( html );
 }
@@ -685,7 +685,7 @@ char *document_body_menu_onload_string( boolean menu_boolean )
 "DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: true, scrolling: true} )";
 }
 
-char *document_standard_string( void )
+char *document_standard_html( void )
 {
 	return
 "xmlns=\"http://www.w3.org/1999/xhtml\"";

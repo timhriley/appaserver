@@ -15,6 +15,7 @@
 
 /* Constants */
 /* --------- */
+#define FRAMESET_OUTPUT_EXECUTABLE	"output_frameset"
 #define FRAMESET_MENU_FRAME		"menu_frame"
 #define FRAMESET_PROMPT_FRAME		"prompt_frame"
 #define FRAMESET_EDIT_FRAME		"edit_frame"
@@ -61,25 +62,40 @@ typedef struct
 
 /* FRAMESET operations */
 /* -------------------- */
-FRAMESET *frameset_calloc(
-			void );
-
 FRAMESET *frameset_new(
 			char *application_name,
 			char *session_key,
 			boolean frameset_menu_horizontal );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
 char *frameset_html(
-			char *menu_frame_html,
-			char *prompt_frame_html,
-			char *edit_frame_html,
+			char *frameset_frame_menu_html,
+			char *frameset_frame_prompt_html,
+			char *frameset_frame_edit_html,
 			boolean frameset_menu_horizontal );
 
+/* Private */
+/* ------- */
+FRAMESET *frameset_calloc(
+			void );
+
+/* Public */
+/* ------ */
 boolean frameset_menu_horizontal(
 			char *application_name,
 			char *login_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *frameset_output_system_string(
+			char *frameset_output_executable,
+			char *session_key,
+			char *login_name,
+			char *post_login_output_pipe_string );
 
 #endif
 

@@ -129,8 +129,8 @@ DOCUMENT_BODY *document_body_new(
 char *document_body_menu_onload_string(
 			boolean menu_boolean );
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *document_body_tag(
 			char *input_onload_string,
 			char *menu_onload_string,
@@ -180,8 +180,8 @@ typedef struct
 {
 	DOCUMENT_HEAD *document_head;
 	DOCUMENT_BODY *document_body;
-	char *type_string;
-	char *standard_string;
+	char *type_html;
+	char *standard_html;
 	char *html;
 } DOCUMENT;
 
@@ -215,30 +215,31 @@ DOCUMENT *document_quick_new(
 
 /* Returns program memory */
 /* ---------------------- */
-char *document_type_string(
+char *document_type_html(
 			void );
 
 /* Returns program memory */
 /* ---------------------- */
-char *document_standard_string(
+char *document_standard_html(
 			void );
 
 /* Returns heap memory */
 /* ------------------- */
 char *document_html(
-			char *document_type_string,
-			char *document_standard_string );
+			char *document_type_html,
+			char *document_standard_html );
 
 /* Public */
 /* ------ */
 void document_output_html_stream(
 			FILE *output_stream );
 
+char *document_content_type_html(
+			void );
+
 void document_output_content_type(
 			void );
 
-/* Need to output document_close_html() */
-/* ------------------------------------ */
 void document_quick_output(
 			char *application_name );
 

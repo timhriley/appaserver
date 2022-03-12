@@ -30,6 +30,7 @@
 #include "basename.h"
 #include "element.h"
 #include "appaserver.h"
+#include "dictionary_separate.h"
 #include "appaserver_library.h"
 
 static char *system_folder_list[] = {
@@ -424,7 +425,7 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 	char *data;
 	char trimmed_attribute_name[ 256 ];
 	char ignored_attribute_name[ 256 ];
-	int str_len = strlen( IGNORE_SELECT_PUSH_BUTTON_PREFIX );
+	int str_len = strlen( DICTIONARY_SEPARATE_IGNORE_PREFIX );
 
 	attribute_name_list =
 		dictionary_key_list(
@@ -437,7 +438,7 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 				list_get( attribute_name_list );
 
 			if ( strncmp(
-				IGNORE_SELECT_PUSH_BUTTON_PREFIX,
+				DICTIONARY_SEPARATE_IGNORE_PREFIX,
 				attribute_name,
 				str_len ) == 0 )
 			{
@@ -494,7 +495,7 @@ void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 
 				sprintf(ignored_attribute_name,
 		 			"%s%s", 
-		 			IGNORE_SELECT_PUSH_BUTTON_PREFIX, 
+		 			DICTIONARY_SEPARATE_IGNORE_PREFIX, 
 		 			trimmed_attribute_name );
 
 				dictionary_set_pointer(
@@ -1323,7 +1324,7 @@ boolean appaserver_library_from_php( DICTIONARY *post_dictionary )
 	char *filename;
 	char *extension;
 
-	if ( !( filename =
+	if ( ! ( filename =
 			dictionary_fetch(
 				"filename",
 				post_dictionary ) ) )
@@ -1331,7 +1332,8 @@ boolean appaserver_library_from_php( DICTIONARY *post_dictionary )
 		return 0;
 	}
 
-	extension = basename_get_extension( filename );
+	extension = basename_extension( filename );
+
 	return ( strcmp( extension, "php" ) == 0 );
 }
 

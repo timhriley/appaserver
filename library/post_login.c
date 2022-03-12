@@ -22,6 +22,7 @@
 #include "post_dictionary.h"
 #include "frameset.h"
 #include "choose_role.h"
+#include "document.h"
 #include "post_login.h"
 
 POST_LOGIN *post_login_calloc( void )
@@ -89,14 +90,9 @@ POST_LOGIN *post_login_new(
 					"login_name",
 					post_login->dictionary ) ) );
 
-	if ( ( post_login->missing_name =
+	post_login->missing_name =
 		post_login_missing_name(
-			post_login->sql_injection_escape_login_name ) ) )
-	{
-		/* Generates an error */
-		/* ------------------ */
-		return post_login;
-	}
+			post_login->sql_injection_escape_login_name );
 
 	post_login->sql_injection_escape_password =
 		/* --------------------------- */
@@ -126,32 +122,110 @@ POST_LOGIN *post_login_new(
 
 	post_login->password_match_return =
 		post_login_password_match(
+			post_login->missing_name,
 			post_login->missing_database_password,
 			post_login->name_email_address,
 			post_login->public_name,
 			post_login->sql_injection_escape_password,
 			post_login->database_password );
 
-	if ( post_login->password_match_return == password_match
-	||   post_login->password_match_return == public_login
-	||   post_login->password_match_return == email_login )
+	if ( post_login->password_match_return == email_login
+	||   post_login->password_match_return == password_fail
+	||   post_login->password_match_return == missing_name )
 	{
-		post_login->session_key =
-			post_login_session_key(
-				post_login->
-					sql_injection_escape_application_name,
-				post_login->
-					sql_injection_escape_login_name );
-
-		if ( !post_login->session_key )
+		if ( ! ( post_login->ip_address = post_login_ip_address() ) )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: post_login_session_key() returned empty.\n",
+	"ERROR in %s/%s()/%d: post_login_ip_address() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			return (POST_LOGIN *)0;
+			exit( 1 );
 		}
+
+		post_login->location =
+			/* --------------------------------------------- */
+			/* Returns POST_LOGIN_CLOUDACUS_LOCATION or null */
+			/* --------------------------------------------- */
+			post_login_location(
+				POST_LOGIN_CLOUDACUS_LOCATION,
+				post_login->ip_address );
+
+		post_login->message =
+			/* ------------------------------ */
+			/* Returns program memory or null */
+			/* ------------------------------ */
+			post_login_message(
+				post_login->password_match_return );
+
+		if ( !post_login->message )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: post_login_message(%d) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				post_login->password_match_return );
+			exit( 1 );
+		}
+
+		post_login->redraw_index_screen_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			post_login_redraw_index_screen_string(
+				post_login->
+					sql_injection_escape_application_name,
+				post_login->location,
+				post_login->message,
+				appaserver_library_from_php(
+					post_login->dictionary) );
+	}
+
+	if ( post_login->password_match_return == password_match
+	||   post_login->password_match_return == database_password_blank
+	||   post_login->password_match_return == public_login
+	||   post_login->password_match_return == email_login )
+	{
+		char destination[ 128 ];
+
+		post_login->session_key =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			session_key(
+				post_login->
+					sql_injection_escape_application_name );
+
+		session_insert(
+			post_login->session_key,
+			post_login->sql_injection_escape_login_name,
+			date_now_yyyy_mm_dd_string( date_utc_offset() ),
+			date_now_hhmm_string( date_utc_offset() ),
+			left_string(
+				destination,
+				environment_http_user_agent(),
+				80 ),
+			environment_remote_ip_address() );
+
+		post_login->output_pipe_string =
+			post_login_output_pipe_string(
+				POST_LOGIN_EMAIL_OUTPUT_TEMPLATE,
+				post_login->name_email_address,
+				post_login->
+					sql_injection_escape_application_name,
+				appaserver_parameter_document_root(),
+				post_login->session_key );
+
+		post_login->frameset_output_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			frameset_output_system_string(
+				FRAMESET_OUTPUT_EXECUTABLE,
+				post_login->session_key,
+				post_login->sql_injection_escape_login_name,
+				post_login->output_pipe_string );
 	}
 
 	return post_login;
@@ -160,6 +234,8 @@ POST_LOGIN *post_login_new(
 char *post_login_database_password( char *login_name )
 {
 	APPASERVER_USER *appaserver_user;
+
+	if ( !login_name || !*login_name ) return (char *)0;
 
 	if ( ! ( appaserver_user =
 			appaserver_user_fetch(
@@ -299,41 +375,6 @@ boolean post_login_name_email_address( char *login_name )
 	return ( string_character_exists( login_name, '@' ) );
 }
 
-void post_login_redraw_index_screen(	char *application_name,
-					char *location,
-					char *message )
-{
-	char local_location[ 128 ];
-
-	if ( location )
-	{
-		strcpy( local_location, location );
-
-		sprintf( local_location,
-			 "%s?%s",
-			 location,
-			 message );
-	}
-	else
-	{
-		sprintf( local_location,
-			 "/appaserver/%s/index.php?%s",
-			 application_name,
-			 message );
-	}
-
-	printf( 
-"Content-type: text/html						\n"
-"\n"
-"<html>									\n"
-"<script type=\"text/javascript\">					\n"
-"window.location = \"%s\"						\n"
-"</script>								\n"
-"</html>								\n",
-		local_location );
-
-}
-
 boolean post_login_public_name(
 			char *login_name )
 {
@@ -350,22 +391,28 @@ boolean post_login_public_name(
 
 enum password_match_return
 	post_login_password_match(
+			boolean post_login_missing_name,
 			boolean missing_database_password,
 			boolean name_email_address,
 			boolean public_name,
 			char *sql_injection_escape_password,
 			char *database_password )
 {
+	if ( post_login_missing_name )
+	{
+		return missing_name;
+	}
+	else
 	if ( public_name )
 	{
 		return public_login;
 	}
-
+	else
 	if ( missing_database_password )
 	{
 		return database_password_blank;
 	}
-
+	else
 	if ( name_email_address )
 	{
 		return email_login;
@@ -394,198 +441,163 @@ enum password_match_return
 	return password_fail;
 }
 
-char *post_login_session_key(
+char *post_login_output_pipe_string(
+			char *post_login_email_output_template,
+			boolean name_email_address,
 			char *application_name,
-			char *login_name )
+			char *document_root,
+			char *session_key )
 {
-	char destination[ 128 ];
+	char output_pipe_string[ 256 ];
 
-	return
-	session_insert(
-		application_name,
-		login_name,
-		date_now_yyyy_mm_dd_string( date_utc_offset() ),
-		date_now_hhmm_string( date_utc_offset() ),
-		left_string(
-			destination,
-			environment_http_user_agent(),
-			80 ),
-		environment_remote_ip_address() );
-}
-
-void post_login_frameset_output(
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			enum password_match_return password_match_return,
-			char *appaserver_user_default_role_name,
-			LIST *appaserver_user_role_name_list )
-{
-	if ( ( !appaserver_user_default_role_name
-	||     !*appaserver_user_default_role_name )
-	&&     list_length( appaserver_user_role_name_list ) > 1 )
+	if ( !post_login_email_output_template
+	||   !application_name
+	||   !document_root
+	||   !session_key )
 	{
-		char *system_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			choose_role_output_system_string(
-				CHOOSE_ROLE_OUTPUT_EXECUTABLE,
-				session_key,
-				login_name,
-				appaserver_error_filename(
-					application_name ) );
-
-		if ( system( system_string ) ){}
-	}
-	else
-	if ( ( appaserver_user_default_role_name
-	&&     *appaserver_user_default_role_name )
-	||     list_length( appaserver_user_role_name_list ) == 1 )
-	{
-		char *role_name;
-		char system_string[ 1024 ];
-
-		if ( appaserver_user_default_role_name
-		&&   *appaserver_user_default_role_name )
-		{
-			role_name = appaserver_user_default_role_name;
-		}
-		else
-		{
-			role_name =
-				list_first(
-					appaserver_user_role_name_list );
-		}
-
-		sprintf(system_string,
-			"output_choose_role_folder_process %s %s %s 2>>%s",
-			login_name,
-			session_key,
-			role_name,
-			appaserver_error_filename(
-				application_name ) );
-
-		if ( system( system_string ) ){}
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	if ( password_match_return != email_login )
+	if ( name_email_address )
 	{
-		char system_string[ 1024 ];
+		char output_file_template[ 128 ];
 
-		sprintf(system_string,
-			"output_frameset %s %s 2>>%s",
-			login_name,
-			session_key,
-			appaserver_error_filename(
-				application_name ) );
+		sprintf(output_file_template,
+			post_login_email_output_template,
+			document_root,
+			application_name,
+			session_key );
 
-		if ( system( system_string ) ){}
+		sprintf(output_pipe_string,
+			"| cat > %s",
+			output_file_template );
 	}
 	else
 	{
-		char system_string[ 1024 ];
-
-		sprintf(system_string,
-			"output_email_link %s %s 2>>%s",
-			login_name,
-			session_key,
-			appaserver_error_filename(
-				application_name ) );
-
-		if ( system( system_string ) ){}
+		strcpy( output_pipe_string, "| cat" );
 	}
+
+	return strdup( output_pipe_string );
 }
 
-#ifdef NOT_DEFINED
-void post_login_horizontal_frameset(
-			char *title,
-			FRAMESET *frameset )
+char *post_login_ip_address( void )
 {
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' > %s 2>>%s",
-		frameset->session_key,
-		frameset->login_name,
-		frameset->
-			frameset_frame_prompt->
-			output_filename,
-		appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	sprintf( sys_string,
-		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
-		 application_background_color( application_name ),
-		 frameset->
-			frameset_frame_edit->
-			output_filename,
-		 appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	if ( system( "content_type_cgi.sh" ) ){};
-
-	printf(
-		"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-		"<HEAD>\n"
-		"<TITLE>%s</TITLE>\n"
-		"</HEAD>\n"
-		"%s\n"
-		"</HTML>\n",
-		title,
-		frameset->html );
+	return string_pipe_fetch( "ip_address.sh" );
 }
 
-void post_login_vertical_frameset(
-			char *title,
-			FRAMESET *frameset )
+char *post_login_location(
+			char *cloudacus_location,
+			char *ip_address )
 {
-	char sys_string[ 1024 ];
-
-	sprintf(sys_string,
-"output_choose_role_folder_process_form '%s' '%s' > %s 2>>%s",
-		frameset->session_key,
-		frameset->login_name,
-		frameset->
-			frameset_frame_menu->
-			output_filename,
-		appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	sprintf( sys_string,
-		 "output_blank_screen.sh \"%s\" \"%s\" n > %s 2>>%s",
-		 application_background_color( application_name ),
-		 title,
-		 frameset->
-			frameset_frame_prompt->
-			output_filename,
-		 appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	sprintf( sys_string,
-		 "output_blank_screen.sh \"%s\" '' n > %s 2>>%s",
-		 application_background_color( application_name ),
-		 frameset->
-			frameset_frame_edit->
-			output_filename,
-		 appaserver_error_filename( application_name ) );
-
-	if ( system( sys_string ) ){};
-
-	if ( system( "content_type_cgi.sh" ) ){};
-
-	printf(
-		"<HTML xmlns=\"http://www.w3.org/1999/xhtml\">\n"
-		"<HEAD>\n"
-		"<TITLE>%s</TITLE>\n"
-		"</HEAD>\n"
-		"%s\n"
-		"</HTML>\n",
-		title,
-		frameset->html );
+	if ( string_strncmp( ip_address, "204.13.232" ) == 0 )
+		return cloudacus_location;
+	else
+		return (char *)0;
 }
-#endif
+
+char *post_login_message( enum password_match_return password_match_return )
+{
+	if ( password_match_return == email_login )
+		return "emailed_login_yn=y";
+	else
+	if ( password_match_return == password_fail )
+		return "invalid_login_yn=y";
+	else
+	if ( password_match_return == database_password_blank )
+		return "account_deactivated_yn=y";
+	else
+	if ( password_match_return == missing_name )
+		return "missing_name_yn=y";
+	else
+		return (char *)0;
+}
+
+char *post_login_redraw_index_screen_string(
+			char *application_name,
+			char *location,
+			char *message,
+			boolean from_php )
+{
+	char screen_string[ 1024 ];
+	char *ptr = screen_string;
+	char local_location[ 128 ];
+	DOCUMENT *document;
+
+	if ( !application_name
+	||   !message )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( location )
+	{
+		sprintf( local_location,
+			 "%s?%s",
+			 location,
+			 message );
+	}
+	else
+	{
+		sprintf( local_location,
+			 "/appaserver/%s/index.php?%s",
+			 application_name,
+			 message );
+	}
+
+	document =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		document_quick_new(
+			application_name,
+			application_title_string( application_name ) );
+
+	ptr += sprintf(
+		ptr,
+		"%s\n%s\n%s\n",
+		document_content_type_html(),
+		document->html,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		document_body_tag( (char *)0, (char *)0, (char *)0 ) );
+
+	if ( from_php )
+	{
+		ptr += sprintf( 
+			ptr,
+			"<p>Please try again.\n"
+			"%s",
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_close_html() );
+	}
+	else
+	{
+		ptr += sprintf( 
+			ptr,
+			"<script type=\"text/javascript\">\n"
+			"window.location = \"%s\"\n"
+			"</script>\n"
+			"%s",
+			local_location,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			document_close_html() );
+	}
+
+	return strdup( screen_string );
+}
+

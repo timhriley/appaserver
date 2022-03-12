@@ -709,20 +709,18 @@ SESSION_PROCESS *session_process_calloc( void )
 	return session_process;
 }
 
-char *session_insert(	char *application_name,
+void session_insert(	char *session_key,
 			char *login_name,
 			char *date_now_yyyy_mm_dd_string,
 			char *date_now_hhmm_string,
 			char *http_user_agent,
 			char *remote_ip_address )
 {
-	char *session_key;
 	char *field_list_string;
 	FILE *output_pipe;
-
 	char system_string[ 1024 ];
 
-	if ( !application_name
+	if ( !session_key
 	||   !login_name
 	||   !date_now_yyyy_mm_dd_string
 	||   !date_now_hhmm_string
@@ -734,21 +732,6 @@ char *session_insert(	char *application_name,
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(system_string,
-		"session_number_new.sh %s",
-		application_name );
-
-	if ( ! ( session_key = string_pipe_fetch( system_string ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			system_string );
 		exit( 1 );
 	}
 
@@ -774,7 +757,27 @@ char *session_insert(	char *application_name,
 		remote_ip_address );
 
 	pclose( output_pipe );
-
-	return session_key;
 }
 
+char *session_key( char *application_name )
+{
+	char system_string[ 128 ];
+	char *key;
+
+	sprintf(system_string,
+		"session_number_new.sh %s",
+		application_name );
+
+	if ( ! ( key = string_pipe_fetch( system_string ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: string_pipe_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			system_string );
+		exit( 1 );
+	}
+
+	return key;
+}

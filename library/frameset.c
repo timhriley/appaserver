@@ -97,19 +97,19 @@ FRAMESET *frameset_new(	char *application_name,
 	return frameset;
 }
 
-char *frameset_html(	char *menu_frame_html,
-			char *prompt_frame_html,
-			char *edit_frame_html,
+char *frameset_html(	char *frameset_frame_menu_html,
+			char *frameset_frame_prompt_html,
+			char *frameset_frame_edit_html,
 			boolean frameset_menu_horizontal )
 {
 	char html[ 2048 ];
 
-	if ( !menu_frame_html
-	||   !*menu_frame_html
-	||   !prompt_frame_html
-	||   !*prompt_frame_html
-	||   !edit_frame_html
-	||   !*edit_frame_html )
+	if ( !frameset_frame_menu_html
+	||   !*frameset_frame_menu_html
+	||   !frameset_frame_prompt_html
+	||   !*frameset_frame_prompt_html
+	||   !frameset_frame_edit_html
+	||   !*frameset_frame_edit_html )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: a parameter is empty.\n",
@@ -129,9 +129,9 @@ char *frameset_html(	char *menu_frame_html,
 			"%s\n"
 			"</frameset>\n"
 			"</frameset>\n",
-			menu_frame_html,
-			prompt_frame_html,
-			edit_frame_html );
+			frameset_frame_menu_html,
+			frameset_frame_prompt_html,
+			frameset_frame_edit_html );
 	}
 	else
 	{
@@ -140,8 +140,8 @@ char *frameset_html(	char *menu_frame_html,
 			"%s\n"
 			"%s\n"
 			"</frameset>\n",
-			prompt_frame_html,
-			edit_frame_html );
+			frameset_frame_prompt_html,
+			frameset_frame_edit_html );
 	}
 
 	return strdup( html );
@@ -256,5 +256,37 @@ boolean frameset_menu_horizontal(
 			application_name );
 
 	return (frameset_menu_horizontal_yn == 'y');
+}
+
+char *frameset_output_system_string(
+			char *executable,
+			char *session_key,
+			char *login_name,
+			char *post_login_output_pipe_string )
+{
+	char system_string[ 1024 ];
+
+	if ( !executable
+	||   !session_key
+	||   !login_name
+	||   !post_login_output_pipe_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s",
+		executable,
+		session_key,
+		login_name,
+		post_login_output_pipe_string );
+
+	return strdup( system_string );
+
 }
 
