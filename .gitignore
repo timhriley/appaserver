@@ -349,6 +349,7 @@ post_change_sort_order
 statistics_folder
 output_open_html_document
 output_close_html_document
+output_menu
 output_choose_role
 post_choose_role
 output_choose_role_folder_process

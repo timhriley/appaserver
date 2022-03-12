@@ -51,6 +51,7 @@ int main( int argc, char **argv )
 		frameset_new(
 			application_name,
 			session_key,
+			login_name,
 			frameset_menu_horizontal(
 				application_name,
 				login_name ) );

@@ -16,6 +16,7 @@
 
 /* Constants */
 /* --------- */
+#define MENU_OUTPUT_EXECUTABLE	"output_menu"
 
 /* Structures */
 /* ---------- */
@@ -89,7 +90,6 @@ typedef struct
 
 /* MENU operations */
 /* --------------- */
-MENU *menu_calloc(	void );
 
 MENU *menu_fetch(	char *application_name,
 			char *login_name,
@@ -101,6 +101,37 @@ MENU *menu_fetch(	char *application_name,
 LIST *menu_process_group_name_list(
 			LIST *role_process_group_name_list,
 			LIST *role_process_set_group_name_list );
+
+/* Private */
+/* ------- */
+MENU *menu_calloc(	void );
+
+/* Public */
+/* ------ */
+boolean menu_boolean(
+			char *current_frame,
+			boolean frameset_menu_horizontal );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *menu_horizontal_html(
+			char *hide_preload_html,
+			LIST *menu_verb_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *menu_vertical_html(
+			LIST *menu_verb_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *menu_output_system_string(
+			char *menu_output_executable,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			boolean frameset_menu_horizontal,
+			char *output_filename );
 
 /* MENU_VERB operations */
 /* -------------------- */
@@ -150,12 +181,6 @@ MENU_VERB *menu_verb_login_name_display(
 /* Safely returns heap memory */
 /* -------------------------- */
 char *menu_verb_tag(	char *verb );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *menu_horizontal_html(
-			char *hide_preload_html,
-			LIST *menu_verb_list );
 
 /* MENU_SUBSCHEMA operations */
 /* ------------------------- */
@@ -318,9 +343,5 @@ char *menu_item_role_change_action_tag(
 /* --------------------- */
 char *menu_item_horizontal_html(
 			LIST *menu_item_list );
-
-boolean menu_boolean(
-			char *current_frame,
-			boolean frameset_menu_horizontal );
 
 #endif

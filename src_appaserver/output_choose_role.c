@@ -18,6 +18,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *session_key;
 	char *login_name;
+	boolean frameset_menu_horizontal;
 	CHOOSE_ROLE *choose_role;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -27,25 +28,24 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 3 )
+	if ( argc != 4 )
 	{
 		fprintf(stderr,
-			"Usage: %s session login_name\n",
+			"Usage: %s session login_name horizontal_menu_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	session_key = argv[ 1 ];
 	login_name = argv[ 2 ];
+	frameset_menu_horizontal = (*argv[ 3 ] == 'y');
 
 	choose_role =
 		choose_role_new(
 			application_name,
 			login_name,
 			session_key,
-			frameset_menu_horizontal(
-				application_name,
-				login_name ) );
+			frameset_menu_horizontal );
 
 	if ( !choose_role )
 	{
@@ -61,6 +61,4 @@ int main( int argc, char **argv )
 	printf( "%s\n", choose_role->document_form_html );
 
 	return 0;
-
 }
-

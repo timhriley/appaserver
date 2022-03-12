@@ -1166,83 +1166,6 @@ MENU_VERB *menu_verb_login_name_display( char *login_name )
 	return menu_verb;
 }
 
-char *menu_horizontal_html(
-			char *hide_preload_message,
-			LIST *menu_verb_list )
-{
-	MENU_VERB *menu_verb;
-	char html[ STRING_FOUR_MEG ];
-	char *ptr = html;
-	char buffer[ 128 ];
-
-	if ( !list_rewind( menu_verb_list ) ) return (char *)0;
-
-	if ( hide_preload_message && *hide_preload_message )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			hide_preload_message );
-	}
-
-	ptr += sprintf( ptr, "<ul id=menu>\n" );
-
-	do {
-		menu_verb = list_get( menu_verb_list );
-
-		ptr += sprintf( ptr, "\t<li>\n" );
-		ptr += sprintf( ptr, "\t%s\n", menu_verb->menu_verb_tag );
-
-		if ( list_length( menu_verb->subschema_list ) )
-		{
-			ptr += sprintf( ptr, "\t<ul>\n" );
-
-			ptr += sprintf(
-				ptr,
-				"%s\n",
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				menu_subschema_horizontal_html(
-					menu_verb->subschema_list ) );
-
-			ptr += sprintf( ptr, "\t</ul>\n" );
-		}
-
-		if ( list_length( menu_verb->item_list ) )
-		{
-			ptr += sprintf( ptr, "\t<ul>\n" );
-
-			ptr += sprintf(
-				ptr,
-				"%s\n",
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				menu_item_horizontal_html(
-					menu_verb->item_list ) );
-
-			ptr += sprintf( ptr, "\t</ul>\n" );
-		}
-
-		if ( !list_length( menu_verb->subschema_list )
-		&&   !list_length( menu_verb->item_list ) )
-		{
-			ptr += sprintf(
-				ptr,
-				"\t<li><label style=color:black>%s</label>\n",
-				format_initial_capital(
-					buffer,
-					menu_verb->verb ) );
-		}
-
-	} while ( list_next( menu_verb_list ) );
-
-	ptr += sprintf( ptr, "</ul>" );
-
-	return strdup( html );
-}
-
 char *menu_subschema_horizontal_html(
 			LIST *subschema_list )
 {
@@ -1323,5 +1246,123 @@ boolean menu_boolean(	char *current_frame,
 		 string_strcmp(
 			current_frame,
 			FRAMESET_PROMPT_FRAME ) == 0 );
+}
+
+char *menu_horizontal_html(
+			char *hide_preload_html,
+			LIST *menu_verb_list )
+{
+	MENU_VERB *menu_verb;
+	char html[ STRING_ONE_MEG ];
+	char *ptr = html;
+	char buffer[ 128 ];
+
+	if ( !list_rewind( menu_verb_list ) ) return (char *)0;
+
+	if ( hide_preload_html && *hide_preload_html )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			hide_preload_html );
+	}
+
+	ptr += sprintf( ptr, "<ul id=menu>\n" );
+
+	do {
+		menu_verb = list_get( menu_verb_list );
+
+		ptr += sprintf( ptr, "\t<li>\n" );
+		ptr += sprintf( ptr, "\t%s\n", menu_verb->menu_verb_tag );
+
+		if ( list_length( menu_verb->subschema_list ) )
+		{
+			ptr += sprintf( ptr, "\t<ul>\n" );
+
+			ptr += sprintf(
+				ptr,
+				"%s\n",
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				menu_subschema_horizontal_html(
+					menu_verb->subschema_list ) );
+
+			ptr += sprintf( ptr, "\t</ul>\n" );
+		}
+
+		if ( list_length( menu_verb->item_list ) )
+		{
+			ptr += sprintf( ptr, "\t<ul>\n" );
+
+			ptr += sprintf(
+				ptr,
+				"%s\n",
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				menu_item_horizontal_html(
+					menu_verb->item_list ) );
+
+			ptr += sprintf( ptr, "\t</ul>\n" );
+		}
+
+		if ( !list_length( menu_verb->subschema_list )
+		&&   !list_length( menu_verb->item_list ) )
+		{
+			ptr += sprintf(
+				ptr,
+				"\t<li><label style=color:black>%s</label>\n",
+				format_initial_capital(
+					buffer,
+					menu_verb->verb ) );
+		}
+
+	} while ( list_next( menu_verb_list ) );
+
+	ptr += sprintf( ptr, "</ul>" );
+
+	return strdup( html );
+}
+
+char *menu_vertical_html( LIST *menu_verb_list )
+{
+	return (char *)0;
+}
+
+char *menu_output_system_string(
+			char *menu_output_executable,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			boolean frameset_menu_horizontal,
+			char *output_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !menu_output_executable
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !output_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %c > %s",
+		menu_output_executable,
+		session_key,
+		login_name,
+		role_name,
+		(frameset_menu_horizontal) ? 'y' : 'n',
+		output_filename );
+
+	return strdup( system_string );
 }
 

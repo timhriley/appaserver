@@ -9,8 +9,8 @@
 #include <string.h>
 #include "boolean.h"
 #include "String.h"
-#include "application.h"
 #include "timlib.h"
+#include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
@@ -226,6 +226,23 @@ POST_LOGIN *post_login_new(
 				post_login->session_key,
 				post_login->sql_injection_escape_login_name,
 				post_login->output_pipe_string );
+	}
+
+	if ( post_login->password_match_return == email_login )
+	{
+		post_login->email_link_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			post_login_email_link_system_string(
+				POST_LOGIN_EMAIL_HTTP_TEMPLATE,
+				POST_LOGIN_RETURN_ADDRESS,
+				POST_LOGIN_SUBJECT,
+				post_login->
+					sql_injection_escape_application_name,
+				post_login->session_key,
+				post_login->
+					sql_injection_escape_login_name );
 	}
 
 	return post_login;
@@ -599,5 +616,70 @@ char *post_login_redraw_index_screen_string(
 	}
 
 	return strdup( screen_string );
+}
+
+char *post_login_email_link_system_string(
+			char *email_http_template,
+			char *return_address,
+			char *subject,
+			char *application_name,
+			char *session_key,
+			char *login_name )
+{
+	char system_string[ 1024 ];
+	char *ptr = system_string;
+	char email_http_filename[ 128 ];
+	char mailfile[ 128 ];
+	FILE *output_file;
+
+	sprintf( mailfile, "/tmp/mailfile_%d", getpid() );
+
+	if ( ! ( output_file = fopen( mailfile, "w" ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: fopen(%s,'w') returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__,
+			 mailfile );
+		exit( 1 );
+	}
+
+	fprintf(output_file,
+		"To: %s\n",
+		login_name );
+
+	fprintf(output_file,
+		"From: %s\n",
+		return_address );
+
+	fprintf(output_file,
+		"Subject: %s\n",
+		subject );
+
+	sprintf(email_http_filename,
+		email_http_template,
+		application_http_prefix( application_name ),
+		appaserver_library_server_address(),
+		application_name,
+		session_key );
+
+	fprintf(output_file,
+		"Appaserver login:\n%s\n",
+		email_http_filename );
+
+	fclose( output_file );
+
+	ptr += sprintf(
+		ptr,
+		"/usr/sbin/sendmail -t < %s;",
+		mailfile );
+
+	ptr += sprintf(
+		ptr,
+		"rm -f %s",
+		mailfile );
+
+	return strdup( system_string );
 }
 

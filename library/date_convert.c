@@ -15,6 +15,7 @@
 #include "date.h"
 #include "appaserver_user.h"
 #include "application.h"
+#include "environ.h"
 #include "date_convert.h"
 
 enum date_convert_format date_convert_get_database_date_format(
@@ -1044,7 +1045,9 @@ DATE_CONVERT *date_convert_login_name_fetch(
 				appaserver_user->user_date_format ) );
 	}
 
-	if ( ! ( application = application_fetch() ) )
+	if ( ! ( application =
+			application_fetch(
+				environment_application_name() ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: application_fetch() returned empty.\n",

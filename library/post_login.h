@@ -39,8 +39,6 @@ enum password_match_return {
 			email_login,
 			missing_name };
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	DICTIONARY *dictionary;
@@ -54,12 +52,13 @@ typedef struct
 	boolean missing_database_password;
 	enum password_match_return password_match_return;
 	char *session_key;
-	char *output_pipe_string;
-	char *frameset_output_system_string;
 	char *ip_address;
 	char *location;
 	char *message;
+	char *output_pipe_string;
+	char *frameset_output_system_string;
 	char *redraw_index_screen_string;
+	char *email_link_system_string;
 } POST_LOGIN;
 
 /* POST_LOGIN operations */
@@ -133,6 +132,14 @@ char *post_login_redraw_index_screen_string(
 			char *post_login_location,
 			char *post_login_message,
 			boolean appaserver_library_from_php );
+
+char *post_login_email_link_system_string(
+			char *post_login_email_http_template,
+			char *post_login_return_address,
+			char *post_login_subject,
+			char *sql_injection_escape_application_name,
+			char *session_key,
+			char *login_name );
 
 /* Private */
 /* ------- */

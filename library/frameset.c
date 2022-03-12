@@ -47,6 +47,7 @@ FRAMESET_FRAME *frameset_frame_calloc( void )
 
 FRAMESET *frameset_new(	char *application_name,
 			char *session_key,
+			char *login_name,
 			boolean frameset_menu_horizontal )
 {
 	FRAMESET *frameset = frameset_calloc();

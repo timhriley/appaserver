@@ -292,14 +292,15 @@ char *choose_role_output_system_string(
 			char *executable,
 			char *session_key,
 			char *login_name,
-			char *appaserver_error_filename )
+			boolean frameset_menu_horizontal,
+			char *output_filename )
 {
 	char system_string[ 1024 ];
 
 	if ( !executable
 	||   !session_key
 	||   !login_name
-	||   !appaserver_error_filename )
+	||   !output_filename )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -310,11 +311,12 @@ char *choose_role_output_system_string(
 	}
 
 	sprintf(system_string,
-		"%s %s %s 2>>%s",
+		"%s %s %s %c > %s",
 		executable,
 		session_key,
 		login_name,
-		appaserver_error_filename );
+		(frameset_menu_horizontal) ? 'y' : 'n',
+		output_filename );
 
 	return strdup( system_string );
 }

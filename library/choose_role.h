@@ -99,7 +99,8 @@ char *choose_role_output_system_string(
 			char *choose_role_output_executable,
 			char *session_key,
 			char *login_name,
-			char *appaserver_error_filename );
+			boolean frameset_menu_horizontal,
+			char *output_filename );
 
 typedef struct
 {

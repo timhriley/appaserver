@@ -74,6 +74,11 @@ int main( int argc, char **argv )
 		if ( system( post_login->frameset_output_system_string ) ){}
 	}
 
+	if ( post_login->email_link_system_string )
+	{
+		if ( system( post_login->email_link_system_string ) ){}
+	}
+
 	if ( post_login->redraw_index_screen_string )
 	{
 		printf( "%s\n", post_login->redraw_index_screen_string );

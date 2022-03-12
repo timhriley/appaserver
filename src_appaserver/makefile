@@ -80,6 +80,7 @@ EXECUTABLES=								\
 		output_open_html_document				\
 		output_close_html_document				\
 		output_frameset						\
+		output_menu		 				\
 		output_choose_role	 				\
 		post_choose_role			 		\
 		output_choose_role_folder_process			\
@@ -1060,6 +1061,14 @@ output_choose_role: output_choose_role.c				\
 		${LIB}/form_choose_role.o				\
 		${LIB}/choose_role.o					\
 		-o output_choose_role
+
+output_menu: output_menu.c						\
+			${EXTERNAL_LIBS}
+	${CC}	${CFLAGS} -I${LIB}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${EXTERNAL_LIBS}					\
+		output_menu.c						\
+		-o output_menu
 
 output_open_html_document: output_open_html_document.c			\
 			${EXTERNAL_LIBS}
