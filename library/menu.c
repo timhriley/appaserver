@@ -460,8 +460,8 @@ MENU_VERB *menu_verb_lookup_subschema_fetch(
 {
 	MENU_VERB *menu_verb = menu_verb_calloc();
 
-	menu_verb->subschema_list =
-		menu_lookup_subschema_list(
+	menu_verb->menu_subschema_lookup_list =
+		menu_subschema_lookup_list(
 			role_folder_lookup_list,
 			folder_menu_lookup_count_list,
 			application_name,
@@ -470,8 +470,8 @@ MENU_VERB *menu_verb_lookup_subschema_fetch(
 			role_name,
 			target_frame );
 
-	menu_verb->item_list =
-		menu_lookup_folder_item_list(
+	menu_verb->menu_item_folder_lookup_list =
+		menu_item_folder_lookup_list(
 			role_folder_subschema_missing_folder_name_list(
 				role_folder_lookup_list )
 					/* role_folder_lookup_name_list */,
@@ -482,13 +482,13 @@ MENU_VERB *menu_verb_lookup_subschema_fetch(
 			role_name,
 			target_frame );
 
-	if ( !list_length( menu_verb->subschema_list )
-	&&   !list_length( menu_verb->item_list ) )
+	if ( !list_length( menu_verb->menu_subschema_lookup_list )
+	&&   !list_length( menu_verb->menu_item_folder_lookup_list ) )
 	{
 		return (MENU_VERB *)0;
 	}
 
-	menu_verb->menu_verb_tag =
+	menu_verb->tag =
 		menu_verb_tag(
 			"lookup" /* verb */ );
 
@@ -505,8 +505,8 @@ MENU_VERB *menu_verb_insert_subschema_fetch(
 {
 	MENU_VERB *menu_verb = menu_verb_calloc();
 
-	menu_verb->subschema_list =
-		menu_insert_subschema_list(
+	menu_verb->menu_subschema_insert_list =
+		menu_subschema_insert_list(
 			role_folder_insert_list,
 			application_name,
 			login_name,
@@ -514,8 +514,8 @@ MENU_VERB *menu_verb_insert_subschema_fetch(
 			role_name,
 			target_frame );
 
-	menu_verb->item_list =
-		menu_insert_folder_item_list(
+	menu_verb->menu_item_insert_folder_list =
+		menu_item_insert_folder_list(
 			role_folder_subschema_missing_folder_name_list(
 				role_folder_insert_list )
 					/* role_folder_insert_name_list */,
@@ -525,20 +525,20 @@ MENU_VERB *menu_verb_insert_subschema_fetch(
 			role_name,
 			target_frame );
 
-	if ( !list_length( menu_verb->subschema_list )
-	&&   !list_length( menu_verb->item_list ) )
+	if ( !list_length( menu_verb->menu_subschema_insert_list )
+	&&   !list_length( menu_verb->menu_item_insert_folder_list ) )
 	{
 		return (MENU_VERB *)0;
 	}
 
-	menu_verb->menu_verb_tag =
+	menu_verb->tag =
 		menu_verb_tag(
 			"insert" /* verb */ );
 
 	return menu_verb;
 }
 
-LIST *menu_lookup_subschema_list(
+LIST *menu_subschema_lookup_list(
 			LIST *role_folder_lookup_list,
 			LIST *folder_menu_lookup_count_list,
 			char *application_name,
@@ -566,7 +566,7 @@ LIST *menu_lookup_subschema_list(
 
 		list_set(
 			subschema_list,
-			menu_lookup_subschema_fetch(
+			menu_subschema_lookup_fetch(
 				subschema_name,
 				role_folder_subschema_folder_name_list(
 					subschema_name,
@@ -583,7 +583,7 @@ LIST *menu_lookup_subschema_list(
 	return subschema_list;
 }
 
-LIST *menu_insert_subschema_list(
+LIST *menu_subschema_insert_list(
 			LIST *role_folder_insert_list,
 			char *application_name,
 			char *login_name,
@@ -610,7 +610,7 @@ LIST *menu_insert_subschema_list(
 
 		list_set(
 			subschema_list,
-			menu_insert_subschema_fetch(
+			menu_subschema_insert_fetch(
 				subschema_name,
 				role_folder_subschema_folder_name_list(
 					subschema_name,
@@ -626,9 +626,9 @@ LIST *menu_insert_subschema_list(
 	return subschema_list;
 }
 
-MENU_SUBSCHEMA *menu_lookup_subschema_fetch(
+MENU_SUBSCHEMA *menu_subschema_lookup_fetch(
 			char *subschema_name,
-			LIST *role_folder_lookup_name_list,
+			LIST *role_folder_subschema_folder_name_list,
 			LIST *folder_menu_lookup_count_list,
 			char *application_name,
 			char *login_name,
@@ -640,9 +640,9 @@ MENU_SUBSCHEMA *menu_lookup_subschema_fetch(
 
 	menu_subschema->subschema_name = subschema_name;
 
-	menu_subschema->item_list =
-		menu_lookup_folder_item_list(
-			role_folder_lookup_name_list,
+	menu_subschema->menu_item_folder_lookup_list =
+		menu_item_folder_lookup_list(
+			role_folder_subschema_folder_name_list,
 			folder_menu_lookup_count_list,
 			application_name,
 			login_name,
@@ -662,7 +662,7 @@ MENU_SUBSCHEMA *menu_lookup_subschema_fetch(
 
 MENU_SUBSCHEMA *menu_insert_subschema_fetch(
 			char *subschema_name,
-			LIST *role_folder_insert_name_list,
+			LIST *role_folder_subschema_folder_name_list,
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -1248,6 +1248,42 @@ boolean menu_boolean(	char *current_frame,
 			FRAMESET_PROMPT_FRAME ) == 0 );
 }
 
+char *menu_output_system_string(
+			char *menu_output_executable,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			boolean frameset_menu_horizontal,
+			char *output_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !menu_output_executable
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !output_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %c > %s",
+		menu_output_executable,
+		session_key,
+		login_name,
+		role_name,
+		(frameset_menu_horizontal) ? 'y' : 'n',
+		output_filename );
+
+	return strdup( system_string );
+}
+
 char *menu_horizontal_html(
 			char *hide_preload_html,
 			LIST *menu_verb_list )
@@ -1327,42 +1363,43 @@ char *menu_horizontal_html(
 
 char *menu_vertical_html( LIST *menu_verb_list )
 {
-	return (char *)0;
-}
+	MENU_VERB *menu_verb;
+	char html[ STRING_ONE_MEG ];
+	char *ptr = html;
 
-char *menu_output_system_string(
-			char *menu_output_executable,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			boolean frameset_menu_horizontal,
-			char *output_filename )
-{
-	char system_string[ 1024 ];
+	if ( !list_rewind( menu_verb_list ) ) return (char *)0;
 
-	if ( !menu_output_executable
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !output_filename )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	ptr += sprintf( ptr,
+"\t<table border>\n"
+"\t<th colspan=3><h2 align=center>Data</h2></th>\n" );
 
-	sprintf(system_string,
-		"%s %s %s %s %c > %s",
-		menu_output_executable,
-		session_key,
-		login_name,
-		role_name,
-		(frameset_menu_horizontal) ? 'y' : 'n',
-		output_filename );
+	do {
+		menu_verb = list_get( menu_verb_list );
 
-	return strdup( system_string );
+		ptr += sprintf ( ptr, "\t<tr>\n" );
+
+		ptr += sprintf( ptr,
+"<td><A class=%s HREF=\"%s/post_choose_folder?"
+				"%s+%s+%s+%s+%s+%s\""
+				" target=%s>%s</A></td>\n",
+				VERTICAL_MENU_CLASS,
+				appaserver_library_http_prompt(
+					apache_cgi_directory,
+					server_address,
+					application_ssl_support_yn(
+						application_name ),
+				       application_prepend_http_protocol_yn(
+						application_name ) ),
+				 login_name,
+				 application_name,
+				 session,
+				 folder->folder_name, 
+				 role_name,
+				 state,
+				 target_frame,
+				 format_initial_capital(
+						buffer, 
+				 		folder->folder_name ) );
+
 }
 
