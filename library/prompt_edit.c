@@ -140,22 +140,22 @@ PROMPT_EDIT *prompt_edit_new(
 	if ( menu_boolean )
 	{
 		prompt_edit->folder_menu =
-			folder_menu_fetch(
+			folder_menu_new(
 				application_name,
 				session_key,
-				data_directory,
-				role_name );
+				role_name,
+				data_directory );
 	
 		prompt_edit->menu =
-			menu_fetch(
+			menu_new(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				role_name,
 				target_frame,
 				prompt_edit->
 					folder_menu->
-					lookup_count_list );
+					count_list );
 	}
 
 	prompt_edit->folder_attribute_date_name_list_length =

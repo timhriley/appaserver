@@ -46,14 +46,14 @@ int main( int argc, char **argv )
 	frameset_menu_horizontal = (*argv[ 4 ] == 'y');
 
 	if ( ! ( folder_menu =
-			folder_menu_fetch(
+			folder_menu_new(
 				application_name,
 				session_key,
-				appaserver_parameter_data_directory(),
-				role_name ) ) )
+				role_name,
+				appaserver_parameter_data_directory() ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_menu_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -61,16 +61,16 @@ int main( int argc, char **argv )
 	}
 
 	if ( ! ( menu =
-			menu_fetch(
+			menu_new(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				role_name,
 				FRAMESET_PROMPT_FRAME /* target_frame */,
-				folder_menu->lookup_count_list ) ) )
+				folder_menu->count_list ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: menu_fetch(%s) returned empty.\n",
+			"ERROR in %s/%s()/%d: menu_new(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,

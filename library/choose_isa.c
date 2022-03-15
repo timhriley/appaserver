@@ -146,16 +146,16 @@ CHOOSE_ISA *choose_isa_new(
 	if ( menu_boolean )
 	{
 		choose_isa->folder_menu =
-			folder_menu_fetch(
+			folder_menu_new(
 				application_name,
 				session_key,
-				appaserver_parameter_data_directory(),
-				role_name );
+				role_name,
+				appaserver_parameter_data_directory() );
 
 		if ( !choose_isa->folder_menu )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_menu_fetch(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_menu_new(%s) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
@@ -164,13 +164,13 @@ CHOOSE_ISA *choose_isa_new(
 		}
 
 		choose_isa->menu =
-			menu_fetch(
+			menu_new(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				role_name,
 				FRAMESET_PROMPT_FRAME,
-				choose_isa->folder_menu->lookup_count_list );
+				choose_isa->folder_menu->count_list );
 
 		if ( !choose_isa->menu )
 		{

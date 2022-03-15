@@ -121,20 +121,20 @@ EDIT_TABLE *edit_table_new(
 	if ( menu_boolean )
 	{
 		edit_table->folder_menu =
-			folder_menu_fetch(
+			folder_menu_new(
 				application_name,
-				session_key,
-				appaserver_parameter_data_directory(),
-				role_name );
-
-		edit_table->menu =
-			menu_fetch(
-				application_name,
-				login_name,
 				session_key,
 				role_name,
+				appaserver_parameter_data_directory() );
+
+		edit_table->menu =
+			menu_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
 				target_frame,
-				edit_table->folder_menu->lookup_count_list );
+				edit_table->folder_menu->count_list );
 	}
 
 	edit_table->security_entity =

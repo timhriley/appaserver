@@ -414,14 +414,14 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 		FOLDER_MENU *folder_menu;
 
 		if ( ! ( folder_menu =
-				folder_menu_fetch(
+				folder_menu_new(
 					application_name,
 					session_key,
-					data_directory,
-					role_name ) ) )
+					role_name,
+					data_directory ) ) )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_menu_new() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -429,13 +429,13 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 		}
 
 		menu =
-			menu_fetch(
+			menu_new(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				role_name,
 				frameset_prompt_frame /* target_frame */,
-				folder_menu->lookup_count_list );
+				folder_menu->count_list );
 	}
 
 	document =

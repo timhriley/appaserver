@@ -62,16 +62,16 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 	if ( menu_boolean )
 	{
 		generic_load_choose->folder_menu =
-			folder_menu_fetch(
+			folder_menu_new(
 				application_name,
 				session_key,
-				appaserver_parameter_data_directory(),
-				role_name );
+				role_name,
+				appaserver_parameter_data_directory() );
 
 		if ( !generic_load_choose->folder_menu )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_menu_fetch() returned empty.\n",
+		"ERROR in %s/%s()/%d: folder_menu_new() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -79,20 +79,20 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 		}
 
 		generic_load_choose->menu =
-			menu_fetch(
+			menu_new(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				role_name,
 				FRAMESET_PROMPT_FRAME,
 				generic_load_choose->
 					folder_menu->
-					lookup_count_list );
+					count_list );
 
 		if ( !generic_load_choose->menu )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: menu_fetch() returned empty.\n",
+			"ERROR in %s/%s()/%d: menu_new() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -1465,22 +1465,22 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 	if ( menu_boolean )
 	{
 		generic_load_folder->folder_menu =
-			folder_menu_fetch(
+			folder_menu_new(
 				application_name,
 				session_key,
-				appaserver_parameter_data_directory(),
-				role_name );
+				role_name,
+				appaserver_parameter_data_directory() );
 
 		generic_load_folder->menu =
-			menu_fetch(
+			menu_new(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				role_name,
 				FRAMESET_PROMPT_FRAME,
 				generic_load_folder->
 					folder_menu->
-					lookup_count_list );
+					count_list );
 	}
 
 	generic_load_folder->post_action_string =

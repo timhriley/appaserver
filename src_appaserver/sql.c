@@ -18,7 +18,7 @@
 #include <wait.h>
 #include "timlib.h"
 #include "appaserver_library.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 #include "sql.h"
 #include "environ.h"
 #include "basename.h"
@@ -28,7 +28,7 @@
 
 int main( int argc, char **argv )
 {
-	APPASERVER_PARAMETER_FILE *h;
+	APPASERVER_PARAMETER *h;
 	char sys_string[ 8192 ];
 	char delimiter = SQL_DELIMITER;
 	char *base_name;
@@ -73,17 +73,17 @@ int main( int argc, char **argv )
 
 	if ( override_database && *override_database )
 	{
-		environ_set_environment(
-			APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
+		environment_set(
+			"DATABASE",
 			override_database );
 	}
 
-	h = appaserver_parameter_file_new();
+	h = appaserver_parameter_new();
 
 	if ( !h )
 	{
 		fprintf( stderr,
-			 "%s/%s()/%d: cannot load appaserver parameter file\n",
+	"ERROR in %s/%s()/%d: appaserver_parameter_new() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
@@ -99,13 +99,13 @@ int main( int argc, char **argv )
 			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
 
 	database_connection =
-		environ_get_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE );
+		environment_get(
+		"APPASERVER_DATABASE" );
 
 	if ( !database_connection || !*database_connection )
 	{
 		database_connection =
-			environ_get_environment( "DATABASE" );
+			environment_get( "DATABASE" );
 	}
 
 	if ( !database_connection || !*database_connection )
