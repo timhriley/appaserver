@@ -35,50 +35,28 @@ FOLDER_MENU *folder_menu_calloc( void )
 	return folder_menu;
 }
 
-FOLDER_MENU *folder_menu_fetch(
+FOLDER_MENU *folder_menu_new(
 			char *application_name,
 			char *session_key,
-			char *appaserver_data_directory,
-			char *role_name )
+			char *role_name,
+			char *data_directory )
 {
 	FOLDER_MENU *folder_menu;
 
-	if ( !application_name || !*application_name )
+	if ( !application_name
+	||   !session_key
+	||   !role_name
+	||   !data_directory )
 	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: application_name is empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !session_key || !*session_key )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: session_key is empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	if ( !appaserver_data_directory || !*appaserver_data_directory )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: appaserver_data_directory is empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 
 	folder_menu = folder_menu_calloc();
-
-	folder_menu->application_name = application_name;
-	folder_menu->session_key = session_key;
-	folder_menu->appaserver_data_directory = appaserver_data_directory;
-	folder_menu->role_name = role_name;
 
 	if ( ! ( folder_menu->role =
 			role_fetch(
@@ -96,20 +74,23 @@ FOLDER_MENU *folder_menu_fetch(
 
 	folder_menu->lookup_folder_name_list =
 		folder_menu_lookup_folder_name_list(
-			folder_menu->role_name );
+			role_name );
 
 	folder_menu->insert_folder_name_list =
 		folder_menu_insert_folder_name_list(
-			folder_menu->role_name );
+			role_name );
 
 	if ( folder_menu->role->folder_count )
 	{
 		if ( ! ( folder_menu->filename =
+			   /* --------------------------- */
+			   /* Returns heap memory or null */
+			   /* --------------------------- */
 			   folder_menu_filename(
 				application_name,
 				session_key,
-				appaserver_data_directory,
-				role_name ) ) )
+				role_name,
+				data_directory ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: folder_menu_filename() returned empty.\n",
@@ -119,9 +100,9 @@ FOLDER_MENU *folder_menu_fetch(
 			exit( 1 );
 		}
 
-		folder_menu->lookup_count_list =
-			folder_menu_lookup_count_list(
-				folder_menu->application_name,
+		folder_menu->count_list =
+			folder_menu_count_list(
+				application_name,
 				folder_menu->lookup_folder_name_list,
 				folder_menu->filename );
 	}
@@ -145,37 +126,37 @@ LIST *folder_menu_insert_folder_name_list(
 			role_name ) );
 }
 
-LIST *folder_menu_lookup_count_list(
+LIST *folder_menu_count_list(
 			char *application_name,
 			LIST *lookup_folder_name_list,
 			char *filename )
 {
-	LIST *lookup_count_list;
+	LIST *count_list;
 	char *folder_name;
 
 	if ( file_exists( filename ) )
 	{
-		return folder_menu_read_count_list( filename );
+		return folder_menu_count_read_list( filename );
 	}
 
 	if ( !list_rewind( lookup_folder_name_list ) ) return (LIST *)0;
 
-	lookup_count_list = list_new();
+	count_list = list_new();
 
 	do {
 		folder_name = list_get( lookup_folder_name_list );
 
 		list_set(
-			lookup_count_list,
+			count_list,
 			folder_menu_count_new(
 				application_name,
 				folder_name ) );
 
 	} while ( list_next( lookup_folder_name_list ) );
 
-	folder_menu_write_count_list( filename, lookup_count_list );
+	folder_menu_count_list_write( filename, count_list );
 
-	return lookup_count_list;
+	return count_list;
 }
 
 FOLDER_MENU_COUNT *folder_menu_count_calloc( void )
@@ -202,6 +183,8 @@ FOLDER_MENU_COUNT *folder_menu_count_new(
 {
 	FOLDER_MENU_COUNT *folder_menu_count = folder_menu_count_calloc();
 
+	folder_menu_count->folder_name = folder_name;
+
 	folder_menu_count->count =
 		folder_menu_count_fetch(
 			folder_table_name(
@@ -209,6 +192,9 @@ FOLDER_MENU_COUNT *folder_menu_count_new(
 				folder_name ) );
 
 	folder_menu_count->display =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		folder_menu_count_display(
 			folder_menu_count->count );
 
@@ -233,14 +219,13 @@ unsigned long folder_menu_count_fetch(
 		return strtoul( results, (char **)0, 0 );
 }
 
-LIST *folder_menu_read_count_list(
-			char *filename )
+LIST *folder_menu_count_read_list( char *filename )
 {
 	FILE *input_file;
 	char input[ 256 ];
 	char folder_name[ 128 ];
 	char count[ 128 ];
-	LIST *lookup_count_list;
+	LIST *count_list;
 	FOLDER_MENU_COUNT *folder_menu_count;
 
 	if ( ! ( input_file = fopen( filename, "r" ) ) )
@@ -254,33 +239,33 @@ LIST *folder_menu_read_count_list(
 		exit( 1 );
 	}
 
-	lookup_count_list = list_new();
+	count_list = list_new();
 
 	while ( string_input( input, input_file, 256 ) )
 	{
-		piece( folder_name, SQL_DELIMITER, input, 0 );
-		piece( count, SQL_DELIMITER, input, 1 );
-
 		folder_menu_count = folder_menu_count_calloc();
 
+		piece( folder_name, SQL_DELIMITER, input, 0 );
 		folder_menu_count->folder_name = strdup( folder_name );
-		folder_menu_count->count = atol( count );
 
-		list_set( lookup_count_list, folder_menu_count );
+		piece( count, SQL_DELIMITER, input, 1 );
+		folder_menu_count->count = strtoul( count, (char **)0, 0 );
+
+		list_set( count_list, folder_menu_count );
 	}
 
 	fclose( input_file );
-	return lookup_count_list;
+	return count_list;
 }
 
-void folder_menu_write_count_list(
+void folder_menu_count_list_write(
 			char *filename,
-			LIST *lookup_count_list )
+			LIST *count_list )
 {
 	FILE *output_file;
 	FOLDER_MENU_COUNT *folder_menu_count;
 
-	if ( !list_rewind( lookup_count_list ) ) return;
+	if ( !list_rewind( count_list ) ) return;
 
 	if ( ! ( output_file = fopen( filename, "w" ) ) )
 	{
@@ -296,7 +281,7 @@ void folder_menu_write_count_list(
 	do {
 		folder_menu_count =
 			list_get(
-				lookup_count_list );
+				count_list );
 
 		fprintf(output_file,
 			"%s%c%ld\n",
@@ -304,7 +289,7 @@ void folder_menu_write_count_list(
 			SQL_DELIMITER,
 			folder_menu_count->count );
 
-	} while ( list_next( lookup_count_list ) );
+	} while ( list_next( count_list ) );
 
 	fclose( output_file );
 }
@@ -312,22 +297,22 @@ void folder_menu_write_count_list(
 char *folder_menu_filename(
 			char *application_name,
 			char *session_key,
-			char *appaserver_data_directory,
-			char *role_name )
+			char *role_name,
+			char *data_directory )
 {
 	char filename[ 1024 ];
 
-	if ( !appaserver_data_directory
-	||   !application_name
+	if ( !application_name
+	||   !session_key
 	||   !role_name
-	||   !session_key )
+	||   !data_directory )
 	{
 		return (char *)0;
 	}
 
 	sprintf( filename,
 		 "%s/%s_%s_%s.txt",
-		 appaserver_data_directory,
+		 data_directory,
 		 application_name,
 		 role_name,
 		 session_key );
@@ -337,17 +322,17 @@ char *folder_menu_filename(
 
 FOLDER_MENU_COUNT *folder_menu_count_seek(
 			char *folder_name,
-			LIST *folder_menu_lookup_count_list )
+			LIST *folder_menu_count_list )
 {
 	FOLDER_MENU_COUNT *folder_menu_count;
 
-	if ( ! list_rewind( folder_menu_lookup_count_list ) )
+	if ( ! list_rewind( folder_menu_count_list ) )
 		return (FOLDER_MENU_COUNT *)0;
 
 	do {
 		folder_menu_count =
 			list_get(
-				folder_menu_lookup_count_list );
+				folder_menu_count_list );
 
 		if ( strcmp(
 			folder_menu_count->folder_name,
@@ -356,7 +341,7 @@ FOLDER_MENU_COUNT *folder_menu_count_seek(
 			return folder_menu_count;
 		}
 
-	} while ( list_next( folder_menu_lookup_count_list ) );
+	} while ( list_next( folder_menu_count_list ) );
 
 	return (FOLDER_MENU_COUNT *)0;
 }
@@ -364,5 +349,8 @@ FOLDER_MENU_COUNT *folder_menu_count_seek(
 char *folder_menu_count_display(
 			unsigned long count )
 {
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
 	return place_commas_in_unsigned_long( count );
 }

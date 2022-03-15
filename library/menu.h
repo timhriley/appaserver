@@ -62,13 +62,13 @@ typedef struct
 /* Usage */
 /* ----- */
 MENU_ITEM *menu_item_folder_new(
-			char *folder_name,
-			char *folder_menu_count_display,
-			char *state,
+			LIST *folder_menu_count_list,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
+			char *folder_name,
+			char *state,
 			char *target_frame );
 
 /* Process */
@@ -83,13 +83,13 @@ char *menu_item_folder_span_tag(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *menu_item_folder_action_tag(
-			char *http_prompt,
-			char *folder_name,
-			char *state,
+			char *appaserver_library_http_prompt,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
+			char *folder_name,
+			char *state,
 			char *target_frame );
 
 /* Usage */

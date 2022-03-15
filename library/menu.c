@@ -80,16 +80,37 @@ char *menu_item_display( char *folder_process_role_name )
 }
 
 MENU_ITEM *menu_item_folder_new(
-			char *folder_name,
-			char *folder_menu_count_display,
-			char *state,
-			char *login_name,
+			LIST *folder_menu_count_list,
 			char *application_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
+			char *state,
 			char *target_frame )
 {
 	MENU_ITEM *menu_item = menu_item_calloc();
+	char *folder_menu_count_display = {0};
+	FOLDER_MENU_COUNT *folder_menu_count;
+
+	if ( list_length( folder_mount_count_list ) )
+	{
+		if ( ! ( folder_menu_count =
+				folder_menu_count_seek(
+					folder_name,
+					folder_menu_count_list ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: folder_menu_count_seek(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				folder_name );
+			exit( 1 );
+		}
+
+		folder_menu_count_display = folder_menu_count->display;
+	}
 
 	menu_item->menu_item_display =
 		/* ------------------- */
@@ -121,12 +142,12 @@ MENU_ITEM *menu_item_folder_new(
 					application_name ),
 				application_prepend_http_protocol_yn(
 					application_name ) ),
+			application_name,
+			session_key,
+			login_name,
+			role_name,
 			folder_name,
 			state,
-			application_name,
-			login_name,
-			session_key,
-			role_name,
 			target_frame );
 
 	if ( !menu_item->action_tag )
@@ -200,33 +221,33 @@ MENU_ITEM *menu_item_process_new(
 
 char *menu_item_folder_action_tag(
 			char *http_prompt,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
 			char *state,
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *role_name,
 			char *target_frame )
 {
 	char action_tag[ 1024 ];
 
 	if ( !http_prompt || !*http_prompt )		return (char *)0;
+	if ( !application_name || !*application_name )	return (char *)0;
+	if ( !session_key || !*session_key )		return (char *)0;
+	if ( !login_name || !*login_name )		return (char *)0;
+	if ( !role_name || !*role_name )		return (char *)0;
 	if ( !folder_name || !*folder_name )		return (char *)0;
 	if ( !state || !*state )			return (char *)0;
-	if ( !application_name || !*application_name )	return (char *)0;
-	if ( !login_name || !*login_name )		return (char *)0;
-	if ( !session_key || !*session_key )		return (char *)0;
-	if ( !role_name || !*role_name )		return (char *)0;
 	if ( !target_frame || !*target_frame )		return (char *)0;
 
 	sprintf(action_tag,
 "<a href=\"%s/post_choose_folder?%s+%s+%s+%s+%s+%s\" target=\"%s\">",
 		http_prompt,
-		login_name,
 		application_name,
 		session_key,
-		folder_name,
+		login_name,
 		role_name,
+		folder_name,
 		state,
 		target_frame );
 
@@ -362,7 +383,7 @@ MENU *menu_new(		char *application_name,
 			char *login_name,
 			char *role_name,
 			char *target_frame,
-			LIST *folder_menu_lookup_count_list )
+			LIST *folder_menu_count_list )
 {
 	MENU_VERB *menu_verb;
 	MENU *menu = menu_calloc();
@@ -377,7 +398,7 @@ MENU *menu_new(		char *application_name,
 			"lookup" /* verb */,
 			menu->role_folder_lookup_list
 				/* role_folder_list */,
-			folder_menu_lookup_count_list,
+			folder_menu_count_list,
 			application_name,
 			session_key,
 			login_name,
@@ -392,7 +413,7 @@ MENU *menu_new(		char *application_name,
 			"insert" /* verb */,
 			menu->role_folder_insert_list
 				/* role_folder_list */,
-			(LIST *)0 /* folder_menu_lookup_count_list */,
+			(LIST *)0 /* folder_menu_count_list */,
 			application_name,
 			session_key,
 			login_name,
@@ -411,17 +432,17 @@ MENU *menu_new(		char *application_name,
 
 	if ( list_rewind( menu->menu_process_group_name_list ) )
 	{
-		char *group_name;
+		char *process_group_name;
 
 		do {
-			group_name =
+			process_group_name =
 				list_get(
 					menu->menu_process_group_name_list );
 
 			list_set(
 				menu->menu_verb_list,
 				menu_verb_process_new(
-					group_name /* verb */,
+					process_group_name /* verb */,
 					menu->role_process_list,
 					menu->role_process_set_list,
 					application_name,
@@ -481,7 +502,7 @@ MENU_VERB *menu_verb_calloc( void )
 MENU_VERB *menu_verb_folder_new(
 			char *verb,
 			LIST *role_folder_list,
-			LIST *folder_menu_lookup_count_list,
+			LIST *folder_menu_count_list,
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -510,9 +531,9 @@ MENU_VERB *menu_verb_folder_new(
 				menu_verb->menu_subschema_list,
 				menu_subschema_new(
 					subschema_name,
-					verb,
+					verb /* state */,
 					role_folder_list,
-					folder_menu_lookup_count_list,
+					folder_menu_count_list,
 					application_name,
 					session_key,
 					login_name,
@@ -545,14 +566,13 @@ MENU_VERB *menu_verb_folder_new(
 			list_set(
 				menu_verb->menu_item_folder_list,
 				menu_item_folder_new(
-					folder_name,
-					verb,
-					role_folder_list,
-					folder_menu_lookup_count_list,
+					folder_menu_count_list,
 					application_name,
 					session_key,
 					login_name,
 					role_name,
+					folder_name,
+					verb /* state */,
 					target_frame ) );
 
 		} while (
@@ -578,7 +598,7 @@ MENU_SUBSCHEMA *menu_subschema_new(
 			char *subschema_name,
 			char *state,
 			LIST *role_folder_list,
-			LIST *folder_menu_lookup_count_list,
+			LIST *folder_menu_count_list,
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -586,8 +606,6 @@ MENU_SUBSCHEMA *menu_subschema_new(
 			char *target_frame )
 {
 	char *folder_name;
-	char *folder_menu_count_display = {0};
-	FOLDER_MENU_COUNT *folder_menu_count;
 	MENU_SUBSCHEMA *menu_subschema = menu_subschema_calloc();
 
 	menu_subschema->subschema_name = subschema_name;
@@ -613,38 +631,16 @@ MENU_SUBSCHEMA *menu_subschema_new(
 				menu_subschema->
 				       role_folder_subschema_folder_name_list );
 
-		if ( folder_menu_lookup_count_list )
-		{
-			if ( ! ( folder_menu_count =
-				   folder_menu_count_seek(
-					folder_name,
-					folder_menu_lookup_count_list ) ) )
-			{
-				fprintf(stderr,
-	"ERROR in %s/%s()/%d: folder_menu_count_seek(%s) returned empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__,
-					folder_name );
-				exit( 1 );
-			}
-
-			folder_menu_count_display =
-				folder_menu->
-					folder_menu_count->
-					display;
-		}
-
 		list_set(
 			menu_subschema->menu_item_list,
 			menu_item_folder_new(
-				folder_name,
-				folder_menu_count_display,
-				state,
+				folder_menu_count_list,
 				application_name,
 				session_key,
 				login_name,
 				role_name,
+				folder_name,
+				state,
 				target_frame ) );
 	} while ( list_next(
 			menu_subschema->

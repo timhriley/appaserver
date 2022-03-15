@@ -72,7 +72,15 @@ boolean list_set( LIST *list, void *this_item )
 	if ( !list ) return 0;
 	if ( !this_item ) return 0;
 
-        if ( ! ( newlink = create_node() ) ) return 0;
+        if ( ! ( newlink = create_node() ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: create_node() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
         newlink->item = this_item;
         newlink->num_bytes = -1;
@@ -110,18 +118,22 @@ boolean list_add_head( LIST *list, void *this_item )
 
 boolean list_prepend_pointer( LIST *list, void *this_item )
 {
-        struct LINKTYPE *newlink = create_node();
+	struct LINKTYPE *newlink;
 
-	if ( !list )
+	if ( !list ) return 0;
+	if ( !this_item ) return 0;
+
+	newlink = create_node();
+
+        if ( !newlink )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): list is null\n",
-			 __FILE__,
-			 __FUNCTION__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: create_node() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
-
-        if (!newlink) return 0;
 
         newlink->item = this_item;
         newlink->num_bytes = -1;
@@ -135,7 +147,6 @@ boolean list_prepend_pointer( LIST *list, void *this_item )
 	list->head->next = newlink;
 
 	return 1;
-
 }
 
 void list_append_string_list( LIST *list, LIST *string_list )
@@ -144,14 +155,13 @@ void list_append_string_list( LIST *list, LIST *string_list )
 
 	if ( !list ) return;
 
-	if ( list_reset( string_list ) )
+	if ( list_rewind( string_list ) )
 	{
 		do {
 			item = list_get( string_list );
-			list_append_pointer( list, item );
+			list_set( list, item );
 		} while( list_next( string_list ) );
 	}
-
 }
 
 void list_subtract_string(
@@ -182,7 +192,7 @@ void *list_first( LIST *list )
 	if ( !go_head( list ) )
 		return (void *)0;
 	else
-		return retrieve_item_ptr( list );
+		return list_get( list );
 }
 
 void *list_data( LIST *list )
@@ -1026,9 +1036,11 @@ struct LINKTYPE *create_node()
 void list_free_string_list( LIST *string_list )
 {
 	if ( list_rewind( string_list ) )
+	{
 		do {
 			free( list_get( string_list ) );
 		} while( list_next( string_list ) );
+	}
 	list_free_container( string_list );
 }
 
