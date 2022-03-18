@@ -17,6 +17,7 @@
 /* Constants */
 /* --------- */
 #define CHOOSE_ROLE_OUTPUT_EXECUTABLE		"output_choose_role"
+#define CHOOSE_ROLE_POST_EXECUTABLE		"post_choose_role"
 #define CHOOSE_ROLE_FORM_NAME			"choose_role_form"
 #define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
 
@@ -41,9 +42,8 @@ typedef struct
 
 /* CHOOSE_ROLE operations */
 /* ---------------------- */
-CHOOSE_ROLE *choose_role_calloc(
-			void );
-
+/* Usage */
+/* ----- */
 CHOOSE_ROLE *choose_role_default_new(
 			char *login_name );
 
@@ -64,8 +64,8 @@ char *choose_role_default_role_name(
 
 CHOOSE_ROLE *choose_role_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			boolean frameset_menu_horizontal );
 
 /* Returns static memory */
@@ -76,9 +76,10 @@ char *choose_role_title_string(
 /* Returns heap memory */
 /* ------------------- */
 char *choose_role_post_action_string(
+			char *choose_role_post_executable,
 			char *application_name,
-			char *login_name,
-			char *session_key );
+			char *session_key,
+			char *login_name );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -89,6 +90,11 @@ char *choose_role_target_frame(
 /* --------------------- */
 char *choose_role_title_html(
 			char *choose_role_title_string );
+
+/* Private */
+/* ------- */
+CHOOSE_ROLE *choose_role_calloc(
+			void );
 
 /* Public */
 /* ------ */

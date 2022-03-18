@@ -32,7 +32,7 @@ FORM_CHOOSE_ROLE *form_choose_role_calloc(
 
 FORM_CHOOSE_ROLE *form_choose_role_new(
 			LIST *role_name_list,
-			char *post_action_string,
+			char *post_choose_role_action_string,
 			char *target_frame,
 			char *form_name,
 			char *drop_down_element_name );

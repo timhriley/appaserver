@@ -66,8 +66,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *folder_name,
 			char *state )
@@ -193,10 +193,11 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			post_choose_folder->prompt_edit,
 			post_choose_folder->edit_table,
 			application_name,
-			login_name,
 			session_key,
-			post_choose_folder->folder->folder_name,
+			login_name,
 			role_name,
+			post_choose_folder->folder->folder_name,
+			state,
 			/* ------------------------------------ */
 			/* Returns frameset_prompt_frame or	*/
 			/* frameset_edit_frame			*/
@@ -209,22 +210,12 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 					drillthru_participating,
 				FRAMESET_PROMPT_FRAME,
 				FRAMESET_EDIT_FRAME ),
-			state,
 			drillthru_dictionary,
 			list_first(
 				post_choose_folder->
 					folder->
-					relation_mto1_isa_list ) );
-
-	if ( !post_choose_folder->system_string )
-	{
-		fprintf(stderr,
-"Warning in %s/%s()/%d: post_choose_folder_system_string() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (POST_CHOOSE_FOLDER *)0;
-	}
+					relation_mto1_isa_list )
+						/* first_one2m_is_relation */ );
 
 	return post_choose_folder;
 }
@@ -320,10 +311,10 @@ char *post_choose_folder_system_string(
 			boolean prompt_edit,
 			boolean edit_table,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *state,
 			char *target_frame,
 			DICTIONARY *drillthru_dictionary,
@@ -495,5 +486,55 @@ char *post_choose_folder_system_string(
 	}
 
 	return strdup( system_string );
+}
+
+char *post_choose_folder_action_string(
+			char *post_choose_folder_executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state,
+			char *frameset_prompt_frame )
+{
+	char action_string[ 1024 ];
+
+	if ( !post_choose_folder_executable
+	||   !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !state
+	||   !frameset_prompt_frame )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(action_string,
+		"href=\"%s/%s?%s+%s+%s+%s+%s+%s\" target=%s",
+			appaserver_library_http_prompt(
+				appaserver_parameter_cgi_directory(),
+				appaserver_library_server_address(),
+				application_ssl_support_yn(
+					application_name ),
+				application_prepend_http_protocol_yn(
+					application_name ) ),
+		post_choose_folder_executable,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		folder_name,
+		state,
+		frameset_prompt_frame );
+
+	return strdup( action_string );
 }
 

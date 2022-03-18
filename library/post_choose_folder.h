@@ -16,6 +16,7 @@
 
 /* Constants */
 /* --------- */
+#define POST_CHOOSE_FOLDER_EXECUTABLE	"post_choose_folder"
 
 /* Enumerated types */
 /* ---------------- */
@@ -48,8 +49,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			/* See session_folder_integrity_exit() */
 			/* ----------------------------------- */
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *folder_name,
 			char *state );
@@ -106,12 +107,12 @@ char *post_choose_folder_system_string(
 			boolean prompt_edit_form,
 			boolean edit_table_form,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
-			char *target_frame,
+			char *folder_name,
 			char *state,
+			char *target_frame,
 			DICTIONARY *drillthru_dictionary,
 			RELATION *first_one2m_isa_relation );
 
@@ -119,4 +120,17 @@ char *post_choose_folder_system_string(
 /* ------- */
 POST_CHOOSE_FOLDER *post_choose_folder_calloc(
 			void );
+
+/* Public */
+/* ------ */
+char *post_choose_folder_action_string(
+			char *post_choose_folder_executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state,
+			char *frameset_prompt_frame );
+
 #endif

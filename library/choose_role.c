@@ -82,13 +82,15 @@ char *choose_role_title_string( char *login_name )
 }
 
 char *choose_role_post_action_string(
+			char *choose_role_post_executable,
 			char *application_name,
-			char *login_name,
-			char *session_key )
+			char *session_key,
+			char *login_name )
 {
 	char action_string[ 1024 ];
 
-	if ( !application_name
+	if ( !choose_role_post_executable
+	||   !application_name
 	||   !session_key
 	||   !login_name )
 	{
@@ -109,10 +111,10 @@ char *choose_role_post_action_string(
 					application_name ),
 				application_prepend_http_protocol_yn(
 					application_name ) ),
-		"post_choose_role",
+		choose_role_post_executable,
 		application_name,
-		login_name,
-		session_key );
+		session_key,
+		login_name );
 
 	return strdup( action_string );
 }
@@ -158,9 +160,10 @@ CHOOSE_ROLE *choose_role_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		choose_role_post_action_string(
+			CHOOSE_ROLE_POST_EXECUTABLE,
 			application_name,
-			login_name,
-			session_key );
+			session_key,
+			login_name );
 
 	choose_role->target_frame =
 		/* ---------------------- */
