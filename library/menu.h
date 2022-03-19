@@ -60,8 +60,8 @@ MENU_ITEM *menu_item_horizontal_folder_new(
 			char *state,
 			char *folder_menu_count_display );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *menu_item_horizontal_folder_span_tag(
 			char *folder_name,
 			char *folder_menu_count_display );
@@ -96,11 +96,6 @@ MENU_ITEM *menu_item_horizontal_process_new(
 /* Process */
 /* ------- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *menu_item_horizontal_process_span_tag(
-			char *process_or_set_name );
-
 /* Usage */
 /* ----- */
 MENU_ITEM *menu_item_vertical_role_change_new(
@@ -119,11 +114,6 @@ MENU_ITEM *menu_item_horizontal_role_change_new(
 
 /* Process */
 /* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *menu_item_horizontal_role_change_span_tag(
-			char *role_name );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -154,6 +144,18 @@ LIST *menu_item_role_name_list(
 
 /* Returns heap memory or null */
 /* --------------------------- */
+char *menu_item_list_vertical_html(
+			char *item_name,
+			LIST *menu_item_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *menu_item_list_horizontal_html(
+			char *menu_horizontal_span_tag,
+			LIST *menu_item_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *menu_item_list_html(
 			LIST *menu_item_list );
 
@@ -178,15 +180,6 @@ MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_new(
 			LIST *role_folder_lookup_list,
 			LIST *role_folder_insert_list,
 			char *subschema_name );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *menu_vertical_subschama_html(
-			char *subschema_name,
-			LIST *menu_item_list );
 
 /* Private */
 /* ------- */
@@ -216,23 +209,34 @@ MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_new(
 			char *subschema_name,
 			char *state );
 
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *menu_horizontal_subschema_span_tag(
-			char *subschema_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *menu_horizontal_subschema_html(
-			char *menu_horizontal_subschema_span_tag,
-			LIST *menu_item_list );
-
 /* Private */
 /* ------- */
 MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_calloc(
+			void );
+
+typedef struct
+{
+	LIST *menu_item_process_list;
+	LIST *role_process_or_set_name_list;
+	char *menu_horizontal_span_tag;
+	char *html;
+} MENU_PROCESS_GROUP;
+
+/* MENU_PROCESS_GROUP operations */
+/* ----------------------------- */
+MENU_PROCESS_GROUP *menu_process_group_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name ,
+			char *group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list,
+			boolean frameset_menu_horizontal );
+
+/* Private */
+/* ------- */
+MENU_PROCESS_GROUP *menu_process_group_calloc(
 			void );
 
 typedef struct
@@ -399,6 +403,11 @@ MENU *menu_calloc(	void );
 boolean menu_boolean(
 			char *current_frame,
 			boolean frameset_menu_horizontal );
+
+/* Returns static memory */
+/* --------------------- */
+char *menu_horizontal_span_tag(
+			char *item_name );
 
 /* Returns heap memory */
 /* ------------------- */

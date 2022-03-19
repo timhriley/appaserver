@@ -12,6 +12,7 @@
 #include "timlib.h"
 #include "appaserver_parameter.h"
 #include "appaserver_library.h"
+#include "appaserver_user.h"
 #include "application.h"
 #include "frameset.h"
 #include "folder_menu.h"
@@ -327,10 +328,10 @@ char *menu_item_process_action_tag(
 	return strdup( action_tag );
 }
 
-char *menu_item_span_tag( char *item_name )
+char *menu_horizontal_span_tag( char *item_name )
 {
 	char buffer[ 128 ];
-	char span_tag[ 256 ];
+	static char span_tag[ 256 ];
 
 	if ( !item_name )
 	{
@@ -348,7 +349,7 @@ char *menu_item_span_tag( char *item_name )
 			buffer,
 			item_name ) );
 
-	return strdup( span_tag );
+	return span_tag;
 }
 
 MENU_SUBSCHEMA *menu_subschema_calloc( void )
@@ -365,11 +366,6 @@ MENU_SUBSCHEMA *menu_subschema_calloc( void )
 		exit( 1 );
 	}
 	return menu_subschema;
-}
-
-char *menu_subschema_span_tag( char *subschema_name )
-{
-	return menu_item_span_tag( subschema_name );
 }
 
 MENU *menu_calloc( void )
@@ -1610,3 +1606,234 @@ MENU_ITEM *menu_item_vertical_role_change_new(
 	return menu_item;
 }
 
+MENU_PROCESS_GROUP *menu_process_group_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name ,
+			char *group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list,
+			boolean frameset_menu_horizontal )
+{
+	char *process_or_set_name;
+
+	MENU_PROCESS_GROUP *menu_process_group =
+		menu_process_group_calloc();
+
+	menu_process_group->role_process_or_set_name_list =
+		role_process_or_set_name_list(
+			group_name,
+			role_process_list,
+			role_process_set_list );
+
+	if ( !list_rewind(
+		menu_process_group->role_process_or_set_name_list ) )
+	{
+		free( menu_process_group );
+		return (MENU_PROCESS_GROUP *)0;
+	}
+
+	menu_process_group->menu_item_process_list = list_new();
+
+	do {
+		process_or_set_name =
+			list_get(
+				menu_process_group->
+					role_process_or_set_name_list );
+
+		list_set(
+			menu_process_group->menu_item_process_list,
+			menu_item_process_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				process_or_set_name,
+				frameset_menu_horizontal ) );
+
+	} while ( list_next( 
+			menu_process_group->
+				role_process_or_set_name_list ) );
+
+	if ( !list_length( menu_process_group->menu_item_process_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: menu_item_process_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( frameset_menu_horizontal )
+	{
+		menu_process_group->menu_horizontal_span_tag =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			menu_horizontal_span_tag( group_name );
+
+		menu_process_group->html =
+			menu_item_list_horizontal_html(
+				menu_process_group->menu_horizontal_span_tag,
+				menu_process_group->menu_item_process_list );
+	}
+	else
+	{
+		menu_process_group->html =
+			menu_item_list_vertical_html(
+				group_name,
+				menu_process_group->menu_item_process_list );
+	}
+
+	if ( !menu_process_group->html )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: menu_process_group->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return menu_process_group;
+}
+
+char *menu_item_list_vertical_html(
+			char *item_name,
+			LIST *menu_item_list )
+{
+	char html[ STRING_64K ];
+	char *ptr = html;
+	char buffer[ 64 ];
+	char *tmp;
+
+	if ( !item_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: item_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( menu_item_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"<table border=0><th align=center>%s\n",
+		string_initial_capital(
+			buffer,
+			item_name ) );
+
+	if ( ( tmp =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		menu_item_list_html(
+			menu_item_list ) ) )
+	{
+		ptr += sprintf( "%s", tmp );
+		free( tmp );
+	}
+
+	ptr += sprintf( ptr, "</table" );
+
+	return strdup( html );
+}
+
+char *menu_item_list_horizontal_html(
+			char *menu_horizontal_span_tag,
+			LIST *menu_item_list )
+{
+	char html[ STRING_64K ];
+	char *ptr = html;
+	char *tmp;
+
+	if ( !list_length( menu_item_list ) ) return (char *)0;
+
+	if ( !menu_horizontal_span_tag )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: menu_horizontal_span_tag is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf( ptr, "\t\t%s\n", menu_horizontal_span_tag );
+
+	ptr += sprintf( ptr, "\t\t<ul>\n" );
+
+	if ( ( tmp =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		menu_item_list_html(
+			menu_item_list ) ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			tmp );
+
+		free( tmp );
+	}
+
+	ptr += sprintf( ptr, "\t\t</ul>\n" );
+
+	return strdup( html );
+}
+
+MENU_PROCESS_GROUP *menu_process_group_calloc( void )
+{
+	MENU_PROCESS_GROUP *menu_process_group;
+
+	if ( ! ( menu_process_group =
+			calloc( 1, sizeof( MENU_PROCESS_GROUP ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return menu_process_group;
+}
+
+MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			LIST *folder_menu_count_list,
+			LIST *role_folder_list,
+			char *subschema_name,
+			char *state )
+{
+}
+
+MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_calloc( void )
+{
+}
+
+MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_new(
+			char *application_name,
+			char *session_key,
+			char *login_namespan_,
+			char *role_name,
+			LIST *folder_menu_count_list,
+			LIST *role_folder_lookup_list,
+			LIST *role_folder_insert_list,
+			char *subschema_name )
+{
+}
+
+MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_calloc( void )
+{
+}
