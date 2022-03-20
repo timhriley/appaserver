@@ -1820,20 +1820,103 @@ MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_new(
 
 MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_calloc( void )
 {
+	MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema;
+
+	if ( ! ( menu_horizontal_subschema =
+			calloc( 1, sizeof( MENU_HORIZONTAL_SUBSCHEMA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return menu_horizontal_subschema;
 }
 
 MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_new(
 			char *application_name,
 			char *session_key,
-			char *login_namespan_,
+			char *login_name,
 			char *role_name,
 			LIST *folder_menu_count_list,
 			LIST *role_folder_lookup_list,
 			LIST *role_folder_insert_list,
 			char *subschema_name )
 {
+	MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema =
+		menu_vertical_subschema_calloc();
+
+	char *folder_name;
+	FOLDER_MENU_COUNT *folder_menu_count = {0};
+
+	menu_vertical_subschema->role_folder_subschema_folder_name_list =
+		role_folder_subschema_folder_name_list(
+			subschema_name,
+			role_folder_lookup_list );
+
+	if ( !list_rewind(
+		menu_vertical_subschema->
+			role_folder_subschema_folder_name_list ) )
+	{
+		free( menu_vertical_subschema );
+		return (MENU_VERTICAL_SUBSCHEMA *)0;
+	}
+
+	menu_vertical_subschema->menu_item_list = list_new();
+
+	do {
+		folder_name =
+			list_get(
+				menu_vertical_subschema->
+				       role_folder_subschema_folder_name_list );
+
+		if ( folder_menu_count_list )
+		{
+			folder_menu_count =
+				folder_menu_count_seek(
+					folder_name,
+					folder_menu_count_list );
+		}
+
+		list_set(
+			menu_vertical_subschema->menu_item_list,
+			menu_item_vertical_folder_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				(folder_menu_count)
+					? folder_menu_count->display
+					: (char *)0,
+				role_folder_insert_exists(
+					folder_name,
+					
+
+	} while( list_next(
+		menu_vertical_subschema->
+			role_folder_subschema_folder_name_list ) );
+
+	return menu_vertical_subschema;
 }
 
 MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_calloc( void )
 {
+	MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema;
+
+	if ( ! ( menu_vertical_subschema =
+			calloc( 1, sizeof( MENU_VERTICAL_SUBSCHEMA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return menu_vertical_subschema;
 }

@@ -174,7 +174,7 @@ typedef struct
 MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_new(
 			char *application_name,
 			char *session_key,
-			char *login_namespan_,
+			char *login_name,
 			char *role_name,
 			LIST *folder_menu_count_list,
 			LIST *role_folder_lookup_list,
