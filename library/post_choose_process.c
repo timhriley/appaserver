@@ -76,7 +76,7 @@ char *post_choose_process_system_string(
 	return (char *)0;
 }
 
-char *post_choose_process_action_string(
+char *post_choose_process_href_string(
 			char *post_choose_process_executable,
 			char *application_name,
 			char *session_key,
@@ -85,7 +85,7 @@ char *post_choose_process_action_string(
 			char *process_or_set_name,
 			char *frameset_prompt_frame )
 {
-	char action_string[ 1024 ];
+	char href_string[ 1024 ];
 
 	if ( !post_choose_process_executable
 	||   !application_name
@@ -103,7 +103,7 @@ char *post_choose_process_action_string(
 		exit( 1 );
 	}
 
-	sprintf(action_string,
+	sprintf(href_string,
 		"href=\"%s/%s?%s+%s+%s+%s+%s\" target=%s",
 			appaserver_library_http_prompt(
 				appaserver_parameter_cgi_directory(),
@@ -120,6 +120,6 @@ char *post_choose_process_action_string(
 		process_or_set_name,
 		frameset_prompt_frame );
 
-	return strdup( action_string );
+	return strdup( href_string );
 }
 

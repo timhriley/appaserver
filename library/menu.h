@@ -18,8 +18,11 @@ typedef struct
 {
 	char *lookup_action_string;
 	char *insert_action_string;
-	char *action_string;
+	char *post_choose_role_action_string;
 	char *span_tag;
+	char *menu_horizontal_span_tag;
+	char *post_choose_process_href_string;
+	char *post_choose_role_href_string;
 	FORM_CHOOSE_ROLE *form_choose_role;
 	char *html;
 } MENU_ITEM;
@@ -145,7 +148,7 @@ LIST *menu_item_role_name_list(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *menu_item_list_vertical_html(
-			char *item_name,
+			char *heading_name,
 			LIST *menu_item_list );
 
 /* Returns heap memory or null */
@@ -266,8 +269,8 @@ MENU_VERTICAL *menu_vertical_new(
 			LIST *role_process_list,
 			LIST *role_process_set_list,
 			LIST *role_name_list,
-			LIST *menu_subschema_name_list,
-			LIST *menu_subschema_missing_folder_name_list,
+			LIST *role_folder_subschema_name_list,
+			LIST *role_folder_subschema_missing_folder_name_list,
 			LIST *menu_group_name_list,
 			LIST *menu_group_missing_process_name_list );
 
@@ -318,8 +321,8 @@ MENU_HORIZONTAL *menu_horizontal_new(
 			LIST *role_process_list,
 			LIST *role_process_set_list,
 			LIST *role_name_list,
-			LIST *menu_subschema_name_list,
-			LIST *menu_subschema_missing_folder_name_list,
+			LIST *role_folder_subschema_name_list,
+			LIST *role_folder_subschema_missing_folder_name_list,
 			LIST *menu_group_name_list,
 			LIST *menu_group_missing_process_name_list );
 
@@ -351,11 +354,11 @@ typedef struct
 	LIST *role_folder_insert_list;
 	LIST *role_process_list;
 	LIST *role_process_set_list;
-	LIST *role_name_list;
+	LIST *appaserver_user_role_name_list;
 	LIST *role_process_group_name_list;
 	LIST *role_process_set_group_name_list;
-	LIST *subschema_name_list;
-	LIST *subschema_missing_folder_name_list;
+	LIST *role_folder_subschema_name_list;
+	LIST *role_folder_subschema_missing_folder_name_list;
 	LIST *group_name_list;
 	LIST *group_missing_process_name_list;
 	MENU_VERTICAL *menu_vertical;
@@ -377,12 +380,6 @@ MENU *menu_new(		char *application_name,
 
 /* Process */
 /* ------- */
-LIST *menu_subschema_name_list(
-			LIST *role_lookup_folder_list );
-
-LIST *menu_subschema_missing_folder_name_list(
-			LIST *role_folder_lookup_list );
-
 LIST *menu_group_name_list(
 			LIST *role_process_group_name_list,
 			LIST *role_process_set_group_name_list );
@@ -407,7 +404,7 @@ boolean menu_boolean(
 /* Returns static memory */
 /* --------------------- */
 char *menu_horizontal_span_tag(
-			char *item_name );
+			char *heading_name );
 
 /* Returns heap memory */
 /* ------------------- */

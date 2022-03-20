@@ -61,6 +61,12 @@ char *role_folder_lookup_where(
 char *role_folder_insert_where(
 			char *role_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *role_folder_join_where(
+			char *role_folder_table,
+			char *folder_table );
+
 /* Returns heap memory */
 /* ------------------- */
 char *role_folder_system_string(
@@ -106,5 +112,15 @@ ROLE_FOLDER *role_folder_permission_seek(
 boolean role_folder_insert_exists(
 			char *folder_name,
 			LIST *role_folder_list );
+
+LIST *role_folder_subschema_folder_name_list(
+			char *subschema_name,
+			LIST *role_folder_list );
+
+LIST *role_folder_subschema_name_list(
+			LIST *role_folder_lookup_list );
+
+LIST *role_folder_subschema_missing_folder_name_list(
+			LIST *role_folder_lookup_list );
 
 #endif

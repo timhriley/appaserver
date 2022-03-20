@@ -17,25 +17,20 @@
 /* Constants */
 /* --------- */
 #define CHOOSE_ROLE_OUTPUT_EXECUTABLE		"output_choose_role"
-#define CHOOSE_ROLE_POST_EXECUTABLE		"post_choose_role"
 #define CHOOSE_ROLE_FORM_NAME			"choose_role_form"
 #define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *default_where;
 	char *default_system_string;
 	char *default_role_name;
 	char *title_string;
-	char *post_action_string;
-	char *target_frame;
 	char *title_html;
 	DOCUMENT *document;
+	LIST *appaserver_user_role_name_list;
+	char *post_choose_role_action_string;
+	char *target_frame;
 	FORM_CHOOSE_ROLE *form_choose_role;
 	char *document_form_html;
 } CHOOSE_ROLE;
@@ -62,6 +57,8 @@ char *choose_role_default_system_string(
 char *choose_role_default_role_name(
 			char *choose_role_default_system_string );
 
+/* Exits upon any failure */
+/* ---------------------- */
 CHOOSE_ROLE *choose_role_new(
 			char *application_name,
 			char *session_key,
@@ -73,23 +70,15 @@ CHOOSE_ROLE *choose_role_new(
 char *choose_role_title_string(
 			char *login_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *choose_role_post_action_string(
-			char *choose_role_post_executable,
-			char *application_name,
-			char *session_key,
-			char *login_name );
+/* Returns static memory */
+/* --------------------- */
+char *choose_role_title_html(
+			char *choose_role_title_string );
 
 /* Returns program memory */
 /* ---------------------- */
 char *choose_role_target_frame(
 			boolean frameset_menu_horizontal );
-
-/* Returns static memory */
-/* --------------------- */
-char *choose_role_title_html(
-			char *choose_role_title_string );
 
 /* Private */
 /* ------- */

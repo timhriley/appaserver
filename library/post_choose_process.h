@@ -55,7 +55,7 @@ POST_CHOOSE_PROCESS *post_choose_process_calloc(
 
 /* Public */
 /* ------ */
-char *post_choose_process_action_string(
+char *post_choose_process_href_string(
 			char *post_choose_process_executable,
 			char *application_name,
 			char *session_key,

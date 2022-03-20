@@ -178,7 +178,7 @@ char *menu_item_horizontal_html(
 	}
 
 	sprintf(html,
-		"<li><a %s>%s</a>",
+		"\t<li><a %s>%s</a>",
 		action_string,
 		span_tag );
 
@@ -224,18 +224,18 @@ MENU_ITEM *menu_item_horizontal_process_new(
 {
 	MENU_ITEM *menu_item = menu_item_calloc();
 
-	menu_item->span_tag =
+	menu_item->menu_horizontal_span_tag =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		menu_item_horizontal_process_span_tag(
+		menu_horizontal_span_tag(
 			process_or_set_name );
 
-	menu_item->action_string =
+	menu_item->post_choose_process_href_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		post_choose_process_action_string(
+		post_choose_process_href_string(
 			POST_CHOOSE_PROCESS_EXECUTABLE,
 			application_name,
 			session_key,
@@ -246,8 +246,8 @@ MENU_ITEM *menu_item_horizontal_process_new(
 
 	menu_item->html =
 		menu_item_horizontal_html(
-			menu_item->span_tag,
-			menu_item->action_string );
+			menu_item->menu_horizontal_span_tag,
+			menu_item->post_choose_process_href_string );
 
 	return menu_item;
 }
@@ -328,15 +328,15 @@ char *menu_item_process_action_tag(
 	return strdup( action_tag );
 }
 
-char *menu_horizontal_span_tag( char *item_name )
+char *menu_horizontal_span_tag( char *heading_name )
 {
 	char buffer[ 128 ];
 	static char span_tag[ 256 ];
 
-	if ( !item_name )
+	if ( !heading_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: item_name is empty.\n",
+			"ERROR in %s/%s()/%d: heading_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -347,7 +347,7 @@ char *menu_horizontal_span_tag( char *item_name )
 		"<span class=menu>%s</span>",
 		format_initial_capital(
 			buffer,
-			item_name ) );
+			heading_name ) );
 
 	return span_tag;
 }
@@ -388,280 +388,101 @@ MENU *menu_new(		char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *target_frame,
+			boolean frameset_menu_horizontal,
 			LIST *folder_menu_count_list )
 {
 	MENU *menu = menu_calloc();
 
-	menu->menu_verb_list = list_new();
-
 	menu->role_folder_lookup_list = role_folder_lookup_list( role_name );
-
-	list_set(
-		menu->menu_verb_list,
-		menu_verb_folder_new(
-			"lookup" /* verb */,
-			menu->role_folder_lookup_list
-				/* role_folder_list */,
-			folder_menu_count_list,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			target_frame ) );
-
 	menu->role_folder_insert_list = role_folder_insert_list( role_name );
-
-	list_set(
-		menu->menu_verb_list,
-		menu_verb_folder_new(
-			"insert" /* verb */,
-			menu->role_folder_insert_list
-				/* role_folder_list */,
-			(LIST *)0 /* folder_menu_count_list */,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			target_frame ) );
-
 	menu->role_process_list = role_process_list( role_name );
 	menu->role_process_set_list = role_process_set_list( role_name );
 
-	menu->menu_process_group_name_list =
-		menu_process_group_name_list(
-			role_process_group_name_list(
-				menu->role_process_list ),
-			role_process_set_group_name_list(
-				menu->role_process_set_list ) );
+	menu->appaserver_user_role_name_list =
+		appaserver_user_role_name_list(
+			login_name );
 
-	if ( list_rewind( menu->menu_process_group_name_list ) )
+	menu->role_process_group_name_list =
+		role_process_group_name_list(
+			menu->role_process_list );
+
+	menu->role_process_set_group_name_list =
+		role_process_set_group_name_list(
+			menu->role_process_set_list );
+
+	menu->role_folder_subschema_name_list =
+		role_folder_subschema_name_list(
+			menu->role_folder_lookup_list );
+
+	menu->role_folder_subschema_missing_folder_name_list =
+		role_folder_subschema_missing_folder_name_list(
+			menu->role_folder_lookup_list );
+
+	menu->group_name_list =
+		menu_group_name_list(
+			menu->role_process_group_name_list,
+			menu->role_process_set_group_name_list );
+
+	menu->group_missing_process_name_list =
+		menu_group_missing_process_name_list(
+			menu->role_process_list,
+			menu->role_process_set_list );
+
+	if ( !frameset_menu_horizontal )
 	{
-		char *process_group_name;
-
-		do {
-			process_group_name =
-				list_get(
-					menu->menu_process_group_name_list );
-
-			list_set(
-				menu->menu_verb_list,
-				menu_verb_process_new(
-					process_group_name,
-					menu->role_process_list,
-					menu->role_process_set_list,
-					application_name,
-					session_key,
-					login_name,
-					role_name,
-					target_frame ) );
-
-		} while ( list_next( menu->menu_process_group_name_list ) );
+		menu->menu_vertical =
+		     menu_vertical_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_menu_count_list,
+			menu->role_folder_lookup_list,
+			menu->role_folder_insert_list,
+			menu->role_process_list,
+			menu->role_process_set_list,
+			menu->role_name_list,
+			menu->role_folder_subschema_name_list,
+			menu->role_folder_subschema_missing_folder_name_list,
+			menu->menu_group_name_list,
+			menu->menu_group_missing_process_name_list );
+	}
+	else
+	{
+		menu->menu_horizontal =
+		     menu_horizontal_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_menu_count_list,
+			menu->role_folder_lookup_list,
+			menu->role_folder_insert_list,
+			menu->role_process_list,
+			menu->role_process_set_list,
+			menu->role_name_list,
+			menu->role_folder_subschema_name_list,
+			menu->role_folder_subschema_missing_folder_name_list,
+			menu->menu_group_name_list,
+			menu->menu_group_missing_process_name_list );
 	}
 
-	menu->role_name_list =
-		role_name_list(
-			role_list_fetch(
-				login_name ) );
+	menu->html =
+		menu_html(
+			menu->menu_vertical,
+			menu->menu_horizontal );
 
-	if ( list_length( menu->role_name_list ) > 1 )
-	{
-		list_set(
-			menu->menu_heading_list,
-			menu_heading_role_change_new(
-				menu->role_name_list,
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				target_frame ) );
-	}
-
-	list_set(
-		menu->menu_verb_list,
-		menu_verb_role_display_new( role_name ) );
-
-	list_set(
-		menu->menu_verb_list,
-		menu_verb_login_display_new( login_name ) );
-
-	return menu;
-}
-
-MENU_VERB *menu_verb_calloc( void )
-{
-	MENU_VERB *menu_verb;
-
-	if ( ! ( menu_verb = calloc( 1, sizeof( MENU_VERB ) ) ) )
+	if ( !menu->html )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			"ERROR in %s/%s()/%d: menu_html() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
-	return menu_verb;
-}
 
-MENU_VERB *menu_verb_folder_new(
-			char *verb,
-			LIST *role_folder_list,
-			LIST *folder_menu_count_list,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *target_frame )
-{
-	MENU_VERB *menu_verb = menu_verb_calloc();
-
-	menu_verb->role_folder_subschema_name_list =
-		role_folder_subschema_name_list(
-			role_folder_list );
-
-	if ( list_rewind( menu_verb->role_folder_subschema_name_list ) )
-	{
-		char *subschema_name;
-
-		menu_verb->menu_subschema_list = list_new();
-
-		do {
-			subschema_name =
-				list_get(
-					menu_verb->
-					     role_folder_subschema_name_list );
-
-			list_set(
-				menu_verb->menu_subschema_list,
-				menu_subschema_new(
-					subschema_name,
-					verb /* state */,
-					role_folder_list,
-					folder_menu_count_list,
-					application_name,
-					session_key,
-					login_name,
-					role_name,
-					target_frame ) );
-
-		} while ( list_next( 
-				menu_verb->
-					role_folder_subschema_name_list ) );
-	}
-
-	menu_verb->role_folder_subschema_missing_folder_name_list =
-		role_folder_subschema_missing_folder_name_list(
-			role_folder_list );
-
-	if ( list_rewind(
-		menu_verb->
-			role_folder_subschema_missing_folder_name_list ) )
-	{
-		char *folder_name;
-
-		menu_verb->menu_item_folder_list = list_new();
-
-		do {
-			folder_name =
-			   list_get(
-			     menu_verb->
-			       role_folder_subschema_missing_folder_name_list );
-
-			list_set(
-				menu_verb->menu_item_folder_list,
-				menu_item_folder_new(
-					folder_menu_count_list,
-					application_name,
-					session_key,
-					login_name,
-					role_name,
-					folder_name,
-					verb /* state */,
-					target_frame ) );
-
-		} while (
-		   list_next( 
-		     menu_verb->
-			role_folder_subschema_missing_folder_name_list ) );
-	}
-
-	if ( !list_length( menu_verb->menu_subschema_list )
-	&&   !list_length( menu_verb->menu_item_folder_list ) )
-	{
-		return (MENU_VERB *)0;
-	}
-
-	/* Returns heap memory */
-	/* ------------------- */
-	menu_verb->tag = menu_verb_tag( verb );
-
-	return menu_verb;
-}
-
-MENU_SUBSCHEMA *menu_subschema_new(
-			char *subschema_name,
-			char *state,
-			LIST *role_folder_list,
-			LIST *folder_menu_count_list,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *target_frame )
-{
-	char *folder_name;
-	MENU_SUBSCHEMA *menu_subschema = menu_subschema_calloc();
-
-	menu_subschema->subschema_name = subschema_name;
-
-	menu_subschema->role_folder_subschema_folder_name_list =
-		role_folder_subschema_folder_name_list(
-			subschema_name,
-			role_folder_list );
-
-	if ( !list_rewind(
-		menu_subschema->
-			role_folder_subschema_folder_name_list ) )
-	{
-		free( menu_subschema );
-		return (MENU_SUBSCHEMA *)0;
-	}
-
-	menu_subschema->menu_item_list = list_new();
-
-	do {
-		folder_name =
-			list_get(
-				menu_subschema->
-				       role_folder_subschema_folder_name_list );
-
-		list_set(
-			menu_subschema->menu_item_list,
-			menu_item_folder_new(
-				folder_menu_count_list,
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				folder_name,
-				state,
-				target_frame ) );
-	} while ( list_next(
-			menu_subschema->
-			       role_folder_subschema_folder_name_list ) );
-
-	if ( !list_length( menu_subschema->menu_item_list ) )
-		return (MENU_SUBSCHEMA *)0;
-
-	menu_subschema->horizontal_tag =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		menu_subschema_horizontal_tag(
-			subschema_name );
-
-	return menu_subschema;
+	return menu;
 }
 
 char *menu_item_horizontal_folder_span_tag(
@@ -775,256 +596,6 @@ LIST *menu_process_group_name_list(
 	return group_name_list;
 }
 
-MENU_VERB *menu_verb_process_new(
-			char *process_group_name,
-			LIST *role_process_list,
-			LIST *role_process_set_list,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *target_frame )
-{
-	MENU_VERB *menu_verb = menu_verb_calloc();
-
-	menu_verb->menu_item_process_list = list_new();
-
-	menu_verb->role_process_or_set_name_list =
-		role_process_or_set_name_list(
-			process_group_name,
-			role_process_list,
-			role_process_set_list );
-
-	if ( !list_rewind( menu_verb->role_process_or_set_name_list ) )
-	{
-		free( menu_verb );
-		return (MENU_VERB *)0;
-	}
-
-	do {
-		list_set(
-			menu_verb->menu_item_process_list,
-			menu_item_process_new(
-				application_name,
-				login_name,
-				session_key,
-				role_name,
-				list_get(
-					menu_verb->
-						role_process_or_set_name_list ),
-				target_frame ) );
-
-	} while ( list_next(
-			menu_verb->role_process_or_set_name_list ) );
-
-	/* Returns heap memory */
-	/* ------------------- */
-	menu_verb->tag = menu_verb_tag( process_group_name );
-
-	return menu_verb;
-}
-
-char *menu_verb_tag( char *verb )
-{
-	char tag[ 128 ];
-	char buffer[ 64 ];
-
-	if ( !verb || !*verb )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: verb is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(tag,
-		"<a><span class=menu>%s</span></a>",
-		format_initial_capital(
-			buffer,
-			verb ) );
-
-	return strdup( tag );
-}
-
-LIST *menu_verb_role_name_list(
-			char *role_name,
-			LIST *role_name_list )
-{
-	LIST *name_list = list_new();
-	char *name;
-
-	if ( !list_rewind( role_name_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: role_name_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	do {
-		name = list_get( role_name_list );
-
-		if ( strcmp( name, role_name ) == 0 ) continue;
-
-		list_set( name_list, name );
-
-	} while ( list_next( role_name_list ) );
-
-	return name_list;
-}
-
-MENU_HEADING *menu_heading_role_change_new(
-			LIST *role_name_list,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name )
-{
-	MENU_HEADING *menu_heading = menu_heading_calloc();
-
-	menu_heading->role_name_list =
-		menu_heading_role_name_list(
-			role_name,
-			role_name_list );
-
-	if ( !list_rewind( menu_heading->role_name_list ) )
-	{
-		free( menu_heading );
-		return (MENU_HEADING *)0;
-	}
-
-	menu_heading->menu_item_horizontal_role_change_list = list_new();
-
-	do {
-		list_set(
-			menu_heading->menu_item_horizontal_role_change_list,
-			menu_item_role_horizontal_change_new(
-				application_name,
-				session_key,
-				login_name,
-				list_get(
-					menu_heading->
-						role_name_list ) ) );
-
-	} while ( list_next( menu_heading->role_name_list ) );
-
-	/* Returns heap memory */
-	/* ------------------- */
-	menu_heading->tag = menu_verb_tag( "role" );
-
-	return menu_heading;
-}
-
-char *menu_item_horizontal_role_change_span_tag( char *role_name )
-{
-	char span_tag[ 128 ];
-	char buffer[ 64 ];
-
-	if ( !role_name || !*role_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: role_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(span_tag,
-		"<span class=menu>%s</span>",
-		format_initial_capital(
-			buffer,
-			role_name ) );
-
-	return strdup( span_tag );
-}
-
-char *menu_item_horizontal_role_change_action_string(
-			char *http_prompt,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *frameset_prompt_frame )
-{
-	char action_string[ 1024 ];
-
-	if ( !http_prompt
-	||   !application_name
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !frameset_prompt_frame )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(action_tag,
-"<a href=\"%s/post_role_change?%s+%s+%s+%s\" target=%s>",
-		http_prompt,
-		application_name,
-		login_name,
-		session_key,
-		role_name,
-		target_frame );
-
-	return strdup( action_tag );
-}
-
-MENU_ITEM *menu_item_role_change_new(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *target_frame )
-{
-	MENU_ITEM *menu_item = menu_item_calloc();
-
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	menu_item->display = menu_item_display( role_name );
-
-	menu_item->span_tag =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		menu_item_role_name_span_tag(
-			role_name );
-
-	menu_item->action_tag =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		menu_item_role_change_action_tag(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			appaserver_library_http_prompt(
-				appaserver_parameter_cgi_directory(),
-				appaserver_library_server_address(),
-				application_ssl_support_yn(
-					application_name ),
-				application_prepend_http_protocol_yn(
-					application_name ) ),
-			application_name,
-			login_name,
-			session_key,
-			role_name,
-			target_frame );
-
-	return menu_item;
-}
-
 char *menu_subschema_horizontal_html(
 			char *tag,
 			LIST *menu_item_list )
@@ -1065,36 +636,6 @@ char *menu_subschema_horizontal_html(
 	}
 
 	ptr += sprintf( ptr, "\t\t</ul>\n" );
-
-	return strdup( html );
-}
-
-char *menu_item_list_horizontal_html( LIST *menu_item_list )
-{
-	MENU_ITEM *menu_item;
-	char html[ STRING_128K ];
-	char *ptr = html;
-
-	if ( !list_rewind( menu_item_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: menu_item_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	do {
-		menu_item = list_get( menu_item_list );
-
-		ptr += sprintf(
-			ptr,
-			"\t\t\t%s\n\t\t\t%s\n",
-			menu_item->action_tag,
-			menu_item->span_tag );
-
-	} while ( list_next( menu_item_list ) );
 
 	return strdup( html );
 }
@@ -1606,57 +1147,58 @@ MENU_ITEM *menu_item_vertical_role_change_new(
 	return menu_item;
 }
 
-MENU_PROCESS_GROUP *menu_process_group_new(
+MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name ,
 			char *group_name,
 			LIST *role_process_list,
-			LIST *role_process_set_list,
-			boolean frameset_menu_horizontal )
+			LIST *role_process_set_list )
 {
 	char *process_or_set_name;
 
-	MENU_PROCESS_GROUP *menu_process_group =
-		menu_process_group_calloc();
+	MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group =
+		menu_vertical_process_group_calloc();
 
-	menu_process_group->role_process_or_set_name_list =
+	menu_vertical_process_group->role_process_or_set_name_list =
 		role_process_or_set_name_list(
 			group_name,
 			role_process_list,
 			role_process_set_list );
 
 	if ( !list_rewind(
-		menu_process_group->role_process_or_set_name_list ) )
+		menu_vertical_process_group->
+			role_process_or_set_name_list ) )
 	{
-		free( menu_process_group );
-		return (MENU_PROCESS_GROUP *)0;
+		free( menu_vertical_process_group );
+		return (MENU_VERTICAL_PROCESS_GROUP *)0;
 	}
 
-	menu_process_group->menu_item_process_list = list_new();
+	menu_vertical_process_group->menu_item_process_list = list_new();
 
 	do {
 		process_or_set_name =
 			list_get(
-				menu_process_group->
+				menu_vertical_process_group->
 					role_process_or_set_name_list );
 
 		list_set(
-			menu_process_group->menu_item_process_list,
-			menu_item_process_new(
+			menu_vertical_process_group->menu_item_process_list,
+			menu_item_vertical_process_new(
 				application_name,
 				session_key,
 				login_name,
 				role_name,
-				process_or_set_name,
-				frameset_menu_horizontal ) );
+				process_or_set_name ) );
 
 	} while ( list_next( 
-			menu_process_group->
+			menu_vertical_process_group->
 				role_process_or_set_name_list ) );
 
-	if ( !list_length( menu_process_group->menu_item_process_list ) )
+	if ( !list_length(
+		menu_vertical_process_group->
+			menu_item_process_list ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: menu_item_process_list is empty.\n",
@@ -1666,28 +1208,101 @@ MENU_PROCESS_GROUP *menu_process_group_new(
 		exit( 1 );
 	}
 
-	if ( frameset_menu_horizontal )
-	{
-		menu_process_group->menu_horizontal_span_tag =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			menu_horizontal_span_tag( group_name );
-
-		menu_process_group->html =
-			menu_item_list_horizontal_html(
-				menu_process_group->menu_horizontal_span_tag,
-				menu_process_group->menu_item_process_list );
-	}
-	else
-	{
-		menu_process_group->html =
-			menu_item_list_vertical_html(
-				group_name,
-				menu_process_group->menu_item_process_list );
+	menu_vertical_process_group->html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		menu_item_list_vertical_html(
+			group_name /* heading_name */,
+			menu_vertical_process_group->menu_item_process_list );
 	}
 
-	if ( !menu_process_group->html )
+	if ( !menu_vertical_process_group->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: menu_vertical_process_group->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return menu_vertical_process_group;
+}
+
+MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name ,
+			char *group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list )
+{
+	char *process_or_set_name;
+
+	MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group =
+		menu_horizontal_process_group_calloc();
+
+	menu_horizontal_process_group->role_process_or_set_name_list =
+		role_process_or_set_name_list(
+			group_name,
+			role_process_list,
+			role_process_set_list );
+
+	if ( !list_rewind(
+		menu_horizontal_process_group->
+			role_process_or_set_name_list ) )
+	{
+		free( menu_horizontal_process_group );
+		return (MENU_HORIZONTAL_PROCESS_GROUP *)0;
+	}
+
+	menu_horizontal_process_group->menu_item_process_list = list_new();
+
+	do {
+		process_or_set_name =
+			list_get(
+				menu_horizontal_process_group->
+					role_process_or_set_name_list );
+
+		list_set(
+			menu_horizontal_process_group->menu_item_process_list,
+			menu_item_horizontal_process_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				process_or_set_name ) );
+
+	} while ( list_next( 
+			menu_horizontal_process_group->
+				role_process_or_set_name_list ) );
+
+	if ( !list_length(
+		menu_horizontal_process_group->
+			menu_item_process_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: menu_item_process_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	menu_horizontal_process_group->menu_horizontal_span_tag =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		menu_horizontal_span_tag( group_name );
+
+	menu_horizontal_process_group->html =
+		menu_item_list_horizontal_html(
+			menu_process_group->menu_horizontal_span_tag,
+			menu_process_group->menu_item_process_list );
+
+	if ( !menu_horizontal_process_group->html )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: menu_process_group->html is empty.\n",
@@ -1697,11 +1312,11 @@ MENU_PROCESS_GROUP *menu_process_group_new(
 		exit( 1 );
 	}
 
-	return menu_process_group;
+	return menu_horizontal_process_group;
 }
 
 char *menu_item_list_vertical_html(
-			char *item_name,
+			char *heading_name,
 			LIST *menu_item_list )
 {
 	char html[ STRING_64K ];
@@ -1709,10 +1324,10 @@ char *menu_item_list_vertical_html(
 	char buffer[ 64 ];
 	char *tmp;
 
-	if ( !item_name )
+	if ( !heading_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: item_name is empty.\n",
+			"ERROR in %s/%s()/%d: heading_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1726,7 +1341,7 @@ char *menu_item_list_vertical_html(
 		"<table border=0><th align=center>%s\n",
 		string_initial_capital(
 			buffer,
-			item_name ) );
+			heading_name ) );
 
 	if ( ( tmp =
 		/* --------------------------- */
@@ -1816,6 +1431,81 @@ MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_new(
 			char *subschema_name,
 			char *state )
 {
+	MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema =
+		menu_horizontal_subschema_calloc();
+
+	char *folder_name;
+	FOLDER_MENU_COUNT *folder_menu_count = {0};
+
+	menu_horizontal_subschema->role_folder_subschema_folder_name_list =
+		role_folder_subschema_folder_name_list(
+			subschema_name,
+			role_folder_list );
+
+	if ( !list_rewind(
+		menu_vertical_horizontala->
+			role_folder_subschema_folder_name_list ) )
+	{
+		free( menu_horizontal_subschema );
+		return (MENU_HORIZONTAL_SUBSCHEMA *)0;
+	}
+
+	menu_horizontal_subschema->menu_item_list = list_new();
+
+	do {
+		folder_name =
+			list_get(
+				menu_horizontal_subschema->
+				       role_folder_subschema_folder_name_list );
+
+		if ( folder_menu_count_list )
+		{
+			folder_menu_count =
+				folder_menu_count_seek(
+					folder_name,
+					folder_menu_count_list );
+		}
+
+		list_set(
+			menu_horizontal_subschema->menu_item_list,
+			menu_item_horizontal_folder_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				state,
+				(folder_menu_count)
+					? folder_menu_count->display
+					: (char *)0 ) );
+	} while( list_next(
+		menu_horizontal_subschema->
+			role_folder_subschema_folder_name_list ) );
+
+	menu_horizontal_subschema->menu_horizontal_span_tag =
+		menu_horizontal_span_tag(
+			subschema_name );
+
+	menu_vertical_subschema->html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		menu_item_list_horizontal_html(
+			menu_horizontal_subschema->
+				menu_horizontal_span_tag,
+			menu_horizontal_subschema->menu_item_list );
+
+	if ( !menu_horizontal_subschema->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: menu_horizontal_subschema->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return menu_horizontal_subschema;
 }
 
 MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_calloc( void )
@@ -1855,7 +1545,8 @@ MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_new(
 	menu_vertical_subschema->role_folder_subschema_folder_name_list =
 		role_folder_subschema_folder_name_list(
 			subschema_name,
-			role_folder_lookup_list );
+			role_folder_lookup_list
+				/* role_folder_list */ );
 
 	if ( !list_rewind(
 		menu_vertical_subschema->
@@ -1894,11 +1585,28 @@ MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_new(
 					: (char *)0,
 				role_folder_insert_exists(
 					folder_name,
-					
-
+					role_folder_insert_list ) ) );
 	} while( list_next(
 		menu_vertical_subschema->
 			role_folder_subschema_folder_name_list ) );
+
+	menu_vertical_subschema->html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		menu_item_list_vertical_html(
+			subschema_name /* heading_name */,
+			menu_vertical_subschema->menu_item_list );
+
+	if ( !menu_vertical_subschema->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: menu_vertical_subschema->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	return menu_vertical_subschema;
 }
@@ -1920,3 +1628,48 @@ MENU_VERTICAL_SUBSCHEMA *menu_vertical_subschema_calloc( void )
 
 	return menu_vertical_subschema;
 }
+
+char *menu_html(	MENU_VERTICAL *menu_vertical,
+			MENU_HORIZONTAL *menu_horizontal )
+{
+	if ( menu_vertical )
+		return menu_vertical->html;
+	else
+	if ( menu_horizontal )
+		return menu_horizontal->html;
+	else
+		return (char *)0;
+}
+
+MENU_ITEM *menu_item_horizontal_role_change_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name )
+{
+	MENU_ITEM *menu_item = menu_item_calloc();
+
+	menu_item->menu_horizontal_span_tag =
+		menu_horizontal_span_tag(
+			role_name );
+
+	menu_item->post_choose_role_href_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		post_choose_role_href_string(
+			POST_CHOOSE_ROLE_EXECUTABLE,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			FRAMESET_PROMPT_FRAME );
+
+	menu_item->html =
+		menu_item_horizontal_html(
+			menu_item->menu_horizontal_span_tag,
+			menu_item->post_choose_role_href_string );
+
+	return menu_item;
+}
+

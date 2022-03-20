@@ -15,6 +15,7 @@
 #include "application.h"
 #include "environ.h"
 #include "frameset.h"
+#include "post_choose_role.h"
 #include "choose_role.h"
 
 CHOOSE_ROLE *choose_role_calloc( void )
@@ -81,44 +82,6 @@ char *choose_role_title_string( char *login_name )
 	return title;
 }
 
-char *choose_role_post_action_string(
-			char *choose_role_post_executable,
-			char *application_name,
-			char *session_key,
-			char *login_name )
-{
-	char action_string[ 1024 ];
-
-	if ( !choose_role_post_executable
-	||   !application_name
-	||   !session_key
-	||   !login_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(action_string,
-		" action=\"%s/%s?%s+%s+%s\"",
-			appaserver_library_http_prompt(
-				appaserver_parameter_cgi_directory(),
-				appaserver_library_server_address(),
-				application_ssl_support_yn(
-					application_name ),
-				application_prepend_http_protocol_yn(
-					application_name ) ),
-		choose_role_post_executable,
-		application_name,
-		session_key,
-		login_name );
-
-	return strdup( action_string );
-}
-
 char *choose_role_target_frame(
 			boolean frameset_menu_horizontal )
 {
@@ -155,23 +118,6 @@ CHOOSE_ROLE *choose_role_new(
 		choose_role_title_string(
 			login_name );
 
-	choose_role->post_action_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		choose_role_post_action_string(
-			CHOOSE_ROLE_POST_EXECUTABLE,
-			application_name,
-			session_key,
-			login_name );
-
-	choose_role->target_frame =
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		choose_role_target_frame(
-			frameset_menu_horizontal );
-
 	choose_role->title_html =
 		/* --------------------- */
 		/* Returns static memory */
@@ -197,18 +143,55 @@ CHOOSE_ROLE *choose_role_new(
 			(char *)0 /* javascript_include_string */,
 			(char *)0 /* input_onload_string */ );
 
+	choose_role->appaserver_user_role_name_list =
+		appaserver_user_role_name_list(
+			login_name );
+
+	if ( !list_length( choose_role->appaserver_user_role_name_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_role_name_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	choose_role->post_choose_role_action_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		post_choose_role_action_string(
+			POST_CHOOSE_ROLE_EXECUTABLE,
+			application_name,
+			session_key,
+			login_name );
+
+	choose_role->target_frame =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		choose_role_target_frame(
+			frameset_menu_horizontal );
+
 	choose_role->form_choose_role =
 		form_choose_role_new(
-			appaserver_user_role_name_list( login_name ),
-			choose_role->post_action_string,
+			choose_role->appaserver_user_role_name_list,
+			choose_role->post_choose_role_action_string,
 			choose_role->target_frame,
 			CHOOSE_ROLE_FORM_NAME,
 			CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME );
 
 	if ( !choose_role->form_choose_role )
 	{
-		return (CHOOSE_ROLE *)0;
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_choose_role_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
+
 
 	choose_role->document_form_html =
 		document_form_html(
@@ -219,6 +202,16 @@ CHOOSE_ROLE *choose_role_new(
 			choose_role->form_choose_role->html,
 			document_body_close_html(),
 			document_close_html() );
+
+	if ( !choose_role->document_form_html )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: document_form_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	return choose_role;
 }
