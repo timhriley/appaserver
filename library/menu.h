@@ -105,7 +105,7 @@ MENU_ITEM *menu_item_vertical_role_change_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
-			LIST *role_name_list );
+			LIST *menu_item_role_name_list );
 
 /* Usage */
 /* ----- */
@@ -314,7 +314,8 @@ typedef struct
 	LIST *menu_item_lookup_folder_list;
 	LIST *menu_item_insert_folder_list;
 	LIST *menu_horizontal_process_group_list;
-	LIST *menu_item_process_list;
+	LIST *menu_item_horizontal_process_list;
+	LIST *menu_item_role_name_list;
 	LIST *menu_item_role_change_list;
 	char *html;
 } MENU_HORIZONTAL;
@@ -334,7 +335,7 @@ MENU_HORIZONTAL *menu_horizontal_new(
 			LIST *role_folder_insert_list,
 			LIST *role_process_list,
 			LIST *role_process_set_list,
-			LIST *role_name_list,
+			LIST *appaserver_user_role_name_list,
 			LIST *role_folder_subschema_name_list,
 			LIST *role_folder_subschema_missing_folder_name_list,
 			LIST *menu_process_group_name_list,
@@ -353,7 +354,7 @@ char *menu_horizontal_html(
 			LIST *menu_item_lookup_folder_list,
 			LIST *menu_item_insert_folder_list,
 			LIST *menu_horizontal_process_group_list,
-			LIST *menu_item_process_list,
+			LIST *menu_item_horizontal_process_list,
 			LIST *menu_item_role_change_list,
 			char *document_body_hide_preload_html );
 
