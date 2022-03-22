@@ -223,32 +223,46 @@ typedef struct
 	LIST *role_process_or_set_name_list;
 	char *menu_horizontal_span_tag;
 	char *html;
-} MENU_PROCESS_GROUP;
+} MENU_VERTICAL_PROCESS_GROUP;
 
-/* MENU_PROCESS_GROUP operations */
-/* ----------------------------- */
-MENU_PROCESS_GROUP *menu_process_group_new(
+/* MENU_VERTICAL_PROCESS_GROUP operations */
+/* -------------------------------------- */
+MENU_PROCESS_VERTICAL_GROUP *menu_vertical_process_group_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name ,
 			char *group_name,
 			LIST *role_process_list,
-			LIST *role_process_set_list,
-			boolean frameset_menu_horizontal );
+			LIST *role_process_set_list );
 
 /* Private */
 /* ------- */
-MENU_PROCESS_GROUP *menu_process_group_calloc(
+MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_calloc(
+			void );
+
+/* MENU_HORIZONTAL_PROCESS_GROUP operations */
+/* ---------------------------------------- */
+MENU_PROCESS_HORIZONTAL_GROUP *menu_horizontal_process_group_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name ,
+			char *group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list );
+
+/* Private */
+/* ------- */
+MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_calloc(
 			void );
 
 typedef struct
 {
-	LIST *subschema_list;
-	LIST *menu_item_lookup_folder_list;
-	LIST *menu_item_insert_folder_list;
-	LIST *menu_process_group_list;
-	LIST *menu_item_process_list;
+	LIST *vertical_subschema_list;
+	LIST *menu_item_folder_list;
+	LIST *menu_vertical_process_group_list;
+	LIST *menu_item_vertical_process_list;
 	MENU_ITEM *menu_item_role_change;
 	char *html;
 } MENU_VERTICAL;
@@ -268,10 +282,10 @@ MENU_VERTICAL *menu_vertical_new(
 			LIST *role_folder_insert_list,
 			LIST *role_process_list,
 			LIST *role_process_set_list,
-			LIST *role_name_list,
+			LIST *appaserver_user_role_name_list,
 			LIST *role_folder_subschema_name_list,
 			LIST *role_folder_subschema_missing_folder_name_list,
-			LIST *menu_group_name_list,
+			LIST *menu_process_group_name_list,
 			LIST *menu_group_missing_process_name_list );
 
 /* Process */
@@ -282,9 +296,9 @@ MENU_VERTICAL *menu_vertical_new(
 char *menu_vertical_html(
 			char *login_name,
 			char *role_name,
-			LIST *subschema_list,
+			LIST *vertical_subschema_list,
 			LIST *menu_item_folder_list,
-			LIST *process_group_list,
+			LIST *menu_vertical_process_group_list,
 			LIST *menu_item_process_list,
 			char *menu_item_role_change_html );
 
@@ -299,7 +313,7 @@ typedef struct
 	LIST *insert_subschema_list;
 	LIST *menu_item_lookup_folder_list;
 	LIST *menu_item_insert_folder_list;
-	LIST *process_group_list;
+	LIST *menu_horizontal_process_group_list;
 	LIST *menu_item_process_list;
 	LIST *menu_item_role_change_list;
 	char *html;
@@ -323,7 +337,7 @@ MENU_HORIZONTAL *menu_horizontal_new(
 			LIST *role_name_list,
 			LIST *role_folder_subschema_name_list,
 			LIST *role_folder_subschema_missing_folder_name_list,
-			LIST *menu_group_name_list,
+			LIST *menu_process_group_name_list,
 			LIST *menu_group_missing_process_name_list );
 
 /* Process */
@@ -338,7 +352,7 @@ char *menu_horizontal_html(
 			LIST *insert_subschema_list,
 			LIST *menu_item_lookup_folder_list,
 			LIST *menu_item_insert_folder_list,
-			LIST *process_group_list,
+			LIST *menu_horizontal_process_group_list,
 			LIST *menu_item_process_list,
 			LIST *menu_item_role_change_list,
 			char *document_body_hide_preload_html );
@@ -380,7 +394,7 @@ MENU *menu_new(		char *application_name,
 
 /* Process */
 /* ------- */
-LIST *menu_group_name_list(
+LIST *menu_process_group_name_list(
 			LIST *role_process_group_name_list,
 			LIST *role_process_set_group_name_list );
 
