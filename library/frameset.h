@@ -65,7 +65,6 @@ typedef struct
 FRAMESET *frameset_new(
 			char *application_name,
 			char *session_key,
-			char *login_name,
 			boolean frameset_menu_horizontal );
 
 /* Process */

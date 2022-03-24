@@ -30,19 +30,20 @@
 
 GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *process_name,
+			char *login_name,
 			char *role_name,
-			boolean menu_boolean )
+			char *process_name,
+			boolean menu_boolean,
+			boolean frameset_menu_horizontal )
 {
 	GENERIC_LOAD_CHOOSE *generic_load_choose;
 
 	if ( !application_name
-	||   !login_name
 	||   !session_key
-	||   !process_name
-	||   !role_name )
+	||   !login_name
+	||   !role_name
+	||   !process_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -84,7 +85,7 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 				session_key,
 				login_name,
 				role_name,
-				FRAMESET_PROMPT_FRAME,
+				frameset_menu_horizontal,
 				generic_load_choose->
 					folder_menu->
 					count_list );
@@ -105,12 +106,12 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		generic_load_choose_post_action_string(
+			GENERIC_LOAD_CHOOSE_POST_EXECUTABLE,
 			application_name,
-			login_name,
 			session_key,
-			process_name,
+			login_name,
 			role_name,
-			GENERIC_LOAD_CHOOSE_POST_EXECUTABLE );
+			process_name );
 
 	generic_load_choose->prompt_html =
 		/* -------------------- */
@@ -181,21 +182,21 @@ GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 }
 
 char *generic_load_choose_post_action_string(
+			char *choose_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *process_name,
+			char *login_name,
 			char *role_name,
-			char *choose_post_executable )
+			char *process_name )
 {
 	char post_action_string[ 1024 ];
 
-	if ( !application_name
-	||   !login_name
+	if ( !choose_post_executable
+	||   !application_name
 	||   !session_key
-	||   !process_name
+	||   !login_name
 	||   !role_name
-	||   !choose_post_executable )
+	||   !process_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -206,7 +207,7 @@ char *generic_load_choose_post_action_string(
 	}
 
 	sprintf(post_action_string,
-		" action=\"%s/%s?%s+%s+%s+%s+%s\"",
+		"action=\"%s/%s?%s+%s+%s+%s+%s\"",
 		appaserver_library_http_prompt(
 			appaserver_parameter_cgi_directory(),
 			appaserver_library_server_address(),
@@ -216,10 +217,10 @@ char *generic_load_choose_post_action_string(
 				application_name ) ),
 		choose_post_executable,
 		application_name,
-		login_name,
 		session_key,
-		process_name,
-		role_name );
+		login_name,
+		role_name,
+		process_name );
 
 	return strdup( post_action_string );
 }
@@ -1431,11 +1432,12 @@ APPASERVER_ELEMENT *generic_load_ignore_element(
 
 GENERIC_LOAD_FOLDER *generic_load_folder_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *folder_name,
-			boolean menu_boolean )
+			boolean menu_boolean,
+			boolean frameset_menu_horizontal )
 {
 	GENERIC_LOAD_FOLDER *generic_load_folder =
 		generic_load_folder_calloc();
@@ -1477,7 +1479,7 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 				session_key,
 				login_name,
 				role_name,
-				FRAMESET_PROMPT_FRAME,
+				frameset_menu_horizontal,
 				generic_load_folder->
 					folder_menu->
 					count_list );
@@ -1485,12 +1487,12 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 
 	generic_load_folder->post_action_string =
 		generic_load_folder_post_action_string(
+			GENERIC_LOAD_FOLDER_POST_EXECUTABLE,
 			application_name,
-			login_name,
 			session_key,
+			login_name,
 			role_name,
-			folder_name,
-			GENERIC_LOAD_FOLDER_POST_EXECUTABLE );
+			folder_name );
 
 	generic_load_folder->prompt_html =
 		generic_load_folder_prompt_html(
@@ -1544,21 +1546,21 @@ GENERIC_LOAD_FOLDER *generic_load_folder_new(
 }
 
 char *generic_load_folder_post_action_string(
+			char *folder_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
-			char *folder_name,
-			char *folder_post_executable )
+			char *folder_name )
 {
 	char post_action_string[ 1024 ];
 
-	if ( !application_name
-	||   !login_name
+	if ( !folder_post_executable
+	||   !application_name
 	||   !session_key
+	||   !login_name
 	||   !role_name
-	||   !folder_name
-	||   !folder_post_executable )
+	||   !folder_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1569,7 +1571,7 @@ char *generic_load_folder_post_action_string(
 	}
 
 	sprintf(post_action_string,
-		" action=\"%s/%s?%s+%s+%s+%s+%s\"",
+		"action=\"%s/%s?%s+%s+%s+%s+%s\"",
 		appaserver_library_http_prompt(
 			appaserver_parameter_cgi_directory(),
 			appaserver_library_server_address(),
@@ -1579,8 +1581,8 @@ char *generic_load_folder_post_action_string(
 				application_name ) ),
 		folder_post_executable,
 		application_name,
-		login_name,
 		session_key,
+		login_name,
 		role_name,
 		folder_name );
 

@@ -15,15 +15,11 @@
 #include "element.h"
 #include "dictionary.h"
 
-/* Constants */
-/* --------- */
+#define OPERATION_SELECT		"operation,output_yn"
 #define OPERATION_TABLE			"operation"
-#define ROLE_OPERATION_TABLE		"role_operation"
 #define OPERATION_ROW_TOTAL_LABEL	"operation_row_total"
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	boolean checked;
@@ -126,13 +122,8 @@ void operation_semaphore_remove_file(
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
 	char *operation_name;
-	boolean output;
-
-	/* Process */
-	/* ------- */
+	boolean output_boolean;
 	PROCESS *process;
 	boolean delete_boolean;
 	boolean detail_boolean;
@@ -143,11 +134,33 @@ typedef struct
 
 /* OPERATION operations */
 /* -------------------- */
-OPERATION *operation_calloc(
-			void );
+
+/* Usage */
+/* ----- */
+OPERATION *operation_fetch(
+			char *operation_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *operation_primary_where(
+			char *operation_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *operation_system_string(
+			char *operation_select,
+			char *operation_table,
+			char *operation_primary_where );
 
 OPERATION *operation_parse(
 			char *input );
+
+
+boolean operation_output_boolean(
+			char *output_yn );
 
 boolean operation_delete_boolean(
 			char *operation_name );
@@ -189,46 +202,10 @@ APPASERVER_ELEMENT *operation_element(
 			char *operation_image_source,
 			char *operation_delete_warning_javascript );
 
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *folder_name;
-	char *role_name;
-
-	/* Process */
-	/* ------- */
-	LIST *operation_list;
-	char *select;
-	char *where;
-	char *system_string;
-} OPERATION_LIST;
-
-/* OPERATION_LIST operations */
-/* ------------------------- */
-OPERATION_LIST *operation_list_calloc(
+/* Private */
+/* ------- */
+OPERATION *operation_calloc(
 			void );
-
-OPERATION_LIST *operation_list_new(
-			char *folder_name,
-			char *role_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *operation_list_select(
-			void );
-
-/* Returns static memory */
-/* --------------------- */
-char *operation_list_where(
-			char *folder_name,
-			char *role_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *operation_list_system_string(
-			char *operation_list_select,
-			char *operation_list_where );
 
 #endif
 

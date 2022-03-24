@@ -36,8 +36,8 @@ ROLE_PROCESS *role_process_calloc(
 char *role_process_select(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *role_process_where(
 			char *role_name );
 
@@ -50,7 +50,8 @@ ROLE_PROCESS *role_process_parse(
 			char *input );
 
 LIST *role_process_group_name_list(
-			LIST *role_process_list );
+			LIST *role_process_list,
+			LIST *role_process_set_list );
 
 LIST *role_process_name_list(
 			char *process_group_name,
@@ -58,6 +59,10 @@ LIST *role_process_name_list(
 
 LIST *role_process_or_set_name_list(
 			char *process_group_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list );
+
+LIST *role_process_group_missing_process_name_list(
 			LIST *role_process_list,
 			LIST *role_process_set_list );
 
@@ -86,52 +91,17 @@ char *role_process_set_select(
 char *role_process_set_where(
 			char *role_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *role_process_set_system_string(
 			char *where );
 
 ROLE_PROCESS_SET *role_process_set_parse(
 			char *input );
 
-LIST *role_process_set_group_name_list(
-			LIST *role_process_set_list );
-
 LIST *role_process_set_name_list(
 			char *process_group_name,
 			LIST *role_process_set_list );
-
-typedef struct
-{
-	char *login_name;
-	char *role_name;
-} ROLE_APPASERVER_USER;
-
-/* ROLE_APPASERVER_USER operations */
-/* ------------------------------- */
-ROLE_APPASERVER_USER *role_appaserver_user_calloc(
-			void );
-
-ROLE_APPASERVER_USER *role_appaserver_user_fetch(
-			char *session_login_name,
-			char *sql_injection_escape_role_name );
-
-LIST *role_appaserver_user_system_list(
-			char *system_string );
-
-/* Returns static memory */
-/* --------------------- */
-char *role_appaserver_user_primary_where(
-			char *login_name,
-			char *role_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *role_appaserver_user_system_string(
-			char *where );
-
-ROLE_APPASERVER_USER *role_appaserver_user_parse(
-			char *input );
 
 typedef struct
 {

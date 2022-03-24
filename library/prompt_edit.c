@@ -43,6 +43,7 @@ PROMPT_EDIT *prompt_edit_new(
 			char *target_frame,
 			char *state,
 			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
 {
@@ -152,7 +153,7 @@ PROMPT_EDIT *prompt_edit_new(
 				session_key,
 				login_name,
 				role_name,
-				target_frame,
+				frameset_menu_horizontal,
 				prompt_edit->
 					folder_menu->
 					count_list );

@@ -27,7 +27,7 @@ typedef struct
 {
 	DRILLTHRU *drillthru;
 	char *name;
-	boolean relation_isa_boolean;
+	boolean fetch_relation_mto1_isa;
 	FOLDER *folder;
 	char *form_name;
 	boolean isa_drop_down;
@@ -57,13 +57,16 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 
 /* Process */
 /* ------- */
+POST_CHOOSE_FOLDER *post_choose_folder_calloc(
+			void );
+
 char *post_choose_folder_name(
 			char *folder_name,
 			char *drillthru_start_current_folder_name );
 
-boolean post_choose_folder_relation_isa_boolean(
+boolean post_choose_folder_fetch_relation_mto1_isa(
 			char *state,
-			char *appaserver_state_insert );
+			char *appaserver_insert_state );
 
 char *post_choose_folder_form_name(
 			int relation_pair_one2m_list_length,
@@ -116,14 +119,9 @@ char *post_choose_folder_system_string(
 			DICTIONARY *drillthru_dictionary,
 			RELATION *first_one2m_isa_relation );
 
-/* Private */
-/* ------- */
-POST_CHOOSE_FOLDER *post_choose_folder_calloc(
-			void );
-
 /* Public */
 /* ------ */
-char *post_choose_folder_action_string(
+char *post_choose_folder_href_string(
 			char *post_choose_folder_executable,
 			char *application_name,
 			char *session_key,

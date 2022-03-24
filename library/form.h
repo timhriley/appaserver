@@ -25,7 +25,6 @@
 #define FORM_COLOR4			"#f7ffce"
 #define FORM_COLOR5			"#f2e0b8"
 
-#define FORM_MAX_BACKGROUND_COLOR_ARRAY	10
 #define FORM_ROWS_BETWEEN_HEADINGS	10
 #define FORM_SORT_ASCEND_LABEL		"assend_"
 #define FORM_SORT_DESCEND_LABEL		"descend_"

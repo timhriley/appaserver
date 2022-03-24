@@ -42,6 +42,7 @@ APPLICATION *application_new( char *application_name )
 	APPLICATION *application = application_calloc();
 
 	application->application_name = application_name;
+
 	return application;
 }
 

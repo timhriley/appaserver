@@ -141,10 +141,9 @@ char *document_body_tag(
 char *document_body_hide_preload_html(
 			boolean menu_boolean );
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns menu->html or null */
+/* -------------------------- */
 char *document_body_horizontal_menu_html(
-			char *hide_preload_html,
 			boolean menu_boolean,
 			MENU *menu );
 

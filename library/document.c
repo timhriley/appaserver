@@ -255,11 +255,10 @@ DOCUMENT_BODY *document_body_new(
 			menu_boolean );
 
 	document_body->horizontal_menu_html =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
+		/* -------------------------- */
+		/* Returns menu->html or null */
+		/* -------------------------- */
 		document_body_horizontal_menu_html(
-			document_body->hide_preload_html,
 			menu_boolean,
 			menu );
 
@@ -347,18 +346,13 @@ char *document_body_hide_preload_html( boolean menu_boolean )
 }
 
 char *document_body_horizontal_menu_html(
-			char *hide_preload_html,
 			boolean menu_boolean,
 			MENU *menu )
 {
 	if ( !menu_boolean ) return (char *)0;
 	if ( !menu ) return (char *)0;
 
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	return menu_horizontal_html(
-			hide_preload_html,
-			menu->menu_verb_list );
+	return menu->html;
 }
 
 char *document_body_title_html( char *application_title_string )

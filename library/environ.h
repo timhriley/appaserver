@@ -60,15 +60,24 @@ void add_pwd_to_path(	void );
 
 void add_etc_to_path(	void );
 
+void environ_standard_unix_to_path(
+			void );
+
 void add_standard_unix_to_path(
 			void );
 
 void add_dot_to_path(	void );
 
-void environ_prepend_dot_to_path(
+void environ_append_dot_to_path(
+			void );
+
+void environ_utility_to_path(
 			void );
 
 void add_utility_to_path(
+			void );
+
+void environ_src_appaserver_to_path(
 			void );
 
 void add_src_appaserver_to_path(
@@ -80,22 +89,29 @@ void environ_appaserver_home(
 void add_appaserver_home_to_environment(
 			void );
 
-void add_library_to_python_path( 	void );
+void add_library_to_python_path(
+			void );
 
-void add_appaserver_home_to_python_path(void );
-void add_python_library_path( 		void );
+void add_appaserver_home_to_python_path(
+			void );
+
+void add_python_library_path(
+			void );
+
+void environ_local_bin_to_path(
+			void );
 
 void add_local_bin_to_path(
 			void );
 
+void environ_relative_source_directory_to_path(
+			char *application_name );
+
 void add_relative_source_directory_to_path(
 			char *application_name );
 
-void environ_prepend_path(
-			char *path_to_add );
-
 void environ_set_utc_offset(
-			char *application_name );
+			void );
 
 char *environment_exit_application_name(
 			char *argv_0 );

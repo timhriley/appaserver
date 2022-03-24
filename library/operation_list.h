@@ -1,4 +1,5 @@
-/* operation_list.h 							*/
+To retire.
+/* $APPASERVER_HOME/library/operation_list.h				*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver operation and operation_list ADTs.		*/
 /*									*/

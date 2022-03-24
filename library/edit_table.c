@@ -133,7 +133,7 @@ EDIT_TABLE *edit_table_new(
 				session_key,
 				login_name,
 				role_name,
-				target_frame,
+				1 /* frameset_menu_horizontal */,
 				edit_table->folder_menu->count_list );
 	}
 
@@ -525,13 +525,24 @@ LIST *edit_table_apply_element_list(
 			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role )
 {
-	if ( !row_security_role ) return regular_element_list;
-
-	return row_security_role_apply_element_list(
-			regular_element_list,
-			viewonly_element_list,
+	if ( !row_security_role )
+	{
+		if ( regular_element_list )
+			return regular_element_list;
+		else
+			return viewonly_element_list;
+	}
+	else
+	if ( edit_table_viewonly(
 			row_dictionary,
-			row_security_role );
+			row_security_role->attribute_not_null ) )
+	{
+		return viewonly_element_list;
+	}
+	else
+	{
+		return regular_element_list;
+	}
 }
 
 char *edit_table_row_html(
@@ -555,7 +566,7 @@ char *edit_table_row_html(
 			row_dictionary );
 }
 
-char *edit_table_background_color( char *application_name )
+char *edit_table_background_color( void )
 {
 	static int cycle_count = 0;
 	static char **background_color_array = {0};
@@ -566,8 +577,7 @@ char *edit_table_background_color( char *application_name )
 	{
 		background_color_array =
 			edit_table_background_color_array(
-				&background_color_array_length,
-				application_name );
+				&background_color_array_length );
 	}
 
 	if ( !background_color_array_length )
@@ -589,21 +599,20 @@ char *edit_table_background_color( char *application_name )
 }
 
 char **edit_table_background_color_array(
-			int *background_color_array_length,
-			char *application_name )
+			int *background_color_array_length )
 {
 	static char **background_color_array;
 	char *application_constants_color;
 	APPLICATION_CONSTANTS *application_constants;
 
 	background_color_array =
-		(char **)calloc(FORM_MAX_BACKGROUND_COLOR_ARRAY,
+		(char **)calloc(EDIT_TABLE_MAX_BACKGROUND_COLOR_ARRAY,
 				sizeof( char * ) );
 
 	application_constants = application_constants_new();
+
 	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
+		application_constants_dictionary();
 
 	if ( ( application_constants_color =
 		application_constants_fetch(
@@ -1028,8 +1037,7 @@ void edit_table_regular_output(
 				edit_table_row_html(
 					apply_element_list /* in/out */,
 					application_name,
-					edit_table_background_color(
-						application_name ),
+					edit_table_background_color(),
 					state,
 					++row_number,
 					row_dictionary ) ) )
@@ -1177,5 +1185,32 @@ char *edit_table_title_html(
 			folder_name ) );
 
 	return html;
+}
+
+boolean edit_table_viewonly(
+			DICTIONARY *row_dictionary,
+			char *attribute_not_null )
+{
+	char *data;
+
+	if ( !attribute_not_null )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: attribute_not_null is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	data =
+		dictionary_get(
+			attribute_not_null,
+			row_dictionary );
+
+	if ( data && *data )
+		return 1;
+	else
+		return 0;
 }
 

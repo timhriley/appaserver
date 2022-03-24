@@ -101,17 +101,6 @@ char *row_security_role_join(
 
 /* Public */
 /* ------ */
-LIST *row_security_role_apply_element_list(
-			LIST *regular_element_list,
-			LIST *viewonly_element_list,
-			DICTIONARY *row_dictionary,
-			ROW_SECURITY_ROLE *row_security_role );
-
-/* Private */
-/* ------- */
-boolean row_security_role_viewonly(
-			DICTIONARY *row_dictionary,
-			char *row_security_role_update_attribute_not_null );
 
 typedef struct
 {

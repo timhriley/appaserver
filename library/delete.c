@@ -89,7 +89,7 @@ DELETE *delete_new(
 	}
 
 
-	if ( !role_operation_delete(
+	if ( !role_operation_list_delete_boolean(
 			delete->folder->role_operation_list ) )
 	{
 		return (DELETE *)0;

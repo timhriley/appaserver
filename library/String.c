@@ -761,6 +761,11 @@ int string_instr(	char *substr,
         return -1;
 }
 
+char *string_pipe_input( char *system_string )
+{
+	return string_pipe_fetch( system_string );
+}
+
 char *string_fetch_pipe( char *system_string )
 {
 	return string_pipe_fetch( system_string );

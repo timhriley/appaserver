@@ -24,7 +24,8 @@
 
 /* Constants */
 /* --------- */
-#define EDIT_TABLE_OUTPUT_EXECUTABLE	"output_edit_table"
+#define EDIT_TABLE_MAX_BACKGROUND_COLOR_ARRAY	10
+#define EDIT_TABLE_OUTPUT_EXECUTABLE		"output_edit_table"
 
 /* Data structures */
 /* --------------- */
@@ -222,11 +223,14 @@ char *edit_table_output_system_string(
 /* Private */
 /* ------- */
 char **edit_table_background_color_array(
-			int *background_color_array_length,
-			char *application_name );
+			int *background_color_array_length );
 
 char *edit_table_background_color(
-			char *application_name );
+			void );
+
+boolean edit_table_viewonly(
+			DICTIONARY *row_dictionary,
+			char *row_security_role_update_attribute_not_null );
 
 typedef struct
 {

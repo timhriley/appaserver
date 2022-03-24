@@ -285,7 +285,7 @@ char *button_back_to_top_html( void )
 	return strdup( html );
 }
 
-BUTTON *form_button_recall(
+BUTTON *button_recall(
 			char *form_keystrokes_recall_javascript,
 			char *form_keystrokes_multi_recall_javascript )
 {

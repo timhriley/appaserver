@@ -122,36 +122,33 @@ typedef struct
 VERTICAL_NEW_OUTPUT_INSERT_TABLE *
 	vertical_new_output_insert_table_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *role_name,
 			char *folder_name,
 			char *document_root_directory,
 			DICTIONARY *non_prefixed_dictionary,
 			char *vertical_new_one_hidden_label,
-			char *frameset_prompt_frame,
-			char *data_directory );
+			char *frameset_prompt_frame );
 
 /* Process */
 /* ------- */
-void vertical_new_output_insert_table_blank_prompt_frame(
-			char *output_filename,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *frameset_prompt_frame,
-			char *data_directory );
+VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table_calloc(
+			void );
 
 char *vertical_new_output_insert_table_onload_control_string(
 			char *prompt_filename,
 			char *frameset_prompt_frame );
-
-
-/* Private */
-/* ------- */
-VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table_calloc(
-			void );
+/* Public */
+/* ------ */
+void vertical_new_output_insert_table_blank_prompt_frame(
+			char *output_filename,
+			char *onload_control_string,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
+			char *data_directory );
 
 typedef struct
 {
@@ -165,9 +162,6 @@ VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_new(
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Process */
-/* ------- */
-
-/* Private */
 /* ------- */
 VERTICAL_NEW_POST_INSERT_TABLE *vertical_new_post_insert_table_calloc(
 			void );

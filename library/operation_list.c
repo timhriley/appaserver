@@ -1,3 +1,4 @@
+To retire.
 /* operation_list.c 							*/
 /* -------------------------------------------------------------------- */
 /* This is the appaserver operation and operation_list ADT.		*/

@@ -80,6 +80,10 @@ POST_LOGIN *post_login_new(
 		return (POST_LOGIN *)0;
 	}
 
+	session_environment_set(
+		post_login->
+			sql_injection_escape_application_name );
+
 	post_login->sql_injection_escape_login_name =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -197,6 +201,16 @@ POST_LOGIN *post_login_new(
 				post_login->
 					sql_injection_escape_application_name );
 
+		if ( !post_login->session_key || !*post_login->session_key )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: session_key is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		session_insert(
 			post_login->session_key,
 			post_login->sql_injection_escape_login_name,
@@ -275,7 +289,10 @@ char *post_login_database_password( char *login_name )
 boolean post_login_missing_name(
 			char *post_login_name )
 {
-	return (post_login_name) ? 1 : 0;
+	if ( post_login_name && *post_login_name )
+		return 0;
+	else
+		return 1;
 }
 
 boolean post_login_missing_database_password(

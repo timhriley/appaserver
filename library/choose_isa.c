@@ -169,7 +169,7 @@ CHOOSE_ISA *choose_isa_new(
 				session_key,
 				login_name,
 				role_name,
-				FRAMESET_PROMPT_FRAME,
+				1 /* frameset_menu_horizontal */,
 				choose_isa->folder_menu->count_list );
 
 		if ( !choose_isa->menu )

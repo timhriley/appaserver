@@ -16,13 +16,14 @@
 
 typedef struct
 {
-	char *lookup_action_string;
-	char *insert_action_string;
+	char *lookup_href_string;
+	char *insert_href_string;
+	char *post_choose_folder_href_string;
 	char *post_choose_role_action_string;
+	char *post_choose_role_href_string;
 	char *span_tag;
 	char *menu_horizontal_span_tag;
 	char *post_choose_process_href_string;
-	char *post_choose_role_href_string;
 	FORM_CHOOSE_ROLE *form_choose_role;
 	char *html;
 } MENU_ITEM;
@@ -49,8 +50,8 @@ MENU_ITEM *menu_item_vertical_folder_new(
 char *menu_item_vertical_folder_html(
 			char *folder_menu_count_display,
 			char *folder_name,
-			char *lookup_action_string,
-			char *insert_action_string );
+			char *lookup_href_string,
+			char *insert_href_string );
 
 /* Usage */
 /* ----- */
@@ -85,7 +86,7 @@ MENU_ITEM *menu_item_vertical_process_new(
 /* ------------------- */
 char *menu_item_vertical_process_html(
 			char *process_or_set_name,
-			char *action_string );
+			char *post_choose_process_href_string );
 
 /* Usage */
 /* ----- */
@@ -118,16 +119,6 @@ MENU_ITEM *menu_item_horizontal_role_change_new(
 /* Process */
 /* ------- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *menu_item_horizontal_role_change_action_string(
-			char *appaserver_library_http_prompt,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *frameset_prompt_frame );
-
 /* Private */
 /* ------- */
 MENU_ITEM *menu_item_calloc(
@@ -137,7 +128,7 @@ MENU_ITEM *menu_item_calloc(
 /* ------------------- */
 char *menu_item_horizontal_html(
 			char *span_tag,
-			char *action_string );
+			char *post_choose_role_href_string );
 
 /* Public */
 /* ------ */
@@ -166,7 +157,7 @@ typedef struct
 {
 	LIST *role_folder_subschema_folder_name_list;
 	LIST *menu_item_list;
-	char *html;
+	char *menu_item_list_vertical_html;
 } MENU_VERTICAL_SUBSCHEMA;
 
 /* MENU_VERTICAL_SUBSCHEMA operations */
@@ -193,8 +184,8 @@ typedef struct
 {
 	LIST *role_folder_subschema_folder_name_list;
 	LIST *menu_item_list;
-	char *span_tag;
-	char *html;
+	char *menu_horizontal_span_tag;
+	char *menu_item_list_horizontal_html;
 } MENU_HORIZONTAL_SUBSCHEMA;
 
 /* MENU_HORIZONTAL_SUBSCHEMA operations */
@@ -219,15 +210,14 @@ MENU_HORIZONTAL_SUBSCHEMA *menu_horizontal_subschema_calloc(
 
 typedef struct
 {
-	LIST *menu_item_process_list;
 	LIST *role_process_or_set_name_list;
-	char *menu_horizontal_span_tag;
+	LIST *menu_item_process_list;
 	char *html;
 } MENU_VERTICAL_PROCESS_GROUP;
 
 /* MENU_VERTICAL_PROCESS_GROUP operations */
 /* -------------------------------------- */
-MENU_PROCESS_VERTICAL_GROUP *menu_vertical_process_group_new(
+MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -241,9 +231,17 @@ MENU_PROCESS_VERTICAL_GROUP *menu_vertical_process_group_new(
 MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group_calloc(
 			void );
 
+typedef struct
+{
+	LIST *role_process_or_set_name_list;
+	LIST *menu_item_process_list;
+	char *menu_horizontal_span_tag;
+	char *html;
+} MENU_HORIZONTAL_PROCESS_GROUP;
+
 /* MENU_HORIZONTAL_PROCESS_GROUP operations */
 /* ---------------------------------------- */
-MENU_PROCESS_HORIZONTAL_GROUP *menu_horizontal_process_group_new(
+MENU_HORIZONTAL_PROCESS_GROUP *menu_horizontal_process_group_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -285,8 +283,8 @@ MENU_VERTICAL *menu_vertical_new(
 			LIST *appaserver_user_role_name_list,
 			LIST *role_folder_subschema_name_list,
 			LIST *role_folder_subschema_missing_folder_name_list,
-			LIST *menu_process_group_name_list,
-			LIST *menu_group_missing_process_name_list );
+			LIST *role_process_group_name_list,
+			LIST *role_process_group_missing_process_name_list );
 
 /* Process */
 /* ------- */
@@ -338,8 +336,8 @@ MENU_HORIZONTAL *menu_horizontal_new(
 			LIST *appaserver_user_role_name_list,
 			LIST *role_folder_subschema_name_list,
 			LIST *role_folder_subschema_missing_folder_name_list,
-			LIST *menu_process_group_name_list,
-			LIST *menu_group_missing_process_name_list );
+			LIST *role_process_group_name_list,
+			LIST *role_process_group_missing_process_name_list );
 
 /* Process */
 /* ------- */
@@ -370,12 +368,10 @@ typedef struct
 	LIST *role_process_list;
 	LIST *role_process_set_list;
 	LIST *appaserver_user_role_name_list;
-	LIST *role_process_group_name_list;
-	LIST *role_process_set_group_name_list;
 	LIST *role_folder_subschema_name_list;
 	LIST *role_folder_subschema_missing_folder_name_list;
-	LIST *group_name_list;
-	LIST *group_missing_process_name_list;
+	LIST *role_process_group_name_list;
+	LIST *role_process_group_missing_process_name_list;
 	MENU_VERTICAL *menu_vertical;
 	MENU_HORIZONTAL *menu_horizontal;
 	char *html;
@@ -429,6 +425,6 @@ char *menu_output_system_string(
 			char *login_name,
 			char *role_name,
 			boolean frameset_menu_horizontal,
-			char *output_filename );
+			char *frameset_output_filename );
 
 #endif

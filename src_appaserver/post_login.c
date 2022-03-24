@@ -49,28 +49,24 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	session_environment_set(
-		post_login->
-			sql_injection_escape_application_name );
-
 	appaserver_error_login_name_append_file(
 		argc,
 		argv,
 		post_login->sql_injection_escape_application_name,
 		post_login->sql_injection_escape_login_name );
 
-	if ( !post_login->session_key )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: session_key is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	if ( post_login->frameset_output_system_string )
 	{
+		if ( !post_login->session_key )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: session_key is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		if ( system( post_login->frameset_output_system_string ) ){}
 	}
 

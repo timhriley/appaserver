@@ -23,7 +23,7 @@
 #include "element.h"
 #include "attribute.h"
 #include "query.h"
-#include "operation.h"
+#include "role_operation.h"
 #include "appaserver.h"
 #include "row_security.h"
 
@@ -245,33 +245,6 @@ char *row_security_role_update_attribute_not_null(
 	exit( 1 );
 }
 
-boolean row_security_role_viewonly(
-			DICTIONARY *row_dictionary,
-			char *attribute_not_null )
-{
-	char *data;
-
-	if ( !attribute_not_null )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: attribute_not_null is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	data =
-		dictionary_get(
-			attribute_not_null,
-			row_dictionary );
-
-	if ( data && *data )
-		return 1;
-	else
-		return 0;
-}
-
 ROW_SECURITY_ROLE_UPDATE *row_security_role_update_calloc( void )
 {
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
@@ -329,8 +302,7 @@ RELATION *row_security_role_relation(
 	ROW_SECURITY_ROLE_UPDATE *row_security_role_update;
 	RELATION *relation;
 
-	if ( !list_rewind( update_list ) )
-		return (RELATION *)0;
+	if ( !list_rewind( update_list ) ) return (RELATION *)0;
 
 	do {
 		row_security_role_update =
@@ -600,14 +572,14 @@ LIST *row_security_operation_element_list(
 			boolean viewonly )
 {
 	LIST *element_list = list_new();
-	OPERATION *operation;
+	ROLE_OPERATION *role_operation;
 	APPASERVER_ELEMENT *element;
 
 	if ( !list_rewind( role_operation_list ) )
 		return element_list;
 
 	do {
-		operation = 
+		role_operation = 
 			list_get(
 				role_operation_list );
 
@@ -619,7 +591,7 @@ LIST *row_security_operation_element_list(
 
 		if ( viewonly
 		&&   operation_delete_boolean(
-			operation->operation_name ) )
+			role_operation->operation->operation_name ) )
 		{
 			continue;
 		}
@@ -627,16 +599,19 @@ LIST *row_security_operation_element_list(
 		element =
 			appaserver_element_new(
 				checkbox,
-				operation->operation_name
+				role_operation->operation->operation_name
 					/* element_name */ );
 
 		element->checkbox->element_name =
-			operation->operation_name;
+			role_operation->operation->operation_name;
 
 		element->checkbox->prompt_string =
-			operation->operation_name;
+			role_operation->operation->operation_name;
 
-		if ( operation_delete_boolean( operation->operation_name ) )
+		if ( operation_delete_boolean(
+			role_operation->
+				operation->
+				operation_name ) )
 		{
 			element->checkbox->on_click =
 				ROW_SECURITY_DELETE_WARNING_JAVASCRIPT;
@@ -647,32 +622,6 @@ LIST *row_security_operation_element_list(
 	} while( list_next( role_operation_list ) );
 
 	return element_list;
-}
-
-LIST *row_security_apply_element_list(
-			LIST *regular_element_list,
-			LIST *viewonly_element_list,
-			DICTIONARY *row_dictionary,
-			ROW_SECURITY_ROLE *row_security_role )
-{
-	if ( !row_security_role )
-	{
-		if ( regular_element_list )
-			return regular_element_list;
-		else
-			return viewonly_element_list;
-	}
-	else
-	if ( row_security_role_viewonly(
-			row_dictionary,
-			row_security_role->attribute_not_null ) )
-	{
-		return viewonly_element_list;
-	}
-	else
-	{
-		return regular_element_list;
-	}
 }
 
 LIST *row_security_role_update_list( void )
@@ -1464,3 +1413,14 @@ ROW_SECURITY_ELEMENT_LIST_VIEWONLY *
 	return row_security_element_list_viewonly;
 }
 
+boolean row_security_role_participating(
+			char *row_security_role_root_folder_name,
+			RELATION *row_security_role_relation )
+{
+	if ( !row_security_role_relation ) return 0;
+
+	return
+	( strcmp(
+		row_security_role_relation->many_folder->folder_name,
+		row_security_role_root_folder_name ) == 0 );
+}

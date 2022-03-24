@@ -311,70 +311,6 @@ char *role_appaserver_user_primary_where(
 	return where;
 }
 
-char *role_appaserver_user_system_string( char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\" select",
-		ROLE_APPASERVER_USER_TABLE,
-		where );
-
-	return strdup( system_string );
-}
-
-ROLE_APPASERVER_USER *role_appaserver_user_calloc( void )
-{
-	ROLE_APPASERVER_USER *role_appaserver_user;
-
-	if ( ! ( role_appaserver_user =
-			calloc( 1, sizeof( ROLE_APPASERVER_USER ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return role_appaserver_user;
-}
-
-ROLE_APPASERVER_USER *role_appaserver_user_fetch(
-			char *session_login_name,
-			char *sql_injection_escape_role_name )
-{
-	return
-	role_appaserver_user_parse(
-		string_pipe_fetch(
-			role_appaserver_user_system_string(
-				role_appaserver_user_primary_where(
-					session_login_name,
-					sql_injection_escape_role_name ) ) ) );
-}
-
-ROLE_APPASERVER_USER *role_appaserver_user_parse(
-			char *input )
-{
-	ROLE_APPASERVER_USER *role_appaserver_user;
-	char piece_buffer[ 128 ];
-
-	if ( !input || !*input ) return (ROLE_APPASERVER_USER *)0;
-
-	role_appaserver_user = role_appaserver_user_calloc();
-
-	/* See attribute_list role_appaserver_user */
-	/* --------------------------------------- */
-	piece( piece_buffer, SQL_DELIMITER, input, 0 );
-	role_appaserver_user->login_name = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	role_appaserver_user->role_name = strdup( piece_buffer );
-
-	return role_appaserver_user;
-}
-
 LIST *role_exclude_lookup_attribute_name_list(
 			LIST *attribute_exclude_list )
 {
@@ -812,58 +748,104 @@ char *role_post_choose_role_action_string(
 	return strdup( action_string );
 }
 
-LIST *role_process_set_group_name_list( LIST *role_process_set_list )
+LIST *role_process_group_missing_process_name_list(
+			LIST *role_process_list,
+			LIST *role_process_set_list )
 {
-	LIST *name_list;
+	LIST *name_list = {0};
+	ROLE_PROCESS *role_process;
 	ROLE_PROCESS_SET *role_process_set;
 
-	if ( !list_rewind( role_process_set_list ) )
-		return (LIST *)0;
+	if ( list_rewind( role_process_list ) )
+	{
+		do {
+			role_process = list_get( role_process_list );
 
-	name_list = list_new();
+			if ( role_process->process_group_name
+			&&   *role_process->process_group_name )
+			{
+				continue;
+			}
 
-	do {
-		role_process_set = list_get( role_process_set_list );
+			if ( !name_list ) name_list = list_new();
 
-		if ( !role_process_set->process_group_name
-		||   !*role_process_set->process_group_name )
-		{
-			continue;
-		}
+			list_set(
+				name_list,
+				role_process->process_name );
 
-		list_set(
-			name_list,
-			role_process_set->process_group_name );
+		} while ( list_next( role_process_list ) );
+	}
 
-	} while ( list_next( role_process_set_list ) );
+	if ( list_rewind( role_process_set_list ) )
+	{
+		do {
+			role_process_set = list_get( role_process_set_list );
+
+			if ( role_process_set->process_group_name
+			&&   *role_process_set->process_group_name )
+			{
+				continue;
+			}
+
+			if ( !name_list ) name_list = list_new();
+
+			list_set(
+				name_list,
+				role_process_set->process_set_name );
+
+		} while ( list_next( role_process_set_list ) );
+	}
 
 	return name_list;
 }
 
-LIST *role_process_group_name_list( LIST *role_process_list )
+LIST *role_process_group_name_list(
+			LIST *role_process_list,
+			LIST *role_process_set_list )
 {
-	LIST *name_list;
+	LIST *name_list = {0};
 	ROLE_PROCESS *role_process;
+	ROLE_PROCESS_SET *role_process_set;
 
-	if ( !list_rewind( role_process_list ) )
-		return (LIST *)0;
+	if ( list_rewind( role_process_list ) )
+	{
+		do {
+			role_process = list_get( role_process_list );
 
-	name_list = list_new();
+			if ( !role_process->process_group_name
+			||   !*role_process->process_group_name )
+			{
+				continue;
+			}
 
-	do {
-		role_process = list_get( role_process_list );
+			if ( !name_list ) name_list = list_new();
 
-		if ( !role_process->process_group_name
-		||   !*role_process->process_group_name )
-		{
-			continue;
-		}
+			list_set(
+				name_list,
+				role_process->process_group_name );
 
-		list_set(
-			name_list,
-			role_process->process_group_name );
+		} while ( list_next( role_process_list ) );
+	}
 
-	} while ( list_next( role_process_list ) );
+	if ( list_rewind( role_process_set_list ) )
+	{
+		do {
+			role_process_set = list_get( role_process_set_list );
+
+			if ( !role_process_set->process_group_name
+			||   !*role_process_set->process_group_name )
+			{
+				continue;
+			}
+
+			if ( !name_list ) name_list = list_new();
+
+			list_set(
+				name_list,
+				role_process_set->process_group_name );
+
+		} while ( list_next( role_process_set_list ) );
+	}
 
 	return name_list;
 }

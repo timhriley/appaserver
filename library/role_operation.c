@@ -15,19 +15,27 @@
 
 LIST *role_operation_list(
 			char *folder_name,
-			char *role_name )
+			char *role_name,
+			boolean fetch_operation )
 {
 	return
 	role_operation_system_list(
-		role_folder_primary_where(
-			role_name,
-			folder_name ) );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		role_operation_system_string(
+			ROLE_OPERATION_SELECT,
+			ROLE_OPERATION_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_operation_where(
+				folder_name,
+				role_name ) ),
+		fetch_operation );
 }
 
-ROLE_OPERATION *role_operation_new( 
-			char *folder_name,
-			char *role_name,
-			char *operation_name )
+ROLE_OPERATION *role_operation_calloc( void )
 {
 	ROLE_OPERATION *role_operation;
 
@@ -41,6 +49,16 @@ ROLE_OPERATION *role_operation_new(
 		exit( 1 );
 	}
 
+	return role_operation;
+}
+
+ROLE_OPERATION *role_operation_new( 
+			char *folder_name,
+			char *role_name,
+			char *operation_name )
+{
+	ROLE_OPERATION *role_operation = role_operation_calloc();
+
 	role_operation->folder_name = folder_name;
 	role_operation->role_name = role_name;
 	role_operation->operation_name = operation_name;
@@ -49,7 +67,8 @@ ROLE_OPERATION *role_operation_new(
 }
 
 ROLE_OPERATION *role_operation_parse(
-			char *input )
+			char *input,
+			boolean fetch_operation )
 {
 	ROLE_OPERATION *role_operation;
 	char folder_name[ 128 ];
@@ -70,10 +89,19 @@ ROLE_OPERATION *role_operation_parse(
 			strdup( role_name ),
 			strdup( operation_name ) );
 
+	if ( fetch_operation )
+	{
+		role_operation->operation =
+			operation_fetch(
+				operation_name );
+	}
+
 	return role_operation;
 }
 
 char *role_operation_system_string(
+			char *role_operation_select,
+			char *role_operation_table,
 			char *where )
 {
 	char system_string[ 1024 ];
@@ -82,15 +110,16 @@ char *role_operation_system_string(
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		ROLE_OPERATION_SELECT,
-		ROLE_OPERATION_TABLE,
+		role_operation_select,
+		role_operation_table,
 		where );
 
 	return strdup( system_string );
 }
 
 LIST *role_operation_system_list(
-			char *system_string )
+			char *system_string,
+			boolean fetch_operation )
 {
 	char input[ 1024 ];
 	FILE *pipe;
@@ -101,7 +130,10 @@ LIST *role_operation_system_list(
 
 	while ( string_input( input, pipe, 1024 ) )
 	{
-		if ( ( role_operation = role_operation_parse( input ) ) )
+		if ( ( role_operation =
+			role_operation_parse(
+				input,
+				fetch_operation ) ) )
 		{
 			if ( !list ) list = list_new();
 			list_set( list, role_operation );
@@ -134,23 +166,21 @@ LIST *role_operation_name_list(
 	return name_list;
 }
 
-char *role_operation_primary_where(
+char *role_operation_where(
 			char *folder_name,
-			char *role_name,
-			char *operation_name )
+			char *role_name )
 {
 	static char where[ 256 ];
 
 	sprintf(where,
-		"folder = '%s' and role = '%s' and operation = '%s'",
+		"folder = '%s' and role = '%s'",
 		folder_name,
-		role_name,
-		operation_name );
+		role_name );
 
 	return where;
 }
 
-boolean role_operation_delete(
+boolean role_operation_list_delete_boolean(
 			LIST *role_operation_list )
 {
 	ROLE_OPERATION *role_operation;

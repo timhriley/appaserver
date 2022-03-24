@@ -12,7 +12,7 @@
 /* Constants */
 /* --------- */
 #define APPLICATION_SELECT			\
-		"application_name,"		\
+		"application,"			\
 		"application_title,"		\
 		"user_date_format,"		\
 		"relative_source_directory,"	\

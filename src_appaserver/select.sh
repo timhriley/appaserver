@@ -57,7 +57,7 @@ if [ "$#" -gt 3 ]
 then
 	order="$4"
 
-	if [ "$order" = "" -o "$order" = "order" ]
+	if [ "$order" = "" -o "$order" = "order" -o "$order" = "none" ]
 	then
 		order=""
 	fi

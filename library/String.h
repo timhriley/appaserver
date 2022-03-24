@@ -178,6 +178,7 @@ int string_instr(	char *substr,
 /* --------------------------- */
 char *string_pipe_fetch( char *system_string );
 char *string_fetch_pipe( char *system_string );
+char *string_pipe_input( char *system_string );
 
 LIST *string_pipe_list(	char *system_string );
 

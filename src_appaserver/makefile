@@ -123,6 +123,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/aggregate_level.o 				\
 		${LIB}/aggregate_statistic.o 				\
 		${LIB}/date.o 						\
+		${LIB}/radio.o 						\
 		${LIB}/html_table.o 					\
 		${LIB}/dictionary.o 					\
 		${LIB}/sed.o 						\
@@ -159,6 +160,10 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/query.o						\
 		${LIB}/process.o					\
 		${LIB}/form.o						\
+		${LIB}/form_prompt_edit.o				\
+		${LIB}/form_edit_table.o				\
+		${LIB}/form_choose_isa.o				\
+		${LIB}/form_choose_role.o				\
 		${LIB}/element.o					\
 		${LIB}/button.o						\
 		${LIB}/operation.o					\
@@ -171,7 +176,18 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post_dictionary.o				\
 		${LIB}/dictionary2file.o				\
 		${LIB}/date_convert.o					\
-		${LIB}/hash_table.o
+		${LIB}/hash_table.o					\
+		${LIB}/edit_table.o					\
+		${LIB}/insert_table.o					\
+		${LIB}/prompt_insert.o					\
+		${LIB}/prompt_edit.o					\
+		${LIB}/row_security.o					\
+		${LIB}/drillthru.o					\
+		${LIB}/choose_isa.o					\
+		${LIB}/choose_role.o					\
+		${LIB}/post_choose_role.o				\
+		${LIB}/post_choose_folder.o				\
+		${LIB}/post_choose_process.o
 
 all: 	${EXECUTABLES}
 
@@ -305,15 +321,11 @@ post_change_sort_order: post_change_sort_order.c			\
 	${CGI_HOME}
 
 post_login: post_login.c ${EXTERNAL_LIBS}				\
-		${LIB}/post_login.o					\
-		${LIB}/form_choose_role.o				\
-		${LIB}/choose_role.o
+		${LIB}/post_login.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/post_login.o					\
-		${LIB}/form_choose_role.o				\
-		${LIB}/choose_role.o					\
 		post_login.c						\
 		-o post_login
 	touch ${CGI_HOME}/post_login
@@ -951,15 +963,11 @@ output_prompt_insert: output_prompt_insert.c 				\
 	${CGI_HOME}
 
 output_choose_isa: output_choose_isa.c					\
-			${EXTERNAL_LIBS}				\
-			${LIB}/form_choose_isa.o			\
-			${LIB}/choose_isa.o
+			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		output_choose_isa.c					\
 		${EXTERNAL_LIBS}					\
-		${LIB}/form_choose_isa.o				\
-		${LIB}/choose_isa.o					\
 		-o output_choose_isa
 
 view_source: view_source.c						\
@@ -1051,15 +1059,11 @@ output_choose_role_menu: output_choose_role_menu.c 			\
 		-o output_choose_role_menu
 
 output_choose_role: output_choose_role.c				\
-			${EXTERNAL_LIBS}				\
-			${LIB}/form_choose_role.o			\
-			${LIB}/choose_role.o
+			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		output_choose_role.c					\
-		${LIB}/form_choose_role.o				\
-		${LIB}/choose_role.o					\
 		-o output_choose_role
 
 output_menu: output_menu.c						\

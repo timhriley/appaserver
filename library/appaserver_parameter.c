@@ -166,6 +166,16 @@ APPASERVER_PARAMETER *appaserver_parameter_new( void )
 				"DATABASE" );
 	}
 
+	if ( !application || !*application )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both APPASERVER_DATABASE and DATABASE are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	return appaserver_parameter_application( application );
 }
 

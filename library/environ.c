@@ -189,22 +189,24 @@ void environment_set(	char *environment,
 
 }
 
-void environ_prepend_path( char *path_to_add )
+void environ_append_path( char *path_to_add )
 {
 	char *path_environment;
 	char new_path[ 4096 ];
 
 	path_environment = getenv( "PATH" );
+
 	if ( !path_environment )
 	{
-		fprintf( stderr, 
-			 "%s/%s(%s) cannot get PATH\n", 
-			 __FILE__,
-			 __FUNCTION__,
-			 path_to_add );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: getenv(PATH) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
-	sprintf( new_path, "PATH=%s:%s", path_to_add, path_environment );
+
+	sprintf( new_path, "PATH=%s:%s", path_environment, path_to_add );
 
 	putenv( strdup( new_path ) );
 
@@ -260,7 +262,7 @@ char *environ_http_referer( void )
 	}
 }
 
-void environ_set_utc_offset( char *application_name )
+void environ_set_utc_offset( void )
 {
 	APPLICATION_CONSTANTS *application_constants;
 	char *utc_offset;
@@ -268,8 +270,7 @@ void environ_set_utc_offset( char *application_name )
 	application_constants = application_constants_new();
 
 	application_constants->dictionary =
-		application_constants_dictionary(
-			application_name );
+		application_constants_dictionary();
 
 	if ( ( utc_offset =
 		application_constants_fetch(
@@ -325,13 +326,17 @@ char *environ_http_referer_filename( void )
 
 void add_standard_unix_to_path( void )
 {
-	add_local_bin_to_path();
+}
+
+void environ_standard_unix_to_path( void )
+{
+	environ_local_bin_to_path();
 	set_path( "/bin:/usr/bin:/etc" );
 }
 
-void environ_prepend_dot_to_path( void )
+void environ_append_dot_to_path( void )
 {
-	environ_prepend_path( "." );
+	environ_append_path( "." );
 }
 
 void add_dot_to_path( void )
@@ -351,10 +356,20 @@ void add_etc_to_path( void )
 
 void add_local_bin_to_path( void )
 {
+	environ_local_bin_to_path();
+}
+
+void environ_local_bin_to_path( void )
+{
 	set_path( "/usr/local/bin" );
 }
 
 void add_utility_to_path( void )
+{
+	environ_utility_to_path();
+}
+
+void environ_utility_to_path( void )
 {
 	char *appaserver_mount_point;
 	char utility_path[ 128 ];
@@ -384,6 +399,11 @@ void environ_umask( void )
 }
 
 void add_src_appaserver_to_path( void )
+{
+	environ_src_appaserver_to_path();
+}
+
+void environ_src_appaserver_to_path( void )
 {
 	char bin_path[ 256 ];
 
@@ -444,6 +464,11 @@ void add_path( char *path_to_add )
 }
 
 void add_relative_source_directory_to_path( char *application_name )
+{
+	environ_relative_source_directory_to_path( application_name );
+}
+
+void environ_relative_source_directory_to_path( char *application_name )
 {
 	char *appaserver_mount_point;
 	char *relative_source_directory;

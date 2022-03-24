@@ -1,4 +1,4 @@
-/* application_constants.h				*/
+/* $APPASERVER_HOME/library/application_constants.h	*/
 /* ==================================================== */
 /*                                                      */
 /* Freely available software: see Appaserver.org	*/
@@ -9,6 +9,11 @@
 
 #include "dictionary.h"
 
+#define APPLICATION_CONSTANTS_TABLE	"application_constants"
+
+#define APPLICATION_CONSTANTS_SELECT	"application_constant,"		\
+					"application_constant_value"
+
 typedef struct
 {
 	DICTIONARY *dictionary;
@@ -17,31 +22,23 @@ typedef struct
 APPLICATION_CONSTANTS *application_constants_new( void );
 
 DICTIONARY *application_constants_dictionary(
-				char *application_name );
-
-DICTIONARY *application_constants_get_dictionary(
-				char *application_name );
+			void );
 
 char *application_constants_fetch(
-				DICTIONARY *application_constants_dictionary,
-				char *key );
+			DICTIONARY *application_constants_dictionary,
+			char *key );
 
 char *application_constants_safe_fetch(
-				DICTIONARY *application_constants_dictionary,
-				char *key );
+			DICTIONARY *application_constants_dictionary,
+			char *key );
 
-void application_constants_get_easycharts_width_height(
-				int *easycharts_width,
-				int *easycharts_height,
-				char *application_name );
-
-void application_constants_free(APPLICATION_CONSTANTS *application_constants );
+void application_constants_free(
+			APPLICATION_CONSTANTS *application_constants );
 
 char *application_constants_quick_fetch(
-				char *application_name,
-				char *key );
+			char *key );
 
 boolean application_constants_cat_javascript_source(
-				char *application_name );
+			void );
 
 #endif

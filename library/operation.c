@@ -413,108 +413,54 @@ char *operation_delete_warning_javascript( boolean delete_boolean )
 	}
 }
 
-OPERATION_LIST *operation_list_calloc( void )
+OPERATION *operation_fetch( char *operation_name )
 {
-	OPERATION_LIST *operation_list;
+	if ( !operation_name || !*operation_name )
+	{
+		return (OPERATION *)0;
+	}
 
-	if ( ! ( operation_list = calloc( 1, sizeof( OPERATION_LIST ) ) ) )
+	return
+	operation_parse(
+		string_pipe_input(
+			operation_system_string(
+				OPERATION_SELECT,
+				OPERATION_TABLE,
+				operation_primary_where(
+					operation_name ) ) ) );
+}
+
+char *operation_primary_where( char *operation_name )
+{
+	static char where[ 128 ];
+
+	if ( !operation_name || !*operation_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			"ERROR in %s/%s()/%d: operation_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	return operation_list;
-}
-
-OPERATION_LIST *operation_list_new(
-			char *folder_name,
-			char *role_name )
-{
-	OPERATION_LIST *operation_list = operation_list_calloc();
-	FILE *input_pipe;
-	char input[ 128 ];
-
-	operation_list->operation_list = list_new();
-
-	operation_list->select =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		operation_list_select();
-
-	operation_list->where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		operation_list_where(
-			folder_name,
-			role_name );
-
-	operation_list->system_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		operation_list_system_string(
-			operation_list->select,
-			operation_list->where );
-
-	input_pipe = popen( operation_list->system_string, "r" );
-
-	while ( string_input( input, input_pipe, 128 ) )
-	{
-		list_set(
-			operation_list->operation_list,
-			operation_parse( input ) );
-	}
-
-	pclose( input_pipe );
-	return operation_list;
-}
-
-char *operation_list_select( void )
-{
-	static char select[ 128 ];
-
-	sprintf(select,
-		"%s.operation,output_yn",
-		OPERATION_TABLE );
-
-	return select;
-}
-
-char *operation_list_where(
-			char *folder_name,
-			char *role_name )
-{
-	static char where[ 256 ];
-
-	sprintf(where,
-		"folder = '%s' and role = '%s' and"
-		"%s.operation = %s.operation",
-		folder_name,
-		role_name,
-		ROLE_OPERATION_TABLE,
-		OPERATION_TABLE );
+	sprintf( where, "operation = '%s'", operation_name );
 
 	return where;
 }
 
-char *operation_list_system_string(
+char *operation_system_string(
 			char *select,
-			char *where )
+			char *table,
+			char *primary_where )
 {
-	static char system_string[ 1024 ];
+	static char system_string[ 512 ];
 
 	sprintf(system_string,
-		"select.sh \"%s\" %s,%s \"%s\"",
+		"select.sh \"%s\" %s \"%s\"",
 		select,
-		ROLE_OPERATION_TABLE,
-		OPERATION_TABLE,
-		where );
+		table,
+		primary_where );
 
 	return system_string;
 }
@@ -529,7 +475,10 @@ OPERATION *operation_parse( char *input )
 	piece( output_yn, SQL_DELIMITER, input, 1 );
 
 	operation->operation_name = strdup( operation_name );
-	operation->output = (*output_yn == 'y');
+
+	operation->output_boolean =
+		operation_output_boolean(
+			output_yn );
 
 	operation->process =
 		process_fetch(
@@ -573,6 +522,21 @@ OPERATION *operation_parse( char *input )
 			operation->delete_warning_javascript );
 
 	return operation;
+}
+
+boolean operation_output_boolean( char *output_yn )
+{
+	if ( !output_yn )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: output_yn is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return (*output_yn == 'y');
 }
 
 APPASERVER_ELEMENT *operation_element(

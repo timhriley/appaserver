@@ -445,13 +445,13 @@ boolean session_process_valid(
 void session_environment_set( char *application_name )
 {
 	environment_set( "APPASERVER_DATABASE", application_name );
-	environ_set_utc_offset( application_name );
-	add_relative_source_directory_to_path( application_name );
-	add_utility_to_path();
-	add_src_appaserver_to_path();
-	add_local_bin_to_path();
+	environ_src_appaserver_to_path();
+	environ_utility_to_path();
+	environ_local_bin_to_path();
+	environ_relative_source_directory_to_path( application_name );
+	environ_append_dot_to_path();
 	environ_appaserver_home();
-	environ_prepend_dot_to_path();
+	environ_set_utc_offset();
 	environ_umask();
 }
 
@@ -763,6 +763,16 @@ char *session_key( char *application_name )
 {
 	char system_string[ 128 ];
 	char *key;
+
+	if ( !application_name || !*application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(system_string,
 		"session_number_new.sh %s",

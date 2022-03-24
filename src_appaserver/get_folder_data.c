@@ -12,10 +12,9 @@
 #include "String.h"
 #include "list.h"
 #include "piece.h"
-#include "folder.h"
+#include "sql.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver_parameter_file.h"
 #include "environ.h"
 #include "query.h"
 #include "name_arg.h"
@@ -49,7 +48,7 @@ int main( int argc, char **argv )
 	char *maxrows = {0};
 	long maxrows_long = 0L;
 	char *where_clause;
-	char sys_string[ QUERY_WHERE_BUFFER ];
+	char system_string[ QUERY_WHERE_BUFFER ];
 	char order_by_clause[ 4096 ];
 	char group_by_clause[ 4096 ];
 	char where_clause_escaped[ QUERY_WHERE_BUFFER ];
@@ -229,13 +228,13 @@ int main( int argc, char **argv )
 	{
 		sprintf(	sql_executable,
 				"sql_quick.e '%c'",
-				FOLDER_DATA_DELIMITER );
+				SQL_DELIMITER );
 	}
 	else
 	{
 		sprintf(	sql_executable,
 				"sql.e '%c'",
-				FOLDER_DATA_DELIMITER );
+				SQL_DELIMITER );
 	}
 
 	table_name = get_multiple_table_names( application_name, folder_name );
@@ -264,7 +263,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	sprintf(sys_string,
+	sprintf(system_string,
 	 	"echo \"select %s				 "
 		" 	from %s					 "
 		" 	where %s				 "
@@ -280,10 +279,10 @@ int main( int argc, char **argv )
 		sql_executable );
 
 /*
-fprintf( stderr, "%s\n", sys_string );
+fprintf( stderr, "%s\n", system_string );
 */
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 
 	while( timlib_get_line( input_buffer, input_pipe, MAX_INPUT_LINE ) )
 	{

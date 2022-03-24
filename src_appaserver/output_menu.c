@@ -66,7 +66,7 @@ int main( int argc, char **argv )
 				session_key,
 				login_name,
 				role_name,
-				FRAMESET_PROMPT_FRAME /* target_frame */,
+				frameset_menu_horizontal,
 				folder_menu->count_list ) ) )
 	{
 		fprintf(stderr,
@@ -78,20 +78,17 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( frameset_menu_horizontal )
+	if ( !menu->html )
 	{
-		printf( "%s\n",
-			menu_horizontal_html(
-				document_body_hide_preload_html(
-					1 /* menu_boolean */ ),
-				menu->menu_verb_list ) );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: menu->html is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
-	else
-	{
-		printf( "%s\n",
-			menu_vertical_html(
-				menu->menu_verb_list ) );
-	}
+
+	printf( "%s\n", menu->html );
 
 	return 0;
 }

@@ -11,16 +11,12 @@
 #include "boolean.h"
 #include "operation.h"
 
-/* Constants */
-/* --------- */
 #define ROLE_OPERATION_TABLE	"role_operation"
 
 #define ROLE_OPERATION_SELECT	"folder,"	\
 				"role,"		\
 				"operation"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *folder_name;
@@ -29,39 +25,56 @@ typedef struct
 	OPERATION *operation;
 } ROLE_OPERATION;
 
-/* Operations */
-/* ---------- */
+/* ROLE_OPERATION operations */
+/* ------------------------- */
+
+/* Usage */
+/* ------ */
 LIST *role_operation_list(
 			char *folder_name,
+			char *role_name,
+			boolean fetch_operation );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *role_operation_where(
+			char *folder_name,
 			char *role_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *role_operation_system_string(
+			char *role_operation_select,
+			char *role_operation_table,
+			char *role_operation_where );
+
+LIST *role_operation_system_list(
+			char *role_operation_system_string,
+			boolean fetch_operation );
+
+ROLE_OPERATION *role_operation_parse(
+			char *input,
+			boolean fetch_operation );
 
 ROLE_OPERATION *role_operation_new( 
 			char *folder_name,
 			char *role_name,
 			char *operation_name );
 
-ROLE_OPERATION *role_operation_parse(
-			char *input );
+/* Private */
+/* ------- */
+ROLE_OPERATION *role_operation_calloc(
+			void );
 
-/* Returns heap memory */
-/* ------------------- */
-char *role_operation_system_string(
-			char *where );
-
-LIST *role_operation_system_list(
-			char *system_string );
-
+/* Public */
+/* ------ */
 LIST *role_operation_name_list(
 			LIST *role_operation_list );
 
-/* Returns static memory */
-/* --------------------- */
-char *role_operation_primary_where(
-			char *folder_name,
-			char *role_name,
-			char *operation_name );
-
-boolean role_operation_delete(
+boolean role_operation_list_delete_boolean(
 			LIST *role_operation_list );
 
 #endif

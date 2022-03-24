@@ -22,6 +22,7 @@
 #include "timlib.h"
 #include "folder_attribute.h"
 #include "session.h"
+#include "role.h"
 #include "appaserver_user.h"
 
 static APPASERVER_USER *global_appaserver_user = {0};
@@ -291,6 +292,16 @@ APPASERVER_USER *appaserver_user_parse(
 	APPASERVER_USER *appaserver_user;
 	char piece_buffer[ 512 ];
 
+	if ( !input || !*input )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: input is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	appaserver_user = appaserver_user_calloc();
 
 	piece( piece_buffer, SQL_DELIMITER, input, 0 );
@@ -342,7 +353,8 @@ LIST *appaserver_user_role_name_list(
 	sprintf( where, "login_name = '%s'", login_name );
 
 	sprintf(system_string,
-		"select.sh role role_appaserver_user \"%s\" select",
+		"select.sh role %s \"%s\" select",
+		ROLE_APPASERVER_USER_TABLE,
 		where );
 
 	return pipe2list( system_string );

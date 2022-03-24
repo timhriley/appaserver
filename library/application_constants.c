@@ -4,8 +4,9 @@
 /* Freely available software: see Appaserver.org	*/
 /* ==================================================== */
 
-#include "stdlib.h"
-#include "string.h"
+#include <stdlib.h>
+#include <string.h>
+#include "String.h"
 #include "application_constants.h"
 #include "appaserver_parameter.h"
 #include "appaserver_library.h"
@@ -15,44 +16,39 @@
 
 APPLICATION_CONSTANTS *application_constants_new( void )
 {
-	APPLICATION_CONSTANTS *a;
+	APPLICATION_CONSTANTS *application_constants;
 
-	a = (APPLICATION_CONSTANTS *)
-		calloc( 1, sizeof( APPLICATION_CONSTANTS ) );
+	if ( ! ( application_constants =
+			calloc( 1, sizeof( APPLICATION_CONSTANTS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	return a;
+	return application_constants;
 }
 
-DICTIONARY *application_constants_dictionary(
-				char *application_name )
+DICTIONARY *application_constants_dictionary( void )
 {
-	return application_constants_get_dictionary(
-				application_name );
-}
-
-DICTIONARY *application_constants_get_dictionary(
-				char *application_name )
-{
-	char sys_string[ 1024 ];
-	DICTIONARY *dictionary;
-	char input_buffer[ 65536 ];
+	char system_string[ 1024 ];
+	char input_buffer[ 1024 ];
 	char key[ 128 ];
 	char data[ 65536 ];
 	FILE *input_pipe;
-	char *select = "application_constant,application_constant_value";
+	DICTIONARY *dictionary = dictionary_small();
 
-	dictionary = dictionary_new();
+	sprintf(system_string,
+		"select.sh \"%s\" %s",
+		APPLICATION_CONSTANTS_SELECT,
+		APPLICATION_CONSTANTS_TABLE );
 
-	sprintf( sys_string,
-		"get_folder_data	application=%s			"
-		"			select=%s			"
-		"			folder=application_constants	",
-		application_name,
-		select );
+	input_pipe = popen( system_string, "r" );
 
-	input_pipe = popen( sys_string, "r" );
-
-	while( get_line( input_buffer, input_pipe ) )
+	while( string_input( input_buffer, input_pipe, 1024 ) )
 	{
 		piece( key, SQL_DELIMITER, input_buffer, 0 );
 		piece( data, SQL_DELIMITER, input_buffer, 1 );
@@ -64,12 +60,13 @@ DICTIONARY *application_constants_get_dictionary(
 	}
 
 	pclose( input_pipe );
+
 	return dictionary;
 }
 
 char *application_constants_safe_fetch(
-				DICTIONARY *application_constants_dictionary,
-				char *key )
+			DICTIONARY *application_constants_dictionary,
+			char *key )
 {
 	char *results;
 
@@ -90,49 +87,10 @@ char *application_constants_safe_fetch(
 }
 
 char *application_constants_fetch(
-				DICTIONARY *application_constants_dictionary,
+			DICTIONARY *application_constants_dictionary,
 				char *key )
 {
 	return dictionary_fetch( key, application_constants_dictionary );
-
-}
-
-void application_constants_get_easycharts_width_height(
-			int *easycharts_width,
-			int *easycharts_height,
-			char *application_name )
-{
-	APPLICATION_CONSTANTS *application_constants;
-	char *results;
-
-	application_constants = application_constants_new();
-	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
-
-	if ( ( results =
-		application_constants_fetch(
-			application_constants->dictionary,
-			"easycharts_width" ) ) )
-	{
-		*easycharts_width = atoi( results );
-	}
-	else
-	{
-		*easycharts_width = 0;
-	}
-
-	if ( ( results =
-		application_constants_fetch(
-			application_constants->dictionary,
-			"easycharts_height" ) ) )
-	{
-		*easycharts_height = atoi( results );
-	}
-	else
-	{
-		*easycharts_height = 0;
-	}
 
 }
 
@@ -144,7 +102,6 @@ void application_constants_free(
 }
 
 char *application_constants_quick_fetch(
-				char *application_name,
 				char *key )
 {
 	APPLICATION_CONSTANTS *application_constants;
@@ -152,13 +109,14 @@ char *application_constants_quick_fetch(
 	char *results;
 
 	application_constants = application_constants_new();
-	application_constants->dictionary =
-		application_constants_get_dictionary(
-			application_name );
 
-	data = application_constants_fetch(
-				application_constants->dictionary,
-				key );
+	application_constants->dictionary =
+		application_constants_dictionary();
+
+	data =
+		application_constants_fetch(
+			application_constants->dictionary,
+			key );
 
 	if ( !data ) return "";
 
@@ -168,16 +126,16 @@ char *application_constants_quick_fetch(
 	return results;
 }
 
-boolean application_constants_cat_javascript_source( char *application_name )
+boolean application_constants_cat_javascript_source( void )
 {
 	char *value;
 	boolean return_value;
 
 	return_value = 0;
 
-	if ( ( value = application_constants_quick_fetch(
-					application_name,
-					"cat_javascript_source" ) ) )
+	if ( ( value =
+		application_constants_quick_fetch(
+			"cat_javascript_source" ) ) )
 	{
 		if ( timlib_strcmp( value, "yes" ) == 0
 		||   timlib_strcmp( value, "true" ) == 0
@@ -188,6 +146,5 @@ boolean application_constants_cat_javascript_source( char *application_name )
 	}
 
 	return return_value;
-
 }
 

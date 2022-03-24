@@ -438,21 +438,22 @@ typedef struct
 /* ------------------------------ */
 GENERIC_LOAD_CHOOSE *generic_load_choose_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *process_name,
+			char *login_name,
 			char *role_name,
-			boolean menu_boolean );
+			char *process_name,
+			boolean menu_boolean,
+			boolean frameset_menu_horizontal );
 
 /* Returns heap memory */
 /* ------------------- */
 char *generic_load_choose_post_action_string(
+			char *generic_load_choose_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *process_name,
+			char *login_name,
 			char *role_name,
-			char *generic_load_choose_post_executable );
+			char *process_name );
 
 /* Return static memory */
 /* -------------------- */
@@ -498,22 +499,26 @@ typedef struct
 /* ------------------------------ */
 GENERIC_LOAD_FOLDER *generic_load_folder_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *folder_name,
-			boolean menu_boolean );
+			boolean menu_boolean,
+			boolean frameset_menu_horizontal );
+
+GENERIC_LOAD_FOLDER *generic_load_folder_calloc(
+			void );
 
 boolean generic_load_folder_forbid(
 			boolean role_folder_insert );
 
 char *generic_load_folder_post_action_string(
+			char *generic_load_folder_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
-			char *folder_name,
-			char *generic_load_folder_post_executable );
+			char *folder_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -535,11 +540,6 @@ char *generic_load_folder_html(
 			char *generic_load_folder_form_html,
 			char *document_body_close_html,
 			char *document_close_html );
-
-/* Private */
-/* ------- */
-GENERIC_LOAD_FOLDER *generic_load_folder_calloc(
-			void );
 
 #endif
 

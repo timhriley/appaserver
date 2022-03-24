@@ -164,8 +164,7 @@ FILE *appaserver_error_open_append_file(
 
 	filename = appaserver_error_filename( application_name );
 
-	f = fopen( filename, "a" );
-	if ( !f )
+	if ( ! ( f = fopen( filename, "a" ) ) )
 	{
 		fprintf( stderr,
 			 "Warning in %s()/%s/%d: cannot open %s for append.\n",
@@ -175,8 +174,8 @@ FILE *appaserver_error_open_append_file(
 			 filename );
 
 		filename = appaserver_error_filename( (char *)0 );
-		f = fopen( filename, "a" );
-		if ( !f )
+
+		if ( ! ( f = fopen( filename, "a" ) ) )
 		{
 			fprintf( stderr, 
 			 	"Error in %s/%s()/%d: cannot open %s.\n",
@@ -188,7 +187,6 @@ FILE *appaserver_error_open_append_file(
 		}
 	}
 	return f;
-
 }
 
 void output_error_message( char *message, char *login_name )
@@ -206,7 +204,12 @@ void m( char *message )
 
 void m2( char *application_name, char *message )
 {
-	appaserver_output_error_message( application_name, message, (char *)0 );
+	environment_set( "DATABASE", application_name );
+
+	appaserver_output_error_message(
+		application_name,
+		message,
+		(char *)0 );
 }
 
 void appaserver_error_stderr(

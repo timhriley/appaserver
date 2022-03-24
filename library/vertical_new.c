@@ -185,7 +185,6 @@ char *vertical_new_output_insert_table_onload_control_string(
 		frameset_prompt_frame );
 
 	return strdup( onload_control_string );
-
 }
 
 VERTICAL_NEW_POST_PROMPT_INSERT *
@@ -240,82 +239,6 @@ VERTICAL_NEW_POST_PROMPT_INSERT *
 			frameset_prompt_frame );
 
 	return vertical_new_post_prompt_insert;
-}
-
-VERTICAL_NEW_OUTPUT_INSERT_TABLE *
-	vertical_new_button_output_insert_table_new(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *document_root_directory,
-			DICTIONARY *non_prefixed_dictionary,
-			char *vertical_new_one_hidden_label,
-			char *frameset_prompt_frame,
-			char *data_directory )
-{
-	VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table;
-	char *one_folder_name;
-
-	one_folder_name =
-		vertical_new_dictionary_folder_name(
-			vertical_new_one_hidden_label,
-			non_prefixed_dictionary );
-
-	if ( !one_folder_name )
-	{
-		return (VERTICAL_NEW_OUTPUT_INSERT_TABLE *)0;
-	}
-
-	if ( strcmp( folder_name, one_folder_name ) != 0 )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: strcmp(%s,%s) returned error.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			folder_name,
-			one_folder_name );
-		exit( 1 );
-	}
-
-	vertical_new_output_insert_table =
-		vertical_new_output_insert_table_calloc();
-
-	vertical_new_output_insert_table->one_folder_name = one_folder_name;
-
-	vertical_new_output_insert_table->vertical_new_blank_filename =
-		/* ------------------- */
-		/* Always returns true */
-		/* ------------------- */
-		vertical_new_blank_filename_new(
-			application_name,
-			session_key,
-			document_root_directory );
-
-	vertical_new_output_insert_table_blank_prompt_frame(
-		vertical_new_output_insert_table->
-			vertical_new_blank_filename->
-			output_filename,
-		application_name,
-		session_key,
-		login_name,
-		role_name,
-		frameset_prompt_frame,
-		data_directory );
-
-	vertical_new_output_insert_table->onload_control_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		vertical_new_output_insert_table_onload_control_string(
-			vertical_new_output_insert_table->
-				vertical_new_blank_filename->
-				prompt_filename,
-			frameset_prompt_frame );
-
-	return vertical_new_output_insert_table;
 }
 
 VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_calloc( void )
@@ -379,18 +302,79 @@ VERTICAL_NEW_BLANK_FILENAME *vertical_new_blank_filename_new(
 	return vertical_new_blank_filename;
 }
 
+VERTICAL_NEW_OUTPUT_INSERT_TABLE *
+	vertical_new_output_insert_table_new(
+			char *application_name,
+			char *session_key,
+			char *folder_name,
+			char *document_root_directory,
+			DICTIONARY *non_prefixed_dictionary,
+			char *vertical_new_one_hidden_label,
+			char *frameset_prompt_frame )
+{
+	char *one_folder_name;
+	VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table;
+
+	if ( ! ( one_folder_name =
+			vertical_new_dictionary_folder_name(
+				vertical_new_one_hidden_label,
+				non_prefixed_dictionary ) ) )
+	{
+		return (VERTICAL_NEW_OUTPUT_INSERT_TABLE *)0;
+	}
+
+	if ( strcmp( folder_name, one_folder_name ) != 0 )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: folder_name (%s) != one_folder_name (%s).\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_name,
+			one_folder_name );
+		exit( 1 );
+	}
+
+	vertical_new_output_insert_table =
+		vertical_new_output_insert_table_calloc();
+
+	vertical_new_output_insert_table->one_folder_name = one_folder_name;
+
+	vertical_new_output_insert_table->vertical_new_blank_filename =
+		/* ------------------- */
+		/* Always returns true */
+		/* ------------------- */
+		vertical_new_blank_filename_new(
+			application_name,
+			session_key,
+			document_root_directory );
+
+	vertical_new_output_insert_table->onload_control_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		vertical_new_output_insert_table_onload_control_string(
+			vertical_new_output_insert_table->
+				vertical_new_blank_filename->
+				prompt_filename,
+			frameset_prompt_frame );
+
+	return vertical_new_output_insert_table;
+}
+
 void vertical_new_output_insert_table_blank_prompt_frame(
 			char *output_filename,
+			char *onload_control_string,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *frameset_prompt_frame,
+			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			char *data_directory )
 {
 	DOCUMENT *document;
 	FILE *output_file;
-	boolean menu_b;
 	MENU *menu = {0};
 
 	if ( ! ( output_file = fopen( output_filename, "w" ) ) )
@@ -404,12 +388,7 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 		exit( 1 );
 	}
 
-	if ( ( menu_b =
-		menu_boolean(
-			frameset_prompt_frame /* current_frame */,
-			frameset_menu_horizontal(
-				application_name,
-				login_name ) ) ) )
+	if ( menu_boolean )
 	{
 		FOLDER_MENU *folder_menu;
 
@@ -434,7 +413,7 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 				session_key,
 				login_name,
 				role_name,
-				frameset_prompt_frame /* target_frame */,
+				frameset_menu_horizontal,
 				folder_menu->count_list );
 	}
 
@@ -449,12 +428,12 @@ void vertical_new_output_insert_table_blank_prompt_frame(
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
-			menu_b /* menu_boolean */,
+			menu_boolean,
 			menu,
-			document_head_menu_setup_string( menu_b ),
+			document_head_menu_setup_string( menu_boolean ),
 			(char *)0 /* calendar_setup_string */,
 			(char *)0 /* javascript_include_string */,
-			(char *)0 /* input_onload_string */ );
+			onload_control_string /* input_onload_string */ );
 
 	fprintf(output_file,
 		"%s\n%s\n%s\n%s\n%s\n%s\n",

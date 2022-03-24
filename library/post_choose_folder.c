@@ -104,8 +104,13 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		return (POST_CHOOSE_FOLDER *)0;
 	}
 
-	post_choose_folder->relation_isa_boolean =
-		post_choose_folder_relation_isa_boolean(
+	post_choose_folder->fetch_relation_mto1_isa =
+		post_choose_folder_fetch_relation_mto1_isa(
+			state,
+			APPASERVER_INSERT_STATE );
+
+	post_choose_folder->fetch_relation_mto1_isa =
+		post_choose_folder_fetch_relation_mto1_isa(
 			state,
 			APPASERVER_INSERT_STATE );
 
@@ -121,7 +126,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,
 			0 /* not fetch_relation_mto1_non_isa_list */,
-			post_choose_folder->relation_isa_boolean,
+			post_choose_folder->fetch_relation_mto1_isa,
 			1 /* fetch_relation_one2m_list */,
 			0 /* not fetch_relation_one2m_recursive_list */,
 			0 /* not fetch_process */,
@@ -231,12 +236,6 @@ char *post_choose_folder_form_name(
 		return "table";
 	else
 		return folder_form;
-}
-
-boolean post_choose_folder_fetch_relation_mto1_isa_list(
-			char *state )
-{
-	return ( string_strcmp( state, "insert" ) == 0 );
 }
 
 boolean post_choose_folder_prompt_insert(
@@ -488,7 +487,7 @@ char *post_choose_folder_system_string(
 	return strdup( system_string );
 }
 
-char *post_choose_folder_action_string(
+char *post_choose_folder_href_string(
 			char *post_choose_folder_executable,
 			char *application_name,
 			char *session_key,
@@ -498,7 +497,7 @@ char *post_choose_folder_action_string(
 			char *state,
 			char *frameset_prompt_frame )
 {
-	char action_string[ 1024 ];
+	char href_string[ 1024 ];
 
 	if ( !post_choose_folder_executable
 	||   !application_name
@@ -517,7 +516,7 @@ char *post_choose_folder_action_string(
 		exit( 1 );
 	}
 
-	sprintf(action_string,
+	sprintf(href_string,
 		"href=\"%s/%s?%s+%s+%s+%s+%s+%s\" target=%s",
 			appaserver_library_http_prompt(
 				appaserver_parameter_cgi_directory(),
@@ -535,6 +534,13 @@ char *post_choose_folder_action_string(
 		state,
 		frameset_prompt_frame );
 
-	return strdup( action_string );
+	return strdup( href_string );
 }
 
+boolean post_choose_folder_fetch_relation_mto1_isa(
+			char *state,
+			char *appaserver_insert_state )
+{
+	return
+	( string_strcmp( state, appaserver_insert_state ) == 0 );
+}

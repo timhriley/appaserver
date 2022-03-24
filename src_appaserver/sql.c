@@ -28,8 +28,8 @@
 
 int main( int argc, char **argv )
 {
-	APPASERVER_PARAMETER *h;
-	char sys_string[ 8192 ];
+	APPASERVER_PARAMETER *appaserver_parameter;
+	char system_string[ 8192 ];
 	char delimiter = SQL_DELIMITER;
 	char *base_name;
 	char *quick_flag;
@@ -64,7 +64,7 @@ int main( int argc, char **argv )
 			override_database = argv[ 1 ];
 	}
 
-	base_name = basename_get_base_name( argv[ 0 ], 1 );
+	base_name = basename_base_name( argv[ 0 ], 1 );
 
 	if ( strcmp( base_name, "sql_quick" ) == 0 )
 		quick_flag = "--quick";
@@ -78,9 +78,9 @@ int main( int argc, char **argv )
 			override_database );
 	}
 
-	h = appaserver_parameter_new();
+	appaserver_parameter = appaserver_parameter_new();
 
-	if ( !h )
+	if ( !appaserver_parameter )
 	{
 		fprintf( stderr,
 	"ERROR in %s/%s()/%d: appaserver_parameter_new() returned empty.\n",
@@ -90,13 +90,19 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( h->MYSQL_HOST ) 
+	if ( appaserver_parameter->MYSQL_HOST ) 
+	{
 		environ_set_environment(
-			"MYSQL_HOST", h->MYSQL_HOST );
+			"MYSQL_HOST",
+			appaserver_parameter->MYSQL_HOST );
+	}
 
-	if ( h->MYSQL_TCP_PORT ) 
+	if ( appaserver_parameter->MYSQL_TCP_PORT ) 
+	{
 		environ_set_environment(
-			"MYSQL_TCP_PORT", h->MYSQL_TCP_PORT );
+			"MYSQL_TCP_PORT",
+			appaserver_parameter->MYSQL_TCP_PORT );
+	}
 
 	database_connection =
 		environment_get(
@@ -122,16 +128,16 @@ int main( int argc, char **argv )
 		 "mysql_remove_null.e '%c'",
 		 delimiter );
 
-	if ( h->mysql_password_syntax )
+	if ( appaserver_parameter->mysql_password_syntax )
 	{
-		sprintf( sys_string,
+		sprintf( system_string,
 "mysql --defaults-extra-file=%s %s -u%s %s %s		|"
 "tr '\011' '%c'						|"
 "%s							|"
 "cat							 ",
-	 	h->parameter_file_full_path,
-	 	h->flags,
-	 	h->user,
+	 	appaserver_parameter->filename,
+	 	appaserver_parameter->flags,
+	 	appaserver_parameter->mysql_user,
 	 	quick_flag,
 	 	database_connection,
 	 	delimiter,
@@ -139,7 +145,7 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		sprintf( sys_string,
+		sprintf( system_string,
 "(							 "
 "	echo \"connect %s;\"				;"
 "	cat -						 "
@@ -149,15 +155,15 @@ int main( int argc, char **argv )
 "%s							|"
 "cat							 ",
 	 	database_connection,
-	 	h->flags,
-	 	h->password,
-	 	h->user,
+	 	appaserver_parameter->flags,
+	 	appaserver_parameter->password,
+	 	appaserver_parameter->mysql_user,
 	 	quick_flag,
 	 	delimiter,
 		null_string_filter );
 	}
 
-	if ( system( sys_string ) ) {};
+	if ( system( system_string ) ) {};
 
 	return 0;
 }
