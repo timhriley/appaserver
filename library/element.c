@@ -805,6 +805,16 @@ char *element_drop_down_option_value_html(
 {
 	static char html[ 256 ];
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: value = [%s], display = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+value,
+display );
+m2( "hydrology", msg );
+}
 	if ( !value || !display )
 	{
 		fprintf(stderr,
@@ -815,7 +825,7 @@ char *element_drop_down_option_value_html(
 		exit( 1 );
 	}
 
-	if ( strcmp( value, display ) != 0 )
+	if ( *display && strcmp( value, display ) != 0 )
 	{
 		sprintf(html,
 			"\t<option value=\"%s\">%s",
@@ -1218,7 +1228,6 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			char *name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
-			LIST *display_list,
 			boolean no_initial_capital,
 			boolean output_null_option,
 			boolean output_not_null_option,
@@ -1235,7 +1244,6 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 	element_drop_down->name = name;
 	element_drop_down->attribute_name_list = attribute_name_list;
 	element_drop_down->delimited_list = delimited_list;
-	element_drop_down->display_list = display_list;
 	element_drop_down->no_initial_capital = no_initial_capital;
 	element_drop_down->output_null_option = output_null_option;
 	element_drop_down->output_not_null_option = output_not_null_option;
@@ -2955,8 +2963,6 @@ char *appaserver_element_drop_down_html(
 				row_dictionary );
 	}
 
-	if ( !drop_down->value ) return (char *)0;
-
 	/* Returns heap memory */
 	/* ------------------- */
 	return element_drop_down_html(
@@ -2970,13 +2976,9 @@ char *appaserver_element_drop_down_html(
 				row_number ),
 		drop_down->value,
 		drop_down->delimited_list,
-		(drop_down->display_list)
-			? drop_down->display_list
-			: element_drop_down_display_list(
-				drop_down->
-					delimited_list,
-				drop_down->
-					no_initial_capital ),
+		element_drop_down_display_list(
+			drop_down->delimited_list,
+			drop_down->no_initial_capital ),
 		drop_down->output_null_option,
 		drop_down->output_not_null_option,
 		drop_down->output_select_option,
@@ -3034,7 +3036,7 @@ char *element_drop_down_option_value_list_html(
 			LIST *display_list,
 			char *value )
 {
-	char html[ STRING_TWO_MEG ];
+	char html[ STRING_ONE_MEG ];
 	char *ptr = html;
 	char *local_value;
 
@@ -3055,7 +3057,7 @@ char *element_drop_down_option_value_list_html(
 	list_rewind( display_list );
 
 	do {
-		local_value = list_get( display_list );
+		local_value = list_get( delimited_list );
 
 		if ( value && strcmp( value, local_value ) == 0 )
 		{

@@ -192,41 +192,22 @@ LIST *role_attribute_exclude_system_list(
 }
 
 char *role_system_string(
+			char *role_select,
+			char *role_table,
 			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"select.sh \"%s\" role \"%s\" none",
+		"select.sh \"%s\" %s \"%s\" none",
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		role_select(),
+		role_select,
+		role_table,
 		where );
 
 	return strdup( system_string );
-}
-
-LIST *role_system_list(	char *system_string,
-			boolean fetch_attribute_exclude_list )
-{
-	FILE *pipe = popen( system_string, "r" );
-	char input[ 1024 ];
-	LIST *list = {0};
-
-	while( string_input( input, pipe, 1024 ) )
-	{
-		if ( !list ) list = list_new();
-
-		list_set(
-			list,
-			role_parse(
-				input,
-				fetch_attribute_exclude_list ) );
-	}
-
-	pclose( pipe );
-	return list;
 }
 
 ROLE *role_fetch(	char *role_name,
@@ -247,6 +228,8 @@ ROLE *role_fetch(	char *role_name,
 		role_parse(
 			string_pipe_fetch(
 				role_system_string(
+					role_select(),
+					ROLE_TABLE,
 					role_primary_where(
 						role_name ) ) ),
 			fetch_attribute_exclude_list );
@@ -286,15 +269,6 @@ ROLE *role_parse(	char *input,
 	}
 
 	return role;
-}
-
-LIST *role_list_fetch( char *login_name )
-{
-	return role_system_list(
-			role_system_string(
-				appaserver_user_primary_where(
-					login_name ) ),
-			0 /* not fetch_attribute_exclude_list */ );
 }
 
 char *role_appaserver_user_primary_where(
@@ -694,60 +668,6 @@ LIST *role_process_or_set_name_list(
 	return name_list;
 }
 
-LIST *role_name_list( LIST *role_list )
-{
-	LIST *name_list;
-	ROLE *role;
-
-	if ( !list_rewind( role_list ) ) return (LIST *)0;
-
-	name_list = list_new();
-
-	do {
-		role = list_get( role_list );
-
-		list_set( name_list, role->role_name );
-
-	} while ( list_next( role_list ) );
-
-	return name_list;
-}
-
-char *role_post_choose_role_action_string(
-			char *application_name,
-			char *session_key,
-			char *login_name )
-{
-	char action_string[ 1024 ];
-
-	if ( !application_name
-	||   !session_key
-	||   !login_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(action_string,
-		"%s/post_choose_role?%s+%s+%s",
-		appaserver_library_http_prompt(
-			appaserver_parameter_cgi_directory(),
-			appaserver_library_server_address(),
-			application_ssl_support_yn(
-				application_name ),
-			application_prepend_http_protocol_yn(
-				application_name ) ),
-		application_name,
-		session_key,
-		login_name );
-
-	return strdup( action_string );
-}
-
 LIST *role_process_group_missing_process_name_list(
 			LIST *role_process_list,
 			LIST *role_process_set_list )
@@ -848,5 +768,86 @@ LIST *role_process_group_name_list(
 	}
 
 	return name_list;
+}
+
+LIST *role_appaserver_user_role_name_list( char *login_name )
+{
+	if ( !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: login_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	list_pipe_fetch(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		role_appaserver_user_system_string(
+			ROLE_NAME_COLUMN,
+			ROLE_APPASERVER_USER_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_appaserver_user_where(
+				ROLE_LOGIN_NAME_COLUMN,
+				login_name ) ) );
+}
+
+char *role_appaserver_user_where(
+			char *role_login_name_column,
+			char *login_name )
+{
+	static char where[ 128 ];
+
+	if ( !role_login_name_column
+	||   !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s = '%s'",
+		role_login_name_column,
+		login_name );
+
+	return where;
+}
+
+char *role_appaserver_user_system_string(
+			char *role_login_name_column,
+			char *role_appaserver_user_table,
+			char *role_appaserver_user_where )
+{
+	char system_string[ 1024 ];
+
+	if ( !role_login_name_column
+	||   !role_appaserver_user_table
+	||   !role_appaserver_user_where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh %s %s \"%s\" select",
+		role_login_name_column,
+		role_appaserver_user_table,
+		role_appaserver_user_where );
+
+	return strdup( system_string );
 }
 

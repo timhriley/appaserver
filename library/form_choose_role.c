@@ -56,9 +56,15 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 {
 	FORM_CHOOSE_ROLE *form_choose_role;
 
-	if ( !list_length( role_name_list ) )
+	if ( list_length( role_name_list ) < 2 )
 	{
-		return (FORM_CHOOSE_ROLE *)0;
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: invalid role_name_list length of %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( role_name_list ) );
+		exit( 1 );
 	}
 
 	form_choose_role = form_choose_role_calloc();
@@ -154,19 +160,25 @@ LIST *form_choose_role_element_list(
 	/* -------------- */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_open,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_open,
+			(char *)0 /* element_name */ ) );
 
 	/* Create a table row */
 	/* ------------------ */
 	list_set(
 		element_list,
-		( element =
-			appaserver_element_new(
-				table_row,
-				(char *)0 /* element_name */ ) ) );
+		appaserver_element_new(
+			table_row,
+			(char *)0 /* element_name */ ) );
+
+	/* Create a table data */
+	/* ------------------- */
+	list_set(
+		element_list,
+		appaserver_element_new(
+			table_data,
+			(char *)0 /* element_name */ ) );
 
 	/* Create a drop-down */
 	/* ------------------ */
@@ -184,11 +196,10 @@ LIST *form_choose_role_element_list(
 			drop_down_element_name,
 			(LIST *)0 /* attribute_name_list */,
 			role_name_list /* delimited_list */,
-			(LIST *)0 /* display_list */,
 			0 /* not no_initial_capital */,
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
-			0 /* not output_select_option */,
+			1 /* output_select_option */,
 			element_drop_down_display_size(
 				list_length(
 					role_name_list ) ),
@@ -217,7 +228,7 @@ char *form_choose_role_html(
 			char *form_close_html )
 {
 	char html[ 65536 ];
-	char *element_list_html;
+	char *list_html;
 
 	if ( !tag_html
 	||   !list_length( element_list )
@@ -231,17 +242,11 @@ char *form_choose_role_html(
 		return (char *)0;
 	}
 
-	if ( ! ( element_list_html =
+	if ( ! ( list_html =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			appaserver_element_list_html(
-				element_list,
-				(char *)0 /* application_name */,
-				(char *)0 /* background_color */,
-				(char *)0 /* state */,
-				0 /* row_number */,
-				(DICTIONARY *)0 /* row_dictionary */ ) ) )
+			element_list_html( element_list ) ) )
 	{
 		fprintf(stderr,
 "Warning in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",
@@ -254,11 +259,10 @@ char *form_choose_role_html(
 	sprintf(html,
 		"%s\n%s\n%s",
 		tag_html,
-		element_list_html,
+		list_html,
 		form_close_html );
 
-	free( element_list_html );
+	free( list_html );
 
 	return strdup( html );
 }
-

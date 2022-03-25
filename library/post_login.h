@@ -8,6 +8,7 @@
 
 /* Includes */
 /* -------- */
+#include "dictionary.h"
 #include "security.h"
 
 /* Constants */

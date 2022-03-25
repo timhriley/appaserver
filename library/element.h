@@ -304,7 +304,6 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			char *name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
-			LIST *display_list,
 			boolean no_initial_capital,
 			boolean output_null_option,
 			boolean output_not_null_option,

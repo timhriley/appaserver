@@ -43,8 +43,8 @@ int main( int argc, char **argv )
 	choose_role =
 		choose_role_new(
 			application_name,
-			login_name,
 			session_key,
+			login_name,
 			frameset_menu_horizontal );
 
 	if ( !choose_role )

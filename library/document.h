@@ -147,11 +147,6 @@ char *document_body_horizontal_menu_html(
 			boolean menu_boolean,
 			MENU *menu );
 
-/* Returns static memory or null */
-/* ----------------------------- */
-char *document_body_title_html(
-			char *application_title_string );
-
 /* Returns heap memory */
 /* ------------------- */
 char *document_body_html(
@@ -180,7 +175,7 @@ typedef struct
 	DOCUMENT_HEAD *document_head;
 	DOCUMENT_BODY *document_body;
 	char *type_html;
-	char *standard_html;
+	char *standard_string;
 	char *html;
 } DOCUMENT;
 
@@ -219,14 +214,14 @@ char *document_type_html(
 
 /* Returns program memory */
 /* ---------------------- */
-char *document_standard_html(
+char *document_standard_string(
 			void );
 
 /* Returns heap memory */
 /* ------------------- */
 char *document_html(
 			char *document_type_html,
-			char *document_standard_html );
+			char *document_standard_string );
 
 /* Public */
 /* ------ */

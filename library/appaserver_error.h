@@ -1,5 +1,8 @@
-/* library/appaserver_error.h */
-/* -------------------------- */
+/* $APPASERVER_HOME/library/appaserver_error.h	 */
+/* --------------------------------------------- */
+/*						 */
+/* Freely available software: see Appaserver.org */
+/* --------------------------------------------- */
 
 #ifndef APPASERVER_ERROR_H
 #define APPASERVER_ERROR_H

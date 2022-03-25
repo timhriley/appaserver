@@ -15,6 +15,8 @@
 #define ROLE_PROCESS_TABLE		"role_process"
 #define ROLE_PROCESS_SET_MEMBER_TABLE	"role_process_set_member"
 #define ROLE_APPASERVER_USER_TABLE	"role_appaserver_user"
+#define ROLE_NAME_COLUMN		"role"
+#define ROLE_LOGIN_NAME_COLUMN		"login_name"
 
 typedef struct
 {
@@ -139,36 +141,36 @@ typedef struct
 
 /* ROLE operations */
 /* --------------- */
+
+/* Usage */
+/* ----- */
+ROLE *role_fetch(	char *role_name,
+			boolean fetch_role_attribute_exclude_list );
+
+/* Process */
+/* ------- */
 ROLE *role_calloc(	void );
-
-LIST *role_list_fetch(	char *login_name );
-
-LIST *role_system_list(	char *system_string,
-			boolean fetch_attribute_exclude_list );
-
-ROLE *role_parse(	char *input,
-			boolean fetch_attribute_exclude_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *role_system_string(
-			char *where );
 
 /* Returns program memory */
 /* ---------------------- */
 char *role_select(	void );
 
-ROLE *role_new( 	char *role_name );
-
-ROLE *role_fetch(	char *role_name,
-			boolean fetch_role_attribute_exclude_list );
-
-void role_free(		ROLE *role );
-
 /* Returns static memory */
 /* --------------------- */
 char *role_primary_where(
 			char *role_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *role_system_string(
+			char *role_select,
+			char *role_table,
+			char *where );
+
+ROLE *role_parse(	char *input,
+			boolean fetch_attribute_exclude_list );
+
+ROLE *role_new( 	char *role_name );
 
 LIST *role_exclude_lookup_attribute_name_list(
 			LIST *attribute_exclude_list );
@@ -179,18 +181,34 @@ LIST *role_exclude_insert_attribute_name_list(
 LIST *role_exclude_update_attribute_name_list(
 			LIST *attribute_exclude_list );
 
-LIST *role_name_list(
-			LIST *role_list );
+void role_free(		ROLE *role );
 
 boolean role_exists_attribute_exclude_insert(
 			LIST *attribute_exclude_list,
 			char *attribute_name );
 
+/* ROLE_APPASERVER_USER operations */
+/* ------------------------------- */
+
+/* Usage */
+/* ----- */
+LIST *role_appaserver_user_role_name_list(
+			char *login_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *role_appaserver_user_where(
+			char *role_login_name_column,
+			char *login_name );
+
 /* Returns heap memory */
 /* ------------------- */
-char *role_post_choose_role_action_string(
-			char *application_name,
-			char *session_key,
-			char *login_name );
+char *role_appaserver_user_system_string(
+			char *role_name_column,
+			char *role_appaserver_user_table,
+			char *role_appaserver_user_where );
 
 #endif

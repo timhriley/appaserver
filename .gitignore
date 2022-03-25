@@ -286,7 +286,7 @@ post_prompt_insert
 append_reference_number
 insert_mysql
 post_choose_folder
-get_random_session
+random_session
 post_choose_isa
 output_choose_isa
 output_edit_table

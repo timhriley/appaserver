@@ -10,24 +10,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <unistd.h>
-#include "timlib.h"
-#include "piece.h"
-#include "list.h"
-#include "folder.h"
-#include "appaserver_library.h"
-#include "appaserver_user.h"
 #include "appaserver_error.h"
-#include "appaserver.h"
-#include "environ.h"
-#include "basename.h"
-#include "boolean.h"
-#include "dictionary.h"
 #include "document.h"
-#include "application.h"
-#include "security.h"
-#include "session.h"
 #include "post_login.h"
 
 /* Prototypes */
@@ -57,15 +42,7 @@ int main( int argc, char **argv )
 
 	if ( post_login->frameset_output_system_string )
 	{
-		if ( !post_login->session_key )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: session_key is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
+		document_output_content_type();
 
 		if ( system( post_login->frameset_output_system_string ) ){}
 	}

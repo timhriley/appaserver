@@ -39,13 +39,12 @@ echo "	update $application_table 					 \
 	where application = '$application';"		 		 |
 sql.e
 
-appaserver_sessions_table=`get_table_name $application appaserver_sessions`
-
 while [ true ]
 do
-	session_number=`get_random_session $application $session_seed`
+	session_number=`random_session $session_seed`
+
 	results=`echo "	select appaserver_session			\
-			from $appaserver_sessions_table			\
+			from appaserver_sessions			\
 			where appaserver_session = '$session_number';"	|
 		 sql.e`
 

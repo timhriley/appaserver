@@ -68,7 +68,8 @@ CHOOSE_ROLE *choose_role_new(
 /* Returns static memory */
 /* --------------------- */
 char *choose_role_title_string(
-			char *login_name );
+			char *login_name,
+			boolean frameset_menu_horizontal );
 
 /* Returns static memory */
 /* --------------------- */

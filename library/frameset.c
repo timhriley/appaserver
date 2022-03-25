@@ -9,8 +9,13 @@
 #include <string.h>
 #include "application.h"
 #include "appaserver_library.h"
+#include "appaserver_error.h"
 #include "appaserver_user.h"
 #include "timlib.h"
+#include "role.h"
+#include "choose_role.h"
+#include "menu.h"
+#include "document.h"
 #include "frameset.h"
 
 FRAMESET *frameset_calloc( void )
@@ -47,12 +52,18 @@ FRAMESET_FRAME *frameset_frame_calloc( void )
 
 FRAMESET *frameset_new(	char *application_name,
 			char *session_key,
+			char *login_name,
 			boolean frameset_menu_horizontal )
 {
 	FRAMESET *frameset = frameset_calloc();
 
-	frameset->appaserver_parameter =
-		appaserver_parameter_new();
+	frameset->appaserver_parameter = appaserver_parameter_new();
+
+	frameset->document =
+		document_quick_new(
+			application_name,
+			application_title_string(
+				application_name ) );
 
 	if ( !frameset_menu_horizontal )
 	{
@@ -85,43 +96,128 @@ FRAMESET *frameset_new(	char *application_name,
 			FRAMESET_EDIT_FRAME );
 
 	frameset->html =
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		frameset_html(
+			frameset->document->html,
+			frameset->document->document_head->html,
+			document_head_close_html(),
 			frameset->frameset_frame_menu->html,
 			frameset->frameset_frame_prompt->html,
 			frameset->frameset_frame_edit->html,
-			frameset_menu_horizontal );
+			frameset_menu_horizontal,
+			document_close_html() );
+
+	frameset->blank_edit_frame_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		frameset_blank_system_string(
+			application_background_color(
+				application_name ),
+			(char *)0 /* application_title_string */,
+			frameset->frameset_frame_edit->output_filename,
+			appaserver_error_filename(
+				application_name ) );
+
+	if ( !frameset_menu_horizontal )
+	{
+		frameset->blank_prompt_frame_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			frameset_blank_system_string(
+				application_background_color(
+					application_name ),
+				application_title_string(
+					application_name ),
+				frameset->
+					frameset_frame_prompt->
+					output_filename,
+				appaserver_error_filename(
+					application_name ) );
+	}
+
+	frameset->role_name =
+		frameset_role_name(
+			role_appaserver_user_role_name_list(
+				login_name ),
+			appaserver_user_default_role_name(
+				login_name ) );
+
+	frameset->output_filename =
+		/* ----------------------------------- */
+		/* Returns either of ->output_filename */
+		/* ----------------------------------- */
+		frameset_output_filename(
+			frameset->frameset_frame_menu,
+			frameset->frameset_frame_prompt );
+
+	if ( frameset->role_name )
+	{
+		frameset->menu_output_system_string =
+			menu_output_system_string(
+				MENU_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				frameset->role_name,
+				frameset_menu_horizontal,
+				frameset->output_filename );
+	}
+	else
+	{
+		frameset->choose_role_output_system_string =
+			choose_role_output_system_string(
+				CHOOSE_ROLE_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				frameset_menu_horizontal,
+				frameset->output_filename );
+	}
 
 	return frameset;
 }
 
-char *frameset_html(	char *frameset_frame_menu_html,
+char *frameset_html(	char *document_html,
+			char *document_head_html,
+			char *document_head_close_html,
+			char *frameset_frame_menu_html,
 			char *frameset_frame_prompt_html,
 			char *frameset_frame_edit_html,
-			boolean frameset_menu_horizontal )
+			boolean frameset_menu_horizontal,
+			char *document_close_html )
 {
 	char html[ 2048 ];
+	char *ptr = html;
 
-	if ( !frameset_frame_menu_html
-	||   !*frameset_frame_menu_html
+	if ( !document_html
+	||   !document_head_html
+	||   !document_head_close_html
+	||   !frameset_frame_menu_html
 	||   !frameset_frame_prompt_html
-	||   !*frameset_frame_prompt_html
 	||   !frameset_frame_edit_html
-	||   !*frameset_frame_edit_html )
+	||   !document_close_html )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: a parameter is empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
+	ptr += sprintf(
+		ptr,
+		"%s\n%s\n%s\n",
+		document_html,
+		document_head_html,
+		document_head_close_html );
+
 	if ( !frameset_menu_horizontal )
 	{
-		sprintf(html,
+		ptr += sprintf(
+			ptr,
 			"<frameset cols=\"200,*\">\n"
 			"%s\n"
 			"<frameset rows=\"*,*\">\n"
@@ -135,7 +231,8 @@ char *frameset_html(	char *frameset_frame_menu_html,
 	}
 	else
 	{
-		sprintf(html,
+		ptr += sprintf(
+			ptr,
 			"<frameset rows=\"*,*\">\n"
 			"%s\n"
 			"%s\n"
@@ -143,6 +240,11 @@ char *frameset_html(	char *frameset_frame_menu_html,
 			frameset_frame_prompt_html,
 			frameset_frame_edit_html );
 	}
+
+	ptr += sprintf(
+		ptr,
+		"%s\n",
+		document_close_html );
 
 	return strdup( html );
 }
@@ -262,7 +364,8 @@ char *frameset_output_system_string(
 			char *executable,
 			char *session_key,
 			char *login_name,
-			char *post_login_output_pipe_string )
+			char *post_login_output_pipe_string,
+			char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
@@ -280,13 +383,79 @@ char *frameset_output_system_string(
 	}
 
 	sprintf(system_string,
-		"%s %s %s %s",
+		"%s %s %s 2>>%s %s",
 		executable,
 		session_key,
 		login_name,
+		appaserver_error_filename,
 		post_login_output_pipe_string );
 
 	return strdup( system_string );
 
+}
+
+char *frameset_blank_system_string(
+			char *application_background_color,
+			char *application_title_string,
+			char *output_filename,
+			char *appaserver_error_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !application_background_color
+	||   !output_filename
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"output_blank_screen.sh \"%s\" \"%s\" n > %s 2>>%s",
+		application_background_color,
+		(application_title_string)
+			? application_title_string
+			: "",
+		output_filename,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}
+
+char *frameset_role_name(
+			LIST *role_name_list,
+			char *appaserver_user_default_role_name )
+{
+	if ( list_length( role_name_list ) == 1 )
+		return (char *)list_first( role_name_list );
+	else
+	if ( appaserver_user_default_role_name )
+		return appaserver_user_default_role_name;
+	else
+		return (char *)0;
+}
+
+char *frameset_output_filename(
+			FRAMESET_FRAME *frameset_frame_menu,
+			FRAMESET_FRAME *frameset_frame_prompt )
+{
+	if ( frameset_frame_menu )
+		return frameset_frame_menu->output_filename;
+	else
+	if ( frameset_frame_prompt )
+		return frameset_frame_prompt->output_filename;
+	else
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both frameset_frame_menu and frameset_frame_prompt are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 }
 

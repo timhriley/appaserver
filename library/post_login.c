@@ -236,10 +236,13 @@ POST_LOGIN *post_login_new(
 			/* Returns heap memory */
 			/* ------------------- */
 			frameset_output_system_string(
-				FRAMESET_OUTPUT_EXECUTABLE,
-				post_login->session_key,
-				post_login->sql_injection_escape_login_name,
-				post_login->output_pipe_string );
+			   FRAMESET_OUTPUT_EXECUTABLE,
+			   post_login->session_key,
+			   post_login->sql_injection_escape_login_name,
+			   post_login->output_pipe_string,
+			   appaserver_error_filename(
+				post_login->
+				     sql_injection_escape_application_name ) );
 	}
 
 	if ( post_login->password_match_return == email_login )

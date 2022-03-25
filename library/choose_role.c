@@ -56,9 +56,12 @@ char *choose_role_title_html( char *title_string )
 	return html;
 }
 
-char *choose_role_title_string( char *login_name )
+char *choose_role_title_string(
+			char *login_name,
+			boolean frameset_menu_horizontal )
 {
 	static char title[ 256 ];
+	char *ptr = title;
 	char buffer[ 128 ];
 
 	if ( !login_name )
@@ -71,10 +74,18 @@ char *choose_role_title_string( char *login_name )
 		exit( 1 );
 	}
 
-	sprintf(title,
-		"%s choose role for %s",
-		application_title_string(
-			environment_application_name() ),
+	if ( frameset_menu_horizontal )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s<br>",
+			application_title_string(
+				environment_application_name() ) );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"Choose role for %s",
 		string_initial_capital(
 			buffer,
 			login_name ) );
@@ -116,7 +127,8 @@ CHOOSE_ROLE *choose_role_new(
 		/* Returns static memory */
 		/* --------------------- */
 		choose_role_title_string(
-			login_name );
+			login_name,
+			frameset_menu_horizontal );
 
 	choose_role->title_html =
 		/* --------------------- */
@@ -131,7 +143,7 @@ CHOOSE_ROLE *choose_role_new(
 		/* --------------- */
 		document_new(
 			application_name,
-			choose_role_title_string( login_name ),
+			choose_role->title_string,
 			choose_role->title_html,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
@@ -191,7 +203,6 @@ CHOOSE_ROLE *choose_role_new(
 			__LINE__ );
 		exit( 1 );
 	}
-
 
 	choose_role->document_form_html =
 		document_form_html(

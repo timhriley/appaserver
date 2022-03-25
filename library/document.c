@@ -86,7 +86,7 @@ DOCUMENT *document_new(
 
 	/* Returns program memory */
 	/* ---------------------- */
-	document->standard_html = document_standard_html();
+	document->standard_string = document_standard_string();
 
 	document->html =
 		/* ------------------- */
@@ -94,7 +94,7 @@ DOCUMENT *document_new(
 		/* ------------------- */
 		document_html(
 			document->type_html,
-			document->standard_html );
+			document->standard_string );
 
 	return document;
 }
@@ -104,6 +104,22 @@ DOCUMENT *document_quick_new(
 			char *application_title_string )
 {
 	DOCUMENT *document = document_calloc();
+
+	/* Returns program memory */
+	/* ---------------------- */
+	document->type_html = document_type_html();
+
+	/* Returns program memory */
+	/* ---------------------- */
+	document->standard_string = document_standard_string();
+
+	document->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		document_html(
+			document->type_html,
+			document->standard_string );
 
 	document->document_head =
 		/* --------------- */
@@ -129,22 +145,6 @@ DOCUMENT *document_quick_new(
 			(char *)0 /* javascript_replace */,
 			(char *)0 /* input_onload_string */ );
 
-	/* Returns program memory */
-	/* ---------------------- */
-	document->type_html = document_type_html();
-
-	/* Returns program memory */
-	/* ---------------------- */
-	document->standard_html = document_standard_html();
-
-	document->html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		document_html(
-			document->type_html,
-			document->standard_html );
-
 	return document;
 }
 
@@ -167,11 +167,11 @@ void document_output_content_type( void )
 }
 
 char *document_html(	char *type_html,
-			char *standard_html )
+			char *standard_string )
 {
 	char html[ 1024 ];
 
-	if ( !type_html || !standard_html )
+	if ( !type_html || !standard_string )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -182,9 +182,9 @@ char *document_html(	char *type_html,
 	}
 
 	sprintf(html,
-		"%s\n<html %s>\n",
+		"%s\n<html %s>",
 		type_html,
-		standard_html );
+		standard_string );
 
 	return strdup( html );
 }
@@ -295,7 +295,7 @@ char *document_body_tag(
 	{
 		ptr += sprintf(
 			ptr,
-			"<onload=\"" );
+			" onload=\"" );
 
 		if ( input_onload_string && *input_onload_string )
 		{
@@ -329,10 +329,10 @@ char *document_body_tag(
 				javascript_replace );
 		}
 
-		ptr += sprintf(
-			ptr,
-			"\">" );
+		ptr += sprintf( ptr, "\"" );
 	}
+
+	ptr += sprintf( ptr, ">" );
 
 	return strdup( tag );
 }
@@ -353,20 +353,6 @@ char *document_body_horizontal_menu_html(
 	if ( !menu ) return (char *)0;
 
 	return menu->html;
-}
-
-char *document_body_title_html( char *application_title_string )
-{
-	static char title_html[ 256 ];
-
-	if ( !application_title_string || !*application_title_string )
-		return (char *)0;
-
-	sprintf(title_html,
-		"<h1>%s</h1",
-		application_title_string );
-
-	return title_html;
 }
 
 char *document_body_html(
@@ -493,7 +479,12 @@ DOCUMENT_HEAD *document_head_new(
 		document_head_stylesheet_string(
 			application_name );
 
+	if ( !application_title_string ) application_title_string = "";
+
 	document_head->title_tag =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		document_head_title_tag(
 			application_title_string );
 
@@ -515,7 +506,7 @@ DOCUMENT_HEAD *document_head_new(
 char *document_head_meta_string( void )
 {
 	return
-"\n<meta name=\"generator\" content=\"Appaserver: Open Source Application Server\" />\n"
+"<meta name=\"generator\" content=\"Appaserver: Open Source Application Server\" />\n"
 "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">";
 }
 
@@ -628,6 +619,16 @@ char *document_head_title_tag(
 {
 	char title_tag[ 256 ];
 
+	if ( !title_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: title_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(title_tag,
 		"<title>%s</title>",
 		title_string );
@@ -639,12 +640,16 @@ void document_close( void )
 {
 	/* Returns program memory */
 	/* ---------------------- */
+	printf( "%s\n", document_body_close_html() );
+
+	/* Returns program memory */
+	/* ---------------------- */
 	printf( "%s\n", document_close_html() );
 }
 
 char *document_close_html( void )
 {
-	return "</body>\n</html>";
+	return "</html>";
 }
 
 char *document_body_onload_string(
@@ -679,7 +684,7 @@ char *document_body_menu_onload_string( boolean menu_boolean )
 "DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: true, scrolling: true} )";
 }
 
-char *document_standard_html( void )
+char *document_standard_string( void )
 {
 	return
 "xmlns=\"http://www.w3.org/1999/xhtml\"";
@@ -739,21 +744,37 @@ char *document_head_html(
 	char html[ STRING_64K ];
 	char *ptr = html;
 
+	if ( !meta_string
+	||   !stylesheet_string
+	||   !title_tag )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	ptr += sprintf( ptr, "<head>\n" );
 	ptr += sprintf( ptr, "%s\n", meta_string );
 	ptr += sprintf( ptr, "%s\n", stylesheet_string );
-	ptr += sprintf( ptr, "%s\n", title_tag );
+	ptr += sprintf( ptr, "%s", title_tag );
 
 	if ( menu_setup_string )
 	{
-		ptr += sprintf( ptr, "%s\n", menu_setup_string );
+		ptr += sprintf( ptr, "\n%s", menu_setup_string );
 	}
 
 	if ( calendar_setup_string )
 	{
-		ptr += sprintf( ptr, "%s\n", calendar_setup_string );
+		ptr += sprintf( ptr, "\n%s", calendar_setup_string );
 	}
 
-	ptr += sprintf( ptr, "%s\n", javascript_include_string );
+	if ( javascript_include_string )
+	{
+		ptr += sprintf( ptr, "\n%s", javascript_include_string );
+	}
 
 	return strdup( html );
 }

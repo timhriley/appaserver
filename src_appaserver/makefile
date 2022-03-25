@@ -16,7 +16,7 @@ EXECUTABLES=								\
 		append_reference_number					\
 		insert_mysql						\
 		post_choose_folder					\
-		get_random_session					\
+		random_session						\
 		post_choose_isa						\
 		output_choose_isa					\
 		output_edit_table					\
@@ -1140,13 +1140,12 @@ post_maintain_user_account: post_maintain_user_account.c		\
 	${APPASERVER_HOME}/src_appaserver/post_maintain_user_account	\
 	${CGI_HOME}
 
-get_random_session: get_random_session.c 				\
-			${EXTERNAL_LIBS}
+random_session: random_session.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		get_random_session.c					\
-		-o get_random_session
+		random_session.c					\
+		-o random_session
 
 upgrade_appaserver_database: upgrade_appaserver_database.c		\
 			${EXTERNAL_LIBS}

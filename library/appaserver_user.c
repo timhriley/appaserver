@@ -347,17 +347,9 @@ APPASERVER_USER *appaserver_user_parse(
 LIST *appaserver_user_role_name_list(
 			char *login_name )
 {
-	char where[ 128 ];
-	char system_string[ 1024 ];
-
-	sprintf( where, "login_name = '%s'", login_name );
-
-	sprintf(system_string,
-		"select.sh role %s \"%s\" select",
-		ROLE_APPASERVER_USER_TABLE,
-		where );
-
-	return pipe2list( system_string );
+	return
+	role_appaserver_user_role_name_list(
+		login_name );
 }
 
 char *appaserver_user_person_full_name(

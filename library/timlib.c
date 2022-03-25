@@ -2747,19 +2747,6 @@ boolean timlib_exists_character(
 
 long timlib_random( long up_to )
 {
-/*
-	double random_double;
-
-	random_double = (double)random() / (double)RAND_MAX;
-	return (long)((double)up_to * random_double) + 1;
-	double r_num;
-	long time();
-	double drand48();
-
-	r_num = drand48() * (double)time(0);
-	r_num = r_num - (int)r_num;
-	return ((long)(r_num * up_to) + 1);
-*/
 	return (long)( (drand48() * up_to) + 1 );
 }
 

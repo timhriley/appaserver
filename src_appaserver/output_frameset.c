@@ -15,6 +15,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "session.h"
 #include "frameset.h"
 
 int main( int argc, char **argv )
@@ -24,9 +25,11 @@ int main( int argc, char **argv )
 	char *login_name;
 	FRAMESET *frameset;
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
+	application_name =
+		environment_exit_application_name(
+			argv[ 0 ] );
 
-	appaserver_error_starting_argv_append_file(
+	appaserver_error_argv_append_file(
 		argc,
 		argv,
 		application_name );
@@ -55,6 +58,26 @@ int main( int argc, char **argv )
 			frameset_menu_horizontal(
 				application_name,
 				login_name ) );
+
+	if ( frameset->menu_output_system_string )
+	{
+		if ( system( frameset->menu_output_system_string ) ){}
+	}
+
+	if ( frameset->choose_role_output_system_string )
+	{
+		if ( system( frameset->choose_role_output_system_string ) ){}
+	}
+
+	if ( frameset->blank_edit_frame_system_string )
+	{
+		if ( system( frameset->blank_edit_frame_system_string ) ){}
+	}
+
+	if ( frameset->blank_prompt_frame_system_string )
+	{
+		if ( system( frameset->blank_prompt_frame_system_string ) ){}
+	}
 
 	printf( "%s\n", frameset->html );
 
