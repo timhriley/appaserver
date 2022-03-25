@@ -63,7 +63,7 @@ char *role_folder_insert_where(
 
 /* Returns static memory */
 /* --------------------- */
-char *role_folder_join_where(
+char *role_folder_left_join(
 			char *role_folder_table,
 			char *folder_table );
 
@@ -72,9 +72,8 @@ char *role_folder_join_where(
 char *role_folder_system_string(
 			char *role_folder_select,
 			char *role_folder_table,
-			char *folder_table,
 			char *where,
-			char *role_folder_join_where );
+			char *role_folder_left_join );
 
 LIST *role_folder_system_list(
 			char *role_folder_system_string );

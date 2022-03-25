@@ -36,8 +36,8 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *login_name;
 	char *session_key;
+	char *login_name;
 	char *folder_name;
 	char *one2m_isa_folder_name;
 	char *role_name;
@@ -50,14 +50,14 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s application login_name session folder one2m_isa_folder role\n",
+"Usage: %s application session login_name folder one2m_isa_folder role\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	login_name = argv[ 2 ];
-	session_key = argv[ 3 ];
+	session_key = argv[ 2 ];
+	login_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	one2m_isa_folder_name = security_sql_injectionary_escape( argv[ 5 ] );
 	role_name = argv[ 6 ];
@@ -67,8 +67,8 @@ int main( int argc, char **argv )
 			argc,
 			argv,
 			application_name,
-			login_name,
 			session_key,
+			login_name,
 			folder_name,
 			role_name,
 			"insert" /* state */ );
@@ -76,8 +76,8 @@ int main( int argc, char **argv )
 	if ( ! ( choose_isa_drop_down =
 			choose_isa_drop_down_post_fetch(
 				application_name,
-				login_name,
 				session_key,
+				login_name,
 				folder_name,
 				one2m_isa_folder_name,
 				role_name ) ) )
@@ -90,7 +90,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	appaserver_parameter_file = appaserver_parameter_file_new();
+	appaserver_parameter = appaserver_parameter_new();
 
 	post_dictionary =
 		/* --------------- */
@@ -104,8 +104,7 @@ int main( int argc, char **argv )
 		dictionary_separate_stdin_new(
 			application_name,
 			login_name,
-
-			appaserver_parameter_file->
+			appaserver_parameter->
 				appaserver_data_directory,
 			session );
 

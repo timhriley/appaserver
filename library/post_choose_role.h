@@ -10,7 +10,7 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
-#include "role.h"
+#include "post_dictionary.h"
 
 /* Constants */
 /* --------- */
@@ -18,15 +18,29 @@
 
 typedef struct
 {
+	char *sql_injection_escape_application_name;
+	char *sql_injection_escape_session_key;
+	char *sql_injection_escape_login_name;
+	char *sql_injection_escape_role_name;
+	char *menu_output_system_string;
 } POST_CHOOSE_ROLE;
 
 /* Usage */
 /* ----- */
 POST_CHOOSE_ROLE *post_choose_role_new(
-			char *sql_injection_escape_application_name,
-			char *sql_injection_escape_session_key,
-			char *sql_injection_escape_login_name,
-			char *sql_injection_escape_role_name );
+			int argc,
+			char **argv,
+			char *choose_role_drop_down_element_name );
+
+/* Process */
+/* ------- */
+POST_CHOOSE_ROLE *post_choose_role_calloc(
+			void );
+
+char *post_choose_role_name(
+			int argc,
+			char *argv_4,
+			char *choose_role_drop_down_element_name );
 
 /* Public */
 /* ------ */
@@ -49,9 +63,5 @@ char *post_choose_role_href_string(
 			char *role_name,
 			char *frameset_prompt_frame );
 
-/* Private */
-/* ------- */
-POST_CHOOSE_ROLE *post_choose_role_calloc(
-			void );
 
 #endif

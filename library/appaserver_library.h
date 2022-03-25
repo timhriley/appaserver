@@ -65,7 +65,6 @@ enum preupdate_change_state {		from_null_to_something,
 #define ONE2M_FOLDER_NAME_FOR_PROCESS		"one2m_folder_name_for_process"
 #define CHOOSE_FOLDER_MENU_NAME			"choose_folder_menu"
 #define CHOOSE_PROCESS_MENU_NAME		"choose_process_menu"
-#define CHOOSE_ROLE_DROP_DOWN_ELEMENT_NAME	"choose_role_drop_down"
 #define MENU_VERTICAL_PIXEL_COLUMNS		200
 #define MENU_HORIZONTAL_PIXEL_ROWS		35
 #define ERROR_HEADING				"appaserver error"

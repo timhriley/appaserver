@@ -1005,7 +1005,6 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 			row_security_relation->element_name,
 			(LIST *)0 /* attribute_name_list */,
 			row_security_relation->query_widget->delimited_list,
-			(LIST *)0 /* display_list */,
 			relation->one_folder->no_initial_capital,
 			1 /* output_null_option */,
 			1 /* output_not_null_option */,

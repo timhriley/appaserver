@@ -20,7 +20,7 @@
 typedef struct
 {
 	char *tag_html;
-	char *drop_down_onchange_javascript;
+	char *onchange_javascript;
 	LIST *element_list;
 	char *html;
 } FORM_CHOOSE_ROLE;
@@ -33,19 +33,14 @@ FORM_CHOOSE_ROLE *form_choose_role_calloc(
 FORM_CHOOSE_ROLE *form_choose_role_new(
 			LIST *role_name_list,
 			char *post_choose_role_action_string,
-			char *target_frame,
-			char *form_name,
-			char *drop_down_element_name );
+			char *frameset_menu_frame,
+			char *choose_role_form_name,
+			char *choose_role_drop_down_element_name );
 
 /* Returns static memory */
 /* --------------------- */
-char *form_choose_role_drop_down_onchange_javascript(
+char *form_choose_role_onchange_javascript(
 			char *form_name );
-
-LIST *form_choose_role_element_list(
-			LIST *role_name_list,
-			char *drop_down_onchange_javascript,
-			char *drop_down_element_name );
 
 /* Returns heap memory or null */
 /* --------------------------- */

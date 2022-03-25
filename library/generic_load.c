@@ -439,7 +439,6 @@ LIST *generic_load_choose_form_element_list(
 			drop_down_name,
 			(LIST *)0 /* attribute_name_list */,
 			role_folder_insert_name_list /* delimited_list */,
-			(LIST *)0 /* display_list */,
 			0 /* not no_initial_capital */,
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,

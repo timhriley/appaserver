@@ -35,7 +35,6 @@ LIST *role_folder_list(	char *role_name,
 		role_folder_system_string(
 			ROLE_FOLDER_SELECT,
 			ROLE_FOLDER_TABLE,
-			FOLDER_TABLE,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -45,7 +44,7 @@ LIST *role_folder_list(	char *role_name,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			role_folder_join_where(
+			role_folder_left_join(
 				ROLE_FOLDER_TABLE,
 				FOLDER_TABLE ) ) );
 }
@@ -115,26 +114,19 @@ ROLE_FOLDER *role_folder_parse( char *input )
 char *role_folder_system_string(
 			char *role_folder_select,
 			char *role_folder_table,
-			char *folder_table,
 			char *role_folder_where,
-			char *role_folder_join_where )
+			char *role_folder_left_join )
 {
 	char system_string[ 1024 ];
-	char where[ 512 ];
 
 	if ( !role_folder_where ) role_folder_where = "1 = 1";
 
-	sprintf(where,
-		"%s %s",
-		role_folder_where,
-		role_folder_join_where );
-
 	sprintf(system_string,
-		"select.sh \"%s\" %s,%s \"%s\"",
+		"echo \"select %s from %s %s where %s;\" | sql",
 		role_folder_select,
 		role_folder_table,
-		folder_table,
-		where );
+		role_folder_left_join,
+		role_folder_where );
 
 	return strdup( system_string );
 }
@@ -237,8 +229,7 @@ char *role_folder_lookup_where( char *role_name )
 	}
 
 	sprintf(where,
-		"role_name = '%s' and "
-		"permission in ('lookup','update')",
+		"role = '%s' and permission in ('lookup','update')",
 		role_name );
 
 	return where;
@@ -259,8 +250,7 @@ char *role_folder_insert_where( char *role_name )
 	}
 
 	sprintf(where,
-		"role_name = '%s' and "
-		"permission = 'insert'",
+		"role = '%s' and permission = 'insert'",
 		role_name );
 
 	return where;
@@ -276,7 +266,6 @@ LIST *role_folder_lookup_list( char *role_name )
 		role_folder_system_string(
 			ROLE_FOLDER_SELECT,
 			ROLE_FOLDER_TABLE,
-			FOLDER_TABLE,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -284,7 +273,7 @@ LIST *role_folder_lookup_list( char *role_name )
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			role_folder_join_where(
+			role_folder_left_join(
 				ROLE_FOLDER_TABLE,
 				FOLDER_TABLE ) ) );
 }
@@ -299,7 +288,6 @@ LIST *role_folder_insert_list( char *role_name )
 		role_folder_system_string(
 			ROLE_FOLDER_SELECT,
 			ROLE_FOLDER_TABLE,
-			FOLDER_TABLE,
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -307,7 +295,7 @@ LIST *role_folder_insert_list( char *role_name )
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			role_folder_join_where(
+			role_folder_left_join(
 				ROLE_FOLDER_TABLE,
 				FOLDER_TABLE ) ) );
 }
@@ -390,7 +378,7 @@ boolean role_folder_insert_exists(
 	}
 }
 
-char *role_folder_join_where(
+char *role_folder_left_join(
 			char *role_folder_table,
 			char *folder_table )
 {

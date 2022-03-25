@@ -559,12 +559,12 @@ char *menu_output_system_string(
 			char *output_filename )
 {
 	char system_string[ 1024 ];
+	char output_filename_segment[ 128 ];
 
 	if ( !menu_output_executable
 	||   !session_key
 	||   !login_name
-	||   !role_name
-	||   !output_filename )
+	||   !role_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -574,14 +574,25 @@ char *menu_output_system_string(
 		exit( 1 );
 	}
 
+	if ( output_filename )
+	{
+		sprintf(output_filename_segment,
+			"> %s",
+			output_filename );
+	}
+	else
+	{
+		*output_filename_segment = '\0';
+	}
+
 	sprintf(system_string,
-		"%s %s %s %s %c > %s",
+		"%s %s %s %s %c %s",
 		menu_output_executable,
 		session_key,
 		login_name,
 		role_name,
 		(frameset_menu_horizontal) ? 'y' : 'n',
-		output_filename );
+		output_filename_segment );
 
 	return strdup( system_string );
 }
@@ -887,7 +898,7 @@ char *menu_vertical_html(
 			LIST *menu_item_process_list,
 			char *menu_item_role_change_html )
 {
-	char html[ STRING_ONE_MEG ];
+	char html[ STRING_TWO_MEG ];
 	char *ptr = html;
 	MENU_VERTICAL_SUBSCHEMA *vertical_subschema;
 	MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group;
@@ -1128,16 +1139,15 @@ char *menu_item_vertical_folder_html(
 	char *ptr = html;
 	char buffer[ 128 ];
 
-	if ( !folder_menu_count_display || !lookup_href_string )
+	if ( !lookup_href_string )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: lookup_href_string is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
-
 
 	ptr += sprintf(
 		ptr,

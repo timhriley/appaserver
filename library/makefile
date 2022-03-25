@@ -740,16 +740,16 @@ operation.o: operation.c operation.h process.h
 form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c
 
-form_prompt_edit.o: form_prompt_edit.c form_prompt_edit.h
+form_prompt_edit.o: form_prompt_edit.c form_prompt_edit.h element.o
 	${CC} ${CFLAGS} -c form_prompt_edit.c
 
-form_edit_table.o: form_edit_table.c form_edit_table.h
+form_edit_table.o: form_edit_table.c form_edit_table.h element.o
 	${CC} ${CFLAGS} -c form_edit_table.c
 
-form_choose_isa.o: form_choose_isa.c form_choose_isa.h
+form_choose_isa.o: form_choose_isa.c form_choose_isa.h element.o
 	${CC} ${CFLAGS} -c form_choose_isa.c
 
-form_choose_role.o: form_choose_role.c form_choose_role.h
+form_choose_role.o: form_choose_role.c form_choose_role.h element.o
 	${CC} ${CFLAGS} -c form_choose_role.c
 
 radio.o: radio.c radio.h
@@ -791,7 +791,7 @@ waypoint.o: waypoint.c waypoint.h
 pivot_table.o: pivot_table.c pivot_table.h
 	${CC} ${CFLAGS} -c pivot_table.c
 
-generic_load.o: generic_load.c generic_load.h
+generic_load.o: generic_load.c generic_load.h element.o
 	${CC} ${CFLAGS} -c generic_load.c
 
 scatterplot.o: scatterplot.c scatterplot.h
@@ -906,7 +906,7 @@ date_convert.o: date_convert.c date_convert.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c date_convert.c
 
-row_security.o: row_security.c row_security.h
+row_security.o: row_security.c row_security.h element.o
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c row_security.c
 

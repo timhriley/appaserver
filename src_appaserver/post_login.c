@@ -15,8 +15,6 @@
 #include "document.h"
 #include "post_login.h"
 
-/* Prototypes */
-/* ---------- */
 int main( int argc, char **argv )
 {
 	POST_LOGIN *post_login;

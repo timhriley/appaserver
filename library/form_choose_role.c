@@ -50,20 +50,22 @@ FORM_CHOOSE_ROLE *form_choose_role_calloc( void )
 FORM_CHOOSE_ROLE *form_choose_role_new(
 			LIST *role_name_list,
 			char *post_action_string,
-			char *target_frame,
+			char *frameset_menu_frame,
 			char *form_name,
 			char *drop_down_element_name )
 {
 	FORM_CHOOSE_ROLE *form_choose_role;
+	APPASERVER_ELEMENT *element;
 
-	if ( list_length( role_name_list ) < 2 )
+	/* List may be all the roles or missing the current role */
+	/* ----------------------------------------------------- */
+	if ( !list_length( role_name_list ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: invalid role_name_list length of %d.\n",
+		"ERROR in %s/%s()/%d: empty role_name_list.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			list_length( role_name_list ) );
+			__LINE__ );
 		exit( 1 );
 	}
 
@@ -76,30 +78,64 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 		form_tag_html(
 			form_name,
 			post_action_string,
-			target_frame );
+			frameset_menu_frame /* target_frame */ );
 
-	form_choose_role->drop_down_onchange_javascript =
+	form_choose_role->onchange_javascript =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		form_choose_role_drop_down_onchange_javascript(
+		form_choose_role_onchange_javascript(
 			form_name );
 
-	form_choose_role->element_list =
-		form_choose_role_element_list(
-			role_name_list,
-			form_choose_role->drop_down_onchange_javascript,
-			drop_down_element_name );
+	form_choose_role->element_list = list_new();
 
-	if ( !list_length( form_choose_role->element_list ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: form_choose_role_element_list() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	list_set(
+		form_choose_role->element_list,
+		appaserver_element_new(
+			table_open, (char *)0 ) );
+
+	list_set(
+		form_choose_role->element_list,
+		appaserver_element_new(
+			table_row, (char *)0 ) );
+
+	list_set(
+		form_choose_role->element_list,
+		appaserver_element_new(
+			table_data, (char *)0 ) );
+
+	list_set(
+		form_choose_role->element_list,
+		( element =
+			appaserver_element_new(
+				drop_down,
+				(char *)0 /* element_name */ ) ) );
+
+	free( element->drop_down );
+
+	element->drop_down =
+		element_drop_down_new(
+			drop_down_element_name,
+			(LIST *)0 /* attribute_name_list */,
+			role_name_list /* delimited_list */,
+			0 /* not no_initial_capital */,
+			0 /* not output_null_option */,
+			0 /* not output_not_null_option */,
+			1 /* output_select_option */,
+			element_drop_down_display_size(
+				list_length(
+					role_name_list ) ),
+			-1 /* tab order */,
+			0 /* not multi_select */,
+			form_choose_role->onchange_javascript
+				/* post_change_javascript */,
+			0 /* not readonly */,
+			0 /* not recall */ );
+
+	list_set(
+		form_choose_role->element_list,
+		appaserver_element_new(
+			table_close, (char *)0 ) );
 
 	form_choose_role->html =
 		/* --------------------------- */
@@ -126,7 +162,7 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 	return form_choose_role;
 }
 
-char *form_choose_role_drop_down_onchange_javascript(
+char *form_choose_role_onchange_javascript(
 			char *form_name )
 {
 	static char onchange_javascript[ 128 ];
@@ -146,80 +182,6 @@ char *form_choose_role_drop_down_onchange_javascript(
 		form_name );
 
 	return onchange_javascript;
-}
-
-LIST *form_choose_role_element_list(
-			LIST *role_name_list,
-			char *drop_down_onchange_javascript,
-			char *drop_down_element_name )
-{
-	LIST *element_list = list_new();
-	APPASERVER_ELEMENT *element;
-
-	/* Create a table */
-	/* -------------- */
-	list_set(
-		element_list,
-		appaserver_element_new(
-			table_open,
-			(char *)0 /* element_name */ ) );
-
-	/* Create a table row */
-	/* ------------------ */
-	list_set(
-		element_list,
-		appaserver_element_new(
-			table_row,
-			(char *)0 /* element_name */ ) );
-
-	/* Create a table data */
-	/* ------------------- */
-	list_set(
-		element_list,
-		appaserver_element_new(
-			table_data,
-			(char *)0 /* element_name */ ) );
-
-	/* Create a drop-down */
-	/* ------------------ */
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				drop_down,
-				(char *)0 /* element_name */ ) ) );
-
-	free( element->drop_down );
-
-	element->drop_down =
-		element_drop_down_new(
-			drop_down_element_name,
-			(LIST *)0 /* attribute_name_list */,
-			role_name_list /* delimited_list */,
-			0 /* not no_initial_capital */,
-			0 /* not output_null_option */,
-			0 /* not output_not_null_option */,
-			1 /* output_select_option */,
-			element_drop_down_display_size(
-				list_length(
-					role_name_list ) ),
-			-1 /* tab order */,
-			0 /* not multi_select */,
-			drop_down_onchange_javascript
-				/* post_change_javascript */,
-			0 /* not readonly */,
-			0 /* not recall */ );
-
-	/* Close the table */
-	/* --------------- */
-	list_set(
-		element_list,
-		( element =
-			appaserver_element_new(
-				table_close,
-				(char *)0 /* element_name */ ) ) );
-
-	return element_list;
 }
 
 char *form_choose_role_html(

@@ -787,12 +787,9 @@ LIST *element_drop_down_display_list(
 			list_set(
 				display_list,
 				strdup(
-					string_search_replace(
-					   string_initial_capital(
+					string_initial_capital(
 						buffer,
-						data_buffer ),
-					   delimiter_string,
-					   ELEMENT_LONG_DASH_DELIMITER ) ) );
+						delimited_string ) ) );
 		}
 	} while ( list_next( delimited_list ) );
 
@@ -805,16 +802,6 @@ char *element_drop_down_option_value_html(
 {
 	static char html[ 256 ];
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: value = [%s], display = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-value,
-display );
-m2( "hydrology", msg );
-}
 	if ( !value || !display )
 	{
 		fprintf(stderr,

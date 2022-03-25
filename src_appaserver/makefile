@@ -503,13 +503,12 @@ maintain_user_account: maintain_user_account.c				\
 		maintain_user_account.c					\
 		-o maintain_user_account
 
-post_choose_role: post_choose_role.c					\
-			${EXTERNAL_LIBS}
+post_choose_role: post_choose_role.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_choose_role.c					\
-		-o post_choose_role_drop_down
+		-o post_choose_role	
 	touch ${CGI_HOME}/post_choose_role
 	/bin/rm -f ${CGI_HOME}/post_choose_role
 	ln ${APPASERVER_LINK_FLAGS}					\

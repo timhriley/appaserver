@@ -104,7 +104,6 @@ LIST *form_choose_isa_element_list(
 			(char *)0 /* name */,
 			primary_key_list /* attribute_name_list */,
 			delimited_list,
-			(LIST *)0 /* display_list */,
 			no_initial_capital,
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
