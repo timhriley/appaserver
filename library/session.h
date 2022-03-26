@@ -14,11 +14,11 @@
 
 /* Constants */
 /* --------- */
-#define SESSION_TABLE_NAME			"appaserver_sessions"
+#define SESSION_TABLE				"appaserver_sessions"
 #define SESSION_REMOTE_IP_ADDRESS_VARIABLE	"REMOTE_ADDR"
 #define SESSION_SIZE				10
 
-#define SESSION_SELECT				"appasever_session,"	\
+#define SESSION_SELECT				"appaserver_session,"	\
 						"login_name,"		\
 						"login_date,"		\
 						"login_time,"		\
@@ -73,6 +73,8 @@ char *session_primary_where(
 /* Returns heap memory */
 /* ------------------- */
 char *session_system_string(
+			char *session_select,
+			char *session_table,
 			char *session_primary_where );
 
 SESSION *session_parse(	char *input );

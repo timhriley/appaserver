@@ -159,7 +159,7 @@ void session_update_access_date_time( char *session )
 		 "	     last_access_time = '%s'			 "
 		 "	 where appaserver_session = '%s';\"		|"
 		 "sql 1>&2 &						 ",
-		 SESSION_TABLE_NAME,
+		 SESSION_TABLE,
 		 date_display_yyyy_mm_dd( now ),
 		 date_display_hhmm( now ),
 		 session );
@@ -198,14 +198,17 @@ LIST *session_system_list( char *system_string )
 	return list;
 }
 
-char *session_system_string( char *where )
+char *session_system_string(
+			char *session_select,
+			char *session_table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
 		"select.sh '%s' %s \"%s\" none",
-		SESSION_SELECT,
-		SESSION_TABLE_NAME,
+		session_select,
+		session_table,
 		where );
 
 	return strdup( system_string );
@@ -218,6 +221,8 @@ LIST *session_list_fetch( char *login_name )
 			/* Returns heap memory */
 			/* ------------------- */
 			session_system_string(
+				SESSION_SELECT,
+				SESSION_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -281,8 +286,6 @@ SESSION *session_fetch(
 {
 	SESSION *session;
 
-	session_environment_set( application_name );
-
 	session =
 		session_parse(
 			string_pipe_fetch(
@@ -290,6 +293,8 @@ SESSION *session_fetch(
 				/* Returns heap memory */
 				/* ------------------- */
 				session_system_string(
+					SESSION_SELECT,
+					SESSION_TABLE,
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
@@ -375,6 +380,8 @@ SESSION_PROCESS *session_process_integrity_exit(
 			session_current_ip_address(
 				environment_remote_ip_address() ) );
 	}
+
+	session_environment_set( application_name );
 
 	appaserver_error_argv_append_file(
 		argc, argv, application_name );
@@ -463,6 +470,8 @@ char *session_login_name( char *session_key )
 			session_parse(
 				string_pipe_fetch(
 					session_system_string(
+						SESSION_SELECT,
+						SESSION_TABLE,
 						session_primary_where(
 							session_key ) ) ) ) ) )
 	{
@@ -578,6 +587,8 @@ SESSION_FOLDER *session_folder_integrity_exit(
 				environment_remote_ip_address() ) );
 	}
 
+	session_environment_set( application_name );
+
 	appaserver_error_argv_append_file(
 		argc, argv, application_name );
 
@@ -640,7 +651,15 @@ boolean session_folder_valid(
 			char *state,
 			LIST *role_folder_list )
 {
-	if ( !state || !*state ) return 0;
+	if ( !state || !*state )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: state is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( !list_length( role_folder_list ) ) return 0;
 
@@ -740,7 +759,7 @@ void session_insert(	char *session_key,
 
 	sprintf( system_string,
 		 "insert_statement.e table=%s field=%s | sql.e",
-		 SESSION_TABLE_NAME,
+		 SESSION_TABLE,
 		 field_list_string );
 
 	output_pipe = popen( system_string, "w" );

@@ -1183,13 +1183,10 @@ google_map_operation: google_map_operation.c				\
 		${LIB}/google_map.o					\
 		-o google_map_operation
 
-post_choose_folder: post_choose_folder.c 				\
-			${EXTERNAL_LIBS}				\
-			${LIB}/lookup_before_drop_down.o
+post_choose_folder: post_choose_folder.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
 		post_choose_folder.c					\
 		-o post_choose_folder
 	touch ${CGI_HOME}/post_choose_folder

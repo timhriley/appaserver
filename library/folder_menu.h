@@ -72,14 +72,14 @@ typedef struct
 
 /* FOLDER_MENU operations */
 /* ---------------------- */
-FOLDER_MENU *folder_menu_calloc(
-			void );
-
 FOLDER_MENU *folder_menu_new(
 			char *application_name,
 			char *session_key,
 			char *role_name,
 			char *appaserver_data_directory );
+
+FOLDER_MENU *folder_menu_calloc(
+			void );
 
 LIST *folder_menu_lookup_folder_name_list(
 			char *role_name );

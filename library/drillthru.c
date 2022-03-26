@@ -60,10 +60,14 @@ DRILLTHRU *drillthru_start(
 		exit( 1 );
 	}
 
+fprintf( stderr, "3)\n" );
+
 	drillthru_base_set(
 		drillthru_dictionary,
 		DRILLTHRU_BASE_KEY,
 		folder_name );
+
+fprintf( stderr, "4)\n" );
 
 	return drillthru;
 }
@@ -249,15 +253,7 @@ char *drillthru_start_current_folder_name(
 {
 	RELATION *relation;
 
-	if ( !list_tail( relation_mto1_drillthru_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: list_tail() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !list_tail( relation_mto1_drillthru_list ) ) return (char *)0;
 
 	relation = list_get( relation_mto1_drillthru_list );
 

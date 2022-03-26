@@ -60,6 +60,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 POST_CHOOSE_FOLDER *post_choose_folder_calloc(
 			void );
 
+/* Returns drillthru_start_current_folder_name or folder_name */
+/* ---------------------------------------------------------- */
 char *post_choose_folder_name(
 			char *folder_name,
 			char *drillthru_start_current_folder_name );

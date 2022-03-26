@@ -79,7 +79,7 @@ char *document_head_html(
 /* Returns program memory or null */
 /* ------------------------------ */
 char *document_head_menu_setup_string(
-			boolean menu_boolean );
+			boolean frameset_menu_horizontal );
 
 /* Returns program memory or null */
 /* ------------------------------ */
@@ -116,7 +116,7 @@ DOCUMENT_BODY *document_body_calloc(
 /* Always succeeds */
 /* --------------- */
 DOCUMENT_BODY *document_body_new(
-			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			MENU *menu,
 			char *title_html,
 			char *subtitle_html,
@@ -127,7 +127,7 @@ DOCUMENT_BODY *document_body_new(
 /* Returns program memory or null */
 /* ------------------------------ */
 char *document_body_menu_onload_string(
-			boolean menu_boolean );
+			boolean frameset_menu_horizontal );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -139,12 +139,12 @@ char *document_body_tag(
 /* Returns program memory or null */
 /* ------------------------------ */
 char *document_body_hide_preload_html(
-			boolean menu_boolean );
+			boolean frameset_menu_horizontal );
 
 /* Returns menu->html or null */
 /* -------------------------- */
 char *document_body_horizontal_menu_html(
-			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			MENU *menu );
 
 /* Returns heap memory */
@@ -193,7 +193,7 @@ DOCUMENT *document_new(
 			char *subtitle_html,
 			char *subsubtitle_html,
 			char *javascript_replace,
-			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			MENU *menu,
 			char *document_head_menu_setup_string,
 			char *document_head_calendar_setup_string,

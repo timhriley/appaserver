@@ -7,16 +7,9 @@
 #ifndef ATTRIBUTE_H
 #define ATTRIBUTE_H
 
-/* Includes */
-/* -------- */
 #include "list.h"
 #include "boolean.h"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Constants */
-/* --------- */
 #define ATTRIBUTE_TABLE			"attribute"
 
 #define ATTRIBUTE_SELECT		"attribute,"			\
@@ -27,10 +20,7 @@
 					"post_change_javascript,"	\
 					"on_focus_javascript_function,"	\
 					"lookup_histogram_output_yn,"	\
-					"lookup_timechart_output_yn"
-
-/* Structures */
-/* ---------- */
+					"lookup_time_chart_output_yn"
 
 typedef struct
 {
@@ -49,10 +39,10 @@ typedef struct
 
 /* ATTRIBUTE operations */
 /* -------------------- */
-ATTRIBUTE *attribute_fetch(
-			char *attribute_name );
 
-ATTRIBUTE *attribute_new(
+/* Usage */
+/* ----- */
+ATTRIBUTE *attribute_fetch(
 			char *attribute_name );
 
 /* Process */
@@ -61,13 +51,21 @@ ATTRIBUTE *attribute_new(
 /* Returns heap memory */
 /* ------------------- */
 char *attribute_system_string(
+			char *attribute_select,
+			char *attribute_table,
 			char *where );
 
 LIST *attribute_system_list(
-			char *system_string );
+			char *attribute_system_string );
 
 ATTRIBUTE *attribute_parse(
 			char *input );
+
+ATTRIBUTE *attribute_new(
+			char *attribute_name );
+
+ATTRIBUTE *attribute_calloc(
+			void );
 
 /* Public */
 /* ------ */

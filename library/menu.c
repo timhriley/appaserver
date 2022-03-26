@@ -188,8 +188,8 @@ char *menu_item_horizontal_html(
 
 MENU_ITEM *menu_item_vertical_process_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *process_or_set_name )
 {
@@ -466,7 +466,7 @@ LIST *menu_process_group_name_list(
 				continue;
 			}
 
-			list_set_string_in_order(
+			list_string_in_order(
 				group_name_list,
 				group_name );
 
@@ -487,7 +487,7 @@ LIST *menu_process_group_name_list(
 				continue;
 			}
 
-			list_set_string_in_order(
+			list_string_in_order(
 				group_name_list,
 				group_name );
 
@@ -528,11 +528,7 @@ char *menu_subschema_horizontal_html(
 		menu_item_list_html(
 			menu_item_list ) ) )
 	{
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			tmp );
-
+		ptr += sprintf( ptr, "%s", tmp );
 		free( tmp );
 	}
 
@@ -904,7 +900,8 @@ char *menu_vertical_html(
 	MENU_VERTICAL_PROCESS_GROUP *menu_vertical_process_group;
 	MENU_ITEM *menu_item_folder;
 	MENU_ITEM *menu_item_process;
-	char buffer[ 128 ];
+	char buffer1[ 128 ];
+	char buffer2[ 128 ];
 
 	if ( !login_name || !role_name )
 	{
@@ -918,10 +915,12 @@ char *menu_vertical_html(
 
 	ptr += sprintf(
 		ptr,
-		"<h3>%s/%s</h3>\n",
-		login_name,
+		"<h1>%s/%s</h1>\n",
 		string_initial_capital(
-			buffer,
+			buffer1,
+			login_name ),
+		string_initial_capital(
+			buffer2,
 			role_name ) );
 
 	ptr += sprintf( ptr, "<table border=1>\n" );
@@ -957,6 +956,8 @@ char *menu_vertical_html(
 
 	if ( list_rewind( menu_item_folder_list ) )
 	{
+		ptr += sprintf( ptr, "<tr><th colspan=3>Unassigned\n" );
+
 		do {
 			menu_item_folder =
 				list_get(
@@ -1036,8 +1037,11 @@ char *menu_vertical_html(
 		} while ( list_next( menu_item_process_list ) );
 	}
 
+	ptr += sprintf( ptr, "</table>" );
+
 	if ( menu_item_role_change_html )
 	{
+		ptr += sprintf( ptr, "<h3>Role Change</h3>\n" );
 		ptr += sprintf(
 			ptr,
 			"%s\n",
@@ -1045,8 +1049,6 @@ char *menu_vertical_html(
 
 		free( menu_item_role_change_html );
 	}
-
-	ptr += sprintf( ptr, "</table>\n" );
 
 	return strdup( html );
 }
@@ -1185,8 +1187,6 @@ char *menu_item_list_html( LIST *menu_item_list )
 	do {
 		menu_item = list_get( menu_item_list );
 
-		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
-
 		if ( !menu_item->html )
 		{
 			fprintf(stderr,
@@ -1196,6 +1196,8 @@ char *menu_item_list_html( LIST *menu_item_list )
 				__LINE__ );
 			exit( 1 );
 		}
+
+		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
 
 		ptr += sprintf( ptr, "%s", menu_item->html );
 
@@ -1222,7 +1224,7 @@ char *menu_item_vertical_process_html(
 	}
 
 	sprintf(html,
-		"<tr><td><a class=vertical_menu %s>%s</a>",
+		"<tr><td colspan=3><a class=vertical_menu %s>%s</a>",
 		action_string,
 		string_initial_capital( buffer, process_or_set_name ) );
 
@@ -1483,7 +1485,7 @@ char *menu_item_list_vertical_html(
 
 	ptr += sprintf(
 		ptr,
-		"<table border=0><th align=center>%s\n",
+		"<tr><th colspan=3>%s\n",
 		string_initial_capital(
 			buffer,
 			heading_name ) );
@@ -1498,8 +1500,6 @@ char *menu_item_list_vertical_html(
 		ptr += sprintf( ptr, "%s", tmp );
 		free( tmp );
 	}
-
-	ptr += sprintf( ptr, "</table" );
 
 	return strdup( html );
 }
@@ -1535,11 +1535,7 @@ char *menu_item_list_horizontal_html(
 		menu_item_list_html(
 			menu_item_list ) ) )
 	{
-		ptr += sprintf(
-			ptr,
-			"%s\n",
-			tmp );
-
+		ptr += sprintf( ptr, "%s", tmp );
 		free( tmp );
 	}
 
@@ -1879,11 +1875,11 @@ MENU_VERTICAL *menu_vertical_new(
 	{
 		menu_vertical->vertical_subschema_list = list_new();
 
-		subschema_name =
-			list_get(
-				role_folder_subschema_name_list );
-
 		do {
+			subschema_name =
+				list_get(
+					role_folder_subschema_name_list );
+
 			list_set(
 				menu_vertical->vertical_subschema_list,
 				menu_vertical_subschema_new(
@@ -1949,8 +1945,7 @@ MENU_VERTICAL *menu_vertical_new(
 					role_process_group_name_list );
 
 			list_set(
-				menu_vertical->
-					menu_vertical_process_group_list,
+				menu_vertical->menu_vertical_process_group_list,
 				menu_vertical_process_group_new(
 					application_name,
 					session_key,

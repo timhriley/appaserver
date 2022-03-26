@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
-#include "appaserver_parameter_file.h"
+#include "appaserver_parameter.h"
 
 int main( int argc, char **argv )
 {
@@ -19,26 +19,26 @@ int main( int argc, char **argv )
 	||   strcmp( *argv, "get_appaserver_data_directory.e" ) == 0 )
 	{
 		output =
-		appaserver_parameter_file_get_appaserver_data_directory();
+		appaserver_parameter_data_directory();
 	}
 	else
 	if ( strcmp( *argv, "get_document_root" ) == 0
 	||   strcmp( *argv, "get_document_root.e" ) == 0 )
 	{
 		output =
-		appaserver_parameter_file_get_document_root();
+		appaserver_parameter_document_root();
 	}
 	else
 	if ( strcmp( *argv, "get_appaserver_error_directory" ) == 0
 	||   strcmp( *argv, "get_appaserver_error_directory.e" ) == 0 )
 	{
 		output =
-		appaserver_parameter_file_get_appaserver_error_directory();
+		appaserver_parameter_error_directory();
 	}
 	else
 	{
 		output =
-			appaserver_parameter_file_get_appaserver_mount_point();
+			appaserver_parameter_mount_point();
 	}
 
 	if ( !output )

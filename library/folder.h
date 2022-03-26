@@ -26,7 +26,7 @@
 				"post_change_javascript,"	\
 				"subschema,"			\
 				"exclude_application_export_yn,"\
-				"drilldown_yn,"			\
+				"drillthru_yn,"			\
 				"no_initial_capital_yn,"	\
 				"index_directory,"		\
 				"data_directory,"		\

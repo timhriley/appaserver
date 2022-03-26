@@ -20,8 +20,9 @@ char *role_folder_where(
 	static char where[ 128 ];
 
 	sprintf(where,
-		"role = '%s' and folder = '%s'",
+		"role = '%s' and %s.folder = '%s'",
 		role_name,
+		ROLE_FOLDER_TABLE,
 		folder_name );
 
 	return where;
@@ -443,14 +444,14 @@ LIST *role_folder_subschema_name_list(
 
 		if ( role_folder->subschema_name )
 		{
-			list_append_unique_string(
+			list_string_in_order(
 				subschema_name_list,
 				role_folder->subschema_name );
 		}
 
 	} while( list_next( role_folder_lookup_list ) );
 
-	return subschema_name_list;
+	return list_unique_list( subschema_name_list );
 }
 
 LIST *role_folder_subschema_missing_folder_name_list(

@@ -1132,7 +1132,6 @@ char *edit_table_output_system_string(
 	||   !folder_name
 	||   !role_name
 	||   !target_frame
-	||   !dictionary_separate_send_string
 	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
@@ -1151,7 +1150,9 @@ char *edit_table_output_system_string(
 		folder_name,
 		role_name,
 		target_frame,
-		dictionary_separate_send_string,
+		(dictionary_separate_send_string)
+			? dictionary_separate_send_string
+			: "",
 		appaserver_error_filename );
 
 	return strdup( system_string );

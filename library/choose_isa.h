@@ -64,7 +64,7 @@ CHOOSE_ISA *choose_isa_new(
 			char *folder_name,
 			char *one_isa_folder_name,
 			char *role_name,
-			boolean menu_boolean );
+			boolean frameset_menu_horizontal );
 
 /* Returns static memory */
 /* --------------------- */

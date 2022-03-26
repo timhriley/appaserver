@@ -86,8 +86,18 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			folder_name );
 
 	post_choose_folder->name =
+		/* ---------------------------------------------------------- */
+		/* Returns drillthru_start_current_folder_name or folder_name */
+		/* ---------------------------------------------------------- */
 		post_choose_folder_name(
 			folder_name,
+			/* -------------------------------------------------- */
+			/* Returns list_tail( relation_mto1_drillthru_list )->*/
+			/*			one_folder->		      */
+			/*			folder->		      */
+			/*			folder_name		      */
+			/* or null.					      */
+			/* -------------------------------------------------- */
 			drillthru_start_current_folder_name(
 				post_choose_folder->
 				     drillthru->
@@ -109,19 +119,9 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			state,
 			APPASERVER_INSERT_STATE );
 
-	post_choose_folder->fetch_relation_mto1_isa =
-		post_choose_folder_fetch_relation_mto1_isa(
-			state,
-			APPASERVER_INSERT_STATE );
-
 	post_choose_folder->folder =
 		folder_fetch(
-			post_choose_folder_name(
-				folder_name,
-				drillthru_start_current_folder_name(
-					post_choose_folder->
-					     drillthru->
-					     relation_mto1_drillthru_list ) ),
+			post_choose_folder->name,
 			(char *)0 /* role_name */,
 			(LIST *)0 /* exclude_attribute_name_list */,
 			0 /* not fetch_folder_attribute_list */,

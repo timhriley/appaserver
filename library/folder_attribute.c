@@ -140,13 +140,12 @@ FOLDER_ATTRIBUTE *folder_attribute_parse( char *input )
 				attribute_name ) ) )
 	{
 		fprintf(stderr,
-		"Warning in %s/%s()/%d: attribute_fetch(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: attribute_fetch(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			attribute_name );
-
-		return (FOLDER_ATTRIBUTE *)0;
+		exit( 1 );
 	}
 
 	piece( buffer, SQL_DELIMITER, input, 2 );

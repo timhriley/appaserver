@@ -1643,12 +1643,12 @@ char *place_commas_in_unsigned_long_long( unsigned long long n )
  
 char *place_commas_in_number_string( char *s )
 {
-	static char return_string[ 64 ];
+	char return_string[ 64 ];
 	char *r_ptr;
 	char *s_ptr;
 	int c = 0;
  
-	if ( !timlib_strlen( s ) ) return "";
+	if ( !timlib_strlen( s ) ) return strdup( "" );
 
 	r_ptr = &return_string[ 63 ];
 	*r_ptr-- = '\0';
@@ -1690,7 +1690,7 @@ char *place_commas_in_number_string( char *s )
 		}
 	}
 
-	return r_ptr + 1;
+	return strdup( r_ptr + 1 );
 }
 
 char *place_commas_in_integer( int n )
@@ -2363,7 +2363,6 @@ char *mysql2american_date( char *date_buffer, char *mysql_date )
 	strcat( date_buffer, piece_buffer );
 
 	return date_buffer;
-
 }
 
 char *place_commas_in_double( double d )
@@ -2373,7 +2372,6 @@ char *place_commas_in_double( double d )
 	commas_in_double(	destination, 
 				d );
 	return destination;
-
 }
  
 char *timlib_place_commas_in_dollars( double d )

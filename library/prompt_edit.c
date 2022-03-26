@@ -299,7 +299,7 @@ PROMPT_EDIT *prompt_edit_new(
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
-			menu_boolean,
+			frameset_menu_horizontal,
 			prompt_edit->menu,
 			document_head_menu_setup_string(
 				menu_boolean ),

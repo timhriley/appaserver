@@ -49,6 +49,12 @@ DRILLTHRU *drillthru_start(
 boolean drillthru_start_participating(
 			int relation_mto1_drillthru_list_length );
 
+/* Returns list_tail( relation_mto1_drillthru_list )->	*/
+/*			one_folder->			*/
+/*			folder->			*/
+/*			folder_name			*/
+/* or null.						*/
+/* ---------------------------------------------------- */
 char *drillthru_start_current_folder_name(
 			LIST *relation_mto1_drillthru_list );
 

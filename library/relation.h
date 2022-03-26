@@ -23,7 +23,7 @@
 				"related_folder,"			\
 				"related_attribute"
 
-#define RELATION_SELECT_COLUMNS	"folder,"				\
+#define RELATION_SELECT		"folder,"				\
 				"related_folder,"			\
 				"related_attribute,"			\
 				"pair_1tom_order,"			\
@@ -109,6 +109,8 @@ RELATION *relation_calloc(
 			void );
 
 char *relation_system_string(
+			char *relation_select,
+			char *relation_table,
 			char *where,
 			char *order_clause );
 

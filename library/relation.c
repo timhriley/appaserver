@@ -55,7 +55,7 @@ RELATION *relation_parse(
 	char related_attribute_name[ 128 ];
 	char pair_one2m_order[ 128 ];
 	char omit_one2m_detail[ 128 ];
-	char relation_type_isa[ 128 ];
+	char relation_type_isa_yn[ 128 ];
 	char copy_common_attributes[ 128 ];
 	char automatic_preselection[ 128 ];
 	char drop_down_multi_select[ 128 ];
@@ -86,8 +86,8 @@ RELATION *relation_parse(
 	piece( omit_one2m_detail, SQL_DELIMITER, input, 4 );
 	relation->omit_one2m_detail = ( *omit_one2m_detail == 'y' );
 
-	piece( relation_type_isa, SQL_DELIMITER, input, 5 );
-	relation->relation_type_isa = ( *relation_type_isa == 'y' );
+	piece( relation_type_isa_yn, SQL_DELIMITER, input, 5 );
+	relation->relation_type_isa = ( *relation_type_isa_yn == 'y' );
 
 	piece( copy_common_attributes, SQL_DELIMITER, input, 6 );
 	relation->copy_common_attributes = ( *copy_common_attributes == 'y' );
@@ -191,6 +191,8 @@ LIST *relation_system_list(
 }
 
 char *relation_system_string(
+			char *relation_select,
+			char *relation_table,
 			char *where,
 			char *order )
 {
@@ -198,8 +200,8 @@ char *relation_system_string(
 
 	sprintf(system_string,
 		"select.sh '%s' %s \"%s\" \"%s\"",
-		RELATION_SELECT_COLUMNS,
-		RELATION_TABLE,
+		relation_select,
+		relation_table,
 		(where) ? where : "",
 		(order ) ? order : "" );
 
@@ -270,12 +272,14 @@ LIST *relation_mto1_non_isa_list(
 	char where[ 256 ];
 
 	sprintf(where,
-		"folder = '%s' and ifnull(relation_type_isa,'n') != 'y'",
+		"folder = '%s' and ifnull(relation_type_isa_yn,'n') != 'y'",
 		many_folder_name );
 
 	return
 		relation_system_list(
 			relation_system_string(
+				RELATION_SELECT,
+				RELATION_TABLE,
 				where,
 				(char *)0 /* order */ ),
 			/* ---------------------------- */
@@ -298,6 +302,8 @@ LIST *relation_one2m_list( char *one_folder_name )
 	return
 		relation_system_list(
 			relation_system_string(
+				RELATION_SELECT,
+				RELATION_TABLE,
 				where,
 				(char *)0 /* order */ ),
 			/* ---------------------------------- */
@@ -381,6 +387,8 @@ LIST *relation_one2m_recursive_list(
 	local_relation_list =
 		relation_system_list(
 			relation_system_string(
+				RELATION_SELECT,
+				RELATION_TABLE,
 				where,
 				(char *)0 /* order */ ),
 			/* ---------------------------------- */
@@ -433,12 +441,14 @@ LIST *relation_mto1_isa_list(
 	char where[ 256 ];
 
 	sprintf(where,
-		"folder = '%s' and ifnull(relation_type_isa,'n') = 'y'",
+		"folder = '%s' and ifnull(relation_type_isa_yn,'n') = 'y'",
 		many_folder_name );
 
 	local_relation_list =
 		relation_system_list(
 			relation_system_string(
+				RELATION_SELECT,
+				RELATION_TABLE,
 				where,
 				(char *)0 /* order */ ),
 			/* ---------------------------------- */
@@ -522,6 +532,8 @@ LIST *relation_one2m_pair_list(
 	return
 		relation_system_list(
 			relation_system_string(
+				RELATION_SELECT,
+				RELATION_TABLE,
 				where,
 				"pair_1tom_order" /* order */ ),
 			/* ---------------------------------- */
@@ -542,12 +554,14 @@ LIST *relation_mto1_drillthru_list(
 	char where[ 256 ];
 
 	sprintf(where,
-		"folder = '%s' and ifnull(relation_type_isa,'n') = 'n'",
+		"folder = '%s' and ifnull(relation_type_isa_yn,'n') = 'n'",
 		base_folder_name );
 
 	local_relation_list =
 		relation_system_list(
 			relation_system_string(
+				RELATION_SELECT,
+				RELATION_TABLE,
 				where,
 				(char *)0 /* order */ ),
 			1 /* fetch_folder */,

@@ -46,7 +46,7 @@ CHOOSE_ISA *choose_isa_new(
 			char *role_name,
 			char *folder_name,
 			char *one_isa_folder_name,
-			boolean menu_boolean )
+			boolean frameset_menu_horizontal )
 {
 	CHOOSE_ISA *choose_isa = choose_isa_calloc();
 
@@ -143,7 +143,7 @@ CHOOSE_ISA *choose_isa_new(
 		choose_isa_prompt_message(
 			choose_isa->folder->primary_key_list );
 
-	if ( menu_boolean )
+	if ( frameset_menu_horizontal )
 	{
 		choose_isa->folder_menu =
 			folder_menu_new(
@@ -169,7 +169,7 @@ CHOOSE_ISA *choose_isa_new(
 				session_key,
 				login_name,
 				role_name,
-				1 /* frameset_menu_horizontal */,
+				frameset_menu_horizontal,
 				choose_isa->folder_menu->count_list );
 
 		if ( !choose_isa->menu )
@@ -231,9 +231,10 @@ CHOOSE_ISA *choose_isa_new(
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
-			menu_boolean,
+			frameset_menu_horizontal,
 			choose_isa->menu,
-			document_head_menu_setup_string( menu_boolean ),
+			document_head_menu_setup_string(
+				frameset_menu_horizontal ),
 			(char *)0 /* calendar_setup_string */,
 			(char *)0 /* javascript_include_string */,
 			(char *)0 /* input_onload_string */ );

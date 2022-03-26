@@ -1390,6 +1390,16 @@ boolean list_set_string_in_order(
 			strcasecmp );
 }
 
+boolean list_string_in_order(
+			LIST *list,
+			char *string )
+{
+	return list_add_pointer_in_order(
+			list, 
+			string,
+			strcasecmp );
+}
+
 boolean list_add_string_in_order(
 			LIST *list,
 			char *string )
@@ -1524,10 +1534,10 @@ int add_in_order( 	LIST *list,
         return 1;
 }
 
-LIST *list_unique_list(
-			LIST *destination_list,
-			LIST *source_list )
+LIST *list_unique_list( LIST *source_list )
 {
+	LIST *destination_list = list_new();
+
 	return list_append_unique_string_list(
 			destination_list,
 			source_list );

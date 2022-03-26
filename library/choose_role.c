@@ -148,7 +148,7 @@ CHOOSE_ROLE *choose_role_new(
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
-			0 /* menu_boolean */,
+			0 /* frameset_menu_horizontal */,
 			(MENU *)0,
 			(char *)0 /* menu_setup_string */,
 			(char *)0 /* calendar_setup_string */,

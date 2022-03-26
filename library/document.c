@@ -47,7 +47,7 @@ DOCUMENT *document_new(
 			char *subtitle_html,
 			char *subsubtitle_html,
 			char *javascript_replace,
-			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			MENU *menu,
 			char *menu_setup_string,
 			char *calendar_setup_string,
@@ -72,7 +72,7 @@ DOCUMENT *document_new(
 		/* Always succeeds */
 		/* --------------- */
 		document_body_new(
-			menu_boolean,
+			frameset_menu_horizontal,
 			menu,
 			title_html,
 			subtitle_html,
@@ -137,7 +137,7 @@ DOCUMENT *document_quick_new(
 		/* Always succeeds */
 		/* --------------- */
 		document_body_new(
-			0 /* not menu_boolean */,
+			0 /* not frameset_menu_horizontal */,
 			(MENU *)0,
 			(char *)0 /* title_html */,
 			(char *)0 /* subtitle_html */,
@@ -227,7 +227,7 @@ DOCUMENT_BODY *document_body_calloc( void )
 }
 
 DOCUMENT_BODY *document_body_new(
-			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			MENU *menu,
 			char *title_html,
 			char *subtitle_html,
@@ -242,7 +242,7 @@ DOCUMENT_BODY *document_body_new(
 		/* Returns program memory or null */
 		/* ------------------------------ */
 		document_body_menu_onload_string(
-			menu_boolean );
+			frameset_menu_horizontal );
 
 	document_body->tag =
 		document_body_tag(
@@ -252,14 +252,14 @@ DOCUMENT_BODY *document_body_new(
 
 	document_body->hide_preload_html =
 		document_body_hide_preload_html(
-			menu_boolean );
+			frameset_menu_horizontal );
 
 	document_body->horizontal_menu_html =
 		/* -------------------------- */
 		/* Returns menu->html or null */
 		/* -------------------------- */
 		document_body_horizontal_menu_html(
-			menu_boolean,
+			frameset_menu_horizontal,
 			menu );
 
 	document_body->html =
@@ -337,19 +337,19 @@ char *document_body_tag(
 	return strdup( tag );
 }
 
-char *document_body_hide_preload_html( boolean menu_boolean )
+char *document_body_hide_preload_html( boolean frameset_menu_horizontal )
 {
-	if ( !menu_boolean ) return (char *)0;
+	if ( !frameset_menu_horizontal ) return (char *)0;
 
 	return
 "<script type=\"text/javascript\">//<![CDATA[ \ndocument.writeln(\"<style type='text/css'>#menu { display: none; }</style>\");//]]></script>\n\n";
 }
 
 char *document_body_horizontal_menu_html(
-			boolean menu_boolean,
+			boolean frameset_menu_horizontal,
 			MENU *menu )
 {
-	if ( !menu_boolean ) return (char *)0;
+	if ( !frameset_menu_horizontal ) return (char *)0;
 	if ( !menu ) return (char *)0;
 
 	return menu->html;
@@ -362,7 +362,7 @@ char *document_body_html(
 			char *subtitle_html,
 			char *subsubtitle_html )
 {
-	char html[ STRING_64K ];
+	char html[ STRING_ONE_MEG ];
 	char *ptr = html;
 
 	if ( !tag )
@@ -526,9 +526,9 @@ char *document_head_javascript_include_string( void )
 
 }
 
-char *document_head_menu_setup_string( boolean menu_boolean )
+char *document_head_menu_setup_string( boolean frameset_menu_horizontal )
 {
-	if ( !menu_boolean )
+	if ( !frameset_menu_horizontal )
 	{
 		return (char *)0;
 	}
@@ -537,9 +537,9 @@ char *document_head_menu_setup_string( boolean menu_boolean )
 		return
 "<link rel=stylesheet type=text/css href=\"/appaserver/zmenu/src/style-template.css\">\n"
 "<link rel=stylesheet type=text/css href=\"/appaserver/zmenu/src/skin-template.css\">\n"
-"<script type=text/javascript> _dynarch_menu_url=\"/appaserver/zmenu/src/\"; </script>\n"
-"<script type=text/javascript> _dynarch_top=\"/appaserver/zmenu/\"; </script>\n"
-"<script type=text/javascript src=\"/appaserver/zmenu/src/hmenu.js\"> </script>";
+"<script type=text/javascript> _dynarch_menu_url=\"/appaserver/zmenu/src/\";</script>\n"
+"<script type=text/javascript> _dynarch_top=\"/appaserver/zmenu/\";</script>\n"
+"<script type=text/javascript src=\"/appaserver/zmenu/src/hmenu.js\"></script>";
 	}
 }
 
@@ -676,9 +676,9 @@ char *document_body_onload_string(
 	return strdup( string );
 }
 
-char *document_body_menu_onload_string( boolean menu_boolean )
+char *document_body_menu_onload_string( boolean frameset_menu_horizontal )
 {
-	if ( !menu_boolean ) return (char *)0;
+	if ( !frameset_menu_horizontal ) return (char *)0;
 
 	return
 "DynarchMenu.setup( 'menu', {electric: 250, blink: false, lazy: true, scrolling: true} )";

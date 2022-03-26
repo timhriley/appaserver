@@ -14,7 +14,7 @@
 #include "folder.h"
 #include "attribute.h"
 
-ATTRIBUTE *attribute_new( char *attribute_name )
+ATTRIBUTE *attribute_calloc( void )
 {
 	ATTRIBUTE *attribute;
 
@@ -28,7 +28,15 @@ ATTRIBUTE *attribute_new( char *attribute_name )
 		exit( 1 );
 	}
 
+	return attribute;
+}
+
+ATTRIBUTE *attribute_new( char *attribute_name )
+{
+	ATTRIBUTE *attribute = attribute_calloc();
+
 	attribute->attribute_name = attribute_name;
+
 	return attribute;
 }
 
@@ -65,7 +73,10 @@ boolean attribute_exists(
 		return 0;
 }
 
-char *attribute_system_string( char *where )
+char *attribute_system_string(
+			char *attribute_select,
+			char *attribute_table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
@@ -73,8 +84,8 @@ char *attribute_system_string( char *where )
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		ATTRIBUTE_SELECT,
-		ATTRIBUTE_TABLE	,
+		attribute_select,
+		attribute_table	,
 		where );
 
 	return strdup( system_string );
@@ -288,7 +299,22 @@ LIST *attribute_list( void )
 
 	if ( list ) return list;
 
-	list = attribute_system_list( "1 = 1" );
+	list =
+		attribute_system_list(
+			attribute_system_string(
+				ATTRIBUTE_SELECT,
+				ATTRIBUTE_TABLE,
+				"1 = 1" /* where */ ) );
+
+	if ( !list_length( list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: attribute_system_list() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	return list;
 }

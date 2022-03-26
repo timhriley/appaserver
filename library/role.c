@@ -740,7 +740,7 @@ LIST *role_process_group_name_list(
 
 			if ( !name_list ) name_list = list_new();
 
-			list_set(
+			list_string_in_order(
 				name_list,
 				role_process->process_group_name );
 
@@ -760,14 +760,14 @@ LIST *role_process_group_name_list(
 
 			if ( !name_list ) name_list = list_new();
 
-			list_set(
+			list_string_in_order(
 				name_list,
 				role_process_set->process_group_name );
 
 		} while ( list_next( role_process_set_list ) );
 	}
 
-	return name_list;
+	return list_unique_list( name_list );
 }
 
 LIST *role_appaserver_user_role_name_list( char *login_name )

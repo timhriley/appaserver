@@ -11,11 +11,12 @@
 #include "boolean.h"
 #include "list.h"
 
-/* Enumerated types */
-/* ---------------- */
+#define FOREIGN_ATTRIBUTE_SELECT	"folder,"		\
+					"related_folder,"	\
+					"related_attribute,"	\
+					"foreign_attribute,"	\
+					"foreign_key_index"
 
-/* Constants */
-/* --------- */
 #define FOREIGN_ATTRIBUTE_PRIMARY_KEY	"folder,"		\
 					"related_folder,"	\
 					"related_attribute,"	\
@@ -23,49 +24,61 @@
 
 #define FOREIGN_ATTRIBUTE_TABLE		"foreign_attribute"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *folder;
+	/* Attributes */
+	/* ---------- */
+	char *folder_name;
 	char *related_folder;
 	char *related_attribute;
 	char *foreign_attribute;
 	int foreign_key_index;
-
-	/* Process */
-	/* ------- */
-	LIST *foreign_attribute_name_list;
-
 } FOREIGN_ATTRIBUTE;
 
-/* Prototypes */
-/* ---------- */
-FOREIGN_ATTRIBUTE *foreign_attribute_new(
-			char *folder,
-			char *related_folder,
-			char *related_attribute,
-			char *foreign_attribute );
+/* FOREIGN_ATTRIBUTE operations */
+/* ---------------------------- */
+
+/* Usage */
+/* ----- */
+LIST *foreign_attribute_list(
+			char *many_folder_name,
+			char *one_folder_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *foreign_attribute_where(
+			char *many_folder_name,
+			char *one_folder_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *foreign_attribute_system_string(
+			char *foreign_attribute_select,
+			char *foreign_attribute_table,
+			char *foreign_attribute_where );
+
+LIST *foreign_attribute_system_list(
+			char *foreign_attribute_system_string );
 
 FOREIGN_ATTRIBUTE *foreign_attribute_parse(
 			char *input );
 
-LIST *foreign_attribute_system_list(
-			char *system_string );
+FOREIGN_ATTRIBUTE *foreign_attribute_new(
+			char *folder_name,
+			char *related_folder,
+			char *related_attribute,
+			char *foreign_attribute );
 
-/* Safely returns heap memory */
-/* --------------------------- */
-char *foreign_attribute_system_string(
-			char *where );
+FOREIGN_ATTRIBUTE *foreign_attribute_calloc(
+			void );
 
+/* Public */
+/* ------ */
 LIST *foreign_related_attribute_name_list(
 			LIST *foreign_attribute_list );
-
-LIST *foreign_attribute_list(
-			char *many_folder_name,
-			char *one_folder_name );
 
 LIST *foreign_attribute_name_list(
 			LIST *foreign_attribute_list );

@@ -251,6 +251,10 @@ LIST *folder_menu_count_read_list( char *filename )
 		piece( count, SQL_DELIMITER, input, 1 );
 		folder_menu_count->count = strtoul( count, (char **)0, 0 );
 
+		folder_menu_count->display =
+			folder_menu_count_display(
+				folder_menu_count->count );
+
 		list_set( count_list, folder_menu_count );
 	}
 
@@ -326,7 +330,7 @@ FOLDER_MENU_COUNT *folder_menu_count_seek(
 {
 	FOLDER_MENU_COUNT *folder_menu_count;
 
-	if ( ! list_rewind( folder_menu_count_list ) )
+	if ( !list_rewind( folder_menu_count_list ) )
 		return (FOLDER_MENU_COUNT *)0;
 
 	do {
@@ -349,8 +353,9 @@ FOLDER_MENU_COUNT *folder_menu_count_seek(
 char *folder_menu_count_display(
 			unsigned long count )
 {
+	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	return place_commas_in_unsigned_long( count );
+	place_commas_in_unsigned_long( count );
 }
