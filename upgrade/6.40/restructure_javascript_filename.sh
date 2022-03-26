@@ -76,6 +76,15 @@ echo "delete from role_operation where folder = 'javascript_process_sets';" | sq
 echo "delete from relation where folder = 'javascript_process_sets';" | sql
 echo "drop table javascript_process_sets;" | sql 2>&1 | grep -vi 'unknown table'
 
+# javascript_files
+# ----------------
+echo "delete from folder_attribute where folder = 'javascript_files';" | sql
+echo "delete from folder where folder = 'javascript_files';" | sql
+echo "delete from role_folder where folder = 'javascript_files';" | sql
+echo "delete from role_operation where folder = 'javascript_files';" | sql
+echo "delete from relation where related_folder = 'javascript_files';" | sql
+echo "drop table javascript_files;" | sql 2>&1 | grep -vi 'unknown table'
+
 # Subschema
 # ---------
 echo "delete from subschemas where subschema = 'javascript';" | sql
