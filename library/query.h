@@ -708,8 +708,8 @@ QUERY_EDIT_TABLE *query_edit_table_calloc(
 
 QUERY_EDIT_TABLE *query_edit_table_new(
 			char *application_name,
-			char *folder_name,
 			char *login_name,
+			char *folder_name,
 			char *security_entity_where,
 			LIST *relation_join_one2m_list,
 			LIST *ignore_select_attribute_name_list,

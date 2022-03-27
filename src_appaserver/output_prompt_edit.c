@@ -22,13 +22,14 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *login_name;
 	char *session_key;
-	char *folder_name;
+	char *login_name;
 	char *role_name;
+	char *folder_name;
 	char *target_frame;
 	char *state;
 	APPASERVER_PARAMETER *appaserver_parameter;
+	boolean menu_horizontal;
 	PROMPT_EDIT *prompt_edit;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -40,16 +41,16 @@ int main( int argc, char **argv )
 
 	if ( argc != 8 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name session folder role target_frame state post_dictionary\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+"Usage: %s session login_name role folder target_frame state post_dictionary\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	session_key = argv[ 2 ];
-	folder_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	session_key = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	folder_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
 	state = argv[ 6 ];
 
@@ -62,17 +63,17 @@ int main( int argc, char **argv )
 		/* --------------- */
 		prompt_edit_new(
 			application_name,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
+			folder_name,
 			target_frame,
 			state,
-			menu_boolean(
-				FRAMESET_PROMPT_FRAME,
+			( menu_horizontal =
 				frameset_menu_horizontal(
 					application_name,
-					login_name ) ),
+					login_name ) )
+					/* menu_horizontal_boolean */,
 			appaserver_parameter->
 				data_directory,
 			post_dictionary_string_new(
@@ -89,7 +90,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !prompt_edit->menu_boolean )
+	if ( !menu_horizontal )
 	{
 		document_output_content_type();
 	}

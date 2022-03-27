@@ -18,6 +18,7 @@
 #include "application.h"
 #include "application_constants.h"
 #include "appaserver.h"
+#include "post_edit_table.h"
 #include "edit_table.h"
 
 EDIT_TABLE *edit_table_calloc( void )
@@ -40,10 +41,10 @@ EDIT_TABLE *edit_table_calloc( void )
 
 EDIT_TABLE *edit_table_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			boolean menu_boolean,
 			DICTIONARY *query_dictionary,
@@ -221,8 +222,8 @@ EDIT_TABLE *edit_table_new(
 	edit_table->query_edit_table =
 		query_edit_table_new(
 			application_name,
-			folder_name,
 			login_name,
+			folder_name,
 			edit_table->security_entity_where,
 			edit_table->folder->relation_join_one2m_list,
 			ignore_select_attribute_name_list,
@@ -285,8 +286,8 @@ EDIT_TABLE *edit_table_new(
 	edit_table->submit_action_string =
 		edit_table_submit_action_string(
 			application_name,
-			login_name,
 			session_key,
+			login_name,
 			folder_name,
 			role_name,
 			target_frame,
@@ -766,7 +767,7 @@ char **edit_table_background_color_array(
 	return background_color_array;
 }
 
-char *edit_table_submit_action_string(
+char *post_edit_table_action_string(
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -778,7 +779,7 @@ char *edit_table_submit_action_string(
 	char action_string[ 1024 ];
 
 	sprintf(action_string,
-		" action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s\"",
+		"action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s\"",
 		appaserver_library_http_prompt(
 			appaserver_parameter_cgi_directory(),
 			appaserver_library_server_address(),
@@ -1116,10 +1117,10 @@ char *edit_table_hidden_row_html(
 
 char *edit_table_output_system_string(
 			char *executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
@@ -1127,10 +1128,10 @@ char *edit_table_output_system_string(
 	char system_string[ 1024 ];
 
 	if ( !executable
-	||   !login_name
 	||   !session_key
-	||   !folder_name
+	||   !login_name
 	||   !role_name
+	||   !folder_name
 	||   !target_frame
 	||   !appaserver_error_filename )
 	{
@@ -1145,10 +1146,10 @@ char *edit_table_output_system_string(
 	sprintf(system_string,
 		"%s %s %s %s %s %s \"%s\" 2>>%s",
 		executable,
-		login_name,
 		session_key,
-		folder_name,
+		login_name,
 		role_name,
+		folder_name,
 		target_frame,
 		(dictionary_separate_send_string)
 			? dictionary_separate_send_string

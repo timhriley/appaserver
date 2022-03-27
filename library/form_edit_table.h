@@ -51,7 +51,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			char *folder_name,
 			char *post_change_javascript,
 			int dictionary_list_length,
-			char *edit_table_submit_action_string,
+			char *post_edit_table_action_string,
 			LIST *role_operation_list,
 			LIST *edit_table_heading_name_list,
 			char *target_frame,
@@ -64,7 +64,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 /* ------------------- */
 char *form_edit_table_tag(
 			char *form_edit_table_name,
-			char *edit_table_submit_action_string,
+			char *post_edit_table_action_string,
 			char *target_frame,
 			char *element_table_open_html );
 

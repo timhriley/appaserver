@@ -767,7 +767,7 @@ LIST *role_process_group_name_list(
 		} while ( list_next( role_process_set_list ) );
 	}
 
-	return list_unique_list( name_list );
+	return list_unique_list( (LIST *)0, name_list );
 }
 
 LIST *role_appaserver_user_role_name_list( char *login_name )

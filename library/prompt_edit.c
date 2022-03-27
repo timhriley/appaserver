@@ -3,8 +3,6 @@
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-/* Includes */
-/* -------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -36,14 +34,13 @@ PROMPT_EDIT *prompt_edit_calloc( void )
 
 PROMPT_EDIT *prompt_edit_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			char *state,
-			boolean menu_boolean,
-			boolean frameset_menu_horizontal,
+			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
 {
@@ -138,7 +135,7 @@ PROMPT_EDIT *prompt_edit_new(
 		return prompt_edit;
 	}
 
-	if ( menu_boolean )
+	if ( menu_horizontal_boolean )
 	{
 		prompt_edit->folder_menu =
 			folder_menu_new(
@@ -153,7 +150,7 @@ PROMPT_EDIT *prompt_edit_new(
 				session_key,
 				login_name,
 				role_name,
-				frameset_menu_horizontal,
+				1 /* frameset_menu_horizontal */,
 				prompt_edit->
 					folder_menu->
 					count_list );
@@ -302,7 +299,7 @@ PROMPT_EDIT *prompt_edit_new(
 			frameset_menu_horizontal,
 			prompt_edit->menu,
 			document_head_menu_setup_string(
-				menu_boolean ),
+				menu_horizontal_boolean ),
 			document_head_calendar_setup_string(
 				prompt_edit->
 				       folder_attribute_date_name_list_length ),

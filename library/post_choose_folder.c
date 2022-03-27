@@ -453,10 +453,10 @@ char *post_choose_folder_system_string(
 		/* ------------------- */
 		edit_table_output_system_string(
 			EDIT_TABLE_OUTPUT_EXECUTABLE,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
+			folder_name,
 			target_frame,
 			dictionary_separate_send_string(
 				dictionary_separate_send_dictionary(

@@ -47,12 +47,11 @@ int main( int argc, char **argv )
 			session_key,
 			process_name,
 			role_name,
-			menu_boolean(
-				FRAMESET_PROMPT_FRAME /* current_frame */,
-				( menu_horizontal =
-					frameset_menu_horizontal(
-						application_name,
-						login_name ) ) ) );
+			( menu_horizontal =
+				frameset_menu_horizontal(
+					application_name,
+					login_name ) )
+					/* menu_horizontal_boolean */ );
 
 	if ( !generic_load_choose )
 	{

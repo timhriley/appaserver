@@ -117,7 +117,8 @@ APPASERVER_LIBRARY=						\
 		post_login.o					\
 		post_choose_folder.o				\
 		post_choose_process.o				\
-		post_choose_role.o
+		post_choose_role.o				\
+		post_edit_table.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -982,6 +983,9 @@ post_choose_process.o: post_choose_process.c post_choose_process.h
 
 post_choose_role.o: post_choose_role.c post_choose_role.h
 	${CC} ${CFLAGS} -c post_choose_role.c
+
+post_edit_table.o: post_edit_table.c post_edit_table.h
+	${CC} ${CFLAGS} -c post_edit_table.c
 
 relation_join.o: relation_join.c relation_join.h
 	${CC} ${CFLAGS} -c relation_join.c

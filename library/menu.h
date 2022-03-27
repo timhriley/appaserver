@@ -408,8 +408,9 @@ MENU *menu_calloc(	void );
 
 /* Public */
 /* ------ */
-boolean menu_boolean(
+boolean menu_horizontal_boolean(
 			char *current_frame,
+			char *frameset_prompt_frame,
 			boolean frameset_menu_horizontal );
 
 /* Returns static memory */

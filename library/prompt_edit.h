@@ -65,8 +65,7 @@ PROMPT_EDIT *prompt_edit_new(
 			char *role_name,
 			char *target_frame,
 			char *state,
-			boolean menu_boolean,
-			boolean frameset_menu_horizontal,
+			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary );
 

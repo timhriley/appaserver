@@ -84,15 +84,14 @@ int main( int argc, char **argv )
 			folder_name,
 			one_isa_folder_name,
 			session_folder->role_name,
-			menu_boolean(
-				FRAMESET_PROMPT_FRAME,
-				frameset_menu_horizontal(
-					session_folder->
-						session->
-						application_name,
-					session_folder->
-						session->
-						login_name ) ) );
+			frameset_menu_horizontal(
+				session_folder->
+					session->
+					application_name,
+				session_folder->
+					session->
+					login_name )
+				/* menu_horizontal_boolean */ );
 
 	if ( !choose_isa || !choose_isa->document_form_html )
 	{

@@ -29,10 +29,10 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *login_name;
 	char *session_key;
-	char *folder_name;
+	char *login_name;
 	char *role_name;
+	char *folder_name;
 	char *target_frame;
 	DICTIONARY_SEPARATE *dictionary_separate;
 	EDIT_TABLE *edit_table;
@@ -47,15 +47,15 @@ int main( int argc, char **argv )
 	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s login_name session folder role target_frame post_dictionary\n",
+"Usage: %s session login_name role folder target_frame post_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	session_key = argv[ 2 ];
-	folder_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	session_key = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	folder_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
 
 	session_environment_set( application_name );
@@ -78,16 +78,15 @@ int main( int argc, char **argv )
 	edit_table =
 		edit_table_new(
 			application_name,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
+			folder_name,
 			target_frame,
-			menu_boolean(
-				current_frame,
-				frameset_menu_horizontal(
-					application_name,
-					login_name ) ),
+			frameset_menu_horizontal(
+				application_name,
+				login_name )
+				/* menu_horizontal_boolean */,
 			dictionary_separate->query_dictionary,
 			dictionary_separate->ignore_dictionary,
 			dictionary_separate->non_prefixed_dictionary,

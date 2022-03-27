@@ -451,7 +451,7 @@ LIST *role_folder_subschema_name_list(
 
 	} while( list_next( role_folder_lookup_list ) );
 
-	return list_unique_list( subschema_name_list );
+	return list_unique_list( (LIST *)0, subschema_name_list );
 }
 
 LIST *role_folder_subschema_missing_folder_name_list(

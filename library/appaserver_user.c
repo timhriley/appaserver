@@ -337,6 +337,8 @@ APPASERVER_USER *appaserver_user_parse(
 		appaserver_user->session_list =
 			session_system_list(
 				session_system_string(
+					SESSION_SELECT,
+					SESSION_TABLE,
 					appaserver_user_primary_where(
 					      appaserver_user->login_name ) ) );
 	}

@@ -537,13 +537,15 @@ char *menu_subschema_horizontal_html(
 	return strdup( html );
 }
 
-boolean menu_boolean(	char *current_frame,
+boolean menu_horizontal_boolean(
+			char *current_frame,
+			char *frameset_prompt_frame,
 			boolean frameset_menu_horizontal )
 {
 	return ( frameset_menu_horizontal &&
 		 string_strcmp(
 			current_frame,
-			FRAMESET_PROMPT_FRAME ) == 0 );
+			frameset_prompt_frame ) == 0 );
 }
 
 char *menu_output_system_string(

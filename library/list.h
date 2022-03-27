@@ -535,7 +535,8 @@ LIST *list_append_unique_string_list(
 			LIST *destination_list,
 			LIST *source_list );
 
-LIST *list_unique_list( LIST *source_list );
+LIST *list_unique_list(	LIST *destination_list,
+			LIST *source_list );
 
 void list_unique_set(
 			LIST *list,

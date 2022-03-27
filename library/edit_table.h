@@ -6,8 +6,6 @@
 #ifndef EDIT_TABLE_H
 #define EDIT_TABLE_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 #include "dictionary.h"
@@ -22,13 +20,9 @@
 #include "form_edit_table.h"
 #include "document.h"
 
-/* Constants */
-/* --------- */
 #define EDIT_TABLE_MAX_BACKGROUND_COLOR_ARRAY	10
 #define EDIT_TABLE_OUTPUT_EXECUTABLE		"output_edit_table"
 
-/* Data structures */
-/* --------------- */
 typedef struct
 {
 	ROLE *role;
@@ -58,17 +52,17 @@ typedef struct
 	char *trailer_html;
 } EDIT_TABLE;
 
-/* Prototypes */
-/* ---------- */
-EDIT_TABLE *edit_table_calloc(
-			void );
+/* EDIT_TABLE operations */
+/* --------------------- */
 
+/* Usage */
+/* ----- */
 EDIT_TABLE *edit_table_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			boolean menu_boolean,
 			DICTIONARY *query_dictionary,
@@ -80,6 +74,8 @@ EDIT_TABLE *edit_table_new(
 
 /* Process */
 /* ------- */
+EDIT_TABLE *edit_table_calloc(
+			void );
 
 /* Returns program memory */
 /* ---------------------- */
@@ -212,10 +208,10 @@ char *edit_table_hidden_row_html(
 /* ------------------- */
 char *edit_table_output_system_string(
 			char *edit_table_output_executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );

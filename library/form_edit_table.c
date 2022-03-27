@@ -52,7 +52,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			char *folder_name,
 			char *post_change_javascript,
 			int dictionary_list_length,
-			char *edit_table_submit_action_string,
+			char *post_edit_table_action_string,
 			LIST *role_operation_list,
 			LIST *edit_table_heading_name_list,
 			char *target_frame,
@@ -69,7 +69,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* ------------------- */
 		form_edit_table_tag(
 			FORM_EDIT_TABLE_NAME,
-			edit_table_submit_action_string,
+			post_edit_table_action_string,
 			target_frame,
 			element_table_open_html() );
 
@@ -293,12 +293,12 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
 	char element_name[ 128 ];
-	char action_string[ 128 ];
+	char on_click[ 128 ];
 	int i;
 
 	if ( !list_length( edit_table_heading_name_list ) ) return( LIST *)0;
 
-	sprintf( action_string, "push_button_submit('%s')", folder_name );
+	sprintf( on_click, "push_button_submit('%s')", folder_name );
 
 	/* Create the assend checkboxes */
 	/* ---------------------------- */
@@ -335,7 +335,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 
 		element->checkbox->element_name = element->element_name;
 		element->checkbox->prompt_string = "Sort";
-		element->checkbox->on_click = strdup( action_string );
+		element->checkbox->on_click = strdup( on_click );
 
 	} while ( list_next( edit_table_heading_name_list ) );
 
@@ -374,7 +374,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 
 		element->checkbox->element_name = element->element_name;
 		element->checkbox->prompt_string = "Descend";
-		element->checkbox->on_click = strdup( action_string );
+		element->checkbox->on_click = strdup( on_click );
 
 	} while ( list_next( edit_table_heading_name_list ) );
 
@@ -599,7 +599,7 @@ LIST *form_edit_table_heading_element_list(
 
 char *form_edit_table_tag(
 			char *form_edit_table_name,
-			char *submit_action_string,
+			char *post_edit_table_action_string,
 			char *target_frame,
 			char *element_table_open_html )
 {
@@ -607,7 +607,7 @@ char *form_edit_table_tag(
 	char *ptr = tag;
 
 	if ( !form_edit_table_name
-	||   !submit_action_string
+	||   !post_edit_table_action_string
 	||   !target_frame
 	||   !element_table_open_html )
 	{
@@ -631,7 +631,7 @@ char *form_edit_table_tag(
 	ptr += sprintf(
 		ptr,
 		" action=\"%s\" target=\"%s\">",
-		submit_action_string,
+		post_edit_table_action_string,
 		target_frame );
 
 	return strdup( tag );
