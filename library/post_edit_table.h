@@ -8,6 +8,7 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "session.h"
 
 #define POST_EDIT_TABLE_EXECUTABLE	"post_edit_table"
 

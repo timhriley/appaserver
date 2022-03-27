@@ -46,15 +46,13 @@ EDIT_TABLE *edit_table_new(
 			char *role_name,
 			char *folder_name,
 			char *target_frame,
-			boolean menu_boolean,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *ignore_dictionary,
-			DICTIONARY *non_prefixed_dictionary,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *sort_dictionary,
-			LIST *ignore_select_attribute_name_list )
+			boolean menu_horizontal_boolean,
+			DICTIONARY *original_post_dictionary )
 {
 	EDIT_TABLE *edit_table = edit_table_calloc();
+
+	/* Used for convenience */
+	/* -------------------- */
 	ROW_SECURITY_ROLE *row_security_role;
 
 	if ( ! ( edit_table->role =
@@ -107,6 +105,19 @@ EDIT_TABLE *edit_table_new(
 		return (EDIT_TABLE *)0;
 	}
 
+	edit_table->dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_folder_new(
+			original_post_dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list(
+				edit_table->
+					folder->
+					folder_attribute_append_isa_list ) );
+
 	edit_table->folder_attribute_date_name_list_length =
 		list_length(
 			folder_attribute_date_name_list(
@@ -117,9 +128,9 @@ EDIT_TABLE *edit_table_new(
 	edit_table->folder->relation_join_one2m_list =
 		relation_join_one2m_list(
 			edit_table->folder->relation_one2m_recursive_list,
-			ignore_dictionary );
+			edit_table->dictionary_separate->ignore_dictionary );
 
-	if ( menu_boolean )
+	if ( menu_horizontal_boolean )
 	{
 		edit_table->folder_menu =
 			folder_menu_new(
@@ -177,10 +188,12 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->relation_mto1_non_isa_list,
 			edit_table->folder->relation_join_one2m_list,
 			edit_table->folder->post_change_javascript,
-			drillthru_dictionary,
+			edit_table->dictionary_separate->drillthru_dictionary,
 			edit_table->primary_keys_non_edit,
 			edit_table->folder->role_operation_list,
-			ignore_select_attribute_name_list,
+			edit_table->
+				dictionary_separate->
+				ignore_select_attribute_name_list,
 			edit_table->state,
 			role_exclude_update_attribute_name_list(
 				edit_table->
@@ -226,7 +239,9 @@ EDIT_TABLE *edit_table_new(
 			folder_name,
 			edit_table->security_entity_where,
 			edit_table->folder->relation_join_one2m_list,
-			ignore_select_attribute_name_list,
+			edit_table->
+				dictionary_separate->
+				ignore_select_attribute_name_list,
 			role_exclude_lookup_attribute_name_list(
 				edit_table->
 					role->
@@ -234,8 +249,8 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->folder_attribute_append_isa_list,
 			edit_table->folder->relation_mto1_non_isa_list,
 			edit_table->folder->relation_mto1_isa_list,
-			query_dictionary,
-			sort_dictionary,
+			edit_table->dictionary_separate->query_dictionary,
+			edit_table->dictionary_separate->sort_dictionary,
 			(row_security_role)
 				? row_security_role->folder_name
 				: (char *)0,
@@ -266,30 +281,39 @@ EDIT_TABLE *edit_table_new(
 	edit_table->row_insert_count =
 		edit_table_row_insert_count(
 			ROWS_INSERTED_COUNT_KEY,
-			non_prefixed_dictionary );
+			edit_table->
+				dictionary_separate->
+				non_prefixed_dictionary );
 
 	edit_table->cell_update_count =
 		edit_table_cell_update_count(
 			COLUMNS_UPDATED_KEY,
-			non_prefixed_dictionary );
+			edit_table->
+				dictionary_separate->
+				non_prefixed_dictionary );
 
 	edit_table->cell_update_folder_list_string =
 		edit_table_cell_update_folder_list_string(
 			COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
-			non_prefixed_dictionary );
+			edit_table->
+				dictionary_separate->
+				non_prefixed_dictionary );
 
 	edit_table->results_string =
 		edit_table_results_string(
 			RESULTS_STRING_KEY,
-			non_prefixed_dictionary );
+			edit_table->
+				dictionary_separate->
+				non_prefixed_dictionary );
 
-	edit_table->submit_action_string =
-		edit_table_submit_action_string(
+	edit_table->post_edit_table_action_string =
+		post_edit_table_action_string(
+			POST_EDIT_TABLE_EXECUTABLE,
 			application_name,
 			session_key,
 			login_name,
-			folder_name,
 			role_name,
+			folder_name,
 			target_frame,
 			(char *)0 /* detail_base_folder_name */ );
 
@@ -340,7 +364,7 @@ EDIT_TABLE *edit_table_new(
 			edit_table->menu_boolean,
 			edit_table->menu,
 			document_head_menu_setup_string(
-				edit_table->menu_boolean ),
+				menu_horizontal_boolean ),
 			document_head_calendar_setup_string(
 				edit_table->
 				      folder_attribute_date_name_list_length ),
@@ -356,14 +380,14 @@ EDIT_TABLE *edit_table_new(
 			folder_name,
 			edit_table->folder->post_change_javascript,
 			edit_table->dictionary_list_length,
-			edit_table->submit_action_string,
+			edit_table->post_edit_table_action_string,
 			edit_table->folder->role_operation_list,
 			edit_table->heading_name_list,
 			target_frame,
-			query_dictionary,
-			sort_dictionary,
-			drillthru_dictionary,
-			ignore_dictionary  );
+			edit_table->dictionary_separate->query_dictionary,
+			edit_table->dictionary_separate->sort_dictionary,
+			edit_table->dictionary_separate->drillthru_dictionary,
+			edit_table->dictionary_separate->ignore_dictionary  );
 
 	edit_table->html =
 		/* ------------------- */
@@ -371,13 +395,12 @@ EDIT_TABLE *edit_table_new(
 		/* ------------------- */
 		edit_table_html(
 			edit_table->document->html,
-			edit_table->form_edit_table->html );
-
-	free( edit_table->form_edit_table->html );
+			edit_table->document->document_head->html,
+			document_head_close_html(),
+			edit_table->document->document_body->html );
 
 	edit_table->trailer_html =
 		edit_table_trailer_html(
-			edit_table->form_edit_table->trailer_html,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
@@ -386,8 +409,6 @@ EDIT_TABLE *edit_table_new(
 			/* Returns program memory */
 			/* ---------------------- */
 			document_close_html() );
-
-	free( edit_table->form_edit_table->trailer_html );
 
 	return edit_table;
 }
@@ -468,12 +489,16 @@ char *edit_table_results_string(
 }
 
 char *edit_table_html(	char *document_html,
-			char *form_edit_table_html )
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html )
 {
 	char html[ STRING_64K ];
 
 	if ( !document_html
-	||   !form_edit_table_html )
+	||   !document_head_html
+	||   !document_head_close_html
+	||   !document_body_html )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -484,22 +509,22 @@ char *edit_table_html(	char *document_html,
 	}
 
 	sprintf(html,
-		"%s\n%s",
+		"%s\n%s\n%s\n%s",
 		document_html,
-		form_edit_table_html );
+		document_head_html,
+		document_head_close_html,
+		document_body_html );
 
 	return strdup( html );
 }
 
 char *edit_table_trailer_html(
-			char *form_edit_table_trailer_html,
 			char *document_body_close_html,
 			char *document_close_html )
 {
-	char trailer_html[ STRING_64K ];
+	char trailer_html[ 1024 ];
 
-	if ( !form_edit_table_trailer_html
-	||   !document_body_close_html
+	if ( !document_body_close_html
 	||   !document_close_html )
 	{
 		fprintf(stderr,
@@ -512,8 +537,7 @@ char *edit_table_trailer_html(
 
 
 	sprintf(trailer_html,
-		"%s\n%s\n%s",
-		form_edit_table_trailer_html,
+		"%s\n%s",
 		document_body_close_html,
 		document_close_html );
 
@@ -767,92 +791,6 @@ char **edit_table_background_color_array(
 	return background_color_array;
 }
 
-char *post_edit_table_action_string(
-			char *application_name,
-			char *login_name,
-			char *session_key,
-			char *folder_name,
-			char *role_name,
-			char *target_frame,
-			char *detail_base_folder_name )
-{
-	char action_string[ 1024 ];
-
-	sprintf(action_string,
-		"action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s\"",
-		appaserver_library_http_prompt(
-			appaserver_parameter_cgi_directory(),
-			appaserver_library_server_address(),
-			application_ssl_support_yn(
-				application_name ),
-			application_prepend_http_protocol_yn(
-				application_name ) ),
-		"post_edit_table",
-		application_name,
-		login_name,
-		session_key,
-		folder_name,
-		role_name,
-		target_frame,
-		(detail_base_folder_name)
-			? detail_base_folder_name
-			: "" );
-
-	return strdup( action_string );
-}
-
-EDIT_TABLE_POST *edit_table_post_calloc( void )
-{
-	EDIT_TABLE_POST *edit_table_post;
-
-	if ( ! ( edit_table_post = calloc( 1, sizeof( EDIT_TABLE_POST ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return edit_table_post;
-}
-
-EDIT_TABLE_POST *edit_table_post_new(
-			int argc,
-			char **argv,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *state,
-			char *target_frame,
-			char *detail_base_folder_name )
-{
-	EDIT_TABLE_POST *edit_table_post = edit_table_post_calloc();
-
-	edit_table_post->target_frame = target_frame;
-	edit_table_post->detail_base_folder_name = detail_base_folder_name;
-
-	edit_table_post->session_folder =
-		/* --------------------------------------------- */
-		/* Sets appaserver environment and outputs argv. */
-		/* Each parameter is security inspected.	 */
-		/* --------------------------------------------- */
-		session_folder_integrity_exit(
-			argc,
-			argv,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			folder_name,
-			state );
-
-	return edit_table_post;
-}
-
 char *edit_table_message_html(
 			int row_insert_count,
 			int cell_update_count,
@@ -944,15 +882,17 @@ void edit_table_output(	FILE *output_stream,
 			char *application_name,
 			char *edit_table_html,
 			char *form_edit_table_html,
-			LIST *row_dictionary_list,
+			LIST *dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *state,
+			char *edit_table_state,
 			char *form_edit_table_trailer_html,
 			char *edit_table_trailer_html )
 {
 	if ( !edit_table_html
+	||   !form_edit_table_html
+	||   !form_edit_table_trailer_html
 	||   !edit_table_trailer_html )
 	{
 		fprintf(stderr,
@@ -971,22 +911,15 @@ void edit_table_output(	FILE *output_stream,
 	edit_table_regular_output(
 		output_stream,
 		application_name,
-		row_dictionary_list,
+		dictionary_list,
 		regular_element_list,
 		viewonly_element_list,
 		row_security_role,
-		state );
-
-	fprintf(output_stream,
-		"%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		element_table_close_html() );
+		edit_table_state );
 
 	edit_table_hidden_output(
 		output_stream,
-		row_dictionary_list,
+		dictionary_list,
 		regular_element_list );
 
 	fprintf(output_stream,
@@ -998,7 +931,7 @@ void edit_table_output(	FILE *output_stream,
 void edit_table_regular_output(
 			FILE *output_stream,
 			char *application_name,
-			LIST *row_dictionary_list,
+			LIST *dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
@@ -1009,10 +942,17 @@ void edit_table_regular_output(
 	char *html;
 	int row_number = 0;
 
-	if ( !list_rewind( row_dictionary_list ) ) return;
+	if ( !list_rewind( dictionary_list ) ) return;
+
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		element_table_open_html() );
 
 	do {
-		row_dictionary = list_get( row_dictionary_list );
+		row_dictionary = list_get( dictionary_list );
 
 		apply_element_list =
 			edit_table_apply_element_list(
@@ -1024,7 +964,7 @@ void edit_table_regular_output(
 		if ( !apply_element_list )
 		{
 			fprintf(stderr,
-"Warning in %s/%s()/%d: edit_table_apply_element_list() returned empty.\n",
+"ERROR in %s/%s()/%d: edit_table_apply_element_list() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -1057,22 +997,29 @@ void edit_table_regular_output(
 
 		free( html );
 
-	} while ( list_next( row_dictionary_list ) );
+	} while ( list_next( dictionary_list ) );
+
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		element_table_close_html() );
 }
 
 void edit_table_hidden_output(
 			FILE *output_stream,
-			LIST *row_dictionary_list,
+			LIST *dictionary_list,
 			LIST *regular_element_list )
 {
 	DICTIONARY *row_dictionary;
 	char *html;
 	int row_number = 0;
 
-	if ( !list_rewind( row_dictionary_list ) ) return;
+	if ( !list_rewind( dictionary_list ) ) return;
 
 	do {
-		row_dictionary = list_get( row_dictionary_list );
+		row_dictionary = list_get( dictionary_list );
 
 		if ( ! ( html =
 				/* --------------------------- */
@@ -1097,7 +1044,7 @@ void edit_table_hidden_output(
 
 		free( html );
 
-	} while ( list_next( row_dictionary_list ) );
+	} while ( list_next( dictionary_list ) );
 }
 
 char *edit_table_hidden_row_html(

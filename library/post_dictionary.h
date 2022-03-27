@@ -39,6 +39,8 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 			char *upload_directory,
 			char *session_key );
 
+/* Always succeeds */
+/* --------------- */
 POST_DICTIONARY *post_dictionary_string_new(
 			char *dictionary_string );
 

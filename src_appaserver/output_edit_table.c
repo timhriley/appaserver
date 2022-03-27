@@ -11,20 +11,14 @@
 #include <string.h>
 #include <limits.h>
 #include <unistd.h>
-#include "String.h"
-#include "timlib.h"
+#include "boolean.h"
 #include "list.h"
 #include "environ.h"
+#include "appaserver_error.h"
 #include "post_dictionary.h"
-#include "dictionary_separate.h"
 #include "session.h"
+#include "frameset.h"
 #include "edit_table.h"
-
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 
 int main( int argc, char **argv )
 {
@@ -34,17 +28,17 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *folder_name;
 	char *target_frame;
-	DICTIONARY_SEPARATE *dictionary_separate;
+	POST_DICTIONARY *post_dictionary;
 	EDIT_TABLE *edit_table;
 
 	application_name = environment_exit_application_name( argv[ 0 ] );
 
-	appaserver_output_starting_argv_append_file(
+	appaserver_error_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
 		fprintf( stderr, 
 "Usage: %s session login_name role folder target_frame post_dictionary\n",
@@ -58,22 +52,14 @@ int main( int argc, char **argv )
 	folder_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
 
-	session_environment_set( application_name );
+	post_dictionary =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_dictionary_string_new(
+			argv[ 6 ] );
 
-	if ( ! ( dictionary_separate =
-			dictionary_separate_new(
-				post_dictionary_string_new( argv[ 6 ],
-				application_name,
-				(LIST *)0 /* folder_attribute_isa_list */,
-				(LIST *)0 /* operation_name_list */ ) ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: dictionary_separate() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	session_environment_set( application_name );
 
 	edit_table =
 		edit_table_new(
@@ -87,13 +73,7 @@ int main( int argc, char **argv )
 				application_name,
 				login_name )
 				/* menu_horizontal_boolean */,
-			dictionary_separate->query_dictionary,
-			dictionary_separate->ignore_dictionary,
-			dictionary_separate->non_prefixed_dictionary,
-			dictionary_separate->drillthru_dictionary,
-			dictionary_separate->sort_dictionary,
-			dictionary_separate->
-				ignore_select_attribute_name_list );
+			post_dictionary->original_post_dictionary );
 
 	if ( !edit_table )
 	{
@@ -106,7 +86,48 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	edit_table_output( stdout, edit_table );
+	if ( !edit_table->query_edit_table )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_edit_table is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !edit_table->form_edit_table )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: form_edit_table is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	edit_table_output(
+			stdout /* output_stream */,
+			application_name,
+			edit_table->html,
+			edit_table->form_edit_table->html,
+			edit_table->query_edit_table->dictionary_list,
+			edit_table->
+				row_security->
+				row_security_element_list->
+				regular->
+				element_list,
+			edit_table->
+				row_security->
+				row_security_element_list->
+				viewonly->
+				element_list,
+			edit_table->
+				row_security->
+				row_security_role,
+			edit_table->state,
+			edit_table->form_edit_table->trailer_html,
+			edit_table->trailer_html );
 
 	return 0;
 }

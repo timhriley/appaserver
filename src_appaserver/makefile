@@ -187,7 +187,8 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/choose_role.o					\
 		${LIB}/post_choose_role.o				\
 		${LIB}/post_choose_folder.o				\
-		${LIB}/post_choose_process.o
+		${LIB}/post_choose_process.o				\
+		${LIB}/post_edit_table.o
 
 all: 	${EXECUTABLES}
 
@@ -267,15 +268,12 @@ delete_folder_row: delete_folder_row.c					\
 		${LIB}/delete_database.o				\
 		-o delete_folder_row
 
-statistics_folder: statistics_folder.c					\
-	${EXTERNAL_LIBS}						\
-	${LIB}/lookup_before_drop_down.o				\
+statistics_folder: statistics_folder.c ${EXTERNAL_LIBS}		
 	${LIB}/query_statistic.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		${LIB}/query_statistic.o 				\
-		${LIB}/lookup_before_drop_down.o			\
 		statistics_folder.c					\
 		-o statistics_folder
 
@@ -305,13 +303,10 @@ post_ajax_fill_drop_down: post_ajax_fill_drop_down.c			\
 	${APPASERVER_HOME}/src_appaserver/post_ajax_fill_drop_down 	\
 	${CGI_HOME}
 
-post_change_sort_order: post_change_sort_order.c			\
-	${EXTERNAL_LIBS}						\
-	${LIB}/row_security.o
+post_change_sort_order: post_change_sort_order.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/row_security.o			 		\
 		post_change_sort_order.c				\
 		-o post_change_sort_order
 	touch ${CGI_HOME}/post_change_sort_order
@@ -542,15 +537,10 @@ output_insert_table: output_insert_table.c				\
 		${LIB}/pair_one2m.o					\
 		-o output_insert_table
 
-output_edit_table: output_edit_table.c					\
-			${EXTERNAL_LIBS}				\
-			${LIB}/lookup_before_drop_down.o		\
-			${LIB}/row_security.o
+output_edit_table: output_edit_table.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
-		${LIB}/row_security.o					\
 		output_edit_table.c					\
 		-o output_edit_table
 
@@ -772,13 +762,10 @@ create_empty_application: create_empty_application.c			\
 		create_empty_application.c				\
 		-o create_empty_application
 
-post_prompt_edit: post_prompt_edit.c 					\
-		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o
+post_prompt_edit: post_prompt_edit.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
 		post_prompt_edit.c					\
 		-o post_prompt_edit
 	touch ${CGI_HOME}/post_prompt_edit
@@ -931,27 +918,17 @@ post_choose_isa: post_choose_isa.c 					\
 	${APPASERVER_HOME}/src_appaserver/post_choose_isa		\
 	${CGI_HOME}
 
-output_prompt_edit: output_prompt_edit.c 				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
-		${LIB}/row_security.o
+output_prompt_edit: output_prompt_edit.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
-		${LIB}/row_security.o					\
 		output_prompt_edit.c					\
 		-o output_prompt_edit
 
-output_prompt_insert: output_prompt_insert.c 				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
-		${LIB}/pair_one2m.o
+output_prompt_insert: output_prompt_insert.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
-		${LIB}/pair_one2m.o					\
 		output_prompt_insert.c					\
 		-o output_prompt_insert
 	# Called from a window. See output_results.c
@@ -1013,16 +990,10 @@ documentation_list: documentation_list.c				\
 		documentation_list.c					\
 		-o documentation_list
 
-detail: detail.c ${EXTERNAL_LIBS}					\
-			${LIB}/lookup_before_drop_down.o		\
-			${LIB}/row_security.o				\
-			${LIB}/javascript.o
+detail: detail.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
-		${LIB}/row_security.o					\
-		${LIB}/javascript.o					\
 		detail.c						\
 		-o detail
 
@@ -1266,13 +1237,10 @@ fix_orphans: fix_orphans.c						\
 		fix_orphans.c						\
 		-o fix_orphans
 
-output_prompt_process: output_prompt_process.c				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o
+output_prompt_process: output_prompt_process.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/lookup_before_drop_down.o			\
 		output_prompt_process.c					\
 		-o output_prompt_process
 

@@ -11,7 +11,6 @@
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
 #include "application.h"
-#include "session.h"
 #include "post_edit_table.h"
 
 POST_EDIT_TABLE *post_edit_table_new(
@@ -27,6 +26,24 @@ POST_EDIT_TABLE *post_edit_table_new(
 			char *detail_base_folder_name )
 {
 	POST_EDIT_TABLE *post_edit_table = post_edit_table_calloc();
+
+	post_edit_table->target_frame = target_frame;
+	post_edit_table->detail_base_folder_name = detail_base_folder_name;
+
+	post_edit_table->session_folder =
+		/* --------------------------------------------- */
+		/* Sets appaserver environment and outputs argv. */
+		/* Each parameter is security inspected.	 */
+		/* --------------------------------------------- */
+		session_folder_integrity_exit(
+			argc,
+			argv,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_name,
+			state );
 
 	return post_edit_table;
 }

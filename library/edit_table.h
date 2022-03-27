@@ -19,6 +19,7 @@
 #include "session.h"
 #include "form_edit_table.h"
 #include "document.h"
+#include "dictionary_separate.h"
 
 #define EDIT_TABLE_MAX_BACKGROUND_COLOR_ARRAY	10
 #define EDIT_TABLE_OUTPUT_EXECUTABLE		"output_edit_table"
@@ -27,6 +28,7 @@ typedef struct
 {
 	ROLE *role;
 	FOLDER *folder;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	int folder_attribute_date_name_list_length;
 	boolean menu_boolean;
 	FOLDER_MENU *folder_menu;
@@ -42,7 +44,7 @@ typedef struct
 	int cell_update_count;
 	char *cell_update_folder_list_string;
 	char *results_string;
-	char *submit_action_string;
+	char *post_edit_table_action_string;
 	LIST *heading_name_list;
 	char *title_html;
 	char *message_html;
@@ -64,13 +66,8 @@ EDIT_TABLE *edit_table_new(
 			char *role_name,
 			char *folder_name,
 			char *target_frame,
-			boolean menu_boolean,
-			DICTIONARY *query_dictionary,
-			DICTIONARY *ignore_dictionary,
-			DICTIONARY *non_prefixed_dictionary,
-			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *sort_dictionary,
-			LIST *ignore_select_attribute_name_list );
+			boolean menu_horizontal_boolean,
+			DICTIONARY *original_post_dictionary );
 
 /* Process */
 /* ------- */
@@ -140,12 +137,13 @@ char *edit_table_message_html(
 /* ------------------- */
 char *edit_table_html(
 			char *document_html,
-			char *form_edit_table_html );
+			char *document_head_html,
+			char *document_head_close_html,
+			char *document_body_html );
 
 /* Returns heap memory */
 /* ------------------- */
 char *edit_table_trailer_html(
-			char *form_edit_table_trailer_html,
 			char *document_body_close_html,
 			char *document_close_html );
 
@@ -156,18 +154,18 @@ void edit_table_output(
 			char *application_name,
 			char *edit_table_html,
 			char *form_edit_table_html,
-			LIST *row_dictionary_list,
+			LIST *dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *state,
+			char *edit_table_state,
 			char *form_edit_table_trailer_html,
 			char *edit_table_trailer_html );
 
 void edit_table_regular_output(
 			FILE *output_stream,
 			char *application_name,
-			LIST *row_dictionary_list,
+			LIST *dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
@@ -191,7 +189,7 @@ char *edit_table_row_html(
 
 void edit_table_hidden_output(
 			FILE *output_stream,
-			LIST *row_dictionary_list,
+			LIST *dictionary_list,
 			LIST *regular_element_list );
 
 /* Returns heap memory or null */
