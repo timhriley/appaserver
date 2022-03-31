@@ -54,6 +54,7 @@ EDIT_TABLE *edit_table_new(
 	/* Used for convenience */
 	/* -------------------- */
 	ROW_SECURITY_ROLE *row_security_role;
+	LIST *viewonly_element_list;
 
 	if ( ! ( edit_table->role =
 			role_fetch(
@@ -190,7 +191,6 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->post_change_javascript,
 			edit_table->dictionary_separate->drillthru_dictionary,
 			edit_table->primary_keys_non_edit,
-			edit_table->folder->role_operation_list,
 			edit_table->
 				dictionary_separate->
 				ignore_select_attribute_name_list,
@@ -317,6 +317,20 @@ EDIT_TABLE *edit_table_new(
 			target_frame,
 			(char *)0 /* detail_base_folder_name */ );
 
+	if ( edit_table->row_security->row_security_element_list->viewonly )
+	{
+		viewonly_element_list =
+			edit_table->
+				row_security->
+				row_security_element_list->
+				viewonly->
+				element_list;
+	}
+	else
+	{
+		viewonly_element_list = (LIST *)0;
+	}
+
 	edit_table->heading_name_list =
 		/* --------------------------- */
 		/* Returns list of heap memory */
@@ -327,11 +341,13 @@ EDIT_TABLE *edit_table_new(
 				row_security_element_list->
 				regular->
 				element_list,
-			edit_table->
-				row_security->
-				row_security_element_list->
-				viewonly->
-				element_list );
+			viewonly_element_list );
+
+fprintf(
+stderr,
+"%s(): heading_name_list = [%s]\n",
+__FUNCTION__,
+list_display( edit_table->heading_name_list ) );
 
 	edit_table->title_html =
 		/* --------------------- */
@@ -370,7 +386,6 @@ EDIT_TABLE *edit_table_new(
 				      folder_attribute_date_name_list_length ),
 			document_head_javascript_include_string(),
 			(char *)0 /* input_onload_string */ );
-
 
 	edit_table->form_edit_table =
 		/* --------------- */
@@ -436,6 +451,9 @@ int edit_table_row_insert_count(
 {
 	char *row_insert_count;
 
+	if ( dictionary_length( non_prefixed_dictionary ) )
+		return 0;
+
 	if ( ( row_insert_count =
 		dictionary_get(
 			rows_inserted_count_key,
@@ -455,6 +473,9 @@ int edit_table_cell_update_count(
 {
 	char *cell_update_count;
 
+	if ( dictionary_length( non_prefixed_dictionary ) )
+		return 0;
+
 	if ( ( cell_update_count =
 		dictionary_get(
 			columns_updated_key,
@@ -472,6 +493,9 @@ char *edit_table_cell_update_folder_list_string(
 			char *columns_updated_changed_folder_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
+	if ( dictionary_length( non_prefixed_dictionary ) )
+		return (char *)0;
+
 	return
 		dictionary_get(
 			columns_updated_changed_folder_key,
@@ -482,6 +506,9 @@ char *edit_table_results_string(
 			char *results_string_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
+	if ( dictionary_length( non_prefixed_dictionary ) )
+		return (char *)0;
+
 	return
 		dictionary_get(
 			results_string_key,
@@ -908,6 +935,12 @@ void edit_table_output(	FILE *output_stream,
 		edit_table_html,
 		form_edit_table_html );
 
+fprintf(
+stderr,
+"%s(): form_edit_table_html =\n[%s]\n",
+__FUNCTION__,
+form_edit_table_html );
+
 	edit_table_regular_output(
 		output_stream,
 		application_name,
@@ -941,15 +974,9 @@ void edit_table_regular_output(
 	LIST *apply_element_list;
 	char *html;
 	int row_number = 0;
+	char *background_color;
 
 	if ( !list_rewind( dictionary_list ) ) return;
-
-	fprintf(output_stream,
-		"%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		element_table_open_html() );
 
 	do {
 		row_dictionary = list_get( dictionary_list );
@@ -978,7 +1005,8 @@ void edit_table_regular_output(
 				edit_table_row_html(
 					apply_element_list /* in/out */,
 					application_name,
-					edit_table_background_color(),
+					( background_color =
+						edit_table_background_color() ),
 					state,
 					++row_number,
 					row_dictionary ) ) )
@@ -990,6 +1018,14 @@ void edit_table_regular_output(
 				__LINE__ );
 			continue;
 		}
+
+		fprintf(output_stream,
+			"%s\n",
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			element_table_row_html(
+				background_color ) );
 
 		fprintf(output_stream,
 			"%s\n",

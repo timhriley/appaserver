@@ -15,6 +15,7 @@
 #include "element.h"
 #include "radio.h"
 #include "query.h"
+#include "form.h"
 #include "dictionary_separate.h"
 
 /* Constants */
@@ -65,8 +66,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 char *form_edit_table_tag(
 			char *form_edit_table_name,
 			char *post_edit_table_action_string,
-			char *target_frame,
-			char *element_table_open_html );
+			char *target_frame );
 
 LIST *form_edit_table_button_element_list(
 			char *post_change_javascript,
@@ -86,6 +86,7 @@ LIST *form_edit_table_heading_element_list(
 char *form_edit_table_html(
 			char *form_edit_table_tag,
 			char *top_button_element_list_html,
+			char *element_table_open_html,
 			char *sort_checkbox_element_list_html,
 			char *heading_element_list_html );
 
@@ -99,5 +100,16 @@ char *form_edit_table_trailer_html(
 			char *drillthru_dictionary_hidden_html,
 			char *ignore_dictionary_hidden_html,
 			char *form_close_html );
+
+/* Private */
+/* ------- */
+APPASERVER_ELEMENT *form_edit_table_operation_heading_element(
+			char *process_name,
+			char *delete_warning_javascript );
+
+LIST *form_edit_table_operation_element_list(
+			LIST *role_operation_list,
+			boolean viewonly,
+			char *form_delete_warning_javascript );
 
 #endif

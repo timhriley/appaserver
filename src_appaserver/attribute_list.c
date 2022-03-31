@@ -14,31 +14,18 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "boolean.h"
-#include "attribute.h"
+#include "folder_attribute.h"
 
 /* Prototypes */
 /* ---------- */
-void attribute_list_not_dictionary(
-			void );
-
-void attribute_list_attribute_name(
-			char *folder_name );
-
-void attribute_list_folder_attribute(
-			void );
-
-void attribute_name_list_display(
-			LIST *attribute_name_list,
-			boolean with_sort );
+void attribute_name_list_sort(
+			LIST *attribute_name_list );
 
 void attribute_list_with_null(
 			char *folder_name );
 
 void attribute_list_folder(
 			char *folder_name );
-
-void attribute_list_without_folder(
-			void );
 
 /* For <Insert> <Relation>: only attributes for the inserted folder. */
 /* ----------------------------------------------------------------- */
@@ -49,18 +36,17 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 
-	if ( ( application_name =
-		environ_exit_application_name( argv[ 0 ] ) ) ){};
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 /*
-	appaserver_error_starting_argv_append_file(
+	appaserver_error_argv_append_file(
 		argc,
 		argv,
 		application_name );
 */
 
 	/* -------------------------------------------- */
-	/* Usage: attribute_list [folder | with_table]  */
+	/* Usage: attribute_list folder			*/
 	/*    or: attribute_list ignored $dictionary	*/
 	/* -------------------------------------------- */
 
@@ -69,43 +55,24 @@ int main( int argc, char **argv )
 		if ( strcmp( argv[ 2 ], "$dictionary" ) != 0 )
 		{
 			attribute_list_dictionary( argv[ 2 ] );
-			exit( 0 );
 		}
 	}
 	else
 	if ( argc == 2 )
 	{
-		if ( strcmp( argv[ 1 ], "with_table" ) == 0 )
-		{
-			attribute_list_folder_attribute();
-			exit( 0 );
-		}
-		else
-		{
-			attribute_list_attribute_name( argv[ 1 ] );
-			exit( 0 );
-		}
+		attribute_list_folder(
+			argv[ 1 ] /* folder_name */ );
 	}
-
-	attribute_list_without_folder();
 
 	return 0;
 }
 
-void attribute_name_list_display(
-			LIST *attribute_name_list,
-			boolean with_sort )
+void attribute_name_list_sort(
+			LIST *attribute_name_list )
 {
 	FILE *output_pipe;
 
-	if ( with_sort )
-	{
-		output_pipe = popen( "sort -u", "w" );
-	}
-	else
-	{
-		output_pipe = popen( "cat", "w" );
-	}
+	output_pipe = popen( "sort -u", "w" );
 
 	if ( list_rewind( attribute_name_list ) )
 	{
@@ -122,55 +89,13 @@ void attribute_name_list_display(
 
 void attribute_list_folder( char *folder_name )
 {
-	ATTRIBUTE *attribute = attribute_calloc();
-
-	attribute->attribute_list =
-		attribute_list( folder_name );
-
-	attribute_name_list_display(
-		attribute_name_list_extract(
-			attribute->attribute_list ),
-		0 /* not with_sort */ );
-}
-
-void attribute_list_not_dictionary( void )
-{
-	ATTRIBUTE *attribute = attribute_calloc();
-
-	attribute->attribute_list =
-		attribute_list( (char *)0 /* folder_name */ );
-
-	attribute_name_list_display(
-		attribute_name_list_extract(
-			attribute->attribute_list ),
-		1 /* with_sort */ );
-}
-
-void attribute_list_folder_attribute( void )
-{
-	ATTRIBUTE *attribute = attribute_calloc();
-
-	attribute->attribute_list =
-		attribute_list(
-			(char *)0 /* folder_name */  );
-
-	attribute_name_list_display(
-		attribute_folder_attribute_name_list(
-			attribute->attribute_list ),
-		1 /* with_sort */ );
-}
-
-void attribute_list_without_folder( void )
-{
-	ATTRIBUTE *attribute = attribute_calloc();
-
-	attribute->attribute_list =
-		attribute_list( (char *)0 /* folder_name */ );
-
-	attribute_name_list_display(
-		attribute_name_list_extract(
-			attribute->attribute_list ),
-		1 /* with_sort */ );
+	printf( "%s\n",
+		list_display_line(
+			folder_attribute_name_list(
+				folder_attribute_list(
+				   folder_name,
+				   (LIST *)0 /* exclude_attribute... */,
+				   0 /* not fetch_attribute */ ) ) ) );
 }
 
 /* For <Insert> <Relation>: only attributes for the inserted folder. */
@@ -181,7 +106,7 @@ void attribute_list_dictionary( char *dictionary_string )
 	char *results;
 
 	dictionary =
-		dictionary_string_dictionary(
+		dictionary_string_new(
 			dictionary_string );
 
 	if ( ( results =
@@ -196,41 +121,28 @@ void attribute_list_dictionary( char *dictionary_string )
 						"folder",
 						dictionary ) ) )
 			{
-				attribute_list_with_null( results );
-				return;
+				attribute_list_with_null(
+					results /* folder_name */ );
 			}
 		}
 	}
-	attribute_list_not_dictionary();
 }
 
 void attribute_list_with_null( char *folder_name )
 {
-	ATTRIBUTE *attribute = attribute_calloc();
-
-	attribute->attribute_list =
-		attribute_list( folder_name );
+	LIST *attribute_list =
+		folder_attribute_list(
+			folder_name,
+			(LIST *)0 /* exclude_attribute_name_list */,
+			0 /* not fetch_attribute */ );
 
 	list_set(
-		attribute->attribute_list,
-		attribute_new( "null" ) );
+		attribute_list,
+		folder_attribute_new(
+			folder_name,
+			"null" ) );
 
-	attribute_name_list_display(
-		attribute_name_list_extract(
-			attribute->attribute_list ),
-		1 /* with_sort */ );
+	attribute_name_list_sort(
+		folder_attribute_name_list(
+			attribute_list ) );
 }
-
-void attribute_list_attribute_name( char *folder_name )
-{
-	ATTRIBUTE *attribute = attribute_calloc();
-
-	attribute->attribute_list =
-		attribute_list( folder_name );
-
-	attribute_name_list_display(
-		attribute_name_list_extract(
-			attribute->attribute_list ),
-		0 /* not with_sort */ );
-}
-

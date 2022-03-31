@@ -18,6 +18,7 @@
 #include "post_dictionary.h"
 #include "session.h"
 #include "frameset.h"
+#include "document.h"
 #include "edit_table.h"
 
 int main( int argc, char **argv )
@@ -30,6 +31,11 @@ int main( int argc, char **argv )
 	char *target_frame;
 	POST_DICTIONARY *post_dictionary;
 	EDIT_TABLE *edit_table;
+	boolean menu_horizontal_boolean;
+
+	/* For convenience */
+	/* --------------- */
+	LIST *viewonly_element_list;
 
 	application_name = environment_exit_application_name( argv[ 0 ] );
 
@@ -38,10 +44,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr, 
-"Usage: %s session login_name role folder target_frame post_dictionary\n",
+"Usage: %s session login role folder target_frame post_dictionary\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -69,10 +75,10 @@ int main( int argc, char **argv )
 			role_name,
 			folder_name,
 			target_frame,
-			frameset_menu_horizontal(
-				application_name,
-				login_name )
-				/* menu_horizontal_boolean */,
+			( menu_horizontal_boolean =
+				frameset_menu_horizontal(
+					application_name,
+					login_name ) ),
 			post_dictionary->original_post_dictionary );
 
 	if ( !edit_table )
@@ -106,6 +112,22 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	if ( edit_table->row_security->row_security_element_list->viewonly )
+	{
+		viewonly_element_list =
+			edit_table->
+				row_security->
+				row_security_element_list->
+				viewonly->
+				element_list;
+	}
+	else
+	{
+		viewonly_element_list = (LIST *)0;
+	}
+
+	if ( !menu_horizontal_boolean ) document_output_content_type();
+
 	edit_table_output(
 			stdout /* output_stream */,
 			application_name,
@@ -117,11 +139,7 @@ int main( int argc, char **argv )
 				row_security_element_list->
 				regular->
 				element_list,
-			edit_table->
-				row_security->
-				row_security_element_list->
-				viewonly->
-				element_list,
+			viewonly_element_list,
 			edit_table->
 				row_security->
 				row_security_role,

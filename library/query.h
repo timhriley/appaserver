@@ -372,6 +372,8 @@ typedef struct
 QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc(
 			void );
 
+/* Always succeeds */
+/* --------------- */
 QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			char *application_name,
 			char *folder_name,

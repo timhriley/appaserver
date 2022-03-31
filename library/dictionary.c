@@ -598,6 +598,11 @@ char *dictionary_display( DICTIONARY *d )
 	return dictionary_display_delimiter( d, ',' );
 }
 
+DICTIONARY *dictionary_string_new( char *dictionary_string )
+{
+	return dictionary_string_resolve( dictionary_string );
+}
+
 /* Sample: "datatype=salinity&station=BA&grade_1=a" */
 /* ------------------------------------------------ */
 DICTIONARY *dictionary_string_resolve(

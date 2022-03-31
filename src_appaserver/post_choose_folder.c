@@ -85,15 +85,6 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: system_string = [%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-post_choose_folder->system_string );
-m2( application_name, msg );
-}
 	return ( system( post_choose_folder->system_string ) );
 }
 

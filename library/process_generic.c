@@ -596,11 +596,22 @@ PROCESS_GENERIC_VALUE_FOLDER *process_generic_value_folder_fetch(
 
 	free( results );
 
-	value_folder->primary_key_list =
-		folder_fetch_primary_key_list(
-			value_folder->value_folder_name );
-
 	value_folder->post_dictionary = post_dictionary;
+
+	value_folder->folder_attribute_list =
+		folder_attribute_list(
+			value_folder->value_folder_name,
+			(LIST *)0 /* exclude_attribute_name_list */,
+			0 /* not fetch_attribute */ );
+
+	value_folder->folder_attribute_primary_key_list =
+		folder_attribute_primary_key_list(
+			value_folder->folder_attribute_list );
+
+	value_folder->primary_key_list_length =
+		list_length(
+			value_folder->
+				folder_attribute_primary_key_list );
 
 	value_folder->datatype =
 		process_generic_datatype_fetch(
@@ -1175,7 +1186,7 @@ PROCESS_GENERIC *process_generic_fetch(
 				aggregation_sum,
 			process_generic->
 				value_folder->
-				primary_key_list,
+				folder_attribute_primary_key_list,
 			process_generic->
 				value_folder->
 				date_attribute_name,
@@ -1247,7 +1258,7 @@ PROCESS_GENERIC *process_generic_fetch(
 			process_generic_select(
 				process_generic->
 					value_folder->
-					primary_key_list,
+					folder_attribute_primary_key_list,
 				process_generic->
 					value_folder->
 					value_attribute_name ),
@@ -1304,7 +1315,7 @@ PROCESS_GENERIC *process_generic_fetch(
 			process_generic_heading(
 				process_generic->
 					value_folder->
-					primary_key_list,
+					folder_attribute_primary_key_list,
 				process_generic->
 					value_folder->
 					value_attribute_name,

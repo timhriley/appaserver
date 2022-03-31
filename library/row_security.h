@@ -13,8 +13,6 @@
 #include "query.h"
 #include "role.h"
 
-#define ROW_SECURITY_DELETE_WARNING_JAVASCRIPT "timlib_delete_button_warning();"
-
 typedef struct
 {
 	/* Attributes */
@@ -194,7 +192,6 @@ ROW_SECURITY_ELEMENT_LIST_REGULAR *
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
-			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			char *login_name,
 			char *security_entity_where,
@@ -225,7 +222,6 @@ ROW_SECURITY_ELEMENT_LIST_VIEWONLY *
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
-			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			char *security_entity_where,
 			LIST *exclude_lookup_attribute_name_list );
@@ -248,7 +244,6 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
-			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			char *state,
 			char *login_name,
@@ -259,12 +254,6 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			/* Null if not participating */
 			/* ------------------------- */
 			ROW_SECURITY_ROLE *row_security_role );
-
-/* Always returns */
-/* -------------- */
-LIST *row_security_operation_element_list(
-			LIST *role_operation_list,
-			boolean viewonly );
 
 typedef struct
 {
@@ -287,7 +276,6 @@ ROW_SECURITY *row_security_new(
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean edit_table_primary_keys_non_edit,
-			LIST *role_operation_list,
 			LIST *ignore_select_attribute_name_list,
 			char *state,
 			LIST *role_exclude_update_attribute_name_list,

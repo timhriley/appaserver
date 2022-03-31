@@ -273,15 +273,16 @@ unix2dos
 # src_appaserver
 # --------------
 appaserver_user_trigger
-get_appaserver_data_directory
-get_document_root
+appaserver_data_directory
+appaserver_home
+document_root
 sql
 sql_quick
 select
 view_pdf_files
 upgrade-appaserver-database
 clone_application
-get_appaserver_error_directory
+appaserver_error_directory
 post_prompt_insert
 append_reference_number
 insert_mysql
@@ -335,7 +336,7 @@ export_application
 export_application_spreadsheet
 appaserver_folder_list
 attribute_list
-get_appaserver_mount_point
+appaserver_mount_point
 stop_start_mysql_daemon
 detail
 s

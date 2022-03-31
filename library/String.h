@@ -208,8 +208,8 @@ char *string_strncpy(	char *destination,
 			char *source,
 			int count );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *string_in_clause(	LIST *data_list );
 
 int string_length(	char *string );

@@ -305,9 +305,12 @@ ELEMENT_TABLE_OPEN *element_table_open_calloc( void )
 	return table_open;
 }
 
-char *element_table_open_html( void )
+char *element_table_open_html( boolean border_boolean )
 {
-	return "<table border=0>";
+	if ( border_boolean )
+		return "<table border=1>";
+	else
+		return "<table border=0>";
 }
 
 ELEMENT_TABLE_HEADING *element_table_heading_calloc( void )
@@ -381,7 +384,7 @@ char *element_table_row_html( char *background_color )
 	else
 	{
 		sprintf(html,
-			"<tr bgcolor=%s",
+			"<tr bgcolor=%s>",
 			background_color );
 	}
 
@@ -1429,21 +1432,6 @@ ELEMENT_BUTTON *element_button_new(
 	return element_button;
 }
 
-char *element_button_html( char *button_html )
-{
-	if ( !button_html )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: button_html is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return button_html;
-}
-
 char *element_multi_drop_down_move_right_label( void )
 {
 	return "Add ->";
@@ -1793,6 +1781,7 @@ char *appaserver_element_html(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
+
 		return (char *)0;
 	}
 
@@ -1802,7 +1791,10 @@ char *appaserver_element_html(
 		strdup(
 			/* Returns program memory */
 			/* ---------------------- */
-			element_table_open_html() );
+			element_table_open_html(
+				appaserver_element->
+					table_open->
+					border_boolean ) );
 	}
 	else
 	if ( appaserver_element->element_type == table_heading )
@@ -1833,7 +1825,8 @@ char *appaserver_element_html(
 		strdup(
 			/* Returns static memory */
 			/* --------------------- */
-			element_table_row_html( background_color ) );
+			element_table_row_html(
+				background_color ) );
 	}
 	else
 	if ( appaserver_element->element_type == table_close )
@@ -1898,11 +1891,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->prompt_drop_down )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: prompt_drop_down is empty.\n",
+			"Warning in %s/%s()/%d: prompt_drop_down is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		return
@@ -1916,20 +1910,20 @@ char *appaserver_element_html(
 	else
 	if ( appaserver_element->element_type == button )
 	{
-		if ( !appaserver_element->button )
+		if ( !appaserver_element->button
+		||   !appaserver_element->button->button
+		||   !appaserver_element->button->button->html )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: button is empty.\n",
+			"Warning in %s/%s()/%d: button is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_button_html(
-			appaserver_element->button->button->html );
+		return strdup( appaserver_element->button->button->html );
 	}
 	else
 	if ( appaserver_element->element_type == non_edit_text )
@@ -1937,11 +1931,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->non_edit_text )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: non_edit_text is empty.\n",
+			"Warning in %s/%s()/%d: non_edit_text is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		return
@@ -1964,11 +1959,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->hidden )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: hidden is empty.\n",
+			"Warning in %s/%s()/%d: hidden is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		/* Returns heap memory or null */
@@ -1984,11 +1980,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->notepad )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: notepad is empty.\n",
+			"Warning in %s/%s()/%d: notepad is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		/* Returns heap memory or null */
@@ -2016,11 +2013,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->table_data )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: table_data is empty.\n",
+			"Warning in %s/%s()/%d: table_data is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		/* Returns heap memory */
@@ -2035,11 +2033,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->multi_drop_down )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: multi_drop_down is empty.\n",
+			"Warning in %s/%s()/%d: multi_drop_down is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		/* Returns heap memory */
@@ -2070,21 +2069,23 @@ char *appaserver_element_html(
 		if ( !appaserver_element->text )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: text is empty.\n",
+			"Warning in %s/%s()/%d: text is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		if ( !appaserver_element->text->datatype_name )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: datatype_name is empty.\n",
+			"Warning in %s/%s()/%d: datatype_name is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		/* Returns heap memory or null */
@@ -2102,11 +2103,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->password )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: password is empty.\n",
+			"Warning in %s/%s()/%d: password is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		return
@@ -2145,11 +2147,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->upload )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: upload is empty.\n",
+			"Warning in %s/%s()/%d: upload is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		if ( appaserver_element->upload->html )
@@ -2176,6 +2179,9 @@ char *appaserver_element_html(
 		else
 		{
 			return
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			appaserver_element_upload_update_html(
 				appaserver_element->upload,
 				background_color,
@@ -2188,11 +2194,12 @@ char *appaserver_element_html(
 		if ( !appaserver_element->yes_no )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: yes_no is empty.\n",
+			"Warning in %s/%s()/%d: yes_no is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			exit( 1 );
+
+			return (char *)0;
 		}
 
 		/* Returns heap memory or null */
@@ -2212,6 +2219,7 @@ char *appaserver_element_html(
 			__FUNCTION__,
 			__LINE__,
 			appaserver_element->element_type );
+
 		return (char *)0;
 	}
 }
@@ -2336,7 +2344,9 @@ char *element_multi_drop_down_html(
 
 	free( element_html );
 
-	if ( !move_right_button )
+	if ( !move_right_button
+	||   !move_right_button->button
+	||   !move_right_button->button->html )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: move_right_button is empty.\n",
@@ -2349,14 +2359,7 @@ char *element_multi_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		( element_html =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_button_html(
-				move_right_button->button->html ) ) );
-
-	free( element_html );
+		move_right_button->button->html );
 
 	/* ----------------- */
 	/* Create line break */
@@ -2384,7 +2387,9 @@ char *element_multi_drop_down_html(
 	/* Create the move-left button */
 	/* --------------------------- */
 
-	if ( !move_left_button )
+	if ( !move_left_button
+	||   !move_left_button->button
+	||   !move_left_button->button->html )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: move_left_button is empty.\n",
@@ -2397,14 +2402,7 @@ char *element_multi_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		( element_html =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_button_html(
-				move_left_button->button->html ) ) );
-
-	free( element_html );
+		move_left_button->button->html );
 
 	/* -------------------------- */
 	/* Create the empty drop-down */
@@ -2550,21 +2548,28 @@ APPASERVER_ELEMENT *appaserver_element_key_seek(
 
 boolean element_checkbox_checked(
 			char *attribute_name,
+			char *element_name,
 			DICTIONARY *row_dictionary )
 {
 	char *data;
+	char *key;
 
-	if ( !attribute_name )
+	if ( attribute_name )
+		key = attribute_name;
+	else
+		key = element_name;
+
+	if ( !key )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+"ERROR in %s/%s()/%d: both attribute_name and element_name are empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	data = dictionary_get( attribute_name, row_dictionary );
+	data = dictionary_get( key, row_dictionary );
 
 	if ( data && *data == 'y' )
 		return 1;
@@ -3640,7 +3645,8 @@ char *element_password_html(
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		element_table_open_html() );
+		element_table_open_html(
+			0 /* not border_boolean */ ) );
 
 	/* Output the password field */
 	/* ------------------------- */
@@ -3969,6 +3975,7 @@ char *appaserver_element_checkbox_html(
 	checkbox->checked =
 		element_checkbox_checked(
 			checkbox->attribute_name,
+			checkbox->element_name,
 			row_dictionary );
 
 	checkbox->javascript_replace_on_click =
@@ -4002,56 +4009,7 @@ char *appaserver_element_checkbox_html(
 			background_color,
 			checkbox->image_source );
 
-/*
-	if ( checkbox->javascript_replace_on_click )
-	{
-		free( checkbox->javascript_replace_on_click );
-	}
-*/
-
 	return html;
-}
-
-APPASERVER_ELEMENT *appaserver_element_operation_table_heading(
-			char *process_name,
-			char *delete_warning_javascript )
-{
-	APPASERVER_ELEMENT *element;
-	char on_click[ 128 ];
-
-	if ( !process_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: process_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	element =
-		appaserver_element_new(
-			checkbox,
-			(char *)0 /* element_name */ );
-
-	if ( delete_warning_javascript )
-	{
-		sprintf(on_click, 
-			"%s;form_push_button_set_all('%s',0);",
-			delete_warning_javascript,
-			process_name );
-	}
-	else
-	{
-		sprintf(on_click, 
-			"form_push_button_set_all('%s',0);",
-			process_name );
-	}
-
-	element->checkbox->element_name = process_name;
-	element->checkbox->on_click = strdup( on_click );
-
-	return element;
 }
 
 APPASERVER_ELEMENT *appaserver_element_table_heading(

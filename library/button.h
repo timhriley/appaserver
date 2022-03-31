@@ -19,8 +19,6 @@
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	char *html;
 } BUTTON;
 

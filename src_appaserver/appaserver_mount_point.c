@@ -1,4 +1,4 @@
-/* src_appaserver/get_appaserver_mount_point.c				*/
+/* $APPASERVER_HOME/src_appaserver/appaserver_mount_point.c		*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -15,22 +15,22 @@ int main( int argc, char **argv )
 
 	if ( argc ){};
 
-	if ( strcmp( *argv, "get_appaserver_data_directory" ) == 0
-	||   strcmp( *argv, "get_appaserver_data_directory.e" ) == 0 )
+	if ( strcmp( *argv, "appaserver_data_directory" ) == 0
+	||   strcmp( *argv, "appaserver_data_directory.e" ) == 0 )
 	{
 		output =
 		appaserver_parameter_data_directory();
 	}
 	else
-	if ( strcmp( *argv, "get_document_root" ) == 0
-	||   strcmp( *argv, "get_document_root.e" ) == 0 )
+	if ( strcmp( *argv, "document_root" ) == 0
+	||   strcmp( *argv, "document_root.e" ) == 0 )
 	{
 		output =
 		appaserver_parameter_document_root();
 	}
 	else
-	if ( strcmp( *argv, "get_appaserver_error_directory" ) == 0
-	||   strcmp( *argv, "get_appaserver_error_directory.e" ) == 0 )
+	if ( strcmp( *argv, "appaserver_error_directory" ) == 0
+	||   strcmp( *argv, "appaserver_error_directory.e" ) == 0 )
 	{
 		output =
 		appaserver_parameter_error_directory();

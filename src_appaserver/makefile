@@ -12,29 +12,30 @@ CFLAGS=-O3 -s ${WARN}
 LIB=${APPASERVER_HOME}/library
 
 EXECUTABLES=								\
-		post_prompt_insert					\
-		append_reference_number					\
-		insert_mysql						\
+		attribute_list						\
+		sql.e							\
 		post_choose_folder					\
 		random_session						\
-		post_choose_isa						\
 		output_choose_isa					\
 		output_edit_table					\
-		output_insert_table					\
+		post_login						\
+		get_folder_data						\
+		post_login_cloudacus					\
+		post_prompt_insert					\
+		append_reference_number					\
+		output_prompt_process					\
+		post_choose_process					\
+		post_prompt_process					\
 		post_edit_table						\
 		post_insert_table					\
+		post_choose_isa						\
 		post_maintain_user_account				\
-		output_results 						\
-		post_login						\
-		post_login_cloudacus					\
+		output_insert_table					\
+		insert_mysql						\
 		fix_orphans						\
-		get_folder_data						\
 		get_table_name						\
 		dot_process2option_value				\
 		table_rectification					\
-		output_prompt_process					\
-		post_prompt_process					\
-		post_choose_process					\
 		output_email						\
 		output_transmit						\
 		output_grace_chart					\
@@ -64,9 +65,7 @@ EXECUTABLES=								\
 		export_application					\
 		export_application_spreadsheet				\
 		appaserver_folder_list					\
-		attribute_list						\
-		sql.e							\
-		get_appaserver_mount_point				\
+		appaserver_mount_point					\
 		detail							\
 		view_source						\
 		view_diagrams						\
@@ -219,9 +218,11 @@ clean:
 	${CGI_HOME}/post_prompt_process					\
 	${CGI_HOME}/drop_column						\
 	${CGI_HOME}/drop_table						\
-	get_appaserver_error_directory					\
-	get_appaserver_data_directory					\
-	get_document_root						\
+	appaserver_mount_point						\
+	appaserver_data_directory					\
+	document_root							\
+	appaserver_error_directory					\
+	appaserver_home							\
 	sql								\
 	sql_quick							\
 	select								\
@@ -229,34 +230,25 @@ clean:
 	upgrade-appaserver-database					\
 	clone_application
 
-get_appaserver_mount_point: get_appaserver_mount_point.c 		\
+appaserver_mount_point: appaserver_mount_point.c 			\
 	${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		get_appaserver_mount_point.c				\
-		-o get_appaserver_mount_point
-	touch get_appaserver_home.e
-	/bin/rm -f get_appaserver_home.e
-	ln get_appaserver_mount_point get_appaserver_home.e
-	touch get_appaserver_error_directory
-	/bin/rm -f get_appaserver_error_directory
-	ln get_appaserver_mount_point get_appaserver_error_directory
-	touch get_appaserver_error_directory.e
-	/bin/rm -f get_appaserver_error_directory.e
-	ln get_appaserver_mount_point get_appaserver_error_directory.e
-	touch get_document_root
-	/bin/rm -f get_document_root
-	ln get_appaserver_mount_point get_document_root
-	touch get_document_root.e
-	/bin/rm -f get_document_root.e
-	ln get_appaserver_mount_point get_document_root.e
-	touch get_appaserver_data_directory
-	/bin/rm -f get_appaserver_data_directory
-	ln get_appaserver_mount_point get_appaserver_data_directory
-	touch get_appaserver_data_directory.e
-	/bin/rm -f get_appaserver_data_directory.e
-	ln get_appaserver_mount_point get_appaserver_data_directory.e
+		appaserver_mount_point.c				\
+		-o appaserver_mount_point
+	touch appaserver_home
+	/bin/rm -f appaserver_home
+	ln appaserver_mount_point appaserver_home
+	touch appaserver_error_directory
+	/bin/rm -f appaserver_error_directory
+	ln appaserver_mount_point appaserver_error_directory
+	touch document_root
+	/bin/rm -f document_root
+	ln appaserver_mount_point document_root
+	touch appaserver_data_directory
+	/bin/rm -f appaserver_data_directory
+	ln appaserver_mount_point appaserver_data_directory
 
 delete_folder_row: delete_folder_row.c					\
 	${EXTERNAL_LIBS}						\
@@ -329,13 +321,10 @@ post_login: post_login.c ${EXTERNAL_LIBS}				\
 	${APPASERVER_HOME}/src_appaserver/post_login			\
 	${CGI_HOME}
 
-post_login_cloudacus: post_login_cloudacus.c				\
-		${EXTERNAL_LIBS}					\
-		${LIB}/post_login_library.o
+post_login_cloudacus: post_login_cloudacus.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		${LIB}/post_login_library.o				\
 		post_login_cloudacus.c					\
 		-o post_login_cloudacus
 	touch ${CGI_HOME}/post_login_cloudacus

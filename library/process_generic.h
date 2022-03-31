@@ -125,8 +125,8 @@ typedef struct
 	char *value_folder_name;
 	DICTIONARY *post_dictionary;
 
-	/* Process */
-	/* ------- */
+	/* Attributes */
+	/* ---------- */
 	char *datatype_folder_name;
 	char *foreign_folder_name;
 	char *datatype_attribute_name;
@@ -139,7 +139,8 @@ typedef struct
 	boolean datatype_exists_unit;
 	boolean foreign_exists_unit;
 
-	LIST *primary_key_list;
+	LIST *folder_attribute_list;
+	LIST *folder_attribute_primary_key_list;
 	int primary_key_list_length;
 	PROCESS_GENERIC_DATATYPE *datatype;
 	PROCESS_GENERIC_FOREIGN_FOLDER *foreign_folder;

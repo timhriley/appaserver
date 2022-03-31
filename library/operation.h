@@ -20,6 +20,9 @@
 #define OPERATION_ROW_TOTAL_LABEL	"operation_row_total"
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
 
+#define OPERATION_DELETE_WARNING_JAVASCRIPT \
+					"timlib_delete_button_warning();"
+
 typedef struct
 {
 	boolean checked;
@@ -158,6 +161,8 @@ char *operation_system_string(
 OPERATION *operation_parse(
 			char *input );
 
+OPERATION *operation_calloc(
+			void );
 
 boolean operation_output_boolean(
 			char *output_yn );
@@ -172,8 +177,16 @@ char *operation_image_source(
 			boolean operation_delete_boolean,
 			boolean operation_detail_boolean );
 
+/* Returns delete_warning_javascript or null */
+/* ----------------------------------------- */
 char *operation_delete_warning_javascript(
+			char *delete_warning_javascript,
 			boolean operation_delete_boolean );
+
+APPASERVER_ELEMENT *operation_element(
+			char *operation_name,
+			char *operation_image_source,
+			char *operation_delete_warning_javascript );
 
 /* Public */
 /* ------ */
@@ -186,26 +199,6 @@ int operation_row_total(
 			char *operation_name,
 			int highest_index );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *operation_image_source(
-			boolean operation_delete_name,
-			boolean operation_detail_name );
-
-/* Returns program memory or null */
-/* ------------------------------ */
-char *operation_delete_warning_javascript(
-			boolean operation_delete_name );
-
-APPASERVER_ELEMENT *operation_element(
-			char *operation_name,
-			char *operation_image_source,
-			char *operation_delete_warning_javascript );
-
-/* Private */
-/* ------- */
-OPERATION *operation_calloc(
-			void );
 
 #endif
 

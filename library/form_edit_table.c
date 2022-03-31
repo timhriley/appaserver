@@ -70,8 +70,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		form_edit_table_tag(
 			FORM_EDIT_TABLE_NAME,
 			post_edit_table_action_string,
-			target_frame,
-			element_table_open_html() );
+			target_frame );
 
 	form_edit_table->top_button_element_list =
 		form_edit_table_button_element_list(
@@ -83,7 +82,8 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		element_list_html(
-			form_edit_table->top_button_element_list );
+			form_edit_table->
+				top_button_element_list );
 
 	form_edit_table->bottom_button_element_list =
 		form_edit_table_button_element_list(
@@ -95,7 +95,8 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		element_list_html(
-			form_edit_table->bottom_button_element_list );
+			form_edit_table->
+				bottom_button_element_list );
 
 	form_edit_table->sort_checkbox_element_list =
 		form_edit_table_sort_checkbox_element_list(
@@ -146,6 +147,8 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		form_edit_table_html(
 			form_edit_table->tag,
 			form_edit_table->top_button_element_list_html,
+			element_table_open_html(
+				1 /* border_boolean */ ),
 			form_edit_table->sort_checkbox_element_list_html,
 			form_edit_table->heading_element_list_html );
 
@@ -300,13 +303,13 @@ LIST *form_edit_table_sort_checkbox_element_list(
 
 	sprintf( on_click, "push_button_submit('%s')", folder_name );
 
-	/* Create the assend checkboxes */
-	/* ---------------------------- */
 	list_set(
 		element_list,
 		appaserver_element_new(
 			table_row, (char *)0 ) );
 
+	/* Placeholders for the operations */
+	/* ------------------------------- */
 	for(	i = 0;
 		i < operation_list_length;
 		i++ )
@@ -320,6 +323,11 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	list_rewind( edit_table_heading_name_list );
 
 	do {
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
 		sprintf(element_name,
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
@@ -346,6 +354,8 @@ LIST *form_edit_table_sort_checkbox_element_list(
 		appaserver_element_new(
 			table_row, (char *)0 ) );
 
+	/* Placeholders for the operations */
+	/* ------------------------------- */
 	for(	i = 0;
 		i < operation_list_length;
 		i++ )
@@ -359,6 +369,11 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	list_rewind( edit_table_heading_name_list );
 
 	do {
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
 		sprintf(element_name,
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
@@ -384,47 +399,56 @@ LIST *form_edit_table_sort_checkbox_element_list(
 char *form_edit_table_html(
 			char *form_edit_table_tag,
 			char *top_button_element_list_html,
+			char *element_table_open_html,
 			char *sort_checkbox_element_list_html,
 			char *heading_element_list_html )
 {
 	char html[ STRING_64K ];
 	char *ptr = html;
 
-	if ( form_edit_table_tag )
+	if ( !form_edit_table_tag
+	||   !element_table_open_html
+	||   !heading_element_list_html )
 	{
-		ptr += sprintf(
-			ptr,
-			"%s",
-			form_edit_table_tag );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
+
+	ptr += sprintf(
+		ptr,
+		"%s",
+		form_edit_table_tag );
 
 	if ( top_button_element_list_html )
 	{
-		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
-
 		ptr += sprintf(
 			ptr,
-			"%s",
+			"\n%s",
 			top_button_element_list_html );
 	}
 
+	ptr += sprintf(
+		ptr,
+		"\n%s",
+		element_table_open_html );
+
 	if ( sort_checkbox_element_list_html )
 	{
-		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
-
 		ptr += sprintf(
 			ptr,
-			"%s",
+			"\n%s",
 			sort_checkbox_element_list_html );
 	}
 
 	if ( heading_element_list_html )
 	{
-		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
-
 		ptr += sprintf(
 			ptr,
-			"%s",
+			"\n%s",
 			heading_element_list_html );
 	}
 
@@ -519,8 +543,8 @@ LIST *form_edit_table_heading_element_list(
 			LIST *heading_name_list )
 {
 	ROLE_OPERATION *role_operation;
-	char heading_string[ 128 ];
 	APPASERVER_ELEMENT *element;
+	char heading_string[ 128 ];
 	LIST *element_list = list_new();
 
 	list_set(
@@ -571,7 +595,7 @@ LIST *form_edit_table_heading_element_list(
 
 			list_set(
 				element_list,
-				appaserver_element_operation_table_heading(
+				form_edit_table_operation_heading_element(
 					role_operation->
 						operation->
 						process->
@@ -600,16 +624,14 @@ LIST *form_edit_table_heading_element_list(
 char *form_edit_table_tag(
 			char *form_edit_table_name,
 			char *post_edit_table_action_string,
-			char *target_frame,
-			char *element_table_open_html )
+			char *target_frame )
 {
 	char tag[ 1024 ];
 	char *ptr = tag;
 
 	if ( !form_edit_table_name
 	||   !post_edit_table_action_string
-	||   !target_frame
-	||   !element_table_open_html )
+	||   !target_frame )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -635,5 +657,105 @@ char *form_edit_table_tag(
 		target_frame );
 
 	return strdup( tag );
+}
+
+APPASERVER_ELEMENT *form_edit_table_operation_heading_element(
+			char *process_name,
+			char *delete_warning_javascript )
+{
+	APPASERVER_ELEMENT *element;
+	char on_click[ 128 ];
+
+	if ( !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element =
+		appaserver_element_new(
+			checkbox,
+			(char *)0 /* element_name */ );
+
+	if ( delete_warning_javascript )
+	{
+		sprintf(on_click, 
+			"%s;form_push_button_set_all('%s',0);",
+			delete_warning_javascript,
+			process_name );
+	}
+	else
+	{
+		sprintf(on_click, 
+			"form_push_button_set_all('%s',0);",
+			process_name );
+	}
+
+	element->checkbox->element_name = process_name;
+	element->checkbox->on_click = strdup( on_click );
+
+	return element;
+}
+
+LIST *form_edit_table_operation_element_list(
+			LIST *role_operation_list,
+			boolean viewonly,
+			char *form_delete_warning_javascript )
+{
+	LIST *element_list = list_new();
+	ROLE_OPERATION *role_operation;
+	APPASERVER_ELEMENT *element;
+
+	if ( !list_rewind( role_operation_list ) )
+		return element_list;
+
+	do {
+		role_operation = 
+			list_get(
+				role_operation_list );
+
+		list_set(
+			element_list,
+			appaserver_element_new(
+				table_data,
+				(char *)0 /* name */ ) );
+
+		if ( viewonly
+		&&   operation_delete_boolean(
+			role_operation->operation->operation_name ) )
+		{
+			continue;
+		}
+
+		element =
+			appaserver_element_new(
+				checkbox,
+				role_operation->operation->operation_name
+					/* element_name */ );
+
+		element->checkbox->element_name =
+			role_operation->operation->operation_name;
+
+		element->checkbox->prompt_string =
+			role_operation->operation->operation_name;
+
+		if ( operation_delete_boolean(
+			role_operation->
+				operation->
+				operation_name ) )
+		{
+			element->checkbox->on_click =
+				form_delete_warning_javascript;
+		}
+
+		list_set( element_list, element );
+
+	} while( list_next( role_operation_list ) );
+
+	return element_list;
 }
 

@@ -401,11 +401,13 @@ char *operation_image_source(
 		return (char *)0;
 }
 
-char *operation_delete_warning_javascript( boolean delete_boolean )
+char *operation_delete_warning_javascript(
+			char *delete_warning_javascript,
+			boolean delete_boolean )
 {
 	if ( delete_boolean )
 	{
-		return "timlib_delete_button_warning()";
+		return delete_warning_javascript;
 	}
 	else
 	{
@@ -476,10 +478,6 @@ OPERATION *operation_parse( char *input )
 
 	operation->operation_name = strdup( operation_name );
 
-	operation->output_boolean =
-		operation_output_boolean(
-			output_yn );
-
 	operation->process =
 		process_fetch(
 			operation_name,
@@ -498,6 +496,10 @@ OPERATION *operation_parse( char *input )
 		exit( 1 );
 	}
 
+	operation->output_boolean =
+		operation_output_boolean(
+			output_yn );
+
 	operation->delete_boolean =
 		operation_delete_boolean(
 			operation_name );
@@ -512,7 +514,11 @@ OPERATION *operation_parse( char *input )
 			operation->detail_boolean );
 
 	operation->delete_warning_javascript =
+		/* --------------------------------------------------- */
+		/* Returns OPERATION_DELETE_WARNING_JAVASCRIPT or null */
+		/* --------------------------------------------------- */
 		operation_delete_warning_javascript(
+			OPERATION_DELETE_WARNING_JAVASCRIPT,
 			operation->delete_boolean );
 
 	operation->operation_element =

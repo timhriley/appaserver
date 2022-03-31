@@ -72,6 +72,7 @@ typedef struct
 	LIST *folder_attribute_list;
 	LIST *folder_attribute_primary_list;
 	LIST *primary_key_list;
+	LIST *folder_attribute_name_list;
 	LIST *folder_attribute_append_isa_list;
 	LIST *role_folder_list;
 	long int folder_row_count;
@@ -102,7 +103,9 @@ char *folder_primary_where(
 /* Returns heap memory */
 /* ------------------- */
 char *folder_system_string(
-			char *where );
+			char *folder_select,
+			char *folder_table,
+			char *folder_primary_where );
 
 LIST *folder_system_list(
 			char *system_string,
@@ -224,8 +227,5 @@ LIST *folder_delimited_fetch(
 			char *table_name,
 			LIST *attribute_name_list,
 			char *where );
-
-LIST *folder_fetch_primary_key_list(
-			char *folder_name );
 
 #endif

@@ -56,26 +56,18 @@ typedef struct
 	boolean lookup_required;
 } FOLDER_ATTRIBUTE;
 
-/* Operations */
-/* ---------- */
-FOLDER_ATTRIBUTE *folder_attribute_new(
-			char *folder_name,
-			char *attribute_name );
+/* FOLDER_ATTRIBUTE operations */
+/* --------------------------- */
 
-LIST *folder_attribute_fetch_list(
+/* Usage */
+/* ----- */
+LIST *folder_attribute_list(
 			char *escaped_replaced_folder_name,
-			LIST *exclude_attribute_name_list );
+			LIST *exclude_attribute_name_list,
+			boolean fetch_attribute );
 
-/* Returns heap memory */
-/* ------------------- */
-char *folder_attribute_system_string(
-			char *where );
-
-LIST *folder_attribute_system_list(
-			char *system_string );
-
-FOLDER_ATTRIBUTE *folder_attribute_parse(
-			char *input );
+/* Process */
+/* ------- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -83,15 +75,53 @@ char *folder_attribute_where(
 			char *escaped_replaced_folder_name,
 			LIST *exclude_attribute_name_list );
 
-/* External */
-/* -------- */
+/* Returns heap memory */
+/* ------------------- */
+char *folder_attribute_system_string(
+			char *folder_attribute_where,
+			char *folder_attribute_select,
+			char *folder_attribute_table );
+
+LIST *folder_attribute_system_list(
+			char *folder_attribute_system_string,
+			boolean fetch_attribute );
+
+FOLDER_ATTRIBUTE *folder_attribute_parse(
+			char *input,
+			boolean fetch_attribute );
+
+FOLDER_ATTRIBUTE *folder_attribute_new(
+			char *folder_name,
+			char *attribute_name );
+
+FOLDER_ATTRIBUTE *folder_attribute_calloc(
+			void );
+
+/* Public */
+/* ------ */
+LIST *folder_attribute_append_isa_list(
+			LIST *append_isa_list /* in/out */,
+			LIST *relation_mto1_isa_list );
+
+LIST *folder_attribute_name_list(
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_prefixed_name_list(
+			LIST *folder_attribute_list );
+
 LIST *folder_attribute_primary_list(
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_non_primary_list(
 			LIST *folder_attribute_list );
 
 LIST *folder_attribute_primary_key_list(
 			LIST *folder_attribute_list );
 
 LIST *folder_attribute_non_primary_key_list(
+			LIST *folder_attribute_list );
+
+LIST *folder_attribute_number_list(
 			LIST *folder_attribute_list );
 
 LIST *folder_attribute_date_name_list(
@@ -103,27 +133,9 @@ LIST *folder_attribute_time_name_list(
 LIST *folder_attribute_date_time_name_list(
 			LIST *folder_attribute_list );
 
-LIST *folder_attribute_append_isa_list(
-			LIST *append_isa_list /* in/out */,
-			LIST *relation_mto1_isa_list );
-
-LIST *folder_attribute_number_list(
-			LIST *folder_attribute_list );
-
 boolean folder_attribute_exists(
 			char *folder_name,
 			char *attribute_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *folder_attribute_primary_where(
-			char *folder_name,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *folder_attribute_sort_attribute_name(
-			LIST *folder_attribute_list );
 
 FOLDER_ATTRIBUTE *folder_attribute_seek(
 			char *attribute_name,
@@ -133,10 +145,23 @@ FOLDER_ATTRIBUTE *folder_attribute_list_seek(
 			char *attribute_name,
 			LIST *folder_attribute_list );
 
-LIST *folder_attribute_non_primary_list(
+/* Returns heap memory */
+/* ------------------- */
+char *folder_attribute_sort_attribute_name(
 			LIST *folder_attribute_list );
 
-LIST *folder_attribute_name_list(
+/* Returns heap memory */
+/* ------------------- */
+char *folder_attribute_list_display(
 			LIST *folder_attribute_list );
+
+/* Private */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *folder_attribute_primary_where(
+			char *folder_name,
+			char *attribute_name );
 
 #endif

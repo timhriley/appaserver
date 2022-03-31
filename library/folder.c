@@ -50,7 +50,10 @@ char *folder_primary_where(
 	return where;
 }
 
-char *folder_system_string( char *where )
+char *folder_system_string(
+			char *folder_select,
+			char *folder_table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
@@ -58,8 +61,8 @@ char *folder_system_string( char *where )
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		FOLDER_SELECT,
-		FOLDER_TABLE,
+		folder_select,
+		folder_table,
 		where );
 
 	return strdup( system_string );
@@ -147,9 +150,10 @@ FOLDER *folder_parse(	char *input,
 
 	if ( !input || !*input ) return (FOLDER *)0;
 
-	/* See: FOLDER_SELECT_COLUMNS */
-	/* -------------------------- */
+	/* See: FOLDER_SELECT */
+	/* ------------------ */
 	piece( folder_name, SQL_DELIMITER, input, 0 );
+
 	folder = folder_new( strdup( folder_name ) );
 
 	piece( form, SQL_DELIMITER, input, 1 );
@@ -207,9 +211,10 @@ FOLDER *folder_parse(	char *input,
 	if ( fetch_folder_attribute_list )
 	{
 		folder->folder_attribute_list =
-			folder_attribute_fetch_list(
+			folder_attribute_list(
 				folder->folder_name,
-				exclude_attribute_name_list );
+				exclude_attribute_name_list,
+				1 /* fetch_attribute */ );
 
 		folder->folder_attribute_primary_list =
 			folder_attribute_primary_list(
@@ -218,6 +223,10 @@ FOLDER *folder_parse(	char *input,
 		folder->primary_key_list =
 			folder_attribute_primary_key_list(
 				folder->folder_attribute_primary_list );
+
+		folder->folder_attribute_name_list =
+			folder_attribute_name_list(
+				folder->folder_attribute_list );
 	}
 
 	if ( fetch_relation_mto1_non_isa_list )
@@ -411,6 +420,8 @@ FOLDER *folder_fetch(	char *sql_injection_escape_folder_name,
 	folder_parse(
 		string_pipe_fetch(
 			folder_system_string(
+				FOLDER_SELECT,
+				FOLDER_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -511,15 +522,5 @@ boolean folder_non_owner_forbid(
 	return (string_strcmp(
 			row_level_restriction_string,
 			"row_level_non_owner_forbid" ) == 0 );
-}
-
-LIST *folder_fetch_primary_key_list(
-			char *folder_name )
-{
-	return
-	folder_attribute_primary_key_list(
-		folder_attribute_fetch_list(
-			folder_name,
-			(LIST *)0 /* exclude_attribute_name_list */ ) );
 }
 

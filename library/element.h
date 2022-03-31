@@ -75,7 +75,7 @@ enum element_type {	table_open,
 
 typedef struct
 {
-	char *html;
+	boolean border_boolean;
 } ELEMENT_TABLE_OPEN;
 
 /* ELEMENT_TABLE_OPEN operations */
@@ -86,7 +86,7 @@ ELEMENT_TABLE_OPEN *element_table_open_calloc(
 /* Returns program memory */
 /* ---------------------- */
 char *element_table_open_html(
-			void );
+			boolean border_boolean );
 
 typedef struct
 {
@@ -178,6 +178,7 @@ ELEMENT_CHECKBOX *element_checkbox_new(
 /* ------ */
 boolean element_checkbox_checked(
 			char *attribute_name,
+			char *element_name,
 			DICTIONARY *row_dictionary );
 
 /* Returns heap memory or null */
@@ -384,8 +385,6 @@ char *element_drop_down_heading(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	BUTTON *button;
 } ELEMENT_BUTTON;
 
@@ -397,14 +396,6 @@ ELEMENT_BUTTON *element_button_calloc(
 ELEMENT_BUTTON *element_button_new(
 			char *label,
 			char *action_string );
-
-/* Pubic */
-/* ------ */
-
-/* Returns button_html */
-/* -------------------- */
-char *element_button_html(
-			char *button_html );
 
 typedef struct
 {
@@ -970,6 +961,9 @@ APPASERVER_ELEMENT *appaserver_element_key_seek(
 			char *element_key,
 			LIST *element_list );
 
+APPASERVER_ELEMENT *appaserver_element_table_heading(
+			char *heading_string );
+
 /* Returns list of heap memory */
 /* --------------------------- */
 LIST *appaserver_element_heading_name_list(
@@ -1045,15 +1039,6 @@ char *appaserver_element_key_string(
 char *appaserver_element_value(
 			char *key_string,
 			DICTIONARY *row_dictionary );
-
-/* Usage */
-/* ----- */
-APPASERVER_ELEMENT *appaserver_element_operation_table_heading(
-			char *process_name,
-			char *delete_warning_javascript );
-
-APPASERVER_ELEMENT *appaserver_element_table_heading(
-			char *heading_name );
 
 /* Private */
 /* ------- */

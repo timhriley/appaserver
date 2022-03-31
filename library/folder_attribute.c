@@ -13,9 +13,7 @@
 #include "attribute.h"
 #include "folder_attribute.h"
 
-FOLDER_ATTRIBUTE *folder_attribute_new(
-			char *folder_name,
-			char *attribute_name )
+FOLDER_ATTRIBUTE *folder_attribute_calloc( void )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
 
@@ -28,6 +26,15 @@ FOLDER_ATTRIBUTE *folder_attribute_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	return folder_attribute;
+}
+
+FOLDER_ATTRIBUTE *folder_attribute_new(
+			char *folder_name,
+			char *attribute_name )
+{
+	FOLDER_ATTRIBUTE *folder_attribute = folder_attribute_calloc();
 
 	folder_attribute->folder_name = folder_name;
 	folder_attribute->attribute_name = attribute_name;
@@ -47,9 +54,9 @@ char *folder_attribute_where(
 		sprintf(where,
 			"folder = '%s' and attribute not in (%s)",
 			sql_injection_escape_folder_name,
-			/* -------------------------- */
-			/* Safely returns heap memory */
-			/* -------------------------- */
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			( ptr = string_in_clause(
 				exclude_attribute_name_list ) ) );
 		free( ptr );
@@ -64,36 +71,47 @@ char *folder_attribute_where(
 	return strdup( where );
 }
 
-LIST *folder_attribute_fetch_list(
+LIST *folder_attribute_list(
 			char *sql_injection_escape_folder_name,
-			LIST *exclude_attribute_name_list )
+			LIST *exclude_attribute_name_list,
+			boolean fetch_attribute )
 {
 	return
 	folder_attribute_system_list(
 		folder_attribute_system_string(
+			FOLDER_ATTRIBUTE_SELECT,
+			FOLDER_ATTRIBUTE_TABLE,
 			folder_attribute_where(
 				sql_injection_escape_folder_name,
-				exclude_attribute_name_list ) ) );
+				exclude_attribute_name_list ) ),
+		fetch_attribute );
 }
 
-char *folder_attribute_system_string( char *where )
+char *folder_attribute_system_string(
+			char *folder_attribute_select,
+			char *folder_attribute_table,
+			char *where )
 {
-	char system_string[ STRING_WHERE_BUFFER ];
+	char system_string[ 1024 ];
 	char *order;
 
-	order = "ifnull(primary_key_index,0), ifnull(display_order,0)";
+	/* Ironically, this sorts by primary_key_index then display_order */
+	/* -------------------------------------------------------------- */
+	order = "ifnull(display_order,0), ifnull(primary_key_index,0)";
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\" \"%s\"",
-		FOLDER_ATTRIBUTE_SELECT,
-		FOLDER_ATTRIBUTE_TABLE,
+		folder_attribute_select,
+		folder_attribute_table,
 		where,
 		order );
 
 	return strdup( system_string );
 }
 
-LIST *folder_attribute_system_list( char *system_string )
+LIST *folder_attribute_system_list(
+			char *system_string,
+			boolean fetch_attribute )
 {
 	char input[ 1024 ];
 	FILE *pipe;
@@ -104,7 +122,10 @@ LIST *folder_attribute_system_list( char *system_string )
 
 	while ( string_input( input, pipe, 2048 ) )
 	{
-		if ( ( folder_attribute = folder_attribute_parse( input ) ) )
+		if ( ( folder_attribute =
+			folder_attribute_parse(
+				input,
+				fetch_attribute ) ) )
 		{
 			if ( !list ) list = list_new();
 
@@ -116,7 +137,9 @@ LIST *folder_attribute_system_list( char *system_string )
 	return list;
 }
 
-FOLDER_ATTRIBUTE *folder_attribute_parse( char *input )
+FOLDER_ATTRIBUTE *folder_attribute_parse(
+			char *input,
+			boolean fetch_attribute )
 {
 	char folder_name[ 128 ];
 	char attribute_name[ 128 ];
@@ -135,17 +158,19 @@ FOLDER_ATTRIBUTE *folder_attribute_parse( char *input )
 			strdup( folder_name ),
 			strdup( attribute_name ) );
 
-	if ( ! ( folder_attribute->attribute =
-			attribute_fetch(
-				attribute_name ) ) )
+	if ( fetch_attribute )
 	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: attribute_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			attribute_name );
-		exit( 1 );
+		if ( ! ( folder_attribute->attribute =
+				attribute_fetch(
+					attribute_name ) ) )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: attribute_fetch(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				attribute_name );
+		}
 	}
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
@@ -556,6 +581,36 @@ LIST *folder_attribute_non_primary_list(
 	return return_list;
 }
 
+LIST *folder_attribute_prefixed_name_list(
+			LIST *folder_attribute_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	char prefixed_name[ 128 ];
+	LIST *name_list;
+
+	if ( !list_rewind( folder_attribute_list ) ) return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		sprintf(prefixed_name,
+			"%s.%s",
+			folder_attribute->folder_name,
+			folder_attribute->attribute_name );
+
+		list_set(
+			name_list,
+			strdup( prefixed_name ) );
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return name_list;
+}
+
 LIST *folder_attribute_name_list(
 			LIST *folder_attribute_list )
 {
@@ -621,5 +676,46 @@ LIST *folder_attribute_number_list( LIST *folder_attribute_list )
 	} while ( list_next( folder_attribute_list ) );
 
 	return number_list;
+}
+
+char *folder_attribute_list_display( LIST *folder_attribute_list )
+{
+	char display[ STRING_64K ];
+	char *ptr = display;
+	FOLDER_ATTRIBUTE *folder_attribute;
+
+	if ( !list_rewind( folder_attribute_list ) ) return strdup( "" );
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_list );
+
+		if ( ptr != display ) ptr += sprintf( ptr, "\n" );
+
+		ptr += sprintf(
+			ptr,
+			"folder_name = %s; attribute_name = %s;",
+			folder_attribute->folder_name,
+			folder_attribute->attribute_name );
+
+		if ( !folder_attribute->attribute )
+		{
+			ptr += sprintf(
+				ptr,
+				"folder_attribute->attribute is empty." );
+		}
+		else
+		{
+			ptr += sprintf(
+				ptr,
+				"attribute_datatype = %s; width = %d.",
+				folder_attribute->attribute->datatype_name,
+				folder_attribute->attribute->width );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return strdup( display );
 }
 

@@ -11,7 +11,7 @@ update_delay_minutes=180
 
 # First, purge $document_root/appaserver/*/data/
 # ----------------------------------------------
-document_root=`get_document_root.e`
+document_root=`document_root`
 appaserver_directory=${document_root}/appaserver
 
 cd $appaserver_directory
@@ -28,7 +28,7 @@ done
 
 # Second, purge appaserver data temporary files
 # ---------------------------------------------
-appaserver_data_directory=`get_appaserver_data_directory.e`
+appaserver_data_directory=`appaserver_data_directory`
 
 find	$appaserver_data_directory				\
 	-type f							\

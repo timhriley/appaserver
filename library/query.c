@@ -31,7 +31,7 @@ char *query_system_string(
 			char *order_string,
 			int max_rows )
 {
-	char system_string[ STRING_SYSTEM_BUFFER ];
+	char system_string[ STRING_FOUR_MEG ];
 
 	if ( !select_string || !*select_string )
 	{
@@ -63,7 +63,7 @@ char *query_system_string(
 		environment_application_name(),
 		select_string,
 		from_string,
-		(where_string) ? where_string : "",
+		(where_string) ? where_string : "1 = 1",
 		(order_string) ? order_string : "",
 		max_rows );
 
@@ -78,7 +78,7 @@ LIST *query_edit_table_dictionary_list(
 			LIST *relation_join_one2m_list,
 			char *one_folder_name )
 {
-	char buffer[ STRING_WHERE_BUFFER ];
+	char buffer[ STRING_128K ];
 	char data[ STRING_64K ];
 	LIST *list = list_new();
 	DICTIONARY *row_dictionary;
@@ -98,7 +98,7 @@ LIST *query_edit_table_dictionary_list(
 
 	pipe = popen( query_system_string, "r" );
 
-	while( string_input( buffer, pipe, STRING_WHERE_BUFFER ) )
+	while( string_input( buffer, pipe, STRING_128K ) )
 	{
 		i = 0;
 
@@ -2381,6 +2381,9 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			row_security_role_folder_name );
 
 	query_edit_table->where =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
 		query_edit_table_where_new(
 			application_name,
 			folder_name,
@@ -2400,9 +2403,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 		query_system_string(
 			query_edit_table->query_select_list_string,
 			query_edit_table->from_string,
-			(query_edit_table->where)
-				? query_edit_table->where->string
-				: (char *)0,
+			query_edit_table->where->string,
 			query_edit_table->query_order_string,
 			QUERY_EDIT_TABLE_MAX_ROWS );
 
@@ -2415,8 +2416,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 					/* one_folder_primary_key_list */,
 			application_name,
 			relation_join_one2m_list,
-			folder_name
-					/* one_folder_name */ );
+			folder_name /* one_folder_name */ );
 
 	return query_edit_table;
 }
@@ -2835,7 +2835,8 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 	QUERY_EDIT_TABLE_WHERE *where = query_edit_table_where_calloc();
 
 	where->relation_mto1_isa_list_length =
-		list_length( relation_mto1_isa_list );
+		list_length(
+			relation_mto1_isa_list );
 
 	where->query_drop_down_list =
 		query_drop_down_list(
@@ -2889,6 +2890,11 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			where->query_join_where,
 			security_entity_where );
 
+	if ( !where->string )
+	{
+		where->string = "1 = 1";
+	}
+
 	return where;
 }
 
@@ -2898,8 +2904,10 @@ char *query_edit_table_where_string(
 			char *query_join_where,
 			char *security_entity_where )
 {
-	char string[ STRING_FOUR_MEG ];
+	char string[ STRING_THREE_MEG ];
 	char *ptr = string;
+
+	*ptr = '\0';
 
 	if ( query_drop_down_list_where )
 	{
@@ -4254,7 +4262,10 @@ char *query_join_where(
 		free( primary_folder_table_name );
 	}
 
-	return strdup( where );
+	if ( where == ptr )
+		return (char *)0;
+	else
+		return strdup( where );
 }
 
 char *query_join_relation_where(

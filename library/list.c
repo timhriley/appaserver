@@ -593,6 +593,26 @@ char *list_delimited( LIST *list, char delimiter )
 	return strdup( buffer );
 }
 
+char *list_display_line( LIST *list )
+{
+	char buffer[ 65536 ];
+	char *ptr = buffer;
+
+	if ( !list_rewind( list ) ) return "";
+
+	do {
+		if ( ptr != buffer )
+		{
+			ptr += sprintf( ptr, "\n" );
+		}
+
+		ptr += sprintf( ptr, "%s", (char *)list_get( list ) );
+
+	} while( next_item( list ) );
+
+	return strdup( buffer );
+}
+
 char *list_display_string_delimited(
 			LIST *list,
 			char *delimited_string )

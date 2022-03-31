@@ -32,6 +32,9 @@ DICTIONARY *dictionary_huge();
 DICTIONARY *dictionary_super();
 DICTIONARY *dictionary_duper();
 
+DICTIONARY *dictionary_string_new(
+			char *dictionary_string );
+
 DICTIONARY *dictionary_string_resolve(
 			char *dictionary_string );
 

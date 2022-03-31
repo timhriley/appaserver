@@ -16,15 +16,13 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "session.h"
 #include "query.h"
 #include "name_arg.h"
+#include "folder.h"
+#include "folder_attribute.h"
 #include "appaserver.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 void setup_arg(		NAME_ARG *arg, int argc, char **argv );
 
 void fetch_parameters(	char **application_name,
@@ -37,10 +35,14 @@ void fetch_parameters(	char **application_name,
 			char **maxrows,
 			NAME_ARG *arg );
 
+char *get_multible_table_names(	char *application_name,
+			char *multi_folder_name_list_string );
+
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *folder_name;
+	char *table_name;
 	char *select;
 	char *order_clause;
 	char *group_clause;
@@ -48,18 +50,16 @@ int main( int argc, char **argv )
 	char *maxrows = {0};
 	long maxrows_long = 0L;
 	char *where_clause;
-	char system_string[ QUERY_WHERE_BUFFER ];
+	char system_string[ STRING_128K ];
 	char order_by_clause[ 4096 ];
 	char group_by_clause[ 4096 ];
-	char where_clause_escaped[ QUERY_WHERE_BUFFER ];
-	LIST *attribute_name_list, *primary_name_list;
-	char *table_name;
+	char where_clause_escaped[ STRING_64K ];
 	FOLDER *folder;
 	char sql_executable[ 128 ];
-        NAME_ARG *arg = init_arg( argv[ 0 ] );
 	long row_access_count = 0L;
-	char input_buffer[ MAX_INPUT_LINE ];
+	char input_buffer[ STRING_64K ];
 	FILE *input_pipe;
+        NAME_ARG *arg = init_arg( argv[ 0 ] );
 
 	/* appaserver_error_stderr( argc, argv ); */
 
@@ -87,85 +87,101 @@ int main( int argc, char **argv )
 
 	if ( maxrows && *maxrows ) maxrows_long = atol( maxrows );
 
-	environ_set_environment(
-		APPASERVER_DATABASE_ENVIRONMENT_VARIABLE,
-		application_name );
-
-	add_dot_to_path();
-	add_utility_to_path();
-	add_src_appaserver_to_path();
+	session_environment_set( application_name );
 
 	if( strcmp( select, "primary" ) == 0 )
 	{
-		folder = folder_new_folder(
-					application_name,
-					BOGUS_SESSION,
-					folder_name );
+		if ( ! ( folder = folder_quick_fetch( folder_name ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_quick_fetch(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				folder_name );
+			exit( 1 );
+		}
 
-		folder->attribute_list =
-			attribute_get_attribute_list(
-				application_name,
+		folder->folder_attribute_list =
+			folder_attribute_list(
 				folder_name,
-				(char *)0 /* attribute_name */,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				(char *)0 /* role_name */ );
+				(LIST *)0 /* exclude_attribute_name_list */,
+				1 /* fetch_attribute */ );
 
-		primary_name_list = 
-			folder_get_primary_key_list(
-				folder->attribute_list );
+		folder->primary_key_list =
+			folder_attribute_primary_key_list(
+				folder->folder_attribute_list );
 
-		if ( !list_length( primary_name_list ) )
+		if ( !list_length( folder->primary_key_list ) )
 		{
 			char msg[ 1024 ];
+
 			sprintf( msg, 
-"ERROR %s/%s(): got blank primary attribute name list for folder = (%s)",
+		"ERROR %s/%s(): blank primary_key_list for folder = (%s)",
 				 __FILE__,
 				 __FUNCTION__,
 				 folder->folder_name );
+
 			appaserver_output_error_message(
-				application_name, msg, (char *)0 );
+				application_name,
+				msg,
+				(char *)0 );
+
 			exit( 1 );
 		}
 
 		select = 
-			list2comma_string( primary_name_list );
+			list_display_delimited(
+				folder->primary_key_list,
+				',' );
 	}
 	else
 	if ( strcmp( select, "*" ) == 0
 	||  strcmp( select, "all" ) == 0 )
 	{
-		folder = folder_new_folder(
-					application_name,
-					BOGUS_SESSION,
-					folder_name );
-
-		folder->attribute_list =
-			attribute_get_attribute_list(
-				application_name,
-				folder_name,
-				(char *)0 /* attribute_name */,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				(char *)0 /* role_name */ );
-
-		attribute_name_list = 
-			folder_get_attribute_name_list(
-				folder->attribute_list );
-
-		if ( !list_length( attribute_name_list ) )
+		if ( ! ( folder = folder_quick_fetch( folder_name ) ) )
 		{
-			char msg[ 1024 ];
-			sprintf( msg, 
-	"ERROR %s/%s(): got blank attribute name list for folder = (%s)",
-				 __FILE__,
-				 __FUNCTION__,
-				 folder->folder_name );
-			appaserver_output_error_message(
-				application_name, msg, (char *)0 );
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_quick_fetch(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				folder_name );
 			exit( 1 );
 		}
 
-		select =
-			list2comma_string( attribute_name_list );
+		folder->folder_attribute_list =
+			folder_attribute_list(
+				folder_name,
+				(LIST *)0 /* exclude_attribute_name_list */,
+				1 /* fetch_attribute */ );
+
+		folder->folder_attribute_name_list =
+			folder_attribute_name_list(
+				folder->folder_attribute_list );
+
+		if ( !list_length( folder->folder_attribute_name_list ) )
+		{
+			char msg[ 1024 ];
+
+			sprintf( msg, 
+	"ERROR %s/%s(): blank folder_attribute_name_list for folder = (%s)",
+				 __FILE__,
+				 __FUNCTION__,
+				 folder->folder_name );
+
+			appaserver_output_error_message(
+				application_name,
+				msg,
+				(char *)0 );
+
+			exit( 1 );
+		}
+
+		select = 
+			list_display_delimited(
+				folder->folder_attribute_name_list,
+				',' );
 	}
 	else
 	if( strcmp( select, "count" ) == 0 )
@@ -188,7 +204,9 @@ int main( int argc, char **argv )
 	escape_dollar_sign( where_clause_escaped );
 
 	if ( !*where_clause_escaped )
+	{
 		strcpy( where_clause_escaped, "1 = 1" );
+	}
 
 	/* Set group by clause */
 	/* ------------------- */
@@ -237,7 +255,10 @@ int main( int argc, char **argv )
 				SQL_DELIMITER );
 	}
 
-	table_name = get_multiple_table_names( application_name, folder_name );
+	table_name =
+		get_multiple_table_names(
+			application_name,
+			folder_name );
 
 	if ( !*table_name )
 	{
@@ -252,14 +273,19 @@ int main( int argc, char **argv )
 	if ( !select )
 	{
 		char msg[ 1024 ];
+
 		sprintf( msg, 
 			 "ERROR: %s/%s(%s,%s) has no select clause\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 application_name,
 			 folder_name );
+
 		appaserver_output_error_message(
-			application_name, msg, (char *)0 );
+			application_name,
+			msg,
+			(char *)0 );
+
 		exit( 1 );
 	}
 
@@ -284,14 +310,14 @@ fprintf( stderr, "%s\n", system_string );
 
 	input_pipe = popen( system_string, "r" );
 
-	while( timlib_get_line( input_buffer, input_pipe, MAX_INPUT_LINE ) )
+	while( string_input( input_buffer, input_pipe, STRING_64K ) )
 	{
 		row_access_count++;
 
 		if ( maxrows_long
 		&&   row_access_count > maxrows_long )
 		{
-			char msg[ MAX_INPUT_LINE ];
+			char msg[ STRING_64K ];
 
 			printf(
 "Warning: Output truncated. Max rows of %ld exceeded\n", maxrows_long );
@@ -304,6 +330,7 @@ fprintf( stderr, "%s\n", system_string );
 				 maxrows_long,
 				 table_name,
 				 where_clause_escaped );
+
 			m2( application_name, msg );
 
 			pclose( input_pipe );
@@ -379,5 +406,31 @@ void setup_arg( NAME_ARG *arg, int argc, char **argv )
         set_default_value( arg, ticket, "" );
 
         ins_all( arg, argc, argv );
+}
+
+char *get_multible_table_names(	char *application_name,
+				char *multi_folder_name_list_string )
+{
+	char multi_table_name[ 1024 ];
+	char *ptr = multi_table_name;
+	char folder_name[ 128 ];
+	char *table_name;
+	int i;
+
+	for(	i = 0;
+		piece(	folder_name,
+			',',
+			multi_folder_name_list_string,
+			i );
+		i++ )
+	{
+		if ( i ) ptr += sprintf( ptr, "," );
+		table_name = get_table_name( application_name, folder_name );
+		ptr += sprintf( ptr, "%s", table_name );
+		free( table_name );
+	}
+
+	return strdup( multi_table_name );
+
 }
 
