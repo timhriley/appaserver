@@ -443,9 +443,7 @@ LIST *generic_load_choose_form_element_list(
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
 			0 /* not output_select_option */,
-			element_drop_down_display_size(
-				list_length(
-					role_folder_insert_name_list ) ),
+			1 /* display_size */,
 			-1 /* tab order */,
 			0 /* not multi_select */,
 			(char *)0 /* post_change_javascript */,

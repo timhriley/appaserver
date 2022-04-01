@@ -322,7 +322,8 @@ FOLDER *folder_parse(	char *input,
 			role_operation_list(
 				folder_name,
 				role_name,
-				1 /* fetch_operation */ );
+				1 /* fetch_operation */,
+				0 /* not fetch_process */ );
 	}
 
 	return folder;

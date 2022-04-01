@@ -94,7 +94,6 @@ char *form_edit_table_html(
 /* ------------------- */
 char *form_edit_table_trailer_html(
 			char *bottom_button_element_list_html,
-			char *element_table_close_html,
 			char *query_dictionary_hidden_html,
 			char *sort_dictionary_hidden_html,
 			char *drillthru_dictionary_hidden_html,
@@ -103,8 +102,8 @@ char *form_edit_table_trailer_html(
 
 /* Private */
 /* ------- */
-APPASERVER_ELEMENT *form_edit_table_operation_heading_element(
-			char *process_name,
+APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
+			char *operation_name,
 			char *delete_warning_javascript );
 
 LIST *form_edit_table_operation_element_list(

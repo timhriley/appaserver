@@ -937,11 +937,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 			1 /* output_null_option */,
 			1 /* output_not_null_option */,
 			1 /* output_select_option */,
-			element_drop_down_display_size(
-				list_length(
-					row_security_relation->
-						query_widget->
-						delimited_list ) ),
+			1 /* display_size */,
 			-1 /* tab_order */,
 			0 /* not multi_select */,
 			post_change_javascript,
@@ -1136,6 +1132,33 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 				non_edit_text;
 	}
 	else
+	/* -------------------------- */
+	/* Must preceed check if text */
+	/* -------------------------- */
+	if ( attribute_is_yes_no( attribute_name ) )
+	{
+		row_security_attribute->attribute_appaserver_element =
+			appaserver_element_new(
+				yes_no,
+				attribute_name );
+
+		free( row_security_attribute->
+			attribute_appaserver_element->
+			yes_no );
+
+		row_security_attribute->
+			attribute_appaserver_element->
+			yes_no =
+				element_yes_no_new(
+					attribute_name,
+					(char *)0 /* element_name */,
+					0 /* not output_null_option */,
+					0 /* not output_not_null_option */,
+					post_change_javascript,
+					-1 /* tab_order */,
+					0 /* not recall */ );
+	}
+	else
 	if ( attribute_is_text( datatype_name )
 	||   attribute_is_number( datatype_name ) )
 	{
@@ -1196,35 +1219,6 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 			row_security_attribute->
 				attribute_appaserver_element->
 				notepad;
-	}
-	else
-	if ( attribute_is_yes_no( attribute_name ) )
-	{
-		row_security_attribute->attribute_appaserver_element =
-			appaserver_element_new(
-				checkbox,
-				attribute_name );
-
-		free( row_security_attribute->
-			attribute_appaserver_element->
-			checkbox );
-
-		row_security_attribute->
-			attribute_appaserver_element->
-			checkbox =
-				element_checkbox_new(
-					attribute_name,
-					(char *)0 /* element_name */,
-					(char *)0 /* prompt_string */,
-					post_change_javascript /* on_click */,
-					-1 /* tab_order */,
-					(char *)0 /* image_source */,
-					0 /* not recall */ );
-
-		row_security_attribute->element_checkbox =
-			row_security_attribute->
-				attribute_appaserver_element->
-				checkbox;
 	}
 	else
 	if ( attribute_is_password( datatype_name ) )

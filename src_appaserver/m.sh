@@ -4,6 +4,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make output_group
+	make output_edit_table
 fi
 

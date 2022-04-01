@@ -134,8 +134,8 @@ char *element_drop_down_html(
 			boolean output_not_null_option,
 			boolean output_select_option,
 			int display_size,
-			boolean multi_select,
 			int tab_order,
+			boolean multi_select,
 			char *javascript_replace,
 			char *background_color )
 {
@@ -160,10 +160,10 @@ char *element_drop_down_html(
 		drop_down_name,
 		drop_down_name );
 
-	if ( display_size )
-	{
+	if ( display_size > 1 )
 		ptr += sprintf( ptr, " size=%d", display_size );
-	}
+	else
+		ptr += sprintf( ptr, " size=1" );
 
 	if ( multi_select ) ptr += sprintf( ptr, " multiple" );
 
@@ -413,54 +413,6 @@ char *element_table_close_html( void )
 	return "</table>";
 }
 
-#ifdef NOT_DEFINED
-APPASERVER_ELEMENT *element_yes_no(
-			char *element_name,
-			char *post_change_javascript,
-			boolean with_is_null,
-			boolean with_not_null )
-{
-	APPASERVER_ELEMENT *element;
-	LIST *delimited_list = list_new();
-
-	list_set(
-		delimited_list,
-		"yes" );
-
-	list_set(
-		delimited_list,
-		"no" );
-
-	if ( with_is_null )
-	{
-		list_set(
-			delimited_list,
-			ELEMENT_NULL_OPERATOR );
-	}
-
-	if ( with_not_null )
-	{
-		list_set(
-			delimited_list,
-			ELEMENT_NOT_NULL_OPERATOR );
-	}
-
-	element =
-		appaserver_element_new(
-			drop_down );
-
-	element->drop_down->many_folder_name = element_name;
-
-	if ( post_change_javascript && *post_change_javascript )
-	{
-		element->drop_down->post_change_javascript =
-			post_change_javascript;
-	}
-
-	return element;
-}
-#endif
-
 char *appaserver_element_javascript(
 			char *javascript,
 			char *state,
@@ -705,15 +657,6 @@ int appaserver_element_tab_order( int tab_order )
 	if ( tab_order == -1 ) return -1;
 
 	return tab_order + 1;
-}
-
-int element_drop_down_display_size(
-			int delimited_list_length )
-{
-	if ( delimited_list_length == 0 || delimited_list_length > 5 )
-		return 1;
-	else
-		return delimited_list_length;
 }
 
 LIST *element_drop_down_display_list(
@@ -1066,8 +1009,8 @@ char *element_prompt_drop_down_html(
 			boolean output_not_null_option,
 			boolean output_select_option,
 			int display_size,
-			boolean multi_select,
 			int tab_order,
+			boolean multi_select,
 			char *javascript_replace )
 {
 	char html[ STRING_64K ];
@@ -1091,10 +1034,10 @@ char *element_prompt_drop_down_html(
 		element_name,
 		element_name );
 
-	if ( display_size )
-	{
+	if ( display_size > 1 )
 		ptr += sprintf( ptr, " size=%d", display_size );
-	}
+	else
+		ptr += sprintf( ptr, " size=1" );
 
 	if ( multi_select ) ptr += sprintf( ptr, " multiple" );
 
@@ -1527,7 +1470,7 @@ char *element_table_data_html(
 			boolean align_right,
 			int column_span )
 {
-	char html[ 128 ];
+	static char html[ 128 ];
 	char *ptr = html;
 
 	ptr += sprintf( ptr, "<td" );
@@ -1537,14 +1480,14 @@ char *element_table_data_html(
 		ptr += sprintf( ptr, " align=right" );
 	}
 
-	if ( column_span )
+	if ( column_span > 1 )
 	{
 		ptr += sprintf( ptr, " colspan=%d", column_span );
 	}
 
 	ptr += sprintf( ptr, ">" );
 
-	return strdup( html );
+	return html;
 }
 
 char *appaserver_element_list_html( LIST *appaserver_element_list )
@@ -1588,7 +1531,8 @@ char *appaserver_element_list_row_dictionary_html(
 	do {
 		appaserver_element = list_get( appaserver_element_list );
 
-		if ( appaserver_element->hidden ) continue;
+		if ( appaserver_element->element_type == hidden )
+			continue;
 
 		if ( ! ( element_html =
 				/* --------------------------- */
@@ -1626,7 +1570,10 @@ char *appaserver_element_list_row_dictionary_html(
 
 	} while ( list_next( appaserver_element_list ) );
 
-	return strdup( html );
+	if ( ptr == html )
+		return (char *)0;
+	else
+		return strdup( html );
 }
 
 char *appaserver_element_list_hidden_html(
@@ -1639,20 +1586,23 @@ char *appaserver_element_list_hidden_html(
 	char *ptr = html;
 	char *element_html;
 
-	if ( !list_rewind( appaserver_element_list ) )
-	{
-		fprintf(stderr,
-		"Warning in %s/%s()/%d: appaserver_element_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (char *)0;
-	}
+	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
 
 	do {
 		appaserver_element = list_get( appaserver_element_list );
 
-		if ( !appaserver_element->hidden ) continue;
+		if ( appaserver_element->element_type != hidden )
+			continue;
+
+		if ( !appaserver_element->hidden )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: hidden is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
 		if ( ! ( element_html =
 				/* --------------------------- */
@@ -1684,7 +1634,10 @@ char *appaserver_element_list_hidden_html(
 
 	} while ( list_next( appaserver_element_list ) );
 
-	return strdup( html );
+	if ( ptr == html )
+		return (char *)0;
+	else
+		return strdup( html );
 }
 
 #ifdef NOT_DEFINED
@@ -2021,11 +1974,13 @@ char *appaserver_element_row_dictionary_html(
 			return (char *)0;
 		}
 
-		/* Returns heap memory */
-		/* ------------------- */
-		return element_table_data_html(
-			appaserver_element->table_data->align_right,
-			appaserver_element->table_data->column_span );
+		return
+		strdup(
+			/* Returns static memory */
+			/* --------------------- */
+			element_table_data_html(
+				appaserver_element->table_data->align_right,
+				appaserver_element->table_data->column_span ) );
 	}
 	else
 	if ( appaserver_element->element_type == multi_drop_down )
@@ -2189,6 +2144,7 @@ char *appaserver_element_row_dictionary_html(
 				application_name );
 		}
 	}
+	else
 	if ( appaserver_element->element_type == yes_no )
 	{
 		if ( !appaserver_element->yes_no )
@@ -2334,15 +2290,12 @@ char *element_multi_drop_down_html(
 	ptr += sprintf(
 		ptr,
 		"%s\n",
-		( element_html =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_table_data_html(
-				table_data->align_right,
-				table_data->column_span ) ) );
-
-	free( element_html );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		element_table_data_html(
+			table_data->align_right,
+			table_data->column_span ) );
 
 	if ( !move_right_button
 	||   !move_right_button->button
@@ -2910,13 +2863,9 @@ char *appaserver_element_prompt_drop_down_html(
 		prompt_drop_down->output_null_option,
 		prompt_drop_down->output_not_null_option,
 		prompt_drop_down->output_select_option,
-		(prompt_drop_down->display_size)
-			? prompt_drop_down->display_size
-			: element_drop_down_display_size(
-				list_length(
-					prompt_drop_down->delimited_list ) ),
-		prompt_drop_down->multi_select,
+		prompt_drop_down->display_size,
 		prompt_drop_down->tab_order,
+		prompt_drop_down->multi_select,
 		javascript_replace(
 			prompt_drop_down->post_change_javascript,
 			state,
@@ -2974,13 +2923,9 @@ char *appaserver_element_drop_down_html(
 		drop_down->output_null_option,
 		drop_down->output_not_null_option,
 		drop_down->output_select_option,
-		(drop_down->display_size)
-			? drop_down->display_size
-			: element_drop_down_display_size(
-				list_length(
-					drop_down->delimited_list ) ),
-		0 /* not multi_select */,
+		drop_down->display_size,
 		drop_down->tab_order,
+		0 /* not multi_select */,
 		/* ----------------------------- */
 		/* Returns static memory or null */
 		/* ----------------------------- */
@@ -4109,6 +4054,9 @@ char *appaserver_element_yes_no_html(
 			int row_number,
 			DICTIONARY *row_dictionary )
 {
+	char *html;
+	char *tmp;
+
 	if ( !yes_no )
 	{
 		fprintf(stderr,
@@ -4119,7 +4067,7 @@ char *appaserver_element_yes_no_html(
 		exit( 1 );
 	}
 
-	return
+	html =
 	/* --------------------------- */
 	/* Returns heap memory or null */
 	/* --------------------------- */
@@ -4137,12 +4085,16 @@ char *appaserver_element_yes_no_html(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		javascript_replace(
-			yes_no->post_change_javascript,
-			state,
-			row_number ),
+		( tmp = javascript_replace(
+				yes_no->post_change_javascript,
+				state,
+				row_number ) ),
 		yes_no->tab_order,
 		background_color );
+
+	if ( tmp ) free( tmp );
+
+	return html;
 }
 
 ELEMENT_YES_NO *element_yes_no_new(
@@ -4383,4 +4335,3 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc( void )
 
 	return element_drop_down;
 }
-

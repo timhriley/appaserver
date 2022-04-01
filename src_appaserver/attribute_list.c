@@ -34,11 +34,11 @@ void attribute_list_dictionary(
 
 int main( int argc, char **argv )
 {
-	char *application_name;
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
+	environ_exit_application_name( argv[ 0 ] );
 
 /*
+	char *application_name;
 	appaserver_error_argv_append_file(
 		argc,
 		argv,

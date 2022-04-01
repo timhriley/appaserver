@@ -77,13 +77,16 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			post_change_javascript,
 			0 /* dictionary_list_length */ );
 
-	form_edit_table->top_button_element_list_html =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		appaserver_element_list_html(
-			form_edit_table->
-				top_button_element_list );
+	if ( dictionary_list_length > 10 )
+	{
+		form_edit_table->top_button_element_list_html =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_list_html(
+				form_edit_table->
+					top_button_element_list );
+	}
 
 	form_edit_table->bottom_button_element_list =
 		form_edit_table_button_element_list(
@@ -155,10 +158,6 @@ FORM_EDIT_TABLE *form_edit_table_new(
 	form_edit_table->trailer_html =
 		form_edit_table_trailer_html(
 			form_edit_table->bottom_button_element_list_html,
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
-			element_table_close_html(),
 			form_edit_table->query_dictionary_hidden_html,
 			form_edit_table->sort_dictionary_hidden_html,
 			form_edit_table->drillthru_dictionary_hidden_html,
@@ -457,7 +456,6 @@ char *form_edit_table_html(
 
 char *form_edit_table_trailer_html(
 			char *bottom_button_element_list_html,
-			char *element_table_close_html,
 			char *query_dictionary_hidden_html,
 			char *sort_dictionary_hidden_html,
 			char *drillthru_dictionary_hidden_html,
@@ -473,16 +471,6 @@ char *form_edit_table_trailer_html(
 			ptr,
 			"%s",
 			bottom_button_element_list_html );
-	}
-
-	if ( element_table_close_html )
-	{
-		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
-
-		ptr += sprintf(
-			ptr,
-			"%s",
-			element_table_close_html );
 	}
 
 	if ( query_dictionary_hidden_html )
@@ -567,16 +555,6 @@ LIST *form_edit_table_heading_element_list(
 				exit( 1 );
 			}
 
-			if ( !role_operation->operation->process )
-			{
-				fprintf(stderr,
-				"ERROR in %s/%s()/%d: process is empty.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
 			list_set(
 				element_list,
 				( element =
@@ -590,16 +568,14 @@ LIST *form_edit_table_heading_element_list(
 						heading_string,
 						role_operation->
 						    operation->
-						    process->
-						    process_name ) );
+						    operation_name ) );
 
 			list_set(
 				element_list,
-				form_edit_table_operation_heading_element(
+				form_edit_table_operation_checkbox_element(
 					role_operation->
 						operation->
-						process->
-						process_name,
+						operation_name,
 					role_operation->
 						operation->
 						delete_warning_javascript ) );
@@ -659,17 +635,17 @@ char *form_edit_table_tag(
 	return strdup( tag );
 }
 
-APPASERVER_ELEMENT *form_edit_table_operation_heading_element(
-			char *process_name,
+APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
+			char *operation_name,
 			char *delete_warning_javascript )
 {
 	APPASERVER_ELEMENT *element;
 	char on_click[ 128 ];
 
-	if ( !process_name )
+	if ( !operation_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			"ERROR in %s/%s()/%d: operation_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -686,16 +662,16 @@ APPASERVER_ELEMENT *form_edit_table_operation_heading_element(
 		sprintf(on_click, 
 			"%s;form_push_button_set_all('%s',0);",
 			delete_warning_javascript,
-			process_name );
+			operation_name );
 	}
 	else
 	{
 		sprintf(on_click, 
 			"form_push_button_set_all('%s',0);",
-			process_name );
+			operation_name );
 	}
 
-	element->checkbox->element_name = process_name;
+	element->checkbox->element_name = operation_name;
 	element->checkbox->on_click = strdup( on_click );
 
 	return element;

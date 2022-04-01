@@ -16,7 +16,8 @@
 LIST *role_operation_list(
 			char *folder_name,
 			char *role_name,
-			boolean fetch_operation )
+			boolean fetch_operation,
+			boolean fetch_process )
 {
 	return
 	role_operation_system_list(
@@ -32,7 +33,8 @@ LIST *role_operation_list(
 			role_operation_where(
 				folder_name,
 				role_name ) ),
-		fetch_operation );
+		fetch_operation,
+		fetch_process );
 }
 
 ROLE_OPERATION *role_operation_calloc( void )
@@ -68,7 +70,8 @@ ROLE_OPERATION *role_operation_new(
 
 ROLE_OPERATION *role_operation_parse(
 			char *input,
-			boolean fetch_operation )
+			boolean fetch_operation,
+			boolean fetch_process )
 {
 	ROLE_OPERATION *role_operation;
 	char folder_name[ 128 ];
@@ -94,7 +97,7 @@ ROLE_OPERATION *role_operation_parse(
 		role_operation->operation =
 			operation_fetch(
 				operation_name,
-				0 /* not fetch_process */ );
+				fetch_process );
 	}
 
 	return role_operation;
@@ -120,7 +123,8 @@ char *role_operation_system_string(
 
 LIST *role_operation_system_list(
 			char *system_string,
-			boolean fetch_operation )
+			boolean fetch_operation,
+			boolean fetch_process )
 {
 	char input[ 1024 ];
 	FILE *pipe;
@@ -134,7 +138,8 @@ LIST *role_operation_system_list(
 		if ( ( role_operation =
 			role_operation_parse(
 				input,
-				fetch_operation ) ) )
+				fetch_operation,
+				fetch_process ) ) )
 		{
 			if ( !list ) list = list_new();
 			list_set( list, role_operation );

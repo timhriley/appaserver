@@ -277,7 +277,7 @@ EDIT_TABLE *edit_table_new(
 		list_length(
 			edit_table->
 				query_edit_table->
-				dictionary_list );
+				row_dictionary_list );
 
 	edit_table->row_insert_count =
 		edit_table_row_insert_count(
@@ -343,12 +343,6 @@ EDIT_TABLE *edit_table_new(
 				regular->
 				element_list,
 			viewonly_element_list );
-
-fprintf(
-stderr,
-"%s(): heading_name_list = [%s]\n",
-__FUNCTION__,
-list_display( edit_table->heading_name_list ) );
 
 	edit_table->title_html =
 		/* --------------------- */
@@ -685,7 +679,13 @@ char *edit_table_row_html(
 
 			ptr += sprintf(
 				ptr,
-				"%s\n",
+				"%s%s\n",
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				element_table_data_html(
+					0 /* not align_right */,
+					1 /* column_span */ ),
 				html );
 
 			free( html );
@@ -1054,6 +1054,13 @@ void edit_table_output(	FILE *output_stream,
 		row_security_role,
 		edit_table_state );
 
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		element_table_close_html() );
+
 	edit_table_hidden_output(
 		output_stream,
 		row_dictionary_list,
@@ -1084,14 +1091,6 @@ void edit_table_apply_output(
 	int list_len = list_length( row_dictionary_list );
 
 	if ( !list_len ) return;
-
-	fprintf(output_stream,
-		"%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		element_table_open_html(
-			1 /* border_boolean */ ) );
 
 	for(	list_rewind( row_dictionary_list ), row_number = 1;
 		row_number <= list_len;
@@ -1154,13 +1153,6 @@ void edit_table_apply_output(
 
 		free( html );
 	}
-
-	fprintf(output_stream,
-		"%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		element_table_close_html() );
 }
 
 void edit_table_hidden_output(
@@ -1296,15 +1288,7 @@ boolean edit_table_viewonly(
 {
 	char *data;
 
-	if ( !attribute_not_null )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: attribute_not_null is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !attribute_not_null ) return 0;
 
 	data =
 		dictionary_get(

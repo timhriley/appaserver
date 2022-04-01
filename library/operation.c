@@ -595,19 +595,28 @@ char *operation_html(	ELEMENT_CHECKBOX *checkbox,
 		exit( 1 );
 	}
 
-	if ( !checkbox->prompt_string )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: checkbox->prompt_string is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	*prompt_display = '\0';
 
-	string_initial_capital(
-		prompt_display,
-		checkbox->prompt_string );
+	if ( checkbox->prompt_string )
+	{
+		string_initial_capital(
+			prompt_display,
+			checkbox->prompt_string );
+	}
+	else
+	if ( checkbox->attribute_name  )
+	{
+		string_initial_capital(
+			prompt_display,
+			checkbox->attribute_name );
+	}
+	else
+	if ( checkbox->element_name  )
+	{
+		string_initial_capital(
+			prompt_display,
+			checkbox->element_name );
+	}
 		
 	if ( delete_mask_boolean ) return strdup( prompt_display );
 

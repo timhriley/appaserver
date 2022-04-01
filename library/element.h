@@ -254,8 +254,8 @@ char *element_prompt_drop_down_html(
 			boolean output_not_null_option,
 			boolean output_select_option,
 			int display_size,
-			boolean multi_select,
 			int tab_order,
+			boolean multi_select,
 			char *javascript_replace );
 
 /* Returns heap memory */
@@ -327,9 +327,6 @@ char *element_drop_down_value(
 char *element_drop_down_name(
 			LIST *attribute_name_list,
 			int row_number );
-
-int element_drop_down_display_size(
-			int delimited_list_length );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -508,8 +505,8 @@ ELEMENT_TABLE_DATA *element_table_data_new(
 			boolean align_right,
 	 		int column_span );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *element_table_data_html(
 			boolean align_right,
 			int column_span );

@@ -122,9 +122,7 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 			0 /* not output_null_option */,
 			0 /* not output_not_null_option */,
 			1 /* output_select_option */,
-			element_drop_down_display_size(
-				list_length(
-					role_name_list ) ),
+			1 /* display_size */,
 			-1 /* tab order */,
 			0 /* not multi_select */,
 			form_choose_role->onchange_javascript

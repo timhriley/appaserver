@@ -33,7 +33,8 @@ typedef struct
 LIST *role_operation_list(
 			char *folder_name,
 			char *role_name,
-			boolean fetch_operation );
+			boolean fetch_operation,
+			boolean fetch_process );
 
 /* Process */
 /* ------- */
@@ -53,11 +54,13 @@ char *role_operation_system_string(
 
 LIST *role_operation_system_list(
 			char *role_operation_system_string,
-			boolean fetch_operation );
+			boolean fetch_operation,
+			boolean fetch_process );
 
 ROLE_OPERATION *role_operation_parse(
 			char *input,
-			boolean fetch_operation );
+			boolean fetch_operation,
+			boolean fetch_process );
 
 ROLE_OPERATION *role_operation_new( 
 			char *folder_name,
