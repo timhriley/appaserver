@@ -879,7 +879,7 @@ char *element_checkbox_html(
 			char *element_name,
 			char *prompt_display,
 			boolean checked,
-			char *on_click,
+			char *javascript_replace,
 			int tab_order,
 			char *background_color,
 			char *image_source )
@@ -915,12 +915,12 @@ char *element_checkbox_html(
 		"<input name=\"%s\" type=checkbox value=y",
 		element_name );
 
-	if ( on_click && *on_click )
+	if ( javascript_replace && *javascript_replace )
 	{
 		ptr += sprintf(
 			ptr,
 			" onClick=\"%s\"",
-			on_click );
+			javascript_replace );
 	}
 
 	if ( tab_order > 0 )
@@ -1547,13 +1547,13 @@ char *element_table_data_html(
 	return strdup( html );
 }
 
-char *element_list_html( LIST *appaserver_element_list )
+char *appaserver_element_list_html( LIST *appaserver_element_list )
 {
 	return
 	/* --------------------------- */
 	/* Returns heap memory or null */
 	/* --------------------------- */
-	appaserver_element_list_html(
+	appaserver_element_list_row_dictionary_html(
 		appaserver_element_list,
 		(char *)0 /* application_name */,
 		(char *)0 /* background_color */,
@@ -1562,7 +1562,7 @@ char *element_list_html( LIST *appaserver_element_list )
 		(DICTIONARY *)0 /* row_dictionary */ );
 }
 
-char *appaserver_element_list_html(
+char *appaserver_element_list_row_dictionary_html(
 			LIST *appaserver_element_list /* in/out */,
 			char *application_name,
 			char *background_color,
@@ -1571,7 +1571,7 @@ char *appaserver_element_list_html(
 			DICTIONARY *row_dictionary )
 {
 	APPASERVER_ELEMENT *appaserver_element;
-	char html[ STRING_FOUR_MEG ];
+	char html[ STRING_ONE_MEG ];
 	char *ptr = html;
 	char *element_html;
 
@@ -1594,7 +1594,7 @@ char *appaserver_element_list_html(
 				/* --------------------------- */
 				/* Returns heap memory or null */
 				/* --------------------------- */
-				appaserver_element_html(
+				appaserver_element_row_dictionary_html(
 					appaserver_element /* in/out */,
 					application_name,
 					background_color,
@@ -1603,7 +1603,7 @@ char *appaserver_element_list_html(
 					row_dictionary ) ) )
 		{
 			fprintf(stderr,
-	"Warning in %s/%s()/%d: appaserver_element_html(%d) returned empty.\n",
+"Warning in %s/%s()/%d: appaserver_element_row_dictionary_html(%d) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
@@ -1629,7 +1629,7 @@ char *appaserver_element_list_html(
 	return strdup( html );
 }
 
-char *appaserver_element_hidden_list_html(
+char *appaserver_element_list_hidden_html(
 			LIST *appaserver_element_list /* in/out */,
 			int row_number,
 			DICTIONARY *row_dictionary )
@@ -1658,7 +1658,7 @@ char *appaserver_element_hidden_list_html(
 				/* --------------------------- */
 				/* Returns heap memory or null */
 				/* --------------------------- */
-				appaserver_element_html(
+				appaserver_element_row_dictionary_html(
 					appaserver_element /* in/out */,
 					(char *)0 /* application_name */,
 					(char *)0 /* background_color */,
@@ -1667,7 +1667,7 @@ char *appaserver_element_hidden_list_html(
 					row_dictionary ) ) )
 		{
 			fprintf(stderr,
-	"Warning in %s/%s()/%d: appaserver_element_html(%d) returned empty.\n",
+"Warning in %s/%s()/%d: appaserver_element_row_dictionary_html(%d) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
@@ -1766,7 +1766,7 @@ char *appaserver_element_heading_name( char *element_name )
 	return strdup( heading_name );
 }
 
-char *appaserver_element_html(
+char *appaserver_element_row_dictionary_html(
 			APPASERVER_ELEMENT *appaserver_element /* in/out */,
 			char *application_name,
 			char *background_color,

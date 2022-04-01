@@ -208,7 +208,7 @@ char *form_choose_role_html(
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			element_list_html( element_list ) ) )
+			appaserver_element_list_html( element_list ) ) )
 	{
 		fprintf(stderr,
 "Warning in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",

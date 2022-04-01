@@ -886,7 +886,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			element_list_html(
+			appaserver_element_list_html(
 				form_prompt_edit_element_list->
 					element_list ) ) )
 	{

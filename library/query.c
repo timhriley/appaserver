@@ -70,7 +70,7 @@ char *query_system_string(
 	return strdup( system_string );
 }
 
-LIST *query_edit_table_dictionary_list(
+LIST *query_edit_table_row_dictionary_list(
 			char *query_system_string,
 			LIST *query_select_name_list,
 			LIST *one_folder_primary_key_list,
@@ -2407,8 +2407,8 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			query_edit_table->query_order_string,
 			QUERY_EDIT_TABLE_MAX_ROWS );
 
-	query_edit_table->dictionary_list =
-		query_edit_table_dictionary_list(
+	query_edit_table->row_dictionary_list =
+		query_edit_table_row_dictionary_list(
 			query_edit_table->query_system_string,
 			query_edit_table->query_select_name_list,
 			folder_attribute_primary_key_list(

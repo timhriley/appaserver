@@ -147,14 +147,15 @@ char *edit_table_trailer_html(
 			char *document_body_close_html,
 			char *document_close_html );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 void edit_table_output(
 			FILE *output_stream,
 			char *application_name,
 			char *edit_table_html,
 			char *form_edit_table_html,
-			LIST *dictionary_list,
+			LIST *role_operation_list,
+			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
@@ -162,14 +163,15 @@ void edit_table_output(
 			char *form_edit_table_trailer_html,
 			char *edit_table_trailer_html );
 
-void edit_table_regular_output(
+void edit_table_apply_output(
 			FILE *output_stream,
 			char *application_name,
-			LIST *dictionary_list,
+			LIST *role_operation_list,
+			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *state );
+			char *edit_table_state );
 
 LIST *edit_table_apply_element_list(
 			LIST *regular_element_list,
@@ -177,27 +179,46 @@ LIST *edit_table_apply_element_list(
 			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role );
 
+LIST *edit_table_operation_element_html_list(
+			LIST *role_operation_list,
+			int row_number,
+			ROW_SECURITY_ROLE *row_security_role );
+
 /* Returns heap memory or null */
 /* --------------------------- */
 char *edit_table_row_html(
 			LIST *edit_table_apply_element_list /* in/out */,
+			LIST *row_operation_list,
 			char *application_name,
 			char *edit_table_background_color,
+			ROW_SECURITY_ROLE *row_security_role,
 			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary );
 
+/* Usage */
+/* ----- */
 void edit_table_hidden_output(
 			FILE *output_stream,
-			LIST *dictionary_list,
-			LIST *regular_element_list );
+			LIST *row_dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *edit_table_hidden_row_html(
-			LIST *regular_element_list /* in/out */,
-			int row_number,
-			DICTIONARY *row_dictionary );
+/* Process */
+/* ------- */
+
+/* Private */
+/* ------- */
+char **edit_table_background_color_array(
+			int *background_color_array_length );
+
+char *edit_table_background_color(
+			void );
+
+
+boolean edit_table_viewonly(
+			DICTIONARY *row_dictionary,
+			char *row_security_role_update_attribute_not_null );
 
 /* Public */
 /* ------ */
@@ -213,48 +234,5 @@ char *edit_table_output_system_string(
 			char *target_frame,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
-
-/* Private */
-/* ------- */
-char **edit_table_background_color_array(
-			int *background_color_array_length );
-
-char *edit_table_background_color(
-			void );
-
-boolean edit_table_viewonly(
-			DICTIONARY *row_dictionary,
-			char *row_security_role_update_attribute_not_null );
-
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *target_frame;
-	char *detail_base_folder_name;
-
-	/* Process */
-	/* ------- */
-	SESSION_FOLDER *session_folder;
-} EDIT_TABLE_POST;
-
-/* EDIT_TABLE_POST operations */
-/* -------------------------- */
-EDIT_TABLE_POST *edit_table_post_calloc(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-EDIT_TABLE_POST *edit_table_post_new(
-			int argc,
-			char **argv,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *state,
-			char *target_frame,
-			char *detail_base_folder_name );
 
 #endif

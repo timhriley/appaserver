@@ -133,7 +133,8 @@ int main( int argc, char **argv )
 			application_name,
 			edit_table->html,
 			edit_table->form_edit_table->html,
-			edit_table->query_edit_table->dictionary_list,
+			edit_table->folder->role_operation_list,
+			edit_table->query_edit_table->row_dictionary_list,
 			edit_table->
 				row_security->
 				row_security_element_list->

@@ -342,19 +342,9 @@ char *form_choose_isa_html(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		( tmp1 = appaserver_element_list_html(
-				element_list,
-				(char *)0 /* application_name */,
-				(char *)0 /* background_color */,
-				(char *)0 /* state */,
-				0 /* row_number */,
-				(DICTIONARY *)0 /* row_dictionary */ ) ),
+				element_list ) ),
 		( tmp2 = appaserver_element_list_html(
-				button_element_list,
-				(char *)0 /* application_name */,
-				(char *)0 /* background_color */,
-				(char *)0 /* state */,
-				0 /* row_number */,
-				(DICTIONARY *)0 /* row_dictionary */ ) ),
+				button_element_list ) ),
 		form_close_html );
 
 		free( tmp1 );

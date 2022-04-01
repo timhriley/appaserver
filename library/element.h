@@ -194,7 +194,7 @@ char *element_checkbox_html(
 			char *element_name,
 			char *prompt_display,
 			boolean element_checkbox_checked,
-			char *javascript_replace_on_click,
+			char *javascript_replace,
 			int tab_order,
 			char *background_color,
 			char *image_source );
@@ -992,7 +992,7 @@ char *appaserver_element_name(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *appaserver_element_list_html(
+char *appaserver_element_list_row_dictionary_html(
 			LIST *appaserver_element_list /* in/out */,
 			char *application_name,
 			char *background_color,
@@ -1002,7 +1002,7 @@ char *appaserver_element_list_html(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *appaserver_element_hidden_list_html(
+char *appaserver_element_list_hidden_html(
 			LIST *appaserver_element_list /* in/out */,
 			int row_number,
 			DICTIONARY *row_dictionary );
@@ -1050,7 +1050,7 @@ char *appaserver_element_heading_name(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *appaserver_element_html(
+char *appaserver_element_row_dictionary_html(
 			APPASERVER_ELEMENT *appaserver_element /* in/out */,
 			char *application_name,
 			char *background_color,
@@ -1126,7 +1126,7 @@ char *appaserver_element_yes_no_html(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *element_list_html(
+char *appaserver_element_list_html(
 			LIST *appaserver_element_list );
 
 boolean appaserver_element_recall_boolean(

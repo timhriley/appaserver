@@ -163,12 +163,7 @@ char *form_element_list_html(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		appaserver_element_list_html(
-			element_list /* in/out */,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ ) ) )
+			element_list /* in/out */ ) ) )
 	{ 
 		sprintf(html,
 			"%s\n%s\n%s",

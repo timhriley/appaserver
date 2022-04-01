@@ -482,12 +482,7 @@ char *generic_load_choose_form_element_list_html(
 	/* Returns heap memory */
 	/* ------------------- */
 	appaserver_element_list_html(
-			element_list /* in/out */,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ );
+			element_list /* in/out */ );
 }
 
 char *generic_load_choose_form_html(
@@ -2356,13 +2351,7 @@ char *generic_load_folder_element_list_html(
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
-	appaserver_element_list_html(
-			element_list /* in/out */,
-			(char *)0 /* application_name */,
-			(char *)0 /* background_color */,
-			(char *)0 /* state */,
-			0 /* row_number */,
-			(DICTIONARY *)0 /* row_dictionary */ );
+	appaserver_element_list_html( element_list /* in/out */ );
 }
 
 boolean generic_load_folder_forbid(

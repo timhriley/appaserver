@@ -415,7 +415,9 @@ char *operation_delete_warning_javascript(
 	}
 }
 
-OPERATION *operation_fetch( char *operation_name )
+OPERATION *operation_fetch(
+			char *operation_name,
+			boolean fetch_process )
 {
 	if ( !operation_name || !*operation_name )
 	{
@@ -429,7 +431,8 @@ OPERATION *operation_fetch( char *operation_name )
 				OPERATION_SELECT,
 				OPERATION_TABLE,
 				operation_primary_where(
-					operation_name ) ) ) );
+					operation_name ) ) ),
+		fetch_process );
 }
 
 char *operation_primary_where( char *operation_name )
@@ -467,7 +470,9 @@ char *operation_system_string(
 	return system_string;
 }
 
-OPERATION *operation_parse( char *input )
+OPERATION *operation_parse(
+			char *input,
+			boolean fetch_process )
 {
 	OPERATION *operation = operation_calloc();
 	char operation_name[ 128 ];
@@ -478,22 +483,25 @@ OPERATION *operation_parse( char *input )
 
 	operation->operation_name = strdup( operation_name );
 
-	operation->process =
-		process_fetch(
-			operation_name,
-			(char *)0 /* document_root_directory */,
-			(char *)0 /* relative_source_directory */,
-			1 /* check_executable_inside_filesystem */ );
-
-	if ( !operation->process )
+	if ( fetch_process )
 	{
-		fprintf(stderr,
+		operation->process =
+			process_fetch(
+				operation_name,
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
+				1 /* check_executable_inside_filesystem */ );
+	
+		if ( !operation->process )
+		{
+			fprintf(stderr,
 		"ERROR in %s/%s()/%d: process_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			operation_name );
-		exit( 1 );
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				operation_name );
+			exit( 1 );
+		}
 	}
 
 	operation->output_boolean =
@@ -521,7 +529,7 @@ OPERATION *operation_parse( char *input )
 			OPERATION_DELETE_WARNING_JAVASCRIPT,
 			operation->delete_boolean );
 
-	operation->operation_element =
+	operation->appaserver_element =
 		operation_element(
 			operation_name,
 			operation->image_source,
@@ -567,5 +575,60 @@ APPASERVER_ELEMENT *operation_element(
 			0 /* not recall */ );
 
 	return element;
+}
+
+char *operation_html(	ELEMENT_CHECKBOX *checkbox,
+			char *state,
+			int row_number,
+			char *background_color,
+			boolean delete_mask_boolean )
+{
+	char prompt_display[ 128 ];
+
+	if ( !checkbox )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: checkbox is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !checkbox->prompt_string )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: checkbox->prompt_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	string_initial_capital(
+		prompt_display,
+		checkbox->prompt_string );
+		
+	if ( delete_mask_boolean ) return strdup( prompt_display );
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	element_checkbox_html(
+		(checkbox->element_name)
+			? checkbox->element_name
+			: appaserver_element_name(
+				checkbox->attribute_name,
+				row_number ),
+		prompt_display,
+		0 /* not element_checkbox_checked */,
+		javascript_replace(
+			checkbox->on_click,
+			state,
+			row_number ),
+		checkbox->tab_order,
+		background_color,
+		checkbox->image_source );
 }
 

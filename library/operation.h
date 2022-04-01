@@ -132,7 +132,7 @@ typedef struct
 	boolean detail_boolean;
 	char *image_source;
 	char *delete_warning_javascript;
-	APPASERVER_ELEMENT *operation_element;
+	APPASERVER_ELEMENT *appaserver_element;
 } OPERATION;
 
 /* OPERATION operations */
@@ -141,7 +141,8 @@ typedef struct
 /* Usage */
 /* ----- */
 OPERATION *operation_fetch(
-			char *operation_name );
+			char *operation_name,
+			boolean fetch_process );
 
 /* Process */
 /* ------- */
@@ -159,7 +160,8 @@ char *operation_system_string(
 			char *operation_primary_where );
 
 OPERATION *operation_parse(
-			char *input );
+			char *input,
+			boolean fetch_process );
 
 OPERATION *operation_calloc(
 			void );
@@ -190,9 +192,14 @@ APPASERVER_ELEMENT *operation_element(
 
 /* Public */
 /* ------ */
-char *operation_html(
-			APPASERVER_ELEMENT *operation_element,
-			int row_number );
+
+/* Returns heap memory */
+/* ------------------- */
+char *operation_html(	ELEMENT_CHECKBOX *checkbox,
+			char *state,
+			int row_number,
+			char *background_color,
+			boolean delete_mask_boolean );
 
 int operation_row_total(
 			DICTIONARY *row_dictionary,

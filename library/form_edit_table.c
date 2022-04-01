@@ -81,7 +81,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		element_list_html(
+		appaserver_element_list_html(
 			form_edit_table->
 				top_button_element_list );
 
@@ -94,7 +94,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		element_list_html(
+		appaserver_element_list_html(
 			form_edit_table->
 				bottom_button_element_list );
 
@@ -108,7 +108,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		element_list_html(
+		appaserver_element_list_html(
 			form_edit_table->sort_checkbox_element_list );
 
 	form_edit_table->heading_element_list =
@@ -120,7 +120,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		element_list_html(
+		appaserver_element_list_html(
 			form_edit_table->heading_element_list );
 
 	form_edit_table->query_dictionary_hidden_html =

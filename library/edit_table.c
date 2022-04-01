@@ -19,6 +19,7 @@
 #include "application_constants.h"
 #include "appaserver.h"
 #include "post_edit_table.h"
+#include "role_operation.h"
 #include "edit_table.h"
 
 EDIT_TABLE *edit_table_calloc( void )
@@ -599,23 +600,129 @@ LIST *edit_table_apply_element_list(
 
 char *edit_table_row_html(
 			LIST *apply_element_list,
+			LIST *role_operation_list,
 			char *application_name,
 			char *background_color,
+			ROW_SECURITY_ROLE *row_security_role,
 			char *state,
 			int row_number,
 			DICTIONARY *row_dictionary )
 {
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	appaserver_element_list_html(
+	ROLE_OPERATION *role_operation;
+	char row_html[ STRING_ONE_MEG ];
+	char *ptr = row_html;
+	char *html;
+
+	if ( list_rewind( role_operation_list ) )
+	{
+		do {
+			role_operation =
+				list_get(
+					role_operation_list );
+
+			if ( !role_operation->operation )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: operation is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( !role_operation->operation->appaserver_element )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: appaserver_element is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( !role_operation->
+				operation->
+				appaserver_element->
+				checkbox )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: checkbox is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			html =
+			    operation_html(
+				    role_operation->
+					    operation->
+					    appaserver_element->
+					    checkbox,
+				    state,
+				    row_number,
+				    background_color,
+				    edit_table_viewonly(
+					    row_dictionary,
+					    (row_security_role)
+						? row_security_role->
+						     attribute_not_null
+						: (char *)0 )
+						/* delete_mask_boolean */ );
+
+			if ( !html )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: operation_html(%s) returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					role_operation->
+						operation->
+						operation_name );
+				exit( 1 );
+			}
+
+			ptr += sprintf(
+				ptr,
+				"%s\n",
+				html );
+
+			free( html );
+
+		} while ( list_next( role_operation_list ) );
+	}
+
+	html =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		appaserver_element_list_row_dictionary_html(
 			apply_element_list /* in/out */,
 			application_name,
 			background_color,
 			state,
 			row_number,
 			row_dictionary );
+
+	if ( !html )
+	{
+		fprintf(stderr,
+"Warning in %s/%s()/%d: appaserver_element_list_row_dictionary_html() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+	}
+	else
+	{
+		ptr += sprintf( ptr, "%s\n", html );
+		free( html );
+	}
+
+	if ( ptr == row_html )
+		return (char *)0;
+	else
+		return strdup( row_html );
 }
 
 char *edit_table_background_color( void )
@@ -909,7 +1016,8 @@ void edit_table_output(	FILE *output_stream,
 			char *application_name,
 			char *edit_table_html,
 			char *form_edit_table_html,
-			LIST *dictionary_list,
+			LIST *role_operation_list,
+			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
@@ -919,6 +1027,7 @@ void edit_table_output(	FILE *output_stream,
 {
 	if ( !edit_table_html
 	||   !form_edit_table_html
+	||   !edit_table_state
 	||   !form_edit_table_trailer_html
 	||   !edit_table_trailer_html )
 	{
@@ -935,16 +1044,11 @@ void edit_table_output(	FILE *output_stream,
 		edit_table_html,
 		form_edit_table_html );
 
-fprintf(
-stderr,
-"%s(): form_edit_table_html =\n[%s]\n",
-__FUNCTION__,
-form_edit_table_html );
-
-	edit_table_regular_output(
+	edit_table_apply_output(
 		output_stream,
 		application_name,
-		dictionary_list,
+		role_operation_list,
+		row_dictionary_list,
 		regular_element_list,
 		viewonly_element_list,
 		row_security_role,
@@ -952,8 +1056,9 @@ form_edit_table_html );
 
 	edit_table_hidden_output(
 		output_stream,
-		dictionary_list,
-		regular_element_list );
+		row_dictionary_list,
+		regular_element_list,
+		viewonly_element_list );
 
 	fprintf(output_stream,
 		"%s\n%s\n",
@@ -961,10 +1066,11 @@ form_edit_table_html );
 		edit_table_trailer_html );
 }
 
-void edit_table_regular_output(
+void edit_table_apply_output(
 			FILE *output_stream,
 			char *application_name,
-			LIST *dictionary_list,
+			LIST *role_operation_list,
+			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
@@ -973,13 +1079,25 @@ void edit_table_regular_output(
 	DICTIONARY *row_dictionary;
 	LIST *apply_element_list;
 	char *html;
-	int row_number = 0;
+	int row_number;
 	char *background_color;
+	int list_len = list_length( row_dictionary_list );
 
-	if ( !list_rewind( dictionary_list ) ) return;
+	if ( !list_len ) return;
 
-	do {
-		row_dictionary = list_get( dictionary_list );
+	fprintf(output_stream,
+		"%s\n",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		element_table_open_html(
+			1 /* border_boolean */ ) );
+
+	for(	list_rewind( row_dictionary_list ), row_number = 1;
+		row_number <= list_len;
+		list_next( row_dictionary_list ), row_number++ )
+	{
+		row_dictionary = list_get( row_dictionary_list );
 
 		apply_element_list =
 			edit_table_apply_element_list(
@@ -998,17 +1116,20 @@ void edit_table_regular_output(
 			exit( 1 );
 		}
 
+		background_color = edit_table_background_color();
+
 		if ( ! ( html =
 				/* --------------------------- */
 				/* Returns heap memory or null */
 				/* --------------------------- */
 				edit_table_row_html(
 					apply_element_list /* in/out */,
+					role_operation_list,
 					application_name,
-					( background_color =
-						edit_table_background_color() ),
+					background_color,
+					row_security_role,
 					state,
-					++row_number,
+					row_number,
 					row_dictionary ) ) )
 		{
 			fprintf(stderr,
@@ -1020,10 +1141,10 @@ void edit_table_regular_output(
 		}
 
 		fprintf(output_stream,
-			"%s\n",
-			/* ---------------------- */
-			/* Returns program memory */
-			/* ---------------------- */
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			element_table_row_html(
 				background_color ) );
 
@@ -1032,8 +1153,7 @@ void edit_table_regular_output(
 			html );
 
 		free( html );
-
-	} while ( list_next( dictionary_list ) );
+	}
 
 	fprintf(output_stream,
 		"%s\n",
@@ -1045,57 +1165,55 @@ void edit_table_regular_output(
 
 void edit_table_hidden_output(
 			FILE *output_stream,
-			LIST *dictionary_list,
-			LIST *regular_element_list )
+			LIST *row_dictionary_list,
+			LIST *regular_element_list,
+			LIST *viewonly_element_list )
 {
 	DICTIONARY *row_dictionary;
 	char *html;
-	int row_number = 0;
+	int row_number;
+	LIST *apply_element_list;
+	int list_len = list_length( row_dictionary_list );
 
-	if ( !list_rewind( dictionary_list ) ) return;
+	if ( !list_len ) return;
 
-	do {
-		row_dictionary = list_get( dictionary_list );
+	if ( regular_element_list )
+		apply_element_list = regular_element_list;
+	else
+		apply_element_list = viewonly_element_list;
 
-		if ( ! ( html =
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				edit_table_hidden_row_html(
-					regular_element_list /* in/out */,
-					++row_number,
-					row_dictionary ) ) )
+	if ( !apply_element_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: apply_element_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	for(	list_rewind( row_dictionary_list ), row_number = 1;
+		row_number <= list_len;
+		list_next( row_dictionary_list ), row_number++ )
+	{
+		row_dictionary = list_get( row_dictionary_list );
+
+		if ( ( html =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_list_hidden_html(
+				apply_element_list /* in/out */,
+				row_number,
+				row_dictionary ) ) )
 		{
-			fprintf(stderr,
-	"Warning in %s/%s()/%d: edit_table_hidden_row_html() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			continue;
+			fprintf(output_stream,
+				"%s\n",
+				html );
+
+			free( html );
 		}
-
-		fprintf(output_stream,
-			"%s\n",
-			html );
-
-		free( html );
-
-	} while ( list_next( dictionary_list ) );
-}
-
-char *edit_table_hidden_row_html(
-			LIST *regular_element_list /* in/out */,
-			int row_number,
-			DICTIONARY *row_dictionary )
-{
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	appaserver_element_hidden_list_html(
-		regular_element_list /* in/out */,
-		row_number,
-		row_dictionary );
+	}
 }
 
 char *edit_table_output_system_string(

@@ -700,7 +700,7 @@ typedef struct
 	QUERY_EDIT_TABLE_WHERE *where;
 	char *query_order_string;
 	char *query_system_string;
-	LIST *dictionary_list;
+	LIST *row_dictionary_list;
 } QUERY_EDIT_TABLE;
 
 /* QUERY_EDIT_TABLE operations */
@@ -730,7 +730,7 @@ char *query_edit_table_from_string(
 			LIST *relation_mto1_isa_list,
 			char *row_security_role_folder_name );
 
-LIST *query_edit_table_dictionary_list(
+LIST *query_edit_table_row_dictionary_list(
 			char *query_system_string,
 			LIST *query_select_name_list,
 			LIST *one_folder_primary_key_list,

@@ -93,7 +93,8 @@ ROLE_OPERATION *role_operation_parse(
 	{
 		role_operation->operation =
 			operation_fetch(
-				operation_name );
+				operation_name,
+				0 /* not fetch_process */ );
 	}
 
 	return role_operation;
