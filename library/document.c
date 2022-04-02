@@ -513,17 +513,16 @@ char *document_head_meta_string( void )
 char *document_head_javascript_include_string( void )
 {
 	return
+"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/edit_table.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/trim.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/timlib.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/cookie.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/null2slash.js\"></SCRIPT>\n"
-"<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/form.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/form_cookie.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/keystrokes.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/verify_attribute_widths.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/push_button_submit.js\"></SCRIPT>\n"
 "<SCRIPT language=\"JavaScript1.2\" src=\"/appaserver/javascript/validate_date.js\"></SCRIPT>";
-
 }
 
 char *document_head_menu_setup_string( boolean frameset_menu_horizontal )

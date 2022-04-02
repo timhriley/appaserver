@@ -660,7 +660,7 @@ APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
 	if ( delete_warning_javascript )
 	{
 		sprintf(on_click, 
-			"%s;form_push_button_set_all('%s',0);",
+			"%s && edit_table_push_button_set_all('%s',0);",
 			delete_warning_javascript,
 			operation_name );
 	}

@@ -8,9 +8,11 @@
 #include <string.h>
 #include <ctype.h>
 #include "String.h"
+#include "appaserver.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
 #include "application.h"
+#include "folder_attribute.h"
 #include "post_edit_table.h"
 
 POST_EDIT_TABLE *post_edit_table_new(
@@ -21,7 +23,6 @@ POST_EDIT_TABLE *post_edit_table_new(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *state,
 			char *target_frame,
 			char *detail_base_folder_name )
 {
@@ -43,8 +44,92 @@ POST_EDIT_TABLE *post_edit_table_new(
 			login_name,
 			role_name,
 			folder_name,
-			state );
+			APPASERVER_LOOKUP_STATE );
 
+	if ( ! ( post_edit_table->role =
+			role_fetch(
+				role_name,
+				1 /* fetch_attribute_exclude_list */ ) ) )
+ 	{
+		fprintf(stderr,
+		"Warning in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
+		return (POST_EDIT_TABLE *)0;
+	}
+
+	if ( ! ( post_edit_table->folder =
+			folder_fetch(
+				folder_name,
+				/* ------------------------- */
+				/* Fetching role_folder_list */
+				/* ------------------------- */
+				role_name,
+				role_exclude_lookup_attribute_name_list(
+					post_edit_table->
+						role->
+						attribute_exclude_list ),
+				/* -------------------------- */
+				/* Also sets primary_key_list */
+				/* -------------------------- */
+				1 /* fetch_folder_attribute_list */,
+				1 /* fetch_relation_mto1_non_isa_list */,
+				/* ------------------------------------------ */
+				/* Also sets folder_attribute_append_isa_list */
+				/* ------------------------------------------ */
+				1 /* fetch_relation_mto1_isa_list */,
+				0 /* not fetch_relation_one2m_list */,
+				1 /* fetch_relation_one2m_recursive_list */,
+				0 /* not fetch_process */,
+				1 /* fetch_role_folder_list */,
+				1 /* fetch_row_level_restriction */,
+				1 /* fetch_role_operation_list */ ) ) )
+	{
+		fprintf(stderr,
+	"Warning in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				folder_name );
+		return (POST_EDIT_TABLE *)0;
+	}
+
+	post_edit_table->post_dictionary =
+		post_dictionary_stdin_new(
+			/* ----------------------------- */
+			/* Not expecting a spooled file. */
+			/* ----------------------------- */
+			(char *)0 /* appaserver_parameter_upload_directory */,
+			(char *)0 /* session_key */ );
+
+	post_edit_table->dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_folder_new(
+			post_edit_table->
+				post_dictionary->
+				original_post_dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list(
+				post_edit_table->
+					folder->
+					folder_attribute_append_isa_list ) );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: non_prefixed_dictionary = \n[%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+dictionary_display_delimiter(
+	post_edit_table->dictionary_separate->non_prefixed_dictionary,
+	'^' ) );
+m2( application_name, msg );
+}
 	return post_edit_table;
 }
 

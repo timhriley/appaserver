@@ -39,6 +39,7 @@ typedef struct
 	char *security_entity_where;
 	ROW_SECURITY *row_security;
 	QUERY_EDIT_TABLE *query_edit_table;
+	char *spool_filename;
 	int dictionary_list_length;
 	int row_insert_count;
 	int cell_update_count;
@@ -81,6 +82,20 @@ char *edit_table_state(
 
 boolean edit_table_primary_keys_non_edit(
 			int relation_mto1_isa_list_length );
+
+/* Returns heap memory */
+/* ------------------- */
+char *edit_table_spool_filename(
+			char *appaserver_parameter_data_directory,
+			char *application_name,
+			char *folder_name,
+			char *session_key );
+
+void edit_table_spool_file(
+			char *edit_table_spool_filename,
+			LIST *folder_attribute_name_list,
+			LIST *row_dictionary_list,
+			char sql_delimiter );
 
 int edit_table_row_insert_count(
 			char *rows_inserted_count_key,

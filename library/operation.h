@@ -21,7 +21,7 @@
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
 
 #define OPERATION_DELETE_WARNING_JAVASCRIPT \
-					"timlib_delete_button_warning();"
+					"edit_table_delete_button_warning()"
 
 typedef struct
 {

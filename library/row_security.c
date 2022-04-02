@@ -506,7 +506,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 		exit( 1 );
 	}
 
-	if ( strcmp( state, ELEMENT_UPDATE_STATE ) == 0 )
+	if ( strcmp( state, APPASERVER_UPDATE_STATE ) == 0 )
 	{
 		row_security_element_list->regular =
 			row_security_element_list_regular_new(
@@ -536,7 +536,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 		}
 	}
 	else
-	if ( string_strcmp( state, ELEMENT_VIEWONLY_STATE ) == 0 )
+	if ( string_strcmp( state, APPASERVER_VIEWONLY_STATE ) == 0 )
 	{
 		row_security_element_list->viewonly =
 			row_security_element_list_viewonly_new(

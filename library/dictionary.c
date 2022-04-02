@@ -4078,3 +4078,90 @@ LIST *dictionary_attribute_data_list(
 	return data_list;
 }
 
+char *dictionary_attribute_name_row_number(
+			char *attribute_name,
+			int row_number )
+{
+	static char attribute_name_row_number[ 128 ];
+
+	if ( !attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(attribute_name_row_number,
+		"%s_%d",
+		attribute_name,
+		row_number );
+
+	return attribute_name_row_number;
+}
+
+char *dictionary_attribute_name_list_string(
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list,
+			char sql_delimiter,
+			int row_number )
+{
+	char *attribute_name;
+	char *data;
+	char *attribute_name_row_number;
+	char list_string[ STRING_128K ];
+	char *ptr = list_string;
+
+	if ( !list_rewind( attribute_name_list ) ) return (char *)0;
+
+	*ptr = '\0';
+
+	do {
+		attribute_name = list_get( attribute_name_list );
+
+		if ( ! ( data =
+				dictionary_get( 
+					attribute_name,
+					dictionary ) ) )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: dictionary_get(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				attribute_name );
+			continue;
+		}
+
+		attribute_name_row_number =
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			dictionary_attribute_name_row_number(
+				attribute_name,
+				row_number );
+
+		if ( !attribute_name_row_number )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: dictionary_attribute_name_row_number() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s%c%s\n",
+			attribute_name_row_number,
+			sql_delimiter,
+			data );
+
+	} while ( list_next( attribute_name_list ) );
+
+	return strdup( list_string );
+}
+

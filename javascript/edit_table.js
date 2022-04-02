@@ -1,9 +1,9 @@
-// javascript/form.js
-// ------------------
+// $APPASERVER_HOME/javascript/edit_table.js
+// -----------------------------------------
 // Freely available software. See appaserver.org
 // ---------------------------------------------
 
-function form_reset( form, index_delimiter )
+function edit_table_reset( form, index_delimiter )
 {
 	var i;
 	var to_element_name;
@@ -29,7 +29,7 @@ function form_reset( form, index_delimiter )
 		if ( element.type == 'select-one' )
 		{
 			value =
-				timlib_get_drop_down_element_value(
+				timlib_drop_down_element_value(
 					element.options );
 
 			if ( value != 'select' )
@@ -43,11 +43,14 @@ function form_reset( form, index_delimiter )
 		// Find the multi-selects
 		// ----------------------
 		original_element_name = element.name;
+
 		if ( element.type == 'select-multiple'
 		&&   original_element_name.substring( 0, 9 ) == "original_" )
 		{
 			to_element_name = original_element_name.substring( 9 );
+
 			post_change_multi_select_all( to_element_name );
+
 			post_change_multi_select_move_left(
 				original_element_name,
 				to_element_name,
@@ -55,28 +58,62 @@ function form_reset( form, index_delimiter )
 		}
 	}
 	form.reset();
-} // form_reset()
+}
 
-function form_push_button_set_all(	push_button_name,
-					form_number )
+function edit_table_element( search_element_name, form_number )
+{
+	var element;
+	var i;
+	var form;
+
+	form = document.forms[ form_number ];
+
+	for( i = 0; i < form.elements.length; i++ )
+	{
+		element = form.elements[ i ];
+
+		if ( element.name == search_element_name )
+		{
+			return element;
+		}
+	}
+
+	return "";
+}
+
+var delete_warned_already = false;
+
+function edit_table_delete_button_warning()
+{
+	if ( !delete_warned_already )
+	{
+		alert( "Warning: you pressed the delete button." );
+	}
+
+	delete_warned_already = true;
+
+	return true;
+}
+
+function edit_table_push_button_set_all(
+			operation_name,
+			form_number )
 {
 	var set_all_element;
-	var set_all_element_name;
 	var push_button_element_name;
 	var push_button_element;
 	var row;
 
-	set_all_element_name = 'push_button_set_all_' + push_button_name;
 	set_all_element =
-		timlib_get_form_element(
-			set_all_element_name, form_number );
+		edit_table_element(
+			operation_name, form_number );
 
 	for( row = 1; ; row++ )
 	{
-		push_button_element_name = push_button_name + "_" + row;
+		push_button_element_name = operation_name + "_" + row;
 
 		push_button_element =
-			timlib_get_form_element(
+			edit_table_element(
 				push_button_element_name,
 				form_number );
 
@@ -86,5 +123,5 @@ function form_push_button_set_all(	push_button_name,
 	}
 
 	return 1;
-} // form_push_button_set_all()
+}
 

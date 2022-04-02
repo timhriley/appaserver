@@ -129,24 +129,31 @@ int main( int argc, char **argv )
 	if ( !menu_horizontal_boolean ) document_output_content_type();
 
 	edit_table_output(
-			stdout /* output_stream */,
-			application_name,
-			edit_table->html,
-			edit_table->form_edit_table->html,
-			edit_table->folder->role_operation_list,
-			edit_table->query_edit_table->row_dictionary_list,
-			edit_table->
-				row_security->
-				row_security_element_list->
-				regular->
-				element_list,
-			viewonly_element_list,
-			edit_table->
-				row_security->
-				row_security_role,
-			edit_table->state,
-			edit_table->form_edit_table->trailer_html,
-			edit_table->trailer_html );
+		stdout /* output_stream */,
+		application_name,
+		edit_table->html,
+		edit_table->form_edit_table->html,
+		edit_table->folder->role_operation_list,
+		edit_table->query_edit_table->row_dictionary_list,
+		edit_table->
+			row_security->
+			row_security_element_list->
+			regular->
+			element_list,
+		viewonly_element_list,
+		edit_table->
+			row_security->
+			row_security_role,
+		edit_table->state,
+		edit_table->form_edit_table->trailer_html,
+		edit_table->trailer_html );
+
+	edit_table_spool_file(
+		edit_table->spool_filename,
+		folder_attribute_name_list(
+			edit_table->folder->folder_attribute_append_isa_list ),
+		edit_table->query_edit_table->row_dictionary_list,
+		SQL_DELIMITER );
 
 	return 0;
 }

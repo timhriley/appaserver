@@ -684,4 +684,19 @@ LIST *dictionary_attribute_data_list(
 			LIST *attribute_name_list,
 			DICTIONARY *dictionary );
 
+/* Returns heap memory or null. */
+/* Note: has trailing CR.	*/
+/* ---------------------------- */
+char *dictionary_attribute_name_list_string(
+			DICTIONARY *dictionary,
+			LIST *attribute_name_list,
+			char sql_delimiter,
+			int row_number );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *dictionary_attribute_name_row_number(
+			char *attribute_name,
+			int row_number );
+
 #endif

@@ -273,6 +273,16 @@ EDIT_TABLE *edit_table_new(
 		return (EDIT_TABLE *)0;
 	}
 
+	edit_table->spool_filename =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		edit_table_spool_filename(
+			appaserver_parameter_data_directory(),
+			application_name,
+			folder_name,
+			session_key );
+
 	edit_table->dictionary_list_length =
 		list_length(
 			edit_table->
@@ -308,6 +318,9 @@ EDIT_TABLE *edit_table_new(
 				non_prefixed_dictionary );
 
 	edit_table->post_edit_table_action_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		post_edit_table_action_string(
 			POST_EDIT_TABLE_EXECUTABLE,
 			application_name,
@@ -317,6 +330,17 @@ EDIT_TABLE *edit_table_new(
 			folder_name,
 			target_frame,
 			(char *)0 /* detail_base_folder_name */ );
+
+	if ( !edit_table->post_edit_table_action_string )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: post_edit_table_action_string() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	if ( edit_table->row_security->row_security_element_list->viewonly )
 	{
@@ -410,6 +434,9 @@ EDIT_TABLE *edit_table_new(
 			edit_table->document->document_body->html );
 
 	edit_table->trailer_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		edit_table_trailer_html(
 			/* ---------------------- */
 			/* Returns program memory */
@@ -1092,9 +1119,9 @@ void edit_table_apply_output(
 
 	if ( !list_len ) return;
 
-	for(	list_rewind( row_dictionary_list ), row_number = 1;
+	for(	row_number = 1, list_rewind( row_dictionary_list );
 		row_number <= list_len;
-		list_next( row_dictionary_list ), row_number++ )
+		row_number++, list_next( row_dictionary_list ) )
 	{
 		row_dictionary = list_get( row_dictionary_list );
 
@@ -1299,5 +1326,101 @@ boolean edit_table_viewonly(
 		return 1;
 	else
 		return 0;
+}
+
+char *edit_table_spool_filename(
+			char *appaserver_data_directory,
+			char *application_name,
+			char *folder_name,
+			char *session_key )
+{
+	char filename[ 128 ];
+
+	if ( !appaserver_data_directory
+	||   !application_name
+	||   !folder_name
+	||   !session_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(filename,
+		"%s/update_%s_%s_%s.dat",
+		appaserver_data_directory,
+		application_name,
+		folder_name,
+		session_key );
+
+	return strdup( filename );
+}
+
+void edit_table_spool_file(
+			char *spool_filename,
+			LIST *folder_attribute_name_list,
+			LIST *row_dictionary_list,
+			char sql_delimiter )
+{
+	FILE *output_file;
+	DICTIONARY *row_dictionary;
+	char *string;
+	int row_number;
+	int list_len = list_length( row_dictionary_list );
+
+	if ( !list_len ) return;
+
+	if ( ! ( output_file = fopen( spool_filename, "w" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			spool_filename );
+		exit( 1 );
+	}
+
+	for(	row_number = 1, list_rewind( row_dictionary_list );
+		row_number <= list_len;
+		row_number++, list_next( row_dictionary_list ) )
+	{
+		row_dictionary = list_get( row_dictionary_list );
+
+		string =
+			/* ---------------------------- */
+			/* Returns heap memory or null. */
+			/* Note: has trailing CR.	*/
+			/* ---------------------------- */
+			dictionary_attribute_name_list_string(
+				row_dictionary,
+				folder_attribute_name_list,
+				sql_delimiter,
+				row_number );
+
+		if ( !string )
+		{
+			fprintf(stderr,
+"Warning in %s/%s()/%d: dictionary_attribute_name_list_string(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				dictionary_display_delimiter(
+					row_dictionary,
+					sql_delimiter ) );
+			continue;
+		}
+
+		fprintf(output_file,
+			"%s",
+			string );
+
+		free( string );
+	}
+
+	fclose( output_file );
 }
 

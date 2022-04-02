@@ -57,10 +57,5 @@
 #define QUERY_NULL				"is_empty"
 #define QUERY_NOT_NULL				"not_empty"
 
-#define ELEMENT_INSERT_STATE			"insert"
-#define ELEMENT_UPDATE_STATE			"update"
-#define ELEMENT_LOOKUP_STATE			"lookup"
-#define ELEMENT_VIEWONLY_STATE			"viewonly"
-
 #endif
 

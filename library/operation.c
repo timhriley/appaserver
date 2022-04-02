@@ -584,6 +584,7 @@ char *operation_html(	ELEMENT_CHECKBOX *checkbox,
 			boolean delete_mask_boolean )
 {
 	char prompt_display[ 128 ];
+	char *element_name;
 
 	if ( !checkbox )
 	{
@@ -620,16 +621,41 @@ char *operation_html(	ELEMENT_CHECKBOX *checkbox,
 		
 	if ( delete_mask_boolean ) return strdup( prompt_display );
 
+	if ( checkbox->element_name )
+	{
+		element_name =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_name(
+				checkbox->element_name,
+				row_number );
+	}
+	else
+	if ( checkbox->attribute_name )
+	{
+		element_name =
+			appaserver_element_name(
+				checkbox->attribute_name,
+				row_number );
+	}
+	else
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both element_name and attribute_name are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
 	element_checkbox_html(
-		(checkbox->element_name)
-			? checkbox->element_name
-			: appaserver_element_name(
-				checkbox->attribute_name,
-				row_number ),
+		element_name,
 		prompt_display,
 		0 /* not element_checkbox_checked */,
 		javascript_replace(

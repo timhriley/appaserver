@@ -1,10 +1,10 @@
-// timlib.js
-// ------------------------------
+// $APPASERVER_HOME/javascript/timlib.js
+// -------------------------------------
+// Freely available software. See appaserver.org
+// ---------------------------------------------
 
 // Usage: <input type="text" onkeyup="timlib_prevent_carrot(event,this);">
 // -----------------------------------------------------------------------
-// Freely available software. See appaserver.org
-// ---------------------------------------------
 function timlib_prevent_carrot( theEvent, element )
 {
 	var len;
@@ -21,17 +21,6 @@ function timlib_prevent_carrot( theEvent, element )
 		alert( "Sorry. Will replace with '**'" );
 		element.value = new_value;
 	}
-
-	// Replace & with and
-	// ------------------
-	// if ( theEvent.shiftKey && theEvent.keyCode == 55 )
-	// {
-		// len = element.value.length;
-		// without_character = element.value.substr( 0, len - 1 );
-		// new_value = without_character.concat( "and" );
-		// alert( "Sorry. Will replace with 'and'" );
-		// element.value = new_value;
-	// }
 
 	return true;
 }
@@ -77,6 +66,11 @@ function timlib_check_notepad_size( element, max_length )
 
 function timlib_get_drop_down_element_populated( options )
 {
+	return timlib_drop_down_element_populated( options );
+}
+
+function timlib_drop_down_element_populated( options )
+{
 	var value;
 	var i;
 
@@ -85,17 +79,21 @@ function timlib_get_drop_down_element_populated( options )
 	value =
 		// Returns 'undefined' if false.
 		// -----------------------------
-		timlib_get_drop_down_element_value(
+		timlib_drop_down_element_value(
 			options );
 
 	if ( value != 'undefined' && value != 'select' )
 		return true;
 	else
 		return false;
-
 }
 
 function timlib_get_multi_select_drop_down_element_populated( options )
+{
+	return timlib_multi_select_drop_down_element_populated( options );
+}
+
+function timlib_multi_select_drop_down_element_populated( options )
 {
 	var value;
 	var i;
@@ -130,6 +128,11 @@ function timlib_exists( element_name, element_name_list )
 
 function timlib_get_element( search_element_name )
 {
+	return timlib_element( search_element_name );
+}
+
+function timlib_element( search_element_name )
+{
 	var element;
 	var i;
 	var form;
@@ -140,7 +143,7 @@ function timlib_get_element( search_element_name )
 		form_number++ )
 	{
 		element =
-			timlib_get_form_element(
+			timlib_form_element(
 				search_element_name,
 				form_number );
 
@@ -154,7 +157,7 @@ function timlib_get_element( search_element_name )
 		form_number++ )
 	{
 		element =
-			timlib_get_form_element(
+			timlib_form_element(
 				modified_element_name,
 				form_number );
 
@@ -168,7 +171,7 @@ function timlib_get_element( search_element_name )
 		form_number++ )
 	{
 		element =
-			timlib_get_form_element(
+			timlib_form_element(
 				modified_element_name,
 				form_number );
 
@@ -182,7 +185,7 @@ function timlib_get_element( search_element_name )
 		form_number++ )
 	{
 		element =
-			timlib_get_form_element(
+			timlib_form_element(
 				modified_element_name,
 				form_number );
 
@@ -194,6 +197,11 @@ function timlib_get_element( search_element_name )
 }
 
 function timlib_get_form_element( search_element_name, form_number )
+{
+	return timlib_form_element( search_element_name, form_number );
+}
+
+function timlib_form_element( search_element_name, form_number )
 {
 	var element;
 	var i;
@@ -215,6 +223,11 @@ function timlib_get_form_element( search_element_name, form_number )
 }
 
 function timlib_get_radio_selected_value( search_element_name )
+{
+	return timlib_radio_selected_value( search_element_name );
+}
+
+function timlib_radio_selected_value( search_element_name )
 {
         var element_name;
 	var return_element_value;
@@ -245,9 +258,14 @@ function timlib_get_radio_selected_value( search_element_name )
         return "";
 }
 
+function timlib_get_drop_down_element_value( options )
+{
+	return timlib_drop_down_element_value( options );
+}
+
 // Returns 'undefined' if false.
 // -----------------------------
-function timlib_get_drop_down_element_value( options )
+function timlib_drop_down_element_value( options )
 {
         var return_value;
 
@@ -300,7 +318,7 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 	{
 		select_element_name = element_name_list[ i ];
 
-		element = timlib_get_element( select_element_name );
+		element = timlib_element( select_element_name );
 
 		element.disabled = 0;
 
@@ -309,7 +327,7 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 			original_element_name =
 				"original_" + select_element_name;
 
-			element = timlib_get_element( original_element_name );
+			element = timlib_element( original_element_name );
 
 			element.disabled = 0;
 		}
@@ -319,18 +337,18 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 	{
 		select_element_name = element_name_list[ i ];
 
-		element = timlib_get_element( select_element_name );
+		element = timlib_element( select_element_name );
 
 		if ( element.type == 'select-multiple' )
 		{
 			value =
-			timlib_get_multi_select_drop_down_element_populated(
+			timlib_multi_select_drop_down_element_populated(
 					element.options );
 		}
 		else
 		{
 			value =
-			timlib_get_drop_down_element_value(
+			timlib_drop_down_element_value(
 					element.options );
 		}
 
@@ -350,7 +368,7 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 					continue;
 
 				element =
-					timlib_get_element(
+					timlib_element(
 						gray_element_name );
 
 				element.disabled = 1;
@@ -360,7 +378,7 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 					gray_element_name =
 						"original_" + gray_element_name;
 					element =
-						timlib_get_element(
+						timlib_element(
 							gray_element_name );
 					element.disabled = 1;
 				}
@@ -374,6 +392,11 @@ function timlib_gray_mutually_exclusive_drop_downs( element_name_list_string )
 }
 
 function timlib_get_delimiter( string )
+{
+	return timlib_delimiter( string );
+}
+
+function timlib_delimiter( string )
 {
 	var length;
 	var n;
@@ -404,6 +427,11 @@ function timlib_get_delimiter( string )
 }
 
 function timlib_get_non_minus_delimiter( string )
+{
+	return timlib_non_minus_delimiter( string );
+}
+
+function timlib_non_minus_delimiter( string )
 {
 	var length;
 	var n;
@@ -465,22 +493,12 @@ function timlib_set_all_push_buttons(	master_element,
 	return true;
 }
 
-var delete_warned_already = false;
-
-function timlib_delete_button_warning()
+function timlib_get_index( attribute_name, element_name )
 {
-	if ( !delete_warned_already )
-	{
-		alert( "Warning: you pressed the delete button." );
-	}
-
-	delete_warned_already = true;
-
-	return true;
-
+	return timlib_index( attribute_name, element_name );
 }
 
-function timlib_get_index( attribute_name, element_name )
+function timlib_index( attribute_name, element_name )
 {
 	var index_string;
 	var len;
@@ -561,7 +579,7 @@ function timlib_element_value_set(	element_name,
 {
 	var element;
 
-	element = timlib_get_element( element_name );
+	element = timlib_element( element_name );
 
 	if ( element == "" )
 	{
@@ -587,3 +605,48 @@ function timlib_history_forward()
 	return true;
 
 }
+
+var delete_warned_already = false;
+
+function timlib_delete_button_warning()
+{
+	if ( !delete_warned_already )
+	{
+		alert( "Warning: you pressed the delete button." );
+	}
+
+	delete_warned_already = true;
+
+	return true;
+}
+
+function timlib_push_button_set_all(
+			operation_name,
+			form_number )
+{
+	var set_all_element;
+	var push_button_element_name;
+	var push_button_element;
+	var row;
+
+	set_all_element =
+		timlib_form_element(
+			operation_name, form_number );
+
+	for( row = 1; ; row++ )
+	{
+		push_button_element_name = operation_name + "_" + row;
+
+		push_button_element =
+			timlib_form_element(
+				push_button_element_name,
+				form_number );
+
+		if ( !push_button_element ) break;
+
+		push_button_element.checked = set_all_element.checked;
+	}
+
+	return 1;
+}
+

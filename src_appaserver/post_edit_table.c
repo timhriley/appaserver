@@ -7,175 +7,57 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
-#include "appaserver_user.h"
-#include "piece.h"
-#include "list.h"
-#include "dictionary2file.h"
-#include "folder.h"
-#include "document.h"
-#include "appaserver_library.h"
-#include "appaserver_error.h"
-#include "process.h"
-#include "insert_database.h"
-#include "update_database.h"
-#include "query.h"
-#include "appaserver_parameter.h"
-#include "appaserver.h"
-#include "environ.h"
-#include "dictionary.h"
-#include "post2dictionary.h"
-#include "form.h"
-#include "session.h"
-#include "role.h"
-#include "drillthru.h"
-#include "dictionary_appaserver.h"
-#include "pair_one2m.h"
-#include "folder_menu.h"
-#include "vertical_new_button.h"
-#include "edit_table.h"
-
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
-int post_state_update_folder(
-			char **results_string,
-			char **changed_folder_name_list_string,
-			DICTIONARY_APPASERVER *dictionary_appaserver,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *login_name,
-			char *role_name,
-			char *insert_update_key,
-			char *appaserver_data_directory,
-			char *appaserver_mount_point,
-			pid_t dictionary_process_id,
-			char *folder_name_comma_list_string,
-			char *optional_related_attribute_name );
-
-boolean get_insert_flag(DICTIONARY *non_prefixed_dictionary );
-
-void set_insert_flag(	DICTIONARY *non_prefixed_dictionary );
-
-void execute_insert_output_process(	
-			DICTIONARY_APPASERVER *dictionary_appaserver,
-			char *application_name,
-			char *login_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *insert_update_key,
-			int rows_inserted,
-			char *target_frame,
-			char *message,
-			char *vertical_new_button_many_folder_name,
-			char *pair_one2m_folder_name );
-
-void execute_update_output_process(	
-			DICTIONARY_APPASERVER *dictionary_appaserver,
-			char *application_name,
-			char *login_name,
-			char *session,
-			char *folder_name,
-			char *role_name,
-			char *insert_update_key,
-			char *target_frame,
-			char *detail_base_folder_name,
-			char *primary_data_list_string,
-			int cells_updated,
-			char *changed_folder_name_list_string,
-			char *results_string );
-
-void post_state_update(		
-			DICTIONARY_APPASERVER *dictionary_appaserver,
-			char *application_name,
-			char *session,
-			char *folder_name_comma_list_string,
-			char *login_name,
-			char *role_name,
-			char *insert_update_key,
-			char *target_frame,
-			char *appaserver_data_directory,
-			char *appaserver_mount_point,
-			char *detail_base_folder_name,
-			pid_t dictionary_process_id,
-			boolean role_override_row_restrictions,
-			char *optional_related_attribute_name,
-			char *primary_data_list_string );
-
-void post_state_insert(	DICTIONARY_APPASERVER *dictionary_appaserver,
-			char *application_name,
-			char *session,
-			FOLDER *folder,
-			char *login_name,
-			char *role_name,
-			char *insert_update_key,
-			char *target_frame,
-			char *detail_base_folder_name,
-			boolean role_override_row_restrictions,
-			char *vertical_new_button_many_folder_name,
-			char *primary_data_list_string );
-
-void post_state_lookup(	DICTIONARY_APPASERVER *dictionary_appaserver,
-			char *application_name,
-			char *session,
-			char *folder_name,
-			char *login_name,
-			char *role_name,
-			char *insert_update_key,
-			char *target_frame,
-			char *detail_base_folder_name,
-			boolean role_override_row_restrictions,
-			char *primary_data_list_string );
+#include "post_edit_table.h"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *login_name;
 	char *session_key;
+	char *login_name;
 	char *role_name;
 	char *folder_name;
-	char *state;
 	char *target_frame;
 	char *detail_base_folder_name;
-	EDIT_TABLE_POST *edit_table_post;
+	POST_EDIT_TABLE *post_edit_table;
 
-	if ( argc != 9 )
+	if ( argc != 8 )
 	{
 		fprintf( stderr,
-"Usage: %s application login_name session role folder state target_frame detail_base\n",
+"Usage: %s application session login_name role folder target_frame detail_base\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	login_name = argv[ 2 ];
-	session_key = argv[ 3 ];
+	session_key = argv[ 2 ];
+	login_name = argv[ 3 ];
 	role_name = argv[ 4 ];
 	folder_name = argv[ 5 ];
-	state = argv[ 6 ];
-	target_frame = argv[ 7 ];
-	detail_base_folder_name = argv[ 8 ];
+	target_frame = argv[ 6 ];
+	detail_base_folder_name = argv[ 7 ];
 
-	edit_table_post =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		edit_table_post_new(
-			argc,
-			argv,
-			application_name,
-			login_name,
-			session_key,
-			role_name,
-			folder_name,
-			state,
-			target_frame,
-			detail_base_folder_name );
+	if ( ! ( post_edit_table =
+			post_edit_table_new(
+				argc,
+				argv,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				target_frame,
+				detail_base_folder_name ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: post_edit_table_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
+
+#ifdef NOT_DEFINED
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
 	role = role_new_role(	application_name,
@@ -351,10 +233,12 @@ int main( int argc, char **argv )
 					role->override_row_restrictions_yn ),
 				primary_data_list_string );
 	}
+#endif
 
 	exit( 0 );
 }
 
+#ifdef NOT_DEFINED
 void post_state_insert(
 			DICTIONARY_APPASERVER *dictionary_appaserver,
 			char *application_name,
@@ -1414,4 +1298,4 @@ void execute_insert_output_process(
 
 	if ( system( sys_string ) ) {};
 }
-
+#endif

@@ -643,12 +643,23 @@ char *element_drop_down_name(
 			attribute_name_list,
 			SQL_DELIMITER );
 
+	if ( !*results )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: list_display_delimited() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(drop_down_name,
 		"%s_%d",
 		results,
 		row_number );
 
 	free( results );
+
 	return drop_down_name;
 }
 
@@ -1566,7 +1577,7 @@ char *appaserver_element_list_row_dictionary_html(
 			ptr += sprintf( ptr, "\n" );
 		}
 
-		free( element_html );
+		/* free( element_html ); */
 
 	} while ( list_next( appaserver_element_list ) );
 
@@ -1639,42 +1650,6 @@ char *appaserver_element_list_hidden_html(
 	else
 		return strdup( html );
 }
-
-#ifdef NOT_DEFINED
-char *appaserver_element_button_set_all_control_string(
-			APPASERVER_ELEMENT *element,
-			int form_number )
-{
-	static char button_control_string[ 256 ];
-
-	if ( element->element_type == button )
-	{
-		if ( toggle_button_set_all_control_string )
-		{
-			char delete_warning_javascript[ 128 ];
-
-			if ( timlib_begins_string( element->name, "delete" ) )
-			{
-				strcpy( delete_warning_javascript,
-					"timlib_delete_button_warning(); " );
-			}
-			else
-			{
-				*delete_warning_javascript = '\0';
-			}
-
-			sprintf(button_control_string,
-				"%sform_push_button_set_all('%s',%d);",
-				delete_warning_javascript,
-				element->button->label,
-				form_number );
-
-			return button_control_string;
-		}
-	}
-	return (char *)0;
-}
-#endif
 
 LIST *appaserver_element_heading_name_list(
 			LIST *appaserver_element_list )
@@ -2021,6 +1996,8 @@ char *appaserver_element_row_dictionary_html(
 	else
 	if ( appaserver_element->element_type == text )
 	{
+		char *html;
+
 		if ( !appaserver_element->text )
 		{
 			fprintf(stderr,
@@ -2043,14 +2020,17 @@ char *appaserver_element_row_dictionary_html(
 			return (char *)0;
 		}
 
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		return appaserver_element_text_html(
-			appaserver_element->text,
-			background_color,
-			state,
-			row_number,
-			row_dictionary );
+		html =
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_text_html(
+				appaserver_element->text,
+				background_color,
+				state,
+				row_number,
+				row_dictionary );
+
+		return html;
 	}
 	else
 	if ( appaserver_element->element_type == password )
@@ -2698,8 +2678,6 @@ char *element_text_value(
 
 	if ( is_number )
 	{
-		char *hold = value;
-
 		value =
 			/* ---------------------------- */
 			/* Returns value or heap memory */
@@ -2707,8 +2685,6 @@ char *element_text_value(
 			appaserver_element_number_commas_string(
 				attribute_name,
 				value );
-
-		if ( value != hold ) free( hold );
 	}
 
 	return value;
@@ -3038,7 +3014,7 @@ char *appaserver_element_text_html(
 			text->attribute_name,
 			row_dictionary,
 			attribute_is_number(
-			text->datatype_name ) );
+				text->datatype_name ) );
 
 	text->javascript_replace_on_change =
 		/* --------------------------- */
@@ -3097,7 +3073,6 @@ char *appaserver_element_text_html(
 	/* ------------------------------ */
 	if ( text->value )
 	{
-		free( text->value );
 		text->value = (char *)0;
 	}
 
@@ -3245,8 +3220,6 @@ char *appaserver_element_hidden_html(
 		element_hidden_html(
 			hidden->element_hidden_name,
 			hidden->value );
-
-	free( hidden->value );
 
 	return html;
 }
