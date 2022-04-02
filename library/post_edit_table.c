@@ -13,6 +13,9 @@
 #include "appaserver_parameter.h"
 #include "application.h"
 #include "folder_attribute.h"
+#include "dictionary.h"
+#include "update.h"
+#include "edit_table.h"
 #include "post_edit_table.h"
 
 POST_EDIT_TABLE *post_edit_table_new(

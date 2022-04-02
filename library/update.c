@@ -57,109 +57,39 @@ UPDATE_ROOT *update_root_calloc( void )
 	return update_root;
 }
 
-UPDATE *update_new(	DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
+UPDATE *update_new(	DICTIONARY *post_dictionary /* in/out */,
+			char *application_name,
 			char *login_name,
-			char *role_name,
-			char *folder_name )
+			ROLE *role,
+			FOLDER *folder,
+			DICTIONARY *file_dictionary )
 {
 	UPDATE *update;
 
-	if ( !post_dictionary )
+	if ( !application_name
+	||   !login_name
+	||   !role
+	||   !folder )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: post_dictionary is empty.\n",
+			"Warning in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		return (UPDATE *)0;
 	}
 
-	if ( !file_dictionary )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: file_dictionary is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (UPDATE *)0;
-	}
+	if ( !post_dictionary ) return (UPDATE *)0;
 
-	if ( !login_name )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: login_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (UPDATE *)0;
-	}
+	if ( !file_dictionary ) return (UPDATE *)0;
 
-	if ( !role_name )
+	if ( !role_folder_update(
+		folder->role_folder_list ) )
 	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: role_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (UPDATE *)0;
-	}
-
-	if ( !folder_name )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
 		return (UPDATE *)0;
 	}
 
  	update = update_calloc();
-
-	update->role =
-		role_fetch(
-			role_name,
-			1 /* fetch_attribute_exclude_list */ );
-
-	update->folder =
-		folder_fetch(
-			folder_name,
-			role_name,
-			role_exclude_update_attribute_name_list(
-				update->role->attribute_exclude_list ),
-			/* -------------------------- */
-			/* Also sets primary_key_list */
-			/* -------------------------- */
-			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_relation_mto1_non_isa_list */,
-			/* ------------------------------------------ */
-			/* Also sets folder_attribute_append_isa_list */
-			/* ------------------------------------------ */
-			1 /* fetch_relation_mto1_isa_list */,
-			0 /* not fetch_relation_one2m_list */,
-			1 /* fetch_relation_one2m_recursive_list */,
-			1 /* fetch_process */,
-			1 /* fetch_role_folder_list */,
-			1 /* fetch_row_level_restriction */,
-			0 /* not fetch_role_operation_list */ );
-
-	if ( !update->folder )
-	{
-		fprintf(stderr,
-		"Warning in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			update->folder_name );
-		return (UPDATE *)0;
-	}
-
-	if ( !role_folder_update(
-		update->folder->role_folder_list ) )
-	{
-		return (UPDATE *)0;
-	}
 
 	update->security_entity =
 		security_entity_new(

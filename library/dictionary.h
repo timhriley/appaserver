@@ -699,4 +699,8 @@ char *dictionary_attribute_name_row_number(
 			char *attribute_name,
 			int row_number );
 
+DICTIONARY *dictionary_file_fetch(
+			char *filename,
+			char delimiter );
+
 #endif

@@ -383,31 +383,34 @@ typedef struct
 {
 	/* Input */
 	/* ----- */
+	char *application_name;
 	char *login_name;
-	char *role_name;
-	char *folder_name;
+	ROLE *role;
+	FOLDER *folder;
 	DICTIONARY *post_dictionary;
 	DICTIONARY *file_dictionary;
-	char *application_name;
 
 	/* Process */
 	/* ------- */
-	ROLE *role;
-	FOLDER *folder;
 	SECURITY_ENTITY *security_entity;
 	UPDATE_ROW_LIST *update_row_list;
 } UPDATE;
 
 /* UPDATE operations */
 /* ----------------- */
-UPDATE *update_calloc(	void );
 
-UPDATE *update_new(
-			DICTIONARY *post_dictionary /* in/out */,
-			DICTIONARY *file_dictionary,
+/* Usage */
+/* ----- */
+UPDATE *update_new(	DICTIONARY *post_dictionary /* in/out */,
+			char *application_name,
 			char *login_name,
-			char *role_name,
-			char *folder_name );
+			ROLE *role,
+			FOLDER *folder,
+			DICTIONARY *file_dictionary );
+
+/* Process */
+/* ------- */
+UPDATE *update_calloc(	void );
 
 /* Returns heap memory or null */
 /* --------------------------- */

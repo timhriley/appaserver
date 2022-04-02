@@ -4165,3 +4165,42 @@ char *dictionary_attribute_name_list_string(
 	return strdup( list_string );
 }
 
+DICTIONARY *dictionary_file_fetch(
+			char *filename,
+			char delimiter )
+{
+	FILE *f;
+	DICTIONARY *dictionary;
+	char buffer[ STRING_64K ];
+	char key[ 128 ];
+	char data[ STRING_64K ];
+
+	f = fopen( filename, "r" );
+
+	if ( !f ) return (DICTIONARY *)0;
+
+	dictionary = dictionary_large();
+
+	while( string_input( buffer, f, STRING_64K ) )
+	{
+		piece( key, delimiter, buffer, 0 );
+
+		*data = '\0';
+		piece( data, delimiter, buffer, 1 );
+
+		if ( !dictionary_key_exists(
+			dictionary,
+			key ) )
+		{
+			dictionary_set(
+				dictionary,
+				strdup( key ),
+				strdup( data ) );
+		}
+	}
+
+	fclose( f );
+
+	return dictionary;
+}
+
