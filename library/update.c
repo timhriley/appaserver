@@ -57,12 +57,13 @@ UPDATE_ROOT *update_root_calloc( void )
 	return update_root;
 }
 
-UPDATE *update_new(	DICTIONARY *post_dictionary /* in/out */,
+UPDATE *update_new(	
 			char *application_name,
 			char *login_name,
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
 			ROLE *role,
-			FOLDER *folder,
-			DICTIONARY *file_dictionary )
+			FOLDER *folder )
 {
 	UPDATE *update;
 
@@ -94,23 +95,32 @@ UPDATE *update_new(	DICTIONARY *post_dictionary /* in/out */,
 	update->security_entity =
 		security_entity_new(
 			login_name,
-			update->folder->non_owner_forbid,
-			update->role->override_row_restrictions );
+			folder->non_owner_forbid,
+			role->override_row_restrictions );
 
 	update->update_row_list =
 		/* -------------------------- */
 		/* Returns null if no updates */
 		/* -------------------------- */
 		update_row_list_new(
+			application_name,
+			login_name,
 			post_dictionary,
 			file_dictionary,
-			login_name,
-			update->folder->folder_name,
-			update->folder->folder_attribute_list,
-			update->folder->relation_mto1_isa_list,
-			update->folder->relation_one2m_recursive_list,
-			update->folder->post_change_process,
-			update->security_entity );
+			folder->folder_name,
+			folder->primary_key_list,
+			folder->folder_attribute_list,
+			folder->relation_one2m_recursive_list,
+			folder->relation_mto1_isa_list,
+			folder->post_change_process,
+			security_entity );
+
+	if ( update->update_row_list )
+	{
+		update->sql_statement_list =
+			update_sql_statement_list_new(
+				update->update_row_list );
+	}
 
 	return update;
 }
@@ -334,13 +344,15 @@ UPDATE_ROOT *update_root_new(
 }
 
 UPDATE_ROW *update_row_new(
+			char *application_name,
+			char *login_name,
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			char *login_name,
 			char *folder_name,
+			LIST *primary_key_list,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
+			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			int row )
@@ -351,25 +363,16 @@ UPDATE_ROW *update_row_new(
 
 	update_row->update_root =
 		update_root_new(
+			application_name,
+			login_name,
 			post_dictionary,
 			file_dictionary,
-			login_name,
 			folder_name,
+			primary_key_list,
 			folder_attribute_list,
 			post_change_process,
 			security_entity,
 			row );
-
-	if ( list_length( relation_mto1_isa_list ) )
-	{
-		update_row->update_mto1_isa_list =
-			update_mto1_isa_list(
-				post_dictionary,
-				file_dictionary,
-				login_name,
-				relation_mto1_isa_list,
-				row );
-	}
 
 	if ( update_row->update_root
 	&&   update_row->update_root->changed_primary_key
@@ -377,16 +380,34 @@ UPDATE_ROW *update_row_new(
 	{
 		update_row->update_one2m_list =
 			update_one2m_list(
+				application_name,
+				login_name,
 				post_dictionary,
 				file_dictionary,
-				login_name,
 				relation_one2m_recursive_list,
 				row );
 	}
 
+	if ( list_length( relation_mto1_isa_list ) )
+	{
+		update_row->update_mto1_isa_list =
+			update_mto1_isa_list(
+				application_name,
+				login_name,
+				post_dictionary,
+				file_dictionary,
+				relation_mto1_isa_list,
+				row,
+				(update_row->update_root)
+					? update_row->
+						update_root->
+						changed_primary_key
+					: 0 );
+	}
+
 	if ( !update_row->update_root
-	&&   !update_row->update_mto1_isa_list
-	&&   !update_row->update_one2m_list )
+	&&   !update_row->update_one2m_list
+	&&   !update_row->update_mto1_isa_list )
 	{
 		free( update_row );
 		return (UPDATE_ROW *)0;
@@ -395,20 +416,8 @@ UPDATE_ROW *update_row_new(
 	update_row->cell_count =
 		update_row_cell_count(
 			update_row->update_root,
-			update_row->update_mto1_isa_list,
-			update_row->update_one2m_list );
-
-	update_row->sql_statement_list =
-		update_row_sql_statement_list(
-			update_row->update_root,
-			update_row->update_mto1_isa_list,
-			update_row->update_one2m_list );
-
-	update_row->command_line_list =
-		update_row_command_line_list(
-			update_row->update_root,
-			update_row->update_mto1_isa_list,
-			update_row->update_one2m_list );
+			update_row->update_one2m_list,
+			update_row->update_mto1_isa_list );
 
 	return update_row;
 }
@@ -525,7 +534,7 @@ UPDATE_WHERE_ATTRIBUTE *update_where_attribute_new(
 	return update_where_attribute;
 }
 
-int update_row_list_cell_count( UPDATE_ROW_LIST *update_row_list )
+int update_row_list_cell_count( LIST *update_row_list )
 {
 	int cell_count = 0;
 	UPDATE_ROW *update_row;
@@ -1214,13 +1223,15 @@ UPDATE_ROW_LIST *update_row_list_calloc( void )
 }
 
 UPDATE_ROW_LIST *update_row_list_new(
+			char *application_name,
+			char *login_name,
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			char *login_name,
 			char *folder_name,
+			LIST *primary_key_list,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
+			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity )
 {
@@ -1244,25 +1255,26 @@ UPDATE_ROW_LIST *update_row_list_new(
 		list_set(
 			update_row_list->list,
 			update_row_new(
+				application_name,
+				login_name,
 				post_dictionary,
 				file_dictionary,
-				login_name,
 				folder_name,
+				primary_key_list,
 				folder_attribute_list,
-				relation_mto1_isa_list,
 				relation_one2m_recursive_list,
+				relation_mto1_isa_list,
 				post_change_process,
 				security_entity,
 				row ) );
 	}
 
-	update_row_list->cell_count =
-		update_row_list_cell_count(
-			update_row_list );
-
-	update_row_list->command_line_list =
-		update_row_list_command_line_list(
-			update_row_list );
+	if ( list_length( update_row_list->list ) )
+	{
+		update_row_list->cell_count =
+			update_row_list_cell_count(
+				update_row_list->list );
+	}
 
 	return update_row_list;
 }
@@ -1928,14 +1940,13 @@ char *update_row_list_execute(
 	return message_list_string;
 }
 
-FILE *update_sql_pipe( char *application_name )
+FILE *update_non_root_sql_pipe( char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
 		"sql 2>>%s",
-		appaserver_error_filename(
-			application_name ) );
+		appaserver_error_filename );
 
 	return popen( system_string, "w" );
 }

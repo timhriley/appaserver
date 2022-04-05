@@ -15,16 +15,8 @@
 #include "folder_attribute.h"
 #include "folder.h"
 
-/* Constants */
-/* --------- */
-#define UPDATE_PREUPDATE_PREFIX		"preupdate_"
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
 	char *primary_attribute_name;
 	char *datatype_name;
 	char *sql_injection_escape_file_data;
@@ -77,9 +69,6 @@ UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_new(
 			int primary_key_index,
 			char *file_data,
 			int row );
-
-boolean update_attribute_changed_primary_key(
-			LIST *update_attribute_changed_list );
 
 UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_seek(
 			char *attribute_name,
@@ -191,6 +180,9 @@ typedef struct
 
 /* UPDATE_ONE2M operations */
 /* ----------------------- */
+
+/* Usage */
+/* ----- */
 LIST *update_one2m_list(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
@@ -205,6 +197,8 @@ UPDATE_ONE2M *update_one2m_new(
 			RELATION *relation_one2m,
 			int row );
 
+/* Process */
+/* ------- */
 UPDATE_ONE2M *update_one2m_calloc(
 			void );
 
@@ -251,24 +245,21 @@ LIST *update_one2m_list_command_line_list(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	LIST *update_attribute_list;
 	LIST *update_attribute_changed_list;
+	boolean changed_primary_key;
 	LIST *update_where_attribute_list;
 	LIST *update_changed_attribute_list;
-	char *update_where_clause;
-	char *update_root_where_clause;
+	char *where_clause;
 	char *update_sql_statement;
 	char *update_command_line;
-	boolean changed_primary_key;
 } UPDATE_ROOT;
 
 /* UPDATE_ROOT operations */
 /* ---------------------- */
-UPDATE_ROOT *update_root_calloc(
-			void );
 
+/* Usage */
+/* ----- */
 UPDATE_ROOT *update_root_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
@@ -278,6 +269,14 @@ UPDATE_ROOT *update_root_new(
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			int row );
+
+/* Process */
+/* ------- */
+UPDATE_ROOT *update_root_calloc(
+			void );
+
+boolean update_root_changed_primary_key(
+			LIST *update_attribute_changed_list );
 
 char *update_root_where_clause(
 			char *update_where_clause,
@@ -293,11 +292,9 @@ typedef struct
 	/* Process */
 	/* ------- */
 	UPDATE_ROOT *update_root;
-	LIST *update_mto1_isa_list;
 	LIST *update_one2m_list;
+	LIST *update_mto1_isa_list;
 	int cell_count;
-	LIST *sql_statement_list;
-	LIST *command_line_list;
 } UPDATE_ROW;
 
 /* UPDATE_ROW operations */
@@ -306,13 +303,15 @@ UPDATE_ROW *update_row_calloc(
 			void );
 
 UPDATE_ROW *update_row_new(
+			char *application_name,
+			char *login_name,
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			char *login_name,
 			char *folder_name,
+			LIST *primary_key_list,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
+			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			int row );
@@ -334,20 +333,31 @@ LIST *update_row_command_line_list(
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	LIST *list;
 	int dictionary_highest_row;
 	int cell_count;
-	LIST *command_line_list;
-
-	/* Output */
-	/* ------ */
-	char *message_list_string;
 } UPDATE_ROW_LIST;
 
 /* UPDATE_ROW_LIST operations */
 /* -------------------------- */
+
+/* Usage */
+/* ----- */
+UPDATE_ROW_LIST *update_row_list_new(
+			char *application_name,
+			char *login_name,
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_isa_list,
+			LIST *relation_one2m_recursive_list,
+			PROCESS *post_change_process,
+			SECURITY_ENTITY *security_entity );
+
+/* Process */
+/* ------- */
 UPDATE_ROW_LIST *update_row_list_calloc(
 			void );
 
@@ -359,8 +369,8 @@ UPDATE_ROW_LIST *update_row_list_new(
 			char *login_name,
 			char *folder_name,
 			LIST *folder_attribute_list,
-			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
+			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity );
 
@@ -381,19 +391,9 @@ void update_row_list_command_line_execute(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *application_name;
-	char *login_name;
-	ROLE *role;
-	FOLDER *folder;
-	DICTIONARY *post_dictionary;
-	DICTIONARY *file_dictionary;
-
-	/* Process */
-	/* ------- */
 	SECURITY_ENTITY *security_entity;
 	UPDATE_ROW_LIST *update_row_list;
+	UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list;
 } UPDATE;
 
 /* UPDATE operations */
@@ -401,16 +401,19 @@ typedef struct
 
 /* Usage */
 /* ----- */
-UPDATE *update_new(	DICTIONARY *post_dictionary /* in/out */,
-			char *application_name,
+UPDATE *update_new(	char *application_name,
 			char *login_name,
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
 			ROLE *role,
-			FOLDER *folder,
-			DICTIONARY *file_dictionary );
+			FOLDER *folder );
 
 /* Process */
 /* ------- */
 UPDATE *update_calloc(	void );
+
+/* Public */
+/* ------ */
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -426,15 +429,10 @@ char *update_command_line(
 
 /* Returns message_string as heap memory */
 /* ------------------------------------- */
-char *update_execute(	char *sql_statement );
+char *update_root_execute(
+			char *sql_statement );
 
-FILE *update_sql_pipe(	char *application_name );
-
-void update_sql_statement_list_execute(
-			FILE *update_sql_pipe,
-			LIST *sql_statement_list );
-
-char *update_command_line_list_execute(
-			LIST *command_line_list );
+FILE *update_non_root_sql_pipe(
+			char *appaserver_error_filename );
 
 #endif
