@@ -93,6 +93,10 @@ char *dictionary_display(
 char *dictionary_list_display(
 			LIST *dictionary_list );
 
+char *dictionary_display_delimited(
+			DICTIONARY *d,
+			char delimiter );
+
 char *dictionary_display_delimiter(
 			DICTIONARY *d,
 			char delimiter );
@@ -191,10 +195,6 @@ boolean dictionary_key_exists_index_zero(
 boolean dictionary_key_exists_index_zero_or_one(
 			DICTIONARY *indexed_dictionary,
 			char *key );
-
-char *dictionary_display_delimited(
-			DICTIONARY *d,
-			char delimiter );
 
 char *dictionary_index_zero_display_delimited(
 			DICTIONARY *d,

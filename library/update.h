@@ -55,8 +55,17 @@ char *update_where_clause(
 
 /* Public */
 /* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
 char *update_where_list_clause(
 			LIST *update_where_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *update_where_primary_data_delimiter(
+			LIST *update_where_list,
+			char sql_delimiter );
 
 typedef struct
 {
@@ -245,11 +254,9 @@ LIST *update_mto1_isa_one2m_command_line_list(
 
 typedef struct
 {
-	LIST *update_attribute_list;
-	LIST *update_attribute_changed_list;
-	boolean changed_primary_key;
-	LIST *update_where_attribute_list;
-	LIST *update_changed_attribute_list;
+	LIST *update_changed_list;
+	boolean update_changed_primary_key;
+	LIST *update_where_list;
 	char *where_clause;
 	char *update_sql_statement;
 	char *update_command_line;
@@ -261,10 +268,12 @@ typedef struct
 /* Usage */
 /* ----- */
 UPDATE_ROOT *update_root_new(
+			char *application_name,
+			char *login_name,
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			char *login_name,
 			char *folder_name,
+			LIST *primary_key_list,
 			LIST *folder_attribute_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
@@ -275,11 +284,10 @@ UPDATE_ROOT *update_root_new(
 UPDATE_ROOT *update_root_calloc(
 			void );
 
-boolean update_root_changed_primary_key(
-			LIST *update_attribute_changed_list );
-
+/* Returns heap memory */
+/* ------------------- */
 char *update_root_where_clause(
-			char *update_where_clause,
+			char *update_where_list_clause,
 			SECURITY_ENTITY *security_entity,
 			LIST *folder_attribute_list );
 
