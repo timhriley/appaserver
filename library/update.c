@@ -2438,3 +2438,461 @@ LIST *update_one2m_command_line_list(
 	return command_line_list;
 }
 
+LIST *update_where_list(
+			DICTIONARY *file_dictionary,
+			LIST *key_list,
+			LIST *folder_attribute_list,
+			int row )
+{
+	LIST *where_list;
+
+	if ( !list_rewind( key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: key_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	where_list = list_new();
+
+	do {
+		list_set(
+			where_list,
+			update_where_new(
+				file_dictionary,
+				(char *)list_get( key_list ),
+				folder_attribute_list,
+				row ) );
+
+	} while ( list_next( key_list ) );
+
+	return where_list;
+}
+
+UPDATE_WHERE *update_where_new(
+			DICTIONARY *file_dictionary,
+			char *key,
+			LIST *folder_attribute_list,
+			int row )
+{
+	UPDATE_WHERE *update_where = update_where_calloc();
+
+	update_where->file_data =
+		dictionary_row(
+			key,
+			row,
+			file_dictionary );
+
+	if ( !update_where->file_data )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: dictionary_row(%s/%d) returned empty for file_dictionary.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			key,
+			row,
+			dictionary_display_delimiter(
+				file_dictionary,
+				SQL_DELIMITER ) );
+		exit( 1 );
+	}
+
+	update_where->sql_injection_escape_file_data =
+		security_sql_injection_escape(
+			update_where->file_data );
+
+	update_where->folder_attribute =
+		folder_attribute_seek(
+			key,
+			folder_attribute_list );
+
+	if ( !update_where->folder_attribute )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: folder_attribute_seek(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			key );
+		exit( 1 );
+	}
+
+	if ( !update_where->folder_attribute->datatype )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: datatype is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			key );
+		exit( 1 );
+	}
+
+	update_where->clause =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_where_clause(
+			key,
+			update_where->sql_injection_escape_file_data,
+			update_where->
+				folder_attribute->
+				datatype->
+				datatype_name );
+
+	return update_where;
+}
+
+UPDATE_WHERE *update_where_calloc( void )
+{
+	UPDATE_WHERE *update_where;
+
+	if ( ! ( update_where = calloc( 1, sizeof( UPDATE_WHERE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_where;
+}
+
+char *update_where_clause(
+			char *key,
+			char *sql_injection_escape_file_data,
+			char *datatype_name )
+{
+	char clause[ 1024 ];
+
+	if ( !key
+	||   !sql_injection_escape_file_data
+	||   !datatype_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( attribute_is_number( datatype_name ) )
+	{
+		sprintf(clause,
+			"%s = %s",
+			key,
+			sql_injection_escape_file_data );
+	}
+	else
+	{
+		sprintf(clause,
+			"%s = '%s'",
+			key,
+			sql_injection_escape_file_data );
+	}
+
+	return strdup( clause );
+}
+
+char *update_where_list_clause( LIST *update_where_list )
+{
+	UPDATE_WHERE *update_where;
+	char clause[ STRING_16K ];
+	char *ptr = clause;
+
+	if ( !list_rewind( update_where_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_where_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		update_where = list_get( update_where_list );
+
+		if ( !update_where->clause )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: clause is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ptr != clause ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf( ptr, "%s", update_where->clause );
+
+	} while ( list_next( update_where_list ) );
+
+	return strdup( clause );
+}
+
+LIST *update_changed_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			LIST *folder_attribute_list,
+			int row )
+{
+	UPDATE_CHANGED *update_changed;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *list;
+
+	if ( !list_rewind( folder_attribute_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: folder_attribute_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	list = list_new();
+
+	do {
+		folder_attribute = list_get( folder_attribute_list );
+
+		update_changed =
+			update_changed_new(
+				post_dictionary,
+				file_dictionary,
+				folder_attribute,
+				row );
+
+		if ( update_changed )
+		{
+			list_set( list, update_changed );
+		}
+
+	} while ( list_next( folder_attribute_list ) );
+
+	return list;
+}
+
+UPDATE_CHANGED *update_changed_new(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			FOLDER_ATTRIBUTE *folder_attribute,
+			int row )
+{
+	UPDATE_CHANGED *update_changed = update_changed_calloc();
+
+	if ( !folder_attribute
+	||   !folder_attribute->attribute_name
+	||   !folder_attribute->datatype
+	||   !folder_attribute->datatype->datatype_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: folder_attribute is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	update_changed->post_data =
+		dictionary_row(
+			folder_attribute->attribute_name,
+			row,
+			post_dictionary );
+
+	if ( !update_changed->post_data )
+	{
+		free( update_changed );
+		return (UPDATE_CHANGED *)0;
+	}
+
+	update_changed->sql_injection_escape_post_data =
+		security_sql_injection_escape(
+			security_replace_special_characters(
+				string_trim_number_characters(
+					update_changed->post_data,
+					datatype_name ) ) );
+
+	update_changed->file_data =
+		dictionary_row(
+			folder_attribute->attribute_name,
+			row,
+			file_dictionary );
+
+	if ( !update_changed->file_data )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: dictionary_row(%s/%d) returned empty for dictionary = \n[%s].\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			folder_attribute->attribute_name,
+			row,
+			dictionary_display_delimiter(
+				file_dictionary,
+				SQL_DELIMITER ) );
+		exit( 1 );
+	}
+
+	update_changed->sql_injection_escape_file_data =
+		security_sql_injection_escape(
+			update_changed->file_data );
+
+	update_changed->update_changed_boolean =
+		update_changed_boolesn(
+			update_changed->sql_injection_escape_file_data,
+			update_changed->sql_injection_escape_post_data );
+
+	if ( !update_changed->update_changed_boolean )
+	{
+		free( update_changed );
+		return (UPDATE_CHANGED *)0;
+	}
+
+	update_changed->set_clause =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_changed_set_clause(
+			folder_attribute->attribute_name,
+			folder_attribute->datatype->datatype_name,
+			update_changed->sql_injection_escape_post_data );
+
+	update_changed->attribute_name = folder_attribute->attribute_name;
+	update_changed->datatype = folder_attribute->datatype->datatype_name;
+	update_changed->primary_key_index = folder_attribute->primary_key_index;
+
+	return update_changed;
+}
+
+UPDATE_CHANGED *update_changed_calloc( void )
+{
+	UPDATE_CHANGED *update_changed;
+
+	if ( ! ( update_changed = calloc( 1, sizeof( UPDATE_CHANGED ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_changed;
+}
+
+boolean update_changed_boolean(
+			char *sql_injection_escape_file_data,
+			char *sql_injection_escape_post_data )
+{
+	return
+	( string_strcmp(
+		sql_injection_escape_file_data,
+		sql_injection_escape_post_data ) != 0 );
+}
+
+char *update_changed_set_clause(
+			char *attribute_name,
+			char *datatype_name,
+			char *post_data )
+{
+	char set_clause[ STRING_16K ];
+
+	if ( !attribute_name
+	||   !datatype_name
+	||   !post_data )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( strcmp( post_data, "/" ) == 0 )
+	{
+		sprintf(set_clause,
+			"%s = null",
+			attribute_name );
+	}
+	else
+	if ( attribute_is_number( datatype_name ) )
+	{
+		sprintf(set_clause,
+			"%s = %s",
+			attribute_name,
+			post_data );
+	}
+	else
+	{
+		sprintf(set_clause,
+			"%s = '%s'",
+			attribute_name,
+			post_data );
+	}
+
+	return strdup( set_clause );
+}
+
+char *update_changed_list_set_clause(
+			LIST *update_changed_list )
+{
+	char set_clause[ STRING_64K ];
+	char *ptr = set_clause;
+	UPDATE_CHANGED *update_changed;
+
+	if ( !list_rewind( update_changed_list ) ) return (char *)0;
+
+	do {
+		update_changed = list_get( update_changed_list );
+
+		if ( !update_changed->set_clause )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: set_clause is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ptr != set_clause ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			update_changed->set_clause );
+
+		free( update_changed->set_clause );
+
+	} while ( list_next( update_changed_list ) );
+
+	return strdup( set_clause );
+}
+
+boolean update_changed_primary_key(
+			LIST *update_changed_list )
+{
+	UPDATE_CHANGED *update_changed;
+
+	if ( !list_rewind( update_changed_list ) ) return 0;
+
+	do {
+		update_changed = list_get( update_changed_list );
+
+		if ( update_changed->primary_key_index ) return 1;
+
+	} while ( list_next( update_changed_list ) );
+
+	return 0;
+}

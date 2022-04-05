@@ -17,159 +17,110 @@
 
 typedef struct
 {
-	char *primary_attribute_name;
-	char *datatype_name;
+	char *key;
+	char *file_data;
 	char *sql_injection_escape_file_data;
-} UPDATE_WHERE_ATTRIBUTE;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	char *clause;
+} UPDATE_WHERE;
 
-/* UPDATE_WHERE_ATTRIBUTE operations */
-/* --------------------------------- */
-LIST *update_where_attribute_list(
-			LIST *update_attribute_list );
+/* UPDATE_WHERE operations */
+/* ----------------------- */
 
-UPDATE_WHERE_ATTRIBUTE *update_where_attribute_calloc(
+/* Usage */
+/* ----- */
+LIST *update_where_list(
+			DICTIONARY *file_dictionary,
+			LIST *key_list,
+			LIST *folder_attribute_list,
+			int row );
+
+UPDATE_WHERE *update_where_new(
+			DICTIONARY *file_dictionary,
+			char *key,
+			LIST *folder_attribute_list,
+			int row );
+
+/* Process */
+/* ------- */
+UPDATE_WHERE *update_where_calloc(
 			void );
 
-UPDATE_WHERE_ATTRIBUTE *update_where_attribute_new(
-			char *primary_attribute_name,
-			char *datatype_name,
-			char *sql_injection_escape_file_data );
-
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *update_where_clause(
-			LIST *update_where_attribute_list );
+			char *key,
+			char *sql_injection_escape_file_data,
+			char *datatype_name );
+
+/* Public */
+/* ------ */
+char *update_where_list_clause(
+			LIST *update_where_list );
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *attribute_name;
 	char *datatype_name;
 	int primary_key_index;
-	int row;
-	char *file_data;
 
 	/* Process */
 	/* ------- */
 	char *post_data;
 	char *sql_injection_escape_post_data;
-	boolean attribute_changed;
-} UPDATE_ATTRIBUTE_CHANGED;
+	boolean update_changed_boolean;
+} UPDATE_CHANGED;
 
-/* UPDATE_ATTRIBUTE_CHANGED operations */
-/* ----------------------------------- */
-UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_calloc(
-			void );
+/* UPDATE_CHANGED operations */
+/* ------------------------- */
 
-UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_new(
-			DICTIONARY *post_dictionary,
-			char *attribute_name,
-			char *datatype_name,
-			int primary_key_index,
-			char *file_data,
-			int row );
+/* Usage */
+/* ----- */
 
-UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_seek(
-			char *attribute_name,
-			LIST *update_attribute_changed_list );
-
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	FOLDER_ATTRIBUTE *folder_attribute;
-	int row;
-
-	/* Process */
-	/* ------- */
-	char *file_data;
-	char *sql_injection_escape_file_data;
-	UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed;
-	char *update_attribute_preupdate_label;
-} UPDATE_ATTRIBUTE;
-
-/* UPDATE_ATTRIBUTE operations */
-/* --------------------------- */
-LIST *update_attribute_list(
+LIST *update_changed_list(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			LIST *folder_attribute_list,
 			int row );
 
-UPDATE_ATTRIBUTE *update_attribute_calloc(
-			void );
-
-UPDATE_ATTRIBUTE *update_attribute_new(
+UPDATE_CHANGED *update_changed_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
 			FOLDER_ATTRIBUTE *folder_attribute,
 			int row );
 
-/* Returns heap memory */
-/* ------------------- */
-char *update_attribute_preupdate_label(
-			char *attribute_name,
-			int row );
-
-LIST *update_attribute_changed_list(
-			LIST *update_attribute_list );
-
-typedef struct
-{
-	/* Process */
-	/* ------- */
-	LIST *update_attribute_list;
-	LIST *update_attribute_changed_list;
-	LIST *update_where_attribute_list;
-	char *update_where_clause;
-	char *update_sql_statement;
-	char *update_command_line;
-	LIST *one2m_list;
-} UPDATE_MTO1_ISA;
-
-/* UPDATE_MTO1_ISA operations */
-/* -------------------------- */
-LIST *update_mto1_isa_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *login_name,
-			LIST *relation_mto1_isa_list,
-			int row );
-
-UPDATE_MTO1_ISA *update_mto1_isa_new(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *login_name,
-			RELATION *relation_mto1_isa,
-			int row );
-
-UPDATE_MTO1_ISA *update_mto1_isa_calloc(
+/* Process */
+/* ------- */
+UPDATE_CHANGED *update_changed_calloc(
 			void );
 
-LIST *update_mto1_isa_one2m_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *login_name,
-			char *folder_name,
-			int row );
+boolean update_changed_boolean(
+			char *sql_injection_escape_file_data,
+			char *sql_injection_escape_post_data );
 
-LIST *update_mto1_isa_sql_statement_list(
-			LIST *update_mto1_isa_list );
+/* Returns heap memory */
+/* ------------------- */
+char *update_changed_set_clause(
+			char *attribute_name,
+			char *datatype_name,
+			char *sql_injection_escape_post_data );
 
-LIST *update_mto1_isa_command_line_list(
-			LIST *update_mto1_isa_list );
+/* Public */
+/* ------ */
 
-LIST *update_mto1_isa_one2m_sql_statement_list(
-			LIST *update_one2m_list );
+/* Returns heap memory or null.				 */
+/* Note: it executes free( update_changed->set_clause ). */
+/* ----------------------------------------------------- */
+char *update_changed_list_set_clause(
+			LIST *update_changed_list );
 
-LIST *update_mto1_isa_one2m_command_line_list(
-			LIST *update_one2m_list );
+boolean update_changed_primary_key(
+			LIST *update_changed_list );
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	LIST *update_attribute_list;
 	LIST *update_where_attribute_list;
 	LIST *primary_delimited_list;
@@ -241,6 +192,55 @@ LIST *update_one2m_list_sql_statement_list(
 			LIST *update_one2m_list );
 
 LIST *update_one2m_list_command_line_list(
+			LIST *update_one2m_list );
+
+typedef struct
+{
+	LIST *update_attribute_list;
+	LIST *update_attribute_changed_list;
+	LIST *update_where_attribute_list;
+	char *update_where_clause;
+	char *update_sql_statement;
+	char *update_command_line;
+	LIST *one2m_list;
+} UPDATE_MTO1_ISA;
+
+/* UPDATE_MTO1_ISA operations */
+/* -------------------------- */
+LIST *update_mto1_isa_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *login_name,
+			LIST *relation_mto1_isa_list,
+			int row );
+
+UPDATE_MTO1_ISA *update_mto1_isa_new(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *login_name,
+			RELATION *relation_mto1_isa,
+			int row );
+
+UPDATE_MTO1_ISA *update_mto1_isa_calloc(
+			void );
+
+LIST *update_mto1_isa_one2m_list(
+			DICTIONARY *post_dictionary,
+			DICTIONARY *file_dictionary,
+			char *login_name,
+			char *folder_name,
+			int row );
+
+LIST *update_mto1_isa_sql_statement_list(
+			LIST *update_mto1_isa_list );
+
+LIST *update_mto1_isa_command_line_list(
+			LIST *update_mto1_isa_list );
+
+LIST *update_mto1_isa_one2m_sql_statement_list(
+			LIST *update_one2m_list );
+
+LIST *update_mto1_isa_one2m_command_line_list(
 			LIST *update_one2m_list );
 
 typedef struct

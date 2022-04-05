@@ -4008,7 +4008,7 @@ void dictionary_output_as_hidden( DICTIONARY *dictionary )
 	list_free_container( key_list );
 }
 
-char *dictionary_row_get(
+char *dictionary_row(
 			char *attribute_name,
 			int row,
 			DICTIONARY *dictionary )

@@ -675,7 +675,7 @@ char *dictionary_starting_label_get(
 int dictionary_highest_row(
 			DICTIONARY *dictionary );
 
-char *dictionary_row_get(
+char *dictionary_row(
 			char *attribute_name,
 			int row,
 			DICTIONARY *dictionary );
