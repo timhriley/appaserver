@@ -216,11 +216,11 @@ char *element_drop_down_html(
 			element_drop_down_option_value_html(
 				value,
 				list_offset_seek(
-					display_list,
 					list_seek_offset(
 						value,
-						delimited_list ) )
-							/* value_display */ );
+						delimited_list )
+							/* value_display */,
+					display_list ) );
 
 		ptr += sprintf(
 			ptr,

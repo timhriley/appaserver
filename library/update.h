@@ -128,12 +128,14 @@ char *update_changed_list_set_clause(
 boolean update_changed_primary_key(
 			LIST *update_changed_list );
 
+LIST *update_changed_primary_data_list(
+			LIST *update_changed_list );
+
 typedef struct
 {
-	LIST *update_attribute_list;
-	LIST *update_where_attribute_list;
+	LIST *changed_data_list;
+	char *where;
 	LIST *primary_delimited_list;
-	LIST *update_attribute_changed_list;
 	LIST *sql_statement_list;
 	LIST *command_line_list;
 } UPDATE_ONE2M;
@@ -144,64 +146,74 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *update_one2m_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
+			char *application_name,
 			char *login_name,
-			LIST *relation_one2m_recursive_list,
-			int row );
+			LIST *update_changed_primary_data_list,
+			LIST *relation_one2m_recursive_list );
 
 UPDATE_ONE2M *update_one2m_new(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
+			char *application_name,
 			char *login_name,
-			RELATION *relation_one2m,
-			int row );
+			LIST *update_changed_primary_data_list,
+			RELATION *relation_one2m );
 
 /* Process */
 /* ------- */
 UPDATE_ONE2M *update_one2m_calloc(
 			void );
 
+LIST *update_one2m_changed_data_list(
+			LIST *update_changed_primary_data_list,
+			LIST *foreign_key_list );
+
+/* Returns static memory */
+/* --------------------- */
+char *update_one2m_where(
+			LIST *update_changed_primary_data_list,
+			LIST *foreign_key_list );
+
 LIST *update_one2m_primary_delimited_list(
 			char *folder_table_name,
 			LIST *primary_key_list,
-			char *update_where_clause );
+			char *update_one2m_where,
+			char sql_delimiter );
 
 LIST *update_one2m_sql_statement_list(
 			char *folder_table_name,
-			LIST *update_attribute_changed_list,
-			LIST *primary_key_list,
-			LIST *primary_delimited_list );
+			LIST *update_one2m_primary_delimited_list,
+			LIST *foreign_key_list,
+			char sql_delimiter );
 
 LIST *update_one2m_command_line_list(
 			char *command_line,
 			char *login_name,
 			LIST *primary_key_list,
-			LIST *primary_delimited_list,
-			LIST *update_attribute_changed_list );
+			LIST *update_one2m_primary_delimited_list,
+			char *appaserver_update_state );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Private */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
 char *update_one2m_sql_statement(
 			char *folder_table_name,
-			LIST *update_attribute_changed_list,
-			LIST *primary_key_list,
-			LIST *primary_data_list );
+			LIST *foreign_key_list,
+			char *foreign_data_list );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *update_one2m_command_line(
 			char *command_line,
 			char *login_name,
-			LIST *primary_key_list,
-			LIST *primary_data_list,
-			LIST *update_attribute_changed_list );
+			LIST *foreign_key_list,
+			char *foreign_data_list );
 
-LIST *update_one2m_list_sql_statement_list(
-			LIST *update_one2m_list );
-
-LIST *update_one2m_list_command_line_list(
-			LIST *update_one2m_list );
+/* Returns list_get( foreign_key_list ) */
+/* ------------------------------------ */
+char *update_one2m_changed_attribute_name(
+			int primary_key_index,
+			LIST *foreign_key_list );
 
 typedef struct
 {

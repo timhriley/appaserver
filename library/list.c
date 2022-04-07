@@ -765,24 +765,26 @@ LIST *list_subtract( LIST *big_list, LIST *subtract_this )
 	return return_list;
 }
 
-char *list_index_seek(	LIST *list,
-			int index )
+void *list_index_seek(	int index,
+			LIST *list )
 {
+	if ( index < 1 ) return (void *)0;
+
 	if ( list_go_offset( list, index - 1 ) )
-		return (char *)retrieve_item_ptr( list );
+		return list_get( list );
 	else
-		return (char *)0;
+		return (void *)0;
 }
 
-char *list_offset_seek(	LIST *list,
-			int offset )
+void *list_offset_seek(	int offset,
+			LIST *list )
 {
-	if ( offset < 0 ) return (char *)0;
+	if ( offset < 0 ) return (void *)0;
 
 	if ( list_go_offset( list, offset ) )
 		return list_get( list );
 	else
-		return (char *)0;
+		return (void *)0;
 }
 
 boolean list_go_offset(	LIST *list,

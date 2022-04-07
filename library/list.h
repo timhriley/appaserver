@@ -189,13 +189,13 @@ LIST *list_delimiter_string_to_list(
 
 /* offset is zero based */
 /* -------------------- */
-char *list_offset_seek(	LIST *list,
-			int offset );
+void *list_offset_seek(	int offet,
+			LIST *list );
 
 /* index is one based */
 /* ------------------ */
-char *list_index_seek(	LIST *list,
-			int index );
+void *list_index_seek(	int index,
+			LIST *list );
 
 /* Returns -1 if not found */
 /* ----------------------- */
