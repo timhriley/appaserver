@@ -15,6 +15,8 @@
 #include "folder_attribute.h"
 #include "folder.h"
 
+#define UPDATE_PREUPDATE_PREFIX	"preupdate_"
+
 typedef struct
 {
 	char *key;
@@ -79,7 +81,10 @@ typedef struct
 	/* ------- */
 	char *post_data;
 	char *sql_injection_escape_post_data;
+	char *file_data;
+	char *sql_injection_escape_file_data;
 	boolean update_changed_boolean;
+	char *set_clause;
 } UPDATE_CHANGED;
 
 /* UPDATE_CHANGED operations */
@@ -106,8 +111,8 @@ UPDATE_CHANGED *update_changed_calloc(
 			void );
 
 boolean update_changed_boolean(
-			char *sql_injection_escape_file_data,
-			char *sql_injection_escape_post_data );
+			char *sql_injection_escape_post_data,
+			char *sql_injection_escape_file_data );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -128,13 +133,21 @@ char *update_changed_list_set_clause(
 boolean update_changed_primary_key(
 			LIST *update_changed_list );
 
-LIST *update_changed_primary_data_list(
+LIST *update_changed_primary_post_data_list(
+			LIST *update_changed_list );
+
+LIST *update_changed_primary_file_data_list(
+			LIST *update_changed_list );
+
+UPDATE_CHANGED *update_changed_seek(
+			char *attribute_name,
 			LIST *update_changed_list );
 
 typedef struct
 {
-	LIST *changed_data_list;
-	char *where;
+	LIST *changed_list;
+	LIST *where_list;
+	char *update_where_list_clause;
 	LIST *primary_delimited_list;
 	LIST *sql_statement_list;
 	LIST *command_line_list;
@@ -148,13 +161,15 @@ typedef struct
 LIST *update_one2m_list(
 			char *application_name,
 			char *login_name,
-			LIST *update_changed_primary_data_list,
+			LIST *update_changed_list,
+			LIST *update_where_list,
 			LIST *relation_one2m_recursive_list );
 
 UPDATE_ONE2M *update_one2m_new(
 			char *application_name,
 			char *login_name,
-			LIST *update_changed_primary_data_list,
+			LIST *update_changed_list,
+			LIST *update_where_list,
 			RELATION *relation_one2m );
 
 /* Process */
@@ -162,26 +177,25 @@ UPDATE_ONE2M *update_one2m_new(
 UPDATE_ONE2M *update_one2m_calloc(
 			void );
 
-LIST *update_one2m_changed_data_list(
-			LIST *update_changed_primary_data_list,
+LIST *update_one2m_changed_list(
+			LIST *update_changed_list,
 			LIST *foreign_key_list );
 
-/* Returns static memory */
-/* --------------------- */
-char *update_one2m_where(
-			LIST *update_changed_primary_data_list,
+LIST *update_one2m_where_list(
+			char *many_folder_name,
+			LIST *update_where_list,
 			LIST *foreign_key_list );
 
 LIST *update_one2m_primary_delimited_list(
 			char *folder_table_name,
 			LIST *primary_key_list,
-			char *update_one2m_where,
-			char sql_delimiter );
+			char *update_where_list_clause );
 
 LIST *update_one2m_sql_statement_list(
 			char *folder_table_name,
-			LIST *update_one2m_primary_delimited_list,
+			char *update_changed_list_set_clause,
 			LIST *foreign_key_list,
+			LIST *update_one2m_primary_delimited_list,
 			char sql_delimiter );
 
 LIST *update_one2m_command_line_list(
@@ -198,6 +212,7 @@ LIST *update_one2m_command_line_list(
 /* ------------------- */
 char *update_one2m_sql_statement(
 			char *folder_table_name,
+			LIST *update_one2m_changed_data_list,
 			LIST *foreign_key_list,
 			char *foreign_data_list );
 

@@ -143,54 +143,6 @@ UPDATE_ROW *update_row_calloc( void )
 	return update_row;
 }
 
-char *update_where_clause( LIST *update_where_attribute_list )
-{
-	UPDATE_WHERE_ATTRIBUTE *update_where_attribute;
-	char where_clause[ 4096 ];
-	char *ptr = where_clause;
-
-	if ( !list_rewind( update_where_attribute_list ) ) return (char *)0;
-
-	ptr += sprintf( ptr, "where " );
-
-	do {
-		update_where_attribute =
-			list_get(
-				update_where_attribute_list );
-
-		if ( !list_at_first( update_where_attribute_list ) )
-		{
-			ptr += sprintf( ptr, " and " );
-		}
-
-		if ( attribute_is_number(
-			update_where_attribute->
-				datatype_name ) )
-		{
-			ptr +=
-			     sprintf(
-				ptr, 
-				"%s = %s",
-				update_where_attribute->primary_attribute_name,
-				update_where_attribute->
-					sql_injection_escape_file_data );
-		}
-		else
-		{
-			ptr +=
-			     sprintf(
-				ptr, 
-				"%s = '%s'",
-				update_where_attribute->primary_attribute_name,
-				update_where_attribute->
-					sql_injection_escape_file_data );
-		}
-
-	} while( list_next( update_where_attribute_list ) );
-
-	return strdup( where_clause );
-}
-
 UPDATE_ROOT *update_root_new(
 			char *application_name,
 			char *login_name,
@@ -342,10 +294,9 @@ UPDATE_ROW *update_row_new(
 			update_one2m_list(
 				application_name,
 				login_name,
-				post_dictionary,
-				file_dictionary,
-				relation_one2m_recursive_list,
-				row );
+				update_root->update_changed_list,
+				update_root->update_where_list,
+				relation_one2m_recursive_list );
 	}
 
 	if ( list_length( relation_mto1_isa_list ) )
@@ -922,44 +873,35 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 
 	update_mto1_isa = update_mto1_isa_calloc();
 
-	update_mto1_isa->update_attribute_list =
-		update_attribute_list(
+	update_mto1_isa->update_changed_list =
+		update_changed_list(
 			post_dictionary,
 			file_dictionary,
 			relation_mto1_isa->one_folder->folder_attribute_list,
 			row );
 
-	update_mto1_isa->update_attribute_changed_list =
-		update_attribute_changed_list(
-			update_mto1_isa->update_attribute_list );
-
-	if ( !list_length( update_mto1_isa->update_attribute_changed_list ) )
+	if ( !list_length( update_mto1_isa->update_changed_list ) )
 	{
-		list_free_container( update_mto1_isa->update_attribute_list );
 		free( update_mto1_isa );
 		return (UPDATE_MTO1_ISA *)0;
 	}
 
-	update_mto1_isa->update_where_attribute_list =
-		update_where_attribute_list(
-			update_mto1_isa->update_attribute_list );
-
-	update_mto1_isa->update_where_clause =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		update_where_clause(
+	update_mto1_isa->update_where_list_clause =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_where_list_clause(
 			update_mto1_isa->
-				update_where_attribute_list );
+				update_where_list );
 
 	if ( !update_mto1_isa->update_where_clause )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: update_where_clause() returned empty.\n",
+	"ERROR in %s/%s()/%d: update_where_list_clause() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (UPDATE_MTO1_ISA *)0;
+		exit( 1 );
 	}
 
 	update_mto1_isa->update_sql_statement =
@@ -1169,15 +1111,16 @@ LIST *update_mto1_isa_list(
 LIST *update_one2m_list(
 			char *application_name,
 			char *login_name,
-			LIST *update_changed_primary_data_list,
+			LIST *update_changed_list,
+			LIST *update_where_list,
 			LIST *relation_one2m_recursive_list )
 {
-	LIST *list = {0};
+	LIST *one2m_list;
 	RELATION *relation_one2m;
 
 	if ( !list_rewind( relation_one2m_recursive_list ) ) return (LIST *)0;
 
-	list = list_new();
+	one2m_list = list_new();
 
 	do {
 		relation_one2m =
@@ -1185,29 +1128,33 @@ LIST *update_one2m_list(
 				relation_one2m_recursive_list );
 
 		list_set(
-			list,
+			one2m_list,
 			update_one2m_new(
 				application_name,
 				login_name,
-				update_changed_primary_data_list,
+				update_changed_list,
+				update_where_list,
 				relation_one2m ) );
 
 	} while ( list_next( relation_one2m_recursive_list ) );
 
-	return list;
+	return one2m_list;
 }
 
 UPDATE_ONE2M *update_one2m_new(
 			char *application_name,
 			char *login_name,
-			LIST *update_changed_primary_data_list,
+			LIST *update_changed_list,
+			LIST *update_where_list,
 			RELATION *relation_one2m )
 {
 	UPDATE_ONE2M *update_one2m;
+	char *tmp;
 
-	if ( !login_name]
+	if ( !login_name
 	||   !login_name
-	||   !list_length( update_changed_primary_data_list )
+	||   !list_length( update_changed_list )
+	||   !list_length( update_where_list )
 	||   !relation_one2m )
 	{
 		fprintf(stderr,
@@ -1251,30 +1198,17 @@ UPDATE_ONE2M *update_one2m_new(
 		exit( 1 );
 	}
 
-	if ( list_length( relation_one2m->foreign_key_list ) !=
-	     list_length( update_changed_primary_data_list ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: foreign_key_list/primary_data_list mismatch: %d vs. %d\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			list_length( relation_one2m->foreign_key_list ),
-	     		list_length( update_changed_primary_data_list ) );
-		exit( 1 );
-	}
-
 	update_one2m = update_one2m_calloc();
 
-	update_one2m->changed_data_list =
-		update_one2m_changed_data_list(
-			update_changed_primary_data_list,
+	update_one2m->changed_list =
+		update_one2m_changed_list(
+			update_changed_list,
 			foreign_key_list );
 
-	if ( !list_length( update_one2m->changed_data_list ) )
+	if ( !list_length( update_one2m->changed_list ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: update_one2m_changed_data_list(%s) returned empty.\n",
+"ERROR in %s/%s()/%d: update_one2m_changed_list(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -1282,13 +1216,32 @@ UPDATE_ONE2M *update_one2m_new(
 		exit( 1 );
 	}
 
-	update_one2m->where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		update_one2m_where(
-			update_changed_primary_data_list,
+	if ( list_length( update_where_list ) !=
+	     list_length( relation_one2m->foreign_key_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: list length mismatch: %d vs. %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( update_where_list ),
+			list_length( relation_one2m->foreign_key_list ) );
+		exit( 1 );
+	}
+
+	update_one2m->where_list =
+		update_one2m_where_list(
+			relation_one2m->many_folder->folder_name
+				/* many_folder_name */,
+			update_where_list,
 			relation_one2m->foreign_key_list );
+
+	update_one2m->update_where_list_clause =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_where_list_clause(
+			update_one2m->where_list );
 
 	update_one2m->primary_delimited_list =
 		update_one2m_primary_delimited_list(
@@ -1296,27 +1249,29 @@ UPDATE_ONE2M *update_one2m_new(
 				application_name,
 				relation_one2m->many_folder->folder_name ),
 			relation_one2m->many_folder->primary_key_list,
-			update_one2m->where,
-			SQL_DELIMITER );
+			update_one2m->update_where_list_clause );
 
 	if ( !list_length( update_one2m->primary_delimited_list ) )
 	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: update_one2m_primary_delimited_list() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		free( update_one2m );
+		return (UPDATE_ONE2M *)0;
 	}
 
 	update_one2m->sql_statement_list =
 		update_one2m_sql_statement_list(
 			folder_table_name(
-				environment_application_name(),
+				application_name,
 				relation_one2m->many_folder->folder_name ),
-			update_one2m->update_attribute_changed_list,
-			relation_one2m->many_folder->primary_key_list,
-			update_one2m->primary_delimited_list );
+			/* ----------------------------------------------- */
+			/* Returns heap memory or null.			   */
+			/* it executes free( update_changed->set_clause ). */
+			/* ----------------------------------------------- */
+			( tmp =
+				update_changed_list_set_clause(
+					update_one2m->update_changed_list ) ),
+			relation_one2m->foreign_key_list,
+			update_one2m->primary_delimited_list,
+			SQL_DELIMITER );
 
 	if ( !list_length( update_one2m->sql_statement_list ) )
 	{
@@ -1327,6 +1282,8 @@ UPDATE_ONE2M *update_one2m_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	free( tmp );
 
 	if ( relation_one2m->many_folder->post_change_process )
 	{
@@ -1346,25 +1303,41 @@ UPDATE_ONE2M *update_one2m_new(
 }
 
 char *update_one2m_where(
-			LIST *update_changed_primary_data_list,
+			LIST *one2m_changed_list,
 			LIST *foreign_key_list )
 {
 	static char one2m_where[ 1024 ];
 	char *ptr = one2m_where;
+	UPDATE_CHANGED *update_changed;
+	char *foreign_key;
 
-	if ( !list_rewind( update_changed_primary_data_list )
-	||   !list_rewind( foreign_key_list ) )
+	if ( !list_rewind( foreign_key_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-
 	do {
+		foreign_key = list_get( foreign_key_list );
+
+		if ( ! ( update_changed =
+				update_changed_seek(
+					foreign_key,
+					one2m_changed_list ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: update_changed_seek(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				foreign_key );
+			exit( 1 );
+		}
+
 		if ( ptr != one2m_where ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
@@ -1383,9 +1356,26 @@ char *update_one2m_where(
 LIST *update_one2m_primary_delimited_list(
 			char *folder_table_name,
 			LIST *primary_key_list,
-			char *update_one2m_where,
+			char *update_where_list_clause,
 			char sql_delimiter )
 {
+	char system_string[ 1024 ];
+
+	if ( !folder_table_name
+	||   !list_length( primary_key_list )
+	||   !update_where_list_clause
+	||   !sql_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" none",
 }
 
 LIST *update_one2m_sql_statement_list(
@@ -2194,13 +2184,13 @@ char *update_one2m_command_line(
 			char *login_name,
 			LIST *primary_key_list,
 			LIST *primary_data_list,
-			LIST *update_attribute_changed_list )
+			LIST *update_changed_list )
 {
 	char line[ 1024 ];
 	char buffer[ 128 ];
 	char preupdate_attribute_name[ 128 ];
 	char *primary_key;
-	UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed;
+	UPDATE_CHANGED *update_changed;
 
 	if ( !list_rewind( primary_key_list ) )
 	{
@@ -2231,17 +2221,17 @@ char *update_one2m_command_line(
 	do {
 		primary_key = list_get( primary_key_list );
 
-		if ( ( update_attribute_changed =
-			update_attribute_changed_seek(
+		if ( ( update_changed =
+			update_changed_seek(
 				primary_key,
-				update_attribute_changed_list ) ) )
+				update_changed_list ) ) )
 		{
 			string_search_replace(
 				line,
 				primary_key,
 				double_quotes_around(
 					buffer,
-					update_attribute_changed->
+					update_changed->
 					     sql_injection_escape_post_data ) );
 		}
 		else
@@ -2273,33 +2263,34 @@ char *update_one2m_command_line(
 			buffer,
 			"update" ) );
 
-	list_rewind( update_attribute_changed_list );
+	list_rewind( update_changed_list );
 
 	do {
-		update_attribute_changed =
+		update_changed =
 			list_get(
-				update_attribute_changed_list );
+				update_changed_list );
 
 		sprintf(preupdate_attribute_name,
 			"%s%s",
 			UPDATE_PREUPDATE_PREFIX,
-			update_attribute_changed->attribute_name );
+			update_changed->attribute_name );
 
 		string_search_replace(
 			line,
 			preupdate_attribute_name,
 			double_quotes_around(
 				buffer,
-				update_attribute_changed->file_data ) );
+				update_changed->
+					sql_injection_escape_file_data ) );
 
-	} while ( list_next( update_attribute_changed_list ) );
+	} while ( list_next( update_changed_list ) );
 
 	return strdup( line );
 }
 
 LIST *update_one2m_sql_statement_list(
 			char *folder_table_name,
-			LIST *update_attribute_changed_list,
+			LIST *update_changed_list,
 			LIST *primary_key_list,
 			LIST *primary_delimited_list,
 			char sql_delimiter )
@@ -2319,7 +2310,7 @@ LIST *update_one2m_sql_statement_list(
 			/* ------------------- */
 			update_one2m_sql_statement(
 				folder_table_name,
-				update_attribute_changed_list,
+				update_changed_list,
 				primary_key_list,
 				list_string_extract(
 					(char *)list_get(
@@ -2332,55 +2323,149 @@ LIST *update_one2m_sql_statement_list(
 	return sql_statement_list;
 }
 
-LIST *update_one2m_changed_data_list(
-			LIST *update_changed_primary_data_list,
+LIST *update_one2m_changed_list(
+			LIST *update_changed_list,
 			LIST *foreign_key_list )
 {
-	UPDATE_CHANGED *update_changed_primary;
-	UPDATE_CHANGED *update_changed_foreign;
-	LIST *changed_data_list;
+	UPDATE_CHANGED *changed_primary;
+	UPDATE_CHANGED *changed_foreign;
+	LIST *one2m_changed_list;
 
-	if ( !list_rewind( update_changed_primary_data_list ) )
+	if ( !list_rewind( update_changed_list ) )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: update_changed_primary_data_list is empty.\n",
+	"ERROR in %s/%s()/%d: update_changed_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	changed_data_list = list_new();
+	one2m_changed_list = list_new();
 
 	do {
-		update_changed_primary =
+		changed_primary =
 			list_get(
-				update_changed_primary_data_list );
+				update_changed_list );
 
-		if ( update_changed_primary->primary_key_index )
+		if ( changed_primary->primary_key_index )
 		{
-			update_changed_foreign = update_changed_calloc();
+			changed_foreign = update_changed_calloc();
 
-			update_changed_foreign->attribute_name =
+			changed_foreign->attribute_name =
 				/* ------------------------------------ */
 				/* Returns list_get( foreign_key_list ) */
 				/* ------------------------------------ */
 				update_one2m_changed_attribute_name(
-					update_changed_primary->
-						primary_key_index,
+					changed_primary->primary_key_index,
 					foreign_key_list );
 
-			update_changed_foreign->sql_injection_escape_post_data =
-				update_changed_primary->
+			changed_foreign->primary_key_index =
+				changed_primary->primary_key_index;
+
+			changed_foreign->sql_injection_escape_post_data =
+				changed_primary->
 					sql_injection_escape_post_data;
 
-			list_set(
-				changed_data_list,
-				update_changed_foreign );
-		}
-	} while ( list_next( update_changed_primary_data_list ) );
+			changed_foreign->set_clause =
+				update_changed_set_clause(
+					changed_foreign->attribute_name,
+					(char *)0 /* datatype_name */,
+					changed_foreign->
+					       sql_injection_escape_post_data );
 
-	return changed_data_list;
+			list_set(
+				one2m_changed_list,
+				changed_foreign );
+		}
+	} while ( list_next( update_changed_list ) );
+
+	return one2m_changed_list;
+}
+
+LIST *update_one2m_where_list(
+			char *many_folder_name,
+			LIST *update_where_list,
+			LIST *foreign_key_list )
+{
+	UPDATE_WHERE *where_primary;
+	UPDATE_WHERE *where_foreign;
+	char *foreign_key;
+	LIST *one2m_where_list;
+
+	if ( list_length( update_where_list ) !=
+	     list_length( foreign_key_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: list length mismatch: %d vs. %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( update_where_list ),
+			list_length( foreign_key_list ) );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( update_where_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: update_where_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	list_rewind( foreign_key_list );
+
+	one2m_where_list = list_new();
+
+	do {
+		where_primary = list_get( update_where_list );
+
+		if ( !where_primary->folder_attribute
+		||   !where_primary->folder_attribute->datatype )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: datatype is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		foreign_key = list_get( foreign_key_list );
+
+		where_foreign = update_where_calloc();
+
+		where_foreign->folder_attribute =
+			folder_attribute_new(
+				many_folder_name,
+				foreign_key );
+
+		where_foreign->sql_injection_escape_file_data =
+			where_primary->
+				sql_injection_escape_file_data;
+
+		where_foreign->clause =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			update_where_clause(
+				foreign_key,
+				where_primary->sql_injection_escape_file_data,
+				where_primary->
+					folder_attribute->
+					datatype->
+					datatype_name );
+
+		list_set( one2m_where_list, where_foreign );
+
+		list_next( foreign_key_list );
+
+	} while ( list_next( update_where_list ) );
+
+	return one2m_where_list;
 }
 
 char *update_one2m_changed_attribute_name(
@@ -2410,40 +2495,36 @@ char *update_one2m_changed_attribute_name(
 	return attribute_name;
 }
 
-#ifdef NOT_DEFINED
-UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed_seek(
+UPDATE_CHANGED *update_changed_seek(
 			char *attribute_name,
-			LIST *update_attribute_changed_list )
+			LIST *update_changed_list )
 {
-	UPDATE_ATTRIBUTE_CHANGED *update_attribute_changed;
+	UPDATE_CHANGED *update_changed;
 
-	if ( !list_rewind( update_attribute_changed_list ) )
-		return (UPDATE_ATTRIBUTE_CHANGED *)0;
+	if ( !list_rewind( update_changed_list ) )
+		return (UPDATE_CHANGED *)0;
 
 	do {
-		update_attribute_changed =
-			list_get(
-				update_attribute_changed_list );
+		update_changed = list_get( update_changed_list );
 
 		if ( strcmp(
-			update_attribute_changed->attribute_name,
+			update_changed->attribute_name,
 			attribute_name ) == 0 )
 		{
-			return update_attribute_changed;
+			return update_changed;
 		}
 
-	} while ( list_next( update_attribute_changed_list ) );
+	} while ( list_next( update_changed_list ) );
 
-	return (UPDATE_ATTRIBUTE_CHANGED *)0;
+	return (UPDATE_CHANGED *)0;
 }
-#endif
 
 LIST *update_one2m_command_line_list(
 			char *command_line,
 			char *login_name,
-			LIST *primary_key_list,
-			LIST *primary_delimited_list,
-			LIST *update_attribute_changed_list )
+			LIST *foreign_key_list,
+			LIST *foreign_data_list,
+			char *appaserver_update_state )
 {
 	LIST *command_line_list;
 
@@ -2662,7 +2743,7 @@ char *update_where_list_clause( LIST *update_where_list )
 			exit( 1 );
 		}
 
-		if ( ptr != clause ) ptr += sprintf( ptr, "," );
+		if ( ptr != clause ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf( ptr, "%s", update_where->clause );
 
