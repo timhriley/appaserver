@@ -155,6 +155,10 @@ char *folder_attribute_sort_attribute_name(
 char *folder_attribute_list_display(
 			LIST *folder_attribute_list );
 
+LIST *folder_attribute_append_isa_name_list(
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list );
+
 /* Private */
 /* ------- */
 

@@ -611,6 +611,37 @@ LIST *folder_attribute_prefixed_name_list(
 	return name_list;
 }
 
+LIST *folder_attribute_append_isa_name_list(
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+	LIST *name_list;
+
+	if ( !list_rewind( folder_attribute_append_isa_list ) )
+		return (LIST *)0;
+
+	name_list = list_new();
+
+	do {
+		folder_attribute =
+			list_get(
+				folder_attribute_append_isa_list );
+
+		if ( string_strcmp(
+			folder_name,
+			folder_attribute->folder_name ) == 0 )
+		{
+			list_set(
+				name_list,
+				folder_attribute->attribute_name );
+		}
+
+	} while ( list_next( folder_attribute_append_isa_list ) );
+
+	return name_list;
+}
+
 LIST *folder_attribute_name_list(
 			LIST *folder_attribute_list )
 {
