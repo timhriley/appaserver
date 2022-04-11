@@ -59,6 +59,9 @@ UPDATE_ATTRIBUTE *update_attribute_seek(
 			char *attribute_name,
 			LIST *update_attribute_list );
 
+LIST *update_attribute_data_list(
+			LIST *update_attribute_list );
+
 typedef struct
 {
 	UPDATE_ATTRIBUTE *update_attribute;
@@ -101,7 +104,7 @@ char *update_where_list_clause(
 
 /* Returns heap memory */
 /* ------------------- */
-char *update_where_primary_list_string(
+char *update_where_primary_data_list_string(
 			LIST *update_where_list,
 			char sql_delimiter );
 
@@ -166,6 +169,63 @@ UPDATE_CHANGED *update_changed_seek(
 
 typedef struct
 {
+	LIST *update_attribute_list;
+} UPDATE_ONE2M_ROW;
+
+/* UPDATE_ONE2M_ROW operations */
+/* --------------------------- */
+
+/* Usage */
+/* ----- */
+UPDATE_ONE2M_ROW *update_one2m_row_new(
+			char *many_folder_name,
+			LIST *foreign_key_list,
+			LIST *update_one2m_changed_list,
+			LIST *foreign_data_list );
+
+/* Process */
+/* ------- */
+UPDATE_ONE2M_ROW *update_one2m_row_calloc(
+			void );
+
+typedef struct
+{
+	LIST *fetch_list;
+	LIST *list;
+} UPDATE_ONE2M_ROW_LIST;
+
+/* UPDATE_ONE2M_ROW_LIST operations */
+/* -------------------------------- */
+
+/* Usage */
+/* ----- */
+UPDATE_ONE2M_ROW_LIST *update_one2m_row_list_new(
+			char *application_name,
+			char *many_folder_name,
+			LIST *primary_key_list,
+			LIST *update_one2m_changed_list,
+			char *update_where_list_clause );
+
+/* Process */
+/* ------- */
+UPDATE_ONE2M_ROW_LIST *update_one2m_row_list_calloc(
+			void );
+
+LIST *update_one2m_row_list_fetch_list(
+			char *folder_table_name,
+			LIST *foreign_key_list,
+			char *update_where_list_clause );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *update_one2m_row_where(
+			UPDATE_ONEM_ROW *update_one2m_row );
+
+typedef struct
+{
 	LIST *changed_list;
 	LIST *where_list;
 	char *update_where_list_clause;
@@ -199,6 +259,7 @@ UPDATE_ONE2M *update_one2m_calloc(
 			void );
 
 LIST *update_one2m_changed_list(
+			char *many_folder_name,
 			LIST *update_changed_list,
 			LIST *foreign_key_list );
 
@@ -209,23 +270,18 @@ LIST *update_one2m_where_list(
 
 LIST *update_one2m_primary_delimited_list(
 			char *folder_table_name,
-			LIST *primary_key_list,
+			LIST *foreign_key_list,
 			char *update_where_list_clause );
 
 LIST *update_one2m_sql_statement_list(
 			char *folder_table_name,
 			char *update_changed_list_set_clause,
-			LIST *foreign_key_list,
-			LIST *update_one2m_primary_delimited_list,
-			char sql_delimiter );
+			UPDATE_ONE2M_ROW_LIST *update_one2m_row_list );
 
 LIST *update_one2m_command_line_list(
 			char *command_line,
 			char *login_name,
-			LIST *foreign_key_list,
-			LIST *update_one2m_changed_list,
-			LIST *update_one2m_where_list,
-			LIST *update_one2m_primary_delimited_list );
+			UPDATE_ONE2M_ROW_LIST *update_one2m_row_list );
 
 /* Private */
 /* ------- */
@@ -235,19 +291,16 @@ LIST *update_one2m_command_line_list(
 char *update_one2m_sql_statement(
 			char *folder_table_name,
 			char *update_changed_list_set_clause,
-			LIST *foreign_key_list,
-			char *foreign_data_list );
+			char *update_one2m_row_where );
 
 /* Returns heap memory */
 /* ------------------- */
 char *update_one2m_command_line(
 			char *command_line,
 			char *login_name,
-			LIST *foreign_key_list,
-			LIST *update_one2m_changed_list,
-			LIST *update_one2m_where_list,
-			char *foreign_data_list,
-			char *appaserver_update_state );
+			UPDATE_ONE2M_ROW *update_one2m_row,
+			char *appaserver_update_state,
+			char *update_preupdate_prefix );
 
 /* Returns list_get( foreign_key_list ) */
 /* ------------------------------------ */
@@ -476,9 +529,10 @@ char *update_sql_statement(
 char *update_command_line(
 			char *command_line,
 			char *login_name,
-			char *update_where_primary_list_string,
+			char *update_where_primary_data_list_string,
 			LIST *update_attribute_list,
-			char *appaserver_update_state );
+			char *appaserver_update_state,
+			char *update_preupdate_prefix );
 
 /* Returns message_string as heap memory */
 /* ------------------------------------- */

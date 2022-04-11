@@ -24,8 +24,6 @@
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
 	char *attribute_name;
 	char *datatype_name;
 	int width;
