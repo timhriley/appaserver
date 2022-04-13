@@ -135,8 +135,8 @@ UPDATE_CHANGED *update_changed_calloc(
 			void );
 
 boolean update_changed_boolean(
-			char *sql_injection_escape_post_data,
-			char *sql_injection_escape_file_data );
+			char *sql_injection_escape_file_data,
+			char *sql_injection_escape_post_data );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -179,9 +179,9 @@ typedef struct
 /* ----- */
 UPDATE_ONE2M_ROW *update_one2m_row_new(
 			char *many_folder_name,
-			LIST *foreign_key_list,
+			LIST *primary_key_list,
 			LIST *update_one2m_changed_list,
-			LIST *foreign_data_list );
+			LIST *primary_data_list );
 
 /* Process */
 /* ------- */
@@ -213,7 +213,7 @@ UPDATE_ONE2M_ROW_LIST *update_one2m_row_list_calloc(
 
 LIST *update_one2m_row_list_fetch_list(
 			char *folder_table_name,
-			LIST *foreign_key_list,
+			LIST *primary_key_list,
 			char *update_where_list_clause );
 
 /* Public */
@@ -229,7 +229,7 @@ typedef struct
 	LIST *changed_list;
 	LIST *where_list;
 	char *update_where_list_clause;
-	LIST *primary_delimited_list;
+	UPDATE_ONE2M_ROW_LIST *update_one2m_row_list;
 	LIST *sql_statement_list;
 	LIST *command_line_list;
 } UPDATE_ONE2M;
@@ -268,11 +268,6 @@ LIST *update_one2m_where_list(
 			LIST *update_where_list,
 			LIST *foreign_key_list );
 
-LIST *update_one2m_primary_delimited_list(
-			char *folder_table_name,
-			LIST *foreign_key_list,
-			char *update_where_list_clause );
-
 LIST *update_one2m_sql_statement_list(
 			char *folder_table_name,
 			char *update_changed_list_set_clause,
@@ -310,52 +305,31 @@ char *update_one2m_changed_attribute_name(
 
 typedef struct
 {
-	LIST *update_attribute_list;
-	LIST *update_attribute_changed_list;
-	LIST *update_where_attribute_list;
-	char *update_where_clause;
+	LIST *update_changed_list;
+	LIST *update_where_list;
 	char *update_sql_statement;
 	char *update_command_line;
-	LIST *one2m_list;
+	LIST *update_one2m_list;
 } UPDATE_MTO1_ISA;
 
 /* UPDATE_MTO1_ISA operations */
 /* -------------------------- */
 LIST *update_mto1_isa_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
+			char *application_name,
 			char *login_name,
-			LIST *relation_mto1_isa_list,
-			int row );
+			LIST *update_attribute_list,
+			boolean update_changed_primary_key,
+			LIST *relation_mto1_isa_list );
 
 UPDATE_MTO1_ISA *update_mto1_isa_new(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
+			char *application_name,
 			char *login_name,
-			RELATION *relation_mto1_isa,
-			int row );
+			LIST *update_attribute_list,
+			boolean update_changed_primary_key,
+			RELATION *relation_mto1_isa );
 
 UPDATE_MTO1_ISA *update_mto1_isa_calloc(
 			void );
-
-LIST *update_mto1_isa_one2m_list(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *login_name,
-			char *folder_name,
-			int row );
-
-LIST *update_mto1_isa_sql_statement_list(
-			LIST *update_mto1_isa_list );
-
-LIST *update_mto1_isa_command_line_list(
-			LIST *update_mto1_isa_list );
-
-LIST *update_mto1_isa_one2m_sql_statement_list(
-			LIST *update_one2m_list );
-
-LIST *update_mto1_isa_one2m_command_line_list(
-			LIST *update_one2m_list );
 
 typedef struct
 {
@@ -430,8 +404,8 @@ UPDATE_ROW *update_row_new(
 
 int update_row_cell_count(
 			UPDATE_ROOT *update_root,
-			LIST *update_mto1_isa_list,
-			LIST *update_one2m_list );
+			LIST *update_one2m_list,
+			LIST *update_mto1_isa_list );
 
 typedef struct
 {
@@ -490,6 +464,90 @@ LIST *update_row_list_command_line_list(
 
 void update_row_list_command_line_execute(
 			LIST *command_line_list );
+
+typedef struct
+{
+	LIST *list;
+} UPDATE_SQL_STATEMENT_LIST;
+
+/* UPDATE_SQL_STATEMENT_LIST operations */
+/* ------------------------------------ */
+
+/* Usage */
+/* ----- */
+UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list_new(
+			UPDATE_ROW_LIST *update_row_list );
+
+/* Process */
+/* ------- */
+UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list_calloc(
+			void );
+
+typedef struct
+{
+	char *root;
+	char *command_line_root;
+	LIST *one2m_list;
+	LIST *command_line_one2m_list;
+	LIST *mto1_isa_list
+	LIST *command_line_mto1_isa_list;
+} UPDATE_SQL_STATEMENT;
+
+/* UPDATE_SQL_STATEMENT operations */
+/* ------------------------------- */
+
+/* Usage */
+/* ----- */
+UPDATE_SQL_STATEMENT *update_sql_statement_new(
+			UPDATE_ROOT *update_root,
+			LIST *update_one2m_list,
+			LIST *update_mto1_isa_list );
+
+/* Process */
+/* ------- */
+UPDATE_SQL_STATEMENT *update_sql_statement_calloc(
+			void );
+
+char *update_sql_statement_root(
+			UPDATE_ROOT *update_root );
+
+char *update_sql_statement_command_line_root(
+			UPDATE_ROOT *update_root );
+
+LIST *update_sql_statement_one2m_list(
+			LIST *update_one2m_list );
+
+LIST *update_sql_statement_command_line_one2m_list(
+			LIST *update_one2m_list );
+
+LIST *update_sql_statement_mto1_isa_list(
+			LIST *update_mto1_isa_list );
+
+LIST *update_sql_statement_command_line_mto1_isa_list(
+			LIST *update_mto1_isa_list );
+
+/* Public */
+/* ------ */
+
+/* Returns char *sql_error_message or null */
+/* --------------------------------------- */
+char *update_sql_statement_root_execute(
+	char *update_sql_statement_root;
+
+void update_sql_statement_command_line_root_execute(
+	char *update_sql_statement_command_line_root );
+
+void update_sql_statement_one2m_list_execute(
+	LIST *update_sql_statement_one2m_list );
+
+void update_sql_statement_command_line_one2m_list_execute(
+	LIST *update_sql_statement_command_line_one2m_list );
+
+void update_sql_statement_mto1_isa_list_execute(
+	LIST *update_sql_statement_mto1_isa_list );
+
+void update_sql_statement_command_line_mto1_isa_list_execute(
+	LIST *update_sql_statement_command_line_mto1_isa_list );
 
 typedef struct
 {
