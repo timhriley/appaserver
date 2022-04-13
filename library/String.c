@@ -773,7 +773,7 @@ char *string_fetch_pipe( char *system_string )
 
 char *string_pipe_fetch( char *system_string )
 {
-	char buffer[ 65536 ];
+	char buffer[ STRING_64K ];
 	FILE *p;
 	int null_input = 0;
 
@@ -783,7 +783,7 @@ char *string_pipe_fetch( char *system_string )
 
 	p = popen( system_string, "r" );
 
-	if ( !string_input( buffer, p, 65536 ) ) null_input = 1;
+	if ( !string_input( buffer, p, STRING_64K ) ) null_input = 1;
 
 	pclose( p );
 

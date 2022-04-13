@@ -242,6 +242,7 @@ typedef struct
 LIST *update_one2m_list(
 			char *application_name,
 			char *login_name,
+			char *appaserver_error_filename,
 			LIST *update_changed_list,
 			LIST *update_where_list,
 			LIST *relation_one2m_recursive_list );
@@ -249,6 +250,7 @@ LIST *update_one2m_list(
 UPDATE_ONE2M *update_one2m_new(
 			char *application_name,
 			char *login_name,
+			char *appaserver_error_filename,
 			LIST *update_changed_list,
 			LIST *update_where_list,
 			RELATION *relation_one2m );
@@ -276,6 +278,7 @@ LIST *update_one2m_sql_statement_list(
 LIST *update_one2m_command_line_list(
 			char *command_line,
 			char *login_name,
+			char *appaserver_error_filename,
 			UPDATE_ONE2M_ROW_LIST *update_one2m_row_list );
 
 /* Private */
@@ -293,6 +296,7 @@ char *update_one2m_sql_statement(
 char *update_one2m_command_line(
 			char *command_line,
 			char *login_name,
+			char *appaserver_error_filename,
 			UPDATE_ONE2M_ROW *update_one2m_row,
 			char *appaserver_update_state,
 			char *update_preupdate_prefix );
@@ -317,6 +321,7 @@ typedef struct
 LIST *update_mto1_isa_list(
 			char *application_name,
 			char *login_name,
+			char *appaserver_error_filename,
 			LIST *update_attribute_list,
 			boolean update_changed_primary_key,
 			LIST *relation_mto1_isa_list );
@@ -324,6 +329,7 @@ LIST *update_mto1_isa_list(
 UPDATE_MTO1_ISA *update_mto1_isa_new(
 			char *application_name,
 			char *login_name,
+			char *appaserver_error_filename,
 			LIST *update_attribute_list,
 			boolean update_changed_primary_key,
 			RELATION *relation_mto1_isa );
@@ -355,6 +361,7 @@ UPDATE_ROOT *update_root_new(
 			LIST *folder_attribute_append_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
+			char *appaserver_error_filename,
 			LIST *update_attribute_list );
 
 /* Process */
@@ -386,9 +393,9 @@ typedef struct
 
 /* UPDATE_ROW operations */
 /* --------------------- */
-UPDATE_ROW *update_row_calloc(
-			void );
 
+/* Usage */
+/* ----- */
 UPDATE_ROW *update_row_new(
 			char *application_name,
 			char *login_name,
@@ -400,11 +407,44 @@ UPDATE_ROW *update_row_new(
 			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
+			char *appaserver_error_filename,
 			int row );
 
+/* Process */
+/* ------- */
+UPDATE_ROW *update_row_calloc(
+			void );
 int update_row_cell_count(
 			UPDATE_ROOT *update_root,
 			LIST *update_one2m_list,
+			LIST *update_mto1_isa_list );
+
+/* Public */
+/* ------ */
+
+/* Returns char *sql_error_message or null */
+/* --------------------------------------- */
+char *update_row_root_sql_statement_execute(
+			char *update_sql_statement );
+
+void update_row_sql_statement_list_execute(
+			LIST *update_one2m_list,
+			LIST *update_mto1_isa_list,
+			char *appaserver_error_filename );
+
+void update_row_command_line_execute(
+			UPDATE_ROOT *update_root,
+			LIST *update_one2m_list,
+			LIST *update_mto1_isa_list );
+
+/* Private */
+/* ------- */
+void update_row_one2m_sql_statement_execute(
+			FILE *output_pipe,
+			LIST *update_one2m_list );
+
+void update_row_mto1_isa_sql_statement_execute(
+			FILE *output_pipe,
 			LIST *update_mto1_isa_list );
 
 typedef struct
@@ -419,6 +459,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Returns null if no updates */
+/* -------------------------- */
 UPDATE_ROW_LIST *update_row_list_new(
 			char *application_name,
 			char *login_name,
@@ -430,40 +473,25 @@ UPDATE_ROW_LIST *update_row_list_new(
 			LIST *relation_mto1_isa_list,
 			LIST *relation_one2m_recursive_list,
 			PROCESS *post_change_process,
-			SECURITY_ENTITY *security_entity );
+			SECURITY_ENTITY *security_entity,
+			char *appaserver_error_filename );
 
 /* Process */
 /* ------- */
 UPDATE_ROW_LIST *update_row_list_calloc(
 			void );
 
-/* Returns null if no updates */
-/* -------------------------- */
-UPDATE_ROW_LIST *update_row_list_new(
-			DICTIONARY *post_dictionary,
-			DICTIONARY *file_dictionary,
-			char *login_name,
-			char *folder_name,
-			LIST *folder_attribute_list,
-			LIST *relation_one2m_recursive_list,
-			LIST *relation_mto1_isa_list,
-			PROCESS *post_change_process,
-			SECURITY_ENTITY *security_entity );
-
 int update_row_list_cell_count(
 			UPDATE_ROW_LIST *update_row_list );
 
+/* Public */
+/* ------ */
+
+/* Returns char *sql_error_message or null */
+/* --------------------------------------- */
 char *update_row_list_execute(
-			UPDATE_ROW_LIST *update_row_list );
-
-LIST *update_row_list_sql_statement_list(
-			UPDATE_ROW_LIST *update_row_list );
-
-LIST *update_row_list_command_line_list(
-			UPDATE_ROW_LIST *update_row_list );
-
-void update_row_list_command_line_execute(
-			LIST *command_line_list );
+			UPDATE_ROW_LIST *update_row_list,
+			char *appaserver_error_filename );
 
 typedef struct
 {
@@ -532,22 +560,18 @@ LIST *update_sql_statement_command_line_mto1_isa_list(
 /* Returns char *sql_error_message or null */
 /* --------------------------------------- */
 char *update_sql_statement_root_execute(
-	char *update_sql_statement_root;
+			char *update_sql_statement_root );
 
-void update_sql_statement_command_line_root_execute(
-	char *update_sql_statement_command_line_root );
+void update_sql_statement_list_execute(
+			LIST *update_sql_statement_one2m_list,
+			LIST *update_sql_statement_mto1_isa_list,
+			char *appaserver_error_filename );
 
-void update_sql_statement_one2m_list_execute(
-	LIST *update_sql_statement_one2m_list );
-
-void update_sql_statement_command_line_one2m_list_execute(
-	LIST *update_sql_statement_command_line_one2m_list );
-
-void update_sql_statement_mto1_isa_list_execute(
-	LIST *update_sql_statement_mto1_isa_list );
-
-void update_sql_statement_command_line_mto1_isa_list_execute(
-	LIST *update_sql_statement_command_line_mto1_isa_list );
+void update_sql_statement_command_line_execute(
+			char *update_sql_statement_command_line_root,
+			LIST *update_sql_statement_command_line_one2m_list,
+			LIST *update_sql_statement_command_line_mto1_isa_list,
+			char *appaserver_error_filename );
 
 typedef struct
 {
@@ -590,14 +614,7 @@ char *update_command_line(
 			char *update_where_primary_data_list_string,
 			LIST *update_attribute_list,
 			char *appaserver_update_state,
-			char *update_preupdate_prefix );
-
-/* Returns message_string as heap memory */
-/* ------------------------------------- */
-char *update_root_execute(
-			char *sql_statement );
-
-FILE *update_non_root_sql_pipe(
+			char *update_preupdate_prefix,
 			char *appaserver_error_filename );
 
 #endif
