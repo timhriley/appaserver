@@ -33,6 +33,8 @@
 #define APPASERVER_UPDATE_STATE			"update"
 #define APPASERVER_LOOKUP_STATE			"lookup"
 #define APPASERVER_VIEWONLY_STATE		"viewonly"
+#define APPASERVER_DELETE_STATE			"delete"
+#define APPASERVER_PREDELETE_STATE		"predelete"
 
 /* To retire */
 /* --------- */

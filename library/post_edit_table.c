@@ -122,17 +122,6 @@ POST_EDIT_TABLE *post_edit_table_new(
 					folder->
 					folder_attribute_append_isa_list ) );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: non_prefixed_dictionary = \n[%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-dictionary_display_delimiter(
-	post_edit_table->dictionary_separate->non_prefixed_dictionary,
-	'^' ) );
-m2( application_name, msg );
-}
 	return post_edit_table;
 }
 

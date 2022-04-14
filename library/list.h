@@ -142,8 +142,11 @@ void *list_get_current_pointer( LIST *list );
 boolean go_tail();
 
 int next_node();
+
 int previous_node();
+
 int retrieve_item( char *ret_item, LIST *list );
+
 char *retrieve_item_ptr();
 
 char *add_item(	LIST *list,
