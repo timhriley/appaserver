@@ -573,6 +573,20 @@ char *list_display_delimited( LIST *list, char delimiter )
 	return list_delimited( list, delimiter );
 }
 
+char *list_delimited_string(
+			LIST *list,
+			char delimiter )
+{
+	char *string;
+
+	string = list_delimited( list, delimiter );
+
+	if ( *string == '\0' )
+		return (char *)0;
+	else
+		return string;
+}
+
 char *list_delimited( LIST *list, char delimiter )
 {
 	char buffer[ 65536 ];

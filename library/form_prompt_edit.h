@@ -23,12 +23,6 @@
 #define FORM_PROMPT_EDIT_RELATIONAL_PREFIX \
 					"form_prompt_edit_relational_"
 
-#define FORM_PROMPT_EDIT_FROM_PREFIX \
-					"form_prompt_edit_from_"
-
-#define FORM_PROMPT_EDIT_TO_PREFIX \
-					"form_prompt_edit_to_"
-
 #define FORM_PROMPT_EDIT_ORIGINAL_PREFIX \
 					"original_"
 

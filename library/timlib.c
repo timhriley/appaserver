@@ -158,9 +158,9 @@ int timlib_index( char *attribute_name )
 	return -1;
 }
 
-char *timlib_trim_index( char *destination, char *attribute_name )
+char *trim_index( char *destination, char *attribute_name )
 {
-	return trim_index( destination, attribute_name );
+	return timlib_trim_index( destination, attribute_name );
 }
 
 char *timlib_trim_trailing_character(	char *source_destination,
@@ -178,7 +178,9 @@ char *timlib_trim_trailing_character(	char *source_destination,
 
 /* Sample: attribute_name = "station_1" */
 /* ------------------------------------ */
-char *trim_index( char *destination, char *attribute_name )
+char *timlib_trim_index(
+			char *destination,
+			char *attribute_name )
 {
 	char *end_ptr;
 
@@ -639,14 +641,14 @@ char *trim_character( char *destination, char c, char *source )
 
 }
 
-int timlib_character_exists( char *buffer, int c )
+boolean timlib_character_exists( char *buffer, char c )
 {
-	return exists_character( buffer, c );
+	return timlib_exists_character( buffer, c );
 }
 
-int character_exists( char *buffer, int c )
+boolean character_exists( char *buffer, char c )
 {
-	return exists_character( buffer, c );
+	return timlib_exists_character( buffer, c );
 }
 
 boolean timlib_exists_alpha( char *s )
@@ -709,20 +711,6 @@ boolean timlib_ends_string(	 	char *string,
 		if ( string_end < string ) return 0;
 	}
 
-}
-
-int exists_character( char *buffer, int c )
-{
-	int position = 1;
-
-	if ( !buffer ) return 0;
-
-	while( *buffer )
-	{
-		if ( *buffer++ == c ) return position;
-		position++;
-	}
-	return 0;
 }
 
 int character_position( char *buffer, int c )
@@ -2735,10 +2723,9 @@ boolean timlib_exists_character(
 			char *s,
 			char ch )
 {
-	while( *s )
+	while( *s++ )
 	{
 		if ( *s == ch ) return 1;
-		s++;
 	}
 	return 0;
 }

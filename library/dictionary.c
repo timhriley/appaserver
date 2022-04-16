@@ -27,6 +27,74 @@
 /* ------------------------------------------------------------ */
 void dictionary_parse_multi_attribute_keys(
 			DICTIONARY *dictionary, 
+			char delimiter )
+{
+	LIST *key_list;
+	char *key;
+	char *data;
+	char key_without_index[ 256 ];
+	char key_with_index[ 128 ];
+	LIST *attribute_key_list;
+	LIST *attribute_data_list;
+	int index;
+
+	key_list = dictionary_key_list( dictionary );
+
+	if ( !list_rewind( key_list ) ) return;
+
+	do {
+		key = list_get( key_list );
+
+		if ( timlib_exists_character( key, delimiter ) )
+		{
+			data =
+				dictionary_get(
+					key,
+					dictionary );
+
+			index = timlib_index( key );
+
+			timlib_trim_index( key_without_index, key );
+
+			attribute_key_list = 
+				list_string_to_list(
+					key_without_index,
+					delimiter );
+
+			attribute_data_list = 
+				list_string_to_list(
+					data,
+					delimiter );
+
+			list_rewind( attribute_key_list );
+			list_rewind( attribute_data_list );
+
+			do {
+				sprintf(key_with_index, 
+				 	"%s_%d",
+				 	(char *)list_get( attribute_key_list ),
+					index );
+
+				dictionary_set( 
+					dictionary, 
+					strdup( key_with_index ),
+					list_get( attribute_data_list ) );
+
+				list_next( attribute_data_list );
+
+			} while( list_next( attribute_key_list ) );
+		}
+	} while( list_next( key_list ) );
+}
+
+#ifdef NOT_DEFINED
+/* ------------------------------------------------------------ */
+/* Sample:							*/
+/* From:  "station^datatype_1=BA^stage"				*/
+/* To:    "station_1=BA and datatype_1=stage"			*/
+/* ------------------------------------------------------------ */
+void dictionary_parse_multi_attribute_keys(
+			DICTIONARY *dictionary, 
 			char key_delimiter,
 			char data_delimiter,
 			char *prefix,
@@ -82,7 +150,7 @@ void dictionary_parse_multi_attribute_keys(
 			trim_index( key_without_index, full_key );
 
 			attribute_key_list = 
-				list_string2list(
+				list_string_to_list(
 					key_without_index,
 					key_delimiter);
 
@@ -139,6 +207,7 @@ void dictionary_parse_multi_attribute_keys(
 
 	} while( list_next( multi_attribute_key_list ) );
 }
+#endif
 
 void dictionary_parse_multi_attribute_relation_operator_keys(
 			DICTIONARY *dictionary, 
@@ -1789,7 +1858,7 @@ DICTIONARY *dictionary_remove_index(
 					key,
 					source_dictionary );
 
-			trim_index( key_without_index, key );
+			timlib_trim_index( key_without_index, key );
 
 			dictionary_set(
 				dictionary,
@@ -2250,7 +2319,7 @@ char *dictionary_new_index_key( DICTIONARY *d, char *key )
 	char new_key[ 1024 ];
 	int index;
 
-	trim_index( key_without_index, key );
+	timlib_trim_index( key_without_index, key );
 	for ( index = 0 ;; index++ )
 	{
 		sprintf( new_key, "%s_%d", key_without_index, index );
@@ -2804,7 +2873,6 @@ char *dictionary_trim_double_bracked_string( char *string )
 	}
 
 	return string;
-
 }
 
 int dictionary_delete_key( DICTIONARY *dictionary, char *key )
@@ -3047,7 +3115,7 @@ void dictionary_convert_index_to_index_zero(
 			{
 				data = dictionary_get( key, dictionary );
 
-				trim_index( key_without_index, key );
+				timlib_trim_index( key_without_index, key );
 
 				sprintf(new_key, 
 	 				"%s_0",

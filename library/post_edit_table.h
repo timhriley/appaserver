@@ -13,6 +13,7 @@
 #include "folder.h"
 #include "post_dictionary.h"
 #include "dictionary_separate.h"
+#include "update.h"
 
 #define POST_EDIT_TABLE_EXECUTABLE	"post_edit_table"
 
@@ -30,6 +31,9 @@ typedef struct
 	FOLDER *folder;
 	POST_DICTIONARY *post_dictionary;
 	DICTIONARY_SEPARATE *dictionary_separate;
+	char *edit_table_spool_filename;
+	DICTIONARY *file_dictionary;
+	UPDATE *update;
 } POST_EDIT_TABLE;
 
 /* POST_EDIT_TABLE operations */

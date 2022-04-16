@@ -47,7 +47,8 @@ char *timlib_trim_index(
 			char *destination,
 			char *attribute_name );
 
-char *trim_index( char *destination, char *attribute_name );
+char *trim_index(	char *destination,
+			char *attribute_name );
 
 char *trim_index_zero( char *destination, char *attribute_name );
 
@@ -85,7 +86,8 @@ char *get_line_system(		char *sys_string );
 
 char **pipe_list2list(		char *pipe_list, int max_items );
 
-int exists_character(		char *buffer, int c );
+boolean exists_character(	char *buffer,
+				char c );
 
 char *trim_until_character(	char *destination,
 				char c,
@@ -428,10 +430,12 @@ char *mysql2american_date(
 			char *mysql_date );
 
 boolean timlib_character_exists(
-			char *buffer, int c );
+			char *buffer,
+			char c );
 
 boolean character_exists(
-			char *buffer, int c );
+			char *buffer,
+			char c );
 
 void get_clean_begin_end_date(
 			char **begin_date,

@@ -111,16 +111,57 @@ POST_EDIT_TABLE *post_edit_table_new(
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_folder_new(
+		dictionary_separate_post_edit_table_new(
 			post_edit_table->
 				post_dictionary->
 				original_post_dictionary,
 			application_name,
 			login_name,
+			post_edit_table->
+				folder->
+				relation_mto1_non_isa_list,
+			folder_attribute_name_list(
+				post_edit_table->
+					folder->
+					folder_attribute_append_isa_list ) );
+			operation_name_list(
+				post_edit_table->
+					role_operation_list ),
 			folder_attribute_date_name_list(
 				post_edit_table->
 					folder->
 					folder_attribute_append_isa_list ) );
+
+	post_edit_table->edit_table_spool_filename =
+		edit_table_spool_filename(
+			appaserver_parameter_data_directory(),
+			application_name,
+			folder_name,
+			session_key );
+
+	post_edit_table->file_dictionary =
+		dictionary_file_fetch(
+			post_edit_table->edit_table_spool_filename,
+			SQL_DELIMITER );
+
+	if ( dictionary_length(
+		post_edit_table->
+			dictionary_separate->
+			non_prefixed_dictionary )
+	&&   dictionary_length( post_edit_table->file_dictionary ) )
+	{
+		post_edit_table->update =
+			update_new(
+				application_name,
+				login_name,
+				post_edit_table->
+					dictionary_separate->
+					non_prefixed_dictionary
+						/* post_dictionary */,
+				post_edit_table->file_dictionary,
+				post_edit_table->role,
+				post_edit_table->folder );
+	}
 
 	return post_edit_table;
 }

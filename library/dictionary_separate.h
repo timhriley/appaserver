@@ -21,25 +21,55 @@
 #define DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX	"ppair_one2m_"
 #define DICTIONARY_SEPARATE_SORT_BUTTON_PREFIX	"ssort_button_"
 
-#define NO_DISPLAY_PUSH_BUTTON_PREFIX		"no_display_"
-#define FROM_PREFIX				"from_"
-#define TO_PREFIX				"to_"
+#define DICTIONARY_SEPARATE_NO_DISPLAY_PUSH_BUTTON_PREFIX \
+						"no_display_"
 
-/* Structures */
-/* ---------- */
+#define DICTIONARY_SEPARATE_FROM_PREFIX		"from_"
+#define DICTIONARY_SEPARATE_TO_PREFIX		"to_"
+
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *application_name;
-	LIST *folder_attribute_date_name_list;
-	LIST *operation_name_list;
-	char *login_name;
+	DICTIONARY *dictionary;
+} DICTIONARY_SEPARATE_WORKING_POST;
 
-	/* Process */
-	/* ------- */
+/* DICTIONARY_SEPARATE_WORKING_POST operations */
+/* ------------------------------------------- */
+
+/* Usage */
+/* ----- */
+DICTIONARY_SEPARATE_WORKING_POST *
+	dictionary_separate_working_post_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_WORKING_POST *
+	dictionary_separate_working_post_calloc(
+			void );
+
+void dictionary_separate_working_post_date_convert(
+			DICTIONARY *dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list,
+			char *dictionary_separate_from_prefix,
+			char *dictionary_separate_to_prefix );
+
+void dictionary_separate_working_post_trim_multi_drop_down_index(
+			DICTIONARY *dictionary,
+			char element_multi_move_left_right_delimiter );
+
+void dictionary_separate_working_post_trim_double_bracked_data(
+			DICTIONARY *dictionary );
+
+typedef struct
+{
 	DICTIONARY *original_post_dictionary;
-	DICTIONARY *working_post_dictionary;
+	DICTIONARY *parse_multi_attribute_dictionary;
+	DICTIONARY_SEPARATE_WORKING_POST *working_post;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
@@ -47,50 +77,53 @@ typedef struct
 	DICTIONARY *ignore_dictionary;
 	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
-	DICTIONARY *send_dictionary;
 	LIST *ignore_select_attribute_name_list;
 } DICTIONARY_SEPARATE;
 
+/* DICTIONARY_SEPARATE operations */
+/* ------------------------------ */
+
+/* Private */
+/* ------- */
 DICTIONARY_SEPARATE *dictionary_separate_calloc(
 			void );
 
-/* Always succeeds */
-/* --------------- */
-DICTIONARY_SEPARATE *dictionary_separate_folder_new(
-			DICTIONARY *original_post_dictionary,
-			char *application_name,
-			char *login_name,
-			LIST *folder_attribute_date_name_list );
-
-/* Always succeeds */
-/* --------------- */
-DICTIONARY_SEPARATE *dictionary_separate_row_new(
-			DICTIONARY *original_row_dictionary,
-			char *application_name,
-			char *login_name,
-			LIST *attribute_name_list,
-			LIST *folder_attribute_date_name_list,
-			LIST *operation_name_list );
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
 DICTIONARY_SEPARATE *dictionary_separate_string_new(
 			DICTIONARY *original_post_dictionary );
 
-DICTIONARY *dictionary_separate_row_dictionary_row_zero(
-			DICTIONARY *working_post_dictionary,
-			LIST *attribute_name_list );
+/* Usage */
+/* ----- */
 
-DICTIONARY *dictionary_separate_row_dictionary_multi_row(
-			DICTIONARY *non_prefixed_dictionary,
-			LIST *attribute_name_list,
-			LIST *operation_name_list );
+/* Always succeeds */
+/* --------------- */
+DICTIONARY_SEPARATE *dictionary_separate_post_edit_table_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *relation_mto1_non_isa_list,
+			LIST *folder_attribute_name_list,
+			LIST *operation_name_list,
+			LIST *folder_attribute_date_name_list );
 
+/* Followed by dictionary_append_dictionar() */
+/* ----------------------------------------- */
+DICTIONARY *dictionary_separate_parse_multi_attribute_dictionary(
+			DICTIONARY *original_post_dictionary,
+			LIST *relation_mto1_non_isa_list,
+			char sql_delimiter );
+
+/* Returns original_post_dictionary */
+/* -------------------------------- */
 DICTIONARY *dictionary_separate_working_post(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
-			LIST *folder_attribute_date_name_list,
-			char *login_name );
+			char *login_name,
+			LIST *folder_attribute_date_name_list );
 
 DICTIONARY *dictionary_separate_query(
 			char *dictionary_separate_query_prefix,
@@ -111,10 +144,6 @@ DICTIONARY *dictionary_separate_send_dictionary(
 			DICTIONARY *ignore_dictionary,
 			DICTIONARY *pair_one2m_dictionary,
 			DICTIONARY *non_prefixed_dictionary );
-
-void dictionary_separate_parse_multi_attribute_keys(
-			DICTIONARY *source_destination,
-			char *prefix );
 
 DICTIONARY *dictionary_separate_row(
 			DICTIONARY *row_dictionary,
@@ -164,25 +193,12 @@ DICTIONARY *dictionary_separate_prefixed(
 LIST *dictionary_separate_ignore_select_attribute_name_list(
 			DICTIONARY *ignore_dictionary );
 
-void dictionary_separate_date_convert(
-			DICTIONARY *working_post_dictionary,
-			char *application_name,
-			char *login_name,
-			LIST *folder_attribute_date_name_list );
-
 void dictionary_separate_string_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *date_string,
 			char *key,
 			char *login_name );
-
-void dictionary_separate_trim_multi_drop_down_index(
-			DICTIONARY *working_post_dictionary,
-			char multi_select_move_left_right_index_delimiter );
-
-void dictionary_separate_trim_double_bracked_data(
-			DICTIONARY *working_post_dictionary );
 
 /* Returns heap memory */
 /* ------------------- */

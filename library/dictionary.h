@@ -47,62 +47,62 @@ DICTIONARY *dictionary_string_dictionary(
 DICTIONARY *dictionary_string2dictionary(
 			char *dictionary_string );
 
-int dictionary_len(	DICTIONARY *d );
+int dictionary_len(	DICTIONARY *dictionary );
 
-int dictionary_length(	DICTIONARY *d );
+int dictionary_length(	DICTIONARY *dictionary );
 
-void dictionary_set( 	DICTIONARY *d, 
+void dictionary_set( 	DICTIONARY *dictionary,
 			char *key, 
 			char *data );
 
 char *dictionary_pointer(
 			char *key,
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
 char *dictionary_get(	char *key,
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
-void dictionary_free(	DICTIONARY *d );
+void dictionary_free(	DICTIONARY *dictionary );
 
 void dictionary_free_data(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			LIST *key_list );
 
 void dictionary_free_container(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
-char **get_key_array(	DICTIONARY *d );
+char **get_key_array(	DICTIONARY *dictionary );
 
 int dictionary_all_null_data(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
-void dictionary_add(	DICTIONARY *d,
+void dictionary_add(	DICTIONARY *dictionary,
 			char *key,
 			char *data,
 			int size );
 
 LIST *dictionary_key_list(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
 LIST *dictionary_ordered_key_list(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
 char *dictionary_display(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
 char *dictionary_list_display(
 			LIST *dictionary_list );
 
 char *dictionary_display_delimited(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char delimiter );
 
 char *dictionary_display_delimiter(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char delimiter );
 
 int dictionary_key_highest_index(
-			DICTIONARY *d );
+			DICTIONARY *dictionary );
 
 LIST *dictionary_index_data_list(
 			DICTIONARY *dictionary,
@@ -131,34 +131,27 @@ boolean dictionary_exists_key_index(
 			char *search_key,
 			int row );
 
-void dictionary_parse_multi_attribute_keys(
-			DICTIONARY *dictionary, 
-			char key_delimiter,
-			char data_delimiter,
-			char *prefix,
-			boolean dont_include_relational_operators );
-
 void dictionary_parse_multi_attribute_relation_operator_keys(
 			DICTIONARY *dictionary, 
 			char multi_attribute_drop_down_delimiter );
 
 void dictionary_add_string(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char *key, 
 			char *data_string );
 
 void dictionary_set_string(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char *key, 
 			char *data_string );
 
 void dictionary_set_index_zero(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char *key, 
 			char *data_string );
 
 void dictionary_set_string_index_key(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char *key, 
 			char *data_string,
 			int index );
@@ -197,7 +190,7 @@ boolean dictionary_key_exists_index_zero_or_one(
 			char *key );
 
 char *dictionary_index_zero_display_delimited(
-			DICTIONARY *d,
+			DICTIONARY *dictionary,
 			char delimiter );
 
 void dictionary_add_elements_by_removing_prefix(
@@ -276,6 +269,12 @@ DICTIONARY *dictionary_copy_dictionary(
 DICTIONARY *copy_dictionary_dictionary(
 			DICTIONARY *dictionary );
 
+/* --------------------------------------------------------------------------- 
+Two notes:
+1) No memory gets allocated. Both the key and data still exist
+   in the append_dictionary dictionary.
+2) If a they share a key, then it doesn't clobber the source_destinatation.
+--------------------------------------------------------------------------- */
 void dictionary_append_dictionary(
 			DICTIONARY *source_destination,
 			DICTIONARY *append_dictionary );
@@ -701,6 +700,15 @@ char *dictionary_attribute_name_row_number(
 
 DICTIONARY *dictionary_file_fetch(
 			char *filename,
+			char delimiter );
+
+/* ------------------------------------------------------------ */
+/* Sample:							*/
+/* From:  "station^datatype_1=BA^stage"				*/
+/* To:    "station_1=BA and datatype_1=stage"			*/
+/* ------------------------------------------------------------ */
+void dictionary_parse_multi_attribute_keys(
+			DICTIONARY *dictionary, 
 			char delimiter );
 
 #endif

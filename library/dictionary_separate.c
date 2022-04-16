@@ -12,8 +12,9 @@
 #include "piece.h"
 #include "column.h"
 #include "element.h"
+#include "sql.h"
 #include "appaserver_library.h"
-#include "post_dictionary.h"
+#include "relation.h"
 #include "dictionary_separate.h"
 
 DICTIONARY *dictionary_separate_original_post_dictionary(
@@ -79,44 +80,138 @@ DICTIONARY_SEPARATE *dictionary_separate_calloc( void )
 	return dictionary_separate;
 }
 
-DICTIONARY_SEPARATE *dictionary_separate_folder_new(
+LIST *dictionary_separate_original_post_key_list(
+			DICTIONARY *original_post_dictionary )
+{
+	return dictionary_key_list( original_post_dictionary );
+}
+
+DICTIONARY *dictionary_separate_parse_multi_attribute_dictionary(
+			DICTIONARY *original_post_dictionary,
+			LIST *relation_mto1_non_isa_list,
+			char sql_delimiter )
+{
+	DICTIONARY *dictionary = {0};
+	LIST *key_list;
+	RELATION *relation;
+	char *relation_key;
+	char *key;
+
+	key_list = dictionary_key_list( original_post_dictionary );
+
+	if ( !list_length( key_list ) ) return (DICTIONARY *)0;
+
+	if ( !list_rewind( relation_mto1_non_isa_list ) )
+		return (DICTIONARY *)0;
+
+	do {
+		relation = list_get( relation_mto1_non_isa_list );
+
+		if ( !list_length( relation->foreign_key_list ) )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: foreign_key is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ! ( relation_key =
+				/* ------------------------ */
+				/* Returns heap memory null */
+				/* ------------------------ */
+				list_delimited_string(
+					relation->foreign_key_list,
+					sql_delimiter ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: list_delimited_string() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_rewind( key_list );
+
+		do {
+			key = list_get( key_list );
+
+			if ( string_strncmp(
+				key,
+				relation_key ) == 0 )
+			{
+				if ( !dictionary )
+				{
+					dictionary = dictionary_small();
+				}
+
+				dictionary_set(
+					dictionary,
+					key,
+					dictionary_get(
+						key,
+						original_post_dictionary ) );
+			}
+
+		} while ( list_next( key_list ) );
+
+	} while ( list_next( relation_mto1_non_isa_list ) );
+
+	dictionary_parse_multi_attribute_keys(
+		dictionary, 
+		sql_delimiter );
+
+	return dictionary;
+}
+
+DICTIONARY_SEPARATE *dictionary_separate_post_edit_table_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
+			LIST *relation_mto1_non_isa_list,
+			LIST *folder_attribute_name_list,
+			LIST *operation_name_list,
 			LIST *folder_attribute_date_name_list )
 {
 	DICTIONARY_SEPARATE *dictionary_separate =
 		dictionary_separate_calloc();
 
-	dictionary_separate->original_post_dictionary =
-		original_post_dictionary;
-
-	dictionary_separate->application_name = application_name;
-
-	dictionary_separate->folder_attribute_date_name_list =
-		folder_attribute_date_name_list;
-
-	dictionary_separate->login_name = login_name;
-
-	if ( !dictionary_length(
-			dictionary_separate->
-				original_post_dictionary ) )
+	if ( !dictionary_length( original_post_dictionary ) )
 	{
 		return dictionary_separate;
 	}
 
+	dictionary_separate->parse_multi_attribute_dictionary =
+		dictionary_separate_parse_multi_attribute_dictionary(
+			original_post_dictionary,
+			relation_mto1_non_isa_list,
+			SQL_DELIMITER );
+
+/* --------------------------------------------------------------------------- 
+Two notes:
+1) No memory gets allocated. Both the key and data still exist
+   in the append_dictionary dictionary.
+2) If a they share a key, then it doesn't clobber the source_destinatation.
+--------------------------------------------------------------------------- */
+	dictionary_append_dictionary(
+		original_post_dictionary,
+		dictionary_separate->parse_multi_attribute_dictionary );
+
 	dictionary_separate->working_post_dictionary =
-		dictionary_separate_working_post(
+		dictionary_separate_working_post_new(
 			original_post_dictionary,
 			application_name,
-			folder_attribute_date_name_list,
-			login_name );
+			login_name,
+			folder_attribute_date_name_list );
 
 	dictionary_separate->sort_dictionary =
 		dictionary_separate_sort(
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			dictionary_separate->
-				working_post_dictionary );
+				working_post_dictionary->
+				dictionary );
 
 	dictionary_separate->query_dictionary =
 		dictionary_separate_query(
@@ -150,87 +245,6 @@ DICTIONARY_SEPARATE *dictionary_separate_folder_new(
 		dictionary_separate_non_prefixed(
 			dictionary_separate->
 				working_post_dictionary );
-
-	return dictionary_separate;
-}
-
-DICTIONARY_SEPARATE *dictionary_separate_row_new(
-			DICTIONARY *original_post_dictionary,
-			char *application_name,
-			char *login_name,
-			LIST *attribute_name_list,
-			LIST *folder_attribute_date_name_list,
-			LIST *operation_name_list )
-{
-	DICTIONARY_SEPARATE *dictionary_separate =
-		dictionary_separate_calloc();
-
-	dictionary_separate->original_post_dictionary =
-		original_post_dictionary;
-
-	dictionary_separate->application_name = application_name;
-
-	dictionary_separate->folder_attribute_date_name_list =
-		folder_attribute_date_name_list;
-
-	dictionary_separate->operation_name_list = operation_name_list;
-	dictionary_separate->login_name = login_name;
-
-	if ( !dictionary_length( original_post_dictionary ) )
-		return dictionary_separate;
-
-	dictionary_separate->working_post_dictionary =
-		dictionary_separate_working_post(
-			original_post_dictionary,
-			application_name,
-			folder_attribute_date_name_list,
-			login_name );
-
-	dictionary_separate->sort_dictionary =
-		dictionary_separate_sort(
-			DICTIONARY_SEPARATE_SORT_PREFIX,
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->query_dictionary =
-		dictionary_separate_query(
-			DICTIONARY_SEPARATE_QUERY_PREFIX,
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->drillthru_dictionary =
-		dictionary_separate_drillthru(
-			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->ignore_dictionary =
-		dictionary_separate_ignore(
-			DICTIONARY_SEPARATE_IGNORE_PREFIX,
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->ignore_select_attribute_name_list =
-		dictionary_separate_ignore_select_attribute_name_list(
-			dictionary_separate->ignore_dictionary );
-
-	dictionary_separate->pair_one2m_dictionary =
-		dictionary_separate_pair_one2m(
-			DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX,
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->non_prefixed_dictionary =
-		dictionary_separate_non_prefixed(
-			dictionary_separate->
-				working_post_dictionary );
-
-	dictionary_separate->row_dictionary =
-		dictionary_separate_row_dictionary_multi_row(
-			dictionary_separate->
-				non_prefixed_dictionary,
-			attribute_name_list,
-			operation_name_list );
 
 	return dictionary_separate;
 }
@@ -247,57 +261,49 @@ DICTIONARY_SEPARATE *dictionary_separate_string_new(
 	return dictionary_separate;
 }
 
-DICTIONARY *dictionary_separate_working_post(
+DICTIONARY_SEPARATE_WORKING_POST *
+	dictionary_separate_working_post_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
-			LIST *folder_attribute_date_name_list,
-			char *login_name )
+			char *login_name,
+			LIST *folder_attribute_date_name_list )
 {
-	DICTIONARY *working_post_dictionary;
+	DICTIONARY_SEPARATE_WORKING_POST *dictionary_separate_working_post;
 
-	working_post_dictionary =
-		dictionary_large_copy(
-			original_post_dictionary );
+	if ( !dictionary_length( original_post_dictionary ) )
+		return (DICTIONARY_SEPARATE_WORKING_POST *)0;
 
-	dictionary_separate_parse_multi_attribute_keys(
-		working_post_dictionary,
-		DICTIONARY_SEPARATE_QUERY_PREFIX );
+	dictionary_separate_working_post =
+		dictionary_separate_working_post_calloc();
 
-	dictionary_separate_parse_multi_attribute_keys(
-		working_post_dictionary,
-		DICTIONARY_SEPARATE_DRILLTHRU_PREFIX );
-
-	dictionary_separate_parse_multi_attribute_keys(
-		working_post_dictionary,
-		DICTIONARY_SEPARATE_SORT_PREFIX );
-
-	dictionary_separate_parse_multi_attribute_keys(
-		working_post_dictionary,
-		DICTIONARY_SEPARATE_PAIR_ONE2M_PREFIX );
+	dictionary_separate_working_post->dictionary = original_post_dictionary;
 
 	if ( list_length( folder_attribute_date_name_list ) )
 	{
-		dictionary_separate_date_convert(
-			working_post_dictionary,
+		dictionary_separate_working_post_date_convert(
+			dictionary_separate_working_post->dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			DICTIONARY_SEPARATE_FROM_PREFIX,
+			DICTIONARY_SEPARATE_TO_PREFIX );
 	}
 
 	/* Remove the index appended to the multi-select lookup widget. */
 	/* ------------------------------------------------------------ */
-	dictionary_separate_trim_multi_drop_down_index(
+	dictionary_separate_working_post_trim_multi_drop_down_index(
+		dictionary_separate_working_post->dictionary,
 		working_post_dictionary,
 		ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
 
-	/* Trim the [common_non_primary_attribute data] 		*/
-	/* Note: this must follow					*/
-	/* 	 dictionary_separate_trim_multi_drop_down_index()	*/
-	/* ------------------------------------------------------------ */
-	dictionary_separate_trim_double_bracked_data(
-		working_post_dictionary );
+	/* Trim the [additional attributes data]	 		      */
+	/* Note: this must follow					      */
+	/* 	 dictionary_separate_working_post_trim_multi_drop_down_index()*/
+	/* ------------------------------------------------------------------ */
+	dictionary_separate_working_post_trim_double_bracked_data(
+		dictionary_separate_working_post->dictionary );
 
-	return working_post_dictionary;
+	return dictionary_separate_working_post;
 }
 
 DICTIONARY *dictionary_separate_sort(
@@ -369,10 +375,6 @@ DICTIONARY *dictionary_separate_ignore(
 			working_post_dictionary,
 			NO_DISPLAY_PUSH_BUTTON_PREFIX ) );
 
-	dictionary_separate_parse_multi_attribute_keys(
-		dictionary,
-		(char *)0 /* prefix */ );
-
 	return dictionary;
 }
 
@@ -411,36 +413,8 @@ DICTIONARY *dictionary_separate_query(
 
 	dictionary_separate_remove_from_starting_label( dictionary );
 
-	dictionary_separate_parse_multi_attribute_keys(
-		dictionary,
-		RELATION_OPERATOR_PREFIX );
-
 	return dictionary;
 
-}
-
-void dictionary_separate_parse_multi_attribute_keys(
-			DICTIONARY *source_destination,
-			char *prefix )
-{
-	/* ------------------------------------------------------------ */
-	/* Sample:							*/
-	/* From:  "station^datatype_1=BA^stage"				*/
-	/* To:    "station_1=BA and datatype_1=stage"			*/
-	/* ------------------------------------------------------------ */
-	dictionary_parse_multi_attribute_keys(
-		source_destination, 
-		MULTI_ATTRIBUTE_KEY_DELIMITER,
-		SQL_DELIMITER,
-		prefix,
-		1 /* dont_include_relational_operators */ );
-
-	dictionary_parse_multi_attribute_keys(
-		source_destination, 
-		SQL_DELIMITER,
-		SQL_DELIMITER,
-		prefix,
-		1 /* dont_include_relational_operators */ );
 }
 
 DICTIONARY *dictionary_separate_row_dictionary_row_zero(
@@ -871,11 +845,13 @@ LIST *dictionary_separate_ignore_select_attribute_name_list(
 	return ignore_select_attribute_name_list;
 }
 
-void dictionary_separate_date_convert(
+void dictionary_separate_working_post_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list )
+			LIST *folder_attribute_date_name_list,
+			char *dictionary_separate_from_prefix,
+			char *dictionary_separate_to_prefix )
 {
 	char *attribute_name;
 	char key[ 128 ];
@@ -940,7 +916,7 @@ void dictionary_separate_date_convert(
 			/* ------------ */
 			sprintf(key,
 				"%s%s_%d",
-				FROM_PREFIX,
+				dictionary_separate_from_prefix,
 				attribute_name,
 				index );
 
@@ -961,7 +937,7 @@ void dictionary_separate_date_convert(
 			/* ---------- */
 			sprintf(key,
 				"%s%s_%d",
-				TO_PREFIX,
+				dictionary_separate_to_prefix,
 				attribute_name,
 				index );
 	
@@ -983,24 +959,24 @@ void dictionary_separate_date_convert(
 	} /* for each index */
 }
 
-void dictionary_separate_trim_multi_drop_down_index(
-			DICTIONARY *working_post_dictionary,
-			char multi_select_move_left_right_index_delimiter )
+void dictionary_separate_working_post_trim_multi_drop_down_index(
+			DICTIONARY *dictionary,
+			char element_multi_move_left_right_delimiter )
 {
 	char *ptr;
 	char *data;
 	char *key;
 	LIST *key_list;
-	char place_holder = multi_select_move_left_right_index_delimiter;
+	char place_holder = element_multi_move_left_right_delimiter;
 
-	key_list = dictionary_key_list( working_post_dictionary );
+	key_list = dictionary_key_list( dictionary );
 
 	if ( !list_rewind( key_list ) ) return;
 
 	do {
 		key = list_get( key_list );
 
-		data = dictionary_data( working_post_dictionary, key );
+		data = dictionary_data( dictionary, key );
 
 		if ( !strlen( data ) ) continue;
 
@@ -1108,10 +1084,10 @@ void dictionary_separate_string_date_convert(
 		strdup( destination ) );
 }
 
-void dictionary_separate_trim_double_bracked_data(
-			DICTIONARY *working_post_dictionary )
+void dictionary_separate_working_post_trim_double_bracked_data(
+			DICTIONARY *dictionary )
 {
-	dictionary_trim_double_bracked_data( working_post_dictionary );
+	dictionary_trim_double_bracked_data( dictionary );
 }
 
 DICTIONARY *dictionary_separate_send_dictionary(

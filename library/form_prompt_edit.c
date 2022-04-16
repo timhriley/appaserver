@@ -588,7 +588,7 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 
 	form_prompt_edit_attribute->from_name =
 		form_prompt_edit_attribute_from_name(
-			FORM_PROMPT_EDIT_FROM_PREFIX,
+			DICTIONARY_SEPARATE_FROM_PREFIX,
 			attribute_name );
 
 	if ( attribute_is_yes_no( attribute_name ) )
@@ -637,7 +637,7 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 
 		form_prompt_edit_attribute->to_name =
 			form_prompt_edit_attribute_to_name(
-			FORM_PROMPT_EDIT_TO_PREFIX,
+			DICTIONARY_SEPARATE_TO_PREFIX,
 			attribute_name );
 
 		form_prompt_edit_attribute->form_prompt_edit_relational =
