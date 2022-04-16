@@ -86,23 +86,22 @@ LIST *dictionary_separate_original_post_key_list(
 	return dictionary_key_list( original_post_dictionary );
 }
 
-DICTIONARY *dictionary_separate_parse_multi_attribute_dictionary(
-			DICTIONARY *original_post_dictionary,
+void dictionary_separate_parse_multi(
+			DICTIONARY *dictionary,
 			LIST *relation_mto1_non_isa_list,
 			char sql_delimiter )
 {
-	DICTIONARY *dictionary = {0};
-	LIST *key_list;
 	RELATION *relation;
 	char *relation_key;
+	char relation_key_prefix[ 128 ];
+	char relation_key_row[ 128 ];
+	char *relation_data;
 	char *key;
+	char *data;
+	int highest_row;
+	int row;
 
-	key_list = dictionary_key_list( original_post_dictionary );
-
-	if ( !list_length( key_list ) ) return (DICTIONARY *)0;
-
-	if ( !list_rewind( relation_mto1_non_isa_list ) )
-		return (DICTIONARY *)0;
+	if ( !list_rewind( relation_mto1_non_isa_list ) ) return;
 
 	do {
 		relation = list_get( relation_mto1_non_isa_list );
@@ -133,6 +132,31 @@ DICTIONARY *dictionary_separate_parse_multi_attribute_dictionary(
 			exit( 1 );
 		}
 
+		sprintf(relation_key_prefix,
+			"%s_",
+			relation_key );
+
+		highest_row =
+			dictionary_prefix_highest_row(
+				relation_key_prefix,
+				dictionary );
+
+		if ( highest_row < 0 ) continue;
+
+		for(	row = 0;
+			row <= highest_row;
+			row++ )
+		{
+			sprintf(relation_key_row,
+				"%s_%d",
+				relation_key );
+
+			if ( ( relation_data =
+					dictionary_get(
+						relation_key_row,
+						dictionary ) ) )
+			{
+here1
 		list_rewind( key_list );
 
 		do {
@@ -142,17 +166,12 @@ DICTIONARY *dictionary_separate_parse_multi_attribute_dictionary(
 				key,
 				relation_key ) == 0 )
 			{
-				if ( !dictionary )
-				{
-					dictionary = dictionary_small();
-				}
-
 				dictionary_set(
 					dictionary,
 					key,
 					dictionary_get(
 						key,
-						original_post_dictionary ) );
+						dictionary ) );
 			}
 
 		} while ( list_next( key_list ) );
@@ -259,6 +278,77 @@ DICTIONARY_SEPARATE *dictionary_separate_string_new(
 		original_post_dictionary;
 
 	return dictionary_separate;
+}
+
+DICTIONARY_SEPARATE_TRIM_MULTI *
+	dictionary_separate_trim_multi_calloc(
+		void )
+{
+	DICTIONARY_SEPARATE_TRIM_MULTI *dictionary_separate_trim_multi;
+
+	if ( ! ( dictionary_separate_trim_multi =
+		   calloc( 1, sizeof( DICTIONARY_SEPARATE_TRIM_MULTI ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_trim_multi;
+}
+
+DICTIONARY_SEPARATE_DATE_CONVERT *
+	dictionary_separate_date_convert_calloc(
+		void )
+{
+	DICTIONARY_SEPARATE_DATE_CONVERT *dictionary_separate_date_convert;
+
+	if ( ! ( dictionary_separate_date_convert =
+		   calloc( 1, sizeof( DICTIONARY_SEPARATE_DATE_CONVERT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_date_convert;
+}
+
+DICTIONARY_SEPARATE_DATE_CONVERT *
+	dictionary_separate_date_convert_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list )
+{
+	DICTIONARY_SEPARATE_DATE_CONVERT *dictionary_separate_date_convert;
+
+	if ( !dictionary_length( original_post_dictionary ) )
+		return (DICTIONARY_SEPARATE_DATE_CONVERT *)0;
+
+	dictionary_separate_date_convert =
+		dictionary_separate_date_convert_calloc();
+
+	dictionary_separate_date_convert->dictionary = original_post_dictionary;
+
+	if ( list_length( folder_attribute_date_name_list ) )
+	{
+		dictionary_separate_date_convert(
+			dictionary_separate_date_convert->dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list,
+			DICTIONARY_SEPARATE_FROM_PREFIX,
+			DICTIONARY_SEPARATE_TO_PREFIX );
+	}
+
+	return dictionary_separate_date_convert;
 }
 
 DICTIONARY_SEPARATE_WORKING_POST *
@@ -845,7 +935,7 @@ LIST *dictionary_separate_ignore_select_attribute_name_list(
 	return ignore_select_attribute_name_list;
 }
 
-void dictionary_separate_working_post_date_convert(
+void dictionary_separate_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *login_name,
@@ -883,12 +973,12 @@ void dictionary_separate_working_post_date_convert(
 						key,
 						dictionary ) ) )
 				{
-				     dictionary_separate_string_date_convert( 
+				     dictionary_separate_date_convert_string( 
 					dictionary,
 					application_name,
+					login_name,
 					date_string,
-					key,
-					login_name );
+					key );
 				}
 			}
 
@@ -904,12 +994,12 @@ void dictionary_separate_working_post_date_convert(
 					key,
 					dictionary ) ) )
 			{
-				dictionary_separate_string_date_convert( 
+				dictionary_separate_date_convert_string( 
 					dictionary,
 					application_name,
+					login_name,
 					date_string,
-					key,
-					login_name );
+					key );
 			}
 
 			/* Do from date */
@@ -925,12 +1015,12 @@ void dictionary_separate_working_post_date_convert(
 					key,
 					dictionary ) ) )
 			{
-				dictionary_separate_string_date_convert( 
+				dictionary_separate_date_convert_string( 
 					dictionary,
 					application_name,
+					login_name,
 					date_string,
-					key,
-					login_name );
+					key );
 			}
 
 			/* Do to date */
@@ -946,12 +1036,12 @@ void dictionary_separate_working_post_date_convert(
 					key,
 					dictionary ) ) )
 			{
-				dictionary_separate_string_date_convert( 
+				dictionary_separate_date_convert_string( 
 					dictionary,
 					application_name,
+					login_name,
 					date_string,
-					key,
-					login_name );
+					key );
 			}
 
 		} while( list_next( folder_attribute_date_name_list ) );
@@ -1002,12 +1092,12 @@ void dictionary_separate_working_post_trim_multi_drop_down_index(
 	} while( list_next( key_list ) );
 }
 
-void dictionary_separate_string_date_convert(
+void dictionary_separate_date_convert_string(
 			DICTIONARY *dictionary,
 			char *application_name,
+			char *login_name,
 			char *date_string,
-			char *key,
-			char *login_name )
+			char *key )
 {
 	DATE_CONVERT *date_convert;
 	char destination[ 1024 ];
@@ -1049,10 +1139,11 @@ void dictionary_separate_string_date_convert(
 
 		if ( !date_convert )
 		{
-			fprintf( stderr,
-			 "Error in %s/%s(): cannot fetch from database\n",
-		 		__FILE__,
-		 		__FUNCTION__ );
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: date_convert_international() empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
 			exit( 1 );
 		}
 

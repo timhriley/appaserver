@@ -30,15 +30,15 @@
 typedef struct
 {
 	DICTIONARY *dictionary;
-} DICTIONARY_SEPARATE_WORKING_POST;
+} DICTIONARY_SEPARATE_DATE_CONVERT;
 
-/* DICTIONARY_SEPARATE_WORKING_POST operations */
+/* DICTIONARY_SEPARATE_DATE_CONVERT operations */
 /* ------------------------------------------- */
 
 /* Usage */
 /* ----- */
-DICTIONARY_SEPARATE_WORKING_POST *
-	dictionary_separate_working_post_new(
+DICTIONARY_SEPARATE_DATE_CONVERT *
+	dictionary_separate_date_convert_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
@@ -46,11 +46,11 @@ DICTIONARY_SEPARATE_WORKING_POST *
 
 /* Process */
 /* ------- */
-DICTIONARY_SEPARATE_WORKING_POST *
-	dictionary_separate_working_post_calloc(
+DICTIONARY_SEPARATE_DATE_CONVERT *
+	dictionary_separate_date_convert_calloc(
 			void );
 
-void dictionary_separate_working_post_date_convert(
+void dictionary_separate_date_convert(
 			DICTIONARY *dictionary,
 			char *application_name,
 			char *login_name,
@@ -58,18 +58,87 @@ void dictionary_separate_working_post_date_convert(
 			char *dictionary_separate_from_prefix,
 			char *dictionary_separate_to_prefix );
 
-void dictionary_separate_working_post_trim_multi_drop_down_index(
+/* Private */
+/* ------- */
+void dictionary_separate_date_convert_string(
+			DICTIONARY *dictionary,
+			char *application_name,
+			char *login_name,
+			char *date_string,
+			char *key );
+
+typedef struct
+{
+	DICTIONARY *dictionary;
+} DICTIONARY_SEPARATE_TRIM_MULTI;
+
+/* DICTIONARY_SEPARATE_TRIM_MULTI operations */
+/* ----------------------------------------- */
+
+/* Usage */
+/* ----- */
+DICTIONARY_SEPARATE_TRIM_MULTI *
+	dictionary_separate_trim_multi_new(
+			DICTIONARY *original_post_dictionary );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_TRIM_MULTI *
+	dictionary_separate_trim_multi_calloc(
+			void );
+
+void dictionary_separate_trim_multi(
 			DICTIONARY *dictionary,
 			char element_multi_move_left_right_delimiter );
 
-void dictionary_separate_working_post_trim_double_bracked_data(
+typedef struct
+{
+	DICTIONARY *dictionary;
+} DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET;
+
+/* Usage */
+/* ----- */
+DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *
+	dictionary_separate_trim_double_bracket_new(
+			DICTIONARY *original_post_dictionary );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *
+	dictionary_separate_trim_double_bracket_calloc(
+			void );
+
+void dictionary_separate_trim_double_bracket(
 			DICTIONARY *dictionary );
+
+typedef struct
+{
+	DICTIONARY *dictionary;
+} DICTIONARY_SEPARATE_PARSE_MULTI;
+
+/* Usage */
+/* ----- */
+DICTIONARY_SEPARATE_PARSE_MULTI *
+	dictionary_separate_parse_multi_new(
+			DICTIONARY *original_post_dictionary,
+			LIST *relation_mto1_non_isa_list,
+			char sql_delimiter );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_PARSE_MULTI *
+	dictionary_separate_parse_multi_calloc(
+			void );
+
+void dictionary_separate_parse_multi(
+			DICTIONARY *dictionary,
+			LIST *mto1_non_isa_list,
+			char sql_delimiter );
 
 typedef struct
 {
 	DICTIONARY *original_post_dictionary;
 	DICTIONARY *parse_multi_attribute_dictionary;
-	DICTIONARY_SEPARATE_WORKING_POST *working_post;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
@@ -192,13 +261,6 @@ DICTIONARY *dictionary_separate_prefixed(
 
 LIST *dictionary_separate_ignore_select_attribute_name_list(
 			DICTIONARY *ignore_dictionary );
-
-void dictionary_separate_string_date_convert(
-			DICTIONARY *dictionary,
-			char *application_name,
-			char *date_string,
-			char *key,
-			char *login_name );
 
 /* Returns heap memory */
 /* ------------------- */

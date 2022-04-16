@@ -603,9 +603,37 @@ int dictionary_highest_row( DICTIONARY *dictionary )
 	return highest_row;
 }
 
-int dictionary_key_highest_index( DICTIONARY *d )
+int dictionary_prefix_highest_row(
+			char *prefix,
+			DICTIONARY *dictionary )
 {
-	return dictionary_highest_row( d );
+	char *key;
+	int highest_row = -1;
+	int row;
+	static LIST *key_list = {0};
+
+	if ( !key_list )
+	{
+		key_list = dictionary_key_list( dictionary );
+	}
+
+	if ( list_rewind( key_list ) )
+	{
+		do {
+			key = list_get( key_list );
+
+			if ( string_strncmp( key, prefix ) != 0 ) continue;
+
+			row = string_row_number( key );
+
+			if ( row > -1 )
+			{
+				if ( row > highest_row )
+					highest_row = row;
+			}
+		} while( list_next( key_list ) );
+	}
+	return highest_row;
 }
 
 char *dictionary_display_delimited( DICTIONARY *d, char delimiter )
