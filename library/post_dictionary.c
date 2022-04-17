@@ -223,7 +223,7 @@ void post_dictionary_stream_set(
 			char *attribute_name,
 			char *apache_key )
 {
-	char input[ STRING_INPUT_BUFFER ];
+	char input[ STRING_64K ];
 	int multi_drop_down_index;
 	int row = 0;
 	char key[ 256 ];
@@ -247,7 +247,7 @@ void post_dictionary_stream_set(
 	while( string_input(
 			input,
 			stdin,
-			STRING_INPUT_BUFFER ) )
+			STRING_64K ) )
 	{
 		if ( !*input ) continue;
 
@@ -284,11 +284,11 @@ void post_dictionary_input(
 			FILE *stdin,
 			char *post_dictionary_key )
 {
-	char input[ STRING_INPUT_BUFFER ];
+	char input[ STRING_64K ];
 
 	*data = '\0';
 
-	while( string_input( input, stdin, STRING_INPUT_BUFFER ) )
+	while( string_input( input, stdin, STRING_64K ) )
 	{
 		if ( !*input ) continue;
 		if ( strcmp( input, "select" ) == 0 ) continue;

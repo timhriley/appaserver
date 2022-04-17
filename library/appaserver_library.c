@@ -418,6 +418,7 @@ LIST *get_attribute4table_list( char *table_name )
 }
 
 
+#ifdef NOT_DEFINED
 void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 {
 	LIST *attribute_name_list;
@@ -462,7 +463,9 @@ void populate_no_display_button_for_ignore( DICTIONARY *dictionary )
 		} while( list_next( attribute_name_list ) );
 	}
 }
+#endif
 
+#ifdef NOT_DEFINED
 void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 {
 	LIST *attribute_name_list;
@@ -506,7 +509,9 @@ void populate_ignore_button_for_no_display_pressed( DICTIONARY *dictionary )
 		} while( list_next( attribute_name_list ) );
 	}
 }
+#endif
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_datatype_name_list( char *application )
 {
 	char sys_string[ 1024 ];
@@ -514,7 +519,9 @@ LIST *appaserver_library_datatype_name_list( char *application )
 	sprintf( sys_string, "datatype_name_list.sh %s", application );
 	return pipe2list( sys_string );
 }
+#endif
 
+#ifdef NOT_DEFINED
 char *get_displayable_primary_attribute_list_string(
 			LIST *primary_key_list )
 {
@@ -526,7 +533,9 @@ char *get_displayable_primary_attribute_list_string(
 						primary_key_list,
 						'/' ) ) );
 }
+#endif
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_attribute_name_list(
 			char *application, 
 			char *folder_name )
@@ -539,7 +548,9 @@ LIST *appaserver_library_attribute_name_list(
 
 	return pipe2list( sys_string );
 }
+#endif
 
+#ifdef NOT_DEFINED
 char *build_multi_attribute_key( LIST *key_list, char delimiter )
 {
 	char multi_attribute_key[ 1024 ];
@@ -565,7 +576,9 @@ char *build_multi_attribute_key( LIST *key_list, char delimiter )
 
 	return strdup( multi_attribute_key );
 }
+#endif
 
+#ifdef NOT_DEFINED
 LIST *appaserver_library_folder_name_list(
 			char *application_name,
 			char *attribute_name )
@@ -582,6 +595,7 @@ LIST *appaserver_library_folder_name_list(
 
 	return pipe2list( sys_string );
 }
+#endif
 
 #ifdef NOT_DEFINED
 LIST *appaserver_library_update_attribute_element_list(

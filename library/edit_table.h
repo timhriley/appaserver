@@ -28,7 +28,7 @@ typedef struct
 {
 	ROLE *role;
 	FOLDER *folder;
-	DICTIONARY_SEPARATE *dictionary_separate;
+	DICTIONARY_SEPARATE_EDIT_TABLE *dictionary_separate;
 	int folder_attribute_date_name_list_length;
 	boolean menu_boolean;
 	FOLDER_MENU *folder_menu;

@@ -1265,7 +1265,7 @@ char *query_output_order(
 	string_strcpy(
 		direction_attribute,
 		prefix_direction_attribute +
-		strlen( DICTIONARY_SEPARATE_SORT_BUTTON_PREFIX ),
+		strlen( DICTIONARY_SEPARATE_SORT_PREFIX ),
 		0 );
 
 	if ( string_strncmp(

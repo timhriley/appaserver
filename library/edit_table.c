@@ -111,7 +111,7 @@ EDIT_TABLE *edit_table_new(
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_folder_new(
+		dictionary_separate_edit_table_new(
 			original_post_dictionary,
 			application_name,
 			login_name,
@@ -130,7 +130,9 @@ EDIT_TABLE *edit_table_new(
 	edit_table->folder->relation_join_one2m_list =
 		relation_join_one2m_list(
 			edit_table->folder->relation_one2m_recursive_list,
-			edit_table->dictionary_separate->ignore_dictionary );
+			edit_table->
+				dictionary_separate->
+				ignore_dictionary );
 
 	if ( menu_horizontal_boolean )
 	{
@@ -190,11 +192,12 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->relation_mto1_non_isa_list,
 			edit_table->folder->relation_join_one2m_list,
 			edit_table->folder->post_change_javascript,
-			edit_table->dictionary_separate->drillthru_dictionary,
+			edit_table->dictionary_separate->
+				drillthru_dictionary,
 			edit_table->primary_keys_non_edit,
 			edit_table->
 				dictionary_separate->
-				ignore_select_attribute_name_list,
+				ignore_select_name_list,
 			edit_table->state,
 			role_exclude_update_attribute_name_list(
 				edit_table->
@@ -242,7 +245,7 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->relation_join_one2m_list,
 			edit_table->
 				dictionary_separate->
-				ignore_select_attribute_name_list,
+				ignore_select_name_list,
 			role_exclude_lookup_attribute_name_list(
 				edit_table->
 					role->
@@ -250,8 +253,12 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->folder_attribute_append_isa_list,
 			edit_table->folder->relation_mto1_non_isa_list,
 			edit_table->folder->relation_mto1_isa_list,
-			edit_table->dictionary_separate->query_dictionary,
-			edit_table->dictionary_separate->sort_dictionary,
+			edit_table->
+				dictionary_separate->
+				query_dictionary,
+			edit_table->
+				dictionary_separate->
+				sort_dictionary,
 			(row_security_role)
 				? row_security_role->folder_name
 				: (char *)0,
@@ -418,10 +425,18 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->role_operation_list,
 			edit_table->heading_name_list,
 			target_frame,
-			edit_table->dictionary_separate->query_dictionary,
-			edit_table->dictionary_separate->sort_dictionary,
-			edit_table->dictionary_separate->drillthru_dictionary,
-			edit_table->dictionary_separate->ignore_dictionary  );
+			edit_table->
+				dictionary_separate->
+				query_dictionary,
+			edit_table->
+				dictionary_separate->
+				sort_dictionary,
+			edit_table->
+				dictionary_separate->
+				drillthru_dictionary,
+			edit_table->
+				dictionary_separate->
+				ignore_dictionary  );
 
 	edit_table->html =
 		/* ------------------- */

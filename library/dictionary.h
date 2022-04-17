@@ -201,8 +201,8 @@ void dictionary_add_elements_by_removing_index_zero(
 		    	DICTIONARY *dictionary );
 
 DICTIONARY *dictionary_remove_prefix(
-			DICTIONARY *dictionary,
-		    	char *starting_prefix );
+		    	char *starting_prefix,
+			DICTIONARY *dictionary );
 
 DICTIONARY *dictionary_zap_with_prefix(
 			DICTIONARY *dictionary,
@@ -394,8 +394,10 @@ void dictionary_new_index_key_list_for_data_list(
 			LIST *new_key_list,
 			int index );
 
-void dictionary_search_replace_special_characters(
-			DICTIONARY *post_dictionary );
+/* Forbidden characters: `\" */
+/* ------------------------- */
+DICTIONARY *dictionary_search_replace_special_characters(
+			DICTIONARY *dictionary );
 
 void dictionary_set_pointer(
 			DICTIONARY *d,
@@ -473,12 +475,12 @@ char *dictionary_trim_double_bracked_string(
 			char *string );
 
 LIST *dictionary_extract_prefixed_key_list(
-			DICTIONARY *dictionary,
-			char *starting_prefix );
+			char *starting_prefix,
+			DICTIONARY *dictionary );
 
 LIST *dictionary_extract_and_remove_prefixed_key_list(
-			DICTIONARY *dictionary,
-			char *starting_prefix );
+			char *starting_prefix,
+			DICTIONARY *dictionary );
 
 void dictionary_delete_prefixed_keys(
 			DICTIONARY *dictionary,

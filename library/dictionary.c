@@ -578,27 +578,32 @@ int dictionary_string_list_highest_index(
 	return highest_index;
 }
 
+int dictionary_key_highest_index( DICTIONARY *dictionary )
+{
+	return dictionary_highest_row( dictionary );
+}
+
 int dictionary_highest_row( DICTIONARY *dictionary )
 {
-	char *attribute_name;
+	char *key;
 	int highest_row = -1;
 	int row;
-	LIST *attribute_name_list;
+	LIST *key_list;
 
-	attribute_name_list = dictionary_key_list( dictionary );
+	key_list = dictionary_key_list( dictionary );
 
-	if ( list_rewind( attribute_name_list ) )
+	if ( list_rewind( key_list ) )
 	{
 		do {
-			attribute_name = list_get( attribute_name_list );
-			row = string_row_number( attribute_name );
+			key = list_get( key_list );
+			row = string_row_number( key );
 
 			if ( row > -1 )
 			{
 				if ( row > highest_row )
 					highest_row = row;
 			}
-		} while( list_next( attribute_name_list ) );
+		} while( list_next( key_list ) );
 	}
 	return highest_row;
 }
@@ -610,12 +615,9 @@ int dictionary_prefix_highest_row(
 	char *key;
 	int highest_row = -1;
 	int row;
-	static LIST *key_list = {0};
+	LIST *key_list;
 
-	if ( !key_list )
-	{
-		key_list = dictionary_key_list( dictionary );
-	}
+	key_list = dictionary_key_list( dictionary );
 
 	if ( list_rewind( key_list ) )
 	{
@@ -1703,19 +1705,17 @@ void dictionary_add_elements_by_removing_index_zero(
 	}
 }
 
-
 DICTIONARY *dictionary_remove_prefix(
-			DICTIONARY *source_dictionary,
-		    	char *starting_prefix )
+		    	char *starting_prefix,
+			DICTIONARY *source_dictionary )
 {
-	DICTIONARY *dictionary;
+	DICTIONARY *dictionary = {0};
 	LIST *key_list;
 	char *key;
 	char *data;
-	char key_without_starting_prefix[ 1024 ];
+	char key_without_starting_prefix[ 128 ];
 	int str_len;
 
-	dictionary = dictionary_new();
 	str_len = strlen( starting_prefix );
 
 	key_list = dictionary_key_list( source_dictionary );
@@ -1735,20 +1735,19 @@ DICTIONARY *dictionary_remove_prefix(
 				strcpy( key_without_starting_prefix,
 					key + str_len );
 
+				if ( !dictionary )
+				{
+					dictionary = dictionary_small();
+				}
+
 				dictionary_set( 
 					dictionary,
-					key_without_starting_prefix,
+					strdup( key_without_starting_prefix ),
 					data );				
-			}
-			else
-			{
-				dictionary_set( 
-					dictionary,
-					key,
-					data );
 			}
 		} while( list_next( key_list ) );
 	}
+	list_free_container( key_list );
 	return dictionary;
 }
 
@@ -1816,50 +1815,6 @@ DICTIONARY *dictionary_with_prefix(
 		} while( list_next( key_list ) );
 	}
 	list_free_container( key_list );
-	return dictionary;
-}
-
-DICTIONARY *dictionary_without_prefix(
-			DICTIONARY *source_dictionary,
-		    	char *starting_prefix )
-{
-	DICTIONARY *dictionary;
-	LIST *key_list;
-	char *key;
-	char *data;
-	int str_len;
-	char key_without_starting_prefix[ 1024 ];
-
-	str_len = strlen( starting_prefix );
-
-	key_list = dictionary_key_list( source_dictionary );
-
-	if ( !list_rewind( key_list ) ) return (DICTIONARY *)0;
-
-	dictionary = dictionary_small();
-
-	do {
-		key = list_get( key_list );
-
-		if ( strncmp( key, starting_prefix, str_len ) == 0 )
-		{
-			data =
-				dictionary_get(
-					key,
-					source_dictionary );
-
-			strcpy( key_without_starting_prefix,
-				key + str_len );
-
-			dictionary_set( 
-				dictionary,
-				strdup( key_without_starting_prefix ),
-				strdup( data ) );
-		}
-	} while( list_next( key_list ) );
-
-	list_free( key_list );
-
 	return dictionary;
 }
 
@@ -1966,29 +1921,29 @@ DICTIONARY *dictionary_extract_key_prefix( 	DICTIONARY *source_dictionary,
 }
 
 LIST *dictionary_extract_and_remove_prefixed_key_list(
-					DICTIONARY *dictionary,
-					char *starting_prefix )
+			char *starting_prefix,
+			DICTIONARY *dictionary )
 {
 	LIST *prefixed_key_list;
 
 	prefixed_key_list =
 		dictionary_extract_prefixed_key_list(
-			dictionary,
-			starting_prefix );
+			starting_prefix,
+			dictionary );
 
-	return list_usage_remove_prefix( prefixed_key_list, starting_prefix );
-
+	return
+	list_usage_remove_prefix(
+		prefixed_key_list,
+		starting_prefix );
 }
 
-LIST *dictionary_extract_prefixed_key_list( 	DICTIONARY *dictionary,
-						char *starting_prefix )
+LIST *dictionary_extract_prefixed_key_list(
+			char *starting_prefix,
+			DICTIONARY *dictionary )
 {
 	LIST *key_list;
 	LIST *return_key_list;
 	char *key;
-	int str_len;
-
-	str_len = strlen( starting_prefix );
 
 	return_key_list = list_new_list();
 
@@ -1999,7 +1954,7 @@ LIST *dictionary_extract_prefixed_key_list( 	DICTIONARY *dictionary,
 		do {
 			key = list_get( key_list );
 
-			if ( strncmp( starting_prefix, key, str_len ) == 0 )
+			if ( string_strncmp( starting_prefix, key ) == 0 )
 			{
 				list_set( return_key_list, key );
 			}
@@ -2617,11 +2572,13 @@ void dictionary_new_index_key_list_for_data_list(
 	} while( list_next( old_key_list ) );
 }
 
-void dictionary_search_replace_special_characters( DICTIONARY *dictionary )
+DICTIONARY *dictionary_search_replace_special_characters(
+			DICTIONARY *dictionary )
 {
 	LIST *key_list;
 	char *key;
 	char *data;
+	char *compare_data;
 
 	key_list = dictionary_key_list( dictionary );
 
@@ -2629,17 +2586,20 @@ void dictionary_search_replace_special_characters( DICTIONARY *dictionary )
 	{
 		do {
 			key = list_get( key_list );
-			data = dictionary_get( key, dictionary );
-
+			compare_data = data = dictionary_get( key, dictionary );
 			search_replace_special_characters( data );
 
-			dictionary_set( 
-				dictionary,
-				key,
-				data );				
+			if ( strcmp( compare_data, data ) != 0 )
+			{
+				dictionary_set( 
+					dictionary,
+					key,
+					data );				
+			}
 
 		} while( list_next( key_list ) );
 	}
+	return dictionary;
 }
 
 DICTIONARY *dictionary_subtract_dictionary(

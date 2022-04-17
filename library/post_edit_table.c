@@ -13,6 +13,7 @@
 #include "appaserver_parameter.h"
 #include "application.h"
 #include "folder_attribute.h"
+#include "role_operation.h"
 #include "dictionary.h"
 #include "update.h"
 #include "edit_table.h"
@@ -123,9 +124,10 @@ POST_EDIT_TABLE *post_edit_table_new(
 			folder_attribute_name_list(
 				post_edit_table->
 					folder->
-					folder_attribute_append_isa_list ) );
-			operation_name_list(
+					folder_attribute_append_isa_list ),
+			role_operation_name_list(
 				post_edit_table->
+					folder->
 					role_operation_list ),
 			folder_attribute_date_name_list(
 				post_edit_table->

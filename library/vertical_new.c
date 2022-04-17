@@ -31,8 +31,8 @@ char *vertical_new_post_prompt_insert_one_folder_name(
 
 	key_list =
 		dictionary_extract_prefixed_key_list(
-			non_prefixed_dictionary,
-			vertical_new_one_prefix );
+			vertical_new_one_prefix,
+			non_prefixed_dictionary );
 
 	if ( !list_rewind( key_list ) ) return (char *)0;
 
@@ -473,10 +473,17 @@ char *vertical_new_post_prompt_insert_system_string(
 		dictionary_separate_send_string(
 			dictionary_separate_send_dictionary(
 				(DICTIONARY *)0 /* sort_dictionary */,
+				DICTIONARY_SEPARATE_SORT_PREFIX,
 				(DICTIONARY *)0 /* query_dictionary */,
+				DICTIONARY_SEPARATE_QUERY_PREFIX,
 				drillthru_dictionary,
+				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 				(DICTIONARY *)0 /* ignore_dictionary */,
+				DICTIONARY_SEPARATE_IGNORE_PREFIX,
 				(DICTIONARY *)0 /* pair_one2m_dictionary */,
+				DICTIONARY_SEPARATE_PAIR_PREFIX,
+				(DICTIONARY *)0 /* no_display_dictionary */,
+				DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 				non_prefixed_dictionary ) );
 
 	sprintf(system_string,

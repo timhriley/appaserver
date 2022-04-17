@@ -30,7 +30,7 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	POST_DICTIONARY *post_dictionary;
-	DICTIONARY_SEPARATE *dictionary_separate;
+	DICTIONARY_SEPARATE_POST_EDIT_TABLE *dictionary_separate;
 	char *edit_table_spool_filename;
 	DICTIONARY *file_dictionary;
 	UPDATE *update;

@@ -373,13 +373,18 @@ char *post_choose_folder_system_string(
 				dictionary_separate_send_dictionary(
 					(DICTIONARY *)0
 						/* sort_dictionary */,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
 					(DICTIONARY *)0
 						/* query_dictionary */,
+					DICTIONARY_SEPARATE_QUERY_PREFIX,
 					drillthru_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 					(DICTIONARY *)0
 						/* ignore_dictionary */,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
 					(DICTIONARY *)0
 						/* pair_one2m_dictionary */,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
 					(DICTIONARY *)0
 						/* non_prefixed_dictionary */
 					) ),
@@ -402,13 +407,18 @@ char *post_choose_folder_system_string(
 				dictionary_separate_send_dictionary(
 					(DICTIONARY *)0
 						/* sort_dictionary */,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
 					(DICTIONARY *)0
 						/* query_dictionary */,
+					DICTIONARY_SEPARATE_QUERY_PREFIX,
 					drillthru_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 					(DICTIONARY *)0
 						/* ignore_dictionary */,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
 					(DICTIONARY *)0
 						/* pair_one2m_dictionary */,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
 					(DICTIONARY *)0
 						/* non_prefixed_dictionary */
 					) ),
@@ -433,13 +443,18 @@ char *post_choose_folder_system_string(
 				dictionary_separate_send_dictionary(
 					(DICTIONARY *)0
 						/* sort_dictionary */,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
 					(DICTIONARY *)0
 						/* query_dictionary */,
+					DICTIONARY_SEPARATE_QUERY_PREFIX,
 					drillthru_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 					(DICTIONARY *)0
 						/* ignore_dictionary */,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
 					(DICTIONARY *)0
 						/* pair_one2m_dictionary */,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
 					(DICTIONARY *)0
 						/* non_prefixed_dictionary */
 					) ),
@@ -462,13 +477,18 @@ char *post_choose_folder_system_string(
 				dictionary_separate_send_dictionary(
 					(DICTIONARY *)0
 						/* sort_dictionary */,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
 					(DICTIONARY *)0
 						/* query_dictionary */,
+					DICTIONARY_SEPARATE_QUERY_PREFIX,
 					drillthru_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 					(DICTIONARY *)0
 						/* ignore_dictionary */,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
 					(DICTIONARY *)0
 						/* pair_one2m_dictionary */,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
 					(DICTIONARY *)0
 						/* non_prefixed_dictionary */
 					) ),

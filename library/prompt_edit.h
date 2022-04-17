@@ -37,7 +37,7 @@ typedef struct
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
 	int folder_attribute_date_name_list_length;
-	DICTIONARY_SEPARATE *dictionary_separate;
+	DICTIONARY_SEPARATE_PROMPT_EDIT *dictionary_separate_prompt_edit;
 	DRILLTHRU *drillthru;
 	boolean omit_insert_button;
 	boolean omit_delete_button;

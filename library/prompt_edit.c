@@ -163,11 +163,11 @@ PROMPT_EDIT *prompt_edit_new(
 					folder->
 					folder_attribute_append_isa_list ) );
 
-	prompt_edit->dictionary_separate =
+	prompt_edit->dictionary_separate_prompt_edit =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_folder_new(
+		dictionary_separate_prompt_edit_new(
 			post_dictionary->original_post_dictionary,
 			application_name,
 			login_name,
@@ -182,7 +182,7 @@ PROMPT_EDIT *prompt_edit_new(
 		/* --------------- */
 		drillthru_continue(
 			prompt_edit->
-				dictionary_separate->
+				dictionary_separate_prompt_edit->
 				drillthru_dictionary /* in/out */,
 			folder_name );
 
@@ -263,7 +263,9 @@ PROMPT_EDIT *prompt_edit_new(
 			prompt_edit->folder->folder_attribute_append_isa_list,
 			prompt_edit->folder->relation_mto1_non_isa_list,
 			prompt_edit->folder->relation_join_one2m_list,
-			prompt_edit->dictionary_separate->drillthru_dictionary,
+			prompt_edit->
+				dictionary_separate_prompt_edit->
+				drillthru_dictionary,
 			login_name,
 			security_entity_where(
 				prompt_edit->security_entity,
