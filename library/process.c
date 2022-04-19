@@ -795,20 +795,20 @@ LIST *process_set_member_name_list(
 }
 
 char *process_operation_command_line(
-			char *command_line,
 			char *application_name,
-			char *operation_name,
+			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
+			char *operation_name,
+			char *command_line,
 			pid_t parent_process_id,
-			char *session_key,
 			int operation_row_total,
 			LIST *primary_data_list,
-			DICTIONARY *single_row_dictionary )
+			DICTIONARY *dictionary_single_row )
 {
-	char local_command_line[ STRING_COMMAND_BUFFER ];
-	char buffer[ STRING_COMMAND_BUFFER ];
+	char local_command_line[ STRING_16K ];
+	char buffer[ STRING_16K ];
 
 	string_strcpy(
 		local_command_line,
@@ -928,7 +928,7 @@ char *process_operation_command_line(
 				SQL_DELIMITER ) );
 	}
 
-	if ( single_row_dictionary )
+	if ( dictionary_single_row )
 	{
 		search_replace_word(
 			local_command_line,
@@ -936,13 +936,13 @@ char *process_operation_command_line(
 			double_quotes_around(
 				buffer, 
 				dictionary_display_delimited(
-					single_row_dictionary, '&' ) 
+					dictionary_single_row, '&' ) 
 				) );
 	}
 
 	dictionary_search_replace_command_arguments(
 		local_command_line,
-		single_row_dictionary, 
+		dictionary_single_row, 
 		0 /* row_number */ );
 
 	sprintf(local_command_line + strlen( local_command_line ),

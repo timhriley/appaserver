@@ -25,47 +25,105 @@
 
 typedef struct
 {
-	boolean checked;
 	LIST *primary_data_list;
-	DICTIONARY *single_dictionary;
+	boolean checked;
+	char *command_line;
 } OPERATION_ROW;
 
 /* OPERATION_ROW operations */
 /* ------------------------ */
-OPERATION_ROW *operation_row_calloc(
-			void );
 
+/* Usage */
+/* ----- */
 LIST *operation_row_list(
-			DICTIONARY *dictionary_separate_row_dictionary,
+			DICTIONARY *multi_row_dictionary,
 			char *operation_name,
 			LIST *primary_key_list,
 			LIST *attribute_name_list,
 			int operation_row_total );
 
-OPERATION_ROW *operation_row_fetch(
-			DICTIONARY *row_dictionary,
+/* Process */
+/* ------- */
+LIST *operation_row_key_list(
+			char *operation_name,
+			LIST *attribute_name_list );
+
+/* Usage */
+/* ----- */
+OPERATION_ROW *operation_row_new(
+			DICTIONARY *dictionary_single_row,
 			char *operation_name,
 			LIST *primary_key_list,
-			LIST *attribute_name_list,
-			int row_number );
+			int operation_row_total );
+
+/* Process */
+/* ------- */
+OPERATION_ROW *operation_row_calloc(
+			void );
 
 LIST *operation_row_primary_data_list(
-			DICTIONARY *row_dictionary,
-			LIST *primary_key_list,
-			int row_number );
+			DICTIONARY *dictionary_single_row,
+			LIST *primary_key_list );
 
 DICTIONARY *operation_row_single_dictionary(
 			DICTIONARY *row_dictionary,
 			LIST *attribute_name_list,
 			int row_number );
 
-void operation_row_execute(
-			char *command_line );
-
 boolean operation_row_checked(
-			DICTIONARY *row_dictionary,
-			char *attribute_name,
-			int row_number );
+			DICTIONARY *single_row_dictionary,
+			char *operation_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *operation_row_command_line(
+			char *command_line,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *operation_name,
+			pid_t parent_process_id,
+			int operation_row_total,
+			LIST *operation_row_primary_data_list,
+			DICTIONARY *dictionary_single_row );
+
+/* Private */
+/* ------- */
+
+/* Returns operation_error_message */
+/* ------------------------------- */
+char *operation_row_execute(
+			char *command_line,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *operation_name,
+			pid_t parent_process_id,
+			int operation_row_total,
+			LIST *operation_row_primary_data_list,
+			DICTIONARY *dictionary_single_row );
+
+/* Public */
+/* ------ */
+/* Returns operation_error_message_list_string */
+/* ------------------------------------------- */
+char *operation_row_list_execute(
+			char *command_line,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *operation_name,
+			pid_t parent_process_id,
+			int operation_row_total,
+			LIST *operation_row_primary_data_list,
+			DICTIONARY *dictionary_single_row );
+
 
 typedef struct
 {
@@ -87,14 +145,19 @@ typedef struct
 
 /* OPERATION_SEMAPHORE operations */
 /* ------------------------------ */
-OPERATION_SEMAPHORE *operation_semaphore_calloc(
-			void );
 
-OPERATION_SEMAPHORE *operation_semaphore_fetch(
+/* Usage */
+/* ----- */
+OPERATION_SEMAPHORE *operation_semaphore_new(
 			char *operation_name,
 			char *appaserver_data_directory,
 			pid_t parent_process_id,
 			int operation_row_total );
+
+/* Process */
+/* ------- */
+OPERATION_SEMAPHORE *operation_semaphore_calloc(
+			void );
 
 /* Returns heap memory */
 /* ------------------- */

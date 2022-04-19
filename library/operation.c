@@ -67,7 +67,7 @@ OPERATION_SEMAPHORE *operation_semaphore_calloc( void )
 	return operation_semaphore;
 }
 
-OPERATION_SEMAPHORE *operation_semaphore_fetch(
+OPERATION_SEMAPHORE *operation_semaphore_new(
 			char *operation_name,
 			char *appaserver_data_directory,
 			pid_t parent_process_id,
@@ -666,4 +666,95 @@ char *operation_html(	ELEMENT_CHECKBOX *checkbox,
 		background_color,
 		checkbox->image_source );
 }
+
+char *operation_row_command_line(
+			char *command_line,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *operation_name,
+			pid_t parent_process_id,
+			int operation_row_total,
+			LIST *operation_row_primary_data_list,
+			DICTIONARY *dictionary_single_row )
+{
+	/* Returns heap memory */
+	/* ------------------- */
+	return
+	process_operation_command_line(
+		command_line,
+		application_name,
+		operation_name,
+		login_name,
+		role_name,
+		folder_name,
+		pid_t parent_process_id,
+		session_key,
+		int operation_row_total,
+		primary_data_list,
+		dictionary_single_row );
+}
+
+
+LIST *operation_row_list(
+			DICTIONARY *multi_row_dictionary,
+			char *operation_name,
+			LIST *primary_key_list,
+			LIST *attribute_name_list,
+			int operation_row_total )
+{
+}
+
+LIST *operation_row_key_list(
+			char *operation_name,
+			LIST *attribute_name_list )
+{
+}
+
+OPERATION_ROW *operation_row_new(
+			DICTIONARY *dictionary_single_row,
+			char *operation_name,
+			LIST *primary_key_list,
+			int operation_row_total )
+{
+	operation_row->command_line =
+		operation_row_command_line(
+			char *command_line,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *operation_name,
+			pid_t parent_process_id,
+			int operation_row_total,
+			LIST *operation_row_primary_data_list,
+			DICTIONARY *dictionary_single_row );
+}
+
+OPERATION_ROW *operation_row_calloc( void )
+{
+}
+
+LIST *operation_row_primary_data_list(
+			DICTIONARY *dictionary_single_row,
+			LIST *primary_key_list )
+{
+}
+
+DICTIONARY *operation_row_single_dictionary(
+			DICTIONARY *row_dictionary,
+			LIST *attribute_name_list,
+			int row_number )
+{
+}
+
+boolean operation_row_checked(
+			DICTIONARY *single_row_dictionary,
+			char *operation_name )
+{
+}
+
 

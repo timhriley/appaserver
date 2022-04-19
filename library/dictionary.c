@@ -4134,11 +4134,11 @@ LIST *dictionary_attribute_data_list(
 	return data_list;
 }
 
-char *dictionary_attribute_name_row_number(
+char *dictionary_attribute_name_append_row_number(
 			char *attribute_name,
 			int row_number )
 {
-	static char attribute_name_row_number[ 128 ];
+	static char append_row_number[ 128 ];
 
 	if ( !attribute_name )
 	{
@@ -4150,12 +4150,12 @@ char *dictionary_attribute_name_row_number(
 		exit( 1 );
 	}
 
-	sprintf(attribute_name_row_number,
+	sprintf(append_row_number,
 		"%s_%d",
 		attribute_name,
 		row_number );
 
-	return attribute_name_row_number;
+	return append_row_number;
 }
 
 char *dictionary_attribute_name_list_string(
@@ -4166,7 +4166,7 @@ char *dictionary_attribute_name_list_string(
 {
 	char *attribute_name;
 	char *data;
-	char *attribute_name_row_number;
+	char *append_row_number;
 	char list_string[ STRING_128K ];
 	char *ptr = list_string;
 
@@ -4191,18 +4191,18 @@ char *dictionary_attribute_name_list_string(
 			continue;
 		}
 
-		attribute_name_row_number =
+		append_row_number =
 			/* ----------------------------- */
 			/* Returns static memory or null */
 			/* ----------------------------- */
-			dictionary_attribute_name_row_number(
+			dictionary_attribute_name_append_row_number(
 				attribute_name,
 				row_number );
 
-		if ( !attribute_name_row_number )
+		if ( !append_row_number )
 		{
 			fprintf(stderr,
-"Warning in %s/%s()/%d: dictionary_attribute_name_row_number() returned empty.\n",
+"Warning in %s/%s()/%d: dictionary_attribute_name_append_row_number() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -4212,7 +4212,7 @@ char *dictionary_attribute_name_list_string(
 		ptr += sprintf(
 			ptr,
 			"%s%c%s\n",
-			attribute_name_row_number,
+			append_row_number,
 			sql_delimiter,
 			data );
 
@@ -4258,5 +4258,42 @@ DICTIONARY *dictionary_file_fetch(
 	fclose( f );
 
 	return dictionary;
+}
+
+DICTIONARY *dictionary_single_row(
+			LIST *key_list,
+			int row_number,
+			DICTIONARY *multi_row_dictionary )
+{
+	DICTIONARY *single_row = dictionary_small();
+	char indexed_key[ 128 ];
+	char *key;
+	char *data;
+
+	if ( !list_rewind( key_list ) ) return (DICTIONARY *)0;
+
+	do {
+		key = list_get( key_list );
+
+		data = (char *)0;
+
+		sprintf(indexed_key,
+			"%s_%d",
+			key,
+			row_number );
+
+		if ( ( data =
+			dictionary_get(
+				indexed_key,
+				multi_row_dictionary ) ) )
+		{
+			dictionary_set(
+				single_row,
+				key,
+				data );
+		}
+	} while ( list_next( key_list ) );
+
+	return single_row;
 }
 

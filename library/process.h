@@ -252,20 +252,20 @@ void process_replace_one_folder_command_line(
 			char *command_line,
 			char *one_folder_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *process_operation_command_line(
-			char *command_line,
 			char *application_name,
-			char *operation_name,
+			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
+			char *operation_name,
+			char *command_line,
 			pid_t parent_process_id,
-			char *session_key,
 			int operation_row_total,
 			LIST *primary_data_list,
-			DICTIONARY *single_row_dictionary );
+			DICTIONARY *dictionary_single_row );
 
 /* Safely returns heap memory */
 /* -------------------------- */

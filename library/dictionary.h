@@ -21,16 +21,31 @@ typedef struct
 	HASH_TABLE *hash_table;
 } DICTIONARY;
 
-/* Function prototypes */
-/* ------------------- */
-DICTIONARY *dictionary_calloc();
-DICTIONARY *dictionary_new();
-DICTIONARY *dictionary_small();
-DICTIONARY *dictionary_medium();
-DICTIONARY *dictionary_large();
-DICTIONARY *dictionary_huge();
-DICTIONARY *dictionary_super();
-DICTIONARY *dictionary_duper();
+/* DICTIONARY operations */
+/* --------------------- */
+
+/* Usage */
+/* ----- */
+DICTIONARY *dictionary_new(
+			void  );
+
+DICTIONARY *dictionary_small(
+			void );
+
+DICTIONARY *dictionary_medium(
+			void );
+
+DICTIONARY *dictionary_large(
+			void );
+
+DICTIONARY *dictionary_huge(
+			void );
+
+DICTIONARY *dictionary_super(
+			void );
+
+DICTIONARY *dictionary_duper(
+			void );
 
 DICTIONARY *dictionary_string_new(
 			char *dictionary_string );
@@ -47,6 +62,12 @@ DICTIONARY *dictionary_string_dictionary(
 DICTIONARY *dictionary_string2dictionary(
 			char *dictionary_string );
 
+/* Process */
+/* ------- */
+DICTIONARY *dictionary_calloc();
+
+/* Public */
+/* ------ */
 int dictionary_len(	DICTIONARY *dictionary );
 
 int dictionary_length(	DICTIONARY *dictionary );
@@ -700,7 +721,7 @@ char *dictionary_attribute_name_list_string(
 
 /* Returns static memory or null */
 /* ----------------------------- */
-char *dictionary_attribute_name_row_number(
+char *dictionary_attribute_name_append_row_number(
 			char *attribute_name,
 			int row_number );
 
@@ -714,7 +735,12 @@ DICTIONARY *dictionary_file_fetch(
 /* To:    "station_1=BA and datatype_1=stage"			*/
 /* ------------------------------------------------------------ */
 void dictionary_parse_multi_attribute_keys(
-			DICTIONARY *dictionary, 
+			DICTIONARY *dictionary,
 			char delimiter );
+
+DICTIONARY *dictionary_single_row(
+			LIST *key_list,
+			int row_number,
+			DICTIONARY *multi_row_dictionary );
 
 #endif
