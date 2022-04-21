@@ -1257,10 +1257,11 @@ char *edit_table_output_system_string(
 			char *role_name,
 			char *folder_name,
 			char *target_frame,
+			char *subsub_title,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
 {
-	char system_string[ 1024 ];
+	char system_string[ STRING_8K ];
 
 	if ( !executable
 	||   !session_key
@@ -1279,13 +1280,16 @@ char *edit_table_output_system_string(
 	}
 
 	sprintf(system_string,
-		"%s %s %s %s %s %s \"%s\" 2>>%s",
+		"%s %s %s %s %s %s \"%s\" \"%s\" 2>>%s",
 		executable,
 		session_key,
 		login_name,
 		role_name,
 		folder_name,
 		target_frame,
+		(subsub_title )
+			? subsub_title
+			: "",
 		(dictionary_separate_send_string)
 			? dictionary_separate_send_string
 			: "",

@@ -12,40 +12,12 @@
 #include "appaserver_error.h"
 #include "appaserver_library.h"
 #include "button.h"
+#include "role_operation.h"
 #include "operation.h"
 
 void operation_row_execute( char *command_line )
 {
 	if ( system( command_line ) ){};
-}
-
-int operation_row_total(
-			DICTIONARY *dictionary,
-			char *operation_name,
-			int highest_index )
-{
-	int row_total = 0;
-	int row;
-	char *data;
-
-	if ( !highest_index ) return 0;
-
-	for( row = 1; row <= highest_index; row++ )
-	{
-		/* ---------------------------- */
-		/* Sample dictionary entry:	*/
-		/* delete_1=yes			*/
-		/* ---------------------------- */
-		if ( dictionary_index_data(
-			&data,
-			dictionary,
-			operation_name,
-			row ) == 1 )
-		{
-			if ( strcmp( data, "yes" ) == 0 ) row_total++;
-		}
-	}
-	return row_total;
 }
 
 OPERATION_SEMAPHORE *operation_semaphore_calloc( void )
@@ -207,53 +179,6 @@ void operation_semaphore_increment(
 	if ( system( system_string ) ){};
 }
 
-OPERATION_ROW *operation_row_fetch(
-			DICTIONARY *row_dictionary,
-			char *operation_name,
-			LIST *primary_key_list,
-			LIST *attribute_name_list,
-			int row_number )
-{
-	boolean checked;
-	OPERATION_ROW *operation_row;
-
-	if ( ! ( checked =
-			operation_row_checked(
-				row_dictionary,
-				operation_name,
-				row_number ) ) )
-	{
-		return (OPERATION_ROW *)0;
-	}
-
-	operation_row = operation_row_calloc();
-
-	operation_row->primary_data_list =
-		operation_row_primary_data_list(
-			row_dictionary,
-			primary_key_list,
-			row_number );
-
-	if ( !list_length( operation_row->primary_data_list ) )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: operation_row_primary_data_list(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			list_display( primary_key_list ) );
-		exit( 1 );
-	}
-
-	operation_row->single_dictionary =
-		operation_row_single_dictionary(
-			row_dictionary,
-			attribute_name_list,
-			row_number );
-
-	return operation_row;
-}
-
 OPERATION_ROW *operation_row_calloc( void )
 {
 	OPERATION_ROW *operation_row;
@@ -272,33 +197,33 @@ OPERATION_ROW *operation_row_calloc( void )
 }
 
 boolean operation_row_checked(
-			DICTIONARY *row_dictionary,
-			char *operation_name,
-			int row_number )
+			DICTIONARY *operation_dictionary,
+			int row_number,
+			char *operation_name )
 {
-	char *data = {0};
+	char key[ 128 ];
 
-	if ( dictionary_index_data(
-			&data,
-			row_dictionary,
-			operation_name,
-			row_number ) == 1 )
+	if ( !operation_dictionary
+	||   row_number < 1
+	||   !operation_name )
 	{
-		if ( strcmp( data, "yes" ) == 0 ) return 1;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
-	return 0;
-}
 
-LIST *operation_row_primary_data_list(
-			DICTIONARY *row_dictionary,
-			LIST *primary_key_list,
-			int row_number )
-{
-	return
-	dictionary_key_list_index_data_list( 
-		row_dictionary,
-		primary_key_list,
+	sprintf(key, 
+	 	"%s_%d",
+	 	operation_name,
 		row_number );
+
+	if ( dictionary_get( key, operation_dictionary ) )
+		return 1;
+	else
+		return 0;
 }
 
 DICTIONARY *operation_row_single_dictionary(
@@ -667,94 +592,408 @@ char *operation_html(	ELEMENT_CHECKBOX *checkbox,
 		checkbox->image_source );
 }
 
-char *operation_row_command_line(
-			char *command_line,
+OPERATION_ROW *operation_row_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *operation_name,
-			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *operation_row_primary_data_list,
+			LIST *role_operation_list,
+			LIST *primary_key_list,
+			int dictionary_key_highest_index,
+			DICTIONARY *operation_dictionary,
+			int row_number,
 			DICTIONARY *dictionary_single_row )
+{
+	ROLE_OPERATION *role_operation;
+	OPERATION_ROW *operation_row;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !folder_name
+	||   !list_length( primary_key_list )
+	||   !dictionary_key_highest_index
+	||   !row_number )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( operation_dictionary )
+	||   !dictionary_length( dictionary_single_row ) )
+	{
+		return (OPERATION_ROW *)0;
+	}
+
+	if ( !list_rewind( role_operation_list ) )
+		return (OPERATION_ROW *)0;
+
+	operation_row = operation_row_calloc();
+
+	operation_row->checked_list = list_new();
+
+	do {
+		role_operation = list_get( role_operation_list );
+
+		if ( !role_operation->operation
+		||   !role_operation->operation->process
+		||   !role_operation->operation->process->command_line )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: command_line is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			operation_row->checked_list,
+			operation_row_checked_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				primary_key_list,
+				dictionary_key_highest_index,
+				operation_dictionary,
+				dictionary_single_row,
+				role_operation->operation_name,
+				role_operation->
+					operation->
+					process->
+					command_line ) );
+	} while ( list_next( role_operation_list ) );
+
+	if ( !list_length( operation_row->checked_list ) )
+	{
+		list_free( operation_row->checked_list );
+		free( operation_row );
+		return (OPERATION_ROW *)0;
+	}
+	else
+	{
+		return operation_row;
+	}
+}
+
+OPERATION_ROW_CHECKED *operation_row_checked_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			int dictionary_key_highest_index,
+			DICTIONARY *operation_dictionary,
+			DICTIONARY *dictionary_single_row,
+			char *operation_name,
+			char *command_line )
+{
+	OPERATION_ROW_CHECKED *operation_row_checked =
+		operation_row_checked_calloc();
+
+	operation_row_checked->count =
+		operation_row_checked_count(
+			dictionary_key_highest_index,
+			operation_dictionary,
+			operation_name );
+
+	if ( !operation_row_checked->count )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: operation_row_checked_count(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			operation_name );
+		exit( 1 );
+	}
+
+	operation_row_checked->primary_key_data_list =
+		dictionary_data_list(
+			primary_key_list,
+			dictionary_single_row );
+
+	if ( !list_length( operation_row_checked->primary_key_data_list ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: dictionary_data_list(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_display( primary_key_list ) );
+		exit( 1 );
+	}
+
+	operation_row_checked->command_line =
+		operation_row_checked_command_line(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_name,
+			dictionary_single_row,
+			operation_name,
+			command_line,
+			operation_row_checked->count,
+			getpid() /* parent_process_id */,
+			operation_row_checked->primary_key_data_list );
+
+	return operation_row_checked;
+}
+
+OPERATION_ROW_CHECKED *operation_row_checked_calloc( void )
+{
+	OPERATION_ROW_CHECKED *operation_row_checked;
+
+	if ( ! ( operation_row_checked =
+			calloc( 1, sizeof( OPERATION_ROW_CHECKED ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return operation_row_checked;
+}
+
+int operation_row_checked_count(
+			int highest_index,
+			DICTIONARY *operation_dictionary,
+			char *operation_name )
+{
+	int checked_count = 0;
+	int row;
+	char key[ 128 ];
+
+	if ( !highest_index ) return 0;
+
+	for( row = 1; row <= highest_index; row++ )
+	{
+		sprintf(key,
+			"%s_%d",
+			operation_name,
+			row );
+
+		if ( dictionary_get( key, operation_dictionary ) )
+			checked_count++;
+	}
+	return checked_count;
+}
+ 
+char *operation_row_checked_command_line(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *dictionary_single_row,
+			char *operation_name,
+			char *command_line,
+			int operation_row_checked_count,
+			pid_t parent_process_id,
+			LIST *primary_key_data_list )
 {
 	/* Returns heap memory */
 	/* ------------------- */
 	return
 	process_operation_command_line(
-		command_line,
 		application_name,
-		operation_name,
+		session_key,
 		login_name,
 		role_name,
 		folder_name,
-		pid_t parent_process_id,
-		session_key,
-		int operation_row_total,
-		primary_data_list,
-		dictionary_single_row );
+		dictionary_single_row,
+		operation_name,
+		command_line,
+		parent_process_id,
+		operation_row_checked_count,
+		primary_key_data_list );
 }
 
-
-LIST *operation_row_list(
-			DICTIONARY *multi_row_dictionary,
-			char *operation_name,
-			LIST *primary_key_list,
-			LIST *attribute_name_list,
-			int operation_row_total )
+char *operation_row_checked_execute( char *command_line )
 {
+	return string_pipe_fetch( command_line );
 }
 
-LIST *operation_row_key_list(
-			char *operation_name,
-			LIST *attribute_name_list )
-{
-}
-
-OPERATION_ROW *operation_row_new(
-			DICTIONARY *dictionary_single_row,
-			char *operation_name,
-			LIST *primary_key_list,
-			int operation_row_total )
-{
-	operation_row->command_line =
-		operation_row_command_line(
-			char *command_line,
+OPERATION_ROW_LIST *operation_row_list_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *operation_name,
-			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *operation_row_primary_data_list,
-			DICTIONARY *dictionary_single_row );
-}
-
-OPERATION_ROW *operation_row_calloc( void )
+			LIST *role_operation_list,
+			LIST *primary_key_list,
+			LIST *folder_attribute_name_list,
+			DICTIONARY *operation_dictionary,
+			DICTIONARY *multi_row_dictionary )
 {
+	OPERATION_ROW_LIST *operation_row_list;
+	int row_number;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !folder_name
+	||   list_length( primary_key_list )
+	||   !list_length( folder_attribute_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( operation_dictionary )
+	||   !dictionary_length( multi_row_dictionary ) )
+	{
+		return (OPERATION_ROW_LIST *)0;
+	}
+
+	operation_row_list = operation_row_list_calloc();
+
+	operation_row_list->dictionary_key_highest_index =
+		dictionary_key_highest_index(
+			operation_dictionary );
+
+	operation_row_list->list = list_new();
+
+	for(	row_number = 1;
+		row_number <= operation_row_list->dictionary_key_highest_index;
+		row_number++ )
+	{
+		operation_row_list->dictionary_single_row =
+			dictionary_single_row(
+				folder_attribute_name_list,
+				row_number,
+				multi_row_dictionary );
+
+		if ( !dictionary_length(
+			operation_row_list->dictionary_single_row ) )
+		{
+			continue;
+		}
+
+		list_set(
+			operation_row_list->list,
+			operation_row_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				role_operation_list,
+				primary_key_list,
+				operation_row_list->
+					dictionary_key_highest_index,
+				operation_dictionary,
+				row_number,
+				operation_row_list->dictionary_single_row ) );
+	}
+
+	if ( !list_length( operation_row_list->list ) )
+	{
+		free( operation_row_list );
+		return (OPERATION_ROW_LIST *)0;
+	}
+	else
+	{
+		return operation_row_list;
+	}
 }
 
-LIST *operation_row_primary_data_list(
-			DICTIONARY *dictionary_single_row,
-			LIST *primary_key_list )
+OPERATION_ROW_LIST *operation_row_list_calloc( void )
 {
+	OPERATION_ROW_LIST *operation_row_list;
+
+	operation_row_list =
+		calloc( 1, sizeof( OPERATION_ROW_LIST ) );
+
+	if ( !operation_row_list )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return operation_row_list;
 }
 
-DICTIONARY *operation_row_single_dictionary(
-			DICTIONARY *row_dictionary,
-			LIST *attribute_name_list,
-			int row_number )
+char *operation_row_list_execute( OPERATION_ROW_LIST *operation_row_list )
 {
+	char operation_error_message_list_string[ STRING_16K ];
+	char *ptr = operation_error_message_list_string;
+	char *operation_error_message;
+	OPERATION_ROW *operation_row;
+	OPERATION_ROW_CHECKED *operation_row_checked;
+
+	if ( !operation_row_list ) return (char *)0;
+
+	if ( !list_rewind( operation_row_list->list ) ) return (char *)0;
+
+	do {
+		operation_row =
+			list_get(
+				operation_row_list->list );
+
+		if ( !list_rewind( operation_row->checked_list ) )
+			continue;
+
+		do {
+			operation_row_checked =
+				list_get(
+					operation_row->checked_list );
+
+			if ( !operation_row_checked->command_line )
+			{
+				fprintf(stderr,
+			"ERROR in %s/%s()/%d: command_line is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			operation_error_message =
+				operation_row_checked_execute(
+					operation_row_checked->
+						command_line );
+
+			if ( operation_error_message
+			&&   *operation_error_message )
+			{
+				if ( ptr !=
+				     operation_error_message_list_string )
+				{
+					ptr += sprintf( ptr, "\n<br>" );
+
+					ptr += sprintf(
+						ptr,
+						"%s",
+						operation_error_message );
+				}
+			}
+
+		} while ( list_next( operation_row->checked_list ) );
+
+	} while ( list_next( operation_row_list->list ) );
+
+	if ( ptr == operation_error_message_list_string )
+		return (char *)0;
+	else
+		return strdup( operation_error_message_list_string );
 }
-
-boolean operation_row_checked(
-			DICTIONARY *single_row_dictionary,
-			char *operation_name )
-{
-}
-
-

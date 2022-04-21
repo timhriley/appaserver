@@ -26,7 +26,7 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	LIST *role_folder_list;
-	DICTIONARY_SEPARATE *dictionary_separate;
+	DICTIONARY_SEPARATE_INSERT_TABLE *dictionary_separate;
 	boolean forbid;
 } INSERT_TABLE;
 

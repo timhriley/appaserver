@@ -17,7 +17,7 @@
 
 #define OPERATION_SELECT		"operation,output_yn"
 #define OPERATION_TABLE			"operation"
-#define OPERATION_ROW_TOTAL_LABEL	"operation_row_total"
+#define OPERATION_ROW_COUNT_LABEL	"operation_row_count"
 #define OPERATION_ROW_ITERATION_LABEL	"operation_row_iteration"
 
 #define OPERATION_DELETE_WARNING_JAVASCRIPT \
@@ -25,9 +25,61 @@
 
 typedef struct
 {
-	LIST *primary_data_list;
-	boolean checked;
+	int count;
+	LIST *primary_key_data_list;
 	char *command_line;
+} OPERATION_ROW_CHECKED;
+
+/* OPERATION_ROW_CHECKED operations */
+/* -------------------------------- */
+
+/* Usage */
+/* ----- */
+OPERATION_ROW_CHECKED *operation_row_checked_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			int dictionary_key_highest_index,
+			DICTIONARY *operation_dictionary,
+			DICTIONARY *dictionary_single_row,
+			char *operation_name,
+			char *command_line );
+
+OPERATION_ROW_CHECKED *operation_row_checked_calloc(
+			void );
+
+int operation_row_checked_count(
+			int dictionary_key_highest_index,
+			DICTIONARY *operation_dictionary,
+			char *operation_name );
+ 
+char *operation_row_checked_command_line(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *dictionary_single_row,
+			char *operation_name,
+			char *command_line,
+			int operation_row_checked_count,
+			pid_t parent_process_id,
+			LIST *primary_key_data_list );
+
+/* Public */
+/* ------ */
+
+/* Returns operation_error_message */
+/* ------------------------------- */
+char *operation_row_checked_execute(
+			char *command_line );
+
+typedef struct
+{
+	LIST *checked_list;
 } OPERATION_ROW;
 
 /* OPERATION_ROW operations */
@@ -35,95 +87,59 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *operation_row_list(
-			DICTIONARY *multi_row_dictionary,
-			char *operation_name,
-			LIST *primary_key_list,
-			LIST *attribute_name_list,
-			int operation_row_total );
-
-/* Process */
-/* ------- */
-LIST *operation_row_key_list(
-			char *operation_name,
-			LIST *attribute_name_list );
-
-/* Usage */
-/* ----- */
 OPERATION_ROW *operation_row_new(
-			DICTIONARY *dictionary_single_row,
-			char *operation_name,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			LIST *role_operation_list,
 			LIST *primary_key_list,
-			int operation_row_total );
+			int dictionary_key_highest_index,
+			DICTIONARY *operation_dictionary,
+			int row_number,
+			DICTIONARY *dictionary_single_row );
 
 /* Process */
 /* ------- */
 OPERATION_ROW *operation_row_calloc(
 			void );
 
-LIST *operation_row_primary_data_list(
-			DICTIONARY *dictionary_single_row,
-			LIST *primary_key_list );
+typedef struct
+{
+	int dictionary_key_highest_index;
+	LIST *list;
+	DICTIONARY *dictionary_single_row;
+} OPERATION_ROW_LIST;
 
-DICTIONARY *operation_row_single_dictionary(
-			DICTIONARY *row_dictionary,
-			LIST *attribute_name_list,
-			int row_number );
+/* OPERATION_ROW_LIST operations */
+/* ----------------------------- */
 
-boolean operation_row_checked(
-			DICTIONARY *single_row_dictionary,
-			char *operation_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *operation_row_command_line(
-			char *command_line,
+/* Usage */
+/* ----- */
+OPERATION_ROW_LIST *operation_row_list_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *operation_name,
-			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *operation_row_primary_data_list,
-			DICTIONARY *dictionary_single_row );
+			LIST *role_operation_list,
+			LIST *primary_key_list,
+			LIST *folder_attribute_name_list,
+			DICTIONARY *operation_dictionary,
+			DICTIONARY *multi_row_dictionary );
 
-/* Private */
+/* Process */
 /* ------- */
-
-/* Returns operation_error_message */
-/* ------------------------------- */
-char *operation_row_execute(
-			char *command_line,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *operation_name,
-			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *operation_row_primary_data_list,
-			DICTIONARY *dictionary_single_row );
+OPERATION_ROW_LIST *operation_row_list_calloc(
+			void );
 
 /* Public */
 /* ------ */
-/* Returns operation_error_message_list_string */
-/* ------------------------------------------- */
+/* Returns operation_error_message_list_string or null */
+/* --------------------------------------------------- */
 char *operation_row_list_execute(
-			char *command_line,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *operation_name,
-			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *operation_row_primary_data_list,
-			DICTIONARY *dictionary_single_row );
-
+			OPERATION_ROW_LIST *operation_row_list );
 
 typedef struct
 {

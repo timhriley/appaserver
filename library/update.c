@@ -1109,8 +1109,8 @@ char *update_row_list_execute(
 			UPDATE_ROW_LIST *update_row_list,
 			char *appaserver_error_filename )
 {
-	char sql_error_message[ STRING_64K ];
-	char *ptr = sql_error_message;
+	char sql_error_message_list_string[ STRING_64K ];
+	char *ptr = sql_error_message_list_string;
 	UPDATE_ROW *update_row;
 	char *message_string;
 	FILE *output_pipe;
@@ -1150,7 +1150,7 @@ char *update_row_list_execute(
 						update_root->
 						update_sql_statement ) ) )
 			{
-				if ( ptr != sql_error_message )
+				if ( ptr != sql_error_message_list_string )
 				{
 					ptr += sprintf( ptr, "\n<br>" );
 				}
@@ -1187,10 +1187,10 @@ char *update_row_list_execute(
 
 	pclose( output_pipe );
 
-	if ( ptr == sql_error_message )
+	if ( ptr == sql_error_message_list_string )
 		return (char *)0;
 	else
-		return strdup( sql_error_message );
+		return strdup( sql_error_message_list_string );
 }
 
 char *update_command_line(
@@ -2986,3 +2986,89 @@ void update_row_mto1_isa_command_line_execute(
 
 	} while ( list_next( update_mto1_isa_list ) );
 }
+
+UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list_new(
+			UPDATE_ROW_LIST *update_row_list )
+{
+	UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list;
+	UPDATE_ROW *update_row;
+
+	if ( !update_row_list
+	||   !list_rewind( update_row_list->list ) )
+	{
+		return (UPDATE_SQL_STATEMENT_LIST *)0;
+	}
+
+	update_sql_statement_list = update_sql_statement_list_calloc();
+
+	update_sql_statement_list->list = list_new();
+
+	do {
+		update_row = list_get( update_row_list->list );
+
+		list_set(
+			update_sql_statement_list->list,
+			update_sql_statement_new(
+				update_row->update_root,
+				update_row->update_one2m_list,
+				update_row->update_mto1_isa_list ) );
+
+	} while ( list_next( update_row_list->list ) );
+
+	return update_sql_statement_list;
+}
+
+UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list_calloc( void )
+{
+	UPDATE_SQL_STATEMENT_LIST *update_sql_statement_list;
+
+	if ( ! ( update_sql_statement_list =
+			calloc( 1, sizeof( UPDATE_SQL_STATEMENT_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_sql_statement_list;
+}
+
+UPDATE_SQL_STATEMENT *update_sql_statement_new(
+			UPDATE_ROOT *update_root,
+			LIST *update_one2m_list,
+			LIST *update_mto1_isa_list )
+{
+}
+
+UPDATE_SQL_STATEMENT *update_sql_statement_calloc( void )
+{
+}
+
+char *update_sql_statement_root( UPDATE_ROOT *update_root )
+{
+}
+
+char *update_sql_statement_command_line_root( UPDATE_ROOT *update_root )
+{
+}
+
+LIST *update_sql_statement_one2m_list( LIST *update_one2m_list )
+{
+}
+
+LIST *update_sql_statement_command_line_one2m_list( LIST *update_one2m_list )
+{
+}
+
+LIST *update_sql_statement_mto1_isa_list( LIST *update_mto1_isa_list )
+{
+}
+
+LIST *update_sql_statement_command_line_mto1_isa_list(
+			LIST *update_mto1_isa_list )
+{
+}
+

@@ -247,6 +247,7 @@ char *edit_table_output_system_string(
 			char *role_name,
 			char *folder_name,
 			char *target_frame,
+			char *subsub_title,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
 

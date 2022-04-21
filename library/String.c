@@ -1524,12 +1524,11 @@ int string_row_number( char *attribute_name )
 	return -1;
 }
 
-char *string_append(
-			char *message_list_string,
+char *string_append(	char *message_list_string,
 			char *message_string,
 			char *delimiter )
 {
-	char append_string[ STRING_INPUT_BUFFER ];
+	char append_string[ STRING_64K ];
 
 	if ( !message_string || !delimiter )
 		return strdup( "" );

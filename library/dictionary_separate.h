@@ -321,4 +321,37 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 	dictionary_separate_edit_table_calloc(
 			void );
 
+typedef struct
+{
+	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
+	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
+	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY *sort_dictionary;
+	DICTIONARY *query_dictionary;
+	DICTIONARY *drillthru_dictionary;
+	DICTIONARY *ignore_dictionary;
+	DICTIONARY *non_prefixed_dictionary;
+	LIST *ignore_insert_name_list;
+	DICTIONARY *send_dictionary;
+	char *send_string;
+} DICTIONARY_SEPARATE_INSERT_TABLE;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+DICTIONARY_SEPARATE_INSERT_TABLE *
+	dictionary_separate_insert_table_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_INSERT_TABLE *
+	dictionary_separate_insert_table_calloc(
+			void );
+
 #endif

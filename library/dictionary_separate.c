@@ -743,12 +743,6 @@ void dictionary_separate_date_convert_string(
 		strdup( destination ) );
 }
 
-void dictionary_separate_working_post_trim_double_bracked_data(
-			DICTIONARY *dictionary )
-{
-	dictionary_trim_double_bracked_data( dictionary );
-}
-
 DICTIONARY *dictionary_separate_send_dictionary(
 			DICTIONARY *sort_dictionary,
 			char *dictionary_separate_sort_prefix,
@@ -1223,5 +1217,272 @@ DICTIONARY_SEPARATE_EDIT_TABLE *dictionary_separate_edit_table_calloc( void )
 		exit( 1 );
 	}
 	return dictionary_separate_edit_table;
+}
+
+DICTIONARY_SEPARATE_POST_EDIT_TABLE *
+	dictionary_separate_post_edit_table_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_POST_EDIT_TABLE *
+		dictionary_separate_post_edit_table;
+
+	if ( ! ( dictionary_separate_post_edit_table =
+		   calloc(
+			1,
+			sizeof( DICTIONARY_SEPARATE_POST_EDIT_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_post_edit_table;
+}
+
+DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *
+	dictionary_separate_trim_double_bracket_new(
+			DICTIONARY *original_post_dictionary )
+{
+	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *
+		trim_double_bracket;
+
+	if ( !original_post_dictionary )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: original_post_dictionary is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trim_double_bracket =
+		dictionary_separate_trim_double_bracket_calloc();
+
+	trim_double_bracket->dictionary = original_post_dictionary;
+
+	dictionary_separate_trim_double_bracket(
+		trim_double_bracket->dictionary );
+
+	return trim_double_bracket;
+}
+
+DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *
+	dictionary_separate_trim_double_bracket_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *
+		dictionary_separate_trim_double_bracket;
+
+	if ( ! ( dictionary_separate_trim_double_bracket =
+		   calloc(
+			1,
+			sizeof( DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_trim_double_bracket;
+}
+
+void dictionary_separate_trim_double_bracket(
+			DICTIONARY *dictionary )
+{
+	dictionary_trim_double_bracked_data( dictionary );
+}
+
+DICTIONARY_SEPARATE_PARSE_MULTI *
+	dictionary_separate_parse_multi_new(
+			DICTIONARY *original_post_dictionary,
+			char sql_delimiter )
+{
+	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
+
+	if ( !original_post_dictionary )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: original_post_dictionary is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	parse_multi = dictionary_separate_parse_multi_calloc();
+
+	parse_multi->dictionary = original_post_dictionary;
+
+	dictionary_separate_parse_multi(
+		parse_multi->dictionary,
+		sql_delimiter );
+
+	return parse_multi;
+}
+
+DICTIONARY_SEPARATE_PARSE_MULTI *
+	dictionary_separate_parse_multi_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_PARSE_MULTI *
+		dictionary_separate_parse_multi;
+
+	if ( ! ( dictionary_separate_parse_multi =
+		   calloc(
+			1,
+			sizeof( DICTIONARY_SEPARATE_PARSE_MULTI ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_parse_multi;
+}
+
+DICTIONARY_SEPARATE_INSERT_TABLE *
+	dictionary_separate_insert_table_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list )
+{
+	DICTIONARY_SEPARATE_INSERT_TABLE *
+		dictionary_separate_insert_table =
+			dictionary_separate_insert_table_calloc();
+
+	if ( !dictionary_length( original_post_dictionary ) )
+	{
+		return dictionary_separate_insert_table;
+	}
+
+	/* ------------------------- */
+	/* Forbidden characters: `\" */
+	/* ------------------------- */
+	dictionary_search_replace_special_characters(
+		original_post_dictionary );
+
+	dictionary_separate_insert_table->trim_double_bracket =
+		dictionary_separate_trim_double_bracket_new(
+			original_post_dictionary );
+
+	dictionary_separate_insert_table->parse_multi =
+		dictionary_separate_parse_multi_new(
+			dictionary_separate_insert_table->
+				trim_double_bracket->
+				dictionary,
+			SQL_DELIMITER );
+
+	dictionary_separate_insert_table->date_convert =
+		dictionary_separate_date_convert_new(
+			dictionary_separate_insert_table->
+				parse_multi->
+				dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list );
+
+	dictionary_separate_insert_table->sort_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			dictionary_separate_insert_table->
+				date_convert->
+				dictionary );
+
+	dictionary_separate_insert_table->query_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			dictionary_separate_insert_table->
+				date_convert->
+				dictionary );
+
+	dictionary_separate_insert_table->drillthru_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			dictionary_separate_insert_table->
+				date_convert->
+				dictionary );
+
+	dictionary_separate_insert_table->ignore_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			dictionary_separate_insert_table->
+				date_convert->
+				dictionary );
+
+	dictionary_separate_insert_table->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			dictionary_separate_insert_table->
+				date_convert->
+				dictionary );
+
+	dictionary_separate_insert_table->ignore_insert_name_list =
+		dictionary_separate_ignore_select_name_list(
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			dictionary_separate_insert_table->
+				ignore_dictionary );
+
+	dictionary_separate_insert_table->send_dictionary =
+		dictionary_separate_send_dictionary(
+			dictionary_separate_insert_table->
+				sort_dictionary,
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			dictionary_separate_insert_table->
+				query_dictionary,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			dictionary_separate_insert_table->
+				drillthru_dictionary,
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			dictionary_separate_insert_table->
+				ignore_dictionary,
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			(DICTIONARY *)0 /* pair_one2m_dictionary */,
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			dictionary_separate_insert_table->
+				non_prefixed_dictionary );
+
+	dictionary_separate_insert_table->send_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		dictionary_separate_send_string(
+			dictionary_separate_insert_table->
+				send_dictionary );
+
+	return dictionary_separate_insert_table;
+}
+
+DICTIONARY_SEPARATE_INSERT_TABLE *
+	dictionary_separate_insert_table_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_INSERT_TABLE *dictionary_separate_insert_table;
+
+	if ( ! ( dictionary_separate_insert_table =
+		     calloc( 1, sizeof( DICTIONARY_SEPARATE_INSERT_TABLE ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return dictionary_separate_insert_table;
 }
 

@@ -260,12 +260,12 @@ char *process_operation_command_line(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
+			DICTIONARY *dictionary_single_row,
 			char *operation_name,
 			char *command_line,
 			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *primary_data_list,
-			DICTIONARY *dictionary_single_row );
+			int operation_row_checked_count,
+			LIST *primary_data_list );
 
 /* Safely returns heap memory */
 /* -------------------------- */

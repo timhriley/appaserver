@@ -165,6 +165,35 @@ POST_EDIT_TABLE *post_edit_table_new(
 				post_edit_table->folder );
 	}
 
+	if ( dictionary_length(
+		post_edit_table->
+			dictionary_separate->
+			operation_dictionary ) )
+	{
+		post_edit_table->operation_row_list =
+			operation_row_list_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				post_edit_table->
+					folder->
+					role_operation_list,
+				post_edit_table->
+					folder->
+					primary_key_list,
+				post_edit_table->
+					folder->
+					folder_attribute_name_list,
+				post_edit_table->
+					dictionary_separate->
+					operation_dictionary,
+				post_edit_table->
+					dictionary_separate->
+					multi_row_dictionary );
+	}
+
 	return post_edit_table;
 }
 

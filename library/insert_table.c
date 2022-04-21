@@ -108,7 +108,7 @@ INSERT_TABLE *insert_table_new(
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_folder_new(
+		dictionary_separate_insert_table_new(
 			post_dictionary->original_post_dictionary,
 			application_name,
 			login_name,

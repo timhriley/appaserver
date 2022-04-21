@@ -7,6 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "appaserver_error.h"
+#include "String.h"
+#include "edit_table.h"
 #include "post_edit_table.h"
 
 int main( int argc, char **argv )
@@ -19,8 +22,8 @@ int main( int argc, char **argv )
 	char *target_frame;
 	char *detail_base_folder_name;
 	POST_EDIT_TABLE *post_edit_table;
-	char *sql_error_message = {0};
-	char *operation_error_message = {0};
+	char *sql_error_message_list_string = {0};
+	char *operation_error_message_list_string = {0};
 	char *subsub_title;
 	char *system_string;
 
@@ -62,25 +65,34 @@ int main( int argc, char **argv )
 
 	if ( post_edit_table->update )
 	{
-		sql_error_message =
+		sql_error_message_list_string =
+			/* --------------------------------------------- */
+			/* Returns sql_error_message_list_string or null */
+			/* --------------------------------------------- */
 			update_row_list_execute(
 				post_edit_table->update->update_row_list,
 				appaserver_error_filename(
 					application_name ) );
 	}
 
-	if ( list_length( post_edit_table->operation_row_list ) )
+	if ( post_edit_table->operation_row_list )
 	{
-		operation_error_message =
+		operation_error_message_list_string =
+			/* ---------------------------------------------------*/
+			/* Returns operation_error_message_list_string or null*/
+			/* ---------------------------------------------------*/
 			operation_row_list_execute(
 				post_edit_table->operation_row_list );
 	}
 
 	subsub_title =
-		string_append_string(
-			sql_error_message,
-			operation_error_message,
-			“<br>” /* string_delimiter */ );
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		string_append(
+			sql_error_message_list_string,
+			operation_error_message_list_string,
+			"<br>" /* string_delimiter */ );
 
 	system_string =
 		/* ------------------- */
@@ -94,9 +106,32 @@ int main( int argc, char **argv )
 			folder_name,
 			target_frame,
 			subsub_title,
-			dictionary_separate_send_dictionary(),
-			appaserver_error_filename(
-				application_name ) );
+			dictionary_separate_send_string(
+				dictionary_separate_send_dictionary(
+					post_edit_table->
+						dictionary_separate->
+						sort_dictionary,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
+					post_edit_table->
+						dictionary_separate->
+						query_dictionary,
+					DICTIONARY_SEPARATE_QUERY_PREFIX,
+					post_edit_table->
+						dictionary_separate->
+						drillthru_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+					post_edit_table->
+						dictionary_separate->
+						ignore_dictionary,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
+					post_edit_table->
+						dictionary_separate->
+						pair_one2m_dictionary,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
+					post_edit_table->
+						dictionary_separate->
+						non_prefixed_dictionary ) ),
+			appaserver_error_filename( application_name ) );
 
 	if ( system( system_string ) ){}
 

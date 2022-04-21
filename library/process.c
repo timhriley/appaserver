@@ -800,20 +800,20 @@ char *process_operation_command_line(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
+			DICTIONARY *dictionary_single_row,
 			char *operation_name,
 			char *command_line,
 			pid_t parent_process_id,
-			int operation_row_total,
-			LIST *primary_data_list,
-			DICTIONARY *dictionary_single_row )
+			int operation_row_checked_count,
+			LIST *primary_data_list )
 {
 	char local_command_line[ STRING_16K ];
-	char buffer[ STRING_16K ];
+	char buffer[ STRING_8K ];
 
 	string_strcpy(
 		local_command_line,
 		command_line,
-		STRING_COMMAND_BUFFER );
+		STRING_16K );
 
 	if ( application_name )
 	{
@@ -891,7 +891,7 @@ char *process_operation_command_line(
 				session_key ) );
 	}
 
-	if ( operation_row_total )
+	if ( operation_row_checked_count )
 	{
 		char operation_row_total_string[ 16 ];
 
@@ -946,9 +946,7 @@ char *process_operation_command_line(
 		0 /* row_number */ );
 
 	sprintf(local_command_line + strlen( local_command_line ),
-		" 2>>%s",
-		appaserver_error_filename(
-			application_name ) );
+		" 2>&1" );
 
 	return strdup( local_command_line );
 }
