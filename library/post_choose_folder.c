@@ -473,6 +473,7 @@ char *post_choose_folder_system_string(
 			role_name,
 			folder_name,
 			target_frame,
+			(char *)0 /* subsub_title */,
 			dictionary_separate_send_string(
 				dictionary_separate_send_dictionary(
 					(DICTIONARY *)0

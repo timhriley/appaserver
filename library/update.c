@@ -3041,34 +3041,209 @@ UPDATE_SQL_STATEMENT *update_sql_statement_new(
 			LIST *update_one2m_list,
 			LIST *update_mto1_isa_list )
 {
+	UPDATE_SQL_STATEMENT *update_sql_statement =
+		update_sql_statement_calloc();
+
+	if ( update_root )
+	{
+		update_sql_statement->root =
+			update_sql_statement_root(
+				update_root );
+
+		update_sql_statement->command_line_root =
+			update_sql_statement_command_line_root(
+				update_root );
+	}
+
+	if ( list_length( update_one2m_list ) )
+	{
+		update_sql_statement->one2m_list =
+			update_sql_statement_one2m_list(
+				update_one2m_list );
+
+		update_sql_statement->command_line_one2m_list =
+			update_sql_statement_command_line_one2m_list(
+				update_one2m_list );
+	}
+
+	if ( list_length( update_mto1_isa_list ) )
+	{
+		update_sql_statement->mto1_isa_list =
+			update_sql_statement_mto1_isa_list(
+				update_mto1_isa_list );
+
+		update_sql_statement->command_line_mto1_isa_list =
+			update_sql_statement_command_line_mto1_isa_list(
+				update_mto1_isa_list );
+	}
+
+	if ( update_sql_statement->root
+	||   list_length( update_sql_statement->one2m_list )
+	||   list_length( update_sql_statement->mto1_isa_list ) )
+	{
+		return update_sql_statement;
+	}
+	else
+	{
+		free( update_sql_statement );
+		return (UPDATE_SQL_STATEMENT *)0;
+	}
 }
 
 UPDATE_SQL_STATEMENT *update_sql_statement_calloc( void )
 {
+	UPDATE_SQL_STATEMENT *update_sql_statement;
+
+	if ( ! ( update_sql_statement =
+			calloc( 1, sizeof( UPDATE_SQL_STATEMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_sql_statement;
 }
 
 char *update_sql_statement_root( UPDATE_ROOT *update_root )
 {
+	if ( !update_root
+	&&   !update_root->update_sql_statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_sql_statement is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_root->update_sql_statement;
 }
 
 char *update_sql_statement_command_line_root( UPDATE_ROOT *update_root )
 {
+	if ( !update_root )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: update_root is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return update_root->update_command_line;
 }
 
 LIST *update_sql_statement_one2m_list( LIST *update_one2m_list )
 {
+	LIST *list;
+	UPDATE_ONE2M *update_one2m;
+
+	if ( !list_rewind( update_one2m_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		update_one2m = list_get( update_one2m_list );
+
+		list_set_list(
+			list,
+			update_one2m->sql_statement_list );
+
+	} while ( list_next( update_one2m_list ) );
+
+	return list;
 }
 
 LIST *update_sql_statement_command_line_one2m_list( LIST *update_one2m_list )
 {
+	LIST *list = {0};
+	UPDATE_ONE2M *update_one2m;
+
+	if ( !list_rewind( update_one2m_list ) ) return (LIST *)0;
+
+
+	do {
+		update_one2m = list_get( update_one2m_list );
+
+		if ( list_length( update_one2m->command_line_list ) )
+		{
+			if ( !list ) list = list_new();
+
+			list_set_list(
+				list,
+				update_one2m->command_line_list );
+		}
+
+	} while ( list_next( update_one2m_list ) );
+
+	return list;
 }
 
 LIST *update_sql_statement_mto1_isa_list( LIST *update_mto1_isa_list )
 {
+	LIST *list;
+	UPDATE_MTO1_ISA *update_mto1_isa;
+
+	if ( !list_rewind( update_mto1_isa_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		update_mto1_isa = list_get( update_mto1_isa_list );
+
+		list_set(
+			list,
+			update_mto1_isa->update_sql_statement );
+
+		if ( list_length( update_mto1_isa->update_one2m_list ) )
+		{
+			list_set_list(
+				list,
+				update_sql_statement_one2m_list(
+					update_mto1_isa->update_one2m_list ) );
+		}
+
+	} while ( list_next( update_mto1_isa_list ) );
+
+	return list;
 }
 
 LIST *update_sql_statement_command_line_mto1_isa_list(
 			LIST *update_mto1_isa_list )
 {
+	LIST *list;
+	UPDATE_MTO1_ISA *update_mto1_isa;
+
+	if ( !list_rewind( update_mto1_isa_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		update_mto1_isa = list_get( update_mto1_isa_list );
+
+		if ( update_mto1_isa->update_command_line )
+		{
+			list_set(
+				list,
+				update_mto1_isa->update_command_line );
+		}
+
+		if ( list_length( update_mto1_isa->update_one2m_list ) )
+		{
+			list_set_list(
+				list,
+				update_sql_statement_command_line_one2m_list(
+					update_mto1_isa->update_one2m_list ) );
+		}
+
+	} while ( list_next( update_mto1_isa_list ) );
+
+	return list;
 }
 
