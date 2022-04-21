@@ -12,20 +12,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "timlib.h"
-#include "security.h"
-#include "piece.h"
-#include "list.h"
-#include "folder.h"
-#include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver.h"
-#include "environ.h"
-#include "dictionary.h"
-#include "post2dictionary.h"
 #include "document.h"
-#include "appaserver_parameter_file.h"
-#include "post_login_library.h"
+#include "post_login.h"
 
 /* Constants */
 /* --------- */
@@ -38,6 +27,53 @@ boolean application_exists(	char *application_name,
 
 int main( int argc, char **argv )
 {
+
+	POST_LOGIN *post_login;
+
+	if ( ! ( post_login =
+			post_login_new(
+				argc,
+				argv ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: post_login_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	appaserver_error_login_name_append_file(
+		argc,
+		argv,
+		post_login->sql_injection_escape_application_name,
+		post_login->sql_injection_escape_login_name );
+
+	if ( post_login->frameset_output_system_string )
+	{
+		document_output_content_type();
+
+		if ( system( post_login->frameset_output_system_string ) ){}
+	}
+
+	if ( post_login->email_link_system_string )
+	{
+		if ( system( post_login->email_link_system_string ) ){}
+	}
+
+	if ( post_login->redraw_index_screen_string )
+	{
+		printf( "%s\n", post_login->redraw_index_screen_string );
+	}
+
+	if ( post_login->password_match_return == password_fail )
+	{
+		sleep( POST_LOGIN_SECONDS_TO_SLEEP );
+	}
+
+
+
+
 	char *login_name = "";
 	char *password = "";
 	char sys_string[ 512 ];

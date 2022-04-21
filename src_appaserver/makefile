@@ -20,7 +20,6 @@ EXECUTABLES=								\
 		output_edit_table					\
 		post_login						\
 		get_folder_data						\
-		post_login_cloudacus					\
 		post_prompt_insert					\
 		append_reference_number					\
 		output_prompt_process					\
@@ -201,7 +200,6 @@ clean:
 	${CGI_HOME}/post_ajax_fill_drop_down				\
 	${CGI_HOME}/post_change_sort_order				\
 	${CGI_HOME}/post_login						\
-	${CGI_HOME}/post_login_cloudacus				\
 	${CGI_HOME}/post_choose_role	 				\
 	${CGI_HOME}/post_prompt_edit					\
 	${CGI_HOME}/post_prompt_insert					\
@@ -319,18 +317,6 @@ post_login: post_login.c ${EXTERNAL_LIBS}				\
 	/bin/rm -f ${CGI_HOME}/post_login
 	ln ${APPASERVER_LINK_FLAGS}					\
 	${APPASERVER_HOME}/src_appaserver/post_login			\
-	${CGI_HOME}
-
-post_login_cloudacus: post_login_cloudacus.c ${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		post_login_cloudacus.c					\
-		-o post_login_cloudacus
-	touch ${CGI_HOME}/post_login_cloudacus
-	/bin/rm -f ${CGI_HOME}/post_login_cloudacus
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_login_cloudacus		\
 	${CGI_HOME}
 
 post_email_timriley: post_email_timriley.c				\

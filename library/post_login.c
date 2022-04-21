@@ -527,6 +527,7 @@ char *post_login_ip_address( void )
 	return string_pipe_fetch( "ip_address.sh" );
 }
 
+/*
 char *post_login_location(
 			char *cloudacus_location,
 			char *ip_address )
@@ -536,6 +537,7 @@ char *post_login_location(
 	else
 		return (char *)0;
 }
+*/
 
 char *post_login_message( enum password_match_return password_match_return )
 {

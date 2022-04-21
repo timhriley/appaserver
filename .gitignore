@@ -297,7 +297,6 @@ post_insert_table
 post_maintain_user_account
 output_results
 post_login
-post_login_cloudacus
 fix_orphans
 get_folder_data
 get_table_name

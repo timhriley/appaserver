@@ -117,9 +117,11 @@ char *post_login_ip_address( void );
 
 /* Returns post_login_cloudacus_location or null */
 /* --------------------------------------------- */
+/*
 char *post_login_location(
 			char *post_login_cloudacus_location,
 			char *post_login_ip_address );
+*/
 
 /* Returns program memory or null */
 /* ------------------------------ */
@@ -130,7 +132,7 @@ char *post_login_message(
 /* ------------------- */
 char *post_login_redraw_index_screen_string(
 			char *sql_injection_escape_application_name,
-			char *post_login_location,
+			char *post_login_ip_address,
 			char *post_login_message,
 			boolean appaserver_library_from_php );
 
