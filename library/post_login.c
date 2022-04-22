@@ -70,19 +70,17 @@ POST_LOGIN *post_login_new(
 					argv,
 					post_login->dictionary ) ) );
 
-	if ( !post_login->sql_injection_escape_application_name )
+	if ( post_login->sql_injection_escape_application_name )
 	{
-		fprintf(stderr,
-"Warning in %s/%s()/%d: post_login_application_name() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (POST_LOGIN *)0;
+		session_environment_set(
+			post_login->
+				sql_injection_escape_application_name );
 	}
-
-	session_environment_set(
-		post_login->
-			sql_injection_escape_application_name );
+	else
+	{
+		session_environment_set(
+			POST_LOGIN_TEMPLATE_APPLICATION );
+	}
 
 	post_login->sql_injection_escape_login_name =
 		/* --------------------------- */
@@ -107,6 +105,48 @@ POST_LOGIN *post_login_new(
 				"password",
 				post_login->dictionary ) );
 
+	post_login->sql_injection_escape_signup_yn =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		security_sql_injection_escape(
+			dictionary_fetch(
+				"signup_yn",
+				post_login->dictionary ) );
+
+	post_login->sql_injection_escape_application_key =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		security_sql_injection_escape(
+			dictionary_fetch(
+				"application_key",
+				post_login->dictionary ) );
+
+	post_login->sql_injection_escape_application_title =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		security_sql_injection_escape(
+			dictionary_fetch(
+				"application_title",
+				post_login->dictionary ) );
+
+	post_login->signup =
+		post_login_signup(
+			post_login->sql_injection_escape_signup_yn,
+			post_login->sql_injection_escape_application_key,
+			post_login->sql_injection_escape_application_title );
+
+	if ( post_login->signup )
+	{
+		post_login->signup_duplicate =
+			post_login_signup_duplicate(
+				post_login->
+					sql_injection_escape_application_key,
+				appaserver_parameter_error_directory() );
+	}
+
 	post_login->public_name =
 		post_login_public_name(
 			post_login->
@@ -126,6 +166,8 @@ POST_LOGIN *post_login_new(
 
 	post_login->password_match_return =
 		post_login_password_match(
+			post_login->signup_duplicate,
+			post_login->signup,
 			post_login->missing_name,
 			post_login->missing_database_password,
 			post_login->name_email_address,
@@ -135,7 +177,9 @@ POST_LOGIN *post_login_new(
 
 	if ( post_login->password_match_return == email_login
 	||   post_login->password_match_return == password_fail
-	||   post_login->password_match_return == missing_name )
+	||   post_login->password_match_return == missing_name
+	||   post_login->password_match_return == signup
+	||   post_login->password_match_return == signup_duplicate )
 	{
 		if ( ! ( post_login->ip_address = post_login_ip_address() ) )
 		{
@@ -147,22 +191,13 @@ POST_LOGIN *post_login_new(
 			exit( 1 );
 		}
 
-		post_login->location =
-			/* --------------------------------------------- */
-			/* Returns POST_LOGIN_CLOUDACUS_LOCATION or null */
-			/* --------------------------------------------- */
-			post_login_location(
-				POST_LOGIN_CLOUDACUS_LOCATION,
-				post_login->ip_address );
-
-		post_login->message =
-			/* ------------------------------ */
-			/* Returns program memory or null */
-			/* ------------------------------ */
-			post_login_message(
-				post_login->password_match_return );
-
-		if ( !post_login->message )
+		if ( ! ( post_login->message =
+				/* ------------------------------ */
+				/* Returns program memory or null */
+				/* ------------------------------ */
+				post_login_message(
+					post_login->password_match_return,
+					post_login->name_email_address ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: post_login_message(%d) returned empty.\n",
@@ -173,26 +208,30 @@ POST_LOGIN *post_login_new(
 			exit( 1 );
 		}
 
+		post_login->redraw_application_name =
+			post_login_redraw_application_name(
+				post_login->
+					sql_injection_escape_application_name,
+				post_login->
+					sql_injection_escape_application_key );
+
 		post_login->redraw_index_screen_string =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			post_login_redraw_index_screen_string(
 				post_login->
-					sql_injection_escape_application_name,
-				post_login->location,
+					redraw_application_name,
+				post_login->ip_address,
 				post_login->message,
 				appaserver_library_from_php(
 					post_login->dictionary) );
 	}
 
 	if ( post_login->password_match_return == password_match
-	||   post_login->password_match_return == database_password_blank
 	||   post_login->password_match_return == public_login
 	||   post_login->password_match_return == email_login )
 	{
-		char destination[ 128 ];
-
 		post_login->session_key =
 			/* ------------------- */
 			/* Returns heap memory */
@@ -211,6 +250,7 @@ POST_LOGIN *post_login_new(
 			exit( 1 );
 		}
 
+/*
 		session_insert(
 			post_login->session_key,
 			post_login->sql_injection_escape_login_name,
@@ -221,8 +261,12 @@ POST_LOGIN *post_login_new(
 				environment_http_user_agent(),
 				80 ),
 			environment_remote_ip_address() );
+*/
 
 		post_login->output_pipe_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			post_login_output_pipe_string(
 				POST_LOGIN_EMAIL_OUTPUT_TEMPLATE,
 				post_login->name_email_address,
@@ -260,6 +304,40 @@ POST_LOGIN *post_login_new(
 				post_login->session_key,
 				post_login->
 					sql_injection_escape_login_name );
+	}
+
+	if ( post_login->password_match_return == signup )
+	{
+		post_login->session_key =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			session_key( POST_LOGIN_TEMPLATE_APPLICATION );
+
+		if ( !post_login->session_key || !*post_login->session_key )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: session_key is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		post_login->empty_application_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			post_login_empty_application_system_string(
+				POST_LOGIN_EMPTY_EXECUTABLE,
+				POST_LOGIN_TEMPLATE_APPLICATION,
+				post_login->session_key,
+				post_login->
+				      sql_injection_escape_login_name,
+				post_login->
+				      sql_injection_escape_application_key,
+				post_login->
+				      sql_injection_escape_application_title );
 	}
 
 	return post_login;
@@ -428,6 +506,8 @@ boolean post_login_public_name(
 
 enum password_match_return
 	post_login_password_match(
+			boolean post_login_signup_duplicate,
+			boolean post_login_signup,
 			boolean post_login_missing_name,
 			boolean missing_database_password,
 			boolean name_email_address,
@@ -435,6 +515,16 @@ enum password_match_return
 			char *sql_injection_escape_password,
 			char *database_password )
 {
+	if ( post_login_signup_duplicate )
+	{
+		return signup_duplicate;
+	}
+	else
+	if ( post_login_signup )
+	{
+		return signup;
+	}
+	else
 	if ( post_login_missing_name )
 	{
 		return missing_name;
@@ -539,8 +629,19 @@ char *post_login_location(
 }
 */
 
-char *post_login_message( enum password_match_return password_match_return )
+char *post_login_message(
+			enum password_match_return password_match_return,
+			boolean name_email_address )
 {
+	if ( password_match_return == signup && !name_email_address )
+		return "password_application_succeeded_yn=y";
+	else
+	if ( password_match_return == signup && name_email_address )
+		return "email_application_succeeded_yn=y";
+	else
+	if ( password_match_return == signup_duplicate )
+		return "invalid_application_key_yn=y";
+	else
 	if ( password_match_return == email_login )
 		return "emailed_login_yn=y";
 	else
@@ -557,17 +658,18 @@ char *post_login_message( enum password_match_return password_match_return )
 }
 
 char *post_login_redraw_index_screen_string(
-			char *application_name,
-			char *location,
+			char *redraw_application_name,
+			char *ip_address,
 			char *message,
 			boolean from_php )
 {
 	char screen_string[ 1024 ];
 	char *ptr = screen_string;
-	char local_location[ 128 ];
+	char location[ 128 ];
 	DOCUMENT *document;
 
-	if ( !application_name
+	if ( !redraw_application_name
+	||   !ip_address
 	||   !message )
 	{
 		fprintf(stderr,
@@ -578,19 +680,17 @@ char *post_login_redraw_index_screen_string(
 		exit( 1 );
 	}
 
-	if ( location )
+	if ( from_php )
 	{
-		sprintf( local_location,
-			 "%s?%s",
-			 location,
-			 message );
+		sprintf(location,
+			"%s/appaserver/%s/index.php?%s",
+			ip_address,
+			redraw_application_name,
+			message );
 	}
 	else
 	{
-		sprintf( local_location,
-			 "/appaserver/%s/index.php?%s",
-			 application_name,
-			 message );
+		*location = '\0';
 	}
 
 	document =
@@ -598,8 +698,8 @@ char *post_login_redraw_index_screen_string(
 		/* Always succeeds */
 		/* --------------- */
 		document_quick_new(
-			application_name,
-			application_title_string( application_name ) );
+			redraw_application_name,
+			application_title_string( redraw_application_name ) );
 
 	ptr += sprintf(
 		ptr,
@@ -611,7 +711,7 @@ char *post_login_redraw_index_screen_string(
 		/* ------------------- */
 		document_body_tag( (char *)0, (char *)0, (char *)0 ) );
 
-	if ( from_php )
+	if ( !from_php )
 	{
 		ptr += sprintf( 
 			ptr,
@@ -630,7 +730,7 @@ char *post_login_redraw_index_screen_string(
 			"window.location = \"%s\"\n"
 			"</script>\n"
 			"%s",
-			local_location,
+			location,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
@@ -705,3 +805,84 @@ char *post_login_email_link_system_string(
 	return strdup( system_string );
 }
 
+char *post_login_empty_application_system_string(
+			char *empty_executable,
+			char *template_application,
+			char *session_key,
+			char *login_name,
+			char *application_key,
+			char *application_title )
+{
+	char system_string[ 1024 ];
+
+	if ( !empty_executable
+	||   !template_application
+	||   !session_key
+	||   !login_name
+	||   !application_key
+	||   !application_title )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s '%s' %s %s \"%s\" %c %c %c 2>>%s 1>/dev/null",
+		empty_executable,
+		template_application,
+		session_key,
+		login_name,
+		"" /* role */,
+		empty_executable /* process */,
+		application_key /* destination_application */,
+		application_title,
+		'y' /* create_database_yn */,
+		'n' /* delete_application_yn */,
+		'y' /* really_yn */,
+		appaserver_error_filename( template_application ) );
+
+	return strdup( system_string );
+}
+
+boolean post_login_signup(
+			char *signup_yn,
+			char *application_key,
+			char *application_title )
+{
+	if ( !signup_yn
+	||   !application_key
+	||   !*application_key
+	||   !application_title
+	||   !*application_title )
+	{
+		return 0;
+	}
+
+	if ( *signup_yn == 'y' )
+		return 1;
+	else
+		return 0;
+}
+
+boolean post_login_signup_duplicate(
+			char *application_key,
+			char *appaserver_parameter_error_directory )
+{
+	return appaserver_library_application_exists(
+			application_key,
+			appaserver_parameter_error_directory );
+}
+
+char *post_login_redraw_application_name(
+			char *application_name,
+			char *application_key )
+{
+	if ( application_key && *application_key )
+		return application_key;
+	else
+		return application_name;
+}

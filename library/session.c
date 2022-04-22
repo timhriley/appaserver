@@ -728,6 +728,28 @@ SESSION_PROCESS *session_process_calloc( void )
 	return session_process;
 }
 
+void session_delete( char *session_key )
+{
+	char system_string[ 1024 ];
+
+	if ( !session_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: session_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"echo \"delete from %s where session = '%s';\" | sql",
+		SESSION_TABLE,
+		session_key );
+
+	if ( system( system_string ) ){}
+}
+
 void session_insert(	char *session_key,
 			char *login_name,
 			char *date_now_yyyy_mm_dd_string,

@@ -64,6 +64,8 @@ SESSION *session_fetch(
 
 /* Process */
 /* ------- */
+SESSION *session_calloc(
+			void );
 
 /* Returns static memory */
 /* --------------------- */
@@ -103,11 +105,6 @@ void session_environment_set(
 
 void session_purge_temporary_files(
 			char *application_name );
-
-/* Private */
-/* ------- */
-SESSION *session_calloc(
-			void );
 
 /* Public */
 /* ------ */
@@ -150,6 +147,8 @@ void session_insert(
 			char *date_now_hhmm_string,
 			char *http_user_agent,
 			char *remote_ip_address );
+
+void session_delete(	char *session_key );
 
 typedef struct
 {
