@@ -162,6 +162,26 @@ RELATION *relation_parse(
 						relation->
 							one_folder->
 							folder_name ) ) );
+		relation->name =
+			relation_name(
+				relation->one_folder->folder_name
+					/* one_folder_name */,
+				relation->related_attribute_name,
+				relation->foreign_key_list );
+
+		relation->foreign_key_is_primary =
+			relation_foreign_key_is_primary(
+				relation->many_folder->primary_key_list,
+				relation->foreign_key_list );
+
+		relation->prompt =
+			relation_prompt(
+				relation->one_folder->folder_name
+					/* one_folder_name */,
+				relation->related_attribute_name,
+				relation->foreign_key_list,
+				relation->foreign_key_is_primary );
+
 	}
 	return relation;
 }
@@ -829,3 +849,121 @@ boolean relation_exists_multi_select(
 	return 0;
 }
 
+char *relation_name(	char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list )
+{
+	char name[ 256 ];
+
+	if ( list_length( foreign_key_list ) )
+	{
+		strcpy(	name,
+			list_display_delimited(
+				foreign_key_list,
+				'^' ) );
+	}
+	else
+	if ( related_attribute_name && *related_attribute_name )
+	{
+		sprintf(name,
+			"%s^%s",
+			one_folder_name,
+			related_attribute_name );
+	}
+	else
+	{
+		strcpy( name, one_folder_name );
+	}
+
+	return strdup( name );
+}
+
+char *relation_prompt(	char *one_folder_name,
+			char *related_attribute_name,
+			LIST *foreign_key_list,
+			boolean foreign_key_is_primary )
+{
+	char prompt[ 128 ];
+	char *ptr = prompt;
+	char buffer1[ 64 ];
+	char buffer2[ 64 ];
+
+	if ( !one_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( foreign_key_is_primary ) ptr += sprintf( ptr, "* " );
+
+	if ( list_length( foreign_key_list ) )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			string_initial_capital(
+				buffer1,
+				list_display_delimited(
+					foreign_key_list,
+					',' ) ) );
+	}
+	else
+	if ( related_attribute_name && *related_attribute_name )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s (%s)",
+			string_initial_capital(
+				buffer1,
+				one_folder_name ),
+			string_initial_capital(
+				buffer2,
+				related_attribute_name ) );
+	}
+	else
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			string_initial_capital(
+				buffer1,
+				one_folder_name ) );
+	}
+
+	return strdup( prompt );
+}
+
+boolean relation_foreign_key_is_primary(
+			LIST *many_primary_key_list,
+			LIST *relation_foreign_key_list )
+{
+	char *foreign_key;
+
+	if ( !list_rewind( relation_foreign_key_list )
+	||   !list_length( many_primary_key_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	do {
+		foreign_key = list_get( relation_foreign_key_list );
+
+		if ( list_string_exists(
+			foreign_key,
+			many_primary_key_list ) )
+		{
+			return 1;
+		}
+	} while ( list_next( relation_foreign_key_list ) );
+
+	return 0;
+}

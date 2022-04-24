@@ -37,7 +37,7 @@ typedef struct
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
 	int folder_attribute_date_name_list_length;
-	DICTIONARY_SEPARATE_PROMPT_EDIT *dictionary_separate_prompt_edit;
+	DICTIONARY_SEPARATE_DRILLTHRU *dictionary_separate_drillthru;
 	DRILLTHRU *drillthru;
 	boolean omit_insert_button;
 	boolean omit_delete_button;
@@ -52,6 +52,9 @@ typedef struct
 
 /* PROMPT_EDIT operations */
 /* ---------------------- */
+
+/* Usage */
+/* ----- */
 
 /* ---------------------------- */
 /* Always succeeds		*/
@@ -68,6 +71,11 @@ PROMPT_EDIT *prompt_edit_new(
 			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary );
+
+/* Process */
+/* ------- */
+PROMPT_EDIT *prompt_edit_calloc(
+			void );
 
 boolean prompt_edit_forbid(
 			boolean role_folder_update,
@@ -106,10 +114,10 @@ char *prompt_edit_title_html(
 char *prompt_edit_action_string(
 			char *prompt_edit_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *prompt_edit_target_frame,
 			char *state );
 
@@ -128,10 +136,5 @@ char *prompt_edit_output_system_string(
 			char *state,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
-
-/* Private */
-/* ------- */
-PROMPT_EDIT *prompt_edit_calloc(
-			void );
 
 #endif

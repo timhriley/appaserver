@@ -516,7 +516,7 @@ FORM_PROMPT_EDIT_RELATIONAL *
 
 FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 			char *attribute_name,
-			int primary_key_index,
+			char *folder_attribute_prompt,
 			char *datatype_name,
 			int attribute_width,
 			char *hint_message,
@@ -566,11 +566,6 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 		form_prompt_edit_attribute->element_list,
 		appaserver_element_new( table_data, (char *)0 ) );
 
-	form_prompt_edit_attribute->prompt =
-		form_prompt_edit_attribute_prompt(
-			attribute_name,
-			primary_key_index );
-
 	list_set(
 		form_prompt_edit_attribute->element_list,
 		( form_prompt_edit_attribute->prompt_appaserver_element =
@@ -580,7 +575,7 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 	form_prompt_edit_attribute->prompt_appaserver_element->non_edit_text =
 		element_non_edit_text_new(
 			(char *)0,
-			form_prompt_edit_attribute->prompt );
+			folder_attribute_prompt );
 
 	list_set(
 		form_prompt_edit_attribute->element_list,
@@ -703,20 +698,6 @@ char *form_prompt_edit_attribute_no_display_name(
 	return strdup( name );
 }
 
-char *form_prompt_edit_attribute_prompt(
-			char *attribute_name,
-			int primary_key_index )
-{
-	char name[ 128 ];
-	char *ptr = name;
-
-	if ( primary_key_index ) ptr += sprintf( ptr, "* " );
-
-	string_initial_capital( ptr, attribute_name );
-
-	return strdup( name );
-}
-
 char *form_prompt_edit_attribute_from_name(
 			char *form_prompt_edit_from_prefix,
 			char *attribute_name )
@@ -816,7 +797,6 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			form_prompt_edit_relation =
 				form_prompt_edit_relation_new(
 					folder_attribute->attribute_name,
-					folder_attribute->primary_key_index,
 					relation_mto1_non_isa_list,
 					drillthru_dictionary,
 					login_name,
@@ -851,7 +831,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			form_prompt_edit_attribute =
 				form_prompt_edit_attribute_new(
 					folder_attribute->attribute_name,
-					folder_attribute->primary_key_index,
+					folder_attribute->prompt,
 					folder_attribute->
 						attribute->
 						datatype_name,
@@ -989,7 +969,6 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 
 FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			char *attribute_name,
-			int primary_key_index,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
@@ -1060,17 +1039,10 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 		exit( 1 );
 	}
 
-	form_prompt_edit_relation->name =
-		form_prompt_edit_relation_name(
-			relation->one_folder->folder_name
-				/* one_folder_name */,
-			relation->related_attribute_name,
-			relation->foreign_key_list );
-
 	form_prompt_edit_relation->no_display_name =
 		form_prompt_edit_relation_no_display_name(
 			FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
-			form_prompt_edit_relation->name );
+			form_prompt_edit_relation->relation->name );
 
 	list_set(
 		form_prompt_edit_relation->element_list,
@@ -1100,17 +1072,6 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
-	form_prompt_edit_relation->prompt =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		form_prompt_edit_relation_prompt(
-			relation->one_folder->folder_name
-				/* one_folder_name */,
-			relation->related_attribute_name,
-			relation->foreign_key_list,
-			primary_key_index );
-
 	list_set(
 		form_prompt_edit_relation->element_list,
 		( form_prompt_edit_relation->prompt_appaserver_element =
@@ -1122,7 +1083,9 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 		non_edit_text =
 			element_non_edit_text_new(
 				(char *)0,
-				form_prompt_edit_relation->prompt );
+				form_prompt_edit_relation->
+					relation->
+					prompt );
 
 	list_set(
 		form_prompt_edit_relation->element_list,
@@ -1260,36 +1223,6 @@ boolean form_prompt_edit_relation_attribute_name_exists(
 	return 0;
 }
 
-char *form_prompt_edit_relation_name(
-			char *one_folder_name,
-			char *related_attribute_name,
-			LIST *foreign_key_list )
-{
-	char name[ 256 ];
-
-	if ( list_length( foreign_key_list ) )
-	{
-		strcpy(	name,
-			list_display_delimited(
-				foreign_key_list,
-				'^' ) );
-	}
-	else
-	if ( related_attribute_name && *related_attribute_name )
-	{
-		sprintf(name,
-			"%s^%s",
-			one_folder_name,
-			related_attribute_name );
-	}
-	else
-	{
-		strcpy( name, one_folder_name );
-	}
-
-	return strdup( name );
-}
-
 char *form_prompt_edit_relation_no_display_name(
 			char *form_prompt_edit_no_display_prefix,
 			char *relation_name )
@@ -1330,64 +1263,6 @@ char *form_prompt_edit_relation_element_name(
 		relation_name );
 
 	return strdup( name );
-}
-
-char *form_prompt_edit_relation_prompt(
-			char *one_folder_name,
-			char *related_attribute_name,
-			LIST *foreign_key_list,
-			int primary_key_index )
-{
-	char prompt[ 128 ];
-	char *ptr = prompt;
-	char buffer1[ 64 ];
-	char buffer2[ 64 ];
-
-	if ( !one_folder_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: one_folder_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( primary_key_index ) ptr += sprintf( ptr, "* " );
-
-	if ( list_length( foreign_key_list ) )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s",
-			list_display_delimited(
-				foreign_key_list,
-				',' ) );
-	}
-	else
-	if ( related_attribute_name && *related_attribute_name )
-	{
-		ptr += sprintf(
-			ptr,
-			"%s (%s)",
-			string_initial_capital(
-				buffer1,
-				one_folder_name ),
-			string_initial_capital(
-				buffer2,
-				related_attribute_name ) );
-	}
-	else
-	{
-		ptr += sprintf(
-			ptr,
-			"%s",
-			string_initial_capital(
-				buffer1,
-				one_folder_name ) );
-	}
-
-	return strdup( prompt );
 }
 
 FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )

@@ -991,20 +991,20 @@ DICTIONARY *dictionary_separate_multi_row(
 	return destination_dictionary;
 }
 
-DICTIONARY_SEPARATE_PROMPT_EDIT *
-	dictionary_separate_prompt_edit_new(
+DICTIONARY_SEPARATE_DRILLTHRU *
+	dictionary_separate_drillthru_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_date_name_list )
 {
-	DICTIONARY_SEPARATE_PROMPT_EDIT *
-		dictionary_separate_prompt_edit =
-			dictionary_separate_prompt_edit_calloc();
+	DICTIONARY_SEPARATE_DRILLTHRU *
+		dictionary_separate_drillthru =
+			dictionary_separate_drillthru_calloc();
 
 	if ( !dictionary_length( original_post_dictionary ) )
 	{
-		return dictionary_separate_prompt_edit;
+		return dictionary_separate_drillthru;
 	}
 
 	/* ------------------------- */
@@ -1013,67 +1013,44 @@ DICTIONARY_SEPARATE_PROMPT_EDIT *
 	dictionary_search_replace_special_characters(
 		original_post_dictionary );
 
-	dictionary_separate_prompt_edit->trim_double_bracket =
+	dictionary_separate_drillthru->trim_double_bracket =
 		dictionary_separate_trim_double_bracket_new(
 			original_post_dictionary );
 
-	dictionary_separate_prompt_edit->parse_multi =
+	dictionary_separate_drillthru->parse_multi =
 		dictionary_separate_parse_multi_new(
-			dictionary_separate_prompt_edit->
+			dictionary_separate_drillthru->
 				trim_double_bracket->
 				dictionary,
 			SQL_DELIMITER );
 
-	dictionary_separate_prompt_edit->date_convert =
+	dictionary_separate_drillthru->date_convert =
 		dictionary_separate_date_convert_new(
-			dictionary_separate_prompt_edit->
+			dictionary_separate_drillthru->
 				parse_multi->
 				dictionary,
 			application_name,
 			login_name,
 			folder_attribute_date_name_list );
 
-	dictionary_separate_prompt_edit->drillthru_dictionary =
+	dictionary_separate_drillthru->drillthru_dictionary =
 		dictionary_separate_remove_prefix(
 			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-			dictionary_separate_prompt_edit->
+			dictionary_separate_drillthru->
 				date_convert->
 				dictionary );
 
-	dictionary_separate_prompt_edit->send_dictionary =
-		dictionary_separate_send_dictionary(
-			(DICTIONARY *)0 /* sort_dictionary */,
-			DICTIONARY_SEPARATE_SORT_PREFIX,
-			(DICTIONARY *)0 /* query_dictionary */,
-			DICTIONARY_SEPARATE_QUERY_PREFIX,
-			dictionary_separate_prompt_edit->
-				drillthru_dictionary,
-			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-			(DICTIONARY *)0 /* ignore_dictionary */,
-			DICTIONARY_SEPARATE_IGNORE_PREFIX,
-			(DICTIONARY *)0 /* pair_one2m_dictionary */,
-			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			(DICTIONARY *)0 /* non_prefixed_dictionary */ );
-
-	dictionary_separate_prompt_edit->send_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		dictionary_separate_send_string(
-			dictionary_separate_prompt_edit->
-				send_dictionary );
-
-	return dictionary_separate_prompt_edit;
+	return dictionary_separate_drillthru;
 }
 
-DICTIONARY_SEPARATE_PROMPT_EDIT *
-	dictionary_separate_prompt_edit_calloc(
+DICTIONARY_SEPARATE_DRILLTHRU *
+	dictionary_separate_drillthru_calloc(
 			void )
 {
-	DICTIONARY_SEPARATE_PROMPT_EDIT *dictionary_separate_prompt_edit;
+	DICTIONARY_SEPARATE_DRILLTHRU *dictionary_separate_drillthru;
 
-	if ( ! ( dictionary_separate_prompt_edit =
-		     calloc( 1, sizeof( DICTIONARY_SEPARATE_PROMPT_EDIT ) ) ) )
+	if ( ! ( dictionary_separate_drillthru =
+		     calloc( 1, sizeof( DICTIONARY_SEPARATE_DRILLTHRU ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1082,7 +1059,7 @@ DICTIONARY_SEPARATE_PROMPT_EDIT *
 			 __LINE__ );
 		exit( 1 );
 	}
-	return dictionary_separate_prompt_edit;
+	return dictionary_separate_drillthru;
 }
 
 DICTIONARY_SEPARATE_EDIT_TABLE *

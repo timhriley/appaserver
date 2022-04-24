@@ -54,6 +54,10 @@ typedef struct
 	boolean additional_index;
 	boolean insert_required;
 	boolean lookup_required;
+
+	/* Process */
+	/* ------- */
+	char *prompt;
 } FOLDER_ATTRIBUTE;
 
 /* FOLDER_ATTRIBUTE operations */
@@ -86,6 +90,8 @@ LIST *folder_attribute_system_list(
 			char *folder_attribute_system_string,
 			boolean fetch_attribute );
 
+/* Usage */
+/* ----- */
 FOLDER_ATTRIBUTE *folder_attribute_parse(
 			char *input,
 			boolean fetch_attribute );
@@ -96,6 +102,12 @@ FOLDER_ATTRIBUTE *folder_attribute_new(
 
 FOLDER_ATTRIBUTE *folder_attribute_calloc(
 			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *folder_attribute_prompt(
+			char *attribute_name,
+			int primary_key_index );
 
 /* Public */
 /* ------ */

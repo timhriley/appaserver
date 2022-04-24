@@ -163,11 +163,11 @@ PROMPT_EDIT *prompt_edit_new(
 					folder->
 					folder_attribute_append_isa_list ) );
 
-	prompt_edit->dictionary_separate_prompt_edit =
+	prompt_edit->dictionary_separate_drillthru =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_prompt_edit_new(
+		dictionary_separate_drillthru_new(
 			post_dictionary->original_post_dictionary,
 			application_name,
 			login_name,
@@ -182,7 +182,7 @@ PROMPT_EDIT *prompt_edit_new(
 		/* --------------- */
 		drillthru_continue(
 			prompt_edit->
-				dictionary_separate_prompt_edit->
+				dictionary_separate_drillthru->
 				drillthru_dictionary /* in/out */,
 			folder_name );
 
@@ -241,10 +241,10 @@ PROMPT_EDIT *prompt_edit_new(
 		prompt_edit_action_string(
 			PROMPT_EDIT_POST_EXECUTABLE,
 			application_name,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
+			folder_name,
 			prompt_edit->target_frame,
 			state );
 
@@ -264,7 +264,7 @@ PROMPT_EDIT *prompt_edit_new(
 			prompt_edit->folder->relation_mto1_non_isa_list,
 			prompt_edit->folder->relation_join_one2m_list,
 			prompt_edit->
-				dictionary_separate_prompt_edit->
+				dictionary_separate_drillthru->
 				drillthru_dictionary,
 			login_name,
 			security_entity_where(
@@ -402,10 +402,10 @@ char *prompt_edit_title_html(
 char *prompt_edit_action_string(
 			char *prompt_edit_post_executable,
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			char *state )
 {
@@ -413,10 +413,10 @@ char *prompt_edit_action_string(
 
 	if ( !prompt_edit_post_executable
 	||   !application_name
-	||   !login_name
 	||   !session_key
-	||   !folder_name
+	||   !login_name
 	||   !role_name
+	||   !folder_name
 	||   !target_frame
 	||   !state )
 	{
@@ -439,10 +439,10 @@ char *prompt_edit_action_string(
 				application_name ) ),
 		prompt_edit_post_executable,
 		application_name,
-		login_name,
 		session_key,
-		folder_name,
+		login_name,
 		role_name,
+		folder_name,
 		target_frame,
 		state );
 

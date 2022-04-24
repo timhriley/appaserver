@@ -266,17 +266,15 @@ typedef struct
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
 	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *send_dictionary;
-	char *send_string;
-} DICTIONARY_SEPARATE_PROMPT_EDIT;
+} DICTIONARY_SEPARATE_DRILLTHRU;
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-DICTIONARY_SEPARATE_PROMPT_EDIT *
-	dictionary_separate_prompt_edit_new(
+DICTIONARY_SEPARATE_DRILLTHRU *
+	dictionary_separate_drillthru_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
@@ -284,8 +282,8 @@ DICTIONARY_SEPARATE_PROMPT_EDIT *
 
 /* Process */
 /* ------- */
-DICTIONARY_SEPARATE_PROMPT_EDIT *
-	dictionary_separate_prompt_edit_calloc(
+DICTIONARY_SEPARATE_DRILLTHRU *
+	dictionary_separate_drillthru_calloc(
 			void );
 
 typedef struct

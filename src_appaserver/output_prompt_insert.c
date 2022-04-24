@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/src_appaserver/output_prompt_edit.c		*/
+/* $APPASERVER_HOME/src_appaserver/output_prompt_insert.c	*/
 /* ------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org		*/
 /* -----------------------------------------------------------	*/
@@ -14,7 +14,7 @@
 #include "appaserver_parameter.h"
 #include "session.h"
 #include "post_dictionary.h"
-#include "prompt_edit.h"
+#include "prompt_insert.h"
 
 int main( int argc, char **argv )
 {
@@ -24,10 +24,9 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *folder_name;
 	char *target_frame;
-	char *state;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	boolean menu_horizontal;
-	PROMPT_EDIT *prompt_edit;
+	PROMPT_INSERT *prompt_insert;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -36,10 +35,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role folder target_frame state post_dictionary\n",
+"Usage: %s session login_name role folder target_frame post_dictionary\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -49,16 +48,15 @@ int main( int argc, char **argv )
 	role_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
-	state = argv[ 6 ];
 
 	session_environment_set( application_name );
 	appaserver_parameter = appaserver_parameter_new();
 
-	prompt_edit =
+	prompt_insert =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		prompt_edit_new(
+		prompt_insert_new(
 			application_name,
 			session_key,
 			login_name,
@@ -74,9 +72,9 @@ int main( int argc, char **argv )
 			appaserver_parameter->
 				appaserver_data_directory,
 			post_dictionary_string_new(
-				argv[ 7 ] ) );
+				argv[ 6 ] ) );
 
-	if ( prompt_edit->forbid )
+	if ( prompt_insert->forbid )
 	{
 		document_quick_output( application_name );
 
@@ -92,7 +90,7 @@ int main( int argc, char **argv )
 		document_output_content_type();
 	}
 
-	printf( "%s\n", prompt_edit->document_form_html );
+	printf( "%s\n", prompt_insert->document_form_html );
 
 	return 0;
 }

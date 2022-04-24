@@ -1,12 +1,12 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/form_prompt_edit.h				*/
+/* $APPASERVER_HOME/library/form_prompt_insert.h			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FORM_PROMPT_EDIT_H
-#define FORM_PROMPT_EDIT_H
+#ifndef FORM_PROMPT_INSERT_H
+#define FORM_PROMPT_INSERT_H
 
 #include <unistd.h>
 #include "boolean.h"
@@ -20,24 +20,11 @@
 
 /* Constants */
 /* --------- */
-#define FORM_PROMPT_EDIT_RELATIONAL_PREFIX \
-					"form_prompt_edit_relational_"
+#define FORM_PROMPT_INSERT_NAME		"prompt_insert"
 
-#define FORM_PROMPT_EDIT_ORIGINAL_PREFIX \
-					"original_"
+#define FORM_PROMPT_INSERT_IGNORE_PREFIX \
+					"ignore_"
 
-#define FORM_PROMPT_EDIT_RELATION_PREFIX \
-					"relation_"
-
-#define FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX \
-					"no_display_"
-
-#define FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH 100
-
-#define FORM_PROMPT_EDIT_NAME		"prompt_edit"
-
-/* This is a query row having a mto1 relation drop-down. */
-/* ----------------------------------------------------- */
 typedef struct
 {
 	RELATION *relation;
@@ -45,104 +32,58 @@ typedef struct
 	QUERY_WIDGET *query_widget;
 	char *name;
 	char *no_display_name;
-	APPASERVER_ELEMENT *no_display_appaserver_element;
+	APPASERVER_ELEMENT *ignore_appaserver_element;
 	char *prompt;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
 	char *original_name;
 	char *element_name;
 	APPASERVER_ELEMENT *drop_down_appaserver_element;
 	APPASERVER_ELEMENT *hint_message_appaserver_element;
-} FORM_PROMPT_EDIT_RELATION;
+} FORM_PROMPT_INSERT_RELATION;
 
-/* FORM_PROMPT_EDIT_RELATION operations */
+/* FORM_PROMPT_INSERT_RELATION operations */
 /* ------------------------------------ */
+
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
-FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
+FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 			char *attribute_name,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where,
-			LIST *form_prompt_edit_relation_list );
+			LIST *form_prompt_insert_relation_list );
 
-boolean form_prompt_edit_relation_attribute_name_exists(
+/* Process */
+/* ------- */
+boolean form_prompt_insert_relation_attribute_name_exists(
 			char *attribute_name,
-			LIST *form_prompt_edit_relation_list );
+			LIST *form_prompt_insert_relation_list );
 
-char *form_prompt_edit_relation_no_display_name(
-			char *form_prompt_edit_no_display_prefix,
+FORM_PROMPT_INSERT_RELATION *form_prompt_edit_relation_calloc(
+			void );
+
+char *form_prompt_insert_relation_ignore_name(
+			char *form_prompt_edit_ignore_prefix,
 			char *relation_name );
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_prompt_edit_relation_prompt(
-			char *relation_name,
-			int primary_key_index );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_edit_relation_element_name(
+char *form_prompt_insert_relation_element_name(
 			char *form_prompt_edit_relation_prefix,
 			char *relation_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_edit_relation_original_name(
-			char *form_prompt_edit_original_prefix,
-			char *relation_name );
-
-/* Private */
-/* ------- */
-FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc(
-			void );
-
-/* This is a query row having a relational operation drop-down. */
-/* ------------------------------------------------------------ */
 typedef struct
 {
 	LIST *element_list;
-	LIST *operation_list;
-	APPASERVER_ELEMENT *relation_operator_appaserver_element;
-	APPASERVER_ELEMENT *text_from_appaserver_element;
-	APPASERVER_ELEMENT *and_appaserver_element;
-	APPASERVER_ELEMENT *text_to_appaserver_element;
-} FORM_PROMPT_EDIT_RELATIONAL;
-
-/* FORM_PROMPT_EDIT_RELATIONAL operations */
-/* -------------------------------------- */
-
-/* Always succeeds */
-/* --------------- */
-FORM_PROMPT_EDIT_RELATIONAL *
-	form_prompt_edit_relational_new(
-			char *form_prompt_edit_attribute_relational_name,
-			char *form_prompt_edit_attribute_from_name,
-			char *form_prompt_edit_attribute_to_name,
-			char *datatype_name,
-			int attribute_width );
-
-LIST *form_prompt_edit_relational_operation_list(
-			char *datatype_name );
-
-/* Private */
-/* ------- */
-FORM_PROMPT_EDIT_RELATIONAL *
-	form_prompt_edit_relational_calloc(
-			void );
-
-typedef struct
-{
-	LIST *element_list;
-	char *no_display_name;
-	APPASERVER_ELEMENT *no_display_appaserver_element;
+	char *ignore_name;
+	APPASERVER_ELEMENT *ignore_appaserver_element;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
-	char *from_name;
 	APPASERVER_ELEMENT *yes_no_appaserver_element;
-	char *relational_name;
-	char *to_name;
-	FORM_PROMPT_EDIT_RELATIONAL *form_prompt_edit_relational;
+	APPASERVER_ELEMENT *text_appaserver_element;
 	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_EDIT_ATTRIBUTE;
 
@@ -153,7 +94,7 @@ typedef struct
 /* --------------- */
 FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 			char *attribute_name,
-			char *folder_attribute_prompt,
+			int primary_key_index,
 			char *datatype_name,
 			int attribute_width,
 			char *hint_message,
@@ -167,6 +108,12 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 char *form_prompt_edit_attribute_no_display_name(
 			char *form_prompt_edit_no_display_prefix,
 			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_edit_attribute_prompt(
+			char *attribute_name,
+			int primary_key_index );
 
 /* Returns heap memory */
 /* ------------------- */

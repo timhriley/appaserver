@@ -63,6 +63,9 @@ typedef struct
 	/* Process */
 	/* ------- */
 	LIST *foreign_key_list;
+	char *name;
+	boolean foreign_key_is_primary;
+	char *prompt;
 
 	/* Private */
 	/* ------- */
@@ -142,6 +145,23 @@ LIST *relation_foreign_key_list(
 			LIST *primary_foreign_key_list,
 			char *related_attribute_name,
 			LIST *foreign_attribute_name_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_name(	char *one_folder_name,
+			char *related_attribute_name,
+			LIST *relation_foreign_key_list );
+
+boolean relation_foreign_key_is_primary(
+			LIST *many_primary_key_list,
+			LIST *relation_foreign_key_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_prompt(	char *one_folder_name,
+			char *related_attribute_name,
+			LIST *relation_foreign_key_list,
+			boolean relation_foreign_key_is_primary );
 
 /* Public */
 /* ------ */

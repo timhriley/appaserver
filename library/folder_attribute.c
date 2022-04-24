@@ -200,6 +200,14 @@ FOLDER_ATTRIBUTE *folder_attribute_parse(
 	piece( buffer, SQL_DELIMITER, input, 10 );
 	folder_attribute->lookup_required = ( *buffer == 'y' );
 
+	folder_attribute->prompt =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		folder_attribute_prompt(
+			folder_attribute->attribute_name,
+			folder_attribute->primary_key_index );
+
 	return folder_attribute;
 }
 
@@ -750,3 +758,16 @@ char *folder_attribute_list_display( LIST *folder_attribute_list )
 	return strdup( display );
 }
 
+char *folder_attribute_prompt(
+			char *attribute_name,
+			int primary_key_index )
+{
+	char prompt[ 128 ];
+	char *ptr = prompt;
+
+	if ( primary_key_index ) ptr += sprintf( ptr, "* " );
+
+	string_initial_capital( ptr, attribute_name );
+
+	return strdup( prompt );
+}

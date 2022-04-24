@@ -34,8 +34,8 @@ typedef struct
 	char *apache_cgi_directory;
 	char *cgi_home;
 	char *document_root_directory;
-	char *appaserver_error_directory;
-	char *appaserver_data_directory;
+	char *error_directory;
+	char *data_directory;
 	char *upload_directory;
 	boolean mysql_password_syntax;
 } APPASERVER_PARAMETER;

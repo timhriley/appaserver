@@ -46,7 +46,7 @@ char *appaserver_parameter_error_directory( void )
 
 	return timlib_trim_trailing_character(
 			global_appaserver_parameter->
-				appaserver_error_directory,
+				error_directory,
 			'/' );
 }
 
@@ -58,7 +58,7 @@ char *appaserver_parameter_data_directory( void )
 
 	return timlib_trim_trailing_character(
 			global_appaserver_parameter->
-				appaserver_data_directory,
+				data_directory,
 			'/' );
 
 }
@@ -288,10 +288,10 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	s->document_root_directory = dictionary_fetch( a, d );
 
 	a = "appaserver_error_directory";
-	s->appaserver_error_directory = dictionary_fetch( a, d );
+	s->error_directory = dictionary_fetch( a, d );
 
 	a = "appaserver_data_directory";
-	s->appaserver_data_directory = dictionary_fetch( a, d );
+	s->data_directory = dictionary_fetch( a, d );
 
 	a = "upload_directory";
 	s->upload_directory = dictionary_fetch( a, d );
@@ -299,7 +299,7 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	if ( !s->upload_directory )
 	{
 		s->upload_directory =
-			s->appaserver_data_directory;
+			s->data_directory;
 	}
 
 	return appaserver_parameter;
