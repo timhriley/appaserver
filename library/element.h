@@ -1121,12 +1121,12 @@ char *appaserver_element_yes_no_html(
 			int row_number,
 			DICTIONARY *row_dictionary );
 
+boolean appaserver_element_recall_boolean(
+			APPASERVER_ELEMENT *appaserver_element );
+
 /* Returns heap memory or null */
 /* --------------------------- */
 char *appaserver_element_list_html(
 			LIST *appaserver_element_list );
-
-boolean appaserver_element_recall_boolean(
-			APPASERVER_ELEMENT *appaserver_element );
 
 #endif

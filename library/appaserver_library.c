@@ -1079,6 +1079,9 @@ LIST *appaserver_library_primary_data_list(
 
 char *appaserver_library_server_address( void )
 {
+	return string_pipe_fetch( "ip_address.sh" );
+
+/*
 	char server_address[ 128 ] = {0};
 
 	if ( !environ_name_to_value( server_address, "HTTP_HOST" ) )
@@ -1099,6 +1102,7 @@ char *appaserver_library_server_address( void )
 	}
 
 	return strdup( server_address );
+*/
 }
 
 void appaserver_library_output_ftp_prompt(

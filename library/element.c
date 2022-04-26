@@ -1577,8 +1577,6 @@ char *appaserver_element_list_row_dictionary_html(
 			ptr += sprintf( ptr, "\n" );
 		}
 
-		/* free( element_html ); */
-
 	} while ( list_next( appaserver_element_list ) );
 
 	if ( ptr == html )

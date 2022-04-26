@@ -23,7 +23,6 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *folder_name;
-	char *target_frame;
 	char *state;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	boolean menu_horizontal;
@@ -36,10 +35,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 8 )
+	if ( argc != 7 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role folder target_frame state post_dictionary\n",
+"Usage: %s session login_name role folder state post_dictionary\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -48,8 +47,7 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	folder_name = argv[ 4 ];
-	target_frame = argv[ 5 ];
-	state = argv[ 6 ];
+	state = argv[ 5 ];
 
 	session_environment_set( application_name );
 	appaserver_parameter = appaserver_parameter_new();
@@ -64,7 +62,6 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			folder_name,
-			target_frame,
 			state,
 			( menu_horizontal =
 				frameset_menu_horizontal(
@@ -74,7 +71,7 @@ int main( int argc, char **argv )
 			appaserver_parameter->
 				appaserver_data_directory,
 			post_dictionary_string_new(
-				argv[ 7 ] ) );
+				argv[ 6 ] ) );
 
 	if ( prompt_edit->forbid )
 	{

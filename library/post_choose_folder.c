@@ -437,7 +437,6 @@ char *post_choose_folder_system_string(
 			session_key,
 			folder_name,
 			role_name,
-			target_frame,
 			state,
 			dictionary_separate_send_string(
 				dictionary_separate_send_dictionary(

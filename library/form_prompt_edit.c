@@ -31,7 +31,6 @@
 
 FORM_PROMPT_EDIT *form_prompt_edit_new(
 			char *folder_name,
-			char *action_string,
 			boolean omit_insert_button,
 			boolean omit_delete_button,
 			LIST *folder_attribute_append_isa_list,
@@ -67,10 +66,20 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			FRAMESET_PROMPT_FRAME,
 			FRAMESET_EDIT_FRAME );
 
-	form_prompt_edit->tag_html =
+	form_prompt_edit->action_string =
+		form_prompt_edit_action_string(
+			POST_PROMPT_EDIT_EXECUTABLE,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_name,
+			state );
+
+	form_prompt_edit->form_tag_html =
 		form_tag_html(
 			FORM_PROMPT_EDIT_NAME /* form_name */,
-			action_string,
+			form_prompt_edit->action_string,
 			form_prompt_edit->target_frame );
 
 	form_prompt_edit->form_prompt_edit_element_list =
@@ -84,10 +93,10 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 
 	if ( !form_prompt_edit->
 		form_prompt_edit_element_list->
-		element_list_html )
+		appaserver_element_list_html )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: element_list_html is empty.\n",
+		"ERROR in %s/%s()/%d: appaserver_element_list_html is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -193,11 +202,11 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		form_prompt_edit_html(
-			form_prompt_edit->tag_html,
+			form_prompt_edit->form_tag_html,
 			form_prompt_edit->radio_list->html,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list_html,
+				appaserver_element_list_html,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -211,7 +220,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 
 	free( form_prompt_edit->
 		form_prompt_edit_element_list->
-		element_list_html );
+		appaserver_element_list_html );
 
 	/* Free button_list_html() */
 	/* ----------------------- */
@@ -862,7 +871,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 					relation_join_one2m_list );
 	}
 
-	if ( ! ( form_prompt_edit_element_list->element_list_html =
+	if ( ! ( form_prompt_edit_element_list->appaserver_element_list_html =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
@@ -871,7 +880,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 					element_list ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: element_list_html() returned empty.\n",
+	"ERROR in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1286,7 +1295,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
 char *form_prompt_edit_html(
 			char *tag_html,
 			char *radio_list_html,
-			char *element_list_html,
+			char *appaserver_element_list_html,
 			char *button_list_html,
 			char *form_close_html )
 {
@@ -1294,7 +1303,7 @@ char *form_prompt_edit_html(
 
 	if ( !tag_html
 	||   !radio_list_html
-	||   !element_list_html
+	||   !appaserver_element_list_html
 	||   !button_list_html
 	||   !form_close_html )
 	{
@@ -1310,7 +1319,7 @@ char *form_prompt_edit_html(
 		"%s\n%s\n%s\n%s\n%s",
 		tag_html,
 		radio_list_html,
-		element_list_html,
+		appaserver_element_list_html,
 		button_list_html,
 		form_close_html );
 
@@ -1357,5 +1366,52 @@ LIST *form_prompt_edit_button_list(
 			form_keystrokes_multi_recall_javascript ) );
 
 	return button_list;
+}
+
+char *form_prompt_edit_action_string(
+			char *post_prompt_edit_executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *state )
+{
+	char action_string[ 1024 ];
+
+	if ( !post_prompt_edit_executable
+	||   !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !state )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(action_string,
+		"%s/%s?%s+%s+%s+%s+%s+%s",
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		post_prompt_edit_executable,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		folder_name,
+		state );
+
+	return strdup( action_string );
 }
 

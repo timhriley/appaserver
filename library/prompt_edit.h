@@ -25,7 +25,6 @@
 
 /* Constants */
 /* --------- */
-#define PROMPT_EDIT_POST_EXECUTABLE	"post_prompt_edit"
 #define PROMPT_EDIT_OUTPUT_EXECUTABLE	"output_prompt_edit"
 
 typedef struct
@@ -41,9 +40,7 @@ typedef struct
 	DRILLTHRU *drillthru;
 	boolean omit_insert_button;
 	boolean omit_delete_button;
-	char *target_frame;
 	char *title_html;
-	char *action_string;
 	SECURITY_ENTITY *security_entity;
 	FORM_PROMPT_EDIT *form_prompt_edit;
 	DOCUMENT *document;
@@ -66,7 +63,6 @@ PROMPT_EDIT *prompt_edit_new(
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *target_frame,
 			char *state,
 			boolean menu_horizontal_boolean,
 			char *data_directory,
@@ -98,28 +94,11 @@ LIST *prompt_edit_drillthru_skipped(
 			LIST *relation_mto1_non_isa_list,
 			boolean drillthru_skipped );
 
-/* Returns target_frame or frameset_edit_frame */
-/* ------------------------------------------- */
-char *prompt_edit_target_frame(
-			char *target_frame,
-			char *frameset_edit_frame,
-			boolean drillthru_skipped );
-
 /* Returns static memory */
 /* --------------------- */
 char *prompt_edit_title_html(
 			char *state,
 			char *folder_name );
-
-char *prompt_edit_action_string(
-			char *prompt_edit_post_executable,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *prompt_edit_target_frame,
-			char *state );
 
 /* Public */
 /* ------ */
@@ -132,7 +111,6 @@ char *prompt_edit_output_system_string(
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *target_frame,
 			char *state,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );

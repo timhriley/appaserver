@@ -614,7 +614,7 @@ char *post_login_output_pipe_string(
 
 char *post_login_ip_address( void )
 {
-	return string_pipe_fetch( "ip_address.sh" );
+	return appaserver_library_server_address();
 }
 
 /*

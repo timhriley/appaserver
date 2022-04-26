@@ -38,7 +38,6 @@ PROMPT_EDIT *prompt_edit_new(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *target_frame,
 			char *state,
 			boolean menu_horizontal_boolean,
 			char *data_directory,
@@ -211,15 +210,6 @@ PROMPT_EDIT *prompt_edit_new(
 					folder->
 					relation_mto1_isa_list ) );
 
-	prompt_edit->target_frame =
-		/* ------------------------------------------- */
-		/* Returns target_frame or FRAMESET_EDIT_FRAME */
-		/* ------------------------------------------- */
-		prompt_edit_target_frame(
-			target_frame,
-			FRAMESET_EDIT_FRAME,
-			prompt_edit->drillthru->skipped );
-
 	prompt_edit->folder->relation_mto1_non_isa_list =
 		/* -------------------------------------------- */
 		/* Returns relation_mto1_non_isa_list or	*/
@@ -237,17 +227,6 @@ PROMPT_EDIT *prompt_edit_new(
 			state,
 			folder_name );
 
-	prompt_edit->action_string =
-		prompt_edit_action_string(
-			PROMPT_EDIT_POST_EXECUTABLE,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			folder_name,
-			prompt_edit->target_frame,
-			state );
-
 	prompt_edit->security_entity =
 		security_entity_new(
 			login_name,
@@ -257,7 +236,6 @@ PROMPT_EDIT *prompt_edit_new(
 	prompt_edit->form_prompt_edit =
 		form_prompt_edit_new(
 			folder_name,
-			prompt_edit->action_string,
 			prompt_edit->omit_insert_button,
 			prompt_edit->omit_delete_button,
 			prompt_edit->folder->folder_attribute_append_isa_list,
@@ -368,17 +346,6 @@ LIST *prompt_edit_drillthru_skipped(
 		return relation_mto1_non_isa_list;
 }
 
-char *prompt_edit_target_frame(
-			char *target_frame,
-			char *frameset_edit_frame,
-			boolean drillthru_skipped )
-{
-	if ( drillthru_skipped )
-		return frameset_edit_frame;
-	else
-		return target_frame;
-}
-
 char *prompt_edit_title_html(
 			char *state,
 			char *folder_name )
@@ -399,63 +366,12 @@ char *prompt_edit_title_html(
 	return title_html;
 }
 
-char *prompt_edit_action_string(
-			char *prompt_edit_post_executable,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *target_frame,
-			char *state )
-{
-	char action_string[ 1024 ];
-
-	if ( !prompt_edit_post_executable
-	||   !application_name
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !target_frame
-	||   !state )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(action_string,
-		" action=\"%s/%s?%s+%s+%s+%s+%s+%s+%s\"",
-		appaserver_library_http_prompt(
-			appaserver_parameter_cgi_directory(),
-			appaserver_library_server_address(),
-			application_ssl_support_yn(
-				application_name ),
-			application_prepend_http_protocol_yn(
-				application_name ) ),
-		prompt_edit_post_executable,
-		application_name,
-		session_key,
-		login_name,
-		role_name,
-		folder_name,
-		target_frame,
-		state );
-
-	return strdup( action_string );
-}
-
 char *prompt_edit_output_system_string(
 			char *executable,
 			char *login_name,
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *target_frame,
 			char *state,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
@@ -467,7 +383,6 @@ char *prompt_edit_output_system_string(
 	||   !session_key
 	||   !folder_name
 	||   !role_name
-	||   !target_frame
 	||   !state
 	||   !dictionary_separate_send_string
 	||   !appaserver_error_filename )
@@ -481,13 +396,12 @@ char *prompt_edit_output_system_string(
 	}
 
 	sprintf(system_string,
-		"%s %s %s %s %s %s %s \"%s\" 2>>%s",
+		"%s %s %s %s %s %s \"%s\" 2>>%s",
 		executable,
 		login_name,
 		session_key,
 		folder_name,
 		role_name,
-		target_frame,
 		state,
 		dictionary_separate_send_string,
 		appaserver_error_filename );
