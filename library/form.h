@@ -19,6 +19,7 @@
 
 /* Constants */
 /* --------- */
+#define FORM_MAX_BACKGROUND_COLOR_ARRAY	10
 #define FORM_COLOR1			"#dccdde"
 #define FORM_COLOR2			"#ffe6ca"
 #define FORM_COLOR3			"#d2ecf2"
@@ -34,62 +35,12 @@
 
 #define FORM_RADIO_LIST_NAME		"form_radio_list"
 
-typedef struct
-{
-	char *folder_name;
-	char *state;
-	char *title_string;
-	LIST *element_list;
-} FORM_DETAIL;
+#define FORM_NO_DISPLAY_PREFIX		"nno_display_"
+#define FORM_NO_DISPLAY_PUSH_BUTTON_HEADING \
+					"no_display"
 
-typedef struct
-{
-	char *title;
-	char *subtitle;
-	char *action_string;
-	LIST *form_button_bottom_list;
-	RADIO_LIST *radio_list;
-	LIST *element_list;
-} FORM_PROMPT;
-
-/* FORM_PROMPT operations */
-/* ---------------------- */
-FORM_PROMPT *form_new(
-			char *state,
-			char *application_title );
-
-FORM_PROMPT *form_prompt_calloc(
-			void );
-
-typedef struct
-{
-	DICTIONARY *row_dictionary;
-	LIST *element_list;
-	int row_number;
-	char *background_color;
-} FORM_TABLE_ROW;
-
-/* FORM_TABLE_ROW operations */
-/* ------------------------- */
-FORM_TABLE_ROW *form_table_row_new(
-			DICTIONARY *row_dictionary,
-			LIST *element_list,
-			int row_number,
-			char *background_color );
-
-char *form_table_row_background_color(
-			void );
-
-char **form_table_row_background_color_array(
-			int *background_color_array_length,
-			char *application_name );
-
-void form_table_row_output(
-			FILE *output_stream,
-			FORM_TABLE_ROW *form_table_row );
-
-void form_table_row_free(
-			FORM_TABLE_ROW *form_table_row );
+#define FORM_IGNORE_PREFIX		"iignore_"
+#define FORM_IGNORE_PUSH_BUTTON_HEADING "ignore"
 
 /* Returns heap memory */
 /* ------------------- */
@@ -165,5 +116,22 @@ char *form_multi_select_all_javascript(
 char *form_verify_notepad_widths_javascript(
 			char *form_name,
 			LIST *element_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_ignore_name(	char *form_ignore_prefix,
+			char *relation_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_no_display_name(
+			char *form_no_display_prefix,
+			char *attribute_name );
+
+char *form_background_color(
+			void );
+
+char **form_background_color_array(
+			int *background_color_array_length );
 
 #endif

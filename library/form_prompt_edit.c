@@ -27,9 +27,14 @@
 #include "frameset.h"
 #include "button.h"
 #include "appaserver.h"
+#include "post_prompt_edit.h"
 #include "form_prompt_edit.h"
 
 FORM_PROMPT_EDIT *form_prompt_edit_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
 			boolean omit_insert_button,
 			boolean omit_delete_button,
@@ -37,14 +42,27 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *security_entity_where,
-			boolean drillthru_participating,
-			boolean drillthru_skipped,
-			boolean drillthru_finished )
+			char *security_entity_where )
 {
-	FORM_PROMPT_EDIT *form_prompt_edit = form_prompt_edit_calloc();
+	FORM_PROMPT_EDIT *form_prompt_edit;
 	char *tmp;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !list_length( folder_attribute_append_isa_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_prompt_edit = form_prompt_edit_calloc();
 
 	form_prompt_edit->radio_pair_list =
 		form_prompt_edit_radio_pair_list(
@@ -58,14 +76,6 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			form_prompt_edit->radio_pair_list,
 			RADIO_LOOKUP_LABEL /* initial_label */ );
 
-	form_prompt_edit->target_frame =
-		form_prompt_edit_target_frame(
-			drillthru_participating,
-			drillthru_skipped,
-			drillthru_finished,
-			FRAMESET_PROMPT_FRAME,
-			FRAMESET_EDIT_FRAME );
-
 	form_prompt_edit->action_string =
 		form_prompt_edit_action_string(
 			POST_PROMPT_EDIT_EXECUTABLE,
@@ -73,14 +83,13 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			session_key,
 			login_name,
 			role_name,
-			folder_name,
-			state );
+			folder_name );
 
 	form_prompt_edit->form_tag_html =
 		form_tag_html(
 			FORM_PROMPT_EDIT_NAME /* form_name */,
 			form_prompt_edit->action_string,
-			form_prompt_edit->target_frame );
+			FRAMESET_EDIT_FRAME /* target_frame */ );
 
 	form_prompt_edit->form_prompt_edit_element_list =
 		form_prompt_edit_element_list_new(
@@ -92,6 +101,8 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			security_entity_where );
 
 	if ( !form_prompt_edit->
+		form_prompt_edit_element_list
+	||   !form_prompt_edit->
 		form_prompt_edit_element_list->
 		appaserver_element_list_html )
 	{
@@ -110,7 +121,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 		form_multi_select_all_javascript(
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_edit->form_cookie_key =
 		/* --------------------- */
@@ -137,7 +148,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			form_prompt_edit->form_cookie_key,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_edit->form_keystrokes_multi_save_javascript =
 		/* --------------------------- */
@@ -148,7 +159,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			form_prompt_edit->form_cookie_multi_key,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_edit->form_keystrokes_recall_javascript =
 		/* --------------------------- */
@@ -159,7 +170,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			form_prompt_edit->form_cookie_key,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_edit->form_keystrokes_multi_recall_javascript =
 		/* --------------------------- */
@@ -170,7 +181,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			form_prompt_edit->form_cookie_multi_key,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_edit->form_verify_notepad_widths_javascript =
 		/* --------------------------- */
@@ -180,7 +191,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			FORM_PROMPT_EDIT_NAME /* form_name */,
 			form_prompt_edit->
 				form_prompt_edit_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_edit->button_list =
 		form_prompt_edit_button_list(
@@ -229,25 +240,6 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 	button_list_free( form_prompt_edit->button_list );
 
 	return form_prompt_edit;
-}
-
-char *form_prompt_edit_target_frame(
-			boolean drillthru_participating,
-			boolean drillthru_skipped,
-			boolean drillthru_finished,
-			char *frameset_prompt_frame,
-			char *frameset_edit_frame )
-{
-	if ( !drillthru_participating )
-		return frameset_edit_frame;
-	else
-	if ( drillthru_skipped )
-		return frameset_edit_frame;
-	else
-	if ( drillthru_finished )
-		return frameset_edit_frame;
-	else
-		return frameset_prompt_frame;
 }
 
 LIST *form_prompt_edit_radio_pair_list(
@@ -538,6 +530,7 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 		attribute_name,
 		form_prompt_edit_relation_list ) )
 	{
+		free( form_prompt_edit_attribute );
 		return (FORM_PROMPT_EDIT_ATTRIBUTE *)0;
 	}
 
@@ -545,7 +538,7 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 
 	form_prompt_edit_attribute->no_display_name =
 		form_prompt_edit_attribute_no_display_name(
-			FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
+			FORM_NO_DISPLAY_PREFIX,
 			attribute_name );
 
 	list_set(
@@ -561,10 +554,10 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 		no_display_appaserver_element->
 		checkbox =
 			element_checkbox_new(
+				(char *)0 /* attribute_name */,
 				form_prompt_edit_attribute->
 					no_display_appaserver_element->
 					element_name,
-				(char *)0 /* element_name */,
 				(char *)0 /* prompt_string */,
 				(char *)0 /* on_click */,
 				-1 /* tab_order */,
@@ -785,7 +778,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 	form_prompt_edit_element_list =
 		form_prompt_edit_element_list_calloc();
 
-	form_prompt_edit_element_list->element_list = list_new();
+	form_prompt_edit_element_list->appaserver_element_list = list_new();
 
 	do {
 		folder_attribute =
@@ -793,12 +786,12 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 				folder_attribute_append_isa_list );
 
 		list_set(
-			form_prompt_edit_element_list->element_list,
+			form_prompt_edit_element_list->appaserver_element_list,
 			appaserver_element_new(
 				table_row, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_element_list->element_list,
+			form_prompt_edit_element_list->appaserver_element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
@@ -828,7 +821,8 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 					form_prompt_edit_relation );
 
 			list_set_list(
-				form_prompt_edit_element_list->element_list,
+				form_prompt_edit_element_list->
+					appaserver_element_list,
 				form_prompt_edit_element_list->
 					form_prompt_edit_relation->
 						element_list );
@@ -854,7 +848,8 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 					    form_prompt_edit_relation_list ) ) )
 		{
 			list_set_list(
-				form_prompt_edit_element_list->element_list,
+				form_prompt_edit_element_list->
+					appaserver_element_list,
 				form_prompt_edit_element_list->
 					form_prompt_edit_attribute->
 					element_list );
@@ -867,7 +862,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 		form_prompt_edit_element_list->
 			join_element_list =
 				form_prompt_edit_element_list_join_element_list(
-					FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
+					FORM_NO_DISPLAY_PREFIX,
 					relation_join_one2m_list );
 	}
 
@@ -877,7 +872,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			/* --------------------------- */
 			appaserver_element_list_html(
 				form_prompt_edit_element_list->
-					element_list ) ) )
+					appaserver_element_list ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",
@@ -944,7 +939,7 @@ LIST *form_prompt_edit_element_list_join_element_list(
 			element_checkbox_new(
 				(char *)0 /* attribute_name */,
 				element->element_name,
-				NO_DISPLAY_PUSH_BUTTON_HEADING
+				FORM_NO_DISPLAY_PUSH_BUTTON_HEADING
 					/* prompt_string */,
 				(char *)0 /* on_click */,
 				-1 /* tab_order */,
@@ -1050,7 +1045,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 
 	form_prompt_edit_relation->no_display_name =
 		form_prompt_edit_relation_no_display_name(
-			FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX,
+			FORM_NO_DISPLAY_PREFIX,
 			form_prompt_edit_relation->relation->name );
 
 	list_set(
@@ -1374,8 +1369,7 @@ char *form_prompt_edit_action_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *folder_name,
-			char *state )
+			char *folder_name )
 {
 	char action_string[ 1024 ];
 
@@ -1384,8 +1378,7 @@ char *form_prompt_edit_action_string(
 	||   !session_key
 	||   !login_name
 	||   !role_name
-	||   !folder_name
-	||   !state )
+	||   !folder_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1396,7 +1389,7 @@ char *form_prompt_edit_action_string(
 	}
 
 	sprintf(action_string,
-		"%s/%s?%s+%s+%s+%s+%s+%s",
+		"%s/%s?%s+%s+%s+%s+%s",
 		appaserver_library_http_prompt(
 			appaserver_parameter_cgi_directory(),
 			appaserver_library_server_address(),
@@ -1409,8 +1402,7 @@ char *form_prompt_edit_action_string(
 		session_key,
 		login_name,
 		role_name,
-		folder_name,
-		state );
+		folder_name );
 
 	return strdup( action_string );
 }

@@ -16,7 +16,6 @@
 #include "radio.h"
 #include "query.h"
 #include "dictionary_separate.h"
-#include "post_prompt_edit.h"
 #include "form.h"
 
 /* Constants */
@@ -29,9 +28,6 @@
 
 #define FORM_PROMPT_EDIT_RELATION_PREFIX \
 					"relation_"
-
-#define FORM_PROMPT_EDIT_NO_DISPLAY_PREFIX \
-					"no_display_"
 
 #define FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH 100
 
@@ -202,7 +198,7 @@ typedef struct
 	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
 	LIST *form_prompt_edit_relation_list;
 	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute;
-	LIST *element_list;
+	LIST *appaserver_element_list;
 	LIST *join_element_list;
 	char *appaserver_element_list_html;
 } FORM_PROMPT_EDIT_ELEMENT_LIST;
@@ -226,6 +222,7 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 FORM_PROMPT_EDIT_ELEMENT_LIST *
 	form_prompt_edit_element_list_calloc(
 			void );
+
 LIST *form_prompt_edit_element_list_join_element_list(
 			char *form_prompt_edit_no_display_prefix,
 			LIST *relation_join_one2m_list );
@@ -259,6 +256,10 @@ typedef struct
 /* Always succeeds */
 /* --------------- */
 FORM_PROMPT_EDIT *form_prompt_edit_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
 			boolean prompt_edit_omit_insert_button,
 			boolean prompt_edit_omit_delete_button,
@@ -266,11 +267,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *security_entity_where,
-			boolean drillthru_participating,
-			boolean drillthru_skipped,
-			boolean drillthru_finished );
+			char *security_entity_where );
 
 /* Process */
 /* ------- */
@@ -282,15 +279,6 @@ LIST *form_prompt_edit_radio_pair_list(
 			boolean prompt_edit_omit_delete_button,
 			int relation_mto1_non_isa_list_length );
 
-/* Returns frameset_prompt_frame or frameset_edit_frame */
-/* ---------------------------------------------------- */
-char *form_prompt_edit_target_frame(
-			boolean drillthru_participating,
-			boolean drillthru_skipped,
-			boolean drillthru_finished,
-			char *frameset_prompt_frame,
-			char *frameset_edit_frame );
-
 /* Returns heap memory */
 /* ------------------- */
 char *form_prompt_edit_action_string(
@@ -299,14 +287,7 @@ char *form_prompt_edit_action_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *folder_name,
-			char *state );
-
-LIST *form_prompt_edit_element_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary );
+			char *folder_name );
 
 LIST *form_prompt_edit_button_list(
 			char *form_multi_select_all_javascript,

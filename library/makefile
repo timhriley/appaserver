@@ -64,6 +64,7 @@ APPASERVER_LIBRARY=						\
 		form_edit_table.o				\
 		form_choose_isa.o				\
 		form_choose_role.o				\
+		form_drillthru.o				\
 		radio.o						\
 		button.o					\
 		email.o						\
@@ -740,6 +741,9 @@ operation.o: operation.c operation.h process.h
 
 form.o: form.c form.h
 	${CC} ${CFLAGS} -c form.c
+
+form_drillthru.o: form_drillthru.c form_drillthru.h element.o
+	${CC} ${CFLAGS} -c form_drillthru.c
 
 form_prompt_edit.o: form_prompt_edit.c form_prompt_edit.h element.o
 	${CC} ${CFLAGS} -c form_prompt_edit.c

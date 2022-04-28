@@ -191,16 +191,6 @@ PROMPT_INSERT *prompt_insert_new(
 			APPASERVER_INSERT_STATE,
 			folder_name );
 
-	prompt_insert->action_string =
-		prompt_insert_action_string(
-			PROMPT_INSERT_POST_EXECUTABLE,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			folder_name,
-			prompt_edit->target_frame );
-
 	prompt_insert->security_entity =
 		security_entity_new(
 			login_name,

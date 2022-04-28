@@ -16,14 +16,12 @@
 #include "radio.h"
 #include "query.h"
 #include "dictionary_separate.h"
+#include "post_prompt_insert.h"
 #include "form.h"
 
 /* Constants */
 /* --------- */
 #define FORM_PROMPT_INSERT_NAME		"prompt_insert"
-
-#define FORM_PROMPT_INSERT_IGNORE_PREFIX \
-					"ignore_"
 
 typedef struct
 {
@@ -47,7 +45,8 @@ FORM_PROMPT_INSERT_ATTRIBUTE *form_prompt_insert_attribute_new(
 			char *datatype_name,
 			int attribute_width,
 			char *hint_message,
-			LIST *form_prompt_insert_relation_list );
+			LIST *form_prompt_insert_relation_list,
+			int tab_order );
 
 /* Process */
 /* ------- */
@@ -64,12 +63,10 @@ typedef struct
 	LIST *element_list;
 	QUERY_WIDGET *query_widget;
 	char *name;
-	char *no_display_name;
+	char *ignore_name;
 	APPASERVER_ELEMENT *ignore_appaserver_element;
 	char *prompt;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
-	char *original_name;
-	char *element_name;
 	APPASERVER_ELEMENT *drop_down_appaserver_element;
 	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_INSERT_RELATION;
@@ -83,12 +80,13 @@ typedef struct
 /* Always succeeds */
 /* --------------- */
 FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
-			char *attribute_name,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where,
-			LIST *form_prompt_insert_relation_list );
+			LIST *form_prompt_insert_relation_list,
+			char *attribute_name,
+			int tab_order );
 
 /* Process */
 /* ------- */
@@ -119,11 +117,11 @@ typedef struct
 /* ----- */
 FORM_PROMPT_INSERT_ELEMENT_LIST *
 	form_prompt_insert_element_list_new(
-			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
-			char *security_entity_where );
+			char *security_entity_where,
+			LIST *folder_attribute_append_isa_list );
 
 /* Process */
 /* ------- */
@@ -133,8 +131,8 @@ FORM_PROMPT_INSERT_ELEMENT_LIST *
 
 typedef struct
 {
-	char *target_frame;
-	char *tag_html;
+	char *action_string;
+	char *form_tag_html;
 	FORM_PROMPT_INSERT_ELEMENT_LIST *form_prompt_insert_element_list;
 	char *form_cookie_key;
 	char *form_cookie_multi_key;
@@ -154,42 +152,30 @@ typedef struct
 /* Always succeeds */
 /* --------------- */
 FORM_PROMPT_INSERT *form_prompt_insert_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
 			char *folder_name,
-			char *prompt_insert_action_string,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *security_entity_where,
-			boolean drillthru_participating,
-			boolean drillthru_finished );
+			char *security_entity_where );
 
 /* Process */
 /* ------- */
 FORM_PROMPT_INSERT *form_prompt_insert_calloc(
 			void );
 
-LIST *form_prompt_insert_radio_pair_list(
-			boolean prompt_edit_omit_insert_button,
-			boolean prompt_edit_omit_delete_button,
-			int relation_mto1_non_isa_list_length );
+char *form_prompt_insert_action_string(
+			char *post_prompt_insert_executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name );
 
-/* Returns frameset_prompt_frame or frameset_edit_frame */
-/* ---------------------------------------------------- */
-char *form_prompt_edit_target_frame(
-			boolean drillthru_participating,
-			boolean drillthru_skipped,
-			boolean drillthru_finished,
-			char *frameset_prompt_frame,
-			char *frameset_edit_frame );
-
-LIST *form_prompt_edit_element_list(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary );
-
-LIST *form_prompt_edit_button_list(
+LIST *form_prompt_insert_button_list(
 			char *form_multi_select_all_javascript,
 			char *form_keystrokes_save_javascript,
 			char *form_keystrokes_multi_save_javascript,
@@ -199,9 +185,8 @@ LIST *form_prompt_edit_button_list(
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_prompt_edit_html(
-			char *tag_html,
-			char *radio_list_html,
+char *form_prompt_insert_html(
+			char *form_tag_html,
 			char *form_prompt_edit_element_list_html,
 			char *button_list_html,
 			char *form_close_html );

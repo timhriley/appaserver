@@ -20,6 +20,7 @@
 #include "appaserver.h"
 #include "post_edit_table.h"
 #include "role_operation.h"
+#include "form.h"
 #include "edit_table.h"
 
 EDIT_TABLE *edit_table_calloc( void )
@@ -767,206 +768,6 @@ char *edit_table_row_html(
 		return strdup( row_html );
 }
 
-char *edit_table_background_color( void )
-{
-	static int cycle_count = 0;
-	static char **background_color_array = {0};
-	static int background_color_array_length = 0;
-	char *background_color;
-
-	if ( !background_color_array )
-	{
-		background_color_array =
-			edit_table_background_color_array(
-				&background_color_array_length );
-	}
-
-	if ( !background_color_array_length )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty background_color_array.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	background_color = background_color_array[ cycle_count ];
-
-	if ( ++cycle_count == background_color_array_length )
-		cycle_count = 0;
-
-	return background_color;
-}
-
-char **edit_table_background_color_array(
-			int *background_color_array_length )
-{
-	static char **background_color_array;
-	char *application_constants_color;
-	APPLICATION_CONSTANTS *application_constants;
-
-	background_color_array =
-		(char **)calloc(EDIT_TABLE_MAX_BACKGROUND_COLOR_ARRAY,
-				sizeof( char * ) );
-
-	application_constants = application_constants_new();
-
-	application_constants->dictionary =
-		application_constants_dictionary();
-
-	if ( ( application_constants_color =
-		application_constants_fetch(
-			application_constants->dictionary,
-			"color1" ) ) )
-	{
-		background_color_array[ 0 ] = application_constants_color;
-		*background_color_array_length = 1;
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color2" ) ) )
-		{
-			background_color_array[ 1 ] =
-				application_constants_color;
-			*background_color_array_length = 2;
-		}
-		else
-		{
-			background_color_array[ 1 ] = "white";
-		}
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color3" ) ) )
-		{
-			background_color_array[ 2 ] =
-				application_constants_color;
-			*background_color_array_length = 3;
-		}
-		else
-		{
-			background_color_array[ 2 ] = "white";
-		}
-
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color4" ) ) )
-		{
-			background_color_array[ 3 ] =
-				application_constants_color;
-			*background_color_array_length = 4;
-		}
-		else
-		{
-			background_color_array[ 3 ] = "white";
-		}
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color5" ) ) )
-		{
-			background_color_array[ 4 ] =
-				application_constants_color;
-			*background_color_array_length = 5;
-		}
-		else
-		{
-			background_color_array[ 4 ] = "white";
-		}
-
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color6" ) ) )
-		{
-			background_color_array[ 5 ] =
-				application_constants_color;
-			*background_color_array_length = 6;
-		}
-		else
-		{
-			background_color_array[ 5 ] = "white";
-		}
-
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color7" ) ) )
-		{
-			background_color_array[ 6 ] =
-				application_constants_color;
-			*background_color_array_length = 7;
-		}
-		else
-		{
-			background_color_array[ 6 ] = "white";
-		}
-
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color8" ) ) )
-		{
-			background_color_array[ 7 ] =
-				application_constants_color;
-			*background_color_array_length = 8;
-		}
-		else
-		{
-			background_color_array[ 7 ] = "white";
-		}
-
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color9" ) ) )
-		{
-			background_color_array[ 8 ] =
-				application_constants_color;
-			*background_color_array_length = 9;
-		}
-		else
-		{
-			background_color_array[ 8 ] = "white";
-		}
-
-
-		if ( ( application_constants_color =
-			application_constants_fetch(
-				application_constants->dictionary,
-				"color10" ) ) )
-		{
-			background_color_array[ 9 ] =
-				application_constants_color;
-			*background_color_array_length = 10;
-		}
-		else
-		{
-			background_color_array[ 9 ] = "white";
-		}
-	}
-	else
-	{
-		background_color_array[ 0 ] = FORM_COLOR1;
-		background_color_array[ 1 ] = FORM_COLOR2;
-		background_color_array[ 2 ] = FORM_COLOR3;
-		background_color_array[ 3 ] = FORM_COLOR4;
-		background_color_array[ 4 ] = FORM_COLOR5;
-		*background_color_array_length = 5;
-	}
-	return background_color_array;
-}
-
 char *edit_table_message_html(
 			int row_insert_count,
 			int cell_update_count,
@@ -1157,7 +958,7 @@ void edit_table_apply_output(
 			exit( 1 );
 		}
 
-		background_color = edit_table_background_color();
+		background_color = form_background_color();
 
 		if ( ! ( html =
 				/* --------------------------- */

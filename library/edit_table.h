@@ -21,7 +21,6 @@
 #include "document.h"
 #include "dictionary_separate.h"
 
-#define EDIT_TABLE_MAX_BACKGROUND_COLOR_ARRAY	10
 #define EDIT_TABLE_OUTPUT_EXECUTABLE		"output_edit_table"
 
 typedef struct
@@ -205,7 +204,7 @@ char *edit_table_row_html(
 			LIST *edit_table_apply_element_list /* in/out */,
 			LIST *row_operation_list,
 			char *application_name,
-			char *edit_table_background_color,
+			char *form_background_color,
 			ROW_SECURITY_ROLE *row_security_role,
 			char *state,
 			int row_number,
@@ -224,13 +223,6 @@ void edit_table_hidden_output(
 
 /* Private */
 /* ------- */
-char **edit_table_background_color_array(
-			int *background_color_array_length );
-
-char *edit_table_background_color(
-			void );
-
-
 boolean edit_table_viewonly(
 			DICTIONARY *row_dictionary,
 			char *row_security_role_update_attribute_not_null );

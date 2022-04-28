@@ -73,7 +73,6 @@ enum preupdate_change_state {		from_null_to_something,
 						"-"
 #define ROWS_FOR_SUBMIT_AT_BOTTOM		6
 #define PROCESS_PROMPT_DEFAULT_WIDTH		25
-#define NO_DISPLAY_PUSH_BUTTON_HEADING		"no_display"
 #define INSERT_NEW_TEXT_ITEM_PREFIX		"insert_"
 #define RADIO_NEW_PUSH_BUTTON_NAME		"new_button"
 #define AJAX_FILL_PUSH_BUTTON_PREFIX		"ajax_fill_"
