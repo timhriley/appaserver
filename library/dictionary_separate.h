@@ -10,6 +10,7 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
+#include "folder_attribute.h"
 #include "dictionary.h"
 
 /* Constants */
@@ -23,6 +24,32 @@
 
 #define DICTIONARY_SEPARATE_FROM_PREFIX		"from_"
 #define DICTIONARY_SEPARATE_TO_PREFIX		"to_"
+
+typedef struct
+{
+	DICTIONARY *dictionary;
+	LIST *dictionary_key_list;
+	char *key;
+	char *data;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	char *security_sql_injection_escape;
+} DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE;
+
+/* DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE operations */
+/* --------------------------------------------------- */
+
+/* Usage */
+/* ----- */
+DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
+	dictionary_separate_sql_injection_escape_new(
+			DICTIONARY *original_post_dictionary,
+			LIST *folder_attribute_list );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
+	dictionary_separate_sql_injection_escape_calloc(
+			void );
 
 typedef struct
 {
@@ -226,6 +253,7 @@ typedef struct
 	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
@@ -250,7 +278,8 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 			LIST *folder_attribute_name_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *operation_name_list,
-			LIST *folder_attribute_date_name_list );
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_list );
 
 /* Process */
 /* ------- */
@@ -263,6 +292,7 @@ typedef struct
 	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
 	DICTIONARY *drillthru_dictionary;
 } DICTIONARY_SEPARATE_DRILLTHRU;
 
@@ -276,7 +306,8 @@ DICTIONARY_SEPARATE_DRILLTHRU *
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list );
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_list );
 
 /* Process */
 /* ------- */
@@ -289,6 +320,7 @@ typedef struct
 	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
@@ -307,7 +339,8 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list );
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_list );
 
 /* Process */
 /* ------- */
@@ -320,6 +353,7 @@ typedef struct
 	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
@@ -338,7 +372,8 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list );
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_list );
 
 /* Process */
 /* ------- */

@@ -224,7 +224,7 @@ int hash_table_set_string( HASH_TABLE *h, char *key, char *s )
 int hash_table_set( HASH_TABLE *h, char *key, void *other_data )
 {
 	char *other_data_indicator;
-	int duplicate_indicator;
+	int duplicate_indicator = {0};
 
 	other_data_indicator = 
 		hash_table_retrieve_other_data(	
@@ -239,17 +239,11 @@ int hash_table_set( HASH_TABLE *h, char *key, void *other_data )
 		return hash_table_insert( h, key, other_data );
 	}
 
-/*
-	if ( h->last_cell_retrieved->other_data )
-		free( h->last_cell_retrieved->other_data );
-*/
-
 	/* Set the new value */
 	/* ----------------- */
 	h->last_cell_retrieved->other_data = other_data;
 
 	return 1;
-
 }
 
 int hash_table_set_unique_key( HASH_TABLE *h, char *key, void *other_data )
