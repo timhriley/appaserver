@@ -13,7 +13,6 @@
 #include "role.h"
 #include "role_folder.h"
 #include "folder.h"
-#include "drillthru.h"
 #include "post_dictionary.h"
 #include "frameset.h"
 #include "folder_menu.h"
@@ -38,8 +37,6 @@ typedef struct
 	MENU *menu;
 	int folder_attribute_date_name_list_length;
 	DICTIONARY_SEPARATE_DRILLTHRU *dictionary_separate_drillthru;
-	DRILLTHRU *drillthru;
-	char *target_frame;
 	char *title_html;
 	char *action_string;
 	SECURITY_ENTITY *security_entity;
@@ -64,7 +61,6 @@ PROMPT_INSERT *prompt_insert_new(
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *target_frame,
 			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary );
@@ -77,14 +73,20 @@ PROMPT_INSERT *prompt_insert_calloc(
 boolean prompt_insert_forbid(
 			boolean role_prompt_insert );
 
+/* Returns static memory */
+/* --------------------- */
+char *prompt_insert_title_html(
+			char *appaserver_insert_state,
+			char *folder_name );
+
 /* Public */
 /* ------ */
 char *prompt_insert_output_system_string(
 			char *prompt_insert_output_executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
 

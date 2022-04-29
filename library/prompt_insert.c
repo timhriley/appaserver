@@ -40,7 +40,6 @@ PROMPT_INSERT *prompt_insert_new(
 			char *session_key,
 			char *folder_name,
 			char *role_name,
-			char *target_frame,
 			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
@@ -142,11 +141,11 @@ PROMPT_INSERT *prompt_insert_new(
 					folder->
 					folder_attribute_append_isa_list ) );
 
-	prompt_insert->dictionary_separate_prompt_edit =
+	prompt_insert->dictionary_separate_drillthru =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_prompt_insert_new(
+		dictionary_separate_drillthru_new(
 			post_dictionary->original_post_dictionary,
 			application_name,
 			login_name,
@@ -154,34 +153,6 @@ PROMPT_INSERT *prompt_insert_new(
 				prompt_insert->
 					folder->
 					folder_attribute_append_isa_list ) );
-
-	prompt_edit->drillthru =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		drillthru_continue(
-			prompt_insert->
-				dictionary_separate_prompt_insert->
-				drillthru_dictionary /* in/out */,
-			folder_name );
-
-	prompt_insert->target_frame =
-		/* ------------------------------------------- */
-		/* Returns target_frame or FRAMESET_EDIT_FRAME */
-		/* ------------------------------------------- */
-		prompt_insert_target_frame(
-			target_frame,
-			FRAMESET_EDIT_FRAME,
-			prompt_insert->drillthru->skipped );
-
-	prompt_edit->folder->relation_mto1_non_isa_list =
-		/* -------------------------------------------- */
-		/* Returns relation_mto1_non_isa_list or	*/
-		/* those with only a single foreign key.	*/
-		/* -------------------------------------------- */
-		prompt_insert_drillthru_skipped(
-			prompt_insert->folder->relation_mto1_non_isa_list,
-			prompt_insert->drillthru->skipped );
 
 	prompt_insert->title_html =
 		/* --------------------- */
@@ -199,22 +170,21 @@ PROMPT_INSERT *prompt_insert_new(
 
 	prompt_insert->form_prompt_insert =
 		form_prompt_insert_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
 			folder_name,
-			prompt_insert->action_string,
 			prompt_insert->folder->folder_attribute_append_isa_list,
 			prompt_insert->folder->relation_mto1_non_isa_list,
 			prompt_insert->
-				dictionary_separate_prompt_insert->
+				dictionary_separate_drillthru->
 				drillthru_dictionary,
-			login_name,
 			security_entity_where(
 				prompt_insert->security_entity,
 				prompt_insert->
 					folder->
-					folder_attribute_list ),
-			prompt_insert->drillthru->drillthru_participating,
-			prompt_insert->drillthru->skipped,
-			prompt_insert->drillthru->finished );
+					folder_attribute_list ) );
 
 	if ( !prompt_insert->form_prompt_insert )
 	{
@@ -268,21 +238,20 @@ PROMPT_INSERT *prompt_insert_new(
 
 char *prompt_insert_output_system_string(
 			char *executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
 	if ( !executable
-	||   !login_name
 	||   !session_key
-	||   !folder_name
+	||   !login_name
 	||   !role_name
-	||   !dictionary_separate_send_string
+	||   !folder_name
 	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
@@ -296,11 +265,13 @@ char *prompt_insert_output_system_string(
 	sprintf(system_string,
 		"%s %s %s %s %s \"%s\" 2>>%s",
 		executable,
-		login_name,
 		session_key,
-		folder_name,
+		login_name,
 		role_name,
-		dictionary_separate_send_string,
+		folder_name,
+		(dictionary_separate_send_string)
+			? dictionary_separate_send_string
+			: "",
 		appaserver_error_filename );
 
 	return strdup( system_string );
@@ -312,3 +283,22 @@ boolean prompt_insert_forbid(
 	return 1 - role_prompt_insert;
 }
 
+char *prompt_insert_title_html(
+			char *state,
+			char *folder_name )
+{
+	static char title_html[ 128 ];
+	char buffer1[ 16 ];
+	char buffer2[ 128 ];
+
+	sprintf(title_html,
+		"<h1>%s %s</h1>",
+		string_initial_capital(
+			buffer1,
+			state ),
+		string_initial_capital(
+			buffer2,
+			folder_name ) );
+
+	return title_html;
+}

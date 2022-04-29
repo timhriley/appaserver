@@ -170,7 +170,7 @@ LIST *relation_pair_one2m_list(
 
 LIST *relation_join_one2m_list(
 			LIST *relation_one2m_recursive_list,
-			DICTIONARY *ignore_dictionary );
+			DICTIONARY *no_display_dictionary );
 
 LIST *relation_mto1_non_isa_list(
 			char *many_folder_name );

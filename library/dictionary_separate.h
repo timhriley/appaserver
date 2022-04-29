@@ -18,6 +18,7 @@
 #define DICTIONARY_SEPARATE_QUERY_PREFIX	"qquery_"
 #define DICTIONARY_SEPARATE_DRILLTHRU_PREFIX	"ddrillthru_"
 #define DICTIONARY_SEPARATE_IGNORE_PREFIX	"iignore_"
+#define DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX	"nno_display_"
 #define DICTIONARY_SEPARATE_PAIR_PREFIX		"ppair_one2m_"
 
 #define DICTIONARY_SEPARATE_FROM_PREFIX		"from_"
@@ -170,6 +171,7 @@ DICTIONARY *dictionary_separate_non_prefixed(
 			char *dictionary_separate_query_prefix,
 			char *dictionary_separate_drillthru_prefix,
 			char *dictionary_separate_ignore_prefix,
+			char *dictionary_separate_no_display_prefix,
 			char *dictionary_separate_pair_prefix,
 			DICTIONARY *dictionary );
 
@@ -181,10 +183,6 @@ DICTIONARY *dictionary_separate_multi_row(
 DICTIONARY *dictionary_separate_operation(
 			LIST *operation_name_list,
 			DICTIONARY *dictionary );
-
-LIST *dictionary_separate_ignore_select_name_list(
-			char *dictionary_separate_ignore_prefix,
-			DICTIONARY *ignore_dictionary );
 
 DICTIONARY *dictionary_separate_row(
 			LIST *attribute_name_list,
@@ -204,6 +202,8 @@ DICTIONARY *dictionary_separate_send_dictionary(
 			char *dictionary_separate_drillthru_prefix,
 			DICTIONARY *ignore_dictionary,
 			char *dictionary_separate_ignore_prefix,
+			DICTIONARY *no_display_dictionary,
+			char *dictionary_separate_no_display_prefix,
 			DICTIONARY *pair_one2m_dictionary,
 			char *dictionary_separate_pair_prefix,
 			DICTIONARY *non_prefixed_dictionary );
@@ -229,14 +229,12 @@ typedef struct
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *ignore_dictionary;
+	DICTIONARY *no_display_dictionary;
 	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
 	DICTIONARY *multi_row_dictionary;
 	DICTIONARY *operation_dictionary;
-	LIST *ignore_select_name_list;
-	DICTIONARY *send_dictionary;
-	char *send_string;
+	LIST *no_display_name_list;
 } DICTIONARY_SEPARATE_POST_EDIT_TABLE;
 
 /* Usage */
@@ -294,11 +292,9 @@ typedef struct
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *ignore_dictionary;
+	DICTIONARY *no_display_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
-	LIST *ignore_select_name_list;
-	DICTIONARY *send_dictionary;
-	char *send_string;
+	LIST *no_display_name_list;
 } DICTIONARY_SEPARATE_EDIT_TABLE;
 
 /* Usage */
@@ -329,9 +325,7 @@ typedef struct
 	DICTIONARY *drillthru_dictionary;
 	DICTIONARY *ignore_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
-	LIST *ignore_insert_name_list;
-	DICTIONARY *send_dictionary;
-	char *send_string;
+	LIST *ignore_name_list;
 } DICTIONARY_SEPARATE_INSERT_TABLE;
 
 /* Usage */

@@ -12,16 +12,10 @@
 #include "list.h"
 #include "relation.h"
 
-/* Constants */
-/* --------- */
+#define DRILLTHRU_OUTPUT_EXECUTABLE	"output_drillthru"
 #define DRILLTHRU_FULFILLED_KEY		"drillthru_fulfilled"
 #define DRILLTHRU_BASE_KEY		"drillthru_base"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	boolean drillthru_participating;
@@ -46,6 +40,9 @@ DRILLTHRU *drillthru_start(
 
 /* Process */
 /* ------- */
+DRILLTHRU *drillthru_calloc(
+			void );
+
 boolean drillthru_start_participating(
 			int relation_mto1_drillthru_list_length );
 
@@ -107,7 +104,16 @@ void drillthru_dictionary_fulfilled_set(
 
 /* Public */
 /* ------ */
-DRILLTHRU *drillthru_calloc(
-			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *drillthru_output_system_string(
+			char *drillthru_output_executable,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *state,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename );
 
 #endif

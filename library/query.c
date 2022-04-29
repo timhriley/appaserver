@@ -1511,7 +1511,7 @@ char *query_select_column_string(
 
 LIST *query_edit_table_select_list(
 			LIST *folder_attribute_append_isa_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			int relation_mto1_isa_length,
 			QUERY_DATE_CONVERT *query_date_convert,
@@ -1533,7 +1533,7 @@ LIST *query_edit_table_select_list(
 
 		if ( list_string_exists(
 			folder_attribute->attribute_name,
-			ignore_select_attribute_name_list ) )
+			no_display_name_list ) )
 		{
 			continue;
 		}
@@ -2320,7 +2320,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			char *folder_name,
 			char *security_entity_where,
 			LIST *relation_join_one2m_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
@@ -2349,7 +2349,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 	query_edit_table->select_list =
 		query_edit_table_select_list(
 			folder_attribute_append_isa_list,
-			ignore_select_attribute_name_list,
+			no_display_name_list,
 			exclude_lookup_attribute_name_list,
 			list_length( relation_mto1_isa_list ),
 			query_date_convert_new( login_name ),

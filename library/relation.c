@@ -359,7 +359,7 @@ LIST *relation_pair_one2m_list(
 
 LIST *relation_join_one2m_list(
 			LIST *relation_one2m_recursive_list,
-			DICTIONARY *ignore_dictionary )
+			DICTIONARY *no_display_dictionary )
 {
 	RELATION *relation;
 	char key[ 128 ];
@@ -379,7 +379,9 @@ LIST *relation_join_one2m_list(
 					one_folder->
 					folder_name );
 
-			if ( dictionary_key_exists( ignore_dictionary, key ) )
+			if ( dictionary_key_exists(
+				no_display_dictionary,
+				key ) )
 			{
 				continue;
 			}

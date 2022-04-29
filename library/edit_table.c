@@ -133,7 +133,7 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->relation_one2m_recursive_list,
 			edit_table->
 				dictionary_separate->
-				ignore_dictionary );
+				no_display_dictionary );
 
 	if ( menu_horizontal_boolean )
 	{
@@ -198,7 +198,7 @@ EDIT_TABLE *edit_table_new(
 			edit_table->primary_keys_non_edit,
 			edit_table->
 				dictionary_separate->
-				ignore_select_name_list,
+				no_display_name_list,
 			edit_table->state,
 			role_exclude_update_attribute_name_list(
 				edit_table->
@@ -246,7 +246,7 @@ EDIT_TABLE *edit_table_new(
 			edit_table->folder->relation_join_one2m_list,
 			edit_table->
 				dictionary_separate->
-				ignore_select_name_list,
+				no_display_name_list,
 			role_exclude_lookup_attribute_name_list(
 				edit_table->
 					role->
@@ -437,7 +437,7 @@ EDIT_TABLE *edit_table_new(
 				drillthru_dictionary,
 			edit_table->
 				dictionary_separate->
-				ignore_dictionary  );
+				no_display_dictionary  );
 
 	edit_table->html =
 		/* ------------------- */

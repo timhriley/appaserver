@@ -480,6 +480,8 @@ char *vertical_new_post_prompt_insert_system_string(
 				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 				(DICTIONARY *)0 /* ignore_dictionary */,
 				DICTIONARY_SEPARATE_IGNORE_PREFIX,
+				(DICTIONARY *)0 /* no_display_dictionary */,
+				DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 				(DICTIONARY *)0 /* pair_one2m_dictionary */,
 				DICTIONARY_SEPARATE_PAIR_PREFIX,
 				non_prefixed_dictionary ) );

@@ -162,6 +162,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/form_edit_table.o				\
 		${LIB}/form_choose_isa.o				\
 		${LIB}/form_choose_role.o				\
+		${LIB}/form_prompt_insert.o				\
 		${LIB}/element.o					\
 		${LIB}/button.o						\
 		${LIB}/operation.o					\

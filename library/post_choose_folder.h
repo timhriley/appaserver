@@ -26,6 +26,7 @@
 typedef struct
 {
 	DRILLTHRU *drillthru;
+	char *drillthru_output_system_string;
 	char *name;
 	boolean fetch_relation_mto1_isa;
 	FOLDER *folder;
@@ -94,15 +95,6 @@ boolean post_choose_folder_edit_table(
 			char *folder_form_name,
 			char *state );
 
-/* Returns frameset_prompt_frame or frameset_edit_frame */
-/* ---------------------------------------------------- */
-char *post_choose_folder_target_frame(
-			boolean insert_table,
-			boolean edit_table,
-			boolean drillthru_participating,
-			char *frameset_prompt_frame,
-			char *framset_edit_frame );
-
 /* Returns heap memory */
 /* ------------------- */
 char *post_choose_folder_system_string(
@@ -116,9 +108,6 @@ char *post_choose_folder_system_string(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *state,
-			char *target_frame,
-			DICTIONARY *drillthru_dictionary,
 			RELATION *first_one2m_isa_relation );
 
 /* Public */

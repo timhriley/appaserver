@@ -269,3 +269,43 @@ char *drillthru_start_current_folder_name(
 
 	return relation->one_folder->folder_name;
 }
+
+char *drillthru_output_system_string(
+			char *drillthru_output_executable,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *state,
+			char *dictionary_separate_send_string,
+			char *appaserver_error_filename )
+{
+	char system_string[ 1024 ];
+
+	if ( !drillthru_output_executable
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !state
+	||   !dictionary_separate_send_string
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %s \"%s\" 2>>%s",
+		drillthru_output_executable,
+		session_key,
+		login_name,
+		role_name,
+		state,
+		dictionary_separate_send_string,
+		appaserver_error_filename );
+
+	return strdup( system_string );
+}

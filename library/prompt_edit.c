@@ -235,6 +235,10 @@ PROMPT_EDIT *prompt_edit_new(
 
 	prompt_edit->form_prompt_edit =
 		form_prompt_edit_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
 			folder_name,
 			prompt_edit->omit_insert_button,
 			prompt_edit->omit_delete_button,
@@ -244,15 +248,11 @@ PROMPT_EDIT *prompt_edit_new(
 			prompt_edit->
 				dictionary_separate_drillthru->
 				drillthru_dictionary,
-			login_name,
 			security_entity_where(
 				prompt_edit->security_entity,
 				prompt_edit->
 					folder->
-					folder_attribute_list ),
-			prompt_edit->drillthru->drillthru_participating,
-			prompt_edit->drillthru->skipped,
-			prompt_edit->drillthru->finished );
+					folder_attribute_list ) );
 
 	if ( !prompt_edit->form_prompt_edit )
 	{
@@ -368,23 +368,20 @@ char *prompt_edit_title_html(
 
 char *prompt_edit_output_system_string(
 			char *executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
-			char *state,
+			char *folder_name,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
 	if ( !executable
-	||   !login_name
 	||   !session_key
-	||   !folder_name
+	||   !login_name
 	||   !role_name
-	||   !state
-	||   !dictionary_separate_send_string
+	||   !folder_name
 	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
@@ -396,14 +393,15 @@ char *prompt_edit_output_system_string(
 	}
 
 	sprintf(system_string,
-		"%s %s %s %s %s %s \"%s\" 2>>%s",
+		"%s %s %s %s %s \"%s\" 2>>%s",
 		executable,
-		login_name,
 		session_key,
-		folder_name,
+		login_name,
 		role_name,
-		state,
-		dictionary_separate_send_string,
+		folder_name,
+		(dictionary_separate_send_string)
+			? dictionary_separate_send_string
+			: "",
 		appaserver_error_filename );
 
 	return strdup( system_string );

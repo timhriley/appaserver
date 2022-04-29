@@ -107,11 +107,10 @@ char *prompt_edit_title_html(
 /* ------------------- */
 char *prompt_edit_output_system_string(
 			char *prompt_edit_output_executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
-			char *state,
+			char *folder_name,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
 

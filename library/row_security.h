@@ -276,7 +276,7 @@ ROW_SECURITY *row_security_new(
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean edit_table_primary_keys_non_edit,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			char *state,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
@@ -291,7 +291,7 @@ LIST *row_security_update_state_regular_element_list(
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
 			LIST *role_operation_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			LIST *role_exclude_update_attribute_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			ROW_SECURITY_ROLE_UPDATE *role_update );
@@ -301,7 +301,7 @@ LIST *row_security_update_state_viewonly_element_list(
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
 			LIST *role_operation_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			LIST *role_exclude_lookup_attribute_name_list,
 			ROW_SECURITY_ROLE_UPDATE *role_update );
 

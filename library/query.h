@@ -454,7 +454,7 @@ QUERY_SELECT *query_select_calloc(
 
 LIST *query_edit_table_select_list(
 			LIST *folder_attribute_append_isa_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			int relation_mto1_isa_length,
 			QUERY_DATE_CONVERT *query_date_convert,
@@ -714,7 +714,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			char *folder_name,
 			char *security_entity_where,
 			LIST *relation_join_one2m_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			LIST *exclude_lookup_attribute_name_list,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,

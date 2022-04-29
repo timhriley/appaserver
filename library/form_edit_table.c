@@ -59,7 +59,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *drillthru_dictionary,
-			DICTIONARY *ignore_dictionary )
+			DICTIONARY *no_display_dictionary )
 {
 	FORM_EDIT_TABLE *form_edit_table = form_edit_table_calloc();
 
@@ -141,10 +141,10 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 			drillthru_dictionary );
 
-	form_edit_table->ignore_dictionary_hidden_html =
+	form_edit_table->no_display_dictionary_hidden_html =
 		dictionary_separate_hidden_html(
-			DICTIONARY_SEPARATE_IGNORE_PREFIX,
-			ignore_dictionary );
+			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+			no_display_dictionary );
 
 	form_edit_table->html =
 		form_edit_table_html(
@@ -161,7 +161,7 @@ FORM_EDIT_TABLE *form_edit_table_new(
 			form_edit_table->query_dictionary_hidden_html,
 			form_edit_table->sort_dictionary_hidden_html,
 			form_edit_table->drillthru_dictionary_hidden_html,
-			form_edit_table->ignore_dictionary_hidden_html,
+			form_edit_table->no_display_dictionary_hidden_html,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
@@ -459,7 +459,7 @@ char *form_edit_table_trailer_html(
 			char *query_dictionary_hidden_html,
 			char *sort_dictionary_hidden_html,
 			char *drillthru_dictionary_hidden_html,
-			char *ignore_dictionary_hidden_html,
+			char *no_display_dictionary_hidden_html,
 			char *form_close_html )
 {
 	char html[ STRING_ONE_MEG ];
@@ -503,14 +503,14 @@ char *form_edit_table_trailer_html(
 			drillthru_dictionary_hidden_html );
 	}
 
-	if ( ignore_dictionary_hidden_html )
+	if ( no_display_dictionary_hidden_html )
 	{
 		if ( ptr != html ) ptr += sprintf( ptr, "\n" );
 
 		ptr += sprintf(
 			ptr,
 			"%s",
-			ignore_dictionary_hidden_html );
+			no_display_dictionary_hidden_html );
 	}
 
 	if ( form_close_html )

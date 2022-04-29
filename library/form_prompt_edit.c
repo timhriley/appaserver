@@ -1064,7 +1064,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 				form_prompt_edit_relation->
 					no_display_appaserver_element->
 					element_name,
-				NO_DISPLAY_PUSH_BUTTON_HEADING
+				FORM_NO_DISPLAY_PUSH_BUTTON_HEADING
 					/* prompt_string */,
 				(char *)0 /* on_click */,
 				-1 /* tab_order */,

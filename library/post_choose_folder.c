@@ -85,6 +85,43 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			( drillthru_dictionary = dictionary_small() ) /* out */,
 			folder_name );
 
+	if ( post_choose_folder->drillthru->drillthru_participating )
+	{
+		post_choose_folder->drillthru_output_system_string =
+			drillthru_output_system_string(
+				DRILLTHRU_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				state,
+				dictionary_separate_send_string(
+				    dictionary_separate_send_dictionary(
+					(DICTIONARY *)0
+						/* sort_dictionary */,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
+					(DICTIONARY *)0
+						/* query_dictionary */,
+					DICTIONARY_SEPARATE_QUERY_PREFIX,
+					drillthru_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+					(DICTIONARY *)0
+						/* ignore_dictionary */,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
+					(DICTIONARY *)0
+						/* no_display_dictionary */,
+					DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+					(DICTIONARY *)0
+						/* pair_one2m_dictionary */,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
+					(DICTIONARY *)0
+						/* non_prefixed_dictionary */
+					) ),
+		 		appaserver_error_filename(
+					application_name ) );
+
+		return post_choose_folder;
+	}
+
 	post_choose_folder->name =
 		/* ---------------------------------------------------------- */
 		/* Returns drillthru_start_current_folder_name or folder_name */
@@ -202,20 +239,6 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			login_name,
 			role_name,
 			post_choose_folder->folder->folder_name,
-			state,
-			/* ------------------------------------ */
-			/* Returns frameset_prompt_frame or	*/
-			/* frameset_edit_frame			*/
-			/* ------------------------------------ */
-			post_choose_folder_target_frame(
-				post_choose_folder->insert_table,
-				post_choose_folder->edit_table,
-				post_choose_folder->
-					drillthru->
-					drillthru_participating,
-				FRAMESET_PROMPT_FRAME,
-				FRAMESET_EDIT_FRAME ),
-			drillthru_dictionary,
 			list_first(
 				post_choose_folder->
 					folder->
@@ -283,20 +306,6 @@ boolean post_choose_folder_edit_table(
 	return ( string_strcmp( folder_form_name, "table" ) == 0 );
 }
 
-char *post_choose_folder_target_frame(
-			boolean insert_table,
-			boolean edit_table,
-			boolean drillthru_participating,
-			char *frameset_prompt_frame,
-			char *frameset_edit_frame )
-{
-	return (	insert_table ||
-	     		edit_table   ||
-	     		drillthru_participating )
-		? frameset_prompt_frame
-		: frameset_edit_frame;
-}
-
 boolean post_choose_folder_isa_drop_down(
 			int relation_mto1_isa_list_length )
 {
@@ -314,9 +323,6 @@ char *post_choose_folder_system_string(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *state,
-			char *target_frame,
-			DICTIONARY *drillthru_dictionary,
 			RELATION *first_one2m_isa_relation )
 {
 	char system_string[ 1024 ];
@@ -349,11 +355,11 @@ char *post_choose_folder_system_string(
 		/* ------------------- */
 		choose_isa_output_system_string(
 			CHOOSE_ISA_OUTPUT_EXECUTABLE,
-			login_name,
 			session_key,
+			login_name,
+			role_name,
 			folder_name,
 			first_one2m_isa_relation->one_folder->folder_name,
-			role_name,
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
@@ -365,29 +371,11 @@ char *post_choose_folder_system_string(
 		/* ------------------- */
 		prompt_insert_output_system_string(
 			PROMPT_INSERT_OUTPUT_EXECUTABLE,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					(DICTIONARY *)0
-						/* sort_dictionary */,
-					DICTIONARY_SEPARATE_SORT_PREFIX,
-					(DICTIONARY *)0
-						/* query_dictionary */,
-					DICTIONARY_SEPARATE_QUERY_PREFIX,
-					drillthru_dictionary,
-					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-					(DICTIONARY *)0
-						/* ignore_dictionary */,
-					DICTIONARY_SEPARATE_IGNORE_PREFIX,
-					(DICTIONARY *)0
-						/* pair_one2m_dictionary */,
-					DICTIONARY_SEPARATE_PAIR_PREFIX,
-					(DICTIONARY *)0
-						/* non_prefixed_dictionary */
-					) ),
+			folder_name,
+			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
@@ -399,29 +387,11 @@ char *post_choose_folder_system_string(
 		/* ------------------- */
 		insert_table_output_system_string(
 			INSERT_TABLE_OUTPUT_EXECUTABLE,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					(DICTIONARY *)0
-						/* sort_dictionary */,
-					DICTIONARY_SEPARATE_SORT_PREFIX,
-					(DICTIONARY *)0
-						/* query_dictionary */,
-					DICTIONARY_SEPARATE_QUERY_PREFIX,
-					drillthru_dictionary,
-					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-					(DICTIONARY *)0
-						/* ignore_dictionary */,
-					DICTIONARY_SEPARATE_IGNORE_PREFIX,
-					(DICTIONARY *)0
-						/* pair_one2m_dictionary */,
-					DICTIONARY_SEPARATE_PAIR_PREFIX,
-					(DICTIONARY *)0
-						/* non_prefixed_dictionary */
-					) ),
+			folder_name,
+			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
@@ -433,30 +403,11 @@ char *post_choose_folder_system_string(
 		/* ------------------- */
 		prompt_edit_output_system_string(
 			PROMPT_EDIT_OUTPUT_EXECUTABLE,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
-			state,
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					(DICTIONARY *)0
-						/* sort_dictionary */,
-					DICTIONARY_SEPARATE_SORT_PREFIX,
-					(DICTIONARY *)0
-						/* query_dictionary */,
-					DICTIONARY_SEPARATE_QUERY_PREFIX,
-					drillthru_dictionary,
-					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-					(DICTIONARY *)0
-						/* ignore_dictionary */,
-					DICTIONARY_SEPARATE_IGNORE_PREFIX,
-					(DICTIONARY *)0
-						/* pair_one2m_dictionary */,
-					DICTIONARY_SEPARATE_PAIR_PREFIX,
-					(DICTIONARY *)0
-						/* non_prefixed_dictionary */
-					) ),
+			folder_name,
+			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}
 	if ( edit_table )
@@ -471,27 +422,9 @@ char *post_choose_folder_system_string(
 			login_name,
 			role_name,
 			folder_name,
-			target_frame,
+			FRAMESET_PROMPT_FRAME /* target_frame */,
 			(char *)0 /* subsub_title */,
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					(DICTIONARY *)0
-						/* sort_dictionary */,
-					DICTIONARY_SEPARATE_SORT_PREFIX,
-					(DICTIONARY *)0
-						/* query_dictionary */,
-					DICTIONARY_SEPARATE_QUERY_PREFIX,
-					drillthru_dictionary,
-					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-					(DICTIONARY *)0
-						/* ignore_dictionary */,
-					DICTIONARY_SEPARATE_IGNORE_PREFIX,
-					(DICTIONARY *)0
-						/* pair_one2m_dictionary */,
-					DICTIONARY_SEPARATE_PAIR_PREFIX,
-					(DICTIONARY *)0
-						/* non_prefixed_dictionary */
-					) ),
+			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}
 	else

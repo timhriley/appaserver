@@ -31,7 +31,7 @@ typedef struct
 	APPASERVER_ELEMENT *prompt_appaserver_element;
 	APPASERVER_ELEMENT *yes_no_appaserver_element;
 	APPASERVER_ELEMENT *text_appaserver_element;
-	APPASERVER_ELEMENT *non_edit_text_appaserver_element;
+	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_INSERT_ATTRIBUTE;
 
 /* FORM_PROMPT_INSERT_ATTRIBUTE operations */
@@ -63,7 +63,7 @@ typedef struct
 	LIST *element_list;
 	QUERY_WIDGET *query_widget;
 	char *name;
-	char *ignore_name;
+	char *form_ignore_name;
 	APPASERVER_ELEMENT *ignore_appaserver_element;
 	char *prompt;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
@@ -94,7 +94,7 @@ boolean form_prompt_insert_relation_attribute_name_exists(
 			char *attribute_name,
 			LIST *form_prompt_insert_relation_list );
 
-FORM_PROMPT_INSERT_RELATION *form_prompt_edit_relation_calloc(
+FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_calloc(
 			void );
 
 char *form_prompt_insert_relation_ignore_name(
@@ -134,10 +134,13 @@ typedef struct
 	char *action_string;
 	char *form_tag_html;
 	FORM_PROMPT_INSERT_ELEMENT_LIST *form_prompt_insert_element_list;
+	char *form_multi_select_all_javascript;
 	char *form_cookie_key;
 	char *form_cookie_multi_key;
 	char *form_keystrokes_save_javascript;
+	char *form_keystrokes_multi_save_javascript;
 	char *form_keystrokes_recall_javascript;
+	char *form_keystrokes_multi_recall_javascript;
 	char *form_verify_notepad_widths_javascript;
 	LIST *button_list;
 	char *html;

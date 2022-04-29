@@ -1,184 +1,73 @@
 /* ---------------------------------------------------------	*/
 /* $APPASERVER_HOME/src_appaserver/post_prompt_insert.c		*/
 /* ---------------------------------------------------------	*/
-/*								*/
-/* This script is attached to the submit button on 		*/
-/* the prompt form.						*/
-/*								*/
 /* Freely available software: see Appaserver.org		*/
 /* ---------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include "String.h"
-#include "timlib.h"
-#include "list.h"
-#include "dictionary.h"
-#include "folder.h"
-#include "insert_database.h"
-#include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "appaserver_user.h"
-#include "document.h"
-#include "application.h"
-#include "appaserver_parameter.h"
-#include "appaserver.h"
-#include "environ.h"
-#include "relation.h"
-#include "session.h"
-#include "role.h"
-#include "query.h"
-#include "dictionary_separate.h"
-#include "post_dictionary.h"
-#include "pair_one2m.h"
-#include "folder_menu.h"
-#include "vertical_new.h"
-#include "prompt_insert_form.h"
-
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
-void set_null_operator_data_to_null(
-			DICTIONARY *query_dictionary,
-			LIST *attribute_name_list );
-
-void remove_primary_key_reference_number(
-			DICTIONARY *query_dictionary,
-			LIST *attribute_list );
-
-void output_missing_information_message(
-			char *application_name,
-			char *appaserver_mount_point,
-			LIST *missing_attribute_name_list );
-
-int post_prompt_insert_database(
-			char **message,
-			char **isa_message,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *ignore_dictionary,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			LIST *primary_key_list,
-			LIST *insert_required_attribute_name_list,
-			LIST *attribute_name_list,
-			LIST *mto1_isa_related_folder_list,
-			PROCESS *post_change_process,
-			LIST *mto1_related_folder_list,
-			LIST *attribute_list );
+#include "String.h"
+#include "prompt_insert.h"
+#include "post_prompt_insert.h"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *login_name;
 	char *session_key;
-	char *folder_name;
+	char *login_name;
 	char *role_name;
-	SESSION *session;
-	POST_DICTIONARY *post_dictionary;
-	DICTIONARY_SEPARATE *dictionary_separate;
-	PROMPT_INSERT_FORM *prompt_insert_form;
-	LIST *posted_attribute_name_list;
-	LIST *non_populated_attribute_name_list;
-	LIST *ignore_primary_key_list;
-	LIST *subtracted_primary_key_list;
-	LIST *insert_required_attribute_name_list;
-	char sys_string[ 65536 ];
-	int rows_inserted;
-	APPASERVER_PARAMETER *appaserver_parameter;
-	char *target_frame;
-	LIST *mto1_isa_related_folder_list = {0};
-	ROLE *role;
-	char *message = "";
-	char *isa_message = "";
-	PAIR_ONE2M *pair_one2m;
-	LIST *missing_attribute_name_list;
-	LIST *ignore_attribute_name_list;
-	VERTICAL_NEW_POST_PROMPT_INSERT *vertical_new_post_prompt_insert;
-	FOLDER *folder;
+	char *folder_name;
+	POST_PROMPT_INSERT *post_prompt_insert;
+	char *sql_error_message_list_string = {0};
 
-	if ( argc != 7 )
+	if ( argc != 6 )
 	{
-		fprintf( stderr,
-"Usage: %s application login_name session folder role target_frame\n",
-			 argv[ 0 ] );
+		fprintf(stderr,
+		"Usage: %s application session login_name role folder\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	application_name = argv[ 1 ];
-	login_name = argv[ 2 ];
-	session_key = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	target_frame = argv[ 6 ];
+	session_key = argv[ 2 ];
+	login_name = argv[ 3 ];
+	role_name = argv[ 4 ];
+	folder_name = argv[ 5 ];
 
-	session =
-		session_folder_integrity_exit(
-			argc,
-			argv,
-			application_name,
-			login_name,
-			session_key,
-			folder_name,
-			role_name,
-			"insert" /* state */ );
+	if ( ! ( post_prompt_insert =
+			post_prompt_insert_new(
+				argc,
+				argv,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: post_prompt_insert_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	appaserver_parameter = appaserver_parameter_new();
-
-	role =
-		role_fetch(
-			role_name,
-			1 /* fetch_attribute_exclude_list */ );
-
-	folder =
-		folder_fetch(
-			folder_name,
-			/* ------------------------- */
-			/* Fetching role_folder_list */
-			/* ------------------------- */
-			role_name,
-			role->exclude_insert_attribute_name_list,
-			/* --------------------------------------- */
-			/* Also sets folder_attribute_primary_list */
-			/* and primary_key_list.		   */
-			/* ---------------------------------------- */
-			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_relation_mto1_non_isa_list */,
-			0 /* not fetch_relation_mto1_isa_list */,
-			boolean fetch_relation_one2m_list,
-			boolean fetch_relation_one2m_recursive_list,
-			boolean fetch_process,
-			boolean fetch_role_folder_list,
-			boolean fetch_row_level_restriction,
-			boolean fetch_role_operation_list );
-
-	post_dictionary =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		post_dictionary_stdin_new(
-			appaserver_parameter_file->
-				appaserver_mount_point,
-			session_key );
+	if ( post_prompt_insert->insert )
+	{
+		sql_error_message_list_string =
+			/* --------------------------------------------- */
+			/* Returns sql_error_message_list_string or null */
+			/* --------------------------------------------- */
+			insert_row_list_execute(
+				post_prompt_insert->insert->insert_row_list,
+				appaserver_error_filename(
+					application_name ) );
+	}
 
 
-	dictionary_separate =
-		/* --------------- */
-		/* Always succeeds */
-		/* --------------- */
-		dictionary_separate_stdin_new(
-			post_dictionary->dictionary,
-			application_name,
-			login_name,
-			folder_attribute_date_name_list(
-				folder->folder_attribute_list ) );
-
+#ifdef NOT_DEFINED
 	vertical_new_post_prompt_insert =
 		/* ------------------------ */
 		/* Returns true if selected */
@@ -248,14 +137,22 @@ int main( int argc, char **argv )
 				dictionary_separate_send_dictionary(
 					dictionary_separate->
 						sort_dictionary,
+					DICTIONARY_SEPARATE_SORT_PREFIX,
 					dictionary_separate->
 						query_dictionary,
+					DICTIONARY_SEPARATE_QUERY_DICTIONARY,
 					dictionary_separate->
 						drilldown_dictionary,
+					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 					dictionary_separate->
 						ignore_dictionary,
+					DICTIONARY_SEPARATE_IGNORE_PREFIX,
+					(DICTIONARY *)0
+						/* no_display_dictionary */,
+					DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 					dictionary_separate->
 						pair_one2m_dictionary,
+					DICTIONARY_SEPARATE_PAIR_PREFIX,
 					(DICTIONARY *)0
 					      /* non_prefixed_dictionary */ ) ),
 		 	login_name,
@@ -547,10 +444,12 @@ int main( int argc, char **argv )
 execute_sys_string:
 
 	if ( system( sys_string ) ){};
+#endif
 
 	return 0;
 }
 
+#ifdef NOT_DEFINED
 int post_prompt_insert_database(
 			char **message,
 			char **isa_message,
@@ -704,7 +603,9 @@ int post_prompt_insert_database(
 	return results;
 
 }
+#endif
 
+#ifdef NOT_DEFINED
 void output_missing_information_message(char *application_name,
 					char *appaserver_mount_point,
 					LIST *missing_attribute_name_list )
@@ -734,7 +635,9 @@ void output_missing_information_message(char *application_name,
 	document_close();
 
 }
+#endif
 
+#ifdef NOT_DEFINED
 void remove_primary_key_reference_number(
 			DICTIONARY *post_dictionary,
 			LIST *attribute_list )
@@ -762,7 +665,9 @@ void remove_primary_key_reference_number(
 		}
 	} while( list_next( attribute_list ) );
 }
+#endif
 
+#ifdef NOT_DEFINED
 void set_null_operator_data_to_null(
 			DICTIONARY *query_dictionary,
 			LIST *attribute_name_list )
@@ -829,4 +734,5 @@ void set_null_operator_data_to_null(
 	} while( list_next( attribute_name_list ) );
 
 }
+#endif
 

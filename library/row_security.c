@@ -52,7 +52,7 @@ ROW_SECURITY *row_security_new(
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			char *state,
 			LIST *exclude_update_attribute_name_list,
 			LIST *exclude_lookup_attribute_name_list,
@@ -80,7 +80,7 @@ ROW_SECURITY *row_security_new(
 			post_change_javascript,
 			drillthru_dictionary,
 			primary_keys_non_edit,
-			ignore_select_attribute_name_list,
+			no_display_name_list,
 			state,
 			login_name,
 			security_entity_where,
@@ -482,7 +482,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			char *state,
 			char *login_name,
 			char *security_entity_where,
@@ -516,7 +516,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 				post_change_javascript,
 				drillthru_dictionary,
 				primary_keys_non_edit,
-				ignore_select_attribute_name_list,
+				no_display_name_list,
 				login_name,
 				security_entity_where,
 				exclude_update_attribute_name_list,
@@ -530,7 +530,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 					folder_attribute_append_isa_list,
 					relation_mto1_non_isa_list,
 					relation_join_one2m_list,
-					ignore_select_attribute_name_list,
+					no_display_name_list,
 					security_entity_where,
 					exclude_lookup_attribute_name_list );
 		}
@@ -543,7 +543,7 @@ ROW_SECURITY_ELEMENT_LIST *row_security_element_list_new(
 				folder_attribute_append_isa_list,
 				(LIST *)0 /* relation_mto1_non_isa_list */,
 				relation_join_one2m_list,
-				ignore_select_attribute_name_list,
+				no_display_name_list,
 				security_entity_where,
 				exclude_lookup_attribute_name_list );
 	}
@@ -628,7 +628,7 @@ ROW_SECURITY_ELEMENT_LIST_REGULAR *
 			char *post_change_javascript,
 			DICTIONARY *drillthru_dictionary,
 			boolean primary_keys_non_edit,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			char *login_name,
 			char *security_entity_where,
 			LIST *exclude_update_attribute_name_list,
@@ -670,7 +670,7 @@ ROW_SECURITY_ELEMENT_LIST_REGULAR *
 
 		if ( list_string_exists(
 			attribute_name,
-			ignore_select_attribute_name_list ) )
+			no_display_name_list ) )
 		{
 			continue;
 		}
@@ -1325,7 +1325,7 @@ ROW_SECURITY_ELEMENT_LIST_VIEWONLY *
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
-			LIST *ignore_select_attribute_name_list,
+			LIST *no_display_name_list,
 			char *security_entity_where,
 			LIST *exclude_lookup_attribute_name_list )
 {
