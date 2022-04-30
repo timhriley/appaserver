@@ -223,20 +223,6 @@ char *process_choose_isa_command_line(
 
 /* Safely returns heap memory */
 /* -------------------------- */
-char *process_update_row_command_line(
-			char *command_line,
-			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			char *state,
-			int row,
-			char *process_name,
-			char *one2m_folder_name,
-			LIST *primary_data_list );
-
-/* Safely returns heap memory */
-/* -------------------------- */
 char *process_prompt_submit_command_line(
 			char *command_line,
 			char *application_name,
