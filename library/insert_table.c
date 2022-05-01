@@ -33,13 +33,14 @@ INSERT_TABLE *insert_table_calloc( void )
 
 INSERT_TABLE *insert_table_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			char *message,
-			POST_DICTIONARY *post_dictionary )
+			boolean menu_horizontal_boolean,
+			DICTIONARY *original_post_dictionary )
 {
 	INSERT_TABLE *insert_table = insert_table_calloc();
 
@@ -77,10 +78,10 @@ INSERT_TABLE *insert_table_new(
 				/* ------------------------------------------ */
 				1 /* fetch_relation_mto1_isa_list */,
 				1 /* fetch_relation_one2m_list */,
-				0 /* not fetch_relation_one2m_recursive_list */,
-				0 /* not fetch_process */,
-				0 /* not fetch_role_folder_list */,
-				0 /* not fetch_row_level_restriction */,
+				1 /* fetch_relation_one2m_recursive_list */,
+				1 /* fetch_process */,
+				1 /* fetch_role_folder_list */,
+				1 /* fetch_row_level_restriction */,
 				0 /* not fetch_role_operation_list */ ) ) )
 	{
 		fprintf(stderr,
@@ -104,18 +105,20 @@ INSERT_TABLE *insert_table_new(
 		return (INSERT_TABLE *)0;
 	}
 
-	insert_table->dictionary_separate =
+	insert_table->dictionary_separate_insert_table =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
 		dictionary_separate_insert_table_new(
-			post_dictionary->original_post_dictionary,
+			original_post_dictionary,
 			application_name,
 			login_name,
 			folder_attribute_date_name_list(
 				insert_table->
 					folder->
-					folder_attribute_append_isa_list ) );
+					folder_attribute_append_isa_list ),
+			insert_table->folder->folder_attribute_append_isa_list,
+			insert_table->folder->folder_attribute_name_list );
 
 	return insert_table;
 }
@@ -128,21 +131,22 @@ boolean insert_table_forbid(
 
 char *insert_table_output_system_string(
 			char *executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
+			char *target_frame,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename )
 {
 	char system_string[ 1024 ];
 
 	if ( !executable
-	||   !login_name
 	||   !session_key
-	||   !folder_name
+	||   !login_name
 	||   !role_name
-	||   !dictionary_separate_send_string
+	||   !folder_name
+	||   !target_frame
 	||   !appaserver_error_filename )
 	{
 		fprintf(stderr,
@@ -154,13 +158,16 @@ char *insert_table_output_system_string(
 	}
 
 	sprintf(system_string,
-		"%s %s %s %s %s \"%s\" 2>>%s",
+		"%s %s %s %s %s %s \"%s\" 2>>%s",
 		executable,
-		login_name,
 		session_key,
-		folder_name,
+		login_name,
 		role_name,
-		dictionary_separate_send_string,
+		folder_name,
+		target_frame,
+		(dictionary_separate_send_string)
+			? dictionary_separate_send_string
+			: "",
 		appaserver_error_filename );
 
 	return strdup( system_string );

@@ -175,15 +175,11 @@ typedef struct
 DICTIONARY_SEPARATE *dictionary_separate_calloc(
 			void );
 
-void dictionary_separate_multi_row_attribute(
+/* Returns destination_dictionary */
+/* ------------------------------ */
+DICTIONARY *dictionary_separate_multi_row_attribute(
 			DICTIONARY *destination_dictionary,
-			LIST *attribute_name_list,
-			DICTIONARY *source_dictionary,
-			int row_number );
-
-void dictionary_separate_multi_row_relation(
-			DICTIONARY *destination_dictionary,
-			LIST *relation_mto1_non_isa_list,
+			LIST *folder_attribute_name_list,
 			DICTIONARY *source_dictionary,
 			int row_number );
 
@@ -204,17 +200,20 @@ DICTIONARY *dictionary_separate_non_prefixed(
 
 DICTIONARY *dictionary_separate_multi_row(
 			LIST *folder_attribute_name_list,
-			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *dictionary );
 
-DICTIONARY *dictionary_separate_operation(
-			LIST *operation_name_list,
+DICTIONARY *dictionary_separate_row_zero(
+			LIST *folder_attribute_name_list,
 			DICTIONARY *dictionary );
 
 DICTIONARY *dictionary_separate_row(
-			LIST *attribute_name_list,
+			LIST *folder_attribute_name_list,
 			DICTIONARY *multi_row_dictionary,
 			int row_number );
+
+DICTIONARY *dictionary_separate_operation(
+			LIST *role_operation_name_list,
+			DICTIONARY *dictionary );
 
 char *dictionary_separate_hidden_html(
 			char *prefix,
@@ -254,6 +253,42 @@ typedef struct
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
 	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
+	DICTIONARY *drillthru_dictionary;
+	DICTIONARY *row_zero_dictionary;
+	DICTIONARY *ignore_dictionary;
+	LIST *ignore_name_list;
+
+	/* Not fetched; instead, later set from row_zero_dictionary */
+	/* -------------------------------------------------------- */
+	DICTIONARY *non_prefixed_dictionary;
+} DICTIONARY_SEPARATE_POST_PROMPT_INSERT;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
+	dictionary_separate_post_prompt_insert_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_append_isa_list );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
+	dictionary_separate_post_prompt_insert_calloc(
+			void );
+
+typedef struct
+{
+	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
+	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
+	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
 	DICTIONARY *sort_dictionary;
 	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
@@ -261,6 +296,7 @@ typedef struct
 	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
 	DICTIONARY *multi_row_dictionary;
+	DICTIONARY *row_zero_dictionary;
 	DICTIONARY *operation_dictionary;
 	LIST *no_display_name_list;
 } DICTIONARY_SEPARATE_POST_EDIT_TABLE;
@@ -276,10 +312,9 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_name_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *operation_name_list,
+			LIST *role_operation_name_list,
 			LIST *folder_attribute_date_name_list,
-			LIST *folder_attribute_list );
+			LIST *folder_attribute_append_isa_list );
 
 /* Process */
 /* ------- */
@@ -340,7 +375,7 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_date_name_list,
-			LIST *folder_attribute_list );
+			LIST *folder_attribute_append_isa_list );
 
 /* Process */
 /* ------- */
@@ -354,11 +389,11 @@ typedef struct
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
 	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
-	DICTIONARY *sort_dictionary;
-	DICTIONARY *query_dictionary;
 	DICTIONARY *drillthru_dictionary;
 	DICTIONARY *ignore_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
+	DICTIONARY *multi_row_dictionary;
+	DICTIONARY *row_zero_dictionary;
 	LIST *ignore_name_list;
 } DICTIONARY_SEPARATE_INSERT_TABLE;
 
@@ -373,7 +408,8 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_date_name_list,
-			LIST *folder_attribute_list );
+			LIST *folder_attribute_append_isa_list,
+			LIST *folder_attribute_name_list );
 
 /* Process */
 /* ------- */

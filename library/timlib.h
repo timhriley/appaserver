@@ -799,8 +799,8 @@ boolean timlib_is_number(
 /* -------------------------- */
 char *timlib_tmpfile(	void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *timlib_temp_filename(
 			char *key );
 

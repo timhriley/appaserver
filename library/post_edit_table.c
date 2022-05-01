@@ -120,11 +120,7 @@ POST_EDIT_TABLE *post_edit_table_new(
 			login_name,
 			post_edit_table->
 				folder->
-				relation_mto1_non_isa_list,
-			folder_attribute_name_list(
-				post_edit_table->
-					folder->
-					folder_attribute_append_isa_list ),
+				folder_attribute_name_list,
 			role_operation_name_list(
 				post_edit_table->
 					folder->
@@ -132,7 +128,10 @@ POST_EDIT_TABLE *post_edit_table_new(
 			folder_attribute_date_name_list(
 				post_edit_table->
 					folder->
-					folder_attribute_append_isa_list ) );
+					folder_attribute_append_isa_list ),
+			post_edit_table->
+				folder->
+				folder_attribute_append_isa_list );
 
 	post_edit_table->edit_table_spool_filename =
 		edit_table_spool_filename(
@@ -149,7 +148,7 @@ POST_EDIT_TABLE *post_edit_table_new(
 	if ( dictionary_length(
 		post_edit_table->
 			dictionary_separate->
-			non_prefixed_dictionary )
+			multi_row_dictionary )
 	&&   dictionary_length( post_edit_table->file_dictionary ) )
 	{
 		post_edit_table->update =
@@ -158,8 +157,7 @@ POST_EDIT_TABLE *post_edit_table_new(
 				login_name,
 				post_edit_table->
 					dictionary_separate->
-					non_prefixed_dictionary
-						/* post_dictionary */,
+					multi_row_dictionary,
 				post_edit_table->file_dictionary,
 				post_edit_table->role,
 				post_edit_table->folder );

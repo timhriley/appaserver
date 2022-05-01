@@ -351,10 +351,19 @@ char *folder_table_name(
 {
 	static char table_name[ 128 ];
 
-	if ( !folder_name || !*folder_name ) return (char *)0;
+	if ( !application_name
+	||   !folder_name
+	||   !*folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	if ( application_name
-	&&  string_strcmp( folder_name, "application" ) == 0 )
+	if ( strcmp( folder_name, "application" ) == 0 )
 	{
 		sprintf(table_name,
 			"%s_application",

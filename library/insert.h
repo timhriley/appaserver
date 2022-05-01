@@ -21,7 +21,7 @@ typedef struct
 /* Usage */
 /* ----- */
 INSERT_DATA *insert_data_extract(
-			DICTIONARY *dictionary_separate_row_zero,
+			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_row,
 			char *attribute_name );
 
@@ -71,8 +71,9 @@ INSERT_ROW *insert_row_new(
 			char *role_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_name_list,
-			DICTIONARY *dictionary_separate_row_zero,
+			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_row,
+			LIST *ignore_name_list,
 			char *process_name,
 			char *post_change_command_line );
 
@@ -132,13 +133,25 @@ INSERT *insert_new(	char *application_name,
 			char *folder_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_name_list,
-			DICTIONARY *dictionary_separate_row_zero,
+			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_multi_row,
+			LIST *ignore_name_list,
 			char *process_name,
 			char *post_change_command_line );
 
 /* Process */
 /* ------- */
 INSERT *insert_calloc( 	void );
+
+/* Driver */
+/* ------ */
+
+/* Returns sql_error_message_list_string */
+/* ------------------------------------- */
+char *insert_sql_execute(
+			LIST *insert_row_list );
+
+void insert_command_line_execute(
+			LIST *insert_row_list );
 
 #endif

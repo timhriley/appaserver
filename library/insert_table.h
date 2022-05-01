@@ -26,27 +26,25 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	LIST *role_folder_list;
-	DICTIONARY_SEPARATE_INSERT_TABLE *dictionary_separate;
+	DICTIONARY_SEPARATE_INSERT_TABLE *dictionary_separate_insert_table;
 	boolean forbid;
 } INSERT_TABLE;
-
-/* INSERT_TABLE operations */
-/* ----------------------- */
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-INSERT_TABLE *insert_table_output_new(
+INSERT_TABLE *insert_table_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
 			char *target_frame,
 			char *message,
-			POST_DICTIONARY *post_dictionary );
+			boolean menu_horizontal_boolean,
+			DICTIONARY *original_post_dictionary );
 
 /* Process */
 /* ------- */
@@ -60,10 +58,11 @@ boolean insert_table_forbid(
 /* ------------------- */
 char *insert_table_output_system_string(
 			char *insert_table_output_executable,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
+			char *folder_name,
+			char *target_frame,
 			char *dictionary_separate_send_string,
 			char *appaserver_error_filename );
 

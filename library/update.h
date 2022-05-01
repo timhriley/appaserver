@@ -19,16 +19,15 @@
 
 typedef struct
 {
-	/* Attribute */
-	/* --------- */
+	/* Attributes */
+	/* ---------- */
+	int row_number;
 	FOLDER_ATTRIBUTE *folder_attribute;
 
 	/* Process */
 	/* ------- */
 	char *post_data;
-	char *sql_injection_escape_post_data;
 	char *file_data;
-	char *sql_injection_escape_file_data;
 } UPDATE_ATTRIBUTE;
 
 /* UPDATE_ATTRIBUTE operations */
@@ -37,16 +36,16 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *update_attribute_list(
-			DICTIONARY *post_dictionary,
+			DICTIONARY *dictionary_separate_row,
 			DICTIONARY *file_dictionary,
-			LIST *folder_attribute_append_isa_list,
-			int row );
+			int row_number,
+			LIST *folder_attribute_append_isa_list );
 
 UPDATE_ATTRIBUTE *update_attribute_new(
 			DICTIONARY *post_dictionary,
 			DICTIONARY *file_dictionary,
-			FOLDER_ATTRIBUTE *folder_attribute,
-			int row );
+			int row_number,
+			FOLDER_ATTRIBUTE *folder_attribute );
 
 /* Process */
 /* ------- */
@@ -91,7 +90,7 @@ UPDATE_WHERE *update_where_calloc(
 char *update_where_clause(
 			char *key,
 			char *datatype_name,
-			char *sql_injection_escape_file_data );
+			char *file_data );
 
 /* Public */
 /* ------ */
@@ -135,15 +134,15 @@ UPDATE_CHANGED *update_changed_calloc(
 			void );
 
 boolean update_changed_boolean(
-			char *sql_injection_escape_file_data,
-			char *sql_injection_escape_post_data );
+			char *file_data,
+			char *post_data );
 
 /* Returns heap memory */
 /* ------------------- */
 char *update_changed_set_clause(
 			char *attribute_name,
 			char *datatype_name,
-			char *sql_injection_escape_post_data );
+			char *post_data );
 
 /* Public */
 /* ------ */
@@ -381,7 +380,7 @@ typedef struct
 {
 	/* Attribute */
 	/* --------- */
-	int row;
+	int row_number;
 
 	/* Process */
 	/* ------- */
@@ -400,7 +399,7 @@ typedef struct
 UPDATE_ROW *update_row_new(
 			char *application_name,
 			char *login_name,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *dictionary_separate_row,
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -458,6 +457,8 @@ typedef struct
 {
 	LIST *list;
 	int dictionary_highest_row;
+	int row_number;
+	DICTIONARY *dictionary_separate_row;
 	int cell_count;
 } UPDATE_ROW_LIST;
 
@@ -472,7 +473,7 @@ typedef struct
 UPDATE_ROW_LIST *update_row_list_new(
 			char *application_name,
 			char *login_name,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *multi_row_dictionary,
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -574,7 +575,7 @@ typedef struct
 /* ----- */
 UPDATE *update_new(	char *application_name,
 			char *login_name,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *multi_row_dictionary,
 			DICTIONARY *file_dictionary,
 			ROLE *role,
 			FOLDER *folder );

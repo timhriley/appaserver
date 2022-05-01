@@ -152,7 +152,10 @@ PROMPT_INSERT *prompt_insert_new(
 			folder_attribute_date_name_list(
 				prompt_insert->
 					folder->
-					folder_attribute_append_isa_list ) );
+					folder_attribute_append_isa_list ),
+			prompt_insert->
+				folder->
+				folder_attribute_append_isa_list );
 
 	prompt_insert->title_html =
 		/* --------------------- */

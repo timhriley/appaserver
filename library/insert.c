@@ -22,31 +22,25 @@ INSERT *insert_new(	char *application_name,
 			char *folder_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_name_list,
-			DICTIONARY *dictionary_separate_row_zero,
+			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_multi_row,
+			LIST *ignore_name_list,
 			char *process_name,
 			char *post_change_command_line )
 {
 	INSERT *insert = insert_calloc();
 
-	insert->dictionary_highest_row =
-		dictionary_highest_row(
-			dictionary_separate_multi_row );
-
-	if ( insert->dictionary_highest_row < 0 )
-	{
-		free( insert );
-		return (INSERT *)0;
-	}
-
 	insert->insert_row_list = list_new();
 
 	insert->folder_table_name =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
 		folder_table_name(
 			application_name,
 			folder_name );
 
-	if ( insert->dictionary_highest_row == 0 )
+	if ( !dictionary_separate_multi_row )
 	{
 		insert->insert_row =
 			insert_row_new(
@@ -57,8 +51,9 @@ INSERT *insert_new(	char *application_name,
 				role_name,
 				primary_key_list,
 				folder_attribute_name_list,
-				dictionary_separate_row_zero,
+				row_zero_dictionary,
 				(DICTIONARY *)0 /* dictionary_separate_row */,
+				ignore_name_list,
 				process_name,
 				post_change_command_line );
 
@@ -71,6 +66,17 @@ INSERT *insert_new(	char *application_name,
 	}
 	else
 	{
+		insert->dictionary_highest_row =
+			dictionary_highest_row(
+				dictionary_separate_multi_row );
+
+		if ( insert->dictionary_highest_row < 1 )
+		{
+			list_free( insert->insert_row_list );
+			free( insert );
+			return (INSERT *)0;
+		}
+
 		for (	insert->row_number = 1;
 			insert->row_number <= insert->dictionary_highest_row;
 			insert->row_number++ )
@@ -97,8 +103,9 @@ INSERT *insert_new(	char *application_name,
 					role_name,
 					primary_key_list,
 					folder_attribute_name_list,
-					dictionary_separate_row_zero,
+					row_zero_dictionary,
 					insert->dictionary_separate_row,
+					ignore_name_list,
 					process_name,
 					post_change_command_line );
 
@@ -115,7 +122,7 @@ INSERT *insert_new(	char *application_name,
 	{
 		list_free( insert->insert_row_list );
 		free( insert );
-		return (INSERT *)0;
+		insert = (INSERT *)0;
 	}
 
 	return insert;
@@ -210,13 +217,15 @@ INSERT_ROW *insert_row_new(
 			char *role_name,
 			LIST *primary_key_list,
 			LIST *folder_attribute_name_list,
-			DICTIONARY *dictionary_separate_row_zero,
+			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_row,
+			LIST *ignore_name_list,
 			char *process_name,
 			char *post_change_command_line )
 {
 	INSERT_ROW *insert_row;
 	INSERT_DATA *insert_data;
+	char *attribute_name;
 
 	if ( !folder_table_name
 	||   !session_key
@@ -233,7 +242,7 @@ INSERT_ROW *insert_row_new(
 		exit( 1 );
 	}
 
-	if ( !dictionary_length( dictionary_separate_row_zero )
+	if ( !dictionary_length( row_zero_dictionary )
 	&&   !dictionary_length( dictionary_separate_row ) )
 	{
 		return (INSERT_ROW *)0;
@@ -243,16 +252,24 @@ INSERT_ROW *insert_row_new(
 	insert_row->insert_data_list = list_new();
 
 	do {
-		if ( ( insert_data =
-			insert_data_extract(
-				dictionary_separate_row_zero,
-				dictionary_separate_row,
-				(char *)list_get(
-					folder_attribute_name_list ) ) ) )
+		attribute_name =
+			list_get(
+				folder_attribute_name_list );
+
+		if ( !list_string_exists(
+			attribute_name,
+			ignore_name_list ) )
 		{
-			list_set(
-				insert_row->insert_data_list,
-				insert_data );
+			if ( ( insert_data =
+				insert_data_extract(
+					row_zero_dictionary,
+					dictionary_separate_row,
+					attribute_name ) ) )
+			{
+				list_set(
+					insert_row->insert_data_list,
+					insert_data );
+			}
 		}
 
 	} while ( list_next( folder_attribute_name_list ) );
@@ -562,7 +579,7 @@ INSERT_DATA *insert_data_new(
 }
 
 INSERT_DATA *insert_data_extract(
-			DICTIONARY *dictionary_separate_row_zero,
+			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_row,
 			char *attribute_name )
 {
@@ -571,7 +588,7 @@ INSERT_DATA *insert_data_extract(
 	if ( ( data =
 		dictionary_get(
 			attribute_name,
-			dictionary_separate_row_zero ) ) )
+			row_zero_dictionary ) ) )
 	{
 		return
 		insert_data_new(
@@ -658,5 +675,79 @@ LIST *insert_data_key_data_list(
 	} while ( list_next( primary_key_list ) );
 
 	return data_list;
+}
+
+char *insert_sql_execute( LIST *insert_row_list )
+{
+	INSERT_ROW *insert_row;
+	char system_string[ 128 ];
+	FILE *output_pipe;
+	char *temp_filename = timlib_temp_filename( "insert" /* key */ );
+
+	if ( !list_rewind( insert_row_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: insert_row_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"sql 2>%s",
+		temp_filename );
+
+	output_pipe = popen( system_string, "w" );
+
+	do {
+		insert_row = list_get( insert_row_list );
+
+		if ( !insert_row->sql_statement )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+
+			pclose( output_pipe );
+			exit( 1 );
+		}
+
+		fprintf(output_pipe,
+			"%s\n",
+			insert_row->sql_statement );
+
+	} while ( list_next( insert_row_list ) );
+
+	pclose( output_pipe );
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	string_file_fetch(
+		temp_filename,
+		"\n<br>" /* delimiter */ );
+}
+
+void insert_command_line_execute( LIST *insert_row_list )
+{
+	INSERT_ROW *insert_row;
+
+	if ( !list_rewind( insert_row_list ) ) return;
+
+	do {
+		insert_row =
+			list_get(
+				insert_row_list );
+
+		if ( insert_row->command_line )
+		{
+			if ( system( insert_row->command_line ) ){}
+		}
+
+	} while ( list_next( insert_row_list ) );
 }
 

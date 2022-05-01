@@ -1524,6 +1524,44 @@ int string_row_number( char *attribute_name )
 	return -1;
 }
 
+char *string_file_fetch(char *filename,
+			char *delimiter )
+{
+	char string[ STRING_64K ];
+	char input[ 1024 ];
+	char *ptr = string;
+	FILE *file;
+
+	if ( !delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: delimiter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( file = fopen( filename, "r" ) ) ) return (char *)0;
+
+	while( string_input( input, file, 1024 ) )
+	{
+		if ( ptr != string ) ptr += sprintf( ptr, "%s", delimiter );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			input );
+	}
+
+	fclose( file );
+
+	if ( ptr == string )
+		return (char *)0;
+	else
+		return strdup( string );
+}
+
 char *string_append(	char *message_list_string,
 			char *message_string,
 			char *delimiter )

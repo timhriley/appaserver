@@ -66,6 +66,8 @@ int main( int argc, char **argv )
 					application_name ) );
 	}
 
+	return 0;
+}
 
 #ifdef NOT_DEFINED
 	vertical_new_post_prompt_insert =
@@ -444,10 +446,10 @@ int main( int argc, char **argv )
 execute_sys_string:
 
 	if ( system( sys_string ) ){};
-#endif
 
 	return 0;
 }
+#endif
 
 #ifdef NOT_DEFINED
 int post_prompt_insert_database(

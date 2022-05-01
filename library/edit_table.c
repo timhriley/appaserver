@@ -119,7 +119,10 @@ EDIT_TABLE *edit_table_new(
 			folder_attribute_date_name_list(
 				edit_table->
 					folder->
-					folder_attribute_append_isa_list ) );
+					folder_attribute_append_isa_list ),
+			edit_table->
+				folder->
+				folder_attribute_append_isa_list );
 
 	edit_table->folder_attribute_date_name_list_length =
 		list_length(

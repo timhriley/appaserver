@@ -11,6 +11,7 @@
 #include "session.h"
 #include "role.h"
 #include "folder.h"
+#include "insert.h"
 #include "post_dictionary.h"
 #include "dictionary_separate.h"
 
@@ -26,6 +27,7 @@ typedef struct
 	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 		dictionary_separate_post_prompt_insert;
 
+	INSERT *insert;
 } POST_PROMPT_INSERT;
 
 /* POST_PROMPT_INSERT operations */

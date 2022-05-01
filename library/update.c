@@ -24,6 +24,7 @@
 #include "appaserver_user.h"
 #include "sql.h"
 #include "appaserver_parameter.h"
+#include "dictionary_separate.h"
 #include "update.h"
 
 UPDATE *update_calloc( void )
@@ -60,7 +61,7 @@ UPDATE_ROOT *update_root_calloc( void )
 
 UPDATE *update_new(	char *application_name,
 			char *login_name,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *multi_row_dictionary,
 			DICTIONARY *file_dictionary,
 			ROLE *role,
 			FOLDER *folder )
@@ -81,9 +82,9 @@ UPDATE *update_new(	char *application_name,
 		exit( 1 );
 	}
 
-	if ( !post_dictionary ) return (UPDATE *)0;
+	if ( !dictionary_length( multi_row_dictionary ) ) return (UPDATE *)0;
 
-	if ( !file_dictionary ) return (UPDATE *)0;
+	if ( !dictionary_length( file_dictionary ) ) return (UPDATE *)0;
 
 	if ( !role_folder_update(
 		folder->role_folder_list ) )
@@ -106,7 +107,7 @@ UPDATE *update_new(	char *application_name,
 		update_row_list_new(
 			application_name,
 			login_name,
-			post_dictionary,
+			multi_row_dictionary,
 			file_dictionary,
 			folder->folder_name,
 			folder->folder_attribute_append_isa_list,
@@ -298,7 +299,7 @@ UPDATE_ROOT *update_root_new(
 UPDATE_ROW *update_row_new(
 			char *application_name,
 			char *login_name,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *dictionary_separate_row,
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -307,18 +308,18 @@ UPDATE_ROW *update_row_new(
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
 			char *appaserver_error_filename,
-			int row )
+			int row_number )
 {
 	UPDATE_ROW *update_row = update_row_calloc();
 
-	update_row->row = row;
+	update_row->row_number = row_number;
 
 	update_row->update_attribute_list =
 		update_attribute_list(
-			post_dictionary,
+			dictionary_separate_row,
 			file_dictionary,
-			folder_attribute_append_isa_list,
-			row );
+			row_number,
+			folder_attribute_append_isa_list );
 
 	if ( !list_length( update_row->update_attribute_list ) )
 	{
@@ -723,7 +724,7 @@ UPDATE_ROW_LIST *update_row_list_calloc( void )
 UPDATE_ROW_LIST *update_row_list_new(
 			char *application_name,
 			char *login_name,
-			DICTIONARY *post_dictionary,
+			DICTIONARY *multi_row_dictionary,
 			DICTIONARY *file_dictionary,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -734,11 +735,11 @@ UPDATE_ROW_LIST *update_row_list_new(
 			char *appaserver_error_filename )
 {
 	UPDATE_ROW_LIST *update_row_list = update_row_list_calloc();
-	int row;
+	LIST *name_list;
 
 	if ( ( update_row_list->dictionary_highest_row =
 		dictionary_highest_row(
-			post_dictionary ) ) == -1 )
+			multi_row_dictionary ) ) < 1 )
 	{
 		free( update_row_list );
 		return (UPDATE_ROW_LIST *)0;
@@ -746,16 +747,27 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 	update_row_list->list = list_new();
 
-	for(	row = 1;
-		row <= update_row_list->dictionary_highest_row;
-		row++ )
+	name_list =
+		folder_attribute_name_list(
+			folder_attribute_append_isa_list );
+
+	for(	update_row_list->row_number = 1;
+		update_row_list->row_number <=
+			update_row_list->dictionary_highest_row;
+		update_row_list->row_number++ )
 	{
+		update_row_list->dictionary_separate_row =
+			dictionary_separate_row(
+				name_list,
+				multi_row_dictionary,
+				update_row_list->row_number );
+
 		list_set(
 			update_row_list->list,
 			update_row_new(
 				application_name,
 				login_name,
-				post_dictionary,
+				update_row_list->dictionary_separate_row,
 				file_dictionary,
 				folder_name,
 				folder_attribute_append_isa_list,
@@ -764,7 +776,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 				post_change_process,
 				security_entity,
 				appaserver_error_filename,
-				row ) );
+				update_row_list->row_number ) );
 	}
 
 	if ( list_length( update_row_list->list ) )
@@ -1067,27 +1079,6 @@ char *update_root_where_clause(
 	}
 }
 
-char *update_execute( char *sql_statement )
-{
-	char system_string[ 1024 ];
-
-	if ( !sql_statement || !*sql_statement )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: sql_statement is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(system_string,
-		"echo \"%s\" | sql 2>&1",
-		sql_statement );
-
-	return string_pipe_fetch( system_string );
-}
-
 void update_row_list_command_line_execute(
 			LIST *command_line_list )
 {
@@ -1100,7 +1091,7 @@ void update_row_list_command_line_execute(
 			list_get(
 				command_line_list );
 
-		if ( system( command_line ) ){};
+		if ( system( command_line ) ){}
 
 	} while ( list_next( command_line_list ) );
 }
@@ -1262,10 +1253,10 @@ char *update_command_line(
 			exit( 1 );
 		}
 
-		if ( !update_attribute->sql_injection_escape_file_data )
+		if ( !update_attribute->file_data )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: sql_injection_escape_file_data is empty.\n",
+				"ERROR in %s/%s()/%d: file_data is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -1274,19 +1265,19 @@ char *update_command_line(
 
 		if ( update_changed_boolean(
 			update_attribute->
-				sql_injection_escape_file_data,
+				file_data,
 			update_attribute->
-				sql_injection_escape_post_data ) )
+				post_data ) )
 		{
 			data =
 				update_attribute->
-					sql_injection_escape_post_data;
+					post_data;
 		}
 		else
 		{
 			data =
 				update_attribute->
-					sql_injection_escape_file_data;
+					file_data;
 		}
 
 		string_search_replace(
@@ -1307,7 +1298,7 @@ char *update_command_line(
 			double_quotes_around(
 				buffer,
 				update_attribute->
-					sql_injection_escape_file_data ) );
+					file_data ) );
 
 	} while ( list_next( update_attribute_list ) );
 
@@ -1541,21 +1532,21 @@ LIST *update_one2m_changed_list(
 						attribute->
 						datatype_name;
 
-			/* For debugging; file_data isn't used. */
-			/* ------------------------------------ */
+			/* This is for debugging; file_data isn't used. */
+			/* -------------------------------------------- */
 			changed_foreign->
 				update_attribute->
-				sql_injection_escape_file_data =
+				file_data =
 					changed_primary->
 						update_attribute->
-						sql_injection_escape_file_data;
+						file_data;
 
 			changed_foreign->
 				update_attribute->
-				sql_injection_escape_post_data =
+				post_data =
 					changed_primary->
 						update_attribute->
-						sql_injection_escape_post_data;
+						post_data;
 
 			changed_foreign->set_clause =
 				/* ------------------- */
@@ -1573,7 +1564,7 @@ LIST *update_one2m_changed_list(
 						datatype_name,
 					changed_foreign->
 					       update_attribute->
-					       sql_injection_escape_post_data );
+					       post_data );
 
 			list_set(
 				one2m_changed_list,
@@ -1675,17 +1666,17 @@ LIST *update_one2m_where_list(
 
 		where_foreign->
 			update_attribute->
-			sql_injection_escape_file_data =
+			file_data =
 				where_primary->
 					update_attribute->
-					sql_injection_escape_file_data;
+					file_data;
 
 		where_foreign->
 			update_attribute->
-			sql_injection_escape_post_data =
+			post_data =
 				where_primary->
 					update_attribute->
-					sql_injection_escape_post_data;
+					post_data;
 
 		where_foreign->clause =
 			/* ------------------- */
@@ -1700,7 +1691,7 @@ LIST *update_one2m_where_list(
 					datatype_name,
 				where_foreign->
 					update_attribute->
-					sql_injection_escape_file_data );
+					file_data );
 
 		list_set( one2m_where_list, where_foreign );
 
@@ -1878,7 +1869,7 @@ UPDATE_WHERE *update_where_new(
 				datatype_name,
 			update_where->
 				update_attribute->
-				sql_injection_escape_file_data );
+				file_data );
 
 	return update_where;
 }
@@ -1903,13 +1894,13 @@ UPDATE_WHERE *update_where_calloc( void )
 char *update_where_clause(
 			char *key,
 			char *datatype_name,
-			char *sql_injection_escape_file_data )
+			char *file_data )
 {
 	char clause[ 1024 ];
 
 	if ( !key
 	||   !datatype_name
-	||   !sql_injection_escape_file_data )
+	||   !file_data )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1924,14 +1915,14 @@ char *update_where_clause(
 		sprintf(clause,
 			"%s = %s",
 			key,
-			sql_injection_escape_file_data );
+			file_data );
 	}
 	else
 	{
 		sprintf(clause,
 			"%s = '%s'",
 			key,
-			sql_injection_escape_file_data );
+			file_data );
 	}
 
 	return strdup( clause );
@@ -2052,10 +2043,10 @@ UPDATE_CHANGED *update_changed_new(
 		update_changed_boolean(
 			update_changed->
 				update_attribute->
-				sql_injection_escape_file_data,
+				file_data,
 			update_changed->
 				update_attribute->
-				sql_injection_escape_post_data );
+				post_data );
 
 	if ( !update_changed->update_changed_boolean )
 	{
@@ -2090,7 +2081,7 @@ UPDATE_CHANGED *update_changed_new(
 				datatype_name,
 			update_changed->
 				update_attribute->
-				sql_injection_escape_post_data );
+				post_data );
 
 	return update_changed;
 }
@@ -2113,19 +2104,18 @@ UPDATE_CHANGED *update_changed_calloc( void )
 }
 
 boolean update_changed_boolean(
-			char *sql_injection_escape_file_data,
-			char *sql_injection_escape_post_data )
+			char *file_data,
+			char *post_data )
 {
-	if ( !sql_injection_escape_post_data
-	&&   !*sql_injection_escape_post_data )
+	if ( !post_data || !*post_data )
 	{
 		return 0;
 	}
 
 	return
 	( string_strcmp(
-		sql_injection_escape_file_data,
-		sql_injection_escape_post_data ) != 0 );
+		file_data,
+		post_data ) != 0 );
 }
 
 char *update_changed_set_clause(
@@ -2187,10 +2177,10 @@ LIST *update_changed_primary_data_list(
 		if ( !update_changed->update_attribute
 		||   !update_changed->
 			update_attribute->
-			sql_injection_escape_post_data )
+			post_data )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: sql_injection_escape_post_data is empty.\n",
+				"ERROR in %s/%s()/%d: post_data is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -2201,7 +2191,7 @@ LIST *update_changed_primary_data_list(
 			data_list,
 			update_changed->
 				update_attribute->
-				sql_injection_escape_post_data );
+				post_data );
 
 	} while ( list_next( update_changed_list ) );
 
@@ -2303,10 +2293,10 @@ char *update_where_primary_data_list_string(
 		if ( !update_where->update_attribute
 		||   !update_where->
 			update_attribute->
-			sql_injection_escape_file_data )
+			file_data )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: sql_injection_escape_file_data is empty.\n",
+				"ERROR in %s/%s()/%d: file_data is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -2324,22 +2314,22 @@ char *update_where_primary_data_list_string(
 		if ( update_changed_boolean(
 			update_where->
 				update_attribute->
-				sql_injection_escape_file_data,
+				file_data,
 			update_where->
 				update_attribute->
-				sql_injection_escape_post_data ) )
+				post_data ) )
 		{
 			data =
 				update_where->
 					update_attribute->
-					sql_injection_escape_post_data;
+					post_data;
 		}
 		else
 		{
 			data =
 				update_where->
 					update_attribute->
-					sql_injection_escape_file_data;
+					file_data;
 		}
 
 		ptr += sprintf(
@@ -2353,10 +2343,10 @@ char *update_where_primary_data_list_string(
 }
 
 LIST *update_attribute_list(
-			DICTIONARY *post_dictionary,
+			DICTIONARY *dictionary_separate_row,
 			DICTIONARY *file_dictionary,
-			LIST *folder_attribute_append_isa_list,
-			int row )
+			int row_number,
+			LIST *folder_attribute_append_isa_list )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
 	LIST *attribute_list;
@@ -2383,10 +2373,10 @@ LIST *update_attribute_list(
 		list_set(
 			attribute_list,
 			update_attribute_new(
-				post_dictionary,
+				dictionary_separate_row,
 				file_dictionary,
-				folder_attribute,
-				row ) );
+				row_number,
+				folder_attribute ) );
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
@@ -2394,10 +2384,10 @@ LIST *update_attribute_list(
 }
 
 UPDATE_ATTRIBUTE *update_attribute_new(
-			DICTIONARY *post_dictionary,
+			DICTIONARY *dictionary_separate_row,
 			DICTIONARY *file_dictionary,
-			FOLDER_ATTRIBUTE *folder_attribute,
-			int row )
+			int row_number,
+			FOLDER_ATTRIBUTE *folder_attribute )
 {
 	UPDATE_ATTRIBUTE *update_attribute = update_attribute_calloc();
 
@@ -2415,26 +2405,17 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 	}
 
 	update_attribute->folder_attribute = folder_attribute;
+	update_attribute->row_number = row_number;
 
 	update_attribute->post_data =
-		dictionary_row(
+		dictionary_get(
 			folder_attribute->attribute_name,
-			row,
-			post_dictionary );
-
-	update_attribute->sql_injection_escape_post_data =
-		security_sql_injection_escape(
-			security_replace_special_characters(
-				string_trim_number_characters(
-					update_attribute->post_data,
-					folder_attribute->
-						attribute->
-						datatype_name ) ) );
+			dictionary_separate_row );
 
 	update_attribute->file_data =
 		dictionary_row(
 			folder_attribute->attribute_name,
-			row,
+			row_number,
 			file_dictionary );
 
 	if ( !update_attribute->file_data )
@@ -2445,16 +2426,12 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 			__FUNCTION__,
 			__LINE__,
 			folder_attribute->attribute_name,
-			row,
+			row_number,
 			dictionary_display_delimiter(
 				file_dictionary,
 				SQL_DELIMITER ) );
 		exit( 1 );
 	}
-
-	update_attribute->sql_injection_escape_file_data =
-		security_sql_injection_escape(
-			update_attribute->file_data );
 
 	return update_attribute;
 }
@@ -2479,8 +2456,8 @@ LIST *update_attribute_data_list( LIST *update_attribute_list )
 	do {
 		update_attribute = list_get( update_attribute_list );
 
-		if ( !update_attribute->sql_injection_escape_file_data
-		&&   !update_attribute->sql_injection_escape_post_data )
+		if ( !update_attribute->file_data
+		&&   !update_attribute->post_data )
 		{
 			fprintf(stderr,
 	"ERROR in %s/%s()/%d: both file_data and post_data are empty.\n",
@@ -2491,20 +2468,20 @@ LIST *update_attribute_data_list( LIST *update_attribute_list )
 		}
 
 		if ( update_changed_boolean(
-			update_attribute->sql_injection_escape_file_data,
-			update_attribute->sql_injection_escape_post_data ) )
+			update_attribute->file_data,
+			update_attribute->post_data ) )
 		{
 			list_set(
 				data_list,
 				update_attribute->
-					sql_injection_escape_post_data );
+					post_data );
 		}
 		else
 		{
 			list_set(
 				data_list,
 				update_attribute->
-					sql_injection_escape_file_data );
+					file_data );
 		}
 
 	} while ( list_next( update_attribute_list ) );
@@ -2618,7 +2595,7 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 				many_folder_name,
 				primary_key );
 
-		update_attribute->sql_injection_escape_file_data =
+		update_attribute->file_data =
 			list_get( primary_data_list );
 
 		if ( ( update_changed =
@@ -2627,17 +2604,17 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 				update_one2m_changed_list ) ) )
 		{
 			update_attribute->
-				sql_injection_escape_post_data =
+				post_data =
 					update_changed->
 						update_attribute->
-						sql_injection_escape_post_data;
+						post_data;
 		}
 		else
 		{
 			update_attribute->
-				sql_injection_escape_post_data =
+				post_data =
 					update_attribute->
-						sql_injection_escape_file_data;
+						file_data;
 		}
 
 		list_set(
@@ -2813,10 +2790,10 @@ char *update_one2m_row_where( UPDATE_ONE2M_ROW *update_one2m_row )
 			exit( 1 );
 		}
 
-		if ( !update_attribute->sql_injection_escape_file_data )
+		if ( !update_attribute->file_data )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: file_data is empty.\n",
+				"ERROR in %s/%s()/%d: file_data is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -2840,7 +2817,7 @@ char *update_one2m_row_where( UPDATE_ONE2M_ROW *update_one2m_row )
 					attribute->
 					datatype_name,
 				     update_attribute->
-					sql_injection_escape_file_data ) ) );
+					file_data ) ) );
 
 		if ( tmp ) free( tmp );
 

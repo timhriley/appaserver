@@ -106,10 +106,9 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_name_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *operation_name_list,
+			LIST *role_operation_name_list,
 			LIST *folder_attribute_date_name_list,
-			LIST *folder_attribute_list )
+			LIST *folder_attribute_append_isa_list )
 {
 	DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 		dictionary_separate_post_edit_table =
@@ -145,7 +144,7 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 			dictionary_separate_post_edit_table->
 				date_convert->
 				dictionary,
-			folder_attribute_list );
+			folder_attribute_append_isa_list );
 
 	dictionary_separate_post_edit_table->sort_dictionary =
 		dictionary_separate_remove_prefix(
@@ -197,14 +196,20 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 	dictionary_separate_post_edit_table->multi_row_dictionary =
 		dictionary_separate_multi_row(
 			folder_attribute_name_list,
-			relation_mto1_non_isa_list,
+			dictionary_separate_post_edit_table->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_edit_table->row_zero_dictionary =
+		dictionary_separate_row_zero(
+			folder_attribute_name_list,
 			dictionary_separate_post_edit_table->
 				sql_injection_escape->
 				dictionary );
 
 	dictionary_separate_post_edit_table->operation_dictionary =
 		dictionary_separate_operation(
-			operation_name_list,
+			role_operation_name_list,
 			dictionary_separate_post_edit_table->
 				sql_injection_escape->
 				dictionary );
@@ -318,7 +323,7 @@ DICTIONARY_SEPARATE_DATE_CONVERT *
 }
 
 DICTIONARY *dictionary_separate_operation(
-			LIST *operation_name_list,
+			LIST *role_operation_name_list,
 			DICTIONARY *dictionary )
 {
 	DICTIONARY *destination_dictionary = {0};
@@ -327,7 +332,8 @@ DICTIONARY *dictionary_separate_operation(
 	char *key;
 	char key_buffer[ 128 ];
 
-	if ( !list_length( operation_name_list ) ) return (DICTIONARY *)0;
+	if ( !list_length( role_operation_name_list ) )
+		return (DICTIONARY *)0;
 
 	key_list = dictionary_key_list( dictionary );
 
@@ -339,10 +345,12 @@ DICTIONARY *dictionary_separate_operation(
 		strcpy( key_buffer, key );
 		string_trim_index( key_buffer );
 
-		list_rewind( operation_name_list );
+		list_rewind( role_operation_name_list );
 
 		do {
-			operation_name = list_get( operation_name_list );
+			operation_name =
+				list_get(
+					role_operation_name_list );
 
 			if ( strcmp(
 				operation_name,
@@ -359,7 +367,7 @@ DICTIONARY *dictionary_separate_operation(
 					key,
 					"yes" );
 			}
-		} while ( list_next( operation_name_list ) );
+		} while ( list_next( role_operation_name_list ) );
 
 	} while( list_next( key_list ) );
 
@@ -379,7 +387,7 @@ DICTIONARY *dictionary_separate_remove_prefix(
 }
 
 DICTIONARY *dictionary_separate_row(
-			LIST *attribute_name_list,
+			LIST *folder_attribute_name_list,
 			DICTIONARY *multi_row_dictionary,
 			int row_number )
 {
@@ -388,14 +396,17 @@ DICTIONARY *dictionary_separate_row(
 	char key[ 128 ];
 	char *data;
 
-	if ( !list_rewind( attribute_name_list ) ) return (DICTIONARY *)0;
+	if ( !list_rewind( folder_attribute_name_list ) )
+		return (DICTIONARY *)0;
+
 	if ( !multi_row_dictionary ) return (DICTIONARY *)0;
+
 	if ( row_number < 0 ) return (DICTIONARY *)0;
 
 	return_dictionary = dictionary_small();
 
 	do {
-		attribute_name = list_get( attribute_name_list );
+		attribute_name = list_get( folder_attribute_name_list );
 
 		sprintf( key, "%s_%d", attribute_name, row_number );
 
@@ -406,7 +417,7 @@ DICTIONARY *dictionary_separate_row(
 				attribute_name,
 				data );
 		}
-	} while( list_next( attribute_name_list ) );
+	} while( list_next( folder_attribute_name_list ) );
 
 	return return_dictionary;
 }
@@ -844,7 +855,7 @@ char *dictionary_separate_hidden_html(
 	return strdup( html );
 }
 
-void dictionary_separate_multi_row_attribute(
+DICTIONARY *dictionary_separate_multi_row_attribute(
 			DICTIONARY *destination_dictionary,
 			LIST *attribute_name_list,
 			DICTIONARY *source_dictionary,
@@ -885,54 +896,29 @@ void dictionary_separate_multi_row_attribute(
 				data );
 		}
 	} while ( list_next( attribute_name_list ) );
+
+	return destination_dictionary;
 }
 
-void dictionary_separate_multi_row_relation(
-			DICTIONARY *destination_dictionary,
-			LIST *relation_mto1_non_isa_list,
-			DICTIONARY *source_dictionary,
-			int row_number )
+DICTIONARY *dictionary_separate_row_zero(
+			LIST *folder_attribute_name_list,
+			DICTIONARY *dictionary )
 {
-	RELATION *relation;
+	DICTIONARY *destination_dictionary = dictionary_small();
 
-	if ( !destination_dictionary || !source_dictionary )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( relation_mto1_non_isa_list ) ) return;
-
-	do {
-		relation = list_get( relation_mto1_non_isa_list );
-
-		if ( !list_length( relation->foreign_key_list ) )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		dictionary_separate_multi_row_attribute(
-			destination_dictionary,
-			relation->foreign_key_list
-				/* attribute_name_list */,
-			source_dictionary,
-			row_number );
-
-	} while ( list_next( relation_mto1_non_isa_list ) );
+	return
+	/* ------------------------------ */
+	/* Returns destination_dictionary */
+	/* ------------------------------ */
+	dictionary_separate_multi_row_attribute(
+		destination_dictionary,
+		folder_attribute_name_list,
+		dictionary /* source_dictionary */,
+		0 /* row_number */ );
 }
 
 DICTIONARY *dictionary_separate_multi_row(
 			LIST *folder_attribute_name_list,
-			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *dictionary )
 {
 	int highest_row;
@@ -943,28 +929,19 @@ DICTIONARY *dictionary_separate_multi_row(
 		dictionary_highest_row(
 			dictionary );
 
-	if ( highest_row < 0 ) return (DICTIONARY *)0;
+	if ( highest_row < 1 ) return (DICTIONARY *)0;
 
 	destination_dictionary = dictionary_huge();
 
-	for(	row_number = 0;
+	for(	row_number = 1;
 		row_number <= highest_row;
 		row_number++ )
 	{
 		dictionary_separate_multi_row_attribute(
 			destination_dictionary,
-			folder_attribute_name_list
-				/* attribute_name_list */,
-			dictionary
-				/* source_dictionary */,
-			row_number );
-
-		dictionary_separate_multi_row_relation(
-			destination_dictionary,
-			relation_mto1_non_isa_list,
+			folder_attribute_name_list,
 			dictionary /* source_dictionary */,
 			row_number );
-
 	}
 
 	return destination_dictionary;
@@ -1049,7 +1026,7 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_date_name_list,
-			LIST *folder_attribute_list )
+			LIST *folder_attribute_append_isa_list )
 {
 	DICTIONARY_SEPARATE_EDIT_TABLE *
 		dictionary_separate_edit_table =
@@ -1085,7 +1062,7 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 			dictionary_separate_edit_table->
 				date_convert->
 				dictionary,
-			folder_attribute_list );
+			folder_attribute_append_isa_list );
 
 	dictionary_separate_edit_table->sort_dictionary =
 		dictionary_separate_remove_prefix(
@@ -1289,7 +1266,8 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_date_name_list,
-			LIST *folder_attribute_list )
+			LIST *folder_attribute_append_isa_list,
+			LIST *folder_attribute_name_list )
 {
 	DICTIONARY_SEPARATE_INSERT_TABLE *
 		dictionary_separate_insert_table =
@@ -1325,21 +1303,7 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			dictionary_separate_insert_table->
 				date_convert->
 				dictionary,
-			folder_attribute_list );
-
-	dictionary_separate_insert_table->sort_dictionary =
-		dictionary_separate_remove_prefix(
-			DICTIONARY_SEPARATE_SORT_PREFIX,
-			dictionary_separate_insert_table->
-				sql_injection_escape->
-				dictionary );
-
-	dictionary_separate_insert_table->query_dictionary =
-		dictionary_separate_remove_prefix(
-			DICTIONARY_SEPARATE_QUERY_PREFIX,
-			dictionary_separate_insert_table->
-				sql_injection_escape->
-				dictionary );
+			folder_attribute_append_isa_list );
 
 	dictionary_separate_insert_table->drillthru_dictionary =
 		dictionary_separate_remove_prefix(
@@ -1355,6 +1319,11 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 				sql_injection_escape->
 				dictionary );
 
+	dictionary_separate_insert_table->ignore_name_list =
+		dictionary_key_list(
+			dictionary_separate_insert_table->
+				ignore_dictionary );
+
 	dictionary_separate_insert_table->non_prefixed_dictionary =
 		dictionary_separate_non_prefixed(
 			DICTIONARY_SEPARATE_SORT_PREFIX,
@@ -1367,10 +1336,19 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 				sql_injection_escape->
 				dictionary );
 
-	dictionary_separate_insert_table->ignore_name_list =
-		dictionary_key_list(
+	dictionary_separate_insert_table->multi_row_dictionary =
+		dictionary_separate_multi_row(
+			folder_attribute_name_list,
 			dictionary_separate_insert_table->
-				ignore_dictionary );
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_insert_table->row_zero_dictionary =
+		dictionary_separate_row_zero(
+			folder_attribute_name_list,
+			dictionary_separate_insert_table->
+				sql_injection_escape->
+				dictionary );
 
 	return dictionary_separate_insert_table;
 }
@@ -1513,5 +1491,101 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 		exit( 1 );
 	}
 	return dictionary_separate_sql_injection_escape;
+}
+
+DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
+	dictionary_separate_post_prompt_insert_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_append_isa_list )
+{
+	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
+		dictionary_separate_post_prompt_insert =
+			dictionary_separate_post_prompt_insert_calloc();
+
+	if ( !dictionary_length( original_post_dictionary ) )
+	{
+		return dictionary_separate_post_prompt_insert;
+	}
+
+	dictionary_separate_post_prompt_insert->trim_double_bracket =
+		dictionary_separate_trim_double_bracket_new(
+			original_post_dictionary );
+
+	dictionary_separate_post_prompt_insert->parse_multi =
+		dictionary_separate_parse_multi_new(
+			dictionary_separate_post_prompt_insert->
+				trim_double_bracket->
+				dictionary,
+			SQL_DELIMITER );
+
+	dictionary_separate_post_prompt_insert->date_convert =
+		dictionary_separate_date_convert_new(
+			dictionary_separate_post_prompt_insert->
+				parse_multi->
+				dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list );
+
+	dictionary_separate_post_prompt_insert->sql_injection_escape =
+		dictionary_separate_sql_injection_escape_new(
+			dictionary_separate_post_prompt_insert->
+				date_convert->
+				dictionary,
+			folder_attribute_append_isa_list );
+
+	dictionary_separate_post_prompt_insert->drillthru_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			dictionary_separate_post_prompt_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_prompt_insert->row_zero_dictionary =
+		dictionary_separate_row_zero(
+			folder_attribute_name_list,
+			dictionary_separate_post_prompt_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_prompt_insert->ignore_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			dictionary_separate_post_prompt_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_prompt_insert->ignore_name_list =
+		dictionary_key_list(
+			dictionary_separate_post_prompt_insert->
+				ignore_dictionary );
+
+	return dictionary_separate_post_prompt_insert;
+}
+
+DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
+	dictionary_separate_post_prompt_insert_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
+		dictionary_separate_post_prompt_insert;
+
+	if ( ! ( dictionary_separate_post_prompt_insert =
+		     calloc(
+			1,
+			sizeof( DICTIONARY_SEPARATE_POST_PROMPT_INSERT ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+	return dictionary_separate_post_prompt_insert;
 }
 

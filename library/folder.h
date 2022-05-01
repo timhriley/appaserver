@@ -151,8 +151,8 @@ FOLDER *folder_parse(	char *input,
 long int folder_row_count(
 			char *folder_table_name );
 
-/* Returns static memory or null */
-/* ----------------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *folder_table_name(
 			char *application_name,
 			char *folder_name );

@@ -391,6 +391,7 @@ char *post_choose_folder_system_string(
 			login_name,
 			role_name,
 			folder_name,
+			FRAMESET_PROMPT_FRAME /* target_frame */,
 			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}

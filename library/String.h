@@ -277,6 +277,11 @@ char *string_append(	char *message_list_string,
 			char *message_string,
 			char *delimiter );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *string_file_fetch(char *filename,
+			char *delimiter );
+
 char string_last_character(
 			char *string );
 

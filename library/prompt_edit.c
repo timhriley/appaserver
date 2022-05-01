@@ -173,7 +173,10 @@ PROMPT_EDIT *prompt_edit_new(
 			folder_attribute_date_name_list(
 				prompt_edit->
 					folder->
-					folder_attribute_append_isa_list ) );
+					folder_attribute_append_isa_list ),
+			prompt_edit->
+				folder->
+				folder_attribute_append_isa_list );
 
 	prompt_edit->drillthru =
 		/* --------------- */
