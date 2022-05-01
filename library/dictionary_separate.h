@@ -258,9 +258,10 @@ typedef struct
 	DICTIONARY *ignore_dictionary;
 	LIST *ignore_name_list;
 
-	/* Not fetched; instead, later set from row_zero_dictionary */
-	/* -------------------------------------------------------- */
-	DICTIONARY *non_prefixed_dictionary;
+	/* Not fetched.							*/
+	/* Instead, later set by post_prompt_insert_query_dictionary()  */
+	/* ------------------------------------------------------------ */
+	DICTIONARY *query_dictionary;
 } DICTIONARY_SEPARATE_POST_PROMPT_INSERT;
 
 /* Usage */

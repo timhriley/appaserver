@@ -3033,7 +3033,7 @@ char *query_relation_yes_no_key(
 {
 	if ( attribute_is_yes_no( attribute_name ) )
 	{
-		return QUERY_EQUAL;
+		return APPASERVER_EQUAL;
 	}
 	else
 	{
@@ -3075,43 +3075,43 @@ enum query_relation query_relation_enum(
 		exit( 1 );
 	}
 
-	if ( strcmp( operator_fetch, QUERY_EQUAL ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_EQUAL ) == 0 )
 		query_relation = equal;
 	else
-	if ( strcmp( operator_fetch, QUERY_NOT_EQUAL ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_NOT_EQUAL ) == 0 )
 		query_relation = not_equal;
 	else
-	if ( strcmp( operator_fetch, QUERY_LESS_THAN ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_LESS_THAN ) == 0 )
 		query_relation = less_than;
 	else
-	if ( strcmp( operator_fetch, QUERY_LESS_THAN_EQUAL_TO ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_LESS_THAN_EQUAL_TO ) == 0 )
 		query_relation = less_than_equal_to;
 	else
-	if ( strcmp( operator_fetch, QUERY_GREATER_THAN ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_GREATER_THAN ) == 0 )
 		query_relation = greater_than;
 	else
-	if ( strcmp( operator_fetch, QUERY_GREATER_THAN_EQUAL_TO ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_GREATER_THAN_EQUAL_TO ) == 0 )
 		query_relation = greater_than_equal_to;
 	else
-	if ( strcmp( operator_fetch, QUERY_BETWEEN ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_BETWEEN ) == 0 )
 		query_relation = between;
 	else
-	if ( strcmp( operator_fetch, QUERY_BEGINS ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_BEGINS ) == 0 )
 		query_relation = begins;
 	else
-	if ( strcmp( operator_fetch, QUERY_CONTAINS ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_CONTAINS ) == 0 )
 		query_relation = contains;
 	else
-	if ( strcmp( operator_fetch, QUERY_NOT_CONTAINS ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_NOT_CONTAINS ) == 0 )
 		query_relation = not_contains;
 	else
-	if ( strcmp( operator_fetch, QUERY_OR ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_OR ) == 0 )
 		query_relation = query_or;
 	else
-	if ( strcmp( operator_fetch, QUERY_NULL ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_NULL ) == 0 )
 		query_relation = is_null;
 	else
-	if ( strcmp( operator_fetch, QUERY_NOT_NULL ) == 0 )
+	if ( strcmp( operator_fetch, APPASERVER_NOT_NULL ) == 0 )
 		query_relation = not_null;
 
 	if ( query_relation == equal

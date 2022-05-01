@@ -19,6 +19,8 @@
 
 typedef struct
 {
+	/* Process */
+	/* ------- */
 	SESSION_FOLDER *session_folder;
 	ROLE *role;
 	FOLDER *folder;
@@ -28,6 +30,12 @@ typedef struct
 		dictionary_separate_post_prompt_insert;
 
 	INSERT *insert;
+
+	/* Driver */
+	/* ------ */
+	char *sql_error_message_list_string;
+	char *edit_table_output_system_string;
+	char *insert_table_output_system_string;
 } POST_PROMPT_INSERT;
 
 /* POST_PROMPT_INSERT operations */
@@ -48,5 +56,10 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 /* ------- */
 POST_PROMPT_INSERT *post_prompt_insert_calloc(
 			void );
+
+DICTIONARY *post_prompt_insert_query_dictionary(
+			DICTIONARY *row_zero_dictionary,
+			char *appaserver_relation_operator_prefix,
+			char *appaserver_equal );
 
 #endif

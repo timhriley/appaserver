@@ -679,20 +679,12 @@ LIST *insert_data_key_data_list(
 
 char *insert_sql_execute( LIST *insert_row_list )
 {
-	INSERT_ROW *insert_row;
 	char system_string[ 128 ];
 	FILE *output_pipe;
+	LIST *sql_statement_list;
 	char *temp_filename = timlib_temp_filename( "insert" /* key */ );
 
-	if ( !list_rewind( insert_row_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: insert_row_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !list_length( insert_row_list ) ) return (char *)0;
 
 	sprintf(system_string,
 		"sql 2>%s",
@@ -700,26 +692,18 @@ char *insert_sql_execute( LIST *insert_row_list )
 
 	output_pipe = popen( system_string, "w" );
 
+	sql_statement_list =
+		insert_row_sql_statement_list(
+			insert_row_list );
+
+	list_rewind( sql_statement_list );
+
 	do {
-		insert_row = list_get( insert_row_list );
-
-		if ( !insert_row->sql_statement )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: sql_statement is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-
-			pclose( output_pipe );
-			exit( 1 );
-		}
-
 		fprintf(output_pipe,
 			"%s\n",
-			insert_row->sql_statement );
+			(char *)list_get( sql_statement_list ) );
 
-	} while ( list_next( insert_row_list ) );
+	} while ( list_next( sql_statement_list ) );
 
 	pclose( output_pipe );
 
@@ -734,20 +718,19 @@ char *insert_sql_execute( LIST *insert_row_list )
 
 void insert_command_line_execute( LIST *insert_row_list )
 {
-	INSERT_ROW *insert_row;
+	LIST *command_line_list;
 
-	if ( !list_rewind( insert_row_list ) ) return;
+	if ( !list_length( insert_row_list ) ) return;
+
+	command_line_list =
+		insert_row_post_change_command_line_list(
+			insert_row_list );
+
+	if ( !list_rewind( command_line_list ) ) return;
 
 	do {
-		insert_row =
-			list_get(
-				insert_row_list );
+		if ( system( (char *)list_get( command_line_list ) ) ){}
 
-		if ( insert_row->command_line )
-		{
-			if ( system( insert_row->command_line ) ){}
-		}
-
-	} while ( list_next( insert_row_list ) );
+	} while ( list_next( command_line_list ) );
 }
 

@@ -187,7 +187,8 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post_choose_role.o				\
 		${LIB}/post_choose_folder.o				\
 		${LIB}/post_choose_process.o				\
-		${LIB}/post_edit_table.o
+		${LIB}/post_edit_table.o				\
+		${LIB}/post_prompt_insert.o
 
 all: 	${EXECUTABLES}
 
@@ -766,14 +767,11 @@ dot_process2option_value: dot_process2option_value.c			\
 		dot_process2option_value.c				\
 		-o dot_process2option_value
 
-post_prompt_insert: post_prompt_insert.c 				\
-			${EXTERNAL_LIBS}				\
-			${LIB}/pair_one2m.o
+post_prompt_insert: post_prompt_insert.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_prompt_insert.c					\
-		${LIB}/pair_one2m.o					\
 		-o post_prompt_insert
 	touch ${CGI_HOME}/post_prompt_insert
 	/bin/rm -f ${CGI_HOME}/post_prompt_insert

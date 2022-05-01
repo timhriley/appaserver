@@ -126,6 +126,19 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 						command_line
 					: (char *)0 );
 
+	if ( post_prompt_insert->insert )
+	{
+		post_prompt_insert->
+			dictionary_separate_post_prompt_insert->
+			query_dictionary =
+				post_prompt_insert_query_dictionary(
+				     post_prompt_insert->
+					dictionary_separate_post_prompt_insert->
+					row_zero_dictionary,
+				     APPASERVER_RELATION_OPERATOR_PREFIX,
+				     APPASERVER_EQUAL );
+	}
+
 	return post_prompt_insert;
 }
 
@@ -145,5 +158,49 @@ POST_PROMPT_INSERT *post_prompt_insert_calloc( void )
 	}
 
 	return post_prompt_insert;
+}
+
+DICTIONARY *post_prompt_insert_query_dictionary(
+			DICTIONARY *row_zero_dictionary,
+			char *appaserver_relation_operator_prefix,
+			char *appaserver_equal )
+{
+	DICTIONARY *query_dictionary;
+	LIST *key_list;
+	char *key;
+	char query_key[ 128 ];
+
+	if ( !dictionary_length( row_zero_dictionary ) )
+		return (DICTIONARY *)0;
+
+	query_dictionary = dictionary_small();
+
+	key_list = dictionary_key_list( row_zero_dictionary );
+
+	list_rewind( key_list );
+
+	do {
+		key = list_get( key_list );
+
+		dictionary_set(
+			query_dictionary,
+			key,
+			dictionary_get(
+				key,
+				row_zero_dictionary ) );
+
+		sprintf(query_key,
+			"%s%s",
+			appaserver_relation_operator_prefix,
+			key );
+
+		dictionary_set(
+			query_dictionary,
+			strdup( query_key ),
+			appaserver_equal );
+
+	} while ( list_next( key_list ) );
+
+	return query_dictionary;
 }
 

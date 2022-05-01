@@ -9,6 +9,7 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "String.h"
+#include "edit_table.h"
 #include "prompt_insert.h"
 #include "post_prompt_insert.h"
 
@@ -20,7 +21,6 @@ int main( int argc, char **argv )
 	char *role_name;
 	char *folder_name;
 	POST_PROMPT_INSERT *post_prompt_insert;
-	char *sql_error_message_list_string = {0};
 
 	if ( argc != 6 )
 	{
@@ -56,685 +56,70 @@ int main( int argc, char **argv )
 
 	if ( post_prompt_insert->insert )
 	{
-		sql_error_message_list_string =
+		char *send_string;
+
+		post_prompt_insert->sql_error_message_list_string =
 			/* --------------------------------------------- */
 			/* Returns sql_error_message_list_string or null */
 			/* --------------------------------------------- */
-			insert_row_list_execute(
-				post_prompt_insert->insert->insert_row_list,
-				appaserver_error_filename(
-					application_name ) );
-	}
+			insert_sql_execute(
+				post_prompt_insert->
+					insert->
+					insert_row_list );
 
-	return 0;
-}
+		insert_command_line_execute(
+			post_prompt_insert->
+				insert->
+				insert_row_list );
 
-#ifdef NOT_DEFINED
-	vertical_new_post_prompt_insert =
-		/* ------------------------ */
-		/* Returns true if selected */
-		/* ------------------------ */
-		vertical_new_post_prompt_insert_new(
-			dictionary_separate->non_prefixed_dictionary,
-			folder_name /* many_folder_name */,
-			VERTICAL_NEW_BUTTON_ONE_PREFIX,
-			dictionary_separate->sort_dictionary,
-			dictionary_separate->query_dictionary,
-			dictionary_separate->drillthru_dictionary,
-			dictionary_separate->pair_one2m_dictionary,
-			application_name,
-			login_name,
-			session_key,
-			role_name,
-			target_frame );
-
-	if ( vertical_new_post_prompt_insert )
-	{
-		if ( !vertical_new_post_prompt_insert->system_string )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: system_string is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		if ( system( vertical_new_post_prompt_insert->
-				system_string ) ){};
-		exit( 0 );
-	}
-
-	/* =================================== */
-	/* Process the non_prefixed_dictionary */
-	/* =================================== */
-
-	/* Copy to the query dictionary */
-	/* ---------------------------- */
-	dictionary_append_dictionary(
-		dictionary_separate->query_dictionary,
-		dictionary_separate->non_prefixed_dictionary );
-
-	dictionary_separate->non_prefixed_dictionary =
-		dictionary_small();
-
-	/* Promote source frame */
-	/* -------------------- */
-	insert_update_key = target_frame;
-
-	/* If pressed the "lookup" button */
-	/* ------------------------------ */
-	if ( dictionary_key_exists_index_zero(
-			dictionary_separate->working_post_dictionary,
-			LOOKUP_PUSH_BUTTON_NAME ) )
-	{
-		remove_primary_key_reference_number(
-			dictionary_separate->query_dictionary,
-			folder->folder_attribute_list );
-
-		sprintf(sys_string,
-	"echo \"%s\" 						|"
-	"output_edit_table_form %s %s %s '%s' '%s' '%s' 2>>%s	 ",
+		send_string =
 			dictionary_separate_send_string(
 				dictionary_separate_send_dictionary(
-					dictionary_separate->
-						sort_dictionary,
-					DICTIONARY_SEPARATE_SORT_PREFIX,
-					dictionary_separate->
-						query_dictionary,
-					DICTIONARY_SEPARATE_QUERY_DICTIONARY,
-					dictionary_separate->
-						drilldown_dictionary,
-					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-					dictionary_separate->
-						ignore_dictionary,
-					DICTIONARY_SEPARATE_IGNORE_PREFIX,
-					(DICTIONARY *)0
-						/* no_display_dictionary */,
-					DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-					dictionary_separate->
-						pair_one2m_dictionary,
+				   (DICTIONARY *)0 /* sort_dictionary */,
+				   DICTIONARY_SEPARATE_SORT_PREFIX,
+				   post_prompt_insert->
+					dictionary_separate_post_prompt_insert->
+					query_dictionary,
+				   DICTIONARY_SEPARATE_QUERY_PREFIX,
+				   post_prompt_insert->
+					dictionary_separate_post_prompt_insert->
+					drillthru_dictionary,
+				   DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+				   post_prompt_insert->
+					dictionary_separate_post_prompt_insert->
+					ignore_dictionary,
+				   DICTIONARY_SEPARATE_IGNORE_PREFIX,
+				   (DICTIONARY *)0 /* no_display_dictionary */,
+				   DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+				   (DICTIONARY *)0 /* pair_one2m_dictionary */,
 					DICTIONARY_SEPARATE_PAIR_PREFIX,
-					(DICTIONARY *)0
-					      /* non_prefixed_dictionary */ ) ),
-		 	login_name,
-		 	session_key,
-		 	folder_name,
-			role_name,
-			insert_update_key,
-			target_frame,
-			appaserver_error_filename( application_name ) );
+				   (DICTIONARY *)0
+					/* non_prefixed_dictionary */ ) );
 
-		if ( system( sys_string ) ){};
-
-		exit( 0 );
-	}
-
-	/* -------------------------------------------- */
-	/* If pressed <Insert> from the lookup screen	*/
-	/* with NULL_OPERATOR selected.			*/
-	/* -------------------------------------------- */
-	set_null_operator_data_to_null(
-		dictionary_separate->query_dictionary,
-		folder->attribute_name_list );
-
-	posted_attribute_name_list =
-		dictionary_separate_posted_attribute_name_list(
-			dictionary_separate->query_dictionary, 
-			folder->attribute_name_list );
-
-	ignore_primary_key_list =
-		appaserver_library_ignore_pressed_attribute_name_list( 	
-			dictionary_separate->ignore_dictionary, 
-			folder->primary_key_list,
-			(DICTIONARY *)0 /* query_dictionary */ );
-
-	if ( attribute_exists_omit_insert_login_name(
-		appaserver->folder->attribute_list ) )
-	{
-		list_append_pointer(	ignore_primary_key_list,
-					"login_name" );
-	}
-
-	insert_required_attribute_name_list =
-		attribute_insert_required_attribute_name_list(
-			appaserver->folder->attribute_list );
-
-	non_populated_attribute_name_list =
-		dictionary_get_non_populated_index_zero_key_list(
-			dictionary_separate->query_dictionary, 
-			insert_required_attribute_name_list );
-
-	mto1_isa_related_folder_list =
-		related_folder_get_isa_related_folder_list(
-			application_name,
-			session_key,
-			folder_name,
-			role_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			related_folder_recursive_all );
-
-	if ( list_length( mto1_isa_related_folder_list ) )
-	{
-		appaserver_library_populate_last_foreign_attribute_key(
-			dictionary_separate->query_dictionary,
-			mto1_isa_related_folder_list,
-			appaserver->folder->primary_key_list );
-	}
-
-	subtracted_primary_key_list = 
-		list_subtract( 	appaserver->
-					folder->
-					primary_key_list, 
-				posted_attribute_name_list );
-
-	list_append_string_list(
-			subtracted_primary_key_list, 
-			non_populated_attribute_name_list );
-
-	subtracted_primary_key_list =
-		list_subtract( 	subtracted_primary_key_list, 
-				ignore_primary_key_list );
-
-	ignore_attribute_name_list =
-		insert_database_get_trim_indices_dictionary_key_list(
-			dictionary_separate->
-				ignore_dictionary );
-
-	/* If pair_one2m */
-	/* ------------- */
-	if ( pair_one2m_participating(
-		dictionary_separate->
-			pair_one2m_dictionary )
-	||    list_length( mto1_isa_related_folder_list ) )
-	{
-		if ( ( missing_attribute_name_list =
-			insert_database_get_missing_attribute_name_list(
-				0 /* row */,
-				dictionary_separate->query_dictionary,
-				ignore_attribute_name_list,
-				subtracted_primary_key_list,
-				insert_required_attribute_name_list ) ) )
-		{
-			output_missing_information_message(
-				application_name,
-				appaserver_parameter_file->
-					appaserver_mount_point,
-				missing_attribute_name_list );
-			exit( 0 );
-		}
-	}
-
-	/* --------------------------------------------- */
-	/* If all the needed attributes are populated or */
-	/* has an isa relation. 			 */
-	/* --------------------------------------------- */
-	if ( !list_length( subtracted_primary_key_list )
-	||    list_length( mto1_isa_related_folder_list ) )
-	{
-		rows_inserted =
-			post_prompt_insert_database(
-				&message,
-				&isa_message,
-				dictionary_separate->query_dictionary
-					/* row_dictionary */,
-				dictionary_separate->ignore_dictionary,
-				application_name,
-				session_key,
-				login_name,
-				folder_name,
-				role_name,
-				appaserver->
-					folder->
-					primary_key_list,
-				insert_required_attribute_name_list,
-				appaserver->
-					folder->
-					attribute_name_list,
-				mto1_isa_related_folder_list,
-				appaserver->
-					folder->
-						post_change_process,
-				appaserver->folder->
-					mto1_related_folder_list,
-				appaserver->folder->
-					attribute_list );
-
-		if ( rows_inserted )
-		{
-			folder_menu_refresh_row_count(
-				application_name,
-				folder_name,
-				session_key,
-				appaserver_parameter_file->
-					appaserver_data_directory,
-				role_name );
-		}
-
-		/* If pair_one2m */
-		/* ------------- */
-		if ( pair_one2m_participating(
-			dictionary_separate->pair_one2m_dictionary ) )
-		{
-			pair_one2m =
-				pair_one2m_post_new(
-					dictionary_separate->
-						pair_one2m_dictionary );
-
-			pair_one2m->many_folder_name =
-				pair_one2m_folder_name(
-					PAIR_ONE2M_MANY_FOLDER_LABEL,
-					pair_one2m->pair_one2m_dictionary );
-
-			pair_one2m->one_folder_name =
-				pair_one2m_folder_name(
-					PAIR_ONE2M_ONE_FOLDER_LABEL,
-					pair_one2m->pair_one2m_dictionary );
-
-			if ( strcmp(
-				pair_one2m->one_folder_name,
-				pair_one2m->many_folder_name ) == 0 )
-			{
-				sprintf(sys_string,
-	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
-	 				pair_one2m->one_folder_name,
+		post_prompt_insert->
+			edit_table_output_system_string =
+				edit_table_output_system_string(
+					EDIT_TABLE_OUTPUT_EXECUTABLE,
 					session_key,
 					login_name,
 					role_name,
-					rows_inserted,
-					(message) ? message : "",
-						appaserver_error_get_filename(
+					folder_name,
+					FRAMESET_EDIT_FRAME /* target_frame */,
+					post_prompt_insert->
+						sql_error_message_list_string
+							/*subsub_title */,
+					send_string,
+					appaserver_error_filename(
 						application_name ) );
 
-				goto execute_sys_string;
-			}
-
-			if ( ( pair_one2m->duplicate =
-				pair_one2m_duplicate(
-					MYSQL_DUPLICATE_ERROR_MESSAGE_KEY,
-					message ) ) )
-			{
-				pair_one2m_duplicate_set(
-					pair_one2m->
-						pair_one2m_dictionary,
-					PAIR_ONE2M_DUPLICATE_KEY );
-			}
-
-			dictionary_separate->pair_one2m_dictionary =
-				pair_one2m_fulfilled_dictionary(
-					/* ---------------- */
-					/* Sets and returns */
-					/* ---------------- */
-					pair_one2m->
-						pair_one2m_dictionary,
-					PAIR_ONE2M_FULFILLED_LIST_LABEL,
-					pair_one2m->
-					   fulfilled_folder_name_list );
-
-			sprintf(
-			sys_string,
-"echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					dictionary_separate->
-						sort_dictionary,
-					dictionary_separate->
-						query_dictionary,
-					dictionary_separate->
-						drilldown_dictionary,
-					dictionary_separate->
-						ignore_dictionary,
-					dictionary_separate->
-						pair_one2m_dictionary,
-					(DICTIONARY *)0
-					     /* non_prefixed_dictionary */ ) ),
-		 	login_name,
-			application_name,
-		 	session_key,
-		 	pair_one2m->one_folder_name,
-			role_name,
-			insert_update_key,
-			target_frame,
-			appaserver_error_filename( application_name ) );
-		} /* if pair_one2m */
-		else
-		{
-			sprintf(sys_string,
-	 		"output_results '' %s %s %s %s %d \"%s\" '' y 2>>%s",
-	 			folder_name,
-				session_key,
-				login_name,
-				role_name,
-				rows_inserted,
-				(message) ? message : "",
-				appaserver_error_filename(
-					application_name ) );
-		}
+		if ( system(
+			post_prompt_insert->
+				edit_table_output_system_string ) ){}
 	}
 	else
 	{
-		sprintf(sys_string,
-"echo \"%s\" 								|"
-"output_insert_table_form %s %s %s %s '%s' '%s' '%s' 2>>%s		 ",
-			dictionary_separate_send_string(
-				dictionary_separate_send_dictionary(
-					dictionary_separate->
-						sort_dictionary,
-					dictionary_separate->
-						query_dictionary,
-					dictionary_separate->
-						drilldown_dictionary,
-					dictionary_separate->
-						ignore_dictionary,
-					dictionary_separate->
-						pair_one2m_dictionary,
-					(DICTIONARY *)0
-					     /* non_prefixed_dictionary */ ) ),
-		 	login_name,
-			application_name,
-		 	session_key,
-		 	folder_name,
-			role_name,
-			insert_update_key,
-			target_frame,
-			appaserver_error_get_filename(
-					application_name ) );
 	}
-
-execute_sys_string:
-
-	if ( system( sys_string ) ){};
 
 	return 0;
 }
-#endif
-
-#ifdef NOT_DEFINED
-int post_prompt_insert_database(
-			char **message,
-			char **isa_message,
-			DICTIONARY *row_dictionary,
-			DICTIONARY *ignore_dictionary,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *folder_name,
-			char *role_name,
-			LIST *primary_key_list,
-			LIST *insert_required_attribute_name_list,
-			LIST *attribute_name_list,
-			LIST *mto1_isa_related_folder_list,
-			PROCESS *post_change_process,
-			LIST *mto1_related_folder_list,
-			LIST *attribute_list )
-{
-	int results;
-	INSERT_DATABASE *insert_database;
-
-	dictionary_set_date_time_to_current(
-		row_dictionary,
-		attribute_list );
-
-	insert_database =
-		insert_database_new(
-				application_name,
-				session_key,
-				folder_name,
-				primary_key_list,
-				attribute_name_list,
-				row_dictionary,
-				ignore_dictionary,
-				attribute_list );
-
-	insert_database->dont_remove_tmp_file =
-		INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
-
-	insert_database->insert_row_zero_only = 1;
-
-	results =
-	insert_database_execute(
-		message,
-		insert_database->application_name,
-		insert_database->session_key,
-		insert_database->folder_name,
-		role_name,
-		insert_database->primary_key_list,
-		insert_required_attribute_name_list,
-		insert_database->attribute_name_list,
-		insert_database->row_dictionary,
-		insert_database->ignore_attribute_name_list,
-		insert_database->insert_row_zero_only,
-		insert_database->dont_remove_tmp_file,
-		post_change_process,
-		login_name,
-		mto1_related_folder_list,
-		related_folder_common_non_primary_key_list(
-			folder_name,
-			mto1_related_folder_list ),
-		insert_database->attribute_list,
-		attribute_exists_reference_number(
-			insert_database->attribute_list ),
-		appaserver_parameter_file_get_data_directory()
-			/* tmp_file_directory */ );
-
-	if ( list_rewind( mto1_isa_related_folder_list  ) )
-	{
-		RELATED_FOLDER *isa_related_folder;
-		LIST *isa_attribute_name_list;
-		LIST *isa_primary_key_list;
-
-		do {
-			isa_related_folder =
-				list_get_pointer(
-					mto1_isa_related_folder_list );
-
-			isa_related_folder->folder->attribute_list =
-				attribute_get_attribute_list(
-				application_name,
-				isa_related_folder->folder->folder_name,
-				(char *)0 /* attribute_name */,
-				(LIST *)0 /* mto1_isa_related_folder_list */,
-				role_name );
-
-			isa_attribute_name_list =
-				folder_get_attribute_name_list(
-					isa_related_folder->
-					folder->attribute_list );
-
-			isa_primary_key_list =
-				folder_get_primary_key_list(
-					isa_related_folder->
-						folder->
-						attribute_list );
-
-			dictionary_new_index_key_list_for_data_list(
-					row_dictionary,
-					primary_key_list,
-					isa_primary_key_list,
-					0 );
-					
-			insert_database =
-				insert_database_new(
-					application_name,
-					session_key,
-					isa_related_folder->
-						folder->
-						folder_name,
-					isa_primary_key_list,
-					isa_attribute_name_list,
-					row_dictionary,
-					ignore_dictionary,
-					isa_related_folder->
-						folder->
-						attribute_list );
-
-			insert_database->dont_remove_tmp_file =
-				INSERT_DATABASE_DONT_REMOVE_TMP_FILE;
-
-			insert_database->insert_row_zero_only = 1;
-
-			insert_database_execute(
-				isa_message,
-				insert_database->application_name,
-				insert_database->session_key,
-				insert_database->folder_name,
-				role_name,
-				insert_database->primary_key_list,
-				insert_required_attribute_name_list,
-				insert_database->attribute_name_list,
-				insert_database->row_dictionary,
-				insert_database->ignore_attribute_name_list,
-				insert_database->insert_row_zero_only,
-				insert_database->dont_remove_tmp_file,
-				isa_related_folder->folder->post_change_process,
-				login_name,
-				(LIST *)0 /* mto1_related_folder_list */,
-				(LIST *)0 /* common_non_primary_attri... */,
-				insert_database->attribute_list,
-				attribute_exists_reference_number(
-					insert_database->attribute_list ),
-				appaserver_parameter_file_get_data_directory()
-					/* tmp_file_directory */ );
-
-		} while( list_next( mto1_isa_related_folder_list ) );
-
-	} /* if list_rewind() */
-
-	return results;
-
-}
-#endif
-
-#ifdef NOT_DEFINED
-void output_missing_information_message(char *application_name,
-					char *appaserver_mount_point,
-					LIST *missing_attribute_name_list )
-{
-	DOCUMENT *d = document_new( "Missing Information",
-				    application_name );
-
-	document_output_content_type();
-
-	document_output_heading(
-		d->application_name,
-		d->title,
-		d-> output_content_type,
-		appaserver_mount_point,
-		d->javascript_module_list,
-		d->stylesheet_filename,
-		application_relative_source_directory(
-			application_name ),
-		0 /* not with_dynarch_menu */ );
-
-	document_output_body(
-			d->application_name,
-			d->onload_control_string );
-
-	printf( "<h3>Error: Missing primary information of %s.</h3>\n",
-		list_display( missing_attribute_name_list ) );
-	document_close();
-
-}
-#endif
-
-#ifdef NOT_DEFINED
-void remove_primary_key_reference_number(
-			DICTIONARY *post_dictionary,
-			LIST *attribute_list )
-{
-	ATTRIBUTE *attribute;
-
-	if ( !list_rewind( attribute_list ) ) return;
-
-	do {
-		attribute = list_get_pointer( attribute_list );
-
-		if ( strcmp( attribute->datatype, "reference_number" ) == 0
-		&&   attribute->primary_key_index )
-		{
-			char key[ 128 ];
-
-			dictionary_remove_key(
-				post_dictionary,
-				attribute->attribute_name );
-
-			sprintf( key, "%s_0", attribute->attribute_name );
-			dictionary_remove_key(
-				post_dictionary,
-				key );
-		}
-	} while( list_next( attribute_list ) );
-}
-#endif
-
-#ifdef NOT_DEFINED
-void set_null_operator_data_to_null(
-			DICTIONARY *query_dictionary,
-			LIST *attribute_name_list )
-{
-	char *attribute_name;
-	char *data;
-	char key[ 128 ];
-
-	if ( !list_rewind( attribute_name_list ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty attribute_name_list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-	}
-
-	do {
-		attribute_name =
-			list_get(
-				attribute_name_list );
-
-		sprintf( key,
-			 "%s_0",
-			 attribute_name );
-
-		data = dictionary_fetch( key, query_dictionary );
-
-		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				key );
-		}
-		else
-		if ( timlib_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				key );
-		}
-
-		/* Also without the suffix. */
-		/* ------------------------ */
-		data =
-			dictionary_fetch(
-				attribute_name,
-				query_dictionary );
-
-		if ( timlib_strcmp( data, NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				attribute_name );
-		}
-		else
-		if ( timlib_strcmp( data, NOT_NULL_OPERATOR ) == 0 )
-		{
-			dictionary_delete(
-				query_dictionary,
-				attribute_name );
-		}
-
-	} while( list_next( attribute_name_list ) );
-
-}
-#endif
 

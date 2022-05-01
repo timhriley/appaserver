@@ -12,9 +12,9 @@
 #define APPASERVER_FROM_STARTING_LABEL		"from_"
 #define APPASERVER_TO_STARTING_LABEL		"to_"
 #define APPASERVER_DROP_DOWN_ORIGINAL_LABEL	"original_"
-#define APPASERVER_RELATION_LABEL		"relation_operator_"
 #define APPASERVER_LOGIN_NAME_ATTRIBUTE_NAME	"login_name"
 
+#define APPASERVER_RELATION_OPERATOR_PREFIX	"relation_operator_"
 #define APPASERVER_EQUAL			"equal"
 #define APPASERVER_NOT_EQUAL			"not_equal"
 #define APPASERVER_LESS_THAN			"less_than"
