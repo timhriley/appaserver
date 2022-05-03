@@ -14,7 +14,6 @@
 
 /* Constants */
 /* --------- */
-#define COMMMAND_LINE_BUFFER		65536
 #define PROCESS_TABLE			"process"
 #define PROCESS_SET_TABLE		"process_set"
 
@@ -98,7 +97,23 @@ typedef struct
 	PROCESS *process;
 	PROCESS_SET *process_set;
 	LIST *process_parameter_list;
-} PROCESS_PROMPT_OUTPUT;
+} PROCESS_PROMPT;
+
+/* Usage */
+/* ----- */
+PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
+			char *process_or_set_name,
+			char *role_name,
+			char *login_name,
+			boolean is_preprompt,
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			DICTIONARY *drillthru_dictionary );
+
+/* Process */
+/* ------- */
+PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc(
+			void );
 
 typedef struct
 {
@@ -112,24 +127,10 @@ typedef struct
 	/* ------- */
 	PROCESS *process;
 	char *command_line;
-} PROCESS_PROMPT_SUBMIT;
+} POST_PROCESS_PROMPT;
 
-/* PROCESS_PROMPT_OUTPUT operations */
-/* -------------------------------- */
-PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc(
-			void );
-
-PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
-			char *process_or_set_name,
-			char *role_name,
-			char *login_name,
-			boolean is_preprompt,
-			char *document_root_directory,
-			char *application_relative_source_directory,
-			DICTIONARY *drillthru_dictionary );
-
-/* PROCESS_PROMPT_SUBMIT operations */
-/* -------------------------------- */
+/* Usage */
+/* ----- */
 PROCESS_PROMPT_SUBMIT *process_prompt_submit_fetch(
 			char *process_name,
 			char *role_name,
