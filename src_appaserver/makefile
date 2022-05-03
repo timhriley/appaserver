@@ -21,7 +21,6 @@ EXECUTABLES=								\
 		post_login						\
 		get_folder_data						\
 		post_prompt_insert					\
-		append_reference_number					\
 		output_prompt_process					\
 		post_choose_process					\
 		post_prompt_process					\
@@ -30,7 +29,6 @@ EXECUTABLES=								\
 		post_choose_isa						\
 		post_maintain_user_account				\
 		output_insert_table					\
-		insert_mysql						\
 		fix_orphans						\
 		get_table_name						\
 		dot_process2option_value				\
@@ -970,20 +968,6 @@ detail: detail.c ${EXTERNAL_LIBS}
 		${EXTERNAL_LIBS}					\
 		detail.c						\
 		-o detail
-
-insert_mysql: insert_mysql.c ${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		insert_mysql.c						\
-		-o insert_mysql
-
-append_reference_number: append_reference_number.c ${EXTERNAL_LIBS}
-	${CC}	${CFLAGS} -I${LIB}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${EXTERNAL_LIBS}					\
-		append_reference_number.c				\
-		-o append_reference_number
 
 output_choose_folder_process_menu: 					\
 		output_choose_folder_process_menu.c 			\

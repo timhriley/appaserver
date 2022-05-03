@@ -256,6 +256,7 @@ typedef struct
 	DICTIONARY *drillthru_dictionary;
 	DICTIONARY *row_zero_dictionary;
 	DICTIONARY *ignore_dictionary;
+	DICTIONARY *non_prefixed_dictionary;
 	LIST *ignore_name_list;
 
 	/* Not fetched.							*/

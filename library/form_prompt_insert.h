@@ -121,13 +121,18 @@ FORM_PROMPT_INSERT_ELEMENT_LIST *
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where,
-			LIST *folder_attribute_append_isa_list );
+			LIST *folder_attribute_append_isa_list,
+			boolean role_folder_lookup );
 
 /* Process */
 /* ------- */
 FORM_PROMPT_INSERT_ELEMENT_LIST *
 	form_prompt_insert_element_list_calloc(
 			void );
+
+LIST *form_prompt_insert_element_list_lookup_list(
+			char *prompt_insert_lookup_name,
+			char *prompt_insert_lookup_label );
 
 typedef struct
 {
@@ -163,7 +168,8 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *security_entity_where );
+			char *security_entity_where,
+			boolean role_folder_lookup );
 
 /* Process */
 /* ------- */

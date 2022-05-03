@@ -1559,6 +1559,18 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 				sql_injection_escape->
 				dictionary );
 
+	dictionary_separate_post_prompt_insert->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			dictionary_separate_post_prompt_insert->
+				sql_injection_escape->
+				dictionary );
+
 	dictionary_separate_post_prompt_insert->ignore_name_list =
 		dictionary_key_list(
 			dictionary_separate_post_prompt_insert->

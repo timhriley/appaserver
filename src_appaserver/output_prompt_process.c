@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/src_appaserver/output_prompt_process_form.c		*/
+/* $APPASERVER_HOME/src_appaserver/output_prompt_process.c		*/
 /* --------------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* --------------------------------------------------------------------	*/

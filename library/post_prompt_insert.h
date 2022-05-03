@@ -29,6 +29,7 @@ typedef struct
 	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 		dictionary_separate_post_prompt_insert;
 
+	boolean lookup_boolean;
 	INSERT *insert;
 
 	/* Driver */
@@ -56,6 +57,10 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 /* ------- */
 POST_PROMPT_INSERT *post_prompt_insert_calloc(
 			void );
+
+boolean post_prompt_insert_lookup_boolean(
+			char *prompt_insert_lookup_name,
+			DICTIONARY *non_prefixed_dictionary );
 
 DICTIONARY *post_prompt_insert_query_dictionary(
 			DICTIONARY *row_zero_dictionary,

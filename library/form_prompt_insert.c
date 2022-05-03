@@ -27,6 +27,7 @@
 #include "frameset.h"
 #include "button.h"
 #include "appaserver.h"
+#include "prompt_insert.h"
 #include "post_prompt_insert.h"
 #include "form_prompt_insert.h"
 
@@ -482,7 +483,8 @@ FORM_PROMPT_INSERT_ELEMENT_LIST *
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where,
-			LIST *folder_attribute_append_isa_list )
+			LIST *folder_attribute_append_isa_list,
+			boolean role_folder_lookup )
 {
 	int tab_order;
 	FORM_PROMPT_INSERT_ELEMENT_LIST *form_prompt_insert_element_list;
@@ -597,6 +599,15 @@ FORM_PROMPT_INSERT_ELEMENT_LIST *
 
 	} while ( list_next( folder_attribute_append_isa_list ) );
 
+	if ( role_folder_lookup )
+	{
+		list_set_list(
+			form_prompt_insert_element_list->element_list,
+			form_prompt_insert_element_list_lookup_list(
+				PROMPT_INSERT_LOOKUP_NAME,
+				PROMPT_INSERT_LOOKUP_LABEL ) );
+	}
+
 	form_prompt_insert_element_list->appaserver_element_list_html =
 		appaserver_element_list_html(
 			form_prompt_insert_element_list->element_list );
@@ -634,7 +645,8 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
-			char *security_entity_where )
+			char *security_entity_where,
+			boolean role_folder_lookup )
 {
 	FORM_PROMPT_INSERT *form_prompt_insert;
 	char *tmp;
@@ -677,7 +689,8 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 				drillthru_dictionary,
 				login_name,
 				security_entity_where,
-				folder_attribute_append_isa_list ) ) )
+				folder_attribute_append_isa_list,
+				role_folder_lookup ) ) )
 	{
 		fprintf(stderr,
 "ERROR in %s/%s()/%d: form_prompt_insert_element_list_new() returned empty.\n",
@@ -924,5 +937,57 @@ char *form_prompt_insert_html(
 		form_close_html );
 
 	return strdup( html );
+}
+
+LIST *form_prompt_insert_element_list_lookup_list(
+			char *prompt_insert_lookup_name,
+			char *prompt_insert_lookup_label )
+{
+	LIST *element_list;
+	APPASERVER_ELEMENT *checkbox_element;
+
+	if ( !prompt_insert_lookup_name
+	||   !prompt_insert_lookup_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_list = list_new();
+
+	list_set(
+		element_list,
+			appaserver_element_new(
+				table_row, (char *)0 ) );
+
+	list_set(
+		element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+	list_set(
+		element_list,
+		( checkbox_element =
+			appaserver_element_new(
+				checkbox,
+				prompt_insert_lookup_name ) ) );
+
+	free( checkbox_element->checkbox );
+
+	checkbox_element->checkbox =
+		element_checkbox_new(
+			(char *)0 /* attribute_name */,
+			checkbox_element->element_name,
+			prompt_insert_lookup_label /* prompt_string */,
+			(char *)0 /* on_click */,
+			-1 /* tab_order */,
+			(char *)0 /* image_source */,
+			0 /* not recall */ );
+
+	return element_list;
 }
 

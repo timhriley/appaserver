@@ -187,7 +187,11 @@ PROMPT_INSERT *prompt_insert_new(
 				prompt_insert->security_entity,
 				prompt_insert->
 					folder->
-					folder_attribute_list ) );
+					folder_attribute_list ),
+			role_folder_lookup(
+				prompt_insert->
+					folder->
+					role_folder_list ) );
 
 	if ( !prompt_insert->form_prompt_insert )
 	{

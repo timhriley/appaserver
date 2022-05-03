@@ -284,8 +284,6 @@ upgrade-appaserver-database
 clone_application
 appaserver_error_directory
 post_prompt_insert
-append_reference_number
-insert_mysql
 post_choose_folder
 random_session
 post_choose_isa

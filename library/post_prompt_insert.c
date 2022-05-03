@@ -16,6 +16,7 @@
 #include "role_operation.h"
 #include "dictionary.h"
 #include "dictionary_separate.h"
+#include "prompt_insert.h"
 #include "post_prompt_insert.h"
 
 POST_PROMPT_INSERT *post_prompt_insert_new(
@@ -93,7 +94,16 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 				folder->
 				folder_attribute_append_isa_list );
 
-	post_prompt_insert->insert =
+	post_prompt_insert->lookup_boolean =
+		post_prompt_insert_lookup_boolean(
+			PROMPT_INSERT_LOOKUP_NAME,
+			post_prompt_insert->
+				dictionary_separate_post_prompt_insert->
+				non_prefixed_dictionary );
+
+	if ( !post_prompt_insert->lookup_boolean )
+	{
+	     post_prompt_insert->insert =
 		insert_new(
 			application_name,
 			session_key,
@@ -125,8 +135,10 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 						post_change_process->
 						command_line
 					: (char *)0 );
+	}
 
-	if ( post_prompt_insert->insert )
+	if ( post_prompt_insert->insert
+	||   post_prompt_insert->lookup_boolean )
 	{
 		post_prompt_insert->
 			dictionary_separate_post_prompt_insert->
@@ -202,5 +214,21 @@ DICTIONARY *post_prompt_insert_query_dictionary(
 	} while ( list_next( key_list ) );
 
 	return query_dictionary;
+}
+
+boolean post_prompt_insert_lookup_boolean(
+			char *prompt_insert_lookup_name,
+			DICTIONARY *non_prefixed_dictionary )
+{
+	if ( dictionary_get(
+		prompt_insert_lookup_name,
+		non_prefixed_dictionary ) )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
 }
 

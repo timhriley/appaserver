@@ -27,6 +27,10 @@
 #define PROMPT_INSERT_POST_EXECUTABLE	"post_prompt_insert"
 #define PROMPT_INSERT_OUTPUT_EXECUTABLE	"output_prompt_insert"
 
+#define PROMPT_INSERT_LOOKUP_NAME	"llookup_button"
+#define PROMPT_INSERT_LOOKUP_LABEL	"Lookup"
+
+
 typedef struct
 {
 	LIST *role_folder_list;
