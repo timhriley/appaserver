@@ -3,8 +3,6 @@
 /* Freely available software: see Appaserver.org	*/
 /* ----------------------------------------------	*/
 
-/* Includes */
-/* -------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -36,44 +34,60 @@ POST_CHOOSE_PROCESS *post_choose_process_calloc( void )
 			__LINE__ );
 		exit( 1 );
 	}
+
 	return post_choose_process;
 }
 
 POST_CHOOSE_PROCESS *post_choose_process_new(
-			/* ------------------------------------ */
-			/* See session_process_integrity_exit() */
-			/* ------------------------------------ */
+			int argc,
+			char **argv,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *process_or_set_name )
 {
-	POST_CHOOSE_PROCESS *post_choose_process =
-		post_choose_process_calloc();
+	POST_CHOOSE_PROCESS *post_choose_process;
+	SESSION_PROCESS *session_process;
 
-	post_choose_process->system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		post_choose_process_system_string(
+	session_process =
+		/* --------------------------------------------- */
+		/* Sets appaserver environment and outputs argv. */
+		/* Each parameter is security inspected.	 */
+		/* Any error will exit( 1 ).			 */
+		/* --------------------------------------------- */
+		session_process_integrity_exit(
+			argc,
+			argv,
 			application_name,
 			session_key,
 			login_name,
 			role_name,
 			process_or_set_name );
 
-	return post_choose_process;
-}
+	post_choose_process = post_choose_process_calloc();
 
-char *post_choose_process_system_string(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *process_or_set_name )
-{
-	return (char *)0;
+	post_choose_process->prompt_process_has_preprompt =
+		prompt_process_has_preprompt(
+			process_or_set_name );
+
+	post_choose_process->prompt_process_output_system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		prompt_process_output_system_string(
+			PROMPT_PROCESS_OUTPUT_EXECUTABLE,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			process_or_set_name,
+			(char *)0 /* dictionary_separate_send_string() */,
+			post_choose_process->prompt_process_has_preprompt,
+			post_choose_process->prompt_process_has_preprompt
+				/* is_preprompt */ );
+
+	return post_choose_process;
 }
 
 char *post_choose_process_href_string(

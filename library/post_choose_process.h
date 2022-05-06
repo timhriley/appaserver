@@ -10,7 +10,8 @@
 /* -------- */
 #include "boolean.h"
 #include "list.h"
-#include "process.h"
+#include "prompt_process.h"
+#include "session.h"
 
 /* Constants */
 /* --------- */
@@ -18,18 +19,15 @@
 
 typedef struct
 {
-	char *system_string;
+	boolean prompt_process_has_preprompt;
+	char *prompt_process_output_system_string;
 } POST_CHOOSE_PROCESS;
-
-/* POST_CHOOSE_PROCESS operations */
-/* ------------------------------ */
 
 /* Usage */
 /* ----- */
 POST_CHOOSE_PROCESS *post_choose_process_new(
-			/* ------------------------------------ */
-			/* See session_process_integrity_exit() */
-			/* ------------------------------------ */
+			int argc,
+			char **argv,
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -37,18 +35,6 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 			char *process_or_set_name );
 
 /* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *post_choose_process_system_string(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *process_or_set_name );
-
-/* Private */
 /* ------- */
 POST_CHOOSE_PROCESS *post_choose_process_calloc(
 			void );

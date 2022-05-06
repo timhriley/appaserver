@@ -1598,6 +1598,103 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 			 __LINE__ );
 		exit( 1 );
 	}
+
 	return dictionary_separate_post_prompt_insert;
+}
+
+DICTIONARY_SEPARATE_PROMPT_PROCESS *
+	dictionary_separate_prompt_process_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_name_list_attribute_list )
+{
+	DICTIONARY_SEPARATE_PROMPT_PROCESS *
+		dictionary_separate_prompt_process =
+			dictionary_separate_prompt_process_calloc();
+
+	if ( !dictionary_length( original_post_dictionary ) )
+	{
+		return dictionary_separate_prompt_process;
+	}
+
+	dictionary_separate_prompt_process->trim_double_bracket =
+		dictionary_separate_trim_double_bracket_new(
+			original_post_dictionary );
+
+	dictionary_separate_prompt_process->parse_multi =
+		dictionary_separate_parse_multi_new(
+			dictionary_separate_prompt_process->
+				trim_double_bracket->
+				dictionary,
+			SQL_DELIMITER );
+
+	dictionary_separate_prompt_process->date_convert =
+		dictionary_separate_date_convert_new(
+			dictionary_separate_prompt_process->
+				parse_multi->
+				dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list );
+
+	dictionary_separate_prompt_process->sql_injection_escape =
+		dictionary_separate_sql_injection_escape_new(
+			dictionary_separate_prompt_process->
+				date_convert->
+				dictionary,
+			folder_attribute_name_list_attribute_list );
+
+	dictionary_separate_prompt_process->drillthru_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			dictionary_separate_prompt_process->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_prompt_process->query_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			dictionary_separate_prompt_process->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_prompt_process->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			dictionary_separate_prompt_process->
+				sql_injection_escape->
+				dictionary );
+
+	return dictionary_separate_prompt_process;
+}
+
+DICTIONARY_SEPARATE_PROMPT_PROCESS *
+	dictionary_separate_prompt_process_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_PROMPT_PROCESS *
+		dictionary_separate_prompt_process;
+
+	if ( ! ( dictionary_separate_prompt_process =
+		     calloc(
+			1,
+			sizeof( DICTIONARY_SEPARATE_PROMPT_PROCESS ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_prompt_process;
 }
 

@@ -125,11 +125,10 @@ EDIT_TABLE *edit_table_new(
 				folder_attribute_append_isa_list );
 
 	edit_table->folder_attribute_date_name_list_length =
-		list_length(
-			folder_attribute_date_name_list(
-				edit_table->
-					folder->
-					folder_attribute_append_isa_list ) );
+		folder_attribute_date_name_list_length(
+			edit_table->
+				folder->
+				folder_attribute_append_isa_list );
 
 	edit_table->folder->relation_join_one2m_list =
 		relation_join_one2m_list(

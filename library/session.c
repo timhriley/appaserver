@@ -78,31 +78,16 @@ void session_message_ip_address_changed_exit(
 
 void session_sql_injection_message_exit(
 			char *argv_0,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *current_ip_address )
+			char *environment_remote_ip_address )
 {
-	char msg[ 1024 ];
-
-	document_quick_output(
-		security_sql_injection_escape(
-			application_name ) );
-
-	sprintf(msg,
-"Warning from %s for %s@%s: An illegal character was detected in (%s,%s,%s).",
+	fprintf(stderr,
+	"ERROR in %s/%s()/%d: %s had an illegal character sent in from %s.\n",
+		__FILE__,
+		__FUNCTION__,
+		__LINE__,
 		argv_0,
-		login_name,
-		current_ip_address,
-		session_key,
-		login_name,
-		role_name );
+		environment_remote_ip_address );
 
-	appaserver_output_error_message( application_name, msg, login_name );
-	printf( "<h3>%s</h3>\n", msg );
-
-	document_close();
 	sleep( SLEEP_SECONDS );
 	exit( 1 );
 }
@@ -361,9 +346,9 @@ SESSION_PROCESS *session_process_integrity_exit(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *process_name )
+			char *process_or_set_name )
 {
-	SESSION_PROCESS *session_process = session_process_calloc();
+	SESSION_PROCESS *session_process;
 
 	if ( !session_sql_injection_strcmp_okay(
 			application_name,
@@ -373,18 +358,15 @@ SESSION_PROCESS *session_process_integrity_exit(
 	{
 		session_sql_injection_message_exit(
 			argv[ 0 ],
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			session_current_ip_address(
-				environment_remote_ip_address() ) );
+			environment_remote_ip_address() );
 	}
 
 	session_environment_set( application_name );
 
 	appaserver_error_argv_append_file(
 		argc, argv, application_name );
+
+	session_process = session_process_calloc();
 
 	session_process->session =
 		/* ----------------------- */
@@ -395,24 +377,19 @@ SESSION_PROCESS *session_process_integrity_exit(
 			session_key,
 			login_name );
 
-	if ( string_strcmp(
-		security_sql_injection_escape( process_name ),
-		process_name ) != 0 )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: invalid process_name = (%s).\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			process_name );
-		exit( 1 );
-	}
+	session_process->security_sql_injection_escape_role_name =
+		security_sql_injection_escape(
+			role_name );
 
-	if ( ! ( session_process->valid =
-			session_process_valid(
-				process_name,
-				role_process_list(
-					role_name ) ) ) )
+	if ( !session_process_valid(
+		security_sql_injection_escape(
+			process_or_set_name ),
+		role_process_list(
+			session_process->
+				security_sql_injection_escape_role_name ),
+		role_process_set_list(
+			session_process->
+				security_sql_injection_escape_role_name ) ) )
 	{
 		session_access_failed_message_exit(
 			application_name,
@@ -420,8 +397,14 @@ SESSION_PROCESS *session_process_integrity_exit(
 			session_process->session->current_ip_address );
 	}
 
-	session_process->role_name = role_name;
-	session_process->process_name = process_name;
+	session_process->process_name =
+		process_name_fetch(
+			process_or_set_name );
+
+	if ( !session_process->process_name )
+	{
+		session_process->process_set_name = process_or_set_name;
+	}
 
 	return session_process;
 }
@@ -569,7 +552,7 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			char *folder_name,
 			char *state )
 {
-	SESSION_FOLDER *session_folder = session_folder_calloc();
+	SESSION_FOLDER *session_folder;
 
 	if ( !session_sql_injection_strcmp_okay(
 			application_name,
@@ -579,18 +562,15 @@ SESSION_FOLDER *session_folder_integrity_exit(
 	{
 		session_sql_injection_message_exit(
 			argv[ 0 ],
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			session_current_ip_address(
-				environment_remote_ip_address() ) );
+			environment_remote_ip_address() );
 	}
 
 	session_environment_set( application_name );
 
 	appaserver_error_argv_append_file(
 		argc, argv, application_name );
+
+	session_folder = session_folder_calloc();
 
 	session_folder->session =
 		/* ----------------------- */
@@ -601,37 +581,13 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			session_key,
 			login_name );
 
-	if ( string_strcmp(
-		security_sql_injection_escape( folder_name ),
-		folder_name ) != 0 )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: invalid folder_name = (%s).\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			folder_name );
-		exit( 1 );
-	}
-
-	if ( string_strcmp(
-		security_sql_injection_escape( state ),
-		state ) != 0 )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: invalid state = (%s).\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			state );
-		exit( 1 );
-	}
-
-	if ( ! ( session_folder->valid =
-			session_folder_valid(
-				state,
-				role_folder_list(
-					role_name,
+	if ( session_folder_valid(
+			security_sql_injection_escape(
+				state ),
+			role_folder_list(
+				security_sql_injection_escape(
+					role_name ),
+				security_sql_injection_escape(
 					folder_name ) ) ) )
 	{
 		session_access_failed_message_exit(
@@ -639,10 +595,6 @@ SESSION_FOLDER *session_folder_integrity_exit(
 			login_name,
 			session_folder->session->current_ip_address );
 	}
-
-	session_folder->role_name = role_name;
-	session_folder->folder_name = folder_name;
-	session_folder->state = state;
 
 	return session_folder;
 }

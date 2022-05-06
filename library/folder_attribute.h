@@ -109,6 +109,15 @@ char *folder_attribute_prompt(
 			char *attribute_name,
 			int primary_key_index );
 
+/* Private */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *folder_attribute_primary_where(
+			char *folder_name,
+			char *attribute_name );
+
 /* Public */
 /* ------ */
 LIST *folder_attribute_append_isa_list(
@@ -138,6 +147,9 @@ LIST *folder_attribute_number_list(
 
 LIST *folder_attribute_date_name_list(
 			LIST *folder_attribute_list );
+
+int folder_attribute_date_name_list_length(
+			LIST *folder_attribute_date_name_list );
 
 LIST *folder_attribute_time_name_list(
 			LIST *folder_attribute_list );
@@ -170,14 +182,5 @@ char *folder_attribute_list_display(
 LIST *folder_attribute_append_isa_name_list(
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list );
-
-/* Private */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *folder_attribute_primary_where(
-			char *folder_name,
-			char *attribute_name );
 
 #endif

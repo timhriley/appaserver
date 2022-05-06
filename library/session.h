@@ -108,19 +108,15 @@ void session_purge_temporary_files(
 
 /* Public */
 /* ------ */
-void session_sql_injection_message_exit(
-			char *argv_0,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *current_ip_address );
-
 boolean session_sql_injection_strcmp_okay(
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name );
+
+void session_sql_injection_message_exit(
+			char *argv_0,
+			char *environment_remote_ip_address );
 
 void session_access_failed_message_exit(
 			char *application_name,
@@ -153,14 +149,7 @@ void session_delete(	char *session_key );
 typedef struct
 {
 	SESSION *session;
-	char *role_name;
-	char *folder_name;
-	char *state;
-	boolean valid;
 } SESSION_FOLDER;
-
-/* SESSION_FOLDER operations */
-/* ------------------------- */
 
 /* Usage */
 /* ----- */
@@ -182,26 +171,20 @@ SESSION_FOLDER *session_folder_integrity_exit(
 
 /* Process */
 /* ------- */
+SESSION_FOLDER *session_folder_calloc(
+			void );
+
 boolean session_folder_valid(
 			char *state,
 			LIST *role_folder_list );
 
-/* Private */
-/* ------- */
-SESSION_FOLDER *session_folder_calloc(
-			void );
-
-
 typedef struct
 {
 	SESSION *session;
-	char *role_name;
+	char *security_sql_injection_escape_role_name;
 	char *process_name;
-	boolean valid;
+	char *process_set_name;
 } SESSION_PROCESS;
-
-/* SESSION_PROCESS operations */
-/* -------------------------- */
 
 /* Usage */
 /* ----- */
@@ -209,6 +192,7 @@ typedef struct
 /* --------------------------------------------- */
 /* Sets appaserver environment and outputs argv. */
 /* Each parameter is security inspected.	 */
+/* Any error will exit( 1 ).			 */
 /* --------------------------------------------- */
 SESSION_PROCESS *session_process_integrity_exit(
 			int argc,
@@ -217,7 +201,7 @@ SESSION_PROCESS *session_process_integrity_exit(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *process_name );
+			char *process_or_set_name );
 
 /* Process */
 /* ------- */

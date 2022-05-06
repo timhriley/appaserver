@@ -79,13 +79,13 @@ boolean security_password_encrypted(
 char *security_replace_special_characters(
 			char *data );
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *security_sql_injection_escape(
 			char *data );
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *security_sql_injection_escape_quote_delimit(
 			char *data );
 

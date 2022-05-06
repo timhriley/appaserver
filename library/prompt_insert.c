@@ -135,11 +135,10 @@ PROMPT_INSERT *prompt_insert_new(
 	}
 
 	prompt_insert->folder_attribute_date_name_list_length =
-		list_length(
-			folder_attribute_date_name_list(
-				prompt_insert->
-					folder->
-					folder_attribute_append_isa_list ) );
+		folder_attribute_date_name_list_length(
+			prompt_insert->
+				folder->
+				folder_attribute_append_isa_list );
 
 	prompt_insert->dictionary_separate_drillthru =
 		/* --------------- */

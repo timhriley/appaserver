@@ -156,11 +156,10 @@ PROMPT_EDIT *prompt_edit_new(
 	}
 
 	prompt_edit->folder_attribute_date_name_list_length =
-		list_length(
-			folder_attribute_date_name_list(
-				prompt_edit->
-					folder->
-					folder_attribute_append_isa_list ) );
+		folder_attribute_date_name_list_length(
+			prompt_edit->
+				folder->
+				folder_attribute_append_isa_list );
 
 	prompt_edit->dictionary_separate_drillthru =
 		/* --------------- */

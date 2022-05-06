@@ -231,7 +231,7 @@ PROCESS *process_parse(	char *input,
 }
 
 PROCESS *process_fetch(	char *process_name,
-			char *document_root_directory,
+			char *document_root,
 			char *relative_source_directory,
 			boolean check_executable_inside_filesystem )
 {
@@ -244,7 +244,7 @@ PROCESS *process_fetch(	char *process_name,
 				/* --------------------- */
 				process_primary_where(
 					process_name ) ) ),
-		document_root_directory,
+		document_root,
 		relative_source_directory,
 		check_executable_inside_filesystem );
 }

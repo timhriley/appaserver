@@ -419,4 +419,34 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 	dictionary_separate_insert_table_calloc(
 			void );
 
+typedef struct
+{
+	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
+	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
+	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
+	DICTIONARY *drillthru_dictionary;
+	DICTIONARY *query_dictionary;
+	DICTIONARY *non_prefixed_dictionary;
+} DICTIONARY_SEPARATE_PROMPT_PROCESS;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+DICTIONARY_SEPARATE_PROMPT_PROCESS *
+	dictionary_separate_prompt_process_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_name_list_attribute_list );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_PROMPT_PROCESS *
+	dictionary_separate_prompt_process_calloc(
+			void );
+
 #endif

@@ -771,3 +771,10 @@ char *folder_attribute_prompt(
 
 	return strdup( prompt );
 }
+
+int folder_attribute_date_name_list_length(
+			LIST *date_name_list )
+{
+	return list_length( date_name_list );
+}
+

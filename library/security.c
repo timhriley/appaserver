@@ -231,10 +231,21 @@ char *security_replace_special_characters(
 
 char *security_sql_injection_escape( char *data )
 {
-	char destination[ STRING_WHERE_BUFFER ];
+	char destination[ STRING_64K ];
 
-	if ( !data ) return (char *)0;
-	if ( !*data ) return strdup( "" );
+	if ( !data || !*data ) return strdup( "" );
+
+	if ( strlen( data ) >= STRING_64K )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: data length = %d > max length = %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			strlen( data ),
+			STRING_64K );
+		exit( 1 );
+	}
 
 	return strdup(
 		string_escape_character_array(
@@ -245,11 +256,22 @@ char *security_sql_injection_escape( char *data )
 
 char *security_sql_injection_escape_quote_delimit( char *data )
 {
-	char destination[ STRING_WHERE_BUFFER ];
+	char destination[ STRING_64K ];
 	char *ptr = destination;
 
-	if ( !data ) return (char *)0;
-	if ( !*data ) return strdup( "''" );
+	if ( !data || !*data ) return strdup( "''" );
+
+	if ( strlen( data ) >= STRING_64K )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: data length = %d > max length = %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			strlen( data ),
+			STRING_64K );
+		exit( 1 );
+	}
 
 	ptr += sprintf( ptr, "'" );
 

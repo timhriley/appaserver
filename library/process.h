@@ -172,7 +172,7 @@ LIST *process_set_member_name_list(
 /* ------------------ */
 PROCESS *process_fetch(
 			char *process_name,
-			char *document_root_directory,
+			char *document_root,
 			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem );
 
