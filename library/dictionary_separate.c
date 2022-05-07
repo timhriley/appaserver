@@ -1260,8 +1260,8 @@ DICTIONARY_SEPARATE_PARSE_MULTI *
 	return dictionary_separate_parse_multi;
 }
 
-DICTIONARY_SEPARATE_INSERT_TABLE *
-	dictionary_separate_insert_table_new(
+DICTIONARY_SEPARATE_TABLE_INSERT *
+	dictionary_separate_table_insert_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
@@ -1269,62 +1269,62 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			LIST *folder_attribute_append_isa_list,
 			LIST *folder_attribute_name_list )
 {
-	DICTIONARY_SEPARATE_INSERT_TABLE *
-		dictionary_separate_insert_table =
-			dictionary_separate_insert_table_calloc();
+	DICTIONARY_SEPARATE_TABLE_INSERT *
+		dictionary_separate_table_insert =
+			dictionary_separate_table_insert_calloc();
 
 	if ( !dictionary_length( original_post_dictionary ) )
 	{
-		return dictionary_separate_insert_table;
+		return dictionary_separate_table_insert;
 	}
 
-	dictionary_separate_insert_table->trim_double_bracket =
+	dictionary_separate_table_insert->trim_double_bracket =
 		dictionary_separate_trim_double_bracket_new(
 			original_post_dictionary );
 
-	dictionary_separate_insert_table->parse_multi =
+	dictionary_separate_table_insert->parse_multi =
 		dictionary_separate_parse_multi_new(
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				trim_double_bracket->
 				dictionary,
 			SQL_DELIMITER );
 
-	dictionary_separate_insert_table->date_convert =
+	dictionary_separate_table_insert->date_convert =
 		dictionary_separate_date_convert_new(
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				parse_multi->
 				dictionary,
 			application_name,
 			login_name,
 			folder_attribute_date_name_list );
 
-	dictionary_separate_insert_table->sql_injection_escape =
+	dictionary_separate_table_insert->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				date_convert->
 				dictionary,
 			folder_attribute_append_isa_list );
 
-	dictionary_separate_insert_table->drillthru_dictionary =
+	dictionary_separate_table_insert->drillthru_dictionary =
 		dictionary_separate_remove_prefix(
 			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				sql_injection_escape->
 				dictionary );
 
-	dictionary_separate_insert_table->ignore_dictionary =
+	dictionary_separate_table_insert->ignore_dictionary =
 		dictionary_separate_remove_prefix(
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				sql_injection_escape->
 				dictionary );
 
-	dictionary_separate_insert_table->ignore_name_list =
+	dictionary_separate_table_insert->ignore_name_list =
 		dictionary_key_list(
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				ignore_dictionary );
 
-	dictionary_separate_insert_table->non_prefixed_dictionary =
+	dictionary_separate_table_insert->non_prefixed_dictionary =
 		dictionary_separate_non_prefixed(
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			DICTIONARY_SEPARATE_QUERY_PREFIX,
@@ -1332,35 +1332,35 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				sql_injection_escape->
 				dictionary );
 
-	dictionary_separate_insert_table->multi_row_dictionary =
+	dictionary_separate_table_insert->multi_row_dictionary =
 		dictionary_separate_multi_row(
 			folder_attribute_name_list,
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				sql_injection_escape->
 				dictionary );
 
-	dictionary_separate_insert_table->row_zero_dictionary =
+	dictionary_separate_table_insert->row_zero_dictionary =
 		dictionary_separate_row_zero(
 			folder_attribute_name_list,
-			dictionary_separate_insert_table->
+			dictionary_separate_table_insert->
 				sql_injection_escape->
 				dictionary );
 
-	return dictionary_separate_insert_table;
+	return dictionary_separate_table_insert;
 }
 
-DICTIONARY_SEPARATE_INSERT_TABLE *
-	dictionary_separate_insert_table_calloc(
+DICTIONARY_SEPARATE_TABLE_INSERT *
+	dictionary_separate_table_insert_calloc(
 			void )
 {
-	DICTIONARY_SEPARATE_INSERT_TABLE *dictionary_separate_insert_table;
+	DICTIONARY_SEPARATE_TABLE_INSERT *dictionary_separate_table_insert;
 
-	if ( ! ( dictionary_separate_insert_table =
-		     calloc( 1, sizeof( DICTIONARY_SEPARATE_INSERT_TABLE ) ) ) )
+	if ( ! ( dictionary_separate_table_insert =
+		     calloc( 1, sizeof( DICTIONARY_SEPARATE_TABLE_INSERT ) ) ) )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1369,7 +1369,7 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 			 __LINE__ );
 		exit( 1 );
 	}
-	return dictionary_separate_insert_table;
+	return dictionary_separate_table_insert;
 }
 
 DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *

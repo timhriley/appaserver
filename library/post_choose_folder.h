@@ -33,9 +33,9 @@ typedef struct
 	char *form_name;
 	boolean isa_drop_down;
 	boolean prompt_insert;
-	boolean insert_table;
-	boolean prompt_edit;
-	boolean edit_table;
+	boolean table_insert;
+	boolean prompt_lookup;
+	boolean table_edit;
 	char *system_string;
 } POST_CHOOSE_FOLDER;
 
@@ -82,11 +82,11 @@ boolean post_choose_folder_prompt_insert(
 			char *folder_form_name,
 			char *state );
 
-boolean post_choose_folder_insert_table(
+boolean post_choose_folder_table_insert(
 			char *folder_form_name,
 			char *state );
 
-boolean post_choose_folder_prompt_edit(
+boolean post_choose_folder_prompt_lookup(
 			char *folder_form_name,
 			char *state,
 			boolean drillthru_participating );
@@ -100,8 +100,8 @@ boolean post_choose_folder_edit_table(
 char *post_choose_folder_system_string(
 			boolean isa_drop_down,
 			boolean prompt_insert_form,
-			boolean insert_table_form,
-			boolean prompt_edit_form,
+			boolean table_insert_form,
+			boolean prompt_lookup_form,
 			boolean edit_table_form,
 			char *application_name,
 			char *session_key,

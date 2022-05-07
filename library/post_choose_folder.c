@@ -24,8 +24,8 @@
 #include "dictionary_separate.h"
 #include "choose_isa.h"
 #include "prompt_insert.h"
-#include "insert_table.h"
-#include "prompt_edit.h"
+#include "table_insert.h"
+#include "prompt_lookup.h"
 #include "edit_table.h"
 #include "post_choose_folder.h"
 
@@ -206,13 +206,13 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			post_choose_folder->form_name,
 			state );
 
-	post_choose_folder->insert_table =
-		post_choose_folder_insert_table(
+	post_choose_folder->table_insert =
+		post_choose_folder_table_insert(
 			post_choose_folder->form_name,
 			state );
 
-	post_choose_folder->prompt_edit =
-		post_choose_folder_prompt_edit(
+	post_choose_folder->prompt_lookup =
+		post_choose_folder_prompt_lookup(
 			post_choose_folder->form_name,
 			state,
 			post_choose_folder->
@@ -231,8 +231,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 		post_choose_folder_system_string(
 			post_choose_folder->isa_drop_down,
 			post_choose_folder->prompt_insert,
-			post_choose_folder->insert_table,
-			post_choose_folder->prompt_edit,
+			post_choose_folder->table_insert,
+			post_choose_folder->prompt_lookup,
 			post_choose_folder->edit_table,
 			application_name,
 			session_key,
@@ -281,7 +281,7 @@ boolean post_choose_folder_insert_table(
 	return ( string_strcmp( folder_form_name, "table" ) == 0 );
 }
 
-boolean post_choose_folder_prompt_edit(
+boolean post_choose_folder_prompt_lookup(
 			char *folder_form_name,
 			char *state,
 			boolean drillthru_participating )
@@ -315,8 +315,8 @@ boolean post_choose_folder_isa_drop_down(
 char *post_choose_folder_system_string(
 			boolean isa_drop_down,
 			boolean prompt_insert,
-			boolean insert_table,
-			boolean prompt_edit,
+			boolean table_insert,
+			boolean prompt_lookup,
 			boolean edit_table,
 			char *application_name,
 			char *session_key,
@@ -379,14 +379,14 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
-	if ( insert_table )
+	if ( table_insert )
 	{
 		return
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		insert_table_output_system_string(
-			INSERT_TABLE_OUTPUT_EXECUTABLE,
+		table_insert_output_system_string(
+			TABLE_INSERT_OUTPUT_EXECUTABLE,
 			session_key,
 			login_name,
 			role_name,
@@ -396,13 +396,13 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename( application_name ) );
 	}
 	else
-	if ( prompt_edit )
+	if ( prompt_lookup )
 	{
 		return
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		prompt_edit_output_system_string(
+		prompt_lookup_output_system_string(
 			PROMPT_EDIT_OUTPUT_EXECUTABLE,
 			session_key,
 			login_name,

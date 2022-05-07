@@ -14,15 +14,11 @@
 #include "appaserver_parameter.h"
 #include "appaserver_link.h"
 
-/* Constants */
-/* --------- */
 #define FRAMESET_OUTPUT_EXECUTABLE	"output_frameset"
 #define FRAMESET_MENU_FRAME		"menu_frame"
 #define FRAMESET_PROMPT_FRAME		"prompt_frame"
-#define FRAMESET_EDIT_FRAME		"edit_frame"
+#define FRAMESET_TABLE_FRAME		"table_frame"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	APPASERVER_LINK *appaserver_link;
@@ -31,10 +27,8 @@ typedef struct
 	char *html;
 } FRAMESET_FRAME;
 
-/* FRAMESET_FRAME operations */
-/* ------------------------- */
-FRAMESET_FRAME *frameset_frame_calloc(
-			void );
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
@@ -44,8 +38,13 @@ FRAMESET_FRAME *frameset_frame_new(
 			char *session_key,
 			char *frame_name );
 
-/* Safely returns heap memory */
-/* -------------------------- */
+/* Process */
+/* ------- */
+FRAMESET_FRAME *frameset_frame_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
 char *frameset_frame_html(
 			char *frame_name,
 			char *prompt_filename );
@@ -56,7 +55,7 @@ typedef struct
 	DOCUMENT *document;
 	FRAMESET_FRAME *frameset_frame_menu;
 	FRAMESET_FRAME *frameset_frame_prompt;
-	FRAMESET_FRAME *frameset_frame_edit;
+	FRAMESET_FRAME *frameset_frame_table;
 	char *html;
 	char *blank_edit_frame_system_string;
 	char *blank_prompt_frame_system_string;
@@ -66,8 +65,8 @@ typedef struct
 	char *choose_role_output_system_string;
 } FRAMESET;
 
-/* FRAMESET operations */
-/* -------------------- */
+/* Usage */
+/* ----- */
 FRAMESET *frameset_new(
 			char *application_name,
 			char *session_key,

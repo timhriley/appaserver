@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/insert_table.c				*/
+/* $APPASERVER_HOME/library/table_insert.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -12,13 +12,13 @@
 #include <malloc.h>
 #include "environ.h"
 #include "folder_attribute.h"
-#include "insert_table.h"
+#include "table_insert.h"
 
-INSERT_TABLE *insert_table_calloc( void )
+TABLE_INSERT *table_insert_calloc( void )
 {
-	INSERT_TABLE *insert_table;
+	TABLE_INSERT *table_insert;
 
-	if ( ! ( insert_table = calloc( 1, sizeof( INSERT_TABLE ) ) ) )
+	if ( ! ( table_insert = calloc( 1, sizeof( TABLE_INSERT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -28,10 +28,10 @@ INSERT_TABLE *insert_table_calloc( void )
 		exit( 1 );
 	}
 
-	return insert_table;
+	return table_insert;
 }
 
-INSERT_TABLE *insert_table_new(
+TABLE_INSERT *table_insert_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -42,11 +42,11 @@ INSERT_TABLE *insert_table_new(
 			boolean menu_horizontal_boolean,
 			DICTIONARY *original_post_dictionary )
 {
-	INSERT_TABLE *insert_table = insert_table_calloc();
+	TABLE_INSERT *table_insert = table_insert_calloc();
 
 	/* Process */
 	/* ------- */
-	if ( ! ( insert_table->role =
+	if ( ! ( table_insert->role =
 			role_fetch(
 				role_name,
 				1 /* fetch_attribute_exclude_list */ ) ) )
@@ -57,15 +57,15 @@ INSERT_TABLE *insert_table_new(
 			__FUNCTION__,
 			__LINE__,
 			role_name );
-		return (INSERT_TABLE *)0;
+		return (TABLE_INSERT *)0;
 	}
 
-	if ( ! ( insert_table->folder =
+	if ( ! ( table_insert->folder =
 			folder_fetch(
 				folder_name,
 				role_name /* fetching role_folder_list */,
 				role_exclude_lookup_attribute_name_list(
-					insert_table->
+					table_insert->
 						role->
 						attribute_exclude_list ),
 				/* -------------------------- */
@@ -90,46 +90,46 @@ INSERT_TABLE *insert_table_new(
 				__FUNCTION__,
 				__LINE__,
 				folder_name );
-		return (INSERT_TABLE *)0;
+		return (TABLE_INSERT *)0;
 	}
 
-	if ( insert_table_forbid(
+	if ( table_insert_forbid(
 		role_folder_insert(
-			insert_table->folder->role_folder_list ) ) )
+			table_insert->folder->role_folder_list ) ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: insert_table_forbid() returned true.\n",
+	"Warning in %s/%s()/%d: table_insert_forbid() returned true.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (INSERT_TABLE *)0;
+		return (TABLE_INSERT *)0;
 	}
 
-	insert_table->dictionary_separate_insert_table =
+	table_insert->dictionary_separate_table_insert =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_insert_table_new(
+		dictionary_separate_table_insert_new(
 			original_post_dictionary,
 			application_name,
 			login_name,
 			folder_attribute_date_name_list(
-				insert_table->
+				table_insert->
 					folder->
 					folder_attribute_append_isa_list ),
-			insert_table->folder->folder_attribute_append_isa_list,
-			insert_table->folder->folder_attribute_name_list );
+			table_insert->folder->folder_attribute_append_isa_list,
+			table_insert->folder->folder_attribute_name_list );
 
-	return insert_table;
+	return table_insert;
 }
 
-boolean insert_table_forbid(
+boolean table_insert_forbid(
 			boolean role_folder_insert )
 {
 	return 1 - role_folder_insert;
 }
 
-char *insert_table_output_system_string(
+char *table_insert_output_system_string(
 			char *executable,
 			char *session_key,
 			char *login_name,

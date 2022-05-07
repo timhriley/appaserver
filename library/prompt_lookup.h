@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/prompt_edit.h				*/
+/* $APPASERVER_HOME/library/prompt_lookup.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef PROMPT_EDIT_H
-#define PROMPT_EDIT_H
+#ifndef PROMPT_LOOKUP_H
+#define PROMPT_LOOKUP_H
 
 /* Includes */
 /* -------- */
@@ -21,11 +21,11 @@
 #include "frameset.h"
 #include "dictionary_separate.h"
 #include "document.h"
-#include "form_prompt_edit.h"
+#include "form_prompt_lookup.h"
 
 /* Constants */
 /* --------- */
-#define PROMPT_EDIT_OUTPUT_EXECUTABLE	"output_prompt_edit"
+#define PROMPT_LOOKUP_OUTPUT_EXECUTABLE	"output_prompt_lookup"
 
 typedef struct
 {
@@ -42,12 +42,12 @@ typedef struct
 	boolean omit_delete_button;
 	char *title_html;
 	SECURITY_ENTITY *security_entity;
-	FORM_PROMPT_EDIT *form_prompt_edit;
+	FORM_PROMPT_LOOKUP *form_prompt_lookup;
 	DOCUMENT *document;
 	char *document_form_html;
-} PROMPT_EDIT;
+} PROMPT_LOOKUP;
 
-/* PROMPT_EDIT operations */
+/* PROMPT_LOOKUP operations */
 /* ---------------------- */
 
 /* Usage */
@@ -57,7 +57,7 @@ typedef struct
 /* Always succeeds		*/
 /* Note: check forbid flag.	*/
 /* ---------------------------- */
-PROMPT_EDIT *prompt_edit_new(
+PROMPT_LOOKUP *prompt_lookup_new(
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -70,33 +70,33 @@ PROMPT_EDIT *prompt_edit_new(
 
 /* Process */
 /* ------- */
-PROMPT_EDIT *prompt_edit_calloc(
+PROMPT_LOOKUP *prompt_lookup_calloc(
 			void );
 
-boolean prompt_edit_forbid(
+boolean prompt_lookup_forbid(
 			boolean role_folder_update,
 			boolean role_folder_lookup,
 			char *state,
 			char *appaserver_update_state );
 
-boolean prompt_edit_omit_insert_button(
+boolean prompt_lookup_omit_insert_button(
 			boolean drillthru_skipped,
 			boolean relation_exists_multi_select );
 
 
-boolean prompt_edit_omit_delete_button(
+boolean prompt_lookup_omit_delete_button(
 			int relation_mto1_isa_list_length );
 
 /* Returns relation_mto1_non_isa_list or	*/
 /* those with only a single foreign key.	*/
 /* -------------------------------------------- */
-LIST *prompt_edit_drillthru_skipped(
+LIST *prompt_lookup_drillthru_skipped(
 			LIST *relation_mto1_non_isa_list,
 			boolean drillthru_skipped );
 
 /* Returns static memory */
 /* --------------------- */
-char *prompt_edit_title_html(
+char *prompt_lookup_title_html(
 			char *state,
 			char *folder_name );
 
@@ -105,8 +105,8 @@ char *prompt_edit_title_html(
 
 /* Returns heap memory */
 /* ------------------- */
-char *prompt_edit_output_system_string(
-			char *prompt_edit_output_executable,
+char *prompt_lookup_output_system_string(
+			char *prompt_lookup_output_executable,
 			char *session_key,
 			char *login_name,
 			char *role_name,

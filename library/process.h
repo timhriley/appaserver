@@ -59,12 +59,50 @@ typedef struct
 	JAVASCRIPT *javascript;
 } PROCESS_SET;
 
+/* Usage */
+/* ----- */
+PROCESS_SET *process_set_fetch(
+			char *process_set_name,
+			char *role_name,
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			boolean fetch_process_set_member_name_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *process_set_primary_where(
+			char *process_set_name );
+
+char *process_set_system_string(
+			char *process_set_select,
+			char *process_set_table,
+			char *where );
+
+PROCESS_SET *process_set_parse(
+			char *input,
+			char *role_name,
+			char *document_root_directory,
+			char *application_relative_source_directory,
+			boolean fetch_member_process_name_list );
+
+PROCESS_SET *process_set_new(
+			char *process_set_name );
+
+PROCESS_SET *process_set_calloc(
+			void );
+
+LIST *process_set_member_name_list(
+			char *process_set_primary_where,
+			char *role_name );
+
 typedef struct
 {
 	/* Input */
 	/* ----- */
 	char *process_name;
-	boolean check_executable_inside_filesystem;
 	char *role_name;
 	char *command_line;
 	char *notepad;
@@ -81,103 +119,17 @@ typedef struct
 	JAVASCRIPT *javascript;
 } PROCESS;
 
-typedef struct
-{
-	/* Input */
-	char *process_or_set_name;
-	char *role_name;
-	char *login_name;
-	boolean is_preprompt;
-	DICTIONARY *drillthru_dictionary;
-
-	/* Process */
-	/* ------- */
-	char *process_name;
-	char *process_set_name;
-	PROCESS *process;
-	PROCESS_SET *process_set;
-	LIST *process_parameter_list;
-} PROCESS_PROMPT;
-
 /* Usage */
 /* ----- */
-PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
-			char *process_or_set_name,
-			char *role_name,
-			char *login_name,
-			boolean is_preprompt,
-			char *document_root_directory,
-			char *application_relative_source_directory,
-			DICTIONARY *drillthru_dictionary );
-
-/* Process */
-/* ------- */
-PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc(
-			void );
-
-typedef struct
-{
-	/* Input */
-	char *process_name;
-	char *role_name;
-	char *login_name;
-	DICTIONARY *working_post_dictionary;
-
-	/* Process */
-	/* ------- */
-	PROCESS *process;
-	char *command_line;
-} POST_PROCESS_PROMPT;
-
-/* Usage */
-/* ----- */
-PROCESS_PROMPT_SUBMIT *process_prompt_submit_fetch(
-			char *process_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *working_post_dictionary );
-
-/* PROCESS_SET operations */
-/* ---------------------- */
-PROCESS_SET *process_set_fetch(
-			char *process_set_name,
-			char *role_name,
-			char *document_root_directory,
-			char *application_relative_source_directory,
-			boolean fetch_process_set_member_name_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *process_set_primary_where(
-			char *process_set_name );
-
-char *process_set_system_string(
-			char *where );
-
-PROCESS_SET *process_set_parse(
-			char *input,
-			char *role_name,
-			char *document_root_directory,
-			char *application_relative_source_directory,
-			boolean fetch_member_process_name_list );
-
-PROCESS_SET *process_set_new(
-			char *process_set_name );
-
-LIST *process_set_member_name_list(
-			char *process_set_primary_where,
-			char *role_name );
-
-/* PROCESS operations */
-/* ------------------ */
 PROCESS *process_fetch(
 			char *process_name,
 			char *document_root,
 			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem );
 
-PROCESS *process_new(
-			char *process_name );
+/* Process */
+/* ------- */
+PROCESS *process_new(	char *process_name );
 
 /* Returns static memory */
 /* --------------------- */
@@ -187,6 +139,8 @@ char *process_primary_where(
 /* Returns heap memory */
 /* ------------------- */
 char *process_system_string(
+			char *process_select,
+			char *process_table,
 			char *where );
 
 PROCESS *process_parse(	char *input,
@@ -194,6 +148,8 @@ PROCESS *process_parse(	char *input,
 			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem );
 
+/* Public */
+/* ------ */
 char *process_populate_drop_down_command_line(
 			DICTIONARY *drillthru_dictionary,
 			char *command_line,

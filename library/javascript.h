@@ -18,7 +18,7 @@ typedef struct
 /* ---------- */
 JAVASCRIPT *javascript_new(
 			char *javascript_filename,
-			char *document_root_directory,
+			char *document_root,
 			char *application_relative_source_directory );
 
 JAVASCRIPT *javascript_calloc(
@@ -26,7 +26,7 @@ JAVASCRIPT *javascript_calloc(
 
 char *javascript_html(
 			char *javascript_filename,
-			char *document_root_directory,
+			char *document_root,
 			char *application_relative_source_directory );
 
 /* Returns heap memory or null */

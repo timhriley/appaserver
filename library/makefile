@@ -60,7 +60,7 @@ APPASERVER_LIBRARY=						\
 		element.o					\
 		sed.o						\
 		form.o						\
-		form_prompt_edit.o				\
+		form_prompt_lookup.o				\
 		form_edit_table.o				\
 		form_choose_isa.o				\
 		form_choose_role.o				\
@@ -109,7 +109,7 @@ APPASERVER_LIBRARY=						\
 		pair_one2m.o					\
 		mysqldump.o					\
 		insert_table.o					\
-		prompt_edit.o					\
+		prompt_lookup.o					\
 		prompt_insert.o					\
 		edit_table.o					\
 		menu.o						\
@@ -121,7 +121,8 @@ APPASERVER_LIBRARY=						\
 		post_choose_role.o				\
 		post_edit_table.o				\
 		post_prompt_insert.o				\
-		post_prompt_process.o
+		post_prompt_process.o				\
+		post_prompt_lookup.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -747,8 +748,8 @@ form.o: form.c form.h
 form_drillthru.o: form_drillthru.c form_drillthru.h element.o
 	${CC} ${CFLAGS} -c form_drillthru.c
 
-form_prompt_edit.o: form_prompt_edit.c form_prompt_edit.h element.o
-	${CC} ${CFLAGS} -c form_prompt_edit.c
+form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h element.o
+	${CC} ${CFLAGS} -c form_prompt_lookup.c
 
 form_edit_table.o: form_edit_table.c form_edit_table.h element.o
 	${CC} ${CFLAGS} -c form_edit_table.c
@@ -960,8 +961,8 @@ javascript.o: javascript.c javascript.h
 insert_table.o: insert_table.c insert_table.h
 	${CC} ${CFLAGS} -c insert_table.c
 
-prompt_edit.o: prompt_edit.c prompt_edit.h
-	${CC} ${CFLAGS} -c prompt_edit.c
+prompt_lookup.o: prompt_lookup.c prompt_lookup.h
+	${CC} ${CFLAGS} -c prompt_lookup.c
 
 prompt_insert.o: prompt_insert.c prompt_insert.h
 	${CC} ${CFLAGS} -c prompt_insert.c
@@ -995,6 +996,9 @@ post_edit_table.o: post_edit_table.c post_edit_table.h
 
 post_prompt_insert.o: post_prompt_insert.c post_prompt_insert.h
 	${CC} ${CFLAGS} -c post_prompt_insert.c
+
+post_prompt_lookup.o: post_prompt_lookup.c post_prompt_lookup.h
+	${CC} ${CFLAGS} -c post_prompt_lookup.c
 
 post_prompt_process.o: post_prompt_process.c post_prompt_process.h
 	${CC} ${CFLAGS} -c post_prompt_process.c

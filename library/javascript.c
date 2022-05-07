@@ -34,13 +34,13 @@ JAVASCRIPT *javascript_calloc( void )
 
 JAVASCRIPT *javascript_new(
 			char *javascript_filename,
-			char *document_root_directory,
+			char *document_root,
 			char *application_relative_source_directory )
 {
 	JAVASCRIPT *javascript;
 
 	if ( !javascript_filename
-	||   !document_root_directory
+	||   !document_root
 	||   !application_relative_source_directory )
 	{
 		fprintf(stderr,
@@ -56,7 +56,7 @@ JAVASCRIPT *javascript_new(
 	javascript->javascript_html =
 		javascript_html(
 			javascript_filename,
-			document_root_directory,
+			document_root,
 			application_relative_source_directory );
 
 	if ( !javascript->javascript_html ) return (JAVASCRIPT *)0;
@@ -64,7 +64,7 @@ JAVASCRIPT *javascript_new(
 	javascript->javascript_source =
 		javascript_source(
 			javascript->javascript_html,
-			document_root_directory );
+			document_root);
 
 	if ( !javascript->javascript_source ) return (JAVASCRIPT *)0;
 
@@ -73,7 +73,7 @@ JAVASCRIPT *javascript_new(
 
 char *javascript_html(
 			char *javascript_filename,
-			char *document_root_directory,
+			char *document_root,
 			char *application_relative_source_directory )
 {
 	char javascript_home_source[ 256 ];
@@ -84,7 +84,7 @@ char *javascript_html(
 
 	sprintf(javascript_home_source,
 		"%s/appaserver/javascript/%s",
-		document_root_directory,
+		document_root,
 		javascript_filename );
 
 	if ( timlib_file_exists( javascript_home_source ) )
@@ -105,7 +105,7 @@ char *javascript_html(
 	{
 		sprintf(javascript_relative_source,
 			"%s/appaserver/%s/%s",
-			document_root_directory,
+			document_root,
 			relative_source_directory,
 			javascript_filename );
 
@@ -124,13 +124,13 @@ char *javascript_html(
 
 char *javascript_source(
 			char *javascript_html,
-			char *document_root_directory )
+			char *document_root )
 {
 	char source[ 256 ];
 
 	sprintf(source,
 		"%s/%s",
-		document_root_directory,
+		document_root,
 		javascript_html );
 
 	return strdup( source );

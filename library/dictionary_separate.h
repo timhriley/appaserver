@@ -397,15 +397,15 @@ typedef struct
 	DICTIONARY *multi_row_dictionary;
 	DICTIONARY *row_zero_dictionary;
 	LIST *ignore_name_list;
-} DICTIONARY_SEPARATE_INSERT_TABLE;
+} DICTIONARY_SEPARATE_TABLE_INSERT;
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-DICTIONARY_SEPARATE_INSERT_TABLE *
-	dictionary_separate_insert_table_new(
+DICTIONARY_SEPARATE_TABLE_INSERT *
+	dictionary_separate_table_insert_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
@@ -415,8 +415,8 @@ DICTIONARY_SEPARATE_INSERT_TABLE *
 
 /* Process */
 /* ------- */
-DICTIONARY_SEPARATE_INSERT_TABLE *
-	dictionary_separate_insert_table_calloc(
+DICTIONARY_SEPARATE_TABLE_INSERT *
+	dictionary_separate_table_insert_calloc(
 			void );
 
 typedef struct

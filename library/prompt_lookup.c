@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/prompt_edit.c				*/
+/* $APPASERVER_HOME/library/prompt_lookup.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -13,13 +13,13 @@
 #include "appaserver.h"
 #include "application.h"
 #include "relation.h"
-#include "prompt_edit.h"
+#include "prompt_lookup.h"
 
-PROMPT_EDIT *prompt_edit_calloc( void )
+PROMPT_LOOKUP *prompt_lookup_calloc( void )
 {
-	PROMPT_EDIT *prompt_edit;
+	PROMPT_LOOKUP *prompt_lookup;
 
-	if ( ! ( prompt_edit = calloc( 1, sizeof( PROMPT_EDIT ) ) ) )
+	if ( ! ( prompt_lookup = calloc( 1, sizeof( PROMPT_LOOKUP ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -29,10 +29,10 @@ PROMPT_EDIT *prompt_edit_calloc( void )
 		exit( 1 );
 	}
 
-	return prompt_edit;
+	return prompt_lookup;
 }
 
-PROMPT_EDIT *prompt_edit_new(
+PROMPT_LOOKUP *prompt_lookup_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -43,9 +43,9 @@ PROMPT_EDIT *prompt_edit_new(
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
 {
-	PROMPT_EDIT *prompt_edit = prompt_edit_calloc();
+	PROMPT_LOOKUP *prompt_lookup = prompt_lookup_calloc();
 
-	if ( ! ( prompt_edit->role_folder_list =
+	if ( ! ( prompt_lookup->role_folder_list =
 			role_folder_list(
 				role_name,
 				folder_name ) ) )
@@ -58,31 +58,31 @@ PROMPT_EDIT *prompt_edit_new(
 			role_name,
 			folder_name );
 
-		prompt_edit->forbid = 1;
-		return prompt_edit;
+		prompt_lookup->forbid = 1;
+		return prompt_lookup;
 	}
 
-	if ( ( prompt_edit->forbid =
-		prompt_edit_forbid(
+	if ( ( prompt_lookup->forbid =
+		prompt_lookup_forbid(
 			role_folder_update(
-				prompt_edit->role_folder_list ),
+				prompt_lookup->role_folder_list ),
 			role_folder_lookup(
-				prompt_edit->role_folder_list ),
+				prompt_lookup->role_folder_list ),
 			state,
 			APPASERVER_UPDATE_STATE ) ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: prompt_edit_forbid(%s/%s) returned empty.\n",
+	"Warning in %s/%s()/%d: prompt_lookup_forbid(%s/%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			login_name,
 			state );
 
-		return prompt_edit;
+		return prompt_lookup;
 	}
 
-	if ( ! ( prompt_edit->role =
+	if ( ! ( prompt_lookup->role =
 			role_fetch(
 				role_name,
 				1 /* fetch_attribute_exclude_list */ ) ) )
@@ -94,16 +94,16 @@ PROMPT_EDIT *prompt_edit_new(
 			__LINE__,
 			role_name );
 
-		prompt_edit->forbid = 1;
-		return prompt_edit;
+		prompt_lookup->forbid = 1;
+		return prompt_lookup;
 	}
 
-	if ( ! ( prompt_edit->folder =
+	if ( ! ( prompt_lookup->folder =
 			folder_fetch(
 				folder_name,
 				role_name,
 				role_exclude_lookup_attribute_name_list(
-					prompt_edit->
+					prompt_lookup->
 						role->
 						attribute_exclude_list ),
 				/* --------------------------------------- */
@@ -130,38 +130,38 @@ PROMPT_EDIT *prompt_edit_new(
 				__LINE__,
 				folder_name );
 
-		prompt_edit->forbid = 1;
-		return prompt_edit;
+		prompt_lookup->forbid = 1;
+		return prompt_lookup;
 	}
 
 	if ( menu_horizontal_boolean )
 	{
-		prompt_edit->folder_menu =
+		prompt_lookup->folder_menu =
 			folder_menu_new(
 				application_name,
 				session_key,
 				role_name,
 				data_directory );
 	
-		prompt_edit->menu =
+		prompt_lookup->menu =
 			menu_new(
 				application_name,
 				session_key,
 				login_name,
 				role_name,
 				1 /* frameset_menu_horizontal */,
-				prompt_edit->
+				prompt_lookup->
 					folder_menu->
 					count_list );
 	}
 
-	prompt_edit->folder_attribute_date_name_list_length =
+	prompt_lookup->folder_attribute_date_name_list_length =
 		folder_attribute_date_name_list_length(
-			prompt_edit->
+			prompt_lookup->
 				folder->
 				folder_attribute_append_isa_list );
 
-	prompt_edit->dictionary_separate_drillthru =
+	prompt_lookup->dictionary_separate_drillthru =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
@@ -170,103 +170,103 @@ PROMPT_EDIT *prompt_edit_new(
 			application_name,
 			login_name,
 			folder_attribute_date_name_list(
-				prompt_edit->
+				prompt_lookup->
 					folder->
 					folder_attribute_append_isa_list ),
-			prompt_edit->
+			prompt_lookup->
 				folder->
 				folder_attribute_append_isa_list );
 
-	prompt_edit->drillthru =
+	prompt_lookup->drillthru =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
 		drillthru_continue(
-			prompt_edit->
+			prompt_lookup->
 				dictionary_separate_drillthru->
 				drillthru_dictionary /* in/out */,
 			folder_name );
 
-	if ( !prompt_edit->drillthru->drillthru_participating
-	||   prompt_edit->drillthru->finished )
+	if ( !prompt_lookup->drillthru->drillthru_participating
+	||   prompt_lookup->drillthru->finished )
 	{
-		prompt_edit->folder->relation_join_one2m_list =
+		prompt_lookup->folder->relation_join_one2m_list =
 			relation_join_one2m_list(
-				prompt_edit->folder->
+				prompt_lookup->folder->
 					relation_one2m_recursive_list,
 				(DICTIONARY *)0 /* ignore_dictionary */ );
 	}
 
-	prompt_edit->omit_insert_button =
-		prompt_edit_omit_insert_button(
-			prompt_edit->drillthru->skipped,
+	prompt_lookup->omit_insert_button =
+		prompt_lookup_omit_insert_button(
+			prompt_lookup->drillthru->skipped,
 			relation_exists_multi_select(
-				prompt_edit->
+				prompt_lookup->
 					folder->
 					relation_mto1_non_isa_list ) );
 
-	prompt_edit->omit_delete_button =
-		prompt_edit_omit_delete_button(
+	prompt_lookup->omit_delete_button =
+		prompt_lookup_omit_delete_button(
 			list_length(
-				prompt_edit->
+				prompt_lookup->
 					folder->
 					relation_mto1_isa_list ) );
 
-	prompt_edit->folder->relation_mto1_non_isa_list =
+	prompt_lookup->folder->relation_mto1_non_isa_list =
 		/* -------------------------------------------- */
 		/* Returns relation_mto1_non_isa_list or	*/
 		/* those with only a single foreign key.	*/
 		/* -------------------------------------------- */
-		prompt_edit_drillthru_skipped(
-			prompt_edit->folder->relation_mto1_non_isa_list,
-			prompt_edit->drillthru->skipped );
+		prompt_lookup_drillthru_skipped(
+			prompt_lookup->folder->relation_mto1_non_isa_list,
+			prompt_lookup->drillthru->skipped );
 
-	prompt_edit->title_html =
+	prompt_lookup->title_html =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		prompt_edit_title_html(
+		prompt_lookup_title_html(
 			state,
 			folder_name );
 
-	prompt_edit->security_entity =
+	prompt_lookup->security_entity =
 		security_entity_new(
 			login_name,
-			prompt_edit->folder->non_owner_forbid,
-			prompt_edit->role->override_row_restrictions );
+			prompt_lookup->folder->non_owner_forbid,
+			prompt_lookup->role->override_row_restrictions );
 
-	prompt_edit->form_prompt_edit =
-		form_prompt_edit_new(
+	prompt_lookup->form_prompt_lookup =
+		form_prompt_lookup_new(
 			application_name,
 			session_key,
 			login_name,
 			role_name,
 			folder_name,
-			prompt_edit->omit_insert_button,
-			prompt_edit->omit_delete_button,
-			prompt_edit->folder->folder_attribute_append_isa_list,
-			prompt_edit->folder->relation_mto1_non_isa_list,
-			prompt_edit->folder->relation_join_one2m_list,
-			prompt_edit->
+			prompt_lookup->omit_insert_button,
+			prompt_lookup->omit_delete_button,
+			prompt_lookup->folder->folder_attribute_append_isa_list,
+			prompt_lookup->folder->relation_mto1_non_isa_list,
+			prompt_lookup->folder->relation_join_one2m_list,
+			prompt_lookup->
 				dictionary_separate_drillthru->
 				drillthru_dictionary,
 			security_entity_where(
-				prompt_edit->security_entity,
-				prompt_edit->
+				prompt_lookup->security_entity,
+				prompt_lookup->
 					folder->
 					folder_attribute_list ) );
 
-	if ( !prompt_edit->form_prompt_edit )
+	if ( !prompt_lookup->form_prompt_lookup )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: form_prompt_edit_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: form_prompt_lookup_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	prompt_edit->document =
+	prompt_lookup->document =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
@@ -274,39 +274,39 @@ PROMPT_EDIT *prompt_edit_new(
 			application_name,
 			application_title_string(
 				application_name ),
-			prompt_edit->title_html,
+			prompt_lookup->title_html,
 			(char *)0 /* subtitle_html */,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
 			menu_horizontal_boolean,
-			prompt_edit->menu,
+			prompt_lookup->menu,
 			document_head_menu_setup_string(
 				menu_horizontal_boolean ),
 			document_head_calendar_setup_string(
-				prompt_edit->
+				prompt_lookup->
 				       folder_attribute_date_name_list_length ),
 			document_head_javascript_include_string(),
 			(char *)0 /* input_onload_string */ );
 
-	prompt_edit->document_form_html =
+	prompt_lookup->document_form_html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		document_form_html(
-			prompt_edit->document->html,
-			prompt_edit->document->document_head->html,
+			prompt_lookup->document->html,
+			prompt_lookup->document->document_head->html,
 			document_head_close_html(),
-			prompt_edit->document->document_body->html,
-			prompt_edit->form_prompt_edit->html,
+			prompt_lookup->document->document_body->html,
+			prompt_lookup->form_prompt_lookup->html,
 			document_body_close_html(),
 			document_close_html() );
 
-	free( prompt_edit->form_prompt_edit->html );
+	free( prompt_lookup->form_prompt_lookup->html );
 
-	return prompt_edit;
+	return prompt_lookup;
 }
 
-boolean prompt_edit_forbid(
+boolean prompt_lookup_forbid(
 			boolean update,
 			boolean lookup,
 			char *state,
@@ -325,20 +325,20 @@ boolean prompt_edit_forbid(
 	return 0;
 }
 
-boolean prompt_edit_omit_insert_button(
+boolean prompt_lookup_omit_insert_button(
 			boolean drillthru_skipped,
 			boolean relation_exists_multi_select )
 {
 	return drillthru_skipped || relation_exists_multi_select;
 }
 
-boolean prompt_edit_omit_delete_button(
+boolean prompt_lookup_omit_delete_button(
 			int relation_mto1_isa_list_length )
 {
 	return (boolean)relation_mto1_isa_list_length;
 }
 
-LIST *prompt_edit_drillthru_skipped(
+LIST *prompt_lookup_drillthru_skipped(
 			LIST *relation_mto1_non_isa_list,
 			boolean drillthru_skipped )
 {
@@ -348,7 +348,7 @@ LIST *prompt_edit_drillthru_skipped(
 		return relation_mto1_non_isa_list;
 }
 
-char *prompt_edit_title_html(
+char *prompt_lookup_title_html(
 			char *state,
 			char *folder_name )
 {
@@ -368,7 +368,7 @@ char *prompt_edit_title_html(
 	return title_html;
 }
 
-char *prompt_edit_output_system_string(
+char *prompt_lookup_output_system_string(
 			char *executable,
 			char *session_key,
 			char *login_name,

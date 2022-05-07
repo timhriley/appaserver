@@ -139,7 +139,7 @@ char *process_primary_where( char *process_name )
 }
 
 PROCESS *process_parse(	char *input,
-			char *document_root_directory,
+			char *document_root,
 			char *relative_source_directory,
 			boolean check_executable_inside_filesystem )
 {
@@ -154,14 +154,10 @@ PROCESS *process_parse(	char *input,
 	piece( process_name, SQL_DELIMITER, input, 0 );
 	process = process_new( strdup( process_name ) );
 
-	process->
-		check_executable_inside_filesystem =
-			check_executable_inside_filesystem;
-
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	process->command_line = strdup( buffer );
 
-	if ( process->check_executable_inside_filesystem
+	if ( check_executable_inside_filesystem
 	&&   !process_executable_ok( process->command_line ) )
 	{
 		char msg[ 1024 ];
@@ -206,13 +202,13 @@ PROCESS *process_parse(	char *input,
 	process->javascript_filename = strdup( buffer );
 
 	if ( *process->javascript_filename
-	&&   document_root_directory
+	&&   document_root
 	&&   relative_source_directory )
 	{
 		process->javascript =
 			javascript_new(
 				process->javascript_filename,
-				document_root_directory,
+				document_root,
 				relative_source_directory );
 
 		if ( !process->javascript )
@@ -271,7 +267,7 @@ PROCESS *process_new( char *process_name )
 PROCESS_SET *process_set_fetch(
 			char *process_set_name,
 			char *role_name,
-			char *document_root_directory,
+			char *document_root,
 			char *relative_source_directory,
 			boolean fetch_process_set_member_name_list )
 {
@@ -279,10 +275,12 @@ PROCESS_SET *process_set_fetch(
 	process_set_parse(
 		string_pipe_fetch(
 			process_set_system_string(
+				PROCESS_SET_SELECT,
+				PROCESS_SET_TABLE,
 				process_set_primary_where(
 					process_set_name ) ) ),
 		role_name,
-		document_root_directory,
+		document_root,
 		relative_source_directory,
 		fetch_process_set_member_name_list );
 }
@@ -296,7 +294,7 @@ PROCESS_SET *process_set_parse(
 {
 	PROCESS_SET *process_set;
 	char process_set_name[ 128 ];
-	char buffer[ STRING_COMMAND_BUFFER ];
+	char buffer[ STRING_64K ];
 
 	/* See PROCESS_SET_SELECT */
 	/* ---------------------- */
@@ -364,24 +362,30 @@ PROCESS_SET *process_set_parse(
 	return process_set;
 }
 
-PROCESS_SET *process_set_new(
-			char *process_set_name )
+PROCESS_SET *process_set_calloc( void )
 {
-	PROCESS_SET *p = calloc( 1, sizeof( PROCESS_SET ) );
+	PROCESS_SET *process_set = calloc( 1, sizeof( PROCESS_SET ) );
 
-	if ( !p )
+	if ( !process_set )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 (int)sizeof( PROCESS_SET ) );
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	p->process_set_name = process_set_name;
-	return p;
+	return process_set;
+}
+
+PROCESS_SET *process_set_new( char *process_set_name )
+{
+	PROCESS_SET *process_set = process_set_calloc();
+
+	process_set->process_set_name = process_set_name;
+
+	return process_set;
 }
 
 char *process_set_primary_where(
@@ -396,14 +400,17 @@ char *process_set_primary_where(
 	return where;
 }
 
-char *process_set_system_string( char *where )
+char *process_set_system_string(
+			char *process_set_select,
+			char *process_set_table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		PROCESS_SET_SELECT,
-		PROCESS_SET_TABLE,
+		process_set_select,
+		process_set_table,
 		where );
 
 	return strdup( system_string );
@@ -580,122 +587,6 @@ void process_replace_where_command_line(
 
 	free( query_widget_where->string );
 	free( query_widget_where );
-}
-
-PROCESS_PROMPT_OUTPUT *process_prompt_output_calloc( void )
-{
-	PROCESS_PROMPT_OUTPUT *process_prompt_output;
-
-	if ( ! ( process_prompt_output =
-			calloc( 1, sizeof( PROCESS_PROMPT_OUTPUT ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-	return process_prompt_output;
-}
-
-PROCESS_PROMPT_OUTPUT *process_prompt_output_fetch(
-			char *process_or_set_name,
-			char *role_name,
-			char *login_name,
-			boolean is_preprompt,
-			char *document_root_directory,
-			char *relative_source_directory,
-			DICTIONARY *drillthru_dictionary )
-{
-	PROCESS_PROMPT_OUTPUT *process_prompt_output;
-	char *process_name;
-	char *process_set_name = {0};
-
-	if ( ! ( process_name =
-			process_name_fetch(
-				process_or_set_name ) ) )
-	{
-		if ( ! ( process_set_name =
-				process_set_name_fetch(
-					process_or_set_name ) ) )
-		{
-			return (PROCESS_PROMPT_OUTPUT *)0;
-		}
-	}
-
-	process_prompt_output = process_prompt_output_calloc();
-
-	process_prompt_output->process_or_set_name = process_or_set_name;
-	process_prompt_output->role_name = role_name;
-	process_prompt_output->login_name = login_name;
-	process_prompt_output->is_preprompt = is_preprompt;
-	process_prompt_output->drillthru_dictionary = drillthru_dictionary;
-
-	if ( process_name )
-	{
-		process_prompt_output->process =
-			process_fetch(
-				process_name,
-				document_root_directory,
-				relative_source_directory,
-				0 /* not check_executable_inside */ );
-
-		if ( !process_prompt_output->process )
-		{
-			return (PROCESS_PROMPT_OUTPUT *)0;
-		}
-
-		process_prompt_output->process_parameter_list =
-			process_parameter_system_list(
-				process_parameter_system_string(
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					process_parameter_where(
-						/* --------------------- */
-						/* Returns static memory */
-						/* --------------------- */
-						process_primary_where(
-							process_name ),
-						is_preprompt ) ),
-				role_name,
-				login_name,
-				drillthru_dictionary );
-	}
-	else
-	{
-		process_prompt_output->process_set =
-			process_set_fetch(
-				process_prompt_output->
-					process_or_set_name,
-				process_prompt_output->role_name,
-				document_root_directory,
-				relative_source_directory,
-				1 /* fetch_member_process_name_list */ );
-
-		process_prompt_output->process_parameter_list =
-			process_parameter_system_list(
-				process_set_parameter_system_string(
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					process_set_primary_where(
-						process_prompt_output->
-							process_set->
-							process_set_name ) ),
-				role_name,
-				login_name,
-				drillthru_dictionary );
-	}
-
-	if ( !process_prompt_output->process_set
-	&&   !process_prompt_output->process )
-	{
-		return (PROCESS_PROMPT_OUTPUT *)0;
-	}
-
-	return process_prompt_output;
 }
 
 char *process_choose_isa_command_line(

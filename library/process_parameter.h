@@ -12,8 +12,6 @@
 #include "folder.h"
 #include "attribute.h"
 
-/* Constants */
-/* --------- */
 #define PROMPT_TABLE			"prompt"
 #define DROP_DOWN_PROMPT_TABLE		"drop_down_prompt"
 #define DROP_DOWN_PROMPT_DATA_TABLE	"drop_down_prompt_data"
@@ -44,12 +42,29 @@
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
 	char *drop_down_prompt_name;
 	char *drop_down_prompt_data;
 	int display_order;
 } DROP_DOWN_PROMPT_DATA;
+
+/* Usage */
+/* ----- */
+DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_new(
+			char *drop_down_prompt_name,
+			char *drop_down_prompt_data );
+
+/* Process */
+/* ------- */
+DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_parse(
+			char *input );
+
+/* Returns heap memory */
+/* ------------------- */
+char *drop_down_prompt_data_system_string(
+			char *where );
+
+LIST *drop_down_prompt_data_system_list(
+			char *system_string );
 
 typedef struct
 {
@@ -64,10 +79,31 @@ typedef struct
 	LIST *drop_down_prompt_data_list;
 } DROP_DOWN_PROMPT;
 
+/* Usage */
+/* ----- */
+DROP_DOWN_PROMPT *drop_down_prompt_fetch(
+			char *drop_down_prompt_name );
+
+/* Process */
+/* ------- */
+DROP_DOWN_PROMPT *drop_down_prompt_parse(
+			char *input );
+
+DROP_DOWN_PROMPT *drop_down_prompt_new(
+			char *drop_down_prompt_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *drop_down_prompt_primary_where(
+			char *drop_down_prompt_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *drop_down_prompt_system_string(
+			char *where );
+
 typedef struct
 {
-	/* Input */
-	/* ----- */
 	char *prompt_name;
 	int input_width;
 	char *hint_message;
@@ -75,14 +111,29 @@ typedef struct
 	boolean date;
 } PROMPT;
 
+/* Usage */
+/* ----- */
+PROMPT *prompt_fetch(	char *prompt_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *prompt_primary_where(
+			char *prompt_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *prompt_system_string(
+			char *where );
+
+PROMPT *prompt_parse(	char *input );
+
+PROMPT *prompt_new(	char *prompt_name );
+
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *role_name;
-	char *login_name;
-	DICTIONARY *drillthru_dictionary;
-
 	/* Attributes */
 	/* ---------- */
 	char *process_or_set_name;
@@ -105,100 +156,29 @@ typedef struct
 	PROMPT *prompt;
 } PROCESS_PARAMETER;
 
-/* PROCESS_PARAMETER operations */
-/* ---------------------------- */
-PROCESS_PARAMETER *process_parameter_new(
-			char *process_or_set_name,
-			char *folder_name,
-			char *attribute_name,
-			char *drop_down_prompt_name,
-			char *prompt_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *process_parameter_where(
-			char *where,
-			boolean is_preprompt );
-
-/* PROMPT operations */
-/* ----------------- */
-PROMPT *prompt_fetch(	char *prompt_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *prompt_primary_where(
-			char *prompt_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *prompt_system_string(
-			char *where );
-
-PROMPT *prompt_parse(	char *input );
-
-PROMPT *prompt_new(	char *prompt_name );
-
-/* DROP_DOWN_PROMPT_DATA */
-/* ===================== */
-DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_new(
-			char *drop_down_prompt_name,
-			char *drop_down_prompt_data );
-
-DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_parse(
-			char *input );
-
-/* Returns heap memory */
-/* ------------------- */
-char *drop_down_prompt_data_system_string(
-			char *where );
-
-LIST *drop_down_prompt_data_system_list(
-			char *system_string );
-
-/* DROP_DOWN_PROMPT */
-/* ================ */
-DROP_DOWN_PROMPT *drop_down_prompt_new(
-			char *drop_down_prompt_name );
-
-DROP_DOWN_PROMPT *drop_down_prompt_fetch(
-			char *drop_down_prompt_name );
-
-DROP_DOWN_PROMPT *drop_down_prompt_parse(
-			char *input );
-
-/* Returns static memory */
-/* --------------------- */
-char *drop_down_prompt_primary_where(
-			char *drop_down_prompt_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *drop_down_prompt_system_string(
-			char *where );
-
-/* PROCESS_PARAMETER */
-/* ================= */
+/* Usage */
+/* ----- */
 LIST *process_parameter_system_list(
 			char *system_string,
 			char *role_name,
 			char *login_name,
 			DICTIONARY *drillthru_dictionary );
 
-/* Returns heap memory */
-/* ------------------- */
-char *process_parameter_system_string(
-			char *where );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_set_parameter_system_string(
-			char *where );
+/* Process */
+/* ------- */
 
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
 			char *role_name,
 			char *login_name,
 			DICTIONARY *drillthru_dictionary );
+
+PROCESS_PARAMETER *process_parameter_new(
+			char *process_or_set_name,
+			char *folder_name,
+			char *attribute_name,
+			char *drop_down_prompt_name,
+			char *prompt_name );
 
 LIST *process_parameter_process_delimited_list(
 			char *populate_drop_down_process_name,
@@ -211,6 +191,35 @@ LIST *process_parameter_folder_delimited_list(
 			char *login_name,
 			char *role_name,
 			DICTIONARY *drillthru_dictionary );
+
+/* Public */
+/* ------ */
+
+/* Returns static memory */
+/* --------------------- */
+char *process_parameter_where(
+			char *process_name,
+			boolean is_drillthru );
+
+/* Returns heap memory */
+/* ------------------- */
+char *process_parameter_system_string(
+			char *process_parameter_select,
+			char *process_parameter_table,
+			char *process_parameter_where );
+
+/* Returns static memory */
+/* --------------------- */
+char *process_parameter_set_where(
+			char *process_set_name,
+			boolean is_drillthru );
+
+/* Returns heap memory */
+/* ------------------- */
+char *process_parameter_set_system_string(
+			char *process_set_parameter_select,
+			char *process_set_parameter_table,
+			char *process_parameter_set_where );
 
 #endif
 

@@ -307,28 +307,32 @@ LIST *process_parameter_system_list(
 }
 
 char *process_parameter_system_string(
+			char *process_parameter_select,
+			char *process_parameter_table,
 			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
 		"select.sh '%s' %s \"%s\" display_order",
-		PROCESS_PARAMETER_SELECT,
-		PROCESS_PARAMETER_TABLE,
+		process_parameter_select,
+		process_parameter_table,
 		where );
 
 	return strdup( system_string );
 }
 
-char *process_set_parameter_system_string(
+char *process_parameter_set_system_string(
+			char *process_set_parameter_select,
+			char *process_set_parameter_table,
 			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
 		"select.sh '%s' %s \"%s\" display_order",
-		PROCESS_SET_PARAMETER_SELECT,
-		PROCESS_SET_PARAMETER_TABLE,
+		process_set_parameter_select,
+		process_set_parameter_table,
 		where );
 
 	return strdup( system_string );
@@ -365,10 +369,6 @@ PROCESS_PARAMETER *process_parameter_parse(
 			strdup( drop_down_prompt_name ),
 			strdup( prompt_name ) );
 
-	process_parameter->role_name = role_name;
-	process_parameter->login_name = login_name;
-	process_parameter->drillthru_dictionary = drillthru_dictionary;
-
 	piece( buffer, SQL_DELIMITER, input, 5 );
 	process_parameter->display_order = atoi( buffer );
 
@@ -390,9 +390,9 @@ PROCESS_PARAMETER *process_parameter_parse(
 			process_parameter_process_delimited_list(
 				process_parameter->
 					populate_drop_down_process_name,
-				process_parameter->login_name,
-				process_parameter->role_name,
-				process_parameter->drillthru_dictionary );
+				login_name,
+				role_name,
+				drillthru_dictionary );
 		ok_return = 1;
 	}
 	else
@@ -402,9 +402,9 @@ PROCESS_PARAMETER *process_parameter_parse(
 			process_parameter_folder_delimited_list(
 				process_parameter->folder_name
 					/* widget_folder_name */,
-				process_parameter->login_name,
-				process_parameter->role_name,
-				process_parameter->drillthru_dictionary );
+				login_name,
+				role_name,
+				drillthru_dictionary );
 		ok_return = 1;
 	}
 	else
@@ -471,15 +471,29 @@ PROCESS_PARAMETER *process_parameter_new(
 }
 
 char *process_parameter_where(
-			char *where,
-			boolean is_preprompt )
+			char *process_name,
+			boolean is_drillthru )
 {
 	static char parameter_where[ 512 ];
 
 	sprintf(parameter_where,
-		"%s and ifnull(drillthru_yn,'n') = '%c'",
-		where,
-		(is_preprompt) ? 'y' : 'n' );
+		"process = '%s' and ifnull(drillthru_yn,'n') = '%c'",
+		process_name,
+		(is_drillthru) ? 'y' : 'n' );
+
+	return parameter_where;
+}
+
+char *process_parameter_set_where(
+			char *process_set_name,
+			boolean is_drillthru )
+{
+	static char parameter_where[ 512 ];
+
+	sprintf(parameter_where,
+		"process_set = '%s' and ifnull(drillthru_yn,'n') = '%c'",
+		process_set_name,
+		(is_drillthru) ? 'y' : 'n' );
 
 	return parameter_where;
 }

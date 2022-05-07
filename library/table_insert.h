@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/insert_table.h				*/
+/* $APPASERVER_HOME/library/table_insert.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef INSERT_TABLE_H
-#define INSERT_TABLE_H
+#ifndef TABLE_INSERT_H
+#define TABLE_INSERT_H
 
 /* Includes */
 /* -------- */
@@ -19,23 +19,23 @@
 
 /* Constants */
 /* --------- */
-#define INSERT_TABLE_OUTPUT_EXECUTABLE	"output_insert_table"
+#define TABLE_INSERT_OUTPUT_EXECUTABLE	"output_table_insert"
 
 typedef struct
 {
 	ROLE *role;
 	FOLDER *folder;
 	LIST *role_folder_list;
-	DICTIONARY_SEPARATE_INSERT_TABLE *dictionary_separate_insert_table;
+	DICTIONARY_SEPARATE_TABLE_INSERT *dictionary_separate_table_insert;
 	boolean forbid;
-} INSERT_TABLE;
+} TABLE_INSERT;
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-INSERT_TABLE *insert_table_new(
+TABLE_INSERT *table_insert_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -48,7 +48,7 @@ INSERT_TABLE *insert_table_new(
 
 /* Process */
 /* ------- */
-boolean insert_table_forbid(
+boolean table_insert_forbid(
 			boolean role_folder_insert );
 
 /* Public */
@@ -56,8 +56,8 @@ boolean insert_table_forbid(
 
 /* Returns heap memory */
 /* ------------------- */
-char *insert_table_output_system_string(
-			char *insert_table_output_executable,
+char *table_insert_output_system_string(
+			char *table_insert_output_executable,
 			char *session_key,
 			char *login_name,
 			char *role_name,
@@ -68,6 +68,6 @@ char *insert_table_output_system_string(
 
 /* Private */
 /* ------- */
-INSERT_TABLE *insert_table_calloc(
+TABLE_INSERT *table_insert_calloc(
 			void );
 #endif

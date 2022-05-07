@@ -33,7 +33,9 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			char *process_or_set_name,
 			boolean has_preprompt,
 			boolean is_preprompt,
-			POST_DICTIONARY *post_dictionary )
+			POST_DICTIONARY *post_dictionary,
+			char *document_root,
+			char *application_relative_source_directory )
 {
 	POST_PROMPT_PROCESS *post_prompt_process =
 		post_prompt_process_calloc();
@@ -45,7 +47,9 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 	||   !login_name
 	||   !role_name
 	||   !process_or_set_name
-	||   !post_dictionary )
+	||   !post_dictionary
+	||   !document_root
+	||   !application_relative_source_directory )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",

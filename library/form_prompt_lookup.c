@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/form_prompt_edit.c				*/
+/* $APPASERVER_HOME/library/form_prompt_lookup.c				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -27,10 +27,10 @@
 #include "frameset.h"
 #include "button.h"
 #include "appaserver.h"
-#include "post_prompt_edit.h"
-#include "form_prompt_edit.h"
+#include "post_prompt_lookup.h"
+#include "form_prompt_lookup.h"
 
-FORM_PROMPT_EDIT *form_prompt_edit_new(
+FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -44,7 +44,7 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			DICTIONARY *drillthru_dictionary,
 			char *security_entity_where )
 {
-	FORM_PROMPT_EDIT *form_prompt_edit;
+	FORM_PROMPT_LOOKUP *form_prompt_lookup;
 	char *tmp;
 
 	if ( !application_name
@@ -62,37 +62,37 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 		exit( 1 );
 	}
 
-	form_prompt_edit = form_prompt_edit_calloc();
+	form_prompt_lookup = form_prompt_lookup_calloc();
 
-	form_prompt_edit->radio_pair_list =
-		form_prompt_edit_radio_pair_list(
+	form_prompt_lookup->radio_pair_list =
+		form_prompt_lookup_radio_pair_list(
 			omit_insert_button,
 			omit_delete_button,
 			list_length( relation_mto1_non_isa_list ) );
 
-	form_prompt_edit->radio_list =
+	form_prompt_lookup->radio_list =
 		radio_list_new(
 			FORM_RADIO_LIST_NAME,
-			form_prompt_edit->radio_pair_list,
+			form_prompt_lookup->radio_pair_list,
 			RADIO_LOOKUP_LABEL /* initial_label */ );
 
-	form_prompt_edit->action_string =
-		form_prompt_edit_action_string(
-			POST_PROMPT_EDIT_EXECUTABLE,
+	form_prompt_lookup->action_string =
+		form_prompt_lookup_action_string(
+			POST_PROMPT_LOOKUP_EXECUTABLE,
 			application_name,
 			session_key,
 			login_name,
 			role_name,
 			folder_name );
 
-	form_prompt_edit->form_tag_html =
+	form_prompt_lookup->form_tag_html =
 		form_tag_html(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
-			form_prompt_edit->action_string,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
+			form_prompt_lookup->action_string,
 			FRAMESET_EDIT_FRAME /* target_frame */ );
 
-	form_prompt_edit->form_prompt_edit_element_list =
-		form_prompt_edit_element_list_new(
+	form_prompt_lookup->form_prompt_lookup_element_list =
+		form_prompt_lookup_element_list_new(
 			folder_attribute_append_isa_list,
 			relation_mto1_non_isa_list,
 			relation_join_one2m_list,
@@ -100,10 +100,10 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 			login_name,
 			security_entity_where );
 
-	if ( !form_prompt_edit->
-		form_prompt_edit_element_list
-	||   !form_prompt_edit->
-		form_prompt_edit_element_list->
+	if ( !form_prompt_lookup->
+		form_prompt_lookup_element_list
+	||   !form_prompt_lookup->
+		form_prompt_lookup_element_list->
 		appaserver_element_list_html )
 	{
 		fprintf(stderr,
@@ -114,135 +114,135 @@ FORM_PROMPT_EDIT *form_prompt_edit_new(
 		exit( 1 );
 	}
 
-	form_prompt_edit->form_multi_select_all_javascript =
+	form_prompt_lookup->form_multi_select_all_javascript =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_multi_select_all_javascript(
-			form_prompt_edit->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_prompt_edit->form_cookie_key =
+	form_prompt_lookup->form_cookie_key =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		form_cookie_key(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			folder_name );
 
-	form_prompt_edit->form_cookie_multi_key =
+	form_prompt_lookup->form_cookie_multi_key =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		form_cookie_multi_key(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			folder_name );
 
-	form_prompt_edit->form_keystrokes_save_javascript =
+	form_prompt_lookup->form_keystrokes_save_javascript =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_keystrokes_save_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
-			form_prompt_edit->form_cookie_key,
-			form_prompt_edit->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
+			form_prompt_lookup->form_cookie_key,
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_prompt_edit->form_keystrokes_multi_save_javascript =
+	form_prompt_lookup->form_keystrokes_multi_save_javascript =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_keystrokes_multi_save_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
-			form_prompt_edit->form_cookie_multi_key,
-			form_prompt_edit->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
+			form_prompt_lookup->form_cookie_multi_key,
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_prompt_edit->form_keystrokes_recall_javascript =
+	form_prompt_lookup->form_keystrokes_recall_javascript =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_keystrokes_recall_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
-			form_prompt_edit->form_cookie_key,
-			form_prompt_edit->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
+			form_prompt_lookup->form_cookie_key,
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_prompt_edit->form_keystrokes_multi_recall_javascript =
+	form_prompt_lookup->form_keystrokes_multi_recall_javascript =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_keystrokes_multi_recall_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
-			form_prompt_edit->form_cookie_multi_key,
-			form_prompt_edit->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
+			form_prompt_lookup->form_cookie_multi_key,
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_prompt_edit->form_verify_notepad_widths_javascript =
+	form_prompt_lookup->form_verify_notepad_widths_javascript =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		form_verify_notepad_widths_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
-			form_prompt_edit->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_prompt_edit->button_list =
-		form_prompt_edit_button_list(
-			form_prompt_edit->
+	form_prompt_lookup->button_list =
+		form_prompt_lookup_button_list(
+			form_prompt_lookup->
 				form_multi_select_all_javascript,
-			form_prompt_edit->
+			form_prompt_lookup->
 				form_keystrokes_save_javascript,
-			form_prompt_edit->
+			form_prompt_lookup->
 				form_keystrokes_multi_save_javascript,
-			form_prompt_edit->
+			form_prompt_lookup->
 				form_keystrokes_recall_javascript,
-			form_prompt_edit->
+			form_prompt_lookup->
 				form_keystrokes_multi_recall_javascript,
-			form_prompt_edit->
+			form_prompt_lookup->
 				form_verify_notepad_widths_javascript );
 
-	form_prompt_edit->html =
+	form_prompt_lookup->html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		form_prompt_edit_html(
-			form_prompt_edit->form_tag_html,
-			form_prompt_edit->radio_list->html,
-			form_prompt_edit->
-				form_prompt_edit_element_list->
+		form_prompt_lookup_html(
+			form_prompt_lookup->form_tag_html,
+			form_prompt_lookup->radio_list->html,
+			form_prompt_lookup->
+				form_prompt_lookup_element_list->
 				appaserver_element_list_html,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			( tmp = button_list_html(
-				   form_prompt_edit->button_list ) )
+				   form_prompt_lookup->button_list ) )
 					     /* button_list_html */,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
 			form_close_html() );
 
-	free( form_prompt_edit->
-		form_prompt_edit_element_list->
+	free( form_prompt_lookup->
+		form_prompt_lookup_element_list->
 		appaserver_element_list_html );
 
 	/* Free button_list_html() */
 	/* ----------------------- */
 	if ( tmp ) free( tmp );
 
-	button_list_free( form_prompt_edit->button_list );
+	button_list_free( form_prompt_lookup->button_list );
 
-	return form_prompt_edit;
+	return form_prompt_lookup;
 }
 
-LIST *form_prompt_edit_radio_pair_list(
+LIST *form_prompt_lookup_radio_pair_list(
 			boolean omit_insert_button,
 			boolean omit_delete_button,
 			int relation_mto1_non_isa_list_length )
@@ -297,11 +297,11 @@ LIST *form_prompt_edit_radio_pair_list(
 	return radio_pair_list;
 }
 
-FORM_PROMPT_EDIT *form_prompt_edit_calloc( void )
+FORM_PROMPT_LOOKUP *form_prompt_lookup_calloc( void )
 {
-	FORM_PROMPT_EDIT *form_prompt_edit;
+	FORM_PROMPT_LOOKUP *form_prompt_lookup;
 
-	if ( ! ( form_prompt_edit = calloc( 1, sizeof( FORM_PROMPT_EDIT ) ) ) )
+	if ( ! ( form_prompt_lookup = calloc( 1, sizeof( FORM_PROMPT_LOOKUP ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -311,41 +311,41 @@ FORM_PROMPT_EDIT *form_prompt_edit_calloc( void )
 		exit( 1 );
 	}
 
-	return form_prompt_edit;
+	return form_prompt_lookup;
 }
 
-FORM_PROMPT_EDIT_RELATIONAL *
-	form_prompt_edit_relational_new(
+FORM_PROMPT_LOOKUP_RELATIONAL *
+	form_prompt_lookup_relational_new(
 			char *relational_name,
 			char *from_name,
 			char *to_name,
 			char *datatype_name,
 			int attribute_width )
 {
-	FORM_PROMPT_EDIT_RELATIONAL *form_prompt_edit_relational =
-		form_prompt_edit_relational_calloc();
+	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational =
+		form_prompt_lookup_relational_calloc();
 
-	form_prompt_edit_relational->element_list = list_new();
+	form_prompt_lookup_relational->element_list = list_new();
 
-	form_prompt_edit_relational->operation_list =
-		form_prompt_edit_relational_operation_list(
+	form_prompt_lookup_relational->operation_list =
+		form_prompt_lookup_relational_operation_list(
 			datatype_name );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
-		( form_prompt_edit_relational->
+		form_prompt_lookup_relational->element_list,
+		( form_prompt_lookup_relational->
 			relation_operator_appaserver_element =
 				appaserver_element_new(
 					prompt_drop_down, relational_name ) ) );
 
-	form_prompt_edit_relational->
+	form_prompt_lookup_relational->
 		relation_operator_appaserver_element->
 		prompt_drop_down =
 			element_prompt_drop_down_new(
-				form_prompt_edit_relational->
+				form_prompt_lookup_relational->
 					relation_operator_appaserver_element->
 					element_name,
-				form_prompt_edit_relational->operation_list,
+				form_prompt_lookup_relational->operation_list,
 				0 /* not no_initial_capital */,
 				1 /* output_null_option */,
 				1 /* output_not_null_option */,
@@ -357,24 +357,24 @@ FORM_PROMPT_EDIT_RELATIONAL *
 				1 /* recall */ );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
+		form_prompt_lookup_relational->element_list,
 		appaserver_element_new(
 			table_data, (char *)0 ) );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
-		( form_prompt_edit_relational->
+		form_prompt_lookup_relational->element_list,
+		( form_prompt_lookup_relational->
 			text_from_appaserver_element =
 				appaserver_element_new(
 					text, from_name ) ) );
 
-	form_prompt_edit_relational->text_from_appaserver_element->text =
+	form_prompt_lookup_relational->text_from_appaserver_element->text =
 		element_text_new(
-			form_prompt_edit_relational->
+			form_prompt_lookup_relational->
 				text_from_appaserver_element->
 				element_name,
 			datatype_name,
-			FORM_PROMPT_EDIT_FROM_ATTRIBUTE_WIDTH,
+			FORM_PROMPT_LOOKUP_FROM_ATTRIBUTE_WIDTH,
 			0 /* not null_to_slash */,
 			1 /* prevent_carrot */,
 			(char *)0 /* on_change */,
@@ -384,38 +384,38 @@ FORM_PROMPT_EDIT_RELATIONAL *
 			1 /* recall */ );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
+		form_prompt_lookup_relational->element_list,
 		appaserver_element_new(
 			table_data, (char *)0 ) );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
-		( form_prompt_edit_relational->
+		form_prompt_lookup_relational->element_list,
+		( form_prompt_lookup_relational->
 			and_appaserver_element =
 				appaserver_element_new(
 					non_edit_text, (char *)0 ) ) );
 
-	form_prompt_edit_relational->and_appaserver_element->non_edit_text =
+	form_prompt_lookup_relational->and_appaserver_element->non_edit_text =
 		element_non_edit_text_new(
 			(char *)0,
 			"and" /* message */ );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
+		form_prompt_lookup_relational->element_list,
 		appaserver_element_new(
 			table_data, (char *)0 ) );
 
 	list_set(
-		form_prompt_edit_relational->element_list,
-		( form_prompt_edit_relational->
+		form_prompt_lookup_relational->element_list,
+		( form_prompt_lookup_relational->
 			text_to_appaserver_element =
 				appaserver_element_new(
 					text, to_name ) ) );
 
-	form_prompt_edit_relational->text_from_appaserver_element->text =
+	form_prompt_lookup_relational->text_from_appaserver_element->text =
 		element_text_new(
 			to_name,
-			form_prompt_edit_relational->
+			form_prompt_lookup_relational->
 				text_to_appaserver_element->
 				element_name,
 			attribute_width,
@@ -427,10 +427,10 @@ FORM_PROMPT_EDIT_RELATIONAL *
 			-1 /* tab_order */,
 			1 /* recall */ );
 
-	return form_prompt_edit_relational;
+	return form_prompt_lookup_relational;
 }
 
-LIST *form_prompt_edit_relational_operation_list(
+LIST *form_prompt_lookup_relational_operation_list(
 			char *datatype_name )
 {
 	LIST *list;
@@ -495,14 +495,14 @@ LIST *form_prompt_edit_relational_operation_list(
 	return list;
 }
 
-FORM_PROMPT_EDIT_RELATIONAL *
-	form_prompt_edit_relational_calloc(
+FORM_PROMPT_LOOKUP_RELATIONAL *
+	form_prompt_lookup_relational_calloc(
 			void )
 {
-	FORM_PROMPT_EDIT_RELATIONAL *form_prompt_edit_relational;
+	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational;
 
-	if ( ! ( form_prompt_edit_relational =
-			calloc( 1, sizeof( FORM_PROMPT_EDIT_RELATIONAL ) ) ) )
+	if ( ! ( form_prompt_lookup_relational =
+			calloc( 1, sizeof( FORM_PROMPT_LOOKUP_RELATIONAL ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -512,50 +512,50 @@ FORM_PROMPT_EDIT_RELATIONAL *
 		exit( 1 );
 	}
 
-	return form_prompt_edit_relational;
+	return form_prompt_lookup_relational;
 }
 
-FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
+FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 			char *attribute_name,
 			char *folder_attribute_prompt,
 			char *datatype_name,
 			int attribute_width,
 			char *hint_message,
-			LIST *form_prompt_edit_relation_list )
+			LIST *form_prompt_lookup_relation_list )
 {
-	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute =
-		form_prompt_edit_attribute_calloc();
+	FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute =
+		form_prompt_lookup_attribute_calloc();
 
-	if ( form_prompt_edit_relation_attribute_name_exists(
+	if ( form_prompt_lookup_relation_attribute_name_exists(
 		attribute_name,
-		form_prompt_edit_relation_list ) )
+		form_prompt_lookup_relation_list ) )
 	{
-		free( form_prompt_edit_attribute );
-		return (FORM_PROMPT_EDIT_ATTRIBUTE *)0;
+		free( form_prompt_lookup_attribute );
+		return (FORM_PROMPT_LOOKUP_ATTRIBUTE *)0;
 	}
 
-	form_prompt_edit_attribute->element_list = list_new();
+	form_prompt_lookup_attribute->element_list = list_new();
 
-	form_prompt_edit_attribute->no_display_name =
-		form_prompt_edit_attribute_no_display_name(
+	form_prompt_lookup_attribute->no_display_name =
+		form_prompt_lookup_attribute_no_display_name(
 			FORM_NO_DISPLAY_PREFIX,
 			attribute_name );
 
 	list_set(
-		form_prompt_edit_attribute->element_list,
-		( form_prompt_edit_attribute->
+		form_prompt_lookup_attribute->element_list,
+		( form_prompt_lookup_attribute->
 			no_display_appaserver_element =
 				appaserver_element_new(
 					checkbox,
-					form_prompt_edit_attribute->
+					form_prompt_lookup_attribute->
 						no_display_name ) ) );
 
-	form_prompt_edit_attribute->
+	form_prompt_lookup_attribute->
 		no_display_appaserver_element->
 		checkbox =
 			element_checkbox_new(
 				(char *)0 /* attribute_name */,
-				form_prompt_edit_attribute->
+				form_prompt_lookup_attribute->
 					no_display_appaserver_element->
 					element_name,
 				(char *)0 /* prompt_string */,
@@ -565,46 +565,46 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 				1 /* recall */ );
 
 	list_set(
-		form_prompt_edit_attribute->element_list,
+		form_prompt_lookup_attribute->element_list,
 		appaserver_element_new( table_data, (char *)0 ) );
 
 	list_set(
-		form_prompt_edit_attribute->element_list,
-		( form_prompt_edit_attribute->prompt_appaserver_element =
+		form_prompt_lookup_attribute->element_list,
+		( form_prompt_lookup_attribute->prompt_appaserver_element =
 			appaserver_element_new(
 				non_edit_text, (char *)0 ) ) );
 
-	form_prompt_edit_attribute->prompt_appaserver_element->non_edit_text =
+	form_prompt_lookup_attribute->prompt_appaserver_element->non_edit_text =
 		element_non_edit_text_new(
 			(char *)0,
 			folder_attribute_prompt );
 
 	list_set(
-		form_prompt_edit_attribute->element_list,
+		form_prompt_lookup_attribute->element_list,
 		appaserver_element_new( table_data, (char *)0 ) );
 
-	form_prompt_edit_attribute->from_name =
-		form_prompt_edit_attribute_from_name(
+	form_prompt_lookup_attribute->from_name =
+		form_prompt_lookup_attribute_from_name(
 			DICTIONARY_SEPARATE_FROM_PREFIX,
 			attribute_name );
 
 	if ( attribute_is_yes_no( attribute_name ) )
 	{
 		list_set(
-			form_prompt_edit_attribute->element_list,
-			( form_prompt_edit_attribute->
+			form_prompt_lookup_attribute->element_list,
+			( form_prompt_lookup_attribute->
 				yes_no_appaserver_element =
 					appaserver_element_new(
 						yes_no,
-						form_prompt_edit_attribute->
+						form_prompt_lookup_attribute->
 							from_name ) ) );
 
-		form_prompt_edit_attribute->
+		form_prompt_lookup_attribute->
 			yes_no_appaserver_element->
 			yes_no =
 				element_yes_no_new(
 					(char *)0 /* attribute_name */,
-					form_prompt_edit_attribute->
+					form_prompt_lookup_attribute->
 						yes_no_appaserver_element->
 						element_name,
 					1 /* output_null_option */,
@@ -614,41 +614,41 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 					1 /* recall */ );
 
 		list_set(
-			form_prompt_edit_attribute->element_list,
+			form_prompt_lookup_attribute->element_list,
 			appaserver_element_new( table_data, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_attribute->element_list,
+			form_prompt_lookup_attribute->element_list,
 			appaserver_element_new( table_data, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_attribute->element_list,
+			form_prompt_lookup_attribute->element_list,
 			appaserver_element_new( table_data, (char *)0 ) );
 	}
 	else
 	{
-		form_prompt_edit_attribute->relational_name =
-			form_prompt_edit_attribute_relational_name(
-				FORM_PROMPT_EDIT_RELATIONAL_PREFIX,
+		form_prompt_lookup_attribute->relational_name =
+			form_prompt_lookup_attribute_relational_name(
+				FORM_PROMPT_LOOKUP_RELATIONAL_PREFIX,
 				attribute_name );
 
-		form_prompt_edit_attribute->to_name =
-			form_prompt_edit_attribute_to_name(
+		form_prompt_lookup_attribute->to_name =
+			form_prompt_lookup_attribute_to_name(
 			DICTIONARY_SEPARATE_TO_PREFIX,
 			attribute_name );
 
-		form_prompt_edit_attribute->form_prompt_edit_relational =
-			form_prompt_edit_relational_new(
-				form_prompt_edit_attribute->relational_name,
-				form_prompt_edit_attribute->from_name,
-				form_prompt_edit_attribute->to_name,
+		form_prompt_lookup_attribute->form_prompt_lookup_relational =
+			form_prompt_lookup_relational_new(
+				form_prompt_lookup_attribute->relational_name,
+				form_prompt_lookup_attribute->from_name,
+				form_prompt_lookup_attribute->to_name,
 				datatype_name,
 				attribute_width );
 
-		if ( !form_prompt_edit_attribute->form_prompt_edit_relational )
+		if ( !form_prompt_lookup_attribute->form_prompt_lookup_relational )
 		{
 			fprintf(stderr,
-"ERROR in %s/%s()/%d: form_prompt_edit_relational_new() returned empty.\n",
+"ERROR in %s/%s()/%d: form_prompt_lookup_relational_new() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -656,26 +656,26 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 		}
 
 		list_set_list(
-			form_prompt_edit_attribute->element_list,
-			form_prompt_edit_attribute->
-				form_prompt_edit_relational->
+			form_prompt_lookup_attribute->element_list,
+			form_prompt_lookup_attribute->
+				form_prompt_lookup_relational->
 					element_list );
 	}
 
 	if ( hint_message )
 	{
 		list_set(
-			form_prompt_edit_attribute->element_list,
+			form_prompt_lookup_attribute->element_list,
 			appaserver_element_new( table_data, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_attribute->element_list,
-			( form_prompt_edit_attribute->
+			form_prompt_lookup_attribute->element_list,
+			( form_prompt_lookup_attribute->
 				hint_message_appaserver_element =
 					appaserver_element_new(
 						non_edit_text, (char *)0 ) ) );
 
-		form_prompt_edit_attribute->
+		form_prompt_lookup_attribute->
 			hint_message_appaserver_element->
 			non_edit_text =
 				element_non_edit_text_new(
@@ -683,71 +683,71 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_new(
 					hint_message );
 	}
 
-	return form_prompt_edit_attribute;
+	return form_prompt_lookup_attribute;
 }
 
-char *form_prompt_edit_attribute_no_display_name(
-			char *form_prompt_edit_no_display_prefix,
+char *form_prompt_lookup_attribute_no_display_name(
+			char *form_prompt_lookup_no_display_prefix,
 			char *attribute_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_no_display_prefix,
+		form_prompt_lookup_no_display_prefix,
 		attribute_name );
 
 	return strdup( name );
 }
 
-char *form_prompt_edit_attribute_from_name(
-			char *form_prompt_edit_from_prefix,
+char *form_prompt_lookup_attribute_from_name(
+			char *form_prompt_lookup_from_prefix,
 			char *attribute_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_from_prefix,
+		form_prompt_lookup_from_prefix,
 		attribute_name );
 
 	return strdup( name );
 }
 
-char *form_prompt_edit_attribute_relational_name(
-			char *form_prompt_edit_attribute_relational_prefix,
+char *form_prompt_lookup_attribute_relational_name(
+			char *form_prompt_lookup_attribute_relational_prefix,
 			char *attribute_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_attribute_relational_prefix,
+		form_prompt_lookup_attribute_relational_prefix,
 		attribute_name );
 
 	return strdup( name );
 }
 
-char *form_prompt_edit_attribute_to_name(
-			char *form_prompt_edit_to_prefix,
+char *form_prompt_lookup_attribute_to_name(
+			char *form_prompt_lookup_to_prefix,
 			char *attribute_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_to_prefix,
+		form_prompt_lookup_to_prefix,
 		attribute_name );
 
 	return strdup( name );
 }
 
-FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_calloc( void )
+FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_calloc( void )
 {
-	FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute;
+	FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute;
 
-	if ( ! ( form_prompt_edit_attribute =
-			calloc( 1, sizeof( FORM_PROMPT_EDIT_ATTRIBUTE ) ) ) )
+	if ( ! ( form_prompt_lookup_attribute =
+			calloc( 1, sizeof( FORM_PROMPT_LOOKUP_ATTRIBUTE ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -757,11 +757,11 @@ FORM_PROMPT_EDIT_ATTRIBUTE *form_prompt_edit_attribute_calloc( void )
 		exit( 1 );
 	}
 
-	return form_prompt_edit_attribute;
+	return form_prompt_lookup_attribute;
 }
 
-FORM_PROMPT_EDIT_ELEMENT_LIST *
-	form_prompt_edit_element_list_new(
+FORM_PROMPT_LOOKUP_ELEMENT_LIST *
+	form_prompt_lookup_element_list_new(
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_mto1_non_isa_list,
 			LIST *relation_join_one2m_list,
@@ -770,15 +770,15 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 			char *security_entity_where )
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
-	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
+	FORM_PROMPT_LOOKUP_ELEMENT_LIST *form_prompt_lookup_element_list;
 
 	if ( !list_rewind( folder_attribute_append_isa_list ) )
-		return (FORM_PROMPT_EDIT_ELEMENT_LIST *)0;
+		return (FORM_PROMPT_LOOKUP_ELEMENT_LIST *)0;
 
-	form_prompt_edit_element_list =
-		form_prompt_edit_element_list_calloc();
+	form_prompt_lookup_element_list =
+		form_prompt_lookup_element_list_calloc();
 
-	form_prompt_edit_element_list->appaserver_element_list = list_new();
+	form_prompt_lookup_element_list->element_list = list_new();
 
 	do {
 		folder_attribute =
@@ -786,72 +786,72 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 				folder_attribute_append_isa_list );
 
 		list_set(
-			form_prompt_edit_element_list->appaserver_element_list,
+			form_prompt_lookup_element_list->element_list,
 			appaserver_element_new(
 				table_row, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_element_list->appaserver_element_list,
+			form_prompt_lookup_element_list->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
-		if ( ( form_prompt_edit_element_list->
-			form_prompt_edit_relation =
-				form_prompt_edit_relation_new(
+		if ( ( form_prompt_lookup_element_list->
+			form_prompt_lookup_relation =
+				form_prompt_lookup_relation_new(
 					folder_attribute->attribute_name,
 					relation_mto1_non_isa_list,
 					drillthru_dictionary,
 					login_name,
 					security_entity_where,
-					form_prompt_edit_element_list->
-					    form_prompt_edit_relation_list ) ) )
+					form_prompt_lookup_element_list->
+					    form_prompt_lookup_relation_list ) ) )
 		{
-			if ( !form_prompt_edit_element_list->
-				form_prompt_edit_relation_list )
+			if ( !form_prompt_lookup_element_list->
+				form_prompt_lookup_relation_list )
 			{
-				form_prompt_edit_element_list->
-					form_prompt_edit_relation_list =
+				form_prompt_lookup_element_list->
+					form_prompt_lookup_relation_list =
 						list_new();
 			}
 
 			list_set(
-				form_prompt_edit_element_list->
-					form_prompt_edit_relation_list,
-				form_prompt_edit_element_list->
-					form_prompt_edit_relation );
+				form_prompt_lookup_element_list->
+					form_prompt_lookup_relation_list,
+				form_prompt_lookup_element_list->
+					form_prompt_lookup_relation );
 
 			list_set_list(
-				form_prompt_edit_element_list->
-					appaserver_element_list,
-				form_prompt_edit_element_list->
-					form_prompt_edit_relation->
+				form_prompt_lookup_element_list->
+					element_list,
+				form_prompt_lookup_element_list->
+					form_prompt_lookup_relation->
 						element_list );
 
 			continue;
 		}
 
-		if ( ( form_prompt_edit_element_list->
-			form_prompt_edit_attribute =
-				form_prompt_edit_attribute_new(
-					folder_attribute->attribute_name,
-					folder_attribute->prompt,
-					folder_attribute->
-						attribute->
-						datatype_name,
-					folder_attribute->
-						attribute->
-						width,
-					folder_attribute->
-						attribute->
-						hint_message,
-					form_prompt_edit_element_list->
-					    form_prompt_edit_relation_list ) ) )
+		if ( ( form_prompt_lookup_element_list->
+			form_prompt_lookup_attribute =
+			   form_prompt_lookup_attribute_new(
+				folder_attribute->attribute_name,
+				folder_attribute->prompt,
+				folder_attribute->
+					attribute->
+					datatype_name,
+				folder_attribute->
+					attribute->
+					width,
+				folder_attribute->
+					attribute->
+					hint_message,
+				form_prompt_lookup_element_list->
+				    form_prompt_lookup_relation_list ) ) )
 		{
 			list_set_list(
-				form_prompt_edit_element_list->
-					appaserver_element_list,
-				form_prompt_edit_element_list->
-					form_prompt_edit_attribute->
+				form_prompt_lookup_element_list->
+					element_list,
+				form_prompt_lookup_element_list->
+					form_prompt_lookup_attribute->
 					element_list );
 		}
 
@@ -859,20 +859,20 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 
 	if ( list_length( relation_join_one2m_list ) )
 	{
-		form_prompt_edit_element_list->
+		form_prompt_lookup_element_list->
 			join_element_list =
-				form_prompt_edit_element_list_join_element_list(
-					FORM_NO_DISPLAY_PREFIX,
-					relation_join_one2m_list );
+			   form_prompt_lookup_element_list_join_element_list(
+				FORM_NO_DISPLAY_PREFIX,
+				relation_join_one2m_list );
 	}
 
-	if ( ! ( form_prompt_edit_element_list->appaserver_element_list_html =
+	if ( ! ( form_prompt_lookup_element_list->appaserver_element_list_html =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			appaserver_element_list_html(
-				form_prompt_edit_element_list->
-					appaserver_element_list ) ) )
+				form_prompt_lookup_element_list->
+					element_list ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: appaserver_element_list_html() returned empty.\n",
@@ -882,11 +882,11 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 		exit( 1 );
 	}
 
-	return form_prompt_edit_element_list;
+	return form_prompt_lookup_element_list;
 }
 
-LIST *form_prompt_edit_element_list_join_element_list(
-			char *form_prompt_edit_no_display_prefix,
+LIST *form_prompt_lookup_element_list_join_element_list(
+			char *form_prompt_lookup_no_display_prefix,
 			LIST *relation_join_one2m_list )
 {
 	LIST *element_list;
@@ -915,7 +915,7 @@ LIST *form_prompt_edit_element_list_join_element_list(
 
 		sprintf(element_name,
 			"%s%s",
-			form_prompt_edit_no_display_prefix,
+			form_prompt_lookup_no_display_prefix,
 			relation->many_folder->folder_name );
 
 		list_set(
@@ -951,14 +951,14 @@ LIST *form_prompt_edit_element_list_join_element_list(
 	return element_list;
 }
 
-FORM_PROMPT_EDIT_ELEMENT_LIST *
-	form_prompt_edit_element_list_calloc(
+FORM_PROMPT_LOOKUP_ELEMENT_LIST *
+	form_prompt_lookup_element_list_calloc(
 			void )
 {
-	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
+	FORM_PROMPT_LOOKUP_ELEMENT_LIST *form_prompt_lookup_element_list;
 
-	if ( ! ( form_prompt_edit_element_list =
-			calloc( 1, sizeof( FORM_PROMPT_EDIT_ELEMENT_LIST ) ) ) )
+	if ( ! ( form_prompt_lookup_element_list =
+			calloc( 1, sizeof( FORM_PROMPT_LOOKUP_ELEMENT_LIST ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -968,25 +968,25 @@ FORM_PROMPT_EDIT_ELEMENT_LIST *
 		exit( 1 );
 	}
 
-	return form_prompt_edit_element_list;
+	return form_prompt_lookup_element_list;
 }
 
-FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
+FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 			char *attribute_name,
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *login_name,
 			char *security_entity_where,
-			LIST *form_prompt_edit_relation_list )
+			LIST *form_prompt_lookup_relation_list )
 {
-	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+	FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation;
 	RELATION *relation;
 
-	if ( form_prompt_edit_relation_attribute_name_exists(
+	if ( form_prompt_lookup_relation_attribute_name_exists(
 		attribute_name,
-		form_prompt_edit_relation_list ) )
+		form_prompt_lookup_relation_list ) )
 	{
-		return (FORM_PROMPT_EDIT_RELATION *)0;
+		return (FORM_PROMPT_LOOKUP_RELATION *)0;
 	}
 
 	if ( ! ( relation =
@@ -994,7 +994,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 				attribute_name,
 				relation_mto1_non_isa_list ) ) )
 	{
-		return (FORM_PROMPT_EDIT_RELATION *)0;
+		return (FORM_PROMPT_LOOKUP_RELATION *)0;
 	}
 
 	if ( !relation->one_folder )
@@ -1019,11 +1019,11 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 
 	relation->consumes_taken = 1;
 
-	form_prompt_edit_relation = form_prompt_edit_relation_calloc();
-	form_prompt_edit_relation->relation = relation;
-	form_prompt_edit_relation->element_list = list_new();
+	form_prompt_lookup_relation = form_prompt_lookup_relation_calloc();
+	form_prompt_lookup_relation->relation = relation;
+	form_prompt_lookup_relation->element_list = list_new();
 
-	form_prompt_edit_relation->query_widget =
+	form_prompt_lookup_relation->query_widget =
 		query_widget_new(
 			relation->one_folder->folder_name
 				/* widget_folder_name */,
@@ -1033,7 +1033,7 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 			security_entity_where,
 			drillthru_dictionary );
 
-	if ( !form_prompt_edit_relation->query_widget )
+	if ( !form_prompt_lookup_relation->query_widget )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
@@ -1043,25 +1043,25 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 		exit( 1 );
 	}
 
-	form_prompt_edit_relation->no_display_name =
-		form_prompt_edit_relation_no_display_name(
+	form_prompt_lookup_relation->no_display_name =
+		form_prompt_lookup_relation_no_display_name(
 			FORM_NO_DISPLAY_PREFIX,
-			form_prompt_edit_relation->relation->name );
+			form_prompt_lookup_relation->relation->name );
 
 	list_set(
-		form_prompt_edit_relation->element_list,
-		( form_prompt_edit_relation->no_display_appaserver_element =
+		form_prompt_lookup_relation->element_list,
+		( form_prompt_lookup_relation->no_display_appaserver_element =
 			appaserver_element_new(
 				checkbox,
-				form_prompt_edit_relation->
+				form_prompt_lookup_relation->
 					no_display_name ) ) );
 
-	form_prompt_edit_relation->
+	form_prompt_lookup_relation->
 		no_display_appaserver_element->
 		checkbox =
 			element_checkbox_new(
 				(char *)0 /* attribute_name */,
-				form_prompt_edit_relation->
+				form_prompt_lookup_relation->
 					no_display_appaserver_element->
 					element_name,
 				FORM_NO_DISPLAY_PUSH_BUTTON_HEADING
@@ -1072,59 +1072,59 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 				1 /* recall */ );
 
 	list_set(
-		form_prompt_edit_relation->element_list,
+		form_prompt_lookup_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
 	list_set(
-		form_prompt_edit_relation->element_list,
-		( form_prompt_edit_relation->prompt_appaserver_element =
+		form_prompt_lookup_relation->element_list,
+		( form_prompt_lookup_relation->prompt_appaserver_element =
 			appaserver_element_new(
 				non_edit_text, (char *)0 ) ) );
 
-	form_prompt_edit_relation->
+	form_prompt_lookup_relation->
 		prompt_appaserver_element->
 		non_edit_text =
 			element_non_edit_text_new(
 				(char *)0,
-				form_prompt_edit_relation->
+				form_prompt_lookup_relation->
 					relation->
 					prompt );
 
 	list_set(
-		form_prompt_edit_relation->element_list,
+		form_prompt_lookup_relation->element_list,
 		appaserver_element_new(
 			table_data, (char *)0 ) );
 
-	form_prompt_edit_relation->element_name =
-		form_prompt_edit_relation_element_name(
-			FORM_PROMPT_EDIT_RELATION_PREFIX,
-			form_prompt_edit_relation->name );
+	form_prompt_lookup_relation->element_name =
+		form_prompt_lookup_relation_element_name(
+			FORM_PROMPT_LOOKUP_RELATION_PREFIX,
+			form_prompt_lookup_relation->name );
 
 	if ( relation->drop_down_multi_select )
 	{
-		form_prompt_edit_relation->original_name =
-			form_prompt_edit_relation_original_name(
-				FORM_PROMPT_EDIT_ORIGINAL_PREFIX,
-				form_prompt_edit_relation->name );
+		form_prompt_lookup_relation->original_name =
+			form_prompt_lookup_relation_original_name(
+				FORM_PROMPT_LOOKUP_ORIGINAL_PREFIX,
+				form_prompt_lookup_relation->name );
 
 		list_set(
-			form_prompt_edit_relation->element_list,
-			( form_prompt_edit_relation->
+			form_prompt_lookup_relation->element_list,
+			( form_prompt_lookup_relation->
 				drop_down_appaserver_element =
 					appaserver_element_new(
 						multi_drop_down,
 						(char *)0 ) ) );
 
-		form_prompt_edit_relation->
+		form_prompt_lookup_relation->
 			drop_down_appaserver_element->
 			multi_drop_down =
 				element_multi_drop_down_new(
-					form_prompt_edit_relation->
+					form_prompt_lookup_relation->
 						original_name,
-					form_prompt_edit_relation->
+					form_prompt_lookup_relation->
 						element_name,
-					form_prompt_edit_relation->
+					form_prompt_lookup_relation->
 						query_widget->
 						delimited_list,
 					relation->
@@ -1134,22 +1134,22 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 	else
 	{
 		list_set(
-			form_prompt_edit_relation->element_list,
-			( form_prompt_edit_relation->
+			form_prompt_lookup_relation->element_list,
+			( form_prompt_lookup_relation->
 				drop_down_appaserver_element =
 					appaserver_element_new(
 						prompt_drop_down,
-						form_prompt_edit_relation->
+						form_prompt_lookup_relation->
 							element_name ) ) );
 
-		form_prompt_edit_relation->
+		form_prompt_lookup_relation->
 			drop_down_appaserver_element->
 			prompt_drop_down =
 				element_prompt_drop_down_new(
-					form_prompt_edit_relation->
+					form_prompt_lookup_relation->
 						drop_down_appaserver_element->
 						element_name,
-					form_prompt_edit_relation->
+					form_prompt_lookup_relation->
 						query_widget->
 						delimited_list,
 					relation->
@@ -1165,17 +1165,17 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 					1 /* recall */ );
 
 		list_set(
-			form_prompt_edit_relation->element_list,
+			form_prompt_lookup_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_relation->element_list,
+			form_prompt_lookup_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
 		list_set(
-			form_prompt_edit_relation->element_list,
+			form_prompt_lookup_relation->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 	}
@@ -1183,13 +1183,13 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 	if ( relation->hint_message )
 	{
 		list_set(
-			form_prompt_edit_relation->element_list,
-			( form_prompt_edit_relation->
+			form_prompt_lookup_relation->element_list,
+			( form_prompt_lookup_relation->
 				hint_message_appaserver_element =
 					appaserver_element_new(
 						non_edit_text, (char *)0 ) ) );
 
-		form_prompt_edit_relation->
+		form_prompt_lookup_relation->
 			hint_message_appaserver_element->
 			non_edit_text =
 				element_non_edit_text_new(
@@ -1197,84 +1197,84 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_new(
 					relation->hint_message );
 	}
 
-	return form_prompt_edit_relation;
+	return form_prompt_lookup_relation;
 }
 
-boolean form_prompt_edit_relation_attribute_name_exists(
+boolean form_prompt_lookup_relation_attribute_name_exists(
 			char *attribute_name,
-			LIST *form_prompt_edit_relation_list )
+			LIST *form_prompt_lookup_relation_list )
 {
-	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+	FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation;
 
-	if ( !list_rewind( form_prompt_edit_relation_list ) ) return 0;
+	if ( !list_rewind( form_prompt_lookup_relation_list ) ) return 0;
 
 	do {
-		form_prompt_edit_relation =
+		form_prompt_lookup_relation =
 			list_get(
-				form_prompt_edit_relation_list );
+				form_prompt_lookup_relation_list );
 
 		if ( list_string_exists(
 			attribute_name,
-			form_prompt_edit_relation->
+			form_prompt_lookup_relation->
 				relation->
 				foreign_key_list ) )
 		{
 			return 1;
 		}
 
-	} while ( list_next( form_prompt_edit_relation_list ) );
+	} while ( list_next( form_prompt_lookup_relation_list ) );
 
 	return 0;
 }
 
-char *form_prompt_edit_relation_no_display_name(
-			char *form_prompt_edit_no_display_prefix,
+char *form_prompt_lookup_relation_no_display_name(
+			char *form_prompt_lookup_no_display_prefix,
 			char *relation_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_no_display_prefix,
+		form_prompt_lookup_no_display_prefix,
 		relation_name );
 
 	return strdup( name );
 }
 
-char *form_prompt_edit_relation_original_name(
-			char *form_prompt_edit_original_prefix,
+char *form_prompt_lookup_relation_original_name(
+			char *form_prompt_lookup_original_prefix,
 			char *relation_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_original_prefix,
+		form_prompt_lookup_original_prefix,
 		relation_name );
 
 	return strdup( name );
 }
 
-char *form_prompt_edit_relation_element_name(
-			char *form_prompt_edit_relation_prefix,
+char *form_prompt_lookup_relation_element_name(
+			char *form_prompt_lookup_relation_prefix,
 			char *relation_name )
 {
 	char name[ 128 ];
 
 	sprintf(name,
 		"%s%s",
-		form_prompt_edit_relation_prefix,
+		form_prompt_lookup_relation_prefix,
 		relation_name );
 
 	return strdup( name );
 }
 
-FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
+FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_calloc( void )
 {
-	FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation;
+	FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation;
 
-	if ( ! ( form_prompt_edit_relation =
-			calloc( 1, sizeof( FORM_PROMPT_EDIT_RELATION ) ) ) )
+	if ( ! ( form_prompt_lookup_relation =
+			calloc( 1, sizeof( FORM_PROMPT_LOOKUP_RELATION ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1284,10 +1284,10 @@ FORM_PROMPT_EDIT_RELATION *form_prompt_edit_relation_calloc( void )
 		exit( 1 );
 	}
 
-	return form_prompt_edit_relation;
+	return form_prompt_lookup_relation;
 }
 
-char *form_prompt_edit_html(
+char *form_prompt_lookup_html(
 			char *tag_html,
 			char *radio_list_html,
 			char *appaserver_element_list_html,
@@ -1321,7 +1321,7 @@ char *form_prompt_edit_html(
 	return strdup( html );
 }
 
-LIST *form_prompt_edit_button_list(
+LIST *form_prompt_lookup_button_list(
 			char *form_multi_select_all_javascript,
 			char *form_keystrokes_save_javascript,
 			char *form_keystrokes_multi_save_javascript,
@@ -1363,8 +1363,8 @@ LIST *form_prompt_edit_button_list(
 	return button_list;
 }
 
-char *form_prompt_edit_action_string(
-			char *post_prompt_edit_executable,
+char *form_prompt_lookup_action_string(
+			char *post_prompt_lookup_executable,
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -1373,7 +1373,7 @@ char *form_prompt_edit_action_string(
 {
 	char action_string[ 1024 ];
 
-	if ( !post_prompt_edit_executable
+	if ( !post_prompt_lookup_executable
 	||   !application_name
 	||   !session_key
 	||   !login_name
@@ -1397,7 +1397,7 @@ char *form_prompt_edit_action_string(
 				application_name ),
 			application_prepend_http_protocol_yn(
 				application_name ) ),
-		post_prompt_edit_executable,
+		post_prompt_lookup_executable,
 		application_name,
 		session_key,
 		login_name,

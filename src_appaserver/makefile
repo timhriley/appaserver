@@ -17,18 +17,18 @@ EXECUTABLES=								\
 		post_choose_folder					\
 		random_session						\
 		output_choose_isa					\
-		output_edit_table					\
+		output_table_edit					\
 		post_login						\
 		get_folder_data						\
 		post_prompt_insert					\
 		output_prompt_process					\
 		post_choose_process					\
 		post_prompt_process					\
-		post_edit_table						\
-		post_insert_table					\
+		post_table_edit						\
+		post_table_insert					\
 		post_choose_isa						\
 		post_maintain_user_account				\
-		output_insert_table					\
+		output_table_insert					\
 		fix_orphans						\
 		get_table_name						\
 		dot_process2option_value				\
@@ -157,7 +157,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/process.o					\
 		${LIB}/form.o						\
 		${LIB}/form_prompt_edit.o				\
-		${LIB}/form_edit_table.o				\
+		${LIB}/form_table_edit.o				\
 		${LIB}/form_choose_isa.o				\
 		${LIB}/form_choose_role.o				\
 		${LIB}/form_prompt_insert.o				\
@@ -174,8 +174,8 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/dictionary2file.o				\
 		${LIB}/date_convert.o					\
 		${LIB}/hash_table.o					\
-		${LIB}/edit_table.o					\
-		${LIB}/insert_table.o					\
+		${LIB}/table_edit.o					\
+		${LIB}/table_insert.o					\
 		${LIB}/prompt_insert.o					\
 		${LIB}/prompt_edit.o					\
 		${LIB}/row_security.o					\
@@ -185,7 +185,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post_choose_role.o				\
 		${LIB}/post_choose_folder.o				\
 		${LIB}/post_choose_process.o				\
-		${LIB}/post_edit_table.o				\
+		${LIB}/post_table_edit.o				\
 		${LIB}/post_prompt_insert.o
 
 all: 	${EXECUTABLES}
@@ -207,8 +207,8 @@ clean:
 	${CGI_HOME}/output_prompt_insert				\
 	${CGI_HOME}/post_choose_folder					\
 	${CGI_HOME}/post_choose_process					\
-	${CGI_HOME}/post_edit_table					\
-	${CGI_HOME}/post_insert_table					\
+	${CGI_HOME}/post_table_edit					\
+	${CGI_HOME}/post_table_insert					\
 	${CGI_HOME}/post_generic_load_choose				\
 	${CGI_HOME}/post_generic_load_folder				\
 	${CGI_HOME}/post_merge_purge					\
@@ -502,22 +502,22 @@ output_results: output_results.c					\
 		output_results.c					\
 		-o output_results
 
-output_insert_table: output_insert_table.c				\
+output_table_insert: output_table_insert.c				\
 			${EXTERNAL_LIBS}				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_insert_table.c					\
+		output_table_insert.c					\
 		${LIB}/pair_one2m.o					\
-		-o output_insert_table
+		-o output_table_insert
 
-output_edit_table: output_edit_table.c ${EXTERNAL_LIBS}
+output_table_edit: output_table_edit.c ${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		output_edit_table.c					\
-		-o output_edit_table
+		output_table_edit.c					\
+		-o output_table_edit
 
 add_column: add_column.c						\
 			${EXTERNAL_LIBS}
@@ -1025,34 +1025,34 @@ output_frameset: output_frameset.c ${EXTERNAL_LIBS}
 		output_frameset.c					\
 		-o output_frameset
 
-post_edit_table: post_edit_table.c					\
+post_table_edit: post_table_edit.c					\
 			${EXTERNAL_LIBS}				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		post_edit_table.c					\
+		post_table_edit.c					\
 		${LIB}/pair_one2m.o					\
-		-o post_edit_table
-	touch ${CGI_HOME}/post_edit_table
-	/bin/rm -f ${CGI_HOME}/post_edit_table
+		-o post_table_edit
+	touch ${CGI_HOME}/post_table_edit
+	/bin/rm -f ${CGI_HOME}/post_table_edit
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_edit_table		\
+	${APPASERVER_HOME}/src_appaserver/post_table_edit		\
 	${CGI_HOME}
 
-post_insert_table: post_insert_table.c					\
+post_table_insert: post_table_insert.c					\
 			${EXTERNAL_LIBS}				\
 			${LIB}/pair_one2m.o
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
-		post_insert_table.c					\
+		post_table_insert.c					\
 		${LIB}/pair_one2m.o					\
-		-o post_insert_table
-	touch ${CGI_HOME}/post_insert_table
-	/bin/rm -f ${CGI_HOME}/post_insert_table
+		-o post_table_insert
+	touch ${CGI_HOME}/post_table_insert
+	/bin/rm -f ${CGI_HOME}/post_table_insert
 	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_insert_table		\
+	${APPASERVER_HOME}/src_appaserver/post_table_insert		\
 	${CGI_HOME}
 
 post_maintain_user_account: post_maintain_user_account.c		\
