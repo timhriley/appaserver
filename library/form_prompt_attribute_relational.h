@@ -1,12 +1,12 @@
-/* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/form_prompt_attribute_relational.h		*/
-/* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* ------------------------------------------------------------ */
+/* $APPASERVER_HOME/library/form_prompt_attribute_relational.h	*/
+/* ------------------------------------------------------------ */
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
-#ifndef FORM_PROMPT_ATTRIBUTE_H
-#define FORM_PROMPT_ATTRIBUTE_H
+#ifndef FORM_PROMPT_ATTRIBUTE_RELATIONAL_H
+#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_H
 
 #include <unistd.h>
 #include "boolean.h"
@@ -16,14 +16,20 @@
 #define FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX \
 					"rrelational_"
 
-#define FORM_PROMPT_ATTRIBUTE_FROM_PREFIX \
+#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_FROM_PREFIX \
 					"ffrom_"
 
-#define FORM_PROMPT_ATTRIBUTE_TO_PREFIX	"tto_"
+#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_TO_PREFIX \
+					"tto_"
 
 typedef struct
 {
+	char *name;
+	char *from_name;
+	char *to_name;
 	LIST *element_list;
+	LIST *operation_list;
+	APPASERVER_ELEMENT *yes_no_appaserver_element;
 	APPASERVER_ELEMENT *relation_operator_appaserver_element;
 	APPASERVER_ELEMENT *text_from_appaserver_element;
 	APPASERVER_ELEMENT *and_appaserver_element;
@@ -35,29 +41,6 @@ typedef struct
 
 /* Always succeeds */
 /* --------------- */
-FORM_PROMPT_LOOKUP_RELATIONAL *
-	form_prompt_lookup_relational_new(
-			char *form_prompt_lookup_attribute_relational_name,
-			char *form_prompt_lookup_attribute_from_name,
-			char *form_prompt_lookup_attribute_to_name,
-			char *datatype_name,
-			int attribute_width );
-
-/* Process */
-/* ------- */
-FORM_PROMPT_LOOKUP_RELATIONAL *
-	form_prompt_lookup_relational_calloc(
-			void );
-
-LIST *form_prompt_lookup_relational_operation_list(
-			char *datatype_name );
-
-typdef struct
-{
-} FORM_PROMPT_ATTRIBUTE_RELATIONAL;
-
-/* Usage */
-/* ----- */
 FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 	form_prompt_attribute_relational_new(
 			char *attribute_name,
@@ -66,83 +49,23 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 
 /* Process */
 /* ------- */
-
-/* Public */
-/* ------ */
+FORM_PROMPT_ATTRIBUTE_RELATIONAL *
+	form_prompt_attribute_relational_calloc(
+			void );
 
 char *form_prompt_attribute_relational_name(
 			char *relational_prefix,
-			char *attribute_name )
-{
-	char name[ 128 ];
+			char *attribute_name );
 
-	if ( !relational_prefix
-	||   !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(name,
-		"%s%s",
-		relational_prefix,
-		attribute_name );
-
-	return strdup( name );
-}
-
-char *form_prompt_attribute_from_name(
+char *form_prompt_attribute_relational_from_name(
 			char *from_prefix,
-			char *attribute_name )
-{
-	char name[ 128 ];
+			char *attribute_name );
 
-	if ( !from_prefix
-	||   !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(name,
-		"%s%s",
-		from_prefix,
-		attribute_name );
-
-	return strdup( name );
-}
-
-char *form_prompt_attribute_to_name(
+char *form_prompt_attribute_relational_to_name(
 			char *to_prefix,
-			char *attribute_name )
-{
-	char name[ 128 ];
+			char *attribute_name );
 
-	if ( !to_prefix
-	||   !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(name,
-		"%s%s",
-		to_prefix,
-		attribute_name );
-
-	return strdup( name );
-}
+LIST *form_prompt_attribute_relational_operation_list(
+			char *datatype_name );
 
 #endif

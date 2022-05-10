@@ -60,6 +60,7 @@ APPASERVER_LIBRARY=						\
 		element.o					\
 		sed.o						\
 		form.o						\
+		form_prompt_attribute_relational.o		\
 		form_prompt_lookup.o				\
 		form_edit_table.o				\
 		form_choose_isa.o				\
@@ -747,6 +748,11 @@ form.o: form.c form.h
 
 form_drillthru.o: form_drillthru.c form_drillthru.h element.o
 	${CC} ${CFLAGS} -c form_drillthru.c
+
+form_prompt_attribute_relational.o:				\
+	form_prompt_attribute_relational.c			\
+	form_prompt_attribute_relational.h
+	${CC} ${CFLAGS} -c form_prompt_attribute_relational.c
 
 form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h element.o
 	${CC} ${CFLAGS} -c form_prompt_lookup.c

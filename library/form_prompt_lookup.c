@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/form_prompt_lookup.c				*/
+/* $APPASERVER_HOME/library/form_prompt_lookup.c			*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -28,6 +28,7 @@
 #include "button.h"
 #include "appaserver.h"
 #include "post_prompt_lookup.h"
+#include "form_prompt_attribute_relational.h"
 #include "form_prompt_lookup.h"
 
 FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
@@ -430,71 +431,6 @@ FORM_PROMPT_LOOKUP_RELATIONAL *
 	return form_prompt_lookup_relational;
 }
 
-LIST *form_prompt_lookup_relational_operation_list(
-			char *datatype_name )
-{
-	LIST *list;
-
-	list = list_new();
-
-	if ( attribute_is_date( datatype_name )
-	||   attribute_is_time( datatype_name )
-	||   attribute_is_date_time( datatype_name ) )
-	{
-		list_set( list, APPASERVER_BEGINS );
-		list_set( list, APPASERVER_EQUAL );
-		list_set( list, APPASERVER_BETWEEN );
-		list_set( list, APPASERVER_OR );
-		list_set( list, APPASERVER_GREATER_THAN );
-		list_set( list, APPASERVER_GREATER_THAN_EQUAL_TO );
-		list_set( list, APPASERVER_LESS_THAN );
-		list_set( list, APPASERVER_LESS_THAN_EQUAL_TO );
-		list_set( list, APPASERVER_NOT_EQUAL );
-		list_set( list, APPASERVER_NULL );
-		list_set( list, APPASERVER_NOT_NULL );
-	}
-	else
-	if ( attribute_is_notepad( datatype_name ) )
-	{
-		list_set( list, APPASERVER_CONTAINS );
-		list_set( list, APPASERVER_NOT_CONTAINS );
-		list_set( list, APPASERVER_NULL );
-		list_set( list, APPASERVER_NOT_NULL );
-	}
-	else
-	if ( attribute_is_text( datatype_name )
-	||   attribute_is_upload( datatype_name ) )
-	{
-		list_set( list, APPASERVER_BEGINS );
-		list_set( list, APPASERVER_EQUAL );
-		list_set( list, APPASERVER_CONTAINS );
-		list_set( list, APPASERVER_NOT_CONTAINS );
-		list_set( list, APPASERVER_OR );
-		list_set( list, APPASERVER_GREATER_THAN_EQUAL_TO );
-		list_set( list, APPASERVER_NOT_EQUAL );
-		list_set( list, APPASERVER_NULL );
-		list_set( list, APPASERVER_NOT_NULL );
-	}
-	else
-	{
-		list_set( list, APPASERVER_EQUAL );
-		list_set( list, APPASERVER_BETWEEN );
-		list_set( list, APPASERVER_BEGINS );
-		list_set( list, APPASERVER_CONTAINS );
-		list_set( list, APPASERVER_NOT_CONTAINS );
-		list_set( list, APPASERVER_OR );
-		list_set( list, APPASERVER_NOT_EQUAL );
-		list_set( list, APPASERVER_GREATER_THAN );
-		list_set( list, APPASERVER_GREATER_THAN_EQUAL_TO );
-		list_set( list, APPASERVER_LESS_THAN );
-		list_set( list, APPASERVER_LESS_THAN_EQUAL_TO );
-		list_set( list, APPASERVER_NULL );
-		list_set( list, APPASERVER_NOT_NULL );
-	}
-
-	return list;
-}
-
 FORM_PROMPT_LOOKUP_RELATIONAL *
 	form_prompt_lookup_relational_calloc(
 			void )
@@ -523,16 +459,17 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 			char *hint_message,
 			LIST *form_prompt_lookup_relation_list )
 {
-	FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute =
+	FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute;
 		form_prompt_lookup_attribute_calloc();
 
 	if ( form_prompt_lookup_relation_attribute_name_exists(
 		attribute_name,
 		form_prompt_lookup_relation_list ) )
 	{
-		free( form_prompt_lookup_attribute );
 		return (FORM_PROMPT_LOOKUP_ATTRIBUTE *)0;
 	}
+
+	form_prompt_lookup_attribute = form_prompt_lookup_attribute_calloc();
 
 	form_prompt_lookup_attribute->element_list = list_new();
 
@@ -583,99 +520,28 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 		form_prompt_lookup_attribute->element_list,
 		appaserver_element_new( table_data, (char *)0 ) );
 
-	form_prompt_lookup_attribute->form_prompt_attribute_from_name =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		form_prompt_attribute_from_name(
-			FORM_PROMPT_ATTRIBUTE_FROM_PREFIX,
-			attribute_name );
+	form_prompt_lookup_attribute->form_prompt_attribute_relational =
+		form_prompt_attribute_relational_new(
+			attribute_name,
+			datatype_name,
+			attribute_width );
 
-	if ( attribute_is_yes_no( attribute_name ) )
+	if ( !form_prompt_lookup_attribute->
+		form_prompt_attribute_relational )
 	{
-		list_set(
-		   form_prompt_lookup_attribute->element_list,
-		   ( form_prompt_lookup_attribute->
-			yes_no_appaserver_element =
-			   appaserver_element_new(
-				yes_no,
-				form_prompt_lookup_attribute->
-					form_prompt_attribute_from_name ) ) );
-
-		form_prompt_lookup_attribute->
-			yes_no_appaserver_element->
-			yes_no =
-				element_yes_no_new(
-					(char *)0 /* attribute_name */,
-					form_prompt_lookup_attribute->
-						yes_no_appaserver_element->
-						element_name,
-					1 /* output_null_option */,
-					1 /* output_not_null_option */,
-					(char *)0 /* post_change_javascript */,
-					-1 /* tab_order */,
-					1 /* recall */ );
-
-		list_set(
-			form_prompt_lookup_attribute->element_list,
-			appaserver_element_new( table_data, (char *)0 ) );
-
-		list_set(
-			form_prompt_lookup_attribute->element_list,
-			appaserver_element_new( table_data, (char *)0 ) );
-
-		list_set(
-			form_prompt_lookup_attribute->element_list,
-			appaserver_element_new( table_data, (char *)0 ) );
-	}
-	else
-	{
-		form_prompt_lookup_attribute->
-			form_prompt_attribute_relational_name =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				form_prompt_attribute_relational_name(
-					FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX,
-					attribute_name );
-
-		form_prompt_lookup_attribute->
-			form_prompt_attribute_to_name =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				form_prompt_attribute_to_name(
-					FORM_PROMPT_ATTRIBUTE_TO_PREFIX,
-					attribute_name );
-
-		form_prompt_lookup_attribute->form_prompt_attribute_relational =
-			form_prompt_attribute_relational_new(
-				form_prompt_lookup_attribute->
-					form_prompt_attribute_relational_name,
-				form_prompt_lookup_attribute->
-					form_prompt_attribute_from_name,
-				form_prompt_lookup_attribute->
-					form_prompt_attribute_to_name,
-				datatype_name,
-				attribute_width );
-
-		if ( !form_prompt_lookup_attribute->
-			form_prompt_attribute_relational )
-		{
-			fprintf(stderr,
+		fprintf(stderr,
 "ERROR in %s/%s()/%d: form_prompt_attribute_relational_new() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 		list_set_list(
 			form_prompt_lookup_attribute->element_list,
 			form_prompt_lookup_attribute->
 				form_prompt_lookup_relational->
 					element_list );
-	}
 
 	if ( hint_message )
 	{

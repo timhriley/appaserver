@@ -36,6 +36,7 @@
 #define FORM_RADIO_LIST_NAME		"form_radio_list"
 
 #define FORM_NO_DISPLAY_PREFIX		"nno_display_"
+
 #define FORM_NO_DISPLAY_PUSH_BUTTON_HEADING \
 					"no_display"
 
@@ -52,6 +53,8 @@
 
 #define FORM_PROMPT_ORIGINAL_PREFIX	"original_"
 #define FORM_PROMPT_RELATION_PREFIX	"relation_"
+
+#define FORM_FROM_ATTRIBUTE_WIDTH	100
 
 /* Returns heap memory */
 /* ------------------- */

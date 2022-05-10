@@ -15,20 +15,13 @@
 #include "element.h"
 #include "radio.h"
 #include "query.h"
+#include "relation.h"
 #include "dictionary_separate.h"
+#include "form_prompt_lookup_relational.h"
 #include "form.h"
-
-#define FORM_PROMPT_LOOKUP_RELATIONAL_PREFIX \
-					"form_prompt_lookup_relational_"
-
-#define FORM_PROMPT_RELATION_PREFIX	"relation_"
-
-#define FORM_PROMPT_LOOKUP_FROM_ATTRIBUTE_WIDTH 100
 
 #define FORM_PROMPT_LOOKUP_NAME		"prompt_lookup"
 
-/* This is a query row having a mto1 relation drop-down. */
-/* ----------------------------------------------------- */
 typedef struct
 {
 	RELATION *relation;
@@ -95,10 +88,6 @@ typedef struct
 	char *no_display_name;
 	APPASERVER_ELEMENT *no_display_appaserver_element;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
-	char *form_attribute_from_name;
-	APPASERVER_ELEMENT *yes_no_appaserver_element;
-	char *relational_name;
-	char *form_attribute_to_name;
 	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational;
 	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_LOOKUP_ATTRIBUTE;
@@ -124,13 +113,7 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *form_prompt_lookup_attribute_no_display_name(
-			char *form_prompt_lookup_no_display_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_relational_name(
-			char *form_prompt_lookup_attribute_relational_prefix,
+			char *form_no_display_prefix,
 			char *attribute_name );
 
 typedef struct
