@@ -441,15 +441,8 @@ PROCESS_PARAMETER *process_parameter_parse(
 		return (PROCESS_PARAMETER *)0;
 }
 
-PROCESS_PARAMETER *process_parameter_new(
-			char *process_or_set_name,
-			char *folder_name,
-			char *attribute_name,
-			char *drop_down_prompt_name,
-			char *prompt_name )
+PROCESS_PARAMETER *process_parameter_calloc( void )
 {
-	PROCESS_PARAMETER *process_parameter;
-
 	if ( ! ( process_parameter =
 			calloc( 1, sizeof( PROCESS_PARAMETER ) ) ) )
 	{
@@ -460,6 +453,18 @@ PROCESS_PARAMETER *process_parameter_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	return process_parameter;
+}
+
+PROCESS_PARAMETER *process_parameter_new(
+			char *process_or_set_name,
+			char *folder_name,
+			char *attribute_name,
+			char *drop_down_prompt_name,
+			char *prompt_name )
+{
+	PROCESS_PARAMETER *process_parameter = process_parameter_calloc();
 
 	process_parameter->process_or_set_name = process_or_set_name;
 	process_parameter->folder_name = folder_name;

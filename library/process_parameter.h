@@ -164,21 +164,25 @@ LIST *process_parameter_system_list(
 			char *login_name,
 			DICTIONARY *drillthru_dictionary );
 
-/* Process */
-/* ------- */
-
+/* Usage */
+/* ----- */
 PROCESS_PARAMETER *process_parameter_parse(
 			char *input,
 			char *role_name,
 			char *login_name,
 			DICTIONARY *drillthru_dictionary );
 
+/* Process */
+/* ------- */
 PROCESS_PARAMETER *process_parameter_new(
 			char *process_or_set_name,
 			char *folder_name,
 			char *attribute_name,
 			char *drop_down_prompt_name,
 			char *prompt_name );
+
+PROCESS_PARAMETER *process_parameter_calloc(
+			void );
 
 LIST *process_parameter_process_delimited_list(
 			char *populate_drop_down_process_name,

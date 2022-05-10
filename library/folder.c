@@ -229,6 +229,58 @@ FOLDER *folder_parse(	char *input,
 				folder->folder_attribute_list );
 	}
 
+	if ( fetch_process )
+	{
+		folder->populate_drop_down_process =
+			process_fetch(
+				folder->populate_drop_down_process_name,
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
+				0 /* not check_executable_inside_filesystem */);
+
+		folder->post_change_process =
+			process_fetch(
+				folder->post_change_process_name,
+				(char *)0 /* document_root_directory */,
+				(char *)0 /* relative_source_directory */,
+				0 /* not check_executable_inside_filesystem */);
+	}
+
+	if ( fetch_role_folder_list && role_name )
+	{
+		folder->role_name = role_name;
+
+		folder->role_folder_list =
+			role_folder_list(
+				folder->role_name,
+				folder->folder_name );
+	}
+
+	if ( fetch_role_operation_list )
+	{
+		folder->role_operation_list =
+			role_operation_list(
+				folder_name,
+				role_name,
+				1 /* fetch_operation */,
+				0 /* not fetch_process */ );
+	}
+
+	if ( fetch_row_level_restriction )
+	{
+		folder->row_level_restriction_string =
+			folder_row_level_restriction_string(
+				folder->folder_name );
+
+		folder->non_owner_view_only =
+			folder_non_owner_view_only(
+				folder->row_level_restriction_string );
+
+		folder->non_owner_forbid =
+			folder_non_owner_forbid(
+				folder->row_level_restriction_string );
+	}
+
 	if ( fetch_relation_mto1_non_isa_list )
 	{
 		folder->relation_mto1_non_isa_list =
@@ -272,58 +324,6 @@ FOLDER *folder_parse(	char *input,
 				(LIST *)0 /* one2m_recursive_list */,
 				folder->folder_name
 					/* one_folder_name */ );
-	}
-
-	if ( fetch_process )
-	{
-		folder->populate_drop_down_process =
-			process_fetch(
-				folder->populate_drop_down_process_name,
-				(char *)0 /* document_root_directory */,
-				(char *)0 /* relative_source_directory */,
-				0 /* not check_executable_inside_filesystem */);
-
-		folder->post_change_process =
-			process_fetch(
-				folder->post_change_process_name,
-				(char *)0 /* document_root_directory */,
-				(char *)0 /* relative_source_directory */,
-				0 /* not check_executable_inside_filesystem */);
-	}
-
-	if ( fetch_role_folder_list && role_name )
-	{
-		folder->role_name = role_name;
-
-		folder->role_folder_list =
-			role_folder_list(
-				folder->role_name,
-				folder->folder_name );
-	}
-
-	if ( fetch_row_level_restriction )
-	{
-		folder->row_level_restriction_string =
-			folder_row_level_restriction_string(
-				folder->folder_name );
-
-		folder->non_owner_view_only =
-			folder_non_owner_view_only(
-				folder->row_level_restriction_string );
-
-		folder->non_owner_forbid =
-			folder_non_owner_forbid(
-				folder->row_level_restriction_string );
-	}
-
-	if ( fetch_role_operation_list )
-	{
-		folder->role_operation_list =
-			role_operation_list(
-				folder_name,
-				role_name,
-				1 /* fetch_operation */,
-				0 /* not fetch_process */ );
 	}
 
 	return folder;

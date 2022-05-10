@@ -42,6 +42,17 @@
 #define FORM_IGNORE_PREFIX		"iignore_"
 #define FORM_IGNORE_PUSH_BUTTON_HEADING "ignore"
 
+#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX \
+					"rrelational_"
+
+#define FORM_PROMPT_ATTRIBUTE_FROM_PREFIX \
+					"ffrom_"
+
+#define FORM_PROMPT_ATTRIBUTE_TO_PREFIX	"tto_"
+
+#define FORM_PROMPT_ORIGINAL_PREFIX	"original_"
+#define FORM_PROMPT_RELATION_PREFIX	"relation_"
+
 /* Returns heap memory */
 /* ------------------- */
 char *form_title_html(
@@ -128,10 +139,28 @@ char *form_no_display_name(
 			char *form_no_display_prefix,
 			char *attribute_name );
 
-char *form_background_color(
-			void );
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_attribute_relational_name(
+			char *form_prompt_attribute_relational_prefix,
+			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_attribute_from_name(
+			char *form_prompt_attribute_from_prefix,
+			char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *form_prompt_attribute_to_name(
+			char *form_prompt_attribute_to_prefix,
+			char *attribute_name );
 
 char **form_background_color_array(
 			int *background_color_array_length );
+
+char *form_background_color(
+			void );
 
 #endif

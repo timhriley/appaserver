@@ -583,21 +583,24 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 		form_prompt_lookup_attribute->element_list,
 		appaserver_element_new( table_data, (char *)0 ) );
 
-	form_prompt_lookup_attribute->from_name =
-		form_prompt_lookup_attribute_from_name(
-			DICTIONARY_SEPARATE_FROM_PREFIX,
+	form_prompt_lookup_attribute->form_prompt_attribute_from_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		form_prompt_attribute_from_name(
+			FORM_PROMPT_ATTRIBUTE_FROM_PREFIX,
 			attribute_name );
 
 	if ( attribute_is_yes_no( attribute_name ) )
 	{
 		list_set(
-			form_prompt_lookup_attribute->element_list,
-			( form_prompt_lookup_attribute->
-				yes_no_appaserver_element =
-					appaserver_element_new(
-						yes_no,
-						form_prompt_lookup_attribute->
-							from_name ) ) );
+		   form_prompt_lookup_attribute->element_list,
+		   ( form_prompt_lookup_attribute->
+			yes_no_appaserver_element =
+			   appaserver_element_new(
+				yes_no,
+				form_prompt_lookup_attribute->
+					form_prompt_attribute_from_name ) ) );
 
 		form_prompt_lookup_attribute->
 			yes_no_appaserver_element->
@@ -627,28 +630,40 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 	}
 	else
 	{
-		form_prompt_lookup_attribute->relational_name =
-			form_prompt_lookup_attribute_relational_name(
-				FORM_PROMPT_LOOKUP_RELATIONAL_PREFIX,
-				attribute_name );
+		form_prompt_lookup_attribute->
+			form_prompt_attribute_relational_name =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				form_prompt_attribute_relational_name(
+					FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX,
+					attribute_name );
 
-		form_prompt_lookup_attribute->to_name =
-			form_prompt_lookup_attribute_to_name(
-			DICTIONARY_SEPARATE_TO_PREFIX,
-			attribute_name );
+		form_prompt_lookup_attribute->
+			form_prompt_attribute_to_name =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				form_prompt_attribute_to_name(
+					FORM_PROMPT_ATTRIBUTE_TO_PREFIX,
+					attribute_name );
 
-		form_prompt_lookup_attribute->form_prompt_lookup_relational =
-			form_prompt_lookup_relational_new(
-				form_prompt_lookup_attribute->relational_name,
-				form_prompt_lookup_attribute->from_name,
-				form_prompt_lookup_attribute->to_name,
+		form_prompt_lookup_attribute->form_prompt_attribute_relational =
+			form_prompt_attribute_relational_new(
+				form_prompt_lookup_attribute->
+					form_prompt_attribute_relational_name,
+				form_prompt_lookup_attribute->
+					form_prompt_attribute_from_name,
+				form_prompt_lookup_attribute->
+					form_prompt_attribute_to_name,
 				datatype_name,
 				attribute_width );
 
-		if ( !form_prompt_lookup_attribute->form_prompt_lookup_relational )
+		if ( !form_prompt_lookup_attribute->
+			form_prompt_attribute_relational )
 		{
 			fprintf(stderr,
-"ERROR in %s/%s()/%d: form_prompt_lookup_relational_new() returned empty.\n",
+"ERROR in %s/%s()/%d: form_prompt_attribute_relational_new() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -695,48 +710,6 @@ char *form_prompt_lookup_attribute_no_display_name(
 	sprintf(name,
 		"%s%s",
 		form_prompt_lookup_no_display_prefix,
-		attribute_name );
-
-	return strdup( name );
-}
-
-char *form_prompt_lookup_attribute_from_name(
-			char *form_prompt_lookup_from_prefix,
-			char *attribute_name )
-{
-	char name[ 128 ];
-
-	sprintf(name,
-		"%s%s",
-		form_prompt_lookup_from_prefix,
-		attribute_name );
-
-	return strdup( name );
-}
-
-char *form_prompt_lookup_attribute_relational_name(
-			char *form_prompt_lookup_attribute_relational_prefix,
-			char *attribute_name )
-{
-	char name[ 128 ];
-
-	sprintf(name,
-		"%s%s",
-		form_prompt_lookup_attribute_relational_prefix,
-		attribute_name );
-
-	return strdup( name );
-}
-
-char *form_prompt_lookup_attribute_to_name(
-			char *form_prompt_lookup_to_prefix,
-			char *attribute_name )
-{
-	char name[ 128 ];
-
-	sprintf(name,
-		"%s%s",
-		form_prompt_lookup_to_prefix,
 		attribute_name );
 
 	return strdup( name );
@@ -1098,14 +1071,14 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 
 	form_prompt_lookup_relation->element_name =
 		form_prompt_lookup_relation_element_name(
-			FORM_PROMPT_LOOKUP_RELATION_PREFIX,
+			FORM_PROMPT_RELATION_PREFIX,
 			form_prompt_lookup_relation->name );
 
 	if ( relation->drop_down_multi_select )
 	{
 		form_prompt_lookup_relation->original_name =
 			form_prompt_lookup_relation_original_name(
-				FORM_PROMPT_LOOKUP_ORIGINAL_PREFIX,
+				FORM_PROMPT_ORIGINAL_PREFIX,
 				form_prompt_lookup_relation->name );
 
 		list_set(

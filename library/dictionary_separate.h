@@ -22,9 +22,6 @@
 #define DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX	"nno_display_"
 #define DICTIONARY_SEPARATE_PAIR_PREFIX		"ppair_one2m_"
 
-#define DICTIONARY_SEPARATE_FROM_PREFIX		"from_"
-#define DICTIONARY_SEPARATE_TO_PREFIX		"to_"
-
 typedef struct
 {
 	DICTIONARY *dictionary;
@@ -63,10 +60,12 @@ typedef struct
 /* ----- */
 DICTIONARY_SEPARATE_DATE_CONVERT *
 	dictionary_separate_date_convert_new(
-			DICTIONARY *original_post_dictionary,
-			char *application_name,
-			char *login_name,
-			LIST *folder_attribute_date_name_list );
+		DICTIONARY *original_post_dictionary,
+		char *application_name,
+		char *login_name,
+		LIST *folder_attribute_date_name_list,
+		char *form_attribute_from_prefix,
+		char *form_attribute_to_prefix );
 
 /* Process */
 /* ------- */
@@ -79,8 +78,8 @@ void dictionary_separate_date_convert(
 			char *application_name,
 			char *login_name,
 			LIST *folder_attribute_date_name_list,
-			char *dictionary_separate_from_prefix,
-			char *dictionary_separate_to_prefix );
+			char *form_attribute_from_prefix,
+			char *form_attribute_to_prefix );
 
 /* Private */
 /* ------- */

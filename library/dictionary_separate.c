@@ -15,6 +15,7 @@
 #include "sql.h"
 #include "appaserver_library.h"
 #include "relation.h"
+#include "form.h"
 #include "dictionary_separate.h"
 
 DICTIONARY *dictionary_separate_original_post_dictionary(
@@ -137,7 +138,9 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 				dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			FORM_ATTRIBUTE_FROM_PREFIX,
+			FORM_ATTRIBUTE_TO_PREFIX );
 
 	dictionary_separate_post_edit_table->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
@@ -297,7 +300,9 @@ DICTIONARY_SEPARATE_DATE_CONVERT *
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
-			LIST *folder_attribute_date_name_list )
+			LIST *folder_attribute_date_name_list,
+			char *form_attribute_from_prefix,
+			char *form_attribute_to_prefix )
 {
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
 
@@ -982,7 +987,9 @@ DICTIONARY_SEPARATE_DRILLTHRU *
 				dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			FORM_ATTRIBUTE_FROM_PREFIX,
+			FORM_ATTRIBUTE_TO_PREFIX );
 
 	dictionary_separate_drillthru->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
@@ -1055,7 +1062,9 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 				dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			FORM_ATTRIBUTE_FROM_PREFIX,
+			FORM_ATTRIBUTE_TO_PREFIX );
 
 	dictionary_separate_edit_table->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
@@ -1296,7 +1305,9 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 				dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			FORM_ATTRIBUTE_FROM_PREFIX,
+			FORM_ATTRIBUTE_TO_PREFIX );
 
 	dictionary_separate_table_insert->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
@@ -1529,7 +1540,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 				dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			FORM_ATTRIBUTE_FROM_PREFIX,
+			FORM_ATTRIBUTE_TO_PREFIX );
 
 	dictionary_separate_post_prompt_insert->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
@@ -1637,7 +1650,9 @@ DICTIONARY_SEPARATE_PROMPT_PROCESS *
 				dictionary,
 			application_name,
 			login_name,
-			folder_attribute_date_name_list );
+			folder_attribute_date_name_list,
+			FORM_ATTRIBUTE_FROM_PREFIX,
+			FORM_ATTRIBUTE_TO_PREFIX );
 
 	dictionary_separate_prompt_process->sql_injection_escape =
 		dictionary_separate_sql_injection_escape_new(
