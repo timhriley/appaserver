@@ -45,7 +45,8 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 	form_prompt_attribute_relational_new(
 			char *attribute_name,
 			char *datatype_name,
-			int attribute_width );
+			int attribute_width,
+			char *hint_message );
 
 /* Process */
 /* ------- */

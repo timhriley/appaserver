@@ -17,7 +17,7 @@
 #include "query.h"
 #include "relation.h"
 #include "dictionary_separate.h"
-#include "form_prompt_lookup_relational.h"
+#include "form_prompt_attribute_relational.h"
 #include "form.h"
 
 #define FORM_PROMPT_LOOKUP_NAME		"prompt_lookup"
@@ -88,8 +88,7 @@ typedef struct
 	char *no_display_name;
 	APPASERVER_ELEMENT *no_display_appaserver_element;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
-	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational;
-	APPASERVER_ELEMENT *hint_message_appaserver_element;
+	FORM_PROMPT_ATTRIBUTE_RELATIONAL *form_prompt_attribute_relational;
 } FORM_PROMPT_LOOKUP_ATTRIBUTE;
 
 /* Usage */

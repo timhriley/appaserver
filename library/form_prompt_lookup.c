@@ -90,7 +90,7 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 		form_tag_html(
 			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			form_prompt_lookup->action_string,
-			FRAMESET_EDIT_FRAME /* target_frame */ );
+			FRAMESET_TABLE_FRAME /* target_frame */ );
 
 	form_prompt_lookup->form_prompt_lookup_element_list =
 		form_prompt_lookup_element_list_new(
@@ -315,142 +315,6 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_calloc( void )
 	return form_prompt_lookup;
 }
 
-FORM_PROMPT_LOOKUP_RELATIONAL *
-	form_prompt_lookup_relational_new(
-			char *relational_name,
-			char *from_name,
-			char *to_name,
-			char *datatype_name,
-			int attribute_width )
-{
-	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational =
-		form_prompt_lookup_relational_calloc();
-
-	form_prompt_lookup_relational->element_list = list_new();
-
-	form_prompt_lookup_relational->operation_list =
-		form_prompt_lookup_relational_operation_list(
-			datatype_name );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		( form_prompt_lookup_relational->
-			relation_operator_appaserver_element =
-				appaserver_element_new(
-					prompt_drop_down, relational_name ) ) );
-
-	form_prompt_lookup_relational->
-		relation_operator_appaserver_element->
-		prompt_drop_down =
-			element_prompt_drop_down_new(
-				form_prompt_lookup_relational->
-					relation_operator_appaserver_element->
-					element_name,
-				form_prompt_lookup_relational->operation_list,
-				0 /* not no_initial_capital */,
-				1 /* output_null_option */,
-				1 /* output_not_null_option */,
-				1 /* output_select_option */,
-				1 /* display_size */,
-				-1 /* tab_order */,
-				0 /* not multi_select */,
-				(char *)0 /* post_change_javascript */,
-				1 /* recall */ );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		appaserver_element_new(
-			table_data, (char *)0 ) );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		( form_prompt_lookup_relational->
-			text_from_appaserver_element =
-				appaserver_element_new(
-					text, from_name ) ) );
-
-	form_prompt_lookup_relational->text_from_appaserver_element->text =
-		element_text_new(
-			form_prompt_lookup_relational->
-				text_from_appaserver_element->
-				element_name,
-			datatype_name,
-			FORM_PROMPT_LOOKUP_FROM_ATTRIBUTE_WIDTH,
-			0 /* not null_to_slash */,
-			1 /* prevent_carrot */,
-			(char *)0 /* on_change */,
-			(char *)0 /* on_focus */,
-			(char *)0 /* on_keyup */,
-			-1 /* tab_order */,
-			1 /* recall */ );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		appaserver_element_new(
-			table_data, (char *)0 ) );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		( form_prompt_lookup_relational->
-			and_appaserver_element =
-				appaserver_element_new(
-					non_edit_text, (char *)0 ) ) );
-
-	form_prompt_lookup_relational->and_appaserver_element->non_edit_text =
-		element_non_edit_text_new(
-			(char *)0,
-			"and" /* message */ );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		appaserver_element_new(
-			table_data, (char *)0 ) );
-
-	list_set(
-		form_prompt_lookup_relational->element_list,
-		( form_prompt_lookup_relational->
-			text_to_appaserver_element =
-				appaserver_element_new(
-					text, to_name ) ) );
-
-	form_prompt_lookup_relational->text_from_appaserver_element->text =
-		element_text_new(
-			to_name,
-			form_prompt_lookup_relational->
-				text_to_appaserver_element->
-				element_name,
-			attribute_width,
-			0 /* not null_to_slash */,
-			1 /* prevent_carrot */,
-			(char *)0 /* on_change */,
-			(char *)0 /* on_focus */,
-			(char *)0 /* on_keyup */,
-			-1 /* tab_order */,
-			1 /* recall */ );
-
-	return form_prompt_lookup_relational;
-}
-
-FORM_PROMPT_LOOKUP_RELATIONAL *
-	form_prompt_lookup_relational_calloc(
-			void )
-{
-	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational;
-
-	if ( ! ( form_prompt_lookup_relational =
-			calloc( 1, sizeof( FORM_PROMPT_LOOKUP_RELATIONAL ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return form_prompt_lookup_relational;
-}
-
 FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 			char *attribute_name,
 			char *folder_attribute_prompt,
@@ -524,7 +388,8 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 		form_prompt_attribute_relational_new(
 			attribute_name,
 			datatype_name,
-			attribute_width );
+			attribute_width,
+			hint_message );
 
 	if ( !form_prompt_lookup_attribute->
 		form_prompt_attribute_relational )
@@ -537,32 +402,11 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 		exit( 1 );
 	}
 
-		list_set_list(
-			form_prompt_lookup_attribute->element_list,
-			form_prompt_lookup_attribute->
-				form_prompt_lookup_relational->
-					element_list );
-
-	if ( hint_message )
-	{
-		list_set(
-			form_prompt_lookup_attribute->element_list,
-			appaserver_element_new( table_data, (char *)0 ) );
-
-		list_set(
-			form_prompt_lookup_attribute->element_list,
-			( form_prompt_lookup_attribute->
-				hint_message_appaserver_element =
-					appaserver_element_new(
-						non_edit_text, (char *)0 ) ) );
-
+	list_set_list(
+		form_prompt_lookup_attribute->element_list,
 		form_prompt_lookup_attribute->
-			hint_message_appaserver_element->
-			non_edit_text =
-				element_non_edit_text_new(
-					(char *)0,
-					hint_message );
-	}
+			form_prompt_attribute_relational->
+			element_list );
 
 	return form_prompt_lookup_attribute;
 }

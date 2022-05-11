@@ -24,124 +24,32 @@ typedef struct
 {
 	LIST *element_list;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
-	char *from_name;
-	APPASERVER_ELEMENT *yes_no_appaserver_element;
-	char *relational_name;
-	char *to_name;
-	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational;
-	APPASERVER_ELEMENT *hint_message_appaserver_element;
-} FORM_PROMPT_LOOKUP_ATTRIBUTE;
+	FORM_PROMPT_ATTRIBUTE_RELATIONAL *form_prompt_attribute_relational;
+} FORM_PROMPT_PROCESS_ATTRIBUTE;
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
+FORM_PROMPT_PROCESS_ATTRIBUTE *
+	orm_prompt_process_attribute_new(
 			char *attribute_name,
-			char *folder_attribute_prompt,
 			char *datatype_name,
 			int attribute_width,
-			char *hint_message,
-			LIST *form_prompt_lookup_relation_list );
+			char *hint_message );
 
 /* Process */
 /* ------- */
-FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_calloc(
+FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute_calloc(
 			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_no_display_name(
-			char *form_prompt_lookup_no_display_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_from_name(
-			char *form_prompt_lookup_from_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_relational_name(
-			char *form_prompt_lookup_attribute_relational_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_to_name(
-			char *form_prompt_lookup_to_prefix,
-			char *attribute_name );
 
 typedef struct
 {
 	LIST *element_list;
-	char *no_display_name;
-	APPASERVER_ELEMENT *no_display_appaserver_element;
-	APPASERVER_ELEMENT *prompt_appaserver_element;
-	char *from_name;
-	APPASERVER_ELEMENT *yes_no_appaserver_element;
-	char *relational_name;
-	char *to_name;
-	FORM_PROMPT_LOOKUP_RELATIONAL *form_prompt_lookup_relational;
-	APPASERVER_ELEMENT *hint_message_appaserver_element;
-} FORM_PROMPT_LOOKUP_ATTRIBUTE;
-
-/* FORM_PROMPT_LOOKUP_ATTRIBUTE operations */
-/* ------------------------------------- */
-
-/* Usage */
-/* ----- */
-
-/* Always succeeds */
-/* --------------- */
-FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
-			char *attribute_name,
-			char *folder_attribute_prompt,
-			char *datatype_name,
-			int attribute_width,
-			char *hint_message,
-			LIST *form_prompt_lookup_relation_list );
-
-/* Process */
-/* ------- */
-FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_calloc(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_no_display_name(
-			char *form_prompt_lookup_no_display_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_from_name(
-			char *form_prompt_lookup_from_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_relational_name(
-			char *form_prompt_lookup_attribute_relational_prefix,
-			char *attribute_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_attribute_to_name(
-			char *form_prompt_lookup_to_prefix,
-			char *attribute_name );
-
-typedef struct
-{
-	FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation;
-	LIST *form_prompt_lookup_relation_list;
-	FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute;
-	LIST *element_list;
-	LIST *join_element_list;
+	FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute;
 	char *appaserver_element_list_html;
-} FORM_PROMPT_LOOKUP_ELEMENT_LIST;
+} FORM_PROMPT_PROCESS_ELEMENT_LIST;
 
 /* FORM_PROMPT_LOOKUP_ELEMENT_LIST operations */
 /* ---------------------------------------- */

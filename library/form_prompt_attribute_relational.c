@@ -11,13 +11,15 @@
 #include "String.h"
 #include "appaserver.h"
 #include "attribute.h"
+#include "form.h"
 #include "form_prompt_attribute_relational.h"
 
 FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 	form_prompt_attribute_relational_new(
 			char *attribute_name,
 			char *datatype_name,
-			int attribute_width )
+			int attribute_width,
+			char *hint_message )
 {
 	FORM_PROMPT_ATTRIBUTE_RELATIONAL *form_prompt_attribute_relational =
 		form_prompt_attribute_relational_calloc();
@@ -187,6 +189,28 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 					(char *)0 /* on_keyup */,
 					-1 /* tab_order */,
 					1 /* recall */ );
+	}
+
+	if ( hint_message )
+	{
+		list_set(
+			element_list,
+				appaserver_element_new(
+					table_data, (char *)0 ) );
+
+		list_set(
+			element_list,
+			( form_prompt_attribute_relational->
+				hint_message_appaserver_element =
+					appaserver_element_new(
+						non_edit_text, (char *)0 ) ) );
+
+		form_prompt_attribute_relational->
+			hint_message_appaserver_element->
+			non_edit_text =
+				element_non_edit_text_new(
+					(char *)0 /* prompt_name */,
+					hint_message );
 	}
 
 	return form_prompt_attribute_relational;
