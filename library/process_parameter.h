@@ -12,11 +12,7 @@
 #include "folder.h"
 #include "attribute.h"
 
-#define PROMPT_TABLE			"prompt"
-#define DROP_DOWN_PROMPT_TABLE		"drop_down_prompt"
-#define DROP_DOWN_PROMPT_DATA_TABLE	"drop_down_prompt_data"
 #define PROCESS_PARAMETER_TABLE		"process_parameter"
-#define PROCESS_SET_PARAMETER_TABLE	"process_set_parameter"
 
 #define PROCESS_PARAMETER_SELECT	"process,"			\
 					"folder,"			\
@@ -29,6 +25,8 @@
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 
+#define PROCESS_SET_PARAMETER_TABLE	"process_set_parameter"
+
 #define PROCESS_SET_PARAMETER_SELECT	"process_set,"			\
 					"folder,"			\
 					"attribute,"			\
@@ -40,67 +38,109 @@
 					"populate_drop_down_process,"	\
 					"populate_helper_process"
 
+#define PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA_TABLE			\
+					"drop_down_prompt_data"
+
+#define PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA_SELECT			\
+					"drop_down_prompt_data,"	\
+					"display_order"
+
 typedef struct
 {
 	char *drop_down_prompt_name;
 	char *drop_down_prompt_data;
 	int display_order;
-} DROP_DOWN_PROMPT_DATA;
+} PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA;
 
 /* Usage */
 /* ----- */
-DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_new(
-			char *drop_down_prompt_name,
-			char *drop_down_prompt_data );
+LIST *process_parameter_drop_down_prompt_data_list(
+		char *drop_down_prompt_name,
+		char *process_parameter_drop_down_prompt_primary_where );
 
 /* Process */
 /* ------- */
-DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_parse(
+
+/* Returns static memory */
+/* --------------------- */
+char *process_parameter_drop_down_prompt_data_system_string(
+		char *process_parameter_drop_down_prompt_select,
+		char *process_parameter_drop_down_prompt_table,
+		char *process_parameter_drop_down_prompt_primary_where );
+
+LIST *process_parameter_drop_down_prompt_data_system_list(
+		char *drop_down_prompt_name,
+		char *process_parameter_drop_down_prompt_data_system_string );
+
+PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+	process_parameter_drop_down_prompt_data_parse(
+			char *drop_down_prompt_name,
 			char *input );
 
-/* Returns heap memory */
-/* ------------------- */
-char *drop_down_prompt_data_system_string(
-			char *where );
+PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+	process_parameter_drop_down_prompt_data_new(
+			char *drop_down_prompt_name,
+			char *drop_down_prompt_data );
 
-LIST *drop_down_prompt_data_system_list(
-			char *system_string );
+PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+	process_parameter_drop_down_prompt_data_calloc(
+			void );
+
+#define PROCESS_PARAMETER_DROP_DOWN_PROMPT_TABLE			\
+					"drop_down_prompt"
+
+#define PROCESS_PARAMETER_DROP_DOWN_PROMPT_SELECT			\
+					"hint_message,"			\
+					"optional_display"
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *drop_down_prompt_name;
 	char *hint_message;
 	char *optional_display;
 
 	/* Process */
 	/* ------- */
-	LIST *drop_down_prompt_data_list;
-} DROP_DOWN_PROMPT;
+	LIST *process_parameter_drop_down_prompt_data_list;
+} PROCESS_PARAMETER_DROP_DOWN_PROMPT;
 
 /* Usage */
 /* ----- */
-DROP_DOWN_PROMPT *drop_down_prompt_fetch(
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_drop_down_prompt_fetch(
 			char *drop_down_prompt_name );
 
 /* Process */
 /* ------- */
-DROP_DOWN_PROMPT *drop_down_prompt_parse(
-			char *input );
 
-DROP_DOWN_PROMPT *drop_down_prompt_new(
+/* Returns static memory */
+/* --------------------- */
+char *process_parameter_drop_down_prompt_primary_where(
 			char *drop_down_prompt_name );
 
 /* Returns static memory */
 /* --------------------- */
-char *drop_down_prompt_primary_where(
-			char *drop_down_prompt_name );
+char *process_parameter_drop_down_prompt_system_string(
+		char *process_parameter_drop_down_prompt_select,
+		char *process_parameter_drop_down_prompt_table,
+		char *process_parameter_drop_down_prompt_primary_where );
 
-/* Returns heap memory */
-/* ------------------- */
-char *drop_down_prompt_system_string(
-			char *where );
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_parse(
+			char *drop_down_prompt_name,
+			char *input );
+
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
+			void );
+
+#define PROCESS_PARAMETER_PROMPT_TABLE	"prompt"
+
+#define PROCESS_PARAMETER_PROMPT_SELECT	"prompt,"			\
+					"input_width,"			\
+					"hint_message,"			\
+					"upload_filename_yn,"		\
+					"date_yn"
 
 typedef struct
 {
@@ -109,26 +149,32 @@ typedef struct
 	char *hint_message;
 	boolean upload_filename;
 	boolean date;
-} PROMPT;
+} PROCESS_PARAMETER_PROMPT;
 
 /* Usage */
 /* ----- */
-PROMPT *prompt_fetch(	char *prompt_name );
+PROCESS_PARAMETER_PROMPT *
+	process_parameter_prompt_fetch(
+		char *prompt_name );
 
 /* Process */
 /* ------- */
 
 /* Returns static memory */
 /* --------------------- */
-char *prompt_primary_where(
+char *process_parameter_prompt_primary_where(
 			char *prompt_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *prompt_system_string(
-			char *where );
+/* Returns static memory */
+/* --------------------- */
+char *process_parameter_prompt_system_string(
+			char *process_parameter_prompt_select,
+			char *process_parameter_prompt_table,
+			char *process_parameter_prompt_where );
 
-PROMPT *prompt_parse(	char *input );
+PROCESS_PARAMETER_PROMPT *
+	process_parameter_prompt_parse(
+		char *input );
 
 PROMPT *prompt_new(	char *prompt_name );
 

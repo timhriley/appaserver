@@ -25,17 +25,26 @@
 #include "query.h"
 #include "process_parameter.h"
 
-PROMPT *prompt_fetch( char *prompt_name )
+PROCESS_PARAMETER_PROMPT *
+	process_parameter_prompt_fetch(
+			char *prompt_name )
 {
 	return
-	prompt_parse(
+	process_parameter_prompt_parse(
 		string_fetch_pipe(
-			prompt_system_string(
-				prompt_primary_where(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			process_parameter_prompt_system_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				process_parameter_prompt_primary_where(
 					prompt_name ) ) ) );
 }
 
-char *prompt_primary_where( char *prompt_name )
+char *process_parameter_prompt_primary_where(
+			char *prompt_name )
 {
 	static char where[ 256 ];
 
@@ -46,209 +55,318 @@ char *prompt_primary_where( char *prompt_name )
 	return where;
 }
 
-char *prompt_system_string( char *where )
+char *process_parameter_prompt_system_string(
+			char *process_parameter_prompt_select,
+			char *process_parameter_prompt_table,
+			char *where )
 {
-	char system_string[ 1024 ];
+	static char system_string[ 128 ];
 
 	sprintf(system_string,
-		"select.sh '*' %s \"%s\"",
-		PROMPT_TABLE,
+		"select.sh \"%s\" %s \"%s\"",
+		process_parameter_prompt_select,
+		process_parameter_prompt_table,
 		where );
 
-	return strdup( system_string );
+	return system_string;
 }
 
-PROMPT *prompt_new( char *prompt_name )
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_new(
+			char *prompt_name )
 {
-	PROMPT *prompt = calloc( 1, sizeof( PROMPT ) );
+	PROCESS_PARAMETER_PROMPT *process_parameter_prompt =
+		process_parameter_prompt_calloc();
 
-	if ( !prompt )
+	process_parameter_prompt->prompt_name = prompt_name;
+
+	return process_parameter_prompt;
+}
+
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_calloc( char *prompt_name )
+{
+	PROCESS_PARAMETER_PROMPT *process_parameter_prompt;
+
+	if ( ! ( process_parameter_prompt =
+			calloc( 1, sizeof( PROCESS_PARAMETER_PROMPT ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 (int)sizeof( PROMPT ) );
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	prompt->prompt_name = prompt_name;
-	return prompt;
+	return process_parameter_prompt;
 }
 
-PROMPT *prompt_parse( char *input )
+PROCESS_PARAMETER_PROMPT *
+	process_parameter_prompt_parse(
+			char *input )
 {
 	char prompt_name[ 256 ];
 	char buffer[ 4096 ];
-	PROMPT *prompt;
+	PROCESS_PARAMETER_PROMPT *process_parameter_prompt;
 
-	/* See attribute_list prompt */
-	/* ------------------------- */
+	/* See PROCESS_PARAMETER_PROMPT_SELECT */
+	/* ----------------------------------- */
 	piece( prompt_name, SQL_DELIMITER, input, 0 );
-	prompt = prompt_new( strdup( prompt_name ) );
+
+	process_parameter_prompt =
+		process_parameter_prompt_new(
+			strdup( prompt_name ) );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
-	prompt->input_width = atoi( buffer );
+	process_parameter_prompt->input_width = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
-	prompt->hint_message = strdup( buffer );
+	process_parameter_prompt->hint_message = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	prompt->upload_filename = ( *buffer == 'y' );
+	process_parameter_prompt->upload_filename = ( *buffer == 'y' );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	prompt->date = ( *buffer == 'y' );
+	process_parameter_prompt->date = ( *buffer == 'y' );
 
-	return prompt;
+	return process_parameter_prompt;
 }
 
-DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_new(
-			char *drop_down_prompt_name,
-			char *drop_down_prompt_data )
+PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+	process_parameter_drop_down_prompt_data_calloc(
+			void )
 {
-	DROP_DOWN_PROMPT_DATA *p = calloc( 1, sizeof( DROP_DOWN_PROMPT_DATA ) );
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *p;
 
-	if ( !p )
+	if ( ! ( p  =
+		    calloc(
+			1,
+			sizeof( PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 (int)sizeof( DROP_DOWN_PROMPT_DATA ) );
+			 __LINE__ );
 		exit( 1 );
 	}
-
-	p->drop_down_prompt_name = drop_down_prompt_name;
-	p->drop_down_prompt_data = drop_down_prompt_data;
 
 	return p;
 }
 
-DROP_DOWN_PROMPT_DATA *drop_down_prompt_data_parse(
+PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+	process_parameter_drop_down_prompt_data_new(
+			char *drop_down_prompt_name,
+			char *drop_down_prompt_data )
+{
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+		process_parameter_drop_down_prompt_data =
+			process_parameter_drop_down_prompt_data_calloc();
+
+	process_parameter_drop_down_prompt_data->
+		drop_down_prompt_name =
+			drop_down_prompt_name;
+
+	process_parameter_drop_down_prompt_data->
+		drop_down_prompt_data =
+			drop_down_prompt_data;
+
+	return process_parameter_drop_down_prompt_data;
+}
+
+PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+	process_parameter_drop_down_prompt_data_parse(
+			char *drop_down_prompt_name,
 			char *input )
 {
-	char prompt_name[ 256 ];
-	char prompt_data[ 256 ];
+	char prompt_data[ 128 ];
 	char display_order[ 128 ];
-	DROP_DOWN_PROMPT_DATA *drop_down_prompt_data;
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
+		process_parameter_drop_down_prompt_data;
 
-	/* See attribute_list drop_down_prompt_data */
-	/* ---------------------------------------- */
-	piece( prompt_name, SQL_DELIMITER, input, 0 );
-	piece( prompt_data, SQL_DELIMITER, input, 1 );
-	piece( display_order, SQL_DELIMITER, input, 3 );
+	/* See PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA_SELECT */
+	/* -------------------------------------------------- */
+	piece( prompt_data, SQL_DELIMITER, input, 0 );
+	piece( display_order, SQL_DELIMITER, input, 1 );
 
-	drop_down_prompt_data =
-		drop_down_prompt_data_new(
-			strdup( prompt_name ),
+	process_parameter_drop_down_prompt_data =
+		process_parameter_drop_down_prompt_data_new(
+			drop_down_prompt_name,
 			strdup( prompt_data ) );
 
-	drop_down_prompt_data->display_order = atoi( display_order );
+	process_parameter_drop_down_prompt_data->
+		display_order =
+			atoi( display_order );
 
-	return drop_down_prompt_data;
+	return process_parameter_drop_down_prompt_data;
 }
 
-char *drop_down_prompt_data_system_string(
-			char *where )
+LIST *process_parameter_drop_down_prompt_data_list(
+		char *drop_down_prompt_name,
+		char *process_parameter_drop_down_prompt_primary_where )
 {
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh '*' %s \"%s\"",
-		DROP_DOWN_PROMPT_DATA_TABLE,
-		where );
-
-	return strdup( system_string );
+	return
+	process_parameter_drop_down_prompt_data_system_list(
+		drop_down_prompt_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		process_parameter_drop_down_prompt_data_system_string(
+			PROCESS_PARAMETER_DROP_DOWN_PROMPT_SELECT,
+			PROCESS_PARAMETER_DROP_DOWN_PROMPT_TABLE,
+			process_parameter_drop_down_prompt_primary_where ) );
 }
 
-LIST *drop_down_prompt_data_system_list(
+LIST *process_parameter_drop_down_prompt_data_system_list(
+			char *drop_down_prompt_name,
 			char *system_string )
 {
-	LIST *list = {0};
+	LIST *list;
 	char input[ 1024 ];
-	DROP_DOWN_PROMPT_DATA *drop_down_prompt_data;
-	FILE *pipe = popen( system_string, "r" );
+	FILE *pipe;
+
+	if ( !drop_down_prompt_name
+	||   !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	list = list_new();
+	pipe = popen( system_string, "r" );
 
 	while ( string_input( input, pipe, 1024 ) )
 	{
-		if ( ( drop_down_prompt_data =
-				drop_down_prompt_data_parse(
-					input ) ) )
-		{
-			if ( !list ) list = list_new();
-
-			list_set( list, drop_down_prompt_data );
-		}
+		list_set(
+			list,
+			process_parameter_drop_down_prompt_data_parse(
+				drop_down_prompt_name,
+				input ) );
 	}
 
 	pclose( pipe );
 	return list;
 }
 
-DROP_DOWN_PROMPT *drop_down_prompt_new(
-			char *drop_down_prompt_name )
+char *process_parameter_drop_down_prompt_data_system_string(
+			char *process_parameter_drop_down_prompt_data_select,
+			char *process_parameter_drop_down_prompt_data_table,
+			char *process_parameter_drop_down_where )
 {
-	DROP_DOWN_PROMPT *p = calloc( 1, sizeof( DROP_DOWN_PROMPT ) );
+	char system_string[ 128 ];
 
-	if ( !p )
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		process_parameter_drop_down_prompt_data_select,
+		process_parameter_drop_down_prompt_data_table,
+		process_parameter_drop_down_where );
+
+	return system_string;
+}
+
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_drop_down_prompt_calloc(
+			void )
+{
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *p;
+
+	if ( ! ( p = calloc(
+			1,
+			sizeof( PROCESS_PARAMETER_DROP_DOWN_PROMPT ) ) ) )
 	{
 		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc(1,%d) returned empty.",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.",
 			 __FILE__,
 			 __FUNCTION__,
-			 __LINE__,
-			 (int)sizeof( DROP_DOWN_PROMPT ) );
+			 __LINE__ );
 		exit( 1 );
 	}
 
-	p->drop_down_prompt_name = drop_down_prompt_name;
 	return p;
 }
 
-DROP_DOWN_PROMPT *drop_down_prompt_fetch(
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_drop_down_prompt_new(
 			char *drop_down_prompt_name )
 {
-	DROP_DOWN_PROMPT *drop_down_prompt;
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt =
+		process_parameter_drop_down_prompt_calloc();
 
-	drop_down_prompt =
-		drop_down_prompt_parse(
-			string_fetch_pipe(
-				drop_down_prompt_system_string(
-					drop_down_prompt_primary_where(
-						drop_down_prompt_name ) ) ) );
+	process_parameter_drop_down_prompt->
+		drop_down_prompt_name =
+			drop_down_prompt_name;
 
-	drop_down_prompt->drop_down_prompt_data_list =
-		drop_down_prompt_data_system_list(
-			drop_down_prompt_data_system_string(
-				drop_down_prompt_primary_where(
-					drop_down_prompt_name ) ) );
-	return drop_down_prompt;
+	return process_parameter_drop_down_prompt;
 }
 
-DROP_DOWN_PROMPT *drop_down_prompt_parse(
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_drop_down_prompt_fetch(
+			char *drop_down_prompt_name )
+{
+	char *where;
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+		process_parameter_drop_down_prompt;
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		process_parameter_drop_down_prompt_primary_where(
+			drop_down_prompt_name );
+
+	process_parameter_drop_down_prompt =
+		process_parameter_drop_down_prompt_parse(
+			drop_down_prompt_name,
+			string_fetch_pipe(
+			      /* --------------------- */
+			      /* Returns static memory */
+			      /* --------------------- */
+			      process_parameter_drop_down_prompt_system_string(
+		   		   PROCESS_PARAMETER_DROP_DOWN_PROMPT_SELECT,
+		   		   PROCESS_PARAMETER_DROP_DOWN_PROMPT_TABLE,
+		   		   where ) ) );
+
+	process_parameter_drop_down_prompt->
+		process_parameter_drop_down_prompt_data_list =
+			process_parameter_drop_down_prompt_data_list(
+				drop_down_prompt_name,
+				where );
+
+	return process_parameter_drop_down_prompt;
+}
+
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_drop_down_prompt_parse(
+			char *drop_down_prompt_name,
+			char *process_parameter_drop_down_prompt_primary_where,
 			char *input )
 {
-	char drop_down_prompt_name[ 256 ];
 	char buffer[ 2048 ];
-	DROP_DOWN_PROMPT *drop_down_prompt;
 
-	/* See attribute_list drop_down_prompt */
-	/* ----------------------------------- */
-	piece( drop_down_prompt_name, SQL_DELIMITER, input, 0 );
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+		process_parameter_drop_down_prompt =
+			process_parameter_drop_down_prompt_new(
+				drop_down_prompt_name );
 
-	drop_down_prompt =
-		drop_down_prompt_new(
-			strdup( drop_down_prompt_name ) );
+
+	/* See PROCESS_PARAMETER_DROP_DOWN_PROMPT_SELECT */
+	/* --------------------------------------------- */
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	process_parameter_drop_down_prompt->hint_message = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
-	drop_down_prompt->hint_message = strdup( buffer );
+	process_parameter_drop_down_prompt->optional_display = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	drop_down_prompt->optional_display = strdup( buffer );
+	process_parameter_drop_down_prompt->
+		process_parameter_drop_down_prompt_data_list =
+			process_parameter_drop_down_prompt_data_list(
+			   drop_down_prompt_name,
+			   process_parameter_drop_down_prompt_primary_where );
 
-	return drop_down_prompt;
+	return process_parameter_drop_down_prompt;
 }
 
 char *drop_down_prompt_primary_where(
@@ -263,17 +381,20 @@ char *drop_down_prompt_primary_where(
 	return where;
 }
 
-char *drop_down_prompt_system_string(
-			char *where )
+char *process_parameter_drop_down_prompt_system_string(
+		char *process_parameter_drop_down_prompt_select,
+		char *process_parameter_drop_down_prompt_table,
+		char *process_parameter_drop_down_prompt_primary_where )
 {
-	char system_string[ 1024 ];
+	static char system_string[ 128 ];
 
 	sprintf(system_string,
-		"select.sh '*' %s \"%s\"",
-		DROP_DOWN_PROMPT_TABLE,
-		where );
+		"select.sh \"%s\" %s \"%s\"",
+		process_parameter_drop_down_prompt_select,
+		process_parameter_drop_down_prompt_table,
+		process_parameter_drop_down_prompt_primary_where );
 
-	return strdup( system_string );
+	return system_string;
 }
 
 LIST *process_parameter_system_list(
