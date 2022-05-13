@@ -778,3 +778,17 @@ int folder_attribute_date_name_list_length(
 	return list_length( date_name_list );
 }
 
+LIST *folder_attribute_fetch_primary_key_list(
+			char *folder_name )
+{
+	LIST *list;
+
+	list =
+		folder_attribute_list(
+			folder_name,
+			(LIST *)0 /* exclude_attribute_name_list */,
+			0 /* not fetch_attribute */ );
+
+	return folder_attribute_primary_key_list( list );
+}
+

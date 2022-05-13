@@ -10,33 +10,9 @@
 #include "list.h"
 #include "boolean.h"
 #include "folder.h"
+#include "dictionary.h"
+#include "process.h"
 #include "attribute.h"
-
-#define PROCESS_PARAMETER_TABLE		"process_parameter"
-
-#define PROCESS_PARAMETER_SELECT	"process,"			\
-					"folder,"			\
-					"attribute,"			\
-					"drop_down_prompt,"		\
-					"prompt,"			\
-					"display_order,"		\
-					"drop_down_multi_select_yn,"	\
-					"drillthru_yn,"			\
-					"populate_drop_down_process,"	\
-					"populate_helper_process"
-
-#define PROCESS_SET_PARAMETER_TABLE	"process_set_parameter"
-
-#define PROCESS_SET_PARAMETER_SELECT	"process_set,"			\
-					"folder,"			\
-					"attribute,"			\
-					"drop_down_prompt,"		\
-					"prompt,"			\
-					"display_order,"		\
-					"drop_down_multi_select_yn,"	\
-					"drillthru_yn,"			\
-					"populate_drop_down_process,"	\
-					"populate_helper_process"
 
 #define PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA_TABLE			\
 					"drop_down_prompt_data"
@@ -177,6 +153,95 @@ PROCESS_PARAMETER_PROMPT *
 		char *input );
 
 PROMPT *prompt_new(	char *prompt_name );
+
+typedef struct
+{
+	char *drop_down_name;
+	PROCESS *process;
+	char *command_line;
+	LIST *delimited_list;
+	LIST *primary_key_list;
+} PROCESS_PARAMETER_DROP_DOWN;
+
+/* Usage */
+/* ----- */
+PROCESS_PARAMETER_DROP_DOWN *
+	process_parameter_drop_down_process_fetch(
+			char *populate_drop_down_process_name,
+			char *prompt_name,
+			char *folder_name,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Process */
+/* ------- */
+
+/* Returns prompt_name, folder_name, or null */
+/* ----------------------------------------- */
+char *process_parameter_drop_down_process_name(
+			char *prompt_name,
+			char *folder_name );
+
+/* Frees command_line and returns heap memory */
+/* ------------------------------------------ */
+char *process_parameter_command_line(
+			char *command_line,
+			char *process_name,
+			char *login_name,
+			char *role_name,
+			DICTIONARY *drillthru_dictionary );
+
+LIST *process_parameter_drop_down_process_delimited_list(
+			char *populate_drop_down_process_name,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Usage */
+/* ----- */
+PROCESS_PARAMETER_DROP_DOWN *
+	process_parameter_drop_down_folder_fetch(
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *drillthru_dictionary );
+
+/* Process */
+/* ------- */
+LIST *process_parameter_drop_down_folder_delimited_list(
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *drillthru_dictionary );
+
+/* Private */
+/* ------- */
+PROCESS_PARAMETER_DROP_DOWN *
+	process_parameter_drop_down_calloc(
+			void );
+
+#define PROCESS_PARAMETER_TABLE		"process_parameter"
+
+#define PROCESS_PARAMETER_SELECT	"process,"			\
+					"folder,"			\
+					"attribute,"			\
+					"drop_down_prompt,"		\
+					"prompt,"			\
+					"display_order,"		\
+					"drop_down_multi_select_yn,"	\
+					"drillthru_yn,"			\
+					"populate_drop_down_process,"	\
+					"populate_helper_process"
+
+#define PROCESS_SET_PARAMETER_TABLE	"process_set_parameter"
+
+#define PROCESS_SET_PARAMETER_SELECT	"process_set,"			\
+					"folder,"			\
+					"attribute,"			\
+					"drop_down_prompt,"		\
+					"prompt,"			\
+					"display_order,"		\
+					"drop_down_multi_select_yn,"	\
+					"drillthru_yn,"			\
+					"populate_drop_down_process,"	\
+					"populate_helper_process"
 
 typedef struct
 {

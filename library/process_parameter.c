@@ -22,6 +22,7 @@
 #include "dictionary.h"
 #include "attribute.h"
 #include "folder.h"
+#include "folder_attribute.h"
 #include "query.h"
 #include "process_parameter.h"
 
@@ -635,7 +636,7 @@ LIST *process_parameter_process_delimited_list(
 	if ( ! ( process =
 			process_fetch(
 				populate_drop_down_process_name,
-				(char *)0 /* document_root_directory */,
+				(char *)0 /* document_root */,
 				(char *)0 /* relative_source_directory */,
 				1 /* check_executable_inside_filesystem */ ) ) )
 	{
@@ -649,10 +650,10 @@ LIST *process_parameter_process_delimited_list(
 
 	return
 	process_delimited_list(
-		/* ------------------------------------------------- */
-		/* Frees command_line and safely returns heap memory */
-		/* ------------------------------------------------- */
-		process_parameter_command_line(
+		/* ------------------------------------------ */
+		/* Frees command_line and returns heap memory */
+		/* ------------------------------------------ */
+		process_parameter_drop_down_command_line(
 			process->command_line,
 			populate_drop_down_process_name,
 			login_name,
@@ -745,5 +746,140 @@ LIST *process_parameter_folder_delimited_list(
 	}
 
 	return query_widget->delimited_list;
+}
+
+PROCESS_PARAMETER_DROP_DOWN *
+	process_parameter_drop_down_process_fetch(
+			char *populate_drop_down_process_name,
+			char *prompt_name,
+			char *folder_name,
+			DICTIONARY *non_prefixed_dictionary )
+{
+	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
+
+	if ( !populate_drop_down_process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_parameter_drop_down = process_parameter_drop_down_calloc();
+
+	if ( ! ( process_parameter_drop_down->process =
+			process_fetch(
+				populate_drop_down_process_name,
+				(char *)0 /* document_root */,
+				(char *)0 /* relative_source_directory */,
+				1 /* check_executable_inside_filesystem */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: process_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			populate_drop_down_process_name );
+		exit( 1 );
+	}
+
+	return
+	process_delimited_list(
+		/* ------------------------------------------ */
+		/* Frees command_line and returns heap memory */
+		/* ------------------------------------------ */
+		process_parameter_drop_down_command_line(
+			process->command_line,
+			populate_drop_down_process_name,
+			login_name,
+			role_name,
+			drillthru_dictionary ) );
+}
+
+LIST *process_parameter_drop_down_process_delimited_list(
+			char *populate_drop_down_process_name,
+			DICTIONARY *non_prefixed_dictionary )
+{
+}
+
+PROCESS_PARAMETER_DROP_DOWN *
+	process_parameter_drop_down_folder_fetch(
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *drillthru_dictionary )
+{
+	PROCESS_PARAMETER_DROP_DOWN *
+		process_parameter_drop_down =
+			process_parameter_drop_down_calloc();
+
+	if ( !login_name
+	||   !role_name
+	||   !folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_parameter_drop_down->primary_key_list =
+		folder_attribute_fetch_primary_key_list(
+			folder_name );
+
+	if ( !list_length( process_parameter_drop_down->primary_key_list ) )
+	return process_parameter_drop_down;
+}
+
+LIST *process_parameter_drop_down_folder_delimited_list(
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			DICTIONARY *drillthru_dictionary )
+{
+}
+
+PROCESS_PARAMETER_DROP_DOWN *
+	process_parameter_drop_down_calloc(
+			void )
+{
+	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
+
+	if ( ! ( process_parameter_drop_down =
+			calloc( 1, sizeof( PROCESS_PARAMETER_DROP_DOWN ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return process_parameter_drop_down;
+}
+
+char *process_parameter_drop_down_process_name(
+			char *prompt_name,
+			char *folder_name )
+{
+	if ( !prompt_name && !folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( prompt_name )
+		return prompt_name;
+	else
+		return folder_name;
 }
 

@@ -2529,7 +2529,7 @@ QUERY_WIDGET *query_widget_calloc( void )
 	return query_widget;
 }
 
-QUERY_WIDGET *query_widget_new(
+QUERY_WIDGET *query_widget_fetch(
 			char *widget_folder_name,
 			char *login_name,
 			LIST *folder_attribute_list,

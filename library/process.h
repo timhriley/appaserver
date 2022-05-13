@@ -210,15 +210,6 @@ char *process_operation_command_line(
 			int operation_row_checked_count,
 			LIST *primary_data_list );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *process_parameter_command_line(
-			char *command_line,
-			char *process_name,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *drillthru_dictionary );
-
 /* Returns heap memory */
 /* ------------------- */
 char *process_widget_command_line(

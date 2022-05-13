@@ -2622,3 +2622,4 @@ char *list_get_string( LIST *list )
 {
 	return (char *)list_get( list );
 }
+

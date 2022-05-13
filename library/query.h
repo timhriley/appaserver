@@ -749,18 +749,20 @@ typedef struct
 	LIST *delimited_list;
 } QUERY_WIDGET;
 
-/* QUERY_WIDGET operations */
-/* ----------------------- */
-QUERY_WIDGET *query_widget_calloc(
-			void );
-
-QUERY_WIDGET *query_widget_new(
+/* Usage */
+/* ----- */
+QUERY_WIDGET *query_widget_fetch(
 			char *widget_folder_name,
 			char *login_name,
 			LIST *folder_attribute_list,
 			LIST *relation_mto1_non_isa_list,
 			char *security_entity_where,
 			DICTIONARY *drillthru_dictionary );
+
+/* Process */
+/* ------- */
+QUERY_WIDGET *query_widget_calloc(
+			void );
 
 typedef struct
 {
