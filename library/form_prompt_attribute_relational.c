@@ -194,12 +194,12 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 	if ( hint_message )
 	{
 		list_set(
-			element_list,
+			form_prompt_attribute_relational->element_list,
 				appaserver_element_new(
 					table_data, (char *)0 ) );
 
 		list_set(
-			element_list,
+			form_prompt_attribute_relational->element_list,
 			( form_prompt_attribute_relational->
 				hint_message_appaserver_element =
 					appaserver_element_new(

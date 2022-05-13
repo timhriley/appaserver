@@ -24,7 +24,7 @@
 #include "button.h"
 #include "appaserver.h"
 #include "post_drillthru.h"
-#include "form_prompt_edit.h"
+#include "form_prompt_lookup.h"
 #include "form_drillthru.h"
 
 FORM_DRILLTHRU *form_drillthru_new(
@@ -64,8 +64,8 @@ FORM_DRILLTHRU *form_drillthru_new(
 			form_drillthru->action_string,
 			FRAMESET_PROMPT_FRAME /* target_frame */ );
 
-	if ( ! ( form_drillthru->form_prompt_edit_element_list =
-			form_prompt_edit_element_list_new(
+	if ( ! ( form_drillthru->form_prompt_lookup_element_list =
+			form_prompt_lookup_element_list_new(
 				folder_attribute_list,
 				relation_mto1_non_isa_list,
 				(LIST *)0 /* relation_join_one2m_list */,
@@ -74,7 +74,7 @@ FORM_DRILLTHRU *form_drillthru_new(
 				security_entity_where ) ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: form_prompt_edit_element_list_new() returned empty.\n",
+"ERROR in %s/%s()/%d: form_prompt_lookup_element_list_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

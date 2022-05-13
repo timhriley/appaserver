@@ -34,6 +34,7 @@ typedef struct
 	APPASERVER_ELEMENT *text_from_appaserver_element;
 	APPASERVER_ELEMENT *and_appaserver_element;
 	APPASERVER_ELEMENT *text_to_appaserver_element;
+	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_ATTRIBUTE_RELATIONAL;
 
 /* Usage */

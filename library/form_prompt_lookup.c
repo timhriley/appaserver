@@ -707,7 +707,7 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 	form_prompt_lookup_relation->element_list = list_new();
 
 	form_prompt_lookup_relation->query_widget =
-		query_widget_new(
+		query_widget_fetch(
 			relation->one_folder->folder_name
 				/* widget_folder_name */,
 			login_name,
@@ -719,7 +719,7 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 	if ( !form_prompt_lookup_relation->query_widget )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: query_widget_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

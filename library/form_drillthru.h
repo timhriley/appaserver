@@ -17,13 +17,13 @@
 #include "query.h"
 #include "dictionary_separate.h"
 #include "post_drillthru.h"
-#include "form_prompt_edit.h"
+#include "form_prompt_lookup.h"
 
 typedef struct
 {
 	char *action_string;
 	char *form_tag_html;
-	FORM_PROMPT_EDIT_ELEMENT_LIST *form_prompt_edit_element_list;
+	FORM_PROMPT_LOOKUP_ELEMENT_LIST *form_prompt_lookup_element_list;
 	char *form_multi_select_all_javascript;
 	char *form_cookie_key;
 	char *form_cookie_multi_key;

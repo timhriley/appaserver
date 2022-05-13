@@ -9,7 +9,9 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "role.h"
 #include "folder.h"
+#include "security.h"
 #include "dictionary.h"
 #include "process.h"
 #include "attribute.h"
@@ -103,8 +105,10 @@ char *process_parameter_drop_down_prompt_system_string(
 		char *process_parameter_drop_down_prompt_table,
 		char *process_parameter_drop_down_prompt_primary_where );
 
-PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_parse(
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_drop_down_prompt_parse(
 			char *drop_down_prompt_name,
+			char *process_parameter_drop_down_prompt_primary_where,
 			char *input );
 
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
@@ -112,8 +116,7 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
 
 #define PROCESS_PARAMETER_PROMPT_TABLE	"prompt"
 
-#define PROCESS_PARAMETER_PROMPT_SELECT	"prompt,"			\
-					"input_width,"			\
+#define PROCESS_PARAMETER_PROMPT_SELECT	"input_width,"			\
 					"hint_message,"			\
 					"upload_filename_yn,"		\
 					"date_yn"
@@ -150,62 +153,47 @@ char *process_parameter_prompt_system_string(
 
 PROCESS_PARAMETER_PROMPT *
 	process_parameter_prompt_parse(
+		char *prompt_name,
 		char *input );
 
-PROMPT *prompt_new(	char *prompt_name );
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_new(
+			char *prompt_name );
+
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_calloc(
+			void );
 
 typedef struct
 {
 	char *drop_down_name;
 	PROCESS *process;
-	char *command_line;
+	ROLE *role;
+	FOLDER *folder;
+	SECURITY_ENTITY *security_entity;
+	QUERY_WIDGET *query_widget;
 	LIST *delimited_list;
-	LIST *primary_key_list;
 } PROCESS_PARAMETER_DROP_DOWN;
 
 /* Usage */
 /* ----- */
 PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_process_fetch(
-			char *populate_drop_down_process_name,
-			char *prompt_name,
 			char *folder_name,
-			DICTIONARY *non_prefixed_dictionary );
+			char *prompt_name,
+			char *populate_drop_down_process_name );
 
 /* Process */
 /* ------- */
 
-/* Returns prompt_name, folder_name, or null */
+/* Returns prompt_name, heap memory, or null */
 /* ----------------------------------------- */
-char *process_parameter_drop_down_process_name(
-			char *prompt_name,
-			char *folder_name );
-
-/* Frees command_line and returns heap memory */
-/* ------------------------------------------ */
-char *process_parameter_command_line(
-			char *command_line,
-			char *process_name,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *drillthru_dictionary );
-
-LIST *process_parameter_drop_down_process_delimited_list(
-			char *populate_drop_down_process_name,
-			DICTIONARY *non_prefixed_dictionary );
+char *process_parameter_drop_down_name(
+			char *folder_name,
+			char *prompt_name );
 
 /* Usage */
 /* ----- */
 PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_folder_fetch(
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			DICTIONARY *drillthru_dictionary );
-
-/* Process */
-/* ------- */
-LIST *process_parameter_drop_down_folder_delimited_list(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
@@ -260,11 +248,10 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *delimited_list;
-	FOLDER *folder;
+	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
 	ATTRIBUTE *attribute;
-	DROP_DOWN_PROMPT *drop_down_prompt;
-	PROMPT *prompt;
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
+	PROCESS_PARAMETER_PROMPT *process_parameter_prompt;
 } PROCESS_PARAMETER;
 
 /* Usage */
@@ -294,18 +281,6 @@ PROCESS_PARAMETER *process_parameter_new(
 
 PROCESS_PARAMETER *process_parameter_calloc(
 			void );
-
-LIST *process_parameter_process_delimited_list(
-			char *populate_drop_down_process_name,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *drillthru_dictionary );
-
-LIST *process_parameter_folder_delimited_list(
-			char *widget_folder_name,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *drillthru_dictionary );
 
 /* Public */
 /* ------ */

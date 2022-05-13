@@ -26,17 +26,29 @@
 #include "query.h"
 #include "process_parameter.h"
 
-PROCESS_PARAMETER_PROMPT *
-	process_parameter_prompt_fetch(
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_fetch(
 			char *prompt_name )
 {
+	if ( !prompt_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	return
 	process_parameter_prompt_parse(
+		prompt_name,
 		string_fetch_pipe(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			process_parameter_prompt_system_string(
+				PROCESS_PARAMETER_PROMPT_SELECT,
+				PROCESS_PARAMETER_PROMPT_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -72,61 +84,78 @@ char *process_parameter_prompt_system_string(
 	return system_string;
 }
 
-PROCESS_PARAMETER_PROMPT *process_parameter_prompt_new(
-			char *prompt_name )
-{
-	PROCESS_PARAMETER_PROMPT *process_parameter_prompt =
-		process_parameter_prompt_calloc();
-
-	process_parameter_prompt->prompt_name = prompt_name;
-
-	return process_parameter_prompt;
-}
-
-PROCESS_PARAMETER_PROMPT *process_parameter_prompt_calloc( char *prompt_name )
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_calloc( void )
 {
 	PROCESS_PARAMETER_PROMPT *process_parameter_prompt;
 
 	if ( ! ( process_parameter_prompt =
 			calloc( 1, sizeof( PROCESS_PARAMETER_PROMPT ) ) ) )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: calloc() returned empty.",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
 
 	return process_parameter_prompt;
 }
 
-PROCESS_PARAMETER_PROMPT *
-	process_parameter_prompt_parse(
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_new(
+			char *prompt_name )
+{
+	PROCESS_PARAMETER_PROMPT *process_parameter_prompt;
+
+	if ( !prompt_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	process_parameter_prompt = process_parameter_prompt_calloc();
+	process_parameter_prompt->prompt_name = prompt_name;
+
+	return process_parameter_prompt;
+}
+
+PROCESS_PARAMETER_PROMPT *process_parameter_prompt_parse(
+			char *prompt_name,
 			char *input )
 {
-	char prompt_name[ 256 ];
 	char buffer[ 4096 ];
 	PROCESS_PARAMETER_PROMPT *process_parameter_prompt;
 
-	/* See PROCESS_PARAMETER_PROMPT_SELECT */
-	/* ----------------------------------- */
-	piece( prompt_name, SQL_DELIMITER, input, 0 );
+	if ( !prompt_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	process_parameter_prompt =
 		process_parameter_prompt_new(
-			strdup( prompt_name ) );
+			prompt_name );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
+	/* See PROCESS_PARAMETER_PROMPT_SELECT */
+	/* ----------------------------------- */
+	piece( buffer, SQL_DELIMITER, input, 0 );
 	process_parameter_prompt->input_width = atoi( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
+	piece( buffer, SQL_DELIMITER, input, 1 );
 	process_parameter_prompt->hint_message = strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	piece( buffer, SQL_DELIMITER, input, 2 );
 	process_parameter_prompt->upload_filename = ( *buffer == 'y' );
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
+	piece( buffer, SQL_DELIMITER, input, 3 );
 	process_parameter_prompt->date = ( *buffer == 'y' );
 
 	return process_parameter_prompt;
@@ -257,7 +286,7 @@ char *process_parameter_drop_down_prompt_data_system_string(
 			char *process_parameter_drop_down_prompt_data_table,
 			char *process_parameter_drop_down_where )
 {
-	char system_string[ 128 ];
+	static char system_string[ 128 ];
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
@@ -311,6 +340,16 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 	PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 		process_parameter_drop_down_prompt;
 
+	if ( !drop_down_prompt_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: drop_down_prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	where =
 		/* --------------------- */
 		/* Returns static memory */
@@ -321,6 +360,7 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 	process_parameter_drop_down_prompt =
 		process_parameter_drop_down_prompt_parse(
 			drop_down_prompt_name,
+			where,
 			string_fetch_pipe(
 			      /* --------------------- */
 			      /* Returns static memory */
@@ -346,12 +386,23 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 			char *input )
 {
 	char buffer[ 2048 ];
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
 
-	PROCESS_PARAMETER_DROP_DOWN_PROMPT *
-		process_parameter_drop_down_prompt =
-			process_parameter_drop_down_prompt_new(
-				drop_down_prompt_name );
+	if ( !drop_down_prompt_name
+	||   !process_parameter_drop_down_prompt_primary_where
+	||   !input )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
+	process_parameter_drop_down_prompt =
+		process_parameter_drop_down_prompt_new(
+			drop_down_prompt_name );
 
 	/* See PROCESS_PARAMETER_DROP_DOWN_PROMPT_SELECT */
 	/* --------------------------------------------- */
@@ -508,24 +559,23 @@ PROCESS_PARAMETER *process_parameter_parse(
 
 	if ( *process_parameter->populate_drop_down_process_name )
 	{
-		process_parameter->delimited_list =
-			process_parameter_process_delimited_list(
+		process_parameter->process_parameter_drop_down =
+			process_parameter_drop_down_process_fetch(
+				process_parameter->folder_name,
+				process_parameter->prompt_name,
 				process_parameter->
-					populate_drop_down_process_name,
-				login_name,
-				role_name,
-				drillthru_dictionary );
+					populate_drop_down_process_name );
 		ok_return = 1;
 	}
 	else
-	if ( strcmp( process_parameter->folder_name, "null" ) != 0 )
+	if ( strcmp( process_parameter->folder_name, "null" ) != 0
+	&&   !*process_parameter->populate_drop_down_process_name )
 	{
-		process_parameter->delimited_list =
-			process_parameter_folder_delimited_list(
-				process_parameter->folder_name
-					/* widget_folder_name */,
+		process_parameter->process_parameter_drop_down =
+			process_parameter_drop_down_folder_fetch(
 				login_name,
 				role_name,
+				process_parameter->folder_name,
 				drillthru_dictionary );
 		ok_return = 1;
 	}
@@ -541,17 +591,16 @@ PROCESS_PARAMETER *process_parameter_parse(
 	else
 	if ( strcmp( process_parameter->drop_down_prompt_name, "null" ) != 0 )
 	{
-		process_parameter->drop_down_prompt =
-			drop_down_prompt_fetch(
-				process_parameter->
-					drop_down_prompt_name );
+		process_parameter->process_parameter_drop_down_prompt =
+			process_parameter_drop_down_prompt_fetch(
+				process_parameter->drop_down_prompt_name );
 		ok_return = 1;
 	}
 	else
 	if ( strcmp( process_parameter->prompt_name, "null" ) != 0 )
 	{
-		process_parameter->prompt =
-			prompt_fetch(
+		process_parameter->process_parameter_prompt =
+			process_parameter_prompt_fetch(
 				process_parameter->
 					prompt_name );
 		ok_return = 1;
@@ -565,6 +614,8 @@ PROCESS_PARAMETER *process_parameter_parse(
 
 PROCESS_PARAMETER *process_parameter_calloc( void )
 {
+	PROCESS_PARAMETER *process_parameter;
+
 	if ( ! ( process_parameter =
 			calloc( 1, sizeof( PROCESS_PARAMETER ) ) ) )
 	{
@@ -625,135 +676,11 @@ char *process_parameter_set_where(
 	return parameter_where;
 }
 
-LIST *process_parameter_process_delimited_list(
-			char *populate_drop_down_process_name,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *drillthru_dictionary )
-{
-	PROCESS *process;
-
-	if ( ! ( process =
-			process_fetch(
-				populate_drop_down_process_name,
-				(char *)0 /* document_root */,
-				(char *)0 /* relative_source_directory */,
-				1 /* check_executable_inside_filesystem */ ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: process_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	process_delimited_list(
-		/* ------------------------------------------ */
-		/* Frees command_line and returns heap memory */
-		/* ------------------------------------------ */
-		process_parameter_drop_down_command_line(
-			process->command_line,
-			populate_drop_down_process_name,
-			login_name,
-			role_name,
-			drillthru_dictionary ) );
-}
-
-LIST *process_parameter_folder_delimited_list(
-			char *widget_folder_name,
-			char *login_name,
-			char *role_name,
-			DICTIONARY *drillthru_dictionary )
-{
-	ROLE *role;
-	FOLDER *folder;
-	SECURITY_ENTITY *security_entity;
-	QUERY_WIDGET *query_widget;
-
-	if ( ! ( folder =
-		     folder_fetch(
-			widget_folder_name,
-			(char *)0 /* role_name */,
-			(LIST *)0 /* role_exclude_attribute_name_list */,
-			/* --------------------------------------- */
-			/* Also sets folder_attribute_primary_list */
-			/* and primary_key_list.		   */
-			/* ---------------------------------------- */
-			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_relation_mto1_non_isa_list */,
-			0 /* not fetch_relation_mto1_isa_list */,
-			0 /* not fetch_relation_one2m_list */,
-			0 /* not fetch_relation_one2m_recursive_list */,
-			0 /* not fetch_process */,
-			0 /* not fetch_role_folder_list */,
-			1 /* fetch_row_level_restriction */,
-			0 /* not fetch_role_operation_list */ ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: folder_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			widget_folder_name );
-		exit( 1 );
-	}
-
-	if ( ! ( role =
-		     role_fetch(
-			role_name,
-			0 /* not fetch_role_attribute_exclude_list */ ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			role_name );
-		exit( 1 );
-	}
-
-	security_entity =
-		/* -------------- */
-		/* Always returns */
-		/* -------------- */
-		security_entity_new(
-			login_name,
-			folder->non_owner_forbid,
-			role->override_row_restrictions );
-
-	query_widget =
-		query_widget_new(
-			widget_folder_name,
-			login_name,
-			folder->folder_attribute_list,
-			folder->relation_mto1_non_isa_list,
-			security_entity_where(
-				security_entity,
-				folder->folder_attribute_list ),
-			drillthru_dictionary );
-
-	if ( !query_widget )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: query_widget_new(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			widget_folder_name );
-		exit( 1 );
-	}
-
-	return query_widget->delimited_list;
-}
-
 PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_process_fetch(
-			char *populate_drop_down_process_name,
-			char *prompt_name,
 			char *folder_name,
-			DICTIONARY *non_prefixed_dictionary )
+			char *prompt_name,
+			char *populate_drop_down_process_name )
 {
 	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
 
@@ -768,6 +695,24 @@ PROCESS_PARAMETER_DROP_DOWN *
 	}
 
 	process_parameter_drop_down = process_parameter_drop_down_calloc();
+
+	process_parameter_drop_down->drop_down_name =
+		/* ----------------------------------------- */
+		/* Returns prompt_name, heap memory, or null */
+		/* ----------------------------------------- */
+		process_parameter_drop_down_name(
+			folder_name,
+			prompt_name );
+
+	if ( !process_parameter_drop_down->drop_down_name )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_parameter_drop_down_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( ! ( process_parameter_drop_down->process =
 			process_fetch(
@@ -785,23 +730,13 @@ PROCESS_PARAMETER_DROP_DOWN *
 		exit( 1 );
 	}
 
-	return
-	process_delimited_list(
-		/* ------------------------------------------ */
-		/* Frees command_line and returns heap memory */
-		/* ------------------------------------------ */
-		process_parameter_drop_down_command_line(
-			process->command_line,
-			populate_drop_down_process_name,
-			login_name,
-			role_name,
-			drillthru_dictionary ) );
-}
+	process_parameter_drop_down->delimited_list =
+		list_pipe_fetch(
+			process_parameter_drop_down->
+				process->
+				command_line );
 
-LIST *process_parameter_drop_down_process_delimited_list(
-			char *populate_drop_down_process_name,
-			DICTIONARY *non_prefixed_dictionary )
-{
+	return process_parameter_drop_down;
 }
 
 PROCESS_PARAMETER_DROP_DOWN *
@@ -811,9 +746,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 			char *folder_name,
 			DICTIONARY *drillthru_dictionary )
 {
-	PROCESS_PARAMETER_DROP_DOWN *
-		process_parameter_drop_down =
-			process_parameter_drop_down_calloc();
+	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
 
 	if ( !login_name
 	||   !role_name
@@ -827,20 +760,77 @@ PROCESS_PARAMETER_DROP_DOWN *
 		exit( 1 );
 	}
 
-	process_parameter_drop_down->primary_key_list =
-		folder_attribute_fetch_primary_key_list(
-			folder_name );
+	process_parameter_drop_down = process_parameter_drop_down_calloc();
 
-	if ( !list_length( process_parameter_drop_down->primary_key_list ) )
+	process_parameter_drop_down->role =
+		role_fetch(
+			role_name,
+			0 /* not fetch_attribute_exclude_list */ );
+
+	process_parameter_drop_down->folder =
+		folder_fetch(
+			folder_name,
+			/* Not fetching role_folder_list */
+			(char *)0 /* role_name */,
+			(LIST *)0 /* role_exclude_lookup_attribute_name_list */,
+			/* Also sets folder_attribute_primary_list */
+			/* and primary_key_list */
+			1 /* fetch_folder_attribute_list */,
+			1 /* fetch_relation_mto1_non_isa_list */,
+			/* Also sets folder_attribute_append_isa_list */
+			0 /* fetch_relation_mto1_isa_list */,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* fetch_relation_one2m_recursive_list */,
+			0 /* not fetch_process */,
+			0 /* not fetch_role_folder_list */,
+			1 /* fetch_row_level_restriction */,
+			0 /* not fetch_role_operation_list */ );
+
+	process_parameter_drop_down->security_entity =
+		/* -------------- */
+		/* Always returns */
+		/* -------------- */
+		security_entity_new(
+			login_name,
+			process_parameter_drop_down->
+				folder->
+				non_owner_forbid,
+			process_parameter_drop_down->
+				role->
+				override_row_restrictions );
+
+	process_parameter_drop_down->drop_down_name =
+		list_display_delimited(
+			process_parameter_drop_down->
+				folder->
+				primary_key_list,
+			'^' );
+
+	process_parameter_drop_down->
+		query_widget =
+			query_widget_fetch(
+				folder_name /* widget_folder_name */,
+				login_name,
+				process_parameter_drop_down->
+					folder->
+					folder_attribute_list,
+				process_parameter_drop_down->
+					folder->
+					relation_mto1_non_isa_list,
+				security_entity_where(
+					process_parameter_drop_down->
+						security_entity,
+					process_parameter_drop_down->
+						folder->
+						folder_attribute_list ),
+				drillthru_dictionary );
+
+	process_parameter_drop_down->delimited_list =
+		process_parameter_drop_down->
+			query_widget->
+			delimited_list;
+
 	return process_parameter_drop_down;
-}
-
-LIST *process_parameter_drop_down_folder_delimited_list(
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			DICTIONARY *drillthru_dictionary )
-{
 }
 
 PROCESS_PARAMETER_DROP_DOWN *
@@ -863,11 +853,11 @@ PROCESS_PARAMETER_DROP_DOWN *
 	return process_parameter_drop_down;
 }
 
-char *process_parameter_drop_down_process_name(
-			char *prompt_name,
-			char *folder_name )
+char *process_parameter_drop_down_name(
+			char *folder_name,
+			char *prompt_name )
 {
-	if ( !prompt_name && !folder_name )
+	if ( !folder_name && !prompt_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -877,9 +867,17 @@ char *process_parameter_drop_down_process_name(
 		exit( 1 );
 	}
 
-	if ( prompt_name )
-		return prompt_name;
+	if ( folder_name )
+	{
+		return
+		list_display_delimited(
+			folder_attribute_fetch_primary_key_list(
+				folder_name ),
+			'^' );
+	}
 	else
-		return folder_name;
+	{
+		return prompt_name;
+	}
 }
 
