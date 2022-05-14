@@ -31,7 +31,7 @@ typedef struct
 	char *form_keystrokes_multi_save_javascript;
 	char *form_keystrokes_recall_javascript;
 	char *form_keystrokes_multi_recall_javascript;
-	LIST *form_prompt_edit_button_list;
+	LIST *form_prompt_lookup_button_list;
 	char *html;
 } FORM_DRILLTHRU;
 

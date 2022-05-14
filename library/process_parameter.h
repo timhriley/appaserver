@@ -14,6 +14,7 @@
 #include "security.h"
 #include "dictionary.h"
 #include "process.h"
+#include "query.h"
 #include "attribute.h"
 
 #define PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA_TABLE			\

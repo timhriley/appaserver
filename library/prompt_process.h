@@ -25,8 +25,7 @@
 
 /* Constants */
 /* --------- */
-#define PROMPT_PROCESS_OUTPUT_EXECUTABLE \
-					"output_prompt_process"
+#define PROMPT_PROCESS_OUTPUT_EXECUTABLE	"output_prompt_process"
 
 typedef struct
 {

@@ -62,6 +62,7 @@ APPASERVER_LIBRARY=						\
 		form.o						\
 		form_prompt_attribute_relational.o		\
 		form_prompt_lookup.o				\
+		form_prompt_process.o				\
 		form_edit_table.o				\
 		form_choose_isa.o				\
 		form_choose_role.o				\
@@ -109,7 +110,6 @@ APPASERVER_LIBRARY=						\
 		moving_average.o				\
 		pair_one2m.o					\
 		mysqldump.o					\
-		insert_table.o					\
 		prompt_lookup.o					\
 		prompt_insert.o					\
 		edit_table.o					\
@@ -754,8 +754,11 @@ form_prompt_attribute_relational.o:				\
 	form_prompt_attribute_relational.h
 	${CC} ${CFLAGS} -c form_prompt_attribute_relational.c
 
-form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h element.o
+form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h
 	${CC} ${CFLAGS} -c form_prompt_lookup.c
+
+form_prompt_process.o: form_prompt_process.c form_prompt_process.h
+	${CC} ${CFLAGS} -c form_prompt_process.c
 
 form_edit_table.o: form_edit_table.c form_edit_table.h element.o
 	${CC} ${CFLAGS} -c form_edit_table.c
@@ -963,9 +966,6 @@ relation.o: relation.c relation.h
 
 javascript.o: javascript.c javascript.h
 	${CC} ${CFLAGS} -c javascript.c
-
-insert_table.o: insert_table.c insert_table.h
-	${CC} ${CFLAGS} -c insert_table.c
 
 prompt_lookup.o: prompt_lookup.c prompt_lookup.h
 	${CC} ${CFLAGS} -c prompt_lookup.c

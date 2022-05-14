@@ -234,7 +234,12 @@ PROCESS *process_fetch(	char *process_name,
 	return
 	process_parse(
 		string_pipe_fetch(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			process_system_string(
+				PROCESS_SELECT,
+				PROCESS_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -416,14 +421,17 @@ char *process_set_system_string(
 	return strdup( system_string );
 }
 
-char *process_system_string( char *where )
+char *process_system_string(
+			char *process_select,
+			char *process_table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		PROCESS_SELECT,
-		PROCESS_TABLE,
+		process_select,
+		process_table,
 		where );
 
 	return strdup( system_string );

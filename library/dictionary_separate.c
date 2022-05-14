@@ -320,8 +320,8 @@ DICTIONARY_SEPARATE_DATE_CONVERT *
 			application_name,
 			login_name,
 			folder_attribute_date_name_list,
-			DICTIONARY_SEPARATE_FROM_PREFIX,
-			DICTIONARY_SEPARATE_TO_PREFIX );
+			form_attribute_from_prefix,
+			form_attribute_to_prefix );
 	}
 
 	return date_convert;

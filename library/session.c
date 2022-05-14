@@ -410,12 +410,18 @@ SESSION_PROCESS *session_process_integrity_exit(
 }
 
 boolean session_process_valid(
-			char *process_name,
-			LIST *role_process_list )
+			char *process_or_set_name,
+			LIST *role_process_list,
+			LIST *role_process_set_list )
 {
 	ROLE_PROCESS *role_process;
+	ROLE_PROCESS_SET *role_process_set;
 
-	if ( !list_rewind( role_process_list ) ) return 0;
+	if ( !list_rewind( role_process_list )
+	&&   !list_rewind( role_process_set_list ) )
+	{
+		return 0;
+	}
 
 	do {
 		role_process =
@@ -423,11 +429,23 @@ boolean session_process_valid(
 				role_process_list );
 
 		if ( strcmp(	role_process->process_name,
-				process_name ) == 0 )
+				process_or_set_name ) == 0 )
 		{
 			return 1;
 		}
 	} while ( list_next( role_process_list ) );
+
+	do {
+		role_process_set =
+			list_get(
+				role_process_set_list );
+
+		if ( strcmp(	role_process_set->process_set_name,
+				process_or_set_name ) == 0 )
+		{
+			return 1;
+		}
+	} while ( list_next( role_process_set_list ) );
 
 	return 0;
 }

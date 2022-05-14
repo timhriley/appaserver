@@ -12,21 +12,7 @@
 #include "dictionary.h"
 #include "javascript.h"
 
-/* Constants */
-/* --------- */
-#define PROCESS_TABLE			"process"
 #define PROCESS_SET_TABLE		"process_set"
-
-#define PROCESS_SELECT			"process,"			\
-					"command_line,"			\
-					"notepad,"			\
-					"html_help_file_anchor,"	\
-					"execution_count,"		\
-					"post_change_javascript,"	\
-					"process_set_display,"		\
-					"process_group,"		\
-					"preprompt_help_text,"		\
-					"javascript_filename"
 
 #define PROCESS_SET_SELECT		"process_set,"			\
 					"notepad,"			\
@@ -40,8 +26,8 @@
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *process_set_name;
 	char *role_name;
 	char *notepad;
@@ -98,10 +84,23 @@ LIST *process_set_member_name_list(
 			char *process_set_primary_where,
 			char *role_name );
 
+#define PROCESS_TABLE			"process"
+
+#define PROCESS_SELECT			"process,"			\
+					"command_line,"			\
+					"notepad,"			\
+					"html_help_file_anchor,"	\
+					"execution_count,"		\
+					"post_change_javascript,"	\
+					"process_set_display,"		\
+					"process_group,"		\
+					"preprompt_help_text,"		\
+					"javascript_filename"
+
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *process_name;
 	char *role_name;
 	char *command_line;

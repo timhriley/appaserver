@@ -624,7 +624,7 @@ GENERIC_LOAD_FOLDER_FORM *generic_load_folder_form_new(
 		form_tag_html(
 			GENERIC_LOAD_FOLDER_FORM_NAME,
 			post_action_string,
-			FRAMESET_EDIT_FRAME /* target_frame */ );
+			FRAMESET_TABLE_FRAME /* target_frame */ );
 
 	generic_load_folder_form->generic_load_folder_element_list =
 		generic_load_folder_element_list_new(

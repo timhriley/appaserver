@@ -86,14 +86,14 @@ FRAMESET *frameset_new(	char *application_name,
 			session_key,
 			FRAMESET_PROMPT_FRAME );
 
-	frameset->frameset_frame_edit =
+	frameset->frameset_frame_table =
 		frameset_frame_new(
 			application_name,
 			frameset->
 				appaserver_parameter->
 				document_root_directory,
 			session_key,
-			FRAMESET_EDIT_FRAME );
+			FRAMESET_TABLE_FRAME );
 
 	frameset->html =
 		/* ------------------- */
@@ -105,11 +105,11 @@ FRAMESET *frameset_new(	char *application_name,
 			document_head_close_html(),
 			frameset->frameset_frame_menu->html,
 			frameset->frameset_frame_prompt->html,
-			frameset->frameset_frame_edit->html,
+			frameset->frameset_frame_table->html,
 			frameset_menu_horizontal,
 			document_close_html() );
 
-	frameset->blank_edit_frame_system_string =
+	frameset->blank_table_frame_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -117,7 +117,7 @@ FRAMESET *frameset_new(	char *application_name,
 			application_background_color(
 				application_name ),
 			(char *)0 /* application_title_string */,
-			frameset->frameset_frame_edit->output_filename,
+			frameset->frameset_frame_table->output_filename,
 			appaserver_error_filename(
 				application_name ) );
 

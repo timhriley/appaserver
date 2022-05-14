@@ -60,7 +60,7 @@ FORM_DRILLTHRU *form_drillthru_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		form_tag_html(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			form_drillthru->action_string,
 			FRAMESET_PROMPT_FRAME /* target_frame */ );
 
@@ -84,53 +84,53 @@ FORM_DRILLTHRU *form_drillthru_new(
 	form_drillthru->form_multi_select_all_javascript =
 		form_multi_select_all_javascript(
 			form_drillthru->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+				form_prompt_lookup_element_list->
+				element_list );
 
 	form_drillthru->form_cookie_key =
 		form_cookie_key(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			folder_name );
 
 	form_drillthru->form_cookie_multi_key =
 		form_cookie_multi_key(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			folder_name );
 
 	form_drillthru->form_keystrokes_save_javascript =
 		form_keystrokes_save_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			form_drillthru->form_cookie_key,
 			form_drillthru->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+				form_prompt_lookup_element_list->
+				element_list );
 
 	form_drillthru->form_keystrokes_multi_save_javascript =
 		form_keystrokes_multi_save_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			form_drillthru->form_cookie_multi_key,
 			form_drillthru->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+				form_prompt_lookup_element_list->
+				element_list );
 
 	form_drillthru->form_keystrokes_recall_javascript =
 		form_keystrokes_recall_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			form_drillthru->form_cookie_key,
 			form_drillthru->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+				form_prompt_lookup_element_list->
+				element_list );
 
 	form_drillthru->form_keystrokes_multi_recall_javascript =
 		form_keystrokes_multi_recall_javascript(
-			FORM_PROMPT_EDIT_NAME /* form_name */,
+			FORM_PROMPT_LOOKUP_NAME /* form_name */,
 			form_drillthru->form_cookie_multi_key,
 			form_drillthru->
-				form_prompt_edit_element_list->
-				appaserver_element_list );
+				form_prompt_lookup_element_list->
+				element_list );
 
-	form_drillthru->form_prompt_edit_button_list =
-		form_prompt_edit_button_list(
+	form_drillthru->form_prompt_lookup_button_list =
+		form_prompt_lookup_button_list(
 			form_drillthru->form_multi_select_all_javascript,
 			form_drillthru->form_keystrokes_save_javascript,
 			form_drillthru->form_keystrokes_multi_save_javascript,
@@ -140,24 +140,24 @@ FORM_DRILLTHRU *form_drillthru_new(
 				/* form_verify_notepad_widths_javascript */ );
 
 	form_drillthru->html =
-		form_prompt_edit_html(
+		form_prompt_lookup_html(
 			form_drillthru->form_tag_html,
 			(char *)0 /* radio_list_html */,
-			form_drillthru->form_prompt_edit_element_list->
+			form_drillthru->form_prompt_lookup_element_list->
 				appaserver_element_list_html,
 			( tmp =
 				button_list_html(
 					form_drillthru->
-					     form_prompt_edit_button_list ) ),
+					     form_prompt_lookup_button_list ) ),
 			form_close_html() );
 
 	free( form_drillthru->
-		form_prompt_edit_element_list->
+		form_prompt_lookup_element_list->
 		appaserver_element_list_html );
 
 	free( tmp );
 
-	button_list_free( form_drillthru->form_prompt_edit_button_list );
+	button_list_free( form_drillthru->form_prompt_lookup_button_list );
 
 	return form_drillthru;
 }

@@ -207,7 +207,8 @@ SESSION_PROCESS *session_process_integrity_exit(
 /* ------- */
 boolean session_process_valid(
 			char *process_name,
-			LIST *role_process_list );
+			LIST *role_process_list,
+			LIST *role_process_set_list );
 
 /* Private */
 /* ------- */

@@ -57,7 +57,7 @@ typedef struct
 	FRAMESET_FRAME *frameset_frame_prompt;
 	FRAMESET_FRAME *frameset_frame_table;
 	char *html;
-	char *blank_edit_frame_system_string;
+	char *blank_table_frame_system_string;
 	char *blank_prompt_frame_system_string;
 	char *role_name;
 	char *output_filename;
