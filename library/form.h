@@ -46,10 +46,11 @@
 #define FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX \
 					"rrelational_"
 
-#define FORM_ATTRIBUTE_FROM_PREFIX \
-					"ffrom_"
-
+#define FORM_ATTRIBUTE_FROM_PREFIX	"ffrom_"
 #define FORM_ATTRIBUTE_TO_PREFIX	"tto_"
+
+#define FORM_ATTRIBUTE_RELATIONAL_PREFIX \
+					"rrelational_"
 
 #define FORM_PROMPT_ORIGINAL_PREFIX	"original_"
 #define FORM_PROMPT_RELATION_PREFIX	"relation_"

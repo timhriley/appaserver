@@ -35,6 +35,7 @@ typedef struct
 /* --------------- */
 FORM_PROMPT_PROCESS_ATTRIBUTE *
 	form_prompt_process_attribute_new(
+			char *post_change_process,
 			char *attribute_name,
 			char *datatype_name,
 			int attribute_width,
@@ -49,7 +50,7 @@ typedef struct
 {
 	LIST *element_list;
 	APPASERVER_ELEMENT *prompt_appaserver_element;
-	DROP_DOWN *form_prompt_attribute_relational;
+	APPASERVER_ELEMENT *drop_down_appaserver_element;
 } FORM_PROMPT_PROCESS_DROP_DOWN;
 
 /* Usage */
@@ -57,22 +58,22 @@ typedef struct
 
 /* Always succeeds */
 /* --------------- */
-FORM_PROMPT_PROCESS_ATTRIBUTE *
-	form_prompt_process_attribute_new(
-			char *attribute_name,
-			char *datatype_name,
-			int attribute_width,
-			char *hint_message );
+FORM_PROMPT_PROCESS_DROP_DOWN *
+	form_prompt_process_drop_down_new(
+			char *post_change_javascript,
+			PROCESS_PARAMETER_DROP_DOWN *
+				process_parameter_drop_down );
 
 /* Process */
 /* ------- */
-FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute_calloc(
+FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down_calloc(
 			void );
 
 typedef struct
 {
 	LIST *element_list;
 	FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute;
+	FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down;
 	char *appaserver_element_list_html;
 } FORM_PROMPT_PROCESS_ELEMENT_LIST;
 
@@ -80,7 +81,8 @@ typedef struct
 /* ----- */
 FORM_PROMPT_PROCESS_ELEMENT_LIST *
 	form_prompt_process_element_list_new(
-			LIST *process_parameter_list );
+			LIST *process_parameter_list,
+			char *post_change_javascript );
 
 /* Process */
 /* ------- */
@@ -115,7 +117,8 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 			char *login_name,
 			char *role_name,
 			char *process_or_set_name,
-			LIST *process_parameter_list );
+			LIST *process_parameter_list,
+			char *post_change_javascript );
 
 /* Process */
 /* ------- */

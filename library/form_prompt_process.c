@@ -33,6 +33,7 @@
 
 FORM_PROMPT_PROCESS_ATTRIBUTE *
 	form_prompt_process_attribute_new(
+			char *post_change_javascript,
 			char *attribute_name,
 			char *datatype_name,
 			int attribute_width,
@@ -76,8 +77,8 @@ FORM_PROMPT_PROCESS_ATTRIBUTE *
 
 	list_set(
 		form_prompt_process_attribute->element_list,
-			appaserver_element_new(
-				table_data, (char *)0 ) );
+		appaserver_element_new(
+			table_data, (char *)0 ) );
 
 	form_prompt_process_attribute->
 		form_prompt_attribute_relational =
@@ -85,7 +86,8 @@ FORM_PROMPT_PROCESS_ATTRIBUTE *
 				attribute_name,
 				datatype_name,
 				attribute_width,
-				hint_message );
+				hint_message,
+				post_change_javascript );
 
 	if ( !form_prompt_process_attribute->form_prompt_attribute_relational )
 	{
@@ -123,102 +125,47 @@ FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute_calloc( void )
 	return form_prompt_process_attribute;
 }
 
-FORM_PROMPT_LOOKUP_ELEMENT_LIST *
-	form_prompt_lookup_element_list_new(
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary,
-			char *login_name,
-			char *security_entity_where );
-
-/* Process */
-/* ------- */
-FORM_PROMPT_LOOKUP_ELEMENT_LIST *
-	form_prompt_lookup_element_list_calloc(
-			void );
-
-LIST *form_prompt_lookup_element_list_join_element_list(
-			char *form_prompt_lookup_no_display_prefix,
-			LIST *relation_join_one2m_list );
-
-typedef struct
+FORM_PROMPT_PROCESS_DROP_DOWN *
+	form_prompt_process_drop_down_new(
+			char *post_change_javascript,
+			PROCESS_PARAMETER_DROP_DOWN *
+				process_parameter_drop_down )
 {
-	LIST *radio_pair_list;
-	RADIO_LIST *radio_list;
-	char *target_frame;
-	char *action_string;
-	char *form_tag_html;
-	FORM_PROMPT_LOOKUP_ELEMENT_LIST *form_prompt_lookup_element_list;
-	char *form_multi_select_all_javascript;
-	char *form_cookie_key;
-	char *form_cookie_multi_key;
-	char *form_keystrokes_save_javascript;
-	char *form_keystrokes_multi_save_javascript;
-	char *form_keystrokes_recall_javascript;
-	char *form_keystrokes_multi_recall_javascript;
-	char *form_verify_notepad_widths_javascript;
-	LIST *button_list;
-	char *html;
-} FORM_PROMPT_LOOKUP;
+	FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down;
 
-/* FORM_PROMPT_LOOKUP operations */
-/* --------------------------- */
+	if ( !process_parameter_drop_down )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: process_parameter_drop_down is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-/* Usage */
-/* ----- */
+	form_prompt_process_drop_down = form_prompt_process_drop_down_calloc();
 
-/* Always succeeds */
-/* --------------- */
-FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			boolean prompt_lookup_omit_insert_button,
-			boolean prompt_lookup_omit_delete_button,
-			LIST *folder_attribute_append_isa_list,
-			LIST *relation_mto1_non_isa_list,
-			LIST *relation_join_one2m_list,
-			DICTIONARY *drillthru_dictionary,
-			char *security_entity_where );
+	form_prompt_process_drop_down->element_list = list_new();
 
-/* Process */
-/* ------- */
-FORM_PROMPT_LOOKUP *form_prompt_lookup_calloc(
-			void );
+	return form_prompt_process_drop_down;
+}
 
-LIST *form_prompt_lookup_radio_pair_list(
-			boolean prompt_lookup_omit_insert_button,
-			boolean prompt_lookup_omit_delete_button,
-			int relation_mto1_non_isa_list_length );
+FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down_calloc( void )
+{
+	FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down;
 
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_action_string(
-			char *post_prompt_lookup_executable,
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name );
+	if ( ! ( form_prompt_process_drop_down =
+			calloc(	1,
+				sizeof( FORM_PROMPT_PROCESS_DROP_DOWN ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-LIST *form_prompt_lookup_button_list(
-			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript,
-			char *form_verify_notepad_widths_javascript );
+	return form_prompt_process_drop_down;
+}
 
-/* Returns heap memory */
-/* ------------------- */
-char *form_prompt_lookup_html(
-			char *form_tag_html,
-			char *radio_list_html,
-			char *form_prompt_lookup_element_list_html,
-			char *button_list_html,
-			char *form_close_html );
-
-#endif

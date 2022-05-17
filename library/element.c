@@ -1169,7 +1169,7 @@ ELEMENT_PROMPT_DROP_DOWN *element_prompt_drop_down_calloc( void )
 }
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
-			char *name,
+			char *element_name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,
@@ -1185,7 +1185,7 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 {
 	ELEMENT_DROP_DOWN *element_drop_down = element_drop_down_calloc();
 
-	element_drop_down->name = name;
+	element_drop_down->name = element_name;
 	element_drop_down->attribute_name_list = attribute_name_list;
 	element_drop_down->delimited_list = delimited_list;
 	element_drop_down->no_initial_capital = no_initial_capital;

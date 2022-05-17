@@ -302,7 +302,7 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc(
 			void );
 
 ELEMENT_DROP_DOWN *element_drop_down_new(
-			char *name,
+			char *element_name,
 			LIST *attribute_name_list,
 			LIST *delimited_list,
 			boolean no_initial_capital,

@@ -13,15 +13,6 @@
 #include "list.h"
 #include "element.h"
 
-#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX \
-					"rrelational_"
-
-#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_FROM_PREFIX \
-					"ffrom_"
-
-#define FORM_PROMPT_ATTRIBUTE_RELATIONAL_TO_PREFIX \
-					"tto_"
-
 typedef struct
 {
 	char *name;
@@ -47,7 +38,8 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 			char *attribute_name,
 			char *datatype_name,
 			int attribute_width,
-			char *hint_message );
+			char *hint_message,
+			char *post_change_javascript );
 
 /* Process */
 /* ------- */

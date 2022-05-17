@@ -165,13 +165,16 @@ PROCESS_PARAMETER_PROMPT *process_parameter_prompt_calloc(
 
 typedef struct
 {
+	LIST *attribute_name_list;
 	char *drop_down_name;
 	PROCESS *process;
+	LIST *delimited_list;
 	ROLE *role;
+	boolean fetch_mto1;
 	FOLDER *folder;
 	SECURITY_ENTITY *security_entity;
 	QUERY_WIDGET *query_widget;
-	LIST *delimited_list;
+	boolean drop_down_multi_select;
 } PROCESS_PARAMETER_DROP_DOWN;
 
 /* Usage */
@@ -180,14 +183,12 @@ PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_process_fetch(
 			char *folder_name,
 			char *prompt_name,
+			boolean drop_down_multi_select,
 			char *populate_drop_down_process_name );
 
 /* Process */
 /* ------- */
-
-/* Returns prompt_name, heap memory, or null */
-/* ----------------------------------------- */
-char *process_parameter_drop_down_name(
+LIST *process_parameter_drop_down_attribute_name_list(
 			char *folder_name,
 			char *prompt_name );
 
@@ -197,7 +198,13 @@ PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_folder_fetch(
 			char *login_name,
 			char *role_name,
+			DICTIONARY *drillthru_dictionary,
 			char *folder_name,
+			boolean drop_down_multi_select );
+
+/* Process */
+/* ------- */
+boolean process_parameter_drop_down_fetch_mto1(
 			DICTIONARY *drillthru_dictionary );
 
 /* Private */

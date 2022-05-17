@@ -19,7 +19,8 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 			char *attribute_name,
 			char *datatype_name,
 			int attribute_width,
-			char *hint_message )
+			char *hint_message,
+			char *post_change_javascript )
 {
 	FORM_PROMPT_ATTRIBUTE_RELATIONAL *form_prompt_attribute_relational =
 		form_prompt_attribute_relational_calloc();
@@ -28,7 +29,7 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 
 	form_prompt_attribute_relational->from_name =
 		form_prompt_attribute_relational_from_name(
-			FORM_PROMPT_ATTRIBUTE_RELATIONAL_FROM_PREFIX,
+			FORM_ATTRIBUTE_FROM_PREFIX,
 			attribute_name );
 
 	if ( attribute_is_yes_no( attribute_name ) )
@@ -52,7 +53,7 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 						element_name,
 					1 /* output_null_option */,
 					1 /* output_not_null_option */,
-					(char *)0 /* post_change_javascript */,
+					post_change_javascript,
 					-1 /* tab_order */,
 					1 /* recall */ );
 
@@ -72,12 +73,12 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 	{
 		form_prompt_attribute_relational->name =
 			form_prompt_attribute_relational_name(
-				FORM_PROMPT_ATTRIBUTE_RELATIONAL_PREFIX,
+				FORM_ATTRIBUTE_RELATIONAL_PREFIX,
 				attribute_name );
 
 		form_prompt_attribute_relational->to_name =
 			form_prompt_attribute_relational_to_name(
-				FORM_PROMPT_ATTRIBUTE_RELATIONAL_TO_PREFIX,
+				FORM_ATTRIBUTE_TO_PREFIX,
 				attribute_name );
 
 		form_prompt_attribute_relational->operation_list =
@@ -109,7 +110,7 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 				   1 /* display_size */,
 				   -1 /* tab_order */,
 				   0 /* not multi_select */,
-				   (char *)0 /* post_change_javascript */,
+				   post_change_javascript,
 				   1 /* recall */ );
 
 		list_set(
@@ -136,7 +137,7 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 					FORM_FROM_ATTRIBUTE_WIDTH,
 					0 /* not null_to_slash */,
 					1 /* prevent_carrot */,
-					(char *)0 /* on_change */,
+					post_change_javascript /* on_change */,
 					(char *)0 /* on_focus */,
 					(char *)0 /* on_keyup */,
 					-1 /* tab_order */,
@@ -184,7 +185,7 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 					attribute_width,
 					0 /* not null_to_slash */,
 					1 /* prevent_carrot */,
-					(char *)0 /* on_change */,
+					post_change_javascript /* on_change */,
 					(char *)0 /* on_focus */,
 					(char *)0 /* on_keyup */,
 					-1 /* tab_order */,
@@ -195,8 +196,8 @@ FORM_PROMPT_ATTRIBUTE_RELATIONAL *
 	{
 		list_set(
 			form_prompt_attribute_relational->element_list,
-				appaserver_element_new(
-					table_data, (char *)0 ) );
+			appaserver_element_new(
+				table_data, (char *)0 ) );
 
 		list_set(
 			form_prompt_attribute_relational->element_list,

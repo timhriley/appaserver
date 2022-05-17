@@ -551,32 +551,42 @@ PROCESS_PARAMETER *process_parameter_parse(
 	piece( buffer, SQL_DELIMITER, input, 7 );
 	process_parameter->drillthru = ( *buffer == 'y' );
 
-	piece( buffer, SQL_DELIMITER, input, 8 );
-	process_parameter->populate_drop_down_process_name = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 8 ) )
+	{
+		process_parameter->
+			populate_drop_down_process_name =
+				strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 9 );
-	process_parameter->populate_helper_process_name = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 9 ) )
+	{
+		process_parameter->
+			populate_helper_process_name =
+				strdup( buffer );
+	}
 
-	if ( *process_parameter->populate_drop_down_process_name )
+	if ( process_parameter->populate_drop_down_process_name )
 	{
 		process_parameter->process_parameter_drop_down =
 			process_parameter_drop_down_process_fetch(
 				process_parameter->folder_name,
 				process_parameter->prompt_name,
+				process_parameter->drop_down_multi_select,
 				process_parameter->
 					populate_drop_down_process_name );
 		ok_return = 1;
 	}
 	else
 	if ( strcmp( process_parameter->folder_name, "null" ) != 0
-	&&   !*process_parameter->populate_drop_down_process_name )
+	&&   !process_parameter->populate_drop_down_process_name )
 	{
 		process_parameter->process_parameter_drop_down =
 			process_parameter_drop_down_folder_fetch(
 				login_name,
 				role_name,
+				drillthru_dictionary,
 				process_parameter->folder_name,
-				drillthru_dictionary );
+				process_parameter->drop_down_multi_select );
 		ok_return = 1;
 	}
 	else
@@ -680,6 +690,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_process_fetch(
 			char *folder_name,
 			char *prompt_name,
+			boolean drop_down_multi_select,
 			char *populate_drop_down_process_name )
 {
 	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
@@ -696,23 +707,21 @@ PROCESS_PARAMETER_DROP_DOWN *
 
 	process_parameter_drop_down = process_parameter_drop_down_calloc();
 
-	process_parameter_drop_down->drop_down_name =
-		/* ----------------------------------------- */
-		/* Returns prompt_name, heap memory, or null */
-		/* ----------------------------------------- */
-		process_parameter_drop_down_name(
+	process_parameter_drop_down->attribute_name_list =
+		process_parameter_drop_down_attribute_name_list(
 			folder_name,
 			prompt_name );
 
-	if ( !process_parameter_drop_down->drop_down_name )
+	if ( !list_length( process_parameter_drop_down->attribute_name_list ) )
 	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: process_parameter_drop_down_name() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		free( process_parameter_drop_down );
+		return (PROCESS_PARAMETER_DROP_DOWN *)0;
 	}
+
+	process_parameter_drop_down->drop_down_name =
+		list_display_delimited(
+			process_parameter_drop_down->attribute_name_list,
+			'^' );
 
 	if ( ! ( process_parameter_drop_down->process =
 			process_fetch(
@@ -736,6 +745,9 @@ PROCESS_PARAMETER_DROP_DOWN *
 				process->
 				command_line );
 
+	process_parameter_drop_down->drop_down_multi_select =
+		drop_down_multi_select;
+
 	return process_parameter_drop_down;
 }
 
@@ -743,8 +755,9 @@ PROCESS_PARAMETER_DROP_DOWN *
 	process_parameter_drop_down_folder_fetch(
 			char *login_name,
 			char *role_name,
+			DICTIONARY *drillthru_dictionary,
 			char *folder_name,
-			DICTIONARY *drillthru_dictionary )
+			boolean drop_down_multi_select )
 {
 	PROCESS_PARAMETER_DROP_DOWN *process_parameter_drop_down;
 
@@ -767,6 +780,10 @@ PROCESS_PARAMETER_DROP_DOWN *
 			role_name,
 			0 /* not fetch_attribute_exclude_list */ );
 
+	process_parameter_drop_down->fetch_mto1 =
+		process_parameter_drop_down_fetch_mto1(
+			drillthru_dictionary );
+
 	process_parameter_drop_down->folder =
 		folder_fetch(
 			folder_name,
@@ -776,7 +793,8 @@ PROCESS_PARAMETER_DROP_DOWN *
 			/* Also sets folder_attribute_primary_list */
 			/* and primary_key_list */
 			1 /* fetch_folder_attribute_list */,
-			1 /* fetch_relation_mto1_non_isa_list */,
+			process_parameter_drop_down->fetch_mto1
+				/* fetch_relation_mto1_non_isa_list */,
 			/* Also sets folder_attribute_append_isa_list */
 			0 /* fetch_relation_mto1_isa_list */,
 			0 /* not fetch_relation_one2m_list */,
@@ -785,6 +803,13 @@ PROCESS_PARAMETER_DROP_DOWN *
 			0 /* not fetch_role_folder_list */,
 			1 /* fetch_row_level_restriction */,
 			0 /* not fetch_role_operation_list */ );
+
+	process_parameter_drop_down->drop_down_name =
+		list_display_delimited(
+			process_parameter_drop_down->
+				folder->
+				primary_key_list,
+			'^' );
 
 	process_parameter_drop_down->security_entity =
 		/* -------------- */
@@ -798,13 +823,6 @@ PROCESS_PARAMETER_DROP_DOWN *
 			process_parameter_drop_down->
 				role->
 				override_row_restrictions );
-
-	process_parameter_drop_down->drop_down_name =
-		list_display_delimited(
-			process_parameter_drop_down->
-				folder->
-				primary_key_list,
-			'^' );
 
 	process_parameter_drop_down->
 		query_widget =
@@ -829,6 +847,9 @@ PROCESS_PARAMETER_DROP_DOWN *
 		process_parameter_drop_down->
 			query_widget->
 			delimited_list;
+
+	process_parameter_drop_down->drop_down_multi_select =
+		drop_down_multi_select;
 
 	return process_parameter_drop_down;
 }
@@ -879,5 +900,36 @@ char *process_parameter_drop_down_name(
 	{
 		return prompt_name;
 	}
+}
+
+LIST *process_parameter_drop_down_attribute_name_list(
+			char *folder_name,
+			char *prompt_name )
+{
+	if ( folder_name && strcmp( folder_name, "null" ) != 0 )
+	{
+		return
+		folder_attribute_fetch_primary_key_list(
+			folder_name );
+	}
+	else
+	if ( prompt_name && strcmp( prompt_name, "null" ) != 0 )
+	{
+		LIST *attribute_name_list = list_new();
+
+		list_set( attribute_name_list, prompt_name );
+
+		return attribute_name_list;
+	}
+	else
+	{
+		return (LIST *)0;
+	}
+}
+
+boolean process_parameter_drop_down_fetch_mto1(
+			DICTIONARY *drillthru_dictionary )
+{
+	return (boolean)dictionary_length( drillthru_dictionary );
 }
 
