@@ -37,8 +37,8 @@ PROMPT_LOOKUP *prompt_lookup_new(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *folder_name,
 			char *state,
+			char *folder_name,
 			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary )
@@ -67,17 +67,13 @@ PROMPT_LOOKUP *prompt_lookup_new(
 			role_folder_update(
 				prompt_lookup->role_folder_list ),
 			role_folder_lookup(
-				prompt_lookup->role_folder_list ),
-			state,
-			APPASERVER_UPDATE_STATE ) ) )
+				prompt_lookup->role_folder_list ) ) ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: prompt_lookup_forbid(%s/%s) returned empty.\n",
+	"Warning in %s/%s()/%d: prompt_lookup_forbid() returned true.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			login_name,
-			state );
+			__LINE__ );
 
 		return prompt_lookup;
 	}
@@ -259,7 +255,7 @@ PROMPT_LOOKUP *prompt_lookup_new(
 	if ( !prompt_lookup->form_prompt_lookup )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: form_prompt_lookup_new() returned empty.\n",
+	"ERROR in %s/%s()/%d: form_prompt_lookup_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -308,21 +304,12 @@ PROMPT_LOOKUP *prompt_lookup_new(
 
 boolean prompt_lookup_forbid(
 			boolean update,
-			boolean lookup,
-			char *state,
-			char *appaserver_update_state )
+			boolean lookup )
 {
-	if ( !state || !*state ) return 1;
-
-	if ( !update && !lookup ) return 1;
-
-	if ( string_strcmp( state, appaserver_update_state ) == 0
-	&&   !update )
-	{
+	if ( update || lookup )
+		return 0;
+	else
 		return 1;
-	}
-
-	return 0;
 }
 
 boolean prompt_lookup_omit_insert_button(

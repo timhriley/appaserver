@@ -16,6 +16,7 @@
 #include "radio.h"
 #include "query.h"
 #include "dictionary_separate.h"
+#include "prompt_process.h"
 #include "form.h"
 #include "form_prompt_attribute_relational.h"
 

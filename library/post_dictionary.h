@@ -7,28 +7,18 @@
 #ifndef POST_DICTIONARY_H
 #define POST_DICTIONARY_H
 
-/* Includes */
-/* -------- */
 #include <stdio.h>
 #include "boolean.h"
 #include "dictionary.h"
 
-/* Constants */
-/* --------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	DICTIONARY *original_post_dictionary;
 	char *apache_key;
 } POST_DICTIONARY;
 
-/* POST_DICTIONARY operations */
-/* -------------------------- */
-
-POST_DICTIONARY *post_dictionary_calloc(
-			void );
+/* Usage */
+/* ----- */
 
 /* Always succeeds */
 /* --------------- */
@@ -43,6 +33,11 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 /* --------------- */
 POST_DICTIONARY *post_dictionary_string_new(
 			char *dictionary_string );
+
+/* Process */
+/* ------- */
+POST_DICTIONARY *post_dictionary_calloc(
+			void );
 
 /* Returns heap memory or NULL */
 /* --------------------------- */

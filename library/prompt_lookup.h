@@ -6,8 +6,6 @@
 #ifndef PROMPT_LOOKUP_H
 #define PROMPT_LOOKUP_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 #include "role.h"
@@ -23,8 +21,6 @@
 #include "document.h"
 #include "form_prompt_lookup.h"
 
-/* Constants */
-/* --------- */
 #define PROMPT_LOOKUP_OUTPUT_EXECUTABLE	"output_prompt_lookup"
 
 typedef struct
@@ -47,9 +43,6 @@ typedef struct
 	char *document_form_html;
 } PROMPT_LOOKUP;
 
-/* PROMPT_LOOKUP operations */
-/* ---------------------- */
-
 /* Usage */
 /* ----- */
 
@@ -59,11 +52,11 @@ typedef struct
 /* ---------------------------- */
 PROMPT_LOOKUP *prompt_lookup_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
 			char *state,
+			char *folder_name,
 			boolean menu_horizontal_boolean,
 			char *data_directory,
 			POST_DICTIONARY *post_dictionary );
@@ -75,9 +68,7 @@ PROMPT_LOOKUP *prompt_lookup_calloc(
 
 boolean prompt_lookup_forbid(
 			boolean role_folder_update,
-			boolean role_folder_lookup,
-			char *state,
-			char *appaserver_update_state );
+			boolean role_folder_lookup );
 
 boolean prompt_lookup_omit_insert_button(
 			boolean drillthru_skipped,

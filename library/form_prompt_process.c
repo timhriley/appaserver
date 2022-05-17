@@ -147,6 +147,65 @@ FORM_PROMPT_PROCESS_DROP_DOWN *
 
 	form_prompt_process_drop_down->element_list = list_new();
 
+	list_set(
+		form_prompt_process_drop_down->element_list,
+		( form_prompt_process_drop_down->
+			prompt_appaserver_element =
+				appaserver_element_new(
+					non_edit_text, (char *)0 ) ) );
+
+	free(	form_prompt_process_drop_down->
+			prompt_appaserver_element->
+			non_edit_text );
+
+	form_prompt_process_drop_down->
+		prompt_appaserver_element->
+		non_edit_text =
+			element_non_edit_text_new(
+				(char *)0,
+				process_parameter_drop_down->
+					drop_down_name );
+
+	list_set(
+		form_prompt_process_drop_down->element_list,
+		appaserver_element_new(
+			table_data, (char *)0 ) );
+
+	form_prompt_process_drop_down->
+		drop_down_appaserver_element =
+			appaserver_element_new(
+				drop_down,
+				process_parameter_drop_down->drop_down_name );
+
+	form_prompt_process_drop_down->
+		drop_down_appaserver_element->
+		element_drop_down =
+			element_prompt_drop_down_new(
+				form_prompt_process_drop_down->
+					drop_down_appaserver_element->
+					element_name,
+				form_prompt_process_drop_down->
+					process_parameter_drop_down->
+					delimited_list,
+				0 /* not no_initial_capital */,
+				0 /* not output_null_option */,
+				0 /* not output_not_null_option */,
+				1 /* output_select_option */,
+				1 /* display_size */,
+				-1 /* appaserver_element_tab_order() */,
+				form_prompt_process_drop_down->
+					process_parameter_drop_down->
+					drop_down_multi_select,
+				post_change_javascript,
+				1 /* recall */ );
+
+	list_set_list(
+		form_prompt_process_drop_down->element_list,
+		form_prompt_process_drop_down->
+			drop_down_appaserver_element->
+			element_drop_down->
+			element_list );
+
 	return form_prompt_process_drop_down;
 }
 
@@ -167,5 +226,126 @@ FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down_calloc( void )
 	}
 
 	return form_prompt_process_drop_down;
+}
+
+FORM_PROMPT_PROCESS_ELEMENT_LIST *
+	form_prompt_process_element_list_new(
+			LIST *process_parameter_list,
+			char *post_change_javascript )
+{
+	FORM_PROMPT_PROCESS_ELEMENT_LIST *form_prompt_process_element_list;
+	PROCESS_PARAMETER *process_parameter;
+
+	if ( !list_rewind( process_parameter_list ) )
+	{
+		return (FORM_PROMPT_PROCESS_ELEMENT_LIST *)0;
+	}
+
+	form_prompt_process_element_list =
+		form_prompt_process_element_list_calloc();
+
+	form_prompt_process_element_list->element_list = list_new();
+
+	do {
+		process_parameter =
+			list_get(
+				process_parameter_list );
+
+		list_set(
+			form_prompt_process_element_list->element_list,
+			appaserver_element_new(
+					table_row, (char *)0 ) );
+
+		list_set(
+			form_prompt_process_element_list->element_list,
+			appaserver_element_new(
+				table_data (char *)0 ) );
+
+		if ( process_parameter->attribute )
+		{
+			form_prompt_process_element_list->
+				form_prompt_process_attribute =
+					form_prompt_process_attribute_new(
+						post_change_javascript,
+						process_parameter->
+							attribute->
+							attribute_name,
+						attribute->datatype_name,
+						attribute->attribute_width,
+						attribute->hint_message );
+
+			if ( !form_prompt_process_element_list->
+				form_prompt_process_attribute )
+			{
+				fprintf(stderr,
+"ERROR in %s/%s()/%d: form_prompt_process_attribute_new() returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			list_set_set(
+				element_list,
+				form_prompt_process_element_list->
+					form_prompt_process_attribute->
+					element_list );
+		}
+		else
+		if ( process_parameter->process_parameter_drop_down )
+		{
+			form_prompt_process_element_list->
+				form_prompt_process_drop_down =
+					form_prompt_process_drop_down_new(
+						post_change_javascript,
+						process_parameter_drop_down );
+
+			if ( !form_prompt_process_element_list->
+				form_prompt_process_drop_down )
+			{
+				fprintf(stderr,
+"ERROR in %s/%s()/%d: form_prompt_process_drop_down_new() returned empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			list_set_list(
+				form_prompt_process_element_list->
+					element_list,
+				form_prompt_process_element_list->
+					form_prompt_process_drop_down->
+						element_list );
+		}
+
+	} while ( list_next( process_parameter_list ) );
+
+	form_prompt_process_element_list->appaserver_element_list_html =
+		appaserver_element_list_html(
+			form_prompt_process_element_list->element_list );
+
+	return form_prompt_process_element_list;
+}
+
+FORM_PROMPT_PROCESS_ELEMENT_LIST *
+	form_prompt_process_element_list_calloc(
+			void )
+{
+	FORM_PROMPT_PROCESS_ELEMENT_LIST *form_prompt_process_element_list;
+
+	if ( ! ( form_prompt_process_element_list =
+			calloc(	1,
+				sizeof( FORM_PROMPT_PROCESS_ELEMENT_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_process_element_list;
 }
 

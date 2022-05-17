@@ -6,13 +6,9 @@
 #ifndef PROMPT_PROCESS_H
 #define PROMPT_PROCESS_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
-#include "role.h"
-#include "role_folder.h"
-#include "folder.h"
+#include "process.h"
 #include "drillthru.h"
 #include "post_dictionary.h"
 #include "frameset.h"
@@ -23,95 +19,117 @@
 #include "document.h"
 #include "form_prompt_process.h"
 
-/* Constants */
-/* --------- */
 #define PROMPT_PROCESS_OUTPUT_EXECUTABLE	"output_prompt_process"
 
 typedef struct
 {
-	LIST *role_folder_list;
-	boolean forbid;
-	ROLE *role;
-	FOLDER *folder;
+	LIST *process_parameter_folder_name_list;
+	LIST *folder_attribute_name_list_attribute_list;
+	LIST *folder_attribute_date_name_list;
+	DICTIONARY_SEPARATE_PROMPT_PROCESS *dictionary_separate_prompt_process;
+	LIST *prompt_process_list;
+	char *document_head_menu_setup_string;
+	char *document_head_calendar_setup_string;
+	DOCUMENT *document;
+	FORM_PROMPT_PROCESS *form_prompt_process;
+	char *document_form_html;
+} PROMPT_PROCESS_NOT_DRILLTHRU;
+
+/* Usage */
+/* ----- */
+PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_or_set_name,
+			PROCESS *process,
+			PROCESS_SET *process_set,
+			booleanhas_drillthru,
+			POST_DICTIONARY *post_dictionary,
+			MENU *menu );
+
+/* Process */
+/* ------- */
+PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_calloc(
+			void );
+
+typdef struct
+{
+	LIST *process_parameter_list;
+	char *post_change_javascript;
+	char *document_head_menu_setup_string;
+	char *document_head_calendar_setup_string;
+	DOCUMENT *document;
+	FORM_PROMPT_PROCESS *form_prompt_process;
+	char *document_form_html;
+} PROMPT_PROCESS_IS_DRILLTHRU;
+
+/* Usage */
+
+PROMPT_PROCESS_IS_DRILLTHRU *
+	prompt_process_is_drillthru_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_or_set_name,
+			PROCESS *process,
+			PROCESS_SET *process_set,
+			MENU *menu );
+
+typedef struct
+{
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
-	int folder_attribute_date_name_list_length;
-	DICTIONARY_SEPARATE_DRILLTHRU *dictionary_separate_drillthru;
-	DRILLTHRU *drillthru;
-	boolean omit_insert_button;
-	boolean omit_delete_button;
-	char *title_html;
-	SECURITY_ENTITY *security_entity;
-	FORM_PROMPT_LOOKUP *form_prompt_lookup;
-	DOCUMENT *document;
-	char *document_form_html;
-} PROMPT_LOOKUP;
-
-/* PROMPT_LOOKUP operations */
-/* ---------------------- */
+	PROCESS *process;
+	PROCESS_SET *process_set;
+	PROMPT_PROCESS_IS_DRILLTHRU *prompt_process_is_drillthru;
+	PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru;
+	char *html;
+} PROMPT_PROCESS;
 
 /* Usage */
 /* ----- */
 
-/* ---------------------------- */
-/* Always succeeds		*/
-/* Note: check forbid flag.	*/
-/* ---------------------------- */
-PROMPT_LOOKUP *prompt_lookup_new(
+/* --------------- */
+/* Always succeeds */
+/* --------------- */
+PROMPT_PROCESS *prompt_process_new(
 			char *application_name,
-			char *login_name,
 			char *session_key,
-			char *folder_name,
+			char *login_name,
 			char *role_name,
-			char *state,
+			char *process_or_set_name,
+			boolean has_drillthru,
+			boolean is_drillthru,
+			POST_DICTIONARY *post_dictionary,
 			boolean menu_horizontal_boolean,
-			char *data_directory,
-			POST_DICTIONARY *post_dictionary );
+			char *document_root,
+			char *application_relative_source_directory );
 
 /* Process */
 /* ------- */
-PROMPT_LOOKUP *prompt_lookup_calloc(
+PROMPT_PROCESS *prompt_process_calloc(
 			void );
 
-boolean prompt_lookup_forbid(
-			boolean role_folder_update,
-			boolean role_folder_lookup,
-			char *state,
-			char *appaserver_update_state );
-
-boolean prompt_lookup_omit_insert_button(
-			boolean drillthru_skipped,
-			boolean relation_exists_multi_select );
-
-
-boolean prompt_lookup_omit_delete_button(
-			int relation_mto1_isa_list_length );
-
-/* Returns relation_mto1_non_isa_list or	*/
-/* those with only a single foreign key.	*/
-/* -------------------------------------------- */
-LIST *prompt_lookup_drillthru_skipped(
-			LIST *relation_mto1_non_isa_list,
-			boolean drillthru_skipped );
-
-/* Returns static memory */
-/* --------------------- */
-char *prompt_lookup_title_html(
-			char *state,
-			char *folder_name );
 
 /* Public */
 /* ------ */
+boolean prompt_process_has_drillthru(
+			char *process_or_set_name );
 
 /* Returns heap memory */
 /* ------------------- */
-char *prompt_lookup_output_system_string(
-			char *prompt_lookup_output_executable,
+char *prompt_process_output_system_string(
+			char *prompt_process_output_executable,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *folder_name,
+			char *process_or_set_name,
 			char *dictionary_separate_send_string,
+			boolean has_drillthru,
+			boolean is_drillthru,
 			char *appaserver_error_filename );
 
 #endif
