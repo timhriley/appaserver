@@ -113,7 +113,8 @@ no_drillthru:
 			process->post_change_javascript;
 	}
 	else
-	if ( process_set )
+	if ( process_set
+	&&   list_length( process_set->member_name_list ) )
 	{
 		prompt_process_not_drillthru->process_parameter_list =
 			process_parameter_system_list(
@@ -126,6 +127,17 @@ no_drillthru:
 				login_name,
 				role_name,
 				drillthru_dictionary );
+
+		prompt_process_not_drillthru->process_parameter_list =
+			/* ------------------------------ */
+			/* Returns process_parameter_list */
+			/* ------------------------------ */
+			process_parameter_set_member_append(
+				prompt_process_not_drillthru->
+					process_parameter_list,
+				PROCESS_SET_PROCESS_LABEL,
+				process_set->prompt_display_text,
+				process_set->member_name_list );
 
 		prompt_process_not_drillthru->post_change_javascript =
 			process_set->post_change_javascript;

@@ -370,11 +370,10 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 		   		   PROCESS_PARAMETER_DROP_DOWN_PROMPT_TABLE,
 		   		   where ) ) );
 
-	process_parameter_drop_down_prompt->
-		process_parameter_drop_down_prompt_data_list =
-			process_parameter_drop_down_prompt_data_list(
-				drop_down_prompt_name,
-				where );
+	process_parameter_drop_down_prompt->data_list =
+		process_parameter_drop_down_prompt_data_list(
+			drop_down_prompt_name,
+			where );
 
 	return process_parameter_drop_down_prompt;
 }
@@ -412,11 +411,10 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	process_parameter_drop_down_prompt->optional_display = strdup( buffer );
 
-	process_parameter_drop_down_prompt->
-		process_parameter_drop_down_prompt_data_list =
-			process_parameter_drop_down_prompt_data_list(
-			   drop_down_prompt_name,
-			   process_parameter_drop_down_prompt_primary_where );
+	process_parameter_drop_down_prompt->data_list =
+		process_parameter_drop_down_prompt_data_list(
+		   drop_down_prompt_name,
+		   process_parameter_drop_down_prompt_primary_where );
 
 	return process_parameter_drop_down_prompt;
 }
@@ -1078,5 +1076,123 @@ boolean process_parameter_has_drillthru(
 	}
 
 	return (boolean)atoi( string_pipe_fetch( system_string ) );
+}
+
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_set_member_drop_down_prompt(
+				char *process_set_process_label,
+				char *prompt_display_text,
+				LIST *member_name_list )
+{
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
+	char *drop_down_prompt_name;
+
+	if ( !process_set_process_label
+	||   !list_length( member_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	drop_down_prompt_name =
+		/* ------------------------ */
+		/* Returns either parameter */
+		/* ------------------------ */
+		process_parameter_set_member_drop_down_name(
+			process_set_process_label,
+			prompt_display_text );
+
+	process_parameter_drop_down_prompt =
+		process_parameter_drop_down_prompt_new(
+			drop_down_prompt_name );
+
+	process_parameter_drop_down_prompt->data_list =
+		process_parameter_drop_down_prompt_member_data_list(
+			drop_down_prompt_name,
+			member_name_list );
+
+	return process_parameter_drop_down_prompt;
+}
+
+char *process_parameter_set_member_drop_down_name(
+			char *process_set_process_label,
+			char *prompt_display_text )
+{
+	if ( prompt_display_text && *prompt_display_text )
+		return prompt_display_text;
+	else
+		return process_set_process_label;
+}
+
+LIST *process_parameter_drop_down_prompt_member_data_list(
+			char *drop_down_prompt_name,
+			LIST *member_name_list )
+{
+	LIST *member_data_list;
+
+	if ( !list_rewind( member_name_list ) ) return (LIST *)0;
+
+	member_data_list = list_new();
+
+	do {
+		list_set(
+			member_data_list,
+			process_parameter_drop_down_prompt_data_new(
+				drop_down_prompt_name,
+				list_get( member_name_list ) ) );
+
+	} while ( list_next( member_name_list ) );
+
+	return member_data_list;
+}
+
+LIST *process_parameter_set_member_list(
+			LIST *process_parameter_list,
+			char *process_set_process_label,
+			char *prompt_display_text,
+			LIST *member_name_list )
+{
+	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
+
+	if ( !process_parameter_list
+	||   !process_set_process_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( member_name_list ) ) return (LIST *)0;
+
+	if ( ! ( process_parameter_drop_down_prompt =
+			process_parameter_set_member_drop_down_prompt(
+				process_set_process_label,
+				prompt_display_text,
+				member_name_list ) ) )
+	{
+		return process_parameter_list;
+	}
+
+	if ( prompt_display_text && *prompt_display_text )
+	{
+		list_set(
+			process_parameter_list,
+			process_parameter_drop_down_prompt );
+	}
+	else
+	{
+		list_set_first(
+			process_parameter_list,
+			process_parameter_drop_down_prompt );
+	}
+
+	return process_parameter_list;
 }
 

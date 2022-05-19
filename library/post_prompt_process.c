@@ -21,6 +21,7 @@
 #include "process_parameter.h"
 #include "folder_attribute.h"
 #include "process.h"
+#include "prompt_process.h"
 #include "post_prompt_process.h"
 
 POST_PROMPT_PROCESS *post_prompt_process_new(

@@ -61,6 +61,14 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
 			char *drop_down_prompt_name,
 			char *drop_down_prompt_data );
 
+/* Usage */
+/* ----- */
+LIST *process_parameter_drop_down_prompt_member_data_list(
+			char *drop_down_prompt_name,
+			LIST *member_name_list );
+
+/* Private */
+/* ------- */
 PROCESS_PARAMETER_DROP_DOWN_PROMPT_DATA *
 	process_parameter_drop_down_prompt_data_calloc(
 			void );
@@ -82,7 +90,7 @@ typedef struct
 
 	/* Process */
 	/* ------- */
-	LIST *process_parameter_drop_down_prompt_data_list;
+	LIST *data_list;
 } PROCESS_PARAMETER_DROP_DOWN_PROMPT;
 
 /* Usage */
@@ -112,6 +120,22 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 			char *process_parameter_drop_down_prompt_primary_where,
 			char *input );
 
+/* Usage */
+/* ----- */
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *
+	process_parameter_set_member_drop_down_prompt(
+			char *process_set_process_label,
+			char *prompt_display_text,
+			LIST *member_name_list );
+
+/* Returns either parameter */
+/* ------------------------ */
+char *process_parameter_set_member_drop_down_name(
+			char *process_set_process_label,
+			char *prompt_display_text );
+
+/* Private */
+/* ------- */
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
 			void );
 
@@ -330,6 +354,14 @@ boolean process_parameter_date_boolean(
 boolean process_parameter_has_drillthru(
 			char *process_name,
 			char *process_set_name );
+
+/* Returns process_parameter_list */
+/* ------------------------------ */
+LIST *process_parameter_set_member_append(
+			LIST *process_parameter_list,
+			char *process_set_process_label,
+			char *prompt_display_text,
+			LIST *member_name_list );
 
 #endif
 

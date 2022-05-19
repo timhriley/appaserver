@@ -23,6 +23,8 @@
 					"preprompt_help_text,"		\
 					"javascript_filename"
 
+#define PROCESS_SET_PROCESS_LABEL	"Process"
+
 typedef struct
 {
 	/* Attributes */
