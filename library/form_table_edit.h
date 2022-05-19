@@ -1,12 +1,12 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/form_edit_table.h				*/
+/* $APPASERVER_HOME/library/form_table_edit.h				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FORM_EDIT_TABLEH
-#define FORM_EDIT_TABLEH
+#ifndef FORM_TABLE_EDITH
+#define FORM_TABLE_EDITH
 
 #include <unistd.h>
 #include "boolean.h"
@@ -20,7 +20,7 @@
 
 /* Constants */
 /* --------- */
-#define FORM_EDIT_TABLE_NAME	"form_edit_table"
+#define FORM_TABLE_EDIT_NAME	"form_table_edit"
 
 typedef struct
 {
@@ -39,22 +39,22 @@ typedef struct
 	char *no_display_dictionary_hidden_html;
 	char *html;
 	char *trailer_html;
-} FORM_EDIT_TABLE;
+} FORM_TABLE_EDIT;
 
-/* FORM_EDIT_TABLE operations */
+/* FORM_TABLE_EDIT operations */
 /* -------------------------- */
-FORM_EDIT_TABLE *form_edit_table_calloc(
+FORM_TABLE_EDIT *form_table_edit_calloc(
 			void );
 
 /* Always succeeds */
 /* --------------- */
-FORM_EDIT_TABLE *form_edit_table_new(
+FORM_TABLE_EDIT *form_table_edit_new(
 			char *folder_name,
 			char *post_change_javascript,
 			int dictionary_list_length,
-			char *post_edit_table_action_string,
+			char *post_table_edit_action_string,
 			LIST *role_operation_list,
-			LIST *edit_table_heading_name_list,
+			LIST *table_edit_heading_name_list,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
@@ -63,28 +63,28 @@ FORM_EDIT_TABLE *form_edit_table_new(
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_edit_table_tag(
-			char *form_edit_table_name,
-			char *post_edit_table_action_string,
+char *form_table_edit_tag(
+			char *form_table_edit_name,
+			char *post_table_edit_action_string,
 			char *target_frame );
 
-LIST *form_edit_table_button_element_list(
+LIST *form_table_edit_button_element_list(
 			char *post_change_javascript,
 			int dictionary_list_length );
 
-LIST *form_edit_table_sort_checkbox_element_list(
+LIST *form_table_edit_sort_checkbox_element_list(
 			char *folder_name,
 			int operation_list_length,
-			LIST *edit_table_heading_name_list );
+			LIST *table_edit_heading_name_list );
 
-LIST *form_edit_table_heading_element_list(
+LIST *form_table_edit_heading_element_list(
 			LIST *role_operation_list,
-			LIST *edit_table_heading_name_list );
+			LIST *table_edit_heading_name_list );
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_edit_table_html(
-			char *form_edit_table_tag,
+char *form_table_edit_html(
+			char *form_table_edit_tag,
 			char *top_button_element_list_html,
 			char *element_table_open_html,
 			char *sort_checkbox_element_list_html,
@@ -92,7 +92,7 @@ char *form_edit_table_html(
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_edit_table_trailer_html(
+char *form_table_edit_trailer_html(
 			char *bottom_button_element_list_html,
 			char *query_dictionary_hidden_html,
 			char *sort_dictionary_hidden_html,
@@ -102,11 +102,11 @@ char *form_edit_table_trailer_html(
 
 /* Private */
 /* ------- */
-APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
+APPASERVER_ELEMENT *form_table_edit_operation_checkbox_element(
 			char *operation_name,
 			char *delete_warning_javascript );
 
-LIST *form_edit_table_operation_element_list(
+LIST *form_table_edit_operation_element_list(
 			LIST *role_operation_list,
 			boolean viewonly,
 			char *form_delete_warning_javascript );

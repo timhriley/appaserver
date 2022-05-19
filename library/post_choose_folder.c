@@ -219,8 +219,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 				drillthru->
 				drillthru_participating );
 
-	post_choose_folder->edit_table =
-		post_choose_folder_edit_table(
+	post_choose_folder->table_edit =
+		post_choose_folder_table_edit(
 			post_choose_folder->form_name,
 			state );
 
@@ -296,7 +296,7 @@ boolean post_choose_folder_prompt_lookup(
 	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
 }
 
-boolean post_choose_folder_edit_table(
+boolean post_choose_folder_table_edit(
 			char *folder_form_name,
 			char *state )
 {
@@ -403,7 +403,7 @@ char *post_choose_folder_system_string(
 		/* Returns heap memory */
 		/* ------------------- */
 		prompt_lookup_output_system_string(
-			PROMPT_EDIT_OUTPUT_EXECUTABLE,
+			PROMPT_LOOKUP_OUTPUT_EXECUTABLE,
 			session_key,
 			login_name,
 			role_name,

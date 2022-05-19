@@ -8,7 +8,6 @@
 
 /* Constants */
 /* --------- */
-#define APPASERVER_EDIT_TABLE_MAX_ROWS		500
 #define APPASERVER_FROM_STARTING_LABEL		"from_"
 #define APPASERVER_TO_STARTING_LABEL		"to_"
 #define APPASERVER_DROP_DOWN_ORIGINAL_LABEL	"original_"
@@ -36,9 +35,10 @@
 #define APPASERVER_DELETE_STATE			"delete"
 #define APPASERVER_PREDELETE_STATE		"predelete"
 
+#define APPASERVER_QUERY_TABLE_EDIT_MAX_ROWS	500
+
 /* To retire */
 /* --------- */
-#define QUERY_EDIT_TABLE_MAX_ROWS		500
 #define QUERY_FROM_STARTING_LABEL		"from_"
 #define QUERY_TO_STARTING_LABEL			"to_"
 #define QUERY_DROP_DOWN_ORIGINAL_STARTING_LABEL	"original_"

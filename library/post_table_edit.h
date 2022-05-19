@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/post_edit_table.h				*/
+/* $APPASERVER_HOME/library/post_table_edit.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef POST_EDIT_TABLE_H
-#define POST_EDIT_TABLE_H
+#ifndef POST_TABLE_EDIT_H
+#define POST_TABLE_EDIT_H
 
 #include "boolean.h"
 #include "list.h"
@@ -16,7 +16,7 @@
 #include "operation.h"
 #include "update.h"
 
-#define POST_EDIT_TABLE_EXECUTABLE	"post_edit_table"
+#define POST_TABLE_EDIT_EXECUTABLE	"post_table_edit"
 
 typedef struct
 {
@@ -31,14 +31,14 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	POST_DICTIONARY *post_dictionary;
-	DICTIONARY_SEPARATE_POST_EDIT_TABLE *dictionary_separate;
-	char *edit_table_spool_filename;
+	DICTIONARY_SEPARATE_POST_TABLE_EDIT *dictionary_separate;
+	char *table_edit_spool_filename;
 	DICTIONARY *file_dictionary;
 	UPDATE *update;
 	OPERATION_ROW_LIST *operation_row_list;
-} POST_EDIT_TABLE;
+} POST_TABLE_EDIT;
 
-/* POST_EDIT_TABLE operations */
+/* POST_TABLE_EDIT operations */
 /* -------------------------- */
 
 /* Usage */
@@ -46,7 +46,7 @@ typedef struct
 
 /* Always succeeds */
 /* --------------- */
-POST_EDIT_TABLE *post_edit_table_new(
+POST_TABLE_EDIT *post_table_edit_new(
 			int argc,
 			char **argv,
 			char *application_name,
@@ -59,7 +59,7 @@ POST_EDIT_TABLE *post_edit_table_new(
 
 /* Process */
 /* ------- */
-POST_EDIT_TABLE *post_edit_table_calloc(
+POST_TABLE_EDIT *post_table_edit_calloc(
 			void );
 
 /* Public */
@@ -67,8 +67,8 @@ POST_EDIT_TABLE *post_edit_table_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
-char *post_edit_table_action_string(
-			char *post_edit_table_executable,
+char *post_table_edit_action_string(
+			char *post_table_edit_executable,
 			char *application_name,
 			char *session_key,
 			char *login_name,

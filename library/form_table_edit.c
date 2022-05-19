@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/library/form_edit_table.c				*/
+/* $APPASERVER_HOME/library/form_table_edit.c				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -29,13 +29,13 @@
 #include "appaserver.h"
 #include "role_operation.h"
 #include "form.h"
-#include "form_edit_table.h"
+#include "form_table_edit.h"
 
-FORM_EDIT_TABLE *form_edit_table_calloc( void )
+FORM_TABLE_EDIT *form_table_edit_calloc( void )
 {
-	FORM_EDIT_TABLE *form_edit_table;
+	FORM_TABLE_EDIT *form_table_edit;
 
-	if ( ! ( form_edit_table = calloc( 1, sizeof( FORM_EDIT_TABLE ) ) ) )
+	if ( ! ( form_table_edit = calloc( 1, sizeof( FORM_TABLE_EDIT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -45,132 +45,132 @@ FORM_EDIT_TABLE *form_edit_table_calloc( void )
 		exit( 1 );
 	}
 
-	return form_edit_table;
+	return form_table_edit;
 }
 
-FORM_EDIT_TABLE *form_edit_table_new(
+FORM_TABLE_EDIT *form_table_edit_new(
 			char *folder_name,
 			char *post_change_javascript,
 			int dictionary_list_length,
-			char *post_edit_table_action_string,
+			char *post_table_edit_action_string,
 			LIST *role_operation_list,
-			LIST *edit_table_heading_name_list,
+			LIST *table_edit_heading_name_list,
 			char *target_frame,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *sort_dictionary,
 			DICTIONARY *drillthru_dictionary,
 			DICTIONARY *no_display_dictionary )
 {
-	FORM_EDIT_TABLE *form_edit_table = form_edit_table_calloc();
+	FORM_TABLE_EDIT *form_table_edit = form_table_edit_calloc();
 
-	form_edit_table->tag =
+	form_table_edit->tag =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		form_edit_table_tag(
-			FORM_EDIT_TABLE_NAME,
-			post_edit_table_action_string,
+		form_table_edit_tag(
+			FORM_TABLE_EDIT_NAME,
+			post_table_edit_action_string,
 			target_frame );
 
-	form_edit_table->top_button_element_list =
-		form_edit_table_button_element_list(
+	form_table_edit->top_button_element_list =
+		form_table_edit_button_element_list(
 			post_change_javascript,
 			0 /* dictionary_list_length */ );
 
 	if ( dictionary_list_length > 10 )
 	{
-		form_edit_table->top_button_element_list_html =
+		form_table_edit->top_button_element_list_html =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			appaserver_element_list_html(
-				form_edit_table->
+				form_table_edit->
 					top_button_element_list );
 	}
 
-	form_edit_table->bottom_button_element_list =
-		form_edit_table_button_element_list(
+	form_table_edit->bottom_button_element_list =
+		form_table_edit_button_element_list(
 			post_change_javascript,
 			dictionary_list_length );
 
-	form_edit_table->bottom_button_element_list_html =
+	form_table_edit->bottom_button_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		appaserver_element_list_html(
-			form_edit_table->
+			form_table_edit->
 				bottom_button_element_list );
 
-	form_edit_table->sort_checkbox_element_list =
-		form_edit_table_sort_checkbox_element_list(
+	form_table_edit->sort_checkbox_element_list =
+		form_table_edit_sort_checkbox_element_list(
 			folder_name,
 			list_length( role_operation_list ),
-			edit_table_heading_name_list );
+			table_edit_heading_name_list );
 
-	form_edit_table->sort_checkbox_element_list_html =
+	form_table_edit->sort_checkbox_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		appaserver_element_list_html(
-			form_edit_table->sort_checkbox_element_list );
+			form_table_edit->sort_checkbox_element_list );
 
-	form_edit_table->heading_element_list =
-		form_edit_table_heading_element_list(
+	form_table_edit->heading_element_list =
+		form_table_edit_heading_element_list(
 			role_operation_list,
-			edit_table_heading_name_list );
+			table_edit_heading_name_list );
 
-	form_edit_table->heading_element_list_html =
+	form_table_edit->heading_element_list_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		appaserver_element_list_html(
-			form_edit_table->heading_element_list );
+			form_table_edit->heading_element_list );
 
-	form_edit_table->query_dictionary_hidden_html =
+	form_table_edit->query_dictionary_hidden_html =
 		dictionary_separate_hidden_html(
 			DICTIONARY_SEPARATE_QUERY_PREFIX,
 			query_dictionary );
 
-	form_edit_table->sort_dictionary_hidden_html =
+	form_table_edit->sort_dictionary_hidden_html =
 		dictionary_separate_hidden_html(
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			sort_dictionary );
 
-	form_edit_table->drillthru_dictionary_hidden_html =
+	form_table_edit->drillthru_dictionary_hidden_html =
 		dictionary_separate_hidden_html(
 			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
 			drillthru_dictionary );
 
-	form_edit_table->no_display_dictionary_hidden_html =
+	form_table_edit->no_display_dictionary_hidden_html =
 		dictionary_separate_hidden_html(
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			no_display_dictionary );
 
-	form_edit_table->html =
-		form_edit_table_html(
-			form_edit_table->tag,
-			form_edit_table->top_button_element_list_html,
+	form_table_edit->html =
+		form_table_edit_html(
+			form_table_edit->tag,
+			form_table_edit->top_button_element_list_html,
 			element_table_open_html(
 				1 /* border_boolean */ ),
-			form_edit_table->sort_checkbox_element_list_html,
-			form_edit_table->heading_element_list_html );
+			form_table_edit->sort_checkbox_element_list_html,
+			form_table_edit->heading_element_list_html );
 
-	form_edit_table->trailer_html =
-		form_edit_table_trailer_html(
-			form_edit_table->bottom_button_element_list_html,
-			form_edit_table->query_dictionary_hidden_html,
-			form_edit_table->sort_dictionary_hidden_html,
-			form_edit_table->drillthru_dictionary_hidden_html,
-			form_edit_table->no_display_dictionary_hidden_html,
+	form_table_edit->trailer_html =
+		form_table_edit_trailer_html(
+			form_table_edit->bottom_button_element_list_html,
+			form_table_edit->query_dictionary_hidden_html,
+			form_table_edit->sort_dictionary_hidden_html,
+			form_table_edit->drillthru_dictionary_hidden_html,
+			form_table_edit->no_display_dictionary_hidden_html,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
 			form_close_html() );
 
-	return form_edit_table;
+	return form_table_edit;
 }
 
-LIST *form_edit_table_button_element_list(
+LIST *form_table_edit_button_element_list(
 			char *post_change_javascript,
 			int dictionary_list_length )
 {
@@ -287,10 +287,10 @@ LIST *form_edit_table_button_element_list(
 	return element_list;
 }
 
-LIST *form_edit_table_sort_checkbox_element_list(
+LIST *form_table_edit_sort_checkbox_element_list(
 			char *folder_name,
 			int operation_list_length,
-			LIST *edit_table_heading_name_list )
+			LIST *table_edit_heading_name_list )
 {
 	APPASERVER_ELEMENT *element;
 	LIST *element_list = list_new();
@@ -298,7 +298,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 	char on_click[ 128 ];
 	int i;
 
-	if ( !list_length( edit_table_heading_name_list ) ) return( LIST *)0;
+	if ( !list_length( table_edit_heading_name_list ) ) return( LIST *)0;
 
 	sprintf( on_click, "push_button_submit('%s')", folder_name );
 
@@ -319,7 +319,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 				table_data, (char *)0 ) );
 	}
 
-	list_rewind( edit_table_heading_name_list );
+	list_rewind( table_edit_heading_name_list );
 
 	do {
 		list_set(
@@ -331,7 +331,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			FORM_SORT_ASCEND_LABEL,
-			(char *)list_get( edit_table_heading_name_list ) );
+			(char *)list_get( table_edit_heading_name_list ) );
 
 		list_set(
 			element_list,
@@ -344,7 +344,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 		element->checkbox->prompt_string = "Sort";
 		element->checkbox->on_click = strdup( on_click );
 
-	} while ( list_next( edit_table_heading_name_list ) );
+	} while ( list_next( table_edit_heading_name_list ) );
 
 	/* Create the descend checkboxes */
 	/* ----------------------------- */
@@ -365,7 +365,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 				table_data, (char *)0 ) );
 	}
 
-	list_rewind( edit_table_heading_name_list );
+	list_rewind( table_edit_heading_name_list );
 
 	do {
 		list_set(
@@ -377,7 +377,7 @@ LIST *form_edit_table_sort_checkbox_element_list(
 			"%s%s%s",
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			FORM_SORT_DESCEND_LABEL,
-			(char *)list_get( edit_table_heading_name_list ) );
+			(char *)list_get( table_edit_heading_name_list ) );
 
 		list_set(
 			element_list,
@@ -390,13 +390,13 @@ LIST *form_edit_table_sort_checkbox_element_list(
 		element->checkbox->prompt_string = "Descend";
 		element->checkbox->on_click = strdup( on_click );
 
-	} while ( list_next( edit_table_heading_name_list ) );
+	} while ( list_next( table_edit_heading_name_list ) );
 
 	return element_list;
 }
 
-char *form_edit_table_html(
-			char *form_edit_table_tag,
+char *form_table_edit_html(
+			char *form_table_edit_tag,
 			char *top_button_element_list_html,
 			char *element_table_open_html,
 			char *sort_checkbox_element_list_html,
@@ -405,7 +405,7 @@ char *form_edit_table_html(
 	char html[ STRING_64K ];
 	char *ptr = html;
 
-	if ( !form_edit_table_tag
+	if ( !form_table_edit_tag
 	||   !element_table_open_html
 	||   !heading_element_list_html )
 	{
@@ -420,7 +420,7 @@ char *form_edit_table_html(
 	ptr += sprintf(
 		ptr,
 		"%s",
-		form_edit_table_tag );
+		form_table_edit_tag );
 
 	if ( top_button_element_list_html )
 	{
@@ -454,7 +454,7 @@ char *form_edit_table_html(
 	return strdup( html );
 }
 
-char *form_edit_table_trailer_html(
+char *form_table_edit_trailer_html(
 			char *bottom_button_element_list_html,
 			char *query_dictionary_hidden_html,
 			char *sort_dictionary_hidden_html,
@@ -526,7 +526,7 @@ char *form_edit_table_trailer_html(
 	return strdup( html );
 }
 
-LIST *form_edit_table_heading_element_list(
+LIST *form_table_edit_heading_element_list(
 			LIST *role_operation_list,
 			LIST *heading_name_list )
 {
@@ -572,7 +572,7 @@ LIST *form_edit_table_heading_element_list(
 
 			list_set(
 				element_list,
-				form_edit_table_operation_checkbox_element(
+				form_table_edit_operation_checkbox_element(
 					role_operation->
 						operation->
 						operation_name,
@@ -597,16 +597,16 @@ LIST *form_edit_table_heading_element_list(
 	return element_list;
 }
 
-char *form_edit_table_tag(
-			char *form_edit_table_name,
-			char *post_edit_table_action_string,
+char *form_table_edit_tag(
+			char *form_table_edit_name,
+			char *post_table_edit_action_string,
 			char *target_frame )
 {
 	char tag[ 1024 ];
 	char *ptr = tag;
 
-	if ( !form_edit_table_name
-	||   !post_edit_table_action_string
+	if ( !form_table_edit_name
+	||   !post_table_edit_action_string
 	||   !target_frame )
 	{
 		fprintf(stderr,
@@ -624,18 +624,18 @@ char *form_edit_table_tag(
 	ptr += sprintf(
 		ptr,
 		" name=\"%s\"",
-		form_edit_table_name );
+		form_table_edit_name );
 
 	ptr += sprintf(
 		ptr,
 		" action=\"%s\" target=\"%s\">",
-		post_edit_table_action_string,
+		post_table_edit_action_string,
 		target_frame );
 
 	return strdup( tag );
 }
 
-APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
+APPASERVER_ELEMENT *form_table_edit_operation_checkbox_element(
 			char *operation_name,
 			char *delete_warning_javascript )
 {
@@ -660,7 +660,7 @@ APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
 	if ( delete_warning_javascript )
 	{
 		sprintf(on_click, 
-			"%s && edit_table_push_button_set_all('%s',0);",
+			"%s && table_edit_push_button_set_all('%s',0);",
 			delete_warning_javascript,
 			operation_name );
 	}
@@ -677,7 +677,7 @@ APPASERVER_ELEMENT *form_edit_table_operation_checkbox_element(
 	return element;
 }
 
-LIST *form_edit_table_operation_element_list(
+LIST *form_table_edit_operation_element_list(
 			LIST *role_operation_list,
 			boolean viewonly,
 			char *form_delete_warning_javascript )

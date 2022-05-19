@@ -21,7 +21,6 @@
 					"prompt_display_text,"		\
 					"process_group,"		\
 					"preprompt_help_text,"		\
-					"prompt_display_bottom_yn,"	\
 					"javascript_filename"
 
 typedef struct
@@ -36,12 +35,11 @@ typedef struct
 	char *prompt_display_text;
 	char *process_group;
 	char *preprompt_help_text;
-	boolean prompt_display_bottom;
 	char *javascript_filename;
 
 	/* Process */
 	/* ------- */
-	LIST *process_set_member_name_list;
+	LIST *member_name_list;
 	JAVASCRIPT *javascript;
 } PROCESS_SET;
 

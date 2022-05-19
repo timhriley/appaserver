@@ -70,7 +70,7 @@ char *query_system_string(
 	return strdup( system_string );
 }
 
-LIST *query_edit_table_row_dictionary_list(
+LIST *query_table_edit_row_dictionary_list(
 			char *query_system_string,
 			LIST *query_select_name_list,
 			LIST *one_folder_primary_key_list,
@@ -1509,7 +1509,7 @@ char *query_select_column_string(
 	return strdup( select_string );
 }
 
-LIST *query_edit_table_select_list(
+LIST *query_table_edit_select_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *no_display_name_list,
 			LIST *exclude_lookup_attribute_name_list,
@@ -2297,11 +2297,11 @@ char *query_data_where(
 	return strdup( where_clause );
 }
 
-QUERY_EDIT_TABLE *query_edit_table_calloc( void )
+QUERY_TABLE_EDIT *query_table_edit_calloc( void )
 {
-	QUERY_EDIT_TABLE *query_edit_table;
+	QUERY_TABLE_EDIT *query_table_edit;
 
-	if ( ! ( query_edit_table = calloc( 1, sizeof( QUERY_EDIT_TABLE ) ) ) )
+	if ( ! ( query_table_edit = calloc( 1, sizeof( QUERY_TABLE_EDIT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -2311,10 +2311,10 @@ QUERY_EDIT_TABLE *query_edit_table_calloc( void )
 		exit( 1 );
 	}
 
-	return query_edit_table;
+	return query_table_edit;
 }
 
-QUERY_EDIT_TABLE *query_edit_table_new(
+QUERY_TABLE_EDIT *query_table_edit_new(
 			char *application_name,
 			char *login_name,
 			char *folder_name,
@@ -2331,7 +2331,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			RELATION *row_security_role_relation,
 			char *row_security_role_attribute_not_null )
 {
-	QUERY_EDIT_TABLE *query_edit_table;
+	QUERY_TABLE_EDIT *query_table_edit;
 
 	if ( !list_length( folder_attribute_append_isa_list ) )
 	{
@@ -2341,13 +2341,13 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			__FUNCTION__,
 			__LINE__ );
 
-		return (QUERY_EDIT_TABLE *)0;
+		return (QUERY_TABLE_EDIT *)0;
 	}
 
-	query_edit_table = query_edit_table_calloc();
+	query_table_edit = query_table_edit_calloc();
 
-	query_edit_table->select_list =
-		query_edit_table_select_list(
+	query_table_edit->select_list =
+		query_table_edit_select_list(
 			folder_attribute_append_isa_list,
 			no_display_name_list,
 			exclude_lookup_attribute_name_list,
@@ -2355,36 +2355,36 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			query_date_convert_new( login_name ),
 			row_security_role_attribute_not_null );
 
-	if ( !list_length( query_edit_table->select_list ) )
+	if ( !list_length( query_table_edit->select_list ) )
 	{
 		fprintf(stderr,
-"Warning in %s/%s()/%d: query_edit_table_select_list() returned  empty.\n",
+"Warning in %s/%s()/%d: query_table_edit_select_list() returned  empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 
-		return (QUERY_EDIT_TABLE *)0;
+		return (QUERY_TABLE_EDIT *)0;
 	}
 
-	query_edit_table->query_select_list_string =
+	query_table_edit->query_select_list_string =
 		query_select_list_string(
-			query_edit_table->select_list );
+			query_table_edit->select_list );
 
-	query_edit_table->query_select_name_list =
+	query_table_edit->query_select_name_list =
 		query_select_name_list(
-			query_edit_table->select_list );
+			query_table_edit->select_list );
 
-	query_edit_table->from_string =
-		query_edit_table_from_string(
+	query_table_edit->from_string =
+		query_table_edit_from_string(
 			folder_name,
 			relation_mto1_isa_list,
 			row_security_role_folder_name );
 
-	query_edit_table->where =
+	query_table_edit->where =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		query_edit_table_where_new(
+		query_table_edit_where_new(
 			application_name,
 			folder_name,
 			folder_attribute_append_isa_list,
@@ -2394,23 +2394,23 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			query_dictionary,
 			row_security_role_relation );
 
-	query_edit_table->query_order_string =
+	query_table_edit->query_order_string =
 		query_order_string(
-			query_edit_table->query_select_list_string,
+			query_table_edit->query_select_list_string,
 			sort_dictionary );
 
-	query_edit_table->query_system_string =
+	query_table_edit->query_system_string =
 		query_system_string(
-			query_edit_table->query_select_list_string,
-			query_edit_table->from_string,
-			query_edit_table->where->string,
-			query_edit_table->query_order_string,
-			QUERY_EDIT_TABLE_MAX_ROWS );
+			query_table_edit->query_select_list_string,
+			query_table_edit->from_string,
+			query_table_edit->where->string,
+			query_table_edit->query_order_string,
+			APPASERVER_QUERY_TABLE_EDIT_MAX_ROWS );
 
-	query_edit_table->row_dictionary_list =
-		query_edit_table_row_dictionary_list(
-			query_edit_table->query_system_string,
-			query_edit_table->query_select_name_list,
+	query_table_edit->row_dictionary_list =
+		query_table_edit_row_dictionary_list(
+			query_table_edit->query_system_string,
+			query_table_edit->query_select_name_list,
 			folder_attribute_primary_key_list(
 				folder_attribute_append_isa_list )
 					/* one_folder_primary_key_list */,
@@ -2418,7 +2418,7 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			relation_join_one2m_list,
 			folder_name /* one_folder_name */ );
 
-	return query_edit_table;
+	return query_table_edit;
 }
 
 QUERY_WIDGET_WHERE *query_widget_where_new(
@@ -2804,12 +2804,12 @@ char *query_order_key_list_string( LIST *key_list )
 	return strdup( order_string );
 }
 
-QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc( void )
+QUERY_TABLE_EDIT_WHERE *query_table_edit_where_calloc( void )
 {
-	QUERY_EDIT_TABLE_WHERE *query_edit_table_where;
+	QUERY_TABLE_EDIT_WHERE *query_table_edit_where;
 
-	if ( ! ( query_edit_table_where =
-			calloc( 1, sizeof( QUERY_EDIT_TABLE_WHERE ) ) ) )
+	if ( ! ( query_table_edit_where =
+			calloc( 1, sizeof( QUERY_TABLE_EDIT_WHERE ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -2819,10 +2819,10 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc( void )
 		exit( 1 );
 	}
 
-	return query_edit_table_where;
+	return query_table_edit_where;
 }
 
-QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			char *application_name,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -2832,7 +2832,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 			DICTIONARY *query_dictionary,
 			RELATION *row_security_role_relation )
 {
-	QUERY_EDIT_TABLE_WHERE *where = query_edit_table_where_calloc();
+	QUERY_TABLE_EDIT_WHERE *where = query_table_edit_where_calloc();
 
 	where->relation_mto1_isa_list_length =
 		list_length(
@@ -2884,7 +2884,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		query_edit_table_where_string(
+		query_table_edit_where_string(
 			where->query_drop_down_list_where,
 			where->query_attribute_list_where,
 			where->query_join_where,
@@ -2898,7 +2898,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 	return where;
 }
 
-char *query_edit_table_where_string(
+char *query_table_edit_where_string(
 			char *query_drop_down_list_where,
 			char *query_attribute_list_where,
 			char *query_join_where,
@@ -4116,7 +4116,7 @@ char *query_data_string_where(
 	return where;
 }
 
-char *query_edit_table_from_string(
+char *query_table_edit_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
 			char *row_security_role_folder_name )

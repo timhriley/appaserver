@@ -365,16 +365,16 @@ typedef struct
 	char *query_attribute_list_where;
 	char *query_join_where;
 	char *string;
-} QUERY_EDIT_TABLE_WHERE;
+} QUERY_TABLE_EDIT_WHERE;
 
-/* QUERY_EDIT_TABLE_WHERE operations */
+/* QUERY_TABLE_EDIT_WHERE operations */
 /* --------------------------------- */
-QUERY_EDIT_TABLE_WHERE *query_edit_table_where_calloc(
+QUERY_TABLE_EDIT_WHERE *query_table_edit_where_calloc(
 			void );
 
 /* Always succeeds */
 /* --------------- */
-QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
+QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			char *application_name,
 			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
@@ -386,7 +386,7 @@ QUERY_EDIT_TABLE_WHERE *query_edit_table_where_new(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *query_edit_table_where_string(
+char *query_table_edit_where_string(
 			char *query_drop_down_list_where,
 			char *query_attribute_list_where,
 			char *query_join_where,
@@ -452,7 +452,7 @@ typedef struct
 QUERY_SELECT *query_select_calloc(
 			void );
 
-LIST *query_edit_table_select_list(
+LIST *query_table_edit_select_list(
 			LIST *folder_attribute_append_isa_list,
 			LIST *no_display_name_list,
 			LIST *exclude_lookup_attribute_name_list,
@@ -697,18 +697,18 @@ typedef struct
 	char *query_select_list_string;
 	LIST *query_select_name_list;
 	char *from_string;
-	QUERY_EDIT_TABLE_WHERE *where;
+	QUERY_TABLE_EDIT_WHERE *where;
 	char *query_order_string;
 	char *query_system_string;
 	LIST *row_dictionary_list;
-} QUERY_EDIT_TABLE;
+} QUERY_TABLE_EDIT;
 
-/* QUERY_EDIT_TABLE operations */
+/* QUERY_TABLE_EDIT operations */
 /* --------------------------- */
-QUERY_EDIT_TABLE *query_edit_table_calloc(
+QUERY_TABLE_EDIT *query_table_edit_calloc(
 			void );
 
-QUERY_EDIT_TABLE *query_edit_table_new(
+QUERY_TABLE_EDIT *query_table_edit_new(
 			char *application_name,
 			char *login_name,
 			char *folder_name,
@@ -725,12 +725,12 @@ QUERY_EDIT_TABLE *query_edit_table_new(
 			RELATION *row_security_role_relation,
 			char *row_security_role_attribute_not_null );
 
-char *query_edit_table_from_string(
+char *query_table_edit_from_string(
 			char *folder_name,
 			LIST *relation_mto1_isa_list,
 			char *row_security_role_folder_name );
 
-LIST *query_edit_table_row_dictionary_list(
+LIST *query_table_edit_row_dictionary_list(
 			char *query_system_string,
 			LIST *query_select_name_list,
 			LIST *one_folder_primary_key_list,

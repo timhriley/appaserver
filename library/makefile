@@ -752,13 +752,18 @@ form_drillthru.o: form_drillthru.c form_drillthru.h element.o
 
 form_prompt_attribute_relational.o:				\
 	form_prompt_attribute_relational.c			\
-	form_prompt_attribute_relational.h
+	form_prompt_attribute_relational.h			\
+	element.o
 	${CC} ${CFLAGS} -c form_prompt_attribute_relational.c
 
-form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h
+form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h	\
+	element.o
 	${CC} ${CFLAGS} -c form_prompt_lookup.c
 
-form_prompt_process.o: form_prompt_process.c form_prompt_process.h
+form_prompt_process.o:						\
+	form_prompt_process.c					\
+	form_prompt_process.h					\
+	element.o
 	${CC} ${CFLAGS} -c form_prompt_process.c
 
 form_table_edit.o: form_table_edit.c form_table_edit.h element.o
@@ -767,7 +772,10 @@ form_table_edit.o: form_table_edit.c form_table_edit.h element.o
 form_choose_isa.o: form_choose_isa.c form_choose_isa.h element.o
 	${CC} ${CFLAGS} -c form_choose_isa.c
 
-form_choose_role.o: form_choose_role.c form_choose_role.h element.o
+form_choose_role.o:						\
+	form_choose_role.c					\
+	form_choose_role.h					\
+	element.o
 	${CC} ${CFLAGS} -c form_choose_role.c
 
 radio.o: radio.c radio.h

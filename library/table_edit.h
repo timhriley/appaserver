@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/edit_table.h				*/
+/* $APPASERVER_HOME/library/table_edit.h				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef EDIT_TABLE_H
-#define EDIT_TABLE_H
+#ifndef TABLE_EDIT_H
+#define TABLE_EDIT_H
 
 #include "boolean.h"
 #include "list.h"
@@ -17,17 +17,17 @@
 #include "row_security.h"
 #include "query.h"
 #include "session.h"
-#include "form_edit_table.h"
+#include "form_table_edit.h"
 #include "document.h"
 #include "dictionary_separate.h"
 
-#define EDIT_TABLE_OUTPUT_EXECUTABLE		"output_edit_table"
+#define TABLE_EDIT_OUTPUT_EXECUTABLE		"output_table_edit"
 
 typedef struct
 {
 	ROLE *role;
 	FOLDER *folder;
-	DICTIONARY_SEPARATE_EDIT_TABLE *dictionary_separate;
+	DICTIONARY_SEPARATE_TABLE_EDIT *dictionary_separate;
 	int folder_attribute_date_name_list_length;
 	boolean menu_boolean;
 	FOLDER_MENU *folder_menu;
@@ -37,29 +37,29 @@ typedef struct
 	SECURITY_ENTITY *security_entity;
 	char *security_entity_where;
 	ROW_SECURITY *row_security;
-	QUERY_EDIT_TABLE *query_edit_table;
+	QUERY_TABLE_EDIT *query_table_edit;
 	char *spool_filename;
 	int dictionary_list_length;
 	int row_insert_count;
 	int cell_update_count;
 	char *cell_update_folder_list_string;
 	char *results_string;
-	char *post_edit_table_action_string;
+	char *post_table_edit_action_string;
 	LIST *heading_name_list;
 	char *title_html;
 	char *message_html;
 	DOCUMENT *document;
-	FORM_EDIT_TABLE *form_edit_table;
+	FORM_TABLE_EDIT *form_table_edit;
 	char *html;
 	char *trailer_html;
-} EDIT_TABLE;
+} TABLE_EDIT;
 
-/* EDIT_TABLE operations */
+/* TABLE_EDIT operations */
 /* --------------------- */
 
 /* Usage */
 /* ----- */
-EDIT_TABLE *edit_table_new(
+TABLE_EDIT *table_edit_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -71,54 +71,54 @@ EDIT_TABLE *edit_table_new(
 
 /* Process */
 /* ------- */
-EDIT_TABLE *edit_table_calloc(
+TABLE_EDIT *table_edit_calloc(
 			void );
 
 /* Returns program memory */
 /* ---------------------- */
-char *edit_table_state(
+char *table_edit_state(
 			LIST *role_folder_list );
 
-boolean edit_table_primary_keys_non_edit(
+boolean table_edit_primary_keys_non_edit(
 			int relation_mto1_isa_list_length );
 
 /* Returns heap memory */
 /* ------------------- */
-char *edit_table_spool_filename(
+char *table_edit_spool_filename(
 			char *appaserver_parameter_data_directory,
 			char *application_name,
 			char *folder_name,
 			char *session_key );
 
-void edit_table_spool_file(
-			char *edit_table_spool_filename,
+void table_edit_spool_file(
+			char *table_edit_spool_filename,
 			LIST *folder_attribute_name_list,
 			LIST *row_dictionary_list,
 			char sql_delimiter );
 
-int edit_table_row_insert_count(
+int table_edit_row_insert_count(
 			char *rows_inserted_count_key,
 			DICTIONARY *non_prefixed_dictionary );
 
-int edit_table_cell_update_count(
+int table_edit_cell_update_count(
 			char *columns_updated_key,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Returns non_prefixed_dictionary->hash_table->other_data */
 /* ------------------------------------------------------- */
-char *edit_table_cell_update_folder_list_string(
+char *table_edit_cell_update_folder_list_string(
 			char *columns_updated_changed_folder_key,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Returns non_prefixed_dictionary->hash_table->other_data */
 /* ------------------------------------------------------- */
-char *edit_table_results_string(
+char *table_edit_results_string(
 			char *results_key_string,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Returns heap memory */
 /* ------------------- */
-char *edit_table_submit_action_string(
+char *table_edit_submit_action_string(
 			char *application_name,
 			char *login_name,
 			char *session_key,
@@ -129,27 +129,27 @@ char *edit_table_submit_action_string(
 
 /* Returns list of heap memory */
 /* --------------------------- */
-LIST *edit_table_heading_name_list(
+LIST *table_edit_heading_name_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list );
 
 /* --------------------- */
 /* Returns static memory */
 /* --------------------- */
-char *edit_table_title_html(
+char *table_edit_title_html(
 			char *folder_name,
-			char *edit_table_state );
+			char *table_edit_state );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *edit_table_message_html(
-			int edit_table_row_insert_count,
-			int edit_table_cell_update_count,
-			char *edit_table_results_string );
+char *table_edit_message_html(
+			int table_edit_row_insert_count,
+			int table_edit_cell_update_count,
+			char *table_edit_results_string );
 
 /* Returns heap memory */
 /* ------------------- */
-char *edit_table_html(
+char *table_edit_html(
 			char *document_html,
 			char *document_head_html,
 			char *document_head_close_html,
@@ -157,27 +157,27 @@ char *edit_table_html(
 
 /* Returns heap memory */
 /* ------------------- */
-char *edit_table_trailer_html(
+char *table_edit_trailer_html(
 			char *document_body_close_html,
 			char *document_close_html );
 
 /* Usage */
 /* ----- */
-void edit_table_output(
+void table_edit_output(
 			FILE *output_stream,
 			char *application_name,
-			char *edit_table_html,
-			char *form_edit_table_html,
+			char *table_edit_html,
+			char *form_table_edit_html,
 			LIST *role_operation_list,
 			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *edit_table_state,
-			char *form_edit_table_trailer_html,
-			char *edit_table_trailer_html );
+			char *table_edit_state,
+			char *form_table_edit_trailer_html,
+			char *table_edit_trailer_html );
 
-void edit_table_apply_output(
+void table_edit_apply_output(
 			FILE *output_stream,
 			char *application_name,
 			LIST *role_operation_list,
@@ -185,23 +185,23 @@ void edit_table_apply_output(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *edit_table_state );
+			char *table_edit_state );
 
-LIST *edit_table_apply_element_list(
+LIST *table_edit_apply_element_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			DICTIONARY *row_dictionary,
 			ROW_SECURITY_ROLE *row_security_role );
 
-LIST *edit_table_operation_element_html_list(
+LIST *table_edit_operation_element_html_list(
 			LIST *role_operation_list,
 			int row_number,
 			ROW_SECURITY_ROLE *row_security_role );
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *edit_table_row_html(
-			LIST *edit_table_apply_element_list /* in/out */,
+char *table_edit_row_html(
+			LIST *table_edit_apply_element_list /* in/out */,
 			LIST *row_operation_list,
 			char *application_name,
 			char *form_background_color,
@@ -212,7 +212,7 @@ char *edit_table_row_html(
 
 /* Usage */
 /* ----- */
-void edit_table_hidden_output(
+void table_edit_hidden_output(
 			FILE *output_stream,
 			LIST *row_dictionary_list,
 			LIST *regular_element_list,
@@ -223,7 +223,7 @@ void edit_table_hidden_output(
 
 /* Private */
 /* ------- */
-boolean edit_table_viewonly(
+boolean table_edit_viewonly(
 			DICTIONARY *row_dictionary,
 			char *row_security_role_update_attribute_not_null );
 
@@ -232,8 +232,8 @@ boolean edit_table_viewonly(
 
 /* Returns heap memory */
 /* ------------------- */
-char *edit_table_output_system_string(
-			char *edit_table_output_executable,
+char *table_edit_output_system_string(
+			char *table_edit_output_executable,
 			char *session_key,
 			char *login_name,
 			char *role_name,

@@ -308,29 +308,40 @@ PROCESS_SET *process_set_parse(
 
 	process_set->role_name = role_name;
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
-	process_set->notepad = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 1 ) )
+	{
+		process_set->notepad = strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
-	process_set->html_help_file_anchor = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 2 ) )
+	{
+		process_set->html_help_file_anchor = strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
-	process_set->post_change_javascript = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 3 ) )
+	{
+		process_set->post_change_javascript = strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 4 );
-	process_set->prompt_display_text = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 4 ) )
+	{
+		process_set->prompt_display_text = strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 5 );
-	process_set->process_group = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 5 ) )
+	{
+		process_set->process_group = strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 6 );
-	process_set->preprompt_help_text = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 6 ) )
+	{
+		process_set->preprompt_help_text = strdup( buffer );
+	}
 
-	piece( buffer, SQL_DELIMITER, input, 7 );
-	process_set->prompt_display_bottom = ( *buffer == 'y' );
-
-	piece( buffer, SQL_DELIMITER, input, 8 );
-	process_set->javascript_filename = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 7 ) )
+	{
+		process_set->javascript_filename = strdup( buffer );
+	}
 
 	if ( *process_set->javascript_filename )
 	{
@@ -354,7 +365,7 @@ PROCESS_SET *process_set_parse(
 
 	if ( fetch_process_set_member_name_list )
 	{
-		process_set->process_set_member_name_list =
+		process_set->member_name_list =
 			process_set_member_name_list(
 				/* --------------------- */
 				/* Returns static memory */
@@ -708,113 +719,91 @@ char *process_operation_command_line(
 {
 	char local_command_line[ STRING_16K ];
 	char buffer[ STRING_8K ];
+	char process_id_string[ 16 ];
+	char operation_row_total_string[ 16 ];
 
 	string_strcpy(
 		local_command_line,
 		command_line,
 		STRING_16K );
 
-	if ( application_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$application",
-			double_quotes_around(
-				buffer, 
-				application_name ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$application",
+		double_quotes_around(
+			buffer, 
+			application_name ) );
 
-	if ( operation_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$process",
-			double_quotes_around(
-				buffer, 
-				operation_name ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$process",
+		double_quotes_around(
+			buffer, 
+			operation_name ) );
 
-	if ( login_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$login_name",
-			double_quotes_around(
-				buffer, 
-				login_name ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$login_name",
+		double_quotes_around(
+			buffer, 
+			login_name ) );
 
-	if ( role_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$role",
-			double_quotes_around(
-				buffer, 
-				role_name ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$role",
+		double_quotes_around(
+			buffer, 
+			role_name ) );
 
-	if ( folder_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$folder",
-			double_quotes_around(
-				buffer, 
-				folder_name ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$folder",
+		double_quotes_around(
+			buffer, 
+			folder_name ) );
 
-	if ( parent_process_id )
-	{
-		char process_id_string[ 16 ];
+	sprintf(process_id_string,
+		"%d",
+		(int)parent_process_id );
 
-		sprintf(process_id_string,
-			"%d",
-			(int)parent_process_id );
+	search_replace_word(
+		local_command_line,
+		"$process_id",
+		double_quotes_around(
+			buffer, 
+			process_id_string ) );
 
-		search_replace_word(
-			local_command_line,
-			"$process_id",
-			double_quotes_around(
-				buffer, 
-				process_id_string ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$session",
+		double_quotes_around(
+			buffer, 
+			session_key ) );
 
-	if ( session_key )
-	{
-		search_replace_word(
-			local_command_line,
-			"$session",
-			double_quotes_around(
-				buffer, 
-				session_key ) );
-	}
+	sprintf(operation_row_total_string,
+		"%d",
+		operation_row_checked_count );
 
-	if ( operation_row_checked_count )
-	{
-		char operation_row_total_string[ 16 ];
+	search_replace_word(
+		local_command_line,
+		"$process_row_count",
+		double_quotes_around(
+			buffer, 
+			operation_row_total_string ) );
 
-		search_replace_word(
-			local_command_line,
-			"$process_row_count",
-			double_quotes_around(
-				buffer, 
-				operation_row_total_string ) );
+	search_replace_word(
+		local_command_line,
+		"$operation_row_count",
+		double_quotes_around(
+			buffer, 
+			operation_row_total_string ) );
 
-		search_replace_word(
-			local_command_line,
-			"$operation_row_count",
-			double_quotes_around(
-				buffer, 
-				operation_row_total_string ) );
-
-		search_replace_word(
-			local_command_line,
-			"$operation_row_total",
-			double_quotes_around(
-				buffer, 
-				operation_row_total_string ) );
-	}
+	search_replace_word(
+		local_command_line,
+		"$operation_row_total",
+		double_quotes_around(
+			buffer, 
+			operation_row_total_string ) );
 
 	if ( primary_data_list )
 	{

@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/edit_table.c				*/
+/* $APPASERVER_HOME/library/table_edit.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -18,17 +18,17 @@
 #include "application.h"
 #include "application_constants.h"
 #include "appaserver.h"
-#include "post_edit_table.h"
+#include "post_table_edit.h"
 #include "role_operation.h"
 #include "form.h"
-#include "edit_table.h"
+#include "table_edit.h"
 
-EDIT_TABLE *edit_table_calloc( void )
+TABLE_EDIT *table_edit_calloc( void )
 {
-	EDIT_TABLE *edit_table;
+	TABLE_EDIT *table_edit;
 
-	if ( ! ( edit_table =
-			calloc( 1, sizeof( EDIT_TABLE ) ) ) )
+	if ( ! ( table_edit =
+			calloc( 1, sizeof( TABLE_EDIT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -38,10 +38,10 @@ EDIT_TABLE *edit_table_calloc( void )
 		exit( 1 );
 	}
 
-	return edit_table;
+	return table_edit;
 }
 
-EDIT_TABLE *edit_table_new(
+TABLE_EDIT *table_edit_new(
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -51,14 +51,14 @@ EDIT_TABLE *edit_table_new(
 			boolean menu_horizontal_boolean,
 			DICTIONARY *original_post_dictionary )
 {
-	EDIT_TABLE *edit_table = edit_table_calloc();
+	TABLE_EDIT *table_edit = table_edit_calloc();
 
 	/* Used for convenience */
 	/* -------------------- */
 	ROW_SECURITY_ROLE *row_security_role;
 	LIST *viewonly_element_list;
 
-	if ( ! ( edit_table->role =
+	if ( ! ( table_edit->role =
 			role_fetch(
 				role_name,
 				1 /* fetch_attribute_exclude_list */ ) ) )
@@ -69,10 +69,10 @@ EDIT_TABLE *edit_table_new(
 			__FUNCTION__,
 			__LINE__,
 			role_name );
-		return (EDIT_TABLE *)0;
+		return (TABLE_EDIT *)0;
 	}
 
-	if ( ! ( edit_table->folder =
+	if ( ! ( table_edit->folder =
 			folder_fetch(
 				folder_name,
 				/* ------------------------- */
@@ -80,7 +80,7 @@ EDIT_TABLE *edit_table_new(
 				/* ------------------------- */
 				role_name,
 				role_exclude_lookup_attribute_name_list(
-					edit_table->
+					table_edit->
 						role->
 						attribute_exclude_list ),
 				/* -------------------------- */
@@ -105,161 +105,161 @@ EDIT_TABLE *edit_table_new(
 				__FUNCTION__,
 				__LINE__,
 				folder_name );
-		return (EDIT_TABLE *)0;
+		return (TABLE_EDIT *)0;
 	}
 
-	edit_table->dictionary_separate =
+	table_edit->dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_edit_table_new(
+		dictionary_separate_table_edit_new(
 			original_post_dictionary,
 			application_name,
 			login_name,
 			folder_attribute_date_name_list(
-				edit_table->
+				table_edit->
 					folder->
 					folder_attribute_append_isa_list ),
-			edit_table->
+			table_edit->
 				folder->
 				folder_attribute_append_isa_list );
 
-	edit_table->folder_attribute_date_name_list_length =
+	table_edit->folder_attribute_date_name_list_length =
 		folder_attribute_date_name_list_length(
-			edit_table->
+			table_edit->
 				folder->
 				folder_attribute_append_isa_list );
 
-	edit_table->folder->relation_join_one2m_list =
+	table_edit->folder->relation_join_one2m_list =
 		relation_join_one2m_list(
-			edit_table->folder->relation_one2m_recursive_list,
-			edit_table->
+			table_edit->folder->relation_one2m_recursive_list,
+			table_edit->
 				dictionary_separate->
 				no_display_dictionary );
 
 	if ( menu_horizontal_boolean )
 	{
-		edit_table->folder_menu =
+		table_edit->folder_menu =
 			folder_menu_new(
 				application_name,
 				session_key,
 				role_name,
 				appaserver_parameter_data_directory() );
 
-		edit_table->menu =
+		table_edit->menu =
 			menu_new(
 				application_name,
 				session_key,
 				login_name,
 				role_name,
 				1 /* frameset_menu_horizontal */,
-				edit_table->folder_menu->count_list );
+				table_edit->folder_menu->count_list );
 	}
 
-	edit_table->security_entity =
+	table_edit->security_entity =
 		/* -------------- */
 		/* Always returns */
 		/* -------------- */
 		security_entity_new(
 			login_name,
-			edit_table->folder->non_owner_forbid,
-			edit_table->role->override_row_restrictions );
+			table_edit->folder->non_owner_forbid,
+			table_edit->role->override_row_restrictions );
 
-	edit_table->security_entity_where =
+	table_edit->security_entity_where =
 		security_entity_where(
-			edit_table->security_entity,
-			edit_table->
+			table_edit->security_entity,
+			table_edit->
 				folder->
 				folder_attribute_list );
 
-	edit_table->state =
+	table_edit->state =
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
-		edit_table_state(
-			edit_table->
+		table_edit_state(
+			table_edit->
 				folder->
 				role_folder_list );
 
-	edit_table->primary_keys_non_edit =
-		edit_table_primary_keys_non_edit(
+	table_edit->primary_keys_non_edit =
+		table_edit_primary_keys_non_edit(
 			list_length(
-				edit_table->
+				table_edit->
 					folder->
 					relation_mto1_isa_list ) );
 
-	edit_table->row_security =
+	table_edit->row_security =
 		row_security_new(
 			folder_name,
-			edit_table->folder->folder_attribute_append_isa_list,
-			edit_table->folder->relation_mto1_non_isa_list,
-			edit_table->folder->relation_join_one2m_list,
-			edit_table->folder->post_change_javascript,
-			edit_table->dictionary_separate->
+			table_edit->folder->folder_attribute_append_isa_list,
+			table_edit->folder->relation_mto1_non_isa_list,
+			table_edit->folder->relation_join_one2m_list,
+			table_edit->folder->post_change_javascript,
+			table_edit->dictionary_separate->
 				drillthru_dictionary,
-			edit_table->primary_keys_non_edit,
-			edit_table->
+			table_edit->primary_keys_non_edit,
+			table_edit->
 				dictionary_separate->
 				no_display_name_list,
-			edit_table->state,
+			table_edit->state,
 			role_exclude_update_attribute_name_list(
-				edit_table->
+				table_edit->
 					role->
 					attribute_exclude_list ),
 			role_exclude_lookup_attribute_name_list(
-				edit_table->
+				table_edit->
 					role->
 					attribute_exclude_list ),
-			edit_table->role->override_row_restrictions,
+			table_edit->role->override_row_restrictions,
 			login_name,
-			edit_table->security_entity_where );
+			table_edit->security_entity_where );
 
-	if ( !edit_table->row_security )
+	if ( !table_edit->row_security )
 	{
 		fprintf(stderr,
 		"Warning in %s/%s()/%d: row_security_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (EDIT_TABLE *)0;
+		return (TABLE_EDIT *)0;
 	}
 
-	if ( !edit_table->row_security->row_security_element_list )
+	if ( !table_edit->row_security->row_security_element_list )
 	{
 		fprintf(stderr,
 		"Warning in %s/%s()/%d: row_security_element_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (EDIT_TABLE *)0;
+		return (TABLE_EDIT *)0;
 	}
 
 	row_security_role =
-		edit_table->
+		table_edit->
 			row_security->
 			row_security_role;
 
-	edit_table->query_edit_table =
-		query_edit_table_new(
+	table_edit->query_table_edit =
+		query_table_edit_new(
 			application_name,
 			login_name,
 			folder_name,
-			edit_table->security_entity_where,
-			edit_table->folder->relation_join_one2m_list,
-			edit_table->
+			table_edit->security_entity_where,
+			table_edit->folder->relation_join_one2m_list,
+			table_edit->
 				dictionary_separate->
 				no_display_name_list,
 			role_exclude_lookup_attribute_name_list(
-				edit_table->
+				table_edit->
 					role->
 					attribute_exclude_list ),
-			edit_table->folder->folder_attribute_append_isa_list,
-			edit_table->folder->relation_mto1_non_isa_list,
-			edit_table->folder->relation_mto1_isa_list,
-			edit_table->
+			table_edit->folder->folder_attribute_append_isa_list,
+			table_edit->folder->relation_mto1_non_isa_list,
+			table_edit->folder->relation_mto1_isa_list,
+			table_edit->
 				dictionary_separate->
 				query_dictionary,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				sort_dictionary,
 			(row_security_role)
@@ -272,67 +272,67 @@ EDIT_TABLE *edit_table_new(
 				? row_security_role->attribute_not_null
 				: (char *)0 );
 
-	if ( !edit_table->query_edit_table )
+	if ( !table_edit->query_table_edit )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: query_edit_table_new(%s) returned empty.\n",
+	"Warning in %s/%s()/%d: query_table_edit_new(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			folder_name );
-		return (EDIT_TABLE *)0;
+		return (TABLE_EDIT *)0;
 	}
 
-	edit_table->spool_filename =
+	table_edit->spool_filename =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		edit_table_spool_filename(
+		table_edit_spool_filename(
 			appaserver_parameter_data_directory(),
 			application_name,
 			folder_name,
 			session_key );
 
-	edit_table->dictionary_list_length =
+	table_edit->dictionary_list_length =
 		list_length(
-			edit_table->
-				query_edit_table->
+			table_edit->
+				query_table_edit->
 				row_dictionary_list );
 
-	edit_table->row_insert_count =
-		edit_table_row_insert_count(
+	table_edit->row_insert_count =
+		table_edit_row_insert_count(
 			ROWS_INSERTED_COUNT_KEY,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				non_prefixed_dictionary );
 
-	edit_table->cell_update_count =
-		edit_table_cell_update_count(
+	table_edit->cell_update_count =
+		table_edit_cell_update_count(
 			COLUMNS_UPDATED_KEY,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				non_prefixed_dictionary );
 
-	edit_table->cell_update_folder_list_string =
-		edit_table_cell_update_folder_list_string(
+	table_edit->cell_update_folder_list_string =
+		table_edit_cell_update_folder_list_string(
 			COLUMNS_UPDATED_CHANGED_FOLDER_KEY,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				non_prefixed_dictionary );
 
-	edit_table->results_string =
-		edit_table_results_string(
+	table_edit->results_string =
+		table_edit_results_string(
 			RESULTS_STRING_KEY,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				non_prefixed_dictionary );
 
-	edit_table->post_edit_table_action_string =
+	table_edit->post_table_edit_action_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		post_edit_table_action_string(
-			POST_EDIT_TABLE_EXECUTABLE,
+		post_table_edit_action_string(
+			POST_TABLE_EDIT_EXECUTABLE,
 			application_name,
 			session_key,
 			login_name,
@@ -341,10 +341,10 @@ EDIT_TABLE *edit_table_new(
 			target_frame,
 			(char *)0 /* detail_base_folder_name */ );
 
-	if ( !edit_table->post_edit_table_action_string )
+	if ( !table_edit->post_table_edit_action_string )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: post_edit_table_action_string() returned empty.\n",
+"ERROR in %s/%s()/%d: post_table_edit_action_string() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -352,10 +352,10 @@ EDIT_TABLE *edit_table_new(
 	}
 
 
-	if ( edit_table->row_security->row_security_element_list->viewonly )
+	if ( table_edit->row_security->row_security_element_list->viewonly )
 	{
 		viewonly_element_list =
-			edit_table->
+			table_edit->
 				row_security->
 				row_security_element_list->
 				viewonly->
@@ -366,96 +366,96 @@ EDIT_TABLE *edit_table_new(
 		viewonly_element_list = (LIST *)0;
 	}
 
-	edit_table->heading_name_list =
+	table_edit->heading_name_list =
 		/* --------------------------- */
 		/* Returns list of heap memory */
 		/* --------------------------- */
-		edit_table_heading_name_list(
-			edit_table->
+		table_edit_heading_name_list(
+			table_edit->
 				row_security->
 				row_security_element_list->
 				regular->
 				element_list,
 			viewonly_element_list );
 
-	edit_table->title_html =
+	table_edit->title_html =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		edit_table_title_html(
+		table_edit_title_html(
 			folder_name,
-			edit_table->state );
+			table_edit->state );
 
-	edit_table->message_html =
+	table_edit->message_html =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		edit_table_message_html(
-			edit_table->row_insert_count,
-			edit_table->cell_update_count,
-			edit_table->results_string );
+		table_edit_message_html(
+			table_edit->row_insert_count,
+			table_edit->cell_update_count,
+			table_edit->results_string );
 
-	edit_table->document =
+	table_edit->document =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
 		document_new(
 			application_name,
 			application_title_string( application_name ),
-			edit_table->title_html,
-			edit_table->message_html,
+			table_edit->title_html,
+			table_edit->message_html,
 			(char *)0 /* subsubtitle_html */,
 			(char *)0 /* javascript_replace */,
-			edit_table->menu_boolean,
-			edit_table->menu,
+			table_edit->menu_boolean,
+			table_edit->menu,
 			document_head_menu_setup_string(
 				menu_horizontal_boolean ),
 			document_head_calendar_setup_string(
-				edit_table->
+				table_edit->
 				      folder_attribute_date_name_list_length ),
 			document_head_javascript_include_string(),
 			(char *)0 /* input_onload_string */ );
 
-	edit_table->form_edit_table =
+	table_edit->form_table_edit =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		form_edit_table_new(
+		form_table_edit_new(
 			folder_name,
-			edit_table->folder->post_change_javascript,
-			edit_table->dictionary_list_length,
-			edit_table->post_edit_table_action_string,
-			edit_table->folder->role_operation_list,
-			edit_table->heading_name_list,
+			table_edit->folder->post_change_javascript,
+			table_edit->dictionary_list_length,
+			table_edit->post_table_edit_action_string,
+			table_edit->folder->role_operation_list,
+			table_edit->heading_name_list,
 			target_frame,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				query_dictionary,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				sort_dictionary,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				drillthru_dictionary,
-			edit_table->
+			table_edit->
 				dictionary_separate->
 				no_display_dictionary  );
 
-	edit_table->html =
+	table_edit->html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		edit_table_html(
-			edit_table->document->html,
-			edit_table->document->document_head->html,
+		table_edit_html(
+			table_edit->document->html,
+			table_edit->document->document_head->html,
 			document_head_close_html(),
-			edit_table->document->document_body->html );
+			table_edit->document->document_body->html );
 
-	edit_table->trailer_html =
+	table_edit->trailer_html =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		edit_table_trailer_html(
+		table_edit_trailer_html(
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
@@ -465,10 +465,10 @@ EDIT_TABLE *edit_table_new(
 			/* ---------------------- */
 			document_close_html() );
 
-	return edit_table;
+	return table_edit;
 }
 
-char *edit_table_state( LIST *role_folder_list )
+char *table_edit_state( LIST *role_folder_list )
 {
 	if ( role_folder_update( role_folder_list ) )
 		return APPASERVER_UPDATE_STATE;
@@ -479,13 +479,13 @@ char *edit_table_state( LIST *role_folder_list )
 	return (char *)0;
 }
 
-boolean edit_table_primary_keys_non_edit(
+boolean table_edit_primary_keys_non_edit(
 			int relation_mto1_isa_list_length )
 {
 	return ( relation_mto1_isa_list_length >= 1 );
 }
 
-int edit_table_row_insert_count(
+int table_edit_row_insert_count(
 			char *rows_inserted_count_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
@@ -507,7 +507,7 @@ int edit_table_row_insert_count(
 	}
 }
 
-int edit_table_cell_update_count(
+int table_edit_cell_update_count(
 			char *columns_updated_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
@@ -529,7 +529,7 @@ int edit_table_cell_update_count(
 	}
 }
 
-char *edit_table_cell_update_folder_list_string(
+char *table_edit_cell_update_folder_list_string(
 			char *columns_updated_changed_folder_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
@@ -542,7 +542,7 @@ char *edit_table_cell_update_folder_list_string(
 			non_prefixed_dictionary );
 }
 
-char *edit_table_results_string(
+char *table_edit_results_string(
 			char *results_string_key,
 			DICTIONARY *non_prefixed_dictionary )
 {
@@ -555,7 +555,7 @@ char *edit_table_results_string(
 			non_prefixed_dictionary );
 }
 
-char *edit_table_html(	char *document_html,
+char *table_edit_html(	char *document_html,
 			char *document_head_html,
 			char *document_head_close_html,
 			char *document_body_html )
@@ -585,7 +585,7 @@ char *edit_table_html(	char *document_html,
 	return strdup( html );
 }
 
-char *edit_table_trailer_html(
+char *table_edit_trailer_html(
 			char *document_body_close_html,
 			char *document_close_html )
 {
@@ -611,7 +611,7 @@ char *edit_table_trailer_html(
 	return strdup( trailer_html );
 }
 
-LIST *edit_table_apply_element_list(
+LIST *table_edit_apply_element_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			DICTIONARY *row_dictionary,
@@ -625,7 +625,7 @@ LIST *edit_table_apply_element_list(
 			return viewonly_element_list;
 	}
 	else
-	if ( edit_table_viewonly(
+	if ( table_edit_viewonly(
 			row_dictionary,
 			row_security_role->attribute_not_null ) )
 	{
@@ -637,7 +637,7 @@ LIST *edit_table_apply_element_list(
 	}
 }
 
-char *edit_table_row_html(
+char *table_edit_row_html(
 			LIST *apply_element_list,
 			LIST *role_operation_list,
 			char *application_name,
@@ -701,7 +701,7 @@ char *edit_table_row_html(
 				    state,
 				    row_number,
 				    background_color,
-				    edit_table_viewonly(
+				    table_edit_viewonly(
 					    row_dictionary,
 					    (row_security_role)
 						? row_security_role->
@@ -770,7 +770,7 @@ char *edit_table_row_html(
 		return strdup( row_html );
 }
 
-char *edit_table_message_html(
+char *table_edit_message_html(
 			int row_insert_count,
 			int cell_update_count,
 			char *results_string )
@@ -825,7 +825,7 @@ char *edit_table_message_html(
 		return strdup( html );
 }
 
-LIST *edit_table_heading_name_list(
+LIST *table_edit_heading_name_list(
 			LIST *regular_element_list,
 			LIST *viewonly_element_list )
 {
@@ -857,24 +857,24 @@ LIST *edit_table_heading_name_list(
 	appaserver_element_heading_name_list( apply_element_list );
 }
 
-void edit_table_output(	FILE *output_stream,
+void table_edit_output(	FILE *output_stream,
 			char *application_name,
-			char *edit_table_html,
-			char *form_edit_table_html,
+			char *table_edit_html,
+			char *form_table_edit_html,
 			LIST *role_operation_list,
 			LIST *row_dictionary_list,
 			LIST *regular_element_list,
 			LIST *viewonly_element_list,
 			ROW_SECURITY_ROLE *row_security_role,
-			char *edit_table_state,
-			char *form_edit_table_trailer_html,
-			char *edit_table_trailer_html )
+			char *table_edit_state,
+			char *form_table_edit_trailer_html,
+			char *table_edit_trailer_html )
 {
-	if ( !edit_table_html
-	||   !form_edit_table_html
-	||   !edit_table_state
-	||   !form_edit_table_trailer_html
-	||   !edit_table_trailer_html )
+	if ( !table_edit_html
+	||   !form_table_edit_html
+	||   !table_edit_state
+	||   !form_table_edit_trailer_html
+	||   !table_edit_trailer_html )
 	{
 		fprintf(stderr,
 			"Warning in %s/%s()/%d: parameter is empty.\n",
@@ -886,10 +886,10 @@ void edit_table_output(	FILE *output_stream,
 
 	fprintf(output_stream,
 		"%s\n%s\n",
-		edit_table_html,
-		form_edit_table_html );
+		table_edit_html,
+		form_table_edit_html );
 
-	edit_table_apply_output(
+	table_edit_apply_output(
 		output_stream,
 		application_name,
 		role_operation_list,
@@ -897,7 +897,7 @@ void edit_table_output(	FILE *output_stream,
 		regular_element_list,
 		viewonly_element_list,
 		row_security_role,
-		edit_table_state );
+		table_edit_state );
 
 	fprintf(output_stream,
 		"%s\n",
@@ -906,7 +906,7 @@ void edit_table_output(	FILE *output_stream,
 		/* ---------------------- */
 		element_table_close_html() );
 
-	edit_table_hidden_output(
+	table_edit_hidden_output(
 		output_stream,
 		row_dictionary_list,
 		regular_element_list,
@@ -914,11 +914,11 @@ void edit_table_output(	FILE *output_stream,
 
 	fprintf(output_stream,
 		"%s\n%s\n",
-		form_edit_table_trailer_html,
-		edit_table_trailer_html );
+		form_table_edit_trailer_html,
+		table_edit_trailer_html );
 }
 
-void edit_table_apply_output(
+void table_edit_apply_output(
 			FILE *output_stream,
 			char *application_name,
 			LIST *role_operation_list,
@@ -944,7 +944,7 @@ void edit_table_apply_output(
 		row_dictionary = list_get( row_dictionary_list );
 
 		apply_element_list =
-			edit_table_apply_element_list(
+			table_edit_apply_element_list(
 				regular_element_list,
 				viewonly_element_list,
 				row_dictionary,
@@ -953,7 +953,7 @@ void edit_table_apply_output(
 		if ( !apply_element_list )
 		{
 			fprintf(stderr,
-"ERROR in %s/%s()/%d: edit_table_apply_element_list() returned empty.\n",
+"ERROR in %s/%s()/%d: table_edit_apply_element_list() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -966,7 +966,7 @@ void edit_table_apply_output(
 				/* --------------------------- */
 				/* Returns heap memory or null */
 				/* --------------------------- */
-				edit_table_row_html(
+				table_edit_row_html(
 					apply_element_list /* in/out */,
 					role_operation_list,
 					application_name,
@@ -977,7 +977,7 @@ void edit_table_apply_output(
 					row_dictionary ) ) )
 		{
 			fprintf(stderr,
-	"Warning in %s/%s()/%d: edit_table_row_html() returned empty.\n",
+	"Warning in %s/%s()/%d: table_edit_row_html() returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -1000,7 +1000,7 @@ void edit_table_apply_output(
 	}
 }
 
-void edit_table_hidden_output(
+void table_edit_hidden_output(
 			FILE *output_stream,
 			LIST *row_dictionary_list,
 			LIST *regular_element_list,
@@ -1053,7 +1053,7 @@ void edit_table_hidden_output(
 	}
 }
 
-char *edit_table_output_system_string(
+char *table_edit_output_system_string(
 			char *executable,
 			char *session_key,
 			char *login_name,
@@ -1101,7 +1101,7 @@ char *edit_table_output_system_string(
 	return strdup( system_string );
 }
 
-char *edit_table_title_html(
+char *table_edit_title_html(
 			char *folder_name,
 			char *state )
 {
@@ -1131,7 +1131,7 @@ char *edit_table_title_html(
 	return html;
 }
 
-boolean edit_table_viewonly(
+boolean table_edit_viewonly(
 			DICTIONARY *row_dictionary,
 			char *attribute_not_null )
 {
@@ -1150,7 +1150,7 @@ boolean edit_table_viewonly(
 		return 0;
 }
 
-char *edit_table_spool_filename(
+char *table_edit_spool_filename(
 			char *appaserver_data_directory,
 			char *application_name,
 			char *folder_name,
@@ -1181,7 +1181,7 @@ char *edit_table_spool_filename(
 	return strdup( filename );
 }
 
-void edit_table_spool_file(
+void table_edit_spool_file(
 			char *spool_filename,
 			LIST *folder_attribute_name_list,
 			LIST *row_dictionary_list,

@@ -38,8 +38,8 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			char *login_name,
 			char *role_name,
 			char *process_or_set_name,
-			boolean has_preprompt,
-			boolean is_preprompt,
+			boolean has_drillthru,
+			boolean is_drillthru,
 			POST_DICTIONARY *post_dictionary,
 			char *document_root,
 			char *application_relative_source_directory );
@@ -55,12 +55,14 @@ char *post_prompt_process_command_line(
 			char *login_name,
 			char *role_name,
 			char *process_name,
+			DICTIONARY *query_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
 			char *application_error_directory );
 
 /* Private */
 /* ------- */
 char *post_prompt_process_name(
+			char *process_name,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Public */
@@ -72,7 +74,7 @@ char *post_prompt_process_action_string(
 			char *login_name,
 			char *role_name,
 			char *process_name,
-			boolean has_preprompt,
-			boolean is_preprompt );
+			boolean has_drillthru,
+			boolean is_drillthru );
 
 #endif

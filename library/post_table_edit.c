@@ -1,4 +1,4 @@
-/* $APPASERVER_HOME/library/post_edit_table.c				*/
+/* $APPASERVER_HOME/library/post_table_edit.c				*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -16,10 +16,10 @@
 #include "role_operation.h"
 #include "dictionary.h"
 #include "update.h"
-#include "edit_table.h"
-#include "post_edit_table.h"
+#include "table_edit.h"
+#include "post_table_edit.h"
 
-POST_EDIT_TABLE *post_edit_table_new(
+POST_TABLE_EDIT *post_table_edit_new(
 			int argc,
 			char **argv,
 			char *application_name,
@@ -30,12 +30,12 @@ POST_EDIT_TABLE *post_edit_table_new(
 			char *target_frame,
 			char *detail_base_folder_name )
 {
-	POST_EDIT_TABLE *post_edit_table = post_edit_table_calloc();
+	POST_TABLE_EDIT *post_table_edit = post_table_edit_calloc();
 
-	post_edit_table->target_frame = target_frame;
-	post_edit_table->detail_base_folder_name = detail_base_folder_name;
+	post_table_edit->target_frame = target_frame;
+	post_table_edit->detail_base_folder_name = detail_base_folder_name;
 
-	post_edit_table->session_folder =
+	post_table_edit->session_folder =
 		/* --------------------------------------------- */
 		/* Sets appaserver environment and outputs argv. */
 		/* Each parameter is security inspected.	 */
@@ -50,7 +50,7 @@ POST_EDIT_TABLE *post_edit_table_new(
 			folder_name,
 			APPASERVER_LOOKUP_STATE );
 
-	if ( ! ( post_edit_table->role =
+	if ( ! ( post_table_edit->role =
 			role_fetch(
 				role_name,
 				1 /* fetch_attribute_exclude_list */ ) ) )
@@ -61,10 +61,10 @@ POST_EDIT_TABLE *post_edit_table_new(
 			__FUNCTION__,
 			__LINE__,
 			role_name );
-		return (POST_EDIT_TABLE *)0;
+		return (POST_TABLE_EDIT *)0;
 	}
 
-	if ( ! ( post_edit_table->folder =
+	if ( ! ( post_table_edit->folder =
 			folder_fetch(
 				folder_name,
 				/* ------------------------- */
@@ -72,7 +72,7 @@ POST_EDIT_TABLE *post_edit_table_new(
 				/* ------------------------- */
 				role_name,
 				role_exclude_lookup_attribute_name_list(
-					post_edit_table->
+					post_table_edit->
 						role->
 						attribute_exclude_list ),
 				/* -------------------------- */
@@ -97,10 +97,10 @@ POST_EDIT_TABLE *post_edit_table_new(
 				__FUNCTION__,
 				__LINE__,
 				folder_name );
-		return (POST_EDIT_TABLE *)0;
+		return (POST_TABLE_EDIT *)0;
 	}
 
-	post_edit_table->post_dictionary =
+	post_table_edit->post_dictionary =
 		post_dictionary_stdin_new(
 			/* ----------------------------- */
 			/* Not expecting a spooled file. */
@@ -108,98 +108,98 @@ POST_EDIT_TABLE *post_edit_table_new(
 			(char *)0 /* appaserver_parameter_upload_directory */,
 			(char *)0 /* session_key */ );
 
-	post_edit_table->dictionary_separate =
+	post_table_edit->dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		dictionary_separate_post_edit_table_new(
-			post_edit_table->
+		dictionary_separate_post_table_edit_new(
+			post_table_edit->
 				post_dictionary->
 				original_post_dictionary,
 			application_name,
 			login_name,
-			post_edit_table->
+			post_table_edit->
 				folder->
 				folder_attribute_name_list,
 			role_operation_name_list(
-				post_edit_table->
+				post_table_edit->
 					folder->
 					role_operation_list ),
 			folder_attribute_date_name_list(
-				post_edit_table->
+				post_table_edit->
 					folder->
 					folder_attribute_append_isa_list ),
-			post_edit_table->
+			post_table_edit->
 				folder->
 				folder_attribute_append_isa_list );
 
-	post_edit_table->edit_table_spool_filename =
-		edit_table_spool_filename(
+	post_table_edit->table_edit_spool_filename =
+		table_edit_spool_filename(
 			appaserver_parameter_data_directory(),
 			application_name,
 			folder_name,
 			session_key );
 
-	post_edit_table->file_dictionary =
+	post_table_edit->file_dictionary =
 		dictionary_file_fetch(
-			post_edit_table->edit_table_spool_filename,
+			post_table_edit->table_edit_spool_filename,
 			SQL_DELIMITER );
 
 	if ( dictionary_length(
-		post_edit_table->
+		post_table_edit->
 			dictionary_separate->
 			multi_row_dictionary )
-	&&   dictionary_length( post_edit_table->file_dictionary ) )
+	&&   dictionary_length( post_table_edit->file_dictionary ) )
 	{
-		post_edit_table->update =
+		post_table_edit->update =
 			update_new(
 				application_name,
 				login_name,
-				post_edit_table->
+				post_table_edit->
 					dictionary_separate->
 					multi_row_dictionary,
-				post_edit_table->file_dictionary,
-				post_edit_table->role,
-				post_edit_table->folder );
+				post_table_edit->file_dictionary,
+				post_table_edit->role,
+				post_table_edit->folder );
 	}
 
 	if ( dictionary_length(
-		post_edit_table->
+		post_table_edit->
 			dictionary_separate->
 			operation_dictionary ) )
 	{
-		post_edit_table->operation_row_list =
+		post_table_edit->operation_row_list =
 			operation_row_list_new(
 				application_name,
 				session_key,
 				login_name,
 				role_name,
 				folder_name,
-				post_edit_table->
+				post_table_edit->
 					folder->
 					role_operation_list,
-				post_edit_table->
+				post_table_edit->
 					folder->
 					primary_key_list,
-				post_edit_table->
+				post_table_edit->
 					folder->
 					folder_attribute_name_list,
-				post_edit_table->
+				post_table_edit->
 					dictionary_separate->
 					operation_dictionary,
-				post_edit_table->
+				post_table_edit->
 					dictionary_separate->
 					multi_row_dictionary );
 	}
 
-	return post_edit_table;
+	return post_table_edit;
 }
 
-POST_EDIT_TABLE *post_edit_table_calloc( void )
+POST_TABLE_EDIT *post_table_edit_calloc( void )
 {
-	POST_EDIT_TABLE *post_edit_table;
+	POST_TABLE_EDIT *post_table_edit;
 
-	if ( ! ( post_edit_table = calloc( 1, sizeof( POST_EDIT_TABLE ) ) ) )
+	if ( ! ( post_table_edit = calloc( 1, sizeof( POST_TABLE_EDIT ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -209,11 +209,11 @@ POST_EDIT_TABLE *post_edit_table_calloc( void )
 		exit( 1 );
 	}
 
-	return post_edit_table;
+	return post_table_edit;
 }
 
-char *post_edit_table_action_string(
-			char *post_edit_table_executable,
+char *post_table_edit_action_string(
+			char *post_table_edit_executable,
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -224,7 +224,7 @@ char *post_edit_table_action_string(
 {
 	char action_string[ 1024 ];
 
-	if ( !post_edit_table_executable
+	if ( !post_table_edit_executable
 	||   !application_name
 	||   !session_key
 	||   !login_name
@@ -249,7 +249,7 @@ char *post_edit_table_action_string(
 				application_name ),
 			application_prepend_http_protocol_yn(
 				application_name ) ),
-		post_edit_table_executable,
+		post_table_edit_executable,
 		application_name,
 		session_key,
 		login_name,

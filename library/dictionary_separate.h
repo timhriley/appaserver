@@ -300,15 +300,15 @@ typedef struct
 	DICTIONARY *row_zero_dictionary;
 	DICTIONARY *operation_dictionary;
 	LIST *no_display_name_list;
-} DICTIONARY_SEPARATE_POST_EDIT_TABLE;
+} DICTIONARY_SEPARATE_POST_TABLE_EDIT;
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-DICTIONARY_SEPARATE_POST_EDIT_TABLE *
-	dictionary_separate_post_edit_table_new(
+DICTIONARY_SEPARATE_POST_TABLE_EDIT *
+	dictionary_separate_post_table_edit_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
@@ -319,8 +319,8 @@ DICTIONARY_SEPARATE_POST_EDIT_TABLE *
 
 /* Process */
 /* ------- */
-DICTIONARY_SEPARATE_POST_EDIT_TABLE *
-	dictionary_separate_post_edit_table_calloc(
+DICTIONARY_SEPARATE_POST_TABLE_EDIT *
+	dictionary_separate_post_table_edit_calloc(
 			void );
 
 typedef struct
@@ -363,15 +363,15 @@ typedef struct
 	DICTIONARY *no_display_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
 	LIST *no_display_name_list;
-} DICTIONARY_SEPARATE_EDIT_TABLE;
+} DICTIONARY_SEPARATE_TABLE_EDIT;
 
 /* Usage */
 /* ----- */
 
 /* Always succeeds */
 /* --------------- */
-DICTIONARY_SEPARATE_EDIT_TABLE *
-	dictionary_separate_edit_table_new(
+DICTIONARY_SEPARATE_TABLE_EDIT *
+	dictionary_separate_table_edit_new(
 			DICTIONARY *original_post_dictionary,
 			char *application_name,
 			char *login_name,
@@ -380,8 +380,8 @@ DICTIONARY_SEPARATE_EDIT_TABLE *
 
 /* Process */
 /* ------- */
-DICTIONARY_SEPARATE_EDIT_TABLE *
-	dictionary_separate_edit_table_calloc(
+DICTIONARY_SEPARATE_TABLE_EDIT *
+	dictionary_separate_table_edit_calloc(
 			void );
 
 typedef struct
