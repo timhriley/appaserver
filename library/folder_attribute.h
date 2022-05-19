@@ -186,4 +186,7 @@ LIST *folder_attribute_append_isa_name_list(
 LIST *folder_attribute_fetch_primary_key_list(
 			char *folder_name );
 
+LIST *folder_attribute_name_list_attribute_list(
+			LIST *folder_name_list );
+
 #endif

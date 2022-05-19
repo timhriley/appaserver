@@ -319,5 +319,17 @@ char *process_parameter_set_system_string(
 			char *process_set_parameter_table,
 			char *process_parameter_set_where );
 
+LIST *process_parameter_folder_name_list(
+			char *process_name,
+			char *process_set_name,
+			boolean is_drillthru );
+
+boolean process_parameter_date_boolean(
+			LIST *process_parameter_list );
+
+boolean process_parameter_has_drillthru(
+			char *process_name,
+			char *process_set_name );
+
 #endif
 

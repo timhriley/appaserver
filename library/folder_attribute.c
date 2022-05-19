@@ -792,3 +792,23 @@ LIST *folder_attribute_fetch_primary_key_list(
 	return folder_attribute_primary_key_list( list );
 }
 
+LIST *folder_attribute_name_list_attribute_list(
+			LIST *folder_name_list )
+{
+	LIST *list = list_new();
+
+	if ( !list_rewind( folder_name_list ) ) return (LIST *)0;
+
+	do {
+		list_set_list(
+			list,
+			folder_attribute_list(
+				list_get( folder_name_list ),
+				(LIST *)0 /* exclude_attribute_name_list */,
+				1 /* fetch_attribute */ ) );
+			
+	} while ( list_next( folder_name_list ) );
+
+	return list;
+}
+

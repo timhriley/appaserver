@@ -41,8 +41,8 @@ FORM_PROMPT_PROCESS_ATTRIBUTE *
 {
 	FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute;
 
-	if ( !attribute_name,
-	||   !datatype_name,
+	if ( !attribute_name
+	||   !datatype_name
 	||   !attribute_width )
 	{
 		fprintf(stderr,
@@ -101,7 +101,9 @@ FORM_PROMPT_PROCESS_ATTRIBUTE *
 
 	list_set_list(
 		form_prompt_process_attribute->element_list,
-		form_prompt_attribute_relational->element_list );
+		form_prompt_process_attribute->
+			form_prompt_attribute_relational->
+			element_list );
 
 	return form_prompt_process_attribute;
 }
@@ -174,18 +176,17 @@ FORM_PROMPT_PROCESS_DROP_DOWN *
 	form_prompt_process_drop_down->
 		drop_down_appaserver_element =
 			appaserver_element_new(
-				drop_down,
+				prompt_drop_down,
 				process_parameter_drop_down->drop_down_name );
 
 	form_prompt_process_drop_down->
 		drop_down_appaserver_element->
-		element_drop_down =
+		prompt_drop_down =
 			element_prompt_drop_down_new(
 				form_prompt_process_drop_down->
-					drop_down_appaserver_element->
+				drop_down_appaserver_element->
 					element_name,
-				form_prompt_process_drop_down->
-					process_parameter_drop_down->
+				process_parameter_drop_down->
 					delimited_list,
 				0 /* not no_initial_capital */,
 				0 /* not output_null_option */,
@@ -193,18 +194,14 @@ FORM_PROMPT_PROCESS_DROP_DOWN *
 				1 /* output_select_option */,
 				1 /* display_size */,
 				-1 /* appaserver_element_tab_order() */,
-				form_prompt_process_drop_down->
-					process_parameter_drop_down->
+				process_parameter_drop_down->
 					drop_down_multi_select,
 				post_change_javascript,
 				1 /* recall */ );
 
-	list_set_list(
+	list_set(
 		form_prompt_process_drop_down->element_list,
-		form_prompt_process_drop_down->
-			drop_down_appaserver_element->
-			element_drop_down->
-			element_list );
+		form_prompt_process_drop_down->drop_down_appaserver_element );
 
 	return form_prompt_process_drop_down;
 }
@@ -254,12 +251,12 @@ FORM_PROMPT_PROCESS_ELEMENT_LIST *
 		list_set(
 			form_prompt_process_element_list->element_list,
 			appaserver_element_new(
-					table_row, (char *)0 ) );
+				table_row, (char *)0 ) );
 
 		list_set(
 			form_prompt_process_element_list->element_list,
 			appaserver_element_new(
-				table_data (char *)0 ) );
+				table_data, (char *)0 ) );
 
 		if ( process_parameter->attribute )
 		{
@@ -270,9 +267,15 @@ FORM_PROMPT_PROCESS_ELEMENT_LIST *
 						process_parameter->
 							attribute->
 							attribute_name,
-						attribute->datatype_name,
-						attribute->attribute_width,
-						attribute->hint_message );
+						process_parameter->
+							attribute->
+							datatype_name,
+						process_parameter->
+							attribute->
+							width,
+						process_parameter->
+							attribute->
+							hint_message );
 
 			if ( !form_prompt_process_element_list->
 				form_prompt_process_attribute )
@@ -285,8 +288,8 @@ FORM_PROMPT_PROCESS_ELEMENT_LIST *
 				exit( 1 );
 			}
 
-			list_set_set(
-				element_list,
+			list_set_list(
+				form_prompt_process_element_list->element_list,
 				form_prompt_process_element_list->
 					form_prompt_process_attribute->
 					element_list );
@@ -296,8 +299,9 @@ FORM_PROMPT_PROCESS_ELEMENT_LIST *
 		{
 			form_prompt_process_element_list->
 				form_prompt_process_drop_down =
-					form_prompt_process_drop_down_new(
-						post_change_javascript,
+				    form_prompt_process_drop_down_new(
+					post_change_javascript,
+					process_parameter->
 						process_parameter_drop_down );
 
 			if ( !form_prompt_process_element_list->

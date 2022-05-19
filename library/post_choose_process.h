@@ -6,20 +6,16 @@
 #ifndef POST_CHOOSE_PROCESS_H
 #define POST_CHOOSE_PROCESS_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 #include "prompt_process.h"
 #include "session.h"
 
-/* Constants */
-/* --------- */
 #define POST_CHOOSE_PROCESS_EXECUTABLE	"post_choose_process"
 
 typedef struct
 {
-	boolean prompt_process_has_preprompt;
+	boolean process_parameter_has_drillthru;
 	char *prompt_process_output_system_string;
 } POST_CHOOSE_PROCESS;
 

@@ -18,6 +18,7 @@
 #include "security.h"
 #include "environ.h"
 #include "dictionary_separate.h"
+#include "process_parameter.h"
 #include "post_choose_process.h"
 
 POST_CHOOSE_PROCESS *post_choose_process_calloc( void )
@@ -67,9 +68,10 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 
 	post_choose_process = post_choose_process_calloc();
 
-	post_choose_process->prompt_process_has_preprompt =
-		prompt_process_has_preprompt(
-			process_or_set_name );
+	post_choose_process->process_parameter_has_drillthru =
+		process_parameter_has_drillthru(
+			session_process->process_name,
+			session_process->process_set_name );
 
 	post_choose_process->prompt_process_output_system_string =
 		/* ------------------- */
@@ -77,15 +79,15 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 		/* ------------------- */
 		prompt_process_output_system_string(
 			PROMPT_PROCESS_OUTPUT_EXECUTABLE,
-			application_name,
 			session_key,
 			login_name,
 			role_name,
 			process_or_set_name,
 			(char *)0 /* dictionary_separate_send_string() */,
-			post_choose_process->prompt_process_has_preprompt,
-			post_choose_process->prompt_process_has_preprompt
-				/* is_preprompt */ );
+			post_choose_process->process_parameter_has_drillthru,
+			post_choose_process->process_parameter_has_drillthru
+				/* is_drillthru */,
+			appaserver_error_filename( application_name ) );
 
 	return post_choose_process;
 }

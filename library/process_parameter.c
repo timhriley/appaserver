@@ -933,3 +933,150 @@ boolean process_parameter_drop_down_fetch_mto1(
 	return (boolean)dictionary_length( drillthru_dictionary );
 }
 
+LIST *process_parameter_folder_name_list(
+			char *process_name,
+			char *process_set_name,
+			boolean is_drillthru )
+{
+	LIST *process_parameter_list;
+	LIST *folder_name_list = {0};
+	PROCESS_PARAMETER *process_parameter;
+	char *system_string;
+
+	if ( !process_name && !process_set_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( process_name )
+	{
+		system_string =
+			process_parameter_system_string(
+				PROCESS_PARAMETER_SELECT,
+				PROCESS_PARAMETER_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				process_parameter_where(
+					process_name,
+					is_drillthru ) );
+	}
+	else
+	{
+		system_string =
+			process_parameter_set_system_string(
+				PROCESS_SET_PARAMETER_SELECT,
+				PROCESS_SET_PARAMETER_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				process_parameter_set_where(
+					process_set_name,
+					is_drillthru ) );
+	}
+
+	process_parameter_list =
+		process_parameter_system_list(
+			system_string,
+			(char *)0 /* login_name */,
+			(char *)0 /* role_name */,
+			(DICTIONARY *)0 /* drillthru_dictionary */ );
+
+	if ( !list_rewind( process_parameter_list ) ) return (LIST *)0;
+
+	do {
+		process_parameter =
+			list_get(
+				process_parameter_list );
+
+		if ( process_parameter->folder_name
+		&&   *process_parameter->folder_name )
+		{
+			if ( !folder_name_list )
+			{
+				folder_name_list = list_new();
+			}
+
+			list_set(
+				folder_name_list,
+				process_parameter->folder_name );
+		}
+
+	} while ( list_next( process_parameter_list ) );
+
+	return folder_name_list;
+}
+
+boolean process_parameter_date_boolean( LIST *process_parameter_list )
+{
+	PROCESS_PARAMETER *process_parameter;
+
+	if ( !list_rewind( process_parameter_list ) ) return 0;
+
+	do {
+		process_parameter =
+			list_get(
+				process_parameter_list );
+
+		if ( process_parameter->process_parameter_prompt
+		&&   process_parameter->process_parameter_prompt->date )
+		{
+			return 1;
+		}
+
+	} while ( list_next( process_parameter_list ) );
+
+	return 0;
+}
+
+boolean process_parameter_has_drillthru(
+			char *process_name,
+			char *process_set_name )
+{
+	char *system_string;
+
+	if ( !process_name && !process_set_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( process_name )
+	{
+		system_string =
+			process_parameter_system_string(
+				"count(1)" /* select */,
+				PROCESS_PARAMETER_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				process_parameter_where(
+					process_name,
+					1 /* is_drillthru */ ) );
+	}
+	else
+	{
+		system_string =
+			process_parameter_set_system_string(
+				"count(1)" /* select */,
+				PROCESS_SET_PARAMETER_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				process_parameter_set_where(
+					process_set_name,
+					1 /* is_drillthru */ ) );
+	}
+
+	return (boolean)atoi( string_pipe_fetch( system_string ) );
+}
+

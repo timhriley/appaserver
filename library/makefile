@@ -63,7 +63,7 @@ APPASERVER_LIBRARY=						\
 		form_prompt_attribute_relational.o		\
 		form_prompt_lookup.o				\
 		form_prompt_process.o				\
-		form_edit_table.o				\
+		form_table_edit.o				\
 		form_choose_isa.o				\
 		form_choose_role.o				\
 		form_drillthru.o				\
@@ -112,7 +112,8 @@ APPASERVER_LIBRARY=						\
 		mysqldump.o					\
 		prompt_lookup.o					\
 		prompt_insert.o					\
-		edit_table.o					\
+		prompt_process.o				\
+		table_edit.o					\
 		menu.o						\
 		choose_isa.o					\
 		choose_role.o					\
@@ -120,7 +121,7 @@ APPASERVER_LIBRARY=						\
 		post_choose_folder.o				\
 		post_choose_process.o				\
 		post_choose_role.o				\
-		post_edit_table.o				\
+		post_table_edit.o				\
 		post_prompt_insert.o				\
 		post_prompt_process.o				\
 		post_prompt_lookup.o
@@ -760,8 +761,8 @@ form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h
 form_prompt_process.o: form_prompt_process.c form_prompt_process.h
 	${CC} ${CFLAGS} -c form_prompt_process.c
 
-form_edit_table.o: form_edit_table.c form_edit_table.h element.o
-	${CC} ${CFLAGS} -c form_edit_table.c
+form_table_edit.o: form_table_edit.c form_table_edit.h element.o
+	${CC} ${CFLAGS} -c form_table_edit.c
 
 form_choose_isa.o: form_choose_isa.c form_choose_isa.h element.o
 	${CC} ${CFLAGS} -c form_choose_isa.c
@@ -973,8 +974,11 @@ prompt_lookup.o: prompt_lookup.c prompt_lookup.h
 prompt_insert.o: prompt_insert.c prompt_insert.h
 	${CC} ${CFLAGS} -c prompt_insert.c
 
-edit_table.o: edit_table.c edit_table.h
-	${CC} ${CFLAGS} -c edit_table.c
+prompt_process.o: prompt_process.c prompt_process.h
+	${CC} ${CFLAGS} -c prompt_process.c
+
+table_edit.o: table_edit.c table_edit.h
+	${CC} ${CFLAGS} -c table_edit.c
 
 frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 	${CC} ${CFLAGS} -c frameset_link_file.c
@@ -997,8 +1001,8 @@ post_choose_process.o: post_choose_process.c post_choose_process.h
 post_choose_role.o: post_choose_role.c post_choose_role.h
 	${CC} ${CFLAGS} -c post_choose_role.c
 
-post_edit_table.o: post_edit_table.c post_edit_table.h
-	${CC} ${CFLAGS} -c post_edit_table.c
+post_table_edit.o: post_table_edit.c post_table_edit.h
+	${CC} ${CFLAGS} -c post_table_edit.c
 
 post_prompt_insert.o: post_prompt_insert.c post_prompt_insert.h
 	${CC} ${CFLAGS} -c post_prompt_insert.c

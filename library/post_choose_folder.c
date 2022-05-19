@@ -26,7 +26,7 @@
 #include "prompt_insert.h"
 #include "table_insert.h"
 #include "prompt_lookup.h"
-#include "edit_table.h"
+#include "table_edit.h"
 #include "post_choose_folder.h"
 
 POST_CHOOSE_FOLDER *post_choose_folder_calloc( void )
@@ -233,7 +233,7 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			post_choose_folder->prompt_insert,
 			post_choose_folder->table_insert,
 			post_choose_folder->prompt_lookup,
-			post_choose_folder->edit_table,
+			post_choose_folder->table_edit,
 			application_name,
 			session_key,
 			login_name,
@@ -317,7 +317,7 @@ char *post_choose_folder_system_string(
 			boolean prompt_insert,
 			boolean table_insert,
 			boolean prompt_lookup,
-			boolean edit_table,
+			boolean table_edit,
 			char *application_name,
 			char *session_key,
 			char *login_name,
@@ -411,14 +411,14 @@ char *post_choose_folder_system_string(
 			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}
-	if ( edit_table )
+	if ( table_edit )
 	{
 		return
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		edit_table_output_system_string(
-			EDIT_TABLE_OUTPUT_EXECUTABLE,
+		table_edit_output_system_string(
+			TABLE_EDIT_OUTPUT_EXECUTABLE,
 			session_key,
 			login_name,
 			role_name,

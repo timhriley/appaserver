@@ -389,7 +389,8 @@ FORM_PROMPT_LOOKUP_ATTRIBUTE *form_prompt_lookup_attribute_new(
 			attribute_name,
 			datatype_name,
 			attribute_width,
-			hint_message );
+			hint_message,
+			(char *)0 /* post_change_javascript */ );
 
 	if ( !form_prompt_lookup_attribute->
 		form_prompt_attribute_relational )

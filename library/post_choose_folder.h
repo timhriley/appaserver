@@ -91,7 +91,7 @@ boolean post_choose_folder_prompt_lookup(
 			char *state,
 			boolean drillthru_participating );
 
-boolean post_choose_folder_edit_table(
+boolean post_choose_folder_table_edit(
 			char *folder_form_name,
 			char *state );
 
@@ -99,10 +99,10 @@ boolean post_choose_folder_edit_table(
 /* ------------------- */
 char *post_choose_folder_system_string(
 			boolean isa_drop_down,
-			boolean prompt_insert_form,
-			boolean table_insert_form,
-			boolean prompt_lookup_form,
-			boolean edit_table_form,
+			boolean prompt_insert,
+			boolean table_insert,
+			boolean prompt_lookup,
+			boolean table_edit,
 			char *application_name,
 			char *session_key,
 			char *login_name,

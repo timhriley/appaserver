@@ -27,9 +27,12 @@ typedef struct
 	LIST *folder_attribute_name_list_attribute_list;
 	LIST *folder_attribute_date_name_list;
 	DICTIONARY_SEPARATE_PROMPT_PROCESS *dictionary_separate_prompt_process;
-	LIST *prompt_process_list;
+	LIST *process_parameter_list;
+	char *post_change_javascript;
 	char *document_head_menu_setup_string;
 	char *document_head_calendar_setup_string;
+	char *title_string;
+	char *title_html;
 	DOCUMENT *document;
 	FORM_PROMPT_PROCESS *form_prompt_process;
 	char *document_form_html;
@@ -45,7 +48,7 @@ PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_new(
 			char *process_or_set_name,
 			PROCESS *process,
 			PROCESS_SET *process_set,
-			booleanhas_drillthru,
+			boolean has_drillthru,
 			POST_DICTIONARY *post_dictionary,
 			MENU *menu );
 
@@ -54,12 +57,24 @@ PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_new(
 PROMPT_PROCESS_NOT_DRILLTHRU *prompt_process_not_drillthru_calloc(
 			void );
 
-typdef struct
+/* Returns static memory */
+/* --------------------- */
+char *prompt_process_not_drillthru_title_string(
+			char *process_or_set_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *prompt_process_not_drillthru_title_html(
+			char *process_or_set_name );
+
+typedef struct
 {
 	LIST *process_parameter_list;
 	char *post_change_javascript;
 	char *document_head_menu_setup_string;
 	char *document_head_calendar_setup_string;
+	char *title_string;
+	char *title_html;
 	DOCUMENT *document;
 	FORM_PROMPT_PROCESS *form_prompt_process;
 	char *document_form_html;
@@ -78,10 +93,28 @@ PROMPT_PROCESS_IS_DRILLTHRU *
 			PROCESS_SET *process_set,
 			MENU *menu );
 
+/* Process */
+/* ------- */
+PROMPT_PROCESS_IS_DRILLTHRU *
+	prompt_process_is_drillthru_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *prompt_process_is_drillthru_title_string(
+			char *process_or_set_name );
+
+/* Returns static memory */
+/* --------------------- */
+char *prompt_process_is_drillthru_title_html(
+			char *process_or_set_name );
+
 typedef struct
 {
 	FOLDER_MENU *folder_menu;
 	MENU *menu;
+	char *process_name;
+	char *process_set_name;
 	PROCESS *process;
 	PROCESS_SET *process_set;
 	PROMPT_PROCESS_IS_DRILLTHRU *prompt_process_is_drillthru;
@@ -105,6 +138,7 @@ PROMPT_PROCESS *prompt_process_new(
 			boolean is_drillthru,
 			POST_DICTIONARY *post_dictionary,
 			boolean menu_horizontal_boolean,
+			char *data_directory,
 			char *document_root,
 			char *application_relative_source_directory );
 
@@ -114,10 +148,16 @@ PROMPT_PROCESS *prompt_process_calloc(
 			void );
 
 
+/* Returns either document_form_html */
+/* --------------------------------- */
+char *prompt_process_html(
+			PROMPT_PROCESS_IS_DRILLTHRU *
+				prompt_process_is_drillthru,
+			PROMPT_PROCESS_NOT_DRILLTHRU *
+				prompt_process_not_drillthru );
+
 /* Public */
 /* ------ */
-boolean prompt_process_has_drillthru(
-			char *process_or_set_name );
 
 /* Returns heap memory */
 /* ------------------- */
