@@ -39,7 +39,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			char *login_name,
 			char *role_name,
 			char *process_or_set_name,
-			boolean has_drillthru,
 			boolean is_drillthru,
 			POST_DICTIONARY *post_dictionary,
 			char *document_root,
@@ -50,6 +49,8 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 POST_PROMPT_PROCESS *post_prompt_process_calloc(
 			void );
 
+/* Returns heap memory */
+/* ------------------- */
 char *post_prompt_process_command_line(
 			char *process_command_line,
 			char *session_key,
@@ -69,6 +70,9 @@ char *post_prompt_process_name(
 
 /* Public */
 /* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
 char *post_prompt_process_action_string(
 			char *post_prompt_process_executable,
 			char *application_name,
@@ -76,7 +80,6 @@ char *post_prompt_process_action_string(
 			char *login_name,
 			char *role_name,
 			char *process_name,
-			boolean has_drillthru,
 			boolean is_drillthru );
 
 #endif

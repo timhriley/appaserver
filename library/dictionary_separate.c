@@ -1713,3 +1713,37 @@ DICTIONARY_SEPARATE_PROMPT_PROCESS *
 	return dictionary_separate_prompt_process;
 }
 
+DICTIONARY_SEPARATE_POST_TABLE_INSERT *
+	dictionary_separate_post_table_insert_calloc(
+			void )
+{
+	DICTIONARY_SEPARATE_POST_TABLE_INSERT *
+		dictionary_separate_post_table_insert;
+
+	if ( ! ( dictionary_separate_post_table_insert =
+		     calloc(
+			1,
+			sizeof( DICTIONARY_SEPARATE_POST_TABLE_INSERT ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return dictionary_separate_post_table_insert;
+}
+
+DICTIONARY_SEPARATE_POST_TABLE_INSERT *
+	dictionary_separate_post_table_insert_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_append_isa_list )
+{
+}
+

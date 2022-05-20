@@ -62,6 +62,7 @@ APPASERVER_LIBRARY=						\
 		form.o						\
 		form_prompt_attribute_relational.o		\
 		form_prompt_lookup.o				\
+		form_prompt_insert.o				\
 		form_prompt_process.o				\
 		form_table_edit.o				\
 		form_choose_isa.o				\
@@ -114,6 +115,7 @@ APPASERVER_LIBRARY=						\
 		prompt_insert.o					\
 		prompt_process.o				\
 		table_edit.o					\
+		table_insert.o					\
 		menu.o						\
 		choose_isa.o					\
 		choose_role.o					\
@@ -122,6 +124,7 @@ APPASERVER_LIBRARY=						\
 		post_choose_process.o				\
 		post_choose_role.o				\
 		post_table_edit.o				\
+		post_table_insert.o				\
 		post_prompt_insert.o				\
 		post_prompt_process.o				\
 		post_prompt_lookup.o
@@ -760,6 +763,10 @@ form_prompt_lookup.o: form_prompt_lookup.c form_prompt_lookup.h	\
 	element.o
 	${CC} ${CFLAGS} -c form_prompt_lookup.c
 
+form_prompt_insert.o: form_prompt_insert.c form_prompt_insert.h	\
+	element.o
+	${CC} ${CFLAGS} -c form_prompt_insert.c
+
 form_prompt_process.o:						\
 	form_prompt_process.c					\
 	form_prompt_process.h					\
@@ -987,6 +994,9 @@ prompt_process.o: prompt_process.c prompt_process.h
 
 table_edit.o: table_edit.c table_edit.h
 	${CC} ${CFLAGS} -c table_edit.c
+
+table_insert.o: table_insert.c table_insert.h
+	${CC} ${CFLAGS} -c table_insert.c
 
 frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 	${CC} ${CFLAGS} -c frameset_link_file.c

@@ -1441,12 +1441,12 @@ LIST *dictionary_key_list_index_data_list(
 
 DICTIONARY *dictionary_copy_dictionary( DICTIONARY *dictionary )
 {
-	return copy_dictionary( dictionary );
+	return dictionary_large_copy( dictionary );
 }
 
 DICTIONARY *dictionary_copy( DICTIONARY *dictionary )
 {
-	return copy_dictionary( dictionary );
+	return dictionary_large_copy( dictionary );
 }
 
 void dictionary_set_delimited_string(
@@ -1479,14 +1479,41 @@ void dictionary_set_delimited_string(
 	} while( list_next( key_list ) );
 }
 
-DICTIONARY *copy_dictionary(
-			DICTIONARY *dictionary )
+DICTIONARY *copy_dictionary( DICTIONARY *dictionary )
 {
 	return dictionary_large_copy( dictionary );
 }
 
-DICTIONARY *dictionary_large_copy(
-			DICTIONARY *dictionary )
+DICTIONARY *dictionary_append(
+			DICTIONARY *destination_dictionary,
+			DICTIONARY *source_dictionary )
+{
+	LIST *key_list;
+	char *key;
+
+	key_list = dictionary_key_list( source_dictionary );
+
+	if ( list_reset( key_list ) )
+	{
+		do {
+			key = list_get( key_list );
+
+			dictionary_set(
+				destination_dictionary,
+				strdup( key ),
+				strdup(
+					dictionary_get(
+						key,
+						source_dictionary ) ) );
+
+		} while( list_next( key_list ) );
+	}
+
+	list_free_container( key_list );
+	return destination_dictionary;
+}
+
+DICTIONARY *dictionary_large_copy( DICTIONARY *dictionary )
 {
 	DICTIONARY *destination;
 	LIST *key_list;
@@ -1501,7 +1528,7 @@ DICTIONARY *dictionary_large_copy(
 		do {
 			key = list_get( key_list );
 
-			dictionary_set_pointer(
+			dictionary_set(
 				destination,
 				strdup( key ),
 				strdup(

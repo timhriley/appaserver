@@ -6,15 +6,11 @@
 #ifndef DICTIONARY_SEPARATE_H
 #define DICTIONARY_SEPARATE_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 #include "folder_attribute.h"
 #include "dictionary.h"
 
-/* Constants */
-/* --------- */
 #define DICTIONARY_SEPARATE_SORT_PREFIX		"ssort_"
 #define DICTIONARY_SEPARATE_QUERY_PREFIX	"qquery_"
 #define DICTIONARY_SEPARATE_DRILLTHRU_PREFIX	"ddrillthru_"
@@ -31,9 +27,6 @@ typedef struct
 	FOLDER_ATTRIBUTE *folder_attribute;
 	char *security_sql_injection_escape;
 } DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE;
-
-/* DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE operations */
-/* --------------------------------------------------- */
 
 /* Usage */
 /* ----- */
@@ -52,9 +45,6 @@ typedef struct
 {
 	DICTIONARY *dictionary;
 } DICTIONARY_SEPARATE_DATE_CONVERT;
-
-/* DICTIONARY_SEPARATE_DATE_CONVERT operations */
-/* ------------------------------------------- */
 
 /* Usage */
 /* ----- */
@@ -94,9 +84,6 @@ typedef struct
 {
 	DICTIONARY *dictionary;
 } DICTIONARY_SEPARATE_TRIM_MULTI;
-
-/* DICTIONARY_SEPARATE_TRIM_MULTI operations */
-/* ----------------------------------------- */
 
 /* Usage */
 /* ----- */
@@ -166,10 +153,15 @@ typedef struct
 	DICTIONARY *original_post_dictionary;
 } DICTIONARY_SEPARATE;
 
-/* DICTIONARY_SEPARATE operations */
-/* ------------------------------ */
+/* Usage */
+/* ----- */
 
-/* Private */
+/* Always succeeds */
+/* --------------- */
+DICTIONARY_SEPARATE *dictionary_separate_string_new(
+			DICTIONARY *original_post_dictionary );
+
+/* Process */
 /* ------- */
 DICTIONARY_SEPARATE *dictionary_separate_calloc(
 			void );
@@ -238,14 +230,6 @@ DICTIONARY *dictionary_separate_send_dictionary(
 char *dictionary_separate_send_string(
 			DICTIONARY *replaced_send_dictionary );
 
-/* Usage */
-/* ----- */
-
-/* Always succeeds */
-/* --------------- */
-DICTIONARY_SEPARATE *dictionary_separate_string_new(
-			DICTIONARY *original_post_dictionary );
-
 typedef struct
 {
 	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
@@ -282,6 +266,40 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 /* ------- */
 DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 	dictionary_separate_post_prompt_insert_calloc(
+			void );
+
+typedef struct
+{
+	DICTIONARY_SEPARATE_TRIM_DOUBLE_BRACKET *trim_double_bracket;
+	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
+	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
+	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
+	DICTIONARY *drillthru_dictionary;
+	DICTIONARY *row_zero_dictionary;
+	DICTIONARY *multi_zero_dictionary;
+	DICTIONARY *ignore_dictionary;
+	DICTIONARY *non_prefixed_dictionary;
+	LIST *ignore_name_list;
+} DICTIONARY_SEPARATE_POST_TABLE_INSERT;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+DICTIONARY_SEPARATE_POST_TABLE_INSERT *
+	dictionary_separate_post_table_insert_new(
+			DICTIONARY *original_post_dictionary,
+			char *application_name,
+			char *login_name,
+			LIST *folder_attribute_name_list,
+			LIST *folder_attribute_date_name_list,
+			LIST *folder_attribute_append_isa_list );
+
+/* Process */
+/* ------- */
+DICTIONARY_SEPARATE_POST_TABLE_INSERT *
+	dictionary_separate_post_table_insert_calloc(
 			void );
 
 typedef struct

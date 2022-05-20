@@ -9,6 +9,7 @@
 #include <string.h>
 #include "boolean.h"
 #include "String.h"
+#include "timlib.h"
 #include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
@@ -32,14 +33,12 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			char *login_name,
 			char *role_name,
 			char *process_or_set_name,
-			boolean has_drillthru,
 			boolean is_drillthru,
 			POST_DICTIONARY *post_dictionary,
 			char *document_root,
 			char *application_relative_source_directory )
 {
-	POST_PROMPT_PROCESS *post_prompt_process =
-		post_prompt_process_calloc();
+	POST_PROMPT_PROCESS *post_prompt_process;
 
 	if ( !argc
 	||   !argv
@@ -59,6 +58,8 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	post_prompt_process = post_prompt_process_calloc();
 
 	post_prompt_process->session_process =
 		/* --------------------------------------------- */
@@ -105,17 +106,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			post_prompt_process->
 				folder_attribute_name_list_attribute_list );
 
-	if ( !post_prompt_process->session_process->process_name )
-	{
-		post_prompt_process->session_process->process_name =
-			post_prompt_process_name(
-				PROCESS_SET_PROCESS_LABEL,
-				process_set->prompt_display_text,
-				post_prompt_process->
-					dictionary_separate_prompt_process->
-					non_prefixed_dictionary );
-	}
-
 	if ( is_drillthru )
 	{
 		char *send_string;
@@ -158,47 +148,81 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 				0 /* not is_drillthru */,
 				appaserver_error_filename(
 					application_name ) );
+
+		return post_prompt_process;
 	}
-	else
+
+	if ( post_prompt_process->session_process->process_set_name )
 	{
-		post_prompt_process->
-		post_prompt_process->process =
-			process_fetch(
-				post_prompt_process->
-					session_process,
-					process_name,
-				document_root,
-				application_relative_source_directory,
-				1 /* check_executable_inside */ );
-
-		if ( !post_prompt_process->process )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: process_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		post_prompt_process->command_line =
-			post_prompt_process_command_line(
-				post_prompt_process->process->command_line,
-				session_key,
-				login_name,
-				role_name,
+		post_prompt_process->process_set =
+			process_set_fetch(
 				post_prompt_process->
 					session_process->
-					process_name,
+					process_set_name,
+				(char *)0 /* role_name */,
+				(char *)0 /* document_root */,
+				(char *)0 /* relative_source_directory */,
+				0 /* not fetch_process_set_member_..._list */ );
+
+		post_prompt_process->session_process->process_name =
+			post_prompt_process_name(
+				PROCESS_SET_PROCESS_LABEL,
+				post_prompt_process->
+					process_set->
+					prompt_display_text,
 				post_prompt_process->
 					dictionary_separate_prompt_process->
-					query_dictionary,
-				post_prompt_process->
-					dictionary_separate_prompt_process->
-					non_prefixed_dictionary,
-				appaserver_error_filename(
-					application_name ) );
+					non_prefixed_dictionary );
 	}
+
+	post_prompt_process->process =
+		process_fetch(
+			post_prompt_process->
+				session_process->
+				process_name,
+			document_root,
+			application_relative_source_directory,
+			1 /* check_executable_inside */ );
+
+	if ( !post_prompt_process->process )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: process_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !post_prompt_process->process->command_line )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: command_line is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	post_prompt_process->command_line =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		post_prompt_process_command_line(
+			post_prompt_process->process->command_line,
+			session_key,
+			login_name,
+			role_name,
+			post_prompt_process->
+				session_process->
+				process_name,
+			post_prompt_process->
+				dictionary_separate_prompt_process->
+				query_dictionary,
+			post_prompt_process->
+				dictionary_separate_prompt_process->
+				non_prefixed_dictionary,
+			appaserver_error_filename( application_name ) );
 
 	return post_prompt_process;
 }
@@ -231,38 +255,53 @@ char *post_prompt_process_command_line(
 			DICTIONARY *non_prefixed_dictionary,
 			char *appaserver_error_filename )
 {
-	char local_command_line[ STRING_16K ];
+	char command_line[ STRING_16K ];
 	char buffer[ STRING_8K ];
 	DICTIONARY *dictionary;
 
+	if ( !process_command_line
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !process_name
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	string_strcpy(
-		local_command_line,
 		command_line,
+		process_command_line,
 		STRING_16K );
 
 	search_replace_word(
-		local_command_line,
+		command_line,
 		"$session",
 		double_quotes_around(
 			buffer, 
 			session_key ) );
 
 	search_replace_word(
-		local_command_line,
+		command_line,
 		"$login_name",
 		double_quotes_around(
 			buffer, 
 			login_name ) );
 
 	search_replace_word(
-		local_command_line,
+		command_line,
 		"$role",
 		double_quotes_around(
 			buffer, 
 			role_name ) );
 
 	search_replace_word(
-		local_command_line,
+		command_line,
 		"$process",
 		double_quotes_around(
 			buffer, 
@@ -273,19 +312,18 @@ char *post_prompt_process_command_line(
 	dictionary_append( dictionary, non_prefixed_dictionary );
 
 	search_replace_word(
-		local_command_line,
+		command_line,
 		"$dictionary",
 		double_quotes_around(
 			buffer, 
-			dictionary_display_delimited(
-				dictionary, '&' ) 
+			dictionary_display_delimited( dictionary, '&' ) 
 			) );
 
-	sprintf(local_command_line + strlen( local_command_line ),
-		" 2>%s",
+	sprintf(command_line + strlen( command_line ),
+		" 2>>%s",
 		appaserver_error_filename );
 
-	return strdup( local_command_line );
+	return strdup( command_line );
 }
 
 char *post_prompt_process_name(
@@ -350,7 +388,6 @@ char *post_prompt_process_action_string(
 			char *login_name,
 			char *role_name,
 			char *process_name,
-			boolean has_drillthru,
 			boolean is_drillthru )
 {
 	char action_string[ 1024 ];
@@ -371,7 +408,7 @@ char *post_prompt_process_action_string(
 	}
 
 	sprintf(action_string,
-		"%s/%s?%s+%s+%s+%s+%s",
+		"%s/%s?%s+%s+%s+%s+%s+%c",
 		appaserver_library_http_prompt(
 			appaserver_parameter_cgi_directory(),
 			appaserver_library_server_address(),
@@ -384,7 +421,8 @@ char *post_prompt_process_action_string(
 		session_key,
 		login_name,
 		role_name,
-		process_name );
+		process_name,
+		(is_drillthru) ? 'y' : 'n' );
 
 	return strdup( action_string );
 }

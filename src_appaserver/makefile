@@ -156,7 +156,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/query.o						\
 		${LIB}/process.o					\
 		${LIB}/form.o						\
-		${LIB}/form_prompt_edit.o				\
+		${LIB}/form_prompt_lookup.o				\
 		${LIB}/form_table_edit.o				\
 		${LIB}/form_choose_isa.o				\
 		${LIB}/form_choose_role.o				\

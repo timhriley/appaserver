@@ -1,10 +1,10 @@
-/* $APPASERVER_HOME/library/post_prompt_insert.h			*/
-/* -------------------------------------------------------------------- */
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/post_table_insert.h			*/
+/* ------------------------------------------------------------ */
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
-#ifndef POST_PROMPT_INSERT_H
-#define POST_PROMPT_INSERT_H
+#ifndef POST_TABLE_INSERT_H
+#define POST_TABLE_INSERT_H
 
 #include "boolean.h"
 #include "list.h"
@@ -15,7 +15,7 @@
 #include "post_dictionary.h"
 #include "dictionary_separate.h"
 
-#define POST_PROMPT_INSERT_EXECUTABLE	"post_prompt_insert"
+#define POST_TABLE_INSERT_EXECUTABLE	"post_table_insert"
 
 typedef struct
 {
@@ -37,31 +37,23 @@ typedef struct
 	char *sql_error_message_list_string;
 	char *edit_table_output_system_string;
 	char *insert_table_output_system_string;
-} POST_PROMPT_INSERT;
+} POST_TABLE_INSERT; 
 
 /* Usage */
 /* ----- */
-POST_PROMPT_INSERT *post_prompt_insert_new(
+POST_TABLE_INSERT *post_table_insert_new(
 			int argc,
 			char **argv,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *folder_name );
+			char *folder_name,
+			char *target_frame );
 
 /* Process */
 /* ------- */
-POST_PROMPT_INSERT *post_prompt_insert_calloc(
+POST_TABLE_INSERT *post_table_insert_calloc(
 			void );
-
-boolean post_prompt_insert_lookup_boolean(
-			char *prompt_insert_lookup_name,
-			DICTIONARY *non_prefixed_dictionary );
-
-DICTIONARY *post_prompt_insert_query_dictionary(
-			DICTIONARY *row_zero_dictionary,
-			char *appaserver_relation_operator_prefix,
-			char *appaserver_equal );
 
 #endif

@@ -743,4 +743,8 @@ DICTIONARY *dictionary_single_row(
 			int row_number,
 			DICTIONARY *multi_row_dictionary );
 
+DICTIONARY *dictionary_append(
+			DICTIONARY *destination_dictionary,
+			DICTIONARY *source_dictionary );
+
 #endif

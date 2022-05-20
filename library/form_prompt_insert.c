@@ -26,6 +26,7 @@
 #include "javascript.h"
 #include "frameset.h"
 #include "button.h"
+#include "query.h"
 #include "appaserver.h"
 #include "prompt_insert.h"
 #include "post_prompt_insert.h"
@@ -295,7 +296,7 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 	form_prompt_insert_relation->element_list = list_new();
 
 	form_prompt_insert_relation->query_widget =
-		query_widget_new(
+		query_widget_fetch(
 			relation->one_folder->folder_name
 				/* widget_folder_name */,
 			login_name,
@@ -681,7 +682,7 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 		form_tag_html(
 			FORM_PROMPT_INSERT_NAME /* form_name */,
 			form_prompt_insert->action_string,
-			FRAMESET_EDIT_FRAME );
+			FRAMESET_TABLE_FRAME );
 
 	if ( ! ( form_prompt_insert->form_prompt_insert_element_list =
 			form_prompt_insert_element_list_new(
