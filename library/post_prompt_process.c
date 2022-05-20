@@ -109,30 +109,59 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 	{
 		post_prompt_process->session_process->process_name =
 			post_prompt_process_name(
-				post_prompt_process->
-					session_process->
-					process_name,
+				PROCESS_SET_PROCESS_LABEL,
+				process_set->prompt_display_text,
 				post_prompt_process->
 					dictionary_separate_prompt_process->
 					non_prefixed_dictionary );
 	}
 
-	if ( has_drillthru && is_drillthru )
+	if ( is_drillthru )
 	{
+		char *send_string;
+
+		send_string =
+		    dictionary_separate_send_string(
+			dictionary_separate_send_dictionary(
+				(DICTIONARY *)0 /* sort_dictionary */,
+				DICTIONARY_SEPARATE_SORT_PREFIX,
+				post_prompt_process->
+					dictionary_separate_prompt_process->
+					query_dictionary,
+				DICTIONARY_SEPARATE_QUERY_PREFIX,
+				post_prompt_process->
+					dictionary_separate_prompt_process->
+					drillthru_dictionary,
+				DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+				(DICTIONARY *)0 /* ignore_dictionary */,
+				DICTIONARY_SEPARATE_IGNORE_PREFIX,
+				(DICTIONARY *)0 /* no_display_dictionary */,
+				DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+				(DICTIONARY *)0 /* pair_one2m_dictionary */,
+				DICTIONARY_SEPARATE_PAIR_PREFIX,
+				post_prompt_process->
+					dictionary_separate_prompt_process->
+					non_prefixed_dictionary ) );
+
 		post_prompt_process->prompt_process_output_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			prompt_process_output_system_string(
 				PROMPT_PROCESS_OUTPUT_EXECUTABLE,
-				application_name,
 				session_key,
 				login_name,
 				role_name,
 				process_or_set_name,
-				dictionary_separate_send_string(),
+				send_string,
 		 		1 /* has_drillthru */,
-				0 /* not is_drillthru */ );
+				0 /* not is_drillthru */,
+				appaserver_error_filename(
+					application_name ) );
 	}
 	else
 	{
+		post_prompt_process->
 		post_prompt_process->process =
 			process_fetch(
 				post_prompt_process->
@@ -167,7 +196,7 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 				post_prompt_process->
 					dictionary_separate_prompt_process->
 					non_prefixed_dictionary,
-				application_error_directory(
+				appaserver_error_filename(
 					application_name ) );
 	}
 
@@ -200,7 +229,7 @@ char *post_prompt_process_command_line(
 			char *process_name,
 			DICTIONARY *query_dictionary,
 			DICTIONARY *non_prefixed_dictionary,
-			char *application_error_directory )
+			char *appaserver_error_filename )
 {
 	char local_command_line[ STRING_16K ];
 	char buffer[ STRING_8K ];
@@ -254,15 +283,63 @@ char *post_prompt_process_command_line(
 
 	sprintf(local_command_line + strlen( local_command_line ),
 		" 2>%s",
-		application_error_directory );
+		appaserver_error_filename );
 
 	return strdup( local_command_line );
 }
 
 char *post_prompt_process_name(
-			char *process_name,
+			char *process_set_process_label,
+			char *prompt_display_text,
 			DICTIONARY *non_prefixed_dictionary )
 {
+	char key[ 128 ];
+	char *data;
+
+	if ( !process_set_process_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(key,
+		"%s_0",
+		process_set_process_label );
+
+	if ( ( data =
+		dictionary_get(
+			key,
+			non_prefixed_dictionary ) ) )
+	{
+		return data;
+	}
+
+	if ( !prompt_display_text && !*prompt_display_text )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_display_text is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(key,
+		"%s_0",
+		prompt_display_text );
+
+	if ( ( data =
+		dictionary_get(
+			key,
+			non_prefixed_dictionary ) ) )
+	{
+		return data;
+	}
+
 	return (char *)0;
 }
 

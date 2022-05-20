@@ -293,7 +293,7 @@ PROCESS_SET *process_set_fetch(
 PROCESS_SET *process_set_parse(
 			char *input,
 			char *role_name,
-			char *document_root_directory,
+			char *document_root,
 			char *relative_source_directory,
 			boolean fetch_process_set_member_name_list )
 {
@@ -343,18 +343,20 @@ PROCESS_SET *process_set_parse(
 		process_set->javascript_filename = strdup( buffer );
 	}
 
-	if ( *process_set->javascript_filename )
+	if ( process_set->javascript_filename
+	&&   document_root
+	&&   relative_source_directory )
 	{
 		process_set->javascript =
 			javascript_new(
 				process_set->javascript_filename,
-				document_root_directory,
+				document_root,
 				relative_source_directory );
 
 		if ( !process_set->javascript )
 		{
 			fprintf(stderr,
-	"ERROR in %s/%s()/%d: javascript_new(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: javascript_new(%s) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
@@ -363,7 +365,8 @@ PROCESS_SET *process_set_parse(
 		}
 	}
 
-	if ( fetch_process_set_member_name_list )
+	if ( fetch_process_set_member_name_list
+	&&   role_name )
 	{
 		process_set->member_name_list =
 			process_set_member_name_list(

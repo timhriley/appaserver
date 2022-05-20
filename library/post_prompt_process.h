@@ -25,6 +25,7 @@ typedef struct
 	DICTIONARY_SEPARATE_PROMPT_PROCESS *dictionary_separate_prompt_process;
 	char *prompt_process_output_system_string;
 	PROCESS *process;
+	PROCESS_SET *process_set;
 	char *command_line;
 } POST_PROMPT_PROCESS;
 
@@ -62,7 +63,8 @@ char *post_prompt_process_command_line(
 /* Private */
 /* ------- */
 char *post_prompt_process_name(
-			char *process_name,
+			char *process_set_process_label,
+			char *prompt_display_text,
 			DICTIONARY *non_prefixed_dictionary );
 
 /* Public */
