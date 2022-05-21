@@ -274,11 +274,11 @@ typedef struct
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
 	DICTIONARY_SEPARATE_DATE_CONVERT *date_convert;
 	DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *sql_injection_escape;
-	DICTIONARY *drillthru_dictionary;
-	DICTIONARY *row_zero_dictionary;
-	DICTIONARY *multi_zero_dictionary;
 	DICTIONARY *ignore_dictionary;
+	DICTIONARY *pair_one2m_dictionary;
 	DICTIONARY *non_prefixed_dictionary;
+	DICTIONARY *row_zero_dictionary;
+	DICTIONARY *multi_row_dictionary;
 	LIST *ignore_name_list;
 } DICTIONARY_SEPARATE_POST_TABLE_INSERT;
 

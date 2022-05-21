@@ -1745,5 +1745,89 @@ DICTIONARY_SEPARATE_POST_TABLE_INSERT *
 			LIST *folder_attribute_date_name_list,
 			LIST *folder_attribute_append_isa_list )
 {
+	DICTIONARY_SEPARATE_POST_TABLE_INSERT *
+		dictionary_separate_post_table_insert =
+			dictionary_separate_post_table_insert_calloc();
+
+	if ( !dictionary_length( original_post_dictionary ) )
+	{
+		return dictionary_separate_post_table_insert;
+	}
+
+	dictionary_separate_post_table_insert->trim_double_bracket =
+		dictionary_separate_trim_double_bracket_new(
+			original_post_dictionary );
+
+	dictionary_separate_post_table_insert->parse_multi =
+		dictionary_separate_parse_multi_new(
+			dictionary_separate_post_table_insert->
+				trim_double_bracket->
+				dictionary,
+			SQL_DELIMITER );
+
+	dictionary_separate_post_table_insert->date_convert =
+		dictionary_separate_date_convert_new(
+			dictionary_separate_post_table_insert->
+				parse_multi->
+				dictionary,
+			application_name,
+			login_name,
+			folder_attribute_date_name_list,
+			(char *)0 /* from_prefix */,
+			(char *)0 /* to_prefix */ );
+
+	dictionary_separate_post_table_insert->sql_injection_escape =
+		dictionary_separate_sql_injection_escape_new(
+			dictionary_separate_post_table_insert->
+				date_convert->
+				dictionary,
+			folder_attribute_append_isa_list );
+
+	dictionary_separate_post_table_insert->ignore_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			dictionary_separate_post_table_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_table_insert->pair_one2m_dictionary =
+		dictionary_separate_remove_prefix(
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			dictionary_separate_post_table_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_table_insert->non_prefixed_dictionary =
+		dictionary_separate_non_prefixed(
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			dictionary_separate_post_table_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_table_insert->row_zero_dictionary =
+		dictionary_separate_row_zero(
+			folder_attribute_name_list,
+			dictionary_separate_post_table_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_table_insert->multi_row_dictionary =
+		dictionary_separate_multi_row(
+			folder_attribute_name_list,
+			dictionary_separate_post_table_insert->
+				sql_injection_escape->
+				dictionary );
+
+	dictionary_separate_post_table_insert->ignore_name_list =
+		dictionary_key_list(
+			dictionary_separate_post_table_insert->
+				ignore_dictionary );
+
+	return dictionary_separate_post_table_insert;
 }
 

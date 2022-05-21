@@ -687,18 +687,9 @@ appaserver_link.o: appaserver_link.c appaserver_link.h
 
 two_way_pipe_dvr.e: two_way_pipe_dvr.c two_way_pipe.o
 	${CC} ${CFLAGS} two_way_pipe_dvr.c 			\
-			piece.o 				\
-			date.o 					\
-			julian.o 				\
-			timlib.o 				\
-			list_usage.o 				\
-			date_convert.o 				\
-			dictionary.o 				\
-			hash_table.o 				\
-			column.o 				\
-			list.o 					\
-			two_way_pipe.o 				\
-			-o two_way_pipe_dvr.e
+		${STANDARD_LIBRARY}				\
+		two_way_pipe.o 					\
+		-o two_way_pipe_dvr.e
 
 permutation_dvr.e: permutation_dvr.c permutation.o
 	${CC} ${CFLAGS} permutation_dvr.c 			\
