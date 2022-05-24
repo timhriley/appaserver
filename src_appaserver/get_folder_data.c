@@ -158,6 +158,7 @@ int main( int argc, char **argv )
 
 		folder->folder_attribute_name_list =
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder->folder_attribute_list );
 
 		if ( !list_length( folder->folder_attribute_name_list ) )

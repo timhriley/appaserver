@@ -151,6 +151,7 @@ int main( int argc, char **argv )
 	edit_table_spool_file(
 		edit_table->spool_filename,
 		folder_attribute_name_list(
+			(char *)0 /* folder_name */,
 			edit_table->folder->folder_attribute_append_isa_list ),
 		edit_table->query_edit_table->row_dictionary_list,
 		SQL_DELIMITER );

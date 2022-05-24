@@ -749,6 +749,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 	name_list =
 		folder_attribute_name_list(
+			(char *)0 /* folder_name */,
 			folder_attribute_append_isa_list );
 
 	for(	update_row_list->row_number = 1;

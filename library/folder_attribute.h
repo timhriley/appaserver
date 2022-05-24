@@ -7,18 +7,11 @@
 #ifndef FOLDER_ATTRIBUTE_H
 #define FOLDER_ATTRIBUTE_H
 
-/* Includes */
-/* -------- */
 #include "list.h"
 #include "boolean.h"
 #include "relation.h"
 #include "attribute.h"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Constants */
-/* --------- */
 #define FOLDER_ATTRIBUTE_TABLE			"folder_attribute"
 #define SORT_ORDER_ATTRIBUTE_NAME		"sort_order"
 #define DISPLAY_ORDER_ATTRIBUTE_NAME		"display_order"
@@ -36,8 +29,6 @@
 				"insert_required_yn,"		\
 				"lookup_required_yn"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* Attributes */
@@ -59,9 +50,6 @@ typedef struct
 	/* ------- */
 	char *prompt;
 } FOLDER_ATTRIBUTE;
-
-/* FOLDER_ATTRIBUTE operations */
-/* --------------------------- */
 
 /* Usage */
 /* ----- */
@@ -125,7 +113,8 @@ LIST *folder_attribute_append_isa_list(
 			LIST *relation_mto1_isa_list );
 
 LIST *folder_attribute_name_list(
-			LIST *folder_attribute_list );
+			char *folder_name,
+			LIST *folder_attribute_append_isa_list );
 
 LIST *folder_attribute_prefixed_name_list(
 			LIST *folder_attribute_list );
@@ -178,10 +167,6 @@ char *folder_attribute_sort_attribute_name(
 /* ------------------- */
 char *folder_attribute_list_display(
 			LIST *folder_attribute_list );
-
-LIST *folder_attribute_append_isa_name_list(
-			char *folder_name,
-			LIST *folder_attribute_append_isa_list );
 
 LIST *folder_attribute_fetch_primary_key_list(
 			char *folder_name );

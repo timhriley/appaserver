@@ -83,6 +83,7 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 			application_name,
 			login_name,
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				post_prompt_insert->
 					folder->
 					folder_attribute_append_isa_list ),

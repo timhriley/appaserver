@@ -92,6 +92,7 @@ void attribute_list_folder( char *folder_name )
 	printf( "%s\n",
 		list_display_line(
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder_attribute_list(
 				   folder_name,
 				   (LIST *)0 /* exclude_attribute... */,
@@ -144,5 +145,6 @@ void attribute_list_with_null( char *folder_name )
 
 	attribute_name_list_sort(
 		folder_attribute_name_list(
+			(char *)0 /* folder_name */,
 			attribute_list ) );
 }

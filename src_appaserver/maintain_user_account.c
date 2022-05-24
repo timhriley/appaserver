@@ -350,6 +350,7 @@ int main( int argc, char **argv )
 	include_attribute_name_list =
 		list_subtract(
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder->folder_attribute_list ),
 			ignore_attribute_name_list );
 

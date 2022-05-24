@@ -226,6 +226,7 @@ FOLDER *folder_parse(	char *input,
 
 		folder->folder_attribute_name_list =
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder->folder_attribute_list );
 	}
 

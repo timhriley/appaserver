@@ -130,18 +130,21 @@ int main( int argc, char **argv )
 	query_statistic =
 		query_statistic_new(
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder_attribute_number_list(
 					query->
 						folder->
 						folder_attribute_list ) )
 				/* folder_attribute_number_name_list */,
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder_attribute_date_list(
 					query->
 						folder->
 						folder_attribute_list ) )
 				/* folder_attribute_date_name_list */,
 			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
 				folder_attribute_date_time_list(
 					query->
 						folder->

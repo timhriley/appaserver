@@ -658,6 +658,7 @@ ROW_SECURITY_ELEMENT_LIST_REGULAR *
 		/* Will succeed */
 		/* ------------ */
 		folder_attribute_name_list(
+			(char *)0 /* folder_name */,
 			folder_attribute_append_isa_list );
 
 	list_rewind( regular->attribute_name_list );
