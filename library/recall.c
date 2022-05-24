@@ -1,176 +1,617 @@
-/* $APPASERVER_HOME/library/remember.c					*/
-/* -------------------------------------------------------------------- */
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* $APPASERVER_HOME/library/recall.c				*/
+/* ------------------------------------------------------------ */
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "remember.h"
+#include "String.h"
+#include "element.h"
+#include "recall.h"
 
-void form_output_remember_keystrokes_button( char *control_string )
+RECALL *recall_calloc( void )
 {
-	printf(
-"<td><input type=\"button\" value=\"Recall\" onClick=\"%s\">\n",
-		control_string );
-}
+	RECALL *recall;
 
-char *form_get_remember_keystrokes_onload_control_string(
-			char *form_name,
-			LIST *non_multi_element_name_list,
-			LIST *multi_element_name_list,
-			char *post_change_javascript,
-			char *cookie_key_prefix,
-			char *cookie_key )
-{
-	char buffer[ 4096 ];
-	char *local_form_name;
-	char cookie_key_buffer[ 128 ];
-
-	form_build_cookie_key_buffer(
-		cookie_key_buffer,
-		cookie_key_prefix,
-		cookie_key );
-
-	local_form_name =
-		(form_name && *form_name) 
-			? form_name : "unknown";
-
-	sprintf( buffer,
-		 "keystrokes_onload(document.%s,'<%s>','%s','%c','%c');",
-		 local_form_name,
-		 cookie_key_buffer,
-		 list_display_delimited(
-				non_multi_element_name_list,
-				FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER ),
-		 FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
-		 ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
-
-	if ( multi_element_name_list && list_length( multi_element_name_list ) )
+	if ( ! ( recall = calloc( 1, sizeof( RECALL ) ) ) )
 	{
-		sprintf( buffer + strlen( buffer ),
-"keystrokes_multi_onload(document.%s,'<multi_%s>','%s','%c','%c','%c');",
-		 	local_form_name,
-		 	cookie_key_buffer,
-		 	list_display_delimited(
-				multi_element_name_list,
-				FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER ),
-		 	FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
-			ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
-		 	ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER );
-	}
-
-	if ( post_change_javascript
-	&&   *post_change_javascript )
-	{
-		sprintf( buffer + strlen( buffer ),
-			 "%s;",
-			 form_set_post_change_javascript_row_zero(
-				post_change_javascript ) );
-	}
-
-	return strdup( buffer );
-}
-
-/* Appends to form->submit_control_string */
-/* -------------------------------------- */
-void form_append_remember_keystrokes_submit_control_string(
-				char **onclick_keystrokes_save_string,
-				FORM *form,
-				LIST *non_multi_element_name_list,
-				LIST *multi_element_name_list,
-				char *cookie_key_prefix,
-				char *cookie_key )
-{
-	char buffer[ 4096 ];
-	char *form_name;
-	char cookie_key_buffer[ 128 ];
-
-	form_build_cookie_key_buffer(	cookie_key_buffer,
-					cookie_key_prefix,
-					cookie_key );
-
-	form_name = (form->form_name && *form->form_name) 
-				? form->form_name : "unknown";
-
-	sprintf( buffer,
-		 "keystrokes_save(document.%s,'<%s>','%s','%c','%c') && ",
-		 form_name,
-		 cookie_key_buffer,
-		 list_display_delimited(
-				non_multi_element_name_list,
-				FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER ),
-		 FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
-		 ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER );
-
-	if ( multi_element_name_list && list_length( multi_element_name_list ) )
-	{
-		sprintf( buffer + strlen( buffer ),
-"keystrokes_multi_save(document.%s,'<multi_%s>','%s','%c','%c','%c') && ",
-		 	form_name,
-		 	cookie_key_buffer,
-		 	list_display_delimited(
-				multi_element_name_list,
-				FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER ),
-		 	FORM_KEYSTROKES_ELEMENT_NAME_DELIMITER,
-		 	ELEMENT_MULTI_SELECT_MOVE_LEFT_RIGHT_INDEX_DELIMITER,
-		 	ELEMENT_MULTI_SELECT_REMEMBER_DELIMITER );
-	}
-
-	*onclick_keystrokes_save_string = strdup( buffer );
-
-	form_append_submit_control_string(
-		form->submit_control_string, buffer );
-
-}
-void form_build_cookie_key_buffer(	char *cookie_key_buffer,
-					char *cookie_key_prefix,
-					char *cookie_key )
-{
-	if ( cookie_key_prefix && cookie_key )
-	{
-		sprintf(	cookie_key_buffer,
-				"%s_%s",
-				cookie_key_prefix,
-				cookie_key );
-	}
-	else
-	if ( cookie_key )
-	{
-		strcpy( cookie_key_buffer, cookie_key );
-	}
-	else
-	if ( cookie_key_prefix )
-	{
-		strcpy( cookie_key_buffer, cookie_key_prefix );
-	}
-	else
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: empty parameters.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
-}
-void form_set_new_button_onclick_keystrokes_save_string(
-			LIST *element_list,
-			char *onclick_keystrokes_save_string )
-{
-	ELEMENT_APPASERVER *element;
 
-	if ( !list_rewind( element_list ) ) return;
+	return recall;
+}
+
+RECALL *recall_new(	char *folder_name,
+			char *state,
+			char *process_name,
+			char *form_name,
+			LIST *appaserver_element_list )
+{
+	RECALL *recall = recall_calloc();
+
+	recall->cookie_key =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		recall_cookie_key(
+			folder_name,
+			state,
+			process_name );
+
+	recall->cookie_multi_key =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		recall_cookie_multi_key(
+			folder_name,
+			state,
+			process_name );
+
+	recall->keystrokes_save_javascript =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		recall_keystrokes_save_javascript(
+			form_name,
+			recall->cookie_key,
+			appaserver_element_list,
+			RECALL_DELIMITER,
+			ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
+
+	recall->keystrokes_multi_save_javascript =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		recall_keystrokes_multi_save_javascript(
+			form_name,
+			recall->cookie_multi_key,
+			appaserver_element_list,
+			RECALL_DELIMITER,
+			ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
+
+	recall->keystrokes_load_javascript =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		recall_keystrokes_load_javascript(
+			form_name,
+			recall->cookie_key,
+			appaserver_element_list,
+			RECALL_DELIMITER,
+			ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
+
+	recall->keystrokes_multi_load_javascript =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		recall_keystrokes_multi_load_javascript(
+			form_name,
+			recall->cookie_multi_key,
+			appaserver_element_list,
+			RECALL_DELIMITER,
+			ELEMENT_MULTI_MOVE_LEFT_RIGHT_DELIMITER );
+
+	if ( recall->keystrokes_save_javascript
+	||   recall->keystrokes_multi_save_javascript )
+	{
+		recall->save_javascript =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			recall_save_javascript(
+				recall->keystrokes_save_javascript,
+				recall->keystrokes_multi_save_javascript );
+	}
+
+	if ( recall->keystrokes_load_javascript
+	||   recall->keystrokes_multi_load_javascript )
+	{
+		recall->load_javascript =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			recall_load_javascript(
+				recall->keystrokes_load_javascript,
+				recall->keystrokes_multi_load_javascript );
+	}
+
+	if ( recall->keystrokes_save_javascript )
+	{
+		free( recall->keystrokes_save_javascript );
+	}
+
+	if( recall->keystrokes_multi_save_javascript )
+	{
+		free( recall->keystrokes_multi_save_javascript );
+	}
+
+	if( recall->keystrokes_load_javascript )
+	{
+		free( recall->keystrokes_load_javascript );
+	}
+
+	if( recall->keystrokes_multi_load_javascript )
+	{
+		free( recall->keystrokes_multi_load_javascript );
+	}
+
+	return recall;
+}
+
+char *recall_cookie_key(
+			char *folder_name,
+			char *state,
+			char *process_name )
+{
+	static char cookie_key[ 128 ];
+
+	if ( folder_name && state )
+	{
+		sprintf(cookie_key,
+			"<%s_%s>",
+			folder_name,
+			state );
+	}
+	else
+	if ( process_name )
+	{
+		sprintf(cookie_key,
+			"<%s>",
+			process_name );
+	}
+	else
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return cookie_key;
+}
+
+char *recall_multi_cookie_key(
+			char *folder_name,
+			char *state,
+			char *process_name )
+{
+	static char multi_cookie_key[ 128 ];
+
+	if ( folder_name && state )
+	{
+		sprintf(multi_cookie_key,
+			"<multi_%s_%s>",
+			folder_name,
+			state );
+	}
+	else
+	if ( process_name )
+	{
+		sprintf(multi_cookie_key,
+			"<multi_%s>",
+			process_name );
+	}
+	else
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return multi_cookie_key;
+}
+
+char *recall_keystrokes_save_javascript(
+			char *form_name,
+			char *recall_cookie_key,
+			LIST *appaserver_element_list,
+			char recall_delimiter,
+			char element_multi_move_left_right_delimiter )
+{
+	char javascript[ STRING_64K ];
+	char *ptr = javascript;
+	APPASERVER_ELEMENT *appaserver_element;
+	register boolean first_time = 1;
+
+	if ( !form_name
+	||   !recall_cookie_key
+	||   !recall_delimiter
+	||   !element_multi_move_left_right_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		 "keystrokes_save(document.%s,'%s','",
+		 form_name,
+		 recall_cookie_key );
 
 	do {
-		element = list_get_pointer( element_list );
+		appaserver_element =
+			list_get(
+				appaserver_element_list );
 
-		if ( element->element_type == toggle_button
-		&&   timlib_strncmp(element->name,
-				    VERTICAL_NEW_BUTTON_ONE_PREFIX ) == 0 )
+		if ( !appaserver_element_recall_boolean( appaserver_element )
+		||    appaserver_element->element_type == multi_drop_down )
 		{
-			element->toggle_button->onclick_keystrokes_save_string =
-				onclick_keystrokes_save_string;
+			continue;
 		}
-	} while( list_next( element_list ) );
+
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			ptr += sprintf( ptr, "%c", recall_delimiter );
+		}
+
+		if ( !appaserver_element->element_name )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: for type = %d, element_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				appaserver_element->element_type );
+			exit( 1 );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			appaserver_element->element_name );
+
+	} while ( list_next( appaserver_element_list ) );
+
+	if ( first_time ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"','%c','%c'",
+		recall_delimiter,
+		element_multi_move_left_right_delimiter );
+
+	return strdup( javascript );
 }
+
+char *recall_keystrokes_multi_save_javascript(
+			char *form_name,
+			char *recall_cookie_multi_key,
+			LIST *appaserver_element_list,
+			char recall_delimiter,
+			char element_multi_move_left_right_delimiter )
+{
+	char javascript[ STRING_64K ];
+	char *ptr = javascript;
+	APPASERVER_ELEMENT *appaserver_element;
+	register boolean first_time = 1;
+
+	if ( !form_name
+	||   !recall_cookie_multi_key
+	||   !recall_delimiter
+	||   !element_multi_move_left_right_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		 "keystrokes_multi_save(document.%s,'%s','",
+		 form_name,
+		 recall_cookie_multi_key );
+
+	do {
+		appaserver_element =
+			list_get(
+				appaserver_element_list );
+
+		if ( !appaserver_element_recall_boolean( appaserver_element )
+		||    appaserver_element->element_type != multi_drop_down )
+		{
+			continue;
+		}
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			ptr += sprintf( ptr, "%c", recall_delimiter );
+		}
+
+		if ( !appaserver_element->element_name )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: for type = %d, element_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				appaserver_element->element_type );
+			exit( 1 );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			appaserver_element->element_name );
+
+	} while ( list_next( appaserver_element_list ) );
+
+	if ( first_time ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"','%c','%c'",
+		recall_delimiter,
+		element_multi_move_left_right_delimiter );
+
+	return strdup( javascript );
+}
+
+char *recall_keystrokes_load_javascript(
+			char *form_name,
+			char *recall_cookie_key,
+			LIST *appaserver_element_list,
+			char recall_delimiter,
+			char element_multi_move_left_right_delimiter )
+{
+	char javascript[ STRING_64K ];
+	char *ptr = javascript;
+	APPASERVER_ELEMENT *appaserver_element;
+	register boolean first_time = 1;
+
+	if ( !form_name
+	||   !recall_cookie_key
+	||   !recall_delimiter
+	||   !element_multi_move_left_right_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		 "keystrokes_onload(document.%s,'%s','",
+		 form_name,
+		 recall_cookie_key );
+
+	do {
+		appaserver_element =
+			list_get(
+				appaserver_element_list );
+
+		if ( !appaserver_element_recall_boolean( appaserver_element )
+		||    appaserver_element->element_type == multi_drop_down )
+		{
+			continue;
+		}
+
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			ptr += sprintf( ptr, "%c", recall_delimiter );
+		}
+
+		if ( !appaserver_element->element_name )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: for type = %d, element_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				appaserver_element->element_type );
+			exit( 1 );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			appaserver_element->element_name );
+
+	} while ( list_next( appaserver_element_list ) );
+
+	if ( first_time ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"','%c','%c'",
+		recall_delimiter,
+		element_multi_move_left_right_delimiter );
+
+	return strdup( javascript );
+}
+
+char *recall_keystrokes_multi_load_javascript(
+			char *form_name,
+			char *recall_cookie_multi_key,
+			LIST *appaserver_element_list,
+			char recall_delimiter,
+			char element_multi_move_left_right_delimiter )
+{
+	char javascript[ STRING_64K ];
+	char *ptr = javascript;
+	APPASERVER_ELEMENT *appaserver_element;
+	register boolean first_time = 1;
+
+	if ( !form_name
+	||   !recall_cookie_multi_key
+	||   !recall_delimiter
+	||   !element_multi_move_left_right_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( appaserver_element_list ) ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		 "keystrokes_multi_onload(document.%s,'%s','",
+		 form_name,
+		 recall_cookie_multi_key );
+
+	do {
+		appaserver_element =
+			list_get(
+				appaserver_element_list );
+
+		if ( !appaserver_element_recall_boolean( appaserver_element )
+		||    appaserver_element->element_type != multi_drop_down )
+		{
+			continue;
+		}
+
+		if ( first_time )
+		{
+			first_time = 0;
+		}
+		else
+		{
+			ptr += sprintf( ptr, "%c", recall_delimiter );
+		}
+
+		if ( !appaserver_element->element_name )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: for type = %d, element_name is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				appaserver_element->element_type );
+			exit( 1 );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			appaserver_element->element_name );
+
+	} while ( list_next( appaserver_element_list ) );
+
+	if ( first_time ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"','%c','%c','%c'",
+		recall_delimiter,
+		element_multi_move_left_right_delimiter,
+		recall_delimiter /* multi_select_remember_delimiter */ );
+
+	return strdup( javascript );
+}
+
+char *recall_save_javascript(
+			char *keystrokes_save_javascript,
+			char *keystrokes_multi_save_javascript )
+{
+	char javascript[ STRING_128K ];
+
+	*javascript = '\0';
+
+	if ( !keystrokes_save_javascript
+	&&   !keystrokes_multi_save_javascript )
+	{
+		return (char *)0;
+	}
+
+	if ( keystrokes_save_javascript )
+	{
+		strcpy( javascript, keystrokes_save_javascript );
+	}
+
+	if ( keystrokes_multi_save_javascript )
+	{
+		if ( !*javascript )
+		{
+			strcpy( javascript, keystrokes_multi_save_javascript );
+		}
+		else
+		{
+			sprintf(javascript + strlen( javascript ),
+				" && %s",
+				keystrokes_multi_save_javascript );
+		}
+	}
+
+	return strdup( javascript );
+}
+
+char *recall_load_javascript(
+			char *keystrokes_load_javascript,
+			char *keystrokes_multi_load_javascript )
+{
+	char javascript[ STRING_128K ];
+
+	*javascript = '\0';
+
+	if ( !keystrokes_load_javascript
+	&&   !keystrokes_multi_load_javascript )
+	{
+		return (char *)0;
+	}
+
+	if ( keystrokes_load_javascript )
+	{
+		strcpy( javascript, keystrokes_load_javascript );
+	}
+
+	if ( keystrokes_multi_load_javascript )
+	{
+		if ( !*javascript )
+		{
+			strcpy( javascript, keystrokes_multi_load_javascript );
+		}
+		else
+		{
+			sprintf(javascript + strlen( javascript ),
+				" && %s",
+				keystrokes_multi_load_javascript );
+		}
+	}
+
+	return strdup( javascript );
+}
+

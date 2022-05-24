@@ -6,8 +6,6 @@
 #ifndef TABLE_INSERT_H
 #define TABLE_INSERT_H
 
-/* Includes */
-/* -------- */
 #include "dictionary.h"
 #include "boolean.h"
 #include "list.h"
@@ -17,8 +15,6 @@
 #include "post_dictionary.h"
 #include "dictionary_separate.h"
 
-/* Constants */
-/* --------- */
 #define TABLE_INSERT_OUTPUT_EXECUTABLE	"output_table_insert"
 
 typedef struct

@@ -117,6 +117,7 @@ APPASERVER_LIBRARY=						\
 		table_edit.o					\
 		table_insert.o					\
 		menu.o						\
+		recall.o					\
 		choose_isa.o					\
 		choose_role.o					\
 		post_login.o					\
@@ -994,6 +995,9 @@ frameset_link_file.o: frameset_link_file.c frameset_link_file.h
 
 menu.o: menu.c menu.h
 	${CC} ${CFLAGS} -c menu.c
+
+recall.o: recall.c recall.h
+	${CC} ${CFLAGS} -c recall.c
 
 choose_isa.o: choose_isa.c choose_isa.h
 	${CC} ${CFLAGS} -c choose_isa.c
