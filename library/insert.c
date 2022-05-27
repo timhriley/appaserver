@@ -21,143 +21,130 @@ INSERT *insert_new(	char *application_name,
 			char *role_name,
 			char *folder_name,
 			LIST *primary_key_list,
-			LIST *folder_attribute_name_list,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
 			DICTIONARY *row_zero_dictionary,
-			DICTIONARY *dictionary_separate_multi_row,
+			DICTIONARY *multi_row_dictionary,
 			LIST *ignore_name_list,
 			char *process_name,
 			char *post_change_command_line )
 {
 	INSERT *insert = insert_calloc();
 
-	insert->insert_row_list = list_new();
-
-	insert->folder_table_name =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		folder_table_name(
+	insert->insert_row_list =
+		insert_row_list_new(
 			application_name,
-			folder_name );
+			session_key,
+			login_name,
+			role_name,
+			folder_name,
+			primary_key_list,
+			folder_attribute_append_isa_list,
+			relation_mto1_isa_list,
+			row_zero_dictionary,
+			multi_row_dictionary,
+			ignore_name_list,
+			process_name,
+			post_change_command_line,
+			appaserver_error_filename( application_name ) );
 
-	if ( !dictionary_separate_multi_row )
+	if ( !insert->insert_row_list )
 	{
-		insert->insert_row =
-			insert_row_new(
-				insert->folder_table_name,
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				primary_key_list,
-				folder_attribute_name_list,
-				row_zero_dictionary,
-				(DICTIONARY *)0 /* dictionary_separate_row */,
-				ignore_name_list,
-				process_name,
-				post_change_command_line );
-
-		if ( insert->insert_row )
-		{
-			list_set(
-				insert->insert_row_list,
-				insert->insert_row );
-		}
-	}
-	else
-	{
-		insert->dictionary_highest_row =
-			dictionary_highest_row(
-				dictionary_separate_multi_row );
-
-		if ( insert->dictionary_highest_row < 1 )
-		{
-			list_free( insert->insert_row_list );
-			free( insert );
-			return (INSERT *)0;
-		}
-
-		for (	insert->row_number = 1;
-			insert->row_number <= insert->dictionary_highest_row;
-			insert->row_number++ )
-		{
-			insert->dictionary_separate_row =
-				dictionary_separate_row(
-					folder_attribute_name_list,
-					dictionary_separate_multi_row,
-					insert->row_number );
-
-			if ( !dictionary_length(
-				insert->
-					dictionary_separate_row ) )
-			{
-				continue;
-			}
-
-			insert->insert_row =
-				insert_row_new(
-					insert->folder_table_name,
-					application_name,
-					session_key,
-					login_name,
-					role_name,
-					primary_key_list,
-					folder_attribute_name_list,
-					row_zero_dictionary,
-					insert->dictionary_separate_row,
-					ignore_name_list,
-					process_name,
-					post_change_command_line );
-
-			if ( insert->insert_row )
-			{
-				list_set(
-					insert->insert_row_list,
-					insert->insert_row );
-			}
-		}
-	}
-
-	if ( !list_length( insert->insert_row_list ) )
-	{
-		list_free( insert->insert_row_list );
 		free( insert );
-		insert = (INSERT *)0;
+		return (INSERT *)0;
 	}
+
+	insert->insert_sql_statement_list =
+		insert_sql_statement_list_new(
+			insert->insert_row_list );
 
 	return insert;
 }
 
-LIST *insert_row_sql_statement_list(
-			LIST *insert_row_list )
+LIST *insert_sql_statement_list_extract_list(
+			INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list )
 {
-	INSERT_ROW *insert_row;
+	INSERT_FOLDER_SQL_STATEMENT *insert_folder_sql_statement;
 	LIST *sql_statement_list;
 
-	if ( !list_rewind( insert_row_list ) ) return (LIST *)0;
+	if ( !insert_sql_statement_list
+	||   !list_rewind( insert_sql_statement_list->list ) )
+	{
+		return (LIST *)0;
+	}
 
 	sql_statement_list = list_new();
 
 	do {
-		insert_row = list_get( insert_row_list );
+		insert_folder_sql_statement =
+			list_get(
+				insert_sql_statement_list->
+					list );
 
-		if ( !insert_row->sql_statement )
+		if ( !list_rewind(
+			insert_folder_sql_statement->
+				sql_statement_list ) )
 		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: sql_statement is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
+			continue;
 		}
 
-		list_set(
-			sql_statement_list,
-			insert_row->sql_statement );
+		do {
+			list_set(
+				sql_statement_list,
+				list_get(
+					insert_folder_sql_statement->
+						sql_statement_list ) );
 
-	} while ( list_next( insert_row_list ) );
+		} while ( list_next(
+				insert_folder_sql_statement->
+					sql_statement_list ) );
+
+	} while ( list_next( insert_sql_statement_list->list ) );
 
 	return sql_statement_list;
+}
+
+LIST *insert_sql_statement_list_extract_command_line_list(
+			INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list )
+{
+	INSERT_FOLDER_SQL_STATEMENT *insert_folder_sql_statement;
+	LIST *command_line_list;
+
+	if ( !insert_sql_statement_list
+	||   !list_rewind( insert_sql_statement_list->list ) )
+	{
+		return (LIST *)0;
+	}
+
+	command_line_list = list_new();
+
+	do {
+		insert_folder_sql_statement =
+			list_get(
+				insert_sql_statement_list->
+					list );
+
+		if ( !list_rewind(
+			insert_folder_sql_statement->
+				command_line_list ) )
+		{
+			continue;
+		}
+
+		do {
+			list_set(
+				command_line_list,
+				list_get(
+					insert_folder_sql_statement->
+						command_line_list ) );
+
+		} while ( list_next(
+				insert_folder_sql_statement->
+					command_line_list ) );
+
+	} while ( list_next( insert_sql_statement_list->list ) );
+
+	return command_line_list;
 }
 
 LIST *insert_row_post_change_command_line_list(
@@ -610,38 +597,6 @@ INSERT_DATA *insert_data_extract(
 	return (INSERT_DATA *)0;
 }
 
-INSERT_DATA *insert_data_seek(
-			char *attribute_name,
-			LIST *insert_data_list )
-{
-	INSERT_DATA *insert_data;
-
-	if ( !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: attribute_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !list_rewind( insert_data_list ) ) return (INSERT_DATA *)0;
-
-	do {
-		insert_data = list_get( insert_data_list );
-
-		if ( strcmp(
-			insert_data->attribute_name,
-			attribute_name ) == 0 )
-		{
-			return insert_data;
-		}
-	} while ( list_next( insert_data_list ) );
-
-	return (INSERT_DATA *)0;
-} 
-
 LIST *insert_data_key_data_list(
 			LIST *primary_key_list,
 			LIST *insert_data_list )
@@ -677,14 +632,19 @@ LIST *insert_data_key_data_list(
 	return data_list;
 }
 
-char *insert_sql_execute( LIST *insert_row_list )
+char *insert_sql_statement_list_extract_list_execute(
+			LIST *insert_sql_statement_list_extract_list )
 {
 	char system_string[ 128 ];
 	FILE *output_pipe;
 	LIST *sql_statement_list;
 	char *temp_filename = timlib_temp_filename( "insert" /* key */ );
 
-	if ( !list_length( insert_row_list ) ) return (char *)0;
+	if ( !list_rewind(
+		insert_sql_statement_list_extract_list ) )
+	{
+		return (char *)0;
+	}
 
 	sprintf(system_string,
 		"sql 2>%s",
@@ -692,18 +652,14 @@ char *insert_sql_execute( LIST *insert_row_list )
 
 	output_pipe = popen( system_string, "w" );
 
-	sql_statement_list =
-		insert_row_sql_statement_list(
-			insert_row_list );
-
-	list_rewind( sql_statement_list );
-
 	do {
 		fprintf(output_pipe,
 			"%s\n",
-			(char *)list_get( sql_statement_list ) );
+			(char *)list_get(
+				insert_sql_statement_list_extract_list ) );
 
-	} while ( list_next( sql_statement_list ) );
+	} while ( list_next(
+			insert_sql_statement_list_extract_list ) );
 
 	pclose( output_pipe );
 
@@ -716,21 +672,26 @@ char *insert_sql_execute( LIST *insert_row_list )
 		"\n<br>" /* delimiter */ );
 }
 
-void insert_command_line_execute( LIST *insert_row_list )
+void insert_sql_statement_list_extract_command_line_list_execute(
+		LIST *insert_sql_statement_list_extract_command_line_list )
 {
-	LIST *command_line_list;
+	LIST *list = insert_sql_statement_list_extract_command_line_list;
 
-	if ( !list_length( insert_row_list ) ) return;
-
-	command_line_list =
-		insert_row_post_change_command_line_list(
-			insert_row_list );
-
-	if ( !list_rewind( command_line_list ) ) return;
+	if ( !list_rewind( list ) ) return;
 
 	do {
-		if ( system( (char *)list_get( command_line_list ) ) ){}
+		if ( system( (char *)list_get( list ) ) ){}
 
-	} while ( list_next( command_line_list ) );
+	} while ( list_next( list ) );
 }
+
+INSERT_FOLDER_SQL_STATEMENT *
+	insert_folder_sql_statement_new(
+			LIST *insert_folder_list );
+
+/* Process */
+/* ------- */
+INSERT_FOLDER_SQL_STATEMENT *
+	insert_folder_sql_statement_calloc(
+			void );
 
