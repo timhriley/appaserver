@@ -589,7 +589,7 @@ char *list_delimited_string(
 
 char *list_delimited( LIST *list, char delimiter )
 {
-	char buffer[ 65536 ];
+	char buffer[ STRING_64K ];
 	char *ptr = buffer;
 
 	if ( !list_rewind( list ) ) return "";

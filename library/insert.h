@@ -56,6 +56,7 @@ typedef struct
 	char *folder_table_name;
 	char *sql_statement;
 	LIST *insert_data_key_data_list;
+	char *primary_data_list_string;
 	char *command_line;
 } INSERT_FOLDER;
 
@@ -92,11 +93,16 @@ char *insert_folder_sql_statement(
 			LIST *insert_data_name_list,
 			LIST *insert_data_extract_list );
 
+/* Returns heap memory */
+/* ------------------- */
+char *insert_folder_primary_data_list_string(
+			LIST *insert_data_key_data_list,
+			char sql_delimiter );
+
 /* Returns heap memory or null */
 /* --------------------------- */
 char *insert_folder_command_line(
 			char *post_change_command_line,
-			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
@@ -105,7 +111,7 @@ char *insert_folder_command_line(
 			char *appaserver_error_filename,
 			char *appaserver_insert_state,
 			LIST *insert_data_list,
-			LIST *primary_data_list );
+			char *insert_folder_primary_data_list_string );
 
 typedef struct
 {
@@ -143,6 +149,24 @@ typedef struct
 	LIST *dictionary_name_list;
 	DICTIONARY *dictionary_separate_row;
 } INSERT_ROW_LIST;
+
+/* Usage */
+/* ----- */
+INSERT_ROW_LIST *insert_row_list_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *row_zero_dictionary,
+			DICTIONARY *multi_row_dictionary,
+			LIST *ignore_name_list,
+			char *process_name,
+			char *post_change_command_line,
+			char *appaserver_error_filename );
 
 /* Process */
 /* ------- */

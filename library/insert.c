@@ -995,13 +995,30 @@ INSERT_FOLDER *insert_folder_new(
 				primary_key_list,
 				insert_folder->insert_data_list );
 
+		if ( !list_length( insert_folder->insert_data_key_data_list ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: insert_data_key_data_list() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		insert_folder->primary_data_list_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			insert_folder_primary_data_list_string(
+				insert_folder->insert_data_key_data_list,
+				SQL_DELIMITER );
+
 		insert_folder->command_line =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			insert_folder_command_line(
 				post_change_command_line,
-				application_name,
 				session_key,
 				login_name,
 				role_name,
@@ -1009,7 +1026,7 @@ INSERT_FOLDER *insert_folder_new(
 				process_name,
 				APPASERVER_INSERT_STATE,
 				insert_folder->insert_data_list,
-				insert_folder->insert_data_key_data_list );
+				insert_folder->primary_data_list_string );
 	}
 
 	return insert_folder;
@@ -1079,9 +1096,21 @@ char *insert_folder_sql_statement(
 	return strdup( sql_statement );
 }
 
+char *insert_folder_primary_data_list_string(
+			LIST *insert_data_key_data_list,
+			char sql_delimiter )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	list_display_delimited(
+		insert_data_key_data_list,
+		sql_delimiter );
+}
+
 char *insert_folder_command_line(
 			char *post_change_command_line,
-			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
@@ -1090,7 +1119,125 @@ char *insert_folder_command_line(
 			char *appaserver_error_filename,
 			char *appaserver_insert_state,
 			LIST *insert_data_list,
-			LIST *primary_data_list )
+			char *insert_folder_primary_data_list_string )
+{
+	char command_line[ STRING_8K ];
+	char buffer[ 512 ];
+	INSERT_DATA *insert_data;
+
+	if ( !post_change_command_line
+	||   !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !process_name
+	||   !appaserver_insert_state
+	||   !list_length( insert_data_list )
+	||   !insert_folder_primary_data_list_string )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	string_strcpy(
+		command_line,
+		post_change_command_line,
+		1024 );
+
+	search_replace_word(
+		command_line,
+		"$session",
+		double_quotes_around(
+			buffer,
+			session_key ) );
+
+	search_replace_word(
+		command_line,
+		"$login",
+		double_quotes_around(
+			buffer,
+			login_name ) );
+
+	search_replace_word(
+		command_line,
+		"$role",
+		double_quotes_around(
+			buffer,
+			role_name ) );
+
+	search_replace_word(
+		command_line,
+		"$folder",
+		double_quotes_around(
+			buffer,
+			folder_name ) );
+
+	search_replace_word(
+		command_line,
+		"$process",
+		double_quotes_around(
+			buffer,
+			process_name ) );
+
+	search_replace_word(
+		command_line,
+		"$state",
+		double_quotes_around(
+			buffer,
+			appaserver_insert_state ) );
+
+	search_replace_word(
+		command_line,
+		"$primary_data_list",
+		double_quotes_around(
+			buffer,
+			insert_folder_primary_data_list_string ) );
+
+	list_rewind( insert_data_list );
+
+	do {
+		insert_data = list_get( insert_data_list );
+
+		search_replace_word(
+			command_line,
+			insert_data->attribute_name,
+			double_quotes_around(
+				buffer,
+				insert_data->data ) );
+
+	} while ( list_next( insert_data_list ) );
+
+	sprintf(command_line + strlen( command_line ),
+		" 2>>%s",
+		appaserver_error_filename );
+
+	return strdup( command_line );
+}
+
+INSERT_ROW_LIST *insert_row_list_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_append_isa_list,
+			LIST *relation_mto1_isa_list,
+			DICTIONARY *row_zero_dictionary,
+			DICTIONARY *multi_row_dictionary,
+			LIST *ignore_name_list,
+			char *process_name,
+			char *post_change_command_line,
+			char *appaserver_error_filename )
+{
+}
+
+INSERT_ROW_LIST *insert_row_list_calloc( void )
 {
 }
 
