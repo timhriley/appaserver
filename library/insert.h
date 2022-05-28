@@ -92,8 +92,8 @@ char *insert_folder_sql_statement(
 			LIST *insert_data_name_list,
 			LIST *insert_data_extract_list );
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *insert_folder_command_line(
 			char *post_change_command_line,
 			char *application_name,
@@ -189,18 +189,26 @@ INSERT_SQL_STATEMENT_LIST *
 /* Driver */
 /* ------ */
 
-/* Returns error_message_list_string */
-/* --------------------------------- */
+/* Returns error_message_list_string or null */
+/* ----------------------------------------- */
 char *insert_sql_statement_list_execute(
 			INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list );
 
 /* Process */
 /* ------- */
 LIST *insert_sql_statement_list_extract_list(
-			INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list );
-			
+		INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list );
+
 LIST *insert_sql_statement_list_extract_command_line_list(
-			INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list );
+		INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *insert_sql_statement_list_extract_list_execute(
+		LIST *insert_sql_statement_list_extract_list );
+
+void insert_sql_statement_list_extract_command_line_list_execute(
+		LIST *insert_sql_statement_list_extract_command_line_list );
 
 typedef struct
 {

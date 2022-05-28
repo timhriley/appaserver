@@ -494,8 +494,8 @@ int update_row_list_cell_count(
 /* Public */
 /* ------ */
 
-/* Returns char *sql_error_message_list_string or null */
-/* --------------------------------------------------- */
+/* Returns char *error_message_list_string or null */
+/* ----------------------------------------------- */
 char *update_row_list_execute(
 			UPDATE_ROW_LIST *update_row_list,
 			char *appaserver_error_filename );

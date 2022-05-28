@@ -1101,8 +1101,8 @@ char *update_row_list_execute(
 			UPDATE_ROW_LIST *update_row_list,
 			char *appaserver_error_filename )
 {
-	char sql_error_message_list_string[ STRING_64K ];
-	char *ptr = sql_error_message_list_string;
+	char error_message_list_string[ STRING_64K ];
+	char *ptr = error_message_list_string;
 	UPDATE_ROW *update_row;
 	char *message_string;
 	FILE *output_pipe;
@@ -1142,7 +1142,7 @@ char *update_row_list_execute(
 						update_root->
 						update_sql_statement ) ) )
 			{
-				if ( ptr != sql_error_message_list_string )
+				if ( ptr != error_message_list_string )
 				{
 					ptr += sprintf( ptr, "\n<br>" );
 				}
@@ -1179,10 +1179,10 @@ char *update_row_list_execute(
 
 	pclose( output_pipe );
 
-	if ( ptr == sql_error_message_list_string )
+	if ( ptr == error_message_list_string )
 		return (char *)0;
 	else
-		return strdup( sql_error_message_list_string );
+		return strdup( error_message_list_string );
 }
 
 char *update_command_line(

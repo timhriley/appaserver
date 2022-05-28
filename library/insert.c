@@ -197,29 +197,31 @@ INSERT_ROW *insert_row_calloc( void )
 }
 
 INSERT_ROW *insert_row_new(
-			char *folder_table_name,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
+			char *folder_name,
 			LIST *primary_key_list,
-			LIST *folder_attribute_name_list,
+			LIST *folder_attribute_append_isa_list,
 			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_row,
 			LIST *ignore_name_list,
 			char *process_name,
-			char *post_change_command_line )
+			char *post_change_command_line,
+			char *appaserver_error_filename )
 {
 	INSERT_ROW *insert_row;
-	INSERT_DATA *insert_data;
-	char *attribute_name;
+	INSERT_FOLDER *insert_folder;
+	RELATION *relation;
 
-	if ( !folder_table_name
+	if ( !application_name
 	||   !session_key
 	||   !login_name
 	||   !role_name
+	||   !folder_name
 	||   !list_length( primary_key_list )
-	||   !list_rewind( folder_attribute_name_list ) )
+	||   !list_length( folder_attribute_append_isa_list ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -236,73 +238,100 @@ INSERT_ROW *insert_row_new(
 	}
 
 	insert_row = insert_row_calloc();
-	insert_row->insert_data_list = list_new();
+	insert_row->insert_folder_list = list_new();
 
-	do {
-		attribute_name =
-			list_get(
-				folder_attribute_name_list );
+	insert_row->folder_attribute_name_list =
+		folder_attribute_name_list(
+			folder_name,
+			folder_attribute_append_isa_list );
 
-		if ( !list_string_exists(
-			attribute_name,
-			ignore_name_list ) )
-		{
-			if ( ( insert_data =
-				insert_data_extract(
-					row_zero_dictionary,
-					dictionary_separate_row,
-					attribute_name ) ) )
-			{
-				list_set(
-					insert_row->insert_data_list,
-					insert_data );
-			}
-		}
+	insert_folder =
+		insert_folder_new(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			folder_name,
+			primary_key_list,
+			insert_row->folder_attribute_name_list,
+			row_zero_dictionary,
+			dictionary_separate_row,
+			ignore_name_list,
+			process_name,
+			post_change_command_line,
+			appaserver_error_filename );
 
-	} while ( list_next( folder_attribute_name_list ) );
-
-	if ( !insert_row_primary_key_okay(
-		insert_data_name_list(
-			insert_row->insert_data_list ),
-		primary_key_list ) )
+	if ( !insert_folder )
 	{
-		list_free( insert_row->insert_data_list );
+		list_free( insert_row->insert_folder_list );
 		free( insert_row );
 		return (INSERT_ROW *)0;
 	}
 
-	insert_row->sql_statement =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		insert_row_sql_statement(
-			folder_table_name,
-			insert_data_name_list(
-				insert_row->insert_data_list ),
-			insert_data_extract_list(
-				insert_row->insert_data_list ) );
+	list_set( insert_row->insert_folder_list, insert_folder );
 
-
-	if ( process_name && *process_name )
+	if ( !list_rewind( relation_mto1_isa_list ) )
 	{
-		insert_row->command_line =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			insert_row_command_line(
-				post_change_command_line,
+		return insert_row;
+	}
+
+	do {
+		relation = list_get( relation_mto1_isa_list );
+
+		if ( !relation->one_folder )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: one_folder is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !list_length( relation->one_folder->primary_key_list ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: one_folder->primary_key_list is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		insert_row->folder_attribute_name_list =
+			folder_attribute_name_list(
+				relation->one_folder->folder_name,
+				folder_attribute_append_isa_list );
+
+		insert_folder =
+			insert_folder_new(
 				application_name,
 				session_key,
 				login_name,
 				role_name,
-				APPASERVER_INSERT_STATE,
-				process_name,
-				insert_data_key_data_list(
-					primary_key_list,
-					insert_row->insert_data_list )
-						/* primary_data_list */,
-				insert_row->insert_data_list );
-	}
+				relation->one_folder->folder_name,
+				relation->one_folder->primary_key_list,
+				insert_row->folder_attribute_name_list,
+				row_zero_dictionary,
+				dictionary_separate_row,
+				ignore_name_list,
+				relation->one_folder->process_name,
+				(relation->
+					one_folder->
+					process)
+						? relation->
+							one_folder->
+							process->
+							command_line
+						: (char *)0,
+				appaserver_error_filename );
+
+		if ( insert_folder )
+		{
+			list_set( insert_folder_list, insert_folder );
+		}
+
+	} while ( list_next( relation_mto1_isa_list ) );
 
 	return insert_row;
 }
@@ -409,7 +438,7 @@ char *insert_row_command_line(
 	return strdup( command_line );
 }
 
-boolean insert_row_primary_key_okay(
+boolean insert_folder_primary_key_okay(
 			LIST *insert_data_name_list,
 			LIST *primary_key_list )
 {
@@ -637,18 +666,18 @@ char *insert_sql_statement_list_extract_list_execute(
 {
 	char system_string[ 128 ];
 	FILE *output_pipe;
-	LIST *sql_statement_list;
-	char *temp_filename = timlib_temp_filename( "insert" /* key */ );
+	char *temp_filename;
+	char *return_string;
 
-	if ( !list_rewind(
-		insert_sql_statement_list_extract_list ) )
+	if ( !list_rewind( insert_sql_statement_list_extract_list ) )
 	{
 		return (char *)0;
 	}
 
 	sprintf(system_string,
 		"sql 2>%s",
-		temp_filename );
+		( temp_filename =
+			timlib_temp_filename( "insert" /* key */ ) ) );
 
 	output_pipe = popen( system_string, "w" );
 
@@ -663,13 +692,17 @@ char *insert_sql_statement_list_extract_list_execute(
 
 	pclose( output_pipe );
 
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	string_file_fetch(
-		temp_filename,
-		"\n<br>" /* delimiter */ );
+	return_string =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		string_file_fetch(
+			temp_filename,
+			"\n<br>" /* delimiter */ );
+
+	timlib_remove_file( temp_filename );
+
+	return return_string;
 }
 
 void insert_sql_statement_list_extract_command_line_list_execute(
@@ -685,13 +718,379 @@ void insert_sql_statement_list_extract_command_line_list_execute(
 	} while ( list_next( list ) );
 }
 
-INSERT_FOLDER_SQL_STATEMENT *
-	insert_folder_sql_statement_new(
-			LIST *insert_folder_list );
+INSERT_FOLDER_SQL_STATEMENT *insert_folder_sql_statement_new(
+			LIST *insert_folder_list )
+{
+	INSERT_FOLDER_SQL_STATEMENT *insert_folder_sql_statement;
 
-/* Process */
-/* ------- */
-INSERT_FOLDER_SQL_STATEMENT *
-	insert_folder_sql_statement_calloc(
-			void );
+	if ( !list_rewind( insert_folder_list ) )
+	{
+		return (INSERT_FOLDER_SQL_STATEMENT *)0;
+	}
+
+	insert_folder_sql_statement = insert_folder_sql_statement_calloc();
+
+	insert_folder_sql_statement->sql_statement_list = list_new();
+
+	do {
+		insert_folder =
+			list_get(
+				insert_folder_list );
+
+		if ( !insert_folder->sql_statement )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: sql_statement is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			insert_folder_sql_statement->sql_statement_list,
+			insert_folder->sql_statement );
+
+		if ( insert_folder->command_line )
+		{
+			if ( !insert_folder_sql_statement->command_line_list )
+			{
+				insert_folder_sql_statement->
+					command_line_list =
+						list_new();
+			}
+
+			list_set(
+				insert_folder_sql_statement->command_line_list,
+				insert_folder->command_line );
+		}
+
+	} while ( list_next( insert_folder_list ) );
+
+	return insert_folder_sql_statement;
+}
+
+INSERT_FOLDER_SQL_STATEMENT *insert_folder_sql_statement_calloc( void )
+{
+	INSERT_FOLDER_SQL_STATEMENT *insert_folder_sql_statement;
+
+	if ( ! ( insert_folder_sql_statement =
+			calloc(	1,
+				sizeof( INSERT_FOLDER_SQL_STATEMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return insert_folder_sql_statement;
+}
+
+INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list_new(
+			INSERT_ROW_LIST *insert_row_list )
+{
+	INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list;
+
+	if ( !insert_row_list
+	||   !list_rewind( insert_row_list->list ) )
+	{
+		return (INSERT_SQL_STATEMENT_LIST *)0;
+	}
+
+	insert_sql_statement_list = insert_sql_statement_list_calloc();
+
+	insert_sql_statement_list->list = list_new();
+
+	do {
+		insert_sql_statement_list->insert_row =
+			list_get(
+				insert_row_list->list );
+
+		if ( !list_length( insert_row->insert_folder_list ) )
+			continue;
+
+		list_set(
+			insert_sql_statement_list->list,
+			insert_folder_sql_statement_new(
+				insert_row->insert_folder_list ) );
+
+	} while ( list_next( insert_row_list->list ) );
+
+	return insert_sql_statement_list;
+}
+
+INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list_calloc( void )
+{
+	INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list;
+
+	if ( ! ( insert_sql_statement_list =
+			calloc(	1,
+				sizeof( INSERT_SQL_STATEMENT_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return insert_sql_statement_list;
+}
+
+char *insert_sql_statement_list_execute(
+			INSERT_SQL_STATEMENT_LIST *insert_sql_statement_list )
+{
+	char *error_message_list_string;
+	LIST *sql_statement_list;
+	LIST *command_line_list;
+
+	sql_statement_list =
+		insert_sql_statement_list_extract_list(
+			insert_sql_statement_list );
+
+	if ( !list_length( sql_statement_list ) ) return (char *)0;
+
+	error_message_list_string =
+		insert_sql_statement_list_extract_list_execute(
+			sql_statement_list );
+
+	command_line_list =
+		insert_sql_statement_list_extract_command_line_list(
+			insert_sql_statement_list );
+
+	if ( list_length( command_line_list ) )
+	{
+		insert_sql_statement_list_extract_command_line_list_execute(
+			command_line_list );
+	}
+
+	return error_message_list_string;
+}
+
+INSERT_FOLDER *insert_folder_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			LIST *primary_key_list,
+			LIST *folder_attribute_name_list,
+			DICTIONARY *row_zero_dictionary,
+			DICTIONARY *dictionary_separate_row,
+			LIST *ignore_name_list,
+			char *process_name,
+			char *post_change_command_line,
+			char *appaserver_error_filename )
+{
+	INSERT_FOLDER *insert_folder;
+	INSERT_DATA *insert_data;
+	char *attribute_name;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !list_length( primary_key_list )
+	||   !list_rewind( folder_attribute_name_list )
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !dictionary_length( row_zero_dictionary )
+	&&   !dictionary_length( dictionary_separate_row ) )
+	{
+		return (INSERT_FOLDER *)0;
+	}
+
+	insert_folder = insert_folder_calloc();
+	insert_folder->insert_data_list = list_new();
+
+	do {
+		attribute_name =
+			list_get(
+				folder_attribute_name_list );
+
+		if ( !list_string_exists(
+			attribute_name,
+			ignore_name_list ) )
+		{
+			if ( ( insert_data =
+				insert_data_extract(
+					row_zero_dictionary,
+					dictionary_separate_row,
+					attribute_name ) ) )
+			{
+				list_set(
+					insert_row->insert_data_list,
+					insert_data );
+			}
+		}
+
+	} while ( list_next( folder_attribute_name_list ) );
+
+	if ( !list_length( insert_folder->insert_data_list ) )
+	{
+		list_free( insert_folder->insert_data_list );
+		free( insert_folder );
+		return (INSERT_FOLDER *)0;
+	}
+
+	insert_folder->insert_data_name_list =
+		insert_data_name_list(
+			insert_folder->insert_data_list );
+
+	if ( !insert_folder_primary_key_okay(
+		insert_folder->insert_data_name_list,
+		primary_key_list ) )
+	{
+		list_free( insert_folder->insert_data_list );
+		free( insert_folder );
+		return (INSERT_FOLDER *)0;
+	}
+
+	insert_folder->insert_data_extract_list =
+		insert_data_extract_list(
+			insert_folder->insert_data_list );
+
+	insert_folder->folder_table_name =
+		folder_table_name(
+			application_name,
+			folder_name );
+
+	insert_folder->sql_statement =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		insert_folder_sql_statement(
+			folder_table_name,
+			insert_folder->insert_data_name_list,
+			insert_folder->insert_data_extract_list );
+
+
+	if ( process_name )
+	{
+		if ( !post_change_command_line )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: post_change_command_line is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		insert_folder->insert_data_key_data_list =
+			insert_data_key_data_list(
+				primary_key_list,
+				insert_folder->insert_data_list );
+
+		insert_folder->command_line =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			insert_folder_command_line(
+				post_change_command_line,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				process_name,
+				APPASERVER_INSERT_STATE,
+				insert_folder->insert_data_list,
+				insert_folder->insert_data_key_data_list );
+	}
+
+	return insert_folder;
+}
+
+INSERT_FOLDER *insert_folder_calloc( void )
+{
+	INSERT_FOLDER *insert_folder;
+
+	if ( ! ( insert_folder = calloc( 1, sizeof( INSERT_FOLDER ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return insert_folder;
+}
+
+char *insert_folder_sql_statement(
+			char *folder_table_name,
+			LIST *insert_data_name_list,
+			LIST *insert_data_extract_list )
+{
+	char sql_statement[ STRING_64K ];
+	char buffer[ 1024 ];
+
+	if ( !folder_table_name
+	||   !list_length( insert_data_name_list )
+	||   !list_length( insert_data_extract_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if (	list_length( insert_data_name_list ) !=
+		list_length( insert_data_extract_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: length=%d != length=%d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			list_length( insert_data_name_list ),
+			list_length( insert_data_extract_list ) );
+		exit( 1 );
+	}
+
+	sprintf(sql_statement,
+		"insert into %s (%s) values (%s)",
+		folder_table_name,
+		list_display_delimited(
+			insert_data_name_list,
+			',' ),
+		list_display_quoted_delimited(
+			buffer,
+			insert_data_extract_list,
+			',' ) );
+
+	return strdup( sql_statement );
+}
+
+char *insert_folder_command_line(
+			char *post_change_command_line,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *process_name,
+			char *appaserver_error_filename,
+			char *appaserver_insert_state,
+			LIST *insert_data_list,
+			LIST *primary_data_list )
+{
+}
 
