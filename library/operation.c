@@ -43,7 +43,7 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 			char *operation_name,
 			char *appaserver_data_directory,
 			pid_t parent_process_id,
-			int operation_row_total )
+			int operation_row_checked_count )
 {
 	OPERATION_SEMAPHORE *operation_semaphore;
 
@@ -77,7 +77,7 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 	if ( ( operation_semaphore->group_last_time =
 			operation_semaphore_group_last_time(
 				operation_semaphore->row_current,
-				operation_row_total ) ) )
+				operation_row_checked_count ) ) )
 	{
 		operation_semaphore_remove_file(
 			operation_semaphore->filename );
@@ -160,9 +160,9 @@ int operation_semaphore_row_current( char *filename )
 
 boolean operation_semaphore_group_last_time(
 			int row_current,
-			int operation_row_total )
+			int operation_row_checked_count )
 {
-	return ( row_current == operation_row_total );
+	return ( row_current == operation_row_checked_count );
 }
 
 void operation_semaphore_increment(
@@ -637,6 +637,10 @@ OPERATION_ROW *operation_row_new(
 
 	operation_row->checked_list = list_new();
 
+	operation_row->appaserver_error_filename =
+		appaserver_error_filename(
+			application_name );
+
 	do {
 		role_operation = list_get( role_operation_list );
 
@@ -655,7 +659,6 @@ OPERATION_ROW *operation_row_new(
 		list_set(
 			operation_row->checked_list,
 			operation_row_checked_new(
-				application_name,
 				session_key,
 				login_name,
 				role_name,
@@ -668,7 +671,9 @@ OPERATION_ROW *operation_row_new(
 				role_operation->
 					operation->
 					process->
-					command_line ) );
+					command_line,
+				operation_row->appaserver_error_filename ) );
+
 	} while ( list_next( role_operation_list ) );
 
 	if ( !list_length( operation_row->checked_list ) )
@@ -684,7 +689,6 @@ OPERATION_ROW *operation_row_new(
 }
 
 OPERATION_ROW_CHECKED *operation_row_checked_new(
-			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
@@ -694,16 +698,17 @@ OPERATION_ROW_CHECKED *operation_row_checked_new(
 			DICTIONARY *operation_dictionary,
 			DICTIONARY *dictionary_single_row,
 			char *operation_name,
-			char *command_line )
+			char *process_command_line,
+			char *appaserver_error_filename )
 {
 	OPERATION_ROW_CHECKED *operation_row_checked =
 		operation_row_checked_calloc();
 
 	operation_row_checked->count =
 		operation_row_checked_count(
-			dictionary_key_highest_index,
 			operation_dictionary,
-			operation_name );
+			operation_name,
+			dictionary_key_highest_index );
 
 	if ( !operation_row_checked->count )
 	{
@@ -734,14 +739,14 @@ OPERATION_ROW_CHECKED *operation_row_checked_new(
 
 	operation_row_checked->command_line =
 		operation_row_checked_command_line(
-			application_name,
 			session_key,
 			login_name,
 			role_name,
 			folder_name,
 			dictionary_single_row,
 			operation_name,
-			command_line,
+			process_command_line,
+			appaserver_error_filename,
 			operation_row_checked->count,
 			getpid() /* parent_process_id */,
 			operation_row_checked->primary_key_data_list );
@@ -768,9 +773,9 @@ OPERATION_ROW_CHECKED *operation_row_checked_calloc( void )
 }
 
 int operation_row_checked_count(
-			int highest_index,
 			DICTIONARY *operation_dictionary,
-			char *operation_name )
+			char *operation_name,
+			int highest_index )
 {
 	int checked_count = 0;
 	int row;
@@ -792,33 +797,103 @@ int operation_row_checked_count(
 }
  
 char *operation_row_checked_command_line(
-			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
 			DICTIONARY *dictionary_single_row,
 			char *operation_name,
-			char *command_line,
+			char *process_command_line,
+			char *appaserver_error_filename,
 			int operation_row_checked_count,
 			pid_t parent_process_id,
 			LIST *primary_key_data_list )
 {
-	/* Returns heap memory */
-	/* ------------------- */
-	return
-	process_operation_command_line(
-		application_name,
+	char command_line[ STRING_16K ];
+	char *tmp;
+
+	if ( !session_key
+	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !dictionary_length( dictionary_single_row )
+	||   !operation_name
+	||   !process_command_line
+	||   !operation_row_checked_count
+	||   !parent_process_id
+	||   !list_length( primary_key_data_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	string_strcpy(
+		command_line,
+		process_command_line,
+		STRING_16K );
+
+	process_replace_session_command_line(
+		command_line,
 		session_key,
+		PROCESS_SESSION_PLACEHOLDER );
+
+	process_replace_login_command_line(
+		command_line,
 		login_name,
+		PROCESS_LOGIN_PLACEHOLDER );
+
+	process_replace_role_command_line(
+		command_line,
 		role_name,
+		PROCESS_ROLE_PLACEHOLDER );
+
+	process_replace_folder_command_line(
+		command_line,
 		folder_name,
-		dictionary_single_row,
+		PROCESS_FOLDER_PLACEHOLDER );
+
+	process_replace_name_command_line(
+		command_line,
 		operation_name,
+		PROCESS_NAME_PLACEHOLDER );
+
+	process_replace_pid_command_line(
 		command_line,
 		parent_process_id,
+		PROCESS_PID_PLACEHOLDER );
+
+	process_replace_row_count_command_line(
+		command_line,
 		operation_row_checked_count,
-		primary_key_data_list );
+		PROCESS_ROW_COUNT_PLACEHOLDER );
+
+	process_replace_primary_command_line(
+		command_line,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		(tmp = list_display_delimited(
+			primary_key_data_list,
+			SQL_DELIMITER ) ),
+		PROCESS_PRIMARY_PLACEHOLDER );
+
+	free( tmp );
+
+	process_replace_dictionary_command_line(
+		command_line,
+		dictionary_single_row,
+		DICTIONARY_DELIMITER,
+		PROCESS_DICTIONARY_PLACEHOLDER );
+
+	sprintf(command_line + strlen( command_line ),
+		" 2>>%s",
+		appaserver_error_filename );
+
+	return strdup( command_line );
 }
 
 char *operation_row_checked_execute( char *command_line )

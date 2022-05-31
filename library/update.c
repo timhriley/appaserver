@@ -60,15 +60,17 @@ UPDATE_ROOT *update_root_calloc( void )
 }
 
 UPDATE *update_new(	char *application_name,
+			char *session_key,
 			char *login_name,
-			DICTIONARY *multi_row_dictionary,
-			DICTIONARY *file_dictionary,
 			ROLE *role,
-			FOLDER *folder )
+			FOLDER *folder,
+			DICTIONARY *multi_row_dictionary,
+			DICTIONARY *file_dictionary )
 {
 	UPDATE *update;
 
 	if ( !application_name
+	||   !session_key
 	||   !login_name
 	||   !role
 	||   !folder
@@ -106,16 +108,18 @@ UPDATE *update_new(	char *application_name,
 		/* -------------------------- */
 		update_row_list_new(
 			application_name,
+			session_key,
 			login_name,
+			role->role_name,
+			folder->folder_name,
+			appaserver_error_filename( application_name ),
 			multi_row_dictionary,
 			file_dictionary,
-			folder->folder_name,
 			folder->folder_attribute_append_isa_list,
 			folder->relation_one2m_recursive_list,
 			folder->relation_mto1_isa_list,
 			folder->post_change_process,
-			update->security_entity,
-			appaserver_error_filename( application_name ) );
+			update->security_entity );
 
 	if ( !update->update_row_list )
 	{
@@ -150,12 +154,14 @@ UPDATE_ROW *update_row_calloc( void )
 
 UPDATE_ROOT *update_root_new(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
 			char *folder_name,
+			char *appaserver_error_filename,
 			LIST *folder_attribute_append_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
-			char *appaserver_error_filename,
 			LIST *update_attribute_list )
 {
 	UPDATE_ROOT *update_root;
@@ -181,16 +187,15 @@ UPDATE_ROOT *update_root_new(
 
 	update_root = update_root_calloc();
 
-	update_root->folder_attribute_append_isa_name_list =
-		folder_attribute_append_isa_name_list(
+	update_root->folder_attribute_name_list =
+		folder_attribute_name_list(
 			folder_name,
 			folder_attribute_append_isa_list );
 
-	if ( !list_length( update_root->
-				folder_attribute_append_isa_name_list ) )
+	if ( !list_length( update_root->folder_attribute_name_list ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: folder_attribute_append_isa_name_list(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: folder_attribute_name_list(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -200,7 +205,7 @@ UPDATE_ROOT *update_root_new(
 
 	update_root->update_changed_list =
 		update_changed_list(
-			update_root->folder_attribute_append_isa_name_list,
+			update_root->folder_attribute_name_list,
 			update_attribute_list );
 
 	if ( !list_length( update_root->update_changed_list ) )
@@ -276,21 +281,24 @@ UPDATE_ROOT *update_root_new(
 		update_root->update_command_line =
 			update_command_line(
 				post_change_process->command_line,
+				session_key,
 				login_name,
+				role_name,
+				folder_name,
+				post_change_process->process_name,
 				appaserver_error_filename,
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
 				( tmp =
 					update_where_primary_data_list_string(
-						update_root->
-							update_where_list,
+						update_root->update_where_list,
 						SQL_DELIMITER ) ),
 				update_root->update_attribute_list,
 				APPASERVER_UPDATE_STATE,
 				UPDATE_PREUPDATE_PREFIX );
 
-		if ( tmp ) free( tmp );
+		free( tmp );
 	}
 
 	return update_root;
@@ -298,16 +306,18 @@ UPDATE_ROOT *update_root_new(
 
 UPDATE_ROW *update_row_new(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *appaserver_error_filename,
 			DICTIONARY *dictionary_separate_row,
 			DICTIONARY *file_dictionary,
-			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_one2m_recursive_list,
 			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
 			SECURITY_ENTITY *security_entity,
-			char *appaserver_error_filename,
 			int row_number )
 {
 	UPDATE_ROW *update_row = update_row_calloc();
@@ -330,12 +340,14 @@ UPDATE_ROW *update_row_new(
 	update_row->update_root =
 		update_root_new(
 			application_name,
+			session_key,
 			login_name,
+			role_name,
 			folder_name,
+			appaserver_error_filename,
 			folder_attribute_append_isa_list,
 			post_change_process,
 			security_entity,
-			appaserver_error_filename,
 			update_row->update_attribute_list );
 
 	if ( update_row->update_root
@@ -345,7 +357,9 @@ UPDATE_ROW *update_row_new(
 		update_row->update_one2m_list =
 			update_one2m_list(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
 				appaserver_error_filename,
 				update_row->update_root->update_changed_list,
 				update_row->update_root->update_where_list,
@@ -357,7 +371,9 @@ UPDATE_ROW *update_row_new(
 		update_row->update_mto1_isa_list =
 			update_mto1_isa_list(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
 				appaserver_error_filename,
 				update_row->update_attribute_list,
 				(update_row->update_root)
@@ -547,7 +563,9 @@ UPDATE_ONE2M *update_one2m_calloc( void )
 
 UPDATE_MTO1_ISA *update_mto1_isa_new(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
 			char *appaserver_error_filename,
 			LIST *update_attribute_list,
 			boolean update_changed_primary_key,
@@ -558,7 +576,9 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 	char *tmp2;
 
 	if ( !application_name
+	||   !session_key
 	||   !login_name
+	||   !role_name
 	||   !appaserver_error_filename
 	||   !list_length( update_attribute_list )
 	||   !relation_mto1_isa
@@ -649,7 +669,16 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 					one_folder->
 					post_change_process->
 					command_line,
+				session_key,
 				login_name,
+				role_name,
+				relation_mto1_isa->
+					one_folder->
+					folder_name,
+				relation_mto1_isa->
+					one_folder->
+					post_change_process->
+					process_name,
 				appaserver_error_filename,
 				( tmp1 =
 					/* ------------------- */
@@ -663,7 +692,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 				APPASERVER_UPDATE_STATE,
 				UPDATE_PREUPDATE_PREFIX );
 
-		if ( tmp1 ) free( tmp1 );
+		free( tmp1 );
 	}
 
 	if ( update_changed_primary_key )
@@ -691,7 +720,9 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 		update_mto1_isa->update_one2m_list =
 			update_one2m_list(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
 				appaserver_error_filename,
 				update_mto1_isa->update_changed_list,
 				update_mto1_isa->update_where_list,
@@ -723,19 +754,20 @@ UPDATE_ROW_LIST *update_row_list_calloc( void )
 
 UPDATE_ROW_LIST *update_row_list_new(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *appaserver_error_filename,
 			DICTIONARY *multi_row_dictionary,
 			DICTIONARY *file_dictionary,
-			char *folder_name,
 			LIST *folder_attribute_append_isa_list,
 			LIST *relation_one2m_recursive_list,
 			LIST *relation_mto1_isa_list,
 			PROCESS *post_change_process,
-			SECURITY_ENTITY *security_entity,
-			char *appaserver_error_filename )
+			SECURITY_ENTITY *security_entity )
 {
 	UPDATE_ROW_LIST *update_row_list = update_row_list_calloc();
-	LIST *name_list;
 
 	if ( ( update_row_list->dictionary_highest_row =
 		dictionary_highest_row(
@@ -747,7 +779,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 	update_row_list->list = list_new();
 
-	name_list =
+	update_row_list->dictionary_name_list =
 		folder_attribute_name_list(
 			(char *)0 /* folder_name */,
 			folder_attribute_append_isa_list );
@@ -759,7 +791,7 @@ UPDATE_ROW_LIST *update_row_list_new(
 	{
 		update_row_list->dictionary_separate_row =
 			dictionary_separate_row(
-				name_list,
+				update_row_list->dictionary_name_list,
 				multi_row_dictionary,
 				update_row_list->row_number );
 
@@ -767,16 +799,18 @@ UPDATE_ROW_LIST *update_row_list_new(
 			update_row_list->list,
 			update_row_new(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
+				folder_name,
+				appaserver_error_filename,
 				update_row_list->dictionary_separate_row,
 				file_dictionary,
-				folder_name,
 				folder_attribute_append_isa_list,
 				relation_one2m_recursive_list,
 				relation_mto1_isa_list,
 				post_change_process,
 				security_entity,
-				appaserver_error_filename,
 				update_row_list->row_number ) );
 	}
 
@@ -792,13 +826,31 @@ UPDATE_ROW_LIST *update_row_list_new(
 
 LIST *update_mto1_isa_list(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
 			char *appaserver_error_filename,
 			LIST *update_attribute_list,
 			boolean update_changed_primary_key,
 			LIST *relation_mto1_isa_list )
 {
 	LIST *list;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !appaserver_error_filename
+	||   !list_length( update_attribute_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	if ( !list_rewind( relation_mto1_isa_list ) ) return (LIST *)0;
 
@@ -809,7 +861,9 @@ LIST *update_mto1_isa_list(
 			list,
 			update_mto1_isa_new(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
 				appaserver_error_filename,
 				update_attribute_list,
 				update_changed_primary_key,
@@ -822,7 +876,9 @@ LIST *update_mto1_isa_list(
 
 LIST *update_one2m_list(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
 			char *appaserver_error_filename,
 			LIST *update_changed_list,
 			LIST *update_where_list,
@@ -840,7 +896,9 @@ LIST *update_one2m_list(
 			one2m_list,
 			update_one2m_new(
 				application_name,
+				session_key,
 				login_name,
+				role_name,
 				appaserver_error_filename,
 				update_changed_list,
 				update_where_list,
@@ -854,7 +912,9 @@ LIST *update_one2m_list(
 
 UPDATE_ONE2M *update_one2m_new(
 			char *application_name,
+			char *session_key,
 			char *login_name,
+			char *role_name,
 			char *appaserver_error_filename,
 			LIST *update_changed_list,
 			LIST *update_where_list,
@@ -864,7 +924,9 @@ UPDATE_ONE2M *update_one2m_new(
 	char *tmp;
 
 	if ( !application_name
+	||   !session_key
 	||   !login_name
+	||   !role_name
 	||   !appaserver_error_filename
 	||   !list_length( update_changed_list )
 	||   !list_length( update_where_list )
@@ -978,7 +1040,15 @@ UPDATE_ONE2M *update_one2m_new(
 					many_folder->
 					post_change_process->
 					command_line,
+				session_key,
 				login_name,
+				role_name,
+				relation_one2m->
+					many_folder->
+					folder_name,
+				relation_one2m->
+					many_folder->
+					post_change_process_name,
 				appaserver_error_filename,
 				update_one2m->update_one2m_row_list );
 	}
@@ -1186,27 +1256,35 @@ char *update_row_list_execute(
 }
 
 char *update_command_line(
-			char *command_line,
+			char *post_change_process_command_line,
+			char *session_key,
 			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *process_name,
 			char *appaserver_error_filename,
 			char *update_where_primary_data_list_string,
 			LIST *update_attribute_list,
 			char *appaserver_update_state,
 			char *update_preupdate_prefix )
 {
-	char line[ STRING_8K ];
-	char buffer[ 1024 ];
+	char command_line[ STRING_8K ];
+	char buffer[ STRING_8K ];
 	char preupdate_attribute_name[ 128 ];
 	UPDATE_ATTRIBUTE *update_attribute;
 	char *data;
 
-	if ( !command_line
+	if ( !post_change_process_command_line
+	||   !session_key
 	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !process_name
+	||   !appaserver_error_filename
 	||   !update_where_primary_data_list_string
 	||   !list_rewind( update_attribute_list )
 	||   !appaserver_update_state
-	||   !update_preupdate_prefix
-	||   !appaserver_error_filename )
+	||   !update_preupdate_prefix )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1216,28 +1294,45 @@ char *update_command_line(
 		exit( 1 );
 	}
 
-	string_strcpy( line, command_line, STRING_16K );
+	string_strcpy(
+		command_line,
+		post_change_process_command_line,
+		STRING_8K );
 
-	string_search_replace(
-		line,
-		"$login_name",
-		double_quotes_around(
-			buffer,
-			login_name ) );
+	process_replace_session_command_line(
+		command_line,
+		session_key,
+		PROCESS_SESSION_PLACEHOLDER );
 
-	string_search_replace(
-		line,
-		"$state",
-		double_quotes_around(
-			buffer,
-			appaserver_update_state ) );
+	process_replace_login_command_line(
+		command_line,
+		login_name,
+		PROCESS_LOGIN_PLACEHOLDER );
 
-	string_search_replace(
-		line,
-		"$primary_data_list",
-		double_quotes_around(
-			buffer,
-			update_where_primary_data_list_string ) );
+	process_replace_role_command_line(
+		command_line,
+		role_name,
+		PROCESS_ROLE_PLACEHOLDER );
+
+	process_replace_folder_command_line(
+		command_line,
+		folder_name,
+		PROCESS_FOLDER_PLACEHOLDER );
+
+	process_replace_name_command_line(
+		command_line,
+		process_name,
+		PROCESS_NAME_PLACEHOLDER );
+
+	process_replace_state_command_line(
+		command_line,
+		appaserver_update_state,
+		PROCESS_STATE_PLACEHOLDER );
+
+	process_replace_primary_command_line(
+		command_line,
+		update_where_primary_data_list_string,
+		PROCESS_PRIMARY_PLACEHOLDER );
 
 	do {
 		update_attribute =
@@ -1282,7 +1377,7 @@ char *update_command_line(
 		}
 
 		string_search_replace(
-			line,
+			command_line,
 			update_attribute->folder_attribute->attribute_name,
 			double_quotes_around(
 				buffer,
@@ -1294,7 +1389,7 @@ char *update_command_line(
 			update_attribute->folder_attribute->attribute_name );
 
 		string_search_replace(
-			line,
+			command_line,
 			preupdate_attribute_name,
 			double_quotes_around(
 				buffer,
@@ -1303,11 +1398,11 @@ char *update_command_line(
 
 	} while ( list_next( update_attribute_list ) );
 
-	sprintf(line + strlen( line ),
+	sprintf(command_line + strlen( command_line ),
 		" 2>>%s",
 		appaserver_error_filename );
 
-	return strdup( line );
+	return strdup( command_line );
 }
 
 char *update_command_line_list_execute(
@@ -1351,18 +1446,26 @@ char *update_one2m_sql_statement(
 }
 
 char *update_one2m_command_line(
-			char *command_line,
+			char *post_change_process_command_line,
+			char *session_key,
 			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *post_change_process_name,
 			char *appaserver_error_filename,
 			UPDATE_ONE2M_ROW *update_one2m_row,
 			char *appaserver_update_state,
 			char *update_preupdate_prefix )
 {
-	if ( !command_line
+	if ( !post_change_process_command_line
+	||   !session_key
 	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !post_change_process_name
 	||   !appaserver_error_filename
 	||   !update_one2m_row
-	||   !list_rewind( update_one2m_row->update_attribute_list )
+	||   !list_length( update_one2m_row->update_attribute_list )
 	||   !appaserver_update_state
 	||   !update_preupdate_prefix )
 	{
@@ -1376,8 +1479,12 @@ char *update_one2m_command_line(
 
 	return
 	update_command_line(
-		command_line,
+		post_change_process_command_line,
+		session_key,
 		login_name,
+		role_name,
+		folder_name,
+		post_change_process_name,
 		appaserver_error_filename,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
@@ -1758,15 +1865,24 @@ UPDATE_CHANGED *update_changed_seek(
 }
 
 LIST *update_one2m_command_line_list(
-			char *command_line,
+			char *post_change_process_command_line,
+			char *session_key,
 			char *login_name,
+			char *role_name,
+			char *folder_name,
+			char *post_change_process_name,
 			char *appaserver_error_filename,
 			UPDATE_ONE2M_ROW_LIST *update_one2m_row_list )
 {
 	LIST *command_line_list;
 
-	if ( !command_line
+	if ( !post_change_process_command_line
+	||   !session_key
 	||   !login_name
+	||   !role_name
+	||   !folder_name
+	||   !post_change_process_name
+	||   !appaserver_error_filename
 	||   !update_one2m_row_list
 	||   !list_rewind( update_one2m_row_list->list ) )
 	{
@@ -1784,8 +1900,12 @@ LIST *update_one2m_command_line_list(
 		list_set(
 			command_line_list,
 			update_one2m_command_line(
-				command_line,
+				post_change_process_command_line,
+				session_key,
 				login_name,
+				role_name,
+				folder_name,
+				post_change_process_name,
 				appaserver_error_filename,
 				list_get( update_one2m_row_list->list ),
 				APPASERVER_UPDATE_STATE,
@@ -2406,7 +2526,6 @@ UPDATE_ATTRIBUTE *update_attribute_new(
 	}
 
 	update_attribute->folder_attribute = folder_attribute;
-	update_attribute->row_number = row_number;
 
 	update_attribute->post_data =
 		dictionary_get(

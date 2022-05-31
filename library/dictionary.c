@@ -1093,6 +1093,12 @@ void dictionary_free_data( DICTIONARY *d, LIST *key_list )
 	}
 }
 
+void dictionary_free_container( DICTIONARY *dictionary )
+{
+	free( dictionary->hash_table );
+	free( dictionary );
+}
+
 void dictionary_free( DICTIONARY *d )
 {
 	char *key;
@@ -1109,8 +1115,8 @@ void dictionary_free( DICTIONARY *d )
 
 		} while( list_next( key_list ) );
 	}
-	free( d->hash_table );
-	free( d );
+	list_free( key_list );
+	dictionary_free_container( d );
 }
 
 LIST *dictionary_ordered_key_list( DICTIONARY *d )

@@ -48,6 +48,10 @@ LIST *insert_data_key_data_list(
 			LIST *primary_key_list,
 			LIST *insert_data_list );
 
+INSERT_DATA *insert_data_seek(
+			char *primary_key,
+			LIST *insert_data_list );
+
 typedef struct
 {
 	LIST *insert_data_list;
@@ -73,7 +77,7 @@ INSERT_FOLDER *insert_folder_new(
 			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *dictionary_separate_row,
 			LIST *ignore_name_list,
-			char *process_name,
+			char *post_change_process_name,
 			char *post_change_command_line,
 			char *appaserver_error_filename );
 
@@ -107,7 +111,7 @@ char *insert_folder_command_line(
 			char *login_name,
 			char *role_name,
 			char *folder_name,
-			char *process_name,
+			char *post_change_process_name,
 			char *appaserver_error_filename,
 			char *appaserver_insert_state,
 			LIST *insert_data_list,
@@ -164,7 +168,7 @@ INSERT_ROW_LIST *insert_row_list_new(
 			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *multi_row_dictionary,
 			LIST *ignore_name_list,
-			char *process_name,
+			char *post_change_process_name,
 			char *post_change_command_line,
 			char *appaserver_error_filename );
 
@@ -253,7 +257,7 @@ INSERT *insert_new(	char *application_name,
 			DICTIONARY *row_zero_dictionary,
 			DICTIONARY *multi_row_dictionary,
 			LIST *ignore_name_list,
-			char *process_name,
+			char *post_change_process_name,
 			char *post_change_command_line );
 
 /* Process */

@@ -15,6 +15,19 @@
 #include "dictionary.h"
 #include "javascript.h"
 
+#define PROCESS_ONE_FOLDER_PLACEHOLDER	"$one_folder"
+#define PROCESS_SESSION_PLACEHOLDER	"$session"
+#define PROCESS_PID_PLACEHOLDER		"$process_id"
+#define PROCESS_LOGIN_PLACEHOLDER	"$login"
+#define PROCESS_ROLE_PLACEHOLDER	"$role"
+#define PROCESS_FOLDER_PLACEHOLDER	"$folder"
+#define PROCESS_NAME_PLACEHOLDER	"$process"
+#define PROCESS_STATE_PLACEHOLDER	"$state"
+#define PROCESS_PRIMARY_PLACEHOLDER	"$primary_data"
+#define PROCESS_ROW_COUNT_PLACEHOLDER	"$operation_row_count"
+#define PROCESS_DICTIONARY_PLACEHOLDER	"$dictionary"
+#define PROCESS_WHERE_PLACEHOLDER	"$where"
+
 #define PROCESS_SET_TABLE		"process_set"
 
 #define PROCESS_SET_SELECT		"process_set,"			\
@@ -146,98 +159,78 @@ char *process_system_string(
 			char *where );
 
 PROCESS *process_parse(	char *input,
-			char *document_root_directory,
+			char *document_root,
 			char *application_relative_source_directory,
 			boolean check_executable_inside_filesystem );
 
-/* Public */
-/* ------ */
-char *process_populate_drop_down_command_line(
-			DICTIONARY *drillthru_dictionary,
-			char *command_line,
-			char *security_entity_where,
-			char *state,
-			char *login_name,
-			char *role_name );
-
-void process_set_one2m_folder_name_for_process(
-			DICTIONARY *dictionary,
-			char *one2m_folder_name );
-
+/* Private */
+/* ------- */
 boolean process_interpreted_executable_ok(
 			char *which_string );
 
-/* PROCESS command_line */
-/* -------------------- */
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *process_choose_isa_command_line(
-			char *command_line /* in */,
-			char *application_name,
-			char *security_entity_where,
-			char *login_name,
-			char *role_name,
-			char *one2m_isa_folder_name );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *process_prompt_submit_command_line(
-			char *command_line,
-			char *application_name,
-			char *process_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *working_post_dictionary );
-
+/* Public */
+/* ------ */
 void process_replace_one_folder_command_line(
-			/* -------------------- */
-			/* Assumes stack memory */
-			/* -------------------- */
 			char *command_line,
-			char *one_folder_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_operation_command_line(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			DICTIONARY *dictionary_single_row,
-			char *operation_name,
-			char *command_line,
-			pid_t parent_process_id,
-			int operation_row_checked_count,
-			LIST *primary_data_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *process_widget_command_line(
-			char *command_line,
-			char *application_name,
-			char *security_entity_where,
 			char *one_folder_name,
-			char *state,
-			DICTIONARY *drillthru_dictionary );
+			char *process_one_folder_placeholder );
 
-void process_replace_where_command_line(
-			char *command_line /* in/out */,
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			DICTIONARY *drillthru_dictionary );
+void process_replace_session_command_line(
+			char *command_line,
+			char *session_key,
+			char *process_session_placeholder );
+
+void process_replace_pid_command_line(
+			char *command_line,
+			pid_t process_id,
+			char *process_pid_placeholder );
+
+void process_replace_login_command_line(
+			char *command_line,
+			char *login_name,
+			char *process_login_placeholder );
+
+void process_replace_role_command_line(
+			char *command_line,
+			char *role_name,
+			char *process_role_placeholder );
+
+void process_replace_folder_command_line(
+			char *command_line,
+			char *folder_name,
+			char *process_folder_placeholder );
+
+void process_replace_name_command_line(
+			char *command_line,
+			char *process_name,
+			char *process_name_placeholder );
 
 void process_replace_state_command_line(
-			/* -------------------- */
-			/* Assumes stack memory */
-			/* -------------------- */
 			char *command_line,
-			char *state );
+			char *state,
+			char *process_state_placeholder );
 
-/* PROCESS public */
-/* -------------- */
+void process_replace_primary_command_line(
+			char *command_line,
+			char *primary_data_string,
+			char *process_primary_placeholder );
+
+void process_replace_row_count_command_line(
+			char *command_line,
+			int operation_row_checked_count,
+			char *process_row_count_placeholder );
+
+void process_replace_dictionary_command_line(
+			char *command_line,
+			DICTIONARY *dictionary_single_row,
+			char dictionary_delimiter,
+			char *process_dictionary_placeholder );
+
+void process_replace_where_command_line(
+			char *command_line,
+			char *where_string,
+			char *process_where_placeholder );
+
 boolean process_executable_ok(
 			char *executable );
 

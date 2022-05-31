@@ -38,9 +38,6 @@ typedef struct
 	OPERATION_ROW_LIST *operation_row_list;
 } POST_TABLE_EDIT;
 
-/* POST_TABLE_EDIT operations */
-/* -------------------------- */
-
 /* Usage */
 /* ----- */
 

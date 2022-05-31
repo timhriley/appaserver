@@ -14,6 +14,7 @@
 /* Constants */
 /* --------- */
 #define RELATION_OPERATOR_PREFIX		"relation_operator_"
+#define DICTIONARY_DELIMITER			'&'
 #define DICTIONARY_ALTERNATIVE_DELIMITER	'~'
 
 typedef struct

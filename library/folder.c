@@ -165,25 +165,38 @@ FOLDER *folder_parse(	char *input,
 	piece( lookup_email_output_yn, SQL_DELIMITER, input, 3 );
 	folder->lookup_email_output = ( *lookup_email_output_yn == 'y' );
 
-	piece( notepad, SQL_DELIMITER, input, 4 );
-	folder->notepad = strdup( notepad );
+	if ( piece( notepad, SQL_DELIMITER, input, 4 ) )
+	{
+		folder->notepad = strdup( notepad );
+	}
 
-	piece( populate_drop_down_process_name, SQL_DELIMITER, input, 5 );
-	folder->populate_drop_down_process_name =
-		strdup( populate_drop_down_process_name );
+	if ( piece( populate_drop_down_process_name, SQL_DELIMITER, input, 5 ) )
+	{
+		folder->populate_drop_down_process_name =
+			strdup( populate_drop_down_process_name );
+	}
 
-	piece( post_change_process_name, SQL_DELIMITER, input, 6 );
-	folder->post_change_process_name =
-		strdup( post_change_process_name );
+	if ( piece( post_change_process_name, SQL_DELIMITER, input, 6 ) )
+	{
+		folder->post_change_process_name =
+			strdup( post_change_process_name );
+	}
 
-	piece( html_help_file_anchor, SQL_DELIMITER, input, 7 );
-	folder->html_help_file_anchor = strdup( html_help_file_anchor );
+	if ( piece( html_help_file_anchor, SQL_DELIMITER, input, 7 ) )
+	{
+		folder->html_help_file_anchor = strdup( html_help_file_anchor );
+	}
 
-	piece( post_change_javascript, SQL_DELIMITER, input, 8 );
-	folder->post_change_javascript = strdup( post_change_javascript );
+	if ( piece( post_change_javascript, SQL_DELIMITER, input, 8 ) )
+	{
+		folder->post_change_javascript =
+			strdup( post_change_javascript );
+	}
 
-	piece( subschema, SQL_DELIMITER, input, 9 );
-	folder->subschema = strdup( subschema );
+	if ( piece( subschema, SQL_DELIMITER, input, 9 ) )
+	{
+		folder->subschema = strdup( subschema );
+	}
 
 	piece( exclude_application_export_yn, SQL_DELIMITER, input, 10 );
 	folder->exclude_application_export =
@@ -193,20 +206,27 @@ FOLDER *folder_parse(	char *input,
 	folder->drilldown = ( *drilldown_yn == 'y' );
 
 	piece( no_initial_capital_yn, SQL_DELIMITER, input, 12 );
-	folder->no_initial_capital =
-		( *no_initial_capital_yn == 'y' );
+	folder->no_initial_capital = ( *no_initial_capital_yn == 'y' );
 
-	piece( index_directory, SQL_DELIMITER, input, 13 );
-	folder->index_directory = strdup( index_directory );
+	if ( piece( index_directory, SQL_DELIMITER, input, 13 ) )
+	{
+		folder->index_directory = strdup( index_directory );
+	}
 
-	piece( data_directory, SQL_DELIMITER, input, 14 );
-	folder->data_directory = strdup( data_directory );
+	if ( piece( data_directory, SQL_DELIMITER, input, 14 ) )
+	{
+		folder->data_directory = strdup( data_directory );
+	}
 
-	piece( create_view_statement, SQL_DELIMITER, input, 15 );
-	folder->create_view_statement = strdup( create_view_statement );
+	if ( piece( create_view_statement, SQL_DELIMITER, input, 15 ) )
+	{
+		folder->create_view_statement = strdup( create_view_statement );
+	}
 
-	piece( javascript_filename, SQL_DELIMITER, input, 16 );
-	folder->javascript_filename = strdup( javascript_filename );
+	if ( piece( javascript_filename, SQL_DELIMITER, input, 16 ) )
+	{
+		folder->javascript_filename = strdup( javascript_filename );
+	}
 
 	if ( fetch_folder_attribute_list )
 	{

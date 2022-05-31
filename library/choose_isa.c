@@ -88,21 +88,26 @@ CHOOSE_ISA *choose_isa_new(
 	{
 		choose_isa->delimited_list =
 			list_pipe_fetch(
-				process_choose_isa_command_line(
+			    /* ------------------- */
+			    /* Returns heap memory */
+			    /* ------------------- */
+			    choose_isa_command_line(
+				choose_isa->
+					folder->
+					populate_drop_down_process->
+					command_line,
+				session_key,
+				login_name,
+				role_name,
+				one_isa_folder_name,
+				security_entity_where(
+					choose_isa->
+						security_entity,
 					choose_isa->
 						folder->
-						populate_drop_down_process->
-						command_line,
-					application_name,
-					security_entity_where(
-						choose_isa->
-							security_entity,
-						choose_isa->
-							folder->
-							folder_attribute_list ),
-					login_name,
-					role_name,
-					one_isa_folder_name ) );
+						folder_attribute_list ),
+				appaserver_error_filename(
+					application_name ) ) );
 	}
 	else
 	{
@@ -453,3 +458,65 @@ char *choose_isa_output_system_string(
 	return strdup( system_string );
 }
 
+char *choose_isa_command_line(
+			char *process_command_line,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *one_isa_folder_name,
+			char *security_entity_where,
+			char *appaserver_error_filename )
+{
+	char command_line[ STRING_8K ];
+
+	if ( !process_command_line
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !one_isa_folder_name
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	string_strcpy( command_line, process_command_line, STRING_8K );
+
+	process_replace_session_command_line(
+		command_line,
+		session_key,
+		PROCESS_SESSION_PLACEHOLDER );
+
+	process_replace_login_command_line(
+		command_line,
+		login_name,
+		PROCESS_LOGIN_PLACEHOLDER );
+
+	process_replace_role_command_line(
+		command_line,
+		role_name,
+		PROCESS_ROLE_PLACEHOLDER );
+
+	if ( security_entity_where && *security_entity_where )
+	{
+		process_replace_where_command_line(
+			command_line,
+			security_entity_where,
+			PROCESS_WHERE_PLACEHOLDER );
+	}
+
+	process_replace_folder_command_line(
+		command_line,
+		one_isa_folder_name,
+		PROCESS_FOLDER_PLACEHOLDER );
+
+	sprintf(command_line + strlen( command_line ),
+		" 2>>%s",
+		appaserver_error_filename );
+
+	return strdup( command_line );
+}

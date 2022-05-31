@@ -154,13 +154,14 @@ POST_TABLE_EDIT *post_table_edit_new(
 		post_table_edit->update =
 			update_new(
 				application_name,
+				session_key,
 				login_name,
+				post_table_edit->role,
+				post_table_edit->folder,
 				post_table_edit->
 					dictionary_separate->
 					multi_row_dictionary,
-				post_table_edit->file_dictionary,
-				post_table_edit->role,
-				post_table_edit->folder );
+				post_table_edit->file_dictionary );
 	}
 
 	if ( dictionary_length(

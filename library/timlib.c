@@ -1863,6 +1863,16 @@ char *single_quotes_around( char *destination, char *s )
 
 char *quotes_around( char *destination, char *s, int c )
 {
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !s )
 	{
 		sprintf( destination, "%c%c", c, c );
@@ -1871,6 +1881,7 @@ char *quotes_around( char *destination, char *s, int c )
 	{
 		sprintf( destination, "%c%s%c", c, s, c );
 	}
+
 	return destination;
 }
 

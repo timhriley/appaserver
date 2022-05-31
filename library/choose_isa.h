@@ -30,8 +30,6 @@
 /* ---------- */
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	FOLDER *folder;
 	ROLE *role;
 	SECURITY_ENTITY *security_entity;
@@ -49,11 +47,8 @@ typedef struct
 	char *document_form_html;
 } CHOOSE_ISA;
 
-/* CHOOSE_ISA operations */
-/* --------------------- */
-CHOOSE_ISA *choose_isa_calloc(
-			void );
-
+/* Usage */
+/* ----- */
 CHOOSE_ISA *choose_isa_new(
 			/* ----------------------------------- */
 			/* See session_folder_integrity_exit() */
@@ -65,6 +60,22 @@ CHOOSE_ISA *choose_isa_new(
 			char *one_isa_folder_name,
 			char *role_name,
 			boolean frameset_menu_horizontal );
+
+/* Process */
+/* ------- */
+CHOOSE_ISA *choose_isa_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *choose_isa_command_line(
+			char *process_command_line,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *one_isa_folder_name,
+			char *security_entity_where,
+			char *appaserver_error_filename );
 
 /* Returns static memory */
 /* --------------------- */

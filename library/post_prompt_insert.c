@@ -113,6 +113,7 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 			folder_name,
 			post_prompt_insert->folder->primary_key_list,
 			post_prompt_insert->folder->folder_attribute_name_list,
+			post_prompt_insert->folder->relation_mto1_isa_list,
 			post_prompt_insert->
 				dictionary_separate_post_prompt_insert->
 				row_zero_dictionary,

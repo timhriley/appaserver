@@ -19,8 +19,6 @@
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	SESSION_FOLDER *session_folder;
 	ROLE *role;
 	FOLDER *folder;

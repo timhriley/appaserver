@@ -678,17 +678,18 @@ LIST *hash_table_key_list( HASH_TABLE *h )
 		if ( h->cell_array[ i ] )
 		{
 			list = h->cell_array[ i ];
-			go_head( list );
-			do
+
+			if ( list_rewind( list ) )
 			{
-				cell_ptr = (HASH_TABLE_CELL *)
-						retrieve_item_ptr( list );
+				do {
+					cell_ptr = list_get( list );
 
-				if ( !cell_ptr ) continue;
+					list_set(
+						return_list,
+						cell_ptr->key );
 
-				list_append_pointer(return_list,
-						    cell_ptr->key );
-			} while( next_item( list ) );
+				} while( list_next( list ) );
+			}
 		}
 	}
 	return return_list;

@@ -30,13 +30,9 @@ typedef struct
 	char *command_line;
 } OPERATION_ROW_CHECKED;
 
-/* OPERATION_ROW_CHECKED operations */
-/* -------------------------------- */
-
 /* Usage */
 /* ----- */
 OPERATION_ROW_CHECKED *operation_row_checked_new(
-			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
@@ -46,25 +42,21 @@ OPERATION_ROW_CHECKED *operation_row_checked_new(
 			DICTIONARY *operation_dictionary,
 			DICTIONARY *dictionary_single_row,
 			char *operation_name,
-			char *command_line );
+			char *process_command_line,
+			char *appaserver_error_filename );
 
 OPERATION_ROW_CHECKED *operation_row_checked_calloc(
 			void );
 
-int operation_row_checked_count(
-			int dictionary_key_highest_index,
-			DICTIONARY *operation_dictionary,
-			char *operation_name );
- 
 char *operation_row_checked_command_line(
-			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *folder_name,
 			DICTIONARY *dictionary_single_row,
 			char *operation_name,
-			char *command_line,
+			char *process_command_line,
+			char *appaserver_error_filename,
 			int operation_row_checked_count,
 			pid_t parent_process_id,
 			LIST *primary_key_data_list );
@@ -80,10 +72,8 @@ char *operation_row_checked_execute(
 typedef struct
 {
 	LIST *checked_list;
+	char *appaserver_error_filename;
 } OPERATION_ROW;
-
-/* OPERATION_ROW operations */
-/* ------------------------ */
 
 /* Usage */
 /* ----- */
@@ -111,9 +101,6 @@ typedef struct
 	LIST *list;
 	DICTIONARY *dictionary_single_row;
 } OPERATION_ROW_LIST;
-
-/* OPERATION_ROW_LIST operations */
-/* ----------------------------- */
 
 /* Usage */
 /* ----- */
@@ -143,24 +130,11 @@ char *operation_row_list_execute(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *application_name;
-	char *operation_name;
-	char *appaserver_data_directory;
-	pid_t parent_process_id;
-	int operation_row_total;
-
-	/* Process */
-	/* ------- */
 	char *filename;
 	boolean group_first_time;
 	int row_current;
 	boolean group_last_time;
 } OPERATION_SEMAPHORE;
-
-/* OPERATION_SEMAPHORE operations */
-/* ------------------------------ */
 
 /* Usage */
 /* ----- */
@@ -168,7 +142,7 @@ OPERATION_SEMAPHORE *operation_semaphore_new(
 			char *operation_name,
 			char *appaserver_data_directory,
 			pid_t parent_process_id,
-			int operation_row_total );
+			int operation_row_checked_count );
 
 /* Process */
 /* ------- */
@@ -193,7 +167,7 @@ int operation_semaphore_row_current(
 
 boolean operation_semaphore_group_last_time(
 			int row_current,
-			int operation_row_total );
+			int operation_row_checked_count );
 
 void operation_semaphore_increment(
 			char *filename,
@@ -213,9 +187,6 @@ typedef struct
 	char *delete_warning_javascript;
 	APPASERVER_ELEMENT *appaserver_element;
 } OPERATION;
-
-/* OPERATION operations */
-/* -------------------- */
 
 /* Usage */
 /* ----- */
@@ -280,7 +251,7 @@ char *operation_html(	ELEMENT_CHECKBOX *checkbox,
 			char *background_color,
 			boolean delete_mask_boolean );
 
-int operation_row_total(
+int operation_row_checked_count(
 			DICTIONARY *row_dictionary,
 			char *operation_name,
 			int highest_index );

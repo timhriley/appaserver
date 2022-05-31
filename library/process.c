@@ -21,6 +21,7 @@
 #include "security.h"
 #include "process_parameter.h"
 #include "query.h"
+#include "dictionary.h"
 #include "process.h"
 
 void process_execution_count_increment(
@@ -231,6 +232,8 @@ PROCESS *process_fetch(	char *process_name,
 			char *relative_source_directory,
 			boolean check_executable_inside_filesystem )
 {
+	if ( !process_name ) return (PROCESS *)0;
+
 	return
 	process_parse(
 		string_pipe_fetch(
@@ -489,184 +492,6 @@ char *process_set_process_where(
 	return strdup( where );
 }
 
-char *process_prompt_submit_command_line(
-			char *command_line,
-			char *application_name,
-			char *process_name,
-			char *role_name,
-			char *login_name,
-			DICTIONARY *working_post_dictionary )
-{
-	char buffer[ STRING_COMMAND_BUFFER ];
-	char local_command_line[ STRING_COMMAND_BUFFER ];
-
-	string_strcpy(
-		local_command_line,
-		command_line,
-		STRING_COMMAND_BUFFER );
-
-	if ( process_name && *process_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$process",
-			double_quotes_around(
-				buffer, 
-				process_name ) );
-	}
-
-	if ( role_name && *role_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$role",
-			double_quotes_around(
-				buffer, 
-				role_name ) );
-	}
-
-	if ( login_name && *login_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$login_name",
-			double_quotes_around(
-				buffer, 
-				login_name ) );
-	}
-
-	if ( string_exists( local_command_line, "$dictionary" ) )
-	{
-		search_replace_word(
-			local_command_line,
-			"$dictionary",
-			double_quotes_around(
-				buffer, 
-				dictionary_display_delimited(
-					working_post_dictionary, '&' ) 
-				) );
-	}
-
-	dictionary_search_replace_command_arguments(
-		local_command_line,
-		working_post_dictionary, 
-		0 /* row  */ );
-
-	sprintf(local_command_line + strlen( local_command_line ),
-		" 2>>%s",
-		appaserver_error_filename(
-			application_name ) );
-
-	return strdup( local_command_line );
-}
-
-void process_replace_where_command_line(
-			char *command_line /* in/out */,
-			LIST *folder_attribute_list,
-			LIST *relation_mto1_non_isa_list,
-			char *security_entity_where,
-			DICTIONARY *drillthru_dictionary )
-{
-	QUERY_WIDGET_WHERE *query_widget_where;
-	char buffer[ STRING_COMMAND_BUFFER ];
-
-	if ( !command_line )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: command_line is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !string_exists( command_line, "$where" ) )
-	{
-		return;
-	}
-
-	if ( ! ( query_widget_where =
-			query_widget_where_new(
-				folder_attribute_list,
-				relation_mto1_non_isa_list,
-				security_entity_where,
-				drillthru_dictionary ) ) )
-	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: query_widget_where_new() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	search_replace_word(
-		command_line, 
-		"$where", 
-		double_quotes_around(
-			buffer,
-			query_widget_where->string ) );
-
-	free( query_widget_where->string );
-	free( query_widget_where );
-}
-
-char *process_choose_isa_command_line(
-			char *command_line,
-			char *application_name,
-			char *security_entity_where,
-			char *login_name,
-			char *role_name,
-			char *one2m_isa_folder_name )
-{
-	char local_command_line[ STRING_COMMAND_BUFFER ];
-	char buffer[ 1024 ];
-
-	string_strcpy( local_command_line, command_line, STRING_WHERE_BUFFER );
-
-	if ( login_name && *login_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$login_name",
-			double_quotes_around(
-				buffer, 
-				login_name ) );
-	}
-
-	if ( role_name && *role_name )
-	{
-		search_replace_word(
-			local_command_line,
-			"$role",
-			double_quotes_around(
-				buffer, 
-				role_name ) );
-	}
-
-	if ( security_entity_where
-	&&   *security_entity_where )
-	{
-		search_replace_word(
-			local_command_line, 
-			"$where", 
-			double_quotes_around( 	
-				buffer,
-				security_entity_where ) );
-	}
-
-	process_replace_one_folder_command_line(
-		local_command_line,
-		one2m_isa_folder_name );
-
-	sprintf(local_command_line + strlen( local_command_line ),
-		" 2>>%s",
-		appaserver_error_filename(
-			application_name ) );
-
-	return strdup( local_command_line );
-}
-
 LIST *process_set_member_name_list(
 			char *process_set_primary_where,
 			char *role_name )
@@ -705,141 +530,6 @@ LIST *process_set_member_name_list(
 		where );
 
 	return list_fetch_pipe( system_string );
-}
-
-char *process_operation_command_line(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *folder_name,
-			DICTIONARY *dictionary_single_row,
-			char *operation_name,
-			char *command_line,
-			pid_t parent_process_id,
-			int operation_row_checked_count,
-			LIST *primary_data_list )
-{
-	char local_command_line[ STRING_16K ];
-	char buffer[ STRING_8K ];
-	char process_id_string[ 16 ];
-	char operation_row_total_string[ 16 ];
-
-	string_strcpy(
-		local_command_line,
-		command_line,
-		STRING_16K );
-
-	search_replace_word(
-		local_command_line,
-		"$application",
-		double_quotes_around(
-			buffer, 
-			application_name ) );
-
-	search_replace_word(
-		local_command_line,
-		"$process",
-		double_quotes_around(
-			buffer, 
-			operation_name ) );
-
-	search_replace_word(
-		local_command_line,
-		"$login_name",
-		double_quotes_around(
-			buffer, 
-			login_name ) );
-
-	search_replace_word(
-		local_command_line,
-		"$role",
-		double_quotes_around(
-			buffer, 
-			role_name ) );
-
-	search_replace_word(
-		local_command_line,
-		"$folder",
-		double_quotes_around(
-			buffer, 
-			folder_name ) );
-
-	sprintf(process_id_string,
-		"%d",
-		(int)parent_process_id );
-
-	search_replace_word(
-		local_command_line,
-		"$process_id",
-		double_quotes_around(
-			buffer, 
-			process_id_string ) );
-
-	search_replace_word(
-		local_command_line,
-		"$session",
-		double_quotes_around(
-			buffer, 
-			session_key ) );
-
-	sprintf(operation_row_total_string,
-		"%d",
-		operation_row_checked_count );
-
-	search_replace_word(
-		local_command_line,
-		"$process_row_count",
-		double_quotes_around(
-			buffer, 
-			operation_row_total_string ) );
-
-	search_replace_word(
-		local_command_line,
-		"$operation_row_count",
-		double_quotes_around(
-			buffer, 
-			operation_row_total_string ) );
-
-	search_replace_word(
-		local_command_line,
-		"$operation_row_total",
-		double_quotes_around(
-			buffer, 
-			operation_row_total_string ) );
-
-	if ( primary_data_list )
-	{
-		search_replace_word(
-			local_command_line,
-			"$primary_data_list",
-			list_display_quoted_delimiter( 
-				buffer,
-				primary_data_list,
-				SQL_DELIMITER ) );
-	}
-
-	if ( dictionary_single_row )
-	{
-		search_replace_word(
-			local_command_line,
-			"$dictionary",
-			double_quotes_around(
-				buffer, 
-				dictionary_display_delimited(
-					dictionary_single_row, '&' ) 
-				) );
-	}
-
-	dictionary_search_replace_command_arguments(
-		local_command_line,
-		dictionary_single_row, 
-		0 /* row_number */ );
-
-	sprintf(local_command_line + strlen( local_command_line ),
-		" 2>&1" );
-
-	return strdup( local_command_line );
 }
 
 char *process_name_fetch( char *process_or_set_name )
@@ -902,7 +592,8 @@ char *process_widget_command_line(
 
 	process_replace_one_folder_command_line(
 		local_command_line,
-		one_folder_name );
+		one_folder_name,
+		PROCESS_ONE_FOLDER_PLACEHOLDER );
 
 	if ( state && *state )
 	{
@@ -988,46 +679,220 @@ LIST *process_delimited_list( char *command_line )
 	return list_fetch_pipe( command_line );
 }
 
-void process_replace_one_folder_command_line(
-			/* -------------------- */
-			/* Assumes stack memory */
-			/* -------------------- */
+void process_replace_where_command_line(
 			char *command_line,
-			char *one_folder_name )
+			char *where_string,
+			char *process_where_placeholder )
 {
-	if ( !one_folder_name || !*one_folder_name ) return;
-
-	if ( !command_line )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: command_line is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	char buffer[ 1024 ];
 
 	search_replace_word(
 		command_line,
-		"$one2m_folder_name",
-		one_folder_name );
+		process_where_placeholder,
+		double_quotes_around(
+			buffer,
+			where_string ) );
+}
+
+void process_replace_one_folder_command_line(
+			char *command_line,
+			char *one_folder_name,
+			char *process_one_folder_placeholder )
+{
+	char buffer[ 128 ];
 
 	search_replace_word(
 		command_line,
-		"$one2m_folder",
-		one_folder_name );
+		process_one_folder_placeholder,
+		double_quotes_around(
+			buffer,
+			one_folder_name ) );
+}
+
+void process_replace_row_count_command_line(
+			char *command_line,
+			int operation_row_checked_count,
+			char *process_row_count_placeholder )
+{
+	char row_count_string[ 128 ];
+	char buffer[ 128 ];
+
+	sprintf(row_count_string,
+		"%d",
+		operation_row_checked_count );
 
 	search_replace_word(
 		command_line,
-		"$one_folder",
-		one_folder_name );
+		process_row_count_placeholder,
+		double_quotes_around(
+			buffer, 
+			row_count_string ) );
+}
+
+void process_replace_dictionary_command_line(
+			char *command_line,
+			DICTIONARY *dictionary_single_row,
+			char dictionary_delimiter,
+			char *process_dictionary_placeholder )
+{
+	char buffer[ 2048 ];
+	char *tmp;
+
+	if ( !dictionary_length( dictionary_single_row ) ) return;
+
+	search_replace_word(
+		command_line,
+		process_dictionary_placeholder,
+		double_quotes_around(
+			buffer, 
+			(tmp = dictionary_display_delimited(
+				dictionary_single_row,
+				dictionary_delimiter ) ) ) );
+
+	free( tmp );
+
+	dictionary_search_replace_command_arguments(
+		command_line,
+		dictionary_single_row, 
+		0 /* row_number */ );
+}
+
+void process_replace_pid_command_line(
+			char *command_line,
+			pid_t process_id,
+			char *process_pid_placeholder )
+{
+	char process_id_string[ 128 ];
+	char buffer[ 128 ];
+
+	sprintf(process_id_string,
+		"%d",
+		(int)process_id );
+
+	search_replace_word(
+		command_line,
+		process_pid_placeholder,
+		double_quotes_around(
+			buffer, 
+			process_id_string ) );
+}
+
+void process_replace_session_command_line(
+			char *command_line,
+			char *session_key,
+			char *process_session_placeholder )
+{
+	char buffer[ 128 ];
+
+	search_replace_word(
+		command_line,
+		process_session_placeholder,
+		double_quotes_around(
+			buffer,
+			session_key ) );
+}
+
+void process_replace_login_command_line(
+			char *command_line,
+			char *login_name,
+			char *process_login_placeholder )
+{
+	char buffer[ 128 ];
+
+	search_replace_word(
+		command_line,
+		process_login_placeholder,
+		double_quotes_around(
+			buffer,
+			login_name ) );
+}
+
+void process_replace_role_command_line(
+			char *command_line,
+			char *role_name,
+			char *process_role_placeholder )
+{
+	char buffer[ 128 ];
+
+	search_replace_word(
+		command_line,
+		process_role_placeholder,
+		double_quotes_around(
+			buffer,
+			role_name ) );
+}
+
+void process_replace_folder_command_line(
+			char *command_line,
+			char *folder_name,
+			char *process_folder_placeholder )
+{
+	char buffer[ 128 ];
+
+	search_replace_word(
+		command_line,
+		process_folder_placeholder,
+		double_quotes_around(
+			buffer,
+			folder_name ) );
+}
+
+void process_replace_name_command_line(
+			char *command_line,
+			char *process_name,
+			char *process_name_placeholder )
+{
+	char buffer[ 128 ];
+
+	search_replace_word(
+		command_line,
+		process_name_placeholder,
+		double_quotes_around(
+			buffer,
+			process_name ) );
 }
 
 void process_replace_state_command_line(
 			char *command_line,
-			char *state )
+			char *state,
+			char *process_state_placeholder )
 {
-	if ( !state || !*state ) return;
+	char buffer[ 128 ];
+
+	search_replace_word(
+		command_line,
+		process_state_placeholder,
+		double_quotes_around(
+			buffer,
+			state ) );
+}
+
+void process_replace_primary_command_line(
+			char *command_line,
+			char *primary_data_string,
+			char *process_primary_placeholder )
+{
+	char buffer[ 256 ];
+
+	search_replace_word(
+		command_line,
+		process_primary_placeholder,
+		double_quotes_around(
+			buffer,
+			primary_data_string ) );
+}
+
+
+#ifdef NOT_DEFINED
+void process_replace_where_command_line(
+			char *command_line /* in/out */,
+			LIST *folder_attribute_list,
+			LIST *relation_mto1_non_isa_list,
+			char *security_entity_where,
+			DICTIONARY *drillthru_dictionary )
+{
+	QUERY_WIDGET_WHERE *query_widget_where;
+	char buffer[ STRING_COMMAND_BUFFER ];
 
 	if ( !command_line )
 	{
@@ -1039,9 +904,34 @@ void process_replace_state_command_line(
 		exit( 1 );
 	}
 
-	search_replace_word(
-		command_line,
-		"$state",
-		state );
-}
+	if ( !string_exists( command_line, "$where" ) )
+	{
+		return;
+	}
 
+	if ( ! ( query_widget_where =
+			query_widget_where_new(
+				folder_attribute_list,
+				relation_mto1_non_isa_list,
+				security_entity_where,
+				drillthru_dictionary ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: query_widget_where_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	search_replace_word(
+		command_line, 
+		"$where", 
+		double_quotes_around(
+			buffer,
+			query_widget_where->string ) );
+
+	free( query_widget_where->string );
+	free( query_widget_where );
+}
+#endif
