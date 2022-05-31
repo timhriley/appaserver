@@ -14,15 +14,10 @@
 #include "relation.h"
 #include "drillthru.h"
 
-/* Constants */
-/* --------- */
 #define POST_CHOOSE_FOLDER_EXECUTABLE	"post_choose_folder"
+#define POST_CHOOSE_FOLDER_PROMPT_FORM	"prompt"
+#define POST_CHOOSE_FOLDER_TABLE_FORM	"table"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	DRILLTHRU *drillthru;
@@ -38,9 +33,6 @@ typedef struct
 	boolean table_edit;
 	char *system_string;
 } POST_CHOOSE_FOLDER;
-
-/* POST_CHOOSE_FOLDER operations */
-/* ----------------------------- */
 
 /* Usage */
 /* ----- */
@@ -73,27 +65,33 @@ boolean post_choose_folder_fetch_relation_mto1_isa(
 
 char *post_choose_folder_form_name(
 			int relation_pair_one2m_list_length,
-			char *folder_form );
+			char *folder_form,
+			char *post_choose_folder_prompt_form,
+			char *post_choose_folder_table_form );
 
 boolean post_choose_folder_isa_drop_down(
 			int relation_mto1_isa_list_length );
 
 boolean post_choose_folder_prompt_insert(
 			char *folder_form_name,
-			char *state );
+			char *state,
+			char *post_choose_folder_prompt_form );
 
 boolean post_choose_folder_table_insert(
 			char *folder_form_name,
-			char *state );
+			char *state,
+			char *post_choose_folder_table_form );
 
 boolean post_choose_folder_prompt_lookup(
 			char *folder_form_name,
 			char *state,
+			char *post_choose_folder_prompt_form,
 			boolean drillthru_participating );
 
 boolean post_choose_folder_table_edit(
 			char *folder_form_name,
-			char *state );
+			char *state,
+			char *post_choose_folder_table_form );
 
 /* Returns heap memory */
 /* ------------------- */

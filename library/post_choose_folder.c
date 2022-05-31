@@ -192,7 +192,9 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 				post_choose_folder->
 					folder->
 					relation_pair_one2m_list ),
-			post_choose_folder->folder->folder_form );
+			post_choose_folder->folder->folder_form,
+			POST_CHOOSE_FOLDER_PROMPT_FORM,
+			POST_CHOOSE_FOLDER_TABLE_FORM );
 	
 	post_choose_folder->isa_drop_down =
 		post_choose_folder_isa_drop_down(
@@ -204,17 +206,20 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 	post_choose_folder->prompt_insert =
 		post_choose_folder_prompt_insert(
 			post_choose_folder->form_name,
-			state );
+			state,
+			POST_CHOOSE_FOLDER_PROMPT_FORM );
 
 	post_choose_folder->table_insert =
 		post_choose_folder_table_insert(
 			post_choose_folder->form_name,
-			state );
+			state,
+			POST_CHOOSE_FOLDER_TABLE_FORM );
 
 	post_choose_folder->prompt_lookup =
 		post_choose_folder_prompt_lookup(
 			post_choose_folder->form_name,
 			state,
+			POST_CHOOSE_FOLDER_PROMPT_FORM,
 			post_choose_folder->
 				drillthru->
 				drillthru_participating );
@@ -222,7 +227,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 	post_choose_folder->table_edit =
 		post_choose_folder_table_edit(
 			post_choose_folder->form_name,
-			state );
+			state,
+			POST_CHOOSE_FOLDER_TABLE_FORM );
 
 	post_choose_folder->system_string =
 		/* ------------------- */
@@ -250,60 +256,78 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 
 char *post_choose_folder_form_name(
 			int relation_pair_one2m_list_length,
-			char *folder_form )
+			char *folder_form,
+			char *post_choose_folder_prompt_form,
+			char *post_choose_folder_table_form )
 {
 	if ( relation_pair_one2m_list_length )
-		return "prompt";
+		return post_choose_folder_prompt_form;
 	else
 	if ( !folder_form || !*folder_form )
-		return "table";
+		return post_choose_folder_table_form;
 	else
 		return folder_form;
 }
 
 boolean post_choose_folder_prompt_insert(
 			char *folder_form_name,
-			char *state )
+			char *state,
+			char *post_choose_folder_prompt_form )
 {
-	if ( string_strcmp( state, "insert" ) != 0 )
+	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) != 0 )
 		return 0;
 
-	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
+	return
+	( string_strcmp(
+		folder_form_name,
+		post_choose_folder_prompt_form ) == 0 );
 }
 
-boolean post_choose_folder_insert_table(
+boolean post_choose_folder_table_insert(
 			char *folder_form_name,
-			char *state )
+			char *state,
+			char *post_choose_folder_table_form )
 {
-	if ( string_strcmp( state, "insert" ) != 0 )
+	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) != 0 )
 		return 0;
 
-	return ( string_strcmp( folder_form_name, "table" ) == 0 );
+	return
+	( string_strcmp(
+		folder_form_name,
+		post_choose_folder_table_form ) == 0 );
 }
 
 boolean post_choose_folder_prompt_lookup(
 			char *folder_form_name,
 			char *state,
+			char *post_choose_folder_prompt_form,
 			boolean drillthru_participating )
 {
 
 	if ( drillthru_participating )
 		return 1;
 
-	if ( string_strcmp( state, "insert" ) == 0 )
+	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
 		return 0;
 
-	return ( string_strcmp( folder_form_name, "prompt" ) == 0 );
+	return
+	( string_strcmp(
+		folder_form_name,
+		post_choose_folder_prompt_form ) == 0 );
 }
 
 boolean post_choose_folder_table_edit(
 			char *folder_form_name,
-			char *state )
+			char *state,
+			char *post_choose_folder_table_form )
 {
-	if ( string_strcmp( state, "insert" ) == 0 )
+	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
 		return 0;
 
-	return ( string_strcmp( folder_form_name, "table" ) == 0 );
+	return
+	( string_strcmp(
+		folder_form_name,
+		post_choose_folder_table_form ) == 0 );
 }
 
 boolean post_choose_folder_isa_drop_down(
@@ -325,8 +349,6 @@ char *post_choose_folder_system_string(
 			char *folder_name,
 			RELATION *first_one2m_isa_relation )
 {
-	char system_string[ 1024 ];
-
 	if ( isa_drop_down )
 	{
 		if ( !first_one2m_isa_relation )
@@ -411,6 +433,7 @@ char *post_choose_folder_system_string(
 			(char *)0 /* dictionary_separate_send_string */,
 		 	appaserver_error_filename( application_name ) );
 	}
+	else
 	if ( table_edit )
 	{
 		return
@@ -437,8 +460,6 @@ char *post_choose_folder_system_string(
 			__LINE__ );
 		exit( 1 );
 	}
-
-	return strdup( system_string );
 }
 
 char *post_choose_folder_href_string(

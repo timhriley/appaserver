@@ -6,31 +6,32 @@
 #ifndef PAIR_ONE2M_H
 #define PAIR_ONE2M_H
 
-/* -------- */
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 #include "folder.h"
 #include "dictionary.h"
 
-/* --------- */
-/* Constants */
-/* --------- */
 #define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
 #define PAIR_ONE2M_MANY_FOLDER_LABEL	"pair_one2m_many_folder"
 #define PAIR_ONE2M_FULFILLED_LIST_LABEL	"pair_one2m_fulfilled_list"
 #define PAIR_ONE2M_DUPLICATE_KEY	"pair_one2m_duplicate"
 
-/* ---------- */
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *many_folder_name;
 	char *copy_function;
 	char *folder_button_string;
 } PAIR_ONE2M_FOLDER;
+
+/* Usage */
+/* ----- */
+PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
+			char *many_folder_name );
+
+/* Process */
+/* ------- */
+LIST *pair_one2m_prompt_form_folder_list(
+			LIST *one2m_relation_list );
 
 typedef struct
 {
@@ -48,26 +49,29 @@ typedef struct
 	boolean duplicate;
 } PAIR_ONE2M;
 
-/* ---------- */
-/* Prototypes */
-/* ---------- */
-
 /* Usage */
-/*------ */
-PAIR_ONE2M *pair_one2m_calloc(
-			void );
-
+/* ----- */
 PAIR_ONE2M *pair_one2m_prompt_form_new(
 			char *one_folder_name );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 PAIR_ONE2M *pair_one2m_post_new(
 			DICTIONARY *pair_one2m_dictionary );
 
-PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
-			char *many_folder_name );
+/* Process */
+/* ------- */
 
-LIST *pair_one2m_prompt_form_folder_list(
-			LIST *one2m_relation_list );
+/* Private */
+/*-------- */
+PAIR_ONE2M *pair_one2m_calloc(
+			void );
+
+/* Process */
+/* ------- */
 
 char *pair_folder_element_copy_function(
 			char *prompt_many_element_name,

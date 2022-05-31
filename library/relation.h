@@ -73,9 +73,6 @@ typedef struct
 	boolean consumes_taken;
 } RELATION;
 
-/* RELATION Operations */
-/* ------------------- */
-
 /* Usage */
 /* ----- */
 LIST *relation_mto1_non_isa_list(
