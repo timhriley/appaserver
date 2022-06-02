@@ -10,6 +10,7 @@
 #include "list.h"
 #include "folder.h"
 #include "dictionary.h"
+#include "element.h"
 
 #define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
 #define PAIR_ONE2M_MANY_FOLDER_LABEL	"pair_one2m_many_folder"
@@ -18,20 +19,69 @@
 
 typedef struct
 {
-	char *many_folder_name;
-	char *copy_function;
-	char *folder_button_string;
-} PAIR_ONE2M_FOLDER;
+	char *value_set_javascript;
+	char *javascript;
+	char *label;
+	APPASERVER_ELEMENT *element_button;
+} PAIR_ONE2M_BUTTON;
 
 /* Usage */
 /* ----- */
-PAIR_ONE2M_FOLDER *pair_one2m_folder_new(
+PAIR_ONE2M_BUTTON *pair_one2m_button_new(
+			char *recall_save_javascript,
+			char *pair_one2m_prompt_insert_hidden_name,
 			char *many_folder_name );
 
 /* Process */
 /* ------- */
-LIST *pair_one2m_prompt_form_folder_list(
-			LIST *one2m_relation_list );
+PAIR_ONE2M_BUTTON *pair_one2m_button_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *pair_one2m_button_value_set_javascript(
+			char *pair_one2m_prompt_insert_hidden_name,
+			char *many_folder_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *pair_one2m_button_javascript(
+			char *recall_save_javascript,
+			char *pair_one2m_button_value_set_javascript );
+
+/* Returns heap memory */
+/* ------------------- */
+char *pair_one2m_button_label(
+			char *many_folder_name );
+
+typedef struct
+{
+	LIST *pair_one2m_button_list;
+	char *hidden_name;
+	APPASERVER_ELEMENT *transmit_hidden_element;
+	RELATION *relation;
+	LIST *element_list;
+} PAIR_ONE2M_PROMPT_INSERT;
+
+/* Usage */
+/* ----- */
+PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
+			char *recall_save_javascript,
+			LIST *relation_pair_one2m_list );
+
+/* Process */
+/* ------- */
+PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_calloc(
+			void );
+
+/* Returns pair_one2m_many_folder_label */
+/* ------------------------------------ */
+char *pair_one2m_prompt_insert_hidden_name(
+			char *pair_one2m_many_folder_label );
+
+LIST *pair_one2m_prompt_insert_element_list(
+			APPASERVER_ELEMENT *transmit_hidden_element,
+			LIST *pair_one2m_button_list );
 
 typedef struct
 {
@@ -72,16 +122,6 @@ PAIR_ONE2M *pair_one2m_calloc(
 
 /* Process */
 /* ------- */
-
-char *pair_folder_element_copy_function(
-			char *prompt_many_element_name,
-			char *many_folder_name );
-
-char *pair_folder_button_string(
-			char *many_folder_name,
-			char *keystrokes_save_function,
-			char *copy_function );
-
 LIST *pair_one2m_fulfilled_folder_name_list(
 			char *pair_one2m_fulfilled_list_label,
 			DICTIONARY *pair_one2m_dictionary );

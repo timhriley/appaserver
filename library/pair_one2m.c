@@ -16,8 +16,7 @@ PAIR_ONE2M *pair_one2m_calloc( void )
 {
 	PAIR_ONE2M *pair_one2m;
 
-	if ( ! ( pair_one2m =
-			(PAIR_ONE2M *)calloc( 1, sizeof( PAIR_ONE2M ) ) ) )
+	if ( ! ( pair_one2m = calloc( 1, sizeof( PAIR_ONE2M ) ) ) )
 	{
 		fprintf( stderr, 
 			 "%s/%s(): calloc() returned empty.\n",
@@ -365,3 +364,231 @@ void pair_one2m_set_fulfilled_name_list(
 		}
 	} while( list_next( one2m_pair_relation_list ) );
 }
+
+PAIR_ONE2M_BUTTON *pair_one2m_button_new(
+			char *recall_save_javascript,
+			char *pair_one2m_prompt_insert_hidden_name,
+			char *many_folder_name )
+{
+	PAIR_ONE2M_BUTTON *pair_one2m_button;
+
+	if ( !recall_save_javascript
+	||   !pair_one2m_prompt_insert_hidden_name
+	||   !many_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	pair_one2m_button = pair_one2m_button_calloc();
+
+	return pair_one2m_button;
+}
+
+PAIR_ONE2M_BUTTON *pair_one2m_button_calloc( void )
+{
+	PAIR_ONE2M_BUTTON *pair_one2m_button;
+
+	if ( ! ( pair_one2m_button =
+			calloc( 1, sizeof( PAIR_ONE2M_BUTTON ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return pair_one2m_button;
+}
+
+char *pair_one2m_button_value_set_javascript(
+			char *pair_one2m_prompt_insert_hidden_name,
+			char *many_folder_name )
+{
+	static char javascript[ 256 ];
+
+	sprintf(javascript,
+		"timlib_element_value_set( '%s', '%s' )",
+		pair_one2m_prompt_insert_hidden_name,
+		many_folder_name );
+
+	return javascript;
+}
+
+char *pair_one2m_button_javascript(
+			char *recall_save_javascript,
+			char *pair_one2m_button_value_set_javascript )
+{
+	char javascript[ 2048 ];
+	char *ptr = javascript;
+
+	*ptr = '\0';
+	return strdup( javascript );
+}
+
+char *pair_one2m_button_label( char *many_folder_name )
+{
+	char label[ 256 ];
+	char *ptr = label;
+	char piece_buffer[ 128 ];
+	int p;
+	char buffer[ 128 ];
+
+	if ( !many_folder_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: many_folder_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	for(	p = 0;
+		piece( piece_buffer, '_', many_folder_name, p );
+		p++ )
+	{
+		if ( !p ) ptr += sprintf( ptr, "<br>" );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			string_intial_capital(
+				buffer,
+				piece_buffer ) );
+	}
+
+	return strdup( label );
+}
+
+PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
+			char *recall_save_javascript,
+			LIST *relation_pair_one2m_list )
+{
+	PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert;
+
+	if ( !recall_save_javascript )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( relation_pair_one2m_list ) )
+	{
+		return (PAIR_ONE2M_PROMPT_INSERT *)0;
+	}
+
+	pair_one2m_prompt_insert = pair_one2m_prompt_insert_calloc();
+
+	pair_one2m_prompt_insert->pair_one2m_button_list = list_new();
+
+	pair_one2m_prompt_insert->hidden_name =
+		/* ------------------------------------ */
+		/* Returns pair_one2m_many_folder_label */
+		/* ------------------------------------ */
+		pair_one2m_prompt_insert_hidden_name(
+			PAIR_ONE2M_MANY_FOLDER_LABEL );
+
+	pair_one2m_prompt_insert->transmit_hidden_element =
+		appaserver_element_new(
+			hidden,
+			pair_one2m_prompt_insert->hidden_name );
+
+	do {
+		pair_one2m_prompt_insert->relation =
+			list_get(
+				relation_pair_one2m_list );
+
+		list_set(
+			pair_one2m_prompt_insert->pair_one2m_button_list,
+			pair_one2m_button_new(
+				recall_save_javascript,
+				pair_one2m_prompt_insert->hidden_name,
+				relation->many_folder_name ) );
+
+	} while ( list_next( relation_pair_one2m_list ) );
+
+	pair_one2m_prompt_insert->element_list =
+		pair_one2m_prompt_insert_element_list(
+			pair_one2m_prompt_insert->transmit_hidden_element,
+			pair_one2m_prompt_insert->pair_one2m_button_list );
+
+	return pair_one2m_prompt_insert;
+}
+
+PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_calloc( void )
+{
+	PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert;
+
+	if ( ! ( pair_one2m_prompt_insert =
+			calloc( 1, sizeof( PAIR_ONE2M_PROMPT_INSERT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return pair_one2m_prompt_insert;
+}
+
+char *pair_one2m_prompt_insert_hidden_name(
+			char *pair_one2m_many_folder_label )
+{
+	return pair_one2m_many_folder_label;
+}
+
+LIST *pair_one2m_prompt_insert_element_list(
+			APPASERVER_ELEMENT *transmit_hidden_element,
+			LIST *pair_one2m_button_list )
+{
+	PAIR_ONE2M_BUTTON *pair_one2m_button;
+	LIST *element_list;
+
+	if ( !transmit_hidden_element
+	||   !list_rewind( pair_one2m_button_list ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_list = list_new();
+
+	list_set( element_list, transmit_hidden_element );
+
+	do {
+		pair_one2m_button = list_get( pair_one2m_button_list );
+
+		if ( !pair_one2m_button->button_element )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: button_element is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set( element_list, pair_one2m_button->button_element );
+
+	} while ( list_next( pair_one2m_button_list ) );
+
+	return element_list;
+}
+

@@ -108,8 +108,10 @@ RELATION *relation_parse(
 	piece( ajax_fill_drop_down, SQL_DELIMITER, input, 11 );
 	relation->ajax_fill_drop_down = ( *ajax_fill_drop_down == 'y' );
 
-	piece( hint_message, SQL_DELIMITER, input, 12 );
-	relation->hint_message = strdup( hint_message );
+	if ( piece( hint_message, SQL_DELIMITER, input, 12 ) )
+	{
+		relation->hint_message = strdup( hint_message );
+	}
 
 	if ( fetch_folder )
 	{
@@ -334,8 +336,7 @@ LIST *relation_one2m_list( char *one_folder_name )
 			0 /* not fetch_process */ );
 }
 
-LIST *relation_pair_one2m_list(
-			LIST *relation_one2m_list )
+LIST *relation_pair_one2m_list( LIST *relation_one2m_list )
 {
 	RELATION *relation;
 	LIST *pair_one2m_list = {0};

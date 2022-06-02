@@ -12,11 +12,6 @@
 #include "list.h"
 #include "folder.h"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Constants */
-/* --------- */
 #define RELATION_TABLE		"relation"
 
 #define RELATION_PRIMARY_KEY	"folder,"				\
@@ -38,8 +33,6 @@
 				"hint_message"
 
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* Input */
