@@ -386,6 +386,34 @@ PAIR_ONE2M_BUTTON *pair_one2m_button_new(
 
 	pair_one2m_button = pair_one2m_button_calloc();
 
+	pair_one2m_button->value_set_javascript =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		pair_one2m_button_value_set_javascript(
+			pair_one2m_prompt_insert_hidden_name,
+			many_folder_name );
+
+	pair_one2m_button->label =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		pair_one2m_button_label(
+			many_folder_name );
+
+	pair_one2m_button->javascript =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		pair_one2m_button_javascript(
+			recall_save_javascript,
+			pair_one2m_button->value_set_javascript );
+
+	pair_one2m_button->button =
+		button_new(
+			pair_one2m_button->label,
+			pair_one2m_button->javascript );
+
 	return pair_one2m_button;
 }
 
@@ -425,10 +453,24 @@ char *pair_one2m_button_javascript(
 			char *recall_save_javascript,
 			char *pair_one2m_button_value_set_javascript )
 {
-	char javascript[ 2048 ];
-	char *ptr = javascript;
+	char javascript[ 4096 ];
 
-	*ptr = '\0';
+	if ( !recall_save_javascript
+	||   !pair_one2m_button_value_set_javascript )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(javascript,
+		"%s && %s && document.forms[0].submit()",
+		recall_save_javascript,
+		pair_one2m_button_value_set_javascript );
+
 	return strdup( javascript );
 }
 
@@ -473,7 +515,8 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
 {
 	PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert;
 
-	if ( !recall_save_javascript )
+	if ( !form_name
+	||   !recall_save_javascript )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -504,6 +547,16 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
 			hidden,
 			pair_one2m_prompt_insert->hidden_name );
 
+	free( pair_one2m_prompt_insert->transmit_hidden_element->hidden );
+
+	pair_one2m_prompt_insert->
+		transmit_hidden_element->
+		hidden =
+			element_hidden_new(
+				pair_one2m_prompt_insert->
+					transmit_hidden_element->
+					element_name,
+				(char *)0 /* value */ );
 	do {
 		pair_one2m_prompt_insert->relation =
 			list_get(

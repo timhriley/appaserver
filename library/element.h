@@ -78,8 +78,6 @@ typedef struct
 	boolean border_boolean;
 } ELEMENT_TABLE_OPEN;
 
-/* ELEMENT_TABLE_OPEN operations */
-/* ----------------------------- */
 ELEMENT_TABLE_OPEN *element_table_open_calloc(
 			void );
 
@@ -99,8 +97,6 @@ typedef struct
 	char *html;
 } ELEMENT_TABLE_HEADING;
 
-/* ELEMENT_TABLE_HEADING operations */
-/* ------------------------------- */
 ELEMENT_TABLE_HEADING *element_table_heading_calloc(
 			void );
 
@@ -117,8 +113,6 @@ typedef struct
 	char *html;
 } ELEMENT_TABLE_ROW;
 
-/* ELEMENT_TABLE_ROW operations */
-/* ---------------------------- */
 ELEMENT_TABLE_ROW *element_table_row_calloc(
 			void );
 
@@ -132,8 +126,6 @@ typedef struct
 	char *html;
 } ELEMENT_TABLE_CLOSE;
 
-/* ELEMENT_TABLE_CLOSE operations */
-/* ------------------------------ */
 ELEMENT_TABLE_CLOSE *element_table_close_calloc(
 			void );
 
@@ -160,8 +152,6 @@ typedef struct
 	char *javascript_replace_on_click;
 } ELEMENT_CHECKBOX;
 
-/* ELEMENT_CHECKBOX operations */
-/* --------------------------- */
 ELEMENT_CHECKBOX *element_checkbox_calloc(
 			void );
 
@@ -220,8 +210,8 @@ typedef struct
 	boolean recall;
 } ELEMENT_PROMPT_DROP_DOWN;
 
-/* ELEMENT_PROMPT_DROP_DOWN operations */
-/* ----------------------------------- */
+/* Usage */
+/* ----- */
 ELEMENT_PROMPT_DROP_DOWN *element_prompt_drop_down_new(
 			char *element_name,
 			LIST *delimited_list,
@@ -296,11 +286,8 @@ typedef struct
 	char *html;
 } ELEMENT_DROP_DOWN;
 
-/* ELEMENT_DROP_DOWN operations */
-/* ---------------------------- */
-ELEMENT_DROP_DOWN *element_drop_down_calloc(
-			void );
-
+/* Usage */
+/* ----- */
 ELEMENT_DROP_DOWN *element_drop_down_new(
 			char *element_name,
 			LIST *attribute_name_list,
@@ -315,6 +302,11 @@ ELEMENT_DROP_DOWN *element_drop_down_new(
 			char *post_change_javascript,
 			boolean readonly,
 			boolean recall );
+
+/* Process */
+/* ------- */
+ELEMENT_DROP_DOWN *element_drop_down_calloc(
+			void );
 
 /* Returns row_dictionary->hash_table->other_data */
 /* ---------------------------------------------- */
@@ -385,14 +377,16 @@ typedef struct
 	BUTTON *button;
 } ELEMENT_BUTTON;
 
-/* ELEMENT_BUTTON operations */
-/* ------------------------- */
-ELEMENT_BUTTON *element_button_calloc(
-			void );
-
+/* Usage */
+/* ----- */
 ELEMENT_BUTTON *element_button_new(
 			char *label,
 			char *action_string );
+
+/* Process */
+/* ------- */
+ELEMENT_BUTTON *element_button_calloc(
+			void );
 
 typedef struct
 {
@@ -410,14 +404,16 @@ typedef struct
 	char *heading_string;
 } ELEMENT_NON_EDIT_TEXT;
 
-/* ELEMENT_NON_EDIT_TEXT operations */
-/* -------------------------------- */
-ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
-			void );
-
+/* Usage */
+/* ----- */
 ELEMENT_NON_EDIT_TEXT *element_non_edit_text_new(
 			char *attribute_name,
 			char *message );
+
+/* Process */
+/* ------- */
+ELEMENT_NON_EDIT_TEXT *element_non_edit_text_calloc(
+			void );
 
 /* Public */
 /* ------ */
@@ -430,26 +426,38 @@ char *element_non_edit_text_initial_capital(
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *attribute_name;
 	LIST *attribute_name_list;
 
-	/* Public */
-	/* ------ */
 	char *key_string;
 	char *element_hidden_name;
 	char *value;
 } ELEMENT_HIDDEN;
 
-/* ELEMENT_HIDDEN operations */
-/* ------------------------- */
+/* Usage */
+/* ----- */
+ELEMENT_HIDDEN *element_hidden_new(
+			char *element_hidden_name,
+			char *value );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_hidden_html(
+			char *element_hidden_name,
+			char *value );
+
+/* Public */
+/* ------ */
 ELEMENT_HIDDEN *element_hidden_calloc(
 			void );
 
-ELEMENT_HIDDEN *element_hidden_new(
-			char *attribute_name,
-			LIST *attribute_name_list );
+/* Driver */
+/* ------ */
 
 /* Returns static memory */
 /* --------------------- */
@@ -460,22 +468,14 @@ char *element_hidden_key_string(
 /* Returns static memory */
 /* --------------------- */
 char *element_hidden_name(
-			char *key_string,
+			char *element_hidden_key_string,
 			int row_number );
-
-/* Returns heap memory */
-/* ------------------- */
-char *element_hidden_html(
-			char *element_hidden_name,
-			char *value );
 
 typedef struct
 {
 	char *html;
 } ELEMENT_LINE_BREAK;
 
-/* ELEMENT_LINE_BREAK operations */
-/* ----------------------------- */
 ELEMENT_LINE_BREAK *element_line_break_calloc(
 			void );
 
@@ -496,8 +496,6 @@ typedef struct
 	char *html;
 } ELEMENT_TABLE_DATA;
 
-/* ELEMENT_TABLE_DATA operations */
-/* ----------------------------- */
 ELEMENT_TABLE_DATA *element_table_data_calloc(
 			void );
 
@@ -535,8 +533,6 @@ typedef struct
 	char *heading;
 } ELEMENT_MULTI_DROP_DOWN;
 
-/* ELEMENT_MULTI_DROP_DOWN operations */
-/* ---------------------------------- */
 ELEMENT_MULTI_DROP_DOWN *element_multi_drop_down_calloc(
 			void );
 
@@ -623,8 +619,6 @@ typedef struct
 	char *heading_string;
 } ELEMENT_NOTEPAD;
 
-/* ELEMENT_NOTEPAD operations */
-/* -------------------------- */
 ELEMENT_NOTEPAD *element_notepad_calloc(
 			void );
 
@@ -684,8 +678,6 @@ typedef struct
 	char *heading_string;
 } ELEMENT_TEXT;
 
-/* ELEMENT_TEXT operations */
-/* ----------------------- */
 ELEMENT_TEXT *element_text_calloc(
 			void );
 
@@ -760,8 +752,6 @@ typedef struct
 	char *heading_string;
 } ELEMENT_PASSWORD;
 
-/* ELEMENT_PASSWORD operations */
-/* --------------------------- */
 ELEMENT_PASSWORD *element_password_calloc(
 			void );
 
@@ -803,8 +793,6 @@ typedef struct
 	char *html;
 } ELEMENT_UPLOAD;
 
-/* ELEMENT_UPLOAD operations */
-/* ------------------------- */
 ELEMENT_UPLOAD *element_upload_calloc(
 			void );
 
@@ -851,8 +839,6 @@ typedef struct
 	boolean recall;
 } ELEMENT_YES_NO;
 
-/* ELEMENT_YES_NO operations */
-/* ------------------------- */
 ELEMENT_YES_NO *element_yes_no_new(
 			char *attribute_name /* mutually exclusive */,
 			char *element_name /* mutually exclusive */,
@@ -903,8 +889,6 @@ typedef struct
 	char *post_change_javascript;
 } ELEMENT_RADIO_BUTTON;
 
-/* ELEMENT_RADIO_BUTTON operations */
-/* ------------------------------- */
 ELEMENT_RADIO_BUTTON *element_radio_button_calloc(
 			void );
 
@@ -938,9 +922,6 @@ typedef struct
 	ELEMENT_PASSWORD *password;
 	ELEMENT_YES_NO *yes_no;
 } APPASERVER_ELEMENT;
-
-/* APPASERVER_ELEMENT operations */
-/* ----------------------------- */
 
 /* Usage */
 /* ----- */

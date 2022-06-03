@@ -43,8 +43,7 @@ char *button_html(	char *label,
 /* ----- */
 BUTTON *button_submit(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
+			char *recall_save_javascript,
 			char *form_verify_notepad_widths_javascript,
 			int form_number );
 
@@ -55,8 +54,7 @@ BUTTON *button_submit(
 /* ------------------- */
 char *button_submit_html(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
+			char *recall_save_javascript,
 			char *form_verify_notepad_widths_javascript,
 			int form_number );
 
@@ -129,17 +127,15 @@ char *button_back_to_top_html(
 /* Usage */
 /* ----- */
 BUTTON *button_recall(
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript );
+			char *recall_load_javascript );
 
 /* Process */
 /* ------- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *button_recall_html(
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript );
+			char *recall_load_javascript );
 
 /* Usage */
 /* ----- */

@@ -3131,29 +3131,35 @@ ELEMENT_HIDDEN *element_hidden_calloc( void )
 }
 
 ELEMENT_HIDDEN *element_hidden_new(
-			char *attribute_name,
-			LIST *attribute_name_list )
+			char *element_hidden_name,
+			char *value )
 {
 	ELEMENT_HIDDEN *element_hidden = element_hidden_calloc();
 
-	element_hidden->attribute_name = attribute_name;
-	element_hidden->attribute_name_list = attribute_name_list;
+	element_hidden->element_hidden_name = element_hidden_name;
+	element_hidden->value = value;
+
+	element_hidden->html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_hidden_html(
+			element_hidden->element_hidden_name,
+			element_hidden->value );
 
 	return element_hidden;
 }
 
-/* Returns heap memory */
-/* ------------------- */
 char *element_hidden_html(
-			char *element_name,
+			char *element_hidden_name,
 			char *value )
 {
 	char html[ 1024 ];
 
-	if ( !element_name || !value )
+	if ( !element_hidden_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: element_hidden_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -3162,64 +3168,60 @@ char *element_hidden_html(
 
 	sprintf(html,
 		"<input name=%s type=hidden value=\"%s\">",
-		element_name,
-		value );
+		element_hidden_name,
+		(value) ? value : "" );
 
 	return strdup( html );
 }
 
 char *appaserver_element_hidden_html(
-			ELEMENT_HIDDEN *hidden,
+			ELEMENT_HIDDEN *element_hidden,
 			int row_number,
 			DICTIONARY *row_dictionary )
 {
-	char *html;
-
-	if ( !hidden )
+	if ( !element_hidden )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: hidden is empty.\n",
+			"ERROR in %s/%s()/%d: element_hidden is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( hidden->key_string =
+	if ( ! ( element_hidden->key_string =
 			element_hidden_key_string(
-				hidden->attribute_name,
-				hidden->attribute_name_list ) ) )
+				element_hidden->attribute_name,
+				element_hidden->attribute_name_list ) ) )
 	{
 		return (char *)0;
 	}
 
-	hidden->element_hidden_name =
+	element_hidden->element_hidden_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		element_hidden_name(
-			hidden->key_string,
+			element_hidden->key_string,
 			row_number );
 
-	hidden->value =
+	element_hidden->value =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		appaserver_element_value(
-			hidden->key_string,
+			element_hidden->key_string,
 			row_dictionary );
 
-	if ( !hidden->value ) return (char *)0;
+	if ( !element_hidden->value ) return (char *)0;
 
-	html =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		element_hidden_html(
-			hidden->element_hidden_name,
-			hidden->value );
-
-	return html;
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	element_hidden_html(
+		element_hidden->element_hidden_name,
+		element_hidden->value );
 }
 
 char *element_hidden_name(
@@ -3250,7 +3252,7 @@ char *element_hidden_key_string(
 
 	if ( attribute_name )
 	{
-		static char key_string[ 1024 ];
+		static char key_string[ 128 ];
 
 		strcpy( key_string, attribute_name );
 		return key_string;

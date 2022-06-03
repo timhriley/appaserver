@@ -10,7 +10,7 @@
 #include "list.h"
 #include "folder.h"
 #include "dictionary.h"
-#include "element.h"
+#include "button.h"
 
 #define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
 #define PAIR_ONE2M_MANY_FOLDER_LABEL	"pair_one2m_many_folder"
@@ -22,7 +22,7 @@ typedef struct
 	char *value_set_javascript;
 	char *javascript;
 	char *label;
-	APPASERVER_ELEMENT *element_button;
+	BUTTON *button;
 } PAIR_ONE2M_BUTTON;
 
 /* Usage */
@@ -45,14 +45,14 @@ char *pair_one2m_button_value_set_javascript(
 
 /* Returns heap memory */
 /* ------------------- */
-char *pair_one2m_button_javascript(
-			char *recall_save_javascript,
-			char *pair_one2m_button_value_set_javascript );
+char *pair_one2m_button_label(
+			char *many_folder_name );
 
 /* Returns heap memory */
 /* ------------------- */
-char *pair_one2m_button_label(
-			char *many_folder_name );
+char *pair_one2m_button_javascript(
+			char *recall_save_javascript,
+			char *pair_one2m_button_value_set_javascript );
 
 typedef struct
 {

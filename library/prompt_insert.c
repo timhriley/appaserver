@@ -170,6 +170,10 @@ PROMPT_INSERT *prompt_insert_new(
 			prompt_insert->folder->non_owner_forbid,
 			prompt_insert->role->override_row_restrictions );
 
+	prompt_insert->folder->relation_pair_one2m_list =
+		relation_pair_one2m_list(
+			prompt_insert->folder->relation_one2m_list );
+
 	prompt_insert->form_prompt_insert =
 		form_prompt_insert_new(
 			application_name,
@@ -190,7 +194,8 @@ PROMPT_INSERT *prompt_insert_new(
 			role_folder_lookup(
 				prompt_insert->
 					folder->
-					role_folder_list ) );
+					role_folder_list ),
+			prompt_insert->folder->relation_pair_one2m_list );
 
 	if ( !prompt_insert->form_prompt_insert )
 	{

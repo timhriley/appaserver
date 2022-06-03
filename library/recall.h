@@ -30,7 +30,6 @@ typedef struct
 /* --------------- */
 RECALL *recall_new(	char *folder_name,
 			char *state,
-			char *process_name,
 			char *form_name,
 			LIST *appaserver_element_list );
 
@@ -42,15 +41,13 @@ RECALL *recall_calloc(	void );
 /* --------------------- */
 char *recall_cookie_key(
 			char *folder_name,
-			char *state,
-			char *process_name );
+			char *state );
 
 /* Returns static memory */
 /* --------------------- */
 char *recall_cookie_multi_key(
 			char *folder_name,
-			char *state,
-			char *process_name );
+			char *state );
 
 /* Returns heap memory or null */
 /* --------------------------- */

@@ -647,7 +647,8 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *security_entity_where,
-			boolean role_folder_lookup )
+			boolean role_folder_lookup,
+			LIST *relation_pair_one2m_list )
 {
 	FORM_PROMPT_INSERT *form_prompt_insert;
 	char *tmp;
@@ -702,52 +703,10 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 	}
 
 	form_prompt_insert->form_multi_select_all_javascript =
-		form_multi_select_all_javascript(
+		form_multi_select_set_all_javascript(
 			form_prompt_insert->
 				form_prompt_insert_element_list->
-				element_list );
-
-	form_prompt_insert->form_cookie_key =
-		form_cookie_key(
-			FORM_PROMPT_INSERT_NAME /* form_name */,
-			folder_name );
-
-	form_prompt_insert->form_cookie_multi_key =
-		form_cookie_multi_key(
-			FORM_PROMPT_INSERT_NAME /* form_name */,
-			folder_name );
-
-	form_prompt_insert->form_keystrokes_save_javascript =
-		form_keystrokes_save_javascript(
-			FORM_PROMPT_INSERT_NAME /* form_name */,
-			form_prompt_insert->form_cookie_key,
-			form_prompt_insert->
-				form_prompt_insert_element_list->
-				element_list );
-
-	form_prompt_insert->form_keystrokes_multi_save_javascript =
-		form_keystrokes_multi_save_javascript(
-			FORM_PROMPT_INSERT_NAME /* form_name */,
-			form_prompt_insert->form_cookie_multi_key,
-			form_prompt_insert->
-				form_prompt_insert_element_list->
-				element_list );
-
-	form_prompt_insert->form_keystrokes_recall_javascript =
-		form_keystrokes_recall_javascript(
-			FORM_PROMPT_INSERT_NAME /* form_name */,
-			form_prompt_insert->form_cookie_key,
-			form_prompt_insert->
-				form_prompt_insert_element_list->
-				element_list );
-
-	form_prompt_insert->form_keystrokes_multi_recall_javascript =
-		form_keystrokes_multi_recall_javascript(
-			FORM_PROMPT_INSERT_NAME /* form_name */,
-			form_prompt_insert->form_cookie_multi_key,
-			form_prompt_insert->
-				form_prompt_insert_element_list->
-				element_list );
+				appaserver_element_list );
 
 	form_prompt_insert->form_verify_notepad_widths_javascript =
 		form_verify_notepad_widths_javascript(
@@ -756,20 +715,48 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 				form_prompt_insert_element_list->
 				element_list );
 
+	if ( ! ( form_prompt_insert->recall =
+			recall_new(
+				folder_name,
+				APPASERVER_INSERT_STATE,
+				form_prompt_insert->
+					form_prompt_insert_element_list->
+					appaserver_element_list ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: recall_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	if ( list_length( relation_pair_one2m_list ) )
+	{
+		form_prompt_insert->pair_one2m_prompt_insert =
+			pair_one2m_prompt_insert_new(
+				form_prompt_insert->recall->save_javascript,
+				relation_pair_one2m_list );
+	}
+
 	form_prompt_insert->button_list =
 		form_prompt_insert_button_list(
 			form_prompt_insert->
 				form_multi_select_all_javascript,
 			form_prompt_insert->
-				form_keystrokes_save_javascript,
+				recall->
+				save_javascript,
 			form_prompt_insert->
-				form_keystrokes_multi_save_javascript,
+				recall->
+				load_javascript,
 			form_prompt_insert->
-				form_keystrokes_recall_javascript,
-			form_prompt_insert->
-				form_keystrokes_multi_recall_javascript,
-			form_prompt_insert->
-				form_verify_notepad_widths_javascript );
+				form_verify_notepad_widths_javascript,
+			(form_prompt_insert->pair_one2m_prompt_insert)
+				? form_prompt_insert->
+					pair_one2m_prompt_insert->
+					button_list
+				: (LIST *)0 );
 
 	form_prompt_insert->html =
 		/* ------------------- */
@@ -792,11 +779,19 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			/* ---------------------- */
 			form_close_html() );
 
+	form_prompt_insert->hidden_html =
+		form_prompt_insert_hidden_html(
+			(form_prompt_insert->pair_one2m_prompt_insert)
+				? form_prompt_insert->
+					pair_one2m_prompt_insert->
+					transmit_hidden_element
+				: (char *)0 );
+
+	free( tmp );
+
 	free( form_prompt_insert->
 			form_prompt_insert_element_list->
 			appaserver_element_list_html );
-
-	free( tmp );
 
 	button_list_free(
 		form_prompt_insert->
@@ -869,11 +864,10 @@ char *form_prompt_insert_action_string(
 
 LIST *form_prompt_insert_button_list(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript,
-			char *form_verify_notepad_widths_javascript )
+			char *recall_save_javascript,
+			char *recall_load_javascript,
+			char *form_verify_notepad_widths_javascript,
+			LIST *pair_one2m_prompt_insert_button_list )
 {
 	LIST *button_list = list_new();
 
@@ -881,8 +875,7 @@ LIST *form_prompt_insert_button_list(
 		button_list,
 		button_submit(
 			form_multi_select_all_javascript,
-			form_keystrokes_save_javascript,
-			form_keystrokes_multi_save_javascript,
+			recall_save_javascript,
 			form_verify_notepad_widths_javascript,
 			0 /* form_number */ ) );
 
@@ -903,8 +896,7 @@ LIST *form_prompt_insert_button_list(
 	list_set(
 		button_list,
 		button_recall(
-			form_keystrokes_recall_javascript,
-			form_keystrokes_multi_recall_javascript ) );
+			recall_load_javascript ) );
 
 	return button_list;
 }

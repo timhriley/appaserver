@@ -29,7 +29,6 @@ RECALL *recall_calloc( void )
 
 RECALL *recall_new(	char *folder_name,
 			char *state,
-			char *process_name,
 			char *form_name,
 			LIST *appaserver_element_list )
 {
@@ -41,8 +40,7 @@ RECALL *recall_new(	char *folder_name,
 		/* --------------------- */
 		recall_cookie_key(
 			folder_name,
-			state,
-			process_name );
+			state );
 
 	recall->cookie_multi_key =
 		/* --------------------- */
@@ -50,8 +48,7 @@ RECALL *recall_new(	char *folder_name,
 		/* --------------------- */
 		recall_cookie_multi_key(
 			folder_name,
-			state,
-			process_name );
+			state );
 
 	recall->keystrokes_save_javascript =
 		/* --------------------------- */
@@ -146,8 +143,7 @@ RECALL *recall_new(	char *folder_name,
 
 char *recall_cookie_key(
 			char *folder_name,
-			char *state,
-			char *process_name )
+			char *state )
 {
 	static char cookie_key[ 128 ];
 
@@ -159,20 +155,8 @@ char *recall_cookie_key(
 			state );
 	}
 	else
-	if ( process_name )
 	{
-		sprintf(cookie_key,
-			"<%s>",
-			process_name );
-	}
-	else
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		strcpy( cookie_key, "<process>" );
 	}
 
 	return cookie_key;
@@ -180,8 +164,7 @@ char *recall_cookie_key(
 
 char *recall_multi_cookie_key(
 			char *folder_name,
-			char *state,
-			char *process_name )
+			char *state )
 {
 	static char multi_cookie_key[ 128 ];
 
@@ -193,20 +176,8 @@ char *recall_multi_cookie_key(
 			state );
 	}
 	else
-	if ( process_name )
 	{
-		sprintf(multi_cookie_key,
-			"<multi_%s>",
-			process_name );
-	}
-	else
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		strcpy( multi_cookie_key, "<multi_process>" );
 	}
 
 	return multi_cookie_key;

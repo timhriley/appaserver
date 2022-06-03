@@ -16,11 +16,11 @@
 #include "radio.h"
 #include "query.h"
 #include "dictionary_separate.h"
+#include "recall.h"
+#include "pair_one2m.h"
 #include "post_prompt_insert.h"
 #include "form.h"
 
-/* Constants */
-/* --------- */
 #define FORM_PROMPT_INSERT_NAME		"prompt_insert"
 
 typedef struct
@@ -33,9 +33,6 @@ typedef struct
 	APPASERVER_ELEMENT *text_appaserver_element;
 	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_INSERT_ATTRIBUTE;
-
-/* FORM_PROMPT_INSERT_ATTRIBUTE operations */
-/* --------------------------------------- */
 
 /* Usage */
 /* ----- */
@@ -70,9 +67,6 @@ typedef struct
 	APPASERVER_ELEMENT *drop_down_appaserver_element;
 	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_INSERT_RELATION;
-
-/* FORM_PROMPT_INSERT_RELATION operations */
-/* ------------------------------------ */
 
 /* Usage */
 /* ----- */
@@ -110,9 +104,6 @@ typedef struct
 	char *appaserver_element_list_html;
 } FORM_PROMPT_INSERT_ELEMENT_LIST;
 
-/* FORM_PROMPT_INSERT_ELEMENT_LIST operations */
-/* ------------------------------------------ */
-
 /* Usage */
 /* ----- */
 FORM_PROMPT_INSERT_ELEMENT_LIST *
@@ -139,6 +130,7 @@ typedef struct
 	char *action_string;
 	char *form_tag_html;
 	FORM_PROMPT_INSERT_ELEMENT_LIST *form_prompt_insert_element_list;
+	RECALL *recall;
 	char *form_multi_select_all_javascript;
 	char *form_cookie_key;
 	char *form_cookie_multi_key;
@@ -149,10 +141,8 @@ typedef struct
 	char *form_verify_notepad_widths_javascript;
 	LIST *button_list;
 	char *html;
+	char *hidden_html;
 } FORM_PROMPT_INSERT;
-
-/* FORM_PROMPT_INSERT operations */
-/* ----------------------------- */
 
 /* Usage */
 /* ----- */
@@ -169,7 +159,8 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			LIST *relation_mto1_non_isa_list,
 			DICTIONARY *drillthru_dictionary,
 			char *security_entity_where,
-			boolean role_folder_lookup );
+			boolean role_folder_lookup,
+			LIST *relation_pair_one2m_list );
 
 /* Process */
 /* ------- */
@@ -199,5 +190,9 @@ char *form_prompt_insert_html(
 			char *form_prompt_edit_element_list_html,
 			char *button_list_html,
 			char *form_close_html );
+
+/* Returns transmit_hidden_element->
+char *form_prompt_insert_hidden_html(
+			APPASERVER_ELEMENT *transmit_hidden_element );
 
 #endif

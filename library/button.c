@@ -110,8 +110,7 @@ char *button_reset_html(
 
 BUTTON *button_submit(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
+			char *recall_save_javascript,
 			char *form_verify_notepad_widths_javascript,
 			int form_number )
 {
@@ -123,8 +122,7 @@ BUTTON *button_submit(
 		/* ------------------- */
 		button_submit_html(
 			form_multi_select_all_javascript,
-			form_keystrokes_save_javascript,
-			form_keystrokes_multi_save_javascript,
+			recall_save_javascript,
 			form_verify_notepad_widths_javascript,
 			form_number );
 
@@ -133,8 +131,7 @@ BUTTON *button_submit(
 
 char *button_submit_html(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
+			char *recall_save_javascript,
 			char *form_verify_notepad_widths_javascript,
 			int form_number )
 {
@@ -157,7 +154,7 @@ char *button_submit_html(
 		got_one = 1;
 	}
 
-	if ( form_keystrokes_save_javascript )
+	if ( recall_save_javascript )
 	{
 		if ( got_one )
 		{
@@ -167,22 +164,7 @@ char *button_submit_html(
 		ptr += sprintf(
 			ptr,
 			"%s",
-			form_keystrokes_save_javascript );
-
-		got_one = 1;
-	}
-
-	if ( form_keystrokes_multi_save_javascript )
-	{
-		if ( got_one )
-		{
-			ptr += sprintf( ptr, " && " );
-		}
-
-		ptr += sprintf(
-			ptr,
-			"%s",
-			form_keystrokes_multi_save_javascript );
+			recall_save_javascript );
 
 		got_one = 1;
 	}
@@ -285,55 +267,40 @@ char *button_back_to_top_html( void )
 	return strdup( html );
 }
 
-BUTTON *button_recall(
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript )
+BUTTON *button_recall( char *recall_load_javascript )
 {
 	BUTTON *button = button_calloc();
 
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
 	button->html =
 		button_recall_html(
-			form_keystrokes_recall_javascript,
-			form_keystrokes_multi_recall_javascript );
+			recall_load_javascript );
+
+	if ( !button->html )
+	{
+		free( button );
+		return (BUTTON *)0;
+	}
 
 	return button;
 }
 
 char *button_recall_html(
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript )
+			char *recall_load_javascript )
 {
 	char html[ 1024 ];
 	char *ptr = html;
 
-	if ( !form_keystrokes_recall_javascript
-	||   !*form_keystrokes_recall_javascript )
+	if ( !recall_load_javascript || !*recall_load_javascript )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: form_keystrokes_recall_javascript is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return (char *)0;
 	}
 
 	ptr += sprintf( ptr,
-"<td><input type=button value=Recall onClick=\"%s",
-		form_keystrokes_recall_javascript );
-
-	if ( form_keystrokes_multi_recall_javascript
-	&&   *form_keystrokes_multi_recall_javascript )
-	{
-		ptr += sprintf(
-			ptr,
-			" && %s",
-			form_keystrokes_multi_recall_javascript );
-	}
-
-	ptr += sprintf( ptr, "\">" );
+"<td><input type=button value=Recall onClick=\"%s\">",
+		recall_load_javascript );
 
 	return strdup( html );
 }
