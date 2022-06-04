@@ -8,14 +8,44 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "String.h"
+#include "piece.h"
 #include "folder.h"
+#include "sql.h"
 #include "dictionary.h"
+#include "element.h"
 #include "button.h"
 
 #define PAIR_ONE2M_ONE_FOLDER_LABEL	"pair_one2m_one_folder"
 #define PAIR_ONE2M_MANY_FOLDER_LABEL	"pair_one2m_many_folder"
 #define PAIR_ONE2M_FULFILLED_LIST_LABEL	"pair_one2m_fulfilled_list"
-#define PAIR_ONE2M_DUPLICATE_KEY	"pair_one2m_duplicate"
+
+typedef struct
+{
+	char *many_folder_name;
+	DICTIONARY *pair_one2m_dictionary;
+} PAIR_ONE2M_POST_PROMPT_INSERT;
+
+/* Usage */
+/* ----- */
+PAIR_ONE2M_POST_PROMPT_INSERT *
+	pair_one2m_post_prompt_insert_new(
+			char *one_folder_name,
+			DICTIONARY *non_prefixed_dictionary );
+
+/* Process */
+/* ------- */
+PAIR_ONE2M_POST_PROMPT_INSERT *
+	pair_one2m_post_prompt_insert_calloc(
+			void );
+
+char *pair_one2m_post_prompt_insert_many_folder_name(
+			char *pair_one2m_many_folder_label,
+			DICTIONARY *non_prefixed_dictionary );
+
+DICTIONARY *pair_one2m_post_prompt_insert_dictionary(
+			char *pair_one2m_one_folder_label,
+			char *one_folder_name );
 
 typedef struct
 {
@@ -71,7 +101,8 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_new(
 
 /* Process */
 /* ------- */
-PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_calloc(
+PAIR_ONE2M_PROMPT_INSERT *
+	pair_one2m_prompt_insert_calloc(
 			void );
 
 /* Returns pair_one2m_many_folder_label */
@@ -79,109 +110,35 @@ PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert_calloc(
 char *pair_one2m_prompt_insert_hidden_name(
 			char *pair_one2m_many_folder_label );
 
-LIST *pair_one2m_prompt_insert_element_list(
-			APPASERVER_ELEMENT *transmit_hidden_element,
-			LIST *pair_one2m_button_list );
+/* Public */
+/* ------ */
 
-typedef struct
-{
-	char *one_folder_name;
-	char *many_folder_name;
-	char *keystrokes_save_function;
-	char *prompt_one_element_name;
-	char *prompt_many_element_name;
-	LIST *one2m_pair_relation_list;
-	LIST *prompt_form_folder_list;
-	LIST *fulfilled_folder_name_list;
-	char *next_folder_name;
-	DICTIONARY *pair_one2m_dictionary;
-	boolean participating;
-	boolean duplicate;
-} PAIR_ONE2M;
-
-/* Usage */
-/* ----- */
-PAIR_ONE2M *pair_one2m_prompt_form_new(
-			char *one_folder_name );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-PAIR_ONE2M *pair_one2m_post_new(
-			DICTIONARY *pair_one2m_dictionary );
-
-/* Process */
-/* ------- */
-
-/* Private */
-/*-------- */
-PAIR_ONE2M *pair_one2m_calloc(
-			void );
-
-/* Process */
-/* ------- */
+/* Always succeeds */
+/* --------------- */
 LIST *pair_one2m_fulfilled_folder_name_list(
 			char *pair_one2m_fulfilled_list_label,
 			DICTIONARY *pair_one2m_dictionary );
 
-LIST *pair_one2m_fulfilled_folder_name_list(
-			char *pair_one2m_fulfilled_list_label,
-			DICTIONARY *pair_one2m_dictionary );
-
-DICTIONARY *pair_one2m_fulfilled_dictionary(
-			/* -------------------------------------- */
-			/* Sets and returns pair_one2m_dictionary */
-			/* -------------------------------------- */
-			DICTIONARY *pair_one2m_dictionary,
-			char *pair_one2m_fulfilled_list_label,
-			LIST *pair_one2m_fulfilled_folder_name_list );
-
+/* Returns relation->many_folder_name or null */
+/* ------------------------------------------ */
 char *pair_one2m_next_folder_name(
 			LIST *pair_one2m_fulfilled_folder_name_list,
-			LIST *relation_one2m_pair_relation_list );
+			LIST *relation_one2m_pair_list );
 
-char *pair_one2m_folder_name(
-			char *folder_label,
-			DICTIONARY *pair_one2m_dictionary );
+/* Returns pair_one2m_fulfilled_list_label */
+/* --------------------------------------- */
+char *pair_one2m_fulfilled_list_key(
+			char *pair_one2m_fulfilled_list_label );
 
-char *pair_one2m_prompt_element_name(
-			char *pair_one2m_prefix,
-			char *folder_label );
+/* Returns heap memory */
+/* ------------------- */
+char *pair_one2m_fulfilled_list_data(
+			LIST *pair_one2m_fulfilled_folder_name_list,
+			char *pair_one2m_next_folder_name,
+			char sql_delimiter );
 
 boolean pair_one2m_participating(
 			DICTIONARY *pair_one2m_dictionary );
-
-boolean pair_one2m_duplicate(
-			char *message_key,
-			char *message );
-
-void pair_one2m_duplicate_set(
-			DICTIONARY *pair_one2m_dictionary,
-			char *pair_one2m_duplicate_key );
-
-void pair_one2m_duplicate_unset(
-			DICTIONARY *pair_one2m_dictionary,
-			char *pair_one2m_duplicate_key );
-
-boolean pair_one2m_inserted_duplicate(
-			char *pair_one2m_duplicate_key,
-			DICTIONARY *pair_one2m_dictionary );
-
-void pair_one2m_folder_set(
-			DICTIONARY *pair_one2m_dictionary,
-			char *folder_label,
-			char *folder_name );
-
-void pair_one2m_set_folder_button_string(
-			LIST *prompt_form_folder_list,
-			char *keystrokes_save_function );
-
-void pair_one2m_set_fulfilled_name_list(
-			LIST *fulfilled_name_list,
-			char *many_folder_name,
-			LIST *one2m_pair_relation_list );
 
 #endif
 

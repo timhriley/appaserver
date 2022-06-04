@@ -434,6 +434,7 @@ typedef struct
 	char *key_string;
 	char *element_hidden_name;
 	char *value;
+	char *html;
 } ELEMENT_HIDDEN;
 
 /* Usage */

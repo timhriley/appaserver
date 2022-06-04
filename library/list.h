@@ -266,8 +266,8 @@ void list_display_lines(
 char *list_display_line(
 			LIST *list );
 
-/* Returns heap memory null */
-/* ------------------------ */
+/* Returns heap memory or null */
+/* --------------------------- */
 char *list_delimited_string(
 			LIST *list,
 			char delimiter );

@@ -124,90 +124,33 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 				form_prompt_lookup_element_list->
 				element_list );
 
-	form_prompt_lookup->form_cookie_key =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		form_cookie_key(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			folder_name );
-
-	form_prompt_lookup->form_cookie_multi_key =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		form_cookie_multi_key(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			folder_name );
-
-	form_prompt_lookup->form_keystrokes_save_javascript =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_keystrokes_save_javascript(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			form_prompt_lookup->form_cookie_key,
-			form_prompt_lookup->
-				form_prompt_lookup_element_list->
-				element_list );
-
-	form_prompt_lookup->form_keystrokes_multi_save_javascript =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_keystrokes_multi_save_javascript(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			form_prompt_lookup->form_cookie_multi_key,
-			form_prompt_lookup->
-				form_prompt_lookup_element_list->
-				element_list );
-
-	form_prompt_lookup->form_keystrokes_recall_javascript =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_keystrokes_recall_javascript(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			form_prompt_lookup->form_cookie_key,
-			form_prompt_lookup->
-				form_prompt_lookup_element_list->
-				element_list );
-
-	form_prompt_lookup->form_keystrokes_multi_recall_javascript =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_keystrokes_multi_recall_javascript(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			form_prompt_lookup->form_cookie_multi_key,
-			form_prompt_lookup->
-				form_prompt_lookup_element_list->
-				element_list );
-
-	form_prompt_lookup->form_verify_notepad_widths_javascript =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		form_verify_notepad_widths_javascript(
-			FORM_PROMPT_LOOKUP_NAME /* form_name */,
-			form_prompt_lookup->
-				form_prompt_lookup_element_list->
-				element_list );
+	if ( ! ( form_prompt_lookup->recall =
+			recall_new(
+				folder_name,
+				APPASERVER_LOOKUP_STATE,
+				FORM_PROMPT_LOOKUP_NAME /* form_name */,
+				form_prompt_lookup->
+					form_prompt_lookup_element_list->
+					element_list ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: recall_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	form_prompt_lookup->button_list =
 		form_prompt_lookup_button_list(
 			form_prompt_lookup->
 				form_multi_select_all_javascript,
 			form_prompt_lookup->
-				form_keystrokes_save_javascript,
+				recall->
+				save_javascript,
 			form_prompt_lookup->
-				form_keystrokes_multi_save_javascript,
-			form_prompt_lookup->
-				form_keystrokes_recall_javascript,
-			form_prompt_lookup->
-				form_keystrokes_multi_recall_javascript,
-			form_prompt_lookup->
-				form_verify_notepad_widths_javascript );
+				recall->
+				load_javascript );
 
 	form_prompt_lookup->html =
 		/* ------------------- */
@@ -1007,11 +950,8 @@ char *form_prompt_lookup_html(
 
 LIST *form_prompt_lookup_button_list(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript,
-			char *form_verify_notepad_widths_javascript )
+			char *recall_save_javascript,
+			char *recall_load_javascript )
 {
 	LIST *button_list = list_new();
 
@@ -1019,9 +959,8 @@ LIST *form_prompt_lookup_button_list(
 		button_list,
 		button_submit(
 			form_multi_select_all_javascript,
-			form_keystrokes_save_javascript,
-			form_keystrokes_multi_save_javascript,
-			form_verify_notepad_widths_javascript,
+			recall_save_javascript,
+			(char *)0 /* form_verify_notepad_widths_javascript */,
 			0 /* form_number */ ) );
 
 	list_set(
@@ -1040,9 +979,7 @@ LIST *form_prompt_lookup_button_list(
 
 	list_set(
 		button_list,
-		button_recall(
-			form_keystrokes_recall_javascript,
-			form_keystrokes_multi_recall_javascript ) );
+		button_recall( recall_load_javascript ) );
 
 	return button_list;
 }

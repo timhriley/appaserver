@@ -470,50 +470,6 @@ char *button_help_html(	char *application_name,
 	return strdup( html );
 }
 
-LIST *button_insert_pair_one2m_submit_list(
-			LIST *pair_one2m_folder_list )
-{
-	PAIR_ONE2M_FOLDER *pair_one2m_folder;
-	LIST *button_list;
-	BUTTON *button;
-
-	if ( !list_rewind( pair_one2m_folder_list ) )
-	{
-		return (LIST *)0;
-	}
-
-	button_list = list_new();
-
-	do {
-		pair_one2m_folder =
-			list_get( 
-				pair_one2m_folder_list );
-
-		button = button_calloc();
-
-		if ( !pair_one2m_folder->folder_button_string )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: folder_button_string is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		button->html =
-			pair_one2m_folder->
-				folder_button_string;
-
-		list_set(
-			button_list,
-			button );
-
-	} while( list_next( pair_one2m_folder_list ) );
-
-	return button_list;
-}
-
 char *button_list_html( LIST *button_list )
 {
 	char html[ STRING_64K ];

@@ -174,7 +174,4 @@ char *button_list_html(	LIST *button_list );
 
 void button_list_free(	LIST *button_list );
 
-LIST *button_insert_pair_one2m_submit_list(
-			LIST *pair_one2m_folder_list );
-
 #endif

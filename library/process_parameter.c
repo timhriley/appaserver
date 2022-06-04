@@ -1196,3 +1196,15 @@ LIST *process_parameter_set_member_list(
 	return process_parameter_list;
 }
 
+char *process_parameter_drop_down_prompt_primary_where(
+			char *drop_down_prompt_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"drop_down_prompt = '%s'",
+		drop_down_prompt_name );
+
+	return where;
+}
+

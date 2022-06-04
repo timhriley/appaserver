@@ -703,10 +703,10 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 	}
 
 	form_prompt_insert->form_multi_select_all_javascript =
-		form_multi_select_set_all_javascript(
+		form_multi_select_all_javascript(
 			form_prompt_insert->
 				form_prompt_insert_element_list->
-				appaserver_element_list );
+				element_list );
 
 	form_prompt_insert->form_verify_notepad_widths_javascript =
 		form_verify_notepad_widths_javascript(
@@ -719,9 +719,10 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			recall_new(
 				folder_name,
 				APPASERVER_INSERT_STATE,
+				FORM_PROMPT_INSERT_NAME /* form_name */,
 				form_prompt_insert->
 					form_prompt_insert_element_list->
-					appaserver_element_list ) ) )
+					element_list ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: recall_new() returned empty.\n",
@@ -730,7 +731,6 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			__LINE__ );
 		exit( 1 );
 	}
-
 
 	if ( list_length( relation_pair_one2m_list ) )
 	{
@@ -755,8 +755,17 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 			(form_prompt_insert->pair_one2m_prompt_insert)
 				? form_prompt_insert->
 					pair_one2m_prompt_insert->
-					button_list
+					pair_one2m_button_list
 				: (LIST *)0 );
+
+	if ( form_prompt_insert->pair_one2m_prompt_insert )
+	{
+		form_prompt_insert->hidden_html =
+			form_prompt_insert_hidden_html(
+				form_prompt_insert->
+					pair_one2m_prompt_insert->
+					transmit_hidden_element );
+	}
 
 	form_prompt_insert->html =
 		/* ------------------- */
@@ -774,24 +783,17 @@ FORM_PROMPT_INSERT *form_prompt_insert_new(
 				button_list_html(
 					form_prompt_insert->
 					     button_list ) ),
+			form_prompt_insert->hidden_html,
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
 			form_close_html() );
 
-	form_prompt_insert->hidden_html =
-		form_prompt_insert_hidden_html(
-			(form_prompt_insert->pair_one2m_prompt_insert)
-				? form_prompt_insert->
-					pair_one2m_prompt_insert->
-					transmit_hidden_element
-				: (char *)0 );
-
-	free( tmp );
-
 	free( form_prompt_insert->
 			form_prompt_insert_element_list->
 			appaserver_element_list_html );
+
+	free( tmp );
 
 	button_list_free(
 		form_prompt_insert->
@@ -867,7 +869,7 @@ LIST *form_prompt_insert_button_list(
 			char *recall_save_javascript,
 			char *recall_load_javascript,
 			char *form_verify_notepad_widths_javascript,
-			LIST *pair_one2m_prompt_insert_button_list )
+			LIST *pair_one2m_button_list )
 {
 	LIST *button_list = list_new();
 
@@ -878,6 +880,22 @@ LIST *form_prompt_insert_button_list(
 			recall_save_javascript,
 			form_verify_notepad_widths_javascript,
 			0 /* form_number */ ) );
+
+	if ( list_rewind( pair_one2m_button_list ) )
+	{
+		PAIR_ONE2M_BUTTON *pair_one2m_button;
+
+		do {
+			pair_one2m_button =
+				list_get(
+					pair_one2m_button_list );
+
+			list_set(
+				button_list,
+				pair_one2m_button->button );
+
+		} while ( list_next( pair_one2m_button_list ) );
+	}
 
 	list_set(
 		button_list,
@@ -903,14 +921,16 @@ LIST *form_prompt_insert_button_list(
 
 char *form_prompt_insert_html(
 			char *form_tag_html,
-			char *form_prompt_edit_element_list_html,
+			char *element_list_html,
 			char *button_list_html,
+			char *hidden_html,
 			char *form_close_html )
 {
 	char html[ STRING_ONE_MEG ];
+	char *ptr = html;
 
 	if ( !form_tag_html
-	||   !form_prompt_edit_element_list_html
+	||   !element_list_html
 	||   !button_list_html
 	||   !form_close_html )
 	{
@@ -922,11 +942,24 @@ char *form_prompt_insert_html(
 		exit( 1 );
 	}
 
-	sprintf(html,
-		"%s\n%s\n%s\n%s",
+	ptr += sprintf(
+		ptr,
+		"%s\n%s\n%s\n",
 		form_tag_html,
-		form_prompt_edit_element_list_html,
-		button_list_html,
+		element_list_html,
+		button_list_html );
+
+	if ( hidden_html )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s\n",
+			hidden_html );
+	}
+
+	ptr += sprintf(
+		ptr,
+		"%s",
 		form_close_html );
 
 	return strdup( html );
@@ -982,5 +1015,24 @@ LIST *form_prompt_insert_element_list_lookup_list(
 			0 /* not recall */ );
 
 	return element_list;
+}
+
+char *form_prompt_insert_hidden_html(
+			APPASERVER_ELEMENT *transmit_hidden_element )
+{
+	if ( !transmit_hidden_element ) return (char *)0;
+
+	if ( !transmit_hidden_element->hidden
+	||   !transmit_hidden_element->hidden->html )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: transmit_hidden_element->hidden is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return transmit_hidden_element->hidden->html;
 }
 

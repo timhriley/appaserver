@@ -157,6 +157,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/process.o					\
 		${LIB}/form.o						\
 		${LIB}/form_prompt_lookup.o				\
+		${LIB}/form_prompt_process.o				\
 		${LIB}/form_table_edit.o				\
 		${LIB}/form_choose_isa.o				\
 		${LIB}/form_choose_role.o				\
@@ -177,7 +178,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/table_edit.o					\
 		${LIB}/table_insert.o					\
 		${LIB}/prompt_insert.o					\
-		${LIB}/prompt_edit.o					\
+		${LIB}/prompt_lookup.o					\
 		${LIB}/row_security.o					\
 		${LIB}/drillthru.o					\
 		${LIB}/choose_isa.o					\
@@ -186,7 +187,11 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post_choose_folder.o				\
 		${LIB}/post_choose_process.o				\
 		${LIB}/post_table_edit.o				\
-		${LIB}/post_prompt_insert.o
+		${LIB}/post_prompt_insert.o				\
+		${LIB}/recall.o						\
+		${LIB}/pair_one2m.o					\
+		${LIB}/prompt_process.o					\
+		${LIB}/form_prompt_attribute_relational.o
 
 all: 	${EXECUTABLES}
 
@@ -503,13 +508,11 @@ output_results: output_results.c					\
 		-o output_results
 
 output_table_insert: output_table_insert.c				\
-			${EXTERNAL_LIBS}				\
-			${LIB}/pair_one2m.o
+			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		output_table_insert.c					\
-		${LIB}/pair_one2m.o					\
 		-o output_table_insert
 
 output_table_edit: output_table_edit.c ${EXTERNAL_LIBS}
@@ -1026,13 +1029,11 @@ output_frameset: output_frameset.c ${EXTERNAL_LIBS}
 		-o output_frameset
 
 post_table_edit: post_table_edit.c					\
-			${EXTERNAL_LIBS}				\
-			${LIB}/pair_one2m.o
+			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_table_edit.c					\
-		${LIB}/pair_one2m.o					\
 		-o post_table_edit
 	touch ${CGI_HOME}/post_table_edit
 	/bin/rm -f ${CGI_HOME}/post_table_edit
@@ -1041,13 +1042,11 @@ post_table_edit: post_table_edit.c					\
 	${CGI_HOME}
 
 post_table_insert: post_table_insert.c					\
-			${EXTERNAL_LIBS}				\
-			${LIB}/pair_one2m.o
+			${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIB}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${EXTERNAL_LIBS}					\
 		post_table_insert.c					\
-		${LIB}/pair_one2m.o					\
 		-o post_table_insert
 	touch ${CGI_HOME}/post_table_insert
 	/bin/rm -f ${CGI_HOME}/post_table_insert

@@ -586,3 +586,23 @@ char *recall_load_javascript(
 	return strdup( javascript );
 }
 
+char *recall_cookie_multi_key(
+			char *folder_name,
+			char *state )
+{
+	static char multi_key[ 128 ];
+
+	if ( folder_name && state )
+	{
+		sprintf(multi_key,
+			"<multi_%s_%s>",
+			folder_name,
+			state );
+	}
+	else
+	{
+		strcpy( multi_key, "<multi_process>" );
+	}
+
+	return multi_key;
+}

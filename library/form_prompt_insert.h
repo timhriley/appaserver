@@ -130,18 +130,13 @@ typedef struct
 	char *action_string;
 	char *form_tag_html;
 	FORM_PROMPT_INSERT_ELEMENT_LIST *form_prompt_insert_element_list;
-	RECALL *recall;
 	char *form_multi_select_all_javascript;
-	char *form_cookie_key;
-	char *form_cookie_multi_key;
-	char *form_keystrokes_save_javascript;
-	char *form_keystrokes_multi_save_javascript;
-	char *form_keystrokes_recall_javascript;
-	char *form_keystrokes_multi_recall_javascript;
 	char *form_verify_notepad_widths_javascript;
+	RECALL *recall;
+	PAIR_ONE2M_PROMPT_INSERT *pair_one2m_prompt_insert;
 	LIST *button_list;
-	char *html;
 	char *hidden_html;
+	char *html;
 } FORM_PROMPT_INSERT;
 
 /* Usage */
@@ -177,22 +172,23 @@ char *form_prompt_insert_action_string(
 
 LIST *form_prompt_insert_button_list(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript,
-			char *form_verify_notepad_widths_javascript );
+			char *recall_save_javascript,
+			char *recall_load_javascript,
+			char *form_verify_notepad_widths_javascript,
+			LIST *pair_one2m_button_list );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *form_prompt_insert_hidden_html(
+			APPASERVER_ELEMENT *transmit_hidden_element );
 
 /* Returns heap memory */
 /* ------------------- */
 char *form_prompt_insert_html(
 			char *form_tag_html,
-			char *form_prompt_edit_element_list_html,
+			char *form_prompt_insert_element_list_html,
 			char *button_list_html,
+			char *form_prompt_insert_hidden_html,
 			char *form_close_html );
-
-/* Returns transmit_hidden_element->
-char *form_prompt_insert_hidden_html(
-			APPASERVER_ELEMENT *transmit_hidden_element );
 
 #endif

@@ -906,7 +906,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 			row_security_relation->element_name );
 
 	row_security_relation->query_widget =
-		query_widget_new(
+		query_widget_fetch(
 			relation->one_folder->folder_name
 				/* widget_folder_name */,
 			login_name,
@@ -918,7 +918,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 	if ( !row_security_relation->query_widget )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_widget_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: query_widget_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

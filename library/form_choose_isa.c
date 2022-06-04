@@ -195,8 +195,7 @@ LIST *form_choose_isa_button_element_list( void )
 	element->button->button =
 		button_submit(
 			(char *)0 /* multi_select_all_javascript */,
-			(char *)0 /* keystrokes_save_javascript */,
-			(char *)0 /* keystrokes_multi_save_javascript */,
+			(char *)0 /* recall_save_javascript */,
 			(char *)0 /* verify_attribute_widths_javascript */,
 			0 /* form_number */ );
 

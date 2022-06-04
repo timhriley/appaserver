@@ -353,3 +353,33 @@ FORM_PROMPT_PROCESS_ELEMENT_LIST *
 	return form_prompt_process_element_list;
 }
 
+FORM_PROMPT_PROCESS *form_prompt_process_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_or_set_name,
+			LIST *process_parameter_list,
+			char *post_change_javascript )
+{
+	FORM_PROMPT_PROCESS *form_prompt_process;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !process_or_set_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_prompt_process = form_prompt_process_calloc();
+
+	return form_prompt_process;
+}
+

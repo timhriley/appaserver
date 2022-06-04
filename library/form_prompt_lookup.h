@@ -15,6 +15,7 @@
 #include "element.h"
 #include "radio.h"
 #include "query.h"
+#include "recall.h"
 #include "relation.h"
 #include "dictionary_separate.h"
 #include "form_prompt_attribute_relational.h"
@@ -155,13 +156,7 @@ typedef struct
 	char *form_tag_html;
 	FORM_PROMPT_LOOKUP_ELEMENT_LIST *form_prompt_lookup_element_list;
 	char *form_multi_select_all_javascript;
-	char *form_cookie_key;
-	char *form_cookie_multi_key;
-	char *form_keystrokes_save_javascript;
-	char *form_keystrokes_multi_save_javascript;
-	char *form_keystrokes_recall_javascript;
-	char *form_keystrokes_multi_recall_javascript;
-	char *form_verify_notepad_widths_javascript;
+	RECALL *recall;
 	LIST *button_list;
 	char *html;
 } FORM_PROMPT_LOOKUP;
@@ -207,11 +202,8 @@ char *form_prompt_lookup_action_string(
 
 LIST *form_prompt_lookup_button_list(
 			char *form_multi_select_all_javascript,
-			char *form_keystrokes_save_javascript,
-			char *form_keystrokes_multi_save_javascript,
-			char *form_keystrokes_recall_javascript,
-			char *form_keystrokes_multi_recall_javascript,
-			char *form_verify_notepad_widths_javascript );
+			char *recall_save_javascript,
+			char *recall_load_javascript );
 
 /* Returns heap memory */
 /* ------------------- */
