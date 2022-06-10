@@ -1,5 +1,5 @@
 /* ----------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/output_edit_table.c			*/
+/* $APPASERVER_HOME/src_appaserver/output_table_edit.c			*/
 /* ----------------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org			*/
 /* ----------------------------------------------------------------	*/
@@ -19,7 +19,7 @@
 #include "session.h"
 #include "frameset.h"
 #include "document.h"
-#include "edit_table.h"
+#include "table_edit.h"
 
 int main( int argc, char **argv )
 {
@@ -30,7 +30,7 @@ int main( int argc, char **argv )
 	char *folder_name;
 	char *target_frame;
 	POST_DICTIONARY *post_dictionary;
-	EDIT_TABLE *edit_table;
+	TABLE_EDIT *table_edit;
 	boolean menu_horizontal_boolean;
 
 	/* For convenience */
@@ -67,8 +67,8 @@ int main( int argc, char **argv )
 
 	session_environment_set( application_name );
 
-	edit_table =
-		edit_table_new(
+	table_edit =
+		table_edit_new(
 			application_name,
 			session_key,
 			login_name,
@@ -81,10 +81,10 @@ int main( int argc, char **argv )
 					login_name ) ),
 			post_dictionary->original_post_dictionary );
 
-	if ( !edit_table )
+	if ( !table_edit )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: edit_table_new(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: table_edit_new(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -92,30 +92,30 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( !edit_table->query_edit_table )
+	if ( !table_edit->query_table_edit )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: query_edit_table is empty.\n",
+		"ERROR in %s/%s()/%d: query_table_edit is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( !edit_table->form_edit_table )
+	if ( !table_edit->form_table_edit )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: form_edit_table is empty.\n",
+		"ERROR in %s/%s()/%d: form_table_edit is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( edit_table->row_security->row_security_element_list->viewonly )
+	if ( table_edit->row_security->row_security_element_list->viewonly )
 	{
 		viewonly_element_list =
-			edit_table->
+			table_edit->
 				row_security->
 				row_security_element_list->
 				viewonly->
@@ -128,32 +128,32 @@ int main( int argc, char **argv )
 
 	if ( !menu_horizontal_boolean ) document_output_content_type();
 
-	edit_table_output(
+	table_edit_output(
 		stdout /* output_stream */,
 		application_name,
-		edit_table->html,
-		edit_table->form_edit_table->html,
-		edit_table->folder->role_operation_list,
-		edit_table->query_edit_table->row_dictionary_list,
-		edit_table->
+		table_edit->html,
+		table_edit->form_table_edit->html,
+		table_edit->folder->role_operation_list,
+		table_edit->query_table_edit->row_dictionary_list,
+		table_edit->
 			row_security->
 			row_security_element_list->
 			regular->
 			element_list,
 		viewonly_element_list,
-		edit_table->
+		table_edit->
 			row_security->
 			row_security_role,
-		edit_table->state,
-		edit_table->form_edit_table->trailer_html,
-		edit_table->trailer_html );
+		table_edit->state,
+		table_edit->form_table_edit->trailer_html,
+		table_edit->trailer_html );
 
-	edit_table_spool_file(
-		edit_table->spool_filename,
+	table_edit_spool_file(
+		table_edit->spool_filename,
 		folder_attribute_name_list(
 			(char *)0 /* folder_name */,
-			edit_table->folder->folder_attribute_append_isa_list ),
-		edit_table->query_edit_table->row_dictionary_list,
+			table_edit->folder->folder_attribute_append_isa_list ),
+		table_edit->query_table_edit->row_dictionary_list,
 		SQL_DELIMITER );
 
 	return 0;

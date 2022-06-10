@@ -288,10 +288,10 @@ post_choose_folder
 random_session
 post_choose_isa
 output_choose_isa
-output_edit_table
-output_insert_table
-post_edit_table
-post_insert_table
+output_table_edit
+output_table_insert
+post_table_edit
+post_table_insert
 post_maintain_user_account
 output_results
 post_login

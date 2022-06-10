@@ -64,7 +64,7 @@ char *post_prompt_process_command_line(
 /* Private */
 /* ------- */
 char *post_prompt_process_name(
-			char *process_set_process_label,
+			char *process_set_default_prompt,
 			char *prompt_display_text,
 			DICTIONARY *non_prefixed_dictionary );
 

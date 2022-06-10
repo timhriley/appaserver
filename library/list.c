@@ -116,6 +116,11 @@ boolean list_add_head( LIST *list, void *this_item )
 	return list_prepend_pointer( list, this_item );
 }
 
+boolean list_set_head( LIST *list, void *this_item )
+{
+	return list_prepend_pointer( list, this_item );
+}
+
 boolean list_prepend_pointer( LIST *list, void *this_item )
 {
 	struct LINKTYPE *newlink;

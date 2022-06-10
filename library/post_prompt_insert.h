@@ -12,6 +12,7 @@
 #include "role.h"
 #include "folder.h"
 #include "insert.h"
+#include "pair_one2m.h"
 #include "post_dictionary.h"
 #include "dictionary_separate.h"
 
@@ -19,8 +20,6 @@
 
 typedef struct
 {
-	/* Process */
-	/* ------- */
 	SESSION_FOLDER *session_folder;
 	ROLE *role;
 	FOLDER *folder;
@@ -31,11 +30,13 @@ typedef struct
 
 	boolean lookup_boolean;
 	INSERT *insert;
+	PAIR_ONE2M_POST_PROMPT_INSERT *pair_one2m_post_prompt_insert;
+	DICTIONARY *dictionary_separate_send_dictionary;
 
 	/* Driver */
 	/* ------ */
-	char *sql_error_message_list_string;
-	char *edit_table_output_system_string;
+	char *error_message_list_string;
+	char *table_edit_output_system_string;
 	char *insert_table_output_system_string;
 } POST_PROMPT_INSERT;
 

@@ -61,9 +61,9 @@ int main( int argc, char **argv )
 			session_folder->session->application_name,
 			session_folder->session->session_key,
 			session_folder->session->login_name,
-			session_folder->role_name,
-			session_folder->folder_name,
-			session_folder->state );
+			role_name,
+			folder_name,
+			state );
 
 	if ( !post_choose_folder )
 	{

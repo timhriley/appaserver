@@ -135,7 +135,7 @@ no_drillthru:
 			process_parameter_set_member_append(
 				prompt_process_not_drillthru->
 					process_parameter_list,
-				PROCESS_SET_PROCESS_LABEL,
+				PROCESS_SET_DEFAULT_PROMPT,
 				process_set->prompt_display_text,
 				process_set->member_name_list );
 

@@ -1022,7 +1022,7 @@ boolean process_parameter_date_boolean( LIST *process_parameter_list )
 				process_parameter_list );
 
 		if ( process_parameter->process_parameter_prompt
-		&&   process_parameter->process_parameter_prompt->date )
+		&&   process_parameter->process_parameter_prompt->date_boolean )
 		{
 			return 1;
 		}
@@ -1079,15 +1079,15 @@ boolean process_parameter_has_drillthru(
 }
 
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *
-	process_parameter_set_member_drop_down_prompt(
-				char *process_set_process_label,
-				char *prompt_display_text,
-				LIST *member_name_list )
+	process_parameter_drop_down_prompt_set_member(
+			char *process_set_default_prompt,
+			char *prompt_display_text,
+			LIST *member_name_list )
 {
 	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
 	char *drop_down_prompt_name;
 
-	if ( !process_set_process_label
+	if ( !process_set_default_prompt
 	||   !list_length( member_name_list ) )
 	{
 		fprintf(stderr,
@@ -1102,9 +1102,19 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 		/* ------------------------ */
 		/* Returns either parameter */
 		/* ------------------------ */
-		process_parameter_set_member_drop_down_name(
-			process_set_process_label,
+		process_parameter_drop_down_prompt_set_member_name(
+			process_set_default_prompt,
 			prompt_display_text );
+
+	if ( !drop_down_prompt_name )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: process_parameter_drop_down_prompt_set_member_name() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	process_parameter_drop_down_prompt =
 		process_parameter_drop_down_prompt_new(
@@ -1118,7 +1128,7 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 	return process_parameter_drop_down_prompt;
 }
 
-char *process_parameter_set_member_drop_down_name(
+char *process_parameter_drop_down_prompt_set_member_name(
 			char *process_set_process_label,
 			char *prompt_display_text )
 {
@@ -1150,16 +1160,28 @@ LIST *process_parameter_drop_down_prompt_member_data_list(
 	return member_data_list;
 }
 
-LIST *process_parameter_set_member_list(
+char *process_parameter_drop_down_prompt_primary_where(
+			char *drop_down_prompt_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"drop_down_prompt = '%s'",
+		drop_down_prompt_name );
+
+	return where;
+}
+
+LIST *process_parameter_set_member_append(
 			LIST *process_parameter_list,
-			char *process_set_process_label,
+			char *process_set_default_prompt,
 			char *prompt_display_text,
 			LIST *member_name_list )
 {
-	PROCESS_PARAMETER_DROP_DOWN_PROMPT *process_parameter_drop_down_prompt;
+	PROCESS_PARAMETER *process_parameter;
 
 	if ( !process_parameter_list
-	||   !process_set_process_label )
+	||   !process_set_default_prompt )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1171,40 +1193,28 @@ LIST *process_parameter_set_member_list(
 
 	if ( !list_length( member_name_list ) ) return (LIST *)0;
 
-	if ( ! ( process_parameter_drop_down_prompt =
-			process_parameter_set_member_drop_down_prompt(
-				process_set_process_label,
-				prompt_display_text,
-				member_name_list ) ) )
-	{
-		return process_parameter_list;
-	}
+	process_parameter = process_parameter_calloc();
 
-	if ( prompt_display_text && *prompt_display_text )
+	if ( ( process_parameter->process_parameter_drop_down_prompt =
+		process_parameter_drop_down_prompt_set_member(
+			process_set_default_prompt,
+			prompt_display_text,
+			member_name_list ) ) )
 	{
-		list_set(
-			process_parameter_list,
-			process_parameter_drop_down_prompt );
-	}
-	else
-	{
-		list_set_first(
-			process_parameter_list,
-			process_parameter_drop_down_prompt );
+		if ( !prompt_display_text )
+		{
+			list_set_head(
+				process_parameter_list,
+				process_parameter );
+		}
+		else
+		{
+			list_set(
+				process_parameter_list,
+				process_parameter );
+		}
 	}
 
 	return process_parameter_list;
-}
-
-char *process_parameter_drop_down_prompt_primary_where(
-			char *drop_down_prompt_name )
-{
-	static char where[ 128 ];
-
-	sprintf(where,
-		"drop_down_prompt = '%s'",
-		drop_down_prompt_name );
-
-	return where;
 }
 

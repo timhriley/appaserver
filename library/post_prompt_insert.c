@@ -153,6 +153,59 @@ POST_PROMPT_INSERT *post_prompt_insert_new(
 				     APPASERVER_EQUAL );
 	}
 
+	if ( !post_prompt_insert->lookup_boolean )
+	{
+		DICTIONARY_SEPARATE_POST_PROMPT_INSERT *dictionary_separate;
+
+		dictionary_separate =
+			post_prompt_insert->
+				dictionary_separate_post_prompt_insert;
+
+		post_prompt_insert->
+			folder->
+			relation_pair_one2m_list =
+				relation_pair_one2m_list(
+					post_prompt_insert->
+						folder->
+						relation_one2m_list );
+
+		if ( list_length(
+			post_prompt_insert->
+				folder->
+				relation_pair_one2m_list ) )
+		{
+			post_prompt_insert->
+			    pair_one2m_post_prompt_insert =
+				pair_one2m_post_prompt_insert_new(
+					folder_name /* one_folder_name */,
+					dictionary_separate->
+						non_prefixed_dictionary,
+					post_prompt_insert->
+						folder->
+						relation_pair_one2m_list );
+		}
+	}
+
+	post_prompt_insert->dictionary_separate_send_dictionary =
+		dictionary_separate_send_dictionary(
+			(DICTIONARY *)0 /* sort_dictionary */,
+			DICTIONARY_SEPARATE_SORT_PREFIX,
+			dictionary_separate->query_dictionary,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			dictionary_separate->drillthru_dictionary,
+			DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
+			dictionary_separate->ignore_dictionary,
+			DICTIONARY_SEPARATE_IGNORE_PREFIX,
+			(DICTIONARY *)0 /* no_display_dictionary */,
+			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+			(post_prompt_insert->pair_one2m_post_prompt_insert)
+				? post_prompt_insert->
+					pair_one2m_post_prompt_insert->
+					pair_one2m_dictionary
+				: (DICTIONARY *)0,
+			DICTIONARY_SEPARATE_PAIR_PREFIX,
+			(DICTIONARY *)0 /* non_prefixed_dictionary */ );
+
 	return post_prompt_insert;
 }
 

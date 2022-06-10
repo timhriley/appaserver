@@ -526,7 +526,7 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 			char *prompt_name,
 			int input_width,
 			char *hint_message,
-			boolean upload_filename,
+			boolean upload_filename_boolean,
 			boolean date_boolean )
 {
 	FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt;
@@ -550,7 +550,7 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 			non_edit_text, prompt_name ) );
 
 	list_set(
-		element_list,
+		form_prompt_process_prompt->element_list,
 			appaserver_element_new(
 				table_data, (char *)0 ) );
 
@@ -558,9 +558,7 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 	{
 		form_prompt_process_prompt->text_appaserver_element =
 			form_prompt_process_prompt_upload_filename_element(
-				post_change_process,
-				prompt_name,
-				hint_message );
+				prompt_name );
 
 		if ( !form_prompt_process_prompt->text_appaserver_element )
 		{
@@ -577,9 +575,8 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 	{
 		form_prompt_process_prompt->text_appaserver_element =
 			form_prompt_process_prompt_date_element(
-				post_change_process,
-				prompt_name,
-				hint_message );
+				post_change_javascript,
+				prompt_name );
 
 		if ( !form_prompt_process_prompt->text_appaserver_element )
 		{
@@ -595,10 +592,9 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 	{
 		form_prompt_process_prompt->text_appaserver_element =
 			form_prompt_process_prompt_text_element(
-				post_change_process,
+				post_change_javascript,
 				prompt_name,
-				input_width,
-				hint_message );
+				input_width );
 
 		if ( !form_prompt_process_prompt->text_appaserver_element )
 		{
@@ -615,32 +611,155 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 		form_prompt_process_prompt->element_list,
 		form_prompt_process_prompt->text_appaserver_element );
 
+	if ( hint_message )
+	{
+		list_set(
+			form_prompt_process_prompt->element_list,
+			appaserver_element_new( table_data, (char *)0 ) );
+
+		list_set(
+			form_prompt_process_prompt->element_list,
+			( form_prompt_process_prompt->
+				hint_message_appaserver_element =
+					appaserver_element_new(
+						non_edit_text, (char *)0 ) ) );
+
+		free( form_prompt_process_prompt->
+			hint_message_appaserver_element->
+			non_edit_text );
+
+		form_prompt_process_prompt->
+			hint_message_appaserver_element->
+			non_edit_text =
+				element_non_edit_text_new(
+					(char *)0 /* prompt_name */,
+					hint_message );
+	}
+
 	return form_prompt_process_prompt;
 }
 
 FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_calloc( void )
 {
+	FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt;
+
+	if ( ! ( form_prompt_process_prompt =
+			calloc( 1, sizeof( FORM_PROMPT_PROCESS_PROMPT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_process_prompt;
 }
 
 APPASERVER_ELEMENT *form_prompt_process_prompt_upload_filename_element(
-			char *post_change_process,
-			char *prompt_name,
-			char *hint_message )
+			char *prompt_name )
 {
+	APPASERVER_ELEMENT *element;
+
+	if ( !prompt_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element =
+		appaserver_element_new(
+			upload,
+			prompt_name );
+
+	free( element->upload );
+
+	element->upload =
+		element_upload_new(
+			element->element_name,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	return element;
 }
 
 APPASERVER_ELEMENT *form_prompt_process_prompt_date_element(
-			char *post_change_process,
-			char *prompt_name,
-			char *hint_message )
+			char *post_change_javascript,
+			char *prompt_name )
 {
+	APPASERVER_ELEMENT *element;
+
+	if ( !prompt_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element =
+		appaserver_element_new(
+			element_date,
+			prompt_name );
+
+	free( element->date );
+
+	element->date =
+		element_date_new(
+			element->element_name,
+			0 /* not null_to_slash */,
+			post_change_javascript /* on_change */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	return element;
 }
 
 APPASERVER_ELEMENT *form_prompt_process_prompt_text_element(
-			char *post_change_process,
+			char *post_change_javascript,
 			char *prompt_name,
-			int input_width,
-			char *hint_message )
+			int input_width )
 {
+	APPASERVER_ELEMENT *element;
+
+	if ( !prompt_name
+	||   !input_width )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element =
+		appaserver_element_new(
+			text,
+			prompt_name );
+
+	free( element->text );
+
+	element->text =
+		element_text_new(
+			element->element_name /* attribute_name */,
+			(char *)0 /* datatype_name */,
+			input_width /* attribute_width_max_length */,
+			0 /* not null_to_slash */,
+			1 /* prevent_carrot */,
+			post_change_javascript /* on_change */,
+			(char *)0 /* on_focus */,
+			(char *)0 /* on_keyup */,
+			-1 /* tab_order */,
+			1 /* recall */ );
+
+	return element;
 }
 

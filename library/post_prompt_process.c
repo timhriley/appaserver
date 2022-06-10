@@ -166,7 +166,7 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 
 		post_prompt_process->session_process->process_name =
 			post_prompt_process_name(
-				PROCESS_SET_PROCESS_LABEL,
+				PROCESS_SET_DEFAULT_PROMPT,
 				post_prompt_process->
 					process_set->
 					prompt_display_text,
@@ -327,14 +327,14 @@ char *post_prompt_process_command_line(
 }
 
 char *post_prompt_process_name(
-			char *process_set_process_label,
+			char *process_set_default_prompt,
 			char *prompt_display_text,
 			DICTIONARY *non_prefixed_dictionary )
 {
 	char key[ 128 ];
 	char *data;
 
-	if ( !process_set_process_label )
+	if ( !process_set_default_prompt )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -346,7 +346,7 @@ char *post_prompt_process_name(
 
 	sprintf(key,
 		"%s_0",
-		process_set_process_label );
+		process_set_default_prompt );
 
 	if ( ( data =
 		dictionary_get(

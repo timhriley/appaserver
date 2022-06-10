@@ -761,8 +761,7 @@ form_prompt_insert.o: form_prompt_insert.c form_prompt_insert.h	\
 
 form_prompt_process.o:						\
 	form_prompt_process.c					\
-	form_prompt_process.h					\
-	element.o
+	form_prompt_process.h
 	${CC} ${CFLAGS} -c form_prompt_process.c
 
 form_table_edit.o: form_table_edit.c form_table_edit.h element.o

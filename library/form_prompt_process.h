@@ -75,6 +75,7 @@ typedef struct
 {
 	LIST *element_list;
 	APPASERVER_ELEMENT *text_appaserver_element;
+	APPASERVER_ELEMENT *hint_message_appaserver_element;
 } FORM_PROMPT_PROCESS_PROMPT;
 
 /* Usage */
@@ -84,7 +85,7 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
 			char *prompt_name,
 			int input_width,
 			char *hint_message,
-			boolean upload_filename,
+			boolean upload_filename_boolean,
 			boolean date_boolean );
 
 /* Process */
@@ -93,20 +94,16 @@ FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_calloc(
 			void );
 
 APPASERVER_ELEMENT *form_prompt_process_prompt_upload_filename_element(
-			char *post_change_process,
-			char *prompt_name,
-			char *hint_message );
+			char *prompt_name );
 
 APPASERVER_ELEMENT *form_prompt_process_prompt_date_element(
-			char *post_change_process,
-			char *prompt_name,
-			char *hint_message );
+			char *post_change_javascript,
+			char *prompt_name );
 
 APPASERVER_ELEMENT *form_prompt_process_prompt_text_element(
-			char *post_change_process,
+			char *post_change_javascript,
 			char *prompt_name,
-			int input_width,
-			char *hint_message );
+			int input_width );
 
 typedef struct
 {

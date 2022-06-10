@@ -83,7 +83,7 @@ int main( int argc, char **argv )
 			session_folder->session->session_key,
 			folder_name,
 			one_isa_folder_name,
-			session_folder->role_name,
+			role_name,
 			frameset_menu_horizontal(
 				session_folder->
 					session->

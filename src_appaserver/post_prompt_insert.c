@@ -9,8 +9,8 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "String.h"
-#include "insert_table.h"
-#include "edit_table.h"
+#include "frameset.h"
+#include "table_edit.h"
 #include "prompt_insert.h"
 #include "post_prompt_insert.h"
 
@@ -58,20 +58,14 @@ int main( int argc, char **argv )
 
 	if ( post_prompt_insert->insert )
 	{
-		post_prompt_insert->sql_error_message_list_string =
-			/* --------------------------------------------- */
-			/* Returns sql_error_message_list_string or null */
-			/* --------------------------------------------- */
-			insert_sql_execute(
+		post_prompt_insert->error_message_list_string =
+			/* ----------------------------------------- */
+			/* Returns error_message_list_string or null */
+			/* ----------------------------------------- */
+			insert_sql_statement_list_execute(
 				post_prompt_insert->
 					insert->
-					insert_row_list );
-
-		insert_command_line_execute(
-			post_prompt_insert->
-				insert->
-				insert_row_list );
-
+					insert_sql_statement_list );
 	}
 
 	send_string =
@@ -102,9 +96,9 @@ int main( int argc, char **argv )
 	||   post_prompt_insert->lookup_boolean )
 	{
 		post_prompt_insert->
-			edit_table_output_system_string =
-				edit_table_output_system_string(
-					EDIT_TABLE_OUTPUT_EXECUTABLE,
+			table_edit_output_system_string =
+				table_edit_output_system_string(
+					TABLE_EDIT_OUTPUT_EXECUTABLE,
 					session_key,
 					login_name,
 					role_name,
@@ -119,7 +113,7 @@ int main( int argc, char **argv )
 
 		if ( system(
 			post_prompt_insert->
-				edit_table_output_system_string ) ){}
+				table_edit_output_system_string ) ){}
 	}
 	else
 	{

@@ -93,6 +93,11 @@ typedef struct
 	LIST *data_list;
 } PROCESS_PARAMETER_DROP_DOWN_PROMPT;
 
+/* Private */
+/* ------- */
+PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
+			void );
+
 /* Usage */
 /* ----- */
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *
@@ -124,21 +129,18 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 /* ----- */
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 	process_parameter_drop_down_prompt_set_member(
-			char *process_set_name,
 			char *process_set_default_prompt,
 			char *prompt_display_text,
 			LIST *member_name_list );
+
+/* Process */
+/* ------- */
 
 /* Returns either parameter */
 /* ------------------------ */
 char *process_parameter_drop_down_prompt_set_member_name(
 			char *process_set_default_prompt,
 			char *prompt_display_text );
-
-/* Private */
-/* ------- */
-PROCESS_PARAMETER_DROP_DOWN_PROMPT *drop_down_prompt_calloc(
-			void );
 
 #define PROCESS_PARAMETER_PROMPT_TABLE	"prompt"
 
@@ -356,11 +358,14 @@ boolean process_parameter_has_drillthru(
 			char *process_name,
 			char *process_set_name );
 
-/* Returns process_parameter_list */
-/* ------------------------------ */
+/* Usage */
+/* ----- */
+
+/* Either prepends or appends to process_parameter_list */
+/* ---------------------------------------------------- */
 LIST *process_parameter_set_member_append(
 			LIST *process_parameter_list,
-			char *process_set_process_label,
+			char *process_set_default_prompt,
 			char *prompt_display_text,
 			LIST *member_name_list );
 
