@@ -17,6 +17,7 @@
 #include "query.h"
 #include "dictionary_separate.h"
 #include "form.h"
+#include "recall.h"
 #include "process_parameter.h"
 #include "form_prompt_attribute_relational.h"
 
@@ -73,8 +74,46 @@ FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down_calloc(
 typedef struct
 {
 	LIST *element_list;
+	APPASERVER_ELEMENT *text_appaserver_element;
+} FORM_PROMPT_PROCESS_PROMPT;
+
+/* Usage */
+/* ----- */
+FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
+			char *post_change_javascript,
+			char *prompt_name,
+			int input_width,
+			char *hint_message,
+			boolean upload_filename,
+			boolean date_boolean );
+
+/* Process */
+/* ------- */
+FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_calloc(
+			void );
+
+APPASERVER_ELEMENT *form_prompt_process_prompt_upload_filename_element(
+			char *post_change_process,
+			char *prompt_name,
+			char *hint_message );
+
+APPASERVER_ELEMENT *form_prompt_process_prompt_date_element(
+			char *post_change_process,
+			char *prompt_name,
+			char *hint_message );
+
+APPASERVER_ELEMENT *form_prompt_process_prompt_text_element(
+			char *post_change_process,
+			char *prompt_name,
+			int input_width,
+			char *hint_message );
+
+typedef struct
+{
+	LIST *element_list;
 	FORM_PROMPT_PROCESS_ATTRIBUTE *form_prompt_process_attribute;
 	FORM_PROMPT_PROCESS_DROP_DOWN *form_prompt_process_drop_down;
+	FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt;
 	char *appaserver_element_list_html;
 } FORM_PROMPT_PROCESS_ELEMENT_LIST;
 
@@ -97,12 +136,7 @@ typedef struct
 	char *form_tag_html;
 	FORM_PROMPT_PROCESS_ELEMENT_LIST *form_prompt_process_element_list;
 	char *form_multi_select_all_javascript;
-	char *form_cookie_key;
-	char *form_cookie_multi_key;
-	char *form_keystrokes_save_javascript;
-	char *form_keystrokes_multi_save_javascript;
-	char *form_keystrokes_recall_javascript;
-	char *form_keystrokes_multi_recall_javascript;
+	RECALL *recall;
 	LIST *form_prompt_lookup_button_list;
 	char *html;
 } FORM_PROMPT_PROCESS;

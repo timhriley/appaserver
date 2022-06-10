@@ -90,6 +90,10 @@ APPASERVER_ELEMENT *appaserver_element_new(
 		element->text =
 			element_text_calloc();
 	else
+	if ( element_type == element_date )
+		element->date =
+			element_date_calloc();
+	else
 	if ( element_type == non_edit_text )
 		element->non_edit_text =
 			element_non_edit_text_calloc();
@@ -2031,6 +2035,34 @@ char *appaserver_element_row_dictionary_html(
 		return html;
 	}
 	else
+	if ( appaserver_element->element_type == element_date )
+	{
+		char *html;
+
+		if ( !appaserver_element->date )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: date is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+
+			return (char *)0;
+		}
+
+		html =
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			appaserver_element_date_html(
+				appaserver_element->date,
+				background_color,
+				state,
+				row_number,
+				row_dictionary );
+
+		return html;
+	}
+	else
 	if ( appaserver_element->element_type == password )
 	{
 		if ( !appaserver_element->password )
@@ -2520,7 +2552,7 @@ char *element_text_html(
 			int tab_order,
 			char *background_color )
 {
-	char html[ STRING_64K ];
+	char html[ 1024 ];
 	char *ptr = html;
 	int size;
 
@@ -3087,6 +3119,65 @@ char *appaserver_element_text_html(
 	if ( text->prevent_carrot_on_keyup )
 	{
 		free( text->prevent_carrot_on_keyup );
+	}
+
+	return html;
+}
+
+char *appaserver_element_date_html(
+			ELEMENT_DATE *date,
+			char *background_color,
+			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary )
+{
+	char *html;
+
+	date->value =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		element_date_value(
+			date->attribute_name,
+			row_dictionary );
+
+	date->javascript_replace_on_change =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		element_text_javascript_replace_on_change(
+			date->on_change,
+			row_number,
+			state,
+			date->null_to_slash );
+
+	html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		element_date_html(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_name(
+				date->attribute_name,
+				row_number ),
+			date->value,
+			ELEMENT_DATE_DISPLAY_SIZE,
+			date->javascript_replace_on_change,
+			date->tab_order,
+			background_color );
+
+	/* Reset value for next iteration */
+	/* ------------------------------ */
+	if ( date->value )
+	{
+		date->value = (char *)0;
+	}
+
+	if ( date->javascript_replace_on_change )
+	{
+		free( date->javascript_replace_on_change );
 	}
 
 	return html;
@@ -4308,3 +4399,157 @@ ELEMENT_DROP_DOWN *element_drop_down_calloc( void )
 
 	return element_drop_down;
 }
+
+ELEMENT_DATE *element_date_new(
+			char *attribute_name,
+			boolean null_to_slash,
+			char *on_change,
+			int tab_order,
+			boolean recall )
+{
+	ELEMENT_DATE *element_date = element_date_calloc();
+
+	element_date->attribute_name = attribute_name;
+
+	element_date->null_to_slash = null_to_slash;
+	element_date->on_change = on_change;
+	element_date->tab_order = tab_order;
+	element_date->recall = recall;
+
+	return element_date;
+}
+
+char *element_date_value(
+			char *attribute_name,
+			DICTIONARY *row_dictionary )
+{
+	char *value;
+
+	if ( !attribute_name || !row_dictionary ) return (char *)0;
+
+	if ( ! ( value = dictionary_get( attribute_name, row_dictionary ) ) )
+	{
+		return (char *)0;
+	}
+
+	return value;
+}
+
+char *element_date_html(
+			char *element_name,
+			char *value,
+			int element_date_display_size,
+			char *on_change,
+			int tab_order,
+			char *background_color )
+{
+	char html[ 1024 ];
+	char *ptr = html;
+
+	if ( !element_name || !*element_name ) return (char *)0;
+
+	ptr += sprintf(
+		ptr,
+		"<input name=\"%s\" type=text size=%d maxlength=%d",
+		element_name,
+		element_date_display_size,
+		element_date_display_size );
+
+	if ( value && *value )
+	{
+		ptr += sprintf(
+			ptr,
+			" value=\"%s\"",
+			value );
+	}
+
+	if ( tab_order >= 1 )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_tab_order_html(
+				tab_order ) );
+	}
+
+	ptr += sprintf(
+		ptr,
+		" onChange=\"validate_date(this)" );
+
+	if ( on_change && *on_change )
+	{
+		ptr += sprintf(
+			ptr,
+			" && %s",
+			on_change );
+	}
+
+	ptr += sprintf( ptr, "\"" );
+
+	if ( background_color && *background_color )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s",
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_element_background_color_html(
+				background_color ) );
+	}
+
+	ptr += sprintf( ptr, ">\n" );
+
+	ptr += sprintf(
+		ptr,
+		"%s",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		element_date_calendar_image_html( element_name ) );
+
+	return strdup( html );
+}
+
+ELEMENT_DATE *element_date_calloc( void )
+{
+	ELEMENT_DATE *element_date;
+
+	if ( ! ( element_date = calloc( 1, sizeof( ELEMENT_DATE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return element_date;
+}
+
+char *element_date_calendar_image_html( char *element_name )
+{
+	static char image_html[ 256 ];
+	static int image_number = 0;
+
+	sprintf(image_html,
+"<img id=date_trigger_%d src=/appaserver/zimages/calendar.gif>\n"
+"<script type=text/javascript>\n"
+"Calendar.setup( {inputField: \"%s\",dateFormat: \"%cY-%cm-%cd\",fdow: 0,trigger: \"date_trigger_%d\",align: M,onSelect: function() {this.hide() }});\n"
+"</script>\n",
+		image_number,
+		element_name,
+		'%',
+		'%',
+		'%',
+		image_number );
+
+	image_number++;
+
+	return image_html;
+}
+

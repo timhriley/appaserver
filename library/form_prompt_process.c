@@ -28,6 +28,7 @@
 #include "button.h"
 #include "appaserver.h"
 #include "post_prompt_process.h"
+#include "form_prompt_lookup.h"
 #include "form_prompt_attribute_relational.h"
 #include "form_prompt_process.h"
 
@@ -363,6 +364,7 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 			char *post_change_javascript )
 {
 	FORM_PROMPT_PROCESS *form_prompt_process;
+	char *tmp;
 
 	if ( !application_name
 	||   !session_key
@@ -380,6 +382,265 @@ FORM_PROMPT_PROCESS *form_prompt_process_new(
 
 	form_prompt_process = form_prompt_process_calloc();
 
+	form_prompt_process->action_string =
+		form_prompt_process_action_string(
+			POST_PROMPT_PROCESS_EXECUTABLE,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			process_or_set_name );
+
+	form_prompt_process->form_tag_html =
+		form_tag_html(
+			FORM_PROMPT_PROCESS_NAME /* form_name */,
+			form_prompt_process->action_string,
+			FRAMESET_TABLE_FRAME /* target_frame */ );
+
+	form_prompt_process->form_prompt_process_element_list =
+		form_prompt_process_element_list_new(
+			process_parameter_list,
+			post_change_javascript );
+
+	form_prompt_process->form_multi_select_all_javascript =
+		form_multi_select_all_javascript(
+			form_prompt_process->
+				form_prompt_process_element_list->
+				element_list );
+
+	if ( ! ( form_prompt_process->recall =
+			recall_new(
+				(char *)0 /* folder_name */,
+				(char *)0 /* state */,
+				FORM_PROMPT_PROCESS_NAME /* form_name */,
+				form_prompt_process->
+					form_prompt_process_element_list->
+					element_list ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: recall_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_prompt_process->form_prompt_lookup_button_list =
+		form_prompt_lookup_button_list(
+			form_prompt_process->form_multi_select_all_javascript,
+			form_prompt_process->recall->save_javascript,
+			form_prompt_process->recall->load_javascript );
+
+	form_prompt_process->html =
+		form_prompt_lookup_html(
+			form_prompt_process->form_tag_html,
+			(char *)0 /* radio_list_html */,
+			form_prompt_process->
+				form_prompt_process_element_list->
+				appaserver_element_list_html,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			( tmp = button_list_html(
+				    form_prompt_process->
+					form_prompt_lookup_button_list ) ),
+			form_close_html() );
+
+	free( form_prompt_process->
+		form_prompt_process_element_list->
+			appaserver_element_list_html );
+
+	free( tmp );
+
+	button_list_free(
+		form_prompt_process->
+			form_prompt_lookup_button_list );
+
 	return form_prompt_process;
+}
+
+char *form_prompt_process_action_string(
+			char *post_prompt_process_executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_or_set_name )
+{
+	char action_string[ 1024 ];
+
+	if ( !post_prompt_process_executable
+	||   !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !process_or_set_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(action_string,
+		"%s/%s?%s+%s+%s+%s+%s",
+		appaserver_library_http_prompt(
+			appaserver_parameter_cgi_directory(),
+			appaserver_library_server_address(),
+			application_ssl_support_yn(
+				application_name ),
+			application_prepend_http_protocol_yn(
+				application_name ) ),
+		post_prompt_process_executable,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		process_or_set_name );
+
+	return strdup( action_string );
+}
+
+FORM_PROMPT_PROCESS *form_prompt_process_calloc( void )
+{
+	FORM_PROMPT_PROCESS *form_prompt_process;
+
+	if ( ! ( form_prompt_process =
+			calloc( 1, sizeof( FORM_PROMPT_PROCESS ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_prompt_process;
+}
+
+FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_new(
+			char *post_change_javascript,
+			char *prompt_name,
+			int input_width,
+			char *hint_message,
+			boolean upload_filename,
+			boolean date_boolean )
+{
+	FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt;
+
+	if ( !prompt_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_prompt_process_prompt = form_prompt_process_prompt_calloc();
+	form_prompt_process_prompt->element_list = list_new();
+
+	list_set(
+		form_prompt_process_prompt->element_list,
+		appaserver_element_new(
+			non_edit_text, prompt_name ) );
+
+	list_set(
+		element_list,
+			appaserver_element_new(
+				table_data, (char *)0 ) );
+
+	if ( upload_filename_boolean )
+	{
+		form_prompt_process_prompt->text_appaserver_element =
+			form_prompt_process_prompt_upload_filename_element(
+				post_change_process,
+				prompt_name,
+				hint_message );
+
+		if ( !form_prompt_process_prompt->text_appaserver_element )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: form_prompt_process_prompt_upload_filename_element() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+	else
+	if ( date_boolean )
+	{
+		form_prompt_process_prompt->text_appaserver_element =
+			form_prompt_process_prompt_date_element(
+				post_change_process,
+				prompt_name,
+				hint_message );
+
+		if ( !form_prompt_process_prompt->text_appaserver_element )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: form_prompt_process_prompt_date_element() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+	else
+	{
+		form_prompt_process_prompt->text_appaserver_element =
+			form_prompt_process_prompt_text_element(
+				post_change_process,
+				prompt_name,
+				input_width,
+				hint_message );
+
+		if ( !form_prompt_process_prompt->text_appaserver_element )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: form_prompt_process_prompt_text_element() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+
+	list_set(
+		form_prompt_process_prompt->element_list,
+		form_prompt_process_prompt->text_appaserver_element );
+
+	return form_prompt_process_prompt;
+}
+
+FORM_PROMPT_PROCESS_PROMPT *form_prompt_process_prompt_calloc( void )
+{
+}
+
+APPASERVER_ELEMENT *form_prompt_process_prompt_upload_filename_element(
+			char *post_change_process,
+			char *prompt_name,
+			char *hint_message )
+{
+}
+
+APPASERVER_ELEMENT *form_prompt_process_prompt_date_element(
+			char *post_change_process,
+			char *prompt_name,
+			char *hint_message )
+{
+}
+
+APPASERVER_ELEMENT *form_prompt_process_prompt_text_element(
+			char *post_change_process,
+			char *prompt_name,
+			int input_width,
+			char *hint_message )
+{
 }
 

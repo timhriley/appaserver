@@ -153,10 +153,10 @@ PROCESS_PARAMETER_PROMPT *process_parameter_prompt_parse(
 	process_parameter_prompt->hint_message = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
-	process_parameter_prompt->upload_filename = ( *buffer == 'y' );
+	process_parameter_prompt->upload_filename_boolean = ( *buffer == 'y' );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	process_parameter_prompt->date = ( *buffer == 'y' );
+	process_parameter_prompt->date_boolean = ( *buffer == 'y' );
 
 	return process_parameter_prompt;
 }

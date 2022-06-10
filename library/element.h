@@ -34,6 +34,7 @@
 #define ELEMENT_TEXT_LARGE_WIDGET_SIZE		25
 #define ELEMENT_TEXT_SMALL_WIDGET_SIZE		10
 #define ELEMENT_TEXT_MAX_DISPLAY_SIZE		30
+#define ELEMENT_DATE_DISPLAY_SIZE		10
 #define ELEMENT_NOTEPAD_COLUMNS			30
 #define ELEMENT_NOTEPAD_ROWS			4
 #define ELEMENT_LARGE_NOTEPAD_THRESHOLD		10000
@@ -61,10 +62,10 @@ enum element_type {	table_open,
 			password,
 			upload,
 			yes_no,
+			element_date,
 			radio,
 			reference_number,
 			javascript_filename,
-			element_date,
 			element_current_date,
 			element_time,
 			element_current_time,
@@ -656,6 +657,60 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	char *attribute_name;
+	boolean null_to_slash;
+	char *on_change;
+	int tab_order;
+	boolean recall;
+
+	/* Public */
+	/* ------ */
+	char *value;
+	char *javascript_replace_on_change;
+} ELEMENT_DATE;
+
+/* Usage */
+/* ----- */
+ELEMENT_DATE *element_date_new(
+			char *attribute_name,
+			boolean null_to_slash,
+			char *on_change,
+			int tab_order,
+			boolean recall );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_date_value(
+			char *attribute_name,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *element_date_html(
+			char *element_name,
+			char *value,
+			int element_date_display_size,
+			char *javascript_replace_on_change,
+			int tab_order,
+			char *background_color );
+
+/* Private */
+/* ------- */
+ELEMENT_DATE *element_date_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *element_date_calendar_image_html(
+			char *element_name );
+
+typedef struct
+{
+	/* Attributes */
+	/* ---------- */
+	char *attribute_name;
 	char *datatype_name;
 	int attribute_width_max_length;
 	boolean null_to_slash;
@@ -676,12 +731,11 @@ typedef struct
 
 	/* Private */
 	/* ------- */
-	char *heading_string;
+	/* char *heading_string; */
 } ELEMENT_TEXT;
 
-ELEMENT_TEXT *element_text_calloc(
-			void );
-
+/* Usage */
+/* ----- */
 ELEMENT_TEXT *element_text_new(
 			char *attribute_name,
 			char *datatype_name,
@@ -693,6 +747,9 @@ ELEMENT_TEXT *element_text_new(
 			char *on_keyup,
 			int tab_order,
 			boolean recall );
+
+/* Public */
+/* ------ */
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -738,6 +795,11 @@ char *element_text_html(
 			boolean autocomplete_off,
 			int tab_order,
 			char *background_color );
+
+/* Private */
+/* ------- */
+ELEMENT_TEXT *element_text_calloc(
+			void );
 
 typedef struct
 {
@@ -922,6 +984,7 @@ typedef struct
 	ELEMENT_UPLOAD *upload;
 	ELEMENT_PASSWORD *password;
 	ELEMENT_YES_NO *yes_no;
+	ELEMENT_DATE *date;
 } APPASERVER_ELEMENT;
 
 /* Usage */
@@ -1056,6 +1119,15 @@ char *appaserver_element_prompt_drop_down_html(
 /* --------------------------- */
 char *appaserver_element_text_html(
 			ELEMENT_TEXT *text /* in/out */,
+			char *background_color,
+			char *state,
+			int row_number,
+			DICTIONARY *row_dictionary );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *appaserver_element_date_html(
+			ELEMENT_DATE *date /* in/out */,
 			char *background_color,
 			char *state,
 			int row_number,

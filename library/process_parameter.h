@@ -123,15 +123,16 @@ PROCESS_PARAMETER_DROP_DOWN_PROMPT *
 /* Usage */
 /* ----- */
 PROCESS_PARAMETER_DROP_DOWN_PROMPT *
-	process_parameter_set_member_drop_down_prompt(
-			char *process_set_process_label,
+	process_parameter_drop_down_prompt_set_member(
+			char *process_set_name,
+			char *process_set_default_prompt,
 			char *prompt_display_text,
 			LIST *member_name_list );
 
 /* Returns either parameter */
 /* ------------------------ */
-char *process_parameter_set_member_drop_down_name(
-			char *process_set_process_label,
+char *process_parameter_drop_down_prompt_set_member_name(
+			char *process_set_default_prompt,
 			char *prompt_display_text );
 
 /* Private */
@@ -151,8 +152,8 @@ typedef struct
 	char *prompt_name;
 	int input_width;
 	char *hint_message;
-	boolean upload_filename;
-	boolean date;
+	boolean upload_filename_boolean;
+	boolean date_boolean;
 } PROCESS_PARAMETER_PROMPT;
 
 /* Usage */
