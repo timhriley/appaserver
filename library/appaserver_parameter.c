@@ -1,4 +1,4 @@
-/* library/appaserver_parameter.c					*/
+/* $APPASERVER_HOME/library/appaserver_parameter.c			*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -74,17 +74,11 @@ char *appaserver_parameter_cgi_home( void )
 
 char *appaserver_parameter_document_root( void )
 {
-	return
-	appaserver_parameter_document_root_directory();
-}
-
-char *appaserver_parameter_document_root_directory( void )
-{
 	if ( !global_appaserver_parameter )
 		global_appaserver_parameter =
 			appaserver_parameter_new();
 
-	return global_appaserver_parameter->document_root_directory;
+	return global_appaserver_parameter->document_root;
 }
 
 char *appaserver_parameter_upload_directory( void )
@@ -285,7 +279,7 @@ APPASERVER_PARAMETER *appaserver_parameter_fetch(
 	s->cgi_home = dictionary_fetch( a, d );
 
 	a = "document_root";
-	s->document_root_directory = dictionary_fetch( a, d );
+	s->document_root = dictionary_fetch( a, d );
 
 	a = "appaserver_error_directory";
 	s->error_directory = dictionary_fetch( a, d );

@@ -72,7 +72,7 @@ FRAMESET *frameset_new(	char *application_name,
 				application_name,
 				frameset->
 					appaserver_parameter->
-					document_root_directory,
+					document_root,
 				session_key,
 				FRAMESET_MENU_FRAME );
 	}
@@ -82,7 +82,7 @@ FRAMESET *frameset_new(	char *application_name,
 			application_name,
 			frameset->
 				appaserver_parameter->
-				document_root_directory,
+				document_root,
 			session_key,
 			FRAMESET_PROMPT_FRAME );
 
@@ -91,7 +91,7 @@ FRAMESET *frameset_new(	char *application_name,
 			application_name,
 			frameset->
 				appaserver_parameter->
-				document_root_directory,
+				document_root,
 			session_key,
 			FRAMESET_TABLE_FRAME );
 
@@ -251,7 +251,7 @@ char *frameset_html(	char *document_html,
 
 FRAMESET_FRAME *frameset_frame_new(
 			char *application_name,
-			char *document_root_directory,
+			char *document_root,
 			char *session_key,
 			char *frame_name )
 {
@@ -263,7 +263,7 @@ FRAMESET_FRAME *frameset_frame_new(
 			appaserver_library_server_address(),
 			( application_prepend_http_protocol_yn(
 				application_name ) == 'y' ),
-	 		document_root_directory,
+	 		document_root,
 			frame_name /* filename_stem */,
 			application_name,
 			0 /* process_id */,

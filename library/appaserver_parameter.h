@@ -1,4 +1,4 @@
-/* library/appaserver_parameter.h					*/
+/* $APPASERVER_PARAMETER/library/appaserver_parameter.h			*/
 /* -------------------------------------------------------------------- */
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -33,7 +33,7 @@ typedef struct
 	char *appaserver_mount_point;
 	char *apache_cgi_directory;
 	char *cgi_home;
-	char *document_root_directory;
+	char *document_root;
 	char *error_directory;
 	char *data_directory;
 	char *upload_directory;
@@ -82,9 +82,6 @@ char *appaserver_parameter_data_directory(
 			void );
 
 char *appaserver_parameter_cgi_home(
-			void );
-
-char *appaserver_parameter_document_root_directory(
 			void );
 
 char *appaserver_parameter_document_root(

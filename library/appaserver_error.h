@@ -23,11 +23,6 @@
 
 #define APPASERVER_OLD_ERROR_FILE		"/var/appaserver.err"
 
-/* Data structures */
-/* --------------- */
-
-/* Protoypes */
-/* --------- */
 void m(			char *message );
 
 char *appaserver_error_filename(

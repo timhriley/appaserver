@@ -551,7 +551,6 @@ PROMPT_PROCESS *prompt_process_calloc( void )
 	return prompt_process;
 }
 
-
 char *prompt_process_output_system_string(
 			char *executable,
 			char *session_key,
