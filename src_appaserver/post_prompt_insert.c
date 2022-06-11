@@ -11,6 +11,7 @@
 #include "String.h"
 #include "frameset.h"
 #include "table_edit.h"
+#include "table_insert.h"
 #include "prompt_insert.h"
 #include "post_prompt_insert.h"
 
@@ -23,6 +24,7 @@ int main( int argc, char **argv )
 	char *folder_name;
 	POST_PROMPT_INSERT *post_prompt_insert;
 	char *send_string;
+	char *system_string;
 
 	if ( argc != 6 )
 	{
@@ -70,70 +72,49 @@ int main( int argc, char **argv )
 
 	send_string =
 		dictionary_separate_send_string(
-			dictionary_separate_send_dictionary(
-			   (DICTIONARY *)0 /* sort_dictionary */,
-			   DICTIONARY_SEPARATE_SORT_PREFIX,
-			   post_prompt_insert->
-				dictionary_separate_post_prompt_insert->
-				query_dictionary,
-			   DICTIONARY_SEPARATE_QUERY_PREFIX,
-			   post_prompt_insert->
-				dictionary_separate_post_prompt_insert->
-				drillthru_dictionary,
-			   DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-			   post_prompt_insert->
-				dictionary_separate_post_prompt_insert->
-				ignore_dictionary,
-			   DICTIONARY_SEPARATE_IGNORE_PREFIX,
-			   (DICTIONARY *)0 /* no_display_dictionary */,
-			   DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-			   (DICTIONARY *)0 /* pair_one2m_dictionary */,
-				DICTIONARY_SEPARATE_PAIR_PREFIX,
-			   (DICTIONARY *)0
-				/* non_prefixed_dictionary */ ) );
-
-	if ( post_prompt_insert->insert
-	||   post_prompt_insert->lookup_boolean )
-	{
-		post_prompt_insert->
-			table_edit_output_system_string =
-				table_edit_output_system_string(
-					TABLE_EDIT_OUTPUT_EXECUTABLE,
-					session_key,
-					login_name,
-					role_name,
-					folder_name,
-					FRAMESET_EDIT_FRAME /* target_frame */,
-					post_prompt_insert->
-						sql_error_message_list_string
-							/*subsub_title */,
-					send_string,
-					appaserver_error_filename(
-						application_name ) );
-
-		if ( system(
 			post_prompt_insert->
-				table_edit_output_system_string ) ){}
+				dictionary_separate_send_dictionary );
+
+	if ( !post_prompt_insert->pair_one2m_post_prompt_insert
+	&& ( post_prompt_insert->insert
+	||   post_prompt_insert->lookup_boolean ) )
+	{
+		system_string =
+			table_edit_output_system_string(
+				TABLE_EDIT_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				folder_name,
+				FRAMESET_TABLE_FRAME /* target_frame */,
+				post_prompt_insert->
+					error_message_list_string
+						/*subsub_title */,
+				send_string,
+				appaserver_error_filename(
+					application_name ) );
 	}
 	else
 	{
-		post_prompt_insert->
-			insert_table_output_system_string =
-				insert_table_output_system_string(
-					INSERT_TABLE_OUTPUT_EXECUTABLE,
-					session_key,
-					login_name,
-					role_name,
-					folder_name,
-					FRAMESET_EDIT_FRAME /* target_frame */,
-					send_string,
-					appaserver_error_filename(
-						application_name ) );
-
-		if ( system(
-			post_prompt_insert->
-				insert_table_output_system_string ) ){}
+		system_string =
+			table_insert_output_system_string(
+				TABLE_INSERT_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				(post_prompt_insert->
+					pair_one2m_post_prompt_insert)
+					  ? post_prompt_insert->
+					       pair_one2m_post_prompt_insert->
+					       many_folder_name
+					  : folder_name,
+				FRAMESET_TABLE_FRAME /* target_frame */,
+				send_string,
+				appaserver_error_filename(
+					application_name ) );
 	}
+
+	if ( system( system_string ) ){}
 
 	return 0;
 }

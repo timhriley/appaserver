@@ -300,7 +300,9 @@ char *pair_one2m_prompt_insert_hidden_name(
 PAIR_ONE2M_POST_PROMPT_INSERT *
 	pair_one2m_post_prompt_insert_new(
 			char *one_folder_name,
-			DICTIONARY *non_prefixed_dictionary )
+			DICTIONARY *non_prefixed_dictionary,
+			char *pair_one2m_one_folder_label,
+			char *pair_one2m_many_folder_label )
 {
 	PAIR_ONE2M_POST_PROMPT_INSERT *
 		pair_one2m_post_prompt_insert =
@@ -308,8 +310,8 @@ PAIR_ONE2M_POST_PROMPT_INSERT *
 
 	if ( ! ( pair_one2m_post_prompt_insert->many_folder_name =
 			pair_one2m_post_prompt_insert_many_folder_name(
-				PAIR_ONE2M_MANY_FOLDER_LABEL,
-				non_prefixed_dictionary ) ) )
+				non_prefixed_dictionary,
+				pair_one2m_many_folder_label ) ) )
 	{
 		free( pair_one2m_post_prompt_insert );
 		return (PAIR_ONE2M_POST_PROMPT_INSERT *)0;
@@ -317,8 +319,10 @@ PAIR_ONE2M_POST_PROMPT_INSERT *
 
 	pair_one2m_post_prompt_insert->pair_one2m_dictionary =
 		pair_one2m_post_prompt_insert_dictionary(
-			PAIR_ONE2M_ONE_FOLDER_LABEL,
-			one_folder_name );
+			one_folder_name,
+			pair_one2m_one_folder_label,
+			pair_one2m_many_folder_label,
+			pair_one2m_post_prompt_insert->many_folder_name );
 
 	return pair_one2m_post_prompt_insert;
 }
@@ -344,8 +348,8 @@ PAIR_ONE2M_POST_PROMPT_INSERT *
 }
 
 char *pair_one2m_post_prompt_insert_many_folder_name(
-			char *pair_one2m_many_folder_label,
-			DICTIONARY *non_prefixed_dictionary )
+			DICTIONARY *non_prefixed_dictionary,
+			char *pair_one2m_many_folder_label )
 {
 	return
 	dictionary_get(
@@ -354,15 +358,32 @@ char *pair_one2m_post_prompt_insert_many_folder_name(
 }
 
 DICTIONARY *pair_one2m_post_prompt_insert_dictionary(
+			char *one_folder_name,
 			char *pair_one2m_one_folder_label,
-			char *one_folder_name )
+			char *pair_one2m_many_folder_label,
+			char *many_folder_name )
 {
-	DICTIONARY *dictionary = dictionary_small();
+	DICTIONARY *dictionary;
+
+	if ( ! ( dictionary = dictionary_small() ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: dictionary_small() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	dictionary_set(
 		dictionary,
 		pair_one2m_one_folder_label,
 		one_folder_name );
+
+	dictionary_set(
+		dictionary,
+		pair_one2m_many_folder_label,
+		many_folder_name );
 
 	return dictionary;
 }

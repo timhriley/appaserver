@@ -31,7 +31,9 @@ typedef struct
 PAIR_ONE2M_POST_PROMPT_INSERT *
 	pair_one2m_post_prompt_insert_new(
 			char *one_folder_name,
-			DICTIONARY *non_prefixed_dictionary );
+			DICTIONARY *non_prefixed_dictionary,
+			char *pair_one2m_one_folder_label,
+			char *pair_one2m_many_folder_label );
 
 /* Process */
 /* ------- */
@@ -40,12 +42,14 @@ PAIR_ONE2M_POST_PROMPT_INSERT *
 			void );
 
 char *pair_one2m_post_prompt_insert_many_folder_name(
-			char *pair_one2m_many_folder_label,
-			DICTIONARY *non_prefixed_dictionary );
+			DICTIONARY *non_prefixed_dictionary,
+			char *pair_one2m_many_folder_label );
 
 DICTIONARY *pair_one2m_post_prompt_insert_dictionary(
+			char *one_folder_name,
 			char *pair_one2m_one_folder_label,
-			char *one_folder_name );
+			char *pair_one2m_many_folder_label,
+			char *pair_one2m_post_prompt_insert_many_folder_name );
 
 typedef struct
 {

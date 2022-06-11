@@ -36,8 +36,6 @@ typedef struct
 	/* Driver */
 	/* ------ */
 	char *error_message_list_string;
-	char *table_edit_output_system_string;
-	char *insert_table_output_system_string;
 } POST_PROMPT_INSERT;
 
 /* Usage */
