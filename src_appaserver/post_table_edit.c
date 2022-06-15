@@ -1,5 +1,5 @@
 /* ------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/post_edit_table.c		*/
+/* $APPASERVER_HOME/src_appaserver/post_table_edit.c		*/
 /* ------------------------------------------------------	*/
 /* Freely available software: see Appaserver.org		*/
 /* ------------------------------------------------------	*/
@@ -9,8 +9,8 @@
 #include <string.h>
 #include "appaserver_error.h"
 #include "String.h"
-#include "edit_table.h"
-#include "post_edit_table.h"
+#include "table_edit.h"
+#include "post_table_edit.h"
 
 int main( int argc, char **argv )
 {
@@ -21,7 +21,7 @@ int main( int argc, char **argv )
 	char *folder_name;
 	char *target_frame;
 	char *detail_base_folder_name;
-	POST_EDIT_TABLE *post_edit_table;
+	POST_TABLE_EDIT *post_table_edit;
 	char *sql_error_message_list_string = {0};
 	char *operation_error_message_list_string = {0};
 	char *subsub_title;
@@ -43,8 +43,8 @@ int main( int argc, char **argv )
 	target_frame = argv[ 6 ];
 	detail_base_folder_name = argv[ 7 ];
 
-	if ( ! ( post_edit_table =
-			post_edit_table_new(
+	if ( ! ( post_table_edit =
+			post_table_edit_new(
 				argc,
 				argv,
 				application_name,
@@ -56,33 +56,33 @@ int main( int argc, char **argv )
 				detail_base_folder_name ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: post_edit_table_new() returned empty.\n",
+		"ERROR in %s/%s()/%d: post_table_edit_new() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( post_edit_table->update )
+	if ( post_table_edit->update )
 	{
 		sql_error_message_list_string =
 			/* --------------------------------------------- */
 			/* Returns sql_error_message_list_string or null */
 			/* --------------------------------------------- */
 			update_row_list_execute(
-				post_edit_table->update->update_row_list,
+				post_table_edit->update->update_row_list,
 				appaserver_error_filename(
 					application_name ) );
 	}
 
-	if ( post_edit_table->operation_row_list )
+	if ( post_table_edit->operation_row_list )
 	{
 		operation_error_message_list_string =
 			/* ---------------------------------------------------*/
 			/* Returns operation_error_message_list_string or null*/
 			/* ---------------------------------------------------*/
 			operation_row_list_execute(
-				post_edit_table->operation_row_list );
+				post_table_edit->operation_row_list );
 	}
 
 	subsub_title =
@@ -98,8 +98,8 @@ int main( int argc, char **argv )
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		edit_table_output_system_string(
-			EDIT_TABLE_OUTPUT_EXECUTABLE,
+		table_edit_output_system_string(
+			TABLE_EDIT_OUTPUT_EXECUTABLE,
 			session_key,
 			login_name,
 			role_name,
@@ -108,33 +108,35 @@ int main( int argc, char **argv )
 			subsub_title,
 			dictionary_separate_send_string(
 				dictionary_separate_send_dictionary(
-					post_edit_table->
+					post_table_edit->
 						dictionary_separate->
 						sort_dictionary,
 					DICTIONARY_SEPARATE_SORT_PREFIX,
-					post_edit_table->
+					post_table_edit->
 						dictionary_separate->
 						query_dictionary,
 					DICTIONARY_SEPARATE_QUERY_PREFIX,
-					post_edit_table->
+					post_table_edit->
 						dictionary_separate->
 						drillthru_dictionary,
 					DICTIONARY_SEPARATE_DRILLTHRU_PREFIX,
-					post_edit_table->
-						dictionary_separate->
-						ignore_dictionary,
+					(DICTIONARY *)0 /* ignore_dictionary */,
 					DICTIONARY_SEPARATE_IGNORE_PREFIX,
-					post_edit_table->
+					post_table_edit->
+						dictionary_separate->
+						no_display_dictionary,
+					DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+					post_table_edit->
 						dictionary_separate->
 						pair_one2m_dictionary,
 					DICTIONARY_SEPARATE_PAIR_PREFIX,
-					post_edit_table->
+					post_table_edit->
 						dictionary_separate->
 						non_prefixed_dictionary ) ),
 			appaserver_error_filename( application_name ) );
 
 	if ( system( system_string ) ){}
 
-	exit( 0 );
+	return 0;
 }
 

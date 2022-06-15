@@ -19,6 +19,7 @@
 typedef struct
 {
 	SESSION_PROCESS *session_process;
+	POST_DICTIONARY *post_dictionary;
 	LIST *process_parameter_folder_name_list;
 	LIST *folder_attribute_name_list_attribute_list;
 	LIST *folder_attribute_date_name_list;
@@ -40,7 +41,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			char *role_name,
 			char *process_or_set_name,
 			boolean is_drillthru,
-			POST_DICTIONARY *post_dictionary,
 			char *document_root,
 			char *application_relative_source_directory );
 
@@ -79,7 +79,18 @@ char *post_prompt_process_action_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *process_name,
+			char *process_or_set_name,
 			boolean is_drillthru );
+
+/* Returns heap memory */
+/* ------------------- */
+char *post_prompt_process_system_string(
+			char *post_prompt_process_executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			char *appaserver_error_filename );
 
 #endif

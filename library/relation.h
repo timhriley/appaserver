@@ -153,6 +153,20 @@ char *relation_prompt(	char *one_folder_name,
 			LIST *relation_foreign_key_list,
 			boolean relation_foreign_key_is_primary );
 
+/* Private */
+/* ------- */
+RELATION *relation_new(
+			char *many_folder_name,
+			char *one_folder_name );
+
+boolean relation_is_primary_key_subset(
+			LIST *foreign_key_list,
+			LIST *many_primary_key_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_display(	RELATION *relation );
+
 /* Public */
 /* ------ */
 LIST *relation_pair_one2m_list(
@@ -167,14 +181,6 @@ LIST *relation_mto1_non_isa_list(
 
 RELATION *relation_consumes(
 			char *many_attribute_name,
-			LIST *relation_mto1_list );
-
-RELATION *relation_one2m_seek(
-			char *folder_name,
-			LIST *relation_one2m_list );
-
-RELATION *relation_mto1_seek(
-			char *folder_name,
 			LIST *relation_mto1_list );
 
 LIST *relation_mto1_folder_name_list(
@@ -192,19 +198,8 @@ void relation_set_one_folder_primary_delimited_list(
 boolean relation_exists_multi_select(
 			LIST *relation_mto1_non_isa_list );
 
-/* Private */
-/* ------- */
-RELATION *relation_new(
-			char *many_folder_name,
-			char *one_folder_name );
-
-boolean relation_is_primary_key_subset(
-			LIST *foreign_key_list,
-			LIST *many_primary_key_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *relation_display(	RELATION *relation );
+RELATION *relation_automatic_preselection_mto1(
+			LIST *relation_mto1_non_isa_list );
 
 #endif
 

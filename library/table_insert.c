@@ -105,7 +105,7 @@ TABLE_INSERT *table_insert_new(
 		return (TABLE_INSERT *)0;
 	}
 
-	table_insert->dictionary_separate_table_insert =
+	table_insert->dictionary_separate =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */

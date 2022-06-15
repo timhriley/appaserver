@@ -168,14 +168,10 @@ parse_insert_statement.o: parse_insert_statement.c parse_insert_statement.h
 start_stop_time.o: start_stop_time.c start_stop_time.h
 	${CC} ${CFLAGS} -c start_stop_time.c
 
-token_dvr.e: token_dvr.c token.o
-	${CC} ${CFLAGS} token_dvr.c token.o				\
-	   -o token_dvr.e
-
 token.o: token.c token.h
 	${CC} ${CFLAGS} -c token.c
 
-environ.o: environ.c environ.h timlib.o
+environ.o: environ.c environ.h
 	${CC} ${CFLAGS} -c environ.c
 
 mask.o: mask.c mask.h
@@ -231,10 +227,7 @@ cc_chk.o: cc_chk.c
 	${CC} ${CFLAGS} -c cc_chk.c
 
 timlib.o: timlib.c timlib.h
-	${CC} -c $(CFLAGS) timlib.c
-
-compbear.e: compbear.c
-	${CC} ${CFLAGS} -lm compbear.c -o compbear.e
+	${CC} $(CFLAGS) -c timlib.c
 
 std_addr.o: std_addr.c std_addr.h
 	${CC} ${CFLAGS} -c std_addr.c

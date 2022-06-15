@@ -22,7 +22,7 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	LIST *role_folder_list;
-	DICTIONARY_SEPARATE_TABLE_INSERT *dictionary_separate_table_insert;
+	DICTIONARY_SEPARATE_TABLE_INSERT *dictionary_separate;
 	boolean forbid;
 } TABLE_INSERT;
 

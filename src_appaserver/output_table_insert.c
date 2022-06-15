@@ -83,27 +83,6 @@ int main( int argc, char **argv )
 	char *message;
 	INSERT_TABLE *insert_table;
 	DICTIONARY_SEPARATE *dictionary_separate;
-	DOCUMENT *document;
-	int number_rows_outputted = 0;
-	LIST *posted_attribute_name_list = {0};
-	LIST *no_display_pressed_attribute_name_list = {0};
-	LIST *ignore_attribute_name_list;
-	LIST *include_attribute_name_list;
-	APPASERVER_PARAMETER *appaserver_parameter;
-	int output_submit_reset_buttons_in_trailer = 1;
-	int output_submit_reset_buttons_in_heading = 1;
-	char detail_base_folder_name[ 128 ];
-	char action_string[ 512 ];
-	ROLE *role;
-	LIST *automatic_preselection_dictionary_list = {0};
-	boolean with_dynarch_menu = 0;
-	DICTIONARY_SEPARATE *dictionary_separate = {0};
-	DICTIONARY *non_prefixed_dictionary = {0};
-	DICTIONARY *query_dictionary = {0};
-	char *primary_data_list_string;
-	PAIR_ONE2M *pair_one2m = {0};
-	boolean output_content_type = 1;
-	VERTICAL_NEW_OUTPUT_INSERT_TABLE *vertical_new_output_insert_table;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -115,15 +94,15 @@ int main( int argc, char **argv )
 	if ( argc != 8 )
 	{
 		fprintf(stderr, 
-"Usage: %s login_name session folder role target_frame message dictionary\n",
+"Usage: %s session login role folder target_frame message dictionary\n",
 			argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	login_name = argv[ 1 ];
-	session_key = argv[ 2 ];
-	folder_name = argv[ 3 ];
-	role_name = argv[ 4 ];
+	session_key = argv[ 1 ];
+	login_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	folder_name = argv[ 4 ];
 	target_frame = argv[ 5 ];
 	message = argv[ 6 ];
 	dictionary_separate =
@@ -144,19 +123,19 @@ int main( int argc, char **argv )
 			login_name,
 			role_name,
 			folder_name, /* many_folder_name */,
-			appaserver_parameter->document_root_directory,
+			appaserver_parameter->document_root,
 			VERTICAL_NEW_BUTTON_ONE_PREFIX );
 
 	insert_table =
 		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		insert_table_output_new(
+		insert_table_new(
 			application_name,
-			login_name,
 			session_key,
-			folder_name,
+			login_name,
 			role_name,
+			folder_name,
 			target_frame,
 			message,
 			dictionary_string );

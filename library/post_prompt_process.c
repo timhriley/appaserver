@@ -34,7 +34,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			char *role_name,
 			char *process_or_set_name,
 			boolean is_drillthru,
-			POST_DICTIONARY *post_dictionary,
 			char *document_root,
 			char *application_relative_source_directory )
 {
@@ -47,7 +46,6 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 	||   !login_name
 	||   !role_name
 	||   !process_or_set_name
-	||   !post_dictionary
 	||   !document_root
 	||   !application_relative_source_directory )
 	{
@@ -76,6 +74,11 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 			role_name,
 			process_or_set_name );
 
+	post_prompt_process->post_dictionary =
+		post_dictionary_stdin_new(
+			(char *)0 /* upload_directory */,
+			(char *)0 /* session_key */ );
+
 	post_prompt_process->process_parameter_folder_name_list =
 		process_parameter_folder_name_list(
 			post_prompt_process->
@@ -98,7 +101,9 @@ POST_PROMPT_PROCESS *post_prompt_process_new(
 
 	post_prompt_process->dictionary_separate_prompt_process =
 		dictionary_separate_prompt_process_new(
-			post_dictionary->original_post_dictionary,
+			post_prompt_process->
+				post_dictionary->
+				original_post_dictionary,
 			application_name,
 			login_name,
 			post_prompt_process->
@@ -387,7 +392,7 @@ char *post_prompt_process_action_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *process_name,
+			char *process_or_set_name,
 			boolean is_drillthru )
 {
 	char action_string[ 1024 ];
@@ -397,7 +402,7 @@ char *post_prompt_process_action_string(
 	||   !session_key
 	||   !login_name
 	||   !role_name
-	||   !process_name )
+	||   !process_or_set_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -421,9 +426,50 @@ char *post_prompt_process_action_string(
 		session_key,
 		login_name,
 		role_name,
-		process_name,
+		process_or_set_name,
 		(is_drillthru) ? 'y' : 'n' );
 
 	return strdup( action_string );
+}
+
+char *post_prompt_process_system_string(
+			char *executable,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			char *appaserver_error_filename )
+{
+	char system_string[ STRING_8K ];
+
+	if ( !executable
+	||   !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !process_name
+	||   !appaserver_error_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"%s %s %s %s %s %s %c 2>>%s",
+		executable,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
+		process_name,
+		'n' /* not is_drillthru_yn */,
+		appaserver_error_filename );
+
+	return strdup( system_string );
 }
 

@@ -15,7 +15,10 @@
 
 typedef struct
 {
+	SESSION_PROCESS *session_process;
+	boolean no_parameters;
 	boolean process_parameter_has_drillthru;
+	char *post_prompt_process_system_string;
 	char *prompt_process_output_system_string;
 } POST_CHOOSE_PROCESS;
 
@@ -34,6 +37,9 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 /* ------- */
 POST_CHOOSE_PROCESS *post_choose_process_calloc(
 			void );
+
+boolean post_choose_process_no_parameters(
+			char *process_name );
 
 /* Public */
 /* ------ */

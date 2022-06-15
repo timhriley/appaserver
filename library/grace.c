@@ -19,6 +19,7 @@
 #include "application.h"
 #include "role.h"
 #include "appaserver_link.h"
+#include "float.h"
 #include "grace.h"
 
 void grace_output_optional_label_list(

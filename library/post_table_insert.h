@@ -23,10 +23,7 @@ typedef struct
 	ROLE *role;
 	FOLDER *folder;
 	POST_DICTIONARY *post_dictionary;
-
-	DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
-		dictionary_separate_post_prompt_insert;
-
+	DICTIONARY_SEPARATE_POST_TABLE_INSERT *dictionary_separate;
 	boolean lookup_boolean;
 	INSERT *insert;
 

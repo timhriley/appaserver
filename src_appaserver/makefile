@@ -186,6 +186,7 @@ EXTERNAL_LIBS=	${LIB}/piece.o 						\
 		${LIB}/post_choose_role.o				\
 		${LIB}/post_choose_folder.o				\
 		${LIB}/post_choose_process.o				\
+		${LIB}/post_prompt_process.o				\
 		${LIB}/post_table_edit.o				\
 		${LIB}/post_prompt_insert.o				\
 		${LIB}/recall.o						\

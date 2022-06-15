@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "boolean.h"
 #include "String.h"
+#include "boolean.h"
 #include "application.h"
 #include "appaserver_library.h"
 #include "appaserver_parameter.h"
@@ -19,6 +19,7 @@
 #include "environ.h"
 #include "dictionary_separate.h"
 #include "process_parameter.h"
+#include "post_prompt_process.h"
 #include "post_choose_process.h"
 
 POST_CHOOSE_PROCESS *post_choose_process_calloc( void )
@@ -49,9 +50,10 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 			char *process_or_set_name )
 {
 	POST_CHOOSE_PROCESS *post_choose_process;
-	SESSION_PROCESS *session_process;
 
-	session_process =
+	post_choose_process = post_choose_process_calloc();
+
+	post_choose_process->session_process =
 		/* --------------------------------------------- */
 		/* Sets appaserver environment and outputs argv. */
 		/* Each parameter is security inspected.	 */
@@ -66,28 +68,59 @@ POST_CHOOSE_PROCESS *post_choose_process_new(
 			role_name,
 			process_or_set_name );
 
-	post_choose_process = post_choose_process_calloc();
+	if ( post_choose_process->session_process->process_name )
+	{
+		post_choose_process->no_parameters =
+			post_choose_process_no_parameters(
+				post_choose_process->
+					session_process->
+					process_name );
+	}
 
-	post_choose_process->process_parameter_has_drillthru =
-		process_parameter_has_drillthru(
-			session_process->process_name,
-			session_process->process_set_name );
+	if ( post_choose_process->no_parameters )
+	{
+		post_choose_process->post_prompt_process_system_string =
+			post_prompt_process_system_string(
+				POST_PROMPT_PROCESS_EXECUTABLE,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				post_choose_process->
+					session_process->
+					process_name,
+				appaserver_error_filename(
+					application_name ) );
+	}
+	else
+	{
+		post_choose_process->process_parameter_has_drillthru =
+			process_parameter_has_drillthru(
+				post_choose_process->
+					session_process->
+					process_name,
+				post_choose_process->
+					session_process->
+					process_set_name );
 
-	post_choose_process->prompt_process_output_system_string =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		prompt_process_output_system_string(
-			PROMPT_PROCESS_OUTPUT_EXECUTABLE,
-			session_key,
-			login_name,
-			role_name,
-			process_or_set_name,
-			(char *)0 /* dictionary_separate_send_string() */,
-			post_choose_process->process_parameter_has_drillthru,
-			post_choose_process->process_parameter_has_drillthru
-				/* is_drillthru */,
-			appaserver_error_filename( application_name ) );
+		post_choose_process->prompt_process_output_system_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			prompt_process_output_system_string(
+				PROMPT_PROCESS_OUTPUT_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				process_or_set_name,
+				(char *)0 /* dictionary_..._send_string() */,
+				post_choose_process->
+					process_parameter_has_drillthru,
+				post_choose_process->
+					process_parameter_has_drillthru
+						/* is_drillthru */,
+				appaserver_error_filename( application_name ) );
+	}
 
 	return post_choose_process;
 }
@@ -137,5 +170,25 @@ char *post_choose_process_href_string(
 		frameset_prompt_frame );
 
 	return strdup( href_string );
+}
+
+boolean post_choose_process_no_parameters( char *process_name )
+{
+	char system_string[ 1024 ];
+	int results;
+
+	sprintf(system_string,
+		"select.sh \"count(1)\" %s \"%s\"",
+		PROCESS_PARAMETER_TABLE,
+		process_parameter_where(
+			process_name,
+			0 /* not is_drillthru */ ) );
+
+	results = atoi( string_pipe_fetch( system_string ) );
+
+	if ( results )
+		return 0;
+	else
+		return 1;
 }
 
