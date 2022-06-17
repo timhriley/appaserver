@@ -12,19 +12,18 @@
 #include "date.h"
 #include "boolean.h"
 
-/* Constants */
-/* --------- */
 #define TRANSACTION_TABLE			"transaction"
 #define TRANSACTION_MEMO_LENGTH			60
-#define TRANSACTION_CLOSING_TRANSACTION_TIME	"23:59:59"
-#define TRANSACTION_PRECLOSE_TRANSACTION_TIME	"23:59:58"
 #define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
-#define TRANSACTION_FOLDER_NAME			"transaction"
 #define TRANSACTION_SEMAPHORE_KEY		12227
 
-/* Structures */
-/* ---------- */
-
+#define TRANSACTION_SELECT			"full_name,"		\
+						"street_address,"	\
+						"transaction_date_time,"\
+						"transaction_amount,"	\
+						"memo,"			\
+						"check_number,"		\
+						"lock_transaction_yn"
 typedef struct
 {
 	char *full_name;
@@ -37,22 +36,51 @@ typedef struct
 	boolean lock_transaction;
 	char *property_street_address;
 	char *program_name;
+	char *fund_name;
 } TRANSACTION;
 
-TRANSACTION *transaction_calloc(
-			void );
+/* Usage */
+/* ----- */
+LIST *transaction_list(
+			char *where,
+			boolean fetch_journal_ledger );
+
+/* Usage */
+/* ----- */
+TRANSACTION *transaction_fetch(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			boolean fetch_journal_ledger );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_system_string(
+			char *transaction_select,
+			char *transaction_table,
+			char *transaction_primary_where );
+
+TRANSACTION *transaction_parse(
+			char *input,
+			boolean fetch_journal_ledger );
 
 TRANSACTION *transaction_new(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-/* Also fetches journal_list */
-/* ------------------------- */
-TRANSACTION *transaction_fetch(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
+TRANSACTION *transaction_calloc(
+			void );
 
 /* TRANSACTION without any additions */
 /* --------------------------------- */
@@ -171,24 +199,6 @@ char *transaction_property_insert_pipe(
 LIST *transaction_list_property_insert(
 			LIST *transaction_list );
 
-/* Returns program memory */
-/* ---------------------- */
-char *transaction_select(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *transaction_primary_where(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
-/* Also fetches journal_list() */
-/* --------------------------- */
-TRANSACTION *transaction_parse(
-			char *input,
-			boolean fetch_journal_list );
-
 TRANSACTION *transaction_seek(
 			LIST *transaction_list,
 			char *full_name,
@@ -201,10 +211,6 @@ void transaction_delete(char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-/* ======== */
-/* FEATURES */
-/* ======== */
-
 /* Returns static memory */
 /* --------------------- */
 char *transaction_escape_full_name(
@@ -214,7 +220,7 @@ char *transaction_full_name_escape(
 
 /* Returns race-free transaction_date_time */
 /* --------------------------------------- */
-char *transaction_race_free(
+char *transaction_race_free_fetch(
 			char *transaction_date_time );
 
 char *transaction_audit(
@@ -325,14 +331,6 @@ char *transaction_date_max(
 char *transaction_fund_where(
 			char *fund_name );
 
-LIST *transaction_list_fetch(
-			char *where,
-			boolean fetch_journal_list );
-
-LIST *transaction_system_list(
-			char *sys_string,
-			boolean fetch_journal_list );
-
 char *transaction_journal_join(
 			void );
 
@@ -396,9 +394,6 @@ char *transaction_full_name_display(
 
 void transaction_list_journal_insert(
 			LIST *transaction_list );
-
-char *transaction_sys_string(
-			char *where );
 
 char *transaction_generate_date_time(
 			char *transaction_date );

@@ -1,5 +1,5 @@
-# src_predictive/makefile
-# -----------------------
+# $APPASERVER_HOME/src_predictive/makefile
+# ----------------------------------------
 
 CC=gcc
 #CFLAGS=-g
@@ -36,7 +36,6 @@ EXECUTABLES=	trial_balance						\
 		ledger_debit_credit_audit				\
 		close_nominal_accounts					\
 		load_bank_spreadsheet					\
-		feeder_upload_missing					\
 		post_change_bank_upload					\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
@@ -49,7 +48,6 @@ EXECUTABLES=	trial_balance						\
 		depreciate_fixed_assets					\
 		post_change_account_balance				\
 		ledger_propagate					\
-		feeder_upload_missing					\
 		journal_ledger_trigger					\
 		post_change_fixed_asset_purchase			\
 		depreciation_trigger					\
@@ -139,7 +137,8 @@ SOURCE_LIBRARY= 							\
 		prepaid_asset.o						\
 		prepaid_asset_purchase.o				\
 		liability.o						\
-		receivable.o
+		receivable.o						\
+		feeder.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\

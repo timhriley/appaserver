@@ -155,7 +155,12 @@ int string_instr(	char *substr,
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *string_pipe_fetch( char *system_string );
+char *string_pipe(	char *system_string );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *string_pipe_fetch(
+			char *system_string );
 
 LIST *string_pipe_list(	char *system_string );
 

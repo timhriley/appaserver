@@ -21,8 +21,8 @@
 #include "journal.h"
 #include "account.h"
 #include "entity.h"
-#include "transaction.h"
 #include "predictive.h"
+#include "transaction.h"
 
 TRANSACTION *transaction_calloc( void )
 {
@@ -105,15 +105,40 @@ TRANSACTION *transaction_new(
 	return transaction;
 }
 
-LIST *transaction_system_list(
-			char *sys_string,
-			boolean fetch_journal_list )
+char *transaction_system_string(
+			char *transaction_select,
+			char *transaction_table,
+			char *transaction_primary_where )
+{
+	char sys_string[ 1024 ];
+
+	sprintf( sys_string,
+		 "select.sh \"%s\" %s \"%s\" transaction_date_time",
+		 transaction_select,
+		 transaction_table,
+		 transaction_primary_where );
+
+	return strdup( sys_string );
+}
+
+LIST *transaction_list(
+			char *where,
+			boolean fetch_journal_ledger )
 {
 	FILE *input_pipe;
+	char *system_string;
 	char input[ 1024 ];
 	LIST *transaction_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	/* Returns heap memory */
+	/* ------------------- */
+	system_string =
+		transaction_system_string(
+			TRANSACTION_SELECT,
+			TRANSACTION_TABLE,
+			where );
+
+	input_pipe = popen( system_string, "r" );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -121,77 +146,51 @@ LIST *transaction_system_list(
 			transaction_list,
 			transaction_parse(
 				input,
-				fetch_journal_list ) );
+				fetch_journal_ledger ) );
 	}
 
 	pclose( input_pipe );
+
 	return transaction_list;
-}
-
-char *transaction_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" transaction_date_time",
-		 transaction_select(),
-		 TRANSACTION_TABLE,
-		 where );
-
-	return strdup( sys_string );
-}
-
-LIST *transaction_list_fetch(
-			char *where,
-			boolean fetch_journal_list )
-{
-	return transaction_system_list(
-			transaction_sys_string(
-				where ),
-			fetch_journal_list );
 }
 
 TRANSACTION *transaction_fetch(
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time )
+			char *transaction_date_time,
+			boolean fetch_journal_ledger )
 {
 	if ( !full_name
 	||   !street_address
-	||   !transaction_date_time
-	||   !*transaction_date_time )
+	||   !transaction_date_time )
 	{
-		return (TRANSACTION *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	return transaction_parse(
-			pipe2string(
-				transaction_sys_string(
-		 			/* -------------------------- */
-		 			/* Safely returns heap memory */
-		 			/* -------------------------- */
-		 			transaction_primary_where(
-						full_name,
-						street_address,
-						transaction_date_time ) ) ),
-			1 /* fetch_joural_list */ );
-}
-
-char *transaction_select( void )
-{
 	return
-		"full_name,"
-		"street_address,"
-		"transaction_date_time,"
-		"transaction_amount,"
-		"memo,"
-		"check_number,"
-		"lock_transaction_yn";
+	transaction_parse(
+		string_pipe_fetch(
+			transaction_system_string(
+				TRANSACTION_SELECT,
+				TRANSACTION_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+	 			transaction_primary_where(
+					full_name,
+					street_address,
+					transaction_date_time ) ) ),
+		fetch_journal_ledger );
 }
 
 TRANSACTION *transaction_parse(
 			char *input,
-			boolean fetch_journal_list )
+			boolean fetch_journal_ledger )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -201,6 +200,8 @@ TRANSACTION *transaction_parse(
 
 	if ( !input || !*input ) return (TRANSACTION *)0;
 
+	/* See TRANSACTION_SELECT */
+	/* ---------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( transaction_date_time, SQL_DELIMITER, input, 2 );
@@ -223,11 +224,14 @@ TRANSACTION *transaction_parse(
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	transaction->lock_transaction = ( *piece_buffer == 'y' );
 
-	if ( fetch_journal_list )
+	if ( fetch_journal_ledger )
 	{
 		transaction->journal_list =
 			journal_system_list(
 				journal_system_string(
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
 					transaction_primary_where(
 						full_name,
 						street_address,
@@ -264,27 +268,22 @@ char *transaction_escape_full_name( char *full_name )
 	return escape_full_name;
 }
 
-/* Safely returns heap memory */
-/* -------------------------- */
 char *transaction_primary_where(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time )
 {
-	char where[ 1024 ];
+	static char where[ 256 ];
 
 	sprintf( where,
 		 "full_name = '%s' and		"
 		 "street_address = '%s' and	"
 		 "transaction_date_time = '%s'	",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 transaction_escape_full_name( full_name ),
+		 full_name,
 		 street_address,
 		 transaction_date_time );
 
-	return strdup( where );
+	return where;
 }
 
 FILE *transaction_insert_open( void )
@@ -457,7 +456,7 @@ char *transaction_insert_pipe(
 			boolean lock_transaction )
 {
 	transaction_date_time =
-		transaction_race_free(
+		transaction_race_free_fetch(
 			transaction_date_time );
 
 	fprintf(	insert_pipe,
@@ -533,7 +532,7 @@ char *transaction_property_insert_pipe(
 			boolean lock_transaction )
 {
 	transaction_date_time =
-		transaction_race_free(
+		transaction_race_free_fetch(
 			transaction_date_time );
 
 	fprintf(	insert_pipe,
@@ -577,7 +576,7 @@ char *transaction_program_insert_pipe(
 			boolean lock_transaction )
 {
 	transaction_date_time =
-		transaction_race_free(
+		transaction_race_free_fetch(
 			transaction_date_time );
 
 	fprintf(	insert_pipe,
@@ -609,7 +608,7 @@ char *transaction_program_insert_pipe(
 
 /* Returns race-free transaction_date_time */
 /* --------------------------------------- */
-char *transaction_race_free( char *transaction_date_time )
+char *transaction_race_free_fetch( char *transaction_date_time )
 {
 	key_t key = TRANSACTION_SEMAPHORE_KEY;
 	int semid;
@@ -734,7 +733,7 @@ boolean transaction_closing_entry_exists(
 		 /* --------------------- */
 		 transaction_date_time_where(
 			transaction_date,
-			TRANSACTION_CLOSING_TRANSACTION_TIME ),
+			PREDICTIVE_CLOSE_TIME ),
 		 transaction_closing_memo_where() );
 
 	sprintf( sys_string,
@@ -761,7 +760,7 @@ char *transaction_date_time_closing(
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			TRANSACTION_CLOSING_TRANSACTION_TIME );
+			PREDICTIVE_CLOSE_TIME );
 	}
 	else
 	if ( preclose_time )
@@ -769,14 +768,14 @@ char *transaction_date_time_closing(
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			TRANSACTION_PRECLOSE_TRANSACTION_TIME );
+			PREDICTIVE_PRECLOSE_TIME );
 	}
 	else
 	{
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			TRANSACTION_CLOSING_TRANSACTION_TIME );
+			PREDICTIVE_CLOSE_TIME );
 	}
 
 	return date_time;
@@ -1032,12 +1031,11 @@ void transaction_amount_fetch_update(
 	TRANSACTION *transaction;
 
 	if ( ! ( transaction =
-			/* Also fetches journal_list */
-			/* ------------------------- */
 			transaction_fetch(
 				full_name,
 				street_address,
-				transaction_date_time ) ) )
+				transaction_date_time,
+				1 /* fetch_journal_ledger */ ) ) )
 	{
 		return;
 	}
@@ -1236,7 +1234,7 @@ DATE *transaction_prior_closing_transaction_date(
 	sprintf( ending_transaction_date_time,
 		 "%s %s",
 		 as_of_date,
-		 TRANSACTION_CLOSING_TRANSACTION_TIME );
+		 PREDICTIVE_CLOSE_TIME );
 
 	sprintf( where,
 		 "memo = '%s' and transaction_date_time < '%s'",

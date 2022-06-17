@@ -93,9 +93,9 @@ void ledger_debit_credit_audit( char *begin_date )
 	}
 
 	transaction_list =
-		transaction_list_fetch(
+		transaction_list(
 			where_clause,
-			1 /* fetch_journal_list */ );
+			1 /* fetch_journal_ledger */ );
 
 	if ( !list_rewind( transaction_list ) ) return;
 

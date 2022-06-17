@@ -11,23 +11,19 @@
 #include "list.h"
 #include "boolean.h"
 
-/* Constants */
-/* --------- */
-#define TITLE_PASSAGE_RULE_SHIPPED_DATE "FOB_shipping"
-#define TITLE_PASSAGE_RULE_ARRIVED_DATE "FOB_destination"
-#define TITLE_PASSAGE_RULE_NULL		""
+#define PREDICTIVE_CLOSE_TIME			"23:59:59"
+#define PREDICTIVE_PRECLOSE_TIME		"23:59:58"
+#define TITLE_PASSAGE_RULE_SHIPPED_DATE 	"FOB_shipping"
+#define TITLE_PASSAGE_RULE_ARRIVED_DATE 	"FOB_destination"
+#define TITLE_PASSAGE_RULE_NULL			""
 
-/* Enumerated types */
-/* ---------------- */
 enum title_passage_rule{	title_passage_rule_null,
 				FOB_shipping,
 				FOB_destination };
 
-/* Structures */
-/* ---------- */
 
-/* Operations */
-/* ---------- */
+/* Public */
+/* ------ */
 
 /* ------------------------------------ */
 /* Returns heap memory			*/

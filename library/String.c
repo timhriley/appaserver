@@ -731,7 +731,7 @@ int string_instr(	char *substr,
         return -1;
 }
 
-char *string_pipe_fetch( char *system_string )
+char *string_pipe( char *system_string )
 {
 	char buffer[ 65536 ];
 	FILE *p;
@@ -751,6 +751,11 @@ char *string_pipe_fetch( char *system_string )
 		return (char *)0;
 	else
 		return strdup( buffer );
+}
+
+char *string_pipe_fetch( char *system_string )
+{
+	return string_pipe( system_string );
 }
 
 LIST *string_pipe_list(	char *system_string )
