@@ -763,15 +763,20 @@ int string_instr(	char *substr,
 
 char *string_pipe_input( char *system_string )
 {
-	return string_pipe_fetch( system_string );
+	return string_pipe( system_string );
 }
 
 char *string_fetch_pipe( char *system_string )
 {
-	return string_pipe_fetch( system_string );
+	return string_pipe( system_string );
 }
 
 char *string_pipe_fetch( char *system_string )
+{
+	return string_pipe( system_string );
+}
+
+char *string_pipe( char *system_string )
 {
 	char buffer[ STRING_64K ];
 	FILE *p;
