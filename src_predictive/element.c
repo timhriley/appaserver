@@ -8,26 +8,107 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
-#include "String.h"
 #include "list.h"
-#include "float.h"
-#include "sql.h"
-#include "piece.h"
-#include "environ.h"
-#include "html_table.h"
 #include "boolean.h"
-#include "account.h"
+#include "String.h"
+#include "piece.h"
 #include "subclassification.h"
-#include "predictive.h"
-#include "statement.h"
-#include "transaction.h"
 #include "element.h"
 
-char *element_select( void )
+LIST *element_subclassification_list(
+			char *element_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time )
 {
-	return "element.element,accumulate_debit_yn";
+	LIST *subclassification_name_list;
+	char *subclassification_name;
+	LIST *list;
+
+	subclassification_name_list =
+		subclassification_element_name_list(
+			element_primary_where(
+				element_name ),
+			SUBCLASSIFICATION_TABLE,
+			"display_order" /* order_column */ );
+
+	if ( !list_rewind( name_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		subclassification_name =
+			list_get(
+				subclassification_name_list );
+
+		list_set(
+			list,
+			subclassification_element_fetch(
+				subclassification_name,
+				begin_transaction_date_time,
+				end_transaction_date_time ) );
+
+	} while ( list_next( subclassification_name_list ) );
+
+	return list;
 }
 
+char *element_primary_where( char *element_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"element = '%s'",
+		element_name );
+
+	return where;
+}
+
+ELEMENT *element_calloc( void )
+{
+	ELEMENT *element;
+
+	if ( ! ( element = calloc( 1, sizeof( ELEMENT ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return element;
+}
+
+ELEMENT *element_new( char *element_name )
+{
+	ELEMENT *element = element_calloc();
+
+	element->element_name = element_name;
+
+	return element;
+}
+
+ELEMENT *element_parse( char *input )
+{
+	char element_name[ 128 ];
+	char piece_buffer[ 16 ];
+	ELEMENT *element;
+
+	if ( !input ) return (ELEMENT *)0;
+
+	/* See ELEMENT_SELECT */
+	/* ------------------ */
+	piece( element_name, SQL_DELIMITER, input, 0 );
+	element = element_new( strdup( element_name ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	element->accumulate_debit = ( *piece_buffer == 'y' );
+
+	return element;
+}
+
+#ifdef NOT_DEFINED
 ELEMENT *element_parse(
 			char *input,
 			char *fund_name,
@@ -83,17 +164,6 @@ ELEMENT *element_parse(
 	return element;
 }
 
-char *element_primary_where( char *element_name )
-{
-	char where[ 256 ];
-
-	sprintf( where,
-		 "element = '%s'",
-		 element_name );
-
-	return strdup( where );
-}
-
 char *element_sys_string( char *where )
 {
 	char sys_string[ 1024 ];
@@ -134,28 +204,6 @@ ELEMENT *element_fetch( char *element_name )
 			element_name );
 		exit( 1 );
 	}
-
-	return element;
-}
-
-ELEMENT *element_new( char *element_name )
-{
-	ELEMENT *element;
-
-	if ( ! ( element = calloc( 1, sizeof( ELEMENT ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-	element->element_name = element_name;
-
-	element->accumulate_debit =
-		element_accumulate_debit(
-			element->element_name );
 
 	return element;
 }
@@ -1381,4 +1429,4 @@ char *element_list_display(
 
 	return strdup( display );
 }
-
+#endif

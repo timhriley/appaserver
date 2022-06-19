@@ -10,19 +10,19 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "entity.h"
-#include "journal.h"
+#include "subclassification.h"
 #include "html_table.h"
 
-/* Constants */
-/* --------- */
-#define ACCOUNT_NET_INCOME			\
-					"net_income"
+#define ACCOUNT_SELECT			"account,"			\
+					"subclassification,"		\
+					"hard_coded_account_key,"	\
+					"chart_account_number,"		\
+					"annual_budget"
 
-#define ACCOUNT_CHANGE_IN_NET_ASSETS		\
-					"change_in_net_assets"
+#define ACCOUNT_TABLE			"account"
 
-#define ACCOUNT_TABLE_NAME		"account"
+#define ACCOUNT_NET_INCOME		"net_income"
+#define ACCOUNT_CHANGE_IN_NET_ASSETS	"change_in_net_assets"
 #define ACCOUNT_NOT_SET			"not_set"
 
 #define ACCOUNT_CASH_KEY		"cash_key"
@@ -41,28 +41,24 @@
 #define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
 #define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* Input */
 	/* ----- */
 	char *account_name;
-	char *fund_name;
-	char *element_name;
 	char *subclassification_name;
-	char *account_key;
-	double chart_account_number;
+	char *hard_coded_account_key;
+	int chart_account_number;
+	int annual_budget;
 
-	/* Process */
-	/* ------- */
+	/* Attributes */
+	/* ---------- */
+	SUBCLASSIFICATION *subclassification;
 	LIST *journal_list;
 	JOURNAL *latest_journal;
 	double balance;
-	double annual_budget;
-	boolean accumulate_debit;
 	double payment_amount;
-	LIST *account_balance_zero_journal_list;
+	LIST *journal_balance_zero_list;
 	LIST *liability_journal_list;
 	double account_liability_due;
 	char *account_action_string;
@@ -74,95 +70,108 @@ typedef struct
 	double account_receivable_due;
 } ACCOUNT;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+ACCOUNT *account_fetch(	char *account_name,
+			boolean fetch_subclassification,
+			boolean fetch_entity );
+
+/* Process */
+/* ------- */
 
 /* Returns static memory */
 /* --------------------- */
-char *account_escape_name(
+char *account_primary_where(
 			char *account_name );
-char *account_name_escape(
-			char *account_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *account_system_string(
+			char *account_select,
+			char *account_table,
+			char *where );
+
+ACCOUNT *account_parse(	char *input,
+			boolean fetch_subclassification,
+			boolean fetch_entity );
+
+ACCOUNT *account_new(	char *account_name );
+
+ACCOUNT *account_calloc(void );
+
+/* Usage */
+/* ----- */
+ACCOUNT *account_key_fetch(
+			char *hard_coded_account_key,
+			boolean fetch_subclassification,
+			boolean fetch_entity );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *account_hard_coded_key_where(
+			char *hard_coded_account_key );
+
+/* Usage */
+/* ----- */
+LIST *account_system_list(
+			char *account_system_string,
+			boolean fetch_subclassifiction,
+			boolean fetch_entity );
+
+/* Usage */
+/* ----- */
+LIST *account_list(	char *where,
+			boolean fetch_subclassification,
+			boolean fetch_entity );
+
+/* Usage */
+/* ----- */
+char *account_hard_coded_account_name(
+			char *account_key,
+			boolean warning_only,
+			const char *calling_function_name );
+
+/* Public */
+/* ------ */
 
 /* Returns static memory */
 /* --------------------- */
 char *account_name_format(
 			char *account_name );
 
-/* Sets account->accumulate_debit */
-/* ------------------------------ */
-ACCOUNT *account_fetch(	char *account_name );
-
-ACCOUNT *account_new(	char *account_name );
-
-ACCOUNT *account_list_seek(
-			char *account_name,
-			LIST *account_list );
+/* Returns program account_name or program memory */
+/* ---------------------------------------------- */
+char *account_name_display(
+			char *account_name );
 
 ACCOUNT *account_seek(	
 			char *account_name,
 			LIST *account_list );
 
-char *account_hard_coded_account_name(
-			char *fund_name,
-			char *account_key,
-			boolean warning_only,
-			const char *calling_function_name );
-
-char *account_depreciation_expense(
-			char *fund_name );
-
-char *account_sales_tax_payable(
-			char *fund_name );
-
-char *account_accumulated_depreciation(
-			char *fund_name );
-
-char *account_revenue(	char *fund_name );
-
-char *account_receivable(
-			char *fund_name );
-
-char *account_uncleared_checks(
-			char *fund_name );
-
-char *account_shipping_revenue(
-			char *fund_name );
-
-char *account_cash(	char *fund_name );
-
-char *account_gain(	char *fund_name );
-
-char *account_loss(	char *fund_name );
-
-char *account_payable(	char *fund_name );
-
-char *account_fees_expense(
-			char *fund_name );
-
-char *account_name_display(
-			char *account_name );
+char *account_depreciation_expense( void );
+char *account_sales_tax_payable( void );
+char *account_accumulated_depreciation( void );
+char *account_revenue(	void );
+char *account_receivable( void );
+char *account_uncleared_checks( void );
+char *account_shipping_revenue( void );
+char *account_cash( void );
+char *account_gain( void );
+char *account_loss( void );
+char *account_payable( void );
+char *account_fees_expense( void );
 
 int account_balance_match_function(
 			ACCOUNT *account_from_list,
 			ACCOUNT *account_compare );
 
-/* Sets account->accumulate_debit */
-/* ------------------------------ */
-ACCOUNT *account_parse(	char *input );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *account_primary_where(
-			char *account_name );
-
 LIST *account_list(	void );
 
 LIST *account_list_fetch(
 			char *where );
-
-LIST *account_system_list(
-			char *sys_string );
 
 ACCOUNT *account_key_seek(
 			LIST *account_list,
@@ -203,12 +212,6 @@ boolean account_name_accumulate_debit(
 
 void account_transaction_propagate(
 			char *propagate_transaction_date_time );
-
-char *account_system_string(
-			char *where );
-
-ACCOUNT *account_key_fetch(
-			char *account_key );
 
 boolean account_name_changed(
 			char *preupdate_account_name );
@@ -266,9 +269,6 @@ boolean account_name_accumulate_debit(
 
 char *account_list_display(
 			LIST *account_list );
-
-LIST *account_balance_zero_journal_list(
-			char *account_name );
 
 double account_liability_due(
 			LIST *liability_journal_list );

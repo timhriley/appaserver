@@ -11,6 +11,7 @@
 #include "float.h"
 #include "String.h"
 #include "list.h"
+#include "date.h"
 #include "sql.h"
 #include "piece.h"
 #include "environ.h"
@@ -18,7 +19,7 @@
 #include "entity.h"
 #include "predictive.h"
 #include "account.h"
-#include "predictive.h"
+#include "transaction.h"
 #include "journal.h"
 
 JOURNAL *journal_new(		char *full_name,
@@ -130,6 +131,9 @@ JOURNAL *journal_latest(
 
 	return
 	journal_account_fetch(
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		journal_max_transaction_date_time(
 			/* --------------------- */
 			/* Returns static memory */
@@ -310,24 +314,6 @@ JOURNAL *journal_parse(	char *input,
 	return journal;
 }
 
-boolean journal_accumulate_debit( char *account_name )
-{
-	ACCOUNT *account;
-
-	if ( ! ( account = account_fetch( account_name ) ) )
-	{
-		fprintf( stderr,
-		"Warning in %s/%s()/%d: account_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 account_name );
-		return 0;
-	}
-
-	return account->accumulate_debit;
-}
-
 LIST *journal_system_list(
 			char *system_string,
 			boolean fetch_check_number,
@@ -479,7 +465,7 @@ void journal_propagate(
 					transaction_date_time,
 					account_name ),
 				account_name ),
-			journal_accumulate_debit(
+			account_accumulate_debit(
 				account_name ) ) );
 }
 
@@ -1806,32 +1792,6 @@ LIST *journal_list_account_name_list(
 	return account_name_list;
 }
 
-char *journal_latest_zero_balance_transaction_date_time(
-			char *account_name,
-			char *journal_table )
-{
-	char where[ 512 ];
-	char system_string[ 1024 ];
-	char *results;
-
-	sprintf(where,
-		"account = '%s' and balance = 0",
-		account_name_escape( account_name ) );
-
-	sprintf(system_string,
-		"echo \"select %s from %s where %s;\" | sql.e",
-		"max( transaction_date_time )",
-		journal_table,
-		where );
-
-	results = string_pipe( system_string );
-
-	if ( results && *results )
-		return results;
-	else
-		return (char *)0;
-}
-
 LIST *journal_date_time_account_name_list(
 			char *transaction_date_time )
 {
@@ -1978,7 +1938,10 @@ LIST *journal_list(	char *full_name,
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
-			journal_transaction_where(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_primary_where(
 				full_name,
 				street_address,
 				transaction_date_time ) ),
@@ -1986,46 +1949,16 @@ LIST *journal_list(	char *full_name,
 		0 /* not fetch_memo */ );
 }
 
-char *journal_transaction_where(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time )
-{
-	static char where[ 256 ];
-
-	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf( where,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "transaction_date_time = '%s'	",
-		 full_name,
-		 street_address,
-		 transaction_date_time );
-
-	return where;
-}
-
 char *journal_transaction_system_string(
 			char *attribute_name,
-			char *journal_transaction_table,
-			char *journal_transaction_where )
+			char *transaction_table,
+			char *transaction_primary_where )
 {
 	char system_string[ 1024 ];
 
 	if ( !attribute_name
-	||   !journal_transaction_table
-	||   !journal_transaction_where )
+	||   !transaction_table
+	||   !transaction_primary_where )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -2038,8 +1971,8 @@ char *journal_transaction_system_string(
 	sprintf(system_string,
 	 	"select.sh \"%s\" %s \"%s\"",
 		attribute_name,
-		journal_transaction_table,
-		journal_transaction_where );
+		transaction_table,
+		transaction_primary_where );
 
 	return strdup( system_string );
 }
@@ -2070,9 +2003,75 @@ char *journal_transaction_cell_fetch(
 		/* ------------------- */
 		journal_transaction_system_string(
 			attribute_name,
-			JOURNAL_TRANSACTION_TABLE,
-			journal_transaction_where(
+			TRANSACTION_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_primary_where(
 				full_name,
 				street_address,
 				transaction_date_time ) ) );
 }
+
+LIST *journal_balance_zero_list(
+			char *account_name )
+{
+	char *minimum_transaction_date_time;
+
+	minimum_transaction_date_time =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		journal_following_latest_zero_balance_transaction_date_time(
+			account_name,
+			JOURNAL_TABLE );
+
+	return
+	journal_minimum_journal_list(
+		transaction_date_time_string
+			/* minimum_transaction_date_time */,
+		account_name,
+		JOURNAL_TABLE);
+}
+
+char *journal_following_latest_zero_balance_transaction_date_time(
+			char *account_name,
+			char *journal_table )
+{
+	char *transaction_date_time_string;
+	char where[ 512 ];
+	char system_string[ 1024 ];
+	char *results;
+
+	sprintf(where,
+		"account = '%s' and balance = 0",
+		account_name );
+
+	sprintf(system_string,
+		"echo \"select %s from %s where %s;\" | sql",
+		"max( transaction_date_time )",
+		journal_table,
+		where );
+
+	results = string_pipe( system_string );
+
+	if ( results && *results )
+	{
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				results );
+
+		date_increment_seconds(
+			transaction_date_time,
+			1 );
+
+		return
+		date_yyyy_mm_dd_hh_mm_ss(
+			transaction_date_time );
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+

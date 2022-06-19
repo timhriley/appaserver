@@ -16,18 +16,13 @@
 #include "entity.h"
 #include "predictive.h"
 #include "element.h"
-#include "journal.h"
 #include "subclassification.h"
 #include "element.h"
 #include "statement.h"
 #include "transaction.h"
 #include "date.h"
+#include "journal.h"
 #include "account.h"
-
-LIST *account_list( void )
-{
-	return account_list_fetch( "1 = 1" );
-}
 
 ACCOUNT *account_new( char *account_name )
 {
@@ -69,118 +64,113 @@ char *account_escape_name(
 	return escape_name;
 }
 
-char *account_revenue( char *fund_name )
+char *account_revenue( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_REVENUE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_REVENUE_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_receivable( char *fund_name )
+char *account_receivable( void )
 {
-	char *account_name;
-
-	account_name =
-		account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_RECEIVABLE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
-
-	return account_name;
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_RECEIVABLE_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_payable( char *fund_name )
+char *account_payable( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_PAYABLE_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_PAYABLE_KEY,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_uncleared_checks( char *fund_name )
+char *account_uncleared_checks( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_UNCLEARED_CHECKS_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_UNCLEARED_CHECKS_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_gain( char *fund_name )
+char *account_gain( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_GAIN_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_GAIN_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_loss( char *fund_name )
+char *account_loss( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_LOSS_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_LOSS_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_sales_tax_payable( char *fund_name )
+char *account_sales_tax_payable( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_SALES_TAX_PAYABLE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_SALES_TAX_PAYABLE_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_depreciation_expense( char *fund_name )
+char *account_depreciation_expense( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_DEPRECIATION_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_DEPRECIATION_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_accumulated_depreciation( char *fund_name )
+char *account_accumulated_depreciation( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_ACCUMULATED_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_ACCUMULATED_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
 
-char *account_shipping_revenue( char *fund_name )
+char *account_shipping_revenue( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_SHIPPING_REVENUE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_SHIPPING_REVENUE_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_cash( char *fund_name )
+char *account_cash( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_CASH_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_CASH_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_fees_expense( char *fund_name )
+char *account_fees_expense( void )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_FEES_EXPENSE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		ACCOUNT_FEES_EXPENSE_KEY,
+		0 /* not  warning_only */,
+		__FUNCTION__ );
 }
 
 char *account_name_display( char *account_name )
@@ -246,18 +236,21 @@ ACCOUNT *account_getset(
 	return account;
 }
 
-ACCOUNT *account_list_seek(
-			char *account_name,
-			LIST *account_list )
-{
-	return account_seek( account_name, account_list );
-}
-
-ACCOUNT *account_seek(
-			char *account_name,
+ACCOUNT *account_seek(	char *account_name,
 			LIST *account_list )
 {
 	ACCOUNT *account;
+
+	if ( !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	if ( !list_rewind( account_list ) ) return (ACCOUNT *)0;
 
@@ -271,30 +264,9 @@ ACCOUNT *account_seek(
 	return (ACCOUNT *)0;
 }
 
-char *account_select( void )
-{
-	if ( predictive_fund_attribute_exists() )
-	{
-		return
-			"account,"
-			"subclassification,"
-			"hard_coded_account_key,"
-			"chart_account_number,"
-			"annual_budget,"
-			"fund";
-	}
-	else
-	{
-		return
-			"account,"
-			"subclassification,"
-			"hard_coded_account_key,"
-			"chart_account_number,"
-			"annual_budget";
-	}
-}
-
-ACCOUNT *account_parse( char *input )
+ACCOUNT *account_parse(	char *input,
+			boolean fetch_subclassification,
+			boolean fetch_entity )
 {
 	char account_name[ 128 ];
 	char piece_buffer[ 1024 ];
@@ -302,6 +274,8 @@ ACCOUNT *account_parse( char *input )
 
 	if ( !input || !*input ) return (ACCOUNT *)0;
 
+	/* See ACCOUNT_SELECT */
+	/* ------------------ */
 	piece( account_name, SQL_DELIMITER, input, 0 );
 
 	account =
@@ -312,59 +286,62 @@ ACCOUNT *account_parse( char *input )
 	account->subclassification_name = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	account->account_key = strdup( piece_buffer );
+	account->hard_coded_account_key = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
 	account->chart_account_number = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	account->annual_budget = atof( piece_buffer );
+	account->annual_budget = atoi( piece_buffer );
 
-	if ( predictive_fund_attribute_exists() )
+	if ( fetch_subclassification )
 	{
-		piece( piece_buffer, SQL_DELIMITER, input, 5 );
-		account->fund_name = strdup( piece_buffer );
+		account->subclassification =
+			subclassification_fetch(
+				account->subclassification_name,
+				fetch_entity );
 	}
-
-	account->element_name =
-		account_element_name(
-			account->subclassification_name );
-
-	account->accumulate_debit =
-		account_accumulate_debit(
-			account->subclassification_name );
 
 	return account;
 }
 
-ACCOUNT *account_fetch(	char *account_name )
+ACCOUNT *account_fetch(	char *account_name,
+			boolean fetch_subclassification,
+			boolean fetch_entity )
 {
 	if ( !account_name ) return (ACCOUNT *)0;
 
-	return	account_parse(
-			pipe2string(
-				account_system_string(
-		 			/* -------------------------- */
-		 			/* Safely returns heap memory */
-		 			/* -------------------------- */
-		 			account_primary_where(
-						account_name ) ) ) );
+	return
+	account_parse(
+		string_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_system_string(
+				ACCOUNT_SELECT,
+				ACCOUNT_TABLE,
+	 			/* --------------------- */
+	 			/* Returns static memory */
+	 			/* --------------------- */
+	 			account_primary_where( account_name )
+					/* where */ ) ),
+		fetch_subclassification,
+		fetch_entity );
 }
 
 char *account_primary_where(
 			char *account_name )
 {
-	char where[ 128 ];
+	static char where[ 128 ];
 
 	sprintf( where,
 		 "account = '%s'",
 		 account_escape_name( account_name ) );
 
-	return strdup( where );
+	return where;
 }
 
 char *account_hard_coded_account_name(
-			char *fund_name,
 			char *account_key,
 			boolean warning_only,
 			const char *calling_function_name )
@@ -374,7 +351,7 @@ char *account_hard_coded_account_name(
 
 	if ( !list )
 	{
-		list = account_list();
+		list = account_list( (char *)0, 0, 0 );
 	}
 
 	if ( ! ( account =
@@ -452,7 +429,6 @@ char *account_non_cash_account_name(
 	{
 		checking_account =
 			account_hard_coded_account_name(
-				(char *)0 /* fund_name */,
 				ACCOUNT_CASH_KEY,
 				0 /* not warning_only */,
 				__FUNCTION__ );
@@ -704,39 +680,104 @@ void account_transaction_propagate(
 	pclose( input_pipe );
 }
 
-ACCOUNT *account_key_fetch( char *account_key )
+char *account_hard_coded_key_where(
+			char *hard_coded_account_key )
 {
-	char where[ 128 ];
+	static char where[ 128 ];
+
+	if ( !hard_coded_account_key )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: hard_coded_account_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(where,
 		"hard_coded_account_key = '%s'",
-		account_key );
+		hard_coded_account_key );
 
-	return account_parse(
-			pipe2string(
-				account_system_string(
-					where ) ) );
+	return where;
 }
 
-LIST *account_list_fetch( char *where )
+ACCOUNT *account_key_fetch(
+			char *hard_coded_account_key,
+			boolean fetch_subclassification,
+			boolean fetch_entity )
 {
-	char *sys_string;
+	char where[ 128 ];
 
-	sys_string = account_system_string( where );
-	return account_system_list( sys_string );
+	if ( !hard_coded_account_key )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: hard_coded_account_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	account_parse(
+		string_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_system_string(
+				ACCOUNT_SELECT,
+				ACCOUNT_TABLE,		
+				account_hard_coded_key_where(
+					hard_coded_account_key )
+						/* where */ ) ),
+		fetch_subclassification,
+		fetch_entity );
 }
 
-char *account_system_string( char *where )
+LIST *account_list(	char *where,
+			boolean fetch_subclassification,
+			boolean fetch_entity )
+{
+	if ( !where ) where = "1 = 1";
+
+	return
+	account_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_system_string(
+			ACCOUNT_SELECT,
+			ACCOUNT_TABLE,
+			where ),
+		fetch_subclassification,
+		fetch_entity );
+}
+
+char *account_system_string(
+			char *account_select,
+			char *account_table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
+	if ( !account_select
+	||   !account_table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !where ) where = "1 = 1";
+
 	sprintf( system_string,
-		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 account_select(),
-		 ACCOUNT_TABLE_NAME,
+		 "select.sh \"%s\" %s \"%s\" select",
+		 account_select,
+		 account_table,
 		 where );
 
 	return strdup( system_string );
@@ -1060,12 +1101,12 @@ boolean account_name_accumulate_debit(
 	}
 
 	if ( ! ( account =
-			account_list_seek(
+			account_seek(
 				account_name,
 				account_list ) ) )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_list_seek(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: account_seek(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -1104,38 +1145,6 @@ char *account_list_display(
 	}
 
 	return strdup( display );
-}
-
-LIST *account_balance_zero_journal_list(
-			char *account_name )
-{
-	char *transaction_date_time_string;
-
-	if ( ( transaction_date_time_string =
-			journal_latest_zero_balance_transaction_date_time(
-				account_name ) ) )
-	{
-		DATE *transaction_date_time;
-
-		transaction_date_time =
-			date_yyyy_mm_dd_hms_new(
-				transaction_date_time_string );
-
-		/* Need to start with the transaction following zero balance. */
-		/* ---------------------------------------------------------- */
-		date_increment_seconds(
-			transaction_date_time,
-			1 );
-
-		transaction_date_time_string =
-			date_get_yyyy_mm_dd_hh_mm_ss(
-				transaction_date_time );
-	}
-
-	return journal_minimum_account_journal_list(
-			transaction_date_time_string
-				/* minimum_transaction_date_time */,
-			account_name );
 }
 
 double account_liability_due( LIST *liability_journal_list )

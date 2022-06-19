@@ -10,13 +10,14 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "html_table.h"
-#include "latex.h"
-#include "account.h"
+#include "element.h"
 
-/* Constants */
-/* --------- */
-#define SUBCLASSIFICATION_TABLE_NAME		"subclassification"
+#define SUBCLASSIFICATION_TABLE			"subclassification"
+
+#define SUBCLASSIFICATION_SELECT		"subclassification,"	\
+						"element,"		\
+						"display_order"
+
 #define SUBCLASSIFICATION_NET_ASSETS		"net_assets"
 #define SUBCLASSIFICATION_CONTRIBUTED_CAPITAL	"contributed_capital"
 #define SUBCLASSIFICATION_RETAINED_EARNINGS	"retained_earnings"
@@ -24,186 +25,63 @@
 #define SUBCLASSIFICATION_CURRENT_LIABILITY	"current_liability"
 #define SUBCLASSIFICATION_RECEIVABLE		"receivable"
 
-#define SUBCLASSIFICATION_NOTANUMBER	"NAN"
+#define SUBCLASSIFICATION_NOTANUMBER		"NAN"
 
-#define SUBCLASSIFICATION_CHANGE_IN_NET_ASSETS		\
-					"change_in_net_assets"
+#define SUBCLASSIFICATION_CHANGE_IN_NET_ASSETS	"change_in_net_assets"
 
 #define SUBCLASSIFICATION_BEGINNING_BALANCE_LABEL	\
-					"Equity Beginning Balance"
+						"Equity Beginning Balance"
 
-#define SUBCLASSIFICATION_NET_ASSETS	"net_assets"
+#define SUBCLASSIFICATION_NET_ASSETS		"net_assets"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *subclassification_name;
 	char *element_name;
 	int display_order;
-	LIST *account_list;
-	double subclassification_balance;
-	int percent_of_asset;
-	int percent_of_revenue;
-	int delta_prior;
-	char *subclassification_total_display;
-	char *alternate_display_label;
-	boolean display_if_zero;
+	ELEMENT *element;
 } SUBCLASSIFICATION;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+SUBCLASSIFICATION *subclassification_fetch(
+			char *subclassification_name,
+			boolean fetch_element );
+
+/* Returns static memory */
+/* --------------------- */
 char *subclassification_primary_where(
 			char *subclassification_name );
 
+/* Returns heap memory */
+/* ------------------- */
+char *subclassification_system_string(
+			char *subclassification_select,
+			char *subclassification_table,
+			char *where );
+
 SUBCLASSIFICATION *subclassification_parse(
-			char *input );
-
-SUBCLASSIFICATION *subclassification_total_fetch(
-			double *subclassification_total,
-			char *subclassification_name,
-			char *fund_name,
-			char *date_time );
-
-SUBCLASSIFICATION *subclassification_fetch(
-			char *subclassification_name );
+			char *input,
+			boolean fetch_element );
 
 SUBCLASSIFICATION *subclassification_new(
 			char *subclassification_name );
 
-double subclassification_html_display(
-			HTML_TABLE *html_table,
-			LIST *subclassification_list,
-			char *element_name,
-			boolean element_accumulate_debit,
-			double percent_denominator );
-
-double subclassification_aggregate_html(
-			HTML_TABLE *html_table,
-			LIST *subclassification_list,
-			char *element_name,
-			double percent_denominator );
-
-boolean subclassification_net_assets_equity_exists(
-			LIST *subclassification_list );
-
-double subclassification_net_assets_html_output(
-			HTML_TABLE *html_table,
-			LIST *subclassification_list,
-			boolean element_accumulate_debit );
-
-LIST *subclassification_beginning_latex_row_list(
-			double *total_element,
-			LIST *subclassification_list,
-			boolean element_accumulate_debit );
-
-LIST *subclassification_display_latex_row_list(
-			double *total_element,
-			LIST *subclassification_list,
-			char *element_name,
-			boolean element_accumulate_debit,
-			double percent_denominator );
-
-LIST *subclassification_aggregate_latex_row_list(
-			double *total_element,
-			LIST *subclassification_list,
-			char *element_name,
-			double percent_denominator );
-
-LIST *subclassification_aggregate_beginning_row_list(
-			double *total_element,
-			LIST *subclassification_list,
-			double percent_denominator );
-
-LATEX_ROW *subclassification_latex_liabilities_plus_equity_row(
-			double liabilities_plus_equity,
-			int skip_columns );
-
-void subclassification_aggregate_net_income_output(
-			HTML_TABLE *html_table,
-			double net_income,
-			boolean is_statement_of_activities,
-			double percent_denominator );
-
-boolean subclassification_net_assets_exists(
-			LIST *subclassification_list );
-
-LIST *subclassification_account_list(
-			LIST *subclassification_list );
-
-LIST *subclassification_total_account_list(
-			double *subclassification_total,
-			char *subclassification_name,
-			char *fund_name,
-			char *transaction_date_time_closing );
-
-LIST *subclassification_list(
+SUBCLASSIFICATION *subclassification_calloc(
 			void );
 
-LIST *subclassification_system_list(
-			char *sys_string );
-
-char *subclassification_sys_string(
-			char *where );
-
-SUBCLASSIFICATION *subclassification_seek(
+/* Usage */
+/* ----- */
+SUBCLASSIFICATION *subclassification_element_fetch(
 			char *subclassification_name,
-			LIST *subclassification_list );
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time );
 
-boolean subclassification_current_liability(
-			char *subclassification_name );
-
-boolean subclassification_receivable(
-			char *subclassification_name );
-
-void subclassification_list_account_action_string_set(
-			LIST *subclassification_list,
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *beginning_date,
-			char *as_of_date );
-
-double subclassification_list_balance(
-			LIST *subclassification_list );
-
-void subclassification_list_percent_of_asset_set(
-			LIST *subclassification_list,
-			double asset_total );
-
-void subclassification_list_percent_of_revenue_set(
-			LIST *subclassification_list,
-			double revenue_total );
-
-void subclassification_list_delta_prior_set(
-			LIST *prior_subclassification_list,
-			LIST *subclassification_list );
-
-void subclassification_delta_prior_set(
-			LIST *prior_subclassification_list,
-			SUBCLASSIFICATION *subclassification );
-
-double subclassification_debit_total(
-			LIST *subclassification_list );
-
-double subclassification_credit_total(
-			LIST *subclassification_list );
-
-double subclassification_positive_balance_total(
-			LIST *subclassification_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *subclassification_label(
-			char *subclassification_name,
-			char *alternate_display_label,
-			boolean with_total );
-
-boolean subclassification_list_populated(
-			LIST *subclassification_list );
-
-char *subclassification_list_display(
-			LIST *subclassification_list );
+/* Public */
+/* ------ */
+LIST *subclassification_element_name_list(
+			char *element_primary_where,
+			char *subclassification_table,
+			char *order_column );
 
 #endif

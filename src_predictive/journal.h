@@ -13,7 +13,6 @@
 #include "predictive.h"
 
 #define JOURNAL_TABLE			"journal_ledger"
-#define JOURNAL_TRANSACTION_TABLE	"transaction"
 
 #define JOURNAL_SELECT			"full_name,"		\
 					"street_address,"	\
@@ -66,13 +65,6 @@ LIST *journal_list(	char *full_name,
 
 /* Process */
 /* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_transaction_where(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
 
 /* Usage */
 /* ----- */
@@ -173,7 +165,7 @@ char *journal_transaction_cell_fetch(
 char *journal_transaction_system_string(
 			char *attribute_name,
 			char *journal_transaction_table,
-			char *journal_transaction_where );
+			char *transaction_primary_where );
 
 /* Usage */
 /* ----- */
@@ -216,12 +208,22 @@ char *journal_max_transaction_date_time(
 			char *journal_max_where,
 			char *journal_table );
 
-/* Public */
+/* Usage */
+/* ----- */
+LIST *journal_balance_zero_list(
+			char *account_name );
+
+/* Process */
 /* ------ */
-char *journal_latest_zero_balance_transaction_date_time(
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_following_latest_zero_balance_transaction_date_time(
 			char *account_name,
 			char *journal_table );
 
+/* Public */
+/* ------ */
 boolean journal_accumulate_debit(
 			char *account_name );
 
@@ -359,10 +361,6 @@ char *journal_update_sys_string(
 JOURNAL *journal_account_latest(
 			char *account_name,
 			char *transaction_date_time_closing );
-
-LIST *journal_minimum_account_journal_list(
-			char *minimum_transaction_date_time,
-			char *account_name );
 
 LIST *journal_binary_list(
 			char *full_name,

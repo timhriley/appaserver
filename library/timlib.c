@@ -379,7 +379,8 @@ char *format_initial_capital( char *destination, char *string )
 {
 	return format_initial_capital_delimiter(
 			destination,
-			string, ' ',
+			string,
+			' ',
 			1 /* with_inside_parens */ );
 }
 
@@ -387,7 +388,8 @@ char *format_initial_capital_not_parens( char *destination, char *string )
 {
 	return format_initial_capital_delimiter(
 			destination,
-			string, ' ',
+			string,
+			' ',
 			0 /* not with_inside_parens */ );
 }
 

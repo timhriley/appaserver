@@ -13,28 +13,22 @@
 #include "sql.h"
 #include "piece.h"
 #include "boolean.h"
-#include "latex.h"
-#include "html_table.h"
-#include "account.h"
-#include "predictive.h"
-#include "element.h"
-#include "statement.h"
 #include "subclassification.h"
 
-char *subclassification_primary_where(
-			char *subclassification_name )
+char *subclassification_primary_where( char *subclassification_name )
 {
-	char where[ 256 ];
+	static char where[ 128 ];
 
 	sprintf( where,
 		 "subclassification = '%s'",
 		 subclassification_name );
 
-	return strdup( where );
+	return where;
 }
 
 SUBCLASSIFICATION *subclassification_parse(
-			char *input )
+			char *input,
+			boolean fetch_element )
 {
 	char subclassification_name[ 128 ];
 	char piece_buffer[ 128 ];
@@ -42,87 +36,94 @@ SUBCLASSIFICATION *subclassification_parse(
 
 	if ( !input || !*input ) return (SUBCLASSIFICATION *)0;
 
-	/* See: attribute_list subclassification */
-	/* ------------------------------------- */
+	/* See SUBCLASSIFICATION_SELECT */
+	/* ---------------------------- */
 	piece( subclassification_name, SQL_DELIMITER, input, 0 );
 
 	subclassification =
 		subclassification_new(
 			strdup( subclassification_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	subclassification->element_name = strdup( piece_buffer );
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 1 ) )
+	{
+		subclassification->element_name = strdup( piece_buffer );
+	}
 
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	subclassification->display_order = atoi( piece_buffer );
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 2 ) )
+	{
+		subclassification->display_order = atoi( piece_buffer );
+	}
+
+	if ( fetch_element && subclassification->element_name )
+	{
+		subclassification->element =
+			element_fetch(
+				subclassification->element_name );
+	}
 
 	return subclassification;
 }
 
 SUBCLASSIFICATION *subclassification_fetch(
+			char *subclassification_name,
+			boolean fetch_element )
+{
+	return
+	subclassification_parse(
+		pipe2string(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			subclassification_system_string(
+				SUBCLASSIFICATION_SELECT,
+				SUBCLASSIFICATION_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				subclassification_primary_where(
+					subclassification_name ) ) ),
+	fetch_element );
+}
+
+char *subclassification_primary_where(
 			char *subclassification_name )
 {
-	static LIST *list = {0};
-	SUBCLASSIFICATION *subclassification;
+	static char where[ 128 ];
 
-	if ( !list )
-	{
-		list = subclassification_list();
-	}
-
-	if ( ! ( subclassification =
-			subclassification_seek(
-				subclassification_name,
-				list ) ) )
+	if ( !subclassification_name )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: subclassification_seek(%s) returned empty.\n",
+		"ERROR in %s/%s()/%d: subclassification_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			subclassification_name );
+			__LINE__ );
 		exit( 1 );
 	}
 
-	return subclassification;
+	sprintf(where,
+		"subclassification = '%s'",
+		subclassification_name );
+
+	return where;
 }
 
-SUBCLASSIFICATION *subclassification_total_fetch(
-			double *subclassification_balance,
-			char *subclassification_name,
-			char *fund_name,
-			char *transaction_date_time_closing )
+char *subclassification_system_string(
+			char *subclassification_select,
+			char *subclassification_table,
+			char *where )
 {
-	SUBCLASSIFICATION *subclassification;
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" display_order",
+		subclassification_select,
+		subclassification_table,
+		where );
 
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" none",
-		 "subclassification",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 subclassification_primary_where(
-			subclassification_name ) );
-
-	subclassification =
-		subclassification_parse(
-			pipe2string( sys_string ) );
-
-	subclassification->account_list =
-		subclassification_total_account_list(
-			subclassification_balance,
-			subclassification->subclassification_name,
-			fund_name,
-			transaction_date_time_closing );
-
-	return subclassification;
+	return strdup( system_string );
 }
 
-SUBCLASSIFICATION *subclassification_new(
-			char *subclassification_name )
+SUBCLASSIFICATION *subclassification_calloc( void )
 {
 	SUBCLASSIFICATION *subclassification;
 
@@ -136,16 +137,102 @@ SUBCLASSIFICATION *subclassification_new(
 			 __LINE__ );
 		exit( 1 );
 	}
+	return subclassification;
+}
+
+SUBCLASSIFICATION *subclassification_new(
+			char *subclassification_name )
+{
+	SUBCLASSIFICATION *subclassification = subclassification_calloc();
+
 	subclassification->subclassification_name = subclassification_name;
+
+	return subclassification;
+}
+
+LIST *subclassification_element_name_list(
+			char *element_primary_where,
+			char *subclassification_table,
+			char *order_column )
+{
+	char system_string[ 1024 ];
+
+	if ( !element_primary_where
+	||   !subclassification_table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh subclassification %s \"%s\" %s",
+		subclassification_table,
+		element_primary_where,
+		order_column );
+
+	return pipe2list( system_string );
+}
+
+SUBCLASSIFICATION *subclassification_element_fetch(
+			char *subclassification_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time )
+{
+	SUBCLASSIFICATION *subclassification =
+		subclassification_new(
+			subclassification_name );
+
+	subclassification->account_list =
+	return subclassification;
+}
+
+#ifdef NOT_DEFINED
+SUBCLASSIFICATION *subclassification_total_fetch(
+			double *subclassification_balance,
+			char *subclassification_name,
+			char *fund_name,
+			char *transaction_date_time_closing )
+{
+	SUBCLASSIFICATION *subclassification;
+	char system_string[ 1024 ];
+
+	if ( !subclassification_name ) return (SUBCLASSIFICATION *)0;
+
+	sprintf(sys_string,
+		"select.sh '*' %s \"%s\" none",
+		SUBCLASSIFICATION_TABLE,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		subclassification_primary_where(
+			subclassification_name ) );
+
+	subclassification =
+		subclassification_parse(
+			pipe2string( system_string ),
+			0 /* not fetch_element */,
+			0 /* not fetch_account_list */ );
+
+	subclassification->account_list =
+		subclassification_total_account_list(
+			subclassification_balance,
+			subclassification->subclassification_name,
+			fund_name,
+			transaction_date_time_closing );
+
 	return subclassification;
 }
 
 double subclassification_html_display(
-					HTML_TABLE *html_table,
-					LIST *subclassification_list,
-					char *element_name,
-					boolean element_accumulate_debit,
-					double percent_denominator )
+			HTML_TABLE *html_table,
+			LIST *subclassification_list,
+			char *element_name,
+			boolean element_accumulate_debit,
+			double percent_denominator )
 {
 	double total_element = 0.0;
 	double subclassification_amount;
@@ -1841,43 +1928,46 @@ LIST *subclassification_total_account_list(
 	return account_list;
 }
 
-LIST *subclassification_list( void )
+LIST *subclassification_list(
+			char *where,
+			boolean fetch_element,
+			boolean fetch_account_list )
 {
-	return subclassification_system_list(
-			subclassification_sys_string(
-				"1 = 1" ) );
+	if ( !where ) where = "1 = 1";
+
+	return
+	subclassification_system_list(
+		subclassification_system_string(
+			SUBCLASSIFICATION_SELECT,
+			SUBCLASSIFICATION_TABLE,
+			where ),
+		fetch_element,
+		fetch_account_list );
 }
 
 LIST *subclassification_system_list(
-			char *sys_string )
+			char *system_string,
+			boolean fetch_element,
+			boolean fetch_account_list )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *subclassification_list;
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = popen( system_string, "r" );
 	subclassification_list = list_new();
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
 		list_set(
 			subclassification_list,
-			subclassification_parse( input ) );
+			subclassification_parse(
+				input,
+				fetch_element,
+				fetch_account_list ) );
 	}
 	pclose( input_pipe );
 	return subclassification_list;
-}
-
-char *subclassification_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string,
-		 "select.sh '*' %s \"%s\" select",
-		 SUBCLASSIFICATION_TABLE_NAME,
-		 where );
-
-	return strdup( sys_string );
 }
 
 SUBCLASSIFICATION *subclassification_seek(
@@ -2258,4 +2348,4 @@ char *subclassification_list_display(
 
 	return strdup( display );
 }
-
+#endif
