@@ -55,4 +55,8 @@ double round_float(	double d );
 
 double round_pennies(	double d );
 
+int float_percent_of_total(
+			double total,
+			double denominator );
+
 #endif

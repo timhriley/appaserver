@@ -10,9 +10,11 @@
 #include "timlib.h"
 #include "list.h"
 #include "boolean.h"
+#include "sql.h"
 #include "String.h"
 #include "piece.h"
 #include "subclassification.h"
+#include "account.h"
 #include "element.h"
 
 LIST *element_subclassification_list(
@@ -22,18 +24,18 @@ LIST *element_subclassification_list(
 {
 	LIST *subclassification_name_list;
 	char *subclassification_name;
-	LIST *list;
+	LIST *subclassification_list;
 
 	subclassification_name_list =
-		subclassification_element_name_list(
+		subclassification_element_subclassification_name_list(
 			element_primary_where(
 				element_name ),
 			SUBCLASSIFICATION_TABLE,
 			"display_order" /* order_column */ );
 
-	if ( !list_rewind( name_list ) ) return (LIST *)0;
+	if ( !list_rewind( subclassification_name_list ) ) return (LIST *)0;
 
-	list = list_new();
+	subclassification_list = list_new();
 
 	do {
 		subclassification_name =
@@ -41,7 +43,7 @@ LIST *element_subclassification_list(
 				subclassification_name_list );
 
 		list_set(
-			list,
+			subclassification_list,
 			subclassification_element_fetch(
 				subclassification_name,
 				begin_transaction_date_time,
@@ -49,18 +51,7 @@ LIST *element_subclassification_list(
 
 	} while ( list_next( subclassification_name_list ) );
 
-	return list;
-}
-
-char *element_primary_where( char *element_name )
-{
-	static char where[ 128 ];
-
-	sprintf(where,
-		"element = '%s'",
-		element_name );
-
-	return where;
+	return subclassification_list;
 }
 
 ELEMENT *element_calloc( void )
@@ -108,80 +99,105 @@ ELEMENT *element_parse( char *input )
 	return element;
 }
 
-#ifdef NOT_DEFINED
-ELEMENT *element_parse(
-			char *input,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			boolean fetch_subclassification_list,
-			boolean fetch_account_list )
+LIST *element_account_list( LIST *subclassification_list )
 {
-	char element_name[ 128 ];
-	char piece_buffer[ 16 ];
-	ELEMENT *element;
-	char *transaction_date_time;
+	SUBCLASSIFICATION *subclassification;
+	LIST *account_list;
 
-	if ( !input ) return (ELEMENT *)0;
+	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
 
-	piece( element_name, SQL_DELIMITER, input, 0 );
-	element = element_new( strdup( element_name ) );
+	account_list = list_new();
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	element->accumulate_debit = ( *piece_buffer == 'y' );
+	do {
+		subclassification =
+			list_get(
+				subclassification_list );
 
-	if ( element_is_nominal( element->element_name ) )
-	{
-		transaction_date_time =
-			transaction_date_time_nominal;
-	}
-	else
-	{
-		transaction_date_time =
-			transaction_date_time_fixed;
-	}
+		list_set_list(
+			account_list,
+			subclassification->account_list );
 
-	if ( fetch_account_list )
-	{
-		element->account_list =
-			element_account_list(
-				&element->element_current_balance,
-				element->element_name,
-				fund_name,
-				transaction_date_time );
-	}
+	} while ( list_next( subclassification_list ) );
 
-	if ( fetch_subclassification_list )
-	{
-		element->subclassification_list =
-			element_subclassification_list(
-				&element->element_current_balance,
-				element->element_name,
-				fund_name,
-				transaction_date_time );
-	}
-
-	return element;
+	return account_balance_sort_list( account_list );
 }
 
-char *element_sys_string( char *where )
+ELEMENT *element_fetch( char *element_name )
 {
-	char sys_string[ 1024 ];
+	if ( !element_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	if ( !where || !*where ) return (char *)0;
+	return
+	element_parse(
+		pipe2string(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			element_system_string(
+				ELEMENT_SELECT,
+				ELEMENT_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				element_primary_where(
+					element_name ) ) ) );
+}
 
-	sprintf(sys_string,
-		"echo \"select %s from %s where %s;\" | sql",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		element_select(),
-		"element",
+char *element_primary_where( char *element_name )
+{
+	static char where[ 128 ];
+
+	if ( !element_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf( where, "element = '%s'", element_name );
+
+	return where;
+}
+
+char *element_system_string(
+			char *element_select,
+			char *element_table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !element_select
+	||   !element_table
+	||   !where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		element_select,
+		element_table,
 		where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
+#ifdef NOT_DEFINED
 ELEMENT *element_fetch( char *element_name )
 {
 	static LIST *list = {0};
@@ -298,6 +314,80 @@ LIST *element_system_list(
 	pclose( input_pipe );
 	return element_list_sort( element_list );
 }
+
+ELEMENT *element_parse(
+			char *input,
+			char *fund_name,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list )
+{
+	char element_name[ 128 ];
+	char piece_buffer[ 16 ];
+	ELEMENT *element;
+	char *transaction_date_time;
+
+	if ( !input ) return (ELEMENT *)0;
+
+	piece( element_name, SQL_DELIMITER, input, 0 );
+	element = element_new( strdup( element_name ) );
+
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	element->accumulate_debit = ( *piece_buffer == 'y' );
+
+	if ( element_is_nominal( element->element_name ) )
+	{
+		transaction_date_time =
+			transaction_date_time_nominal;
+	}
+	else
+	{
+		transaction_date_time =
+			transaction_date_time_fixed;
+	}
+
+	if ( fetch_account_list )
+	{
+		element->account_list =
+			element_account_list(
+				&element->element_current_balance,
+				element->element_name,
+				fund_name,
+				transaction_date_time );
+	}
+
+	if ( fetch_subclassification_list )
+	{
+		element->subclassification_list =
+			element_subclassification_list(
+				&element->element_current_balance,
+				element->element_name,
+				fund_name,
+				transaction_date_time );
+	}
+
+	return element;
+}
+
+char *element_sys_string( char *where )
+{
+	char sys_string[ 1024 ];
+
+	if ( !where || !*where ) return (char *)0;
+
+	sprintf(sys_string,
+		"echo \"select %s from %s where %s;\" | sql",
+		/* -------------------------- */
+		/* Safely returns heap memory */
+		/* -------------------------- */
+		element_select(),
+		"element",
+		where );
+
+	return strdup( sys_string );
+}
+
 
 char *element_system_string( char *where )
 {

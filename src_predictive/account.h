@@ -11,7 +11,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "subclassification.h"
-#include "html_table.h"
+#include "journal.h"
 
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
@@ -54,20 +54,11 @@ typedef struct
 	/* Attributes */
 	/* ---------- */
 	SUBCLASSIFICATION *subclassification;
-	LIST *journal_list;
+	LIST *journal_account_journal_list;
 	JOURNAL *latest_journal;
-	double balance;
-	double payment_amount;
-	LIST *journal_balance_zero_list;
-	LIST *liability_journal_list;
-	double account_liability_due;
-	char *account_action_string;
 	double account_balance;
 	int percent_of_asset;
 	int percent_of_revenue;
-	int delta_prior;
-	boolean display_if_zero;
-	double account_receivable_due;
 } ACCOUNT;
 
 /* Usage */
@@ -127,15 +118,42 @@ LIST *account_list(	char *where,
 			boolean fetch_subclassification,
 			boolean fetch_entity );
 
-/* Usage */
-/* ----- */
+ACCOUNT *account_subclassification_fetch(
+			char *account_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time );
+
+/* Private */
+/* ------- */
+int account_balance_match_function(
+			ACCOUNT *account_from_list,
+			ACCOUNT *account_compare );
+
+double account_balance(
+			LIST *account_list );
+
+double account_debit_total(
+			LIST *account_list );
+
+double account_credit_total(
+			LIST *account_list );
+
+double account_positive_balance_total(
+			LIST *account_list );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_hard_coded_account_name(
 			char *account_key,
 			boolean warning_only,
 			const char *calling_function_name );
 
-/* Public */
-/* ------ */
+LIST *account_subclassification_account_name_list(
+			char *where,
+			char *account_table );
 
 /* Returns static memory */
 /* --------------------- */
@@ -164,78 +182,17 @@ char *account_loss( void );
 char *account_payable( void );
 char *account_fees_expense( void );
 
-int account_balance_match_function(
-			ACCOUNT *account_from_list,
-			ACCOUNT *account_compare );
-
-LIST *account_list(	void );
-
-LIST *account_list_fetch(
-			char *where );
-
-ACCOUNT *account_key_seek(
-			LIST *account_list,
-			char *fund_name,
-			char *account_key );
-
-char *account_select(	void );
-
-char *account_non_cash_account_name(
-			LIST *journal_list );
-
-void account_list_html_output(
-			HTML_TABLE *html_table,
-			LIST *account_list,
-			char *element_name,
-			boolean element_accumulate_debit,
-			double percent_denominator );
-
-LIST *account_omit_latex_row_list(
-			double *total_element,
-			LIST *account_list,
-			char *element_name,
-			boolean element_accumulate_debit,
-			double percent_denominator );
-
-void account_propagate( char *account_name,
-			char *transaction_date_time );
-
-ACCOUNT *account_getset(
-			LIST *account_list,
-			char *account_name );
-
-boolean account_accumulate_debit(
-			char *subclassification_name );
-
-boolean account_name_accumulate_debit(
-			char *account_name );
-
-void account_transaction_propagate(
-			char *propagate_transaction_date_time );
-
-boolean account_name_changed(
-			char *preupdate_account_name );
+LIST *account_balance_sort_list(
+			LIST *account_list );
 
 char *account_action_string(
 			char *application_name,
 			char *session,
 			char *login_name,
 			char *role_name,
-			char *beginning_date,
+			char *begin_date_string,
 			char *as_of_date,
 			char *account_name );
-
-void account_list_action_string_set(
-			LIST *account_list,
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *beginning_date,
-			char *as_of_date );
-
-double account_list_balance(
-			LIST *account_list );
 
 void account_list_percent_of_asset_set(
 			LIST *account_list,
@@ -248,29 +205,5 @@ void account_list_percent_of_revenue_set(
 void account_list_delta_prior_set(
 			LIST *prior_account_list,
 			LIST *account_list );
-
-double account_list_balance(
-			LIST *account_list );
-
-double account_debit_total(
-			LIST *account_list );
-
-double account_credit_total(
-			LIST *account_list );
-
-double account_positive_balance_total(
-			LIST *account_list );
-
-char *account_element_name(
-			char *subclassification_name );
-
-boolean account_name_accumulate_debit(
-			char *account_name );
-
-char *account_list_display(
-			LIST *account_list );
-
-double account_liability_due(
-			LIST *liability_journal_list );
 
 #endif

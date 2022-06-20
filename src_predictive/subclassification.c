@@ -13,18 +13,8 @@
 #include "sql.h"
 #include "piece.h"
 #include "boolean.h"
+#include "account.h"
 #include "subclassification.h"
-
-char *subclassification_primary_where( char *subclassification_name )
-{
-	static char where[ 128 ];
-
-	sprintf( where,
-		 "subclassification = '%s'",
-		 subclassification_name );
-
-	return where;
-}
 
 SUBCLASSIFICATION *subclassification_parse(
 			char *input,
@@ -100,9 +90,7 @@ char *subclassification_primary_where(
 		exit( 1 );
 	}
 
-	sprintf(where,
-		"subclassification = '%s'",
-		subclassification_name );
+	sprintf( where, "subclassification = '%s'", subclassification_name );
 
 	return where;
 }
@@ -150,7 +138,7 @@ SUBCLASSIFICATION *subclassification_new(
 	return subclassification;
 }
 
-LIST *subclassification_element_name_list(
+LIST *subclassification_element_subclassification_name_list(
 			char *element_primary_where,
 			char *subclassification_table,
 			char *order_column )
@@ -182,11 +170,48 @@ SUBCLASSIFICATION *subclassification_element_fetch(
 			char *begin_transaction_date_time,
 			char *end_transaction_date_time )
 {
+	char *account_name;
 	SUBCLASSIFICATION *subclassification =
 		subclassification_new(
 			subclassification_name );
 
-	subclassification->account_list =
+	subclassification->account_subclassification_account_name_list =
+		account_subclassification_account_name_list(
+			subclassification_primary_where(
+				subclassification_name ),
+			ACCOUNT_TABLE );
+
+	if ( !list_rewind(
+		subclassification->
+			account_subclassification_account_name_list ) )
+	{
+		free( subclassification );
+		return (SUBCLASSIFICATION *)0;
+	}
+
+	subclassification->account_list = list_new();
+
+	do {
+		account_name =
+			list_get(
+			   subclassification->
+				account_subclassification_account_name_list );
+
+		list_set(
+			subclassification->account_list,
+			account_subclassification_fetch(
+				account_name,
+				begin_transaction_date_time,
+				end_transaction_date_time ) );
+
+	} while ( list_next(
+			   subclassification->
+				account_subclassification_account_name_list ) );
+
+	subclassification->account_balance_sort_list =
+		account_balance_sort_list(
+			subclassification->account_list );
+
 	return subclassification;
 }
 

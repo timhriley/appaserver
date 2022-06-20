@@ -174,3 +174,18 @@ double ceiling_double( double d )
 	}
 }
 
+int float_percent_of_total(
+			double total,
+			double denominator )
+{
+	double percent;
+
+	if ( !denominator ) return 0;
+
+	percent =
+		(total /
+		 denominator) * 100.0;
+
+	return float_round_int( percent );
+}
+

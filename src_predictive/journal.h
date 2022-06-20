@@ -83,17 +83,6 @@ char *journal_minimum_where(
 
 /* Usage */
 /* ----- */
-LIST *journal_account_list(
-			char *account_name );
-
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_account_where(
-			char *account_name );
-
-/* Usage */
-/* ----- */
 LIST *journal_entity_list(
 			char *full_name,
 			char *street_address,
@@ -124,7 +113,14 @@ char *journal_transaction_account_where(
 			char *transaction_date_time,
 			char *account_name );
 
-/* Private */
+/* Usage */
+/* ----- */
+LIST *journal_system_list(
+			char *journal_system_string,
+			boolean fetch_check_number,
+			boolean fetch_memo );
+
+/* Process */
 /* ------- */
 
 /* Returns heap memory */
@@ -134,11 +130,8 @@ char *journal_system_string(
 			char *journal_table,
 			char *where );
 
-LIST *journal_system_list(
-			char *journal_system_string,
-			boolean fetch_check_number,
-			boolean fetch_memo );
-
+/* Usage */
+/* ----- */
 JOURNAL	*journal_parse(
 			char *input,
 			boolean fetch_check_number,
@@ -207,6 +200,23 @@ char *journal_max_where(
 char *journal_max_transaction_date_time(
 			char *journal_max_where,
 			char *journal_table );
+
+/* Usage */
+/* ----- */
+LIST *journal_account_journal_list(
+			char *account_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_account_where(
+			char *account_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time );
 
 /* Usage */
 /* ----- */

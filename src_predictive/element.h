@@ -41,6 +41,19 @@ ELEMENT *element_fetch(	char *element_name );
 
 /* Process */
 /* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *element_primary_where(
+			char *element_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_system_string(
+			char *element_select,
+			char *element_table,
+			char *where );
+
 ELEMENT *element_parse( char *input );
 
 ELEMENT *element_new(	char *element_name ); 
@@ -55,6 +68,11 @@ LIST *element_subclassification_list(
 			char *element_name,
 			char *begin_transaction_date_time,
 			char *end_transaction_date_time );
+
+/* Usage */
+/* ----- */
+LIST *element_account_list(
+			LIST *subclassification_list );
 
 #endif
 

@@ -78,7 +78,7 @@ char *journal_max_prior_transaction_date_time(
 	char system_string[ 1024 ];
 
 	if ( !journal_max_prior_where
-	||   !account_name )
+	||   !journal_table )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -114,8 +114,9 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 			/* --------------------- */
 			journal_max_prior_where(
 				transaction_date_time,
-				account_name ) )
-					/* transaction_date_time */,
+				account_name ),
+			JOURNAL_TABLE )
+				/* transaction_date_time */,
 		account_name );
 }
 
@@ -140,8 +141,9 @@ JOURNAL *journal_latest(
 			/* --------------------- */
 			journal_max_where(
 				transaction_date_time_closing,
-				account_name ) )
-					/* transaction_date_time */,
+				account_name ),
+			JOURNAL_TABLE )
+				/* transaction_date_time */,
 		account_name );
 }
 
@@ -177,7 +179,7 @@ char *journal_max_transaction_date_time(
 	char system_string[ 1024 ];
 
 	if ( !journal_max_where
-	||   !account_name )
+	||   !journal_table )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -243,7 +245,7 @@ JOURNAL *journal_account_fetch(
 				JOURNAL_TABLE,
 				journal_transaction_account_where(
 					transaction_date_time,
-					account_name ) ),
+					account_name ) ) ),
 		0 /* not fetch_check_number */,
 		0 /* not fetch_memo */ );
 }
@@ -341,6 +343,169 @@ LIST *journal_system_list(
 
 	pclose( input_pipe );
 	return system_list;
+}
+
+char *journal_transaction_cell_fetch(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *attribute_name )
+{
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !attribute_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	string_pipe(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_transaction_system_string(
+			attribute_name,
+			TRANSACTION_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_primary_where(
+				full_name,
+				street_address,
+				transaction_date_time ) ) );
+}
+
+char *journal_following_latest_zero_balance_transaction_date_time(
+			char *account_name,
+			char *journal_table )
+{
+	DATE *transaction_date_time;
+	char where[ 512 ];
+	char system_string[ 1024 ];
+	char *results;
+
+	sprintf(where,
+		"account = '%s' and balance = 0",
+		account_name );
+
+	sprintf(system_string,
+		"echo \"select %s from %s where %s;\" | sql",
+		"max( transaction_date_time )",
+		journal_table,
+		where );
+
+	results = string_pipe( system_string );
+
+	if ( results && *results )
+	{
+		transaction_date_time =
+			date_yyyy_mm_dd_hms_new(
+				results );
+
+		date_increment_seconds(
+			transaction_date_time,
+			1 );
+
+		return
+		date_get_yyyy_mm_dd_hh_mm_ss(
+			transaction_date_time );
+	}
+	else
+	{
+		return (char *)0;
+	}
+}
+
+LIST *journal_account_journal_list(
+			char *account_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time )
+{
+	if ( !account_name
+	||   !begin_transaction_date_time
+	||   !end_transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	journal_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_system_string(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			journal_account_where(
+				account_name,
+				begin_transaction_date_time,
+				end_transaction_date_time ) ),
+		0 /* not fetch_check_number */,
+		0 /* not fetch_memo */ );
+}
+
+char *journal_account_where(
+			char *account_name,
+			char *begin_transaction_date_time,
+			char *end_transaction_date_time )
+{
+	static char where[ 128 ];
+
+	if ( !account_name
+	||   !begin_transaction_date_time
+	||   !end_transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"account = '%s' and				"
+		"transaction_date_time between '%s' and '%s'	",
+		account_name,
+		begin_transaction_date_time,
+		end_transaction_date_time );
+
+	return where;
+}
+#ifdef NOT_DEFINED
+LIST *journal_balance_zero_list(
+			char *account_name )
+{
+	char *minimum_transaction_date_time;
+
+	minimum_transaction_date_time =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		journal_following_latest_zero_balance_transaction_date_time(
+			account_name,
+			JOURNAL_TABLE );
+
+	return
+	journal_minimum_journal_list(
+		transaction_date_time_string
+			/* minimum_transaction_date_time */,
+		account_name,
+		JOURNAL_TABLE);
 }
 
 FILE *journal_insert_open(
@@ -589,42 +754,6 @@ LIST *journal_list_set_balances(
 	} while( list_next( journal_list ) );
 
 	return journal_list;
-}
-
-char *journal_account_where( char *account_name )
-{
-	static char where[ 64 ];
-
-	sprintf(where,
-		"account = '%s'",
-		account_name );
-
-	return where;
-}
-
-LIST *journal_account_list( char *account_name )
-{
-	if ( !account_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: account_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			journal_account_where( account_name ) ),
-		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
 }
 
 char *journal_system_string(
@@ -1977,101 +2106,4 @@ char *journal_transaction_system_string(
 	return strdup( system_string );
 }
 
-char *journal_transaction_cell_fetch(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *attribute_name )
-{
-	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time
-	||   !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	string_pipe(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_transaction_system_string(
-			attribute_name,
-			TRANSACTION_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_primary_where(
-				full_name,
-				street_address,
-				transaction_date_time ) ) );
-}
-
-LIST *journal_balance_zero_list(
-			char *account_name )
-{
-	char *minimum_transaction_date_time;
-
-	minimum_transaction_date_time =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		journal_following_latest_zero_balance_transaction_date_time(
-			account_name,
-			JOURNAL_TABLE );
-
-	return
-	journal_minimum_journal_list(
-		transaction_date_time_string
-			/* minimum_transaction_date_time */,
-		account_name,
-		JOURNAL_TABLE);
-}
-
-char *journal_following_latest_zero_balance_transaction_date_time(
-			char *account_name,
-			char *journal_table )
-{
-	char *transaction_date_time_string;
-	char where[ 512 ];
-	char system_string[ 1024 ];
-	char *results;
-
-	sprintf(where,
-		"account = '%s' and balance = 0",
-		account_name );
-
-	sprintf(system_string,
-		"echo \"select %s from %s where %s;\" | sql",
-		"max( transaction_date_time )",
-		journal_table,
-		where );
-
-	results = string_pipe( system_string );
-
-	if ( results && *results )
-	{
-		transaction_date_time =
-			date_yyyy_mm_dd_hms_new(
-				results );
-
-		date_increment_seconds(
-			transaction_date_time,
-			1 );
-
-		return
-		date_yyyy_mm_dd_hh_mm_ss(
-			transaction_date_time );
-	}
-	else
-	{
-		return (char *)0;
-	}
-}
-
+#endif

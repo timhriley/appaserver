@@ -40,6 +40,9 @@ typedef struct
 	char *element_name;
 	int display_order;
 	ELEMENT *element;
+	LIST *account_subclassification_account_name_list;
+	LIST *account_list;
+	LIST *account_balance_sort_list;
 } SUBCLASSIFICATION;
 
 /* Usage */
@@ -79,7 +82,7 @@ SUBCLASSIFICATION *subclassification_element_fetch(
 
 /* Public */
 /* ------ */
-LIST *subclassification_element_name_list(
+LIST *subclassification_element_subclassification_name_list(
 			char *element_primary_where,
 			char *subclassification_table,
 			char *order_column );
