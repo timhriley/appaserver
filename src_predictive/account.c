@@ -190,22 +190,33 @@ int account_balance_match_function(
 			ACCOUNT *account_from_list,
 			ACCOUNT *account_compare )
 {
-	if ( !account_from_list->latest_journal
-	||   !account_from_list->latest_journal->balance )
+	JOURNAL *from_list_latest_journal;
+	JOURNAL *compare_latest_journal;
+
+	from_list_latest_journal =
+		list_last(
+			account_from_list->
+				journal_account_journal_list );
+
+	compare_latest_journal =
+		list_last(
+			account_compare->
+				journal_account_journal_list );
+
+	if ( !from_list_latest_journal
+	||   !from_list_latest_journal->balance )
 	{
 		return 1;
 	}
 
-	if ( !account_compare->latest_journal
-	||   !account_compare->latest_journal->balance )
+	if ( !compare_latest_journal
+	||   !compare_latest_journal->balance )
 	{
 		return 1;
 	}
 
-	/* Sort descending */
-	/* --------------- */
-	if (	account_from_list->latest_journal->balance <=
-		account_compare->latest_journal->balance )
+	if (	from_list_latest_journal->balance <=
+		compare_latest_journal->balance )
 	{
 		return 1;
 	}
@@ -232,6 +243,7 @@ LIST *account_subclassification_account_name_list(
 double account_balance( LIST *account_list )
 {
 	ACCOUNT *account;
+	JOURNAL *latest_journal;
 	double balance;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
@@ -241,11 +253,15 @@ double account_balance( LIST *account_list )
 	do {
 		account = list_get( account_list );
 
-		if ( !account->latest_journal ) continue;
-		if ( !account->latest_journal->balance ) continue;
+		latest_journal =
+			list_last(
+				account->journal_account_journal_list );
+
+		if ( !latest_journal ) continue;
+		if ( !latest_journal->balance ) continue;
 
 		account->account_balance =
-			account->latest_journal->balance;
+			latest_journal->balance;
 
 		balance += account->account_balance;
 
@@ -327,11 +343,40 @@ ACCOUNT *account_subclassification_fetch(
 		return (ACCOUNT *)0;
 	}
 
-	account->latest_journal =
-		list_last( 
-			account->journal_account_journal_list );
-
 	return account;
+}
+
+boolean account_accumulate_debit( char *account_name )
+{
+	ACCOUNT *account;
+
+	if ( ! ( account =
+			account_fetch(
+				account_name,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			account_name );
+		exit( 1 );
+	}
+
+	if ( !account->subclassification
+	||   !account->subclassification->element )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return account->subclassification->element->accumulate_debit;
 }
 
 #ifdef NOT_DEFINED

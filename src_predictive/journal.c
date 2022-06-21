@@ -486,9 +486,226 @@ char *journal_account_where(
 
 	return where;
 }
-#ifdef NOT_DEFINED
-LIST *journal_balance_zero_list(
+
+void journal_propagate(	char *transaction_date_time,
 			char *account_name )
+{
+	if (  !account_name
+	||    !*account_name
+	||    strcmp( account_name, "account" ) == 0
+	||    !transaction_date_time
+	||    !*transaction_date_time
+	||    strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
+	{
+		return;
+	}
+
+	journal_list_update(
+		journal_list_set_balance(
+			journal_list_prior(
+				journal_prior(
+					transaction_date_time,
+					account_name ),
+				account_name ),
+			account_accumulate_debit( account_name ) ) );
+}
+
+LIST *journal_list_prior(
+			JOURNAL *prior_journal,
+			char *account_name )
+{
+	LIST *journal_list = {0};
+	JOURNAL *first_journal;
+
+	if ( !account_name ) return (LIST *)0;
+
+	if ( prior_journal )
+	{
+		journal_list =
+			journal_minimum_list(
+				prior_journal->transaction_date_time
+					/* minimum_transaction_date_time */,
+				account_name );
+	}
+	else
+	/* ------------------------------------------------- */
+	/* Otherwise doing period of record for the account. */
+	/* ------------------------------------------------- */
+	{
+		journal_list =
+			journal_POR_list(
+				account_name );
+
+		if ( !list_length( journal_list ) ) return (LIST *)0;
+
+		first_journal = list_first( journal_list );
+		first_journal->previous_balance = 0.0;
+		first_journal->transaction_count = 1;
+	}
+
+	/* If deleted the latest one, then no propagate. */
+	/* --------------------------------------------- */
+	if ( prior_journal && list_length( journal_list ) == 1 )
+	{
+		return (LIST *)0;
+	}
+
+	return journal_list;
+}
+
+LIST *journal_list_set_balance(
+			LIST *journal_list_prior,
+			boolean account_accumulate_debit )
+{
+	JOURNAL *journal;
+	JOURNAL *prior_journal = {0};
+	JOURNAL *first_journal = {0};
+	int transaction_count;
+
+	if ( !list_rewind( journal_list_prior ) ) return (LIST *)0;
+
+	/* Need a separate transaction_count to keep from double counting. */
+	/* --------------------------------------------------------------- */
+	first_journal = list_first( journal_list_prior );
+	transaction_count = first_journal->transaction_count;
+
+	if ( !transaction_count ) transaction_count = 1;
+
+	do {
+		journal = list_get( journal_list_prior );
+
+		if ( prior_journal )
+		{
+			journal->previous_balance = prior_journal->balance;
+		}
+
+		if ( account_accumulate_debit )
+		{
+			if ( journal->debit_amount )
+			{
+				journal->balance =
+					journal->previous_balance +
+					journal->debit_amount;
+			}
+			else
+			if ( journal->credit_amount )
+			{
+				journal->balance =
+					journal->previous_balance -
+					journal->credit_amount;
+			}
+		}
+		else
+		{
+			if ( journal->credit_amount )
+			{
+				journal->balance =
+					journal->previous_balance +
+					journal->credit_amount;
+			}
+			else
+			if ( journal->debit_amount )
+			{
+				journal->balance =
+					journal->previous_balance -
+					journal->debit_amount;
+			}
+		}
+
+		if ( dollar_virtually_same(
+			journal->balance,
+			0.0 ) )
+		{
+			journal->transaction_count = 0;
+			transaction_count = 1;
+		}
+		else
+		{
+			journal->transaction_count = transaction_count;
+			transaction_count++;
+		}
+
+		prior_journal = journal;
+
+	} while( list_next( journal_list_prior ) );
+
+	return journal_list_prior;
+}
+
+char *journal_system_string(
+			char *journal_select,
+			char *journal_table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",
+		journal_select,
+		journal_table,
+		where );
+
+	return strdup( system_string );
+}
+
+void journal_list_update( LIST *journal_list_set_balance )
+{
+	JOURNAL *journal;
+	FILE *update_pipe;
+
+	if ( !list_rewind( journal_list_set_balance ) ) return;
+
+	update_pipe =
+		popen(	journal_update_system_string( JOURNAL_TABLE ),
+			"w" );
+
+	do {
+		journal = list_get( journal_list_set_balance );
+
+		fprintf(update_pipe,
+		 	"%s^%s^%s^%s^transaction_count^%d\n",
+			journal->full_name,
+		 	journal->street_address,
+		 	journal->transaction_date_time,
+		 	journal->account_name,
+		 	journal->transaction_count );
+
+		fprintf(update_pipe,
+		 	"%s^%s^%s^%s^previous_balance^%.2lf\n",
+		 	journal->full_name,
+		 	journal->street_address,
+		 	journal->transaction_date_time,
+		 	journal->account_name,
+		 	journal->previous_balance );
+
+		fprintf(update_pipe,
+		 	"%s^%s^%s^%s^balance^%.2lf\n",
+		 	journal->full_name,
+		 	journal->street_address,
+		 	journal->transaction_date_time,
+		 	journal->account_name,
+		 	journal->balance );
+
+	} while( list_next( journal_list_set_balance ) );
+
+	pclose( update_pipe );
+}
+
+void journal_account_name_list_propagate(
+			char *transaction_date_time,
+			LIST *account_name_list )
+{
+	if ( !list_rewind( account_name_list ) ) return;
+
+	do {
+		journal_propagate(
+			transaction_date_time,
+			list_get( account_name_list ) );
+
+	} while( list_next( account_name_list ) );
+}
+
+LIST *journal_balance_zero_list( char *account_name )
 {
 	char *minimum_transaction_date_time;
 
@@ -501,13 +718,42 @@ LIST *journal_balance_zero_list(
 			JOURNAL_TABLE );
 
 	return
-	journal_minimum_journal_list(
-		transaction_date_time_string
-			/* minimum_transaction_date_time */,
-		account_name,
-		JOURNAL_TABLE);
+	journal_minimum_list(
+		minimum_transaction_date_time,
+		account_name );
 }
 
+LIST *journal_POR_list( char *account_name )
+{
+	return
+	journal_system_list(
+		journal_system_string(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			account_primary_where(
+				account_name ) ),
+		0 /* not fetch_check_number */,
+		0 /* not fetch_memo */ );
+}
+
+char *journal_update_system_string( char *journal_table )
+{
+	char *key;
+	char system_string[ 1024 ];
+
+	key= "full_name,street_address,transaction_date_time,account";
+
+	sprintf(system_string,
+		"update_statement table=%s key=%s carrot=y		|"
+		"tee_appaserver_error.sh				|"
+		"sql							 ",
+		journal_table,
+		key );
+
+	return strdup( system_string );
+}
+
+#ifdef NOT_DEFINED
 FILE *journal_insert_open(
 			boolean replace )
 {
@@ -606,172 +852,6 @@ void journal_insert_pipe(
 	}
 }
 
-void journal_propagate(
-			char *transaction_date_time,
-			char *account_name )
-{
-	if (	!account_name
-	||	!*account_name
-	||      strcmp( account_name, "account" ) == 0 )
-	{
-		fprintf( stderr,
-"Warning in %s/%s()/%d: empty account_name for transaction_date_time: %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 transaction_date_time );
-		return;
-	}
-
-	journal_list_update(
-		journal_list_set_balances(
-			journal_list_prior(
-				journal_prior(
-					transaction_date_time,
-					account_name ),
-				account_name ),
-			account_accumulate_debit(
-				account_name ) ) );
-}
-
-LIST *journal_list_prior(
-			JOURNAL *prior_journal,
-			char *account_name )
-{
-	LIST *journal_list = {0};
-	JOURNAL *first_journal;
-
-	if ( !account_name ) return (LIST *)0;
-
-	if ( prior_journal )
-	{
-		journal_list =
-			journal_minimum_list(
-				prior_journal->transaction_date_time
-					/* minimum_transaction_date_time */,
-				account_name );
-	}
-	else
-	/* ------------------------------------------------- */
-	/* Otherwise doing period of record for the account. */
-	/* ------------------------------------------------- */
-	{
-		journal_list =
-			journal_list_account(
-				account_name );
-
-		if ( !list_length( journal_list ) ) return (LIST *)0;
-
-		first_journal = list_first( journal_list );
-		first_journal->previous_balance = 0.0;
-		first_journal->transaction_count = 1;
-	}
-
-	/* If deleted the latest one, then no propagate. */
-	/* --------------------------------------------- */
-	if ( prior_journal && list_length( journal_list ) == 1 )
-	{
-		return (LIST *)0;
-	}
-
-	return journal_list;
-}
-
-LIST *journal_list_set_balances(
-			LIST *journal_list,
-			boolean accumulate_debit )
-{
-	JOURNAL *journal;
-	JOURNAL *prior_journal = {0};
-	JOURNAL *first_journal = {0};
-	int transaction_count;
-
-	if ( !list_rewind( journal_list ) ) return (LIST *)0;
-
-	/* Need a separate transaction_count to keep from double counting. */
-	/* --------------------------------------------------------------- */
-	first_journal = list_get_first_pointer( journal_list );
-	transaction_count = first_journal->transaction_count;
-
-	if ( !transaction_count ) transaction_count = 1;
-
-	do {
-		journal = list_get( journal_list );
-
-		if ( prior_journal )
-		{
-			journal->previous_balance = prior_journal->balance;
-		}
-
-		if ( accumulate_debit )
-		{
-			if ( journal->debit_amount )
-			{
-				journal->balance =
-					journal->previous_balance +
-					journal->debit_amount;
-			}
-			else
-			if ( journal->credit_amount )
-			{
-				journal->balance =
-					journal->previous_balance -
-					journal->credit_amount;
-			}
-		}
-		else
-		{
-			if ( journal->credit_amount )
-			{
-				journal->balance =
-					journal->previous_balance +
-					journal->credit_amount;
-			}
-			else
-			if ( journal->debit_amount )
-			{
-				journal->balance =
-					journal->previous_balance -
-					journal->debit_amount;
-			}
-		}
-
-		if ( dollar_virtually_same(
-			journal->balance,
-			0.0 ) )
-		{
-			journal->transaction_count = 0;
-			transaction_count = 1;
-		}
-		else
-		{
-			journal->transaction_count = transaction_count;
-			transaction_count++;
-		}
-
-		prior_journal = journal;
-
-	} while( list_next( journal_list ) );
-
-	return journal_list;
-}
-
-char *journal_system_string(
-			char *journal_select,
-			char *journal_table,
-			char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",
-		journal_select,
-		journal_table,
-		where );
-
-	return strdup( system_string );
-}
-
 LIST *journal_ledger_delete(
 			char *full_name,
 			char *street_address,
@@ -849,26 +929,6 @@ LIST *journal_account_name_list(
 		 select );
 
 	return pipe2list( sys_string );
-}
-
-void journal_account_name_list_propagate(
-			char *transaction_date_time,
-			LIST *account_name_list )
-{
-	char *account_name;
-
-	if ( !list_rewind( account_name_list ) ) return;
-
-	do {
-		account_name = list_get( account_name_list );
-
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
-		journal_propagate(
-			transaction_date_time,
-			account_name );
-
-	} while( list_next( account_name_list ) );
 }
 
 void journal_list_transaction_date_time_propagate(
@@ -1070,73 +1130,6 @@ LIST *journal_list_insert(
 
 	pclose( insert_pipe );
 	return account_name_list;
-}
-
-char *journal_update_sys_string( void )
-{
-	char *key;
-	char sys_string[ 1024 ];
-
-	key= "full_name,street_address,transaction_date_time,account";
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y		|"
-		 "tee_appaserver_error.sh				|"
-		 "sql							 ",
-		 JOURNAL_TABLE,
-		 key );
-
-	return strdup( sys_string );
-}
-
-void journal_list_propagate_update(
-			LIST *propagate_journal_list )
-{
-	journal_list_update( propagate_journal_list );
-}
-
-void journal_list_update( LIST *journal_list )
-{
-	JOURNAL *journal;
-	FILE *update_pipe;
-
-	if ( !list_rewind( journal_list ) ) return;
-
-	update_pipe =
-		popen(	journal_update_sys_string(),
-			"w" );
-
-	do {
-		journal = list_get( journal_list );
-
-		fprintf(update_pipe,
-		 	"%s^%s^%s^%s^transaction_count^%d\n",
-		 	transaction_escape_full_name(
-				journal->full_name ),
-		 	journal->street_address,
-		 	journal->transaction_date_time,
-		 	journal->account_name,
-		 	journal->transaction_count );
-
-		fprintf(update_pipe,
-		 	"%s^%s^%s^%s^previous_balance^%.2lf\n",
-		 	journal->full_name,
-		 	journal->street_address,
-		 	journal->transaction_date_time,
-		 	journal->account_name,
-		 	journal->previous_balance );
-
-		fprintf(update_pipe,
-		 	"%s^%s^%s^%s^balance^%.2lf\n",
-		 	journal->full_name,
-		 	journal->street_address,
-		 	journal->transaction_date_time,
-		 	journal->account_name,
-		 	journal->balance );
-
-	} while( list_next( journal_list ) );
-
-	pclose( update_pipe );
 }
 
 char *journal_year_where(
@@ -1474,11 +1467,30 @@ char *journal_minimum_where(
 {
 	static char where[ 128 ];
 
-	sprintf(where,
-	 	"transaction_date_time >= '%s' and		"
-		"account = '%s'					",
-	 	minimum_transaction_date_time,
-	 	account_name );
+	if ( !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !minimum_transaction_date_time )
+	{
+		sprintf(where,
+			"account = '%s'",
+	 		account_name );
+	}
+	else
+	{
+		sprintf(where,
+	 		"transaction_date_time >= '%s' and		"
+			"account = '%s'					",
+	 		minimum_transaction_date_time,
+	 		account_name );
+	}
 
 	return where;
 }
@@ -1487,11 +1499,10 @@ LIST *journal_minimum_list(
 			char *minimum_transaction_date_time,
 			char *account_name )
 {
-	if ( !minimum_transaction_date_time
-	||   !account_name )
+	if ( !account_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: account_name empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

@@ -11,7 +11,6 @@
 #include "list.h"
 #include "boolean.h"
 #include "subclassification.h"
-#include "journal.h"
 
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
@@ -55,7 +54,6 @@ typedef struct
 	/* ---------- */
 	SUBCLASSIFICATION *subclassification;
 	LIST *journal_account_journal_list;
-	JOURNAL *latest_journal;
 	double account_balance;
 	int percent_of_asset;
 	int percent_of_revenue;
@@ -123,12 +121,25 @@ ACCOUNT *account_subclassification_fetch(
 			char *begin_transaction_date_time,
 			char *end_transaction_date_time );
 
-/* Private */
+/* Usage */
+/* ----- */
+boolean account_accumulate_debit(
+			char *account_name );
+
+/* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
 int account_balance_match_function(
 			ACCOUNT *account_from_list,
 			ACCOUNT *account_compare );
 
+/* Process */
+/* ------- */
+
+/* Private */
+/* ------- */
 double account_balance(
 			LIST *account_list );
 
