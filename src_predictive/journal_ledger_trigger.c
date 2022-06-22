@@ -18,11 +18,6 @@
 #include "transaction.h"
 #include "journal.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 void journal_ledger_trigger_insert(
 			char *full_name,
 			char *street_address,
@@ -42,12 +37,6 @@ void journal_ledger_trigger_delete(
 			char *street_address,
 			char *transaction_date_time,
 			char *account );
-
-/*
-void journal_ledger_trigger_predelete(
-			char *transaction_date_time,
-			char *account );
-*/
 
 int main( int argc, char **argv )
 {
@@ -114,15 +103,6 @@ int main( int argc, char **argv )
 			transaction_date_time,
 			account );
 	}
-/*
-	else
-	if ( strcmp( state, "predelete" ) == 0 )
-	{
-		journal_ledger_trigger_predelete(
-			transaction_date_time,
-			account );
-	}
-*/
 
 	return 0;
 }
@@ -148,8 +128,6 @@ void journal_ledger_trigger_update(
 
 	if ( account_name_changed( preupdate_account ) )
 	{
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
 		journal_propagate(
 			transaction_date_time,
 			preupdate_account /* account_name */ );
@@ -157,6 +135,7 @@ void journal_ledger_trigger_update(
 		journal_propagate(
 			transaction_date_time,
 			account /* account_name */ );
+
 		return;
 	}
 
@@ -172,8 +151,6 @@ void journal_ledger_trigger_update(
 	}
 
 	do {
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
 		journal_propagate(
 			transaction_date_time,
 			list_get( account_name_list )
@@ -181,24 +158,11 @@ void journal_ledger_trigger_update(
 
 	} while ( list_next( account_name_list ) );
 
-	transaction_amount_fetch_update(
+	transaction_fetch_update(
 			full_name,
 			street_address,
 			transaction_date_time );
 }
-
-#ifdef NOT_DEFINED
-void journal_ledger_trigger_predelete(
-			char *transaction_date_time,
-			char *account )
-{
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
-	journal_propagate(
-		transaction_date_time,
-		account /* account_name */ );
-}
-#endif
 
 void journal_ledger_trigger_insert(
 			char *full_name,
@@ -206,13 +170,11 @@ void journal_ledger_trigger_insert(
 			char *transaction_date_time,
 			char *account )
 {
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
 	journal_propagate(
 		transaction_date_time,
 		account /* account_name */ );
 
-	transaction_amount_fetch_update(
+	transaction_fetch_update(
 			full_name,
 			street_address,
 			transaction_date_time );
@@ -224,13 +186,11 @@ void journal_ledger_trigger_delete(
 			char *transaction_date_time,
 			char *account )
 {
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
 	journal_propagate(
 		transaction_date_time,
 		account /* account_name */ );
 
-	transaction_amount_fetch_update(
+	transaction_fetch_update(
 			full_name,
 			street_address,
 			transaction_date_time );

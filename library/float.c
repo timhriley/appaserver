@@ -189,3 +189,20 @@ int float_percent_of_total(
 	return float_round_int( percent );
 }
 
+int float_delta_prior(	double prior_total,
+			double total )
+{
+	double difference;
+	double delta;
+
+	if ( !prior_total ) return 0;
+
+	difference =
+		total -
+		prior_total;
+
+	delta = (difference / prior_total) * 100.0;
+
+	return float_round_int( delta );
+}
+

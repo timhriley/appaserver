@@ -59,4 +59,7 @@ int float_percent_of_total(
 			double total,
 			double denominator );
 
+int float_delta_prior(	double prior_total,
+			double total );
+
 #endif

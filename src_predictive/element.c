@@ -1239,8 +1239,7 @@ double element_positive_balance_total(
 	if ( list_length( account_list ) )
 	{
 		return
-			account_positive_balance_total(
-				account_list );
+			account_balance_total( account_list );
 	}
 	else
 	{

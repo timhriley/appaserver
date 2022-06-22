@@ -30,20 +30,20 @@
 /* ---------- */
 /* Returns either file_row_count or table_insert_count */
 /* --------------------------------------------------- */
-int load_bank_spreadsheet(	int *transaction_count,
-				char **minimum_bank_date,
-				char *login_name,
-				char *fund_name,
-				char *feeder_account,
-				char *input_filename,
-				boolean omit_bank_upload_transaction,
-				boolean reverse_order,
-				int date_piece_offset,
-				int description_piece_offset,
-				int debit_piece_offset,
-				int credit_piece_offset,
-				int balance_piece_offset,
-				boolean execute );
+int feeder_load(
+			int *transaction_count,
+			char **minimum_bank_date,
+			char *login_name,
+			char *feeder_account,
+			char *input_filename,
+			boolean omit_bank_upload_transaction,
+			boolean reverse_order,
+			int date_piece_offset,
+			int description_piece_offset,
+			int debit_piece_offset,
+			int credit_piece_offset,
+			int balance_piece_offset,
+			boolean execute );
 
 /* Global variables */
 /* ---------------- */
@@ -54,7 +54,6 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *login_name;
-	char *fund_name;
 	char *feeder_account;
 	char *input_filename;
 	char *date_column_string;
@@ -67,8 +66,8 @@ int main( int argc, char **argv )
 	int debit_piece_offset;
 	int credit_piece_offset;
 	int balance_piece_offset;
-	boolean omit_bank_upload_transaction;
 	boolean reverse_order;
+	double bank_closing_balance;
 	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	int load_count = 0;
@@ -81,14 +80,14 @@ int main( int argc, char **argv )
 	application_name = environ_application_name( argv[ 0 ] );
 
 	appaserver_output_starting_argv_append_file(
-				argc,
-				argv,
-				application_name );
+		argc,
+		argv,
+		application_name );
 
-	if ( argc != 14 )
+	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name fund feeder_account filename date_column description_column debit_column credit_column balance_column omit_bank_upload_transaction_yn reverse_order_yn execute_yn\n",
+"Usage: %s process_name login_name feeder_account filename date_column description_column debit_column credit_column balance_column reverse_order_yn bank_closing_balance execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -99,17 +98,16 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
-	fund_name = argv[ 3 ];
-	feeder_account = argv[ 4 ];
-	input_filename = argv[ 5 ];
-	date_column_string = argv[ 6 ];
-	description_column_string = argv[ 7 ];
-	debit_column_string = argv[ 8 ];
-	credit_column_string = argv[ 9 ];
-	balance_column_string = argv[ 10 ];
-	omit_bank_upload_transaction = (*argv[ 11 ] == 'y');
-	reverse_order = (*argv[ 12 ] == 'y' );
-	execute = (*argv[ 13 ] == 'y');
+	feeder_account = argv[ 3 ];
+	input_filename = argv[ 4 ];
+	date_column_string = argv[ 5 ];
+	description_column_string = argv[ 6 ];
+	debit_column_string = argv[ 7 ];
+	credit_column_string = argv[ 8 ];
+	balance_column_string = argv[ 9 ];
+	reverse_order = (*argv[ 10 ] == 'y' );
+	bank_closing_balance = atof( argv[ 11 ] );
+	execute = (*argv[ 12 ] == 'y');
 
 	if ( *date_column_string
 	&&   strcmp( date_column_string, "date_column" ) != 0 )

@@ -118,10 +118,6 @@ char *journal_transaction_account_where(
 void journal_propagate(	char *transaction_date_time,
 			char *account_name );
 
-LIST *journal_list_prior(
-			JOURNAL *journal_prior,
-			char *account_name );
-
 LIST *journal_list_set_balance(
 			LIST *journal_list_prior /* in/out */,
 			boolean account_accumulate_debit );
@@ -258,6 +254,15 @@ char *journal_following_latest_zero_balance_transaction_date_time(
 			char *account_name,
 			char *journal_table );
 
+/* Usage */
+/* ----- */
+LIST *journal_list_prior(
+			JOURNAL *journal_prior,
+			char *account_name );
+
+/* Process */
+/* ------- */
+
 /* Private */
 /* ------- */
 
@@ -274,5 +279,10 @@ char *journal_transaction_system_string(
 			char *attribute_name,
 			char *journal_transaction_table,
 			char *transaction_primary_where );
+
+/* Public */
+/* ------ */
+JOURNAL *journal_list_latest(
+			LIST *journal_list );
 
 #endif

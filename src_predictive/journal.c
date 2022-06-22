@@ -511,7 +511,7 @@ void journal_propagate(	char *transaction_date_time,
 }
 
 LIST *journal_list_prior(
-			JOURNAL *prior_journal,
+			JOURNAL *journal_prior,
 			char *account_name )
 {
 	LIST *journal_list = {0};
@@ -519,18 +519,15 @@ LIST *journal_list_prior(
 
 	if ( !account_name ) return (LIST *)0;
 
-	if ( prior_journal )
+	if ( journal_prior )
 	{
 		journal_list =
 			journal_minimum_list(
-				prior_journal->transaction_date_time
+				journal_prior->transaction_date_time
 					/* minimum_transaction_date_time */,
 				account_name );
 	}
 	else
-	/* ------------------------------------------------- */
-	/* Otherwise doing period of record for the account. */
-	/* ------------------------------------------------- */
 	{
 		journal_list =
 			journal_POR_list(
@@ -545,9 +542,9 @@ LIST *journal_list_prior(
 
 	/* If deleted the latest one, then no propagate. */
 	/* --------------------------------------------- */
-	if ( prior_journal && list_length( journal_list ) == 1 )
+	if ( journal_prior && list_length( journal_list ) == 1 )
 	{
-		return (LIST *)0;
+		journal_list = (LIST *)0;
 	}
 
 	return journal_list;
@@ -751,6 +748,14 @@ char *journal_update_system_string( char *journal_table )
 		key );
 
 	return strdup( system_string );
+}
+
+JOURNAL *journal_list_latest( LIST *journal_list )
+{
+	if ( !list_length( journal_list ) )
+		return (JOURNAL *)0;
+
+	return list_last( journal_list );
 }
 
 #ifdef NOT_DEFINED

@@ -54,9 +54,9 @@ typedef struct
 	/* ---------- */
 	SUBCLASSIFICATION *subclassification;
 	LIST *journal_account_journal_list;
-	double account_balance;
 	int percent_of_asset;
 	int percent_of_revenue;
+	int delta_prior;
 } ACCOUNT;
 
 /* Usage */
@@ -131,29 +131,82 @@ boolean account_accumulate_debit(
 
 /* Usage */
 /* ----- */
+LIST *account_balance_sort_list(
+			LIST *account_list );
+
+/* Process */
+/* ------- */
 int account_balance_match_function(
 			ACCOUNT *account_from_list,
 			ACCOUNT *account_compare );
 
+/* Usage */
+/* ----- */
+LIST *account_list_delta_prior_set(
+			LIST *prior_account_list,
+			LIST *account_list );
+
+/* Process */
+/* ------- */
+void account_delta_prior_set(
+			LIST *prior_account_list,
+			ACCOUNT *account );
+
+int account_delta_prior(
+			double prior_account_latest_journal_balance,
+			double account_latest_journal_balance );
+
+/* Usage */
+/* ----- */
+LIST *account_list_percent_of_asset_set(
+			LIST *account_list,
+			double asset_total );
+
 /* Process */
 /* ------- */
 
-/* Private */
-/* ------- */
-double account_balance(
-			LIST *account_list );
+/* Usage */
+/* ----- */
+LIST *account_list_percent_of_revenue_set(
+			LIST *account_list,
+			double revenue_total );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double account_balance(	LIST *journal_account_journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 double account_debit_total(
 			LIST *account_list );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 double account_credit_total(
 			LIST *account_list );
 
-double account_positive_balance_total(
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double account_balance_total(
 			LIST *account_list );
 
-/* Public */
-/* ------ */
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory from static list */
 /* ------------------------------------ */
@@ -162,6 +215,14 @@ char *account_hard_coded_account_name(
 			boolean warning_only,
 			const char *calling_function_name );
 
+/* Process */
+/* ------- */
+ACCOUNT *account_key_seek(
+			char *account_key,
+			LIST *account_list );
+
+/* Public */
+/* ------ */
 LIST *account_subclassification_account_name_list(
 			char *where,
 			char *account_table );
@@ -176,8 +237,7 @@ char *account_name_format(
 char *account_name_display(
 			char *account_name );
 
-ACCOUNT *account_seek(	
-			char *account_name,
+ACCOUNT *account_seek(	char *account_name,
 			LIST *account_list );
 
 char *account_depreciation_expense( void );
@@ -193,9 +253,6 @@ char *account_loss( void );
 char *account_payable( void );
 char *account_fees_expense( void );
 
-LIST *account_balance_sort_list(
-			LIST *account_list );
-
 char *account_action_string(
 			char *application_name,
 			char *session,
@@ -205,16 +262,10 @@ char *account_action_string(
 			char *as_of_date,
 			char *account_name );
 
-void account_list_percent_of_asset_set(
-			LIST *account_list,
-			double asset_total );
+LIST *account_cash_name_list(
+	char *SUBCLASSIFICATION_CASH );
 
-void account_list_percent_of_revenue_set(
-			LIST *account_list,
-			double revenue_total );
-
-void account_list_delta_prior_set(
-			LIST *prior_account_list,
-			LIST *account_list );
+LIST *account_current_liability_name_list(
+	char *SUBCLASSIFICATION_CURRENT_LIABILITY );
 
 #endif
