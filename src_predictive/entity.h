@@ -45,11 +45,11 @@ typedef struct
 	double depreciation_amount;
 
 	double dialog_box_payment_amount;
-	LIST *entity_balance_zero_account_list;
+	LIST *balance_zero_account_list;
 	LIST *entity_liability_due_account_list;
-	double entity_liability_amount_due;
-	double entity_liability_payment_amount;
-	double entity_liability_additional_payment_amount;
+	double liability_amount_due;
+	double liability_payment_amount;
+	double liability_additional_payment_amount;
 	int check_number;
 } ENTITY;
 

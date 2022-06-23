@@ -65,39 +65,55 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 	return a;
 }
 
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new(
+			char *account_name )
+{
+	LIABILITY_ACCOUNT_ENTITY *liability_account_entity =
+		liability_account_entity_calloc();
+
+	liability_account_entity->account_name = account_name;
+
+	return liability_account_entity;
+}
+
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
-			char *input )
+			char *string_input )
 {
 	char account_name[ 128 ];
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
 
-	if ( !input ) return (LIABILITY_ACCOUNT_ENTITY *)0;
+	if ( !string_input ) return (LIABILITY_ACCOUNT_ENTITY *)0;
 
-	/* See: attribute_list */
-	/* ------------------- */
+	/* See LIABILITY_ACCOUNT_ENTITY_SELECT */
+	/* ------------------------------------ */
 	piece( account_name, SQL_DELIMITER, input, 0 );
-	piece( full_name, SQL_DELIMITER, input, 1 );
-	piece( street_address, SQL_DELIMITER, input, 2 );
 
-	liability_account_entity = liability_account_entity_calloc();
+	liability_account_entity =
+		liability_account_entity_new(
+			strdup( account_name );
 
-	liability_account_entity->account_name = strdup( account_name );
+	if ( piece( full_name, SQL_DELIMITER, input, 1 ) )
+	{
+		piece( street_address, SQL_DELIMITER, input, 2 );
 
-	liability_account_entity->entity =
-		entity_new(
-			strdup( full_name ),
-			strdup( street_address ) );
+		liability_account_entity->entity =
+			entity_new(
+				strdup( full_name ),
+				strdup( street_address ) );
+	}
 
 	return liability_account_entity;
 }
 
 LIST *liability_account_entity_list( void )
 {
-	return	liability_account_entity_system_list(
-			liability_account_entity_system_string(
-				"1 = 1" /* where */ ) );
+	return
+	liability_account_entity_system_list(
+		liability_account_entity_system_string(
+			LIABILITY_ACCOUNT_ENTITY_SELECT,
+			LIABILITY_ACCOUNT_ENTITY_TABLE );
 }
 
 char *liability_account_entity_system_string(
@@ -153,47 +169,52 @@ LIABILITY *liability_calloc( void )
 	return a;
 }
 
-LIST *liability_balance_zero_account_list( void )
+char *liability_account_where( void )
 {
-	char where[ 256 ];
+	static char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = 'current_liability' and "
+		"account <> 'uncleared_checks'" );
+
+	return where;
+}
+
+LIST *liability_balance_zero_account_list(
+			char *liability_account_where )
+{
 	char system_string[ 1024 ];
-	LIST *current_account_list;
+	LIST *local_account_list;
 	LIST *return_account_list = {0};
 	ACCOUNT *account;
 
-	sprintf( where,
-		 "subclassification = 'current_liability' and	"
-		 "account <> 'uncleared_checks' 		" );
+	local_account_list =
+		account_list(
+			liability_account_where,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element );
 
-	sprintf( system_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 account_select(),
-		 ACCOUNT_TABLE_NAME,
-		 where,
-		 "account" );
-
-	current_account_list = account_system_list( system_string );
-
-	if ( !list_rewind( current_account_list ) ) return (LIST *)0;
+	if ( !list_rewind( local_account_list ) ) return (LIST *)0;
 
 	do {
-		account = list_get( current_account_list );
+		account = list_get( local_account_list );
 
-		account->account_balance_zero_journal_list =
+		account->balance_zero_journal_list =
 			account_balance_zero_journal_list(
 				account->account_name );
 
-		if ( list_length(
-			account->account_balance_zero_journal_list ) )
+		if ( list_length( account->balance_zero_journal_list ) )
 		{
 
 			if ( !return_account_list )
+			{
 				return_account_list = list_new();
+			}
 
 			list_set( return_account_list, account );
 		}
 
-	} while ( list_next( current_account_list ) );
+	} while ( list_next( local_account_list ) );
 
 	return return_account_list;
 }
@@ -265,7 +286,7 @@ LIST *liability_entity_list(
 
 		journal_list =
 			account->
-				account_balance_zero_journal_list;
+				balance_zero_journal_list;
 
 		if ( !list_rewind( journal_list ) ) continue;
 
@@ -384,7 +405,7 @@ LIST *liability_tax_redirect_account_list(
 		{
 			liability_set_entity(
 				account->
-				    account_balance_zero_journal_list,
+				    balance_zero_journal_list,
 				liability_account_entity->
 					entity->
 					full_name,
@@ -399,14 +420,14 @@ LIST *liability_tax_redirect_account_list(
 }
 
 void liability_set_entity(
-			LIST *account_balance_zero_journal_list,
+			LIST *balance_zero_journal_list,
 			char *full_name,
 			char *street_address )
 {
 	LIST *journal_list;
 	JOURNAL *journal;
 
-	journal_list = account_balance_zero_journal_list;
+	journal_list = balance_zero_journal_list;
 
 	if ( !list_rewind( journal_list ) ) return;
 
@@ -447,24 +468,62 @@ LIST *liability_balance_zero_entity_list(
 LIABILITY *liability_new(
 			double dialog_box_payment_amount,
 			int starting_check_number,
-			LIST *liability_balance_zero_account_list,
-			LIST *liability_account_entity_list,
-			LIST *input_entity_list )
+			LIST *entity_full_street_list )
 {
 	LIABILITY *liability;
 
 	liability = liability_calloc();
 
-	liability->dialog_box_payment_amount = dialog_box_payment_amount;
-	liability->starting_check_number = starting_check_number;
-
-	liability->liability_balance_zero_account_list =
-		liability_balance_zero_account_list;
-
 	liability->liability_account_entity_list =
-		liability_account_entity_list;
+		liability_account_entity_list();
 
-	liability->input_entity_list = input_entity_list;
+	liability->account_where = liability_account_where();
+
+	/* Sets account->following_balance_zero_journal_list */
+	/* ------------------------------------------------- */
+	liability->following_balance_zero_account_list =
+		liability_following_balance_zero_account_list(
+			liability->account_where );
+
+
+/* Redirects LIABILITY_ACCOUNT_ENTITY */
+LIST *liability_tax_redirect_account_list(
+	liability_balance_zero_account_list(),
+	liability_account_entity_list() );
+
+LIST *liability_entity_list(
+	liability_tax_redirect_account_list()
+		/* liability_account_list */,
+	entity_full_street_list,
+	dialog_box_payment_amount );
+
+/* Sets entity_balance_zero_account_list */
+LIST *liability_balance_zero_entity_list(
+	liability_entity_list(),
+	liability_tax_redirect_account_list()
+		/* liability_account_list */ );
+
+LIST *liability_steady_state_entity_list(
+	liability_balance_zero_entity_list() );
+
+char *liability_credit_account_name(
+	int starting_check_number );
+
+LIST *liability_transaction_list(
+	liability_steady_state_entity_list(),
+	liability_credit_account_name(),
+	starting_check_number );
+
+TRANSACTION *liability_transaction(
+	full_name,
+	street_address,
+	transaction_date_time,
+	entity_liability_payment_amount(),
+	entity_liability_additional_payment_amount(),
+	entity_balance_zero_account_list(),
+	liability_credit_account_name(),
+	memo,
+	check_number );
 
 	return liability;
 }

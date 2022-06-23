@@ -8,35 +8,15 @@
 #ifndef LIABILITY_H
 #define LIABILITY_H
 
-#include "entity.h"
 #include "list.h"
+#include "entity.h"
 #include "transaction.h"
 
-/* Constants */
-/* --------- */
-#define LIABILITY_MEMO		"Liability Payment"
+#define LIABILITY_ACCOUNT_ENTITY_TABLE		"liability_account_entity"
 
-/* Structures */
-/* ---------- */
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	double dialog_box_payment_amount;
-	int starting_check_number;
-	LIST *input_entity_list;
-
-	/* Process */
-	/* ------- */
-	LIST *liability_balance_zero_account_list;
-	char *account_loss;
-	char *liability_credit_account_name;
-	LIST *liability_account_entity_list;
-	LIST *liability_tax_redirect_account_list;
-	LIST *liability_entity_list;
-	LIST *liability_balance_zero_entity_list;
-	LIST *liability_steady_state_entity_list;
-} LIABILITY;
+#define LIABILITY_ACCOUNT_ENTITY_SELECT		"account,"	\
+						"full_name,"	\
+						"street_address"
 
 typedef struct
 {
@@ -44,44 +24,73 @@ typedef struct
 	ENTITY *entity;
 } LIABILITY_ACCOUNT_ENTITY;
 
-/* Operations */
-/* ---------- */
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
-			char *account_name,
-			LIST *liability_account_entity_list );
+/* Usage */
+/* ----- */
+LIST *liability_account_entity_list(
+			void );
+
+/* Process */
+/* ------- */
+char *liability_account_entity_system_string(
+			char *liability_account_entity_select,
+			char *liability_account_entity_table );
+
+
+LIST *liability_account_entity_system_list(
+			char *liability_account_entity_system_string );
+
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
+			char *string_input );
+
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new(
+			char *account_name );
 
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 			void );
 
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_parse(
-			char *input );
+/* Public */
+/* ------ */
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
+			char *account_name,
+			LIST *liability_account_entity_list );
 
-LIST *liability_account_entity_list(
-			void );
+#define LIABILITY_MEMO		"Liability Payment"
 
-char *liability_account_entity_system_string(
-			char *where );
+typedef struct
+{
+	LIST *liability_account_entity_list;
+	char *account_where;
+	LIST *following_balance_zero_account_list;
+	LIST *tax_redirect_account_list;
+	char *credit_account_name;
+	LIST *account_entity_list;
+	LIST *following_balance_zero_entity_list;
+	LIST *steady_state_entity_list;
+} LIABILITY;
 
-LIST *liability_account_entity_system_list(
-			char *system_string );
-
+/* Usage */
+/* ----- */
 LIABILITY *liability_new(
 			double dialog_box_payment_amount,
 			int starting_check_number,
-			LIST *liability_balance_zero_account_list,
-			LIST *liability_account_entity_list,
-			LIST *input_entity_list );
+			LIST *entity_full_street_list );
 
+/* Process */
+/* ------- */
 LIABILITY *liability_calloc(
 			void );
 
-/* Sets account_balance_zero_journal_list */
-/* -------------------------------------- */
-LIST *liability_balance_zero_account_list(
-			void );
+/* Returns static memory */
+/* --------------------- */
+char *liability_account_where( void )
+
+/* Sets account_following_balance_zero_journal_list */
+/* ------------------------------------------------ */
+LIST *liability_following_balance_zero_account_list(
+			char *liability_account_where );
 
 LIST *liability_tax_redirect_account_list(
-			LIST *liability_balance_zero_account_list,
+			LIST *liability_following_balance_zero_account_list,
 			LIST *liability_account_entity_list );
 
 LIST *liability_entity_list(

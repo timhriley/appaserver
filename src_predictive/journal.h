@@ -10,7 +10,6 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "predictive.h"
 
 #define JOURNAL_TABLE			"journal_ledger"
 
@@ -234,15 +233,14 @@ char *journal_account_where(
 
 /* Usage */
 /* ----- */
-LIST *journal_POR_list(
-			char *account_name );
+LIST *journal_POR_list(	char *account_name );
 
 /* Process */
 /* ------- */
 
 /* Usage */
 /* ----- */
-LIST *journal_balance_zero_list(
+LIST *journal_following_balance_zero_list(
 			char *account_name );
 
 /* Process */
@@ -283,6 +281,12 @@ char *journal_transaction_system_string(
 /* Public */
 /* ------ */
 JOURNAL *journal_list_latest(
+			LIST *journal_list );
+
+double journal_credit_debit_difference_sum(
+			LIST *journal_list );
+
+double journal_debit_credit_difference_sum(
 			LIST *journal_list );
 
 #endif

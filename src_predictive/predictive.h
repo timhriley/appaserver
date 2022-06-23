@@ -17,9 +17,9 @@
 #define TITLE_PASSAGE_RULE_ARRIVED_DATE 	"FOB_destination"
 #define TITLE_PASSAGE_RULE_NULL			""
 
-enum title_passage_rule{	title_passage_rule_null,
-				FOB_shipping,
-				FOB_destination };
+enum title_passage_rule{			title_passage_rule_null,
+						FOB_shipping,
+						FOB_destination };
 
 
 /* Public */

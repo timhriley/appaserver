@@ -221,9 +221,9 @@ char *pay_liabilities_process(
 		liability_new(
 			dialog_box_payment_amount,
 			starting_check_number,
-			/* -------------------------------------- */
-			/* Sets account_balance_zero_journal_list */
-			/* -------------------------------------- */
+			/* --------------------------------------- */
+			/* Sets account->balance_zero_journal_list */
+			/* --------------------------------------- */
 			liability_balance_zero_account_list(),
 			liability_account_entity_list(),
 			entity_full_street_list(

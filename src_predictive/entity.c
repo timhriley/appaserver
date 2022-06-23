@@ -13,9 +13,9 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "account.h"
+#include "journal.h"
 #include "transaction.h"
 #include "liability.h"
-#include "journal.h"
 #include "entity.h"
 
 enum payroll_pay_period entity_payroll_pay_period(
@@ -228,7 +228,7 @@ char *entity_list_display( LIST *entity_list )
 					"Entity: %s/%s, amount_due = %.2lf\n",
 					entity->full_name,
 					entity->street_address,
-					entity->entity_liability_amount_due );
+					entity->liability_amount_due );
 
 		} while( list_next( entity_list ) );
 	}
@@ -569,11 +569,11 @@ double entity_liability_amount_due(
 	do {
 		account = list_get( account_list );
 
-		account->account_liability_due =
-			journal_credit_difference_sum(
+		account->liability_due =
+			account_liability_due(
 				account->liability_journal_list );
 
-		amount_due += account->account_liability_due;
+		amount_due += account->liability_due;
 
 	} while ( list_next( account_list ) );
 
@@ -599,7 +599,7 @@ LIST *entity_balance_zero_account_list(
 			list_get(
 				account_list );
 
-		journal_list = account->account_balance_zero_journal_list;
+		journal_list = account->balance_zero_journal_list;
 
 		if ( !list_rewind( journal_list ) ) continue;
 
@@ -646,22 +646,22 @@ ENTITY *entity_liability_steady_state(
 		exit( 1 );
 	}
 
-	entity->entity_liability_amount_due =
+	entity->liability_amount_due =
 		/* ----------------------------------- */
 		/* Sets account->account_liability_due */
 		/* ----------------------------------- */
 		entity_liability_amount_due(
 			entity_balance_zero_account_list );
 
-	entity->entity_liability_payment_amount =
+	entity->liability_payment_amount =
 		entity_liability_payment_amount(
 			entity->dialog_box_payment_amount,
-			entity->entity_liability_amount_due );
+			entity->liability_amount_due );
 
-	entity->entity_liability_additional_payment_amount =
+	entity->liability_additional_payment_amount =
 		entity_liability_additional_payment_amount(
 			entity->dialog_box_payment_amount,
-			entity->entity_liability_payment_amount );
+			entity->liability_payment_amount );
 
 	return entity;
 }
@@ -711,25 +711,25 @@ double entity_liability_prepaid(
 			payor_full_name,
 			payor_street_address ) );
 
-	liability->liability_balance_zero_account_list =
-		/* -------------------------------------- */
-		/* Sets account_balance_zero_journal_list */
-		/* -------------------------------------- */
+	liability->balance_zero_account_list =
+		/* --------------------------------------- */
+		/* Sets account->balance_zero_journal_list */
+		/* --------------------------------------- */
 		liability_balance_zero_account_list();
 
-	liability->liability_entity_list =
+	liability->entity_list =
 		liability_entity_list(
-			liability->liability_balance_zero_account_list,
+			liability->balance_zero_account_list,
 			entity_list /* input_entity_list */,
 			0.0 /* dialog_box_payment_amount */ );
 
-	liability->liability_balance_zero_entity_list =
+	liability->balance_zero_entity_list =
 		liability_balance_zero_entity_list(
-			liability->liability_entity_list,
-			liability->liability_balance_zero_account_list );
+			liability->entity_list,
+			liability->balance_zero_account_list );
 
 	if ( !list_rewind(
-		liability->liability_balance_zero_entity_list ) )
+		liability->balance_zero_entity_list ) )
 	{
 		return 0.0;
 	}
@@ -737,21 +737,19 @@ double entity_liability_prepaid(
 	entity =
 		list_get(
 			liability->
-				liability_balance_zero_entity_list );
+				balance_zero_entity_list );
 
 	if ( !list_length(
-		entity->
-			entity_balance_zero_account_list ) )
+		entity->balance_zero_account_list ) )
 	{
 		return 0.0;
 	}
 
-	if ( ( entity->entity_liability_amount_due =
+	if ( ( entity->liability_amount_due =
 		entity_liability_amount_due(
-			entity->
-			   entity_balance_zero_account_list ) ) > 0.0 )
+			entity->balance_zero_account_list ) ) > 0.0 )
 	{
-		return entity->entity_liability_amount_due;
+		return entity->liability_amount_due;
 	}
 
 	return 0.0;

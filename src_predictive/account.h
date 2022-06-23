@@ -57,6 +57,10 @@ typedef struct
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
+	LIST *following_balance_zero_journal_list;
+	LIST *liability_journal_list;
+	double liability_due;
+	char *action_string;
 } ACCOUNT;
 
 /* Usage */
@@ -124,7 +128,8 @@ ACCOUNT *account_subclassification_fetch(
 /* Usage */
 /* ----- */
 boolean account_accumulate_debit(
-			char *account_name );
+			char *account_name,
+			boolean expect_lots );
 
 /* Process */
 /* ------- */
@@ -221,6 +226,52 @@ ACCOUNT *account_key_seek(
 			char *account_key,
 			LIST *account_list );
 
+/* Usage */
+/* ----- */
+LIST *account_following_balance_zero_journal_list(
+			char *account_name );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double account_liability_due(
+			LIST *liability_journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double account_receivable_due(
+			LIST *receivable_journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void account_list_action_string_set(
+			LIST *account_list,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *beginning_date,
+			char *as_of_date );
+
+/* Process */
+/* ------- */
+char *account_action_string(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			char *begin_date_string,
+			char *as_of_date,
+			char *account_name );
+
 /* Public */
 /* ------ */
 LIST *account_subclassification_account_name_list(
@@ -253,19 +304,14 @@ char *account_loss( void );
 char *account_payable( void );
 char *account_fees_expense( void );
 
-char *account_action_string(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *begin_date_string,
-			char *as_of_date,
-			char *account_name );
-
 LIST *account_cash_name_list(
-	char *SUBCLASSIFICATION_CASH );
+			char *subclassification_cash );
 
 LIST *account_current_liability_name_list(
-	char *SUBCLASSIFICATION_CURRENT_LIABILITY );
+			char *subclassification_current_liability );
+
+ACCOUNT *account_getset(
+			LIST *account_list,
+			char *account_name );
 
 #endif

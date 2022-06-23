@@ -507,7 +507,9 @@ void journal_propagate(	char *transaction_date_time,
 					transaction_date_time,
 					account_name ),
 				account_name ),
-			account_accumulate_debit( account_name ) ) );
+			account_accumulate_debit(
+				account_name,
+				1 /* expect_many */ ) ) );
 }
 
 LIST *journal_list_prior(
@@ -702,7 +704,7 @@ void journal_account_name_list_propagate(
 	} while( list_next( account_name_list ) );
 }
 
-LIST *journal_balance_zero_list( char *account_name )
+LIST *journal_following_balance_zero_list( char *account_name )
 {
 	char *minimum_transaction_date_time;
 
@@ -2011,7 +2013,7 @@ LIST *journal_entity_list(
 		0 /* not fetch_memo */ );
 }
 
-double journal_debit_difference_sum(
+double journal_debit_credit_difference_sum(
 			LIST *journal_list )
 {
 	JOURNAL *journal;
@@ -2035,7 +2037,7 @@ double journal_debit_difference_sum(
 	return sum;
 }
 
-double journal_credit_difference_sum(
+double journal_credit_debit_difference_sum(
 			LIST *journal_list )
 {
 	JOURNAL *journal;

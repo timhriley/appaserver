@@ -246,7 +246,7 @@ double account_balance( LIST *journal_account_journal_list )
 
 	if ( ! ( latest_journal =
 			journal_list_latest(
-				journal_account_journal_list ) )
+				journal_account_journal_list ) ) )
 	{
 		return 0.0;
 	}
@@ -285,8 +285,9 @@ LIST *account_list_percent_of_revenue_set(
 {
 	ACCOUNT *account;
 
-	if ( !revenue_total ) return;
-	if ( !list_rewind( account_list ) ) return;
+	if ( !revenue_total ) return account_list;
+
+	if ( !list_rewind( account_list ) ) return account_list;
 
 	do {
 		account = list_get( account_list );
@@ -338,46 +339,71 @@ ACCOUNT *account_subclassification_fetch(
 	return account;
 }
 
-boolean account_accumulate_debit( char *account_name )
+boolean account_accumulate_debit(
+			char *account_name,
+			boolean expect_lots )
 {
-	ACCOUNT *account;
-	static LIST *list = {0};
-
-	if ( !list )
+	if ( expect_lots )
 	{
-		list =
-			account_list(
-				"1 = 1" /* where */,
-				1 /* fetch_subclassification */,
-				1 /* fetch_entity */ );
-	}
+		static LIST *list = {0};
+		ACCOUNT *account;
 
-	if ( ! ( account =
-			account_seek(
-				account_name,
-				list ) ) )
-	{
-		fprintf(stderr,
+		if ( !list )
+		{
+			list =
+				account_list(
+					"1 = 1" /* where */,
+					1 /* fetch_subclassification */,
+					1 /* fetch_entity */ );
+		}
+
+		if ( ! ( account =
+				account_seek(
+					account_name,
+					list ) ) )
+		{
+			fprintf(stderr,
 		"ERROR in %s/%s()/%d: account_seek(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			account_name );
-		exit( 1 );
-	}
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				account_name );
+			exit( 1 );
+		}
 
-	if ( !account->subclassification
-	||   !account->subclassification->element )
-	{
-		fprintf(stderr,
+		if ( !account->subclassification
+		||   !account->subclassification->element )
+		{
+			fprintf(stderr,
 			"ERROR in %s/%s()/%d: element is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-	return account->subclassification->element->accumulate_debit;
+		return
+		account->
+			subclassification->
+			element->
+			accumulate_debit;
+	}
+	else
+	{
+		ACCOUNT *account;
+
+		account =
+			account_fetch(
+				account_name,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ );
+
+		return
+		account->
+			subclassification->
+			element->
+			accumulate_debit;
+	}
 }
 
 ACCOUNT *account_seek(	char *account_name,
@@ -479,9 +505,9 @@ char *account_primary_where(
 {
 	static char where[ 128 ];
 
-	sprintf( where,
-		 "account = '%s'",
-		 account_escape_name( account_name ) );
+	sprintf(where,
+		"account = '%s'",
+		account_name );
 
 	return where;
 }
@@ -535,7 +561,7 @@ ACCOUNT *account_key_seek(
 		account = list_get( account_list );
 
 		if ( string_exists_substr(
-			account->account_key,
+			account->hard_coded_account_key,
 			account_key ) )
 		{
 			return account;
@@ -564,20 +590,20 @@ boolean account_name_changed(
 
 char *account_action_string(
 			char *application_name,
-			char *session,
+			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *beginning_date,
 			char *as_of_date,
 			char *account_name )
 {
-	char action_string[ 4096 ];
+	char action_string[ 2048 ];
 
 	sprintf( action_string,
 "/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s 23:59:59",
 		 login_name,
 		 application_name,
-		 session,
+		 session_key,
 		 role_name,
 		 account_name,
 		 beginning_date,
@@ -589,7 +615,7 @@ char *account_action_string(
 void account_list_action_string_set(
 			LIST *account_list,
 			char *application_name,
-			char *session,
+			char *session_key,
 			char *login_name,
 			char *role_name,
 			char *beginning_date,
@@ -602,10 +628,10 @@ void account_list_action_string_set(
 	do {
 		account = list_get( account_list );
 
-		account->account_action_string =
+		account->action_string =
 			account_action_string(
 				application_name,
-				session,
+				session_key,
 				login_name,
 				role_name,
 				beginning_date,
@@ -669,7 +695,7 @@ LIST *account_list_delta_prior_set(
 {
 	ACCOUNT *account;
 
-	if ( !list_rewind( account_list ) ) return;
+	if ( !list_rewind( account_list ) ) return prior_account_list;
 
 	do {
 		account = list_get( account_list );
@@ -704,13 +730,17 @@ double account_debit_total( LIST *account_list )
 			continue;
 		}
 
-		if ( !account_accumulate_debit( account->account_name )
+		if ( !account_accumulate_debit(
+			account->account_name,
+			1 /* expect_lots */ )
 		&&   latest_journal->balance < 0.0 )
 		{
 			debit_total += -latest_journal->balance;
 		}
 		else
-		if ( account_accumulate_debit( account->account_name )
+		if ( account_accumulate_debit(
+			account->account_name,
+			1 /* expect_lots */ )
 		&&   latest_journal->balance > 0.0 )
 		{
 			debit_total += latest_journal->balance;
@@ -742,13 +772,17 @@ double account_credit_total( LIST *account_list )
 			continue;
 		}
 
-		if ( account_accumulate_debit( account->account_name )
+		if ( account_accumulate_debit(
+			account->account_name,
+			1 /* expect_lots */ )
 		&&   latest_journal->balance < 0.0 )
 		{
 			credit_total += -latest_journal->balance;
 		}
 		else
-		if ( !account_accumulate_debit( account->account_name )
+		if ( !account_accumulate_debit(
+			account->account_name,
+			1 /* expect_lots */ )
 		&&   latest_journal->balance > 0.0 )
 		{
 			credit_total += latest_journal->balance;
@@ -775,32 +809,21 @@ double account_balance_total( LIST *account_list )
 		if ( ! ( latest_journal =
 				journal_list_latest(
 					account->
-					     journal_account_journal_list ) )
+					     journal_account_journal_list ) ) )
 		{
 			continue;
 		}
 
-		balance_total += account->latest_journal->balance;
+		balance_total += latest_journal->balance;
 
 	} while ( list_next( account_list ) );
 
 	return balance_total;
 }
 
-#ifdef NOT_DEFINED
-char *account_escape_name(
-			char *account_name )
+LIST *account_following_balance_zero_journal_list( char *account_name )
 {
-	static char escape_name[ 256 ];
-
-	string_escape_quote( escape_name, account_name );
-	return escape_name;
-}
-
-char *account_name_escape(
-			char *account_name )
-{
-	return account_escape_name( account_name );
+	return journal_following_balance_zero_list( account_name );
 }
 
 ACCOUNT *account_getset(
@@ -827,6 +850,36 @@ ACCOUNT *account_getset(
 	account = account_new( strdup( account_name ) );
 	list_set( account_list, account );
 	return account;
+}
+
+double account_liability_due( LIST *liability_journal_list )
+{
+	return
+	journal_credit_debit_difference_sum(
+		liability_journal_list );
+}
+
+double account_receivable_due( LIST *receivable_journal_list )
+{
+	return
+	journal_debit_credit_difference_sum(
+		receivable_journal_list );
+}
+
+#ifdef NOT_DEFINED
+char *account_escape_name(
+			char *account_name )
+{
+	static char escape_name[ 256 ];
+
+	string_escape_quote( escape_name, account_name );
+	return escape_name;
+}
+
+char *account_name_escape(
+			char *account_name )
+{
+	return account_escape_name( account_name );
 }
 
 char *account_non_cash_account_name(
@@ -1032,39 +1085,6 @@ void account_propagate( char *account_name,
 	journal_propagate(
 		transaction_date_time,
 		account_name );
-}
-
-boolean account_accumulate_debit(
-			char *subclassification_name )
-{
-	SUBCLASSIFICATION *subclassification;
-	ELEMENT *element;
-
-	if ( ! ( subclassification =
-			subclassification_fetch(
-				subclassification_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: subclassification_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 subclassification_name );
-	}
-
-	if ( ! ( element =
-			element_fetch(
-				subclassification->element_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: element_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 subclassification->element_name );
-	}
-
-	return element->accumulate_debit;
 }
 
 void account_transaction_propagate(
@@ -1284,29 +1304,6 @@ char *account_list_display(
 	}
 
 	return strdup( display );
-}
-
-double account_liability_due( LIST *liability_journal_list )
-{
-	JOURNAL *journal;
-	double amount_due;
-	double difference;
-
-	if ( !list_rewind( liability_journal_list ) ) return 0.0;
-
-	amount_due = 0.0;
-
-	do {
-		journal = list_get( liability_journal_list );
-
-		difference =	journal->credit_amount -
-				journal->debit_amount;
-
-		amount_due += difference;
-
-	} while ( list_next( liability_journal_list ) );
-
-	return amount_due;
 }
 
 #endif
