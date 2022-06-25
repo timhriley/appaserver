@@ -156,12 +156,37 @@ LIABILITY_CHECK *liability_check_calloc(
 
 typedef struct
 {
-	LIST *check_list;
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	char *output_filename;
 	char *pdf_output_filename;
 	char *ftp_filename;
 	char *document_root_filename;
+} LIABILITY_CHECK_APPASERVER_LINK;
+
+/* Usage */
+/* ----- */
+LIABILITY_CHECK_APPASERVER_LINK *
+	liability_check_appaserver_link_new(
+			char *application_name,
+			char *document_root_directory,
+			char *process_name,
+			char *session_key );
+
+/* Process */
+/* ------- */
+LIABILITY_CHECK_APPASERVER_LINK *
+	liability_check_appaserver_link_calloc(
+			void );
+
+typedef struct
+{
+	LIST *check_list;
+	char *documentclass;
+	char *usepackage;
+	char *pagenumbering_gobble;
+	char *begin_document;
+	char *end_document;
+	LIABILITY_CHECK_APPASERVER_LINK *liability_check_appaserver_link;
 	FILE *output_file;
 } LIABILITY_CHECK_LIST;
 
@@ -180,6 +205,25 @@ LIABILITY_CHECK_LIST *liability_check_list_new(
 LIABILITY_CHECK_LIST *liability_check_list_calloc(
 			void );
 
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_list_documentclass(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_list_usepackage(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_list_pagenumbering_gobble(
+			void );
+
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_list_begin_document(
+			void );
 
 typedef struct
 {

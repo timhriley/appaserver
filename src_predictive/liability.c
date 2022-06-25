@@ -959,3 +959,132 @@ LIABILITY_PAYMENT *liability_payment_calloc( void )
 	return liability_payment;
 }
 
+LIABILITY_CHECK *liability_check_calloc( void )
+{
+	LIABILITY_CHECK *liability_check;
+
+	if ( ! ( liability_check = calloc( 1, sizeof( LIABILITY_CHECK ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_check;
+}
+
+LIABILITY_CHECK_LIST *liability_check_list_new(
+			char *application_name,
+			char *document_root_directory,
+			char *process_name,
+			char *session_key,
+			LIST *liability_entity_list )
+{
+	LIABILITY_CHECK_LIST *liability_check_list;
+
+	if ( !application_name
+	||   !document_root_directory
+	||   !process_name
+	||   !session_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( liability_entity_list ) )
+	{
+		return (LIABILITY_CHECK_LIST *)0;
+	}
+
+	liability_check_list->documentclass =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_list_documentclass();
+
+	liability_check_list->usepackage =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_list_usepackage();
+
+	liability_check_list->pagenumbering_gobble =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_list_pagenumbering_gobble();
+
+	liability_check_list->begin_document =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_list_begin_document();
+
+	liability_check_list->liability_check_appaserver =
+		liability_check_appaserver_link_new(
+			application_name,
+			document_root_directory,
+			process_name,
+			session_key );
+
+	return liability_check_list;
+}
+
+LIABILITY_CHECK *liability_check_new(
+			int check_number,
+			LIABILITY_ENTITY *liability_entity )
+{
+	LIABILITY_CHECK *liability_check = liability_check_calloc();
+
+	return liability_check;
+}
+
+char *liability_check_list_documentclass( void )
+{
+	return
+"\\documentclass{report}";
+}
+
+char *liability_check_list_usepackage( void )
+{
+	return
+"\\usepackage[	portrait,\n"
+"		top=0in,\n"
+"		left=0in,\n"
+"		paperheight=2.875in,\n"
+"		paperwidth=8.5in,\n"
+"		textheight=2.875in,\n"
+"		textwidth=8.5in,\n"
+"		noheadfoot]{geometry}";
+}
+
+char *liability_check_list_pagenumbering_gobble( void )
+{
+	return
+"\\pagenumbering{gobble}";
+}
+
+char *liability_check_list_begin_document( void )
+{
+	return
+"\\begin{document}";
+}
+
+char *liability_check_list_newpage( void )
+{
+	return
+"\\newpage\n";
+}
+
+char *liability_check_end_document( void )
+{
+	return
+"\\end{document}";
+}
