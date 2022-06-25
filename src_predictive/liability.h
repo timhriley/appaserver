@@ -12,6 +12,7 @@
 #include "entity.h"
 #include "receivable.h"
 #include "transaction.h"
+#include "appaserver_link_file.h"
 
 #define LIABILITY_MEMO		"Liability Payment"
 #define LIABILITY_PROMPT	"Press here to view check."
@@ -139,20 +140,13 @@ double liability_entity_amount_due(
 
 typedef struct
 {
+	char *output_string;
 } LIABILITY_CHECK;
 
 /* Usage */
 /* ----- */
-LIST *liability_check_list(
-			char *document_root_directory,
-			char *process_name,
-			char *session_key,
-			boolean personal_size,
-			LIST *liability_entity_list );
-
 LIABILITY_CHECK *liability_check_new(
 			int check_number,
-			boolean personal_size,
 			LIABILITY_ENTITY *liability_entity );
 
 /* Process */
@@ -160,12 +154,37 @@ LIABILITY_CHECK *liability_check_new(
 LIABILITY_CHECK *liability_check_calloc(
 			void );
 
+typedef struct
+{
+	LIST *check_list;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *output_filename;
+	char *pdf_output_filename;
+	char *ftp_filename;
+	char *document_root_filename;
+	FILE *output_file;
+} LIABILITY_CHECK_LIST;
+
+/* Usage */
+/* ----- */
+LIABILITY_CHECK_LIST *liability_check_list_new(
+			char *application_name,
+			int starting_check_number,
+			char *document_root_directory,
+			char *process_name,
+			char *session_key,
+			LIST *liability_entity_list );
+
+/* Process */
+/* ------- */
+LIABILITY_CHECK_LIST *liability_check_list_calloc(
+			void );
+
 
 typedef struct
 {
 	TRANSACTION *transaction;
 } LIABILITY_TRANSACTION;
-
 
 /* Usage */
 /* ----- */
@@ -190,19 +209,19 @@ typedef struct
 	LIST *account_current_liability_name_list;
 	LIST *account_receivable_name_list;
 	LIST *liability_entity_list;
-	LIST *liability_check_list;
+	LIABILITY_CHECK_LIST *liability_check_list;
 	LIST *liability_transaction_list;
 } LIABILITY_PAYMENT;
 
 /* Usage */
 /* ----- */
 LIABILITY_PAYMENT *liability_payment_new(
+			char *application_name,
 			double dialog_box_payment_amount,
 			int starting_check_number,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
-			boolean check_personal_size,
 			LIST *entity_full_street_list );
 
 /* Process */

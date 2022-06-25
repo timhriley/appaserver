@@ -842,12 +842,12 @@ LIABILITY_ENTITY *liability_entity_calloc( void )
 }
 
 LIABILITY_PAYMENT *liability_payment_new(
+			char *application_name,
 			double dialog_box_payment_amount,
 			int starting_check_number,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
-			boolean check_personal_size,
 			LIST *entity_full_street_list )
 {
 	LIABILITY_PAYMENT *liability_payment;
@@ -924,6 +924,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 	{
 		liability_payment->liability_check_list =
 			liability_check_list(
+				application_name,
 				starting_check_number,
 				document_root_directory,
 				process_name,
