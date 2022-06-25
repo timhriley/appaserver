@@ -10,7 +10,55 @@
 
 #include "list.h"
 #include "entity.h"
+#include "receivable.h"
 #include "transaction.h"
+
+#define LIABILITY_MEMO		"Liability Payment"
+#define LIABILITY_PROMPT	"Press here to view check."
+
+typedef struct
+{
+	char *timlib_in_clause;
+	char *liability_entity_where;
+	char *liability_account_where;
+	LIST *journal_system_list;
+	double journal_credit_debit_difference_sum;
+} LIABILITY;
+
+/* Usage */
+/* ----- */
+LIABILITY *liability_entity_fetch(
+			char *full_name,
+			char *street_address,
+			LIST *account_current_liability_name_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_entity_where(
+			char *full_name,
+			char *street_address,
+			char *timlib_in_clause );
+
+/* Usage */
+/* ----- */
+LIABILITY *liability_account_fetch(
+			char *liability_account_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_account_where(
+			char *liability_account_name );
+
+/* Private */
+/* ------- */
+LIABILITY *liability_calloc(
+			void );
 
 #define LIABILITY_ACCOUNT_ENTITY_TABLE		"liability_account_entity"
 
@@ -31,10 +79,12 @@ LIST *liability_account_entity_list(
 
 /* Process */
 /* ------- */
+
+/* Returns static memory */
+/* --------------------- */
 char *liability_account_entity_system_string(
 			char *liability_account_entity_select,
 			char *liability_account_entity_table );
-
 
 LIST *liability_account_entity_system_list(
 			char *liability_account_entity_system_string );
@@ -50,92 +100,114 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 
 /* Public */
 /* ------ */
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_account(
 			char *account_name,
 			LIST *liability_account_entity_list );
 
-#define LIABILITY_MEMO		"Liability Payment"
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_entity(
+			char *full_name,
+			char *street_address,
+			LIST *liability_account_entity_list );
+
 
 typedef struct
 {
-	LIST *liability_account_entity_list;
-	char *account_where;
-	LIST *following_balance_zero_account_list;
-	LIST *tax_redirect_account_list;
-	char *credit_account_name;
-	LIST *account_entity_list;
-	LIST *following_balance_zero_entity_list;
-	LIST *steady_state_entity_list;
-} LIABILITY;
+	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
+	LIABILITY *liability;
+	RECEIVABLE *receivable;
+	double amount_due;
+} LIABILITY_ENTITY;
 
 /* Usage */
 /* ----- */
-LIABILITY *liability_new(
+LIABILITY_ENTITY *liability_entity_new(
 			double dialog_box_payment_amount,
-			int starting_check_number,
-			LIST *entity_full_street_list );
+			LIST *liability_account_entity_list,
+			LIST *account_current_liability_name_list,
+			LIST *account_receivable_name_list,
+			ENTITY *entity );
 
 /* Process */
 /* ------- */
-LIABILITY *liability_calloc(
+LIABILITY_ENTITY *liability_entity_calloc(
 			void );
 
-/* Returns static memory */
-/* --------------------- */
-char *liability_account_where( void )
+double liability_entity_amount_due(
+			double dialog_box_payment_amount,
+			LIABILITY *liability,
+			RECEIVABLE *receivable );
 
-/* Sets account_following_balance_zero_journal_list */
-/* ------------------------------------------------ */
-LIST *liability_following_balance_zero_account_list(
-			char *liability_account_where );
+typedef struct
+{
+} LIABILITY_CHECK;
 
-LIST *liability_tax_redirect_account_list(
-			LIST *liability_following_balance_zero_account_list,
-			LIST *liability_account_entity_list );
+/* Usage */
+/* ----- */
+LIST *liability_check_list(
+			char *document_root_directory,
+			char *process_name,
+			char *session_key,
+			boolean personal_size,
+			LIST *liability_entity_list );
 
-LIST *liability_entity_list(
-			LIST *liability_account_list,
-			LIST *input_entity_list,
-			double dialog_box_payment_amount );
+LIABILITY_CHECK *liability_check_new(
+			int check_number,
+			boolean personal_size,
+			LIABILITY_ENTITY *liability_entity );
 
-LIST *liability_transaction_list(
-			LIST *liability_entity_list,
-			char *liability_credit_account_name,
-			int starting_check_number );
+/* Process */
+/* ------- */
+LIABILITY_CHECK *liability_check_calloc(
+			void );
 
-void liability_set_entity(
-			LIST *account_balance_zero_account_list,
-			char *full_name,
-			char *street_address );
 
-ENTITY *liability_steady_state_entity(
-			ENTITY *entity,
-			LIST *liability_balance_zero_journal_list );
+typedef struct
+{
+	TRANSACTION *transaction;
+} LIABILITY_TRANSACTION;
 
-LIST *liability_steady_state_entity_list(
-			LIST *liability_balance_zero_entity_list );
 
-char *liability_credit_account_name(
-			int starting_check_number );
-
-char *liability_entity_debit_account_name(
-			char *account_name );
-
-/* Sets entity_balance_zero_journal_list */
-/* ------------------------------------- */
-LIST *liability_balance_zero_entity_list(
-			LIST *liability_entity_list,
-			LIST *liability_account_list );;
-
-TRANSACTION *liability_transaction(
+/* Usage */
+/* ----- */
+LIABILITY_TRANSACTION *liability_transaction_new(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double payment_amount,
-			double additional_payment_amount,
-			LIST *entity_balance_zero_account_list,
+			char *liability_debit_account_name,
 			char *liability_credit_account_name,
-			char *memo,
+			char *liability_memo,
 			int check_number );
+
+/* Process */
+/* ------- */
+LIABILITY_TRANSACTION *liability_transaction_calloc(
+			void );
+
+typedef struct
+{
+	LIST *liability_account_entity_list;
+	LIST *account_current_liability_name_list;
+	LIST *account_receivable_name_list;
+	LIST *liability_entity_list;
+	LIST *liability_check_list;
+	LIST *liability_transaction_list;
+} LIABILITY_PAYMENT;
+
+/* Usage */
+/* ----- */
+LIABILITY_PAYMENT *liability_payment_new(
+			double dialog_box_payment_amount,
+			int starting_check_number,
+			char *document_root_directory,
+			char *process_name,
+			char *session_key,
+			boolean check_personal_size,
+			LIST *entity_full_street_list );
+
+/* Process */
+/* ------- */
+LIABILITY_PAYMENT *liability_payment_calloc(
+			void );
 
 #endif

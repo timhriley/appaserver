@@ -274,9 +274,6 @@ char *account_action_string(
 
 /* Public */
 /* ------ */
-LIST *account_subclassification_account_name_list(
-			char *where,
-			char *account_table );
 
 /* Returns static memory */
 /* --------------------- */
@@ -305,10 +302,17 @@ char *account_payable( void );
 char *account_fees_expense( void );
 
 LIST *account_cash_name_list(
+			char *account_table,
 			char *subclassification_cash );
 
 LIST *account_current_liability_name_list(
-			char *subclassification_current_liability );
+			char *account_table,
+			char *subclassification_current_liability,
+			char *account_uncleared_checks );
+
+LIST *account_receivable_name_list(
+			char *account_table,
+			char *subclassification_receivable );
 
 ACCOUNT *account_getset(
 			LIST *account_list,

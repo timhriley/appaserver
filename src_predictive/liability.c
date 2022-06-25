@@ -16,53 +16,159 @@
 #include "entity.h"
 #include "list.h"
 #include "transaction.h"
+#include "subclassification.h"
 #include "account.h"
+#include "journal.h"
 #include "liability.h"
 
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
-			char *account_name,
-			LIST *liability_account_entity_list )
+LIABILITY *liability_entity_fetch(
+			char *full_name,
+			char *street_address,
+			LIST *account_current_liability_name_list )
 {
-	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
+	LIABILITY *liability = liability_calloc();
 
-	if ( !list_rewind( liability_account_entity_list ) )
-		return (LIABILITY_ACCOUNT_ENTITY *)0;
+	if ( !full_name
+	||   !street_address
+	||   !list_length( account_current_liability_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	do {
+	liability->timlib_in_clause =
+		timlib_in_clause(
+			account_current_liability_name_list );
 
-		liability_account_entity =
-			list_get( 
-				liability_account_entity_list );
+	liability->liability_entity_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_entity_where(
+			full_name,
+			street_address,
+			liability->timlib_in_clause );
 
-		if ( timlib_strcmp(
-			liability_account_entity->account_name,
-			account_name ) == 0 )
-		{
-			return liability_account_entity;
-		}
-			
+	liability->journal_system_list =
+		journal_system_list(
+			journal_system_string(
+				JOURNAL_SELECT,
+				JOURNAL_TABLE,
+				liability->liability_entity_where ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
 
-	} while ( list_next( liability_account_entity_list ) );
-	return (LIABILITY_ACCOUNT_ENTITY *)0;
+	liability->journal_credit_debit_difference_sum =
+		journal_credit_debit_difference_sum(
+			liability->journal_system_list );
+
+	return liability;
 }
 
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
-			void )
+char *liability_entity_where(
+			char *full_name,
+			char *street_address,
+			char *timlib_in_clause )
 {
-	LIABILITY_ACCOUNT_ENTITY *a;
+	static char where[ 512 ];
 
-	if ( ! ( a =
-		    (LIABILITY_ACCOUNT_ENTITY *)
-			calloc( 1, sizeof( LIABILITY_ACCOUNT_ENTITY ) ) ) )
+	sprintf(where,
+		"full_name = '%s and "
+		"street_address = '%s' and "
+		"account in (%s)",
+			full_name,
+			street_address,
+			timlib_in_clause );
+
+	return where;
+}
+
+LIABILITY *liability_account_fetch(
+			char *liability_account_name )
+{
+	LIABILITY *liability = liability_calloc();
+
+	if ( !liability_account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: liability_account_name empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	liability->liability_account_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_account_where(
+			liability_account_name );
+
+	liability->journal_system_list =
+		journal_system_list(
+			journal_system_string(
+				JOURNAL_SELECT,
+				JOURNAL_TABLE,
+				liability->liability_account_where ),
+			0 /* not fetch_check_number */,
+			0 /* not fetch_memo */ );
+
+	liability->journal_credit_debit_difference_sum =
+		journal_credit_debit_difference_sum(
+			liability->journal_system_list );
+
+	return liability;
+}
+
+
+char *liability_account_where( char *liability_account_name )
+{
+	static char where[ 128 ];
+
+	sprintf(where,
+		"account = '%s'",
+		liability_account_name );
+
+	return where;
+}
+
+LIABILITY *liability_calloc( void )
+{
+	LIABILITY *liability;
+
+	if ( ! ( liability = calloc( 1, sizeof( LIABILITY ) ) ) )
 	{
 		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__ );
 		exit(1 );
 	}
-	return a;
+	return liability;
+}
+
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc( void )
+{
+	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
+
+	if ( ! ( liability_account_entity =
+			calloc( 1, sizeof( LIABILITY_ACCOUNT_ENTITY ) ) ) )
+	{
+		fprintf( stderr,
+			 "Error in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit(1 );
+	}
+
+	return liability_account_entity;
 }
 
 LIABILITY_ACCOUNT_ENTITY *liability_account_entity_new(
@@ -111,24 +217,26 @@ LIST *liability_account_entity_list( void )
 {
 	return
 	liability_account_entity_system_list(
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
 		liability_account_entity_system_string(
 			LIABILITY_ACCOUNT_ENTITY_SELECT,
 			LIABILITY_ACCOUNT_ENTITY_TABLE );
 }
 
 char *liability_account_entity_system_string(
-			char *where )
+			char *select,
+			char *table )
 {
-	char system_string[ 1024 ];
+	static char system_string[ 128 ];
 
-	if ( !where ) where = "1 = 1";
+	sprintf(system_string,
+		"select.sh \"%s\" %s",
+		select,
+		table );
 
-	sprintf( system_string,
-		 "select.sh '*' %s \"%s\" none",
-		 "liability_account_entity",
-		 where );
-
-	return strdup( system_string );
+	return system_string;
 }
 
 LIST *liability_account_entity_system_list( char *system_string )
@@ -137,7 +245,15 @@ LIST *liability_account_entity_system_list( char *system_string )
 	char input[ 1024 ];
 	LIST *liability_account_entity_list;
 
-	if ( !system_string ) return (LIST *)0;
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	liability_account_entity_list = list_new();
 
@@ -151,6 +267,89 @@ LIST *liability_account_entity_system_list( char *system_string )
 
 	pclose( input_pipe );
 	return liability_account_entity_list;
+}
+
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_account(
+			char *account_name,
+			LIST *liability_account_entity_list )
+{
+	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
+
+	if ( !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( liability_account_entity_list ) )
+	{
+		return (LIABILITY_ACCOUNT_ENTITY *)0;
+	}
+
+	do {
+		liability_account_entity =
+			list_get(
+				liability_account_entity_list );
+
+		if ( string_strcmp(
+			liability_account_entity->account_name,
+			account_name ) == 0 )
+		{
+			return liability_account_entity;
+		}
+
+	} while ( list_next( liability_account_entity_list ) );
+
+	return (LIABILITY_ACCOUNT_ENTITY *)0;
+}
+
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_entity(
+			char *full_name,
+			char *street_address,
+			LIST *liability_account_entity_list )
+{
+	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
+
+	if ( !full_name
+	||   !street_address )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( liability_account_entity_list ) )
+	{
+		return (LIABILITY_ACCOUNT_ENTITY *)0;
+	}
+
+	do {
+		liability_account_entity =
+			list_get(
+				liability_account_entity_list );
+
+		if ( !liability_account_entity->entity ) continue;
+
+		if ( strcmp(
+			liability_account_entity->entity->full_name,
+			full_name ) == 0
+		&&   strcmp(
+			liability_account_entity->entity->street_address,
+			street_address ) == 0 )
+		{
+			return liability_account_entity;
+		}
+
+	} while ( list_next( liability_account_entity_list ) );
+
+	return (LIABILITY_ACCOUNT_ENTITY *)0;
 }
 
 LIABILITY *liability_calloc( void )
@@ -385,86 +584,6 @@ LIST *liability_transaction_list(
 	return transaction_list;
 }
 
-LIST *liability_tax_redirect_account_list(
-			LIST *liability_balance_zero_account_list,
-			LIST *liability_account_entity_list )
-{
-	ACCOUNT *account;
-	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
-
-	if ( !list_rewind( liability_balance_zero_account_list ) )
-		return (LIST *)0;
-
-	do {
-		account = list_get( liability_balance_zero_account_list );
-
-		if ( ( liability_account_entity =
-			liability_account_entity_seek(
-				account->account_name,
-				liability_account_entity_list ) ) )
-		{
-			liability_set_entity(
-				account->
-				    balance_zero_journal_list,
-				liability_account_entity->
-					entity->
-					full_name,
-				liability_account_entity->
-					entity->
-					street_address );
-		}
-
-	} while ( list_next( liability_balance_zero_account_list ) );
-
-	return liability_balance_zero_account_list;
-}
-
-void liability_set_entity(
-			LIST *balance_zero_journal_list,
-			char *full_name,
-			char *street_address )
-{
-	LIST *journal_list;
-	JOURNAL *journal;
-
-	journal_list = balance_zero_journal_list;
-
-	if ( !list_rewind( journal_list ) ) return;
-
-	do {
-		journal = list_get( journal_list );
-
-		journal->full_name = full_name;
-		journal->street_address = street_address;
-
-	} while ( list_next( journal_list ) );
-}
-
-LIST *liability_balance_zero_entity_list(
-			LIST *liability_entity_list,
-			LIST *liability_account_list )
-{
-	ENTITY *entity;
-
-	if ( !list_rewind( liability_entity_list ) ) return (LIST *)0;
-
-	do {
-		entity = list_get( liability_entity_list );
-
-		entity->entity_balance_zero_account_list =
-			/* ------------------------------------ */
-			/* Sets account->liability_journal_list */
-			/* ------------------------------------ */
-			entity_balance_zero_account_list(
-				liability_account_list,
-				entity->full_name,
-				entity->street_address );
-
-	} while ( list_next( liability_entity_list ) );
-
-	return liability_entity_list;
-}
-
 LIABILITY *liability_new(
 			double dialog_box_payment_amount,
 			int starting_check_number,
@@ -602,5 +721,240 @@ TRANSACTION *liability_transaction(
 	list_set( transaction->journal_list, journal );
 
 	return transaction;
+}
+
+LIABILITY_ENTITY *liability_entity_new(
+			double dialog_box_payment_amount,
+			LIST *liability_account_entity_list,
+			LIST *account_current_liability_name_list,
+			LIST *account_receivable_name_list,
+			ENTITY *entity )
+{
+	LIABILITY_ENTITY *liability_entity = liability_entity_calloc();
+
+	if ( !entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: entity is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	liability_entity->liability_account_entity =
+		liability_account_entity_seek_entity(
+			entity->full_name,
+			entity->street_address,
+			liability_account_entity_list );
+
+	if ( liability_entity->liability_account_entity )
+	{
+		liability_entity->liability =
+			liability_account_fetch(
+				liability_entity->
+					liability_account_entity->
+						accout_name );
+	}
+	else
+	{
+		liability_entity->liability =
+			liability_entity_fetch(
+				entity->full_name,
+				entity->street_address,
+				account_current_liability_name_list );
+	}
+
+	if ( !liability_entity->liability )
+	{
+		free( liability_entity );
+		return (LIABILITY_ENTITY *)0;
+	}
+
+	if ( !liability_account_entity )
+	{
+		liability_entity->receivable =
+			receivable_fetch(
+				entity->full_name,
+				entity->street_address,
+				account_receivable_name_list );
+	}
+
+	liability_entity->amount_due =
+		liability_entity_amount_due(
+			dialog_box_payment_amount,
+			liability_entity->liability,
+			liability_entity->receivable );
+
+	return liability_entity;
+}
+
+double liability_entity_amount_due(
+			double dialog_box_payment_amount,
+			LIABILITY *liability,
+			RECEIVABLE *receivable )
+{
+	double amount_due;
+
+	if ( !liability )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: liability is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( dialog_box_payment_amount )
+	{
+		return dialog_box_payment_amount;
+	}
+
+	if ( ! ( amount_due = liability->journal_credit_debit_difference_sum ) )
+	{
+		return 0.0;
+	}
+
+	if ( receivable )
+	{
+		amount_due += receivable->journal_debit_credit_difference_sum;
+	}
+
+	return amount_due;
+}
+
+LIABILITY_ENTITY *liability_entity_calloc( void )
+{
+	LIABILITY_ENTITY *liability_entity;
+
+	if ( ! ( liability_entity = calloc( 1, sizeof( LIABILITY_ENTITY ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_entity;
+}
+
+LIABILITY_PAYMENT *liability_payment_new(
+			double dialog_box_payment_amount,
+			int starting_check_number,
+			char *document_root_directory,
+			char *process_name,
+			char *session_key,
+			boolean check_personal_size,
+			LIST *entity_full_street_list )
+{
+	LIABILITY_PAYMENT *liability_payment;
+
+	if ( !list_length( entity_full_street_list ) )
+	{
+		return (LIABILITY_PAYMENT *)0;
+	}
+
+	liability_payment = liability_payment_calloc();
+
+	liability_payment->liability_account_entity_list =
+		liability_account_entity_list();
+
+	liability_payment->account_current_liability_name_list =
+		account_current_liability_name_list(
+			ACCOUNT_TABLE,
+			SUBCLASSIFICATION_CURRENT_LIABILITY,
+			ACCOUNT_UNCLEARED_CHECKS );
+
+	liability_payment->account_receivable_name_list =
+		account_receivable_name_list(
+			ACCOUNT_TABLE,
+			SUBCLASSIFICATION_RECEIVABLE );
+
+	liability_payment->liability_entity_list = list_new();
+
+	if ( list_length( entity_full_street_list ) == 1 )
+	{
+		list_set(
+			liability_payment->liability_entity_list,
+			liability_entity_new(
+				dialog_box_payment_amount,
+				liability_payment->
+					liability_account_entity_list,
+				liability_payment->
+					account_current_liability_name_list,
+				liability_payment->
+					account_receivable_name_list,
+				list_first( entity_full_street_list ) ) );
+	}
+	else
+	{
+		ENTITY *entity;
+
+		list_rewind( entity_full_street_list );
+
+		do {
+			entity = list_get( entity_full_street_list );
+
+			list_set(
+				liability_payment->liability_entity_list,
+				liability_entity_new(
+					0 /* dialog_box_payment_amount */,
+					liability_payment->
+					    liability_account_entity_list,
+					liability_payment->
+					    account_current_liability_name_list,
+					liability_payment->
+					    account_receivable_name_list,
+					entity ) );
+
+		} while ( list_next( entity_full_street_list ) );
+	}
+
+	if ( !list_length( liability_payment->liability_entity_list ) )
+	{
+		list_free( liability_payment->liability_entity_list );
+		free( liability_payment );
+		return (LIABILITY_PAYMENT *)0;
+	}
+
+	if ( starting_check_number )
+	{
+		liability_payment->liability_check_list =
+			liability_check_list(
+				starting_check_number,
+				document_root_directory,
+				process_name,
+				session_key,
+				check_personal_size,
+				liability_payment->liability_entity_list );
+	}
+
+	liability_payment->liability_transaction_list =
+		liability_transaction_list(
+			starting_check_number,
+			liability_payment->liability_entity_list );
+
+	return liability_payment;
+}
+
+LIABILITY_PAYMENT *liability_payment_calloc( void )
+{
+	LIABILITY_PAYMENT *liability_payment;
+
+	if ( ! ( liability_payment =
+			calloc( 1, sizeof( LIABILITY_PAYMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_payment;
 }
 

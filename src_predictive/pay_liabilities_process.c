@@ -27,13 +27,6 @@
 #include "journal.h"
 #include "appaserver_link_file.h"
 
-/* Constants */
-/* --------- */
-#define PROMPT				"Press here to view check."
-
-/* Prototypes */
-/* ---------- */
-
 void print_checks_transaction_display(
 			LIST *liability_transaction_list );
 
@@ -61,14 +54,14 @@ char *pay_liabilities_process(
 			boolean execute,
 			char *document_root_directory,
 			char *process_name,
-			char *session,
+			char *session_key,
 			char personal_size_yn );
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *session;
+	char *session_key;
 	char *full_name_list_string;
 	char *street_address_list_string;
 	int starting_check_number;

@@ -226,20 +226,6 @@ int account_balance_match_function(
 	}
 }
 
-LIST *account_subclassification_account_name_list(
-			char *where,
-			char *account_table )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh account %s \"%s\"",
-		account_table,
-		where );
-
-	return pipe2list( system_string );
-}
-
 double account_balance( LIST *journal_account_journal_list )
 {
 	JOURNAL *latest_journal;
@@ -864,6 +850,65 @@ double account_receivable_due( LIST *receivable_journal_list )
 	return
 	journal_debit_credit_difference_sum(
 		receivable_journal_list );
+}
+
+LIST *account_cash_name_list(
+			char *account_table,
+			char *subclassification_cash )
+{
+	char system_string[ 256 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = '%s'",
+		subclassification_cash );
+
+	sprintf(system_string,
+		"select.sh account %s \"%s\"",
+		account_table,
+		where );
+
+	return pipe2list( system_string );
+}
+
+LIST *account_current_liability_name_list(
+			char *account_table,
+			char *subclassification_current_liability,
+			char *account_uncleared_checks )
+{
+	char system_string[ 256 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = '%s' and account <> '%s'",
+		subclassification_current_liability,
+		account_uncleared_checks );
+
+	sprintf(system_string,
+		"select.sh account %s \"%s\"",
+		account_table,
+		where );
+
+	return pipe2list( system_string );
+}
+
+LIST *account_receivable_name_list(
+			char *account_table,
+			char *subclassification_receivable )
+{
+	char system_string[ 256 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = '%s'",
+		subclassification_receivable );
+
+	sprintf(system_string,
+		"select.sh account %s \"%s\"",
+		account_table,
+		where );
+
+	return pipe2list( system_string );
 }
 
 #ifdef NOT_DEFINED
