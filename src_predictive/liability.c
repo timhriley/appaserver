@@ -19,6 +19,7 @@
 #include "subclassification.h"
 #include "account.h"
 #include "journal.h"
+#include "latex.h"
 #include "liability.h"
 
 LIABILITY *liability_entity_fetch(
@@ -440,29 +441,8 @@ ENTITY *liability_account_entity(
 		}
 
 	} while ( list_next( liability_account_entity_list ) );
+
 	return (ENTITY *)0;
-}
-
-LIST *liability_steady_state_entity_list(
-			LIST *liability_balance_zero_entity_list )
-{
-	ENTITY *entity;
-	LIST *entity_list;
-
-	entity_list = liability_balance_zero_entity_list;
-
-	if ( !list_rewind( entity_list ) ) return entity_list;
-
-	do {
-		entity = list_get( entity_list );
-
-		entity_liability_steady_state(
-			entity,
-			entity->entity_balance_zero_account_list );
-
-	} while ( list_next( entity_list ) );
-
-	return entity_list;
 }
 
 LIST *liability_entity_list(
@@ -528,13 +508,15 @@ LIST *liability_entity_list(
 	return entity_list;
 }
 
-char *liability_credit_account_name(
-			int starting_check_number )
+char *liability_payment_credit_account_name(
+			int starting_check_number,
+			char *account_cash,
+			char *account_uncleared_checks )
 {
 	if ( starting_check_number )
-		return account_uncleared_checks( (char *)0 /* fund_name */ );
+		return account_uncleared_checks;
 	else
-		return account_cash( (char *)0 /* fund_name */ );
+		return account_cash;
 }
 
 LIST *liability_transaction_list(
@@ -582,69 +564,6 @@ LIST *liability_transaction_list(
 	} while( list_next( liability_entity_list ) );
 
 	return transaction_list;
-}
-
-LIABILITY *liability_new(
-			double dialog_box_payment_amount,
-			int starting_check_number,
-			LIST *entity_full_street_list )
-{
-	LIABILITY *liability;
-
-	liability = liability_calloc();
-
-	liability->liability_account_entity_list =
-		liability_account_entity_list();
-
-	liability->account_where = liability_account_where();
-
-	/* Sets account->following_balance_zero_journal_list */
-	/* ------------------------------------------------- */
-	liability->following_balance_zero_account_list =
-		liability_following_balance_zero_account_list(
-			liability->account_where );
-
-
-/* Redirects LIABILITY_ACCOUNT_ENTITY */
-LIST *liability_tax_redirect_account_list(
-	liability_balance_zero_account_list(),
-	liability_account_entity_list() );
-
-LIST *liability_entity_list(
-	liability_tax_redirect_account_list()
-		/* liability_account_list */,
-	entity_full_street_list,
-	dialog_box_payment_amount );
-
-/* Sets entity_balance_zero_account_list */
-LIST *liability_balance_zero_entity_list(
-	liability_entity_list(),
-	liability_tax_redirect_account_list()
-		/* liability_account_list */ );
-
-LIST *liability_steady_state_entity_list(
-	liability_balance_zero_entity_list() );
-
-char *liability_credit_account_name(
-	int starting_check_number );
-
-LIST *liability_transaction_list(
-	liability_steady_state_entity_list(),
-	liability_credit_account_name(),
-	starting_check_number );
-
-TRANSACTION *liability_transaction(
-	full_name,
-	street_address,
-	transaction_date_time,
-	entity_liability_payment_amount(),
-	entity_liability_additional_payment_amount(),
-	entity_balance_zero_account_list(),
-	liability_credit_account_name(),
-	memo,
-	check_number );
-
-	return liability;
 }
 
 TRANSACTION *liability_transaction(
@@ -891,13 +810,9 @@ LIABILITY_PAYMENT *liability_payment_new(
 	}
 	else
 	{
-		ENTITY *entity;
-
 		list_rewind( entity_full_street_list );
 
 		do {
-			entity = list_get( entity_full_street_list );
-
 			list_set(
 				liability_payment->liability_entity_list,
 				liability_entity_new(
@@ -908,7 +823,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 					    account_current_liability_name_list,
 					liability_payment->
 					    account_receivable_name_list,
-					entity ) );
+					list_get( entity_full_street_list ) ) );
 
 		} while ( list_next( entity_full_street_list ) );
 	}
@@ -923,13 +838,12 @@ LIABILITY_PAYMENT *liability_payment_new(
 	if ( starting_check_number )
 	{
 		liability_payment->liability_check_list =
-			liability_check_list(
+			liability_check_list_new(
 				application_name,
 				starting_check_number,
 				document_root_directory,
 				process_name,
 				session_key,
-				check_personal_size,
 				liability_payment->liability_entity_list );
 	}
 
@@ -984,6 +898,8 @@ LIABILITY_CHECK_LIST *liability_check_list_new(
 			LIST *liability_entity_list )
 {
 	LIABILITY_CHECK_LIST *liability_check_list;
+	LIABILITY_CHECK *liability_check;
+	FILE *output_file;
 
 	if ( !application_name
 	||   !document_root_directory
@@ -1027,12 +943,109 @@ LIABILITY_CHECK_LIST *liability_check_list_new(
 		/* ---------------------- */
 		liability_check_list_begin_document();
 
-	liability_check_list->liability_check_appaserver =
+	liability_check_list->heading =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		liability_check_list_heading(
+			liability_check_list->documentclass,
+			liability_check_list->usepackage,
+			liability_check_list->pagenumbering_gobble,
+			liability_check_list->begin_document );
+
+	liability_check_list->list = list_new();
+	list_rewind( liability_entity_list );
+
+	do {
+		list_set(
+			liability_check_list->list,
+			liability_check_new(
+				starting_check_number++
+					/* check_number */,
+				list_get( liability_entity_list ) ) );
+
+	} while ( list_next( liability_entity_list ) );
+
+	if ( !list_length( liability_check_list->list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	liability_check_list->end_document =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_list_end_document();
+
+	liability_check_list->liability_check_appaserver_link =
 		liability_check_appaserver_link_new(
 			application_name,
 			document_root_directory,
 			process_name,
 			session_key );
+
+	if ( ! ( output_file =
+			fopen(
+				liability_check_list->
+					liability_check_appaserver_link->
+					output_filename,
+				"w" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			liability_check_list->
+				liability_check_appaserver_link->
+				output_filename );
+		exit( 1 );
+	}
+
+	fprintf(output_file,
+		"%s\n",
+		liability_check_list->heading );
+
+	list_rewind( liability_check_list->list );
+
+	do {
+		liability_check = list_get( liability_check_list->list );
+
+		if ( !liability_check->output_string )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: output_string is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		fprintf(output_file,
+			"%s\n",
+			liability_check->output_string );
+
+	} while ( list_next( liability_check_list->list ) );
+
+	fprintf(output_file,
+		"%s\n",
+		liability_check_list->end_document );
+
+	fclose( output_file );
+
+	latex_tex2pdf(
+		liability_check_list->
+			liability_check_appaserver_link->
+			output_filename,
+		appaserver_link_source_directory(
+			document_root_directory,
+			application_name )
+				/* working_directory */ );
 
 	return liability_check_list;
 }
@@ -1042,6 +1055,113 @@ LIABILITY_CHECK *liability_check_new(
 			LIABILITY_ENTITY *liability_entity )
 {
 	LIABILITY_CHECK *liability_check = liability_check_calloc();
+
+	if ( !liability_entity
+	||   !liability_entity->entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: entity is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( liability_entity->amount_due <= 0.0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid amount_due.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	liability_check->dollar_text =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_dollar_text(
+			liability_entity->amount_due );
+
+	liability_check->escape_payable_to =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_escape_payable_to(
+			liability_entity->entity->full_name );
+
+	liability_check->move_down =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_move_down();
+
+	liability_check->date_display =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_date_display(
+			pipe2string(
+				LIABILITY_CHECK_DATE_COMMAND )
+					/* check_date */ );
+
+	liability_check->amount_due_display =
+		/* ------------------------------------------------- */
+		/* Returns amount_due_display which is static memory */
+		/* ------------------------------------------------- */
+		liability_check_amount_due_display(
+			place_commas_in_money(
+				liability_entity->amount_due )
+					/* amount_due_display */ );
+
+	liability_check->vendor_name_amount_due_display =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_vendor_name_amount_due_display(
+			liability_check->escape_payable_to,
+			liability_check->amount_due_display );
+
+	liability_check->amount_due_stub_display =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_amount_due_stub_display(
+			liability_check->amount_due_display );
+
+	liability_check->dollar_text_display =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_dollar_text_display(
+			liability_check->dollar_text );
+
+	liability_check->number_display =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_number_display(
+			check_number );
+
+	liability_check->newpage =
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		liability_check_newpage();
+
+	liability_check->output_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		liability_check_output_string(
+			liability_check->move_down,
+			liability_check->date_display,
+			liability_check->vendor_name_amount_due_display,
+			liability_check->amount_due_stub_display,
+			liability_check->dollar_text_display,
+			liability_check->number_display,
+			liability_check->newpage );
 
 	return liability_check;
 }
@@ -1077,14 +1197,369 @@ char *liability_check_list_begin_document( void )
 "\\begin{document}";
 }
 
-char *liability_check_list_newpage( void )
+char *liability_check_newpage( void )
 {
 	return
 "\\newpage\n";
 }
 
-char *liability_check_end_document( void )
+char *liability_check_list_end_document( void )
 {
 	return
 "\\end{document}";
 }
+
+char *liability_check_dollar_text(
+			double amount_due )
+{
+	static char dollar_text[ 128 ];
+
+	if ( amount_due <= 0.0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid amount_due.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	dollar_text( dollar_text, amount_due );
+
+	return dollar_text;
+}
+
+char *liability_check_move_down( void )
+{
+	return
+"\\begin{tabular}l\n"
+"\\end{tabular}\n\n"
+"\\vspace{0.45in}";
+}
+
+char *liability_check_date_display( char *check_date )
+{
+	static char date_display[ 256 ];
+
+	if ( !check_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: check_date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(date_display,
+"\\begin{tabular}{p{0.2in}p{6.6in}l}\n"
+"& %s & %s\n"
+"\\end{tabular}\n\n",
+		check_date,
+		check_date );
+
+	return date_display;
+}
+
+char *liability_check_vendor_amount_due_display(
+			char *payable_to,
+			char *amount_due_display )
+{
+	static char display[ 256 ];
+
+	if ( !payable_to
+	||   !amount_due_display )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(display,
+"\\begin{tabular}{p{0.2in}p{2.5in}p{4.1in}l}\n"
+"& %.26s & %s & %s\n"
+"\\end{tabular}\n",
+		payable_to,
+		payable_to,
+		amount_due_display );
+
+	return display;
+}
+
+char *liability_check_amount_due_display( char *amount_due_display )
+{
+	return amount_due_display;
+}
+
+char *liability_check_amount_due_stub_display( char *amount_due_display )
+{
+	static char display[ 128 ];
+
+	if ( !amount_due_display )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: amount_due_display is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(display,
+"\\vspace{0.10in}\n\n"
+"\\begin{tabular}{p{0.2in}l}\n"
+"& %s\n"
+"\\end{tabular}",
+		amount_due_display );
+
+	return display;
+}
+
+char *liability_check_dollar_text_display( char *dollar_text )
+{
+	static char display[ 256 ];
+
+	if ( !dollar_text )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: dollar_text is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(display,
+"\\vspace{0.10in}\n\n"
+"\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
+"& & %s\n"
+"\\end{tabular}\n",
+		dollar_text );
+
+	return display;
+}
+
+char *liability_check_number_display( int check_number )
+{
+	static char display[ 128 ];
+
+	if ( !check_number )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: check_number is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(display,
+"\\vspace{0.05in}\n\n"
+"\\begin{tabular}{p{0.2in}l}\n"
+"& Check: %d\n"
+"\\end{tabular}\n",
+		check_number );
+
+	return display;
+}
+
+char *liability_check_output_string(
+			char *liability_check_move_down,
+			char *liability_check_date_display,
+			char *liability_check_vendor_name_amount_due_display,
+			char *liability_check_amount_due_stub_display,
+			char *liability_check_dollar_text_display,
+			char *liability_check_number_display,
+			char *liability_check_newpage )
+{
+	char output_string[ 4096 ];
+
+	if ( !liability_check_move_down
+	||   !liability_check_date_display
+	||   !liability_check_vendor_name_amount_due_display
+	||   !liability_check_amount_due_stub_display
+	||   !liability_check_dollar_text_display
+	||   !liability_check_number_display
+	||   !liability_check_newpage )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(output_string,
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n,
+		liability_check_move_down,
+		liability_check_date_display,
+		liability_check_vendor_name_amount_due_display,
+		liability_check_amount_due_stub_display,
+		liability_check_dollar_text_display,
+		liability_check_number_display,
+		liability_check_newpage )
+
+	return strdup( output_string );
+}
+
+char *liability_check_list_heading(
+			char *documentclass,
+			char *usepackage,
+			char *pagenumbering_gobble,
+			char *begin_document )
+{
+	char heading[ 2048 ];
+
+	if ( !document_class
+	||   !usepackage
+	||   !pagenumbering_gobble
+	||   !begin_document )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(heading,
+		"%s\n%s\n%s\n%s\n",
+		document_class,
+		usepackage,
+		pagenumbering_gobble,
+		begin_document );
+
+	return strdup( heading );
+}
+
+LIABILITY_CHECK_APPASERVER_LINK *
+	liability_check_appaserver_link_new(
+			char *application_name,
+			char *document_root_directory,
+			char *process_name,
+			char *session_key )
+{
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	LIABILITY_CHECK_APPASERVER_LINK *liability_check_appaserver_link;
+
+	liability_check_appaserver_link =
+		liability_check_appaserver_link_calloc();
+
+	appaserver_link_file =
+	liability_check_appaserver_link->
+		appaserver_link_file =
+			appaserver_link_file_new(
+				application_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				document_root_directory,
+				process_name /* filename_stem */,
+				application_name,
+				getpid(),
+				(char *)0 /* session_key */,
+		 		"tex" );
+
+	liability_check_appaserver_link->
+		output_filename =
+			appaserver_link_get_output_filename(
+				appaserver_link_file->
+					output_file->
+					document_root_directory,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+	appaserver_link_file->extension = "pdf";
+
+	liability_check_appaserver_link->
+		pdf_output_filename =
+			appaserver_link_get_link_prompt(
+				appaserver_link_file->
+					link_prompt->
+					prepend_http_boolean,
+				appaserver_link_file->
+					link_prompt->
+					http_prefix,
+				appaserver_link_file->
+					link_prompt->
+					server_address,
+				appaserver_link_file->application_name,
+				appaserver_link_file->filename_stem,
+				appaserver_link_file->begin_date_string,
+				appaserver_link_file->end_date_string,
+				appaserver_link_file->process_id,
+				appaserver_link_file->session,
+				appaserver_link_file->extension );
+
+	liability_check_appaserver_link->ftp_filename =
+		appaserver_link_get_link_prompt(
+			appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			appaserver_link_file->
+				link_prompt->
+				server_address,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	appaserver_link_file->extension = "pdf";
+	appaserver_link_file->session = session_key;
+	appaserver_link_file->process_id = 0;
+
+	liability_check_appaserver_link->document_root_filename =
+		appaserver_link_get_output_filename(
+			appaserver_link_file->
+				output_file->
+				document_root_directory,
+			appaserver_link_file->application_name,
+			appaserver_link_file->filename_stem,
+			appaserver_link_file->begin_date_string,
+			appaserver_link_file->end_date_string,
+			appaserver_link_file->process_id,
+			appaserver_link_file->session,
+			appaserver_link_file->extension );
+
+	return liability_check_appaserver_link;
+}
+
+LIABILITY_CHECK_APPASERVER_LINK *
+	liability_check_appaserver_link_calloc(
+			void )
+{
+	LIABILITY_CHECK_APPASERVER_LINK *
+		liability_check_appaserver_link;
+
+	if ( ! ( liability_check_appaserver_link =
+			calloc(
+				1,
+				sizeof( LIABILITY_CHECK_APPASERVER_LINK ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_check_appaserver_link;
+}
+

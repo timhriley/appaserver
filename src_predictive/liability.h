@@ -138,8 +138,20 @@ double liability_entity_amount_due(
 			LIABILITY *liability,
 			RECEIVABLE *receivable );
 
+#define LIABILITY_CHECK_DATE_COMMAND	"now.sh pretty | column.e 0"
+
 typedef struct
 {
+	char *dollar_text;
+	char *escape_payable_to;
+	char *move_down;
+	char *date_display;
+	char *amount_due_display;
+	char *vendor_name_amount_due_display;
+	char *amount_due_stub_display;
+	char *dollar_text_display;
+	char *number_display;
+	char *newpage;
 	char *output_string;
 } LIABILITY_CHECK;
 
@@ -153,6 +165,68 @@ LIABILITY_CHECK *liability_check_new(
 /* ------- */
 LIABILITY_CHECK *liability_check_calloc(
 			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_dollar_text(
+			double amount_due );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_escape_payable_to(
+			char *full_name );
+
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_move_down(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_date_display(
+			char *check_date );
+
+/* Returns amount_due_display which is static memory */
+/* ------------------------------------------------- */
+char *liability_check_amount_due_display(
+			char *amount_due_display );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_vendor_name_amount_due_display(
+			char *liability_check_escape_payable_to,
+			char *liability_check_amount_due_display );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_amount_due_stub_display(
+			char *liability_check_amount_due_display );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_dollar_text_display(
+			char *liability_check_dollar_text );
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_check_number_display(
+			int check_number );
+
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_newpage(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *liability_check_output_string(
+			char *liability_check_move_down,
+			char *liability_check_date_display,
+			char *liability_check_vendor_name_amount_due_display,
+			char *liability_check_amount_due_stub_display,
+			char *liability_check_dollar_text_display,
+			char *liability_check_number_display,
+			char *liability_check_newpage );
 
 typedef struct
 {
@@ -180,7 +254,7 @@ LIABILITY_CHECK_APPASERVER_LINK *
 
 typedef struct
 {
-	LIST *check_list;
+	LIST *list;
 	char *documentclass;
 	char *usepackage;
 	char *pagenumbering_gobble;
@@ -225,10 +299,32 @@ char *liability_check_list_pagenumbering_gobble(
 char *liability_check_list_begin_document(
 			void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *liability_check_list_heading(
+			char *liability_check_list_documentclass,
+			char *liability_check_list_usepackage,
+			char *liability_check_list_pagenumbering_gobble,
+			char *liability_check_list_begin_document );
+
+/* Returns program memory */
+/* ---------------------- */
+char *liability_check_list_end_document(
+			void );
+
 typedef struct
 {
 	TRANSACTION *transaction;
 } LIABILITY_TRANSACTION;
+
+/* Usage */
+/* ----- */
+LIST *liability_transaction_list(
+			int starting_check_number,
+			LIST *liability_entity_list );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -272,5 +368,10 @@ LIABILITY_PAYMENT *liability_payment_new(
 /* ------- */
 LIABILITY_PAYMENT *liability_payment_calloc(
 			void );
+
+char *liability_payment_credit_account_name(
+			int starting_check_number,
+			char *account_cash,
+			char *account_uncleared_checks );
 
 #endif
