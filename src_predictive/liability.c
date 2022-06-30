@@ -63,8 +63,25 @@ LIABILITY *liability_entity_fetch(
 			0 /* not fetch_check_number */,
 			0 /* not fetch_memo */ );
 
+	if ( !list_length( liability->journal_system_list ) )
+	{
+		free( liability );
+		return (LIABILITY *)0;
+	}
+
 	liability->journal_credit_debit_difference_sum =
 		journal_credit_debit_difference_sum(
+			liability->journal_system_list );
+
+	if ( !liability->journal_credit_debit_difference_sum )
+	{
+		list_free( liability->journal_system_list );
+		free( liability );
+		return (LIABILITY *)0;
+	}
+
+	liability->liability_debit_account_list =
+		liability_debit_account_list_new(
 			liability->journal_system_list );
 
 	return liability;
@@ -119,13 +136,29 @@ LIABILITY *liability_account_fetch(
 			0 /* not fetch_check_number */,
 			0 /* not fetch_memo */ );
 
+	if ( !list_length( liability->journal_system_list ) )
+	{
+		free( liability );
+		return (LIABILITY *)0;
+	}
+
 	liability->journal_credit_debit_difference_sum =
 		journal_credit_debit_difference_sum(
 			liability->journal_system_list );
 
+	if ( !liability->journal_credit_debit_difference_sum )
+	{
+		list_free( liability->journal_system_list );
+		free( liability );
+		return (LIABILITY *)0;
+	}
+
+	liability->liability_debit_account_list =
+		liability_debit_account_list_new(
+			liability->journal_system_list );
+
 	return liability;
 }
-
 
 char *liability_account_where( char *liability_account_name )
 {
@@ -643,13 +676,12 @@ TRANSACTION *liability_transaction(
 }
 
 LIABILITY_ENTITY *liability_entity_new(
-			double dialog_box_payment_amount,
 			LIST *liability_account_entity_list,
 			LIST *account_current_liability_name_list,
 			LIST *account_receivable_name_list,
 			ENTITY *entity )
 {
-	LIABILITY_ENTITY *liability_entity = liability_entity_calloc();
+	LIABILITY_ENTITY *liability_entity;
 
 	if ( !entity )
 	{
@@ -660,6 +692,8 @@ LIABILITY_ENTITY *liability_entity_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	liability_entity = liability_entity_calloc();
 
 	liability_entity->liability_account_entity =
 		liability_account_entity_seek_entity(
@@ -673,7 +707,7 @@ LIABILITY_ENTITY *liability_entity_new(
 			liability_account_fetch(
 				liability_entity->
 					liability_account_entity->
-						accout_name );
+					account_name );
 	}
 	else
 	{
@@ -701,7 +735,6 @@ LIABILITY_ENTITY *liability_entity_new(
 
 	liability_entity->amount_due =
 		liability_entity_amount_due(
-			dialog_box_payment_amount,
 			liability_entity->liability,
 			liability_entity->receivable );
 
@@ -709,26 +742,12 @@ LIABILITY_ENTITY *liability_entity_new(
 }
 
 double liability_entity_amount_due(
-			double dialog_box_payment_amount,
 			LIABILITY *liability,
 			RECEIVABLE *receivable )
 {
 	double amount_due;
 
-	if ( !liability )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: liability is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( dialog_box_payment_amount )
-	{
-		return dialog_box_payment_amount;
-	}
+	if ( !liability ) return 0.0;
 
 	if ( ! ( amount_due = liability->journal_credit_debit_difference_sum ) )
 	{
@@ -737,7 +756,7 @@ double liability_entity_amount_due(
 
 	if ( receivable )
 	{
-		amount_due += receivable->journal_debit_credit_difference_sum;
+		amount_due -= receivable->journal_debit_credit_difference_sum;
 	}
 
 	return amount_due;
@@ -799,7 +818,6 @@ LIABILITY_PAYMENT *liability_payment_new(
 		list_set(
 			liability_payment->liability_entity_list,
 			liability_entity_new(
-				dialog_box_payment_amount,
 				liability_payment->
 					liability_account_entity_list,
 				liability_payment->
@@ -816,7 +834,6 @@ LIABILITY_PAYMENT *liability_payment_new(
 			list_set(
 				liability_payment->liability_entity_list,
 				liability_entity_new(
-					0 /* dialog_box_payment_amount */,
 					liability_payment->
 					    liability_account_entity_list,
 					liability_payment->
@@ -1563,3 +1580,250 @@ LIABILITY_CHECK_APPASERVER_LINK *
 	return liability_check_appaserver_link;
 }
 
+LIABILITY_ACCOUNT *liability_account_getset(
+			LIST *list,
+			char *account_name )
+{
+	LIABILITY_ACCOUNT *liability_account;
+
+	if ( !list
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( list ) )
+	{
+		liability_account =
+			liability_account_new(
+				account_name );
+
+		list_set(
+			list,
+			liability_account );
+
+		return liability_account;
+	}
+
+	do {
+		liability_account = list_get( list );
+
+		if ( strcmp(
+			account_name,
+			liability_account->account_name ) == 0 )
+		{
+			return liability_account;
+		}
+
+	} while ( list_next( liability_debit_account ) );
+
+	liability_account =
+		liability_account_new(
+			account_name );
+
+	list_set(
+		list,
+		liability_account );
+
+	return liability_account;
+}
+
+LIABILITY_ACCOUNT *liability_account_new( char *account_name )
+{
+	LIABILITY_ACCOUNT *liability_account;
+
+	if ( !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	liability_account = liability_account_calloc();
+	liability_account->account_name = account_name;
+
+	return liability_account;
+}
+
+LIABILITY_ACCOUNT *liability_account_calloc( void )
+{
+	LIABILITY_ACCOUNT *liability_account;
+
+	if ( ! ( liability_account =
+			calloc( 1, sizeof( LIABILITY_ACCOUNT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_account;
+}
+
+LIABILITY_ACCOUNT_LIST *
+	liability_account_list_new(
+			LIST *journal_system_list )
+{
+	LIABILITY_ACCOUNT_LIST *liability_account_list;
+	JOURNAL *journal;
+	LIABILITY_ACCOUNT *liability_account;
+
+	if ( !list_rewind( journal_system_list ) )
+	{
+		return (LIABILITY_ACCOUNT_LIST *)0;
+	}
+
+	liability_account_list = liability_account_list_calloc();
+	liability_account_list->list = list_new();
+
+	do {
+		journal = list_get( journal_list );
+
+		liability_account =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			liability_account_getset(
+				journal->account_name );
+
+		if ( journal->credit_amount )
+		{
+			liability_account->credit_amount +=
+				journal->credit_amount;
+		}
+		else
+		{
+			liability_account->credit_amount -=
+				journal->debit_amount;
+		}
+	} while( list_next( journal_list ) );
+
+	return liability_account_list;
+}
+
+LIABILITY_ACCOUNT_LIST *
+	liability_account_list_calloc(
+			void )
+{
+	LIABILITY_ACCOUNT_LIST *liability_account_list;
+
+	if ( ! ( liability_account_list =
+			calloc( 1,
+				sizeof( LIABILITY_ACCOUNT_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_account_list;
+}
+
+LIABILITY_CALCULATE *liability_calculate_new(
+			char *application_name )
+{
+	LIABILITY_CALCULATE *liability_calculate;
+	ENTITY *entity;
+
+	if ( !application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	liability_calculate = liability_calculate_calloc();
+
+	liability_calculate->liability_account_entity_list =
+		liability_account_entity_list();
+
+	liability_calculate->account_current_liability_name_list =
+		account_current_liability_name_list(
+			ACCOUNT_TABLE,
+			SUBCLASSIFICATION_CURRENT_LIABILITY,
+			ACCOUNT_UNCLEARED_CHECKS );
+
+	liability_calculate->journal_account_entity_list =
+		journal_account_entity_list(
+			JOURNAL_TABLE,
+			liability_calculate->
+				account_current_liability_name_list );
+
+	if ( !list_rewind( liability_calculate->journal_account_entity_list ) )
+	{
+		list_free( liability_calculate->journal_account_entity_list );
+		free( liability_calculate );
+		return (LIABILITY_CALCULATE *)0;
+	}
+
+	liability_calculate->account_receivable_name_list =
+		account_receivable_name_list(
+			ACCOUNT_TABLE,
+			SUBCLASSIFICATION_RECEIVABLE );
+
+	liability_calculate->liability_entity_list = list_new();
+
+	do {
+		entity =
+			list_get(
+				liability_calculate->
+					journal_account_entity_list );
+
+		list_set(
+			liability_calculate->liability_entity_list,
+			liability_entity_new(
+				liability_calculate->
+					liability_account_entity_list,
+				liability_calculate->
+					account_current_liability_name_list,
+				liability_calculate->
+					account_receivable_name_list,
+				entity ) );
+	} while ( list_next(
+			liability_calculate->journal_account_entity_list );
+
+	if ( !list_length( liability_calculate->liability_entity_list ) )
+	{
+		list_free( liability_calculate->journal_account_entity_list );
+		list_free( liability_calculate->liability_entity_list );
+		free( liability_calculate );
+		return (LIABILITY_CALCULATE *)0;
+	}
+
+	return liability_calculate;
+}
+
+LIABILITY_CALCULATE *liability_calculate_calloc( void )
+{
+	LIABILITY_CALCULATE *liability_calculate;
+
+	if ( ! ( liability_calculate =
+			calloc( 1, sizeof( LIABILITY_CALCULATE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_calculate;
+}

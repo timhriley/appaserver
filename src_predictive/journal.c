@@ -760,6 +760,48 @@ JOURNAL *journal_list_latest( LIST *journal_list )
 	return list_last( journal_list );
 }
 
+LIST *journal_account_entity_list(
+			char *journal_table,
+			LIST *account_name_list )
+{
+	char system_string[ 1024 ];
+	char input[ 256 ];
+	FILE *pipe;
+	ENTITY *entity;
+	LIST *list = {0};
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+
+	if ( !list_length( account_name_list ) ) return (LIST *)0;
+
+	sprintf(system_string,
+	 	"select.sh \"%s\" %s \"account in (%s)\" | sort -u",
+		"full_name,street_address",
+		journal_table,
+		timlib_in_clause( account_name_list ) );
+
+	pipe = popen( system_string, "r" );
+
+	while( string_input( input, pipe, 256 ) )
+	{
+		piece( full_name, SQL_DELIMITER, input, 0 );
+		piece( street_address, SQL_DELIMITER, input, 1 );
+
+		entity =
+			entity_new(
+				strdup( full_name ),
+				strdup( street_address ) );
+
+		if ( !list ) list = list_new();
+
+		list_set( list, entity );
+	}
+
+	pclose( pipe );
+
+	return list;
+}
+
 #ifdef NOT_DEFINED
 FILE *journal_insert_open(
 			boolean replace )

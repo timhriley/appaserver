@@ -289,4 +289,8 @@ double journal_credit_debit_difference_sum(
 double journal_debit_credit_difference_sum(
 			LIST *journal_list );
 
+LIST *journal_account_entity_list(
+			char *journal_table,
+			LIST *account_name_list );
+
 #endif

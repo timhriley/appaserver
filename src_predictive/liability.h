@@ -19,11 +19,52 @@
 
 typedef struct
 {
+	char *account_name;
+	double credit_amount;
+} LIABILITY_ACCOUNT;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+LIABILITY_ACCOUNT *liability_account_getset(
+			LIST *list,
+			char *account_name );
+
+/* Process */
+/* ------- */
+LIABILITY_ACCOUNT *liability_account_new(
+			char *account_name );
+
+LIABILITY_ACCOUNT *liability_account_calloc(
+			void );
+
+typedef struct
+{
+	LIST *list;
+} LIABILITY_ACCOUNT_LIST;
+
+/* Usage */
+/* ----- */
+LIABILITY_ACCOUNT_LIST *
+	liability_account_list_new(
+			LIST *journal_system_list );
+
+/* Process */
+/* ------- */
+LIABILITY_ACCOUNT_LIST *
+	liability_account_list_calloc(
+			void );
+
+typedef struct
+{
 	char *timlib_in_clause;
 	char *liability_entity_where;
 	char *liability_account_where;
 	LIST *journal_system_list;
 	double journal_credit_debit_difference_sum;
+	LIABILITY_ACCOUNT_LIST *liability_account_list;
 } LIABILITY;
 
 /* Usage */
@@ -122,7 +163,6 @@ typedef struct
 /* Usage */
 /* ----- */
 LIABILITY_ENTITY *liability_entity_new(
-			double dialog_box_payment_amount,
 			LIST *liability_account_entity_list,
 			LIST *account_current_liability_name_list,
 			LIST *account_receivable_name_list,
@@ -134,7 +174,6 @@ LIABILITY_ENTITY *liability_entity_calloc(
 			void );
 
 double liability_entity_amount_due(
-			double dialog_box_payment_amount,
 			LIABILITY *liability,
 			RECEIVABLE *receivable );
 
@@ -320,8 +359,10 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *liability_transaction_list(
+			double dialog_box_payment_amount,
 			int starting_check_number,
-			LIST *liability_entity_list );
+			LIST *liability_entity_list,
+			char *liability_payment_credit_account_name );
 
 /* Process */
 /* ------- */
@@ -373,5 +414,22 @@ char *liability_payment_credit_account_name(
 			int starting_check_number,
 			char *account_cash,
 			char *account_uncleared_checks );
+
+typedef struct
+{
+	LIST *liability_account_entity_list;
+	LIST *account_current_liability_name_list;
+	LIST *journal_account_entity_list;
+	LIST *account_receivable_name_list;
+	LIST *liability_entity_list;
+} LIABILITY_CALCULATE;
+
+/* Usage */
+/* ----- */
+LIABILITY_CALCULATE *liability_calculate_new(
+			char *application_name );
+
+LIABILITY_CALCULATE *liability_calculate_calloc(
+			void );
 
 #endif
