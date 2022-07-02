@@ -14,8 +14,7 @@
 #include "transaction.h"
 #include "appaserver_link_file.h"
 
-#define LIABILITY_MEMO		"Liability Payment"
-#define LIABILITY_PROMPT	"Press here to view check."
+#define LIABILITY_PROMPT		"Press here to view check."
 
 typedef struct
 {
@@ -151,7 +150,6 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_entity(
 			char *street_address,
 			LIST *liability_account_entity_list );
 
-
 typedef struct
 {
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
@@ -176,6 +174,87 @@ LIABILITY_ENTITY *liability_entity_calloc(
 double liability_entity_amount_due(
 			LIABILITY *liability,
 			RECEIVABLE *receivable );
+
+typedef struct
+{
+	LIST *journal_list;
+	double transaction_amount;
+} LIABILITY_JOURNAL_LIST;
+
+/* Usage */
+/* ----- */
+LIABILITY_JOURNAL_LIST *
+	liability_journal_list_new(
+			double dialog_box_payment_amount,
+			char *liability_payment_credit_account_name,
+			LIABILITY_ENTITY *liability_entity );
+
+/* Process */
+/* ------- */
+LIABILITY_JOURNAL_LIST *liability_journal_list_calloc(
+			void );
+
+/* Private */
+/* ------- */
+double liability_journal_list_transaction_amount(
+			double amount_due );
+
+typedef struct
+{
+	LIST *list;
+	DATE *transaction_date_time;
+} LIABILITY_TRANSACTION_LIST;
+
+/* Usage */
+/* ----- */
+LIABILITY_TRANSACTION_LIST *
+	liability_transaction_list_new(
+			double dialog_box_payment_amount,
+			int starting_check_number,
+			LIST *liability_entity_list,
+			char *liability_payment_credit_account_name );
+
+/* Process */
+/* ------- */
+LIABILITY_TRANSACTION_LIST *
+	liability_transaction_list_calloc(
+			void );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *liability_transaction_list_html_display(
+			LIABILITY_TRANSACTION_LIST *
+				liability_transaction_list );
+
+void liability_transaction_list_insert(
+			char *appaserver_error_filename,
+			LIABILITY_TRANSACTION_LIST *
+				liability_transaction_list );
+
+#define LIABILITY_TRANSACTION_MEMO	"Liability Payment"
+
+typedef struct
+{
+	LIABILITY_JOURNAL_LIST *liability_journal_list;
+	TRANSACTION *transaction;
+} LIABILITY_TRANSACTION;
+
+/* Usage */
+/* ----- */
+LIABILITY_TRANSACTION *liability_transaction_new(
+			double dialog_box_payment_amount,
+			int check_number,
+			char *liability_payment_credit_account_name,
+			LIABILITY_ENTITY *liability_entity,
+			DATE *transaction_date_time );
+
+/* Process */
+/* ------- */
+LIABILITY_TRANSACTION *liability_transaction_calloc(
+			void );
 
 #define LIABILITY_CHECK_DATE_COMMAND	"now.sh pretty | column.e 0"
 
@@ -298,6 +377,7 @@ typedef struct
 	char *usepackage;
 	char *pagenumbering_gobble;
 	char *begin_document;
+	char *heading;
 	char *end_document;
 	LIABILITY_CHECK_APPASERVER_LINK *liability_check_appaserver_link;
 	FILE *output_file;
@@ -353,45 +433,13 @@ char *liability_check_list_end_document(
 
 typedef struct
 {
-	TRANSACTION *transaction;
-} LIABILITY_TRANSACTION;
-
-/* Usage */
-/* ----- */
-LIST *liability_transaction_list(
-			double dialog_box_payment_amount,
-			int starting_check_number,
-			LIST *liability_entity_list,
-			char *liability_payment_credit_account_name );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-LIABILITY_TRANSACTION *liability_transaction_new(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double payment_amount,
-			char *liability_debit_account_name,
-			char *liability_credit_account_name,
-			char *liability_memo,
-			int check_number );
-
-/* Process */
-/* ------- */
-LIABILITY_TRANSACTION *liability_transaction_calloc(
-			void );
-
-typedef struct
-{
 	LIST *liability_account_entity_list;
 	LIST *account_current_liability_name_list;
 	LIST *account_receivable_name_list;
 	LIST *liability_entity_list;
 	LIABILITY_CHECK_LIST *liability_check_list;
-	LIST *liability_transaction_list;
+	char *credit_account_name;
+	LIABILITY_TRANSACTION_LIST *liability_transaction_list;
 } LIABILITY_PAYMENT;
 
 /* Usage */

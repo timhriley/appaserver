@@ -21,6 +21,7 @@
 #include "journal.h"
 #include "account.h"
 #include "entity.h"
+#include "appaserver_error.h"
 #include "predictive.h"
 #include "transaction.h"
 
@@ -245,29 +246,6 @@ TRANSACTION *transaction_parse(
 	return transaction;
 }
 
-char *transaction_full_name_escape( char *full_name )
-{
-	return transaction_escape_full_name( full_name );
-}
-
-char *transaction_escape_full_name( char *full_name )
-{
-	static char escape_full_name[ 256 ];
-
-	if ( !full_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty full_name.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	string_escape_quote( escape_full_name, full_name );
-	return escape_full_name;
-}
-
 char *transaction_primary_where(
 			char *full_name,
 			char *street_address,
@@ -286,324 +264,183 @@ char *transaction_primary_where(
 	return where;
 }
 
-FILE *transaction_insert_open( void )
-{
-	char sys_string[ 1024 ];
-	char *field;
-
-	field =	"full_name,"
-		"street_address,"
-		"transaction_date_time,"
-		"transaction_amount,"
-		"memo,"
-		"check_number,"
-		"lock_transaction_yn";
-
-	sprintf( sys_string,
-		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql 2>&1						 ",
-		 TRANSACTION_TABLE,
-		 field,
-		 'n' );
-
-	return popen( sys_string, "w" );
-}
-
-FILE *transaction_property_insert_open(
-			boolean replace )
-{
-	char sys_string[ 1024 ];
-	char *field;
-
-	field =	"full_name,"
-		"street_address,"
-		"transaction_date_time,"
-		"transaction_amount,"
-		"memo,"
-		"check_number,"
-		"lock_transaction_yn,"
-		"property_street_address";
-
-	sprintf( sys_string,
-		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql 2>&1						 ",
-		 TRANSACTION_TABLE,
-		 field,
-		 (replace) ? 'y' : 'n' );
-
-	return popen( sys_string, "w" );
-}
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_journal_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list,
-			boolean replace )
-{
-	transaction_date_time =
-		transaction_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			check_number,
-			lock_transaction,
-			replace );
-
-	journal_account_name_list_propagate(
-		transaction_date_time,
-		/* ------------------------- */
-		/* Returns account_name_list */
-		/* ------------------------- */
-		journal_list_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			journal_list,
-			replace ) );
-
-	return transaction_date_time;
-}
-
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_insert(
+			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
 			int check_number,
-			boolean lock_transaction,
-			boolean replace )
+			char *memo,
+			char *feeder_account,
+			char lock_transaction_yn,
+			LIST *journal_list )
 {
-	FILE *insert_pipe;
+	char *error_filename;
+	FILE *pipe_open;
+	LIST *account_name_list;
+	char *race_free_date_time;
 
-	if ( !full_name )
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !transaction_amount
+	||   !list_length( journal_list ) )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty full_name.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (char *)0;
+
+		exit( 1 );
 	}
 
-	if ( !street_address )
+	error_filename =
+		appaserver_error_get_filename(
+			application_name );
+
+	account_name_list =
+		journal_extract_account_name_list(
+			journal_list );
+
+	if ( !list_length( account_name_list ) )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty street_address.\n",
+"ERROR in %s/%s()/%d: journal_extract_account_name_list() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		return (char *)0;
+		exit( 1 );
 	}
 
-	if ( !transaction_date_time )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty transaction_date_time.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return (char *)0;
-	}
+	pipe_open =
+		transaction_insert_pipe_open(
+			error_filename,
+			TRANSACTION_SELECT,
+			TRANSACTION_TABLE );
 
-	if ( replace )
-	{
-		transaction_delete(
-			full_name,
-			street_address,
+	race_free_date_time =
+		transaction_race_free_date_time(
 			transaction_date_time );
-	}
 
-	insert_pipe = transaction_insert_open();
+	transaction_insert_pipe(
+		pipe_open,
+		full_name,
+		street_address,
+		race_free_date_time,
+		transaction_amount,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_check_number( check_number ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_memo( memo ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_feeder_account( feeder_account ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_lock( lock_transaction_yn ) );
 
-	transaction_date_time =
-		transaction_insert_pipe(
-			insert_pipe,
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			check_number,
-			lock_transaction );
+	pclose( pipe_open );
 
-	pclose( insert_pipe );
+	journal_list_insert(
+		error_filename,
+		full_name,
+		street_address,
+		race_free_date_time,
+		journal_list );
 
-	return transaction_date_time;
+	journal_account_name_list_propagate(
+		race_free_date_time,
+		account_name_list );
+
+	return race_free_date_time;
 }
 
-char *transaction_insert_pipe(
-			FILE *insert_pipe,
+void transaction_insert_pipe(
+			FILE *pipe_open,
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time,
+			char *race_free_date_time,
 			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction )
+			char *transaction_check_number,
+			char *transaction_memo,
+			char *transaction_feeder_account,
+			char *transaction_lock )
 {
-	transaction_date_time =
-		transaction_race_free_fetch(
-			transaction_date_time );
+	fprintf(pipe_open,
+		"%s^%s^%s^%.2lf^%s^%s^%s^%s\n",
+	 	full_name,
+		street_address,
+		race_free_date_time,
+		transaction_amount,
+		transaction_check_number,
+		transaction_memo,
+		transaction_feeder_account,
+		transaction_lock );
+}
 
-	fprintf(	insert_pipe,
-			"%s^%s^%s^%.2lf^%s",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-	 		transaction_escape_full_name( full_name ),
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			/* Returns memo or "" */
-			/* ------------------ */
-			transaction_memo( memo ) );
+char *transaction_check_number( int check_number )
+{
+	static char number[ 16 ];
 
-	transaction_check_insert(
-		insert_pipe,
-		check_number );
+	if ( check_number )
+		sprintf( number, "%d", check_number );
+	else
+		*number = '\0';
 
-	transaction_lock_insert(
-		insert_pipe,
-		lock_transaction );
+	return number;
+}
 
-	fflush( insert_pipe );
-	return transaction_date_time;
+char *transaction_feeder_account( char *feeder_account )
+{
+	static char account[ 16 ];
+
+	if ( feeder_account )
+		strcpy( account, feeder_account );
+	else
+		*account = '\0';
+
+	return account;
+}
+
+char *transaction_lock( char transaction_lock_yn )
+{
+	static char lock[ 2 ];
+
+	if ( transaction_lock_yn == 'y'  )
+		strcpy( lock, "y" );
+	else
+		*lock = '\0';
+
+	return lock;
 }
 
 char *transaction_memo( char *memo )
 {
+	static char return_memo[ 128 ];
+
 	if ( !memo || strcmp( memo, "memo" ) == 0 )
 	{
-		memo = "";
+		*return_memo = '\0';
 	}
 
-	if ( strlen( memo ) > TRANSACTION_MEMO_LENGTH )
+	strcpy( return_memo, memo );
+
+	if ( strlen( return_memo ) > TRANSACTION_MEMO_LENGTH )
 	{
-		*( memo + TRANSACTION_MEMO_LENGTH ) = '\0';
+		*( return_memo + TRANSACTION_MEMO_LENGTH ) = '\0';
 	}
-	return memo;
-}
 
-void transaction_check_insert(
-			FILE *insert_pipe,
-			int check_number )
-{
-	if ( check_number )
-		fprintf( insert_pipe, "^%d", check_number );
-	else
-		fprintf( insert_pipe, "^" );
-}
-
-void transaction_lock_insert(
-			FILE *insert_pipe,
-			boolean lock_transaction )
-{
-	if ( lock_transaction )
-		fprintf( insert_pipe, "^y\n" );
-	else
-		/* Note: keep empty, not 'n' */
-		/* ------------------------- */
-		fprintf( insert_pipe, "^\n" );
-}
-
-char *transaction_property_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *property_street_address,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction )
-{
-	transaction_date_time =
-		transaction_race_free_fetch(
-			transaction_date_time );
-
-	fprintf(	insert_pipe,
-			"%s^%s^%s^%s^%.2lf^%s",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-	 		transaction_escape_full_name( full_name ),
-			street_address,
-			transaction_date_time,
-			(property_street_address)
-				? property_street_address
-				: "",
-			transaction_amount,
-			/* ------------------ */
-			/* Returns memo or "" */
-			/* ------------------ */
-			transaction_memo( memo ) );
-
-	transaction_check_insert(
-		insert_pipe,
-		check_number );
-
-	transaction_lock_insert(
-		insert_pipe,
-		lock_transaction );
-
-	fflush( insert_pipe );
-	return transaction_date_time;
-}
-
-char *transaction_program_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction )
-{
-	transaction_date_time =
-		transaction_race_free_fetch(
-			transaction_date_time );
-
-	fprintf(	insert_pipe,
-			"%s^%s^%s^%s^%.2lf^%s",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-	 		transaction_escape_full_name( full_name ),
-			street_address,
-			transaction_date_time,
-			(program_name) ? program_name : "",
-			transaction_amount,
-			/* ------------------ */
-			/* Returns memo or "" */
-			/* ------------------ */
-			transaction_memo( memo ) );
-
-	transaction_check_insert(
-		insert_pipe,
-		check_number );
-
-	transaction_lock_insert(
-		insert_pipe,
-		lock_transaction );
-
-	fflush( insert_pipe );
-	return transaction_date_time;
+	return return_memo;
 }
 
 /* Returns race-free transaction_date_time */
@@ -626,7 +463,10 @@ char *transaction_race_free_fetch( char *transaction_date_time )
 
 	semaphore_wait( semid );
 
-	while ( transaction_date_time_exists( transaction_date_time ) )
+	while ( transaction_date_time_exists(
+			TRANSACTION_TABLE,
+			TRANSACTION_DATE_TIME_COLUMN,
+			transaction_date_time ) )
 	{
 		if ( !next_transaction_date_time )
 		{
@@ -664,13 +504,15 @@ char *transaction_date_time(
 }
 
 char *transaction_date_time_where(
+			char *transaction_date_time_column,
 			char *transaction_date,
 			char *transaction_time )
 {
 	char static where[ 128 ];
 
 	sprintf(where,
-		"transaction_date_time = '%s'",
+		"%s = '%s'",
+		transaction_date_time_column,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -681,74 +523,150 @@ char *transaction_date_time_where(
 	return where;
 }
 
-char *transaction_closing_memo_where( void )
+char *transaction_closing_memo_where(
+			char *transaction_closing_entry_memo )
 {
 	char static where[ 128 ];
 
 	sprintf(where,
 		"memo = '%s'",
-		TRANSACTION_CLOSING_ENTRY_MEMO );
+		transaction_closing_entry_memo );
 
 	return where;
 }
 
-boolean transaction_date_time_exists( char *transaction_date_time )
+boolean transaction_date_time_exists(
+			char *transaction_table,
+			char *transaction_date_time_column,
+			char *transaction_date_time )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char where[ 128 ];
 	char *results;
 	boolean return_value;
 
 	sprintf(where,
-		"transaction_date_time = '%s'",
+		"%s = '%s'",
+		transaction_date_time_column,
 		transaction_date_time );
 
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" none",
-		 "count(1)",
-		 TRANSACTION_TABLE,
-		 where );
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" none",
+		"count(1)",
+		transaction_table,
+		where );
 
-	results = pipe2string( sys_string );
+	results = pipe2string( system_string );
 	return_value = ( atoi( results ) == 1 );
 	free( results );
 	return return_value;
 }
 
-boolean transaction_closing_entry_exists(
-			char *transaction_date_time )
+char *transaction_closing_entry_where(
+			char *transaction_date_time_where,
+			char *transaction_closing_memo_where )
 {
-	char sys_string[ 1024 ];
-	char *results;
-	boolean return_value;
-	char where[ 256 ];
-	char transaction_date[ 16 ];
-
-	column( transaction_date, 0, transaction_date_time );
+	static char where[ 128 ];
 
 	sprintf(where,
 		"%s and %s",
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 transaction_date_time_where(
-			transaction_date,
-			PREDICTIVE_CLOSE_TIME ),
-		 transaction_closing_memo_where() );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_date_time_where,
+		transaction_closing_memo_where );
 
-	sprintf( sys_string,
-		 "select.sh \"%s\" %s \"%s\" none",
-		 "count(1)",
-		 TRANSACTION_TABLE,
-		 where );
+	return where;
+}
 
-	results = pipe2string( sys_string );
+char *transaction_closing_entry_system_string(
+			char *transaction_table,
+			char *transaction_closing_entry_where )
+{
+	char system_string[ 512 ];
+
+	if ( !transaction_table
+	||   !transaction_closing_entry_where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is  empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" none",
+		"count(1)",
+		transaction_table,
+		transaction_closing_entry_where );
+
+	return strdup( system_string );
+}
+
+boolean transaction_closing_entry_exists(
+			char *transaction_table,
+			char *predictive_close_time,
+			char *transaction_date )
+{
+	char *system_string;
+	char *results;
+	boolean return_value;
+	char *where;
+	char local_transaction_date[ 16 ];
+
+	if ( !transaction_table
+	||   !predictive_close_time
+	||   !transaction_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	column( local_transaction_date, 0, transaction_date );
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_closing_entry_where(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_where(
+				TRANSACTION_DATE_TIME_COLUMN,
+				local_transaction_date,
+				predictive_close_time ),
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_closing_memo_where(
+				TRANSACTION_CLOSING_ENTRY_MEMO ) );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_closing_entry_system_string(
+			transaction_table,
+			where );
+
+	results = pipe2string( system_string );
 	return_value = ( atoi( results ) == 1 );
 	free( results );
+	free( system_string );
+
 	return return_value;
 }
 
 char *transaction_date_time_closing(
+			char *predictive_close_time,
+			char *predictive_preclose_time,
 			char *transaction_date,
 			boolean preclose_time,
 			boolean closing_entry_exists )
@@ -760,7 +678,7 @@ char *transaction_date_time_closing(
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			PREDICTIVE_CLOSE_TIME );
+			predictive_close_time );
 	}
 	else
 	if ( preclose_time )
@@ -768,162 +686,290 @@ char *transaction_date_time_closing(
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			PREDICTIVE_PRECLOSE_TIME );
+			predictive_preclose_time );
 	}
 	else
 	{
 		sprintf(date_time,
 			"%s %s",
 			transaction_date,
-			PREDICTIVE_CLOSE_TIME );
+			predictive_close_time );
 	}
 
 	return date_time;
 }
 
-char *transaction_journal_refresh(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list )
-{
-	return transaction_refresh(
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			check_number,
-			lock_transaction,
-			journal_list );
-}
-
-char *transaction_refresh(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list )
-{
-	/* Note: transaction_date_time shouldn't change. */
-	/* --------------------------------------------- */
-	transaction_date_time =
-		transaction_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			transaction_amount,
-			memo,
-			check_number,
-			lock_transaction,
-			1 /* replace */ );
-
-	journal_account_name_list_propagate(
-		transaction_date_time,
-		/* ------------------------- */
-		/* Returns account_name_list */
-		/* ------------------------- */
-		journal_list_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			journal_list,
-			1 /* replace */ ) );
-
-	return transaction_date_time;
-}
-
-void transaction_list_journal_list_insert(
-			LIST *transaction_list )
-{
-	transaction_list_journal_insert( transaction_list );
-}
-
-void transaction_delete(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time )
-{
-	char sys_string[ 1024 ];
-	char *field;
-	FILE *output_pipe;
-
-	if ( !full_name )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty full_name.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return;
-	}
-
-	if ( !street_address )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty street_address.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return;
-	}
-
-	if ( !transaction_date_time )
-	{
-		fprintf(stderr,
-			"Warning in %s/%s()/%d: empty transaction_date_time.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		return;
-	}
-
-	field= "full_name,street_address,transaction_date_time";
-
-	sprintf( sys_string,
-		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql							 ",
-		 TRANSACTION_TABLE,
-		 field );
-
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf(output_pipe,
-		"%s^%s^%s\n",
-		full_name,
-		street_address,
-		transaction_date_time );
-
-	pclose( output_pipe );
-}
-
-char *transaction_audit( TRANSACTION *transaction )
+char *transaction_raw_display( TRANSACTION *transaction )
 {
 	char buffer[ 65536 ];
 	char *buf_ptr = buffer;
+	char *tmp;
 
-	buf_ptr += sprintf(	buf_ptr,
-				"full_name = %s, "
-				"street_address = %s, "
-				"transaction_date_time = %s\n",
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time );
+	buf_ptr += sprintf(
+			buf_ptr,
+			"full_name = %s, "
+			"street_address = %s, "
+			"transaction_date_time = %s, "
+			"transaction_amount = %.2lf\n",
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			transaction->transaction_amount );
 
-	buf_ptr += sprintf(	buf_ptr,
-				"%s\n",
-				journal_list_audit(
-					transaction->journal_list ) );
+	buf_ptr += sprintf(
+			buf_ptr,
+			"%s\n",
+			( tmp =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				journal_list_raw_display(
+					transaction->journal_list ) ) );
+
+	free( tmp );
 
 	return strdup( buffer );
+}
+
+void transaction_update(
+			double transaction_amount,
+			char *feeder_account,
+			char *transaction_primary_where )
+{
+	char *update_statement;
+
+	if ( !transaction_primary_where )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_primary_where is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	update_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		transaction_update_statement(
+			TRANSACTION_TABLE,
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			transaction_set_clause(
+				TRANSACTION_AMOUNT_COLUMN,
+				TRANSACTION_FEEDER_COLUMN,
+				transaction_amount,
+				feeder_account ),
+			transaction_primary_where );
+
+	if ( update_statement )
+	{
+		if ( system( update_statement ) ){}
+	}
+}
+
+char *transaction_set_clause(
+			char *transaction_amount_column,
+			char *transaction_feeder_column,
+			double transaction_amount,
+			char *feeder_account )
+{
+	static char set_clause[ 128 ];
+	char *ptr = set_clause;
+
+	if ( transaction_amount )
+	{
+		ptr += sprintf( ptr, "set " );
+
+		ptr += sprintf(
+			ptr,
+			"%s = %.2lf",
+			transaction_amount_column,
+			transaction_amount );
+	}
+
+	if ( feeder_account )
+	{
+		if ( ptr == set_clause )
+		{
+			ptr += sprintf( ptr, "set " );
+		}
+		else
+		{
+			ptr += sprintf( ptr, ", " );
+		}
+
+		if ( !*feeder_account )
+		{
+			ptr += sprintf(
+				ptr,
+				"%s = null",
+				transaction_feeder_column );
+		}
+		else
+		{
+			ptr += sprintf(
+				ptr,
+				"%s = '%s'",
+				transaction_feeder_column,
+				feeder_account );
+		}
+	}
+
+	if ( ptr == set_clause )
+		return (char *)0;
+	else
+		return set_clause;
+}
+
+char *transaction_update_statement(
+			char *transaction_table,
+			char *transaction_set_clause,
+			char *transaction_primary_where )
+{
+	char update_statement[ 1024 ];
+
+	if ( !transaction_table
+	||   !transaction_primary_where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !transaction_set_clause ) return (char *)0;
+
+	sprintf(update_statement,
+		"update %s %s where %s",
+		transaction_table,
+		transaction_set_clause,
+		transaction_primary_where );
+
+	return strdup( update_statement );
+}
+
+boolean transaction_date_time_changed(
+			char *preupdate_transaction_date_time )
+{
+	if ( !preupdate_transaction_date_time
+	||   !*preupdate_transaction_date_time
+	||   strcmp(	preupdate_transaction_date_time,
+			"preupdate_transaction_date_time" ) == 0 )
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+void transaction_delete(char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	char *primary_where;
+	char *system_string;
+	LIST *account_name_list;
+
+	primary_where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_primary_where(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_delete_system_string(
+			TRANSACTION_TABLE,
+			primary_where );
+
+	if ( system( system_string ) ){}
+
+	account_name_list =
+		journal_fetch_account_name_list(
+			JOURNAL_TABLE,
+			primary_where );
+
+	system_string =
+		journal_delete_system_string(
+			JOURNAL_TABLE,
+			primary_where );
+
+	if ( system( system_string ) ){}
+
+	journal_account_name_list_propagate(
+		transaction_date_time,
+		account_name_list );
+}
+
+char *transaction_delete_system_string(
+			char *transaction_table,
+			char *transaction_primary_where )
+{
+	char system_string[ 512 ];
+
+	sprintf(system_string,
+		"echo \"delete from %s where %s;\" | sql",
+		transaction_table,
+		transaction_primary_where );
+
+	return strdup( system_string );
+}
+
+FILE *transaction_insert_pipe_open(
+			char *error_filename,
+			char *transaction_select,
+			char *transaction_table )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"insert_statement t=%s f=%s delimiter='^'	|"
+		"tee_appaserver_error.sh			|"
+		"sql 2>>%s					 ",
+		transaction_table,
+		transaction_select,
+		error_filename );
+
+	return popen( system_string, "w" );
+}
+
+#ifdef NOT_DEFINED
+FILE *transaction_property_insert_open(
+			boolean replace )
+{
+	char sys_string[ 1024 ];
+	char *field;
+
+	field =	"full_name,"
+		"street_address,"
+		"transaction_date_time,"
+		"transaction_amount,"
+		"memo,"
+		"check_number,"
+		"lock_transaction_yn,"
+		"property_street_address";
+
+	sprintf( sys_string,
+		 "insert_statement t=%s f=%s replace=%c delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
+		 "sql 2>&1						 ",
+		 TRANSACTION_TABLE,
+		 field,
+		 (replace) ? 'y' : 'n' );
+
+	return popen( sys_string, "w" );
 }
 
 TRANSACTION *transaction_seek(
@@ -1099,11 +1145,11 @@ TRANSACTION *transaction_binary(
 			street_address,
 			transaction_date_time );
 
-	transaction->memo = strdup( memo );
+	transaction->memo = memo;
 	transaction->transaction_amount = transaction_amount;
 
 	transaction->journal_list =
-		journal_binary_journal_list(
+		journal_binary_list(
 			transaction->full_name,
 			transaction->street_address,
 			transaction->transaction_date_time,
@@ -1930,22 +1976,6 @@ char *transaction_date_time_earlier(
 	}
 }
 
-boolean transaction_date_time_changed(
-			char *preupdate_transaction_date_time )
-{
-	if ( !preupdate_transaction_date_time
-	||   !*preupdate_transaction_date_time
-	||   strcmp(	preupdate_transaction_date_time,
-			"preupdate_transaction_date_time" ) == 0 )
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}
-
 LIST *transaction_list_account_name_list(
 			LIST *transaction_list )
 {
@@ -1970,3 +2000,44 @@ LIST *transaction_list_account_name_list(
 	return account_name_list;
 }
 
+void transaction_delete(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	char *system_string;
+
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		return;
+	}
+
+	system_string =
+		
+	field= "full_name,street_address,transaction_date_time";
+
+	sprintf( sys_string,
+		 "delete_statement table=%s field=%s delimiter='^'	|"
+		 "tee_appaserver_error.sh				|"
+		 "sql							 ",
+		 TRANSACTION_TABLE,
+		 field );
+
+	output_pipe = popen( sys_string, "w" );
+
+	fprintf(output_pipe,
+		"%s^%s^%s\n",
+		full_name,
+		street_address,
+		transaction_date_time );
+
+	pclose( output_pipe );
+}
+#endif

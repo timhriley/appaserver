@@ -23,6 +23,14 @@
 					"balance,"		\
 					"transaction_count"
 
+#define JOURNAL_INSERT			"full_name,"		\
+					"street_address,"	\
+					"transaction_date_time,"\
+					"account,"		\
+					"previous_balance,"	\
+					"debit_amount,"		\
+					"credit_amount"
+
 typedef struct
 {
 	char *full_name;
@@ -261,8 +269,54 @@ LIST *journal_list_prior(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+JOURNAL *journal_debit_new(
+			char *debit_account_name,
+			double debit_amount );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_credit_new(
+			char *credit_account_name,
+			double credit_amount );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+
+void journal_list_insert(
+			char *appaserver_error_filename,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+FILE *journal_insert_open(
+			char *appaserver_error_filename,
+			char *journal_insert,
+			char *journal_table );
+
+void journal_insert(
+			FILE *pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name,
+			double debit_amount,
+			double credit_amount );
+
 /* Private */
 /* ------- */
+JOURNAL *journal_calloc(
+			void );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -289,8 +343,32 @@ double journal_credit_debit_difference_sum(
 double journal_debit_credit_difference_sum(
 			LIST *journal_list );
 
-LIST *journal_account_entity_list(
+LIST *journal_account_distinct_entity_list(
 			char *journal_table,
 			LIST *account_name_list );
+
+LIST *journal_extract_account_name_list(
+			LIST *journal_list );
+
+LIST *journal_fetch_account_name_list(
+			char *journal_table,
+			char *where );
+
+char *journal_delete_system_string(
+			char *journal_table,
+			char *where );
+
+LIST *journal_binary_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *debit_account,
+			char *credit_account );
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_list_raw_display(
+			LIST *journal_list );
 
 #endif

@@ -39,6 +39,7 @@
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
 #define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
 #define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
+#define ACCOUNT_UNCLEARED_CHECKS	"uncleared_checks"
 
 typedef struct
 {
