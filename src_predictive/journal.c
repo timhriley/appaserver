@@ -1215,6 +1215,178 @@ char *journal_list_raw_display(
 	return strdup( buffer );
 }
 
+void journal_list_html_display(
+			LIST *journal_list,
+			char *transaction_memo )
+{
+	char *heading;
+	char *justify;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+
+	if ( !list_length( journal_list ) ) return;
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		heading = "Transaction,Account,Debit,Credit";
+		justify = "left,left,right,right";
+	}
+	else
+	{
+		heading = ",Account,Debit,Credit";
+		justify = "left,left,right,right";
+	}
+
+	sprintf(sys_string,
+		"html_table.e '' %s '^' %s",
+		heading,
+		justify );
+
+	fflush( stdout );
+	output_pipe = popen( sys_string, "w" );
+
+	journal_list_pipe_display(
+		output_pipe,
+		transaction_memo,
+		(char *)0 /* heading */,
+		journal_list );
+
+	pclose( output_pipe );
+	fflush( stdout );
+}
+
+void journal_list_pipe_display(
+			FILE *output_pipe,
+			char *transaction_memo,
+			char *heading,
+			LIST *journal_list )
+{
+	double total_debit;
+	double total_credit;
+	char buffer[ 128 ];
+	char memo_buffer[ 256 ];
+	JOURNAL *journal;
+	int i;
+	boolean displayed_memo = 0;
+
+	if ( !list_length( journal_list ) ) return;
+
+	if ( transaction_memo && *transaction_memo )
+	{
+		strncpy(
+			memo_buffer,
+			transaction_memo,
+			TRANSACTION_MEMO_LENGTH );
+		*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
+	}
+	else
+	{
+		*memo_buffer = '\0';
+	}
+
+	journal = list_first( journal_list );
+
+	if ( journal->full_name && *journal->full_name )
+	{
+		sprintf(memo_buffer +
+		    	strlen( memo_buffer ),
+			"<br>%s",
+			journal->full_name );
+	}
+
+	if ( journal->transaction_date_time && *journal->transaction_date_time )
+	{
+		sprintf(memo_buffer +
+		    	strlen( memo_buffer ),
+			"<br>%s",
+			journal->transaction_date_time );
+	}
+
+	if ( heading ) fprintf( output_pipe, "%s\n", heading );
+
+	total_debit = 0.0;
+	total_credit = 0.0;
+
+	/* First do all debits, then do all credits */
+	/* ---------------------------------------- */
+	for( i = 0; i < 2; i++ )
+	{
+		list_rewind( journal_list );
+	
+		do {
+			journal = list_get( journal_list );
+	
+			if ( i == 0
+			&&   !timlib_dollar_virtually_same(
+				journal->debit_amount,
+				0.0 ) )
+			{
+				if ( *memo_buffer )
+				{
+					if ( !displayed_memo )
+					{
+						fprintf(
+						   output_pipe,
+						   "%s^",
+						   memo_buffer );
+
+						displayed_memo = 1;
+					}
+					else
+					{
+						fprintf( output_pipe, "^" );
+					}
+				}
+
+				fprintf(output_pipe,
+			 		"%s^%.2lf^\n",
+					format_initial_capital(
+						buffer,
+						journal->account_name ),
+			 		journal->debit_amount );
+	
+				total_debit += journal->debit_amount;
+			}
+			else
+			if ( i == 1
+			&&   !timlib_dollar_virtually_same(
+				journal->credit_amount,
+				0.0 ) )
+			{
+				if ( *memo_buffer )
+				{
+					if ( !displayed_memo )
+					{
+						fprintf(
+						    output_pipe,
+						    "%s^",
+						    memo_buffer );
+
+						displayed_memo = 1;
+					}
+					else
+					{
+						fprintf( output_pipe, "^" );
+					}
+				}
+
+				fprintf(output_pipe,
+			 		"%s^^%.2lf\n",
+					format_initial_capital(
+						buffer,
+						journal->account_name ),
+			 		journal->credit_amount );
+	
+				total_credit += journal->credit_amount;
+			}
+	
+		} while( list_next( journal_list ) );
+	}
+
+	fprintf( output_pipe, "\n" );
+	fflush( stdout );
+}
+
 #ifdef NOT_DEFINED
 	account_name_list =
 		journal_account_name_list(
@@ -1462,138 +1634,6 @@ JOURNAL *journal_check_number_seek(
 	return (JOURNAL *)0;
 }
 
-void journal_list_pipe_display(
-			FILE *output_pipe,
-			char *transaction_memo,
-			char *heading,
-			LIST *journal_list )
-{
-	double total_debit;
-	double total_credit;
-	char buffer[ 128 ];
-	char memo_buffer[ 256 ];
-	JOURNAL *journal;
-	int i;
-	boolean displayed_memo = 0;
-
-	if ( !list_length( journal_list ) ) return;
-
-	if ( transaction_memo && *transaction_memo )
-	{
-		strncpy(
-			memo_buffer,
-			transaction_memo,
-			TRANSACTION_MEMO_LENGTH );
-		*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
-	}
-	else
-	{
-		*memo_buffer = '\0';
-	}
-
-	journal = list_first( journal_list );
-
-	if ( journal->full_name && *journal->full_name )
-	{
-		sprintf(memo_buffer +
-		    	strlen( memo_buffer ),
-			"<br>%s",
-			journal->full_name );
-	}
-
-	if ( journal->transaction_date_time && *journal->transaction_date_time )
-	{
-		sprintf(memo_buffer +
-		    	strlen( memo_buffer ),
-			"<br>%s",
-			journal->transaction_date_time );
-	}
-
-	if ( heading ) fprintf( output_pipe, "%s\n", heading );
-
-	total_debit = 0.0;
-	total_credit = 0.0;
-
-	/* First do all debits, then do all credits */
-	/* ---------------------------------------- */
-	for( i = 0; i < 2; i++ )
-	{
-		list_rewind( journal_list );
-	
-		do {
-			journal = list_get( journal_list );
-	
-			if ( i == 0
-			&&   !timlib_dollar_virtually_same(
-				journal->debit_amount,
-				0.0 ) )
-			{
-				if ( *memo_buffer )
-				{
-					if ( !displayed_memo )
-					{
-						fprintf(
-						   output_pipe,
-						   "%s^",
-						   memo_buffer );
-
-						displayed_memo = 1;
-					}
-					else
-					{
-						fprintf( output_pipe, "^" );
-					}
-				}
-
-				fprintf(output_pipe,
-			 		"%s^%.2lf^\n",
-					format_initial_capital(
-						buffer,
-						journal->account_name ),
-			 		journal->debit_amount );
-	
-				total_debit += journal->debit_amount;
-			}
-			else
-			if ( i == 1
-			&&   !timlib_dollar_virtually_same(
-				journal->credit_amount,
-				0.0 ) )
-			{
-				if ( *memo_buffer )
-				{
-					if ( !displayed_memo )
-					{
-						fprintf(
-						    output_pipe,
-						    "%s^",
-						    memo_buffer );
-
-						displayed_memo = 1;
-					}
-					else
-					{
-						fprintf( output_pipe, "^" );
-					}
-				}
-
-				fprintf(output_pipe,
-			 		"%s^^%.2lf\n",
-					format_initial_capital(
-						buffer,
-						journal->account_name ),
-			 		journal->credit_amount );
-	
-				total_credit += journal->credit_amount;
-			}
-	
-		} while( list_next( journal_list ) );
-	}
-
-	fprintf( output_pipe, "\n" );
-	fflush( stdout );
-}
-
 void journal_list_text_display(
 			char *transaction_memo,
 			LIST *journal_list )
@@ -1622,46 +1662,6 @@ void journal_list_text_display(
 			output_pipe,
 			transaction_memo,
 			heading,
-			journal_list );
-
-	pclose( output_pipe );
-	fflush( stdout );
-}
-
-void journal_list_html_display(
-			LIST *journal_list,
-			char *transaction_memo )
-{
-	char *heading;
-	char *justify;
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-
-	if ( !list_length( journal_list ) ) return;
-
-	if ( transaction_memo && *transaction_memo )
-	{
-		heading = "Transaction,Account,Debit,Credit";
-		justify = "left,left,right,right";
-	}
-	else
-	{
-		heading = ",Account,Debit,Credit";
-		justify = "left,left,right,right";
-	}
-
-	sprintf(sys_string,
-		"html_table.e '' %s '^' %s",
-		heading,
-		justify );
-
-	fflush( stdout );
-	output_pipe = popen( sys_string, "w" );
-
-	journal_list_pipe_display(
-			output_pipe,
-			transaction_memo,
-			(char *)0 /* heading */,
 			journal_list );
 
 	pclose( output_pipe );

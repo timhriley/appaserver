@@ -211,6 +211,7 @@ LIABILITY_TRANSACTION_LIST *
 	liability_transaction_list_new(
 			double dialog_box_payment_amount,
 			int starting_check_number,
+			char *transaction_memo,
 			LIST *liability_entity_list,
 			char *liability_payment_credit_account_name );
 
@@ -220,19 +221,32 @@ LIABILITY_TRANSACTION_LIST *
 	liability_transaction_list_calloc(
 			void );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *liability_transaction_list_html_display(
-			LIABILITY_TRANSACTION_LIST *
-				liability_transaction_list );
-
+/* May reset transaction_date_time */
+/* ------------------------------- */
 void liability_transaction_list_insert(
-			char *appaserver_error_filename,
+			LIABILITY_TRANSACTION_LIST *
+				liability_transaction_list,
+			char *appaserver_error_filename );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void liability_transaction_list_html_display(
 			LIABILITY_TRANSACTION_LIST *
 				liability_transaction_list );
+
+/* Process */
+/* ------- */
+
+/* Private */
+/* ------- */
+LIST *liability_transaction_list_extract(
+			LIST *list );
 
 #define LIABILITY_TRANSACTION_MEMO	"Liability Payment"
 
@@ -247,6 +261,7 @@ typedef struct
 LIABILITY_TRANSACTION *liability_transaction_new(
 			double dialog_box_payment_amount,
 			int check_number,
+			char *transaction_memo,
 			char *liability_payment_credit_account_name,
 			LIABILITY_ENTITY *liability_entity,
 			DATE *transaction_date_time );
@@ -268,6 +283,7 @@ typedef struct
 	char *vendor_name_amount_due_display;
 	char *amount_due_stub_display;
 	char *dollar_text_display;
+	char *memo_display;
 	char *number_display;
 	char *newpage;
 	char *output_string;
@@ -277,6 +293,7 @@ typedef struct
 /* ----- */
 LIABILITY_CHECK *liability_check_new(
 			int check_number,
+			char *transaction_memo,
 			LIABILITY_ENTITY *liability_entity );
 
 /* Process */
@@ -327,6 +344,11 @@ char *liability_check_dollar_text_display(
 
 /* Returns static memory */
 /* --------------------- */
+char *liability_check_memo_display(
+			char *transaction_memo );
+
+/* Returns static memory */
+/* --------------------- */
 char *liability_check_number_display(
 			int check_number );
 
@@ -343,6 +365,7 @@ char *liability_check_output_string(
 			char *liability_check_vendor_name_amount_due_display,
 			char *liability_check_amount_due_stub_display,
 			char *liability_check_dollar_text_display,
+			char *liability_check_memo_display,
 			char *liability_check_number_display,
 			char *liability_check_newpage );
 
@@ -388,6 +411,7 @@ typedef struct
 LIABILITY_CHECK_LIST *liability_check_list_new(
 			char *application_name,
 			int starting_check_number,
+			char *transaction_memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
@@ -433,6 +457,7 @@ char *liability_check_list_end_document(
 
 typedef struct
 {
+	char *transaction_memo;
 	LIST *liability_account_entity_list;
 	LIST *account_current_liability_name_list;
 	LIST *account_receivable_name_list;
@@ -448,6 +473,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 			char *application_name,
 			double dialog_box_payment_amount,
 			int starting_check_number,
+			char *memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
@@ -467,7 +493,7 @@ typedef struct
 {
 	LIST *liability_account_entity_list;
 	LIST *account_current_liability_name_list;
-	LIST *journal_account_entity_list;
+	LIST *journal_account_distinct_entity_list;
 	LIST *account_receivable_name_list;
 	LIST *liability_entity_list;
 } LIABILITY_CALCULATE;

@@ -289,7 +289,6 @@ JOURNAL *journal_credit_new(
 
 /* Usage */
 /* ----- */
-
 void journal_list_insert(
 			char *appaserver_error_filename,
 			char *full_name,
@@ -312,6 +311,20 @@ void journal_insert(
 			char *account_name,
 			double debit_amount,
 			double credit_amount );
+
+/* Usage */
+/* ----- */
+void journal_list_html_display(
+			LIST *journal_list,
+			char *transaction_memo );
+
+/* Process */
+/* ------- */
+void journal_list_pipe_display(
+			FILE *output_pipe,
+			char *transaction_memo,
+			char *heading,
+			LIST *journal_list );
 
 /* Private */
 /* ------- */

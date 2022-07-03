@@ -24,12 +24,10 @@
 						"transaction_amount,"	\
 						"check_number,"		\
 						"memo,"			\
-						"feeder_account,"	\
 						"lock_transaction_yn"
 
 #define TRANSACTION_DATE_TIME_COLUMN		"transaction_date_time"
 #define TRANSACTION_AMOUNT_COLUMN		"transaction_amount"
-#define TRANSACTION_FEEDER_COLUMN		"feeder_account"
 
 typedef struct
 {
@@ -41,9 +39,6 @@ typedef struct
 	int check_number;
 	LIST *journal_list;
 	boolean lock_transaction;
-	char *property_street_address;
-	char *program_name;
-	char *fund_name;
 } TRANSACTION;
 
 /* Usage */
@@ -78,8 +73,8 @@ TRANSACTION *transaction_entity_new(
 			ENTITY *entity,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
 			int check_number,
+			char *memo,
 			LIST *journal_list );
 
 /* Process */
@@ -105,14 +100,13 @@ TRANSACTION *transaction_binary(
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_insert(
-			char *application_name,
+			char *appaserver_error_filename,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
 			int check_number,
 			char *memo,
-			char *feeder_account,
 			char lock_transaction_yn,
 			LIST *journal_list );
 
@@ -137,11 +131,6 @@ char *transaction_memo( char *memo );
 
 /* Returns static memory */
 /* --------------------- */
-char *transaction_feeder_account(
-			char *feeder_account );
-
-/* Returns static memory */
-/* --------------------- */
 char *transaction_lock(	char transaction_lock_yn );
 
 void transaction_insert_pipe(
@@ -152,7 +141,6 @@ void transaction_insert_pipe(
 			double transaction_amount,
 			char *transaction_check_number,
 			char *transaction_memo,
-			char *transaction_feeder_account,
 			char *transaction_lock );
 
 /* Usage */
@@ -195,7 +183,6 @@ char *transaction_closing_entry_system_string(
 /* ----- */
 void transaction_update(
 			double transaction_amount,
-			char *feeder_account,
 			char *transaction_primary_where );
 
 /* Process */
@@ -205,9 +192,7 @@ void transaction_update(
 /* ----------------------------- */
 char *transaction_set_clause(
 			char *transaction_amount_column,
-			char *transaction_feeder_column,
-			double transaction_amount,
-			char *feeder_account );
+			double transaction_amount );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -281,6 +266,7 @@ boolean transaction_date_time_exists(
 
 typedef struct
 {
+	char *transaction_system_string;
 	FILE *input_pipe;
 	LIST *list;
 } TRANSACTION_LIST;
@@ -293,7 +279,50 @@ TRANSACTION_LIST *transaction_list_fetch(
 
 /* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
+TRANSACTION_LIST *transaction_list_new(
+			LIST *list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void transaction_list_insert(
+			TRANSACTION_LIST *transaction_list,
+			char *appaserver_error_filename );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void transaction_list_html_display(
+			TRANSACTION_LIST *transaction_list );
+
+/* Process */
+/* ------- */
+
+/* Private */
+/* ------- */
 TRANSACTION_LIST *transaction_list_calloc(
 			void );
+
+/* Public */
+/* ------ */
+TRANSACTION *transaction_list_check_seek(
+			int check_number,
+			TRANSACTION_LIST *transaction_list );
+
+TRANSACTION *transaction_list_entity_seek(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			TRANSACTION_LIST *transaction_list );
+
+LIST *transaction_list_account_name_list(
+			TRANSACTION_LIST *transaction_list );
 
 #endif

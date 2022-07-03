@@ -535,6 +535,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 			char *application_name,
 			double dialog_box_payment_amount,
 			int starting_check_number,
+			char *memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
@@ -542,12 +543,30 @@ LIABILITY_PAYMENT *liability_payment_new(
 {
 	LIABILITY_PAYMENT *liability_payment;
 
+	liability_payment = liability_payment_calloc();
+
 	if ( !list_length( entity_full_street_list ) )
 	{
+		free( liability_payment );
 		return (LIABILITY_PAYMENT *)0;
 	}
 
-	liability_payment = liability_payment_calloc();
+	liability_payment->transaction_memo =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_memo( memo );
+
+	/* For dialog_box_payment_amount or memo,	*/
+	/* only one entity at a time.			*/
+	/* -------------------------------------------- */
+	if ( list_length( entity_full_street_list ) > 1
+	&& (  dialog_box_payment_amount
+	||    *liability_payment->transaction_memo ) )
+	{
+		free( liability_payment );
+		return (LIABILITY_PAYMENT *)0;
+	}
 
 	liability_payment->liability_account_entity_list =
 		liability_account_entity_list();
@@ -610,6 +629,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 			liability_check_list_new(
 				application_name,
 				starting_check_number,
+				liability_payment->transaction_memo,
 				document_root_directory,
 				process_name,
 				session_key,
@@ -626,6 +646,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 		liability_transaction_list_new(
 			dialog_box_payment_amount,
 			starting_check_number,
+			liability_payment->transaction_memo,
 			liability_payment->liability_entity_list,
 			liability_payment->credit_account_name );
 
@@ -670,6 +691,7 @@ LIABILITY_CHECK *liability_check_calloc( void )
 LIABILITY_CHECK_LIST *liability_check_list_new(
 			char *application_name,
 			int starting_check_number,
+			char *transaction_memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
@@ -696,6 +718,8 @@ LIABILITY_CHECK_LIST *liability_check_list_new(
 	{
 		return (LIABILITY_CHECK_LIST *)0;
 	}
+
+	liability_check_list = liability_check_list_calloc();
 
 	liability_check_list->documentclass =
 		/* ---------------------- */
@@ -740,6 +764,7 @@ LIABILITY_CHECK_LIST *liability_check_list_new(
 			liability_check_new(
 				starting_check_number++
 					/* check_number */,
+				transaction_memo,
 				list_get( liability_entity_list ) ) );
 
 	} while ( list_next( liability_entity_list ) );
@@ -830,6 +855,7 @@ LIABILITY_CHECK_LIST *liability_check_list_new(
 
 LIABILITY_CHECK *liability_check_new(
 			int check_number,
+			char *transaction_memo,
 			LIABILITY_ENTITY *liability_entity )
 {
 	LIABILITY_CHECK *liability_check = liability_check_calloc();
@@ -919,6 +945,13 @@ LIABILITY_CHECK *liability_check_new(
 		liability_check_dollar_text_display(
 			liability_check->dollar_text );
 
+	liability_check->memo_display =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		liability_check_memo_display(
+			transaction_memo );
+
 	liability_check->number_display =
 		/* --------------------- */
 		/* Returns static memory */
@@ -942,6 +975,7 @@ LIABILITY_CHECK *liability_check_new(
 			liability_check->vendor_name_amount_due_display,
 			liability_check->amount_due_stub_display,
 			liability_check->dollar_text_display,
+			liability_check->memo_display,
 			liability_check->number_display,
 			liability_check->newpage );
 
@@ -1124,6 +1158,41 @@ char *liability_check_dollar_text_display( char *dollar_text )
 	return display;
 }
 
+char *liability_check_memo_display( char *transaction_memo )
+{
+	static char display[ 256 ];
+
+	if ( !transaction_memo )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: transaction_memo is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( *transaction_memo )
+	{
+		sprintf(display,
+"\\vspace{0.20in}\n\n"
+"\\begin{tabular}{p{0.2in}p{2.5in}l}\n"
+"& %s & %s\n"
+"\\end{tabular}\n\n",
+			transaction_memo,
+			transaction_memo );
+	}
+	else
+	{
+		sprintf(display,
+"\\vspace{0.20in}\n\n"
+"\\begin{tabular}l\n"
+"\\end{tabular}\n\n" );
+	}
+
+	return display;
+}
+
 char *liability_check_number_display( int check_number )
 {
 	static char display[ 128 ];
@@ -1154,6 +1223,7 @@ char *liability_check_output_string(
 			char *liability_check_vendor_name_amount_due_display,
 			char *liability_check_amount_due_stub_display,
 			char *liability_check_dollar_text_display,
+			char *liability_check_memo_display,
 			char *liability_check_number_display,
 			char *liability_check_newpage )
 {
@@ -1164,6 +1234,7 @@ char *liability_check_output_string(
 	||   !liability_check_vendor_name_amount_due_display
 	||   !liability_check_amount_due_stub_display
 	||   !liability_check_dollar_text_display
+	||   !liability_check_memo_display
 	||   !liability_check_number_display
 	||   !liability_check_newpage )
 	{
@@ -1176,12 +1247,13 @@ char *liability_check_output_string(
 	}
 
 	sprintf(output_string,
-		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n",
 		liability_check_move_down,
 		liability_check_date_display,
 		liability_check_vendor_name_amount_due_display,
 		liability_check_amount_due_stub_display,
 		liability_check_dollar_text_display,
+		liability_check_memo_display,
 		liability_check_number_display,
 		liability_check_newpage );
 
@@ -1527,15 +1599,18 @@ LIABILITY_CALCULATE *liability_calculate_new(
 			SUBCLASSIFICATION_CURRENT_LIABILITY,
 			ACCOUNT_UNCLEARED_CHECKS );
 
-	liability_calculate->journal_account_entity_list =
-		journal_account_entity_list(
+	liability_calculate->journal_account_distinct_entity_list =
+		journal_account_distinct_entity_list(
 			JOURNAL_TABLE,
 			liability_calculate->
 				account_current_liability_name_list );
 
-	if ( !list_rewind( liability_calculate->journal_account_entity_list ) )
+	if ( !list_rewind(
+		liability_calculate->
+			journal_account_distinct_entity_list ) )
 	{
-		list_free( liability_calculate->journal_account_entity_list );
+		list_free( liability_calculate->
+				journal_account_distinct_entity_list );
 		free( liability_calculate );
 		return (LIABILITY_CALCULATE *)0;
 	}
@@ -1551,7 +1626,7 @@ LIABILITY_CALCULATE *liability_calculate_new(
 		entity =
 			list_get(
 				liability_calculate->
-					journal_account_entity_list );
+					journal_account_distinct_entity_list );
 
 		list_set(
 			liability_calculate->liability_entity_list,
@@ -1564,12 +1639,16 @@ LIABILITY_CALCULATE *liability_calculate_new(
 					account_receivable_name_list,
 				entity ) );
 	} while ( list_next(
-			liability_calculate->journal_account_entity_list ) );
+			liability_calculate->
+				journal_account_distinct_entity_list ) );
 
 	if ( !list_length( liability_calculate->liability_entity_list ) )
 	{
-		list_free( liability_calculate->journal_account_entity_list );
+		list_free( liability_calculate->
+				journal_account_distinct_entity_list );
+
 		list_free( liability_calculate->liability_entity_list );
+
 		free( liability_calculate );
 		return (LIABILITY_CALCULATE *)0;
 	}
@@ -1722,13 +1801,14 @@ LIABILITY_JOURNAL_LIST *liability_journal_list_calloc( void )
 double liability_journal_list_transaction_amount(
 			double amount_due )
 {
-	return amount_due;
+	return 0.0 - amount_due;
 }
 
 LIABILITY_TRANSACTION_LIST *
 	liability_transaction_list_new(
 			double dialog_box_payment_amount,
 			int starting_check_number,
+			char *transaction_memo,
 			LIST *liability_entity_list,
 			char *credit_account_name )
 {
@@ -1763,6 +1843,7 @@ LIABILITY_TRANSACTION_LIST *
 				dialog_box_payment_amount,
 				starting_check_number
 					/* check_number */,
+				transaction_memo,
 				credit_account_name,
 				liability_entity,
 				liability_transaction_list->
@@ -1802,27 +1883,18 @@ LIABILITY_TRANSACTION_LIST *
 	return liability_transaction_list;
 }
 
-char *liability_transaction_list_html_display(
-			LIABILITY_TRANSACTION_LIST *
-				liability_transaction_list )
-{
-	char display[ 65536 ];
-	char *ptr = display;
-
-	*ptr = '\0';
-	return strdup( display );
-}
-
 LIABILITY_TRANSACTION *liability_transaction_new(
 			double dialog_box_payment_amount,
 			int check_number,
+			char *transaction_memo,
 			char *credit_account_name,
 			LIABILITY_ENTITY *liability_entity,
 			DATE *transaction_date_time )
 {
 	LIABILITY_TRANSACTION *liability_transaction;
 
-	if ( !credit_account_name
+	if ( !transaction_memo
+	||   !credit_account_name
 	||   !liability_entity
 	||   !liability_entity->liability_account_entity
 	||   !liability_entity->liability_account_entity->entity
@@ -1860,8 +1932,10 @@ LIABILITY_TRANSACTION *liability_transaction_new(
 			liability_transaction->
 				liability_journal_list->
 				transaction_amount,
-			LIABILITY_TRANSACTION_MEMO,
 			check_number,
+			(*transaction_memo)
+				? transaction_memo
+				: LIABILITY_TRANSACTION_MEMO,
 			liability_transaction->
 				liability_journal_list->
 				journal_list );
@@ -1888,236 +1962,71 @@ LIABILITY_TRANSACTION *liability_transaction_calloc( void )
 }
 
 void liability_transaction_list_insert(
-			char *appaserver_error_filename,
 			LIABILITY_TRANSACTION_LIST *
-				liability_transaction_list )
+				liability_transaction_list,
+			char *appaserver_error_filename )
 {
+	if ( !liability_transaction_list )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: liability_transaction_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( liability_transaction_list->list ) ) return;
+
+	/* May reset transaction_date_time */
+	/* ------------------------------- */
+	transaction_list_insert(
+		transaction_list_new(
+			liability_transaction_list_extract(
+				liability_transaction_list->list ) ),
+		appaserver_error_filename );
 }
 
-#ifdef NOT_DEFINED
-LIST *liability_entity_list(
-			LIST *liability_account_list,
-			LIST *input_entity_list,
-			double dialog_box_payment_amount )
-{
-	ACCOUNT *account;
-	LIST *journal_list;
-	JOURNAL *journal;
-	LIST *entity_list;
-	ENTITY *entity;
-
-	if ( !list_rewind( liability_account_list ) ) return (LIST *)0;
-
-	entity_list = list_new();
-
-	do {
-		account = list_get( liability_account_list );
-
-		journal_list =
-			account->
-				balance_zero_journal_list;
-
-		if ( !list_rewind( journal_list ) ) continue;
-
-		do {
-			journal = list_get( journal_list );
-
-			if ( !journal->full_name )
-			{
-				fprintf(stderr,
-				"ERROR in %s/%s()/%d: empty full_name.\n",
-					__FILE__,
-					__FUNCTION__,
-					__LINE__ );
-				exit( 1 );
-			}
-
-			if ( input_entity_list
-			&&   !entity_seek(
-				journal->full_name,
-				journal->street_address,
-				input_entity_list ) )
-			{
-				continue;
-			}
-
-			entity =
-				entity_getset(
-					entity_list,
-					journal->full_name,
-					journal->street_address,
-					0 /* not with_strdup */ );
-
-			entity->dialog_box_payment_amount =
-				dialog_box_payment_amount;
-
-		} while( list_next( journal_list ) );
-
-	} while( list_next( liability_account_list ) );
-
-	return entity_list;
-}
-
-LIST *liability_balance_zero_account_list(
-			char *liability_account_where )
-{
-	char system_string[ 1024 ];
-	LIST *local_account_list;
-	LIST *return_account_list = {0};
-	ACCOUNT *account;
-
-	local_account_list =
-		account_list(
-			liability_account_where,
-			0 /* not fetch_subclassification */,
-			0 /* not fetch_element );
-
-	if ( !list_rewind( local_account_list ) ) return (LIST *)0;
-
-	do {
-		account = list_get( local_account_list );
-
-		account->balance_zero_journal_list =
-			account_balance_zero_journal_list(
-				account->account_name );
-
-		if ( list_length( account->balance_zero_journal_list ) )
-		{
-
-			if ( !return_account_list )
-			{
-				return_account_list = list_new();
-			}
-
-			list_set( return_account_list, account );
-		}
-
-	} while ( list_next( local_account_list ) );
-
-	return return_account_list;
-}
-
-LIST *liability_transaction_list(
-			LIST *liability_entity_list,
-			char *liability_credit_account_name,
-			int starting_check_number )
+LIST *liability_transaction_list_extract( LIST *list )
 {
 	LIST *transaction_list;
-	ENTITY *entity;
-	DATE *transaction_date_time;
+	LIABILITY_TRANSACTION *liability_transaction;
 
-	if ( !list_rewind( liability_entity_list ) ) return (LIST *)0;
+	if ( !list_rewind( list ) ) return (LIST *)0;
 
 	transaction_list = list_new();
 
-	transaction_date_time =
-		date_now_new(
-			date_get_utc_offset() );
-
 	do {
-		entity = list_get( liability_entity_list );
+		liability_transaction = list_get( list );
 
 		list_set(
 			transaction_list,
-			liability_transaction(
-				entity->full_name,
-				entity->street_address,
-				date_display_19( transaction_date_time ),
-				entity->
-				     entity_liability_payment_amount,
-				entity->
-				     entity_liability_additional_payment_amount,
-				entity->entity_balance_zero_account_list,
-				liability_credit_account_name,
-				LIABILITY_MEMO,
-				starting_check_number ) );
+			liability_transaction->transaction );
 
-		date_increment_seconds(
-			transaction_date_time,
-			1 );
-
-		if ( starting_check_number )
-			starting_check_number++;
-
-	} while( list_next( liability_entity_list ) );
+	} while ( list_next( list ) );
 
 	return transaction_list;
 }
 
-TRANSACTION *liability_transaction(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double payment_amount,
-			double additional_payment_amount,
-			LIST *entity_balance_zero_account_list,
-			char *liability_credit_account_name,
-			char *memo,
-			int check_number )
+void liability_transaction_list_html_display(
+			LIABILITY_TRANSACTION_LIST *
+				liability_transaction_list )
 {
-	TRANSACTION *transaction;
-	JOURNAL *journal;
-	LIST *account_list;
-	ACCOUNT *account;
-	double proportional_additional_payment_amount;
+	if ( !liability_transaction_list )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: liability_transaction_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	if ( !payment_amount ) return (TRANSACTION *)0;
+	if ( !list_length( liability_transaction_list->list ) ) return;
 
-	account_list = entity_balance_zero_account_list;
-
-	if ( !list_rewind( account_list ) ) return (TRANSACTION *)0;
-
-	proportional_additional_payment_amount =
-		additional_payment_amount /
-		(double)list_length( account_list );
-
-	transaction =
-		transaction_new(
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	transaction->memo = memo;
-	transaction->transaction_amount = payment_amount;
-	transaction->check_number = check_number;
-
-	if ( !transaction->journal_list )
-		transaction->journal_list =
-			list_new();
-
-	/* Debit accounts */
-	/* -------------- */
-	do {
-		account = list_get( account_list );
-
-		journal =
-			journal_new(
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				account->account_name );
-
-		journal->debit_amount =
-			account->account_liability_due +
-			proportional_additional_payment_amount;
-
-		list_set( transaction->journal_list, journal );
-
-	} while ( list_next( account_list ) );
-
-	/* Credit account */
-	/* -------------- */
-	journal =
-		journal_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			liability_credit_account_name );
-
-	journal->credit_amount = payment_amount + additional_payment_amount;
-	list_set( transaction->journal_list, journal );
-
-	return transaction;
+	transaction_list_html_display(
+		transaction_list_new(
+			liability_transaction_list_extract(
+				liability_transaction_list->list ) ) );
 }
 
-#endif
