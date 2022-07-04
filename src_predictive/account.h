@@ -229,27 +229,18 @@ ACCOUNT *account_key_seek(
 
 /* Usage */
 /* ----- */
-LIST *account_following_balance_zero_journal_list(
-			char *account_name );
+LIST *account_subclassification_account_name_list(
+			char *account_table,
+			char *subclassification_primary_where );
 
 /* Process */
 /* ------- */
 
-/* Usage */
-/* ----- */
-double account_liability_due(
-			LIST *liability_journal_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-double account_receivable_due(
-			LIST *receivable_journal_list );
-
-/* Process */
-/* ------- */
+/* Returns heap memory */
+/* ------------------- */
+char *account_subclassification_account_system_string(
+			char *account_table,
+			char *subclassification_primary_where );
 
 /* Usage */
 /* ----- */

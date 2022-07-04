@@ -1,19 +1,148 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/feeder_upload.c			*/
+/* $APPASERVER_HOME/src_predictive/feeder.c				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
-#include "timlib.h"
-#include "sed.h"
+#include "String.h"
 #include "piece.h"
-#include "journal.h"
-#include "bank_upload.h"
-#include "feeder_upload.h"
+#include "sql.h"
+#include "feeder.h"
 
+LIST *feeder_phrase_list( void )
+{
+	LIST *list;
+	FILE *input_pipe;
+	char input[ 1024 ];
+
+	input_pipe =
+		popen(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_phrase_system_string(
+				FEEDER_PHRASE_SELECT,
+				FEEDER_PHRASE_TABLE ),
+			"r" );
+
+	list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(
+			list,
+			feeder_phrase_parse( input ) );
+	}
+
+	pclose( input_pipe );
+
+	return list;
+}
+
+char *feeder_phrase_system_string(
+			char *select,
+			char *table )
+{
+	char system_string[ 1024 ];
+
+	if ( !select || !table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s",
+		select,
+		table );
+
+	return strdup( system_string );
+}
+
+FEEDER_PHRASE *feeder_phrase_parse( char *input )
+{
+	char feeder_phrase[ 128 ];
+	char buffer[ 128 ];
+	FEEDER_PHRASE *phrase;
+
+	if ( !input || !*input ) return (FEEDER_PHRASE *)0;
+
+	/* See FEEDER_PHRASE_SELECT */
+	/* ------------------------ */
+	piece( feeder_phrase, SQL_DELIMITER, input, 0 );
+
+	phrase = feeder_phrase_new( strdup( feeder_phrase ) );
+
+	if ( piece( buffer, SQL_DELIMITER, input, 1 ) )
+	{
+		phrase->nominal_account = strdup( buffer );
+	}
+
+	if ( piece( buffer, SQL_DELIMITER, input, 2 ) )
+	{
+		phrase->full_name = strdup( buffer );
+	}
+
+	if ( piece( buffer, SQL_DELIMITER, input, 3 ) )
+	{
+		phrase->street_address = strdup( buffer );
+	}
+
+	if ( piece( buffer, SQL_DELIMITER, input, 4 ) )
+	{
+		phrase->feeder_phrase_ignore = ( *buffer == 'y' );
+	}
+
+	return phrase;
+}
+
+FEEDER_PHRASE *feeder_phrase_new( char *feeder_phrase )
+{
+	FEEDER_PHRASE *phrase;
+
+	if ( !feeder_phrase || !*feeder_phrase )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_phrase is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	phrase = feeder_phrase_calloc();
+	phrase->feeder_phrase = feeder_phrase;
+
+	return phrase;
+}
+
+FEEDER_PHRASE *feeder_phrase_calloc( void )
+{
+	FEEDER_PHRASE *feeder_phrase;
+
+	if ( ! ( feeder_phrase = calloc( 1, sizeof( FEEDER_PHRASE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_phrase;
+}
+
+#ifdef NOT_DEFINED
 LIST *feeder_upload_get_possible_description_list(
 				char *bank_description_file,
 				char *fund_name,
@@ -479,4 +608,4 @@ char *feeder_description_crop( char *bank_description )
 	}
 	return bank_description;
 }
-
+#endif

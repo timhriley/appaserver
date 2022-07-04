@@ -1,97 +1,58 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/feeder_upload.h			*/
+/* $APPASERVER_HOME/src_predictive/feeder.h				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FEEDER_UPLOAD_H
-#define FEEDER_UPLOAD_H
+#ifndef FEEDER_H
+#define FEEDER_H
 
-#include "transaction.h"
-#include "journal.h"
+#define FEEDER_PHRASE_TABLE		"feeder_phrase"
 
-/* Enumerated types */
-/* ---------------- */
+#define FEEDER_PHRASE_SELECT		"feeder_phrase,"		\
+					"nominal_account,"		\
+					"full_name,"			\
+					"street_address,"		\
+					"feeder_phrase_ignore_yn"
 
-/* Constants */
-/* --------- */
 #define FEEDER_KEYS_MATCH_SUM_MAX 	18
 #define FEEDER_DESCRIPTION_SIZE		140
 
-/* Structures */
-/* ---------- */
+typedef struct
+{
+	char *feeder_phrase;
+	char *nominal_account;
+	char *full_name;
+	char *street_address;
+	boolean feeder_phrase_ignore;
+} FEEDER_PHRASE;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+LIST *feeder_phrase_list(
+			void );
 
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_bank_description_original(
-			char *bank_description_file,
-			double bank_amount );
+/* Process */
+/* ------- */
 
-LIST *feeder_upload_get_possible_description_list(
-			char *bank_description_file,
-			char *fund_name,
-			double bank_amount,
-			double bank_running_balance,
-			int check_number );
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_phrase_system_string(
+			char *feeder_phrase_select,
+			char *feeder_phrase_table );
 
-char *feeder_upload_description_embedded(
-			char *bank_description_file,
-			char *fund_name,
-			double bank_amount,
-			double bank_running_balance );
+/* Usage */
+/* ----- */
+FEEDER_PHRASE *feeder_phrase_parse(
+			char *input );
 
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_bank_amount_portion(
-			double bank_amount );
+/* Process */
+/* ------- */
+FEEDER_PHRASE *feeder_phrase_new(
+			char *feeder_phrase );
 
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_fund_portion(
-			char *fund_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_description_bank_amount(
-			char *bank_description_file,
-			double bank_amount );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_check_portion(
-			int check_number );
-
-char *feeder_upload_get_like_where(
-			char *where,
-			char *bank_date,
-			char *bank_description );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_trim_bank_date_from_description(
-			char *bank_description_file );
-
-JOURNAL *feeder_check_number_existing_journal(
-			LIST *existing_cash_journal_list,
-			int check_number );
-
-TRANSACTION *feeder_phrase_match_build_transaction(
-			LIST *reoccurring_transaction_list,
-			char *bank_date,
-			char *bank_description_embedded,
-			double abs_bank_amount );
-
-LIST *feeder_match_sum_existing_journal_list(
-			LIST *existing_cash_journal_list,
-			double abs_bank_amount,
-			boolean check_debit );
-
-char *feeder_description_crop(
-			char *bank_description );
+FEEDER_PHRASE *feeder_phrase_calloc(
+			void );
 
 #endif
-

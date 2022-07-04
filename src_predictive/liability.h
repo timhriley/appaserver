@@ -175,6 +175,14 @@ double liability_entity_amount_due(
 			LIABILITY *liability,
 			RECEIVABLE *receivable );
 
+/* Driver */
+/* ------ */
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_entity_display(
+			LIABILITY_ENTITY *liability_entity );
+
 typedef struct
 {
 	LIST *journal_list;
@@ -506,5 +514,10 @@ LIABILITY_CALCULATE *liability_calculate_new(
 
 LIABILITY_CALCULATE *liability_calculate_calloc(
 			void );
+
+/* Driver */
+/* ------ */
+void liability_calculate_stdout(
+			LIST *liability_entity_list );
 
 #endif

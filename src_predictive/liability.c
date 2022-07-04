@@ -2035,3 +2035,51 @@ void liability_transaction_list_html_display(
 				liability_transaction_list->list ) ) );
 }
 
+void liability_calculate_stdout( LIST *liability_entity_list )
+{
+	LIABILITY_ENTITY *liability_entity;
+
+	if ( !list_rewind( liability_entity_list ) ) return;
+
+	do {
+		liability_entity =
+			list_get(
+				liability_entity_list );
+
+		printf(	"%s\n",
+			liability_entity_display(
+				liability_entity ) );
+
+	} while ( list_next( liability_entity_list ) );
+}
+
+char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
+{
+	static char display[ 128 ];
+
+	if ( !liability_entity
+	||   !liability_entity->liability_account_entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(display,
+		"%s^%s [%.2lf]\n",
+		liability_entity->
+			liability_account_entity->
+			entity->
+			full_name,
+		liability_entity->
+			liability_account_entity->
+			entity->
+			street_address,
+		liability_entity->amount_due );
+
+	return display;
+}
+

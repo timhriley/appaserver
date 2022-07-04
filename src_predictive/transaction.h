@@ -11,6 +11,7 @@
 #include "list.h"
 #include "date.h"
 #include "boolean.h"
+#include "entity.h"
 
 #define TRANSACTION_TABLE			"transaction"
 #define TRANSACTION_MEMO_LENGTH			60
