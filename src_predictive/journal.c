@@ -1387,612 +1387,12 @@ void journal_list_pipe_display(
 	fflush( stdout );
 }
 
-#ifdef NOT_DEFINED
-	account_name_list =
-		journal_account_name_list(
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	field= "full_name,street_address,transaction_date_time";
-
-	sprintf( sys_string,
-		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql							 ",
-		 JOURNAL_TABLE,
-		 field );
-
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf(	output_pipe,
-			"%s^%s^%s\n",
-			full_name,
-			street_address,
-			transaction_date_time );
-
-	pclose( output_pipe );
-	return account_name_list;
-}
-
-void journal_list_transaction_date_time_propagate(
-			char *transaction_date_time,
-			LIST *journal_list )
-{
-	JOURNAL *journal;
-
-	if ( !list_rewind( journal_list ) ) return;
-
-	do {
-		journal = list_get( journal_list );
-
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
-		journal_propagate(
-			transaction_date_time,
-			journal->account_name );
-
-	} while( list_next( journal_list ) );
-}
-
-JOURNAL *journal_account_name_seek(
+double journal_account_list_debit_sum(
 			LIST *journal_list,
-			char *account_name )
+			LIST *account_name_list )
 {
-	JOURNAL *journal;
-
-	if ( !list_rewind( journal_list ) ) return (JOURNAL *)0;
-
-	do {
-		journal = list_get( journal_list );
-
-		if ( strcmp(	journal->account_name,
-				account_name ) == 0 )
-		{
-			return journal;
-		}
-	} while( list_next( journal_list ) );
-
-	return (JOURNAL *)0;
-}
-
-JOURNAL *journal_transaction_date_time_seek(
-			LIST *journal_list,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time )
-{
-	JOURNAL *journal;
-
-	if ( !list_rewind( journal_list ) ) return (JOURNAL *)0;
-
-	do {
-		journal = list_get( journal_list );
-
-		if ( string_strcmp(
-			journal->full_name,
-			full_name ) == 0
-		&&   string_strcmp(
-			journal->street_address,
-			street_address ) == 0
-		&&   string_strcmp(
-			journal->transaction_date_time,
-			transaction_date_time ) == 0 )
-		{
-			return journal;
-		}
-	} while( list_next( journal_list ) );
-
-	return (JOURNAL *)0;
-}
-
-JOURNAL *journal_account_name_getset(
-			LIST *journal_list,
-			char *account_name )
-{
-	JOURNAL *journal;
-
-	if ( ( journal =
-			journal_account_name_seek(
-				journal_list,
-				account_name ) ) )
-	{
-		return journal;
-	}
-
-	journal =
-		journal_new(
-			(char *)0 /* full_name */,
-			(char *)0 /* street_address */,
-			(char *)0 /* transaction_date_time */,
-			account_name );
-
-	list_set( journal_list, journal );
-	return journal;
-}
-
-char *journal_year_where(
-			int tax_year,
-			char *account_name,
-			char *predictive_preclose_time )
-{
-	static char where[ 256 ];
-	char begin_date[ 32 ];
-	char end_date[ 32 ];
-
-	sprintf(begin_date,
-		"%d-01-01 00:00:00",
-		year );
-
-	sprintf(end_date,
-		"%d-12-31 %s",
-		year,
-		predictive_preclose_time );
-
-	sprintf(where,
-		"account = '%s' and		 	"
-		"transaction_date_time >= '%s' and	"
-		"transaction_date_time <= '%s'	",
-		account_name,
-		begin_date,
-		end_date );
-
-	return where;
-}
-
-LIST *journal_year_list(
-			int year,
-			char *account_name )
-{
-	char *where;
-
-	if ( !year
-	||   !account_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		journal_year_where(
-			tax_year,
-			account_name,
-			PREDICTIVE_PRECLOSE_TIME );
-
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			where ),
-		0 /* not fetch_check_number */,
-		1 /* fetch_memo */ );
-}
-
-double journal_amount(
-			double debit_amount,
-			double credit_amount,
-			boolean accumulate_debit )
-{
-	double return_amount = 0.0;
-
-	if ( accumulate_debit )
-	{
-		if ( debit_amount )
-		{
-			return_amount = debit_amount;
-		}
-		else
-		if ( credit_amount )
-		{
-			return_amount = 0.0 - credit_amount;
-		}
-	}
-	else
-	{
-		if ( credit_amount )
-		{
-			return_amount = credit_amount;
-		}
-		else
-		if ( debit_amount )
-		{
-			return_amount = 0.0 - debit_amount;
-		}
-	}
-	return return_amount;
-}
-
-JOURNAL *journal_check_number_seek(
-			LIST *journal_list,
-			int check_number )
-{
-	JOURNAL *journal;
-
-	if ( !list_rewind( journal_list ) ) return (JOURNAL *)0;
-
-	do {
-		journal = list_get( journal_list );
-
-		if ( journal->check_number == check_number )
-		{
-			return journal;
-		}
-
-	} while( list_next( journal_list ) );
-
-	return (JOURNAL *)0;
-}
-
-void journal_list_text_display(
-			char *transaction_memo,
-			LIST *journal_list )
-{
-	char *heading;
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-
-	if ( !list_length( journal_list ) ) return;
-
-	if ( transaction_memo && *transaction_memo )
-	{
-		heading = "Transaction^Account^Debit^Credit";
-	}
-	else
-	{
-		heading = "Account^Debit^Credit";
-	}
-
-	strcpy( sys_string, "delimiter2padded_columns.e '^' 2" );
-
-	fflush( stdout );
-	output_pipe = popen( sys_string, "w" );
-
-	journal_list_pipe_display(
-			output_pipe,
-			transaction_memo,
-			heading,
-			journal_list );
-
-	pclose( output_pipe );
-	fflush( stdout );
-}
-
-char *journal_minimum_where(
-			char *minimum_transaction_date_time,
-			char *account_name )
-{
-	static char where[ 128 ];
-
-	if ( !account_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: account_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !minimum_transaction_date_time )
-	{
-		sprintf(where,
-			"account = '%s'",
-	 		account_name );
-	}
-	else
-	{
-		sprintf(where,
-	 		"transaction_date_time >= '%s' and		"
-			"account = '%s'					",
-	 		minimum_transaction_date_time,
-	 		account_name );
-	}
-
-	return where;
-}
-
-LIST *journal_minimum_list(
-			char *minimum_transaction_date_time,
-			char *account_name )
-{
-	if ( !account_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: account_name empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_minimum_where(
-				minimum_transaction_date_time,
-				account_name ),
-		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
-}
-
-void journal_list_stdout( LIST *journal_list )
-{
-	char buffer[ 128 ];
-	JOURNAL *journal;
-
-	if ( !list_rewind( journal_list ) ) return;
-
-	do {
-		journal = list_get( journal_list );
-	
-		if ( !dollar_virtually_same(
-			journal->debit_amount,
-			0.0 ) )
-		{
-			printf( "%s^%.2lf^^%.2lf\n",
-				format_initial_capital(
-					buffer,
-					journal->account_name ),
-			 	journal->debit_amount,
-				journal->balance );
-		}
-		else
-		if ( !dollar_virtually_same(
-			journal->credit_amount,
-			0.0 ) )
-		{
-			printf( "%s^^%.2lf^%.2lf\n",
-				format_initial_capital(
-					buffer,
-					journal->account_name ),
-			 	journal->credit_amount,
-				journal->balance );
-		}
-	
-	} while( list_next( journal_list ) );
-}
-
-char *journal_list_display(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			LIST *journal_list )
-{
-	JOURNAL *journal;
-	char full_name_buffer[ 128 ];
-	char buffer[ 65536 ];
-	char *ptr = buffer;
-
-	if ( timlib_strcmp( street_address, "null" ) != 0
-	&&   timlib_strcmp( street_address, "unknown" ) != 0 )
-	{
-		printf(	full_name_buffer,
-			"%s/%s",
-			full_name,
-			street_address );
-	}
-	else
-	{
-		strcpy( full_name_buffer, full_name );
-	}
-
-	ptr += sprintf(
-		ptr,
-		"Name = %s; ",
-		full_name_buffer );
-
-	ptr += sprintf(
-		ptr,
-		"Transaction date time = %s; ",
-		(transaction_date_time) ? transaction_date_time : "NULL" );
-
-	ptr += sprintf(
-		ptr,
-	 	"Transaction amount = %.2lf; ",
-	 	transaction_amount );
-
-	if ( memo && *memo && strcmp( memo, "memo" ) != 0 )
-	{
-		ptr += sprintf(
-			ptr,
-		 	"Memo = %s; ",
-		 	memo );
-	}
-
-	if ( !list_rewind( journal_list ) )
-	{
-		ptr += sprintf(
-			ptr,
-			"Warning: empty journal list" );
-
-		return strdup( buffer );
-	}
-
-	do {
-
-		journal = list_get( journal_list );
-
-		ptr += sprintf( 
-			ptr,
-			"%s",
-			journal_display(
-				journal->account_name,
-				journal->previous_balance,
-				journal->debit_amount,
-				journal->credit_amount,
-				journal->balance ) );
-
-	} while ( list_next( journal_list ) );
-
-	return strdup( buffer );
-}
-
-char *journal_display(
-			char *account_name,
-			double previous_balance,
-			double debit_amount,
-			double credit_amount,
-			double balance )
-{
-	char buffer[ 1024 ];
-	char *ptr = buffer;
-
-	ptr += sprintf(
-		ptr,
-		"account = %s; previous_balance = %.2lf; ",
-		account_name_display( account_name ),
-		previous_balance );
-
-	if ( debit_amount )
-	{
-		ptr += sprintf(
-			ptr,
-			"debit  = %12.2lf; ",
-			debit_amount );
-
-		ptr += sprintf(
-			ptr,
-			"%12s",
-			"" );
-	}
-	else
-	{
-		ptr += sprintf(
-			ptr,
-			"%12s",
-			"" );
-
-		ptr += sprintf(
-			ptr,
-			"credit = %12.2lf; ",
-			credit_amount );
-	}
-
-	ptr += sprintf(
-		ptr,
-		"balance = %12.2lf\n",
-		balance );
-
-	return strdup( buffer );
-}
-
-LIST *journal_list_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			LIST *journal_list )
-{
-	LIST *account_name_list;
-	JOURNAL *journal;
-	double amount;
-	boolean is_debit;
-
-	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time
-	||   !list_rewind( journal_list ) )
-	{
-		return (LIST *)0;
-	}
-
-	account_name_list = list_new();
-
-	do {
-		journal = list_get( journal_list );
-
-		if ( !dollar_virtually_same(
-			journal->debit_amount,
-			0.0 ) )
-		{
-			amount = journal->debit_amount;
-			is_debit = 1;
-		}
-		else
-		{
-			amount = journal->credit_amount;
-			is_debit = 0;
-		}
-
-		journal_insert_pipe(
-				insert_pipe,
-				full_name,
-				street_address,
-				transaction_date_time,
-				journal->account_name,
-				amount,
-				is_debit );
-
-		list_set(
-			account_name_list,
-			journal->account_name );
-
-	} while( list_next( journal_list ) );
-
-	return account_name_list;
-}
-
-JOURNAL *journal_merchant_fees_expense(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double merchant_fees_expense,
-			char *account_fees_expense )
-{
-	JOURNAL *journal;
-
-	if ( double_virtually_same(
-		merchant_fees_expense,
-		0.0 ) )
-	{
-		return (JOURNAL *)0;
-	}
-
-	journal =
-		journal_new(
-			full_name,
-			street_address,
-			transaction_date_time,
-			account_fees_expense );
-
-	if ( merchant_fees_expense < 0 )
-	{
-		journal->debit_amount = 0.0 - merchant_fees_expense;
-	}
-	else
-	{
-		journal->credit_amount = merchant_fees_expense;
-	}
-
-	return journal;
-}
-
-double journal_list_debit_sum(
-			LIST *journal_list )
-{
-	JOURNAL *journal;
 	double sum;
+	JOURNAL *journal;
 
 	if ( !list_rewind( journal_list ) ) return 0.0;
 
@@ -2000,18 +1400,28 @@ double journal_list_debit_sum(
 
 	do {
 		journal = list_get( journal_list );
-		sum += journal->debit_amount;
+
+		if ( list_string_exists(
+			journal->account_name,
+			account_name_list ) )
+		{
+			if ( journal->debit_amount )
+				sum += journal->debit_amount;
+			else
+				sum -= journal->credit_amount;
+		}
 
 	} while ( list_next( journal_list ) );
 
 	return sum;
 }
 
-double journal_list_credit_sum(
-			LIST *journal_list )
+double journal_account_list_credit_sum(
+			LIST *journal_list,
+			LIST *account_name_list )
 {
-	JOURNAL *journal;
 	double sum;
+	JOURNAL *journal;
 
 	if ( !list_rewind( journal_list ) ) return 0.0;
 
@@ -2019,122 +1429,87 @@ double journal_list_credit_sum(
 
 	do {
 		journal = list_get( journal_list );
-		sum += journal->credit_amount;
+
+		if ( list_string_exists(
+			journal->account_name,
+			account_name_list ) )
+		{
+			if ( journal->credit_amount )
+				sum += journal->credit_amount;
+			else
+				sum -= journal->debit_amount;
+		}
 
 	} while ( list_next( journal_list ) );
 
 	return sum;
 }
 
-double journal_transaction_amount(
-			LIST *journal_list )
+double journal_debit_sum( LIST *journal_list )
 {
-	double debit_sum;
-	double credit_sum;
-
-	debit_sum = journal_list_debit_sum( journal_list );
-	credit_sum = journal_list_credit_sum( journal_list );
-
-	if ( debit_sum > credit_sum )
-		return debit_sum;
-	else
-		return credit_sum;
-}
-
-LIST *journal_list_account_name_list(
-			LIST *account_name_list,
-			LIST *journal_list )
-{
+	double sum;
 	JOURNAL *journal;
 
-	if ( !list_rewind( journal_list ) ) return account_name_list;
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
 
 	do {
 		journal = list_get( journal_list );
 
-		if ( !account_name_list ) account_name_list = list_new();
+		if ( journal->debit_amount ) sum += journal->debit_amount;
 
-		list_set_unique(
-			account_name_list,
-			journal->account_name );
+	} while ( list_next( journal_list ) );
 
-	} while( list_next( journal_list ) );
-
-	return account_name_list;
+	return sum;
 }
 
-LIST *journal_date_time_account_name_list(
-			char *transaction_date_time )
+double journal_list_transaction_amount( LIST *journal_list )
 {
-	char sys_string[ 1024 ];
-	char where[ 128 ];
+	static LIST *cash_name_list = {0};
+	static LIST *current_liability_name_list = {0};
+	double cash_sum;
+	double current_liability_sum;
 
-	sprintf(	where,
-			"transaction_date_time >= '%s'",
-			transaction_date_time );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 "distinct account",
-		 JOURNAL_TABLE,
-		 where,
-		 "account" );
-
-	return pipe2list( sys_string );
-}
-
-char *journal_entity_where(
-			char *full_name,
-			char *street_address,
-			char *account_name )
-{
-	static char where[ 256 ];
-
-	if ( !full_name
-	||   !street_address
-	||   !account_name )
+	if ( !cash_name_list )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		cash_name_list =
+			account_cash_name_list(
+				ACCOUNT_TABLE,
+				SUBCLASSIFICATION_CASH );
 	}
 
-	sprintf(where,
-	 	"full_name = '%s' and			"
-		"street_address = '%s' and		"
-		"account = '%s'				",
-		full_name,
-		street_address,
-	 	account_name );
+	if ( !current_liability_name_list )
+	{
+		current_liability_name_list =
+			account_current_liability_name_list(
+				ACCOUNT_TABLE,
+				SUBCLASSIFICATION_CURRENT_LIABILITY,
+				ACCOUNT_UNCLEARED_CHECKS );
+	}
 
-	return where;
+	cash_sum =
+		journal_account_list_debit_sum(
+			journal_list,
+			cash_name_list );
+
+	current_liability_sum =
+		journal_account_list_credit_sum(
+			journal_list,
+			current_liability_name_list );
+
+	if ( cash_sum )
+	{
+		return cash_sum;
+	}
+	else
+	if ( current_liability_sum )
+	{
+		return current_liability_sum;
+	}
+	else
+	{
+		return journal_debit_sum( journal_list );
+	}
 }
 
-LIST *journal_entity_list(
-			char *full_name,
-			char *street_address,
-			char *account_name )
-{
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_entity_where(
-				full_name,
-				street_address,
-				account_name ) ),
-		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
-}
-
-#endif

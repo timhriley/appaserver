@@ -253,6 +253,7 @@ LIST *liability_transaction_list_extract(
 typedef struct
 {
 	LIABILITY_JOURNAL_LIST *liability_journal_list;
+	double journal_list_transaction_amount;
 	TRANSACTION *transaction;
 } LIABILITY_TRANSACTION;
 

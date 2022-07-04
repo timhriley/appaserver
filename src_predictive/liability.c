@@ -1925,13 +1925,18 @@ LIABILITY_TRANSACTION *liability_transaction_new(
 		return (LIABILITY_TRANSACTION *)0;
 	}
 
+	liability_transaction->journal_list_transaction_amount =
+		journal_list_transaction_amount(
+			liability_transaction->
+				liability_journal_list->
+				journal_list );
+
 	liability_transaction->transaction =
 		transaction_entity_new(
 			liability_entity->liability_account_entity->entity,
 			date_display_19( transaction_date_time ),
 			liability_transaction->
-				liability_journal_list->
-				transaction_amount,
+				journal_list_transaction_amount,
 			check_number,
 			(*transaction_memo)
 				? transaction_memo

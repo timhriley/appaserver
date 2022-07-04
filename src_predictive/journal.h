@@ -326,10 +326,47 @@ void journal_list_pipe_display(
 			char *heading,
 			LIST *journal_list );
 
+/* Usage */
+/* ----- */
+double journal_list_transaction_amount(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_account_list_debit_sum(
+			LIST *journal_list,
+			LIST *account_name_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_account_list_credit_sum(
+			LIST *journal_list,
+			LIST *account_name_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_debit_sum(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
 /* Private */
 /* ------- */
 JOURNAL *journal_calloc(
 			void );
+
+/* Public */
+/* ------ */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -345,8 +382,6 @@ char *journal_transaction_system_string(
 			char *journal_transaction_table,
 			char *transaction_primary_where );
 
-/* Public */
-/* ------ */
 JOURNAL *journal_list_latest(
 			LIST *journal_list );
 
