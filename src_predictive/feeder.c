@@ -11,7 +11,9 @@
 #include <unistd.h>
 #include "String.h"
 #include "piece.h"
+#include "date_convert.h"
 #include "sql.h"
+#include "sed.h"
 #include "feeder.h"
 
 LIST *feeder_phrase_list( void )
@@ -140,6 +142,263 @@ FEEDER_PHRASE *feeder_phrase_calloc( void )
 	}
 
 	return feeder_phrase;
+}
+
+char *feeder_load_row_trim_bank_date( char *description )
+{
+	static char sans_bank_date_description[ 512 ];
+	char *replace;
+	char *regular_expression;
+	SED *sed;
+
+	regular_expression = "[ ][0-9][0-9]/[0-9][0-9]$";
+	replace = "";
+
+	sed = sed_new( regular_expression, replace );
+
+	timlib_strcpy(	sans_bank_date_description,
+			description,
+			512 );
+
+	/* Why do I need to append the EOL character for sed() to work? */
+	/* ------------------------------------------------------------ */
+	sprintf( sans_bank_date_description +
+		 strlen( sans_bank_date_description ),
+		 "$" );
+
+	if ( sed_will_replace( sans_bank_date_description, sed ) )
+	{
+		sed_search_replace( sans_bank_date_description, sed );
+	}
+	else
+	{
+		trim_right( sans_bank_date_description, 1 );
+	}
+
+	sed_free( sed );
+
+	return timlib_rtrim( sans_bank_date_description );
+}
+
+FEEDER_LOAD_ROW *feeder_load_row_new(
+			int date_column /* one_based */,
+			int description_column /* one_based */,
+			int debit_column /* one_based */,
+			int credit_column /* one_based */,
+			int balance_column /* one_based */,
+			char *input,
+			int line_number )
+{
+	FEEDER_LOAD_ROW *feeder_load_row;
+	char buffer[ 512 ];
+
+	if ( !date_column
+	||   !description_colun
+	||   !input
+	||   !*input
+	||   !line_number )
+	{
+		return (FEEDER_LOAD_ROW *)0;
+	}
+
+	feeder_load_row = feeder_load_row_calloc();
+
+	feeder_load_row->american_date =
+		strdup(
+			piece_quote_comma(
+				buffer,
+				input,
+				date_column - 1 ) );
+
+	feeder_load_row->international_date =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		feeder_load_row_international_date(
+			feeder_load_row->american_date );
+
+	if ( !feeder_load_row->international_date )
+	{
+		free( feeder_load_row->american_date );
+		free( feeder_load_row );
+		return (FEEDER_LOAD_ROW *)0;
+	}
+
+	feeder_load_row->description =
+		strdup(
+			piece_quote_comma(
+				buffer,
+				input,
+				description_column - 1 ) );
+
+	if ( !credit_column )
+	{
+		feeder_load_row->amount =
+			atof(
+				piece_quote_comma(
+					buffer,
+					input,
+					debit_column - 1 ) );
+	}
+	else
+	{
+		feeder_load_row->debit =
+			atof(
+				piece_quote_comma(
+					buffer,
+					input,
+					debit_column - 1 ) );
+
+		feeder_load_row->credit =
+			atof(
+				piece_quote_comma(
+					buffer,
+					input,
+					credit_column - 1 ) );
+
+		feeder_load_row->amount =
+			feeder_load_row_amount(
+				feeder_load_row->debit,
+				feeder_load_row->credit );
+	}
+
+	if ( balance_column )
+	{
+		feeder_load_row->balance =
+			atof(
+				piece_quote_comma(
+					buffer,
+					input,
+					balance_column - 1 ) );
+	}
+
+	feeder_load_row->description_embedded =
+		feeder_load_row_description_embedded(
+			description,
+			line_number );
+
+	return feeder_load_row;
+}
+
+FEEDER_LOAD_ROW *feeder_load_row_calloc( void )
+{
+	FEEDER_LOAD_ROW *feeder_load_row;
+
+	if ( ! ( feeder_load_row = calloc( 1, sizeof( FEEDER_LOAD_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_load_row;
+}
+
+double feeder_load_row_amount(
+			double debit,
+			double credit )
+{
+	return debit - credit;
+}
+
+char *feeder_load_row_description_embedded(
+			char *description,
+			int row_number )
+{
+
+	return
+	/* ----------------------------------------- */
+	/* Returns feeder_load_row_description_build */
+	/* ----------------------------------------- */
+	feeder_load_row_description_crop(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_row_description_build(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			sed_trim_double_spaces(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				feeder_load_row_trim_bank_date(
+					description ) ),
+			line_number ),
+		FEEDER_DESCRIPTION_SIZE );
+}
+
+char *feeder_load_row_description_build(
+			char *sed_trim_double_spaces,
+			int line_number )
+{
+	char build[ 512 ];
+
+	if ( !sed_trim_double_spaces
+	||   !line_number )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(build,
+		"%s %d",
+		sed_trim_double_spaces,
+		line_number );
+
+	return strdup( build );
+}
+
+char *feeder_load_row_description_crop(
+			char *feeder_load_row_description_build,
+			int feeder_description_size )
+{
+	*( feeder_load_row_description_build + feeder_description_size ) = '\0';
+
+	return feeder_load_row_description_build;
+}
+
+double feeder_load_row_last_running_balance(
+			boolean reverse_order,
+			LIST *feeder_load_row_list )
+{
+	FEEDER_LOAD_ROW *feeder_load_row;
+
+	if ( !list_length( feeder_load_row_list ) ) return 0.0;
+
+	if ( !reverse_order )
+		feeder_load_row = list_last( feeder_load_row_list );
+	else
+		feeder_load_row = list_first( feeder_load_row_list );
+
+	return feeder_load_row->balance;
+}
+
+char *feeder_load_row_international_date( char *american_date )
+{
+	char international_date[ 128 ];
+
+	date_convert_source_american(
+		international_date,
+		international,
+		american_date );
+
+	if ( date_convert_is_valid_international(
+		international_date ) )
+	{
+		return strdup( international_date );
+	}
+	else
+	{
+		return (char *)0;
+	}
 }
 
 #ifdef NOT_DEFINED
@@ -341,44 +600,6 @@ char *feeder_upload_get_like_where(	char *where,
 	return where;
 }
 
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_trim_bank_date_from_description(
-				char *bank_description_file )
-{
-	static char sans_bank_date_description[ 512 ];
-	char *replace;
-	char *regular_expression;
-	SED *sed;
-
-	regular_expression = "[ ][0-9][0-9]/[0-9][0-9]$";
-	replace = "";
-
-	sed = sed_new( regular_expression, replace );
-
-	timlib_strcpy(	sans_bank_date_description,
-			bank_description_file,
-			512 );
-
-	/* Why do I need to append the EOL character for sed() to work? */
-	/* ------------------------------------------------------------ */
-	sprintf( sans_bank_date_description +
-		 strlen( sans_bank_date_description ),
-		 "$" );
-
-	if ( sed_will_replace( sans_bank_date_description, sed ) )
-	{
-		sed_search_replace( sans_bank_date_description, sed );
-	}
-	else
-	{
-		trim_right( sans_bank_date_description, 1 );
-	}
-
-	sed_free( sed );
-
-	return timlib_rtrim( sans_bank_date_description );
-}
 
 JOURNAL *feeder_check_number_existing_journal(
 				LIST *existing_cash_journal_list,
