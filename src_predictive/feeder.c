@@ -11,8 +11,11 @@
 #include <unistd.h>
 #include "String.h"
 #include "piece.h"
+#include "timlib.h"
 #include "date_convert.h"
 #include "sql.h"
+#include "session.h"
+#include "basename.h"
 #include "sed.h"
 #include "feeder.h"
 
@@ -180,6 +183,11 @@ char *feeder_load_row_trim_bank_date( char *description )
 	return timlib_rtrim( sans_bank_date_description );
 }
 
+int feeder_load_row_line_number( int line_number )
+{
+	return line_number;
+}
+
 FEEDER_LOAD_ROW *feeder_load_row_new(
 			int date_column /* one_based */,
 			int description_column /* one_based */,
@@ -193,7 +201,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 	char buffer[ 512 ];
 
 	if ( !date_column
-	||   !description_colun
+	||   !description_column
 	||   !input
 	||   !*input
 	||   !line_number )
@@ -203,6 +211,10 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	feeder_load_row = feeder_load_row_calloc();
 
+	feeder_load_row->line_number =
+		feeder_load_row_line_number(
+			line_number );
+
 	feeder_load_row->american_date =
 		strdup(
 			piece_quote_comma(
@@ -210,14 +222,12 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 				input,
 				date_column - 1 ) );
 
-	feeder_load_row->international_date =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		feeder_load_row_international_date(
-			feeder_load_row->american_date );
-
-	if ( !feeder_load_row->international_date )
+	if ( ! ( feeder_load_row->international_date =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			feeder_load_row_international_date(
+				feeder_load_row->american_date ) ) )
 	{
 		free( feeder_load_row->american_date );
 		free( feeder_load_row );
@@ -274,7 +284,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	feeder_load_row->description_embedded =
 		feeder_load_row_description_embedded(
-			description,
+			feeder_load_row->description,
 			line_number );
 
 	return feeder_load_row;
@@ -306,7 +316,7 @@ double feeder_load_row_amount(
 
 char *feeder_load_row_description_embedded(
 			char *description,
-			int row_number )
+			int line_number )
 {
 
 	return
@@ -401,432 +411,534 @@ char *feeder_load_row_international_date( char *american_date )
 	}
 }
 
-#ifdef NOT_DEFINED
-LIST *feeder_upload_get_possible_description_list(
-				char *bank_description_file,
-				char *fund_name,
-				double bank_amount,
-				double bank_running_balance,
-				int check_number )
+FEEDER_LOAD_FILE *feeder_load_file_fetch(
+			char *feeder_load_filename,
+			int date_column /* one_based */,
+			int description_column /* one_based */,
+			int debit_column /* one_based */,
+			int credit_column /* one_based */,
+			int balance_column /* one_based */,
+			boolean reverse_order )
 {
-	LIST *possible_description_list = list_new();
+	FEEDER_LOAD_FILE *feeder_load_file;
+	FEEDER_LOAD_ROW *feeder_load_row;
+	FILE *file;
+	char input[ 1024 ];
+	int line_number = 0;
 
-	list_append_pointer(
-		possible_description_list,
-		/* ----------------------- */
-		/* Returns strdup() memory */
-		/* ----------------------- */
-		feeder_upload_description_embedded(
-			bank_description_file,
-			fund_name,
-			bank_amount,
-			bank_running_balance ) );
-
-	list_append_pointer(
-		possible_description_list,
-		strdup(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			feeder_upload_get_description_bank_amount(
-				bank_description_file,
-				bank_amount ) ) );
-
-	if ( check_number )
+	if ( !feeder_load_filename
+	||   !date_column
+	||   !description_column )
 	{
-		list_append_pointer(
-			possible_description_list,
-			strdup(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				feeder_upload_get_check_portion(
-					check_number ) ) );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	return possible_description_list;
-}
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_description_bank_amount(
-			char *bank_description_file,
-			double bank_amount )
-{
-	static char bank_description_bank_amount[ 1024 ];
-	char *bank_amount_portion;
-
-	bank_amount_portion =
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_upload_get_bank_amount_portion(
-			bank_amount );
-
-	sprintf( bank_description_bank_amount,
-		 "%s%s",
-		 bank_description_file,
-		 bank_amount_portion );
-
-	return bank_description_bank_amount;
-}
-
-/* Returns strdup() memory */
-/* ----------------------- */
-char *feeder_upload_description_embedded(
-			char *bank_description_file,
-			char *fund_name,
-			double bank_amount,
-			double bank_running_balance )
-{
-	char *bank_amount_portion;
-	char bank_description_embedded[ 1024 ];
-	char fund_portion[ 512 ];
-	char running_balance_portion[ 512 ];
-
-	*fund_portion = '\0';
-
-	bank_description_file =
-		/* ------------------------- */
-		/* Both Return static memory */
-		/* ------------------------- */
-		sed_trim_double_spaces(
-			feeder_upload_trim_bank_date_from_description(
-				bank_description_file ) );
-
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
+	if ( ! ( file = fopen( feeder_load_filename, "r" ) ) )
 	{
-		sprintf( fund_portion, " %s", fund_name );
+		return (FEEDER_LOAD_FILE *)0;
 	}
 
-	sprintf( running_balance_portion, " %.2lf", bank_running_balance );
+	feeder_load_file = feeder_load_file_calloc();
 
-	bank_amount_portion =
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_upload_get_bank_amount_portion(
-			bank_amount );
+	if ( ! ( feeder_load_file->line_count =
+			feeder_load_file_line_count(
+				feeder_load_filename,
+				date_column - 1
+					/* date_piece_offset */ ) ) )
+	{
+		return (FEEDER_LOAD_FILE *)0;
+	}
 
-	sprintf( bank_description_embedded,
-		 "%s%s%s%s",
-		 bank_description_file,
-	 	 fund_portion,
-		 bank_amount_portion,
-		 running_balance_portion );
+	feeder_load_file->begin_sequence_number =
+		feeder_load_file_begin_sequence_number(
+			feeder_load_file->line_count ); 
 
-	return strdup(
-			feeder_description_crop(
-				bank_description_embedded ) );
+	feeder_load_file->feeder_load_row_list = list_new();
+
+	while ( string_input( input, file, 1024 ) )
+	{
+		timlib_remove_character( input, '\\' );
+
+		feeder_load_row =
+			feeder_load_row_new(
+				date_column,
+				description_column,
+				debit_column,
+				credit_column,
+				balance_column,
+				input,
+				++line_number );
+
+		if ( !feeder_load_row ) continue;
+
+		if ( reverse_order )
+		{
+			list_set_first(
+				feeder_load_file->feeder_load_row_list,
+				feeder_load_row );
+		}
+		else
+		{
+			list_set(
+				feeder_load_file->feeder_load_row_list,
+				feeder_load_row );
+		}
+	}
+
+	fclose( file );
+
+	return feeder_load_file;
 }
 
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_bank_amount_portion(
-				double bank_amount )
+FEEDER_LOAD_FILE *feeder_load_file_calloc( void )
 {
-	static char bank_amount_portion[ 128 ];
+	FEEDER_LOAD_FILE *feeder_load_file;
 
-	if ( bank_amount - (double)(int)bank_amount == 0.0 )
+	if ( ! ( feeder_load_file = calloc( 1, sizeof( FEEDER_LOAD_FILE ) ) ) )
 	{
-		sprintf( bank_amount_portion, " %d", (int)bank_amount );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
+
+	return feeder_load_file;
+}
+
+FEEDER_LOAD_EVENT *feeder_load_event_new(
+			char *feeder_load_date_time,
+			char *login_name,
+			char *basename_filename,
+			char *feeder_account,
+			double ending_balance,
+			double feeder_load_row_last_running_balance,
+			char *feeder_load_sha256sum )
+{
+	FEEDER_LOAD_EVENT *feeder_load_event;
+
+	if ( !feeder_load_date_time
+	||   !login_name
+	||   !basename_filename
+	||   !feeder_account
+	||   !feeder_load_sha256sum )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	feeder_load_event = feeder_load_event_calloc();
+
+	feeder_load_event->feeder_load_date_time = feeder_load_date_time;
+	feeder_load_event->login_name = login_name;
+	feeder_load_event->basename_filename = basename_filename;
+	feeder_load_event->feeder_account = feeder_account;
+	feeder_load_event->sha256sum = feeder_load_sha256sum;
+
+	feeder_load_event->ending_balance =
+		feeder_load_event_ending_balance(
+			ending_balance,
+			feeder_load_row_last_running_balance );
+
+	return feeder_load_event;
+}
+
+FEEDER_LOAD_EVENT *feeder_load_event_calloc( void )
+{
+	FEEDER_LOAD_EVENT *feeder_load_event;
+
+	if ( ! ( feeder_load_event =
+			calloc( 1, sizeof( FEEDER_LOAD_EVENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_load_event;
+}
+
+double feeder_load_event_ending_balance(
+			double ending_balance,
+			double last_running_balance )
+{
+	if ( !ending_balance
+	&&   !last_running_balance )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both ending_balance and last_running_balance are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ending_balance
+	&&   last_running_balance )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both ending_balance and last_running_balance are populated.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ending_balance )
+		return ending_balance;
 	else
-	{
-		sprintf( bank_amount_portion, " %.2lf", bank_amount );
+		return last_running_balance;
+}
 
-		/* They trim off the pennies if on the dime. */
-		/* ----------------------------------------- */
-		if ( * (bank_amount_portion +
-			strlen( bank_amount_portion ) -
-			1 ) == '0' )
+void feeder_load_event_insert(
+			char *feeder_load_event_table,
+			char *feeder_load_select,
+			char *feeder_load_date_time,
+			char *login_name,
+			char *basename_filename,
+			char *sha256sum,
+			char *feeder_account,
+			double ending_balance )
+{
+	char *system_string;
+	FILE *insert_pipe;
+
+	if ( !feeder_load_event_table
+	||   !feeder_load_select
+	||   !feeder_load_date_time
+	||   !login_name
+	||   !basename_filename
+	||   !sha256sum
+	||   !ending_balance )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	system_string =
+		feeder_load_event_insert_system_string(
+			feeder_load_event_table,
+			feeder_load_select,
+			SQL_DELIMITER );
+
+	insert_pipe = popen( system_string, "w" );
+
+	feeder_load_event_insert_pipe(
+		insert_pipe,
+		SQL_DELIMITER,
+		feeder_load_date_time,
+		login_name,
+		basename_filename,
+		sha256sum,
+		feeder_account,
+		ending_balance );
+
+	pclose( insert_pipe );
+}
+
+char *feeder_load_event_insert_system_string(
+			char *feeder_load_event_table,
+			char *feeder_load_select,
+			char sql_delimiter )
+{
+	char system_string[ 1024 ];
+
+	if ( !feeder_load_event_table
+	||   !feeder_load_select
+	||   !sql_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+	 	"insert_statement table=%s field=%s del='%c' 		  |"
+	 	"sql 2>&1						  |"
+	 	"html_paragraph_wrapper.e				   ",
+	 	feeder_load_event_table,
+	 	feeder_load_select,
+	 	sql_delimiter );
+
+	return strdup( system_string );
+}
+
+void feeder_load_event_insert_pipe(
+			FILE *insert_pipe,
+			char sql_delimiter,
+			char *feeder_load_date_time,
+			char *login_name,
+			char *basename_filename,
+			char *sha256sum,
+			char *feeder_account,
+			double ending_balance )
+{
+	if ( !insert_pipe
+	||   !sql_delimiter
+	||   !feeder_load_date_time
+	||   !login_name
+	||   !basename_filename
+	||   !sha256sum
+	||   !ending_balance )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		pclose( insert_pipe );
+		exit( 1 );
+	}
+
+	fprintf(insert_pipe,
+		"%s%c%s%c%s%c%s%c%s%c%.2lf\n",
+	 	feeder_load_date_time,
+		sql_delimiter,
+	 	login_name,
+		sql_delimiter,
+		basename_filename,
+		sql_delimiter,
+		sha256sum,
+		sql_delimiter,
+		(feeder_account) ? feeder_account : "",
+		sql_delimiter,
+		ending_balance );
+}
+
+char *feeder_load_basename_filename( char *feeder_load_filename )
+{
+	char filename[ 256 ];
+	int session_characters_to_trim;
+	char *start_trimming_here;
+
+	string_strcpy(
+		filename,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		basename_filename( feeder_load_filename ),
+		256 );
+
+	/* Trim off _$SESSION */
+	/* ------------------ */
+	session_characters_to_trim = SESSION_MAX_SESSION_SIZE + 1;
+
+	start_trimming_here =
+		filename + strlen( filename ) - session_characters_to_trim;
+
+	*start_trimming_here = '\0';
+
+	return strdup( filename );
+}
+
+FEEDER_LOAD *feeder_load_new(
+			char *process_name,
+			char *login_name,
+			char *feeder_account,
+			char *feeder_load_filename,
+			int date_column /* one_based */,
+			int description_column /* one_based */,
+			int debit_column /* one_based */,
+			int credit_column /* one_based */,
+			int balance_column /* one_based */,
+			boolean reverse_order,
+			double ending_balance )
+{
+	FEEDER_LOAD *feeder_load;
+
+	if ( !process_name
+	||   !login_name
+	||   !feeder_account
+	||   !feeder_load_filename
+	||   !date_column
+	||   !description_column
+	||   !debit_column )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	feeder_load = feeder_load_calloc();
+
+	feeder_load->feeder_load_file =
+		feeder_load_file_fetch(
+			feeder_load_filename,
+			date_column,
+			description_column,
+			debit_column,
+			credit_column,
+			balance_column,
+			reverse_order );
+
+	if ( !feeder_load->feeder_load_file
+	||   !list_length(
+		feeder_load->
+			feeder_load_file->
+			feeder_load_row_list ) )
+	{
+		free( feeder_load );
+		return (FEEDER_LOAD *)0;
+	}
+
+	feeder_load->feeder_phrase_list =
+		feeder_phrase_list();
+
+	feeder_load->feeder_load_row_last_running_balance =
+		feeder_load_row_last_running_balance(
+			reverse_order,
+			feeder_load->feeder_load_file->feeder_load_row_list );
+
+	feeder_load->basename_filename =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_basename_filename(
+			feeder_load_filename );
+
+	feeder_load->sha256sum =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_sha256sum(
+			feeder_load_filename );
+
+	feeder_load->feeder_load_event =
+		feeder_load_event_new(
+			date_display_19(
+				date_now_new(
+					date_utc_offset()
+						/* feeder_load_date_time */ ) ),
+			login_name,
+			feeder_account,
+			feeder_load->basename_filename,
+			ending_balance,
+			feeder_load->feeder_load_row_last_running_balance,
+			feeder_load->sha256sum );
+
+	return feeder_load;
+}
+
+FEEDER_LOAD *feeder_load_calloc( void )
+{
+	FEEDER_LOAD *feeder_load;
+
+	if ( ! ( feeder_load = calloc( 1, sizeof( FEEDER_LOAD ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_load;
+}
+
+char *feeder_load_sha256sum( char *feeder_load_filename )
+{
+	if ( !feeder_load_filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_load_filename is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	timlib_sha256sum( feeder_load_filename );
+}
+
+
+int feeder_load_file_begin_sequence_number(
+			int feeder_load_file_line_count ); 
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"reference_number.sh %s %d",
+		environment_application(),
+		line_count );
+
+	return atoi( pipe2string( system_string ) );
+}
+
+int feeder_load_file_line_count(
+			char *feeder_load_filename,
+			int date_piece_offset )
+{
+	char input_string[ 4096 ];
+	char american_date[ 128 ];
+	char *international_date;
+	FILE *input_file;
+	int line_count = 0;
+
+	if ( ! ( input_file = fopen( feeder_load_filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			input_filename );
+		exit( 1 );
+	}
+
+	while( string_input( input_string, input_file, 4096 ) )
+	{
+		trim( input_string );
+		if ( !*input_string ) continue;
+
+		if ( !piece_quote_comma(
+				american_date,
+				input_string,
+				date_piece_offset ) )
 		{
-			*(bank_amount_portion +
-			  strlen( bank_amount_portion ) -
-			  1) = '\0';
-		}
-	}
-
-	return bank_amount_portion;
-}
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_fund_portion(
-				char *fund_name )
-{
-	static char fund_portion[ 128 ];
-
-	*fund_portion = '\0';
-
-	if ( fund_name && *fund_name && strcmp( fund_name, "fund" ) != 0 )
-	{
-		sprintf( fund_portion, " %s", fund_name );
-	}
-
-	return fund_portion;
-}
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_upload_get_check_portion(
-				int check_number )
-{
-	static char check_portion[ 128 ];
-
-	*check_portion = '\0';
-
-	if ( check_number )
-	{
-		sprintf( check_portion, "CHECK %d", check_number );
-	}
-
-	return check_portion;
-}
-
-char *feeder_upload_get_like_where(	char *where,
-					char *bank_date,
-					char *bank_description )
-{
-	char description_buffer[ 512 ];
-
-	sprintf( where,
-		 "bank_date = '%s' and			"
-		 "bank_description like '%s%c'		",
-		 bank_date,
-		 escape_character(	description_buffer,
-					bank_description,
-					'\'' ),
-		 '%' );
-
-	return where;
-}
-
-
-JOURNAL *feeder_check_number_existing_journal(
-				LIST *existing_cash_journal_list,
-				int check_number )
-{
-	return journal_check_number_seek(
-			existing_cash_journal_list,
-			check_number );
-}
-
-TRANSACTION *feeder_phrase_match_build_transaction(
-				LIST *reoccurring_transaction_list,
-				char *bank_date,
-				char *bank_description_embedded,
-				double abs_bank_amount )
-{
-	REOCCURRING_TRANSACTION *reoccurring_transaction;
-	TRANSACTION *transaction;
-	JOURNAL *journal;
-
-	if ( ! ( reoccurring_transaction =
-			reoccurring_bank_upload_feeder_phrase(
-				reoccurring_transaction_list,
-				bank_description_embedded ) ) )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	if ( reoccurring_transaction->feeder_phrase_ignore )
-	{
-		return (TRANSACTION *)0;
-	}
-
-	if ( !abs_bank_amount ) return (TRANSACTION *)0;
-
-	transaction =
-		transaction_new(
-			reoccurring_transaction->full_name,
-			reoccurring_transaction->street_address,
-			transaction_time_append(
-				bank_date /* transaction_date */ ) );
-
-	transaction->transaction_amount = abs_bank_amount;
-
-	transaction->journal_list = list_new();
-
-	/* Set the debit account */
-	/* --------------------- */
-	journal =
-		journal_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			reoccurring_transaction->debit_account );
-
-	journal->debit_amount = transaction->transaction_amount;
-
-	list_set(
-		transaction->journal_list,
-		journal );
-
-	/* Set the credit account */
-	/* ---------------------- */
-	journal =
-		journal_new(
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			reoccurring_transaction->credit_account );
-
-	journal->credit_amount =
-		transaction->transaction_amount;
-
-	list_set(
-		transaction->journal_list,
-		journal );
-
-	return transaction;
-}
-
-/* Sets journal->match_sum_taken */
-/* ----------------------------- */
-LIST *feeder_match_sum_existing_journal_list(
-				LIST *existing_cash_journal_list,
-				double abs_bank_amount,
-				boolean check_debit )
-{
-	FILE *output_pipe;
-	char temp_output_file[ 128 ];
-	JOURNAL *journal;
-	char *pipe_delimited_transaction_list_string;
-	LIST *name_string_list;
-	char *name_string;
-	LIST *return_list;
-	char full_name[ 128 ];
-	char street_address[ 128 ];
-	char transaction_date_time [ 32 ];
-	char sys_string[ 512 ];
-	int count = 0;
-	double send_amount;
-
-	if ( !list_rewind( existing_cash_journal_list ) )
-		return (LIST *)0;
-
-	sprintf( temp_output_file,
-		 "/tmp/feeder_cash_%d",
-		 getpid() );
-
-	sprintf( sys_string,
-		 "keys_match_sum.e %.2lf > %s",
-		 abs_bank_amount,
-		 temp_output_file );
-
-	output_pipe = popen( sys_string, "w" );
-
-	do {
-		journal =
-			list_get( 
-				existing_cash_journal_list );
-
-		if ( journal->match_sum_taken )
 			continue;
-
-		if ( journal->check_number )
-			continue;
-
-		send_amount =
-			(check_debit)
-				? journal->debit_amount
-				: journal->credit_amount;
-
-		if ( !send_amount ) continue;
-
-		fprintf(output_pipe,
-		 	"%s^%s^%s|%.2lf\n",
-			journal->full_name,
-			journal->street_address,
-			journal->transaction_date_time,
-			send_amount );
-
-		if ( ++count == FEEDER_KEYS_MATCH_SUM_MAX )
-			break;
-
-	} while ( list_next( existing_cash_journal_list ) );
-
-	pclose( output_pipe );
-
-	if ( !timlib_file_populated( temp_output_file ) )
-	{
-		sprintf( sys_string, "rm %s", temp_output_file );
-		if ( system( sys_string ) ) {};
-
-		return (LIST *)0;
-	}
-
-	sprintf( sys_string,
-		 "cat %s",
-		 temp_output_file );
-
-	/* ------------------------------------------------------------ */
-	/* Format: full_name^street_address^transaction_date_time[|...] */
-	/* ------------------------------------------------------------ */
-	pipe_delimited_transaction_list_string = pipe2string( sys_string );
-
-	sprintf( sys_string, "rm %s", temp_output_file );
-	if ( system( sys_string ) ) {};
-
-	name_string_list =
-		list_string2list( 
-			pipe_delimited_transaction_list_string,
-			'|' );
-
-	if ( !list_rewind( name_string_list ) ) return (LIST *)0;
-
-	return_list = list_new();
-
-	do {
-		name_string = list_get_pointer( name_string_list );
-
-		if ( timlib_count_delimiters( '^', name_string ) != 2 )
-		{
-			fprintf( stderr,
-			"ERROR in %s/%s()/%d: unexpected input = [%s]\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 name_string );
-			exit( 1 );
 		}
 
-		piece( full_name, '^', name_string, 0 );
-		piece( street_address, '^', name_string, 1 );
-		piece( transaction_date_time, '^', name_string, 2 );
-
-		if ( ! ( journal =
-				journal_transaction_date_time_seek(
-					existing_cash_journal_list,
-					full_name,
-					street_address,
-					transaction_date_time ) ) )
+		if ( ( international_date =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			feeder_load_row_international_date(
+				american_date ) ) )
 		{
-			fprintf( stderr,
-				 "ERROR in %s/%s()/%d: cannot seek %s/%s/%s\n",
-				 __FILE__,
-				 __FUNCTION__,
-				 __LINE__,
-				 full_name,
-				 street_address,
-				 transaction_date_time );
-			exit( 1 );
+			line_count++;
+			free( international_date );
 		}
-
-		journal->match_sum_taken = 1;
-
-		list_set( return_list, journal );
-
-	} while ( list_next( name_string_list ) );
-
-	return return_list;
-}
-
-char *feeder_description_crop( char *bank_description )
-{
-	if ( strlen( bank_description ) > FEEDER_DESCRIPTION_SIZE )
-	{
-		*( bank_description + FEEDER_DESCRIPTION_SIZE ) = '\0';
 	}
-	return bank_description;
+
+	fclose( input_file );
+	return line_count;
 }
-#endif
+

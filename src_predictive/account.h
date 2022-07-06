@@ -24,22 +24,21 @@
 #define ACCOUNT_CHANGE_IN_NET_ASSETS	"change_in_net_assets"
 #define ACCOUNT_NOT_SET			"not_set"
 
+#define ACCOUNT_DEPRECIATION_KEY 	"depreciation_expense_key"
+#define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
+#define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
+#define ACCOUNT_REVENUE_KEY		"revenue_key"
+#define ACCOUNT_RECEIVABLE_KEY		"receivable_key"
+#define ACCOUNT_PAYABLE_KEY		"payable_key"
+#define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
+#define ACCOUNT_SHIPPING_REVENUE_KEY	"shipping_revenue_key"
 #define ACCOUNT_CASH_KEY		"cash_key"
 #define ACCOUNT_GAIN_KEY		"gain_key"
 #define ACCOUNT_LOSS_KEY		"loss_key"
-#define ACCOUNT_DEPRECIATION_KEY 	"depreciation_expense_key"
-#define ACCOUNT_ACCUMULATED_KEY		"accumulated_depreciation_key"
+#define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
-#define ACCOUNT_SALES_TAX_PAYABLE_KEY	"sales_tax_payable_key"
-#define ACCOUNT_REVENUE_KEY		"revenue_key"
-#define ACCOUNT_SHIPPING_REVENUE_KEY	"shipping_revenue_key"
-#define ACCOUNT_RECEIVABLE_KEY		"receivable_key"
-#define ACCOUNT_PAYABLE_KEY		"payable_key"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
-#define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
-#define ACCOUNT_UNCLEARED_CHECKS_KEY	"uncleared_checks_key"
-#define ACCOUNT_UNCLEARED_CHECKS	"uncleared_checks"
 
 typedef struct
 {
@@ -280,18 +279,42 @@ char *account_name_display(
 ACCOUNT *account_seek(	char *account_name,
 			LIST *account_list );
 
-char *account_depreciation_expense( void );
-char *account_sales_tax_payable( void );
-char *account_accumulated_depreciation( void );
-char *account_revenue(	void );
-char *account_receivable( void );
-char *account_uncleared_checks( void );
-char *account_shipping_revenue( void );
-char *account_cash( void );
-char *account_gain( void );
-char *account_loss( void );
-char *account_payable( void );
-char *account_fees_expense( void );
+char *account_depreciation_expense(
+			char *account_depreciation_key );
+
+char *account_accumulated_depreciation(
+			char *account_accumulated_key );
+
+char *account_sales_tax_payable(
+			char *account_sales_tax_payable_key );
+
+char *account_revenue(	char *account_revenue_key );
+
+char *account_receivable(
+			char *account_receivable_key );
+
+char *account_payable(	char *account_payable_key );
+
+char *account_uncleared_checks(
+			char *account_uncleared_checks_key );
+
+char *account_shipping_revenue(
+			char *account_shipping_revenue_key );
+
+char *account_cash(	char *account_cash_key );
+
+char *account_gain(	char *account_gain_key );
+
+char *account_loss(	char *account_loss_key );
+
+char *account_fees_expense(
+			char *account_fees_expense_key );
+
+char *account_closing_entry(
+			char *account_closing_key );
+
+char *account_drawing(
+			char *account_drawing_key );
 
 LIST *account_cash_name_list(
 			char *account_table,

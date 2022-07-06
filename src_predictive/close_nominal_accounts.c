@@ -230,18 +230,12 @@ boolean close_nominal_accounts_fund_execute(
 	char *transaction_date_time_closing_string;
 
 	closing_entry_account =
-		account_hard_coded_account_name(
-				fund_name,
-				ACCOUNT_CLOSING_KEY,
-				0 /* not warning_only */,
-				__FUNCTION__ );
+		account_closing_entry(
+			ACCOUNT_CLOSING_KEY );
 
 	drawing_account =
-		account_hard_coded_account_name(
-				fund_name,
-				ACCOUNT_DRAWING_KEY,
-				1 /* warning_only */,
-				__FUNCTION__ );
+		account_drawing(
+			ACCOUNT_DRAWING );
 
 	if ( ! ( self = entity_self_load() ) )
 	{

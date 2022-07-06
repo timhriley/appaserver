@@ -44,112 +44,139 @@ char *account_name_format(
 	return format_initial_capital( name_format, account_name );
 }
 
-char *account_revenue( void )
+char *account_revenue( char *account_revenue_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_REVENUE_KEY,
-		0 /* not  warning_only */,
-		__FUNCTION__ );
-}
-
-char *account_receivable( void )
-{
-	return
-	account_hard_coded_account_name(
-		ACCOUNT_RECEIVABLE_KEY,
-		0 /* not  warning_only */,
-		__FUNCTION__ );
-}
-
-char *account_payable( void )
-{
-	return
-	account_hard_coded_account_name(
-		ACCOUNT_PAYABLE_KEY,
+		account_revenue_key,
 		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_uncleared_checks( void )
+char *account_receivable( char *account_receivable_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_UNCLEARED_CHECKS_KEY,
-		0 /* not  warning_only */,
+		account_receivable_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_gain( void )
+char *account_payable( char *account_payable_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_GAIN_KEY,
-		0 /* not  warning_only */,
+		account_payable_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_loss( void )
+char *account_uncleared_checks( char *account_uncleared_checks_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_LOSS_KEY,
-		0 /* not  warning_only */,
+		account_uncleared_checks_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_sales_tax_payable( void )
+char *account_gain( char *account_gain_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_SALES_TAX_PAYABLE_KEY,
-		0 /* not  warning_only */,
+		account_gain_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_depreciation_expense( void )
+char *account_loss( char *account_loss_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_DEPRECIATION_KEY,
-		0 /* not  warning_only */,
+		account_loss_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_accumulated_depreciation( void )
+char *account_sales_tax_payable( char *account_sales_tax_payable_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_ACCUMULATED_KEY,
-		0 /* not  warning_only */,
+		account_sales_tax_payable_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_depreciation_expense( char *account_depreciation_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_depreciation_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_accumulated_depreciation( char *account_accumulated_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_accumulated_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
 
-char *account_shipping_revenue( void )
+char *account_shipping_revenue( char *account_shipping_revenue_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_SHIPPING_REVENUE_KEY,
-		0 /* not  warning_only */,
+		account_shipping_revenue_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_cash( void )
+char *account_cash( char *account_cash_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_CASH_KEY,
-		0 /* not  warning_only */,
+		account_cash_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 
-char *account_fees_expense( void )
+char *account_closing_entry( char *account_closing_key )
 {
 	return
 	account_hard_coded_account_name(
-		ACCOUNT_FEES_EXPENSE_KEY,
-		0 /* not  warning_only */,
+		account_closing_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_drawing( char *account_drawing_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_drawing_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_fees_expense( char *account_fees_expense_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_fees_expense_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_sales_tax_expense( char *account_sales_tax_expense_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_sales_tax_expense_key,
+		0 /* not warning_only */,
 		__FUNCTION__ );
 }
 

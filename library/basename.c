@@ -61,7 +61,7 @@ char *basename_get_extension( char *argv_0 )
 
 char *basename_get_base_name( char *argv_0, boolean strip_extension )
 {
-	static char base_name[ 128 ];
+	static char base_name[ 256 ];
 	char local_buffer[ 512 ];
 	char *base_name_ptr;
 

@@ -3630,18 +3630,18 @@ void timlib_error_stderr(	int argc,
 
 char *timlib_sha256sum( char *input_filename )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !timlib_file_exists( input_filename ) )
 		return (char *)0;
 
-	sprintf( sys_string,
-		 "cat \"%s\"			|"
-		 "sha256sum			|"
-		 "column.e 0			 ",
-		 input_filename );
+	sprintf(system_string,
+		"cat \"%s\"			|"
+		"sha256sum			|"
+		"column.e 0			 ",
+		input_filename );
 
-	return pipe2string( sys_string );
+	return pipe2string( system_string );
 }
 
 char *timlib_reverse_string(	char *destination,
