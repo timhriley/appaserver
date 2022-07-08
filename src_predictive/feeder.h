@@ -12,13 +12,7 @@
 #include "boolean.h"
 #include "date.h"
 
-#define FEEDER_PHRASE_TABLE		"feeder_phrase"
-
-#define FEEDER_PHRASE_SELECT		"feeder_phrase,"		\
-					"nominal_account,"		\
-					"full_name,"			\
-					"street_address,"		\
-					"feeder_phrase_ignore_yn"
+#define FEEDER_LOAD_ROW_TABLE			"feeder_load_row"
 
 #define FEEDER_KEYS_MATCH_SUM_MAX 	18
 #define FEEDER_DESCRIPTION_SIZE		140
@@ -116,16 +110,63 @@ FEEDER_LOAD_FILE *feeder_load_file_fetch(
 FEEDER_LOAD_FILE *feeder_load_file_calloc(
 			void );
 
-int feeder_load_file_line_count(
-			char *feeder_load_filename,
-			int date_piece_offset );
-
-int feeder_load_file_begin_sequence_number(
-			int feeder_load_file_line_count ); 
+#define FEEDER_LOAD_TABLE_ROW_SELECT		"feeder_date,"		\
+						"feeder_description,"	\
+						"transaction_date_time"
 
 typedef struct
 {
-	char *feeder_phrase;
+	char *feeder_date;
+	char *feeder_description;
+	char *transaction_date_time;
+} FEEDER_LOAD_TABLE_ROW;
+
+/* Usage */
+/* ----- */
+LIST *feeder_load_table_row_list(
+			char *feeder_account,
+			char *feeder_load_file_minimum_date );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_load_table_row_where(
+			char *feeder_account,
+			char *feeder_load_file_minimum_date );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_table_row_system_string(
+			char *feeder_load_table_row_select,
+			char *feeder_load_table_row_table,
+			char *feeder_load_table_row_where );
+
+FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_parse(
+			char *input );
+
+FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_calloc(
+			void );
+
+/* Public */
+/* ------ */
+FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_seek(
+			char *international_date,
+			char *description_embedded,
+			LIST *feeder_load_table_row_list );
+
+#define FEEDER_PHRASE_TABLE		"feeder_phrase"
+
+#define FEEDER_PHRASE_SELECT		"feeder_phrase,"		\
+					"nominal_account,"		\
+					"full_name,"			\
+					"street_address,"		\
+					"feeder_phrase_ignore_yn"
+
+typedef struct
+{
+	char *phrase;
 	char *nominal_account;
 	char *full_name;
 	char *street_address;
@@ -158,6 +199,28 @@ FEEDER_PHRASE *feeder_phrase_new(
 
 FEEDER_PHRASE *feeder_phrase_calloc(
 			void );
+
+/* Public */
+/* ------ */
+FEEDER_PHRASE *feeder_phrase_seek(
+			char *feeder_description,
+			LIST *feeder_phrase_list );
+
+typedef struct
+{
+	int line_number;
+	char *american_date;
+	char *international_date;
+	char *description;
+	double amount;
+	double debit;
+	double credit;
+	double balance;
+	int check_number;
+	FEEDER_PHRASE *feeder_phrase;
+	char *description_embedded;
+	FEEDER_LOAD_TABLE_ROW *feeder_load_table_row;
+} FEEDER_LOAD_FILE_ROW;
 
 typedef struct
 {

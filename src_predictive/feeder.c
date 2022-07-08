@@ -19,6 +19,71 @@
 #include "sed.h"
 #include "feeder.h"
 
+#ifdef NOT_DEFINED
+int feeder_load_file_begin_sequence_number(
+			int feeder_load_file_line_count ); 
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"reference_number.sh %s %d",
+		environment_application(),
+		line_count );
+
+	return atoi( pipe2string( system_string ) );
+}
+
+int feeder_load_file_line_count(
+			char *feeder_load_filename,
+			int date_piece_offset )
+{
+	char input_string[ 4096 ];
+	char american_date[ 128 ];
+	char *international_date;
+	FILE *input_file;
+	int line_count = 0;
+
+	if ( ! ( input_file = fopen( feeder_load_filename, "r" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			input_filename );
+		exit( 1 );
+	}
+
+	while( string_input( input_string, input_file, 4096 ) )
+	{
+		trim( input_string );
+		if ( !*input_string ) continue;
+
+		if ( !piece_quote_comma(
+				american_date,
+				input_string,
+				date_piece_offset ) )
+		{
+			continue;
+		}
+
+		if ( ( international_date =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			feeder_load_row_international_date(
+				american_date ) ) )
+		{
+			line_count++;
+			free( international_date );
+		}
+	}
+
+	fclose( input_file );
+	return line_count;
+}
+#endif
+
 LIST *feeder_phrase_list( void )
 {
 	LIST *list;
@@ -110,24 +175,24 @@ FEEDER_PHRASE *feeder_phrase_parse( char *input )
 	return phrase;
 }
 
-FEEDER_PHRASE *feeder_phrase_new( char *feeder_phrase )
+FEEDER_PHRASE *feeder_phrase_new( char *phrase )
 {
-	FEEDER_PHRASE *phrase;
+	FEEDER_PHRASE *feeder_phrase;
 
-	if ( !feeder_phrase || !*feeder_phrase )
+	if ( !phrase || !*phrase )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: feeder_phrase is empty.\n",
+			"ERROR in %s/%s()/%d: phrase is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	phrase = feeder_phrase_calloc();
-	phrase->feeder_phrase = feeder_phrase;
+	feeder_phrase = feeder_phrase_calloc();
+	feeder_phrase->phrase = phrase;
 
-	return phrase;
+	return feeder_phrase;
 }
 
 FEEDER_PHRASE *feeder_phrase_calloc( void )
@@ -622,6 +687,7 @@ void feeder_load_event_insert(
 	||   !login_name
 	||   !basename_filename
 	||   !sha256sum
+	||   !feeder_account
 	||   !ending_balance )
 	{
 		fprintf(stderr,
@@ -699,6 +765,7 @@ void feeder_load_event_insert_pipe(
 	||   !login_name
 	||   !basename_filename
 	||   !sha256sum
+	||   !feeder_account
 	||   !ending_balance )
 	{
 		fprintf(stderr,
@@ -720,7 +787,7 @@ void feeder_load_event_insert_pipe(
 		sql_delimiter,
 		sha256sum,
 		sql_delimiter,
-		(feeder_account) ? feeder_account : "",
+		feeder_account,
 		sql_delimiter,
 		ending_balance );
 }
@@ -769,6 +836,7 @@ FEEDER_LOAD *feeder_load_new(
 	if ( !process_name
 	||   !login_name
 	||   !feeder_account
+	||   strcmp( feeder_account, "feeder_account" ) == 0
 	||   !feeder_load_filename
 	||   !date_column
 	||   !description_column
@@ -878,67 +946,225 @@ char *feeder_load_sha256sum( char *feeder_load_filename )
 	timlib_sha256sum( feeder_load_filename );
 }
 
-
-int feeder_load_file_begin_sequence_number(
-			int feeder_load_file_line_count ); 
+FEEDER_PHRASE *feeder_phrase_seek(
+			char *feeder_description,
+			LIST *feeder_phrase_list )
 {
-	char system_string[ 1024 ];
+	FEEDER_PHRASE *feeder_phrase;
+	char feeder_component[ 128 ];
+	int piece_number;
 
-	sprintf(system_string,
-		"reference_number.sh %s %d",
-		environment_application(),
-		line_count );
+	if ( !list_rewind( feeder_phrase_list ) ) return (FEEDER_PHRASE *)0;
 
-	return atoi( pipe2string( system_string ) );
+	do {
+		feeder_phrase = list_get( feeder_phrase_list );
+
+		for(	piece_number = 0;
+			piece(	feeder_component,
+				'|',
+				feeder_phrase->feeder_phrase,
+				piece_number );
+			piece_number++ )
+		{
+			if ( string_exists_substr(
+				feeder_description /* string */,
+				feeder_component /* substring */ ) )
+			{
+				return feeder_phrase;
+			}
+		}
+
+	} while ( list_next( feeder_phrase_list ) );
+
+	return (FEEDER_PHRASE *)0;
 }
 
-int feeder_load_file_line_count(
-			char *feeder_load_filename,
-			int date_piece_offset )
+LIST *feeder_load_table_row_list(
+			char *feeder_account,
+			char *feeder_load_file_minimum_date )
 {
-	char input_string[ 4096 ];
-	char american_date[ 128 ];
-	char *international_date;
-	FILE *input_file;
-	int line_count = 0;
+	LIST *list;
+	char *system_string;
+	FILE *input_pipe;
+	char input[ 512 ];
 
-	if ( ! ( input_file = fopen( feeder_load_filename, "r" ) ) )
+	if ( !feeder_account
+	||   strcmp( feeder_account, "feeder_account" ) == 0
+	||   !feeder_load_file_minimum_date )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			input_filename );
+			__LINE__ );
 		exit( 1 );
 	}
 
-	while( string_input( input_string, input_file, 4096 ) )
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_table_row_system_string(
+			FEEDER_LOAD_TABLE_ROW_SELECT,
+			FEEDER_LOAD_ROW_TABLE,
+			/* ------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			feeder_load_table_row_where(
+				feeder_account,
+				feeder_load_file_minimum_date ) );
+
+	list = list_new()
+
+	input_pipe = popen( system_string, "r" );
+
+	while ( string_input( input, input_pipe, 512 ) )
 	{
-		trim( input_string );
-		if ( !*input_string ) continue;
-
-		if ( !piece_quote_comma(
-				american_date,
-				input_string,
-				date_piece_offset ) )
-		{
-			continue;
-		}
-
-		if ( ( international_date =
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			feeder_load_row_international_date(
-				american_date ) ) )
-		{
-			line_count++;
-			free( international_date );
-		}
+		list_set(
+			list,
+			feeder_load_table_row_parse(
+				input ) );
 	}
 
-	fclose( input_file );
-	return line_count;
+	pclose( input_pipe );
+	free( system_string );
+
+	return list;
+}
+
+char *feeder_load_table_row_where(
+			char *feeder_account,
+			char *feeder_load_file_minimum_date )
+{
+	static char where[ 128 ];
+
+	if ( !feeder_account
+	||   strcmp( feeder_account, "feeder_account" ) == 0
+	||   !feeder_load_file_minimum_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"feeder_account = '%s' and "
+		"feeder_date >= '%s'",
+		feeder_account,
+		feeder_load_file_minimum_date );
+
+	return where;
+}
+
+char *feeder_load_table_row_system_string(
+			char *select,
+			char *table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !select
+	||   !table
+	||   !where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		select,
+		table,
+		where );
+
+	return strdup( system_string );
+}
+
+FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_parse( char *input )
+{
+	FEEDER_LOAD_TABLE_ROW *feeder_load_table_row;
+	char buffer[ 128 ];
+
+	if ( !input || !*input ) return (FEEDER_LOAD_TABLE_ROW *)0;
+
+	feeder_load_table_row = feeder_load_table_row_calloc();
+
+	/* See FEEDER_LOAD_TABLE_ROW_SELECT */
+	/* -------------------------------- */
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	feeder_load_table_row->feeder_date = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	feeder_load_table_row->feeder_description = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 2 );
+	feeder_load_table_row->transaction_date_time = strdup( buffer );
+
+	return feeder_load_table_row;
+}
+
+FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_calloc( void )
+{
+	FEEDER_LOAD_TABLE_ROW *feeder_load_table_row;
+
+	if ( ! ( feeder_load_table_row =
+			calloc( 1, sizeof( FEEDER_LOAD_TABLE_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_load_table_row;
+}
+
+FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_seek(
+			char *international_date,
+			char *description_embedded,
+			LIST *feeder_load_table_row_list )
+{
+	FEEDER_LOAD_TABLE_ROW *feeder_load_table_row;
+
+	if ( !international_date
+	||   !description_embeded )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( feeder_load_table_row_list ) )
+		return (FEEDER_LOAD_TABLE_ROW *)0;
+
+	do {
+		feeder_load_table_row =
+			list_get(
+				feeder_load_table_row_list );
+
+		if ( strcmp(	feeder_load_table_row->feeder_date,
+				internation_date ) == 0
+		&&   strcmp(	feeder_load_table_row->feeder_description,
+				description_embedded ) == 0 )
+		{
+			return feeder_load_table_row;
+		}
+
+	} while ( list_next( feeder_load_table_row_list ) );
+
+	return (FEEDER_LOAD_TABLE_ROW *)0;
 }
 
