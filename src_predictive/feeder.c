@@ -17,6 +17,8 @@
 #include "session.h"
 #include "basename.h"
 #include "sed.h"
+#include "account.h"
+#include "environ.h"
 #include "feeder.h"
 
 #ifdef NOT_DEFINED
@@ -1166,5 +1168,483 @@ FEEDER_LOAD_TABLE_ROW *feeder_load_table_row_seek(
 	} while ( list_next( feeder_load_table_row_list ) );
 
 	return (FEEDER_LOAD_TABLE_ROW *)0;
+}
+
+FEEDER_TRANSACTION *feeder_transaction_new(
+			DATE *feeder_load_date,
+			char *feeder_account,
+			FEEDER_LOAD_FILE_ROW *feeder_load_file_row,
+			FEEDER_NOT_MATCHED_JOURNAL_LIST *
+				feeder_not_matched_journal_list )
+{
+	FEEDER_TRANSACTION *feeder_transaction;
+
+	if ( !feeder_load_date
+	||   !feeder_account
+	||   !feeder_load_file_row
+	||   !feeder_load_file_row->amount )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	feeder_transaction = feeder_transaction_calloc();
+
+	if ( feeder_not_matched_journal_list )
+	{
+		feeder_transaction->feeder_journal_row_seek =
+			feeder_journal_row_seek(
+				feeder_load_file_row,
+				feeder_not_matched_journal_list->
+					feeder_journal_list );
+
+		if ( feeder_transaction->feeder_journal_row_seek )
+		{
+			feeder_transaction->feeder_journal_row_seek->taken = 1;
+			free( feeder_transaction );
+			return (FEEDER_TRANSACTION *)0;
+		}
+	}
+
+	if ( !feeder_load_file_row->feeder_phrase )
+	{
+		free( feeder_transaction );
+		return (FEEDER_TRANSACTION *)0;
+	}
+
+	if ( feeder_load_file_row->amount < 0.0 )
+	{
+		feeder_transaction->debit_account =
+			feeder_load_file_row->
+				feeder_phrase->
+				feeder_account;
+
+		feeder_transaction->credit_account = feeder_account;
+	}
+	else
+	{
+		feeder_transaction->debit_account = feeder_account;
+
+		feeder_transaction->credit_account =
+			feeder_load_file_row->
+				feeder_phrase->
+				feeder_account;
+	}
+
+	feeder_transaction->transaction =
+		transaction_binary(
+			feeder_load_file_row->
+				feeder_phrase->
+				full_name,
+			feeder_load_file_row->
+				feeder_phrase->
+				street_address,
+			date_display_19( feeder_load_date )
+				/* transaction_date_time */,
+			feeder_load_file_row->amount
+				/* transaction_amount */,
+			(char *)0 /* memo */,
+			debit_account,
+			credit_account );
+
+	date_increment_seconds( feeder_load_date, 1 );
+	feeder_transaction->feeder_load_file_row = feeder_load_file_row;
+
+	return feeder_transaction;
+}
+
+FEEDER_TRANSACTION *feeder_transaction_calloc( void )
+{
+	FEEDER_TRANSACTION *feeder_transaction;
+
+	if ( ! ( feeder_transaction =
+			calloc( 1, sizeof( FEEDER_TRANSACTION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_transaction;
+}
+
+FEEDER_LOAD_FILE_ROW *feeder_load_file_row_calloc( void )
+{
+	FEEDER_LOAD_FILE_ROW *feeder_load_file_row;
+
+	if ( ! ( feeder_load_file_row =
+			calloc( 1, sizeof( FEEDER_LOAD_FILE_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_load_file_row;
+}
+
+FEEDER_TRANSACTION *feeder_transaction_row_seek(
+			FEEDER_LOAD_FILE_ROW *feeder_load_file_row,
+			LIST *feeder_transaction_list )
+{
+	FEEDER_TRANSACTION *feeder_transaction;
+
+	if ( !list_rewind( feeder_transaction_list ) )
+		return (FEEDER_TRANSACTION *)0;
+
+	do {
+		feeder_transaction =
+			list_get(
+				feeder_transaction_list );
+
+		if (	feeder_transaction->feeder_load_file_row ==
+			feeder_load_file_row )
+		{
+			return feeder_transaction;
+		}
+
+	} while ( list_next( feeder_transaction_list ) );
+
+	return (FEEDER_TRANSACTION *)0;
+}
+
+FEEDER_TRANSACTION_LIST *feeder_transaction_list_new(
+			DATE *feeder_load_date,
+			char *feeder_account,
+			LIST *feeder_load_row_list,
+			FEEDER_NOT_MATCHED_JOURNAL_LIST *
+				feeder_not_matched_journal_list )
+{
+	FEEDER_TRANSATION_LIST *feeder_transaction_list;
+	FEEDER_LOAD_FILE_ROW *feeder_load_file_row;
+
+	if ( !feeder_load_date
+	||   !feeder_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( feeder_load_row_list ) )
+	{
+		return (FEEDER_TRANSACTION_LIST *)0;
+	}
+
+	feeder_transaction_list = feeder_transaction_list_calloc();
+
+	feeder_transaction_list->list = list_new();
+
+	do {
+		feeder_load_file_row =
+			list_get(
+				feeder_load_file_row_list );
+
+		list_set(
+			feeder_transaction_list->list,
+			feeder_transaction_new(
+				feeder_load_date /* in/out */,
+				feeder_account,
+				feeder_load_file_row,
+				feeder_not_matched_journal_list ) );
+
+	} while ( list_next( feeder_load_file_row_list ) );
+
+	return feeder_transaction_list;
+}
+
+FEEDER_TRANSACTION_LIST *feeder_transaction_list_calloc( void )
+{
+	FEEDER_TRANSACTION_LIST *feeder_transaction_list;
+
+	if ( ! ( feeder_transaction_list =
+			calloc( 1, sizeof( FEEDER_TRANSACTION_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_transaction_list;
+}
+
+FEEDER_JOURNAL *feeder_journal_new(
+			LIST *feeder_load_row_list,
+			JOURNAL *journal )
+{
+	FEEDER_JOURNAL *feeder_journal;
+
+	if ( !list_length( feeder_load_row_list ) )
+		return (FEEDER_JOURNAL *)0;
+
+	if ( !journal )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	feeder_journal = feeder_journal_calloc();
+
+	if ( journal->check_number )
+	{
+		feeder_journal->feeder_load_file_row =
+			feeder_load_file_check_number_seek(
+				journal->check_number,
+				feeder_load_file_row_list );
+	}
+
+	if ( !feeder_journal->feeder_load_file_row )
+	{
+		feeder_journal->feeder_load_file_row =
+			feeder_load_file_row_amount_seek(
+				journal->debit_amount,
+				journal->credit_amount,
+				feeder_load_file_row_list );
+	}
+
+	if ( !feeder_journal->feeder_load_file_row )
+	{
+		free( feeder_journal );
+		return (FEEDER_JOURNAL *)0;
+	}
+
+	feeder_journal->journal = journal;
+
+	return feeder_journal;
+}
+
+FEEDER_JOURNAL *feeder_journal_calloc( void )
+{
+	FEEDER_JOURNAL *feeder_journal;
+
+	if ( ! ( feeder_journal = calloc( 1, sizeof( FEEDER_JOURNAL ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_journal;
+}
+
+FEEDER_JOURNAL *feeder_journal_row_seek(
+			FEEDER_LOAD_FILE_ROW *feeder_load_file_row,
+			LIST *feeder_journal_list )
+{
+	FEEDER_JOURNAL *feeder_journal;
+
+	if ( !feeder_load_file_row )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_load_file_row is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( feeder_journal_list ) )
+		return (FEEDER_JOURNAL *)0;
+
+	do {
+		feeder_journal = list_get( feeder_journal_list );
+
+		if ( feeder_journal->taken ) continue;
+
+		if (	feeder_journal->feeder_load_file_row ==
+			feeder_load_file_row )
+		{
+			return feeder_journal;
+		}
+
+	} while ( list_next( feeder_journal_list ) );
+
+	return (FEEDER_JOURNAL *)0;
+}
+
+FEEDER_NOT_MATCHED_JOURNAL_LIST *
+	feeder_not_matched_journal_list_new(
+			char *feeder_account,
+			LIST *feeder_load_file_row_list )
+{
+	FEEDER_NOT_MATCHED_JOURNAL_LIST *feeder_not_matched_journal_list;
+
+	if ( !feeder_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_account is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( feeder_load_file_row_list ) )
+	{
+		return (FEEDER_NOT_MATCHED_JOURNAL_LIST *)0;
+	}
+
+	feeder_not_matched_journal_list =
+		feeder_not_matched_journal_list_calloc();
+
+	feeder_not_matched_journal_list->subquery =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_not_matched_journal_list_subquery(
+			feeder_account,
+			JOURNAL_TABLE,
+			FEEDER_LOAD_ROW_TABLE );
+
+	feeder_not_matched_journal_list->where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_not_matched_journal_list_where(
+			feeder_account,
+			account_uncleared_checks(),
+			feeder_not_matched_journal_list->subquery );
+
+	feeder_not_matched_journal_list->journal_system_list =
+		journal_system_list(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			journal_system_string(
+				JOURNAL_SELECT,
+				JOURNAL_TABLE,
+			feeder_not_matched_journal_list->where ),
+		1 /* fetch_check_number */,
+		0 /* not fetch_memo */ );
+
+	if ( !list_rewind( feeder_not_matched_journal_list->
+				journal_system_list  ) )
+	{
+		free( feeder_not_matched_journal_list );
+		return (FEEDER_NOT_MATCHED_JOURNAL_LIST *)0;
+	}
+
+	feeder_not_matched_journal_list->feeder_journal_list = list_new();
+
+	do {
+		feeder_not_matched_journal_list->journal =
+			list_get(
+				feeder_not_matched_journal_list->
+					journal_system_list );
+
+		list_set(
+			feeder_not_matched_journal_list->feeder_journal_list,
+			feeder_journal_new(
+				feeder_load_file_row_list,
+				feeder_not_matched_journal_list->journal ) );
+
+	} while ( list_next(
+			feeder_not_matched_journal_list->
+				journal_system_list ) );
+
+	return feeder_not_matched_journal_list;
+}
+
+FEEDER_NOT_MATCHED_JOURNAL_LIST *
+	feeder_not_matched_journal_list_calloc(
+			void )
+{
+	FEEDER_NOT_MATCHED_JOURNAL_LIST *feeder_not_matched_journal_list;
+
+	if ( ! ( feeder_not_matched_journal_list =
+			calloc(	1,
+				sizeof( FEEDER_NOT_MATCHED_JOURNAL_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return feeder_not_matched_journal_list;
+}
+
+char *feeder_not_matched_journal_list_subquery(
+			char *feeder_account,
+			char *journal_table,
+			char *feeder_load_row_table )
+{
+	char subquery[ 512 ];
+
+	sprintf(subquery,
+		"not exists						"
+		"(select 1 from %s					"
+		"	where %s.full_name =				"
+		"	      %s.full_name and				"
+		"	      %s.street_address =			"
+		"	      %s.street_address and			"
+		"	      %s.transaction_date_time =		"
+		"	      %s.transaction_date_time and		"
+		"	      %s.feeder_account = '%s' )		",
+		feeder_load_row_table,
+		feeder_load_row_table,
+		journal_table,
+		feeder_load_row_table,
+		journal_table,
+		feeder_load_row_table,
+		journal_table,
+		feeder_load_row_table,
+		feeder_account );
+
+	return strdup( subquery );
+}
+
+char *feeder_not_matched_journal_list_where(
+			char *feeder_account,
+			char *account_uncleared_checks,
+			char *subquery )
+{
+	char where[ 1024 ];
+	char *timriley_where;
+
+	if ( strcmp( environment_application(), "timriley" ) == 0 )
+	{
+		timriley_where =
+			"transaction.transaction_date_time >= '2019-01-01'";
+	}
+	else
+	{
+		timriley_where = "1 = 1";
+	}
+
+	sprintf(where,
+		"(account = '%s' or account = '%s') and		"
+		"%s and %s					",
+		feeder_account,
+		account_uncleared_checks,
+		subquery,
+		timriley_where );
+
+	return strdup( where );
 }
 

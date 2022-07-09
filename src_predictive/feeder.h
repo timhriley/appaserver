@@ -11,8 +11,9 @@
 #include "list.h"
 #include "boolean.h"
 #include "date.h"
+#include "journal.h"
 
-#define FEEDER_LOAD_ROW_TABLE			"feeder_load_row"
+#define FEEDER_LOAD_ROW_TABLE		"feeder_load_row"
 
 #define FEEDER_KEYS_MATCH_SUM_MAX 	18
 #define FEEDER_DESCRIPTION_SIZE		140
@@ -217,10 +218,158 @@ typedef struct
 	double credit;
 	double balance;
 	int check_number;
-	FEEDER_PHRASE *feeder_phrase;
 	char *description_embedded;
 	FEEDER_LOAD_TABLE_ROW *feeder_load_table_row;
+	FEEDER_PHRASE *feeder_phrase;
 } FEEDER_LOAD_FILE_ROW;
+
+/* Usage */
+/* ----- */
+
+/* Process */
+/* ------- */
+FEEDER_LOAD_FILE_ROW *feeder_load_file_row_calloc(
+			void );
+
+int feeder_load_file_row_check_number(
+			char *description );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_file_row_description_embedded(
+			char *description,
+			double balance,
+			int line_number,
+			int feeder_load_file_row_check_number );
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_load_file_row_trim_date(
+			char *description );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_file_row_description_build(
+			char *sed_trim_double_spaces,
+			double balance,
+			int line_number );
+
+/* Returns feeder_load_file_row_description_build */
+/* ---------------------------------------------- */
+char *feeder_load_file_row_description_crop(
+			char *feeder_load_file_row_description_build,
+			int feeder_description_size );
+
+typedef struct
+{
+	FEEDER_LOAD_FILE_ROW *feeder_load_file_row;
+	JOURNAL *journal;
+	boolean taken;
+} FEEDER_JOURNAL;
+
+/* Usage */
+/* ----- */
+FEEDER_JOURNAL *feeder_journal_new(
+			LIST *feeder_load_row_list,
+			JOURNAL *journal );
+
+/* Process */
+/* ------- */
+FEEDER_JOURNAL *feeder_journal_calloc(
+			void );
+
+/* Public */
+/* ------ */
+FEEDER_JOURNAL *feeder_journal_row_seek(
+			FEEDER_LOAD_FILE_ROW *feeder_load_file_row,
+			LIST *feeder_journal_list );
+
+typedef struct
+{
+	char *subquery;
+	char *where;
+	LIST *journal_system_list;
+	JOURNAL *journal;
+	LIST *feeder_journal_list;
+} FEEDER_NOT_MATCHED_JOURNAL_LIST;
+
+/* Usage */
+/* ----- */
+FEEDER_NOT_MATCHED_JOURNAL_LIST *
+	feeder_not_matched_journal_list_new(
+			char *feeder_account,
+			LIST *feeder_load_file_row_list );
+
+/* Process */
+/* ------- */
+FEEDER_NOT_MATCHED_JOURNAL_LIST *
+	feeder_not_matched_journal_list_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_not_matched_journal_list_subquery(
+			char *feeder_account,
+			char *journal_table,
+			char *feeder_load_row_table );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_not_matched_journal_list_where(
+			char *feeder_account,
+			char *account_uncleared_checks,
+			char *feeder_not_matched_journal_list_subquery );
+
+typedef struct
+{
+	FEEDER_JOURNAL_ROW *feeder_journal_row_seek;
+	FEEDER_LOAD_FILE_ROW *feeder_load_file_row;
+	char *debit_account;
+	char *credit_account;
+	TRANSACTION *transaction;
+} FEEDER_TRANSACTION;
+
+/* Usage */
+/* ----- */
+FEEDER_TRANSACTION *feeder_transaction_new(
+			DATE *feeder_load_date /* in/out */,
+			char *feeder_account,
+			FEEDER_LOAD_FILE_ROW *feeder_load_file_row,
+			FEEDER_NOT_MATCHED_JOURNAL_LIST *
+				feeder_not_matched_journal_list );
+
+/* Process */
+/* ------- */
+FEEDER_TRANSACTION *feeder_transaction_calloc(
+			void );
+
+/* Public */
+/* ------ */
+FEEDER_TRANSACTION *feeder_transaction_row_seek(
+			FEEDER_LOAD_FILE_ROW *feeder_load_file_row,
+			LIST *feeder_transaction_list );
+
+typedef struct
+{
+	LIST *list;
+} FEEDER_TRANSACTION_LIST;
+
+/* Usage */
+/* ----- */
+FEEDER_TRANSACTION_LIST *feeder_transaction_list_new(
+			DATE *feeder_load_date /* in/out */,
+			char *feeder_account,
+			LIST *feeder_load_row_list,
+			FEEDER_NOT_MATCHED_JOURNAL_LIST *
+				feeder_not_matched_journal_list );
+
+/* Process */
+/* ------- */
+FEEDER_TRANSACTION_LIST *feeder_transaction_list_calloc(
+			void );
 
 typedef struct
 {

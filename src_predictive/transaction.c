@@ -23,6 +23,7 @@
 #include "entity.h"
 #include "appaserver_error.h"
 #include "predictive.h"
+#include "float.h"
 #include "transaction.h"
 
 TRANSACTION *transaction_calloc( void )
@@ -1159,5 +1160,39 @@ void transaction_list_html_display(
 			transaction->memo );
 
 	} while ( list_next( transaction_list->list ) );
+}
+
+TRANSACTION *transaction_binary(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			char *debit_account,
+			char *credit_account )
+{
+	TRANSACTION *transaction;
+
+	if ( !transaction_amount ) return (TRANSACTION *)0;
+
+	transaction =
+		transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	transaction->memo = memo;
+	transaction->transaction_amount = transaction_amount;
+
+	transaction->journal_list =
+		journal_binary_list(
+			transaction->full_name,
+			transaction->street_address,
+			transaction->transaction_date_time,
+			float_abs( transaction->transaction_amount ),
+			debit_account,
+			credit_account );
+
+	return transaction;
 }
 
