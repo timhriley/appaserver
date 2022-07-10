@@ -20,76 +20,6 @@
 
 typedef struct
 {
-	int line_number;
-	char *american_date;
-	char *international_date;
-	char *description;
-	double amount;
-	double debit;
-	double credit;
-	double balance;
-	char *description_embedded;
-} FEEDER_LOAD_ROW;
-
-/* Usage */
-/* ----- */
-FEEDER_LOAD_ROW *feeder_load_row_new(
-			int date_column /* one_based */,
-			int description_column /* one_based */,
-			int debit_column /* one_based */,
-			int credit_column /* one_based */,
-			int balance_column /* one_based */,
-			char *input,
-			int line_number );
-
-/* Process */
-/* ------- */
-FEEDER_LOAD_ROW *feeder_load_row_calloc(
-			void );
-
-int feeder_load_row_line_number(
-			int line_number );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *feeder_load_row_international_date(
-			char *american_date );
-
-double feeder_load_row_amount(
-			double debit,
-			double credit );
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_description_embedded(
-			char *description,
-			int line_number );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_load_row_trim_bank_date(
-			char *description );
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_description_build(
-			char *sed_trim_double_spaces,
-			int line_number );
-
-/* Returns feeder_load_row_description_build */
-/* ----------------------------------------- */
-char *feeder_load_row_description_crop(
-			char *feeder_load_row_description_build,
-			int feeder_description_size );
-
-/* Public */
-/* ------ */
-double feeder_load_row_last_running_balance(
-			boolean reverse_order,
-			LIST *feeder_load_row_list );
-
-typedef struct
-{
 	int line_count;
 	int begin_sequence_number;
 	LIST *feeder_load_row_list;
@@ -207,6 +137,18 @@ FEEDER_PHRASE *feeder_phrase_seek(
 			char *feeder_description,
 			LIST *feeder_phrase_list );
 
+#define FIELD_LOAD_FILE_ROW_INSERT	"full_name,"			\
+					"street_address,"		\
+					"transaction_date_time,"	\
+					"feeder_account,"		\
+					"feeder_date,"			\
+					"feeder_description,"		\
+					"feeder_amount,"		\
+					"feeder_running_balance,"	\
+					"row_number,"			\
+					"feeder_phrase,"		\
+					"feeder_load_date_time"
+
 typedef struct
 {
 	int line_number;
@@ -221,24 +163,52 @@ typedef struct
 	char *description_embedded;
 	FEEDER_LOAD_TABLE_ROW *feeder_load_table_row;
 	FEEDER_PHRASE *feeder_phrase;
+	char *transaction_date_time;
 } FEEDER_LOAD_FILE_ROW;
 
 /* Usage */
 /* ----- */
+FEEDER_LOAD_FILE_ROW *feeder_load_file_row_new(
+			int date_column /* one_based */,
+			int description_column /* one_based */,
+			int debit_column /* one_based */,
+			int credit_column /* one_based */,
+			int balance_column /* one_based */,
+			LIST *feeder_phrase_list,
+			LIST *feeder_load_table_row_list,
+			DATE *feeder_load_file_date,
+			char *input,
+			int line_number );
 
 /* Process */
 /* ------- */
 FEEDER_LOAD_FILE_ROW *feeder_load_file_row_calloc(
 			void );
 
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *feeder_load_file_row_international_date(
+			char *american_date );
+
+double feeder_load_file_row_amount(
+			double debit,
+			double credit );
+
 int feeder_load_file_row_check_number(
 			char *description );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_file_row_transaction_date_time(
+			char *date_hms,
+			char *feeder_load_file_row_international_date );
 
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns heap memory or description */
+/* ---------------------------------- */
 char *feeder_load_file_row_description_embedded(
 			char *description,
 			double balance,
@@ -262,6 +232,58 @@ char *feeder_load_file_row_description_build(
 char *feeder_load_file_row_description_crop(
 			char *feeder_load_file_row_description_build,
 			int feeder_description_size );
+
+/* Public */
+/* ------ */
+double feeder_load_file_row_last_running_balance(
+			boolean reverse_order,
+			LIST *feeder_load_file_row_list );
+
+FEEDER_LOAD_FILE_ROW *
+	feeder_load_file_row_check_number_seek(
+			int check_number,
+			LIST *feeder_load_file_row_list );
+
+FEEDER_LOAD_FILE_ROW *
+	feeder_load_file_row_amount_seek(
+			double debit_amount,
+			double credit_amount,
+			LIST *feeder_load_file_row_list );
+
+/* Driver */
+/* ------ */
+void feeder_load_file_row_list_insert(
+			char *feeder_account,
+			char *feeder_load_date_time,
+			LIST *feeder_file_load_row_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_file_row_list_insert_system_string(
+			char *feeder_load_row_insert,
+			char *feeder_load_row_table,
+			char sql_delimiter );
+
+FILE *feeder_load_file_row_list_insert_pipe(
+			char *feeder_load_file_row_list_insert_system_string );
+
+void feeder_load_file_row_insert(
+			FILE *feeder_load_file_row_list_insert_pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *feeder_account,
+			char *feeder_load_file_row_international_date,
+			char *feeder_load_file_row_description_embedded,
+			double feeder_load_file_row_amount,
+			double feeder_load_file_row_balance,
+			int row_number,
+			char *feeder_phrase,
+			char *feeder_load_date_time,
+			char sql_delimiter );
 
 typedef struct
 {
@@ -313,6 +335,7 @@ FEEDER_NOT_MATCHED_JOURNAL_LIST *
 /* ------------------- */
 char *feeder_not_matched_journal_list_subquery(
 			char *feeder_account,
+			char *account_uncleared_checks,
 			char *journal_table,
 			char *feeder_load_row_table );
 
