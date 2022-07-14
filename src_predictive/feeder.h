@@ -294,10 +294,25 @@ char *feeder_load_file_row_list_insert_system_string(
 			char *feeder_load_row_table,
 			char sql_delimiter );
 
+/* Always succeeds */
+/* --------------- */
 FILE *feeder_load_file_row_list_insert_pipe(
 			char *feeder_load_file_row_list_insert_system_string );
 
-void feeder_load_file_row_insert(
+/* Always succeeds */
+/* --------------- */
+JOURNAL *feeder_load_file_row_journal(
+			FEEDER_PHRASE *feeder_phrase_seek,
+			char *transaction_date_time,
+			FEEDER_NOT_MATCHED_JOURNAL *
+				feeder_not_matched_journal );
+
+/* Always succeeds */
+/* --------------- */
+char *feeder_load_file_row_phrase(
+			FEEDER_PHRASE *feeder_phrase );
+
+void feeder_load_file_row_insert_pipe(
 			FILE *feeder_load_file_row_list_insert_pipe,
 			char *full_name,
 			char *street_address,
@@ -307,8 +322,8 @@ void feeder_load_file_row_insert(
 			char *feeder_load_file_row_description_embedded,
 			double feeder_load_file_row_amount,
 			double feeder_load_file_row_balance,
-			int row_number,
-			char *feeder_phrase,
+			int feeder_load_file_row_number,
+			char *feeder_load_file_row_phrase,
 			char *feeder_load_date_time,
 			char sql_delimiter );
 

@@ -361,14 +361,14 @@ char *feeder_load_file_row_description_embedded(
 	if ( check_number ) return description;
 
 	return
-	/* ----------------------------------------- */
-	/* Returns feeder_load_row_description_build */
-	/* ----------------------------------------- */
-	feeder_load_row_file_description_crop(
+	/* ---------------------------------------------- */
+	/* Returns feeder_load_file_row_description_build */
+	/* ---------------------------------------------- */
+	feeder_load_file_row_description_crop(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		feeder_load_row_file_description_build(
+		feeder_load_file_row_description_build(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -419,11 +419,14 @@ char *feeder_load_row_file_description_build(
 	return strdup( build );
 }
 
-char *feeder_load_row_description_crop(
-			char *feeder_load_row_description_build,
+char *feeder_load_file_row_description_crop(
+			char *description_build,
 			int feeder_description_size )
 {
-	*( feeder_load_row_description_build + feeder_description_size ) = '\0';
+	if ( string_strlen( description_build ) > feeder_description_size )
+	{
+		*( description_build + feeder_description_size ) = '\0';
+	}
 
 	return feeder_load_row_description_build;
 }
@@ -1632,17 +1635,17 @@ int feeder_load_file_row_check_number( char *feeder_description )
 void feeder_load_file_row_list_insert(
 			char *feeder_account,
 			char *feeder_load_date_time,
-			LIST *feeder_file_load_row_list,
-			LIST *feeder_journal_list )
+			LIST *feeder_load_file_row_list )
 {
 	FILE *insert_pipe;
 	FEEDER_LOAD_FILE_ROW *feeder_load_file_row;
-	FEEDER_JOURNAL *feeder_journal;
 	JOURNAL *journal;
 
-	if ( !list_rewind( feeder_file_load_row_list ) ) return;
+	if ( !list_rewind( feeder_load_file_row_list ) ) return;
 
 	insert_pipe =
+		/* Always succeeds */
+		/* --------------- */
 		feeder_load_file_row_list_insert_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
@@ -1657,45 +1660,41 @@ void feeder_load_file_row_list_insert(
 			list_get(
 				feeder_load_file_row_list );
 
-		if ( feeder_load_file_row->feeder_load_exist_row ) continue;
-
-		feeder_journal =
-			feeder_journal_row_seek(
-				feeder_load_file_row,
-				feeder_journal_list );
-
-		if ( ! ( journal =
-				feeder_load_file_row_journal(
-					feeder_load_file_row->feeder_phrase,
-					feeder_journal ) ) )
+		if ( feeder_load_file_row->
+			feeder_load_exist_row_seek )
 		{
-			fprintf(stderr,
-	"ERROR in %s/%s()/%d: feeder_load_file_row_journal() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-
-			pclose( insert_pipe );
-			exit( 1 );
+			continue;
 		}
 
-		feeder_load_file_row_insert(
+		journal =
+			/* Always succeeds */
+			/* --------------- */
+			feeder_load_file_row_journal(
+				feeder_load_file_row->
+					feeder_phrase_seek,
+				feeder_load_file_row->
+					transaction_date_time,
+				feeder_load_file_row->
+					feeder_not_matched_journal );
+
+		feeder_load_file_row_insert_pipe(
 			insert_pipe,
-			feeder_load_file_row->
-				feeder_phrase->
-				full_name,
-			feeder_load_file_row->
-				feeder_phrase->
-				street_address,
-			feeder_load_file_row->transaction_date_time,
+			journal->full_name,
+			journal->street_address,
+			journal->transaction_date_time,
 			feeder_account,
 			feeder_load_file_row->international_date,
 			feeder_load_file_row->description_embedded,
 			feeder_load_file_row->amount,
 			feeder_load_file_row->balance,
 			feeder_load_file_row->row_number,
-			feeder_load_file_row->feeder_phrase->phrase,
-			feeder_load_date_time );
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			feeder_load_file_row_phrase(
+				feeder_load_file_row->feeder_phrase ),
+			feeder_load_date_time,
+			SQL_DELIMITER );
 
 	} while ( list_next( feeder_load_file_row_list ) );
 
@@ -1747,7 +1746,7 @@ FILE *feeder_load_file_row_list_insert_pipe(
 	return popen( insert_system_string, "w" );
 }
 
-void feeder_load_file_row_insert(
+void feeder_load_file_row_insert_pipe(
 			FILE *insert_pipe,
 			char *full_name,
 			char *street_address,
@@ -1758,9 +1757,55 @@ void feeder_load_file_row_insert(
 			double amount,
 			double balance,
 			int row_number,
-			char *feeder_phrase,
-			char *feeder_load_date_time )
+			char *phrase,
+			char *feeder_load_date_time,
+			char sql_delimiter )
 {
+	if ( !insert_pipe
+	||   !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !feeder_account
+	||   !international_date
+	||   !description_embedded
+	||   !amount
+	||   !row_number
+	||   !phrase
+	||   !feeder_load_date_time
+	||   !sql_delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		pclose( insert_pipe );
+		exit( 1 );
+	}
+
+	fprintf(insert_pipe,
+		"%s%c%s%c%s%c%s%c%s%c%s%c%.2lf%c%.2lf%c%d%c%s%c%s\n",
+	 	full_name,
+		sql_delimiter,
+	 	street_address,
+		sql_delimiter,
+		transation_date_time,
+		sql_delimiter,
+		feeder_account,
+		sql_delimiter,
+		international_date,
+		sql_delimiter,
+		description_embedded,
+		sql_delimiter,
+		amount,
+		sql_delimiter,
+		balance,
+		sql_delimiter,
+		row_number,
+		sql_delimiter,
+		phrase,
+		sql_delimiter,
+		feeder_load_date_time );
 }
 
 FEEDER_LOAD_FILE_ROW *
@@ -2098,5 +2143,62 @@ char *feeder_load_file_minimum_date(
 	fclose( file );
 
 	return minimum_date;
+}
+
+JOURNAL *feeder_load_file_row_journal(
+			FEEDER_PHRASE *feeder_phrase_seek,
+			char *transaction_date_time,
+			FEEDER_NOT_MATCHED_JOURNAL *
+				feeder_not_matched_journal )
+{
+	if ( !feeder_phrase_seek
+	&&   !feeder_not_matched_journal )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: both parameters are empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( feeder_phrase_seek )
+	{
+		if ( !transaction_date_time )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_date_time is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+
+		return
+		journal_new(
+			feeder_phrase_seek->full_name,
+			feeder_phrase_seek->street_address,
+			transaction_date_time,
+			feeder_phrase_seek->nominal_account );
+	}
+	else
+	{
+		return
+		journal_new(
+			not_matched_journal->full_name,
+			not_matched_journal->street_address,
+			not_matched_journal->transaction_date_time,
+			not_matched_journal->account_name );
+	}
+}
+
+char *feeder_load_file_row_phrase(
+			FEEDER_PHRASE *feeder_phrase )
+{
+	if ( !feeder_phrase )
+		return "";
+	else
+		return feeder_phrase->phrase;
 }
 
