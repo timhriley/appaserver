@@ -170,6 +170,9 @@ JOURNAL *journal_new(	char *full_name,
 			char *transaction_date_time,
 			char *account_name );
 
+JOURNAL *journal_calloc(
+			void );
+
 /* Usage */
 /* ----- */
 char *journal_transaction_cell_fetch(

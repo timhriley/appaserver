@@ -22,10 +22,7 @@
 #include "transaction.h"
 #include "journal.h"
 
-JOURNAL *journal_new(		char *full_name,
-				char *street_address,
-				char *transaction_date_time,
-				char *account_name )
+JOURNAL *journal_calloc( void )
 {
 	JOURNAL *journal;
 
@@ -39,10 +36,21 @@ JOURNAL *journal_new(		char *full_name,
 		exit( 1 );
 	}
 
+	return journal;
+}
+
+JOURNAL *journal_new(		char *full_name,
+				char *street_address,
+				char *transaction_date_time,
+				char *account_name )
+{
+	JOURNAL *journal = journal_calloc();
+
 	journal->full_name = full_name;
 	journal->street_address = street_address;
 	journal->transaction_date_time = transaction_date_time;
 	journal->account_name = account_name;
+
 	return journal;
 }
 
