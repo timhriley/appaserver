@@ -20,6 +20,7 @@
 
 #define ACCOUNT_TABLE			"account"
 
+#define ACCOUNT_UNCLEARED_CHECKS	"uncleared_checks"
 #define ACCOUNT_NET_INCOME		"net_income"
 #define ACCOUNT_CHANGE_IN_NET_ASSETS	"change_in_net_assets"
 #define ACCOUNT_NOT_SET			"not_set"

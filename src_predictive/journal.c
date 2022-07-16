@@ -22,23 +22,6 @@
 #include "transaction.h"
 #include "journal.h"
 
-JOURNAL *journal_calloc( void )
-{
-	JOURNAL *journal;
-
-	if ( ! ( journal = calloc( 1, sizeof( JOURNAL ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return journal;
-}
-
 JOURNAL *journal_new(		char *full_name,
 				char *street_address,
 				char *transaction_date_time,

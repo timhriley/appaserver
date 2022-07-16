@@ -10,10 +10,8 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "html_table.h"
 #include "element.h"
-
-/* Constants */
-/* --------- */
 
 /* Enumerated types */
 /* ---------------- */
@@ -30,8 +28,6 @@ enum output_medium 		{	output_table,
 					output_PDF,
 					output_stdout };
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* Attributes */
@@ -48,8 +44,9 @@ typedef struct
 
 	/* Process */
 	/* ------- */
+	char *date_string;
+	char *transaction_date_time_nominal;
 	char *begin_date_string;
-	char *prior_date_string;
 	char *prior_transaction_date_time_nominal;
 	char *prior_transaction_date_time_fixed;
 	LIST *prior_year_element_list;
@@ -59,8 +56,30 @@ typedef struct
 	double loss_total;
 	double statement_prior_year_net_income;
 	int delta_prior;
-
 } STATEMENT_PRIOR_YEAR;
+
+/* Usage */
+/* ----- */
+STATEMENT_PRIOR_YEAR *statement_prior_year_new(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *filter_element_name_list,
+			char *as_of_date,
+			int years_ago,
+			char *fund_name,
+			enum subclassification_option );
+
+/* Process */
+/* ------- */
+STATEMENT_PRIOR_YEAR *statement_prior_year_calloc(
+			void );
+
+char *statement_prior_year_date_string(
+			char *as_of_date,
+			int years_ago );
+
 
 typedef struct
 {
@@ -183,17 +202,6 @@ STATEMENT *statement_steady_state(
 			char *output_medium_string,
 			boolean with_postclose,
 			STATEMENT *statement );
-
-STATEMENT_PRIOR_YEAR *statement_prior_year_new(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *as_of_date,
-			int years_ago,
-			char *fund_name,
-			enum subclassification_option );
 
 STATEMENT_FUND *statement_fund_fetch(
 			char *application_name,

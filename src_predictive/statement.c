@@ -349,16 +349,7 @@ STATEMENT *statement_steady_state(
 	return statement;
 }
 
-STATEMENT_PRIOR_YEAR *statement_prior_year_new(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *as_of_date,
-			int years_ago,
-			char *fund_name,
-			enum subclassification_option subclassification_option )
+STATEMENT_PRIOR_YEAR *statement_prior_year_calloc( void )
 {
 	STATEMENT_PRIOR_YEAR *statement_prior_year;
 
@@ -372,6 +363,22 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_new(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	return statement_prior_year;
+}
+
+STATEMENT_PRIOR_YEAR *statement_prior_year_new(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *filter_element_name_list,
+			char *as_of_date,
+			int years_ago,
+			char *fund_name,
+			enum subclassification_option subclassification_option )
+{
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
 
 	statement_prior_year->application_name = application_name;
 	statement_prior_year->session = session;
@@ -3950,5 +3957,11 @@ char *statement_PDF_net_income_label(
 			ACCOUNT_NET_INCOME );
 	}
 	return label;
+}
+
+char *statement_prior_year_date_string(
+			char *as_of_date,
+			int years_ago )
+{
 }
 
