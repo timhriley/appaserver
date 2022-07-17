@@ -419,9 +419,7 @@ char *transaction_memo( char *memo )
 	return return_memo;
 }
 
-/* Returns race-free transaction_date_time */
-/* --------------------------------------- */
-char *transaction_race_free_fetch( char *transaction_date_time )
+char *transaction_race_free_date_time( char *transaction_date_time )
 {
 	key_t key = TRANSACTION_SEMAPHORE_KEY;
 	int semid;
@@ -1196,3 +1194,145 @@ TRANSACTION *transaction_binary(
 	return transaction;
 }
 
+boolean transaction_as_of_date_populated( char *as_of_date )
+{
+	if ( as_of_date
+	&&   *as_of_date
+	&&   strcmp( as_of_date, "as_of_date" ) != 0 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+char *transaction_as_of_date( char *as_of_date )
+{
+	if ( transaction_as_of_date_populated( as_of_date ) )
+	{
+		return as_of_date;
+	}
+	else
+	{
+		return
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		transaction_date_max();
+	}
+}
+
+char *transaction_date_max( void )
+{
+	char *date_time_max;
+
+	if ( ! ( date_time_max =
+			transaction_date_time_max(
+				TRANSACTION_TABLE ) ) )
+	{
+		return (char *)0;
+	}
+
+	*( date_time_max + 10 ) = '\0';
+
+	return date_time_max;
+}
+
+char *transaction_date_time_max( char *transaction_table )
+{
+	char system_string[ 128 ];
+	char *select;
+
+	select = "max( transaction_date_time )";
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s",
+		select,
+		transaction_table );
+
+	return pipe2string( system_string );
+}
+
+DATE *transaction_prior_closing_transaction_date(
+			char *predictive_close_time,
+			char *transaction_closing_entry_memo,
+			char *transaction_table,
+			char *transaction_as_of_date )
+{
+	char where[ 512 ];
+	char system_string[ 1024 ];
+	char *select;
+	char *results;
+	char ending_transaction_date_time[ 32 ];
+	char transaction_date_string[ 16 ];
+	DATE *prior_closing_transaction_date = {0};
+
+	if ( !predictive_close_time
+	||   !transaction_closing_entry_memo
+	||   !transaction_table
+	||   !transaction_as_of_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	select = "max( transaction_date_time )";
+
+	sprintf(ending_transaction_date_time,
+		"%s %s",
+		transaction_as_of_date,
+		predictive_close_time );
+
+	sprintf(where,
+		"memo = '%s' and transaction_date_time < '%s'",
+		transaction_closing_entry_memo,
+		ending_transaction_date_time );
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" none",
+		 select,
+		 transaction_table,
+		 where );
+
+	results = pipe2string( system_string );
+
+	if ( results && *results )
+	{
+		column( transaction_date_string, 0, results );
+
+		prior_closing_transaction_date =
+			date_yyyy_mm_dd_new(
+				transaction_date_string );
+	}
+
+	return prior_closing_transaction_date;
+}
+
+char *transaction_minimum_transaction_date_string(
+			char *transaction_table )
+{
+	char system_string[ 1024 ];
+	char transaction_date_string[ 16 ];
+	char *results;
+
+
+	sprintf(system_string,
+		"get_folder_data	application=%s		"
+		"			select=\"%s\"		"
+		"			folder=%s		",
+		environment_application_name(),
+		"min( transaction_date_time )",
+		transaction_table );
+
+	results = pipe2string( system_string );
+
+	if ( !results || !*results ) return (char *)0;
+
+	return strdup( column( transaction_date_string, 0, results )  );
+}

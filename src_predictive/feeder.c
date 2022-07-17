@@ -418,9 +418,9 @@ char *feeder_load_row_description_embedded(
 	if ( check_number ) return feeder_description;
 
 	return
-	/* ------------------------------------------ */
-	/* Returns feeder__file_row_description_build */
-	/* ------------------------------------------ */
+	/* ----------------------------------------- */
+	/* Returns feeder_load_row_description_build */
+	/* ----------------------------------------- */
 	feeder_load_row_description_crop(
 		/* ------------------- */
 		/* Returns heap memory */
@@ -440,7 +440,7 @@ char *feeder_load_row_description_embedded(
 		FEEDER_DESCRIPTION_SIZE );
 }
 
-char *feeder_row_file_description_build(
+char *feeder_load_row_description_build(
 			char *sed_trim_double_spaces,
 			double balance,
 			int line_number )
@@ -798,7 +798,7 @@ void feeder_load_event_insert_pipe(
 		ending_balance );
 }
 
-char *feeder_load_basename_filename( char *feeder_load_filename )
+char *feeder_load_file_basename_filename( char *feeder_load_filename )
 {
 	char filename[ 256 ];
 	int session_characters_to_trim;
@@ -1008,7 +1008,7 @@ FEEDER_LOAD *feeder_load_calloc( void )
 	return feeder_load;
 }
 
-char *feeder_load_sha256sum( char *feeder_load_filename )
+char *feeder_load_file_sha256sum( char *feeder_load_filename )
 {
 	if ( !feeder_load_filename )
 	{
@@ -1432,7 +1432,7 @@ void feeder_load_row_list_insert(
 				feeder_load_row->
 					feeder_matched_journal );
 
-		feeder_load_row_insert_pipe(
+		feeder_load_row_insert(
 			insert_pipe,
 			journal->full_name,
 			journal->street_address,
@@ -1501,7 +1501,7 @@ FILE *feeder_load_file_row_list_insert_pipe(
 	return popen( insert_system_string, "w" );
 }
 
-void feeder_load_file_row_insert_pipe(
+void feeder_load_row_insert(
 			FILE *insert_pipe,
 			char *full_name,
 			char *street_address,
@@ -2371,5 +2371,40 @@ boolean feeder_load_row_account_empty(
 		return 1;
 	else
 		return 0;
+}
+
+FILE *feeder_load_row_list_insert_pipe( char *system_string )
+{
+	return popen( system_string, "w" );
+}
+
+FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
+{
+	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+
+	if ( !journal )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	feeder_matched_journal = feeder_matched_journal_calloc();
+
+	feeder_matched_journal->full_name = journal->full_name;
+	feeder_matched_journal->street_address = journal->street_address;
+
+	feeder_matched_journal->transaction_date_time =
+		journal->transaction_date_time;
+
+	feeder_matched_journal->account_name = journal->account_name;
+	feeder_matched_journal->debit_amount = journal->debit_amount;
+	feeder_matched_journal->credit_amount = journal->credit_amount;
+	feeder_matched_journal->check_number = journal->check_number;
+
+	return feeder_matched_journal;
 }
 

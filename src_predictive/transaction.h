@@ -221,9 +221,43 @@ char *transaction_date_time(
 			char *transaction_date,
 			char *transaction_time );
 
+/* Usage */
+/* ----- */
+
+/* Returns as_of_date, heap memory, or null */
+/* ---------------------------------------- */
+char *transaction_as_of_date(
+			char *as_of_date );
+
+/* Process */
+/* ------- */
+boolean transaction_as_of_date_populated(
+			char *as_of_date );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_date_max(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_date_time_max(
+			char *transaction_table );
+
 /* Private */
 /* ------- */
 TRANSACTION *transaction_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_date_max(
 			void );
 
 /* Public */
@@ -264,6 +298,17 @@ boolean transaction_date_time_exists(
 			char *transaction_table,
 			char *transaction_date_time_column,
 			char *transaction_date_time );
+
+DATE *transaction_prior_closing_transaction_date(
+			char *predictive_close_time,
+			char *transaction_closing_entry_memo,
+			char *transaction_table,
+			char *transaction_as_of_date );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_minimum_transaction_date_string(
+			char *transaction_table );
 
 typedef struct
 {

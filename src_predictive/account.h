@@ -78,21 +78,6 @@ ACCOUNT *account_fetch(	char *account_name,
 char *account_primary_where(
 			char *account_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *account_system_string(
-			char *account_select,
-			char *account_table,
-			char *where );
-
-ACCOUNT *account_parse(	char *input,
-			boolean fetch_subclassification,
-			boolean fetch_entity );
-
-ACCOUNT *account_new(	char *account_name );
-
-ACCOUNT *account_calloc(void );
-
 /* Usage */
 /* ----- */
 ACCOUNT *account_key_fetch(
@@ -115,12 +100,20 @@ LIST *account_system_list(
 			boolean fetch_subclassifiction,
 			boolean fetch_entity );
 
+/* Process */
+/* ------- */
+
 /* Usage */
 /* ----- */
 LIST *account_list(	char *where,
 			boolean fetch_subclassification,
 			boolean fetch_entity );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 ACCOUNT *account_subclassification_fetch(
 			char *account_name,
 			char *begin_transaction_date_time,
@@ -333,5 +326,28 @@ LIST *account_receivable_name_list(
 ACCOUNT *account_getset(
 			LIST *account_list,
 			char *account_name );
+
+/* Usage */
+/* ----- */
+ACCOUNT *account_parse(	char *input,
+			boolean fetch_subclassification,
+			boolean fetch_entity );
+
+/* Process */
+/* ------- */
+ACCOUNT *account_new(	char *account_name );
+
+ACCOUNT *account_calloc(
+			void );
+
+/* Private */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *account_system_string(
+			char *account_select,
+			char *account_table,
+			char *where );
 
 #endif

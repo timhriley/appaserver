@@ -115,10 +115,8 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 typedef struct
 {
-	char *subquery;
-	char *where;
-	LIST *journal_system_list;
-	JOURNAL *journal;
+	/* Attributes */
+	/* ---------- */
 	char *full_name;
 	char *street_address;
 	char *transaction_date_time;
@@ -128,6 +126,12 @@ typedef struct
 	double amount;
 	int check_number;
 	boolean taken;
+
+	/* Process */
+	/* ------- */
+	char *subquery;
+	char *where;
+	LIST *journal_system_list;
 } FEEDER_MATCHED_JOURNAL;
 
 /* Usage */
@@ -343,7 +347,7 @@ JOURNAL *feeder_load_row_journal(
 char *feeder_load_row_phrase(
 			FEEDER_PHRASE *feeder_phrase_seek );
 
-void feeder_load_row_insert_pipe(
+void feeder_load_row_insert(
 			FILE *feeder_load_row_list_insert_pipe,
 			char *full_name,
 			char *street_address,

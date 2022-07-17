@@ -639,8 +639,10 @@ LIABILITY_PAYMENT *liability_payment_new(
 	liability_payment->credit_account_name =
 		liability_payment_credit_account_name(
 			starting_check_number,
-			account_cash(),
-			account_uncleared_checks() );
+			account_cash(
+				ACCOUNT_CASH_KEY ),
+			account_uncleared_checks(
+				ACCOUNT_UNCLEARED_CHECKS_KEY ) );
 
 	liability_payment->liability_transaction_list =
 		liability_transaction_list_new(
@@ -2081,5 +2083,72 @@ char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
 		liability_entity->amount_due );
 
 	return display;
+}
+
+LIABILITY_CHECK_LIST *liability_check_list_calloc( void )
+{
+	LIABILITY_CHECK_LIST *liability_check_list;
+
+	if ( ! ( liability_check_list =
+			calloc( 1, sizeof( LIABILITY_CHECK_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return liability_check_list;
+}
+
+char *liability_check_vendor_name_amount_due_display(
+			char *escape_payable_to,
+			char *amount_due_display )
+{
+	static char display[ 128 ];
+
+	if ( !escape_payable_to
+	||   !amount_due_display )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(display,
+"\\begin{tabular}{p{0.2in}p{2.5in}p{4.1in}l}\n"
+"& %.26s & %s & %s\n"
+"\\end{tabular}\n\n",
+		escape_payable_to,
+		escape_payable_to,
+		amount_due_display );
+
+	return display;
+}
+
+char *liability_check_escape_payable_to( char *full_name )
+{
+	static char escape_payable_to[ 128 ];
+
+	if ( !full_name || !*full_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter_is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	latex_escape_data(
+		escape_payable_to /* destination */,
+		full_name /* source */,
+		128 );
 }
 

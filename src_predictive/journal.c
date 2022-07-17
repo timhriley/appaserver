@@ -1504,3 +1504,61 @@ double journal_list_transaction_amount( LIST *journal_list )
 	}
 }
 
+LIST *journal_minimum_list(
+			char *minimum_transaction_date_time,
+			char *account_name )
+{
+	if ( !minimum_transaction_date_time
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	journal_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_system_string(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			journal_minimum_where(
+				minimum_transaction_date_time,
+				account_name ) ),
+		0 /* not fetch_check_number */,
+		0 /* not fetch_memo */ );
+}
+
+char *journal_minimum_where(
+			char *minimum_transaction_date_time,
+			char *account_name )
+{
+	static char where[ 128 ];
+
+	if ( !minimum_transaction_date_time
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"account = '%s' and transaction_date_time >= '%s'",
+		account_name,
+		minimum_transaction_date_time );
+
+	return where;
+}
+

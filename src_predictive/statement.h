@@ -10,485 +10,60 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "html_table.h"
-#include "element.h"
 
-/* Enumerated types */
-/* ---------------- */
-enum subclassification_option	{	subclassification_aggregate,
-					subclassification_display,
-					subclassification_omit };
+#define STATEMENT_ROWS_BETWEEN_HEADING		10
+#define STATEMENT_PROMPT			"Press here to view statement."
+#define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 
-enum fund_aggregation		{	single_fund,
-					sequential,
-					consolidated,
-					no_fund };
+enum statement_subclassification_option	{
+			subclassification_aggregate,
+			subclassification_display,
+			subclassification_omit };
 
-enum output_medium 		{	output_table,
-					output_PDF,
-					output_stdout };
-
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *application_name;
-	char *session;
-	char *login_name;
-	char *role_name;
-	LIST *filter_element_name_list;
-	char *as_of_date;
-	int years_ago;
-	char *fund_name;
-	enum subclassification_option subclassification_option;
-
-	/* Process */
-	/* ------- */
-	char *date_string;
-	char *transaction_date_time_nominal;
-	char *begin_date_string;
-	char *prior_transaction_date_time_nominal;
-	char *prior_transaction_date_time_fixed;
-	LIST *prior_year_element_list;
-	double revenue_total;
-	double expense_total;
-	double gain_total;
-	double loss_total;
-	double statement_prior_year_net_income;
-	int delta_prior;
-} STATEMENT_PRIOR_YEAR;
+enum statement_output_medium 		{
+			output_table,
+			output_PDF,
+			output_spreadsheet,
+			output_stdout };
 
 /* Usage */
 /* ----- */
-STATEMENT_PRIOR_YEAR *statement_prior_year_new(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *as_of_date,
-			int years_ago,
-			char *fund_name,
-			enum subclassification_option );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *statement_begin_date_string(
+			char *transaction_table,
+			char *transaction_as_of_date );
 
 /* Process */
 /* ------- */
-STATEMENT_PRIOR_YEAR *statement_prior_year_calloc(
-			void );
 
-char *statement_prior_year_date_string(
-			char *as_of_date,
-			int years_ago );
-
-
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *application_name;
-	char *session;
-	char *login_name;
-	char *role_name;
-	LIST *filter_element_name_list;
-	char *begin_date_string;
-	char *as_of_date;
-	int prior_year_count;
-	char *fund_name;
-	enum subclassification_option subclassification_option;
-
-	/* Process */
-	/* ------- */
-	char *transaction_date_time_nominal;
-	char *transaction_date_time_fixed;
-	LIST *preclose_element_list;
-	LIST *postclose_element_list;
-	LIST *prior_year_list;
-	double preclose_debit_total;
-	double preclose_credit_total;
-	double postclose_debit_total;
-	double postclose_credit_total;
-	double revenue_total;
-	double expense_total;
-	double gain_total;
-	double loss_total;
-	double net_income;
-	int net_income_percent;
-	char *statement_fund_caption;
-
-} STATEMENT_FUND;
-
-typedef struct
-{
-	/* Attributes */
-	/* ---------- */
-	char *application_name;
-	char *session;
-	char *login_name;
-	char *role_name;
-	char *process_name;
-	boolean exists_logo_filename;
-	LIST *filter_element_name_list;
-	char *as_of_date;
-	int prior_year_count;
-	LIST *fund_name_list;
-	char *subclassification_option_string;
-	char *fund_aggregation_string;
-	char *output_medium_string;
-
-	/* Process */
-	/* ------- */
-	enum subclassification_option statement_subclassification_option;
-	enum fund_aggregation statement_fund_aggregation;
-	enum output_medium statement_output_medium;
-	char *begin_date_string;
-	char *title;
-	char *subtitle;
-	LIST *statement_fund_list;
-
-} STATEMENT;
-
-/* Operations */
-/* ---------- */
-STATEMENT *statement_new(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *process_name,
-			boolean exists_logo_filename,
-			LIST *filter_element_name_list,
-			char *as_of_date,
-			int prior_year_count,
-			LIST *fund_name_list,
-			char *subclassification_option_string,
-			char *fund_aggregation_string,
-			char *output_medium_string );
-
-LIST *statement_fund_element_list(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *begin_date_string,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			char *fund_name,
-			enum subclassification_option );
-
-enum subclassification_option statement_subclassification_option(
+/* Public */
+/* ------ */
+enum statement_subclassification_option
+	statement_resolve_subclassification_option(
 			char *subclassification_option_string );
 
-enum fund_aggregation statement_fund_aggregation(
-			LIST *fund_name_list,
-			char *fund_aggregation_string );
-
-enum output_medium statement_output_medium(
+enum statement_output_medium
+	statement_resolve_output_medium(
 			char *output_medium_string );
 
-STATEMENT *statement_steady_state(
+/* Returns heap memory or null */
+/* --------------------------- */
+char *statement_logo_filename(
 			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *process_name,
-			boolean exists_logo_filename,
-			LIST *filter_element_name_list,
-			char *as_of_date,
-			int prior_year_count,
-			LIST *fund_name_list,
-			char *subclassification_option_string,
-			char *fund_aggregation_string,
-			char *output_medium_string,
-			boolean with_postclose,
-			STATEMENT *statement );
-
-STATEMENT_FUND *statement_fund_fetch(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *begin_date_string,
-			char *as_of_date,
-			int prior_year_count,
-			char *fund_name,
-			enum subclassification_option,
-			boolean with_postclose );
-
-STATEMENT_FUND *statement_fund_new(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *begin_date_string,
-			char *as_of_date,
-			int prior_year_count,
-			char *fund_name,
-			enum subclassification_option );
-
-LIST *statement_fund_list(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *begin_date_string,
-			char *as_of_date,
-			int prior_year_count,
-			LIST *fund_name_list,
-			enum subclassification_option,
-			enum fund_aggregation,
-			boolean with_postclose );
-
-char *statement_begin_date_string(
-			char *as_of_date );
-
-boolean statement_fund_attribute_exists(
-			void );
-
-LIST *statement_fund_name_list(
-			void );
+			char *statement_logo_filename_key );
 
 /* Returns static memory */
 /* --------------------- */
-char *statement_title(
-			char *application_name,
-			boolean exists_logo_filename,
+char *statement_title(	char *application_name,
+			char *statement_logo_filename,
 			char *process_name );
 
 /* Returns static memory */
 /* --------------------- */
 char *statement_subtitle(
 			char *begin_date_string,
-			char *as_of_date,
-			enum fund_aggregation fund_aggregation );
-
-void statement_fund_list_steady_state(
-			LIST *statement_fund_list,
-			char *title,
-			char *subtitle );
-
-STATEMENT_FUND *statement_fund_steady_state(
-			LIST *preclose_element_list,
-			LIST *postclose_element_list,
-			char *title,
-			char *subtitle,
-			STATEMENT_FUND *statement_fund );
-
-boolean statement_fund_exists_postclose(
-			LIST *statement_fund_list );
-
-LIST *statement_prior_year_heading_list(
-			LIST *prior_year_list );
-
-LIST *statement_account_delta_list(
-			char *account_name,
-			LIST *prior_year_list );
-
-LIST *statement_html_account_delta_list(
-			char *account_name,
-			LIST *prior_year_list );
-
-LIST *statement_PDF_account_delta_list(
-			char *account_name,
-			LIST *prior_year_list );
-
-LIST *statement_subclassification_delta_list(
-			char *subclassification_name,
-			LIST *prior_year_list );
-
-LIST *statement_html_subclassification_delta_list(
-			char *subclassification_name,
-			LIST *prior_year_list );
-
-LIST *statement_PDF_subclassification_delta_list(
-			char *subclassification_name,
-			LIST *prior_year_list );
-
-LIST *statement_html_element_delta_list(
-			char *element_name,
-			LIST *prior_year_list );
-
-LIST *statement_PDF_element_delta_list(
-			char *element_name,
-			LIST *prior_year_list );
-
-void statement_fund_list_prior_year_list_set(
-			LIST *statement_fund_list,
-			int prior_year_count );
-
-LIST *statement_fund_steady_state_prior_year_list(
-			int prior_year_count,
-			LIST *preclose_element_list,
-			STATEMENT_FUND *statement_fund );
-
-boolean statement_fund_exists_prior_year(
-			LIST *statement_fund_list );
-
-STATEMENT_FUND *statement_fund_seek(
-			char *fund_name,
-			LIST *statement_fund_list );
-
-void statement_fund_list_net_income_set(
-			LIST *statement_fund_list );
-
-void statement_fund_list_net_income_fetch(
-			LIST *statement_fund_list );
-
-double statement_fund_net_income_fetch(
-			char *as_of_date,
-			char *fund_name );
-
-void statement_fund_list_equity_set(
-			LIST *statement_fund_list,
-			boolean is_financial_position,
-			enum subclassification_option );
-
-double statement_fund_net_income(
-			double revenue_total,
-			double expense_total,
-			double gain_total,
-			double loss_total );
-
-int statement_fund_net_income_percent(
-			double net_income,
-			double revenue_total );
-
-LIST *statement_html_heading_list(
-			LIST *prior_year_list,
-			boolean include_account,
-			boolean include_subclassification );
-
-void statement_prior_year_list_net_income_set(
-			LIST *prior_year_list,
-			double statement_fund_net_income );
-
-void statement_prior_year_net_income_set(
-			STATEMENT_PRIOR_YEAR *statement_prior_year,
-			double statement_fund_net_income );
-
-int statement_delta_prior(
-			double element_prior_total,
-			double element_total );
-
-LIST *statement_html_net_income_delta_list(
-			LIST *prior_year_list );
-
-LIST *statement_PDF_net_income_delta_list(
-			LIST *prior_year_list );
-
-LIST *statement_PDF_heading_list(
-			LIST *prior_year_list,
-			boolean include_account,
-			boolean include_subclassification );
-
-char *statement_fund_caption(
-			char *title,
-			char *subtitle,
-			char *fund_name );
-
-void statement_html_display_element_list(
-			HTML_TABLE *html_table,
-			LIST *preclose_element_list,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-void statement_html_display_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-void statement_html_omit_element_list(
-			HTML_TABLE *html_table,
-			LIST *preclose_element_list,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-void statement_html_omit_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-void statement_html_aggregate_element_list(
-			HTML_TABLE *html_table,
-			LIST *preclose_element_list,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-void statement_html_aggregate_element(
-			HTML_TABLE *html_table,
-			ELEMENT *element,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-void statement_fund_display_equity(
-			double *element_current_balance,
-			int *percent_of_asset,
-			LIST *subclassification_list /* out */,
-			EQUITY_ELEMENT *equity_element /* in/out */,
-			double net_income,
-			double asset_current_balance,
-			boolean is_financial_position );
-
-void statement_fund_omit_equity(
-			double *element_balance_total,
-			int *percent_of_asset,
-			LIST *account_list /* out */,
-			EQUITY_ELEMENT *equity_element /* in/out */,
-			double net_income,
-			double asset_balance_total,
-			boolean is_financial_position );
-
-void statement_fund_aggregate_equity(
-			double *element_current_balance,
-			int *percent_of_asset,
-			LIST *subclassification_list /* out */,
-			EQUITY_ELEMENT *equity_element /* in/out */,
-			double net_income,
-			double asset_current_balance,
-			boolean is_financial_position );
-
-ELEMENT *statement_equity_liability_element(
-			double equity_element_current_balance,
-			double asset_element_current_balance,
-			double liability_element_current_balance );
-
-LIST *statement_PDF_display_row_list(
-			ELEMENT *element,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-LIST *statement_PDF_row_list(
-			LIST *preclose_element_list,
-			LIST *prior_year_list,
-			enum subclassification_option,
-			boolean is_percent_of_revenue );
-
-LIST *statement_PDF_account_row_list(
-			LIST *account_list,
-			LIST *prior_year_list,
-			boolean include_subclassification,
-			boolean is_percent_of_revenue );
-
-LIST *statement_PDF_omit_row_list(
-			ELEMENT *element,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-LIST *statement_PDF_aggregate_row_list(
-			ELEMENT *element,
-			LIST *prior_year_list,
-			boolean is_percent_of_revenue );
-
-char *statement_html_net_income_label(
-			boolean is_statement_of_activities );
-
-char *statement_PDF_net_income_label(
-			boolean is_statement_of_activities );
+			char *as_of_date );
 
 #endif
-

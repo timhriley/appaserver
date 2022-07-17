@@ -158,6 +158,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+trial_balance_output
 liability_prepaid
 recovery_statutory_accelerated_half_year
 cost_recovery_trigger

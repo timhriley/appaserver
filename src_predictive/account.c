@@ -974,3 +974,78 @@ char *account_subclassification_account_system_string(
 	return strdup( system_string );
 }
 
+LIST *account_list(	char *where,
+			boolean fetch_subclassification,
+			boolean fetch_entity )
+{
+	if ( !where ) where = "1 = 1";
+
+	return
+	account_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_system_string(
+			ACCOUNT_SELECT,
+			ACCOUNT_TABLE,
+			where ),
+		fetch_subclassification,
+		fetch_entity );
+}
+
+LIST *account_system_list(
+			char *system_string,
+			boolean fetch_subclassification,
+			boolean fetch_element )
+{
+	LIST *system_list;
+	char input[ 1024 ];
+	FILE *input_pipe;
+
+	system_list = list_new();
+	input_pipe = popen( system_string, "r" );
+
+	while( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(
+			system_list,
+			account_parse(
+				input,
+				fetch_subclassification,
+				fetch_element ) );
+	}
+
+	pclose( input_pipe );
+
+	return system_list;
+}
+
+char *account_system_string(
+			char *select,
+			char *table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !select
+	||   !table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !where ) where = "1 = 1";
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" account",
+		select,
+		table,
+		where );
+
+	return strdup( system_string );
+}
+
