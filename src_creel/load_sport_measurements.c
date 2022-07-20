@@ -312,7 +312,7 @@ int insert_catch_measurements(	char *application_name,
 		sprintf(sys_string,
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1				 	|"
-			"html_paragrph_wrapper				|"
+			"html_paragraph_wrapper				|"
 			"cat						 ",
 			"catch_measurements",
 			INSERT_CATCH_MEASUREMENTS_FIELD_LIST,
@@ -333,6 +333,7 @@ int insert_catch_measurements(	char *application_name,
 			"sort -u					|"
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
+			"grep -vi duplicate				|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
 			 "fishing_trips",
@@ -345,6 +346,7 @@ int insert_catch_measurements(	char *application_name,
 			"sort -u					|"
 			"insert_statement t=%s f=%s d='|' replace=%c	|"
 			"sql 2>&1					|"
+			"grep -vi duplicate				|"
 			"html_paragraph_wrapper				|"
 			"cat						 ",
 			 "creel_census",
@@ -812,6 +814,7 @@ void insert_catches(	char *application_name,
 	sprintf(sys_string,
 		"insert_statement.e t=%s f=%s d='|' replace=%c	|"
 		"sql 2>&1					|"
+		"grep -vi duplicate				|"
 		"html_paragraph_wrapper				|"
 		"cat						 ",
 		table_name,
