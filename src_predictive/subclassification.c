@@ -16,6 +16,101 @@
 #include "account.h"
 #include "subclassification.h"
 
+LIST *subclassification_statement_list(
+			char *element_primary_where,
+			char *transaction_date_time_closing,
+			boolean element_accumulate_debit,
+			boolean fetch_account_list,
+			boolean fetch_latest_journal )
+{
+	FILE *pipe;
+	char input[ 256 ];
+	LIST *list;
+
+	if ( !element_primary_where
+	||   !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	list = list_new();
+
+	pipe =
+		subclassification_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			subclassification_system_string(
+				SUBCLASSIFICATION_SELECT,
+				SUBCLASSIFICATION_TABLE,
+				element_primary_where ) );
+
+	while ( string_input( input, pipe, 256 ) )
+	{
+		list_set(
+			list,
+			subclassification_statement_parse(
+				input,
+				transaction_date_time_closing,
+				element_accumulate_debit,
+				fetch_account_list,
+				fetch_latest_journal ) );
+	}
+
+	pclose( pipe );
+
+	return list;
+}
+
+SUBCLASSIFICATION *subclassification_statement_parse(
+			char *input,
+			char *transaction_date_time_closing,
+			boolean element_accumulate_debit,
+			boolean fetch_account_list,
+			boolean fetch_latest_journal )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !input
+	||   !transaction_date_time_closing )
+	{
+		return (SUBCLASSIFICATION *)0;
+	}
+
+	if ( ! ( subclassification =
+			subclassification_parse(
+				input,
+				0 /* not fetch_element */ ) ) )
+	{
+		return (SUBCLASSIFICATION *)0;
+	}
+
+	if ( fetch_account_list )
+	{
+		statement->account_statement_list =
+			account_statement_list(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				subclassification_primary_where(
+					subclassification_name ),
+				transaction_date_time_closing,
+				element_accumulate_debit,
+				fetch_latest_journal );
+
+		statement->account_statement_list =
+			account_balance_sort_list(
+				statement->account_statement_list );
+	}
+
+	return subclassification;
+}
+
 SUBCLASSIFICATION *subclassification_parse(
 			char *input,
 			boolean fetch_element )
@@ -58,9 +153,23 @@ SUBCLASSIFICATION *subclassification_fetch(
 			char *subclassification_name,
 			boolean fetch_element )
 {
-	return
-	subclassification_parse(
-		pipe2string(
+	FILE *pipe;
+	char input[ 256 ];
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !subclassification_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: subclassification_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	pipe =
+		subclassification_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -71,8 +180,16 @@ SUBCLASSIFICATION *subclassification_fetch(
 				/* Returns static memory */
 				/* --------------------- */
 				subclassification_primary_where(
-					subclassification_name ) ) ),
-	fetch_element );
+					subclassification_name ) );
+
+	subclassification =
+		subclassification_parse(
+			string_input( input, pipe, 256 ),
+			fetch_element );
+
+	pclose( pipe );
+
+	return subclassification;
 }
 
 char *subclassification_primary_where(
@@ -213,6 +330,78 @@ SUBCLASSIFICATION *subclassification_element_fetch(
 			subclassification->account_list );
 
 	return subclassification;
+}
+
+LIST *subclassification_account_statement_list(
+			LIST *subclassification_statement_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	LIST *account_statement_list;
+
+	if ( !list_rewind( subclassification_statement_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	account_statement_list = list_new();
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( list_length( subclassification->account_statement_list ) )
+		{
+			list_set_list(
+				account_statement_list,
+				subclassification->account_statement_list );
+		}
+
+	} while ( list_next( subclassification_statement_list ) );
+
+	if ( !list_length( account_statement_list ) )
+		return (LIST *)0;
+	else
+		return account_statement_list;
+}
+
+double subclassification_statement_list_value(
+			LIST *subclassification_statement_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	double statement_list_value;
+
+	if ( !list_rewind( subclassification_statement_list ) )
+	{
+		return 0.0;
+	}
+
+	statement_list_value = 0.0;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( list_length( subclassification->account_statement_list ) )
+		{
+			subclassification->value =
+				account_statement_list_value(
+					subclassification->
+						account_statement_list );
+
+			statement_list_value += subclassification->value;
+		}
+
+	} while ( list_next( subclassification_statement_list ) );
+
+	return statement_list_value;
+}
+
+FILE *subclassification_pipe( char *system_string )
+{
+	return
+	popen( system_string, "r" );
 }
 
 #ifdef NOT_DEFINED

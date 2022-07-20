@@ -18,6 +18,8 @@
 #define TRANSACTION_LOCK_Y			'y'
 #define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
 #define TRANSACTION_SEMAPHORE_KEY		12227
+#define TRANSACTION_PRECLOSE_TIME		"23:59:58"
+#define TRANSACTION_CLOSE_TIME			"23:59:59"
 
 #define TRANSACTION_SELECT			"full_name,"		\
 						"street_address,"	\
@@ -163,8 +165,8 @@ char *transaction_delete_system_string(
 /* ----- */
 boolean transaction_closing_entry_exists(
 			char *transaction_table,
-			char *predictive_close_time,
-			char *transaction_date );
+			char *transaction_close_time,
+			char *transaction_as_of_date );
 
 /* Process */
 /* ------- */
@@ -227,6 +229,7 @@ char *transaction_date_time(
 /* Returns as_of_date, heap memory, or null */
 /* ---------------------------------------- */
 char *transaction_as_of_date(
+			char *transaction_table,
 			char *as_of_date );
 
 /* Process */
@@ -240,7 +243,7 @@ boolean transaction_as_of_date_populated(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *transaction_date_max(
-			void );
+			char *transaction_table );
 
 /* Process */
 /* ------- */
@@ -250,14 +253,20 @@ char *transaction_date_max(
 char *transaction_date_time_max(
 			char *transaction_table );
 
+/* Usage */
+/* ----- */
+DATE *transaction_prior_closing_transaction_date(
+			char *transaction_close_time,
+			char *transaction_closing_entry_memo,
+			char *transaction_table,
+			char *transaction_as_of_date );
+
+/* Process */
+/* ------- */
+
 /* Private */
 /* ------- */
 TRANSACTION *transaction_calloc(
-			void );
-
-/* Returns heap memory */
-/* ------------------- */
-char *transaction_date_max(
 			void );
 
 /* Public */
@@ -280,11 +289,10 @@ char *transaction_system_string(
 /* Returns static memory */
 /* --------------------- */
 char *transaction_date_time_closing(
-			char *predictive_close_time,
-			char *predictive_preclose_time,
-			char *transaction_date,
-			boolean preclose_time,
-			boolean closing_entry_exists );
+			char *transaction_preclose_time,
+			char *transaction_close_time,
+			char *transaction_as_of_date,
+			boolean preclose_time_boolean );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -298,12 +306,6 @@ boolean transaction_date_time_exists(
 			char *transaction_table,
 			char *transaction_date_time_column,
 			char *transaction_date_time );
-
-DATE *transaction_prior_closing_transaction_date(
-			char *predictive_close_time,
-			char *transaction_closing_entry_memo,
-			char *transaction_table,
-			char *transaction_as_of_date );
 
 /* Returns heap memory or null */
 /* --------------------------- */

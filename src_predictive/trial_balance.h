@@ -22,10 +22,15 @@ typedef struct
 	enum statement_output_medium
 		statement_output_medium;
 	char *transaction_as_of_date;
-	char *statement_begin_date_string;
+	char *transaction_begin_date_string;
 	char *statement_logo_filename;
 	char *statement_title;
 	char *statement_subtitle;
+	LIST *filter_element_name_list;
+	boolean transaction_closing_entry_exists;
+	char *transaction_date_time_closing;
+	STATEMENT *preclose_statement;
+	STATEMENT *postclose_statement;
 } TRIAL_BALANCE;
 
 /* Usage */
@@ -43,6 +48,9 @@ TRIAL_BALANCE *trial_balance_fetch(
 /* Process */
 /* ------- */
 TRIAL_BALANCE *trial_balance_calloc(
+			void );
+
+LIST *trial_balance_filter_element_name_list(
 			void );
 
 #endif

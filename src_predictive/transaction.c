@@ -581,18 +581,17 @@ char *transaction_closing_entry_system_string(
 
 boolean transaction_closing_entry_exists(
 			char *transaction_table,
-			char *predictive_close_time,
-			char *transaction_date )
+			char *transaction_close_time,
+			char *transaction_as_of_date )
 {
 	char *system_string;
 	char *results;
 	boolean return_value;
 	char *where;
-	char local_transaction_date[ 16 ];
 
 	if ( !transaction_table
-	||   !predictive_close_time
-	||   !transaction_date )
+	||   !transaction_close_time
+	||   !transaction_as_of_date )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -601,8 +600,6 @@ boolean transaction_closing_entry_exists(
 			__LINE__ );
 		exit( 1 );
 	}
-
-	column( local_transaction_date, 0, transaction_date );
 
 	where =
 		/* --------------------- */
@@ -614,8 +611,8 @@ boolean transaction_closing_entry_exists(
 			/* --------------------- */
 			transaction_date_time_where(
 				TRANSACTION_DATE_TIME_COLUMN,
-				local_transaction_date,
-				predictive_close_time ),
+				transaction_as_of_date,
+				transaction_close_time ),
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
@@ -639,35 +636,26 @@ boolean transaction_closing_entry_exists(
 }
 
 char *transaction_date_time_closing(
-			char *predictive_close_time,
-			char *predictive_preclose_time,
-			char *transaction_date,
-			boolean preclose_time,
-			boolean closing_entry_exists )
+			char *transaction_preclose_time,
+			char *transaction_close_time,
+			char *transaction_as_of_date,
+			boolean preclose_time_boolean )
 {
 	static char date_time[ 32 ];
 
-	if ( !closing_entry_exists )
+	if ( preclose_time_boolean )
 	{
 		sprintf(date_time,
 			"%s %s",
-			transaction_date,
-			predictive_close_time );
-	}
-	else
-	if ( preclose_time )
-	{
-		sprintf(date_time,
-			"%s %s",
-			transaction_date,
-			predictive_preclose_time );
+			transaction_as_of_date,
+			transaction_preclose_time );
 	}
 	else
 	{
 		sprintf(date_time,
 			"%s %s",
-			transaction_date,
-			predictive_close_time );
+			transaction_as_of_date,
+			transaction_close_time );
 	}
 
 	return date_time;
@@ -1208,7 +1196,9 @@ boolean transaction_as_of_date_populated( char *as_of_date )
 	}
 }
 
-char *transaction_as_of_date( char *as_of_date )
+char *transaction_as_of_date(
+			char *transaction_table,
+			char *as_of_date )
 {
 	if ( transaction_as_of_date_populated( as_of_date ) )
 	{
@@ -1220,17 +1210,20 @@ char *transaction_as_of_date( char *as_of_date )
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		transaction_date_max();
+		transaction_date_max( transaction_table );
 	}
 }
 
-char *transaction_date_max( void )
+char *transaction_date_max( char *transaction_table )
 {
 	char *date_time_max;
 
 	if ( ! ( date_time_max =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
 			transaction_date_time_max(
-				TRANSACTION_TABLE ) ) )
+				transaction_table ) ) )
 	{
 		return (char *)0;
 	}
@@ -1256,7 +1249,7 @@ char *transaction_date_time_max( char *transaction_table )
 }
 
 DATE *transaction_prior_closing_transaction_date(
-			char *predictive_close_time,
+			char *transaction_close_time,
 			char *transaction_closing_entry_memo,
 			char *transaction_table,
 			char *transaction_as_of_date )
@@ -1269,7 +1262,7 @@ DATE *transaction_prior_closing_transaction_date(
 	char transaction_date_string[ 16 ];
 	DATE *prior_closing_transaction_date = {0};
 
-	if ( !predictive_close_time
+	if ( !transaction_close_time
 	||   !transaction_closing_entry_memo
 	||   !transaction_table
 	||   !transaction_as_of_date )
@@ -1287,7 +1280,7 @@ DATE *transaction_prior_closing_transaction_date(
 	sprintf(ending_transaction_date_time,
 		"%s %s",
 		transaction_as_of_date,
-		predictive_close_time );
+		transaction_close_time );
 
 	sprintf(where,
 		"memo = '%s' and transaction_date_time < '%s'",
@@ -1336,3 +1329,34 @@ char *transaction_minimum_transaction_date_string(
 
 	return strdup( column( transaction_date_string, 0, results )  );
 }
+
+char *transaction_begin_date_string(
+			char *transaction_table,
+			char *transaction_as_of_date )
+{
+	DATE *prior_closing_transaction_date = {0};
+
+	prior_closing_transaction_date =
+		transaction_prior_closing_transaction_date(
+			TRANSACTION_CLOSE_TIME,
+			TRANSACTION_CLOSING_ENTRY_MEMO,
+			transaction_table,
+			transaction_as_of_date );
+	
+	if ( prior_closing_transaction_date )
+	{
+		date_increment_days(
+			prior_closing_transaction_date,
+			1.0 );
+	
+		return date_yyyy_mm_dd( prior_closing_transaction_date );
+	}
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	transaction_minimum_transaction_date_string(
+		transaction_table );
+}
+

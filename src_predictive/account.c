@@ -1049,3 +1049,38 @@ char *account_system_string(
 	return strdup( system_string );
 }
 
+double account_value(	LIST *account_statement_list,
+			boolean accumulate_debit )
+{
+	double value = 0.0;
+	ACCOUNT *account;
+	double latest_journal_balance;
+
+	if ( !list_rewind( account_statement_list ) ) return 0.0;
+	
+	do {
+		account = list_get( account_statement_list );
+
+		if ( !account->latest_journal
+		||   !account->latest_journal->balance )
+			continue;
+
+		if (	element_accumulate_debit ==
+			account->accumulate_debit )
+		{
+			latest_journal_balance =
+				account->latest_journal->balance;
+		}
+		else
+		{
+			latest_journal_balance =
+				0.0 - account->latest_journal->balance;
+		}
+
+		value += latest_journal_balance;
+
+	} while( list_next( account_list ) );
+
+	return value;
+}
+

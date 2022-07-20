@@ -26,6 +26,34 @@ enum statement_output_medium 		{
 			output_spreadsheet,
 			output_stdout };
 
+typedef struct
+{
+	boolean transaction_closing_entry_exists;
+	char *transaction_date_time_nominal;
+	char *transaction_date_time_fixed;
+	LIST *preclose_element_list;
+	LIST *postclose_element_list;
+} STATEMENT;
+
+/* Usage */
+/* ----- */
+STATEMENT *statement_fetch(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *filter_element_name_list,
+			char *statement_begin_date_string,
+			char *transaction_as_of_date,
+			int prior_year_count,
+			enum subclassification_option subclassification_option,
+			boolean with_postclose );
+
+/* Process */
+/* ------- */
+STATEMENT *statement *statement_calloc(
+			void );
+
 /* Usage */
 /* ----- */
 

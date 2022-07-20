@@ -82,36 +82,6 @@ enum statement_output_medium
 	}
 }
 
-char *statement_begin_date_string(
-			char *transaction_table,
-			char *transaction_as_of_date )
-{
-	DATE *prior_closing_transaction_date = {0};
-
-	prior_closing_transaction_date =
-		transaction_prior_closing_transaction_date(
-			PREDICTIVE_CLOSE_TIME,
-			TRANSACTION_CLOSING_ENTRY_MEMO,
-			transaction_table,
-			transaction_as_of_date );
-	
-	if ( prior_closing_transaction_date )
-	{
-		date_increment_days(
-			prior_closing_transaction_date,
-			1.0 );
-	
-		return date_yyyy_mm_dd( prior_closing_transaction_date );
-	}
-
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	transaction_minimum_transaction_date_string(
-		transaction_table );
-}
-
 char *statement_logo_filename(
 			char *application_name,
 			char *statement_logo_filename_key )
@@ -207,5 +177,186 @@ char *statement_subtitle(
 	 	end_date_american );
 
 	return subtitle;
+}
+
+STATEMENT *statement_fetch(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *filter_element_name_list,
+			char *transaction_begin_date_string,
+			char *transaction_as_of_date,
+			int prior_year_count,
+			enum subclassification_option subclassification_option )
+{
+	STATEMENT *statement;
+
+	if ( !application_name
+	||   !session
+	||   !login_name
+	||   !role_name
+	||   !list_length( filter_element_name_list )
+	||   !statement_begin_date_string
+	||   !transaction_as_of_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	statement = statement_calloc();
+
+	statement->transaction_closing_entry_exists =
+		transaction_closing_entry_exists(
+			transaction_as_of_date );
+
+	statement->transaction_date_time_nominal =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_date_time_closing(
+			PREDICTIVE_CLOSE_TIME,
+			PREDICTIVE_PRECLOSE_TIME,
+			transaction_as_of_date /* transaction_date */,
+			1 /* preclose_time_boolean */,
+			statement->transaction_closing_entry_exists );
+
+	statement->transaction_date_time_fixed =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_date_time_closing(
+			PREDICTIVE_CLOSE_TIME,
+			PREDICTIVE_PRECLOSE_TIME,
+			transaction_as_of_date,
+			0 /* not preclose_time_boolean */,
+			statement->transaction_closing_entry_exists );
+
+	statement->preclose_element_list =
+		statement_element_list(
+			application_name,
+			session,
+			login_name,
+			role_name,
+			filter_element_name_list,
+			begin_date_string,
+			statement_fund->transaction_date_time_nominal,
+			statement_fund->transaction_date_time_nominal,
+			subclassification_option );
+
+	if ( with_postclose
+	&&   transaction_closing_entry_exists( as_of_date ) )
+	{
+		statement_fund->postclose_element_list =
+			statement_element_list(
+				application_name,
+				session,
+				login_name,
+				role_name,
+				filter_element_name_list,
+				begin_date_string,
+				statement_fund->transaction_date_time_fixed,
+				statement_fund->transaction_date_time_fixed,
+				subclassification_option );
+	}
+
+	return statement;
+}
+
+STATEMENT *statement_calloc( void )
+{
+	STATEMENT *statement;
+
+	if ( ! ( statement = calloc( 1, sizeof( STATEMENT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement;
+}
+
+LIST *statement_element_list(
+			char *application_name,
+			char *session,
+			char *login_name,
+			char *role_name,
+			LIST *filter_element_name_list,
+			char *begin_date_string,
+			char *transaction_date_time_nominal,
+			char *transaction_date_time_fixed,
+			enum subclassification_option subclassification_option )
+{
+	boolean fetch_subclassification_list = 0;
+	boolean fetch_account_list = 0;
+	char transaction_date[ 16 ];
+	LIST *element_list;
+	ELEMENT *element;
+
+	if ( subclassification_option == subclassification_display
+	||   subclassification_option == subclassification_aggregate )
+	{
+		fetch_subclassification_list = 1;
+	}
+	else
+	/* ------------------------------ */
+	/* Must be subclassification_omit */
+	/* ------------------------------ */
+	{
+		fetch_account_list = 1;
+	}
+
+	element_list =
+		element_list(
+			filter_element_name_list,
+			transaction_date_time_nominal,
+			transaction_date_time_fixed,
+			fetch_subclassification_list,
+			fetch_account_list );
+
+	if ( ( element =
+			element_seek(
+				ELEMENT_EQUITY,
+				element_list ) )
+	&&     begin_date_string )
+	{
+		element->equity_element =
+			equity_element_fetch(
+				element->element_name,
+				element->element_current_balance,
+				begin_date_string );
+
+		if ( !element->equity_element )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: equity_element_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
+
+	element_list_account_action_string_set(
+		list,
+		application_name,
+		session,
+		login_name,
+		role_name,
+		begin_date_string,
+		column(
+			transaction_date,
+			0,
+			transaction_date_time_fixed ) );
+
+	return element_list;
 }
 

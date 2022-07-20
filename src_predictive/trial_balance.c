@@ -77,11 +77,11 @@ TRIAL_BALANCE *trial_balance_fetch(
 		return (TRIAL_BALANCE *)0;
 	}
 
-	if ( ! ( trial_balance->statement_begin_date_string =
+	if ( ! ( trial_balance->transaction_begin_date_string =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
-			statement_begin_date_string(
+			transaction_begin_date_string(
 				TRANSACTION_TABLE,
 				trial_balance->transaction_as_of_date ) ) )
 	{
@@ -118,6 +118,64 @@ TRIAL_BALANCE *trial_balance_fetch(
 		statement_subtitle(
 			trial_balance->statement_begin_date_string,
 			trial_balance->transaction_as_of_date );
+
+	trial_balance->filter_element_name_list =
+		trial_balance_filter_element_name_list();
+
+	trial_balance->transaction_closing_entry_exists =
+		transaction_closing_entry_exists(
+			TRANSACTION_TABLE,
+			TRANSACTION_CLOSE_TIME,
+			trial_balance->transaction_as_of_date );
+
+	if ( trial_balance->transaction_closing_entry_exists )
+	{
+		trial_balance->transaction_date_time_closing =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			transaction_date_time_closing(
+				TRANSACTION_PRECLOSE_TIME,
+				TRANSACTION_CLOSE_TIME,
+				trial_balance->transaction_as_of_date,
+				1 /* preclose_time_boolean */ );
+
+		trial_balance->preclose_statement =
+			statement_fetch(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				trial_balance->filter_element_name_list,
+				trial_balance->transaction_begin_date_string,
+				trial_balance->transaction_as_of_date,
+				prior_year_count,
+				trial_balance->
+					statement_subclassification_option );
+	}
+
+	trial_balance->transaction_date_time_closing =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_date_time_closing(
+			TRANSACTION_PRECLOSE_TIME,
+			TRANSACTION_CLOSE_TIME,
+			trial_balance->transaction_as_of_date,
+			0 /* not preclose_time_boolean */ );
+
+	trial_balance->postclose_statement =
+		statement_fetch(
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			trial_balance->filter_element_name_list,
+			trial_balance->transaction_begin_date_string,
+			trial_balance->transaction_as_of_date,
+			prior_year_count,
+			trial_balance->
+				statement_subclassification_option );
 
 	return trial_balance;
 }

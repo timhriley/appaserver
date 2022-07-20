@@ -13,46 +13,7 @@
 #include "sql.h"
 #include "String.h"
 #include "piece.h"
-#include "subclassification.h"
-#include "account.h"
 #include "element.h"
-
-LIST *element_subclassification_list(
-			char *element_name,
-			char *begin_transaction_date_time,
-			char *end_transaction_date_time )
-{
-	LIST *subclassification_name_list;
-	char *subclassification_name;
-	LIST *subclassification_list;
-
-	subclassification_name_list =
-		subclassification_element_subclassification_name_list(
-			element_primary_where(
-				element_name ),
-			SUBCLASSIFICATION_TABLE,
-			"display_order" /* order_column */ );
-
-	if ( !list_rewind( subclassification_name_list ) ) return (LIST *)0;
-
-	subclassification_list = list_new();
-
-	do {
-		subclassification_name =
-			list_get(
-				subclassification_name_list );
-
-		list_set(
-			subclassification_list,
-			subclassification_element_fetch(
-				subclassification_name,
-				begin_transaction_date_time,
-				end_transaction_date_time ) );
-
-	} while ( list_next( subclassification_name_list ) );
-
-	return subclassification_list;
-}
 
 ELEMENT *element_calloc( void )
 {
@@ -74,7 +35,6 @@ ELEMENT *element_calloc( void )
 ELEMENT *element_new( char *element_name )
 {
 	ELEMENT *element = element_calloc();
-
 	element->element_name = element_name;
 
 	return element;
@@ -93,37 +53,20 @@ ELEMENT *element_parse( char *input )
 	piece( element_name, SQL_DELIMITER, input, 0 );
 	element = element_new( strdup( element_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	element->accumulate_debit = ( *piece_buffer == 'y' );
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 1 ) )
+	{
+		element->accumulate_debit = ( *piece_buffer == 'y' );
+	}
 
 	return element;
 }
 
-LIST *element_account_list( LIST *subclassification_list )
-{
-	SUBCLASSIFICATION *subclassification;
-	LIST *account_list;
-
-	if ( !list_rewind( subclassification_list ) ) return (LIST *)0;
-
-	account_list = list_new();
-
-	do {
-		subclassification =
-			list_get(
-				subclassification_list );
-
-		list_set_list(
-			account_list,
-			subclassification->account_list );
-
-	} while ( list_next( subclassification_list ) );
-
-	return account_balance_sort_list( account_list );
-}
-
 ELEMENT *element_fetch( char *element_name )
 {
+	char input[ 128 ];
+	ELEMENT *element;
+	FILE *input_pipe;
+
 	if ( !element_name )
 	{
 		fprintf(stderr,
@@ -134,9 +77,8 @@ ELEMENT *element_fetch( char *element_name )
 		exit( 1 );
 	}
 
-	return
-	element_parse(
-		pipe2string(
+	input_pipe =
+		element_input_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -147,7 +89,18 @@ ELEMENT *element_fetch( char *element_name )
 				/* Returns static memory */
 				/* --------------------- */
 				element_primary_where(
-					element_name ) ) ) );
+					element_name ) ) );
+
+	element =
+		element_parse(
+			string_input(
+				input,
+				input_pipe,
+				128 ) );
+
+	pclose( input_pipe );
+
+	return element;
 }
 
 char *element_primary_where( char *element_name )
@@ -177,8 +130,7 @@ char *element_system_string(
 	char system_string[ 1024 ];
 
 	if ( !element_select
-	||   !element_table
-	||   !where )
+	||   !element_table )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -187,6 +139,8 @@ char *element_system_string(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	if ( !where ) where = "1 = 1";
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
@@ -197,81 +151,30 @@ char *element_system_string(
 	return strdup( system_string );
 }
 
-LIST *element_system_list(
-			char *system_string,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			boolean fetch_subclassification_list,
-			boolean fetch_account_list )
-{
-	LIST *element_list;
-	char input[ 256 ];
-	FILE *input_pipe;
-
-	element_list = list_new();
-	input_pipe = popen( system_string, "r" );
-
-	while( string_input( input, input_pipe, 256 ) )
-	{
-		list_set(
-			element_list,
-			element_parse(
-				input,
-				transaction_date_time_nominal,
-				transaction_date_time_fixed,
-				fetch_subclassification_list,
-				fetch_account_list ) );
-	}
-
-	pclose( input_pipe );
-	return element_list_sort( element_list );
-}
-
-ELEMENT *element_parse(
+ELEMENT *element_statement_parse(
 			char *input,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
+			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
-			boolean fetch_account_list )
+			boolean fetch_account_list,
+			boolean fetch_latest_journal )
 {
 	char element_name[ 128 ];
 	char piece_buffer[ 16 ];
 	ELEMENT *element;
-	char *transaction_date_time;
 
 	if ( !input ) return (ELEMENT *)0;
 
-	piece( element_name, SQL_DELIMITER, input, 0 );
-	element = element_new( strdup( element_name ) );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	element->accumulate_debit = ( *piece_buffer == 'y' );
-
-	if ( element_is_nominal( element->element_name ) )
-	{
-		transaction_date_time =
-			transaction_date_time_nominal;
-	}
-	else
-	{
-		transaction_date_time =
-			transaction_date_time_fixed;
-	}
-
-	if ( fetch_account_list )
-	{
-		element->account_list =
-			element_account_list(
-				element->element_name,
-				transaction_date_time );
-	}
+	element = element_parse( input );
 
 	if ( fetch_subclassification_list )
 	{
 		element->subclassification_list =
-			element_subclassification_list(
-				element->element_name,
-				transaction_date_time );
+			subclassification_statement_list(
+				element_primary_where(
+					element->element_name ),
+				transaction_date_time_closing,
+				fetch_account_list,
+				fetch_latest_journal );
 	}
 
 	return element;
@@ -343,8 +246,7 @@ LIST *element_list_sort( LIST *element_list )
 	return return_element_list;
 }
 
-ELEMENT *element_seek(	
-			char *element_name,
+ELEMENT *element_seek(	char *element_name,
 			LIST *element_list )
 {
 	ELEMENT *element;
@@ -362,124 +264,6 @@ ELEMENT *element_seek(
 	} while( list_next( element_list ) );
 
 	return (ELEMENT *)0;
-}
-
-LIST *element_subclassification_list(
-			char *element_name,
-			char *transaction_date_time_closing )
-{
-	LIST *subclassification_list;
-	SUBCLASSIFICATION *subclassification;
-	char sys_string[ 1024 ];
-	char where[ 256 ];
-	char subclassification_name[ 128 ];
-	FILE *input_pipe;
-
-	sprintf( where, "element = '%s'", element_name );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 "subclassification",
-		 "subclassification",
-		 where,
-		 "display_order" );
-
-	subclassification_list = list_new();
-	input_pipe = popen( sys_string, "r" );
-
-	while( string_input( subclassification_name, input_pipe, 128 ) )
-	{
-		subclassification =
-			subclassification_new(
-				strdup( subclassification_name ) );
-
-		subclassification->account_list =
-			subclassification_account_list(
-				subclassification->subclassification_name,
-				transaction_date_time_closing );
-
-		list_set(	subclassification_list,
-				subclassification );
-	}
-
-	pclose( input_pipe );
-	return subclassification_list;
-}
-
-LIST *element_account_list(
-			char *element_name,
-			char *date_time_string )
-{
-	ACCOUNT *account;
-	char system_string[ 1024 ];
-	char where[ 256 ];
-	char account_name[ 128 ];
-	FILE *input_pipe;
-	char *folder;
-	LIST *account_list;
-	JOURNAL *latest_journal;
-	char local_date_time_string[ 32 ];
-
-	if ( character_exists( date_time_string, ' ' ) )
-	{
-		strcpy( local_date_time_string, date_time_string );
-	}
-	else
-	{
-		sprintf(local_date_time_string,
-			"%s %s",
-			date_time_string,
-			PREDICTIVE_CLOSE_TRANSACTION_TIME );
-	}
-
-	folder = "account,subclassification";
-
-	sprintf(	where,
-			"element = '%s' and			"
-			"account.subclassification =		"
-			"subclassification.subclassification	",
-			element_name );
-
-	sprintf(system_string,
-		"echo \"select %s from %s where %s;\" | sql",
-		"account",
-		folder,
-		where );
-
-	account_list = list_new();
-	input_pipe = popen( system_string, "r" );
-
-	while( get_line( account_name, input_pipe ) )
-	{
-		latest_journal =
-			journal_latest(
-				account_name,
-				local_date_time_string );
-
-		if ( !latest_journal
-		||   timlib_double_virtually_same(
-			latest_journal->balance,
-			0.0 ) )
-		{
-			continue;
-		}
-
-		account = account_fetch( strdup( account_name ) );
-
-		/* Change account name from stack memory to heap. */
-		/* ---------------------------------------------- */
-		latest_journal->account_name = account->account_name;
-
-		account->latest_journal = latest_journal;
-
-		list_add_pointer_in_order(
-			account_list,
-			account,
-			account_balance_match_function );
-	}
-
-	pclose( input_pipe );
-	return account_list;
 }
 
 boolean element_is_nominal( char *element_name )
@@ -513,291 +297,49 @@ boolean element_is_nominal( char *element_name )
 		return 0;
 }
 
-#ifdef NOT_DEFINED
-LIST *element_fetch_list( char *sys_string )
+LIST *element_statement_list(
+			LIST *filter_element_name_list,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list,
+			boolean fetch_latest_journal )
 {
 	LIST *element_list;
-	ELEMENT *element;
-	char input_buffer[ 256 ];
-	char element_name[ 128 ];
-	char accumulate_debit_yn[ 2 ];
-	FILE *input_pipe;
+	char *element_name;
 
-	element_list = list_new();
-	input_pipe = popen( sys_string, "r" );
+	if ( !list_rewind( filter_element_name_list ) ) return (LIST *)0;
 
-	while( string_input( input_buffer, input_pipe, 256 ) )
-	{
-		piece( element_name, SQL_DELIMITER, input_buffer, 0 );
+	do {
+		element_name = list_get( filter_element_name_list );
 
-		element =
-			element_new(
-				strdup( element_name ) );
+		list_set(
+			element_list,
+			element_statement_fetch(
+				element_name,
+				transaction_date_time_closing,
+				fetch_subclassification_list,
+				fetch_account_list,
+				fetch_latest_journal ) );
 
-		piece(	accumulate_debit_yn,
-			SQL_DELIMITER,
-			input_buffer,
-			1 );
+	} while ( list_next( filter_element_name_list ) );
 
-		element->accumulate_debit = ( *accumulate_debit_yn == 'y' );
-
-		list_set( element_list, element );
-	}
-
-	pclose( input_pipe );
 	return element_list;
 }
 
-ELEMENT *element_fetch( char *element_name )
+double element_value(	ELEMENT *element;
+			boolean accumulate_debit )
 {
-	static LIST *list = {0};
-	ELEMENT *element;
-
-	if ( !list )
+	if ( !list_length( element->subclassification_statement_list ) )
 	{
-		list =
-			element_fetch_list(
-				element_sys_string(
-					"1 = 1" ) );
+		return 0.0;
 	}
 
-	if ( ! ( element = element_seek( element_name, list ) ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: element_seek(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__, __LINE__,
-			element_name );
-		exit( 1 );
-	}
-
-	return element;
+	return
+	subclassification_statement_list_value(
+		element->subclassification_statement_list );
 }
 
-boolean element_accumulate_debit( char *element_name )
-{
-	char sys_string[ 1024 ];
-	char where [128 ];
-	char *results;
-
-	sprintf( where, "element = '%s'", element_name );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 "accumulate_debit_yn",
-		 "element",
-		 where );
-
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		return 0;
-	}
-
-	if ( *results == 'y' )
-		return 1;
-	else
-		return 0;
-}
-
-LIST *element_system_list(
-			char *system_string,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			boolean fetch_subclassification_list,
-			boolean fetch_account_list )
-{
-	LIST *element_list;
-	char input[ 256 ];
-	FILE *input_pipe;
-
-	element_list = list_new();
-	input_pipe = popen( system_string, "r" );
-
-	while( string_input( input, input_pipe, 256 ) )
-	{
-		list_set(
-			element_list,
-			element_parse(
-				input,
-				fund_name,
-				transaction_date_time_nominal,
-				transaction_date_time_fixed,
-				fetch_subclassification_list,
-				fetch_account_list ) );
-	}
-
-	pclose( input_pipe );
-	return element_list_sort( element_list );
-}
-
-ELEMENT *element_parse(
-			char *input,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			boolean fetch_subclassification_list,
-			boolean fetch_account_list )
-{
-	char element_name[ 128 ];
-	char piece_buffer[ 16 ];
-	ELEMENT *element;
-	char *transaction_date_time;
-
-	if ( !input ) return (ELEMENT *)0;
-
-	piece( element_name, SQL_DELIMITER, input, 0 );
-	element = element_new( strdup( element_name ) );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	element->accumulate_debit = ( *piece_buffer == 'y' );
-
-	if ( element_is_nominal( element->element_name ) )
-	{
-		transaction_date_time =
-			transaction_date_time_nominal;
-	}
-	else
-	{
-		transaction_date_time =
-			transaction_date_time_fixed;
-	}
-
-	if ( fetch_account_list )
-	{
-		element->account_list =
-			element_account_list(
-				&element->element_current_balance,
-				element->element_name,
-				fund_name,
-				transaction_date_time );
-	}
-
-	if ( fetch_subclassification_list )
-	{
-		element->subclassification_list =
-			element_subclassification_list(
-				&element->element_current_balance,
-				element->element_name,
-				fund_name,
-				transaction_date_time );
-	}
-
-	return element;
-}
-
-char *element_sys_string( char *where )
-{
-	char sys_string[ 1024 ];
-
-	if ( !where || !*where ) return (char *)0;
-
-	sprintf(sys_string,
-		"echo \"select %s from %s where %s;\" | sql",
-		/* -------------------------- */
-		/* Safely returns heap memory */
-		/* -------------------------- */
-		element_select(),
-		"element",
-		where );
-
-	return strdup( sys_string );
-}
-
-
-char *element_system_string( char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !where || !*where ) where = "1 = 1";
-
-	sprintf(system_string,
-		"select.sh \"%s\" element \"%s\"",
-		element_select(),
-		where );
-
-	return strdup( system_string );
-}
-
-char *element_filter_where(
-			LIST *filter_element_name_list )
-{
-	char where[ 1024 ];
-
-	if ( !list_length( filter_element_name_list ) )
-	{
-		strcpy( where, "1 = 1" );
-	}
-	else
-	{
-		char *ptr = timlib_in_clause( filter_element_name_list );
-
-		sprintf(where,
-			"element in (%s)",
-			ptr );
-		free( ptr );
-	}
-
-	return strdup( where );
-}
-
-LIST *element_list(	LIST *filter_element_name_list,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			boolean fetch_subclassification_list,
-			boolean fetch_account_list )
-{
-	LIST *list;
-
-	list = element_system_list(
-			element_system_string(
-				element_filter_where(
-					filter_element_name_list ) ),
-			fund_name,
-			transaction_date_time_nominal,
-			transaction_date_time_fixed,
-			fetch_subclassification_list,
-			fetch_account_list );
-
-	return list;
-}
-
-double element_value(	LIST *account_list,
-			boolean element_accumulate_debit )
-{
-	double value = 0.0;
-	ACCOUNT *account;
-	double latest_journal_balance;
-
-	if ( !list_rewind( account_list ) ) return 0.0;
-	
-	do {
-		account = list_get( account_list );
-
-		if ( !account->latest_journal
-		||   !account->latest_journal->balance )
-			continue;
-
-		if (	element_accumulate_debit ==
-			account->accumulate_debit )
-		{
-			latest_journal_balance =
-				account->latest_journal->balance;
-		}
-		else
-		{
-			latest_journal_balance =
-				0.0 - account->latest_journal->balance;
-		}
-
-		value += latest_journal_balance;
-
-	} while( list_next( account_list ) );
-
-	return value;
-}
-
+#ifdef NOT_DEFINED
 LATEX_ROW *element_latex_net_income_row(
 			double net_income,
 			boolean is_statement_of_activities,
@@ -1442,21 +984,6 @@ void element_denominator_percent_of_revenue_set(
 	} while ( list_next( element_list ) );
 }
 
-int element_percent_of_total(
-			double total,
-			double denominator )
-{
-	double percent;
-
-	if ( !denominator ) return 0;
-
-	percent =
-		(total /
-		 denominator) * 100.0;
-
-	return float_round_int( percent );
-}
-
 EQUITY_ELEMENT *equity_element_new(
 			char *element_name,
 			double current_balance,
@@ -1542,32 +1069,11 @@ double equity_element_balance_change(
 	return	current_balance - prior_balance;
 }
 
-char *element_list_display(
-			LIST *element_list )
-{
-	char display[ 65536 ];
-	char *ptr = display;
-	ELEMENT *element;
-
-	*ptr = '\0';
-
-	if ( list_rewind( element_list ) )
-	{
-		do {
-			element = list_get( element_list );
-
-			if ( !element->element_current_balance )
-				continue;
-
-			ptr += sprintf(
-				ptr,
-				"Element: %s, balance = %.2lf\n",
-				element->element_name,
-				element->element_current_balance );
-
-		} while ( list_next( element_list ) );
-	}
-
-	return strdup( display );
-}
 #endif
+
+FILE *element_input_pipe( char *element_system_string )
+{
+	return
+	popen( element_system_string, "r" );
+}
+

@@ -41,10 +41,43 @@ typedef struct
 	char *element_name;
 	int display_order;
 	ELEMENT *element;
-	LIST *account_subclassification_account_name_list;
-	LIST *account_list;
-	LIST *account_balance_sort_list;
+	LIST *account_statement_list;
+	double value;
 } SUBCLASSIFICATION;
+
+/* Usage */
+/* ----- */
+LIST *subclassification_statement_list(
+			char *element_primary_where,
+			char *transaction_date_time_closing,
+			boolean element_accumulate_debit,
+			boolean fetch_account_list,
+			boolean fetch_latest_journal );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *subclassification_system_string(
+			char *subclassification_select,
+			char *subclassification_table,
+			char *element_primary_where );
+
+FILE *subclassification_pipe(
+			char *subclassification_system_string );
+
+/* Usage */
+/* ----- */
+SUBCLASSIFICATION *subclassification_statement_parse(
+			char *input,
+			char *transaction_date_time_closing,
+			boolean element_accumulate_debit,
+			boolean fetch_account_list,
+			boolean fetch_latest_journal );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -52,17 +85,13 @@ SUBCLASSIFICATION *subclassification_fetch(
 			char *subclassification_name,
 			boolean fetch_element );
 
+/* Process */
+/* ------- */
+
 /* Returns static memory */
 /* --------------------- */
 char *subclassification_primary_where(
 			char *subclassification_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *subclassification_system_string(
-			char *subclassification_select,
-			char *subclassification_table,
-			char *where );
 
 SUBCLASSIFICATION *subclassification_parse(
 			char *input,
@@ -76,16 +105,19 @@ SUBCLASSIFICATION *subclassification_calloc(
 
 /* Usage */
 /* ----- */
-SUBCLASSIFICATION *subclassification_element_fetch(
-			char *subclassification_name,
-			char *begin_transaction_date_time,
-			char *end_transaction_date_time );
+LIST *subclassification_account_statement_list(
+			LIST *subclassification_statement_list );
 
-/* Public */
-/* ------ */
-LIST *subclassification_element_subclassification_name_list(
-			char *element_primary_where,
-			char *subclassification_table,
-			char *order_column );
+/* Process */
+/* ------- */
+
+
+/* Usage */
+/* ----- */
+double subclassification_statement_list_value(
+			LIST *subclassification_statement_list );
+
+/* Process */
+/* ------- */
 
 #endif
