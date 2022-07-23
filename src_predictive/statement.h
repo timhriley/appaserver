@@ -28,43 +28,22 @@ enum statement_output_medium 		{
 
 typedef struct
 {
-	boolean transaction_closing_entry_exists;
-	char *transaction_date_time_nominal;
-	char *transaction_date_time_fixed;
-	LIST *preclose_element_list;
-	LIST *postclose_element_list;
+	LIST *element_statement_list;
 } STATEMENT;
 
 /* Usage */
 /* ----- */
 STATEMENT *statement_fetch(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
 			LIST *filter_element_name_list,
-			char *statement_begin_date_string,
-			char *transaction_as_of_date,
-			int prior_year_count,
-			enum subclassification_option subclassification_option,
-			boolean with_postclose );
+			char *transaction_date_time_closing );
 
 /* Process */
 /* ------- */
-STATEMENT *statement *statement_calloc(
+STATEMENT *statement_calloc(
 			void );
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *statement_begin_date_string(
-			char *transaction_table,
-			char *transaction_as_of_date );
-
-/* Process */
-/* ------- */
 
 /* Public */
 /* ------ */
@@ -93,5 +72,47 @@ char *statement_title(	char *application_name,
 char *statement_subtitle(
 			char *begin_date_string,
 			char *as_of_date );
+
+typedef struct
+{
+	char *date_string;
+	LIST *element_statement_list;
+} STATEMENT_PRIOR_YEAR;
+
+/* Usage */
+/* ----- */
+LIST *statement_prior_year_list(
+			LIST *filter_element_name_list,
+			char *transation_date_time_closing,
+			int prior_year_count,
+			STATEMENT *statement );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
+			LIST *filter_element_name_list,
+			char *transation_date_time_closing,
+			int years_ago,
+			STATEMENT *statement );
+
+/* Process */
+/* ------- */
+STATEMENT_PRIOR_YEAR *statement_prior_year_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_prior_year_date_string(
+			char *transaction_date_time_closing,
+			int years_ago );
+
+/* Process */
+/* ------- */
 
 #endif

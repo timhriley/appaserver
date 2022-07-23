@@ -19,6 +19,103 @@
 #include "journal.h"
 #include "account.h"
 
+LIST *account_statement_list(
+			char *subclassification_primary_where,
+			char *transaction_date_time_closing,
+			boolean fetch_journal_latest )
+{
+	FILE *pipe;
+	char input[ 256 ];
+	LIST *statement_list;
+
+	if ( !subclassification_primary_where
+	||   !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	statement_list = list_new();
+
+	pipe =
+		account_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_system_string(
+				ACCOUNT_SELECT,
+				ACCOUNT_TABLE,
+				subclassification_primary_where ) );
+
+	while ( string_input( input, pipe, 256 ) )
+	{
+		list_set(
+			statement_list,
+			account_statement_parse(
+				input,
+				transaction_date_time_closing,
+				fetch_journal_latest ) );
+	}
+
+	pclose( pipe );
+
+	return statement_list;
+}
+
+ACCOUNT *account_statement_parse(
+			char *input,
+			char *transaction_date_time_closing,
+			boolean fetch_journal_latest )
+{
+	ACCOUNT *account;
+
+	if ( !input
+	||   !*input
+	||   !transaction_date_time_closing )
+	{
+		return (ACCOUNT *)0;
+	}
+
+	if ( ! ( account =
+			account_parse(
+				input,
+				0 /* not fetch_subclassification */,
+				0 /* not fetch_element */ ) ) )
+	{
+		return (ACCOUNT *)0;
+	}
+
+	if ( fetch_journal_latest )
+	{
+		account->journal_latest =
+			journal_latest(
+				account->account_name,
+				transaction_date_time_closing );
+	}
+
+	return account;
+}
+
+FILE *account_pipe( char *account_system_string )
+{
+	if ( !account_system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	popen( account_system_string, "r" );
+}
+
 ACCOUNT *account_new( char *account_name )
 {
 	ACCOUNT *account;
@@ -221,14 +318,10 @@ int account_balance_match_function(
 	JOURNAL *compare_latest_journal;
 
 	from_list_latest_journal =
-		list_last(
-			account_from_list->
-				journal_account_journal_list );
+		account_from_list->journal_latest;
 
 	compare_latest_journal =
-		list_last(
-			account_compare->
-				journal_account_journal_list );
+		account_compare->journal_latest;
 
 	if ( !from_list_latest_journal
 	||   !from_list_latest_journal->balance )
@@ -253,21 +346,6 @@ int account_balance_match_function(
 	}
 }
 
-double account_balance( LIST *journal_account_journal_list )
-{
-	JOURNAL *latest_journal;
-
-	if ( ! ( latest_journal =
-			journal_list_latest(
-				journal_account_journal_list ) ) )
-	{
-		return 0.0;
-	}
-
-	return latest_journal->balance;
-}
-
-
 LIST *account_list_percent_of_asset_set(
 			LIST *account_list,
 			double asset_total )
@@ -283,8 +361,7 @@ LIST *account_list_percent_of_asset_set(
 
 		account->percent_of_asset =
 			float_percent_of_total(
-				account_balance(
-					account->journal_account_journal_list ),
+				account->journal_latest->balance,
 				asset_total );
 
 	} while ( list_next( account_list ) );
@@ -307,49 +384,12 @@ LIST *account_list_percent_of_revenue_set(
 
 		account->percent_of_revenue =
 			float_percent_of_total(
-				account_balance(
-					account->journal_account_journal_list ),
+				account->journal_latest->balance,
 				revenue_total );
 
 	} while ( list_next( account_list ) );
 
 	return account_list;
-}
-
-ACCOUNT *account_subclassification_fetch(
-			char *account_name,
-			char *begin_transaction_date_time,
-			char *end_transaction_date_time )
-{
-	ACCOUNT *account;
-
-	if ( !account_name
-	||   !begin_transaction_date_time
-	||   !end_transaction_date_time )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	account = account_new( account_name );
-
-	account->journal_account_journal_list =
-		journal_account_journal_list(
-			account_name,
-			begin_transaction_date_time,
-			end_transaction_date_time );
-
-	if ( !list_length( account->journal_account_journal_list ) )
-	{
-		free( account );
-		return (ACCOUNT *)0;
-	}
-
-	return account;
 }
 
 boolean account_accumulate_debit(
@@ -367,7 +407,7 @@ boolean account_accumulate_debit(
 				account_list(
 					"1 = 1" /* where */,
 					1 /* fetch_subclassification */,
-					1 /* fetch_entity */ );
+					1 /* fetch_element */ );
 		}
 
 		if ( ! ( account =
@@ -654,156 +694,160 @@ void account_list_action_string_set(
 	} while ( list_next( account_list ) );
 }
 
-int account_delta_prior(
-			double prior_account_latest_journal_balance,
-			double account_latest_journal_balance )
+void account_prior_year_set(
+			ACCOUNT *prior_account /* in/out */,
+			ACCOUNT *current_account )
 {
-	return
-	float_delta_prior(
-		prior_account_latest_journal_balance,
-		account_latest_journal_balance );
-}
-
-void account_delta_prior_set(
-			LIST *prior_account_list,
-			ACCOUNT *account )
-{
-	ACCOUNT *prior_account;
-	JOURNAL *prior_latest_journal;
-	JOURNAL *latest_journal;
-
-	if ( ! ( prior_account =
-			account_seek(
-				account->account_name,
-				prior_account_list ) ) )
+	if ( !prior_account
+	||   !prior_account->journal_latest
+	||   !current_account
+	||   !current_account->journal_latest )
 	{
-		return;
-	}
-
-	if ( ! ( prior_latest_journal =
-			journal_list_latest(
-				prior_account->
-					journal_account_journal_list ) ) )
-	{
-		return;
-	}
-
-	if ( ! ( latest_journal =
-			journal_list_latest(
-				account->
-					journal_account_journal_list ) ) )
-	{
-		return;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	prior_account->delta_prior =
-		account_delta_prior(
-			prior_latest_journal->balance,
-			latest_journal->balance );
+		float_delta_prior(
+			prior_account->journal_latest->balance,
+			current_account->journal_latest->balance );
 }
 
-LIST *account_list_delta_prior_set(
-			LIST *prior_account_list,
-			LIST *account_list )
+void account_list_prior_year_set(
+			LIST *prior_account_list /* in/out */,
+			LIST *current_account_list )
 {
-	ACCOUNT *account;
+	ACCOUNT *current_account;
+	ACCOUNT *prior_account;
 
-	if ( !list_rewind( account_list ) ) return prior_account_list;
+	if ( list_rewind( current_account_list ) ) return;
 
 	do {
-		account = list_get( account_list );
+		current_account =
+			list_get(
+				current_account_list );
 
-		account_delta_prior_set(
-			prior_account_list,
-			account );
-
-	} while ( list_next( account_list ) );
-
-	return prior_account_list;
-}
-
-double account_debit_total( LIST *account_list )
-{
-	ACCOUNT *account;
-	JOURNAL *latest_journal;
-	double debit_total;
-
-	if ( !list_rewind( account_list ) ) return 0.0;
-
-	debit_total = 0.0;
-
-	do {
-		account = list_get( account_list );
-
-		if ( ! ( latest_journal =
-				journal_list_latest(
-					account->
-					     journal_account_journal_list ) ) )
+		if ( !current_account->journal_latest )
 		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: current_account->journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( ! ( prior_account =
+				account_seek(
+					current_account->account_name,
+					prior_account_list ) ) )
+		{
+			current_account->delta_prior = 100;
+
 			continue;
 		}
 
-		if ( !account_accumulate_debit(
-			account->account_name,
-			1 /* expect_lots */ )
-		&&   latest_journal->balance < 0.0 )
+		if ( !prior_account->journal_latest )
 		{
-			debit_total += -latest_journal->balance;
-		}
-		else
-		if ( account_accumulate_debit(
-			account->account_name,
-			1 /* expect_lots */ )
-		&&   latest_journal->balance > 0.0 )
-		{
-			debit_total += latest_journal->balance;
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: prior_account->journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
-	} while ( list_next( account_list ) );
+		account_prior_year_set(
+			prior_account /* in/out */,
+			current_account );
 
-	return debit_total;
+	} while ( list_next( current_account_list ) );
 }
 
-double account_credit_total( LIST *account_list )
+double account_list_debit_sum(
+			LIST *account_list,
+			boolean element_accumulate_debit )
 {
 	ACCOUNT *account;
-	JOURNAL *latest_journal;
-	double credit_total;
+	double debit_sum;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
 
-	credit_total = 0.0;
+	debit_sum = 0.0;
 
 	do {
 		account = list_get( account_list );
 
-		if ( ! ( latest_journal =
-				journal_list_latest(
-					account->
-					     journal_account_journal_list ) ) )
+		if ( !account->journal_latest )
 		{
-			continue;
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
-		if ( account_accumulate_debit(
-			account->account_name,
-			1 /* expect_lots */ )
-		&&   latest_journal->balance < 0.0 )
+		if ( !element_accumulate_debit
+		&&   account->journal_latest->balance < 0.0 )
 		{
-			credit_total += -latest_journal->balance;
+			debit_sum -= account->journal_latest->balance;
 		}
 		else
-		if ( !account_accumulate_debit(
-			account->account_name,
-			1 /* expect_lots */ )
-		&&   latest_journal->balance > 0.0 )
+		if ( element_accumulate_debit
+		&&   account->journal_latest->balance > 0.0 )
 		{
-			credit_total += latest_journal->balance;
+			debit_sum += account->journal_latest->balance;
 		}
 
 	} while ( list_next( account_list ) );
 
-	return credit_total;
+	return debit_sum;
+}
+
+double account_credit_sum(
+			LIST *account_list,
+			boolean element_accumulate_debit )
+{
+	ACCOUNT *account;
+	double credit_sum;
+
+	if ( !list_rewind( account_list ) ) return 0.0;
+
+	credit_sum = 0.0;
+
+	do {
+		account = list_get( account_list );
+
+		if ( !account->journal_latest )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( element_accumulate_debit
+		&&   account->journal_latest->balance < 0.0 )
+		{
+			credit_sum -= account->journal_latest->balance;
+		}
+		else
+		if ( !element_accumulate_debit
+		&&   account->journal_latest->balance > 0.0 )
+		{
+			credit_sum += account->journal_latest->balance;
+		}
+
+	} while ( list_next( account_list ) );
+
+	return credit_sum;
 }
 
 double account_balance_total( LIST *account_list )
@@ -820,9 +864,8 @@ double account_balance_total( LIST *account_list )
 		account = list_get( account_list );
 
 		if ( ! ( latest_journal =
-				journal_list_latest(
-					account->
-					     journal_account_journal_list ) ) )
+				account->
+					journal_latest ) )
 		{
 			continue;
 		}
@@ -832,11 +875,6 @@ double account_balance_total( LIST *account_list )
 	} while ( list_next( account_list ) );
 
 	return balance_total;
-}
-
-LIST *account_following_balance_zero_journal_list( char *account_name )
-{
-	return journal_following_balance_zero_list( account_name );
 }
 
 ACCOUNT *account_getset(
@@ -924,59 +962,9 @@ LIST *account_receivable_name_list(
 	return pipe2list( system_string );
 }
 
-LIST *account_subclassification_account_name_list(
-			char *account_table,
-			char *subclassification_primary_where )
-{
-	if ( !account_table
-	||   !subclassification_primary_where )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	pipe2list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		account_subclassification_account_system_string(
-			account_table,
-			subclassification_primary_where ) );
-}
-
-char *account_subclassification_account_system_string(
-			char *account_table,
-			char *subclassification_primary_where )
-{
-	char system_string[ 1024 ];
-
-	if ( !account_table
-	||   !subclassification_primary_where )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(system_string,
-		"select.sh account %s \"%s\" none",
-		account_table,
-		subclassification_primary_where );
-
-	return strdup( system_string );
-}
-
 LIST *account_list(	char *where,
 			boolean fetch_subclassification,
-			boolean fetch_entity )
+			boolean fetch_element )
 {
 	if ( !where ) where = "1 = 1";
 
@@ -990,7 +978,7 @@ LIST *account_list(	char *where,
 			ACCOUNT_TABLE,
 			where ),
 		fetch_subclassification,
-		fetch_entity );
+		fetch_element );
 }
 
 LIST *account_system_list(
@@ -1049,38 +1037,32 @@ char *account_system_string(
 	return strdup( system_string );
 }
 
-double account_value(	LIST *account_statement_list,
-			boolean accumulate_debit )
+double account_list_sum( LIST *account_statement_list )
 {
-	double value = 0.0;
 	ACCOUNT *account;
-	double latest_journal_balance;
+	double list_sum;
 
 	if ( !list_rewind( account_statement_list ) ) return 0.0;
-	
+
+	list_sum = 0.0;
+
 	do {
 		account = list_get( account_statement_list );
 
-		if ( !account->latest_journal
-		||   !account->latest_journal->balance )
-			continue;
-
-		if (	element_accumulate_debit ==
-			account->accumulate_debit )
+		if ( !account->journal_latest )
 		{
-			latest_journal_balance =
-				account->latest_journal->balance;
-		}
-		else
-		{
-			latest_journal_balance =
-				0.0 - account->latest_journal->balance;
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
-		value += latest_journal_balance;
+		list_sum += account->journal_latest->balance;
 
-	} while( list_next( account_list ) );
+	} while ( list_next( account_statement_list ) );
 
-	return value;
+	return list_sum;
 }
 

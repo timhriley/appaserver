@@ -207,8 +207,8 @@ char *journal_max_prior_transaction_date_time(
 /* Usage */
 /* ----- */
 JOURNAL *journal_latest(
-			char *transaction_date_time_closing,
-			char *account_name );
+			char *account_name,
+			char *transaction_date_time_closing );
 
 /* Process */
 /* ------- */
@@ -248,20 +248,6 @@ LIST *journal_POR_list(	char *account_name );
 
 /* Process */
 /* ------- */
-
-/* Usage */
-/* ----- */
-LIST *journal_following_balance_zero_list(
-			char *account_name );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *journal_following_latest_zero_balance_transaction_date_time(
-			char *account_name,
-			char *journal_table );
 
 /* Usage */
 /* ----- */

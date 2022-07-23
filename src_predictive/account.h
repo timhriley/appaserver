@@ -11,6 +11,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "subclassification.h"
+#include "journal.h"
 
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
@@ -43,26 +44,52 @@
 
 typedef struct
 {
-	/* Input */
-	/* ----- */
+	/* Attributes */
+	/* ---------- */
 	char *account_name;
 	char *subclassification_name;
 	char *hard_coded_account_key;
 	int chart_account_number;
 	int annual_budget;
-
-	/* Attributes */
-	/* ---------- */
 	SUBCLASSIFICATION *subclassification;
-	LIST *journal_account_journal_list;
+	JOURNAL *journal_latest;
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
-	LIST *following_balance_zero_journal_list;
 	LIST *liability_journal_list;
 	double liability_due;
 	char *action_string;
 } ACCOUNT;
+
+/* Usage */
+/* ----- */
+LIST *account_statement_list(
+			char *subclassification_primary_where,
+			char *transaction_date_time_closing,
+			boolean fetch_journal_latest );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *account_system_string(
+			char *account_select,
+			char *account_table,
+			char *where );
+
+FILE *account_pipe(
+			char *account_system_string );
+
+/* Usage */
+/* ----- */
+ACCOUNT *account_statement_parse(
+			char *input,
+			char *transaction_date_time_closing,
+			boolean fetch_journal_latest );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -107,17 +134,10 @@ LIST *account_system_list(
 /* ----- */
 LIST *account_list(	char *where,
 			boolean fetch_subclassification,
-			boolean fetch_entity );
+			boolean fetch_element );
 
 /* Process */
 /* ------- */
-
-/* Usage */
-/* ----- */
-ACCOUNT *account_subclassification_fetch(
-			char *account_name,
-			char *begin_transaction_date_time,
-			char *end_transaction_date_time );
 
 /* Usage */
 /* ----- */
@@ -131,7 +151,7 @@ boolean account_accumulate_debit(
 /* Usage */
 /* ----- */
 LIST *account_balance_sort_list(
-			LIST *account_list );
+			LIST *account_statement_list );
 
 /* Process */
 /* ------- */
@@ -141,19 +161,21 @@ int account_balance_match_function(
 
 /* Usage */
 /* ----- */
-LIST *account_list_delta_prior_set(
-			LIST *prior_account_list,
-			LIST *account_list );
+void account_list_prior_year_set(
+			LIST *prior_account_list /* in/out */,
+			LIST *current_account_list );
 
 /* Process */
 /* ------- */
-void account_delta_prior_set(
-			LIST *prior_account_list,
-			ACCOUNT *account );
 
-int account_delta_prior(
-			double prior_account_latest_journal_balance,
-			double account_latest_journal_balance );
+/* Usage */
+/* ----- */
+void account_prior_year_set(
+			ACCOUNT *prior_account /* in/out */,
+			ACCOUNT *current_account );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -175,30 +197,25 @@ LIST *account_list_percent_of_revenue_set(
 
 /* Usage */
 /* ----- */
-double account_balance(	LIST *journal_account_journal_list );
+double account_list_debit_sum(
+			LIST *account_list,
+			boolean element_accumulate_debit );
 
 /* Process */
 /* ------- */
 
 /* Usage */
 /* ----- */
-double account_debit_total(
-			LIST *account_list );
+double account_list_credit_sum(
+			LIST *account_list,
+			boolean element_accumulate_debit );
 
 /* Process */
 /* ------- */
 
 /* Usage */
 /* ----- */
-double account_credit_total(
-			LIST *account_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-double account_balance_total(
+double account_balance_sum(
 			LIST *account_list );
 
 /* Process */
@@ -222,18 +239,24 @@ ACCOUNT *account_key_seek(
 
 /* Usage */
 /* ----- */
-LIST *account_subclassification_account_name_list(
-			char *account_table,
-			char *subclassification_primary_where );
+ACCOUNT *account_parse(	char *input,
+			boolean fetch_subclassification,
+			boolean fetch_element );
 
 /* Process */
 /* ------- */
+ACCOUNT *account_new(	char *account_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *account_subclassification_account_system_string(
-			char *account_table,
-			char *subclassification_primary_where );
+ACCOUNT *account_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+double account_list_sum(
+			LIST *account_statement_list );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -326,28 +349,5 @@ LIST *account_receivable_name_list(
 ACCOUNT *account_getset(
 			LIST *account_list,
 			char *account_name );
-
-/* Usage */
-/* ----- */
-ACCOUNT *account_parse(	char *input,
-			boolean fetch_subclassification,
-			boolean fetch_entity );
-
-/* Process */
-/* ------- */
-ACCOUNT *account_new(	char *account_name );
-
-ACCOUNT *account_calloc(
-			void );
-
-/* Private */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *account_system_string(
-			char *account_select,
-			char *account_table,
-			char *where );
 
 #endif

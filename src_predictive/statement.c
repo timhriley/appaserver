@@ -8,11 +8,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "timlib.h"
-#include "application_constants.h"
-#include "application.h"
 #include "date_convert.h"
-#include "predictive.h"
-#include "transaction.h"
+#include "application.h"
+#include "application_constants.h"
+#include "element.h"
 #include "statement.h"
 
 enum statement_subclassification_option
@@ -180,25 +179,13 @@ char *statement_subtitle(
 }
 
 STATEMENT *statement_fetch(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
 			LIST *filter_element_name_list,
-			char *transaction_begin_date_string,
-			char *transaction_as_of_date,
-			int prior_year_count,
-			enum subclassification_option subclassification_option )
+			char *transaction_date_time_closing )
 {
 	STATEMENT *statement;
 
-	if ( !application_name
-	||   !session
-	||   !login_name
-	||   !role_name
-	||   !list_length( filter_element_name_list )
-	||   !statement_begin_date_string
-	||   !transaction_as_of_date )
+	if ( !list_length( filter_element_name_list )
+	||   !transaction_date_time_closing )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -210,59 +197,13 @@ STATEMENT *statement_fetch(
 
 	statement = statement_calloc();
 
-	statement->transaction_closing_entry_exists =
-		transaction_closing_entry_exists(
-			transaction_as_of_date );
-
-	statement->transaction_date_time_nominal =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		transaction_date_time_closing(
-			PREDICTIVE_CLOSE_TIME,
-			PREDICTIVE_PRECLOSE_TIME,
-			transaction_as_of_date /* transaction_date */,
-			1 /* preclose_time_boolean */,
-			statement->transaction_closing_entry_exists );
-
-	statement->transaction_date_time_fixed =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		transaction_date_time_closing(
-			PREDICTIVE_CLOSE_TIME,
-			PREDICTIVE_PRECLOSE_TIME,
-			transaction_as_of_date,
-			0 /* not preclose_time_boolean */,
-			statement->transaction_closing_entry_exists );
-
-	statement->preclose_element_list =
-		statement_element_list(
-			application_name,
-			session,
-			login_name,
-			role_name,
+	statement->element_statement_list =
+		element_statement_list(
 			filter_element_name_list,
-			begin_date_string,
-			statement_fund->transaction_date_time_nominal,
-			statement_fund->transaction_date_time_nominal,
-			subclassification_option );
-
-	if ( with_postclose
-	&&   transaction_closing_entry_exists( as_of_date ) )
-	{
-		statement_fund->postclose_element_list =
-			statement_element_list(
-				application_name,
-				session,
-				login_name,
-				role_name,
-				filter_element_name_list,
-				begin_date_string,
-				statement_fund->transaction_date_time_fixed,
-				statement_fund->transaction_date_time_fixed,
-				subclassification_option );
-	}
+			transaction_date_time_closing,
+			1 /* fetch_subclassification */,
+			1 /* fetch_account_list */,
+			1 /* fetch_journal_latest */ );
 
 	return statement;
 }
@@ -282,81 +223,5 @@ STATEMENT *statement_calloc( void )
 	}
 
 	return statement;
-}
-
-LIST *statement_element_list(
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			LIST *filter_element_name_list,
-			char *begin_date_string,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			enum subclassification_option subclassification_option )
-{
-	boolean fetch_subclassification_list = 0;
-	boolean fetch_account_list = 0;
-	char transaction_date[ 16 ];
-	LIST *element_list;
-	ELEMENT *element;
-
-	if ( subclassification_option == subclassification_display
-	||   subclassification_option == subclassification_aggregate )
-	{
-		fetch_subclassification_list = 1;
-	}
-	else
-	/* ------------------------------ */
-	/* Must be subclassification_omit */
-	/* ------------------------------ */
-	{
-		fetch_account_list = 1;
-	}
-
-	element_list =
-		element_list(
-			filter_element_name_list,
-			transaction_date_time_nominal,
-			transaction_date_time_fixed,
-			fetch_subclassification_list,
-			fetch_account_list );
-
-	if ( ( element =
-			element_seek(
-				ELEMENT_EQUITY,
-				element_list ) )
-	&&     begin_date_string )
-	{
-		element->equity_element =
-			equity_element_fetch(
-				element->element_name,
-				element->element_current_balance,
-				begin_date_string );
-
-		if ( !element->equity_element )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: equity_element_fetch() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-	}
-
-	element_list_account_action_string_set(
-		list,
-		application_name,
-		session,
-		login_name,
-		role_name,
-		begin_date_string,
-		column(
-			transaction_date,
-			0,
-			transaction_date_time_fixed ) );
-
-	return element_list;
 }
 

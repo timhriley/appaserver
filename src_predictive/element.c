@@ -13,6 +13,7 @@
 #include "sql.h"
 #include "String.h"
 #include "piece.h"
+#include "subclassification.h"
 #include "element.h"
 
 ELEMENT *element_calloc( void )
@@ -35,6 +36,7 @@ ELEMENT *element_calloc( void )
 ELEMENT *element_new( char *element_name )
 {
 	ELEMENT *element = element_calloc();
+
 	element->element_name = element_name;
 
 	return element;
@@ -65,7 +67,7 @@ ELEMENT *element_fetch( char *element_name )
 {
 	char input[ 128 ];
 	ELEMENT *element;
-	FILE *input_pipe;
+	FILE *pipe;
 
 	if ( !element_name )
 	{
@@ -77,8 +79,8 @@ ELEMENT *element_fetch( char *element_name )
 		exit( 1 );
 	}
 
-	input_pipe =
-		element_input_pipe(
+	pipe =
+		element_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -95,10 +97,10 @@ ELEMENT *element_fetch( char *element_name )
 		element_parse(
 			string_input(
 				input,
-				input_pipe,
+				pipe,
 				128 ) );
 
-	pclose( input_pipe );
+	pclose( pipe );
 
 	return element;
 }
@@ -156,94 +158,31 @@ ELEMENT *element_statement_parse(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal )
+			boolean fetch_journal_latest )
 {
-	char element_name[ 128 ];
-	char piece_buffer[ 16 ];
 	ELEMENT *element;
 
 	if ( !input ) return (ELEMENT *)0;
 
-	element = element_parse( input );
+	if ( ! ( element = element_parse( input ) ) )
+	{
+		return (ELEMENT *)0;
+	}
 
 	if ( fetch_subclassification_list )
 	{
-		element->subclassification_list =
+		element->subclassification_statement_list =
 			subclassification_statement_list(
-				element_primary_where(
-					element->element_name ),
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				element_primary_where( element->element_name ),
 				transaction_date_time_closing,
 				fetch_account_list,
-				fetch_latest_journal );
+				fetch_journal_latest );
 	}
 
 	return element;
-}
-
-LIST *element_list_sort( LIST *element_list )
-{
-	ELEMENT *element;
-	LIST *return_element_list;
-
-	return_element_list = list_new();
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_ASSET,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_LIABILITY,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_REVENUE,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_EXPENSE,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_GAIN,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_LOSS,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	if ( ( element =
-		element_seek(
-			ELEMENT_EQUITY,
-			element_list ) ) )
-	{
-		list_set( return_element_list, element );
-	}
-
-	return return_element_list;
 }
 
 ELEMENT *element_seek(	char *element_name,
@@ -302,12 +241,14 @@ LIST *element_statement_list(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal )
+			boolean fetch_journal_latest )
 {
 	LIST *element_list;
 	char *element_name;
 
 	if ( !list_rewind( filter_element_name_list ) ) return (LIST *)0;
+
+	element_list = list_new();
 
 	do {
 		element_name = list_get( filter_element_name_list );
@@ -319,15 +260,14 @@ LIST *element_statement_list(
 				transaction_date_time_closing,
 				fetch_subclassification_list,
 				fetch_account_list,
-				fetch_latest_journal ) );
+				fetch_journal_latest ) );
 
 	} while ( list_next( filter_element_name_list ) );
 
 	return element_list;
 }
 
-double element_value(	ELEMENT *element;
-			boolean accumulate_debit )
+double element_sum( ELEMENT *element )
 {
 	if ( !list_length( element->subclassification_statement_list ) )
 	{
@@ -335,8 +275,145 @@ double element_value(	ELEMENT *element;
 	}
 
 	return
-	subclassification_statement_list_value(
+	subclassification_list_sum(
+		/* --------------------------- */
+		/* Sets subclassification->sum */
+		/* --------------------------- */
 		element->subclassification_statement_list );
+}
+
+FILE *element_pipe( char *element_system_string )
+{
+	if ( !element_system_string )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: element_system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	return
+	popen( element_system_string, "r" );
+}
+
+LIST *element_account_list( ELEMENT *element )
+{
+	if ( !element )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	subclassification_account_list(
+		element->subclassification_statement_list );
+}
+
+ELEMENT *element_statement_fetch(
+			char *element_name,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list,
+			boolean fetch_journal_latest )
+{
+	FILE *pipe;
+	ELEMENT *element;
+	char input[ 128 ];
+
+	if ( !element_name
+	||   !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	pipe =
+		element_pipe(
+			element_system_string(
+				ELEMENT_SELECT,
+				ELEMENT_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				element_primary_where( element_name ) ) );
+
+	element =
+		element_statement_parse(
+			string_input( input, pipe, 128 ),
+			transaction_date_time_closing,
+			fetch_subclassification_list,
+			fetch_account_list,
+			fetch_journal_latest );
+
+
+	pclose( pipe );
+
+	return element;
+}
+
+double element_list_debit_sum(
+			LIST *element_statement_list )
+{
+	ELEMENT *element;
+	double sum;
+
+	if ( !list_rewind( element_statement_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( list_length( element->subclassification_statement_list ) )
+		{
+			sum +=
+				subclassification_list_debit_sum(
+				     element->
+					subclassification_statement_list,
+				     element->accumulate_debit );
+		}
+
+	} while ( list_next( element_statement_list ) );
+
+	return sum;
+}
+
+double element_list_credit_sum(
+			LIST *element_statement_list )
+{
+	ELEMENT *element;
+	double sum;
+
+	if ( !list_rewind( element_statement_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( list_length( element->subclassification_statement_list ) )
+		{
+			sum +=
+				subclassification_list_credit_sum(
+				    element->
+					subclassification_statement_list,
+				    element->accumulate_debit );
+		}
+
+	} while ( list_next( element_statement_list ) );
+
+	return sum;
 }
 
 #ifdef NOT_DEFINED
@@ -1070,10 +1147,4 @@ double equity_element_balance_change(
 }
 
 #endif
-
-FILE *element_input_pipe( char *element_system_string )
-{
-	return
-	popen( element_system_string, "r" );
-}
 

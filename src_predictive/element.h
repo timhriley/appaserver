@@ -10,7 +10,6 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "account.h"
 
 #define ELEMENT_TABLE			"element"
 
@@ -26,12 +25,10 @@
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
 	char *element_name;
 	boolean accumulate_debit;
 	LIST *subclassification_statement_list;
-	double value;
+	double sum;
 } ELEMENT;
 
 /* Usage */
@@ -41,12 +38,10 @@ LIST *element_statement_list(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal );
+			boolean fetch_journal_latest );
 
 /* Process */
 /* ------- */
-LIST *element_list_sort(
-			LIST *element_list );
 
 /* Usage */
 /* ----- */
@@ -54,6 +49,22 @@ ELEMENT *element_fetch(	char *element_name );
 
 /* Process */
 /* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *element_primary_where(
+			char *element_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_system_string(
+			char *element_select,
+			char *element_table,
+			char *where );
+
+FILE *element_pipe(
+			char *element_system_string );
+
 
 /* Usage */
 /* ----- */
@@ -73,48 +84,51 @@ ELEMENT *element_statement_fetch(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal );
+			boolean fetch_journal_latest );
 
 /* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
 ELEMENT *element_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal );
+			boolean fetch_journal_latest );
 
-double element_value(	ELEMENT *element );
-
-/* Private */
+/* Process */
 /* ------- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *element_system_string(
-			char *element_select,
-			char *element_table,
-			char *where );
+/* Usage */
+/* ----- */
+double element_sum(	ELEMENT *element );
 
-FILE *element_input_pipe(
-			char *element_system_string );
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *element_account_list(
+			ELEMENT *element );
+
+/* Process */
+/* ------- */
 
 /* Public */
 /* ------ */
-
-/* Returns static memory */
-/* --------------------- */
-char *element_primary_where(
-			char *element_name );
-
 boolean element_is_nominal(
 			char *element_name );
 
 
-LIST *element_account_list(
-			ELEMENT *element );
+ELEMENT *element_seek(	char *element_name,
+			LIST *element_statement_list );
 
-LIST *element_seek(	char *element_name,
+double element_list_debit_sum(
+			LIST *element_statement_list );
+
+double element_list_credit_sum(
 			LIST *element_statement_list );
 
 #endif

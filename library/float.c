@@ -10,12 +10,6 @@
 #include "list.h"
 #include "float.h"
 
-/* Constants */
-/* --------- */
-
-/* Structures */
-/* ---------- */
-
 double float_abs( double f )
 {
 	return abs_float( f );
@@ -195,7 +189,7 @@ int float_delta_prior(	double prior_total,
 	double difference;
 	double delta;
 
-	if ( !prior_total ) return 0;
+	if ( !prior_total ) return 100;
 
 	difference =
 		total -

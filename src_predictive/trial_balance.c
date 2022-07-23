@@ -12,6 +12,7 @@
 #include "float.h"
 #include "transaction.h"
 #include "statement.h"
+#include "element.h"
 #include "trial_balance.h"
 
 TRIAL_BALANCE *trial_balance_calloc( void )
@@ -71,6 +72,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	if ( ! ( trial_balance->transaction_as_of_date =
 			transaction_as_of_date(
+				TRANSACTION_TABLE,
 				as_of_date ) ) )
 	{
 		free( trial_balance );
@@ -86,7 +88,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				trial_balance->transaction_as_of_date ) ) )
 	{
 		fprintf(stderr,
-"ERROR in %s/%s()/%d: statement_begin_date_string(%s) returned empty.\n",
+"ERROR in %s/%s()/%d: transaction_begin_date_string(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -116,7 +118,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		statement_subtitle(
-			trial_balance->statement_begin_date_string,
+			trial_balance->transaction_begin_date_string,
 			trial_balance->transaction_as_of_date );
 
 	trial_balance->filter_element_name_list =
@@ -142,16 +144,21 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 		trial_balance->preclose_statement =
 			statement_fetch(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
 				trial_balance->filter_element_name_list,
-				trial_balance->transaction_begin_date_string,
-				trial_balance->transaction_as_of_date,
-				prior_year_count,
-				trial_balance->
-					statement_subclassification_option );
+				trial_balance->transaction_date_time_closing );
+
+		if ( prior_year_count )
+		{
+			trial_balance->preclose_prior_year_list =
+				statement_prior_year_list(
+					trial_balance->
+						filter_element_name_list,
+					trial_balance->
+						transaction_date_time_closing,
+					prior_year_count,
+					trial_balance->preclose_statement
+						/* statement */ );
+		}
 	}
 
 	trial_balance->transaction_date_time_closing =
@@ -166,17 +173,64 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	trial_balance->postclose_statement =
 		statement_fetch(
-			application_name,
-			session_key,
-			login_name,
-			role_name,
 			trial_balance->filter_element_name_list,
-			trial_balance->transaction_begin_date_string,
-			trial_balance->transaction_as_of_date,
-			prior_year_count,
+			trial_balance->transaction_date_time_closing );
+
+	if ( prior_year_count )
+	{
+		trial_balance->postclose_prior_year_list =
+			statement_prior_year_list(
+				trial_balance->
+					filter_element_name_list,
+				trial_balance->
+					transaction_date_time_closing,
+				prior_year_count,
+				trial_balance->postclose_statement
+					/* statement */ );
+	}
+
+	if ( trial_balance->transaction_closing_entry_exists )
+	{
+		trial_balance->preclose_debit_sum =
+			element_list_debit_sum(
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+
+		trial_balance->preclose_credit_sum =
+			element_list_credit_sum(
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+	}
+
+	trial_balance->postclose_debit_sum =
+		element_list_debit_sum(
 			trial_balance->
-				statement_subclassification_option );
+				postclose_statement->
+				element_statement_list );
+
+	trial_balance->postclose_credit_sum =
+		element_list_credit_sum(
+			trial_balance->
+				postclose_statement->
+				element_statement_list );
 
 	return trial_balance;
+}
+
+LIST *trial_balance_filter_element_name_list( void )
+{
+	LIST *element_name_list = list_new();
+
+	list_set( element_name_list, ELEMENT_ASSET );
+	list_set( element_name_list, ELEMENT_LIABILITY );
+	list_set( element_name_list, ELEMENT_REVENUE );
+	list_set( element_name_list, ELEMENT_EXPENSE );
+	list_set( element_name_list, ELEMENT_GAIN );
+	list_set( element_name_list, ELEMENT_LOSS );
+	list_set( element_name_list, ELEMENT_EQUITY );
+
+	return element_name_list;
 }
 

@@ -112,11 +112,11 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 }
 
 JOURNAL *journal_latest(
-			char *transaction_date_time_closing,
-			char *account_name )
+			char *account_name,
+			char *transaction_date_time_closing )
 {
-	if ( !transaction_date_time_closing
-	||   !account_name )
+	if ( !account_name
+	||   !transaction_date_time_closing )
 	{
 		return (JOURNAL *)0;
 	}
@@ -336,112 +336,6 @@ LIST *journal_system_list(
 	return system_list;
 }
 
-char *journal_following_latest_zero_balance_transaction_date_time(
-			char *account_name,
-			char *journal_table )
-{
-	DATE *transaction_date_time;
-	char where[ 512 ];
-	char system_string[ 1024 ];
-	char *results;
-
-	sprintf(where,
-		"account = '%s' and balance = 0",
-		account_name );
-
-	sprintf(system_string,
-		"echo \"select %s from %s where %s;\" | sql",
-		"max( transaction_date_time )",
-		journal_table,
-		where );
-
-	results = string_pipe( system_string );
-
-	if ( results && *results )
-	{
-		transaction_date_time =
-			date_yyyy_mm_dd_hms_new(
-				results );
-
-		date_increment_seconds(
-			transaction_date_time,
-			1 );
-
-		return
-		date_get_yyyy_mm_dd_hh_mm_ss(
-			transaction_date_time );
-	}
-	else
-	{
-		return (char *)0;
-	}
-}
-
-LIST *journal_account_journal_list(
-			char *account_name,
-			char *begin_transaction_date_time,
-			char *end_transaction_date_time )
-{
-	if ( !account_name
-	||   !begin_transaction_date_time
-	||   !end_transaction_date_time )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_account_where(
-				account_name,
-				begin_transaction_date_time,
-				end_transaction_date_time ) ),
-		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
-}
-
-char *journal_account_where(
-			char *account_name,
-			char *begin_transaction_date_time,
-			char *end_transaction_date_time )
-{
-	static char where[ 128 ];
-
-	if ( !account_name
-	||   !begin_transaction_date_time
-	||   !end_transaction_date_time )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(where,
-		"account = '%s' and				"
-		"transaction_date_time between '%s' and '%s'	",
-		account_name,
-		begin_transaction_date_time,
-		end_transaction_date_time );
-
-	return where;
-}
-
 void journal_propagate(	char *transaction_date_time,
 			char *account_name )
 {
@@ -657,24 +551,6 @@ void journal_account_name_list_propagate(
 			list_get( account_name_list ) );
 
 	} while( list_next( account_name_list ) );
-}
-
-LIST *journal_following_balance_zero_list( char *account_name )
-{
-	char *minimum_transaction_date_time;
-
-	minimum_transaction_date_time =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		journal_following_latest_zero_balance_transaction_date_time(
-			account_name,
-			JOURNAL_TABLE );
-
-	return
-	journal_minimum_list(
-		minimum_transaction_date_time,
-		account_name );
 }
 
 LIST *journal_POR_list( char *account_name )

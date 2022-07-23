@@ -30,7 +30,13 @@ typedef struct
 	boolean transaction_closing_entry_exists;
 	char *transaction_date_time_closing;
 	STATEMENT *preclose_statement;
+	LIST *preclose_prior_year_list;
 	STATEMENT *postclose_statement;
+	LIST *postclose_prior_year_list;
+	double preclose_debit_sum;
+	double preclose_credit_sum;
+	double postclose_debit_sum;
+	double postclose_credit_sum;
 } TRIAL_BALANCE;
 
 /* Usage */

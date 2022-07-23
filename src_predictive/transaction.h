@@ -239,6 +239,15 @@ boolean transaction_as_of_date_populated(
 
 /* Usage */
 /* ----- */
+char *transaction_begin_date_string(
+			char *transaction_table,
+			char *transaction_as_of_date );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */

@@ -42,7 +42,7 @@ typedef struct
 	int display_order;
 	ELEMENT *element;
 	LIST *account_statement_list;
-	double value;
+	double sum;
 } SUBCLASSIFICATION;
 
 /* Usage */
@@ -50,9 +50,8 @@ typedef struct
 LIST *subclassification_statement_list(
 			char *element_primary_where,
 			char *transaction_date_time_closing,
-			boolean element_accumulate_debit,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal );
+			boolean fetch_journal_latest );
 
 /* Process */
 /* ------- */
@@ -72,9 +71,8 @@ FILE *subclassification_pipe(
 SUBCLASSIFICATION *subclassification_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
-			boolean element_accumulate_debit,
 			boolean fetch_account_list,
-			boolean fetch_latest_journal );
+			boolean fetch_journal_latest );
 
 /* Process */
 /* ------- */
@@ -105,7 +103,7 @@ SUBCLASSIFICATION *subclassification_calloc(
 
 /* Usage */
 /* ----- */
-LIST *subclassification_account_statement_list(
+LIST *subclassification_account_list(
 			LIST *subclassification_statement_list );
 
 /* Process */
@@ -114,10 +112,44 @@ LIST *subclassification_account_statement_list(
 
 /* Usage */
 /* ----- */
-double subclassification_statement_list_value(
+double subclassification_list_sum(
+			/* --------------------------- */
+			/* Sets subclassification->sum */
+			/* --------------------------- */
 			LIST *subclassification_statement_list );
 
 /* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
+void subclassification_list_prior_year_set(
+			LIST *prior_subclassification_list /* in/out */,
+			LIST *current_subclassification_list );
+
+/* Process */
+/* ------- */
+SUBCLASSIFICATION *subclassification_seek(
+			char *subclassification_name,
+			LIST *subclassification_list );
+
+/* Usage */
+/* ----- */
+void subclassification_prior_year_set(
+			SUBCLASSIFICATION *prior_subclassification /* in/out */,
+			SUBCLASSIFICATION *current_subclassification );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
+double subclassification_list_debit_sum(
+			LIST *subclassification_statement_list,
+			boolean element_accumulate_debit );
+
+double subclassification_list_credit_sum(
+			LIST *subclassification_statement_list,
+			boolean element_accumulate_debit );
 
 #endif
