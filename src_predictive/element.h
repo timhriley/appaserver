@@ -28,6 +28,7 @@ typedef struct
 	char *element_name;
 	boolean accumulate_debit;
 	LIST *subclassification_statement_list;
+	LIST *account_statement_list;
 	double sum;
 } ELEMENT;
 
@@ -110,8 +111,25 @@ double element_sum(	ELEMENT *element );
 
 /* Usage */
 /* ----- */
-LIST *element_account_list(
+LIST *element_account_statement_list(
 			ELEMENT *element );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_prior_year_set(
+			ELEMENT *prior_element /* in/out */,
+			ELEMENT *current_element );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_list_account_statement_list_set(
+			LIST *element_statement_list );
 
 /* Process */
 /* ------- */
@@ -129,6 +147,12 @@ double element_list_debit_sum(
 			LIST *element_statement_list );
 
 double element_list_credit_sum(
+			LIST *element_statement_list );
+
+LIST *element_list_non_nominal_account_list(
+			LIST *element_statement_list );
+
+LIST *element_list_nominal_account_list(
 			LIST *element_statement_list );
 
 #endif

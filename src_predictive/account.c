@@ -346,15 +346,17 @@ int account_balance_match_function(
 	}
 }
 
-LIST *account_list_percent_of_asset_set(
+void account_list_percent_of_asset_set(
 			LIST *account_list,
-			double asset_total )
+			double asset_sum )
 {
 	ACCOUNT *account;
 
-	if ( !asset_total ) return account_list;
-
-	if ( !list_rewind( account_list ) ) return account_list;
+	if ( !asset_sum
+	||   !list_rewind( account_list ) )
+	{
+		return;
+	}
 
 	do {
 		account = list_get( account_list );
@@ -362,22 +364,22 @@ LIST *account_list_percent_of_asset_set(
 		account->percent_of_asset =
 			float_percent_of_total(
 				account->journal_latest->balance,
-				asset_total );
+				asset_sum );
 
 	} while ( list_next( account_list ) );
-
-	return account_list;
 }
 
-LIST *account_list_percent_of_revenue_set(
+void account_list_percent_of_revenue_set(
 			LIST *account_list,
-			double revenue_total )
+			double revenue_sum )
 {
 	ACCOUNT *account;
 
-	if ( !revenue_total ) return account_list;
-
-	if ( !list_rewind( account_list ) ) return account_list;
+	if ( !revenue_sum
+	||   !list_rewind( account_list ) )
+	{
+		return;
+	}
 
 	do {
 		account = list_get( account_list );
@@ -385,11 +387,9 @@ LIST *account_list_percent_of_revenue_set(
 		account->percent_of_revenue =
 			float_percent_of_total(
 				account->journal_latest->balance,
-				revenue_total );
+				revenue_sum );
 
 	} while ( list_next( account_list ) );
-
-	return account_list;
 }
 
 boolean account_accumulate_debit(

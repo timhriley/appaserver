@@ -103,7 +103,7 @@ SUBCLASSIFICATION *subclassification_calloc(
 
 /* Usage */
 /* ----- */
-LIST *subclassification_account_list(
+LIST *subclassification_account_statement_list(
 			LIST *subclassification_statement_list );
 
 /* Process */
@@ -151,5 +151,8 @@ double subclassification_list_debit_sum(
 double subclassification_list_credit_sum(
 			LIST *subclassification_statement_list,
 			boolean element_accumulate_debit );
+
+LIST *subclassification_list_account_list(
+			LIST *subclassification_statement_list );
 
 #endif

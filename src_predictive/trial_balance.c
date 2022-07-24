@@ -13,6 +13,7 @@
 #include "transaction.h"
 #include "statement.h"
 #include "element.h"
+#include "account.h"
 #include "trial_balance.h"
 
 TRIAL_BALANCE *trial_balance_calloc( void )
@@ -215,6 +216,129 @@ TRIAL_BALANCE *trial_balance_fetch(
 			trial_balance->
 				postclose_statement->
 				element_statement_list );
+
+	if ( trial_balance->transaction_closing_entry_exists )
+	{
+		trial_balance->element_list_non_nominal_account_list =
+			element_list_non_nominal_account_list(
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+
+		trial_balance->element_asset =
+			element_seek(
+				ELEMENT_ASSET,
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+
+		if ( trial_balance->element_asset )
+		{
+			trial_balance->element_asset->sum =
+				element_sum(
+					trial_balance->element_asset );
+
+			account_list_percent_of_asset_set(
+				trial_balance->
+					element_list_non_nominal_account_list,
+				trial_balance->element_asset->sum );
+		}
+
+		trial_balance->element_list_nominal_account_list =
+			element_list_nominal_account_list(
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+
+		trial_balance->element_revenue =
+			element_seek(
+				ELEMENT_REVENUE,
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+
+		if ( trial_balance->element_revenue )
+		{
+			trial_balance->element_revenue->sum =
+				element_sum(
+					trial_balance->element_revenue );
+
+			account_list_percent_of_revenue_set(
+				trial_balance->
+					element_list_nominal_account_list,
+				trial_balance->element_revenue->sum );
+		}
+
+	}
+
+	trial_balance->element_list_non_nominal_account_list =
+		element_list_non_nominal_account_list(
+			trial_balance->
+				postclose_statement->
+				element_statement_list );
+
+	trial_balance->element_asset =
+		element_seek(
+			ELEMENT_ASSET,
+			trial_balance->
+				postclose_statement->
+				element_statement_list );
+
+	if ( trial_balance->element_asset )
+	{
+		trial_balance->element_asset->sum =
+			element_sum(
+				trial_balance->element_asset );
+
+		account_list_percent_of_asset_set(
+			trial_balance->element_list_non_nominal_account_list,
+			trial_balance->element_asset->sum );
+	}
+
+	trial_balance->element_list_nominal_account_list =
+		element_list_nominal_account_list(
+			trial_balance->
+				postclose_statement->
+				element_statement_list );
+
+	trial_balance->element_revenue =
+		element_seek(
+			ELEMENT_REVENUE,
+			trial_balance->
+				postclose_statement->
+				element_statement_list );
+
+	if ( trial_balance->element_revenue )
+	{
+		trial_balance->element_revenue->sum =
+			element_sum(
+				trial_balance->element_revenue );
+
+		account_list_percent_of_revenue_set(
+			trial_balance->element_list_nominal_account_list,
+			trial_balance->element_revenue->sum );
+	}
+
+	if ( trial_balance->transaction_closing_entry_exists )
+	{
+		if (	trial_balance->statement_subclassification_option ==
+			subclassification_omit )
+		{
+			element_list_account_statement_list_set(
+				trial_balance->
+					preclose_statement->
+					element_statement_list );
+		}
+	}
+
+	if (	trial_balance->statement_subclassification_option ==
+		subclassification_omit )
+	{
+		element_list_account_statement_list_set(
+			trial_balance->
+				postclose_statement->
+				element_statement_list );
+	}
 
 	return trial_balance;
 }

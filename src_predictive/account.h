@@ -179,18 +179,18 @@ void account_prior_year_set(
 
 /* Usage */
 /* ----- */
-LIST *account_list_percent_of_asset_set(
-			LIST *account_list,
-			double asset_total );
+void account_list_percent_of_asset_set(
+			LIST *element_list_non_nominal_account_list,
+			double asset_sum );
 
 /* Process */
 /* ------- */
 
 /* Usage */
 /* ----- */
-LIST *account_list_percent_of_revenue_set(
-			LIST *account_list,
-			double revenue_total );
+void account_list_percent_of_revenue_set(
+			LIST *element_list_nominal_account_list,
+			double revenue_sum );
 
 /* Process */
 /* ------- */

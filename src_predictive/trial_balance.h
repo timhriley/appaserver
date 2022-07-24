@@ -11,6 +11,7 @@
 #include "list.h"
 #include "date.h"
 #include "boolean.h"
+#include "element.h"
 #include "statement.h"
 
 #define TRIAL_BALANCE_DAYS_FOR_EMPHASIS		35
@@ -37,6 +38,10 @@ typedef struct
 	double preclose_credit_sum;
 	double postclose_debit_sum;
 	double postclose_credit_sum;
+	LIST *element_list_non_nominal_account_list;
+	ELEMENT *element_asset;
+	LIST *element_list_nominal_account_list;
+	ELEMENT *element_revenue;
 } TRIAL_BALANCE;
 
 /* Usage */
