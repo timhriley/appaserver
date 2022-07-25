@@ -20,7 +20,8 @@ LIST *subclassification_statement_list(
 			char *element_primary_where,
 			char *transaction_date_time_closing,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	FILE *pipe;
 	char input[ 256 ];
@@ -57,7 +58,8 @@ LIST *subclassification_statement_list(
 				input,
 				transaction_date_time_closing,
 				fetch_account_list,
-				fetch_journal_latest ) );
+				fetch_journal_latest,
+				fetch_memo ) );
 	}
 
 	pclose( pipe );
@@ -69,7 +71,8 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	SUBCLASSIFICATION *subclassification;
 
@@ -98,7 +101,8 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 					subclassification->
 						subclassification_name ),
 				transaction_date_time_closing,
-				fetch_journal_latest );
+				fetch_journal_latest,
+				fetch_memo );
 
 		subclassification->account_statement_list =
 			account_balance_sort_list(

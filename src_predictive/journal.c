@@ -108,12 +108,14 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 				account_name ),
 			JOURNAL_TABLE )
 				/* transaction_date_time */,
-		account_name );
+		account_name,
+		0 /* not fetch_memo */ );
 }
 
 JOURNAL *journal_latest(
 			char *account_name,
-			char *transaction_date_time_closing )
+			char *transaction_date_time_closing,
+			boolean fetch_memo )
 {
 	if ( !account_name
 	||   !transaction_date_time_closing )
@@ -135,7 +137,8 @@ JOURNAL *journal_latest(
 				account_name ),
 			JOURNAL_TABLE )
 				/* transaction_date_time */,
-		account_name );
+		account_name,
+		fetch_memo );
 }
 
 char *journal_max_where(
@@ -217,7 +220,8 @@ char *journal_transaction_account_where(
 
 JOURNAL *journal_account_fetch(
 			char *transaction_date_time,
-			char *account_name )
+			char *account_name,
+			boolean fetch_memo )
 {
 	if ( !transaction_date_time
 	||   !account_name )
@@ -238,7 +242,7 @@ JOURNAL *journal_account_fetch(
 					transaction_date_time,
 					account_name ) ) ),
 		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
+		fetch_memo );
 }
 
 JOURNAL *journal_parse(	char *input,

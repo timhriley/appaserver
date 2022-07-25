@@ -22,7 +22,8 @@
 LIST *account_statement_list(
 			char *subclassification_primary_where,
 			char *transaction_date_time_closing,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	FILE *pipe;
 	char input[ 256 ];
@@ -58,7 +59,8 @@ LIST *account_statement_list(
 			account_statement_parse(
 				input,
 				transaction_date_time_closing,
-				fetch_journal_latest ) );
+				fetch_journal_latest,
+				fetch_memo ) );
 	}
 
 	pclose( pipe );
@@ -69,7 +71,8 @@ LIST *account_statement_list(
 ACCOUNT *account_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	ACCOUNT *account;
 
@@ -94,7 +97,8 @@ ACCOUNT *account_statement_parse(
 		account->journal_latest =
 			journal_latest(
 				account->account_name,
-				transaction_date_time_closing );
+				transaction_date_time_closing,
+				fetch_memo );
 	}
 
 	return account;

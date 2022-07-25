@@ -51,7 +51,8 @@ LIST *subclassification_statement_list(
 			char *element_primary_where,
 			char *transaction_date_time_closing,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest );
+			boolean fetch_journal_latest,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */
@@ -72,7 +73,8 @@ SUBCLASSIFICATION *subclassification_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest );
+			boolean fetch_journal_latest,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */

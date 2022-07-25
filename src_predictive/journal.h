@@ -109,7 +109,8 @@ char *journal_entity_where(
 /* ----- */
 JOURNAL *journal_account_fetch(
 			char *transaction_date_time,
-			char *account_name );
+			char *account_name,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */
@@ -208,7 +209,8 @@ char *journal_max_prior_transaction_date_time(
 /* ----- */
 JOURNAL *journal_latest(
 			char *account_name,
-			char *transaction_date_time_closing );
+			char *transaction_date_time_closing,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */

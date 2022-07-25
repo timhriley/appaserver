@@ -158,7 +158,8 @@ ELEMENT *element_statement_parse(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	ELEMENT *element;
 
@@ -179,7 +180,8 @@ ELEMENT *element_statement_parse(
 				element_primary_where( element->element_name ),
 				transaction_date_time_closing,
 				fetch_account_list,
-				fetch_journal_latest );
+				fetch_journal_latest,
+				fetch_memo );
 	}
 
 	return element;
@@ -241,7 +243,8 @@ LIST *element_statement_list(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	LIST *element_list;
 	char *element_name;
@@ -260,7 +263,8 @@ LIST *element_statement_list(
 				transaction_date_time_closing,
 				fetch_subclassification_list,
 				fetch_account_list,
-				fetch_journal_latest ) );
+				fetch_journal_latest,
+				fetch_memo ) );
 
 	} while ( list_next( filter_element_name_list ) );
 
@@ -299,7 +303,7 @@ FILE *element_pipe( char *element_system_string )
 	popen( element_system_string, "r" );
 }
 
-LIST *element_account_statement_list( ELEMENT *element )
+void element_account_statement_list_set( ELEMENT *element )
 {
 	if ( !element )
 	{
@@ -311,12 +315,12 @@ LIST *element_account_statement_list( ELEMENT *element )
 		exit( 1 );
 	}
 
-	if ( !list_length( element->subclassification_statement_list ) )
-		return (LIST *)0;
-
-	return
-	subclassification_account_statement_list(
-		element->subclassification_statement_list );
+	if ( list_length( element->subclassification_statement_list ) )
+	{
+		element->account_statement_list =
+			subclassification_account_statement_list(
+				element->subclassification_statement_list );
+	}
 }
 
 ELEMENT *element_statement_fetch(
@@ -324,7 +328,8 @@ ELEMENT *element_statement_fetch(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest )
+			boolean fetch_journal_latest,
+			boolean fetch_memo )
 {
 	FILE *pipe;
 	ELEMENT *element;
@@ -357,7 +362,8 @@ ELEMENT *element_statement_fetch(
 			transaction_date_time_closing,
 			fetch_subclassification_list,
 			fetch_account_list,
-			fetch_journal_latest );
+			fetch_journal_latest,
+			fetch_memo );
 
 
 	pclose( pipe );
@@ -483,9 +489,7 @@ void element_list_account_statement_list_set(
 	do {
 		element = list_get( element_statement_list );
 
-		element->account_statement_list =
-			element_account_statement_list(
-				element );
+		element_account_statement_list_set( element );
 
 	} while ( list_next( element_statement_list ) );
 }

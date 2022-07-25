@@ -39,7 +39,8 @@ LIST *element_statement_list(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest );
+			boolean fetch_journal_latest,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */
@@ -85,7 +86,8 @@ ELEMENT *element_statement_fetch(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest );
+			boolean fetch_journal_latest,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */
@@ -97,7 +99,8 @@ ELEMENT *element_statement_parse(
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
-			boolean fetch_journal_latest );
+			boolean fetch_journal_latest,
+			boolean fetch_memo );
 
 /* Process */
 /* ------- */
@@ -111,7 +114,7 @@ double element_sum(	ELEMENT *element );
 
 /* Usage */
 /* ----- */
-LIST *element_account_statement_list(
+void element_account_statement_list_set(
 			ELEMENT *element );
 
 /* Process */
