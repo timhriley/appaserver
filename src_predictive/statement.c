@@ -13,6 +13,7 @@
 #include "application_constants.h"
 #include "appaserver_library.h"
 #include "element.h"
+#include "column.h"
 #include "account.h"
 #include "statement.h"
 
@@ -101,87 +102,28 @@ char *statement_logo_filename(
 		return (char *)0;
 }
 
-char *statement_title(	char *application_name,
-			char *statement_logo_filename,
-			char *process_name )
-{
-	static char title[ 256 ];
-	char buffer[ 128 ];
-
-	if ( !application_name
-	||   !process_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !statement_logo_filename )
-	{
-		sprintf(title,
-			"%s %s",
-			application_title_string(
-				application_name ),
-			format_initial_capital(
-				buffer,
-				process_name ) );
-	}
-	else
-	{
-		strcpy( title,
-			format_initial_capital(
-				buffer,
-				process_name ) );
-	}
-
-	return title;
-}
-
 char *statement_subtitle(
 			char *begin_date_string,
 			char *as_of_date )
 {
 	static char subtitle[ 128 ];
-	char begin_date_american[ 32 ];
-	char end_date_american[ 32 ];
 
-	if ( !begin_date_string
-	||   !as_of_date )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	*begin_date_american = '\0';
-	*end_date_american = '\0';
-
-	date_convert_source_international(
-		begin_date_american,
-		american,
-		begin_date_string );
-
-	date_convert_source_international(
-		end_date_american,
-		american,
-		as_of_date );
+	if ( !begin_date_string || !as_of_date ) return (char *)0;
 
 	sprintf(subtitle,
 		"Beginning: %s, Ending: %s",
-		begin_date_american,
-	 	end_date_american );
+		begin_date_string,
+	 	as_of_date );
 
 	return subtitle;
 }
 
 STATEMENT *statement_fetch(
+			char *application_name,
+			char *process_name,
 			LIST *filter_element_name_list,
+			char *transaction_begin_date_string,
+			char *transaction_as_of_date,
 			char *transaction_date_time_closing )
 {
 	STATEMENT *statement;
@@ -207,6 +149,55 @@ STATEMENT *statement_fetch(
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
 			1 /* fetch_memo */ );
+
+	if ( !list_length( statement->element_statement_list ) )
+	{
+		free( statement );
+		return (STATEMENT *)0;
+	}
+
+	statement->logo_filename =
+		statement_logo_filename(
+			application_name,
+			STATEMENT_LOGO_FILENAME_KEY );
+
+	statement->title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		statement_title(
+			application_name,
+			(statement->logo_filename)
+				? 1 : 0 /* exists_logo_filename */,
+			process_name );
+
+	statement->subtitle =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		statement_subtitle(
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			statement_date_american(
+				transaction_begin_date_string )
+					/* begin_date_string */,
+			statement_date_american(
+				transaction_as_of_date )
+					/* as_of_date */ );
+
+	if ( !statement->subtitle )
+	{
+		return (STATEMENT *)0;
+	}
+
+	statement->caption =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_caption(
+			statement->title,
+			statement->subtitle );
 
 	return statement;
 }
@@ -418,3 +409,119 @@ char *statement_link_filename_stem(
 	return strdup( filename_stem );
 }
 
+char *statement_date_american( char *date_time_string )
+{
+	char date_string[ 16 ];
+	char date_american[ 16 ];
+
+	if ( !date_convert_source_international(
+		date_american,
+		american,
+		column(
+			date_string,
+			0,
+			date_time_string ) ) )
+	{
+		return (char *)0;
+	}
+
+	return strdup( date_american );
+}
+
+char *statement_caption(
+			char *title,
+			char *subtitle )
+{
+	char caption[ 256 ];
+
+	if ( !title || !subtitle )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(caption,
+		"%s %s",
+		title,
+		subtitle );
+
+	return strdup( caption );
+}
+
+char *statement_title(	char *application_name,
+			boolean exists_logo_filename,
+			char *process_name )
+{
+	static char title[ 256 ];
+
+	if ( !application_name
+	||   !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !exists_logo_filename )
+	{
+		char buffer[ 128 ];
+
+		sprintf(title,
+			"%s %s",
+			application_title_string(
+				application_name ),
+			format_initial_capital(
+				buffer,
+				process_name ) );
+	}
+	else
+	{
+		format_initial_capital(
+			title,
+			process_name );
+	}
+
+	return title;
+}
+
+LIST *statement_prior_year_heading_list(
+			LIST *statement_prior_year_list )
+{
+	LIST *heading_list;
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+
+	if ( !list_rewind( statement_prior_year_list ) ) return (LIST *)0;
+
+	heading_list = list_new();
+
+	do {
+		statement_prior_year =
+			list_get(
+				statement_prior_year_list );
+
+		list_set(
+			heading_list,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			statement_date_american(
+				statement_prior_year->date_string ) );
+
+	} while ( list_next( statement_prior_year_list ) );
+
+	return heading_list;
+}
+
+LIST *statement_prior_year_latex_row_column_data_list(
+			char *account_name,
+			LIST *statement_prior_year_list )
+{
+	return (LIST *)0;
+}

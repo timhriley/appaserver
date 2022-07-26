@@ -268,7 +268,10 @@ LIST *element_statement_list(
 
 	} while ( list_next( filter_element_name_list ) );
 
-	return element_list;
+	if ( !list_length( element_list ) )
+		return (LIST *)0;
+	else
+		return element_list;
 }
 
 double element_sum( ELEMENT *element )

@@ -99,31 +99,6 @@ TRIAL_BALANCE *trial_balance_fetch(
 		exit( 1 );
 	}
 
-	trial_balance->statement_logo_filename =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		statement_logo_filename(
-			application_name,
-			STATEMENT_LOGO_FILENAME_KEY );
-
-	trial_balance->statement_title =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		statement_title(
-			application_name,
-			trial_balance->statement_logo_filename,
-			process_name );
-
-	trial_balance->statement_subtitle =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		statement_subtitle(
-			trial_balance->transaction_begin_date_string,
-			trial_balance->transaction_as_of_date );
-
 	trial_balance->filter_element_name_list =
 		trial_balance_filter_element_name_list();
 
@@ -147,7 +122,11 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 		trial_balance->preclose_statement =
 			statement_fetch(
+				application_name,
+				process_name,
 				trial_balance->filter_element_name_list,
+				trial_balance->transaction_begin_date_string,
+				trial_balance->transaction_as_of_date,
 				trial_balance->transaction_date_time_closing );
 
 		element_account_transaction_count_set(
@@ -183,7 +162,11 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	trial_balance->statement =
 		statement_fetch(
+			application_name,
+			process_name,
 			trial_balance->filter_element_name_list,
+			trial_balance->transaction_begin_date_string,
+			trial_balance->transaction_as_of_date,
 			trial_balance->transaction_date_time_closing );
 
 	element_account_transaction_count_set(
@@ -405,14 +388,22 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 	if ( element_accumulate_debit )
 	{
 		trial_balance_account->debit_string =
-			timlib_place_commas_in_dollars(
-				trial_balance_account->balance );
+			strdup( 
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				timlib_place_commas_in_dollars(
+					trial_balance_account->balance ) );
 	}
 	else
 	{
 		trial_balance_account->credit_string =
-			timlib_place_commas_in_dollars(
-				trial_balance_account->balance );
+			strdup(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				timlib_place_commas_in_dollars(
+					trial_balance_account->balance ) );
 	}
 
 	trial_balance_account->date_days_between =
@@ -692,17 +683,81 @@ char *trial_balance_latex_account_title(
 			char *full_name,
 			double debit_amount,
 			double credit_amount,
-			char *statement_date_american,
-			char *transaction_date_time,
+			char *transaction_date_american,
 			char *memo )
 {
-	return (char *)0;
+	char account_title[ 1024 ];
+	char *ptr = account_title;
+	char account_name_formatted[ 128 ];
+	char full_name_formatted[ 128 ];
+	char *transaction_amount_string;
+
+	if ( !account_name
+	||   !full_name
+	||   !transaction_date_american )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	*ptr = '\0';
+
+	format_initial_capital( account_name_formatted, account_name );
+	ptr += sprintf( ptr, "\\textbf{%s}", account_name_formatted );
+
+	ptr += sprintf( ptr, " (\\scriptsize{%s:", transaction_date_american );
+
+	format_initial_capital( full_name_formatted, full_name );
+	ptr += sprintf( ptr, " %s", full_name_formatted );
+
+	if ( memo && *memo )
+	{
+		ptr += sprintf( ptr, "; %s", memo );
+	}
+
+	if ( debit_amount )
+	{
+		transaction_amount_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_money(
+				debit_amount );
+	}
+	else
+	if ( credit_amount )
+	{
+		transaction_amount_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_money(
+				credit_amount );
+	}
+	else
+	{
+		transaction_amount_string = "Unknown";
+	}
+
+	ptr += sprintf( ptr, " \\$%s})", transaction_amount_string );
+
+	return strdup( account_title );
 }
 
 char *trial_balance_latex_transaction_count_string(
 			int transaction_count )
 {
-	return (char *)0;
+	char count_string[ 16 ];
+
+	sprintf(count_string,
+		"%d",
+		transaction_count );
+
+	return strdup( count_string );
 }
 
 TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
@@ -725,7 +780,6 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 	||   !latex_filename
 	||   !dvi_filename
 	||   !working_directory
-	||   !statement_logo_filename
 	||   !statement )
 	{
 		fprintf(stderr,
@@ -789,7 +843,17 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 {
 	LATEX_TABLE *latex_table;
 
-	LATEX_TABLE *latex_table =
+	if ( !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: statement is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_table =
 		latex_table_new(
 			statement->caption );
 
@@ -811,7 +875,56 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 LIST *trial_balance_subclassification_latex_heading_list(
 			LIST *statement_prior_year_list )
 {
-	return (LIST *)0;
+	LATEX_TABLE_HEADING *table_heading;
+	LIST *heading_list;
+
+	heading_list = list_new();
+
+	table_heading = latex_table_heading_new();
+	table_heading->heading = "Element";
+	table_heading->right_justified_flag = 0;
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_table_heading_new();
+	table_heading->right_justified_flag = 0;
+	table_heading->heading = "Subclassification";
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_table_heading_new();
+	table_heading->heading = "Account";
+	table_heading->paragraph_size = "6.0cm";
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_table_heading_new();
+	table_heading->heading = "Count";
+	table_heading->right_justified_flag = 1;
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_table_heading_new();
+	table_heading->heading = "Debit";
+	table_heading->right_justified_flag = 1;
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_table_heading_new();
+	table_heading->heading = "Credit";
+	table_heading->right_justified_flag = 1;
+	list_set( heading_list, table_heading );
+
+	table_heading = latex_table_heading_new();
+	table_heading->heading = "Percent";
+	table_heading->right_justified_flag = 1;
+	list_set( heading_list, table_heading );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		list_set_list(
+			heading_list,
+			latex_table_right_heading_list(
+				statement_prior_year_heading_list(
+					statement_prior_year_list ) ) );
+	}
+
+	return heading_list;
 }
 
 LIST *trial_balance_subclassification_latex_row_list(
@@ -821,7 +934,95 @@ LIST *trial_balance_subclassification_latex_row_list(
 			double debit_sum,
 			double credit_sum )
 {
-	return (LIST *)0;
+	LATEX_ROW *latex_row;
+	LIST *row_list;
+	ELEMENT *element;
+
+	if ( !list_rewind( element_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		element = list_get( element_list );
+
+		if ( !list_length( element->subclassification_list ) )
+			continue;
+
+		list_set_list(
+			row_list,
+			trial_balance_subclassification_latex_element_row_list(
+				transaction_as_of_date,
+				element->element_name,
+				element->accumulate_debit,
+				element->subclassification_statement_list,
+				statement_prior_year_list ) );
+
+	} while( list_next( element_list ) );
+
+	list_set(
+		row_list,
+		trial_balance_subclassification_latex_sum_row(
+			debit_sum,
+			credit_sum ) );
+
+	return row_list;
+}
+
+LATEX_ROW *trial_balance_subclassification_latex_sum_row(
+			double debit_sum,
+			double credit_sum )
+{
+	LATEX_ROW *latex_row;
+	char *debit_total_string;
+	char *credit_total_string;
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"Total",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	debit_total_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_dollars(
+			debit_sum );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( debit_total_string ),
+		0 /* not large_bold */ );
+
+	credit_total_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_dollars(
+			credit_sum );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( credit_total_string ),
+		0 /* not large_bold */ );
+
+	return latex_row;
 }
 
 LIST *trial_balance_subclassification_latex_element_row_list(
@@ -831,7 +1032,47 @@ LIST *trial_balance_subclassification_latex_element_row_list(
 			LIST *subclassification_statement_list,
 			LIST *statement_prior_year_list )
 {
-	return (LIST *)0;
+	SUBCLASSIFICATION *subclassification;
+	LIST *row_list;
+
+	if ( !transaction_as_of_date )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_as_of_date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( subclassification_statement_list ) )
+		return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( !list_length( subclassification->account_statement_list ) )
+			continue;
+
+		list_set_list(
+			row_list,
+			trial_balance_subclassification_latex_account_row_list(
+				transaction_as_of_date,
+				element_name,
+				element_accumulate_debit,
+				subclassification->subclassification_name,
+				subclassification->account_statement_list,
+				statement_prior_year_list ) );
+
+		element_name = (char *)0;
+
+	} while( list_next( subclassification_statement_list ) );
+
+	return row_list;
 }
 
 LIST *trial_balance_subclassification_latex_account_row_list(
@@ -842,7 +1083,47 @@ LIST *trial_balance_subclassification_latex_account_row_list(
 			LIST *account_statement_list,
 			LIST *statement_prior_year_list )
 {
-	return (LIST *)0;
+	LIST *row_list;
+	ACCOUNT *account;
+	TRIAL_BALANCE_ACCOUNT *trial_balance_account;
+
+	if ( !transaction_as_of_date )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_as_of_date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( account_statement_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		account = list_get( account_statement_list );
+
+		trial_balance_account =
+			trial_balance_account_new(
+				transaction_as_of_date,
+				element_accumulate_debit,
+				account );
+
+		list_set(
+			row_list,
+			trial_balance_subclassification_latex_account_row(
+				element_name,
+				subclassification_name,
+				trial_balance_account,
+				statement_prior_year_list ) );
+
+		element_name = (char *)0;
+		subclassification_name = (char *)0;
+
+	} while ( list_next( account_statement_list ) );
+
+	return row_list;
 }
 
 LATEX_ROW *trial_balance_subclassification_latex_account_row(
@@ -851,12 +1132,109 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 			TRIAL_BALANCE_ACCOUNT *trial_balance_account,
 			LIST *statement_prior_year_list )
 {
-	return (LATEX_ROW *)0;
+	LATEX_ROW *latex_row;
+	char *account_title;
+
+	if ( !trial_balance_account
+	||   !trial_balance_account->account )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: trial_balance_account is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		trial_balance_subclassification_latex_account_row_title(
+			element_name ) /* name */,
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		trial_balance_subclassification_latex_account_row_title(
+			subclassification_name /* name */ ),
+		0 /* not large_bold */ );
+
+	account_title =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_latex_account_title(
+			trial_balance_account->account->account_name,
+			trial_balance_account->
+				account->
+				journal_latest->
+				full_name,
+			trial_balance_account->
+				account->
+				journal_latest->
+				debit_amount,
+			trial_balance_account->
+				account->
+				journal_latest->
+				credit_amount,
+			statement_date_american(
+				trial_balance_account->
+					account->
+					journal_latest->
+					transaction_date_time )
+						/* transaction_date_american */,
+			trial_balance_account->account->journal_latest->memo );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		account_title,
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_latex_transaction_count_string(
+			trial_balance_account->account->transaction_count ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		trial_balance_account->debit_string,
+		trial_balance_account->
+			within_days_between_boolean /* large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		trial_balance_account->credit_string,
+		trial_balance_account->
+			within_days_between_boolean /* large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		trial_balance_account->percent_string,
+		0 /* not large_bold */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		latex_column_data_list_set(
+			latex_row->column_data_list,
+			statement_prior_year_latex_row_column_data_list(
+				trial_balance_account->account->account_name,
+				statement_prior_year_list ) );
+	}
+
+	return latex_row;
 }
 
-char *trial_balance_subclassification_latex_account_row_title(
-			char *name )
+char *trial_balance_subclassification_latex_account_row_title( char *name )
 {
-	return (char *)0;
+	if ( !name )
+		return "";
+	else
+		return name;
 }
 

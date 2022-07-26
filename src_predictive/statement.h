@@ -11,6 +11,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
+#include "account.h"
 
 #define STATEMENT_ROWS_BETWEEN_HEADING		10
 #define STATEMENT_PROMPT			"Press here to view statement."
@@ -30,6 +31,7 @@ enum statement_output_medium 		{
 typedef struct
 {
 	LIST *element_statement_list;
+	char *logo_filename;
 	char *title;
 	char *subtitle;
 	char *caption;
@@ -39,7 +41,11 @@ typedef struct
 /* Usage */
 /* ----- */
 STATEMENT *statement_fetch(
+			char *application_name,
+			char *process_name,
 			LIST *filter_element_name_list,
+			char *transaction_begin_date_string,
+			char *transaction_as_of_date,
 			char *transaction_date_time_closing );
 
 /* Process */
@@ -56,22 +62,26 @@ char *statement_logo_filename(
 /* Returns static memory */
 /* --------------------- */
 char *statement_title(	char *application_name,
-			char *statement_logo_filename,
+			boolean exists_logo_filename,
 			char *process_name );
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns static memory or null */
+/* ----------------------------- */
 char *statement_subtitle(
 			char *begin_date_string,
 			char *as_of_date );
 
+/* Returns heap memory */
+/* ------------------- */
 char *statement_caption(
 			char *statement_title,
-			char *statement_subtitle,
-			boolean exists_logo_filename );
+			char *statement_subtitle );
 
 /* Usage */
 /* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *statement_date_american(
 			char *date_time_string );
 
@@ -143,6 +153,15 @@ LIST *statement_prior_year_latex_account_data_list(
 /* ------------------- */
 char *statement_prior_year_latex_account_data(
 			ACCOUNT *prior_account );
+
+/* Public */
+/* ------ */
+LIST *statement_prior_year_heading_list(
+			LIST *statement_prior_year_list );
+
+LIST *statement_prior_year_latex_row_column_data_list(
+			char *account_name,
+			LIST *statement_prior_year_list );
 
 typedef struct
 {

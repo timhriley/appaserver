@@ -46,7 +46,6 @@ typedef struct
 	LIST *row_list;
 	LIST *element_row_list;
 	LIST *account_row_list;
-	TRIAL_BALANCE_ACCOUNT *trial_balance_account;
 	LATEX_ROW *account_row;
 	char *trial_balance_latex_account_title;
 } TRIAL_BALANCE_SUBCLASSIFICATION_LATEX;
@@ -79,6 +78,8 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 LIST *trial_balance_subclassification_latex_heading_list(
 			LIST *statement_prior_year_list );
 
+/* Usage */
+/* ----- */
 LIST *trial_balance_subclassification_latex_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
@@ -86,6 +87,14 @@ LIST *trial_balance_subclassification_latex_row_list(
 			double debit_sum,
 			double credit_sum );
 
+/* Process */
+/* ------- */
+LATEX_ROW *trial_balance_subclassification_latex_sum_row(
+			double debit_sum,
+			double credit_sum );
+
+/* Usage */
+/* ----- */
 LIST *trial_balance_subclassification_latex_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
@@ -93,6 +102,11 @@ LIST *trial_balance_subclassification_latex_element_row_list(
 			LIST *subclassification_statement_list,
 			LIST *statement_prior_year_list );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 LIST *trial_balance_subclassification_latex_account_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
@@ -101,12 +115,16 @@ LIST *trial_balance_subclassification_latex_account_row_list(
 			LIST *account_statement_list,
 			LIST *statement_prior_year_list );
 
+/* Usage */
+/* ----- */
 LATEX_ROW *trial_balance_subclassification_latex_account_row(
 			char *element_name,
 			char *subclassification_name,
 			TRIAL_BALANCE_ACCOUNT *trial_balance_account,
 			LIST *statement_prior_year_list );
 
+/* Process */
+/* ------- */
 char *trial_balance_subclassification_latex_account_row_title(
 			char *name );
 
@@ -122,9 +140,9 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 			enum statement_subclassification_option
 				statement_subclassification_option,
 			char *transaction_as_of_date,
-			char *statement_link->latex_filename,
-			char *statement_link->dvi_filename,
-			char *statement_link->working_directory,
+			char *latex_filename,
+			char *dvi_filename,
+			char *working_directory,
 			boolean trial_balance_pdf_landscape_boolean,
 			char *statement_logo_filename,
 			STATEMENT *statement,
@@ -137,15 +155,18 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 TRIAL_BALANCE_LATEX *trial_balance_latex_calloc(
 			void );
 
+/* Returns heap memory */
+/* ------------------- */
 char *trial_balance_latex_account_title(
 			char *account_name,
 			char *full_name,
 			double debit_amount,
 			double credit_amount,
-			char *statement_date_american,
-			char *transaction_date_time,
+			char *transaction_date_american,
 			char *memo );
 
+/* Returns heap memory */
+/* ------------------- */
 char *trial_balance_latex_transaction_count_string(
 			int transaction_count );
 
