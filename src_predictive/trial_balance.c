@@ -602,9 +602,9 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 			enum statement_subclassification_option
 				statement_subclassification_option,
 			char *transaction_as_of_date,
-			char *statement_link->latex_filename,
-			char *statement_link->dvi_filename,
-			char *statement_link->working_directory,
+			char *latex_filename,
+			char *dvi_filename,
+			char *working_directory,
 			boolean trial_balance_pdf_landscape_boolean,
 			char *statement_logo_filename,
 			STATEMENT *statement,
@@ -613,6 +613,58 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 			double credit_sum )
 {
 	TRIAL_BALANCE_LATEX *trial_balance_latex;
+
+	if ( !transaction_as_of_date
+	||   !latex_filename
+	||   !dvi_filename
+	||   !working_directory
+	||   !statement_logo_filename
+	||   !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trial_balance_latex = trial_balance_latex_calloc();
+
+	if (	statement_subclassification_option ==
+		subclassification_display )
+	{
+		trial_balance_latex->trial_balance_subclassification_latex =
+			trial_balance_subclassification_latex_new(
+				transaction_as_of_date,
+				latex_filename,
+				dvi_filename,
+				working_directory,
+				trial_balance_pdf_landscape_boolean,
+				statement_logo_filename,
+				statement,
+				statement_prior_year_list,
+				debit_sum,
+				credit_sum );
+	}
+	else
+	{
+/*
+		trial_balance_latex->trial_balance_account_latex =
+			trial_balance_account_latex =
+				trial_balance_account_latex_new(
+					transaction_as_of_date,
+					latex_filename,
+					dvi_filename,
+					working_directory,
+					trial_balance_pdf_landscape_boolean,
+					statement_logo_filename,
+					statement,
+					statement_prior_year_list,
+					debit_sum,
+					credit_sum );
+*/
+	}
 
 	return trial_balance_latex;
 }
@@ -633,5 +685,178 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_calloc( void )
 	}
 
 	return trial_balance_latex;
+}
+
+char *trial_balance_latex_account_title(
+			char *account_name,
+			char *full_name,
+			double debit_amount,
+			double credit_amount,
+			char *statement_date_american,
+			char *transaction_date_time,
+			char *memo )
+{
+	return (char *)0;
+}
+
+char *trial_balance_latex_transaction_count_string(
+			int transaction_count )
+{
+	return (char *)0;
+}
+
+TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
+	trial_balance_subclassification_latex_new(
+			char *transaction_as_of_date,
+			char *latex_filename,
+			char *dvi_filename,
+			char *working_directory,
+			boolean trial_balance_pdf_landscape_boolean,
+			char *statement_logo_filename,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
+		trial_balance_subclassification_latex;
+
+	if ( !transaction_as_of_date
+	||   !latex_filename
+	||   !dvi_filename
+	||   !working_directory
+	||   !statement_logo_filename
+	||   !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	trial_balance_subclassification_latex =
+		trial_balance_subclassification_latex_calloc();
+
+	trial_balance_subclassification_latex->latex =
+		latex_new(
+			latex_filename,
+			dvi_filename,
+			working_directory,
+			trial_balance_pdf_landscape_boolean,
+			statement_logo_filename );
+
+	trial_balance_subclassification_latex->table =
+		trial_balance_subclassification_latex_table(
+			statement,
+			statement_prior_year_list );
+
+	list_set(
+		trial_balance_subclassification_latex->latex->table_list,
+		trial_balance_subclassification_latex->table );
+
+	return trial_balance_subclassification_latex;
+}
+
+TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
+	trial_balance_subclassification_latex_calloc(
+			void )
+{
+	TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
+		trial_balance_subclassification_latex;
+
+	if ( ! ( trial_balance_subclassification_latex =
+		   calloc( 1,
+			   sizeof( TRIAL_BALANCE_SUBCLASSIFICATION_LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	return trial_balance_subclassification_latex;
+}
+
+LATEX_TABLE *trial_balance_subclassification_latex_table(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list )
+{
+	LATEX_TABLE *latex_table;
+
+	LATEX_TABLE *latex_table =
+		latex_table_new(
+			statement->caption );
+
+	latex_table->heading_list =
+		trial_balance_subclassification_latex_heading_list(
+			statement_prior_year_list );
+
+	latex_table->row_list =
+		trial_balance_subclassification_latex_row_list(
+			transaction_as_of_date,
+			element_statement_list,
+			statement_prior_year_list,
+			debit_sum,
+			credit_sum );
+
+	return latex_table;
+}
+
+LIST *trial_balance_subclassification_latex_heading_list(
+			LIST *statement_prior_year_list )
+{
+	return (LIST *)0;
+}
+
+LIST *trial_balance_subclassification_latex_row_list(
+			char *transaction_as_of_date,
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	return (LIST *)0;
+}
+
+LIST *trial_balance_subclassification_latex_element_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			LIST *subclassification_statement_list,
+			LIST *statement_prior_year_list )
+{
+	return (LIST *)0;
+}
+
+LIST *trial_balance_subclassification_latex_account_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			char *subclassification_name,
+			LIST *account_statement_list,
+			LIST *statement_prior_year_list )
+{
+	return (LIST *)0;
+}
+
+LATEX_ROW *trial_balance_subclassification_latex_account_row(
+			char *element_name,
+			char *subclassification_name,
+			TRIAL_BALANCE_ACCOUNT *trial_balance_account,
+			LIST *statement_prior_year_list )
+{
+	return (LATEX_ROW *)0;
+}
+
+char *trial_balance_subclassification_latex_account_row_title(
+			char *name )
+{
+	return (char *)0;
 }
 

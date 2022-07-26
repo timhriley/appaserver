@@ -30,6 +30,10 @@ enum statement_output_medium 		{
 typedef struct
 {
 	LIST *element_statement_list;
+	char *title;
+	char *subtitle;
+	char *caption;
+	char *date_american;
 } STATEMENT;
 
 /* Usage */
@@ -42,19 +46,6 @@ STATEMENT *statement_fetch(
 /* ------- */
 STATEMENT *statement_calloc(
 			void );
-
-/* Usage */
-/* ----- */
-
-/* Public */
-/* ------ */
-enum statement_subclassification_option
-	statement_resolve_subclassification_option(
-			char *subclassification_option_string );
-
-enum statement_output_medium
-	statement_resolve_output_medium(
-			char *output_medium_string );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -73,6 +64,29 @@ char *statement_title(	char *application_name,
 char *statement_subtitle(
 			char *begin_date_string,
 			char *as_of_date );
+
+char *statement_caption(
+			char *statement_title,
+			char *statement_subtitle,
+			boolean exists_logo_filename );
+
+/* Usage */
+/* ----- */
+char *statement_date_american(
+			char *date_time_string );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
+enum statement_subclassification_option
+	statement_resolve_subclassification_option(
+			char *subclassification_option_string );
+
+enum statement_output_medium
+	statement_resolve_output_medium(
+			char *output_medium_string );
 
 typedef struct
 {
