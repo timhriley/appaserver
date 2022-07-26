@@ -11,7 +11,9 @@
 #include "date_convert.h"
 #include "application.h"
 #include "application_constants.h"
+#include "appaserver_library.h"
 #include "element.h"
+#include "account.h"
 #include "statement.h"
 
 enum statement_subclassification_option
@@ -203,7 +205,8 @@ STATEMENT *statement_fetch(
 			transaction_date_time_closing,
 			1 /* fetch_subclassification */,
 			1 /* fetch_account_list */,
-			1 /* fetch_journal_latest */ );
+			1 /* fetch_journal_latest */,
+			1 /* fetch_memo */ );
 
 	return statement;
 }
@@ -223,5 +226,195 @@ STATEMENT *statement_calloc( void )
 	}
 
 	return statement;
+}
+
+LIST *statement_prior_year_latex_account_data_list(
+			char *account_name,
+			LIST *statement_prior_year_list )
+{
+	LIST *data_list;
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+	ACCOUNT *prior_account;
+
+	if ( !list_rewind( statement_prior_year_list ) ) return (LIST *)0;
+
+	data_list = list_new();
+
+	do {
+		statement_prior_year = list_get( statement_prior_year_list );
+
+		prior_account =
+			account_element_account_seek(
+				account_name,
+				statement_prior_year->
+					element_statement_list );
+
+		list_set(
+			data_list,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			statement_prior_year_latex_account_data(
+				prior_account ) );
+
+	} while ( list_next( statement_prior_year_list ) );
+
+	return data_list;
+}
+
+char *statement_prior_year_latex_account_data( ACCOUNT *prior_account )
+{
+	char account_data[ 32 ];
+
+	if ( !prior_account
+	||   !prior_account->journal_latest
+	||   !prior_account->journal_latest->balance )
+	{
+		*account_data = '\0';
+	}
+	else
+	{
+		sprintf(account_data,
+			"%d%c %s",
+			prior_account->delta_prior,
+			'%',
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_dollars(
+				prior_account->journal_latest->balance ) );
+	}
+
+	return strdup( account_data );
+}
+
+STATEMENT_LINK *statement_link_new(
+			char *application_name,
+			char *process_name,
+			char *document_root_directory,
+			char *transaction_begin_date_string,
+			char *transaction_as_of_date,
+			char *preclose_key,
+			pid_t process_id )
+{
+	STATEMENT_LINK *statement_link;
+
+	if ( !application_name
+	||   !process_name
+	||   !document_root_directory
+	||   !transaction_begin_date_string
+	||   !transaction_as_of_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	statement_link = statement_link_calloc();
+
+	statement_link->filename_stem =
+		/* ----------------------------------- */
+		/* Returns heap memory or process_name */
+		/* ----------------------------------- */
+		statement_link_filename_stem(
+			process_name,
+			preclose_key );
+
+	statement_link->appaserver_link_file =
+		appaserver_link_file_new(
+			application_http_prefix( application_name ),
+				appaserver_library_get_server_address(),
+				( application_prepend_http_protocol_yn(
+					application_name ) == 'y' ),
+				document_root_directory,
+				statement_link->filename_stem,
+				application_name,
+				process_id,
+				(char *)0 /* session */,
+				(char *)0 /* extension */ );
+
+	statement_link->appaserver_link_file->extension = "tex";
+
+	statement_link->appaserver_link_file->begin_date_string =
+		transaction_begin_date_string;
+
+	statement_link->appaserver_link_file->end_date_string =
+		transaction_as_of_date;
+
+	statement_link->latex_filename =
+		appaserver_link_get_tail_half(
+			(char *)0 /* application_name */,
+			statement_link->appaserver_link_file->filename_stem,
+			statement_link->appaserver_link_file->begin_date_string,
+			statement_link->appaserver_link_file->end_date_string,
+			statement_link->appaserver_link_file->process_id,
+			statement_link->appaserver_link_file->session,
+			statement_link->appaserver_link_file->extension );
+
+	statement_link->appaserver_link_file->extension = "dvi";
+
+	statement_link->dvi_filename =
+		appaserver_link_get_tail_half(
+			(char *)0 /* application_name */,
+			statement_link->appaserver_link_file->filename_stem,
+			statement_link->appaserver_link_file->begin_date_string,
+			statement_link->appaserver_link_file->end_date_string,
+			statement_link->appaserver_link_file->process_id,
+			statement_link->appaserver_link_file->session,
+			statement_link->appaserver_link_file->extension );
+
+	statement_link->working_directory =
+		appaserver_link_source_directory(
+			document_root_directory,
+			application_name );
+
+	return statement_link;
+}
+
+STATEMENT_LINK *statement_link_calloc( void )
+{
+	STATEMENT_LINK *statement_link;
+
+	if ( ! ( statement_link =
+			calloc( 1, sizeof( STATEMENT_LINK ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement_link;
+}
+
+char *statement_link_filename_stem(
+			char *process_name,
+			char *preclose_key )
+{
+	char filename_stem[ 128 ];
+
+	if ( !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !preclose_key ) return process_name;
+
+	sprintf(filename_stem,
+		"%s_%s",
+		process_name,
+		preclose_key );
+
+	return strdup( filename_stem );
 }
 

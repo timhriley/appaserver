@@ -44,8 +44,6 @@
 
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
 	char *account_name;
 	char *subclassification_name;
 	char *hard_coded_account_key;
@@ -56,6 +54,7 @@ typedef struct
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
+	int transaction_count;
 	LIST *liability_journal_list;
 	double liability_due;
 	char *action_string;
@@ -137,15 +136,6 @@ LIST *account_system_list(
 LIST *account_list(	char *where,
 			boolean fetch_subclassification,
 			boolean fetch_element );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-boolean account_accumulate_debit(
-			char *account_name,
-			boolean expect_lots );
 
 /* Process */
 /* ------- */
@@ -257,6 +247,20 @@ ACCOUNT *account_calloc(
 double account_list_sum(
 			LIST *account_statement_list );
 
+/* Usage */
+/* ----- */
+ACCOUNT *account_element_account_seek(
+			char *account_name,
+			LIST *element_statement_list );
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+ACCOUNT *account_subclassification_account_seek(
+			char *account_name,
+			LIST *subclassification_statement_list );
+
 /* Process */
 /* ------- */
 
@@ -281,6 +285,21 @@ char *account_action_string(
 			char *begin_date_string,
 			char *as_of_date,
 			char *account_name );
+
+/* Usage */
+/* ----- */
+void account_transaction_count_set(
+			LIST *account_statement_list,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
+
+/* Process */
+/* ------- */
+int account_transaction_count(
+			char *account_table,
+			char *account_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
 
 /* Public */
 /* ------ */

@@ -513,3 +513,26 @@ void element_prior_year_set(
 			/* current_subclassification_list */ );
 }
 
+void element_account_transaction_count_set(
+			LIST *element_statement_list,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_statement_list ) ) return;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( list_length( element->subclassification_statement_list ) )
+		{
+			subclassification_account_transaction_count_set(
+				element->subclassification_statement_list,
+				transaction_begin_date_string,
+				transaction_date_time_closing );
+		}
+
+	} while ( list_next( element_statement_list ) );
+}
+

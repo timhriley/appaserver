@@ -144,6 +144,13 @@ void subclassification_prior_year_set(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+void subclassification_account_transaction_count_set(
+			LIST *subclassification_statement_list,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
+
 /* Public */
 /* ------ */
 double subclassification_list_debit_sum(

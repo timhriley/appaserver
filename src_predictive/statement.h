@@ -10,6 +10,7 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "appaserver_link_file.h"
 
 #define STATEMENT_ROWS_BETWEEN_HEADING		10
 #define STATEMENT_PROMPT			"Press here to view statement."
@@ -114,5 +115,50 @@ char *statement_prior_year_date_string(
 
 /* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
+LIST *statement_prior_year_latex_account_data_list(
+			char *account_name,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_prior_year_latex_account_data(
+			ACCOUNT *prior_account );
+
+typedef struct
+{
+	char *filename_stem;
+	APPASERVER_LINK_FILE *appaserver_link_file;
+	char *latex_filename;
+	char *dvi_filename;
+	char *working_directory;
+} STATEMENT_LINK;
+
+/* Usage */
+/* ----- */
+STATEMENT_LINK *statement_link_new(
+			char *application_name,
+			char *process_name,
+			char *document_root_directory,
+			char *transaction_begin_date_string,
+			char *transaction_as_of_date,
+			char *preclose_key,
+			pid_t process_id );
+
+/* Process */
+/* ------- */
+STATEMENT_LINK *statement_link_calloc(
+			void );
+
+/* Returns heap memory or process_name */
+/* ----------------------------------- */
+char *statement_link_filename_stem(
+			char *process_name,
+			char *preclose_key );
 
 #endif

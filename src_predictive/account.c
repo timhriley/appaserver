@@ -396,73 +396,6 @@ void account_list_percent_of_revenue_set(
 	} while ( list_next( account_list ) );
 }
 
-boolean account_accumulate_debit(
-			char *account_name,
-			boolean expect_lots )
-{
-	if ( expect_lots )
-	{
-		static LIST *list = {0};
-		ACCOUNT *account;
-
-		if ( !list )
-		{
-			list =
-				account_list(
-					"1 = 1" /* where */,
-					1 /* fetch_subclassification */,
-					1 /* fetch_element */ );
-		}
-
-		if ( ! ( account =
-				account_seek(
-					account_name,
-					list ) ) )
-		{
-			fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_seek(%s) returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				account_name );
-			exit( 1 );
-		}
-
-		if ( !account->subclassification
-		||   !account->subclassification->element )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: element is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		return
-		account->
-			subclassification->
-			element->
-			accumulate_debit;
-	}
-	else
-	{
-		ACCOUNT *account;
-
-		account =
-			account_fetch(
-				account_name,
-				1 /* fetch_subclassification */,
-				1 /* fetch_element */ );
-
-		return
-		account->
-			subclassification->
-			element->
-			accumulate_debit;
-	}
-}
-
 ACCOUNT *account_seek(	char *account_name,
 			LIST *account_list )
 {
@@ -1068,5 +1001,122 @@ double account_list_sum( LIST *account_statement_list )
 	} while ( list_next( account_statement_list ) );
 
 	return list_sum;
+}
+
+void account_transaction_count_set(
+			LIST *account_statement_list,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_statement_list ) ) return;
+
+	do {
+		account = list_get( account_statement_list );
+
+		if ( !account->journal_latest )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( account->journal_latest->balance )
+		{
+			account->transaction_count =
+				account_transaction_count(
+					ACCOUNT_TABLE,
+					account->account_name,
+					transaction_begin_date_string,
+					transaction_date_time_closing );
+		}
+
+	} while ( list_next( account_statement_list ) );
+}
+
+int account_transaction_count(
+			char *account_table,
+			char *account_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	char where[ 128 ];
+	char system_string[ 256 ];
+
+	sprintf(where,
+		"account = '%s' and				"
+		"transaction_date_time between '%s' and '%s'	",
+		account_name,
+		transaction_begin_date_string,
+		transaction_date_time_closing );
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		"count(1)",
+		account_table,
+		where );
+
+	return atoi( string_pipe( system_string ) );
+}
+
+ACCOUNT *account_element_account_seek(
+			char *account_name,
+			LIST *element_statement_list )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_statement_list ) )
+		return (ACCOUNT *)0;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( list_length( element->subclassification_statement_list ) )
+		{
+			return
+			account_subclassification_account_seek(
+				account_name,
+				element->subclassification_statement_list );
+		}
+
+	} while ( list_next( element_statement_list ) );
+
+	return (ACCOUNT *)0;
+}
+
+ACCOUNT *account_subclassification_account_seek(
+			char *account_name,
+			LIST *subclassification_statement_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+
+	if ( !list_rewind( subclassification_statement_list ) )
+		return (ACCOUNT *)0;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( list_length( subclassification->account_statement_list ) )
+		{
+			if ( ( account =
+				account_seek(
+					account_name,
+					subclassification->
+						account_statement_list ) ) )
+			{
+				return account;
+			}
+		}
+
+	} while ( list_next( subclassification_statement_list ) );
+
+	return (ACCOUNT *)0;
 }
 
