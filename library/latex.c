@@ -786,7 +786,7 @@ char *latex_escape_data(	char *destination,
 
 }
 
-void latex_column_data_set_list(
+void latex_column_data_list_set(
 			LIST *column_data_list,
 			LIST *data_list )
 {

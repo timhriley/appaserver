@@ -40,6 +40,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			char *session_key,
 			char *role_name,
 			char *process_name,
+			char *document_root_directory,
 			char *as_of_date,
 			int prior_year_count,
 			char *subclassifiction_option_string,
@@ -336,6 +337,31 @@ TRIAL_BALANCE *trial_balance_fetch(
 				element_statement_list );
 	}
 
+	if ( trial_balance->statement_output_medium == output_PDF )
+	{
+		trial_balance->trial_balance_pdf =
+			trial_balance_pdf_new(
+				application_name,
+				process_name,
+				document_root_directory,
+				trial_balance->
+					statement_subclassification_option,
+				trial_balance->transaction_begin_date_string,
+				trial_balance->transaction_as_of_date,
+				trial_balance->statement->logo_filename,
+				trial_balance->statement->title,
+				trial_balance->statement->subtitle,
+				trial_balance->preclose_statement,
+				trial_balance->preclose_prior_year_list,
+				trial_balance->preclose_debit_sum,
+				trial_balance->preclose_credit_sum,
+				trial_balance->statement,
+				trial_balance->prior_year_list,
+				trial_balance->debit_sum,
+				trial_balance->credit_sum,
+				getpid() /* process_id */ );
+	}
+
 	return trial_balance;
 }
 
@@ -418,6 +444,14 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 		( trial_balance_account->date_days_between <=
 		  TRIAL_BALANCE_DAYS_FOR_EMPHASIS );
 
+	trial_balance_account->percent_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_account_percent_string(
+			account->percent_of_asset,
+			account->percent_of_revenue );
+
 	return trial_balance_account;
 }
 
@@ -441,7 +475,6 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_calloc( void )
 
 TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			char *application_name,
-			char *login_name,
 			char *process_name,
 			char *document_root_directory,
 			enum statement_subclassification_option
@@ -463,15 +496,14 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 {
 	TRIAL_BALANCE_PDF *trial_balance_pdf;
 
-	if ( !application_name,
-	||   !login_name,
-	||   !process_name,
-	||   !document_root_directory,
-	||   !transaction_begin_date_string,
-	||   !transaction_as_of_date,
-	||   !statement_title,
-	||   !statement_subtitle,
-	||   !statement,
+	if ( !application_name
+	||   !process_name
+	||   !document_root_directory
+	||   !transaction_begin_date_string
+	||   !transaction_as_of_date
+	||   !statement_title
+	||   !statement_subtitle
+	||   !statement
 	||   !process_id )
 	{
 		fprintf(stderr,
@@ -484,7 +516,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 
 	trial_balance_pdf = trial_balance_pdf_calloc();
 
-	trial_balance_pdf->balance_pdf_landacape_boolean =
+	trial_balance_pdf->landscape_boolean =
 		trial_balance_pdf_landacape_boolean(
 			list_length( statement_prior_year_list )
 				/* statement_prior_year_list_length */ );
@@ -541,8 +573,8 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			statement_subclassification_option,
 			transaction_as_of_date,
 			trial_balance_pdf->
-				trial_balance_pdf->
-				statement_link->latex_filename,
+				statement_link->
+				latex_filename,
 			trial_balance_pdf->
 				statement_link->
 				dvi_filename,
@@ -804,8 +836,11 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 
 	trial_balance_subclassification_latex->table =
 		trial_balance_subclassification_latex_table(
+			transaction_as_of_date,
 			statement,
-			statement_prior_year_list );
+			statement_prior_year_list,
+			debit_sum,
+			credit_sum );
 
 	list_set(
 		trial_balance_subclassification_latex->latex->table_list,
@@ -838,8 +873,11 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 }
 
 LATEX_TABLE *trial_balance_subclassification_latex_table(
+			char *transaction_as_of_date,
 			STATEMENT *statement,
-			LIST *statement_prior_year_list )
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
 {
 	LATEX_TABLE *latex_table;
 
@@ -864,7 +902,7 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 	latex_table->row_list =
 		trial_balance_subclassification_latex_row_list(
 			transaction_as_of_date,
-			element_statement_list,
+			statement->element_statement_list,
 			statement_prior_year_list,
 			debit_sum,
 			credit_sum );
@@ -934,18 +972,17 @@ LIST *trial_balance_subclassification_latex_row_list(
 			double debit_sum,
 			double credit_sum )
 {
-	LATEX_ROW *latex_row;
 	LIST *row_list;
 	ELEMENT *element;
 
-	if ( !list_rewind( element_list ) ) return (LIST *)0;
+	if ( !list_rewind( element_statement_list ) ) return (LIST *)0;
 
 	row_list = list_new();
 
 	do {
-		element = list_get( element_list );
+		element = list_get( element_statement_list );
 
-		if ( !list_length( element->subclassification_list ) )
+		if ( !list_length( element->subclassification_statement_list ) )
 			continue;
 
 		list_set_list(
@@ -957,7 +994,7 @@ LIST *trial_balance_subclassification_latex_row_list(
 				element->subclassification_statement_list,
 				statement_prior_year_list ) );
 
-	} while( list_next( element_list ) );
+	} while( list_next( element_statement_list ) );
 
 	list_set(
 		row_list,
@@ -1238,3 +1275,31 @@ char *trial_balance_subclassification_latex_account_row_title( char *name )
 		return name;
 }
 
+char *trial_balance_account_percent_string(
+			int percent_of_asset,
+			int percent_of_revenue )
+{
+	char percent_string[ 16 ];
+
+	if ( percent_of_asset )
+	{
+		sprintf(percent_string,
+			"%d%c",
+			percent_of_asset,
+			'%' );
+	}
+	else
+	if ( percent_of_revenue )
+	{
+		sprintf(percent_string,
+			"%d%c",
+			percent_of_revenue,
+			'%' );
+	}
+	else
+	{
+		*percent_string = '\0';
+	}
+
+	return strdup( percent_string );
+}

@@ -23,6 +23,7 @@ typedef struct
 	char *credit_string;
 	int date_days_between;
 	boolean within_days_between_boolean;
+	char *percent_string;
 	ACCOUNT *account;
 } TRIAL_BALANCE_ACCOUNT;
 
@@ -37,6 +38,13 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 /* ------- */
 TRIAL_BALANCE_ACCOUNT *trial_balance_account_calloc(
 			void );
+
+/* ------------------- */
+/* Returns heap memory */
+/* ------------------- */
+char *trial_balance_account_percent_string(
+			int percent_of_asset,
+			int percent_of_revenue );
 
 typedef struct
 {
@@ -72,8 +80,11 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 			void );
 
 LATEX_TABLE *trial_balance_subclassification_latex_table(
+			char *transaction_as_of_date,
 			STATEMENT *statement,
-			LIST *statement_prior_year_list );
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
 
 LIST *trial_balance_subclassification_latex_heading_list(
 			LIST *statement_prior_year_list );
@@ -186,7 +197,6 @@ typedef struct
 /* ----- */
 TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			char *application_name,
-			char *login_name,
 			char *process_name,
 			char *document_root_directory,
 			enum statement_subclassification_option
@@ -247,6 +257,7 @@ typedef struct
 	ELEMENT *element_asset;
 	LIST *element_list_nominal_account_list;
 	ELEMENT *element_revenue;
+	TRIAL_BALANCE_PDF *trial_balance_pdf;
 } TRIAL_BALANCE;
 
 /* Usage */
@@ -256,6 +267,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			char *session_key,
 			char *role_name,
 			char *process_name,
+			char *document_root_directory,
 			char *as_of_date,
 			int prior_year_count,
 			char *subclassifiction_option_string,

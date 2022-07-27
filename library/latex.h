@@ -178,7 +178,7 @@ void latex_column_data_set(
 LIST *latex_table_right_heading_list(
 			LIST *heading_list );
 
-void latex_column_data_set_list(
+void latex_column_data_list_set(
 			LIST *column_data_list,
 			LIST *data_list );
 
