@@ -265,6 +265,7 @@ typedef struct
 TRIAL_BALANCE *trial_balance_fetch(
 			char *application_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *process_name,
 			char *document_root_directory,

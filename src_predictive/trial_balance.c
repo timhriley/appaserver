@@ -38,6 +38,7 @@ TRIAL_BALANCE *trial_balance_calloc( void )
 TRIAL_BALANCE *trial_balance_fetch(
 			char *application_name,
 			char *session_key,
+			char *login_name,
 			char *role_name,
 			char *process_name,
 			char *document_root_directory,
@@ -50,6 +51,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	if ( !application_name
 	||   !session_key
+	||   !login_name
 	||   !role_name
 	||   !process_name
 	||   !as_of_date
@@ -913,45 +915,58 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 LIST *trial_balance_subclassification_latex_heading_list(
 			LIST *statement_prior_year_list )
 {
-	LATEX_TABLE_HEADING *table_heading;
 	LIST *heading_list;
 
 	heading_list = list_new();
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Element";
-	table_heading->right_justified_flag = 0;
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Element",
+			0 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
-	table_heading = latex_table_heading_new();
-	table_heading->right_justified_flag = 0;
-	table_heading->heading = "Subclassification";
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Subclassification",
+			0 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Account";
-	table_heading->paragraph_size = "6.0cm";
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Account",
+			0 /* right_justified_flag */,
+			"6.0cm" /* paragraph_size */ ) );
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Count";
-	table_heading->right_justified_flag = 1;
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Count",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Debit";
-	table_heading->right_justified_flag = 1;
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Debit",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Credit";
-	table_heading->right_justified_flag = 1;
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Credit",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
-	table_heading = latex_table_heading_new();
-	table_heading->heading = "Percent";
-	table_heading->right_justified_flag = 1;
-	list_set( heading_list, table_heading );
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Percent",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
 	if ( list_length( statement_prior_year_list ) )
 	{

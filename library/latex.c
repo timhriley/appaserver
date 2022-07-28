@@ -33,16 +33,53 @@ LATEX *latex_new(	char *tex_filename,
 	LATEX *latex;
 	char full_path[ 128 ];
 
-	latex = (LATEX *)calloc( 1, sizeof( LATEX ) );
-
-	if ( !latex )
+	if ( !tex_filename
+	||   !dvi_filename )
 	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
+
+	latex = latex_calloc();
+
+	latex->full_path =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		latex_full_path(
+			tex_filename,
+			working_directory );
+
+	if ( ! ( latex->output_stream = fopen( latex->full_path, "w" ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: cannot open %s for write.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			full_path );
+		exit( 1 );
+	}
+
+	latex->table_list = list_new();
+
+	latex->tex_filename = tex_filename;
+	latex->dvi_filename = dvi_filename;
+	latex->working_directory = working_directory;
+	latex->landscape_flag = landscape_flag;
+	latex->logo_filename = logo_filename;
+
+	return latex;
+}
+
+char *latex_full_path(	char *tex_filename,
+			char *working_directory )
+{
+	static char full_path[ 128 ];
 
 	if ( working_directory && *working_directory )
 	{
@@ -56,26 +93,7 @@ LATEX *latex_new(	char *tex_filename,
 		strcpy( full_path, tex_filename );
 	}
 
-	latex->output_stream = fopen( full_path, "w" );
-
-	if ( !latex->output_stream )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): cannot open %s for write.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 full_path );
-		exit( 1 );
-	}
-
-	latex->table_list = list_new();
-	latex->dvi_filename = dvi_filename;
-	latex->tex_filename = tex_filename;
-	latex->working_directory = working_directory;
-	latex->landscape_flag = landscape_flag;
-	latex->logo_filename = logo_filename;
-
-	return latex;
+	return full_path;
 }
 
 LATEX_TABLE *latex_new_latex_table( char *caption )
@@ -85,43 +103,50 @@ LATEX_TABLE *latex_new_latex_table( char *caption )
 
 LATEX_TABLE *latex_table_new( char *caption )
 {
-	LATEX_TABLE *latex_table;
+	LATEX_TABLE *latex_table = latex_table_calloc();
 
-	latex_table = (LATEX_TABLE *)calloc( 1, sizeof( LATEX_TABLE ) );
-
-	if ( !latex_table )
-	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
-		exit( 1 );
-	}
 	latex_table->caption = caption;
+
 	return latex_table;
 }
 
 LATEX_TABLE_HEADING *latex_new_latex_table_heading( void )
 {
-	return latex_table_heading_new();
+	return
+	latex_table_heading_new(
+		(char *)0, 0, (char *)0 );
 }
 
-LATEX_TABLE_HEADING *latex_table_heading_new( void )
+LATEX_TABLE_HEADING *latex_table_heading_new(
+			char *heading,
+			boolean right_justified_flag,
+			char *paragraph_size )
+{
+	LATEX_TABLE_HEADING *latex_table_heading =
+		latex_table_heading_calloc();
+
+	latex_table_heading->heading = heading;
+	latex_table_heading->right_justified_flag = right_justified_flag;
+	latex_table_heading->paragraph_size = paragraph_size;
+
+	return latex_table_heading;
+}
+
+LATEX_TABLE_HEADING *latex_table_heading_calloc( void )
 {
 	LATEX_TABLE_HEADING *latex_table_heading;
 
-	latex_table_heading =
-		(LATEX_TABLE_HEADING *)
-			calloc( 1, sizeof( LATEX_TABLE_HEADING ) );
-
-	if ( !latex_table_heading )
+	if ( ! ( latex_table_heading =
+			calloc( 1, sizeof( LATEX_TABLE_HEADING ) ) ) )
 	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
+
 	return latex_table_heading;
 }
 
@@ -437,19 +462,11 @@ LATEX_ROW *latex_new_latex_row( void )
 
 LATEX_ROW *latex_row_new( void )
 {
-	LATEX_ROW *row;
+	LATEX_ROW *latex_row = latex_row_calloc();
 
-	row = (LATEX_ROW *)calloc( 1, sizeof( LATEX_ROW ) );
-	if ( !row )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s(): memory allocation\n",
-			 __FILE__,
-			 __FUNCTION__ );
-		exit( 1 );
-	}
-	row->column_data_list = list_new_list();
-	return row;
+	latex_row->column_data_list = list_new();
+
+	return latex_row;
 }
 
 void latex_tex2pdf(	char *tex_filename,
@@ -812,47 +829,118 @@ void latex_column_data_set(
 	list_set( column_data_list, l );
 }
 
-LATEX_COLUMN_DATA *latex_column_data_new(
-					char *column_data,
-					boolean large_bold )
-{
-	LATEX_COLUMN_DATA *l;
-
-	l = (LATEX_COLUMN_DATA *)calloc( 1, sizeof( LATEX_COLUMN_DATA ) );
-	if ( !l )
-	{
-		fprintf(	stderr,
-				"ERROR in %s/%s(): memory allocation error.\n",
-				__FILE__,
-				__FUNCTION__ );
-		exit( 1 );
-	}
-
-	l->column_data = column_data;
-	l->large_bold = large_bold;
-
-	return l;
-}
-
 LIST *latex_table_right_heading_list(
 			LIST *heading_list )
 {
 	LIST *latex_heading_list;
-	LATEX_TABLE_HEADING *latex_table_heading;
 
 	if ( !list_rewind( heading_list ) ) return (LIST *)0;
 
 	latex_heading_list = list_new();
 
 	do {
-
-		latex_table_heading = latex_table_heading_new();
-		latex_table_heading->heading = (char *)list_get( heading_list );
-		latex_table_heading->right_justified_flag = 1;
-		list_set( latex_heading_list, latex_table_heading );
+		list_set(
+			latex_heading_list,
+			latex_table_heading_new(
+				(char *)list_get( heading_list ),
+				1 /* right_justified_flag */,
+				(char *)0 /* paragraph_size */ ) );
 
 	} while ( list_next( heading_list ) );
 
 	return latex_heading_list;
+}
+
+LATEX_COLUMN_DATA *latex_column_data_calloc( void )
+{
+	LATEX_COLUMN_DATA *latex_column_data;
+
+	if ( ! ( latex_column_data =
+			calloc( 1, sizeof( LATEX_COLUMN_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return latex_column_data;
+}
+
+LATEX_ROW *latex_row_calloc( void )
+{
+	LATEX_ROW *latex_row;
+
+	if ( ! ( latex_row = calloc( 1, sizeof( LATEX_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return latex_row;
+}
+
+LATEX_TABLE *latex_table_calloc( void )
+{
+	LATEX_TABLE *latex_table;
+
+	if ( ! ( latex_table = calloc( 1, sizeof( LATEX_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return latex_table;
+}
+
+LATEX *latex_calloc( void )
+{
+	LATEX *latex;
+
+	if ( ! ( latex = calloc( 1, sizeof( LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return latex;
+}
+
+LATEX_COLUMN_DATA *latex_column_data_new(
+			char *column_data,
+			boolean large_bold )
+{
+	LATEX_COLUMN_DATA *latex_column_data;
+
+	if ( !column_data )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: column_data is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_column_data = latex_column_data_calloc();
+
+	latex_column_data->column_data = column_data;
+	latex_column_data->large_bold = large_bold;
+
+	return latex_column_data;
 }
 

@@ -746,7 +746,7 @@ double account_list_debit_sum(
 	return debit_sum;
 }
 
-double account_credit_sum(
+double account_list_credit_sum(
 			LIST *account_list,
 			boolean element_accumulate_debit )
 {

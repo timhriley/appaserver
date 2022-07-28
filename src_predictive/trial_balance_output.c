@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include "environ.h"
 #include "appaserver_error.h"
+#include "appaserver_parameter_file.h"
+#include "date.h"
+#include "statement.h"
 #include "trial_balance.h"
 
 int main( int argc, char **argv )
@@ -21,6 +24,7 @@ int main( int argc, char **argv )
 	char *output_medium_string;
 	char *as_of_date;
 	int prior_year_count;
+	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	TRIAL_BALANCE *trial_balance;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -54,16 +58,72 @@ int main( int argc, char **argv )
 	subclassification_option_string = argv[ 7 ];
 	output_medium_string = argv[ 8 ];
 
+	appaserver_parameter_file = appaserver_parameter_file_new();
+
 	trial_balance =
 		trial_balance_fetch(
 			application_name,
 			session_key,
+			login_name,
 			role_name,
 			process_name,
+			appaserver_parameter_file->document_root,
 			as_of_date,
 			prior_year_count,
 			subclassification_option_string,
 			output_medium_string );
+
+	if ( !trial_balance )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: trial_balance_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+		
+	if ( trial_balance->statement_subclassification_option ==
+			subclassification_display
+	&& trial_balance->trial_balance_pdf )
+	{
+		char *date_time_string =
+			date_get_now_yyyy_mm_dd_hh_mm(
+				date_utc_offset() );
+
+		if ( trial_balance->
+			trial_balance_pdf->
+			preclose_trial_balance_latex )
+		{
+			statement_latex_output(
+				trial_balance->
+					trial_balance_pdf->
+					preclose_trial_balance_latex->
+					trial_balance_subclassification_latex->
+					latex,
+				trial_balance->
+					trial_balance_pdf->
+					preclose_statement_link->
+					ftp_output_filename,
+				"Trial Balance (preclose)" /* prompt */,
+				process_name,
+				date_time_string );
+		}
+
+		statement_latex_output(
+			trial_balance->
+				trial_balance_pdf->
+				trial_balance_latex->
+				trial_balance_subclassification_latex->
+				latex,
+			trial_balance->
+				trial_balance_pdf->
+				statement_link->
+				ftp_output_filename,
+			"Trial Balance" /* prompt */,
+			process_name,
+			date_time_string );
+	}
 
 	return 0;
 }

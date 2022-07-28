@@ -341,7 +341,8 @@ LIST *journal_system_list(
 }
 
 void journal_propagate(	char *transaction_date_time,
-			char *account_name )
+			char *account_name,
+			boolean element_accumulate_debit )
 {
 	if (  !account_name
 	||    !*account_name
@@ -354,15 +355,13 @@ void journal_propagate(	char *transaction_date_time,
 	}
 
 	journal_list_update(
-		journal_list_set_balance(
+		journal_list_balance_set(
 			journal_list_prior(
 				journal_prior(
 					transaction_date_time,
 					account_name ),
 				account_name ),
-			account_accumulate_debit(
-				account_name,
-				1 /* expect_many */ ) ) );
+			element_accumulate_debit ) );
 }
 
 LIST *journal_list_prior(
@@ -405,7 +404,7 @@ LIST *journal_list_prior(
 	return journal_list;
 }
 
-LIST *journal_list_set_balance(
+LIST *journal_list_balance_set(
 			LIST *journal_list_prior,
 			boolean account_accumulate_debit )
 {
@@ -541,20 +540,6 @@ void journal_list_update( LIST *journal_list_set_balance )
 	} while( list_next( journal_list_set_balance ) );
 
 	pclose( update_pipe );
-}
-
-void journal_account_name_list_propagate(
-			char *transaction_date_time,
-			LIST *account_name_list )
-{
-	if ( !list_rewind( account_name_list ) ) return;
-
-	do {
-		journal_propagate(
-			transaction_date_time,
-			list_get( account_name_list ) );
-
-	} while( list_next( account_name_list ) );
 }
 
 LIST *journal_POR_list( char *account_name )
@@ -968,10 +953,10 @@ char *journal_delete_system_string(
 	return strdup( system_string );
 }
 
-LIST *journal_extract_account_name_list( LIST *journal_list )
+LIST *journal_extract_account_list( LIST *journal_list )
 {
 	JOURNAL *journal;
-	LIST *account_name_list;
+	LIST *account_list;
 
 	if ( !list_rewind( journal_list ) ) return (LIST *)0;
 

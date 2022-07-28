@@ -11,10 +11,10 @@
 #include "list.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
+#include "latex.h"
 #include "account.h"
 
 #define STATEMENT_ROWS_BETWEEN_HEADING		10
-#define STATEMENT_PROMPT			"Press here to view statement."
 #define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 
 enum statement_subclassification_option	{
@@ -98,6 +98,18 @@ enum statement_output_medium
 	statement_resolve_output_medium(
 			char *output_medium_string );
 
+/* Driver */
+/* ------ */
+void statement_latex_output(
+			LATEX *latex,
+			char *ftp_output_filename,
+			char *prompt,
+			char *process_name,
+			char *date_time_string );
+
+/* Process */
+/* ------- */
+
 typedef struct
 {
 	char *date_string;
@@ -169,6 +181,7 @@ typedef struct
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	char *latex_filename;
 	char *dvi_filename;
+	char *ftp_output_filename;
 	char *working_directory;
 } STATEMENT_LINK;
 

@@ -15,6 +15,7 @@
 #include "element.h"
 #include "column.h"
 #include "account.h"
+#include "latex.h"
 #include "statement.h"
 
 enum statement_subclassification_option
@@ -357,6 +358,29 @@ STATEMENT_LINK *statement_link_new(
 			statement_link->appaserver_link_file->session,
 			statement_link->appaserver_link_file->extension );
 
+	statement_link->appaserver_link_file->extension = "pdf";
+
+	statement_link->ftp_output_filename =
+		appaserver_link_get_link_prompt(
+			statement_link->
+				appaserver_link_file->
+				link_prompt->
+				prepend_http_boolean,
+			statement_link->
+				appaserver_link_file->
+				link_prompt->
+				http_prefix,
+			statement_link->
+				appaserver_link_file->
+				link_prompt->server_address,
+			statement_link->appaserver_link_file->application_name,
+			statement_link->appaserver_link_file->filename_stem,
+			statement_link->appaserver_link_file->begin_date_string,
+			statement_link->appaserver_link_file->end_date_string,
+			statement_link->appaserver_link_file->process_id,
+			statement_link->appaserver_link_file->session,
+			statement_link->appaserver_link_file->extension );
+
 	statement_link->working_directory =
 		appaserver_link_source_directory(
 			document_root_directory,
@@ -517,6 +541,50 @@ LIST *statement_prior_year_heading_list(
 	} while ( list_next( statement_prior_year_list ) );
 
 	return heading_list;
+}
+
+void statement_latex_output(
+			LATEX *latex,
+			char *ftp_output_filename,
+			char *prompt,
+			char *process_name,
+			char *date_time_string )
+{
+	if ( !latex
+	||   !ftp_output_filename
+	||   !prompt
+	||   !process_name
+	||   !date_time_string )
+	{
+		if ( latex ) fclose( latex->output_stream );
+
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_longtable_output(
+		latex->output_stream,
+		latex->landscape_flag,
+		latex->table_list,
+		latex->logo_filename,
+		0 /* not omit_page_numbers */,
+		date_time_string /* footline */ );
+
+	fclose( latex->output_stream );
+
+	latex_tex2pdf(
+			latex->tex_filename,
+			latex->working_directory );
+
+	appaserver_library_output_ftp_prompt(
+		ftp_output_filename,
+		prompt,
+		process_name /* target_frame */,
+		(char *)0 /* mime_type */ );
 }
 
 LIST *statement_prior_year_latex_row_column_data_list(

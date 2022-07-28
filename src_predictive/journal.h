@@ -124,30 +124,22 @@ char *journal_transaction_account_where(
 /* Usage */
 /* ----- */
 void journal_propagate(	char *transaction_date_time,
-			char *account_name );
+			char *account_name,
+			boolean element_accumulate_debit );
 
-LIST *journal_list_set_balance(
+LIST *journal_list_balance_set(
 			LIST *journal_list_prior /* in/out */,
-			boolean account_accumulate_debit );
+			boolean element_accumulate_debit );
 
 /* Usage */
 /* ----- */
 void journal_list_update(
-			LIST *journal_list_set_balance );
+			LIST *journal_list_balance_set );
 
 /* Process */
 /* ------- */
 char *journal_update_system_string(
 			char *journal_table );
-
-/* Usage */
-/* ----- */
-void journal_account_name_list_propagate(
-			char *transaction_date_time,
-			LIST *account_name_list );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -386,7 +378,7 @@ LIST *journal_account_distinct_entity_list(
 			char *journal_table,
 			LIST *account_name_list );
 
-LIST *journal_extract_account_name_list(
+LIST *journal_extract_account_list(
 			LIST *journal_list );
 
 LIST *journal_fetch_account_name_list(
