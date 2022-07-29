@@ -391,7 +391,7 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 
 	if ( !transaction_as_of_date
 	||   !account
-	||   !account->journal_latest )
+	||   !account->account_journal_latest )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -403,7 +403,8 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 
 	trial_balance_account = trial_balance_account_calloc();
 
-	trial_balance_account->balance = account->journal_latest->balance;
+	trial_balance_account->balance =
+		account->account_journal_latest->balance;
 
 	if ( trial_balance_account->balance < 0.0 )
 	{
@@ -439,7 +440,7 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 		/* Ignores trailing time. */
 		/* ---------------------- */
 		date_days_between(
-			account->journal_latest->transaction_date_time,
+			account->account_journal_latest->transaction_date_time,
 			transaction_as_of_date );
 
 	trial_balance_account->within_days_between_boolean =
@@ -1221,23 +1222,27 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 			trial_balance_account->account->account_name,
 			trial_balance_account->
 				account->
-				journal_latest->
+				account_journal_latest->
 				full_name,
 			trial_balance_account->
 				account->
-				journal_latest->
+				account_journal_latest->
 				debit_amount,
 			trial_balance_account->
 				account->
-				journal_latest->
+				account_journal_latest->
 				credit_amount,
 			statement_date_american(
 				trial_balance_account->
 					account->
-					journal_latest->
+					account_journal_latest->
 					transaction_date_time )
 						/* transaction_date_american */,
-			trial_balance_account->account->journal_latest->memo );
+			trial_balance_account->
+				account->
+				account_journal_latest->
+				transaction->
+				memo );
 
 	latex_column_data_set(
 		latex_row->column_data_list,

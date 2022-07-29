@@ -89,16 +89,29 @@ char *journal_max_prior_transaction_date_time(
 }
 
 JOURNAL *journal_prior(	char *transaction_date_time,
-			char *account_name )
+			char *account_name,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element )
 {
+	JOURNAL *journal;
+	char *max_prior_transaction_date_time;
+
 	if ( !transaction_date_time
 	||   !account_name )
 	{
-		return (JOURNAL *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	return
-	journal_account_fetch(
+	if ( ( max_prior_transaction_date_time =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		journal_max_prior_transaction_date_time(
 			/* --------------------- */
 			/* Returns static memory */
@@ -106,22 +119,45 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 			journal_max_prior_where(
 				transaction_date_time,
 				account_name ),
-			JOURNAL_TABLE )
-				/* transaction_date_time */,
-		account_name,
-		0 /* not fetch_memo */ );
+			JOURNAL_TABLE ) ) )
+	{
+		transaction_date_time = max_prior_transaction_date_time;
+	}
+
+	journal =
+		journal_account_fetch(
+			transaction_date_time,
+			account_name,
+			0 /* not fetch_transaction */,
+			fetch_account,
+			fetch_subclassification,
+			fetch_element );
+
+	if ( journal
+	&&   max_prior_transaction_date_time == transaction_date_time )
+	{
+		journal->previous_balance = 0.0;
+	}
+
+	return journal;
 }
 
 JOURNAL *journal_latest(
 			char *account_name,
 			char *transaction_date_time_closing,
-			boolean fetch_memo )
+			boolean fetch_transaction )
 {
 	if ( !account_name
 	||   !transaction_date_time_closing )
 	{
-		return (JOURNAL *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
+
 
 	return
 	journal_account_fetch(
@@ -138,7 +174,10 @@ JOURNAL *journal_latest(
 			JOURNAL_TABLE )
 				/* transaction_date_time */,
 		account_name,
-		fetch_memo );
+		fetch_transaction,
+		0 /* not fetch_account */,
+		0 /* not fetch_subclassification */,
+		0 /* not fetch_element */ );
 }
 
 char *journal_max_where(
@@ -221,12 +260,20 @@ char *journal_transaction_account_where(
 JOURNAL *journal_account_fetch(
 			char *transaction_date_time,
 			char *account_name,
-			boolean fetch_memo )
+			boolean fetch_transaction,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element )
 {
 	if ( !transaction_date_time
 	||   !account_name )
 	{
-		return (JOURNAL *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	return
@@ -238,16 +285,23 @@ JOURNAL *journal_account_fetch(
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				journal_transaction_account_where(
 					transaction_date_time,
 					account_name ) ) ),
-		0 /* not fetch_check_number */,
-		fetch_memo );
+		fetch_transaction,
+		fetch_account,
+		fetch_subclassification,
+		fetch_element );
 }
 
 JOURNAL *journal_parse(	char *input,
-			boolean fetch_check_number,
-			boolean fetch_memo )
+			boolean fetch_transaction,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -284,28 +338,23 @@ JOURNAL *journal_parse(	char *input,
 	piece( piece_buffer, SQL_DELIMITER, input, 7 );
 	journal->balance = atof( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 8 );
-	journal->transaction_count = atoi( piece_buffer );
-
-	if ( fetch_check_number )
+	if ( fetch_transaction )
 	{
-		journal->check_number =
-			atoi(
-				journal_transaction_cell_fetch(
-					full_name,
-					street_address,
-					transaction_date_time,
-					"check_number" ) );
+		journal->transaction =
+			transaction_fetch(
+				journal->full_name,
+				journal->street_address,
+				journal->transaction_date_time,
+				0 /* not fetch_journal_list */ );
 	}
-	else
-	if ( fetch_memo )
+
+	if ( fetch_account )
 	{
-		journal->memo =
-			journal_transaction_cell_fetch(
-				full_name,
-				street_address,
-				transaction_date_time,
-				"memo" );
+		journal->account =
+			account_fetch(
+				journal->account_name,
+				fetch_subclassification,
+				fetch_element );
 	}
 
 	return journal;
@@ -313,37 +362,58 @@ JOURNAL *journal_parse(	char *input,
 
 LIST *journal_system_list(
 			char *system_string,
-			boolean fetch_check_number,
-			boolean fetch_memo )
+			boolean fetch_transaction,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element )
 {
-	FILE *input_pipe;
+	FILE *pipe;
 	char input[ 1024 ];
 	LIST *system_list;
 
-	if ( !system_string ) return (LIST *)0;
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	system_list = list_new();
 
-	input_pipe = popen( system_string, "r" );
+	pipe = journal_input_pipe( system_string );
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, pipe, 1024 ) )
 	{
 		list_set(
 			system_list,
 			journal_parse(
 				input,
-				fetch_check_number,
-				fetch_memo ) );
+				fetch_transaction,
+				fetch_account,
+				fetch_subclassification,
+				fetch_element ) );
 	}
 
-	pclose( input_pipe );
+	pclose( pipe );
+
 	return system_list;
 }
 
-void journal_propagate(	char *transaction_date_time,
-			char *account_name,
-			boolean element_accumulate_debit )
+FILE *journal_input_pipe(
+			char *journal_system_string )
 {
+	return
+	popen( journal_system_string, "r" );
+}
+
+void journal_propagate(	char *transaction_date_time,
+			char *account_name )
+{
+	JOURNAL *prior;
+
 	if (  !account_name
 	||    !*account_name
 	||    strcmp( account_name, "account" ) == 0
@@ -354,54 +424,53 @@ void journal_propagate(	char *transaction_date_time,
 		return;
 	}
 
-	journal_list_update(
-		journal_list_balance_set(
-			journal_list_prior(
-				journal_prior(
-					transaction_date_time,
+	prior =
+		/* Fails if no journals for the account */
+		/* ------------------------------------ */
+		journal_prior(
+			transaction_date_time,
+			account_name,
+			1 /* fetch_account */,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
+
+	if ( prior )
+	{
+		journal_list_update(
+			journal_list_balance_set(
+				journal_list_prior(
+					prior,
 					account_name ),
-				account_name ),
-			element_accumulate_debit ) );
+				prior->
+					account->
+					subclassification->
+					element->
+					accumulate_debit
+					   /* element_accumulate_debit */ ) );
+	}
 }
 
 LIST *journal_list_prior(
 			JOURNAL *journal_prior,
 			char *account_name )
 {
-	LIST *journal_list = {0};
-	JOURNAL *first_journal;
-
-	if ( !account_name ) return (LIST *)0;
-
-	if ( journal_prior )
+	if ( !account_name )
 	{
-		journal_list =
-			journal_minimum_list(
-				journal_prior->transaction_date_time
-					/* minimum_transaction_date_time */,
-				account_name );
-	}
-	else
-	{
-		journal_list =
-			journal_POR_list(
-				account_name );
-
-		if ( !list_length( journal_list ) ) return (LIST *)0;
-
-		first_journal = list_first( journal_list );
-		first_journal->previous_balance = 0.0;
-		first_journal->transaction_count = 1;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	/* If deleted the latest one, then no propagate. */
-	/* --------------------------------------------- */
-	if ( journal_prior && list_length( journal_list ) == 1 )
-	{
-		journal_list = (LIST *)0;
-	}
+	if ( !journal_prior ) return (LIST *)0;
 
-	return journal_list;
+	return
+	journal_minimum_list(
+		journal_prior->transaction_date_time
+			/* minimum_transaction_date_time */,
+		account_name );
 }
 
 LIST *journal_list_balance_set(
@@ -410,17 +479,8 @@ LIST *journal_list_balance_set(
 {
 	JOURNAL *journal;
 	JOURNAL *prior_journal = {0};
-	JOURNAL *first_journal = {0};
-	int transaction_count;
 
 	if ( !list_rewind( journal_list_prior ) ) return (LIST *)0;
-
-	/* Need a separate transaction_count to keep from double counting. */
-	/* --------------------------------------------------------------- */
-	first_journal = list_first( journal_list_prior );
-	transaction_count = first_journal->transaction_count;
-
-	if ( !transaction_count ) transaction_count = 1;
 
 	do {
 		journal = list_get( journal_list_prior );
@@ -463,19 +523,6 @@ LIST *journal_list_balance_set(
 			}
 		}
 
-		if ( dollar_virtually_same(
-			journal->balance,
-			0.0 ) )
-		{
-			journal->transaction_count = 0;
-			transaction_count = 1;
-		}
-		else
-		{
-			journal->transaction_count = transaction_count;
-			transaction_count++;
-		}
-
 		prior_journal = journal;
 
 	} while( list_next( journal_list_prior ) );
@@ -499,27 +546,29 @@ char *journal_system_string(
 	return strdup( system_string );
 }
 
-void journal_list_update( LIST *journal_list_set_balance )
+FILE *journal_update_pipe( char *journal_update_system_string )
+{
+	return
+	popen( journal_update_system_string, "w" );
+}
+
+void journal_list_update( LIST *journal_list_balance_set )
 {
 	JOURNAL *journal;
 	FILE *update_pipe;
 
-	if ( !list_rewind( journal_list_set_balance ) ) return;
+	if ( !list_rewind( journal_list_balance_set ) ) return;
 
 	update_pipe =
-		popen(	journal_update_system_string( JOURNAL_TABLE ),
-			"w" );
+		journal_update_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			journal_update_system_string(
+				JOURNAL_TABLE ) );
 
 	do {
-		journal = list_get( journal_list_set_balance );
-
-		fprintf(update_pipe,
-		 	"%s^%s^%s^%s^transaction_count^%d\n",
-			journal->full_name,
-		 	journal->street_address,
-		 	journal->transaction_date_time,
-		 	journal->account_name,
-		 	journal->transaction_count );
+		journal = list_get( journal_list_balance_set );
 
 		fprintf(update_pipe,
 		 	"%s^%s^%s^%s^previous_balance^%.2lf\n",
@@ -537,28 +586,25 @@ void journal_list_update( LIST *journal_list_set_balance )
 		 	journal->account_name,
 		 	journal->balance );
 
-	} while( list_next( journal_list_set_balance ) );
+	} while( list_next( journal_list_balance_set ) );
 
 	pclose( update_pipe );
-}
-
-LIST *journal_POR_list( char *account_name )
-{
-	return
-	journal_system_list(
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			account_primary_where(
-				account_name ) ),
-		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
 }
 
 char *journal_update_system_string( char *journal_table )
 {
 	char *key;
 	char system_string[ 1024 ];
+
+	if ( !journal_table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal_table is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	key= "full_name,street_address,transaction_date_time,account";
 
@@ -570,14 +616,6 @@ char *journal_update_system_string( char *journal_table )
 		key );
 
 	return strdup( system_string );
-}
-
-JOURNAL *journal_list_latest( LIST *journal_list )
-{
-	if ( !list_length( journal_list ) )
-		return (JOURNAL *)0;
-
-	return list_last( journal_list );
 }
 
 LIST *journal_account_distinct_entity_list(
@@ -711,7 +749,7 @@ void journal_list_insert(
 	}
 
 	pipe =
-		journal_insert_open(
+		journal_insert_pipe(
 			appaserver_error_filename,
 			JOURNAL_INSERT,
 			JOURNAL_TABLE );
@@ -733,7 +771,7 @@ void journal_list_insert(
 	pclose( pipe );
 }
 
-FILE *journal_insert_open(
+FILE *journal_insert_pipe(
 			char *appaserver_error_filename,
 			char *journal_insert,
 			char *journal_table )
@@ -802,70 +840,6 @@ void journal_insert(	FILE *pipe,
 		credit_amount_string );
 }
 
-char *journal_transaction_system_string(
-			char *attribute_name,
-			char *transaction_table,
-			char *transaction_primary_where )
-{
-	char system_string[ 1024 ];
-
-	if ( !attribute_name
-	||   !transaction_table
-	||   !transaction_primary_where )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(system_string,
-	 	"select.sh \"%s\" %s \"%s\"",
-		attribute_name,
-		transaction_table,
-		transaction_primary_where );
-
-	return strdup( system_string );
-}
-
-char *journal_transaction_cell_fetch(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *attribute_name )
-{
-	if ( !full_name
-	||   !street_address
-	||   !transaction_date_time
-	||   !attribute_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	string_pipe(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_transaction_system_string(
-			attribute_name,
-			TRANSACTION_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			transaction_primary_where(
-				full_name,
-				street_address,
-				transaction_date_time ) ) );
-}
-
 double journal_debit_credit_difference_sum(
 			LIST *journal_list )
 {
@@ -914,20 +888,6 @@ double journal_credit_debit_difference_sum(
 	return sum;
 }
 
-LIST *journal_fetch_account_name_list(
-			char *journal_table,
-			char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf(system_string,
-		"select.sh account %s \"%s\"",
-		journal_table,
-		where );
-
-	return pipe2list( system_string );
-}
-
 char *journal_delete_system_string(
 			char *journal_table,
 			char *where )
@@ -960,15 +920,22 @@ LIST *journal_extract_account_list( LIST *journal_list )
 
 	if ( !list_rewind( journal_list ) ) return (LIST *)0;
 
-	account_name_list = list_new();
+	account_list = list_new();
 
 	do {
 		journal = list_get( journal_list );
-		list_set( account_name_list, journal->account_name );
+
+		if ( journal->account )
+		{
+			list_set( account_list, journal->account );
+		}
 
 	} while ( list_next( journal_list ) );
 
-	return account_name_list;	
+	if ( !list_length( account_list ) )
+		return (LIST *)0;
+	else
+		return account_list;	
 }
 
 LIST *journal_binary_list(
@@ -1051,7 +1018,6 @@ char *journal_list_raw_display(
 					"street_address = %s, "
 					"account=%s, "
 					"transaction_date_time=%s, "
-					"transaction_count=%d, "
 					"previous_balance=%.2lf, "
 					"debit_amount=%.2lf, "
 					"credit_amount=%.2lf, "
@@ -1060,7 +1026,6 @@ char *journal_list_raw_display(
 					journal->street_address,
 					journal->account_name,
 					journal->transaction_date_time,
-					journal->transaction_count,
 					journal->previous_balance,
 					journal->debit_amount,
 					journal->credit_amount,
@@ -1398,8 +1363,10 @@ LIST *journal_minimum_list(
 			journal_minimum_where(
 				minimum_transaction_date_time,
 				account_name ) ),
-		0 /* not fetch_check_number */,
-		0 /* not fetch_memo */ );
+		0 /* not fetch_transaction */,
+		0 /* not fetch_account */,
+		0 /* not fetch_subclassification */,
+		0 /* not fetch_element */ );
 }
 
 char *journal_minimum_where(
@@ -1425,5 +1392,132 @@ char *journal_minimum_where(
 		minimum_transaction_date_time );
 
 	return where;
+}
+
+LIST *journal_year_list(
+			int tax_year,
+			char *account_name,
+			boolean fetch_transaction )
+{
+	return
+	journal_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_system_string(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			journal_year_where(
+				tax_year,
+				account_name,
+				TRANSACTION_PRECLOSE_TIME ) ),
+		fetch_transaction,
+		0 /* not fetch_account */,
+		0 /* not fetch_subclassification */,
+		0 /* not fetch_element */ );
+}
+
+char *journal_year_where(
+			int tax_year,
+			char *account_name,
+			char *transaction_preclose_time )
+{
+	static char where[ 128 ];
+	char begin_date_time[ 32 ];
+	char end_date_time[ 32 ];
+
+	if ( !tax_year
+	||   !account_name
+	||   !transaction_preclose_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(begin_date_time,
+		"%d-01-01 00:00:00",
+		tax_year );
+
+	sprintf(end_date_time,
+		"%d-12-31 %s",
+		tax_year,
+		transaction_preclose_time );
+
+	sprintf(where,
+		"account = '%s' and "
+		"transaction_date_time between '%s' and '%s'",
+		account_name,
+		begin_date_time,
+		end_date_time );
+
+	return where;
+}
+
+void journal_account_list_propagate(
+			char *transaction_date_time,
+			LIST *journal_extract_account_list )
+{
+	ACCOUNT *account;
+	JOURNAL *prior;
+
+	if ( !transaction_date_time )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_date_time is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( journal_extract_account_list ) ) return;
+
+	do {
+		account =
+			list_get(
+				journal_extract_account_list );
+
+		if ( !account->subclassification
+		||   !account->subclassification->element )
+		{
+			fprintf(stderr,
+				"ERROR in %s/%s()/%d: element is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		prior =
+			/* Fails if no journals for the account */
+			/* ------------------------------------ */
+			journal_prior(
+				transaction_date_time,
+				account->account_name,
+				0 /* not fetch_account */,
+				0 /* not fetch_subclassification */,
+				0 /* not fetch_element */ );
+
+		if ( prior )
+		{
+			journal_list_update(
+				journal_list_balance_set(
+					journal_list_prior(
+						prior,
+						account->account_name ),
+					account->
+						subclassification->
+						element->
+						accumulate_debit ) );
+		}
+
+	} while ( list_next( journal_extract_account_list ) );
 }
 

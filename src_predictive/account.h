@@ -10,8 +10,31 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "transaction.h"
 #include "subclassification.h"
-#include "journal.h"
+
+typedef struct
+{
+	char *account_name;
+	char *transaction_date_time;
+	double previous_balance;
+	double debit_amount;
+	double credit_amount;
+	double balance;
+	TRANSACTION *transaction;
+} ACCOUNT_JOURNAL;
+
+/* Usage */
+/* ----- */
+ACCOUNT_JOURNAL *account_journal_latest(
+			char *account_name,
+			char *transaction_date_time_closing,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
+ACCOUNT_JOURNAL *account_journal_calloc(
+			void );
 
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
@@ -50,7 +73,7 @@ typedef struct
 	int chart_account_number;
 	int annual_budget;
 	SUBCLASSIFICATION *subclassification;
-	JOURNAL *journal_latest;
+	ACCOUNT_JOURNAL *account_journal_latest;
 	int percent_of_asset;
 	int percent_of_revenue;
 	int delta_prior;
@@ -66,7 +89,9 @@ LIST *account_statement_list(
 			char *subclassification_primary_where,
 			char *transaction_date_time_closing,
 			boolean fetch_journal_latest,
-			boolean fetch_memo );
+			boolean fetch_transaction,
+			boolean fetch_subclassification,
+			boolean fetch_element );
 
 /* Process */
 /* ------- */
@@ -87,7 +112,9 @@ ACCOUNT *account_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
 			boolean fetch_journal_latest,
-			boolean fetch_memo );
+			boolean fetch_transaction,
+			boolean fetch_subclassification,
+			boolean fetch_element );
 
 /* Process */
 /* ------- */
@@ -111,7 +138,7 @@ char *account_primary_where(
 ACCOUNT *account_key_fetch(
 			char *hard_coded_account_key,
 			boolean fetch_subclassification,
-			boolean fetch_entity );
+			boolean fetch_element );
 
 /* Process */
 /* ------- */
@@ -126,7 +153,7 @@ char *account_hard_coded_key_where(
 LIST *account_system_list(
 			char *account_system_string,
 			boolean fetch_subclassifiction,
-			boolean fetch_entity );
+			boolean fetch_element );
 
 /* Process */
 /* ------- */
