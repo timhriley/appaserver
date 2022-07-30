@@ -369,6 +369,27 @@ TRIAL_BALANCE *trial_balance_fetch(
 				getpid() /* process_id */ );
 	}
 
+	if ( trial_balance->statement_output_medium == output_table )
+	{
+		trial_balance->trial_balance_table =
+			trial_balance_table_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				process_name,
+				trial_balance->
+					statement_subclassification_option,
+				trial_balance->preclose_statement,
+				trial_balance->preclose_prior_year_list,
+				trial_balance->preclose_debit_sum,
+				trial_balance->preclose_credit_sum,
+				trial_balance->statement,
+				trial_balance->prior_year_list,
+				trial_balance->debit_sum,
+				trial_balance->credit_sum );
+	}
+
 	return trial_balance;
 }
 
@@ -451,6 +472,20 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 	trial_balance_account->within_days_between_boolean =
 		( trial_balance_account->date_days_between <=
 		  TRIAL_BALANCE_DAYS_FOR_EMPHASIS );
+
+	trial_balance_account->asset_percent_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_account_asset_percent_string(
+			account->percent_of_asset );
+
+	trial_balance_account->revenue_percent_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_account_revenue_percent_string(
+			account->percent_of_revenue );
 
 	trial_balance_account->percent_string =
 		/* ------------------- */
@@ -719,6 +754,76 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_calloc( void )
 	return trial_balance_latex;
 }
 
+char *trial_balance_html_account_title(
+			char *account_name,
+			char *full_name,
+			double debit_amount,
+			double credit_amount,
+			char *transaction_date_american,
+			char *memo )
+{
+	char account_title[ 1024 ];
+	char *ptr = account_title;
+	char account_name_formatted[ 128 ];
+	char full_name_formatted[ 128 ];
+	char *transaction_amount_string;
+
+	if ( !account_name
+	||   !full_name
+	||   !transaction_date_american )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	*ptr = '\0';
+
+	format_initial_capital( account_name_formatted, account_name );
+	ptr += sprintf( ptr, "%s", account_name_formatted );
+
+	ptr += sprintf( ptr, " (%s:", transaction_date_american );
+
+	format_initial_capital( full_name_formatted, full_name );
+	ptr += sprintf( ptr, " %s", full_name_formatted );
+
+	if ( memo && *memo )
+	{
+		ptr += sprintf( ptr, "; %s", memo );
+	}
+
+	if ( debit_amount )
+	{
+		transaction_amount_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_money(
+				debit_amount );
+	}
+	else
+	if ( credit_amount )
+	{
+		transaction_amount_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_money(
+				credit_amount );
+	}
+	else
+	{
+		transaction_amount_string = "Unknown";
+	}
+
+	ptr += sprintf( ptr, " $%s)", transaction_amount_string );
+
+	return strdup( account_title );
+}
+
 char *trial_balance_latex_account_title(
 			char *account_name,
 			char *full_name,
@@ -789,7 +894,7 @@ char *trial_balance_latex_account_title(
 	return strdup( account_title );
 }
 
-char *trial_balance_latex_transaction_count_string(
+char *trial_balance_transaction_count_string(
 			int transaction_count )
 {
 	char count_string[ 16 ];
@@ -1218,19 +1323,19 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		trial_balance_subclassification_latex_account_row_title(
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		trial_balance_column_row_title(
 			element_name ) /* name */,
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		trial_balance_subclassification_latex_account_row_title(
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		trial_balance_column_row_title(
 			subclassification_name /* name */ ),
 		0 /* not large_bold */ );
 
@@ -1274,7 +1379,7 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		trial_balance_latex_transaction_count_string(
+		trial_balance_transaction_count_string(
 			trial_balance_account->account->transaction_count ),
 		0 /* not large_bold */ );
 
@@ -1299,7 +1404,7 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 	{
 		latex_column_data_list_set(
 			latex_row->column_data_list,
-			statement_prior_year_latex_account_data_list(
+			statement_prior_year_account_data_list(
 				trial_balance_account->account->account_name,
 				statement_prior_year_list ) );
 	}
@@ -1307,15 +1412,55 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 	return latex_row;
 }
 
-char *trial_balance_subclassification_latex_account_row_title( char *name )
+char *trial_balance_column_row_title( char *name )
 {
 	char buffer[ 128 ];
 
-	if ( !name ) return (char *)0;
+	if ( !name ) return "";
 
 	format_initial_capital( buffer, name );
 
 	return strdup( buffer );
+}
+
+char *trial_balance_account_asset_percent_string(
+			int percent_of_asset )
+{
+	char percent_string[ 16 ];
+
+	if ( percent_of_asset )
+	{
+		sprintf(percent_string,
+			"%d%c",
+			percent_of_asset,
+			'%' );
+	}
+	else
+	{
+		*percent_string = '\0';
+	}
+
+	return strdup( percent_string );
+}
+
+char *trial_balance_account_revenue_percent_string(
+			int percent_of_revenue )
+{
+	char percent_string[ 16 ];
+
+	if ( percent_of_revenue )
+	{
+		sprintf(percent_string,
+			"%d%c",
+			percent_of_revenue,
+			'%' );
+	}
+	else
+	{
+		*percent_string = '\0';
+	}
+
+	return strdup( percent_string );
 }
 
 char *trial_balance_account_percent_string(
@@ -1346,3 +1491,608 @@ char *trial_balance_account_percent_string(
 
 	return strdup( percent_string );
 }
+
+LIST *trial_balance_subclassification_html_account_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			char *subclassification_name,
+			LIST *account_statement_list,
+			LIST *statement_prior_year_list )
+{
+	LIST *row_list;
+	ACCOUNT *account;
+	TRIAL_BALANCE_ACCOUNT *trial_balance_account;
+
+	if ( !transaction_as_of_date )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_as_of_date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( account_statement_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		account = list_get( account_statement_list );
+
+		trial_balance_account =
+			trial_balance_account_new(
+				transaction_as_of_date,
+				element_accumulate_debit,
+				account );
+
+		list_set(
+			row_list,
+			trial_balance_subclassification_html_account_row(
+				element_name,
+				subclassification_name,
+				trial_balance_account,
+				statement_prior_year_list ) );
+
+		element_name = (char *)0;
+		subclassification_name = (char *)0;
+
+	} while ( list_next( account_statement_list ) );
+
+	return row_list;
+}
+
+HTML_ROW *trial_balance_subclassification_html_account_row(
+			char *element_name,
+			char *subclassification_name,
+			TRIAL_BALANCE_ACCOUNT *trial_balance_account,
+			LIST *statement_prior_year_list )
+{
+	HTML_ROW *html_row;
+	char *transaction_date_american;
+	char *account_title;
+
+	if ( !trial_balance_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_column_data_set(
+		html_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		trial_balance_column_row_title(
+			element_name /* name */ ),
+		0 /* not large_bold */ );
+
+
+	html_column_data_set(
+		html_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		trial_balance_column_row_title(
+			subclassification_name /* name */ ),
+		0 /* not large_bold */ );
+
+	transaction_date_american =
+		statement_date_american(
+			trial_balance_account->
+				account->
+				account_journal_latest->
+				transaction_date_time );
+
+	account_title =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_html_account_title(
+			trial_balance_account->
+				account->
+				account_name,
+			trial_balance_account->
+				account->
+				account_journal_latest->
+				full_name,
+			trial_balance_account->
+				account->
+				account_journal_latest->
+				debit_amount,
+			trial_balance_account->
+				account->
+				account_journal_latest->
+				credit_amount,
+			transaction_date_american,
+			trial_balance_account->
+				account->
+				account_journal_latest->
+				transaction->memo );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		account_title,
+		0 /* not large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		trial_balance_transaction_count_string(
+			trial_balance_account->account->transaction_count ),
+		0 /* not large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		trial_balance_account->debit_string,
+		trial_balance_account->
+			within_days_between_boolean
+				/* large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		trial_balance_account->credit_string,
+		trial_balance_account->
+			within_days_between_boolean
+				/* large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		trial_balance_account->percent_string,
+		0 /* not large_bold */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		html_column_data_list_set(
+			html_row->column_data_list,
+			statement_prior_year_account_data_list(
+				trial_balance_account->account->account_name,
+				statement_prior_year_list ) );
+	}
+
+	return html_row;
+}
+
+LIST *trial_balance_subclassification_html_element_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			LIST *subclassification_statement_list,
+			LIST *statement_prior_year_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	LIST *row_list;
+
+	if ( !transaction_as_of_date )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_as_of_date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( subclassification_statement_list ) )
+		return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( !list_length( subclassification->account_statement_list ) )
+			continue;
+
+		list_set_list(
+			row_list,
+			trial_balance_subclassification_html_account_row_list(
+				transaction_as_of_date,
+				element_name,
+				element_accumulate_debit,
+				subclassification->subclassification_name,
+				subclassification->account_statement_list,
+				statement_prior_year_list ) );
+
+		element_name = (char *)0;
+
+	} while( list_next( subclassification_statement_list ) );
+
+	return row_list;
+}
+
+LIST *trial_balance_subclassification_html_row_list(
+			char *transaction_as_of_date,
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	LIST *row_list;
+	ELEMENT *element;
+
+	if ( !list_rewind( element_statement_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( !list_length( element->subclassification_statement_list ) )
+			continue;
+
+		list_set_list(
+			row_list,
+			trial_balance_subclassification_html_element_row_list(
+				transaction_as_of_date,
+				element->element_name,
+				element->accumulate_debit,
+				element->subclassification_statement_list,
+				statement_prior_year_list ) );
+
+	} while( list_next( element_statement_list ) );
+
+	list_set(
+		row_list,
+		trial_balance_subclassification_html_sum_row(
+			debit_sum,
+			credit_sum ) );
+
+	return row_list;
+}
+
+HTML_ROW *trial_balance_subclassification_html_sum_row(
+			double debit_sum,
+			double credit_sum )
+{
+	HTML_ROW *html_row;
+	char *debit_total_string;
+	char *credit_total_string;
+
+	html_row = html_row_new();
+
+	html_column_data_set(
+		html_row->column_data_list,
+		"Total",
+		0 /* not large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		(char *)0,
+		0 /* not large_bold */ );
+
+	debit_total_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_dollars(
+			debit_sum );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		strdup( debit_total_string ),
+		0 /* not large_bold */ );
+
+	credit_total_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_dollars(
+			credit_sum );
+
+	html_column_data_set(
+		html_row->column_data_list,
+		strdup( credit_total_string ),
+		0 /* not large_bold */ );
+
+	return html_row;
+}
+
+LIST *trial_balance_subclassification_html_heading_list(
+			LIST *statement_prior_year_list )
+{
+	LIST *heading_list = list_new();
+
+	list_set( heading_list, "Element" );
+	list_set( heading_list, "Subclassification" );
+	list_set( heading_list, "Account" );
+	list_set( heading_list, "Count" );
+	list_set( heading_list, "Debit" );
+	list_set( heading_list, "Credit" );
+	list_set( heading_list, "Percent of Asset" );
+	list_set( heading_list, "Percent of Revenue" );
+
+	list_set_list(
+		heading_list,
+		statement_prior_year_list );
+
+	return heading_list;
+}
+
+TRIAL_BALANCE_TABLE *trial_balance_table_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			enum statement_subclassification_option
+				statement_subclassification_option,
+			STATEMENT *preclose_statement,
+			LIST *preclose_statement_prior_year_list,
+			double preclose_debit_sum,
+			double preclose_credit_sum,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	TRIAL_BALANCE_TABLE *trial_balance_table;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !process_name
+	||   !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trial_balance_table = trial_balance_table_calloc();
+
+	if ( preclose_statement )
+	{
+		trial_balance_table->
+			preclose_trial_balance_html =
+				trial_balance_html_new(
+					application_name,
+					session_key,
+					login_name,
+					role_name,
+					process_name,
+					statement_subclassification_option,
+					preclose_statement,
+					preclose_statement_prior_year_list,
+					preclose_debit_sum,
+					preclose_credit_sum );
+	}
+
+	trial_balance_table->
+		trial_balance_html =
+			trial_balance_html_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				process_name,
+				statement_subclassification_option,
+				statement,
+				statement_prior_year_list,
+				debit_sum,
+				credit_sum );
+
+	return trial_balance_table;
+}
+
+TRIAL_BALANCE_TABLE *trial_balance_table_calloc( void )
+{
+	TRIAL_BALANCE_TABLE *trial_balance_table;
+
+	if ( ! ( trial_balance_table =
+			calloc( 1, sizeof( TRIAL_BALANCE_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return trial_balance_table;
+}
+
+TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+	trial_balance_subclassification_html_new(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+		trial_balance_subclassification_html;
+
+	if ( !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: statement is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trial_balance_subclassification_html =
+		trial_balance_subclassification_html_calloc();
+
+	trial_balance_subclassification_html->html_table =
+		trial_balance_subclassification_html_table(
+			statement,
+			statement_prior_year_list,
+			debit_sum,
+			credit_sum );
+
+	return trial_balance_subclassification_html;
+}
+
+TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+	trial_balance_subclassification_html_calloc(
+			void )
+{
+	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+		trial_balance_subclassification_html;
+
+	if ( ! ( trial_balance_subclassification_html =
+			calloc(	1,
+				sizeof(
+				   TRIAL_BALANCE_SUBCLASSIFICATION_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return trial_balance_subclassification_html;
+}
+
+HTML_TABLE *trial_balance_subclassification_html_table(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	HTML_TABLE *html_table;
+
+	if ( !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: statement is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			statement->subtitle,
+			(char *)0 /* sub_sub_title */ );
+
+
+	html_table->heading_list =
+		trial_balance_subclassification_html_heading_list(
+			statement_prior_year_list );
+
+	html_table->row_list =
+		trial_balance_subclassification_html_row_list(
+			statement->transaction_as_of_date,
+			statement->element_statement_list,
+			statement_prior_year_list,
+			debit_sum,
+			credit_sum );
+
+	return html_table;
+}
+
+TRIAL_BALANCE_HTML *trial_balance_html_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			enum statement_subclassification_option
+				statement_subclassification_option,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum )
+{
+	TRIAL_BALANCE_HTML *trial_balance_html;
+
+	if ( !application_name
+	||   !session_key
+	||   !login_name
+	||   !role_name
+	||   !process_name
+	||   !statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	trial_balance_html = trial_balance_html_calloc();
+
+	if (	statement_subclassification_option ==
+		subclassification_display )
+	{
+		trial_balance_html->
+			trial_balance_subclassification_html =
+				trial_balance_subclassification_html_new(
+					statement,
+					statement_prior_year_list,
+					debit_sum,
+					credit_sum );
+	}
+	else
+	{
+/*
+		trial_balance_html->
+			trial_balance_account_html =
+				trial_balance_account_html =
+					trial_balance_account_html_new(
+						application_name,
+						session_key,
+						role_name,
+						process_name,
+						statement,
+						statement_prior_year_list,
+						debit_sum,
+						credit_sum );
+*/
+	}
+
+	return trial_balance_html;
+}
+
+TRIAL_BALANCE_HTML *trial_balance_html_calloc( void )
+{
+	TRIAL_BALANCE_HTML *trial_balance_html;
+
+	if ( ! ( trial_balance_html =
+			calloc( 1, sizeof( TRIAL_BALANCE_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return trial_balance_html;
+}
+

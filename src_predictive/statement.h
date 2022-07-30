@@ -12,6 +12,7 @@
 #include "boolean.h"
 #include "appaserver_link_file.h"
 #include "latex.h"
+#include "html_table.h"
 #include "account.h"
 
 #define STATEMENT_ROWS_BETWEEN_HEADING		10
@@ -36,6 +37,9 @@ typedef struct
 	char *subtitle;
 	char *caption;
 	char *date_american;
+	char *transaction_begin_date_string;
+	char *transaction_as_of_date;
+	char *transaction_date_time_closing;
 } STATEMENT;
 
 /* Usage */
@@ -107,6 +111,12 @@ void statement_latex_output(
 			char *process_name,
 			char *date_time_string );
 
+/* Driver */
+/* ------ */
+void statement_html_output(
+			HTML_TABLE *html_table,
+			char *title );
+
 /* Process */
 /* ------- */
 
@@ -154,7 +164,7 @@ char *statement_prior_year_date_string(
 
 /* Usage */
 /* ----- */
-LIST *statement_prior_year_latex_account_data_list(
+LIST *statement_prior_year_account_data_list(
 			char *account_name,
 			LIST *statement_prior_year_list );
 
@@ -163,7 +173,7 @@ LIST *statement_prior_year_latex_account_data_list(
 
 /* Returns heap memory */
 /* ------------------- */
-char *statement_prior_year_latex_account_data(
+char *statement_prior_year_account_data(
 			ACCOUNT *prior_account );
 
 /* Public */

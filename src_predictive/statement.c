@@ -205,6 +205,15 @@ STATEMENT *statement_fetch(
 			statement->title,
 			statement->subtitle );
 
+	statement->transaction_begin_date_string =
+		transaction_begin_date_string;
+
+	statement->transaction_as_of_date =
+		transaction_as_of_date;
+
+	statement->transaction_date_time_closing =
+		transaction_date_time_closing;
+
 	return statement;
 }
 
@@ -225,7 +234,7 @@ STATEMENT *statement_calloc( void )
 	return statement;
 }
 
-LIST *statement_prior_year_latex_account_data_list(
+LIST *statement_prior_year_account_data_list(
 			char *account_name,
 			LIST *statement_prior_year_list )
 {
@@ -251,7 +260,7 @@ LIST *statement_prior_year_latex_account_data_list(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			statement_prior_year_latex_account_data(
+			statement_prior_year_account_data(
 				prior_account ) );
 
 	} while ( list_next( statement_prior_year_list ) );
@@ -259,7 +268,7 @@ LIST *statement_prior_year_latex_account_data_list(
 	return data_list;
 }
 
-char *statement_prior_year_latex_account_data( ACCOUNT *prior_account )
+char *statement_prior_year_account_data( ACCOUNT *prior_account )
 {
 	char account_data[ 32 ];
 
@@ -552,6 +561,26 @@ LIST *statement_prior_year_heading_list(
 	} while ( list_next( statement_prior_year_list ) );
 
 	return heading_list;
+}
+
+void statement_html_output(
+			HTML_TABLE *html_table,
+			char *title )
+{
+	if ( !html_table
+	||   !title )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	printf( "<h1>%s</h1>\n", title );
+
+	html_table_output( html_table );
 }
 
 void statement_latex_output(

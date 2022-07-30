@@ -134,8 +134,36 @@ int main( int argc, char **argv )
 			date_time_string );
 	}
 
+	if ( trial_balance->statement_subclassification_option ==
+			subclassification_display
+	&&   trial_balance->trial_balance_table )
+	{
+		if ( trial_balance->
+			trial_balance_table->
+			preclose_trial_balance_html )
+		{
+			statement_html_output(
+				trial_balance->
+					trial_balance_table->
+					preclose_trial_balance_html->
+					trial_balance_subclassification_html->
+					html_table,
+				"Trial Balance (preclose)" /* title */ );
+		}
+
+		statement_html_output(
+			trial_balance->
+				trial_balance_table->
+				trial_balance_html->
+				trial_balance_subclassification_html->
+				html_table,
+			"Trial Balance" /* title */ );
+	}
+
 	if ( trial_balance->statement_output_medium != output_stdout )
+	{
 		document_close();
+	}
 
 	return 0;
 }

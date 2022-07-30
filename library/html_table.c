@@ -86,10 +86,11 @@ void html_table_output_table_heading2(	char *title,
 			sub_sub_title );
 }
 
-void html_table_output_data_heading( 	LIST *heading_list,
-					int number_left_justified_columns,
-					int number_right_justified_columns,
-					LIST *justify_list )
+void html_table_output_data_heading(
+			LIST *heading_list,
+			int number_left_justified_columns,
+			int number_right_justified_columns,
+			LIST *justify_list )
 {
 	int column_number = 0;
 	char buffer[ 1024 ];
@@ -98,6 +99,7 @@ void html_table_output_data_heading( 	LIST *heading_list,
 	if ( justify_list ) list_rewind( justify_list );
 
 	printf( "<tr>\n" );
+
 	if ( list_rewind( heading_list ) )
 	{
 		do {
@@ -134,6 +136,7 @@ void html_table_output_data_heading( 	LIST *heading_list,
 			printf( "</th>\n" );
 
 			if ( justify_list ) list_next( justify_list );
+
 		} while( list_next( heading_list ) );
 	}
 }
@@ -299,21 +302,6 @@ HTML_ROW *html_row_calloc( void )
 	return html_row;
 }
 
-void html_column_data_list_set(
-			LIST *column_data_list,
-			LIST *data_list )
-{
-	if ( !list_rewind( data_list ) ) return;
-
-	do {
-		html_column_data_set(
-			column_data_list,
-			(char *)list_get( data_list ),
-			0 /* not large_bold */ );
-
-	} while ( list_next( data_list ) );
-}
-
 void html_column_data_set(
 			LIST *column_data_list,
 			char *column_data,
@@ -359,3 +347,112 @@ HTML_COLUMN_DATA *html_column_data_new(
 
 	return html_column_data;
 }
+
+void html_column_data_list_set(
+			LIST *column_data_list,
+			LIST *data_list )
+{
+	if ( !list_rewind( data_list ) ) return;
+
+	do {
+		html_column_data_set(
+			column_data_list,
+			(char *)list_get( data_list ),
+			0 /* not large_bold */ );
+
+	} while ( list_next( data_list ) );
+}
+
+void html_table_output(	HTML_TABLE *html_table )
+{
+	HTML_ROW *html_row;
+
+	if ( !html_table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: html_table is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_table_heading(
+			html_table->title,
+			html_table->sub_title,
+			html_table->sub_sub_title );
+
+	html_table_data_heading( html_table->heading_list );
+
+	if ( !list_rewind( html_table->row_list ) )
+	{
+		html_table_close();
+		return;
+	}
+
+	do {
+		html_row = list_get( html_table->row_list );
+
+		printf( "<tr>\n" );
+
+		html_table_column_data_list( html_row->column_data_list );
+
+	} while ( list_next( html_table->row_list ) );
+
+	html_table_close();
+}
+
+void html_table_data_heading( LIST *heading_list )
+{
+	char buffer[ 1024 ];
+	char *heading;
+
+	printf( "<tr>\n" );
+
+	if ( list_rewind( heading_list ) )
+	{
+		do {
+			heading = list_get_string( heading_list );
+
+			if ( character_exists( heading, '&' )
+			&&   character_exists( heading, ';' ) )
+			{
+				strcpy( buffer, heading );
+			}
+			else
+			{
+				format_initial_capital(
+					buffer,
+					heading );
+			}
+
+			printf( "<th>%s\n", buffer );
+
+		} while( list_next( heading_list ) );
+	}
+}
+
+void html_table_column_data_list( LIST *column_data_list )
+{
+	HTML_COLUMN_DATA *html_column_data;
+
+	if ( !list_rewind( column_data_list ) ) return;
+
+	do {
+		html_column_data =
+			list_get(
+				column_data_list );
+
+		if ( html_column_data->large_bold )
+		{
+			printf( "<td><big>%s</big>\n",
+				html_column_data->column_data );
+		}
+		else
+		{
+			printf( "<td>%s\n", html_column_data->column_data );
+		}
+
+	} while ( list_next( column_data_list ) );
+}
+

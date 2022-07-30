@@ -24,6 +24,8 @@ typedef struct
 	char *credit_string;
 	int date_days_between;
 	boolean within_days_between_boolean;
+	char *asset_percent_string;
+	char *revenue_percent_string;
 	char *percent_string;
 	ACCOUNT *account;
 } TRIAL_BALANCE_ACCOUNT;
@@ -43,14 +45,25 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_calloc(
 /* ------------------- */
 /* Returns heap memory */
 /* ------------------- */
+char *trial_balance_account_asset_percent_string(
+			int percent_of_asset );
+
+/* ------------------- */
+/* Returns heap memory */
+/* ------------------- */
+char *trial_balance_account_revenue_percent_string(
+			int percent_of_revenue );
+
+/* ------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *trial_balance_account_percent_string(
 			int percent_of_asset,
 			int percent_of_revenue );
 
 typedef struct
 {
-	LIST *html_table_list;
-	HTML_TABLE *table;
+	HTML_TABLE *html_table;
 } TRIAL_BALANCE_SUBCLASSIFICATION_HTML;
 
 /* Usage */
@@ -132,11 +145,6 @@ HTML_ROW *trial_balance_subclassification_html_account_row(
 /* Process */
 /* ------- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *trial_balance_subclassification_html_account_row_title(
-			char *name );
-
 typedef struct
 {
 	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
@@ -170,6 +178,9 @@ TRIAL_BALANCE_HTML *trial_balance_html_calloc(
 
 /* Public */
 /* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
 char *trial_balance_html_account_title(
 			char *account_name,
 			char *full_name,
@@ -178,8 +189,35 @@ char *trial_balance_html_account_title(
 			char *transaction_date_american,
 			char *memo );
 
-char *trial_balance_html_transaction_count_string(
-			int transaction_count );
+typedef struct
+{
+	TRIAL_BALANCE_HTML *preclose_trial_balance_html;
+	TRIAL_BALANCE_HTML *trial_balance_html;
+} TRIAL_BALANCE_TABLE;
+
+/* Usage */
+/* ----- */
+TRIAL_BALANCE_TABLE *trial_balance_table_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			enum statement_subclassification_option
+				statement_subclassification_option,
+			STATEMENT *preclose_statement,
+			LIST *preclose_statement_prior_year_list,
+			double preclose_debit_sum,
+			double preclose_credit_sum,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+TRIAL_BALANCE_TABLE *trial_balance_table_calloc(
+			void );
 
 typedef struct
 {
@@ -314,11 +352,6 @@ char *trial_balance_latex_account_title(
 			char *transaction_date_american,
 			char *memo );
 
-/* Returns heap memory */
-/* ------------------- */
-char *trial_balance_latex_transaction_count_string(
-			int transaction_count );
-
 #define TRIAL_BALANCE_PDF_PRECLOSE_KEY	"preclose"
 
 typedef struct
@@ -396,6 +429,7 @@ typedef struct
 	LIST *element_list_nominal_account_list;
 	ELEMENT *element_revenue;
 	TRIAL_BALANCE_PDF *trial_balance_pdf;
+	TRIAL_BALANCE_TABLE *trial_balance_table;
 } TRIAL_BALANCE;
 
 /* Usage */
@@ -419,5 +453,18 @@ TRIAL_BALANCE *trial_balance_calloc(
 
 LIST *trial_balance_filter_element_name_list(
 			void );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory or "" */
+/* ------------------------- */
+char *trial_balance_column_row_title(
+			char *name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *trial_balance_transaction_count_string(
+			int transaction_count );
 
 #endif
