@@ -1,6 +1,5 @@
-/* html_table.c 							*/
+/* $APPASERVER_HOME/library/html_table.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver html_table ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -8,29 +7,43 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "html_table.h"
 #include "timlib.h"
 #include "piece.h"
+#include "html_table.h"
 
 HTML_TABLE *new_html_table( char *title, char *sub_title )
 {
-	HTML_TABLE *h = (HTML_TABLE *)calloc( 1, sizeof( HTML_TABLE ) );
-	h->title = title;
-	h->sub_title = sub_title;
-	h->heading_list = list_new();
-	h->data_list = list_new();
-	return h;
+	return
+	html_table_new( title, sub_title, (char *)0 /* sub_sub_title */ );
 }
 
 HTML_TABLE *html_table_new( char *title, char *sub_title, char *sub_sub_title )
 {
-	HTML_TABLE *h = (HTML_TABLE *)calloc( 1, sizeof( HTML_TABLE ) );
-	h->title = title;
-	h->sub_title = sub_title;
-	h->sub_sub_title = sub_sub_title;
-	h->heading_list = list_new();
-	h->data_list = list_new();
-	return h;
+	HTML_TABLE *html_table = html_table_calloc();
+
+	html_table->title = title;
+	html_table->sub_title = sub_title;
+	html_table->sub_sub_title = sub_sub_title;
+	html_table->heading_list = list_new();
+	html_table->data_list = list_new();
+	return html_table;
+}
+
+HTML_TABLE *html_table_calloc( void )
+{
+	HTML_TABLE *html_table;
+
+	if ( ! ( html_table = calloc( 1, sizeof( HTML_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return html_table;
 }
 
 void html_table_output_table_heading(
@@ -260,3 +273,89 @@ char *html_table_get_alignment(	int column_number,
 	}
 }
 
+HTML_ROW *html_row_new(	void )
+{
+	HTML_ROW *html_row = html_row_calloc();
+
+	html_row->column_data_list = list_new();
+
+	return html_row;
+}
+
+HTML_ROW *html_row_calloc( void )
+{
+	HTML_ROW *html_row;
+
+	if ( ! ( html_row = calloc( 1, sizeof( HTML_ROW ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return html_row;
+}
+
+void html_column_data_list_set(
+			LIST *column_data_list,
+			LIST *data_list )
+{
+	if ( !list_rewind( data_list ) ) return;
+
+	do {
+		html_column_data_set(
+			column_data_list,
+			(char *)list_get( data_list ),
+			0 /* not large_bold */ );
+
+	} while ( list_next( data_list ) );
+}
+
+void html_column_data_set(
+			LIST *column_data_list,
+			char *column_data,
+			boolean large_bold )
+{
+	if ( !column_data ) column_data = "";
+
+	list_set(
+		column_data_list,
+		html_column_data_new(
+			column_data,
+			large_bold ) );
+}
+
+HTML_COLUMN_DATA *html_column_data_calloc( void )
+{
+	HTML_COLUMN_DATA *html_column_data;
+
+	if ( ! ( html_column_data =
+			calloc( 1, sizeof( HTML_COLUMN_DATA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return html_column_data;
+}
+
+HTML_COLUMN_DATA *html_column_data_new(
+			char *column_data,
+			boolean large_bold )
+{
+	HTML_COLUMN_DATA *html_column_data = html_column_data_calloc();
+
+	if ( !column_data ) column_data = "";
+
+	html_column_data->column_data = column_data;
+	html_column_data->large_bold = large_bold;
+
+	return html_column_data;
+}

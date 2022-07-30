@@ -1,4 +1,4 @@
-/* html_table.h 							*/
+/* $APPASERVER_HOME/library/html_table.h				*/
 /* -------------------------------------------------------------------- */
 /*									*/
 /* Freely available software: see Appaserver.org			*/
@@ -9,14 +9,51 @@
 
 #include "list.h"
 
-/* Objects */
+typedef struct
+{
+	char *column_data;
+	boolean large_bold;
+} HTML_COLUMN_DATA;
+
+/* Usage */
+/* ----- */
+HTML_COLUMN_DATA *html_column_data_new(
+			char *column_data,
+			boolean large_bold );
+
+/* Process */
 /* ------- */
+HTML_COLUMN_DATA *html_column_data_calloc(
+			void );
+
+/* Public */
+/* ------ */
+void html_column_data_set(
+			LIST *column_data_list,
+			char *data,
+			boolean large_bold );
+
+typedef struct
+{
+	LIST *column_data_list;
+} HTML_ROW;
+
+/* Usage */
+/* ----- */
+HTML_ROW *html_row_new(	void );
+
+/* Process */
+/* ------- */
+HTML_ROW *html_row_calloc(
+			void );
+
 typedef struct
 {
 	char *title;
 	char *sub_title;
 	char *sub_sub_title;
 	LIST *heading_list;
+	LIST *row_list;
 	LIST *data_list;
 	LIST *justify_list;
 	int number_left_justified_columns;
@@ -24,14 +61,21 @@ typedef struct
 	int background_shaded;
 } HTML_TABLE;
 
-/* Operations */
-/* ---------- */
-HTML_TABLE *new_html_table(		char *title,
-					char *sub_title );
+/* Usage */
+/* ----- */
+HTML_TABLE *html_table_new(
+			char *title,
+			char *sub_title,
+			char *sub_sub_title );
 
-HTML_TABLE *html_table_new(		char *title,
-					char *sub_title,
-					char *sub_sub_title );
+HTML_TABLE *new_html_table(
+			char *title,
+			char *sub_title );
+
+/* Process */
+/* ------- */
+HTML_TABLE *html_table_calloc(
+			void );
 
 void html_table_output( 		HTML_TABLE *d );
 void html_table_set_data_heading( 	HTML_TABLE *d, 

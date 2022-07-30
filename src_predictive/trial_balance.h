@@ -15,6 +15,7 @@
 #include "account.h"
 #include "statement.h"
 #include "latex.h"
+#include "html_table.h"
 
 typedef struct
 {
@@ -45,6 +46,140 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_calloc(
 char *trial_balance_account_percent_string(
 			int percent_of_asset,
 			int percent_of_revenue );
+
+typedef struct
+{
+	LIST *html_table_list;
+	HTML_TABLE *table;
+} TRIAL_BALANCE_SUBCLASSIFICATION_HTML;
+
+/* Usage */
+/* ----- */
+TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+	trial_balance_subclassification_html_new(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+	trial_balance_subclassification_html_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+HTML_TABLE *trial_balance_subclassification_html_table(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+LIST *trial_balance_subclassification_html_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Usage */
+/* ----- */
+LIST *trial_balance_subclassification_html_row_list(
+			char *transaction_as_of_date,
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+HTML_ROW *trial_balance_subclassification_html_sum_row(
+			double debit_sum,
+			double credit_sum );
+
+/* Usage */
+/* ----- */
+LIST *trial_balance_subclassification_html_element_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			LIST *subclassification_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *trial_balance_subclassification_html_account_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			char *subclassification_name,
+			LIST *account_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *trial_balance_subclassification_html_account_row(
+			char *element_name,
+			char *subclassification_name,
+			TRIAL_BALANCE_ACCOUNT *trial_balance_account,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *trial_balance_subclassification_html_account_row_title(
+			char *name );
+
+typedef struct
+{
+	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
+		trial_balance_subclassification_html;
+
+/* 
+	TRIAL_BALANCE_ACCOUNT_HTML *
+		trial_balance_account_html;
+*/
+} TRIAL_BALANCE_HTML;
+
+/* Usage */
+/* ----- */
+TRIAL_BALANCE_HTML *trial_balance_html_new(
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *process_name,
+			enum statement_subclassification_option
+				statement_subclassification_option,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+TRIAL_BALANCE_HTML *trial_balance_html_calloc(
+			void );
+
+/* Public */
+/* ------ */
+char *trial_balance_html_account_title(
+			char *account_name,
+			char *full_name,
+			double debit_amount,
+			double credit_amount,
+			char *transaction_date_american,
+			char *memo );
+
+char *trial_balance_html_transaction_count_string(
+			int transaction_count );
 
 typedef struct
 {
