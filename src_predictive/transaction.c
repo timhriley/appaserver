@@ -207,10 +207,10 @@ TRANSACTION *transaction_parse(
 						full_name,
 						street_address,
 						transaction_date_time ) ),
-				0 /* not fetch_transaction */,
 				1 /* fetch_account */,
 				1 /* fetch_subclassification */,
-				1 /* fetch_element */ );
+				1 /* fetch_element */,
+				0 /* not fetch_transaction */ );
 	}
 
 	return transaction;
@@ -222,14 +222,17 @@ char *transaction_primary_where(
 			char *transaction_date_time )
 {
 	static char where[ 256 ];
+	char escape_full_name[ 64 ];
 
-	sprintf( where,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "transaction_date_time = '%s'	",
-		 full_name,
-		 street_address,
-		 transaction_date_time );
+	sprintf(where,
+		"full_name = '%s' and		"
+		"street_address = '%s' and	"
+		"transaction_date_time = '%s'	",
+		string_escape_quote(
+			escape_full_name,
+			full_name ),
+		street_address,
+		transaction_date_time );
 
 	return where;
 }
@@ -246,7 +249,7 @@ char *transaction_insert(
 			char *memo,
 			char lock_transaction_yn,
 			LIST *journal_list,
-			boolean insert_journal_list )
+			boolean insert_journal_list_boolean )
 {
 	FILE *pipe_open;
 	char *race_free_date_time;
@@ -298,7 +301,7 @@ char *transaction_insert(
 
 	pclose( pipe_open );
 
-	if ( insert_journal_list )
+	if ( insert_journal_list_boolean )
 	{
 		journal_list_insert(
 			appaserver_error_filename,
@@ -915,7 +918,7 @@ LIST *transaction_list(
 void transaction_list_insert(
 			LIST *transaction_list,
 			char *appaserver_error_filename,
-			boolean insert_journal_list )
+			boolean insert_journal_list_boolean )
 {
 	TRANSACTION *transaction;
 
@@ -937,7 +940,7 @@ void transaction_list_insert(
 				transaction->memo,
 				TRANSACTION_LOCK_Y,
 				transaction->journal_list,
-				insert_journal_list );
+				insert_journal_list_boolean );
 
 	} while ( list_next( transaction_list ) );
 }
@@ -1194,13 +1197,13 @@ char *transaction_begin_date_string(
 			TRANSACTION_CLOSING_ENTRY_MEMO,
 			transaction_table,
 			transaction_as_of_date );
-	
+
 	if ( prior_closing_transaction_date )
 	{
 		date_increment_days(
 			prior_closing_transaction_date,
 			1.0 );
-	
+
 		return date_yyyy_mm_dd( prior_closing_transaction_date );
 	}
 

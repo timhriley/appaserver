@@ -117,7 +117,7 @@ char *transaction_insert(
 			char *memo,
 			char lock_transaction_yn,
 			LIST *journal_list,
-			boolean insert_journal_list );
+			boolean insert_journal_list_boolean );
 
 /* Process */
 /* ------- */
@@ -332,7 +332,7 @@ char *transaction_minimum_transaction_date_string(
 void transaction_list_insert(
 			LIST *transaction_list,
 			char *appaserver_error_filename,
-			boolean insert_journal_list );
+			boolean insert_journal_list_boolean );
 
 /* Process */
 /* ------- */

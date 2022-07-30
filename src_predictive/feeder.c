@@ -1241,9 +1241,11 @@ LIST *feeder_matched_journal_list(
 			journal_system_string(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
-			where ),
-		1 /* fetch_check_number */,
-		0 /* not fetch_memo */ );
+				where ),
+		0 /* not fetch_account */,
+		0 /* not fetch_subclassification */,
+		0 /* not fetch_element */,
+		1 /* fetch_transaction */ );
 
 	if ( !list_rewind( system_list ) ) return (LIST *)0;
 
@@ -1866,7 +1868,7 @@ void feeder_load_row_transaction_insert(
 			LIST *feeder_load_row_list,
 			char *appaserver_error_filename )
 {
-	TRANSACTION_LIST *transaction_list;
+	LIST *transaction_list;
 
 	if ( !appaserver_error_filename )
 	{
@@ -1886,24 +1888,23 @@ void feeder_load_row_transaction_insert(
 	{
 		transaction_list_insert(
 			transaction_list,
-			appaserver_error_filename );
+			appaserver_error_filename,
+			1 /* insert_journal_list_boolean */ );
 	}
 }
 
-TRANSACTION_LIST *
-	feeder_load_row_extract_transaction_list(
+LIST *feeder_load_row_extract_transaction_list(
 			LIST *feeder_load_row_list )
 {
-	TRANSACTION_LIST *transaction_list;
+	LIST *transaction_list;
 	FEEDER_LOAD_ROW *feeder_load_row;
 
 	if ( !list_rewind( feeder_load_row_list ) )
 	{
-		return (TRANSACTION_LIST *)0;
+		return (LIST *)0;
 	}
 
-	transaction_list = transaction_list_calloc();
-	transaction_list->list = list_new();
+	transaction_list = list_new();
 
 	do {
 		feeder_load_row =
@@ -1914,7 +1915,7 @@ TRANSACTION_LIST *
 		&&   feeder_load_row->feeder_transaction->transaction )
 		{
 			list_set(
-				transaction_list->list,
+				transaction_list,
 				feeder_load_row->
 					feeder_transaction->
 					transaction );
@@ -1922,10 +1923,9 @@ TRANSACTION_LIST *
 
 	} while ( list_next( feeder_load_row_list ) );
 
-	if ( !list_length( transaction_list->list ) )
+	if ( !list_length( transaction_list ) )
 	{
-		free( transaction_list );
-		return (TRANSACTION_LIST *)0;
+		return (LIST *)0;
 	}
 	else
 	{
@@ -2403,7 +2403,9 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
 	feeder_matched_journal->account_name = journal->account_name;
 	feeder_matched_journal->debit_amount = journal->debit_amount;
 	feeder_matched_journal->credit_amount = journal->credit_amount;
-	feeder_matched_journal->check_number = journal->check_number;
+
+	feeder_matched_journal->check_number =
+		journal->transaction->check_number;
 
 	return feeder_matched_journal;
 }

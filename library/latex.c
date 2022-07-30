@@ -31,7 +31,6 @@ LATEX *latex_new(	char *tex_filename,
 			char *logo_filename )
 {
 	LATEX *latex;
-	char full_path[ 128 ];
 
 	if ( !tex_filename
 	||   !dvi_filename )
@@ -61,7 +60,7 @@ LATEX *latex_new(	char *tex_filename,
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			full_path );
+			latex->full_path );
 		exit( 1 );
 	}
 
@@ -79,7 +78,7 @@ LATEX *latex_new(	char *tex_filename,
 char *latex_full_path(	char *tex_filename,
 			char *working_directory )
 {
-	static char full_path[ 128 ];
+	static char full_path[ 256 ];
 
 	if ( working_directory && *working_directory )
 	{
@@ -823,10 +822,13 @@ void latex_column_data_set(
 			char *column_data,
 			boolean large_bold )
 {
-	LATEX_COLUMN_DATA *l;
+	if ( !column_data ) column_data = "";
 
-	l = latex_column_data_new( column_data, large_bold );
-	list_set( column_data_list, l );
+	list_set(
+		column_data_list,
+		latex_column_data_new(
+			column_data,
+			large_bold ) );
 }
 
 LIST *latex_table_right_heading_list(

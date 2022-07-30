@@ -64,8 +64,10 @@ LIABILITY *liability_entity_fetch(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
 				liability->liability_entity_where ),
-			0 /* not fetch_check_number */,
-			0 /* not fetch_memo */ );
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */,
+			0 /* not fetch_transaction */ );
 
 	if ( !list_length( liability->journal_system_list ) )
 	{
@@ -137,8 +139,10 @@ LIABILITY *liability_account_fetch(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
 				liability->liability_account_where ),
-			0 /* not fetch_check_number */,
-			0 /* not fetch_memo */ );
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */,
+			0 /* not fetch_transaction */ );
 
 	if ( !list_length( liability->journal_system_list ) )
 	{
@@ -1988,10 +1992,10 @@ void liability_transaction_list_insert(
 	/* May reset transaction_date_time */
 	/* ------------------------------- */
 	transaction_list_insert(
-		transaction_list_new(
-			liability_transaction_list_extract(
-				liability_transaction_list->list ) ),
-		appaserver_error_filename );
+		liability_transaction_list_extract(
+			liability_transaction_list->list ),
+		appaserver_error_filename,
+		1 /* insert_journal_list_boolean */ );
 }
 
 LIST *liability_transaction_list_extract( LIST *list )
@@ -2032,9 +2036,8 @@ void liability_transaction_list_html_display(
 	if ( !list_length( liability_transaction_list->list ) ) return;
 
 	transaction_list_html_display(
-		transaction_list_new(
-			liability_transaction_list_extract(
-				liability_transaction_list->list ) ) );
+		liability_transaction_list_extract(
+			liability_transaction_list->list ) );
 }
 
 void liability_calculate_stdout( LIST *liability_entity_list )

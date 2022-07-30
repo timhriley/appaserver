@@ -1,6 +1,6 @@
 :
 
-make depreciate_fixed_assets
+make trial_balance_output
 
 #if [ "$?" -eq 0 ]
 #then

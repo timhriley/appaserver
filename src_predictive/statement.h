@@ -120,7 +120,7 @@ typedef struct
 /* ----- */
 LIST *statement_prior_year_list(
 			LIST *filter_element_name_list,
-			char *transation_date_time_closing,
+			char *transaction_date_time_closing,
 			int prior_year_count,
 			STATEMENT *statement );
 
@@ -131,7 +131,7 @@ LIST *statement_prior_year_list(
 /* ----- */
 STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 			LIST *filter_element_name_list,
-			char *transation_date_time_closing,
+			char *transaction_date_time_closing,
 			int years_ago,
 			STATEMENT *statement );
 
@@ -171,15 +171,11 @@ char *statement_prior_year_latex_account_data(
 LIST *statement_prior_year_heading_list(
 			LIST *statement_prior_year_list );
 
-LIST *statement_prior_year_latex_row_column_data_list(
-			char *account_name,
-			LIST *statement_prior_year_list );
-
 typedef struct
 {
 	char *filename_stem;
 	APPASERVER_LINK_FILE *appaserver_link_file;
-	char *latex_filename;
+	char *tex_filename;
 	char *dvi_filename;
 	char *ftp_output_filename;
 	char *working_directory;

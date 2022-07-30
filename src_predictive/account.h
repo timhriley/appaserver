@@ -15,8 +15,10 @@
 
 typedef struct
 {
-	char *account_name;
+	char *full_name;
+	char *street_address;
 	char *transaction_date_time;
+	char *account_name;
 	double previous_balance;
 	double debit_amount;
 	double credit_amount;
@@ -88,10 +90,10 @@ typedef struct
 LIST *account_statement_list(
 			char *subclassification_primary_where,
 			char *transaction_date_time_closing,
-			boolean fetch_journal_latest,
-			boolean fetch_transaction,
 			boolean fetch_subclassification,
-			boolean fetch_element );
+			boolean fetch_element,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */
@@ -108,13 +110,16 @@ FILE *account_pipe(
 
 /* Usage */
 /* ----- */
+
+/* Returns null if fetch_journal_latest is set but not exists */
+/* ---------------------------------------------------------- */
 ACCOUNT *account_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
-			boolean fetch_journal_latest,
-			boolean fetch_transaction,
 			boolean fetch_subclassification,
-			boolean fetch_element );
+			boolean fetch_element,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */

@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
 #include "date.h"
+#include "document.h"
 #include "statement.h"
 #include "trial_balance.h"
 
@@ -82,7 +83,15 @@ int main( int argc, char **argv )
 			__LINE__ );
 		exit( 1 );
 	}
-		
+
+	if ( trial_balance->statement_output_medium != output_stdout )
+	{
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+	}
+
 	if ( trial_balance->statement_subclassification_option ==
 			subclassification_display
 	&& trial_balance->trial_balance_pdf )
@@ -124,6 +133,9 @@ int main( int argc, char **argv )
 			process_name,
 			date_time_string );
 	}
+
+	if ( trial_balance->statement_output_medium != output_stdout )
+		document_close();
 
 	return 0;
 }

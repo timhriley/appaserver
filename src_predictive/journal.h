@@ -50,10 +50,10 @@ typedef struct
 /* ----- */
 LIST *journal_system_list(
 			char *journal_system_string,
-			boolean fetch_transaction,
 			boolean fetch_account,
 			boolean fetch_subclassification,
-			boolean fetch_element );
+			boolean fetch_element,
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */
@@ -64,10 +64,10 @@ FILE *journal_input_pipe(
 /* ----- */
 JOURNAL	*journal_parse(
 			char *input,
-			boolean fetch_transaction,
 			boolean fetch_account,
 			boolean fetch_subclassification,
-			boolean fetch_element );
+			boolean fetch_element,
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */
@@ -164,10 +164,10 @@ char *journal_minimum_where(
 JOURNAL *journal_account_fetch(
 			char *transaction_date_time,
 			char *account_name,
-			boolean fetch_transaction,
 			boolean fetch_account,
 			boolean fetch_subclassification,
-			boolean fetch_element );
+			boolean fetch_element,
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */
@@ -353,5 +353,11 @@ LIST *journal_binary_list(
 /* ------------------- */
 char *journal_list_raw_display(
 			LIST *journal_list );
+
+int journal_transaction_count(
+			char *journal_table,
+			char *account_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
 
 #endif

@@ -68,8 +68,10 @@ RECEIVABLE *receivable_fetch(
 				JOURNAL_SELECT,
 				JOURNAL_TABLE,
 				receivable->where ),
-			0 /* not fetch_check_number */,
-			0 /* not fetch_memo */ );
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */,
+			0 /* not fetch_transaction */ );
 
 	if ( !list_length( receivable->journal_system_list ) )
 	{

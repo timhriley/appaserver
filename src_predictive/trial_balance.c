@@ -172,6 +172,11 @@ TRIAL_BALANCE *trial_balance_fetch(
 			trial_balance->transaction_as_of_date,
 			trial_balance->transaction_date_time_closing );
 
+	if ( !trial_balance->statement )
+	{
+		return (TRIAL_BALANCE *)0;
+	}
+
 	element_account_transaction_count_set(
 		trial_balance->statement->element_statement_list,
 		trial_balance->transaction_begin_date_string,
@@ -455,6 +460,8 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 			account->percent_of_asset,
 			account->percent_of_revenue );
 
+	trial_balance_account->account = account;
+
 	return trial_balance_account;
 }
 
@@ -546,7 +553,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 				transaction_as_of_date,
 				trial_balance_pdf->
 					preclose_statement_link->
-					latex_filename,
+					tex_filename,
 				trial_balance_pdf->
 					preclose_statement_link->
 					dvi_filename,
@@ -577,7 +584,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			transaction_as_of_date,
 			trial_balance_pdf->
 				statement_link->
-				latex_filename,
+				tex_filename,
 			trial_balance_pdf->
 				statement_link->
 				dvi_filename,
@@ -628,7 +635,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 			enum statement_subclassification_option
 				statement_subclassification_option,
 			char *transaction_as_of_date,
-			char *latex_filename,
+			char *tex_filename,
 			char *dvi_filename,
 			char *working_directory,
 			boolean trial_balance_pdf_landscape_boolean,
@@ -641,10 +648,9 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 	TRIAL_BALANCE_LATEX *trial_balance_latex;
 
 	if ( !transaction_as_of_date
-	||   !latex_filename
+	||   !tex_filename
 	||   !dvi_filename
 	||   !working_directory
-	||   !statement_logo_filename
 	||   !statement )
 	{
 		fprintf(stderr,
@@ -663,7 +669,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 		trial_balance_latex->trial_balance_subclassification_latex =
 			trial_balance_subclassification_latex_new(
 				transaction_as_of_date,
-				latex_filename,
+				tex_filename,
 				dvi_filename,
 				working_directory,
 				trial_balance_pdf_landscape_boolean,
@@ -680,7 +686,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 			trial_balance_account_latex =
 				trial_balance_account_latex_new(
 					transaction_as_of_date,
-					latex_filename,
+					tex_filename,
 					dvi_filename,
 					working_directory,
 					trial_balance_pdf_landscape_boolean,
@@ -798,7 +804,7 @@ char *trial_balance_latex_transaction_count_string(
 TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 	trial_balance_subclassification_latex_new(
 			char *transaction_as_of_date,
-			char *latex_filename,
+			char *tex_filename,
 			char *dvi_filename,
 			char *working_directory,
 			boolean trial_balance_pdf_landscape_boolean,
@@ -812,7 +818,7 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 		trial_balance_subclassification_latex;
 
 	if ( !transaction_as_of_date
-	||   !latex_filename
+	||   !tex_filename
 	||   !dvi_filename
 	||   !working_directory
 	||   !statement )
@@ -831,7 +837,7 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 
 	trial_balance_subclassification_latex->latex =
 		latex_new(
-			latex_filename,
+			tex_filename,
 			dvi_filename,
 			working_directory,
 			trial_balance_pdf_landscape_boolean,
@@ -1188,8 +1194,7 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 	LATEX_ROW *latex_row;
 	char *account_title;
 
-	if ( !trial_balance_account
-	||   !trial_balance_account->account )
+	if ( !trial_balance_account )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: trial_balance_account is empty.\n",
@@ -1199,17 +1204,32 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 		exit( 1 );
 	}
 
+	if ( !trial_balance_account->account )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: trial_balance_account->account is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	latex_row = latex_row_new();
 
 	latex_column_data_set(
 		latex_row->column_data_list,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		trial_balance_subclassification_latex_account_row_title(
 			element_name ) /* name */,
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		trial_balance_subclassification_latex_account_row_title(
 			subclassification_name /* name */ ),
 		0 /* not large_bold */ );
@@ -1279,7 +1299,7 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 	{
 		latex_column_data_list_set(
 			latex_row->column_data_list,
-			statement_prior_year_latex_row_column_data_list(
+			statement_prior_year_latex_account_data_list(
 				trial_balance_account->account->account_name,
 				statement_prior_year_list ) );
 	}
@@ -1289,10 +1309,13 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 
 char *trial_balance_subclassification_latex_account_row_title( char *name )
 {
-	if ( !name )
-		return "";
-	else
-		return name;
+	char buffer[ 128 ];
+
+	if ( !name ) return (char *)0;
+
+	format_initial_capital( buffer, name );
+
+	return strdup( buffer );
 }
 
 char *trial_balance_account_percent_string(

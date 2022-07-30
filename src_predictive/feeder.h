@@ -407,8 +407,7 @@ void feeder_load_row_transaction_insert(
 
 /* Process */
 /* ------- */
-TRANSACTION_LIST *
-	feeder_load_row_extract_transaction_list(
+LIST *feeder_load_row_extract_transaction_list(
 			LIST *feeder_load_row_list );
 
 typedef struct

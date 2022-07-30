@@ -189,7 +189,12 @@ STATEMENT *statement_fetch(
 
 	if ( !statement->subtitle )
 	{
-		return (STATEMENT *)0;
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: statement_subtitle() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	statement->caption =
@@ -259,8 +264,8 @@ char *statement_prior_year_latex_account_data( ACCOUNT *prior_account )
 	char account_data[ 32 ];
 
 	if ( !prior_account
-	||   !prior_account->journal_latest
-	||   !prior_account->journal_latest->balance )
+	||   !prior_account->account_journal_latest
+	||   !prior_account->account_journal_latest->balance )
 	{
 		*account_data = '\0';
 	}
@@ -274,7 +279,9 @@ char *statement_prior_year_latex_account_data( ACCOUNT *prior_account )
 			/* Returns static memory */
 			/* --------------------- */
 			timlib_place_commas_in_dollars(
-				prior_account->journal_latest->balance ) );
+				prior_account->
+					account_journal_latest->
+					balance ) );
 	}
 
 	return strdup( account_data );
@@ -336,27 +343,29 @@ STATEMENT_LINK *statement_link_new(
 	statement_link->appaserver_link_file->end_date_string =
 		transaction_as_of_date;
 
-	statement_link->latex_filename =
-		appaserver_link_get_tail_half(
+	statement_link->tex_filename =
+		strdup(
+		     appaserver_link_get_tail_half(
 			(char *)0 /* application_name */,
 			statement_link->appaserver_link_file->filename_stem,
 			statement_link->appaserver_link_file->begin_date_string,
 			statement_link->appaserver_link_file->end_date_string,
 			statement_link->appaserver_link_file->process_id,
 			statement_link->appaserver_link_file->session,
-			statement_link->appaserver_link_file->extension );
+			statement_link->appaserver_link_file->extension ) );
 
 	statement_link->appaserver_link_file->extension = "dvi";
 
 	statement_link->dvi_filename =
-		appaserver_link_get_tail_half(
+		strdup(
+		     appaserver_link_get_tail_half(
 			(char *)0 /* application_name */,
 			statement_link->appaserver_link_file->filename_stem,
 			statement_link->appaserver_link_file->begin_date_string,
 			statement_link->appaserver_link_file->end_date_string,
 			statement_link->appaserver_link_file->process_id,
 			statement_link->appaserver_link_file->session,
-			statement_link->appaserver_link_file->extension );
+			statement_link->appaserver_link_file->extension ) );
 
 	statement_link->appaserver_link_file->extension = "pdf";
 
@@ -437,6 +446,8 @@ char *statement_date_american( char *date_time_string )
 {
 	char date_string[ 16 ];
 	char date_american[ 16 ];
+
+*date_american = '\0';
 
 	if ( !date_convert_source_international(
 		date_american,
@@ -587,9 +598,156 @@ void statement_latex_output(
 		(char *)0 /* mime_type */ );
 }
 
-LIST *statement_prior_year_latex_row_column_data_list(
-			char *account_name,
-			LIST *statement_prior_year_list )
+LIST *statement_prior_year_list(
+			LIST *filter_element_name_list,
+			char *transaction_date_time_closing,
+			int prior_year_count,
+			STATEMENT *statement )
 {
-	return (LIST *)0;
+	LIST *prior_year_list;
+	int years_ago;
+
+	if ( !list_length( filter_element_name_list )
+	||   !transaction_date_time_closing
+	||   !prior_year_count
+	||   !statement
+	||   !list_length( statement->element_statement_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	prior_year_list = list_new();
+
+	for(	years_ago = 1;
+		years_ago <= prior_year_count;
+		years_ago++ )
+	{
+		list_set(
+			prior_year_list,
+			statement_prior_year_fetch(
+				filter_element_name_list,
+				transaction_date_time_closing,
+				years_ago,
+				statement ) );
+	}
+
+	return prior_year_list;
 }
+
+STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
+			LIST *filter_element_name_list,
+			char *transaction_date_time_closing,
+			int years_ago,
+			STATEMENT *statement )
+{
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+	ELEMENT *current_element;
+	ELEMENT *prior_element;
+
+	if ( !list_length( filter_element_name_list )
+	||   !transaction_date_time_closing
+	||   !years_ago
+	||   !statement
+	||   !list_rewind( statement->element_statement_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	statement_prior_year = statement_prior_year_calloc();
+
+	statement_prior_year->date_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_prior_year_date_string(
+			transaction_date_time_closing,
+			years_ago );
+
+	statement_prior_year->element_statement_list =
+		element_statement_list(
+			filter_element_name_list,
+			statement_prior_year->date_string,
+			1 /* fetch_subclassification_list */,
+			1 /* fetch_account_list */,
+			1 /* fetch_journal_latest */,
+			0 /* not fetch_transaction */ );
+
+	do {
+		current_element =
+			list_get(
+				statement->
+					element_statement_list );
+
+		prior_element =
+			element_seek(
+				current_element->element_name,
+				statement_prior_year->element_statement_list );
+
+		if ( prior_element )
+		{
+			element_prior_year_set(
+				prior_element /* in/out */,
+				current_element );
+		}
+
+	} while ( list_next( statement->element_statement_list ) );
+
+	return statement_prior_year;
+}
+
+STATEMENT_PRIOR_YEAR *statement_prior_year_calloc( void )
+{
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+
+	if ( ! ( statement_prior_year =
+			calloc( 1, sizeof( STATEMENT_PRIOR_YEAR ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement_prior_year;
+}
+
+char *statement_prior_year_date_string(
+			char *transaction_date_time_closing,
+			int years_ago )
+{
+	DATE *prior_date;
+
+	if ( !transaction_date_time_closing
+	||   !years_ago )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	prior_date = date_19new( transaction_date_time_closing );
+
+	date_subtract_year( prior_date, years_ago );
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	date_display19( prior_date );
+}
+

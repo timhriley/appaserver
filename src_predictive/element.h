@@ -40,7 +40,7 @@ LIST *element_statement_list(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
 			boolean fetch_journal_latest,
-			boolean fetch_memo );
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */
@@ -87,7 +87,7 @@ ELEMENT *element_statement_fetch(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
 			boolean fetch_journal_latest,
-			boolean fetch_memo );
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */
@@ -100,7 +100,7 @@ ELEMENT *element_statement_parse(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
 			boolean fetch_journal_latest,
-			boolean fetch_memo );
+			boolean fetch_transaction );
 
 /* Process */
 /* ------- */

@@ -22,14 +22,15 @@
 LIST *account_statement_list(
 			char *subclassification_primary_where,
 			char *transaction_date_time_closing,
-			boolean fetch_journal_latest,
-			boolean fetch_transaction,
 			boolean fetch_subclassification,
-			boolean fetch_element )
+			boolean fetch_element,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction )
 {
 	FILE *pipe;
 	char input[ 256 ];
 	LIST *statement_list;
+	ACCOUNT *account;
 
 	if ( !subclassification_primary_where
 	||   !transaction_date_time_closing )
@@ -56,15 +57,24 @@ LIST *account_statement_list(
 
 	while ( string_input( input, pipe, 256 ) )
 	{
-		list_set(
-			statement_list,
+		account =
+		/* ---------------------------------------------------------- */
+		/* Returns null if fetch_journal_latest is set but not exists */
+		/* ---------------------------------------------------------- */
 			account_statement_parse(
 				input,
 				transaction_date_time_closing,
-				fetch_journal_latest,
-				fetch_transaction,
 				fetch_subclassification,
-				fetch_element ) );
+				fetch_element,
+				fetch_journal_latest,
+				fetch_transaction );
+
+		if ( account )
+		{
+			list_set(
+				statement_list,
+				account );
+		}
 	}
 
 	pclose( pipe );
@@ -75,10 +85,10 @@ LIST *account_statement_list(
 ACCOUNT *account_statement_parse(
 			char *input,
 			char *transaction_date_time_closing,
-			boolean fetch_journal_latest,
-			boolean fetch_transaction,
 			boolean fetch_subclassification,
-			boolean fetch_element )
+			boolean fetch_element,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction )
 {
 	ACCOUNT *account;
 
@@ -100,11 +110,14 @@ ACCOUNT *account_statement_parse(
 
 	if ( fetch_journal_latest )
 	{
-		account->account_journal_latest =
-			account_journal_latest(
-				account->account_name,
-				transaction_date_time_closing,
-				fetch_transaction );
+		if ( ! ( account->account_journal_latest =
+				account_journal_latest(
+					account->account_name,
+					transaction_date_time_closing,
+					fetch_transaction ) ) )
+		{
+			account = (ACCOUNT *)0;
+		}
 	}
 
 	return account;
@@ -508,10 +521,13 @@ char *account_primary_where(
 			char *account_name )
 {
 	static char where[ 128 ];
+	char escape_account[ 64 ];
 
 	sprintf(where,
 		"account = '%s'",
-		account_name );
+		string_escape_quote(
+			escape_account,
+			account_name ) );
 
 	return where;
 }
@@ -1044,39 +1060,14 @@ void account_transaction_count_set(
 		if ( account->account_journal_latest->balance )
 		{
 			account->transaction_count =
-				account_transaction_count(
-					ACCOUNT_TABLE,
+				journal_transaction_count(
+					JOURNAL_TABLE,
 					account->account_name,
 					transaction_begin_date_string,
 					transaction_date_time_closing );
 		}
 
 	} while ( list_next( account_statement_list ) );
-}
-
-int account_transaction_count(
-			char *account_table,
-			char *account_name,
-			char *transaction_begin_date_string,
-			char *transaction_date_time_closing )
-{
-	char where[ 128 ];
-	char system_string[ 256 ];
-
-	sprintf(where,
-		"account = '%s' and				"
-		"transaction_date_time between '%s' and '%s'	",
-		account_name,
-		transaction_begin_date_string,
-		transaction_date_time_closing );
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\"",
-		"count(1)",
-		account_table,
-		where );
-
-	return atoi( string_pipe( system_string ) );
 }
 
 ACCOUNT *account_element_account_seek(
@@ -1161,20 +1152,15 @@ ACCOUNT_JOURNAL *account_journal_latest(
 				transaction_date_time_closing,
 				fetch_transaction ) ) )
 	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: journal_latest(%s/%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			account_name,
-			transaction_date_time_closing );
-		exit( 1 );
+		return (ACCOUNT_JOURNAL *)0;
 	}
 
 	account_journal = account_journal_calloc();
 
-	account_journal->account_name = journal->account_name;
+	account_journal->full_name = journal->full_name;
+	account_journal->street_address = journal->street_address;
 	account_journal->transaction_date_time = journal->transaction_date_time;
+	account_journal->account_name = journal->account_name;
 	account_journal->previous_balance = journal->previous_balance;
 	account_journal->debit_amount = journal->debit_amount;
 	account_journal->credit_amount = journal->credit_amount;

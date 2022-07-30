@@ -63,7 +63,7 @@ typedef struct
 TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 	trial_balance_subclassification_latex_new(
 			char *transaction_as_of_date,
-			char *latex_filename,
+			char *tex_filename,
 			char *dvi_filename,
 			char *working_directory,
 			boolean trial_balance_pdf_landscape_boolean,
@@ -136,6 +136,9 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 
 /* Process */
 /* ------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *trial_balance_subclassification_latex_account_row_title(
 			char *name );
 
@@ -151,7 +154,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 			enum statement_subclassification_option
 				statement_subclassification_option,
 			char *transaction_as_of_date,
-			char *latex_filename,
+			char *tex_filename,
 			char *dvi_filename,
 			char *working_directory,
 			boolean trial_balance_pdf_landscape_boolean,

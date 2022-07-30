@@ -42,6 +42,7 @@ char *journal_max_prior_where(
 			char *account_name )
 {
 	static char where[ 128 ];
+	char escape_account[ 64 ];
 
 	if ( !transaction_date_time
 	||   !account_name )
@@ -57,7 +58,9 @@ char *journal_max_prior_where(
 	sprintf(where,
 		"transaction_date_time < '%s' and account = '%s'",
 		transaction_date_time,
-		account_name );
+		string_escape_quote(
+			escape_account,
+			account_name ) );
 
 	return where;
 }
@@ -128,10 +131,10 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 		journal_account_fetch(
 			transaction_date_time,
 			account_name,
-			0 /* not fetch_transaction */,
 			fetch_account,
 			fetch_subclassification,
-			fetch_element );
+			fetch_element,
+			0 /* not fetch_transaction */ );
 
 	if ( journal
 	&&   max_prior_transaction_date_time == transaction_date_time )
@@ -147,6 +150,8 @@ JOURNAL *journal_latest(
 			char *transaction_date_time_closing,
 			boolean fetch_transaction )
 {
+	JOURNAL *latest;
+
 	if ( !account_name
 	||   !transaction_date_time_closing )
 	{
@@ -159,25 +164,30 @@ JOURNAL *journal_latest(
 	}
 
 
-	return
-	journal_account_fetch(
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		journal_max_transaction_date_time(
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_max_where(
-				transaction_date_time_closing,
-				account_name ),
-			JOURNAL_TABLE )
-				/* transaction_date_time */,
-		account_name,
-		fetch_transaction,
-		0 /* not fetch_account */,
-		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */ );
+	latest =
+		journal_account_fetch(
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			journal_max_transaction_date_time(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				journal_max_where(
+					transaction_date_time_closing,
+					account_name ),
+				JOURNAL_TABLE )
+					/* transaction_date_time */,
+			account_name,
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */,
+			fetch_transaction );
+
+	if ( latest && !latest->balance )
+		return (JOURNAL *)0;
+	else
+		return latest;
 }
 
 char *journal_max_where(
@@ -185,6 +195,7 @@ char *journal_max_where(
 			char *account_name )
 {
 	static char where[ 128 ];
+	char escape_account[ 64 ];
 
 	if ( !transaction_date_time_closing
 	||   !account_name )
@@ -200,7 +211,9 @@ char *journal_max_where(
 	sprintf(where,
 		"transaction_date_time <= '%s' and account = '%s'",
 		transaction_date_time_closing,
-		account_name );
+		string_escape_quote(
+			escape_account,
+			account_name ) );
 
 	return where;
 }
@@ -236,6 +249,7 @@ char *journal_transaction_account_where(
 			char *account_name )
 {
 	static char where[ 128 ];
+	char escape_account[ 64 ];
 
 	if ( !transaction_date_time
 	||   !account_name )
@@ -252,7 +266,9 @@ char *journal_transaction_account_where(
 		 "transaction_date_time = '%s' and "
 		 "account = '%s'",
 		 transaction_date_time,
-		 account_name );
+		 string_escape_quote(
+			escape_account,
+			account_name ) );
 
 	return where;
 }
@@ -260,10 +276,10 @@ char *journal_transaction_account_where(
 JOURNAL *journal_account_fetch(
 			char *transaction_date_time,
 			char *account_name,
-			boolean fetch_transaction,
 			boolean fetch_account,
 			boolean fetch_subclassification,
-			boolean fetch_element )
+			boolean fetch_element,
+			boolean fetch_transaction )
 {
 	if ( !transaction_date_time
 	||   !account_name )
@@ -291,17 +307,17 @@ JOURNAL *journal_account_fetch(
 				journal_transaction_account_where(
 					transaction_date_time,
 					account_name ) ) ),
-		fetch_transaction,
 		fetch_account,
 		fetch_subclassification,
-		fetch_element );
+		fetch_element,
+		fetch_transaction );
 }
 
 JOURNAL *journal_parse(	char *input,
-			boolean fetch_transaction,
 			boolean fetch_account,
 			boolean fetch_subclassification,
-			boolean fetch_element )
+			boolean fetch_element,
+			boolean fetch_transaction )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
@@ -362,10 +378,10 @@ JOURNAL *journal_parse(	char *input,
 
 LIST *journal_system_list(
 			char *system_string,
-			boolean fetch_transaction,
 			boolean fetch_account,
 			boolean fetch_subclassification,
-			boolean fetch_element )
+			boolean fetch_element,
+			boolean fetch_transaction )
 {
 	FILE *pipe;
 	char input[ 1024 ];
@@ -391,10 +407,10 @@ LIST *journal_system_list(
 			system_list,
 			journal_parse(
 				input,
-				fetch_transaction,
 				fetch_account,
 				fetch_subclassification,
-				fetch_element ) );
+				fetch_element,
+				fetch_transaction ) );
 	}
 
 	pclose( pipe );
@@ -1363,10 +1379,10 @@ LIST *journal_minimum_list(
 			journal_minimum_where(
 				minimum_transaction_date_time,
 				account_name ) ),
-		0 /* not fetch_transaction */,
 		0 /* not fetch_account */,
 		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */ );
+		0 /* not fetch_element */,
+		0 /* not fetch_transaction */ );
 }
 
 char *journal_minimum_where(
@@ -1374,6 +1390,7 @@ char *journal_minimum_where(
 			char *account_name )
 {
 	static char where[ 128 ];
+	char escape_account[ 64 ];
 
 	if ( !minimum_transaction_date_time
 	||   !account_name )
@@ -1388,7 +1405,9 @@ char *journal_minimum_where(
 
 	sprintf(where,
 		"account = '%s' and transaction_date_time >= '%s'",
-		account_name,
+		string_escape_quote(
+			escape_account,
+			account_name ),
 		minimum_transaction_date_time );
 
 	return where;
@@ -1414,10 +1433,10 @@ LIST *journal_year_list(
 				tax_year,
 				account_name,
 				TRANSACTION_PRECLOSE_TIME ) ),
-		fetch_transaction,
 		0 /* not fetch_account */,
 		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */ );
+		0 /* not fetch_element */,
+		fetch_transaction );
 }
 
 char *journal_year_where(
@@ -1428,6 +1447,7 @@ char *journal_year_where(
 	static char where[ 128 ];
 	char begin_date_time[ 32 ];
 	char end_date_time[ 32 ];
+	char escape_account[ 64 ];
 
 	if ( !tax_year
 	||   !account_name
@@ -1453,7 +1473,9 @@ char *journal_year_where(
 	sprintf(where,
 		"account = '%s' and "
 		"transaction_date_time between '%s' and '%s'",
-		account_name,
+		string_escape_quote(
+			escape_account,
+			account_name ),
 		begin_date_time,
 		end_date_time );
 
@@ -1519,5 +1541,33 @@ void journal_account_list_propagate(
 		}
 
 	} while ( list_next( journal_extract_account_list ) );
+}
+
+int journal_transaction_count(
+			char *journal_table,
+			char *account_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	char where[ 128 ];
+	char system_string[ 256 ];
+	char escape_account[ 64 ];
+
+	sprintf(where,
+		"account = '%s' and				"
+		"transaction_date_time between '%s' and '%s'	",
+		string_escape_quote(
+			escape_account,
+			account_name ),
+		transaction_begin_date_string,
+		transaction_date_time_closing );
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		"count(1)",
+		journal_table,
+		where );
+
+	return atoi( string_pipe( system_string ) );
 }
 

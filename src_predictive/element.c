@@ -159,7 +159,7 @@ ELEMENT *element_statement_parse(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
 			boolean fetch_journal_latest,
-			boolean fetch_memo )
+			boolean fetch_transaction )
 {
 	ELEMENT *element;
 
@@ -181,7 +181,7 @@ ELEMENT *element_statement_parse(
 				transaction_date_time_closing,
 				fetch_account_list,
 				fetch_journal_latest,
-				fetch_memo );
+				fetch_transaction );
 	}
 
 	return element;
@@ -244,7 +244,7 @@ LIST *element_statement_list(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
 			boolean fetch_journal_latest,
-			boolean fetch_memo )
+			boolean fetch_transaction )
 {
 	LIST *element_list;
 	char *element_name;
@@ -264,7 +264,7 @@ LIST *element_statement_list(
 				fetch_subclassification_list,
 				fetch_account_list,
 				fetch_journal_latest,
-				fetch_memo ) );
+				fetch_transaction ) );
 
 	} while ( list_next( filter_element_name_list ) );
 
@@ -332,7 +332,7 @@ ELEMENT *element_statement_fetch(
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
 			boolean fetch_journal_latest,
-			boolean fetch_memo )
+			boolean fetch_transaction )
 {
 	FILE *pipe;
 	ELEMENT *element;
@@ -366,7 +366,7 @@ ELEMENT *element_statement_fetch(
 			fetch_subclassification_list,
 			fetch_account_list,
 			fetch_journal_latest,
-			fetch_memo );
+			fetch_transaction );
 
 
 	pclose( pipe );
