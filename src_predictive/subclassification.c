@@ -569,3 +569,36 @@ void subclassification_account_transaction_count_set(
 	} while ( list_next( subclassification_statement_list ) );
 }
 
+void subclassification_account_action_string_set(
+			LIST *subclassification_statement_list,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( subclassification_statement_list ) ) return;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( list_length( subclassification->account_statement_list ) )
+		{
+			account_list_action_string_set(
+				subclassification->account_statement_list,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				transaction_begin_date_string,
+				transaction_date_time_closing );
+		}
+
+	} while ( list_next( subclassification_statement_list ) );
+}
+

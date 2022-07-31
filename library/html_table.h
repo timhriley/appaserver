@@ -8,41 +8,100 @@
 #define HTML_TABLE_H
 
 #include "list.h"
+#include "boolean.h"
 
 typedef struct
 {
-	char *column_data;
-	boolean large_bold;
-} HTML_COLUMN_DATA;
+	char *heading;
+	boolean right_justify_boolean;
+} HTML_HEADING;
 
 /* Usage */
 /* ----- */
-HTML_COLUMN_DATA *html_column_data_new(
-			char *column_data,
-			boolean large_bold );
+HTML_HEADING *html_heading_new(
+			char *heading,
+			boolean right_justify_boolean );
 
 /* Process */
 /* ------- */
-HTML_COLUMN_DATA *html_column_data_calloc(
+HTML_HEADING *html_heading_calloc(
 			void );
 
-/* Public */
-/* ------ */
-void html_column_data_set(
-			LIST *column_data_list,
-			char *data,
-			boolean large_bold );
+/* Usage */
+/* ----- */
+void html_heading_right_justify_heading_set(
+			LIST *heading_list,
+			LIST *label_list );
 
-void html_column_data_list_set(
-			LIST *column_data_list,
-			LIST *data_list );
+/* Process */
+/* ------- */
 
-void html_table_column_data_list(
-			LIST *column_data_list );
+/* Usage */
+/* ----- */
+void html_heading_list_output(
+			LIST *heading_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *html_heading_tag(	char *heading );
 
 typedef struct
 {
-	LIST *column_data_list;
+	char *data;
+	boolean large_bold_boolean;
+} HTML_CELL;
+
+/* Usage */
+/* ----- */
+HTML_CELL *html_cell_new(
+			char *data,
+			boolean large_bold_boolean );
+
+/* Process */
+/* ------- */
+HTML_CELL *html_cell_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+void html_cell_data_set(
+			LIST *cell_list,
+			char *data,
+			boolean large_bold_boolean );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void html_cell_data_list_set(
+			LIST *cell_list,
+			LIST *data_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void html_cell_output(
+			HTML_HEADING *html_heading,
+			HTML_CELL *html_cell );
+			
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *html_cell_tag(	char *html_cell_data,
+			boolean large_bold_boolean,
+			boolean right_justify_boolean );
+
+typedef struct
+{
+	LIST *cell_list;
 } HTML_ROW;
 
 /* Usage */
@@ -53,6 +112,15 @@ HTML_ROW *html_row_new(	void );
 /* ------- */
 HTML_ROW *html_row_calloc(
 			void );
+
+/* Usage */
+/* ----- */
+void html_row_output(
+			LIST *heading_list,
+			HTML_ROW *html_row );
+
+/* Process */
+/* ------- */
 
 typedef struct
 {
@@ -80,21 +148,20 @@ HTML_TABLE *html_table_new(
 HTML_TABLE *html_table_calloc(
 			void );
 
-/* Public */
+/* Driver */
 /* ------ */
 void html_table_output(	HTML_TABLE *html_table );
 
+/* Process */
+/* ------- */
 void html_table_heading(
 			char *title,
 			char *sub_title,
 			char *sub_sub_title );
 
-void html_table_data_heading(
-			LIST *heading_list );
-
 void html_table_close(	void );
 
-/* Retire */
+/* Legacy */
 /* ------ */
 HTML_TABLE *new_html_table(
 			char *title,

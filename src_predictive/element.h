@@ -147,6 +147,20 @@ void element_account_transaction_count_set(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+void element_account_action_string_set(
+			LIST *element_statement_list,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 boolean element_is_nominal(

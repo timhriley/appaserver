@@ -42,24 +42,33 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 TRIAL_BALANCE_ACCOUNT *trial_balance_account_calloc(
 			void );
 
-/* ------------------- */
 /* Returns heap memory */
 /* ------------------- */
 char *trial_balance_account_asset_percent_string(
 			int percent_of_asset );
 
-/* ------------------- */
 /* Returns heap memory */
 /* ------------------- */
 char *trial_balance_account_revenue_percent_string(
 			int percent_of_revenue );
 
-/* ------------------- */
 /* Returns heap memory */
 /* ------------------- */
 char *trial_balance_account_percent_string(
 			int percent_of_asset,
 			int percent_of_revenue );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *trial_balance_account_balance_string(
+			double balance,
+			char *account_action_string );
+
+/* Process */
+/* ------- */
 
 typedef struct
 {

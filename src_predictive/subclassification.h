@@ -151,6 +151,23 @@ void subclassification_account_transaction_count_set(
 			char *transaction_begin_date_string,
 			char *transaction_date_time_closing );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void subclassification_account_action_string_set(
+			LIST *subclassification_statement_list,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 double subclassification_list_debit_sum(

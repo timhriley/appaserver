@@ -299,13 +299,13 @@ ACCOUNT *account_subclassification_account_seek(
 /* Usage */
 /* ----- */
 void account_list_action_string_set(
-			LIST *account_list,
+			LIST *account_statement_list,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *beginning_date,
-			char *as_of_date );
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
 
 /* Process */
 /* ------- */
@@ -314,8 +314,8 @@ char *account_action_string(
 			char *session,
 			char *login_name,
 			char *role_name,
-			char *begin_date_string,
-			char *as_of_date,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing,
 			char *account_name );
 
 /* Usage */

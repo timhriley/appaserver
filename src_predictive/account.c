@@ -613,52 +613,55 @@ char *account_action_string(
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *beginning_date,
-			char *as_of_date,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing,
 			char *account_name )
 {
-	char action_string[ 2048 ];
+	char action_string[ 1024 ];
 
-	sprintf( action_string,
-"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s 23:59:59",
-		 login_name,
-		 application_name,
-		 session_key,
-		 role_name,
-		 account_name,
-		 beginning_date,
-		 as_of_date );
+	sprintf(action_string,
+"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s",
+		login_name,
+		application_name,
+		session_key,
+		role_name,
+		account_name,
+		transaction_begin_date_string,
+		transaction_date_time_closing );
 
 	return strdup( action_string );
 }
 
 void account_list_action_string_set(
-			LIST *account_list,
+			LIST *account_statement_list,
 			char *application_name,
 			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *beginning_date,
-			char *as_of_date )
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
 {
 	ACCOUNT *account;
 
-	if ( !list_rewind( account_list ) ) return;
+	if ( !list_rewind( account_statement_list ) ) return;
 
 	do {
-		account = list_get( account_list );
+		account = list_get( account_statement_list );
 
-		account->action_string =
-			account_action_string(
-				application_name,
-				session_key,
-				login_name,
-				role_name,
-				beginning_date,
-				as_of_date,
-				account->account_name );
+		if ( account->transaction_count )
+		{
+			account->action_string =
+				account_action_string(
+					application_name,
+					session_key,
+					login_name,
+					role_name,
+					transaction_begin_date_string,
+					transaction_date_time_closing,
+					account->account_name );
+		}
 
-	} while ( list_next( account_list ) );
+	} while ( list_next( account_statement_list ) );
 }
 
 void account_prior_year_set(

@@ -16,6 +16,7 @@
 #include "statement.h"
 #include "element.h"
 #include "account.h"
+#include "html_table.h"
 #include "trial_balance.h"
 
 TRIAL_BALANCE *trial_balance_calloc( void )
@@ -139,6 +140,17 @@ TRIAL_BALANCE *trial_balance_fetch(
 			trial_balance->transaction_begin_date_string,
 			trial_balance->transaction_date_time_closing );
 
+		element_account_action_string_set(
+			trial_balance->
+				preclose_statement->
+				element_statement_list,
+			application_name,
+			session_key,
+			login_name,
+			role_name,
+			trial_balance->transaction_begin_date_string,
+			trial_balance->transaction_date_time_closing );
+
 		if ( prior_year_count )
 		{
 			trial_balance->preclose_prior_year_list =
@@ -179,6 +191,15 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	element_account_transaction_count_set(
 		trial_balance->statement->element_statement_list,
+		trial_balance->transaction_begin_date_string,
+		trial_balance->transaction_date_time_closing );
+
+	element_account_action_string_set(
+		trial_balance->statement->element_statement_list,
+		application_name,
+		session_key,
+		login_name,
+		role_name,
 		trial_balance->transaction_begin_date_string,
 		trial_balance->transaction_date_time_closing );
 
@@ -443,22 +464,22 @@ TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 	if ( element_accumulate_debit )
 	{
 		trial_balance_account->debit_string =
-			strdup( 
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				timlib_place_commas_in_dollars(
-					trial_balance_account->balance ) );
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			trial_balance_account_balance_string(
+				trial_balance_account->balance,
+				account->action_string );
 	}
 	else
 	{
 		trial_balance_account->credit_string =
-			strdup(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				timlib_place_commas_in_dollars(
-					trial_balance_account->balance ) );
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			trial_balance_account_balance_string(
+				trial_balance_account->balance,
+				account->action_string );
 	}
 
 	trial_balance_account->date_days_between =
@@ -783,7 +804,7 @@ char *trial_balance_html_account_title(
 	*ptr = '\0';
 
 	format_initial_capital( account_name_formatted, account_name );
-	ptr += sprintf( ptr, "%s", account_name_formatted );
+	ptr += sprintf( ptr, "<big><b>%s</b></big>", account_name_formatted );
 
 	ptr += sprintf( ptr, " (%s:", transaction_date_american );
 
@@ -1472,7 +1493,7 @@ char *trial_balance_account_percent_string(
 	if ( percent_of_asset )
 	{
 		sprintf(percent_string,
-			"%d%c",
+			"%d%c (A)",
 			percent_of_asset,
 			'%' );
 	}
@@ -1480,7 +1501,7 @@ char *trial_balance_account_percent_string(
 	if ( percent_of_revenue )
 	{
 		sprintf(percent_string,
-			"%d%c",
+			"%d%c (R)",
 			percent_of_revenue,
 			'%' );
 	}
@@ -1565,24 +1586,23 @@ HTML_ROW *trial_balance_subclassification_html_account_row(
 
 	html_row = html_row_new();
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
 		trial_balance_column_row_title(
 			element_name /* name */ ),
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
-
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
 		trial_balance_column_row_title(
 			subclassification_name /* name */ ),
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
 	transaction_date_american =
 		statement_date_american(
@@ -1617,43 +1637,48 @@ HTML_ROW *trial_balance_subclassification_html_account_row(
 				account_journal_latest->
 				transaction->memo );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		account_title,
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		trial_balance_transaction_count_string(
 			trial_balance_account->account->transaction_count ),
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		trial_balance_account->debit_string,
 		trial_balance_account->
 			within_days_between_boolean
-				/* large_bold */ );
+				/* large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		trial_balance_account->credit_string,
 		trial_balance_account->
 			within_days_between_boolean
-				/* large_bold */ );
+				/* large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
-		trial_balance_account->percent_string,
-		0 /* not large_bold */ );
+	html_cell_data_set(
+		html_row->cell_list,
+		trial_balance_account->asset_percent_string,
+		0 /* not large_bold_string */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		trial_balance_account->revenue_percent_string,
+		0 /* not large_bold_string */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
-		html_column_data_list_set(
-			html_row->column_data_list,
+		html_cell_data_list_set(
+			html_row->cell_list,
 			statement_prior_year_account_data_list(
 				trial_balance_account->account->account_name,
 				statement_prior_year_list ) );
@@ -1762,25 +1787,25 @@ HTML_ROW *trial_balance_subclassification_html_sum_row(
 
 	html_row = html_row_new();
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		"Total",
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
 	debit_total_string =
 		/* --------------------- */
@@ -1789,10 +1814,10 @@ HTML_ROW *trial_balance_subclassification_html_sum_row(
 		timlib_place_commas_in_dollars(
 			debit_sum );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		strdup( debit_total_string ),
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
 	credit_total_string =
 		/* --------------------- */
@@ -1801,10 +1826,10 @@ HTML_ROW *trial_balance_subclassification_html_sum_row(
 		timlib_place_commas_in_dollars(
 			credit_sum );
 
-	html_column_data_set(
-		html_row->column_data_list,
+	html_cell_data_set(
+		html_row->cell_list,
 		strdup( credit_total_string ),
-		0 /* not large_bold */ );
+		0 /* not large_bold_boolean */ );
 
 	return html_row;
 }
@@ -1814,18 +1839,59 @@ LIST *trial_balance_subclassification_html_heading_list(
 {
 	LIST *heading_list = list_new();
 
-	list_set( heading_list, "Element" );
-	list_set( heading_list, "Subclassification" );
-	list_set( heading_list, "Account" );
-	list_set( heading_list, "Count" );
-	list_set( heading_list, "Debit" );
-	list_set( heading_list, "Credit" );
-	list_set( heading_list, "Percent of Asset" );
-	list_set( heading_list, "Percent of Revenue" );
-
-	list_set_list(
+	list_set(
 		heading_list,
-		statement_prior_year_list );
+		html_heading_new(
+			"element",
+			0 /* not right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"subclassification",
+			0 /* not right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"account",
+			0 /* not right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"count",
+			1 /* right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"debit",
+			1 /* right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"credit",
+			1 /* right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"percent_of_asset",
+			1 /* right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"percent_of_revenue",
+			1 /* right_justify_boolean */ ) );
+
+	html_heading_right_justify_heading_set(
+		heading_list,
+		statement_prior_year_heading_list(
+			statement_prior_year_list )
+				/* label_list */ );
 
 	return heading_list;
 }
@@ -2094,5 +2160,30 @@ TRIAL_BALANCE_HTML *trial_balance_html_calloc( void )
 	}
 
 	return trial_balance_html;
+}
+
+char *trial_balance_account_balance_string(
+			double balance,
+			char *account_action_string )
+{
+	char balance_string[ 1024 ];
+
+	if ( account_action_string )
+	{
+		sprintf(balance_string,
+			"<a href=\"%s\">%s</a>",
+			account_action_string,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_money( balance ) );
+	}
+	else
+	{
+		strcpy(	balance_string,
+			timlib_place_commas_in_money( balance ) );
+	}
+
+	return strdup( balance_string );
 }
 

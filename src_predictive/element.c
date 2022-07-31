@@ -539,3 +539,34 @@ void element_account_transaction_count_set(
 	} while ( list_next( element_statement_list ) );
 }
 
+void element_account_action_string_set(
+			LIST *element_statement_list,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_statement_list ) ) return;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( list_length( element->subclassification_statement_list ) )
+		{
+			subclassification_account_action_string_set(
+				element->subclassification_statement_list,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				transaction_begin_date_string,
+				transaction_date_time_closing );
+		}
+
+	} while ( list_next( element_statement_list ) );
+}
+
