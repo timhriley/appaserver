@@ -140,16 +140,19 @@ TRIAL_BALANCE *trial_balance_fetch(
 			trial_balance->transaction_begin_date_string,
 			trial_balance->transaction_date_time_closing );
 
-		element_account_action_string_set(
-			trial_balance->
-				preclose_statement->
-				element_statement_list,
-			application_name,
-			session_key,
-			login_name,
-			role_name,
-			trial_balance->transaction_begin_date_string,
-			trial_balance->transaction_date_time_closing );
+		if ( trial_balance->statement_output_medium == output_table )
+		{
+			element_account_action_string_set(
+				trial_balance->
+					preclose_statement->
+					element_statement_list,
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				trial_balance->transaction_begin_date_string,
+				trial_balance->transaction_date_time_closing );
+		}
 
 		if ( prior_year_count )
 		{
@@ -189,10 +192,13 @@ TRIAL_BALANCE *trial_balance_fetch(
 		return (TRIAL_BALANCE *)0;
 	}
 
-	element_account_transaction_count_set(
-		trial_balance->statement->element_statement_list,
-		trial_balance->transaction_begin_date_string,
-		trial_balance->transaction_date_time_closing );
+	if ( trial_balance->statement_output_medium == output_table )
+	{
+		element_account_transaction_count_set(
+			trial_balance->statement->element_statement_list,
+			trial_balance->transaction_begin_date_string,
+			trial_balance->transaction_date_time_closing );
+	}
 
 	element_account_action_string_set(
 		trial_balance->statement->element_statement_list,
@@ -583,7 +589,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 	trial_balance_pdf = trial_balance_pdf_calloc();
 
 	trial_balance_pdf->landscape_boolean =
-		trial_balance_pdf_landacape_boolean(
+		trial_balance_pdf_landscape_boolean(
 			list_length( statement_prior_year_list )
 				/* statement_prior_year_list_length */ );
 
@@ -675,10 +681,10 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_calloc( void )
 	return trial_balance_pdf;
 }
 
-boolean trial_balance_pdf_landacape_boolean(
+boolean trial_balance_pdf_landscape_boolean(
 	int statement_prior_year_list_length )
 {
-	return (boolean)( statement_prior_year_list_length > 2 );
+	return (boolean)( statement_prior_year_list_length > 0 );
 }
 
 char *trial_balance_pdf_preclose_key(

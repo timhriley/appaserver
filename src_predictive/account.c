@@ -694,7 +694,7 @@ void account_list_prior_year_set(
 	ACCOUNT *current_account;
 	ACCOUNT *prior_account;
 
-	if ( list_rewind( current_account_list ) ) return;
+	if ( !list_rewind( current_account_list ) ) return;
 
 	do {
 		current_account =
@@ -716,7 +716,7 @@ void account_list_prior_year_set(
 					current_account->account_name,
 					prior_account_list ) ) )
 		{
-			current_account->delta_prior = 100;
+			current_account->delta_prior = 0;
 
 			continue;
 		}

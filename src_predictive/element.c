@@ -511,7 +511,7 @@ void element_prior_year_set(
 
 	subclassification_list_prior_year_set(
 		prior_element->subclassification_statement_list
-			/* prior_subclassification_list */,
+			/* prior_subclassification_list in/out */,
 		current_element->subclassification_statement_list
 			/* current_subclassification_list */ );
 }

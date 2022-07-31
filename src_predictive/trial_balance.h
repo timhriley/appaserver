@@ -401,7 +401,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 TRIAL_BALANCE_PDF *trial_balance_pdf_calloc(
 			void );
 
-boolean trial_balance_pdf_landacape_boolean(
+boolean trial_balance_pdf_landscape_boolean(
 	int statement_prior_year_list_length );
 
 /* Returns trial_balance_pdf_preclose_key */
