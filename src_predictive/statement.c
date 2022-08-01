@@ -580,7 +580,9 @@ void statement_html_output(
 
 	printf( "<h1>%s</h1>\n", title );
 
-	html_table_output( html_table );
+	html_table_output(
+		html_table,
+		HTML_TABLE_ROWS_BETWEEN_HEADING );
 }
 
 void statement_latex_output(
@@ -617,8 +619,8 @@ void statement_latex_output(
 	fclose( latex->output_stream );
 
 	latex_tex2pdf(
-			latex->tex_filename,
-			latex->working_directory );
+		latex->tex_filename,
+		latex->working_directory );
 
 	appaserver_library_output_ftp_prompt(
 		ftp_output_filename,

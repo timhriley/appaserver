@@ -214,8 +214,9 @@ int number_occurrences_char( int char_to_count, char *source );
 
 char *remove_quotes(	char *d, char *s );
 
-/* Trims pennies */
-/* ------------- */
+/* Trims pennies	 */
+/* Returns static memory */
+/* --------------------- */
 char *timlib_commas_in_dollars(
 			double d );
 char *timlib_place_commas_in_dollars(

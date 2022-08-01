@@ -14,6 +14,9 @@
 #include "statement.h"
 #include "trial_balance.h"
 
+#define TRIAL_BALANCE_TITLE		"Trial Balance"
+#define TRIAL_BALANCE_PRECLOSE_TITLE	"Trial Balance (preclose)"
+
 int main( int argc, char **argv )
 {
 	char *application_name;
@@ -100,6 +103,11 @@ int main( int argc, char **argv )
 			date_get_now_yyyy_mm_dd_hh_mm(
 				date_utc_offset() );
 
+		printf( "%s\n",
+			trial_balance_pdf_title(
+				process_name,
+				date_time_string ) );
+
 		if ( trial_balance->
 			trial_balance_pdf->
 			preclose_trial_balance_latex )
@@ -114,7 +122,7 @@ int main( int argc, char **argv )
 					trial_balance_pdf->
 					preclose_statement_link->
 					ftp_output_filename,
-				"Trial Balance (preclose)" /* prompt */,
+				TRIAL_BALANCE_PRECLOSE_TITLE /* prompt */,
 				process_name,
 				date_time_string );
 		}
@@ -129,11 +137,11 @@ int main( int argc, char **argv )
 				trial_balance_pdf->
 				statement_link->
 				ftp_output_filename,
-			"Trial Balance" /* prompt */,
+			TRIAL_BALANCE_TITLE /* prompt */,
 			process_name,
 			date_time_string );
 	}
-
+	else
 	if ( trial_balance->statement_subclassification_option ==
 			subclassification_display
 	&&   trial_balance->trial_balance_table )
@@ -148,7 +156,7 @@ int main( int argc, char **argv )
 					preclose_trial_balance_html->
 					trial_balance_subclassification_html->
 					html_table,
-				"Trial Balance (preclose)" /* title */ );
+				TRIAL_BALANCE_PRECLOSE_TITLE /* title */ );
 		}
 
 		statement_html_output(
@@ -157,7 +165,33 @@ int main( int argc, char **argv )
 				trial_balance_html->
 				trial_balance_subclassification_html->
 				html_table,
-			"Trial Balance" /* title */ );
+			TRIAL_BALANCE_TITLE /* title */ );
+	}
+	else
+	if ( trial_balance->statement_subclassification_option ==
+			subclassification_omit
+	&& trial_balance->trial_balance_table )
+	{
+		if ( trial_balance->
+			trial_balance_table->
+			preclose_trial_balance_html )
+		{
+			statement_html_output(
+				trial_balance->
+					trial_balance_table->
+					preclose_trial_balance_html->
+					trial_balance_account_html->
+					html_table,
+				TRIAL_BALANCE_PRECLOSE_TITLE /* title */ );
+		}
+
+		statement_html_output(
+			trial_balance->
+				trial_balance_table->
+				trial_balance_html->
+				trial_balance_account_html->
+				html_table,
+			TRIAL_BALANCE_TITLE /* title */ );
 	}
 
 	if ( trial_balance->statement_output_medium != output_stdout )

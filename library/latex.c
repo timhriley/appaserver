@@ -389,8 +389,12 @@ void latex_output_table_row_list(	FILE *output_stream,
 				if  ( row->preceed_double_line
 				||    column_data->large_bold )
 				{
+/*
 					fprintf( output_stream,
 				 		"\\large \\bf " );
+*/
+					fprintf( output_stream,
+				 		"\\bf " );
 				}
 
 

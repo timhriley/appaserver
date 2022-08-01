@@ -35,7 +35,8 @@ typedef struct
 TRIAL_BALANCE_ACCOUNT *trial_balance_account_new(
 			char *transaction_as_of_date,
 			boolean element_accumulate_debit,
-			ACCOUNT *account );
+			ACCOUNT *account,
+			boolean round_dollar_boolean );
 
 /* Process */
 /* ------- */
@@ -65,10 +66,17 @@ char *trial_balance_account_percent_string(
 /* ------------------- */
 char *trial_balance_account_balance_string(
 			double balance,
-			char *account_action_string );
+			char *account_action_string,
+			boolean round_dollar_boolean );
 
 /* Process */
 /* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *trial_balance_account_money_string(
+			double balance,
+			boolean round_dollar_boolean );
 
 typedef struct
 {
@@ -156,23 +164,92 @@ HTML_ROW *trial_balance_subclassification_html_account_row(
 
 typedef struct
 {
+	HTML_TABLE *html_table;
+} TRIAL_BALANCE_ACCOUNT_HTML;
+
+/* Usage */
+/* ----- */
+TRIAL_BALANCE_ACCOUNT_HTML *
+	trial_balance_account_html_new(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+TRIAL_BALANCE_ACCOUNT_HTML *
+	trial_balance_account_html_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+HTML_TABLE *trial_balance_account_html_table(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *trial_balance_account_html_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *trial_balance_account_html_row_list(
+			char *transaction_as_of_date,
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list,
+			double debit_sum,
+			double credit_sum );
+
+/* Process */
+/* ------- */
+HTML_ROW *trial_balance_account_html_sum_row(
+			double debit_sum,
+			double credit_sum );
+
+/* Usage */
+/* ----- */
+LIST *trial_balance_account_html_element_row_list(
+			char *transaction_as_of_date,
+			char *element_name,
+			boolean element_accumulate_debit,
+			LIST *account_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *trial_balance_account_html_account_row(
+			char *element_name,
+			TRIAL_BALANCE_ACCOUNT *trial_balance_account,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
 	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
 		trial_balance_subclassification_html;
 
-/* 
 	TRIAL_BALANCE_ACCOUNT_HTML *
 		trial_balance_account_html;
-*/
 } TRIAL_BALANCE_HTML;
 
 /* Usage */
 /* ----- */
 TRIAL_BALANCE_HTML *trial_balance_html_new(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *process_name,
 			enum statement_subclassification_option
 				statement_subclassification_option,
 			STATEMENT *statement,
@@ -207,11 +284,6 @@ typedef struct
 /* Usage */
 /* ----- */
 TRIAL_BALANCE_TABLE *trial_balance_table_new(
-			char *application_name,
-			char *session_key,
-			char *login_name,
-			char *role_name,
-			char *process_name,
 			enum statement_subclassification_option
 				statement_subclassification_option,
 			STATEMENT *preclose_statement,
@@ -408,6 +480,15 @@ boolean trial_balance_pdf_landscape_boolean(
 /* -------------------------------------- */
 char *trial_balance_pdf_preclose_key(
 			char *trial_balance_pdf_preclose_key );
+
+/* Public */
+/* ------ */
+
+/* Returns static memory */
+/* --------------------- */
+char *trial_balance_pdf_title(
+			char *process_name,
+			char *date_time_string );
 
 #define TRIAL_BALANCE_DAYS_FOR_EMPHASIS		35
 

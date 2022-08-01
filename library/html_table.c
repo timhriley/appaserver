@@ -65,9 +65,11 @@ void html_table_close( void )
 	printf( "</table>\n" );
 }
 
-void html_table_output(	HTML_TABLE *html_table )
+void html_table_output(	HTML_TABLE *html_table,
+			int rows_between_heading )
 {
 	HTML_ROW *html_row;
+	int row_count = 0;
 
 	if ( !html_table )
 	{
@@ -94,6 +96,12 @@ void html_table_output(	HTML_TABLE *html_table )
 
 	do {
 		html_row = list_get( html_table->row_list );
+
+		if ( ++row_count == rows_between_heading )
+		{
+			html_heading_list_output( html_table->heading_list );
+			row_count = 0;
+		}
 
 		html_row_output(
 			html_table->heading_list,
@@ -178,7 +186,7 @@ char *html_heading_tag(	char *heading )
 	return tag;
 }
 
-void html_heading_right_justify_heading_set(
+void html_heading_list_right_justify_set(
 			LIST *heading_list,
 			LIST *label_list )
 {

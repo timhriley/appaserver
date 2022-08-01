@@ -10,6 +10,8 @@
 #include "list.h"
 #include "boolean.h"
 
+#define HTML_TABLE_ROWS_BETWEEN_HEADING	10
+
 typedef struct
 {
 	char *heading;
@@ -29,7 +31,7 @@ HTML_HEADING *html_heading_calloc(
 
 /* Usage */
 /* ----- */
-void html_heading_right_justify_heading_set(
+void html_heading_list_right_justify_set(
 			LIST *heading_list,
 			LIST *label_list );
 
@@ -150,7 +152,8 @@ HTML_TABLE *html_table_calloc(
 
 /* Driver */
 /* ------ */
-void html_table_output(	HTML_TABLE *html_table );
+void html_table_output(	HTML_TABLE *html_table,
+			int html_table_rows_between_heading );
 
 /* Process */
 /* ------- */
