@@ -6,19 +6,9 @@
 #ifndef FLOAT_H
 #define FLOAT_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 
-/* Constants */
-/* --------- */
-
-/* Structures */
-/* ---------- */
-
-/* Prototypes */
-/* ---------- */
 double float_abs(	double f );
 
 double abs_float(	double f );
@@ -59,7 +49,8 @@ int float_percent_of_total(
 			double total,
 			double denominator );
 
-int float_delta_prior(	double prior_total,
+int float_delta_prior_percent(
+			double prior_total,
 			double total );
 
 #endif

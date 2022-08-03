@@ -120,7 +120,8 @@ SOURCE_LIBRARY= 							\
 		receivable.o						\
 		feeder.o						\
 		statement.o						\
-		trial_balance.o
+		trial_balance.o						\
+		income_statement.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -778,6 +779,10 @@ statement.o: statement.c statement.h
 trial_balance.o: trial_balance.c trial_balance.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c trial_balance.c
+
+income_statement.o: income_statement.c income_statement.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c income_statement.c
 
 paypal.o: paypal.c paypal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

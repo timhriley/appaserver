@@ -30,12 +30,13 @@ typedef struct
 	LIST *subclassification_statement_list;
 	LIST *account_statement_list;
 	double sum;
+	int delta_prior_percent;
 } ELEMENT;
 
 /* Usage */
 /* ----- */
 LIST *element_statement_list(
-			LIST *filter_element_name_list,
+			LIST *element_name_list,
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
@@ -122,7 +123,7 @@ void element_account_statement_list_set(
 
 /* Usage */
 /* ----- */
-void element_prior_year_set(
+void element_delta_prior_percent_set(
 			ELEMENT *prior_element /* in/out */,
 			ELEMENT *current_element );
 

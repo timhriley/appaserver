@@ -78,7 +78,7 @@ typedef struct
 	ACCOUNT_JOURNAL *account_journal_latest;
 	int percent_of_asset;
 	int percent_of_revenue;
-	int delta_prior;
+	int delta_prior_percent;
 	int transaction_count;
 	LIST *liability_journal_list;
 	double liability_due;
@@ -185,18 +185,9 @@ int account_balance_match_function(
 
 /* Usage */
 /* ----- */
-void account_list_prior_year_set(
+void account_list_delta_prior_percent_set(
 			LIST *prior_account_list /* in/out */,
 			LIST *current_account_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-void account_prior_year_set(
-			ACCOUNT *prior_account /* in/out */,
-			ACCOUNT *current_account );
 
 /* Process */
 /* ------- */

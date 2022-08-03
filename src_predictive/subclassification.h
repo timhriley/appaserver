@@ -43,6 +43,7 @@ typedef struct
 	ELEMENT *element;
 	LIST *account_statement_list;
 	double sum;
+	int delta_prior_percent;
 } SUBCLASSIFICATION;
 
 /* Usage */
@@ -125,7 +126,7 @@ double subclassification_list_sum(
 
 /* Usage */
 /* ----- */
-void subclassification_list_prior_year_set(
+void subclassification_list_delta_prior_percent_set(
 			LIST *prior_subclassification_list /* in/out */,
 			LIST *current_subclassification_list );
 
@@ -137,7 +138,7 @@ SUBCLASSIFICATION *subclassification_seek(
 
 /* Usage */
 /* ----- */
-void subclassification_prior_year_set(
+void subclassification_delta_prior_percent_set(
 			SUBCLASSIFICATION *prior_subclassification /* in/out */,
 			SUBCLASSIFICATION *current_subclassification );
 

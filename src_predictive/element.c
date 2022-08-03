@@ -497,7 +497,7 @@ void element_list_account_statement_list_set(
 	} while ( list_next( element_statement_list ) );
 }
 
-void element_prior_year_set(
+void element_delta_prior_percent_set(
 			ELEMENT *prior_element /* in/out */,
 			ELEMENT *current_element )
 {
@@ -509,7 +509,15 @@ void element_prior_year_set(
 		return;
 	}
 
-	subclassification_list_prior_year_set(
+	if ( prior_element->sum )
+	{
+		prior_element->delta_prior_percent =
+			float_delta_prior_percent(
+				prior_element->sum,
+				current_element->sum );
+	}
+
+	subclassification_list_delta_prior_percent_set(
 		prior_element->subclassification_statement_list
 			/* prior_subclassification_list in/out */,
 		current_element->subclassification_statement_list

@@ -358,7 +358,7 @@ FILE *subclassification_pipe( char *system_string )
 	popen( system_string, "r" );
 }
 
-void subclassification_list_prior_year_set(
+void subclassification_list_delta_prior_percent_set(
 			LIST *prior_subclassification_list /* in/out */,
 			LIST *current_subclassification_list )
 {
@@ -389,7 +389,7 @@ void subclassification_list_prior_year_set(
 			continue;
 		}
 
-		subclassification_prior_year_set(
+		subclassification_delta_prior_percent_set(
 			prior_subclassification /* in/out */,
 			current_subclassification );
 
@@ -432,7 +432,7 @@ SUBCLASSIFICATION *subclassification_seek(
 	return (SUBCLASSIFICATION *)0;
 }
 
-void subclassification_prior_year_set(
+void subclassification_delta_prior_percent_set(
 			SUBCLASSIFICATION *prior_subclassification /* in/out */,
 			SUBCLASSIFICATION *current_subclassification )
 {
@@ -447,7 +447,15 @@ void subclassification_prior_year_set(
 		exit( 1 );
 	}
 
-	account_list_prior_year_set(
+	if ( prior_subclassification->sum )
+	{
+		prior_subclassification->delta_prior_percent =
+			float_delta_prior_percent(
+				prior_subclassification->sum,
+				current_subclassification->sum );
+	}
+
+	account_list_delta_prior_percent_set(
 		prior_subclassification->account_statement_list
 			/* prior_account_list in/out */,
 		current_subclassification->account_statement_list

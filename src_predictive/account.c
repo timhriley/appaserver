@@ -664,30 +664,7 @@ void account_list_action_string_set(
 	} while ( list_next( account_statement_list ) );
 }
 
-void account_prior_year_set(
-			ACCOUNT *prior_account /* in/out */,
-			ACCOUNT *current_account )
-{
-	if ( !prior_account
-	||   !prior_account->account_journal_latest
-	||   !current_account
-	||   !current_account->account_journal_latest )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	prior_account->delta_prior =
-		float_delta_prior(
-			prior_account->account_journal_latest->balance,
-			current_account->account_journal_latest->balance );
-}
-
-void account_list_prior_year_set(
+void account_list_delta_prior_percent_set(
 			LIST *prior_account_list /* in/out */,
 			LIST *current_account_list )
 {
@@ -716,8 +693,6 @@ void account_list_prior_year_set(
 					current_account->account_name,
 					prior_account_list ) ) )
 		{
-			current_account->delta_prior = 0;
-
 			continue;
 		}
 
@@ -731,9 +706,17 @@ void account_list_prior_year_set(
 			exit( 1 );
 		}
 
-		account_prior_year_set(
-			prior_account /* in/out */,
-			current_account );
+		if ( prior_account->account_journal_latest->balance )
+		{
+			prior_account->delta_prior_percent =
+				float_delta_prior_percent(
+					prior_account->
+						account_journal_latest->
+						balance,
+					current_account->
+						account_journal_latest->
+						balance );
+		}
 
 	} while ( list_next( current_account_list ) );
 }
