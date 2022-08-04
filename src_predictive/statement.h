@@ -20,7 +20,6 @@
 #define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 #define STATEMENT_DAYS_FOR_EMPHASIS		35
 
-
 enum statement_subclassification_option	{
 			subclassification_aggregate,
 			subclassification_display,
@@ -106,6 +105,94 @@ char *statement_account_money_string(
 
 typedef struct
 {
+	LIST *row_list;
+} STATEMENT_SUBCLASSIFICATION_LATEX;
+
+/* Usage */
+/* ----- */
+LIST *statement_subclassification_latex_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASSIFICATION_LATEX *
+	statement_subclassification_latex_new(
+			ELEMENT *element,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASSIFICATION_LATEX *
+	statement_subclassification_latex_calloc(
+			void );
+
+LATEX_ROW *statement_subclassification_latex_element_label_row(
+			char *element_name,
+			int statement_prior_year_list_length );
+
+LATEX_ROW *statement_subclassification_latex_subclassification_label_row(
+			char *subclassification_name,
+			int statement_prior_year_list_length );
+
+LATEX_ROW *statement_subclassification_latex_subclassification_sum_row(
+			char *subclassification_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
+LATEX_ROW *statement_subclassification_latex_element_sum_row(
+			char *element_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
+/* Usage */
+/* ----- */
+LIST *statement_subclassification_latex_account_row_list(
+			LIST *account_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *heading_list;
+	LIST *list;
+} STATEMENT_SUBCLASSIFICATION_LATEX_LIST;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASSIFICATION_LATEX_LIST *
+	statement_subclassification_latex_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASSIFICATION_LATEX_LIST *
+	statement_subclassification_latex_list_calloc(
+			void );
+
+typedef struct
+{
+} STATEMENT_ACCOUNT_LATEX;
+
+/* Usage */
+/* ----- */
+LIST *statement_account_latex_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
 	LIST *element_statement_list;
 	char *logo_filename;
 	char *title;
@@ -164,45 +251,6 @@ char *statement_caption(
 /* --------------------------- */
 char *statement_date_american(
 			char *date_time_string );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-LIST *statement_subclassification_latex_element_row_list(
-			ELEMENT *element,
-			LIST *statement_prior_year_list );
-
-/* Process */
-/* ------- */
-LATEX_ROW *statement_subclassification_latex_element_label_row(
-			char *element_name,
-			int statement_prior_year_list_length );
-
-LATEX_ROW *statement_subclassification_latex_subclassification_label_row(
-			char *subclassification_name,
-			int statement_prior_year_list_length );
-
-LATEX_ROW *statement_subclassification_latex_subclassification_sum_row(
-			char *subclassification_name,
-			double sum,
-			int percent_of_asset,
-			int percent_of_revenue,
-			LIST *statement_prior_year_list );
-
-LATEX_ROW *statement_subclassification_latex_element_sum_row(
-			char *element_name,
-			double sum,
-			int percent_of_asset,
-			int percent_of_revenue,
-			LIST *statement_prior_year_list );
-
-/* Usage */
-/* ----- */
-LIST *statement_subclassification_latex_account_row_list(
-			LIST *account_statement_list,
-			LIST *statement_prior_year_list );
 
 /* Process */
 /* ------- */
