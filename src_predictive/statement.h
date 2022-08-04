@@ -106,45 +106,37 @@ char *statement_account_money_string(
 typedef struct
 {
 	LIST *row_list;
-} STATEMENT_SUBCLASSIFICATION_LATEX;
+} STATEMENT_SUBCLASS_DISPLAY_LATEX;
 
 /* Usage */
 /* ----- */
-LIST *statement_subclassification_latex_heading_list(
-			LIST *statement_prior_year_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-STATEMENT_SUBCLASSIFICATION_LATEX *
-	statement_subclassification_latex_new(
+STATEMENT_SUBCLASS_DISPLAY_LATEX *
+	statement_subclass_display_latex_new(
 			ELEMENT *element,
 			LIST *statement_prior_year_list );
 
 /* Process */
 /* ------- */
-STATEMENT_SUBCLASSIFICATION_LATEX *
-	statement_subclassification_latex_calloc(
+STATEMENT_SUBCLASS_DISPLAY_LATEX *
+	statement_subclass_display_latex_calloc(
 			void );
 
-LATEX_ROW *statement_subclassification_latex_element_label_row(
+LATEX_ROW *statement_subclass_display_latex_element_label_row(
 			char *element_name,
 			int statement_prior_year_list_length );
 
-LATEX_ROW *statement_subclassification_latex_subclassification_label_row(
+LATEX_ROW *statement_subclass_display_latex_subclassification_label_row(
 			char *subclassification_name,
 			int statement_prior_year_list_length );
 
-LATEX_ROW *statement_subclassification_latex_subclassification_sum_row(
+LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 			char *subclassification_name,
 			double sum,
 			int percent_of_asset,
 			int percent_of_revenue,
 			LIST *statement_prior_year_list );
 
-LATEX_ROW *statement_subclassification_latex_element_sum_row(
+LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 			char *element_name,
 			double sum,
 			int percent_of_asset,
@@ -153,7 +145,7 @@ LATEX_ROW *statement_subclassification_latex_element_sum_row(
 
 /* Usage */
 /* ----- */
-LIST *statement_subclassification_latex_account_row_list(
+LIST *statement_subclass_display_latex_account_row_list(
 			LIST *account_statement_list,
 			LIST *statement_prior_year_list );
 
@@ -164,32 +156,88 @@ typedef struct
 {
 	LIST *heading_list;
 	LIST *list;
-} STATEMENT_SUBCLASSIFICATION_LATEX_LIST;
+} STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST;
 
 /* Usage */
 /* ----- */
-STATEMENT_SUBCLASSIFICATION_LATEX_LIST *
-	statement_subclassification_latex_list_new(
+STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
+	statement_subclass_display_latex_list_new(
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list );
 
 /* Process */
 /* ------- */
-STATEMENT_SUBCLASSIFICATION_LATEX_LIST *
-	statement_subclassification_latex_list_calloc(
+STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
+	statement_subclass_display_latex_list_calloc(
 			void );
-
-typedef struct
-{
-} STATEMENT_ACCOUNT_LATEX;
 
 /* Usage */
 /* ----- */
-LIST *statement_account_latex_heading_list(
+LIST *statement_subclass_display_latex_list_heading_list(
 			LIST *statement_prior_year_list );
 
 /* Process */
 /* ------- */
+
+typedef struct
+{
+	LIST *row_list;
+} STATEMENT_SUBCLASS_OMIT_LATEX;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_OMIT_LATEX *
+	statement_subclass_omit_latex_new(
+			ELEMENT *element,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_OMIT_LATEX *
+	statement_subclass_omit_latex_calloc(
+			void );
+
+LATEX_ROW *statement_subclass_omit_latex_element_label_row(
+			char *element_name,
+			int statement_prior_year_list_length );
+
+LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
+			char *element_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
+/* Usage */
+/* ----- */
+LATEX_ROW *latex_subclass_omit_latex_account_row(
+			STATEMENT_ACCOUNT *statement_account,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *heading_list;
+	LIST *list;
+} STATEMENT_SUBCLASS_OMIT_LATEX_LIST;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
+	statement_subclass_omit_latex_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
+	statement_subclass_omit_latex_list_calloc(
+			void );
+
+LIST *statement_subclass_omit_latex_list_heading_list(
+			LIST *statement_prior_year_list );
 
 typedef struct
 {
@@ -262,17 +310,17 @@ char *statement_latex_account_title(
 
 /* Usage */
 /* ----- */
-LIST *statement_account_latex_element_row_list(
+LIST *statement_subclass_omit_latex_element_row_list(
 			ELEMENT *element,
 			LIST *statement_prior_year_list );
 
 /* Process */
 /* ------- */
-LATEX_ROW *statement_account_latex_element_label_row(
+LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 			char *element_name,
 			int statement_prior_year_list_length );
 
-LATEX_ROW *statement_account_latex_element_sum_row(
+LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 			char *element_name,
 			double sum,
 			int percent_of_asset,
@@ -281,7 +329,7 @@ LATEX_ROW *statement_account_latex_element_sum_row(
 
 /* Usage */
 /* ----- */
-LATEX_ROW *statement_subclassification_latex_account_row(
+LATEX_ROW *statement_subclass_display_latex_account_row(
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
 
@@ -290,7 +338,7 @@ LATEX_ROW *statement_subclassification_latex_account_row(
 
 /* Usage */
 /* ----- */
-LATEX_ROW *statement_account_latex_account_row(
+LATEX_ROW *statement_subclass_omit_latex_account_row(
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
 

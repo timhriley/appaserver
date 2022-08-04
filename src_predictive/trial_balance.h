@@ -20,12 +20,12 @@
 typedef struct
 {
 	HTML_TABLE *html_table;
-} TRIAL_BALANCE_SUBCLASSIFICATION_HTML;
+} TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML;
 
 /* Usage */
 /* ----- */
-TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-	trial_balance_subclassification_html_new(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+	trial_balance_subclass_display_html_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -33,13 +33,13 @@ TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
 
 /* Process */
 /* ------- */
-TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-	trial_balance_subclassification_html_calloc(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+	trial_balance_subclass_display_html_calloc(
 			void );
 
 /* Usage */
 /* ----- */
-HTML_TABLE *trial_balance_subclassification_html_table(
+HTML_TABLE *trial_balance_subclass_display_html_table(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -47,12 +47,12 @@ HTML_TABLE *trial_balance_subclassification_html_table(
 
 /* Process */
 /* ------- */
-LIST *trial_balance_subclassification_html_heading_list(
+LIST *trial_balance_subclass_display_html_heading_list(
 			LIST *statement_prior_year_list );
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_subclassification_html_row_list(
+LIST *trial_balance_subclass_display_html_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -61,13 +61,13 @@ LIST *trial_balance_subclassification_html_row_list(
 
 /* Process */
 /* ------- */
-HTML_ROW *trial_balance_subclassification_html_sum_row(
+HTML_ROW *trial_balance_subclass_display_html_sum_row(
 			double debit_sum,
 			double credit_sum );
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_subclassification_html_element_row_list(
+LIST *trial_balance_subclass_display_html_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -79,7 +79,7 @@ LIST *trial_balance_subclassification_html_element_row_list(
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_subclassification_html_account_row_list(
+LIST *trial_balance_subclass_display_html_account_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -92,7 +92,7 @@ LIST *trial_balance_subclassification_html_account_row_list(
 
 /* Usage */
 /* ----- */
-HTML_ROW *trial_balance_subclassification_html_account_row(
+HTML_ROW *trial_balance_subclass_display_html_account_row(
 			char *element_name,
 			char *subclassification_name,
 			STATEMENT_ACCOUNT *statement_account,
@@ -104,12 +104,12 @@ HTML_ROW *trial_balance_subclassification_html_account_row(
 typedef struct
 {
 	HTML_TABLE *html_table;
-} TRIAL_BALANCE_ACCOUNT_HTML;
+} TRIAL_BALANCE_SUBCLASS_OMIT_HTML;
 
 /* Usage */
 /* ----- */
-TRIAL_BALANCE_ACCOUNT_HTML *
-	trial_balance_account_html_new(
+TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
+	trial_balance_subclass_omit_html_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -117,13 +117,13 @@ TRIAL_BALANCE_ACCOUNT_HTML *
 
 /* Process */
 /* ------- */
-TRIAL_BALANCE_ACCOUNT_HTML *
-	trial_balance_account_html_calloc(
+TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
+	trial_balance_subclass_omit_html_calloc(
 			void );
 
 /* Usage */
 /* ----- */
-HTML_TABLE *trial_balance_account_html_table(
+HTML_TABLE *trial_balance_subclass_omit_html_table(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -134,7 +134,7 @@ HTML_TABLE *trial_balance_account_html_table(
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_account_html_heading_list(
+LIST *trial_balance_subclass_omit_html_heading_list(
 			LIST *statement_prior_year_list );
 
 /* Process */
@@ -142,7 +142,7 @@ LIST *trial_balance_account_html_heading_list(
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_account_html_row_list(
+LIST *trial_balance_subclass_omit_html_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -151,13 +151,13 @@ LIST *trial_balance_account_html_row_list(
 
 /* Process */
 /* ------- */
-HTML_ROW *trial_balance_account_html_sum_row(
+HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 			double debit_sum,
 			double credit_sum );
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_account_html_element_row_list(
+LIST *trial_balance_subclass_omit_html_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -169,7 +169,7 @@ LIST *trial_balance_account_html_element_row_list(
 
 /* Usage */
 /* ----- */
-HTML_ROW *trial_balance_account_html_account_row(
+HTML_ROW *trial_balance_subclass_omit_html_account_row(
 			char *element_name,
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
@@ -179,11 +179,11 @@ HTML_ROW *trial_balance_account_html_account_row(
 
 typedef struct
 {
-	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-		trial_balance_subclassification_html;
+	TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+		trial_balance_subclass_display_html;
 
-	TRIAL_BALANCE_ACCOUNT_HTML *
-		trial_balance_account_html;
+	TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
+		trial_balance_subclass_omit_html;
 } TRIAL_BALANCE_HTML;
 
 /* Usage */
@@ -242,13 +242,13 @@ TRIAL_BALANCE_TABLE *trial_balance_table_calloc(
 typedef struct
 {
 	LATEX *latex;
-	LATEX_TABLE *trial_balance_account_latex_table;
-} TRIAL_BALANCE_ACCOUNT_LATEX;
+	LATEX_TABLE *trial_balance_subclass_omit_latex_table;
+} TRIAL_BALANCE_SUBCLASS_OMIT_LATEX;
 
 /* Usage */
 /* ----- */
-TRIAL_BALANCE_ACCOUNT_LATEX *
-	trial_balance_account_latex_new(
+TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
+	trial_balance_subclass_omit_latex_new(
 			char *transaction_as_of_date,
 			char *tex_filename,
 			char *dvi_filename,
@@ -262,14 +262,14 @@ TRIAL_BALANCE_ACCOUNT_LATEX *
 
 /* Process */
 /* ------- */
-TRIAL_BALANCE_ACCOUNT_LATEX *
-	trial_balance_account_latex_calloc(
+TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
+	trial_balance_subclass_omit_latex_calloc(
 			void );
 
 /* Usage */
 /* ----- */
 LATEX_TABLE *
-	trial_balance_account_latex_table(
+	trial_balance_subclass_omit_latex_table(
 			char *transaction_as_of_date,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
@@ -281,7 +281,7 @@ LATEX_TABLE *
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_account_latex_heading_list(
+LIST *trial_balance_subclass_omit_latex_heading_list(
 			LIST *statement_prior_year_list );
 
 /* Process */
@@ -289,7 +289,7 @@ LIST *trial_balance_account_latex_heading_list(
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_account_latex_row_list(
+LIST *trial_balance_subclass_omit_latex_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -298,14 +298,14 @@ LIST *trial_balance_account_latex_row_list(
 
 /* Process */
 /* ------- */
-LATEX_ROW *trial_balance_account_latex_sum_row(
+LATEX_ROW *trial_balance_subclass_omit_latex_sum_row(
 			double debit_sum,
 			double credit_sum );
 
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_account_latex_element_row_list(
+LIST *trial_balance_subclass_omit_latex_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -317,7 +317,7 @@ LIST *trial_balance_account_latex_element_row_list(
 
 /* Usage */
 /* ----- */
-LATEX_ROW *trial_balance_account_latex_account_row(
+LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 			char *element_name,
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
@@ -335,12 +335,12 @@ typedef struct
 	LIST *account_row_list;
 	LATEX_ROW *account_row;
 	char *trial_balance_latex_account_title;
-} TRIAL_BALANCE_SUBCLASSIFICATION_LATEX;
+} TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX;
 
 /* Usage */
 /* ----- */
-TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-	trial_balance_subclassification_latex_new(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+	trial_balance_subclass_display_latex_new(
 			char *transaction_as_of_date,
 			char *tex_filename,
 			char *dvi_filename,
@@ -354,23 +354,23 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 
 /* Process */
 /* ------- */
-TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-	trial_balance_subclassification_latex_calloc(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+	trial_balance_subclass_display_latex_calloc(
 			void );
 
-LATEX_TABLE *trial_balance_subclassification_latex_table(
+LATEX_TABLE *trial_balance_subclass_display_latex_table(
 			char *transaction_as_of_date,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
 			double credit_sum );
 
-LIST *trial_balance_subclassification_latex_heading_list(
+LIST *trial_balance_subclass_display_latex_heading_list(
 			LIST *statement_prior_year_list );
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_subclassification_latex_row_list(
+LIST *trial_balance_subclass_display_latex_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -379,13 +379,13 @@ LIST *trial_balance_subclassification_latex_row_list(
 
 /* Process */
 /* ------- */
-LATEX_ROW *trial_balance_subclassification_latex_sum_row(
+LATEX_ROW *trial_balance_subclass_display_latex_sum_row(
 			double debit_sum,
 			double credit_sum );
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_subclassification_latex_element_row_list(
+LIST *trial_balance_subclass_display_latex_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -397,7 +397,7 @@ LIST *trial_balance_subclassification_latex_element_row_list(
 
 /* Usage */
 /* ----- */
-LIST *trial_balance_subclassification_latex_account_row_list(
+LIST *trial_balance_subclass_display_latex_account_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -407,7 +407,7 @@ LIST *trial_balance_subclassification_latex_account_row_list(
 
 /* Usage */
 /* ----- */
-LATEX_ROW *trial_balance_subclassification_latex_account_row(
+LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 			char *element_name,
 			char *subclassification_name,
 			STATEMENT_ACCOUNT *statement_account,
@@ -418,16 +418,16 @@ LATEX_ROW *trial_balance_subclassification_latex_account_row(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *trial_balance_subclassification_latex_account_row_title(
+char *trial_balance_subclass_display_latex_account_row_title(
 			char *name );
 
 typedef struct
 {
-	TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-		trial_balance_subclassification_latex;
+	TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+		trial_balance_subclass_display_latex;
 
-	TRIAL_BALANCE_ACCOUNT_LATEX *
-		trial_balance_account_latex;
+	TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
+		trial_balance_subclass_omit_latex;
 } TRIAL_BALANCE_LATEX;
 
 /* Usage */

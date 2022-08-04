@@ -519,8 +519,8 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 	if (	statement_subclassification_option ==
 		subclassification_display )
 	{
-		trial_balance_latex->trial_balance_subclassification_latex =
-			trial_balance_subclassification_latex_new(
+		trial_balance_latex->trial_balance_subclass_display_latex =
+			trial_balance_subclass_display_latex_new(
 				transaction_as_of_date,
 				tex_filename,
 				dvi_filename,
@@ -534,8 +534,8 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 	}
 	else
 	{
-		trial_balance_latex->trial_balance_account_latex =
-			trial_balance_account_latex_new(
+		trial_balance_latex->trial_balance_subclass_omit_latex =
+			trial_balance_subclass_omit_latex_new(
 				transaction_as_of_date,
 				tex_filename,
 				dvi_filename,
@@ -721,8 +721,8 @@ char *trial_balance_transaction_count_string(
 	return strdup( count_string );
 }
 
-TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-	trial_balance_subclassification_latex_new(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+	trial_balance_subclass_display_latex_new(
 			char *transaction_as_of_date,
 			char *tex_filename,
 			char *dvi_filename,
@@ -734,8 +734,8 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 			double debit_sum,
 			double credit_sum )
 {
-	TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-		trial_balance_subclassification_latex;
+	TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+		trial_balance_subclass_display_latex;
 
 	if ( !transaction_as_of_date
 	||   !tex_filename
@@ -752,10 +752,10 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 	}
 
 
-	trial_balance_subclassification_latex =
-		trial_balance_subclassification_latex_calloc();
+	trial_balance_subclass_display_latex =
+		trial_balance_subclass_display_latex_calloc();
 
-	trial_balance_subclassification_latex->latex =
+	trial_balance_subclass_display_latex->latex =
 		latex_new(
 			tex_filename,
 			dvi_filename,
@@ -763,8 +763,8 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 			statement_pdf_landscape_boolean,
 			statement_logo_filename );
 
-	trial_balance_subclassification_latex->table =
-		trial_balance_subclassification_latex_table(
+	trial_balance_subclass_display_latex->table =
+		trial_balance_subclass_display_latex_table(
 			transaction_as_of_date,
 			statement,
 			statement_prior_year_list,
@@ -772,22 +772,22 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 			credit_sum );
 
 	list_set(
-		trial_balance_subclassification_latex->latex->table_list,
-		trial_balance_subclassification_latex->table );
+		trial_balance_subclass_display_latex->latex->table_list,
+		trial_balance_subclass_display_latex->table );
 
-	return trial_balance_subclassification_latex;
+	return trial_balance_subclass_display_latex;
 }
 
-TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-	trial_balance_subclassification_latex_calloc(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+	trial_balance_subclass_display_latex_calloc(
 			void )
 {
-	TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
-		trial_balance_subclassification_latex;
+	TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
+		trial_balance_subclass_display_latex;
 
-	if ( ! ( trial_balance_subclassification_latex =
+	if ( ! ( trial_balance_subclass_display_latex =
 		   calloc( 1,
-			   sizeof( TRIAL_BALANCE_SUBCLASSIFICATION_LATEX ) ) ) )
+			   sizeof( TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -798,10 +798,10 @@ TRIAL_BALANCE_SUBCLASSIFICATION_LATEX *
 	}
 
 
-	return trial_balance_subclassification_latex;
+	return trial_balance_subclass_display_latex;
 }
 
-LATEX_TABLE *trial_balance_subclassification_latex_table(
+LATEX_TABLE *trial_balance_subclass_display_latex_table(
 			char *transaction_as_of_date,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
@@ -825,11 +825,11 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 			statement->caption );
 
 	latex_table->heading_list =
-		trial_balance_subclassification_latex_heading_list(
+		trial_balance_subclass_display_latex_heading_list(
 			statement_prior_year_list );
 
 	latex_table->row_list =
-		trial_balance_subclassification_latex_row_list(
+		trial_balance_subclass_display_latex_row_list(
 			transaction_as_of_date,
 			statement->element_statement_list,
 			statement_prior_year_list,
@@ -839,7 +839,7 @@ LATEX_TABLE *trial_balance_subclassification_latex_table(
 	return latex_table;
 }
 
-LIST *trial_balance_subclassification_latex_row_list(
+LIST *trial_balance_subclass_display_latex_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -861,7 +861,7 @@ LIST *trial_balance_subclassification_latex_row_list(
 
 		list_set_list(
 			row_list,
-			trial_balance_subclassification_latex_element_row_list(
+			trial_balance_subclass_display_latex_element_row_list(
 				transaction_as_of_date,
 				element->element_name,
 				element->accumulate_debit,
@@ -872,14 +872,14 @@ LIST *trial_balance_subclassification_latex_row_list(
 
 	list_set(
 		row_list,
-		trial_balance_subclassification_latex_sum_row(
+		trial_balance_subclass_display_latex_sum_row(
 			debit_sum,
 			credit_sum ) );
 
 	return row_list;
 }
 
-LATEX_ROW *trial_balance_subclassification_latex_sum_row(
+LATEX_ROW *trial_balance_subclass_display_latex_sum_row(
 			double debit_sum,
 			double credit_sum )
 {
@@ -936,7 +936,7 @@ LATEX_ROW *trial_balance_subclassification_latex_sum_row(
 	return latex_row;
 }
 
-LIST *trial_balance_subclassification_latex_element_row_list(
+LIST *trial_balance_subclass_display_latex_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -971,7 +971,7 @@ LIST *trial_balance_subclassification_latex_element_row_list(
 
 		list_set_list(
 			row_list,
-			trial_balance_subclassification_latex_account_row_list(
+			trial_balance_subclass_display_latex_account_row_list(
 				transaction_as_of_date,
 				element_name,
 				element_accumulate_debit,
@@ -986,7 +986,7 @@ LIST *trial_balance_subclassification_latex_element_row_list(
 	return row_list;
 }
 
-LIST *trial_balance_subclassification_latex_account_row_list(
+LIST *trial_balance_subclass_display_latex_account_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -1036,7 +1036,7 @@ LIST *trial_balance_subclassification_latex_account_row_list(
 
 		list_set(
 			row_list,
-			trial_balance_subclassification_latex_account_row(
+			trial_balance_subclass_display_latex_account_row(
 				element_name,
 				subclassification_name,
 				statement_account,
@@ -1050,7 +1050,7 @@ LIST *trial_balance_subclassification_latex_account_row_list(
 	return row_list;
 }
 
-LATEX_ROW *trial_balance_subclassification_latex_account_row(
+LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 			char *element_name,
 			char *subclassification_name,
 			STATEMENT_ACCOUNT *statement_account,
@@ -1191,7 +1191,7 @@ char *trial_balance_column_row_title( char *name )
 	return strdup( buffer );
 }
 
-LIST *trial_balance_subclassification_html_account_row_list(
+LIST *trial_balance_subclass_display_html_account_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -1245,7 +1245,7 @@ LIST *trial_balance_subclassification_html_account_row_list(
 
 		list_set(
 			row_list,
-			trial_balance_subclassification_html_account_row(
+			trial_balance_subclass_display_html_account_row(
 				element_name,
 				subclassification_name,
 				statement_account,
@@ -1259,7 +1259,7 @@ LIST *trial_balance_subclassification_html_account_row_list(
 	return row_list;
 }
 
-HTML_ROW *trial_balance_subclassification_html_account_row(
+HTML_ROW *trial_balance_subclass_display_html_account_row(
 			char *element_name,
 			char *subclassification_name,
 			STATEMENT_ACCOUNT *statement_account,
@@ -1396,7 +1396,7 @@ HTML_ROW *trial_balance_subclassification_html_account_row(
 	return html_row;
 }
 
-LIST *trial_balance_subclassification_html_element_row_list(
+LIST *trial_balance_subclass_display_html_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -1431,7 +1431,7 @@ LIST *trial_balance_subclassification_html_element_row_list(
 
 		list_set_list(
 			row_list,
-			trial_balance_subclassification_html_account_row_list(
+			trial_balance_subclass_display_html_account_row_list(
 				transaction_as_of_date,
 				element_name,
 				element_accumulate_debit,
@@ -1446,7 +1446,7 @@ LIST *trial_balance_subclassification_html_element_row_list(
 	return row_list;
 }
 
-LIST *trial_balance_subclassification_html_row_list(
+LIST *trial_balance_subclass_display_html_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -1468,7 +1468,7 @@ LIST *trial_balance_subclassification_html_row_list(
 
 		list_set_list(
 			row_list,
-			trial_balance_subclassification_html_element_row_list(
+			trial_balance_subclass_display_html_element_row_list(
 				transaction_as_of_date,
 				element->element_name,
 				element->accumulate_debit,
@@ -1479,14 +1479,14 @@ LIST *trial_balance_subclassification_html_row_list(
 
 	list_set(
 		row_list,
-		trial_balance_subclassification_html_sum_row(
+		trial_balance_subclass_display_html_sum_row(
 			debit_sum,
 			credit_sum ) );
 
 	return row_list;
 }
 
-HTML_ROW *trial_balance_subclassification_html_sum_row(
+HTML_ROW *trial_balance_subclass_display_html_sum_row(
 			double debit_sum,
 			double credit_sum )
 {
@@ -1543,7 +1543,7 @@ HTML_ROW *trial_balance_subclassification_html_sum_row(
 	return html_row;
 }
 
-LIST *trial_balance_subclassification_html_heading_list(
+LIST *trial_balance_subclass_display_html_heading_list(
 			LIST *statement_prior_year_list )
 {
 	LIST *heading_list = list_new();
@@ -1676,15 +1676,15 @@ TRIAL_BALANCE_TABLE *trial_balance_table_calloc( void )
 	return trial_balance_table;
 }
 
-TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-	trial_balance_subclassification_html_new(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+	trial_balance_subclass_display_html_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
 			double credit_sum )
 {
-	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-		trial_balance_subclassification_html;
+	TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+		trial_balance_subclass_display_html;
 
 	if ( !statement )
 	{
@@ -1696,30 +1696,30 @@ TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
 		exit( 1 );
 	}
 
-	trial_balance_subclassification_html =
-		trial_balance_subclassification_html_calloc();
+	trial_balance_subclass_display_html =
+		trial_balance_subclass_display_html_calloc();
 
-	trial_balance_subclassification_html->html_table =
-		trial_balance_subclassification_html_table(
+	trial_balance_subclass_display_html->html_table =
+		trial_balance_subclass_display_html_table(
 			statement,
 			statement_prior_year_list,
 			debit_sum,
 			credit_sum );
 
-	return trial_balance_subclassification_html;
+	return trial_balance_subclass_display_html;
 }
 
-TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-	trial_balance_subclassification_html_calloc(
+TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+	trial_balance_subclass_display_html_calloc(
 			void )
 {
-	TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
-		trial_balance_subclassification_html;
+	TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
+		trial_balance_subclass_display_html;
 
-	if ( ! ( trial_balance_subclassification_html =
+	if ( ! ( trial_balance_subclass_display_html =
 			calloc(	1,
 				sizeof(
-				   TRIAL_BALANCE_SUBCLASSIFICATION_HTML ) ) ) )
+				   TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1729,10 +1729,10 @@ TRIAL_BALANCE_SUBCLASSIFICATION_HTML *
 		exit( 1 );
 	}
 
-	return trial_balance_subclassification_html;
+	return trial_balance_subclass_display_html;
 }
 
-HTML_TABLE *trial_balance_subclassification_html_table(
+HTML_TABLE *trial_balance_subclass_display_html_table(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -1758,11 +1758,11 @@ HTML_TABLE *trial_balance_subclassification_html_table(
 
 
 	html_table->heading_list =
-		trial_balance_subclassification_html_heading_list(
+		trial_balance_subclass_display_html_heading_list(
 			statement_prior_year_list );
 
 	html_table->row_list =
-		trial_balance_subclassification_html_row_list(
+		trial_balance_subclass_display_html_row_list(
 			statement->transaction_as_of_date,
 			statement->element_statement_list,
 			statement_prior_year_list,
@@ -1798,8 +1798,8 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 		subclassification_display )
 	{
 		trial_balance_html->
-			trial_balance_subclassification_html =
-				trial_balance_subclassification_html_new(
+			trial_balance_subclass_display_html =
+				trial_balance_subclass_display_html_new(
 					statement,
 					statement_prior_year_list,
 					debit_sum,
@@ -1808,8 +1808,8 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 	else
 	{
 		trial_balance_html->
-			trial_balance_account_html =
-				trial_balance_account_html_new(
+			trial_balance_subclass_omit_html =
+				trial_balance_subclass_omit_html_new(
 					statement,
 					statement_prior_year_list,
 					debit_sum,
@@ -1891,14 +1891,14 @@ char *trial_balance_account_balance_string(
 	return strdup( balance_string );
 }
 
-TRIAL_BALANCE_ACCOUNT_HTML *
-	trial_balance_account_html_new(
+TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
+	trial_balance_subclass_omit_html_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
 			double credit_sum )
 {
-	TRIAL_BALANCE_ACCOUNT_HTML *trial_balance_account_html;
+	TRIAL_BALANCE_SUBCLASS_OMIT_HTML *trial_balance_subclass_omit_html;
 
 	if ( !statement )
 	{
@@ -1910,26 +1910,28 @@ TRIAL_BALANCE_ACCOUNT_HTML *
 		exit( 1 );
 	}
 
-	trial_balance_account_html = trial_balance_account_html_calloc();
+	trial_balance_subclass_omit_html =
+		trial_balance_subclass_omit_html_calloc();
 
-	trial_balance_account_html->html_table =
-		trial_balance_account_html_table(
+	trial_balance_subclass_omit_html->html_table =
+		trial_balance_subclass_omit_html_table(
 			statement,
 			statement_prior_year_list,
 			debit_sum,
 			credit_sum );
 
-	return trial_balance_account_html;
+	return trial_balance_subclass_omit_html;
 }
 
-TRIAL_BALANCE_ACCOUNT_HTML *
-	trial_balance_account_html_calloc(
+TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
+	trial_balance_subclass_omit_html_calloc(
 			void )
 {
-	TRIAL_BALANCE_ACCOUNT_HTML *trial_balance_account_html;
+	TRIAL_BALANCE_SUBCLASS_OMIT_HTML *trial_balance_subclass_omit_html;
 
-	if ( ! ( trial_balance_account_html =
-			calloc( 1, sizeof( TRIAL_BALANCE_ACCOUNT_HTML ) ) ) )
+	if ( ! ( trial_balance_subclass_omit_html =
+			calloc( 1,
+				sizeof( TRIAL_BALANCE_SUBCLASS_OMIT_HTML ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -1939,10 +1941,10 @@ TRIAL_BALANCE_ACCOUNT_HTML *
 		exit( 1 );
 	}
 
-	return trial_balance_account_html;
+	return trial_balance_subclass_omit_html;
 }
 
-HTML_TABLE *trial_balance_account_html_table(
+HTML_TABLE *trial_balance_subclass_omit_html_table(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -1967,11 +1969,11 @@ HTML_TABLE *trial_balance_account_html_table(
 			(char *)0 /* sub_sub_title */ );
 
 	html_table->heading_list =
-		trial_balance_account_html_heading_list(
+		trial_balance_subclass_omit_html_heading_list(
 		statement_prior_year_list );
 
 	html_table->row_list =
-		trial_balance_account_html_row_list(
+		trial_balance_subclass_omit_html_row_list(
 			statement->transaction_as_of_date,
 			statement->element_statement_list,
 			statement_prior_year_list,
@@ -1981,7 +1983,7 @@ HTML_TABLE *trial_balance_account_html_table(
 	return html_table;
 }
 
-LIST *trial_balance_account_html_heading_list(
+LIST *trial_balance_subclass_omit_html_heading_list(
 			LIST *statement_prior_year_list )
 {
 	LIST *heading_list = list_new();
@@ -2040,7 +2042,7 @@ LIST *trial_balance_account_html_heading_list(
 	return heading_list;
 }
 
-LIST *trial_balance_account_html_row_list(
+LIST *trial_balance_subclass_omit_html_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -2068,7 +2070,7 @@ LIST *trial_balance_account_html_row_list(
 
 		list_set_list(
 			row_list,
-			trial_balance_account_html_element_row_list(
+			trial_balance_subclass_omit_html_element_row_list(
 				transaction_as_of_date,
 				element->element_name,
 				element->accumulate_debit,
@@ -2079,14 +2081,14 @@ LIST *trial_balance_account_html_row_list(
 
 	list_set(
 		row_list,
-		trial_balance_account_html_sum_row(
+		trial_balance_subclass_omit_html_sum_row(
 			debit_sum,
 			credit_sum ) );
 
 	return row_list;
 }
 
-HTML_ROW *trial_balance_account_html_sum_row(
+HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 			double debit_sum,
 			double credit_sum )
 {
@@ -2138,7 +2140,7 @@ HTML_ROW *trial_balance_account_html_sum_row(
 	return html_row;
 }
 
-LIST *trial_balance_account_html_element_row_list(
+LIST *trial_balance_subclass_omit_html_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -2191,7 +2193,7 @@ LIST *trial_balance_account_html_element_row_list(
 
 		list_set(
 			row_list,
-			trial_balance_account_html_account_row(
+			trial_balance_subclass_omit_html_account_row(
 				element_name,
 				statement_account,
 				statement_prior_year_list ) );
@@ -2203,7 +2205,7 @@ LIST *trial_balance_account_html_element_row_list(
 	return row_list;
 }
 
-HTML_ROW *trial_balance_account_html_account_row(
+HTML_ROW *trial_balance_subclass_omit_html_account_row(
 			char *element_name,
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list )
@@ -2328,8 +2330,8 @@ HTML_ROW *trial_balance_account_html_account_row(
 	return html_row;
 }
 
-TRIAL_BALANCE_ACCOUNT_LATEX *
-	trial_balance_account_latex_new(
+TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
+	trial_balance_subclass_omit_latex_new(
 			char *transaction_as_of_date,
 			char *tex_filename,
 			char *dvi_filename,
@@ -2341,7 +2343,7 @@ TRIAL_BALANCE_ACCOUNT_LATEX *
 			double debit_sum,
 			double credit_sum )
 {
-	TRIAL_BALANCE_ACCOUNT_LATEX *trial_balance_account_latex;
+	TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *trial_balance_subclass_omit_latex;
 
 	if ( !transaction_as_of_date
 	||   !tex_filename
@@ -2357,9 +2359,10 @@ TRIAL_BALANCE_ACCOUNT_LATEX *
 		exit( 1 );
 	}
 
-	trial_balance_account_latex = trial_balance_account_latex_calloc();
+	trial_balance_subclass_omit_latex =
+		trial_balance_subclass_omit_latex_calloc();
 
-	trial_balance_account_latex->
+	trial_balance_subclass_omit_latex->
 		latex =
 			latex_new(
 				tex_filename,
@@ -2368,30 +2371,33 @@ TRIAL_BALANCE_ACCOUNT_LATEX *
 				statement_pdf_landscape_boolean,
 				statement_logo_filename );
 
-	trial_balance_account_latex->trial_balance_account_latex_table =
-		trial_balance_account_latex_table(
-			transaction_as_of_date,
-			statement,
-			statement_prior_year_list,
-			debit_sum,
-			credit_sum );
+	trial_balance_subclass_omit_latex->
+		trial_balance_subclass_omit_latex_table =
+			trial_balance_subclass_omit_latex_table(
+				transaction_as_of_date,
+				statement,
+				statement_prior_year_list,
+				debit_sum,
+				credit_sum );
 
 	list_set(
-		trial_balance_account_latex->latex->table_list,
-		trial_balance_account_latex->
-			trial_balance_account_latex_table );
+		trial_balance_subclass_omit_latex->latex->table_list,
+		trial_balance_subclass_omit_latex->
+			trial_balance_subclass_omit_latex_table );
 
-	return trial_balance_account_latex;
+	return trial_balance_subclass_omit_latex;
 }
 
-TRIAL_BALANCE_ACCOUNT_LATEX *
-	trial_balance_account_latex_calloc(
+TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
+	trial_balance_subclass_omit_latex_calloc(
 			void )
 {
-	TRIAL_BALANCE_ACCOUNT_LATEX *trial_balance_account_latex;
+	TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *trial_balance_subclass_omit_latex;
 
-	if ( ! ( trial_balance_account_latex =
-			calloc( 1, sizeof( TRIAL_BALANCE_ACCOUNT_LATEX ) ) ) )
+	if ( ! ( trial_balance_subclass_omit_latex =
+			calloc(
+			   1,
+			   sizeof( TRIAL_BALANCE_SUBCLASS_OMIT_LATEX ) ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
@@ -2401,11 +2407,10 @@ TRIAL_BALANCE_ACCOUNT_LATEX *
 		exit( 1 );
 	}
 
-	return trial_balance_account_latex;
+	return trial_balance_subclass_omit_latex;
 }
 
-LATEX_TABLE *
-	trial_balance_account_latex_table(
+LATEX_TABLE *trial_balance_subclass_omit_latex_table(
 			char *transaction_as_of_date,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
@@ -2431,11 +2436,11 @@ LATEX_TABLE *
 			statement->caption );
 
 	latex_table->heading_list =
-		trial_balance_account_latex_heading_list(
+		trial_balance_subclass_omit_latex_heading_list(
 			statement_prior_year_list );
 
 	latex_table->row_list =
-		trial_balance_account_latex_row_list(
+		trial_balance_subclass_omit_latex_row_list(
 			transaction_as_of_date,
 			statement->element_statement_list,
 			statement_prior_year_list,
@@ -2445,7 +2450,7 @@ LATEX_TABLE *
 	return latex_table;
 }
 
-LIST *trial_balance_account_latex_heading_list(
+LIST *trial_balance_subclass_omit_latex_heading_list(
 			LIST *statement_prior_year_list )
 {
 	LIST *heading_list = list_new();
@@ -2501,7 +2506,7 @@ LIST *trial_balance_account_latex_heading_list(
 	return heading_list;
 }
 
-LIST *trial_balance_account_latex_row_list(
+LIST *trial_balance_subclass_omit_latex_row_list(
 			char *transaction_as_of_date,
 			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
@@ -2530,8 +2535,8 @@ LIST *trial_balance_account_latex_row_list(
 		if ( list_length( element->account_statement_list ) )
 		{
 			list_set_list(
-				row_list,
-				trial_balance_account_latex_element_row_list(
+			   row_list,
+			   trial_balance_subclass_omit_latex_element_row_list(
 					transaction_as_of_date,
 					element->element_name,
 					element->accumulate_debit,
@@ -2543,14 +2548,14 @@ LIST *trial_balance_account_latex_row_list(
 
 	list_set(
 		row_list,
-		trial_balance_account_latex_sum_row(
+		trial_balance_subclass_omit_latex_sum_row(
 			debit_sum,
 			credit_sum ) );
 
 	return row_list;
 }
 
-LATEX_ROW *trial_balance_account_latex_sum_row(
+LATEX_ROW *trial_balance_subclass_omit_latex_sum_row(
 			double debit_sum,
 			double credit_sum )
 {
@@ -2602,7 +2607,7 @@ LATEX_ROW *trial_balance_account_latex_sum_row(
 	return latex_row;
 }
 
-LIST *trial_balance_account_latex_element_row_list(
+LIST *trial_balance_subclass_omit_latex_element_row_list(
 			char *transaction_as_of_date,
 			char *element_name,
 			boolean element_accumulate_debit,
@@ -2654,7 +2659,7 @@ LIST *trial_balance_account_latex_element_row_list(
 
 		list_set(
 			row_list,
-			trial_balance_account_latex_account_row(
+			trial_balance_subclass_omit_latex_account_row(
 				element_name,
 				statement_account,
 				statement_prior_year_list ) );
@@ -2666,7 +2671,7 @@ LIST *trial_balance_account_latex_element_row_list(
 	return row_list;
 }
 
-LATEX_ROW *trial_balance_account_latex_account_row(
+LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 			char *element_name,
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list )
