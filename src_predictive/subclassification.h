@@ -43,6 +43,8 @@ typedef struct
 	ELEMENT *element;
 	LIST *account_statement_list;
 	double sum;
+	int percent_of_asset;
+	int percent_of_revenue;
 	int delta_prior_percent;
 } SUBCLASSIFICATION;
 
@@ -169,6 +171,33 @@ void subclassification_account_action_string_set(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+void subclassification_percent_of_asset_set(
+			LIST *subclassification_statement_list,
+			double element_asset_sum );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void subclassification_percent_of_revenue_set(
+			LIST *subclassification_statement_list,
+			double element_revenue_sum );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+SUBCLASSIFICATION *subclassification_element_list_seek(
+			char *subclassification_name,
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 double subclassification_list_debit_sum(
@@ -178,8 +207,5 @@ double subclassification_list_debit_sum(
 double subclassification_list_credit_sum(
 			LIST *subclassification_statement_list,
 			boolean element_accumulate_debit );
-
-LIST *subclassification_list_account_list(
-			LIST *subclassification_statement_list );
 
 #endif

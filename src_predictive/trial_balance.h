@@ -13,9 +13,9 @@
 #include "boolean.h"
 #include "element.h"
 #include "account.h"
-#include "statement.h"
 #include "latex.h"
 #include "html_table.h"
+#include "statement.h"
 
 typedef struct
 {
@@ -481,11 +481,6 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			char *document_root_directory,
 			enum statement_subclassification_option
 				statement_subclassification_option,
-			char *transaction_begin_date_string,
-			char *transaction_as_of_date,
-			char *statement_logo_filename,
-			char *statement_title,
-			char *statement_subtitle,
 			STATEMENT *preclose_statement,
 			LIST *preclose_statement_prior_year_list,
 			double preclose_debit_sum,
@@ -524,9 +519,9 @@ typedef struct
 	boolean transaction_closing_entry_exists;
 	char *transaction_date_time_closing;
 	STATEMENT *preclose_statement;
-	LIST *preclose_prior_year_list;
+	LIST *preclose_statement_prior_year_list;
 	STATEMENT *statement;
-	LIST *prior_year_list;
+	LIST *statement_prior_year_list;
 	double preclose_debit_sum;
 	double preclose_credit_sum;
 	double debit_sum;

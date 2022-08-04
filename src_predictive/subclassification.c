@@ -314,9 +314,7 @@ LIST *subclassification_account_statement_list(
 	if ( !list_length( account_statement_list ) )
 		return (LIST *)0;
 	else
-		return
-		account_balance_sort_list(
-			account_statement_list );
+		return account_statement_list;
 }
 
 double subclassification_list_sum(
@@ -524,34 +522,6 @@ double subclassification_list_credit_sum(
 	return sum;
 }
 
-LIST *subclassification_list_account_list(
-			LIST *subclassification_statement_list )
-{
-	SUBCLASSIFICATION *subclassification;
-	LIST *list;
-
-	if ( !list_rewind( subclassification_statement_list ) )
-		return (LIST *)0;
-
-	list = list_new();
-
-	do {
-		subclassification =
-			list_get(
-				subclassification_statement_list );
-
-		if ( list_length( subclassification->account_statement_list ) )
-		{
-			list_set_list(
-				list,
-				subclassification->account_statement_list );
-		}
-
-	} while ( list_next( subclassification_statement_list ) );
-
-	return list;
-}
-
 void subclassification_account_transaction_count_set(
 			LIST *subclassification_statement_list,
 			char *transaction_begin_date_string,
@@ -610,3 +580,104 @@ void subclassification_account_action_string_set(
 	} while ( list_next( subclassification_statement_list ) );
 }
 
+void subclassification_percent_of_asset_set(
+			LIST *subclassification_statement_list,
+			double element_asset_sum )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !element_asset_sum ) return;
+
+	if ( !list_rewind( subclassification_statement_list ) ) return;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( !list_length( subclassification->account_statement_list ) )
+		{
+			continue;
+		}
+
+		subclassification->percent_of_asset =
+			float_percent_of_total(
+				/* Set by statement_fetch()->	*/
+				/* element_list_sum()		*/
+				subclassification->sum,
+				element_asset_sum );
+
+
+		account_percent_of_asset_set(
+			subclassification->account_statement_list,
+			element_asset_sum );
+
+	} while ( list_next( subclassification_statement_list ) );
+}
+
+void subclassification_percent_of_revenue_set(
+			LIST *subclassification_statement_list,
+			double element_revenue_sum )
+{
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !element_revenue_sum ) return;
+
+	if ( !list_rewind( subclassification_statement_list ) ) return;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( !list_length( subclassification->account_statement_list ) )
+		{
+			continue;
+		}
+
+		subclassification->percent_of_revenue =
+			float_percent_of_total(
+				/* Set by statement_fetch()->	*/
+				/* element_list_sum()		*/
+				subclassification->sum,
+				element_revenue_sum );
+
+
+		account_percent_of_revenue_set(
+			subclassification->account_statement_list,
+			element_revenue_sum );
+
+	} while ( list_next( subclassification_statement_list ) );
+}
+
+SUBCLASSIFICATION *subclassification_element_list_seek(
+			char *subclassification_name,
+			LIST *element_statement_list )
+{
+	ELEMENT *element;
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !list_rewind( element_statement_list ) )
+		return (SUBCLASSIFICATION *)0;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( !list_length(
+			element->subclassification_statement_list ) )
+		{
+			continue;
+		}
+
+		if ( ( subclassification =
+			subclassification_seek(
+				subclassification_name,
+				element->subclassification_statement_list ) ) )
+		{
+			return subclassification;
+		}
+
+	} while ( list_next( element_statement_list ) );
+
+	return (SUBCLASSIFICATION *)0;
+}

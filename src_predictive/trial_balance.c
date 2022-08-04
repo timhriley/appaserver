@@ -171,7 +171,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 		if ( prior_year_count )
 		{
-			trial_balance->preclose_prior_year_list =
+			trial_balance->preclose_statement_prior_year_list =
 				statement_prior_year_list(
 					trial_balance->
 						element_name_list,
@@ -227,7 +227,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	if ( prior_year_count )
 	{
-		trial_balance->prior_year_list =
+		trial_balance->statement_prior_year_list =
 			statement_prior_year_list(
 				trial_balance->
 					element_name_list,
@@ -264,118 +264,14 @@ TRIAL_BALANCE *trial_balance_fetch(
 				statement->
 				element_statement_list );
 
-	if ( trial_balance->transaction_closing_entry_exists )
-	{
-		trial_balance->element_list_non_nominal_account_list =
-			element_list_non_nominal_account_list(
-				trial_balance->
-					preclose_statement->
-					element_statement_list );
-
-		trial_balance->element_asset =
-			element_seek(
-				ELEMENT_ASSET,
-				trial_balance->
-					preclose_statement->
-					element_statement_list );
-
-		if ( trial_balance->element_asset )
-		{
-			trial_balance->element_asset->sum =
-				element_sum(
-					trial_balance->element_asset );
-
-			account_list_percent_of_asset_set(
-				trial_balance->
-					element_list_non_nominal_account_list,
-				trial_balance->element_asset->sum );
-		}
-
-		trial_balance->element_list_nominal_account_list =
-			element_list_nominal_account_list(
-				trial_balance->
-					preclose_statement->
-					element_statement_list );
-
-		trial_balance->element_revenue =
-			element_seek(
-				ELEMENT_REVENUE,
-				trial_balance->
-					preclose_statement->
-					element_statement_list );
-
-		if ( trial_balance->element_revenue )
-		{
-			trial_balance->element_revenue->sum =
-				element_sum(
-					trial_balance->element_revenue );
-
-			account_list_percent_of_revenue_set(
-				trial_balance->
-					element_list_nominal_account_list,
-				trial_balance->element_revenue->sum );
-		}
-
-	}
-
-	trial_balance->element_list_non_nominal_account_list =
-		element_list_non_nominal_account_list(
-			trial_balance->
-				statement->
-				element_statement_list );
-
-	trial_balance->element_asset =
-		element_seek(
-			ELEMENT_ASSET,
-			trial_balance->
-				statement->
-				element_statement_list );
-
-	if ( trial_balance->element_asset )
-	{
-		trial_balance->element_asset->sum =
-			element_sum(
-				trial_balance->element_asset );
-
-		account_list_percent_of_asset_set(
-			trial_balance->element_list_non_nominal_account_list,
-			trial_balance->element_asset->sum );
-	}
-
-	trial_balance->element_list_nominal_account_list =
-		element_list_nominal_account_list(
-			trial_balance->
-				statement->
-				element_statement_list );
-
-	trial_balance->element_revenue =
-		element_seek(
-			ELEMENT_REVENUE,
-			trial_balance->
-				statement->
-				element_statement_list );
-
-	if ( trial_balance->element_revenue )
-	{
-		trial_balance->element_revenue->sum =
-			element_sum(
-				trial_balance->element_revenue );
-
-		account_list_percent_of_revenue_set(
-			trial_balance->element_list_nominal_account_list,
-			trial_balance->element_revenue->sum );
-	}
-
-	if ( trial_balance->transaction_closing_entry_exists )
-	{
-		if (	trial_balance->statement_subclassification_option ==
+	if ( trial_balance->transaction_closing_entry_exists
+	&&   trial_balance->statement_subclassification_option ==
 			subclassification_omit )
-		{
-			element_list_account_statement_list_set(
-				trial_balance->
-					statement->
-					element_statement_list );
-		}
+	{
+		element_list_account_statement_list_set(
+			trial_balance->
+				preclose_statement->
+				element_statement_list );
 	}
 
 	if (	trial_balance->statement_subclassification_option ==
@@ -396,17 +292,13 @@ TRIAL_BALANCE *trial_balance_fetch(
 				document_root_directory,
 				trial_balance->
 					statement_subclassification_option,
-				trial_balance->transaction_begin_date_string,
-				trial_balance->transaction_as_of_date,
-				trial_balance->statement->logo_filename,
-				trial_balance->statement->title,
-				trial_balance->statement->subtitle,
 				trial_balance->preclose_statement,
-				trial_balance->preclose_prior_year_list,
+				trial_balance->
+					preclose_statement_prior_year_list,
 				trial_balance->preclose_debit_sum,
 				trial_balance->preclose_credit_sum,
 				trial_balance->statement,
-				trial_balance->prior_year_list,
+				trial_balance->statement_prior_year_list,
 				trial_balance->debit_sum,
 				trial_balance->credit_sum,
 				getpid() /* process_id */ );
@@ -419,11 +311,12 @@ TRIAL_BALANCE *trial_balance_fetch(
 				trial_balance->
 					statement_subclassification_option,
 				trial_balance->preclose_statement,
-				trial_balance->preclose_prior_year_list,
+				trial_balance->
+					preclose_statement_prior_year_list,
 				trial_balance->preclose_debit_sum,
 				trial_balance->preclose_credit_sum,
 				trial_balance->statement,
-				trial_balance->prior_year_list,
+				trial_balance->statement_prior_year_list,
 				trial_balance->debit_sum,
 				trial_balance->credit_sum );
 	}
@@ -459,11 +352,6 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			char *document_root_directory,
 			enum statement_subclassification_option
 				statement_subclassification_option,
-			char *transaction_begin_date_string,
-			char *transaction_as_of_date,
-			char *statement_logo_filename,
-			char *statement_title,
-			char *statement_subtitle,
 			STATEMENT *preclose_statement,
 			LIST *preclose_statement_prior_year_list,
 			double preclose_debit_sum,
@@ -479,10 +367,6 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 	if ( !application_name
 	||   !process_name
 	||   !document_root_directory
-	||   !transaction_begin_date_string
-	||   !transaction_as_of_date
-	||   !statement_title
-	||   !statement_subtitle
 	||   !statement
 	||   !process_id )
 	{
@@ -512,15 +396,18 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 				application_name,
 				process_name,
 				document_root_directory,
-				transaction_begin_date_string,
-				transaction_as_of_date,
+				preclose_statement->
+					transaction_begin_date_string,
+				preclose_statement->
+					transaction_as_of_date,
 				trial_balance_pdf->preclose_key,
 				process_id );
 
 		trial_balance_pdf->preclose_trial_balance_latex =
 			trial_balance_latex_new(
 				statement_subclassification_option,
-				transaction_as_of_date,
+				preclose_statement->
+					transaction_as_of_date,
 				trial_balance_pdf->
 					preclose_statement_link->
 					tex_filename,
@@ -532,7 +419,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 					working_directory,
 				trial_balance_pdf->
 					statement_pdf_landscape_boolean,
-				statement_logo_filename,
+				preclose_statement->logo_filename,
 				preclose_statement,
 				preclose_statement_prior_year_list,
 				preclose_debit_sum,
@@ -544,15 +431,15 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 			application_name,
 			process_name,
 			document_root_directory,
-			transaction_begin_date_string,
-			transaction_as_of_date,
+			statement->transaction_begin_date_string,
+			statement->transaction_as_of_date,
 			(char *)0 /* trial_balance_pdf_preclose_key */,
 			process_id );
 
 	trial_balance_pdf->trial_balance_latex =
 		trial_balance_latex_new(
 			statement_subclassification_option,
-			transaction_as_of_date,
+			statement->transaction_as_of_date,
 			trial_balance_pdf->
 				statement_link->
 				tex_filename,
@@ -564,7 +451,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 				working_directory,
 			trial_balance_pdf->
 				statement_pdf_landscape_boolean,
-			statement_logo_filename,
+			statement->logo_filename,
 			statement,
 			statement_prior_year_list,
 			debit_sum,

@@ -30,6 +30,8 @@ typedef struct
 	LIST *subclassification_statement_list;
 	LIST *account_statement_list;
 	double sum;
+	int percent_of_asset;
+	int percent_of_revenue;
 	int delta_prior_percent;
 } ELEMENT;
 
@@ -162,11 +164,26 @@ void element_account_action_string_set(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+void element_percent_of_asset_set(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_percent_of_revenue_set(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 boolean element_is_nominal(
 			char *element_name );
-
 
 ELEMENT *element_seek(	char *element_name,
 			LIST *element_statement_list );
@@ -175,12 +192,6 @@ double element_list_debit_sum(
 			LIST *element_statement_list );
 
 double element_list_credit_sum(
-			LIST *element_statement_list );
-
-LIST *element_list_non_nominal_account_list(
-			LIST *element_statement_list );
-
-LIST *element_list_nominal_account_list(
 			LIST *element_statement_list );
 
 #endif

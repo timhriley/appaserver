@@ -14,6 +14,7 @@
 #include "String.h"
 #include "piece.h"
 #include "subclassification.h"
+#include "account.h"
 #include "element.h"
 
 ELEMENT *element_calloc( void )
@@ -323,6 +324,13 @@ void element_account_statement_list_set( ELEMENT *element )
 		element->account_statement_list =
 			subclassification_account_statement_list(
 				element->subclassification_statement_list );
+
+		if ( element->account_statement_list )
+		{
+			element->account_statement_list =
+				account_balance_sort_list(
+					element->account_statement_list );
+		}
 	}
 }
 
@@ -428,60 +436,6 @@ double element_list_credit_sum(
 	return sum;
 }
 
-LIST *element_list_non_nominal_account_list(
-			LIST *element_statement_list )
-{
-	ELEMENT *element;
-	LIST *list;
-
-	if ( !list_rewind( element_statement_list ) ) return (LIST *)0;
-
-	list = list_new();
-
-	do {
-		element = list_get( element_statement_list );
-
-		if ( !element_is_nominal( element->element_name )
-		&&   list_length( element->subclassification_statement_list ) )
-		{
-			list_set_list(
-				list,
-				subclassification_list_account_list(
-				     element->
-					subclassification_statement_list ) );
-		}
-	} while ( list_next( element_statement_list ) );
-
-	return list;
-}
-
-LIST *element_list_nominal_account_list(
-			LIST *element_statement_list )
-{
-	ELEMENT *element;
-	LIST *list;
-
-	if ( !list_rewind( element_statement_list ) ) return (LIST *)0;
-
-	list = list_new();
-
-	do {
-		element = list_get( element_statement_list );
-
-		if ( element_is_nominal( element->element_name )
-		&&   list_length( element->subclassification_statement_list ) )
-		{
-			list_set_list(
-				list,
-				subclassification_list_account_list(
-				     element->
-					subclassification_statement_list ) );
-		}
-	} while ( list_next( element_statement_list ) );
-
-	return list;
-}
-
 void element_list_account_statement_list_set(
 			LIST *element_statement_list )
 {
@@ -573,6 +527,98 @@ void element_account_action_string_set(
 				role_name,
 				transaction_begin_date_string,
 				transaction_date_time_closing );
+		}
+
+	} while ( list_next( element_statement_list ) );
+}
+
+void element_percent_of_asset_set(
+			LIST *element_statement_list )
+{
+	ELEMENT *element_asset;
+	ELEMENT *element;
+
+	if ( !list_length( element_statement_list ) ) return;
+
+	if ( ! ( element_asset =
+			element_seek(
+				ELEMENT_ASSET,
+				element_statement_list ) ) )
+	{
+		return;
+	}
+
+	if ( !element_asset->sum ) return;
+
+	list_rewind( element_statement_list );
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( !element_is_nominal( element->element_name ) )
+		{
+			if ( !list_length(
+				element->subclassification_statement_list ) )
+			{
+				continue;
+			}
+
+			element->percent_of_asset =
+				float_percent_of_total(
+					/* Set by statement_fetch()->	*/
+					/* element_list_sum()		*/
+					element->sum,
+					element_asset->sum );
+
+			subclassification_percent_of_asset_set(
+				element->subclassification_statement_list,
+				element_asset->sum );
+		}
+
+	} while ( list_next( element_statement_list ) );
+}
+
+void element_percent_of_revenue_set(
+			LIST *element_statement_list )
+{
+	ELEMENT *element_revenue;
+	ELEMENT *element;
+
+	if ( !list_length( element_statement_list ) ) return;
+
+	if ( ! ( element_revenue =
+			element_seek(
+				ELEMENT_REVENUE,
+				element_statement_list ) ) )
+	{
+		return;
+	}
+
+	if ( !element_revenue->sum ) return;
+
+	list_rewind( element_statement_list );
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( element_is_nominal( element->element_name ) )
+		{
+			if ( !list_length(
+				element->subclassification_statement_list ) )
+			{
+				continue;
+			}
+
+			element->percent_of_revenue =
+				float_percent_of_total(
+					/* Set by statement_fetch()->	*/
+					/* element_list_sum()		*/
+					element->sum,
+					element_revenue->sum );
+
+			subclassification_percent_of_revenue_set(
+				element->subclassification_statement_list,
+				element_revenue->sum );
 		}
 
 	} while ( list_next( element_statement_list ) );

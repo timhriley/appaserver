@@ -194,8 +194,8 @@ void account_list_delta_prior_percent_set(
 
 /* Usage */
 /* ----- */
-void account_list_percent_of_asset_set(
-			LIST *element_list_non_nominal_account_list,
+void account_percent_of_asset_set(
+			LIST *subclassification_account_statement_list,
 			double asset_sum );
 
 /* Process */
@@ -203,8 +203,8 @@ void account_list_percent_of_asset_set(
 
 /* Usage */
 /* ----- */
-void account_list_percent_of_revenue_set(
-			LIST *element_list_nominal_account_list,
+void account_percent_of_revenue_set(
+			LIST *subclassification_account_statement_list,
 			double revenue_sum );
 
 /* Process */
@@ -272,7 +272,7 @@ double account_list_sum(
 
 /* Usage */
 /* ----- */
-ACCOUNT *account_element_account_seek(
+ACCOUNT *account_element_list_seek(
 			char *account_name,
 			LIST *element_statement_list );
 /* Process */
@@ -280,7 +280,7 @@ ACCOUNT *account_element_account_seek(
 
 /* Usage */
 /* ----- */
-ACCOUNT *account_subclassification_account_seek(
+ACCOUNT *account_subclassification_list_seek(
 			char *account_name,
 			LIST *subclassification_statement_list );
 

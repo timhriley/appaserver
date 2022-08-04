@@ -251,7 +251,7 @@ LIST *statement_prior_year_account_data_list(
 		statement_prior_year = list_get( statement_prior_year_list );
 
 		prior_account =
-			account_element_account_seek(
+			account_element_list_seek(
 				account_name,
 				statement_prior_year->
 					element_statement_list );
@@ -295,6 +295,126 @@ char *statement_prior_year_account_data( ACCOUNT *prior_account )
 	}
 
 	return strdup( account_data );
+}
+
+LIST *statement_prior_year_subclassification_data_list(
+			char *subclassification_name,
+			LIST *statement_prior_year_list )
+{
+	LIST *data_list;
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+	SUBCLASSIFICATION *prior_subclassification;
+
+	if ( !list_rewind( statement_prior_year_list ) ) return (LIST *)0;
+
+	data_list = list_new();
+
+	do {
+		statement_prior_year = list_get( statement_prior_year_list );
+
+		prior_subclassification =
+			subclassification_element_list_seek(
+				subclassification_name,
+				statement_prior_year->
+					element_statement_list );
+
+		list_set(
+			data_list,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			statement_prior_year_subclassification_data(
+				prior_subclassification ) );
+
+	} while ( list_next( statement_prior_year_list ) );
+
+	return data_list;
+}
+
+char *statement_prior_year_subclassification_data(
+			SUBCLASSIFICATION *prior_subclassification )
+{
+	char subclassification_data[ 32 ];
+
+	if ( !prior_subclassification
+	||   !prior_subclassification->sum )
+	{
+		*subclassification_data = '\0';
+	}
+	else
+	{
+		sprintf(subclassification_data,
+			"%d%c %s",
+			prior_subclassification->delta_prior_percent,
+			'%',
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_dollars(
+				prior_subclassification->sum ) );
+	}
+
+	return strdup( subclassification_data );
+}
+
+LIST *statement_prior_year_element_data_list(
+			char *element_name,
+			LIST *statement_prior_year_list )
+{
+	LIST *data_list;
+	STATEMENT_PRIOR_YEAR *statement_prior_year;
+	ELEMENT *prior_element;
+
+	if ( !list_rewind( statement_prior_year_list ) ) return (LIST *)0;
+
+	data_list = list_new();
+
+	do {
+		statement_prior_year = list_get( statement_prior_year_list );
+
+		prior_element =
+			element_seek(
+				element_name,
+				statement_prior_year->
+					element_statement_list );
+
+		list_set(
+			data_list,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			statement_prior_year_element_data(
+				prior_element ) );
+
+	} while ( list_next( statement_prior_year_list ) );
+
+	return data_list;
+}
+
+char *statement_prior_year_element_data(
+			ELEMENT *prior_element )
+{
+	char element_data[ 32 ];
+
+	if ( !prior_element
+	||   !prior_element->sum )
+	{
+		*element_data = '\0';
+	}
+	else
+	{
+		sprintf(element_data,
+			"%d%c %s",
+			prior_element->delta_prior_percent,
+			'%',
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_dollars(
+				prior_element->sum ) );
+	}
+
+	return strdup( element_data );
 }
 
 STATEMENT_LINK *statement_link_new(
@@ -821,41 +941,477 @@ LIST *statement_subclassification_latex_element_row_list(
 			ELEMENT *element,
 			LIST *statement_prior_year_list )
 {
+	LIST *row_list;
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !element )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( element->subclassification_statement_list ) )
+		return (LIST *)0;
+
+	row_list = list_new();
+
+	list_set(
+		row_list,
+		statement_subclassification_latex_element_label_row(
+			element->element_name,
+			list_length( statement_prior_year_list ) ) );
+
+	do {
+		subclassification =
+			list_get(
+				element->
+					subclassification_statement_list );
+
+		list_set(
+		  row_list,
+		  statement_subclassification_latex_subclassification_label_row(
+			subclassification->subclassification_name,
+			list_length( statement_prior_year_list ) ) );
+
+		list_set_list(
+			row_list,
+			statement_subclassification_latex_account_row_list(
+				subclassification->account_statement_list,
+				statement_prior_year_list ) );
+
+		list_set(
+		    row_list,
+		    statement_subclassification_latex_subclassification_sum_row(
+				subclassification->subclassification_name,
+				subclassification->sum,
+				subclassification->percent_of_asset,
+				subclassification->percent_of_revenue,
+				statement_prior_year_list ) );
+
+	} while ( list_next(
+			element->subclassification_statement_list ) );
+
+	list_set(
+		row_list,
+		statement_subclassification_latex_element_sum_row(
+			element->element_name,
+			element->sum,
+			element->percent_of_asset,
+			element->percent_of_revenue,
+			statement_prior_year_list ) );
+
+	return row_list;
 }
 
 LATEX_ROW *statement_subclassification_latex_element_label_row(
 			char *element_name,
 			int statement_prior_year_list_length )
 {
+	LATEX_ROW *latex_row;
+	char column_title[ 128 ];
+	char buffer[ 64 ];
+	int i;
+
+	if ( !element_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	sprintf(column_title,
+		"\\large \\bf %s",
+		format_initial_capital(
+			buffer,
+			element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( column_title ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+	}
+
+	return latex_row;
 }
 
 LATEX_ROW *statement_subclassification_latex_subclassification_label_row(
 			char *subclassification_name,
 			int statement_prior_year_list_length )
 {
+	LATEX_ROW *latex_row;
+	char column_title[ 128 ];
+	char buffer[ 64 ];
+	int i;
+
+	if ( !subclassification_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: subclassification_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	sprintf(column_title,
+		"\\bf %s",
+		format_initial_capital(
+			buffer,
+			subclassification_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( column_title ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_bold */ );
+	}
+
+	return latex_row;
+}
+
+LATEX_ROW *statement_subclassification_latex_subclassification_sum_row(
+			char *subclassification_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list )
+{
+	LATEX_ROW *latex_row;
+	char column_title[ 128 ];
+	char buffer[ 64 ];
+
+	if ( !subclassification_name )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: subclassification_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	sprintf(column_title,
+		"\\bf %s",
+		format_initial_capital(
+			buffer,
+			subclassification_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( column_title ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_balance_string(
+			sum /* balance */,
+			(char *)0 /* account_action_string */,
+			0 /* not round_dollar_boolean */ ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_percent_string(
+			percent_of_asset,
+			percent_of_revenue ),
+		0 /* not large_bold */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		latex_column_data_list_set(
+			latex_row->column_data_list,
+			statement_prior_year_subclassification_data_list(
+				subclassification_name,
+				statement_prior_year_list ) );
+	}
+
+	return latex_row;
 }
 
 LATEX_ROW *statement_subclassification_latex_element_sum_row(
 			char *element_name,
 			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
 			LIST *statement_prior_year_list )
 {
+	LATEX_ROW *latex_row;
+	char column_title[ 128 ];
+	char buffer[ 64 ];
+
+	if ( !element_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	sprintf(column_title,
+		"\\large \\bf %s Element",
+		format_initial_capital(
+			buffer,
+			element_name ) );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( column_title ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_balance_string(
+			sum /* balance */,
+			(char *)0 /* account_action_string */,
+			0 /* not round_dollar_boolean */ ),
+		0 /* not large_bold */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_percent_string(
+			percent_of_asset,
+			percent_of_revenue ),
+		0 /* not large_bold */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		latex_column_data_list_set(
+			latex_row->column_data_list,
+			statement_prior_year_element_data_list(
+				element_name,
+				statement_prior_year_list ) );
+	}
+
+	return latex_row;
 }
 
 LIST *statement_subclassification_latex_account_row_list(
 			LIST *account_statement_list,
 			LIST *statement_prior_year_list )
 {
+	LIST *row_list;
+	STATEMENT_ACCOUNT *statement_account;
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_statement_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		account =
+			list_get(
+				account_statement_list );
+
+		if ( !account->account_journal_latest )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		statement_account =
+			statement_account_new(
+				(char *)0 /* transaction_as_of_date */,
+				0 /* element_accumulate_debit */,
+				account->account_journal_latest,
+				(char *)0 /* account_action_string */,
+				0 /* not round_dollar_boolean */,
+				account );
+
+		list_set(
+			row_list,
+			statement_subclassification_latex_account_row(
+				statement_account,
+				statement_prior_year_list ) );
+
+	} while ( list_next( account_statement_list ) );
+
+	return row_list;
 }
 
 LIST *statement_account_latex_element_row_list(
 			ELEMENT *element,
 			LIST *statement_prior_year_list )
 {
+	LIST *row_list;
+	ACCOUNT *account;
+	STATEMENT_ACCOUNT *statement_account;
+
+	if ( !element
+	||   !list_rewind( element->account_statement_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	list_set(
+		row_list,
+		statement_account_latex_element_label_row(
+			element->element_name,
+			list_length( statement_prior_year_list )
+				/* statement_prior_year_list_length */ ) );
+
+	do {
+		account =
+			list_get(
+				element->account_statement_list );
+
+		if ( !account->account_journal_latest )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		statement_account =
+			statement_account_new(
+				(char *)0 /* transaction_as_of_date */,
+				0 /* element_accumulate_debit */,
+				account->account_journal_latest,
+				(char *)0 /* account_action_string */,
+				0 /* not round_dollar_boolean */,
+				account );
+
+		list_set(
+			row_list,
+			statement_account_latex_account_row(
+				statement_account,
+				statement_prior_year_list ) );
+
+	} while ( list_next( element->account_statement_list ) );
+
+	list_set(
+		row_list,
+		statement_account_latex_element_sum_row(
+			element->element_name,
+			element->sum,
+			element->percent_of_asset,
+			element->percent_of_revenue,
+			statement_prior_year_list ) );
+
+	return row_list;
 }
 
 LATEX_ROW *statement_account_latex_element_label_row(
-			char *element_name )
+			char *element_name,
 			int statement_prior_year_list_length )
 {
 	LATEX_ROW *latex_row;
@@ -917,12 +1473,13 @@ LATEX_ROW *statement_account_latex_element_label_row(
 LATEX_ROW *statement_account_latex_element_sum_row(
 			char *element_name,
 			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
 	char column_title[ 128 ];
 	char buffer[ 64 ];
-	char *account_balance_string;
 
 	if ( !element_name )
 	{
@@ -957,10 +1514,10 @@ LATEX_ROW *statement_account_latex_element_sum_row(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		trial_balance_account_balance_string(
-			sum,
+		statement_account_balance_string(
+			sum /* balance */,
 			(char *)0 /* account_action_string */,
-			0 /* not round_dollar_boolean */ );
+			0 /* not round_dollar_boolean */ ),
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
@@ -968,9 +1525,9 @@ LATEX_ROW *statement_account_latex_element_sum_row(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		trial_balance_account_percent_string(
-			account->percent_of_asset,
-			account->percent_of_revenue ),
+		statement_account_percent_string(
+			percent_of_asset,
+			percent_of_revenue ),
 		0 /* not large_bold */ );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -978,7 +1535,7 @@ LATEX_ROW *statement_account_latex_element_sum_row(
 		latex_column_data_list_set(
 			latex_row->column_data_list,
 			statement_prior_year_element_data_list(
-				element->element_name,
+				element_name,
 				statement_prior_year_list ) );
 	}
 
@@ -986,17 +1543,16 @@ LATEX_ROW *statement_account_latex_element_sum_row(
 }
 
 LATEX_ROW *statement_subclassification_latex_account_row(
-			ACCOUNT *account,
+			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
-	char *account_balance_string;
 
-	if ( !account
-	||   !account->account_journal_latest )
+	if ( !statement_account
+	||   !statement_account->account )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: statement_account is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1011,18 +1567,12 @@ LATEX_ROW *statement_subclassification_latex_account_row(
 		/* Returns heap memory */
 		/* ------------------- */
 		statement_latex_account_title(
-			account->account_name ),
+			statement_account->account->account_name ),
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		trial_balance_account_balance_string(
-			account->account_journal_latest->balance,
-			account->account_action_string,
-			1 /* round_dollar_boolean */ );
+		statement_account->balance_string,
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
@@ -1037,12 +1587,7 @@ LATEX_ROW *statement_subclassification_latex_account_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		trial_balance_account_percent_string(
-			account->percent_of_asset,
-			account->percent_of_revenue ),
+		statement_account->percent_string,
 		0 /* not large_bold */ );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -1050,7 +1595,7 @@ LATEX_ROW *statement_subclassification_latex_account_row(
 		latex_column_data_list_set(
 			latex_row->column_data_list,
 			statement_prior_year_account_data_list(
-				account->account_name,
+				statement_account->account->account_name,
 				statement_prior_year_list ) );
 	}
 
@@ -1058,17 +1603,16 @@ LATEX_ROW *statement_subclassification_latex_account_row(
 }
 
 LATEX_ROW *statement_account_latex_account_row(
-			ACCOUNT *account,
+			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
-	char *account_balance_string;
 
-	if ( !account
-	||   !account->account_journal_latest )
+	if ( !statement_account
+	||   !statement_account->account )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: statement_account is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1083,18 +1627,12 @@ LATEX_ROW *statement_account_latex_account_row(
 		/* Returns heap memory */
 		/* ------------------- */
 		statement_latex_account_title(
-			account->account_name ),
+			statement_account->account->account_name ),
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		trial_balance_account_balance_string(
-			account->account_journal_latest->balance,
-			account->account_action_string,
-			1 /* round_dollar_boolean */ );
+		statement_account->balance_string,
 		0 /* not large_bold */ );
 
 	latex_column_data_set(
@@ -1104,12 +1642,7 @@ LATEX_ROW *statement_account_latex_account_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		trial_balance_account_percent_string(
-			account->percent_of_asset,
-			account->percent_of_revenue ),
+		statement_account->percent_string,
 		0 /* not large_bold */ );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -1117,7 +1650,7 @@ LATEX_ROW *statement_account_latex_account_row(
 		latex_column_data_list_set(
 			latex_row->column_data_list,
 			statement_prior_year_account_data_list(
-				account->account_name,
+				statement_account->account->account_name,
 				statement_prior_year_list ) );
 	}
 

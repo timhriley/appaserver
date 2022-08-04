@@ -184,9 +184,18 @@ LATEX_ROW *statement_subclassification_latex_subclassification_label_row(
 			char *subclassification_name,
 			int statement_prior_year_list_length );
 
+LATEX_ROW *statement_subclassification_latex_subclassification_sum_row(
+			char *subclassification_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
 LATEX_ROW *statement_subclassification_latex_element_sum_row(
 			char *element_name,
 			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
 			LIST *statement_prior_year_list );
 
 /* Usage */
@@ -217,12 +226,15 @@ LATEX_ROW *statement_account_latex_element_label_row(
 
 LATEX_ROW *statement_account_latex_element_sum_row(
 			char *element_name,
-			double sum );
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
 
 /* Usage */
 /* ----- */
 LATEX_ROW *statement_subclassification_latex_account_row(
-			ACCOUNT *account,
+			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
 
 /* Process */
@@ -231,7 +243,7 @@ LATEX_ROW *statement_subclassification_latex_account_row(
 /* Usage */
 /* ----- */
 LATEX_ROW *statement_account_latex_account_row(
-			ACCOUNT *account,
+			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
 
 /* Public */
@@ -326,6 +338,34 @@ LIST *statement_prior_year_account_data_list(
 /* ------------------- */
 char *statement_prior_year_account_data(
 			ACCOUNT *prior_account );
+
+/* Usage */
+/* ----- */
+LIST *statement_prior_year_subclassification_data_list(
+			char *subclassification_name,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_prior_year_subclassification_data(
+			SUBCLASSIFICATION *prior_subclassification );
+
+/* Usage */
+/* ----- */
+LIST *statement_prior_year_element_data_list(
+			char *element_name,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_prior_year_element_data(
+			ELEMENT *prior_element );
 
 /* Public */
 /* ------ */

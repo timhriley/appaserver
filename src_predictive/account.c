@@ -369,50 +369,50 @@ int account_balance_match_function(
 	}
 }
 
-void account_list_percent_of_asset_set(
-			LIST *account_list,
+void account_percent_of_asset_set(
+			LIST *subclassification_account_statement_list,
 			double asset_sum )
 {
 	ACCOUNT *account;
 
 	if ( !asset_sum
-	||   !list_rewind( account_list ) )
+	||   !list_rewind( subclassification_account_statement_list ) )
 	{
 		return;
 	}
 
 	do {
-		account = list_get( account_list );
+		account = list_get( subclassification_account_statement_list );
 
 		account->percent_of_asset =
 			float_percent_of_total(
 				account->account_journal_latest->balance,
 				asset_sum );
 
-	} while ( list_next( account_list ) );
+	} while ( list_next( subclassification_account_statement_list ) );
 }
 
-void account_list_percent_of_revenue_set(
-			LIST *account_list,
+void account_percent_of_revenue_set(
+			LIST *subclassification_account_statement_list,
 			double revenue_sum )
 {
 	ACCOUNT *account;
 
 	if ( !revenue_sum
-	||   !list_rewind( account_list ) )
+	||   !list_rewind( subclassification_account_statement_list ) )
 	{
 		return;
 	}
 
 	do {
-		account = list_get( account_list );
+		account = list_get( subclassification_account_statement_list );
 
 		account->percent_of_revenue =
 			float_percent_of_total(
 				account->account_journal_latest->balance,
 				revenue_sum );
 
-	} while ( list_next( account_list ) );
+	} while ( list_next( subclassification_account_statement_list ) );
 }
 
 ACCOUNT *account_seek(	char *account_name,
@@ -1056,7 +1056,7 @@ void account_transaction_count_set(
 	} while ( list_next( account_statement_list ) );
 }
 
-ACCOUNT *account_element_account_seek(
+ACCOUNT *account_element_list_seek(
 			char *account_name,
 			LIST *element_statement_list )
 {
@@ -1071,7 +1071,7 @@ ACCOUNT *account_element_account_seek(
 		if ( list_length( element->subclassification_statement_list ) )
 		{
 			return
-			account_subclassification_account_seek(
+			account_subclassification_list_seek(
 				account_name,
 				element->subclassification_statement_list );
 		}
@@ -1081,7 +1081,7 @@ ACCOUNT *account_element_account_seek(
 	return (ACCOUNT *)0;
 }
 
-ACCOUNT *account_subclassification_account_seek(
+ACCOUNT *account_subclassification_list_seek(
 			char *account_name,
 			LIST *subclassification_statement_list )
 {
