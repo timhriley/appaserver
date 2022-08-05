@@ -180,6 +180,14 @@ void element_percent_of_revenue_set(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+double element_net_income(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 boolean element_is_nominal(
@@ -192,6 +200,10 @@ double element_list_debit_sum(
 			LIST *element_statement_list );
 
 double element_list_credit_sum(
+			LIST *element_statement_list );
+
+double element_seek_sum(
+			char *element_name,
 			LIST *element_statement_list );
 
 #endif

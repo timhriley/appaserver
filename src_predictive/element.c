@@ -624,3 +624,54 @@ void element_percent_of_revenue_set(
 	} while ( list_next( element_statement_list ) );
 }
 
+double element_seek_sum(
+			char *element_name,
+			LIST *element_statement_list )
+{
+	ELEMENT *element;
+
+	if ( ! ( element =
+			element_seek(
+				element_name,
+				element_statement_list ) ) )
+	{
+		return 0.0;
+	}
+	else
+	{
+		return element->sum;
+	}
+}
+
+double element_net_income(
+			LIST *element_statement_list )
+{
+	double revenue;
+	double gain;
+	double expense;
+	double loss;
+
+	revenue =
+		element_seek_sum(
+			ELEMENT_REVENUE,
+			element_statement_list );
+
+	gain =
+		element_seek_sum(
+			ELEMENT_GAIN,
+			element_statement_list );
+
+	expense =
+		element_seek_sum(
+			ELEMENT_EXPENSE,
+			element_statement_list );
+
+	loss =
+		element_seek_sum(
+			ELEMENT_LOSS,
+			element_statement_list );
+
+	return (revenue + gain) - (expense + loss);
+
+}
+
