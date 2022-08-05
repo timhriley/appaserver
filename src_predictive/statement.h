@@ -152,6 +152,15 @@ LIST *statement_subclass_display_latex_account_row_list(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+LATEX_ROW *statement_subclass_display_latex_account_row(
+			STATEMENT_ACCOUNT *statement_account,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
 typedef struct
 {
 	LIST *heading_list;
@@ -210,7 +219,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 
 /* Usage */
 /* ----- */
-LATEX_ROW *latex_subclass_omit_latex_account_row(
+LATEX_ROW *statement_subclass_omit_latex_account_row(
 			STATEMENT_ACCOUNT *statement_account,
 			LIST *statement_prior_year_list );
 
@@ -307,40 +316,6 @@ char *statement_date_american(
 /* ------------------- */
 char *statement_latex_account_title(
 			char *account_name );
-
-/* Usage */
-/* ----- */
-LIST *statement_subclass_omit_latex_element_row_list(
-			ELEMENT *element,
-			LIST *statement_prior_year_list );
-
-/* Process */
-/* ------- */
-LATEX_ROW *statement_subclass_omit_latex_element_label_row(
-			char *element_name,
-			int statement_prior_year_list_length );
-
-LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
-			char *element_name,
-			double sum,
-			int percent_of_asset,
-			int percent_of_revenue,
-			LIST *statement_prior_year_list );
-
-/* Usage */
-/* ----- */
-LATEX_ROW *statement_subclass_display_latex_account_row(
-			STATEMENT_ACCOUNT *statement_account,
-			LIST *statement_prior_year_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-LATEX_ROW *statement_subclass_omit_latex_account_row(
-			STATEMENT_ACCOUNT *statement_account,
-			LIST *statement_prior_year_list );
 
 /* Public */
 /* ------ */

@@ -1971,9 +1971,9 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 	statement_subclass_omit_latex->row_list = list_new();
 
 	list_set(
-		statement_subclass_omit->latex->row_list,
+		statement_subclass_omit_latex->row_list,
 		statement_subclass_omit_latex_element_label_row(
-			element_name,
+			element->element_name,
 			list_length( statement_prior_year_list ) ) );
 
 	do {
@@ -2009,7 +2009,7 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 	list_set(
 		statement_subclass_omit_latex->row_list,
 		statement_subclass_omit_latex_element_sum_row(
-			element_name,
+			element->element_name,
 			element->sum,
 			element->percent_of_asset,
 			element->percent_of_revenue,
@@ -2038,77 +2038,47 @@ STATEMENT_SUBCLASS_OMIT_LATEX *
 	return statement_subclass_omit_latex;
 }
 
-LATEX_ROW *statement_subclass_omit_latex_element_label_row(
-			char *element_name,
-			int statement_prior_year_list_length )
+STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
+	statement_subclass_omit_latex_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list )
 {
-	LATEX_ROW *latex_row;
-	char column_title[ 128 ];
-	char buffer[ 64 ];
-	int i;
+	STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
+		statement_subclass_omit_latex_list;
+	ELEMENT *element;
 
-	if ( !element_name )
+	if ( !list_rewind( element_statement_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: element_name is empty.\n",
+		"ERROR in %s/%s()/%d: element_statement_list is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	latex_row = latex_row_new();
 
-	sprintf(column_title,
-		"\\large \\bf %s",
-		format_initial_capital(
-			buffer,
-			element_name ) );
+	statement_subclass_omit_latex_list =
+		statement_subclass_omit_latex_list_calloc();
 
-	latex_column_data_set(
-		latex_row->column_data_list,
-		strdup( column_title ),
-		0 /* not large_bold */ );
+	statement_subclass_omit_latex_list->heading_list =
+		statement_subclass_omit_latex_list_heading_list(
+			statement_prior_year_list );
 
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
+	statement_subclass_omit_latex_list->list = list_new();
 
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
+	do {
+		element = list_get( element_statement_list );
 
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
+		list_set(
+			statement_subclass_omit_latex_list->list,
+			statement_subclass_omit_latex_new(
+				element,
+				statement_prior_year_list ) );
 
-	for (	i = 0;
-		i < statement_prior_year_list_length;
-		i++ )
-	{
-		latex_column_data_set(
-			latex_row->column_data_list,
-			"",
-			0 /* not large_bold */ );
-	}
+	} while ( list_next( element_statement_list ) );
 
-	return latex_row;
-}
-
-LATEX_ROW *latex_subclass_omit_latex_account_row(
-			STATEMENT_ACCOUNT *statement_account,
-			LIST *statement_prior_year_list )
-{
-}
-
-STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
-	statement_subclass_omit_latex_list_new(
-			LIST *element_statement_list,
-			LIST *statement_prior_year_list )
-{
+	return statement_subclass_omit_latex_list;
 }
 
 STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
