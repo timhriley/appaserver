@@ -334,27 +334,30 @@ LIST *statement_prior_year_subclassification_data_list(
 char *statement_prior_year_subclassification_data(
 			SUBCLASSIFICATION *prior_subclassification )
 {
-	char subclassification_data[ 32 ];
+	boolean cell_empty = {0};
+	int delta_prior_percent = {0};
+	double prior_year_amount = {0};
 
-	if ( !prior_subclassification
-	||   !prior_subclassification->sum )
+	if ( !prior_subclassification || !prior_subclassification->sum )
 	{
-		*subclassification_data = '\0';
+		cell_empty = 1;
 	}
 	else
 	{
-		sprintf(subclassification_data,
-			"%d%c %s",
-			prior_subclassification->delta_prior_percent,
-			'%',
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			timlib_place_commas_in_dollars(
-				prior_subclassification->sum ) );
+		delta_prior_percent =
+			prior_subclassification->delta_prior_percent;
+		prior_year_amount =
+			prior_subclassification->sum;
 	}
 
-	return strdup( subclassification_data );
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	statement_prior_year_cell_display(
+		cell_empty,
+		delta_prior_percent,
+		prior_year_amount );
 }
 
 LIST *statement_prior_year_element_data_list(
@@ -394,27 +397,28 @@ LIST *statement_prior_year_element_data_list(
 char *statement_prior_year_element_data(
 			ELEMENT *prior_element )
 {
-	char element_data[ 32 ];
+	boolean cell_empty = {0};
+	int delta_prior_percent = {0};
+	double prior_year_amount = {0};
 
-	if ( !prior_element
-	||   !prior_element->sum )
+	if ( !prior_element || !prior_element->sum )
 	{
-		*element_data = '\0';
+		cell_empty = 1;
 	}
 	else
 	{
-		sprintf(element_data,
-			"%d%c %s",
-			prior_element->delta_prior_percent,
-			'%',
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			timlib_place_commas_in_dollars(
-				prior_element->sum ) );
+		delta_prior_percent = prior_element->delta_prior_percent;
+		prior_year_amount = prior_element->sum;
 	}
 
-	return strdup( element_data );
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	statement_prior_year_cell_display(
+		cell_empty,
+		delta_prior_percent,
+		prior_year_amount );
 }
 
 STATEMENT_LINK *statement_link_new(
@@ -751,7 +755,7 @@ void statement_latex_output(
 }
 
 LIST *statement_prior_year_list(
-			LIST *filter_element_name_list,
+			LIST *element_name_list,
 			char *transaction_date_time_closing,
 			int prior_year_count,
 			STATEMENT *statement )
@@ -759,7 +763,7 @@ LIST *statement_prior_year_list(
 	LIST *prior_year_list;
 	int years_ago;
 
-	if ( !list_length( filter_element_name_list )
+	if ( !list_length( element_name_list )
 	||   !transaction_date_time_closing
 	||   !prior_year_count
 	||   !statement
@@ -782,7 +786,7 @@ LIST *statement_prior_year_list(
 		list_set(
 			prior_year_list,
 			statement_prior_year_fetch(
-				filter_element_name_list,
+				element_name_list,
 				transaction_date_time_closing,
 				years_ago,
 				statement ) );
@@ -792,7 +796,7 @@ LIST *statement_prior_year_list(
 }
 
 STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
-			LIST *filter_element_name_list,
+			LIST *element_name_list,
 			char *transaction_date_time_closing,
 			int years_ago,
 			STATEMENT *statement )
@@ -801,7 +805,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 	ELEMENT *current_element;
 	ELEMENT *prior_element;
 
-	if ( !list_length( filter_element_name_list )
+	if ( !list_length( element_name_list )
 	||   !transaction_date_time_closing
 	||   !years_ago
 	||   !statement
@@ -827,7 +831,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 
 	statement_prior_year->element_statement_list =
 		element_statement_list(
-			filter_element_name_list,
+			element_name_list,
 			statement_prior_year->date_string,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
@@ -2151,3 +2155,81 @@ LIST *statement_subclass_omit_latex_list_heading_list(
 	return heading_list;
 }
 
+char *statement_cell_data_label( char *name )
+{
+	char buffer[ 128 ];
+
+	if ( !name ) return "";
+
+	format_initial_capital( buffer, name );
+
+	return strdup( buffer );
+}
+
+char *statement_prior_year_cell_display(
+			boolean cell_empty,
+			int delta_prior_percent,
+			double prior_year_amount )
+{
+	char cell_display[ 32 ];
+
+	if ( cell_empty )
+	{
+		*cell_display = '\0';
+	}
+	else
+	{
+		sprintf(cell_display,
+			"%d%c %s",
+			delta_prior_percent,
+			'%',
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			timlib_place_commas_in_dollars(
+				prior_year_amount ) );
+	}
+
+	return strdup( cell_display );
+}
+
+LIST *statement_subclass_display_latex_list_extract_row_list(
+	STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
+			statement_subclass_display_latex_list )
+{
+	LIST *row_list;
+	STATEMENT_SUBCLASS_DISPLAY_LATEX *
+		statement_subclass_display_latex;
+
+	if ( !statement_subclass_display_latex_list )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: statement_subclass_display_latex_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind(
+		statement_subclass_display_latex_list->list ) )
+	{
+		return (LIST *)0;
+	}
+
+	row_list = list_new();
+
+	do {
+		statement_subclass_display_latex =
+			list_get(
+				statement_subclass_display_latex_list->list );
+
+		list_set_list(
+			row_list,
+			statement_subclass_display_latex->row_list );
+
+	} while ( list_next(
+			statement_subclass_display_latex_list->list ) );
+
+	return row_list;
+}

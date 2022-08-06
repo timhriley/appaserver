@@ -188,6 +188,12 @@ LIST *statement_subclass_display_latex_list_heading_list(
 /* Process */
 /* ------- */
 
+/* Public */
+/* ------ */
+LIST *statement_subclass_display_latex_list_extract_row_list(
+	STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
+			statement_subclass_display_latex_list );
+
 typedef struct
 {
 	LIST *row_list;
@@ -336,6 +342,11 @@ char *statement_pdf_title(
 boolean statement_pdf_landscape_boolean(
 			int statement_prior_year_list_length );
 
+/* Returns heap memory or "" */
+/* ------------------------- */
+char *statement_cell_data_label(
+			char *name );
+
 /* Driver */
 /* ------ */
 void statement_latex_output(
@@ -437,6 +448,19 @@ LIST *statement_prior_year_element_data_list(
 /* ------------------- */
 char *statement_prior_year_element_data(
 			ELEMENT *prior_element );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_prior_year_cell_display(
+			boolean cell_empty,
+			int delta_prior_percent,
+			double prior_year_amount );
+
+/* Process */
+/* ------- */
 
 /* Public */
 /* ------ */

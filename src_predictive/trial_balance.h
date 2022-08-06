@@ -512,9 +512,6 @@ typedef struct
 		statement_output_medium;
 	char *transaction_as_of_date;
 	char *transaction_begin_date_string;
-	char *statement_logo_filename;
-	char *statement_title;
-	char *statement_subtitle;
 	LIST *element_name_list;
 	boolean transaction_closing_entry_exists;
 	char *transaction_date_time_closing;
@@ -569,11 +566,6 @@ char *trial_balance_preclose_process_name(
 
 /* Public */
 /* ------ */
-
-/* Returns heap memory or "" */
-/* ------------------------- */
-char *trial_balance_column_row_title(
-			char *name );
 
 /* Returns heap memory */
 /* ------------------- */

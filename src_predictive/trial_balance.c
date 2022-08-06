@@ -1080,7 +1080,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		trial_balance_column_row_title(
+		statement_cell_data_label(
 			element_name ) /* name */,
 		0 /* not large_bold */ );
 
@@ -1089,7 +1089,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		trial_balance_column_row_title(
+		statement_cell_data_label(
 			subclassification_name /* name */ ),
 		0 /* not large_bold */ );
 
@@ -1178,17 +1178,6 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 	}
 
 	return latex_row;
-}
-
-char *trial_balance_column_row_title( char *name )
-{
-	char buffer[ 128 ];
-
-	if ( !name ) return "";
-
-	format_initial_capital( buffer, name );
-
-	return strdup( buffer );
 }
 
 LIST *trial_balance_subclass_display_html_account_row_list(
@@ -1289,7 +1278,7 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		trial_balance_column_row_title(
+		statement_cell_data_label(
 			element_name /* name */ ),
 		0 /* not large_bold_boolean */ );
 
@@ -1298,7 +1287,7 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		trial_balance_column_row_title(
+		statement_cell_data_label(
 			subclassification_name /* name */ ),
 		0 /* not large_bold_boolean */ );
 
@@ -2234,7 +2223,7 @@ HTML_ROW *trial_balance_subclass_omit_html_account_row(
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		trial_balance_column_row_title(
+		statement_cell_data_label(
 			element_name /* name */ ),
 		0 /* not large_bold_boolean */ );
 
@@ -2697,7 +2686,10 @@ LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		trial_balance_column_row_title(
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
 			element_name /* name */ ),
 		0 /* not large_bold */ );
 
