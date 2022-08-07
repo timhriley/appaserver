@@ -116,7 +116,10 @@ int main( int argc, char **argv )
 				income_statement_pdf->
 				statement_link->
 				ftp_output_filename,
-			process_name /* prompt */,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_pdf_prompt( process_name ),
 			process_name,
 			date_time_string );
 	}

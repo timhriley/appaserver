@@ -555,7 +555,8 @@ char *income_statement_net_income_percent_of_revenue_display(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		statement_account_revenue_percent_string(
+		statement_account_percent_string(
+			0 /* percent_of_asset */,
 			percent_of_revenue );
 	}
 }

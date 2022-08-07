@@ -1232,7 +1232,6 @@ LIST *trial_balance_subclass_display_html_account_row_list(
 			exit( 1 );
 		}
 
-
 		statement_account =
 			/* --------------- */
 			/* Always succeeds */
@@ -1771,7 +1770,6 @@ HTML_TABLE *trial_balance_subclass_display_html_table(
 			(char *)0 /* title */,
 			statement->subtitle,
 			(char *)0 /* sub_sub_title */ );
-
 
 	html_table->heading_list =
 		trial_balance_subclass_display_html_heading_list(

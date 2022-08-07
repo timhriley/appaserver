@@ -347,6 +347,11 @@ boolean statement_pdf_landscape_boolean(
 char *statement_cell_data_label(
 			char *name );
 
+/* Returns static memory */
+/* --------------------- */
+char *statement_pdf_prompt(
+			char *process_name );
+
 /* Driver */
 /* ------ */
 void statement_latex_output(

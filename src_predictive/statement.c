@@ -1147,6 +1147,12 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -1609,7 +1615,7 @@ STATEMENT_ACCOUNT *statement_account_new(
 	if ( statement_account->balance < 0.0 )
 	{
 		statement_account->balance =
-			float_abs( statement_account->balance );
+			0.0 - statement_account->balance;
 
 		element_accumulate_debit = 1 - element_accumulate_debit;
 	}
@@ -2197,6 +2203,25 @@ char *statement_cell_data_label( char *name )
 	return strdup( buffer );
 }
 
+char *statement_pdf_prompt( char *process_name )
+{
+	static char prompt[ 128 ];
+
+	if ( !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	format_initial_capital( prompt, process_name );
+
+	return prompt;
+}
+
 char *statement_prior_year_cell_display(
 			boolean cell_empty,
 			int delta_prior_percent,
@@ -2270,7 +2295,7 @@ char *statement_account_balance_string(
 			char *account_action_string,
 			boolean round_dollar_boolean )
 {
-	char balance_string[ 128 ];
+	char balance_string[ 1024 ];
 
 	if ( account_action_string )
 	{
