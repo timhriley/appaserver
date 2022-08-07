@@ -14,8 +14,9 @@
 #include "statement.h"
 #include "trial_balance.h"
 
-#define TRIAL_BALANCE_TITLE		"Trial Balance"
-#define TRIAL_BALANCE_PRECLOSE_TITLE	"Trial Balance (preclose)"
+#define TRIAL_BALANCE_PROMPT		"Trial Balance"
+#define TRIAL_BALANCE_PRECLOSE_PROMPT	"Trial Balance (preclose)"
+#define TRIAL_BALANCE_PRECLOSE_TITLE	"(Preclose)"
 
 int main( int argc, char **argv )
 {
@@ -93,24 +94,14 @@ int main( int argc, char **argv )
 			application_name,
 			appaserver_parameter_file->
 				appaserver_mount_point );
+
+		printf( "%s\n", trial_balance->statement->frame_title );
 	}
 
 	if ( trial_balance->statement_subclassification_option ==
 			subclassification_display
 	&& trial_balance->trial_balance_pdf )
 	{
-		char *date_time_string =
-			date_get_now_yyyy_mm_dd_hh_mm(
-				date_utc_offset() );
-
-		printf( "%s\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			statement_pdf_title(
-				process_name,
-				date_time_string ) );
-
 		if ( trial_balance->
 			trial_balance_pdf->
 			preclose_trial_balance_latex )
@@ -125,9 +116,11 @@ int main( int argc, char **argv )
 					trial_balance_pdf->
 					preclose_statement_link->
 					ftp_output_filename,
-				TRIAL_BALANCE_PRECLOSE_TITLE /* prompt */,
+				TRIAL_BALANCE_PRECLOSE_PROMPT,
 				process_name,
-				date_time_string );
+				trial_balance->
+					statement->
+					date_time_string );
 		}
 
 		statement_latex_output(
@@ -140,9 +133,11 @@ int main( int argc, char **argv )
 				trial_balance_pdf->
 				statement_link->
 				ftp_output_filename,
-			TRIAL_BALANCE_TITLE /* prompt */,
+			TRIAL_BALANCE_PROMPT,
 			process_name,
-			date_time_string );
+			trial_balance->
+				statement->
+				date_time_string );
 	}
 	else
 	if ( trial_balance->statement_subclassification_option ==
@@ -159,7 +154,8 @@ int main( int argc, char **argv )
 					preclose_trial_balance_html->
 					trial_balance_subclass_display_html->
 					html_table,
-				TRIAL_BALANCE_PRECLOSE_TITLE /* title */ );
+				TRIAL_BALANCE_PRECLOSE_TITLE
+					/* secondary_title */ );
 		}
 
 		statement_html_output(
@@ -168,25 +164,13 @@ int main( int argc, char **argv )
 				trial_balance_html->
 				trial_balance_subclass_display_html->
 				html_table,
-			TRIAL_BALANCE_TITLE /* title */ );
+			(char *)0  /* secondary_title */ );
 	}
 	else
 	if ( trial_balance->statement_subclassification_option ==
 			subclassification_omit
 	&& trial_balance->trial_balance_pdf )
 	{
-		char *date_time_string =
-			date_get_now_yyyy_mm_dd_hh_mm(
-				date_utc_offset() );
-
-		printf( "%s\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			statement_pdf_title(
-				process_name,
-				date_time_string ) );
-
 		if ( trial_balance->
 			trial_balance_pdf->
 			preclose_trial_balance_latex )
@@ -201,10 +185,11 @@ int main( int argc, char **argv )
 					trial_balance_pdf->
 					preclose_statement_link->
 					ftp_output_filename,
-				TRIAL_BALANCE_PRECLOSE_TITLE
-					/* prompt */,
+				TRIAL_BALANCE_PRECLOSE_PROMPT,
 				process_name,
-				date_time_string );
+				trial_balance->
+					statement->
+					date_time_string );
 		}
 
 		statement_latex_output(
@@ -217,9 +202,11 @@ int main( int argc, char **argv )
 				trial_balance_pdf->
 				statement_link->
 				ftp_output_filename,
-			TRIAL_BALANCE_TITLE /* prompt */,
+			TRIAL_BALANCE_PROMPT,
 			process_name,
-			date_time_string );
+			trial_balance->
+				statement->
+				date_time_string );
 	}
 	else
 	if ( trial_balance->statement_subclassification_option ==
@@ -236,7 +223,8 @@ int main( int argc, char **argv )
 					preclose_trial_balance_html->
 					trial_balance_subclass_omit_html->
 					html_table,
-				TRIAL_BALANCE_PRECLOSE_TITLE /* title */ );
+				TRIAL_BALANCE_PRECLOSE_TITLE
+					/* secondary_title */ );
 		}
 
 		statement_html_output(
@@ -245,7 +233,7 @@ int main( int argc, char **argv )
 				trial_balance_html->
 				trial_balance_subclass_omit_html->
 				html_table,
-			TRIAL_BALANCE_TITLE /* title */ );
+			(char *)0 /* secondary_title */ );
 	}
 
 	if ( trial_balance->statement_output_medium != output_stdout )

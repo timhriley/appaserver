@@ -258,9 +258,11 @@ typedef struct
 {
 	LIST *element_statement_list;
 	char *logo_filename;
-	char *title;
-	char *subtitle;
+	char *caption_title;
+	char *caption_subtitle;
 	char *caption;
+	char *date_time_string;
+	char *frame_title;
 	char *date_american;
 	char *transaction_begin_date_string;
 	char *transaction_as_of_date;
@@ -291,21 +293,33 @@ char *statement_logo_filename(
 
 /* Returns static memory */
 /* --------------------- */
-char *statement_title(	char *application_name,
+char *statement_caption_title(
+			char *application_name,
 			boolean exists_logo_filename,
 			char *process_name );
 
 /* Returns static memory or null */
 /* ----------------------------- */
-char *statement_subtitle(
+char *statement_caption_subtitle(
 			char *begin_date_string,
 			char *as_of_date );
 
 /* Returns heap memory */
 /* ------------------- */
 char *statement_caption(
-			char *statement_title,
-			char *statement_subtitle );
+			char *statement_caption_title,
+			char *statement_caption_subtitle );
+
+/* Returns date_time_string */
+/* ------------------------ */
+char *statement_date_time_string(
+			char *date_time_string );
+
+/* Returns static memory */
+/* --------------------- */
+char *statement_frame_title(
+			char *process_name,
+			char *statement_date_time_string );
 
 /* Usage */
 /* ----- */
@@ -333,12 +347,6 @@ enum statement_output_medium
 	statement_resolve_output_medium(
 			char *output_medium_string );
 
-/* Returns static memory */
-/* --------------------- */
-char *statement_pdf_title(
-			char *process_name,
-			char *date_time_string );
-
 boolean statement_pdf_landscape_boolean(
 			int statement_prior_year_list_length );
 
@@ -359,13 +367,13 @@ void statement_latex_output(
 			char *ftp_output_filename,
 			char *prompt,
 			char *process_name,
-			char *date_time_string );
+			char *statement_date_time_string );
 
 /* Driver */
 /* ------ */
 void statement_html_output(
 			HTML_TABLE *html_table,
-			char *title );
+			char *secondary_title );
 
 /* Process */
 /* ------- */

@@ -103,7 +103,7 @@ char *statement_logo_filename(
 		return (char *)0;
 }
 
-char *statement_subtitle(
+char *statement_caption_subtitle(
 			char *begin_date_string,
 			char *as_of_date )
 {
@@ -172,21 +172,21 @@ STATEMENT *statement_fetch(
 			application_name,
 			STATEMENT_LOGO_FILENAME_KEY );
 
-	statement->title =
+	statement->caption_title =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		statement_title(
+		statement_caption_title(
 			application_name,
 			(statement->logo_filename)
 				? 1 : 0 /* exists_logo_filename */,
 			process_name );
 
-	statement->subtitle =
+	statement->caption_subtitle =
 		/* ----------------------------- */
 		/* Returns static memory or null */
 		/* ----------------------------- */
-		statement_subtitle(
+		statement_caption_subtitle(
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
@@ -197,10 +197,10 @@ STATEMENT *statement_fetch(
 				transaction_as_of_date )
 					/* as_of_date */ );
 
-	if ( !statement->subtitle )
+	if ( !statement->caption_subtitle )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: statement_subtitle() returned empty.\n",
+	"ERROR in %s/%s()/%d: statement_caption_subtitle() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -212,8 +212,25 @@ STATEMENT *statement_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		statement_caption(
-			statement->title,
-			statement->subtitle );
+			statement->caption_title,
+			statement->caption_subtitle );
+
+	statement->date_time_string =
+		/* ------------------------ */
+		/* Returns date_time_string */
+		/* ------------------------ */
+		statement_date_time_string(
+			date_get_now_yyyy_mm_dd_hh_mm(
+				date_utc_offset()
+					/* date_time_string */ ) );
+
+	statement->frame_title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		statement_frame_title(
+			process_name,
+			statement->date_time_string );
 
 	statement->transaction_begin_date_string =
 		transaction_begin_date_string;
@@ -630,7 +647,8 @@ char *statement_caption(
 	return strdup( caption );
 }
 
-char *statement_title(	char *application_name,
+char *statement_caption_title(
+			char *application_name,
 			boolean exists_logo_filename,
 			char *process_name )
 {
@@ -699,20 +717,22 @@ LIST *statement_prior_year_heading_list(
 
 void statement_html_output(
 			HTML_TABLE *html_table,
-			char *title )
+			char *secondary_title )
 {
-	if ( !html_table
-	||   !title )
+	if ( !html_table )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: html_table is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	printf( "<h1>%s</h1>\n", title );
+	if ( secondary_title )
+	{
+		printf( "<h1>%s</h1>\n", secondary_title );
+	}
 
 	html_table_output(
 		html_table,
@@ -724,13 +744,13 @@ void statement_latex_output(
 			char *ftp_output_filename,
 			char *prompt,
 			char *process_name,
-			char *date_time_string )
+			char *statement_date_time_string )
 {
 	if ( !latex
 	||   !ftp_output_filename
 	||   !prompt
 	||   !process_name
-	||   !date_time_string )
+	||   !statement_date_time_string )
 	{
 		if ( latex ) fclose( latex->output_stream );
 
@@ -748,7 +768,7 @@ void statement_latex_output(
 		latex->table_list,
 		latex->logo_filename,
 		0 /* not omit_page_numbers */,
-		date_time_string /* footline */ );
+		statement_date_time_string /* footline */ );
 
 	fclose( latex->output_stream );
 
@@ -916,15 +936,21 @@ char *statement_prior_year_date_string(
 	date_display19( prior_date );
 }
 
-char *statement_pdf_title(
-			char *process_name,
+char *statement_date_time_string(
 			char *date_time_string )
+{
+	return date_time_string;
+}
+
+char *statement_frame_title(
+			char *process_name,
+			char *statement_date_time_string )
 {
 	static char title[ 128 ];
 	char buffer[ 64 ];
 
 	if ( !process_name
-	||   !date_time_string )
+	||   !statement_date_time_string )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -939,7 +965,7 @@ char *statement_pdf_title(
 		format_initial_capital(
 			buffer,
 			process_name ),
-		date_time_string );
+		statement_date_time_string );
 
 	return title;
 }

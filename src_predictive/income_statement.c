@@ -466,12 +466,11 @@ INCOME_STATEMENT *income_statement_fetch(
 				income_statement->net_income_label,
 				getpid() /* process_id */ );
 	}
-
+	else
 	if ( income_statement->statement_output_medium == output_table )
 	{
-/*
-		income_statement->income_statement_table =
-			income_statement_table_new(
+		income_statement->income_statement_html =
+			income_statement_html_new(
 				income_statement->
 					statement_subclassification_option,
 				income_statement->statement,
@@ -479,8 +478,7 @@ INCOME_STATEMENT *income_statement_fetch(
 				income_statement->element_net_income,
 				income_statement->
 					net_income_percent_of_revenue_display,
-				income_statement->label );
-*/
+				income_statement->net_income_label );
 	}
 
 	return income_statement;
@@ -730,5 +728,98 @@ INCOME_STATEMENT_LATEX *income_statement_latex_calloc( void )
 	}
 
 	return income_statement_latex;
+}
+
+INCOME_STATEMENT_HTML *income_statement_html_new(
+			enum statement_subclassification_option
+				statement_subclassification_option,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *net_income_label )
+{
+	INCOME_STATEMENT_HTML *income_statement_html;
+
+	if ( !statement
+	||   !net_income_percent_of_revenue_display
+	||   !net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	income_statement_html = income_statement_html_calloc();
+
+	if (	statement_subclassification_option ==
+		subclassification_display )
+	{
+		income_statement_html->
+			income_statement_subclass_display_html =
+				income_statement_subclass_display_html_new(
+					statement,
+					statement_prior_year_list,
+					element_net_income,
+					net_income_percent_of_revenue_display,
+					net_income_label );
+	}
+	else
+	if (	statement_subclassification_option ==
+		subclassification_omit )
+	{
+		income_statement_html->
+			income_statement_subclass_omit_html =
+				income_statement_subclass_omit_html_new(
+					statement,
+					statement_prior_year_list,
+					element_net_income,
+					net_income_percent_of_revenue_display,
+					net_income_label );
+	}
+	else
+	if ( statement_subclassification_option == subclassification_aggregate )
+	{
+		income_statement->
+			income_statement_subclass_aggr_html =
+				income_statement_subclass_aggr_html_new(
+					statement,
+					statement_prior_year_list,
+					element_net_income,
+					net_income_percent_of_revenue_display,
+					net_income_label );
+	}
+	else
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: invalid statement_subclassification_option.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return income_statement_html;
+}
+
+INCOME_STATEMENT_HTML *income_statement_html_calloc( void )
+{
+	INCOME_STATEMENT_HTML *income_statement_html;
+
+	if ( ! ( income_statement_html =
+			calloc( 1, sizeof( INCOME_STATEMENT_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return income_statement_html;
 }
 

@@ -20,6 +20,27 @@
 
 typedef struct
 {
+} INCOME_STATEMENT_HTML;
+
+/* Usage */
+/* ----- */
+INCOME_STATEMENT_HTML *income_statement_html_new(
+			enum statement_subclassification_option
+				statement_subclassification_option,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *net_income_label );
+
+/* Process */
+/* ------- */
+INCOME_STATEMENT_HTML *
+	income_statement_html_calloc(
+			void );
+
+typedef struct
+{
 	STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
 		statement_subclass_display_latex_list;
 	LIST *row_list;
@@ -150,9 +171,7 @@ typedef struct
 	char *net_income_percent_of_revenue_display;
 	char *net_income_label;
 	INCOME_STATEMENT_PDF *income_statement_pdf;
-/*
-	INCOME_STATEMENT_TABLE *income_statement_table;
-*/
+	INCOME_STATEMENT_HTML *income_statement_html;
 } INCOME_STATEMENT;
 
 /* Usage */

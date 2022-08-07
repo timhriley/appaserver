@@ -91,21 +91,14 @@ int main( int argc, char **argv )
 			application_name,
 			appaserver_parameter_file->
 				appaserver_mount_point );
+
+		printf( "%s\n", income_statement->statement->frame_title );
 	}
 
 	if ( income_statement->statement_subclassification_option ==
 			subclassification_display
 	&& income_statement->income_statement_pdf )
 	{
-		char *date_time_string =
-			date_get_now_yyyy_mm_dd_hh_mm(
-				date_utc_offset() );
-
-		printf( "%s\n",
-			statement_pdf_title(
-				process_name,
-				date_time_string ) );
-
 		statement_latex_output(
 			income_statement->
 				income_statement_pdf->
@@ -121,9 +114,10 @@ int main( int argc, char **argv )
 			/* --------------------- */
 			statement_pdf_prompt( process_name ),
 			process_name,
-			date_time_string );
+			income_statement->
+				statement->
+				date_time_string );
 	}
-#ifdef NOT_DEFINED
 	else
 	if ( income_statement->statement_subclassification_option ==
 			subclassification_display
@@ -135,22 +129,14 @@ int main( int argc, char **argv )
 				income_statement_html->
 				income_statement_subclass_display_html->
 				html_table,
-			process_name /* title */ );
+			(char *)0 /* secondary_title */ );
 	}
+#ifdef NOT_DEFINED
 	else
 	if ( income_statement->statement_subclassification_option ==
 			subclassification_omit
 	&& income_statement->income_statement_pdf )
 	{
-		char *date_time_string =
-			date_get_now_yyyy_mm_dd_hh_mm(
-				date_utc_offset() );
-
-		printf( "%s\n",
-			income_statement_pdf_title(
-				process_name,
-				date_time_string ) );
-
 		statement_latex_output(
 			income_statement->
 				income_statement_pdf->
@@ -163,7 +149,9 @@ int main( int argc, char **argv )
 				ftp_output_filename,
 			process_name /* prompt */,
 			process_name,
-			date_time_string );
+			income_statement->
+				statement->
+				date_time_string );
 	}
 	else
 	if ( income_statement->statement_subclassification_option ==
