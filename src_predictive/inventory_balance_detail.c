@@ -496,19 +496,22 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 				inventory_balance->
 					inventory_purchase->
 					arrived_date_time,
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			latex_column_data_set(
 				latex_row->column_data_list,
 				"Purchase",
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			latex_column_data_set(
 				latex_row->column_data_list,
 				inventory_balance->
 					inventory_purchase->
 					full_name,
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			sprintf(buffer,
 				"%d",
@@ -519,7 +522,8 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			sprintf(buffer,
 				"%.4lf",
@@ -530,14 +534,16 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			/* Skip CGS */
 			/* -------- */
 			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( "" ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 		}
 		else
 		if ( inventory_balance->inventory_sale )
@@ -547,19 +553,22 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 				inventory_balance->
 					inventory_sale->
 					completed_date_time,
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			latex_column_data_set(
 				latex_row->column_data_list,
 				"Sale",
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			latex_column_data_set(
 				latex_row->column_data_list,
 				inventory_balance->
 					inventory_sale->
 					full_name,
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			sprintf(buffer,
 				"%d",
@@ -570,14 +579,16 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			/* Skip CostPer */
 			/* ------------ */
 			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( "" ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 			sprintf(buffer,
 				"%.4lf",
@@ -588,7 +599,8 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 			latex_column_data_set(
 				latex_row->column_data_list,
 				strdup( buffer ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 		}
 		else
 		{
@@ -607,7 +619,8 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		sprintf(buffer,
 			"%.4lf",
@@ -616,7 +629,8 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		sprintf(buffer,
 			"%.2lf",
@@ -625,7 +639,8 @@ LIST *get_average_PDF_row_list( LIST *inventory_balance_list )
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 	} while ( list_next( inventory_balance_list ) );
 

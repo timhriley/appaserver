@@ -892,22 +892,26 @@ LATEX_ROW *trial_balance_subclass_display_latex_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"Total",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	debit_total_string =
 		/* --------------------- */
@@ -919,7 +923,8 @@ LATEX_ROW *trial_balance_subclass_display_latex_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( debit_total_string ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	credit_total_string =
 		/* --------------------- */
@@ -931,7 +936,8 @@ LATEX_ROW *trial_balance_subclass_display_latex_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( credit_total_string ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	return latex_row;
 }
@@ -1082,7 +1088,8 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			element_name ) /* name */,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1091,7 +1098,8 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			subclassification_name /* name */ ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( ! ( transaction_date_american =
 			/* --------------------------- */
@@ -1140,7 +1148,8 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		account_title,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1149,24 +1158,28 @@ LATEX_ROW *trial_balance_subclass_display_latex_account_row(
 		/* ------------------- */
 		trial_balance_transaction_count_string(
 			statement_account->account->transaction_count ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->debit_string,
+		0 /* not large_boolean */,
 		statement_account->
-			within_days_between_boolean /* large_bold */ );
+			within_days_between_boolean /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->credit_string,
+		0 /* not large_boolean */,
 		statement_account->
-			within_days_between_boolean /* large_bold */ );
+			within_days_between_boolean /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->percent_string,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1280,7 +1293,8 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			element_name /* name */ ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
@@ -1289,7 +1303,8 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			subclassification_name /* name */ ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( ! ( transaction_date_american =
 			/* --------------------------- */
@@ -1338,7 +1353,8 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		account_title,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
@@ -1347,31 +1363,36 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 		/* ------------------- */
 		trial_balance_transaction_count_string(
 			statement_account->account->transaction_count ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not large_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->debit_string,
+		0 /* not large_boolean */,
 		statement_account->
 			within_days_between_boolean
-				/* large_bold_boolean */ );
+				/* bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->credit_string,
+		0 /* not large_boolean */,
 		statement_account->
 			within_days_between_boolean
-				/* large_bold_boolean */ );
+				/* bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->asset_percent_string,
-		0 /* not large_bold_string */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->revenue_percent_string,
-		0 /* not large_bold_string */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1488,22 +1509,26 @@ HTML_ROW *trial_balance_subclass_display_html_sum_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		"Total",
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	debit_total_string =
 		/* --------------------- */
@@ -1515,7 +1540,8 @@ HTML_ROW *trial_balance_subclass_display_html_sum_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		strdup( debit_total_string ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	credit_total_string =
 		/* --------------------- */
@@ -1527,7 +1553,8 @@ HTML_ROW *trial_balance_subclass_display_html_sum_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		strdup( credit_total_string ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	return html_row;
 }
@@ -1826,60 +1853,6 @@ TRIAL_BALANCE_HTML *trial_balance_html_calloc( void )
 	return trial_balance_html;
 }
 
-char *trial_balance_account_money_string(
-			double balance,
-			boolean round_dollar_boolean )
-{
-	if ( round_dollar_boolean )
-	{
-		return
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		timlib_place_commas_in_dollars( balance );
-	}
-	else
-	{
-		return
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		timlib_place_commas_in_money( balance );
-	}
-}
-
-char *trial_balance_account_balance_string(
-			double balance,
-			char *account_action_string,
-			boolean round_dollar_boolean )
-{
-	char balance_string[ 1024 ];
-	char *money_string;
-
-	money_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		trial_balance_account_money_string(
-			balance,
-			round_dollar_boolean );
-
-	if ( account_action_string )
-	{
-		sprintf(balance_string,
-			"<a href=\"%s\">%s</a>",
-			account_action_string,
-			money_string );
-	}
-	else
-	{
-		strcpy(	balance_string,
-			money_string );
-	}
-
-	return strdup( balance_string );
-}
-
 TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
 	trial_balance_subclass_omit_html_new(
 			STATEMENT *statement,
@@ -2090,17 +2063,20 @@ HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		"Total",
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		(char *)0,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	debit_total_string =
 		/* --------------------- */
@@ -2112,7 +2088,8 @@ HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		strdup( debit_total_string ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	credit_total_string =
 		/* --------------------- */
@@ -2124,7 +2101,8 @@ HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		strdup( credit_total_string ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	return html_row;
 }
@@ -2225,7 +2203,8 @@ HTML_ROW *trial_balance_subclass_omit_html_account_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			element_name /* name */ ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( ! ( transaction_date_american =
 			/* --------------------------- */
@@ -2272,7 +2251,8 @@ HTML_ROW *trial_balance_subclass_omit_html_account_row(
 	html_cell_data_set(
 		html_row->cell_list,
 		account_title,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
@@ -2281,31 +2261,36 @@ HTML_ROW *trial_balance_subclass_omit_html_account_row(
 		/* ------------------- */
 		trial_balance_transaction_count_string(
 			statement_account->account->transaction_count ),
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->debit_string,
+		0 /* not large_boolean */,
 		statement_account->
 			within_days_between_boolean
-				/* large_bold_boolean */ );
+				/* bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->credit_string,
+		0 /* not large_boolean */,
 		statement_account->
 			within_days_between_boolean
-				/* large_bold_boolean */ );
+				/* bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->asset_percent_string,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
 		statement_account->revenue_percent_string,
-		0 /* not large_bold_boolean */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -2439,6 +2424,69 @@ LATEX_TABLE *trial_balance_subclass_omit_latex_table(
 	return latex_table;
 }
 
+LIST *trial_balance_subclass_display_latex_heading_list(
+			LIST *statement_prior_year_list )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Element",
+			0 /* right_Justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Subclassification",
+			0 /* right_Justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Account",
+			0 /* right_justified_flag */,
+			"6.0cm" /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Count",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Debit",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Credit",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Percent",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set_list(
+		heading_list,
+		latex_table_right_heading_list(
+			statement_prior_year_heading_list(
+				statement_prior_year_list ) ) );
+
+	return heading_list;
+}
+
 LIST *trial_balance_subclass_omit_latex_heading_list(
 			LIST *statement_prior_year_list )
 {
@@ -2557,17 +2605,20 @@ LATEX_ROW *trial_balance_subclass_omit_latex_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"Total",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	debit_total_string =
 		/* --------------------- */
@@ -2579,7 +2630,8 @@ LATEX_ROW *trial_balance_subclass_omit_latex_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( debit_total_string ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	credit_total_string =
 		/* --------------------- */
@@ -2591,7 +2643,8 @@ LATEX_ROW *trial_balance_subclass_omit_latex_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( credit_total_string ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	return latex_row;
 }
@@ -2691,7 +2744,8 @@ LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			element_name /* name */ ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( ! ( transaction_date_american =
 			statement_date_american(
@@ -2733,7 +2787,8 @@ LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		account_title,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -2742,26 +2797,30 @@ LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 		/* ------------------- */
 		trial_balance_transaction_count_string(
 			statement_account->account->transaction_count ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->debit_string,
+		0 /* not large_boolean */,
 		statement_account->
 			within_days_between_boolean
-				/* large_bold */ );
+				/* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->credit_string,
+		0 /* not large_boolean */,
 		statement_account->
 			within_days_between_boolean
-				/* large_bold */ );
+				/* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->percent_string,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{

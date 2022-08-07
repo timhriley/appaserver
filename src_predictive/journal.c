@@ -163,7 +163,6 @@ JOURNAL *journal_latest(
 		exit( 1 );
 	}
 
-
 	latest =
 		journal_account_fetch(
 			/* --------------------------- */

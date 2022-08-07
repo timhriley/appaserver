@@ -40,7 +40,7 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label );
+			char *income_statement_net_income_label );
 
 /* Process */
 /* ------- */
@@ -64,7 +64,7 @@ LATEX_ROW *income_statement_subclass_display_latex_net_income_row(
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label );
+			char *income_statement_net_income_label );
 
 /* Process */
 /* ------- */
@@ -98,7 +98,7 @@ INCOME_STATEMENT_LATEX *
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label );
+			char *income_statement_net_income_label );
 
 /* Process */
 /* ------- */
@@ -125,7 +125,7 @@ INCOME_STATEMENT_PDF *income_statement_pdf_new(
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label,
+			char *income_statement_net_income_label,
 			pid_t process_id );
 
 /* Process */
@@ -148,7 +148,7 @@ typedef struct
 	LIST *statement_prior_year_list;
 	double element_net_income;
 	char *net_income_percent_of_revenue_display;
-	char *label;
+	char *net_income_label;
 	INCOME_STATEMENT_PDF *income_statement_pdf;
 /*
 	INCOME_STATEMENT_TABLE *income_statement_table;
@@ -188,9 +188,9 @@ char *income_statement_net_income_percent_of_revenue_display(
 			double element_net_income,
 			LIST *element_statement_list );
 
-/* Returns heap memory */
-/* ------------------- */
-char *income_statement_label(
+/* Returns program memory */
+/* ---------------------- */
+char *income_statement_net_income_label(
 			char *argv_0 );
 
 /* Usage */

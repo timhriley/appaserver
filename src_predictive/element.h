@@ -110,6 +110,13 @@ ELEMENT *element_statement_parse(
 
 /* Usage */
 /* ----- */
+void element_list_sum(	LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 double element_sum(	ELEMENT *element );
 
 /* Process */

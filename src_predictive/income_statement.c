@@ -29,7 +29,7 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label )
+			char *income_statement_net_income_label )
 {
 	INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 		income_statement_subclass_display_latex;
@@ -39,7 +39,7 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 	||   !working_directory
 	||   !statement
 	||   !net_income_percent_of_revenue_display
-	||   !income_statement_label )
+	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -69,7 +69,7 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 			statement_prior_year_list,
 			element_net_income,
 			net_income_percent_of_revenue_display,
-			income_statement_label ) );
+			income_statement_net_income_label ) );
 
 	income_statement_subclass_display_latex->latex =
 		latex_new(
@@ -143,12 +143,12 @@ LATEX_ROW *income_statement_subclass_display_latex_net_income_row(
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label )
+			char *income_statement_net_income_label )
 {
 	LATEX_ROW *latex_row;
 
 	if ( !net_income_percent_of_revenue_display
-	||   !income_statement_label )
+	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -163,28 +163,33 @@ LATEX_ROW *income_statement_subclass_display_latex_net_income_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		statement_cell_data_label( income_statement_label ),
-		1 /* large_bold */ );
+		statement_cell_data_label( income_statement_net_income_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		(char *)0,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( timlib_place_commas_in_money( element_net_income ) ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		net_income_percent_of_revenue_display,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -208,7 +213,7 @@ INCOME_STATEMENT_PDF *income_statement_pdf_new(
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label,
+			char *income_statement_net_income_label,
 			pid_t process_id )
 {
 	INCOME_STATEMENT_PDF *income_statement_pdf;
@@ -264,7 +269,7 @@ INCOME_STATEMENT_PDF *income_statement_pdf_new(
 				statement_prior_year_list,
 				element_net_income,
 				net_income_percent_of_revenue_display,
-				income_statement_label );
+				income_statement_net_income_label );
 
 	return income_statement_pdf;
 }
@@ -440,8 +445,8 @@ INCOME_STATEMENT *income_statement_fetch(
 			income_statement->element_net_income,
 			income_statement->statement->element_statement_list );
 
-	income_statement->label =
-		income_statement_label(
+	income_statement->net_income_label =
+		income_statement_net_income_label(
 			argv_0 );
 
 	if ( income_statement->statement_output_medium == output_PDF )
@@ -458,7 +463,7 @@ INCOME_STATEMENT *income_statement_fetch(
 				income_statement->element_net_income,
 				income_statement->
 					net_income_percent_of_revenue_display,
-				income_statement->label,
+				income_statement->net_income_label,
 				getpid() /* process_id */ );
 	}
 
@@ -555,10 +560,8 @@ char *income_statement_net_income_percent_of_revenue_display(
 	}
 }
 
-char *income_statement_label( char *argv_0 )
+char *income_statement_net_income_label( char *argv_0 )
 {
-	char label[ 128 ];
-
 	if ( !argv_0 )
 	{
 		fprintf(stderr,
@@ -569,9 +572,10 @@ char *income_statement_label( char *argv_0 )
 		exit( 1 );
 	}
 
-	format_initial_capital( label, argv_0 );
-
-	return strdup( label );
+	if ( strcmp( argv_0, "income_statement" ) == 0 )
+		return "Net Income";
+	else
+		return "Change in Net Assets";
 }
 
 LIST *income_statement_prior_net_income_data_list(
@@ -629,7 +633,7 @@ INCOME_STATEMENT_LATEX *
 			LIST *statement_prior_year_list,
 			double element_net_income,
 			char *net_income_percent_of_revenue_display,
-			char *income_statement_label )
+			char *income_statement_net_income_label )
 {
 	INCOME_STATEMENT_LATEX *income_statement_latex;
 
@@ -638,7 +642,7 @@ INCOME_STATEMENT_LATEX *
 	||   !working_directory
 	||   !statement
 	||   !net_income_percent_of_revenue_display
-	||   !income_statement_label )
+	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -665,7 +669,7 @@ INCOME_STATEMENT_LATEX *
 					statement_prior_year_list,
 					element_net_income,
 					net_income_percent_of_revenue_display,
-					income_statement_label );
+					income_statement_net_income_label );
 	}
 	else
 	if ( statement_subclassification_option == subclassification_omit )
@@ -683,7 +687,7 @@ INCOME_STATEMENT_LATEX *
 					statement_prior_year_list,
 					element_net_income,
 					net_income_percent_of_revenue_display,
-					income_statement_label );
+					income_statement_net_income_label );
 */
 	}
 	else
@@ -702,7 +706,7 @@ INCOME_STATEMENT_LATEX *
 					statement_prior_year_list,
 					element_net_income,
 					net_income_percent_of_revenue_display,
-					income_statement_label );
+					income_statement_net_income_label );
 */
 	}
 

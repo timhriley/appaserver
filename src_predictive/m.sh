@@ -1,6 +1,6 @@
 :
 
-make trial_balance_output
+make income_statement_output
 
 #if [ "$?" -eq 0 ]
 #then

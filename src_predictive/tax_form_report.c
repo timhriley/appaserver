@@ -657,19 +657,22 @@ LIST *tax_form_PDF_row_list( LIST *tax_form_line_list )
 		latex_column_data_set(
 			latex_row->column_data_list,
 			tax_form_line->tax_form_line_string,
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( tax_form_line->tax_form_description ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( timlib_dollar_round_string(
 					tax_form_line->
 						tax_form_line_total ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 	} while( list_next( tax_form_line_list ) );
 
@@ -860,14 +863,16 @@ LIST *tax_report_account_PDF_row_list( TAX_FORM_LINE *tax_form_line )
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( buffer ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( timlib_dollar_string(
 					tax_form_line_account->
 						tax_form_line_account_total ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 	} while( list_next( tax_form_line->tax_form_line_account_list ) );
 
@@ -1249,23 +1254,27 @@ LIST *tax_report_journal_PDF_row_list(
 		latex_column_data_set(
 			latex_row->column_data_list,
 			journal->transaction_date_time,
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			journal->full_name,
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			journal->memo,
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( timlib_dollar_string(
 					journal->journal_amount ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 	} while( list_next( journal_list ) );
 

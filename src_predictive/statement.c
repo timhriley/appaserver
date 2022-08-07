@@ -158,6 +158,15 @@ STATEMENT *statement_fetch(
 		return (STATEMENT *)0;
 	}
 
+	element_list_sum(
+		statement->element_statement_list );
+
+	element_percent_of_asset_set(
+		statement->element_statement_list );
+
+	element_percent_of_revenue_set(
+		statement->element_statement_list );
+
 	statement->logo_filename =
 		statement_logo_filename(
 			application_name,
@@ -971,27 +980,32 @@ LATEX_ROW *statement_subclass_display_latex_element_label_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( column_title ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	for (	i = 0;
 		i < statement_prior_year_list_length;
@@ -1000,7 +1014,8 @@ LATEX_ROW *statement_subclass_display_latex_element_label_row(
 		latex_column_data_set(
 			latex_row->column_data_list,
 			"",
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 	}
 
 	return latex_row;
@@ -1036,27 +1051,32 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_label_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( column_title ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	for (	i = 0;
 		i < statement_prior_year_list_length;
@@ -1065,7 +1085,8 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_label_row(
 		latex_column_data_set(
 			latex_row->column_data_list,
 			"",
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 	}
 
 	return latex_row;
@@ -1103,17 +1124,14 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( column_title ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1124,7 +1142,8 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 			sum /* balance */,
 			(char *)0 /* account_action_string */,
 			0 /* not round_dollar_boolean */ ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1134,7 +1153,8 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 		statement_account_percent_string(
 			percent_of_asset,
 			percent_of_revenue ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1180,17 +1200,20 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( column_title ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1201,7 +1224,8 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 			sum /* balance */,
 			(char *)0 /* account_action_string */,
 			0 /* not round_dollar_boolean */ ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1211,7 +1235,8 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 		statement_account_percent_string(
 			percent_of_asset,
 			percent_of_revenue ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1302,22 +1327,26 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( column_title ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	for (	i = 0;
 		i < statement_prior_year_list_length;
@@ -1326,7 +1355,8 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 		latex_column_data_set(
 			latex_row->column_data_list,
 			"",
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 	}
 
 	return latex_row;
@@ -1364,12 +1394,14 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( column_title ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1380,7 +1412,8 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 			sum /* balance */,
 			(char *)0 /* account_action_string */,
 			0 /* not round_dollar_boolean */ ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1390,7 +1423,8 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 		statement_account_percent_string(
 			percent_of_asset,
 			percent_of_revenue ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1430,27 +1464,32 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		/* ------------------- */
 		statement_latex_account_title(
 			statement_account->account->account_name ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->balance_string,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->percent_string,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1490,22 +1529,26 @@ LATEX_ROW *statement_subclass_omit_latex_account_row(
 		/* ------------------- */
 		statement_latex_account_title(
 			statement_account->account->account_name ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->balance_string,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_account->percent_string,
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1727,18 +1770,11 @@ STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
 {
 	STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
 		statement_subclass_display_latex_list;
-	STATEMENT_SUBCLASS_DISPLAY_LATEX *
-		statement_subclass_display_latex;
 	ELEMENT *element;
 
 	if ( !list_rewind( element_statement_list ) )
 	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: element_statement_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return (STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *)0;
 	}
 
 	statement_subclass_display_latex_list =
@@ -1755,24 +1791,14 @@ STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
 			list_get(
 				element_statement_list );
 
-
-		if ( ! ( statement_subclass_display_latex =
+		if ( element->sum )
+		{
+			list_set(
+				statement_subclass_display_latex_list->list,
 				statement_subclass_display_latex_new(
 					element,
-					statement_prior_year_list ) ) )
-		{
-			fprintf(stderr,
-"ERROR in %s/%s()/%d: statement_subclass_display_latex_new(%s) returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				element->element_name );
-			exit( 1 );
+					statement_prior_year_list ) );
 		}
-
-		list_set(
-			statement_subclass_display_latex_list->list,
-			statement_subclass_display_latex );
 
 	} while ( list_next( element_statement_list ) );
 
@@ -1874,6 +1900,9 @@ STATEMENT_SUBCLASS_DISPLAY_LATEX *
 		exit( 1 );
 	}
 
+	if ( !list_rewind( element->subclassification_statement_list ) )
+		return ( STATEMENT_SUBCLASS_DISPLAY_LATEX *)0;
+
 	statement_subclass_display_latex =
 		statement_subclass_display_latex_calloc();
 
@@ -1890,6 +1919,8 @@ STATEMENT_SUBCLASS_DISPLAY_LATEX *
 			list_get(
 				element->
 					subclassification_statement_list );
+
+		if ( !subclassification->sum ) continue;
 
 		list_set(
 		  statement_subclass_display_latex->row_list,
@@ -2233,3 +2264,56 @@ LIST *statement_subclass_display_latex_list_extract_row_list(
 
 	return row_list;
 }
+
+char *statement_account_balance_string(
+			double balance,
+			char *account_action_string,
+			boolean round_dollar_boolean )
+{
+	char balance_string[ 128 ];
+
+	if ( account_action_string )
+	{
+		sprintf(balance_string,
+			"<a href=\"%s\">%s</a>",
+			account_action_string,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_account_money_string(
+				balance,
+				round_dollar_boolean ) );
+	}
+	else
+	{
+		strcpy(	balance_string,
+			statement_account_money_string(
+				balance,
+				round_dollar_boolean ) );
+	}
+
+	return strdup( balance_string );
+}
+
+char *statement_account_money_string(
+			double balance,
+			boolean round_dollar_boolean )
+{
+	if ( round_dollar_boolean )
+	{
+		return
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_dollars( balance );
+	}
+	else
+	{
+		return
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_money( balance );
+	}
+}
+

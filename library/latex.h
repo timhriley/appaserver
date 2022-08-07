@@ -37,14 +37,16 @@ LATEX_TABLE_HEADING *latex_table_heading_calloc(
 typedef struct
 {
 	char *column_data;
-	boolean large_bold;
+	boolean large_boolean;
+	boolean bold_boolean;
 } LATEX_COLUMN_DATA;
 
 /* Usage */
 /* ----- */
 LATEX_COLUMN_DATA *latex_column_data_new(
 			char *column_data,
-			boolean large_bold );
+			boolean large_boolean,
+			boolean bold_boolean );
 
 /* Process */
 /* ------- */
@@ -56,17 +58,22 @@ LATEX_COLUMN_DATA *latex_column_data_calloc(
 void latex_column_data_set(
 			LIST *column_data_list,
 			char *column_data,
-			boolean large_bold );
+			boolean large_boolean,
+			boolean bold_boolean );
 
 void latex_column_data_list_set(
 			LIST *column_data_list,
 			LIST *data_list );
 
+char *latex_column_data_escape(
+			char *buffer,
+			char *column_data,
+			int buffer_size );
+
 typedef struct
 {
 	LIST *column_data_list;
 	boolean preceed_double_line;
-	boolean large_bold;
 } LATEX_ROW;
 
 /* Usage */
@@ -143,12 +150,6 @@ char *latex_full_path(	char *tex_filename,
 void latex_tex2pdf(			char *tex_filename,
 					char *working_directory );
 
-/* Prototypes */
-/* ---------- */
-LATEX_COLUMN_DATA *latex_column_data_new(
-					char *column_data,
-					boolean large_bold );
-
 void latex_output_longtable_document_heading(
 			FILE *output_stream,
 			boolean landscape_flag,
@@ -219,10 +220,6 @@ void latex_output_table_vertical_padding(
 			FILE *output_stream,
 			int length_heading_list,
 			int empty_vertical_rows );
-
-char *latex_escape_data(char *destination,
-			char *source,
-			int buffer_size );
 
 LIST *latex_table_right_heading_list(
 			LIST *heading_list );

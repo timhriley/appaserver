@@ -42,7 +42,7 @@ int main( int argc, char **argv )
 			 argv[ 0 ] );
 
 		fprintf( stderr,
-"Note: subclassification_option={display,omit}\n" );
+"Note: subclassification_option={display,omit,aggregate}\n" );
 
 		fprintf( stderr,
 "Note: output_medium={table,spreadsheet,PDF,stdout}\n" );
@@ -63,6 +63,7 @@ int main( int argc, char **argv )
 
 	income_statement =
 		income_statement_fetch(
+			argv[ 0 ],
 			application_name,
 			session_key,
 			login_name,
@@ -101,7 +102,7 @@ int main( int argc, char **argv )
 				date_utc_offset() );
 
 		printf( "%s\n",
-			income_statement_pdf_title(
+			statement_pdf_title(
 				process_name,
 				date_time_string ) );
 
@@ -109,7 +110,7 @@ int main( int argc, char **argv )
 			income_statement->
 				income_statement_pdf->
 				income_statement_latex->
-				income_statement_subclassification_latex->
+				income_statement_subclass_display_latex->
 				latex,
 			income_statement->
 				income_statement_pdf->
@@ -119,6 +120,7 @@ int main( int argc, char **argv )
 			process_name,
 			date_time_string );
 	}
+#ifdef NOT_DEFINED
 	else
 	if ( income_statement->statement_subclassification_option ==
 			subclassification_display
@@ -128,7 +130,7 @@ int main( int argc, char **argv )
 			income_statement->
 				income_statement_table->
 				income_statement_html->
-				income_statement_subclassification_html->
+				income_statement_subclass_display_html->
 				html_table,
 			process_name /* title */ );
 	}
@@ -150,7 +152,7 @@ int main( int argc, char **argv )
 			income_statement->
 				income_statement_pdf->
 				income_statement_latex->
-				income_statement_account_latex->
+				income_statement_subclass_omit_latex->
 				latex,
 			income_statement->
 				income_statement_pdf->
@@ -169,10 +171,11 @@ int main( int argc, char **argv )
 			income_statement->
 				income_statement_table->
 				income_statement_html->
-				income_statement_account_html->
+				income_statement_subclass_omit_html->
 				html_table,
 			process_name /* title */ );
 	}
+#endif
 
 	if ( income_statement->statement_output_medium != output_stdout )
 	{

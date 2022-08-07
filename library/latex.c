@@ -346,9 +346,10 @@ void latex_output_longtable_heading(	FILE *output_stream,
 
 }
 
-void latex_output_table_row_list(	FILE *output_stream,
-					LIST *row_list,
-					int heading_list_length )
+void latex_output_table_row_list(
+			FILE *output_stream,
+			LIST *row_list,
+			int heading_list_length )
 {
 	int first_time;
 	LATEX_COLUMN_DATA *column_data;
@@ -359,7 +360,7 @@ void latex_output_table_row_list(	FILE *output_stream,
 	if ( !row_list || !list_rewind( row_list ) ) return;
 
 	do {
-		row = list_get_pointer( row_list );
+		row = list_get( row_list );
 
 		if ( !row->column_data_list
 		||   !list_rewind( row->column_data_list ) )
@@ -377,7 +378,7 @@ void latex_output_table_row_list(	FILE *output_stream,
 		column_count = 0;
 
 		do {
-			column_data = list_get_pointer( row->column_data_list );
+			column_data = list_get( row->column_data_list );
 
 			if ( first_time )
 				first_time = 0;
@@ -386,23 +387,25 @@ void latex_output_table_row_list(	FILE *output_stream,
 
 			if ( column_data )
 			{
-				if  ( row->preceed_double_line
-				||    column_data->large_bold )
+				if ( row->preceed_double_line
+				||   column_data->large_boolean )
 				{
-/*
 					fprintf( output_stream,
-				 		"\\large \\bf " );
-*/
+				 		"\\large " );
+				}
+
+				if ( row->preceed_double_line
+				||   column_data->bold_boolean )
+				{
 					fprintf( output_stream,
 				 		"\\bf " );
 				}
-
 
 				if ( column_data->column_data )
 				{
 					fprintf(output_stream,
 						"%s",
-						latex_escape_data(
+						latex_column_data_escape(
 							buffer,
 							column_data->
 								column_data,
@@ -427,7 +430,6 @@ void latex_output_table_row_list(	FILE *output_stream,
 		fprintf( output_stream, "\\\\\n" );
 
 	} while( list_next( row_list ) );
-
 }
 
 void latex_output_table_vertical_padding(
@@ -530,7 +532,7 @@ void latex_longtable_output(	FILE *output_stream,
 	if ( !list_rewind( table_list ) ) return;
 
 	do {
-		table = list_get_pointer( table_list );
+		table = list_get( table_list );
 
 		latex_output_longtable_heading(
 			output_stream,
@@ -680,15 +682,15 @@ void latex_output_indented_address(	FILE *output_stream,
 "& %s\\\\\n"
 "& %s\n"
 "\\end{tabular}\n\n",
-		 latex_escape_data(
+		 latex_column_data_escape(
 			full_name_buffer,
 		 	full_name,
 			128 ),
-		 latex_escape_data(
+		 latex_column_data_escape(
 			street_address_buffer,
 			street_address,
 			128 ),
-		 latex_escape_data(
+		 latex_column_data_escape(
 			city_state_zip_buffer,
 			city_state_zip,
 			128 ) );
@@ -774,36 +776,36 @@ void latex_output_table_heading(	FILE *output_stream,
 
 }
 
-char *latex_escape_data(	char *destination,
-				char *source,
-				int buffer_size )
+char *latex_column_data_escape(
+			char *buffer,
+			char *column_data,
+			int buffer_size )
 {
-	if ( !source ) return "";
+	if ( !column_data ) return "";
 
-	timlib_strcpy( destination, source, buffer_size );
+	timlib_strcpy( buffer, column_data, buffer_size );
 
 	search_replace_string(
-		destination,
+		buffer,
 		"#",
 		"Number " );
 
 	search_replace_string(
-		destination,
+		buffer,
 		"&",
 		"\\&" );
 
 	search_replace_string(
-		destination,
+		buffer,
 		"%",
 		"\\%" );
 
 	search_replace_string(
-		destination,
+		buffer,
 		"_",
 		"\\_" );
 
-	return destination;
-
+	return buffer;
 }
 
 void latex_column_data_list_set(
@@ -816,7 +818,8 @@ void latex_column_data_list_set(
 		latex_column_data_set(
 			column_data_list,
 			(char *)list_get( data_list ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 	} while ( list_next( data_list ) );
 }
@@ -824,7 +827,8 @@ void latex_column_data_list_set(
 void latex_column_data_set(
 			LIST *column_data_list,
 			char *column_data,
-			boolean large_bold )
+			boolean large_boolean,
+			boolean bold_boolean )
 {
 	if ( !column_data ) column_data = "";
 
@@ -832,7 +836,8 @@ void latex_column_data_set(
 		column_data_list,
 		latex_column_data_new(
 			column_data,
-			large_bold ) );
+			large_boolean,
+			bold_boolean ) );
 }
 
 LIST *latex_table_right_heading_list(
@@ -928,7 +933,8 @@ LATEX *latex_calloc( void )
 
 LATEX_COLUMN_DATA *latex_column_data_new(
 			char *column_data,
-			boolean large_bold )
+			boolean large_boolean,
+			boolean bold_boolean )
 {
 	LATEX_COLUMN_DATA *latex_column_data;
 
@@ -945,7 +951,8 @@ LATEX_COLUMN_DATA *latex_column_data_new(
 	latex_column_data = latex_column_data_calloc();
 
 	latex_column_data->column_data = column_data;
-	latex_column_data->large_bold = large_bold;
+	latex_column_data->large_boolean = large_boolean;
+	latex_column_data->bold_boolean = bold_boolean;
 
 	return latex_column_data;
 }

@@ -214,12 +214,14 @@ void html_heading_list_right_justify_set(
 
 HTML_CELL *html_cell_new(
 			char *data,
-			boolean large_bold_boolean )
+			boolean large_boolean,
+			boolean bold_boolean )
 {
 	HTML_CELL *html_cell = html_cell_calloc();
 
 	html_cell->data = data;
-	html_cell->large_bold_boolean = large_bold_boolean;
+	html_cell->large_boolean = large_boolean;
+	html_cell->bold_boolean = bold_boolean;
 
 	return html_cell;
 }
@@ -244,12 +246,14 @@ HTML_CELL *html_cell_calloc( void )
 void html_cell_data_set(
 			LIST *cell_list,
 			char *data,
-			boolean large_bold_boolean )
+			boolean large_boolean,
+			boolean bold_boolean )
 {
 	HTML_CELL *html_cell =
 		html_cell_new(
 			data,
-			large_bold_boolean );
+			large_boolean,
+			bold_boolean );
 
 	list_set( cell_list, html_cell );
 }
@@ -275,7 +279,8 @@ void html_cell_data_list_set(
 		html_cell_data_set(
 			cell_list,
 			(char *)list_get( data_list ),
-			0 /* not large_bold_boolean */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 	} while ( list_next( data_list ) );
 }
@@ -301,7 +306,8 @@ void html_cell_output(	HTML_HEADING *html_heading,
 		/* ------------------- */
 		html_cell_tag(
 			html_cell->data,
-			html_cell->large_bold_boolean,
+			html_cell->large_boolean,
+			html_cell->bold_boolean,
 			html_heading->right_justify_boolean );
 
 	printf( "%s\n", tag );
@@ -309,7 +315,8 @@ void html_cell_output(	HTML_HEADING *html_heading,
 }
 			
 char *html_cell_tag(	char *html_cell_data,
-			boolean large_bold_boolean,
+			boolean large_boolean,
+			boolean bold_boolean,
 			boolean right_justify_boolean )
 {
 	char tag[ 1024 ];
@@ -329,16 +336,26 @@ char *html_cell_tag(	char *html_cell_data,
 
 	ptr += sprintf( ptr, ">" );
 
-	if ( large_bold_boolean )
+	if ( large_boolean )
 	{
-		ptr += sprintf( ptr, "<big><b>" );
+		ptr += sprintf( ptr, "<big>" );
+	}
+
+	if ( bold_boolean )
+	{
+		ptr += sprintf( ptr, "<b>" );
 	}
 
 	ptr += sprintf( ptr, "%s", html_cell_data );
 
-	if ( large_bold_boolean )
+	if ( bold_boolean )
 	{
-		ptr += sprintf( ptr, "</b></big>" );
+		ptr += sprintf( ptr, "</b>" );
+	}
+
+	if ( large_boolean )
+	{
+		ptr += sprintf( ptr, "</big>" );
 	}
 
 	return strdup( tag );

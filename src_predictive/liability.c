@@ -2149,7 +2149,7 @@ char *liability_check_escape_payable_to( char *full_name )
 	}
 
 	return
-	latex_escape_data(
+	latex_column_data_escape(
 		escape_payable_to /* destination */,
 		full_name /* source */,
 		128 );

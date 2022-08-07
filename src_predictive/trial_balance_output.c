@@ -104,7 +104,10 @@ int main( int argc, char **argv )
 				date_utc_offset() );
 
 		printf( "%s\n",
-			trial_balance_pdf_title(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_pdf_title(
 				process_name,
 				date_time_string ) );
 
@@ -116,7 +119,7 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_pdf->
 					preclose_trial_balance_latex->
-					trial_balance_subclassification_latex->
+					trial_balance_subclass_display_latex->
 					latex,
 				trial_balance->
 					trial_balance_pdf->
@@ -131,7 +134,7 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_pdf->
 				trial_balance_latex->
-				trial_balance_subclassification_latex->
+				trial_balance_subclass_display_latex->
 				latex,
 			trial_balance->
 				trial_balance_pdf->
@@ -154,7 +157,7 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_table->
 					preclose_trial_balance_html->
-					trial_balance_subclassification_html->
+					trial_balance_subclass_display_html->
 					html_table,
 				TRIAL_BALANCE_PRECLOSE_TITLE /* title */ );
 		}
@@ -163,7 +166,7 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_table->
 				trial_balance_html->
-				trial_balance_subclassification_html->
+				trial_balance_subclass_display_html->
 				html_table,
 			TRIAL_BALANCE_TITLE /* title */ );
 	}
@@ -177,7 +180,10 @@ int main( int argc, char **argv )
 				date_utc_offset() );
 
 		printf( "%s\n",
-			trial_balance_pdf_title(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_pdf_title(
 				process_name,
 				date_time_string ) );
 
@@ -189,7 +195,7 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_pdf->
 					preclose_trial_balance_latex->
-					trial_balance_account_latex->
+					trial_balance_subclass_omit_latex->
 					latex,
 				trial_balance->
 					trial_balance_pdf->
@@ -205,7 +211,7 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_pdf->
 				trial_balance_latex->
-				trial_balance_account_latex->
+				trial_balance_subclass_omit_latex->
 				latex,
 			trial_balance->
 				trial_balance_pdf->
@@ -228,7 +234,7 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_table->
 					preclose_trial_balance_html->
-					trial_balance_account_html->
+					trial_balance_subclass_omit_html->
 					html_table,
 				TRIAL_BALANCE_PRECLOSE_TITLE /* title */ );
 		}
@@ -237,7 +243,7 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_table->
 				trial_balance_html->
-				trial_balance_account_html->
+				trial_balance_subclass_omit_html->
 				html_table,
 			TRIAL_BALANCE_TITLE /* title */ );
 	}

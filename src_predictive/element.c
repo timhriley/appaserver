@@ -240,7 +240,7 @@ boolean element_is_nominal( char *element_name )
 }
 
 LIST *element_statement_list(
-			LIST *filter_element_name_list,
+			LIST *element_name_list,
 			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
 			boolean fetch_account_list,
@@ -250,12 +250,12 @@ LIST *element_statement_list(
 	LIST *element_list;
 	char *element_name;
 
-	if ( !list_rewind( filter_element_name_list ) ) return (LIST *)0;
+	if ( !list_rewind( element_name_list ) ) return (LIST *)0;
 
 	element_list = list_new();
 
 	do {
-		element_name = list_get( filter_element_name_list );
+		element_name = list_get( element_name_list );
 
 		list_set(
 			element_list,
@@ -267,12 +267,28 @@ LIST *element_statement_list(
 				fetch_journal_latest,
 				fetch_transaction ) );
 
-	} while ( list_next( filter_element_name_list ) );
+	} while ( list_next( element_name_list ) );
 
 	if ( !list_length( element_list ) )
 		return (LIST *)0;
 	else
 		return element_list;
+}
+
+void element_list_sum( LIST *element_statement_list )
+{
+	ELEMENT *element;
+
+	if ( !list_rewind( element_statement_list ) ) return;
+
+	do {
+		element = list_get( element_statement_list );
+
+		element->sum =
+			element_sum(
+				element );
+
+	} while ( list_next( element_statement_list ) );
 }
 
 double element_sum( ELEMENT *element )

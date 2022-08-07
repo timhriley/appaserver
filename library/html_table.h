@@ -53,14 +53,16 @@ char *html_heading_tag(	char *heading );
 typedef struct
 {
 	char *data;
-	boolean large_bold_boolean;
+	boolean large_boolean;
+	boolean bold_boolean;
 } HTML_CELL;
 
 /* Usage */
 /* ----- */
 HTML_CELL *html_cell_new(
 			char *data,
-			boolean large_bold_boolean );
+			boolean large_boolean,
+			boolean bold_boolean );
 
 /* Process */
 /* ------- */
@@ -72,7 +74,8 @@ HTML_CELL *html_cell_calloc(
 void html_cell_data_set(
 			LIST *cell_list,
 			char *data,
-			boolean large_bold_boolean );
+			boolean large_boolean,
+			boolean bold_boolean );
 
 /* Process */
 /* ------- */
@@ -98,7 +101,8 @@ void html_cell_output(
 /* Returns heap memory */
 /* ------------------- */
 char *html_cell_tag(	char *html_cell_data,
-			boolean large_bold_boolean,
+			boolean large_boolean,
+			boolean bold_boolean,
 			boolean right_justify_boolean );
 
 typedef struct
