@@ -225,10 +225,8 @@ typedef struct
 	INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 		income_statement_subclass_omit_latex;
 
-/*
 	INCOME_STATEMEMENT_SUBCLASS_AGGR_LATEX *
 		income_statement_subclass_aggr_latex;
-*/
 } INCOME_STATEMENT_LATEX;
 
 /* Usage */

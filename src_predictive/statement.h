@@ -424,6 +424,72 @@ LIST *statement_subclass_omit_latex_list_extract_row_list(
 
 typedef struct
 {
+	LIST *row_list;
+} STATEMENT_SUBCLASS_AGGR_LATEX;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_AGGR_LATEX *
+	statement_subclass_aggr_latex_new(
+			ELEMENT *element,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_AGGR_LATEX *
+	statement_subclass_aggr_latex_calloc(
+			void );
+
+LATEX_ROW *statement_subclass_aggr_latex_element_label_row(
+			char *element_name,
+			int statement_prior_year_list_length );
+
+LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
+			char *element_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
+/* Usage */
+/* ----- */
+LATEX_ROW *statement_subclass_aggr_latex_row(
+			SUBCLASSIFICATION *subclassification,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *heading_list;
+	LIST *list;
+} STATEMENT_SUBCLASS_AGGR_LATEX_LIST;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_AGGR_LATEX_LIST *
+	statement_subclass_aggr_latex_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_AGGR_LATEX_LIST *
+	statement_subclass_aggr_latex_list_calloc(
+			void );
+
+LIST *statement_subclass_aggr_latex_list_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Public */
+/* ------ */
+LIST *statement_subclass_aggr_latex_list_extract_row_list(
+	STATEMENT_SUBCLASS_AGGR_LATEX_LIST *
+			statement_subclass_aggr_latex_list );
+
+typedef struct
+{
 	LIST *element_statement_list;
 	char *logo_filename;
 	char *caption_title;
@@ -499,11 +565,6 @@ char *statement_date_american(
 
 /* Process */
 /* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *statement_latex_account_title(
-			char *account_name );
 
 /* Public */
 /* ------ */
