@@ -366,11 +366,20 @@ void html_row_output(	LIST *heading_list,
 {
 	HTML_CELL *html_cell;
 
-	if ( !list_rewind( heading_list )
-	||   !html_row )
+	if ( !list_rewind( heading_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: heading_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !html_row )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: html_row is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

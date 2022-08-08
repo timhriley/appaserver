@@ -121,17 +121,27 @@ int main( int argc, char **argv )
 	else
 	if ( income_statement->statement_subclassification_option ==
 			subclassification_display
-	&&   income_statement->income_statement_table )
+	&&   income_statement->income_statement_html )
 	{
 		statement_html_output(
 			income_statement->
-				income_statement_table->
 				income_statement_html->
 				income_statement_subclass_display_html->
 				html_table,
 			(char *)0 /* secondary_title */ );
 	}
-#ifdef NOT_DEFINED
+	else
+	if ( income_statement->statement_subclassification_option ==
+			subclassification_omit
+	&&   income_statement->income_statement_html )
+	{
+		statement_html_output(
+			income_statement->
+				income_statement_html->
+				income_statement_subclass_omit_html->
+				html_table,
+			(char *)0 /* secondary_title */ );
+	}
 	else
 	if ( income_statement->statement_subclassification_option ==
 			subclassification_omit
@@ -147,26 +157,15 @@ int main( int argc, char **argv )
 				income_statement_pdf->
 				statement_link->
 				ftp_output_filename,
-			process_name /* prompt */,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_pdf_prompt( process_name ),
 			process_name,
 			income_statement->
 				statement->
 				date_time_string );
 	}
-	else
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_omit
-	&& income_statement->income_statement_table )
-	{
-		statement_html_output(
-			income_statement->
-				income_statement_table->
-				income_statement_html->
-				income_statement_subclass_omit_html->
-				html_table,
-			process_name /* title */ );
-	}
-#endif
 
 	if ( income_statement->statement_output_medium != output_stdout )
 	{

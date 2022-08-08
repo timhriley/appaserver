@@ -2316,6 +2316,47 @@ LIST *statement_subclass_display_latex_list_extract_row_list(
 	return row_list;
 }
 
+LIST *statement_subclass_omit_latex_list_extract_row_list(
+	STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
+			statement_subclass_omit_latex_list )
+{
+	LIST *row_list;
+	STATEMENT_SUBCLASS_OMIT_LATEX *
+		statement_subclass_omit_latex;
+
+	if ( !statement_subclass_omit_latex_list )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: statement_subclass_omit_latex_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind(
+		statement_subclass_omit_latex_list->list ) )
+	{
+		return (LIST *)0;
+	}
+
+	row_list = list_new();
+
+	do {
+		statement_subclass_omit_latex =
+			list_get(
+				statement_subclass_omit_latex_list->list );
+
+		list_set_list(
+			row_list,
+			statement_subclass_omit_latex->row_list );
+
+	} while ( list_next(
+			statement_subclass_omit_latex_list->list ) );
+
+	return row_list;
+}
+
 char *statement_account_balance_string(
 			double balance,
 			char *account_action_string,
@@ -2419,7 +2460,7 @@ STATEMENT_SUBCLASS_OMIT_HTML *
 				(char *)0 /* transaction_as_of_date */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
-				(char *)0 /* account_action_string */,
+				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
 
@@ -2638,12 +2679,6 @@ HTML_ROW *statement_subclass_omit_html_account_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	html_cell_data_set(
-		html_row->cell_list,
 		statement_account->percent_string,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
@@ -2812,6 +2847,10 @@ STATEMENT_SUBCLASS_DISPLAY_HTML_LIST *
 
 	statement_subclass_display_html_list =
 		statement_subclass_display_html_list_calloc();
+
+	statement_subclass_display_html_list->heading_list =
+		statement_subclass_display_html_list_heading_list(
+			statement_prior_year_list );
 
 	statement_subclass_display_html_list->list = list_new();
 
@@ -3419,7 +3458,7 @@ LIST *statement_subclass_display_html_account_row_list(
 				(char *)0 /* transaction_as_of_date */,
 				0 /* element_accumulate_debit */,
 				account->account_journal_latest,
-				(char *)0 /* account_action_string */,
+				account->action_string,
 				0 /* not round_dollar_boolean */,
 				account );
 

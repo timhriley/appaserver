@@ -416,6 +416,12 @@ STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
 LIST *statement_subclass_omit_latex_list_heading_list(
 			LIST *statement_prior_year_list );
 
+/* Public */
+/* ------ */
+LIST *statement_subclass_omit_latex_list_extract_row_list(
+	STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
+			statement_subclass_omit_latex_list );
+
 typedef struct
 {
 	LIST *element_statement_list;
