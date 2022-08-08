@@ -105,6 +105,110 @@ char *statement_account_money_string(
 
 typedef struct
 {
+	LIST *heading_list;
+	LIST *list;
+} STATEMENT_SUBCLASS_DISPLAY_HTML_LIST;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_DISPLAY_HTML_LIST *
+	statement_subclass_display_html_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_DISPLAY_HTML_LIST *
+	statement_subclass_display_html_list_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+LIST *statement_subclass_display_html_list_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Pubic */
+/* ------ */
+LIST *statement_subclass_display_html_list_extract_row_list(
+	STATEMENT_SUBCLASS_DISPLAY_HTML_LIST *
+			statement_subclass_display_html_list );
+
+typedef struct
+{
+	LIST *row_list;
+} STATEMENT_SUBCLASS_OMIT_HTML;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_OMIT_HTML *
+	statement_subclass_omit_html_new(
+			ELEMENT *element,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_OMIT_HTML *
+	statement_subclass_omit_html_calloc(
+			void );
+
+HTML_ROW *statement_subclass_omit_html_element_label_row(
+			char *element_name,
+			int statement_prior_year_list_length );
+
+HTML_ROW *statement_subclass_omit_html_element_sum_row(
+			char *element_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
+/* Usage */
+/* ----- */
+HTML_ROW *statement_subclass_omit_html_account_row(
+			STATEMENT_ACCOUNT *statement_account,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *heading_list;
+	LIST *list;
+} STATEMENT_SUBCLASS_OMIT_HTML_LIST;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_OMIT_HTML_LIST *
+	statement_subclass_omit_html_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_OMIT_HTML_LIST *
+	statement_subclass_omit_html_list_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+LIST *statement_subclass_omit_html_list_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Pubic */
+/* ------ */
+LIST *statement_subclass_omit_html_list_extract_row_list(
+	STATEMENT_SUBCLASS_OMIT_HTML_LIST *
+			statement_subclass_omit_html_list );
+
+typedef struct
+{
 	LIST *row_list;
 } STATEMENT_SUBCLASS_DISPLAY_LATEX;
 
