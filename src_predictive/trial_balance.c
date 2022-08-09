@@ -1768,7 +1768,7 @@ HTML_TABLE *trial_balance_subclass_display_html_table(
 	html_table =
 		html_table_new(
 			(char *)0 /* title */,
-			statement->subtitle,
+			statement->caption_subtitle,
 			(char *)0 /* sub_sub_title */ );
 
 	html_table->heading_list =
@@ -1925,7 +1925,7 @@ HTML_TABLE *trial_balance_subclass_omit_html_table(
 	html_table =
 		html_table_new(
 			(char *)0 /* title */,
-			statement->subtitle,
+			statement->caption_subtitle,
 			(char *)0 /* sub_sub_title */ );
 
 	html_table->heading_list =
@@ -2012,16 +2012,17 @@ LIST *trial_balance_subclass_omit_html_row_list(
 	LIST *row_list;
 	ELEMENT *element;
 
-	if ( !transaction_as_of_date
-	||   !list_rewind( element_statement_list ) )
+	if ( !transaction_as_of_date )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+		"ERROR in %s/%s()/%d: transaction_as_of_date is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
+
+	if ( !list_rewind( element_statement_list ) ) return (LIST *)0;
 
 	row_list = list_new();
 

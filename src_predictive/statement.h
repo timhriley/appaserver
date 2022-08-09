@@ -268,6 +268,77 @@ LIST *statement_subclass_omit_html_list_extract_row_list(
 typedef struct
 {
 	LIST *row_list;
+} STATEMENT_SUBCLASS_AGGR_HTML;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_AGGR_HTML *
+	statement_subclass_aggr_html_new(
+			ELEMENT *element,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_AGGR_HTML *
+	statement_subclass_aggr_html_calloc(
+			void );
+
+HTML_ROW *statement_subclass_aggr_html_element_label_row(
+			char *element_name,
+			int statement_prior_year_list_length );
+
+HTML_ROW *statement_subclass_aggr_html_element_sum_row(
+			char *element_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list );
+
+/* Usage */
+/* ----- */
+HTML_ROW *statement_subclass_aggr_html_row(
+			SUBCLASSIFICATION *subclassification,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *heading_list;
+	LIST *list;
+} STATEMENT_SUBCLASS_AGGR_HTML_LIST;
+
+/* Usage */
+/* ----- */
+STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+	statement_subclass_aggr_html_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+	statement_subclass_aggr_html_list_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+LIST *statement_subclass_aggr_html_list_heading_list(
+			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
+
+/* Pubic */
+/* ------ */
+LIST *statement_subclass_aggr_html_list_extract_row_list(
+	STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+			statement_subclass_aggr_html_list );
+
+typedef struct
+{
+	LIST *row_list;
 } STATEMENT_SUBCLASS_DISPLAY_LATEX;
 
 /* Usage */
@@ -609,7 +680,7 @@ void statement_html_output(
 
 typedef struct
 {
-	char *date_string;
+	char *date_time_string;
 	LIST *element_statement_list;
 } STATEMENT_PRIOR_YEAR;
 
@@ -642,7 +713,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
-char *statement_prior_year_date_string(
+char *statement_prior_year_date_time_string(
 			char *transaction_date_time_closing,
 			int years_ago );
 

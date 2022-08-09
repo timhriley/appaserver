@@ -92,10 +92,48 @@ HTML_ROW *income_statement_subclass_omit_html_net_income_row(
 
 typedef struct
 {
+	STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+		statement_subclass_aggr_html_list;
+	LIST *row_list;
+	HTML_ROW *net_income_row;
+	HTML_TABLE *html_table;
+} INCOME_STATEMENT_SUBCLASS_AGGR_HTML;
+
+/* Usage */
+/* ----- */
+INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+	income_statement_subclass_aggr_html_new(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *net_income_label );
+
+/* Process */
+/* ------- */
+INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+	income_statement_subclass_aggr_html_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+HTML_ROW *income_statement_subclass_aggr_html_net_income_row(
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *net_income_label );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
 	INCOME_STATEMENT_SUBCLASS_DISPLAY_HTML *
 		income_statement_subclass_display_html;
 	INCOME_STATEMENT_SUBCLASS_OMIT_HTML *
 		income_statement_subclass_omit_html;
+	INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+		income_statement_subclass_aggr_html;
 } INCOME_STATEMENT_HTML;
 
 /* Usage */
@@ -219,13 +257,64 @@ LATEX_ROW *income_statement_subclass_omit_latex_net_income_row(
 
 typedef struct
 {
+	STATEMENT_SUBCLASS_AGGR_LATEX_LIST *
+		statement_subclass_aggr_latex_list;
+	LIST *row_list;
+	LATEX_ROW *net_income_row;
+	LATEX *latex;
+} INCOME_STATEMENT_SUBCLASS_AGGR_LATEX;
+
+/* Usage */
+/* ----- */
+INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
+	income_statement_subclass_aggr_latex_new(
+			char *tex_filename,
+			char *dvi_filename,
+			char *working_directory,
+			boolean statement_pdf_landscape_boolean,
+			char *statement_logo_filename,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *income_statement_net_income_label );
+
+/* Process */
+/* ------- */
+INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
+	income_statement_subclass_aggr_latex_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+LATEX_TABLE *income_statement_subclass_aggr_latex_table(
+			char *caption,
+			LIST *heading_list,
+			LIST *row_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LATEX_ROW *income_statement_subclass_aggr_latex_net_income_row(
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *income_statement_net_income_label );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
 	INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 		income_statement_subclass_display_latex;
 
 	INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 		income_statement_subclass_omit_latex;
 
-	INCOME_STATEMEMENT_SUBCLASS_AGGR_LATEX *
+	INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 		income_statement_subclass_aggr_latex;
 } INCOME_STATEMENT_LATEX;
 

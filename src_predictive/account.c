@@ -1061,6 +1061,7 @@ ACCOUNT *account_element_list_seek(
 			LIST *element_statement_list )
 {
 	ELEMENT *element;
+	ACCOUNT *account;
 
 	if ( !list_rewind( element_statement_list ) )
 		return (ACCOUNT *)0;
@@ -1070,10 +1071,13 @@ ACCOUNT *account_element_list_seek(
 
 		if ( list_length( element->subclassification_statement_list ) )
 		{
-			return
-			account_subclassification_list_seek(
-				account_name,
-				element->subclassification_statement_list );
+			account =
+				account_subclassification_list_seek(
+					account_name,
+					element->
+					     subclassification_statement_list );
+
+			if ( account ) return account;
 		}
 
 	} while ( list_next( element_statement_list ) );

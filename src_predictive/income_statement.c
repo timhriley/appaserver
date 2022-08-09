@@ -346,7 +346,6 @@ LATEX_ROW *income_statement_subclass_omit_latex_net_income_row(
 		exit( 1 );
 	}
 
-
 	latex_row = latex_row_new();
 
 	latex_column_data_set(
@@ -875,7 +874,6 @@ INCOME_STATEMENT_LATEX *
 	else
 	if ( statement_subclassification_option == subclassification_aggregate )
 	{
-/*
 		income_statement_latex->
 			income_statement_subclass_aggr_latex =
 				income_statement_subclass_aggr_latex_new(
@@ -889,7 +887,6 @@ INCOME_STATEMENT_LATEX *
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					income_statement_net_income_label );
-*/
 	}
 
 	return income_statement_latex;
@@ -966,8 +963,7 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 	else
 	if ( statement_subclassification_option == subclassification_aggregate )
 	{
-/*
-		income_statement->
+		income_statement_html->
 			income_statement_subclass_aggr_html =
 				income_statement_subclass_aggr_html_new(
 					statement,
@@ -975,7 +971,6 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					net_income_label );
-*/
 	}
 	else
 	{
@@ -1280,6 +1275,158 @@ HTML_ROW *income_statement_subclass_omit_html_net_income_row(
 		exit( 1 );
 	}
 
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( net_income_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( timlib_place_commas_in_money( element_net_income ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		net_income_percent_of_revenue_display,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		html_cell_data_list_set(
+			html_row->cell_list,
+			income_statement_prior_net_income_data_list(
+				element_net_income /* current_net_income */,
+				statement_prior_year_list ) );
+	}
+
+	return html_row;
+}
+
+INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+	income_statement_subclass_aggr_html_new(
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *net_income_label )
+{
+	INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+		income_statement_subclass_aggr_html;
+
+	if ( !statement
+	||   !net_income_percent_of_revenue_display
+	||   !net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( statement->element_statement_list ) )
+		return (INCOME_STATEMENT_SUBCLASS_AGGR_HTML *)0;
+
+	income_statement_subclass_aggr_html =
+		income_statement_subclass_aggr_html_calloc();
+
+
+	income_statement_subclass_aggr_html->
+		statement_subclass_aggr_html_list =
+			statement_subclass_aggr_html_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	income_statement_subclass_aggr_html->row_list =
+		statement_subclass_aggr_html_list_extract_row_list(
+			income_statement_subclass_aggr_html->
+				statement_subclass_aggr_html_list );
+
+	list_set(
+		income_statement_subclass_aggr_html->row_list,
+		income_statement_subclass_aggr_html_net_income_row(
+			statement_prior_year_list,
+			element_net_income,
+			net_income_percent_of_revenue_display,
+			net_income_label ) );
+
+	income_statement_subclass_aggr_html->html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			statement->caption_subtitle,
+			(char *)0 /* sub_sub_title */ );
+
+	income_statement_subclass_aggr_html->
+		html_table->
+		heading_list =
+			income_statement_subclass_aggr_html->
+				statement_subclass_aggr_html_list->
+				heading_list;
+
+	income_statement_subclass_aggr_html->
+		html_table->
+		row_list =
+			income_statement_subclass_aggr_html->
+				row_list;
+
+	return income_statement_subclass_aggr_html;
+}
+
+INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+	income_statement_subclass_aggr_html_calloc(
+			void )
+{
+	INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
+		income_statement_subclass_aggr_html;
+
+	if ( ! ( income_statement_subclass_aggr_html =
+		   calloc(1,
+			  sizeof( INCOME_STATEMENT_SUBCLASS_AGGR_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return income_statement_subclass_aggr_html;
+}
+
+HTML_ROW *income_statement_subclass_aggr_html_net_income_row(
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *net_income_label )
+{
+	HTML_ROW *html_row;
+
+	if ( !net_income_percent_of_revenue_display
+	||   !net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	html_row = html_row_new();
 
@@ -1320,5 +1467,186 @@ HTML_ROW *income_statement_subclass_omit_html_net_income_row(
 	}
 
 	return html_row;
+}
+
+INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
+	income_statement_subclass_aggr_latex_new(
+			char *tex_filename,
+			char *dvi_filename,
+			char *working_directory,
+			boolean statement_pdf_landscape_boolean,
+			char *statement_logo_filename,
+			STATEMENT *statement,
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *income_statement_net_income_label )
+{
+	INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
+		income_statement_subclass_aggr_latex;
+
+	if ( !tex_filename
+	||   !dvi_filename
+	||   !working_directory
+	||   !statement
+	||   !net_income_percent_of_revenue_display
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	income_statement_subclass_aggr_latex =
+		income_statement_subclass_aggr_latex_calloc();
+
+	income_statement_subclass_aggr_latex->
+		statement_subclass_aggr_latex_list =
+			statement_subclass_aggr_latex_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	income_statement_subclass_aggr_latex->row_list =
+		statement_subclass_aggr_latex_list_extract_row_list(
+			income_statement_subclass_aggr_latex->
+				statement_subclass_aggr_latex_list );
+
+	list_set(
+		income_statement_subclass_aggr_latex->row_list,
+		income_statement_subclass_aggr_latex_net_income_row(
+			statement_prior_year_list,
+			element_net_income,
+			net_income_percent_of_revenue_display,
+			income_statement_net_income_label ) );
+
+	income_statement_subclass_aggr_latex->latex =
+		latex_new(
+			tex_filename,
+			dvi_filename,
+			working_directory,
+			statement_pdf_landscape_boolean,
+			statement_logo_filename );
+
+	list_set(
+		income_statement_subclass_aggr_latex->latex->table_list,
+		income_statement_subclass_aggr_latex_table(
+			statement->caption,
+			income_statement_subclass_aggr_latex->
+				statement_subclass_aggr_latex_list->
+				heading_list,
+			income_statement_subclass_aggr_latex->row_list ) );
+
+	return income_statement_subclass_aggr_latex;
+}
+
+INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
+	income_statement_subclass_aggr_latex_calloc(
+			void )
+{
+	INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
+		income_statement_subclass_aggr_latex;
+
+	if ( ! ( income_statement_subclass_aggr_latex =
+			calloc(
+			    1,
+			    sizeof( INCOME_STATEMENT_SUBCLASS_AGGR_LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return income_statement_subclass_aggr_latex;
+}
+
+LATEX_TABLE *income_statement_subclass_aggr_latex_table(
+			char *caption,
+			LIST *heading_list,
+			LIST *row_list )
+{
+	LATEX_TABLE *latex_table;
+
+	if ( !caption
+	||   !list_length( heading_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_table = latex_table_new( caption );
+	latex_table->heading_list = heading_list;
+	latex_table->row_list = row_list;
+
+	return latex_table;
+}
+
+LATEX_ROW *income_statement_subclass_aggr_latex_net_income_row(
+			LIST *statement_prior_year_list,
+			double element_net_income,
+			char *net_income_percent_of_revenue_display,
+			char *income_statement_net_income_label )
+{
+	LATEX_ROW *latex_row;
+
+	if ( !net_income_percent_of_revenue_display
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( income_statement_net_income_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( timlib_place_commas_in_money( element_net_income ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		net_income_percent_of_revenue_display,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		latex_column_data_list_set(
+			latex_row->column_data_list,
+			income_statement_prior_net_income_data_list(
+				element_net_income /* current_net_income */,
+				statement_prior_year_list ) );
+	}
+
+	return latex_row;
 }
 

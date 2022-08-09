@@ -451,13 +451,13 @@ void subclassification_delta_prior_percent_set(
 			float_delta_prior_percent(
 				prior_subclassification->sum,
 				current_subclassification->sum );
-	}
 
-	account_list_delta_prior_percent_set(
-		prior_subclassification->account_statement_list
-			/* prior_account_list in/out */,
-		current_subclassification->account_statement_list
-			/* current_account_list */ );
+		account_list_delta_prior_percent_set(
+			prior_subclassification->account_statement_list
+				/* prior_account_list in/out */,
+			current_subclassification->account_statement_list
+				/* current_account_list */ );
+	}
 }
 
 double subclassification_list_debit_sum(

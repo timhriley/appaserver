@@ -708,7 +708,7 @@ LIST *statement_prior_year_heading_list(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			statement_date_american(
-				statement_prior_year->date_string ) );
+				statement_prior_year->date_time_string ) );
 
 	} while ( list_next( statement_prior_year_list ) );
 
@@ -837,8 +837,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 	if ( !list_length( element_name_list )
 	||   !transaction_date_time_closing
 	||   !years_ago
-	||   !statement
-	||   !list_rewind( statement->element_statement_list ) )
+	||   !statement )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -848,24 +847,36 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_fetch(
 		exit( 1 );
 	}
 
+	if ( !list_length( statement->element_statement_list ) )
+		return (STATEMENT_PRIOR_YEAR *)0;
+
 	statement_prior_year = statement_prior_year_calloc();
 
-	statement_prior_year->date_string =
+	statement_prior_year->date_time_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		statement_prior_year_date_string(
+		statement_prior_year_date_time_string(
 			transaction_date_time_closing,
 			years_ago );
 
 	statement_prior_year->element_statement_list =
 		element_statement_list(
 			element_name_list,
-			statement_prior_year->date_string,
+			statement_prior_year->date_time_string,
 			1 /* fetch_subclassification_list */,
 			1 /* fetch_account_list */,
 			1 /* fetch_journal_latest */,
 			0 /* not fetch_transaction */ );
+
+	if ( !list_length( statement_prior_year->element_statement_list ) )
+	{
+		return (STATEMENT_PRIOR_YEAR *)0;
+	}
+
+	element_list_sum( statement_prior_year->element_statement_list );
+
+	list_rewind( statement->element_statement_list );
 
 	do {
 		current_element =
@@ -908,7 +919,7 @@ STATEMENT_PRIOR_YEAR *statement_prior_year_calloc( void )
 	return statement_prior_year;
 }
 
-char *statement_prior_year_date_string(
+char *statement_prior_year_date_time_string(
 			char *transaction_date_time_closing,
 			int years_ago )
 {
@@ -2806,6 +2817,423 @@ LIST *statement_subclass_omit_html_list_extract_row_list(
 
 	} while ( list_next(
 			statement_subclass_omit_html_list->list ) );
+
+	return row_list;
+}
+
+STATEMENT_SUBCLASS_AGGR_HTML *
+	statement_subclass_aggr_html_new(
+			ELEMENT *element,
+			LIST *statement_prior_year_list )
+{
+	STATEMENT_SUBCLASS_AGGR_HTML *statement_subclass_aggr_html;
+	SUBCLASSIFICATION *subclassification;
+
+	if ( !element )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( element->subclassification_statement_list ) )
+		return (STATEMENT_SUBCLASS_AGGR_HTML *)0;
+
+	statement_subclass_aggr_html = statement_subclass_aggr_html_calloc();
+	statement_subclass_aggr_html->row_list = list_new();
+
+	list_set(
+		statement_subclass_aggr_html->row_list,
+		statement_subclass_aggr_html_element_label_row(
+			element->element_name,
+			list_length( statement_prior_year_list ) ) );
+
+	do {
+		subclassification =
+			list_get(
+				element->subclassification_statement_list );
+
+		if ( subclassification->sum )
+		{
+			list_set(
+				statement_subclass_aggr_html->row_list,
+				statement_subclass_aggr_html_row(
+					subclassification,
+					statement_prior_year_list ) );
+		}
+
+	} while ( list_next( element->subclassification_statement_list ) );
+
+	list_set(
+		statement_subclass_aggr_html->row_list,
+		statement_subclass_aggr_html_element_sum_row(
+			element->element_name,
+			element->sum,
+			element->percent_of_asset,
+			element->percent_of_revenue,
+			statement_prior_year_list ) );
+
+	return statement_subclass_aggr_html;
+}
+
+STATEMENT_SUBCLASS_AGGR_HTML *
+	statement_subclass_aggr_html_calloc(
+			void )
+{
+	STATEMENT_SUBCLASS_AGGR_HTML *statement_subclass_aggr_html;
+
+	if ( ! ( statement_subclass_aggr_html =
+			calloc( 1, sizeof( STATEMENT_SUBCLASS_AGGR_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement_subclass_aggr_html;
+}
+
+HTML_ROW *statement_subclass_aggr_html_element_label_row(
+			char *element_name,
+			int statement_prior_year_list_length )
+{
+	HTML_ROW *html_row;
+	int i;
+
+	if ( !element_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( element_name ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		html_cell_data_set(
+			html_row->cell_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return html_row;
+}
+
+HTML_ROW *statement_subclass_aggr_html_element_sum_row(
+			char *element_name,
+			double sum,
+			int percent_of_asset,
+			int percent_of_revenue,
+			LIST *statement_prior_year_list )
+{
+	HTML_ROW *html_row;
+	char column_title[ 128 ];
+
+	if ( !element_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: element_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	sprintf(column_title,
+		"%s Element",
+		element_name );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( column_title ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_balance_string(
+			sum /* balance */,
+			(char *)0 /* account_action_string */,
+			0 /* not round_dollar_boolean */ ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_percent_string(
+			percent_of_asset,
+			percent_of_revenue ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		html_cell_data_list_set(
+			html_row->cell_list,
+			statement_prior_year_element_data_list(
+				element_name,
+				statement_prior_year_list ) );
+	}
+
+	return html_row;
+}
+
+HTML_ROW *statement_subclass_aggr_html_row(
+			SUBCLASSIFICATION *subclassification,
+			LIST *statement_prior_year_list )
+{
+	HTML_ROW *html_row;
+
+	if ( !subclassification )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: subclassification is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			subclassification->subclassification_name ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_balance_string(
+			subclassification->sum /* balance */,
+			(char *)0 /* account_action_string */,
+			0 /* not round_dollar_boolean */ ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_account_percent_string(
+			subclassification->percent_of_asset,
+			subclassification->percent_of_revenue ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	if ( list_length( statement_prior_year_list ) )
+	{
+		html_cell_data_list_set(
+			html_row->cell_list,
+			statement_prior_year_subclassification_data_list(
+				subclassification->subclassification_name,
+				statement_prior_year_list ) );
+	}
+
+	return html_row;
+}
+
+STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+	statement_subclass_aggr_html_list_new(
+			LIST *element_statement_list,
+			LIST *statement_prior_year_list )
+{
+	STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+		statement_subclass_aggr_html_list;
+	ELEMENT *element;
+
+	if ( !list_rewind( element_statement_list ) )
+		return ( STATEMENT_SUBCLASS_AGGR_HTML_LIST *)0;
+
+	statement_subclass_aggr_html_list =
+		statement_subclass_aggr_html_list_calloc();
+
+	statement_subclass_aggr_html_list->heading_list =
+		statement_subclass_aggr_html_list_heading_list(
+			statement_prior_year_list );
+
+	statement_subclass_aggr_html_list->list = list_new();
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( element->sum )
+		{
+			list_set(
+				statement_subclass_aggr_html_list->list,
+				statement_subclass_aggr_html_new(
+					element,
+					statement_prior_year_list ) );
+		}
+
+	} while ( list_next( element_statement_list ) );
+
+	return statement_subclass_aggr_html_list;
+}
+
+STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+	statement_subclass_aggr_html_list_calloc(
+			void )
+{
+	STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+		statement_subclass_aggr_html_list;
+
+	if ( ! ( statement_subclass_aggr_html_list =
+			calloc(
+			    1,
+			    sizeof( STATEMENT_SUBCLASS_AGGR_HTML_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement_subclass_aggr_html_list;
+}
+
+LIST *statement_subclass_aggr_html_list_heading_list(
+			LIST *statement_prior_year_list )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"",
+			0 /* right_justify_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Balance",
+			1 /* right_Justified_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Element",
+			1 /* right_justified_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Percent",
+			1 /* right_justified_boolean */ ) );
+
+	html_heading_list_right_justify_set(
+		heading_list,
+		statement_prior_year_heading_list(
+			statement_prior_year_list ) );
+
+	return heading_list;
+}
+
+LIST *statement_subclass_aggr_html_list_extract_row_list(
+	STATEMENT_SUBCLASS_AGGR_HTML_LIST *
+		statement_subclass_aggr_html_list )
+{
+	LIST *row_list;
+	STATEMENT_SUBCLASS_AGGR_HTML *
+		statement_subclass_aggr_html;
+
+	if ( !statement_subclass_aggr_html_list )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: statement_subclass_aggr_html_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind(
+		statement_subclass_aggr_html_list->list ) )
+	{
+		return (LIST *)0;
+	}
+
+	row_list = list_new();
+
+	do {
+		statement_subclass_aggr_html =
+			list_get(
+				statement_subclass_aggr_html_list->list );
+
+		list_set_list(
+			row_list,
+			statement_subclass_aggr_html->row_list );
+
+	} while ( list_next(
+			statement_subclass_aggr_html_list->list ) );
 
 	return row_list;
 }
