@@ -20,11 +20,6 @@
 
 INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 	income_statement_subclass_display_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double element_net_income,
@@ -34,10 +29,7 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 	INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 		income_statement_subclass_display_latex;
 
-	if ( !tex_filename
-	||   !dvi_filename
-	||   !working_directory
-	||   !statement
+	if ( !statement
 	||   !net_income_percent_of_revenue_display
 	||   !income_statement_net_income_label )
 	{
@@ -71,23 +63,6 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 			net_income_percent_of_revenue_display,
 			income_statement_net_income_label ) );
 
-	income_statement_subclass_display_latex->latex =
-		latex_new(
-			tex_filename,
-			dvi_filename,
-			working_directory,
-			statement_pdf_landscape_boolean,
-			statement_logo_filename );
-
-	list_set(
-		income_statement_subclass_display_latex->latex->table_list,
-		income_statement_subclass_display_latex_table(
-			statement->caption,
-			income_statement_subclass_display_latex->
-				statement_subclass_display_latex_list->
-				heading_list,
-			income_statement_subclass_display_latex->row_list ) );
-
 	return income_statement_subclass_display_latex;
 }
 
@@ -116,11 +91,6 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 
 INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 	income_statement_subclass_omit_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double element_net_income,
@@ -130,10 +100,7 @@ INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 	INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 		income_statement_subclass_omit_latex;
 
-	if ( !tex_filename
-	||   !dvi_filename
-	||   !working_directory
-	||   !statement
+	if ( !statement
 	||   !net_income_percent_of_revenue_display
 	||   !income_statement_net_income_label )
 	{
@@ -166,23 +133,6 @@ INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 			element_net_income,
 			net_income_percent_of_revenue_display,
 			income_statement_net_income_label ) );
-
-	income_statement_subclass_omit_latex->latex =
-		latex_new(
-			tex_filename,
-			dvi_filename,
-			working_directory,
-			statement_pdf_landscape_boolean,
-			statement_logo_filename );
-
-	list_set(
-		income_statement_subclass_omit_latex->latex->table_list,
-		income_statement_subclass_omit_latex_table(
-			statement->caption,
-			income_statement_subclass_omit_latex->
-				statement_subclass_omit_latex_list->
-				heading_list,
-			income_statement_subclass_omit_latex->row_list ) );
 
 	return income_statement_subclass_omit_latex;
 }
@@ -835,24 +785,45 @@ INCOME_STATEMENT_LATEX *
 		exit( 1 );
 	}
 
-
 	income_statement_latex = income_statement_latex_calloc();
+
+	income_statement_latex->latex =
+		latex_new(
+			tex_filename,
+			dvi_filename,
+			working_directory,
+			statement_pdf_landscape_boolean,
+			statement_logo_filename );
 
 	if ( statement_subclassification_option == subclassification_display )
 	{
 		income_statement_latex->
 			income_statement_subclass_display_latex =
 				income_statement_subclass_display_latex_new(
-					tex_filename,
-					dvi_filename,
-					working_directory,
-					statement_pdf_landscape_boolean,
-					statement_logo_filename,
 					statement,
 					statement_prior_year_list,
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					income_statement_net_income_label );
+
+		if ( !income_statement_latex->
+			income_statement_subclass_display_latex )
+		{
+			free( income_statement_latex );
+			return (INCOME_STATEMENT_LATEX *)0;
+		}
+
+		list_set(
+			income_statement_latex->latex->table_list,
+			income_statement_latex_table(
+				statement->caption,
+				income_statement_latex->
+				   income_statement_subclass_display_latex->
+				   statement_subclass_display_latex_list->
+				   heading_list,
+				income_statement_latex->
+				   income_statement_subclass_display_latex->
+				   row_list ) );
 	}
 	else
 	if ( statement_subclassification_option == subclassification_omit )
@@ -860,16 +831,30 @@ INCOME_STATEMENT_LATEX *
 		income_statement_latex->
 			income_statement_subclass_omit_latex =
 				income_statement_subclass_omit_latex_new(
-					tex_filename,
-					dvi_filename,
-					working_directory,
-					statement_pdf_landscape_boolean,
-					statement_logo_filename,
 					statement,
 					statement_prior_year_list,
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					income_statement_net_income_label );
+
+		if ( !income_statement_latex->
+			income_statement_subclass_omit_latex )
+		{
+			free( income_statement_latex );
+			return (INCOME_STATEMENT_LATEX *)0;
+		}
+
+		list_set(
+			income_statement_latex->latex->table_list,
+			income_statement_latex_table(
+				statement->caption,
+				income_statement_latex->
+				   income_statement_subclass_omit_latex->
+				   statement_subclass_omit_latex_list->
+				   heading_list,
+				income_statement_latex->
+				   income_statement_subclass_omit_latex->
+				   row_list ) );
 	}
 	else
 	if ( statement_subclassification_option == subclassification_aggregate )
@@ -877,16 +862,30 @@ INCOME_STATEMENT_LATEX *
 		income_statement_latex->
 			income_statement_subclass_aggr_latex =
 				income_statement_subclass_aggr_latex_new(
-					tex_filename,
-					dvi_filename,
-					working_directory,
-					statement_pdf_landscape_boolean,
-					statement_logo_filename,
 					statement,
 					statement_prior_year_list,
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					income_statement_net_income_label );
+
+		if ( !income_statement_latex->
+			income_statement_subclass_aggr_latex )
+		{
+			free( income_statement_latex );
+			return (INCOME_STATEMENT_LATEX *)0;
+		}
+
+		list_set(
+			income_statement_latex->latex->table_list,
+			income_statement_latex_table(
+				statement->caption,
+				income_statement_latex->
+				   income_statement_subclass_aggr_latex->
+				   statement_subclass_aggr_latex_list->
+				   heading_list,
+				income_statement_latex->
+				   income_statement_subclass_aggr_latex->
+				   row_list ) );
 	}
 
 	return income_statement_latex;
@@ -946,6 +945,24 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					net_income_label );
+
+		if ( !income_statement_html->
+			income_statement_subclass_display_html )
+		{
+			free( income_statement_html );
+			return (INCOME_STATEMENT_HTML *)0;
+		}
+
+		income_statement_html->html_table =
+			income_statement_html_table(
+			     	statement->caption_subtitle,
+			     	income_statement_html->
+					income_statement_subclass_display_html->
+					statement_subclass_display_html_list->
+					heading_list,
+			     	income_statement_html->
+					income_statement_subclass_display_html->
+					row_list );
 	}
 	else
 	if (	statement_subclassification_option ==
@@ -959,6 +976,24 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					net_income_label );
+
+		if ( !income_statement_html->
+			income_statement_subclass_omit_html )
+		{
+			free( income_statement_html );
+			return (INCOME_STATEMENT_HTML *)0;
+		}
+
+		income_statement_html->html_table =
+			income_statement_html_table(
+				statement->caption_subtitle,
+				income_statement_html->
+					income_statement_subclass_omit_html->
+					statement_subclass_omit_html_list->
+					heading_list,
+				income_statement_html->
+					income_statement_subclass_omit_html->
+					row_list );
 	}
 	else
 	if ( statement_subclassification_option == subclassification_aggregate )
@@ -971,6 +1006,24 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 					element_net_income,
 					net_income_percent_of_revenue_display,
 					net_income_label );
+
+		if ( !income_statement_html->
+			income_statement_subclass_aggr_html )
+		{
+			free( income_statement_html );
+			return (INCOME_STATEMENT_HTML *)0;
+		}
+
+		income_statement_html->html_table =
+			income_statement_html_table(
+				statement->caption_subtitle,
+				income_statement_html->
+					income_statement_subclass_aggr_html->
+					statement_subclass_aggr_html_list->
+					heading_list,
+				income_statement_html->
+					income_statement_subclass_aggr_html->
+					row_list );
 	}
 	else
 	{
@@ -1051,25 +1104,6 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_HTML *
 			element_net_income,
 			net_income_percent_of_revenue_display,
 			net_income_label ) );
-
-	income_statement_subclass_display_html->html_table =
-		html_table_new(
-			(char *)0 /* title */,
-			statement->caption_subtitle,
-			(char *)0 /* sub_sub_title */ );
-
-	income_statement_subclass_display_html->
-		html_table->
-		heading_list =
-			income_statement_subclass_display_html->
-				statement_subclass_display_html_list->
-				heading_list;
-
-	income_statement_subclass_display_html->
-		html_table->
-		row_list =
-			income_statement_subclass_display_html->
-				row_list;
 
 	return income_statement_subclass_display_html;
 }
@@ -1192,7 +1226,6 @@ INCOME_STATEMENT_SUBCLASS_OMIT_HTML *
 	income_statement_subclass_omit_html =
 		income_statement_subclass_omit_html_calloc();
 
-
 	income_statement_subclass_omit_html->
 		statement_subclass_omit_html_list =
 			statement_subclass_omit_html_list_new(
@@ -1211,25 +1244,6 @@ INCOME_STATEMENT_SUBCLASS_OMIT_HTML *
 			element_net_income,
 			net_income_percent_of_revenue_display,
 			net_income_label ) );
-
-	income_statement_subclass_omit_html->html_table =
-		html_table_new(
-			(char *)0 /* title */,
-			statement->caption_subtitle,
-			(char *)0 /* sub_sub_title */ );
-
-	income_statement_subclass_omit_html->
-		html_table->
-		heading_list =
-			income_statement_subclass_omit_html->
-				statement_subclass_omit_html_list->
-				heading_list;
-
-	income_statement_subclass_omit_html->
-		html_table->
-		row_list =
-			income_statement_subclass_omit_html->
-				row_list;
 
 	return income_statement_subclass_omit_html;
 }
@@ -1345,7 +1359,6 @@ INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
 	income_statement_subclass_aggr_html =
 		income_statement_subclass_aggr_html_calloc();
 
-
 	income_statement_subclass_aggr_html->
 		statement_subclass_aggr_html_list =
 			statement_subclass_aggr_html_list_new(
@@ -1364,25 +1377,6 @@ INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
 			element_net_income,
 			net_income_percent_of_revenue_display,
 			net_income_label ) );
-
-	income_statement_subclass_aggr_html->html_table =
-		html_table_new(
-			(char *)0 /* title */,
-			statement->caption_subtitle,
-			(char *)0 /* sub_sub_title */ );
-
-	income_statement_subclass_aggr_html->
-		html_table->
-		heading_list =
-			income_statement_subclass_aggr_html->
-				statement_subclass_aggr_html_list->
-				heading_list;
-
-	income_statement_subclass_aggr_html->
-		html_table->
-		row_list =
-			income_statement_subclass_aggr_html->
-				row_list;
 
 	return income_statement_subclass_aggr_html;
 }
@@ -1471,11 +1465,6 @@ HTML_ROW *income_statement_subclass_aggr_html_net_income_row(
 
 INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 	income_statement_subclass_aggr_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double element_net_income,
@@ -1485,10 +1474,7 @@ INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 	INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 		income_statement_subclass_aggr_latex;
 
-	if ( !tex_filename
-	||   !dvi_filename
-	||   !working_directory
-	||   !statement
+	if ( !statement
 	||   !net_income_percent_of_revenue_display
 	||   !income_statement_net_income_label )
 	{
@@ -1521,23 +1507,6 @@ INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 			element_net_income,
 			net_income_percent_of_revenue_display,
 			income_statement_net_income_label ) );
-
-	income_statement_subclass_aggr_latex->latex =
-		latex_new(
-			tex_filename,
-			dvi_filename,
-			working_directory,
-			statement_pdf_landscape_boolean,
-			statement_logo_filename );
-
-	list_set(
-		income_statement_subclass_aggr_latex->latex->table_list,
-		income_statement_subclass_aggr_latex_table(
-			statement->caption,
-			income_statement_subclass_aggr_latex->
-				statement_subclass_aggr_latex_list->
-				heading_list,
-			income_statement_subclass_aggr_latex->row_list ) );
 
 	return income_statement_subclass_aggr_latex;
 }
@@ -1648,5 +1617,63 @@ LATEX_ROW *income_statement_subclass_aggr_latex_net_income_row(
 	}
 
 	return latex_row;
+}
+
+HTML_TABLE *income_statement_html_table(
+			char *statement_caption_subtitle,
+			LIST *heading_list,
+			LIST *row_list )
+{
+	HTML_TABLE *html_table;
+
+	if ( !statement_caption_subtitle
+	||   !list_length( heading_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: () returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			statement_caption_subtitle,
+			(char *)0 /* sub_sub_title */ );
+
+	html_table->heading_list = heading_list;
+	html_table->row_list = row_list;
+
+	return html_table;
+}
+
+LATEX_TABLE *income_statement_latex_table(
+			char *statement_caption,
+			LIST *heading_list,
+			LIST *row_list )
+{
+	LATEX_TABLE *latex_table;
+
+	if ( !statement_caption
+	||   !list_length( heading_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: () returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_table =
+		latex_table_new(
+			statement_caption );
+
+	latex_table->heading_list = heading_list;
+	latex_table->row_list = row_list;
+
+	return latex_table;
 }
 

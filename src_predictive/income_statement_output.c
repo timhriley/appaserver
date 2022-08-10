@@ -95,15 +95,12 @@ int main( int argc, char **argv )
 		printf( "%s\n", income_statement->statement->frame_title );
 	}
 
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_display
-	&& income_statement->income_statement_pdf )
+	if ( income_statement->income_statement_pdf )
 	{
 		statement_latex_output(
 			income_statement->
 				income_statement_pdf->
 				income_statement_latex->
-				income_statement_subclass_display_latex->
 				latex,
 			income_statement->
 				income_statement_pdf->
@@ -119,86 +116,11 @@ int main( int argc, char **argv )
 				date_time_string );
 	}
 	else
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_omit
-	&& income_statement->income_statement_pdf )
-	{
-		statement_latex_output(
-			income_statement->
-				income_statement_pdf->
-				income_statement_latex->
-				income_statement_subclass_omit_latex->
-				latex,
-			income_statement->
-				income_statement_pdf->
-				statement_link->
-				ftp_output_filename,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			statement_pdf_prompt( process_name ),
-			process_name,
-			income_statement->
-				statement->
-				date_time_string );
-	}
-	else
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_aggregate
-	&& income_statement->income_statement_pdf )
-	{
-		statement_latex_output(
-			income_statement->
-				income_statement_pdf->
-				income_statement_latex->
-				income_statement_subclass_aggr_latex->
-				latex,
-			income_statement->
-				income_statement_pdf->
-				statement_link->
-				ftp_output_filename,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			statement_pdf_prompt( process_name ),
-			process_name,
-			income_statement->
-				statement->
-				date_time_string );
-	}
-	else
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_display
-	&&   income_statement->income_statement_html )
+	if ( income_statement->income_statement_html )
 	{
 		statement_html_output(
 			income_statement->
 				income_statement_html->
-				income_statement_subclass_display_html->
-				html_table,
-			(char *)0 /* secondary_title */ );
-	}
-	else
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_omit
-	&&   income_statement->income_statement_html )
-	{
-		statement_html_output(
-			income_statement->
-				income_statement_html->
-				income_statement_subclass_omit_html->
-				html_table,
-			(char *)0 /* secondary_title */ );
-	}
-	else
-	if ( income_statement->statement_subclassification_option ==
-			subclassification_aggregate
-	&&   income_statement->income_statement_html )
-	{
-		statement_html_output(
-			income_statement->
-				income_statement_html->
-				income_statement_subclass_aggr_html->
 				html_table,
 			(char *)0 /* secondary_title */ );
 	}

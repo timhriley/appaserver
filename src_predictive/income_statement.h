@@ -23,8 +23,6 @@ typedef struct
 	STATEMENT_SUBCLASS_DISPLAY_HTML_LIST *
 		statement_subclass_display_html_list;
 	LIST *row_list;
-	HTML_ROW *net_income_row;
-	HTML_TABLE *html_table;
 } INCOME_STATEMENT_SUBCLASS_DISPLAY_HTML;
 
 /* Usage */
@@ -59,8 +57,6 @@ typedef struct
 	STATEMENT_SUBCLASS_OMIT_HTML_LIST *
 		statement_subclass_omit_html_list;
 	LIST *row_list;
-	HTML_ROW *net_income_row;
-	HTML_TABLE *html_table;
 } INCOME_STATEMENT_SUBCLASS_OMIT_HTML;
 
 /* Usage */
@@ -95,8 +91,6 @@ typedef struct
 	STATEMENT_SUBCLASS_AGGR_HTML_LIST *
 		statement_subclass_aggr_html_list;
 	LIST *row_list;
-	HTML_ROW *net_income_row;
-	HTML_TABLE *html_table;
 } INCOME_STATEMENT_SUBCLASS_AGGR_HTML;
 
 /* Usage */
@@ -134,6 +128,7 @@ typedef struct
 		income_statement_subclass_omit_html;
 	INCOME_STATEMENT_SUBCLASS_AGGR_HTML *
 		income_statement_subclass_aggr_html;
+	HTML_TABLE *html_table;
 } INCOME_STATEMENT_HTML;
 
 /* Usage */
@@ -153,24 +148,27 @@ INCOME_STATEMENT_HTML *
 	income_statement_html_calloc(
 			void );
 
+/* Usage */
+/* ----- */
+HTML_TABLE *income_statement_html_table(
+			char *statement_caption_subtitle,
+			LIST *heading_list,
+			LIST *row_list );
+
+/* Process */
+/* ------- */
+
 typedef struct
 {
 	STATEMENT_SUBCLASS_DISPLAY_LATEX_LIST *
 		statement_subclass_display_latex_list;
 	LIST *row_list;
-	LATEX_ROW *net_income_row;
-	LATEX *latex;
 } INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX;
 
 /* Usage */
 /* ----- */
 INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 	income_statement_subclass_display_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double element_net_income,
@@ -182,16 +180,6 @@ INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 INCOME_STATEMENT_SUBCLASS_DISPLAY_LATEX *
 	income_statement_subclass_display_latex_calloc(
 			void );
-
-/* Usage */
-/* ----- */
-LATEX_TABLE *income_statement_subclass_display_latex_table(
-			char *caption,
-			LIST *heading_list,
-			LIST *row_list );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -209,19 +197,12 @@ typedef struct
 	STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
 		statement_subclass_omit_latex_list;
 	LIST *row_list;
-	LATEX_ROW *net_income_row;
-	LATEX *latex;
 } INCOME_STATEMENT_SUBCLASS_OMIT_LATEX;
 
 /* Usage */
 /* ----- */
 INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 	income_statement_subclass_omit_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double element_net_income,
@@ -233,16 +214,6 @@ INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 INCOME_STATEMENT_SUBCLASS_OMIT_LATEX *
 	income_statement_subclass_omit_latex_calloc(
 			void );
-
-/* Usage */
-/* ----- */
-LATEX_TABLE *income_statement_subclass_omit_latex_table(
-			char *caption,
-			LIST *heading_list,
-			LIST *row_list );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -260,19 +231,12 @@ typedef struct
 	STATEMENT_SUBCLASS_AGGR_LATEX_LIST *
 		statement_subclass_aggr_latex_list;
 	LIST *row_list;
-	LATEX_ROW *net_income_row;
-	LATEX *latex;
 } INCOME_STATEMENT_SUBCLASS_AGGR_LATEX;
 
 /* Usage */
 /* ----- */
 INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 	income_statement_subclass_aggr_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double element_net_income,
@@ -284,16 +248,6 @@ INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 	income_statement_subclass_aggr_latex_calloc(
 			void );
-
-/* Usage */
-/* ----- */
-LATEX_TABLE *income_statement_subclass_aggr_latex_table(
-			char *caption,
-			LIST *heading_list,
-			LIST *row_list );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -316,6 +270,8 @@ typedef struct
 
 	INCOME_STATEMENT_SUBCLASS_AGGR_LATEX *
 		income_statement_subclass_aggr_latex;
+
+	LATEX *latex;
 } INCOME_STATEMENT_LATEX;
 
 /* Usage */
@@ -340,6 +296,16 @@ INCOME_STATEMENT_LATEX *
 INCOME_STATEMENT_LATEX *
 	income_statement_latex_calloc(
 			void );
+
+/* Usage */
+/* ----- */
+LATEX_TABLE *income_statement_latex_table(
+			char *statement_caption,
+			LIST *heading_list,
+			LIST *row_list );
+
+/* Process */
+/* ------- */
 
 typedef struct
 {
