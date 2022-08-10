@@ -80,12 +80,14 @@ int main( int argc, char **argv )
 
 	if ( !trial_balance )
 	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: trial_balance_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf( "<h3>Nothing to display.</h3>\n" );
+		document_close();
+		exit( 0 );
 	}
 
 	if ( trial_balance->statement_output_medium != output_stdout )
@@ -98,9 +100,7 @@ int main( int argc, char **argv )
 		printf( "%s\n", trial_balance->statement->frame_title );
 	}
 
-	if ( trial_balance->statement_subclassification_option ==
-			subclassification_display
-	&& trial_balance->trial_balance_pdf )
+	if ( trial_balance->trial_balance_pdf )
 	{
 		if ( trial_balance->
 			trial_balance_pdf->
@@ -110,7 +110,6 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_pdf->
 					preclose_trial_balance_latex->
-					trial_balance_subclass_display_latex->
 					latex,
 				trial_balance->
 					trial_balance_pdf->
@@ -127,7 +126,6 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_pdf->
 				trial_balance_latex->
-				trial_balance_subclass_display_latex->
 				latex,
 			trial_balance->
 				trial_balance_pdf->
@@ -140,9 +138,7 @@ int main( int argc, char **argv )
 				date_time_string );
 	}
 	else
-	if ( trial_balance->statement_subclassification_option ==
-			subclassification_display
-	&&   trial_balance->trial_balance_table )
+	if ( trial_balance->trial_balance_table )
 	{
 		if ( trial_balance->
 			trial_balance_table->
@@ -152,7 +148,6 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_table->
 					preclose_trial_balance_html->
-					trial_balance_subclass_display_html->
 					html_table,
 				TRIAL_BALANCE_PRECLOSE_TITLE
 					/* secondary_title */ );
@@ -162,78 +157,8 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_table->
 				trial_balance_html->
-				trial_balance_subclass_display_html->
 				html_table,
 			(char *)0  /* secondary_title */ );
-	}
-	else
-	if ( trial_balance->statement_subclassification_option ==
-			subclassification_omit
-	&& trial_balance->trial_balance_pdf )
-	{
-		if ( trial_balance->
-			trial_balance_pdf->
-			preclose_trial_balance_latex )
-		{
-			statement_latex_output(
-				trial_balance->
-					trial_balance_pdf->
-					preclose_trial_balance_latex->
-					trial_balance_subclass_omit_latex->
-					latex,
-				trial_balance->
-					trial_balance_pdf->
-					preclose_statement_link->
-					ftp_output_filename,
-				TRIAL_BALANCE_PRECLOSE_PROMPT,
-				process_name,
-				trial_balance->
-					statement->
-					date_time_string );
-		}
-
-		statement_latex_output(
-			trial_balance->
-				trial_balance_pdf->
-				trial_balance_latex->
-				trial_balance_subclass_omit_latex->
-				latex,
-			trial_balance->
-				trial_balance_pdf->
-				statement_link->
-				ftp_output_filename,
-			TRIAL_BALANCE_PROMPT,
-			process_name,
-			trial_balance->
-				statement->
-				date_time_string );
-	}
-	else
-	if ( trial_balance->statement_subclassification_option ==
-			subclassification_omit
-	&& trial_balance->trial_balance_table )
-	{
-		if ( trial_balance->
-			trial_balance_table->
-			preclose_trial_balance_html )
-		{
-			statement_html_output(
-				trial_balance->
-					trial_balance_table->
-					preclose_trial_balance_html->
-					trial_balance_subclass_omit_html->
-					html_table,
-				TRIAL_BALANCE_PRECLOSE_TITLE
-					/* secondary_title */ );
-		}
-
-		statement_html_output(
-			trial_balance->
-				trial_balance_table->
-				trial_balance_html->
-				trial_balance_subclass_omit_html->
-				html_table,
-			(char *)0 /* secondary_title */ );
 	}
 
 	if ( trial_balance->statement_output_medium != output_stdout )

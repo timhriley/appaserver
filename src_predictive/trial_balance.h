@@ -19,7 +19,8 @@
 
 typedef struct
 {
-	HTML_TABLE *html_table;
+	LIST *heading_list;
+	LIST *row_list;
 } TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML;
 
 /* Usage */
@@ -39,16 +40,11 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_HTML *
 
 /* Usage */
 /* ----- */
-HTML_TABLE *trial_balance_subclass_display_html_table(
-			STATEMENT *statement,
-			LIST *statement_prior_year_list,
-			double debit_sum,
-			double credit_sum );
+LIST *trial_balance_subclass_display_html_heading_list(
+			LIST *statement_prior_year_list );
 
 /* Process */
 /* ------- */
-LIST *trial_balance_subclass_display_html_heading_list(
-			LIST *statement_prior_year_list );
 
 /* Usage */
 /* ----- */
@@ -103,7 +99,8 @@ HTML_ROW *trial_balance_subclass_display_html_account_row(
 
 typedef struct
 {
-	HTML_TABLE *html_table;
+	LIST *heading_list;
+	LIST *row_list;
 } TRIAL_BALANCE_SUBCLASS_OMIT_HTML;
 
 /* Usage */
@@ -120,17 +117,6 @@ TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
 TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
 	trial_balance_subclass_omit_html_calloc(
 			void );
-
-/* Usage */
-/* ----- */
-HTML_TABLE *trial_balance_subclass_omit_html_table(
-			STATEMENT *statement,
-			LIST *statement_prior_year_list,
-			double debit_sum,
-			double credit_sum );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -184,6 +170,8 @@ typedef struct
 
 	TRIAL_BALANCE_SUBCLASS_OMIT_HTML *
 		trial_balance_subclass_omit_html;
+
+	HTML_TABLE *html_table;
 } TRIAL_BALANCE_HTML;
 
 /* Usage */
@@ -200,6 +188,16 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 /* ------- */
 TRIAL_BALANCE_HTML *trial_balance_html_calloc(
 			void );
+
+/* Usage */
+/* ----- */
+HTML_TABLE *trial_balance_html_table(
+			char *statement_caption_subtitle,
+			LIST *heading_list,
+			LIST *row_list );
+
+/* Process */
+/* ------- */
 
 /* Public */
 /* ------ */
@@ -241,8 +239,8 @@ TRIAL_BALANCE_TABLE *trial_balance_table_calloc(
 
 typedef struct
 {
-	LATEX *latex;
-	LATEX_TABLE *trial_balance_subclass_omit_latex_table;
+	LIST *heading_list;
+	LIST *row_list;
 } TRIAL_BALANCE_SUBCLASS_OMIT_LATEX;
 
 /* Usage */
@@ -250,11 +248,6 @@ typedef struct
 TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
 	trial_balance_subclass_omit_latex_new(
 			char *transaction_as_of_date,
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -265,19 +258,6 @@ TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
 TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
 	trial_balance_subclass_omit_latex_calloc(
 			void );
-
-/* Usage */
-/* ----- */
-LATEX_TABLE *
-	trial_balance_subclass_omit_latex_table(
-			char *transaction_as_of_date,
-			STATEMENT *statement,
-			LIST *statement_prior_year_list,
-			double debit_sum,
-			double credit_sum );
-
-/* Process */
-/* ------- */
 
 /* Usage */
 /* ----- */
@@ -327,14 +307,8 @@ LATEX_ROW *trial_balance_subclass_omit_latex_account_row(
 
 typedef struct
 {
-	LATEX *latex;
-	LATEX_TABLE *table;
 	LIST *heading_list;
 	LIST *row_list;
-	LIST *element_row_list;
-	LIST *account_row_list;
-	LATEX_ROW *account_row;
-	char *trial_balance_latex_account_title;
 } TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX;
 
 /* Usage */
@@ -342,11 +316,6 @@ typedef struct
 TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
 	trial_balance_subclass_display_latex_new(
 			char *transaction_as_of_date,
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			boolean statement_pdf_landscape_boolean,
-			char *statement_logo_filename,
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			double debit_sum,
@@ -358,15 +327,13 @@ TRIAL_BALANCE_SUBCLASS_DISPLAY_LATEX *
 	trial_balance_subclass_display_latex_calloc(
 			void );
 
-LATEX_TABLE *trial_balance_subclass_display_latex_table(
-			char *transaction_as_of_date,
-			STATEMENT *statement,
-			LIST *statement_prior_year_list,
-			double debit_sum,
-			double credit_sum );
-
+/* Usage */
+/* ----- */
 LIST *trial_balance_subclass_display_latex_heading_list(
 			LIST *statement_prior_year_list );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -428,6 +395,8 @@ typedef struct
 
 	TRIAL_BALANCE_SUBCLASS_OMIT_LATEX *
 		trial_balance_subclass_omit_latex;
+
+	LATEX *latex;
 } TRIAL_BALANCE_LATEX;
 
 /* Usage */
@@ -450,6 +419,19 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 /* ------- */
 TRIAL_BALANCE_LATEX *trial_balance_latex_calloc(
 			void );
+
+/* Usage */
+/* ----- */
+LATEX_TABLE *trial_balance_latex_table(
+			char *statement_caption,
+			LIST *heading_list,
+			LIST *row_list );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -501,9 +483,6 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_calloc(
 char *trial_balance_pdf_preclose_key(
 			char *trial_balance_pdf_preclose_key );
 
-/* Public */
-/* ------ */
-
 typedef struct
 {
 	enum statement_subclassification_option
@@ -523,10 +502,6 @@ typedef struct
 	double preclose_credit_sum;
 	double debit_sum;
 	double credit_sum;
-	LIST *element_list_non_nominal_account_list;
-	ELEMENT *element_asset;
-	LIST *element_list_nominal_account_list;
-	ELEMENT *element_revenue;
 	TRIAL_BALANCE_PDF *trial_balance_pdf;
 	TRIAL_BALANCE_TABLE *trial_balance_table;
 } TRIAL_BALANCE;
