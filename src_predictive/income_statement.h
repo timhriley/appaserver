@@ -401,4 +401,12 @@ LIST *income_statement_prior_net_income_data_list(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+double income_statement_fetch_net_income(
+			char *transaction_date_time_closing );
+
+/* Process */
+/* ------- */
+
 #endif

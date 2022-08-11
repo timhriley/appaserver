@@ -1677,3 +1677,43 @@ LATEX_TABLE *income_statement_latex_table(
 	return latex_table;
 }
 
+double income_statement_fetch_net_income(
+			char *transaction_date_time_closing )
+{
+	LIST *element_name_list;
+	STATEMENT *statement;
+
+	if ( !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: transaction_date_time_closing is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_name_list =
+		income_statement_element_name_list(
+			ELEMENT_REVENUE,
+			ELEMENT_EXPENSE,
+			ELEMENT_GAIN,
+			ELEMENT_LOSS );
+
+	statement =
+		statement_fetch(
+			(char *)0 /* application_name */,
+			(char *)0 /* process_name */,
+			element_name_list,
+			(char *)0 /* transaction_begin_date_string */,
+			(char *)0 /* transaction_as_of_date */,
+			transaction_date_time_closing,
+			0 /* not fetch_transaction */ );
+
+	if ( !statement ) return 0.0;
+
+	return
+	element_net_income(
+		statement->element_statement_list );
+}
+

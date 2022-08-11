@@ -77,12 +77,14 @@ int main( int argc, char **argv )
 
 	if ( !income_statement )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: income_statement_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		document_quick_output_body(
+			application_name,
+			appaserver_parameter_file->
+				appaserver_mount_point );
+
+		printf( "<h3>Nothing to display.</h3>\n" );
+		document_close();
+		exit( 0 );
 	}
 
 	if ( income_statement->statement_output_medium != output_stdout )

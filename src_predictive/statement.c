@@ -167,70 +167,73 @@ STATEMENT *statement_fetch(
 	element_percent_of_revenue_set(
 		statement->element_statement_list );
 
-	statement->logo_filename =
-		statement_logo_filename(
-			application_name,
-			STATEMENT_LOGO_FILENAME_KEY );
-
-	statement->caption_title =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		statement_caption_title(
-			application_name,
-			(statement->logo_filename)
-				? 1 : 0 /* exists_logo_filename */,
-			process_name );
-
-	statement->caption_subtitle =
-		/* ----------------------------- */
-		/* Returns static memory or null */
-		/* ----------------------------- */
-		statement_caption_subtitle(
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			statement_date_american(
-				transaction_begin_date_string )
-					/* begin_date_string */,
-			statement_date_american(
-				transaction_as_of_date )
-					/* as_of_date */ );
-
-	if ( !statement->caption_subtitle )
+	if ( application_name )
 	{
-		fprintf(stderr,
+		statement->logo_filename =
+			statement_logo_filename(
+				application_name,
+				STATEMENT_LOGO_FILENAME_KEY );
+	
+		statement->caption_title =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_caption_title(
+				application_name,
+				(statement->logo_filename)
+					? 1 : 0 /* exists_logo_filename */,
+				process_name );
+	
+		statement->caption_subtitle =
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_caption_subtitle(
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				statement_date_american(
+					transaction_begin_date_string )
+						/* begin_date_string */,
+				statement_date_american(
+					transaction_as_of_date )
+						/* as_of_date */ );
+	
+		if ( !statement->caption_subtitle )
+		{
+			fprintf(stderr,
 	"ERROR in %s/%s()/%d: statement_caption_subtitle() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	
+		statement->caption =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			statement_caption(
+				statement->caption_title,
+				statement->caption_subtitle );
+	
+		statement->date_time_string =
+			/* ------------------------ */
+			/* Returns date_time_string */
+			/* ------------------------ */
+			statement_date_time_string(
+				date_get_now_yyyy_mm_dd_hh_mm(
+					date_utc_offset()
+						/* date_time_string */ ) );
+	
+		statement->frame_title =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_frame_title(
+				process_name,
+				statement->date_time_string );
 	}
-
-	statement->caption =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		statement_caption(
-			statement->caption_title,
-			statement->caption_subtitle );
-
-	statement->date_time_string =
-		/* ------------------------ */
-		/* Returns date_time_string */
-		/* ------------------------ */
-		statement_date_time_string(
-			date_get_now_yyyy_mm_dd_hh_mm(
-				date_utc_offset()
-					/* date_time_string */ ) );
-
-	statement->frame_title =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		statement_frame_title(
-			process_name,
-			statement->date_time_string );
 
 	statement->transaction_begin_date_string =
 		transaction_begin_date_string;
