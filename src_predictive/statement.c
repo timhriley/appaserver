@@ -1406,6 +1406,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
+	char label[ 64 ];
 
 	if ( !element_name )
 	{
@@ -1419,12 +1420,16 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 
 	latex_row = latex_row_new();
 
+	sprintf(label,
+		"%s Element",
+		element_name );
+
 	latex_column_data_set(
 		latex_row->column_data_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( element_name ),
+		statement_cell_data_label( label ),
 		1 /* large_boolean */,
 		1 /* bold_boolean */ );
 
@@ -1618,14 +1623,8 @@ STATEMENT_ACCOUNT *statement_account_new(
 
 	statement_account->balance = account_journal_latest->balance;
 
-	if ( statement_account->balance < 0.0 )
-	{
-		statement_account->balance =
-			0.0 - statement_account->balance;
-
-		element_accumulate_debit = 1 - element_accumulate_debit;
-	}
-
+	/* For non trial_balance reports */
+	/* ----------------------------- */
 	statement_account->balance_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -1634,6 +1633,16 @@ STATEMENT_ACCOUNT *statement_account_new(
 			statement_account->balance,
 			account_action_string,
 			round_dollar_boolean );
+
+	/* For trial_balance report */
+	/* ------------------------ */
+	if ( statement_account->balance < 0.0 )
+	{
+		statement_account->balance =
+			0.0 - statement_account->balance;
+
+		element_accumulate_debit = 1 - element_accumulate_debit;
+	}
 
 	if ( element_accumulate_debit )
 	{
@@ -2103,7 +2112,6 @@ STATEMENT_SUBCLASS_OMIT_LATEX_LIST *
 			__LINE__ );
 		exit( 1 );
 	}
-
 
 	statement_subclass_omit_latex_list =
 		statement_subclass_omit_latex_list_calloc();

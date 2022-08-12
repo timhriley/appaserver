@@ -1626,24 +1626,24 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_end_balance_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		timlib_commas_in_money( balance_sheet_equity_end_balance ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1694,24 +1694,24 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_liability_plus_equity_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1749,7 +1749,7 @@ BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 		balance_sheet_subclass_omit_latex;
 
 	if ( !element_equity_current
-	||   income_statement_net_income_label )
+	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1916,8 +1916,8 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_begin_balance_label ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -2103,24 +2103,18 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_end_balance_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		timlib_commas_in_money( balance_sheet_equity_end_balance ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2171,18 +2165,18 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_liability_plus_equity_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
