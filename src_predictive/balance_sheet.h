@@ -26,11 +26,9 @@
 typedef struct
 {
 	double begin_balance;
-	ELEMENT *element_equity_current;
 	double current_balance;
 	double transaction_amount;
 	double end_balance;
-	ELEMENT *element_liability;
 	double liability_balance;
 	double liability_plus_equity;
 } BALANCE_SHEET_EQUITY;
@@ -42,8 +40,9 @@ typedef struct
 /* --------------- */
 BALANCE_SHEET_EQUITY *
 	balance_sheet_equity_new(
-			LIST *element_statement_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income );
 
 /* Process */
@@ -83,9 +82,11 @@ typedef struct
 /* ----- */
 BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 	balance_sheet_subclass_display_html_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -98,10 +99,11 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 /* Usage */
 /* ----- */
 LIST *balance_sheet_subclass_display_html_equity_row_list(
-			STATEMENT *statement,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
-			char *net_income_label );
+			char *income_statement_net_income_label );
 
 /* Process */
 /* ------- */
@@ -136,9 +138,11 @@ typedef struct
 /* ----- */
 BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 	balance_sheet_subclass_omit_html_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -151,8 +155,9 @@ BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 /* Usage */
 /* ----- */
 LIST *balance_sheet_subclass_omit_html_equity_row_list(
-			STATEMENT *statement,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -189,9 +194,11 @@ typedef struct
 /* ----- */
 BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 	balance_sheet_subclass_aggr_html_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -204,8 +211,9 @@ BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 /* Usage */
 /* ----- */
 LIST *balance_sheet_subclass_aggr_html_equity_row_list(
-			STATEMENT *statement,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -233,6 +241,7 @@ HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity_row(
 
 typedef struct
 {
+	ELEMENT *element_liability;
 	BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 		balance_sheet_subclass_display_html;
 	BALANCE_SHEET_SUBCLASS_OMIT_HTML *
@@ -250,6 +259,7 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -280,9 +290,11 @@ typedef struct
 /* ----- */
 BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 	balance_sheet_subclass_display_latex_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -295,9 +307,10 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 /* Usage */
 /* ----- */
 LIST *balance_sheet_subclass_display_latex_equity_row_list(
-			STATEMENT *statement,
 			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -339,9 +352,11 @@ typedef struct
 /* ----- */
 BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 	balance_sheet_subclass_omit_latex_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -354,9 +369,10 @@ BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 /* Usage */
 /* ----- */
 LIST *balance_sheet_subclass_omit_latex_equity_row_list(
-			STATEMENT *statement,
 			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -398,9 +414,11 @@ typedef struct
 /* ----- */
 BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 	balance_sheet_subclass_aggr_latex_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -413,9 +431,10 @@ BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 /* Usage */
 /* ----- */
 LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
-			STATEMENT *statement,
 			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -471,6 +490,8 @@ BALANCE_SHEET_LATEX *
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
@@ -492,6 +513,7 @@ LATEX_TABLE *balance_sheet_latex_table(
 
 typedef struct
 {
+	ELEMENT *element_liability;
 	boolean statement_pdf_landscape_boolean;
 	STATEMENT_LINK *statement_link;
 	BALANCE_SHEET_LATEX *balance_sheet_latex;
@@ -508,6 +530,7 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label,
 			pid_t process_id );
@@ -532,6 +555,7 @@ typedef struct
 	LIST *statement_prior_year_list;
 	char *prior_date_time_closing;
 	ELEMENT *element_equity_begin;
+	ELEMENT *element_equity_current;
 	double income_statement_fetch_net_income;
 	char *income_statement_net_income_label;
 	BALANCE_SHEET_PDF *balance_sheet_pdf;

@@ -21,16 +21,18 @@
 
 BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 	balance_sheet_subclass_display_html_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 		balance_sheet_subclass_display_html;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -47,7 +49,7 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 	balance_sheet_subclass_display_html->
 		statement_subclass_display_html_list =
 			statement_subclass_display_html_list_new(
-				statement->element_statement_list,
+				element_statement_list,
 				statement_prior_year_list );
 
 	if ( !balance_sheet_subclass_display_html->
@@ -65,8 +67,9 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 	list_set_list(
 		balance_sheet_subclass_display_html->row_list,
 			balance_sheet_subclass_display_html_equity_row_list(
-				statement,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label ) );
 
@@ -97,15 +100,16 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 }
 
 LIST *balance_sheet_subclass_display_html_equity_row_list(
-			STATEMENT *statement,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	LIST *row_list;
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -123,8 +127,9 @@ LIST *balance_sheet_subclass_display_html_equity_row_list(
 		/* Always succeeds */
 		/* --------------- */
 		balance_sheet_equity_new(
-			statement->element_statement_list,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income );
 
 	list_set(
@@ -396,16 +401,18 @@ HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity_row(
 
 BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 	balance_sheet_subclass_omit_html_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 		balance_sheet_subclass_omit_html;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -422,7 +429,7 @@ BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 	balance_sheet_subclass_omit_html->
 		statement_subclass_omit_html_list =
 			statement_subclass_omit_html_list_new(
-				statement->element_statement_list,
+				element_statement_list,
 				statement_prior_year_list );
 
 	if ( !balance_sheet_subclass_omit_html->
@@ -440,8 +447,9 @@ BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 	list_set_list(
 		balance_sheet_subclass_omit_html->row_list,
 			balance_sheet_subclass_omit_html_equity_row_list(
-				statement,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label ) );
 
@@ -471,15 +479,16 @@ BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 }
 
 LIST *balance_sheet_subclass_omit_html_equity_row_list(
-			STATEMENT *statement,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	LIST *row_list;
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -497,8 +506,9 @@ LIST *balance_sheet_subclass_omit_html_equity_row_list(
 		/* Always succeeds */
 		/* --------------- */
 		balance_sheet_equity_new(
-			statement->element_statement_list,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income );
 
 	list_set(
@@ -770,16 +780,18 @@ HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity_row(
 
 BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 	balance_sheet_subclass_aggr_html_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 		balance_sheet_subclass_aggr_html;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -796,7 +808,7 @@ BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 	balance_sheet_subclass_aggr_html->
 		statement_subclass_aggr_html_list =
 			statement_subclass_aggr_html_list_new(
-				statement->element_statement_list,
+				element_statement_list,
 				statement_prior_year_list );
 
 	if ( !balance_sheet_subclass_aggr_html->
@@ -814,8 +826,9 @@ BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 	list_set_list(
 		balance_sheet_subclass_aggr_html->row_list,
 		balance_sheet_subclass_aggr_html_equity_row_list(
-			statement,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income,
 			income_statement_net_income_label ) );
 
@@ -845,15 +858,16 @@ BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 }
 
 LIST *balance_sheet_subclass_aggr_html_equity_row_list(
-			STATEMENT *statement,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	LIST *row_list;
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -871,8 +885,9 @@ LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 		/* Always succeeds */
 		/* --------------- */
 		balance_sheet_equity_new(
-			statement->element_statement_list,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income );
 
 	list_set(
@@ -1148,6 +1163,7 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
@@ -1166,15 +1182,22 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 
 	balance_sheet_html = balance_sheet_html_calloc();
 
+	balance_sheet_html->element_liability =
+		element_seek(
+			ELEMENT_LIABILITY,
+			statement->element_statement_list );
+
 	if (	statement_subclassification_option ==
 		subclassification_display )
 	{
 		balance_sheet_html->
 			balance_sheet_subclass_display_html =
 				balance_sheet_subclass_display_html_new(
-					statement,
+					statement->element_statement_list,
 					statement_prior_year_list,
 					element_equity_begin,
+					element_equity_current,
+					balance_sheet_html->element_liability,
 					income_statement_fetch_net_income,
 					income_statement_net_income_label );
 
@@ -1202,9 +1225,11 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 		balance_sheet_html->
 			balance_sheet_subclass_omit_html =
 				balance_sheet_subclass_omit_html_new(
-					statement,
+					statement->element_statement_list,
 					statement_prior_year_list,
 					element_equity_begin,
+					element_equity_current,
+					balance_sheet_html->element_liability,
 					income_statement_fetch_net_income,
 					income_statement_net_income_label );
 
@@ -1233,9 +1258,11 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 		balance_sheet_html->
 			balance_sheet_subclass_aggr_html =
 				balance_sheet_subclass_aggr_html_new(
-					statement,
+					statement->element_statement_list,
 					statement_prior_year_list,
 					element_equity_begin,
+					element_equity_current,
+					balance_sheet_html->element_liability,
 					income_statement_fetch_net_income,
 					income_statement_net_income_label );
 
@@ -1311,16 +1338,18 @@ HTML_TABLE *balance_sheet_html_table(
 
 BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 	balance_sheet_subclass_display_latex_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 		balance_sheet_subclass_display_latex;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -1337,7 +1366,7 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 	balance_sheet_subclass_display_latex->
 		statement_subclass_display_latex_list =
 			statement_subclass_display_latex_list_new(
-				statement->element_statement_list,
+				element_statement_list,
 				statement_prior_year_list );
 
 	if ( !balance_sheet_subclass_display_latex->
@@ -1355,10 +1384,11 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 	list_set_list(
 		balance_sheet_subclass_display_latex->row_list,
 			balance_sheet_subclass_display_latex_equity_row_list(
-				statement,
 				list_length( statement_prior_year_list )
 					/* statement_prior_year_list_length */,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label ) );
 
@@ -1389,16 +1419,17 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 }
 
 LIST *balance_sheet_subclass_display_latex_equity_row_list(
-			STATEMENT *statement,
 			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	LIST *row_list;
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -1416,8 +1447,9 @@ LIST *balance_sheet_subclass_display_latex_equity_row_list(
 		/* Always succeeds */
 		/* --------------- */
 		balance_sheet_equity_new(
-			statement->element_statement_list,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income );
 
 	list_set(
@@ -1825,16 +1857,18 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 
 BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 	balance_sheet_subclass_omit_latex_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 		balance_sheet_subclass_omit_latex;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -1851,7 +1885,7 @@ BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 	balance_sheet_subclass_omit_latex->
 		statement_subclass_omit_latex_list =
 			statement_subclass_omit_latex_list_new(
-				statement->element_statement_list,
+				element_statement_list,
 				statement_prior_year_list );
 
 	if ( !balance_sheet_subclass_omit_latex->
@@ -1869,10 +1903,11 @@ BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 	list_set_list(
 		balance_sheet_subclass_omit_latex->row_list,
 			balance_sheet_subclass_omit_latex_equity_row_list(
-				statement,
 				list_length( statement_prior_year_list )
 					/* statement_prior_year_list_length */,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label ) );
 
@@ -1903,16 +1938,17 @@ BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 }
 
 LIST *balance_sheet_subclass_omit_latex_equity_row_list(
-			STATEMENT *statement,
 			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	LIST *row_list;
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -1930,8 +1966,9 @@ LIST *balance_sheet_subclass_omit_latex_equity_row_list(
 		/* Always succeeds */
 		/* --------------- */
 		balance_sheet_equity_new(
-			statement->element_statement_list,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income );
 
 	list_set(
@@ -2315,16 +2352,18 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 
 BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 	balance_sheet_subclass_aggr_latex_new(
-			STATEMENT *statement,
+			LIST *element_statement_list,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 		balance_sheet_subclass_aggr_latex;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -2341,7 +2380,7 @@ BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 	balance_sheet_subclass_aggr_latex->
 		statement_subclass_aggr_latex_list =
 			statement_subclass_aggr_latex_list_new(
-				statement->element_statement_list,
+				element_statement_list,
 				statement_prior_year_list );
 
 	if ( !balance_sheet_subclass_aggr_latex->
@@ -2359,10 +2398,11 @@ BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 	list_set_list(
 		balance_sheet_subclass_aggr_latex->row_list,
 			balance_sheet_subclass_aggr_latex_equity_row_list(
-				statement,
 				list_length( statement_prior_year_list )
 					/* statement_prior_year_list_length */,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label ) );
 
@@ -2391,16 +2431,17 @@ BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 }
 
 LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
-			STATEMENT *statement,
 			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
 	LIST *row_list;
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
 
-	if ( !statement
+	if ( !element_equity_current
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -2418,8 +2459,9 @@ LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
 		/* Always succeeds */
 		/* --------------- */
 		balance_sheet_equity_new(
-			statement->element_statement_list,
 			element_equity_begin,
+			element_equity_current,
+			element_liability,
 			income_statement_fetch_net_income );
 
 	list_set(
@@ -2807,6 +2849,8 @@ BALANCE_SHEET_LATEX *
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
@@ -2842,9 +2886,11 @@ BALANCE_SHEET_LATEX *
 	{
 		balance_sheet_latex->balance_sheet_subclass_display_latex =
 			balance_sheet_subclass_display_latex_new(
-				statement,
+				statement->element_statement_list,
 				statement_prior_year_list,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label );
 
@@ -2873,9 +2919,11 @@ BALANCE_SHEET_LATEX *
 	{
 		balance_sheet_latex->balance_sheet_subclass_omit_latex =
 			balance_sheet_subclass_omit_latex_new(
-				statement,
+				statement->element_statement_list,
 				statement_prior_year_list,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label );
 
@@ -2904,9 +2952,11 @@ BALANCE_SHEET_LATEX *
 	{
 		balance_sheet_latex->balance_sheet_subclass_aggr_latex =
 			balance_sheet_subclass_aggr_latex_new(
-				statement,
+				statement->element_statement_list,
 				statement_prior_year_list,
 				element_equity_begin,
+				element_equity_current,
+				element_liability,
 				income_statement_fetch_net_income,
 				income_statement_net_income_label );
 
@@ -2986,6 +3036,7 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 			STATEMENT *statement,
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label,
 			pid_t process_id )
@@ -3008,6 +3059,11 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 	}
 
 	balance_sheet_pdf = balance_sheet_pdf_calloc();
+
+	balance_sheet_pdf->element_liability =
+		element_seek(
+			ELEMENT_LIABILITY,
+			statement->element_statement_list );
 
 	balance_sheet_pdf->statement_pdf_landscape_boolean =
 		statement_pdf_landscape_boolean(
@@ -3035,6 +3091,8 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 			statement,
 			statement_prior_year_list,
 			element_equity_begin,
+			element_equity_current,
+			balance_sheet_pdf->element_liability,
 			income_statement_fetch_net_income,
 			income_statement_net_income_label );
 
@@ -3159,6 +3217,25 @@ BALANCE_SHEET *balance_sheet_fetch(
 			balance_sheet->transaction_date_time_closing,
 			0 /* not fetch_transaction */ );
 
+	balance_sheet->element_equity_current =
+		element_statement_fetch(
+			ELEMENT_EQUITY,
+			balance_sheet->transaction_date_time_closing,
+			1 /* fetch_subclassification_list */,
+			1 /* fetch_account_list */,
+			1 /* fetch_journal_latest */,
+			0 /* not fetch_transaction */ );
+
+	if ( !balance_sheet->element_equity_current )
+	{
+		free( balance_sheet );
+		return (BALANCE_SHEET *)0;
+	}
+
+	balance_sheet->element_equity_current->sum =
+		element_sum(
+			balance_sheet->element_equity_current );
+
 	if ( balance_sheet->statement_output_medium == output_table )
 	{
 		element_account_transaction_count_set(
@@ -3233,6 +3310,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 				balance_sheet->statement,
 				balance_sheet->statement_prior_year_list,
 				balance_sheet->element_equity_begin,
+				balance_sheet->element_equity_current,
 				balance_sheet->
 					income_statement_fetch_net_income,
 				balance_sheet->
@@ -3249,6 +3327,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 				balance_sheet->statement,
 				balance_sheet->statement_prior_year_list,
 				balance_sheet->element_equity_begin,
+				balance_sheet->element_equity_current,
 				balance_sheet->
 					income_statement_fetch_net_income,
 				balance_sheet->
@@ -3304,10 +3383,29 @@ char *balance_sheet_prior_date_time_closing(
 	return date_display19( prior );
 }
 
+BALANCE_SHEET_EQUITY *balance_sheet_equity_calloc( void )
+{
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( ! ( balance_sheet_equity =
+			calloc( 1, sizeof( BALANCE_SHEET_EQUITY ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_equity;
+}
+
 BALANCE_SHEET_EQUITY *
 	balance_sheet_equity_new(
-			LIST *element_statement_list,
 			ELEMENT *element_equity_begin,
+			ELEMENT *element_equity_current,
+			ELEMENT *element_liability,
 			double income_statement_fetch_net_income )
 {
 	BALANCE_SHEET_EQUITY *balance_sheet_equity;
@@ -3318,14 +3416,9 @@ BALANCE_SHEET_EQUITY *
 		balance_sheet_equity_begin_balance(
 			element_equity_begin );
 
-	balance_sheet_equity->element_equity_current =
-		element_seek(
-			ELEMENT_EQUITY,
-			element_statement_list );
-
 	balance_sheet_equity->current_balance =
 		balance_sheet_equity_current_balance(
-			balance_sheet_equity->element_equity_current );
+			element_equity_current );
 
 	balance_sheet_equity->transaction_amount =
 		balance_sheet_equity_transaction_amount(
@@ -3337,14 +3430,9 @@ BALANCE_SHEET_EQUITY *
 			balance_sheet_equity->current_balance,
 			income_statement_fetch_net_income );
 
-	balance_sheet_equity->element_liability =
-		element_seek(
-			ELEMENT_LIABILITY,
-			element_statement_list );
-
 	balance_sheet_equity->liability_balance =
 		balance_sheet_equity_liability_balance(
-			balance_sheet_equity->element_liability );
+			element_liability );
 
 	balance_sheet_equity->liability_plus_equity =
 		balance_sheet_equity_liability_plus_equity(
