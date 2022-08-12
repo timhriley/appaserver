@@ -517,7 +517,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			char *document_root_directory,
 			char *as_of_date,
 			int prior_year_count,
-			char *subclassifiction_option_string,
+			char *subclassification_option_string,
 			char *output_medium_string );
 
 /* Process */

@@ -995,8 +995,6 @@ LATEX_ROW *statement_subclass_display_latex_element_label_row(
 			int statement_prior_year_list_length )
 {
 	LATEX_ROW *latex_row;
-	char column_title[ 128 ];
-	char buffer[ 64 ];
 	int i;
 
 	if ( !element_name )
@@ -1011,17 +1009,14 @@ LATEX_ROW *statement_subclass_display_latex_element_label_row(
 
 	latex_row = latex_row_new();
 
-	sprintf(column_title,
-		"\\large \\bf %s",
-		format_initial_capital(
-			buffer,
-			element_name ) );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( column_title ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( element_name ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,

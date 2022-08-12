@@ -18,6 +18,60 @@
 #include "html_table.h"
 #include "statement.h"
 
+#define BALANCE_SHEET_BEGIN_BALANCE_LABEL   	   "equity_begin_balance"
+#define BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL	   "equity_transactions"
+#define BALANCE_SHEET_END_BALANCE_LABEL	   	   "equity_end_balance"
+#define BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL  "liability_plus_equity"
+
+typedef struct
+{
+	double begin_balance;
+	ELEMENT *element_equity_current;
+	double current_balance;
+	double transaction_amount;
+	double end_balance;
+	ELEMENT *element_liability;
+	double liability_balance;
+	double liability_plus_equity;
+} BALANCE_SHEET_EQUITY;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+BALANCE_SHEET_EQUITY *
+	balance_sheet_equity_new(
+			LIST *element_statement_list,
+			ELEMENT *element_equity_begin,
+			double income_statement_fetch_net_income );
+
+/* Process */
+/* ------- */
+BALANCE_SHEET_EQUITY *balance_sheet_equity_calloc(
+			void );
+
+double balance_sheet_equity_begin_balance(
+			ELEMENT *element_equity_begin );
+
+double balance_sheet_equity_current_balance(
+			ELEMENT *element_equity_current );
+
+double balance_sheet_equity_transaction_amount(
+			double balance_sheet_equity_current_balance,
+			double balance_sheet_equity_begin_balance );
+
+double balance_sheet_equity_end_balance(
+			double element_equity_current_balance,
+			double income_statement_fetch_net_income );
+
+double balance_sheet_equity_liability_balance(
+			ELEMENT *element_liability );
+
+double balance_sheet_equity_liability_plus_equity(
+			double balance_sheet_equity_liability_balance,
+			double balance_sheet_equity_end_balance );
+
 typedef struct
 {
 	STATEMENT_SUBCLASS_DISPLAY_HTML_LIST *
@@ -33,7 +87,7 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
-			char *net_income_label );
+			char *income_statement_net_income_label );
 
 /* Process */
 /* ------- */
@@ -45,7 +99,6 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 /* ----- */
 LIST *balance_sheet_subclass_display_html_equity_row_list(
 			STATEMENT *statement,
-			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
 			char *net_income_label );
@@ -53,19 +106,23 @@ LIST *balance_sheet_subclass_display_html_equity_row_list(
 /* Process */
 /* ------- */
 HTML_ROW *balance_sheet_subclass_display_html_equity_begin_row(
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum );
 
-HTML_ROW *balance_sheet_subclass_display_html_transaction_row(
+HTML_ROW *balance_sheet_subclass_display_html_transaction_amount_row(
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount );
 
 HTML_ROW *balance_sheet_subclass_display_html_net_income_row(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
-HTML_ROW *balance_sheet_subclass_display_html_ending_balance(
-			double balance_sheet_equity_ending_balance );
+HTML_ROW *balance_sheet_subclass_display_html_equity_end_row(
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance );
 
-HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity(
+HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity_row(
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity );
 
 typedef struct
@@ -95,7 +152,6 @@ BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 /* ----- */
 LIST *balance_sheet_subclass_omit_html_equity_row_list(
 			STATEMENT *statement,
-			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
@@ -103,19 +159,23 @@ LIST *balance_sheet_subclass_omit_html_equity_row_list(
 /* Process */
 /* ------- */
 HTML_ROW *balance_sheet_subclass_omit_html_equity_begin_row(
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum );
 
-HTML_ROW *balance_sheet_subclass_omit_html_transaction_row(
+HTML_ROW *balance_sheet_subclass_omit_html_transaction_amount_row(
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount );
 
 HTML_ROW *balance_sheet_subclass_omit_html_net_income_row(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
-HTML_ROW *balance_sheet_subclass_omit_html_ending_balance(
-			double balance_sheet_equity_ending_balance );
+HTML_ROW *balance_sheet_subclass_omit_html_equity_end_row(
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance );
 
-HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity(
+HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity_row(
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity );
 
 typedef struct
@@ -145,7 +205,6 @@ BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 /* ----- */
 LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 			STATEMENT *statement,
-			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
@@ -153,19 +212,23 @@ LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 /* Process */
 /* ------- */
 HTML_ROW *balance_sheet_subclass_aggr_html_equity_begin_row(
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum );
 
-HTML_ROW *balance_sheet_subclass_aggr_html_transaction_row(
+HTML_ROW *balance_sheet_subclass_aggr_html_transaction_amount_row(
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount );
 
 HTML_ROW *balance_sheet_subclass_aggr_html_net_income_row(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
-HTML_ROW *balance_sheet_subclass_aggr_html_ending_balance(
-			double balance_sheet_equity_ending_balance );
+HTML_ROW *balance_sheet_subclass_aggr_html_equity_end_row(
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance );
 
-HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity(
+HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity_row(
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity );
 
 typedef struct
@@ -241,19 +304,28 @@ LIST *balance_sheet_subclass_display_latex_equity_row_list(
 /* Process */
 /* ------- */
 LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum );
 
-LATEX_ROW *balance_sheet_subclass_display_latex_transaction_row(
+LATEX_ROW *balance_sheet_subclass_display_latex_transaction_amount_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount );
 
 LATEX_ROW *balance_sheet_subclass_display_latex_net_income_row(
+			int statement_prior_year_list_length,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
-LATEX_ROW *balance_sheet_subclass_display_latex_ending_balance(
-			double balance_sheet_equity_ending_balance );
+LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance );
 
-LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity(
+LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity );
 
 typedef struct
@@ -291,19 +363,28 @@ LIST *balance_sheet_subclass_omit_latex_equity_row_list(
 /* Process */
 /* ------- */
 LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum );
 
-LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_row(
+LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_amount_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount );
 
 LATEX_ROW *balance_sheet_subclass_omit_latex_net_income_row(
+			int statement_prior_year_list_length,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
-LATEX_ROW *balance_sheet_subclass_omit_latex_ending_balance(
-			double balance_sheet_equity_ending_balance );
+LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance );
 
-LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity(
+LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity );
 
 typedef struct
@@ -341,19 +422,28 @@ LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
 /* Process */
 /* ------- */
 LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum );
 
-LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_row(
+LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_amount_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount );
 
 LATEX_ROW *balance_sheet_subclass_aggr_latex_net_income_row(
+			int statement_prior_year_list_length,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label );
 
-LATEX_ROW *balance_sheet_subclass_aggr_latex_ending_balance(
-			double balance_sheet_equity_ending_balance );
+LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance );
 
-LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity(
+LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity );
 
 typedef struct
@@ -460,7 +550,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			char *document_root_directory,
 			char *as_of_date,
 			int prior_year_count,
-			char *subclassifiction_option_string,
+			char *subclassification_option_string,
 			char *output_medium_string );
 
 /* Process */
@@ -480,19 +570,5 @@ char *balance_sheet_prior_date_time_closing(
 
 /* Process */
 /* ------- */
-
-/* Public */
-/* ------ */
-double balance_sheet_equity_transaction_amount(
-			double element_equity_current_sum,
-			double element_equity_begin_sum );
-
-double balance_sheet_equity_ending_balance(
-			double element_equity_current_sum,
-			double income_statement_fetch_net_income );
-
-double balance_sheet_liability_plus_equity(
-			double element_liability_sum,
-			double balance_sheet_equity_ending_balance );
 
 #endif

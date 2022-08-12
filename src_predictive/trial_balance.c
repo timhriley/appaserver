@@ -44,7 +44,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			char *document_root_directory,
 			char *as_of_date,
 			int prior_year_count,
-			char *subclassifiction_option_string,
+			char *subclassification_option_string,
 			char *output_medium_string )
 {
 	TRIAL_BALANCE *trial_balance;
@@ -55,7 +55,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 	||   !role_name
 	||   !process_name
 	||   !as_of_date
-	||   !subclassifiction_option_string
+	||   !subclassification_option_string
 	||   !output_medium_string )
 	{
 		fprintf(stderr,
@@ -70,7 +70,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 
 	trial_balance->statement_subclassification_option =
 		statement_resolve_subclassification_option(
-			subclassifiction_option_string );
+			subclassification_option_string );
 
 	trial_balance->statement_output_medium =
 		statement_resolve_output_medium(

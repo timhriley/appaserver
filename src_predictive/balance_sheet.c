@@ -16,6 +16,7 @@
 #include "element.h"
 #include "latex.h"
 #include "html_table.h"
+#include "income_statement.h"
 #include "balance_sheet.h"
 
 BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
@@ -24,49 +25,373 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 			LIST *statement_prior_year_list,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
-			char *net_income_label )
+			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
+		balance_sheet_subclass_display_html;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_subclass_display_html =
+		balance_sheet_subclass_display_html_calloc();
+
+	balance_sheet_subclass_display_html->
+		statement_subclass_display_html_list =
+			statement_subclass_display_html_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	if ( !balance_sheet_subclass_display_html->
+		statement_subclass_display_html_list )
+	{
+		free( balance_sheet_subclass_display_html );
+		return (BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *)0;
+	}
+
+	balance_sheet_subclass_display_html->row_list =
+		statement_subclass_display_html_list_extract_row_list(
+			balance_sheet_subclass_display_html->
+				statement_subclass_display_html_list );
+
+	list_set_list(
+		balance_sheet_subclass_display_html->row_list,
+			balance_sheet_subclass_display_html_equity_row_list(
+				statement,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label ) );
+
+	return balance_sheet_subclass_display_html;
 }
 
 BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
 	balance_sheet_subclass_display_html_calloc(
 			void )
 {
+	BALANCE_SHEET_SUBCLASS_DISPLAY_HTML *
+		balance_sheet_subclass_display_html;
+
+	if ( ! ( balance_sheet_subclass_display_html =
+		   calloc(
+			1,
+			sizeof( BALANCE_SHEET_SUBCLASS_DISPLAY_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_subclass_display_html;
 }
 
 LIST *balance_sheet_subclass_display_html_equity_row_list(
 			STATEMENT *statement,
-			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LIST *row_list;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	balance_sheet_equity =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		balance_sheet_equity_new(
+			statement->element_statement_list,
+			element_equity_begin,
+			income_statement_fetch_net_income );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_html_equity_begin_row(
+			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
+			balance_sheet_equity->begin_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_html_transaction_amount_row(
+			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+			balance_sheet_equity->transaction_amount ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_html_net_income_row(
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_html_equity_end_row(
+			BALANCE_SHEET_END_BALANCE_LABEL,
+			balance_sheet_equity->end_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_html_liability_plus_equity_row(
+			BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL,
+			balance_sheet_equity->liability_plus_equity ) );
+
+	return row_list;
 }
 
 HTML_ROW *balance_sheet_subclass_display_html_equity_begin_row(
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_begin_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_begin_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_begin_balance_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		element_equity_begin_sum );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_display_html_transaction_row(
+HTML_ROW *balance_sheet_subclass_display_html_transaction_amount_row(
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_transaction_amount_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_transaction_amount_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_transaction_amount_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_transaction_amount );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
 HTML_ROW *balance_sheet_subclass_display_html_net_income_row(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: income_statement_net_income_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			income_statement_net_income_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		income_statement_fetch_net_income );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_display_html_ending_balance(
-			double balance_sheet_equity_ending_balance )
+HTML_ROW *balance_sheet_subclass_display_html_equity_end_row(
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_end_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_end_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_end_balance_label ),
+		1 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_end_balance );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity(
+HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity_row(
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_liability_plus_equity_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_liability_plus_equity_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_liability_plus_equity_label ),
+		1 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_liability_plus_equity );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
 BALANCE_SHEET_SUBCLASS_OMIT_HTML *
@@ -77,47 +402,370 @@ BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_SUBCLASS_OMIT_HTML *
+		balance_sheet_subclass_omit_html;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_subclass_omit_html =
+		balance_sheet_subclass_omit_html_calloc();
+
+	balance_sheet_subclass_omit_html->
+		statement_subclass_omit_html_list =
+			statement_subclass_omit_html_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	if ( !balance_sheet_subclass_omit_html->
+		statement_subclass_omit_html_list )
+	{
+		free( balance_sheet_subclass_omit_html );
+		return (BALANCE_SHEET_SUBCLASS_OMIT_HTML *)0;
+	}
+
+	balance_sheet_subclass_omit_html->row_list =
+		statement_subclass_omit_html_list_extract_row_list(
+			balance_sheet_subclass_omit_html->
+				statement_subclass_omit_html_list );
+
+	list_set_list(
+		balance_sheet_subclass_omit_html->row_list,
+			balance_sheet_subclass_omit_html_equity_row_list(
+				statement,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label ) );
+
+	return balance_sheet_subclass_omit_html;
 }
 
 BALANCE_SHEET_SUBCLASS_OMIT_HTML *
 	balance_sheet_subclass_omit_html_calloc(
 			void )
 {
+	BALANCE_SHEET_SUBCLASS_OMIT_HTML *
+		balance_sheet_subclass_omit_html;
+
+	if ( ! ( balance_sheet_subclass_omit_html =
+			calloc( 1, 
+				sizeof( BALANCE_SHEET_SUBCLASS_OMIT_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_subclass_omit_html;
 }
 
 LIST *balance_sheet_subclass_omit_html_equity_row_list(
 			STATEMENT *statement,
-			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LIST *row_list;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	balance_sheet_equity =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		balance_sheet_equity_new(
+			statement->element_statement_list,
+			element_equity_begin,
+			income_statement_fetch_net_income );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_html_equity_begin_row(
+			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
+			balance_sheet_equity->begin_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_html_transaction_amount_row(
+			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+			balance_sheet_equity->transaction_amount ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_html_net_income_row(
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_html_equity_end_row(
+			BALANCE_SHEET_END_BALANCE_LABEL,
+			balance_sheet_equity->end_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_html_liability_plus_equity_row(
+			BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL,
+			balance_sheet_equity->liability_plus_equity ) );
+
+	return row_list;
 }
 
 HTML_ROW *balance_sheet_subclass_omit_html_equity_begin_row(
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_begin_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_begin_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_begin_balance_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		element_equity_begin_sum );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_omit_html_transaction_row(
+HTML_ROW *balance_sheet_subclass_omit_html_transaction_amount_row(
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_transaction_amount_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_transaction_amount_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_transaction_amount_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_transaction_amount );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
 HTML_ROW *balance_sheet_subclass_omit_html_net_income_row(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: income_statement_net_income_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			income_statement_net_income_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		income_statement_fetch_net_income );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_omit_html_ending_balance(
-			double balance_sheet_equity_ending_balance )
+HTML_ROW *balance_sheet_subclass_omit_html_equity_end_row(
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_end_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_end_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_end_balance_label ),
+		1 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_end_balance );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity(
+HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity_row(
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_liability_plus_equity_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_liability_plus_equity_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_liability_plus_equity_label ),
+		1 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_liability_plus_equity );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
 BALANCE_SHEET_SUBCLASS_AGGR_HTML *
@@ -128,47 +776,370 @@ BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_SUBCLASS_AGGR_HTML *
+		balance_sheet_subclass_aggr_html;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_subclass_aggr_html =
+		balance_sheet_subclass_aggr_html_calloc();
+
+	balance_sheet_subclass_aggr_html->
+		statement_subclass_aggr_html_list =
+			statement_subclass_aggr_html_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	if ( !balance_sheet_subclass_aggr_html->
+		statement_subclass_aggr_html_list )
+	{
+		free( balance_sheet_subclass_aggr_html );
+		return (BALANCE_SHEET_SUBCLASS_AGGR_HTML *)0;
+	}
+
+	balance_sheet_subclass_aggr_html->row_list =
+		statement_subclass_aggr_html_list_extract_row_list(
+			balance_sheet_subclass_aggr_html->
+				statement_subclass_aggr_html_list );
+
+	list_set_list(
+		balance_sheet_subclass_aggr_html->row_list,
+		balance_sheet_subclass_aggr_html_equity_row_list(
+			statement,
+			element_equity_begin,
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	return balance_sheet_subclass_aggr_html;
 }
 
 BALANCE_SHEET_SUBCLASS_AGGR_HTML *
 	balance_sheet_subclass_aggr_html_calloc(
 			void )
 {
+	BALANCE_SHEET_SUBCLASS_AGGR_HTML *
+		balance_sheet_subclass_aggr_html;
+
+	if ( ! ( balance_sheet_subclass_aggr_html =
+		   calloc( 1,
+			   sizeof( BALANCE_SHEET_SUBCLASS_AGGR_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_subclass_aggr_html;
 }
 
 LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 			STATEMENT *statement,
-			int statement_prior_year_list_length,
 			ELEMENT *element_equity_begin,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LIST *row_list;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	balance_sheet_equity =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		balance_sheet_equity_new(
+			statement->element_statement_list,
+			element_equity_begin,
+			income_statement_fetch_net_income );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_html_equity_begin_row(
+			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
+			balance_sheet_equity->begin_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_html_transaction_amount_row(
+			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+			balance_sheet_equity->transaction_amount ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_html_net_income_row(
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_html_equity_end_row(
+			BALANCE_SHEET_END_BALANCE_LABEL,
+			balance_sheet_equity->end_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_html_liability_plus_equity_row(
+			BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL,
+			balance_sheet_equity->liability_plus_equity ) );
+
+	return row_list;
 }
 
 HTML_ROW *balance_sheet_subclass_aggr_html_equity_begin_row(
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_begin_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_begin_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_begin_balance_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		element_equity_begin_sum );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_aggr_html_transaction_row(
+HTML_ROW *balance_sheet_subclass_aggr_html_transaction_amount_row(
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_transaction_amount_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_transaction_amount_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_transaction_amount_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_transaction_amount );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
 HTML_ROW *balance_sheet_subclass_aggr_html_net_income_row(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: income_statement_net_income_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			income_statement_net_income_label ),
+		0 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		income_statement_fetch_net_income );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_aggr_html_ending_balance(
-			double balance_sheet_equity_ending_balance )
+HTML_ROW *balance_sheet_subclass_aggr_html_equity_end_row(
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_end_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_end_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_end_balance_label ),
+		1 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_end_balance );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
-HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity(
+HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity_row(
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity )
 {
+	HTML_ROW *html_row;
+	char amount_string[ 16 ];
+
+	if ( !balance_sheet_liability_plus_equity_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_liability_plus_equity_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_liability_plus_equity_label ),
+		1 /* not large_boolean */,
+		1 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_liability_plus_equity );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* bold_boolean */ );
+
+	return html_row;
 }
 
 BALANCE_SHEET_HTML *balance_sheet_html_new(
@@ -180,10 +1151,132 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_HTML *balance_sheet_html;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_html = balance_sheet_html_calloc();
+
+	if (	statement_subclassification_option ==
+		subclassification_display )
+	{
+		balance_sheet_html->
+			balance_sheet_subclass_display_html =
+				balance_sheet_subclass_display_html_new(
+					statement,
+					statement_prior_year_list,
+					element_equity_begin,
+					income_statement_fetch_net_income,
+					income_statement_net_income_label );
+
+		if ( !balance_sheet_html->balance_sheet_subclass_display_html )
+		{
+			free( balance_sheet_html );
+			return (BALANCE_SHEET_HTML *)0;
+		}
+
+		balance_sheet_html->html_table =
+			balance_sheet_html_table(
+				statement->caption_subtitle,
+				balance_sheet_html->
+					balance_sheet_subclass_display_html->
+					statement_subclass_display_html_list->
+					heading_list,
+				balance_sheet_html->
+					balance_sheet_subclass_display_html->
+					row_list );
+	}
+	else
+	if (	statement_subclassification_option ==
+		subclassification_omit )
+	{
+		balance_sheet_html->
+			balance_sheet_subclass_omit_html =
+				balance_sheet_subclass_omit_html_new(
+					statement,
+					statement_prior_year_list,
+					element_equity_begin,
+					income_statement_fetch_net_income,
+					income_statement_net_income_label );
+
+		if ( ! balance_sheet_html->
+			balance_sheet_subclass_omit_html )
+		{
+			free( balance_sheet_html );
+			return (BALANCE_SHEET_HTML *)0;
+		}
+
+		balance_sheet_html->html_table =
+			balance_sheet_html_table(
+				statement->caption_subtitle,
+				balance_sheet_html->
+					balance_sheet_subclass_omit_html->
+					statement_subclass_omit_html_list->
+					heading_list,
+				balance_sheet_html->
+					balance_sheet_subclass_omit_html->
+					row_list );
+	}
+	else
+	if (	statement_subclassification_option ==
+		subclassification_aggregate )
+	{
+		balance_sheet_html->
+			balance_sheet_subclass_aggr_html =
+				balance_sheet_subclass_aggr_html_new(
+					statement,
+					statement_prior_year_list,
+					element_equity_begin,
+					income_statement_fetch_net_income,
+					income_statement_net_income_label );
+
+		if ( ! balance_sheet_html->
+			balance_sheet_subclass_aggr_html )
+		{
+			free( balance_sheet_html );
+			return (BALANCE_SHEET_HTML *)0;
+		}
+
+		balance_sheet_html->html_table =
+			balance_sheet_html_table(
+				statement->caption_subtitle,
+				balance_sheet_html->
+					balance_sheet_subclass_aggr_html->
+					statement_subclass_aggr_html_list->
+					heading_list,
+				balance_sheet_html->
+					balance_sheet_subclass_aggr_html->
+					row_list );
+	}
+
+	return balance_sheet_html;
 }
 
 BALANCE_SHEET_HTML *balance_sheet_html_calloc( void )
 {
+	BALANCE_SHEET_HTML *balance_sheet_html;
+
+	if ( ! ( balance_sheet_html =
+			calloc( 1, sizeof( BALANCE_SHEET_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_html;
 }
 
 HTML_TABLE *balance_sheet_html_table(
@@ -191,6 +1284,29 @@ HTML_TABLE *balance_sheet_html_table(
 			LIST *heading_list,
 			LIST *row_list )
 {
+	HTML_TABLE *html_table;
+
+	if ( !statement_caption_subtitle
+	||   !list_length( heading_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			statement_caption_subtitle,
+			(char *)0 /* sub_sub_title */ );
+
+	html_table->heading_list = heading_list;
+	html_table->row_list = row_list;
+
+	return html_table;
 }
 
 BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
@@ -201,12 +1317,75 @@ BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
+		balance_sheet_subclass_display_latex;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_subclass_display_latex =
+		balance_sheet_subclass_display_latex_calloc();
+
+	balance_sheet_subclass_display_latex->
+		statement_subclass_display_latex_list =
+			statement_subclass_display_latex_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	if ( !balance_sheet_subclass_display_latex->
+		statement_subclass_display_latex_list )
+	{
+		free( balance_sheet_subclass_display_latex );
+		return (BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *)0;
+	}
+
+	balance_sheet_subclass_display_latex->row_list =
+		statement_subclass_display_latex_list_extract_row_list(
+			balance_sheet_subclass_display_latex->
+				statement_subclass_display_latex_list );
+
+	list_set_list(
+		balance_sheet_subclass_display_latex->row_list,
+			balance_sheet_subclass_display_latex_equity_row_list(
+				statement,
+				list_length( statement_prior_year_list )
+					/* statement_prior_year_list_length */,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label ) );
+
+	return balance_sheet_subclass_display_latex;
 }
 
 BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
 	balance_sheet_subclass_display_latex_calloc(
 			void )
 {
+	BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX *
+		balance_sheet_subclass_display_latex;
+
+	if ( ! ( balance_sheet_subclass_display_latex =
+		   calloc(
+			1,
+			sizeof( BALANCE_SHEET_SUBCLASS_DISPLAY_LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_subclass_display_latex;
 }
 
 LIST *balance_sheet_subclass_display_latex_equity_row_list(
@@ -216,32 +1395,432 @@ LIST *balance_sheet_subclass_display_latex_equity_row_list(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LIST *row_list;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	balance_sheet_equity =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		balance_sheet_equity_new(
+			statement->element_statement_list,
+			element_equity_begin,
+			income_statement_fetch_net_income );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_latex_equity_begin_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
+			balance_sheet_equity->begin_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_latex_transaction_amount_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+			balance_sheet_equity->transaction_amount ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_latex_net_income_row(
+			statement_prior_year_list_length,
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_latex_equity_end_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_END_BALANCE_LABEL,
+			balance_sheet_equity->end_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_display_latex_liability_plus_equity_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL,
+			balance_sheet_equity->liability_plus_equity ) );
+
+	return row_list;
 }
 
 LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_begin_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_begin_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_begin_balance_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		element_equity_begin_sum );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_display_latex_transaction_row(
+LATEX_ROW *balance_sheet_subclass_display_latex_transaction_amount_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_transaction_amount_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_transaction_amount_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_transaction_amount_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_transaction_amount );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
 LATEX_ROW *balance_sheet_subclass_display_latex_net_income_row(
+			int statement_prior_year_list_length,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: income_statement_net_income_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			income_statement_net_income_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		income_statement_fetch_net_income );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_display_latex_ending_balance(
-			double balance_sheet_equity_ending_balance )
+LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_end_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_end_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_end_balance_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_end_balance );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity(
+LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_liability_plus_equity_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_liability_plus_equity_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_liability_plus_equity_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_liability_plus_equity );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
 BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
@@ -252,12 +1831,75 @@ BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
+		balance_sheet_subclass_omit_latex;
+
+	if ( !statement
+	||   income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_subclass_omit_latex =
+		balance_sheet_subclass_omit_latex_calloc();
+
+	balance_sheet_subclass_omit_latex->
+		statement_subclass_omit_latex_list =
+			statement_subclass_omit_latex_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	if ( !balance_sheet_subclass_omit_latex->
+		statement_subclass_omit_latex_list )
+	{
+		free( balance_sheet_subclass_omit_latex );
+		return (BALANCE_SHEET_SUBCLASS_OMIT_LATEX *)0;
+	}
+
+	balance_sheet_subclass_omit_latex->row_list =
+		statement_subclass_omit_latex_list_extract_row_list(
+			balance_sheet_subclass_omit_latex->
+				statement_subclass_omit_latex_list );
+
+	list_set_list(
+		balance_sheet_subclass_omit_latex->row_list,
+			balance_sheet_subclass_omit_latex_equity_row_list(
+				statement,
+				list_length( statement_prior_year_list )
+					/* statement_prior_year_list_length */,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label ) );
+
+	return balance_sheet_subclass_omit_latex;
 }
 
 BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
 	balance_sheet_subclass_omit_latex_calloc(
 			void )
 {
+	BALANCE_SHEET_SUBCLASS_OMIT_LATEX *
+		balance_sheet_subclass_omit_latex;
+
+	if ( ! ( balance_sheet_subclass_omit_latex =
+		   calloc(
+			1,
+			sizeof( BALANCE_SHEET_SUBCLASS_OMIT_LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_subclass_omit_latex;
 }
 
 LIST *balance_sheet_subclass_omit_latex_equity_row_list(
@@ -267,32 +1909,408 @@ LIST *balance_sheet_subclass_omit_latex_equity_row_list(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LIST *row_list;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	balance_sheet_equity =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		balance_sheet_equity_new(
+			statement->element_statement_list,
+			element_equity_begin,
+			income_statement_fetch_net_income );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_latex_equity_begin_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
+			balance_sheet_equity->begin_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_latex_transaction_amount_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+			balance_sheet_equity->transaction_amount ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_latex_net_income_row(
+			statement_prior_year_list_length,
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_latex_equity_end_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_END_BALANCE_LABEL,
+			balance_sheet_equity->end_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_omit_latex_liability_plus_equity_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL,
+			balance_sheet_equity->liability_plus_equity ) );
+
+	return row_list;
 }
 
 LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_begin_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_begin_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_begin_balance_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		element_equity_begin_sum );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_row(
+LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_amount_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_transaction_amount_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_transaction_amount_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_transaction_amount_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_transaction_amount );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
 LATEX_ROW *balance_sheet_subclass_omit_latex_net_income_row(
+			int statement_prior_year_list_length,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: income_statement_net_income_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			income_statement_net_income_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		income_statement_fetch_net_income );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_omit_latex_ending_balance(
-			double balance_sheet_equity_ending_balance )
+LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_end_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_end_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_end_balance_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_end_balance );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity(
+LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_liability_plus_equity_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_liability_plus_equity_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_liability_plus_equity_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_liability_plus_equity );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
 BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
@@ -303,12 +2321,73 @@ BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
+		balance_sheet_subclass_aggr_latex;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_subclass_aggr_latex =
+		balance_sheet_subclass_aggr_latex_calloc();
+
+	balance_sheet_subclass_aggr_latex->
+		statement_subclass_aggr_latex_list =
+			statement_subclass_aggr_latex_list_new(
+				statement->element_statement_list,
+				statement_prior_year_list );
+
+	if ( !balance_sheet_subclass_aggr_latex->
+		statement_subclass_aggr_latex_list )
+	{
+		free( balance_sheet_subclass_aggr_latex );
+		return (BALANCE_SHEET_SUBCLASS_AGGR_LATEX *)0;
+	}
+
+	balance_sheet_subclass_aggr_latex->row_list =
+		statement_subclass_aggr_latex_list_extract_row_list(
+			balance_sheet_subclass_aggr_latex->
+				statement_subclass_aggr_latex_list );
+
+	list_set_list(
+		balance_sheet_subclass_aggr_latex->row_list,
+			balance_sheet_subclass_aggr_latex_equity_row_list(
+				statement,
+				list_length( statement_prior_year_list )
+					/* statement_prior_year_list_length */,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label ) );
+
+	return balance_sheet_subclass_aggr_latex;
 }
 
 BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
 	balance_sheet_subclass_aggr_latex_calloc(
 			void )
 {
+	BALANCE_SHEET_SUBCLASS_AGGR_LATEX *
+		balance_sheet_subclass_aggr_latex;
+
+	if ( ! ( balance_sheet_subclass_aggr_latex =
+		    calloc( 1, sizeof( BALANCE_SHEET_SUBCLASS_AGGR_LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_subclass_aggr_latex;
 }
 
 LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
@@ -318,32 +2397,402 @@ LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LIST *row_list;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	if ( !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	row_list = list_new();
+
+	balance_sheet_equity =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		balance_sheet_equity_new(
+			statement->element_statement_list,
+			element_equity_begin,
+			income_statement_fetch_net_income );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_latex_equity_begin_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
+			balance_sheet_equity->begin_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_latex_transaction_amount_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+			balance_sheet_equity->transaction_amount ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_latex_net_income_row(
+			statement_prior_year_list_length,
+			income_statement_fetch_net_income,
+			income_statement_net_income_label ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_latex_equity_end_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_END_BALANCE_LABEL,
+			balance_sheet_equity->end_balance ) );
+
+	list_set(
+		row_list,
+		balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
+			statement_prior_year_list_length,
+			BALANCE_SHEET_LIABILITY_PLUS_EQUITY_LABEL,
+			balance_sheet_equity->liability_plus_equity ) );
+
+	return row_list;
 }
 
 LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_begin_balance_label,
 			double element_equity_begin_sum )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_begin_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_begin_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_begin_balance_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		element_equity_begin_sum );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_row(
+LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_amount_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_transaction_amount_label,
 			double balance_sheet_equity_transaction_amount )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_transaction_amount_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_transaction_amount_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_transaction_amount_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_transaction_amount );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
 LATEX_ROW *balance_sheet_subclass_aggr_latex_net_income_row(
+			int statement_prior_year_list_length,
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: income_statement_net_income_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			income_statement_net_income_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		income_statement_fetch_net_income );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_aggr_latex_ending_balance(
-			double balance_sheet_equity_ending_balance )
+LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_end_balance_label,
+			double balance_sheet_equity_end_balance )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_end_balance_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_end_balance_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_end_balance_label ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_equity_end_balance );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
-LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity(
+LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
+			int statement_prior_year_list_length,
+			char *balance_sheet_liability_plus_equity_label,
 			double balance_sheet_liability_plus_equity )
 {
+	LATEX_ROW *latex_row;
+	char amount_string[ 16 ];
+	int i;
+
+	if ( !balance_sheet_liability_plus_equity_label )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: balance_sheet_liability_plus_equity_label is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label(
+			balance_sheet_liability_plus_equity_label ),
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	sprintf(amount_string,
+		"%.2lf",
+		balance_sheet_liability_plus_equity );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup( amount_string ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	for (	i = 0;
+		i < statement_prior_year_list_length;
+		i++ )
+	{
+		latex_column_data_set(
+			latex_row->column_data_list,
+			"",
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
+	}
+
+	return latex_row;
 }
 
 BALANCE_SHEET_LATEX *
@@ -361,10 +2810,145 @@ BALANCE_SHEET_LATEX *
 			double income_statement_fetch_net_income,
 			char *income_statement_net_income_label )
 {
+	BALANCE_SHEET_LATEX *balance_sheet_latex;
+
+	if ( !tex_filename
+	||   !dvi_filename
+	||   !working_directory
+	||   !statement
+	||   !income_statement_net_income_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	balance_sheet_latex = balance_sheet_latex_calloc();
+
+	balance_sheet_latex->latex =
+		latex_new(
+			tex_filename,
+			dvi_filename,
+			working_directory,
+			statement_pdf_landscape_boolean,
+			statement_logo_filename );
+
+
+	if (	statement_subclassification_option ==
+		subclassification_display )
+	{
+		balance_sheet_latex->balance_sheet_subclass_display_latex =
+			balance_sheet_subclass_display_latex_new(
+				statement,
+				statement_prior_year_list,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label );
+
+		if ( !balance_sheet_latex->
+			balance_sheet_subclass_display_latex )
+		{
+			free( balance_sheet_latex );
+			return (BALANCE_SHEET_LATEX *)0;
+		}
+
+		list_set(
+			balance_sheet_latex->latex->table_list,
+			balance_sheet_latex_table(
+				statement->caption,
+				balance_sheet_latex->
+					balance_sheet_subclass_display_latex->
+					statement_subclass_display_latex_list->
+					heading_list,
+				balance_sheet_latex->
+					balance_sheet_subclass_display_latex->
+					row_list ) );
+	}
+	else
+	if (	statement_subclassification_option ==
+		subclassification_omit )
+	{
+		balance_sheet_latex->balance_sheet_subclass_omit_latex =
+			balance_sheet_subclass_omit_latex_new(
+				statement,
+				statement_prior_year_list,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label );
+
+		if ( !balance_sheet_latex->
+			balance_sheet_subclass_omit_latex )
+		{
+			free( balance_sheet_latex );
+			return (BALANCE_SHEET_LATEX *)0;
+		}
+
+		list_set(
+			balance_sheet_latex->latex->table_list,
+			balance_sheet_latex_table(
+				statement->caption,
+				balance_sheet_latex->
+					balance_sheet_subclass_omit_latex->
+					statement_subclass_omit_latex_list->
+					heading_list,
+				balance_sheet_latex->
+					balance_sheet_subclass_omit_latex->
+					row_list ) );
+	}
+	else
+	if (	statement_subclassification_option ==
+		subclassification_aggregate )
+	{
+		balance_sheet_latex->balance_sheet_subclass_aggr_latex =
+			balance_sheet_subclass_aggr_latex_new(
+				statement,
+				statement_prior_year_list,
+				element_equity_begin,
+				income_statement_fetch_net_income,
+				income_statement_net_income_label );
+
+		if ( !balance_sheet_latex->
+			balance_sheet_subclass_aggr_latex )
+		{
+			free( balance_sheet_latex );
+			return (BALANCE_SHEET_LATEX *)0;
+		}
+
+		list_set(
+			balance_sheet_latex->latex->table_list,
+			balance_sheet_latex_table(
+				statement->caption,
+				balance_sheet_latex->
+					balance_sheet_subclass_aggr_latex->
+					statement_subclass_aggr_latex_list->
+					heading_list,
+				balance_sheet_latex->
+					balance_sheet_subclass_aggr_latex->
+					row_list ) );
+	}
+
+	return balance_sheet_latex;
 }
 
 BALANCE_SHEET_LATEX *balance_sheet_latex_calloc( void )
 {
+	BALANCE_SHEET_LATEX *balance_sheet_latex;
+
+	if ( ! ( balance_sheet_latex =
+			calloc( 1, sizeof( BALANCE_SHEET_LATEX ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return balance_sheet_latex;
 }
 
 LATEX_TABLE *balance_sheet_latex_table(
@@ -372,6 +2956,25 @@ LATEX_TABLE *balance_sheet_latex_table(
 			LIST *heading_list,
 			LIST *row_list )
 {
+	LATEX_TABLE *latex_table;
+
+	if ( !statement_caption
+	||   !list_length( heading_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	latex_table = latex_table_new( statement_caption );
+	latex_table->heading_list = heading_list;
+	latex_table->row_list = row_list;
+
+	return latex_table;
 }
 
 BALANCE_SHEET_PDF *balance_sheet_pdf_new(
@@ -406,8 +3009,8 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 
 	balance_sheet_pdf = balance_sheet_pdf_calloc();
 
-	balance_sheet_pdf->statement_pdf_landacape_boolean =
-		statement_pdf_landacape_boolean(
+	balance_sheet_pdf->statement_pdf_landscape_boolean =
+		statement_pdf_landscape_boolean(
 		list_length( statement_prior_year_list )
 			/* statement_prior_year_list_length */ );
 
@@ -421,14 +3024,14 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 			(char *)0 /* statement_pdf_preclose_key */,
 			process_id );
 
-	balance_sheet->pdf->balance_sheet_latex =
+	balance_sheet_pdf->balance_sheet_latex =
 		balance_sheet_latex_new(
 			statement_subclassification_option,
 			balance_sheet_pdf->statement_link->tex_filename,
 			balance_sheet_pdf->statement_link->dvi_filename,
 			balance_sheet_pdf->statement_link->working_directory,
 			balance_sheet_pdf->statement_pdf_landscape_boolean,
-			statement->statement_logo_filename,
+			statement->logo_filename,
 			statement,
 			statement_prior_year_list,
 			element_equity_begin,
@@ -466,7 +3069,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			char *document_root_directory,
 			char *as_of_date,
 			int prior_year_count,
-			char *subclassifiction_option_string,
+			char *subclassification_option_string,
 			char *output_medium_string )
 {
 	BALANCE_SHEET *balance_sheet;
@@ -493,7 +3096,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 
 	balance_sheet->statement_subclassification_option =
 		statement_resolve_subclassification_option(
-			subclassifiction_option_string );
+			subclassification_option_string );
 
 	balance_sheet->statement_output_medium =
 		statement_resolve_output_medium(
@@ -600,7 +3203,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 
 		balance_sheet->element_equity_begin->sum =
 			element_sum(
-				element_equity_begin );
+				balance_sheet->element_equity_begin );
 	}
 
 	balance_sheet->income_statement_fetch_net_income =
@@ -701,29 +3304,107 @@ char *balance_sheet_prior_date_time_closing(
 	return date_display19( prior );
 }
 
-double balance_sheet_equity_transaction_amount(
-			double element_equity_current_sum,
-			double element_equity_begin_sum )
+BALANCE_SHEET_EQUITY *
+	balance_sheet_equity_new(
+			LIST *element_statement_list,
+			ELEMENT *element_equity_begin,
+			double income_statement_fetch_net_income )
 {
-	return
-	element_equity_current_sum -
-	element_equity_begin_sum;
+	BALANCE_SHEET_EQUITY *balance_sheet_equity;
+
+	balance_sheet_equity = balance_sheet_equity_calloc();
+
+	balance_sheet_equity->begin_balance =
+		balance_sheet_equity_begin_balance(
+			element_equity_begin );
+
+	balance_sheet_equity->element_equity_current =
+		element_seek(
+			ELEMENT_EQUITY,
+			element_statement_list );
+
+	balance_sheet_equity->current_balance =
+		balance_sheet_equity_current_balance(
+			balance_sheet_equity->element_equity_current );
+
+	balance_sheet_equity->transaction_amount =
+		balance_sheet_equity_transaction_amount(
+			balance_sheet_equity->current_balance,
+			balance_sheet_equity->begin_balance );
+
+	balance_sheet_equity->end_balance =
+		balance_sheet_equity_end_balance(
+			balance_sheet_equity->current_balance,
+			income_statement_fetch_net_income );
+
+	balance_sheet_equity->element_liability =
+		element_seek(
+			ELEMENT_LIABILITY,
+			element_statement_list );
+
+	balance_sheet_equity->liability_balance =
+		balance_sheet_equity_liability_balance(
+			balance_sheet_equity->element_liability );
+
+	balance_sheet_equity->liability_plus_equity =
+		balance_sheet_equity_liability_plus_equity(
+			balance_sheet_equity->liability_balance,
+			balance_sheet_equity->end_balance );
+
+	return balance_sheet_equity;
 }
 
-double balance_sheet_equity_ending_balance(
-			double element_equity_current_sum,
+double balance_sheet_equity_begin_balance(
+			ELEMENT *element_equity_begin )
+{
+	if ( element_equity_begin )
+		return element_equity_begin->sum;
+	else
+		return 0.0;
+}
+
+double balance_sheet_equity_current_balance(
+			ELEMENT *element_equity_current )
+{
+	if ( element_equity_current )
+		return element_equity_current->sum;
+	else
+		return 0.0;
+}
+
+double balance_sheet_equity_transaction_amount(
+			double equity_current_balance,
+			double equity_begin_balance )
+{
+	return
+	equity_current_balance -
+	equity_begin_balance;
+}
+
+double balance_sheet_equity_end_balance(
+			double equity_current_balance,
 			double income_statement_fetch_net_income )
 {
 	return
-	element_equity_current_sum +
+	equity_current_balance +
 	income_statement_fetch_net_income;
 }
 
-double balance_sheet_liability_plus_equity(
-			double element_liability_sum,
-			double balance_sheet_equity_ending_balance )
+double balance_sheet_equity_liability_balance(
+			ELEMENT *element_liability )
+{
+	if ( element_liability )
+		return element_liability->sum;
+	else
+		return 0.0;
+}
+
+double balance_sheet_equity_liability_plus_equity(
+			double liability_balance,
+			double equity_end_balance )
 {
 	return
-	element_liability_sum +
-	balance_sheet_equity_ending_balance;
+	liability_balance +
+	equity_end_balance;
 }
+
