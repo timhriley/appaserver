@@ -246,9 +246,11 @@ char *place_commas_in_unsigned_long_long(
 			unsigned long long n );
 
 /* --------------------- */
-/* Returns static memory */
+/* Returns heap memory   */
 /* Doesn't trim pennies  */
 /* --------------------- */
+char *timlib_commas_in_money(
+			double d );
 char *commas_in_money(
 			double d );
 char *place_commas_in_money(

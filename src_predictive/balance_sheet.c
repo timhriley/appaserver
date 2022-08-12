@@ -167,10 +167,9 @@ LIST *balance_sheet_subclass_display_html_equity_row_list(
 
 HTML_ROW *balance_sheet_subclass_display_html_equity_begin_row(
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum )
+			double element_equity_begin_balance )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_begin_balance_label )
 	{
@@ -191,16 +190,12 @@ HTML_ROW *balance_sheet_subclass_display_html_equity_begin_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_begin_balance_label ),
-		0 /* not large_boolean */,
+		1 /* large_boolean */,
 		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		element_equity_begin_sum );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( element_equity_begin_balance ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -212,7 +207,6 @@ HTML_ROW *balance_sheet_subclass_display_html_transaction_amount_row(
 			double balance_sheet_equity_transaction_amount )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_transaction_amount_label )
 	{
@@ -234,15 +228,12 @@ HTML_ROW *balance_sheet_subclass_display_html_transaction_amount_row(
 		statement_cell_data_label(
 			balance_sheet_transaction_amount_label ),
 		0 /* not large_boolean */,
-		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_transaction_amount );
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money(
+			balance_sheet_equity_transaction_amount ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -254,7 +245,6 @@ HTML_ROW *balance_sheet_subclass_display_html_net_income_row(
 			char *income_statement_net_income_label )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !income_statement_net_income_label )
 	{
@@ -276,15 +266,11 @@ HTML_ROW *balance_sheet_subclass_display_html_net_income_row(
 		statement_cell_data_label(
 			income_statement_net_income_label ),
 		0 /* not large_boolean */,
-		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		income_statement_fetch_net_income );
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( income_statement_fetch_net_income ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -296,7 +282,6 @@ HTML_ROW *balance_sheet_subclass_display_html_equity_end_row(
 			double balance_sheet_equity_end_balance )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_end_balance_label )
 	{
@@ -332,13 +317,9 @@ HTML_ROW *balance_sheet_subclass_display_html_equity_end_row(
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_end_balance );
-
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_equity_end_balance ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -350,7 +331,6 @@ HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity_row(
 			double balance_sheet_liability_plus_equity )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_liability_plus_equity_label )
 	{
@@ -386,13 +366,9 @@ HTML_ROW *balance_sheet_subclass_display_html_liability_plus_equity_row(
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_liability_plus_equity );
-
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -546,10 +522,9 @@ LIST *balance_sheet_subclass_omit_html_equity_row_list(
 
 HTML_ROW *balance_sheet_subclass_omit_html_equity_begin_row(
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum )
+			double element_equity_begin_balance )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_begin_balance_label )
 	{
@@ -570,16 +545,12 @@ HTML_ROW *balance_sheet_subclass_omit_html_equity_begin_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_begin_balance_label ),
-		0 /* not large_boolean */,
+		1 /* large_boolean */,
 		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		element_equity_begin_sum );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( element_equity_begin_balance ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -591,7 +562,6 @@ HTML_ROW *balance_sheet_subclass_omit_html_transaction_amount_row(
 			double balance_sheet_equity_transaction_amount )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_transaction_amount_label )
 	{
@@ -613,15 +583,12 @@ HTML_ROW *balance_sheet_subclass_omit_html_transaction_amount_row(
 		statement_cell_data_label(
 			balance_sheet_transaction_amount_label ),
 		0 /* not large_boolean */,
-		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_transaction_amount );
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money(
+			balance_sheet_equity_transaction_amount ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -633,7 +600,6 @@ HTML_ROW *balance_sheet_subclass_omit_html_net_income_row(
 			char *income_statement_net_income_label )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !income_statement_net_income_label )
 	{
@@ -655,15 +621,11 @@ HTML_ROW *balance_sheet_subclass_omit_html_net_income_row(
 		statement_cell_data_label(
 			income_statement_net_income_label ),
 		0 /* not large_boolean */,
-		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		income_statement_fetch_net_income );
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( income_statement_fetch_net_income ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -675,7 +637,6 @@ HTML_ROW *balance_sheet_subclass_omit_html_equity_end_row(
 			double balance_sheet_equity_end_balance )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_end_balance_label )
 	{
@@ -707,17 +668,7 @@ HTML_ROW *balance_sheet_subclass_omit_html_equity_end_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_end_balance );
-
-	html_cell_data_set(
-		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_equity_end_balance ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -729,7 +680,6 @@ HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity_row(
 			double balance_sheet_liability_plus_equity )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_liability_plus_equity_label )
 	{
@@ -761,17 +711,7 @@ HTML_ROW *balance_sheet_subclass_omit_html_liability_plus_equity_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_liability_plus_equity );
-
-	html_cell_data_set(
-		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -925,10 +865,9 @@ LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 
 HTML_ROW *balance_sheet_subclass_aggr_html_equity_begin_row(
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum )
+			double element_equity_begin_balance )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_begin_balance_label )
 	{
@@ -949,16 +888,12 @@ HTML_ROW *balance_sheet_subclass_aggr_html_equity_begin_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_begin_balance_label ),
-		0 /* not large_boolean */,
+		1 /* large_boolean */,
 		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		element_equity_begin_sum );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( element_equity_begin_balance ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -970,7 +905,6 @@ HTML_ROW *balance_sheet_subclass_aggr_html_transaction_amount_row(
 			double balance_sheet_equity_transaction_amount )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_transaction_amount_label )
 	{
@@ -992,15 +926,12 @@ HTML_ROW *balance_sheet_subclass_aggr_html_transaction_amount_row(
 		statement_cell_data_label(
 			balance_sheet_transaction_amount_label ),
 		0 /* not large_boolean */,
-		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_transaction_amount );
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money(
+			balance_sheet_equity_transaction_amount ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -1012,7 +943,6 @@ HTML_ROW *balance_sheet_subclass_aggr_html_net_income_row(
 			char *income_statement_net_income_label )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !income_statement_net_income_label )
 	{
@@ -1034,15 +964,11 @@ HTML_ROW *balance_sheet_subclass_aggr_html_net_income_row(
 		statement_cell_data_label(
 			income_statement_net_income_label ),
 		0 /* not large_boolean */,
-		1 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		income_statement_fetch_net_income );
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( income_statement_fetch_net_income ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -1054,7 +980,6 @@ HTML_ROW *balance_sheet_subclass_aggr_html_equity_end_row(
 			double balance_sheet_equity_end_balance )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_end_balance_label )
 	{
@@ -1086,17 +1011,7 @@ HTML_ROW *balance_sheet_subclass_aggr_html_equity_end_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_end_balance );
-
-	html_cell_data_set(
-		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_equity_end_balance ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -1108,7 +1023,6 @@ HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity_row(
 			double balance_sheet_liability_plus_equity )
 {
 	HTML_ROW *html_row;
-	char amount_string[ 16 ];
 
 	if ( !balance_sheet_liability_plus_equity_label )
 	{
@@ -1140,17 +1054,7 @@ HTML_ROW *balance_sheet_subclass_aggr_html_liability_plus_equity_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		"",
-		0 /* not large_boolean */,
-		0 /* bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_liability_plus_equity );
-
-	html_cell_data_set(
-		html_row->cell_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
 		0 /* not large_boolean */,
 		0 /* bold_boolean */ );
 
@@ -1493,10 +1397,9 @@ LIST *balance_sheet_subclass_display_latex_equity_row_list(
 LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
 			int statement_prior_year_list_length,
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum )
+			double element_equity_begin_balance )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_begin_balance_label )
@@ -1518,16 +1421,12 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
 		/* ------------------------- */
 		statement_cell_data_label(
 			balance_sheet_begin_balance_label ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		element_equity_begin_sum );
+		1 /* large_boolean */,
+		1 /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( element_equity_begin_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1569,7 +1468,6 @@ LATEX_ROW *balance_sheet_subclass_display_latex_transaction_amount_row(
 			double balance_sheet_equity_transaction_amount )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_transaction_amount_label )
@@ -1594,13 +1492,10 @@ LATEX_ROW *balance_sheet_subclass_display_latex_transaction_amount_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_transaction_amount );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money(
+			balance_sheet_equity_transaction_amount ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1642,7 +1537,6 @@ LATEX_ROW *balance_sheet_subclass_display_latex_net_income_row(
 			char *income_statement_net_income_label )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !income_statement_net_income_label )
@@ -1667,13 +1561,9 @@ LATEX_ROW *balance_sheet_subclass_display_latex_net_income_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		income_statement_fetch_net_income );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( income_statement_fetch_net_income ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1715,7 +1605,6 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 			double balance_sheet_equity_end_balance )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_end_balance_label )
@@ -1740,13 +1629,9 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_end_balance );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_equity_end_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1788,7 +1673,6 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 			double balance_sheet_liability_plus_equity )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_liability_plus_equity_label )
@@ -1813,13 +1697,9 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_liability_plus_equity );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2012,10 +1892,9 @@ LIST *balance_sheet_subclass_omit_latex_equity_row_list(
 LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
 			int statement_prior_year_list_length,
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum )
+			double element_equity_begin_balance )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_begin_balance_label )
@@ -2040,13 +1919,9 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		element_equity_begin_sum );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( element_equity_begin_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2082,7 +1957,6 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_amount_row(
 			double balance_sheet_equity_transaction_amount )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_transaction_amount_label )
@@ -2107,13 +1981,10 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_amount_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_transaction_amount );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money(
+			balance_sheet_equity_transaction_amount ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2149,7 +2020,6 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_net_income_row(
 			char *income_statement_net_income_label )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !income_statement_net_income_label )
@@ -2174,13 +2044,9 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_net_income_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		income_statement_fetch_net_income );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( income_statement_fetch_net_income ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2216,7 +2082,6 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
 			double balance_sheet_equity_end_balance )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_end_balance_label )
@@ -2241,13 +2106,9 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_end_balance );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_equity_end_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2289,7 +2150,6 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 			double balance_sheet_liability_plus_equity )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_liability_plus_equity_label )
@@ -2314,13 +2174,9 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_liability_plus_equity );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2505,10 +2361,9 @@ LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
 LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
 			int statement_prior_year_list_length,
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum )
+			double element_equity_begin_balance )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_begin_balance_label )
@@ -2533,13 +2388,9 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		element_equity_begin_sum );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( element_equity_begin_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2575,7 +2426,6 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_amount_row(
 			double balance_sheet_equity_transaction_amount )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_transaction_amount_label )
@@ -2600,13 +2450,10 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_amount_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_transaction_amount );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money(
+			balance_sheet_equity_transaction_amount ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2642,7 +2489,6 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_net_income_row(
 			char *income_statement_net_income_label )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !income_statement_net_income_label )
@@ -2667,13 +2513,9 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_net_income_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		income_statement_fetch_net_income );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( income_statement_fetch_net_income ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2709,7 +2551,6 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
 			double balance_sheet_equity_end_balance )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_end_balance_label )
@@ -2736,19 +2577,15 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		"",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		"",
+		timlib_commas_in_money( balance_sheet_equity_end_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
-
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_equity_end_balance );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -2776,7 +2613,6 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
 			double balance_sheet_liability_plus_equity )
 {
 	LATEX_ROW *latex_row;
-	char amount_string[ 16 ];
 	int i;
 
 	if ( !balance_sheet_liability_plus_equity_label )
@@ -2807,13 +2643,9 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
-	sprintf(amount_string,
-		"%.2lf",
-		balance_sheet_liability_plus_equity );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( amount_string ),
+		timlib_commas_in_money( balance_sheet_liability_plus_equity ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -3190,8 +3022,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 	balance_sheet->element_name_list =
 		balance_sheet_element_name_list(
 			ELEMENT_ASSET,
-			ELEMENT_LIABILITY,
-			ELEMENT_EQUITY );
+			ELEMENT_LIABILITY );
 
 	balance_sheet->transaction_closing_entry_exists =
 		transaction_closing_entry_exists(
@@ -3356,14 +3187,12 @@ BALANCE_SHEET *balance_sheet_calloc( void )
 
 LIST *balance_sheet_element_name_list(
 			char *element_asset,
-			char *element_liability,
-			char *element_equity )
+			char *element_liability )
 {
 	LIST *element_name_list = list_new();
 
 	list_set( element_name_list, element_asset );
 	list_set( element_name_list, element_liability );
-	list_set( element_name_list, element_equity );
 
 	return element_name_list;
 }

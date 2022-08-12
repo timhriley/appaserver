@@ -109,7 +109,7 @@ LIST *balance_sheet_subclass_display_html_equity_row_list(
 /* ------- */
 HTML_ROW *balance_sheet_subclass_display_html_equity_begin_row(
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum );
+			double element_equity_begin_balance );
 
 HTML_ROW *balance_sheet_subclass_display_html_transaction_amount_row(
 			char *balance_sheet_transaction_amount_label,
@@ -165,7 +165,7 @@ LIST *balance_sheet_subclass_omit_html_equity_row_list(
 /* ------- */
 HTML_ROW *balance_sheet_subclass_omit_html_equity_begin_row(
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum );
+			double element_equity_begin_balance );
 
 HTML_ROW *balance_sheet_subclass_omit_html_transaction_amount_row(
 			char *balance_sheet_transaction_amount_label,
@@ -221,7 +221,7 @@ LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 /* ------- */
 HTML_ROW *balance_sheet_subclass_aggr_html_equity_begin_row(
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum );
+			double element_equity_begin_balance );
 
 HTML_ROW *balance_sheet_subclass_aggr_html_transaction_amount_row(
 			char *balance_sheet_transaction_amount_label,
@@ -319,7 +319,7 @@ LIST *balance_sheet_subclass_display_latex_equity_row_list(
 LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
 			int statement_prior_year_list_length,
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum );
+			double element_equity_begin_balance );
 
 LATEX_ROW *balance_sheet_subclass_display_latex_transaction_amount_row(
 			int statement_prior_year_list_length,
@@ -381,7 +381,7 @@ LIST *balance_sheet_subclass_omit_latex_equity_row_list(
 LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
 			int statement_prior_year_list_length,
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum );
+			double element_equity_begin_balance );
 
 LATEX_ROW *balance_sheet_subclass_omit_latex_transaction_amount_row(
 			int statement_prior_year_list_length,
@@ -443,7 +443,7 @@ LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
 LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
 			int statement_prior_year_list_length,
 			char *balance_sheet_begin_balance_label,
-			double element_equity_begin_sum );
+			double element_equity_begin_balance );
 
 LATEX_ROW *balance_sheet_subclass_aggr_latex_transaction_amount_row(
 			int statement_prior_year_list_length,
@@ -584,8 +584,7 @@ BALANCE_SHEET *balance_sheet_calloc(
 
 LIST *balance_sheet_element_name_list(
 			char *element_asset,
-			char *element_liability,
-			char *element_equity );
+			char *element_liability );
 
 /* Usage */
 /* ----- */

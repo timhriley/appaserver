@@ -2387,20 +2387,25 @@ char *timlib_place_commas_in_dollars( double d )
 
 char *timlib_commas_in_dollars( double d )
 {
-	return commas_in_money( d );
+	return timlib_place_commas_in_dollars( d );
 }
 
 char *timlib_place_commas_in_money( double d )
 {
-	return commas_in_money( d );
+	return timlib_commas_in_money( d );
 }
 
 char *place_commas_in_money( double d )
 {
-	return commas_in_money( d );
+	return timlib_commas_in_money( d );
 }
 
 char *commas_in_money( double d )
+{
+	return timlib_commas_in_money( d );
+}
+
+char *timlib_commas_in_money( double d )
 {
 	char *results;
 
@@ -2408,7 +2413,7 @@ char *commas_in_money( double d )
 	/* ----------------------------------------- */
 	results = place_commas_in_double( d );
 	*( results + strlen( results ) - 1 ) = '\0';
-	return results;
+	return strdup( results );
 }
 
 char *commas_in_double(		char *destination, 
