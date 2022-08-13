@@ -66,7 +66,6 @@ from="account"
 where="account = 'bank_of_america_checking' or account = 'chase_checking' or account = 'bank_of_america_credit_card'"
 
 select.sh "$select" $from "$where"					 |
-sql.e									 |
 insert_statement table=feeder_account field=feeder_account delimiter="^" |
 sql.e									 |
 cat

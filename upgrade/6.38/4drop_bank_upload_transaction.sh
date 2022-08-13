@@ -35,7 +35,7 @@ echo "delete from role_folder where folder = '$folder';" | sql.e
 
 folder="bank_upload_feeder_archive"
 
-echo "drop table $folder;" | sql.e
+echo "drop view $folder;" | sql.e
 echo "delete from folder where folder = '$folder';" | sql.e
 echo "delete from relation where folder = '$folder';" | sql.e
 echo "delete from relation where related_folder = '$folder';" | sql.e
@@ -63,7 +63,7 @@ echo "delete from folder_attribute where folder = '$folder';" | sql.e
 echo "delete from role_operation where folder = '$folder';" | sql.e
 echo "delete from role_folder where folder = '$folder';" | sql.e
 
-Later folder="bank_upload"
+folder="bank_upload"
 
 echo "drop table $folder;" | sql.e
 echo "delete from folder where folder = '$folder';" | sql.e
