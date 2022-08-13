@@ -14,13 +14,13 @@ then
 	exit 1
 fi
 
-# Returns 0 if BANK_UPLOAD.bank_date exists
-# -----------------------------------------
-folder_attribute_exists.sh $application bank_upload bank_date
+# Returns 0 if FEEDER_PHRASE.feeder_phrase exists
+# -----------------------------------------------
+folder_attribute_exists.sh $application feeder_phrase feeder_phrase
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
 folder="reoccurring_transaction"

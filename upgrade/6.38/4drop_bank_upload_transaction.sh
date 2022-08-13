@@ -20,7 +20,7 @@ folder_attribute_exists.sh $application bank_upload bank_date
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
 folder="bank_upload_transaction"
@@ -63,15 +63,15 @@ echo "delete from folder_attribute where folder = '$folder';" | sql.e
 echo "delete from role_operation where folder = '$folder';" | sql.e
 echo "delete from role_folder where folder = '$folder';" | sql.e
 
-#Later folder="bank_upload"
-#
-#echo "drop table $folder;" | sql.e
-#echo "delete from folder where folder = '$folder';" | sql.e
-#echo "delete from relation where folder = '$folder';" | sql.e
-#echo "delete from relation where related_folder = '$folder';" | sql.e
-#echo "delete from folder_attribute where folder = '$folder';" | sql.e
-#echo "delete from role_operation where folder = '$folder';" | sql.e
-#echo "delete from role_folder where folder = '$folder';" | sql.e
+Later folder="bank_upload"
+
+echo "drop table $folder;" | sql.e
+echo "delete from folder where folder = '$folder';" | sql.e
+echo "delete from relation where folder = '$folder';" | sql.e
+echo "delete from relation where related_folder = '$folder';" | sql.e
+echo "delete from folder_attribute where folder = '$folder';" | sql.e
+echo "delete from role_operation where folder = '$folder';" | sql.e
+echo "delete from role_folder where folder = '$folder';" | sql.e
 
 folder="bank_upload_transaction_balance"
 

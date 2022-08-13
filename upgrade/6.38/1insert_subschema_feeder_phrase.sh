@@ -20,7 +20,7 @@ folder_attribute_exists.sh $application bank_upload bank_date
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
 folder="folder"
@@ -32,7 +32,6 @@ row_security_role_update="row_security_role_update"
 folder_row_level_restrictions="folder_row_level_restrictions"
 subschemas="subschemas"
 role_operation="role_operation"
-javascript_folders="javascript_folders"
 javascript_files="javascript_files"
 process="process"
 role="role"
@@ -64,7 +63,6 @@ insert into $role_folder (folder,role,permission) values ('feeder_phrase','bookk
 insert into $role_folder (folder,role,permission) values ('feeder_phrase','bookkeeper','update');
 insert into $role_folder (folder,role,permission) values ('feeder_phrase','supervisor','insert');
 insert into $role_folder (folder,role,permission) values ('feeder_phrase','supervisor','update');
-delete from $javascript_folders where folder = 'feeder_phrase';
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('feeder_upload');

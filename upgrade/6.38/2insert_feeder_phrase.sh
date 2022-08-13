@@ -20,7 +20,7 @@ folder_attribute_exists.sh $application bank_upload bank_date
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
 field="feeder_phrase,nominal_account,full_name,street_address"
@@ -42,7 +42,7 @@ select.sh "$debit_select" $from "$debit_where"
 select.sh "$credit_select" $from "$credit_where"
 ) 								|
 insert_statement table=feeder_phrase field=$field delimiter="^"	|
-#sql.e								|
+sql.e								|
 cat
 
 exit 0

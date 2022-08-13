@@ -20,7 +20,7 @@ folder_attribute_exists.sh $application bank_upload bank_date
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
 echo "update folder set subschema='ledger' where folder = 'reoccurring_transaction';" | sql.e
