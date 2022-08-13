@@ -650,6 +650,11 @@ enum statement_output_medium
 boolean statement_pdf_landscape_boolean(
 			int statement_prior_year_list_length );
 
+/* Returns static memory or null */
+/* ----------------------------- */
+char *statement_element_name(
+			char *element_name );
+
 /* Returns heap memory or "" */
 /* ------------------------- */
 char *statement_cell_data_label(
@@ -659,6 +664,12 @@ char *statement_cell_data_label(
 /* --------------------- */
 char *statement_pdf_prompt(
 			char *process_name );
+
+/* Returns subclassification_name or null */
+/* -------------------------------------- */
+char *statement_subclass_display_name(
+			char *element_name,
+			char *subclassification_name );
 
 /* Driver */
 /* ------ */

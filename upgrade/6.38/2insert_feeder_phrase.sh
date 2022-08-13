@@ -23,7 +23,7 @@ then
 	exit 1
 fi
 
-field="feeder_phrase,post_account,full_name,street_address"
+field="feeder_phrase,nominal_account,full_name,street_address"
 
 from="reoccurring_transaction"
 
@@ -42,7 +42,7 @@ select.sh "$debit_select" $from "$debit_where"
 select.sh "$credit_select" $from "$credit_where"
 ) 								|
 insert_statement table=feeder_phrase field=$field delimiter="^"	|
-sql.e								|
+#sql.e								|
 cat
 
 exit 0

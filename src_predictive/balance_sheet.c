@@ -138,11 +138,14 @@ LIST *balance_sheet_subclass_display_html_equity_row_list(
 			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
 			balance_sheet_equity->begin_balance ) );
 
-	list_set(
-		row_list,
-		balance_sheet_subclass_display_html_transaction_amount_row(
+	if ( balance_sheet_equity->transaction_amount )
+	{
+		list_set(
+		    row_list,
+		    balance_sheet_subclass_display_html_transaction_amount_row(
 			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
 			balance_sheet_equity->transaction_amount ) );
+	}
 
 	list_set(
 		row_list,
@@ -493,11 +496,14 @@ LIST *balance_sheet_subclass_omit_html_equity_row_list(
 			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
 			balance_sheet_equity->begin_balance ) );
 
-	list_set(
-		row_list,
-		balance_sheet_subclass_omit_html_transaction_amount_row(
-			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
-			balance_sheet_equity->transaction_amount ) );
+	if ( balance_sheet_equity->transaction_amount )
+	{
+		list_set(
+			row_list,
+			balance_sheet_subclass_omit_html_transaction_amount_row(
+				BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+				balance_sheet_equity->transaction_amount ) );
+	}
 
 	list_set(
 		row_list,
@@ -836,11 +842,14 @@ LIST *balance_sheet_subclass_aggr_html_equity_row_list(
 			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
 			balance_sheet_equity->begin_balance ) );
 
-	list_set(
-		row_list,
-		balance_sheet_subclass_aggr_html_transaction_amount_row(
-			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
-			balance_sheet_equity->transaction_amount ) );
+	if ( balance_sheet_equity->transaction_amount )
+	{
+		list_set(
+			row_list,
+			balance_sheet_subclass_aggr_html_transaction_amount_row(
+				BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
+				balance_sheet_equity->transaction_amount ) );
+	}
 
 	list_set(
 		row_list,
@@ -1363,12 +1372,15 @@ LIST *balance_sheet_subclass_display_latex_equity_row_list(
 			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
 			balance_sheet_equity->begin_balance ) );
 
-	list_set(
-		row_list,
-		balance_sheet_subclass_display_latex_transaction_amount_row(
+	if ( balance_sheet_equity->transaction_amount )
+	{
+		list_set(
+		    row_list,
+		    balance_sheet_subclass_display_latex_transaction_amount_row(
 			statement_prior_year_list_length,
 			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
 			balance_sheet_equity->transaction_amount ) );
+	}
 
 	list_set(
 		row_list,
@@ -1858,12 +1870,15 @@ LIST *balance_sheet_subclass_omit_latex_equity_row_list(
 			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
 			balance_sheet_equity->begin_balance ) );
 
-	list_set(
-		row_list,
-		balance_sheet_subclass_omit_latex_transaction_amount_row(
+	if ( balance_sheet_equity->transaction_amount )
+	{
+		list_set(
+		    row_list,
+		    balance_sheet_subclass_omit_latex_transaction_amount_row(
 			statement_prior_year_list_length,
 			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
 			balance_sheet_equity->transaction_amount ) );
+	}
 
 	list_set(
 		row_list,
@@ -2321,12 +2336,15 @@ LIST *balance_sheet_subclass_aggr_latex_equity_row_list(
 			BALANCE_SHEET_BEGIN_BALANCE_LABEL,
 			balance_sheet_equity->begin_balance ) );
 
-	list_set(
-		row_list,
-		balance_sheet_subclass_aggr_latex_transaction_amount_row(
+	if ( balance_sheet_equity->transaction_amount )
+	{
+		list_set(
+		    row_list,
+		    balance_sheet_subclass_aggr_latex_transaction_amount_row(
 			statement_prior_year_list_length,
 			BALANCE_SHEET_TRANSACTION_AMOUNT_LABEL,
 			balance_sheet_equity->transaction_amount ) );
+	}
 
 	list_set(
 		row_list,

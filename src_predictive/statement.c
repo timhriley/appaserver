@@ -1061,33 +1061,20 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_label_row(
 			int statement_prior_year_list_length )
 {
 	LATEX_ROW *latex_row;
-	char column_title[ 128 ];
-	char buffer[ 64 ];
 	int i;
 
-	if ( !subclassification_name )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: subclassification_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !subclassification_name ) return (LATEX_ROW *)0;
 
 	latex_row = latex_row_new();
 
-	sprintf(column_title,
-		"\\bf %s",
-		format_initial_capital(
-			buffer,
-			subclassification_name ) );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( column_title ),
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( subclassification_name ),
 		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
+		1 /* bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1212,7 +1199,6 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
-	char label[ 64 ];
 
 	if ( !element_name )
 	{
@@ -1226,16 +1212,16 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 
 	latex_row = latex_row_new();
 
-	sprintf(label,
-		"%s Element",
-		element_name );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( label ),
+		statement_cell_data_label(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_element_name( element_name ) ),
 		1 /* not large_boolean */,
 		1 /* not bold_boolean */ );
 
@@ -1338,8 +1324,6 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 			int statement_prior_year_list_length )
 {
 	LATEX_ROW *latex_row;
-	char column_title[ 128 ];
-	char buffer[ 64 ];
 	int i;
 
 	if ( !element_name )
@@ -1354,17 +1338,11 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 
 	latex_row = latex_row_new();
 
-	sprintf(column_title,
-		"\\large \\bf %s",
-		format_initial_capital(
-			buffer,
-			element_name ) );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup( column_title ),
-		0 /* not large_boolean */,
-		0 /* not bold_boolean */ );
+		statement_cell_data_label( element_name ),
+		1 /* not large_boolean */,
+		1 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -1406,7 +1384,6 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
-	char label[ 64 ];
 
 	if ( !element_name )
 	{
@@ -1420,16 +1397,16 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 
 	latex_row = latex_row_new();
 
-	sprintf(label,
-		"%s Element",
-		element_name );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( label ),
+		statement_cell_data_label(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_element_name( element_name ) ),
 		1 /* large_boolean */,
 		1 /* bold_boolean */ );
 
@@ -1946,7 +1923,12 @@ STATEMENT_SUBCLASS_DISPLAY_LATEX *
 		list_set(
 		  statement_subclass_display_latex->row_list,
 		  statement_subclass_display_latex_subclassification_label_row(
-			subclassification->subclassification_name,
+			/* -------------------------------------- */
+			/* Returns subclassification_name or null */
+			/* -------------------------------------- */
+			statement_subclass_display_name(
+				element->element_name,
+				subclassification->subclassification_name ),
 			list_length( statement_prior_year_list ) ) );
 
 		list_set_list(
@@ -2207,6 +2189,19 @@ LIST *statement_subclass_omit_latex_list_heading_list(
 	}
 
 	return heading_list;
+}
+
+char *statement_element_name( char *element_name )
+{
+	static char name[ 64 ];
+
+	if ( !element_name ) return (char *)0;
+
+	sprintf(name,
+		"%s element",
+		element_name );
+
+	return name;
 }
 
 char *statement_cell_data_label( char *name )
@@ -2557,7 +2552,6 @@ HTML_ROW *statement_subclass_omit_html_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	HTML_ROW *html_row;
-	char column_title[ 128 ];
 
 	if ( !element_name )
 	{
@@ -2571,16 +2565,16 @@ HTML_ROW *statement_subclass_omit_html_element_sum_row(
 
 	html_row = html_row_new();
 
-	sprintf(column_title,
-		"%s Element",
-		element_name );
-
 	html_cell_data_set(
 		html_row->cell_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( column_title ),
+		statement_cell_data_label(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_element_name( element_name ) ),
 		1 /* large_boolean */,
 		1 /* bold_boolean */ );
 
@@ -2967,7 +2961,6 @@ HTML_ROW *statement_subclass_aggr_html_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	HTML_ROW *html_row;
-	char column_title[ 128 ];
 
 	if ( !element_name )
 	{
@@ -2981,16 +2974,16 @@ HTML_ROW *statement_subclass_aggr_html_element_sum_row(
 
 	html_row = html_row_new();
 
-	sprintf(column_title,
-		"%s Element",
-		element_name );
-
 	html_cell_data_set(
 		html_row->cell_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( column_title ),
+		statement_cell_data_label(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_element_name( element_name ) ),
 		1 /* large_boolean */,
 		1 /* bold_boolean */ );
 
@@ -3428,7 +3421,12 @@ STATEMENT_SUBCLASS_DISPLAY_HTML *
 		list_set(
 		   statement_subclass_display_html->row_list,
 		   statement_subclass_display_html_subclassification_label_row(
-			subclassification->subclassification_name,
+			/* -------------------------------------- */
+			/* Returns subclassification_name or null */
+			/* -------------------------------------- */
+			statement_subclass_display_name(
+				element->element_name,
+				subclassification->subclassification_name ),
 			list_length( statement_prior_year_list ) ) );
 
 		list_set_list(
@@ -3549,15 +3547,7 @@ HTML_ROW *statement_subclass_display_html_subclassification_label_row(
 	HTML_ROW *html_row;
 	int i;
 
-	if ( !subclassification_name )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: subclassification_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !subclassification_name ) return (HTML_ROW *)0;
 
 	html_row = html_row_new();
 
@@ -3693,7 +3683,6 @@ HTML_ROW *statement_subclass_display_html_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	HTML_ROW *html_row;
-	char column_title[ 128 ];
 
 	if ( !element_name )
 	{
@@ -3707,16 +3696,16 @@ HTML_ROW *statement_subclass_display_html_element_sum_row(
 
 	html_row = html_row_new();
 
-	sprintf(column_title,
-		"%s Element",
-		element_name );
-
 	html_cell_data_set(
 		html_row->cell_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( column_title ),
+		statement_cell_data_label(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_element_name( element_name ) ),
 		1 /* large_boolean */,
 		1 /* bold_boolean */ );
 
@@ -4029,7 +4018,6 @@ LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
 			LIST *statement_prior_year_list )
 {
 	LATEX_ROW *latex_row;
-	char label[ 64 ];
 
 	if ( !element_name )
 	{
@@ -4043,16 +4031,16 @@ LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
 
 	latex_row = latex_row_new();
 
-	sprintf(label,
-		"%s Element",
-		element_name );
-
 	latex_column_data_set(
 		latex_row->column_data_list,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
-		statement_cell_data_label( label ),
+		statement_cell_data_label(
+			/* ----------------------------- */
+			/* Returns static memory or null */
+			/* ----------------------------- */
+			statement_element_name( element_name ) ),
 		1 /* not large_boolean */,
 		1 /* not bold_boolean */ );
 
@@ -4290,3 +4278,18 @@ LIST *statement_subclass_aggr_latex_list_extract_row_list(
 	return row_list;
 }
 
+char *statement_subclass_display_name(
+			char *element_name,
+			char *subclassification_name )
+{
+	if ( !element_name )
+		return subclassification_name;
+	else
+	if ( !subclassification_name )
+		return (char *)0;
+	else
+	if ( strcmp( subclassification_name, element_name ) == 0 )
+		return (char *)0;
+	else
+		return subclassification_name;
+}
