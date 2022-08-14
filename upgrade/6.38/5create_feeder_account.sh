@@ -44,7 +44,7 @@ insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down
 delete from $relation where folder = 'feeder_account';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('feeder_account','account','feeder_account',null,null,null,'y',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'feeder_account';
-insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('feeder_account','text','40',null,null,'External accounts like credit card and Pay Pal that feed in transactions.',null,null,null,null);
+insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('feeder_account','text','30',null,null,'External accounts like credit card and Pay Pal that feed in transactions.',null,null,null,null);
 delete from $folder_attribute where folder = 'feeder_account';
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_account','feeder_account','1',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('feeder_account','supervisor','insert');
@@ -58,7 +58,7 @@ all_done
 
 table_name=feeder_account
 echo "drop table if exists $table_name;" | sql.e
-echo "create table $table_name (feeder_account char (40) not null) engine MyISAM;" | sql.e
+echo "create table $table_name (feeder_account char (30) not null) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (feeder_account);" | sql.e
 
 select="account"

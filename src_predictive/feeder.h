@@ -217,7 +217,7 @@ FEEDER_TRANSACTION *feeder_transaction_calloc(
 					"feeder_running_balance,"	\
 					"row_number,"			\
 					"feeder_phrase,"		\
-					"feeder_load_date_time"
+					"feeder_load_date"
 
 typedef struct
 {
@@ -317,7 +317,7 @@ double feeder_load_row_list_sum_amount(
 /* ------ */
 void feeder_load_row_list_insert(
 			char *feeder_account,
-			char *feeder_load_date_time,
+			char *feeder_load_date,
 			LIST *feeder_load_row_list );
 
 /* Process */
@@ -359,7 +359,7 @@ void feeder_load_row_insert(
 			double balance,
 			int row_number,
 			char *feeder_load_row_phrase,
-			char *feeder_load_date_time,
+			char *feeder_load_date,
 			char sql_delimiter );
 
 /* Driver */
@@ -465,46 +465,37 @@ char *feeder_load_file_minimum_date(
 
 typedef struct
 {
-	char *feeder_load_date_time;
+	char *feeder_load_date;
 	char *login_name;
 	char *basename_filename;
 	char *feeder_account;
 	double ending_balance;
-	char *sha256sum;
 } FEEDER_LOAD_EVENT;
 
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_new(
-			char *feeder_load_date_time,
+			char *feeder_load_date,
 			char *login_name,
 			char *feeder_load_file_basename_filename,
 			char *feeder_account,
-			double feeder_load_ending_balance,
-			char *feeder_load_file_sha256sum );
+			double feeder_load_ending_balance );
 
 /* Process */
 /* ------- */
 FEEDER_LOAD_EVENT *feeder_load_event_calloc(
 			void );
 
-/* Public */
-/* ------ */
-boolean feeder_load_event_sha256sum_exists(
-			char *feeder_load_event_table,
-			char *feeder_load_file_sha256sum );
-
 /* Driver */
 /* ------ */
 void feeder_load_event_insert(
 			char *feeder_load_event_table,
 			char *feeder_load_select,
-			char *feeder_load_date_time,
+			char *feeder_load_date_string,
+			char *feeder_account,
 			char *login_name,
 			char *basename_filename,
-			char *sha256sum,
-			char *feeder_account,
-			double ending_balance );
+			double account_end_balance );
 
 /* Process */
 /* ------- */
@@ -541,11 +532,11 @@ typedef struct
 	boolean in_balance_boolean;
 	double ending_balance;
 	FEEDER_LOAD_EVENT *feeder_load_event;
-} FEEDER_LOAD;
+} FEEDER;
 
 /* Usage */
 /* ----- */
-FEEDER_LOAD *feeder_load_new(
+FEEDER*feeder_fetch(
 			char *login_name,
 			char *feeder_account,
 			char *feeder_load_filename,
@@ -559,7 +550,7 @@ FEEDER_LOAD *feeder_load_new(
 
 /* Process */
 /* ------- */
-FEEDER_LOAD *feeder_load_calloc(
+FEEDER *feeder_calloc(
 			void );
 
 boolean feeder_load_row_account_empty(
