@@ -413,8 +413,6 @@ LIST *feeder_load_row_extract_transaction_list(
 typedef struct
 {
 	char *basename_filename;
-	char *sha256sum;
-	boolean feeder_load_event_sha256sum_exists;
 	FILE *file;
 	char input[ 1024 ];
 	LIST *feeder_load_row_list;
