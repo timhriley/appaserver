@@ -342,6 +342,12 @@ char *feeder_load_row_max_system_string(
 
 /* Usage */
 /* ----- */
+void feeder_load_row_balance_set(
+			LIST *feeder_load_row_list,
+			double prior_row_balance );
+
+/* Usage */
+/* ----- */
 FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 			double feeder_load_row_prior_row_balance,
 			LIST *feeder_load_row_list,
@@ -449,11 +455,11 @@ LIST *feeder_load_row_extract_transaction_list(
 typedef struct
 {
 	char *basename_filename;
-	FILE *file;
+	FILE *input_open;
 	char input[ 1024 ];
 	LIST *feeder_load_row_list;
-	int line_number;
 	char *remove_character;
+	int line_number;
 	FEEDER_LOAD_ROW *feeder_load_row;
 } FEEDER_LOAD_FILE;
 
@@ -468,7 +474,7 @@ FEEDER_LOAD_FILE *feeder_load_file_fetch(
 			int debit_column /* one_based */,
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
-			boolean reverse_order,
+			boolean reverse_order_boolean,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list );
@@ -483,7 +489,7 @@ FEEDER_LOAD_FILE *feeder_load_file_calloc(
 char *feeder_load_file_basename_filename(
 			char *feeder_load_filename );
 
-char *feeder_load_file_sha256sum(
+FILE *feeder_load_file_input_open(
 			char *feeder_load_filename );
 
 /* Public */
@@ -496,24 +502,33 @@ char *feeder_load_file_minimum_date(
 			int date_column /* one_based */ );
 
 #define FEEDER_LOAD_EVENT_TABLE		"feeder_load_event"
+#define FEEDER_LOAD_EVENT_INSERT	"feeder_load_date,"	\
+					"feeder_account,"	\
+					"login_name,"		\
+					"feeder_load_filename"
+
+#define FEEDER_LOAD_EVENT_PRIMARY_KEY	"feeder_load_date,"	\
+					"feeder_account"
 
 typedef struct
 {
-	char *feeder_load_date;
+	char *feeder_load_date_string;
+	char *feeder_account;
 	char *login_name;
 	char *basename_filename;
-	char *feeder_account;
-	double ending_balance;
+	char *account_end_date;
+	double account_end_balance;
 } FEEDER_LOAD_EVENT;
 
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_new(
-			char *feeder_load_date,
+			char *feeder_load_date_string,
+			char *feeder_account,
 			char *login_name,
 			char *feeder_load_file_basename_filename,
-			char *feeder_account,
-			double feeder_load_ending_balance );
+			char *feeder_account_end_date,
+			double feeder_account_ending_balance );
 
 /* Process */
 /* ------- */
@@ -524,12 +539,11 @@ FEEDER_LOAD_EVENT *feeder_load_event_calloc(
 /* ------ */
 void feeder_load_event_insert(
 			char *feeder_load_event_table,
-			char *feeder_load_select,
+			char *feeder_load_event_insert,
 			char *feeder_load_date_string,
 			char *feeder_account,
 			char *login_name,
-			char *basename_filename,
-			double account_end_balance );
+			char *basename_filename );
 
 /* Process */
 /* ------- */
@@ -538,18 +552,48 @@ void feeder_load_event_insert(
 /* ------------------- */
 char *feeder_load_event_insert_system_string(
 			char *feeder_load_event_table,
-			char *feeder_load_select,
+			char *feeder_load_event_insert,
 			char sql_delimiter );
 
+FILE *feeder_load_event_insert_open(
+			char *feeder_load_event_insert_system_string );
+
 void feeder_load_event_insert_pipe(
-			FILE *insert_pipe,
+			FILE *insert_open,
 			char sql_delimiter,
-			char *feeder_load_date_time,
-			char *login_name,
-			char *basename_filename,
-			char *sha256sum,
+			char *feeder_load_date_string,
 			char *feeder_account,
-			double ending_balance );
+			char *login_name,
+			char *basename_filename );
+
+/* Driver */
+/* ------ */
+void feeder_load_event_update(
+			char *feeder_load_event_table,
+			char *feeder_load_event_primary_key,
+			char *feeder_load_date_string,
+			char *feeder_account,
+			char *account_end_date,
+			double account_end_balance  );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_event_update_system_string(
+			char *feeder_load_event_table,
+			char *feeder_load_event_primary_key );
+
+FILE *feeder_load_event_update_open(
+			char *feeder_load_event_update_system_string );
+
+void feeder_load_event_update_pipe(
+			FILE *feeder_load_event_update_open,
+			char *feeder_load_date_string,
+			char *feeder_account,
+			char *account_end_date,
+			double account_end_balance );
 
 typedef struct
 {

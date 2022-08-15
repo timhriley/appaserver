@@ -23,32 +23,6 @@
 #include "application_constants.h"
 #include "feeder.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
-/* Returns either file_row_count or table_insert_count */
-/* --------------------------------------------------- */
-int feeder_load(
-			int *transaction_count,
-			char **minimum_bank_date,
-			char *login_name,
-			char *feeder_account,
-			char *input_filename,
-			boolean omit_bank_upload_transaction,
-			boolean reverse_order,
-			int date_piece_offset,
-			int description_piece_offset,
-			int debit_piece_offset,
-			int credit_piece_offset,
-			int balance_piece_offset,
-			boolean execute );
-
-/* Global variables */
-/* ---------------- */
-enum bank_upload_exception bank_upload_exception = {0};
-
 int main( int argc, char **argv )
 {
 	char *application_name;

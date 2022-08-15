@@ -32,7 +32,11 @@ char *piece( char *destination, char delimiter, char *source, int offset )
  
 	*destination = '\0';
 
-	if ( !delimiter ) return (char *)0;
+	if ( !delimiter )
+	{
+		strcpy( destination, source );
+		return destination;
+	}
 
 	if ( delimiter == PIECE_QUOTE_COMMA_DELIMITER_CODE )
 	{
