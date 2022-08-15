@@ -83,7 +83,8 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *feeder_phrase_list(
-			void );
+			char *feeder_phrase_select,
+	 		char *feeder_phrase_table );
 
 /* Process */
 /* ------- */
@@ -93,6 +94,9 @@ LIST *feeder_phrase_list(
 char *feeder_phrase_system_string(
 			char *feeder_phrase_select,
 			char *feeder_phrase_table );
+
+FILE *feeder_phrase_pipe_open(
+			char *feeder_phrase_system_string );
 
 /* Usage */
 /* ----- */
@@ -308,11 +312,43 @@ char *feeder_load_row_description_crop(
 			char *feeder_load_row_description_build,
 			int feeder_description_size );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
+double feeder_load_row_prior_row_balance(
+			char *feeder_load_row_table,
+			char *feeder_account,
+			double account_end_balance,
+			LIST *feeder_load_row_list );
+
+/* Process */
+/* ------- */
+boolean feeder_load_row_account_empty(
+			char *feeder_load_row_table,
+			char *feeder_account );
+
 double feeder_load_row_list_sum_amount(
 			LIST *feeder_load_row_list );
 
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_max_sql_statement(
+			char *feeder_load_row_table,
+			char *feeder_account );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_max_system_string(
+			char *feeder_load_row_max_sql_statement );
+
+/* Usage */
+/* ----- */
+FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
+			double feeder_load_row_prior_row_balance,
+			LIST *feeder_load_row_list,
+			double account_end_balance );
+
+/* Process */
+/* ------- */
 /* Driver */
 /* ------ */
 void feeder_load_row_list_insert(
@@ -522,19 +558,18 @@ typedef struct
 	LIST *feeder_exist_row_list;
 	LIST *feeder_matched_journal_list;
 	DATE *feeder_load_date;
-	char *feeder_load_date_time;
+	char *feeder_load_date_string;
 	FEEDER_LOAD_FILE *feeder_load_file;
-	boolean feeder_load_row_account_empty;
-	double feeder_load_row_list_sum_amount;
-	double prior_running_balance;
-	boolean in_balance_boolean;
-	double ending_balance;
+	double feeder_load_row_prior_row_balance;
+	FEEDER_LOAD_ROW *feeder_load_row_first_out_balance;
+	char *account_end_date;
+	double account_end_balance;
 	FEEDER_LOAD_EVENT *feeder_load_event;
 } FEEDER;
 
 /* Usage */
 /* ----- */
-FEEDER*feeder_fetch(
+FEEDER *feeder_fetch(
 			char *login_name,
 			char *feeder_account,
 			char *feeder_load_filename,
@@ -543,32 +578,21 @@ FEEDER*feeder_fetch(
 			int debit_column /* one_based */,
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
-			boolean reverse_order,
-			double ending_balance );
+			boolean reverse_order_boolean,
+			double account_end_balance );
 
 /* Process */
 /* ------- */
-FEEDER *feeder_calloc(
-			void );
+FEEDER *feeder_calloc(	void );
 
-boolean feeder_load_row_account_empty(
-			char *feeder_load_row_table,
-			char *feeder_account );
+/* Returns this->international_date or null */
+/* ---------------------------------------- */
+char *feeder_account_end_date(
+			FEEDER_LOAD_ROW *last_feeder_load_row );
 
-double feeder_load_fetch_prior_running_balance(
-			char *feeder_load_row_table,
-			char *feeder_account );
-
-void feeder_load_missing_running_balance_set(
-			LIST *feeder_load_row_list,
-			double prior_running_balance );
-
-boolean feeder_load_in_balance_boolean(
-			double feeder_load_prior_running_balance,
-			LIST *feeder_load_row_list,
-			double ending_balance );
-
-double feeder_load_ending_balance(
+/* Returns this->balance or null */
+/* ----------------------------- */
+double feeder_account_end_balance(
 			FEEDER_LOAD_ROW *last_feeder_load_row );
 
 #endif

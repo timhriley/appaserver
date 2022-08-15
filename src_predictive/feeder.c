@@ -23,31 +23,49 @@
 #include "application_constants.h"
 #include "feeder.h"
 
-LIST *feeder_phrase_list( void )
+FILE *feeder_phrase_pipe_open( char *system_string )
+{
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	popen( system_string, "r" );
+}
+
+LIST *feeder_phrase_list(
+			char *feeder_phrase_select,
+			char *feeder_phrase_table )
 {
 	LIST *list;
-	FILE *input_pipe;
+	FILE *pipe_open;
 	char input[ 1024 ];
 
-	input_pipe =
-		popen(
+	pipe_open =
+		feeder_phrase_pipe_open(
+			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			feeder_phrase_system_string(
-				FEEDER_PHRASE_SELECT,
-				FEEDER_PHRASE_TABLE ),
-			"r" );
+				feeder_phrase_select,
+				feeder_phrase_table ) );
 
 	list = list_new();
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, pipe_open, 1024 ) )
 	{
 		list_set(
 			list,
 			feeder_phrase_parse( input ) );
 	}
 
-	pclose( input_pipe );
+	pclose( pipe_open );
 
 	return list;
 }
@@ -833,44 +851,36 @@ FEEDER *feeder_fetch(
 			int debit_column /* one_based */,
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
-			boolean reverse_order,
-			double ending_balance )
+			boolean reverse_order_boolean,
+			double account_end_balance )
 {
 	FEEDER *feeder;
 
 	if ( !login_name
 	||   !feeder_account
+	||   strcmp( feeder_account, "feeder_account" ) == 0
 	||   !feeder_load_filename
 	||   !date_column
 	||   !description_column
 	||   !debit_column )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( strcmp( feeder_account, "feeder_account" ) == 0 )
 	{
 		return (FEEDER *)0;
 	}
 
 	feeder = feeder_calloc();
 
-	feeder->feeder_phrase_list = feeder_phrase_list();
+	feeder->feeder_phrase_list =
+		feeder_phrase_list(
+			FEEDER_PHRASE_SELECT,
+			FEEDER_PHRASE_TABLE );
 
-	feeder->feeder_load_file_minimum_date =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		feeder_load_file_minimum_date(
-			feeder_load_filename,
-			date_column /* one_based */ );
-
-	if ( feeder->feeder_load_file_minimum_date )
+	if ( ! ( feeder->feeder_load_file_minimum_date =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			feeder_load_file_minimum_date(
+				feeder_load_filename,
+				date_column /* one_based */ ) ) )
 	{
 		free( feeder );
 		return (FEEDER *)0;
@@ -889,11 +899,11 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_load_date = date_now_new( date_utc_offset() );
 
-	feeder->feeder_load_date_time =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		date_display_19(
+	feeder->feeder_load_date_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		date_yyyy_mm_dd(
 			feeder->feeder_load_date );
 
 	feeder->feeder_load_file =
@@ -906,7 +916,7 @@ FEEDER *feeder_fetch(
 			debit_column,
 			credit_column,
 			balance_column,
-			reverse_order,
+			reverse_order_boolean,
 			feeder->feeder_phrase_list,
 			feeder->feeder_exist_row_list,
 			feeder->feeder_matched_journal_list );
@@ -917,76 +927,58 @@ FEEDER *feeder_fetch(
 			feeder_load_file->
 			feeder_load_row_list ) )
 	{
-		fprintf(stderr,
-	"ERROR in %s/%s()/%d: feeder_load_file_fetch() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return (FEEDER *)0;
 	}
 
-	feeder->feeder_load_row_account_empty =
-		feeder_load_row_account_empty(
+	feeder->feeder_load_row_prior_row_balance =
+		feeder_load_row_prior_row_balance(
 			FEEDER_LOAD_ROW_TABLE,
-			feeder_account );
-
-	if ( feeder->feeder_load_row_account_empty )
-	{
-		if ( !ending_balance )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: ending_balance is empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		feeder->feeder_load_row_list_sum_amount =
-			feeder_load_row_list_sum_amount(
-				feeder->
-					feeder_load_file->
-					feeder_load_row_list );
-
-		feeder->prior_running_balance =
-			ending_balance -
-			feeder_load->feeder_load_row_list_sum_amount;
-	}
-	else
-	{
-		feeder->prior_running_balance =
-			feeder_load_fetch_prior_running_balance(
-				FEEDER_LOAD_ROW_TABLE,
-				feeder_account );
-	}
+			feeder_account,
+			account_end_balance,
+			feeder->feeder_load_file->feeder_load_row_list );
 
 	if ( !balance_column )
 	{
-		feeder_load_missing_running_balance_set(
+		feeder_load_row_balance_set(
 			feeder->feeder_load_file->feeder_load_row_list,
-			feeder->prior_running_balance );
+			feeder->feeder_load_row_prior_row_balance );
 	}
 
-	feeder->in_balance_boolean =
-		feeder_load_in_balance_boolean(
-			feeder->prior_running_balance,
+	feeder->feeder_load_row_first_out_balance =
+		feeder_load_row_first_out_balance(
+			feeder->feeder_load_row_prior_row_balance,
 			feeder->feeder_load_file->feeder_load_row_list,
-			ending_balance );
+			account_end_balance );
 
-	feeder->ending_balance =
-		feeder_load_ending_balance(
-			(FEEDER_LOAD_ROW *)list_last(
-			feeder->feeder_load_file->feeder_load_row_list )
-				/* last_feeder_load_row */ );
+	if ( !feeder->feeder_load_row_first_out_balance )
+	{
+		feeder->account_end_date =
+			/* ---------------------------------------- */
+			/* Returns this->international_date or null */
+			/* ---------------------------------------- */
+			feeder_account_end_date(
+				(FEEDER_LOAD_ROW *)list_last(
+				feeder->feeder_load_file->feeder_load_row_list )
+					/* last_feeder_load_row */ );
 
-	feeder->feeder_load_event =
-		feeder_load_event_new(
-			feeder->feeder_load_date_time,
-			login_name,
-			feeder_account,
-			feeder->feeder_load_file->basename_filename,
-			feeder->ending_balance,
-			feeder->feeder_load_file->sha256sum );
+		feeder->account_end_balance =
+			/* ----------------------------- */
+			/* Returns this->balance or null */
+			/* ----------------------------- */
+			feeder_account_end_balance(
+				(FEEDER_LOAD_ROW *)list_last(
+				feeder->feeder_load_file->feeder_load_row_list )
+					/* last_feeder_load_row */ );
+
+		feeder->feeder_load_event =
+			feeder_load_event_new(
+				feeder->feeder_load_date_time,
+				login_name,
+				feeder_account,
+				feeder->feeder_load_file->basename_filename,
+				feeder->account_end_date,
+				feeder->account_end_balance );
+	}
 
 	return feeder_load;
 }
@@ -2183,13 +2175,44 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 	return feeder_transaction;
 }
 
-double feeder_load_fetch_prior_running_balance(
+double feeder_load_row_prior_row_balance(
+			char *feeder_load_row_table,
+			char *feeder_account,
+			double account_end_balance,
+			LIST *feeder_load_row_list )
+{
+	if ( feeder_load_row_account_empty(
+		feeder_load_row_table,
+		feeder_account ) )
+	{
+		return
+		account_end_balance -
+		feeder_load_row_list_sum_amount(
+			feeder_load_row_list );
+	}
+	else
+	{
+		return
+		atof(
+			string_pipe(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				feeder_load_row_max_system_string(
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					feeder_load_row_max_sql_statement(
+						feeder_load_row_table,
+						feeder_account ) ) ) );
+	}
+}
+
+char *feeder_load_row_max_sql_statement(
 			char *feeder_load_row_table,
 			char *feeder_account )
 {
-	char sql_statement[ 256 ];
-	char system_string[ 512 ];
-	char *results;
+	char sql_statement[ 1024 ];
 
 	if ( !feeder_load_row_table
 	||   !feeder_account )
@@ -2203,7 +2226,7 @@ double feeder_load_fetch_prior_running_balance(
 	}
 
 	sprintf(sql_statement,
-		"select feeder_running_balance			"
+		"select feeder_row_balance			"
 		"from %s					"
 		"where transaction_date_time =			"
 		"(select max( transaction_date_time )		"
@@ -2215,29 +2238,33 @@ double feeder_load_fetch_prior_running_balance(
 		feeder_account,
 		feeder_account );
 
+	return strdup( sql_statement );
+}
+
+char *feeder_load_row_max_system_string( char *sql_statement )
+{
+	char system_string[ 1024 ];
+
+	if ( !sql_statement )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(system_string,
 		"echo \"%s\" | sql",
 		sql_statement );
 
-	results = pipe2string( system_string );
-
-	if ( !results )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: pipe2string(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			system_string );
-		exit( 1 );
-	}
-
-	return atof( results );
+	return strdup( system_string );
 }
 
-void feeder_load_missing_running_balance_set(
+void feeder_load_row_balance_set(
 			LIST *feeder_load_row_list,
-			double prior_running_balance )
+			double prior_row_balance )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
 
@@ -2254,22 +2281,23 @@ void feeder_load_missing_running_balance_set(
 		}
 
 		feeder_load_row->balance =
-			prior_running_balance +
+			prior_row_balance +
 			feeder_load_row->amount;
 
-		prior_running_balance = feeder_load_row->balance;
+		prior_row_balance = feeder_load_row->balance;
 
 	} while ( list_next( feeder_load_row_list ) );
 }
 
-boolean feeder_load_in_balance_boolean(
-			double prior_running_balance,
+FEEDER_LOAD_ROW feeder_load_row_first_out_balance(
+			double prior_row_balance,
 			LIST *feeder_load_row_list,
-			double ending_balance )
+			double account_end_balance )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
 
-	if ( !list_rewind( feeder_load_row_list ) ) return 0;
+	if ( !list_rewind( feeder_load_row_list ) )
+		return (FEEDER_LOAD_ROW *)0;
 
 	do {
 		feeder_load_row = list_get( feeder_load_row_list );
@@ -2278,28 +2306,28 @@ boolean feeder_load_in_balance_boolean(
 		&&   !feeder_load_row->feeder_matched_journal
 		&&   !feeder_load_row->feeder_phrase_seek )
 		{
-			return 0;
+			return feeder_load_row;
 		}
 
 		if (	feeder_load_row->balance !=
-			prior_running_balance + feeder_load_row->amount )
+			prior_row_balance + feeder_load_row->amount )
 		{
-			return 0;
+			return feeder_load_row;
 		}
 
-		prior_running_balance = feeder_load_row->balance;
+		prior_row_balance = feeder_load_row->balance;
 
 	} while ( list_next( feeder_load_row_list ) );
 
-	if ( ending_balance )
+	if ( account_end_balance )
 	{
-		if ( ending_balance != prior_running_balance )
+		if ( account_end_balance != prior_row_balance )
 		{
-			return 0;
+			return feeder_load_row;
 		}
 	}
 
-	return 1;
+	return (FEEDER_LOAD_ROW *)0;
 }
 
 double feeder_load_ending_balance(
@@ -2408,5 +2436,22 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
 		journal->transaction->check_number;
 
 	return feeder_matched_journal;
+}
+
+char *feeder_account_end_date( FEEDER_LOAD_ROW *last_feeder_load_row )
+{
+	if ( !last_feeder_load_row )
+		return (char *)0;
+	else
+		return last_feeder_load_row->international_date;
+}
+
+double feeder_account_end_balance(
+			FEEDER_LOAD_ROW *last_feeder_load_row )
+{
+	if ( !last_feeder_load_row )
+		return (char *)0;
+	else
+		return last_feeder_load_row->balance;
 }
 

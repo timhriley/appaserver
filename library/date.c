@@ -1259,8 +1259,6 @@ DATE *date_increment_days(	DATE *d,
 	return d;
 }
 
-/* Returns static memory */
-/* --------------------- */
 char *date_yyyy_mm_dd( DATE *date )
 {
 	static char destination[ 16 ];

@@ -120,6 +120,8 @@ int age(			char *birth_date );
 void add_slashes_maybe(		char *d,
 				char *s );
 
+/* Returns static memory */
+/* --------------------- */
 char *date_yyyy_mm_dd(		DATE *date );
 
 char *date_get_yyyy_mm_dd(	char *destination,
