@@ -139,8 +139,7 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( execute_boolean
-	&&   feeder->feeder_load_event )
+	if ( execute_boolean && feeder->feeder_load_event )
 	{
 		feeder_load_row_list_insert(
 			feeder_account,
@@ -158,6 +157,22 @@ int main( int argc, char **argv )
 			appaserver_error_get_filename(
 				application_name )  );
 
+		feeder_load_event_insert(
+			FEEDER_LOAD_EVENT_TABLE,
+			FEEDER_LOAD_EVENT_INSERT,
+			feeder->feeder_load_event->feeder_load_date_string,
+			feeder->feeder_load_event->feeder_account,
+			feeder->feeder_load_event->login_name,
+			feeder->feeder_load_event->basename_filename );
+
+		feeder_load_event_update(
+			FEEDER_LOAD_EVENT_TABLE,
+			FEEDER_LOAD_EVENT_PRIMARY_KEY,
+			feeder->feeder_load_event->feeder_load_date_string,
+			feeder->feeder_load_event->feeder_account,
+			feeder->account_end_date,
+			feeder->account_end_balance  );
+
 		process_increment_execution_count(
 			application_name,
 			process_name,
@@ -165,10 +180,20 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		feeder_load_row_list_display(
+		printf( "<h1>Error Transactions</h1>\n" );
+		fflush( stdout );
+		feeder_load_row_error_display(
 			feeder->
 				feeder_load_file->
 				feeder_load_row_list );
+
+		printf( "<h1>All Transactions</h1>\n" );
+		fflush( stdout );
+		feeder_load_row_list_display(
+			feeder->
+				feeder_load_file->
+				feeder_load_row_list,
+			feeder->feeder_load_row_first_out_balance );
 	}
 
 	document_close();

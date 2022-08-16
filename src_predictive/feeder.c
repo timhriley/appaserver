@@ -1155,35 +1155,32 @@ FEEDER *feeder_fetch(
 			feeder->feeder_load_file->feeder_load_row_list,
 			account_end_balance );
 
-	if ( !feeder->feeder_load_row_first_out_balance )
-	{
-		feeder->account_end_date =
-			/* ---------------------------------------- */
-			/* Returns this->international_date or null */
-			/* ---------------------------------------- */
-			feeder_account_end_date(
-				(FEEDER_LOAD_ROW *)list_last(
-				feeder->feeder_load_file->feeder_load_row_list )
-					/* last_feeder_load_row */ );
+	feeder->account_end_date =
+		/* ---------------------------------------- */
+		/* Returns this->international_date or null */
+		/* ---------------------------------------- */
+		feeder_account_end_date(
+			(FEEDER_LOAD_ROW *)list_last(
+			feeder->feeder_load_file->feeder_load_row_list )
+				/* last_feeder_load_row */ );
 
-		feeder->account_end_balance =
-			/* ----------------------------- */
-			/* Returns this->balance or null */
-			/* ----------------------------- */
-			feeder_account_end_balance(
-				(FEEDER_LOAD_ROW *)list_last(
-				feeder->feeder_load_file->feeder_load_row_list )
-					/* last_feeder_load_row */ );
+	feeder->account_end_balance =
+		/* ----------------------------- */
+		/* Returns this->balance or null */
+		/* ----------------------------- */
+		feeder_account_end_balance(
+			(FEEDER_LOAD_ROW *)list_last(
+			feeder->feeder_load_file->feeder_load_row_list )
+				/* last_feeder_load_row */ );
 
-		feeder->feeder_load_event =
-			feeder_load_event_new(
-				feeder->feeder_load_date_string,
-				feeder_account,
-				login_name,
-				feeder->feeder_load_file->basename_filename,
-				feeder->account_end_date,
-				feeder->account_end_balance );
-	}
+	feeder->feeder_load_event =
+		feeder_load_event_new(
+			feeder->feeder_load_date_string,
+			feeder_account,
+			login_name,
+			feeder->feeder_load_file->basename_filename,
+			feeder->account_end_date,
+			feeder->account_end_balance );
 
 	return feeder;
 }
@@ -2010,7 +2007,8 @@ char *feeder_load_row_list_display_system_string( void )
 }
 
 void feeder_load_row_list_display(
-			LIST *feeder_load_row_list )
+			LIST *feeder_load_row_list,
+			FEEDER_LOAD_ROW *feeder_load_row_first_out_balance )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
 	FILE *display_pipe;
@@ -2037,6 +2035,17 @@ void feeder_load_row_list_display(
 
 	do {
 		feeder_load_row = list_get( feeder_load_row_list );
+
+		if ( feeder_load_row == feeder_load_row_first_out_balance )
+		{
+			fflush( stdout );
+			printf( "%s\n",
+				/* ---------------------- */
+				/* Returns program memory */
+				/* ---------------------- */
+				feeder_load_row_no_more() );
+			fflush( stdout );
+		}
 
 		display_pipe =
 			/* ---------------------------- */
@@ -2518,7 +2527,7 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 		if (	feeder_load_row->balance !=
 			prior_row_balance + feeder_load_row->amount )
 		{
-			return feeder_load_row;
+			/* return feeder_load_row; */
 		}
 
 		prior_row_balance = feeder_load_row->balance;
@@ -2529,7 +2538,7 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 	{
 		if ( account_end_balance != prior_row_balance )
 		{
-			return feeder_load_row;
+			/* return feeder_load_row; */
 		}
 	}
 
@@ -2736,5 +2745,50 @@ char *feeder_matched_journal_minimum_date(
 	/* ------------------------- */
 	return
 	date_display_yyyy_mm_dd( date );
+}
+
+void feeder_load_row_error_display(
+			LIST *feeder_load_row_list )
+{
+	feeder_load_row_list_display(
+		feeder_load_row_error_extract_list(
+			feeder_load_row_list ),
+		(FEEDER_LOAD_ROW *)0 );
+}
+
+LIST *feeder_load_row_error_extract_list(
+			LIST *feeder_load_row_list )
+{
+	LIST *extract_list = {0};
+	FEEDER_LOAD_ROW *feeder_load_row;
+
+	if ( !list_rewind( feeder_load_row_list ) )
+		return (LIST *)0;
+
+	do {
+		feeder_load_row =
+			list_get(
+				feeder_load_row_list );
+
+		if ( !feeder_load_row->feeder_exist_row_seek
+		&&   !feeder_load_row->feeder_matched_journal
+		&&   !feeder_load_row->feeder_phrase_seek )
+		{
+			if ( !extract_list ) extract_list = list_new();
+
+			list_set(
+				extract_list,
+				feeder_load_row );
+		}
+	} while ( list_next( feeder_load_row_list ) );
+
+	return extract_list;
+}
+
+char *feeder_load_row_no_more( void )
+{
+	return
+	"<h1>^^^^^^^^^^^^^^^^^^</h1>\n"
+	"<h1>Will stop loading.</h1>\n";
 }
 

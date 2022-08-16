@@ -374,6 +374,59 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 
 /* Driver */
 /* ------ */
+void feeder_load_row_error_display(
+			LIST *feeder_load_row_list );
+
+/* Process */
+/* ------- */
+LIST *feeder_load_row_error_extract_list(
+			LIST *feeder_load_row_list );
+
+/* Driver */
+/* ------ */
+void feeder_load_row_list_display(
+			LIST *feeder_load_row_list,
+			FEEDER_LOAD_ROW *feeder_load_row_first_out_balance );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_list_display_system_string(
+			void );
+
+/* Always succeeds */
+/* --------------- */
+FILE *feeder_load_row_list_display_pipe(
+			char *system_string );
+
+/* Returns program memory */
+/* ---------------------- */
+char *feeder_load_row_no_more(
+			void );
+
+/* Usage */
+/* ----- */
+
+/* Returns display_pipe or null */
+/* ---------------------------- */
+FILE *feeder_load_row_display_output(
+			FILE *display_pipe,
+			FEEDER_LOAD_ROW *feeder_load_row );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_display_results(
+			FEEDER_EXIST_ROW *feeder_exist_row_seek,
+			FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
+			FEEDER_PHRASE *feeder_phrase_seek );
+
+/* Driver */
+/* ------ */
 void feeder_load_row_list_insert(
 			char *feeder_account,
 			char *feeder_load_date_string,
@@ -420,43 +473,6 @@ void feeder_load_row_insert_pipe(
 			char *feeder_load_row_phrase,
 			char *feeder_load_date,
 			char sql_delimiter );
-
-/* Driver */
-/* ------ */
-void feeder_load_row_list_display(
-			LIST *feeder_load_row_list );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_list_display_system_string(
-			void );
-
-/* Always succeeds */
-/* --------------- */
-FILE *feeder_load_row_list_display_pipe(
-			char *system_string );
-
-/* Usage */
-/* ----- */
-
-/* Returns display_pipe or null */
-/* ---------------------------- */
-FILE *feeder_load_row_display_output(
-			FILE *display_pipe,
-			FEEDER_LOAD_ROW *feeder_load_row );
-
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_display_results(
-			FEEDER_EXIST_ROW *feeder_exist_row_seek,
-			FEEDER_MATCHED_JOURNAL *feeder_matched_journal,
-			FEEDER_PHRASE *feeder_phrase_seek );
 
 /* Driver */
 /* ------ */
