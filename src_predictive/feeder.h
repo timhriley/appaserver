@@ -14,8 +14,8 @@
 #include "transaction.h"
 #include "journal.h"
 
-#define FEEDER_LOAD_TRANSACTION_MONTHS_AGO			\
-					"feeder_load_transaction_months_ago"
+#define FEEDER_LOAD_TRANSACTION_DAYS_AGO			\
+					"feeder_load_transaction_days_ago"
 
 #define FEEDER_DESCRIPTION_SIZE		140
 
@@ -51,6 +51,9 @@ char *feeder_exist_row_system_string(
 			char *feeder_exist_row_select,
 			char *feeder_load_row_table,
 			char *feeder_exist_row_where );
+
+FILE *feeder_exist_row_input_open(
+			char *feeder_exist_row_system_string );
 
 FEEDER_EXIST_ROW *feeder_exist_row_parse(
 			char *input );
@@ -163,14 +166,14 @@ char *feeder_matched_journal_subquery(
 			char *feeder_load_row_table,
 			char *feeder_load_file_minimum_date );
 
-int feeder_matched_journal_months_ago(
-			char *feeder_load_transaction_months_ago );
+int feeder_matched_journal_days_ago(
+			char *feeder_load_transaction_days_ago );
 
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_matched_journal_minimum_date(
 			char *feeder_load_file_minimum_date,
-			int feeder_matched_journal_months_ago );
+			int feeder_matched_journal_days_ago );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -187,6 +190,9 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new(
 
 /* Process */
 /* ------- */
+FEEDER_MATCHED_JOURNAL *feeder_matched_journal_calloc(
+			void );
+
 double feeder_matched_journal_amount(
 			double debit_amount,
 			double credit_amount );
@@ -203,6 +209,19 @@ FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_amount_seek(
 			double amount,
 			LIST *feeder_matched_journal_list );
+
+/* Driver */
+/* ------ */
+void feeder_matched_journal_not_taken_display(
+			LIST *feeder_matched_journal_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_matched_journal_not_taken_system_string(
+			void );
 
 typedef struct
 {

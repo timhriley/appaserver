@@ -1430,8 +1430,8 @@ LIST *feeder_matched_journal_list(
 			/* ------------------- */
 			feeder_matched_journal_minimum_date(
 				feeder_load_file_minimum_date,
-				feeder_matched_journal_months_ago(
-				       FEEDER_LOAD_TRANSACTION_MONTHS_AGO ) ) );
+				feeder_matched_journal_days_ago(
+				       FEEDER_LOAD_TRANSACTION_DAYS_AGO ) ) );
 
 	system_list =
 		journal_system_list(
@@ -1785,12 +1785,29 @@ char *feeder_load_row_transaction_date_time(
 	return strdup( transaction_date_time );
 }
 
+FILE *feeder_exist_row_input_open(
+			char *feeder_exist_row_system_string )
+{
+	if ( !feeder_exist_row_system_string )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: feeder_exist_row_system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	popen( feeder_exist_row_system_string, "r" );
+}
+
 LIST *feeder_exist_row_list(
 			char *feeder_account,
 			char *feeder_load_file_minimum_date )
 {
 	LIST *list;
-	FILE *pipe;
+	FILE *input_open;
 	char input[ 1024 ];
 
 	if ( !feeder_account
@@ -1806,8 +1823,9 @@ LIST *feeder_exist_row_list(
 
 	list = list_new();
 
-	pipe =
-		popen(
+	input_open =
+		feeder_exist_row_input_open(
+			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			feeder_exist_row_system_string(
@@ -1818,17 +1836,16 @@ LIST *feeder_exist_row_list(
 				/* --------------------- */
 				feeder_exist_row_where(
 					feeder_account,
-					feeder_load_file_minimum_date ) ),
-				"r" );
+					feeder_load_file_minimum_date ) ) );
 
-	while ( string_input( input, pipe, 1024 ) )
+	while ( string_input( input, input_open, 1024 ) )
 	{
 		list_set(
 			list,
 			feeder_exist_row_parse( input ) );
 	}
 
-	pclose( pipe );
+	pclose( input_open );
 
 	return list;
 }
@@ -2216,16 +2233,18 @@ char *feeder_load_row_display_results(
 		if ( feeder_matched_journal->check_number )
 		{
 			sprintf(buffer,
-				"Matched check# %d/%s",
+				"Matched check# %d/%s/%s",
 				feeder_matched_journal->check_number,
-				feeder_matched_journal->full_name );
+				feeder_matched_journal->full_name,
+				feeder_matched_journal->transaction_date_time );
 		}
 		else
 		{
 			sprintf(buffer,
-				"Matched amount: %.2lf/%s",
+				"Matched amount: %.2lf/%s/%s",
 				feeder_matched_journal->amount,
-				feeder_matched_journal->full_name );
+				feeder_matched_journal->full_name,
+				feeder_matched_journal->transaction_date_time );
 		}
 	}
 	else
@@ -2647,6 +2666,11 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
 
 	feeder_matched_journal = feeder_matched_journal_calloc();
 
+	feeder_matched_journal->amount =
+		feeder_matched_journal_amount(
+			journal->debit_amount,
+			journal->credit_amount );
+
 	feeder_matched_journal->full_name = journal->full_name;
 	feeder_matched_journal->street_address = journal->street_address;
 
@@ -2661,6 +2685,16 @@ FEEDER_MATCHED_JOURNAL *feeder_matched_journal_new( JOURNAL *journal )
 		journal->transaction->check_number;
 
 	return feeder_matched_journal;
+}
+
+double feeder_matched_journal_amount(
+			double debit_amount,
+			double credit_amount )
+{
+	if ( debit_amount )
+		return debit_amount;
+	else
+		return 0.0 - credit_amount;
 }
 
 char *feeder_account_end_date( FEEDER_LOAD_ROW *last_feeder_load_row )
@@ -2680,12 +2714,12 @@ double feeder_account_end_balance(
 		return last_feeder_load_row->balance;
 }
 
-int feeder_matched_journal_months_ago(
-			char *feeder_load_transaction_months_ago )
+int feeder_matched_journal_days_ago(
+			char *feeder_load_transaction_days_ago )
 {
-	char *months_ago_string;
+	char *days_ago_string;
 
-	if ( !feeder_load_transaction_months_ago )
+	if ( !feeder_load_transaction_days_ago )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -2695,25 +2729,25 @@ int feeder_matched_journal_months_ago(
 		exit( 1 );
 	}
 
-	months_ago_string =
+	days_ago_string =
 		application_constants_quick_fetch(
 			environment_application_name(),
-			feeder_load_transaction_months_ago );
+			feeder_load_transaction_days_ago );
 
-	if ( !months_ago_string )
+	if ( !days_ago_string )
 		return 6;
 	else
-		return atoi( months_ago_string );
+		return atoi( days_ago_string );
 }
 
 char *feeder_matched_journal_minimum_date(
 			char *feeder_load_file_minimum_date,
-			int feeder_match_journal_months_ago )
+			int feeder_match_journal_days_ago )
 {
 	DATE *date;
 
 	if ( !feeder_load_file_minimum_date
-	||   !feeder_match_journal_months_ago )
+	||   !feeder_match_journal_days_ago )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -2737,9 +2771,9 @@ char *feeder_matched_journal_minimum_date(
 	}
 
 	date =
-		date_increment_months(
+		date_decrement_days(
 			date,
-			-feeder_match_journal_months_ago );
+			(double)feeder_match_journal_days_ago );
 
 	/* Returns heap memory or "" */
 	/* ------------------------- */
@@ -2790,5 +2824,67 @@ char *feeder_load_row_no_more( void )
 	return
 	"<h1>^^^^^^^^^^^^^^^^^^</h1>\n"
 	"<h1>Will stop loading.</h1>\n";
+}
+
+char *feeder_matched_journal_not_taken_system_string( void )
+{
+	char system_string[ 1024 ];
+	char *heading;
+
+	heading = "Name,Transaction date/time,debit,credit";
+
+	sprintf(system_string,
+		"html_table.e '%s' '%s' '^' left,left,right,right",
+		"Journal Not Taken",
+		heading );
+
+	return strdup( system_string );
+}
+
+void feeder_matched_journal_not_taken_display(
+			LIST *feeder_matched_journal_list )
+{
+	FILE *output_pipe;
+	FEEDER_MATCHED_JOURNAL *feeder_matched_journal;
+
+	if ( !list_rewind( feeder_matched_journal_list ) ) return;
+
+	output_pipe =
+		popen(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_matched_journal_not_taken_system_string(),
+			"w" );
+
+	do {
+		feeder_matched_journal =
+			list_get(
+				feeder_matched_journal_list );
+
+		if ( feeder_matched_journal->taken ) continue;
+
+		fprintf(output_pipe,
+			"%s^%s^%s^%s\n",
+			feeder_matched_journal->full_name,
+			feeder_matched_journal->transaction_date_time,
+			(feeder_matched_journal->debit_amount)
+				? /* --------------------- */
+				  /* Returns static memory */
+				  /* --------------------- */
+				  timlib_place_commas_in_money(
+					feeder_matched_journal->debit_amount )
+				: "",
+			(feeder_matched_journal->credit_amount)
+				? /* --------------------- */
+				  /* Returns static memory */
+				  /* --------------------- */
+				  timlib_place_commas_in_money(
+					feeder_matched_journal->credit_amount )
+				: "" );
+
+	} while ( list_next( feeder_matched_journal_list ) );
+
+	pclose( output_pipe );
 }
 

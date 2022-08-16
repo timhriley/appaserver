@@ -180,13 +180,18 @@ int main( int argc, char **argv )
 	}
 	else
 	{
-		printf( "<h1>Error Transactions</h1>\n" );
+		printf( "<h1>No Transactions</h1>\n" );
 		fflush( stdout );
 		feeder_load_row_error_display(
 			feeder->
 				feeder_load_file->
 				feeder_load_row_list );
 
+		fflush( stdout );
+		feeder_matched_journal_not_taken_display(
+			feeder->feeder_matched_journal_list );
+		fflush( stdout );
+				
 		printf( "<h1>All Transactions</h1>\n" );
 		fflush( stdout );
 		feeder_load_row_list_display(
