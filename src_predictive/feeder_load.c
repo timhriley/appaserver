@@ -29,24 +29,17 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *feeder_account;
-	char *input_filename;
-	char *date_column_string;
-	char *description_column_string;
-	char *debit_column_string;
-	char *credit_column_string;
-	char *balance_column_string;
-	int date_piece_offset;
-	int description_piece_offset;
-	int debit_piece_offset;
-	int credit_piece_offset;
-	int balance_piece_offset;
-	boolean reverse_order;
-	double bank_closing_balance;
-	boolean execute;
+	char *feeder_load_filename;
+	int date_column;
+	int description_column;
+	int debit_column;
+	int credit_column;
+	int balance_column;
+	boolean reverse_order_boolean;
+	double account_end_balance;
+	boolean execute_boolean;
+	FEEDER *feeder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	int load_count = 0;
-	int transaction_count = 0;
-	char *minimum_bank_date = {0};
 	char buffer[ 128 ];
 
 	/* Exits if not found. */
@@ -73,68 +66,15 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
 	feeder_account = argv[ 3 ];
-	input_filename = argv[ 4 ];
-	date_column_string = argv[ 5 ];
-	description_column_string = argv[ 6 ];
-	debit_column_string = argv[ 7 ];
-	credit_column_string = argv[ 8 ];
-	balance_column_string = argv[ 9 ];
-	reverse_order = (*argv[ 10 ] == 'y' );
-	bank_closing_balance = atof( argv[ 11 ] );
-	execute = (*argv[ 12 ] == 'y');
-
-	if ( *date_column_string
-	&&   strcmp( date_column_string, "date_column" ) != 0 )
-	{
-		date_piece_offset = atoi( date_column_string ) - 1;
-	}
-	else
-	{
-		date_piece_offset = 0;
-	}
-
-	if ( *description_column_string
-	&&   strcmp( description_column_string, "description_column" ) != 0 )
-	{
-		description_piece_offset =
-			atoi( description_column_string ) - 1;
-	}
-	else
-	{
-		description_piece_offset = 1;
-	}
-
-	if ( *debit_column_string
-	&&   strcmp( debit_column_string, "debit_column" ) != 0 )
-	{
-		debit_piece_offset = atoi( debit_column_string ) - 1;
-	}
-	else
-	{
-		debit_piece_offset = 2;
-	}
-
-	if ( *credit_column_string
-	&&   strcmp( credit_column_string, "credit_column" ) != 0 )
-	{
-		credit_piece_offset = atoi( credit_column_string ) - 1;
-	}
-	else
-	{
-		/* The same as debit_piece_offset */
-		/* ------------------------------ */
-		credit_piece_offset = 2;
-	}
-
-	if ( *balance_column_string
-	&&   strcmp( balance_column_string, "balance_column" ) != 0 )
-	{
-		balance_piece_offset = atoi( balance_column_string ) - 1;
-	}
-	else
-	{
-		balance_piece_offset = 3;
-	}
+	feeder_load_filename = argv[ 4 ];
+	date_column = atoi( argv[ 5 ] );
+	description_column = atoi( argv[ 6 ] );
+	debit_column = atoi( argv[ 7 ] );
+	credit_column = atoi( argv[ 8 ] );
+	balance_column = atoi( argv[ 9 ] );
+	reverse_order_boolean = (*argv[ 10 ] == 'y' );
+	account_end_balance = atof( argv[ 11 ] );
+	execute_boolean = (*argv[ 12 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -152,7 +92,8 @@ int main( int argc, char **argv )
 	printf( "</h1>\n" );
 	fflush( stdout );
 
-	if ( !*input_filename || strcmp( input_filename, "filename" ) == 0 )
+	if ( !*feeder_load_filename
+	||   strcmp( feeder_load_filename, "filename" ) == 0 )
 	{
 		printf( "<h3>Please transmit a file.</h3>\n" );
 		document_close();
@@ -167,257 +108,71 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	load_count =
-		load_bank_spreadsheet(
-			&transaction_count,
-			&minimum_bank_date,
+	feeder =
+		feeder_fetch(
 			login_name,
-			fund_name,
 			feeder_account,
-			input_filename,
-			omit_bank_upload_transaction,
-			reverse_order,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset,
-			execute );
+			feeder_load_filename,
+			date_column,
+			description_column,
+			debit_column,
+			credit_column,
+			balance_column,
+			reverse_order_boolean,
+			account_end_balance );
 
-	if ( !minimum_bank_date || !*minimum_bank_date )
+	if ( !feeder )
 	{
 		printf(
-		"<h3>Error: could not fetch the minimum bank date.</h3>\n" );
+		"<h3>Error: could not parse the input file.</h3>\n" );
 		document_close();
 		exit( 1 );
 	}
 
-	if ( execute )
+	if ( !feeder->feeder_load_file )
 	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: feeder_fetch() returned incomplete.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( execute_boolean
+	&&   feeder->feeder_load_event )
+	{
+		feeder_load_row_list_insert(
+			feeder_account,
+			feeder->
+				feeder_load_event->
+				feeder_load_date_string,
+			feeder->
+				feeder_load_file->
+				feeder_load_row_list );
+
+		feeder_load_row_transaction_insert(
+			feeder->
+				feeder_load_file->
+				feeder_load_row_list,
+			appaserver_error_get_filename(
+				application_name )  );
+
 		process_increment_execution_count(
 			application_name,
 			process_name,
 			appaserver_parameter_file_get_dbms() );
-
-		printf(
-	"<p>Process complete with %d rows and %d transactions.\n",
-			load_count,
-			transaction_count );
 	}
 	else
 	{
-		printf(
-		"<p>Process did not load %d rows nor %d transactions.\n",
-			load_count,
-			transaction_count );
+		feeder_load_row_list_display(
+			feeder->
+				feeder_load_file->
+				feeder_load_row_list );
 	}
 
 	document_close();
 
 	exit( 0 );
-}
-
-/* ---------------------------------------------------- */
-/* If display then it returns file_row_count.		*/
-/* If execute then it returns table_insert_count.	*/
-/* ---------------------------------------------------- */
-int load_bank_spreadsheet(
-			int *transaction_count,
-			char **minimum_bank_date,
-			char *login_name,
-			char *fund_name,
-			char *feeder_account,
-			char *input_filename,
-			boolean omit_bank_upload_transaction,
-			boolean reverse_order,
-			int date_piece_offset,
-			int description_piece_offset,
-			int debit_piece_offset,
-			int credit_piece_offset,
-			int balance_piece_offset,
-			boolean execute )
-{
-	BANK_UPLOAD_STRUCTURE *bank_upload_structure;
-
-	*transaction_count = 0;
-
-	bank_upload_structure =
-		bank_upload_structure_new(
-			fund_name,
-			feeder_account,
-			input_filename,
-			reverse_order,
-			date_piece_offset,
-			description_piece_offset,
-			debit_piece_offset,
-			credit_piece_offset,
-			balance_piece_offset );
-
-	if ( !bank_upload_structure ) return 0;
-
-/* -------------------------------------------------------------------- */
-/* Sets bank_upload->feeder_check_number_existing_journal		*/
-/* or									*/
-/* Sets bank_upload->feeder_phrase_match_build_transaction		*/
-/* or									*/
-/* Sets bank_upload->feeder_match_sum_existing_journal_list		*/
-/* -------------------------------------------------------------------- */
-	bank_upload_set_transaction(
-		bank_upload_structure->file.bank_upload_list,
-		bank_upload_structure->
-			reoccurring_structure->
-			reoccurring_transaction_list,
-		bank_upload_structure->
-			existing_cash_journal_list );
-
-	if ( bank_upload_sha256sum_exists(
-			bank_upload_structure->file.file_sha256sum ) )
-	{
-		char msg[ 256 ];
-
-		sprintf(msg,
-			"<h3>Warning: duplicated sha256sum = %s</h3>",
-			bank_upload_structure->file.file_sha256sum );
-
-		fflush( stdout );
-		printf( "%s\n", msg );
-		fflush( stdout );
-
-		bank_upload_exception = duplicated_spreadsheet_file;
-
-		execute = 0;
-	}
-
-	*minimum_bank_date = bank_upload_structure->file.minimum_bank_date;
-
-	if ( !execute )
-	{
-		bank_upload_table_display(
-			bank_upload_structure->
-				file.
-				bank_upload_list );
-
-		*transaction_count =
-			bank_upload_feeder_phrase_match_transaction_count(
-				bank_upload_structure->
-				file.
-				bank_upload_list );
-	}
-	else
-	/* ------------ */
-	/* Else execute */
-	/* ------------ */
-	{
-		LIST *transaction_list;
-		char *minimum_transaction_date_time;
-
-		if ( !omit_bank_upload_transaction )
-		{
-			if ( ! ( bank_upload_structure->
-					file.
-					table_insert_count =
-					   bank_upload_insert(
-						fund_name,
-						bank_upload_structure->
-							file.
-							bank_upload_list
-						   	/* bank_upload_list */,
-						bank_upload_structure->
-						   bank_upload_date_time ) ) )
-			{
-				return 0;
-			}
-
-			/* Insert into BANK_UPLOAD_TRANSACTION */
-			/* ----------------------------------- */
-			bank_upload_direct_bank_upload_transaction_insert(
-				bank_upload_structure->
-					file.
-					bank_upload_list );
-		}
-
-		bank_upload_event_insert(
-			bank_upload_structure->bank_upload_date_time,
-			login_name,
-			bank_upload_structure->
-				file.
-				input_filename
-					/* bank_upload_filename */,
-			bank_upload_structure->
-				file.
-				file_sha256sum,
-			bank_upload_structure->fund_name,
-			bank_upload_structure->feeder_account );
-
-		bank_upload_archive_insert(
-			bank_upload_structure->
-				file.
-				bank_upload_list,
-			bank_upload_structure->
-				bank_upload_date_time );
-
-		transaction_list =
-			bank_upload_transaction_list(
-				bank_upload_structure->
-					file.
-					bank_upload_list );
-
-		/* ------------------------------------ */
-		/* Insert into TRANSACTION and JOURNAL	*/
-		/* ------------------------------------ */
-		transaction_list_insert(
-			transaction_list,
-			0 /* not lock_transaction */ );
-
-		bank_upload_transaction_table_display(
-			bank_upload_structure->file.bank_upload_list );
-
-		*transaction_count =
-			bank_upload_feeder_phrase_match_transaction_count(
-				bank_upload_structure->
-					file.
-					bank_upload_list );
-
-		/* ------------------------ */
-		/* Update JOURNAL.account   */
-		/* Does journal_propagate() */
-		/* ------------------------ */
-		bank_upload_cleared_checks_update(
-			bank_upload_structure->fund_name,
-			bank_upload_structure->
-				file.
-				bank_upload_list );
-
-		bank_upload_transaction_balance_propagate(
-			*minimum_bank_date,
-			( minimum_transaction_date_time =
-				transaction_list_minimum_transaction_date_time(
-					transaction_list ) ) );
-
-		journal_account_name_list_propagate(
-			minimum_transaction_date_time,
-			transaction_list_account_name_list(
-				transaction_list ) );
-	}
-
-	if ( list_length( bank_upload_structure->file.error_line_list ) )
-	{
-		printf( "<h3>Errors:</h3>\n" );
-
-		list_display_lines(
-			bank_upload_structure->
-				file.
-				error_line_list );
-
-		printf( "\n" );
-	}
-
-	if ( bank_upload_exception == duplicated_spreadsheet_file )
-		return 0;
-	else
-	if ( !execute )
-		return bank_upload_structure->file.file_row_count;
-	else
-		return bank_upload_structure->file.table_insert_count;
 }
 

@@ -213,31 +213,76 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
 			char *input,
-			int line_number )
+			int row_number )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
 	char buffer[ 512 ];
 
-	if ( !feeder_load_date
-	||   !feeder_account
-	||   !date_column
-	||   !description_column
-	||   !debit_column
-	||   !input
-	||   !*input
-	||   !line_number )
+	if ( !feeder_load_date )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: feeder_load_date is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
+	if ( !feeder_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_account is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !date_column )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: date_column is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !description_column )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: description_column is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !debit_column )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: debit_column is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !row_number )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: row_number is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !input || !*input ) return (FEEDER_LOAD_ROW *)0;
+
 	feeder_load_row = feeder_load_row_calloc();
 
-	feeder_load_row->line_number = line_number;
+	feeder_load_row->row_number = row_number;
 
 	feeder_load_row->american_date =
 		strdup(
@@ -259,11 +304,19 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 	}
 
 	feeder_load_row->feeder_description =
-		strdup(
+		string_strdup(
 			piece_quote_comma(
 				buffer,
 				input,
 				description_column - 1 ) );
+
+	if ( !*feeder_load_row->feeder_description )
+	{
+		free( feeder_load_row->feeder_description );
+		free( feeder_load_row->american_date );
+		free( feeder_load_row );
+		return (FEEDER_LOAD_ROW *)0;
+	}
 
 	if ( !credit_column )
 	{
@@ -296,6 +349,14 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 				feeder_load_row->credit );
 	}
 
+	if ( !feeder_load_row->amount )
+	{
+		free( feeder_load_row->feeder_description );
+		free( feeder_load_row->american_date );
+		free( feeder_load_row );
+		return (FEEDER_LOAD_ROW *)0;
+	}
+
 	if ( balance_column )
 	{
 		feeder_load_row->balance =
@@ -304,6 +365,17 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 					buffer,
 					input,
 					balance_column - 1 ) );
+
+		if ( !feeder_load_row->balance )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: balance is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+			return (FEEDER_LOAD_ROW *)0;
+		}
 	}
 
 	feeder_load_row->check_number =
@@ -317,7 +389,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 		feeder_load_row_description_embedded(
 			feeder_load_row->feeder_description,
 			feeder_load_row->balance,
-			line_number,
+			row_number,
 			feeder_load_row->check_number );
 
 	if ( list_length( feeder_exist_row_list ) )
@@ -429,7 +501,7 @@ double feeder_load_row_amount(
 char *feeder_load_row_description_embedded(
 			char *feeder_description,
 			double balance,
-			int line_number,
+			int row_number,
 			int check_number )
 {
 	if ( check_number ) return feeder_description;
@@ -453,19 +525,19 @@ char *feeder_load_row_description_embedded(
 				feeder_load_row_trim_date(
 					feeder_description ) ),
 			balance,
-			line_number ),
+			row_number ),
 		FEEDER_DESCRIPTION_SIZE );
 }
 
 char *feeder_load_row_description_build(
 			char *sed_trim_double_spaces,
 			double balance,
-			int line_number )
+			int row_number )
 {
 	char build[ 512 ];
 
 	if ( !sed_trim_double_spaces
-	||   !line_number )
+	||   !row_number )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -487,7 +559,7 @@ char *feeder_load_row_description_build(
 		sprintf(build,
 			"%s %d",
 			sed_trim_double_spaces,
-			line_number );
+			row_number );
 	}
 
 	return strdup( build );
@@ -561,7 +633,8 @@ FEEDER_LOAD_FILE *feeder_load_file_fetch(
 
 	if ( !feeder_load_filename
 	||   !date_column
-	||   !description_column )
+	||   !description_column
+	||   !debit_column )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -592,6 +665,13 @@ FEEDER_LOAD_FILE *feeder_load_file_fetch(
 		feeder_load_file->remove_character =
 			remove_character( input, '\\' );
 
+		if ( !feeder_load_file->remove_character
+		||   !*feeder_load_file->remove_character )
+		{
+			++feeder_load_file->row_number;
+			continue;
+		}
+
 		feeder_load_file->feeder_load_row =
 			feeder_load_row_new(
 				feeder_load_date /* in/out */,
@@ -606,7 +686,7 @@ FEEDER_LOAD_FILE *feeder_load_file_fetch(
 				feeder_matched_journal_list,
 				feeder_load_file->remove_character
 					/* input */,
-				++feeder_load_file->line_number );
+				++feeder_load_file->row_number );
 
 		if ( !feeder_load_file->feeder_load_row ) continue;
 
@@ -785,6 +865,7 @@ char *feeder_load_event_insert_system_string(
 	sprintf(system_string,
 	 	"insert_statement table=%s field=%s del='%c' 		  |"
 	 	"sql 2>&1						  |"
+		"grep -vi duplicate					  |"
 	 	"html_paragraph_wrapper.e				   ",
 	 	feeder_load_event_table,
 	 	feeder_load_event_insert,
@@ -1016,6 +1097,8 @@ FEEDER *feeder_fetch(
 	feeder->feeder_matched_journal_list =
 		feeder_matched_journal_list(
 			feeder_account,
+			FEEDER_LOAD_ROW_TABLE,
+			feeder->feeder_load_file_minimum_date,
 			account_uncleared_checks(
 				ACCOUNT_UNCLEARED_CHECKS_KEY ) );
 
@@ -1155,6 +1238,7 @@ FEEDER_PHRASE *feeder_phrase_seek(
 		feeder_phrase = list_get( feeder_phrase_list );
 
 		if ( feeder_phrase->feeder_phrase_ignore ) continue;
+
 
 		for(	piece_number = 0;
 			piece(	feeder_component,
@@ -1302,16 +1386,19 @@ FEEDER_TRANSACTION *feeder_transaction_calloc( void )
 
 LIST *feeder_matched_journal_list(
 			char *feeder_account,
+			char *feeder_load_row_table,
+			char *feeder_load_file_minimum_date,
 			char *account_uncleared_checks )
 {
 	LIST *list;
 	char *subquery;
-	char *minimum_transaction_date;
 	char *where;
 	LIST *system_list;
 	JOURNAL *journal;
 
 	if ( !feeder_account
+	||   !feeder_load_row_table
+	||   !feeder_load_file_minimum_date
 	||   !account_uncleared_checks )
 	{
 		fprintf(stderr,
@@ -1330,12 +1417,8 @@ LIST *feeder_matched_journal_list(
 			feeder_account,
 			account_uncleared_checks,
 			JOURNAL_TABLE,
-			FEEDER_LOAD_ROW_TABLE );
-
-	minimum_transaction_date =
-		application_constants_quick_fetch(
-			environment_application_name(),
-			"feeder_matched_journal_minimum_date" );
+			feeder_load_row_table,
+			feeder_load_file_minimum_date );
 
 	where =
 		/* ------------------- */
@@ -1345,7 +1428,13 @@ LIST *feeder_matched_journal_list(
 			feeder_account,
 			account_uncleared_checks,
 			subquery,
-			minimum_transaction_date );
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_matched_journal_minimum_date(
+				feeder_load_file_minimum_date,
+				feeder_matched_journal_months_ago(
+				       FEEDER_LOAD_TRANSACTION_MONTHS_AGO ) ) );
 
 	system_list =
 		journal_system_list(
@@ -1401,9 +1490,10 @@ char *feeder_matched_journal_subquery(
 			char *feeder_account,
 			char *account_uncleared_checks,
 			char *journal_table,
-			char *feeder_load_row_table )
+			char *feeder_load_row_table,
+			char *feeder_load_file_minimum_date )
 {
-	char subquery[ 512 ];
+	char subquery[ 1024 ];
 
 	sprintf(subquery,
 		"not exists						"
@@ -1414,7 +1504,8 @@ char *feeder_matched_journal_subquery(
 		"	      %s.street_address and			"
 		"	      %s.transaction_date_time =		"
 		"	      %s.transaction_date_time and		"
-		"	      %s.feeder_account in ('%s','%s')		",
+		"	      %s.feeder_account in ('%s','%s') and	"
+		"	      feeder_date >= '%s')			",
 		feeder_load_row_table,
 		feeder_load_row_table,
 		journal_table,
@@ -1424,7 +1515,8 @@ char *feeder_matched_journal_subquery(
 		journal_table,
 		feeder_load_row_table,
 		feeder_account,
-		account_uncleared_checks );
+		account_uncleared_checks,
+		feeder_load_file_minimum_date );
 
 	return strdup( subquery );
 }
@@ -1433,14 +1525,14 @@ char *feeder_matched_journal_where(
 			char *feeder_account,
 			char *account_uncleared_checks,
 			char *subquery,
-			char *minimum_transaction_date )
+			char *minimum_date )
 {
-	char where[ 1024 ];
-	char minimum_transaction_where[ 128 ];
+	char where[ 2048 ];
 
 	if ( !feeder_account
 	||   !account_uncleared_checks
-	||   !subquery )
+	||   !subquery
+	||   !minimum_date )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -1450,25 +1542,14 @@ char *feeder_matched_journal_where(
 		exit( 1 );
 	}
 
-	if ( minimum_transaction_date
-	&&   *minimum_transaction_date )
-	{
-		sprintf(minimum_transaction_where,
-			"transaction_date_time >= '%s'",
-			minimum_transaction_where );
-	}
-	else
-	{
-		strcpy( minimum_transaction_where, "1 = 1" );
-	}
-
 	sprintf(where,
-		"(account in ('%s','%s') and		"
-		"%s and %s				",
+		"account in ('%s','%s') and		"
+		"transaction_date_time >= '%s' and	"
+		"%s					",
 		feeder_account,
 		account_uncleared_checks,
-		subquery,
-		minimum_transaction_where );
+		minimum_date,
+		subquery );
 
 	return strdup( where );
 }
@@ -1505,24 +1586,25 @@ int feeder_load_row_check_number( char *feeder_description )
 
 void feeder_load_row_list_insert(
 			char *feeder_account,
-			char *feeder_load_date_time,
+			char *feeder_load_date_string,
 			LIST *feeder_load_row_list )
 {
-	FILE *insert_pipe;
+	FILE *insert_open;
 	FEEDER_LOAD_ROW *feeder_load_row;
 	JOURNAL *journal;
 
 	if ( !list_rewind( feeder_load_row_list ) ) return;
 
-	insert_pipe =
+	insert_open =
+		/* --------------- */
 		/* Always succeeds */
 		/* --------------- */
-		feeder_load_row_list_insert_pipe(
+		feeder_load_row_list_insert_open(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			feeder_load_row_list_insert_system_string(
-				FEEDER_LOAD_ROW_INSERT,
+				FEEDER_LOAD_ROW_INSERT_COLUMNS,
 				FEEDER_LOAD_ROW_TABLE,
 				SQL_DELIMITER ) );
 
@@ -1548,8 +1630,8 @@ void feeder_load_row_list_insert(
 				feeder_load_row->
 					feeder_matched_journal );
 
-		feeder_load_row_insert(
-			insert_pipe,
+		feeder_load_row_insert_pipe(
+			insert_open,
 			journal->full_name,
 			journal->street_address,
 			journal->transaction_date_time,
@@ -1558,28 +1640,28 @@ void feeder_load_row_list_insert(
 			feeder_load_row->description_embedded,
 			feeder_load_row->amount,
 			feeder_load_row->balance,
-			feeder_load_row->line_number,
+			feeder_load_row->row_number,
 			/* --------------- */
 			/* Always succeeds */
 			/* --------------- */
 			feeder_load_row_phrase(
 				feeder_load_row->feeder_phrase_seek ),
-			feeder_load_date_time,
+			feeder_load_date_string,
 			SQL_DELIMITER );
 
 	} while ( list_next( feeder_load_row_list ) );
 
-	pclose( insert_pipe );
+	pclose( insert_open );
 }
 
 char *feeder_load_row_list_insert_system_string(
-			char *feeder_load_row_insert,
+			char *feeder_load_row_insert_columns,
 			char *feeder_load_row_table,
 			char sql_delimiter )
 {
 	char system_string[ 1024 ];
 
-	if ( !feeder_load_row_insert
+	if ( !feeder_load_row_insert_columns
 	||   !feeder_load_row_table )
 	{
 		fprintf(stderr,
@@ -1595,13 +1677,13 @@ char *feeder_load_row_list_insert_system_string(
 	 	"sql 2>&1						  |"
 	 	"html_paragraph_wrapper.e				   ",
 	 	feeder_load_row_table,
-	 	feeder_load_row_insert,
+	 	feeder_load_row_insert_columns,
 	 	sql_delimiter );
 
 	return strdup( system_string );
 }
 
-FILE *feeder_load_file_row_list_insert_pipe(
+FILE *feeder_load_file_row_list_insert_open(
 			char *insert_system_string )
 {
 	if ( !insert_system_string )
@@ -1617,8 +1699,8 @@ FILE *feeder_load_file_row_list_insert_pipe(
 	return popen( insert_system_string, "w" );
 }
 
-void feeder_load_row_insert(
-			FILE *insert_pipe,
+void feeder_load_row_insert_pipe(
+			FILE *insert_open,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -1629,10 +1711,10 @@ void feeder_load_row_insert(
 			double balance,
 			int row_number,
 			char *phrase,
-			char *feeder_load_date_time,
+			char *feeder_load_date_string,
 			char sql_delimiter )
 {
-	if ( !insert_pipe
+	if ( !insert_open
 	||   !full_name
 	||   !street_address
 	||   !transaction_date_time
@@ -1642,7 +1724,7 @@ void feeder_load_row_insert(
 	||   !amount
 	||   !row_number
 	||   !phrase
-	||   !feeder_load_date_time
+	||   !feeder_load_date_string
 	||   !sql_delimiter )
 	{
 		fprintf(stderr,
@@ -1650,11 +1732,13 @@ void feeder_load_row_insert(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		pclose( insert_pipe );
+
+		if ( insert_open ) pclose( insert_open );
+
 		exit( 1 );
 	}
 
-	fprintf(insert_pipe,
+	fprintf(insert_open,
 		"%s%c%s%c%s%c%s%c%s%c%s%c%.2lf%c%.2lf%c%d%c%s%c%s\n",
 	 	full_name,
 		sql_delimiter,
@@ -1676,7 +1760,7 @@ void feeder_load_row_insert(
 		sql_delimiter,
 		phrase,
 		sql_delimiter,
-		feeder_load_date_time );
+		feeder_load_date_string );
 }
 
 char *feeder_load_row_transaction_date_time(
@@ -2068,7 +2152,7 @@ FILE *feeder_load_row_display_output(
 
 	fprintf(display_pipe,
 		"%d^%s^%s^%s^%.2lf\n",
-		feeder_load_row->line_number,
+		feeder_load_row->row_number,
 		( tmp =
 			/* ------------------- */
 			/* Returns heap memory */
@@ -2523,8 +2607,18 @@ boolean feeder_load_row_account_empty(
 		return 0;
 }
 
-FILE *feeder_load_row_list_insert_pipe( char *system_string )
+FILE *feeder_load_row_list_insert_open( char *system_string )
 {
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	return popen( system_string, "w" );
 }
 
@@ -2575,5 +2669,72 @@ double feeder_account_end_balance(
 		return 0.0;
 	else
 		return last_feeder_load_row->balance;
+}
+
+int feeder_matched_journal_months_ago(
+			char *feeder_load_transaction_months_ago )
+{
+	char *months_ago_string;
+
+	if ( !feeder_load_transaction_months_ago )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	months_ago_string =
+		application_constants_quick_fetch(
+			environment_application_name(),
+			feeder_load_transaction_months_ago );
+
+	if ( !months_ago_string )
+		return 6;
+	else
+		return atoi( months_ago_string );
+}
+
+char *feeder_matched_journal_minimum_date(
+			char *feeder_load_file_minimum_date,
+			int feeder_match_journal_months_ago )
+{
+	DATE *date;
+
+	if ( !feeder_load_file_minimum_date
+	||   !feeder_match_journal_months_ago )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( date =
+			date_yyyy_mm_dd_new(
+				feeder_load_file_minimum_date ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: date_yyyy_mm_dd_new(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			feeder_load_file_minimum_date );
+		exit( 1 );
+	}
+
+	date =
+		date_increment_months(
+			date,
+			-feeder_match_journal_months_ago );
+
+	/* Returns heap memory or "" */
+	/* ------------------------- */
+	return
+	date_display_yyyy_mm_dd( date );
 }
 

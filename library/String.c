@@ -918,3 +918,10 @@ char *string_trim_number_characters(
 			",$" );
 }
 
+char *string_strdup( char *string )
+{
+	if ( !string )
+		return strdup( "" );
+	else
+		return strdup( string );
+}

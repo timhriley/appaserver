@@ -14,7 +14,9 @@
 #include "transaction.h"
 #include "journal.h"
 
-#define FEEDER_LOAD_ROW_TABLE		"feeder_load_row"
+#define FEEDER_LOAD_TRANSACTION_MONTHS_AGO			\
+					"feeder_load_transaction_months_ago"
+
 #define FEEDER_DESCRIPTION_SIZE		140
 
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"		\
@@ -145,6 +147,8 @@ typedef struct
 /* --------------- */
 LIST *feeder_matched_journal_list(
 			char *feeder_account,
+			char *feeder_load_row_table,
+			char *feeder_load_file_minimum_date,
 			char *account_uncleared_checks );
 
 /* Process */
@@ -156,7 +160,17 @@ char *feeder_matched_journal_subquery(
 			char *feeder_account,
 			char *account_uncleared_checks,
 			char *journal_table,
-			char *feeder_load_row_table );
+			char *feeder_load_row_table,
+			char *feeder_load_file_minimum_date );
+
+int feeder_matched_journal_months_ago(
+			char *feeder_load_transaction_months_ago );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_matched_journal_minimum_date(
+			char *feeder_load_file_minimum_date,
+			int feeder_matched_journal_months_ago );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -164,7 +178,7 @@ char *feeder_matched_journal_where(
 			char *feeder_account,
 			char *account_uncleared_checks,
 			char *feeder_matched_journal_subquery,
-			char *minimum_transaction_date );
+			char *feeder_matched_journal_minimum_date );
 
 /* Usage */
 /* ----- */
@@ -211,21 +225,23 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 FEEDER_TRANSACTION *feeder_transaction_calloc(
 			void );
 
-#define FEEDER_LOAD_ROW_INSERT		"full_name,"			\
+#define FEEDER_LOAD_ROW_TABLE		"feeder_load_row"
+
+#define FEEDER_LOAD_ROW_INSERT_COLUMNS	"full_name,"			\
 					"street_address,"		\
 					"transaction_date_time,"	\
 					"feeder_account,"		\
 					"feeder_date,"			\
 					"feeder_description,"		\
 					"feeder_amount,"		\
-					"feeder_running_balance,"	\
+					"feeder_row_balance,"		\
 					"row_number,"			\
 					"feeder_phrase,"		\
 					"feeder_load_date"
 
 typedef struct
 {
-	int line_number;
+	int row_number;
 	char *american_date;
 	char *international_date;
 	char *feeder_description;
@@ -257,7 +273,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
 			char *input,
-			int line_number );
+			int row_number );
 
 /* Process */
 /* ------- */
@@ -291,7 +307,7 @@ char *feeder_load_row_transaction_date_time(
 char *feeder_load_row_description_embedded(
 			char *feeder_description,
 			double balance,
-			int line_number,
+			int row_number,
 			int feeder_load_row_check_number );
 
 /* Returns static memory */
@@ -304,7 +320,7 @@ char *feeder_load_row_trim_date(
 char *feeder_load_row_description_build(
 			char *sed_trim_double_spaces,
 			double balance,
-			int line_number );
+			int row_number );
 
 /* Returns feeder_load_row_description_build */
 /* ----------------------------------------- */
@@ -355,11 +371,12 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 
 /* Process */
 /* ------- */
+
 /* Driver */
 /* ------ */
 void feeder_load_row_list_insert(
 			char *feeder_account,
-			char *feeder_load_date,
+			char *feeder_load_date_string,
 			LIST *feeder_load_row_list );
 
 /* Process */
@@ -368,13 +385,13 @@ void feeder_load_row_list_insert(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_load_row_list_insert_system_string(
-			char *feeder_load_row_insert,
+			char *feeder_load_row_insert_columns,
 			char *feeder_load_row_table,
 			char sql_delimiter );
 
 /* Always succeeds */
 /* --------------- */
-FILE *feeder_load_row_list_insert_pipe(
+FILE *feeder_load_row_list_insert_open(
 			char *feeder_load_row_list_insert_system_string );
 
 /* Always succeeds */
@@ -389,8 +406,8 @@ JOURNAL *feeder_load_row_journal(
 char *feeder_load_row_phrase(
 			FEEDER_PHRASE *feeder_phrase_seek );
 
-void feeder_load_row_insert(
-			FILE *feeder_load_row_list_insert_pipe,
+void feeder_load_row_insert_pipe(
+			FILE *feeder_load_row_list_insert_open,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -459,7 +476,7 @@ typedef struct
 	char input[ 1024 ];
 	LIST *feeder_load_row_list;
 	char *remove_character;
-	int line_number;
+	int row_number;
 	FEEDER_LOAD_ROW *feeder_load_row;
 } FEEDER_LOAD_FILE;
 

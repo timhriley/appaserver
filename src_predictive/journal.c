@@ -550,7 +550,7 @@ char *journal_system_string(
 			char *journal_table,
 			char *where )
 {
-	char system_string[ 1024 ];
+	char system_string[ 2048 ];
 
 	sprintf(system_string,
 	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",

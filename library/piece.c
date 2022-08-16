@@ -34,8 +34,15 @@ char *piece( char *destination, char delimiter, char *source, int offset )
 
 	if ( !delimiter )
 	{
-		strcpy( destination, source );
-		return destination;
+		if ( !offset )
+		{
+			strcpy( destination, source );
+			return destination;
+		}
+		else
+		{
+			return (char *)0;
+		}
 	}
 
 	if ( delimiter == PIECE_QUOTE_COMMA_DELIMITER_CODE )
@@ -100,9 +107,9 @@ char *piece( char *destination, char delimiter, char *source, int offset )
         *buf_ptr = '\0';
  
 	if ( piece_do_trim ) trim( destination );
+
 	return destination;
- 
-} /* piece */
+}
  
 LIST *piece_list(	LIST *source_list,
 			char delimiter,

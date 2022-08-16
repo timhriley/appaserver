@@ -204,7 +204,7 @@ propagate_purchase_order_accounts
 propagate_customer_sale_accounts
 ledger_debit_credit_audit
 close_nominal_accounts
-load_bank_spreadsheet
+feeder_load
 propagate_inventory_purchase_layers
 propagate_inventory_sale_layers
 post_change_inventory_purchase

@@ -136,6 +136,8 @@ char *date_get_colon_hhmmss(	char *destination,
 char *date_get_hhmmss( 		char *destination,
 				DATE *date );
 
+/* Returns heap memory or "" */
+/* ------------------------- */
 char *date_display_yyyy_mm_dd(
 			DATE *date );
 

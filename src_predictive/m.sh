@@ -1,6 +1,6 @@
 :
 
-make balance_sheet_output
+make feeder_load
 
 #if [ "$?" -eq 0 ]
 #then

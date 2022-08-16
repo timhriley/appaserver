@@ -181,4 +181,8 @@ char *string_trim_character_array(
 			char *data,
 			char *character_array );
 
+/* Returns heap memory */
+/* ------------------- */
+char *string_strdup(	char *string );
+
 #endif

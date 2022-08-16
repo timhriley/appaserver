@@ -3,7 +3,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_hydrology
-	make cubic_feet_per_second_moving_sum
+	cd ../src_predictive
+	make feeder_load
 fi
 
