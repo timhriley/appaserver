@@ -360,4 +360,8 @@ int journal_transaction_count(
 			char *transaction_begin_date_string,
 			char *transaction_date_time_closing );
 
+LIST *journal_date_time_account_name_list(
+			char *journal_table,
+			char *transaction_date_time );
+
 #endif

@@ -2023,7 +2023,7 @@ char *feeder_load_row_list_display_system_string( void )
 	return strdup( system_string );
 }
 
-void feeder_load_row_list_display(
+boolean feeder_load_row_list_display(
 			LIST *feeder_load_row_list,
 			FEEDER_LOAD_ROW *feeder_load_row_first_out_balance )
 {
@@ -2047,7 +2047,7 @@ void feeder_load_row_list_display(
 	if ( !list_rewind( feeder_load_row_list ) )
 	{
 		pclose( display_pipe );
-		return;
+		return 0;
 	}
 
 	do {
@@ -2086,6 +2086,8 @@ void feeder_load_row_list_display(
 	} while ( list_next( feeder_load_row_list ) );
 
 	if ( display_pipe ) pclose( display_pipe );
+
+	return (boolean)list_length( feeder_load_row_list );
 }
 
 void feeder_load_row_transaction_insert(
@@ -2257,7 +2259,7 @@ char *feeder_load_row_display_results(
 	}
 	else
 	{
-		strcpy( buffer, "<p style=\"color:red\">No</p> transaction" );
+		strcpy( buffer, "<p style=\"color:red\">No transaction</p>" );
 	}
 
 	return strdup( buffer );
@@ -2781,9 +2783,10 @@ char *feeder_matched_journal_minimum_date(
 	date_display_yyyy_mm_dd( date );
 }
 
-void feeder_load_row_error_display(
+boolean feeder_load_row_error_display(
 			LIST *feeder_load_row_list )
 {
+	return
 	feeder_load_row_list_display(
 		feeder_load_row_error_extract_list(
 			feeder_load_row_list ),
@@ -2835,7 +2838,7 @@ char *feeder_matched_journal_not_taken_system_string( void )
 
 	sprintf(system_string,
 		"html_table.e '%s' '%s' '^' left,left,right,right",
-		"Journal Not Taken",
+		"Journal Not Matched",
 		heading );
 
 	return strdup( system_string );

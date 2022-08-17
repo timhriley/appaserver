@@ -1570,3 +1570,23 @@ int journal_transaction_count(
 	return atoi( string_pipe( system_string ) );
 }
 
+LIST *journal_date_time_account_name_list(
+			char *journal_table,
+			char *transaction_date_time )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"transaction_date_time >= '%s'",
+		transaction_date_time );
+
+	sprintf( system_string,
+		 "echo \"select %s from %s where %s order by %s;\" | sql",
+		 "distinct account",
+		 journal_table,
+		 where,
+		 "account" );
+
+	return pipe2list( system_string );
+}

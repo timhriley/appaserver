@@ -393,7 +393,7 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 
 /* Driver */
 /* ------ */
-void feeder_load_row_error_display(
+boolean feeder_load_row_error_display(
 			LIST *feeder_load_row_list );
 
 /* Process */
@@ -403,7 +403,7 @@ LIST *feeder_load_row_error_extract_list(
 
 /* Driver */
 /* ------ */
-void feeder_load_row_list_display(
+boolean feeder_load_row_list_display(
 			LIST *feeder_load_row_list,
 			FEEDER_LOAD_ROW *feeder_load_row_first_out_balance );
 

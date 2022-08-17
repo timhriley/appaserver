@@ -47,7 +47,8 @@ EXECUTABLES=	trial_balance_output					\
 		cost_recovery_trigger					\
 		cost_recover_fixed_assets				\
 		recovery_statutory_accelerated_half_year		\
-		liability_prepaid
+		liability_prepaid					\
+		ledger_propagate
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -305,6 +306,14 @@ liability_prepaid: liability_prepaid.c					\
 		${SOURCE_LIBRARY}					\
 		liability_prepaid.c					\
 		-o liability_prepaid
+
+ledger_propagate: ledger_propagate.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		ledger_propagate.c					\
+		-o ledger_propagate
 
 feeder_load: feeder_load.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
