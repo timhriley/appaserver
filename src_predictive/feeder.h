@@ -350,30 +350,14 @@ char *feeder_load_row_description_crop(
 /* Usage */
 /* ----- */
 double feeder_load_row_prior_row_balance(
-			char *feeder_load_row_table,
 			char *feeder_account,
 			double account_end_balance,
 			LIST *feeder_load_row_list );
 
 /* Process */
 /* ------- */
-boolean feeder_load_row_account_empty(
-			char *feeder_load_row_table,
-			char *feeder_account );
-
 double feeder_load_row_list_sum_amount(
 			LIST *feeder_load_row_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_max_sql_statement(
-			char *feeder_load_row_table,
-			char *feeder_account );
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_max_system_string(
-			char *feeder_load_row_max_sql_statement );
 
 /* Usage */
 /* ----- */
@@ -554,6 +538,14 @@ char *feeder_load_file_minimum_date(
 			int date_column /* one_based */ );
 
 #define FEEDER_LOAD_EVENT_TABLE		"feeder_load_event"
+
+#define FEEDER_LOAD_EVENT_SELECT	"feeder_load_date,"	\
+					"feeder_account,"	\
+					"login_name,"		\
+					"feeder_load_filename,"	\
+					"account_end_date,"	\
+					"account_end_balance"
+
 #define FEEDER_LOAD_EVENT_INSERT	"feeder_load_date,"	\
 					"feeder_account,"	\
 					"login_name,"		\
@@ -586,6 +578,59 @@ FEEDER_LOAD_EVENT *feeder_load_event_new(
 /* ------- */
 FEEDER_LOAD_EVENT *feeder_load_event_calloc(
 			void );
+
+/* Usage */
+/* ----- */
+FEEDER_LOAD_EVENT *feeder_load_event_fetch(
+			char *feeder_load_date_string,
+			char *feeder_account );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_load_event_primary_where(
+			char *feeder_load_date_string,
+			char *feeder_account );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_event_system_string(
+			char *feeder_load_event_select,
+			char *feeder_load_event_table,
+			char *feeder_load_event_primary_where );
+
+FILE *feeder_load_event_input_open(
+			char *feeder_load_event_system_string );
+
+FEEDER_LOAD_EVENT *feeder_load_event_parse(
+			char *input );
+
+/* Usage */
+/* ----- */
+FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
+			char *feeder_account );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_load_event_account_where(
+			char *feeder_account );
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_event_latest_system_string(
+			char *feeder_load_event_table,
+			char *feeder_load_event_account_where );
+
+/* --------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
+char *feeder_load_event_latest_load_date_string(
+			char *feeder_load_event_latest_system_string );
 
 /* Driver */
 /* ------ */

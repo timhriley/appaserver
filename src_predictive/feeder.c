@@ -18,9 +18,10 @@
 #include "session.h"
 #include "basename.h"
 #include "sed.h"
-#include "account.h"
 #include "environ.h"
 #include "application_constants.h"
+#include "account.h"
+#include "journal.h"
 #include "feeder.h"
 
 FILE *feeder_phrase_pipe_open( char *system_string )
@@ -1137,7 +1138,6 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_load_row_prior_row_balance =
 		feeder_load_row_prior_row_balance(
-			FEEDER_LOAD_ROW_TABLE,
 			feeder_account,
 			account_end_balance,
 			feeder->feeder_load_file->feeder_load_row_list );
@@ -2412,90 +2412,31 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 }
 
 double feeder_load_row_prior_row_balance(
-			char *feeder_load_row_table,
 			char *feeder_account,
 			double account_end_balance,
 			LIST *feeder_load_row_list )
 {
-	if ( feeder_load_row_account_empty(
-		feeder_load_row_table,
-		feeder_account ) )
+	FEEDER_LOAD_EVENT *feeder_load_event;
+	JOURNAL *journal;
+
+	if ( ( feeder_load_event =
+		feeder_load_event_latest_fetch(
+			feeder_account ) ) )
 	{
-		return
+		return feeder_load_event->account_end_balance;
+	}
+
+	if ( ( journal =
+		journal_account_name_latest(
+			feeder_account ) ) )
+	{
+		return journal->balance;
+	}
+
+	return
 		account_end_balance -
 		feeder_load_row_list_sum_amount(
 			feeder_load_row_list );
-	}
-	else
-	{
-		return
-		atof(
-			string_pipe(
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				feeder_load_row_max_system_string(
-					/* ------------------- */
-					/* Returns heap memory */
-					/* ------------------- */
-					feeder_load_row_max_sql_statement(
-						feeder_load_row_table,
-						feeder_account ) ) ) );
-	}
-}
-
-char *feeder_load_row_max_sql_statement(
-			char *feeder_load_row_table,
-			char *feeder_account )
-{
-	char sql_statement[ 1024 ];
-
-	if ( !feeder_load_row_table
-	||   !feeder_account )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(sql_statement,
-		"select feeder_row_balance			"
-		"from %s					"
-		"where transaction_date_time =			"
-		"(select max( transaction_date_time )		"
-		"from %s					"
-		"where feeder_account = '%s') and		"
-		"feeder_account = '%s';				",
-		feeder_load_row_table,
-		feeder_load_row_table,
-		feeder_account,
-		feeder_account );
-
-	return strdup( sql_statement );
-}
-
-char *feeder_load_row_max_system_string( char *sql_statement )
-{
-	char system_string[ 1024 ];
-
-	if ( !sql_statement )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(system_string,
-		"echo \"%s\" | sql",
-		sql_statement );
-
-	return strdup( system_string );
 }
 
 void feeder_load_row_balance_set(
@@ -2531,12 +2472,18 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 			double account_end_balance )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
+	FEEDER_LOAD_ROW *first_feeder_load_row = {0};
 
 	if ( !list_rewind( feeder_load_row_list ) )
 		return (FEEDER_LOAD_ROW *)0;
 
 	do {
 		feeder_load_row = list_get( feeder_load_row_list );
+
+		if ( !first_feeder_load_row )
+		{
+			first_feeder_load_row = feeder_load_row;
+		}
 
 		if ( !feeder_load_row->feeder_exist_row_seek
 		&&   !feeder_load_row->feeder_matched_journal
@@ -2548,7 +2495,7 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 		if (	feeder_load_row->balance !=
 			prior_row_balance + feeder_load_row->amount )
 		{
-			/* return feeder_load_row; */
+			return feeder_load_row;
 		}
 
 		prior_row_balance = feeder_load_row->balance;
@@ -2559,7 +2506,7 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 	{
 		if ( account_end_balance != prior_row_balance )
 		{
-			/* return feeder_load_row; */
+			return first_feeder_load_row;
 		}
 	}
 
@@ -2599,42 +2546,6 @@ double feeder_load_row_list_sum_amount(
 	} while ( list_next( feeder_load_row_list ) );
 
 	return sum_amount;
-}
-
-boolean feeder_load_row_account_empty(
-			char *feeder_load_row_table,
-			char *feeder_account )
-{
-	char where[ 128 ];
-	char system_string[ 256 ];
-	int results;
-
-	if ( !feeder_load_row_table
-	||   !feeder_account )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(where,
-		"feeder_account = '%s'",
-		feeder_account );
-
-	sprintf(system_string,
-		"select.sh \"count(1)\" %s \"%s\"",
-		feeder_load_row_table,
-		where );
-
-	results = atoi( pipe2string( system_string ) );
-
-	if ( !results )
-		return 1;
-	else
-		return 0;
 }
 
 FILE *feeder_load_row_list_insert_open( char *system_string )
@@ -2889,5 +2800,258 @@ void feeder_matched_journal_not_taken_display(
 	} while ( list_next( feeder_matched_journal_list ) );
 
 	pclose( output_pipe );
+}
+
+FEEDER_LOAD_EVENT *feeder_load_event_fetch(
+			char *feeder_load_date_string,
+			char *feeder_account )
+{
+	FEEDER_LOAD_EVENT *feeder_load_event;
+	FILE *input_open;
+	char input[ 1024 ];
+
+	if ( !feeder_load_date_string
+	||   !feeder_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	input_open =
+		feeder_load_event_input_open(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			feeder_load_event_system_string(
+				FEEDER_LOAD_EVENT_TABLE,
+				FEEDER_LOAD_EVENT_SELECT,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				feeder_load_event_primary_where(
+					feeder_load_date_string,
+					feeder_account ) ) );
+
+	feeder_load_event =
+		feeder_load_event_parse(
+			string_input(
+				input,
+				input_open,
+				1024 ) );
+
+	pclose( input_open );
+
+	return feeder_load_event;
+}
+
+char *feeder_load_event_primary_where(
+			char *feeder_load_date_string,
+			char *feeder_account )
+{
+	static char where[ 128 ];
+
+	if ( !feeder_load_date_string
+	||   !feeder_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"feeder_load_date = '%s' and "
+		"feeder_account = '%s'",
+		feeder_load_date_string,
+		feeder_account );
+
+	return where;
+}
+
+char *feeder_load_event_system_string(
+			char *feeder_load_event_select,
+			char *feeder_load_event_table,
+			char *feeder_load_event_primary_where )
+{
+	char system_string[ 1024 ];
+
+	if ( !feeder_load_event_select
+	||   !feeder_load_event_table
+	||   !feeder_load_event_primary_where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		feeder_load_event_select,
+		feeder_load_event_table,
+		feeder_load_event_primary_where );
+
+	return strdup( system_string );
+}
+
+FILE *feeder_load_event_input_open(
+			char *feeder_load_event_system_string )
+{
+	if ( !feeder_load_event_system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	popen( feeder_load_event_system_string, "r" );
+}
+
+FEEDER_LOAD_EVENT *feeder_load_event_parse( char *input )
+{
+	char buffer[ 128 ];
+	FEEDER_LOAD_EVENT *feeder_load_event;
+
+	if ( !input || !*input ) return (FEEDER_LOAD_EVENT *)0;
+
+	feeder_load_event = feeder_load_event_calloc();
+
+	/* See FEEDER_LOAD_EVENT_SELECT */
+	/* ---------------------------- */
+	piece( buffer, SQL_DELIMITER, input, 0 );
+	feeder_load_event->feeder_load_date_string = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 1 );
+	feeder_load_event->feeder_account = strdup( buffer );
+
+	if ( piece( buffer, SQL_DELIMITER, input, 2 ) )
+	{
+		feeder_load_event->login_name = strdup( buffer );
+	}
+
+	if ( piece( buffer, SQL_DELIMITER, input, 3 ) )
+	{
+		feeder_load_event->basename_filename = strdup( buffer );
+	}
+
+	if ( piece( buffer, SQL_DELIMITER, input, 4 ) )
+	{
+		feeder_load_event->account_end_date = strdup( buffer );
+	}
+
+	if ( piece( buffer, SQL_DELIMITER, input, 5 ) )
+	{
+		feeder_load_event->account_end_balance = atof( buffer );
+	}
+
+	return feeder_load_event;
+}
+
+FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
+			char *feeder_account )
+{
+	char *latest_load_date_string;
+
+	if ( ! ( latest_load_date_string =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			feeder_load_event_latest_load_date_string(
+				feeder_load_event_latest_system_string(
+					FEEDER_LOAD_EVENT_TABLE,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					feeder_load_event_account_where(
+						feeder_account ) ) ) ) )
+	{
+		return (FEEDER_LOAD_EVENT *)0;
+	}
+
+	return
+	feeder_load_event_fetch(
+		latest_load_date_string,
+		feeder_account );
+}
+
+char *feeder_load_event_account_where(
+			char *feeder_account )
+{
+	static char where[ 128 ];
+
+	if ( !feeder_account )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_account is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"feeder_account = '%s'",
+		feeder_account );
+
+	return where;
+}
+
+char *feeder_load_event_latest_system_string(
+			char *table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !table
+	||   !where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		"max( feeder_load_date )",
+		table,
+		where );
+
+	return strdup( system_string );
+}
+
+char *feeder_load_event_latest_load_date_string(
+			char *feeder_load_event_latest_system_string )
+{
+	if ( !feeder_load_event_latest_system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	string_pipe_fetch(
+		feeder_load_event_latest_system_string );
 }
 
