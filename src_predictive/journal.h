@@ -28,7 +28,6 @@
 					"street_address,"	\
 					"transaction_date_time,"\
 					"account,"		\
-					"previous_balance,"	\
 					"debit_amount,"		\
 					"credit_amount"
 
@@ -126,30 +125,6 @@ char *journal_less_equal_where(
 char *journal_max_transaction_date_time(
 			char *journal_less_equal_where,
 			char *journal_table );
-
-/* Usage */
-/* ----- */
-JOURNAL *journal_account_name_latest(
-			char *account_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *journal_account_where(
-			char *account_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *journal_latest_system_string(
-			char *journal_table,
-			char *journal_account_where );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *journal_latest_transaction_date_time(
-			char *journal_latest_system_string );
 
 /* Usage */
 /* ----- */

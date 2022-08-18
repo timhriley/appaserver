@@ -23,6 +23,11 @@ boolean dollar_virtually_same(
 			double d1,
 			double d2 );
 
+boolean double_virtually_same_places(
+			double d1,
+			double d2,
+			int places );
+
 double round_double(	double d );
 
 double round_money(	double d );

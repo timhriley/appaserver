@@ -547,9 +547,7 @@ char *feeder_load_file_minimum_date(
 					"account_end_balance"
 
 #define FEEDER_LOAD_EVENT_INSERT	"feeder_load_date,"	\
-					"feeder_account,"	\
-					"login_name,"		\
-					"feeder_load_filename"
+					"feeder_account"
 
 #define FEEDER_LOAD_EVENT_PRIMARY_KEY	"feeder_load_date,"	\
 					"feeder_account"
@@ -638,9 +636,7 @@ void feeder_load_event_insert(
 			char *feeder_load_event_table,
 			char *feeder_load_event_insert,
 			char *feeder_load_date_string,
-			char *feeder_account,
-			char *login_name,
-			char *basename_filename );
+			char *feeder_account );
 
 /* Process */
 /* ------- */
@@ -659,9 +655,7 @@ void feeder_load_event_insert_pipe(
 			FILE *insert_open,
 			char sql_delimiter,
 			char *feeder_load_date_string,
-			char *feeder_account,
-			char *login_name,
-			char *basename_filename );
+			char *feeder_account );
 
 /* Driver */
 /* ------ */
@@ -670,8 +664,10 @@ void feeder_load_event_update(
 			char *feeder_load_event_primary_key,
 			char *feeder_load_date_string,
 			char *feeder_account,
+			char *login_name,
+			char *basename_filename,
 			char *account_end_date,
-			double account_end_balance  );
+			double account_end_balance );
 
 /* Process */
 /* ------- */
@@ -689,6 +685,8 @@ void feeder_load_event_update_pipe(
 			FILE *feeder_load_event_update_open,
 			char *feeder_load_date_string,
 			char *feeder_account,
+			char *login_name,
+			char *basename_filename,
 			char *account_end_date,
 			double account_end_balance );
 

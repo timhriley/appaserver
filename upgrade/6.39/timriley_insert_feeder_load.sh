@@ -43,6 +43,7 @@ delete from $process_parameter where process = 'BofA_cash_load';
 delete from $process_parameter where process = 'BofA_cash_upload';
 insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('BofA_cash_load','null','null','execute_yn','null','9',null,null,null,null);
 insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('BofA_cash_load','null','null','filename','null','1',null,null,null,null);
+insert into $process_parameter (process,folder,attribute,prompt,drop_down_prompt,display_order,drop_down_multi_select_yn,preprompt_yn,populate_drop_down_process,populate_helper_process) values ('BofA_cash_load','null','null','account_end_balance','null','2',null,null,null,null);
 delete from $javascript_processes where process = 'BofA_cash_load';
 delete from $process_generic_output where process = 'BofA_cash_load';
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('execute_yn',null,null,null,'1');

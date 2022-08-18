@@ -46,7 +46,6 @@ insert into $folder (folder,form,insert_rows_number,subschema,populate_drop_down
 delete from $relation where folder = 'feeder_load_row';
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('feeder_load_row','feeder_load_event','null',null,null,null,null,null,null,null,null,null,null,null);
 insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('feeder_load_row','feeder_phrase','null',null,null,null,null,null,null,null,null,null,null,null);
-insert into $relation (folder,related_folder,related_attribute,pair_1tom_order,omit_1tom_detail_yn,prompt_mto1_recursive_yn,relation_type_isa_yn,copy_common_attributes_yn,omit_lookup_before_drop_down_yn,automatic_preselection_yn,ajax_fill_drop_down_yn,drop_down_multi_select_yn,join_1tom_each_row_yn,hint_message) values ('feeder_load_row','journal_ledger','feeder_account',null,null,null,null,null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'full_name';
 insert into $attribute (attribute,attribute_datatype,width,float_decimal_places,post_change_javascript,hint_message,on_focus_javascript_function,lookup_histogram_output_yn,lookup_time_chart_output_yn,appaserver_yn) values ('full_name','text','60',null,null,null,null,null,null,null);
 delete from $attribute where attribute = 'street_address';
@@ -95,7 +94,7 @@ all_done
 
 table_name=feeder_load_row
 echo "drop table if exists $table_name;" | sql.e
-echo "create table $table_name (full_name char (60) not null,street_address char (60) not null,transaction_date_time datetime not null,feeder_account char (40) not null,feeder_date date,feeder_description char (140),feeder_amount double (12,2),feeder_row_balance double (12,2),row_number integer,feeder_phrase char (50),feeder_load_date_time datetime) engine MyISAM;" | sql.e
+echo "create table $table_name (full_name char (60) not null,street_address char (60) not null,transaction_date_time datetime not null,feeder_account char (40) not null,feeder_date date,feeder_description char (140),feeder_amount double (12,2),feeder_row_balance double (12,2),row_number integer,feeder_phrase char (50),feeder_load_date char (10)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,feeder_account);" | sql.e
 echo "create unique index ${table_name}_additional_unique on $table_name (feeder_account,feeder_date,feeder_description);" | sql.e
 

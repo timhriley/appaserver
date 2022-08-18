@@ -54,7 +54,7 @@ int main( int argc, char **argv )
 	if ( argc != 13 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name feeder_account filename date_column description_column debit_column credit_column balance_column reverse_order_yn bank_closing_balance execute_yn\n",
+"Usage: %s process_name login_name feeder_account filename date_column description_column debit_column credit_column balance_column reverse_order_yn account_end_balance execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -161,36 +161,41 @@ int main( int argc, char **argv )
 			FEEDER_LOAD_EVENT_TABLE,
 			FEEDER_LOAD_EVENT_INSERT,
 			feeder->feeder_load_event->feeder_load_date_string,
-			feeder->feeder_load_event->feeder_account,
-			feeder->feeder_load_event->login_name,
-			feeder->feeder_load_event->basename_filename );
+			feeder->feeder_load_event->feeder_account );
 
 		feeder_load_event_update(
 			FEEDER_LOAD_EVENT_TABLE,
 			FEEDER_LOAD_EVENT_PRIMARY_KEY,
 			feeder->feeder_load_event->feeder_load_date_string,
 			feeder->feeder_load_event->feeder_account,
+			feeder->feeder_load_event->login_name,
+			feeder->feeder_load_event->basename_filename,
 			feeder->account_end_date,
-			feeder->account_end_balance  );
+			feeder->account_end_balance );
 
 		process_increment_execution_count(
 			application_name,
 			process_name,
 			appaserver_parameter_file_get_dbms() );
+
+		printf( "<h3>Process complete.</h3>\n" );
 	}
 	else
 	{
-		printf( "<h1>No Transactions</h1>\n" );
-		fflush( stdout );
-
-		if ( feeder_load_row_error_display(
-			feeder->
-				feeder_load_file->
-				feeder_load_row_list ) )
+		if ( feeder->feeder_load_row_first_out_balance )
 		{
-			feeder_matched_journal_not_taken_display(
+			printf( "<h1>No Transactions</h1>\n" );
+			fflush( stdout );
+
+			if ( feeder_load_row_error_display(
 				feeder->
-					feeder_matched_journal_list );
+					feeder_load_file->
+					feeder_load_row_list ) )
+			{
+				feeder_matched_journal_not_taken_display(
+					feeder->
+						feeder_matched_journal_list );
+			}
 		}
 				
 		printf( "<h1>All Transactions</h1>\n" );
@@ -200,6 +205,19 @@ int main( int argc, char **argv )
 				feeder_load_file->
 				feeder_load_row_list,
 			feeder->feeder_load_row_first_out_balance );
+
+		if ( feeder->feeder_load_row_first_out_balance )
+		{
+			printf( "<h3>Execute will not load all rows.</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>Execute will process all %d rows.</h3>\n",
+				list_length(
+					feeder->
+						feeder_load_file->
+						feeder_load_row_list ) );
+		}
 	}
 
 	document_close();

@@ -12,6 +12,7 @@
 #include <ctype.h>
 #include "String.h"
 #include "piece.h"
+#include "float.h"
 #include "timlib.h"
 #include "date_convert.h"
 #include "sql.h"
@@ -785,18 +786,14 @@ void feeder_load_event_insert(
 			char *feeder_load_event_table,
 			char *feeder_load_event_insert,
 			char *feeder_load_date_string,
-			char *feeder_account,
-			char *login_name,
-			char *basename_filename )
+			char *feeder_account )
 {
 	FILE *insert_open;
 
 	if ( !feeder_load_event_table
 	||   !feeder_load_event_insert
 	||   !feeder_load_date_string
-	||   !feeder_account
-	||   !login_name
-	||   !basename_filename )
+	||   !feeder_account )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -820,9 +817,7 @@ void feeder_load_event_insert(
 		insert_open,
 		SQL_DELIMITER,
 		feeder_load_date_string,
-		feeder_account,
-		login_name,
-		basename_filename );
+		feeder_account );
 
 	pclose( insert_open );
 }
@@ -879,16 +874,12 @@ void feeder_load_event_insert_pipe(
 			FILE *insert_open,
 			char sql_delimiter,
 			char *feeder_load_date_string,
-			char *feeder_account,
-			char *login_name,
-			char *basename_filename )
+			char *feeder_account )
 {
 	if ( !insert_open
 	||   !sql_delimiter
 	||   !feeder_load_date_string
-	||   !feeder_account
-	||   !login_name
-	||   !basename_filename )
+	||   !feeder_account )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -902,14 +893,10 @@ void feeder_load_event_insert_pipe(
 	}
 
 	fprintf(insert_open,
-		"%s%c%s%c%s%c%s\n",
+		"%s%c%s\n",
 	 	feeder_load_date_string,
 		sql_delimiter,
-		feeder_account,
-		sql_delimiter,
-	 	login_name,
-		sql_delimiter,
-		basename_filename );
+		feeder_account );
 }
 
 void feeder_load_event_update(
@@ -917,6 +904,8 @@ void feeder_load_event_update(
 			char *feeder_load_event_primary_key,
 			char *feeder_load_date_string,
 			char *feeder_account,
+			char *login_name,
+			char *basename_filename,
 			char *account_end_date,
 			double account_end_balance  )
 {
@@ -925,7 +914,10 @@ void feeder_load_event_update(
 	if ( !feeder_load_event_table
 	||   !feeder_load_event_primary_key
 	||   !feeder_load_date_string
-	||   !feeder_account )
+	||   !feeder_account
+	||   !login_name
+	||   !basename_filename
+	||   !account_end_date )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -948,6 +940,8 @@ void feeder_load_event_update(
 		update_open,
 		feeder_load_date_string,
 		feeder_account,
+		login_name,
+		basename_filename,
 		account_end_date,
 		account_end_balance );
 
@@ -988,12 +982,16 @@ void feeder_load_event_update_pipe(
 			FILE *update_open,
 			char *feeder_load_date_string,
 			char *feeder_account,
+			char *login_name,
+			char *basename_filename,
 			char *account_end_date,
 			double account_end_balance )
 {
 	if ( !update_open
 	||   !feeder_load_date_string
 	||   !feeder_account
+	||   !login_name
+	||   !basename_filename
 	||   !account_end_date )
 	{
 		fprintf(stderr,
@@ -1006,6 +1004,18 @@ void feeder_load_event_update_pipe(
 
 		exit( 1 );
 	}
+
+	fprintf(update_open,
+		"%s^%s^login_name^%s\n",
+		feeder_load_date_string,
+		feeder_account,
+		login_name );
+
+	fprintf(update_open,
+		"%s^%s^feeder_load_filename^%s\n",
+		feeder_load_date_string,
+		feeder_account,
+		basename_filename );
 
 	fprintf(update_open,
 		"%s^%s^account_end_date^%s\n",
@@ -1670,9 +1680,10 @@ char *feeder_load_row_list_insert_system_string(
 	}
 
 	sprintf(system_string,
-	 	"insert_statement table=%s field=%s del='%c' 		  |"
-	 	"sql 2>&1						  |"
-	 	"html_paragraph_wrapper.e				   ",
+	 	"insert_statement table=%s field=%s del='%c' 	|"
+		"tee_appaserver_error.sh			|"
+	 	"sql 2>&1					|"
+	 	"html_paragraph_wrapper.e			 ",
 	 	feeder_load_row_table,
 	 	feeder_load_row_insert_columns,
 	 	sql_delimiter );
@@ -2417,20 +2428,12 @@ double feeder_load_row_prior_row_balance(
 			LIST *feeder_load_row_list )
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
-	JOURNAL *journal;
 
 	if ( ( feeder_load_event =
 		feeder_load_event_latest_fetch(
 			feeder_account ) ) )
 	{
 		return feeder_load_event->account_end_balance;
-	}
-
-	if ( ( journal =
-		journal_account_name_latest(
-			feeder_account ) ) )
-	{
-		return journal->balance;
 	}
 
 	return
@@ -2485,15 +2488,18 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 			first_feeder_load_row = feeder_load_row;
 		}
 
-		if ( !feeder_load_row->feeder_exist_row_seek
-		&&   !feeder_load_row->feeder_matched_journal
+		if ( feeder_load_row->feeder_exist_row_seek ) continue;
+
+		if ( !feeder_load_row->feeder_matched_journal
 		&&   !feeder_load_row->feeder_phrase_seek )
 		{
 			return feeder_load_row;
 		}
 
-		if (	feeder_load_row->balance !=
-			prior_row_balance + feeder_load_row->amount )
+		if ( !double_virtually_same_places(
+			feeder_load_row->balance,
+			prior_row_balance + feeder_load_row->amount,
+			2 ) )
 		{
 			return feeder_load_row;
 		}
@@ -2504,7 +2510,10 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 
 	if ( account_end_balance )
 	{
-		if ( account_end_balance != prior_row_balance )
+		if ( !double_virtually_same_places(
+			account_end_balance,
+			prior_row_balance,
+			2 ) )
 		{
 			return first_feeder_load_row;
 		}
@@ -2736,8 +2745,8 @@ LIST *feeder_load_row_error_extract_list(
 char *feeder_load_row_no_more( void )
 {
 	return
-	"<h1>^^^^^^^^^^^^^^^^^^</h1>\n"
-	"<h1>Will stop loading.</h1>\n";
+	"<h1>^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^</h1>\n"
+	"<h1>Execute will stop loading here.</h1>\n";
 }
 
 char *feeder_matched_journal_not_taken_system_string( void )
@@ -2827,8 +2836,8 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 			/* Returns heap memory */
 			/* ------------------- */
 			feeder_load_event_system_string(
-				FEEDER_LOAD_EVENT_TABLE,
 				FEEDER_LOAD_EVENT_SELECT,
+				FEEDER_LOAD_EVENT_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */
@@ -2979,6 +2988,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
 	{
 		return (FEEDER_LOAD_EVENT *)0;
 	}
+
 
 	return
 	feeder_load_event_fetch(
