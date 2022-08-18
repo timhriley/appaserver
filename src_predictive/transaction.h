@@ -96,8 +96,8 @@ TRANSACTION *transaction_binary(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			char *debit_account,
-			char *credit_account );
+			char *debit_account_name,
+			char *credit_account_name );
 
 /* Process */
 /* ------- */

@@ -345,8 +345,8 @@ LIST *journal_binary_list(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *debit_account,
-			char *credit_account );
+			ACCOUNT *debit_account,
+			ACCOUNT *credit_account );
 
 /* Returns heap memory */
 /* ------------------- */

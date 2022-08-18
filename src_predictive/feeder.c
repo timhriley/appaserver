@@ -2404,8 +2404,10 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 			transaction_date_time,
 			amount /* transaction_amount */,
 			memo,
-			feeder_transaction->debit_account,
-			feeder_transaction->credit_account );
+			feeder_transaction->debit_account
+				/* debit_account_name */,
+			feeder_transaction->credit_account
+				/* credit_account_name */ );
 
 	if ( !feeder_transaction->transaction )
 	{

@@ -374,8 +374,8 @@ char *transaction_memo( char *memo )
 	}
 	else
 	{
-		strcpy( return_memo, memo );
-		*( return_memo + TRANSACTION_MEMO_LENGTH ) = '\0';
+		string_strcpy( return_memo, memo, TRANSACTION_MEMO_LENGTH + 1 );
+		/* *( return_memo + TRANSACTION_MEMO_LENGTH ) = '\0'; */
 	}
 
 	return return_memo;
@@ -929,6 +929,16 @@ void transaction_list_insert(
 			list_get(
 				transaction_list );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: transaction = [%s/%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+transaction->full_name,
+transaction->transaction_date_time );
+m2( "timriley", msg );
+}
 		transaction->transaction_date_time =
 			transaction_insert(
 				appaserver_error_filename,
@@ -1009,8 +1019,8 @@ TRANSACTION *transaction_binary(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			char *debit_account,
-			char *credit_account )
+			char *debit_account_name,
+			char *credit_account_name )
 {
 	TRANSACTION *transaction;
 
@@ -1031,8 +1041,14 @@ TRANSACTION *transaction_binary(
 			transaction->street_address,
 			transaction->transaction_date_time,
 			float_abs( transaction->transaction_amount ),
-			debit_account,
-			credit_account );
+			account_fetch(
+				debit_account_name,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ ),
+			account_fetch(
+				credit_account_name,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ ) );
 
 	return transaction;
 }

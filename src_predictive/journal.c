@@ -940,10 +940,17 @@ LIST *journal_extract_account_list( LIST *journal_list )
 	do {
 		journal = list_get( journal_list );
 
-		if ( journal->account )
+		if ( !journal->account )
 		{
-			list_set( account_list, journal->account );
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal->account is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
+
+		list_set( account_list, journal->account );
 
 	} while ( list_next( journal_list ) );
 
@@ -958,16 +965,14 @@ LIST *journal_binary_list(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *debit_account,
-			char *credit_account )
+			ACCOUNT *debit_account,
+			ACCOUNT *credit_account )
 {
 	LIST *journal_list;
 	JOURNAL *journal;
 
 	if ( !debit_account
-	||   !*debit_account
-	||   !credit_account
-	||   !*credit_account )
+	||   !credit_account )
 	{
 		fprintf( stderr,
 			 "ERROR in %s/%s()/%d: empty account name(s).\n",
@@ -990,8 +995,9 @@ LIST *journal_binary_list(
 			full_name,
 			street_address,
 			transaction_date_time,
-			debit_account );
+			debit_account->account_name );
 
+	journal->account = debit_account;
 	journal->debit_amount = transaction_amount;
 	journal->transaction_date_time = transaction_date_time;
 
@@ -1002,8 +1008,9 @@ LIST *journal_binary_list(
 			full_name,
 			street_address,
 			transaction_date_time,
-			credit_account );
+			credit_account->account_name );
 
+	journal->account = credit_account;
 	journal->credit_amount = transaction_amount;
 	journal->transaction_date_time = transaction_date_time;
 
@@ -1548,8 +1555,8 @@ int journal_transaction_count(
 			char *transaction_begin_date_string,
 			char *transaction_date_time_closing )
 {
-	char where[ 128 ];
-	char system_string[ 256 ];
+	char where[ 512 ];
+	char system_string[ 1024 ];
 	char escape_account[ 64 ];
 
 	sprintf(where,
