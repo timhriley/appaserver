@@ -156,9 +156,8 @@ SUBCLASSIFICATION *subclassification_fetch(
 			char *subclassification_name,
 			boolean fetch_element )
 {
-	FILE *pipe;
-	char input[ 256 ];
 	SUBCLASSIFICATION *subclassification;
+	static LIST *list = {0};
 
 	if ( !subclassification_name )
 	{
@@ -170,26 +169,47 @@ SUBCLASSIFICATION *subclassification_fetch(
 		exit( 1 );
 	}
 
-	pipe =
-		subclassification_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			subclassification_system_string(
-				SUBCLASSIFICATION_SELECT,
-				SUBCLASSIFICATION_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				subclassification_primary_where(
-					subclassification_name ) ) );
+	if ( fetch_element )
+	{
+		if ( !list )
+		{
+			list =
+				subclassification_list(
+					"1 = 1" /* where */,
+					1 /* fetch_element */ );
+		}
 
-	subclassification =
-		subclassification_parse(
-			string_input( input, pipe, 256 ),
-			fetch_element );
+		subclassification =
+			subclassification_seek(
+				subclassification_name,
+				list );
+	}
+	else
+	{
+		FILE *pipe;
+		char input[ 256 ];
 
-	pclose( pipe );
+		pipe =
+			subclassification_pipe(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				subclassification_system_string(
+					SUBCLASSIFICATION_SELECT,
+					SUBCLASSIFICATION_TABLE,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
+					subclassification_primary_where(
+						subclassification_name ) ) );
+
+		subclassification =
+			subclassification_parse(
+				string_input( input, pipe, 256 ),
+				0 /* not fetch_element */ );
+
+		pclose( pipe );
+	}
 
 	return subclassification;
 }
@@ -681,3 +701,45 @@ SUBCLASSIFICATION *subclassification_element_list_seek(
 
 	return (SUBCLASSIFICATION *)0;
 }
+
+LIST *subclassification_list(
+			char *where,
+			boolean fetch_element )
+{
+	if ( !where ) where = "1 = 1";
+
+	return
+	subclassification_system_list(
+		subclassification_system_string(
+			SUBCLASSIFICATION_SELECT,
+			SUBCLASSIFICATION_TABLE,
+			where ),
+		fetch_element );
+}
+
+LIST *subclassification_system_list(
+			char *subclassification_system_string,
+			boolean fetch_element )
+{
+	LIST *list = list_new();
+	FILE *pipe;
+	char input[ 256 ];
+
+	pipe =
+		subclassification_pipe(
+			subclassification_system_string );
+
+	while ( string_input( input, pipe, 256 ) )
+	{
+		list_set(
+			list,
+			subclassification_parse(
+				input,
+				fetch_element ) );
+	}
+
+	pclose( pipe );
+
+	return list;
+}
+

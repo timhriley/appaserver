@@ -497,24 +497,45 @@ ACCOUNT *account_fetch(	char *account_name,
 			boolean fetch_subclassification,
 			boolean fetch_element )
 {
+	ACCOUNT *account;
+	static LIST *list = {0};
+
 	if ( !account_name ) return (ACCOUNT *)0;
 
-	return
-	account_parse(
-		string_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			account_system_string(
-				ACCOUNT_SELECT,
-				ACCOUNT_TABLE,
-	 			/* --------------------- */
-	 			/* Returns static memory */
-	 			/* --------------------- */
-	 			account_primary_where( account_name )
-					/* where */ ) ),
-		fetch_subclassification,
-		fetch_element );
+	if ( fetch_subclassification && fetch_element )
+	{
+		if ( !list )
+		{
+			list =
+				account_list(
+					"1 = 1" /* where */,
+					1 /* fetch_subclassification */,
+					1 /* fetch_element */ );
+		}
+
+		account = account_seek( account_name, list );
+	}
+	else
+	{
+		account =
+			account_parse(
+				string_pipe(
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					account_system_string(
+						ACCOUNT_SELECT,
+						ACCOUNT_TABLE,
+	 					/* --------------------- */
+	 					/* Returns static memory */
+	 					/* --------------------- */
+	 					account_primary_where(
+							account_name ) ) ),
+				fetch_subclassification,
+				fetch_element );
+	}
+
+	return account;
 }
 
 char *account_primary_where(

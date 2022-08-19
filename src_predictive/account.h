@@ -105,8 +105,7 @@ char *account_system_string(
 			char *account_table,
 			char *where );
 
-FILE *account_pipe(
-			char *account_system_string );
+FILE *account_pipe(	char *account_system_string );
 
 /* Usage */
 /* ----- */
@@ -155,9 +154,8 @@ char *account_hard_coded_key_where(
 
 /* Usage */
 /* ----- */
-LIST *account_system_list(
-			char *account_system_string,
-			boolean fetch_subclassifiction,
+LIST *account_list(	char *where,
+			boolean fetch_subclassification,
 			boolean fetch_element );
 
 /* Process */
@@ -165,8 +163,9 @@ LIST *account_system_list(
 
 /* Usage */
 /* ----- */
-LIST *account_list(	char *where,
-			boolean fetch_subclassification,
+LIST *account_system_list(
+			char *account_system_string,
+			boolean fetch_subclassifiction,
 			boolean fetch_element );
 
 /* Process */

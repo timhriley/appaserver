@@ -65,7 +65,7 @@ LIST *subclassification_statement_list(
 char *subclassification_system_string(
 			char *subclassification_select,
 			char *subclassification_table,
-			char *element_primary_where );
+			char *where );
 
 FILE *subclassification_pipe(
 			char *subclassification_system_string );
@@ -90,16 +90,23 @@ SUBCLASSIFICATION *subclassification_fetch(
 
 /* Process */
 /* ------- */
+SUBCLASSIFICATION *subclassification_seek(
+			char *subclassification_name,
+			LIST *subclassification_list );
 
 /* Returns static memory */
 /* --------------------- */
 char *subclassification_primary_where(
 			char *subclassification_name );
 
+/* Usage */
+/* ----- */
 SUBCLASSIFICATION *subclassification_parse(
 			char *input,
 			boolean fetch_element );
 
+/* Process */
+/* ------- */
 SUBCLASSIFICATION *subclassification_new(
 			char *subclassification_name );
 
@@ -114,6 +121,23 @@ LIST *subclassification_account_statement_list(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+LIST *subclassification_list(
+			char *where,
+			boolean fetch_element );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *subclassification_system_list(
+			char *subclassification_system_string,
+			boolean fetch_element );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -134,9 +158,6 @@ void subclassification_list_delta_prior_percent_set(
 
 /* Process */
 /* ------- */
-SUBCLASSIFICATION *subclassification_seek(
-			char *subclassification_name,
-			LIST *subclassification_list );
 
 /* Usage */
 /* ----- */

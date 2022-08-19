@@ -66,9 +66,7 @@ ELEMENT *element_parse( char *input )
 
 ELEMENT *element_fetch( char *element_name )
 {
-	char input[ 128 ];
-	ELEMENT *element;
-	FILE *pipe;
+	static LIST *list = {0};
 
 	if ( !element_name )
 	{
@@ -80,30 +78,9 @@ ELEMENT *element_fetch( char *element_name )
 		exit( 1 );
 	}
 
-	pipe =
-		element_pipe(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			element_system_string(
-				ELEMENT_SELECT,
-				ELEMENT_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				element_primary_where(
-					element_name ) ) );
+	if ( !list ) list = element_list();
 
-	element =
-		element_parse(
-			string_input(
-				input,
-				pipe,
-				128 ) );
-
-	pclose( pipe );
-
-	return element;
+	return element_seek( element_name, list );
 }
 
 char *element_primary_where( char *element_name )
@@ -317,7 +294,6 @@ FILE *element_pipe( char *element_system_string )
 			__LINE__ );
 		exit( 1 );
 	}
-
 
 	return
 	popen( element_system_string, "r" );
@@ -689,5 +665,35 @@ double element_net_income(
 
 	return (revenue + gain) - (expense + loss);
 
+}
+
+LIST *element_list( void )
+{
+	return
+	element_system_list(
+		element_system_string(
+			ELEMENT_SELECT,
+			ELEMENT_TABLE,
+			"1 = 1" /* where */ ) );
+}
+
+LIST *element_system_list( char *element_system_string )
+{
+	char input[ 32 ];
+	FILE *pipe;
+	LIST *list = list_new();
+
+	pipe = element_pipe( element_system_string );
+
+	while ( string_input( input, pipe, 32 ) )
+	{
+		list_set(
+			list,
+			element_parse( input ) );
+	}
+
+	pclose( pipe );
+
+	return list;
 }
 

@@ -55,21 +55,21 @@ ELEMENT *element_fetch(	char *element_name );
 /* Process */
 /* ------- */
 
-/* Returns static memory */
-/* --------------------- */
-char *element_primary_where(
-			char *element_name );
+/* Usage */
+/* ----- */
+LIST *element_list(	void );
 
-/* Returns heap memory */
-/* ------------------- */
-char *element_system_string(
-			char *element_select,
-			char *element_table,
-			char *where );
+/* Process */
+/* ------- */
 
-FILE *element_pipe(
+/* Usage */
+/* ----- */
+LIST *element_system_list(
 			char *element_system_string );
 
+/* Process */
+/* ------- */
+FILE *element_pipe(	char *element_system_string );
 
 /* Usage */
 /* ----- */
@@ -94,6 +94,18 @@ ELEMENT *element_statement_fetch(
 
 /* Process */
 /* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *element_primary_where(
+			char *element_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *element_system_string(
+			char *element_select,
+			char *element_table,
+			char *where );
 
 /* Usage */
 /* ----- */
@@ -201,7 +213,7 @@ boolean element_is_nominal(
 			char *element_name );
 
 ELEMENT *element_seek(	char *element_name,
-			LIST *element_statement_list );
+			LIST *element_list );
 
 double element_list_debit_sum(
 			LIST *element_statement_list );
