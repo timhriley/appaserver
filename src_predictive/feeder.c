@@ -2102,20 +2102,9 @@ boolean feeder_load_row_list_display(
 }
 
 void feeder_load_row_transaction_insert(
-			LIST *feeder_load_row_list,
-			char *appaserver_error_filename )
+			LIST *feeder_load_row_list )
 {
 	LIST *transaction_list;
-
-	if ( !appaserver_error_filename )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: appaserver_error_filename is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
 
 	if ( !list_length( feeder_load_row_list ) ) return;
 
@@ -2125,8 +2114,10 @@ void feeder_load_row_transaction_insert(
 	{
 		transaction_list_insert(
 			transaction_list,
-			appaserver_error_filename,
-			1 /* insert_journal_list_boolean */ );
+			0 /* not insert_journal_list_boolean */ );
+
+		transaction_journal_list_insert(
+			transaction_list );
 	}
 }
 

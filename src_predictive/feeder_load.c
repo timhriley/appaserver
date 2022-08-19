@@ -141,7 +141,6 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean && feeder->feeder_load_event )
 	{
-/*
 		feeder_load_row_list_insert(
 			feeder_account,
 			feeder->
@@ -150,16 +149,12 @@ int main( int argc, char **argv )
 			feeder->
 				feeder_load_file->
 				feeder_load_row_list );
-*/
 
 		feeder_load_row_transaction_insert(
 			feeder->
 				feeder_load_file->
-				feeder_load_row_list,
-			appaserver_error_get_filename(
-				application_name )  );
+				feeder_load_row_list );
 
-/*
 		feeder_load_event_insert(
 			FEEDER_LOAD_EVENT_TABLE,
 			FEEDER_LOAD_EVENT_INSERT,
@@ -180,7 +175,6 @@ int main( int argc, char **argv )
 			application_name,
 			process_name,
 			appaserver_parameter_file_get_dbms() );
-*/
 
 		printf( "<h3>Process complete.</h3>\n" );
 	}

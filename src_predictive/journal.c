@@ -625,7 +625,7 @@ char *journal_update_system_string( char *journal_table )
 
 	sprintf(system_string,
 		"update_statement table=%s key=%s carrot=y		|"
-		"tee_appaserver_error.sh				|"
+/*		"tee_appaserver_error.sh				|" */
 		"sql							 ",
 		journal_table,
 		key );
@@ -741,7 +741,6 @@ JOURNAL *journal_credit_new(
 }
 
 void journal_list_insert(
-			char *appaserver_error_filename,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -765,7 +764,6 @@ void journal_list_insert(
 
 	pipe =
 		journal_insert_pipe(
-			appaserver_error_filename,
 			JOURNAL_INSERT,
 			JOURNAL_TABLE );
 
@@ -787,7 +785,6 @@ void journal_list_insert(
 }
 
 FILE *journal_insert_pipe(
-			char *appaserver_error_filename,
 			char *journal_insert,
 			char *journal_table )
 {
@@ -795,11 +792,11 @@ FILE *journal_insert_pipe(
 
 	sprintf(system_string,
 		"insert_statement t=%s f=%s delimiter='^'	|"
-		"tee_appaserver_error.sh			|"
-		"sql 2>>%s					 ",
+/*		"tee_appaserver_error.sh			|" */
+		"sql 2>&1					|"
+		"html_paragraph_wrapper.e			 ",
 		journal_table,
-		journal_insert,
-		appaserver_error_filename );
+		journal_insert );
 
 	return popen( system_string, "w" );
 }
@@ -1596,4 +1593,84 @@ LIST *journal_date_time_account_name_list(
 		 "account" );
 
 	return pipe2list( system_string );
+}
+
+void journal_list_transaction_insert(
+			FILE *pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+
+	if ( !pipe
+	||   !full_name
+	||   !street_address
+	||   !transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		if ( pipe ) pclose( pipe );
+
+		exit( 1 );
+	}
+
+	if ( !list_rewind( journal_list ) ) return;
+
+	do {
+		journal = list_get( journal_list );
+
+		journal_insert(
+			pipe,
+			full_name,
+			street_address,
+			transaction_date_time,
+			journal->account_name,
+			journal->debit_amount,
+			journal->credit_amount );
+
+	} while ( list_next( journal_list ) );
+}
+
+void journal_account_list_getset(
+			LIST *account_list /* in/out */,
+			LIST *journal_list )
+{
+	JOURNAL *journal;
+
+	if ( !account_list )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_list is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( journal_list ) ) return;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( !journal->account )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal->account is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		(void)account_getset(
+			account_list /* in/out */,
+			journal->account );
+
+	} while ( list_next( journal_list ) );
 }

@@ -855,9 +855,9 @@ double account_balance_total( LIST *account_list )
 
 ACCOUNT *account_getset(
 			LIST *account_list,
-			char *account_name )
+			ACCOUNT *account )
 {
-	ACCOUNT *account;
+	ACCOUNT *local_account;
 
 	if ( !account_list )
 	{
@@ -869,12 +869,14 @@ ACCOUNT *account_getset(
 		exit( 1 );
 	}
 
-	if ( ( account = account_seek( account_name, account_list ) ) )
+	if ( ( local_account =
+		account_seek(
+			account->account_name,
+			account_list ) ) )
 	{
-		return account;
+		return local_account;
 	}
 
-	account = account_new( strdup( account_name ) );
 	list_set( account_list, account );
 	return account;
 }

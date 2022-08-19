@@ -240,7 +240,6 @@ char *transaction_primary_where(
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_insert(
-			char *appaserver_error_filename,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -254,12 +253,9 @@ char *transaction_insert(
 	FILE *pipe_open;
 	char *race_free_date_time;
 
-	if ( !appaserver_error_filename
-	||   !full_name
+	if ( !full_name
 	||   !street_address
-	||   !transaction_date_time
-	||   !transaction_amount
-	||   !list_length( journal_list ) )
+	||   !transaction_date_time )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -270,9 +266,14 @@ char *transaction_insert(
 		exit( 1 );
 	}
 
+	if ( !transaction_amount
+	||   !list_length( journal_list ) )
+	{
+		return (char *)0;
+	}
+
 	pipe_open =
 		transaction_insert_pipe_open(
-			appaserver_error_filename,
 			TRANSACTION_SELECT,
 			TRANSACTION_TABLE );
 
@@ -304,7 +305,6 @@ char *transaction_insert(
 	if ( insert_journal_list_boolean )
 	{
 		journal_list_insert(
-			appaserver_error_filename,
 			full_name,
 			street_address,
 			race_free_date_time,
@@ -844,7 +844,6 @@ char *transaction_delete_system_string(
 }
 
 FILE *transaction_insert_pipe_open(
-			char *error_filename,
 			char *transaction_select,
 			char *transaction_table )
 {
@@ -853,10 +852,10 @@ FILE *transaction_insert_pipe_open(
 	sprintf(system_string,
 		"insert_statement t=%s f=%s delimiter='^'	|"
 		"tee_appaserver_error.sh			|"
-		"sql 2>>%s					 ",
+		"sql 2>&1					|"
+		"html_paragraph_wrapper.e			 ",
 		transaction_table,
-		transaction_select,
-		error_filename );
+		transaction_select );
 
 	return popen( system_string, "w" );
 }
@@ -917,7 +916,6 @@ LIST *transaction_list(
 
 void transaction_list_insert(
 			LIST *transaction_list,
-			char *appaserver_error_filename,
 			boolean insert_journal_list_boolean )
 {
 	TRANSACTION *transaction;
@@ -929,28 +927,21 @@ void transaction_list_insert(
 			list_get(
 				transaction_list );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: transaction = [%s/%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-transaction->full_name,
-transaction->transaction_date_time );
-m2( "timriley", msg );
-}
-		transaction->transaction_date_time =
-			transaction_insert(
-				appaserver_error_filename,
-				transaction->full_name,
-				transaction->street_address,
-				transaction->transaction_date_time,
-				transaction->transaction_amount,
-				transaction->check_number,
-				transaction->memo,
-				TRANSACTION_LOCK_Y,
-				transaction->journal_list,
-				insert_journal_list_boolean );
+		if ( transaction->transaction_amount
+		&&   list_length( transaction->journal_list ) )
+		{
+			transaction->transaction_date_time =
+				transaction_insert(
+					transaction->full_name,
+					transaction->street_address,
+					transaction->transaction_date_time,
+					transaction->transaction_amount,
+					transaction->check_number,
+					transaction->memo,
+					TRANSACTION_LOCK_Y,
+					transaction->journal_list,
+					insert_journal_list_boolean );
+		}
 
 	} while ( list_next( transaction_list ) );
 }
@@ -1229,5 +1220,73 @@ char *transaction_begin_date_string(
 	/* --------------------------- */
 	transaction_minimum_transaction_date_string(
 		transaction_table );
+}
+
+LIST *transaction_list_extract_account_list(
+			LIST *transaction_list )
+{
+	LIST *account_list;
+	TRANSACTION *transaction;
+
+	if ( !list_rewind( transaction_list ) ) return (LIST *)0;
+
+	account_list = list_new();
+
+	do {
+		transaction = list_get( transaction_list );
+
+		if ( list_length( transaction->journal_list ) )
+		{
+			journal_account_list_getset(
+				account_list /* in/out */,
+				transaction->journal_list );
+		}
+
+	} while ( list_next( transaction_list ) );
+
+	return account_list;
+}
+
+void transaction_journal_list_insert(
+			LIST *transaction_list )
+{
+	FILE *insert_pipe;
+	TRANSACTION *transaction;
+	char *first_transaction_date_time = {0};
+
+	if ( !list_rewind( transaction_list ) ) return;
+
+	insert_pipe =
+		journal_insert_pipe(
+			JOURNAL_INSERT,
+			JOURNAL_TABLE );
+
+	do {
+		transaction = list_get( transaction_list );
+
+		if ( !first_transaction_date_time )
+		{
+			first_transaction_date_time =
+				transaction->transaction_date_time;
+		}
+
+		if ( list_length( transaction->journal_list ) )
+		{
+			journal_list_transaction_insert(
+				insert_pipe,
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->journal_list );
+		}
+
+	} while ( list_next( transaction_list ) );
+
+	pclose( insert_pipe );
+
+	journal_account_list_propagate(
+		first_transaction_date_time,
+		transaction_list_extract_account_list(
+			transaction_list ) );
 }
 

@@ -391,6 +391,6 @@ LIST *account_receivable_name_list(
 
 ACCOUNT *account_getset(
 			LIST *account_list,
-			char *account_name );
+			ACCOUNT *account );
 
 #endif

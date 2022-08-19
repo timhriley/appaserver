@@ -480,8 +480,7 @@ void feeder_load_row_insert_pipe(
 /* Driver */
 /* ------ */
 void feeder_load_row_transaction_insert(
-			LIST *feeder_load_row_list,
-			char *appaserver_error_filename );
+			LIST *feeder_load_row_list );
 
 /* Process */
 /* ------- */

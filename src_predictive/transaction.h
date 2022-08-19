@@ -75,6 +75,9 @@ TRANSACTION *transaction_new(
 			char *street_address,
 			char *transaction_date_time );
 
+TRANSACTION *transaction_calloc(
+			void );
+
 /* Usage */
 /* ----- */
 TRANSACTION *transaction_entity_new(
@@ -108,7 +111,6 @@ TRANSACTION *transaction_binary(
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
 char *transaction_insert(
-			char *appaserver_error_filename,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -125,7 +127,6 @@ char *transaction_race_free_date_time(
 			char *transaction_date_time );
 
 FILE *transaction_insert_pipe_open(
-			char *appaserver_error_filename,
 			char *transaction_select,
 			char *transaction_table );
 
@@ -279,10 +280,21 @@ DATE *transaction_prior_closing_transaction_date(
 /* Process */
 /* ------- */
 
-/* Private */
+/* Usage */
+/* ----- */
+void transaction_journal_list_insert(
+			LIST *transaction_list );
+
+/* Process */
 /* ------- */
-TRANSACTION *transaction_calloc(
-			void );
+
+/* Usage */
+/* ----- */
+LIST *transaction_list_extract_account_list(
+			LIST *transaction_list );
+
+/* Process */
+/* ------- */
 
 /* Public */
 /* ------ */
@@ -331,7 +343,6 @@ char *transaction_minimum_transaction_date_string(
 /* ----- */
 void transaction_list_insert(
 			LIST *transaction_list,
-			char *appaserver_error_filename,
 			boolean insert_journal_list_boolean );
 
 /* Process */

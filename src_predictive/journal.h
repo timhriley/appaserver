@@ -188,6 +188,15 @@ void journal_account_list_propagate(
 
 /* Usage */
 /* ----- */
+void journal_account_list_getset(
+			LIST *account_list /* in/out */,
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 void journal_propagate(	char *transaction_date_time,
 			char *account_name );
 
@@ -243,7 +252,6 @@ JOURNAL *journal_credit_new(
 /* Usage */
 /* ----- */
 void journal_list_insert(
-			char *appaserver_error_filename,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
@@ -252,7 +260,6 @@ void journal_list_insert(
 /* Process */
 /* ------- */
 FILE *journal_insert_pipe(
-			char *appaserver_error_filename,
 			char *journal_insert,
 			char *journal_table );
 
@@ -264,6 +271,18 @@ void journal_insert(
 			char *account_name,
 			double debit_amount,
 			double credit_amount );
+
+/* Usage */
+/* ----- */
+void journal_list_transaction_insert(
+			FILE *pipe,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
