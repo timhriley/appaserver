@@ -349,15 +349,11 @@ char *feeder_load_row_description_crop(
 
 /* Usage */
 /* ----- */
-double feeder_load_row_prior_row_balance(
-			char *feeder_account,
-			double account_end_balance,
+double feeder_load_row_list_sum_amount(
 			LIST *feeder_load_row_list );
 
 /* Process */
 /* ------- */
-double feeder_load_row_list_sum_amount(
-			LIST *feeder_load_row_list );
 
 /* Usage */
 /* ----- */
@@ -368,9 +364,9 @@ void feeder_load_row_balance_set(
 /* Usage */
 /* ----- */
 FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
-			double feeder_load_row_prior_row_balance,
+			double feeder_prior_account_end_balance,
 			LIST *feeder_load_row_list,
-			double account_end_balance );
+			double feeder_account_end_balance );
 
 /* Process */
 /* ------- */
@@ -536,6 +532,9 @@ char *feeder_load_file_minimum_date(
 			char *feeder_load_filename,
 			int date_column /* one_based */ );
 
+double feeder_load_file_account_end_balance(
+			FEEDER_LOAD_ROW *last_feeder_load_row );
+
 #define FEEDER_LOAD_EVENT_TABLE		"feeder_load_event"
 
 #define FEEDER_LOAD_EVENT_SELECT	"feeder_load_date,"	\
@@ -607,6 +606,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_parse(
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
+			char *feeder_load_event_table,
 			char *feeder_account );
 
 /* Process */
@@ -702,6 +702,7 @@ typedef struct
 	FEEDER_LOAD_ROW *feeder_load_row_first_out_balance;
 	char *account_end_date;
 	double account_end_balance;
+	double prior_account_end_balance;
 	FEEDER_LOAD_EVENT *feeder_load_event;
 } FEEDER;
 
@@ -717,7 +718,7 @@ FEEDER *feeder_fetch(
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
 			boolean reverse_order_boolean,
-			double account_end_balance );
+			double parameter_account_end_balance );
 
 /* Process */
 /* ------- */
@@ -728,9 +729,24 @@ FEEDER *feeder_calloc(	void );
 char *feeder_account_end_date(
 			FEEDER_LOAD_ROW *last_feeder_load_row );
 
-/* Returns this->balance or null */
-/* ----------------------------- */
+/* Usage */
+/* ----- */
 double feeder_account_end_balance(
-			FEEDER_LOAD_ROW *last_feeder_load_row );
+			int balance_column,
+			double parameter_account_end_balance,
+			LIST *feeder_load_row_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double feeder_prior_account_end_balance(
+			char *feeder_account,
+			double feeder_account_end_balance,
+			LIST *feeder_load_row_list );
+
+/* Process */
+/* ------- */
 
 #endif

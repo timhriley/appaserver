@@ -119,7 +119,8 @@ int main( int argc, char **argv )
 			credit_column,
 			balance_column,
 			reverse_order_boolean,
-			account_end_balance );
+			account_end_balance
+				/* parameter_account_end_balance */ );
 
 	if ( !feeder )
 	{
