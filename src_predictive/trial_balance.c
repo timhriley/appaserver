@@ -1528,7 +1528,7 @@ HTML_ROW *trial_balance_subclass_display_html_sum_row(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		timlib_place_commas_in_dollars(
+		timlib_place_commas_in_money(
 			debit_sum );
 
 	html_cell_data_set(
@@ -1541,7 +1541,7 @@ HTML_ROW *trial_balance_subclass_display_html_sum_row(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		timlib_place_commas_in_dollars(
+		timlib_place_commas_in_money(
 			credit_sum );
 
 	html_cell_data_set(
@@ -2028,7 +2028,7 @@ HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		timlib_place_commas_in_dollars(
+		timlib_place_commas_in_money(
 			debit_sum );
 
 	html_cell_data_set(
@@ -2041,7 +2041,7 @@ HTML_ROW *trial_balance_subclass_omit_html_sum_row(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		timlib_place_commas_in_dollars(
+		timlib_place_commas_in_money(
 			credit_sum );
 
 	html_cell_data_set(

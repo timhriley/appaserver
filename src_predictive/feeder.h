@@ -163,8 +163,7 @@ char *feeder_matched_journal_subquery(
 			char *feeder_account,
 			char *account_uncleared_checks,
 			char *journal_table,
-			char *feeder_load_row_table,
-			char *feeder_load_file_minimum_date );
+			char *feeder_load_row_table );
 
 int feeder_matched_journal_days_ago(
 			char *feeder_load_transaction_days_ago );
@@ -260,15 +259,15 @@ FEEDER_TRANSACTION *feeder_transaction_calloc(
 
 typedef struct
 {
-	int row_number;
 	char *american_date;
 	char *international_date;
 	char *feeder_description;
-	double amount;
 	double debit;
 	double credit;
+	double feeder_amount;
 	double balance;
 	int check_number;
+	int row_number;
 	char *description_embedded;
 	char *transaction_date_time;
 	char *memo;
@@ -349,7 +348,7 @@ char *feeder_load_row_description_crop(
 
 /* Usage */
 /* ----- */
-double feeder_load_row_list_sum_amount(
+double feeder_load_row_sum_amount(
 			LIST *feeder_load_row_list );
 
 /* Process */
@@ -364,9 +363,7 @@ void feeder_load_row_balance_set(
 /* Usage */
 /* ----- */
 FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
-			double feeder_prior_account_end_balance,
-			LIST *feeder_load_row_list,
-			double feeder_account_end_balance );
+			LIST *feeder_load_row_list );
 
 /* Process */
 /* ------- */
@@ -446,8 +443,6 @@ char *feeder_load_row_list_insert_system_string(
 FILE *feeder_load_row_list_insert_open(
 			char *feeder_load_row_list_insert_system_string );
 
-/* Always succeeds */
-/* --------------- */
 JOURNAL *feeder_load_row_journal(
 			FEEDER_PHRASE *feeder_phrase_seek,
 			char *transaction_date_time,
@@ -732,6 +727,7 @@ char *feeder_account_end_date(
 /* Usage */
 /* ----- */
 double feeder_account_end_balance(
+			char *feeder_account,
 			int balance_column,
 			double parameter_account_end_balance,
 			LIST *feeder_load_row_list );

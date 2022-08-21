@@ -1974,8 +1974,7 @@ LIABILITY_TRANSACTION *liability_transaction_calloc( void )
 
 void liability_transaction_list_insert(
 			LIABILITY_TRANSACTION_LIST *
-				liability_transaction_list,
-			char *appaserver_error_filename )
+				liability_transaction_list )
 {
 	if ( !liability_transaction_list )
 	{
@@ -1994,7 +1993,6 @@ void liability_transaction_list_insert(
 	transaction_list_insert(
 		liability_transaction_list_extract(
 			liability_transaction_list->list ),
-		appaserver_error_filename,
 		1 /* insert_journal_list_boolean */ );
 }
 

@@ -207,7 +207,19 @@ int main( int argc, char **argv )
 
 		if ( feeder->feeder_load_row_first_out_balance )
 		{
-			printf( "<h3>Execute will not load all rows.</h3>\n" );
+			if (	feeder->feeder_load_row_first_out_balance ==
+				list_first( feeder->
+						feeder_load_file->
+						feeder_load_row_list ) )
+			{
+				printf(
+				"<h3>Execute will not load any rows.</h3>\n" );
+			}
+			else
+			{
+				printf(
+				"<h3>Execute will not load all rows.</h3>\n" );
+			}
 		}
 		else
 		{

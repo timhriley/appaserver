@@ -25,7 +25,7 @@ fi
 
 folder="bank_upload_transaction"
 
-echo "drop table $folder;" | sql.e
+echo "drop table $folder;" | sql.e 2>&1 | grep -vi unknown
 echo "delete from folder where folder = '$folder';" | sql.e
 echo "delete from relation where folder = '$folder';" | sql.e
 echo "delete from relation where related_folder = '$folder';" | sql.e
@@ -35,7 +35,7 @@ echo "delete from role_folder where folder = '$folder';" | sql.e
 
 folder="bank_upload_feeder_archive"
 
-echo "drop view $folder;" | sql.e
+echo "drop view $folder;" | sql.e 2>&1 | grep -vi unknown
 echo "delete from folder where folder = '$folder';" | sql.e
 echo "delete from relation where folder = '$folder';" | sql.e
 echo "delete from relation where related_folder = '$folder';" | sql.e
@@ -75,7 +75,7 @@ echo "delete from role_folder where folder = '$folder';" | sql.e
 
 folder="bank_upload_transaction_balance"
 
-echo "drop view $folder;" | sql.e
+echo "drop view $folder;" | sql.e 2>&1 | grep -vi unknown
 echo "delete from folder where folder = '$folder';" | sql.e
 echo "delete from relation where folder = '$folder';" | sql.e
 echo "delete from relation where related_folder = '$folder';" | sql.e

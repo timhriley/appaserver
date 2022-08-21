@@ -283,7 +283,8 @@ DATE *transaction_prior_closing_transaction_date(
 /* Usage */
 /* ----- */
 void transaction_journal_list_insert(
-			LIST *transaction_list );
+			LIST *transaction_list,
+			boolean with_propagate );
 
 /* Process */
 /* ------- */

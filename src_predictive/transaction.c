@@ -185,10 +185,10 @@ TRANSACTION *transaction_parse(
 	transaction->transaction_amount = atof( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	transaction->memo = strdup( piece_buffer );
+	transaction->check_number = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 5 );
-	transaction->check_number = atoi( piece_buffer );
+	transaction->memo = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
 	transaction->lock_transaction = ( *piece_buffer == 'y' );
@@ -1248,7 +1248,8 @@ LIST *transaction_list_extract_account_list(
 }
 
 void transaction_journal_list_insert(
-			LIST *transaction_list )
+			LIST *transaction_list,
+			boolean with_propagate )
 {
 	FILE *insert_pipe;
 	TRANSACTION *transaction;
@@ -1284,9 +1285,12 @@ void transaction_journal_list_insert(
 
 	pclose( insert_pipe );
 
-	journal_account_list_propagate(
-		first_transaction_date_time,
-		transaction_list_extract_account_list(
-			transaction_list ) );
+	if ( with_propagate )
+	{
+		journal_account_list_propagate(
+			first_transaction_date_time,
+			transaction_list_extract_account_list(
+				transaction_list ) );
+	}
 }
 

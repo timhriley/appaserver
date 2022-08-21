@@ -236,8 +236,7 @@ LIABILITY_TRANSACTION_LIST *
 /* ------------------------------- */
 void liability_transaction_list_insert(
 			LIABILITY_TRANSACTION_LIST *
-				liability_transaction_list,
-			char *appaserver_error_filename );
+				liability_transaction_list );
 
 /* Process */
 /* ------- */

@@ -322,7 +322,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	if ( !credit_column )
 	{
-		feeder_load_row->amount =
+		feeder_load_row->feeder_amount =
 			atof(
 				piece_quote_comma(
 					buffer,
@@ -345,13 +345,13 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 					input,
 					credit_column - 1 ) );
 
-		feeder_load_row->amount =
+		feeder_load_row->feeder_amount =
 			feeder_load_row_amount(
 				feeder_load_row->debit,
 				feeder_load_row->credit );
 	}
 
-	if ( !feeder_load_row->amount )
+	if ( !feeder_load_row->feeder_amount )
 	{
 		free( feeder_load_row->feeder_description );
 		free( feeder_load_row->american_date );
@@ -410,17 +410,20 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	if ( list_length( feeder_matched_journal_list ) )
 	{
-		feeder_load_row->feeder_matched_journal =
-			feeder_matched_journal_check_seek(
-				feeder_load_row->check_number,
-				feeder_load_row->amount,
-				feeder_matched_journal_list );
+		if ( feeder_load_row->check_number )
+		{
+			feeder_load_row->feeder_matched_journal =
+				feeder_matched_journal_check_seek(
+					feeder_load_row->check_number,
+					feeder_load_row->feeder_amount,
+					feeder_matched_journal_list );
+		}
 
 		if ( !feeder_load_row->feeder_matched_journal )
 		{
 			feeder_load_row->feeder_matched_journal =
 				feeder_matched_journal_amount_seek(
-					feeder_load_row->amount,
+					feeder_load_row->feeder_amount,
 					feeder_matched_journal_list );
 		}
 
@@ -459,7 +462,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 			feeder_transaction_new(
 				feeder_account,
 				feeder_load_row->feeder_phrase_seek,
-				feeder_load_row->amount,
+				feeder_load_row->feeder_amount,
 				feeder_load_row->transaction_date_time,
 				feeder_load_row->memo );
 	}
@@ -1148,6 +1151,7 @@ FEEDER *feeder_fetch(
 
 	feeder->account_end_balance =
 		feeder_account_end_balance(
+			feeder_account,
 			balance_column,
 			parameter_account_end_balance,
 			feeder->feeder_load_file->feeder_load_row_list );
@@ -1167,9 +1171,7 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_load_row_first_out_balance =
 		feeder_load_row_first_out_balance(
-			feeder->prior_account_end_balance,
-			feeder->feeder_load_file->feeder_load_row_list,
-			feeder->account_end_balance );
+			feeder->feeder_load_file->feeder_load_row_list );
 
 	feeder->account_end_date =
 		/* ---------------------------------------- */
@@ -1421,8 +1423,7 @@ LIST *feeder_matched_journal_list(
 			feeder_account,
 			account_uncleared_checks,
 			JOURNAL_TABLE,
-			feeder_load_row_table,
-			feeder_load_file_minimum_date );
+			feeder_load_row_table );
 
 	where =
 		/* ------------------- */
@@ -1494,8 +1495,7 @@ char *feeder_matched_journal_subquery(
 			char *feeder_account,
 			char *account_uncleared_checks,
 			char *journal_table,
-			char *feeder_load_row_table,
-			char *feeder_load_file_minimum_date )
+			char *feeder_load_row_table )
 {
 	char subquery[ 1024 ];
 
@@ -1508,8 +1508,7 @@ char *feeder_matched_journal_subquery(
 		"	      %s.street_address and			"
 		"	      %s.transaction_date_time =		"
 		"	      %s.transaction_date_time and		"
-		"	      %s.feeder_account in ('%s','%s') and	"
-		"	      feeder_date >= '%s')			",
+		"	      %s.feeder_account in ('%s','%s'))		",
 		feeder_load_row_table,
 		feeder_load_row_table,
 		journal_table,
@@ -1519,8 +1518,7 @@ char *feeder_matched_journal_subquery(
 		journal_table,
 		feeder_load_row_table,
 		feeder_account,
-		account_uncleared_checks,
-		feeder_load_file_minimum_date );
+		account_uncleared_checks );
 
 	return strdup( subquery );
 }
@@ -1624,8 +1622,6 @@ void feeder_load_row_list_insert(
 		}
 
 		journal =
-			/* Always succeeds */
-			/* --------------- */
 			feeder_load_row_journal(
 				feeder_load_row->
 					feeder_phrase_seek,
@@ -1634,24 +1630,27 @@ void feeder_load_row_list_insert(
 				feeder_load_row->
 					feeder_matched_journal );
 
-		feeder_load_row_insert_pipe(
-			insert_open,
-			journal->full_name,
-			journal->street_address,
-			journal->transaction_date_time,
-			feeder_account,
-			feeder_load_row->international_date,
-			feeder_load_row->description_embedded,
-			feeder_load_row->amount,
-			feeder_load_row->balance,
-			feeder_load_row->row_number,
-			/* --------------- */
-			/* Always succeeds */
-			/* --------------- */
-			feeder_load_row_phrase(
-				feeder_load_row->feeder_phrase_seek ),
-			feeder_load_date_string,
-			SQL_DELIMITER );
+		if ( journal )
+		{
+			feeder_load_row_insert_pipe(
+				insert_open,
+				journal->full_name,
+				journal->street_address,
+				journal->transaction_date_time,
+				feeder_account,
+				feeder_load_row->international_date,
+				feeder_load_row->description_embedded,
+				feeder_load_row->feeder_amount,
+				feeder_load_row->balance,
+				feeder_load_row->row_number,
+				/* --------------- */
+				/* Always succeeds */
+				/* --------------- */
+				feeder_load_row_phrase(
+					feeder_load_row->feeder_phrase_seek ),
+				feeder_load_date_string,
+				SQL_DELIMITER );
+		}
 
 	} while ( list_next( feeder_load_row_list ) );
 
@@ -1943,7 +1942,9 @@ char *feeder_load_file_minimum_date(
 					minimum_date = international_date;
 				}
 				else
-				if ( international_date < minimum_date )
+				if ( strcmp(
+					international_date,
+					minimum_date ) < 0 )
 				{
 					minimum_date = international_date;
 				}
@@ -1964,12 +1965,7 @@ JOURNAL *feeder_load_row_journal(
 	if ( !feeder_phrase_seek
 	&&   !feeder_matched_journal )
 	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: both parameters are empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
+		return (JOURNAL *)0;
 	}
 
 	if ( !transaction_date_time )
@@ -2082,7 +2078,7 @@ boolean feeder_load_row_list_display(
 				feeder_load_row );
 
 		if ( !display_pipe
-		&&   list_still_more( feeder_load_row_list ) )
+		&&   !list_at_end( feeder_load_row_list ) )
 		{
 			display_pipe =
 				/* --------------- */
@@ -2115,7 +2111,8 @@ void feeder_load_row_transaction_insert(
 			0 /* not insert_journal_list_boolean */ );
 
 		transaction_journal_list_insert(
-			transaction_list );
+			transaction_list,
+			1 /* with_propagate */ );
 	}
 }
 
@@ -2191,7 +2188,7 @@ FILE *feeder_load_row_display_output(
 				feeder_load_row->feeder_phrase_seek ) ),
 		feeder_load_row->american_date,
 		feeder_load_row->description_embedded,
-		feeder_load_row->amount,
+		feeder_load_row->feeder_amount,
 		feeder_load_row->balance );
 
 	free( tmp );
@@ -2434,7 +2431,7 @@ void feeder_load_row_balance_set(
 
 		feeder_load_row->balance =
 			prior_row_balance +
-			feeder_load_row->amount;
+			feeder_load_row->feeder_amount;
 
 		prior_row_balance = feeder_load_row->balance;
 
@@ -2442,12 +2439,9 @@ void feeder_load_row_balance_set(
 }
 
 FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
-			double prior_account_end_balance,
-			LIST *feeder_load_row_list,
-			double feeder_account_end_balance )
+			LIST *feeder_load_row_list )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
-	FEEDER_LOAD_ROW *first_feeder_load_row = {0};
 
 	if ( !list_rewind( feeder_load_row_list ) )
 		return (FEEDER_LOAD_ROW *)0;
@@ -2455,42 +2449,19 @@ FEEDER_LOAD_ROW *feeder_load_row_first_out_balance(
 	do {
 		feeder_load_row = list_get( feeder_load_row_list );
 
-		if ( !first_feeder_load_row )
-		{
-			first_feeder_load_row = feeder_load_row;
-		}
-
-		if ( feeder_load_row->feeder_exist_row_seek ) continue;
-
-		if ( !feeder_load_row->feeder_matched_journal
+		if ( !feeder_load_row->feeder_exist_row_seek
+		&&   !feeder_load_row->feeder_matched_journal
 		&&   !feeder_load_row->feeder_phrase_seek )
 		{
 			return feeder_load_row;
 		}
 
-		if ( !dollar_virtually_same(
-			feeder_load_row->balance,
-			prior_account_end_balance +
-			feeder_load_row->amount ) )
-		{
-			return feeder_load_row;
-		}
-
-		prior_account_end_balance = feeder_load_row->balance;
-
 	} while ( list_next( feeder_load_row_list ) );
-
-	if ( !dollar_virtually_same(
-		feeder_account_end_balance,
-		prior_account_end_balance ) )
-	{
-		return first_feeder_load_row;
-	}
 
 	return (FEEDER_LOAD_ROW *)0;
 }
 
-double feeder_load_row_list_sum_amount(
+double feeder_load_row_sum_amount(
 			LIST *feeder_load_row_list )
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
@@ -2502,11 +2473,7 @@ double feeder_load_row_list_sum_amount(
 
 	do {
 		feeder_load_row = list_get( feeder_load_row_list );
-
-		if ( !feeder_load_row->feeder_exist_row_seek )
-		{
-			sum_amount += feeder_load_row->amount;
-		}
+		sum_amount += feeder_load_row->feeder_amount;
 
 	} while ( list_next( feeder_load_row_list ) );
 
@@ -3014,12 +2981,18 @@ char *feeder_load_event_latest_load_date_string(
 }
 
 double feeder_account_end_balance(
+			char *feeder_account,
 			int balance_column,
 			double parameter_account_end_balance,
 			LIST *feeder_load_row_list )
 {
-	double account_end_balance;
+	double account_end_balance = {0};
 
+	if ( parameter_account_end_balance )
+	{
+		account_end_balance = parameter_account_end_balance;
+	}
+	else
 	if ( balance_column )
 	{
 		account_end_balance =
@@ -3033,8 +3006,18 @@ double feeder_account_end_balance(
 	}
 	else
 	{
-		account_end_balance =
-			parameter_account_end_balance;
+		FEEDER_LOAD_EVENT *feeder_load_event;
+
+		if ( ( feeder_load_event =
+			feeder_load_event_latest_fetch(
+				FEEDER_LOAD_EVENT_TABLE,
+				feeder_account ) ) )
+		{
+			account_end_balance =
+				feeder_load_event->account_end_balance +
+				feeder_load_row_sum_amount(
+					feeder_load_row_list );
+		}
 	}
 
 	return account_end_balance;
@@ -3046,19 +3029,25 @@ double feeder_prior_account_end_balance(
 			LIST *feeder_load_row_list )
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
+	double account_end_balance;
 
 	if ( ( feeder_load_event =
 		feeder_load_event_latest_fetch(
 			FEEDER_LOAD_EVENT_TABLE,
 			feeder_account ) ) )
 	{
-		return feeder_load_event->account_end_balance;
+		account_end_balance =
+			feeder_load_event->account_end_balance;
+	}
+	else
+	{
+		account_end_balance =
+			feeder_account_end_balance -
+			feeder_load_row_sum_amount(
+				feeder_load_row_list );
 	}
 
-	return
-		feeder_account_end_balance -
-		feeder_load_row_list_sum_amount(
-			feeder_load_row_list );
+	return account_end_balance;
 }
 
 double feeder_load_file_account_end_balance(
