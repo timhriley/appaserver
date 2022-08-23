@@ -26,13 +26,14 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/javascript.o
 
 EXECUTABLES=	trial_balance_output					\
-		tax_form_report						\
 		income_statement_output					\
 		balance_sheet_output					\
 		program_profit						\
 		ledger_debit_credit_audit				\
-		close_nominal_accounts					\
+		ledger_propagate					\
 		feeder_load						\
+		close_nominal_accounts					\
+		tax_form_report						\
 		post_reoccurring_transaction				\
 		post_cash_expense_transaction				\
 		post_change_self					\
@@ -47,8 +48,7 @@ EXECUTABLES=	trial_balance_output					\
 		cost_recovery_trigger					\
 		cost_recover_fixed_assets				\
 		recovery_statutory_accelerated_half_year		\
-		liability_prepaid					\
-		ledger_propagate
+		liability_prepaid
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\

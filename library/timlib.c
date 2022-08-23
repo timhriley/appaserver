@@ -2966,11 +2966,9 @@ char timlib_delimiter( char *string )
 	if ( timlib_exists_character( string, ';' ) )
 		return ';';
 	else
-/*
 	if ( timlib_exists_character( string, ':' ) )
 		return ':';
 	else
-*/
 		return 0;
 }
 

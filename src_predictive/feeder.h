@@ -116,11 +116,16 @@ FEEDER_PHRASE *feeder_phrase_new(
 FEEDER_PHRASE *feeder_phrase_calloc(
 			void );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 FEEDER_PHRASE *feeder_phrase_seek(
 			char *feeder_description,
 			LIST *feeder_phrase_list );
+
+/* Process */
+/* ------- */
+char feeder_phrase_delimiter(
+			char *phrase );
 
 typedef struct
 {
@@ -315,7 +320,8 @@ int feeder_load_row_check_number(
 /* ------------------- */
 char *feeder_load_row_transaction_date_time(
 			char *feeder_load_row_international_date,
-			char *date_hms );
+			char *date_hms,
+			char *minimum_transaction_date_time );
 
 /* Usage */
 /* ----- */

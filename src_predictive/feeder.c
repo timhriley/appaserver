@@ -219,6 +219,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 {
 	FEEDER_LOAD_ROW *feeder_load_row;
 	char buffer[ 512 ];
+	char *minimum_transaction_date_time = {0};
 
 	if ( !feeder_load_date )
 	{
@@ -430,6 +431,20 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 		if ( feeder_load_row->feeder_matched_journal )
 		{
 			feeder_load_row->feeder_matched_journal->taken = 1;
+
+			minimum_transaction_date_time =
+				feeder_load_row->
+					feeder_matched_journal->
+					transaction_date_time;
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: minimum_transaction_date_time = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+minimum_transaction_date_time );
+m2( "timriley", msg );
+}
 		}
 	}
 
@@ -449,7 +464,8 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 			/* ------------------- */
 			feeder_load_row_transaction_date_time(
 				feeder_load_row->international_date,
-				date_hms( feeder_load_date ) );
+				date_hms( feeder_load_date ),
+				minimum_transaction_date_time );
 
 		date_increment_seconds(
 			feeder_load_date,
@@ -1248,7 +1264,8 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 		for(	piece_number = 0;
 			piece(	feeder_component,
-				timlib_delimiter( feeder_phrase->phrase ),
+				feeder_phrase_delimiter(
+					feeder_phrase->phrase ),
 				feeder_phrase->phrase,
 				piece_number );
 			piece_number++ )
@@ -1264,6 +1281,20 @@ FEEDER_PHRASE *feeder_phrase_seek(
 	} while ( list_next( feeder_phrase_list ) );
 
 	return (FEEDER_PHRASE *)0;
+}
+
+char feeder_phrase_delimiter( char *phrase )
+{
+	if ( timlib_exists_character( phrase, '|' ) )
+		return '|';
+	else
+	if ( timlib_exists_character( phrase, ',' ) )
+		return ',';
+	else
+	if ( timlib_exists_character( phrase, ';' ) )
+		return ';';
+	else
+		return 0;
 }
 
 char *feeder_exist_row_where(
@@ -1769,7 +1800,8 @@ void feeder_load_row_insert_pipe(
 
 char *feeder_load_row_transaction_date_time(
 			char *international_date,
-			char *date_hms )
+			char *date_hms,
+			char *minimum_transaction_date_time )
 {
 	char transaction_date_time[ 32 ];
 
@@ -1788,6 +1820,28 @@ char *feeder_load_row_transaction_date_time(
 		"%s %s",
 		international_date,
 		date_hms );
+
+	if ( minimum_transaction_date_time )
+	{
+		if ( strcmp(
+			transaction_date_time,
+			minimum_transaction_date_time ) < 0 )
+		{
+			DATE *date =
+				date_19new(
+					minimum_transaction_date_time );
+
+			date_increment_seconds(
+				date,
+				1 /* seconds */ );
+
+			strcpy(
+				transaction_date_time,
+				/* Returns heap memory */
+				/* ------------------- */
+				date_display19(	date ) );
+		}
+	}
 
 	return strdup( transaction_date_time );
 }
