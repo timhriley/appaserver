@@ -221,7 +221,8 @@ char *get_constant_units_spelling( char *units )
 		return "kelvin";
 	}
 	else
-	if ( strcmp( units, "absolute_f" ) == 0 )
+	if ( strcmp( units, "absolute_f" ) == 0
+	||   strcmp( units, "absolute_fahren" ) == 0 )
 	{
 		return "absolute_fahrenheit";
 	}
