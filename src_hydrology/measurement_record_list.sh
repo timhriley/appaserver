@@ -56,7 +56,6 @@ then
 					where="$where"`
 
 		units_converted_process="measurement_convert_units.e	\
-						$application 		\
 						\"$units\"		\
 						\"$units_converted\"	\
 						$value_piece_offset	\

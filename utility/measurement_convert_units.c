@@ -70,6 +70,8 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
+	application_name = environment_application_name();
+
 	units = argv[ 1 ];
 	units_converted = argv[ 2 ];
 	value_piece = atoi( argv[ 3 ] );
