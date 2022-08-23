@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/utility/measurement_convert_units.c			*/
-/* ----------------------------------------------------------------	*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* ----------------------------------------------------------------	*/
+/* ------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/measurement_convert_units.c		*/
+/* ----------------------------------------------------------	*/
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ----------------------------------------------------------	*/
 
 /* Includes */
 /* -------- */
@@ -60,10 +60,6 @@ int main( int argc, char **argv )
 	boolean is_temperature_boolean;
 	boolean is_navd88_boolean;
 
-	/* Exits if failure. */
-	/* ----------------- */
-	application_name = environ_exit_application_name( argv[ 0 ] );
-
 	output_starting_argv_stderr( argc, argv );
 
 	if ( argc < 5 )
@@ -73,6 +69,8 @@ int main( int argc, char **argv )
 			argv[ 0 ] );
 		exit( 1 );
 	}
+
+	application_name = environment_application_name();
 
 	units = argv[ 1 ];
 	units_converted = argv[ 2 ];
@@ -246,9 +244,7 @@ double get_navd88_value(	char *application_name,
 	}
 
 	if ( ( value_offset_string =
-		dictionary_fetch(
-			station,
-			station_dictionary ) ) )
+			dictionary_fetch( station_dictionary, station ) ) )
 	{
 		return value + atof( value_offset_string );
 	}
