@@ -185,4 +185,6 @@ char *string_trim_character_array(
 /* ------------------- */
 char *string_strdup(	char *string );
 
+double string_atof(	char *string );
+
 #endif

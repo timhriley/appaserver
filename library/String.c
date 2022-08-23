@@ -925,3 +925,12 @@ char *string_strdup( char *string )
 	else
 		return strdup( string );
 }
+
+double string_atof( char *string )
+{
+	if ( !string )
+		return 0.0;
+	else
+		return atof( string );
+}
+
