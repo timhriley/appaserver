@@ -35,8 +35,9 @@ int main( int argc, char **argv )
 	int debit_column;
 	int credit_column;
 	int balance_column;
+	int reference_column;
 	boolean reverse_order_boolean;
-	double account_end_balance;
+	double parameter_account_end_balance;
 	boolean execute_boolean;
 	FEEDER *feeder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
@@ -51,10 +52,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 13 )
+	if ( argc != 14 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name feeder_account filename date_column description_column debit_column credit_column balance_column reverse_order_yn account_end_balance execute_yn\n",
+"Usage: %s process_name login_name feeder_account filename date_column description_column debit_column credit_column balance_column reference_column reverse_order_yn account_end_balance execute_yn\n",
 			 argv[ 0 ] );
 
 		fprintf( stderr,
@@ -72,9 +73,10 @@ int main( int argc, char **argv )
 	debit_column = atoi( argv[ 7 ] );
 	credit_column = atoi( argv[ 8 ] );
 	balance_column = atoi( argv[ 9 ] );
-	reverse_order_boolean = (*argv[ 10 ] == 'y' );
-	account_end_balance = atof( argv[ 11 ] );
-	execute_boolean = (*argv[ 12 ] == 'y');
+	reference_column = atoi( argv[ 10 ] );
+	reverse_order_boolean = (*argv[ 11 ] == 'y' );
+	parameter_account_end_balance = atof( argv[ 12 ] );
+	execute_boolean = (*argv[ 13 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -87,6 +89,7 @@ int main( int argc, char **argv )
 		format_initial_capital(
 			buffer,
 			process_name ) );
+
 	fflush( stdout );
 	if ( system( "TZ=`appaserver_tz.sh` date '+%x %H:%M'" ) ) {};
 	printf( "</h1>\n" );
@@ -118,9 +121,9 @@ int main( int argc, char **argv )
 			debit_column,
 			credit_column,
 			balance_column,
+			reference_column,
 			reverse_order_boolean,
-			account_end_balance
-				/* parameter_account_end_balance */ );
+			parameter_account_end_balance );
 
 	if ( !feeder )
 	{
@@ -142,19 +145,17 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean && feeder->feeder_load_event )
 	{
-		feeder_load_row_list_insert(
+		feeder_row_list_insert(
 			feeder_account,
 			feeder->
 				feeder_load_event->
 				feeder_load_date_string,
-			feeder->
-				feeder_load_file->
-				feeder_load_row_list );
+			feeder->feeder_row_list,
+			feeder->feeder_row_first_out_balance );
 
-		feeder_load_row_transaction_insert(
-			feeder->
-				feeder_load_file->
-				feeder_load_row_list );
+		feeder_row_transaction_insert(
+			feeder->feeder_row_list,
+			feeder->feeder_row_first_out_balance );
 
 		feeder_load_event_insert(
 			FEEDER_LOAD_EVENT_TABLE,
@@ -177,40 +178,57 @@ int main( int argc, char **argv )
 			process_name,
 			appaserver_parameter_file_get_dbms() );
 
+		printf( "%s\n",
+			/* ------------------------- */
+			/* Returns heap memory or "" */
+			/* ------------------------- */
+			feeder_parameter_account_end_balance_error(
+				parameter_account_end_balance,
+				feeder_load_row_account_end_balance(
+					(FEEDER_LOAD_ROW *)list_last(
+						feeder->
+						   feeder_load_file->
+						   feeder_load_row_list ) ) ) );
+
 		printf( "<h3>Process complete.</h3>\n" );
 	}
 	else
 	{
-		if ( feeder->feeder_load_row_first_out_balance )
+		printf( "%s\n",
+			/* ------------------------- */
+			/* Returns heap memory or "" */
+			/* ------------------------- */
+			feeder_parameter_account_end_balance_error(
+				parameter_account_end_balance,
+				feeder_load_row_account_end_balance(
+					(FEEDER_LOAD_ROW *)list_last(
+						feeder->
+						   feeder_load_file->
+						   feeder_load_row_list ) ) ) );
+
+		if ( feeder->feeder_row_first_out_balance )
 		{
 			printf( "<h1>No Transactions</h1>\n" );
 			fflush( stdout );
 
-			if ( feeder_load_row_error_display(
-				feeder->
-					feeder_load_file->
-					feeder_load_row_list ) )
+			if ( feeder_row_error_display(
+				feeder->feeder_row_list ) )
 			{
 				feeder_matched_journal_not_taken_display(
-					feeder->
-						feeder_matched_journal_list );
+					feeder->feeder_matched_journal_list );
 			}
 		}
 				
 		printf( "<h1>All Transactions</h1>\n" );
 		fflush( stdout );
-		feeder_load_row_list_display(
-			feeder->
-				feeder_load_file->
-				feeder_load_row_list,
-			feeder->feeder_load_row_first_out_balance );
+		feeder_row_list_display(
+			feeder->feeder_row_list,
+			feeder->feeder_row_first_out_balance );
 
-		if ( feeder->feeder_load_row_first_out_balance )
+		if ( feeder->feeder_row_first_out_balance )
 		{
-			if (	feeder->feeder_load_row_first_out_balance ==
-				list_first( feeder->
-						feeder_load_file->
-						feeder_load_row_list ) )
+			if (	feeder->feeder_row_first_out_balance ==
+				list_first( feeder->feeder_row_list ) )
 			{
 				printf(
 				"<h3>Execute will not load any rows.</h3>\n" );
@@ -225,9 +243,7 @@ int main( int argc, char **argv )
 		{
 			printf( "<h3>Execute will process all %d rows.</h3>\n",
 				list_length(
-					feeder->
-						feeder_load_file->
-						feeder_load_row_list ) );
+					feeder->feeder_row_list ) );
 		}
 	}
 

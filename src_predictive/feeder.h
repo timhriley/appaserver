@@ -271,6 +271,7 @@ typedef struct
 	double credit;
 	double feeder_amount;
 	double balance;
+	char *reference_string;
 	int check_number;
 	int row_number;
 	char *description_embedded;
@@ -286,6 +287,7 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 			int debit_column /* one_based */,
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
+			int reference_column /* one_based */,
 			char *input,
 			int row_number );
 
@@ -307,13 +309,6 @@ double feeder_load_row_amount(
 int feeder_load_row_check_number(
 			char *feeder_description );
 
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_transaction_date_time(
-			char *feeder_load_row_international_date,
-			char *date_hms,
-			char *minimum_transaction_date_time );
-
 /* Usage */
 /* ----- */
 
@@ -322,8 +317,11 @@ char *feeder_load_row_transaction_date_time(
 char *feeder_load_row_description_embedded(
 			char *feeder_description,
 			double balance,
-			int row_number,
+			char *reference_string,
 			int feeder_load_row_check_number );
+
+/* Process */
+/* ------- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -335,7 +333,7 @@ char *feeder_load_row_trim_date(
 char *feeder_load_row_description_build(
 			char *sed_trim_double_spaces,
 			double balance,
-			int row_number );
+			char *reference_string );
 
 /* Returns feeder_load_row_description_build */
 /* ----------------------------------------- */
@@ -350,6 +348,11 @@ double feeder_load_row_list_sum_amount(
 
 /* Process */
 /* ------- */
+
+/* Public */
+/* ------ */
+double feeder_load_row_account_end_balance(
+			FEEDER_LOAD_ROW *last_feeder_load_row );
 
 typedef struct
 {
@@ -367,7 +370,7 @@ typedef struct
 LIST *feeder_row_list(	DATE *feeder_load_date /* in/out */,
 			char *feeder_account,
 			LIST *feeder_phrase_list,
-			LIST *exist_row_list,
+			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
 			LIST *feeder_load_row_list );
 
@@ -390,12 +393,22 @@ FEEDER_ROW *feeder_row_new(
 FEEDER_ROW *feeder_row_calloc(
 			void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_row_transaction_date_time(
+			char *feeder_load_row_international_date,
+			char *date_hms,
+			char *minimum_transaction_date_time );
+
 /* Usage */
 /* ----- */
 void feeder_row_balance_set(
 			LIST *feeder_row_list,
 			double feeder_prior_account_end_balance,
 			FEEDER_ROW *feeder_row_first_out_balance );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */
@@ -481,7 +494,7 @@ char *feeder_row_list_insert_system_string(
 FILE *feeder_row_list_insert_open(
 			char *feeder_row_list_insert_system_string );
 
-JOURNAL *feeder_load_row_journal(
+JOURNAL *feeder_row_journal(
 			FEEDER_PHRASE *feeder_phrase_seek,
 			char *transaction_date_time,
 			FEEDER_MATCHED_JOURNAL *feeder_matched_journal );
@@ -499,7 +512,7 @@ void feeder_row_insert_pipe(
 			char *feeder_account,
 			char *international_date,
 			char *description_embedded,
-			double amount,
+			double feeder_amount,
 			double balance,
 			int row_number,
 			char *feeder_row_phrase,
@@ -515,7 +528,8 @@ void feeder_row_transaction_insert(
 /* Process */
 /* ------- */
 LIST *feeder_row_extract_transaction_list(
-			LIST *feeder_row_list );
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance );
 
 typedef struct
 {
@@ -536,10 +550,8 @@ FEEDER_LOAD_FILE *feeder_load_file_fetch(
 			int debit_column /* one_based */,
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
-			boolean reverse_order_boolean,
-			LIST *feeder_phrase_list,
-			LIST *feeder_exist_row_list,
-			LIST *feeder_matched_journal_list );
+			int reference_column /* one_based */,
+			boolean reverse_order_boolean );
 
 /* Process */
 /* ------- */
@@ -562,9 +574,6 @@ FILE *feeder_load_file_input_open(
 char *feeder_load_file_minimum_date(
 			char *feeder_load_filename,
 			int date_column /* one_based */ );
-
-double feeder_load_file_account_end_balance(
-			FEEDER_LOAD_ROW *last_feeder_load_row );
 
 #define FEEDER_LOAD_EVENT_TABLE		"feeder_load_event"
 
@@ -748,6 +757,7 @@ FEEDER *feeder_fetch(
 			int debit_column /* one_based */,
 			int credit_column /* one_based */,
 			int balance_column /* one_based */,
+			int reference_column /* one_based */,
 			boolean reverse_order_boolean,
 			double parameter_account_end_balance );
 
@@ -780,5 +790,14 @@ double feeder_prior_account_end_balance(
 
 /* Process */
 /* ------- */
+
+/* Driver */
+/* ------ */
+
+/* Returns heap memory or "" */
+/* ------------------------- */
+char *feeder_parameter_account_end_balance_error(
+			double parameter_account_end_balance,
+			double feeder_load_row_account_end_balance );
 
 #endif
