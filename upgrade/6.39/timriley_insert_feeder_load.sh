@@ -66,8 +66,15 @@ insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width)
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('execute_yn',null,null,null,'1');
 insert into $prompt (prompt,hint_message,upload_filename_yn,date_yn,input_width) values ('filename',null,'y',null,'100');
 insert into $process_groups (process_group) values ('reconcile');
-delete from $process where process = '';
-delete from $process where process = '';
+delete from $process where process = 'direct_transaction_assign';
+delete from $process_parameter where process = 'direct_transaction_assign';
+delete from $role_process where process = 'direct_transaction_assign';
+delete from $process where process = 'feeder_upload_missing';
+delete from $process_parameter where process = 'feeder_upload_missing';
+delete from $role_process where process = 'feeder_upload_missing';
+delete from $process where process = 'transaction_balance_report';
+delete from $process_parameter where process = 'transaction_balance_report';
+delete from $role_process where process = 'transaction_balance_report';
 all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 

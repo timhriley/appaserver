@@ -1054,13 +1054,32 @@ FEEDER *feeder_fetch(
 			feeder_account,
 			balance_column,
 			parameter_account_end_balance,
-			feeder->feeder_load_file->feeder_load_row_list );
+			feeder->feeder_row_list );
 
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: account_end_balance = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+feeder->account_end_balance );
+m2( "timriley", msg );
+}
 	feeder->prior_account_end_balance =
 		feeder_prior_account_end_balance(
 			feeder_account,
 			feeder->account_end_balance,
-			feeder->feeder_load_file->feeder_load_row_list );
+			feeder->feeder_row_list );
+
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: prior_account_end_balance = %.2lf\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+feeder->prior_account_end_balance );
+m2( "timriley", msg );
+}
 
 	feeder->feeder_row_first_out_balance =
 		feeder_row_first_out_balance(
@@ -1228,6 +1247,9 @@ FEEDER_EXIST_ROW *feeder_exist_row_parse( char *input )
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	feeder_exist_row->transaction_date_time = strdup( buffer );
+
+	piece( buffer, SQL_DELIMITER, input, 3 );
+	feeder_exist_row->feeder_row_balance = atof( buffer );
 
 	return feeder_exist_row;
 }
@@ -2399,12 +2421,22 @@ void feeder_row_balance_set(
 
 		if ( feeder_row == feeder_row_first_out_balance ) return;
 
-		feeder_row->feeder_load_row->balance =
-			prior_account_end_balance +
-			feeder_row->feeder_load_row->feeder_amount;
+		if ( feeder_row->feeder_exist_row_seek )
+		{
+			feeder_row->feeder_load_row->balance =
+				feeder_row->
+					feeder_exist_row_seek->
+					feeder_row_balance;
+		}
+		else
+		{
+			feeder_row->feeder_load_row->balance =
+				prior_account_end_balance +
+				feeder_row->feeder_load_row->feeder_amount;
 
-		prior_account_end_balance =
-			feeder_row->feeder_load_row->balance;
+			prior_account_end_balance =
+				feeder_row->feeder_load_row->balance;
+		}
 
 	} while ( list_next( feeder_row_list ) );
 }
@@ -2431,21 +2463,28 @@ FEEDER_ROW *feeder_row_first_out_balance(
 	return (FEEDER_ROW *)0;
 }
 
-double feeder_load_row_list_sum_amount(
-			LIST *feeder_load_row_list )
+double feeder_row_list_sum_amount(
+			LIST *feeder_row_list )
 {
-	FEEDER_LOAD_ROW *feeder_load_row;
+	FEEDER_ROW *feeder_row;
 	double sum_amount;
 
-	if ( !list_rewind( feeder_load_row_list ) ) return 0.0;
+	if ( !list_rewind( feeder_row_list ) ) return 0.0;
 
 	sum_amount = 0.0;
 
 	do {
-		feeder_load_row = list_get( feeder_load_row_list );
-		sum_amount += feeder_load_row->feeder_amount;
+		feeder_row = list_get( feeder_row_list );
 
-	} while ( list_next( feeder_load_row_list ) );
+		if ( !feeder_row->feeder_exist_row_seek )
+		{
+			sum_amount +=
+				feeder_row->
+					feeder_load_row->
+					feeder_amount;
+		}
+
+	} while ( list_next( feeder_row_list ) );
 
 	return sum_amount;
 }
@@ -2936,7 +2975,7 @@ double feeder_account_end_balance(
 			char *feeder_account,
 			int balance_column,
 			double parameter_account_end_balance,
-			LIST *feeder_load_row_list )
+			LIST *feeder_row_list )
 {
 	double account_end_balance = {0};
 	FEEDER_LOAD_EVENT *feeder_load_event;
@@ -2948,20 +2987,26 @@ double feeder_account_end_balance(
 	{
 		account_end_balance =
 			feeder_load_event->account_end_balance +
-			feeder_load_row_list_sum_amount(
-				feeder_load_row_list );
+			feeder_row_list_sum_amount(
+				feeder_row_list );
 	}
 	else
 	if ( balance_column )
 	{
+		FEEDER_ROW *last_feeder_row;
+
+		last_feeder_row =
+			list_last(
+				feeder_row_list );
+
 		account_end_balance =
 			/* ----------------------------- */
 			/* Returns this->balance or null */
 			/* ----------------------------- */
 			feeder_load_row_account_end_balance(
-				(FEEDER_LOAD_ROW *)list_last(
-					feeder_load_row_list )
-						/* last_feeder_load_row */ );
+				(last_feeder_row)
+					? last_feeder_row->feeder_load_row
+					: (FEEDER_LOAD_ROW *)0 );
 	}
 	else
 	if ( parameter_account_end_balance )
@@ -2975,7 +3020,7 @@ double feeder_account_end_balance(
 double feeder_prior_account_end_balance(
 			char *feeder_account,
 			double feeder_account_end_balance,
-			LIST *feeder_load_row_list )
+			LIST *feeder_row_list )
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
 	double account_end_balance;
@@ -2992,8 +3037,8 @@ double feeder_prior_account_end_balance(
 	{
 		account_end_balance =
 			feeder_account_end_balance -
-			feeder_load_row_list_sum_amount(
-				feeder_load_row_list );
+			feeder_row_list_sum_amount(
+				feeder_row_list );
 	}
 
 	return account_end_balance;
@@ -3138,7 +3183,8 @@ FEEDER_ROW *feeder_row_new(
 		}
 	}
 
-	if ( list_length( feeder_phrase_list ) )
+	if ( !feeder_row->feeder_matched_journal
+	&&   list_length( feeder_phrase_list ) )
 	{
 		feeder_row->feeder_phrase_seek =
 			feeder_phrase_seek(
@@ -3203,14 +3249,18 @@ FEEDER_ROW *feeder_row_calloc( void )
 
 char *feeder_parameter_account_end_balance_error(
 			double parameter_account_end_balance,
-			double feeder_load_row_account_end_balance )
+			double feeder_load_row_account_end_balance,
+			FEEDER_ROW *feeder_row_first_out_balance,
+			int feeder_row_seek_matched_count )
 {
 	char error[ 128 ];
 
 	if ( !parameter_account_end_balance
 	||   dollar_virtually_same(
 			parameter_account_end_balance,
-			feeder_load_row_account_end_balance ) )
+			feeder_load_row_account_end_balance )
+	||   feeder_row_first_out_balance
+	||   !feeder_row_seek_matched_count )
 	{
 		return "";
 	}
@@ -3222,3 +3272,33 @@ char *feeder_parameter_account_end_balance_error(
 
 	return strdup( error );
 }
+
+int feeder_row_seek_matched_count(
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance )
+{
+	int count = 0;
+	FEEDER_ROW *feeder_row;
+
+	if ( !list_rewind( feeder_row_list ) ) return 0;
+
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		if ( feeder_row_first_out_balance
+		&&   feeder_row == feeder_row_first_out_balance )
+		{
+			break;
+		}
+
+		if ( feeder_row->feeder_matched_journal
+		||   feeder_row->feeder_phrase_seek )
+		{
+			count++;
+		}
+
+	} while ( list_next( feeder_row_list ) );
+
+	return count;
+}
+

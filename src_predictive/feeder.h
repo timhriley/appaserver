@@ -14,20 +14,22 @@
 #include "transaction.h"
 #include "journal.h"
 
-#define FEEDER_LOAD_TRANSACTION_DAYS_AGO			\
+#define FEEDER_LOAD_TRANSACTION_DAYS_AGO				\
 					"feeder_load_transaction_days_ago"
 
 #define FEEDER_DESCRIPTION_SIZE		140
 
-#define FEEDER_EXIST_ROW_SELECT		"feeder_date,"		\
-					"feeder_description,"	\
-					"transaction_date_time"
+#define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
+					"feeder_description,"		\
+					"transaction_date_time,"	\
+					"feeder_row_balance"
 
 typedef struct
 {
 	char *feeder_date;
 	char *feeder_description;
 	char *transaction_date_time;
+	double feeder_row_balance;
 } FEEDER_EXIST_ROW;
 
 /* Usage */
@@ -341,14 +343,6 @@ char *feeder_load_row_description_crop(
 			char *feeder_load_row_description_build,
 			int feeder_description_size );
 
-/* Usage */
-/* ----- */
-double feeder_load_row_list_sum_amount(
-			LIST *feeder_load_row_list );
-
-/* Process */
-/* ------- */
-
 /* Public */
 /* ------ */
 double feeder_load_row_account_end_balance(
@@ -417,6 +411,20 @@ FEEDER_ROW *feeder_row_first_out_balance(
 
 /* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
+double feeder_row_list_sum_amount(
+			LIST *feeder_row_list );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
+int feeder_row_seek_matched_count(
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance );
 
 /* Driver */
 /* ------ */
@@ -776,7 +784,7 @@ double feeder_account_end_balance(
 			char *feeder_account,
 			int balance_column,
 			double parameter_account_end_balance,
-			LIST *feeder_load_row_list );
+			LIST *feeder_row_list );
 
 /* Process */
 /* ------- */
@@ -786,7 +794,7 @@ double feeder_account_end_balance(
 double feeder_prior_account_end_balance(
 			char *feeder_account,
 			double feeder_account_end_balance,
-			LIST *feeder_load_row_list );
+			LIST *feeder_row_list );
 
 /* Process */
 /* ------- */
@@ -798,6 +806,8 @@ double feeder_prior_account_end_balance(
 /* ------------------------- */
 char *feeder_parameter_account_end_balance_error(
 			double parameter_account_end_balance,
-			double feeder_load_row_account_end_balance );
+			double feeder_load_row_account_end_balance,
+			FEEDER_ROW *feeder_row_first_out_balance,
+			int feeder_row_seek_matched_count );
 
 #endif

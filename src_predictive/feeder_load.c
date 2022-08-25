@@ -143,54 +143,72 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	if ( execute_boolean && feeder->feeder_load_event )
+	if ( execute_boolean )
 	{
-		feeder_row_list_insert(
-			feeder_account,
-			feeder->
-				feeder_load_event->
-				feeder_load_date_string,
+		if ( feeder_row_seek_matched_count(
 			feeder->feeder_row_list,
-			feeder->feeder_row_first_out_balance );
+			feeder->feeder_row_first_out_balance ) )
+		{
+			feeder_row_list_insert(
+				feeder_account,
+				feeder->
+					feeder_load_event->
+					feeder_load_date_string,
+				feeder->feeder_row_list,
+				feeder->feeder_row_first_out_balance );
 
-		feeder_row_transaction_insert(
-			feeder->feeder_row_list,
-			feeder->feeder_row_first_out_balance );
+			feeder_row_transaction_insert(
+				feeder->feeder_row_list,
+				feeder->feeder_row_first_out_balance );
 
-		feeder_load_event_insert(
-			FEEDER_LOAD_EVENT_TABLE,
-			FEEDER_LOAD_EVENT_INSERT,
-			feeder->feeder_load_event->feeder_load_date_string,
-			feeder->feeder_load_event->feeder_account );
+			feeder_load_event_insert(
+				FEEDER_LOAD_EVENT_TABLE,
+				FEEDER_LOAD_EVENT_INSERT,
+				feeder->
+					feeder_load_event->
+					feeder_load_date_string,
+				feeder->
+					feeder_load_event->
+					feeder_account );
 
-		feeder_load_event_update(
-			FEEDER_LOAD_EVENT_TABLE,
-			FEEDER_LOAD_EVENT_PRIMARY_KEY,
-			feeder->feeder_load_event->feeder_load_date_string,
-			feeder->feeder_load_event->feeder_account,
-			feeder->feeder_load_event->login_name,
-			feeder->feeder_load_event->basename_filename,
-			feeder->account_end_date,
-			feeder->account_end_balance );
+			feeder_load_event_update(
+				FEEDER_LOAD_EVENT_TABLE,
+				FEEDER_LOAD_EVENT_PRIMARY_KEY,
+				feeder->feeder_load_event->feeder_load_date_string,
+				feeder->feeder_load_event->feeder_account,
+				feeder->feeder_load_event->login_name,
+				feeder->feeder_load_event->basename_filename,
+				feeder->account_end_date,
+				feeder->account_end_balance );
 
-		process_increment_execution_count(
-			application_name,
-			process_name,
-			appaserver_parameter_file_get_dbms() );
+			process_increment_execution_count(
+				application_name,
+				process_name,
+				appaserver_parameter_file_get_dbms() );
 
-		printf( "%s\n",
-			/* ------------------------- */
-			/* Returns heap memory or "" */
-			/* ------------------------- */
-			feeder_parameter_account_end_balance_error(
-				parameter_account_end_balance,
-				feeder_load_row_account_end_balance(
-					(FEEDER_LOAD_ROW *)list_last(
-						feeder->
-						   feeder_load_file->
-						   feeder_load_row_list ) ) ) );
+			printf( "%s\n",
+				/* ------------------------- */
+				/* Returns heap memory or "" */
+				/* ------------------------- */
+				feeder_parameter_account_end_balance_error(
+					parameter_account_end_balance,
+					feeder_load_row_account_end_balance(
+						(FEEDER_LOAD_ROW *)list_last(
+						   feeder->
+						      feeder_load_file->
+						      feeder_load_row_list ) ),
+					feeder->feeder_row_first_out_balance,
+					feeder_row_seek_matched_count(
+					   feeder->feeder_row_list,
+					   feeder->
+					    feeder_row_first_out_balance ) ) );
 
-		printf( "<h3>Process complete.</h3>\n" );
+			printf( "<h3>Process complete.</h3>\n" );
+		}
+		else
+		{
+			printf( "<h3>No transactions to process.</h3>\n" );
+		}
 	}
 	else
 	{
@@ -204,7 +222,12 @@ int main( int argc, char **argv )
 					(FEEDER_LOAD_ROW *)list_last(
 						feeder->
 						   feeder_load_file->
-						   feeder_load_row_list ) ) ) );
+						   feeder_load_row_list ) ),
+				feeder->feeder_row_first_out_balance,
+				feeder_row_seek_matched_count(
+					feeder->feeder_row_list,
+					feeder->
+					     feeder_row_first_out_balance ) ) );
 
 		if ( feeder->feeder_row_first_out_balance )
 		{
@@ -225,26 +248,10 @@ int main( int argc, char **argv )
 			feeder->feeder_row_list,
 			feeder->feeder_row_first_out_balance );
 
-		if ( feeder->feeder_row_first_out_balance )
-		{
-			if (	feeder->feeder_row_first_out_balance ==
-				list_first( feeder->feeder_row_list ) )
-			{
-				printf(
-				"<h3>Execute will not load any rows.</h3>\n" );
-			}
-			else
-			{
-				printf(
-				"<h3>Execute will not load all rows.</h3>\n" );
-			}
-		}
-		else
-		{
-			printf( "<h3>Execute will process all %d rows.</h3>\n",
-				list_length(
-					feeder->feeder_row_list ) );
-		}
+		printf( "<h3>Execute load count: %d</h3>\n",
+			feeder_row_seek_matched_count(
+				feeder->feeder_row_list,
+				feeder->feeder_row_first_out_balance ) );
 	}
 
 	document_close();
