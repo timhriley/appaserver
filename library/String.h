@@ -103,6 +103,8 @@ char *string_commas_rounded_dollar(
 char *string_commas_dollar(
 			double d );
 
+/* Returns heap memory */
+/* ------------------- */
 char *string_commas_money(
 			double d );
 

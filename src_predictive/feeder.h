@@ -415,7 +415,8 @@ FEEDER_ROW *feeder_row_first_out_balance(
 /* Usage */
 /* ----- */
 double feeder_row_list_sum_amount(
-			LIST *feeder_row_list );
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance );
 
 /* Process */
 /* ------- */
@@ -784,7 +785,8 @@ double feeder_account_end_balance(
 			char *feeder_account,
 			int balance_column,
 			double parameter_account_end_balance,
-			LIST *feeder_row_list );
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance );
 
 /* Process */
 /* ------- */
@@ -794,7 +796,8 @@ double feeder_account_end_balance(
 double feeder_prior_account_end_balance(
 			char *feeder_account,
 			double feeder_account_end_balance,
-			LIST *feeder_row_list );
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance );
 
 /* Process */
 /* ------- */

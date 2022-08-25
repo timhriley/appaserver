@@ -75,6 +75,9 @@ delete from $role_process where process = 'feeder_upload_missing';
 delete from $process where process = 'transaction_balance_report';
 delete from $process_parameter where process = 'transaction_balance_report';
 delete from $role_process where process = 'transaction_balance_report';
+delete from $process where process = 'post_cash_expense_transaction';
+delete from $process_parameter where process = 'post_cash_expense_transaction';
+delete from $role_process where process = 'post_cash_expense_transaction';
 all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 

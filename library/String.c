@@ -470,8 +470,8 @@ char *string_commas_dollar( double d )
 {
 	char *results;
 
-	/* Returns static memory of 3 decimal places */
-	/* ----------------------------------------- */
+	/* Returns heap memory of 3 decimal places */
+	/* --------------------------------------- */
 	results = string_commas_double( d );
 
 	*( results + strlen( results ) - 1 ) = '\0';
