@@ -322,11 +322,6 @@ char *transaction_date_time_closing(
 			char *transaction_as_of_date,
 			boolean preclose_time_boolean );
 
-/* Returns heap memory */
-/* ------------------- */
-char *transaction_raw_display(
-			TRANSACTION *transaction );
-
 boolean transaction_date_time_changed(
 			char *preupdate_transaction_date_time );
 

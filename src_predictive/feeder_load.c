@@ -166,16 +166,18 @@ int main( int argc, char **argv )
 				FEEDER_LOAD_EVENT_INSERT,
 				feeder->
 					feeder_load_event->
-					feeder_load_date_string,
+					feeder_account,
 				feeder->
 					feeder_load_event->
-					feeder_account );
+					feeder_load_date_string );
 
 			feeder_load_event_update(
 				FEEDER_LOAD_EVENT_TABLE,
 				FEEDER_LOAD_EVENT_PRIMARY_KEY,
-				feeder->feeder_load_event->feeder_load_date_string,
 				feeder->feeder_load_event->feeder_account,
+				feeder->
+					feeder_load_event->
+					feeder_load_date_string,
 				feeder->feeder_load_event->login_name,
 				feeder->feeder_load_event->basename_filename,
 				feeder->account_end_date,

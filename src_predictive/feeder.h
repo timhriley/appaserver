@@ -250,6 +250,19 @@ FEEDER_TRANSACTION *feeder_transaction_calloc(
 
 #define FEEDER_LOAD_ROW_TABLE		"feeder_load_row"
 
+#define FEEDER_LOAD_ROW_SELECT		"full_name,"			\
+					"street_address,"		\
+					"transaction_date_time,"	\
+					"feeder_account,"		\
+					"feeder_date,"			\
+					"feeder_description,"		\
+					"feeder_amount,"		\
+					"feeder_row_balance,"		\
+					"row_number,"			\
+					"feeder_phrase,"		\
+					"feeder_load_date"
+
+
 #define FEEDER_LOAD_ROW_INSERT_COLUMNS	"full_name,"			\
 					"street_address,"		\
 					"transaction_date_time,"	\
@@ -264,18 +277,24 @@ FEEDER_TRANSACTION *feeder_transaction_calloc(
 
 typedef struct
 {
+	char *full_name;
+	char *street_address;
+	char *transaction_date_time;
+	char *feeder_account;
+	char *feeder_date;
+	char *feeder_phrase;
+	char *feeder_load_date;
 	char *american_date;
 	char *international_date;
 	char *feeder_description;
 	double debit;
 	double credit;
 	double feeder_amount;
-	double balance;
+	double feeder_row_balance;
 	char *reference_string;
 	int check_number;
 	int row_number;
 	char *description_embedded;
-	char *transaction_date_time;
 	char *memo;
 } FEEDER_LOAD_ROW;
 
@@ -340,6 +359,41 @@ char *feeder_load_row_description_build(
 char *feeder_load_row_description_crop(
 			char *feeder_load_row_description_build,
 			int feeder_description_size );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_system_string(
+			char *feeder_load_row_select,
+			char *feeder_load_row_table,
+			char *where );
+
+/* Process */
+/* ------- */
+
+
+/* Usage */
+/* ----- */
+LIST *feeder_load_row_system_list(
+			char *feeder_load_row_system_string );
+
+/* Process */
+/* ------- */
+
+/* Always succeeds */
+/* --------------- */
+FILE *feeder_load_row_input_pipe(
+			char *feeder_load_row_system_string );
+
+/* Usage */
+/* ----- */
+FEEDER_LOAD_ROW *feeder_load_row_parse(
+			char *input );
+
+/* Process */
+/* ------- */
 
 /* Public */
 /* ------ */
@@ -584,23 +638,23 @@ char *feeder_load_file_minimum_date(
 
 #define FEEDER_LOAD_EVENT_TABLE		"feeder_load_event"
 
-#define FEEDER_LOAD_EVENT_SELECT	"feeder_load_date,"	\
-					"feeder_account,"	\
+#define FEEDER_LOAD_EVENT_SELECT	"feeder_account,"	\
+					"feeder_load_date,"	\
 					"login_name,"		\
 					"feeder_load_filename,"	\
 					"account_end_date,"	\
 					"account_end_balance"
 
-#define FEEDER_LOAD_EVENT_INSERT	"feeder_load_date,"	\
-					"feeder_account"
+#define FEEDER_LOAD_EVENT_INSERT	"feeder_account,"	\
+					"feeder_load_date"
 
-#define FEEDER_LOAD_EVENT_PRIMARY_KEY	"feeder_load_date,"	\
-					"feeder_account"
+#define FEEDER_LOAD_EVENT_PRIMARY_KEY	"feeder_account,"	\
+					"feeder_load_date"
 
 typedef struct
 {
-	char *feeder_load_date_string;
 	char *feeder_account;
+	char *feeder_load_date_string;
 	char *login_name;
 	char *basename_filename;
 	char *account_end_date;
@@ -610,8 +664,8 @@ typedef struct
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_new(
-			char *feeder_load_date_string,
 			char *feeder_account,
+			char *feeder_load_date_string,
 			char *login_name,
 			char *feeder_load_file_basename_filename,
 			char *feeder_account_end_date,
@@ -625,8 +679,8 @@ FEEDER_LOAD_EVENT *feeder_load_event_calloc(
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_fetch(
-			char *feeder_load_date_string,
-			char *feeder_account );
+			char *feeder_account,
+			char *feeder_load_date_string );
 
 /* Process */
 /* ------- */
@@ -634,8 +688,8 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *feeder_load_event_primary_where(
-			char *feeder_load_date_string,
-			char *feeder_account );
+			char *feeder_account,
+			char *feeder_load_date_string );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -681,8 +735,8 @@ char *feeder_load_event_latest_load_date_string(
 void feeder_load_event_insert(
 			char *feeder_load_event_table,
 			char *feeder_load_event_insert,
-			char *feeder_load_date_string,
-			char *feeder_account );
+			char *feeder_account,
+			char *feeder_load_date_string );
 
 /* Process */
 /* ------- */
@@ -700,16 +754,16 @@ FILE *feeder_load_event_insert_open(
 void feeder_load_event_insert_pipe(
 			FILE *insert_open,
 			char sql_delimiter,
-			char *feeder_load_date_string,
-			char *feeder_account );
+			char *feeder_account,
+			char *feeder_load_date_string );
 
 /* Driver */
 /* ------ */
 void feeder_load_event_update(
 			char *feeder_load_event_table,
 			char *feeder_load_event_primary_key,
-			char *feeder_load_date_string,
 			char *feeder_account,
+			char *feeder_load_date_string,
 			char *login_name,
 			char *basename_filename,
 			char *account_end_date,
@@ -729,8 +783,8 @@ FILE *feeder_load_event_update_open(
 
 void feeder_load_event_update_pipe(
 			FILE *feeder_load_event_update_open,
-			char *feeder_load_date_string,
 			char *feeder_account,
+			char *feeder_load_date_string,
 			char *login_name,
 			char *basename_filename,
 			char *account_end_date,
@@ -810,5 +864,34 @@ char *feeder_parameter_account_end_balance_error(
 			double feeder_load_row_account_end_balance,
 			FEEDER_ROW *feeder_row_first_out_balance,
 			int feeder_row_seek_matched_count );
+
+typedef struct
+{
+	char *feeder_load_event_primary_where;
+	char *feeder_load_row_system_string;
+	LIST *feeder_load_row_list;
+	FEEDER_LOAD_ROW *first_feeder_load_row;
+	char *journal_where;
+	LIST *journal_system_list;
+	FEEDER_LOAD_ROW *feeder_load_row;
+	JOURNAL *journal;
+} FEEDER_AUDIT;
+
+/* Usage */
+/* ----- */
+FEEDER_AUDIT *feeder_audit_fetch(
+			char *feeder_account,
+			char *feeder_load_date_string );
+
+/* Process */
+/* ------- */
+FEEDER_AUDIT *feeder_audit_calloc(
+			void );
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_audit_journal_where(
+			char *feeder_account,
+			char *transaction_date_time );
 
 #endif

@@ -19,6 +19,10 @@ boolean double_virtually_same(
 			double d1,
 			double d2 );
 
+boolean money_virtually_same(
+			double d1,
+			double d2 );
+
 boolean dollar_virtually_same(
 			double d1,
 			double d2 );

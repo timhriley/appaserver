@@ -623,38 +623,6 @@ char *transaction_date_time_closing(
 	return date_time;
 }
 
-char *transaction_raw_display( TRANSACTION *transaction )
-{
-	char buffer[ 65536 ];
-	char *buf_ptr = buffer;
-	char *tmp;
-
-	buf_ptr += sprintf(
-			buf_ptr,
-			"full_name = %s, "
-			"street_address = %s, "
-			"transaction_date_time = %s, "
-			"transaction_amount = %.2lf\n",
-			transaction->full_name,
-			transaction->street_address,
-			transaction->transaction_date_time,
-			transaction->transaction_amount );
-
-	buf_ptr += sprintf(
-			buf_ptr,
-			"%s\n",
-			( tmp =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				journal_list_raw_display(
-					transaction->journal_list ) ) );
-
-	free( tmp );
-
-	return strdup( buffer );
-}
-
 void transaction_update(
 			double transaction_amount,
 			char *transaction_primary_where )

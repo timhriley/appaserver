@@ -367,11 +367,6 @@ LIST *journal_binary_list(
 			ACCOUNT *debit_account,
 			ACCOUNT *credit_account );
 
-/* Returns heap memory */
-/* ------------------- */
-char *journal_list_raw_display(
-			LIST *journal_list );
-
 int journal_transaction_count(
 			char *journal_table,
 			char *account_name,
@@ -381,5 +376,10 @@ int journal_transaction_count(
 LIST *journal_date_time_account_name_list(
 			char *journal_table,
 			char *transaction_date_time );
+
+JOURNAL *journal_seek(
+			char *transaction_date_time,
+			char *account_name,
+			LIST *journal_system_list );
 
 #endif

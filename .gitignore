@@ -168,7 +168,6 @@ depreciation_trigger
 journal_ledger_trigger
 generate_invoice
 generate_workorder
-feeder_upload_missing
 post_change_inventory_sale_return
 post_change_inventory_purchase_return
 transaction_date_time

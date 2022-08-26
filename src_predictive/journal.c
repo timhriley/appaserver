@@ -1016,45 +1016,6 @@ LIST *journal_binary_list(
 	return journal_list;
 }
 
-char *journal_list_raw_display(
-			LIST *journal_list )
-{
-	char buffer[ 65536 ];
-	JOURNAL *journal;
-	char *buf_ptr = buffer;
-
-	*buf_ptr = '\0';
-
-	if ( list_rewind( journal_list ) )
-	{
-		do {
-			journal = list_get( journal_list );
-
-			buf_ptr +=
-			   sprintf(	buf_ptr,
-					"\n"
-					"full_name = %s, "
-					"street_address = %s, "
-					"account=%s, "
-					"transaction_date_time=%s, "
-					"previous_balance=%.2lf, "
-					"debit_amount=%.2lf, "
-					"credit_amount=%.2lf, "
-					"balance=%.2lf\n",
-					journal->full_name,
-					journal->street_address,
-					journal->account_name,
-					journal->transaction_date_time,
-					journal->previous_balance,
-					journal->debit_amount,
-					journal->credit_amount,
-					journal->balance );
-
-		} while( list_next( journal_list ) );
-	}
-	return strdup( buffer );
-}
-
 void journal_list_html_display(
 			LIST *journal_list,
 			char *transaction_memo )
@@ -1674,3 +1635,39 @@ void journal_account_list_getset(
 
 	} while ( list_next( journal_list ) );
 }
+
+JOURNAL *journal_seek(	char *transaction_date_time,
+			char *account_name,
+			LIST *journal_system_list )
+{
+	JOURNAL *journal;
+
+	if ( !transaction_date_time
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_rewind( journal_system_list ) ) return (JOURNAL *)0;
+
+	do {
+		journal = list_get( journal_system_list );
+
+		if ( strcmp(	journal->transaction_date_time,
+				transaction_date_time ) == 0
+		&&   strcmp(	journal->account_name,
+				account_name ) == 0 )
+		{
+			return journal;
+		}
+
+	} while ( list_next( journal_system_list ) );
+
+	return (JOURNAL *)0;
+}
+

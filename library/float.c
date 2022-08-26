@@ -30,6 +30,11 @@ double abs_float( double f )
 		return f;
 }
 
+boolean money_virtually_same( double d1, double d2 )
+{
+	return dollar_virtually_same( d1, d2 );
+}
+
 boolean dollar_virtually_same( double d1, double d2 )
 {
 	double difference = d1 - d2;
