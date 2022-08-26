@@ -14,7 +14,11 @@ then
 	exit 1
 fi
 
-if [ "$application" != "timriley" ]
+# Returns 0 if FEEDER_PHRASE.feeder_phrase exists
+# -----------------------------------------------
+folder_attribute_exists.sh $application feeder_phrase feeder_phrase
+
+if [ $? -ne 0 ]
 then
 	exit 0
 fi

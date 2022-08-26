@@ -75,8 +75,7 @@ FEEDER_EXIST_ROW *feeder_exist_row_seek(
 #define FEEDER_PHRASE_SELECT		"feeder_phrase,"		\
 					"nominal_account,"		\
 					"full_name,"			\
-					"street_address,"		\
-					"feeder_phrase_ignore_yn"
+					"street_address"
 
 typedef struct
 {
@@ -84,7 +83,6 @@ typedef struct
 	char *nominal_account;
 	char *full_name;
 	char *street_address;
-	boolean feeder_phrase_ignore;
 } FEEDER_PHRASE;
 
 /* Usage */

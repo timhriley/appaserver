@@ -122,11 +122,6 @@ FEEDER_PHRASE *feeder_phrase_parse( char *input )
 		feeder_phrase->street_address = strdup( buffer );
 	}
 
-	if ( piece( buffer, SQL_DELIMITER, input, 4 ) )
-	{
-		feeder_phrase->feeder_phrase_ignore = ( *buffer == 'y' );
-	}
-
 	return feeder_phrase;
 }
 
@@ -1145,9 +1140,6 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 	do {
 		feeder_phrase = list_get( feeder_phrase_list );
-
-		if ( feeder_phrase->feeder_phrase_ignore ) continue;
-
 
 		for(	piece_number = 0;
 			piece(	feeder_component,

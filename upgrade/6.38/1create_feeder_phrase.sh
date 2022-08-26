@@ -27,7 +27,7 @@ fi
 
 table_name=feeder_phrase
 echo "drop table if exists $table_name;" | sql.e
-echo "create table $table_name (feeder_phrase char (50) not null,nominal_account char (60),full_name char (60),street_address char (60),feeder_phrase_ignore_yn char (1)) engine MyISAM;" | sql.e
+echo "create table $table_name (feeder_phrase char (50) not null,nominal_account char (60),full_name char (60),street_address char (60)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (feeder_phrase);" | sql.e
 
 exit 0
