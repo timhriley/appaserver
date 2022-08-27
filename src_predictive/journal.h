@@ -382,4 +382,7 @@ JOURNAL *journal_seek(
 			char *account_name,
 			LIST *journal_system_list );
 
+char *journal_minimum_transaction_date_time(
+			char *account_name );
+
 #endif

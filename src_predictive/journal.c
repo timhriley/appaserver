@@ -123,6 +123,9 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 				transaction_date_time,
 				account_name ),
 			JOURNAL_TABLE ) ) )
+
+	if ( max_prior_transaction_date_time
+	&&   *max_prior_transaction_date_time )
 	{
 		transaction_date_time = max_prior_transaction_date_time;
 	}
@@ -431,17 +434,29 @@ void journal_propagate(	char *transaction_date_time,
 
 	if (  !account_name
 	||    !*account_name
-	||    strcmp( account_name, "account" ) == 0
-	||    !transaction_date_time
-	||    !*transaction_date_time
-	||    strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
+	||    strcmp( account_name, "account" ) == 0 )
 	{
 		return;
 	}
 
+	if ( !transaction_date_time
+	||   !*transaction_date_time
+	||   strcmp(	transaction_date_time,
+			"transaction_date_time" ) == 0
+	||   strcmp(	transaction_date_time,
+			"preupdate_transaction_date_time" ) == 0 )
+	{
+		if ( ! ( transaction_date_time =
+				journal_minimum_transaction_date_time(
+					account_name ) ) )
+		{
+			return;
+		}
+	}
+
 	prior =
-		/* Fails if no journals for the account */
-		/* ------------------------------------ */
+		/* Fails if no journals that far back */
+		/* ---------------------------------- */
 		journal_prior(
 			transaction_date_time,
 			account_name,
@@ -1542,6 +1557,16 @@ LIST *journal_date_time_account_name_list(
 	char system_string[ 1024 ];
 	char where[ 128 ];
 
+	if ( !transaction_date_time
+	||   !*transaction_date_time
+	||   strcmp(	transaction_date_time,
+			"transaction_date_time" ) == 0
+	||   strcmp(	transaction_date_time,
+			"preupdate_transaction_date_time" ) == 0 )
+	{
+		transaction_date_time = "1960-01-01 00:00:00";
+	}
+
 	sprintf(where,
 		"transaction_date_time >= '%s'",
 		transaction_date_time );
@@ -1671,3 +1696,34 @@ JOURNAL *journal_seek(	char *transaction_date_time,
 	return (JOURNAL *)0;
 }
 
+char *journal_minimum_transaction_date_time( char *account_name )
+{
+	char system_string[ 1024 ];
+	char *where;
+
+	if ( !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		account_primary_where(
+			account_name );
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		"min( transaction_date_time )",
+		JOURNAL_TABLE,
+		where );
+
+	return
+	string_pipe( system_string );
+}

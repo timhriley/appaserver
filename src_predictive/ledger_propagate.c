@@ -44,6 +44,7 @@ int main( int argc, char **argv )
 
 	transaction_date_time = argv[ 1 ];
 
+/*
 	if ( !*transaction_date_time
 	||   strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
 	{
@@ -51,6 +52,7 @@ int main( int argc, char **argv )
 			pipe2string(
 				"transaction_date_time_minimum.sh" );
 	}
+*/
 
 	if ( argc >= 3 )
 	{
