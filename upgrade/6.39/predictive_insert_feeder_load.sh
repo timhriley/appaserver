@@ -40,7 +40,7 @@ role_operation="role_operation"
 cat << all_done
 delete from $process where process = 'BofA_cash_load';
 delete from $process where process = 'BofA_cash_upload';
-insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('BofA_cash_load','feeder_load \$process \$login_name bank_of_america_checking filename 1 2 3 0 4 0 reverse_order_yn account_end_balance execute_yn',null,null,null,null,'reconcile',null,null);
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('BofA_cash_load','feeder_load \$process \$login_name bank_of_america_checking filename 1 2 3 0 4 0 reverse_order_yn account_end_balance execute_yn','The bank''s begin date should be the result of Lookup -> Feeder&nbsp;Upload -> Feeder&nbsp;Upload&nbsp;Event -> Account&nbsp;End&nbsp;Date',null,null,null,'reconcile',null,null);
 insert into $role_process (role,process) values ('bookkeeper','BofA_cash_load');
 insert into $role_process (role,process) values ('supervisor','BofA_cash_load');
 delete from $process_parameter where process = 'BofA_cash_load';
@@ -56,7 +56,7 @@ delete from $process where process = '';
 delete from $process where process = '';
 delete from $process where process = 'BofA_credit_load';
 delete from $process where process = 'BofA_credit_upload';
-insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('BofA_credit_load','feeder_load \$process \$login_name bank_of_america_credit_card filename 1 3 5 0 0 2 y account_end_balance execute_yn',null,null,null,null,'reconcile',null,null);
+insert into $process (process,command_line,notepad,html_help_file_anchor,post_change_javascript,appaserver_yn,process_group,process_set_display,preprompt_help_text) values ('BofA_credit_load','feeder_load \$process \$login_name bank_of_america_credit_card filename 1 3 5 0 0 2 y account_end_balance execute_yn','The bank''s begin date should be the result of Lookup -> Feeder&nbsp;Upload -> Feeder&nbsp;Upload&nbsp;Event -> Account&nbsp;End&nbsp;Date',null,null,null,'reconcile',null,null);
 insert into $role_process (role,process) values ('bookkeeper','BofA_credit_load');
 insert into $role_process (role,process) values ('supervisor','BofA_credit_load');
 delete from $process_parameter where process = 'BofA_credit_load';
@@ -82,6 +82,10 @@ delete from $role_process where process = 'transaction_balance_report';
 delete from $process where process = 'post_cash_expense_transaction';
 delete from $process_parameter where process = 'post_cash_expense_transaction';
 delete from $role_process where process = 'post_cash_expense_transaction';
+delete from $process where process = 'statistics_report';
+delete from $process_parameter where process = 'statistics_report';
+delete from $role_process where process = 'statistics_report';
+update process set process_group = 'manipulate' where process = 'ledger_debit_credit_audit';
 all_done
 ) | sql.e 2>&1 | grep -iv duplicate
 

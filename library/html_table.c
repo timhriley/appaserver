@@ -22,7 +22,12 @@ HTML_TABLE *html_table_new(
 	html_table->sub_title = sub_title;
 	html_table->sub_sub_title = sub_sub_title;
 	html_table->heading_list = list_new();
+	html_table->row_list = list_new();
+
+	/* Legacy */
+	/* ------ */
 	html_table->data_list = list_new();
+
 	return html_table;
 }
 

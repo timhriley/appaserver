@@ -145,6 +145,8 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean )
 	{
+		FEEDER_AUDIT *feeder_audit;
+
 		if ( feeder_row_seek_matched_count(
 			feeder->feeder_row_list,
 			feeder->feeder_row_first_out_balance ) )
@@ -210,6 +212,16 @@ int main( int argc, char **argv )
 		else
 		{
 			printf( "<h3>No transactions to process.</h3>\n" );
+		}
+
+		if ( ( feeder_audit =
+			feeder_audit_fetch(
+				feeder_account,
+				feeder->feeder_load_date_string ) ) )
+		{
+			html_table_output(
+				feeder_audit->html_table,
+				HTML_TABLE_ROWS_BETWEEN_HEADING );
 		}
 	}
 	else

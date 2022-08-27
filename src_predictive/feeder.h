@@ -13,6 +13,7 @@
 #include "date.h"
 #include "transaction.h"
 #include "journal.h"
+#include "html_table.h"
 
 #define FEEDER_LOAD_TRANSACTION_DAYS_AGO				\
 					"feeder_load_transaction_days_ago"
@@ -258,6 +259,7 @@ FEEDER_TRANSACTION *feeder_transaction_calloc(
 					"feeder_description,"		\
 					"feeder_amount,"		\
 					"feeder_row_balance,"		\
+					"check_number,"			\
 					"row_number,"			\
 					"feeder_phrase,"		\
 					"feeder_load_date"
@@ -271,6 +273,7 @@ FEEDER_TRANSACTION *feeder_transaction_calloc(
 					"feeder_description,"		\
 					"feeder_amount,"		\
 					"feeder_row_balance,"		\
+					"check_number,"			\
 					"row_number,"			\
 					"feeder_phrase,"		\
 					"feeder_load_date"
@@ -314,7 +317,6 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 /* ------- */
 FEEDER_LOAD_ROW *feeder_load_row_calloc(
 			void );
-
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -413,8 +415,7 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *feeder_row_list(	DATE *feeder_load_date /* in/out */,
-			char *feeder_account,
+LIST *feeder_row_list(	char *feeder_account,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
@@ -422,6 +423,7 @@ LIST *feeder_row_list(	DATE *feeder_load_date /* in/out */,
 
 /* Process */
 /* ------- */
+DATE *feeder_row_date(	void );
 
 /* Usage */
 /* ----- */
@@ -574,7 +576,8 @@ void feeder_row_insert_pipe(
 			char *international_date,
 			char *description_embedded,
 			double feeder_amount,
-			double balance,
+			double feeder_row_balance,
+			int check_number,
 			int row_number,
 			char *feeder_row_phrase,
 			char *feeder_load_date_string,
@@ -865,6 +868,8 @@ char *feeder_parameter_account_end_balance_error(
 			FEEDER_ROW *feeder_row_first_out_balance,
 			int feeder_row_seek_matched_count );
 
+#define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"
+
 typedef struct
 {
 	char *feeder_load_event_primary_where;
@@ -875,6 +880,9 @@ typedef struct
 	LIST *journal_system_list;
 	FEEDER_LOAD_ROW *feeder_load_row;
 	JOURNAL *journal;
+	FEEDER_LOAD_ROW *prior_feeder_load_row;
+	JOURNAL *prior_journal;
+	HTML_TABLE *html_table;
 } FEEDER_AUDIT;
 
 /* Usage */
@@ -893,5 +901,33 @@ FEEDER_AUDIT *feeder_audit_calloc(
 char *feeder_audit_journal_where(
 			char *feeder_account,
 			char *transaction_date_time );
+
+/* Usage */
+/* ----- */
+HTML_TABLE *feeder_audit_html_table(
+			JOURNAL *prior_journal,
+			JOURNAL *journal,
+			FEEDER_LOAD_ROW *prior_feeder_load_row,
+			FEEDER_LOAD_ROW *feeder_load_row );
+
+/* Process */
+/* ------- */
+LIST *feeder_audit_html_heading_list(
+			void );
+
+HTML_ROW *feeder_audit_html_row(
+			JOURNAL *journal,
+			FEEDER_LOAD_ROW *feeder_load_row );
+
+LIST *feeder_audit_html_cell_list(
+			JOURNAL *journal,
+			char *full_name,
+			char *feeder_description,
+			char *transaction_date_time,
+			char *feeder_date,
+			double feeder_amount,
+			int row_number,
+			int check_number,
+			double feeder_row_balance );
 
 #endif

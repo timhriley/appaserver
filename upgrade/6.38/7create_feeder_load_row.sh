@@ -74,11 +74,16 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_amount',null,'3',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_date',null,'1',null,null,'y',null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_description',null,'2',null,null,'y',null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_load_date',null,'7',null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_phrase',null,'6',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_load_date',null,'8',null,null,null,null,null,null,null);
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_phrase',null,'7',null,null,null,null,null,null,null);
+
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','feeder_row_balance',null,'4',null,null,null,null,null,null,null);
+
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','check_number',null,'5',null,null,null,null,null,null,null);
+
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','full_name','1',null,null,null,null,null,null,null,null);
-insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','row_number',null,'5',null,null,null,null,null,null,null);
+
+insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','row_number',null,'6',null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','street_address','2',null,null,null,null,null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_load_row','transaction_date_time','3',null,null,null,null,null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('feeder_load_row','bookkeeper','lookup');
@@ -94,7 +99,7 @@ all_done
 
 table_name=feeder_load_row
 echo "drop table if exists $table_name;" | sql.e
-echo "create table $table_name (full_name char (60) not null,street_address char (60) not null,transaction_date_time datetime not null,feeder_account char (40) not null,feeder_date date,feeder_description char (140),feeder_amount double (12,2),feeder_row_balance double (12,2),row_number integer,feeder_phrase char (50),feeder_load_date char (10)) engine MyISAM;" | sql.e
+echo "create table $table_name (full_name char (60) not null,street_address char (60) not null,transaction_date_time datetime not null,feeder_account char (40) not null,feeder_date date,feeder_description char (140),feeder_amount double (12,2),feeder_row_balance double (12,2),check_number integer,row_number integer,feeder_phrase char (50),feeder_load_date char (10)) engine MyISAM;" | sql.e
 echo "create unique index $table_name on $table_name (full_name,street_address,transaction_date_time,feeder_account);" | sql.e
 echo "create unique index ${table_name}_additional_unique on $table_name (feeder_account,feeder_date,feeder_description);" | sql.e
 
