@@ -185,18 +185,6 @@ int main( int argc, char **argv )
 					feeder_load_event->
 					account_end_calculate_balance );
 
-			feeder_load_event_update(
-				FEEDER_LOAD_EVENT_TABLE,
-				FEEDER_LOAD_EVENT_PRIMARY_KEY,
-				feeder->feeder_load_event->feeder_account,
-				feeder->
-					feeder_load_event->
-					feeder_load_date_string,
-				feeder->feeder_load_event->login_name,
-				feeder->feeder_load_event->basename_filename,
-				feeder->account_end_date,
-				feeder->account_end_balance );
-
 			process_increment_execution_count(
 				application_name,
 				process_name,
@@ -229,7 +217,7 @@ int main( int argc, char **argv )
 		if ( ( feeder_audit =
 			feeder_audit_fetch(
 				feeder_account,
-				feeder->feeder_load_date_string ) ) )
+				feeder->feeder_load_date_time ) ) )
 		{
 			html_table_output(
 				feeder_audit->html_table,

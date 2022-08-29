@@ -21,16 +21,16 @@
 #define FEEDER_DESCRIPTION_SIZE		140
 
 #define FEEDER_EXIST_ROW_SELECT		"feeder_date,"			\
-					"feeder_description,"		\
+					"file_row_description,"		\
 					"transaction_date_time,"	\
-					"feeder_row_balance"
+					"file_row_balance"
 
 typedef struct
 {
 	char *feeder_date;
-	char *feeder_description;
+	char *file_row_description;
 	char *transaction_date_time;
-	double feeder_row_balance;
+	double file_row_balance;
 } FEEDER_EXIST_ROW;
 
 /* Usage */
@@ -120,7 +120,7 @@ FEEDER_PHRASE *feeder_phrase_calloc(
 /* Usage */
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_seek(
-			char *feeder_description,
+			char *file_row_description,
 			LIST *feeder_phrase_list );
 
 /* Process */
@@ -240,7 +240,7 @@ typedef struct
 FEEDER_TRANSACTION *feeder_transaction_new(
 			char *feeder_account,
 			FEEDER_PHRASE *feeder_phrase_seek,
-			double feeder_load_row_amount,
+			double file_row_amount,
 			char *transaction_date_time,
 			char *memo );
 
@@ -260,11 +260,11 @@ typedef struct
 	char *feeder_load_date;
 	char *american_date;
 	char *international_date;
-	char *feeder_description;
+	char *file_row_description;
 	double debit;
 	double credit;
-	double feeder_amount;
-	double feeder_row_balance;
+	double file_row_amount;
+	double file_row_balance;
 	char *reference_string;
 	int check_number;
 	int row_number;
@@ -299,15 +299,15 @@ double feeder_load_row_amount(
 			double credit );
 
 int feeder_load_row_check_number(
-			char *feeder_description );
+			char *file_row_description );
 
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or feeder_description */
-/* ----------------------------------------- */
+/* Returns heap memory or file_row_description */
+/* ------------------------------------------- */
 char *feeder_load_row_description_embedded(
-			char *feeder_description,
+			char *file_row_description,
 			double balance,
 			char *reference_string,
 			int feeder_load_row_check_number );
@@ -318,7 +318,7 @@ char *feeder_load_row_description_embedded(
 /* Returns static memory */
 /* --------------------- */
 char *feeder_load_row_trim_date(
-			char *feeder_description );
+			char *file_row_description );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -332,41 +332,6 @@ char *feeder_load_row_description_build(
 char *feeder_load_row_description_crop(
 			char *feeder_load_row_description_build,
 			int feeder_description_size );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_load_row_system_string(
-			char *feeder_load_row_select,
-			char *feeder_load_row_table,
-			char *where );
-
-/* Process */
-/* ------- */
-
-
-/* Usage */
-/* ----- */
-LIST *feeder_load_row_system_list(
-			char *feeder_load_row_system_string );
-
-/* Process */
-/* ------- */
-
-/* Always succeeds */
-/* --------------- */
-FILE *feeder_load_row_input_pipe(
-			char *feeder_load_row_system_string );
-
-/* Usage */
-/* ----- */
-FEEDER_LOAD_ROW *feeder_load_row_parse(
-			char *input );
-
-/* Process */
-/* ------- */
 
 /* Public */
 /* ------ */
@@ -424,7 +389,6 @@ typedef struct
 	char *memo;
 	FEEDER_TRANSACTION *feeder_transaction;
 	double calculate_balance;
-	double journal_balance;
 	int check_number;
 	char *feeder_phrase;
 } FEEDER_ROW;
@@ -487,6 +451,40 @@ FEEDER_ROW *feeder_row_first_out_balance(
 double feeder_row_list_sum_amount(
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_row_system_string(
+			char *feeder_row_select,
+			char *feeder_row_table,
+			char *where );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *feeder_row_system_list(
+			char *feeder_row_system_string );
+
+/* Process */
+/* ------- */
+
+/* Always succeeds */
+/* --------------- */
+FILE *feeder_row_input_pipe(
+			char *feeder_row_system_string );
+
+/* Usage */
+/* ----- */
+FEEDER_ROW *feeder_row_parse(
+			char *input );
 
 /* Process */
 /* ------- */
@@ -593,8 +591,8 @@ void feeder_row_insert_pipe(
 			char *street_address,
 			char *transaction_date_time,
 			char *description_embedded,
-			double feeder_amount,
-			double feeder_row_balance,
+			double file_row_amount,
+			double file_row_balance,
 			double calculate_balance,
 			int check_number,
 			char *feeder_row_phrase,
@@ -855,12 +853,6 @@ double feeder_prior_account_end_balance(
 /* Process */
 /* ------- */
 
-/* Public */
-/* ------ */
-boolean feeder_calculate_journal_balance_synchronized(
-			LIST *feeder_row_list,
-			FEEDER_ROW *feeder_row_first_out_balance );
-
 /* Driver */
 /* ------ */
 
@@ -877,14 +869,14 @@ char *feeder_parameter_account_end_balance_error(
 typedef struct
 {
 	char *feeder_load_event_primary_where;
-	char *feeder_load_row_system_string;
-	LIST *feeder_load_row_list;
-	FEEDER_LOAD_ROW *first_feeder_load_row;
+	char *feeder_row_system_string;
+	LIST *feeder_row_list;
+	FEEDER_ROW *first_feeder_row;
 	char *journal_where;
 	LIST *journal_system_list;
-	FEEDER_LOAD_ROW *feeder_load_row;
+	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
-	FEEDER_LOAD_ROW *prior_feeder_load_row;
+	FEEDER_ROW *prior_feeder_row;
 	JOURNAL *prior_journal;
 	HTML_TABLE *html_table;
 } FEEDER_AUDIT;
@@ -908,11 +900,12 @@ char *feeder_audit_journal_where(
 
 /* Usage */
 /* ----- */
-HTML_TABLE *feeder_audit_html_table(
+LIST *feeder_audit_row_list(
 			JOURNAL *prior_journal,
 			JOURNAL *journal,
-			FEEDER_LOAD_ROW *prior_feeder_load_row,
-			FEEDER_LOAD_ROW *feeder_load_row );
+			FEEDER_ROW *prior_feeder_row,
+			FEEDER_ROW *feeder_row,
+			boolean list_at_last );
 
 /* Process */
 /* ------- */
@@ -921,17 +914,19 @@ LIST *feeder_audit_html_heading_list(
 
 HTML_ROW *feeder_audit_html_row(
 			JOURNAL *journal,
-			FEEDER_LOAD_ROW *feeder_load_row );
+			FEEDER_ROW *feeder_row,
+			boolean list_at_last );
 
 LIST *feeder_audit_html_cell_list(
 			JOURNAL *journal,
 			char *full_name,
-			char *feeder_description,
+			char *file_row_description,
 			char *transaction_date_time,
 			char *feeder_date,
-			double feeder_amount,
 			int row_number,
+			double file_row_amount,
 			int check_number,
-			double feeder_row_balance );
+			double file_row_balance,
+			boolean list_at_last );
 
 #endif

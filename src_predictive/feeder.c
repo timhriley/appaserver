@@ -162,7 +162,7 @@ FEEDER_PHRASE *feeder_phrase_calloc( void )
 	return feeder_phrase;
 }
 
-char *feeder_load_row_trim_date( char *feeder_description )
+char *feeder_load_row_trim_date( char *file_row_description )
 {
 	static char sans_bank_date_description[ 256 ];
 	char *replace;
@@ -175,7 +175,7 @@ char *feeder_load_row_trim_date( char *feeder_description )
 	sed = sed_new( regular_expression, replace );
 
 	string_strcpy(	sans_bank_date_description,
-			feeder_description,
+			file_row_description,
 			512 );
 
 	/* Why do I need to append the EOL character for sed() to work? */
@@ -276,24 +276,25 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 		return (FEEDER_LOAD_ROW *)0;
 	}
 
-	feeder_load_row->feeder_description =
+	feeder_load_row->file_row_description =
 		string_strdup(
 			piece_quote_comma(
 				buffer,
 				input,
 				description_column - 1 ) );
 
-	if ( !*feeder_load_row->feeder_description )
+	if ( !*feeder_load_row->file_row_description )
 	{
-		free( feeder_load_row->feeder_description );
+		free( feeder_load_row->file_row_description );
 		free( feeder_load_row->american_date );
+		free( feeder_load_row->international_date );
 		free( feeder_load_row );
 		return (FEEDER_LOAD_ROW *)0;
 	}
 
 	if ( !credit_column )
 	{
-		feeder_load_row->feeder_amount =
+		feeder_load_row->file_row_amount =
 			string_atof(
 				piece_quote_comma(
 					buffer,
@@ -316,23 +317,24 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 					input,
 					credit_column - 1 ) );
 
-		feeder_load_row->feeder_amount =
+		feeder_load_row->file_row_amount =
 			feeder_load_row_amount(
 				feeder_load_row->debit,
 				feeder_load_row->credit );
 	}
 
-	if ( !feeder_load_row->feeder_amount )
+	if ( !feeder_load_row->file_row_amount )
 	{
-		free( feeder_load_row->feeder_description );
+		free( feeder_load_row->file_row_description );
 		free( feeder_load_row->american_date );
+		free( feeder_load_row->international_date );
 		free( feeder_load_row );
 		return (FEEDER_LOAD_ROW *)0;
 	}
 
 	if ( balance_column )
 	{
-		feeder_load_row->feeder_row_balance =
+		feeder_load_row->file_row_balance =
 			string_atof(
 				piece_quote_comma(
 					buffer,
@@ -352,15 +354,15 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	feeder_load_row->check_number =
 		feeder_load_row_check_number(
-			feeder_load_row->feeder_description );
+			feeder_load_row->file_row_description );
 
 	feeder_load_row->description_embedded =
-		/* ----------------------------------------- */
-		/* Returns heap memory or feeder_description */
-		/* ----------------------------------------- */
+		/* ------------------------------------------- */
+		/* Returns heap memory or file_row_description */
+		/* ------------------------------------------- */
 		feeder_load_row_description_embedded(
-			feeder_load_row->feeder_description,
-			feeder_load_row->feeder_row_balance,
+			feeder_load_row->file_row_description,
+			feeder_load_row->file_row_balance,
 			feeder_load_row->reference_string,
 			feeder_load_row->check_number );
 
@@ -393,12 +395,12 @@ double feeder_load_row_amount(
 }
 
 char *feeder_load_row_description_embedded(
-			char *feeder_description,
+			char *file_row_description,
 			double balance,
 			char *reference_string,
 			int check_number )
 {
-	if ( check_number ) return feeder_description;
+	if ( check_number ) return file_row_description;
 
 	return
 	/* ----------------------------------------- */
@@ -417,7 +419,7 @@ char *feeder_load_row_description_embedded(
 				/* Returns static memory */
 				/* --------------------- */
 				feeder_load_row_trim_date(
-					feeder_description ) ),
+					file_row_description ) ),
 			balance,
 			reference_string ),
 		FEEDER_DESCRIPTION_SIZE );
@@ -1029,7 +1031,7 @@ char *feeder_load_file_sha256sum( char *feeder_load_filename )
 }
 
 FEEDER_PHRASE *feeder_phrase_seek(
-			char *feeder_description,
+			char *file_row_description,
 			LIST *feeder_phrase_list )
 {
 	FEEDER_PHRASE *feeder_phrase;
@@ -1050,7 +1052,7 @@ FEEDER_PHRASE *feeder_phrase_seek(
 			piece_number++ )
 		{
 			if ( string_exists_substr(
-				feeder_description /* string */,
+				file_row_description /* string */,
 				feeder_component /* substring */ ) )
 			{
 				return feeder_phrase;
@@ -1118,13 +1120,13 @@ FEEDER_EXIST_ROW *feeder_exist_row_parse( char *input )
 	feeder_exist_row->feeder_date = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
-	feeder_exist_row->feeder_description = strdup( buffer );
+	feeder_exist_row->file_row_description = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
 	feeder_exist_row->transaction_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	feeder_exist_row->feeder_row_balance = atof( buffer );
+	feeder_exist_row->file_row_balance = atof( buffer );
 
 	return feeder_exist_row;
 }
@@ -1174,7 +1176,7 @@ FEEDER_EXIST_ROW *feeder_exist_row_seek(
 
 		if ( strcmp(	feeder_exist_row->feeder_date,
 				international_date ) == 0
-		&&   strcmp(	feeder_exist_row->feeder_description,
+		&&   strcmp(	feeder_exist_row->file_row_description,
 				description_embedded ) == 0 )
 		{
 			return feeder_exist_row;
@@ -1369,30 +1371,30 @@ char *feeder_matched_journal_where(
 	return strdup( where );
 }
 
-int feeder_load_row_check_number( char *feeder_description )
+int feeder_load_row_check_number( char *file_row_description )
 {
 	char buffer[ 512 ];
 
-	if ( !feeder_description )
+	if ( !file_row_description )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: feeder_description is empty.\n",
+			"ERROR in %s/%s()/%d: file_row_description is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	string_strcpy( buffer, feeder_description, 512 );
+	string_strcpy( buffer, file_row_description, 512 );
 
 	if ( *buffer == '#' && isdigit( * ( buffer + 1 ) ) )
 	{
 		return atoi( buffer + 1 );
 	}
 	else
-	if ( string_strncmp( buffer, "check" ) == 0 )
+	if ( string_strncmp( buffer, "check " ) == 0 )
 	{
-		search_replace_string( buffer, "check", "" );
+		search_replace_string( buffer, "check ", "" );
 		return atoi( buffer );
 	}
 
@@ -1463,10 +1465,10 @@ void feeder_row_list_insert(
 					description_embedded,
 				feeder_row->
 					feeder_load_row->
-					feeder_amount,
+					file_row_amount,
 				feeder_row->
 					feeder_load_row->
-					feeder_row_balance,
+					file_row_balance,
 				feeder_row->calculate_balance,
 				feeder_row->
 					feeder_load_row->
@@ -1540,8 +1542,8 @@ void feeder_row_insert_pipe(
 			char *street_address,
 			char *transaction_date_time,
 			char *description_embedded,
-			double feeder_amount,
-			double feeder_row_balance,
+			double file_row_amount,
+			double file_row_balance,
 			double calculate_balance,
 			int check_number,
 			char *phrase,
@@ -1558,7 +1560,7 @@ void feeder_row_insert_pipe(
 	||   !street_address
 	||   !transaction_date_time
 	||   !description_embedded
-	||   !feeder_amount
+	||   !file_row_amount
 	||   !phrase
 	||   !sql_delimiter )
 	{
@@ -1596,9 +1598,9 @@ void feeder_row_insert_pipe(
 		sql_delimiter,
 		description_embedded,
 		sql_delimiter,
-		feeder_amount,
+		file_row_amount,
 		sql_delimiter,
-		feeder_row_balance,
+		file_row_balance,
 		sql_delimiter,
 		calculate_balance,
 		sql_delimiter,
@@ -2074,9 +2076,9 @@ FILE *feeder_row_display_output(
 		/* Returns heap memory */
 		/* ------------------- */
 		string_commas_money(
-			feeder_row->feeder_load_row->feeder_amount ),
+			feeder_row->feeder_load_row->file_row_amount ),
 		string_commas_money(
-			feeder_row->feeder_load_row->feeder_row_balance ),
+			feeder_row->feeder_load_row->file_row_balance ),
 		string_commas_money(
 			feeder_row->calculate_balance ) );
 
@@ -2113,7 +2115,7 @@ char *feeder_row_display_results(
 	{
 		sprintf(buffer,
 		"<p style=\"color:black\">Existing transaction:</p> %s/%s",
-			feeder_exist_row_seek->feeder_description,
+			feeder_exist_row_seek->file_row_description,
 			feeder_exist_row_seek->transaction_date_time );
 	}
 	else
@@ -2243,8 +2245,7 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 	if ( !feeder_account
 	||   !feeder_phrase_seek
 	||   !amount
-	||   !transaction_date_time
-	||   !memo )
+	||   !transaction_date_time )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -2263,6 +2264,7 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 				nominal_account;
 
 		feeder_transaction->credit_account = feeder_account;
+		amount = -amount;
 	}
 	else
 	{
@@ -2329,13 +2331,13 @@ void feeder_row_list_calculate_balance_set(
 			feeder_row->calculate_balance =
 				feeder_row->
 					feeder_exist_row_seek->
-					feeder_row_balance;
+					file_row_balance;
 		}
 		else
 		{
 			feeder_row->calculate_balance =
 				prior_account_end_balance +
-				feeder_row->feeder_load_row->feeder_amount;
+				feeder_row->feeder_load_row->file_row_amount;
 
 			prior_account_end_balance =
 				feeder_row->
@@ -2381,6 +2383,16 @@ double feeder_row_list_sum_amount(
 	do {
 		feeder_row = list_get( feeder_row_list );
 
+		if ( !feeder_row->feeder_load_row )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: feeder_load_row is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		if ( feeder_row == feeder_row_first_out_balance )
 		{
 			break;
@@ -2391,7 +2403,7 @@ double feeder_row_list_sum_amount(
 			sum_amount +=
 				feeder_row->
 					feeder_load_row->
-					feeder_amount;
+					file_row_amount;
 		}
 
 	} while ( list_next( feeder_row_list ) );
@@ -2504,32 +2516,6 @@ double feeder_account_end_calculate_balance(
 	} while ( list_next( feeder_row_list ) );
 
 	return end_calculate_balance;
-}
-
-boolean feeder_calculate_journal_balance_synchronized(
-			LIST *feeder_row_list,
-			FEEDER_ROW *feeder_row_first_out_balance )
-{
-	FEEDER_ROW *feeder_row;
-
-	if ( !list_rewind( feeder_row_list ) ) return 0;
-
-	do {
-		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row == feeder_row_first_out_balance )
-			break;
-
-		if ( !money_virtually_same(
-			feeder_row->calculate_balance,
-			feeder_row->journal_balance ) )
-		{
-			return 0;
-		}
-
-	} while ( list_next( feeder_row_list ) );
-
-	return 1;
 }
 
 int feeder_matched_journal_days_ago(
@@ -2966,7 +2952,7 @@ double feeder_account_end_balance(
 			feeder_account ) ) )
 	{
 		account_end_balance =
-			feeder_load_event->account_end_balance +
+			feeder_load_event->account_end_calculate_balance +
 			feeder_row_list_sum_amount(
 				feeder_row_list,
 				feeder_row_first_out_balance );
@@ -3013,7 +2999,7 @@ double feeder_prior_account_end_balance(
 			feeder_account ) ) )
 	{
 		account_end_balance =
-			feeder_load_event->account_end_balance;
+			feeder_load_event->account_end_calculate_balance;
 	}
 	else
 	{
@@ -3031,7 +3017,7 @@ double feeder_load_row_account_end_balance(
 			FEEDER_LOAD_ROW *last_feeder_load_row )
 {
 	if ( last_feeder_load_row )
-		return last_feeder_load_row->feeder_row_balance;
+		return last_feeder_load_row->file_row_balance;
 	else
 		return 0.0;
 }
@@ -3162,7 +3148,7 @@ FEEDER_ROW *feeder_row_new(
 			feeder_row->feeder_matched_journal =
 				feeder_matched_journal_check_seek(
 					feeder_load_row->check_number,
-					feeder_load_row->feeder_amount,
+					feeder_load_row->file_row_amount,
 					feeder_matched_journal_list );
 		}
 
@@ -3170,7 +3156,7 @@ FEEDER_ROW *feeder_row_new(
 		{
 			feeder_row->feeder_matched_journal =
 				feeder_matched_journal_amount_seek(
-					feeder_load_row->feeder_amount,
+					feeder_load_row->file_row_amount,
 					feeder_matched_journal_list );
 		}
 
@@ -3185,7 +3171,7 @@ FEEDER_ROW *feeder_row_new(
 	{
 		feeder_row->feeder_phrase_seek =
 			feeder_phrase_seek(
-				feeder_load_row->feeder_description,
+				feeder_load_row->file_row_description,
 				feeder_phrase_list );
 	}
 
@@ -3211,7 +3197,7 @@ FEEDER_ROW *feeder_row_new(
 			feeder_transaction_new(
 				feeder_account,
 				feeder_row->feeder_phrase_seek,
-				feeder_load_row->feeder_amount,
+				feeder_load_row->file_row_amount,
 				feeder_row->transaction_date_time,
 				feeder_row->memo );
 	}
@@ -3299,7 +3285,7 @@ int feeder_row_seek_matched_count(
 	return count;
 }
 
-char *feeder_load_row_system_string(
+char *feeder_row_system_string(
 			char *select,
 			char *table,
 			char *where )
@@ -3327,7 +3313,7 @@ char *feeder_load_row_system_string(
 	return strdup( system_string );
 }
 
-LIST *feeder_load_row_system_list( char *system_string )
+LIST *feeder_row_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 2048 ];
@@ -3344,13 +3330,13 @@ LIST *feeder_load_row_system_list( char *system_string )
 	}
 
 	list = list_new();
-	input_pipe = feeder_load_row_input_pipe( system_string );
+	input_pipe = feeder_row_input_pipe( system_string );
 
 	while ( string_input( input, input_pipe, 2048 ) )
 	{
 		list_set(
 			list,
-			feeder_load_row_parse(
+			feeder_row_parse(
 				input ) );
 	}
 
@@ -3359,10 +3345,10 @@ LIST *feeder_load_row_system_list( char *system_string )
 	return list;
 }
 
-FILE *feeder_load_row_input_pipe(
-			char *feeder_load_row_system_string )
+FILE *feeder_row_input_pipe(
+			char *feeder_row_system_string )
 {
-	if ( !feeder_load_row_system_string )
+	if ( !feeder_row_system_string )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -3373,61 +3359,64 @@ FILE *feeder_load_row_input_pipe(
 	}
 
 	return
-	popen( feeder_load_row_system_string, "r" );
+	popen( feeder_row_system_string, "r" );
 }
 
-FEEDER_LOAD_ROW *feeder_load_row_parse( char *input )
+FEEDER_ROW *feeder_row_parse( char *input )
 {
 	char buffer[ 512 ];
-	FEEDER_LOAD_ROW *feeder_load_row;
+	FEEDER_ROW *feeder_row;
 
-	if ( !input || !*input ) return (FEEDER_LOAD_ROW *)0;
+	if ( !input || !*input ) return (FEEDER_ROW *)0;
 
-	feeder_load_row = feeder_load_row_calloc();
+	feeder_row = feeder_row_calloc();
 
-	/* See FEEDER_LOAD_ROW_SELECT */
-	/* -------------------------- */
+	/* See FEEDER_ROW_SELECT */
+	/* --------------------- */
 	piece( buffer, SQL_DELIMITER, input, 0 );
-	feeder_load_row->full_name = strdup( buffer );
+	feeder_row->feeder_account = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
-	feeder_load_row->street_address = strdup( buffer );
+	feeder_row->feeder_load_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 2 );
-	feeder_load_row->transaction_date_time = strdup( buffer );
+	feeder_row->feeder_date = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 3 );
-	feeder_load_row->feeder_account = strdup( buffer );
+	feeder_row->row_number = atoi( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 4 );
-	feeder_load_row->feeder_date = strdup( buffer );
+	feeder_row->full_name = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 5 );
-	feeder_load_row->feeder_description = strdup( buffer );
+	feeder_row->street_address = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 6 );
-	feeder_load_row->feeder_amount = atof( buffer );
+	feeder_row->transaction_date_time = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 7 );
-	feeder_load_row->feeder_row_balance = atof( buffer );
+	feeder_row->file_row_description = strdup( buffer );
 
-	if ( piece( buffer, SQL_DELIMITER, input, 8 ) )
-	{
-		feeder_load_row->check_number = atoi( buffer );
-	}
+	piece( buffer, SQL_DELIMITER, input, 8 );
+	feeder_row->file_row_amount = atof( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 9 );
-	feeder_load_row->row_number = atoi( buffer );
+	feeder_row->file_row_balance = atof( buffer );
 
-	if ( piece( buffer, SQL_DELIMITER, input, 10 ) )
+	piece( buffer, SQL_DELIMITER, input, 10 );
+	feeder_row->calculate_balance = atof( buffer );
+
+	if ( piece( buffer, SQL_DELIMITER, input, 11 ) )
 	{
-		feeder_load_row->feeder_phrase = strdup( buffer );
+		feeder_row->check_number = atoi( buffer );
 	}
 
-	piece( buffer, SQL_DELIMITER, input, 11 );
-	feeder_load_row->feeder_load_date = strdup( buffer );
+	if ( piece( buffer, SQL_DELIMITER, input, 12 ) )
+	{
+		feeder_row->feeder_phrase = strdup( buffer );
+	}
 
-	return feeder_load_row;
+	return feeder_row;
 }
 
 FEEDER_AUDIT *feeder_audit_fetch(
@@ -3437,7 +3426,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 	FEEDER_AUDIT *feeder_audit;
 
 	if ( !feeder_account
-	||   !feeder_load_date_string )
+	||   !feeder_load_date_time )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -3455,31 +3444,31 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		/* --------------------- */
 		feeder_load_event_primary_where(
 			feeder_account,
-			feeder_load_date_string );
+			feeder_load_date_time );
 
-	feeder_audit->feeder_load_row_system_string =
+	feeder_audit->feeder_row_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		feeder_load_row_system_string(
-			FEEDER_LOAD_ROW_SELECT,
-			FEEDER_LOAD_ROW_TABLE,
+		feeder_row_system_string(
+			FEEDER_ROW_SELECT,
+			FEEDER_ROW_TABLE,
 			feeder_audit->feeder_load_event_primary_where
 				/* where */ );
 
-	feeder_audit->feeder_load_row_list =
-		feeder_load_row_system_list(
-			feeder_audit->feeder_load_row_system_string );
+	feeder_audit->feeder_row_list =
+		feeder_row_system_list(
+			feeder_audit->feeder_row_system_string );
 
-	if ( !list_length( feeder_audit->feeder_load_row_list ) )
+	if ( !list_length( feeder_audit->feeder_row_list ) )
 	{
 		return (FEEDER_AUDIT *)0;
 	}
 
-	feeder_audit->first_feeder_load_row =
+	feeder_audit->first_feeder_row =
 		list_first(
 			feeder_audit->
-				feeder_load_row_list );
+				feeder_row_list );
 
 	feeder_audit->journal_where =
 		/* --------------------- */
@@ -3488,7 +3477,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		feeder_audit_journal_where(
 			feeder_account,
 			feeder_audit->
-				first_feeder_load_row->
+				first_feeder_row->
 				transaction_date_time );
 
 	feeder_audit->journal_system_list =
@@ -3505,45 +3494,56 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			0 /* not fetch_element */,
 			0 /* not fetch_transaction */ );
 
-	list_rewind( feeder_audit->feeder_load_row_list );
+	list_rewind( feeder_audit->feeder_row_list );
+
+	feeder_audit->html_table =
+		html_table_new(
+			FEEDER_AUDIT_HTML_TITLE,
+			(char *)0 /* sub_title */,
+			(char *)0 /* sub_sub_title */ );
+
+	feeder_audit->html_table->heading_list =
+		feeder_audit_html_heading_list();
 
 	do {
-		feeder_audit->feeder_load_row =
+		feeder_audit->feeder_row =
 			list_get(
 				feeder_audit->
-					feeder_load_row_list );
+					feeder_row_list );
 
 		feeder_audit->journal =
 			journal_seek(
 				feeder_audit->
-					feeder_load_row->
+					feeder_row->
 					transaction_date_time,
 				feeder_account,
 				feeder_audit->journal_system_list );
 
 		if ( !feeder_audit->journal
 		||   !money_virtually_same(
-			feeder_audit->feeder_load_row->feeder_row_balance,
-			feeder_audit->journal->balance ) )
+			feeder_audit->feeder_row->file_row_balance,
+			feeder_audit->journal->balance )
+		||   list_at_last( feeder_audit->feeder_row_list ) )
 		{
-			feeder_audit->html_table =
-				feeder_audit_html_table(
+			list_set_list(
+				feeder_audit->html_table->row_list,
+				feeder_audit_row_list(
 					feeder_audit->prior_journal,
 					feeder_audit->journal,
-					feeder_audit->prior_feeder_load_row,
-					feeder_audit->feeder_load_row );
-
-			return feeder_audit;
+					feeder_audit->prior_feeder_row,
+					feeder_audit->feeder_row,
+					list_at_last(
+						feeder_audit->
+							feeder_row_list ) ) );
 		}
 
 		feeder_audit->prior_journal = feeder_audit->journal;
 
-		feeder_audit->prior_feeder_load_row =
-			feeder_audit->feeder_load_row;
+		feeder_audit->prior_feeder_row = feeder_audit->feeder_row;
 
-	} while ( list_next( feeder_audit->feeder_load_row_list ) );
+	} while ( list_next( feeder_audit->feeder_row_list ) );
 
-	return (FEEDER_AUDIT *)0;
+	return feeder_audit;
 }
 
 FEEDER_AUDIT *feeder_audit_calloc( void )
@@ -3655,19 +3655,26 @@ LIST *feeder_audit_html_heading_list( void )
 			"Difference",
 			1 /* right_justify_boolean */ ) );
 
+	list_set(
+		list,
+		html_heading_new(
+			"Status",
+			0 /* not right_justify_boolean */ ) );
+
 	return list;
 }
 
 HTML_ROW *feeder_audit_html_row(
 			JOURNAL *journal,
-			FEEDER_LOAD_ROW *feeder_load_row )
+			FEEDER_ROW *feeder_row,
+			boolean list_at_last )
 {
 	HTML_ROW *html_row;
 
-	if ( !feeder_load_row )
+	if ( !feeder_row )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: feeder_load_row is empty.\n",
+			"ERROR in %s/%s()/%d: feeder_row is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -3679,77 +3686,77 @@ HTML_ROW *feeder_audit_html_row(
 	html_row->cell_list =
 		feeder_audit_html_cell_list(
 			journal,
-			feeder_load_row->full_name,
-			feeder_load_row->feeder_description,
-			feeder_load_row->transaction_date_time,
-			feeder_load_row->feeder_date,
-			feeder_load_row->feeder_amount,
-			feeder_load_row->row_number,
-			feeder_load_row->check_number,
-			feeder_load_row->feeder_row_balance );
+			feeder_row->full_name,
+			feeder_row->file_row_description,
+			feeder_row->transaction_date_time,
+			feeder_row->feeder_date,
+			feeder_row->row_number,
+			feeder_row->file_row_amount,
+			feeder_row->check_number,
+			feeder_row->file_row_balance,
+			list_at_last );
 
 	return html_row;
 }
 
-HTML_TABLE *feeder_audit_html_table(
+LIST *feeder_audit_row_list(
 			JOURNAL *prior_journal,
 			JOURNAL *journal,
-			FEEDER_LOAD_ROW *prior_feeder_load_row,
-			FEEDER_LOAD_ROW *feeder_load_row )
+			FEEDER_ROW *prior_feeder_row,
+			FEEDER_ROW *feeder_row,
+			boolean list_at_last )
 {
-	HTML_TABLE *html_table;
+	LIST *row_list;
 
-	if ( !feeder_load_row )
+	if ( !feeder_row )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: feeder_load_row is empty.\n",
+			"ERROR in %s/%s()/%d: feeder_row is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	html_table =
-		html_table_new(
-			FEEDER_AUDIT_HTML_TITLE,
-			(char *)0 /* sub_title */,
-			(char *)0 /* sub_sub_title */ );
+	row_list = list_new();
 
-	html_table->heading_list = feeder_audit_html_heading_list();
-
-	if ( prior_feeder_load_row )
+	if ( prior_feeder_row )
 	{
 		list_set(
-			html_table->row_list,
+			row_list,
 			feeder_audit_html_row(
 				prior_journal,
-				prior_feeder_load_row ) );
+				prior_feeder_row,
+				list_at_last ) );
 	}
 
 	list_set(
-		html_table->row_list,
+		row_list,
 		feeder_audit_html_row(
 			journal,
-			feeder_load_row ) );
+			feeder_row,
+			list_at_last ) );
 
-	return html_table;
+	return row_list;
 }
 
 LIST *feeder_audit_html_cell_list(
 			JOURNAL *journal,
 			char *full_name,
-			char *feeder_description,
+			char *file_row_description,
 			char *transaction_date_time,
 			char *feeder_date,
-			double feeder_amount,
-			int row_number,
 			int check_number,
-			double feeder_row_balance )
+			double file_row_amount,
+			int row_number,
+			double file_row_balance,
+			boolean list_at_last )
 {
 	LIST *list;
 	char cell_string[ 128 ];
 
 	if ( !full_name
+	||   !file_row_description
 	||   !transaction_date_time
 	||   !feeder_date )
 	{
@@ -3773,7 +3780,7 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			feeder_description,
+			file_row_description,
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -3791,18 +3798,6 @@ LIST *feeder_audit_html_cell_list(
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
-	list_set(
-		list,
-		html_cell_new(
-			/* --------------------- */
-			/* Returns heap memory   */
-			/* Doesn't trim pennies  */
-			/* --------------------- */
-			timlib_commas_in_money(
-				feeder_amount ),
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
 	sprintf(cell_string,
 		"%d",
 		row_number );
@@ -3811,6 +3806,18 @@ LIST *feeder_audit_html_cell_list(
 		list,
 		html_cell_new(
 			strdup( cell_string ),
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
+
+	list_set(
+		list,
+		html_cell_new(
+			/* --------------------- */
+			/* Returns heap memory   */
+			/* Doesn't trim pennies  */
+			/* --------------------- */
+			timlib_commas_in_money(
+				file_row_amount ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -3840,12 +3847,15 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			timlib_commas_in_money( feeder_row_balance ),
+			timlib_commas_in_money( file_row_balance ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
 	if ( !journal )
 	{
+		list_set( list, html_cell_new( (char *)0, 0, 0 ) );
+		list_set( list, html_cell_new( (char *)0, 0, 0 ) );
+
 		list_set(
 			list,
 			html_cell_new(
@@ -3855,6 +3865,10 @@ LIST *feeder_audit_html_cell_list(
 	}
 	else
 	{
+		double difference =
+			file_row_balance -
+			journal->balance;
+
 		list_set(
 			list,
 			html_cell_new(
@@ -3865,11 +3879,40 @@ LIST *feeder_audit_html_cell_list(
 		list_set(
 			list,
 			html_cell_new(
-				timlib_commas_in_money(
-					feeder_row_balance -
-					journal->balance ),
+				timlib_commas_in_money( difference ),
 				0 /* not large_boolean */,
 				0 /* not bold_boolean */ ) );
+
+		if ( money_virtually_same( difference, 0.0 ) )
+		{
+			list_set(
+				list,
+				html_cell_new(
+					"okay",
+					0 /* not large_boolean */,
+					0 /* not bold_boolean */ ) );
+		}
+		else
+		{
+			if ( !list_at_last )
+			{
+				list_set(
+					list,
+					html_cell_new(
+						"temporary difference",
+						0 /* not large_boolean */,
+						0 /* not bold_boolean */ ) );
+			}
+			else
+			{
+				list_set(
+					list,
+					html_cell_new(
+						"permenant difference",
+						1 /* not large_boolean */,
+						1 /* not bold_boolean */ ) );
+			}
+		}
 	}
 
 	return list;

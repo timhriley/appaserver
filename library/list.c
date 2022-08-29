@@ -1285,12 +1285,12 @@ boolean list_past_end( LIST *list )
 		return 1;
 }
 
-int list_at_end( LIST *list )
+boolean at_end( LIST *list )
 {
-	return at_end( list );
+	return list_at_end( list );
 }
 
-int list_at_start( LIST *list )
+boolean list_at_start( LIST *list )
 {
         if ( list->current == list->head->next )
                 return 1;
@@ -1298,7 +1298,12 @@ int list_at_start( LIST *list )
                 return 0;
 }
 
-int at_end( LIST *list )
+boolean list_at_last( LIST *list )
+{
+	return list_at_end( list );
+}
+
+boolean list_at_end( LIST *list )
 {
         if (list->current->next == list->tail)
                 return 1;
@@ -1339,9 +1344,7 @@ int next_item( LIST *list )
                 list->current = list->current->next;
                 return 1;
         }
-
 }
-
 
 int previous_item( LIST *list )
 /* ---------------------------------------------- */
