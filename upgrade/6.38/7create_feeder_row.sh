@@ -93,7 +93,7 @@ insert into $folder_attribute (folder,attribute,primary_key_index,display_order,
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_row','street_address',null,2,null,null,'y',null,null,null,null);
 insert into $folder_attribute (folder,attribute,primary_key_index,display_order,omit_insert_yn,omit_insert_prompt_yn,additional_unique_index_yn,additional_index_yn,omit_update_yn,lookup_required_yn,insert_required_yn) values ('feeder_row','transaction_date_time',null,3,null,null,'y',null,null,null,null);
 insert into $role_folder (folder,role,permission) values ('feeder_row','bookkeeper','lookup');
-insert into $role_folder (folder,role,permission) values ('feeder_row','supervisor','lookup');
+insert into $role_folder (folder,role,permission) values ('feeder_row','supervisor','update');
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('bookkeeper','y',null);
 insert into $role (role,folder_count_yn,override_row_restrictions_yn) values ('supervisor','y','y');
 insert into $subschemas (subschema) values ('feeder_upload');

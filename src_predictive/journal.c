@@ -1727,3 +1727,13 @@ char *journal_minimum_transaction_date_time( char *account_name )
 	return
 	string_pipe( system_string );
 }
+
+double journal_balance(
+			double balance,
+			boolean accumulate_debit )
+{
+	if ( accumulate_debit )
+		return balance;
+	else
+		return -balance;
+}

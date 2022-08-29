@@ -300,6 +300,14 @@ void journal_list_pipe_display(
 
 /* Usage */
 /* ----- */
+double journal_debit_sum(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 double journal_list_transaction_amount(
 			LIST *journal_list );
 
@@ -320,14 +328,6 @@ double journal_account_list_debit_sum(
 double journal_account_list_credit_sum(
 			LIST *journal_list,
 			LIST *account_name_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-double journal_debit_sum(
-			LIST *journal_list );
 
 /* Process */
 /* ------- */
@@ -384,5 +384,9 @@ JOURNAL *journal_seek(
 
 char *journal_minimum_transaction_date_time(
 			char *account_name );
+
+double journal_balance(
+			double balance,
+			boolean accumulate_debit );
 
 #endif

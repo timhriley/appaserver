@@ -3249,7 +3249,7 @@ char *feeder_parameter_account_end_balance_error(
 	}
 
 	sprintf(error,
-"<h3>Error: account end balance entered (%.2lf) doesn't match the calculated end balance (%.2lf)</h3>\n",
+"<h3>Warning: account end balance entered (%.2lf) doesn't match the calculated end balance (%.2lf)</h3>\n",
 		parameter_account_end_balance,
 		feeder_account_end_calculate_balance );
 
@@ -3420,12 +3420,13 @@ FEEDER_ROW *feeder_row_parse( char *input )
 }
 
 FEEDER_AUDIT *feeder_audit_fetch(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time )
 {
 	FEEDER_AUDIT *feeder_audit;
+	double balance;
 
-	if ( !feeder_account
+	if ( !feeder_account_name
 	||   !feeder_load_date_time )
 	{
 		fprintf(stderr,
@@ -3438,12 +3439,27 @@ FEEDER_AUDIT *feeder_audit_fetch(
 
 	feeder_audit = feeder_audit_calloc();
 
+	if ( ! ( feeder_audit->feeder_account =
+			account_fetch(
+				feeder_account_name,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			feeder_account_name );
+		exit( 1 );
+	}
+
 	feeder_audit->feeder_load_event_primary_where =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		feeder_load_event_primary_where(
-			feeder_account,
+			feeder_account_name,
 			feeder_load_date_time );
 
 	feeder_audit->feeder_row_system_string =
@@ -3475,7 +3491,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 		/* Returns static memory */
 		/* --------------------- */
 		feeder_audit_journal_where(
-			feeder_account,
+			feeder_account_name,
 			feeder_audit->
 				first_feeder_row->
 				transaction_date_time );
@@ -3511,33 +3527,51 @@ FEEDER_AUDIT *feeder_audit_fetch(
 				feeder_audit->
 					feeder_row_list );
 
-		feeder_audit->journal =
-			journal_seek(
-				feeder_audit->
-					feeder_row->
-					transaction_date_time,
-				feeder_account,
-				feeder_audit->journal_system_list );
+		if ( ! ( feeder_audit->journal =
+				journal_seek(
+					feeder_audit->
+						feeder_row->
+						transaction_date_time,
+					feeder_account_name,
+					feeder_audit->journal_system_list ) ) )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: journal_seek(%s) returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				feeder_account_name );
+			exit( 1 );
+		}
 
-		if ( !feeder_audit->journal
-		||   !money_virtually_same(
+		balance =
+			journal_balance(
+				feeder_audit->journal->balance,
+				feeder_audit->
+					feeder_account->
+					subclassification->
+					element->
+					accumulate_debit );
+
+		if ( !money_virtually_same(
 			feeder_audit->feeder_row->calculate_balance,
-			feeder_audit->journal->balance )
+			balance )
 		||   list_at_last( feeder_audit->feeder_row_list ) )
 		{
-			list_set_list(
+			list_set(
 				feeder_audit->html_table->row_list,
-				feeder_audit_row_list(
-					feeder_audit->prior_journal,
-					feeder_audit->journal,
-					feeder_audit->prior_feeder_row,
+				feeder_audit_html_row(
+					(feeder_audit->prior_feeder_row)
+						? feeder_audit->
+							prior_feeder_row->
+							transaction_date_time
+						: (char *)0,
 					feeder_audit->feeder_row,
+					balance /* journal_balance */,
 					list_at_last(
 						feeder_audit->
 							feeder_row_list ) ) );
 		}
-
-		feeder_audit->prior_journal = feeder_audit->journal;
 
 		feeder_audit->prior_feeder_row = feeder_audit->feeder_row;
 
@@ -3610,7 +3644,13 @@ LIST *feeder_audit_html_heading_list( void )
 	list_set(
 		list,
 		html_heading_new(
-			"transaction_date _ime",
+			"prior_transaction_date_time",
+			0 /* not right_justify_boolean */ ) );
+
+	list_set(
+		list,
+		html_heading_new(
+			"transaction_date_time",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
@@ -3665,8 +3705,9 @@ LIST *feeder_audit_html_heading_list( void )
 }
 
 HTML_ROW *feeder_audit_html_row(
-			JOURNAL *journal,
+			char *prior_transaction_date_time,
 			FEEDER_ROW *feeder_row,
+			double journal_balance,
 			boolean list_at_last )
 {
 	HTML_ROW *html_row;
@@ -3685,75 +3726,37 @@ HTML_ROW *feeder_audit_html_row(
 
 	html_row->cell_list =
 		feeder_audit_html_cell_list(
-			journal,
 			feeder_row->full_name,
 			feeder_row->file_row_description,
+			prior_transaction_date_time,
 			feeder_row->transaction_date_time,
 			feeder_row->feeder_date,
 			feeder_row->row_number,
 			feeder_row->file_row_amount,
 			feeder_row->check_number,
 			feeder_row->calculate_balance,
+			journal_balance,
 			list_at_last );
 
 	return html_row;
 }
 
-LIST *feeder_audit_row_list(
-			JOURNAL *prior_journal,
-			JOURNAL *journal,
-			FEEDER_ROW *prior_feeder_row,
-			FEEDER_ROW *feeder_row,
-			boolean list_at_last )
-{
-	LIST *row_list;
-
-	if ( !feeder_row )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: feeder_row is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	row_list = list_new();
-
-	if ( prior_feeder_row )
-	{
-		list_set(
-			row_list,
-			feeder_audit_html_row(
-				prior_journal,
-				prior_feeder_row,
-				list_at_last ) );
-	}
-
-	list_set(
-		row_list,
-		feeder_audit_html_row(
-			journal,
-			feeder_row,
-			list_at_last ) );
-
-	return row_list;
-}
-
 LIST *feeder_audit_html_cell_list(
-			JOURNAL *journal,
 			char *full_name,
 			char *file_row_description,
+			char *prior_transaction_date_time,
 			char *transaction_date_time,
 			char *feeder_date,
 			int row_number,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
+			double journal_balance,
 			boolean list_at_last )
 {
 	LIST *list;
 	char cell_string[ 128 ];
+	double difference;
 
 	if ( !full_name
 	||   !file_row_description
@@ -3781,6 +3784,13 @@ LIST *feeder_audit_html_cell_list(
 		list,
 		html_cell_new(
 			file_row_description,
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
+
+	list_set(
+		list,
+		html_cell_new(
+			prior_transaction_date_time,
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -3851,67 +3861,50 @@ LIST *feeder_audit_html_cell_list(
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
-	if ( !journal )
-	{
-		list_set( list, html_cell_new( (char *)0, 0, 0 ) );
-		list_set( list, html_cell_new( (char *)0, 0, 0 ) );
+	difference = calculate_balance - journal_balance;
 
+	list_set(
+		list,
+		html_cell_new(
+			timlib_commas_in_money( journal_balance ),
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
+
+	list_set(
+		list,
+		html_cell_new(
+			timlib_commas_in_money( difference ),
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
+
+	if ( money_virtually_same( difference, 0.0 ) )
+	{
 		list_set(
 			list,
 			html_cell_new(
-				"journal missing",
-				0 /* not large_boolean */,
-				0 /* not bold_boolean */ ) );
+				"okay",
+				1 /* not large_boolean */,
+				1 /* not bold_boolean */ ) );
 	}
 	else
 	{
-		double difference =
-			calculate_balance -
-			journal->balance;
-
-		list_set(
-			list,
-			html_cell_new(
-				timlib_commas_in_money( journal->balance ),
-				0 /* not large_boolean */,
-				0 /* not bold_boolean */ ) );
-
-		list_set(
-			list,
-			html_cell_new(
-				timlib_commas_in_money( difference ),
-				0 /* not large_boolean */,
-				0 /* not bold_boolean */ ) );
-
-		if ( money_virtually_same( difference, 0.0 ) )
+		if ( !list_at_last )
 		{
 			list_set(
 				list,
 				html_cell_new(
-					"okay",
+					"temporary difference",
 					0 /* not large_boolean */,
 					0 /* not bold_boolean */ ) );
 		}
 		else
 		{
-			if ( !list_at_last )
-			{
-				list_set(
-					list,
-					html_cell_new(
-						"temporary difference",
-						0 /* not large_boolean */,
-						0 /* not bold_boolean */ ) );
-			}
-			else
-			{
-				list_set(
-					list,
-					html_cell_new(
-						"permenant difference",
-						1 /* not large_boolean */,
-						1 /* not bold_boolean */ ) );
-			}
+			list_set(
+				list,
+				html_cell_new(
+					"permenant difference",
+					1 /* not large_boolean */,
+					1 /* not bold_boolean */ ) );
 		}
 	}
 

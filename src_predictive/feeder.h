@@ -871,6 +871,7 @@ char *feeder_parameter_account_end_balance_error(
 
 typedef struct
 {
+	ACCOUNT *feeder_account;
 	char *feeder_load_event_primary_where;
 	char *feeder_row_system_string;
 	LIST *feeder_row_list;
@@ -880,14 +881,13 @@ typedef struct
 	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
 	FEEDER_ROW *prior_feeder_row;
-	JOURNAL *prior_journal;
 	HTML_TABLE *html_table;
 } FEEDER_AUDIT;
 
 /* Usage */
 /* ----- */
 FEEDER_AUDIT *feeder_audit_fetch(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time );
 
 /* Process */
@@ -901,35 +901,30 @@ char *feeder_audit_journal_where(
 			char *feeder_account,
 			char *transaction_date_time );
 
+LIST *feeder_audit_html_heading_list(
+			void );
+
 /* Usage */
 /* ----- */
-LIST *feeder_audit_row_list(
-			JOURNAL *prior_journal,
-			JOURNAL *journal,
-			FEEDER_ROW *prior_feeder_row,
+HTML_ROW *feeder_audit_html_row(
+			char *prior_transaction_date_time,
 			FEEDER_ROW *feeder_row,
+			double journal_balance,
 			boolean list_at_last );
 
 /* Process */
 /* ------- */
-LIST *feeder_audit_html_heading_list(
-			void );
-
-HTML_ROW *feeder_audit_html_row(
-			JOURNAL *journal,
-			FEEDER_ROW *feeder_row,
-			boolean list_at_last );
-
 LIST *feeder_audit_html_cell_list(
-			JOURNAL *journal,
 			char *full_name,
 			char *file_row_description,
+			char *prior_transaction_date_time,
 			char *transaction_date_time,
 			char *feeder_date,
 			int row_number,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
+			double journal_balance,
 			boolean list_at_last );
 
 #endif
