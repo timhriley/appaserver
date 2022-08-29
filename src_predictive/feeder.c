@@ -2737,12 +2737,12 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 
 char *feeder_load_event_primary_where(
 			char *feeder_account,
-			char *feeder_load_date_string )
+			char *feeder_load_date_time )
 {
 	static char where[ 128 ];
 
 	if ( !feeder_account
-	||   !feeder_load_date_string )
+	||   !feeder_load_date_time )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -2754,9 +2754,9 @@ char *feeder_load_event_primary_where(
 
 	sprintf(where,
 		"feeder_account = '%s' and "
-		"feeder_load_date = '%s'",
+		"feeder_load_date_time = '%s'",
 		feeder_account,
-		feeder_load_date_string );
+		feeder_load_date_time );
 
 	return where;
 }
@@ -2908,7 +2908,7 @@ char *feeder_load_event_latest_system_string(
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		"max( feeder_load_date )",
+		"max( feeder_load_date_time )",
 		table,
 		where );
 
@@ -2967,9 +2967,9 @@ double feeder_account_end_balance(
 				feeder_row_list );
 
 		account_end_balance =
-			/* ----------------------------- */
-			/* Returns this->balance or null */
-			/* ----------------------------- */
+			/* -------------------------------------- */
+			/* Returns this->file_row_balance or null */
+			/* -------------------------------------- */
 			feeder_load_row_account_end_balance(
 				(last_feeder_row)
 					? last_feeder_row->feeder_load_row
@@ -3232,8 +3232,8 @@ FEEDER_ROW *feeder_row_calloc( void )
 
 char *feeder_parameter_account_end_balance_error(
 			double parameter_account_end_balance,
-			double feeder_load_row_account_end_balance,
 			FEEDER_ROW *feeder_row_first_out_balance,
+			double feeder_account_end_calculate_balance,
 			int feeder_row_seek_matched_count )
 {
 	char error[ 128 ];
@@ -3241,7 +3241,7 @@ char *feeder_parameter_account_end_balance_error(
 	if ( !parameter_account_end_balance
 	||   dollar_virtually_same(
 			parameter_account_end_balance,
-			feeder_load_row_account_end_balance )
+			feeder_account_end_calculate_balance )
 	||   feeder_row_first_out_balance
 	||   !feeder_row_seek_matched_count )
 	{
@@ -3251,7 +3251,7 @@ char *feeder_parameter_account_end_balance_error(
 	sprintf(error,
 "<h3>Error: account end balance entered (%.2lf) doesn't match the calculated end balance (%.2lf)</h3>\n",
 		parameter_account_end_balance,
-		feeder_load_row_account_end_balance );
+		feeder_account_end_calculate_balance );
 
 	return strdup( error );
 }
@@ -3521,7 +3521,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 
 		if ( !feeder_audit->journal
 		||   !money_virtually_same(
-			feeder_audit->feeder_row->file_row_balance,
+			feeder_audit->feeder_row->calculate_balance,
 			feeder_audit->journal->balance )
 		||   list_at_last( feeder_audit->feeder_row_list ) )
 		{
@@ -3598,67 +3598,67 @@ LIST *feeder_audit_html_heading_list( void )
 	list_set(
 		list,
 		html_heading_new(
-			"Full name",
+			"full_name",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Description",
+			"description",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Transaction date/time",
+			"transaction_date _ime",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Feeder date",
+			"feeder_date",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Amount",
+			"row_number",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Row number",
+			"amount",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Check number",
+			"check_number",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Row balance",
+			"calculate_balance",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Journal balance",
+			"journal_balance",
 			1 /* not right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Difference",
+			"difference",
 			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"Status",
+			"status",
 			0 /* not right_justify_boolean */ ) );
 
 	return list;
@@ -3693,7 +3693,7 @@ HTML_ROW *feeder_audit_html_row(
 			feeder_row->row_number,
 			feeder_row->file_row_amount,
 			feeder_row->check_number,
-			feeder_row->file_row_balance,
+			feeder_row->calculate_balance,
 			list_at_last );
 
 	return html_row;
@@ -3746,10 +3746,10 @@ LIST *feeder_audit_html_cell_list(
 			char *file_row_description,
 			char *transaction_date_time,
 			char *feeder_date,
-			int check_number,
-			double file_row_amount,
 			int row_number,
-			double file_row_balance,
+			double file_row_amount,
+			int check_number,
+			double calculate_balance,
 			boolean list_at_last )
 {
 	LIST *list;
@@ -3847,7 +3847,7 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			timlib_commas_in_money( file_row_balance ),
+			timlib_commas_in_money( calculate_balance ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -3866,7 +3866,7 @@ LIST *feeder_audit_html_cell_list(
 	else
 	{
 		double difference =
-			file_row_balance -
+			calculate_balance -
 			journal->balance;
 
 		list_set(

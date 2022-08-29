@@ -145,6 +145,7 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean )
 	{
+		FEEDER_LOAD_EVENT *feeder_load_event;
 		FEEDER_AUDIT *feeder_audit;
 
 		if ( feeder_row_seek_matched_count(
@@ -196,12 +197,8 @@ int main( int argc, char **argv )
 				/* ------------------------- */
 				feeder_parameter_account_end_balance_error(
 					parameter_account_end_balance,
-					feeder_load_row_account_end_balance(
-						(FEEDER_LOAD_ROW *)list_last(
-						   feeder->
-						      feeder_load_file->
-						      feeder_load_row_list ) ),
 					feeder->feeder_row_first_out_balance,
+					feeder->account_end_calculate_balance,
 					feeder_row_seek_matched_count(
 					   feeder->feeder_row_list,
 					   feeder->
@@ -214,10 +211,24 @@ int main( int argc, char **argv )
 			printf( "<h3>No transactions to process.</h3>\n" );
 		}
 
+		if ( ! ( feeder_load_event =
+				feeder_load_event_latest_fetch(
+					FEEDER_LOAD_EVENT_TABLE,
+					feeder_account ) ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: feeder_load_event_latest_fetch(%s) empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				feeder_account );
+			exit( 1 );
+		}
+
 		if ( ( feeder_audit =
 			feeder_audit_fetch(
 				feeder_account,
-				feeder->feeder_load_date_time ) ) )
+				feeder_load_event->feeder_load_date_time ) ) )
 		{
 			html_table_output(
 				feeder_audit->html_table,
@@ -232,12 +243,8 @@ int main( int argc, char **argv )
 			/* ------------------------- */
 			feeder_parameter_account_end_balance_error(
 				parameter_account_end_balance,
-				feeder_load_row_account_end_balance(
-					(FEEDER_LOAD_ROW *)list_last(
-						feeder->
-						   feeder_load_file->
-						   feeder_load_row_list ) ),
 				feeder->feeder_row_first_out_balance,
+				feeder->account_end_calculate_balance,
 				feeder_row_seek_matched_count(
 					feeder->feeder_row_list,
 					feeder->

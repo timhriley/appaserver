@@ -257,7 +257,7 @@ typedef struct
 	char *feeder_account;
 	char *feeder_date;
 	char *feeder_phrase;
-	char *feeder_load_date;
+	char *feeder_load_date_time;
 	char *american_date;
 	char *international_date;
 	char *file_row_description;
@@ -335,6 +335,10 @@ char *feeder_load_row_description_crop(
 
 /* Public */
 /* ------ */
+
+/* -------------------------------------- */
+/* Returns this->file_row_balance or null */
+/* -------------------------------------- */
 double feeder_load_row_account_end_balance(
 			FEEDER_LOAD_ROW *last_feeder_load_row );
 
@@ -351,7 +355,6 @@ double feeder_load_row_account_end_balance(
 					"file_row_amount,"		\
 					"file_row_balance,"		\
 					"calculate_balance,"		\
-					"journal_balance,"		\
 					"check_number,"			\
 					"feeder_phrase"
 
@@ -860,8 +863,8 @@ double feeder_prior_account_end_balance(
 /* ------------------------- */
 char *feeder_parameter_account_end_balance_error(
 			double parameter_account_end_balance,
-			double feeder_load_row_account_end_balance,
 			FEEDER_ROW *feeder_row_first_out_balance,
+			double feeder_account_end_calculate_balance,
 			int feeder_row_seek_matched_count );
 
 #define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"
@@ -885,7 +888,7 @@ typedef struct
 /* ----- */
 FEEDER_AUDIT *feeder_audit_fetch(
 			char *feeder_account,
-			char *feeder_load_date_string );
+			char *feeder_load_date_time );
 
 /* Process */
 /* ------- */
@@ -926,7 +929,7 @@ LIST *feeder_audit_html_cell_list(
 			int row_number,
 			double file_row_amount,
 			int check_number,
-			double file_row_balance,
+			double calculate_balance,
 			boolean list_at_last );
 
 #endif
