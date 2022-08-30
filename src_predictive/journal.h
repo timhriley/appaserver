@@ -389,4 +389,9 @@ double journal_balance(
 			double balance,
 			boolean accumulate_debit );
 
+LIST *journal_account_name_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
 #endif

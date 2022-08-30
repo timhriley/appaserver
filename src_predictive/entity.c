@@ -65,21 +65,6 @@ ENTITY *entity_new(	char *full_name,
 	return e;
 }
 
-/* ---------------------- */
-/* Returns program memory */
-/* ---------------------- */
-char *entity_select( void )
-{
-	return
-		"full_name,"
-		"street_address,"
-		"city,"
-		"state_code,"
-		"zip_code,"
-		"phone_number,"
-		"email_address";
-}
-
 ENTITY *entity_sales_tax_payable_entity( void )
 {
 	char full_name[ 128 ];
@@ -138,8 +123,9 @@ char *entity_get_payroll_pay_period_string(
 
 }
 
-ENTITY *entity_full_name_seek(	char *full_name,
-				LIST *entity_list )
+ENTITY *entity_full_name_seek(
+			char *full_name,
+			LIST *entity_list )
 {
 	ENTITY *entity;
 
@@ -260,28 +246,35 @@ boolean entity_list_exists(
 ENTITY *entity_fetch(	char *full_name,
 			char *street_address )
 {
-	char sys_string[ 1024 ];
+	FILE *input_pipe;
+	char input[ 1024 ];
+	ENTITY *entity;
 
 	if ( !full_name || !street_address )
 	{
 		return (ENTITY *)0;
 	}
 
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 entity_select(),
-		 ENTITY_TABLE,
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 entity_primary_where(
-			full_name,
-			street_address ) );
+	input_pipe =
+		entity_input_pipe(
+			entity_system_string(
+				ENTITY_SELECT,
+				ENTITY_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				entity_primary_where(
+					full_name,
+					street_address ) ) );
 
-	return entity_parse( pipe2string( sys_string ) );
+	entity =
+		entity_parse(
+			string_input(
+				input, input_pipe, 1024 ) );
+
+	pclose( input_pipe );
+
+	return entity;
 }
 
 ENTITY *entity_parse( char *input )
@@ -349,17 +342,18 @@ char *entity_primary_where(
 			char *full_name,
 			char *street_address )
 {
-	char where[ 512 ];
+	char static where[ 256 ];
 
 	sprintf( where,
 		 "full_name = '%s' and	"
 		 "street_address = '%s'	",
+		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( full_name ),
 		 street_address );
 
-	return strdup( where );
+	return where;
 }
 
 char *entity_street_address( char *full_name )
@@ -371,7 +365,12 @@ char *entity_street_address( char *full_name )
 	{
 		entity_list =
 			entity_system_list(
-				entity_sys_string(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				entity_system_string(
+					ENTITY_SELECT,
+					ENTITY_TABLE,
 					"1 = 1" ) );
 	}
 
@@ -441,17 +440,31 @@ char *entity_name_display(
 	return display;
 }
 
-LIST *entity_system_list( char *sys_string )
+FILE *entity_input_pipe( char *system_string )
+{
+	return
+	popen( system_string, "r" );
+}
+
+LIST *entity_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *entity_list;
 
-	if ( !sys_string ) return (LIST *)0;
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	entity_list = list_new();
 
-	input_pipe = popen( sys_string, "r" );
+	input_pipe = entity_input_pipe( system_string );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -459,25 +472,26 @@ LIST *entity_system_list( char *sys_string )
 	}
 
 	pclose( input_pipe );
+
 	return entity_list;
 }
 
-char *entity_sys_string( char *where )
+char *entity_system_string(
+			char *select,
+			char *table,
+			char *where )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
-	if ( !where ) return (char *)0;
+	if ( !where ) where = "1 = 1";
 
-	sprintf( sys_string,
+	sprintf( system_string,
 		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 entity_select(),
-		 ENTITY_TABLE,
+		 select,
+		 table,
 		 where );
 
-	return strdup( sys_string );
+	return strdup( system_string );
 }
 
 LIST *entity_full_street_list(

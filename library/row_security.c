@@ -1089,14 +1089,14 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 
 	element_list_structure = row_security_element_list_structure_calloc();
 
-	if ( row_security_state == security_supervisor
-	||   row_security_state == security_user )
+	if ( row_security_state != security_supervisor
+	&&   row_security_state != security_user )
 	{
-		prompt_data_separate_folder = 0;
+		prompt_data_separate_folder = 1;
 	}
 	else
 	{
-		prompt_data_separate_folder = 1;
+		prompt_data_separate_folder = 0;
 	}
 
 	strcpy(	query_select_folder_name, select_folder->folder_name );

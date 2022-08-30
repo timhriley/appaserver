@@ -191,8 +191,18 @@ char *transaction_closing_entry_system_string(
 
 /* Usage */
 /* ----- */
+void transaction_fetch_update(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 void transaction_update(
-			double transaction_amount,
+			double journal_list_transaction_amount,
 			char *transaction_primary_where );
 
 /* Process */
@@ -202,7 +212,7 @@ void transaction_update(
 /* ----------------------------- */
 char *transaction_set_clause(
 			char *transaction_amount_column,
-			double transaction_amount );
+			double journal_list_transaction_amount );
 
 /* Returns heap memory or null */
 /* --------------------------- */
@@ -323,6 +333,10 @@ char *transaction_date_time_closing(
 			boolean preclose_time_boolean );
 
 boolean transaction_date_time_changed(
+			char *preupdate_transaction_date_time );
+
+char *transaction_date_time_earlier(
+			char *transaction_date_time,
 			char *preupdate_transaction_date_time );
 
 boolean transaction_date_time_exists(

@@ -2335,7 +2335,7 @@ LIST *trial_balance_subclass_display_latex_heading_list(
 		latex_table_heading_new(
 			"Account",
 			0 /* right_justified_flag */,
-			"6.0cm" /* paragraph_size */ ) );
+			"5.5cm" /* paragraph_size */ ) );
 
 	list_set(
 		heading_list,
@@ -2361,7 +2361,7 @@ LIST *trial_balance_subclass_display_latex_heading_list(
 	list_set(
 		heading_list,
 		latex_table_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_flag */,
 			(char *)0 /* paragraph_size */ ) );
 
@@ -2417,7 +2417,7 @@ LIST *trial_balance_subclass_omit_latex_heading_list(
 	list_set(
 		heading_list,
 		latex_table_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_flag */,
 			(char *)0 /* paragraph_size */ ) );
 

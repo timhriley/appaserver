@@ -393,4 +393,7 @@ ACCOUNT *account_getset(
 			LIST *account_list,
 			ACCOUNT *account );
 
+boolean account_name_changed(
+			char *preupdate_account_name );
+
 #endif

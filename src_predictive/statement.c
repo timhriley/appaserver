@@ -1864,7 +1864,7 @@ LIST *statement_subclass_display_latex_list_heading_list(
 	list_set(
 		heading_list,
 		latex_table_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_flag */,
 			(char *)0 /* paragraph_size */ ) );
 
@@ -2175,7 +2175,7 @@ LIST *statement_subclass_omit_latex_list_heading_list(
 	list_set(
 		heading_list,
 		latex_table_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_flag */,
 			(char *)0 /* paragraph_size */ ) );
 
@@ -2769,7 +2769,7 @@ LIST *statement_subclass_omit_html_list_heading_list(
 	list_set(
 		heading_list,
 		html_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_boolean */ ) );
 
 	html_heading_list_right_justify_set(
@@ -3185,7 +3185,7 @@ LIST *statement_subclass_aggr_html_list_heading_list(
 	list_set(
 		heading_list,
 		html_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_boolean */ ) );
 
 	html_heading_list_right_justify_set(
@@ -3329,7 +3329,7 @@ LIST *statement_subclass_display_html_list_heading_list(
 	list_set(
 		heading_list,
 		html_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_boolean */ ) );;
 
 	html_heading_list_right_justify_set(
@@ -4239,7 +4239,7 @@ LIST *statement_subclass_aggr_latex_list_heading_list(
 	list_set(
 		heading_list,
 		latex_table_heading_new(
-			"Percent",
+			"Standardized",
 			1 /* right_justified_flag */,
 			(char *)0 /* paragraph_size */ ) );
 

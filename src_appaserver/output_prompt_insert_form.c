@@ -437,8 +437,7 @@ int main( int argc, char **argv )
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
 			dictionary_appaserver->
-				preprompt_dictionary,
-			0 /* folder_lookup_before_drop_down */ );
+				preprompt_dictionary );
 
 	form =
 		form_new(

@@ -1262,3 +1262,73 @@ void transaction_journal_list_insert(
 	}
 }
 
+char *transaction_date_time_earlier(
+			char *transaction_date_time,
+			char *preupdate_transaction_date_time )
+{
+	if ( !preupdate_transaction_date_time
+	||   !*preupdate_transaction_date_time
+	||   strcmp(	preupdate_transaction_date_time,
+			"preupdate_transaction_date_time" ) == 0 )
+	{
+		return transaction_date_time;
+	}
+
+	if ( strcmp(	transaction_date_time,
+			preupdate_transaction_date_time ) <= 0 )
+	{
+		return transaction_date_time;
+	}
+	else
+	{
+		return preupdate_transaction_date_time;
+	}
+}
+
+void transaction_fetch_update(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	TRANSACTION *transaction;
+
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( transaction =
+			transaction_fetch(
+				full_name,
+				street_address,
+				transaction_date_time,
+				1 /* fetch_journal_list */ ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			transaction_date_time );
+		exit( 1 );
+	}
+
+	transaction_update(
+		journal_list_transaction_amount(
+			transaction->journal_list ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		transaction_primary_where(
+			full_name,
+			street_address,
+			transaction_date_time ) );
+}
+

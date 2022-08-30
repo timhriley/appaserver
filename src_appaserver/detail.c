@@ -358,8 +358,7 @@ if ( SECURITY_ON )
 				lookup_before_drop_down_folder_list,
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			appaserver->folder->lookup_before_drop_down );
+			dictionary_appaserver->preprompt_dictionary );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state ==

@@ -226,8 +226,7 @@ int main( int argc, char **argv )
 				lookup_before_drop_down_folder_list,
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			folder->lookup_before_drop_down );
+			dictionary_appaserver->preprompt_dictionary );
 
 	rows_inserted =
 		get_rows_inserted(

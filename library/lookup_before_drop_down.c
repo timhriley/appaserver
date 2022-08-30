@@ -790,8 +790,7 @@ enum lookup_before_drop_down_state
 	lookup_before_drop_down_get_state(
 		LIST *lookup_before_drop_down_folder_list,
 		DICTIONARY *lookup_before_drop_down_dictionary,
-		DICTIONARY *preprompt_dictionary,
-		boolean folder_lookup_before_drop_down )
+		DICTIONARY *preprompt_dictionary )
 {
 	enum lookup_before_drop_down_state lookup_before_drop_down_state;
 	char *state_string;
@@ -804,10 +803,7 @@ enum lookup_before_drop_down_state
 
 	if ( !list_length( lookup_before_drop_down_folder_list ) )
 	{
-		if ( folder_lookup_before_drop_down )
-			return lookup_skipped;
-		else
-			return lookup_not_participating;
+		return lookup_not_participating;
 	}
 
 	state_string =

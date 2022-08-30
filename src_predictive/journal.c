@@ -1737,3 +1737,36 @@ double journal_balance(
 	else
 		return -balance;
 }
+
+LIST *journal_account_name_list(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	char system_string[ 1024 ];
+	char *select;
+	char where[ 1024 ];
+
+	select = "account";
+
+	sprintf(where,
+		"full_name = '%s' and		"
+		"street_address = '%s' and	"
+		"transaction_date_time = '%s'	",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name( full_name ),
+		street_address,
+		transaction_date_time );
+
+	sprintf(system_string,
+		"echo \"select %s from %s where %s order by %s;\" | sql",
+		select,
+		JOURNAL_TABLE,
+		where,
+		select );
+
+	return pipe2list( system_string );
+}
+
