@@ -171,7 +171,6 @@ generate_workorder
 post_change_inventory_sale_return
 post_change_inventory_purchase_return
 transaction_date_time
-transaction_balance_report
 bank_upload_transaction_insert
 cost_recover_fixed_assets
 tax_dvr

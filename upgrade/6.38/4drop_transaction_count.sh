@@ -23,15 +23,11 @@ then
 	exit 0
 fi
 
-folder="reoccurring_transaction"
+folder="journal_ledger"
 
-attribute="bank_upload_feeder_phrase"
+attribute="transaction_count"
 echo "alter table $folder drop $attribute;" | sql.e
 echo "delete from folder_attribute where folder = '$folder' and attribute = '$attribute';" | sql.e
 echo "delete from attribute where attribute = '$attribute';" | sql.e
-
-attribute="feeder_phrase_ignore_yn"
-echo "alter table $folder drop $attribute;" | sql.e
-echo "delete from folder_attribute where folder = '$folder' and attribute = '$attribute';" | sql.e
 
 exit 0

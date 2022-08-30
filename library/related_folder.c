@@ -1898,6 +1898,17 @@ LIST *related_folder_1tom_related_folder_list(
 
 	} while( list_next( local_related_folder_list ) );
 
+/*
+{
+char msg[ 65536 ];
+sprintf( msg, "%s/%s()/%d: returning related_folder_list = [%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+related_folder_list_display( related_folder_list, one2m, ';' ) );
+m2( application_name, msg );
+}
+*/
 	return related_folder_list;
 }
 

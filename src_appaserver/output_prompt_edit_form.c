@@ -2071,7 +2071,11 @@ boolean get_omit_delete_button(
 		row_security_new(
 			application_name,
 			login_role,
-			select_folder_name,
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				select_folder_name,
+				login_role ),
 			login_name,
 			(char *)0 /* state */,
 			(DICTIONARY *)0 /* preprompt_dictionary */,

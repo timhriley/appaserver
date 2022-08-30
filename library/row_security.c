@@ -46,7 +46,7 @@ ROW_SECURITY *row_security_calloc( void )
 ROW_SECURITY *row_security_new(
 			char *application_name,
 			ROLE *login_role,
-			char *select_folder_name,
+			FOLDER *select_folder,
 			char *login_name,
 			char *state,
 			DICTIONARY *preprompt_dictionary,
@@ -65,21 +65,7 @@ ROW_SECURITY *row_security_new(
 	row_security->no_display_pressed_attribute_name_list =
 		no_display_pressed_attribute_name_list;
 
-	if ( ! ( row_security->select_folder =
-			folder_with_load_new(
-				application_name,
-				BOGUS_SESSION,
-				select_folder_name,
-				login_role ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot load folder = %s.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 select_folder_name );
-		exit( 1 );
-	}
+	row_security->select_folder = select_folder;
 
 	/* Make sure to select the login_name attribute. */
 	/* --------------------------------------------- */
@@ -283,7 +269,6 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 			char *application_name,
 			enum row_security_state row_security_state,
 			char *login_name,
-			char *state,
 			ROLE *login_role,
 			DICTIONARY *preprompt_dictionary,
 			DICTIONARY *query_dictionary,
@@ -387,25 +372,29 @@ ROW_SECURITY_ELEMENT_LIST_STRUCTURE *
 		list_length( element_list_structure->
 				row_dictionary_list );
 
-	element_list_structure->regular_element_list =
-		row_security_regular_element_list(
-			&element_list_structure->
-				ajax_fill_drop_down_related_folder,
-			application_name,
-			select_folder,
-			select_folder->mto1_append_isa_related_folder_list,
-			login_role,
-			no_display_pressed_attribute_name_list,
-			preprompt_dictionary,
-			query_dictionary,
-			row_dictionary_list_length,
-			state,
-			login_name,
-			regular_omit_delete_operation,
-			omit_operation_buttons,
-			select_folder->join_1tom_related_folder_list,
-			make_primary_keys_non_edit,
-			prompt_data_separate_folder );
+	if ( row_security_state != lookup_only )
+	{
+		element_list_structure->regular_element_list =
+			row_security_regular_element_list(
+				&element_list_structure->
+					ajax_fill_drop_down_related_folder,
+				application_name,
+				select_folder,
+				select_folder->
+					mto1_append_isa_related_folder_list,
+				login_role,
+				no_display_pressed_attribute_name_list,
+				preprompt_dictionary,
+				query_dictionary,
+				row_dictionary_list_length,
+				"update" /* state */,
+				login_name,
+				regular_omit_delete_operation,
+				omit_operation_buttons,
+				select_folder->join_1tom_related_folder_list,
+				make_primary_keys_non_edit,
+				prompt_data_separate_folder );
+	}
 
 	if ( ajax_fill_drop_down_omit )
 	{
@@ -760,7 +749,15 @@ enum row_security_state
 
 	*attribute_not_null_folder = (FOLDER *)0;
 	*attribute_not_null_string = (char *)0;
-	row_security_state = regular_user;
+
+	if ( string_strcmp( folder_state, "lookup" ) == 0 )
+	{
+		return lookup_only;
+	}
+	else
+	{
+		row_security_state = regular_user;
+	}
 
 	if ( !list_rewind( role_update_list ) ) return row_security_state;
 
@@ -1659,7 +1656,6 @@ LIST *row_security_regular_element_list(
 			BOGUS_SESSION,
 			select_folder->folder_name,
 			login_role->role_name,
-			select_folder->attribute_list,
 			select_folder->append_isa_attribute_list,
 			include_attribute_name_list,
 			mto1_append_isa_related_folder_list,
@@ -1691,7 +1687,6 @@ LIST *row_security_regular_evaluate_element_list(
 			char *session,
 			char *folder_name,
 			char *role_name,
-			LIST *attribute_list,
 			LIST *append_isa_attribute_list,
 			LIST *include_attribute_name_list,
 			LIST *mto1_append_isa_related_folder_list,
@@ -1741,7 +1736,7 @@ LIST *row_security_regular_evaluate_element_list(
 
 	primary_attribute_name_list =
 		folder_get_primary_attribute_name_list(
-			attribute_list );
+			append_isa_attribute_list );
 
 	return_list = list_new_list();
 
@@ -1763,7 +1758,7 @@ LIST *row_security_regular_evaluate_element_list(
 
 	do {
 		attribute_name = 
-			list_get_pointer(
+			list_get(
 				include_attribute_name_list );
 
 		if ( list_exists_string(
@@ -1825,7 +1820,7 @@ LIST *row_security_regular_evaluate_element_list(
 			       &foreign_attribute_name_list,
 			       ignore_attribute_name_list,
 			       attribute_omit_update_attribute_name_list(
-					attribute_list ),
+					append_isa_attribute_list ),
 			       mto1_append_isa_related_folder_list,
 			       attribute_name,
 			       (LIST *)0 /* include_attribute_name_list */ ) ) )
@@ -1974,6 +1969,7 @@ skip_checking_drop_down:
 			list_append_pointer(
 					return_list, 
 					element );
+
 		} while( list_next( no_display_pressed_attribute_name_list ) );
 	}
 

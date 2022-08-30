@@ -65,10 +65,12 @@ int main( int argc, char **argv )
 	sql_executable = "sql.e";
 	/* sql_executable = "html_paragraph_wrapper"; */
 
+/*
 	if ( timlib_strncmp( sql_executable, "html_paragraph_wrapper" ) == 0 )
 	{
 		document_output_content_type();
 	}
+*/
 
 	if ( strcmp( primary_attribute_data_list_string, "stdin" ) == 0 )
 	{
