@@ -341,6 +341,31 @@ double journal_prior_account_end_balance(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+double journal_balance_sum(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *journal_tax_form_list(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *account_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_tax_form_where(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *account_name );
+
 /* Public */
 /* ------ */
 

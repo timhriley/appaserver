@@ -1793,3 +1793,93 @@ double journal_prior_account_end_balance(
 	}
 }
 
+double journal_balance_sum( LIST *journal_list )
+{
+	double sum;
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+
+		sum += journal->balance;
+
+	} while ( list_next( journal_list ) );
+
+	return sum;
+}
+
+LIST *journal_tax_form_list(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *account_name )
+{
+	char *where;
+
+	if ( !tax_form_fiscal_begin_date
+	||   !tax_form_fiscal_end_date
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	where =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		journal_tax_form_where(
+			tax_form_fiscal_begin_date,
+			tax_form_fiscal_end_date,
+			account_name );
+
+	return
+	journal_system_list(
+		journal_system_string(
+			JOURNAL_SELECT,
+			JOURNAL_TABLE,
+			where ),
+		0 /* not fetch_account */,
+		0 /* not fetch_subclassification */,
+		0 /* not fetch_element */,
+		0 /* not fetch_transaction */ );
+}
+
+char *journal_tax_form_where(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *account_name )
+{
+	static char where[ 128 ];
+
+	if ( !tax_form_fiscal_begin_date
+	||   !tax_form_fiscal_end_date
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"transaction_date_time between		"
+		"'%s 00:00:00' and '%s 23:59:59' and	"
+		"account = '%s'				",
+		tax_form_fiscal_begin_date,
+		tax_form_fiscal_end_date,
+		account_name );
+
+
+	return where;
+}
+

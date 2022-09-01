@@ -221,12 +221,12 @@ trial_balance_output: trial_balance_output.c				\
 		-o trial_balance_output
 
 tax_form_report: tax_form_report.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax_form.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_form_report.c					\
-		tax.o							\
+		tax_form.o						\
 		-o tax_form_report
 
 program_profit: program_profit.c					\
@@ -674,9 +674,9 @@ receivable.o: receivable.c receivable.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c receivable.c
 
-tax.o: tax.c tax.h
+tax_form.o: tax_form.c tax_form.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c tax.c
+		-c tax_form.c
 
 subsidiary_transaction.o: subsidiary_transaction.c			\
 		subsidiary_transaction.h
