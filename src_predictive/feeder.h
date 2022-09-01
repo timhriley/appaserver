@@ -342,6 +342,12 @@ char *feeder_load_row_description_crop(
 double feeder_load_row_account_end_balance(
 			FEEDER_LOAD_ROW *last_feeder_load_row );
 
+/* -------------------------------------- */
+/* Returns this->file_row_balance or null */
+/* -------------------------------------- */
+double feeder_load_row_prior_account_end_balance(
+			FEEDER_LOAD_ROW *first_feeder_load_row );
+
 #define FEEDER_ROW_TABLE		"feeder_row"
 
 #define FEEDER_ROW_SELECT		"feeder_account,"		\
@@ -849,6 +855,8 @@ double feeder_account_end_balance(
 /* ----- */
 double feeder_prior_account_end_balance(
 			char *feeder_account,
+			char *feeder_load_file_minimum_date,
+			boolean balance_column,
 			double feeder_account_end_balance,
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );

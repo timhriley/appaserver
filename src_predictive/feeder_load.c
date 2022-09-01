@@ -252,7 +252,7 @@ int main( int argc, char **argv )
 
 		if ( feeder->feeder_row_first_out_balance )
 		{
-			printf( "<h1>No Transactions</h1>\n" );
+			printf( "<h1>No Transaction Table</h1>\n" );
 			fflush( stdout );
 
 			if ( feeder_row_error_display(
@@ -263,7 +263,7 @@ int main( int argc, char **argv )
 			}
 		}
 				
-		printf( "<h1>All Transactions</h1>\n" );
+		printf( "<h1>Transaction Table</h1>\n" );
 		fflush( stdout );
 		feeder_row_list_display(
 			feeder->feeder_row_list,

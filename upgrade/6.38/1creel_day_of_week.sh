@@ -45,4 +45,5 @@ echo "insert into $attribute_table					\
 	('day_of_week','integer',1,0,'1 = weekend, 2 = weekday, 3 = holiday','n','','','n','n');"		 |
 sql.e
 ) 2>&1 | grep -vi duplicate
+
 exit 0

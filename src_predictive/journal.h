@@ -332,6 +332,15 @@ double journal_account_list_credit_sum(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+double journal_prior_account_end_balance(
+			char *feeder_load_file_minimum_date,
+			char *account_name );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 

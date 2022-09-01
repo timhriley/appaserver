@@ -1770,3 +1770,26 @@ LIST *journal_account_name_list(
 	return pipe2list( system_string );
 }
 
+double journal_prior_account_end_balance(
+			char *feeder_load_file_minimum_date,
+			char *account_name )
+{
+	JOURNAL *prior;
+
+	if ( ( prior =
+		journal_prior(
+			feeder_load_file_minimum_date
+				/* transaction_date_time */,
+			account_name,
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */ ) ) )
+	{
+		return prior->balance;
+	}
+	else
+	{
+		return 0.0;
+	}
+}
+
