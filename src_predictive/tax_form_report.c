@@ -23,89 +23,21 @@
 #include "application.h"
 #include "application_constants.h"
 #include "appaserver_parameter_file.h"
-#include "html_table.h"
-#include "latex.h"
 #include "date_convert.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
-#include "tax.h"
 #include "transaction.h"
-
-/* Constants */
-/* --------- */
-#define ROWS_BETWEEN_HEADING		10
-#define PROMPT				"Press here to view statement."
-
-/* Prototypes */
-/* ---------- */
-LIST *tax_report_journal_PDF_row_list(
-			LIST *journal_list );
-
-LIST *tax_report_account_PDF_row_list(
-			TAX_FORM_LINE *tax_form_line );
-
-LIST *tax_form_report_account_PDF_table_list(
-			LIST *tax_form_line_list );
-
-LIST *tax_form_report_journal_PDF_table_list(
-			LIST *tax_form_line_list );
-
-LATEX_TABLE *tax_form_report_PDF_table(
-			char *sub_title,
-			char *tax_form_string,
-			LIST *tax_form_line_list );
-
-void tax_form_report_html_table(
-			char *title,
-			char *sub_title,
-			char *tax_form,
-			LIST *tax_form_line_list );
-
-void tax_form_report_account_detail(
-			LIST *tax_form_line_list );
-
-void tax_form_report_journal_detail(
-			LIST *tax_form_line_list,
-			boolean liability_receivable_accounts_only );
-
-void tax_form_html_table_account_itemize(
-			LIST *tax_form_line_list );
-
-LIST *tax_form_PDF_row_list(
-			LIST *tax_form_line_list );
-
-LIST *tax_report_account_PDF_heading_list(
-			void );
-
-LIST *tax_report_journal_PDF_heading_list(
-			void );
-
-LIST *tax_report_PDF_heading_list(
-			void );
-
-void tax_form_report_PDF(
-			char *application_name,
-			char *title,
-			char *sub_title,
-			char *document_root_directory,
-			char *process_name,
-			char *tax_form_string,
-			LIST *tax_form_line_list,
-			char *logo_filename );
+#include "tax_form.h"
 
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char end_date_string[ 16 ];
-	char title[ 256 ];
-	char sub_title[ 256 ];
 	char *tax_form_name;
 	int tax_year;
 	char *output_medium;
-	TAX *tax;
-	char *logo_filename;
+	TAX_FORM *tax_form;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -114,10 +46,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 6 )
+	if ( argc != 5 )
 	{
 		fprintf( stderr,
-	"Usage: %s process tax_form tax_year fund output_medium\n",
+	"Usage: %s process tax_form tax_year output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -132,9 +64,7 @@ int main( int argc, char **argv )
 				date_get_utc_offset() ) );
 	}
 
-	/* fund_name = argv[ 4 ]; */
-
-	output_medium = argv[ 5 ];
+	output_medium = argv[ 4 ];
 
 	if ( !*output_medium || strcmp( output_medium, "output_medium" ) == 0 )
 		output_medium = "table";
@@ -149,22 +79,13 @@ int main( int argc, char **argv )
 				appaserver_mount_point );
 	}
 
-	logo_filename =
-		application_constants_quick_fetch(
-			application_name,
-			"logo_filename" /* key */ );
-
-	tax = tax_new( tax_form_name, tax_year );
-
-	tax->tax_form =
+	tax_form =
 		tax_form_fetch(
-			tax->tax_form_string,
-			tax->tax_year,
-			1 /* fetch_line_list */,
-			1 /* fetch_account_list */,
-			1 /* fetch_journal_list */ );
+			tax_form_name,
+			tax_year,
+			output_medium );
 
-	if ( !list_length( tax->tax_form->tax_form_line_list ) )
+	if ( !list_length( tax_form->tax_form_line_list ) )
 	{
 		printf( "<h3>Error. No lines for this tax form.</h3>\n" );
 		document_close();
