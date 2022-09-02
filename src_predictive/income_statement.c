@@ -356,6 +356,7 @@ INCOME_STATEMENT_PDF *income_statement_pdf_new(
 	||   !process_name
 	||   !document_root_directory
 	||   !statement
+	||   !statement->statement_caption
 	||   !process_id )
 	{
 		fprintf(stderr,
@@ -398,7 +399,7 @@ INCOME_STATEMENT_PDF *income_statement_pdf_new(
 					working_directory,
 				income_statement_pdf->
 					statement_pdf_landscape_boolean,
-				statement->logo_filename,
+				statement->statement_caption->logo_filename,
 				statement,
 				statement_prior_year_list,
 				element_net_income,
@@ -777,6 +778,7 @@ INCOME_STATEMENT_LATEX *
 	||   !dvi_filename
 	||   !working_directory
 	||   !statement
+	||   !statement->statement_caption
 	||   !net_income_percent_of_revenue_display
 	||   !income_statement_net_income_label )
 	{
@@ -819,7 +821,7 @@ INCOME_STATEMENT_LATEX *
 		list_set(
 			income_statement_latex->latex->table_list,
 			income_statement_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				income_statement_latex->
 				   income_statement_subclass_display_latex->
 				   statement_subclass_display_latex_list->
@@ -850,7 +852,7 @@ INCOME_STATEMENT_LATEX *
 		list_set(
 			income_statement_latex->latex->table_list,
 			income_statement_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				income_statement_latex->
 				   income_statement_subclass_omit_latex->
 				   statement_subclass_omit_latex_list->
@@ -881,7 +883,7 @@ INCOME_STATEMENT_LATEX *
 		list_set(
 			income_statement_latex->latex->table_list,
 			income_statement_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				income_statement_latex->
 				   income_statement_subclass_aggr_latex->
 				   statement_subclass_aggr_latex_list->
@@ -924,6 +926,7 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 	INCOME_STATEMENT_HTML *income_statement_html;
 
 	if ( !statement
+	||   !statement->statement_caption
 	||   !net_income_percent_of_revenue_display
 	||   !net_income_label )
 	{
@@ -958,7 +961,7 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 
 		income_statement_html->html_table =
 			income_statement_html_table(
-			     	statement->caption_subtitle,
+			     	statement->statement_caption->subtitle,
 			     	income_statement_html->
 					income_statement_subclass_display_html->
 					statement_subclass_display_html_list->
@@ -989,7 +992,7 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 
 		income_statement_html->html_table =
 			income_statement_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				income_statement_html->
 					income_statement_subclass_omit_html->
 					statement_subclass_omit_html_list->
@@ -1019,7 +1022,7 @@ INCOME_STATEMENT_HTML *income_statement_html_new(
 
 		income_statement_html->html_table =
 			income_statement_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				income_statement_html->
 					income_statement_subclass_aggr_html->
 					statement_subclass_aggr_html_list->

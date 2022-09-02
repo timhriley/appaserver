@@ -1083,6 +1083,7 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 	BALANCE_SHEET_HTML *balance_sheet_html;
 
 	if ( !statement
+	||   !statement->statement_caption
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -1122,7 +1123,7 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 
 		balance_sheet_html->html_table =
 			balance_sheet_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				balance_sheet_html->
 					balance_sheet_subclass_display_html->
 					statement_subclass_display_html_list->
@@ -1155,7 +1156,7 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 
 		balance_sheet_html->html_table =
 			balance_sheet_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				balance_sheet_html->
 					balance_sheet_subclass_omit_html->
 					statement_subclass_omit_html_list->
@@ -1188,7 +1189,7 @@ BALANCE_SHEET_HTML *balance_sheet_html_new(
 
 		balance_sheet_html->html_table =
 			balance_sheet_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				balance_sheet_html->
 					balance_sheet_subclass_aggr_html->
 					statement_subclass_aggr_html_list->
@@ -2704,6 +2705,7 @@ BALANCE_SHEET_LATEX *
 	||   !dvi_filename
 	||   !working_directory
 	||   !statement
+	||   !statement->statement_caption
 	||   !income_statement_net_income_label )
 	{
 		fprintf(stderr,
@@ -2748,7 +2750,7 @@ BALANCE_SHEET_LATEX *
 		list_set(
 			balance_sheet_latex->latex->table_list,
 			balance_sheet_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				balance_sheet_latex->
 					balance_sheet_subclass_display_latex->
 					statement_subclass_display_latex_list->
@@ -2781,7 +2783,7 @@ BALANCE_SHEET_LATEX *
 		list_set(
 			balance_sheet_latex->latex->table_list,
 			balance_sheet_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				balance_sheet_latex->
 					balance_sheet_subclass_omit_latex->
 					statement_subclass_omit_latex_list->
@@ -2814,7 +2816,7 @@ BALANCE_SHEET_LATEX *
 		list_set(
 			balance_sheet_latex->latex->table_list,
 			balance_sheet_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				balance_sheet_latex->
 					balance_sheet_subclass_aggr_latex->
 					statement_subclass_aggr_latex_list->
@@ -2891,6 +2893,7 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 	||   !process_name
 	||   !document_root_directory
 	||   !statement
+	||   !statement->statement_caption
 	||   !income_statement_net_income_label
 	||   !process_id )
 	{
@@ -2931,7 +2934,7 @@ BALANCE_SHEET_PDF *balance_sheet_pdf_new(
 			balance_sheet_pdf->statement_link->dvi_filename,
 			balance_sheet_pdf->statement_link->working_directory,
 			balance_sheet_pdf->statement_pdf_landscape_boolean,
-			statement->logo_filename,
+			statement->statement_caption->logo_filename,
 			statement,
 			statement_prior_year_list,
 			element_equity_begin,

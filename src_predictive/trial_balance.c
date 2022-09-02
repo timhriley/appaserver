@@ -369,6 +369,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 	||   !process_name
 	||   !document_root_directory
 	||   !statement
+	||   !statement->statement_caption
 	||   !process_id )
 	{
 		fprintf(stderr,
@@ -420,7 +421,9 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 					working_directory,
 				trial_balance_pdf->
 					statement_pdf_landscape_boolean,
-				preclose_statement->logo_filename,
+				preclose_statement->
+					statement_caption->
+					logo_filename,
 				preclose_statement,
 				preclose_statement_prior_year_list,
 				preclose_debit_sum,
@@ -452,7 +455,7 @@ TRIAL_BALANCE_PDF *trial_balance_pdf_new(
 				working_directory,
 			trial_balance_pdf->
 				statement_pdf_landscape_boolean,
-			statement->logo_filename,
+			statement->statement_caption->logo_filename,
 			statement,
 			statement_prior_year_list,
 			debit_sum,
@@ -505,7 +508,8 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 	||   !tex_filename
 	||   !dvi_filename
 	||   !working_directory
-	||   !statement )
+	||   !statement
+	||   !statement->statement_caption )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -539,7 +543,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 		list_set(
 			trial_balance_latex->latex->table_list,
 			trial_balance_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				trial_balance_latex->
 					trial_balance_subclass_display_latex->
 					heading_list,
@@ -560,7 +564,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 		list_set(
 			trial_balance_latex->latex->table_list,
 			trial_balance_latex_table(
-				statement->caption,
+				statement->statement_caption->string,
 				trial_balance_latex->
 					trial_balance_subclass_omit_latex->
 					heading_list,
@@ -1759,10 +1763,11 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 {
 	TRIAL_BALANCE_HTML *trial_balance_html;
 
-	if ( !statement )
+	if ( !statement
+	||   !statement->statement_caption )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: statement is empty.\n",
+			"ERROR in %s/%s()/%d: statement_caption is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1784,7 +1789,7 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 
 		trial_balance_html->html_table =
 			trial_balance_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				trial_balance_html->
 					trial_balance_subclass_display_html->
 					heading_list,
@@ -1804,7 +1809,7 @@ TRIAL_BALANCE_HTML *trial_balance_html_new(
 
 		trial_balance_html->html_table =
 			trial_balance_html_table(
-				statement->caption_subtitle,
+				statement->statement_caption->subtitle,
 				trial_balance_html->
 					trial_balance_subclass_omit_html->
 					heading_list,

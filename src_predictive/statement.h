@@ -561,13 +561,67 @@ LIST *statement_subclass_aggr_latex_list_extract_row_list(
 
 typedef struct
 {
-	LIST *element_statement_list;
 	char *logo_filename;
-	char *caption_title;
-	char *caption_subtitle;
-	char *caption;
+	char *title;
+	char *subtitle;
+	char *string;
 	char *date_time_string;
 	char *frame_title;
+} STATEMENT_CAPTION;
+
+/* Usage */
+/* ----- */
+STATEMENT_CAPTION *statement_caption_new(
+			char *application_name,
+			char *process_name,
+			char *begin_date_string,
+			char *end_date_string );
+
+/* Process */
+/* ------- */
+STATEMENT_CAPTION *statement_caption_calloc(
+			void );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *statement_caption_logo_filename(
+			char *application_name,
+			char *statement_logo_filename_key );
+
+/* Returns static memory */
+/* --------------------- */
+char *statement_caption_title(
+			char *application_name,
+			boolean exists_logo_filename,
+			char *process_name );
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *statement_caption_subtitle(
+			char *begin_date_string,
+			char *end_date_string );
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_caption_string(
+			char *statement_caption_title,
+			char *statement_caption_subtitle );
+
+/* Returns date_time_string */
+/* ------------------------ */
+char *statement_caption_date_time_string(
+			char *date_time_string );
+
+/* Returns static memory */
+/* --------------------- */
+char *statement_caption_frame_title(
+			char *process_name,
+			char *statement_date_time_string );
+
+typedef struct
+{
+	LIST *element_statement_list;
+	STATEMENT_CAPTION *statement_caption;
 	char *date_american;
 	char *transaction_begin_date_string;
 	char *transaction_as_of_date;
@@ -589,42 +643,6 @@ STATEMENT *statement_fetch(
 /* ------- */
 STATEMENT *statement_calloc(
 			void );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *statement_logo_filename(
-			char *application_name,
-			char *statement_logo_filename_key );
-
-/* Returns static memory */
-/* --------------------- */
-char *statement_caption_title(
-			char *application_name,
-			boolean exists_logo_filename,
-			char *process_name );
-
-/* Returns static memory or null */
-/* ----------------------------- */
-char *statement_caption_subtitle(
-			char *begin_date_string,
-			char *as_of_date );
-
-/* Returns heap memory */
-/* ------------------- */
-char *statement_caption(
-			char *statement_caption_title,
-			char *statement_caption_subtitle );
-
-/* Returns date_time_string */
-/* ------------------------ */
-char *statement_date_time_string(
-			char *date_time_string );
-
-/* Returns static memory */
-/* --------------------- */
-char *statement_frame_title(
-			char *process_name,
-			char *statement_date_time_string );
 
 /* Usage */
 /* ----- */

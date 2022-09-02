@@ -87,14 +87,19 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( balance_sheet->statement_output_medium != output_stdout )
+	if (	balance_sheet->statement_output_medium !=
+		statement_output_stdout )
 	{
 		document_quick_output_body(
 			application_name,
 			appaserver_parameter_file->
 				appaserver_mount_point );
 
-		printf( "%s\n", balance_sheet->statement->frame_title );
+		printf( "%s\n",
+			balance_sheet->
+				statement->
+				statement_caption->
+				frame_title );
 	}
 
 	if ( balance_sheet->balance_sheet_pdf )
@@ -115,6 +120,7 @@ int main( int argc, char **argv )
 			process_name,
 			balance_sheet->
 				statement->
+				statement_caption->
 				date_time_string );
 	}
 	else
@@ -127,7 +133,8 @@ int main( int argc, char **argv )
 			(char *)0 /* secondary_title */ );
 	}
 
-	if ( balance_sheet->statement_output_medium != output_stdout )
+	if (	balance_sheet->statement_output_medium !=
+		statement_output_stdout )
 	{
 		document_close();
 	}

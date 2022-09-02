@@ -86,7 +86,7 @@ enum statement_output_medium
 	}
 }
 
-char *statement_logo_filename(
+char *statement_caption_logo_filename(
 			char *application_name,
 			char *statement_logo_filename_key )
 {
@@ -106,16 +106,16 @@ char *statement_logo_filename(
 
 char *statement_caption_subtitle(
 			char *begin_date_string,
-			char *as_of_date )
+			char *end_date_string )
 {
 	static char subtitle[ 128 ];
 
-	if ( !begin_date_string || !as_of_date ) return (char *)0;
+	if ( !begin_date_string || !end_date_string ) return (char *)0;
 
 	sprintf(subtitle,
 		"Beginning: %s, Ending: %s",
 		begin_date_string,
-	 	as_of_date );
+	 	end_date_string );
 
 	return subtitle;
 }
@@ -170,70 +170,12 @@ STATEMENT *statement_fetch(
 
 	if ( application_name )
 	{
-		statement->logo_filename =
-			statement_logo_filename(
+		statement->statement_caption =
+			statement_caption_new(
 				application_name,
-				STATEMENT_LOGO_FILENAME_KEY );
-	
-		statement->caption_title =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			statement_caption_title(
-				application_name,
-				(statement->logo_filename)
-					? 1 : 0 /* exists_logo_filename */,
-				process_name );
-	
-		statement->caption_subtitle =
-			/* ----------------------------- */
-			/* Returns static memory or null */
-			/* ----------------------------- */
-			statement_caption_subtitle(
-				/* --------------------------- */
-				/* Returns heap memory or null */
-				/* --------------------------- */
-				statement_date_american(
-					transaction_begin_date_string )
-						/* begin_date_string */,
-				statement_date_american(
-					transaction_as_of_date )
-						/* as_of_date */ );
-	
-		if ( !statement->caption_subtitle )
-		{
-			fprintf(stderr,
-	"ERROR in %s/%s()/%d: statement_caption_subtitle() returned empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-	
-		statement->caption =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			statement_caption(
-				statement->caption_title,
-				statement->caption_subtitle );
-	
-		statement->date_time_string =
-			/* ------------------------ */
-			/* Returns date_time_string */
-			/* ------------------------ */
-			statement_date_time_string(
-				date_get_now_yyyy_mm_dd_hh_mm(
-					date_utc_offset()
-						/* date_time_string */ ) );
-	
-		statement->frame_title =
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			statement_frame_title(
 				process_name,
-				statement->date_time_string );
+				transaction_begin_date_string,
+				transaction_as_of_date );
 	}
 
 	statement->transaction_begin_date_string =
@@ -627,11 +569,11 @@ char *statement_date_american( char *date_time_string )
 	return strdup( date_american );
 }
 
-char *statement_caption(
+char *statement_caption_string(
 			char *title,
 			char *subtitle )
 {
-	char caption[ 256 ];
+	char string[ 256 ];
 
 	if ( !title || !subtitle )
 	{
@@ -643,12 +585,12 @@ char *statement_caption(
 		exit( 1 );
 	}
 
-	sprintf(caption,
+	sprintf(string,
 		"%s %s",
 		title,
 		subtitle );
 
-	return strdup( caption );
+	return strdup( string );
 }
 
 char *statement_caption_title(
@@ -951,13 +893,13 @@ char *statement_prior_year_date_time_string(
 	date_display19( prior_date );
 }
 
-char *statement_date_time_string(
+char *statement_caption_date_time_string(
 			char *date_time_string )
 {
 	return date_time_string;
 }
 
-char *statement_frame_title(
+char *statement_caption_frame_title(
 			char *process_name,
 			char *statement_date_time_string )
 {
@@ -4293,4 +4235,111 @@ char *statement_subclass_display_name(
 		return (char *)0;
 	else
 		return subclassification_name;
+}
+
+STATEMENT_CAPTION *statement_caption_calloc( void )
+{
+	STATEMENT_CAPTION *statement_caption;
+
+	if ( ! ( statement_caption =
+			calloc( 1, sizeof( STATEMENT_CAPTION ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement_caption;
+}
+
+STATEMENT_CAPTION *statement_caption_new(
+			char *application_name,
+			char *process_name,
+			char *begin_date_string,
+			char *end_date_string )
+{
+	STATEMENT_CAPTION *statement_caption;
+
+	if ( !application_name
+	||   !process_name
+	||   !begin_date_string
+	||   !end_date_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	statement_caption = statement_caption_calloc();
+
+	statement_caption->logo_filename =
+		statement_caption_logo_filename(
+			application_name,
+			STATEMENT_LOGO_FILENAME_KEY );
+	
+	statement_caption->title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		statement_caption_title(
+			application_name,
+			(statement_caption->logo_filename)
+				? 1 : 0 /* exists_logo_filename */,
+			process_name );
+	
+	statement_caption->subtitle =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		statement_caption_subtitle(
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			statement_date_american(
+				begin_date_string ),
+			statement_date_american(
+				end_date_string  ) );
+	
+	if ( !statement_caption->subtitle )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: statement_caption_subtitle() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+	
+	statement_caption->string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_caption_string(
+			statement_caption->title,
+			statement_caption->subtitle );
+	
+	statement_caption->date_time_string =
+		/* ------------------------ */
+		/* Returns date_time_string */
+		/* ------------------------ */
+		statement_caption_date_time_string(
+			date_get_now_yyyy_mm_dd_hh_mm(
+				date_utc_offset()
+					/* date_time_string */ ) );
+	
+	statement_caption->frame_title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		statement_caption_frame_title(
+			process_name,
+			statement_caption->date_time_string );
+
+	return statement_caption;
 }

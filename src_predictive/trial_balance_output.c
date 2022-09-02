@@ -90,14 +90,18 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( trial_balance->statement_output_medium != output_stdout )
+	if ( trial_balance->statement_output_medium != statement_output_stdout )
 	{
 		document_quick_output_body(
 			application_name,
 			appaserver_parameter_file->
 				appaserver_mount_point );
 
-		printf( "%s\n", trial_balance->statement->frame_title );
+		printf( "%s\n",
+			trial_balance->
+				statement->
+				statement_caption->
+				frame_title );
 	}
 
 	if ( trial_balance->trial_balance_pdf )
@@ -119,6 +123,7 @@ int main( int argc, char **argv )
 				process_name,
 				trial_balance->
 					statement->
+					statement_caption->
 					date_time_string );
 		}
 
@@ -135,6 +140,7 @@ int main( int argc, char **argv )
 			process_name,
 			trial_balance->
 				statement->
+				statement_caption->
 				date_time_string );
 	}
 	else
@@ -161,7 +167,7 @@ int main( int argc, char **argv )
 			(char *)0  /* secondary_title */ );
 	}
 
-	if ( trial_balance->statement_output_medium != output_stdout )
+	if ( trial_balance->statement_output_medium != statement_output_stdout )
 	{
 		document_close();
 	}

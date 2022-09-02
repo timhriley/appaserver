@@ -87,14 +87,19 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( income_statement->statement_output_medium != output_stdout )
+	if (	income_statement->statement_output_medium !=
+		statement_output_stdout )
 	{
 		document_quick_output_body(
 			application_name,
 			appaserver_parameter_file->
 				appaserver_mount_point );
 
-		printf( "%s\n", income_statement->statement->frame_title );
+		printf( "%s\n",
+			income_statement->
+				statement->
+				statement_caption->
+				frame_title );
 	}
 
 	if ( income_statement->income_statement_pdf )
@@ -115,6 +120,7 @@ int main( int argc, char **argv )
 			process_name,
 			income_statement->
 				statement->
+				statement_caption->
 				date_time_string );
 	}
 	else
@@ -127,7 +133,8 @@ int main( int argc, char **argv )
 			(char *)0 /* secondary_title */ );
 	}
 
-	if ( income_statement->statement_output_medium != output_stdout )
+	if (	income_statement->statement_output_medium !=
+		statement_output_stdout )
 	{
 		document_close();
 	}
