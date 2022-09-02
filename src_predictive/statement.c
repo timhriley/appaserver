@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include "String.h"
 #include "timlib.h"
 #include "date_convert.h"
 #include "application.h"
@@ -52,36 +53,36 @@ enum statement_output_medium
 	statement_resolve_output_medium(
 			char *output_medium_string )
 {
-	if ( strcmp(
+	if ( string_strcmp(
 		output_medium_string,
 		"table" ) == 0 )
 	{
-		return output_table;
+		return statement_output_table;
 	}
 	else
-	if ( strcmp(
+	if ( string_strcmp(
 		output_medium_string,
 		"PDF" ) == 0 )
 	{
-		return output_PDF;
+		return statement_output_PDF;
 	}
 	else
-	if ( strcmp(
+	if ( string_strcmp(
 		output_medium_string,
 		"spreadsheet" ) == 0 )
 	{
-		return output_spreadsheet;
+		return statement_output_spreadsheet;
 	}
 	else
-	if ( strcmp(
+	if ( string_strcmp(
 		output_medium_string,
 		"stdout" ) == 0 )
 	{
-		return output_stdout;
+		return statement_output_stdout;
 	}
 	else
 	{
-		return output_table;
+		return statement_output_table;
 	}
 }
 

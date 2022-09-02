@@ -154,7 +154,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 			trial_balance->transaction_begin_date_string,
 			trial_balance->transaction_date_time_closing );
 
-		if ( trial_balance->statement_output_medium == output_table )
+		if ( trial_balance->statement_output_medium ==
+			statement_output_table )
 		{
 			element_account_action_string_set(
 				trial_balance->
@@ -212,7 +213,8 @@ TRIAL_BALANCE *trial_balance_fetch(
 		trial_balance->transaction_begin_date_string,
 		trial_balance->transaction_date_time_closing );
 
-	if ( trial_balance->statement_output_medium == output_table )
+	if ( trial_balance->statement_output_medium ==
+		statement_output_table )
 	{
 		element_account_action_string_set(
 			trial_balance->statement->element_statement_list,
@@ -282,7 +284,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				element_statement_list );
 	}
 
-	if ( trial_balance->statement_output_medium == output_PDF )
+	if ( trial_balance->statement_output_medium == statement_output_PDF )
 	{
 		trial_balance->trial_balance_pdf =
 			trial_balance_pdf_new(
@@ -303,7 +305,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 				getpid() /* process_id */ );
 	}
 	else
-	if ( trial_balance->statement_output_medium == output_table )
+	if ( trial_balance->statement_output_medium == statement_output_table )
 	{
 		trial_balance->trial_balance_table =
 			trial_balance_table_new(

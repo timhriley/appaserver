@@ -20,16 +20,16 @@
 #define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 #define STATEMENT_DAYS_FOR_EMPHASIS		35
 
-enum statement_subclassification_option	{
+enum statement_subclassification_option {
 			subclassification_aggregate,
 			subclassification_display,
 			subclassification_omit };
 
-enum statement_output_medium 		{
-			output_table,
-			output_PDF,
-			output_spreadsheet,
-			output_stdout };
+enum statement_output_medium {
+			statement_output_table,
+			statement_output_PDF,
+			statement_output_spreadsheet,
+			statement_output_stdout };
 
 typedef struct
 {

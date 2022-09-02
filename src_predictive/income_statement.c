@@ -528,7 +528,8 @@ INCOME_STATEMENT *income_statement_fetch(
 			income_statement->transaction_date_time_closing,
 			0 /* not fetch_transaction */ );
 
-	if ( income_statement->statement_output_medium == output_table )
+	if ( income_statement->statement_output_medium ==
+		statement_output_table )
 	{
 		element_account_transaction_count_set(
 			income_statement->statement->element_statement_list,
@@ -583,7 +584,8 @@ INCOME_STATEMENT *income_statement_fetch(
 		income_statement_net_income_label(
 			argv_0 );
 
-	if ( income_statement->statement_output_medium == output_PDF )
+	if ( income_statement->statement_output_medium ==
+		statement_output_PDF )
 	{
 		income_statement->income_statement_pdf =
 			income_statement_pdf_new(
@@ -601,7 +603,8 @@ INCOME_STATEMENT *income_statement_fetch(
 				getpid() /* process_id */ );
 	}
 	else
-	if ( income_statement->statement_output_medium == output_table )
+	if ( income_statement->statement_output_medium ==
+		statement_output_table )
 	{
 		income_statement->income_statement_html =
 			income_statement_html_new(

@@ -3079,7 +3079,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 		element_sum(
 			balance_sheet->element_equity_current );
 
-	if ( balance_sheet->statement_output_medium == output_table )
+	if ( balance_sheet->statement_output_medium ==
+		statement_output_table )
 	{
 		element_account_transaction_count_set(
 			balance_sheet->statement->element_statement_list,
@@ -3141,7 +3142,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 			balance_sheet->statement->element_statement_list );
 	}
 
-	if ( balance_sheet->statement_output_medium == output_PDF )
+	if ( balance_sheet->statement_output_medium ==
+		statement_output_PDF )
 	{
 		balance_sheet->balance_sheet_pdf =
 			balance_sheet_pdf_new(
@@ -3161,7 +3163,8 @@ BALANCE_SHEET *balance_sheet_fetch(
 				getpid() /* process_id */ );
 	}
 	else
-	if ( balance_sheet->statement_output_medium == output_table )
+	if ( balance_sheet->statement_output_medium ==
+		statement_output_table )
 	{
 		balance_sheet->balance_sheet_html =
 			balance_sheet_html_new(
