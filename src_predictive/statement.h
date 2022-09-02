@@ -561,6 +561,8 @@ LIST *statement_subclass_aggr_latex_list_extract_row_list(
 
 typedef struct
 {
+	char *begin_date_string;
+	char *end_date_string;
 	char *logo_filename;
 	char *title;
 	char *subtitle;

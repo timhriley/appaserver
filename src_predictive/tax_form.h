@@ -179,8 +179,7 @@ typedef struct
 /* Usage */
 /* ----- */
 TAX_FORM_TABLE *tax_form_table_new(
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
+			STATEMENT_CAPTION *statement_caption,
 			LIST *tax_form_line_list );
 
 /* Process */
@@ -198,8 +197,8 @@ TAX_FORM_PDF *tax_form_pdf_new(
 			char *application_name,
 			char *process_name,
 			char *document_root_directory,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
+			char *tax_form_name,
+			STATEMENT_CAPTION *statement_caption,
 			LIST *tax_form_line_list );
 
 /* Process */
@@ -212,6 +211,7 @@ typedef struct
 	enum statement_output_medium statement_output_medium;
 	char *fiscal_begin_date;
 	char *fiscal_end_date;
+	STATEMENT_CAPTION *statement_caption;
 	LIST *tax_form_line_list;
 	TAX_FORM_TABLE *tax_form_table;
 	TAX_FORM_PDF *tax_form_PDF;

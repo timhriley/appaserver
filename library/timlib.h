@@ -749,6 +749,8 @@ char *timlib_get_first_line(
 			char *input_filename,
 			int buffer_size );
 
+/* Returns static memory */
+/* --------------------- */
 char *timlib_dollar_round_string(
 			double amount );
 

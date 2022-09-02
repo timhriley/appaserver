@@ -589,7 +589,11 @@ LIST *tax_form_PDF_row_list( LIST *tax_form_line_list )
 
 		latex_column_data_set(
 			latex_row->column_data_list,
-			strdup( timlib_dollar_round_string(
+			strdup(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				timlib_dollar_round_string(
 					tax_form_line->
 						tax_form_line_total ) ),
 			0 /* not large_boolean */,

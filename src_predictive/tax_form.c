@@ -622,6 +622,13 @@ TAX_FORM *tax_form_fetch(
 			tax_year,
 			fiscal_begin_month );
 
+	tax_form->statement_caption =
+		statement_caption_new(
+			application_name,
+			process_name,
+			tax_form->fiscal_begin_date,
+			tax_form->fiscal_end_date );
+
 	tax_form->tax_form_line_list =
 		tax_form_line_list(
 			tax_form_name,
@@ -632,8 +639,7 @@ TAX_FORM *tax_form_fetch(
 	{
 		tax_form->tax_form_table =
 			tax_form_table_new(
-				tax_form->fiscal_begin_date,
-				tax_form->fiscal_end_date,
+				tax_form->statement_caption,
 				tax_form->tax_form_line_list );
 	}
 	else
@@ -644,8 +650,8 @@ TAX_FORM *tax_form_fetch(
 				application_name,
 				process_name,
 				document_root_directory,
-				tax_form->fiscal_begin_date,
-				tax_form->fiscal_end_date,
+				tax_form_name,
+				tax_form->statement_caption,
 				tax_form->tax_form_line_list );
 	}
 
@@ -725,8 +731,8 @@ TAX_FORM_PDF *tax_form_pdf_new(
 			char *application_name,
 			char *process_name,
 			char *document_root_directory,
-			char *tax_form_fiscal_begin_date,
-			char *tax_form_fiscal_end_date,
+			char *tax_form_name,
+			STATEMENT_CAPTION *statement_caption,
 			LIST *tax_form_line_list )
 {
 	TAX_FORM_PDF *tax_form_pdf;
@@ -734,8 +740,8 @@ TAX_FORM_PDF *tax_form_pdf_new(
 	if ( !application_name
 	||   !process_name
 	||   !document_root_directory
-	||   !tax_form_fiscal_begin_date
-	||   !tax_form_fiscal_end_date )
+	||   !tax_form_name
+	||   !statement_caption )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",

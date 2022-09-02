@@ -3746,6 +3746,9 @@ char *timlib_dollar_round_string( double amount )
 	char return_string[ 64 ];
 
 	sprintf( return_string, "%.0lf", amount );
+
+	/* Returns static memory */
+	/* --------------------- */
 	return place_commas_in_number_string( return_string );
 }
 

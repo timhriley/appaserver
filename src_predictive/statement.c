@@ -4278,6 +4278,9 @@ STATEMENT_CAPTION *statement_caption_new(
 
 	statement_caption = statement_caption_calloc();
 
+	statement_caption->begin_date_string = begin_date_string;
+	statement_caption->end_date_string = end_date_string;
+
 	statement_caption->logo_filename =
 		statement_caption_logo_filename(
 			application_name,
