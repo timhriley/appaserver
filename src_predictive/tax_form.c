@@ -49,7 +49,6 @@ LIST *tax_form_entity_list( LIST *journal_tax_form_list )
 			tax_form_entity_getset(
 				list,
 				journal->full_name,
-				journal->street_address,
 				journal->balance );
 		}
 
@@ -61,14 +60,12 @@ LIST *tax_form_entity_list( LIST *journal_tax_form_list )
 void tax_form_entity_getset(
 			LIST *list,
 			char *full_name,
-			char *street_address,
 			double journal_balance )
 {
 	TAX_FORM_ENTITY *tax_form_entity;
 
 	if ( !list
-	||   !full_name
-	||   !street_address )
+	||   !full_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -85,13 +82,9 @@ void tax_form_entity_getset(
 		do {
 			tax_form_entity = list_get( list );
 
-
 			if ( strcmp(
 				tax_form_entity->entity->full_name,
-				full_name ) == 0
-			&& strcmp(
-				tax_form_entity->entity->street_address,
-				street_address ) == 0 )
+				full_name ) == 0 )
 			{
 				tax_form_entity->balance += journal_balance;
 				return;
@@ -104,7 +97,7 @@ void tax_form_entity_getset(
 	tax_form_entity->entity =
 		entity_new(
 			full_name,
-			street_address );
+			(char *)0 /* street_address */ );
 
 	tax_form_entity->balance = journal_balance;
 
@@ -509,7 +502,7 @@ TAX_FORM_LINE *tax_form_line_parse(
 	/* See TAX_FORM_LINE_SELECT */
 	/* ------------------------ */
 	piece( buffer, SQL_DELIMITER, input, 0 );
-	tax_form_line->tax_form_line_string = strdup( buffer );
+	tax_form_line->string = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
 	tax_form_line->tax_form_description = strdup( buffer );
@@ -519,7 +512,7 @@ TAX_FORM_LINE *tax_form_line_parse(
 			tax_form_name,
 			tax_form_fiscal_begin_date,
 			tax_form_fiscal_end_date,
-			tax_form_line->tax_form_line_string );
+			tax_form_line->string );
 
 	tax_form_line->total =
 		tax_form_line_total(
@@ -760,8 +753,8 @@ TAX_FORM_PDF *tax_form_pdf_new(
 			application_name,
 			process_name,
 			document_root_directory,
-			tax_form_fiscal_begin_date,
-			tax_form_fiscal_end_date,
+			statement_caption->begin_date_string,
+			statement_caption->end_date_string,
 			(char *)0 /* statement_pdf_preclose_key */,
 			getpid() /* process_id */ );
 
@@ -783,5 +776,359 @@ TAX_FORM_PDF *tax_form_pdf_calloc( void )
 	}
 
 	return tax_form_pdf;
+}
+
+TAX_FORM_LINE_LATEX_TABLE *
+	tax_form_line_latex_table_new(
+			char *tax_form_name,
+			char *statement_caption_subtitle,
+			LIST *tax_form_line_list )
+{
+	TAX_FORM_LINE_LATEX_TABLE *tax_form_line_latex_table;
+
+	if ( !tax_form_name
+	||   !statement_caption_subtitle )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( tax_form_line_list ) )
+	{
+		return (TAX_FORM_LINE_LATEX_TABLE *)0;
+	}
+
+	tax_form_line_latex_table->caption =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		tax_form_line_latex_table_caption(
+			tax_form_name,
+			statement_caption_subtitle );
+
+	tax_form_line_latex_table->latex_table =
+		latex_table_new(
+			tax_form_line_latex_table->caption );
+
+	tax_form_line_latex_table->latex_table->heading_list =
+		tax_form_line_latex_table_heading_list();
+
+	tax_form_line_latex_table->latex_table->row_list =
+		tax_form_line_latex_table_row_list(
+			tax_form_line_list );
+
+	if ( !list_length( tax_form_line_latex_table->latex_table->row_list ) )
+	{
+		return (TAX_FORM_LINE_LATEX_TABLE *)0;
+	}
+	else
+	{
+		return tax_form_line_latex_table;
+	}
+}
+
+TAX_FORM_LINE_LATEX_TABLE *tax_form_line_latex_table_calloc( void )
+{
+	TAX_FORM_LINE_LATEX_TABLE *tax_form_line_latex_table;
+
+	if ( ! ( tax_form_line_latex_table =
+			calloc(	1,
+				sizeof( TAX_FORM_LINE_LATEX_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return tax_form_line_latex_table;
+}
+
+char *tax_form_line_latex_table_caption(
+			char *tax_form_name,
+			char *statement_caption_subtitle )
+{
+	char caption[ 1024 ];
+
+	sprintf(caption,
+		"%s %s",
+		statement_caption_subtitle,
+		tax_form_name );
+
+	return strdup( caption );
+}
+
+LIST *tax_form_line_latex_table_heading_list( void )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"tax_form_line",
+			0 /* right_justify_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"tax_form_description",
+			0 /* not right_Justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"balance",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	return heading_list;
+}
+
+LIST *tax_form_line_latex_table_row_list( LIST *tax_form_line_list )
+{
+	TAX_FORM_LINE *tax_form_line;
+	LIST *list;
+
+	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( !money_virtually_same(
+			tax_form_line->total, 0.0 ) )
+		{
+			list_set(
+				list,
+				tax_form_line_latex_table_row(
+					tax_form_line ) );
+		}
+
+	} while ( list_next( tax_form_line_list ) );
+
+	return list;
+}
+
+LATEX_ROW *tax_form_line_latex_table_row( TAX_FORM_LINE *tax_form_line )
+{
+	LATEX_ROW *latex_row;
+
+	if ( !tax_form_line
+	||   !tax_form_line->total )
+	{
+		return (LATEX_ROW *)0;
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		tax_form_line->string,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		tax_form_line->tax_form_description,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup(
+			timlib_dollar_round_string(
+				tax_form_line->total ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return latex_row;
+}
+
+TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *
+	tax_form_account_latex_table_list_new(
+			LIST *tax_form_line_list )
+{
+	TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *
+		tax_form_account_latex_table_list;
+	TAX_FORM_LINE *tax_form_line;
+
+	if ( !list_rewind( tax_form_line_list ) )
+	{
+		return (TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *)0;
+	}
+
+	tax_form_account_latex_table_list =
+		tax_form_account_latex_table_list_calloc();
+
+	tax_form_account_latex_table_list->list = list_new();
+
+	do {
+		tax_form_line =
+			list_get(
+				tax_form_line_list );
+
+		if ( !money_virtually_same(
+			tax_form_line->total, 0.0 ) )
+		{
+			list_set(
+				tax_form_account_latex_table_list->list,
+				tax_form_account_latex_table_new(
+					tax_form_line->string,
+					tax_form_line->
+						tax_form_line_account_list ) );
+		}
+
+	} while ( list_next( tax_form_line_list ) );
+
+	return tax_form_account_latex_table_list;
+}
+
+
+TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *
+	tax_form_account_latex_table_list_calloc(
+			void )
+{
+	TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *
+		tax_form_account_latex_table_list;
+
+	if ( ! ( tax_form_account_latex_table_list =
+		  calloc( 1, sizeof( TAX_FORM_ACCOUNT_LATEX_TABLE_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return tax_form_account_latex_table_list;
+}
+
+LATEX_TABLE *tax_form_account_latex_table_new(
+			char *tax_form_line_string,
+			LIST *tax_form_line_account_list )
+{
+	LATEX_TABLE *latex_table;
+
+	if ( !tax_form_line_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( tax_form_line_account_list ) )
+	{
+		return (LATEX_TABLE *)0;
+	}
+
+	latex_table =
+		latex_table_new(
+			tax_form_line_string /* caption */ );
+
+	latex_table->heading_list =
+		tax_form_account_latex_table_heading_list();
+
+	latex_table->row_list =
+		tax_form_account_latex_table_row_list(
+			tax_form_line_account_list );
+
+	return latex_table;
+}
+
+LIST *tax_form_account_latex_table_heading_list( void )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"account_name",
+			0 /* right_justify_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"total",
+			1 /* right_justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
+
+	return heading_list;
+}
+
+LIST *tax_form_account_latex_table_row_list(
+			LIST *tax_form_line_account_list )
+{
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+	LIST *list;
+
+	if ( !list_rewind( tax_form_line_account_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	list = list_new();
+
+	do {
+		tax_form_line_account =
+			list_get(
+				tax_form_line_account_list );
+
+		if ( !money_virtually_same(
+			tax_form_line_account->total, 0.0 ) )
+		{
+			list_set(
+				list,
+				tax_form_line_account_latex_table_row(
+					tax_form_line_account ) );
+		}
+
+	} while ( list_next( tax_form_line_account_list ) );
+
+	return list;
+}
+
+LATEX_ROW *tax_form_line_account_latex_table_row(
+			TAX_FORM_LINE_ACCOUNT *tax_form_line_account )
+{
+	LATEX_ROW *latex_row;
+
+	if ( !tax_form_line_account
+	||   !tax_form_line_account->total )
+	{
+		return (LATEX_ROW *)0;
+	}
+
+	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		tax_form_line_account->account_name,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		strdup(
+			timlib_dollar_round_string(
+				tax_form_line_account->total ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return latex_row;
 }
 

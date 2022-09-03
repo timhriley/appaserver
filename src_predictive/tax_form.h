@@ -24,7 +24,7 @@
 typedef struct
 {
 	char *tax_form_name;
-	char *tax_form_line_string;
+	char *string;
 	char *tax_form_description;
 	LIST *tax_form_line_account_list;
 	double total;
@@ -164,7 +164,6 @@ LIST *tax_form_entity_list(
 void tax_form_entity_getset(
 			LIST *list,
 			char *full_name,
-			char *street_address,
 			double journal_balance );
 
 /* Process */
@@ -187,8 +186,122 @@ TAX_FORM_TABLE *tax_form_table_new(
 
 typedef struct
 {
+	char *caption;
+	LATEX_TABLE *latex_table;
+} TAX_FORM_LINE_LATEX_TABLE;
+
+/* Usage */
+/* ----- */
+TAX_FORM_LINE_LATEX_TABLE *
+	tax_form_line_latex_table_new(
+			char *tax_form_name,
+			char *statement_caption_subtitle,
+			LIST *tax_form_line_list );
+
+/* Process */
+/* ------- */
+TAX_FORM_LINE_LATEX_TABLE *tax_form_line_latex_table_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *tax_form_line_latex_table_caption(
+			char *tax_form_name,
+			char *statement_caption_subtitle );
+
+/* Usage */
+/* ----- */
+LIST *tax_form_line_latex_table_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *tax_form_line_latex_table_row_list(
+			LIST *tax_form_line_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LATEX_ROW *tax_form_line_latex_table_row(
+			TAX_FORM_LINE *tax_form_line );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *list;
+} TAX_FORM_ENTITY_LATEX_TABLE_LIST;
+
+/* Usage */
+/* ----- */
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *list;
+} TAX_FORM_ACCOUNT_LATEX_TABLE_LIST;
+
+/* Usage */
+/* ----- */
+TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *
+	tax_form_account_latex_table_list_new(
+			LIST *tax_form_line_list );
+
+
+/* Process */
+/* ------- */
+TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *
+	tax_form_account_latex_table_list_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+LATEX_TABLE *tax_form_account_latex_table_new(
+			char *tax_form_line_string,
+			LIST *tax_form_line_account_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *tax_form_account_latex_table_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *tax_form_account_latex_table_row_list(
+			LIST *tax_form_line_account_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LATEX_ROW *tax_form_line_account_latex_table_row(
+			TAX_FORM_LINE_ACCOUNT *tax_form_line_account );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
 	STATEMENT_LINK *statement_link;
 	LATEX *latex;
+	TAX_FORM_LINE_LATEX_TABLE *tax_form_line_latex_table;
+	TAX_FORM_ACCOUNT_LATEX_TABLE_LIST *tax_form_account_latex_table_list;
+	TAX_FORM_ENTITY_LATEX_TABLE_LIST *tax_form_entity_latex_table_list;
 } TAX_FORM_PDF;
 
 /* Usage */

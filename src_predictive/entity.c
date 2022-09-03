@@ -56,13 +56,25 @@ ENTITY *entity_calloc( void )
 ENTITY *entity_new(	char *full_name,
 			char *street_address )
 {
-	ENTITY *e;
+	ENTITY *entity;
 
-	e = entity_calloc();
+	if ( !full_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: full_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	e->full_name = full_name;
-	e->street_address = street_address;
-	return e;
+
+	entity = entity_calloc();
+
+	entity->full_name = full_name;
+	entity->street_address = street_address;
+
+	return entity;
 }
 
 ENTITY *entity_sales_tax_payable_entity( void )
