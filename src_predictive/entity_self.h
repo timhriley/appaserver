@@ -11,14 +11,6 @@
 #include "boolean.h"
 #include "entity.h"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Constants */
-/* --------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* ENTITY * must stay on top. */
@@ -61,8 +53,19 @@ typedef struct
 */
 } ENTITY_SELF;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+ENTITY_SELF *entity_self_fetch(
+			void );
+
+/* Process */
+/* ------- */
+ENTITY_SELF *entity_self_new(		char *full_name,
+					char *street_address );
+
+
+/* Public */
+/* ------ */
 LIST *entity_get_inventory_list(
 					char *application_name );
 
@@ -88,14 +91,8 @@ boolean entity_load(			char **city,
 					char *full_name,
 					char *street_address );
 
-ENTITY_SELF *entity_self_fetch(
-			void );
-
 ENTITY_SELF *entity_self_load(
 			void );
-
-ENTITY_SELF *entity_self_new(		char *full_name,
-					char *street_address );
 
 LIST *entity_get_inventory_purchase_order_list(
 					char *application_name,
