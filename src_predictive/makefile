@@ -32,23 +32,23 @@ EXECUTABLES=	trial_balance_output					\
 		ledger_debit_credit_audit				\
 		ledger_propagate					\
 		feeder_load						\
-		close_nominal_accounts					\
-		tax_form_report						\
-		post_reoccurring_transaction				\
-		post_cash_expense_transaction				\
-		post_change_self					\
-		generate_invoice					\
-		post_change_vendor_payment				\
-		pay_liabilities_process					\
-		depreciate_fixed_assets					\
-		post_change_account_balance				\
 		journal_ledger_trigger					\
-		post_change_fixed_asset_purchase			\
-		depreciation_trigger					\
-		cost_recovery_trigger					\
-		cost_recover_fixed_assets				\
-		recovery_statutory_accelerated_half_year		\
-		liability_prepaid
+		tax_form_report
+#		close_nominal_accounts					\
+#		post_reoccurring_transaction				\
+#		post_cash_expense_transaction				\
+#		post_change_self					\
+#		generate_invoice					\
+#		post_change_vendor_payment				\
+#		pay_liabilities_process					\
+#		depreciate_fixed_assets					\
+#		post_change_account_balance				\
+#		post_change_fixed_asset_purchase			\
+#		depreciation_trigger					\
+#		cost_recovery_trigger					\
+#		cost_recover_fixed_assets				\
+#		recovery_statutory_accelerated_half_year		\
+#		liability_prepaid
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
