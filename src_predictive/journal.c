@@ -111,7 +111,7 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 		exit( 1 );
 	}
 
-	if ( ( max_prior_transaction_date_time =
+	max_prior_transaction_date_time =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
@@ -122,7 +122,7 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 			journal_max_prior_where(
 				transaction_date_time,
 				account_name ),
-			JOURNAL_TABLE ) ) )
+			JOURNAL_TABLE );
 
 	if ( max_prior_transaction_date_time
 	&&   *max_prior_transaction_date_time )
@@ -140,7 +140,8 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 			0 /* not fetch_transaction */ );
 
 	if ( journal
-	&&   max_prior_transaction_date_time == transaction_date_time )
+	&&   ( !max_prior_transaction_date_time
+	||     !*max_prior_transaction_date_time ) )
 	{
 		journal->previous_balance = 0.0;
 	}
@@ -455,8 +456,6 @@ void journal_propagate(	char *transaction_date_time,
 	}
 
 	prior =
-		/* Fails if no journals that far back */
-		/* ---------------------------------- */
 		journal_prior(
 			transaction_date_time,
 			account_name,
@@ -466,6 +465,18 @@ void journal_propagate(	char *transaction_date_time,
 
 	if ( prior )
 	{
+		if ( !prior->account
+		||   !prior->account->subclassification
+		||   !prior->account->subclassification->element )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: element is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
 		journal_list_update(
 			journal_list_balance_set(
 				journal_list_prior(
@@ -500,7 +511,8 @@ LIST *journal_list_prior(
 	journal_minimum_list(
 		journal_prior->transaction_date_time
 			/* minimum_transaction_date_time */,
-		account_name );
+		account_name,
+		journal_prior->previous_balance );
 }
 
 LIST *journal_list_balance_set(
@@ -1331,8 +1343,11 @@ double journal_list_transaction_amount( LIST *journal_list )
 
 LIST *journal_minimum_list(
 			char *minimum_transaction_date_time,
-			char *account_name )
+			char *account_name,
+			double journal_prior_previous_balance )
 {
+	LIST *journal_list;
+
 	if ( !minimum_transaction_date_time
 	||   !account_name )
 	{
@@ -1344,24 +1359,38 @@ LIST *journal_minimum_list(
 		exit( 1 );
 	}
 
-	return
-	journal_system_list(
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		journal_system_string(
-			JOURNAL_SELECT,
-			JOURNAL_TABLE,
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			journal_greater_equal_where(
-				minimum_transaction_date_time,
-				account_name ) ),
-		0 /* not fetch_account */,
-		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */,
-		0 /* not fetch_transaction */ );
+	journal_list =
+		journal_system_list(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			journal_system_string(
+				JOURNAL_SELECT,
+				JOURNAL_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				journal_greater_equal_where(
+					minimum_transaction_date_time,
+					account_name ) ),
+			0 /* not fetch_account */,
+			0 /* not fetch_subclassification */,
+			0 /* not fetch_element */,
+			0 /* not fetch_transaction */ );
+
+	if ( list_length( journal_list ) )
+	{
+		JOURNAL *first_journal;
+
+		first_journal =
+			list_first(
+				journal_list );
+
+		first_journal->previous_balance =	
+			journal_prior_previous_balance;
+	}
+
+	return journal_list;
 }
 
 char *journal_greater_equal_where(
@@ -1497,8 +1526,6 @@ void journal_account_list_propagate(
 		}
 
 		prior =
-			/* Fails if no journals for the account */
-			/* ------------------------------------ */
 			journal_prior(
 				transaction_date_time,
 				account->account_name,

@@ -80,9 +80,6 @@ JOURNAL *journal_calloc(
 
 /* Usage */
 /* ----- */
-
-/* Fails if no journals for the account */
-/* ------------------------------------ */
 JOURNAL *journal_prior(	char *transaction_date_time,
 			char *account_name,
 			boolean fetch_account,
@@ -147,7 +144,8 @@ char *journal_year_where(
 /* ----- */
 LIST *journal_minimum_list(
 			char *minimum_transaction_date_time,
-			char *account_name );
+			char *account_name,
+			double journal_prior_previous_balance );
 
 /* Process */
 /* ------- */
