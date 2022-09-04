@@ -354,6 +354,7 @@ double journal_balance_sum(
 LIST *journal_tax_form_list(
 			char *tax_form_fiscal_begin_date,
 			char *tax_form_fiscal_end_date,
+			char *transaction_preclose_time,
 			char *account_name );
 
 /* Process */
@@ -364,6 +365,7 @@ LIST *journal_tax_form_list(
 char *journal_tax_form_where(
 			char *tax_form_fiscal_begin_date,
 			char *tax_form_fiscal_end_date,
+			char *transaction_preclose_time,
 			char *account_name );
 
 /* Public */

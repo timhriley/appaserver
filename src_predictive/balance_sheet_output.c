@@ -9,7 +9,6 @@
 #include "environ.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
-#include "date.h"
 #include "document.h"
 #include "statement.h"
 #include "balance_sheet.h"

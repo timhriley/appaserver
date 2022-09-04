@@ -692,16 +692,58 @@ void statement_latex_output(
 			char *process_name,
 			char *statement_date_time_string )
 {
-	if ( !latex
-	||   !ftp_output_filename
-	||   !prompt
-	||   !process_name
-	||   !statement_date_time_string )
+	if ( !latex )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: latex is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !ftp_output_filename )
 	{
 		if ( latex ) fclose( latex->output_stream );
 
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: ftp_output_filename is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !prompt )
+	{
+		if ( latex ) fclose( latex->output_stream );
+
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: prompt is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !process_name )
+	{
+		if ( latex ) fclose( latex->output_stream );
+
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !statement_date_time_string )
+	{
+		if ( latex ) fclose( latex->output_stream );
+
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: statement_date_time_string is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

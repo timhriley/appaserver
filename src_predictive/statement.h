@@ -8,6 +8,8 @@
 #ifndef STATEMENT_H
 #define STATEMENT_H
 
+#include <stdio.h>
+#include <unistd.h>
 #include "list.h"
 #include "boolean.h"
 #include "appaserver_link_file.h"
@@ -817,8 +819,8 @@ typedef struct
 	APPASERVER_LINK_FILE *appaserver_link_file;
 	char *tex_filename;
 	char *dvi_filename;
-	char *ftp_output_filename;
 	char *working_directory;
+	char *ftp_output_filename;
 } STATEMENT_LINK;
 
 /* Usage */
