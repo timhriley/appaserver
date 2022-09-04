@@ -10,315 +10,428 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "transaction.h"
+#include "account.h"
 
-/* Constants */
-/* --------- */
 #define JOURNAL_TABLE			"journal_ledger"
 
-/* Structures */
-/* ---------- */
+#define JOURNAL_SELECT			"full_name,"		\
+					"street_address,"	\
+					"transaction_date_time,"\
+					"account,"		\
+					"previous_balance,"	\
+					"debit_amount,"		\
+					"credit_amount,"	\
+					"balance"
+
+#define JOURNAL_INSERT			"full_name,"		\
+					"street_address,"	\
+					"transaction_date_time,"\
+					"account,"		\
+					"debit_amount,"		\
+					"credit_amount"
+
 typedef struct
 {
 	char *full_name;
 	char *street_address;
 	char *transaction_date_time;
 	char *account_name;
-	int transaction_count;
-	int transaction_count_database;
 	double previous_balance;
-	double previous_balance_database;
 	double debit_amount;
 	double credit_amount;
 	double balance;
-	double balance_database;
-	boolean match_sum_taken;
-	char *memo;
-	int check_number;
-	char *property_street_address;
-	double journal_amount;
+	TRANSACTION *transaction;
+	ACCOUNT *account;
 } JOURNAL;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+LIST *journal_system_list(
+			char *journal_system_string,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
+FILE *journal_input_pipe(
+			char *journal_system_string );
+
+/* Usage */
+/* ----- */
+JOURNAL	*journal_parse(
+			char *input,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
 JOURNAL *journal_new(	char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			char *account_name );
 
-JOURNAL *journal_prior(	char *transaction_date_time,
-			char *account_name );
-
-JOURNAL *journal_account_fetch(
-			char *account_name,
-			char *transaction_date_time );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *journal_select(	void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *journal_check_number_select(
+JOURNAL *journal_calloc(
 			void );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *journal_memo_select(
-			void );
+/* Usage */
+/* ----- */
 
-JOURNAL	*journal_parse(
-			char *input,
-			boolean fetch_check_number,
-			boolean fetch_memo );
-
-boolean journal_accumulate_debit(
-			char *account_name );
-
-LIST *journal_system_list(
-			char *system_string,
-			boolean fetch_check_number,
-			boolean fetch_memo );
-
-FILE *journal_insert_open(
-			boolean replace );
-
-/* Executes journal_propagate() */
-/* ---------------------------- */
-void journal_insert(	char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account_name,
-			double amount,
-			boolean is_debit,
-			boolean replace );
-
-void journal_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *account_name,
-			double amount,
-			boolean is_debit );
-
-/* Executes journal_list_set_balances() */
+/* Fails if no journals for the account */
 /* ------------------------------------ */
-void journal_propagate(
+JOURNAL *journal_prior(	char *transaction_date_time,
+			char *account_name,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_max_prior_where(
 			char *transaction_date_time,
 			char *account_name );
 
-LIST *journal_list_prior(
-			JOURNAL *prior_journal,
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_max_prior_transaction_date_time(
+			char *journal_max_prior_where,
+			char *journal_table );
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_latest(
+			char *account_name,
+			char *transaction_date_time_closing,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_less_equal_where(
+			char *transaction_date_time_closing,
 			char *account_name );
 
-LIST *journal_list_set_balances(
-			LIST *journal_list,
-			boolean accumulate_debit );
+/* Returns heap memory or null */
+/* --------------------------- */
+char *journal_max_transaction_date_time(
+			char *journal_less_equal_where,
+			char *journal_table );
 
-LIST *journal_list_minimum(
+/* Usage */
+/* ----- */
+LIST *journal_year_list(
+			int tax_year,
+			char *account_name,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_year_where(
+			int tax_year,
+			char *account_name,
+			char *transaction_preclose_time );
+
+/* Usage */
+/* ----- */
+LIST *journal_minimum_list(
 			char *minimum_transaction_date_time,
 			char *account_name );
 
-LIST *journal_list_account(
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_greater_equal_where(
+			char *minimum_transaction_date_time,
 			char *account_name );
 
-/* Returns account_name_list */
-/* ------------------------- */
-LIST *journal_delete(	char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-LIST *journal_ledger_delete(
+/* Usage */
+/* ----- */
+JOURNAL *journal_account_fetch(
+			char *transaction_date_time,
+			char *account_name,
+			boolean fetch_account,
+			boolean fetch_subclassification,
+			boolean fetch_element,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_transaction_account_where(
+			char *transaction_date_time,
+			char *account_name );
+
+/* Usage */
+/* ----- */
+void journal_account_list_propagate(
+			char *transaction_date_time,
+			LIST *journal_extract_account_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void journal_account_list_getset(
+			LIST *account_list /* in/out */,
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void journal_propagate(	char *transaction_date_time,
+			char *account_name );
+
+/* Process */
+/* ------- */
+LIST *journal_list_balance_set(
+			LIST *journal_list_prior /* in/out */,
+			boolean element_accumulate_debit );
+
+/* Usage */
+/* ----- */
+void journal_list_update(
+			LIST *journal_list_balance_set );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_update_system_string(
+			char *journal_table );
+
+FILE *journal_update_pipe(
+			char *journal_update_system_string );
+
+/* Usage */
+/* ----- */
+LIST *journal_list_prior(
+			JOURNAL *journal_prior,
+			char *account_name );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_debit_new(
+			char *debit_account_name,
+			double debit_amount );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_credit_new(
+			char *credit_account_name,
+			double credit_amount );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void journal_list_insert(
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time );
-
-void journal_account_name_list_propagate(
-			char *transaction_date_time,
-			LIST *account_name_list );
-
-void journal_list_transaction_date_time_propagate(
 			char *transaction_date_time,
 			LIST *journal_list );
 
-char *journal_list_audit(
-			LIST *journal_list );
+/* Process */
+/* ------- */
+FILE *journal_insert_pipe(
+			char *journal_insert,
+			char *journal_table );
 
-JOURNAL *journal_account_name_getset(
-			LIST *journal_list,
-			char *account_name );
-
-LIST *journal_binary_journal_list(
+void journal_insert(
+			FILE *pipe,
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
-			double transaction_amount,
-			char *debit_account,
-			char *credit_account );
-
-/* Returns account_name_list */
-/* ------------------------- */
-LIST *journal_list_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			LIST *journal_list,
-			boolean replace );
-
-void journal_list_propagate_update(
-			LIST *propagate_journal_list );
-
-JOURNAL *journal_latest(
 			char *account_name,
-			char *date_time );
-
-LIST *journal_year_list(
-			int year,
-			char *account_name,
-			boolean fetch_transaction_memo );
-
-double journal_amount(
 			double debit_amount,
-			double credit_amount,
-			boolean accumulate_debit );
+			double credit_amount );
 
-JOURNAL *journal_account_name_seek(
-			LIST *journal_list,
-			char *account_name );
-
-JOURNAL *journal_check_number_seek(
-			LIST *journal_list,
-			int check_number );
-
-JOURNAL *journal_transaction_date_time_seek(
-			LIST *journal_list,
+/* Usage */
+/* ----- */
+void journal_list_transaction_insert(
+			FILE *pipe,
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time );
-
-void journal_list_text_display(
-			char *transaction_memo,
+			char *transaction_date_time,
 			LIST *journal_list );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 void journal_list_html_display(
 			LIST *journal_list,
 			char *transaction_memo );
 
-char *journal_list_display(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			LIST *journal_list );
-
+/* Process */
+/* ------- */
 void journal_list_pipe_display(
 			FILE *output_pipe,
 			char *transaction_memo,
 			char *heading,
 			LIST *journal_list );
 
-/* Safely returns heap memory */
-/* -------------------------- */
-char *journal_update_sys_string(
-			void );
+/* Usage */
+/* ----- */
+double journal_debit_sum(
+			LIST *journal_list );
 
-JOURNAL *journal_account_latest(
-			char *account_name,
-			char *transaction_date_time_closing );
+/* Process */
+/* ------- */
 
-LIST *journal_minimum_account_journal_list(
-			char *minimum_transaction_date_time,
+/* Usage */
+/* ----- */
+double journal_list_transaction_amount(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_account_list_debit_sum(
+			LIST *journal_list,
+			LIST *account_name_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_account_list_credit_sum(
+			LIST *journal_list,
+			LIST *account_name_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_prior_account_end_balance(
+			char *feeder_load_file_minimum_date,
 			char *account_name );
 
-JOURNAL *journal_fetch(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_balance_sum(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *journal_tax_form_list(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *transaction_preclose_time,
 			char *account_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_tax_form_where(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *transaction_preclose_time,
+			char *account_name );
+
+/* Public */
+/* ------ */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_system_string(
+			char *journal_select,
+			char *journal_table,
+			char *where );
+
+double journal_credit_debit_difference_sum(
+			LIST *journal_list );
+
+double journal_debit_credit_difference_sum(
+			LIST *journal_list );
+
+LIST *journal_account_distinct_entity_list(
+			char *journal_table,
+			LIST *account_name_list );
+
+LIST *journal_extract_account_list(
+			LIST *journal_list );
+
+char *journal_delete_system_string(
+			char *journal_table,
+			char *where );
 
 LIST *journal_binary_list(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *debit_account,
-			char *credit_account );
+			ACCOUNT *debit_account,
+			ACCOUNT *credit_account );
 
-LIST *journal_binary_journal_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *debit_account,
-			char *credit_account );
-
-void journal_list_stdout(
-			LIST *journal_list );
-
-void journal_list_update(
-			LIST *journal_list );
-
-char *journal_display(
+int journal_transaction_count(
+			char *journal_table,
 			char *account_name,
-			double previous_balance,
-			double debit_amount,
-			double credit_amount,
-			double balance );
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
 
-char *journal_system_string(
-			char *where,
-			boolean fetch_check_number,
-			boolean fetch_memo );
+LIST *journal_date_time_account_name_list(
+			char *journal_table,
+			char *transaction_date_time );
 
-LIST *journal_list_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
+JOURNAL *journal_seek(
 			char *transaction_date_time,
-			LIST *journal_list );
+			char *account_name,
+			LIST *journal_system_list );
+
+char *journal_minimum_transaction_date_time(
+			char *account_name );
+
+double journal_balance(
+			double balance,
+			boolean accumulate_debit );
 
 LIST *journal_account_name_list(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-JOURNAL *journal_merchant_fees_expense(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double merchant_fees_expense,
-			char *account_fees_expense );
-
-double journal_transaction_amount(
-			LIST *journal_list );
-
-double journal_list_debit_sum(
-			LIST *journal_list );
-
-double journal_list_credit_sum(
-			LIST *journal_list );
-
-/* Returns account_name_list */
-/* ------------------------- */
-LIST *journal_list_account_name_list(
-			LIST *account_name_list,
-			LIST *journal_list );
-
-char *journal_latest_zero_balance_transaction_date_time(
-			char *account_name );
-
-LIST *journal_date_time_account_name_list(
-			char *transaction_date_time );
-
-LIST *journal_entity_account_journal_list(
-			char *account_name,
-			char *full_name,
-			char *street_address );
-
-double journal_debit_difference_sum(
-			LIST *journal_list );
-
-double journal_credit_difference_sum(
-			LIST *journal_list );
+double journal_amount(	double debit_amount,
+			double credit_amount,
+			boolean element_accumulate_debit );
 
 #endif

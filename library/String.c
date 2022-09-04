@@ -470,8 +470,8 @@ char *string_commas_dollar( double d )
 {
 	char *results;
 
-	/* Returns static memory of 3 decimal places */
-	/* ----------------------------------------- */
+	/* Returns heap memory of 3 decimal places */
+	/* --------------------------------------- */
 	results = string_commas_double( d );
 
 	*( results + strlen( results ) - 1 ) = '\0';
@@ -731,7 +731,7 @@ int string_instr(	char *substr,
         return -1;
 }
 
-char *string_pipe_fetch( char *system_string )
+char *string_pipe( char *system_string )
 {
 	char buffer[ 65536 ];
 	FILE *p;
@@ -751,6 +751,11 @@ char *string_pipe_fetch( char *system_string )
 		return (char *)0;
 	else
 		return strdup( buffer );
+}
+
+char *string_pipe_fetch( char *system_string )
+{
+	return string_pipe( system_string );
 }
 
 LIST *string_pipe_list(	char *system_string )
@@ -911,5 +916,21 @@ char *string_trim_number_characters(
 		string_trim_character_array(
 			number,
 			",$" );
+}
+
+char *string_strdup( char *string )
+{
+	if ( !string )
+		return strdup( "" );
+	else
+		return strdup( string );
+}
+
+double string_atof( char *string )
+{
+	if ( !string )
+		return 0.0;
+	else
+		return atof( string );
 }
 

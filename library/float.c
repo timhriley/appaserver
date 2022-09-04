@@ -10,12 +10,6 @@
 #include "list.h"
 #include "float.h"
 
-/* Constants */
-/* --------- */
-
-/* Structures */
-/* ---------- */
-
 double float_abs( double f )
 {
 	return abs_float( f );
@@ -34,6 +28,11 @@ double abs_float( double f )
 		return -f;
 	else
 		return f;
+}
+
+boolean money_virtually_same( double d1, double d2 )
+{
+	return dollar_virtually_same( d1, d2 );
 }
 
 boolean dollar_virtually_same( double d1, double d2 )
@@ -172,5 +171,38 @@ double ceiling_double( double d )
 	{
 		return -floor_double( -d );
 	}
+}
+
+int float_percent_of_total(
+			double total,
+			double denominator )
+{
+	double percent;
+
+	if ( !denominator ) return 0;
+
+	percent =
+		(total /
+		 denominator) * 100.0;
+
+	return float_round_int( percent );
+}
+
+int float_delta_prior_percent(
+			double prior_total,
+			double total )
+{
+	double difference;
+	double delta_percent;
+
+	if ( !prior_total ) return 0;
+
+	difference =
+		total -
+		prior_total;
+
+	delta_percent = (difference / prior_total) * 100.0;
+
+	return float_round_int( delta_percent );
 }
 

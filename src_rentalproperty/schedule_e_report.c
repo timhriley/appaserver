@@ -517,12 +517,14 @@ LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
 		latex_column_data_set(
 			latex_row->column_data_list,
 			tax_form_line_rental->tax_form_line,
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( tax_form_line_rental->tax_form_description ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		do {
 			tax_output_rental_property =
@@ -535,7 +537,8 @@ LIST *build_PDF_row_list( LIST *tax_form_line_rental_list )
 				strdup( timlib_place_commas_in_money(
 					   tax_output_rental_property->
 						tax_form_line_total ) ),
-				0 /* not large_bold */ );
+				0 /* not large_boolean */,
+				0 /* not bold_boolean */ );
 
 		} while( list_next(
 				tax_form_line_rental->	

@@ -379,7 +379,8 @@ char *format_initial_capital( char *destination, char *string )
 {
 	return format_initial_capital_delimiter(
 			destination,
-			string, ' ',
+			string,
+			' ',
 			1 /* with_inside_parens */ );
 }
 
@@ -387,7 +388,8 @@ char *format_initial_capital_not_parens( char *destination, char *string )
 {
 	return format_initial_capital_delimiter(
 			destination,
-			string, ' ',
+			string,
+			' ',
 			0 /* not with_inside_parens */ );
 }
 
@@ -2385,20 +2387,25 @@ char *timlib_place_commas_in_dollars( double d )
 
 char *timlib_commas_in_dollars( double d )
 {
-	return commas_in_money( d );
+	return timlib_place_commas_in_dollars( d );
 }
 
 char *timlib_place_commas_in_money( double d )
 {
-	return commas_in_money( d );
+	return timlib_commas_in_money( d );
 }
 
 char *place_commas_in_money( double d )
 {
-	return commas_in_money( d );
+	return timlib_commas_in_money( d );
 }
 
 char *commas_in_money( double d )
+{
+	return timlib_commas_in_money( d );
+}
+
+char *timlib_commas_in_money( double d )
 {
 	char *results;
 
@@ -2406,7 +2413,7 @@ char *commas_in_money( double d )
 	/* ----------------------------------------- */
 	results = place_commas_in_double( d );
 	*( results + strlen( results ) - 1 ) = '\0';
-	return results;
+	return strdup( results );
 }
 
 char *commas_in_double(		char *destination, 
@@ -3628,18 +3635,18 @@ void timlib_error_stderr(	int argc,
 
 char *timlib_sha256sum( char *input_filename )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 
 	if ( !timlib_file_exists( input_filename ) )
 		return (char *)0;
 
-	sprintf( sys_string,
-		 "cat \"%s\"			|"
-		 "sha256sum			|"
-		 "column.e 0			 ",
-		 input_filename );
+	sprintf(system_string,
+		"cat \"%s\"			|"
+		"sha256sum			|"
+		"column.e 0			 ",
+		input_filename );
 
-	return pipe2string( sys_string );
+	return pipe2string( system_string );
 }
 
 char *timlib_reverse_string(	char *destination,
@@ -3739,6 +3746,9 @@ char *timlib_dollar_round_string( double amount )
 	char return_string[ 64 ];
 
 	sprintf( return_string, "%.0lf", amount );
+
+	/* Returns static memory */
+	/* --------------------- */
 	return place_commas_in_number_string( return_string );
 }
 

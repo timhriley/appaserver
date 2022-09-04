@@ -396,7 +396,7 @@ int main( int argc, char **argv )
 
 	sprintf(sys_string,
 "echo \"%s\"								|"
-"output_edit_table_form '%s' '%s' '%s' '%s' '%s' '' '%s' '%s'	 	 ",
+"output_edit_table_form '%s' '%s' '%s' '%s' '%s' '' '%s' '%s' 2>>%s 	 ",
 		escaped_dictionary_string,
  		login_name,
 		application_name,
@@ -404,7 +404,9 @@ int main( int argc, char **argv )
  		folder_name,
 		role_name,
 		insert_update_key,
-		target_frame );
+		target_frame,
+		appaserver_error_get_filename(
+			application_name ) );
 
 	if ( system( sys_string ) ) {};
 
@@ -493,8 +495,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 				lookup_before_drop_down_folder_list,
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			0 /* folder_lookup_before_drop_down */ );
+			dictionary_appaserver->preprompt_dictionary );
 
 	if ( lookup_before_drop_down->
 		lookup_before_drop_down_state !=
@@ -517,8 +518,7 @@ void post_prompt_edit_form_lookup_before_drop_down(
 					lookup_before_drop_down_folder_list,
 				dictionary_appaserver->
 					lookup_before_drop_down_dictionary,
-				dictionary_appaserver->preprompt_dictionary,
-				0 /* folder_lookup_before_drop_down */ );
+				dictionary_appaserver->preprompt_dictionary );
 	}
 
 	unfulfilled_folder_name =

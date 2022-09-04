@@ -11,19 +11,26 @@
 #include "list.h"
 #include "date.h"
 #include "boolean.h"
+#include "entity.h"
 
-/* Constants */
-/* --------- */
 #define TRANSACTION_TABLE			"transaction"
 #define TRANSACTION_MEMO_LENGTH			60
-#define TRANSACTION_CLOSING_TRANSACTION_TIME	"23:59:59"
-#define TRANSACTION_PRECLOSE_TRANSACTION_TIME	"23:59:58"
+#define TRANSACTION_LOCK_Y			'y'
 #define TRANSACTION_CLOSING_ENTRY_MEMO		"close closing"
-#define TRANSACTION_FOLDER_NAME			"transaction"
 #define TRANSACTION_SEMAPHORE_KEY		12227
+#define TRANSACTION_PRECLOSE_TIME		"23:59:58"
+#define TRANSACTION_CLOSE_TIME			"23:59:59"
 
-/* Structures */
-/* ---------- */
+#define TRANSACTION_SELECT			"full_name,"		\
+						"street_address,"	\
+						"transaction_date_time,"\
+						"transaction_amount,"	\
+						"check_number,"		\
+						"memo,"			\
+						"lock_transaction_yn"
+
+#define TRANSACTION_DATE_TIME_COLUMN		"transaction_date_time"
+#define TRANSACTION_AMOUNT_COLUMN		"transaction_amount"
 
 typedef struct
 {
@@ -35,29 +42,71 @@ typedef struct
 	int check_number;
 	LIST *journal_list;
 	boolean lock_transaction;
-	char *property_street_address;
-	char *program_name;
 } TRANSACTION;
 
-TRANSACTION *transaction_calloc(
-			void );
+/* Usage */
+/* ----- */
+LIST *transaction_list(
+			char *where,
+			boolean fetch_journal_ledger );
+
+/* Process */
+/* ------- */
+FILE *transaction_input_pipe(
+			char *transaction_system_string );
+
+/* Usage */
+/* ----- */
+TRANSACTION *transaction_fetch(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			boolean fetch_journal_list );
+
+/* Process */
+/* ------- */
+
+TRANSACTION *transaction_parse(
+			char *input,
+			boolean fetch_journal_list );
 
 TRANSACTION *transaction_new(
 			char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-/* Also fetches journal_list */
-/* ------------------------- */
-TRANSACTION *transaction_fetch(
+TRANSACTION *transaction_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+TRANSACTION *transaction_entity_new(
+			ENTITY *entity,
+			char *transaction_date_time,
+			double transaction_amount,
+			int check_number,
+			char *memo,
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+TRANSACTION *transaction_binary(
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time );
+			char *transaction_date_time,
+			double transaction_amount,
+			char *memo,
+			char *debit_account_name,
+			char *credit_account_name );
 
-/* TRANSACTION without any additions */
-/* --------------------------------- */
-FILE *transaction_insert_open(
-			void );
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -66,402 +115,124 @@ char *transaction_insert(
 			char *street_address,
 			char *transaction_date_time,
 			double transaction_amount,
-			char *memo,
 			int check_number,
-			boolean lock_transaction,
-			boolean replace );
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_journal_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
 			char *memo,
-			int check_number,
-			boolean lock_transaction,
+			char lock_transaction_yn,
 			LIST *journal_list,
-			boolean replace );
+			boolean insert_journal_list_boolean );
 
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction );
-
-/* Returns transaction_list */
-/* ------------------------ */
-LIST *transaction_list_insert(
-			LIST *transaction_list,
-			boolean lock_transaction );
-
-void transaction_list_stderr(
-			LIST *transaction_list );
-
-/* TRANSACTION with program_name addition */
-/* -------------------------------------- */
-FILE *transaction_program_insert_open(
-			boolean replace );
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_program_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			boolean replace );
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_program_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction );
-
-/* TRANSACTION with property_street_address addition */
-/* ------------------------------------------------- */
-FILE *transaction_property_insert_open(
-			boolean replace );
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_property_insert(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *property_street_address,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction );
-
-/* Returns inserted transaction_date_time */
-/* -------------------------------------- */
-char *transaction_property_insert_pipe(
-			FILE *insert_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *property_street_address,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction );
-
-/* Returns transaction_list */
-/* ------------------------ */
-LIST *transaction_list_property_insert(
-			LIST *transaction_list );
-
-/* Returns program memory */
-/* ---------------------- */
-char *transaction_select(
-			void );
-
-/* Safely returns heap memory */
-/* -------------------------- */
-char *transaction_primary_where(
-			char *full_name,
-			char *street_address,
+/* Process */
+/* ------- */
+char *transaction_race_free_date_time(
 			char *transaction_date_time );
 
-/* Also fetches journal_list() */
-/* --------------------------- */
-TRANSACTION *transaction_parse(
-			char *input,
-			boolean fetch_journal_list );
+FILE *transaction_insert_pipe_open(
+			char *transaction_select,
+			char *transaction_table );
 
-TRANSACTION *transaction_seek(
-			LIST *transaction_list,
+/* Returns static memory */
+/* --------------------- */
+char *transaction_check_number(
+			int check_number );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_memo( char *memo );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_lock(	char transaction_lock_yn );
+
+void transaction_insert_pipe(
+			FILE *pipe_open,
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time );
+			char *transaction_race_free_date_time,
+			double transaction_amount,
+			char *transaction_check_number,
+			char *transaction_memo,
+			char *transaction_lock );
 
-/* Executes journal_propagate() */
-/* ---------------------------- */
+/* Usage */
+/* ----- */
 void transaction_delete(char *full_name,
 			char *street_address,
 			char *transaction_date_time );
 
-/* ======== */
-/* FEATURES */
-/* ======== */
+/* Process */
+/* ------- */
 
-/* Returns static memory */
-/* --------------------- */
-char *transaction_escape_full_name(
-			char *full_name );
-char *transaction_full_name_escape(
-			char *full_name );
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_delete_system_string(
+			char *transaction_table,
+			char *transaction_primary_where );
 
-/* Returns race-free transaction_date_time */
-/* --------------------------------------- */
-char *transaction_race_free(
-			char *transaction_date_time );
+/* Usage */
+/* ----- */
+boolean transaction_closing_entry_exists(
+			char *transaction_table,
+			char *transaction_close_time,
+			char *transaction_as_of_date );
 
-char *transaction_audit(
-			TRANSACTION *transaction );
-
-void transaction_update(
-			double transaction_amount,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
-void transaction_amount_fetch_update(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
-TRANSACTION *transaction_full(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			boolean lock_transaction,
-			int seconds_to_add );
-
-TRANSACTION *transaction_binary(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			char *debit_account,
-			char *credit_account );
-
-LIST *transaction_binary_journal_list(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *debit_account,
-			char *credit_account );
-
-TRANSACTION *transaction_check_seek(
-			LIST *transaction_list,
-			int check_number );
-
-void transaction_check_insert(
-			FILE *insert_pipe,
-			int check_number );
-
-void transaction_lock_insert(
-			FILE *insert_pipe,
-			boolean lock_transaction );
-
-char *transaction_journal_refresh(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list );
-
-char *transaction_refresh(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list );
-
-char *transaction_program_refresh(
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *program_name,
-			double transaction_amount,
-			char *memo,
-			int check_number,
-			boolean lock_transaction,
-			LIST *journal_list );
-
-void transaction_report_title_sub_title(
-			char *title,
-			char *sub_title,
-			char *process_name,
-			LIST *fund_name_list,
-			char *begin_date_string,
-			char *as_of_date,
-			char *logo_filename );
-
-DATE *transaction_prior_closing_transaction_date(
-			char *ending_transaction_date );
-
-/* Returns heap memory. */
-/* -------------------- */
-char *transaction_date_time_max(
-			void );
-
-/* Returns heap memory. */
-/* -------------------- */
-char *transaction_date_max(
-			void );
-
-char *transaction_fund_where(
-			char *fund_name );
-
-LIST *transaction_list_fetch(
-			char *where,
-			boolean fetch_journal_list );
-
-LIST *transaction_system_list(
-			char *sys_string,
-			boolean fetch_journal_list );
-
-char *transaction_journal_join(
-			void );
-
-char *transaction_time_append(
-			char *transaction_date );
-
-char *transaction_date_maximum(
-			void );
-
-char *transaction_date_minimum(
-			void );
-
-char *transaction_date_maximum(
-			void );
-
-char *transaction_beginning_date_string(
-			char *ending_transaction_date );
-
-char *transaction_date_prior_closing_beginning(
-			char *as_of_date );
-
-char *transaction_prior_close_beginning_date(
-			char *as_of_date );
-
-double transaction_net_income_fetch(
-			char *fund_name,
-			char *as_of_date );
-
-double transaction_net_income(
-			double total_revenues,
-			double total_expenses,
-			double total_gains,
-			double total_losses );
-
-double transaction_net_income_fetch(
-			char *fund_name,
-			char *as_of_date );
-
-void transaction_journal_list_pipe_display(
-			FILE *output_pipe,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time,
-			char *memo,
-			LIST *journal_list );
-
-boolean transaction_date_time_exists(
-			char *transaction_date_time );
-
-boolean transaction_exists_closing_entry(
-			char *transaction_date );
-
-void transaction_list_stderr(
-			LIST *transaction_list );
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_full_name_display(
-			char *full_name,
-			char *street_address );
-
-void transaction_list_journal_insert(
-			LIST *transaction_list );
-
-char *transaction_sys_string(
-			char *where );
-
-char *transaction_generate_date_time(
-			char *transaction_date );
-
-void transaction_list_html_display(
-			LIST *transaction_list );
-
-void transaction_stderr(
-			TRANSACTION *transaction );
-
-/* ---------------------------------------------- */
-/* Returns account_name_list			  */
-/* ---------------------------------------------- */
-/* Note: transaction_date_time changed if needed. */
-/* ---------------------------------------------- */
-LIST *transaction_list_journal_program_insert(
-			char **first_transaction_date_time,
-			LIST *transaction_list,
-			boolean replace );
-
-/* ------------------------- */
-/* Returns account_name_list */
-/* ------------------------- */
-LIST *transaction_list_delete(
-			LIST *transaction_list );
-
-char *transaction_list_minimum_transaction_date_time(
-			LIST *transaction_list );
-
-/* Returns memo or "" */
-/* ------------------ */
-char *transaction_memo( char *memo );
-
-char *transaction_date_time_earlier(
-			char *transaction_date_time,
-			char *preupdate_transaction_date_time );
-
-boolean transaction_date_time_changed(
-			char *preupdate_transaction_date_time );
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_date_time_closing(
-			char *transaction_date,
-			boolean preclose_time,
-			boolean closing_entry_exists );
-
-/* Returns static memory */
-/* --------------------- */
-char *transaction_date_time_where(
-			char *transaction_date,
-			char *transaction_time );
+/* Process */
+/* ------- */
 
 /* Returns static memory */
 /* --------------------- */
 char *transaction_closing_memo_where(
-			void );
+			char *transaction_closing_entry_memo );
 
-boolean transaction_closing_entry_exists(
-			/* -------------- */
-			/* Trims off time */
-			/* -------------- */
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_closing_entry_system_string(
+			char *transaction_table,
+			char *transaction_closing_entry_where );
+
+/* Usage */
+/* ----- */
+void transaction_fetch_update(
+			char *full_name,
+			char *street_address,
 			char *transaction_date_time );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void transaction_update(
+			double journal_list_transaction_amount,
+			char *transaction_primary_where );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory or null */
+/* ----------------------------- */
+char *transaction_set_clause(
+			char *transaction_amount_column,
+			double journal_list_transaction_amount );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_update_statement(
+			char *transaction_table,
+			char *transaction_set_clause,
+			char *transaction_primary_where );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time_where(
+			char *transaction_date_time_column,
+			char *transaction_date,
+			char *transaction_time );
+
+/* Process */
+/* ------- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -469,7 +240,130 @@ char *transaction_date_time(
 			char *transaction_date,
 			char *transaction_time );
 
-LIST *transaction_list_account_name_list(
+/* Usage */
+/* ----- */
+
+/* Returns as_of_date, heap memory, or null */
+/* ---------------------------------------- */
+char *transaction_as_of_date(
+			char *transaction_table,
+			char *as_of_date );
+
+/* Process */
+/* ------- */
+boolean transaction_as_of_date_populated(
+			char *as_of_date );
+
+/* Usage */
+/* ----- */
+char *transaction_begin_date_string(
+			char *transaction_table,
+			char *transaction_as_of_date );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_date_max(
+			char *transaction_table );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_date_time_max(
+			char *transaction_table );
+
+/* Usage */
+/* ----- */
+DATE *transaction_prior_closing_transaction_date(
+			char *transaction_close_time,
+			char *transaction_closing_entry_memo,
+			char *transaction_table,
+			char *transaction_as_of_date );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void transaction_journal_list_insert(
+			LIST *transaction_list,
+			boolean with_propagate );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *transaction_list_extract_account_list(
 			LIST *transaction_list );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_system_string(
+			char *transaction_select,
+			char *transaction_table,
+			char *transaction_primary_where );
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time_closing(
+			char *transaction_preclose_time,
+			char *transaction_close_time,
+			char *transaction_as_of_date,
+			boolean preclose_time_boolean );
+
+boolean transaction_date_time_changed(
+			char *preupdate_transaction_date_time );
+
+char *transaction_date_time_earlier(
+			char *transaction_date_time,
+			char *preupdate_transaction_date_time );
+
+boolean transaction_date_time_exists(
+			char *transaction_table,
+			char *transaction_date_time_column,
+			char *transaction_date_time );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_minimum_transaction_date_string(
+			char *transaction_table );
+
+/* Usage */
+/* ----- */
+void transaction_list_insert(
+			LIST *transaction_list,
+			boolean insert_journal_list_boolean );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void transaction_list_html_display(
+			LIST *transaction_list );
+
+/* Process */
+/* ------- */
 
 #endif

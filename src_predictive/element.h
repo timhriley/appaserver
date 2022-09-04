@@ -10,13 +10,11 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "latex.h"
-#include "html_table.h"
-#include "subclassification.h"
-#include "account.h"
 
-/* Constants */
-/* --------- */
+#define ELEMENT_TABLE			"element"
+
+#define ELEMENT_SELECT			"element,accumulate_debit_yn"
+
 #define ELEMENT_ASSET			"asset"
 #define ELEMENT_LIABILITY		"liability"
 #define ELEMENT_EQUITY			"equity"
@@ -25,230 +23,207 @@
 #define ELEMENT_GAIN			"gain"
 #define ELEMENT_LOSS			"loss"
 
-/* Structures */
-/* ---------- */
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *element_name;
-	double current_balance;
-	char *fund_name;
-	char *begin_date_string;
-
-	/* Process */
-	/* ------- */
-	char *prior_transaction_date_time;
-	double prior_balance;
-	LIST *prior_element_account_list;
-	double equity_element_balance_change;
-} EQUITY_ELEMENT;
-
 typedef struct
 {
 	char *element_name;
 	boolean accumulate_debit;
-
-	LIST *subclassification_list;
-	LIST *account_list;
-
-	double element_current_balance;
-	int element_delta_prior;
+	LIST *subclassification_statement_list;
+	LIST *account_statement_list;
+	double sum;
 	int percent_of_asset;
 	int percent_of_revenue;
-	EQUITY_ELEMENT *equity_element;
+	int delta_prior_percent;
 } ELEMENT;
 
-/* Operations */
-/* ========== */
-ELEMENT *element_parse(
-			char *input,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
+/* Usage */
+/* ----- */
+LIST *element_statement_list(
+			LIST *element_name_list,
+			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
-			boolean fetch_account_list );
+			boolean fetch_account_list,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction );
 
-ELEMENT *element_new(	char *element_name ); 
+/* Process */
+/* ------- */
 
-char *element_select(	void );
-
-boolean element_accumulate_debit(
-			char *element_name );
-
+/* Usage */
+/* ----- */
 ELEMENT *element_fetch(	char *element_name );
 
-ELEMENT *element_seek(	
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *element_list(	void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *element_system_list(
+			char *element_system_string );
+
+/* Process */
+/* ------- */
+FILE *element_pipe(	char *element_system_string );
+
+/* Usage */
+/* ----- */
+ELEMENT *element_parse( char *input );
+
+/* Process */
+/* ------- */
+ELEMENT *element_new(	char *element_name );
+
+ELEMENT *element_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+ELEMENT *element_statement_fetch(
 			char *element_name,
-			LIST *element_list );
-
-LIST *element_subclassification_list(
-			double *element_total,
-			char *element_name,
-			char *fund_name,
-			char *date_time );
-
-LIST *element_account_list(
-			double *element_total,
-			char *element_name,
-			char *fund_name,
-			char *date_time_string );
-
-LIST *element_list_sort(
-			LIST *element_list );
-
-LIST *element_list(	LIST *filter_element_name_list,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
+			char *transaction_date_time_closing,
 			boolean fetch_subclassification_list,
-			boolean fetch_account_list );
+			boolean fetch_account_list,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction );
 
-boolean element_is_period(
-			char *element_name );
+/* Process */
+/* ------- */
 
-boolean element_is_nominal(
-			char *element_name );
-
-double element_value(	LIST *account_list,
-			boolean element_accumulate_debit );
-
-double element_subclassification_aggregate_html_output(
-			HTML_TABLE *html_table,
-			LIST *subclassification_list,
-			char *element_name,
-			double percent_denominator );
-
-LATEX_ROW *element_latex_subclassification_aggregate_net_income_row(
-			double net_income,
-			boolean is_statement_of_activities,
-			double percent_denominator );
-
-LATEX_ROW *element_latex_net_income_row(
-			double net_income,
-			boolean is_statement_of_activities,
-			double percent_denominator,
-			boolean omit_subclassification );
-
-LATEX_ROW *element_latex_liabilities_plus_equity_row(
-			double liabilities_plus_equity,
-			int skip_columns );
-
-void element_list_propagate(
-			LIST *element_list,
-			char *transaction_date_time_string );
-
+/* Returns static memory */
+/* --------------------- */
 char *element_primary_where(
 			char *element_name );
 
-char *element_sys_string(
-			char *where );
-
-ACCOUNT *element_account_seek(
-			char *account_name,
-			LIST *element_list );
-
-SUBCLASSIFICATION *element_subclassification_seek(
-			char *subclassification_name,
-			LIST *element_list );
-
-LIST *element_system_list(
-			char *system_string,
-			char *fund_name,
-			char *transaction_date_time_nominal,
-			char *transaction_date_time_fixed,
-			boolean fetch_subclassification_list,
-			boolean fetch_account_list );
-
-LIST *element_fetch_list(
-			char *sys_string );
-
-void element_account_action_string_set(
-			ELEMENT *element,
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *beginning_date,
-			char *as_of_date );
-
-void element_list_account_action_string_set(
-			LIST *element_list,
-			char *application_name,
-			char *session,
-			char *login_name,
-			char *role_name,
-			char *beginning_date,
-			char *as_of_date );
-
-void element_list_percent_of_asset_set(
-			LIST *element_list );
-
-void element_list_percent_of_revenue_set(
-			LIST *element_list );
-
-void element_denominator_percent_of_asset_set(
-			LIST *element_list,
-			double asset_total );
-
-void element_denominator_percent_of_revenue_set(
-			LIST *element_list,
-			double revenue_total );
-
-void element_list_delta_prior_set(
-			LIST *prior_year_element_list,
-			LIST *preclose_element_list );
-
-void element_prior_year_element_list_delta_prior_set(
-			LIST *prior_year_element_list,
-			ELEMENT *preclose_element );
-
-void element_list_current_balance(
-			LIST *element_list,
-			double equity_net_income );
-
-double element_debit_total(
-			LIST *element_list );
-
-double element_credit_total(
-			LIST *element_list );
-
-double element_current_balance(
-			LIST *subclassification_list,
-			LIST *account_list );
-
-double element_positive_balance_total(
-			LIST *subclassification_list,
-			LIST *account_list );
-
+/* Returns heap memory */
+/* ------------------- */
 char *element_system_string(
+			char *element_select,
+			char *element_table,
 			char *where );
 
-char *element_filter_where(
-			LIST *filter_element_name_list );
+/* Usage */
+/* ----- */
+ELEMENT *element_statement_parse(
+			char *input,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification_list,
+			boolean fetch_account_list,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction );
 
-EQUITY_ELEMENT *equity_element_new(
-			char *element_name,
-			double current_balance,
-			char *fund_name,
-			char *begin_date_string );
+/* Process */
+/* ------- */
 
-EQUITY_ELEMENT *equity_element_fetch(
-			char *element_name,
-			double current_balance,
-			char *fund_name,
-			char *begin_date_string );
+/* Usage */
+/* ----- */
+void element_list_sum(	LIST *element_statement_list );
 
-double equity_element_balance_change(
-			double prior_balance,
-			double current_balance );
+/* Process */
+/* ------- */
 
-int element_percent_of_total(
-			double total,
-			double denominator );
+/* Usage */
+/* ----- */
+double element_sum(	ELEMENT *element );
 
-char *element_list_display(
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_account_statement_list_set(
+			ELEMENT *element );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_delta_prior_percent_set(
+			ELEMENT *prior_element /* in/out */,
+			ELEMENT *current_element );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_list_account_statement_list_set(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_account_transaction_count_set(
+			LIST *element_statement_list,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_account_action_string_set(
+			LIST *element_statement_list,
+			char *application_name,
+			char *session_key,
+			char *login_name,
+			char *role_name,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_percent_of_asset_set(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void element_percent_of_revenue_set(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double element_net_income(
+			LIST *element_statement_list );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
+boolean element_is_nominal(
+			char *element_name );
+
+ELEMENT *element_seek(	char *element_name,
 			LIST *element_list );
+
+double element_list_debit_sum(
+			LIST *element_statement_list );
+
+double element_list_credit_sum(
+			LIST *element_statement_list );
+
+double element_seek_sum(
+			char *element_name,
+			LIST *element_statement_list );
 
 #endif
 

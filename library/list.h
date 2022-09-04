@@ -136,14 +136,25 @@ int destroy_list( LIST *list );
 void list_free( LIST *list );
 struct LINKTYPE *get_current_record( LIST *list );
 void go_record( LIST *list, struct LINKTYPE *l );
-int list_at_end( LIST *list );
-boolean list_still_more(LIST *list );
+
+boolean list_at_end(	LIST *list );
+
+boolean list_at_last(	LIST *list );
+
+boolean list_still_more(
+			LIST *list );
+
 boolean list_past_end(	LIST *list );
-int list_at_start( LIST *list );
-int list_at_head( LIST *list );
-int list_at_first( LIST *list );
-int at_head( LIST *list );
-int at_end( LIST *list );
+
+boolean list_at_start(	LIST *list );
+
+boolean list_at_head(	LIST *list );
+
+boolean list_at_first(	LIST *list );
+
+boolean at_head(	LIST *list );
+
+boolean at_end(		LIST *list );
 
 LIST *sys_string2list(
 			char *sys_string );

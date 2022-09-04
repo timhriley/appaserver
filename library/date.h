@@ -120,6 +120,8 @@ int age(			char *birth_date );
 void add_slashes_maybe(		char *d,
 				char *s );
 
+/* Returns static memory */
+/* --------------------- */
 char *date_yyyy_mm_dd(		DATE *date );
 
 char *date_get_yyyy_mm_dd(	char *destination,
@@ -134,19 +136,20 @@ char *date_get_colon_hhmmss(	char *destination,
 char *date_get_hhmmss( 		char *destination,
 				DATE *date );
 
+/* Returns heap memory or "" */
+/* ------------------------- */
 char *date_display_yyyy_mm_dd(
 			DATE *date );
 
 char *date_yyyy_mm_dd_hhmm_display(
 			DATE *date );
 
-char *date_display_19(
-			DATE *date );
 
 /* Returns heap memory */
 /* ------------------- */
-char *date_display19(
-			DATE *date );
+char *date_display19(	DATE *date );
+
+char *date_display_19(	DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hms(
 			DATE *date );
@@ -584,6 +587,8 @@ char *date_get_environment(	char *variable_name );
 
 char *date_time_now(		int utc_offset );
 
+/* Returns heap memory */
+/* ------------------- */
 char *date_now16(		int utc_offset );
 char *date_get_now16(		int utc_offset );
 

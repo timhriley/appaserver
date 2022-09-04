@@ -278,11 +278,6 @@ void delete_database_append_mto1_isa_delete_folder_list(
 					folder->
 					primary_attribute_name_list );
 
-fprintf( stderr, "%s/%s()/%d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-
 		delete_folder->delete_row_list =
 			delete_database_get_delete_row_list(
 				application_name,

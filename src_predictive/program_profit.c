@@ -802,7 +802,8 @@ void program_profit_aggregate_account_PDF(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Revenue}",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
@@ -811,7 +812,8 @@ void program_profit_aggregate_account_PDF(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	/* Expense */
 	/* ------- */
@@ -837,7 +839,8 @@ void program_profit_aggregate_account_PDF(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Expense}",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
@@ -846,7 +849,8 @@ void program_profit_aggregate_account_PDF(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	/* Profit */
 	/* ------ */
@@ -858,7 +862,8 @@ void program_profit_aggregate_account_PDF(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Profit}",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
@@ -867,7 +872,8 @@ void program_profit_aggregate_account_PDF(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	/* Output */
 	/* ------ */
@@ -1042,17 +1048,20 @@ void program_profit_PDF(	char *application_name,
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Revenue}",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
@@ -1061,7 +1070,8 @@ void program_profit_PDF(	char *application_name,
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	/* Expense */
 	/* ------- */
@@ -1087,17 +1097,20 @@ void program_profit_PDF(	char *application_name,
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Total Expense}",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
@@ -1106,7 +1119,8 @@ void program_profit_PDF(	char *application_name,
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	/* Profit */
 	/* ------ */
@@ -1118,17 +1132,20 @@ void program_profit_PDF(	char *application_name,
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"\\bf{Profit}",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
 		"",
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	sprintf( buffer,
 		 "\\bf{%s}",
@@ -1137,7 +1154,8 @@ void program_profit_PDF(	char *application_name,
 	latex_column_data_set(
 		latex_row->column_data_list,
 		strdup( buffer ),
-		0 /* not large_bold */ );
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	/* Output */
 	/* ------ */
@@ -1228,14 +1246,16 @@ double program_profit_aggregate_account_PDF_element(
 			strdup( format_initial_capital(
 					buffer,
 					account_name ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		amount_double = atof( amount_string );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money( amount_double ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 		total_element += amount_double;
 
@@ -1293,24 +1313,28 @@ double program_profit_PDF_element(
 			strdup( format_initial_capital(
 					buffer,
 					account_name ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( entity_name ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( transaction_date_time ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		amount_double = atof( amount_string );
 
 		latex_column_data_set(
 			latex_row->column_data_list,
 			strdup( place_commas_in_money( amount_double ) ),
-			0 /* not large_bold */ );
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ );
 
 		total_element += amount_double;
 

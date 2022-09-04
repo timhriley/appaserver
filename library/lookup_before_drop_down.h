@@ -64,8 +64,7 @@ enum lookup_before_drop_down_state
 	lookup_before_drop_down_get_state(
 		LIST *lookup_before_drop_down_folder_list,
 		DICTIONARY *lookup_before_drop_down_dictionary,
-		DICTIONARY *preprompt_dictionary,
-		boolean folder_lookup_before_drop_down );
+		DICTIONARY *preprompt_dictionary );
 
 char *lookup_before_drop_down_get_base_folder_name(
 		DICTIONARY *lookup_before_drop_down_dictionary );

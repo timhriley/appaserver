@@ -63,7 +63,13 @@ void row_security_dvr(
 		row_security_new(
 			application_name,
 			login_role,
-			select_folder_name,
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				select_folder_name,
+				role_new_role(
+					application_name,
+					role_name ) ),
 			login_name,
 			state,
 			(DICTIONARY *)0 /* preprompt_dictionary */,

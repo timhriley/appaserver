@@ -10,47 +10,71 @@
 
 #include "list.h"
 #include "boolean.h"
-#include "account.h"
 
-/* Constants */
-/* --------- */
-
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
-	/* Input */
-	/* ----- */
-	char *full_name;
-	char *street_address;
+	char *account_name;
+	double debit_amount;
+} RECEIVABLE_ACCOUNT;
 
-	/* Process */
-	/* ------- */
-	LIST *receivable_entity_account_list;
-	double receivable_expecting;
+/* Usage */
+/* ----- */
+RECEIVABLE_ACCOUNT *receivable_account_getset(
+			LIST *list,
+			char *account_name );
+
+/* Process */
+/* ------- */
+
+/* Always succeeds */
+/* --------------- */
+RECEIVABLE_ACCOUNT *receivable_account_new(
+			char *account_name );
+
+RECEIVABLE_ACCOUNT *receivable_account_calloc(
+			void );
+
+typedef struct
+{
+	LIST *list;
+} RECEIVABLE_ACCOUNT_LIST;
+
+/* Usage */
+/* ----- */
+RECEIVABLE_ACCOUNT_LIST *receivable_account_list_new(
+			LIST *journal_system_list );
+
+/* Process */
+/* ------- */
+RECEIVABLE_ACCOUNT_LIST *receivable_account_list_calloc(
+			void );
+
+typedef struct
+{
+	char *timlib_in_clause;
+	char *where;
+	LIST *journal_system_list;
+	double journal_debit_credit_difference_sum;
+	RECEIVABLE_ACCOUNT_LIST *receivable_account_list;
 } RECEIVABLE;
 
-/* Operations */
-/* ---------- */
-RECEIVABLE *receivable_new(
+/* Usage */
+/* ----- */
+RECEIVABLE *receivable_fetch(
 			char *full_name,
-			char *street_address );
+			char *street_address,
+			LIST *account_receivable_name_list );
 
-/* Sets receivable_expecting */
-/* ------------------------- */
-RECEIVABLE *receivable_steady_state(
-			RECEIVABLE *receivable );
+/* Process */
+/* ------- */
+RECEIVABLE *receivable_calloc(
+			void );
 
-/* Sets account->account_receivable_due */
-/* ------------------------------------ */
-LIST *receivable_entity_account_list(
+/* Returns static memory */
+/* --------------------- */
+char *receivable_where(
 			char *full_name,
-			char *street_address );
-
-double receivable_expecting(
-	LIST *receivable_entity_account_list );
+			char *street_address,
+			char *timlib_in_clause );
 
 #endif

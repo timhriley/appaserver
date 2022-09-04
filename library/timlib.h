@@ -214,8 +214,9 @@ int number_occurrences_char( int char_to_count, char *source );
 
 char *remove_quotes(	char *d, char *s );
 
-/* Trims pennies */
-/* ------------- */
+/* Trims pennies	 */
+/* Returns static memory */
+/* --------------------- */
 char *timlib_commas_in_dollars(
 			double d );
 char *timlib_place_commas_in_dollars(
@@ -245,9 +246,11 @@ char *place_commas_in_unsigned_long_long(
 			unsigned long long n );
 
 /* --------------------- */
-/* Returns static memory */
+/* Returns heap memory   */
 /* Doesn't trim pennies  */
 /* --------------------- */
+char *timlib_commas_in_money(
+			double d );
 char *commas_in_money(
 			double d );
 char *place_commas_in_money(
@@ -347,7 +350,7 @@ int timlib_get_block_delimiter(
 			int delimiter,
 			int columns_to_block,
 			FILE *input_file,
-		int max_lines );
+			int max_lines );
 
 int string_array_search_offset(
 			char **string_array, 
@@ -746,6 +749,8 @@ char *timlib_get_first_line(
 			char *input_filename,
 			int buffer_size );
 
+/* Returns static memory */
+/* --------------------- */
 char *timlib_dollar_round_string(
 			double amount );
 

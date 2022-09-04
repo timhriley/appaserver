@@ -170,13 +170,13 @@ FOLDER *folder_with_load_new(	char *application_name,
 			folder->mto1_related_folder_list ) )
 	{
 		fprintf( stderr,
-			 "Warning in %s/%s()/%d: cannot load folder=%s\n",
+			 "ERROR in %s/%s()/%d: cannot load folder=%s\n",
 			 __FILE__,
 			 __FUNCTION__,
 			 __LINE__,
 			 folder->folder_name );
 
-		return (FOLDER *)0;
+		exit( 1 );
 	}
 
 	/* This is the new way of setting. */

@@ -29,6 +29,7 @@
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter_file.h"
+#include "journal.h"
 #include "transaction.h"
 #include "element.h"
 #include "account.h"
@@ -37,8 +38,6 @@
 /* --------- */
 #define DEBUG_MODE	0
 
-/* Prototypes */
-/* ---------- */
 void ledger_debit_credit_audit(
 			char *begin_date );
 
@@ -72,7 +71,7 @@ int main( int argc, char **argv )
 
 void ledger_debit_credit_audit( char *begin_date )
 {
-	LIST *transaction_list;
+	LIST *list;
 	TRANSACTION *transaction;
 	double difference;
 	double balance_difference;
@@ -84,7 +83,7 @@ void ledger_debit_credit_audit( char *begin_date )
 	{
 		sprintf( where_clause,
 			 "%s.transaction_date_time >= '%s'",
-			 TRANSACTION_FOLDER_NAME,
+			 TRANSACTION_TABLE,
 			 begin_date );
 	}
 	else
@@ -92,15 +91,15 @@ void ledger_debit_credit_audit( char *begin_date )
 		strcpy( where_clause, "1 = 1" );
 	}
 
-	transaction_list =
-		transaction_list_fetch(
+	list =
+		transaction_list(
 			where_clause,
-			1 /* fetch_journal_list */ );
+			1 /* fetch_journal_ledger */ );
 
-	if ( !list_rewind( transaction_list ) ) return;
+	if ( !list_rewind( list ) ) return;
 
 	do {
-		transaction = list_get( transaction_list );
+		transaction = list_get( list );
 
 		difference_type = (char *)0;
 
@@ -147,7 +146,7 @@ void ledger_debit_credit_audit( char *begin_date )
 				difference_type );
 		}
 
-	} while ( list_next( transaction_list ) );
+	} while ( list_next( list ) );
 }
 
 double ledger_debit_credit_difference(	double *balance_difference,
@@ -184,8 +183,11 @@ journal->credit_amount,
 journal->balance );
 }
 
-		if ( account_name_accumulate_debit(
-			journal->account_name ) )
+		if ( journal->
+			account->
+			subclassification->
+			element->
+			accumulate_debit )
 		{
 			balance =	journal->previous_balance +
 					journal->debit_amount -

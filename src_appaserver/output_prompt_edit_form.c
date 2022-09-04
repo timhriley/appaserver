@@ -296,8 +296,7 @@ int main( int argc, char **argv )
 				lookup_before_drop_down_folder_list,
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			0 /* folder_lookup_before_drop_down */ );
+			dictionary_appaserver->preprompt_dictionary );
 
 	lookup_before_drop_down->insert_folder_name =
 		lookup_before_drop_down_get_dictionary_insert_folder_name(
@@ -2071,7 +2070,11 @@ boolean get_omit_delete_button(
 		row_security_new(
 			application_name,
 			login_role,
-			select_folder_name,
+			folder_with_load_new(
+				application_name,
+				BOGUS_SESSION,
+				select_folder_name,
+				login_role ),
 			login_name,
 			(char *)0 /* state */,
 			(DICTIONARY *)0 /* preprompt_dictionary */,

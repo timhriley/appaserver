@@ -11,7 +11,6 @@
 #include "timlib.h"
 #include "piece.h"
 #include "column.h"
-#include "bank_upload.h"
 #include "list.h"
 #include "environ.h"
 #include "appaserver_parameter_file.h"
@@ -21,23 +20,12 @@
 #include "journal.h"
 #include "account.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
-
-/* Global variables */
-/* ---------------- */
-enum bank_upload_exception bank_upload_exception = {0};
-
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *transaction_date_time;
 	char *preupdate_transaction_date_time = "";
 	char *propagate_transaction_date_time = {0};
-	char propagate_transaction_date[ 16 ];
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -56,6 +44,7 @@ int main( int argc, char **argv )
 
 	transaction_date_time = argv[ 1 ];
 
+/*
 	if ( !*transaction_date_time
 	||   strcmp( transaction_date_time, "transaction_date_time" ) == 0 )
 	{
@@ -63,6 +52,7 @@ int main( int argc, char **argv )
 			pipe2string(
 				"transaction_date_time_minimum.sh" );
 	}
+*/
 
 	if ( argc >= 3 )
 	{
@@ -91,15 +81,6 @@ int main( int argc, char **argv )
 			transaction_date_time;
 	}
 
-	column(	propagate_transaction_date,
-		0,
-		propagate_transaction_date_time );
-
-	bank_upload_transaction_balance_propagate(
-		propagate_transaction_date
-			/* bank_date */,
-		propagate_transaction_date_time );
-
 	/* If every account */
 	/* ---------------- */
 	if (	argc < 4
@@ -110,13 +91,14 @@ int main( int argc, char **argv )
 
 		account_name_list =
 			journal_date_time_account_name_list(
+				JOURNAL_TABLE,
 				propagate_transaction_date_time );
 
 		if ( list_rewind( account_name_list ) )
 		{
 			do {
 				account_name =
-					list_get_pointer(
+					list_get(
 						account_name_list );
 
 				journal_propagate(

@@ -13,20 +13,130 @@
 #include "piece.h"
 #include "sql.h"
 #include "boolean.h"
-#include "entity.h"
 #include "predictive.h"
-#include "element.h"
-#include "journal.h"
+#include "float.h"
 #include "subclassification.h"
-#include "element.h"
-#include "statement.h"
-#include "transaction.h"
-#include "date.h"
+#include "journal.h"
 #include "account.h"
 
-LIST *account_list( void )
+LIST *account_statement_list(
+			char *subclassification_primary_where,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification,
+			boolean fetch_element,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction )
 {
-	return account_list_fetch( "1 = 1" );
+	FILE *pipe;
+	char input[ 256 ];
+	LIST *statement_list;
+	ACCOUNT *account;
+
+	if ( !subclassification_primary_where
+	||   !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	statement_list = list_new();
+
+	pipe =
+		account_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_system_string(
+				ACCOUNT_SELECT,
+				ACCOUNT_TABLE,
+				subclassification_primary_where ) );
+
+	while ( string_input( input, pipe, 256 ) )
+	{
+		account =
+		/* ---------------------------------------------------------- */
+		/* Returns null if fetch_journal_latest is set but not exists */
+		/* ---------------------------------------------------------- */
+			account_statement_parse(
+				input,
+				transaction_date_time_closing,
+				fetch_subclassification,
+				fetch_element,
+				fetch_journal_latest,
+				fetch_transaction );
+
+		if ( account )
+		{
+			list_set(
+				statement_list,
+				account );
+		}
+	}
+
+	pclose( pipe );
+
+	return statement_list;
+}
+
+ACCOUNT *account_statement_parse(
+			char *input,
+			char *transaction_date_time_closing,
+			boolean fetch_subclassification,
+			boolean fetch_element,
+			boolean fetch_journal_latest,
+			boolean fetch_transaction )
+{
+	ACCOUNT *account;
+
+	if ( !input
+	||   !*input
+	||   !transaction_date_time_closing )
+	{
+		return (ACCOUNT *)0;
+	}
+
+	if ( ! ( account =
+			account_parse(
+				input,
+				fetch_subclassification,
+				fetch_element ) ) )
+	{
+		return (ACCOUNT *)0;
+	}
+
+	if ( fetch_journal_latest )
+	{
+		if ( ! ( account->account_journal_latest =
+				account_journal_latest(
+					account->account_name,
+					transaction_date_time_closing,
+					fetch_transaction ) ) )
+		{
+			account = (ACCOUNT *)0;
+		}
+	}
+
+	return account;
+}
+
+FILE *account_pipe( char *account_system_string )
+{
+	if ( !account_system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	popen( account_system_string, "r" );
 }
 
 ACCOUNT *account_new( char *account_name )
@@ -46,12 +156,6 @@ ACCOUNT *account_new( char *account_name )
 	return account;
 }
 
-char *account_name_escape(
-			char *account_name )
-{
-	return account_escape_name( account_name );
-}
-
 char *account_name_format(
 			char *account_name )
 {
@@ -60,127 +164,140 @@ char *account_name_format(
 	return format_initial_capital( name_format, account_name );
 }
 
-char *account_escape_name(
-			char *account_name )
+char *account_revenue( char *account_revenue_key )
 {
-	static char escape_name[ 256 ];
-
-	string_escape_quote( escape_name, account_name );
-	return escape_name;
+	return
+	account_hard_coded_account_name(
+		account_revenue_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_revenue( char *fund_name )
+char *account_receivable( char *account_receivable_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_REVENUE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_receivable_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_receivable( char *fund_name )
+char *account_payable( char *account_payable_key )
 {
-	char *account_name;
-
-	account_name =
-		account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_RECEIVABLE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
-
-	return account_name;
+	return
+	account_hard_coded_account_name(
+		account_payable_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_payable( char *fund_name )
+char *account_uncleared_checks( char *account_uncleared_checks_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_PAYABLE_KEY,
-			0 /* not warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_uncleared_checks_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_uncleared_checks( char *fund_name )
+char *account_gain( char *account_gain_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_UNCLEARED_CHECKS_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_gain_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_gain( char *fund_name )
+char *account_loss( char *account_loss_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_GAIN_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_loss_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_loss( char *fund_name )
+char *account_sales_tax_payable( char *account_sales_tax_payable_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_LOSS_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_sales_tax_payable_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_sales_tax_payable( char *fund_name )
+char *account_depreciation_expense( char *account_depreciation_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_SALES_TAX_PAYABLE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_depreciation_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_depreciation_expense( char *fund_name )
+char *account_accumulated_depreciation( char *account_accumulated_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_DEPRECIATION_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
-}
-
-char *account_accumulated_depreciation( char *fund_name )
-{
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_ACCUMULATED_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_accumulated_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
 
-char *account_shipping_revenue( char *fund_name )
+char *account_shipping_revenue( char *account_shipping_revenue_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_SHIPPING_REVENUE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_shipping_revenue_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_cash( char *fund_name )
+char *account_cash( char *account_cash_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_CASH_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_cash_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
-char *account_fees_expense( char *fund_name )
+char *account_closing_entry( char *account_closing_key )
 {
-	return account_hard_coded_account_name(
-			fund_name,
-			ACCOUNT_FEES_EXPENSE_KEY,
-			0 /* not  warning_only */,
-			__FUNCTION__ );
+	return
+	account_hard_coded_account_name(
+		account_closing_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_drawing( char *account_drawing_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_drawing_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_fees_expense( char *account_fees_expense_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_fees_expense_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_sales_tax_expense( char *account_sales_tax_expense_key )
+{
+	return
+	account_hard_coded_account_name(
+		account_sales_tax_expense_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
 }
 
 char *account_name_display( char *account_name )
@@ -191,26 +308,58 @@ char *account_name_display( char *account_name )
 		return account_name;
 }
 
+LIST *account_balance_sort_list( LIST *account_list )
+{
+	LIST *balance_sort_list;
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_list ) )
+	{
+		return (LIST *)0;
+	}
+
+	balance_sort_list = list_new();
+
+	do {
+		account = list_get( account_list );
+
+		list_add_pointer_in_order(
+			balance_sort_list,
+			account,
+			account_balance_match_function );
+
+	} while ( list_next( account_list ) );
+
+	return balance_sort_list;
+}
+
 int account_balance_match_function(
 			ACCOUNT *account_from_list,
 			ACCOUNT *account_compare )
 {
-	if ( !account_from_list->latest_journal
-	||   !account_from_list->latest_journal->balance )
+	ACCOUNT_JOURNAL *from_list_latest_journal;
+	ACCOUNT_JOURNAL *compare_latest_journal;
+
+	from_list_latest_journal =
+		account_from_list->account_journal_latest;
+
+	compare_latest_journal =
+		account_compare->account_journal_latest;
+
+	if ( !from_list_latest_journal
+	||   !from_list_latest_journal->balance )
 	{
 		return 1;
 	}
 
-	if ( !account_compare->latest_journal
-	||   !account_compare->latest_journal->balance )
+	if ( !compare_latest_journal
+	||   !compare_latest_journal->balance )
 	{
 		return 1;
 	}
 
-	/* Sort descending */
-	/* --------------- */
-	if (	account_from_list->latest_journal->balance <=
-		account_compare->latest_journal->balance )
+	if (	from_list_latest_journal->balance <=
+		compare_latest_journal->balance )
 	{
 		return 1;
 	}
@@ -220,44 +369,67 @@ int account_balance_match_function(
 	}
 }
 
-ACCOUNT *account_getset(
-			LIST *account_list,
-			char *account_name )
+void account_percent_of_asset_set(
+			LIST *subclassification_account_statement_list,
+			double asset_sum )
 {
 	ACCOUNT *account;
 
-	if ( !account_list )
+	if ( !asset_sum
+	||   !list_rewind( subclassification_account_statement_list ) )
+	{
+		return;
+	}
+
+	do {
+		account = list_get( subclassification_account_statement_list );
+
+		account->percent_of_asset =
+			float_percent_of_total(
+				account->account_journal_latest->balance,
+				asset_sum );
+
+	} while ( list_next( subclassification_account_statement_list ) );
+}
+
+void account_percent_of_revenue_set(
+			LIST *subclassification_account_statement_list,
+			double revenue_sum )
+{
+	ACCOUNT *account;
+
+	if ( !revenue_sum
+	||   !list_rewind( subclassification_account_statement_list ) )
+	{
+		return;
+	}
+
+	do {
+		account = list_get( subclassification_account_statement_list );
+
+		account->percent_of_revenue =
+			float_percent_of_total(
+				account->account_journal_latest->balance,
+				revenue_sum );
+
+	} while ( list_next( subclassification_account_statement_list ) );
+}
+
+ACCOUNT *account_seek(	char *account_name,
+			LIST *account_list )
+{
+	ACCOUNT *account;
+
+	if ( !account_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty account_list.\n",
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ( account = account_seek( account_name, account_list ) ) )
-	{
-		return account;
-	}
-
-	account = account_new( strdup( account_name ) );
-	list_set( account_list, account );
-	return account;
-}
-
-ACCOUNT *account_list_seek(
-			char *account_name,
-			LIST *account_list )
-{
-	return account_seek( account_name, account_list );
-}
-
-ACCOUNT *account_seek(
-			char *account_name,
-			LIST *account_list )
-{
-	ACCOUNT *account;
 
 	if ( !list_rewind( account_list ) ) return (ACCOUNT *)0;
 
@@ -266,35 +438,15 @@ ACCOUNT *account_seek(
 
 		if ( strcmp( account->account_name, account_name ) == 0 )
 			return account;
+
 	} while ( list_next( account_list ) );
 
 	return (ACCOUNT *)0;
 }
 
-char *account_select( void )
-{
-	if ( predictive_fund_attribute_exists() )
-	{
-		return
-			"account,"
-			"subclassification,"
-			"hard_coded_account_key,"
-			"chart_account_number,"
-			"annual_budget,"
-			"fund";
-	}
-	else
-	{
-		return
-			"account,"
-			"subclassification,"
-			"hard_coded_account_key,"
-			"chart_account_number,"
-			"annual_budget";
-	}
-}
-
-ACCOUNT *account_parse( char *input )
+ACCOUNT *account_parse(	char *input,
+			boolean fetch_subclassification,
+			boolean fetch_element )
 {
 	char account_name[ 128 ];
 	char piece_buffer[ 1024 ];
@@ -302,69 +454,106 @@ ACCOUNT *account_parse( char *input )
 
 	if ( !input || !*input ) return (ACCOUNT *)0;
 
+	/* See ACCOUNT_SELECT */
+	/* ------------------ */
 	piece( account_name, SQL_DELIMITER, input, 0 );
 
 	account =
 		account_new(
 			strdup( account_name ) );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	account->subclassification_name = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
-	account->account_key = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	account->chart_account_number = atoi( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	account->annual_budget = atof( piece_buffer );
-
-	if ( predictive_fund_attribute_exists() )
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 1 ) )
 	{
-		piece( piece_buffer, SQL_DELIMITER, input, 5 );
-		account->fund_name = strdup( piece_buffer );
+		account->subclassification_name = strdup( piece_buffer );
 	}
 
-	account->element_name =
-		account_element_name(
-			account->subclassification_name );
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 2 ) )
+	{
+		account->hard_coded_account_key = strdup( piece_buffer );
+	}
 
-	account->accumulate_debit =
-		account_accumulate_debit(
-			account->subclassification_name );
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 3 ) )
+	{
+		account->chart_account_number = atoi( piece_buffer );
+	}
+
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 4 ) )
+	{
+		account->annual_budget = atoi( piece_buffer );
+	}
+
+	if ( fetch_subclassification )
+	{
+		account->subclassification =
+			subclassification_fetch(
+				account->subclassification_name,
+				fetch_element );
+	}
 
 	return account;
 }
 
-ACCOUNT *account_fetch(	char *account_name )
+ACCOUNT *account_fetch(	char *account_name,
+			boolean fetch_subclassification,
+			boolean fetch_element )
 {
+	ACCOUNT *account;
+	static LIST *list = {0};
+
 	if ( !account_name ) return (ACCOUNT *)0;
 
-	return	account_parse(
-			pipe2string(
-				account_system_string(
-		 			/* -------------------------- */
-		 			/* Safely returns heap memory */
-		 			/* -------------------------- */
-		 			account_primary_where(
-						account_name ) ) ) );
+	if ( fetch_subclassification && fetch_element )
+	{
+		if ( !list )
+		{
+			list =
+				account_list(
+					"1 = 1" /* where */,
+					1 /* fetch_subclassification */,
+					1 /* fetch_element */ );
+		}
+
+		account = account_seek( account_name, list );
+	}
+	else
+	{
+		account =
+			account_parse(
+				string_pipe(
+					/* ------------------- */
+					/* Returns heap memory */
+					/* ------------------- */
+					account_system_string(
+						ACCOUNT_SELECT,
+						ACCOUNT_TABLE,
+	 					/* --------------------- */
+	 					/* Returns static memory */
+	 					/* --------------------- */
+	 					account_primary_where(
+							account_name ) ) ),
+				fetch_subclassification,
+				fetch_element );
+	}
+
+	return account;
 }
 
 char *account_primary_where(
 			char *account_name )
 {
-	char where[ 128 ];
+	static char where[ 128 ];
+	char escape_account[ 64 ];
 
-	sprintf( where,
-		 "account = '%s'",
-		 account_escape_name( account_name ) );
+	sprintf(where,
+		"account = '%s'",
+		string_escape_quote(
+			escape_account,
+			account_name ) );
 
-	return strdup( where );
+	return where;
 }
 
 char *account_hard_coded_account_name(
-			char *fund_name,
 			char *account_key,
 			boolean warning_only,
 			const char *calling_function_name )
@@ -374,14 +563,13 @@ char *account_hard_coded_account_name(
 
 	if ( !list )
 	{
-		list = account_list();
+		list = account_list( (char *)0, 0, 0 );
 	}
 
 	if ( ! ( account =
 			account_key_seek(
-				list,
-				fund_name,
-				account_key ) ) )
+				account_key,
+				list ) ) )
 	{
 		if ( !warning_only )
 		{
@@ -403,9 +591,8 @@ char *account_hard_coded_account_name(
 }
 
 ACCOUNT *account_key_seek(
-			LIST *account_list,
-			char *fund_name,
-			char *account_key )
+			char *account_key,
+			LIST *account_list )
 {
 	ACCOUNT *account;
 
@@ -414,349 +601,16 @@ ACCOUNT *account_key_seek(
 	do {
 		account = list_get( account_list );
 
-		if ( fund_name
-		&&   *fund_name
-		&&   strcmp( fund_name, "fund" ) != 0 )
+		if ( string_exists_substr(
+			account->hard_coded_account_key,
+			account_key ) )
 		{
-			if ( timlib_strcmp(
-				account->fund_name,
-				fund_name ) == 0
-			&&   string_exists_substr(
-				account->account_key,
-				account_key ) == 0 )
-			{
-				return account;
-			}
+			return account;
 		}
-		else
-		{
-			if ( string_exists_substr(
-				account->account_key,
-				account_key ) )
-			{
-				return account;
-			}
-		}
+
 	} while( list_next( account_list ) );
 
 	return (ACCOUNT *)0;
-}
-
-char *account_non_cash_account_name(
-			LIST *journal_list )
-{
-	static char *checking_account = {0};
-	JOURNAL *journal;
-
-	if ( !checking_account )
-	{
-		checking_account =
-			account_hard_coded_account_name(
-				(char *)0 /* fund_name */,
-				ACCOUNT_CASH_KEY,
-				0 /* not warning_only */,
-				__FUNCTION__ );
-	}
-
-	if ( !list_rewind( journal_list ) )
-		return ACCOUNT_NOT_SET;
-
-	do {
-		journal = list_get( journal_list );
-
-		if ( string_strcmp(	journal->account_name,
-					checking_account ) != 0 )
-		{
-			return account_name_display(
-					journal->account_name );
-		}
-	} while( list_next( journal_list ) );
-
-	return ACCOUNT_NOT_SET;
-}
-
-LIST *account_omit_latex_row_list(
-			double *total_element,
-			LIST *account_list,
-			char *element_name,
-			boolean element_accumulate_debit,
-			double percent_denominator )
-{
-	LIST *row_list;
-	ACCOUNT *account;
-	char total_element_label[ 128 ];
-	char format_buffer[ 128 ];
-	double latest_journal_balance;
-	LATEX_ROW *latex_row;
-	double percent_of_total;
-
-	*total_element = 0.0;
-
-	if ( !list_rewind( account_list ) ) return (LIST *)0;
-
-	row_list = list_new();
-
-	latex_row = latex_new_latex_row();
-	list_append_pointer( row_list, latex_row );
-
-	sprintf( format_buffer,
-		 "\\large \\bf %s",
-		 element_name );
-
-	latex_column_data_set(
-		latex_row->column_data_list,
-		strdup( format_initial_capital(
-				format_buffer,
-				format_buffer ) ),
-		0 /* not large_bold */ );
-
-	sprintf(format_buffer,
-	 	"\\large \\bf Total %s",
-	 	element_name );
-
-	format_initial_capital( total_element_label, format_buffer );
-
-	do {
-		account =
-			list_get_pointer( account_list ); 
-
-		if ( !account->latest_journal
-		||   !account->latest_journal->balance )
-			continue;
-
-		latex_row = latex_new_latex_row();
-		list_append_pointer( row_list, latex_row );
-
-		if (	element_accumulate_debit ==
-				account->accumulate_debit )
-		{
-			latest_journal_balance =
-				account->latest_journal->balance;
-		}
-		else
-		{
-			latest_journal_balance =
-				0.0 - account->latest_journal->balance;
-		}
-
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( format_initial_capital(
-					format_buffer,
-					account->
-					    account_name ) ),
-			0 /* not large_bold */ );
-
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money(
-			   	     latest_journal_balance ) ),
-			0 /* not large_bold */ );
-
-		/* Blank space for the element column. */
-		/* ----------------------------------- */
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( "" ),
-			0 /* not large_bold */ );
-
-		if ( percent_denominator )
-		{
-			char buffer[ 128 ];
-
-			percent_of_total =
-				( latest_journal_balance /
-		  		  percent_denominator ) * 100.0;
-
-			sprintf( buffer,
-		 		"%.1lf%c",
-		 		percent_of_total,
-		 		'%' );
-
-			latex_column_data_set(
-				latex_row->column_data_list,
-				strdup( buffer ),
-				0 /* not large_bold */ );
-		}
-	
-		*total_element += latest_journal_balance;
-
-	} while( list_next( account_list ) );
-
-	if ( *total_element )
-	{
-		latex_row = latex_new_latex_row();
-		list_append_pointer( row_list, latex_row );
-
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( total_element_label ),
-			0 /* not large_bold */ );
-
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( "" ),
-			0 /* not large_bold */ );
-
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( place_commas_in_money(
-				   *total_element ) ),
-			0 /* not large_bold */ );
-
-		if ( percent_denominator )
-		{
-			char buffer[ 128 ];
-
-			percent_of_total =
-				( *total_element /
-		  		percent_denominator ) * 100.0;
-
-			sprintf( buffer,
-		 		"%.1lf%c",
-		 		percent_of_total,
-		 		'%' );
-
-			latex_column_data_set(
-				latex_row->column_data_list,
-				strdup( buffer ),
-				0 /* not large_bold */ );
-		}
-
-		/* Blank line */
-		/* ---------- */
-		latex_row = latex_new_latex_row();
-		list_append_pointer( row_list, latex_row );
-
-		latex_column_data_set(
-			latex_row->column_data_list,
-			strdup( "" ),
-			0 /* not large_bold */ );
-
-	} /* if total_element */
-
-	return row_list;
-}
-
-void account_propagate( char *account_name,
-			char *transaction_date_time )
-{
-	/* Executes journal_list_set_balances() */
-	/* ------------------------------------ */
-	journal_propagate(
-		transaction_date_time,
-		account_name );
-}
-
-boolean account_accumulate_debit(
-			char *subclassification_name )
-{
-	SUBCLASSIFICATION *subclassification;
-	ELEMENT *element;
-
-	if ( ! ( subclassification =
-			subclassification_fetch(
-				subclassification_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: subclassification_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 subclassification_name );
-	}
-
-	if ( ! ( element =
-			element_fetch(
-				subclassification->element_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: element_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 subclassification->element_name );
-	}
-
-	return element->accumulate_debit;
-}
-
-void account_transaction_propagate(
-			char *propagate_transaction_date_time )
-{
-	char sys_string[ 1024 ];
-	char account[ 256 ];
-	FILE *input_pipe;
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s;\" | sql",
-		 "account",
-		 ACCOUNT_TABLE_NAME );
-
-	input_pipe = popen( sys_string, "r" );
-
-	while( string_input( account, input_pipe, 256 ) )
-	{
-		journal_propagate(
-			propagate_transaction_date_time,
-			account );
-	}
-	pclose( input_pipe );
-}
-
-ACCOUNT *account_key_fetch( char *account_key )
-{
-	char where[ 128 ];
-
-	sprintf(where,
-		"hard_coded_account_key = '%s'",
-		account_key );
-
-	return account_parse(
-			pipe2string(
-				account_system_string(
-					where ) ) );
-}
-
-LIST *account_list_fetch( char *where )
-{
-	char *sys_string;
-
-	sys_string = account_system_string( where );
-	return account_system_list( sys_string );
-}
-
-char *account_system_string( char *where )
-{
-	char system_string[ 1024 ];
-
-	sprintf( system_string,
-		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 account_select(),
-		 ACCOUNT_TABLE_NAME,
-		 where );
-
-	return strdup( system_string );
-}
-
-LIST *account_system_list( char *sys_string )
-{
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *account_list;
-
-	input_pipe = popen( sys_string, "r" );
-	account_list = list_new();
-
-	while ( string_input( input, input_pipe, 1024 ) )
-	{
-		list_set( account_list, account_parse( input ) );
-	}
-	pclose( input_pipe );
-	return account_list;
 }
 
 boolean account_name_changed(
@@ -777,387 +631,572 @@ boolean account_name_changed(
 
 char *account_action_string(
 			char *application_name,
-			char *session,
+			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *beginning_date,
-			char *as_of_date,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing,
 			char *account_name )
 {
-	char action_string[ 4096 ];
+	char action_string[ 1024 ];
 
-	sprintf( action_string,
-"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s 23:59:59",
-		 login_name,
-		 application_name,
-		 session,
-		 role_name,
-		 account_name,
-		 beginning_date,
-		 as_of_date );
+	sprintf(action_string,
+"/cgi-bin/post_prompt_edit_form?%s^%s^%s^journal_ledger^%s^lookup^prompt^edit_frame^0^lookup_option_radio_button~lookup@llookup_before_drop_down_state~skipped@relation_operator_account_0~equals@account_1~%s@llookup_before_drop_down_base_folder~journal_ledger@relation_operator_transaction_date_time_0~between@from_transaction_date_time_0~%s 00:00:00@to_transaction_date_time_0~%s",
+		login_name,
+		application_name,
+		session_key,
+		role_name,
+		account_name,
+		transaction_begin_date_string,
+		transaction_date_time_closing );
 
 	return strdup( action_string );
 }
 
 void account_list_action_string_set(
-			LIST *account_list,
+			LIST *account_statement_list,
 			char *application_name,
-			char *session,
+			char *session_key,
 			char *login_name,
 			char *role_name,
-			char *beginning_date,
-			char *as_of_date )
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
 {
 	ACCOUNT *account;
 
-	if ( !list_rewind( account_list ) ) return;
+	if ( !list_rewind( account_statement_list ) ) return;
 
 	do {
-		account = list_get( account_list );
+		account = list_get( account_statement_list );
 
-		account->account_action_string =
-			account_action_string(
-				application_name,
-				session,
-				login_name,
-				role_name,
-				beginning_date,
-				as_of_date,
-				account->account_name );
+		if ( account->transaction_count )
+		{
+			account->action_string =
+				account_action_string(
+					application_name,
+					session_key,
+					login_name,
+					role_name,
+					transaction_begin_date_string,
+					transaction_date_time_closing,
+					account->account_name );
+		}
 
-	} while ( list_next( account_list ) );
+	} while ( list_next( account_statement_list ) );
 }
 
-void account_delta_prior_set(
-			LIST *prior_account_list,
-			ACCOUNT *account )
+void account_list_delta_prior_percent_set(
+			LIST *prior_account_list /* in/out */,
+			LIST *current_account_list )
 {
+	ACCOUNT *current_account;
 	ACCOUNT *prior_account;
 
-	if ( !account->latest_journal ) return;
-
-	if ( ! ( prior_account =
-			account_seek(
-				account->account_name,
-				prior_account_list ) ) )
-	{
-		return;
-	}
-
-	if ( !prior_account->latest_journal ) return;
-
-	prior_account->delta_prior =
-		statement_delta_prior(
-			prior_account->latest_journal->balance,
-			account->latest_journal->balance );
-}
-
-void account_list_delta_prior_set(
-			LIST *prior_account_list,
-			LIST *account_list )
-{
-	ACCOUNT *account;
-
-	if ( !list_rewind( account_list ) ) return;
+	if ( !list_rewind( current_account_list ) ) return;
 
 	do {
-		account = list_get( account_list );
+		current_account =
+			list_get(
+				current_account_list );
 
-		account_delta_prior_set(
-			prior_account_list,
-			account );
+		if ( !current_account->account_journal_latest )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: current_account->account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-	} while ( list_next( account_list ) );
+		if ( ! ( prior_account =
+				account_seek(
+					current_account->account_name,
+					prior_account_list ) ) )
+		{
+			continue;
+		}
+
+		if ( !prior_account->account_journal_latest )
+		{
+			fprintf(stderr,
+"ERROR in %s/%s()/%d: prior_account->account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( prior_account->account_journal_latest->balance )
+		{
+			prior_account->delta_prior_percent =
+				float_delta_prior_percent(
+					prior_account->
+						account_journal_latest->
+						balance,
+					current_account->
+						account_journal_latest->
+						balance );
+		}
+
+	} while ( list_next( current_account_list ) );
 }
 
-double account_debit_total(
-			LIST *account_list )
+double account_list_debit_sum(
+			LIST *account_list,
+			boolean element_accumulate_debit )
 {
 	ACCOUNT *account;
-	double total;
+	double debit_sum;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
 
-	total = 0.0;
+	debit_sum = 0.0;
 
 	do {
 		account = list_get( account_list );
 
-		if ( !account->latest_journal ) continue;
-		if ( !account->latest_journal->balance ) continue;
-
-		if ( !account->accumulate_debit
-		&&   account->latest_journal->balance < 0.0 )
+		if ( !account->account_journal_latest )
 		{
-			total += -account->latest_journal->balance;
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( !element_accumulate_debit
+		&&   account->account_journal_latest->balance < 0.0 )
+		{
+			debit_sum -= account->account_journal_latest->balance;
 		}
 		else
-		if ( account->accumulate_debit
-		&&   account->latest_journal->balance > 0.0 )
+		if ( element_accumulate_debit
+		&&   account->account_journal_latest->balance > 0.0 )
 		{
-			total += account->latest_journal->balance;
+			debit_sum += account->account_journal_latest->balance;
 		}
 
 	} while ( list_next( account_list ) );
 
-	return total;
+	return debit_sum;
 }
 
-double account_credit_total(
-			LIST *account_list )
+double account_list_credit_sum(
+			LIST *account_list,
+			boolean element_accumulate_debit )
 {
 	ACCOUNT *account;
-	double total;
+	double credit_sum;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
 
-	total = 0.0;
+	credit_sum = 0.0;
 
 	do {
 		account = list_get( account_list );
 
-		if ( !account->latest_journal ) continue;
-		if ( !account->latest_journal->balance ) continue;
-
-		if ( account->accumulate_debit
-		&&   account->latest_journal->balance < 0.0 )
+		if ( !account->account_journal_latest )
 		{
-			total += -account->latest_journal->balance;
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( element_accumulate_debit
+		&&   account->account_journal_latest->balance < 0.0 )
+		{
+			credit_sum -= account->account_journal_latest->balance;
 		}
 		else
-		if ( !account->accumulate_debit
-		&&   account->latest_journal->balance > 0.0 )
+		if ( !element_accumulate_debit
+		&&   account->account_journal_latest->balance > 0.0 )
 		{
-			total += account->latest_journal->balance;
+			credit_sum += account->account_journal_latest->balance;
 		}
 
 	} while ( list_next( account_list ) );
 
-	return total;
+	return credit_sum;
 }
 
-double account_positive_balance_total(
-			LIST *account_list )
+double account_balance_total( LIST *account_list )
 {
 	ACCOUNT *account;
-	double total;
+	double balance_total;
 
 	if ( !list_rewind( account_list ) ) return 0.0;
 
-	total = 0.0;
+	balance_total = 0.0;
 
 	do {
 		account = list_get( account_list );
 
-		if ( !account->latest_journal ) continue;
-		if ( !account->latest_journal->balance ) continue;
-
-		if ( account->latest_journal->balance > 0.0 )
+		if ( !account->account_journal_latest )
 		{
-			total += account->latest_journal->balance;
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
 		}
 
-	} while ( list_next( account_list ) );
-
-	return total;
-}
-
-double account_list_balance(
-			LIST *account_list )
-{
-	ACCOUNT *account;
-	double balance;
-
-	if ( !list_rewind( account_list ) ) return 0.0;
-
-	balance = 0.0;
-
-	do {
-		account = list_get( account_list );
-
-		if ( !account->latest_journal ) continue;
-		if ( !account->latest_journal->balance ) continue;
-
-		account->account_balance =
-			account->latest_journal->balance;
-
-		balance += account->account_balance;
+		balance_total += account->account_journal_latest->balance;
 
 	} while ( list_next( account_list ) );
 
-	return balance;
+	return balance_total;
 }
 
-void account_list_percent_of_asset_set(
+ACCOUNT *account_getset(
 			LIST *account_list,
-			double asset_total )
+			ACCOUNT *account )
 {
-	ACCOUNT *account;
-
-	if ( !asset_total ) return;
-	if ( !list_rewind( account_list ) ) return;
-
-	do {
-		account = list_get( account_list );
-
-		account->percent_of_asset =
-			element_percent_of_total(
-				account->account_balance,
-				asset_total );
-
-	} while ( list_next( account_list ) );
-}
-
-void account_list_percent_of_revenue_set(
-			LIST *account_list,
-			double revenue_total )
-{
-	ACCOUNT *account;
-
-	if ( !revenue_total ) return;
-	if ( !list_rewind( account_list ) ) return;
-
-	do {
-		account = list_get( account_list );
-
-		account->percent_of_revenue =
-			element_percent_of_total(
-				account->account_balance,
-				revenue_total );
-
-	} while ( list_next( account_list ) );
-}
-
-char *account_element_name(
-			char *subclassification_name )
-{
-	SUBCLASSIFICATION *subclassification;
-
-	if ( ! ( subclassification =
-			subclassification_fetch(
-				subclassification_name ) ) )
-	{
-		fprintf( stderr,
-	"ERROR in %s/%s()/%d: subclassification_fetch(%s) returned empty.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__,
-			 subclassification_name );
-	}
-
-	return subclassification->element_name;
-}
-
-boolean account_name_accumulate_debit(
-			char *account_name )
-{
-	static LIST *account_list = {0};
-	ACCOUNT *account;
+	ACCOUNT *local_account;
 
 	if ( !account_list )
 	{
-		account_list = account_list_fetch( "1 = 1" );
-	}
-
-	if ( ! ( account =
-			account_list_seek(
-				account_name,
-				account_list ) ) )
-	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: account_list_seek(%s) returned empty.\n",
+			"ERROR in %s/%s()/%d: empty account_list.\n",
 			__FILE__,
 			__FUNCTION__,
-			__LINE__,
-			account_name );
+			__LINE__ );
 		exit( 1 );
 	}
 
-	return account->accumulate_debit;
+	if ( ( local_account =
+		account_seek(
+			account->account_name,
+			account_list ) ) )
+	{
+		return local_account;
+	}
 
-	return account->accumulate_debit;
+	list_set( account_list, account );
+	return account;
 }
 
-char *account_list_display(
-			LIST *account_list )
+LIST *account_cash_name_list(
+			char *account_table,
+			char *subclassification_cash )
 {
-	char display[ 65536 ];
-	char *ptr = display;
+	char system_string[ 256 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = '%s'",
+		subclassification_cash );
+
+	sprintf(system_string,
+		"select.sh account %s \"%s\"",
+		account_table,
+		where );
+
+	return pipe2list( system_string );
+}
+
+LIST *account_current_liability_name_list(
+			char *account_table,
+			char *subclassification_current_liability,
+			char *account_uncleared_checks )
+{
+	char system_string[ 256 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = '%s' and account <> '%s'",
+		subclassification_current_liability,
+		account_uncleared_checks );
+
+	sprintf(system_string,
+		"select.sh account %s \"%s\"",
+		account_table,
+		where );
+
+	return pipe2list( system_string );
+}
+
+LIST *account_receivable_name_list(
+			char *account_table,
+			char *subclassification_receivable )
+{
+	char system_string[ 256 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"subclassification = '%s'",
+		subclassification_receivable );
+
+	sprintf(system_string,
+		"select.sh account %s \"%s\"",
+		account_table,
+		where );
+
+	return pipe2list( system_string );
+}
+
+LIST *account_list(	char *where,
+			boolean fetch_subclassification,
+			boolean fetch_element )
+{
+	if ( !where ) where = "1 = 1";
+
+	return
+	account_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_system_string(
+			ACCOUNT_SELECT,
+			ACCOUNT_TABLE,
+			where ),
+		fetch_subclassification,
+		fetch_element );
+}
+
+LIST *account_system_list(
+			char *system_string,
+			boolean fetch_subclassification,
+			boolean fetch_element )
+{
+	LIST *system_list;
+	char input[ 1024 ];
+	FILE *pipe;
+
+	system_list = list_new();
+	pipe = account_pipe( system_string );
+
+	while( string_input( input, pipe, 1024 ) )
+	{
+		list_set(
+			system_list,
+			account_parse(
+				input,
+				fetch_subclassification,
+				fetch_element ) );
+	}
+
+	pclose( pipe );
+
+	return system_list;
+}
+
+char *account_system_string(
+			char *select,
+			char *table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !select
+	||   !table )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !where ) where = "1 = 1";
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" account",
+		select,
+		table,
+		where );
+
+	return strdup( system_string );
+}
+
+double account_list_sum( LIST *account_statement_list )
+{
 	ACCOUNT *account;
+	double list_sum;
 
-	*ptr = '\0';
+	if ( !list_rewind( account_statement_list ) ) return 0.0;
 
-	if ( list_rewind( account_list ) )
-	{
-		do {
-			account = list_get( account_list );
-
-			if ( !account->latest_journal ) continue;
-
-			ptr += sprintf(
-				ptr,
-				"Account: %s, account_balance = %.2lf\n",
-				account->account_name,
-				account->latest_journal->balance );
-
-		} while ( list_next( account_list ) );
-	}
-
-	return strdup( display );
-}
-
-LIST *account_balance_zero_journal_list(
-			char *account_name )
-{
-	char *transaction_date_time_string;
-
-	if ( ( transaction_date_time_string =
-			journal_latest_zero_balance_transaction_date_time(
-				account_name ) ) )
-	{
-		DATE *transaction_date_time;
-
-		transaction_date_time =
-			date_yyyy_mm_dd_hms_new(
-				transaction_date_time_string );
-
-		/* Need to start with the transaction following zero balance. */
-		/* ---------------------------------------------------------- */
-		date_increment_seconds(
-			transaction_date_time,
-			1 );
-
-		transaction_date_time_string =
-			date_get_yyyy_mm_dd_hh_mm_ss(
-				transaction_date_time );
-	}
-
-	return journal_minimum_account_journal_list(
-			transaction_date_time_string
-				/* minimum_transaction_date_time */,
-			account_name );
-}
-
-double account_liability_due( LIST *liability_journal_list )
-{
-	JOURNAL *journal;
-	double amount_due;
-	double difference;
-
-	if ( !list_rewind( liability_journal_list ) ) return 0.0;
-
-	amount_due = 0.0;
+	list_sum = 0.0;
 
 	do {
-		journal = list_get( liability_journal_list );
+		account = list_get( account_statement_list );
 
-		difference =	journal->credit_amount -
-				journal->debit_amount;
+		if ( !account->account_journal_latest )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-		amount_due += difference;
+		list_sum += account->account_journal_latest->balance;
 
-	} while ( list_next( liability_journal_list ) );
+	} while ( list_next( account_statement_list ) );
 
-	return amount_due;
+	return list_sum;
+}
+
+void account_transaction_count_set(
+			LIST *account_statement_list,
+			char *transaction_begin_date_string,
+			char *transaction_date_time_closing )
+{
+	ACCOUNT *account;
+
+	if ( !list_rewind( account_statement_list ) ) return;
+
+	do {
+		account = list_get( account_statement_list );
+
+		if ( !account->account_journal_latest )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		if ( account->account_journal_latest->balance )
+		{
+			account->transaction_count =
+				journal_transaction_count(
+					JOURNAL_TABLE,
+					account->account_name,
+					transaction_begin_date_string,
+					transaction_date_time_closing );
+		}
+
+	} while ( list_next( account_statement_list ) );
+}
+
+ACCOUNT *account_element_list_seek(
+			char *account_name,
+			LIST *element_statement_list )
+{
+	ELEMENT *element;
+	ACCOUNT *account;
+
+	if ( !list_rewind( element_statement_list ) )
+		return (ACCOUNT *)0;
+
+	do {
+		element = list_get( element_statement_list );
+
+		if ( list_length( element->subclassification_statement_list ) )
+		{
+			account =
+				account_subclassification_list_seek(
+					account_name,
+					element->
+					     subclassification_statement_list );
+
+			if ( account ) return account;
+		}
+
+	} while ( list_next( element_statement_list ) );
+
+	return (ACCOUNT *)0;
+}
+
+ACCOUNT *account_subclassification_list_seek(
+			char *account_name,
+			LIST *subclassification_statement_list )
+{
+	SUBCLASSIFICATION *subclassification;
+	ACCOUNT *account;
+
+	if ( !list_rewind( subclassification_statement_list ) )
+		return (ACCOUNT *)0;
+
+	do {
+		subclassification =
+			list_get(
+				subclassification_statement_list );
+
+		if ( list_length( subclassification->account_statement_list ) )
+		{
+			if ( ( account =
+				account_seek(
+					account_name,
+					subclassification->
+						account_statement_list ) ) )
+			{
+				return account;
+			}
+		}
+
+	} while ( list_next( subclassification_statement_list ) );
+
+	return (ACCOUNT *)0;
+}
+
+ACCOUNT_JOURNAL *account_journal_latest(
+			char *account_name,
+			char *transaction_date_time_closing,
+			boolean fetch_transaction )
+{
+	ACCOUNT_JOURNAL *account_journal;
+	JOURNAL *journal;
+
+	if ( !account_name
+	||   !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( journal =
+			journal_latest(
+				account_name,
+				transaction_date_time_closing,
+				fetch_transaction ) ) )
+	{
+		return (ACCOUNT_JOURNAL *)0;
+	}
+
+	account_journal = account_journal_calloc();
+
+	account_journal->full_name = journal->full_name;
+	account_journal->street_address = journal->street_address;
+	account_journal->transaction_date_time = journal->transaction_date_time;
+	account_journal->account_name = journal->account_name;
+	account_journal->previous_balance = journal->previous_balance;
+	account_journal->debit_amount = journal->debit_amount;
+	account_journal->credit_amount = journal->credit_amount;
+	account_journal->balance = journal->balance;
+	account_journal->transaction = journal->transaction;
+
+	return account_journal;
+}
+
+ACCOUNT_JOURNAL *account_journal_calloc( void )
+{
+	ACCOUNT_JOURNAL *account_journal;
+
+	if ( ! ( account_journal = calloc( 1, sizeof( ACCOUNT_JOURNAL ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return account_journal;
 }
 

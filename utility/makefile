@@ -179,7 +179,6 @@ all: 	insert_statement.e format_sql_output.e attribute_format.e	\
 	grace_histogram.e						\
 	google_timechart.e						\
 	grace_scatterplot.e						\
-	make_checks.e							\
 	increment.e							\
 	sum.e								\
 	accumulate.e							\
@@ -279,17 +278,6 @@ grace_histogram.e: grace_histogram.c					\
 		${LIBRARY}/grace.o					\
 		${LIBRARY}/histogram.o					\
 		-o grace_histogram.e
-
-make_checks.e: make_checks.c						\
-	${LIBRARY}/dollar.o ${LIBRARY}/latex.o ${STANDARD_LIBRARY}
-	$(CC)    ${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		make_checks.c 						\
-		${LIBRARY}/dollar.o					\
-		${LIBRARY}/latex.o					\
-		-o make_checks.e
 
 grace_scatterplot.e: grace_scatterplot.c				\
 	${LIBRARY}/regression.o ${LIBRARY}/grace.o ${STANDARD_LIBRARY}

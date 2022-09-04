@@ -103,6 +103,8 @@ char *string_commas_rounded_dollar(
 char *string_commas_dollar(
 			double d );
 
+/* Returns heap memory */
+/* ------------------- */
 char *string_commas_money(
 			double d );
 
@@ -155,7 +157,12 @@ int string_instr(	char *substr,
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *string_pipe_fetch( char *system_string );
+char *string_pipe(	char *system_string );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *string_pipe_fetch(
+			char *system_string );
 
 LIST *string_pipe_list(	char *system_string );
 
@@ -175,5 +182,11 @@ char *string_trim_number_characters(
 char *string_trim_character_array(
 			char *data,
 			char *character_array );
+
+/* Returns heap memory */
+/* ------------------- */
+char *string_strdup(	char *string );
+
+double string_atof(	char *string );
 
 #endif

@@ -1,4 +1,4 @@
-/* library/latex.h					   */
+/* $APPASERVER_HOME/library/latex.h			   */
 /* ------------------------------------------------------- */
 /* Freely available software: see Appaserver.org	   */
 /* ------------------------------------------------------- */
@@ -6,18 +6,12 @@
 #ifndef LATEX_H
 #define LATEX_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 
-/* Constants */
-/* --------- */
 #define WITH_CAPTION	1
 #define LATEX_PBJ	"PB\\&J"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *heading;
@@ -25,18 +19,75 @@ typedef struct
 	char *paragraph_size;
 } LATEX_TABLE_HEADING;
 
+/* Usage */
+/* ----- */
+LATEX_TABLE_HEADING *latex_table_heading_new(
+			char *heading,
+			boolean right_justified_flag,
+			char *paragraph_size );
+
+LATEX_TABLE_HEADING *latex_new_latex_table_heading(
+			void );
+
+/* Process */
+/* ------- */
+LATEX_TABLE_HEADING *latex_table_heading_calloc(
+			void );
+
 typedef struct
 {
 	char *column_data;
-	boolean large_bold;
+	boolean large_boolean;
+	boolean bold_boolean;
 } LATEX_COLUMN_DATA;
+
+/* Usage */
+/* ----- */
+LATEX_COLUMN_DATA *latex_column_data_new(
+			char *column_data,
+			boolean large_boolean,
+			boolean bold_boolean );
+
+/* Process */
+/* ------- */
+LATEX_COLUMN_DATA *latex_column_data_calloc(
+			void );
+
+/* Public */
+/* ------ */
+void latex_column_data_set(
+			LIST *column_data_list,
+			char *column_data,
+			boolean large_boolean,
+			boolean bold_boolean );
+
+void latex_column_data_list_set(
+			LIST *column_data_list,
+			LIST *data_list );
+
+char *latex_column_data_escape(
+			char *buffer,
+			char *column_data,
+			int buffer_size );
 
 typedef struct
 {
 	LIST *column_data_list;
 	boolean preceed_double_line;
-	boolean large_bold;
 } LATEX_ROW;
+
+/* Usage */
+/* ----- */
+LATEX_ROW *latex_row_new(
+			void );
+
+LATEX_ROW *latex_new_latex_row(
+			void );
+
+/* Process */
+/* ------- */
+LATEX_ROW *latex_row_calloc(
+			void );
 
 typedef struct
 {
@@ -45,26 +96,34 @@ typedef struct
 	LIST *row_list;
 } LATEX_TABLE;
 
+/* Usage */
+/* ----- */
+LATEX_TABLE *latex_table_new(
+			char *caption );
+
+LATEX_TABLE *latex_new_latex_table(
+			char *caption );
+
+
+/* Process */
+/* ------- */
+LATEX_TABLE *latex_table_calloc(
+			void );
+
 typedef struct
 {
+	char *full_path;
 	FILE *output_stream;
+	LIST *table_list;
 	char *tex_filename;
 	char *dvi_filename;
 	char *working_directory;
 	boolean landscape_flag;
-	LIST *table_list;
 	char *logo_filename;
 } LATEX;
 
-/* Prototypes */
-/* ---------- */
-LATEX_COLUMN_DATA *latex_column_data_new(
-					char *column_data,
-					boolean large_bold );
-
-void latex_tex2pdf(			char *tex_filename,
-					char *working_directory );
-
+/* Usage */
+/* ----- */
 LATEX *latex_new(	char *tex_filename,
 			char *dvi_filename,
 			char *working_directory,
@@ -77,23 +136,19 @@ LATEX *latex_new_latex(	char *tex_filename,
 			boolean landscape_flag,
 			char *logo_filename );
 
-LATEX_TABLE *latex_new_latex_table(
-			char *caption );
+/* Process */
+/* ------- */
+LATEX *latex_calloc(	void );
 
-LATEX_TABLE *latex_table_new(
-			char *caption );
+/* Returns static memory */
+/* --------------------- */ 
+char *latex_full_path(	char *tex_filename,
+			char *working_directory );
 
-LATEX_ROW *latex_new_latex_row(
-			void );
-
-LATEX_ROW *latex_row_new(
-			void );
-
-LATEX_TABLE_HEADING *latex_table_heading_new(
-			void );
-
-LATEX_TABLE_HEADING *latex_new_latex_table_heading(
-			void );
+/* Public */
+/* ------ */
+void latex_tex2pdf(			char *tex_filename,
+					char *working_directory );
 
 void latex_output_longtable_document_heading(
 			FILE *output_stream,
@@ -166,20 +221,7 @@ void latex_output_table_vertical_padding(
 			int length_heading_list,
 			int empty_vertical_rows );
 
-char *latex_escape_data(char *destination,
-			char *source,
-			int buffer_size );
-
-void latex_column_data_set(
-			LIST *column_data_list,
-			char *column_data,
-			boolean large_bold );
-
 LIST *latex_table_right_heading_list(
 			LIST *heading_list );
-
-void latex_column_data_set_list(
-			LIST *column_data_list,
-			LIST *data_list );
 
 #endif

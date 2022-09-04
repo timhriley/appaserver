@@ -158,6 +158,9 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+trial_balance_output
+income_statement_output
+balance_sheet_output
 liability_prepaid
 recovery_statutory_accelerated_half_year
 cost_recovery_trigger
@@ -165,11 +168,9 @@ depreciation_trigger
 journal_ledger_trigger
 generate_invoice
 generate_workorder
-feeder_upload_missing
 post_change_inventory_sale_return
 post_change_inventory_purchase_return
 transaction_date_time
-transaction_balance_report
 bank_upload_transaction_insert
 cost_recover_fixed_assets
 tax_dvr
@@ -201,7 +202,7 @@ propagate_purchase_order_accounts
 propagate_customer_sale_accounts
 ledger_debit_credit_audit
 close_nominal_accounts
-load_bank_spreadsheet
+feeder_load
 propagate_inventory_purchase_layers
 propagate_inventory_sale_layers
 post_change_inventory_purchase

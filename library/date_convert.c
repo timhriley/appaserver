@@ -608,8 +608,7 @@ boolean date_convert_source_international(
 		}
 	}
 
-	return date_convert_international_correct_format( return_date );
-
+	return (*return_date) ? 1 : 0;
 }
 
 char *date_convert_international2american( char *international )

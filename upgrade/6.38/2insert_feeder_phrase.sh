@@ -20,16 +20,16 @@ folder_attribute_exists.sh $application bank_upload bank_date
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
-field="feeder_phrase,post_account,full_name,street_address"
+field="feeder_phrase,nominal_account,full_name,street_address"
 
 from="reoccurring_transaction"
 
-debit_account_where="debit_account != 'bank_of_america_checking' and debit_account != 'chase_checking' and debit_account != 'account_payable'"
+debit_account_where="debit_account != 'bank_of_america_checking' and debit_account != 'chase_checking' and debit_account != 'account_payable' and debit_account != 'bank_of_america_credit_card'"
 
-credit_account_where="credit_account != 'bank_of_america_checking' and credit_account != 'chase_checking' and credit_account != 'account_payable'"
+credit_account_where="credit_account != 'bank_of_america_checking' and credit_account != 'chase_checking' and credit_account != 'account_payable' and credit_account != 'bank_of_america_credit_card'"
 
 debit_select="bank_upload_feeder_phrase,debit_account,full_name,street_address"
 debit_where="bank_upload_feeder_phrase is not null and $debit_account_where"

@@ -150,75 +150,21 @@ int main( int argc, char **argv )
 			role_name );
 
 	folder =
-		folder_new_folder(
-			application_name,
-			session,
-			folder_name );
-
-	folder->mto1_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			application_name,
-			BOGUS_SESSION,
-			folder->folder_name,
-			role->role_name,
-			0 /* isa_flag */,
-			related_folder_no_recursive,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
-	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new(),
+		folder_with_load_new(
 			application_name,
 			session,
 			folder_name,
-			role_name,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
+			role );
+
+	if ( strcmp( state, "lookup" ) == 0 )
+	{
+		folder->mto1_related_folder_list = (LIST *)0;
+	}
 
 	if ( list_length( folder->mto1_isa_related_folder_list ) )
 	{
 		make_primary_keys_non_edit = 1;
 	}
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			folder->application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
-			role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			role_name,
-			folder->mto1_related_folder_list );
 
 	if ( get_line( dictionary_string, stdin ) )
 	{
@@ -258,21 +204,6 @@ int main( int argc, char **argv )
 					(LIST *)0 /* operation_name_list */ );
 	}
 
-	folder->one2m_related_folder_list =
-		related_folder_1tom_related_folder_list(
-			application_name,
-			BOGUS_SESSION,
-			folder->folder_name,
-			role_name,
-			update,
-			(LIST *)0 /* primary_data_list */,
-			list_new() /* related_folder_list */,
-			0 /* dont omit_isa_relations */,
-			related_folder_no_recursive,
-			(LIST *)0 /*  parent_primary_attribute_name_list */,
-			(LIST *)0 /*  original_primary_attribute_name_list */,
-			(char *)0 /* prior_related_attribute_name */ );
-
 	folder->join_1tom_related_folder_list =
 		related_folder_join_1tom_related_folder_list(
 			folder->one2m_related_folder_list );
@@ -295,8 +226,7 @@ int main( int argc, char **argv )
 				lookup_before_drop_down_folder_list,
 			dictionary_appaserver->
 				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary,
-			folder->lookup_before_drop_down );
+			dictionary_appaserver->preprompt_dictionary );
 
 	rows_inserted =
 		get_rows_inserted(
@@ -601,13 +531,15 @@ int main( int argc, char **argv )
 				lookup_before_drop_down->
 					lookup_before_drop_down_folder_list,
 				folder->mto1_related_folder_list );
+
+		make_primary_keys_non_edit = 1;
 	}
 
 	row_security =
 		row_security_new(
 			application_name,
 			role /* login_role */,
-			folder->folder_name /* select_folder_name */,
+			folder /* select_folder */,
 			login_name,
 			state,
 			dictionary_appaserver->
@@ -662,6 +594,7 @@ element_appaserver_list_display( form->regular_element_list ) );
 m2( application_name, msg );
 }
 */
+
 	form->viewonly_element_list =
 		row_security->
 			row_security_element_list_structure->

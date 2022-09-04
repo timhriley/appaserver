@@ -1,6 +1,6 @@
 :
 
-make depreciate_fixed_assets
+make tax_form_report
 
 #if [ "$?" -eq 0 ]
 #then

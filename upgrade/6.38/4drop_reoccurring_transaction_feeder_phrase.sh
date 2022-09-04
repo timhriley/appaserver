@@ -14,22 +14,24 @@ then
 	exit 1
 fi
 
-# Returns 0 if BANK_UPLOAD.bank_date exists
-# -----------------------------------------
-folder_attribute_exists.sh $application bank_upload bank_date
+# Returns 0 if FEEDER_PHRASE.feeder_phrase exists
+# -----------------------------------------------
+folder_attribute_exists.sh $application feeder_phrase feeder_phrase
 
 if [ $? -ne 0 ]
 then
-	exit 1
+	exit 0
 fi
 
 folder="reoccurring_transaction"
+
 attribute="bank_upload_feeder_phrase"
-
-echo "alter table $folder drop $attribute;" |sql.e
-
+echo "alter table $folder drop $attribute;" | sql.e
 echo "delete from folder_attribute where folder = '$folder' and attribute = '$attribute';" | sql.e
-
 echo "delete from attribute where attribute = '$attribute';" | sql.e
+
+attribute="feeder_phrase_ignore_yn"
+echo "alter table $folder drop $attribute;" | sql.e
+echo "delete from folder_attribute where folder = '$folder' and attribute = '$attribute';" | sql.e
 
 exit 0

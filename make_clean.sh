@@ -36,7 +36,13 @@ done
 
 if [ -d $APPASERVER_HOME/src_hydrology/reg_sched ]
 then
-	cd $APPASERVER_HOME/src_hydrology/reg_sched && make clean
+	cd $APPASERVER_HOME/src_hydrology/reg_sched
+
+	if [ -f regulation_schedule_dvr ]
+	then
+		make clean
+	fi
+
 fi
 
 exit 0
