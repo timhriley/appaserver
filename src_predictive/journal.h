@@ -430,4 +430,8 @@ LIST *journal_account_name_list(
 			char *street_address,
 			char *transaction_date_time );
 
+double journal_amount(	double debit_amount,
+			double credit_amount,
+			boolean element_accumulate_debit );
+
 #endif

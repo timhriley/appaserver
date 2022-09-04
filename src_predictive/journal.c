@@ -1849,9 +1849,9 @@ LIST *journal_tax_form_list(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
 			where ),
-		0 /* not fetch_account */,
-		0 /* not fetch_subclassification */,
-		0 /* not fetch_element */,
+		1 /* fetch_account */,
+		1 /* fetch_subclassification */,
+		1 /* fetch_element */,
 		0 /* not fetch_transaction */ );
 }
 
@@ -1886,5 +1886,39 @@ char *journal_tax_form_where(
 
 
 	return where;
+}
+
+double journal_amount(	double debit_amount,
+			double credit_amount,
+			boolean element_accumulate_debit )
+{
+	double amount = {0};
+
+	if ( element_accumulate_debit )
+	{
+		if ( debit_amount )
+		{
+			amount = debit_amount;
+		}
+		else
+		if ( credit_amount )
+		{
+			amount = -credit_amount;
+		}
+	}
+	else
+	{
+		if ( credit_amount )
+		{
+			amount = credit_amount;
+		}
+		else
+		if ( debit_amount )
+		{
+			amount = -debit_amount;
+		}
+	}
+
+	return amount;
 }
 

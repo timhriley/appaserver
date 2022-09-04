@@ -72,8 +72,19 @@ int main( int argc, char **argv )
 			fiscal_begin_month,
 			output_medium_string );
 
-	if ( !tax_form
-	||   !list_length( tax_form->tax_form_line_list ) )
+	if ( !tax_form )
+	{
+		printf( "<h3>Error. Invalid year.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	printf( "%s\n",
+		tax_form->
+			statement_caption->
+			frame_title );
+
+	if ( !list_length( tax_form->tax_form_line_list ) )
 	{
 		printf(
 		"<h3>Error. Nothing to report for this tax form.</h3>\n" );
@@ -83,6 +94,8 @@ int main( int argc, char **argv )
 
 	if ( tax_form->tax_form_table )
 	{
+		printf(
+		"<h3>Warning. This option is not yet written.</h3>\n" );
 /*
 		html_table_list_output(
 			tax_form->
