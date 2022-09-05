@@ -256,6 +256,7 @@ int main( int argc, char **argv )
 			fflush( stdout );
 
 			if ( feeder_row_error_display(
+				balance_column,
 				feeder->feeder_row_list ) )
 			{
 				feeder_matched_journal_not_taken_display(
@@ -266,6 +267,7 @@ int main( int argc, char **argv )
 		printf( "<h1>Transaction Table</h1>\n" );
 		fflush( stdout );
 		feeder_row_list_display(
+			balance_column,
 			feeder->feeder_row_list,
 			feeder->feeder_row_first_out_balance );
 
@@ -277,6 +279,6 @@ int main( int argc, char **argv )
 
 	document_close();
 
-	exit( 0 );
+	return 0;
 }
 

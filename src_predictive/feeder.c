@@ -1886,16 +1886,26 @@ FILE *feeder_row_list_display_pipe(
 	return popen( system_string, "w" );
 }
 
-char *feeder_row_list_display_system_string( void )
+char *feeder_row_list_display_system_string( int balance_column )
 {
 	char system_string[ 1024 ];
 	char *heading;
 	char *format;
 
-	heading =
+	if ( !balance_column )
+	{
+		heading =
+"Row,Account<br>Entity/Transaction,date,description,amount,calculate_balance";
+
+		format = "right,left,left,left,right,right";
+	}
+	else
+	{
+		heading =
 "Row,Account<br>Entity/Transaction,date,description,amount,file_balance,calculate_balance,difference,status";
 
-	format = "right,left,left,left,right,right,right,right,left";
+		format = "right,left,left,left,right,right,right,right,left";
+	}
 
 	sprintf(system_string,
 		"html_table.e '' '%s' '^' %s",
@@ -1906,6 +1916,7 @@ char *feeder_row_list_display_system_string( void )
 }
 
 boolean feeder_row_list_display(
+			int balance_column,
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance )
 {
@@ -1917,7 +1928,8 @@ boolean feeder_row_list_display(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		feeder_row_list_display_system_string();
+		feeder_row_list_display_system_string(
+			balance_column );
 
 	display_pipe =
 		/* --------------- */
@@ -1960,6 +1972,7 @@ boolean feeder_row_list_display(
 			/* Returns display_pipe or null */
 			/* ---------------------------- */
 			feeder_row_display_output(
+				balance_column,
 				display_pipe,
 				feeder_row );
 
@@ -2051,6 +2064,7 @@ LIST *feeder_row_extract_transaction_list(
 }
 
 FILE *feeder_row_display_output(
+			int balance_column,
 			FILE *display_pipe,
 			FEEDER_ROW *feeder_row )
 {
@@ -2072,39 +2086,60 @@ FILE *feeder_row_display_output(
 		exit( 1 );
 	}
 
-	difference =
-		feeder_row->feeder_load_row->file_row_balance  -
-		feeder_row->calculate_balance;
-
-	if ( difference )
-		status = "Out";
-	else
-		status = "Okay";
-
-	fprintf(display_pipe,
-		"%d^%s^%s^%s^%s^%s^%s^%s^%s\n",
-		feeder_row->feeder_load_row->row_number,
-		( tmp =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			feeder_row_display_results(
-				feeder_row->feeder_exist_row_seek,
-				feeder_row->feeder_matched_journal,
-				feeder_row->feeder_phrase_seek ) ),
-		feeder_row->feeder_load_row->american_date,
-		feeder_row->feeder_load_row->description_embedded,
+	tmp =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		string_commas_money(
-			feeder_row->feeder_load_row->file_row_amount ),
-		string_commas_money(
-			feeder_row->feeder_load_row->file_row_balance ),
-		string_commas_money(
-			feeder_row->calculate_balance ),
-		string_commas_money( difference ),
-		status );
+		feeder_row_display_results(
+			feeder_row->feeder_exist_row_seek,
+			feeder_row->feeder_matched_journal,
+			feeder_row->feeder_phrase_seek );
+
+	if ( !balance_column )
+	{
+		fprintf(display_pipe,
+			"%d^%s^%s^%s^%s^%s\n",
+			feeder_row->feeder_load_row->row_number,
+			tmp,
+			feeder_row->feeder_load_row->american_date,
+			feeder_row->feeder_load_row->description_embedded,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			string_commas_money(
+				feeder_row->feeder_load_row->file_row_amount ),
+			string_commas_money(
+				feeder_row->calculate_balance ) );
+	}
+	else
+	{
+		difference =
+			feeder_row->feeder_load_row->file_row_balance  -
+			feeder_row->calculate_balance;
+
+		if ( money_virtually_same( difference, 0.0 ) )
+			status = "Okay";
+		else
+			status = "Out";
+
+		fprintf(display_pipe,
+			"%d^%s^%s^%s^%s^%s^%s^%s^%s\n",
+			feeder_row->feeder_load_row->row_number,
+			tmp,
+			feeder_row->feeder_load_row->american_date,
+			feeder_row->feeder_load_row->description_embedded,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			string_commas_money(
+				feeder_row->feeder_load_row->file_row_amount ),
+			string_commas_money(
+				feeder_row->feeder_load_row->file_row_balance ),
+			string_commas_money(
+				feeder_row->calculate_balance ),
+			string_commas_money( difference ),
+			status );
+	}
 
 	free( tmp );
 
@@ -2609,10 +2644,12 @@ char *feeder_matched_journal_minimum_date(
 }
 
 boolean feeder_row_error_display(
+			int balance_column,
 			LIST *feeder_row_list )
 {
 	return
 	feeder_row_list_display(
+		balance_column,
 		feeder_row_error_extract_list(
 			feeder_row_list ),
 		(FEEDER_ROW *)0 );

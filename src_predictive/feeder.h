@@ -507,6 +507,7 @@ int feeder_row_seek_matched_count(
 /* Driver */
 /* ------ */
 boolean feeder_row_error_display(
+			int balance_column,
 			LIST *feeder_row_list );
 
 /* Process */
@@ -517,6 +518,7 @@ LIST *feeder_row_error_extract_list(
 /* Driver */
 /* ------ */
 boolean feeder_row_list_display(
+			int balance_column,
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );
 
@@ -526,7 +528,7 @@ boolean feeder_row_list_display(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_row_list_display_system_string(
-			void );
+			int balance_column );
 
 /* Always succeeds */
 /* --------------- */
@@ -544,6 +546,7 @@ char *feeder_row_no_more_display(
 /* Returns display_pipe or null */
 /* ---------------------------- */
 FILE *feeder_row_display_output(
+			int balance_column,
 			FILE *display_pipe,
 			FEEDER_ROW *feeder_row );
 
