@@ -1802,22 +1802,36 @@ double journal_prior_account_end_balance(
 			char *account_name )
 {
 	JOURNAL *prior;
+	double end_balance = {0};
 
 	if ( ( prior =
 		journal_prior(
 			feeder_load_file_minimum_date
 				/* transaction_date_time */,
 			account_name,
-			0 /* not fetch_account */,
-			0 /* not fetch_subclassification */,
-			0 /* not fetch_element */ ) ) )
+			1 /* fetch_account */,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ ) ) )
 	{
-		return prior->balance;
+		if ( prior->
+			account->
+			subclassification->
+			element->
+			accumulate_debit )
+		{
+			end_balance = prior->balance;
+		}
+		else
+		{
+			end_balance = -prior->balance;
+		}
 	}
 	else
 	{
-		return 0.0;
+		end_balance = 0.0;
 	}
+
+	return end_balance;
 }
 
 double journal_balance_sum( LIST *journal_list )
