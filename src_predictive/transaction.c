@@ -627,7 +627,7 @@ void transaction_update(
 			double transaction_amount,
 			char *transaction_primary_where )
 {
-	char *update_statement;
+	char *system_string;
 
 	if ( !transaction_primary_where )
 	{
@@ -639,11 +639,11 @@ void transaction_update(
 		exit( 1 );
 	}
 
-	update_statement =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		transaction_update_statement(
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		transaction_update_statement_system_string(
 			TRANSACTION_TABLE,
 			/* ----------------------------- */
 			/* Returns static memory or null */
@@ -653,10 +653,7 @@ void transaction_update(
 				transaction_amount ),
 			transaction_primary_where );
 
-	if ( update_statement )
-	{
-		if ( system( update_statement ) ){}
-	}
+	if ( system( system_string ) ){}
 }
 
 char *transaction_set_clause(
@@ -674,7 +671,7 @@ char *transaction_set_clause(
 			ptr,
 			"%s = %.2lf",
 			transaction_amount_column,
-			transaction_amount );
+			float_abs( transaction_amount ) );
 	}
 
 	if ( ptr == set_clause )
@@ -683,14 +680,15 @@ char *transaction_set_clause(
 		return set_clause;
 }
 
-char *transaction_update_statement(
+char *transaction_update_statement_system_string(
 			char *transaction_table,
 			char *transaction_set_clause,
 			char *transaction_primary_where )
 {
-	char update_statement[ 1024 ];
+	char update_statement_system_string[ 1024 ];
 
 	if ( !transaction_table
+	||   !transaction_set_clause
 	||   !transaction_primary_where )
 	{
 		fprintf(stderr,
@@ -701,15 +699,13 @@ char *transaction_update_statement(
 		exit( 1 );
 	}
 
-	if ( !transaction_set_clause ) return (char *)0;
-
-	sprintf(update_statement,
-		"update %s %s where %s",
+	sprintf(update_statement_system_string,
+		"echo \"update %s %s where %s;\" | sql",
 		transaction_table,
 		transaction_set_clause,
 		transaction_primary_where );
 
-	return strdup( update_statement );
+	return strdup( update_statement_system_string );
 }
 
 boolean transaction_date_time_changed(

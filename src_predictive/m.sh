@@ -1,6 +1,6 @@
 :
 
-make feeder_load
+make journal_ledger_trigger
 
 #if [ "$?" -eq 0 ]
 #then

@@ -116,24 +116,29 @@ void journal_ledger_trigger_update(
 			char *preupdate_account )
 {
 	LIST *account_name_list;
+	char *propagate_transaction_date_time;
 
 	if ( transaction_date_time_changed(
 			preupdate_transaction_date_time ) )
 	{
-		transaction_date_time =
+		propagate_transaction_date_time =
 			transaction_date_time_earlier(
 				transaction_date_time,
 				preupdate_transaction_date_time );
+	}
+	else
+	{
+		propagate_transaction_date_time = transaction_date_time;
 	}
 
 	if ( account_name_changed( preupdate_account ) )
 	{
 		journal_propagate(
-			transaction_date_time,
+			propagate_transaction_date_time,
 			preupdate_account /* account_name */ );
 
 		journal_propagate(
-			transaction_date_time,
+			propagate_transaction_date_time,
 			account /* account_name */ );
 
 		return;
@@ -152,7 +157,7 @@ void journal_ledger_trigger_update(
 
 	do {
 		journal_propagate(
-			transaction_date_time,
+			propagate_transaction_date_time,
 			list_get( account_name_list )
 				 /* account_name */ );
 

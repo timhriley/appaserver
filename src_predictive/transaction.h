@@ -214,9 +214,9 @@ char *transaction_set_clause(
 			char *transaction_amount_column,
 			double journal_list_transaction_amount );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *transaction_update_statement(
+/* Returns heap memory */
+/* ------------------- */
+char *transaction_update_statement_system_string(
 			char *transaction_table,
 			char *transaction_set_clause,
 			char *transaction_primary_where );
