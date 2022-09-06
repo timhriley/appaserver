@@ -740,6 +740,12 @@ JOURNAL *journal_debit_new(
 	journal->account_name = debit_account_name;
 	journal->debit_amount = debit_amount;
 
+	journal->account =
+		account_fetch(
+			debit_account_name,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
+
 	return journal;
 }
 
@@ -760,9 +766,25 @@ JOURNAL *journal_credit_new(
 		exit( 1 );
 	}
 
+	if ( credit_amount < 0.0 )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: credit_amount = %.2lf.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			credit_amount );
+	}
+
 	journal = journal_calloc();
 	journal->account_name = credit_account_name;
 	journal->credit_amount = credit_amount;
+
+	journal->account =
+		account_fetch(
+			credit_account_name,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
 
 	return journal;
 }
@@ -1045,6 +1067,7 @@ LIST *journal_binary_list(
 
 void journal_list_html_display(
 			LIST *journal_list,
+			char *transaction_date_time,
 			char *transaction_memo )
 {
 	char *heading;
@@ -1054,16 +1077,8 @@ void journal_list_html_display(
 
 	if ( !list_length( journal_list ) ) return;
 
-	if ( transaction_memo && *transaction_memo )
-	{
-		heading = "Transaction,Account,Debit,Credit";
-		justify = "left,left,right,right";
-	}
-	else
-	{
-		heading = ",Account,Debit,Credit";
-		justify = "left,left,right,right";
-	}
+	heading = "Transaction,Account,Debit,Credit";
+	justify = "left,left,right,right";
 
 	sprintf(sys_string,
 		"html_table.e '' %s '^' %s",
@@ -1075,6 +1090,7 @@ void journal_list_html_display(
 
 	journal_list_pipe_display(
 		output_pipe,
+		transaction_date_time,
 		transaction_memo,
 		(char *)0 /* heading */,
 		journal_list );
@@ -1085,6 +1101,7 @@ void journal_list_html_display(
 
 void journal_list_pipe_display(
 			FILE *output_pipe,
+			char *transaction_date_time,
 			char *transaction_memo,
 			char *heading,
 			LIST *journal_list )
@@ -1099,18 +1116,7 @@ void journal_list_pipe_display(
 
 	if ( !list_length( journal_list ) ) return;
 
-	if ( transaction_memo && *transaction_memo )
-	{
-		strncpy(
-			memo_buffer,
-			transaction_memo,
-			TRANSACTION_MEMO_LENGTH );
-		*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
-	}
-	else
-	{
-		*memo_buffer = '\0';
-	}
+	*memo_buffer = '\0';
 
 	journal = list_first( journal_list );
 
@@ -1122,13 +1128,20 @@ void journal_list_pipe_display(
 			journal->full_name );
 	}
 
-	if ( journal->transaction_date_time && *journal->transaction_date_time )
+	sprintf(memo_buffer +
+	    	strlen( memo_buffer ),
+		"<br>%s",
+		transaction_date_time );
+
+	if ( transaction_memo && *transaction_memo )
 	{
 		sprintf(memo_buffer +
-		    	strlen( memo_buffer ),
+	    		strlen( memo_buffer ),
 			"<br>%s",
-			journal->transaction_date_time );
+			transaction_memo );
 	}
+
+	*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
 
 	if ( heading ) fprintf( output_pipe, "%s\n", heading );
 

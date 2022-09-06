@@ -231,24 +231,6 @@ LIST *journal_list_prior(
 
 /* Usage */
 /* ----- */
-JOURNAL *journal_debit_new(
-			char *debit_account_name,
-			double debit_amount );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-JOURNAL *journal_credit_new(
-			char *credit_account_name,
-			double credit_amount );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
 void journal_list_insert(
 			char *full_name,
 			char *street_address,
@@ -286,12 +268,14 @@ void journal_list_transaction_insert(
 /* ----- */
 void journal_list_html_display(
 			LIST *journal_list,
+			char *transaction_date_time,
 			char *transaction_memo );
 
 /* Process */
 /* ------- */
 void journal_list_pipe_display(
 			FILE *output_pipe,
+			char *transaction_date_time,
 			char *transaction_memo,
 			char *heading,
 			LIST *journal_list );
@@ -365,6 +349,24 @@ char *journal_tax_form_where(
 			char *tax_form_fiscal_end_date,
 			char *transaction_preclose_time,
 			char *account_name );
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_debit_new(
+			char *debit_account_name,
+			double debit_amount );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_credit_new(
+			char *credit_account_name,
+			double credit_amount );
+
+/* Process */
+/* ------- */
 
 /* Public */
 /* ------ */

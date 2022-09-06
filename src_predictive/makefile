@@ -35,13 +35,13 @@ EXECUTABLES=	trial_balance_output					\
 		journal_ledger_trigger					\
 		tax_form_report						\
 		close_nominal_accounts					\
-		populate_print_checks_entity
+		populate_print_checks_entity				\
+		pay_liabilities_process
 #		post_reoccurring_transaction				\
 #		post_cash_expense_transaction				\
 #		post_change_self					\
 #		generate_invoice					\
 #		post_change_vendor_payment				\
-#		pay_liabilities_process					\
 #		depreciate_fixed_assets					\
 #		post_change_account_balance				\
 #		post_change_fixed_asset_purchase			\

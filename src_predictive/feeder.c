@@ -2157,6 +2157,10 @@ FILE *feeder_row_display_output(
 			feeder_row->
 				feeder_transaction->
 				transaction->
+				transaction_date_time,
+			feeder_row->
+				feeder_transaction->
+				transaction->
 				memo );
 	}
 

@@ -438,6 +438,7 @@ char *liability_payment_credit_account_name(
 }
 
 LIABILITY_ENTITY *liability_entity_new(
+			double dialog_box_payment_amount,
 			LIST *liability_account_entity_list,
 			LIST *account_current_liability_name_list,
 			LIST *account_receivable_name_list,
@@ -504,6 +505,7 @@ LIABILITY_ENTITY *liability_entity_new(
 
 	liability_entity->amount_due =
 		liability_entity_amount_due(
+			dialog_box_payment_amount,
 			liability_entity->liability,
 			liability_entity->receivable );
 
@@ -511,10 +513,14 @@ LIABILITY_ENTITY *liability_entity_new(
 }
 
 double liability_entity_amount_due(
+			double dialog_box_payment_amount,
 			LIABILITY *liability,
 			RECEIVABLE *receivable )
 {
 	double amount_due;
+
+	if ( dialog_box_payment_amount )
+		return dialog_box_payment_amount;
 
 	if ( !liability ) return 0.0;
 
@@ -607,6 +613,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 		list_set(
 			liability_payment->liability_entity_list,
 			liability_entity_new(
+				dialog_box_payment_amount,
 				liability_payment->
 					liability_account_entity_list,
 				liability_payment->
@@ -623,6 +630,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 			list_set(
 				liability_payment->liability_entity_list,
 				liability_entity_new(
+					0.0 /* dialog_box_payment_amount */,
 					liability_payment->
 					    liability_account_entity_list,
 					liability_payment->
@@ -881,8 +889,7 @@ LIABILITY_CHECK *liability_check_new(
 	LIABILITY_CHECK *liability_check = liability_check_calloc();
 
 	if ( !liability_entity
-	||   !liability_entity->liability_account_entity
-	||   !liability_entity->liability_account_entity->entity )
+	||   !liability_entity->entity )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: entity is empty.\n",
@@ -895,11 +902,12 @@ LIABILITY_CHECK *liability_check_new(
 	if ( liability_entity->amount_due <= 0.0 )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: invalid amount_due.\n",
+			"Warning in %s/%s()/%d: negative amount_due.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
-		exit( 1 );
+
+		return (LIABILITY_CHECK *)0;
 	}
 
 	liability_check->dollar_text =
@@ -915,7 +923,6 @@ LIABILITY_CHECK *liability_check_new(
 		/* --------------------- */
 		liability_check_escape_payable_to(
 			liability_entity->
-				liability_account_entity->
 				entity->
 				full_name );
 
@@ -1659,6 +1666,7 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 		list_set(
 			liability_calculate->liability_entity_list,
 			liability_entity_new(
+				0.0 /* dialog_box_payment_amount */,
 				liability_calculate->
 					liability_account_entity_list,
 				liability_calculate->
@@ -1750,7 +1758,8 @@ LIABILITY_JOURNAL_LIST *liability_journal_list_new(
 		liability_journal_list->journal_list,
 		journal_credit_new(
 			liability_payment_credit_account_name,
-			liability_journal_list->transaction_amount ) );
+			liability_journal_list->
+				transaction_amount ) );
 
 	do {
 		liability_account =
@@ -1831,7 +1840,7 @@ LIABILITY_JOURNAL_LIST *liability_journal_list_calloc( void )
 double liability_journal_list_transaction_amount(
 			double amount_due )
 {
-	return 0.0 - amount_due;
+	return amount_due;
 }
 
 LIABILITY_TRANSACTION_LIST *
@@ -1926,8 +1935,7 @@ LIABILITY_TRANSACTION *liability_transaction_new(
 	if ( !transaction_memo
 	||   !credit_account_name
 	||   !liability_entity
-	||   !liability_entity->liability_account_entity
-	||   !liability_entity->liability_account_entity->entity
+	||   !liability_entity->entity
 	||   !transaction_date_time )
 	{
 		fprintf(stderr,
@@ -1955,18 +1963,13 @@ LIABILITY_TRANSACTION *liability_transaction_new(
 		return (LIABILITY_TRANSACTION *)0;
 	}
 
-	liability_transaction->journal_list_transaction_amount =
-		journal_list_transaction_amount(
-			liability_transaction->
-				liability_journal_list->
-				journal_list );
-
 	liability_transaction->transaction =
 		transaction_entity_new(
-			liability_entity->liability_account_entity->entity,
+			liability_entity->entity,
 			date_display_19( transaction_date_time ),
 			liability_transaction->
-				journal_list_transaction_amount,
+				liability_journal_list->
+				transaction_amount,
 			check_number,
 			(*transaction_memo)
 				? transaction_memo
@@ -2132,7 +2135,7 @@ char *liability_check_vendor_name_amount_due_display(
 			char *escape_payable_to,
 			char *amount_due_display )
 {
-	static char display[ 128 ];
+	static char display[ 256 ];
 
 	if ( !escape_payable_to
 	||   !amount_due_display )
@@ -2158,7 +2161,7 @@ char *liability_check_vendor_name_amount_due_display(
 
 char *liability_check_escape_payable_to( char *full_name )
 {
-	static char escape_payable_to[ 128 ];
+	static char escape_payable_to[ 256 ];
 
 	if ( !full_name || !*full_name )
 	{
@@ -2174,6 +2177,6 @@ char *liability_check_escape_payable_to( char *full_name )
 	latex_column_data_escape(
 		escape_payable_to /* destination */,
 		full_name /* source */,
-		128 );
+		256 );
 }
 

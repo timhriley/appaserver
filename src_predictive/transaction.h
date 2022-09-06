@@ -107,6 +107,15 @@ TRANSACTION *transaction_binary(
 
 /* Usage */
 /* ----- */
+void transaction_list_insert(
+			LIST *transaction_list,
+			boolean insert_journal_list_boolean );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 
 /* Returns inserted transaction_date_time */
 /* -------------------------------------- */
@@ -307,6 +316,14 @@ LIST *transaction_list_extract_account_list(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+void transaction_list_html_display(
+			LIST *transaction_list );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 
@@ -348,22 +365,5 @@ boolean transaction_date_time_exists(
 /* --------------------------- */
 char *transaction_minimum_transaction_date_string(
 			char *transaction_table );
-
-/* Usage */
-/* ----- */
-void transaction_list_insert(
-			LIST *transaction_list,
-			boolean insert_journal_list_boolean );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-void transaction_list_html_display(
-			LIST *transaction_list );
-
-/* Process */
-/* ------- */
 
 #endif

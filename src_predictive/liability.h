@@ -162,6 +162,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIABILITY_ENTITY *liability_entity_new(
+			double dialog_box_payment_amount,
 			LIST *liability_account_entity_list,
 			LIST *account_current_liability_name_list,
 			LIST *account_receivable_name_list,
@@ -173,6 +174,7 @@ LIABILITY_ENTITY *liability_entity_calloc(
 			void );
 
 double liability_entity_amount_due(
+			double dialog_box_payment_amount,
 			LIABILITY *liability,
 			RECEIVABLE *receivable );
 

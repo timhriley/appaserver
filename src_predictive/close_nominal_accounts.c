@@ -94,6 +94,10 @@ int main( int argc, char **argv )
 				close_nominal->
 					close_nominal_transaction->
 					transaction->
+					transaction_date_time,
+				close_nominal->
+					close_nominal_transaction->
+					transaction->
 					memo );
 		}
 	}

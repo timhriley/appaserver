@@ -189,6 +189,7 @@ void update_sale_completed( SALE *sale )
 
 	journal_list_html_display(
 		sale->sale_transaction->journal_list,
+		sale->sale_transaction->transaction_date_time,
 		sale->sale_transaction->memo );
 
 	printf( "<p>Marked sale completed.\n" );

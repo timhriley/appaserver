@@ -933,6 +933,16 @@ TRANSACTION *transaction_entity_new(
 		exit( 1 );
 	}
 
+	if ( transaction_amount < 0.0 )
+	{
+		fprintf(stderr,
+			"Warning in %s/%s()/%d: transaction_amount = %.2lf.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			transaction_amount );
+	}
+
 	transaction = transaction_calloc();
 
 	transaction->full_name = entity->full_name;
@@ -963,6 +973,7 @@ void transaction_list_html_display(
 
 		journal_list_html_display(
 			transaction->journal_list,
+			transaction->transaction_date_time,
 			transaction->memo );
 
 	} while ( list_next( transaction_list ) );
