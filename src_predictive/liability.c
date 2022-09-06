@@ -79,7 +79,9 @@ LIABILITY *liability_entity_fetch(
 		journal_credit_debit_difference_sum(
 			liability->journal_system_list );
 
-	if ( !liability->journal_credit_debit_difference_sum )
+	if ( money_virtually_same(
+		liability->journal_credit_debit_difference_sum,
+		0.0 ) )
 	{
 		list_free( liability->journal_system_list );
 		free( liability );
@@ -101,10 +103,14 @@ char *liability_entity_where(
 	static char where[ 512 ];
 
 	sprintf(where,
-		"full_name = '%s and "
+		"full_name = '%s' and "
 		"street_address = '%s' and "
 		"account in (%s)",
-			full_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name(
+			full_name ),
 			street_address,
 			timlib_in_clause );
 
@@ -451,6 +457,8 @@ LIABILITY_ENTITY *liability_entity_new(
 
 	liability_entity = liability_entity_calloc();
 
+	liability_entity->entity = entity;
+
 	liability_entity->liability_account_entity =
 		liability_account_entity_seek_entity(
 			entity->full_name,
@@ -459,6 +467,11 @@ LIABILITY_ENTITY *liability_entity_new(
 
 	if ( liability_entity->liability_account_entity )
 	{
+		liability_entity->entity =
+			liability_entity->
+				liability_account_entity->
+				entity;
+
 		liability_entity->liability =
 			liability_account_fetch(
 				liability_entity->
@@ -579,7 +592,8 @@ LIABILITY_PAYMENT *liability_payment_new(
 		account_current_liability_name_list(
 			ACCOUNT_TABLE,
 			SUBCLASSIFICATION_CURRENT_LIABILITY,
-			ACCOUNT_UNCLEARED_CHECKS );
+			ACCOUNT_UNCLEARED_CHECKS,
+			ACCOUNT_CREDIT_CARD_KEY );
 
 	liability_payment->account_receivable_name_list =
 		account_receivable_name_list(
@@ -1578,8 +1592,7 @@ LIABILITY_ACCOUNT_LIST *
 	return liability_account_list;
 }
 
-LIABILITY_CALCULATE *liability_calculate_new(
-			char *application_name )
+LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 {
 	LIABILITY_CALCULATE *liability_calculate;
 	ENTITY *entity;
@@ -1603,7 +1616,16 @@ LIABILITY_CALCULATE *liability_calculate_new(
 		account_current_liability_name_list(
 			ACCOUNT_TABLE,
 			SUBCLASSIFICATION_CURRENT_LIABILITY,
-			ACCOUNT_UNCLEARED_CHECKS );
+			ACCOUNT_UNCLEARED_CHECKS,
+			ACCOUNT_CREDIT_CARD_KEY );
+
+	if ( !list_length(
+		liability_calculate->
+			account_current_liability_name_list ) )
+	{
+		free( liability_calculate );
+		return (LIABILITY_CALCULATE *)0;
+	}
 
 	liability_calculate->journal_account_distinct_entity_list =
 		journal_account_distinct_entity_list(
@@ -1644,9 +1666,11 @@ LIABILITY_CALCULATE *liability_calculate_new(
 				liability_calculate->
 					account_receivable_name_list,
 				entity ) );
+
 	} while ( list_next(
 			liability_calculate->
 				journal_account_distinct_entity_list ) );
+
 
 	if ( !list_length( liability_calculate->liability_entity_list ) )
 	{
@@ -2049,9 +2073,12 @@ void liability_calculate_stdout( LIST *liability_entity_list )
 			list_get(
 				liability_entity_list );
 
-		printf(	"%s\n",
-			liability_entity_display(
-				liability_entity ) );
+		if ( liability_entity->amount_due > 0.0 )
+		{
+			printf(	"%s\n",
+				liability_entity_display(
+					liability_entity ) );
+		}
 
 	} while ( list_next( liability_entity_list ) );
 }
@@ -2060,11 +2087,10 @@ char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
 {
 	static char display[ 128 ];
 
-	if ( !liability_entity
-	||   !liability_entity->liability_account_entity )
+	if ( !liability_entity )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: liability_entity is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -2072,13 +2098,11 @@ char *liability_entity_display( LIABILITY_ENTITY *liability_entity )
 	}
 
 	sprintf(display,
-		"%s^%s [%.2lf]\n",
+		"%s^%s [%.2lf]",
 		liability_entity->
-			liability_account_entity->
 			entity->
 			full_name,
 		liability_entity->
-			liability_account_entity->
 			entity->
 			street_address,
 		liability_entity->amount_due );

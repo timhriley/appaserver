@@ -13,31 +13,6 @@
 #include "transaction.h"
 #include "subclassification.h"
 
-typedef struct
-{
-	char *full_name;
-	char *street_address;
-	char *transaction_date_time;
-	char *account_name;
-	double previous_balance;
-	double debit_amount;
-	double credit_amount;
-	double balance;
-	TRANSACTION *transaction;
-} ACCOUNT_JOURNAL;
-
-/* Usage */
-/* ----- */
-ACCOUNT_JOURNAL *account_journal_latest(
-			char *account_name,
-			char *transaction_date_time_closing,
-			boolean fetch_transaction );
-
-/* Process */
-/* ------- */
-ACCOUNT_JOURNAL *account_journal_calloc(
-			void );
-
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
 					"hard_coded_account_key,"	\
@@ -66,6 +41,32 @@ ACCOUNT_JOURNAL *account_journal_calloc(
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
+#define ACCOUNT_CREDIT_CARD_KEY		"credit_card_key"
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *transaction_date_time;
+	char *account_name;
+	double previous_balance;
+	double debit_amount;
+	double credit_amount;
+	double balance;
+	TRANSACTION *transaction;
+} ACCOUNT_JOURNAL;
+
+/* Usage */
+/* ----- */
+ACCOUNT_JOURNAL *account_journal_latest(
+			char *account_name,
+			char *transaction_date_time_closing,
+			boolean fetch_transaction );
+
+/* Process */
+/* ------- */
+ACCOUNT_JOURNAL *account_journal_calloc(
+			void );
 
 typedef struct
 {
@@ -383,7 +384,8 @@ LIST *account_cash_name_list(
 LIST *account_current_liability_name_list(
 			char *account_table,
 			char *subclassification_current_liability,
-			char *account_uncleared_checks );
+			char *account_uncleared_checks,
+			char *account_credit_card_key );
 
 LIST *account_receivable_name_list(
 			char *account_table,

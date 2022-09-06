@@ -152,6 +152,7 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_entity(
 
 typedef struct
 {
+	ENTITY *entity;
 	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
 	LIABILITY *liability;
 	RECEIVABLE *receivable;

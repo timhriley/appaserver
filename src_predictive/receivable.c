@@ -104,10 +104,14 @@ char *receivable_where(
 	static char where[ 512 ];
 
 	sprintf(where,
-		"full_name = '%s and "
+		"full_name = '%s' and "
 		"street_address = '%s' and "
 		"account in (%s)",
-			full_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name(
+			full_name ),
 			street_address,
 			timlib_in_clause );
 

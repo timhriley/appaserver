@@ -577,7 +577,7 @@ char *journal_system_string(
 			char *journal_table,
 			char *where )
 {
-	char system_string[ 2048 ];
+	char system_string[ 4096 ];
 
 	sprintf(system_string,
 	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",
@@ -1313,7 +1313,8 @@ double journal_list_transaction_amount( LIST *journal_list )
 			account_current_liability_name_list(
 				ACCOUNT_TABLE,
 				SUBCLASSIFICATION_CURRENT_LIABILITY,
-				ACCOUNT_UNCLEARED_CHECKS );
+				ACCOUNT_UNCLEARED_CHECKS,
+				ACCOUNT_CREDIT_CARD_KEY );
 	}
 
 	cash_sum =

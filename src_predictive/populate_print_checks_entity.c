@@ -14,9 +14,6 @@
 #include "environ.h"
 #include "liability.h"
 
-/* Constants */
-/* --------- */
-
 int main( int argc, char **argv )
 {
 	LIABILITY_CALCULATE *liability_calculate;
@@ -33,7 +30,8 @@ int main( int argc, char **argv )
 			application_name ) ) )
 	{
 		liability_calculate_stdout(
-			liability_calculate->liability_entity_list );
+			liability_calculate->
+				liability_entity_list );
 	}
 
 	return 0;

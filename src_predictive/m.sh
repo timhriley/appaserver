@@ -1,6 +1,6 @@
 :
 
-make journal_ledger_trigger
+make populate_print_checks_entity
 
 #if [ "$?" -eq 0 ]
 #then

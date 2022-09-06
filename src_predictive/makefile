@@ -34,7 +34,8 @@ EXECUTABLES=	trial_balance_output					\
 		feeder_load						\
 		journal_ledger_trigger					\
 		tax_form_report						\
-		close_nominal_accounts
+		close_nominal_accounts					\
+		populate_print_checks_entity
 #		post_reoccurring_transaction				\
 #		post_cash_expense_transaction				\
 #		post_change_self					\
@@ -267,6 +268,14 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		${SOURCE_LIBRARY}					\
 		close_nominal_accounts.c				\
 		-o close_nominal_accounts
+
+populate_print_checks_entity: populate_print_checks_entity.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		populate_print_checks_entity.c				\
+		-o populate_print_checks_entity
 
 journal_ledger_trigger: journal_ledger_trigger.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

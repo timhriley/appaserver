@@ -903,15 +903,19 @@ LIST *account_cash_name_list(
 LIST *account_current_liability_name_list(
 			char *account_table,
 			char *subclassification_current_liability,
-			char *account_uncleared_checks )
+			char *account_uncleared_checks,
+			char *account_credit_card_key )
 {
 	char system_string[ 256 ];
 	char where[ 128 ];
 
 	sprintf(where,
-		"subclassification = '%s' and account <> '%s'",
+		"subclassification = '%s' and	"
+		"account <> '%s' and		"
+		"hard_coded_account_key <> '%s'	",
 		subclassification_current_liability,
-		account_uncleared_checks );
+		account_uncleared_checks,
+		account_credit_card_key );
 
 	sprintf(system_string,
 		"select.sh account %s \"%s\"",
