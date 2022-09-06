@@ -34,8 +34,6 @@ enum payroll_pay_period{	pay_period_not_set,
 
 #define ENTITY_STREET_ADDRESS_UNKNOWN	"unknown"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *full_name;

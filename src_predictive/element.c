@@ -268,7 +268,8 @@ void element_list_sum( LIST *element_statement_list )
 
 double element_sum( ELEMENT *element )
 {
-	if ( !list_length( element->subclassification_statement_list ) )
+	if ( !element
+	||   !list_length( element->subclassification_statement_list ) )
 	{
 		return 0.0;
 	}

@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include "timlib.h"
 #include "String.h"
+#include "element.h"
+#include "account.h"
+#include "journal.h"
 #include "close_nominal.h"
 
 CLOSE_NOMINAL *close_nominal_calloc( void )
@@ -26,5 +29,577 @@ CLOSE_NOMINAL *close_nominal_calloc( void )
 	}
 
 	return close_nominal;
+}
+
+CLOSE_NOMINAL *close_nominal_fetch(
+			char *application_name,
+			char *process_name,
+			char *as_of_date )
+{
+	CLOSE_NOMINAL *close_nominal;
+
+	if ( !application_name
+	||   !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !as_of_date
+	||   !*as_of_date
+	||   strcmp( as_of_date, "as_of_date" ) == 0 )
+	{
+		return (CLOSE_NOMINAL *)0;
+	}
+
+	close_nominal = close_nominal_calloc();
+
+	close_nominal->statement_caption =
+		statement_caption_new(
+			application_name,
+			process_name,
+			(char *)0 /* begin_date_string */,
+			as_of_date /* end_date_string */ );
+
+	close_nominal->transaction_date_time_closing =
+		transaction_date_time_closing(
+			TRANSACTION_PRECLOSE_TIME,
+			TRANSACTION_CLOSE_TIME,
+			as_of_date,
+			0 /* not preclose_time_boolean */ );
+
+	close_nominal->transaction_date_time_exists =
+		transaction_date_time_exists(
+			TRANSACTION_TABLE,
+			TRANSACTION_DATE_TIME_COLUMN,
+			close_nominal->transaction_date_time_closing );
+
+	if ( close_nominal->transaction_date_time_exists )
+	{
+		return close_nominal;
+	}
+
+	close_nominal->element_name_list =
+		close_nominal_element_name_list(
+			ELEMENT_REVENUE,
+			ELEMENT_EXPENSE,
+			ELEMENT_GAIN,
+			ELEMENT_LOSS );
+
+	close_nominal->element_statement_list =
+		element_statement_list(
+			close_nominal->element_name_list,
+			close_nominal->transaction_date_time_closing,
+			1 /* fetch_subclassification_list */,
+			1 /* fetch_account_list */,
+			1 /* fetch_journal_latest */,
+			0 /* not fetch_transaction */ );
+
+	if ( !list_length( close_nominal->element_statement_list ) )
+	{
+		return close_nominal;
+	}
+
+	close_nominal->revenue_element =
+		element_seek(
+			ELEMENT_REVENUE,
+			close_nominal->element_statement_list );
+
+	close_nominal->revenue_sum =
+		element_sum(
+			close_nominal->revenue_element );
+
+	close_nominal->gain_element =
+		element_seek(
+			ELEMENT_GAIN,
+			close_nominal->element_statement_list );
+
+	close_nominal->gain_sum =
+		element_sum(
+			close_nominal->gain_element );
+
+	close_nominal->debit_sum =
+		close_nominal_debit_sum(
+			close_nominal->revenue_sum,
+			close_nominal->gain_sum );
+
+	close_nominal->expense_element =
+		element_seek(
+			ELEMENT_EXPENSE,
+			close_nominal->element_statement_list );
+
+	close_nominal->expense_sum =
+		element_sum(
+			close_nominal->expense_element );
+
+	close_nominal->loss_element =
+		element_seek(
+			ELEMENT_LOSS,
+			close_nominal->element_statement_list );
+
+	close_nominal->loss_sum =
+		element_sum(
+			close_nominal->loss_element );
+
+	close_nominal->account_drawing =
+		account_drawing(
+			ACCOUNT_DRAWING_KEY );
+
+	close_nominal->drawing_sum =
+		close_nominal_drawing_sum(
+			close_nominal->transaction_date_time_closing,
+			close_nominal->account_drawing );
+
+	close_nominal->credit_sum =
+		close_nominal_credit_sum(
+			close_nominal->expense_sum,
+			close_nominal->loss_sum,
+			close_nominal->drawing_sum );
+
+	close_nominal->retained_earnings =
+		close_nominal_retained_earnings(
+			close_nominal->debit_sum,
+			close_nominal->credit_sum );
+
+	close_nominal->account_closing_entry =
+		account_closing_entry(
+			ACCOUNT_CLOSING_KEY );
+
+	if ( !close_nominal->account_closing_entry )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: account_closing_entry(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			ACCOUNT_CLOSING_KEY );
+		exit( 1 );
+	}
+
+	close_nominal->entity_self = entity_self_fetch();
+
+	if ( !close_nominal->entity_self )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: entity_self_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	close_nominal->close_nominal_transaction =
+		close_nominal_transaction_new(
+			close_nominal->element_statement_list /* in/out */,
+			close_nominal->transaction_date_time_closing,
+			close_nominal->account_drawing,
+			close_nominal->drawing_sum,
+			close_nominal->retained_earnings,
+			close_nominal->account_closing_entry,
+			close_nominal->entity_self->entity );
+
+	return close_nominal;
+}
+
+LIST *close_nominal_element_name_list(
+			char *element_revenue,
+			char *element_expense,
+			char *element_gain,
+			char *element_loss )
+{
+	LIST *list = list_new();
+
+	list_set( list, element_revenue );
+	list_set( list, element_expense );
+	list_set( list, element_gain );
+	list_set( list, element_loss );
+
+	return list;
+}
+
+double close_nominal_drawing_sum(
+			char *transaction_date_time_closing,
+			char *account_drawing )
+{
+	JOURNAL *latest;
+
+	if ( !transaction_date_time_closing )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !account_drawing ) return 0.0;
+
+	latest =
+		journal_latest(
+			account_drawing /* account_name */,
+			transaction_date_time_closing,
+			0 /* not fetch_transaction */ );
+
+	if ( latest )
+		return latest->balance;
+	else
+		return 0.0;
+}
+
+double close_nominal_debit_sum(
+			double revenue_sum,
+			double gain_sum )
+{
+	return revenue_sum + gain_sum;
+}
+
+double close_nominal_credit_sum(
+			double expense_sum,
+			double loss_sum,
+			double drawing_sum )
+{
+	return expense_sum + loss_sum + drawing_sum;
+}
+
+double close_nominal_retained_earnings(
+			double debit_sum,
+			double credit_sum )
+{
+	return debit_sum - credit_sum;
+}
+
+CLOSE_NOMINAL_TRANSACTION *
+	close_nominal_transaction_new(
+			LIST *element_statement_list /* in/out */,
+			char *transaction_date_time_closing,
+			char *account_drawing,
+			double close_nominal_drawing_sum,
+			double close_nominal_retained_earnings,
+			char *account_closing_entry,
+			ENTITY *entity )
+{
+	CLOSE_NOMINAL_TRANSACTION *close_nominal_transaction;
+
+	if ( !list_length( element_statement_list )
+	||   !transaction_date_time_closing
+	||   !account_closing_entry
+	||   !entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	close_nominal_transaction = close_nominal_transaction_calloc();
+
+	close_nominal_transaction->transaction =
+		transaction_new(
+			entity->full_name,
+			entity->street_address,
+			transaction_date_time_closing );
+
+	close_nominal_transaction->transaction->transaction_amount =
+		float_abs( close_nominal_retained_earnings );
+
+	close_nominal_transaction->transaction->memo =
+		TRANSACTION_CLOSING_ENTRY_MEMO;
+
+	close_nominal_transaction->transaction->journal_list =
+		close_nominal_transaction_journal_list(
+			element_statement_list /* in/out */,
+			transaction_date_time_closing,
+			account_drawing,
+			close_nominal_drawing_sum,
+			close_nominal_retained_earnings,
+			account_closing_entry,
+			entity );
+
+	return close_nominal_transaction;
+}
+
+CLOSE_NOMINAL_TRANSACTION *
+	close_nominal_transaction_calloc(
+			void )
+{
+	CLOSE_NOMINAL_TRANSACTION *close_nominal_transaction;
+
+	if ( ! ( close_nominal_transaction =
+			calloc( 1, sizeof( CLOSE_NOMINAL_TRANSACTION ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return close_nominal_transaction;
+}
+
+LIST *close_nominal_transaction_journal_list(
+			LIST *element_statement_list /* in/out */,
+			char *transaction_date_time_closing,
+			char *account_drawing,
+			double close_nominal_drawing_sum,
+			double close_nominal_retained_earnings,
+			char *account_closing_entry,
+			ENTITY *entity )
+{
+	LIST *journal_list;
+	ELEMENT *element;
+	ACCOUNT *account;
+	JOURNAL *journal;
+
+	if ( !list_length( element_statement_list )
+	||   !transaction_date_time_closing
+	||   !account_closing_entry
+	||   !entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	element_list_account_statement_list_set(
+		element_statement_list );
+
+	journal_list = list_new();
+
+	list_rewind( element_statement_list );
+
+	do {
+		element =
+			list_get(
+				element_statement_list );
+
+		if ( money_virtually_same( element->sum, 0.0 ) ) continue;
+
+		list_rewind( element->account_statement_list );
+
+		do {
+			account =
+				list_get(
+					element->account_statement_list );
+
+			if ( !account->account_journal_latest )
+			{
+				fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+					__FILE__,
+					__FUNCTION__,
+					__LINE__ );
+				exit( 1 );
+			}
+
+			if ( money_virtually_same(
+				account->
+					account_journal_latest->
+					balance,
+				0.0 ) )
+			{
+				continue;
+			}
+
+			journal =
+				journal_new(
+				entity->full_name,
+				entity->street_address,
+				transaction_date_time_closing,
+				account->account_name );
+
+			journal->debit_amount =
+				close_nominal_transaction_debit_amount(
+					element->accumulate_debit,
+					account->
+						account_journal_latest->
+						balance );
+
+			journal->credit_amount =
+				close_nominal_transaction_credit_amount(
+					element->accumulate_debit,
+					account->
+						account_journal_latest->
+						balance );
+
+			list_set(
+				journal_list,
+				journal );
+
+		} while ( list_next( element->account_statement_list ) );
+
+	} while ( list_next( element_statement_list ) );
+
+	if ( close_nominal_drawing_sum )
+	{
+		list_set(
+			journal_list,
+			close_nominal_transaction_drawing_journal(
+				transaction_date_time_closing,
+				account_drawing,
+				close_nominal_drawing_sum,
+				entity ) );
+	}
+
+	if ( close_nominal_retained_earnings )
+	{
+		list_set(
+			journal_list,
+			close_nominal_transaction_close_journal(
+				transaction_date_time_closing,
+				close_nominal_retained_earnings,
+				account_closing_entry,
+				entity ) );
+	}
+
+	return journal_list;
+}
+
+JOURNAL *close_nominal_transaction_drawing_journal(
+			char *transaction_date_time_closing,
+			char *account_drawing,
+			double drawing_sum,
+			ENTITY *entity )
+{
+	JOURNAL *journal;
+
+	if ( !transaction_date_time_closing
+	||   !account_drawing
+	||   !entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( money_virtually_same( drawing_sum, 0.0 ) )
+	{
+		return (JOURNAL *)0;
+	}
+
+	journal =
+		journal_new(
+			entity->full_name,
+			entity->street_address,
+			transaction_date_time_closing,
+			account_drawing );
+
+	journal->credit_amount =
+		/* ------------------------------ */
+		/* Drawing has a negative balance */
+		/* ------------------------------ */
+		0.0 - drawing_sum;
+
+	return journal;
+}
+
+JOURNAL *close_nominal_transaction_close_journal(
+			char *transaction_date_time_closing,
+			double retained_earnings,
+			char *account_closing_entry,
+			ENTITY *entity )
+{
+	JOURNAL *journal;
+
+	if ( !transaction_date_time_closing
+	||   !account_closing_entry
+	||   !entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( money_virtually_same( retained_earnings, 0.0 ) )
+	{
+		return (JOURNAL *)0;
+	}
+
+	journal =
+		journal_new(
+			entity->full_name,
+			entity->street_address,
+			transaction_date_time_closing,
+			account_closing_entry );
+
+	if ( retained_earnings > 0.0 )
+	{
+		journal->credit_amount = retained_earnings;
+	}
+	else
+	{
+		journal->debit_amount = -retained_earnings;
+	}
+
+	return journal;
+}
+
+double close_nominal_transaction_debit_amount(
+			boolean element_accumulate_debit,
+			double balance )
+{
+	double debit_amount;
+
+	if ( !element_accumulate_debit )
+		debit_amount = balance;
+	else
+		debit_amount = 0.0;
+
+	return debit_amount;
+}
+
+double close_nominal_transaction_credit_amount(
+			boolean element_accumulate_debit,
+			double balance )
+{
+	double credit_amount;
+
+	if ( element_accumulate_debit )
+		credit_amount = balance;
+	else
+		credit_amount = 0.0;
+
+	return credit_amount;
+}
+
+void close_nominal_transaction_insert( TRANSACTION *transaction )
+{
+	if ( !transaction )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: transaction is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	transaction_insert(
+		transaction->full_name,
+		transaction->street_address,
+		transaction->transaction_date_time,
+		transaction->transaction_amount,
+		transaction->check_number,
+		transaction->memo,
+		TRANSACTION_LOCK_Y,
+		transaction->journal_list,
+		1 /* insert_journal_list_boolean */ );
 }
 

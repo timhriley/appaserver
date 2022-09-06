@@ -110,12 +110,21 @@ char *statement_caption_subtitle(
 {
 	static char subtitle[ 128 ];
 
-	if ( !begin_date_string || !end_date_string ) return (char *)0;
+	if ( !end_date_string ) return (char *)0;
 
-	sprintf(subtitle,
-		"Beginning: %s, Ending: %s",
-		begin_date_string,
-	 	end_date_string );
+	if ( begin_date_string )
+	{
+		sprintf(subtitle,
+			"Beginning: %s, Ending: %s",
+			begin_date_string,
+	 		end_date_string );
+	}
+	else
+	{
+		sprintf(subtitle,
+			"As Of: %s",
+	 		end_date_string );
+	}
 
 	return subtitle;
 }
@@ -4307,7 +4316,6 @@ STATEMENT_CAPTION *statement_caption_new(
 
 	if ( !application_name
 	||   !process_name
-	||   !begin_date_string
 	||   !end_date_string )
 	{
 		fprintf(stderr,
