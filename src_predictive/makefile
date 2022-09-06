@@ -33,8 +33,8 @@ EXECUTABLES=	trial_balance_output					\
 		ledger_propagate					\
 		feeder_load						\
 		journal_ledger_trigger					\
-		tax_form_report
-#		close_nominal_accounts					\
+		tax_form_report						\
+		close_nominal_accounts
 #		post_reoccurring_transaction				\
 #		post_cash_expense_transaction				\
 #		post_change_self					\
@@ -123,7 +123,8 @@ SOURCE_LIBRARY= 							\
 		statement.o						\
 		trial_balance.o						\
 		income_statement.o					\
-		balance_sheet.o
+		balance_sheet.o						\
+		close_nominal.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -856,4 +857,8 @@ recovery_statutory_accelerated_half_year:				\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		recovery_statutory_accelerated_half_year.c		\
 		-o recovery_statutory_accelerated_half_year -lm
+
+close_nominal.o: close_nominal.c close_nominal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c close_nominal.c
 

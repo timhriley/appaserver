@@ -8,8 +8,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include "timlib.h"
-#include "list.h"
-#include "boolean.h"
 #include "sql.h"
 #include "String.h"
 #include "piece.h"

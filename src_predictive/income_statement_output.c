@@ -37,14 +37,14 @@ int main( int argc, char **argv )
 
 	if ( argc != 9 )
 	{
-		fprintf( stderr,
+		fprintf(stderr,
 "Usage: %s session login_name role process as_of_date prior_year_count subclassification_option output_medium\n",
-			 argv[ 0 ] );
+			argv[ 0 ] );
 
-		fprintf( stderr,
+		fprintf(stderr,
 "Note: subclassification_option={display,omit,aggregate}\n" );
 
-		fprintf( stderr,
+		fprintf(stderr,
 "Note: output_medium={table,spreadsheet,PDF,stdout}\n" );
 
 		exit ( 1 );
