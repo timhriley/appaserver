@@ -14,7 +14,7 @@
 #include "transaction.h"
 #include "appaserver_link_file.h"
 
-#define LIABILITY_PROMPT		"Press here to view check."
+#define LIABILITY_PROMPT		"Press here to view the check."
 
 typedef struct
 {
@@ -476,6 +476,7 @@ typedef struct
 	LIABILITY_CHECK_LIST *liability_check_list;
 	char *credit_account_name;
 	LIABILITY_TRANSACTION_LIST *liability_transaction_list;
+	char *error_message;
 } LIABILITY_PAYMENT;
 
 /* Usage */
@@ -484,7 +485,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 			char *application_name,
 			double dialog_box_payment_amount,
 			int starting_check_number,
-			char *memo,
+			char *dialog_box_memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
@@ -499,6 +500,14 @@ char *liability_payment_credit_account_name(
 			int starting_check_number,
 			char *account_cash,
 			char *account_uncleared_checks );
+
+/* Private */
+/* ------- */
+
+/* Returns message */
+/* --------------- */
+char *liability_payment_error_message(
+			char *message );
 
 typedef struct
 {

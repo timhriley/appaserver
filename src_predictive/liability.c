@@ -558,7 +558,7 @@ LIABILITY_PAYMENT *liability_payment_new(
 			char *application_name,
 			double dialog_box_payment_amount,
 			int starting_check_number,
-			char *memo,
+			char *dialog_box_memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
@@ -570,15 +570,18 @@ LIABILITY_PAYMENT *liability_payment_new(
 
 	if ( !list_length( entity_full_street_list ) )
 	{
-		free( liability_payment );
-		return (LIABILITY_PAYMENT *)0;
+		liability_payment->error_message =
+			liability_payment_error_message(
+				"Please select an entity." );
+
+		return liability_payment;
 	}
 
 	liability_payment->transaction_memo =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		transaction_memo( memo );
+		transaction_memo( dialog_box_memo );
 
 	/* For dialog_box_payment_amount or memo,	*/
 	/* only one entity at a time.			*/
@@ -587,8 +590,11 @@ LIABILITY_PAYMENT *liability_payment_new(
 	&& (  dialog_box_payment_amount
 	||    *liability_payment->transaction_memo ) )
 	{
-		free( liability_payment );
-		return (LIABILITY_PAYMENT *)0;
+		liability_payment->error_message =
+			liability_payment_error_message(
+			"Please choose only one entity for this option." );
+
+		return liability_payment;
 	}
 
 	liability_payment->liability_account_entity_list =
@@ -644,9 +650,11 @@ LIABILITY_PAYMENT *liability_payment_new(
 
 	if ( !list_length( liability_payment->liability_entity_list ) )
 	{
-		list_free( liability_payment->liability_entity_list );
-		free( liability_payment );
-		return (LIABILITY_PAYMENT *)0;
+		liability_payment->error_message =
+			liability_payment_error_message(
+				"Could not fulfill the liabilities." );
+
+		return liability_payment;
 	}
 
 	if ( starting_check_number )
@@ -677,6 +685,15 @@ LIABILITY_PAYMENT *liability_payment_new(
 			liability_payment->transaction_memo,
 			liability_payment->liability_entity_list,
 			liability_payment->credit_account_name );
+
+	if ( !liability_payment->liability_transaction_list )
+	{
+		liability_payment->error_message =
+			liability_payment_error_message(
+				"Could not generate the transactions." );
+
+		return liability_payment;
+	}
 
 	return liability_payment;
 }
@@ -2180,3 +2197,7 @@ char *liability_check_escape_payable_to( char *full_name )
 		256 );
 }
 
+char *liability_payment_error_message( char *message )
+{
+	return message;
+}

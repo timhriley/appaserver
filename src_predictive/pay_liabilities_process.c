@@ -107,7 +107,7 @@ int main( int argc, char **argv )
 			application_name,
 			dialog_box_payment_amount,
 			starting_check_number,
-			memo,
+			memo /* dialog_box_memo */,
 			appaserver_parameter_file->document_root,
 			process_name,
 			session_key,
@@ -115,10 +115,10 @@ int main( int argc, char **argv )
 				full_name_list,
 				street_address_list ) );
 
-	if ( !liability_payment )
+	if ( liability_payment->error_message )
 	{
-		printf(
-		"<h3>An internal error occurred.</h3>\n" );
+		printf(	"<h3>%s</h3>\n",
+			liability_payment->error_message );
 		document_close();
 		exit( 0 );
 	}

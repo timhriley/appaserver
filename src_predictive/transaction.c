@@ -375,7 +375,6 @@ char *transaction_memo( char *memo )
 	else
 	{
 		string_strcpy( return_memo, memo, TRANSACTION_MEMO_LENGTH + 1 );
-		/* *( return_memo + TRANSACTION_MEMO_LENGTH ) = '\0'; */
 	}
 
 	return return_memo;
