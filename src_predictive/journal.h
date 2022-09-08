@@ -282,8 +282,12 @@ void journal_list_pipe_display(
 
 /* Usage */
 /* ----- */
-double journal_debit_sum(
-			LIST *journal_list );
+void journal_list_sum_html_display(
+			LIST *journal_list,
+			char *transaction_date_time,
+			char *transaction_memo,
+			double debit_sum,
+			double credit_sum );
 
 /* Process */
 /* ------- */
@@ -349,6 +353,22 @@ char *journal_tax_form_where(
 			char *tax_form_fiscal_end_date,
 			char *transaction_preclose_time,
 			char *account_name );
+
+/* Usage */
+/* ----- */
+double journal_debit_sum(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double journal_credit_sum(
+			LIST *journal_list );
+
+/* Process */
+/* ------- */
 
 /* Usage */
 /* ----- */

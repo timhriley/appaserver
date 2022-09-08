@@ -989,10 +989,11 @@ LIST *journal_extract_account_list( LIST *journal_list )
 		if ( !journal->account )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: journal->account is empty.\n",
+	"ERROR in %s/%s()/%d: journal->account is empty for account = [%s].\n",
 				__FILE__,
 				__FUNCTION__,
-				__LINE__ );
+				__LINE__,
+				journal->account_name );
 			exit( 1 );
 		}
 
@@ -1106,8 +1107,6 @@ void journal_list_pipe_display(
 			char *heading,
 			LIST *journal_list )
 {
-	double total_debit;
-	double total_credit;
 	char buffer[ 128 ];
 	char memo_buffer[ 256 ];
 	JOURNAL *journal;
@@ -1144,9 +1143,6 @@ void journal_list_pipe_display(
 	*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
 
 	if ( heading ) fprintf( output_pipe, "%s\n", heading );
-
-	total_debit = 0.0;
-	total_credit = 0.0;
 
 	/* First do all debits, then do all credits */
 	/* ---------------------------------------- */
@@ -1185,8 +1181,6 @@ void journal_list_pipe_display(
 						buffer,
 						journal->account_name ),
 			 		journal->debit_amount );
-	
-				total_debit += journal->debit_amount;
 			}
 			else
 			if ( i == 1
@@ -1217,14 +1211,53 @@ void journal_list_pipe_display(
 						buffer,
 						journal->account_name ),
 			 		journal->credit_amount );
-	
-				total_credit += journal->credit_amount;
 			}
 	
 		} while( list_next( journal_list ) );
 	}
 
 	fprintf( output_pipe, "\n" );
+	fflush( stdout );
+}
+
+void journal_list_sum_html_display(
+			LIST *journal_list,
+			char *transaction_date_time,
+			char *transaction_memo,
+			double debit_sum,
+			double credit_sum )
+{
+	char *heading;
+	char *justify;
+	char sys_string[ 1024 ];
+	FILE *output_pipe;
+
+	if ( !list_length( journal_list ) ) return;
+
+	heading = "Transaction,Account,Debit,Credit";
+	justify = "left,left,right,right";
+
+	sprintf(sys_string,
+		"html_table.e '' %s '^' %s",
+		heading,
+		justify );
+
+	fflush( stdout );
+	output_pipe = popen( sys_string, "w" );
+
+	journal_list_pipe_display(
+		output_pipe,
+		transaction_date_time,
+		transaction_memo,
+		(char *)0 /* heading */,
+		journal_list );
+
+	fprintf(output_pipe,
+		"Total^^%.2lf^%.2lf\n",
+		debit_sum,
+		credit_sum );
+
+	pclose( output_pipe );
 	fflush( stdout );
 }
 
@@ -1299,6 +1332,25 @@ double journal_debit_sum( LIST *journal_list )
 		journal = list_get( journal_list );
 
 		if ( journal->debit_amount ) sum += journal->debit_amount;
+
+	} while ( list_next( journal_list ) );
+
+	return sum;
+}
+
+double journal_credit_sum( LIST *journal_list )
+{
+	double sum;
+	JOURNAL *journal;
+
+	if ( !list_rewind( journal_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		journal = list_get( journal_list );
+
+		if ( journal->credit_amount ) sum += journal->credit_amount;
 
 	} while ( list_next( journal_list ) );
 

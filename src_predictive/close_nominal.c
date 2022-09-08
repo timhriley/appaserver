@@ -104,6 +104,8 @@ CLOSE_NOMINAL *close_nominal_fetch(
 		return close_nominal;
 	}
 
+	element_list_sum( close_nominal->element_statement_list );
+
 	close_nominal->revenue_element =
 		element_seek(
 			ELEMENT_REVENUE,
@@ -201,6 +203,32 @@ CLOSE_NOMINAL *close_nominal_fetch(
 			close_nominal->retained_earnings,
 			close_nominal->account_closing_entry,
 			close_nominal->entity_self->entity );
+
+	if ( !close_nominal->close_nominal_transaction
+	||   !close_nominal->close_nominal_transaction->transaction )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: close_nominal_transaction_new() could not generate a transaction.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	close_nominal->journal_debit_sum =
+		journal_debit_sum(
+			close_nominal->
+				close_nominal_transaction->
+				transaction->
+				journal_list );
+
+	close_nominal->journal_credit_sum =
+		journal_credit_sum(
+			close_nominal->
+				close_nominal_transaction->
+				transaction->
+				journal_list );
+
 
 	return close_nominal;
 }
@@ -321,7 +349,6 @@ CLOSE_NOMINAL_TRANSACTION *
 			close_nominal_retained_earnings,
 			account_closing_entry,
 			entity );
-
 	return close_nominal_transaction;
 }
 
@@ -414,10 +441,16 @@ LIST *close_nominal_transaction_journal_list(
 
 			journal =
 				journal_new(
-				entity->full_name,
-				entity->street_address,
-				transaction_date_time_closing,
-				account->account_name );
+					entity->full_name,
+					entity->street_address,
+					transaction_date_time_closing,
+					account->account_name );
+
+			journal->account =
+				account_fetch(
+					journal->account_name,
+					1 /* fetch_subclassification */,
+					1 /* fetch_element */ );
 
 			journal->debit_amount =
 				close_nominal_transaction_debit_amount(
@@ -498,6 +531,12 @@ JOURNAL *close_nominal_transaction_drawing_journal(
 			transaction_date_time_closing,
 			account_drawing );
 
+	journal->account =
+		account_fetch(
+			journal->account_name,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
+
 	journal->credit_amount =
 		/* ------------------------------ */
 		/* Drawing has a negative balance */
@@ -539,13 +578,19 @@ JOURNAL *close_nominal_transaction_close_journal(
 			transaction_date_time_closing,
 			account_closing_entry );
 
+	journal->account =
+		account_fetch(
+			journal->account_name,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ );
+
 	if ( retained_earnings > 0.0 )
 	{
 		journal->credit_amount = retained_earnings;
 	}
 	else
 	{
-		journal->debit_amount = -retained_earnings;
+		journal->debit_amount = 0.0 - retained_earnings;
 	}
 
 	return journal;

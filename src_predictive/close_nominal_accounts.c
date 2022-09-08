@@ -86,7 +86,7 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			journal_list_html_display(
+			journal_list_sum_html_display(
 				close_nominal->
 					close_nominal_transaction->
 					transaction->
@@ -98,7 +98,11 @@ int main( int argc, char **argv )
 				close_nominal->
 					close_nominal_transaction->
 					transaction->
-					memo );
+					memo,
+				close_nominal->
+					journal_debit_sum,
+				close_nominal->
+					journal_credit_sum );
 		}
 	}
 

@@ -17,6 +17,7 @@
 #define TRIAL_BALANCE_PROMPT		"Trial Balance"
 #define TRIAL_BALANCE_PRECLOSE_PROMPT	"Trial Balance (preclose)"
 #define TRIAL_BALANCE_PRECLOSE_TITLE	"(Preclose)"
+#define TRIAL_BALANCE_CLOSE_TITLE	"(Postclose)"
 
 int main( int argc, char **argv )
 {
@@ -146,6 +147,8 @@ int main( int argc, char **argv )
 	else
 	if ( trial_balance->trial_balance_table )
 	{
+		char *postclose_secondary_title = {0};
+
 		if ( trial_balance->
 			trial_balance_table->
 			preclose_trial_balance_html )
@@ -157,6 +160,9 @@ int main( int argc, char **argv )
 					html_table,
 				TRIAL_BALANCE_PRECLOSE_TITLE
 					/* secondary_title */ );
+
+			postclose_secondary_title =
+				TRIAL_BALANCE_CLOSE_TITLE;
 		}
 
 		statement_html_output(
@@ -164,7 +170,7 @@ int main( int argc, char **argv )
 				trial_balance_table->
 				trial_balance_html->
 				html_table,
-			(char *)0  /* secondary_title */ );
+			postclose_secondary_title );
 	}
 
 	if ( trial_balance->statement_output_medium != statement_output_stdout )

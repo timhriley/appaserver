@@ -1,6 +1,6 @@
 :
 
-make pay_liabilities_process
+make close_nominal_accounts
 
 #if [ "$?" -eq 0 ]
 #then

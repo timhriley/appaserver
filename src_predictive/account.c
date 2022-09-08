@@ -278,7 +278,7 @@ char *account_drawing( char *account_drawing_key )
 	return
 	account_hard_coded_account_name(
 		account_drawing_key,
-		0 /* not warning_only */,
+		1 /* warning_only */,
 		__FUNCTION__ );
 }
 

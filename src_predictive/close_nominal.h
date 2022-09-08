@@ -106,6 +106,8 @@ typedef struct
 	char *account_closing_entry;
 	ENTITY_SELF *entity_self;
 	CLOSE_NOMINAL_TRANSACTION *close_nominal_transaction;
+	double journal_debit_sum;
+	double journal_credit_sum;
 } CLOSE_NOMINAL;
 
 /* Usage */
