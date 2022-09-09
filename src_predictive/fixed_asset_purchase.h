@@ -15,20 +15,13 @@
 #include "recovery.h"
 #include "depreciation.h"
 
-/* Constants */
-/* --------- */
 #define FIXED_ASSET_PURCHASE_TABLE	"fixed_asset_purchase"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* Attributes */
 	/* ---------- */
-	FIXED_ASSET *fixed_asset;
+	char *asset_name;
 	char *serial_label;
 	ENTITY *vendor_entity;
 	char *purchase_date_time;
@@ -44,21 +37,20 @@ typedef struct
 	int estimated_useful_life_units;
 	int estimated_residual_value;
 	double declining_balance_n;
-
-	/* Process */
-	/* ------- */
+	FIXED_ASSET *fixed_asset;
 	double cost_basis;
 	double finance_accumulated_depreciation;
 	double tax_adjusted_basis;
 	double fixed_asset_purchase_list_total;
 	DEPRECIATION *depreciation;
 	RECOVERY *recovery;
+	TRANSACTION *depreciation_transaction;
 } FIXED_ASSET_PURCHASE;
 
 /* Usage */
 /* ----- */
 LIST *fixed_asset_purchase_list_fetch(
-			char *where,
+			char *fixed_asset_purchase_depreciation_where,
 			boolean fetch_last_depreciation,
 			boolean fetch_last_recovery );
 
@@ -83,7 +75,10 @@ char *fixed_asset_purchase_primary_where(
 			char *asset_name,
 			char *serial_label );
 
+/* Returns heap memory */
+/* ------------------- */
 char *fixed_asset_purchase_system_string(
+			char *fixed_asset_purchase_table,
 			char *where,
 			char *order );
 
@@ -91,6 +86,9 @@ LIST *fixed_asset_purchase_system_list(
 			char *system_string,
 			boolean fetch_last_depreciation,
 			boolean fetch_last_recovery );
+
+FILE *fixed_asset_purchase_input_pipe(
+			char *system_string );
 
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 			char *input,
@@ -181,6 +179,14 @@ void fixed_asset_purchase_list_negate_depreciation_amount(
 
 void fixed_asset_purchase_list_negate_recovery_amount(
 			LIST *fixed_asset_purchase_list );
+
+/* Returns heap memory */
+/* ------------------- */
+char *fixed_asset_purchase_depreciation_where(
+			char *depreciation_date );
+
+char *fixed_asset_purchase_depreciation_date(
+			void );
 
 #endif
 

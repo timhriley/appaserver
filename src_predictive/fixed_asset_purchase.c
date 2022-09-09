@@ -41,9 +41,11 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 		exit( 1 );
 	}
 
+	fixed_asset_purchase->asset_name = asset_name;
+
 	fixed_asset_purchase->fixed_asset =
 		fixed_asset_fetch(
-			asset_name );
+			fixed_asset_purchase->asset_name );
 
 	fixed_asset_purchase->serial_label = serial_label;
 
@@ -170,14 +172,26 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 }
 
 char *fixed_asset_purchase_system_string(
+			char *fixed_asset_purchase_table,
 			char *where,
 			char *order )
 {
 	char system_string[ 2048 ];
 
+	if ( !fixed_asset_purchase_table
+	||   !where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(system_string,
 		"select.sh '*' %s \"%s\" \"%s\"",
-		 FIXED_ASSET_PURCHASE_TABLE,
+		 fixed_asset_purchase_table,
 		 where,
 		 (order) ? order : "" );
 
@@ -191,10 +205,16 @@ LIST *fixed_asset_purchase_list_fetch(
 {
 	return fixed_asset_purchase_system_list(
 			fixed_asset_purchase_system_string(
+				FIXED_ASSET_PURCHASE_TABLE,
 				where,
 				"service_placement_date" /* order */ ),
 		fetch_last_depreciation,
 		fetch_last_recovery );
+}
+
+FILE *fixed_asset_purchase_input_pipe( char *system_string )
+{
+	return popen( system_string, "r" );
 }
 
 LIST *fixed_asset_purchase_system_list(
@@ -206,7 +226,9 @@ LIST *fixed_asset_purchase_system_list(
 	FILE *input_pipe;
 	LIST *list = list_new();
 
-	input_pipe = popen( system_string, "r" );
+	input_pipe =
+		fixed_asset_purchase_input_pipe(
+			system_string );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -217,6 +239,7 @@ LIST *fixed_asset_purchase_system_list(
 				fetch_last_depreciation,
 				fetch_last_recovery ) );
 	}
+
 	pclose( input_pipe );
 
 	return list;
@@ -276,6 +299,7 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 	return fixed_asset_purchase_parse(
 		string_pipe_fetch(
 			fixed_asset_purchase_system_string(
+				FIXED_ASSET_PURCHASE_TABLE,
 				fixed_asset_purchase_primary_where(
 					asset_name,
 					serial_label ),
@@ -327,10 +351,20 @@ LIST *fixed_asset_purchase_list_depreciate(
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 	ENTITY_SELF *entity_self;
+	char *depreciation_expense;
+	char *accumulated_depreciation;
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return (LIST *)0;
 
 	entity_self = entity_self_fetch();
+
+	depreciation_expense =
+		account_depreciation_expense(
+		ACCOUNT_DEPRECIATION_KEY );
+
+	accumulated_depreciation =
+		account_accumulated_depreciation(
+			ACCOUNT_ACCUMULATED_DEPRECIATION_KEY );
 
 	do {
 		fixed_asset_purchase =
@@ -367,7 +401,6 @@ LIST *fixed_asset_purchase_list_depreciate(
 		if ( !fixed_asset_purchase->depreciation ) continue;
 
 		fixed_asset_purchase->
-			depreciation->
 			depreciation_transaction =
 				depreciation_transaction(
 					entity_self->entity->full_name,
@@ -376,13 +409,10 @@ LIST *fixed_asset_purchase_list_depreciate(
 					fixed_asset_purchase->
 						depreciation->
 						depreciation_amount,
-					account_depreciation_expense(
-						(char *)0 /* fund_name */ ),
-					account_accumulated_depreciation(
-						(char *)0 /* fund_name */ ) );
+					depreciation_expense,
+					accumulated_depreciation );
 
 		if ( !fixed_asset_purchase->
-			depreciation->
 			depreciation_transaction )
 		{
 			continue;
@@ -839,3 +869,34 @@ void fixed_asset_purchase_list_negate_recovery_amount(
 	} while( list_next( fixed_asset_purchase_list ) );
 }
 
+char *fixed_asset_purchase_depreciation_where(
+			char *depreciation_date )
+{
+	char where[ 512 ];
+
+	if ( !depreciation_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: depreciation_date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+	"ifnull(finance_accumulated_depreciation,0) -		"
+	"ifnull(estimated_residual_value,0) < cost_basis	"
+	" and disposal_date is null				"
+	" and not %s						",
+		depreciation_subquery_where(
+			depreciation_date ) );
+
+	return strdup( where );
+}
+
+char *fixed_asset_purchase_depreciation_date( void )
+{
+	return
+	date_now_yyyy_mm_dd( date_utc_offset() );
+}

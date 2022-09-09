@@ -1115,27 +1115,3 @@ void depreciation_update(
 	pclose( update_pipe );
 }
 
-char *depreciation_where( char *depreciation_date )
-{
-	char where[ 512 ];
-
-	if ( !depreciation_date )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: depreciation_date is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(where,
-	"ifnull(finance_accumulated_depreciation,0) -		"
-	"ifnull(estimated_residual_value,0) < cost_basis	"
-	" and disposal_date is null				"
-	" and not %s						",
-		depreciation_subquery_where(
-			depreciation_date ) );
-
-	return strdup( where );
-}
