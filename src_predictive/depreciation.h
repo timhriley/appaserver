@@ -250,4 +250,9 @@ void depreciation_update(
 			char *serial_label,
 			char *depreciation_date );
 
+/* Returns heap memory */
+/* ------------------- */
+char *depreciation_where(
+			char *depreciation_date );
+
 #endif

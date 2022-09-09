@@ -11,15 +11,8 @@
 #include "list.h"
 #include "boolean.h"
 
-/* Constants */
-/* --------- */
 #define FIXED_ASSET_TABLE	"fixed_asset"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *asset_name;
@@ -28,16 +21,13 @@ typedef struct
 	double activity_depreciation_per_hour;
 } FIXED_ASSET;
 
-/* Operations */
-/* ---------- */
-FIXED_ASSET *fixed_asset_new(
-			char *asset_name );
-
-FIXED_ASSET *fixed_asset_parse(
-			char *input );
-
+/* Usage */
+/* ----- */
 FIXED_ASSET *fixed_asset_fetch(
 			char *asset_name );
+
+/* Process */
+/* ------- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -48,6 +38,12 @@ char *fixed_asset_primary_where(
 /* --------------------- */
 char *fixed_asset_system_string(
 			char *where );
+
+FIXED_ASSET *fixed_asset_new(
+			char *asset_name );
+
+FIXED_ASSET *fixed_asset_parse(
+			char *input );
 
 /* Returns static memory */
 /* --------------------- */

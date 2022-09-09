@@ -55,19 +55,26 @@ typedef struct
 	RECOVERY *recovery;
 } FIXED_ASSET_PURCHASE;
 
-/* Operations */
-/* ---------- */
+/* Usage */
+/* ----- */
+LIST *fixed_asset_purchase_list_fetch(
+			char *where,
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_fetch(
 			char *asset_name,
 			char *serial_label,
 			boolean fetch_last_depreciation,
 			boolean fetch_last_recovery );
 
-LIST *fixed_asset_purchase_list_fetch(
-			char *where,
-			boolean fetch_last_depreciation,
-			boolean fetch_last_recovery );
-
+/* Process */
+/* ------- */
 FIXED_ASSET_PURCHASE *fixed_asset_purchase_new(
 			char *asset_name,
 			char *serial_label );

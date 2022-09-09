@@ -24,11 +24,6 @@
 #include "transaction.h"
 #include "depreciation.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 boolean depreciate_fixed_assets(
 			boolean execute );
 
@@ -131,21 +126,16 @@ boolean depreciate_fixed_assets( boolean execute )
 {
 	LIST *fixed_asset_purchase_list;
 	char *depreciation_date;
-	char where[ 512 ];
 
 	depreciation_date = date_now_yyyy_mm_dd( date_utc_offset() );
-
-	sprintf(where,
-	"ifnull(finance_accumulated_depreciation,0) -			"
-	"ifnull(estimated_residual_value,0) < cost_basis		"
-	" and disposal_date is null					"
-	" and not %s							",
-		depreciation_subquery_where( depreciation_date ) );
 
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_depreciate(
 			fixed_asset_purchase_list_fetch(
-				where,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				depreciation_where( depreciation_date ),
 				0 /* not fetch_last_depreciation */,
 				0 /* not fetch_last_recovery */ ),
 			depreciation_date );
@@ -180,8 +170,7 @@ boolean depreciate_fixed_assets( boolean execute )
 		transaction_list_insert(
 			depreciation_transaction_list(
 				depreciation_list ),
-			1 /* lock_transaciton */ );
-
+			1 /* insert_journal_list_boolean */ );
 	}
 	return 1;
 }
@@ -226,7 +215,8 @@ boolean depreciate_fixed_assets_undo( boolean execute )
 
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
-			depreciation_subquery_where( prior_depreciation_date ),
+			depreciation_subquery_where(
+				prior_depreciation_date ),
 			1 /* fetch_last_depreciation */,
 			0 /* not fetch_last_recovery */ );
 

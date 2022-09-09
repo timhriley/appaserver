@@ -70,8 +70,14 @@ FIXED_ASSET *fixed_asset_fetch(
 			char *asset_name )
 {
 	return fixed_asset_parse(
-		pipe2string(
+		string_pipe(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			fixed_asset_system_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				fixed_asset_primary_where(
 					asset_name ) ) ) );
 }
