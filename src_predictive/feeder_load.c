@@ -161,6 +161,8 @@ int main( int argc, char **argv )
 				feeder->feeder_row_first_out_balance );
 
 			feeder_row_transaction_insert(
+				feeder_account,
+				feeder->account_uncleared_checks,
 				feeder->feeder_row_list,
 				feeder->feeder_row_first_out_balance );
 

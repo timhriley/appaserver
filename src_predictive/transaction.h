@@ -107,7 +107,10 @@ TRANSACTION *transaction_binary(
 
 /* Usage */
 /* ----- */
-void transaction_list_insert(
+
+/* Returns first_transaction_date_time */
+/* ----------------------------------- */
+char *transaction_list_insert(
 			LIST *transaction_list,
 			boolean insert_journal_list_boolean );
 

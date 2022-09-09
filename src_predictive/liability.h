@@ -10,6 +10,7 @@
 
 #include "list.h"
 #include "entity.h"
+#include "entity_self.h"
 #include "receivable.h"
 #include "transaction.h"
 #include "appaserver_link_file.h"
@@ -511,6 +512,7 @@ char *liability_payment_error_message(
 
 typedef struct
 {
+	ENTITY_SELF *entity_self;
 	LIST *liability_account_entity_list;
 	LIST *account_current_liability_name_list;
 	LIST *journal_account_distinct_entity_list;

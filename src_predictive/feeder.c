@@ -877,6 +877,10 @@ FEEDER *feeder_fetch(
 
 	feeder = feeder_calloc();
 
+	feeder->account_uncleared_checks =
+		account_uncleared_checks(
+			ACCOUNT_UNCLEARED_CHECKS_KEY );
+
 	feeder->feeder_phrase_list =
 		feeder_phrase_list(
 			FEEDER_PHRASE_SELECT,
@@ -904,8 +908,7 @@ FEEDER *feeder_fetch(
 			feeder_account,
 			FEEDER_ROW_TABLE,
 			feeder->feeder_load_file_minimum_date,
-			account_uncleared_checks(
-				ACCOUNT_UNCLEARED_CHECKS_KEY ) );
+			feeder->account_uncleared_checks );
 
 	feeder->feeder_load_file =
 		feeder_load_file_fetch(
@@ -930,6 +933,7 @@ FEEDER *feeder_fetch(
 	feeder->feeder_row_list =
 		feeder_row_list(
 			feeder_account,
+			feeder->account_uncleared_checks,
 			feeder->feeder_phrase_list,
 			feeder->feeder_exist_row_list,
 			feeder->feeder_matched_journal_list,
@@ -1995,10 +1999,13 @@ boolean feeder_row_list_display(
 }
 
 void feeder_row_transaction_insert(
+			char *feeder_account,
+			char *account_uncleared_checks,
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance )
 {
 	LIST *transaction_list;
+	char *first_transaction_date_time;
 
 	if ( !list_length( feeder_row_list ) ) return;
 
@@ -2014,6 +2021,22 @@ void feeder_row_transaction_insert(
 		transaction_journal_list_insert(
 			transaction_list,
 			1 /* with_propagate */ );
+	}
+
+	first_transaction_date_time =
+		feeder_row_check_journal_update(
+			feeder_row_list,
+			feeder_row_first_out_balance );
+
+	if ( first_transaction_date_time )
+	{
+		journal_propagate(
+			first_transaction_date_time,
+			feeder_account );
+
+		journal_propagate(
+			first_transaction_date_time,
+			account_uncleared_checks );
 	}
 }
 
@@ -2219,6 +2242,8 @@ char *feeder_row_display_results(
 
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_check_seek(
+			char *feeder_account,
+			char *account_uncleared_checks,
 			int check_number,
 			double amount,
 			LIST *feeder_matched_journal_list )
@@ -2251,6 +2276,21 @@ FEEDER_MATCHED_JOURNAL *
 		if ( feeder_matched_journal->check_number == check_number
 		&&   feeder_matched_journal->amount == amount )
 		{
+			feeder_matched_journal->check_update_statement =
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				feeder_matched_journal_check_update_statement(
+					JOURNAL_TABLE,
+					feeder_account,
+					account_uncleared_checks,
+					feeder_matched_journal->
+						full_name,
+					feeder_matched_journal->
+						street_address,
+					feeder_matched_journal->
+						transaction_date_time );
+
 			return feeder_matched_journal;
 		}
 
@@ -3134,6 +3174,7 @@ double feeder_load_row_account_end_balance(
 }
 
 LIST *feeder_row_list(	char *feeder_account,
+			char *account_uncleared_checks,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
@@ -3166,6 +3207,7 @@ LIST *feeder_row_list(	char *feeder_account,
 			feeder_row_new(
 				date /* feeder_row_date in/out */,
 				feeder_account,
+				account_uncleared_checks,
 				feeder_phrase_list,
 				feeder_exist_row_list,
 				feeder_matched_journal_list,
@@ -3214,6 +3256,7 @@ DATE *feeder_row_date( void )
 FEEDER_ROW *feeder_row_new(
 			DATE *feeder_row_date /* in/out */,
 			char *feeder_account,
+			char *account_uncleared_checks,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
@@ -3258,6 +3301,8 @@ FEEDER_ROW *feeder_row_new(
 		{
 			feeder_row->feeder_matched_journal =
 				feeder_matched_journal_check_seek(
+					feeder_account,
+					account_uncleared_checks,
 					feeder_load_row->check_number,
 					feeder_load_row->file_row_amount,
 					feeder_matched_journal_list );
@@ -4020,5 +4065,96 @@ LIST *feeder_audit_html_cell_list(
 	}
 
 	return list;
+}
+
+char *feeder_matched_journal_check_update_statement(
+			char *journal_table,
+			char *feeder_account,
+			char *account_uncleared_checks,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time )
+{
+	char update_statement[ 1024 ];
+
+	if ( !journal_table
+	||   !feeder_account
+	||   !account_uncleared_checks
+	||   !full_name
+	||   !street_address
+	||   !transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(update_statement,
+		"update %s set account = '%s' where %s;",
+		journal_table,
+		feeder_account,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_primary_where(
+			full_name,
+			street_address,
+			transaction_date_time,
+			account_uncleared_checks ) );
+
+	return strdup( update_statement );
+}
+
+char *feeder_row_check_journal_update(
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance )
+{
+	FILE *update_pipe;
+	FEEDER_ROW *feeder_row;
+	char *first_transaction_date_time = {0};
+
+	if ( !list_rewind( feeder_row_list ) ) return (char *)0;
+
+	update_pipe = feeder_row_check_journal_update_pipe();
+
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		if ( feeder_row == feeder_row_first_out_balance )
+			break;
+
+		if ( feeder_row->feeder_matched_journal
+		&&   feeder_row->
+			feeder_matched_journal->
+			check_update_statement )
+		{
+			fprintf(update_pipe,
+				"%s\n",
+				feeder_row->
+					feeder_matched_journal->
+					check_update_statement );
+
+			if ( !first_transaction_date_time )
+			{
+				first_transaction_date_time =
+					feeder_row->
+						feeder_matched_journal->
+						transaction_date_time;
+			}
+		}
+
+	} while ( list_next( feeder_row_list ) );
+
+	pclose( update_pipe );
+
+	return first_transaction_date_time;
+}
+
+FILE *feeder_row_check_journal_update_pipe( void )
+{
+	return popen( "sql", "w" );
 }
 

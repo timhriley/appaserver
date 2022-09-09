@@ -14,8 +14,6 @@
 #include "piece.h"
 #include "date.h"
 #include "sql.h"
-#include "entity.h"
-#include "entity_self.h"
 #include "list.h"
 #include "transaction.h"
 #include "appaserver_library.h"
@@ -1621,22 +1619,11 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 {
 	LIABILITY_CALCULATE *liability_calculate;
 	ENTITY *entity;
-	ENTITY_SELF *entity_self;
 
 	if ( !application_name )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	if ( ! ( entity_self = entity_self_fetch() ) )
-	{
-		fprintf(stderr,
-		"ERROR in %s/%s()/%d: entity_self_fetch() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1684,6 +1671,16 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 
 	liability_calculate->liability_entity_list = list_new();
 
+	if ( ! ( liability_calculate->entity_self = entity_self_fetch() ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: entity_self_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	do {
 		entity =
 			list_get(
@@ -1692,10 +1689,16 @@ LIABILITY_CALCULATE *liability_calculate_new( char *application_name )
 
 		if ( strcmp(
 			entity->full_name,
-			entity_self->entity->full_name ) == 0
+			liability_calculate->
+				entity_self->
+				entity->
+				full_name ) == 0
 		&&   strcmp(
 			entity->street_address,
-			entity_self->entity->street_address ) == 0 )
+			liability_calculate->
+				entity_self->
+				entity->
+				street_address ) == 0 )
 		{
 			continue;
 		}

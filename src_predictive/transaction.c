@@ -877,13 +877,14 @@ LIST *transaction_list(
 	return list;
 }
 
-void transaction_list_insert(
+char *transaction_list_insert(
 			LIST *transaction_list,
 			boolean insert_journal_list_boolean )
 {
 	TRANSACTION *transaction;
+	char *first_transaction_date_time = {0};
 
-	if ( !list_rewind( transaction_list ) ) return;
+	if ( !list_rewind( transaction_list ) ) return (char *)0;
 
 	do {
 		transaction =
@@ -904,9 +905,17 @@ void transaction_list_insert(
 					TRANSACTION_LOCK_Y,
 					transaction->journal_list,
 					insert_journal_list_boolean );
+
+			if ( !first_transaction_date_time )
+			{
+				first_transaction_date_time =
+					transaction->transaction_date_time;
+			}
 		}
 
 	} while ( list_next( transaction_list ) );
+
+	return first_transaction_date_time;
 }
 
 TRANSACTION *transaction_entity_new(

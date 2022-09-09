@@ -147,6 +147,7 @@ typedef struct
 	char *subquery;
 	char *where;
 	LIST *journal_system_list;
+	char *check_update_statement;
 } FEEDER_MATCHED_JOURNAL;
 
 /* Usage */
@@ -202,14 +203,31 @@ double feeder_matched_journal_amount(
 			double debit_amount,
 			double credit_amount );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_check_seek(
+			char *feeder_account,
+			char *account_uncleared_checks,
 			int check_number,
 			double amount,
 			LIST *feeder_matched_journal_list );
 
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_matched_journal_check_update_statement(
+			char *journal_table,
+			char *feeder_account,
+			char *account_uncleared_checks,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time );
+
+/* Public */
+/* ------ */
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_amount_seek(
 			double amount,
@@ -405,6 +423,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *feeder_row_list(	char *feeder_account,
+			char *account_uncleared_checks,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
@@ -419,6 +438,7 @@ DATE *feeder_row_date(	void );
 FEEDER_ROW *feeder_row_new(
 			DATE *feeder_load_date /* in/out */,
 			char *feeder_account,
+			char *account_uncleared_checks,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
 			LIST *feeder_matched_journal_list,
@@ -613,14 +633,33 @@ void feeder_row_insert_pipe(
 /* Driver */
 /* ------ */
 void feeder_row_transaction_insert(
+			char *feeder_account,
+			char *account_uncleared_checks,
+			LIST *feeder_row_list,
+			FEEDER_ROW *feeder_row_first_out_balance );
+
+/* Usage */
+/* ----- */
+LIST *feeder_row_extract_transaction_list(
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );
 
 /* Process */
 /* ------- */
-LIST *feeder_row_extract_transaction_list(
+
+/* Usage */
+/* ----- */
+
+/* Returns first_transaction_date_time */
+/* ----------------------------------- */
+char *feeder_row_check_journal_update(
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );
+
+/* Process */
+/* ------- */
+FILE *feeder_row_check_journal_update_pipe(
+			void );
 
 typedef struct
 {
@@ -798,6 +837,7 @@ void feeder_load_event_insert_pipe(
 
 typedef struct
 {
+	char *account_uncleared_checks;
 	LIST *feeder_phrase_list;
 	char *feeder_load_file_minimum_date;
 	LIST *feeder_exist_row_list;

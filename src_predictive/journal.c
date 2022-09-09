@@ -2029,3 +2029,44 @@ double journal_amount(	double debit_amount,
 	return amount;
 }
 
+char *journal_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name )
+{
+	char escape_account[ 64 ];
+	char where[ 1024 ];
+
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"transaction_date_time = '%s' and	"
+		"account = '%s'				",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_escape_full_name(
+			full_name ),
+		street_address,
+		transaction_date_time,
+		string_escape_quote(
+			escape_account,
+			account_name ) );
+
+	return strdup( where );
+}
+

@@ -393,6 +393,14 @@ JOURNAL *journal_credit_new(
 
 /* Returns heap memory */
 /* ------------------- */
+char *journal_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *account_name );
+
+/* Returns heap memory */
+/* ------------------- */
 char *journal_system_string(
 			char *journal_select,
 			char *journal_table,
