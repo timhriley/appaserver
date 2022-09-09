@@ -928,9 +928,17 @@ char *string_strdup( char *string )
 
 double string_atof( char *string )
 {
-	if ( !string )
+	if ( !string || !*string || isalpha( *string ) )
 		return 0.0;
 	else
 		return atof( string );
+}
+
+int string_atoi( char *string )
+{
+	if ( !string || !*string || isalpha( *string ) )
+		return 0;
+	else
+		return atoi( string );
 }
 

@@ -1,6 +1,6 @@
 :
 
-make close_nominal_accounts
+make feeder_load
 
 #if [ "$?" -eq 0 ]
 #then

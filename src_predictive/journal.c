@@ -99,6 +99,7 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 {
 	JOURNAL *journal;
 	char *max_prior_transaction_date_time;
+	boolean none_prior = 0;
 
 	if ( !transaction_date_time
 	||   !account_name )
@@ -129,6 +130,17 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 	{
 		transaction_date_time = max_prior_transaction_date_time;
 	}
+	else
+	{
+		if ( ! ( transaction_date_time =
+				journal_minimum_transaction_date_time(
+					account_name ) ) )
+		{
+			return (JOURNAL *)0;
+		}
+
+		none_prior = 1;
+	}
 
 	journal =
 		journal_account_fetch(
@@ -139,9 +151,7 @@ JOURNAL *journal_prior(	char *transaction_date_time,
 			fetch_element,
 			0 /* not fetch_transaction */ );
 
-	if ( journal
-	&&   ( !max_prior_transaction_date_time
-	||     !*max_prior_transaction_date_time ) )
+	if ( journal && none_prior )
 	{
 		journal->previous_balance = 0.0;
 	}
@@ -440,12 +450,7 @@ void journal_propagate(	char *transaction_date_time,
 		return;
 	}
 
-	if ( !transaction_date_time
-	||   !*transaction_date_time
-	||   strcmp(	transaction_date_time,
-			"transaction_date_time" ) == 0
-	||   strcmp(	transaction_date_time,
-			"preupdate_transaction_date_time" ) == 0 )
+	if ( !string_atoi( transaction_date_time ) )
 	{
 		if ( ! ( transaction_date_time =
 				journal_minimum_transaction_date_time(

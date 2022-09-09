@@ -189,4 +189,6 @@ char *string_strdup(	char *string );
 
 double string_atof(	char *string );
 
+int string_atoi(	char *string );
+
 #endif
