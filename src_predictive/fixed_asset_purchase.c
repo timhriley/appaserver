@@ -147,13 +147,14 @@ FIXED_ASSET_PURCHASE *fixed_asset_purchase_parse(
 				fixed_asset_purchase->
 					serial_label,
 				depreciation_prior_depreciation_date(
+					DEPRECIATION_TABLE,
 					fixed_asset_purchase->
 						fixed_asset->
 						asset_name,
 					fixed_asset_purchase->
 						serial_label,
 					(char *)0
-					    /* current_depreciation_date */ ) );
+					    /* depreciation_date */ ) );
 	}
 
 	if ( fetch_last_recovery )
@@ -364,7 +365,7 @@ LIST *fixed_asset_purchase_list_depreciate(
 
 	accumulated_depreciation =
 		account_accumulated_depreciation(
-			ACCOUNT_ACCUMULATED_DEPRECIATION_KEY );
+			ACCOUNT_ACCUMULATED_KEY );
 
 	do {
 		fixed_asset_purchase =
@@ -378,13 +379,14 @@ LIST *fixed_asset_purchase_list_depreciate(
 				fixed_asset_purchase->depreciation_method,
 				fixed_asset_purchase->service_placement_date,
 				depreciation_prior_depreciation_date(
+					DEPRECIATION_TABLE,
 					fixed_asset_purchase->
 						fixed_asset->
 						asset_name,
 					fixed_asset_purchase->
 						serial_label,
 					(char *)0
-					     /* current_depreciation_date */ ),
+					     /* depreciation_date */ ),
 				depreciation_date,
 				fixed_asset_purchase->cost_basis,
 				fixed_asset_purchase->units_produced_so_far,
@@ -408,7 +410,7 @@ LIST *fixed_asset_purchase_list_depreciate(
 					depreciation_date,
 					fixed_asset_purchase->
 						depreciation->
-						depreciation_amount,
+						amount,
 					depreciation_expense,
 					accumulated_depreciation );
 
@@ -533,7 +535,7 @@ void fixed_asset_purchase_depreciation_display(
 			commas_in_money(
 				fixed_asset_purchase->
 					depreciation->
-					depreciation_amount ) );
+					amount ) );
 
 		strcpy(	post_accumulated,
 			commas_in_money(
@@ -541,7 +543,7 @@ void fixed_asset_purchase_depreciation_display(
 					finance_accumulated_depreciation +
 				fixed_asset_purchase->
 					depreciation->
-					depreciation_amount ) );
+					amount ) );
 
 		fprintf(output_pipe,
 			"%s^%s^%s^%s^%s^%s^%s\n",
@@ -780,7 +782,7 @@ void fixed_asset_purchase_list_add_depreciation_amount(
 				finance_accumulated_depreciation +=
 					fixed_asset_purchase->
 						depreciation->
-						depreciation_amount;
+						amount;
 		}
 
 	} while( list_next( fixed_asset_purchase_list ) );
@@ -839,7 +841,7 @@ void fixed_asset_purchase_list_negate_depreciation_amount(
 				finance_accumulated_depreciation -=
 					fixed_asset_purchase->
 						depreciation->
-						depreciation_amount;
+						amount;
 		}
 
 	} while( list_next( fixed_asset_purchase_list ) );
@@ -890,6 +892,8 @@ char *fixed_asset_purchase_depreciation_where(
 	" and disposal_date is null				"
 	" and not %s						",
 		depreciation_subquery_where(
+			DEPRECIATION_TABLE,
+			FIXED_ASSET_PURCHASE_TABLE,
 			depreciation_date ) );
 
 	return strdup( where );

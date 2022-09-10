@@ -12,11 +12,6 @@
 #include "entity.h"
 #include "transaction.h"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Constants */
-/* --------- */
 #define DEPRECIATION_TABLE		"depreciation"
 
 #define DEPRECIATION_MEMO		"Depreciation"
@@ -28,8 +23,19 @@
 #define UNITS_OF_PRODUCTION		"units_of_production"
 #define NOT_DEPRECIATED			"not_depreciated"
 
-/* Enumerated types */
-/* ---------------- */
+#define DEPRECIATION_INSERT_COLUMNS	"asset_name,"		\
+					"serial_label,"		\
+					"depreciation_date,"	\
+					"units_produced,"	\
+					"depreciation_amount,"	\
+					"full_name,"		\
+					"street_address,"	\
+					"transaction_date_time"
+
+#define DEPRECIATION_PRIMARY_KEY	"asset_name,"		\
+					"serial_label,"		\
+					"depreciation_date"
+
 enum depreciation_method {	straight_line,
 				double_declining_balance,
 				n_declining_balance,
@@ -37,11 +43,8 @@ enum depreciation_method {	straight_line,
 				units_of_production,
 				not_depreciated };
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
-	/* Input */
 	char *asset_name;
 	char *serial_label;
 	enum depreciation_method depreciation_method;
@@ -53,55 +56,60 @@ typedef struct
 	int estimated_useful_life_units;
 	int declining_balance_n;
 	double prior_accumulated_depreciation;
-
-	/* Process */
-	/* ------- */
-	double depreciation_amount;
-	double depreciation_accumulated_depreciation;
-	int units_produced_current;
+	int units_produced;
+	double amount;
+	double accumulated_depreciation;
+	ENTITY_SELF *entity_self;
 	char *transaction_date_time;
 	TRANSACTION *depreciation_transaction;
-	ENTITY_SELF *entity_self;
 } DEPRECIATION;
 
-/* Operations */
-/* ---------- */
-DEPRECIATION *depreciation_new(
+/* Usage */
+/* ----- */
+DEPRECIATION *depreciation_evaluate(
 			char *asset_name,
 			char *serial_label,
-			char *depreciation_date );
-
-DEPRECIATION *depreciation_parse(
-			char *input );
-
-DEPRECIATION *depreciation_fetch(
-			char *asset_name,
-			char *serial_label,
-			char *depreciation_date );
-
-char *depreciation_system_string(
-			char *where );
-
-LIST *depreciation_system_list(
-			char *system_string );
-
-double depreciation_amount_total(
-			LIST *depreciation_list );
-
-double depreciation_amount(
-			enum depreciation_method,
+			enum depreciation_method depreciation_method,
 			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
 			double cost_basis,
-			int units_produced_current,
+			int units_produced_so_far,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
 			double prior_accumulated_depreciation );
 
-double depreciation_sum_of_years_digits(
+/* Process */
+/* ------- */
+double depreciation_accumulated_depreciation(
+			double prior_accumulated_depreciation,
+			double depreciation_amount );
+
+DEPRECIATION *depreciation_new(
+			char *asset_name,
+			char *serial_label,
+			char *depreciation_date );
+
+/* Usage */
+/* ----- */
+double depreciation_amount(
+			enum depreciation_method,
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date,
+			double cost_basis,
+			int depreciation_units_produced,
+			int estimated_residual_value,
+			int estimated_useful_life_years,
+			int estimated_useful_life_units,
+			int declining_balance_n,
+			double prior_accumulated_depreciation );
+
+/* Process */
+/* ------- */
+double depreciation_straight_line(
 			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
@@ -110,7 +118,7 @@ double depreciation_sum_of_years_digits(
 			int estimated_useful_life_years,
 			double prior_accumulated_depreciation );
 
-double depreciation_straight_line(
+double depreciation_sum_of_years_digits(
 			char *service_placement_date,
 			char *prior_depreciation_date,
 			char *depreciation_date,
@@ -145,10 +153,34 @@ double depreciation_units_of_production(
 			int units_produced,
 			double prior_accumulated_depreciation );
 
-double depreciation_fraction_of_year(
-			char *service_placement_date,
-			char *prior_depreciation_date,
-			char *depreciation_date_string );
+/* Usage */
+/* ----- */
+int depreciation_units_produced(
+			char *asset_name,
+			char *serial_label,
+			enum depreciation_method depreciation_method,
+			int units_produced_so_far );
+
+/* Process */
+/* ------- */
+int depreciation_units_produced_total(
+			char *depreciation_table,
+			char *asset_name,
+			char *serial_label );
+
+int depreciation_units_produced_current(
+			int units_produced_so_far,
+			int units_produced_total );
+
+/* Usage */
+/* ----- */
+DEPRECIATION *depreciation_fetch(
+			char *asset_name,
+			char *serial_label,
+			char *depreciation_date );
+
+/* Process */
+/* ------- */
 
 /* Returns static memory */
 /* --------------------- */
@@ -157,89 +189,39 @@ char *depreciation_primary_where(
 			char *serial_label,
 			char *depreciation_date );
 
-LIST *depreciation_list_fetch(
-			char *asset_name,
-			char *serial_label );
+/* Returns heap memory */
+/* ------------------- */
+char *depreciation_system_string(
+			char *depreciation_table,
+			char *where );
 
-double depreciation_accumulated_depreciation(
-			double prior_accumulated_depreciation,
-			double depreciation_amount );
+DEPRECIATION *depreciation_parse(
+			char *input );
 
-TRANSACTION *depreciation_transaction(
-			char *full_name,
-			char *street_address,
-			char *depreciation_date,
-			double depreciation_amount,
-			char *account_depreciation_expense,
-			char *account_accumulated_depreciation );
-
-LIST *depreciation_transaction_list(
-			LIST *depreciation_list );
-
+/* Usage */
+/* ----- */
 void depreciation_list_insert(
 			LIST *depreciation_list );
 
-void depreciation_insert(
-			FILE *insert_pipe,
+/* Process */
+/* ------- */
+FILE *depreciation_insert_pipe_open(
+			char *depreciation_table,
+			char *depreciation_insert_columns );
+
+void depreciation_insert_pipe(
 			char *asset_name,
 			char *serial_label,
 			char *depreciation_date,
-			int units_produced_current,
+			int depreciation_units_produced,
 			double depreciation_amount,
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time );
+			char *transaction_date_time,
+			FILE *insert_pipe_open );
 
-char *depreciation_prior_depreciation_date(
-			char *asset_name,
-			char *serial_label,
-			char *current_depreciation_date );
-
-DEPRECIATION *depreciation_seek(
-			LIST *depreciation_list,
-			char *depreciation_date );
-
-FILE *depreciation_delete_open(
-			void );
-
-char *depreciation_method_string(
-	 		enum depreciation_method depreciation_method );
-
-enum depreciation_method depreciation_method_evaluate(
-			char *depreciation_method_string );
-
-DEPRECIATION *depreciation_evaluate(
-			char *asset_name,
-			char *serial_label,
-			enum depreciation_method depreciation_method,
-			char *service_placement_date,
-			char *prior_depreciation_date,
-			char *depreciation_date,
-			double cost_basis,
-			int units_produced_so_far,
-			int estimated_residual_value,
-			int estimated_useful_life_years,
-			int estimated_useful_life_units,
-			int declining_balance_n,
-			double prior_accumulated_depreciation );
-
-int depreciation_units_produced_total(
-			char *asset_name,
-			char *serial_label );
-
-int depreciation_units_produced(
-			int units_produced_so_far,
-			int units_produced_total );
-
-void depreciation_list_negate_depreciation_amount(
-			LIST *depreciation_list );
-
-char *depreciation_subquery_where(
-			char *depreciation_date );
-
-FILE *depreciation_update_open(
-			void );
-
+/* Usage */
+/* ----- */
 void depreciation_update(
 			int units_produced,
 			double depreciation_amount,
@@ -249,5 +231,94 @@ void depreciation_update(
 			char *asset_name,
 			char *serial_label,
 			char *depreciation_date );
+
+/* Process */
+/* ------- */
+FILE *depreciation_update_pipe_open(
+			char *depreciation_table,
+			char *depreciation_primary_key );
+
+void depreciation_update_pipe(
+			int units_produced,
+			double depreciation_amount,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *fixed_asset_name_escape,
+			char *serial_label,
+			char *depreciation_date,
+			FILE *update_pipe_open );
+
+/* Usage */
+/* ----- */
+LIST *depreciation_list_fetch(
+			char *depreciation_table,
+			char *asset_name,
+			char *serial_label );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *depreciation_system_list(
+			char *depreciation_system_string );
+
+/* Process */
+/* ------- */
+FILE *depreciation_input_pipe_open(
+			char *depreciation_system_string );
+
+/* Public */
+/* ------ */
+enum depreciation_method depreciation_method_evaluate(
+			char *depreciation_method_string );
+
+char *depreciation_method_string(
+	 		enum depreciation_method depreciation_method );
+
+double depreciation_fraction_of_year(
+			char *service_placement_date,
+			char *prior_depreciation_date,
+			char *depreciation_date_string );
+
+char *depreciation_prior_depreciation_date(
+			char *depreciation_table,
+			char *asset_name,
+			char *serial_label,
+			char *depreciation_date );
+
+char *depreciation_subquery_where(
+			char *depreciation_table,
+			char *fixed_asset_purchase_table,
+			char *depreciation_date );
+
+TRANSACTION *depreciation_transaction(
+			char *full_name,
+			char *street_address,
+			/* ------------------------------------ */
+			/* Returns heap memory.			*/
+			/* Increments seconds each invocation.  */
+			/* ------------------------------------ */
+			char *predictive_transaction_date_time,
+			double depreciation_amount,
+			char *account_depreciation_expense,
+			char *account_accumulated_depreciation );
+
+double depreciation_amount_total(
+			LIST *depreciation_list );
+
+void depreciation_list_negate_depreciation_amount(
+			LIST *depreciation_list );
+
+LIST *depreciation_transaction_list(
+			LIST *fixed_asset_purchase_depreciation_list );
+
+DEPRECIATION *depreciation_seek(
+			char *depreciation_date,
+			LIST *depreciation_list );
+
+FILE *depreciation_delete_open(
+			void );
 
 #endif

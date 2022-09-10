@@ -49,7 +49,7 @@ TRANSACTION *transaction_full(
 			char *transaction_date_time,
 			double transaction_amount,
 			char *memo,
-			boolean lock_transaction,
+			char lock_transaction_yn,
 			int seconds_to_add )
 {
 	TRANSACTION *transaction;
@@ -87,7 +87,7 @@ TRANSACTION *transaction_full(
 
 	transaction->transaction_amount = transaction_amount;
 	transaction->memo = memo;
-	transaction->lock_transaction = lock_transaction;
+	transaction->lock_transaction_yn = lock_transaction_yn;
 	return transaction;
 }
 
@@ -191,7 +191,7 @@ TRANSACTION *transaction_parse(
 	transaction->memo = strdup( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 6 );
-	transaction->lock_transaction = ( *piece_buffer == 'y' );
+	transaction->lock_transaction_yn = *piece_buffer;
 
 	if ( fetch_journal_list )
 	{
@@ -1345,5 +1345,49 @@ void transaction_fetch_update(
 			full_name,
 			street_address,
 			transaction_date_time ) );
+}
+
+char *transaction_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			int check_number,
+			char *memo,
+			char lock_transaction_yn,
+			LIST *journal_list )
+{
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	transaction_delete(
+		full_name,
+		street_address,
+		transaction_date_time );
+
+	/* Note: transaction_date_time shouldn't change. */
+	/* --------------------------------------------- */
+	transaction_date_time =
+		transaction_insert(
+			full_name,
+			street_address,
+			transaction_date_time,
+			transaction_amount,
+			check_number,
+			memo,
+			lock_transaction_yn,
+			journal_list,
+			1 /* insert_journal_list */ );
+
+	return transaction_date_time;
 }
 

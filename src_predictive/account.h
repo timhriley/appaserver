@@ -128,7 +128,7 @@ ACCOUNT *account_statement_parse(
 /* ----- */
 ACCOUNT *account_fetch(	char *account_name,
 			boolean fetch_subclassification,
-			boolean fetch_entity );
+			boolean fetch_element );
 
 /* Process */
 /* ------- */

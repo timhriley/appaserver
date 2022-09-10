@@ -20,11 +20,6 @@
 #include "fixed_asset_purchase.h"
 #include "depreciation.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 void depreciation_trigger_insert(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
 			char *depreciation_date );
@@ -146,13 +141,13 @@ void depreciation_trigger_insert(
 			fixed_asset_purchase->depreciation_method,
 			fixed_asset_purchase->service_placement_date,
 			depreciation_prior_depreciation_date(
+				DEPRECIATION_TABLE,
 				fixed_asset_purchase->
 					fixed_asset->
 					asset_name,
 				fixed_asset_purchase->
 					serial_label,
-				depreciation_date
-					/* current_depreciation_date */ ),
+				depreciation_date ),
 			depreciation_date,
 			fixed_asset_purchase->cost_basis,
 			fixed_asset_purchase->units_produced_so_far,
@@ -181,11 +176,11 @@ void depreciation_trigger_insert(
 				depreciation_date,
 				fixed_asset_purchase->
 					depreciation->
-					depreciation_amount,
+					amount,
 				account_depreciation_expense(
-					(char *)0 /* fund_name */ ),
+					ACCOUNT_DEPRECIATION_KEY ),
 				account_accumulated_depreciation(
-					(char *)0 /* fund_name */ ) );
+					ACCOUNT_ACCUMULATED_KEY ) );
 
 	if ( !fixed_asset_purchase->
 		depreciation->
@@ -212,15 +207,15 @@ void depreciation_trigger_insert(
 			depreciation->
 				depreciation_transaction->
 				transaction_amount,
-		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				memo,
 		0 /* check_number */,
 		fixed_asset_purchase->
 			depreciation->
 				depreciation_transaction->
-				lock_transaction,
+				memo,
+		fixed_asset_purchase->
+			depreciation->
+				depreciation_transaction->
+				lock_transaction_yn,
 		fixed_asset_purchase->
 			depreciation->
 				depreciation_transaction->
@@ -229,10 +224,10 @@ void depreciation_trigger_insert(
 	depreciation_update(
 		fixed_asset_purchase->
 			depreciation->
-			units_produced_current,
+			units_produced,
 		fixed_asset_purchase->
 			depreciation->
-			depreciation_amount,
+			amount,
 		fixed_asset_purchase->
 			depreciation->
 			depreciation_transaction->
@@ -276,7 +271,7 @@ void depreciation_trigger_update(
 				entity_self->entity->street_address,
 				depreciation->transaction_date_time
 					/* depreciation_date */,
-				depreciation->depreciation_amount,
+				depreciation->amount,
 				account_depreciation_expense(
 					(char *)0 /* fund_name */ ),
 				account_accumulated_depreciation(
@@ -294,9 +289,9 @@ void depreciation_trigger_update(
 		depreciation->depreciation_transaction->street_address,
 		depreciation->depreciation_transaction->transaction_date_time,
 		depreciation->depreciation_transaction->transaction_amount,
-		depreciation->depreciation_transaction->memo,
 		0 /* check_number */,
-		depreciation->depreciation_transaction->lock_transaction,
+		depreciation->depreciation_transaction->memo,
+		depreciation->depreciation_transaction->lock_transaction_yn,
 		depreciation->depreciation_transaction->journal_list );
 
 	fixed_asset_purchase_finance_fetch_update(

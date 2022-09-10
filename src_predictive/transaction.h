@@ -41,7 +41,7 @@ typedef struct
 	char *memo;
 	int check_number;
 	LIST *journal_list;
-	boolean lock_transaction;
+	char lock_transaction_yn;
 } TRANSACTION;
 
 /* Usage */
@@ -323,6 +323,21 @@ LIST *transaction_list_extract_account_list(
 /* ----- */
 void transaction_list_html_display(
 			LIST *transaction_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+char *transaction_refresh(
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			double transaction_amount,
+			int check_number,
+			char *memo,
+			char lock_transaction_yn,
+			LIST *journal_list );
 
 /* Process */
 /* ------- */

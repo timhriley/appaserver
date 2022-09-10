@@ -28,80 +28,85 @@ double depreciation_amount(
 			char *prior_depreciation_date,
 			char *depreciation_date,
 			double cost_basis,
-			int units_produced_current,
+			int units_produced,
 			int estimated_residual_value,
 			int estimated_useful_life_years,
 			int estimated_useful_life_units,
 			int declining_balance_n,
 			double prior_accumulated_depreciation )
 {
+	double amount = {0};
+
 	if ( depreciation_method == not_depreciated )
 	{
-		return 0.0;
+		/* amount = 0.0; */
 	}
 	else
 	if ( depreciation_method == straight_line )
 	{
-		return depreciation_straight_line(
-			service_placement_date,
-			prior_depreciation_date,
-			depreciation_date,
-			cost_basis,
-			estimated_residual_value,
-			estimated_useful_life_years,
-			prior_accumulated_depreciation );
+		amount =
+			depreciation_straight_line(
+				service_placement_date,
+				prior_depreciation_date,
+				depreciation_date,
+				cost_basis,
+				estimated_residual_value,
+				estimated_useful_life_years,
+				prior_accumulated_depreciation );
 	}
 	else
-	if ( depreciation_method == units_of_production )
+	if ( depreciation_method == sum_of_years_digits )
 	{
-		return depreciation_units_of_production(
-			cost_basis,
-			estimated_residual_value,
-			estimated_useful_life_units,
-			units_produced_current,
-			prior_accumulated_depreciation );
+		amount =
+			depreciation_sum_of_years_digits(
+				service_placement_date,
+				prior_depreciation_date,
+				depreciation_date,
+				cost_basis,
+				estimated_residual_value,
+				estimated_useful_life_years,
+				prior_accumulated_depreciation );
 	}
 	else
 	if ( depreciation_method == double_declining_balance )
 	{
-		return depreciation_double_declining_balance(
-			service_placement_date,
-			prior_depreciation_date,
-			depreciation_date,
-			cost_basis,
-			estimated_residual_value,
-			estimated_useful_life_years,
-			prior_accumulated_depreciation );
+		amount =
+			depreciation_double_declining_balance(
+				service_placement_date,
+				prior_depreciation_date,
+				depreciation_date,
+				cost_basis,
+				estimated_residual_value,
+				estimated_useful_life_years,
+				prior_accumulated_depreciation );
 	}
 	else
 	if ( depreciation_method == n_declining_balance )
 	{
-		return depreciation_n_declining_balance(
-			service_placement_date,
-			prior_depreciation_date,
-			depreciation_date,
-			cost_basis,
-			estimated_residual_value,
-			estimated_useful_life_years,
-			declining_balance_n,
-			prior_accumulated_depreciation );
+		amount =
+			depreciation_n_declining_balance(
+				service_placement_date,
+				prior_depreciation_date,
+				depreciation_date,
+				cost_basis,
+				estimated_residual_value,
+				estimated_useful_life_years,
+				declining_balance_n,
+				prior_accumulated_depreciation );
 	}
 	else
-	if ( depreciation_method == sum_of_years_digits)
+	if ( depreciation_method == units_of_production )
 	{
-		return depreciation_sum_of_years_digits(
-			service_placement_date,
-			prior_depreciation_date,
-			depreciation_date,
-			cost_basis,
-			estimated_residual_value,
-			estimated_useful_life_years,
-			prior_accumulated_depreciation );
+		amount =
+			depreciation_units_of_production(
+				cost_basis,
+				estimated_residual_value,
+				estimated_useful_life_units,
+				units_produced,
+				prior_accumulated_depreciation );
 	}
-	else
-	{
-		return 0.0;
-	}
+
+	return amount;
 }
 
 double depreciation_units_of_production(
@@ -343,8 +348,7 @@ DEPRECIATION *depreciation_new(
 	return depreciation;
 }
 
-DEPRECIATION *depreciation_parse(
-			char *input )
+DEPRECIATION *depreciation_parse( char *input )
 {
 	char asset_name[ 128 ];
 	char serial_label[ 128 ];
@@ -356,6 +360,8 @@ DEPRECIATION *depreciation_parse(
 
 	if ( !input || !*input ) return (DEPRECIATION *)0;
 
+	/* See attribute_list depreciation */
+	/* ------------------------------- */
 	piece( asset_name, SQL_DELIMITER, input, 0 );
 	piece( serial_label, SQL_DELIMITER, input, 1 );
 	piece( depreciation_date, SQL_DELIMITER, input, 2 );
@@ -367,10 +373,10 @@ DEPRECIATION *depreciation_parse(
 			strdup( depreciation_date ) );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 3 );
-	depreciation->units_produced_current = atoi( piece_buffer );
+	depreciation->units_produced = atoi( piece_buffer );
 
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
-	depreciation->depreciation_amount = atof( piece_buffer );
+	depreciation->amount = atof( piece_buffer );
 
 	piece( full_name, SQL_DELIMITER, input, 5 );
 	piece( street_address, SQL_DELIMITER, input, 6 );
@@ -412,76 +418,115 @@ DEPRECIATION *depreciation_fetch(
 			char *serial_label,
 			char *depreciation_date )
 {
-	char sys_string[ 1024 ];
-
 	if ( !asset_name
-	||   !serial_label )
+	||   !serial_label
+	||   !depreciation_date )
 	{
-		return (DEPRECIATION *)0;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	sprintf(sys_string,
-		"select.sh '*' %s \"%s\" ''",
-		 DEPRECIATION_TABLE,
-		 /* --------------------- */
-		 /* Returns static memory */
-		 /* --------------------- */
-		 depreciation_primary_where(
-			asset_name,
-			serial_label,
-			depreciation_date ) );
-
-	return depreciation_parse( string_pipe_fetch( sys_string ) );
+	return
+	depreciation_parse(
+		string_pipe_fetch(
+			depreciation_system_string(
+				DEPRECIATION_TABLE,
+		 		/* --------------------- */
+		 		/* Returns static memory */
+		 		/* --------------------- */
+		 		depreciation_primary_where(
+					asset_name,
+					serial_label,
+					depreciation_date ) ) ) );
 }
 
-LIST *depreciation_system_list(
-			char *sys_string )
+FILE *depreciation_input_pipe_open( char *system_string )
 {
-	FILE *input_pipe;
-	char input[ 1024 ];
-	LIST *depreciation_list;
-
-	depreciation_list = list_new();
-	input_pipe = popen( sys_string, "r" );
-
-	while ( string_input( input, input_pipe, 1024 ) )
+	if ( !system_string )
 	{
-		list_set(
-			depreciation_list, 
-			depreciation_parse( input ) );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	pclose( input_pipe );
-	return depreciation_list;
+	return popen( system_string, "r" );
+}
+
+LIST *depreciation_system_list( char *system_string )
+{
+	FILE *input_pipe_open;
+	char input[ 1024 ];
+	LIST *list;
+
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	list = list_new();
+
+	input_pipe_open =
+		depreciation_input_pipe_open(
+			system_string );
+
+	while ( string_input( input, input_pipe_open, 1024 ) )
+	{
+		list_set(
+			list, 
+			depreciation_parse(
+				input ) );
+	}
+
+	pclose( input_pipe_open );
+	return list;
 }
 
 char *depreciation_system_string(
+			char *depreciation_table,
 			char *where )
 {
 	char system_string[ 1024 ];
 
-	if ( !where ) return (char *)0;
+	if ( !where ) where = "1 = 1";
 
 	sprintf(system_string,
 		"select.sh '*' %s \"%s\" depreciation_date",
-		DEPRECIATION_TABLE,
+		depreciation_table,
 		where );
 
 	return strdup( system_string );
 }
 
 LIST *depreciation_list_fetch(
+			char *depreciation_table,
 			char *asset_name,
 			char *serial_label )
 {
-	return depreciation_system_list(
-			depreciation_system_string(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				fixed_asset_purchase_primary_where(
-					asset_name,
-					serial_label ) ) );
+	return
+	depreciation_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		depreciation_system_string(
+			depreciation_table,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			fixed_asset_purchase_primary_where(
+				asset_name,
+				serial_label ) ) );
 }
 
 FILE *depreciation_delete_open( void )
@@ -516,7 +561,7 @@ double depreciation_amount_total(
 
 	do {
 		depreciation = list_get( depreciation_list );
-		total += depreciation->depreciation_amount;
+		total += depreciation->amount;
 
 	} while ( list_next( depreciation_list ) );
 
@@ -569,7 +614,7 @@ TRANSACTION *depreciation_transaction(
 
 	transaction->transaction_amount = depreciation_amount;
 	transaction->memo = DEPRECIATION_MEMO;
-	transaction->lock_transaction = 1;
+	transaction->lock_transaction_yn = 'y';
 
 	transaction->journal_list =
 		journal_binary_list(
@@ -577,9 +622,15 @@ TRANSACTION *depreciation_transaction(
 			street_address,
 			transaction_date_time,
 			transaction->transaction_amount,
-			account_depreciation_expense
+			account_fetch(
+				account_depreciation_expense,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ )
 				/* debit_account */,
-			account_accumulated_depreciation
+			account_fetch(
+				account_accumulated_depreciation,
+				1 /* fetch_subclassification */,
+				1 /* fetch_element */ )
 				/* credit_account */ );
 
 	return transaction;
@@ -610,57 +661,50 @@ LIST *depreciation_transaction_list(
 	return transaction_list;
 }
 
-FILE *depreciation_insert_open( void )
+FILE *depreciation_insert_pipe_open(
+			char *depreciation_table,
+			char *depreciation_insert_columns )
 {
-	char sys_string[ 1024 ];
-	char *field;
+	char system_string[ 1024 ];
 
-	field =	"asset_name,"
-		"serial_label,"
-		"depreciation_date,"
-		"units_produced,"
-		"depreciation_amount,"
-		"full_name,"
-		"street_address,"
-		"transaction_date_time";
+	sprintf(system_string,
+		"insert_statement table=%s field='%s' delimiter='^'	|"
+		"tee_appaserver_error.sh				|"
+		"sql 2>&1						 ",
+		depreciation_table,
+		depreciation_insert_columns );
 
-	sprintf( sys_string,
-		 "insert_statement table=%s field=%s delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql 2>&1						 ",
-		 DEPRECIATION_TABLE,
-		 field );
-
-	return popen( sys_string, "w" );
+	return popen( system_string, "w" );
 }
 
-void depreciation_insert(
-			FILE *insert_pipe,
+void depreciation_insert_pipe(
 			char *asset_name,
 			char *serial_label,
 			char *depreciation_date,
-			int units_produced_current,
-			double depreciation_amount,
+			int units_produced,
+			double amount,
 			char *full_name,
 			char *street_address,
-			char *transaction_date_time )
+			char *transaction_date_time,
+			FILE *insert_pipe_open )
 {
 	if ( !asset_name
 	||   !serial_label
 	||   !depreciation_date
-	||   !depreciation_amount
-	||   !transaction_date_time )
+	||   !amount
+	||   !transaction_date_time
+	||   !insert_pipe_open )
 	{
 		return;
 	}
 
-	fprintf(insert_pipe,
+	fprintf(insert_pipe_open,
 		"%s^%s^%s^%d^%.2lf^%s^%s^%s\n",
 		asset_name,
 		serial_label,
 		depreciation_date,
-		units_produced_current,
-		depreciation_amount,
+		units_produced,
+		amount,
 		full_name,
 		street_address,
 		transaction_date_time );
@@ -670,11 +714,14 @@ void depreciation_list_insert(
 			LIST *depreciation_list )
 {
 	DEPRECIATION *depreciation;
-	FILE *insert_pipe;
+	FILE *insert_pipe_open;
 
 	if ( !list_rewind( depreciation_list ) ) return;
 
-	insert_pipe = depreciation_insert_open();
+	insert_pipe_open =
+		depreciation_insert_pipe_open(
+			DEPRECIATION_TABLE,
+			DEPRECIATION_INSERT_COLUMNS );
 
 	do {
 		depreciation =
@@ -684,11 +731,12 @@ void depreciation_list_insert(
 		if ( !depreciation->depreciation_transaction )
 		{
 			fprintf(stderr,
-		"Warning in %s/%s()/%d: empty depreciation_transaction.\n",
+		"ERROR in %s/%s()/%d: empty depreciation_transaction.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			continue;
+			pclose( insert_pipe_open );
+			exit( 1 );
 		}
 
 		if ( !depreciation->entity_self )
@@ -698,32 +746,42 @@ void depreciation_list_insert(
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
-			pclose( insert_pipe );
+			pclose( insert_pipe_open );
 			exit( 1 );
 		}
 
-		depreciation_insert(
-			insert_pipe,
-			depreciation->asset_name,
-			depreciation->serial_label,
-			depreciation->depreciation_date,
-			depreciation->units_produced_current,
-			depreciation->depreciation_amount,
-			depreciation->entity_self->entity->full_name,
-			depreciation->entity_self->entity->street_address,
-			depreciation->
-				depreciation_transaction->
-				transaction_date_time );
+		if ( !money_virtually_same( depreciation->amount, 0.0 ) )
+		{
+			depreciation_insert_pipe(
+				depreciation->asset_name,
+				depreciation->serial_label,
+				depreciation->depreciation_date,
+				depreciation->units_produced,
+				depreciation->amount,
+				depreciation->
+					entity_self->
+					entity->
+					full_name,
+				depreciation->
+					entity_self->
+					entity->
+					street_address,
+				depreciation->
+					depreciation_transaction->
+					transaction_date_time,
+				insert_pipe_open );
+		}
 
 	} while ( list_next( depreciation_list ) );
 
-	pclose( insert_pipe );
+	pclose( insert_pipe_open );
 }
 
 char *depreciation_prior_depreciation_date(
+			char *depreciation_table,
 			char *asset_name,
 			char *serial_label,
-			char *current_depreciation_date )
+			char *depreciation_date )
 {
 	char system_string[ 1024 ];
 	char where[ 512 ];
@@ -742,11 +800,11 @@ char *depreciation_prior_depreciation_date(
 		strcpy( asset_where, "1 = 1" );
 	}
 
-	if ( current_depreciation_date && *current_depreciation_date )
+	if ( depreciation_date && *depreciation_date )
 	{
 		sprintf(depreciation_date_where,
 			"depreciation_date < '%s'",
-			current_depreciation_date );
+			depreciation_date );
 	}
 	else
 	{
@@ -761,15 +819,15 @@ char *depreciation_prior_depreciation_date(
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\" ''",
 		"max( depreciation_date )",
-		DEPRECIATION_TABLE,
+		depreciation_table,
 		where );
 
 	return string_pipe_fetch( system_string );
 }
 
 DEPRECIATION *depreciation_seek(
-			LIST *depreciation_list,
-			char *depreciation_date )
+			char *depreciation_date,
+			LIST *depreciation_list )
 {
 	DEPRECIATION *depreciation;
 
@@ -780,7 +838,7 @@ DEPRECIATION *depreciation_seek(
 			list_get(
 				depreciation_list );
 
-		if ( timlib_strcmp(
+		if ( string_strcmp(
 			depreciation->depreciation_date,
 			depreciation_date ) == 0 )
 		{
@@ -875,15 +933,18 @@ DEPRECIATION *depreciation_evaluate(
 			int declining_balance_n,
 			double prior_accumulated_depreciation )
 {
-	DEPRECIATION *depreciation;
+	int units_produced;
 	double amount;
-	int units_produced_current = 0;
+	double accumulated_depreciation;
 	static ENTITY_SELF *entity_self = {0};
+	DEPRECIATION *depreciation;
 
-	if ( !entity_self )
-	{
-		entity_self = entity_self_fetch();
-	}
+	units_produced =
+		depreciation_units_produced(
+			asset_name,
+			serial_label,
+			depreciation_method,
+			units_produced_so_far );
 
 	amount =
 		depreciation_amount(
@@ -892,25 +953,28 @@ DEPRECIATION *depreciation_evaluate(
 			prior_depreciation_date,
 			depreciation_date,
 			cost_basis,
-			(depreciation_method == units_of_production)
-			 ? ( units_produced_current =
-				depreciation_units_produced(
-					units_produced_so_far,
-					depreciation_units_produced_total(
-						asset_name,
-						serial_label ) ) )
-			 : 0,
+			units_produced,
 			estimated_residual_value,
 			estimated_useful_life_years,
 			estimated_useful_life_units,
 			declining_balance_n,
 			prior_accumulated_depreciation );
 
-	if ( timlib_dollar_virtually_same(
+	if ( money_virtually_same(
 		amount,
 		0.0 ) )
 	{
 		return (DEPRECIATION *)0;
+	}
+
+	accumulated_depreciation =
+		depreciation_accumulated_depreciation(
+			prior_accumulated_depreciation,
+			amount );
+
+	if ( !entity_self )
+	{
+		entity_self = entity_self_fetch();
 	}
 
 	depreciation =
@@ -919,14 +983,11 @@ DEPRECIATION *depreciation_evaluate(
 			serial_label,
 			depreciation_date );
 
-	depreciation->depreciation_amount = amount;
-	depreciation->units_produced_current = units_produced_current;
+	depreciation->depreciation_method = depreciation_method;
+	depreciation->units_produced = units_produced;
+	depreciation->amount = amount;
+	depreciation->accumulated_depreciation = accumulated_depreciation;
 	depreciation->entity_self = entity_self;
-
-	depreciation->depreciation_accumulated_depreciation =
-		depreciation_accumulated_depreciation(
-			prior_accumulated_depreciation,
-			depreciation->depreciation_amount );
 
 	return depreciation;
 }
@@ -981,16 +1042,28 @@ double depreciation_fraction_of_year(
 }
 
 int depreciation_units_produced_total(
+			char *depreciation_table,
 			char *asset_name,
 			char *serial_label )
 {
 	char system_string[ 1024 ];
-	char *results;
+
+	if ( !depreciation_table
+	||   !asset_name
+	||   !serial_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\" ''",
 		"sum( units_produced )",
-		DEPRECIATION_TABLE,
+		depreciation_table,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -998,13 +1071,11 @@ int depreciation_units_produced_total(
 			asset_name,
 			serial_label ) );
 
-	if ( ( results = string_pipe_fetch( system_string ) ) )
-		return atoi( results );
-	else
-		return 0;
+	return
+	string_atoi( string_pipe_fetch( system_string ) );
 }
 
-int depreciation_units_produced(
+int depreciation_units_produced_current(
 			int units_produced_so_far,
 			int units_produced_total )
 {
@@ -1020,46 +1091,48 @@ void depreciation_list_negate_depreciation_amount(
 
 	do {
 		depreciation = list_get( depreciation_list );
-
-		depreciation->depreciation_amount =
-			-depreciation->depreciation_amount;
+		depreciation->amount = 0.0 - depreciation->amount;
 
 	} while ( list_next( depreciation_list ) );
 }
 
 char *depreciation_subquery_where(
+			char *depreciation_table,
+			char *fixed_asset_purchase_table,
 			char *depreciation_date )
 {
 	char where[ 1024 ];
 
 	sprintf(where,
-		"exists ( select 1					"
-		"	  from depreciation				"
-		"	  where fixed_asset_purchase.asset_name =	"
-		"		depreciation.asset_name			"
-		"	    and fixed_asset_purchase.serial_label =	"
-		"		depreciation.serial_label		"
-		"	    and depreciation_date = '%s' )		",
+		"exists ( select 1				"
+		"	  from %s				"
+		"	  where %s.asset_name =	"
+		"		%s.asset_name			"
+		"	    and %s.serial_label =		"
+		"		%s.serial_label			"
+		"	    and depreciation_date = '%s' )	",
+		depreciation_table,
+		fixed_asset_purchase_table,
+		depreciation_table,
+		fixed_asset_purchase_table,
+		depreciation_table,
 		depreciation_date );
 
 	return strdup( where );
 }
 
-FILE *depreciation_update_open( void )
+FILE *depreciation_update_pipe_open(
+			char *table,
+			char *primary_key )
 {
 	char system_string[ 1024 ];
-	char *key;
-
-	key =	"asset_name,"
-		"serial_label,"
-		"depreciation_date";
 
 	sprintf( system_string,
 		 "update_statement.e table=%s key=%s carrot=y	|"
 		 "tee_appaserver_error.sh			|"
 		 "sql						 ",
-		 DEPRECIATION_TABLE,
-		 key );
+		 table,
+		 primary_key );
 
 	return popen( system_string, "w" );
 }
@@ -1074,44 +1147,120 @@ void depreciation_update(
 			char *serial_label,
 			char *depreciation_date )
 {
-	FILE *update_pipe = depreciation_update_open();
-	char *asset_escape = fixed_asset_name_escape( asset_name );
+	FILE *update_pipe_open;
 
-	fprintf(update_pipe,
+	if ( !full_name
+	||   !street_address
+	||   !transaction_date_time
+	||   !asset_name
+	||   !serial_label
+	||   !depreciation_date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	update_pipe_open =
+		depreciation_update_pipe_open(
+			DEPRECIATION_TABLE,
+			DEPRECIATION_PRIMARY_KEY );
+
+	depreciation_update_pipe(
+		units_produced,
+		depreciation_amount,
+		full_name,
+		street_address,
+		transaction_date_time,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		fixed_asset_name_escape( asset_name ),
+		serial_label,
+		depreciation_date,
+		update_pipe_open );
+
+	pclose( update_pipe_open );
+}
+
+void depreciation_update_pipe(
+			int units_produced,
+			double depreciation_amount,
+			char *full_name,
+			char *street_address,
+			char *transaction_date_time,
+			char *fixed_asset_name_escape,
+			char *serial_label,
+			char *depreciation_date,
+			FILE *update_pipe_open )
+{
+	fprintf(update_pipe_open,
 		"%s^%s^%s^units_produced^%d\n",
-		asset_escape,
+		fixed_asset_name_escape,
 		serial_label,
 		depreciation_date,
 		units_produced );
 
-	fprintf(update_pipe,
+	fprintf(update_pipe_open,
 		"%s^%s^%s^depreciation_amount^%.2lf\n",
-		asset_escape,
+		fixed_asset_name_escape,
 		serial_label,
 		depreciation_date,
 		depreciation_amount );
 
-	fprintf(update_pipe,
+	fprintf(update_pipe_open,
 		"%s^%s^%s^full_name^%s\n",
-		asset_escape,
+		fixed_asset_name_escape,
 		serial_label,
 		depreciation_date,
 		full_name );
 
-	fprintf(update_pipe,
+	fprintf(update_pipe_open,
 		"%s^%s^%s^street_address^%s\n",
-		asset_escape,
+		fixed_asset_name_escape,
 		serial_label,
 		depreciation_date,
 		street_address );
 
-	fprintf(update_pipe,
+	fprintf(update_pipe_open,
 		"%s^%s^%s^transaction_date_time^%s\n",
-		asset_escape,
+		fixed_asset_name_escape,
 		serial_label,
 		depreciation_date,
 		transaction_date_time );
+}
 
-	pclose( update_pipe );
+int depreciation_units_produced(
+			char *asset_name,
+			char *serial_label,
+			enum depreciation_method depreciation_method,
+			int units_produced_so_far )
+{
+	if ( !asset_name
+	||   !serial_label )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( depreciation_method != units_of_production )
+	{
+		return 0;
+	}
+
+	return
+	depreciation_units_produced_current(
+		units_produced_so_far,
+		depreciation_units_produced_total(
+			DEPRECIATION_TABLE,
+			asset_name,
+			serial_label ) );
 }
 

@@ -24,8 +24,8 @@ enum title_passage_rule{			title_passage_rule_null,
 /* ------ */
 
 /* ------------------------------------ */
-/* Returns heap memory			*/
-/* Increments seconds each invocation   */
+/* Returns heap memory.			*/
+/* Increments seconds each invocation.  */
 /* ------------------------------------ */
 char *predictive_transaction_date_time(
 			char *transaction_date );

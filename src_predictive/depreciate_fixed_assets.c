@@ -208,6 +208,7 @@ boolean depreciate_fixed_assets_undo( boolean execute )
 
 	prior_depreciation_date =
 		depreciation_prior_depreciation_date(
+			DEPRECIATION_TABLE,
 			(char *)0 /* asset_name */,
 			(char *)0 /* serial_label */,
 			(char *)0 /* current_depreciation_date */ );
@@ -217,6 +218,8 @@ boolean depreciate_fixed_assets_undo( boolean execute )
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
 			depreciation_subquery_where(
+				DEPRECIATION_TABLE,
+				FIXED_ASSET_PURCHASE_TABLE,
 				prior_depreciation_date ),
 			1 /* fetch_last_depreciation */,
 			0 /* not fetch_last_recovery */ );
@@ -265,7 +268,7 @@ void depreciate_fixed_assets_undo_display(
 				depreciation_date,
 			 fixed_asset_purchase->
 				depreciation->
-				depreciation_amount );
+				amount );
 
 	} while ( list_next( fixed_asset_purchase_list ) );
 

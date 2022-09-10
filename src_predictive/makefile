@@ -38,6 +38,7 @@ EXECUTABLES=	trial_balance_output					\
 		populate_print_checks_entity				\
 		pay_liabilities_process					\
 		depreciate_fixed_assets					\
+		depreciation_trigger
 #		post_reoccurring_transaction				\
 #		post_cash_expense_transaction				\
 #		post_change_self					\
@@ -45,7 +46,6 @@ EXECUTABLES=	trial_balance_output					\
 #		post_change_vendor_payment				\
 #		post_change_account_balance				\
 #		post_change_fixed_asset_purchase			\
-#		depreciation_trigger					\
 #		cost_recovery_trigger					\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
