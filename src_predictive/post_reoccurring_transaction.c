@@ -24,14 +24,8 @@
 #include "boolean.h"
 #include "bank_upload.h"
 #include "transaction.h"
-#include "accrual.h"
 #include "reoccurring.h"
 
-/* Constants */
-/* --------- */
-
-/* Prototypes */
-/* ---------- */
 void post_reoccurring_transaction_batch(
 			FILE *output_pipe,
 			char *transaction_date_time,
@@ -85,22 +79,15 @@ void post_reoccurring_transaction_display(
 			char *transaction_description,
 			char *transaction_date_time );
 
-/* Global variables */
-/* ---------------- */
-enum bank_upload_exception bank_upload_exception = {0};
-
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *session;
+	char *session_key;
 	char *role_name;
 	char *process_name;
 	char *full_name;
 	char *street_address;
 	char *transaction_description;
-	char *transaction_date;
-	char *transaction_date_time;
-	char *memo;
 	boolean execute;
 	boolean with_html;
 	char title[ 128 ];
@@ -117,10 +104,10 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 12 )
+	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s session role process full_name street_address transaction_description transaction_date ignored memo execute_yn with_html_yn\n",
+"Usage: %s session role process full_name street_address transaction_description execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -131,11 +118,8 @@ int main( int argc, char **argv )
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
 	transaction_description = argv[ 6 ];
-	transaction_date = argv[ 7 ];
-	/* transaction_amount = atof( argv[ 8 ] ); */
-	memo = argv[ 9 ];
-	execute = (*argv[ 10 ] == 'y');
-	with_html = (*argv[ 11 ] == 'y');
+	execute = (*argv[ 7 ] == 'y');
+	with_html = (*argv[ 8 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
@@ -234,9 +218,9 @@ int main( int argc, char **argv )
 		}
 	}
 
-	exit( 0 );
+	return 0;
 
-} /* main() */
+}
 
 void post_reoccurring_transaction_batch(
 				FILE *output_pipe,

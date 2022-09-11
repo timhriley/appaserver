@@ -16,101 +16,9 @@
 #include "appaserver_library.h"
 #include "html_table.h"
 #include "entity.h"
+#include "accrual.h"
+#include "transaction.h"
 #include "reoccurring.h"
-
-REOCCURRING_TRANSACTION *reoccurring_transaction_new(
-			char *full_name,
-			char *street_address,
-			char *transaction_description )
-{
-	REOCCURRING_TRANSACTION *reoccurring_transaction;
-
-	reoccurring_transaction = reoccurring_transaction_calloc();
-
-	reoccurring_transaction->full_name = full_name;
-	reoccurring_transaction->street_address = street_address;
-
-	reoccurring_transaction->transaction_description =
-		transaction_description;
-
-	return reoccurring_transaction;
-}
-
-REOCCURRING_STRUCTURE *reoccurring_structure_calloc( void )
-{
-	REOCCURRING_STRUCTURE *p =
-		(REOCCURRING_STRUCTURE *)
-			calloc( 1, sizeof( REOCCURRING_STRUCTURE ) );
-
-	if ( !p )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit(1 );
-	}
-
-	return p;
-}
-
-REOCCURRING_TRANSACTION *reoccurring_transaction_calloc( void )
-{
-	REOCCURRING_TRANSACTION *p;
-
-	if ( ! ( p = calloc( 1, sizeof( REOCCURRING_TRANSACTION ) ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	return p;
-}
-
-REOCCURRING_TRANSACTION *reoccurring_transaction_fetch(
-			char *full_name,
-			char *street_address,
-			char *transaction_description )
-{
-	char sys_string[ 1024 ];
-
-	if ( !full_name ) return (REOCCURRING_TRANSACTION *)0;
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 reoccurring_transaction_select(),
-		 "reoccurring_transaction",
-		 /* -------------------------- */
-		 /* Safely returns heap memory */
-		 /* -------------------------- */
-		 reoccurring_transaction_primary_where(
-			full_name,
-			street_address,
-			transaction_description ) );
-
-	return reoccurring_transaction_parse( pipe2string( sys_string ) );
-}
-
-char *reoccurring_transaction_select( void )
-{
-	return	"full_name,"
-		"street_address,"
-		"transaction_description,"
-		"debit_account,"
-		"credit_account,"
-		"bank_upload_feeder_phrase,"
-		"feeder_phrase_ignore_yn,"
-		"accrued_daily_amount,"
-		"accrued_monthly_amount";
-}
 
 char *reoccurring_escape_transaction_description(
 			char *transaction_description )
@@ -122,7 +30,7 @@ char *reoccurring_escape_transaction_description(
 		transaction_description );
 }
 
-char *reoccurring_transaction_primary_where(
+char *reoccurring_primary_where(
 			char *full_name,
 			char *street_address,
 			char *transaction_description )
@@ -141,20 +49,22 @@ char *reoccurring_transaction_primary_where(
 	return strdup( where );
 }
 
-REOCCURRING_TRANSACTION *reoccurring_transaction_parse( char *input )
+REOCCURRING *reoccurring_parse( char *input )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
 	char transaction_description[ 128 ];
 	char buffer[ 128 ];
-	REOCCURRING_TRANSACTION *reoccurring_transaction;
+	REOCCURRING *reoccurring;
 
+	/* See REOCCURRING_SELECT */
+	/* ---------------------- */
 	piece( full_name, SQL_DELIMITER, input, 0 );
 	piece( street_address, SQL_DELIMITER, input, 1 );
 	piece( transaction_description, SQL_DELIMITER, input, 2 );
 
-	reoccurring_transaction =
-		reoccurring_transaction_new(
+	reoccurring =
+		reoccurring_new(
 			strdup( full_name ),
 			strdup( street_address ),
 			strdup( transaction_description ) );
@@ -166,15 +76,9 @@ REOCCURRING_TRANSACTION *reoccurring_transaction_parse( char *input )
 	reoccurring_transaction->credit_account = strdup( buffer );
 
 	piece( buffer, FOLDER_DATA_DELIMITER, input, 5 );
-	reoccurring_transaction->bank_upload_feeder_phrase = strdup( buffer );
-
-	piece( buffer, FOLDER_DATA_DELIMITER, input, 6 );
-	reoccurring_transaction->feeder_phrase_ignore = ( *buffer == 'y' );
-
-	piece( buffer, FOLDER_DATA_DELIMITER, input, 7 );
 	reoccurring_transaction->accrued_daily_amount = atof( buffer );
 
-	piece( buffer, FOLDER_DATA_DELIMITER, input, 8 );
+	piece( buffer, FOLDER_DATA_DELIMITER, input, 6 );
 	reoccurring_transaction->accrued_monthly_amount = atof( buffer );
 
 	return reoccurring_transaction;
@@ -264,8 +168,7 @@ char *reoccurring_memo(
 		 credit_account );
 
 	return memo;
-
-} /* reoccurring_memo() */
+}
 
 int reoccurring_days_between_last_transaction(
 			char *full_name,
@@ -274,10 +177,10 @@ int reoccurring_days_between_last_transaction(
 			char *debit_account,
 			char *credit_account )
 {
-	char sys_string[ 2048 ];
+	char system_string[ 2048 ];
 	int current_year;
 	char where[ 1024 ];
-	char sub_query[ 1024 ];
+	char *subquery;
 	char *select;
 	char *folder;
 	char *max_transaction_date;
@@ -295,10 +198,10 @@ int reoccurring_days_between_last_transaction(
 	select = "max( transaction_date_time )";
 	folder = "transaction";
 
-	reoccurring_transaction_subquery(
-		sub_query,
-		debit_account,
-		credit_account );
+	subquery =
+		reoccurring_transaction_subquery(
+			debit_account,
+			credit_account );
 
 	sprintf( where,
 		 "full_name = '%s' and				"
@@ -306,7 +209,7 @@ int reoccurring_days_between_last_transaction(
 		 "%s						",
 		 entity_escape_full_name( full_name ),
 		 street_address,
-		 sub_query );
+		 subquery );
 
 	sprintf(sys_string,
 		"select.sh '%s' %s \"%s\" %s		|"
@@ -333,30 +236,195 @@ int reoccurring_days_between_last_transaction(
 	return days_between;
 }
 
-void reoccurring_transaction_subquery(
-			char *sub_query,
+char *reoccurring_transaction_subquery(
 			char *debit_account,
 			char *credit_account )
 {
-	sprintf( sub_query,
-		 "exists ( select 1 from journal_ledger			"
-		 "	   where transaction.full_name =		"
-		 "		journal_ledger.full_name 		"
-		 "	     and transaction.street_address =		"
-		 "		journal_ledger.street_address 		"
-		 "	     and transaction.transaction_date_time =	"
-		 "		journal_ledger.transaction_date_time	"
-		 "	     and account = '%s' ) and			"
-		 "exists ( select 1 from journal_ledger			"
-		 "	   where transaction.full_name =		"
-		 "		journal_ledger.full_name 		"
-		 "	     and transaction.street_address =		"
-		 "		journal_ledger.street_address 		"
-		 "	     and transaction.transaction_date_time =	"
-		 "		journal_ledger.transaction_date_time	"
-		 "	     and account = '%s' ) 			",
-		 debit_account,
-		 credit_account );
+	char subquery[ 1024 ];
 
+	sprintf(subquery,
+		"exists ( select 1 from journal_ledger			"
+		"	   where transaction.full_name =		"
+		"		journal_ledger.full_name 		"
+		"	     and transaction.street_address =		"
+		"		journal_ledger.street_address 		"
+		"	     and transaction.transaction_date_time =	"
+		"		journal_ledger.transaction_date_time	"
+		"	     and account = '%s' ) and			"
+		"exists ( select 1 from journal_ledger			"
+		"	   where transaction.full_name =		"
+		"		journal_ledger.full_name 		"
+		"	     and transaction.street_address =		"
+		"		journal_ledger.street_address 		"
+		"	     and transaction.transaction_date_time =	"
+		"		journal_ledger.transaction_date_time	"
+		"	     and account = '%s' ) 			",
+		debit_account,
+		credit_account );
+
+	return strdup( subquery );
+}
+
+TRANSACTION *reoccurring_accrued_daily_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount )
+{
+	TRANSACTION *transaction;
+	JOURNAL *journal;
+	int days_between;
+	double accrued_amount;
+	char *memo;
+
+	if ( ! ( days_between =
+			reoccurring_days_between_last_transaction(
+				full_name,
+				street_address,
+				transaction_date_time,
+				debit_account,
+				credit_account ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( days_between < 0.0 ) return (TRANSACTION *)0;
+
+	accrued_amount = (double)days_between * accrued_daily_amount;
+
+	if ( timlib_dollar_virtually_same( accrued_amount, 0.0 ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	memo =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		reoccurring_memo(
+			transaction_description,
+			credit_account );
+
+	transaction =
+		transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	transaction->memo = strdup( memo );
+
+	transaction->transaction_amount = accrued_amount;
+
+	transaction->journal_list = list_new();
+
+	journal =
+		journal_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			debit_account );
+
+	journal->debit_amount = transaction->transaction_amount;
+
+	list_set( transaction->journal_list, journal );
+
+	journal =
+		journal_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			credit_account );
+
+	journal->credit_amount = transaction->transaction_amount;
+
+	list_set( transaction->journal_list, journal );
+
+	return transaction;
+}
+
+TRANSACTION *post_reoccurring_get_accrued_monthly_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_monthly_amount )
+{
+	TRANSACTION *transaction;
+	JOURNAL *journal;
+	double accrued_amount;
+	char *begin_date_string;
+	char end_date_string[ 16 ];
+	char *memo;
+
+	begin_date_string =
+			reoccurring_last_transaction_date(
+				full_name,
+				street_address,
+				transaction_date_time,
+				debit_account,
+				credit_account );
+
+	column( end_date_string, 0, transaction_date_time );
+
+	accrued_amount =
+		accrual_monthly_accrue(
+			begin_date_string,
+			end_date_string,
+			accrued_monthly_amount
+				/* monthly_accrual */ );
+
+	if ( timlib_dollar_virtually_same( accrued_amount, 0.0 ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	memo =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		reoccurring_memo(
+			transaction_description,
+			credit_account );
+
+	transaction =
+		transaction_new(
+			full_name,
+			street_address,
+			transaction_date_time );
+
+	transaction->memo = strdup( memo );
+
+	transaction->transaction_amount = accrued_amount;
+
+	transaction->journal_list = list_new();
+
+	journal =
+		journal_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			debit_account );
+
+	journal->debit_amount = transaction->transaction_amount;
+
+	list_set( transaction->journal_list, journal );
+
+	journal =
+		journal_new(
+			full_name,
+			street_address,
+			transaction->transaction_date_time,
+			credit_account );
+
+	journal->credit_amount = transaction->transaction_amount;
+
+	list_set( transaction->journal_list, journal );
+
+	return transaction;
 }
 

@@ -592,7 +592,11 @@ TRANSACTION *depreciation_transaction(
 		transaction_date_time = depreciation_date;
 	else
 		transaction_date_time =
-			predictive_transaction_date_time(
+			/* ------------------------------------ */
+			/* Returns heap memory.			*/
+			/* Increments second each invocation.   */
+			/* ------------------------------------ */
+			transaction_increment_date_time(
 				depreciation_date );
 
 	if ( ! ( transaction =

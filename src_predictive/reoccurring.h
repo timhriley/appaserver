@@ -8,17 +8,20 @@
 #ifndef REOCCURRING_H
 #define REOCCURRING_H
 
-/* Enumerated types */
-/* ---------------- */
+#include "list.h"
+#include "boolean.h"
+#include "transaction.h"
 
-/* Constants */
-/* --------- */
-#define FEEDER_PHRASE_DELIMITER		'|'
-#define REOCCURRING_TRANSACTION_FOLDER_NAME \
-					"reoccurring_transaction"
+#define REOCCURRING_TRANSACTION_TABLE	"reoccurring_transaction"
 
-/* Structures */
-/* ---------- */
+#define REOCCURRING_TRANSACTION_SELECT	"full_name,"			\
+					"street_address,"		\
+					"transaction_description,"	\
+					"debit_account,"		\
+					"credit_account,"		\
+					"accrued_daily_amount,"		\
+					"accrued_monthly_amount"
+
 typedef struct
 {
 	char *full_name;
@@ -26,17 +29,17 @@ typedef struct
 	char *transaction_description;
 	char *debit_account;
 	char *credit_account;
-	char *bank_upload_feeder_phrase;
-	boolean feeder_phrase_ignore;
 	double accrued_daily_amount;
 	double accrued_monthly_amount;
 	char *rental_property_street_address;
-} REOCCURRING_TRANSACTION;
+	TRANSACTION *transaction;
+} REOCCURRING;
 
-typedef struct
-{
-	LIST *reoccurring_transaction_list;
-} REOCCURRING_STRUCTURE;
+/* Usage */
+/* ----- */
+
+/* Process */
+/* ------- */
 
 /* Operations */
 /* ---------- */
@@ -51,8 +54,28 @@ char *reoccurring_transaction_primary_where(
 			char *street_address,
 			char *transaction_description );
 
-REOCCURRING_TRANSACTION *reoccurring_transaction_parse(
+/* Usage */
+/* ----- */
+REOCCURRING *reoccurring_parse(
+			boolean reoccurring_property_attribute_exists,
 			char *input );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+TRANSACTION *reoccurring_accrued_daily_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount );
+
+/* Process */
+/* ------- */
 
 LIST *reoccurring_existing_cash_journal_list(
 			char *minimum_bank_date,
@@ -75,6 +98,8 @@ char *reoccurring_memo(
 			char *transaction_description,
 			char *credit_account );
 
+/* Usage */
+/* ----- */
 int reoccurring_days_between_last_transaction(
 			char *full_name,
 			char *street_address,
@@ -82,8 +107,12 @@ int reoccurring_days_between_last_transaction(
 			char *debit_account,
 			char *credit_account );
 
-void reoccurring_transaction_subquery(
-			char *sub_query,
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *reoccurring_transaction_subquery(
 			char *debit_account,
 			char *credit_account );
 

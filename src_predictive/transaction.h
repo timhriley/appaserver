@@ -384,4 +384,11 @@ boolean transaction_date_time_exists(
 char *transaction_minimum_transaction_date_string(
 			char *transaction_table );
 
+/* ------------------------------------ */
+/* Returns heap memory.			*/
+/* Increments second each invocation.   */
+/* ------------------------------------ */
+char *transaction_increment_date_time(
+			char *transaction_date );
+
 #endif

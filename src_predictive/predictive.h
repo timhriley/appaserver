@@ -22,14 +22,6 @@ enum title_passage_rule{			title_passage_rule_null,
 
 /* Public */
 /* ------ */
-
-/* ------------------------------------ */
-/* Returns heap memory.			*/
-/* Increments seconds each invocation.  */
-/* ------------------------------------ */
-char *predictive_transaction_date_time(
-			char *transaction_date );
-
 char *predictive_fund_where(
 			char *fund_name );
 
