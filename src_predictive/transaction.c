@@ -638,6 +638,10 @@ void transaction_update(
 		exit( 1 );
 	}
 
+	/* If deleted the transaction */
+	/* -------------------------- */
+	if ( money_virtually_same( transaction_amount, 0.0 ) ) return;
+
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */

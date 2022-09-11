@@ -54,5 +54,6 @@ else
 fi
 
 TZ=`appaserver_tz.sh` /bin/date "$date_format" --date "$from_now days"
+#TZ='America/Los_Angeles' /bin/date "$date_format" --date "$from_now days"
 
 exit 0

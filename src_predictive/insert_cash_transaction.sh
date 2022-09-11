@@ -231,7 +231,7 @@ post_change_journal_ledger.sh	insert				\
 				preupdate_account
 
 echo "<h2> `now.sh 19` </h2>"
-echo "<h3>Process complete</h3>"
+echo "<h3>Process complete for transaction:</h3><h3>$transaction_date_time</h3>"
 
 echo "</body>"
 echo "</html>"

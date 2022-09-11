@@ -12,10 +12,23 @@ utc_offset=`echo "	select application_constant_value		\
 			where application_constant = 'utc_offset';"	|
 			sql.e | sed 's/^-//'`
 
-# -----------------------------------------
-# TZ usually looks like EST5EDT or PST8PDT.
-# But date takes XXX5XXX or XXX8XXX okay.
-# -----------------------------------------
-echo "XXX${utc_offset}XXX"
+if [ "$utc_offset" = "" ]
+then
+	utc_offset=5
+fi
+
+if [ "$utc_offset" -eq 8 ]
+then
+	echo "America/Los_Angeles"
+elif [ "$utc_offset" -eq 7 ]
+then
+	echo "America/Denver"
+elif [ "$utc_offset" -eq 6 ]
+then
+	echo "America/Chicago"
+elif [ "$utc_offset" -eq 5 ]
+then
+	echo "America/New_York"
+fi
 
 exit 0

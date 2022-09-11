@@ -1114,7 +1114,7 @@ char *feeder_exist_row_where(
 FEEDER_EXIST_ROW *feeder_exist_row_parse( char *input )
 {
 	FEEDER_EXIST_ROW *feeder_exist_row;
-	char buffer[ 128 ];
+	char buffer[ 256 ];
 
 	if ( !input || !*input ) return (FEEDER_EXIST_ROW *)0;
 
@@ -1719,7 +1719,8 @@ LIST *feeder_exist_row_list(
 	{
 		list_set(
 			list,
-			feeder_exist_row_parse( input ) );
+			feeder_exist_row_parse(
+				input ) );
 	}
 
 	pclose( input_open );
@@ -3279,6 +3280,7 @@ FEEDER_ROW *feeder_row_new(
 
 	feeder_row = feeder_row_calloc();
 
+	feeder_row->row_number = feeder_load_row->row_number;
 	feeder_row->feeder_load_row = feeder_load_row;
 
 	if ( list_length( feeder_exist_row_list ) )
@@ -3642,31 +3644,18 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			feeder_audit->
 				feeder_row_list );
 
-	feeder_audit->journal_where =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		feeder_audit_journal_where(
+	feeder_audit->journal_prior =
+		journal_prior(
+			feeder_audit->first_feeder_row->transaction_date_time,
 			feeder_account_name,
-			feeder_audit->
-				first_feeder_row->
-				transaction_date_time );
-
-	feeder_audit->journal_system_list =
-		journal_system_list(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			journal_system_string(
-				JOURNAL_SELECT,
-				JOURNAL_TABLE,
-				feeder_audit->journal_where ),
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
-			0 /* not fetch_element */,
-			0 /* not fetch_transaction */ );
+			0 /* not fetch_element */ );
 
-	list_rewind( feeder_audit->feeder_row_list );
+	feeder_audit->journal_list_prior =
+		journal_list_prior(
+			feeder_audit->journal_prior,
+			feeder_account_name );
 
 	feeder_audit->html_table =
 		html_table_new(
@@ -3676,6 +3665,14 @@ FEEDER_AUDIT *feeder_audit_fetch(
 
 	feeder_audit->html_table->heading_list =
 		feeder_audit_html_heading_list();
+
+	if ( feeder_audit->journal_prior )
+	{
+		feeder_audit->prior_transaction_date_time =
+			feeder_audit->journal_prior->transaction_date_time;
+	}
+
+	list_rewind( feeder_audit->feeder_row_list );
 
 	do {
 		feeder_audit->feeder_row =
@@ -3689,7 +3686,7 @@ FEEDER_AUDIT *feeder_audit_fetch(
 						feeder_row->
 						transaction_date_time,
 					feeder_account_name,
-					feeder_audit->journal_system_list ) ) )
+					feeder_audit->journal_list_prior ) ) )
 		{
 			fprintf(stderr,
 		"ERROR in %s/%s()/%d: journal_seek(%s) returned empty.\n",
@@ -3717,11 +3714,8 @@ FEEDER_AUDIT *feeder_audit_fetch(
 			list_set(
 				feeder_audit->html_table->row_list,
 				feeder_audit_html_row(
-					(feeder_audit->prior_feeder_row)
-						? feeder_audit->
-							prior_feeder_row->
-							transaction_date_time
-						: (char *)0,
+					feeder_audit->
+						prior_transaction_date_time,
 					feeder_audit->feeder_row,
 					balance /* journal_balance */,
 					list_at_last(
@@ -3729,7 +3723,8 @@ FEEDER_AUDIT *feeder_audit_fetch(
 							feeder_row_list ) ) );
 		}
 
-		feeder_audit->prior_feeder_row = feeder_audit->feeder_row;
+		feeder_audit->prior_transaction_date_time =
+			feeder_audit->feeder_row->transaction_date_time;
 
 	} while ( list_next( feeder_audit->feeder_row_list ) );
 
@@ -3753,37 +3748,15 @@ FEEDER_AUDIT *feeder_audit_calloc( void )
 	return feeder_audit;
 }
 
-char *feeder_audit_journal_where(
-			char *feeder_account,
-			char *transaction_date_time )
-{
-	static char where[ 128 ];
-	char escape_account[ 64 ];
-
-	if ( !feeder_account
-	||   !transaction_date_time )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(where,
-		"account = '%s' and transaction_date_time >= '%s'",
-		string_escape_quote(
-			escape_account,
-			feeder_account ),
-		transaction_date_time );
-
-	return where;
-}
-
 LIST *feeder_audit_html_heading_list( void )
 {
 	LIST *list = list_new();
+
+	list_set(
+		list,
+		html_heading_new(
+			"row_number",
+			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
@@ -3814,12 +3787,6 @@ LIST *feeder_audit_html_heading_list( void )
 		html_heading_new(
 			"feeder_date",
 			0 /* not right_justify_boolean */ ) );
-
-	list_set(
-		list,
-		html_heading_new(
-			"row_number",
-			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
@@ -3882,12 +3849,12 @@ HTML_ROW *feeder_audit_html_row(
 
 	html_row->cell_list =
 		feeder_audit_html_cell_list(
+			feeder_row->row_number,
 			feeder_row->full_name,
 			feeder_row->file_row_description,
 			prior_transaction_date_time,
 			feeder_row->transaction_date_time,
 			feeder_row->feeder_date,
-			feeder_row->row_number,
 			feeder_row->file_row_amount,
 			feeder_row->check_number,
 			feeder_row->calculate_balance,
@@ -3898,12 +3865,12 @@ HTML_ROW *feeder_audit_html_row(
 }
 
 LIST *feeder_audit_html_cell_list(
+			int row_number,
 			char *full_name,
 			char *file_row_description,
 			char *prior_transaction_date_time,
 			char *transaction_date_time,
 			char *feeder_date,
-			int row_number,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
@@ -3914,7 +3881,8 @@ LIST *feeder_audit_html_cell_list(
 	char cell_string[ 128 ];
 	double difference;
 
-	if ( !full_name
+	if ( !row_number
+	||   !full_name
 	||   !file_row_description
 	||   !transaction_date_time
 	||   !feeder_date )
@@ -3928,6 +3896,17 @@ LIST *feeder_audit_html_cell_list(
 	}
 
 	list = list_new();
+
+	sprintf(cell_string,
+		"%d",
+		row_number );
+
+	list_set(
+		list,
+		html_cell_new(
+			strdup( cell_string ),
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
 
 	list_set(
 		list,
@@ -3961,17 +3940,6 @@ LIST *feeder_audit_html_cell_list(
 		list,
 		html_cell_new(
 			feeder_date,
-			0 /* not large_boolean */,
-			0 /* not bold_boolean */ ) );
-
-	sprintf(cell_string,
-		"%d",
-		row_number );
-
-	list_set(
-		list,
-		html_cell_new(
-			strdup( cell_string ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 

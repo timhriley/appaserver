@@ -927,11 +927,11 @@ typedef struct
 	char *feeder_row_system_string;
 	LIST *feeder_row_list;
 	FEEDER_ROW *first_feeder_row;
-	char *journal_where;
-	LIST *journal_system_list;
+	JOURNAL *journal_prior;
+	LIST *journal_list_prior;
+	char *prior_transaction_date_time;
 	FEEDER_ROW *feeder_row;
 	JOURNAL *journal;
-	FEEDER_ROW *prior_feeder_row;
 	HTML_TABLE *html_table;
 } FEEDER_AUDIT;
 
@@ -945,12 +945,6 @@ FEEDER_AUDIT *feeder_audit_fetch(
 /* ------- */
 FEEDER_AUDIT *feeder_audit_calloc(
 			void );
-
-/* Returns static memory */
-/* --------------------- */
-char *feeder_audit_journal_where(
-			char *feeder_account,
-			char *transaction_date_time );
 
 LIST *feeder_audit_html_heading_list(
 			void );
@@ -966,12 +960,12 @@ HTML_ROW *feeder_audit_html_row(
 /* Process */
 /* ------- */
 LIST *feeder_audit_html_cell_list(
+			int row_number,
 			char *full_name,
 			char *file_row_description,
 			char *prior_transaction_date_time,
 			char *transaction_date_time,
 			char *feeder_date,
-			int row_number,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
