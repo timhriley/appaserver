@@ -260,7 +260,11 @@ void depreciation_trigger_update(
 	||   !*depreciation->transaction_date_time )
 	{
 		depreciation->transaction_date_time =
-			predictive_transaction_date_time(
+			/* ------------------------------------ */
+			/* Returns heap memory.			*/
+			/* Increments second each invocation.   */
+			/* ------------------------------------ */
+			transaction_increment_date_time(
 				depreciation->depreciation_date );
 	}
 
