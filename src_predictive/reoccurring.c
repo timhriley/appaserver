@@ -25,9 +25,20 @@
 char *reoccurring_escape_transaction_description(
 			char *transaction_description )
 {
-	static char escape_transaction_description[ 256 ];
+	static char escape_transaction_description[ 64 ];
 
-	return string_escape_quote(
+	if ( !transaction_description )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_description is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	string_escape_quote(
 		escape_transaction_description,
 		transaction_description );
 }
@@ -39,13 +50,29 @@ char *reoccurring_primary_where(
 {
 	char where[ 256 ];
 
-	sprintf( where,
-		 "full_name = '%s' and			"
-		 "street_address = '%s' and		"
-		 "transaction_description = '%s'	",
-		 entity_escape_full_name( full_name ),
-		 street_address,
-		 reoccurring_escape_transaction_description(
+	if ( !full_name
+	||   !street_address
+	||   !transaction_description )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	sprintf(where,
+		"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"transaction_description = '%s'	",
+		entity_escape_full_name( full_name ),
+		street_address,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		reoccurring_escape_transaction_description(
 			transaction_description ) );
 
 	return strdup( where );
@@ -75,6 +102,9 @@ REOCCURRING *reoccurring_parse(
 			strdup( street_address ),
 			strdup( transaction_description ) );
 
+	reoccurring->property_attribute_exists =
+		property_attribute_exists;
+
 	if ( piece( buffer, SQL_DELIMITER, input, 3 ) )
 	{
 		reoccurring->debit_account = strdup( buffer );
@@ -91,7 +121,7 @@ REOCCURRING *reoccurring_parse(
 	piece( buffer, FOLDER_DATA_DELIMITER, input, 6 );
 	reoccurring->accrued_monthly_amount = atof( buffer );
 
-	if ( property_attribute_exists )
+	if ( reoccurring->property_attribute_exists )
 	{
 		if ( piece( buffer, SQL_DELIMITER, input, 7 ) )
 		{
@@ -157,7 +187,6 @@ LIST *reoccurring_system_list(
 	}
 
 	pclose( input_pipe );
-
 	return list;
 }
 
@@ -213,22 +242,22 @@ char *reoccurring_journal_transaction_subquery(
 	char subquery[ 1024 ];
 
 	sprintf(subquery,
-		"exists ( select 1 from %s				"
-		"	   where %s.full_name =				"
-		"		%s.full_name 				"
-		"	     and %s.street_address =			"
-		"		%s.street_address 			"
-		"	     and %s.transaction_date_time =		"
-		"		%s.transaction_date_time		"
-		"	     and account = '%s' ) and			"
-		"exists ( select 1 from %s				"
-		"	   where %s.full_name =				"
-		"		%s.full_name 				"
-		"	     and %s.street_address =			"
-		"		%s.street_address 			"
-		"	     and %s.transaction_date_time =		"
-		"		%s.transaction_date_time		"
-		"	     and account = '%s' ) 			",
+		"exists ( select 1 from %s			"
+		"	   where %s.full_name =			"
+		"		%s.full_name 			"
+		"	     and %s.street_address =		"
+		"		%s.street_address 		"
+		"	     and %s.transaction_date_time =	"
+		"		%s.transaction_date_time	"
+		"	     and account = '%s' ) and		"
+		"exists ( select 1 from %s			"
+		"	   where %s.full_name =			"
+		"		%s.full_name 			"
+		"	     and %s.street_address =		"
+		"		%s.street_address 		"
+		"	     and %s.transaction_date_time =	"
+		"		%s.transaction_date_time	"
+		"	     and account = '%s' ) 		",
 		journal_table,
 		transaction_table,
 		journal_table,
@@ -501,5 +530,205 @@ char *reoccurring_max_transaction_date_time(
 	/* Returns heap memory or null */
 	/* --------------------------- */
 	return string_pipe_fetch( system_string );
+}
+
+LIST *reoccurring_list_fetch( char *application_name )
+{
+	LIST *reoccurring_list;
+	boolean property_attribute_exists;
+
+	if ( !application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	property_attribute_exists =
+		reoccurring_property_attribute_exists(
+			application_name );
+
+	reoccurring_list =
+		reoccurring_system_list(
+			reoccurring_system_string(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				reoccurring_select(
+					REOCCURRING_SELECT_ATTRIBUTES,
+					REOCCURRING_PROPERTY_ATTRIBUTE,
+					property_attribute_exists ),
+				REOCCURRING_TABLE,
+				“1 = 1” /* where */ ),
+			property_attribute_exists );
+
+	if ( list_length( reoccurring_list ) )
+	{
+		reoccurring_list_transaction_set(
+			reoccurring_list /* in/out */ );
+	}
+
+	return reoccurring_list;
+}
+
+void reoccurring_list_transaction_set( LIST *reoccurring_list )
+{
+	REOCCURRING *reoccurring;
+
+	if ( !list_rewind( reoccurring_list ) ) return;
+
+	do {
+		reoccurring = list_get( reoccurring_list );
+
+		reoccuring->transaction =
+			reoccurring_transaction(
+				reoccurring->full_name,
+				reoccurring->street_address,
+				reoccurring->transaction_description,
+				reoccurring->
+					transaction_increment_date_time,
+				reoccurring->debit_account,
+				reoccurring->credit_account,
+				reoccurring->accrued_daily_amount,
+				reoccurring->accrued_monthly_amount,
+				reoccurring->
+					rental_property_street_address );
+
+	} while ( list_next( reoccurring_list ) );
+}
+
+REOCCURRING *reoccurring_fetch(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *transaction_description )
+{
+	REOCCURRING *reoccurring;
+	boolean property_attribute_exists;
+	char *select;
+	char *primary_where;
+	char *system_string;
+
+	if ( !application_name
+	||   !full_name
+	||   !street_address
+	||   !transaction_description )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	property_attribute_exists =
+		reoccurring_property_attribute_exists(
+			application_name,
+			REOCCURRING_TABLE,
+			REOCCURRING_PROPERTY_ATTRIBUTE );
+
+	select =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		reoccurring_select(
+			REOCCURRING_SELECT,
+			REOCCURRING_PROPERTY_ATTRIBUTE,
+			property_attribute_exists );
+	
+	primary_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		reoccurring_primary_where(
+			full_name,
+			street_address,
+			transaction_description );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		reoccurring_system_string(
+			select,
+			REOCCURRING_TABLE,
+			primary_where );
+
+	reoccurring =
+		reoccurring_parse(
+			property_attribute_exists,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			string_pipe_fetch(
+				system_string ) );
+
+	if ( reoccurring )
+	{
+		reoccurring->transaction =
+			reoccurring_transaction(
+				reoccurring->full_name,
+				reoccurring->street_address,
+				reoccurring->transaction_description,
+				reoccurring->transaction_increment_date_time,
+				reoccurring->debit_account,
+				reoccurring->credit_account,
+				reoccurring->accrued_daily_amount,
+				reoccurring->accrued_monthly_amount,
+				reoccurring->rental_property_street_address );
+	}
+
+	free( select );
+	free( primary_where );
+	free( system_string );
+
+	return reoccurring;
+}
+
+TRANSACTION *reoccurring_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount,
+			double accrued_monthly_amount,
+			char *rental_property_street_address )
+{
+	TRANSACTION *transaction = {0};
+
+	if ( accrued_daily_amount )
+	{
+		transaction =
+			reoccurring_daily_transaction(
+				full_name,
+				street_address,
+				transaction_description,
+				transaction_increment_date_time,
+				debit_account,
+				credit_account,
+				accrued_daily_amount );
+	}
+	else
+	if ( accrued_monthly_amount )
+	{
+		transaction =
+			reoccurring_monthly_transaction(
+				full_name,
+				street_address,
+				transaction_description,
+				transaction_increment_date_time,
+				debit_account,
+				credit_account,
+				accrued_monthly_amount,
+				rental_property_street_address );
+	}
+
+	return transaction;
 }
 

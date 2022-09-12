@@ -41,7 +41,8 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *reoccurring_list(	char *application_name );
+LIST *reoccurring_list_fetch(
+			char *application_name );
 
 /* Process */
 /* ------- */
@@ -59,19 +60,14 @@ FILE *reoccurring_input_pipe(
 
 /* Usage */
 /* ----- */
-REOCCURRING *reoccurring_new(
+REOCCURRING *reoccurring_fetch(
+			char *application_name,
 			char *full_name,
 			char *street_address,
 			char *transaction_description );
 
-
 /* Process */
 /* ------- */
-REOCCURRING *reoccurring_calloc(
-			void );
-
-char *reoccurring_transaction_select(
-			void );
 
 /* Usage */
 /* ----- */
@@ -82,6 +78,7 @@ REOCCURRING *reoccurring_parse(
 /* Process */
 /* ------- */
 
+
 /* Usage */
 /* ----- */
 REOCCURRING *reoccurring_new(
@@ -89,33 +86,33 @@ REOCCURRING *reoccurring_new(
 			char *street_address,
 			char *transaction_description );
 
+
 /* Process */
 /* ------- */
 REOCCURRING *reoccurring_calloc(
 			void );
 
+
 /* Usage */
 /* ----- */
-REOCCURRING *reoccurring_fetch(
-			char *full_name,
-			char *street_address,
-			char *transaction_description,
-			boolean reoccurring_property_attribute_exists );
+void reoccurring_list_transaction_set(
+			LIST *reoccurring_list /* in/out */ );
 
 /* Process */
 /* ------- */
 
-/* Returns static memory */
-/* --------------------- */
-char *reoccurring_primary_where(
-			char *full_name,
-			char *street_address,
-			char *transaction_description );
-
 /* Usage */
 /* ----- */
-LIST *reoccurring_list_transaction_set(
-			LIST *reoccurring_list /* in/out */ );
+TRANSACTION *reoccurring_transaction(
+			char *full_name,
+			char *street_address,
+			char *transaction_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount,
+			double accrued_monthly_amount,
+			char *rental_property_street_address );
 
 /* Process */
 /* ------- */
@@ -151,6 +148,7 @@ TRANSACTION *reoccurring_monthly_transaction(
 
 /* Process */
 /* ------- */
+
 /* Usage */
 /* ----- */
 int reoccurring_last_transaction_days_between(
@@ -164,6 +162,18 @@ int reoccurring_last_transaction_days_between(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *reoccurring_max_transaction_date_time(
+			char *transaction_table,
+			char *full_name,
+			char *street_address,
+			char *debit_account,
+			char *credit_account );
+
 /* Returns heap memory */
 /* ------------------- */
 char *reoccurring_journal_transaction_subquery(
@@ -171,6 +181,24 @@ char *reoccurring_journal_transaction_subquery(
 			char *transaction_table,
 			char *debit_account,
 			char *credit_account );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *reoccurring_primary_where(
+			char *full_name,
+			char *street_address,
+			char *transaction_description );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *reoccurring_escape_transaction_description(
+			char *transaction_description );
 
 /* Public */
 /* ------ */
@@ -199,13 +227,8 @@ char *reoccurring_memo(
 			char *transaction_description,
 			char *credit_account );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *reoccurring_max_transaction_date_time(
-			char *transaction_table,
-			char *full_name,
-			char *street_address,
-			char *debit_account,
-			char *credit_account );
+/* Driver */
+/* ------ */
+
 #endif
 

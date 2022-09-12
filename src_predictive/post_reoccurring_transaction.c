@@ -82,8 +82,6 @@ void post_reoccurring_transaction_display(
 int main( int argc, char **argv )
 {
 	char *application_name;
-	char *session_key;
-	char *role_name;
 	char *process_name;
 	char *full_name;
 	char *street_address;
@@ -104,22 +102,20 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 9 )
+	if ( argc != 7 )
 	{
 		fprintf( stderr,
-"Usage: %s session role process full_name street_address transaction_description execute_yn with_html_yn\n",
+"Usage: %s process full_name street_address transaction_description execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	session = argv[ 1 ];
-	role_name = argv[ 2 ];
-	process_name = argv[ 3 ];
-	full_name = argv[ 4 ];
-	street_address = argv[ 5 ];
-	transaction_description = argv[ 6 ];
-	execute = (*argv[ 7 ] == 'y');
-	with_html = (*argv[ 8 ] == 'y');
+	process_name = argv[ 1 ];
+	full_name = argv[ 2 ];
+	street_address = argv[ 3 ];
+	transaction_description = argv[ 4 ];
+	execute = (*argv[ 5 ] == 'y');
+	with_html = (*argv[ 6 ] == 'y');
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
