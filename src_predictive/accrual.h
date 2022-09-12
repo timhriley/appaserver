@@ -9,6 +9,45 @@
 #define ACCRUAL_H
 
 #include "date.h"
+
+double accrual_monthly_accrue(
+			char *begin_date_string,
+			char *end_date_string,
+			double monthly_accrual );
+
+char *accrual_opening_begin_date_string(
+			DATE *end_date );
+
+double accrual_month_percent(
+			int begin_date_day,
+			int end_date_day,
+			int days_in_month );
+
+/* begin_date and end_date are both in the same month. */
+/* --------------------------------------------------- */
+double accrual_monthly_within_month_accrue(
+			DATE *begin_date,
+			DATE *end_date,
+			double monthly_accrual );
+
+/* begin_date and end_date are one month apart. */
+/* -------------------------------------------- */
+double accrual_monthly_next_month_accrue(
+			DATE *begin_date,
+			DATE *end_date,
+			double monthly_accrual );
+
+/* begin_date and end_date are more than one month apart. */
+/* ------------------------------------------------------ */
+double accrual_monthly_multi_month_accrue(
+			DATE *begin_date,
+			DATE *end_date,
+			double monthly_accrual,
+			int months_between );
+
+#ifdef NOT_DEFINED
+/* Legacy */
+/* ------ */
 #include "transaction.h"
 
 /* Enumerated types */
@@ -128,41 +167,6 @@ ACCRUAL *accrual_list_seek(
 char *accrual_prior_accrual_date(
 			LIST *accrual_list );
 
-double accrual_monthly_accrue(
-			char *begin_date_string,
-			char *end_date_string,
-			double monthly_accrual );
-
-char *accrual_opening_begin_date_string(
-			DATE *end_date );
-
-double accrual_month_percent(
-			int begin_date_day,
-			int end_date_day,
-			int days_in_month );
-
-/* begin_date and end_date are both in the same month. */
-/* --------------------------------------------------- */
-double accrual_monthly_within_month_accrue(
-			DATE *begin_date,
-			DATE *end_date,
-			double monthly_accrual );
-
-/* begin_date and end_date are one month apart. */
-/* -------------------------------------------- */
-double accrual_monthly_next_month_accrue(
-			DATE *begin_date,
-			DATE *end_date,
-			double monthly_accrual );
-
-/* begin_date and end_date are more than one month apart. */
-/* ------------------------------------------------------ */
-double accrual_monthly_multi_month_accrue(
-			DATE *begin_date,
-			DATE *end_date,
-			double monthly_accrual,
-			int months_between );
-
 /* Returns static memory. */
 /* ---------------------- */
 char *accrual_update_sys_string(
@@ -185,5 +189,6 @@ char *accrual_asset_primary_where(
 LIST *accrual_system_list(
 			char *sys_string );
 
+#endif
 #endif
 

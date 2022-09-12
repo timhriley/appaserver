@@ -845,7 +845,6 @@ int date_months_between(	DATE *from_date,
 	to_month = date_month( to_date );
 
 	return ( ( to_year - from_year ) * 12 ) + ( to_month - from_month );
-
 }
 
 /* ------------------------------------------------------------- */
@@ -857,6 +856,12 @@ int date_days_between(	char *from_date_string,
 	DATE *from_date;
 	DATE *to_date;
 	time_t difference;
+
+	/* If first time, then return 1 */
+	/* ---------------------------- */
+	if ( !from_date_string ) return 1;
+
+	if ( !to_date_string ) return 0;
 
 	if ( ! ( from_date =
 			/* ------------------- */
@@ -884,8 +889,7 @@ int date_days_between(	char *from_date_string,
 	date_free( to_date );
 
 	return (int) (difference / SECONDS_IN_DAY);
-
-} /* date_days_between() */
+}
 
 /* --------------------------------------------------------- */
 /* Sample input: from_date = "10/06/60" to_date = "08/04/11" */
@@ -922,7 +926,6 @@ int date_years_between( char *from_date, char *to_date )
 	if ( diff_year < 0 ) diff_year = 0;
 
 	return diff_year;
-
 }
 
 void date_time_parse(		int *hours,

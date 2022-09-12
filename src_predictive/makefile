@@ -125,7 +125,9 @@ SOURCE_LIBRARY= 							\
 		trial_balance.o						\
 		income_statement.o					\
 		balance_sheet.o						\
-		close_nominal.o
+		close_nominal.o						\
+		reoccurring.o						\
+		accrual.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\

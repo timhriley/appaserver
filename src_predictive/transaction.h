@@ -42,6 +42,7 @@ typedef struct
 	int check_number;
 	LIST *journal_list;
 	char lock_transaction_yn;
+	char *rental_property_street_address;
 } TRANSACTION;
 
 /* Usage */
