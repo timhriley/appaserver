@@ -55,9 +55,9 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	process_name = argv[ 1 ];
-	session_key = argv[ 2 ];
-	role_name = argv[ 3 ];
+	session_key = argv[ 1 ];
+	role_name = argv[ 2 ];
+	process_name = argv[ 3 ];
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
 	transaction_description = argv[ 6 ];
