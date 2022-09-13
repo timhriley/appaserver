@@ -291,7 +291,13 @@ double close_nominal_credit_sum(
 			double loss_sum,
 			double drawing_sum )
 {
-	return expense_sum + loss_sum + drawing_sum;
+	return
+	expense_sum +
+	loss_sum -
+	/* ------------------------------ */
+	/* Drawing has a negative balance */
+	/* ------------------------------ */
+	drawing_sum;
 }
 
 double close_nominal_retained_earnings(

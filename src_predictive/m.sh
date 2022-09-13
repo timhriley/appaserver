@@ -1,6 +1,6 @@
 :
 
-make post_reoccurring_transaction
+make close_nominal_accounts
 
 #if [ "$?" -eq 0 ]
 #then
