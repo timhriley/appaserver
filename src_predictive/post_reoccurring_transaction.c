@@ -99,13 +99,14 @@ int main( int argc, char **argv )
 	}
 
 	if ( !list_length( reoccurring_list )
-	&&   !reoccurring )
+	&&   !reoccurring
+	&&   with_html )
 	{
 		printf(
 		"<h3>No reoccurring transactions to process.</h3>\n" );
 	}
 	else
-	if ( !execute )
+	if ( !execute && with_html )
 	{
 		if ( list_length( reoccurring_list ) )
 		{
@@ -121,6 +122,7 @@ int main( int argc, char **argv )
 		}
 	}
 	else
+	if ( execute )
 	{
 		char *transaction_date_time;
 
