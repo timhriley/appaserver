@@ -1705,12 +1705,14 @@ int folder_lookup_email_output,
 				return_list, 
 				element );
 
+/*
 		element = element_appaserver_new(
 				javascript_filename,
 				"/javascript/jquery_min.js" );
 		list_append_pointer(
 				return_list, 
 				element );
+*/
 
 		element = element_appaserver_new(
 				javascript_filename,
