@@ -66,11 +66,11 @@ FOLDER_MENU *folder_menu_new(	char *application_name,
 }
 
 void folder_menu_refresh_row_count(
-					char *application_name,
-					char *folder_name,
-					char *session,
-					char *appaserver_data_directory,
-					char *role_name )
+			char *application_name,
+			char *folder_name,
+			char *session,
+			char *appaserver_data_directory,
+			char *role_name )
 {
 	FOLDER_MENU *folder_menu;
 	FOLDER *folder;

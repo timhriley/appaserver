@@ -733,7 +733,7 @@ int string_instr(	char *substr,
 
 char *string_pipe( char *system_string )
 {
-	char buffer[ STRING_64K ];
+	char buffer[ 65536 ];
 	FILE *p;
 	int null_input = 0;
 
@@ -760,7 +760,7 @@ char *string_pipe_fetch( char *system_string )
 
 LIST *string_pipe_list(	char *system_string )
 {
-	char buffer[ STRING_64K ];
+	char buffer[ 65536 ];
 	FILE *p;
 	LIST *list = {0};
 

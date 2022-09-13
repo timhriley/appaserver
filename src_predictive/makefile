@@ -38,8 +38,8 @@ EXECUTABLES=	trial_balance_output					\
 		populate_print_checks_entity				\
 		pay_liabilities_process					\
 		depreciate_fixed_assets					\
-		depreciation_trigger
-#		post_reoccurring_transaction				\
+		depreciation_trigger					\
+		post_reoccurring_transaction
 #		post_cash_expense_transaction				\
 #		post_change_self					\
 #		generate_invoice					\
@@ -99,7 +99,8 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/validation_form.o				\
 		${LIBRARY}/post2dictionary.o				\
-		${LIBRARY}/dictionary2file.o
+		${LIBRARY}/dictionary2file.o				\
+		${LIBRARY}/folder_menu.o
 
 SOURCE_LIBRARY= 							\
 		program.o						\
@@ -149,13 +150,11 @@ clean:
 		generate_workorder
 
 post_reoccurring_transaction: post_reoccurring_transaction.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		${LIBRARY}/folder_menu.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		post_reoccurring_transaction.c				\
-		${LIBRARY}/folder_menu.o				\
 		-o post_reoccurring_transaction
 
 post_cash_expense_transaction: post_cash_expense_transaction.c		\

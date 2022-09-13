@@ -971,24 +971,35 @@ TRANSACTION *transaction_entity_new(
 void transaction_list_html_display(
 			LIST *transaction_list )
 {
-	TRANSACTION *transaction;
-
 	if ( !list_rewind( transaction_list ) )
 	{
 		return;
 	}
 
 	do {
-		transaction =
-			list_get(
-				transaction_list );
-
-		journal_list_html_display(
-			transaction->journal_list,
-			transaction->transaction_date_time,
-			transaction->memo );
+		transaction_html_display(
+			(TRANSACTION *)
+				list_get( transaction_list ) );
 
 	} while ( list_next( transaction_list ) );
+}
+
+void transaction_html_display( TRANSACTION *transaction )
+{
+	if ( !transaction )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: transaction is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	journal_list_html_display(
+		transaction->journal_list,
+		transaction->transaction_date_time,
+		transaction->memo );
 }
 
 TRANSACTION *transaction_binary(
@@ -1449,3 +1460,40 @@ char *transaction_increment_date_time( char *transaction_date )
 	return strdup( transaction_date_time );
 }
 
+char *transaction_stamp_insert(
+			TRANSACTION *transaction,
+			boolean insert_journal_list_boolean )
+{
+	if ( !transaction )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: transaction is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( transaction->transaction_amount
+	&&   list_length( transaction->journal_list ) )
+	{
+		transaction->transaction_date_time =
+			transaction_insert(
+				transaction->full_name,
+				transaction->street_address,
+				transaction->transaction_date_time,
+				transaction->transaction_amount,
+				transaction->check_number,
+				transaction->memo,
+				TRANSACTION_LOCK_Y,
+				transaction->journal_list,
+				insert_journal_list_boolean );
+
+	}
+	else
+	{
+		transaction->transaction_date_time = (char *)0;
+	}
+
+	return transaction->transaction_date_time;
+}

@@ -549,7 +549,9 @@ LIST *reoccurring_list_fetch( char *application_name )
 
 	property_attribute_exists =
 		reoccurring_property_attribute_exists(
-			application_name );
+			application_name,
+			REOCCURRING_TABLE,
+			REOCCURRING_PROPERTY_ATTRIBUTE );
 
 	reoccurring_list =
 		reoccurring_system_list(
@@ -562,7 +564,7 @@ LIST *reoccurring_list_fetch( char *application_name )
 					REOCCURRING_PROPERTY_ATTRIBUTE,
 					property_attribute_exists ),
 				REOCCURRING_TABLE,
-				“1 = 1” /* where */ ),
+				"1 = 1" /* where */ ),
 			property_attribute_exists );
 
 	if ( list_length( reoccurring_list ) )
@@ -583,7 +585,7 @@ void reoccurring_list_transaction_set( LIST *reoccurring_list )
 	do {
 		reoccurring = list_get( reoccurring_list );
 
-		reoccuring->transaction =
+		reoccurring->transaction =
 			reoccurring_transaction(
 				reoccurring->full_name,
 				reoccurring->street_address,
@@ -636,7 +638,7 @@ REOCCURRING *reoccurring_fetch(
 		/* Returns heap memory */
 		/* ------------------- */
 		reoccurring_select(
-			REOCCURRING_SELECT,
+			REOCCURRING_SELECT_ATTRIBUTES,
 			REOCCURRING_PROPERTY_ATTRIBUTE,
 			property_attribute_exists );
 	
@@ -730,5 +732,71 @@ TRANSACTION *reoccurring_transaction(
 	}
 
 	return transaction;
+}
+
+LIST *reoccurring_transaction_list_extract( LIST *reoccurring_list )
+{
+	LIST *transaction_list;
+	REOCCURRING *reoccurring;
+
+	if ( !list_rewind( reoccurring_list ) ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	do {
+		reoccurring = list_get( reoccurring_list );
+
+		list_set(
+			transaction_list,
+			reoccurring->transaction );
+
+	} while ( list_next( reoccurring_list ) );
+
+	return transaction_list;
+}
+
+REOCCURRING *reoccurring_new(
+			char *full_name,
+			char *street_address,
+			char *transaction_description )
+{
+	REOCCURRING *reoccurring;
+
+	if ( !full_name
+	||   !street_address
+	||   !transaction_description )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	reoccurring = reoccurring_calloc();
+
+	reoccurring->full_name = full_name;
+	reoccurring->street_address = street_address;
+	reoccurring->transaction_description = transaction_description;
+
+	return reoccurring;
+}
+
+REOCCURRING *reoccurring_calloc( void )
+{
+	REOCCURRING *reoccurring;
+
+	if ( ! ( reoccurring = calloc( 1, sizeof( REOCCURRING ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return reoccurring;
 }
 

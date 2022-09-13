@@ -254,8 +254,8 @@ void liability_transaction_list_html_display(
 /* Process */
 /* ------- */
 
-/* Private */
-/* ------- */
+/* Public */
+/* ------ */
 LIST *liability_transaction_list_extract(
 			LIST *list );
 

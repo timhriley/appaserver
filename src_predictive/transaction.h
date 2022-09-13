@@ -168,6 +168,15 @@ void transaction_insert_pipe(
 
 /* Usage */
 /* ----- */
+char *transaction_stamp_insert(
+			TRANSACTION *transaction,
+			boolean insert_journal_list_boolean );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
 void transaction_delete(char *full_name,
 			char *street_address,
 			char *transaction_date_time );
@@ -324,6 +333,14 @@ LIST *transaction_list_extract_account_list(
 /* ----- */
 void transaction_list_html_display(
 			LIST *transaction_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void transaction_html_display(
+			TRANSACTION *transaction );
 
 /* Process */
 /* ------- */

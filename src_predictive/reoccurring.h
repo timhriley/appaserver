@@ -14,7 +14,7 @@
 
 #define REOCCURRING_TABLE		"reoccurring_transaction"
 
-#define REOCCURRING_PORPERTY_ATTRIBUTE	"rental_property_street_address"
+#define REOCCURRING_PROPERTY_ATTRIBUTE	"rental_property_street_address"
 
 #define REOCCURRING_SELECT_ATTRIBUTES	"full_name,"			\
 					"street_address,"		\
@@ -91,7 +91,6 @@ REOCCURRING *reoccurring_new(
 /* ------- */
 REOCCURRING *reoccurring_calloc(
 			void );
-
 
 /* Usage */
 /* ----- */
@@ -227,8 +226,8 @@ char *reoccurring_memo(
 			char *transaction_description,
 			char *credit_account );
 
-/* Driver */
-/* ------ */
+LIST *reoccurring_transaction_list_extract(
+			LIST *reoccurring_list );
 
 #endif
 
