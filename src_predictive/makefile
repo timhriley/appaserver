@@ -39,7 +39,7 @@ EXECUTABLES=	trial_balance_output					\
 		pay_liabilities_process					\
 		depreciate_fixed_assets					\
 		depreciation_trigger					\
-		post_reoccurring_transaction
+		post_accrual
 #		post_cash_expense_transaction				\
 #		post_change_self					\
 #		generate_invoice					\
@@ -127,7 +127,6 @@ SOURCE_LIBRARY= 							\
 		income_statement.o					\
 		balance_sheet.o						\
 		close_nominal.o						\
-		reoccurring.o						\
 		accrual.o
 
 SPREADSHEET_LIBRARY= 							\
@@ -149,13 +148,13 @@ clean:
 		statement_of_activities					\
 		generate_workorder
 
-post_reoccurring_transaction: post_reoccurring_transaction.c		\
+post_accrual: post_accrual.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_reoccurring_transaction.c				\
-		-o post_reoccurring_transaction
+		post_accrual.c						\
+		-o post_accrual
 
 post_cash_expense_transaction: post_cash_expense_transaction.c		\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
@@ -698,11 +697,6 @@ investment.o: investment.c						\
 		investment.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c investment.c
-
-reoccurring.o: reoccurring.c						\
-		reoccurring.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c reoccurring.c
 
 fixed_asset.o: fixed_asset.c						\
 		fixed_asset_purchase.h

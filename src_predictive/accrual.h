@@ -1,14 +1,232 @@
-/* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/accrual.h				*/
-/* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* ------------------------------------------------------------ */
+/* $APPASERVER_HOME/src_predictive/accrual.h			*/
+/* ------------------------------------------------------------ */
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
 #ifndef ACCRUAL_H
 #define ACCRUAL_H
 
-#include "date.h"
+#include "list.h"
+#include "boolean.h"
+#include "transaction.h"
+
+#define ACCRUAL_TABLE			"accrual"
+
+#define ACCRUAL_PROPERTY_ATTRIBUTE	"rental_property_street_address"
+
+#define ACCRUAL_SELECT_ATTRIBUTES	"full_name,"			\
+					"street_address,"		\
+					"accrual_description,"	\
+					"debit_account,"		\
+					"credit_account,"		\
+					"accrued_daily_amount,"		\
+					"accrued_monthly_amount"
+
+typedef struct
+{
+	char *full_name;
+	char *street_address;
+	char *accrual_description;
+	char *debit_account;
+	char *credit_account;
+	double accrued_daily_amount;
+	double accrued_monthly_amount;
+	boolean property_attribute_exists;
+	char *rental_property_street_address;
+	char *transaction_increment_date_time;
+	TRANSACTION *transaction;
+} ACCRUAL;
+
+/* Usage */
+/* ----- */
+LIST *accrual_list_fetch(
+			char *application_name );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *accrual_system_list(
+			char *accrual_system_string,
+			boolean accrual_property_attribute_exists );
+
+/* Process */
+/* ------- */
+FILE *accrual_input_pipe(
+			char *accrual_system_string );
+
+/* Usage */
+/* ----- */
+ACCRUAL *accrual_fetch(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *accrual_description );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+ACCRUAL *accrual_parse(
+			boolean accrual_property_attribute_exists,
+			char *input );
+
+/* Process */
+/* ------- */
+
+
+/* Usage */
+/* ----- */
+ACCRUAL *accrual_new(
+			char *full_name,
+			char *street_address,
+			char *accrual_description );
+
+
+/* Process */
+/* ------- */
+ACCRUAL *accrual_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+void accrual_list_transaction_set(
+			LIST *accrual_list /* in/out */ );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+TRANSACTION *accrual_transaction(
+			char *full_name,
+			char *street_address,
+			char *accrual_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount,
+			double accrued_monthly_amount,
+			char *rental_property_street_address );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+TRANSACTION *accrual_daily_transaction(
+			char *full_name,
+			char *street_address,
+			char *accrual_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount );
+
+/* Process */
+/* ------- */
+double accrual_daily_accrued_amount(
+			double accrued_daily_amount,
+			int accrual_last_transaction_days_between );
+
+/* Usage */
+/* ----- */
+TRANSACTION *accrual_monthly_transaction(
+			char *full_name,
+			char *street_address,
+			char *accrual_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_monthly_amount,
+			char *rental_property_street_address );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+int accrual_last_transaction_days_between(
+			char *transaction_table,
+			char *full_name,
+			char *street_address,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *accrual_max_transaction_date_time(
+			char *transaction_table,
+			char *full_name,
+			char *street_address,
+			char *debit_account,
+			char *credit_account );
+
+/* Returns heap memory */
+/* ------------------- */
+char *accrual_journal_transaction_subquery(
+			char *journal_table,
+			char *transaction_table,
+			char *debit_account,
+			char *credit_account );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *accrual_primary_where(
+			char *full_name,
+			char *street_address,
+			char *accrual_description );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *accrual_escape_description(
+			char *accrual_description );
+
+/* Public */
+/* ------ */
+boolean accrual_property_attribute_exists(
+			char *application_name,
+			char *accrual_table,
+			char *accrual_property_attribute );
+
+/* Returns heap memory */
+/* ------------------- */
+char *accrual_select(
+			char *accrual_select_attributes,
+			char *accrual_property_attribute,
+			boolean accrual_property_attribute_exists );
+
+/* Returns heap memory */
+/* ------------------- */
+char *accrual_system_string(
+			char *accrual_select,
+			char *accrual_table,
+			char *where );
+
+/* Returns heap memory */
+/* ------------------- */
+char *accrual_memo(	char *accrual_description,
+			char *credit_account );
+
+LIST *accrual_transaction_list_extract(
+			LIST *accrual_list );
 
 double accrual_monthly_accrue(
 			char *begin_date_string,
@@ -45,150 +263,5 @@ double accrual_monthly_multi_month_accrue(
 			double monthly_accrual,
 			int months_between );
 
-#ifdef NOT_DEFINED
-/* Legacy */
-/* ------ */
-#include "transaction.h"
-
-/* Enumerated types */
-/* ---------------- */
-
-/* Constants */
-/* --------- */
-#define ACCRUAL_TABLE_NAME	"prepaid_asset_accrual"
-#define ACCRUAL_MEMO		"Accrual"
-
-/* Structures */
-/* ---------- */
-typedef struct
-{
-	char *full_name;
-	char *street_address;
-	char *purchase_date_time;
-	char *asset_name;
-	char *accrual_date;
-	double accrual_amount;
-	TRANSACTION *transaction;
-} ACCRUAL;
-
-/* Operations */
-/* ---------- */
-ACCRUAL *accrual_calloc( void );
-
-ACCRUAL *accrual_new(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date );
-
-ACCRUAL *accrual_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date );
-
-void accrual_update(
-			double accrual_amount,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date );
-
-ACCRUAL *accrual_parse(	char *input );
-
-char *accrual_select(	void );
-
-double accrual_amount(
-			double extension,
-			double accrual_period_years,
-			char *prior_accrual_date_string,
-			char *accrual_date_string,
-			double accumulated_accrual );
-
-void accrual_transaction_refresh(
-			double accrual_amount,
-			char *asset_account_name,
-			char *expense_account_name,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time );
-
-double accrual_fraction_of_year(
-			char *prior_accrual_date_string,
-			char *accrual_date_string );
-
-LIST *accrual_list_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name );
-
-/* Returns new accumulated_accrual */
-/* ------------------------------------ */
-double accrual_list_set(
-			LIST *accrual_list,
-			/* ----------------------------------- */
-			/* Arrived date is the effective date. */
-			/* ----------------------------------- */
-			char *arrived_date_string,
-			double extension,
-			double accrual_period_years );
-
-/*
-void accrual_list_update_and_transaction_propagate(
-			LIST *accrual_list,
-			char *application_name,
-			char *asset_account_name,
-			char *expense_account_name );
-*/
-
-void accrual_list_delete(
-			LIST *accrual_list,
-			char *application_name,
-			char *asset_account_name,
-			char *expense_account_name );
-
-void accrual_delete(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date );
-
-ACCRUAL *accrual_list_seek(
-			LIST *accrual_list,
-			char *accrual_date );
-
-char *accrual_prior_accrual_date(
-			LIST *accrual_list );
-
-/* Returns static memory. */
-/* ---------------------- */
-char *accrual_update_sys_string(
-			void );
-
-LIST *accrual_list(	char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name );
-
-/* Returns static memory. */
-/* ---------------------- */
-char *accrual_asset_where(
-			char *asset_name,
-			char *accrual_date );
-
-char *accrual_asset_primary_where(
-			char *asset_name );
-
-LIST *accrual_system_list(
-			char *sys_string );
-
-#endif
 #endif
 

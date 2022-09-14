@@ -224,7 +224,7 @@ post_change_hourly_service_sale
 post_change_fixed_service_work
 post_change_hourly_service_work
 update_sale_completed
-post_reoccurring_transaction
+post_accrual
 post_cash_expense_transaction
 post_payroll
 collect_customer_payment

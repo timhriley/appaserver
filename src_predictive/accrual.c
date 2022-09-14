@@ -1,16 +1,804 @@
-/* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/accrual.c				*/
-/* -------------------------------------------------------------------- */
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* ------------------------------------------------------------ */
+/* $APPASERVER_HOME/src_predictive/accrual.c			*/
+/* ------------------------------------------------------------ */
+/*								*/
+/* Freely available software: see Appaserver.org		*/
+/* ------------------------------------------------------------ */
 
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+#include <unistd.h>
 #include "String.h"
+#include "timlib.h"
+#include "date_convert.h"
+#include "piece.h"
 #include "date.h"
+#include "column.h"
+#include "appaserver_library.h"
+#include "folder.h"
+#include "html_table.h"
+#include "entity.h"
 #include "accrual.h"
+#include "transaction.h"
+#include "journal.h"
+#include "accrual.h"
+
+char *accrual_escape_description(
+			char *accrual_description )
+{
+	static char escape_description[ 64 ];
+
+	if ( !accrual_description )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: accrual_description is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	string_escape_quote(
+		escape_description,
+		accrual_description );
+}
+
+char *accrual_primary_where(
+			char *full_name,
+			char *street_address,
+			char *accrual_description )
+{
+	char where[ 256 ];
+
+	if ( !full_name
+	||   !street_address
+	||   !accrual_description )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	sprintf(where,
+		"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"accrual_description = '%s'	",
+		entity_escape_full_name( full_name ),
+		street_address,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		accrual_escape_description(
+			accrual_description ) );
+
+	return strdup( where );
+}
+
+ACCRUAL *accrual_parse(
+			boolean property_attribute_exists,
+			char *input )
+{
+	char full_name[ 128 ];
+	char street_address[ 128 ];
+	char accrual_description[ 128 ];
+	char buffer[ 128 ];
+	ACCRUAL *accrual;
+
+	if ( !input || !*input ) return (ACCRUAL *)0;
+
+	/* See accrual_select() */
+	/* ------------------------ */
+	piece( full_name, SQL_DELIMITER, input, 0 );
+	piece( street_address, SQL_DELIMITER, input, 1 );
+	piece( accrual_description, SQL_DELIMITER, input, 2 );
+
+	accrual =
+		accrual_new(
+			strdup( full_name ),
+			strdup( street_address ),
+			strdup( accrual_description ) );
+
+	accrual->property_attribute_exists =
+		property_attribute_exists;
+
+	if ( piece( buffer, SQL_DELIMITER, input, 3 ) )
+	{
+		accrual->debit_account = strdup( buffer );
+	}
+
+	if ( piece( buffer, FOLDER_DATA_DELIMITER, input, 4 ) )
+	{
+		accrual->credit_account = strdup( buffer );
+	}
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input, 5 );
+	accrual->accrued_daily_amount = atof( buffer );
+
+	piece( buffer, FOLDER_DATA_DELIMITER, input, 6 );
+	accrual->accrued_monthly_amount = atof( buffer );
+
+	if ( accrual->property_attribute_exists )
+	{
+		if ( piece( buffer, SQL_DELIMITER, input, 7 ) )
+		{
+			accrual->rental_property_street_address =
+				strdup( buffer );
+		}
+	}
+
+	accrual->transaction_increment_date_time =
+		/* ------------------------------------ */
+		/* Returns heap memory.			*/
+		/* Increments second each invocation.   */
+		/* ------------------------------------ */
+		transaction_increment_date_time(
+			(char *)0 /* transaction_date */ );
+
+	return accrual;
+}
+
+FILE *accrual_input_pipe( char *system_string )
+{
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return popen( system_string, "r" );
+}
+
+LIST *accrual_system_list(
+			char *system_string,
+			boolean property_attribute_exists )
+{
+	LIST *list;
+	FILE *input_pipe;
+	char input[ 1024 ];
+
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	input_pipe = accrual_input_pipe( system_string );
+	list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set(
+			list,
+			accrual_parse(
+				property_attribute_exists,
+				input ) );
+	}
+
+	pclose( input_pipe );
+	return list;
+}
+
+char *accrual_memo( char *accrual_description,
+			char *credit_account )
+{
+	char memo[ 256 ];
+
+	sprintf( memo,
+		 "%s/%s",
+		 accrual_description,
+		 credit_account );
+
+	return strdup( memo );
+}
+
+int accrual_last_transaction_days_between(
+			char *transaction_table,
+			char *full_name,
+			char *street_address,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account )
+{
+	if ( !transaction_increment_date_time
+	||   !atoi( transaction_increment_date_time ) )
+	{
+		return 0;
+	}
+
+	return
+	date_days_between(
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		accrual_max_transaction_date_time(
+			transaction_table,
+			full_name,
+			street_address,
+			debit_account,
+			credit_account )
+				/* from_date_string */,
+		transaction_increment_date_time
+				/* to_date_string */ );
+}
+
+char *accrual_journal_transaction_subquery(
+			char *journal_table,
+			char *transaction_table,
+			char *debit_account,
+			char *credit_account )
+{
+	char subquery[ 1024 ];
+
+	sprintf(subquery,
+		"exists ( select 1 from %s			"
+		"	   where %s.full_name =			"
+		"		%s.full_name 			"
+		"	     and %s.street_address =		"
+		"		%s.street_address 		"
+		"	     and %s.transaction_date_time =	"
+		"		%s.transaction_date_time	"
+		"	     and account = '%s' ) and		"
+		"exists ( select 1 from %s			"
+		"	   where %s.full_name =			"
+		"		%s.full_name 			"
+		"	     and %s.street_address =		"
+		"		%s.street_address 		"
+		"	     and %s.transaction_date_time =	"
+		"		%s.transaction_date_time	"
+		"	     and account = '%s' ) 		",
+		journal_table,
+		transaction_table,
+		journal_table,
+		transaction_table,
+		journal_table,
+		transaction_table,
+		journal_table,
+		debit_account,
+		journal_table,
+		transaction_table,
+		journal_table,
+		transaction_table,
+		journal_table,
+		transaction_table,
+		journal_table,
+		credit_account );
+
+	return strdup( subquery );
+}
+
+TRANSACTION *accrual_daily_transaction(
+			char *full_name,
+			char *street_address,
+			char *accrual_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount )
+{
+	int days_between;
+
+	if ( !full_name
+	||   !street_address
+	||   !accrual_description
+	||   !transaction_increment_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	if ( !accrued_daily_amount
+	||   !debit_account
+	||   !credit_account )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	if ( ! ( days_between =
+			accrual_last_transaction_days_between(
+				TRANSACTION_TABLE,
+				full_name,
+				street_address,
+				transaction_increment_date_time,
+				debit_account,
+				credit_account ) ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	return
+	transaction_binary(
+		full_name,
+		street_address,
+		transaction_increment_date_time,
+		accrual_daily_accrued_amount(
+			accrued_daily_amount,
+			days_between ),
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		accrual_memo(
+			accrual_description,
+			credit_account ),
+		debit_account,
+		credit_account );
+}
+
+TRANSACTION *accrual_monthly_transaction(
+			char *full_name,
+			char *street_address,
+			char *accrual_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_monthly_amount,
+			char *rental_property_street_address )
+{
+	double monthly_accrue;
+	char *max_transaction_date_time;
+	TRANSACTION *transaction;
+
+	if ( !full_name
+	||   !street_address
+	||   !accrual_description
+	||   !transaction_increment_date_time )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !accrued_monthly_amount
+	||   !debit_account
+	||   !credit_account )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	max_transaction_date_time =
+		accrual_max_transaction_date_time(
+			TRANSACTION_TABLE,
+			full_name,
+			street_address,
+			debit_account,
+			credit_account );
+
+	monthly_accrue =
+		accrual_monthly_accrue(
+			max_transaction_date_time,
+			transaction_increment_date_time,
+			accrued_monthly_amount
+				/* monthly_accrual */ );
+
+	if ( money_virtually_same( monthly_accrue, 0.0 ) )
+	{
+		return (TRANSACTION *)0;
+	}
+
+	transaction =
+		transaction_binary(
+			full_name,
+			street_address,
+			transaction_increment_date_time,
+			monthly_accrue,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			accrual_memo(
+				accrual_description,
+				credit_account ),
+			debit_account,
+			credit_account );
+
+	transaction->rental_property_street_address =
+		rental_property_street_address;
+
+	return transaction;
+}
+
+char *accrual_system_string(
+			char *select,
+			char *table,
+			char *where )
+{
+	char system_string[ 1024 ];
+
+	if ( !select
+	||   !table
+	||   !where )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\" none",
+		select,
+		table,
+		where );
+
+	return strdup( system_string );
+}
+
+char *accrual_select(
+			char *select_attributes,
+			char *property_attribute,
+			boolean property_attribute_exists )
+{
+	char select[ 1024 ];
+
+	if ( !select_attributes
+	||   !property_attribute )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	strcpy( select, select_attributes );
+
+	if ( property_attribute_exists )
+	{
+		sprintf(select + strlen( select ),
+			",%s",
+			property_attribute );
+	}
+
+	return strdup( select );
+}
+
+boolean accrual_property_attribute_exists(
+			char *application_name,
+			char *accrual_table,
+			char *accrual_property_attribute )
+{
+	return
+	folder_attribute_exists(
+			application_name,
+			accrual_table /* folder_name */,
+			accrual_property_attribute /* attribute_name */ );
+}
+
+double accrual_daily_accrued_amount(
+			double accrued_daily_amount,
+			int days_between )
+{
+	return (double)days_between * accrued_daily_amount;
+
+}
+
+char *accrual_max_transaction_date_time(
+			char *transaction_table,
+			char *full_name,
+			char *street_address,
+			char *debit_account,
+			char *credit_account )
+{
+	char system_string[ 2048 ];
+	char where[ 1024 ];
+	char *tmp;
+
+	sprintf(where,
+		"full_name = '%s' and			"
+		"street_address = '%s' and		"
+		"%s					",
+		entity_escape_full_name( full_name ),
+		street_address,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( tmp = accrual_journal_transaction_subquery(
+			JOURNAL_TABLE,
+			transaction_table,
+			debit_account,
+			credit_account ) ) );
+
+	free( tmp );
+
+	sprintf(system_string,
+		"select.sh '%s' %s \"%s\" none",
+		"max( transaction_date_time )",
+		transaction_table,
+		where );
+
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	return string_pipe_fetch( system_string );
+}
+
+LIST *accrual_list_fetch( char *application_name )
+{
+	LIST *accrual_list;
+	boolean property_attribute_exists;
+
+	if ( !application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	property_attribute_exists =
+		accrual_property_attribute_exists(
+			application_name,
+			ACCRUAL_TABLE,
+			ACCRUAL_PROPERTY_ATTRIBUTE );
+
+	accrual_list =
+		accrual_system_list(
+			accrual_system_string(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
+				accrual_select(
+					ACCRUAL_SELECT_ATTRIBUTES,
+					ACCRUAL_PROPERTY_ATTRIBUTE,
+					property_attribute_exists ),
+				ACCRUAL_TABLE,
+				"1 = 1" /* where */ ),
+			property_attribute_exists );
+
+	if ( list_length( accrual_list ) )
+	{
+		accrual_list_transaction_set(
+			accrual_list /* in/out */ );
+	}
+
+	return accrual_list;
+}
+
+void accrual_list_transaction_set( LIST *accrual_list )
+{
+	ACCRUAL *accrual;
+
+	if ( !list_rewind( accrual_list ) ) return;
+
+	do {
+		accrual = list_get( accrual_list );
+
+		accrual->transaction =
+			accrual_transaction(
+				accrual->full_name,
+				accrual->street_address,
+				accrual->accrual_description,
+				accrual->
+					transaction_increment_date_time,
+				accrual->debit_account,
+				accrual->credit_account,
+				accrual->accrued_daily_amount,
+				accrual->accrued_monthly_amount,
+				accrual->
+					rental_property_street_address );
+
+	} while ( list_next( accrual_list ) );
+}
+
+ACCRUAL *accrual_fetch(
+			char *application_name,
+			char *full_name,
+			char *street_address,
+			char *accrual_description )
+{
+	ACCRUAL *accrual;
+	boolean property_attribute_exists;
+	char *select;
+	char *primary_where;
+	char *system_string;
+
+	if ( !application_name
+	||   !full_name
+	||   !street_address
+	||   !accrual_description )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	property_attribute_exists =
+		accrual_property_attribute_exists(
+			application_name,
+			ACCRUAL_TABLE,
+			ACCRUAL_PROPERTY_ATTRIBUTE );
+
+	select =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		accrual_select(
+			ACCRUAL_SELECT_ATTRIBUTES,
+			ACCRUAL_PROPERTY_ATTRIBUTE,
+			property_attribute_exists );
+	
+	primary_where =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		accrual_primary_where(
+			full_name,
+			street_address,
+			accrual_description );
+
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		accrual_system_string(
+			select,
+			ACCRUAL_TABLE,
+			primary_where );
+
+	accrual =
+		accrual_parse(
+			property_attribute_exists,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			string_pipe_fetch(
+				system_string ) );
+
+	if ( accrual )
+	{
+		accrual->transaction =
+			accrual_transaction(
+				accrual->full_name,
+				accrual->street_address,
+				accrual->accrual_description,
+				accrual->transaction_increment_date_time,
+				accrual->debit_account,
+				accrual->credit_account,
+				accrual->accrued_daily_amount,
+				accrual->accrued_monthly_amount,
+				accrual->rental_property_street_address );
+	}
+
+	free( select );
+	free( primary_where );
+	free( system_string );
+
+	return accrual;
+}
+
+TRANSACTION *accrual_transaction(
+			char *full_name,
+			char *street_address,
+			char *accrual_description,
+			char *transaction_increment_date_time,
+			char *debit_account,
+			char *credit_account,
+			double accrued_daily_amount,
+			double accrued_monthly_amount,
+			char *rental_property_street_address )
+{
+	TRANSACTION *transaction = {0};
+
+	if ( accrued_daily_amount )
+	{
+		transaction =
+			accrual_daily_transaction(
+				full_name,
+				street_address,
+				accrual_description,
+				transaction_increment_date_time,
+				debit_account,
+				credit_account,
+				accrued_daily_amount );
+	}
+	else
+	if ( accrued_monthly_amount )
+	{
+		transaction =
+			accrual_monthly_transaction(
+				full_name,
+				street_address,
+				accrual_description,
+				transaction_increment_date_time,
+				debit_account,
+				credit_account,
+				accrued_monthly_amount,
+				rental_property_street_address );
+	}
+
+	return transaction;
+}
+
+LIST *accrual_transaction_list_extract( LIST *accrual_list )
+{
+	LIST *transaction_list;
+	ACCRUAL *accrual;
+
+	if ( !list_rewind( accrual_list ) ) return (LIST *)0;
+
+	transaction_list = list_new();
+
+	do {
+		accrual = list_get( accrual_list );
+
+		list_set(
+			transaction_list,
+			accrual->transaction );
+
+	} while ( list_next( accrual_list ) );
+
+	return transaction_list;
+}
+
+ACCRUAL *accrual_new(
+			char *full_name,
+			char *street_address,
+			char *accrual_description )
+{
+	ACCRUAL *accrual;
+
+	if ( !full_name
+	||   !street_address
+	||   !accrual_description )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	accrual = accrual_calloc();
+
+	accrual->full_name = full_name;
+	accrual->street_address = street_address;
+	accrual->accrual_description = accrual_description;
+
+	return accrual;
+}
+
+ACCRUAL *accrual_calloc( void )
+{
+	ACCRUAL *accrual;
+
+	if ( ! ( accrual = calloc( 1, sizeof( ACCRUAL ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return accrual;
+}
 
 double accrual_monthly_accrue(	char *begin_date_string,
 				char *end_date_string,
@@ -329,627 +1117,4 @@ double accrual_month_percent(
 
 	return month_percent;
 }
-
-#ifdef NOT_DEFINED
-ACCRUAL *accrual_calloc( void )
-{
-	ACCRUAL *a;
-
-	if ( ! ( a = (ACCRUAL *) calloc( 1, sizeof( ACCRUAL ) ) ) )
-	{
-		fprintf( stderr,
-			 "Error in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit(1 );
-	}
-	return a;
-}
-
-char *accrual_select( void )
-{
-	return	"full_name,"
-		"street_address,"
-		"purchase_date_time,"
-		"asset_name,"
-		"accrual_date,"
-		"accrual_amount,"
-		"transaction_date_time";
-}
-
-ACCRUAL *accrual_parse(	char *input_buffer )
-{
-	ACCRUAL *accrual;
-	char piece_buffer[ 256 ];
-
-	accrual = accrual_calloc();
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 0 );
-	accrual->full_name = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 1 );
-	accrual->street_address = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 2 );
-	accrual->purchase_date_time = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 3 );
-	accrual->asset_name = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 4 );
-	accrual->accrual_date = strdup( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 5 );
-	accrual->accrual_amount = atof( piece_buffer );
-
-	piece( piece_buffer, SQL_DELIMITER, input_buffer, 6 );
-	if ( *piece_buffer )
-	{
-		accrual->transaction =
-			transaction_fetch(
-				accrual->full_name,
-				accrual->street_address,
-				piece_buffer /* transaction_date_time */ );
-	}
-
-	return accrual;
-}
-
-char *accrual_asset_primary_where(
-			char *asset_name )
-{
-	static char asset_where[ 256 ];
-	char buffer[ 256 ];
-
-	sprintf( asset_where,
-		 "asset_name = '%s'",
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ) );
-	return asset_where;
-}
-
-char *accrual_asset_where(
-			char *asset_name,
-			char *accrual_date )
-{
-	static char asset_where[ 256 ];
-	char buffer[ 256 ];
-
-	sprintf( asset_where,
-		 "asset_name = '%s' and accrual_date = '%s'",
-		 escape_character(	buffer,
-					asset_name,
-					'\'' ),
-		 accrual_date );
-
-	return asset_where;
-}
-
-ACCRUAL *accrual_fetch(
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date )
-{
-	char sys_string[ 1024 ];
-	char full_where[ 512 ];
-	char *results;
-
-	sprintf( full_where,
-		 "%s and purchase_date_time = '%s' and %s",
-		 entity_primary_where(
-			full_name,
-			street_address ),
-		 purchase_date_time,
-		 accrual_asset_where(
-			asset_name,
-			accrual_date ) );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql",
-		 accrual_select(),
-		 "accrual",
-		 full_where );
-
-	if ( ! ( results = pipe2string( sys_string ) ) )
-	{
-		return (ACCRUAL *)0;
-	}
-
-	return accrual_parse( results );
-}
-
-void accrual_update(
-			double accrual_amount,
-			char *transaction_date_time,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date )
-{
-	char *sys_string;
-	FILE *output_pipe;
-
-	sys_string = accrual_update_sys_string();
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf(output_pipe,
-	 	"%s^%s^%s^%s^%s^accrual_amount^%.2lf\n",
-		full_name,
-		street_address,
-		purchase_date_time,
-		asset_name,
-		accrual_date,
-		accrual_amount );
-
-	fprintf(output_pipe,
-	 	"%s^%s^%s^%s^%s^transaction_date_time^%s\n",
-		full_name,
-		street_address,
-		purchase_date_time,
-		asset_name,
-		accrual_date,
-		(transaction_date_time)
-			? transaction_date_time
-			: "" );
-
-	pclose( output_pipe );
-}
-
-char *accrual_update_sys_string( void )
-{
-	static char sys_string[ 256 ];
-	char *key;
-
-	key =
-"full_name,street_address,purchase_date_time,asset_name,accrual_date";
-
-	sprintf( sys_string,
-		 "update_statement.e table=%s key=%s carrot=y | sql.e",
-		 ACCRUAL_TABLE_NAME,
-		 key );
-
-	return sys_string;
-}
-
-double accrual_amount(
-			double extension,
-			double accrual_period_years,
-			char *prior_accrual_date_string,
-			char *accrual_date_string,
-			double accumulated_accrual )
-{
-	double annual_accrual_amount;
-	double fraction_of_year;
-	double accrual_amount;
-
-	fraction_of_year =
-		depreciation_fraction_of_year(
-			(char *)0 /* service_placement_date */,
-			prior_accrual_date_string,
-			accrual_date_string );
-
-	if ( accrual_period_years )
-	{
-		annual_accrual_amount =
-			extension /
-			(double)accrual_period_years;
-	}
-	else
-	{
-		annual_accrual_amount = 0.0;
-	}
-
-	accrual_amount = annual_accrual_amount * fraction_of_year;
-
-	/* If finished accruing */
-	/* -------------------- */
-	if ( accumulated_accrual + accrual_amount > extension )
-	{
-		accrual_amount =
-			extension -
-			accumulated_accrual;
-	}
-
-	return accrual_amount;
-}
-
-void accrual_transaction_refresh(
-			double accrual_amount,
-			char *asset_account_name,
-			char *expense_account_name,
-			char *full_name,
-			char *street_address,
-			char *transaction_date_time )
-{
-	if ( !asset_account_name || !*asset_account_name )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty asset_account_name.\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__ );
-		exit( 1 );
-	}
-
-	if ( !expense_account_name || !*expense_account_name )
-	{
-		fprintf( stderr,
-		"ERROR in %s/%s()/%d: empty expense_account_name.\n",
-		 	__FILE__,
-		 	__FUNCTION__,
-		 	__LINE__ );
-		exit( 1 );
-	}
-
-	journal_account_name_list_propagate(
-		transaction_date_time,
-		/* ------------------------- */
-		/* Returns account_name_list */
-		/* ------------------------- */
-		journal_delete(	full_name,
-				street_address,
-				transaction_date_time ) );
-
-	if ( accrual_amount )
-	{
-		/* Executes journal_list_set_balances() */
-		/* ------------------------------------ */
-		journal_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			expense_account_name,
-			accrual_amount,
-			1 /* is_debit */,
-			0 /* not replace */ );
-
-		journal_insert(
-			full_name,
-			street_address,
-			transaction_date_time,
-			asset_account_name,
-			accrual_amount,
-			0 /* not is_debit */,
-			0 /* not replace */ );
-	}
-}
-
-LIST *accrual_system_list( char *sys_string )
-{
-	LIST *accrual_list;
-	FILE *input_pipe;
-	char input[ 1024 ];
-
-	input_pipe = popen( sys_string, "r" );
-
-	accrual_list = list_new();
-
-	while( string_input( input, input_pipe, 1024 ) )
-	{
-		list_set( accrual_list, accrual_parse( input ) );
-	}
-
-	pclose( input_pipe );
-	return accrual_list;
-}
-
-LIST *accrual_list(	char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name )
-{
-	char sys_string[ 1024 ];
-	char where[ 512 ];
-
-	sprintf( where,
-		 "%s and purchase_date_time = '%s' and %s",
-		 entity_primary_where(
-			full_name,
-			street_address ),
-		 purchase_date_time,
-		 accrual_asset_primary_where(
-			asset_name ) );
-
-	sprintf( sys_string,
-		 "echo \"select %s from %s where %s order by %s;\" | sql",
-		 accrual_select(),
-		 "prepaid_asset_accrual",
-		 where,
-		 accrual_select() );
-
-	return accrual_system_list( sys_string );
-}
-
-/* Returns new accumulated_accrual */
-/* ------------------------------------ */
-double accrual_list_set(
-		LIST *accrual_list,
-		/* ----------------------------------- */
-		/* Arrived date is the effective date. */
-		/* ----------------------------------- */
-		char *arrived_date_string,
-		double extension,
-		double accrual_period_years )
-{
-	double accumulated_accrual;
-	ACCRUAL *accrual;
-	char *prior_accrual_date_string = {0};
-
-	if ( !list_rewind( accrual_list ) ) return 0.0;
-
-	accumulated_accrual = 0.0;
-	prior_accrual_date_string = arrived_date_string;
-
-	do {
-		accrual = list_get( accrual_list );
-
-		accrual->accrual_amount =
-			accrual_amount(
-				extension,
-				accrual_period_years,
-				prior_accrual_date_string,
-				accrual->accrual_date,
-				accumulated_accrual );
-
-		accumulated_accrual +=
-			accrual->accrual_amount;
-
-		prior_accrual_date_string =
-			accrual->accrual_date;
-
-	} while( list_next( accrual_list ) );
-
-	return accumulated_accrual;
-
-} /* accrual_list_set() */
-
-void accrual_list_update_and_transaction_propagate(
-				LIST *accrual_list,
-				char *application_name,
-				char *asset_account_name,
-				char *expense_account_name )
-{
-	ACCRUAL *accrual;
-	char *transaction_date_time;
-	char *propagate_transaction_date_time = {0};
-
-	if ( !list_rewind( accrual_list ) ) return;
-
-	do {
-		accrual = list_get( accrual_list );
-
-		if ( accrual->accrual_amount )
-		{
-			transaction_date_time =
-				transaction_generate_date_time(
-					accrual->accrual_date );
-	
-			accrual->transaction =
-				transaction_new(
-					accrual->full_name,
-					accrual->street_address,
-					transaction_date_time );
-
-			accrual->transaction->memo = ACCRUAL_MEMO;
-	
-			accrual->transaction->transaction_date_time =
-				transaction_insert(
-					accrual->transaction->full_name,
-					accrual->transaction->street_address,
-					accrual->
-						transaction->
-						transaction_date_time,
-					accrual->accrual_amount,
-					accrual->transaction->memo,
-					0 /* check_number */,
-					1 /* lock_transaction */ );
-		}
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				accrual->transaction_date_time;
-		}
-
-		accrual_update(
-			application_name,
-			accrual->full_name,
-			accrual->street_address,
-			accrual->purchase_date_time,
-			accrual->asset_name,
-			accrual->accrual_date,
-			accrual->accrual_amount,
-			accrual->database_accrual_amount,
-			accrual->transaction_date_time,
-			accrual->database_transaction_date_time );
-
-		accrual_transaction_refresh(
-			accrual->accrual_amount,
-			asset_account_name,
-			expense_account_name,
-			accrual->transaction->full_name,
-			accrual->transaction->street_address,
-			accrual->transaction->transaction_date_time );
-
-	} while( list_next( accrual_list ) );
-
-	ledger_propagate(
-		application_name,
-		propagate_transaction_date_time,
-		asset_account_name );
-
-	ledger_propagate(
-		application_name,
-		propagate_transaction_date_time,
-		expense_account_name );
-}
-
-void accrual_list_delete(
-			LIST *accrual_list,
-			char *application_name,
-			char *asset_account_name,
-			char *expense_account_name )
-{
-	ACCRUAL *accrual;
-	char *propagate_transaction_date_time = {0};
-
-	if ( !list_rewind( accrual_list ) ) return;
-
-	do {
-		accrual = list_get( accrual_list );
-
-		accrual_delete(
-			application_name,
-			accrual->full_name,
-			accrual->street_address,
-			accrual->purchase_date_time,
-			accrual->asset_name,
-			accrual->accrual_date );
-
-		if ( !accrual->transaction )
-		{
-			fprintf( stderr,
-		"ERROR in %s/%s()/%d: expecting a transaction = (%s/%s).\n",
-			 	__FILE__,
-			 	__FUNCTION__,
-			 	__LINE__,
-			 	accrual->full_name,
-				accrual->street_address );
-			exit( 1 );
-		}
-
-		journal_account_name_list_propagate(
-			accrual->transaction->transaction_date_time,
-			/* ------------------------- */
-			/* Returns account_name_list */
-			/* ------------------------- */
-			journal_delete(
-				accrual->transaction->full_name,
-				accrual->transaction->street_address,
-				accrual->transaction->transaction_date_time );
-
-		transaction_delete(
-			accrual->transaction->full_name,
-			accrual->transaction->street_address,
-			accrual->transaction->transaction_date_time );
-
-		if ( !propagate_transaction_date_time )
-		{
-			propagate_transaction_date_time =
-				accrual->
-					transaction->
-					transaction_date_time;
-		}
-
-	} while( list_next( accrual_list ) );
-
-	journal_propagate(
-		propagate_transaction_date_time,
-		asset_account_name );
-
-	journal_propagate(
-		propagate_transaction_date_time,
-		expense_account_name );
-}
-
-void accrual_delete(
-			char *application_name,
-			char *full_name,
-			char *street_address,
-			char *purchase_date_time,
-			char *asset_name,
-			char *accrual_date )
-{
-	char sys_string[ 1024 ];
-	char *field;
-	FILE *output_pipe;
-	char *table_name;
-	char buffer1[ 128 ];
-	char buffer2[ 128 ];
-
-	field=
-"full_name,street_address,purchase_date_time,asset_name,accrual_date";
-
-	table_name =
-		get_table_name(
-			application_name,
-			"prepaid_asset_accrual" );
-
-	sprintf( sys_string,
-		 "delete_statement table=%s field=%s delimiter='^'	|"
-		 "tee_appaserver_error.sh				|"
-		 "sql							 ",
-		 table_name,
-		 field );
-
-	output_pipe = popen( sys_string, "w" );
-
-	fprintf(	output_pipe,
-			"%s^%s^%s^%s^%s\n",
-		 	escape_character(	buffer1,
-						full_name,
-						'\'' ),
-			street_address,
-			purchase_date_time,
-		 	escape_character(	buffer2,
-						asset_name,
-						'\'' ),
-			accrual_date );
-
-	pclose( output_pipe );
-
-} /* accrual_delete() */
-
-ACCRUAL *accrual_list_seek(
-			LIST *accrual_list,
-			char *accrual_date )
-{
-	ACCRUAL *accrual;
-
-	if ( !list_rewind( accrual_list ) ) return (ACCRUAL *)0;
-
-	do {
-		accrual = list_get( accrual_list );
-
-		if ( strcmp(	accrual->accrual_date,
-				accrual_date ) == 0 )
-		{
-			return accrual;
-		}
-
-	} while( list_next( accrual_list ) );
-
-	return (ACCRUAL *)0;
-
-}
-
-char *accrual_prior_accrual_date( LIST *accrual_list )
-{
-	ACCRUAL *accrual;
-	char *prior_accrual_date;
-
-	if ( !list_length( accrual_list )
-	||   list_at_head( accrual_list ) )
-	{
-		fprintf( stderr,
-"ERROR in %s/%s()/%d: empty list or at beginning of list.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
-
-	list_previous( accrual_list );
-	accrual = list_get( accrual_list );
-	prior_accrual_date = accrual->accrual_date;
-	list_next( accrual_list );
-
-	return prior_accrual_date;
-}
-#endif
 

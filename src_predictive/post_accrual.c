@@ -1,9 +1,9 @@
-/* ----------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/post_reoccurring_transaction.c	*/
-/* ----------------------------------------------------------------	*/
-/*									*/
-/* Freely available software: see Appaserver.org			*/
-/* ----------------------------------------------------------------	*/
+/* ----------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/post_accrual.c	*/
+/* ---------------------------------------------------- */
+/*							*/
+/* Freely available software: see Appaserver.org	*/
+/* ---------------------------------------------------- */
 
 /* Includes */
 /* -------- */
@@ -22,7 +22,7 @@
 #include "application.h"
 #include "folder_menu.h"
 #include "appaserver_parameter_file.h"
-#include "reoccurring.h"
+#include "accrual.h"
 
 int main( int argc, char **argv )
 {
@@ -32,13 +32,13 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *full_name;
 	char *street_address;
-	char *transaction_description;
+	char *accrual_description;
 	boolean execute;
 	boolean with_html;
 	char title[ 128 ];
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	REOCCURRING *reoccurring = {0};
-	LIST *reoccurring_list = {0};
+	ACCRUAL *accrual = {0};
+	LIST *accrual_list = {0};
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
 	if ( argc != 9 )
 	{
 		fprintf( stderr,
-"Usage: %s session role process full_name street_address transaction_description execute_yn with_html_yn\n",
+"Usage: %s session role process full_name street_address accrual_description execute_yn with_html_yn\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
@@ -60,7 +60,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 3 ];
 	full_name = argv[ 4 ];
 	street_address = argv[ 5 ];
-	transaction_description = argv[ 6 ];
+	accrual_description = argv[ 6 ];
 	execute = (*argv[ 7 ] == 'y');
 	with_html = (*argv[ 8 ] == 'y');
 
@@ -84,41 +84,41 @@ int main( int argc, char **argv )
 	||   !*full_name
 	||   strcmp( full_name, "full_name" ) == 0 )
 	{
-		reoccurring_list =
-			reoccurring_list_fetch(
+		accrual_list =
+			accrual_list_fetch(
 				application_name );
 	}
 	else
 	{
-		reoccurring =
-			reoccurring_fetch(
+		accrual =
+			accrual_fetch(
 				application_name,
 				full_name,
 				street_address,
-				transaction_description );
+				accrual_description );
 	}
 
-	if ( !list_length( reoccurring_list )
-	&&   !reoccurring
+	if ( !list_length( accrual_list )
+	&&   !accrual
 	&&   with_html )
 	{
 		printf(
-		"<h3>No reoccurring transactions to process.</h3>\n" );
+		"<h3>No accrual transactions to process.</h3>\n" );
 	}
 	else
 	if ( !execute && with_html )
 	{
-		if ( list_length( reoccurring_list ) )
+		if ( list_length( accrual_list ) )
 		{
 			transaction_list_html_display(
-				reoccurring_transaction_list_extract(
-					reoccurring_list ) );
+				accrual_transaction_list_extract(
+					accrual_list ) );
 		}
 		else
-		if ( reoccurring )
+		if ( accrual )
 		{
 			transaction_html_display(
-				reoccurring->transaction );
+				accrual->transaction );
 		}
 	}
 	else
@@ -126,19 +126,19 @@ int main( int argc, char **argv )
 	{
 		char *transaction_date_time;
 
-		if ( list_length( reoccurring_list ) )
+		if ( list_length( accrual_list ) )
 		{
 			transaction_list_insert(
-				reoccurring_transaction_list_extract(
-					reoccurring_list ),
+				accrual_transaction_list_extract(
+					accrual_list ),
 				1 /* insert_journal_list_boolean */ );
 		}
 		else
-		if ( reoccurring )
+		if ( accrual )
 		{
 			transaction_date_time =
 				transaction_stamp_insert(
-					reoccurring->transaction,
+					accrual->transaction,
 					1 /* insert_journal_list_boolean */ );
 		}
 
