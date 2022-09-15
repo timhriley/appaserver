@@ -1,6 +1,6 @@
 :
 
-make close_nominal_accounts
+make populate_print_checks_entity
 
 #if [ "$?" -eq 0 ]
 #then

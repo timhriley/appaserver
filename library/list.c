@@ -2534,3 +2534,30 @@ int list_seek(		char *item,
 	return -1;
 }
 
+LIST *list_pipe_fetch( char *system_string )
+{
+	char buffer[ 65536 ];
+	FILE *p;
+	LIST *list = list_new();
+
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	p = popen( system_string, "r" );
+
+	while( timlib_get_line( buffer, p, 65536 ) )
+	{
+		list_set( list, strdup( buffer ) );
+	}
+
+	pclose( p );
+	return list;
+}
+

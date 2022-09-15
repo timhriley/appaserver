@@ -906,13 +906,13 @@ LIST *account_current_liability_name_list(
 			char *account_uncleared_checks,
 			char *account_credit_card_key )
 {
-	char system_string[ 256 ];
-	char where[ 128 ];
+	char system_string[ 1024 ];
+	char where[ 256 ];
 
 	sprintf(where,
-		"subclassification = '%s' and	"
-		"account <> '%s' and		"
-		"hard_coded_account_key <> '%s'	",
+		"subclassification = '%s' and			"
+		"account <> '%s' and				"
+		"ifnull(hard_coded_account_key,'') <> '%s'	",
 		subclassification_current_liability,
 		account_uncleared_checks,
 		account_credit_card_key );
@@ -922,7 +922,7 @@ LIST *account_current_liability_name_list(
 		account_table,
 		where );
 
-	return pipe2list( system_string );
+	return list_pipe_fetch( system_string );
 }
 
 LIST *account_receivable_name_list(

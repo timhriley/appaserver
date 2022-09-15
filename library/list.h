@@ -550,4 +550,6 @@ char *list_length_display(
 			LIST *string_list,
 			int how_many );
 
+LIST *list_pipe_fetch(	char *system_string );
+
 #endif
