@@ -1,6 +1,6 @@
 :
 
-make populate_print_checks_entity
+make transaction_html_display
 
 #if [ "$?" -eq 0 ]
 #then

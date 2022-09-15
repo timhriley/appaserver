@@ -136,7 +136,7 @@ results=`echo "select count(1) from $from where $where;" | sql.e`
 if [ "$results" -ge 1 ]
 then
 	echo "<h2> `now.sh 19` </h2>"
-	echo "<h3>Duplication Error. You may have to insert manually.</h3>"
+	echo "<h3>Duplication Error. You may have to insert this transaction manually.</h3>"
 	echo "</body>"
 	echo "</html>"
 	exit 0
@@ -237,7 +237,9 @@ post_change_journal_ledger.sh	insert				\
 				preupdate_account
 
 echo "<h2> `now.sh 19` </h2>"
-echo "<h3>Process complete for transaction:</h3><h3>$transaction_date_time</h3>"
+echo "<h3>Process complete for transaction:"
+
+transaction_html_display "$transaction_date_time"
 
 echo "</body>"
 echo "</html>"
