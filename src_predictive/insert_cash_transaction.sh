@@ -112,8 +112,6 @@ fi
 
 transaction_date_time="${transaction_date} `now.sh seconds`"
 
-# Check for duplication
-# ---------------------
 full_name_escaped=`echo $full_name | escape_character.e "'"`
 
 if [ "$street_address" = "street_address" -o "$street_address" = "" ]
@@ -121,6 +119,8 @@ then
 	street_address="unknown"
 fi
 
+# Check for duplication
+# ---------------------
 from=transaction
 
 where="full_name = '$full_name_escaped' and street_address = '$street_address' and transaction_date_time like '$transaction_date %' and transaction_amount = $transaction_amount"
@@ -130,7 +130,7 @@ results=`echo "select count(1) from $from where $where;" | sql.e`
 if [ "$results" -ge 1 ]
 then
 	echo "<h2> `now.sh 19` </h2>"
-	echo "<h3>Duplication Error</h3>"
+	echo "<h3>Duplication Error. You may have to insert manually.</h3>"
 	echo "</body>"
 	echo "</html>"
 	exit 0
