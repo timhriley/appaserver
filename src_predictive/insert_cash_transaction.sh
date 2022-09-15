@@ -95,7 +95,7 @@ if [	"$check_number" = "" -o				\
 then
 	where="hard_coded_account_key = 'cash_key'"
 else
-	where="hard_coded_account_key = 'uncleared_checks'"
+	where="hard_coded_account_key = 'uncleared_checks_key'"
 fi
 
 credit_account=`echo "	select account		\
@@ -105,7 +105,7 @@ credit_account=`echo "	select account		\
 
 if [ "$credit_account" = "" ]
 then
-	echo "ERROR in `basename.e $0 n`: cannot get account.hard_coded_account_key = 'cash_key'" 1>&2
+	echo "ERROR in `basename.e $0 n`: cannot get account.hard_coded_account_key = '$hard_coded_account_key'" 1>&2
 	exit 1
 fi
 
