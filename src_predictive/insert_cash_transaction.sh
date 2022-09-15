@@ -90,7 +90,13 @@ fi
 
 # Build where_clause
 # ------------------
-where="hard_coded_account_key = 'cash_key'"
+if [	"$check_number" = "" -o				\
+	"$check_number" = "check_number" ]
+then
+	where="hard_coded_account_key = 'cash_key'"
+else
+	where="hard_coded_account_key = 'uncleared_checks'"
+fi
 
 credit_account=`echo "	select account		\
 			from account		\
