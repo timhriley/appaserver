@@ -1497,3 +1497,47 @@ char *transaction_stamp_insert(
 
 	return transaction->transaction_date_time;
 }
+
+TRANSACTION *transaction_date_time_fetch(
+			char *transaction_date_time,
+			boolean fetch_journal_list )
+{
+	if ( !transaction_date_time )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: transaction_date_time is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	transaction_parse(
+		string_pipe_fetch(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			transaction_system_string(
+				TRANSACTION_SELECT,
+				TRANSACTION_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				transaction_date_time_fetch_where(
+					transaction_date_time ) ) ),
+		fetch_journal_list );
+}
+
+char *transaction_date_time_fetch_where(
+			char *transaction_date_time )
+{
+	static char where[ 64 ];
+
+	sprintf(where,
+		"transaction_date_time = '%s'",
+		transaction_date_time );
+
+	return where;
+}
+

@@ -90,7 +90,13 @@ fi
 
 # Build where_clause
 # ------------------
-where="hard_coded_account_key = 'cash_key'"
+if [	"$check_number" = "" -o				\
+	"$check_number" = "check_number" ]
+then
+	where="hard_coded_account_key = 'cash_key'"
+else
+	where="hard_coded_account_key = 'uncleared_checks_key'"
+fi
 
 credit_account=`echo "	select account		\
 			from account		\
@@ -99,7 +105,7 @@ credit_account=`echo "	select account		\
 
 if [ "$credit_account" = "" ]
 then
-	echo "ERROR in `basename.e $0 n`: cannot get account.hard_coded_account_key = 'cash_key'" 1>&2
+	echo "ERROR in `basename.e $0 n`: cannot get account.hard_coded_account_key = '$hard_coded_account_key'" 1>&2
 	exit 1
 fi
 
@@ -112,8 +118,6 @@ fi
 
 transaction_date_time="${transaction_date} `now.sh seconds`"
 
-# Check for duplication
-# ---------------------
 full_name_escaped=`echo $full_name | escape_character.e "'"`
 
 if [ "$street_address" = "street_address" -o "$street_address" = "" ]
@@ -121,6 +125,8 @@ then
 	street_address="unknown"
 fi
 
+# Check for duplication
+# ---------------------
 from=transaction
 
 where="full_name = '$full_name_escaped' and street_address = '$street_address' and transaction_date_time like '$transaction_date %' and transaction_amount = $transaction_amount"
@@ -130,7 +136,7 @@ results=`echo "select count(1) from $from where $where;" | sql.e`
 if [ "$results" -ge 1 ]
 then
 	echo "<h2> `now.sh 19` </h2>"
-	echo "<h3>Duplication Error</h3>"
+	echo "<h3>Duplication Error. You may have to insert this transaction manually.</h3>"
 	echo "</body>"
 	echo "</html>"
 	exit 0
@@ -231,7 +237,9 @@ post_change_journal_ledger.sh	insert				\
 				preupdate_account
 
 echo "<h2> `now.sh 19` </h2>"
-echo "<h3>Process complete for transaction:</h3><h3>$transaction_date_time</h3>"
+echo "<h3>Process complete for transaction:"
+
+transaction_html_display "$transaction_date_time"
 
 echo "</body>"
 echo "</html>"

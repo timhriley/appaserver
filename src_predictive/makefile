@@ -39,8 +39,8 @@ EXECUTABLES=	trial_balance_output					\
 		pay_liabilities_process					\
 		depreciate_fixed_assets					\
 		depreciation_trigger					\
-		post_accrual
-#		post_cash_expense_transaction				\
+		post_accrual						\
+		transaction_html_display
 #		post_change_self					\
 #		generate_invoice					\
 #		post_change_vendor_payment				\
@@ -156,15 +156,13 @@ post_accrual: post_accrual.c						\
 		post_accrual.c						\
 		-o post_accrual
 
-post_cash_expense_transaction: post_cash_expense_transaction.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		${LIBRARY}/folder_menu.o
+transaction_html_display: transaction_html_display.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_cash_expense_transaction.c				\
-		${LIBRARY}/folder_menu.o				\
-		-o post_cash_expense_transaction
+		transaction_html_display.c				\
+		-o transaction_html_display
 
 post_payroll: post_payroll.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
