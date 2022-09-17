@@ -287,6 +287,20 @@ char *transaction_begin_date_string(
 
 /* Usage */
 /* ----- */
+TRANSACTION *transaction_date_time_fetch(
+			char *transaction_date_time,
+			boolean fetch_journal_list );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *transaction_date_time_fetch_where(
+			char *transaction_date_time );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */

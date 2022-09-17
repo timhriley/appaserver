@@ -158,6 +158,7 @@ kml_extract
 # --------------
 # src_predictive
 # --------------
+transaction_html_display
 trial_balance_output
 income_statement_output
 balance_sheet_output

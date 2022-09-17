@@ -1,8 +1,8 @@
 :
 
-make populate_print_checks_entity
+#cd ../library && make
 
 #if [ "$?" -eq 0 ]
 #then
-	#make trial_balance
+	make balance_sheet_output
 #fi

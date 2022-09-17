@@ -1145,7 +1145,7 @@ void journal_list_pipe_display(
 			transaction_memo );
 	}
 
-	*(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0';
+	/* *(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0'; */
 
 	if ( heading ) fprintf( output_pipe, "%s\n", heading );
 

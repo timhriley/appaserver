@@ -709,7 +709,8 @@ char *income_statement_net_income_label( char *argv_0 )
 		exit( 1 );
 	}
 
-	if ( strcmp( argv_0, "income_statement" ) == 0 )
+	if ( strcmp( argv_0, "income_statement_output" ) == 0
+	||   strcmp( argv_0, "balance_sheet_output" ) == 0 )
 		return "Net Income";
 	else
 		return "Change in Net Assets";
