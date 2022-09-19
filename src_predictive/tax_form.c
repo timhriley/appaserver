@@ -506,7 +506,7 @@ TAX_FORM_LINE *tax_form_line_parse(
 			char *input )
 {
 	TAX_FORM_LINE *tax_form_line;
-	char buffer[ 128 ];
+	char buffer[ 512 ];
 
 	if ( !tax_form_name
 	||   !tax_form_fiscal_begin_date

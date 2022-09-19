@@ -1973,7 +1973,7 @@ char *journal_tax_form_where(
 			char *transaction_preclose_time,
 			char *account_name )
 {
-	static char where[ 128 ];
+	static char where[ 256 ];
 
 	if ( !tax_form_fiscal_begin_date
 	||   !tax_form_fiscal_end_date
@@ -1995,7 +1995,6 @@ char *journal_tax_form_where(
 		tax_form_fiscal_end_date,
 		transaction_preclose_time,
 		account_name );
-
 
 	return where;
 }
