@@ -531,7 +531,7 @@ TAX_FORM_LINE *tax_form_line_parse(
 	tax_form_line->string = strdup( buffer );
 
 	piece( buffer, SQL_DELIMITER, input, 1 );
-	tax_form_line->tax_form_description = strdup( buffer );
+	tax_form_line->description = strdup( buffer );
 
 	tax_form_line->tax_form_line_account_list =
 		tax_form_line_account_list(
@@ -1017,7 +1017,7 @@ LIST *tax_form_line_latex_table_heading_list( void )
 	list_set(
 		heading_list,
 		latex_table_heading_new(
-			"tax_form_description",
+			"tax_form_line_description",
 			0 /* not right_Justified_flag */,
 			(char *)0 /* paragraph_size */ ) );
 
@@ -1077,7 +1077,7 @@ LATEX_ROW *tax_form_line_latex_table_row( TAX_FORM_LINE *tax_form_line )
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		tax_form_line->tax_form_description,
+		tax_form_line->description,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1123,7 +1123,9 @@ TAX_FORM_ACCOUNT_LATEX_LIST *
 				tax_form_account_latex_new(
 					tax_form_line->string,
 					tax_form_line->
-						tax_form_line_account_list ) );
+						tax_form_line_account_list,
+					tax_form_line->description,
+					tax_form_line->total ) );
 		}
 
 	} while ( list_next( tax_form_line_list ) );
@@ -1155,7 +1157,9 @@ TAX_FORM_ACCOUNT_LATEX_LIST *
 
 LATEX_TABLE *tax_form_account_latex_new(
 			char *tax_form_line_string,
-			LIST *tax_form_line_account_list )
+			LIST *tax_form_line_account_list,
+			char *tax_form_line_description,
+			double tax_form_line_total )
 {
 	LATEX_TABLE *latex_table;
 
@@ -1169,17 +1173,21 @@ LATEX_TABLE *tax_form_account_latex_new(
 		exit( 1 );
 	}
 
-	if ( !list_length( tax_form_line_account_list ) )
+	if ( !tax_form_line_total
+	||   !list_length( tax_form_line_account_list ) )
 	{
 		return (LATEX_TABLE *)0;
 	}
 
 	latex_table =
 		latex_table_new(
+			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			tax_form_account_latex_caption(
-				tax_form_line_string ) );
+				tax_form_line_string,
+				tax_form_line_description,
+				tax_form_line_total ) );
 
 	latex_table->heading_list =
 		tax_form_account_latex_heading_list();
@@ -1195,14 +1203,19 @@ LATEX_TABLE *tax_form_account_latex_new(
 }
 
 char *tax_form_account_latex_caption(
-			char *tax_form_line_string )
+			char *tax_form_line_string,
+			char *tax_form_line_description,
+			double tax_form_line_total )
 {
-	char caption[ 128 ];
+	char caption[ 256 ];
+	char buffer[ 128 ];
 
-	if ( !tax_form_line_string )
+	if ( !tax_form_line_string
+	||   !tax_form_line_description
+	||   !tax_form_line_total )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: tax_form_line_string is empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1210,8 +1223,12 @@ char *tax_form_account_latex_caption(
 	}
 
 	sprintf(caption,
-		"Tax form line: %s",
-		tax_form_line_string );
+		"Tax form line: %s/%s; Total: %s",
+		tax_form_line_string,
+		format_initial_capital( buffer, tax_form_line_description ),
+		strdup( 
+			timlib_dollar_round_string(
+				tax_form_line_total ) ) );
 
 	return strdup( caption );
 }
@@ -1352,6 +1369,7 @@ TAX_FORM_ENTITY_LATEX_LIST *
 				tax_form_account_entity_latex_new(
 					tax_form_line->string,
 					tax_form_line_account->account_name,
+					tax_form_line_account->total,
 					tax_form_line_account->
 						tax_form_entity_list ) );
 
@@ -1390,6 +1408,7 @@ TAX_FORM_ENTITY_LATEX_LIST *
 LATEX_TABLE *tax_form_account_entity_latex_new(
 			char *tax_form_line_string,
 			char *account_name,
+			double tax_form_line_account_total,
 			LIST *tax_form_entity_list )
 {
 	LATEX_TABLE *latex_table;
@@ -1405,7 +1424,11 @@ LATEX_TABLE *tax_form_account_entity_latex_new(
 		exit( 1 );
 	}
 
-	if ( !list_length( tax_form_entity_list ) ) return (LATEX_TABLE *)0;
+	if ( !tax_form_line_account_total
+	||   !list_length( tax_form_entity_list ) )
+	{
+		return (LATEX_TABLE *)0;
+	}
 
 	latex_table =
 		latex_table_new(
@@ -1414,7 +1437,8 @@ LATEX_TABLE *tax_form_account_entity_latex_new(
 			/* ------------------- */
 			tax_form_entity_latex_caption(
 				tax_form_line_string,
-				account_name ) );
+				account_name,
+				tax_form_line_account_total ) );
 
 	latex_table->heading_list =
 		tax_form_entity_latex_heading_list();
@@ -1431,7 +1455,8 @@ LATEX_TABLE *tax_form_account_entity_latex_new(
 
 char *tax_form_entity_latex_caption(
 			char *tax_form_line_string,
-			char *account_name )
+			char *account_name,
+			double account_total )
 {
 	char caption[ 1024 ];
 	char buffer[ 128 ];
@@ -1448,11 +1473,14 @@ char *tax_form_entity_latex_caption(
 	}
 
 	sprintf(caption,
-		"Tax form line: %s; Account: %s",
+		"Tax form line: %s; Account: %s; Total: %s",
 		tax_form_line_string,
 		format_initial_capital(
 			buffer,
-			account_name ) );
+			account_name ),
+		strdup(
+			timlib_dollar_round_string(
+				account_total ) ) );
 
 	return strdup( caption );
 }
