@@ -25,7 +25,7 @@ typedef struct
 {
 	char *tax_form_name;
 	char *string;
-	char *tax_form_description;
+	char *description;
 	LIST *tax_form_line_account_list;
 	double total;
 } TAX_FORM_LINE;
@@ -258,6 +258,7 @@ TAX_FORM_ENTITY_LATEX_LIST *
 LATEX_TABLE *tax_form_account_entity_latex_new(
 			char *tax_form_line_string,
 			char *account_name,
+			double tax_form_line_account_total,
 			LIST *tax_form_entity_list );
 
 /* Process */
@@ -267,7 +268,8 @@ LATEX_TABLE *tax_form_account_entity_latex_new(
 /* ------------------- */
 char *tax_form_entity_latex_caption(
 			char *tax_form_line_string,
-			char *account_name );
+			char *account_name,
+			double tax_form_line_account_total );
 
 /* Usage */
 /* ----- */
@@ -315,7 +317,9 @@ TAX_FORM_ACCOUNT_LATEX_LIST *
 /* ----- */
 LATEX_TABLE *tax_form_account_latex_new(
 			char *tax_form_line_string,
-			LIST *tax_form_line_account_list );
+			LIST *tax_form_line_account_list,
+			char *tax_form_line_description,
+			double tax_form_line_total );
 
 /* Process */
 /* ------- */
@@ -323,7 +327,9 @@ LATEX_TABLE *tax_form_account_latex_new(
 /* Returns heap memory */
 /* ------------------- */
 char *tax_form_account_latex_caption(
-			char *tax_form_line_string );
+			char *tax_form_line_string,
+			char *tax_form_line_description,
+			double tax_form_line_total );
 
 /* Usage */
 /* ----- */
