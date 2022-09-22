@@ -1,5 +1,5 @@
 /* ---------------------------------------------------	*/
-/* src_timriley/post_email_timriley.c			*/
+/* $APPASERVER_HOME/src_timriley/post_email_timriley.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
@@ -32,10 +32,11 @@ int main( void )
 	remote_IP_address = environ_get_environment( "REMOTE_ADDR" );
 	https_on = environ_get_environment( "HTTPS" );
 
-	dictionary = post2dictionary(
-				stdin,
-				(char *)0 /* appaserver_data_directory */,
-				(char *)0 /* session */ );
+	dictionary =
+		post2dictionary(
+			stdin,
+			(char *)0 /* appaserver_data_directory */,
+			(char *)0 /* session */ );
 
 	reason = dictionary_get( dictionary, "reason" );
 	email_address = dictionary_get( dictionary, "email_address" );
@@ -46,7 +47,7 @@ int main( void )
 	&&   email_address && *email_address
 	&&   message && *message )
 	{
-		sprintf( sys_string,
+		sprintf(sys_string,
 		 	"mailx -s \"Appahost [%s] from %s/%s\" %s",
 		 	reason,
 		 	email_address,
@@ -65,9 +66,9 @@ int main( void )
 	document_root = APPAHOST_DOCUMENT_ROOT;
 
 	sprintf( output_process, "cat %s/message_sent.html", document_root );
-	if ( system( output_process ) ) {};
 
-	exit( 0 );
+	if ( system( output_process ) ) {}
 
-} /* main() */
+	return 0;
+}
 
