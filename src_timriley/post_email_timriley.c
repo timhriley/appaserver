@@ -26,7 +26,9 @@ int main( void )
 	char *message;
 	POST_EMAIL *post_email;
 
-	remote_ip_address = environ_get_environment( "REMOTE_ADDR" );
+	remote_ip_address =
+		environ_get_environment(
+			"REMOTE_ADDR" );
 
 	dictionary =
 		post2dictionary(
@@ -56,6 +58,8 @@ int main( void )
 	}
 
 	document_output_content_type();
+
+	add_path( "/usr2/timriley/ufw" /* path_to_add */ );
 
 	post_email =
 		/* --------------- */
