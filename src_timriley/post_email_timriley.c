@@ -59,6 +59,7 @@ int main( void )
 
 	document_output_content_type();
 
+	add_utility_to_path();
 	add_path( "/usr2/timriley/ufw" /* path_to_add */ );
 
 	post_email =
