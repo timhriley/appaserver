@@ -59,6 +59,10 @@ boolean post_email_reason_invalid_boolean(
 boolean post_email_message_invalid_boolean(
 			char *message );
 
+/* Need to have www-data group for:	*/
+/* /var/log/apache2/ and		*/
+/* /var/log/apache2/access.log		*/
+/* ------------------------------------ */
 boolean post_email_bot_generated_boolean(
 			char *post_email_bot_script_deny,
 			char *remote_ip_address );
