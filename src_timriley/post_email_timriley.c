@@ -1,73 +1,92 @@
 /* ---------------------------------------------------	*/
-/* src_timriley/post_email_timriley.c			*/
+/* $APPASERVER_HOME/src_timriley/post_email_timriley.c	*/
 /* ---------------------------------------------------	*/
 /* Freely available software: see Appaserver.org	*/
 /* ---------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include "timlib.h"
 #include "dictionary.h"
 #include "document.h"
 #include "environ.h"
 #include "post2dictionary.h"
+#include "post_email.h"
 
-#define TIMRILEY_EMAIL_ADDRESS	"timriley@appahost.com"
 #define APPAHOST_DOCUMENT_ROOT	"/var/www/html/appahost_com"
 
 int main( void )
 {
 	DICTIONARY *dictionary = {0};
+	char *remote_email_address;
+	char *remote_ip_address;
 	char *reason;
-	char *email_address;
 	char *message;
-	char sys_string[ 1024 ];
-	FILE *output_pipe;
-	char *document_root;
-	char output_process[ 128 ];
-	char *remote_IP_address;
-	char *https_on;
+	POST_EMAIL *post_email;
 
-	remote_IP_address = environ_get_environment( "REMOTE_ADDR" );
-	https_on = environ_get_environment( "HTTPS" );
+	remote_ip_address =
+		environ_get_environment(
+			"REMOTE_ADDR" );
 
-	dictionary = post2dictionary(
-				stdin,
-				(char *)0 /* appaserver_data_directory */,
-				(char *)0 /* session */ );
+	dictionary =
+		post2dictionary(
+			stdin,
+			(char *)0 /* appaserver_data_directory */,
+			(char *)0 /* session */ );
 
+	remote_email_address = dictionary_get( dictionary, "email_address" );
 	reason = dictionary_get( dictionary, "reason" );
-	email_address = dictionary_get( dictionary, "email_address" );
 	message = dictionary_get( dictionary, "message" );
 
-	if ( timlib_strcmp( https_on, "on" ) == 0
-	&&   reason && *reason
-	&&   email_address && *email_address
-	&&   message && *message )
+	if ( !remote_ip_address
+	||   !*remote_ip_address
+	||   !remote_email_address
+	||   !*remote_email_address
+	||   !reason
+	||   !*reason
+	||   !message
+	||   !*message )
 	{
-		sprintf( sys_string,
-		 	"mailx -s \"Appahost [%s] from %s/%s\" %s",
-		 	reason,
-		 	email_address,
-			remote_IP_address,
-		 	TIMRILEY_EMAIL_ADDRESS );
-
-		output_pipe = popen( sys_string, "w" );
-		fprintf( output_pipe, "%s\n", message );
-
-		environ_display( output_pipe );
-		pclose( output_pipe );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	document_output_content_type();
 
-	document_root = APPAHOST_DOCUMENT_ROOT;
+	add_path( "/usr2/timriley/ufw" /* path_to_add */ );
 
-	sprintf( output_process, "cat %s/message_sent.html", document_root );
-	if ( system( output_process ) ) {};
+	post_email =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		post_email_new(
+			APPAHOST_DOCUMENT_ROOT,
+			remote_email_address,
+			remote_ip_address,
+			reason,
+			message );
 
-	exit( 0 );
+	if (	post_email->address_invalid_boolean
+	|| 	post_email->reason_invalid_boolean
+	||	post_email->message_invalid_boolean
+	||	post_email->bot_generated_boolean )
+	{
+		sleep( POST_EMAIL_INVALID_SLEEP );
+		exit( 1 );
+	}
 
-} /* main() */
+	post_email_mailx(
+		post_email->mailx_command_line,
+		message );
+
+	if ( system( post_email->message_sent_system_string ) ){}
+
+	return 0;
+}
 

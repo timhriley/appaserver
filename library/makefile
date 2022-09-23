@@ -96,7 +96,6 @@ APPASERVER_LIBRARY=						\
 		table.o						\
 		row_security.o					\
 		dictionary_appaserver.o				\
-		additional_drop_down_attribute.o		\
 		scatterplot.o					\
 		regression.o					\
 		pivot_table.o					\
@@ -110,7 +109,8 @@ APPASERVER_LIBRARY=						\
 		foreign_attribute.o				\
 		moving_average.o				\
 		pair_one2m.o					\
-		mysqldump.o
+		mysqldump.o					\
+		post_email.o
 
 all: 	${APPASERVER_LIBRARY} ${STANDARD_LIBRARY}
 
@@ -993,12 +993,6 @@ statistics_weighted.o: statistics_weighted.c statistics_weighted.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c statistics_weighted.c
 
-additional_drop_down_attribute.o:					\
-		additional_drop_down_attribute.c			\
-		additional_drop_down_attribute.h
-	${CC} ${CFLAGS} -I${LIBRARY}					\
-		-c additional_drop_down_attribute.c
-
 date_convert.o: date_convert.c date_convert.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c date_convert.c
@@ -1022,6 +1016,10 @@ array.o: array.c array.h
 mysqldump.o: mysqldump.c mysqldump.h
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		-c mysqldump.c
+
+post_email.o: post_email.c post_email.h
+	${CC} ${CFLAGS} -I${LIBRARY}					\
+		-c post_email.c
 
 foreign_attribute.o: foreign_attribute.c foreign_attribute.h
 	${CC} ${CFLAGS} -c foreign_attribute.c

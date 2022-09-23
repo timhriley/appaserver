@@ -25,7 +25,6 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/hash_table.o
 
 EXECUTABLES=	post_email_timriley					\
-		load_institution_balance				\
 		expected_ethernet_usage_percentage
 
 EXTERNAL_LIBS=								\
@@ -74,7 +73,8 @@ EXTERNAL_LIBS=								\
 		${LIBRARY}/post2dictionary.o				\
 		${LIBRARY}/dictionary2file.o				\
 		${LIBRARY}/foreign_attribute.o				\
-		${LIBRARY}/session.o
+		${LIBRARY}/session.o					\
+		${LIBRARY}/post_email.o
 
 all: 	${EXECUTABLES}
 
@@ -83,7 +83,7 @@ touch:
 
 clean:
 	rm -f *.o ${EXECUTABLES}
-#	rm ${CGI_HOME}/post_email_timriley
+	rm ${CGI_HOME}/post_email_timriley
 
 post_email_timriley: post_email_timriley.c				\
 			${STANDARD_LIBRARY}				\
@@ -94,10 +94,10 @@ post_email_timriley: post_email_timriley.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		post_email_timriley.c					\
 		-o post_email_timriley
-#	touch ${CGI_HOME}/post_email_timriley
-#	/bin/rm -f ${CGI_HOME}/post_email_timriley
-#	ln ${APPASERVER_LINK_FLAGS}					\
-#	${APPASERVER_HOME}/src_timriley/post_email_timriley ${CGI_HOME}
+	touch ${CGI_HOME}/post_email_timriley
+	/bin/rm -f ${CGI_HOME}/post_email_timriley
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_timriley/post_email_timriley ${CGI_HOME}
 
 expected_ethernet_usage_percentage:					\
 		expected_ethernet_usage_percentage.c			\
@@ -110,14 +110,14 @@ expected_ethernet_usage_percentage:					\
 		expected_ethernet_usage_percentage.c			\
 		-o expected_ethernet_usage_percentage
 
-load_institution_balance:					\
-		load_institution_balance.c			\
+load_institution_balance:						\
+		load_institution_balance.c				\
 		${STANDARD_LIBRARY}					\
 		${EXTERNAL_LIBS}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY} 					\
 		${EXTERNAL_LIBS}					\
-		load_institution_balance.c			\
+		load_institution_balance.c				\
 		-o load_institution_balance
 

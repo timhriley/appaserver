@@ -6,22 +6,13 @@
 #ifndef TABLE_H
 #define TABLE_H
 
-/* Includes */
-/* -------- */
 #include "boolean.h"
 #include "list.h"
 
-/* Constants */
-/* --------- */
-
-/* Enumerated types */
-/* ---------------- */
 enum table_column_type {
 			column_string,
 			column_double };
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	char *table_title;
@@ -37,6 +28,13 @@ typedef struct
 	LIST *table_row_list;
 } TABLE;
 
+/* Usage */
+/* ----- */
+TABLE *table_new(	char *table_title );
+
+/* Process */
+/* ------- */
+
 typedef struct
 {
 	char *column_name;
@@ -48,6 +46,19 @@ typedef struct
 	enum table_column_type table_column_type;
 } TABLE_COLUMN;
 
+/* Usage */
+/* ----- */
+TABLE_COLUMN *table_column_new(
+			char *column_name,
+			enum table_column_type );
+
+/* Process */
+/* ------- */
+TABLE_COLUMN *table_column_set(
+			LIST *table_column_list,
+			char *column_name,
+			enum table_column_type );
+
 typedef struct
 {
 	char *data_string;
@@ -55,26 +66,20 @@ typedef struct
 	TABLE_COLUMN *table_column;
 } TABLE_CELL;
 
-typedef struct
-{
-	int row_number;
-	boolean latex_preceed_double_line;
-	boolean latex_large_bold;
-	TABLE_CELL *table_cell;
-} TABLE_ROW;
-
-/* Prototypes */
-/* ---------- */
+/* Usage */
+/* ----- */
 TABLE_CELL *table_cell_string_new(
 			char *data_string,
 			TABLE_COLUMN *table_column );
 
+/* Process */
+/* ------- */
+TABLE_CELL *table_cell_calloc(
+			void );
+
 TABLE_CELL *table_cell_double_new(
 			double data_double,
 			TABLE_COLUMN *table_column );
-
-TABLE_ROW *table_row_new(
-			int row_number );
 
 TABLE_CELL *table_cell_string_set(
 			LIST *table_row_cell_list,
@@ -86,22 +91,24 @@ TABLE_CELL *table_cell_double_set(
 			double data_double,
 			TABLE_COLUMN *table_column );
 
-TABLE *table_new(	char *table_title );
+typedef struct
+{
+	int row_number;
+	boolean latex_preceed_double_line;
+	boolean latex_large_bold;
+	TABLE_CELL *table_cell;
+} TABLE_ROW;
 
-TABLE_COLUMN *table_column_new(
-			char *column_name,
-			enum table_column_type );
+/* Usage */
+/* ----- */
+TABLE_ROW *table_row_new(
+			int row_number );
 
-TABLE_COLUMN *table_column_set(
-			LIST *table_column_list,
-			char *column_name,
-			enum table_column_type );
-
+/* Process */
+/* ------- */
 TABLE_ROW *table_row_set(
 			LIST *table_row_list,
 			int row_number );
 
-TABLE_CELL *table_cell_calloc(
-			void );
 
 #endif
