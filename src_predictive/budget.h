@@ -10,24 +10,26 @@
 
 #include "list.h"
 #include "boolean.h"
+#include "date.h"
 #include "statement.h"
 #include "account.h"
 
 typedef struct
 {
+	ACCOUNT *account;
 	int days_so_far;
 	int days_in_year;
 	double year_ratio;
 	double amount;
-	ACCOUNT *account_element_list_seek;
+	ACCOUNT *prior_account;
 	double difference;
 } BUDGET_ANNUALIZED;
 
 /* Usage */
 /* ----- */
 LIST *budget_annualized_list(
-			char *budget_begin_date_string,
-			char *budget_as_of_date,
+			DATE *budget_begin_date,
+			DATE *budget_as_of_date,
 			LIST *element_statement_list,
 			STATEMENT_PRIOR_YEAR *statement_prior_year );
 
@@ -37,8 +39,8 @@ LIST *budget_annualized_list(
 /* Usage */
 /* ----- */
 BUDGET_ANNUALIZED *budget_annualized_new(
-			char *budget_begin_date_string,
-			char *budget_as_of_date,
+			DATE *budget_begin_date,
+			DATE *budget_as_of_date,
 			ACCOUNT *account,
 			STATEMENT_PRIOR_YEAR *statement_prior_year );
 
@@ -48,11 +50,11 @@ BUDGET_ANNUALIZED *budget_annualized_calloc(
 			void );
 
 int budget_annualized_days_so_far(
-			char *budget_begin_date_string,
-			char *budget_as_of_date );
+			DATE *budget_begin_date,
+			DATE *budget_as_of_date );
 
 int budget_annualized_days_in_year(
-			char *budget_begin_date_string );
+			DATE *budget_begin_date );
 
 double budget_annualized_year_ratio(
 			int budget_annualized_days_so_far,
@@ -68,11 +70,11 @@ double budget_annualized_difference(
 
 typedef struct
 {
-	char *process_name;
 	char *document_root_directory;
-	enum statement_output_medium;
-	char *begin_date_string;
-	char *as_of_date;
+	enum statement_output_medium statement_output_medium;
+	DATE *as_of_date;
+	char *as_of_date_string;
+	DATE *begin_date;
 	LIST *element_name_list;
 	boolean transaction_closing_entry_exists;
 	char *transaction_date_time_closing;
@@ -83,8 +85,7 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *budget_fetch(
-			char *application_name,
+BUDGET *budget_fetch(	char *application_name,
 			char *process_name,
 			char *document_root_directory,
 			char *output_medium_string );
@@ -93,11 +94,11 @@ LIST *budget_fetch(
 /* ------- */
 BUDGET *budget_calloc(	void );
 
-char *budget_begin_date_string(
-			int utc_offset );
+DATE *budget_as_of_date(
+			int date_utc_offset );
 
-char *budget_as_of_date(
-			char *budget_begin_date_string );
+DATE *budget_begin_date(
+			DATE *budget_as_of_date );
 
 LIST *budget_element_name_list(
 			char *element_revenue,
