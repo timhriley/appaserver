@@ -1,8 +1,8 @@
-/* ---------------------------------------------------	*/
-/* src_timriley/expected_ethernet_usage_percentage.c	*/
-/* ---------------------------------------------------	*/
-/* Freely available software: see Appaserver.org	*/
-/* ---------------------------------------------------	*/
+/* -------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_timriley/expected_ethernet_usage_percentage.c	*/
+/* -------------------------------------------------------------	*/
+/* Freely available software: see Appaserver.org			*/
+/* -------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -72,16 +72,16 @@ int main( int argc, char **argv )
 				argv,
 				application_name );
 
-	if ( argc != 4 )
+	if ( argc != 3 )
 	{
 		fprintf( stderr, 
-			 "Usage: %s ignored process_name output_medium\n",
+			 "Usage: %s process_name output_medium\n",
 			 argv[ 0 ] );
 		exit ( 1 );
 	}
 
-	process_name = argv[ 2 ];
-	output_medium=argv[ 3 ];
+	process_name = argv[ 1 ];
+	output_medium=argv[ 2 ];
 
 #ifndef TEST_COMPUTER
 	add_relative_source_directory_to_path( application_name );
@@ -137,7 +137,7 @@ int main( int argc, char **argv )
 	pclose( output_pipe );
 
 	return 0;
-} /* main() */
+}
 
 FILE *get_output_pipe(	char *output_medium,
 			char *process_name )
@@ -168,7 +168,7 @@ FILE *get_output_pipe(	char *output_medium,
 
 	return popen( sys_string, "w" );
 
-} /* get_output_pipe() */
+}
 
 FILE *get_input_pipe( char *application_name )
 {
@@ -199,7 +199,7 @@ FILE *get_input_pipe( char *application_name )
 	input_pipe = popen( sys_string, "r" );
 #endif
 	return input_pipe;
-} /* get_input_pipe() */
+}
 
 void parse_input_buffer(
 			char *date_string,
@@ -212,8 +212,7 @@ void parse_input_buffer(
 	piece( ethernet_address, '^', input_buffer, 1 );
 	piece( receive_megabytes_string, '^', input_buffer, 2 );
 	piece( transmit_megabytes_string, '^', input_buffer, 3 );
-
-} /* parse_input_buffer() */
+}
 
 void expected_ethernet_usage_percentage(
 			FILE *output_pipe,
@@ -279,8 +278,7 @@ void expected_ethernet_usage_percentage(
 	}
 
 	pclose( input_pipe );
-
-} /* expected_ethernet_usage_percentage() */
+}
 
 char *get_current_month_year( void )
 {
@@ -290,7 +288,7 @@ char *get_current_month_year( void )
 		 "date.e 0 | piece.e '-' 0,1" );
 
 	return pipe2string( sys_string );
-} /* get_current_month_year() */
+}
 
 int get_current_day( void )
 {
@@ -300,7 +298,7 @@ int get_current_day( void )
 		 "date.e 0 | piece.e '-' 2" );
 
 	return atoi( pipe2string( sys_string ) );
-} /* get_current_day() */
+}
 
 double get_expected_percentage(	int current_megabytes,
 				char *date_string,
@@ -348,5 +346,5 @@ double get_expected_percentage(	int current_megabytes,
 			MEGABYTES_PER_TERABYTE ) * 100.0;
 
 	return expected_percentage;
-} /* get_expected_percentage() */
+}
 
