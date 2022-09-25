@@ -12,7 +12,7 @@
 #include "list.h"
 #include "boolean.h"
 #include "date.h"
-#include "html.h"
+#include "html_table.h"
 #include "latex.h"
 #include "statement.h"
 #include "account.h"

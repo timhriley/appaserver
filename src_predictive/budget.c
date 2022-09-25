@@ -349,13 +349,13 @@ BUDGET *budget_fetch(	char *application_name,
 		transaction_closing_entry_exists(
 			TRANSACTION_TABLE,
 			TRANSACTION_CLOSE_TIME,
-			budget->as_of_date_string );
+			budget->transaction_as_of_date );
 
 	budget->transaction_date_time_closing =
 		transaction_date_time_closing(
 			TRANSACTION_PRECLOSE_TIME,
 			TRANSACTION_CLOSE_TIME,
-			budget->as_of_date_string,
+			budget->transaction_as_of_date,
 			budget->transaction_closing_entry_exists
 				/* preclose_time_boolean */ );
 
@@ -401,9 +401,21 @@ BUDGET *budget_fetch(	char *application_name,
 				application_name,
 				process_name,
 				document_root_directory,
-				budget->statement->logo_filename,
-				budget->statement->caption,
-				budget->budget_annualized_list,
+				budget->
+					statement->
+					transaction_begin_date_string,
+				budget->
+					statement->
+					transaction_as_of_date,
+				budget->
+					statement->
+					statement_caption->
+					logo_filename,
+				budget->
+					statement->
+					statement_caption->
+					string,
+				budget->annualized_list,
 				getpid() /* process_id */ );
 	}
 	else
@@ -507,59 +519,13 @@ char *budget_end_date_time_string(
 		exit( 1 );
 	}
 
-	date_add_year( future_date, 1 );
+	date_increment_years( future_date, 1 );
 
 	return
 	/* ------------------- */
 	/* Returns heap memory */
 	/* ------------------- */
 	date_display19( future_date );
-}
-
-BUDGET_LATEX *budget_latex_new(
-			char *tex_filename,
-			char *dvi_filename,
-			char *working_directory,
-			char *statement_logo_filename,
-			char *statement_caption,
-			LIST *budget_annualized_list )
-{
-	BUDGET_LATEX *budget_latex;
-
-	budget_latex = budget_latex_calloc();
-
-	budget_latex->latex =
-		latex_new(
-			tex_filename,
-			dvi_filename,
-			working_directory,
-			0 /* not landscape_boolean */,
-			statement_logo_filename );
-
-	list_set(
-		latex->table_list,
-		budget_latex_table(
-			statement_caption,
-			budget_annualized_list ) );
-
-	return budget_latex;
-}
-
-BUDGET_LATEX *budget_latex_calloc( void )
-{
-	BUDGET_LATEX *budget_latex;
-
-	if ( ! ( budget_latex = calloc( 1, sizeof( BUDGET_LATEX ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return budget_latex;
 }
 
 char *budget_latex_difference_display( double difference )
@@ -619,7 +585,7 @@ LATEX_ROW *budget_latex_row(
 	latex_column_data_set(
 		latex_row->column_data_list,
 		statement_cell_data_label(
-			account_name /* name */ );
+			account_name /* name */ ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -876,9 +842,9 @@ BUDGET_PDF *budget_pdf_new(
 
 	budget_pdf->budget_latex =
 		budget_latex_new(
-			statement_link->tex_filename,
-			statement_link->dvi_filename,
-			statement_link->working_directory,
+			budget_pdf->statement_link->tex_filename,
+			budget_pdf->statement_link->dvi_filename,
+			budget_pdf->statement_link->working_directory,
 			statement_logo_filename,
 			statement_caption,
 			budget_annualized_list );
