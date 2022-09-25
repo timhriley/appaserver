@@ -127,7 +127,8 @@ SOURCE_LIBRARY= 							\
 		income_statement.o					\
 		balance_sheet.o						\
 		close_nominal.o						\
-		accrual.o
+		accrual.o						\
+		budget.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -661,6 +662,10 @@ depreciation.o:								\
 accrual.o: accrual.c accrual.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c accrual.c
+
+budget.o: budget.c budget.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c budget.c
 
 entity_self.o: entity_self.c entity_self.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

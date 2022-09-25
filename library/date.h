@@ -156,19 +156,19 @@ char *date_display_yyyy_mm_dd_colon_hms(
 
 char *date_hms(		DATE *date );
 
-char *date_get_hms(		DATE *date );
+char *date_get_hms(	DATE *date );
 
 char *date_display_yyyy_mm_dd_hh_mm(
-				DATE *date );
+			DATE *date );
 
 char *date_display_yyyy_mm_dd_colon_hm(
-				DATE *date );
+			DATE *date );
 
 char *date_get_yyyy_mm_dd_string(
-				DATE *date );
+			DATE *date );
 
 char *date_get_yesterday_yyyy_mm_dd_string(
-				int utc_offset );
+			int utc_offset );
 
 DATE *date_get_today_new(
 			int utc_offset );
@@ -260,6 +260,11 @@ DATE *date_set_time(		DATE *date,
 				int hour,
 				int minutes );
 
+DATE *date_set_time_seconds(	DATE *date,
+				int hour,
+				int minutes,
+				int seconds );
+
 DATE *date_set_day(		DATE *date,
 				int day,
 				int utc_offset );
@@ -291,6 +296,9 @@ int date_get_day_number(	DATE *date );
 
 boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm );
+
+boolean date_set_time_hhmmss(	DATE *date,
+				char *hhmmss );
 
 int date_get_minutes_number(	DATE *date );
 
@@ -601,8 +609,7 @@ char *date_display_yyyy_mm_dd_hh_colon_mm(
 int date_months_between(DATE *from_date,
 			DATE *to_date );
 
-int date_days_in_year(
-			int year );
+int date_days_in_year(	int year );
 
 int date_get_days_in_year(
 			int year );

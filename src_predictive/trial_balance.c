@@ -42,7 +42,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 			char *role_name,
 			char *process_name,
 			char *document_root_directory,
-			char *as_of_date,
+			char *as_of_date_string,
 			int prior_year_count,
 			char *subclassification_option_string,
 			char *output_medium_string )
@@ -54,7 +54,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 	||   !login_name
 	||   !role_name
 	||   !process_name
-	||   !as_of_date
+	||   !as_of_date_string
 	||   !subclassification_option_string
 	||   !output_medium_string )
 	{
@@ -79,7 +79,7 @@ TRIAL_BALANCE *trial_balance_fetch(
 	if ( ! ( trial_balance->transaction_as_of_date =
 			transaction_as_of_date(
 				TRANSACTION_TABLE,
-				as_of_date ) ) )
+				as_of_date_string ) ) )
 	{
 		free( trial_balance );
 		return (TRIAL_BALANCE *)0;

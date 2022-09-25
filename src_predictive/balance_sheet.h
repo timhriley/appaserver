@@ -572,7 +572,7 @@ BALANCE_SHEET *balance_sheet_fetch(
 			char *role_name,
 			char *process_name,
 			char *document_root_directory,
-			char *as_of_date,
+			char *as_of_date_string,
 			int prior_year_count,
 			char *subclassification_option_string,
 			char *output_medium_string );

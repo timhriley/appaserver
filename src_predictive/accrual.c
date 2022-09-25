@@ -17,7 +17,6 @@
 #include "folder.h"
 #include "html_table.h"
 #include "entity.h"
-#include "accrual.h"
 #include "transaction.h"
 #include "journal.h"
 #include "accrual.h"
@@ -190,7 +189,7 @@ LIST *accrual_system_list(
 	return list;
 }
 
-char *accrual_memo( char *accrual_description,
+char *accrual_memo(	char *accrual_description,
 			char *credit_account )
 {
 	char memo[ 256 ];
@@ -200,7 +199,11 @@ char *accrual_memo( char *accrual_description,
 		 accrual_description,
 		 credit_account );
 
-	return strdup( memo );
+
+	return strdup(
+		format_initial_capital(
+			memo,
+			memo ) );
 }
 
 int accrual_last_transaction_days_between(

@@ -1042,11 +1042,11 @@ TRANSACTION *transaction_binary(
 	return transaction;
 }
 
-boolean transaction_as_of_date_populated( char *as_of_date )
+boolean transaction_as_of_date_populated( char *as_of_date_string )
 {
-	if ( as_of_date
-	&&   *as_of_date
-	&&   strcmp( as_of_date, "as_of_date" ) != 0 )
+	if ( as_of_date_string
+	&&   *as_of_date_string
+	&&   strcmp( as_of_date_string, "as_of_date" ) != 0 )
 	{
 		return 1;
 	}
@@ -1058,11 +1058,11 @@ boolean transaction_as_of_date_populated( char *as_of_date )
 
 char *transaction_as_of_date(
 			char *transaction_table,
-			char *as_of_date )
+			char *as_of_date_string )
 {
-	if ( transaction_as_of_date_populated( as_of_date ) )
+	if ( transaction_as_of_date_populated( as_of_date_string ) )
 	{
-		return as_of_date;
+		return as_of_date_string;
 	}
 	else
 	{
@@ -1209,7 +1209,13 @@ char *transaction_begin_date_string(
 			prior_closing_transaction_date,
 			1.0 );
 
-		return date_yyyy_mm_dd( prior_closing_transaction_date );
+		return
+		strdup(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			date_yyyy_mm_dd(
+				prior_closing_transaction_date ) );
 	}
 
 	return

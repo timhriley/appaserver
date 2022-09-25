@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include "timlib.h"
 #include "String.h"
+#include "environ.h"
 #include "post_email.h"
 
 POST_EMAIL *post_email_new(
@@ -219,24 +220,6 @@ boolean post_email_message_invalid_boolean( char *message )
 
 	if ( word_count < 5 ) return 1;
 
-#ifdef NOT_DEFINED
-	int miss_spelled_count;
-
-	sprintf(system_string,
-		"echo \"%s\" | ispell -l | wc -w",
-		message );
-
-	miss_spelled_count =
-		string_atoi(
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
-			string_pipe_fetch(
-				system_string ) );
-
-	if ( miss_spelled_count > 5 ) return 1;
-#endif
-
 	return 0;
 }
 
@@ -391,5 +374,6 @@ void post_email_output_pipe_write(
 	}
 
 	fprintf( pipe_open, "%s\n", message );
+	environ_display( pipe_open );
 }
 

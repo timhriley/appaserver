@@ -28,7 +28,7 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *subclassification_option_string;
 	char *output_medium_string;
-	char *as_of_date;
+	char *as_of_date_string;
 	int prior_year_count;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	TRIAL_BALANCE *trial_balance;
@@ -59,7 +59,7 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
-	as_of_date = argv[ 5 ];
+	as_of_date_string = argv[ 5 ];
 	prior_year_count = atoi( argv[ 6 ] );
 	subclassification_option_string = argv[ 7 ];
 	output_medium_string = argv[ 8 ];
@@ -74,7 +74,7 @@ int main( int argc, char **argv )
 			role_name,
 			process_name,
 			appaserver_parameter_file->document_root,
-			as_of_date,
+			as_of_date_string,
 			prior_year_count,
 			subclassification_option_string,
 			output_medium_string );

@@ -421,7 +421,6 @@ void environ_display( FILE *output_pipe )
 		fprintf( output_pipe, "%s\n", *ptr );
 		ptr++;
 	}
-
 }
 
 void add_appaserver_home_to_python_path( void )

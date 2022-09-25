@@ -544,6 +544,20 @@ DATE *date_set_time(	DATE *date,
 		0 /* utc_offset */ );
 }
 
+DATE *date_set_time_seconds(
+			DATE *date,
+			int hour,
+			int minutes,
+			int seconds )
+{
+	return date_set_time_integers(
+		date,
+		hour,
+		minutes,
+		seconds,
+		0 /* utc_offset */ );
+}
+
 void date_free( DATE *d )
 {
 	free( d->tm );
@@ -2014,6 +2028,35 @@ DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 	return date;
 }
 
+boolean date_set_time_hhmmss(	DATE *date,
+				/* --------------------- */
+				/* Looks like "23:59:59" */
+				/* --------------------- */
+				char *hhmmss )
+{
+	int hours, minutes, seconds;
+	char piece_buffer[ 128 ];
+
+
+	if ( character_count( ':', hhmmss ) != 2 )
+	{
+		return 0;
+	}
+
+	piece( piece_buffer, ':', hhmmss, 0 );
+	hours = atoi( piece_buffer );
+
+	piece( piece_buffer, ':', hhmmss, 1 );
+	minutes = atoi( piece_buffer );
+
+	piece( piece_buffer, ':', hhmmss, 2 );
+	seconds = atoi( piece_buffer );
+
+	date_set_time_seconds( date, hours, minutes, seconds );
+
+	return 1;
+}
+
 boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm )
 {
@@ -2023,7 +2066,7 @@ boolean date_set_time_hhmm(	DATE *date,
 	/* Remove spaces and colons. */
 	/* ------------------------- */
 	trim_character(	buffer /* destination */,
-			':' ,
+			':',
 			hhmm /* source */ );
 
 	strcpy( hhmm, buffer );
