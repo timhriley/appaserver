@@ -364,7 +364,7 @@ INCOME_STATEMENT *income_statement_fetch(
 			char *role_name,
 			char *process_name,
 			char *document_root_directory,
-			char *as_of_date,
+			char *as_of_date_string,
 			int prior_year_count,
 			char *subclassifiction_option_string,
 			char *output_medium_string );

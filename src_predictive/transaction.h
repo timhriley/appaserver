@@ -265,19 +265,22 @@ char *transaction_date_time(
 /* Usage */
 /* ----- */
 
-/* Returns as_of_date, heap memory, or null */
-/* ---------------------------------------- */
+/* Returns as_of_date_string, heap memory, or null */
+/* ----------------------------------------------- */
 char *transaction_as_of_date(
 			char *transaction_table,
-			char *as_of_date );
+			char *as_of_date_string );
 
 /* Process */
 /* ------- */
 boolean transaction_as_of_date_populated(
-			char *as_of_date );
+			char *as_of_date_string );
 
 /* Usage */
 /* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *transaction_begin_date_string(
 			char *transaction_table,
 			char *transaction_as_of_date );

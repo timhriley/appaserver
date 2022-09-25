@@ -260,6 +260,11 @@ DATE *date_set_time(		DATE *date,
 				int hour,
 				int minutes );
 
+DATE *date_set_time_seconds(	DATE *date,
+				int hour,
+				int minutes,
+				int seconds );
+
 DATE *date_set_day(		DATE *date,
 				int day,
 				int utc_offset );
@@ -291,6 +296,9 @@ int date_get_day_number(	DATE *date );
 
 boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm );
+
+boolean date_set_time_hhmmss(	DATE *date,
+				char *hhmmss );
 
 int date_get_minutes_number(	DATE *date );
 
