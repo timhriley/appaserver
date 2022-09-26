@@ -62,7 +62,7 @@ LIST *budget_html_row_list(
 /* ----- */
 HTML_ROW *budget_html_row(
 			char *account_name,
-			double account_latest_balance,
+			double account_amount,
 			ACCOUNT *prior_account,
 			double difference );
 
@@ -147,7 +147,7 @@ LIST *budget_latex_row_list(
 /* ----- */
 LATEX_ROW *budget_latex_row(
 			char *account_name,
-			double account_latest_balance,
+			double account_amount,
 			ACCOUNT *prior_account,
 			double difference );
 
@@ -184,6 +184,7 @@ typedef struct
 	int days_so_far;
 	int days_in_year;
 	double year_ratio;
+	double account_amount;
 	double amount;
 	ACCOUNT *prior_account;
 	double difference;
@@ -224,8 +225,12 @@ double budget_annualized_year_ratio(
 			int budget_annualized_days_so_far,
 			int budget_annualized_days_in_year );
 
-double budget_annualized_amount(
+double budget_annualized_account_amount(
 			double account_latest_balance,
+			int account_annual_amount );
+
+double budget_annualized_amount(
+			double budget_annualized_account_amount,
 			double budget_annualized_year_ratio );
 
 double budget_annualized_difference(

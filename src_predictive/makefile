@@ -28,6 +28,7 @@ STANDARD_LIBRARY=							\
 EXECUTABLES=	trial_balance_output					\
 		income_statement_output					\
 		balance_sheet_output					\
+		budget_output						\
 		program_profit						\
 		ledger_debit_credit_audit				\
 		ledger_propagate					\
@@ -237,6 +238,14 @@ program_profit: program_profit.c					\
 		${SOURCE_LIBRARY}					\
 		program_profit.c					\
 		-o program_profit
+
+budget_output: budget_output.c						\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		budget_output.c						\
+		-o budget_output
 
 income_statement_output: income_statement_output.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
