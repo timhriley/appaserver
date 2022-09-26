@@ -131,10 +131,15 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 			budget_annualized->days_so_far,
 			budget_annualized->days_in_year );
 
-	budget_annualized->amount =
-		budget_annualized_amount(
+	budget_annualized->account_amount =
+		budget_annualized_account_amount(
 			account->account_journal_latest->balance
 				/* account_latest_balance */,
+			account->annual_budget );
+
+	budget_annualized->amount =
+		budget_annualized_amount(
+			budget_annualized->account_amount,
 			budget_annualized->year_ratio );
 
 	if ( statement_prior_year )
@@ -247,19 +252,29 @@ double budget_annualized_year_ratio(
 		return (double)days_so_far / (double)days_in_year;
 }
 
-double budget_annualized_amount(
+double budget_annualized_account_amount(
 			double account_latest_balance,
-			double budget_annualized_year_ratio )
+			int account_annual_amount )
 {
-	if ( double_virtually_same( budget_annualized_year_ratio, 0.0 ) )
+	if ( account_annual_amount )
+		return (double)account_annual_amount;
+	else
+		return account_latest_balance;
+}
+
+double budget_annualized_amount(
+			double account_amount,
+			double year_ratio )
+{
+	if ( double_virtually_same( year_ratio, 0.0 ) )
 	{
 		return 0.0;
 	}
 	else
 	{
 		return
-		account_latest_balance /
-		budget_annualized_year_ratio;
+		account_amount /
+		year_ratio;
 	}
 }
 
@@ -568,7 +583,7 @@ char *budget_amount_display( ACCOUNT *prior_account )
 
 LATEX_ROW *budget_latex_row(
 			char *account_name,
-			double account_latest_balance,
+			double account_amount,
 			ACCOUNT *prior_account,
 			double difference )
 {
@@ -583,8 +598,6 @@ LATEX_ROW *budget_latex_row(
 			__LINE__ );
 		exit( 1 );
 	}
-
-	if ( !account_latest_balance ) return (LATEX_ROW *)0;
 
 	latex_row = latex_row_new();
 
@@ -603,8 +616,7 @@ LATEX_ROW *budget_latex_row(
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money(
-			account_latest_balance ),
+		timlib_place_commas_in_money( account_amount ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -656,11 +668,7 @@ LIST *budget_latex_row_list( LIST *budget_annualized_list )
 			row_list,
 			budget_latex_row(
 				budget_annualized->account->account_name,
-				budget_annualized->
-					account->
-					account_journal_latest->
-					balance
-						/* account_latest_balance */,
+				budget_annualized->account_amount,
 				budget_annualized->prior_account,
 				budget_annualized->difference ) );
 
@@ -979,11 +987,7 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 			row_list,
 			budget_html_row(
 				budget_annualized->account->account_name,
-				budget_annualized->
-					account->
-					account_journal_latest->
-					balance
-						/* account_latest_balance */,
+				budget_annualized->account_amount,
 				budget_annualized->prior_account,
 				budget_annualized->difference ) );
 
@@ -994,7 +998,7 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 
 HTML_ROW *budget_html_row(
 			char *account_name,
-			double account_latest_balance,
+			double account_amount,
 			ACCOUNT *prior_account,
 			double difference )
 {
@@ -1027,7 +1031,7 @@ HTML_ROW *budget_html_row(
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money( account_latest_balance ),
+		timlib_place_commas_in_money( account_amount ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
