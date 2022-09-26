@@ -1052,3 +1052,36 @@ HTML_ROW *budget_html_row(
 	return html_row;
 }
 
+HTML_TABLE *budget_html_table(
+			char *statement_caption_subtitle,
+			LIST *budget_annualized_list )
+{
+	HTML_TABLE *html_table;
+
+	if ( !statement_caption_subtitle )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: statement_caption_subtitle is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( budget_annualized_list ) ) return (HTML_TABLE *)0;
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			statement_caption_subtitle,
+			(char *)0 /* sub_sub_title */ );
+
+	html_table->heading_list = budget_html_heading_list();
+
+	html_table->row_list =
+		budget_html_row_list(
+			budget_annualized_list );
+
+	return html_table;
+}
+
