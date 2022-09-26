@@ -578,11 +578,11 @@ char *statement_date_american( char *date_time_string )
 	return strdup( date_american );
 }
 
-char *statement_caption_string(
+char *statement_caption_combined(
 			char *title,
 			char *subtitle )
 {
-	char string[ 256 ];
+	char combined[ 256 ];
 
 	if ( !title || !subtitle )
 	{
@@ -594,12 +594,12 @@ char *statement_caption_string(
 		exit( 1 );
 	}
 
-	sprintf(string,
+	sprintf(combined,
 		"%s %s",
 		title,
 		subtitle );
 
-	return strdup( string );
+	return strdup( combined );
 }
 
 char *statement_caption_title(
@@ -4369,11 +4369,11 @@ STATEMENT_CAPTION *statement_caption_new(
 		exit( 1 );
 	}
 	
-	statement_caption->string =
+	statement_caption->combined =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		statement_caption_string(
+		statement_caption_combined(
 			statement_caption->title,
 			statement_caption->subtitle );
 	

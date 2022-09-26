@@ -543,7 +543,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 		list_set(
 			trial_balance_latex->latex->table_list,
 			trial_balance_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				trial_balance_latex->
 					trial_balance_subclass_display_latex->
 					heading_list,
@@ -564,7 +564,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_new(
 		list_set(
 			trial_balance_latex->latex->table_list,
 			trial_balance_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				trial_balance_latex->
 					trial_balance_subclass_omit_latex->
 					heading_list,
@@ -2741,13 +2741,13 @@ char *trial_balance_preclose_process_name(
 }
 
 LATEX_TABLE *trial_balance_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *heading_list,
 			LIST *row_list )
 {
 	LATEX_TABLE *latex_table;
 
-	if ( !statement_caption
+	if ( !statement_caption_combined
 	||   !list_length( heading_list ) )
 	{
 		fprintf(stderr,
@@ -2758,7 +2758,7 @@ LATEX_TABLE *trial_balance_latex_table(
 		exit( 1 );
 	}
 
-	latex_table = latex_table_new( statement_caption );
+	latex_table = latex_table_new( statement_caption_combined );
 	latex_table->heading_list = heading_list;
 	latex_table->row_list = row_list;
 

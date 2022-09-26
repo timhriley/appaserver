@@ -423,7 +423,7 @@ TRIAL_BALANCE_LATEX *trial_balance_latex_calloc(
 /* Usage */
 /* ----- */
 LATEX_TABLE *trial_balance_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *heading_list,
 			LIST *row_list );
 

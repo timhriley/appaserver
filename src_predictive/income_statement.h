@@ -300,7 +300,7 @@ INCOME_STATEMENT_LATEX *
 /* Usage */
 /* ----- */
 LATEX_TABLE *income_statement_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *heading_list,
 			LIST *row_list );
 
