@@ -414,7 +414,7 @@ BUDGET *budget_fetch(	char *application_name,
 				budget->
 					statement->
 					statement_caption->
-					string,
+					combined,
 				budget->annualized_list,
 				getpid() /* process_id */ );
 	}
@@ -528,14 +528,17 @@ char *budget_end_date_time_string(
 	date_display19( future_date );
 }
 
-char *budget_latex_difference_display( double difference )
+char *budget_difference_display( double difference )
 {
 	if ( difference )
 	{
 		return
-			strdup(
-				timlib_place_commas_in_money(
-					difference ) );
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money(
+			difference );
 	}
 	else
 	{
@@ -543,16 +546,19 @@ char *budget_latex_difference_display( double difference )
 	}
 }
 
-char *budget_latex_amount_display( ACCOUNT *prior_account )
+char *budget_amount_display( ACCOUNT *prior_account )
 {
 	if ( prior_account && prior_account->account_journal_latest )
 	{
 		return
-			strdup(
-				timlib_place_commas_in_money(
-					prior_account->
-						account_journal_latest->
-						balance ) );
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money(
+			prior_account->
+				account_journal_latest->
+				balance );
 	}
 	else
 	{
@@ -584,16 +590,21 @@ LATEX_ROW *budget_latex_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		statement_cell_data_label(
-			account_name /* name */ ),
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( account_name /* name */ ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		strdup(
-			timlib_place_commas_in_money(
-				account_latest_balance ) ),
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money(
+			account_latest_balance ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -602,7 +613,7 @@ LATEX_ROW *budget_latex_row(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		budget_latex_amount_display( prior_account ),
+		budget_amount_display( prior_account ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -611,7 +622,7 @@ LATEX_ROW *budget_latex_row(
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		budget_latex_difference_display( difference ),
+		budget_difference_display( difference ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -639,16 +650,6 @@ LIST *budget_latex_row_list( LIST *budget_annualized_list )
 				__FUNCTION__,
 				__LINE__ );
 			exit( 1 );
-		}
-
-		if ( money_virtually_same( 
-			budget_annualized->
-				account->
-				account_journal_latest->
-				balance,
-			0.0 ) )
-		{
-			continue;
 		}
 
 		list_set(
@@ -711,12 +712,12 @@ LIST *budget_latex_heading_list( void )
 }
 
 LATEX_TABLE *budget_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *budget_annualized_list )
 {
 	LATEX_TABLE *latex_table;
 
-	if ( !statement_caption
+	if ( !statement_caption_combined
 	||   !list_length( budget_annualized_list ) )
 	{
 		return (LATEX_TABLE *)0;
@@ -724,7 +725,7 @@ LATEX_TABLE *budget_latex_table(
 
 	latex_table =
 		latex_table_new(
-			statement_caption );
+			statement_caption_combined );
 
 	latex_table->heading_list =
 		budget_latex_heading_list();
@@ -741,7 +742,7 @@ BUDGET_LATEX *budget_latex_new(
 			char *dvi_filename,
 			char *working_directory,
 			char *statement_logo_filename,
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *budget_annualized_list )
 {
 	BUDGET_LATEX *budget_latex;
@@ -749,7 +750,7 @@ BUDGET_LATEX *budget_latex_new(
 	if ( !tex_filename
 	||   !dvi_filename
 	||   !working_directory
-	||   !statement_caption )
+	||   !statement_caption_combined )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -774,7 +775,7 @@ BUDGET_LATEX *budget_latex_new(
 	list_set(
 		budget_latex->latex->table_list,
 		budget_latex_table(
-			statement_caption,
+			statement_caption_combined,
 			budget_annualized_list ) );
 
 	return budget_latex;
@@ -804,7 +805,7 @@ BUDGET_PDF *budget_pdf_new(
 			char *transaction_begin_date_string,
 			char *transaction_as_of_date,
 			char *statement_logo_filename,
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *budget_annualized_list,
 			pid_t process_id )
 {
@@ -815,7 +816,7 @@ BUDGET_PDF *budget_pdf_new(
 	||   !document_root_directory
 	||   !transaction_begin_date_string
 	||   !transaction_as_of_date
-	||   !statement_caption
+	||   !statement_caption_combined
 	||   !process_id )
 	{
 		fprintf(stderr,
@@ -846,7 +847,7 @@ BUDGET_PDF *budget_pdf_new(
 			budget_pdf->statement_link->dvi_filename,
 			budget_pdf->statement_link->working_directory,
 			statement_logo_filename,
-			statement_caption,
+			statement_caption_combined,
 			budget_annualized_list );
 
 	return budget_pdf;
@@ -867,5 +868,187 @@ BUDGET_PDF *budget_pdf_calloc( void )
 	}
 
 	return budget_pdf;
+}
+
+BUDGET_HTML *budget_html_new(
+			char *statement_caption_subtitle,
+			LIST *budget_annualized_list )
+{
+	BUDGET_HTML *budget_html;
+
+	if ( !statement_caption_subtitle )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: statement_caption_subtitle is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( budget_annualized_list ) ) return (BUDGET_HTML *)0;
+
+	budget_html = budget_html_calloc();
+
+	budget_html->table =
+		budget_html_table(
+			statement_caption_subtitle,
+			budget_annualized_list );
+
+	return budget_html;
+}
+
+BUDGET_HTML *budget_html_calloc( void )
+{
+	BUDGET_HTML *budget_html;
+
+	if ( ! ( budget_html = calloc( 1, sizeof( BUDGET_HTML ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return budget_html;
+}
+
+LIST *budget_html_heading_list( void )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Account",
+			0 /* not right_Justified_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Balance",
+			1 /* right_Justified_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Annualized",
+			1 /* right_Justified_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Budget",
+			1 /* right_Justified_boolean */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Difference",
+			1 /* right_Justified_boolean */ ) );
+
+	return heading_list;
+}
+
+LIST *budget_html_row_list( LIST *budget_annualized_list )
+{
+	BUDGET_ANNUALIZED *budget_annualized;
+	LIST *row_list;
+
+	if ( !list_rewind( budget_annualized_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		budget_annualized = list_get( budget_annualized_list );
+
+		if ( !budget_annualized->account
+		||   !budget_annualized->account->account_journal_latest )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_journal_latest is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		list_set(
+			row_list,
+			budget_html_row(
+				budget_annualized->account->account_name,
+				budget_annualized->
+					account->
+					account_journal_latest->
+					balance
+						/* account_latest_balance */,
+				budget_annualized->prior_account,
+				budget_annualized->difference ) );
+
+	} while ( list_next( budget_annualized_list ) );
+
+	return row_list;
+}
+
+HTML_ROW *budget_html_row(
+			char *account_name,
+			double account_latest_balance,
+			ACCOUNT *prior_account,
+			double difference )
+{
+	HTML_ROW *html_row;
+
+	if ( !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( account_name /* name */ ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money( account_latest_balance ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		budget_amount_display( prior_account ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		budget_difference_display( difference ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return html_row;
 }
 

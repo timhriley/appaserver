@@ -568,7 +568,7 @@ typedef struct
 	char *logo_filename;
 	char *title;
 	char *subtitle;
-	char *string;
+	char *combined;
 	char *date_time_string;
 	char *frame_title;
 } STATEMENT_CAPTION;
@@ -607,7 +607,7 @@ char *statement_caption_subtitle(
 
 /* Returns heap memory */
 /* ------------------- */
-char *statement_caption_string(
+char *statement_caption_combined(
 			char *statement_caption_title,
 			char *statement_caption_subtitle );
 

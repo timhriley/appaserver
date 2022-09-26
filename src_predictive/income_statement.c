@@ -822,7 +822,7 @@ INCOME_STATEMENT_LATEX *
 		list_set(
 			income_statement_latex->latex->table_list,
 			income_statement_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				income_statement_latex->
 				   income_statement_subclass_display_latex->
 				   statement_subclass_display_latex_list->
@@ -853,7 +853,7 @@ INCOME_STATEMENT_LATEX *
 		list_set(
 			income_statement_latex->latex->table_list,
 			income_statement_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				income_statement_latex->
 				   income_statement_subclass_omit_latex->
 				   statement_subclass_omit_latex_list->
@@ -884,7 +884,7 @@ INCOME_STATEMENT_LATEX *
 		list_set(
 			income_statement_latex->latex->table_list,
 			income_statement_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				income_statement_latex->
 				   income_statement_subclass_aggr_latex->
 				   statement_subclass_aggr_latex_list->
@@ -1657,17 +1657,17 @@ HTML_TABLE *income_statement_html_table(
 }
 
 LATEX_TABLE *income_statement_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *heading_list,
 			LIST *row_list )
 {
 	LATEX_TABLE *latex_table;
 
-	if ( !statement_caption
+	if ( !statement_caption_combined
 	||   !list_length( heading_list ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: () returned empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1676,7 +1676,7 @@ LATEX_TABLE *income_statement_latex_table(
 
 	latex_table =
 		latex_table_new(
-			statement_caption );
+			statement_caption_combined );
 
 	latex_table->heading_list = heading_list;
 	latex_table->row_list = row_list;

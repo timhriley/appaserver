@@ -19,6 +19,81 @@
 
 typedef struct
 {
+	HTML_TABLE *table;
+} BUDGET_HTML;
+
+/* Usage */
+/* ----- */
+BUDGET_HTML *budget_html_new(
+			char *statement_caption_subtitle,
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+BUDGET_HTML *budget_html_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+HTML_TABLE *budget_html_table(
+			char *statement_caption_subtitle,
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *budget_html_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *budget_html_row_list(
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *budget_html_row(
+			char *account_name,
+			double account_latest_balance,
+			ACCOUNT *prior_account,
+			double difference );
+
+/* Usage */
+/* ----- */
+LIST *budget_html_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *budget_html_row_list(
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *budget_html_row(
+			char *account_name,
+			double account_latest_balance,
+			ACCOUNT *prior_account,
+			double difference );
+
+/* Process */
+/* ------- */
+typedef struct
+{
 	LATEX *latex;
 } BUDGET_LATEX;
 
@@ -29,7 +104,7 @@ BUDGET_LATEX *budget_latex_new(
 			char *dvi_filename,
 			char *working_directory,
 			char *statement_logo_filename,
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *budget_annualized_list );
 
 /* Process */
@@ -37,10 +112,16 @@ BUDGET_LATEX *budget_latex_new(
 BUDGET_LATEX *budget_latex_calloc(
 			void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *budget_latex_caption(
+			char *statement_caption_string,
+			char *statement_caption_subtitle );
+
 /* Usage */
 /* ----- */
 LATEX_TABLE *budget_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *budget_annualized_list );
 
 /* Process */
@@ -73,28 +154,6 @@ LATEX_ROW *budget_latex_row(
 /* Process */
 /* ------- */
 
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *budget_latex_amount_display(
-			ACCOUNT *prior_account );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *budget_latex_difference_display(
-			double difference );
-
-/* Process */
-/* ------- */
-
 typedef struct
 {
 	STATEMENT_LINK *statement_link;
@@ -110,7 +169,7 @@ BUDGET_PDF *budget_pdf_new(
 			char *transaction_begin_date_string,
 			char *transaction_as_of_date,
 			char *statement_logo_filename,
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *budget_annualized_list,
 			pid_t process_id );
 
@@ -118,16 +177,6 @@ BUDGET_PDF *budget_pdf_new(
 /* ------- */
 BUDGET_PDF *budget_pdf_calloc(
 			void );
-
-typedef struct
-{
-} BUDGET_HTML;
-
-/* Usage */
-/* ----- */
-
-/* Process */
-/* ------- */
 
 typedef struct
 {
@@ -227,5 +276,27 @@ LIST *budget_element_name_list(
 /* ------------------- */
 char *budget_end_date_time_string(
 			char *transaction_begin_date_string );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *budget_amount_display(
+			ACCOUNT *prior_account );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *budget_difference_display(
+			double difference );
+
+/* Process */
+/* ------- */
 
 #endif

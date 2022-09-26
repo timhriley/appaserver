@@ -2750,7 +2750,7 @@ BALANCE_SHEET_LATEX *
 		list_set(
 			balance_sheet_latex->latex->table_list,
 			balance_sheet_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				balance_sheet_latex->
 					balance_sheet_subclass_display_latex->
 					statement_subclass_display_latex_list->
@@ -2783,7 +2783,7 @@ BALANCE_SHEET_LATEX *
 		list_set(
 			balance_sheet_latex->latex->table_list,
 			balance_sheet_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				balance_sheet_latex->
 					balance_sheet_subclass_omit_latex->
 					statement_subclass_omit_latex_list->
@@ -2816,7 +2816,7 @@ BALANCE_SHEET_LATEX *
 		list_set(
 			balance_sheet_latex->latex->table_list,
 			balance_sheet_latex_table(
-				statement->statement_caption->string,
+				statement->statement_caption->combined,
 				balance_sheet_latex->
 					balance_sheet_subclass_aggr_latex->
 					statement_subclass_aggr_latex_list->
@@ -2848,13 +2848,13 @@ BALANCE_SHEET_LATEX *balance_sheet_latex_calloc( void )
 }
 
 LATEX_TABLE *balance_sheet_latex_table(
-			char *statement_caption,
+			char *statement_caption_combined,
 			LIST *heading_list,
 			LIST *row_list )
 {
 	LATEX_TABLE *latex_table;
 
-	if ( !statement_caption
+	if ( !statement_caption_combined
 	||   !list_length( heading_list ) )
 	{
 		fprintf(stderr,
@@ -2866,7 +2866,7 @@ LATEX_TABLE *balance_sheet_latex_table(
 	}
 
 
-	latex_table = latex_table_new( statement_caption );
+	latex_table = latex_table_new( statement_caption_combined );
 	latex_table->heading_list = heading_list;
 	latex_table->row_list = row_list;
 
