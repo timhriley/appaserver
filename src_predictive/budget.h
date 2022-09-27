@@ -25,7 +25,7 @@ typedef struct
 /* Usage */
 /* ----- */
 BUDGET_HTML *budget_html_new(
-			char *statement_caption_subtitle,
+			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
 			double budget_annualized_net_asset_change );
 
@@ -37,7 +37,7 @@ BUDGET_HTML *budget_html_calloc(
 /* Usage */
 /* ----- */
 HTML_TABLE *budget_html_table(
-			char *statement_caption_subtitle,
+			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
 			double budget_annualized_net_asset_change );
 
@@ -70,7 +70,7 @@ HTML_ROW *budget_html_row(
 			double account_amount,
 			double annualized_amount,
 			double budget,
-			double difference );
+			char *difference_cell );
 
 /* Usage */
 /* ----- */
@@ -92,7 +92,7 @@ BUDGET_LATEX *budget_latex_new(
 			char *dvi_filename,
 			char *working_directory,
 			char *statement_logo_filename,
-			char *statement_caption_combined,
+			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
 			double budget_annualized_net_asset_change );
 
@@ -110,7 +110,7 @@ char *budget_latex_caption(
 /* Usage */
 /* ----- */
 LATEX_TABLE *budget_latex_table(
-			char *statement_caption_combined,
+			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
 			double budget_annualized_net_asset_change );
 
@@ -143,7 +143,7 @@ LATEX_ROW *budget_latex_row(
 			double account_amount,
 			double annualized_amount,
 			double budget,
-			double difference );
+			char *difference_cell );
 
 /* Process */
 /* ------- */
@@ -163,7 +163,7 @@ BUDGET_PDF *budget_pdf_new(
 			char *transaction_begin_date_string,
 			char *transaction_as_of_date,
 			char *statement_logo_filename,
-			char *statement_caption_combined,
+			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
 			double net_asset_change,
 			pid_t process_id );
@@ -182,6 +182,8 @@ typedef struct
 	ACCOUNT *prior_account;
 	double budget;
 	double difference;
+	int difference_percent;
+	char *difference_cell;
 } BUDGET_ANNUALIZED;
 
 /* Usage */
@@ -222,6 +224,16 @@ double budget_annualized_difference(
 			double budget_annualized_amount,
 			double budget_annualized_budget );
 
+int budget_annualized_difference_percent(
+			double budget_annualized_budget,
+			double budget_annualized_difference );
+
+/* Returns heap memory */
+/* ------------------- */
+char *budget_annualized_difference_cell(
+			double budget_annualized_difference,
+			int budget_annualized_difference_percent );
+
 /* Usage */
 /* ----- */
 double budget_annualized_net_asset_change(
@@ -254,6 +266,7 @@ typedef struct
 	LIST *statement_prior_year_list;
 	LIST *annualized_list;
 	double annualized_net_asset_change;
+	char *year_percent_subtitle;
 	BUDGET_PDF *budget_pdf;
 	BUDGET_HTML *budget_html;
 } BUDGET;
@@ -309,10 +322,11 @@ char *budget_display(	double budget );
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *budget_difference_display(
-			double difference );
+/* Returns static memory */
+/* --------------------- */
+char *budget_year_percent_subtitle(
+			char *input_subtitle,
+			double budget_year_ratio );
 
 /* Process */
 /* ------- */

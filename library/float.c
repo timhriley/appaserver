@@ -206,3 +206,9 @@ int float_delta_prior_percent(
 	return float_round_int( delta_percent );
 }
 
+int float_ratio_to_percent( double ratio )
+{
+	return
+	float_round_int( ratio * 100.0 );
+}
+
