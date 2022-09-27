@@ -4,5 +4,5 @@
 
 #if [ "$?" -eq 0 ]
 #then
-	make tax_form_report
+	make budget_output
 #fi

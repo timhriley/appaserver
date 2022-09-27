@@ -26,7 +26,8 @@ typedef struct
 /* ----- */
 BUDGET_HTML *budget_html_new(
 			char *statement_caption_subtitle,
-			LIST *budget_annualized_list );
+			LIST *budget_annualized_list,
+			double budget_annualized_net_asset_change );
 
 /* Process */
 /* ------- */
@@ -37,10 +38,13 @@ BUDGET_HTML *budget_html_calloc(
 /* ----- */
 HTML_TABLE *budget_html_table(
 			char *statement_caption_subtitle,
-			LIST *budget_annualized_list );
+			LIST *budget_annualized_list,
+			double budget_annualized_net_asset_change );
 
 /* Process */
 /* ------- */
+HTML_ROW *budget_html_sum_row(
+			double budget_annualized_net_asset_change );
 
 /* Usage */
 /* ----- */
@@ -61,9 +65,11 @@ LIST *budget_html_row_list(
 /* Usage */
 /* ----- */
 HTML_ROW *budget_html_row(
+			char *element_name,
 			char *account_name,
 			double account_amount,
-			ACCOUNT *prior_account,
+			double annualized_amount,
+			double budget,
 			double difference );
 
 /* Usage */
@@ -74,24 +80,6 @@ LIST *budget_html_heading_list(
 /* Process */
 /* ------- */
 
-/* Usage */
-/* ----- */
-LIST *budget_html_row_list(
-			LIST *budget_annualized_list );
-
-/* Process */
-/* ------- */
-
-/* Usage */
-/* ----- */
-HTML_ROW *budget_html_row(
-			char *account_name,
-			double account_latest_balance,
-			ACCOUNT *prior_account,
-			double difference );
-
-/* Process */
-/* ------- */
 typedef struct
 {
 	LATEX *latex;
@@ -105,7 +93,8 @@ BUDGET_LATEX *budget_latex_new(
 			char *working_directory,
 			char *statement_logo_filename,
 			char *statement_caption_combined,
-			LIST *budget_annualized_list );
+			LIST *budget_annualized_list,
+			double budget_annualized_net_asset_change );
 
 /* Process */
 /* ------- */
@@ -122,10 +111,13 @@ char *budget_latex_caption(
 /* ----- */
 LATEX_TABLE *budget_latex_table(
 			char *statement_caption_combined,
-			LIST *budget_annualized_list );
+			LIST *budget_annualized_list,
+			double budget_annualized_net_asset_change );
 
 /* Process */
 /* ------- */
+LATEX_ROW *budget_latex_sum_row(
+			double budget_annualized_net_asset_change );
 
 /* Usage */
 /* ----- */
@@ -146,9 +138,11 @@ LIST *budget_latex_row_list(
 /* Usage */
 /* ----- */
 LATEX_ROW *budget_latex_row(
+			char *element_name,
 			char *account_name,
 			double account_amount,
-			ACCOUNT *prior_account,
+			double annualized_amount,
+			double budget,
 			double difference );
 
 /* Process */
@@ -171,6 +165,7 @@ BUDGET_PDF *budget_pdf_new(
 			char *statement_logo_filename,
 			char *statement_caption_combined,
 			LIST *budget_annualized_list,
+			double net_asset_change,
 			pid_t process_id );
 
 /* Process */
@@ -180,21 +175,19 @@ BUDGET_PDF *budget_pdf_calloc(
 
 typedef struct
 {
+	char *element_name;
 	ACCOUNT *account;
-	int days_so_far;
-	int days_in_year;
-	double year_ratio;
 	double account_amount;
 	double amount;
 	ACCOUNT *prior_account;
+	double budget;
 	double difference;
 } BUDGET_ANNUALIZED;
 
 /* Usage */
 /* ----- */
 LIST *budget_annualized_list(
-			DATE *budget_begin_date,
-			DATE *budget_as_of_date,
+			double budget_year_ratio,
 			LIST *element_statement_list,
 			STATEMENT_PRIOR_YEAR *statement_prior_year );
 
@@ -204,8 +197,8 @@ LIST *budget_annualized_list(
 /* Usage */
 /* ----- */
 BUDGET_ANNUALIZED *budget_annualized_new(
-			DATE *budget_begin_date,
-			DATE *budget_as_of_date,
+			double budget_year_ratio,
+			char *element_name,
 			ACCOUNT *account,
 			STATEMENT_PRIOR_YEAR *statement_prior_year );
 
@@ -214,28 +207,34 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 BUDGET_ANNUALIZED *budget_annualized_calloc(
 			void );
 
-int budget_annualized_days_so_far(
-			DATE *budget_begin_date,
-			DATE *budget_as_of_date );
-
-int budget_annualized_days_in_year(
-			DATE *budget_begin_date );
-
-double budget_annualized_year_ratio(
-			int budget_annualized_days_so_far,
-			int budget_annualized_days_in_year );
-
 double budget_annualized_account_amount(
 			double account_latest_balance,
 			int account_annual_amount );
 
 double budget_annualized_amount(
 			double budget_annualized_account_amount,
-			double budget_annualized_year_ratio );
+			double budget_year_ratio );
+
+double budget_annualized_budget(
+			double prior_account_balance );
 
 double budget_annualized_difference(
 			double budget_annualized_amount,
-			double prior_account_balance );
+			double budget_annualized_budget );
+
+/* Usage */
+/* ----- */
+double budget_annualized_net_asset_change(
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double budget_annualized_amount_sum(
+			char *element_name,
+			LIST *budget_annualized_list );
 
 typedef struct
 {
@@ -244,6 +243,9 @@ typedef struct
 	DATE *as_of_date;
 	char *transaction_begin_date_string;
 	DATE *begin_date;
+	int days_so_far;
+	int days_in_year;
+	double year_ratio;
 	LIST *element_name_list;
 	boolean transaction_closing_entry_exists;
 	char *transaction_date_time_closing;
@@ -251,6 +253,7 @@ typedef struct
 	char *end_date_time_string;
 	LIST *statement_prior_year_list;
 	LIST *annualized_list;
+	double annualized_net_asset_change;
 	BUDGET_PDF *budget_pdf;
 	BUDGET_HTML *budget_html;
 } BUDGET;
@@ -273,6 +276,17 @@ DATE *budget_as_of_date(
 DATE *budget_begin_date(
 			char *transaction_begin_date_string );
 
+int budget_days_so_far(
+			DATE *budget_begin_date,
+			DATE *budget_as_of_date );
+
+int budget_days_in_year(
+			DATE *budget_begin_date );
+
+double budget_year_ratio(
+			int budget_days_so_far,
+			int budget_days_in_year );
+
 LIST *budget_element_name_list(
 			char *element_revenue,
 			char *element_expense );
@@ -287,8 +301,7 @@ char *budget_end_date_time_string(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *budget_amount_display(
-			ACCOUNT *prior_account );
+char *budget_display(	double budget );
 
 /* Process */
 /* ------- */

@@ -21,8 +21,7 @@
 #include "budget.h"
 
 LIST *budget_annualized_list(
-			DATE *budget_begin_date,
-			DATE *budget_as_of_date,
+			double budget_year_ratio,
 			LIST *element_statement_list,
 			STATEMENT_PRIOR_YEAR *statement_prior_year )
 {
@@ -30,17 +29,7 @@ LIST *budget_annualized_list(
 	ELEMENT *element;
 	ACCOUNT *account;
 
-	if ( !budget_begin_date
-	||   !budget_as_of_date
-	||   !list_rewind( element_statement_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	if ( !list_rewind( element_statement_list ) ) return (LIST *)0;
 
 	list = list_new();
 
@@ -55,7 +44,6 @@ LIST *budget_annualized_list(
 				list_get(
 					element->account_statement_list );
 
-
 			if ( !account->account_journal_latest )
 			{
 				fprintf(stderr,
@@ -66,19 +54,11 @@ LIST *budget_annualized_list(
 				exit( 1 );
 			}
 
-
-			if ( double_virtually_same(
-				account->account_journal_latest->balance,
-				0.0 ) )
-			{
-				continue;
-			}
-
 			list_set(
 				list,
 				budget_annualized_new(
-					budget_begin_date,
-					budget_as_of_date,
+					budget_year_ratio,
+					element->element_name,
 					account,
 					statement_prior_year ) );
 
@@ -90,16 +70,14 @@ LIST *budget_annualized_list(
 }
 
 BUDGET_ANNUALIZED *budget_annualized_new(
-			DATE *budget_begin_date,
-			DATE *budget_as_of_date,
+			double budget_year_ratio,
+			char *element_name,
 			ACCOUNT *account,
 			STATEMENT_PRIOR_YEAR *statement_prior_year )
 {
 	BUDGET_ANNUALIZED *budget_annualized;
 
-	if ( !budget_begin_date
-	||   !budget_as_of_date
-	||   !account
+	if ( !account
 	||   !account->account_journal_latest )
 	{
 		fprintf(stderr,
@@ -110,26 +88,10 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 		exit( 1 );
 	}
 
-	if ( !account->account_journal_latest->balance )
-		return (BUDGET_ANNUALIZED *)0;
-
 	budget_annualized = budget_annualized_calloc();
 
+	budget_annualized->element_name = element_name;
 	budget_annualized->account = account;
-
-	budget_annualized->days_so_far =
-		budget_annualized_days_so_far(
-			budget_begin_date,
-			budget_as_of_date );
-
-	budget_annualized->days_in_year =
-		budget_annualized_days_in_year(
-			budget_begin_date );
-
-	budget_annualized->year_ratio =
-		budget_annualized_year_ratio(
-			budget_annualized->days_so_far,
-			budget_annualized->days_in_year );
 
 	budget_annualized->account_amount =
 		budget_annualized_account_amount(
@@ -140,7 +102,7 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 	budget_annualized->amount =
 		budget_annualized_amount(
 			budget_annualized->account_amount,
-			budget_annualized->year_ratio );
+			budget_year_ratio );
 
 	if ( statement_prior_year )
 	{
@@ -164,24 +126,27 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 				exit( 1 );
 			}
 
-			if ( budget_annualized->
-				prior_account->
-				account_journal_latest->
-				balance )
-			{
-				budget_annualized->difference =
-				   budget_annualized_difference(
-					budget_annualized->amount,
+			budget_annualized->budget =
+				budget_annualized_budget(
 					budget_annualized->
 						prior_account->
 						account_journal_latest->
 						balance
-						/* prior_account_balance */ );
-			}
+						  /* prior_account_balance */ );
+
+			budget_annualized->difference =
+			   budget_annualized_difference(
+				budget_annualized->amount,
+				budget_annualized->budget );
 		}
 	}
 
 	return budget_annualized;
+}
+
+double budget_annualized_budget( double prior_account_balance )
+{
+	return prior_account_balance;
 }
 
 BUDGET_ANNUALIZED *budget_annualized_calloc( void )
@@ -202,7 +167,7 @@ BUDGET_ANNUALIZED *budget_annualized_calloc( void )
 	return budget_annualized;
 }
 
-int budget_annualized_days_so_far(
+int budget_days_so_far(
 			DATE *begin_date,
 			DATE *as_of_date )
 {
@@ -223,8 +188,7 @@ int budget_annualized_days_so_far(
 		begin_date /* earlier_date */ );
 }
 
-int budget_annualized_days_in_year(
-			DATE *begin_date )
+int budget_days_in_year( DATE *begin_date )
 {
 	if ( !begin_date )
 	{
@@ -242,7 +206,7 @@ int budget_annualized_days_in_year(
 			begin_date ) );
 }
 
-double budget_annualized_year_ratio(
+double budget_year_ratio(
 			int days_so_far,
 			int days_in_year )
 {
@@ -279,12 +243,10 @@ double budget_annualized_amount(
 }
 
 double budget_annualized_difference(
-			double budget_annualized_amount,
-			double prior_account_balance )
+			double amount,
+			double budget )
 {
-	return
-	prior_account_balance -
-	budget_annualized_amount;
+	return amount - budget;
 }
 
 BUDGET *budget_fetch(	char *application_name,
@@ -355,6 +317,20 @@ BUDGET *budget_fetch(	char *application_name,
 		budget_begin_date(
 			budget->transaction_begin_date_string );
 
+	budget->days_so_far =
+		budget_days_so_far(
+			budget->begin_date,
+			budget->as_of_date );
+
+	budget->days_in_year =
+		budget_days_in_year(
+			budget->begin_date );
+
+	budget->year_ratio =
+		budget_year_ratio(
+			budget->days_so_far,
+			budget->days_in_year );
+
 	budget->element_name_list =
 		budget_element_name_list(
 			ELEMENT_REVENUE,
@@ -403,11 +379,14 @@ BUDGET *budget_fetch(	char *application_name,
 
 	budget->annualized_list =
 		budget_annualized_list(
-			budget->begin_date,
-			budget->as_of_date,
+			budget->year_ratio,
 			budget->statement->element_statement_list,
 			list_first( budget->statement_prior_year_list )
 				/* statement_prior_year */ );
+
+	budget->annualized_net_asset_change =
+		budget_annualized_net_asset_change(
+			budget->annualized_list );
 
 	if ( budget->statement_output_medium == statement_output_PDF )
 	{
@@ -431,16 +410,20 @@ BUDGET *budget_fetch(	char *application_name,
 					statement_caption->
 					combined,
 				budget->annualized_list,
+				budget->annualized_net_asset_change,
 				getpid() /* process_id */ );
 	}
 	else
 	if ( budget->statement_output_medium == statement_output_table )
 	{
-/*
 		budget->budget_html =
 			budget_html_new(
-				budget->budget_annualized_list );
-*/
+				budget->
+					statement->
+					statement_caption->
+					subtitle,
+				budget->annualized_list,
+				budget->annualized_net_asset_change );
 	}
 
 	return budget;
@@ -534,6 +517,7 @@ char *budget_end_date_time_string(
 		exit( 1 );
 	}
 
+	date_decrement_days( future_date, 1.0 );
 	date_increment_years( future_date, 1 );
 
 	return
@@ -561,19 +545,16 @@ char *budget_difference_display( double difference )
 	}
 }
 
-char *budget_amount_display( ACCOUNT *prior_account )
+char *budget_display( double budget )
 {
-	if ( prior_account && prior_account->account_journal_latest )
+	if ( budget )
 	{
 		return
 		/* --------------------- */
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money(
-			prior_account->
-				account_journal_latest->
-				balance );
+		timlib_place_commas_in_money( budget );
 	}
 	else
 	{
@@ -582,9 +563,11 @@ char *budget_amount_display( ACCOUNT *prior_account )
 }
 
 LATEX_ROW *budget_latex_row(
+			char *element_name,
 			char *account_name,
 			double account_amount,
-			ACCOUNT *prior_account,
+			double annualized_amount,
+			double budget,
 			double difference )
 {
 	LATEX_ROW *latex_row;
@@ -600,6 +583,15 @@ LATEX_ROW *budget_latex_row(
 	}
 
 	latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( element_name /* name */ ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
@@ -622,10 +614,20 @@ LATEX_ROW *budget_latex_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money( annualized_amount ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		budget_amount_display( prior_account ),
+		budget_display( budget ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -667,9 +669,11 @@ LIST *budget_latex_row_list( LIST *budget_annualized_list )
 		list_set(
 			row_list,
 			budget_latex_row(
+				budget_annualized->element_name,
 				budget_annualized->account->account_name,
 				budget_annualized->account_amount,
-				budget_annualized->prior_account,
+				budget_annualized->amount,
+				budget_annualized->budget,
 				budget_annualized->difference ) );
 
 	} while ( list_next( budget_annualized_list ) );
@@ -680,6 +684,13 @@ LIST *budget_latex_row_list( LIST *budget_annualized_list )
 LIST *budget_latex_heading_list( void )
 {
 	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		latex_table_heading_new(
+			"Element",
+			0 /* right_Justified_flag */,
+			(char *)0 /* paragraph_size */ ) );
 
 	list_set(
 		heading_list,
@@ -721,7 +732,8 @@ LIST *budget_latex_heading_list( void )
 
 LATEX_TABLE *budget_latex_table(
 			char *statement_caption_combined,
-			LIST *budget_annualized_list )
+			LIST *budget_annualized_list,
+			double net_asset_change )
 {
 	LATEX_TABLE *latex_table;
 
@@ -742,6 +754,11 @@ LATEX_TABLE *budget_latex_table(
 		budget_latex_row_list(
 			budget_annualized_list );
 
+	list_set(
+		latex_table->row_list,
+		budget_latex_sum_row(
+			net_asset_change ) );
+
 	return latex_table;
 }
 
@@ -751,7 +768,8 @@ BUDGET_LATEX *budget_latex_new(
 			char *working_directory,
 			char *statement_logo_filename,
 			char *statement_caption_combined,
-			LIST *budget_annualized_list )
+			LIST *budget_annualized_list,
+			double net_asset_change )
 {
 	BUDGET_LATEX *budget_latex;
 
@@ -784,7 +802,8 @@ BUDGET_LATEX *budget_latex_new(
 		budget_latex->latex->table_list,
 		budget_latex_table(
 			statement_caption_combined,
-			budget_annualized_list ) );
+			budget_annualized_list,
+			net_asset_change ) );
 
 	return budget_latex;
 }
@@ -815,6 +834,7 @@ BUDGET_PDF *budget_pdf_new(
 			char *statement_logo_filename,
 			char *statement_caption_combined,
 			LIST *budget_annualized_list,
+			double net_asset_change,
 			pid_t process_id )
 {
 	BUDGET_PDF *budget_pdf;
@@ -856,7 +876,8 @@ BUDGET_PDF *budget_pdf_new(
 			budget_pdf->statement_link->working_directory,
 			statement_logo_filename,
 			statement_caption_combined,
-			budget_annualized_list );
+			budget_annualized_list,
+			net_asset_change );
 
 	return budget_pdf;
 }
@@ -880,7 +901,8 @@ BUDGET_PDF *budget_pdf_calloc( void )
 
 BUDGET_HTML *budget_html_new(
 			char *statement_caption_subtitle,
-			LIST *budget_annualized_list )
+			LIST *budget_annualized_list,
+			double net_asset_change )
 {
 	BUDGET_HTML *budget_html;
 
@@ -901,7 +923,8 @@ BUDGET_HTML *budget_html_new(
 	budget_html->table =
 		budget_html_table(
 			statement_caption_subtitle,
-			budget_annualized_list );
+			budget_annualized_list,
+			net_asset_change );
 
 	return budget_html;
 }
@@ -926,6 +949,12 @@ BUDGET_HTML *budget_html_calloc( void )
 LIST *budget_html_heading_list( void )
 {
 	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"Element",
+			0 /* not right_Justified_boolean */ ) );
 
 	list_set(
 		heading_list,
@@ -986,9 +1015,11 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 		list_set(
 			row_list,
 			budget_html_row(
+				budget_annualized->element_name,
 				budget_annualized->account->account_name,
 				budget_annualized->account_amount,
-				budget_annualized->prior_account,
+				budget_annualized->amount,
+				budget_annualized->budget,
 				budget_annualized->difference ) );
 
 	} while ( list_next( budget_annualized_list ) );
@@ -996,10 +1027,59 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 	return row_list;
 }
 
+HTML_ROW *budget_html_sum_row( double net_asset_change )
+{
+	HTML_ROW *html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		"Change",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money( net_asset_change ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return html_row;
+}
+
 HTML_ROW *budget_html_row(
+			char *element_name,
 			char *account_name,
 			double account_amount,
-			ACCOUNT *prior_account,
+			double annualized_amount,
+			double budget,
 			double difference )
 {
 	HTML_ROW *html_row;
@@ -1007,7 +1087,7 @@ HTML_ROW *budget_html_row(
 	if ( !account_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: account_name is empty.\n",
+			"ERROR in %s/%s()/%d: account_name is is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -1015,6 +1095,15 @@ HTML_ROW *budget_html_row(
 	}
 
 	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		/* ------------------------- */
+		/* Returns heap memory or "" */
+		/* ------------------------- */
+		statement_cell_data_label( element_name /* name */ ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
@@ -1037,10 +1126,20 @@ HTML_ROW *budget_html_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money( annualized_amount ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		budget_amount_display( prior_account ),
+		budget_display( budget ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1058,7 +1157,8 @@ HTML_ROW *budget_html_row(
 
 HTML_TABLE *budget_html_table(
 			char *statement_caption_subtitle,
-			LIST *budget_annualized_list )
+			LIST *budget_annualized_list,
+			double net_asset_change )
 {
 	HTML_TABLE *html_table;
 
@@ -1086,6 +1186,105 @@ HTML_TABLE *budget_html_table(
 		budget_html_row_list(
 			budget_annualized_list );
 
+	list_set(
+		html_table->row_list,
+		budget_html_sum_row(
+			net_asset_change ) );
+
 	return html_table;
+}
+
+LATEX_ROW *budget_latex_sum_row( double net_asset_change )
+{
+	LATEX_ROW *latex_row = latex_row_new();
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		"Change",
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		/* --------------------- */
+		/* Returns heap memory   */
+		/* Doesn't trim pennies  */
+		/* --------------------- */
+		timlib_place_commas_in_money( net_asset_change ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	latex_column_data_set(
+		latex_row->column_data_list,
+		(char *)0,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return latex_row;
+}
+
+double budget_annualized_net_asset_change(
+			LIST *budget_annualized_list )
+{
+	double revenue_sum;
+	double expense_sum;
+
+	revenue_sum =
+		budget_annualized_amount_sum(
+			ELEMENT_REVENUE,
+			budget_annualized_list );
+
+	expense_sum =
+		budget_annualized_amount_sum(
+			ELEMENT_EXPENSE,
+			budget_annualized_list );
+
+	return revenue_sum - expense_sum;
+}
+
+double budget_annualized_amount_sum(
+			char *element_name,
+			LIST *budget_annualized_list )
+{
+	BUDGET_ANNUALIZED *budget_annualized;
+	double sum;
+
+	if ( !list_rewind( budget_annualized_list ) ) return 0.0;
+
+	sum = 0.0;
+
+	do {
+		budget_annualized =
+			list_get(
+				budget_annualized_list );
+
+		if ( string_strcmp(
+			budget_annualized->element_name,
+			element_name ) == 0 )
+		{
+			sum += budget_annualized->amount;
+		}
+
+	} while ( list_next( budget_annualized_list ) );
+
+	return sum;
 }
 
