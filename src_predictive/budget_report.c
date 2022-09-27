@@ -1,5 +1,5 @@
 /* ------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_predictive/budget_output.c		*/
+/* $APPASERVER_HOME/src_predictive/budget_report.c		*/
 /* ------------------------------------------------------------	*/
 /*								*/
 /* Freely available software: see Appaserver.org		*/
