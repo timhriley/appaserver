@@ -13,9 +13,7 @@
 #include "transaction.h"
 
 #define DEPRECIATION_TABLE		"depreciation"
-
 #define DEPRECIATION_MEMO		"Depreciation"
-
 #define STRAIGHT_LINE			"straight_line"
 #define DOUBLE_DECLINING_BALANCE	"double_declining_balance"
 #define N_DECLINING_BALANCE		"n_declining_balance"
@@ -79,10 +77,15 @@ double depreciation_accumulated(
 			double prior_accumulated_depreciation,
 			double depreciation_amount );
 
+/* Usage */
+/* ----- */
 DEPRECIATION *depreciation_new(
 			char *asset_name,
 			char *serial_label,
 			char *depreciation_date );
+
+DEPRECIATION *depreciation_calloc(
+			void );
 
 /* Usage */
 /* ----- */
@@ -293,12 +296,15 @@ char *depreciation_prior_depreciation_date(
 			char *serial_label,
 			char *depreciation_date );
 
-char *depreciation_subquery_not_exists_where(
+/* Returns heap memory */
+/* ------------------- */
+char *depreciation_subquery_exists_where(
 			char *depreciation_table,
 			char *fixed_asset_purchase_table,
 			char *depreciation_date );
 
 FILE *depreciation_delete_open(
-			void );
+			char *depreciation_primary_key,
+			char *depreciation_table );
 
 #endif

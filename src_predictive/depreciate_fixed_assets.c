@@ -148,6 +148,13 @@ boolean depreciate_fixed_assets( boolean execute )
 				0 /* not fetch_last_recovery */ ),
 			depreciation_date );
 
+	if ( !list_length(
+		fixed_asset_purchase_depreciation_list_extract(
+			list ) ) )
+	{
+		return 0;
+	}
+
 	if ( execute )
 	{
 		fixed_asset_purchase_depreciation_insert( list );
@@ -201,7 +208,10 @@ boolean depreciate_fixed_assets_undo( boolean execute )
 
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
-			depreciation_subquery_not_exists_where(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			depreciation_subquery_exists_where(
 				DEPRECIATION_TABLE,
 				FIXED_ASSET_PURCHASE_TABLE,
 				prior_depreciation_date ),
@@ -263,11 +273,14 @@ void depreciate_fixed_assets_undo_execute(
 			LIST *fixed_asset_purchase_list )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
-	FILE *delete_pipe = {0};
+	FILE *delete_pipe;
 
 	if ( !list_rewind( fixed_asset_purchase_list ) ) return;
 
-	delete_pipe = depreciation_delete_open();
+	delete_pipe =
+		depreciation_delete_open(
+			DEPRECIATION_PRIMARY_KEY,
+			DEPRECIATION_TABLE );
 
 	do {
 		fixed_asset_purchase =
@@ -349,7 +362,7 @@ void depreciate_fixed_assets_undo_execute(
 
 	pclose( delete_pipe );
 
-	fixed_asset_purchase_list_negate_depreciation_amount(
+	fixed_asset_purchase_negate_depreciation_amount(
 		fixed_asset_purchase_list );
 
 	fixed_asset_purchase_list_update(

@@ -125,13 +125,16 @@ void depreciation_trigger_insert(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase,
 			char *depreciation_date )
 {
-	ENTITY_SELF *entity_self;
-
-	if ( ! ( entity_self = entity_self_fetch() ) )
+	if ( !fixed_asset_purchase
+	||   !fixed_asset_purchase->fixed_asset
+	||   !depreciation_date )
 	{
-		printf(
-		"<h3>Error: entity_self_fetch() returned empty.</h3>\n" );
-		return;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
 	fixed_asset_purchase->depreciation =
@@ -167,24 +170,38 @@ void depreciation_trigger_insert(
 		return;
 	}
 
-	fixed_asset_purchase->
-		depreciation->
-		depreciation_transaction =
-			depreciation_transaction(
-				entity_self->entity->full_name,
-				entity_self->entity->street_address,
-				depreciation_date,
-				fixed_asset_purchase->
-					depreciation->
-					amount,
-				account_depreciation_expense(
-					ACCOUNT_DEPRECIATION_KEY ),
-				account_accumulated_depreciation(
-					ACCOUNT_ACCUMULATED_KEY ) );
+	if ( !fixed_asset_purchase->depreciation->entity_self )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: entity_self is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	if ( !fixed_asset_purchase->
-		depreciation->
-		depreciation_transaction )
+	fixed_asset_purchase->depreciation_transaction =
+		depreciation_transaction(
+			fixed_asset_purchase->
+				depreciation->
+				entity_self->
+				entity->
+				full_name,
+			fixed_asset_purchase->
+				depreciation->
+				entity_self->
+				entity->
+				street_address,
+			depreciation_date,
+			fixed_asset_purchase->
+				depreciation->
+				amount,
+			account_depreciation_expense(
+				ACCOUNT_DEPRECIATION_KEY ),
+			account_accumulated_depreciation(
+				ACCOUNT_ACCUMULATED_KEY ) );
+
+	if ( !fixed_asset_purchase->depreciation_transaction )
 	{
 		printf( "<h3>Transaction not generated.</h3>\n" );
 		return;
@@ -192,34 +209,27 @@ void depreciation_trigger_insert(
 
 	transaction_refresh(
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				full_name,
+			depreciation_transaction->
+			full_name,
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				street_address,
+			depreciation_transaction->
+			street_address,
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				transaction_date_time,
+			depreciation_transaction->
+			transaction_date_time,
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				transaction_amount,
+			depreciation_transaction->
+			transaction_amount,
 		0 /* check_number */,
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				memo,
+			depreciation_transaction->
+			memo,
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				lock_transaction_yn,
+			depreciation_transaction->
+			lock_transaction_yn,
 		fixed_asset_purchase->
-			depreciation->
-				depreciation_transaction->
-				journal_list );
+			depreciation_transaction->
+			journal_list );
 
 	depreciation_update(
 		fixed_asset_purchase->
@@ -229,32 +239,49 @@ void depreciation_trigger_insert(
 			depreciation->
 			amount,
 		fixed_asset_purchase->
-			depreciation->
 			depreciation_transaction->
 			full_name,
 		fixed_asset_purchase->
-			depreciation->
 			depreciation_transaction->
 			street_address,
 		fixed_asset_purchase->
-			depreciation->
 			depreciation_transaction->
 			transaction_date_time,
 		fixed_asset_purchase->fixed_asset->asset_name,
 		fixed_asset_purchase->serial_label,
-		fixed_asset_purchase->depreciation->depreciation_date );
+		depreciation_date );
 
 	fixed_asset_purchase_finance_fetch_update(
-		fixed_asset_purchase->depreciation->asset_name,
-		fixed_asset_purchase->depreciation->serial_label );
+		fixed_asset_purchase->fixed_asset->asset_name,
+		fixed_asset_purchase->serial_label );
 }
 
-void depreciation_trigger_update(
-			DEPRECIATION *depreciation )
+void depreciation_trigger_update( DEPRECIATION *depreciation )
 {
-	ENTITY_SELF *entity_self;
+	if ( !depreciation )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: depreciation is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	entity_self = entity_self_fetch();
+	if ( !depreciation->entity_self )
+	{
+		depreciation->entity_self = entity_self_fetch();
+
+		if ( !depreciation->entity_self )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: entity_self_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+	}
 
 	if ( !depreciation->transaction_date_time
 	||   !*depreciation->transaction_date_time )

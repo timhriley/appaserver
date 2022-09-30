@@ -266,10 +266,10 @@ void fixed_asset_purchase_list_subtract_recovery_amount(
 void fixed_asset_purchase_subtract_recovery_amount(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase );
 
-void fixed_asset_purchase_list_negate_depreciation_amount(
+void fixed_asset_purchase_negate_depreciation_amount(
 			LIST *fixed_asset_purchase_list );
 
-void fixed_asset_purchase_list_negate_recovery_amount(
+void fixed_asset_purchase_negate_recovery_amount(
 			LIST *fixed_asset_purchase_list );
 
 #endif

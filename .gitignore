@@ -165,8 +165,6 @@ balance_sheet_output
 budget_report
 liability_prepaid
 recovery_statutory_accelerated_half_year
-cost_recovery_trigger
-depreciation_trigger
 journal_ledger_trigger
 generate_invoice
 generate_workorder

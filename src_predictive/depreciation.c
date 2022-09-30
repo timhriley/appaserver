@@ -106,6 +106,8 @@ double depreciation_amount(
 				prior_accumulated_depreciation );
 	}
 
+	if ( amount < 0.0 ) amount = 0.0;
+
 	return amount;
 }
 
@@ -324,6 +326,23 @@ double depreciation_double_declining_balance(
 			prior_accumulated_depreciation );
 }
 
+DEPRECIATION *depreciation_calloc( void )
+{
+	DEPRECIATION *depreciation;
+
+	if ( ! ( depreciation = calloc( 1, sizeof( DEPRECIATION ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return depreciation;
+}
+
 DEPRECIATION *depreciation_new(
 			char *asset_name,
 			char *serial_label,
@@ -331,15 +350,19 @@ DEPRECIATION *depreciation_new(
 {
 	DEPRECIATION *depreciation;
 
-	if ( ! ( depreciation = calloc( 1, sizeof( DEPRECIATION ) ) ) )
+	if ( !asset_name
+	||   !serial_label
+	||   !depreciation_date )
 	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: cannot allocate memory.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
+
+	depreciation = depreciation_calloc();
 
 	depreciation->asset_name = asset_name;
 	depreciation->serial_label = serial_label;
@@ -378,16 +401,24 @@ DEPRECIATION *depreciation_parse( char *input )
 	piece( piece_buffer, SQL_DELIMITER, input, 4 );
 	depreciation->amount = atof( piece_buffer );
 
+	*full_name = '\0';
+
 	piece( full_name, SQL_DELIMITER, input, 5 );
 	piece( street_address, SQL_DELIMITER, input, 6 );
 
-	depreciation->entity_self =
-		entity_self_new(
-			strdup( full_name ),
-			strdup( street_address ) );
+	if ( *full_name )
+	{
+		depreciation->entity_self =
+			entity_self_new(
+				strdup( full_name ),
+				strdup( street_address ) );
+	}
 
-	piece( piece_buffer, SQL_DELIMITER, input, 7 );
-	depreciation->transaction_date_time = strdup( piece_buffer );
+	if ( piece( piece_buffer, SQL_DELIMITER, input, 7 )
+	&&   *piece_buffer )
+	{
+		depreciation->transaction_date_time = strdup( piece_buffer );
+	}
 
 	return depreciation;
 }
@@ -410,7 +441,7 @@ char *depreciation_primary_where(
 		serial_label,
 		depreciation_date );
 
-	return strdup( where );
+	return where;
 }
 
 DEPRECIATION *depreciation_fetch(
@@ -529,21 +560,18 @@ LIST *depreciation_list_fetch(
 				serial_label ) ) );
 }
 
-FILE *depreciation_delete_open( void )
+FILE *depreciation_delete_open(
+			char *depreciation_primary_key,
+			char *depreciation_table )
 {
 	char system_string[ 1024 ];
-	char *key;
-
-	key =	"asset_name,"
-		"serial_label,"
-		"depreciation_date";
 
 	sprintf( system_string,
 		 "delete_statement table=%s field=%s delimiter='%c'	|"
 		 "tee_appaserver_error.sh				|"
 		 "sql							 ",
-		 DEPRECIATION_TABLE,
-		 key,
+		 depreciation_table,
+		 depreciation_primary_key,
 		 '^' );
 
 	return popen( system_string, "w" );
@@ -922,6 +950,16 @@ DEPRECIATION *depreciation_evaluate(
 	if ( !entity_self )
 	{
 		entity_self = entity_self_fetch();
+
+		if ( !entity_self )
+		{
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: entity_self_fetch() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 	}
 
 	depreciation =
@@ -1029,7 +1067,7 @@ int depreciation_units_produced_current(
 	return units_produced_so_far - units_produced_total;
 }
 
-char *depreciation_subquery_not_exists_where(
+char *depreciation_subquery_exists_where(
 			char *depreciation_table,
 			char *fixed_asset_purchase_table,
 			char *depreciation_date )
@@ -1037,7 +1075,7 @@ char *depreciation_subquery_not_exists_where(
 	char where[ 1024 ];
 
 	sprintf(where,
-		"not exists ( select 1				"
+		"exists ( select 1				"
 		"	  from %s				"
 		"	  where %s.asset_name =	"
 		"		%s.asset_name			"
@@ -1196,67 +1234,4 @@ int depreciation_units_produced(
 			asset_name,
 			serial_label ) );
 }
-
-#ifdef NOT_DEFINED
-void depreciation_list_negate_depreciation_amount(
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-
-	if ( !list_rewind( depreciation_list ) ) return;
-
-	do {
-		depreciation = list_get( depreciation_list );
-		depreciation->amount = 0.0 - depreciation->amount;
-
-	} while ( list_next( depreciation_list ) );
-}
-#endif
-
-#ifdef NOT_DEFINED
-DEPRECIATION *depreciation_seek(
-			char *depreciation_date,
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-
-	if ( !list_rewind( depreciation_list ) ) return (DEPRECIATION *)0;
-
-	do {
-		depreciation =
-			list_get(
-				depreciation_list );
-
-		if ( string_strcmp(
-			depreciation->depreciation_date,
-			depreciation_date ) == 0 )
-		{
-			return depreciation;
-		}
-	} while ( list_next( depreciation_list ) );
-
-	return (DEPRECIATION *)0;
-}
-#endif
-
-#ifdef NOT_DEFINED
-double depreciation_amount_total(
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-	double total;
-
-	if ( !list_rewind( depreciation_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		depreciation = list_get( depreciation_list );
-		total += depreciation->amount;
-
-	} while ( list_next( depreciation_list ) );
-
-	return total;
-}
-#endif
 

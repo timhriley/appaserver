@@ -39,7 +39,6 @@ EXECUTABLES=	trial_balance_output					\
 		populate_print_checks_entity				\
 		pay_liabilities_process					\
 		depreciate_fixed_assets					\
-		depreciation_trigger					\
 		post_accrual						\
 		transaction_html_display				\
 		post_change_fixed_asset_purchase
@@ -47,7 +46,6 @@ EXECUTABLES=	trial_balance_output					\
 #		generate_invoice					\
 #		post_change_vendor_payment				\
 #		post_change_account_balance				\
-#		cost_recovery_trigger					\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
 #		liability_prepaid
@@ -292,22 +290,6 @@ journal_ledger_trigger: journal_ledger_trigger.c			\
 		${SOURCE_LIBRARY}					\
 		journal_ledger_trigger.c				\
 		-o journal_ledger_trigger
-
-depreciation_trigger: depreciation_trigger.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		depreciation_trigger.c					\
-		-o depreciation_trigger
-
-cost_recovery_trigger: cost_recovery_trigger.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		cost_recovery_trigger.c					\
-		-o cost_recovery_trigger
 
 pay_liabilities_process: pay_liabilities_process.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}

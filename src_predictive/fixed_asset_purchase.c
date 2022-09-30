@@ -845,7 +845,7 @@ void fixed_asset_purchase_subtract_recovery_amount(
 	}
 }
 
-void fixed_asset_purchase_list_negate_depreciation_amount(
+void fixed_asset_purchase_negate_depreciation_amount(
 			LIST *fixed_asset_purchase_list )
 {
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
@@ -893,10 +893,9 @@ void fixed_asset_purchase_list_negate_recovery_amount(
 	} while( list_next( fixed_asset_purchase_list ) );
 }
 
-char *fixed_asset_purchase_depreciation_where(
-			char *depreciation_date )
+char *fixed_asset_purchase_depreciation_where( char *depreciation_date )
 {
-	char where[ 512 ];
+	char where[ 1024 ];
 
 	if ( !depreciation_date )
 	{
@@ -912,8 +911,11 @@ char *fixed_asset_purchase_depreciation_where(
 	"ifnull(finance_accumulated_depreciation,0) -		"
 	"ifnull(estimated_residual_value,0) < cost_basis	"
 	" and disposal_date is null				"
-	" and %s						",
-		depreciation_subquery_not_exists_where(
+	" and not %s						",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		depreciation_subquery_exists_where(
 			DEPRECIATION_TABLE,
 			FIXED_ASSET_PURCHASE_TABLE,
 			depreciation_date ) );
