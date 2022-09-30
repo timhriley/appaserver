@@ -175,6 +175,8 @@ DATE *date_get_today_new(
 
 DATE *date_today_new(	int utc_offset );
 
+/* Returns heap memory */
+/* ------------------- */
 char *date_now_yyyy_mm_dd(
 			int utc_offset );
 

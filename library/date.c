@@ -1590,7 +1590,21 @@ char *date_get_now_hhmm( int utc_offset )
 
 char *date_now_yyyy_mm_dd( int utc_offset )
 {
-	return date_get_now_date_yyyy_mm_dd( utc_offset );
+	DATE *date = date_today_new( utc_offset );
+
+	if ( !date )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: date_today_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	/* Returns heap memory or "" */
+	/* ------------------------- */
+	return date_display_yyyy_mm_dd( date );
 }
 
 char *date_get_now_yyyy_mm_dd( int utc_offset )

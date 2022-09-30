@@ -340,9 +340,13 @@ char *account_name_display(
 ACCOUNT *account_seek(	char *account_name,
 			LIST *account_list );
 
+/* Returns heap memory */
+/* ------------------- */
 char *account_depreciation_expense(
 			char *account_depreciation_key );
 
+/* Returns heap memory */
+/* ------------------- */
 char *account_accumulated_depreciation(
 			char *account_accumulated_key );
 

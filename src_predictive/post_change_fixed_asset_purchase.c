@@ -1,9 +1,9 @@
-/* ---------------------------------------------------------------	*/
-/* src_predictive/post_change_fixed_asset_purchase.c			*/
-/* ---------------------------------------------------------------	*/
+/* ------------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_predictive/post_change_fixed_asset_purchase.c	*/
+/* ------------------------------------------------------------------	*/
 /* 									*/
 /* Freely available software: see Appaserver.org			*/
-/* ---------------------------------------------------------------	*/
+/* ------------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <string.h>
@@ -15,10 +15,6 @@
 #include "list.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
-#include "entity.h"
-#include "purchase.h"
-#include "account.h"
-#include "transaction.h"
 #include "fixed_asset_purchase.h"
 
 /* Constants */
@@ -29,21 +25,12 @@
 void post_change_fixed_asset_purchase_insert_update(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase );
 
-/*
-void post_change_purchase_insert(
-			PURCHASE *purchase );
-
-void post_change_purchase_update(
-			PURCHASE *purchase );
-*/
-
 int main( int argc, char **argv )
 {
 	char *application_name;
 	char *asset_name;
 	char *serial_label;
 	char *state;
-	PURCHASE *purchase = {0};
 	FIXED_ASSET_PURCHASE *fixed_asset_purchase;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
@@ -78,48 +65,16 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( purchase_is_participating() )
-	{
-		purchase =
-			purchase_fetch(
-				fixed_asset_purchase->
-					vendor_entity->
-					full_name,
-				fixed_asset_purchase->
-					vendor_entity->
-					street_address,
-				fixed_asset_purchase->
-					purchase_date_time );
-	}
-
 	if ( strcmp( state, "insert" ) == 0 )
 	{
-		if ( purchase )
-		{
-/*
-			post_change_purchase_insert( purchase );
-*/
-		}
-		else
-		{
-			post_change_fixed_asset_purchase_insert_update(
-				fixed_asset_purchase );
-		}
+		post_change_fixed_asset_purchase_insert_update(
+			fixed_asset_purchase );
 	}
 	else
 	if ( strcmp( state, "update" ) == 0 )
 	{
-		if ( purchase )
-		{
-/*
-			post_change_purchase_insert( purchase );
-*/
-		}
-		else
-		{
-			post_change_fixed_asset_purchase_insert_update(
-				fixed_asset_purchase );
-		}
+		post_change_fixed_asset_purchase_insert_update(
+			fixed_asset_purchase );
 	}
 
 	return 0;
@@ -198,20 +153,24 @@ void post_change_fixed_asset_purchase_insert(
 void post_change_fixed_asset_purchase_insert_update(
 			FIXED_ASSET_PURCHASE *fixed_asset_purchase )
 {
-	FILE *update_pipe = fixed_asset_purchase_update_open();
+	if ( !fixed_asset_purchase )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: fixed_asset_purchase is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	fixed_asset_purchase->cost_basis =
+		fixed_asset_purchase_cost_basis(
+			fixed_asset_purchase->fixed_asset_cost );
+
 	fixed_asset_purchase->tax_adjusted_basis =
-		fixed_asset_purchase->fixed_asset_cost;
+		fixed_asset_purchase_tax_adjusted_basis(
+			fixed_asset_purchase->fixed_asset_cost );
 
-	fixed_asset_purchase_update(
-		update_pipe,
-		fixed_asset_purchase->cost_basis,
-		fixed_asset_purchase->finance_accumulated_depreciation,
-		fixed_asset_purchase->tax_adjusted_basis,
-		fixed_asset_purchase->fixed_asset->asset_name,
-		fixed_asset_purchase->serial_label );
-
-	pclose( update_pipe );
+	fixed_asset_purchase_update( fixed_asset_purchase );
 }
 
