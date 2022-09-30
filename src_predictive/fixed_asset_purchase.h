@@ -58,6 +58,18 @@ LIST *fixed_asset_purchase_list_fetch(
 			boolean fetch_last_depreciation,
 			boolean fetch_last_recovery );
 
+/* Usage */
+/* ----- */
+LIST *fixed_asset_purchase_system_list(
+			char *fixed_asset_purchase_system_string,
+			boolean fetch_last_depreciation,
+			boolean fetch_last_recovery );
+
+/* Process */
+/* ------- */
+FILE *fixed_asset_purchase_input_pipe(
+			char *fixed_asset_purchase_system_string );
+
 /* Process */
 /* ------- */
 
@@ -108,12 +120,11 @@ char *fixed_asset_purchase_primary_where(
 /* Usage */
 /* ----- */
 
-/* -------------------------------------------- */
-/* Returns fixed_asset_purchase_list with	*/
-/* fixed_asset_purchase->depreciation set.	*/
-/* -------------------------------------------- */
-LIST *fixed_asset_purchase_list_depreciate(
-			LIST *fixed_asset_purchase_list,
+/* ---------------------------------------- */
+/* Returns fixed_asset_purchase_list_fetch. */
+/* ---------------------------------------- */
+LIST *fixed_asset_purchase_depreciation_list(
+			LIST *fixed_asset_purchase_list_fetch,
 			char *depreciation_date );
 
 /* Process */
@@ -153,11 +164,47 @@ void fixed_asset_purchase_update_execute(
 
 /* Usage */
 /* ----- */
-LIST *fixed_asset_purchase_depreciation_list(
-			LIST *fixed_asset_purchase_list );
+LIST *fixed_asset_purchase_transaction_list_extract(
+			LIST *fixed_asset_purchase_depreciation_list );
 
 /* Process */
 /* ------- */
+
+/* Usage */
+/* ----- */
+LIST *fixed_asset_purchase_depreciation_list_extract(
+			LIST *fixed_asset_purchase_deprecation_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void fixed_asset_purchase_transaction_list_insert(
+			/* May reset depreciation_transaction->
+				transaction_date_time */
+			LIST *fixed_asset_purchase_transaction_list_extract );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+void fixed_asset_purchase_depreciation_list_insert(
+			LIST *fixed_asset_purchase_depreciation_list_extract );
+
+/* Process */
+/* ------- */
+
+/* Driver */
+/* ------ */
+void fixed_asset_purchase_depreciation_display(
+			LIST *fixed_asset_purchase_depreciation_list );
+
+/* Driver */
+/* ------ */
+void fixed_asset_purchase_depreciation_insert(
+			LIST *fixed_asset_purchase_depreciation_list );
 
 /* Public */
 /* ------ */
@@ -170,38 +217,23 @@ char *fixed_asset_purchase_depreciation_where(
 
 /* Returns heap memory */
 /* ------------------- */
+char *fixed_asset_purchase_depreciation_date(
+			void );
+
+double fixed_asset_purchase_cost_basis(
+			double fixed_asset_cost );
+
+double fixed_asset_purchase_tax_adjusted_basis(
+			double fixed_asset_cost );
+
+/* Returns heap memory */
+/* ------------------- */
 char *fixed_asset_purchase_system_string(
 			char *fixed_asset_purchase_table,
 			char *where,
 			char *order );
 
-LIST *fixed_asset_purchase_system_list(
-			char *system_string,
-			boolean fetch_last_depreciation,
-			boolean fetch_last_recovery );
-
-FILE *fixed_asset_purchase_input_pipe(
-			char *system_string );
-
 double fixed_asset_purchase_total(
-			LIST *fixed_asset_purchase_list );
-
- /* --------------------- */
- /* Returns static memory */
- /* --------------------- */
-char *fixed_asset_purchase_escape_asset_name(
-			char *asset_name );
-
-/* Returns static memory */
-/* --------------------- */
-char *fixed_asset_purchase_primary_where(
-			char *asset_name,
-			char *serial_label );
-
-double fixed_asset_purchase_total(
-			LIST *fixed_asset_purchase_list );
-
-LIST *fixed_asset_purchase_depreciation_list(
 			LIST *fixed_asset_purchase_list );
 
 void fixed_asset_purchase_depreciation_display(
@@ -239,17 +271,6 @@ void fixed_asset_purchase_list_negate_depreciation_amount(
 
 void fixed_asset_purchase_list_negate_recovery_amount(
 			LIST *fixed_asset_purchase_list );
-
-/* Returns heap memory */
-/* ------------------- */
-char *fixed_asset_purchase_depreciation_date(
-			void );
-
-double fixed_asset_purchase_cost_basis(
-			double fixed_asset_cost );
-
-double fixed_asset_purchase_tax_adjusted_basis(
-			double fixed_asset_cost );
 
 #endif
 

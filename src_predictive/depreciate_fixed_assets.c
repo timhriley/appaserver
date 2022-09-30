@@ -124,20 +124,20 @@ int main( int argc, char **argv )
 
 boolean depreciate_fixed_assets( boolean execute )
 {
-	LIST *fixed_asset_purchase_list;
+	LIST *list;
 	char *depreciation_date;
 
 	depreciation_date =
+		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		fixed_asset_purchase_depreciation_date();
 
-	fixed_asset_purchase_list =
-		/* -------------------------------------------- */
-		/* Returns fixed_asset_purchase_list with	*/
-		/* fixed_asset_purchase->depreciation set.	*/
-		/* -------------------------------------------- */
-		fixed_asset_purchase_list_depreciate(
+	list =
+		/* ---------------------------------------  */
+		/* Returns fixed_asset_purchase_list_fetch. */
+		/* ---------------------------------------- */
+		fixed_asset_purchase_depreciation_list(
 			fixed_asset_purchase_list_fetch(
 				/* ------------------- */
 				/* Returns heap memory */
@@ -148,38 +148,15 @@ boolean depreciate_fixed_assets( boolean execute )
 				0 /* not fetch_last_recovery */ ),
 			depreciation_date );
 
-	if ( !list_length(
-		fixed_asset_purchase_depreciation_list(
-			fixed_asset_purchase_list ) ) )
-	{
-		return 0;
-	}
-
-	fixed_asset_purchase_depreciation_display(
-		fixed_asset_purchase_list );
-
 	if ( execute )
 	{
-		LIST *depreciation_list;
-
-		depreciation_list_insert(
-			( depreciation_list =
-				fixed_asset_purchase_depreciation_list(
-					fixed_asset_purchase_list ) ) );
-
-		fixed_asset_purchase_list_add_depreciation_amount(
-			fixed_asset_purchase_list );
-
-		fixed_asset_purchase_list_update(
-			fixed_asset_purchase_list );
-
-		/* Sets true transaction_date_time */
-		/* ------------------------------- */
-		transaction_list_insert(
-			depreciation_transaction_list(
-				depreciation_list ),
-			1 /* insert_journal_list_boolean */ );
+		fixed_asset_purchase_depreciation_insert( list );
 	}
+	else
+	{
+		fixed_asset_purchase_depreciation_display( list );
+	}
+
 	return 1;
 }
 
@@ -224,7 +201,7 @@ boolean depreciate_fixed_assets_undo( boolean execute )
 
 	fixed_asset_purchase_list =
 		fixed_asset_purchase_list_fetch(
-			depreciation_subquery_where(
+			depreciation_subquery_not_exists_where(
 				DEPRECIATION_TABLE,
 				FIXED_ASSET_PURCHASE_TABLE,
 				prior_depreciation_date ),
@@ -260,7 +237,7 @@ void depreciate_fixed_assets_undo_display(
 			list_get(
 				fixed_asset_purchase_list );
 
-		if ( !fixed_asset_purchase->depreciation )
+		if ( !fixed_asset_purchase->last_depreciation )
 		{
 			continue;
 		}
@@ -271,10 +248,10 @@ void depreciate_fixed_assets_undo_display(
 			 fixed_asset_purchase->serial_label,
 			 fixed_asset_purchase->service_placement_date,
 			 fixed_asset_purchase->
-				depreciation->
+				last_depreciation->
 				depreciation_date,
 			 fixed_asset_purchase->
-				depreciation->
+				last_depreciation->
 				amount );
 
 	} while ( list_next( fixed_asset_purchase_list ) );
@@ -297,8 +274,46 @@ void depreciate_fixed_assets_undo_execute(
 			list_get(
 				fixed_asset_purchase_list );
 
-		if ( !fixed_asset_purchase->depreciation )
+		if ( !fixed_asset_purchase->last_depreciation )
 		{
+			continue;
+		}
+
+		if ( !fixed_asset_purchase->fixed_asset )
+		{
+			fprintf(stderr,
+			"Warning in %s/%s()/%d: fixed_asset is empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		if ( !fixed_asset_purchase->
+			last_depreciation->
+			transaction_date_time )
+		{
+			fprintf(stderr,
+		"Warning in %s/%s()/%d: empty transaction_date_time.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			continue;
+		}
+
+		if ( !fixed_asset_purchase->
+			last_depreciation->
+			entity_self
+		||   !fixed_asset_purchase->
+			last_depreciation->
+			entity_self->
+			entity )
+		{
+			fprintf(stderr,
+				"Warning in %s/%s()/%d: empty entity.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
 			continue;
 		}
 
@@ -310,36 +325,24 @@ void depreciate_fixed_assets_undo_execute(
 		 	fixed_asset_purchase->
 				serial_label,
 		 	fixed_asset_purchase->
-				depreciation->
+				last_depreciation->
 				depreciation_date );
-
-		if ( !fixed_asset_purchase->
-				depreciation->
-				depreciation_transaction )
-		{
-			fprintf(stderr,
-		"Warning in %s/%s()/%d: empty depreciation_transaction.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-
-			continue;
-		}
 
 		/* Performs journal_propagate() */
 		/* ---------------------------- */
 		transaction_delete(
 			fixed_asset_purchase->
-				depreciation->
-				depreciation_transaction->
+				last_depreciation->
+				entity_self->
+				entity->
 				full_name,
 			fixed_asset_purchase->
-				depreciation->
-				depreciation_transaction->
+				last_depreciation->
+				entity_self->
+				entity->
 				street_address,
 			fixed_asset_purchase->
-				depreciation->
-				depreciation_transaction->
+				last_depreciation->
 				transaction_date_time );
 
 	} while ( list_next( fixed_asset_purchase_list ) );
@@ -355,7 +358,7 @@ void depreciate_fixed_assets_undo_execute(
 
 FILE *depreciate_period_of_record_html_open( void )
 {
-	char sys_string[ 1024 ];
+	char system_string[ 1024 ];
 	char *heading_list_string;
 	char *justify_list_string;
 
@@ -365,14 +368,14 @@ FILE *depreciate_period_of_record_html_open( void )
 
 	justify_list_string = "left,right";
 
-	sprintf( sys_string,
-		 "html_table.e '^^%s' '%s' '^' '%s'",
-		 "Period of Record",
-		 heading_list_string,
-		 justify_list_string );
+	sprintf(system_string,
+		"html_table.e '^^%s' '%s' '^' '%s'",
+		"Period of Record",
+		heading_list_string,
+		justify_list_string );
 
 	fflush( stdout );
-	return popen( sys_string, "w" );
+	return popen( system_string, "w" );
 }
 
 void depreciate_period_of_record_display( void )
