@@ -41,12 +41,12 @@ EXECUTABLES=	trial_balance_output					\
 		depreciate_fixed_assets					\
 		depreciation_trigger					\
 		post_accrual						\
-		transaction_html_display
+		transaction_html_display				\
+		post_change_fixed_asset_purchase
 #		post_change_self					\
 #		generate_invoice					\
 #		post_change_vendor_payment				\
 #		post_change_account_balance				\
-#		post_change_fixed_asset_purchase			\
 #		cost_recovery_trigger					\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\

@@ -127,9 +127,16 @@ boolean depreciate_fixed_assets( boolean execute )
 	LIST *fixed_asset_purchase_list;
 	char *depreciation_date;
 
-	depreciation_date = fixed_asset_purchase_depreciation_date();
+	depreciation_date =
+		/* Returns heap memory */
+		/* ------------------- */
+		fixed_asset_purchase_depreciation_date();
 
 	fixed_asset_purchase_list =
+		/* -------------------------------------------- */
+		/* Returns fixed_asset_purchase_list with	*/
+		/* fixed_asset_purchase->depreciation set.	*/
+		/* -------------------------------------------- */
 		fixed_asset_purchase_list_depreciate(
 			fixed_asset_purchase_list_fetch(
 				/* ------------------- */
@@ -137,7 +144,7 @@ boolean depreciate_fixed_assets( boolean execute )
 				/* ------------------- */
 				fixed_asset_purchase_depreciation_where(
 					depreciation_date ),
-				0 /* not fetch_last_depreciation */,
+				1 /* fetch_last_depreciation */,
 				0 /* not fetch_last_recovery */ ),
 			depreciation_date );
 

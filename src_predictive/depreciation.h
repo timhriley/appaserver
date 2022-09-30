@@ -49,19 +49,11 @@ typedef struct
 	char *serial_label;
 	enum depreciation_method depreciation_method;
 	char *depreciation_date;
-	char *depreciation_prior_period_date;
-	double fixed_asset_cost;
-	int estimated_residual_value;
-	int estimated_useful_life_years;
-	int estimated_useful_life_units;
-	int declining_balance_n;
-	double prior_accumulated_depreciation;
 	int units_produced;
 	double amount;
 	double accumulated_depreciation;
 	ENTITY_SELF *entity_self;
 	char *transaction_date_time;
-	TRANSACTION *depreciation_transaction;
 } DEPRECIATION;
 
 /* Usage */
@@ -83,7 +75,7 @@ DEPRECIATION *depreciation_evaluate(
 
 /* Process */
 /* ------- */
-double depreciation_accumulated_depreciation(
+double depreciation_accumulated(
 			double prior_accumulated_depreciation,
 			double depreciation_amount );
 
@@ -269,6 +261,19 @@ LIST *depreciation_system_list(
 FILE *depreciation_input_pipe_open(
 			char *depreciation_system_string );
 
+/* Usage */
+/* ----- */
+TRANSACTION *depreciation_transaction(
+			char *full_name,
+			char *street_address,
+			char *fixed_asset_purchase_depreciation_date,
+			double depreciation_amount,
+			char *account_depreciation_expense,
+			char *account_accumulated_depreciation );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 enum depreciation_method depreciation_method_evaluate(
@@ -288,35 +293,10 @@ char *depreciation_prior_depreciation_date(
 			char *serial_label,
 			char *depreciation_date );
 
-char *depreciation_subquery_where(
+char *depreciation_subquery_not_exists_where(
 			char *depreciation_table,
 			char *fixed_asset_purchase_table,
 			char *depreciation_date );
-
-TRANSACTION *depreciation_transaction(
-			char *full_name,
-			char *street_address,
-			/* ------------------------------------ */
-			/* Returns heap memory.			*/
-			/* Increments seconds each invocation.  */
-			/* ------------------------------------ */
-			char *predictive_transaction_date_time,
-			double depreciation_amount,
-			char *account_depreciation_expense,
-			char *account_accumulated_depreciation );
-
-double depreciation_amount_total(
-			LIST *depreciation_list );
-
-void depreciation_list_negate_depreciation_amount(
-			LIST *depreciation_list );
-
-LIST *depreciation_transaction_list(
-			LIST *fixed_asset_purchase_depreciation_list );
-
-DEPRECIATION *depreciation_seek(
-			char *depreciation_date,
-			LIST *depreciation_list );
 
 FILE *depreciation_delete_open(
 			void );

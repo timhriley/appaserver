@@ -549,26 +549,7 @@ FILE *depreciation_delete_open( void )
 	return popen( system_string, "w" );
 }
 
-double depreciation_amount_total(
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-	double total;
-
-	if ( !list_rewind( depreciation_list ) ) return 0.0;
-
-	total = 0.0;
-
-	do {
-		depreciation = list_get( depreciation_list );
-		total += depreciation->amount;
-
-	} while ( list_next( depreciation_list ) );
-
-	return total;
-}
-
-double depreciation_accumulated_depreciation(
+double depreciation_accumulated(
 			double prior_accumulated_depreciation,
 			double depreciation_amount )
 {
@@ -586,18 +567,21 @@ TRANSACTION *depreciation_transaction(
 	TRANSACTION *transaction;
 	char *transaction_date_time;
 
-	if ( !depreciation_amount ) return (TRANSACTION *)0;
+	if ( money_virtually_same(
+		depreciation_amount,
+		0.0 )
+	||   depreciation_amount < 0 )
+	{
+		return (TRANSACTION *)0;
+	}
 
-	if ( character_exists( depreciation_date, ' ' ) )
-		transaction_date_time = depreciation_date;
-	else
-		transaction_date_time =
-			/* ------------------------------------ */
-			/* Returns heap memory.			*/
-			/* Increments second each invocation.   */
-			/* ------------------------------------ */
-			transaction_increment_date_time(
-				depreciation_date );
+	transaction_date_time =
+		/* ------------------------------------ */
+		/* Returns heap memory.			*/
+		/* Increments second each invocation.   */
+		/* ------------------------------------ */
+		transaction_increment_date_time(
+			depreciation_date );
 
 	if ( ! ( transaction =
 			transaction_new(
@@ -612,7 +596,7 @@ TRANSACTION *depreciation_transaction(
 			 __LINE__,
 			 full_name,
 			 street_address,
-			 depreciation_date );
+			 transaction_date_time );
 		exit( 1 );
 	}
 
@@ -630,39 +614,14 @@ TRANSACTION *depreciation_transaction(
 				account_depreciation_expense,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */ )
-				/* debit_account */,
+					/* debit_account */,
 			account_fetch(
 				account_accumulated_depreciation,
 				1 /* fetch_subclassification */,
 				1 /* fetch_element */ )
-				/* credit_account */ );
+					/* credit_account */ );
 
 	return transaction;
-}
-
-LIST *depreciation_transaction_list(
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-	LIST *transaction_list;
-
-	if ( !list_rewind( depreciation_list ) ) return (LIST *)0;
-
-	transaction_list = list_new();
-
-	do {
-		depreciation = list_get( depreciation_list );
-
-		if ( depreciation->depreciation_transaction )
-		{
-			list_set(
-				transaction_list,
-				depreciation->depreciation_transaction );
-		}
-
-	} while ( list_next( depreciation_list ) );
-
-	return transaction_list;
 }
 
 FILE *depreciation_insert_pipe_open(
@@ -696,10 +655,19 @@ void depreciation_insert_pipe(
 	||   !serial_label
 	||   !depreciation_date
 	||   !amount
+	||   !full_name
+	||   !street_address
 	||   !transaction_date_time
 	||   !insert_pipe_open )
 	{
-		return;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		if ( insert_pipe_open ) pclose( insert_pipe_open );
+		exit( 1 );
 	}
 
 	fprintf(insert_pipe_open,
@@ -732,10 +700,10 @@ void depreciation_list_insert(
 			list_get(
 				depreciation_list );
 
-		if ( !depreciation->depreciation_transaction )
+		if ( !depreciation->transaction_date_time )
 		{
 			fprintf(stderr,
-		"ERROR in %s/%s()/%d: empty depreciation_transaction.\n",
+	"ERROR in %s/%s()/%d: depreciation->transaction_date_time is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -754,7 +722,8 @@ void depreciation_list_insert(
 			exit( 1 );
 		}
 
-		if ( !money_virtually_same( depreciation->amount, 0.0 ) )
+		if ( !money_virtually_same( depreciation->amount, 0.0 )
+		&&   depreciation->amount > 0.0 )
 		{
 			depreciation_insert_pipe(
 				depreciation->asset_name,
@@ -770,9 +739,7 @@ void depreciation_list_insert(
 					entity_self->
 					entity->
 					street_address,
-				depreciation->
-					depreciation_transaction->
-					transaction_date_time,
+				depreciation->transaction_date_time,
 				insert_pipe_open );
 		}
 
@@ -827,30 +794,6 @@ char *depreciation_prior_depreciation_date(
 		where );
 
 	return string_pipe_fetch( system_string );
-}
-
-DEPRECIATION *depreciation_seek(
-			char *depreciation_date,
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-
-	if ( !list_rewind( depreciation_list ) ) return (DEPRECIATION *)0;
-
-	do {
-		depreciation =
-			list_get(
-				depreciation_list );
-
-		if ( string_strcmp(
-			depreciation->depreciation_date,
-			depreciation_date ) == 0 )
-		{
-			return depreciation;
-		}
-	} while ( list_next( depreciation_list ) );
-
-	return (DEPRECIATION *)0;
 }
 
 char *depreciation_method_string(
@@ -972,7 +915,7 @@ DEPRECIATION *depreciation_evaluate(
 	}
 
 	accumulated_depreciation =
-		depreciation_accumulated_depreciation(
+		depreciation_accumulated(
 			prior_accumulated_depreciation,
 			amount );
 
@@ -1086,21 +1029,7 @@ int depreciation_units_produced_current(
 	return units_produced_so_far - units_produced_total;
 }
 
-void depreciation_list_negate_depreciation_amount(
-			LIST *depreciation_list )
-{
-	DEPRECIATION *depreciation;
-
-	if ( !list_rewind( depreciation_list ) ) return;
-
-	do {
-		depreciation = list_get( depreciation_list );
-		depreciation->amount = 0.0 - depreciation->amount;
-
-	} while ( list_next( depreciation_list ) );
-}
-
-char *depreciation_subquery_where(
+char *depreciation_subquery_not_exists_where(
 			char *depreciation_table,
 			char *fixed_asset_purchase_table,
 			char *depreciation_date )
@@ -1108,7 +1037,7 @@ char *depreciation_subquery_where(
 	char where[ 1024 ];
 
 	sprintf(where,
-		"exists ( select 1				"
+		"not exists ( select 1				"
 		"	  from %s				"
 		"	  where %s.asset_name =	"
 		"		%s.asset_name			"
@@ -1267,4 +1196,67 @@ int depreciation_units_produced(
 			asset_name,
 			serial_label ) );
 }
+
+#ifdef NOT_DEFINED
+void depreciation_list_negate_depreciation_amount(
+			LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( depreciation_list ) ) return;
+
+	do {
+		depreciation = list_get( depreciation_list );
+		depreciation->amount = 0.0 - depreciation->amount;
+
+	} while ( list_next( depreciation_list ) );
+}
+#endif
+
+#ifdef NOT_DEFINED
+DEPRECIATION *depreciation_seek(
+			char *depreciation_date,
+			LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+
+	if ( !list_rewind( depreciation_list ) ) return (DEPRECIATION *)0;
+
+	do {
+		depreciation =
+			list_get(
+				depreciation_list );
+
+		if ( string_strcmp(
+			depreciation->depreciation_date,
+			depreciation_date ) == 0 )
+		{
+			return depreciation;
+		}
+	} while ( list_next( depreciation_list ) );
+
+	return (DEPRECIATION *)0;
+}
+#endif
+
+#ifdef NOT_DEFINED
+double depreciation_amount_total(
+			LIST *depreciation_list )
+{
+	DEPRECIATION *depreciation;
+	double total;
+
+	if ( !list_rewind( depreciation_list ) ) return 0.0;
+
+	total = 0.0;
+
+	do {
+		depreciation = list_get( depreciation_list );
+		total += depreciation->amount;
+
+	} while ( list_next( depreciation_list ) );
+
+	return total;
+}
+#endif
 

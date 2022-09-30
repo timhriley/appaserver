@@ -13,18 +13,11 @@
 #include "html_table.h"
 #include "date.h"
 
-/* Constants */
-/* --------- */
 #define COST_RECOVERY_TABLE			"cost_recovery"
 #define RECOVERY_STATUTORY_STRAIGHT_LINE	"statutory_straight_line"
 #define RECOVERY_STATUTORY_ACCELERATED		"statutory_accelerated"
 #define RECOVERY_HALF_YEAR			"half_year"
 
-/* Enumerated types */
-/* ---------------- */
-
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	/* Input */
