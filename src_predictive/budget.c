@@ -1053,7 +1053,7 @@ HTML_ROW *budget_html_sum_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		"Change",
+		"Net",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1225,7 +1225,7 @@ LATEX_ROW *budget_latex_sum_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		"Change",
+		"Net",
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
