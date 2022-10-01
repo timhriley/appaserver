@@ -27,7 +27,8 @@ typedef struct
 BUDGET_HTML *budget_html_new(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double budget_annualized_net_asset_change );
+			double budget_annualized_net_asset_change,
+			double budget_annualized_budget_change );
 
 /* Process */
 /* ------- */
@@ -39,12 +40,14 @@ BUDGET_HTML *budget_html_calloc(
 HTML_TABLE *budget_html_table(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double budget_annualized_net_asset_change );
+			double budget_annualized_net_asset_change,
+			double budget_annualized_budget_change );
 
 /* Process */
 /* ------- */
 HTML_ROW *budget_html_sum_row(
-			double budget_annualized_net_asset_change );
+			double budget_annualized_net_asset_change,
+			double budget_annualized_budget_change );
 
 /* Usage */
 /* ----- */
@@ -94,7 +97,8 @@ BUDGET_LATEX *budget_latex_new(
 			char *statement_logo_filename,
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double budget_annualized_net_asset_change );
+			double budget_annualized_net_asset_change,
+			double budget_annualized_budget_change );
 
 /* Process */
 /* ------- */
@@ -112,12 +116,14 @@ char *budget_latex_caption(
 LATEX_TABLE *budget_latex_table(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double budget_annualized_net_asset_change );
+			double budget_annualized_net_asset_change,
+			double budget_annualized_budget_change );
 
 /* Process */
 /* ------- */
 LATEX_ROW *budget_latex_sum_row(
-			double budget_annualized_net_asset_change );
+			double budget_annualized_net_asset_change,
+			double budget_annualize_budget_change );
 
 /* Usage */
 /* ----- */
@@ -166,6 +172,7 @@ BUDGET_PDF *budget_pdf_new(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
 			double net_asset_change,
+			double budget_change,
 			pid_t process_id );
 
 /* Process */
@@ -248,10 +255,29 @@ double budget_annualized_amount_sum(
 			char *element_name,
 			LIST *budget_annualized_list );
 
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double budget_annualized_budget_change(
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+double budget_annualized_budget_sum(
+			char *element_name,
+			LIST *budget_annualized_list );
+
+/* Process */
+/* ------- */
+
 typedef struct
 {
 	enum statement_output_medium statement_output_medium;
-	char *transaction_as_of_date;
 	DATE *as_of_date;
 	char *transaction_begin_date_string;
 	DATE *begin_date;
@@ -266,6 +292,7 @@ typedef struct
 	LIST *statement_prior_year_list;
 	LIST *annualized_list;
 	double annualized_net_asset_change;
+	double annualized_budget_change;
 	char *year_percent_subtitle;
 	BUDGET_PDF *budget_pdf;
 	BUDGET_HTML *budget_html;
@@ -284,7 +311,8 @@ BUDGET *budget_fetch(	char *application_name,
 BUDGET *budget_calloc(	void );
 
 DATE *budget_as_of_date(
-			char *transaction_as_of_date );
+			char *as_of_date_string,
+			char *date_now_yyyy_mm_dd );
 
 DATE *budget_begin_date(
 			char *transaction_begin_date_string );
