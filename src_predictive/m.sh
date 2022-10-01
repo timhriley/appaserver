@@ -4,5 +4,5 @@
 
 #if [ "$?" -eq 0 ]
 #then
-	make depreciate_fixed_assets
+	make budget_report
 #fi

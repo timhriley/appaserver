@@ -195,7 +195,7 @@ int budget_days_so_far(
 	return
 	date_subtract_days(
 		as_of_date /* later_date */,
-		begin_date /* earlier_date */ );
+		begin_date /* earlier_date */ ) + 1;
 }
 
 int budget_days_in_year( DATE *begin_date )
