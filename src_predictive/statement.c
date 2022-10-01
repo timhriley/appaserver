@@ -4396,3 +4396,88 @@ STATEMENT_CAPTION *statement_caption_new(
 
 	return statement_caption;
 }
+
+STATEMENT_DELTA *statement_delta_new(
+			double base_value,
+			double change_value )
+{
+	STATEMENT_DELTA *statement_delta = statement_delta_calloc();
+
+	statement_delta->difference =
+		statement_delta_difference(
+			base_value,
+			change_value );
+
+	statement_delta->percent =
+		statement_delta_percent(
+			base_value,
+		statement_delta->difference );
+
+	statement_delta->cell_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		statement_delta_cell_string(
+			statement_delta->difference,
+			statement_delta->percent );
+
+	return statement_delta;
+}
+
+STATEMENT_DELTA *statement_delta_calloc( void )
+{
+	STATEMENT_DELTA *statement_delta;
+
+	if ( ! ( statement_delta =
+			calloc( 1, sizeof( STATEMENT_DELTA ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return statement_delta;
+}
+
+double statement_delta_difference(
+			double base_value,
+			double change_value )
+{
+	return change_value - base_value;
+}
+
+int statement_delta_percent(
+			double base_value,
+			double difference )
+{
+	double delta_percent;
+
+	if ( !base_value ) return 0;
+
+	delta_percent = (difference / base_value) * 100.0;
+
+	return float_round_int( delta_percent );
+}
+
+char *statement_delta_cell_string(
+			double difference,
+			int percent )
+{
+	char cell_string[ 32 ];
+
+	sprintf(cell_string,
+		"%d%c %s",
+		percent,
+		'%',
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		timlib_place_commas_in_dollars(
+			difference ) );
+
+	return strdup( cell_string );
+}
+

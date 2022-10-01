@@ -845,4 +845,39 @@ char *statement_link_filename_stem(
 			char *process_name,
 			char *preclose_key );
 
+typedef struct
+{
+	double difference;
+	int percent;
+	char *cell_string;
+} STATEMENT_DELTA;
+
+/* Usage */
+/* ----- */
+
+/* Always succeeds */
+/* --------------- */
+STATEMENT_DELTA *statement_delta_new(
+			double base_value,
+			double change_value );
+
+/* Process */
+/* ------- */
+STATEMENT_DELTA *statement_delta_calloc(
+			void );
+
+double statement_delta_difference(
+			double base_value,
+			double change_value );
+
+int statement_delta_percent(
+			double base_value,
+			double statement_delta_difference );
+
+/* Returns heap memory */
+/* ------------------- */
+char *statement_delta_cell_string(
+			double statement_delta_difference,
+			int statement_delta_percent );
+
 #endif

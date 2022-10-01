@@ -134,20 +134,12 @@ BUDGET_ANNUALIZED *budget_annualized_new(
 						balance
 						  /* prior_account_balance */ );
 
-			budget_annualized->difference =
-			   budget_annualized_difference(
-				budget_annualized->amount,
-				budget_annualized->budget );
-
-			budget_annualized->difference_percent =
-			   budget_annualized_difference_percent(
-				budget_annualized->budget,
-				budget_annualized->difference );
-
-			budget_annualized->difference_cell =
-			   budget_annualized_difference_cell(
-				budget_annualized->difference,
-				budget_annualized->difference_percent );
+			budget_annualized->budget_statement_delta =
+				statement_delta_new(
+					budget_annualized->budget
+						/* base_value */,
+					budget_annualized->amount
+						/* change_value */ );
 		}
 	}
 
@@ -250,13 +242,6 @@ double budget_annualized_amount(
 		account_amount /
 		year_ratio;
 	}
-}
-
-double budget_annualized_difference(
-			double amount,
-			double budget )
-{
-	return amount - budget;
 }
 
 BUDGET *budget_fetch(	char *application_name,
@@ -388,13 +373,21 @@ BUDGET *budget_fetch(	char *application_name,
 			list_first( budget->statement_prior_year_list )
 				/* statement_prior_year */ );
 
-	budget->annualized_net_asset_change =
-		budget_annualized_net_asset_change(
+	budget->annualized_amount_net =
+		budget_annualized_amount_net(
 			budget->annualized_list );
 
-	budget->annualized_budget_change =
-		budget_annualized_budget_change(
+	budget->annualized_budget_net =
+		budget_annualized_budget_net(
 			budget->annualized_list );
+
+	budget->budget_statement_delta =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		statement_delta_new(
+			budget->annualized_budget_net /* base_value */,
+			budget->annualized_amount_net /* change_value */ );
 
 	if ( budget->statement_output_medium == statement_output_PDF )
 	{
@@ -426,8 +419,11 @@ BUDGET *budget_fetch(	char *application_name,
 					logo_filename,
 				budget->year_percent_subtitle,
 				budget->annualized_list,
-				budget->annualized_net_asset_change,
-				budget->annualized_budget_change,
+				budget->annualized_amount_net,
+				budget->annualized_budget_net,
+				budget->
+					budget_statement_delta->
+					cell_string,
 				getpid() /* process_id */ );
 	}
 	else
@@ -448,8 +444,11 @@ BUDGET *budget_fetch(	char *application_name,
 			budget_html_new(
 				budget->year_percent_subtitle,
 				budget->annualized_list,
-				budget->annualized_net_asset_change,
-				budget->annualized_budget_change );
+				budget->annualized_amount_net,
+				budget->annualized_budget_net,
+				budget->
+					budget_statement_delta->
+					cell_string );
 	}
 
 	return budget;
@@ -581,7 +580,7 @@ LATEX_ROW *budget_latex_row(
 			double account_amount,
 			double annualized_amount,
 			double budget,
-			char *difference_cell )
+			STATEMENT_DELTA *budget_statement_delta )
 {
 	LATEX_ROW *latex_row;
 
@@ -646,7 +645,9 @@ LATEX_ROW *budget_latex_row(
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		difference_cell,
+		(budget_statement_delta)
+			? budget_statement_delta->cell_string
+			: (char *)0,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -684,7 +685,7 @@ LIST *budget_latex_row_list( LIST *budget_annualized_list )
 				budget_annualized->account_amount,
 				budget_annualized->amount,
 				budget_annualized->budget,
-				budget_annualized->difference_cell ) );
+				budget_annualized->budget_statement_delta ) );
 
 	} while ( list_next( budget_annualized_list ) );
 
@@ -743,8 +744,9 @@ LIST *budget_latex_heading_list( void )
 LATEX_TABLE *budget_latex_table(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double net_asset_change,
-			double budget_change )
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string )
 {
 	LATEX_TABLE *latex_table;
 
@@ -768,8 +770,9 @@ LATEX_TABLE *budget_latex_table(
 	list_set(
 		latex_table->row_list,
 		budget_latex_sum_row(
-			net_asset_change,
-			budget_change ) );
+			annualized_amount_net,
+			annualized_budget_net,
+			delta_cell_string ) );
 
 	return latex_table;
 }
@@ -781,8 +784,9 @@ BUDGET_LATEX *budget_latex_new(
 			char *statement_logo_filename,
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double net_asset_change,
-			double budget_change )
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string )
 {
 	BUDGET_LATEX *budget_latex;
 
@@ -816,8 +820,9 @@ BUDGET_LATEX *budget_latex_new(
 		budget_latex_table(
 			budget_year_percent_subtitle,
 			budget_annualized_list,
-			net_asset_change,
-			budget_change ) );
+			annualized_amount_net,
+			annualized_budget_net,
+			delta_cell_string ) );
 
 	return budget_latex;
 }
@@ -848,8 +853,9 @@ BUDGET_PDF *budget_pdf_new(
 			char *statement_logo_filename,
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double net_asset_change,
-			double budget_change,
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string,
 			pid_t process_id )
 {
 	BUDGET_PDF *budget_pdf;
@@ -892,8 +898,9 @@ BUDGET_PDF *budget_pdf_new(
 			statement_logo_filename,
 			budget_year_percent_subtitle,
 			budget_annualized_list,
-			net_asset_change,
-			budget_change );
+			annualized_amount_net,
+			annualized_budget_net,
+			delta_cell_string );
 
 	return budget_pdf;
 }
@@ -918,8 +925,9 @@ BUDGET_PDF *budget_pdf_calloc( void )
 BUDGET_HTML *budget_html_new(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double net_asset_change,
-			double budget_change )
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string )
 {
 	BUDGET_HTML *budget_html;
 
@@ -941,8 +949,9 @@ BUDGET_HTML *budget_html_new(
 		budget_html_table(
 			budget_year_percent_subtitle,
 			budget_annualized_list,
-			net_asset_change,
-			budget_change );
+			annualized_amount_net,
+			annualized_budget_net,
+			delta_cell_string );
 
 	return budget_html;
 }
@@ -1038,7 +1047,7 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 				budget_annualized->account_amount,
 				budget_annualized->amount,
 				budget_annualized->budget,
-				budget_annualized->difference_cell ) );
+				budget_annualized->budget_statement_delta ) );
 
 	} while ( list_next( budget_annualized_list ) );
 
@@ -1046,8 +1055,9 @@ LIST *budget_html_row_list( LIST *budget_annualized_list )
 }
 
 HTML_ROW *budget_html_sum_row(
-			double net_asset_change,
-			double budget_change )
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string )
 {
 	HTML_ROW *html_row = html_row_new();
 
@@ -1075,7 +1085,7 @@ HTML_ROW *budget_html_sum_row(
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money( net_asset_change ),
+		timlib_place_commas_in_money( annualized_amount_net ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1085,13 +1095,13 @@ HTML_ROW *budget_html_sum_row(
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money( budget_change ),
+		timlib_place_commas_in_money( annualized_budget_net ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	html_cell_data_set(
 		html_row->cell_list,
-		(char *)0,
+		delta_cell_string,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1104,7 +1114,7 @@ HTML_ROW *budget_html_row(
 			double account_amount,
 			double annualized_amount,
 			double budget,
-			char *difference_cell )
+			STATEMENT_DELTA *budget_statement_delta )
 {
 	HTML_ROW *html_row;
 
@@ -1169,7 +1179,9 @@ HTML_ROW *budget_html_row(
 
 	html_cell_data_set(
 		html_row->cell_list,
-		difference_cell,
+		(budget_statement_delta)
+			? budget_statement_delta->cell_string
+			: (char *)0,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1179,8 +1191,9 @@ HTML_ROW *budget_html_row(
 HTML_TABLE *budget_html_table(
 			char *budget_year_percent_subtitle,
 			LIST *budget_annualized_list,
-			double net_asset_change,
-			double budget_change )
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string )
 {
 	HTML_TABLE *html_table;
 
@@ -1211,15 +1224,17 @@ HTML_TABLE *budget_html_table(
 	list_set(
 		html_table->row_list,
 		budget_html_sum_row(
-			net_asset_change,
-			budget_change ) );
+			annualized_amount_net,
+			annualized_budget_net,
+			delta_cell_string ) );
 
 	return html_table;
 }
 
 LATEX_ROW *budget_latex_sum_row(
-			double net_asset_change,
-			double budget_change )
+			double annualized_amount_net,
+			double annualized_budget_net,
+			char *delta_cell_string )
 {
 	LATEX_ROW *latex_row = latex_row_new();
 
@@ -1247,7 +1262,7 @@ LATEX_ROW *budget_latex_sum_row(
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money( net_asset_change ),
+		timlib_place_commas_in_money( annualized_amount_net ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1257,20 +1272,20 @@ LATEX_ROW *budget_latex_sum_row(
 		/* Returns heap memory   */
 		/* Doesn't trim pennies  */
 		/* --------------------- */
-		timlib_place_commas_in_money( budget_change ),
+		timlib_place_commas_in_money( annualized_budget_net ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	latex_column_data_set(
 		latex_row->column_data_list,
-		(char *)0,
+		delta_cell_string,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
 	return latex_row;
 }
 
-double budget_annualized_net_asset_change(
+double budget_annualized_amount_net(
 			LIST *budget_annualized_list )
 {
 	double revenue_sum;
@@ -1317,7 +1332,7 @@ double budget_annualized_amount_sum(
 	return sum;
 }
 
-double budget_annualized_budget_change(
+double budget_annualized_budget_net(
 			LIST *budget_annualized_list )
 {
 	double revenue_sum;
@@ -1380,15 +1395,6 @@ char *budget_year_percent_subtitle(
 		exit( 1 );
 	}
 
-/*
-	sprintf(subtitle,
-		"%s; Year Percent: %d%c",
-		input_subtitle,
-		float_ratio_to_percent(
-			budget_year_ratio ),
-		'%' );
-*/
-
 	sprintf(subtitle,
 		"%s, Year Percent: %d",
 		input_subtitle,
@@ -1396,37 +1402,5 @@ char *budget_year_percent_subtitle(
 			budget_year_ratio ) );
 
 	return subtitle;
-}
-
-char *budget_annualized_difference_cell(
-			double budget_annualized_difference,
-			int budget_annualized_difference_percent )
-{
-	char difference_cell[ 32 ];
-
-	sprintf(difference_cell,
-		"%d%c %s",
-		budget_annualized_difference_percent,
-		'%',
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		timlib_place_commas_in_dollars(
-			budget_annualized_difference ) );
-
-	return strdup( difference_cell );
-}
-
-int budget_annualized_difference_percent(
-			double budget,
-			double difference )
-{
-	double delta_percent;
-
-	if ( !budget ) return 0;
-
-	delta_percent = (difference / budget) * 100.0;
-
-	return float_round_int( delta_percent );
 }
 
