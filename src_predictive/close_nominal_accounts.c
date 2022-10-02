@@ -39,10 +39,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 4 )
+	if ( argc != 5 )
 	{
 		fprintf(stderr,
-			"Usage: %s process as_of_date execute_yn\n",
+			"Usage: %s process as_of_date undo execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
