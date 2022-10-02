@@ -426,4 +426,12 @@ char *transaction_minimum_transaction_date_string(
 char *transaction_increment_date_time(
 			char *transaction_date );
 
+/* Returns heap memory or null */
+/* --------------------------- */
+char *transaction_date_time_memo_latest(
+			char *transaction_table,
+			char *memo,
+			char *full_name,
+			char *street_address );
+
 #endif

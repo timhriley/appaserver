@@ -108,6 +108,97 @@ typedef struct
 	CLOSE_NOMINAL_TRANSACTION *close_nominal_transaction;
 	double journal_debit_sum;
 	double journal_credit_sum;
+} CLOSE_NOMINAL_DO;
+
+/* Usage */
+/* ----- */
+CLOSE_NOMINAL_DO *close_nominal_do_fetch(
+			char *as_of_date );
+
+/* Process */
+/* ------- */
+CLOSE_NOMINAL_DO *close_nominal_do_calloc(
+			void );
+
+LIST *close_nominal_do_element_name_list(
+			char *element_revenue,
+			char *element_expense,
+			char *element_gain,
+			char *element_loss );
+
+double close_nominal_do_drawing_sum(
+			char *transaction_date_time_closing,
+			char *account_drawing );
+
+double close_nominal_do_debit_sum(
+			double revenue_sum,
+			double gain_sum );
+
+double close_nominal_do_credit_sum(
+			double expense_sum,
+			double loss_sum,
+			double close_nominal_drawing_sum );
+
+double close_nominal_do_retained_earnings(
+			double close_nominal_debit_sum,
+			double close_nominal_credit_sum );
+
+/* Driver */
+/* ------ */
+
+/* Returns program memory */
+/* ---------------------- */
+char *close_nominal_do_transaction_exists_message(
+			void );
+
+typedef struct
+{
+	ENTITY_SELF *entity_self;
+	char *transaction_date_time_memo_latest;
+	TRANSACTION *transaction;
+} CLOSE_NOMINAL_UNDO;
+
+/* Usage */
+/* ----- */
+CLOSE_NOMINAL_UNDO *close_nominal_undo_fetch(
+			void );
+
+/* Process */
+/* ------- */
+CLOSE_NOMINAL_UNDO *close_nominal_undo_calloc(
+			void );
+
+/* Driver */
+/* ------ */
+void close_nominal_undo_display(
+			TRANSACTION *transaction );
+
+/* Process */
+/* ------- */
+
+/* Returns program memory */
+/* ---------------------- */
+char *close_nominal_undo_display_message(
+			void );
+
+/* Driver */
+/* ------ */
+void close_nominal_undo_execute(
+			TRANSACTION *transaction );
+
+/* Process */
+/* ------- */
+
+/* Returns program memory */
+/* ---------------------- */
+char *close_nominal_undo_execute_message(
+			void );
+
+typedef struct
+{
+	STATEMENT_CAPTION *statement_caption;
+	CLOSE_NOMINAL_DO *close_nominal_do;
+	CLOSE_NOMINAL_UNDO *close_nominal_undo;
 } CLOSE_NOMINAL;
 
 /* Usage */
@@ -115,39 +206,12 @@ typedef struct
 CLOSE_NOMINAL *close_nominal_fetch(
 			char *application_name,
 			char *process_name,
-			char *as_of_date );
+			char *as_of_date,
+			boolean undo );
 
 /* Process */
 /* ------- */
 CLOSE_NOMINAL *close_nominal_calloc(
 			void );
-
-LIST *close_nominal_element_name_list(
-			char *element_revenue,
-			char *element_expense,
-			char *element_gain,
-			char *element_loss );
-
-double close_nominal_drawing_sum(
-			char *transaction_date_time_closing,
-			char *account_drawing );
-
-double close_nominal_debit_sum(
-			double revenue_sum,
-			double gain_sum );
-
-double close_nominal_credit_sum(
-			double expense_sum,
-			double loss_sum,
-			double close_nominal_drawing_sum );
-
-double close_nominal_retained_earnings(
-			double close_nominal_debit_sum,
-			double close_nominal_credit_sum );
-
-/* Driver */
-/* ------ */
-void close_nominal_transaction_insert(
-			TRANSACTION *transaction );
 
 #endif

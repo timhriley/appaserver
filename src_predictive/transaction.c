@@ -1547,3 +1547,46 @@ char *transaction_date_time_fetch_where(
 	return where;
 }
 
+char *transaction_date_time_memo_latest(
+			char *transaction_table,
+			char *memo,
+			char *full_name,
+			char *street_address )
+{
+	char where[ 256 ];
+	char system_string[ 1024 ];
+
+	if ( !transaction_table
+	||   !memo
+	||   !full_name
+	||   !street_address )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"%s and memo = '%s'",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			full_name,
+			street_address ),
+		memo );
+
+	sprintf(system_string,
+		"select.sh \"%s\" %s \"%s\"",
+		"max( transaction_date_time )",
+		transaction_table,
+		where );
+
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	return string_pipe_fetch( system_string );
+}
+

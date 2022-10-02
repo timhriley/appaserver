@@ -49,8 +49,8 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	boolean execute;
 	boolean undo;
+	boolean execute;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 256 ];
 
