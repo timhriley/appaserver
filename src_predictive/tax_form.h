@@ -173,7 +173,174 @@ TAX_FORM_ENTITY *tax_form_entity_calloc(
 
 typedef struct
 {
+	char *caption;
+	HTML_TABLE *html_table;
+} TAX_FORM_LINE_HTML_TABLE;
+
+/* Usage */
+/* ----- */
+TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table_new(
+			char *tax_form_name,
+			char *statement_caption_subtitle,
+			LIST *tax_form_line_list );
+
+/* Process */
+/* ------- */
+TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table_calloc(
+			void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *tax_form_line_html_table_caption(
+			char *tax_form_name,
+			char *statement_caption_subtitle );
+
+/* Usage */
+/* ----- */
+LIST *tax_form_line_html_table_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *tax_form_line_html_table_row_list(
+			LIST *tax_form_line_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *tax_form_line_html_table_row(
+			TAX_FORM_LINE *tax_form_line );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
 	LIST *html_table_list;
+} TAX_FORM_ACCOUNT_HTML_LIST;
+
+/* Usage */
+/* ----- */
+TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list_new(
+			LIST *tax_form_line_list );
+
+/* Process */
+/* ------- */
+TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list_calloc(
+			void );
+
+
+/* Usage */
+/* ----- */
+HTML_TABLE *tax_form_account_html_new(
+			char *tax_form_line_string,
+			LIST *tax_form_line_account_list,
+			char *tax_form_line_description,
+			double tax_form_line_total );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *tax_form_account_html_caption(
+			char *tax_form_line_string,
+			char *tax_form_line_description,
+			double tax_form_line_total );
+
+/* Usage */
+/* ----- */
+LIST *tax_form_account_html_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *tax_form_account_html_row_list(
+			LIST *tax_form_line_account_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *tax_form_line_account_html_row(
+			TAX_FORM_LINE_ACCOUNT *tax_form_line_account );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *html_table_list;
+} TAX_FORM_ENTITY_HTML_LIST;
+
+/* Usage */
+/* ----- */
+TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_new(
+			LIST *tax_form_line_list );
+
+/* Process */
+/* ------- */
+TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+HTML_TABLE *tax_form_account_entity_html_new(
+			char *tax_form_line_string,
+			char *account_name,
+			double tax_form_line_account_total,
+			LIST *tax_form_entity_list );
+
+/* Process */
+/* ------- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *tax_form_entity_html_caption(
+			char *tax_form_line_string,
+			char *account_name,
+			double tax_form_line_account_total );
+
+
+/* Usage */
+/* ----- */
+LIST *tax_form_entity_html_heading_list(
+			void );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *tax_form_entity_html_row_list(
+			LIST *tax_form_entity_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+HTML_ROW *tax_form_entity_html_row(
+			TAX_FORM_ENTITY *tax_form_entity );
+
+/* Process */
+/* ------- */
+
+typedef struct
+{
+	LIST *html_table_list;
+	TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table;
+	TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list;
+	TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list;
 } TAX_FORM_TABLE;
 
 /* Usage */

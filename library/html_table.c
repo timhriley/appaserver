@@ -676,3 +676,20 @@ void html_table_data_heading( LIST *heading_list )
 	}
 }
 
+void html_table_list_output(
+			LIST *table_list,
+			int html_table_rows_between_heading )
+{
+	HTML_TABLE *html_table;
+
+	if ( !list_rewind( table_list ) ) return;
+
+	do {
+		html_table = list_get( table_list );
+
+		html_table_output(
+			html_table,
+			html_table_rows_between_heading );
+
+	} while ( list_next( table_list ) );
+}

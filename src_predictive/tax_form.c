@@ -1596,6 +1596,38 @@ TAX_FORM_TABLE *tax_form_table_new(
 
 	tax_form_table = tax_form_table_calloc();
 
+	tax_form_table->html_table_list = list_new();
+
+	tax_form_table->tax_form_line_html_table =
+		tax_form_line_html_table_new(
+			tax_form_name,
+			statement_caption->subtitle,
+			tax_form_line_list );
+
+	list_set(
+		tax_form_table->html_table_list,
+		tax_form_table->tax_form_line_html_table->html_table );
+
+	tax_form_table->tax_form_account_html_list =
+		tax_form_account_html_list_new(
+			tax_form_line_list );
+
+	list_set_list(
+		tax_form_table->html_table_list,
+		tax_form_table->
+			tax_form_account_html_list->
+			html_table_list );
+
+	tax_form_table->tax_form_entity_html_list =
+		tax_form_entity_html_list_new(
+			tax_form_line_list );
+
+	list_set_list(
+		tax_form_table->html_table_list,
+		tax_form_table->
+			tax_form_entity_html_list->
+			html_table_list );
+
 	return tax_form_table;
 }
 
@@ -1614,5 +1646,619 @@ TAX_FORM_TABLE *tax_form_table_calloc( void )
 	}
 
 	return tax_form_table;
+}
+
+TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table_new(
+			char *tax_form_name,
+			char *statement_caption_subtitle,
+			LIST *tax_form_line_list )
+{
+	TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table;
+
+	if ( !tax_form_name
+	||   !statement_caption_subtitle )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !list_length( tax_form_line_list ) )
+		return (TAX_FORM_LINE_HTML_TABLE *)0;
+
+	tax_form_line_html_table = tax_form_line_html_table_calloc();
+
+	tax_form_line_html_table->caption =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		tax_form_line_html_table_caption(
+			tax_form_name,
+			statement_caption_subtitle );
+
+	tax_form_line_html_table->html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			tax_form_line_html_table->caption,
+			(char *)0 /* subsub_title */ );
+
+	tax_form_line_html_table->html_table->heading_list =
+		tax_form_line_html_table_heading_list();
+
+	tax_form_line_html_table->html_table->row_list =
+		tax_form_line_html_table_row_list(
+			tax_form_line_list );
+
+	return tax_form_line_html_table;
+}
+
+TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table_calloc( void )
+{
+	TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table;
+
+	if ( ! ( tax_form_line_html_table =
+			calloc( 1, sizeof( TAX_FORM_LINE_HTML_TABLE ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return tax_form_line_html_table;
+}
+
+char *tax_form_line_html_table_caption(
+			char *tax_form_name,
+			char *statement_caption_subtitle )
+{
+	char caption[ 1024 ];
+
+	if ( !tax_form_name
+	||   !statement_caption_subtitle )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(caption,
+		"%s %s",
+		tax_form_name,
+		statement_caption_subtitle );
+
+	return strdup( caption );
+}
+
+LIST *tax_form_line_html_table_heading_list( void )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"tax_form_line",
+			0 /* right_justify_flag */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"tax_form_description",
+			0 /* not right_Justified_flag */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"balance",
+			1 /* right_justified_flag */ ) );
+
+	return heading_list;
+}
+
+LIST *tax_form_line_html_table_row_list(
+			LIST *tax_form_line_list )
+{
+	LIST *row_list;
+	TAX_FORM_LINE *tax_form_line;
+
+	if ( !list_rewind( tax_form_line_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( !money_virtually_same(
+			tax_form_line->total,
+			0.0 ) )
+		{
+			list_set(
+				row_list,
+				tax_form_line_html_table_row(
+					tax_form_line ) );
+		}
+
+	} while ( list_next( tax_form_line_list ) );
+
+	return row_list;
+}
+
+HTML_ROW *tax_form_line_html_table_row(
+			TAX_FORM_LINE *tax_form_line )
+{
+	HTML_ROW *html_row;
+
+	if ( !tax_form_line ) return (HTML_ROW *)0;
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		tax_form_line->string,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		tax_form_line->description,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup(
+			timlib_dollar_round_string(
+				tax_form_line->total ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return html_row;
+}
+
+TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list_new(
+			LIST *tax_form_line_list )
+{
+	TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list;
+	TAX_FORM_LINE *tax_form_line;
+
+	if ( !list_rewind( tax_form_line_list ) )
+		return (TAX_FORM_ACCOUNT_HTML_LIST *)0;
+
+	tax_form_account_html_list = tax_form_account_html_list_calloc();
+
+	tax_form_account_html_list->html_table_list = list_new();
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( !money_virtually_same( tax_form_line->total, 0.0 ) )
+		{
+			list_set(
+				tax_form_account_html_list->html_table_list,
+				tax_form_account_html_new(
+					tax_form_line->string,
+					tax_form_line->
+						tax_form_line_account_list,
+					tax_form_line->description,
+					tax_form_line->total ) );
+		}
+
+	} while ( list_next( tax_form_line_list ) );
+
+	return tax_form_account_html_list;
+}
+
+TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list_calloc( void )
+{
+	TAX_FORM_ACCOUNT_HTML_LIST *tax_form_account_html_list;
+
+	if ( ! ( tax_form_account_html_list =
+			calloc( 1, sizeof( TAX_FORM_ACCOUNT_HTML_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return tax_form_account_html_list;
+}
+
+HTML_TABLE *tax_form_account_html_new(
+			char *tax_form_line_string,
+			LIST *tax_form_line_account_list,
+			char *tax_form_line_description,
+			double tax_form_line_total )
+{
+	HTML_TABLE *html_table;
+
+	if ( !tax_form_line_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !tax_form_line_total
+	||   !list_length( tax_form_line_account_list ) )
+	{
+		return (HTML_TABLE *)0;
+	}
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			tax_form_account_html_caption(
+				tax_form_line_string,
+				tax_form_line_description,
+				tax_form_line_total )
+					/* sub_title */,
+			(char *)0 /* sub_sub_title */ );
+
+	html_table->heading_list = tax_form_account_html_heading_list();
+
+	html_table->row_list =
+		tax_form_account_html_row_list(
+			tax_form_line_account_list );
+
+	return html_table;
+}
+
+char *tax_form_account_html_caption(
+			char *tax_form_line_string,
+			char *tax_form_line_description,
+			double tax_form_line_total )
+{
+	char caption[ 256 ];
+	char buffer[ 128 ];
+
+	if ( !tax_form_line_string
+	||   !tax_form_line_description
+	||   !tax_form_line_total )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(caption,
+		"Tax form line: %s/%s; Total: %s",
+		tax_form_line_string,
+		format_initial_capital( buffer, tax_form_line_description ),
+		strdup( 
+			timlib_dollar_round_string(
+				tax_form_line_total ) ) );
+
+	return strdup( caption );
+}
+
+LIST *tax_form_account_html_heading_list( void )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"account_name",
+			0 /* right_justify_flag */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"total",
+			1 /* right_justified_flag */ ) );
+
+	return heading_list;
+}
+
+LIST *tax_form_account_html_row_list(
+			LIST *tax_form_line_account_list )
+{
+	LIST *row_list;
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+
+	if ( !list_rewind( tax_form_line_account_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		tax_form_line_account = list_get( tax_form_line_account_list );
+
+		if ( !money_virtually_same(
+			tax_form_line_account->total, 0.0 ) )
+		{
+			list_set(
+				row_list,
+				tax_form_line_account_html_row(
+					tax_form_line_account ) );
+		}
+
+	} while ( list_next( tax_form_line_account_list ) );
+
+	return row_list;
+}
+
+HTML_ROW *tax_form_line_account_html_row(
+			TAX_FORM_LINE_ACCOUNT *tax_form_line_account )
+{
+	HTML_ROW *html_row;
+
+	if ( !tax_form_line_account )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: tax_form_line_account is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		tax_form_line_account->account_name,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup(
+			timlib_dollar_round_string(
+				tax_form_line_account->total ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return html_row;
+}
+
+TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_new(
+			LIST *tax_form_line_list )
+{
+	TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list;
+	TAX_FORM_LINE *tax_form_line;
+	TAX_FORM_LINE_ACCOUNT *tax_form_line_account;
+
+	if ( !list_rewind( tax_form_line_list ) )
+	{
+		return (TAX_FORM_ENTITY_HTML_LIST *)0;
+	}
+
+	tax_form_entity_html_list = tax_form_entity_html_list_calloc();
+	tax_form_entity_html_list->html_table_list = list_new();
+
+	do {
+		tax_form_line = list_get( tax_form_line_list );
+
+		if ( money_virtually_same(
+			tax_form_line->total, 0.0 ) )
+		{
+			continue;
+		}
+
+		list_rewind(
+			tax_form_line->
+				tax_form_line_account_list );
+
+		do {
+			tax_form_line_account =
+				list_get(
+					tax_form_line->
+						tax_form_line_account_list );
+
+			list_set(
+				tax_form_entity_html_list->html_table_list,
+				tax_form_account_entity_html_new(
+					tax_form_line->string,
+					tax_form_line_account->
+						account_name,
+					tax_form_line_account->total,
+					tax_form_line_account->
+						tax_form_entity_list ) );
+
+		} while ( list_next(
+				tax_form_line->tax_form_line_account_list ) );
+
+	} while ( list_next( tax_form_line_list ) );
+
+	return tax_form_entity_html_list;
+}
+
+TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_calloc( void )
+{
+	TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list;
+
+	if ( ! ( tax_form_entity_html_list =
+			calloc( 1, sizeof( TAX_FORM_ENTITY_HTML_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return tax_form_entity_html_list;
+}
+
+HTML_TABLE *tax_form_account_entity_html_new(
+			char *tax_form_line_string,
+			char *account_name,
+			double tax_form_line_account_total,
+			LIST *tax_form_entity_list )
+{
+	HTML_TABLE *html_table;
+
+	if ( !tax_form_line_string
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !tax_form_line_account_total
+	||   !list_length( tax_form_entity_list ) )
+	{
+		return (HTML_TABLE *)0;
+	}
+
+	html_table =
+		html_table_new(
+			(char *)0 /* title */,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			tax_form_entity_html_caption(
+				tax_form_line_string,
+				account_name,
+				tax_form_line_account_total )
+					/* sub_title */,
+			(char *)0 /* sub_sub_title */ );
+
+	html_table->heading_list =
+		tax_form_entity_html_heading_list();
+
+	html_table->row_list =
+		tax_form_entity_html_row_list(
+			tax_form_entity_list );
+
+	return html_table;
+}
+
+char *tax_form_entity_html_caption(
+			char *tax_form_line_string,
+			char *account_name,
+			double account_total )
+{
+	char caption[ 1024 ];
+	char buffer[ 128 ];
+
+	if ( !tax_form_line_string
+	||   !account_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(caption,
+		"Tax form line: %s; Account: %s; Total: %s",
+		tax_form_line_string,
+		format_initial_capital(
+			buffer,
+			account_name ),
+		strdup(
+			timlib_dollar_round_string(
+				account_total ) ) );
+
+	return strdup( caption );
+}
+
+LIST *tax_form_entity_html_heading_list( void )
+{
+	LIST *heading_list = list_new();
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"full_name",
+			0 /* right_justify_flag */ ) );
+
+	list_set(
+		heading_list,
+		html_heading_new(
+			"total",
+			1 /* right_justified_flag */ ) );
+
+	return heading_list;
+}
+
+LIST *tax_form_entity_html_row_list(
+			LIST *tax_form_entity_list )
+{
+	LIST *row_list;
+	TAX_FORM_ENTITY *tax_form_entity;
+
+	if ( !list_rewind( tax_form_entity_list ) ) return (LIST *)0;
+
+	row_list = list_new();
+
+	do {
+		tax_form_entity = list_get( tax_form_entity_list );
+
+		if ( !money_virtually_same(
+			tax_form_entity->total, 0.0 ) )
+		{
+			list_set(
+				row_list,
+				tax_form_entity_html_row(
+					tax_form_entity ) );
+		}
+
+	} while ( list_next( tax_form_entity_list ) );
+
+	return row_list;
+}
+
+HTML_ROW *tax_form_entity_html_row(
+			TAX_FORM_ENTITY *tax_form_entity )
+{
+	HTML_ROW *html_row;
+
+	if ( !tax_form_entity
+	||   !tax_form_entity->entity )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	html_row = html_row_new();
+
+	html_cell_data_set(
+		html_row->cell_list,
+		tax_form_entity->entity->full_name,
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	html_cell_data_set(
+		html_row->cell_list,
+		strdup(
+			timlib_dollar_round_string(
+				tax_form_entity->total ) ),
+		0 /* not large_boolean */,
+		0 /* not bold_boolean */ );
+
+	return html_row;
 }
 

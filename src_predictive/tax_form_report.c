@@ -94,15 +94,11 @@ int main( int argc, char **argv )
 
 	if ( tax_form->tax_form_table )
 	{
-		printf(
-		"<h3>Warning. This option is not yet written.</h3>\n" );
-/*
 		html_table_list_output(
 			tax_form->
 				tax_form_table->
 				html_table_list,
 			HTML_TABLE_ROWS_BETWEEN_HEADING );
-*/
 	}
 	else
 	if ( tax_form->tax_form_pdf )

@@ -168,6 +168,12 @@ void html_table_heading(
 
 void html_table_close(	void );
 
+/* Driver */
+/* ------ */
+void html_table_list_output(
+			LIST *table_list,
+			int html_table_rows_between_heading );
+
 /* Legacy */
 /* ------ */
 HTML_TABLE *new_html_table(
