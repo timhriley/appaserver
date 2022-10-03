@@ -1682,8 +1682,9 @@ TAX_FORM_LINE_HTML_TABLE *tax_form_line_html_table_new(
 	tax_form_line_html_table->html_table =
 		html_table_new(
 			(char *)0 /* title */,
-			tax_form_line_html_table->caption,
-			(char *)0 /* subsub_title */ );
+			(char *)0 /* sub_title */,
+			tax_form_line_html_table->caption
+				/* sub_sub_title */ );
 
 	tax_form_line_html_table->html_table->heading_list =
 		tax_form_line_html_table_heading_list();
@@ -1901,6 +1902,7 @@ HTML_TABLE *tax_form_account_html_new(
 	html_table =
 		html_table_new(
 			(char *)0 /* title */,
+			(char *)0 /* sub_title */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -1908,8 +1910,7 @@ HTML_TABLE *tax_form_account_html_new(
 				tax_form_line_string,
 				tax_form_line_description,
 				tax_form_line_total )
-					/* sub_title */,
-			(char *)0 /* sub_sub_title */ );
+					/* sub_sub_title */ );
 
 	html_table->heading_list = tax_form_account_html_heading_list();
 
@@ -2129,6 +2130,7 @@ HTML_TABLE *tax_form_account_entity_html_new(
 	html_table =
 		html_table_new(
 			(char *)0 /* title */,
+			(char *)0 /* sub_title */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -2136,8 +2138,7 @@ HTML_TABLE *tax_form_account_entity_html_new(
 				tax_form_line_string,
 				account_name,
 				tax_form_line_account_total )
-					/* sub_title */,
-			(char *)0 /* sub_sub_title */ );
+					/* sub_sub_title */ );
 
 	html_table->heading_list =
 		tax_form_entity_html_heading_list();
