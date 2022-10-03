@@ -327,6 +327,7 @@ char *statement_prior_year_subclassification_data(
 	{
 		delta_prior_percent =
 			prior_subclassification->delta_prior_percent;
+
 		prior_year_amount =
 			prior_subclassification->sum;
 	}
