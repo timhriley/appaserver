@@ -32,24 +32,30 @@ TAX_FORM_ENTITY *tax_form_entity_calloc( void )
 	return tax_form_entity;
 }
 
-LIST *tax_form_entity_list( LIST *journal_tax_form_list )
+LIST *tax_form_entity_list( LIST *tax_form_line_account_journal_list )
 {
+	TAX_FORM_LINE_ACCOUNT_JOURNAL *tax_form_line_account_journal;
 	JOURNAL *journal;
 	LIST *list;
 
-	if ( !list_rewind( journal_tax_form_list ) ) return (LIST *)0;
+	if ( !list_rewind( tax_form_line_account_journal_list ) )
+	{
+		return (LIST *)0;
+	}
 
 	list = list_new();
 
 	do {
-		journal = list_get( journal_tax_form_list );
+		tax_form_line_account_journal =
+			list_get(
+				tax_form_line_account_journal_list );
 
-		if ( !journal->account
-		||   !journal->account->subclassification
-		||   !journal->account->subclassification->element )
+		journal = tax_form_line_account_journal->journal;
+
+		if ( !journal )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: element is empty.\n",
+				"ERROR in %s/%s()/%d: journal is empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__ );
@@ -59,16 +65,9 @@ LIST *tax_form_entity_list( LIST *journal_tax_form_list )
 		tax_form_entity_getset(
 			list,
 			journal->full_name,
-			journal_amount(
-				journal->debit_amount,
-				journal->credit_amount,
-				journal->
-					account->
-					subclassification->
-					element->
-					accumulate_debit ) );
+			tax_form_line_account_journal->amount );
 
-	} while ( list_next( journal_tax_form_list ) );
+	} while ( list_next( tax_form_line_account_journal_list ) );
 
 	return list;
 }
@@ -283,7 +282,20 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_parse(
 		account_fetch(
 			tax_form_line_account->account_name,
 			1 /* fetch_subclassification */,
-			1 /* fetch_element */ ),
+			1 /* fetch_element */ );
+
+	if ( !tax_form_line_account->account
+	||   !tax_form_line_account->account->subclassification
+	||   !tax_form_line_account->account->subclassification->element )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: account_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			tax_form_line_account->account_name );
+		exit( 1 );
+	}
 
 	tax_form_line_account->subclassification_current_liability_boolean =
 		subclassification_current_liability_boolean(
@@ -2356,6 +2368,8 @@ TAX_FORM_LINE_ACCOUNT_JOURNAL *
 			subclassification_receivable_boolean,
 			journal->debit_amount,
 			journal->credit_amount );
+
+	tax_form_line_account_journal->journal = journal;
 
 	return tax_form_line_account_journal;
 }

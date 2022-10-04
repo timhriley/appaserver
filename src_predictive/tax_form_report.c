@@ -74,7 +74,7 @@ int main( int argc, char **argv )
 
 	if ( !tax_form )
 	{
-		printf( "<h3>Error. Invalid year.</h3>\n" );
+		printf( "<h3>Warning. Nothing to report for year.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
