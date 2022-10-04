@@ -229,4 +229,12 @@ double subclassification_list_credit_sum(
 			LIST *subclassification_statement_list,
 			boolean element_accumulate_debit );
 
+boolean subclassification_current_liability_boolean(
+			char *subclassification_current_liability,
+			char *subclassification_name );
+
+boolean subclassification_receivable_boolean(
+			char *subclassification_receivable,
+			char *subclassification_name );
+
 #endif

@@ -743,3 +743,21 @@ LIST *subclassification_system_list(
 	return list;
 }
 
+boolean subclassification_current_liability_boolean(
+			char *subclassification_current_liability,
+			char *subclassification_name )
+{
+	return ( string_strcmp(
+			subclassification_current_liability,
+			subclassification_name ) == 0 );
+}
+
+boolean subclassification_receivable_boolean(
+			char *subclassification_receivable,
+			char *subclassification_name )
+{
+	return ( string_strcmp(
+			subclassification_receivable,
+			subclassification_name ) == 0 );
+}
+
