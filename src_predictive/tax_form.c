@@ -279,32 +279,52 @@ TAX_FORM_LINE_ACCOUNT *tax_form_line_account_parse(
 	/* -------------------------------- */
 	tax_form_line_account->account_name = strdup( input );
 
-	tax_form_line_account->journal_tax_form_list =
-		journal_tax_form_list(
+	tax_form_line_account->account =
+		account_fetch(
+			tax_form_line_account->account_name,
+			1 /* fetch_subclassification */,
+			1 /* fetch_element */ ),
+
+	tax_form_line_account->subclassification_current_liability_boolean =
+		subclassification_current_liability_boolean(
+			SUBCLASSIFICATION_CURRENT_LIABILITY,
+			tax_form_line_account->
+				account->
+				subclassification->
+				subclassification_name );
+
+	tax_form_line_account->subclassification_receivable_boolean =
+		subclassification_receivable_boolean(
+			SUBCLASSIFICATION_RECEIVABLE,
+			tax_form_line_account->
+				account->
+				subclassification->
+				subclassification_name );
+
+	tax_form_line_account->journal_list =
+		tax_form_line_account_journal_list(
 			tax_form_fiscal_begin_date,
 			tax_form_fiscal_end_date,
 			TRANSACTION_PRECLOSE_TIME,
-			tax_form_line_account->account_name );
-
-	if ( !list_length( tax_form_line_account->journal_tax_form_list ) )
-	{
-		return (TAX_FORM_LINE_ACCOUNT *)0;
-	}
-
-	tax_form_line_account->total =
-		tax_form_line_account_total(
+			tax_form_line_account->account_name,
 			tax_form_line_account->
-				journal_tax_form_list );
+				account->
+				subclassification->
+				element->
+				accumulate_debit
+					/* element_accumulate_debit */,
+			tax_form_line_account->
+				subclassification_current_liability_boolean,
+			tax_form_line_account->
+				subclassification_receivable_boolean );
 
-	if ( !tax_form_line_account->total )
-	{
-		return (TAX_FORM_LINE_ACCOUNT *)0;
-	}
+	tax_form_line_account->journal_list_total =
+		tax_form_line_account_journal_list_total(
+			tax_form_line_account->journal_list );
 
 	tax_form_line_account->tax_form_entity_list =
 		tax_form_entity_list(
-			tax_form_line_account->
-				journal_tax_form_list );
+			tax_form_line_account->journal_list );
 
 	return tax_form_line_account;
 }
@@ -583,7 +603,7 @@ double tax_form_line_total( LIST *tax_form_line_account_list )
 			list_get(
 				tax_form_line_account_list );
 
-		total += tax_form_line_account->total;
+		total += tax_form_line_account->journal_list_total;
 
 	} while ( list_next( tax_form_line_account_list ) );
 
@@ -1273,7 +1293,7 @@ LIST *tax_form_account_latex_row_list(
 				tax_form_line_account_list );
 
 		if ( !money_virtually_same(
-			tax_form_line_account->total, 0.0 ) )
+			tax_form_line_account->journal_list_total, 0.0 ) )
 		{
 			list_set(
 				list,
@@ -1293,7 +1313,7 @@ LATEX_ROW *tax_form_line_account_latex_row(
 	char buffer[ 128 ];
 
 	if ( !tax_form_line_account
-	||   !tax_form_line_account->total )
+	||   !tax_form_line_account->journal_list_total )
 	{
 		return (LATEX_ROW *)0;
 	}
@@ -1313,7 +1333,7 @@ LATEX_ROW *tax_form_line_account_latex_row(
 		latex_row->column_data_list,
 		strdup(
 			timlib_dollar_round_string(
-				tax_form_line_account->total ) ),
+				tax_form_line_account->journal_list_total ) ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -1358,7 +1378,7 @@ TAX_FORM_ENTITY_LATEX_LIST *
 						tax_form_line_account_list );
 
 			if ( money_virtually_same(
-				tax_form_line_account->total,
+				tax_form_line_account->journal_list_total,
 				0.0 ) )
 			{
 				continue;
@@ -1369,7 +1389,8 @@ TAX_FORM_ENTITY_LATEX_LIST *
 				tax_form_account_entity_latex_new(
 					tax_form_line->string,
 					tax_form_line_account->account_name,
-					tax_form_line_account->total,
+					tax_form_line_account->
+						journal_list_total,
 					tax_form_line_account->
 						tax_form_entity_list ) );
 
@@ -1985,7 +2006,7 @@ LIST *tax_form_account_html_row_list(
 		tax_form_line_account = list_get( tax_form_line_account_list );
 
 		if ( !money_virtually_same(
-			tax_form_line_account->total, 0.0 ) )
+			tax_form_line_account->journal_list_total, 0.0 ) )
 		{
 			list_set(
 				row_list,
@@ -2025,7 +2046,8 @@ HTML_ROW *tax_form_line_account_html_row(
 		html_row->cell_list,
 		strdup(
 			timlib_dollar_round_string(
-				tax_form_line_account->total ) ),
+				tax_form_line_account->
+					journal_list_total ) ),
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
 
@@ -2072,7 +2094,8 @@ TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_new(
 					tax_form_line->string,
 					tax_form_line_account->
 						account_name,
-					tax_form_line_account->total,
+					tax_form_line_account->
+						journal_list_total,
 					tax_form_line_account->
 						tax_form_entity_list ) );
 
@@ -2105,7 +2128,7 @@ TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_calloc( void )
 HTML_TABLE *tax_form_account_entity_html_new(
 			char *tax_form_line_string,
 			char *account_name,
-			double tax_form_line_account_total,
+			double journal_list_total,
 			LIST *tax_form_entity_list )
 {
 	HTML_TABLE *html_table;
@@ -2121,7 +2144,7 @@ HTML_TABLE *tax_form_account_entity_html_new(
 		exit( 1 );
 	}
 
-	if ( !tax_form_line_account_total
+	if ( !journal_list_total
 	||   !list_length( tax_form_entity_list ) )
 	{
 		return (HTML_TABLE *)0;
@@ -2137,7 +2160,7 @@ HTML_TABLE *tax_form_account_entity_html_new(
 			tax_form_entity_html_caption(
 				tax_form_line_string,
 				account_name,
-				tax_form_line_account_total )
+				journal_list_total )
 					/* sub_sub_title */ );
 
 	html_table->heading_list =
@@ -2153,7 +2176,7 @@ HTML_TABLE *tax_form_account_entity_html_new(
 char *tax_form_entity_html_caption(
 			char *tax_form_line_string,
 			char *account_name,
-			double account_total )
+			double journal_list_total )
 {
 	char caption[ 1024 ];
 	char buffer[ 128 ];
@@ -2177,7 +2200,7 @@ char *tax_form_entity_html_caption(
 			account_name ),
 		strdup(
 			timlib_dollar_round_string(
-				account_total ) ) );
+				journal_list_total ) ) );
 
 	return strdup( caption );
 }
@@ -2261,5 +2284,159 @@ HTML_ROW *tax_form_entity_html_row(
 		0 /* not bold_boolean */ );
 
 	return html_row;
+}
+
+LIST *tax_form_line_account_journal_list(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *transaction_preclose_time,
+			char *account_name,
+			boolean element_accumulate_debit,
+			boolean subclassification_current_liability_boolean,
+			boolean subclassification_receivable_boolean )
+{
+	LIST *journal_list;
+	LIST *list;
+	JOURNAL *journal;
+
+	journal_list =
+		journal_tax_form_list(
+			tax_form_fiscal_begin_date,
+			tax_form_fiscal_end_date,
+			transaction_preclose_time,
+			account_name );
+
+	if ( !list_rewind( journal_list ) ) return (LIST *)0;
+
+	list = list_new();
+
+	do {
+		journal = list_get( journal_list );
+
+		list_set(
+			list,
+			tax_form_line_account_journal_new(
+				element_accumulate_debit,
+				subclassification_current_liability_boolean,
+				subclassification_receivable_boolean,
+			journal ) );
+
+	} while ( list_next( journal_list ) );
+
+	return list;
+}
+
+TAX_FORM_LINE_ACCOUNT_JOURNAL *
+	tax_form_line_account_journal_new(
+			boolean element_accumulate_debit,
+			boolean subclassification_current_liability_boolean,
+			boolean subclassification_receivable_boolean,
+			JOURNAL *journal )
+{
+	TAX_FORM_LINE_ACCOUNT_JOURNAL *tax_form_line_account_journal;
+
+	if ( !journal )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: journal is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+
+	tax_form_line_account_journal =
+		tax_form_line_account_journal_calloc();
+
+	tax_form_line_account_journal->amount =
+		tax_form_line_account_journal_amount(
+			element_accumulate_debit,
+			subclassification_current_liability_boolean,
+			subclassification_receivable_boolean,
+			journal->debit_amount,
+			journal->credit_amount );
+
+	return tax_form_line_account_journal;
+}
+
+TAX_FORM_LINE_ACCOUNT_JOURNAL *
+	tax_form_line_account_journal_calloc(
+			void )
+{
+	TAX_FORM_LINE_ACCOUNT_JOURNAL *tax_form_line_account_journal;
+
+	if ( ! ( tax_form_line_account_journal =
+		  calloc(
+			1,
+			sizeof( TAX_FORM_LINE_ACCOUNT_JOURNAL ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return tax_form_line_account_journal;
+}
+
+double tax_form_line_account_journal_amount(
+			boolean element_accumulate_debit,
+			boolean subclassification_current_liability_boolean,
+			boolean subclassification_receivable_boolean,
+			double debit_amount,
+			double credit_amount )
+{
+	double amount;
+
+	if ( subclassification_current_liability_boolean )
+	{
+		amount = debit_amount;
+	}
+	else
+	if ( subclassification_receivable_boolean )
+	{
+		amount = credit_amount;
+	}
+	else
+	{
+		amount =
+			journal_amount(
+				debit_amount,
+				credit_amount,
+				element_accumulate_debit );
+	}
+
+	return amount;
+}
+
+double tax_form_line_account_journal_list_total(
+			LIST *tax_form_line_account_journal_list )
+{
+	TAX_FORM_LINE_ACCOUNT_JOURNAL *tax_form_line_account_journal;
+	double total;
+
+	if ( !list_rewind(
+			tax_form_line_account_journal_list ) )
+	{
+		return 0.0;
+	}
+
+	total = 0.0;
+
+	do {
+		tax_form_line_account_journal =
+			list_get(
+				tax_form_line_account_journal_list );
+
+		total +=
+			tax_form_line_account_journal->amount;
+
+	} while ( list_next( 
+			tax_form_line_account_journal_list ) );
+
+	return total;
 }
 

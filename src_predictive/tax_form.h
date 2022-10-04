@@ -83,6 +83,58 @@ char *tax_form_line_where(
 			char *tax_form_name,
 			char *tax_form_line_string );
 
+typedef struct
+{
+	JOURNAL *journal;
+	double amount;
+} TAX_FORM_LINE_ACCOUNT_JOURNAL;
+
+/* Usage */
+/* ----- */
+LIST *tax_form_line_account_journal_list(
+			char *tax_form_fiscal_begin_date,
+			char *tax_form_fiscal_end_date,
+			char *transaction_preclose_time,
+			char *account_name,
+			boolean element_accumulate_debit,
+			boolean subclassification_current_liability_boolean,
+			boolean subclassification_receivable_boolean );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+TAX_FORM_LINE_ACCOUNT_JOURNAL *
+	tax_form_line_account_journal_new(
+			boolean element_accumulate_debit,
+			boolean subclassification_current_liability_boolean,
+			boolean subclassification_receivable_boolean,
+			JOURNAL *journal );
+
+/* Process */
+/* ------- */
+TAX_FORM_LINE_ACCOUNT_JOURNAL *
+	tax_form_line_account_journal_calloc(
+			void );
+
+/* Usage */
+/* ----- */
+double tax_form_line_account_journal_amount(
+			boolean element_accumulate_debit,
+			boolean subclassification_current_liability_boolean,
+			boolean subclassification_receivable_boolean,
+			double debit_amount,
+			double credit_amount );
+
+/* Process */
+/* ------- */
+
+/* Public */
+/* ------ */
+double tax_form_line_account_journal_list_total(
+			LIST *tax_form_line_account_journal_list );
+
 #define TAX_FORM_LINE_ACCOUNT_SELECT	"account"
 #define TAX_FORM_LINE_ACCOUNT_TABLE	"tax_form_line_account"
 
@@ -91,8 +143,11 @@ typedef struct
 	char *tax_form_name;
 	char *tax_form_line_string;
 	char *account_name;
-	LIST *journal_tax_form_list;
-	double total;
+	ACCOUNT *account;
+	boolean subclassification_current_liability_boolean;
+	boolean subclassification_receivable_boolean;
+	LIST *journal_list;
+	double journal_list_total;
 	LIST *tax_form_entity_list;
 } TAX_FORM_LINE_ACCOUNT;
 
@@ -297,7 +352,7 @@ TAX_FORM_ENTITY_HTML_LIST *tax_form_entity_html_list_calloc(
 HTML_TABLE *tax_form_account_entity_html_new(
 			char *tax_form_line_string,
 			char *account_name,
-			double tax_form_line_account_total,
+			double journal_list_total,
 			LIST *tax_form_entity_list );
 
 /* Process */
@@ -308,7 +363,7 @@ HTML_TABLE *tax_form_account_entity_html_new(
 char *tax_form_entity_html_caption(
 			char *tax_form_line_string,
 			char *account_name,
-			double tax_form_line_account_total );
+			double journal_list_total );
 
 
 /* Usage */
