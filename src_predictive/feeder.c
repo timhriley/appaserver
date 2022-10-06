@@ -3618,23 +3618,9 @@ FEEDER_AUDIT *feeder_audit_fetch( char *feeder_account_name )
 			feeder_audit->feeder_load_event->feeder_load_date_time,
 			feeder_audit->feeder_row_maximum_row_number );
 
-
-	feeder_audit->feeder_row_maximum_transaction_date_time =
-		feeder_row_maximum_transaction_date_time(
-			FEEDER_ROW_TABLE,
-			feeder_account_name,
-			feeder_audit->
-				feeder_load_event->
-				feeder_load_date_time );
-
-	if ( !feeder_audit->feeder_row_maximum_transaction_date_time )
-	{
-		return feeder_audit;
-	}
-
 	feeder_audit->journal_account_fetch =
 		journal_account_fetch(
-			feeder_audit->feeder_row_maximum_transaction_date_time,
+			feeder_audit->feeder_row_fetch->transaction_date_time,
 			feeder_account_name,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,

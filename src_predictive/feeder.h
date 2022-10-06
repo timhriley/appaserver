@@ -548,19 +548,6 @@ char *feeder_row_primary_where(
 			char *feeder_load_date_time,
 			int row_number );
 
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *feeder_row_maximum_transaction_date_time(
-			char *feeder_row_table,
-			char *feeder_account_name,
-			char *feeder_load_date_time );
-
-/* Process */
-/* ------- */
-
 /* Public */
 /* ------ */
 int feeder_row_seek_matched_count(
@@ -968,7 +955,6 @@ typedef struct
 	FEEDER_LOAD_EVENT *feeder_load_event;
 	int feeder_row_maximum_row_number;
 	FEEDER_ROW *feeder_row_fetch;
-	char *feeder_row_maximum_transaction_date_time;
 	JOURNAL *journal_account_fetch;
 	double balance_difference;
 	boolean difference_zero;
