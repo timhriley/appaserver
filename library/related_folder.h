@@ -105,7 +105,7 @@ LIST *related_folder_get_primary_data_list(
 
 RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 				LIST **foreign_attribute_name_list,
-				LIST *done_attribute_name_list,
+				LIST *exclude_attribute_name_list,
 				LIST *omit_update_attribute_name_list,
 				LIST *mto1_related_folder_list,
 				char *attribute_name,

@@ -36,7 +36,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *feeder_exist_row_list(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_file_minimum_date );
 
 /* Process */
@@ -45,7 +45,7 @@ LIST *feeder_exist_row_list(
 /* Returns static memory */
 /* --------------------- */
 char *feeder_exist_row_where(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_file_minimum_date );
 
 /* Returns heap memory */
@@ -156,7 +156,7 @@ typedef struct
 /* Always succeeds */
 /* --------------- */
 LIST *feeder_matched_journal_list(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_row_table,
 			char *feeder_load_file_minimum_date,
 			char *account_uncleared_checks );
@@ -167,7 +167,7 @@ LIST *feeder_matched_journal_list(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_matched_journal_subquery(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *account_uncleared_checks,
 			char *journal_table,
 			char *feeder_row_table );
@@ -184,7 +184,7 @@ char *feeder_matched_journal_minimum_date(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_matched_journal_where(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *account_uncleared_checks,
 			char *feeder_matched_journal_subquery,
 			char *feeder_matched_journal_minimum_date );
@@ -207,7 +207,7 @@ double feeder_matched_journal_amount(
 /* ----- */
 FEEDER_MATCHED_JOURNAL *
 	feeder_matched_journal_check_seek(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *account_uncleared_checks,
 			int check_number,
 			double amount,
@@ -220,7 +220,7 @@ FEEDER_MATCHED_JOURNAL *
 /* ------------------- */
 char *feeder_matched_journal_check_update_statement(
 			char *journal_table,
-			char *feeder_account,
+			char *feeder_account_name,
 			char *account_uncleared_checks,
 			char *full_name,
 			char *street_address,
@@ -256,7 +256,7 @@ typedef struct
 /* Usage */
 /* ----- */
 FEEDER_TRANSACTION *feeder_transaction_new(
-			char *feeder_account,
+			char *feeder_account_name,
 			FEEDER_PHRASE *feeder_phrase_seek,
 			double file_row_amount,
 			char *transaction_date_time,
@@ -272,7 +272,7 @@ typedef struct
 	char *full_name;
 	char *street_address;
 	char *transaction_date_time;
-	char *feeder_account;
+	char *feeder_account_name;
 	char *feeder_date;
 	char *feeder_phrase;
 	char *feeder_load_date_time;
@@ -399,7 +399,7 @@ double feeder_load_row_prior_account_end_balance(
 
 typedef struct
 {
-	char *feeder_account;
+	char *feeder_account_name;
 	char *feeder_load_date_time;
 	char *feeder_date;
 	int row_number;
@@ -422,7 +422,7 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIST *feeder_row_list(	char *feeder_account,
+LIST *feeder_row_list(	char *feeder_account_name,
 			char *account_uncleared_checks,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
@@ -437,7 +437,7 @@ DATE *feeder_row_date(	void );
 /* ----- */
 FEEDER_ROW *feeder_row_new(
 			DATE *feeder_load_date /* in/out */,
-			char *feeder_account,
+			char *feeder_account_name,
 			char *account_uncleared_checks,
 			LIST *feeder_phrase_list,
 			LIST *feeder_exist_row_list,
@@ -518,6 +518,49 @@ FEEDER_ROW *feeder_row_parse(
 /* Process */
 /* ------- */
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+int feeder_row_maximum_row_number(
+			char *feeder_row_table,
+			char *feeder_account_name,
+			char *feeder_load_date_time );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+FEEDER_ROW *feeder_row_fetch(
+			char *feeder_account_name,
+			char *feeder_load_date_time,
+			int row_number );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_row_primary_where(
+			char *feeder_account_name,
+			char *feeder_load_date_time,
+			int row_number );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *feeder_row_maximum_transaction_date_time(
+			char *feeder_row_table,
+			char *feeder_account_name,
+			char *feeder_load_date_time );
+
+/* Process */
+/* ------- */
+
 /* Public */
 /* ------ */
 int feeder_row_seek_matched_count(
@@ -583,7 +626,7 @@ char *feeder_row_display_results(
 /* Driver */
 /* ------ */
 void feeder_row_list_insert(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time,
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );
@@ -615,7 +658,7 @@ char *feeder_row_phrase(
 
 void feeder_row_insert_pipe(
 			FILE *feeder_row_list_insert_open,
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time,
 			char *international_date,
 			int row_number,
@@ -633,7 +676,7 @@ void feeder_row_insert_pipe(
 /* Driver */
 /* ------ */
 void feeder_row_transaction_insert(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *account_uncleared_checks,
 			LIST *feeder_row_list,
 			FEEDER_ROW *feeder_row_first_out_balance );
@@ -723,7 +766,7 @@ char *feeder_load_file_minimum_date(
 
 typedef struct
 {
-	char *feeder_account;
+	char *feeder_account_name;
 	char *feeder_load_date_time;
 	char *login_name;
 	char *basename_filename;
@@ -734,7 +777,7 @@ typedef struct
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_new(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time,
 			char *login_name,
 			char *feeder_load_file_basename_filename,
@@ -749,7 +792,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_calloc(
 /* Usage */
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_fetch(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time );
 
 /* Process */
@@ -758,7 +801,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *feeder_load_event_primary_where(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time );
 
 /* Returns heap memory */
@@ -778,7 +821,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_parse(
 /* ----- */
 FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
 			char *feeder_load_event_table,
-			char *feeder_account );
+			char *feeder_account_name );
 
 /* Process */
 /* ------- */
@@ -786,7 +829,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_latest_fetch(
 /* Returns static memory */
 /* --------------------- */
 char *feeder_load_event_account_where(
-			char *feeder_account );
+			char *feeder_account_name );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -805,7 +848,7 @@ char *feeder_load_event_latest_date_time(
 void feeder_load_event_insert(
 			char *feeder_load_event_table,
 			char *feeder_load_event_insert,
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time,
 			char *login_name,
 			char *basename_filename,
@@ -828,7 +871,7 @@ FILE *feeder_load_event_insert_open(
 void feeder_load_event_insert_pipe(
 			FILE *insert_open,
 			char sql_delimiter,
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_date_time,
 			char *login_name,
 			char *basename_filename,
@@ -857,7 +900,7 @@ typedef struct
 /* ----- */
 FEEDER *feeder_fetch(
 			char *login_name,
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_filename,
 			int date_column /* one_based */,
 			int description_column /* one_based */,
@@ -885,7 +928,7 @@ double feeder_account_end_calculate_balance(
 /* Usage */
 /* ----- */
 double feeder_account_end_balance(
-			char *feeder_account,
+			char *feeder_account_name,
 			int balance_column,
 			double parameter_account_end_balance,
 			LIST *feeder_row_list,
@@ -897,7 +940,7 @@ double feeder_account_end_balance(
 /* Usage */
 /* ----- */
 double feeder_prior_account_end_balance(
-			char *feeder_account,
+			char *feeder_account_name,
 			char *feeder_load_file_minimum_date,
 			boolean balance_column,
 			double feeder_account_end_balance,
@@ -922,24 +965,23 @@ char *feeder_parameter_account_end_balance_error(
 
 typedef struct
 {
-	ACCOUNT *feeder_account;
-	char *feeder_load_event_primary_where;
-	char *feeder_row_system_string;
-	LIST *feeder_row_list;
-	FEEDER_ROW *first_feeder_row;
-	JOURNAL *journal_prior;
-	LIST *journal_list_prior;
-	char *prior_transaction_date_time;
-	FEEDER_ROW *feeder_row;
-	JOURNAL *journal;
+	FEEDER_LOAD_EVENT *feeder_load_event;
+	int feeder_row_maximum_row_number;
+	FEEDER_ROW *feeder_row_fetch;
+	char *feeder_row_maximum_transaction_date_time;
+	JOURNAL *journal_account_fetch;
+	double balance_difference;
+	boolean difference_zero;
 	HTML_TABLE *html_table;
 } FEEDER_AUDIT;
 
 /* Usage */
 /* ----- */
+
+/* Always succeeds */
+/* --------------- */
 FEEDER_AUDIT *feeder_audit_fetch(
-			char *feeder_account_name,
-			char *feeder_load_date_time );
+			char *feeder_account_name );
 
 /* Process */
 /* ------- */
@@ -949,13 +991,20 @@ FEEDER_AUDIT *feeder_audit_calloc(
 LIST *feeder_audit_html_heading_list(
 			void );
 
+double feeder_audit_balance_difference(
+			double journal_balance,
+			double calculate_balance );
+
+boolean feeder_audit_difference_zero(
+			double feeder_audit_balance_difference );
+
 /* Usage */
 /* ----- */
 HTML_ROW *feeder_audit_html_row(
-			char *prior_transaction_date_time,
 			FEEDER_ROW *feeder_row,
 			double journal_balance,
-			boolean list_at_last );
+			double feeder_audit_balance_difference,
+			boolean feeder_audit_difference_zero );
 
 /* Process */
 /* ------- */
@@ -963,13 +1012,13 @@ LIST *feeder_audit_html_cell_list(
 			int row_number,
 			char *full_name,
 			char *file_row_description,
-			char *prior_transaction_date_time,
 			char *transaction_date_time,
 			char *feeder_date,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
 			double journal_balance,
-			boolean list_at_last );
+			double feeder_audit_balance_difference,
+			boolean feeder_audit_difference_zero );
 
 #endif

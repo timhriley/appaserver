@@ -1826,7 +1826,7 @@ char *journal_minimum_transaction_date_time( char *account_name )
 	string_pipe( system_string );
 }
 
-double journal_balance(
+double journal_signed_balance(
 			double balance,
 			boolean accumulate_debit )
 {

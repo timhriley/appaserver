@@ -449,7 +449,7 @@ JOURNAL *journal_seek(
 char *journal_minimum_transaction_date_time(
 			char *account_name );
 
-double journal_balance(
+double journal_signed_balance(
 			double balance,
 			boolean accumulate_debit );
 

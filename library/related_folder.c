@@ -149,7 +149,7 @@ LIST *related_folder_foreign_attribute_name_list(
 
 RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 		LIST **foreign_attribute_name_list,
-		LIST *done_attribute_name_list,
+		LIST *exclude_attribute_name_list,
 		LIST *omit_update_attribute_name_list,
 		LIST *mto1_related_folder_list,
 		char *attribute_name,
@@ -173,7 +173,11 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 			list_get_pointer(
 				mto1_related_folder_list );
 
-		if ( related_folder->ignore_output ) continue;
+		if (	related_folder->ignore_output
+		||	related_folder->omit_lookup_before_drop_down )
+		{
+			continue;
+		}
 
 		if ( related_folder->folder_foreign_attribute_name_list )
 		{
@@ -235,10 +239,10 @@ RELATED_FOLDER *related_folder_attribute_consumes_related_folder(
 					continue;
 			}
 
-			if ( done_attribute_name_list )
+			if ( exclude_attribute_name_list )
 			{
 				list_append_string_list(
-					done_attribute_name_list,
+					exclude_attribute_name_list,
 					local_foreign_attribute_name_list );
 			}
 

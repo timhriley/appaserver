@@ -1153,8 +1153,8 @@ LIST *output_prompt_element_list(
 				omit_update_attribute_name_list,
 				mto1_related_folder_list,
 				attribute->attribute_name,
-			        (LIST *)0 /* include_attribute_name_list */) )
-		&&   !related_folder->omit_lookup_before_drop_down )
+			        (LIST *)0
+					/* include_attribute_name_list */ ) ) )
 		{
 			build_related_folder_element_list(
 			   	ajax_fill_drop_down_related_folder,

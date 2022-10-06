@@ -28,7 +28,7 @@ int main( int argc, char **argv )
 	char *application_name;
 	char *process_name;
 	char *login_name;
-	char *feeder_account;
+	char *feeder_account_name;
 	char *feeder_load_filename;
 	int date_column;
 	int description_column;
@@ -42,6 +42,7 @@ int main( int argc, char **argv )
 	FEEDER *feeder;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
 	char buffer[ 128 ];
+	FEEDER_AUDIT *feeder_audit;
 
 	/* Exits if not found. */
 	/* ------------------- */
@@ -66,7 +67,7 @@ int main( int argc, char **argv )
 
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
-	feeder_account = argv[ 3 ];
+	feeder_account_name = argv[ 3 ];
 	feeder_load_filename = argv[ 4 ];
 	date_column = atoi( argv[ 5 ] );
 	description_column = atoi( argv[ 6 ] );
@@ -95,18 +96,32 @@ int main( int argc, char **argv )
 	printf( "</h1>\n" );
 	fflush( stdout );
 
-	if ( !*feeder_load_filename
-	||   strcmp( feeder_load_filename, "filename" ) == 0 )
+	if ( !*feeder_account_name
+	||   strcmp( feeder_account_name, "feeder_account" ) == 0 )
 	{
-		printf( "<h3>Please transmit a file.</h3>\n" );
+		printf( "<h3>Please choose a feeder account.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
 
-	if ( !*feeder_account
-	||   strcmp( feeder_account, "feeder_account" ) == 0 )
+	if ( !*feeder_load_filename
+	||   strcmp( feeder_load_filename, "filename" ) == 0 )
 	{
-		printf( "<h3>Please choose a feeder account.</h3>\n" );
+		printf( "<h3>No input file received.</h3>\n" );
+
+		feeder_audit =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
+			feeder_audit_fetch(
+				feeder_account_name );
+
+		if ( feeder_audit->html_table )
+		{
+			html_table_output(
+				feeder_audit->html_table,
+				HTML_TABLE_ROWS_BETWEEN_HEADING );
+		}
 		document_close();
 		exit( 0 );
 	}
@@ -114,7 +129,7 @@ int main( int argc, char **argv )
 	feeder =
 		feeder_fetch(
 			login_name,
-			feeder_account,
+			feeder_account_name,
 			feeder_load_filename,
 			date_column,
 			description_column,
@@ -145,15 +160,12 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean )
 	{
-		FEEDER_LOAD_EVENT *feeder_load_event;
-		FEEDER_AUDIT *feeder_audit;
-
 		if ( feeder_row_seek_matched_count(
 			feeder->feeder_row_list,
 			feeder->feeder_row_first_out_balance ) )
 		{
 			feeder_row_list_insert(
-				feeder_account,
+				feeder_account_name,
 				feeder->
 					feeder_load_event->
 					feeder_load_date_time,
@@ -161,7 +173,7 @@ int main( int argc, char **argv )
 				feeder->feeder_row_first_out_balance );
 
 			feeder_row_transaction_insert(
-				feeder_account,
+				feeder_account_name,
 				feeder->account_uncleared_checks,
 				feeder->feeder_row_list,
 				feeder->feeder_row_first_out_balance );
@@ -171,7 +183,7 @@ int main( int argc, char **argv )
 				FEEDER_LOAD_EVENT_INSERT,
 				feeder->
 					feeder_load_event->
-					feeder_account,
+					feeder_account_name,
 				feeder->
 					feeder_load_event->
 					feeder_load_date_time,
@@ -213,24 +225,14 @@ int main( int argc, char **argv )
 			printf( "<h3>No transactions to process.</h3>\n" );
 		}
 
-		if ( ! ( feeder_load_event =
-				feeder_load_event_latest_fetch(
-					FEEDER_LOAD_EVENT_TABLE,
-					feeder_account ) ) )
-		{
-			fprintf(stderr,
-	"ERROR in %s/%s()/%d: feeder_load_event_latest_fetch(%s) empty.\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				feeder_account );
-			exit( 1 );
-		}
-
-		if ( ( feeder_audit =
+		feeder_audit =
+			/* --------------- */
+			/* Always succeeds */
+			/* --------------- */
 			feeder_audit_fetch(
-				feeder_account /* feeder_account_name */,
-				feeder_load_event->feeder_load_date_time ) ) )
+				feeder_account_name );
+
+		if ( feeder_audit->html_table )
 		{
 			html_table_output(
 				feeder_audit->html_table,
