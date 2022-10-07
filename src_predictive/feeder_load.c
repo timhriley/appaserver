@@ -114,7 +114,8 @@ int main( int argc, char **argv )
 			/* Always succeeds */
 			/* --------------- */
 			feeder_audit_fetch(
-				feeder_account_name );
+				feeder_account_name,
+				reverse_order_boolean );
 
 		if ( feeder_audit->html_table )
 		{
@@ -230,7 +231,8 @@ int main( int argc, char **argv )
 			/* Always succeeds */
 			/* --------------- */
 			feeder_audit_fetch(
-				feeder_account_name );
+				feeder_account_name,
+				reverse_order_boolean );
 
 		if ( feeder_audit->html_table )
 		{

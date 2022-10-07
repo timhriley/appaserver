@@ -3575,7 +3575,9 @@ FEEDER_ROW *feeder_row_parse( char *input )
 	return feeder_row;
 }
 
-FEEDER_AUDIT *feeder_audit_fetch( char *feeder_account_name )
+FEEDER_AUDIT *feeder_audit_fetch(
+			char *feeder_account_name,
+			boolean reverse_order_boolean )
 {
 	FEEDER_AUDIT *feeder_audit;
 
@@ -3599,15 +3601,16 @@ FEEDER_AUDIT *feeder_audit_fetch( char *feeder_account_name )
 		return feeder_audit;
 	}
 
-	feeder_audit->feeder_row_maximum_row_number =
-		feeder_row_maximum_row_number(
+	feeder_audit->feeder_row_maximum_number =
+		feeder_row_maximum_number(
 			FEEDER_ROW_TABLE,
 			feeder_account_name,
+			reverse_order_boolean,
 			feeder_audit->
 				feeder_load_event->
 				feeder_load_date_time );
 
-	if ( !feeder_audit->feeder_row_maximum_row_number )
+	if ( !feeder_audit->feeder_row_maximum_number )
 	{
 		return feeder_audit;
 	}
@@ -3616,11 +3619,24 @@ FEEDER_AUDIT *feeder_audit_fetch( char *feeder_account_name )
 		feeder_row_fetch(
 			feeder_account_name,
 			feeder_audit->feeder_load_event->feeder_load_date_time,
-			feeder_audit->feeder_row_maximum_row_number );
+			feeder_audit->feeder_row_maximum_number );
+
+	feeder_audit->feeder_row_maximum_transaction_date_time =
+		feeder_row_maximum_transaction_date_time(
+			FEEDER_ROW_TABLE,
+			feeder_account_name,
+			feeder_audit->
+				feeder_load_event->
+				feeder_load_date_time );
+
+	if ( !feeder_audit->feeder_row_maximum_transaction_date_time )
+	{
+		return feeder_audit;
+	}
 
 	feeder_audit->journal_account_fetch =
 		journal_account_fetch(
-			feeder_audit->feeder_row_fetch->transaction_date_time,
+			feeder_audit->feeder_row_maximum_transaction_date_time,
 			feeder_account_name,
 			0 /* not fetch_account */,
 			0 /* not fetch_subclassification */,
@@ -3657,10 +3673,8 @@ FEEDER_AUDIT *feeder_audit_fetch( char *feeder_account_name )
 	list_set(
 		feeder_audit->html_table->row_list,
 		feeder_audit_html_row(
-			feeder_audit->feeder_row_fetch
-				/* feeder_row */,
-			feeder_audit->journal_account_fetch->balance
-				/* journal_balance */,
+			feeder_audit->feeder_row_fetch /* feeder_row */,
+			feeder_audit->journal_account_fetch /* journal */,
 			feeder_audit->balance_difference,
 			feeder_audit->difference_zero ) );
 
@@ -3707,7 +3721,7 @@ LIST *feeder_audit_html_heading_list( void )
 	list_set(
 		list,
 		html_heading_new(
-			"full_name",
+			"feeder_row_full_name",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
@@ -3719,7 +3733,7 @@ LIST *feeder_audit_html_heading_list( void )
 	list_set(
 		list,
 		html_heading_new(
-			"transaction_date_time",
+			"feeder_row_transaction_date_time",
 			0 /* not right_justify_boolean */ ) );
 
 	list_set(
@@ -3743,14 +3757,26 @@ LIST *feeder_audit_html_heading_list( void )
 	list_set(
 		list,
 		html_heading_new(
-			"journal_balance",
-			1 /* not right_justify_boolean */ ) );
+			"calculate_balance",
+			1 /* right_justify_boolean */ ) );
 
 	list_set(
 		list,
 		html_heading_new(
-			"calculate_balance",
-			1 /* right_justify_boolean */ ) );
+			"journal_full_name",
+			0 /* not right_justify_boolean */ ) );
+
+	list_set(
+		list,
+		html_heading_new(
+			"journal_transaction_date_time",
+			0 /* not right_justify_boolean */ ) );
+
+	list_set(
+		list,
+		html_heading_new(
+			"journal_balance",
+			1 /* not right_justify_boolean */ ) );
 
 	list_set(
 		list,
@@ -3769,16 +3795,17 @@ LIST *feeder_audit_html_heading_list( void )
 
 HTML_ROW *feeder_audit_html_row(
 			FEEDER_ROW *feeder_row,
-			double journal_balance,
+			JOURNAL *journal,
 			double feeder_audit_balance_difference,
 			boolean feeder_audit_difference_zero )
 {
 	HTML_ROW *html_row;
 
-	if ( !feeder_row )
+	if ( !feeder_row
+	||   !journal )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: feeder_row is empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -3797,7 +3824,9 @@ HTML_ROW *feeder_audit_html_row(
 			feeder_row->file_row_amount,
 			feeder_row->check_number,
 			feeder_row->calculate_balance,
-			journal_balance,
+			journal->full_name,
+			journal->transaction_date_time,
+			journal->balance,
 			feeder_audit_balance_difference,
 			feeder_audit_difference_zero );
 
@@ -3819,13 +3848,15 @@ boolean feeder_audit_difference_zero(
 
 LIST *feeder_audit_html_cell_list(
 			int row_number,
-			char *full_name,
+			char *feeder_row_full_name,
 			char *file_row_description,
-			char *transaction_date_time,
+			char *feeder_row_transaction_date_time,
 			char *feeder_date,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
+			char *journal_full_name,
+			char *journal_transaction_date_time,
 			double journal_balance,
 			double balance_difference,
 			boolean difference_zero )
@@ -3834,10 +3865,12 @@ LIST *feeder_audit_html_cell_list(
 	char cell_string[ 128 ];
 
 	if ( !row_number
-	||   !full_name
+	||   !feeder_row_full_name
 	||   !file_row_description
-	||   !transaction_date_time
-	||   !feeder_date )
+	||   !feeder_row_transaction_date_time
+	||   !feeder_date
+	||   !journal_full_name
+	||   !journal_transaction_date_time )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -3863,7 +3896,7 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			full_name,
+			feeder_row_full_name,
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -3877,7 +3910,7 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			transaction_date_time,
+			feeder_row_transaction_date_time,
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -3926,14 +3959,28 @@ LIST *feeder_audit_html_cell_list(
 	list_set(
 		list,
 		html_cell_new(
-			timlib_commas_in_money( journal_balance ),
+			timlib_commas_in_money( calculate_balance ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
 	list_set(
 		list,
 		html_cell_new(
-			timlib_commas_in_money( calculate_balance ),
+			journal_full_name,
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
+
+	list_set(
+		list,
+		html_cell_new(
+			journal_transaction_date_time,
+			0 /* not large_boolean */,
+			0 /* not bold_boolean */ ) );
+
+	list_set(
+		list,
+		html_cell_new(
+			timlib_commas_in_money( journal_balance ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 
@@ -4095,9 +4142,19 @@ char *feeder_row_maximum_transaction_date_time(
 	string_pipe_fetch( system_string );
 }
 
-int feeder_row_maximum_row_number(
+char *feeder_row_maximum_number_select(
+			boolean reverse_order_boolean )
+{
+	if ( reverse_order_boolean )
+		return "min( row_number )";
+	else
+		return "max( row_number )";
+}
+
+int feeder_row_maximum_number(
 			char *feeder_row_table,
 			char *feeder_account_name,
+			boolean reverse_order_boolean,
 			char *feeder_load_date_time )
 {
 	char system_string[ 1024 ];
@@ -4117,7 +4174,11 @@ int feeder_row_maximum_row_number(
 
 	sprintf(system_string,
 		"select.sh \"%s\" %s \"%s\"",
-		"max( row_number )",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		feeder_row_maximum_number_select(
+			reverse_order_boolean ),
 		feeder_row_table,
 		/* --------------------- */
 		/* Returns static memory */

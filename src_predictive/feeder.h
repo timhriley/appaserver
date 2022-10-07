@@ -520,10 +520,26 @@ FEEDER_ROW *feeder_row_parse(
 
 /* Usage */
 /* ----- */
+int feeder_row_maximum_number(
+			char *feeder_row_table,
+			char *feeder_account_name,
+			boolean reverse_order_boolean,
+			char *feeder_load_date_time );
+
+/* Process */
+/* ------- */
+
+/* Returns program memory */
+/* ---------------------- */
+char *feeder_row_maximum_number_select(
+			boolean reverse_order_boolean );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory or null */
 /* --------------------------- */
-int feeder_row_maximum_row_number(
+char *feeder_row_maximum_transaction_date_time(
 			char *feeder_row_table,
 			char *feeder_account_name,
 			char *feeder_load_date_time );
@@ -953,7 +969,8 @@ char *feeder_parameter_account_end_balance_error(
 typedef struct
 {
 	FEEDER_LOAD_EVENT *feeder_load_event;
-	int feeder_row_maximum_row_number;
+	int feeder_row_maximum_number;
+	char *feeder_row_maximum_transaction_date_time;
 	FEEDER_ROW *feeder_row_fetch;
 	JOURNAL *journal_account_fetch;
 	double balance_difference;
@@ -967,7 +984,8 @@ typedef struct
 /* Always succeeds */
 /* --------------- */
 FEEDER_AUDIT *feeder_audit_fetch(
-			char *feeder_account_name );
+			char *feeder_account_name,
+			boolean reverse_order_boolean );
 
 /* Process */
 /* ------- */
@@ -988,7 +1006,7 @@ boolean feeder_audit_difference_zero(
 /* ----- */
 HTML_ROW *feeder_audit_html_row(
 			FEEDER_ROW *feeder_row,
-			double journal_balance,
+			JOURNAL *journal,
 			double feeder_audit_balance_difference,
 			boolean feeder_audit_difference_zero );
 
@@ -996,13 +1014,15 @@ HTML_ROW *feeder_audit_html_row(
 /* ------- */
 LIST *feeder_audit_html_cell_list(
 			int row_number,
-			char *full_name,
+			char *feeder_row_full_name,
 			char *file_row_description,
-			char *transaction_date_time,
+			char *feeder_row_transaction_date_time,
 			char *feeder_date,
 			double file_row_amount,
 			int check_number,
 			double calculate_balance,
+			char *journal_full_name,
+			char *journal_transaction_date_time,
 			double journal_balance,
 			double feeder_audit_balance_difference,
 			boolean feeder_audit_difference_zero );
