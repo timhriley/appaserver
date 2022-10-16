@@ -269,7 +269,8 @@ void journal_list_transaction_insert(
 void journal_list_html_display(
 			LIST *journal_list,
 			char *transaction_date_time,
-			char *transaction_memo );
+			char *transaction_memo,
+			char *transaction_full_name );
 
 /* Process */
 /* ------- */

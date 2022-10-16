@@ -730,14 +730,24 @@ JOURNAL *journal_debit_new(
 {
 	JOURNAL *journal;
 
-	if ( !debit_account_name
-	||   !debit_amount )
+	if ( !debit_account_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: debit_account_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( debit_amount <= 0.0 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: invalid debit_amount = %.2lf.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			debit_amount );
 		exit( 1 );
 	}
 
@@ -760,25 +770,25 @@ JOURNAL *journal_credit_new(
 {
 	JOURNAL *journal;
 
-	if ( !credit_account_name
-	||   !credit_amount )
+	if ( !credit_account_name )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: credit_account_name is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( credit_amount < 0.0 )
+	if ( credit_amount <= 0.0 )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: credit_amount = %.2lf.\n",
+			"ERROR in %s/%s()/%d: invalid credit_amount = %.2lf.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			credit_amount );
+		exit( 1 );
 	}
 
 	journal = journal_calloc();
@@ -1074,7 +1084,8 @@ LIST *journal_binary_list(
 void journal_list_html_display(
 			LIST *journal_list,
 			char *transaction_date_time,
-			char *transaction_memo )
+			char *transaction_memo,
+			char *transaction_full_name )
 {
 	char *heading;
 	char *justify;
@@ -1098,7 +1109,7 @@ void journal_list_html_display(
 		output_pipe,
 		transaction_date_time,
 		transaction_memo,
-		(char *)0 /* heading */,
+		transaction_full_name,
 		journal_list );
 
 	pclose( output_pipe );
@@ -1109,7 +1120,7 @@ void journal_list_pipe_display(
 			FILE *output_pipe,
 			char *transaction_date_time,
 			char *transaction_memo,
-			char *heading,
+			char *transaction_full_name,
 			LIST *journal_list )
 {
 	char buffer[ 128 ];
@@ -1117,6 +1128,7 @@ void journal_list_pipe_display(
 	JOURNAL *journal;
 	int i;
 	boolean displayed_memo = 0;
+	char *full_name = {0};
 
 	if ( !list_length( journal_list ) ) return;
 
@@ -1124,12 +1136,18 @@ void journal_list_pipe_display(
 
 	journal = list_first( journal_list );
 
+	if ( transaction_full_name )
+		full_name = transaction_full_name;
+	else
 	if ( journal->full_name && *journal->full_name )
+		full_name = journal->full_name;
+
+	if ( full_name )
 	{
 		sprintf(memo_buffer +
 		    	strlen( memo_buffer ),
 			"<br>%s",
-			journal->full_name );
+			full_name );
 	}
 
 	sprintf(memo_buffer +
@@ -1144,10 +1162,6 @@ void journal_list_pipe_display(
 			"<br>%s",
 			transaction_memo );
 	}
-
-	/* *(memo_buffer + TRANSACTION_MEMO_LENGTH ) = '\0'; */
-
-	if ( heading ) fprintf( output_pipe, "%s\n", heading );
 
 	/* First do all debits, then do all credits */
 	/* ---------------------------------------- */
@@ -1254,7 +1268,7 @@ void journal_list_sum_html_display(
 		output_pipe,
 		transaction_date_time,
 		transaction_memo,
-		(char *)0 /* heading */,
+		(char *)0 /* transaction_full_name */,
 		journal_list );
 
 	fprintf(output_pipe,
@@ -1379,12 +1393,18 @@ double journal_list_transaction_amount( LIST *journal_list )
 
 	if ( !current_liability_name_list )
 	{
+		LIST *exclude_account_name_list = list_new();
+
+		list_set(
+			exclude_account_name_list,
+			ACCOUNT_UNCLEARED_CHECKS );
+
 		current_liability_name_list =
 			account_current_liability_name_list(
 				ACCOUNT_TABLE,
 				SUBCLASSIFICATION_CURRENT_LIABILITY,
-				ACCOUNT_UNCLEARED_CHECKS,
-				ACCOUNT_CREDIT_CARD_KEY );
+				ACCOUNT_CREDIT_CARD_KEY,
+				exclude_account_name_list );
 	}
 
 	cash_sum =

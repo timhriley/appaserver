@@ -1559,8 +1559,7 @@ LIABILITY_ACCOUNT *liability_account_calloc( void )
 	return liability_account;
 }
 
-LIABILITY_ACCOUNT_LIST *
-	liability_account_list_new(
+LIABILITY_ACCOUNT_LIST *liability_account_list_new(
 			LIST *journal_system_list )
 {
 	LIABILITY_ACCOUNT_LIST *liability_account_list;
@@ -1776,6 +1775,16 @@ LIABILITY_JOURNAL_LIST *liability_journal_list_new(
 			dialog_box_payment_amount,
 			liability_entity->amount_due );
 
+	if ( !liability_journal_list->transaction_amount )
+	{
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: liability_journal_list->transaction_amount is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	list_set(
 		liability_journal_list->journal_list,
 		journal_credit_new(
@@ -1790,6 +1799,8 @@ LIABILITY_JOURNAL_LIST *liability_journal_list_new(
 					liability->
 					liability_account_list->
 					list );
+
+		if ( !liability_account->credit_amount ) continue;
 
 		list_set(
 			liability_journal_list->journal_list,
@@ -2368,16 +2379,6 @@ LIST *liability_payment_entity_list(
 	do {
 		entity = list_get( entity_full_street_list );
 
-{
-char msg[ 65536 ];
-sprintf( msg, "%s/%s()/%d: entity = [%s/%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-entity->full_name,
-entity->street_address );
-m2( "timriley", msg );
-}
 		if ( ! ( liability_entity =
 				liability_entity_seek(
 					entity->full_name,

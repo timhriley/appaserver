@@ -999,7 +999,8 @@ void transaction_html_display( TRANSACTION *transaction )
 	journal_list_html_display(
 		transaction->journal_list,
 		transaction->transaction_date_time,
-		transaction->memo );
+		transaction->memo,
+		transaction->full_name );
 }
 
 TRANSACTION *transaction_binary(
