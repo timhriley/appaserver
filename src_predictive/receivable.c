@@ -35,7 +35,7 @@ RECEIVABLE *receivable_fetch(
 			char *street_address,
 			LIST *account_receivable_name_list )
 {
-	RECEIVABLE *receivable = receivable_calloc();
+	RECEIVABLE *receivable;
 
 	if ( !full_name
 	||   !street_address
@@ -48,6 +48,8 @@ RECEIVABLE *receivable_fetch(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	receivable = receivable_calloc();
 
 	receivable->timlib_in_clause =
 		timlib_in_clause(
@@ -83,7 +85,9 @@ RECEIVABLE *receivable_fetch(
 		journal_debit_credit_difference_sum(
 			receivable->journal_system_list );
 
-	if ( !receivable->journal_debit_credit_difference_sum )
+	if ( money_virtually_same(
+		receivable->journal_debit_credit_difference_sum, 0.0 )
+	||   receivable->journal_debit_credit_difference_sum < 0.0 )
 	{
 		free( receivable );
 		return (RECEIVABLE *)0;
@@ -102,6 +106,18 @@ char *receivable_where(
 			char *timlib_in_clause )
 {
 	static char where[ 512 ];
+
+	if ( !full_name
+	||   !street_address
+	||   !timlib_in_clause )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	sprintf(where,
 		"full_name = '%s' and "
@@ -206,7 +222,6 @@ RECEIVABLE_ACCOUNT_LIST *receivable_account_list_new(
 	}
 
 	receivable_account_list = receivable_account_list_calloc();
-
 	receivable_account_list->list = list_new();
 
 	do {

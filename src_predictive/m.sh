@@ -4,5 +4,5 @@
 
 #if [ "$?" -eq 0 ]
 #then
-	make feeder_load
+	make populate_print_checks_entity
 #fi

@@ -59,13 +59,26 @@ LIABILITY_ACCOUNT_LIST *
 
 typedef struct
 {
-	char *timlib_in_clause;
-	char *liability_entity_where;
-	char *liability_account_where;
+	char *account_where;
 	LIST *journal_system_list;
 	double journal_credit_debit_difference_sum;
+	char *timlib_in_clause;
+	char *entity_where;
 	LIABILITY_ACCOUNT_LIST *liability_account_list;
 } LIABILITY;
+
+/* Usage */
+/* ----- */
+LIABILITY *liability_account_fetch(
+			char *liability_account_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *liability_account_where(
+			char *liability_account_name );
 
 /* Usage */
 /* ----- */
@@ -84,21 +97,8 @@ char *liability_entity_where(
 			char *street_address,
 			char *timlib_in_clause );
 
-/* Usage */
-/* ----- */
-LIABILITY *liability_account_fetch(
-			char *liability_account_name );
-
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *liability_account_where(
-			char *liability_account_name );
-
-/* Private */
-/* ------- */
+/* Public */
+/* ------ */
 LIABILITY *liability_calloc(
 			void );
 
@@ -142,19 +142,18 @@ LIABILITY_ACCOUNT_ENTITY *liability_account_entity_calloc(
 
 /* Public */
 /* ------ */
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_account(
+LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek(
 			char *account_name,
 			LIST *liability_account_entity_list );
 
-LIABILITY_ACCOUNT_ENTITY *liability_account_entity_seek_entity(
-			char *full_name,
-			char *street_address,
+/* Always succeeds */
+/* --------------- */
+LIST *liability_account_entity_account_name_list(
 			LIST *liability_account_entity_list );
 
 typedef struct
 {
 	ENTITY *entity;
-	LIABILITY_ACCOUNT_ENTITY *liability_account_entity;
 	LIABILITY *liability;
 	RECEIVABLE *receivable;
 	double amount_due;
@@ -162,22 +161,55 @@ typedef struct
 
 /* Usage */
 /* ----- */
-LIABILITY_ENTITY *liability_entity_new(
-			double dialog_box_payment_amount,
-			LIST *liability_account_entity_list,
+LIST *liability_entity_list_account(
+			LIST *liability_account_entity_list );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIST *liability_entity_list_entity(
+			LIST *account_current_liability_name_list,
+			LIST *journal_account_distinct_entity_list,
+			LIST *account_receivable_name_list,
+			ENTITY_SELF *entity_self );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIABILITY_ENTITY *liability_entity_account_name_new(
+			char *account_name,
+			ENTITY *entity );
+
+/* Process */
+/* ------- */
+
+/* Usage */
+/* ----- */
+LIABILITY_ENTITY *liability_entity_account_list_new(
 			LIST *account_current_liability_name_list,
 			LIST *account_receivable_name_list,
 			ENTITY *entity );
 
 /* Process */
 /* ------- */
+
+/* Public */
+/* ------ */
 LIABILITY_ENTITY *liability_entity_calloc(
 			void );
 
 double liability_entity_amount_due(
-			double dialog_box_payment_amount,
 			LIABILITY *liability,
 			RECEIVABLE *receivable );
+
+LIABILITY_ENTITY *liability_entity_seek(
+			char *full_name,
+			char *street_address,
+			LIST *liability_entity_list );
 
 /* Driver */
 /* ------ */
@@ -422,12 +454,13 @@ typedef struct
 /* ----- */
 LIABILITY_CHECK_LIST *liability_check_list_new(
 			char *application_name,
+			double dialog_box_payment_amount,
 			int starting_check_number,
 			char *transaction_memo,
 			char *document_root_directory,
 			char *process_name,
 			char *session_key,
-			LIST *liability_entity_list );
+			LIST *liability_payment_entity_list );
 
 /* Process */
 /* ------- */
@@ -469,11 +502,9 @@ char *liability_check_list_end_document(
 
 typedef struct
 {
+	LIABILITY_CALCULATE *liability_calculate;
+	LIST *entity_list;
 	char *transaction_memo;
-	LIST *liability_account_entity_list;
-	LIST *account_current_liability_name_list;
-	LIST *account_receivable_name_list;
-	LIST *liability_entity_list;
 	LIABILITY_CHECK_LIST *liability_check_list;
 	char *credit_account_name;
 	LIABILITY_TRANSACTION_LIST *liability_transaction_list;
@@ -502,8 +533,17 @@ char *liability_payment_credit_account_name(
 			char *account_cash,
 			char *account_uncleared_checks );
 
-/* Private */
+/* Usage */
+/* ----- */
+LIST *liability_payment_entity_list(
+			LIST *entity_full_street_list,
+			LIST *liability_entity_list );
+
+/* Process */
 /* ------- */
+
+/* Public */
+/* ------ */
 
 /* Returns message */
 /* --------------- */
@@ -512,11 +552,12 @@ char *liability_payment_error_message(
 
 typedef struct
 {
-	ENTITY_SELF *entity_self;
 	LIST *liability_account_entity_list;
+	LIST *exclude_account_name_list;
 	LIST *account_current_liability_name_list;
 	LIST *journal_account_distinct_entity_list;
 	LIST *account_receivable_name_list;
+	ENTITY_SELF *entity_self;
 	LIST *liability_entity_list;
 } LIABILITY_CALCULATE;
 

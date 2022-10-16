@@ -903,19 +903,27 @@ LIST *account_cash_name_list(
 LIST *account_current_liability_name_list(
 			char *account_table,
 			char *subclassification_current_liability,
-			char *account_uncleared_checks,
-			char *account_credit_card_key )
+			char *account_credit_card_key,
+			LIST *exclude_account_name_list )
 {
 	char system_string[ 1024 ];
-	char where[ 256 ];
+	char where[ 512 ];
+
+	if ( !account_table
+	||   !subclassification_current_liability
+	||   !account_credit_card_key
+	||   !list_length( exclude_account_name_list ) )
 
 	sprintf(where,
 		"subclassification = '%s' and			"
-		"account <> '%s' and				"
-		"ifnull(hard_coded_account_key,'') <> '%s'	",
+		"ifnull(hard_coded_account_key,'') <> '%s' and	"
+		"account not in (%s)				",
 		subclassification_current_liability,
-		account_uncleared_checks,
-		account_credit_card_key );
+		account_credit_card_key,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		timlib_in_clause( exclude_account_name_list ) );
 
 	sprintf(system_string,
 		"select.sh account %s \"%s\"",

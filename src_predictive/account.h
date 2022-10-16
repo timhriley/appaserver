@@ -388,8 +388,8 @@ LIST *account_cash_name_list(
 LIST *account_current_liability_name_list(
 			char *account_table,
 			char *subclassification_current_liability,
-			char *account_uncleared_checks,
-			char *account_credit_card_key );
+			char *account_credit_card_key,
+			LIST *exclude_account_name_list );
 
 LIST *account_receivable_name_list(
 			char *account_table,

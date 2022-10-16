@@ -572,6 +572,8 @@ int timlib_delimiter_independent_strcmp(
 char *timlib_get_in_clause(
 			char *data_list_string );
 
+/* Returns heap memory */
+/* ------------------- */
 char *timlib_in_clause(	LIST *data_list );
 
 char *timlib_with_list_get_in_clause(
