@@ -238,10 +238,9 @@ LIABILITY_JOURNAL_LIST *
 LIABILITY_JOURNAL_LIST *liability_journal_list_calloc(
 			void );
 
-/* Private */
-/* ------- */
 double liability_journal_list_transaction_amount(
-			double amount_due );
+			double dialog_box_payment_amount,
+			double liability_entity_amount_due );
 
 typedef struct
 {
@@ -256,7 +255,7 @@ LIABILITY_TRANSACTION_LIST *
 			double dialog_box_payment_amount,
 			int starting_check_number,
 			char *transaction_memo,
-			LIST *liability_entity_list,
+			LIST *liability_payment_entity_list,
 			char *liability_payment_credit_account_name );
 
 /* Process */
@@ -319,6 +318,7 @@ LIABILITY_TRANSACTION *liability_transaction_calloc(
 
 typedef struct
 {
+	double amount;
 	char *dollar_text;
 	char *escape_payable_to;
 	char *move_down;
@@ -336,6 +336,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIABILITY_CHECK *liability_check_new(
+			double dialog_box_payment_amount,
 			int check_number,
 			char *transaction_memo,
 			LIABILITY_ENTITY *liability_entity );
@@ -345,10 +346,14 @@ LIABILITY_CHECK *liability_check_new(
 LIABILITY_CHECK *liability_check_calloc(
 			void );
 
+double liability_check_amount(
+			double dialog_box_payment_amount,
+			double liability_entity_amount_due );
+			
 /* Returns static memory */
 /* --------------------- */
 char *liability_check_dollar_text(
-			double amount_due );
+			double liability_check_amount );
 
 /* Returns static memory */
 /* --------------------- */
@@ -502,6 +507,30 @@ char *liability_check_list_end_document(
 
 typedef struct
 {
+	LIST *liability_account_entity_list;
+	LIST *exclude_account_name_list;
+	LIST *account_current_liability_name_list;
+	LIST *journal_account_distinct_entity_list;
+	LIST *account_receivable_name_list;
+	ENTITY_SELF *entity_self;
+	LIST *liability_entity_list;
+} LIABILITY_CALCULATE;
+
+/* Usage */
+/* ----- */
+LIABILITY_CALCULATE *liability_calculate_new(
+			char *application_name );
+
+LIABILITY_CALCULATE *liability_calculate_calloc(
+			void );
+
+/* Driver */
+/* ------ */
+void liability_calculate_stdout(
+			LIST *liability_entity_list );
+
+typedef struct
+{
 	LIABILITY_CALCULATE *liability_calculate;
 	LIST *entity_list;
 	char *transaction_memo;
@@ -549,29 +578,5 @@ LIST *liability_payment_entity_list(
 /* --------------- */
 char *liability_payment_error_message(
 			char *message );
-
-typedef struct
-{
-	LIST *liability_account_entity_list;
-	LIST *exclude_account_name_list;
-	LIST *account_current_liability_name_list;
-	LIST *journal_account_distinct_entity_list;
-	LIST *account_receivable_name_list;
-	ENTITY_SELF *entity_self;
-	LIST *liability_entity_list;
-} LIABILITY_CALCULATE;
-
-/* Usage */
-/* ----- */
-LIABILITY_CALCULATE *liability_calculate_new(
-			char *application_name );
-
-LIABILITY_CALCULATE *liability_calculate_calloc(
-			void );
-
-/* Driver */
-/* ------ */
-void liability_calculate_stdout(
-			LIST *liability_entity_list );
 
 #endif

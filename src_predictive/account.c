@@ -913,6 +913,15 @@ LIST *account_current_liability_name_list(
 	||   !subclassification_current_liability
 	||   !account_credit_card_key
 	||   !list_length( exclude_account_name_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 
 	sprintf(where,
 		"subclassification = '%s' and			"
