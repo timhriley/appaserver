@@ -1,7 +1,5 @@
 /* $APPASERVER_HOME/library/appaserver_user.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver user ADT.					*/
-/*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
 
@@ -20,8 +18,9 @@
 #include "piece.h"
 #include "folder.h"
 #include "timlib.h"
-#include "attribute.h"
+#include "folder_attribute.h"
 #include "session.h"
+#include "role.h"
 #include "appaserver_user.h"
 
 static APPASERVER_USER *global_appaserver_user = {0};
@@ -46,13 +45,17 @@ APPASERVER_USER *appaserver_user_calloc( void )
 
 }
 
-char *appaserver_user_system_string( char *where )
+char *appaserver_user_system_string(
+			char *select,
+			char *table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
 	sprintf(system_string,
-		"select.sh \"%s\" appaserver_user \"%s\" none",
-		appaserver_user_select(),
+		"select.sh \"%s\" %s \"%s\" none",
+		select,
+		table,
 		where );
 
 	return strdup( system_string );
@@ -63,26 +66,70 @@ APPASERVER_USER *appaserver_user_fetch(
 			boolean fetch_role_name_list,
 			boolean fetch_session_list )
 {
-	return appaserver_user_parse(
-			string_pipe_fetch(
-				appaserver_user_system_string(
-					appaserver_user_primary_where(
-						login_name ) ) ),
-			fetch_role_name_list,
-			fetch_session_list );
+	boolean full_name_exists;
+	boolean person_full_name_exists;
+	boolean frameset_menu_horizontal_exists;
+
+	full_name_exists =
+		folder_attribute_exists(
+			APPASERVER_USER_TABLE,
+			"full_name" );
+
+	person_full_name_exists =
+		folder_attribute_exists(
+			APPASERVER_USER_TABLE,
+			"person_full_name" );
+
+	frameset_menu_horizontal_exists =
+		folder_attribute_exists(
+			APPASERVER_USER_TABLE,
+			"frameset_menu_horizontal_yn" );
+
+	return
+	appaserver_user_parse(
+		string_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			appaserver_user_system_string(
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				appaserver_user_select(
+					full_name_exists,
+					person_full_name_exists,
+					frameset_menu_horizontal_exists ),
+				APPASERVER_USER_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				appaserver_user_primary_where(
+					login_name ) ) ),
+		fetch_role_name_list,
+		fetch_session_list,
+		full_name_exists );
 }
 
-char *appaserver_user_primary_where(
-			char *login_name )
+char *appaserver_user_primary_where( char *login_name )
 {
 	static char where[ 128 ];
 	char *tmp;
 
+	if ( !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: login_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	sprintf(where,
 		"login_name = '%s'",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
 		( tmp = security_sql_injection_escape(
 			login_name ) ) );
 
@@ -234,56 +281,101 @@ void appaserver_user_insert_stream(
 	}
 }
 
-char *appaserver_user_select( void )
+char *appaserver_user_select(
+			boolean full_name_exists,
+			boolean person_full_name_exists,
+			boolean frameset_menu_horizontal_exists )
 {
-	if ( attribute_exists(
-			environment_application_name(),
-			"appaserver_user",
-			"full_name" ) )
+	static char select[ 256 ];
+	char *ptr = select;
+
+	if ( full_name_exists && person_full_name_exists )
 	{
-		return "login_name,full_name,password,user_date_format";
+		fprintf(stderr,
+"ERROR in %s/%s()/%d: both full_name_exists and person_full_name_exists are set.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
-	else
-	if ( attribute_exists(
-			environment_application_name(),
-			"appaserver_user",
-			"person_full_name" ) )
+
+	ptr += sprintf( ptr, "login_name" );
+
+	if ( full_name_exists )
 	{
-		return "login_name,person_full_name,password,user_date_format";
+		ptr += sprintf( ptr, ",full_name" );
 	}
-	else
+
+	if ( person_full_name_exists )
 	{
-		return "login_name,'',password,user_date_format";
+		ptr += sprintf( ptr, ",person_full_name" );
 	}
+
+	if ( frameset_menu_horizontal_exists )
+	{
+		ptr += sprintf( ptr, ",frameset_menu_horizontal_yn" );
+	}
+
+	ptr += sprintf( ptr, ",password,user_date_format" );
+
+	return select;
 }
 
 APPASERVER_USER *appaserver_user_parse(
 			char *input,
 			boolean fetch_role_name_list,
-			boolean fetch_session_list )
+			boolean fetch_session_list,
+			boolean full_name_exists,
+			boolean frameset_menu_horizontal_exists )
 {
 	APPASERVER_USER *appaserver_user;
 	char piece_buffer[ 512 ];
+	int piece_offset = 0;
+
+	if ( !input || !*input )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: input is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	appaserver_user = appaserver_user_calloc();
 
-	piece( piece_buffer, SQL_DELIMITER, input, 0 );
+	/* See appaserver_user_select() */
+	/* ---------------------------- */
+	piece_offset = 0;
+	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
 	appaserver_user->login_name = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 1 );
-	appaserver_user->full_name = strdup( piece_buffer );
+	if ( full_name_exists )
+	{
+		piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
+		appaserver_user->full_name = strdup( piece_buffer );
+	}
 
-	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	if ( frameset_menu_horizontal_exists )
+	{
+		appaserver_user->frameset_menu_horizontal_exists = 1;
+
+		piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
+
+		appaserver_user->frameset_menu_horizontal =
+			( *piece_buffer == 'y' );
+	}
+
+	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
 	appaserver_user->database_password = strdup( piece_buffer );
 
-	piece( piece_buffer, SQL_DELIMITER, input, 3 );
+	piece( piece_buffer, SQL_DELIMITER, input, piece_offset++ );
 	appaserver_user->user_date_format = strdup( piece_buffer );
 
 	if ( fetch_role_name_list )
 	{
 		appaserver_user->role_name_list =
-			appaserver_user_role_name_list(
-				environment_application_name(),
+			role_appaserver_user_role_name_list(
 				appaserver_user->login_name );
 	}
 
@@ -292,6 +384,11 @@ APPASERVER_USER *appaserver_user_parse(
 		appaserver_user->session_list =
 			session_system_list(
 				session_system_string(
+					SESSION_SELECT,
+					SESSION_TABLE,
+					/* --------------------- */
+					/* Returns static memory */
+					/* --------------------- */
 					appaserver_user_primary_where(
 					      appaserver_user->login_name ) ) );
 	}
@@ -300,23 +397,9 @@ APPASERVER_USER *appaserver_user_parse(
 }
 
 LIST *appaserver_user_role_name_list(
-			char *application_name,
 			char *login_name )
 {
-	char where[ 128 ];
-	char sys_string[ 1024 ];
-
-	sprintf( where, "login_name = '%s'", login_name );
-
-	sprintf( sys_string,
-		 "get_folder_data	application=%s			"
-		 "			select=role			"
-		 "			folder=role_appaserver_user	"
-		 "			where=\"%s\"			",
-		 application_name,
-		 where );
-
-	return pipe2list( sys_string );
+	return
 }
 
 char *appaserver_user_person_full_name(
@@ -352,9 +435,8 @@ char *appaserver_user_password_fetch(
 }
 
 boolean appaserver_user_exists_session(
-			char *application_name,
 			char *login_name,
-			char *session )
+			char *session_key )
 {
 	if ( !global_appaserver_user )
 	{
@@ -418,3 +500,44 @@ void appaserver_user_update(
 		 login_name,
 		 injection_escaped_encrypted_password );
 }
+
+boolean appaserver_user_frameset_menu_horizontal(
+			char *login_name )
+{
+	APPASERVER_USER *appaserver_user;
+
+	if ( ! ( appaserver_user =
+			appaserver_user_fetch(
+				login_name,
+				0 /* not fetch_role_name_list */,
+				0 /* not fetch_session_list */ ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_fetch() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return appaserver_user->frameset_menu_horizontal;
+}
+
+char *appaserver_user_default_role_name(
+			char *login_name )
+{
+	char system_string[ 1024 ];
+	char where[ 128 ];
+
+	sprintf(where,
+		"login_name = '%s'",
+		login_name );
+
+	sprintf(system_string,
+		"select.sh role login_default_role \"%s\"",
+		where );
+
+
+	return pipe2string( system_string );
+}
+
