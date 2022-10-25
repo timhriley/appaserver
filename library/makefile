@@ -51,6 +51,7 @@ APPASERVER_LIBRARY=						\
 		appaserver_error.o				\
 		folder.o					\
 		attribute.o					\
+		folder_attribute.o				\
 		date_aggregate.o				\
 		process_generic.o				\
 		folder_menu.o					\
@@ -292,6 +293,9 @@ process_parameter.o: process_parameter.c process_parameter.h
 
 attribute.o: attribute.c attribute.h
 	${CC} ${CFLAGS} -c attribute.c
+
+folder_attribute.o: folder_attribute.c folder_attribute.h
+	${CC} ${CFLAGS} -c folder_attribute.c
 
 element.o: element.c element.h
 	${CC} ${CFLAGS} -c element.c
