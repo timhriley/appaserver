@@ -11,10 +11,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <time.h>
-#include "dictionary.h"
 
-/* Constants */
-/* --------- */
 #define DATE_GMT		"Etc/GMT"
 #define DATE_DEFAULT_UTC_OFFSET	-5
 #define SECONDS_IN_DAY		86400
@@ -33,8 +30,6 @@
 
 #define DATE_END_OF_WEEK_INDICATOR	4
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
 	time_t current;
@@ -42,8 +37,8 @@ typedef struct
 	boolean is_daylight_time;
 } DATE;
 
-/* Prototypes */
-/* ---------- */
+/* Public */
+/* ------ */
 boolean date_is_daylight_time(	void );
 
 DATE *date_new(			int year,
@@ -742,10 +737,5 @@ char *date_time_display(
 /* ---------------------- */
 char *date_display_th_st_rd_nd(
 			DATE *date );
-
-/* Safely returns heap memory. */
-/* --------------------------- */
-char *date_now_time_hhmm_colon_ss(
-			int utc_offset );
 
 #endif
