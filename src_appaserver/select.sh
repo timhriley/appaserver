@@ -27,7 +27,6 @@ then
 fi
 
 select="$1"
-table="$2"
 
 if [ "$#" -gt 1 ]
 then
