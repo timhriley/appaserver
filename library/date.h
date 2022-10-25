@@ -183,10 +183,7 @@ char *date_now_yyyy_mm_dd(
 char *date_get_now_yyyy_mm_dd(
 			int utc_offset );
 
-char *date_get_now_hhmm(
-			int utc_offset );
-
-char *date_get_now_hhmmss(
+char *date_now_hhmm(
 			int utc_offset );
 
 char *date_now_hhmmss(
@@ -554,7 +551,7 @@ DATE *date_get_prior_saturday(
 char *date_append_hhmmss(
 			char *date_string );
 
-char *date_get_now_time_second(
+char *date_now_time_second(
 			int utc_offset );
 
 char *date_remove_colon_from_time(

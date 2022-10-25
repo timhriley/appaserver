@@ -1663,11 +1663,6 @@ char *date_get_now_time_hhmm( int utc_offset )
 	return strdup( buffer );
 }
 
-char *date_get_now_hhmmss( int utc_offset )
-{
-	return date_now_hhmmss( utc_offset );
-}
-
 char *date_now_hhmmss( int utc_offset )
 {
 	char *return_string;
@@ -1677,16 +1672,9 @@ char *date_now_hhmmss( int utc_offset )
 	return_string = date_get_now_hhmm_colon_ss( utc_offset );
 
 	return return_string;
-
-#ifdef NOT_DEFINED
-	return search_replace_string(
-			return_string /* source_destination */,
-			":" /* search_str */,
-			"" /* replace_str */ );
-#endif
 }
 
-char *date_get_now_hhmm_colon_ss( int utc_offset )
+char *date_now_hhmm_colon_ss( int utc_offset )
 {
 	/* Returns heap memory. */
 	/* -------------------- */
@@ -1698,7 +1686,7 @@ char *date_now_hh_colon_mm_colon_ss( int utc_offset )
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
 }
 
-char *date_get_now_time_second( int utc_offset )
+char *date_now_time_second( int utc_offset )
 {
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
 }

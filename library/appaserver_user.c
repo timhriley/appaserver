@@ -375,3 +375,34 @@ char *appaserver_user_default_role_name(
 	return pipe2string( system_string );
 }
 
+LIST *appaserver_user_role_name_list( char *login_name )
+{
+	APPASERVER_USER *appaserver_user;
+
+	if ( !login_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: login_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( appaserver_user =
+			appaserver_user_fetch(
+				login_name,
+				1 /* fetch_role_name_ist */ ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			login_name );
+		exit( 1 );
+	}
+
+	return appaserver_user->role_name_list;
+}
+

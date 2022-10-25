@@ -107,4 +107,7 @@ char *appaserver_user_default_role_name(
 boolean appaserver_user_frameset_menu_horizontal(
 			char *login_name );
 
+LIST *appaserver_user_role_name_list(
+			char *login_name );
+
 #endif

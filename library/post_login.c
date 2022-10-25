@@ -352,8 +352,7 @@ char *post_login_database_password( char *login_name )
 	if ( ! ( appaserver_user =
 			appaserver_user_fetch(
 				login_name,
-				0 /* not fetch_role_name_list */,
-				0 /* not fetch_session_list */ ) ) )
+				0 /* not fetch_role_name_list */ ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: appaserver_user_fetch(%s) returned empty.\n",
