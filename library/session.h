@@ -7,13 +7,9 @@
 #ifndef SESSION_H
 #define SESSION_H
 
-/* Includes */
-/* -------- */
 #include "list.h"
 #include "boolean.h"
 
-/* Constants */
-/* --------- */
 #define SESSION_TABLE				"appaserver_sessions"
 #define SESSION_REMOTE_IP_ADDRESS_VARIABLE	"REMOTE_ADDR"
 #define SESSION_SIZE				10
@@ -27,12 +23,8 @@
 						"http_user_agent,"	\
 						"remote_ip_address"
 
-/* Structures */
-/* ---------- */
 typedef struct
 {
-	/* Attributes */
-	/* ---------- */
 	char *application_name;
 	char *session_key;
 	char *login_name;
@@ -42,15 +34,9 @@ typedef struct
 	char *last_access_time;
 	char *http_user_agent;
 	char *remote_ip_address;
-
-	/* Process */
-	/* ------- */
 	char *current_ip_address;
 	boolean remote_ip_address_changed;
 } SESSION;
-
-/* SESSION operations */
-/* ------------------ */
 
 /* Usage */
 /* ----- */
