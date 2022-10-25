@@ -6,42 +6,19 @@
 #ifndef SECURITY_H
 #define SECURITY_H
 
-/* Includes */
-/* -------- */
 #include <stdio.h>
 #include "boolean.h"
 #include "list.h"
 
-/* Constants */
-/* --------- */
 #define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=_"
 
-/* Enumerated types */
-/* ---------------- */
 enum password_function	{	no_encryption,
 				old_password_function,
 				regular_password_function,
 				sha2_function };
 
-/* Structures */
-/* ---------- */
-typedef struct
-{
-	/* Input */
-	/* ----- */
-	char *login_name;
-	boolean non_owner_forbid;
-	boolean override_row_restrictions;
-
-	/* Process */
-	/* ------- */
-	char *login_name_only;
-	char *full_name_only;
-	char *street_address_only;
-} SECURITY_ENTITY;
-
-/* Operations */
-/* ---------- */
+/* Public */
+/* ------ */
 boolean security_password_match(
 			char *database_password,
 			char *injection_escaped_encrypted_password );
@@ -89,15 +66,21 @@ char *security_sql_injection_escape(
 char *security_sql_injection_escape_quote_delimit(
 			char *data );
 
-/* Returns destination */
-/* ------------------- */
-char *security_escape_character_array(
-			char *destination,
-			char *source,
-			char *character_array );
+LIST *security_sql_injection_escape_list(
+			LIST *data_list );
 
-SECURITY_ENTITY *security_entity_calloc(
-			void );
+typedef struct
+{
+	char *login_name;
+	boolean non_owner_forbid;
+	boolean override_row_restrictions;
+	char *login_name_only;
+	char *full_name_only;
+	char *street_address_only;
+} SECURITY_ENTITY;
+
+/* Usage */
+/* ----- */
 
 /* Always returns */
 /* -------------- */
@@ -105,6 +88,11 @@ SECURITY_ENTITY *security_entity_new(
 			char *login_name,
 			boolean non_owner_forbid,
 			boolean override_row_restrictions );
+
+/* Process */
+/* ------- */
+SECURITY_ENTITY *security_entity_calloc(
+			void );
 
 /* Returns full_name_only as heap memory */
 /* ------------------------------------- */
@@ -123,10 +111,5 @@ char *security_login_name_full_name_only(
 char *security_entity_where(
 			SECURITY_ENTITY *security_entity,
 			LIST *folder_attribute_list );
-
-/* Public */
-/* ------ */
-LIST *security_sql_injection_escape_list(
-			LIST *data_list );
 
 #endif
