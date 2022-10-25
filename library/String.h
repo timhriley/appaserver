@@ -13,8 +13,22 @@
 
 /* Constants */
 /* --------- */
-#define STRING_LF	10
-#define STRING_CR	13
+#define STRING_LF			10
+#define STRING_CR			13
+#define STRING_8K			8192
+#define STRING_16K			16384
+#define STRING_32K			32768
+#define STRING_64K			65536
+#define STRING_128K			131072
+#define STRING_192K			196608
+#define STRING_SYSTEM_BUFFER		196608
+#define STRING_WHERE_BUFFER		196608
+#define STRING_COMMAND_BUFFER		196608
+#define STRING_INPUT_BUFFER		196608
+#define STRING_ONE_MEG			1048576
+#define STRING_TWO_MEG			2097152
+#define STRING_THREE_MEG		3145728
+#define STRING_FOUR_MEG			4194304
 
 /* Structures */
 /* ---------- */
@@ -26,21 +40,22 @@ typedef struct
 
 /* Prototypes */
 /* ---------- */
-char *string_enforce_utf16(	char *destination,
-				char *source );
+char *string_enforce_utf16(
+			char *destination,
+			char *source );
 
 LIST *string_negative_sequence_integer_list(
-				char *source );
+			char *source );
 
 char *string_occurrance_list_display(
-				char *destination,
-				LIST *occurrance_list );
+			char *destination,
+			LIST *occurrance_list );
 
 LIST *string_negative_sequence_occurrance_list(
-				char *source );
+			char *source );
 
-/* Returns input_buffer or (char *)0 if all done. */
-/* ---------------------------------------------- */
+/* Returns input_buffer or null if all done. */
+/* ----------------------------------------- */
 char *string_input(	char *input_buffer,
 			FILE *infile,
 			int buffer_size );
@@ -103,8 +118,6 @@ char *string_commas_rounded_dollar(
 char *string_commas_dollar(
 			double d );
 
-/* Returns heap memory */
-/* ------------------- */
 char *string_commas_money(
 			double d );
 
@@ -112,6 +125,9 @@ char *string_commas_money(
 /* --------------------------------------- */
 char *string_commas_double(
 			double d );
+
+char *string_commas_number_string(
+			char *string );
 
 char *string_format_mnemonic(
 			char *mnemonic,
@@ -147,7 +163,10 @@ int string_character_count(
 
 char *string_rtrim(	char *buffer );
 
-boolean string_exists_substr(
+boolean string_exists(	char *string,
+			char *substring );
+
+boolean string_exists_substring(
 			char *string,
 			char *substring );
 
@@ -157,12 +176,10 @@ int string_instr(	char *substr,
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *string_pipe(	char *system_string );
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *string_pipe_fetch(
-			char *system_string );
+char *string_pipe( char *system_string );
+char *string_pipe_fetch( char *system_string );
+char *string_fetch_pipe( char *system_string );
+char *string_pipe_input( char *system_string );
 
 LIST *string_pipe_list(	char *system_string );
 
@@ -177,18 +194,100 @@ char *string_itoa(	int i );
 /* -------------- */
 char *string_trim_number_characters(
 			char *number,
-			char *attribute_datatype );
+			char *datatype_name );
 
 char *string_trim_character_array(
 			char *data,
 			char *character_array );
 
+char *string_delimiter_repeat(
+			char *string,
+			char delimiter,
+			int number_times );
+
+char *string_strncpy(	char *destination,
+			char *source,
+			int count );
+
 /* Returns heap memory */
 /* ------------------- */
-char *string_strdup(	char *string );
+char *string_in_clause(	LIST *data_list );
 
-double string_atof(	char *string );
+int string_length(	char *string );
 
-int string_atoi(	char *string );
+char *string_decode_html_post(
+			char *destination,
+			char *source );
+
+char *string_trim(	char *buffer );
+
+char *string_extract_lt_gt_delimited(
+			char *destination,
+			char *source );
+
+/* Sample: source = "station_1" */
+/* ---------------------------- */
+int string_index(	char *source );
+
+char *string_trim_leading_character(
+			char *data,
+			char character );
+
+char *string_trim_index(
+			char *string );
+
+int string_exists_character(
+			char *s,
+			char ch );
+
+char string_delimiter(	char *string );
+
+char *string_initial_capital(
+			char *destination,
+			char *source );
+
+char *string_separate_delimiter(
+			char *destination,
+			char *source );
+
+char *string_search_replace_character(
+			char *source_destination,
+			char search_character,
+			char replace_character );
+
+char *string_search_replace(
+			char *source_destination,
+			char *search_string,
+			char *replace_string );
+
+char *string_insert(	char *string,
+			char *substring,
+			int pos );
+
+char *string_delete(	char *string,
+			int start,
+			int num_chars );
+
+/* Sample: attribute_name = "station_1" */
+/* ------------------------------------ */
+int string_row_number(	char *attribute_name );
+
+/* Returns heap memory */
+/* ------------------- */
+char *string_append(	char *message_list_string,
+			char *message_string,
+			char *delimiter );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *string_file_fetch(char *filename,
+			char *delimiter );
+
+char string_last_character(
+			char *string );
+
+char *string_up(	char *string );
+
+char *string_low(	char *string );
 
 #endif

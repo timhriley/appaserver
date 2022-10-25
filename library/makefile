@@ -52,6 +52,7 @@ APPASERVER_LIBRARY=						\
 		appaserver.o					\
 		folder.o					\
 		attribute.o					\
+		folder_attribute.o				\
 		date_aggregate.o				\
 		process_generic_output.o			\
 		process_generic.o				\
@@ -778,14 +779,17 @@ appaserver.o: appaserver.c appaserver.h					\
 		element.o
 	${CC} ${CFLAGS} -c appaserver.c
 
-folder.o: folder.c folder.h process.h attribute.h date_convert.h
+folder.o: folder.c folder.h
 	${CC} ${CFLAGS} -c folder.c
 
-process.o: process.c process.h query.h
+process.o: process.c process.h
 	${CC} ${CFLAGS} -c process.c
 
 attribute.o: attribute.c attribute.h
 	${CC} ${CFLAGS} -c attribute.c
+
+folder_attribute.o: folder_attribute.c folder_attribute.h
+	${CC} ${CFLAGS} -c folder_attribute.c
 
 element.o: element.c element.h
 	${CC} ${CFLAGS} -c element.c

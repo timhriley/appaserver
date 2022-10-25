@@ -18,31 +18,26 @@
 #include "piece.h"
 #include "folder.h"
 #include "timlib.h"
-#include "folder_attribute.h"
 #include "session.h"
 #include "role.h"
+#include "folder_attribute.h"
 #include "appaserver_user.h"
-
-static APPASERVER_USER *global_appaserver_user = {0};
 
 APPASERVER_USER *appaserver_user_calloc( void )
 {
-	APPASERVER_USER *a;
+	APPASERVER_USER *appaserver_user;
 
-	if ( ! ( a = (APPASERVER_USER *)
-			calloc(	1,
-				sizeof( APPASERVER_USER ) ) ) )
+	if ( ! ( appaserver_user = calloc( 1, sizeof( APPASERVER_USER ) ) ) )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: cannot allocate memory.\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	return a;
-
+	return appaserver_user;
 }
 
 char *appaserver_user_system_string(
@@ -63,8 +58,7 @@ char *appaserver_user_system_string(
 
 APPASERVER_USER *appaserver_user_fetch(
 			char *login_name,
-			boolean fetch_role_name_list,
-			boolean fetch_session_list )
+			boolean fetch_role_name_list )
 {
 	boolean full_name_exists;
 	boolean person_full_name_exists;
@@ -106,8 +100,8 @@ APPASERVER_USER *appaserver_user_fetch(
 				appaserver_user_primary_where(
 					login_name ) ) ),
 		fetch_role_name_list,
-		fetch_session_list,
-		full_name_exists );
+		full_name_exists,
+		frameset_menu_horizontal_exists );
 }
 
 char *appaserver_user_primary_where( char *login_name )
@@ -157,130 +151,6 @@ LIST *appaserver_user_session_list(
 	return pipe2list( sys_string );
 }
 
-/* Returns 1 if no error. */
-/* ---------------------- */
-boolean appaserver_user_insert(
-			char *application_name,
-			char *login_name,
-			char *database_password,
-			char *person_full_name,
-			char *frameset_menu_horizontal_yn,
-			char *user_date_format )
-{
-	FILE *output_pipe;
-	char error_filename[ 128 ];
-	boolean file_populated;
-
-	sprintf( error_filename,
-		 "/tmp/appaserver_user_insert_%d.err",
-		 getpid() );
-
-	output_pipe =
-		appaserver_user_insert_open(
-			application_name,
-			error_filename,
-			frameset_menu_horizontal_yn );
-
-	appaserver_user_insert_stream(
-		output_pipe,
-		login_name,
-		database_password,
-		person_full_name,
-		frameset_menu_horizontal_yn,
-		user_date_format );
-
-	pclose( output_pipe );
-
-	file_populated = timlib_file_populated( error_filename );
-
-	timlib_remove_file( error_filename );
-
-	if ( file_populated )
-		return 0;
-	else
-		return 1;
-}
-
-FILE *appaserver_user_insert_open(
-			char *application_name,
-			char *error_filename,
-			char *frameset_menu_horizontal_yn )
-{
-	char sys_string[ 1024 ];
-	char *field;
-	char *table_name;
-	FILE *output_pipe;
-
-	if (	frameset_menu_horizontal_yn &&
-		*frameset_menu_horizontal_yn )
-	{
-		field =	"login_name,"
-			"password,"
-			"person_full_name,"
-			"frameset_menu_horizontal_yn,"
-			"user_date_format";
-	}
-	else
-	{
-		field =	"login_name,"
-			"password,"
-			"person_full_name,"
-			"user_date_format";
-	}
-
-	table_name =
-		get_table_name(
-			application_name,
-			"appaserver_user" );
-
-	sprintf( sys_string,
-		 "insert_statement.e table=%s field=%s del='^'	|"
-		 "sql.e 2>%s					 ",
-		 table_name,
-		 field,
-		 error_filename );
-
-	output_pipe = popen( sys_string, "w" );
-
-	return output_pipe;
-}
-
-void appaserver_user_insert_stream(
-			FILE *output_pipe,
-			char *login_name,
-			char *database_password,
-			char *person_full_name,
-			char *frameset_menu_horizontal_yn,
-			char *user_date_format )
-{
-	char entity_buffer[ 128 ];
-
-	if ( frameset_menu_horizontal_yn
-	&&   *frameset_menu_horizontal_yn )
-	{
-		fprintf(output_pipe,
-			"%s^%s^%s^%s^%s\n",
-			login_name,
-			(database_password) ? database_password : "",
-	 		escape_character(	entity_buffer,
-						person_full_name,
-						'\'' ),
-			frameset_menu_horizontal_yn,
-			user_date_format );
-	}
-	else
-	{
-		fprintf(output_pipe,
-			"%s^%s^%s^%s\n",
-			login_name,
-			(database_password) ? database_password : "",
-	 		escape_character(	entity_buffer,
-						person_full_name,
-						'\'' ),
-			user_date_format );
-	}
-}
-
 char *appaserver_user_select(
 			boolean full_name_exists,
 			boolean person_full_name_exists,
@@ -324,7 +194,6 @@ char *appaserver_user_select(
 APPASERVER_USER *appaserver_user_parse(
 			char *input,
 			boolean fetch_role_name_list,
-			boolean fetch_session_list,
 			boolean full_name_exists,
 			boolean frameset_menu_horizontal_exists )
 {
@@ -379,126 +248,89 @@ APPASERVER_USER *appaserver_user_parse(
 				appaserver_user->login_name );
 	}
 
-	if ( fetch_session_list )
-	{
-		appaserver_user->session_list =
-			session_system_list(
-				session_system_string(
-					SESSION_SELECT,
-					SESSION_TABLE,
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					appaserver_user_primary_where(
-					      appaserver_user->login_name ) ) );
-	}
-
 	return appaserver_user;
-}
-
-LIST *appaserver_user_role_name_list(
-			char *login_name )
-{
-	return
 }
 
 char *appaserver_user_person_full_name(
 			char *login_name )
 {
-	if ( !global_appaserver_user )
+	APPASERVER_USER *appaserver_user;
+
+	if ( !login_name )
 	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				login_name, 0, 0 );
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: login_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
 
-	if ( !global_appaserver_user )
-		return "";
-	else
-		return global_appaserver_user->full_name;
-}
-
-char *appaserver_user_password_fetch(
-				char *login_name )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				login_name, 0, 0 );
-	}
-
-	if ( !global_appaserver_user )
-		return "";
-	else
-		return global_appaserver_user->database_password;
-}
-
-boolean appaserver_user_exists_session(
-			char *login_name,
-			char *session_key )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
-			appaserver_user_fetch(
-				login_name, 0, 0 );
-	}
-
-	if ( !global_appaserver_user->session_list )
-	{
-		global_appaserver_user->session_list =
-			appaserver_user_session_list(
-				application_name,
-				login_name );
-	}
-
-	return list_exists_string(
-		session,
-		global_appaserver_user->session_list );
-}
-
-boolean appaserver_user_exists_role(
-			char *login_name,
-			char *role_name )
-{
-	if ( !global_appaserver_user )
-	{
-		global_appaserver_user =
+	if ( ! ( appaserver_user =
 			appaserver_user_fetch(
 				login_name,
-				1 /* fetch_role_name_list */,
-				0 /* not fetch_session_list */ );
+				0 /* not fetch_role_name_ist */ ) ) )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: appaserver_user_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			login_name );
+		exit( 1 );
 	}
 
-	return list_exists_string(
-		role_name,
-		global_appaserver_user->role_name_list );
-}
-
-FILE *appaserver_user_update_open( void )
-{
-	char sys_string[ 2048 ];
-
-	sprintf( sys_string,
-		 "update_statement table=%s key=%s carrot=y	|"
-		 "tee_appaserver_error.sh 			|"
-		 "sql						 ",
-		 APPASERVER_USER_TABLE,
-		 APPASERVER_USER_PRIMARY_KEY );
-
-	return popen( sys_string, "w" );
+	return appaserver_user->full_name;
 }
 
 void appaserver_user_update(
+			char *database_password,
+			char *login_name )
+{
+	FILE *update_open;
+
+	update_open =
+		appaserver_user_update_open(
+			APPASERVER_USER_TABLE,
+			APPASERVER_USER_PRIMARY_KEY );
+
+	appaserver_user_update_pipe(
+		update_open,
+		security_encrypted_password(
+			security_sql_injection_escape(
+				database_password ),
+			security_mysql_version_password_function(
+				security_mysql_version() ) ),
+		login_name );
+
+	pclose( update_pipe() );
+}
+
+FILE *appaserver_user_update_open(
+			char *appaserver_user_table,
+			char *appaserver_user_primary_key )
+{
+	char system_string[ 1024 ];
+
+	sprintf(system_string,
+		"update_statement table=%s key=%s carrot=y	|"
+		"tee_appaserver_error.sh 			|"
+		"sql						 ",
+		appaserver_user_table,
+		appaserver_user_primary_key );
+
+	return popen( system_string, "w" );
+}
+
+void appaserver_user_update_pipe(
 			FILE *update_pipe,
 			char *injection_escaped_encrypted_password,
 			char *login_name )
 {
-	fprintf( update_pipe,
-		 "%s^password^%s\n",
-		 login_name,
-		 injection_escaped_encrypted_password );
+	fprintf(update_pipe,
+		"%s^password^%s\n",
+		login_name,
+		injection_escaped_encrypted_password );
 }
 
 boolean appaserver_user_frameset_menu_horizontal(

@@ -24,7 +24,6 @@ typedef struct
 	char *encrypted_password;
 	char *user_date_format;
 	LIST *role_name_list;
-	LIST *session_list;
 	enum password_function password_function;
 	boolean appaserver_user_password_encrypted;
 } APPASERVER_USER;
@@ -33,8 +32,7 @@ typedef struct
 /* ----- */
 APPASERVER_USER *appaserver_user_fetch(
 			char *login_name,
-			boolean fetch_role_name_list,
-			boolean fetch_session_list );
+			boolean fetch_role_name_list );
 
 /* Process */
 /* ------- */
@@ -46,12 +44,18 @@ char *appaserver_user_select(
 			boolean person_full_name_exists,
 			boolean frameset_menu_horizontal_exists );
 
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_user_system_string(
+			char *appaserver_user_select,
+			char *appaserver_user_table,
+			char *where );
+
 /* Usage */
 /* ----- */
 APPASERVER_USER *appaserver_user_parse(
 			char *input,
 			boolean fetch_role_name_list,
-			boolean fetch_session_list,
 			boolean full_name_exists,
 			boolean frameset_menu_horizontal_exists );
 
@@ -75,62 +79,26 @@ enum password_function
 	appaserver_user_password_function(
 			char *database_password );
 
+/* Usage */
+/* ----- */
+void appaserver_user_update(
+			char *database_password,
+			char *login_name );
+
+/* Process */
+/* ------- */
+FILE *appaserver_user_update_open(
+			char *appaserver_user_table,
+			char *appaserver_user_primary_key );
+
+void appaserver_user_update_pipe(
+			FILE *update_open,
+			char *injection_escaped_password,
+			char *login_name );
+
 /* Public */
 /* ------ */
-boolean appaserver_user_exists_session(
-			char *login_name,
-			char *session_key );
-
-boolean appaserver_user_exists_role(
-			char *login_name,
-			char *role_name );
-
 char *appaserver_user_person_full_name(
-			char *login_name );
-
-char *appaserver_user_password_fetch(
-			char *login_name );
-
-boolean appaserver_user_frameset_menu_horizontal(
-			char *login_name );
-
-LIST *appaserver_user_role_name_list(
-			char *login_name );
-
-boolean appaserver_user_insert(
-			char *application_name,
-			char *login_name,
-			char *database_password,
-			char *person_full_name,
-			char *frameset_menu_horizontal_yn,
-			char *user_date_format );
-
-FILE *appaserver_user_insert_open(
-			char *application_name,
-			char *error_filename,
-			char *frameset_menu_horiontal_yn );
-
-void appaserver_user_insert_stream(
-			FILE *output_pipe,
-			char *login_name,
-			char *person_full_name,
-			char *database_password,
-			char *user_date_format,
-			char *frameset_menu_horizontal_yn );
-
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_user_system_string(
-			char *appaserver_user_select,
-			char *appaserver_user_table,
-			char *where );
-
-FILE *appaserver_user_update_open(
-			void );
-
-void appaserver_user_update(
-			FILE *update_pipe,
-			char *injection_escaped_password,
 			char *login_name );
 
 char *appaserver_user_default_role_name(

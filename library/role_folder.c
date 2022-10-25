@@ -1,6 +1,5 @@
-/* role_folder.c 							*/
+/* $APPASERVER_HOME/library/role_folder.c				*/
 /* -------------------------------------------------------------------- */
-/* This is the appaserver role_folder ADT.				*/
 /*									*/
 /* Freely available software: see Appaserver.org			*/
 /* -------------------------------------------------------------------- */
@@ -8,299 +7,522 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
+#include "piece.h"
+#include "sql.h"
+#include "folder.h"
 #include "role_folder.h"
-#include "appaserver_error.h"
-#include "timlib.h"
-#include "list.h"
 
-ROLE_FOLDER *role_folder_new(
-					char *application_name,
-					char *session,
-					char *role_name,
-					char *folder_name )
-{
-	return role_folder_new_role_folder(
-					application_name,
-					session,
-					role_name,
-					folder_name );
-}
-
-ROLE_FOLDER *role_folder_new_role_folder(
-					char *application_name,
-					char *session,
-					char *role_name,
-					char *folder_name )
-{
-	ROLE_FOLDER *role_folder;
-
-	role_folder = (ROLE_FOLDER *)calloc( 1, sizeof( ROLE_FOLDER ) );
-
-	role_folder->application_name = application_name;
-	role_folder->session = session;
-	role_folder->role_name = role_name;
-	role_folder->folder_name = folder_name;
-
-	role_folder_load(	&role_folder->insert_yn,
-				&role_folder->update_yn,
-				&role_folder->lookup_yn,
-				&role_folder->delete_yn,
-				application_name,
-				session,
-				role_name,
-				folder_name );
-
-	return role_folder;
-
-} /* role_folder_new_role_folder() */
-
-void role_folder_load( 	
-			char *insert_yn,
-			char *update_yn,
-			char *lookup_yn,
-			char *delete_yn,
-			char *application_name,
-			char *session,
+char *role_folder_where(
 			char *role_name,
 			char *folder_name )
 {
-	char sys_string[ 1024 ];
-	LIST *results_list;
-	char *permission;
-	char *role_operation_table_name;
+	static char where[ 128 ];
 
-	sprintf( sys_string, 
-		 "permission4role_folder.sh %s %s %s %s 2>>%s",
-		 application_name,
-		 session,
-		 role_name,
-		 folder_name,
-		 appaserver_error_get_filename( application_name ) );
+	sprintf(where,
+		"role = '%s' and %s.folder = '%s'",
+		role_name,
+		ROLE_FOLDER_TABLE,
+		folder_name );
 
-	results_list = pipe2list( sys_string );
-	if ( !list_rewind( results_list ) )
+	return where;
+}
+
+LIST *role_folder_list(	char *role_name,
+			char *folder_name )
+{
+	return
+	role_folder_system_list(
+		role_folder_system_string(
+			ROLE_FOLDER_SELECT,
+			ROLE_FOLDER_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_folder_where(
+				role_name,
+				folder_name ),
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_folder_left_join(
+				ROLE_FOLDER_TABLE,
+				FOLDER_TABLE_NAME ) ) );
+}
+
+ROLE_FOLDER *role_folder_calloc( void )
+{
+	ROLE_FOLDER *role_folder;
+
+	if ( ! ( role_folder = calloc( 1, sizeof( ROLE_FOLDER ) ) ) )
 	{
-		*insert_yn = 'n';
-		*update_yn = 'n';
-		*lookup_yn = 'n';
-		return;
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
 	}
+
+	return role_folder;
+}
+
+ROLE_FOLDER *role_folder_new( 
+			char *role_name,
+			char *folder_name,
+			char *permission )
+{
+	ROLE_FOLDER *role_folder = role_folder_calloc();
+
+	role_folder->role_name = role_name;
+	role_folder->folder_name = folder_name;
+	role_folder->permission = permission;
+
+	return role_folder;
+}
+
+ROLE_FOLDER *role_folder_parse( char *input )
+{
+	ROLE_FOLDER *role_folder;
+	char role_name[ 128 ];
+	char folder_name[ 128 ];
+	char permission[ 128 ];
+	char subschema_name[ 128 ];
+
+	if ( !input || !*input ) return (ROLE_FOLDER *)0;
+
+	/* See ROLE_FOLDER_SELECT */
+	/* ---------------------- */
+	piece( role_name, SQL_DELIMITER, input, 0 );
+	piece( folder_name, SQL_DELIMITER, input, 1 );
+	piece( permission, SQL_DELIMITER, input, 2 );
+	piece( subschema_name, SQL_DELIMITER, input, 3 );
+
+	role_folder =
+		role_folder_new(
+			strdup( role_name ),
+			strdup( folder_name ),
+			strdup( permission ) );
+
+	if ( *subschema_name )
+	{
+		role_folder->subschema_name = strdup( subschema_name );
+	}
+
+	return role_folder;
+}
+
+char *role_folder_system_string(
+			char *role_folder_select,
+			char *role_folder_table,
+			char *role_folder_where,
+			char *role_folder_left_join )
+{
+	char system_string[ 1024 ];
+
+	if ( !role_folder_where ) role_folder_where = "1 = 1";
+
+	sprintf(system_string,
+		"echo \"select %s from %s %s where %s;\" | sql",
+		role_folder_select,
+		role_folder_table,
+		role_folder_left_join,
+		role_folder_where );
+
+	return strdup( system_string );
+}
+
+FILE *role_folder_input_pipe( char *system_string )
+{
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return popen( system_string, "r" );
+}
+
+LIST *role_folder_system_list( char *system_string )
+{
+	char input[ 1024 ];
+	FILE *input_pipe;
+	LIST *list;
+
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	input_pipe = role_folder_input_pipe( system_string );
+
+	list = list_new();
+
+	while ( string_input( input, input_pipe, 1024 ) )
+	{
+		list_set( list, role_folder_parse( input ) );
+	}
+
+	pclose( input_pipe );
+
+	return list;
+}
+
+boolean role_folder_insert_boolean(
+			char *role_folder_insert,
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+
+	if ( !list_rewind( role_folder_list ) ) return 0;
 
 	do {
-		permission = list_get_string( results_list );
+		role_folder = list_get( role_folder_list );
 
-		if ( strcmp( permission, "insert" ) == 0 ) *insert_yn = 'y';
-		if ( strcmp( permission, "update" ) == 0 ) *update_yn = 'y';
-		if ( strcmp( permission, "lookup" ) == 0 ) *lookup_yn = 'y';
+		if ( strcmp(
+			role_folder->permission,
+			role_folder_insert ) == 0 )
+		{
+			return 1;
+		}
 
-	} while( list_next( results_list ) );
+	} while ( list_next( role_folder_list ) );
 
-	role_operation_table_name =
-		get_table_name( application_name,
-				"role_operation" ) ;
+	return 0;
+}
 
-	sprintf( sys_string,
-		 "echo \"	select 'y'				 "
-		 "		from %s					 "
-		 "		where folder = '%s'			 "
-		 "		  and role = '%s'			 "
-		 "		  and operation = 'delete';\"		|"
-		 "sql.e							 ",
-		 role_operation_table_name,
-		 folder_name,
-		 role_name );
+boolean role_folder_update_boolean(
+			char *role_folder_update,
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
 
-	permission = pipe2string( sys_string );
+	if ( !list_rewind( role_folder_list ) ) return 0;
 
-	if ( permission && *permission == 'y' )
-		*delete_yn = 'y';
+	do {
+		role_folder = list_get( role_folder_list );
+
+		if ( strcmp(
+			role_folder->permission,
+			role_folder_update ) == 0 )
+		{
+			return 1;
+		}
+
+	} while ( list_next( role_folder_list ) );
+
+	return 0;
+}
+
+boolean role_folder_lookup_boolean(
+			char *role_folder_lookup,
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+
+	if ( !list_rewind( role_folder_list ) ) return 0;
+
+	do {
+		role_folder = list_get( role_folder_list );
+
+		if ( strcmp(
+			role_folder->permission,
+			role_folder_lookup ) == 0 )
+		{
+			return 1;
+		}
+
+	} while ( list_next( role_folder_list ) );
+
+	return 0;
+}
+
+char *role_folder_lookup_where(
+			char *role_folder_lookup,
+			char *role_folder_update,
+			char *role_name )
+{
+	static char where[ 128 ];
+
+	if ( !role_folder_lookup
+	||   !role_folder_update
+	||   !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"role = '%s' and permission in ('%s','%s')",
+		role_name,
+		role_folder_lookup,
+		role_folder_update );
+
+	return where;
+}
+
+char *role_folder_insert_where(
+			char *role_folder_insert,
+			char *role_name )
+{
+	static char where[ 128 ];
+
+	if ( !role_folder_insert
+	||   !role_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	sprintf(where,
+		"role = '%s' and permission = '%s'",
+		role_name,
+		role_folder_insert );
+
+	return where;
+}
+
+LIST *role_folder_lookup_list( char *role_name )
+{
+	return
+	role_folder_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		role_folder_system_string(
+			ROLE_FOLDER_SELECT,
+			ROLE_FOLDER_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_folder_lookup_where(
+				ROLE_FOLDER_LOOKUP,
+				ROLE_FOLDER_UPDATE,
+				role_name ),
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_folder_left_join(
+				ROLE_FOLDER_TABLE,
+				FOLDER_TABLE_NAME ) ) );
+}
+
+LIST *role_folder_insert_list( char *role_name )
+{
+	return
+	role_folder_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		role_folder_system_string(
+			ROLE_FOLDER_SELECT,
+			ROLE_FOLDER_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_folder_insert_where(
+				ROLE_FOLDER_INSERT,
+				role_name ),
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			role_folder_left_join(
+				ROLE_FOLDER_TABLE,
+				FOLDER_TABLE_NAME ) ) );
+}
+
+LIST *role_folder_name_list(
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+
+	LIST *folder_name_list = list_new();
+
+	if ( list_rewind( role_folder_list ) )
+	{
+		do {
+			role_folder =
+				list_get(
+					role_folder_list );
+
+			if ( list_exists_string(
+				role_folder->folder_name,
+				folder_name_list ) )
+			{
+				continue;
+			}
+
+			list_add_string_in_order(
+				folder_name_list,
+				role_folder->folder_name );
+
+		} while ( list_next( role_folder_list ) );
+	}
+
+	return folder_name_list;
+}
+
+ROLE_FOLDER *role_folder_permission_seek(
+			char *folder_name,
+			char *permission,
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+
+	if ( list_rewind( role_folder_list ) )
+	{
+		do {
+			role_folder =
+				list_get(
+					role_folder_list );
+
+			if ( string_strcmp(
+				role_folder->folder_name,
+				folder_name ) == 0
+			&&   string_strcmp(
+				role_folder->permission,
+				permission ) == 0 )
+			{
+				return role_folder;
+			}
+
+		} while ( list_next( role_folder_list ) );
+	}
+
+	return (ROLE_FOLDER *)0;
+}
+
+boolean role_folder_insert_exists(
+			char *folder_name,
+			LIST *role_folder_list )
+{
+	if ( role_folder_permission_seek(
+		folder_name,
+		"insert",
+		role_folder_list ) )
+	{
+		return 1;
+	}
 	else
-		*delete_yn = 'n';
+	{
+		return 0;
+	}
+}
 
-} /* role_folder_load() */
-
-void role_folder_populate_folder_insert_permission(
-			LIST *folder_list, 
-			LIST *role_folder_insert_list,
-			char *application_name )
+char *role_folder_left_join(
+			char *role_folder_table,
+			char *folder_table )
 {
-	FOLDER *folder;
-	char *folder_name;
+	static char where[ 128 ];
 
-	if ( list_rewind( role_folder_insert_list ) )
+	sprintf(where,
+		"left join %s on %s.folder = %s.folder",
+		folder_table,
+		role_folder_table,
+		folder_table );
+
+	return where;
+}
+
+LIST *role_folder_subschema_folder_name_list(
+			char *subschema_name,
+			LIST *role_folder_list )
+{
+	ROLE_FOLDER *role_folder;
+	LIST *folder_name_list = list_new();
+
+	if ( list_rewind( role_folder_list ) )
 	{
 		do {
-			folder_name = 
-				list_get_pointer( role_folder_insert_list );
+			role_folder =
+				list_get(
+					role_folder_list );
 
-			if ( strcmp( folder_name, "null" ) == 0 ) continue;
-
-			folder = folder_seek_folder( folder_list, folder_name );
-
-			if ( !folder )
+			if ( string_strcmp(
+					role_folder->subschema_name,
+					subschema_name ) == 0 )
 			{
-				char msg[ 1024 ];
-				sprintf( msg,
-			"Warning in %s/%s()/%d: cannot find folder = (%s)",
-					 __FILE__,
-					 __FUNCTION__,
-					 __LINE__,
-					 folder_name );
-				appaserver_output_error_message(
-					application_name, msg, (char *)0 );
-				continue;
+				if ( list_exists_string(
+					role_folder->folder_name,
+					folder_name_list ) )
+				{
+					continue;
+				}
+
+				list_add_string_in_order(
+					folder_name_list,
+					role_folder->folder_name );
 			}
-			folder->insert_permission = 1;
-		} while( list_next( role_folder_insert_list ) );
+		} while ( list_next( role_folder_list ) );
 	}
 
-} /* role_folder_populate_folder_insert_permission() */
+	return folder_name_list;
+}
 
-void role_folder_populate_folder_update_permission(
-			LIST *folder_list, 
-			LIST *role_folder_update_list,
-			char *application_name )
+LIST *role_folder_subschema_name_list(
+			LIST *role_folder_lookup_list )
 {
-	FOLDER *folder;
-	char *folder_name;
+	ROLE_FOLDER *role_folder;
+	LIST *subschema_name_list;
 
-	if ( list_rewind( role_folder_update_list ) )
-	{
-		do {
-			folder_name = 
-				list_get_pointer( role_folder_update_list );
+	if ( !list_rewind( role_folder_lookup_list ) ) return (LIST *)0;
 
-			if ( strcmp( folder_name, "null" ) == 0 ) continue;
+	subschema_name_list = list_new();
 
-			folder = folder_seek_folder( folder_list, folder_name );
+	do {
+		role_folder = list_get( role_folder_lookup_list );
 
-			if ( !folder )
-			{
-				char msg[ 1024 ];
-				sprintf( msg,
-			"Warning in %s.%s(): cannot find folder = (%s)",
-					 __FILE__,
-					 __FUNCTION__,
-					 folder_name );
-				appaserver_output_error_message(
-					application_name, msg, (char *)0 );
-				continue;
-			}
-			folder->update_permission = 1;
-		} while( list_next( role_folder_update_list ) );
-	}
+		if ( role_folder->subschema_name )
+		{
+			list_add_string_in_order(
+				subschema_name_list,
+				role_folder->subschema_name );
+		}
 
-} /* role_folder_populate_folder_update_permission() */
+	} while( list_next( role_folder_lookup_list ) );
 
-void role_folder_populate_folder_lookup_permission(
-			LIST *folder_list, 
-			LIST *role_folder_lookup_list,
-			char *application_name )
+	return list_unique_list( (LIST *)0, subschema_name_list );
+}
+
+LIST *role_folder_subschema_missing_folder_name_list(
+			LIST *role_folder_lookup_list )
 {
-	FOLDER *folder;
-	char *folder_name;
+	ROLE_FOLDER *role_folder;
+	LIST *folder_name_list;
 
-	if ( list_rewind( role_folder_lookup_list ) )
-	{
-		do {
-			folder_name = 
-				list_get_pointer( role_folder_lookup_list );
+	if ( !list_rewind( role_folder_lookup_list ) ) return (LIST *)0;
 
-			if ( strcmp( folder_name, "null" ) == 0 ) continue;
+	folder_name_list = list_new();
 
-			folder = folder_seek_folder( folder_list, folder_name );
+	do {
+		role_folder = list_get( role_folder_lookup_list );
 
-			if ( !folder )
-			{
-				char msg[ 1024 ];
-				sprintf( msg,
-			"Warning in %s.%s(): cannot find folder = (%s)",
-					 __FILE__,
-					 __FUNCTION__,
-					 folder_name );
-				appaserver_output_error_message(
-					application_name, msg, (char *)0 );
-				continue;
-			}
-			folder->lookup_permission = 1;
-		} while( list_next( role_folder_lookup_list ) );
-	}
+		if ( !role_folder->subschema_name )
+		{
+			list_append_unique_string(
+				folder_name_list,
+				role_folder->folder_name );
+		}
 
-} /* role_folder_populate_folder_lookup_permission() */
+	} while( list_next( role_folder_lookup_list ) );
 
-LIST *role_folder_get_insert_list(	char *application_name,
-					char *session,
-					char *role_name )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string, 
-		 "get_role_folder_insert_list.sh %s %s %s 2>/dev/null",
-		 application_name,
-		 session,
-		 role_name );
-
-	return pipe2list( sys_string );
-} /* role_folder_get_insert_list() */
-
-LIST *role_folder_get_lookup_list(	char *application_name,
-					char *session,
-					char *role_name )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string, 
-		 "get_role_folder_lookup_list.sh %s %s %s 2>/dev/null",
-		 application_name,
-		 session,
-		 role_name );
-
-	return pipe2list( sys_string );
-} /* role_folder_get_lookup_list() */
-
-LIST *role_folder_get_update_list(	char *application_name,
-					char *session,
-					char *role_name )
-{
-	char sys_string[ 1024 ];
-
-	sprintf( sys_string, 
-		 "get_role_folder_update_list.sh %s %s %s 2>/dev/null",
-		 application_name,
-		 session,
-		 role_name );
-
-	return pipe2list( sys_string );
-} /* role_folder_get_update_list() */
-
-char *role_folder_display( ROLE_FOLDER *role_folder )
-{
-	char buffer[ 4096 ];
-
-	sprintf( buffer,
-		"application_name = %s\n"
-		"session = %s\n"
-		"role_name = %s\n"
-		"folder_name = %s\n"
-		"insert_yn = %d\n"
-		"update_yn = %d\n"
-		"lookup_yn = %d\n",
-		role_folder->application_name,
-		role_folder->session,
-		role_folder->role_name,
-		role_folder->folder_name,
-		role_folder->insert_yn,
-		role_folder->update_yn,
-		role_folder->lookup_yn );
-	return strdup( buffer );
-} /* role_folder_display() */
-
-boolean role_folder_viewonly( ROLE_FOLDER *role_folder )
-{
-	if ( !role_folder ) return 0;
-
-	return (role_folder->update_yn != 'y' &&
-		role_folder->lookup_yn == 'y' );
-
-} /* role_folder_viewonly() */
+	return folder_name_list;
+}
 

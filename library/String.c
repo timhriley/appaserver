@@ -9,14 +9,12 @@
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include "boolean.h"
-#include "list.h"
 #include "float.h"
 #include "timlib.h"
 #include "piece.h"
-#include "query.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "attribute.h"
 #include "String.h"
 
 /* Class variables */
@@ -41,7 +39,7 @@ char *string_input(	char *input_buffer,
 			int buffer_size )
 {
 	int in_char;
-	int size = 0;
+	register int size = 0;
 	char *anchor = input_buffer;
 
 	*anchor = '\0';
@@ -325,7 +323,7 @@ char *string_escape_full(
 	return string_escape_character_array(
 			destination,
 			source,
-			"$'#" /* character_array */ );
+			"$'#;" /* character_array */ );
 }
 
 char *string_escape_quote_dollar(
@@ -470,8 +468,8 @@ char *string_commas_dollar( double d )
 {
 	char *results;
 
-	/* Returns heap memory of 3 decimal places */
-	/* --------------------------------------- */
+	/* Returns static memory of 3 decimal places */
+	/* ----------------------------------------- */
 	results = string_commas_double( d );
 
 	*( results + strlen( results ) - 1 ) = '\0';
@@ -660,6 +658,32 @@ char *string_trim_character(
 	}
 }
 
+char *string_trim_leading_character(
+			char *data,
+			char character )
+{
+	char *end_pointer;
+
+	if ( !data || !*data ) return data;
+
+	/* Start at NULL */
+	/* ------------- */
+	end_pointer = data + strlen( data );
+
+	while ( end_pointer > data )
+	{
+		end_pointer--;
+
+		if ( *end_pointer == character )
+		{
+			string_strcpy( data, end_pointer + 1, 0 );
+			break;
+		}
+	}
+
+	return data;
+}
+
 int string_character_count(
 			char ch,
 			char *source )
@@ -698,12 +722,18 @@ char *string_rtrim( char *buffer )
         return buffer;
 }
 
-boolean string_exists_substr(
+boolean string_exists(
+			char *string,
+			char *substring )
+{
+	return string_exists_substring( string, substring );
+}
+
+boolean string_exists_substring(
 			char *string,
 			char *substring )
 {
 	return ( string_instr( substring, string, 1 ) > -1 );
-
 }
 
 int string_instr(	char *substr,
@@ -731,9 +761,24 @@ int string_instr(	char *substr,
         return -1;
 }
 
+char *string_pipe_input( char *system_string )
+{
+	return string_pipe( system_string );
+}
+
+char *string_fetch_pipe( char *system_string )
+{
+	return string_pipe( system_string );
+}
+
+char *string_pipe_fetch( char *system_string )
+{
+	return string_pipe( system_string );
+}
+
 char *string_pipe( char *system_string )
 {
-	char buffer[ 65536 ];
+	char buffer[ STRING_64K ];
 	FILE *p;
 	int null_input = 0;
 
@@ -743,7 +788,7 @@ char *string_pipe( char *system_string )
 
 	p = popen( system_string, "r" );
 
-	if ( !string_input( buffer, p, 65536 ) ) null_input = 1;
+	if ( !string_input( buffer, p, STRING_64K ) ) null_input = 1;
 
 	pclose( p );
 
@@ -751,11 +796,6 @@ char *string_pipe( char *system_string )
 		return (char *)0;
 	else
 		return strdup( buffer );
-}
-
-char *string_pipe_fetch( char *system_string )
-{
-	return string_pipe( system_string );
 }
 
 LIST *string_pipe_list(	char *system_string )
@@ -774,6 +814,28 @@ LIST *string_pipe_list(	char *system_string )
 
 	pclose( p );
 	return list;
+}
+
+char *string_delimiter_repeat(
+			char *string,
+			char delimiter,
+			int number_times )
+{
+	char return_buffer[ 2048 ];
+	char *ptr = return_buffer;
+
+	*ptr = '\0';
+
+	for(	;
+		number_times;
+		number_times-- )
+	{
+		if ( !*ptr ) ptr += sprintf( ptr, "%c", delimiter );
+
+		ptr += sprintf( ptr, "%s", string );
+	}
+
+	return strdup( return_buffer );
 }
 
 char *string_repeat(	char *string,
@@ -850,9 +912,9 @@ char *string_escape_character_array(
 			char *source,
 			char *character_array )
 {
-	char local_source[ QUERY_WHERE_BUFFER ];
+	char local_source[ STRING_WHERE_BUFFER ];
 
-	string_strcpy( local_source, source, QUERY_WHERE_BUFFER );
+	string_strcpy( local_source, source, STRING_WHERE_BUFFER );
 
 	while ( *character_array )
 	{
@@ -869,7 +931,7 @@ char *string_escape_character_array(
 			string_strcpy(
 				local_source,
 				destination,
-				QUERY_WHERE_BUFFER );
+				STRING_WHERE_BUFFER );
 		}
 	}
 	return destination;
@@ -896,49 +958,728 @@ char *string_trim_character_array(
 
 char *string_trim_number_characters(
 			char *number,
-			char *attribute_datatype )
+			char *datatype_name )
 {
-	if ( !attribute_datatype
-	||   !*attribute_datatype
+	if ( !datatype_name
+	||   !*datatype_name
 	||   !number
 	||   !*number )
 	{
 		return number;
 	}
 
-	if ( strcmp( attribute_datatype, "float" ) != 0
-	&&   strcmp( attribute_datatype, "integer" ) != 0 )
+	if ( attribute_is_number( datatype_name ) )
 	{
-		return number;
-	}
-
-	return
+		return
 		string_trim_character_array(
 			number,
 			",$" );
+	}
+	else
+	{
+		return number;
+	}
 }
 
-char *string_strdup( char *string )
+char *string_strncpy(	char *destination,
+			char *source,
+			int count )
+{
+	char *results;
+
+	*destination = '\0';
+
+	if ( !source ) return destination;
+
+	results = strncpy( destination, source, count );
+	*(destination + count) = '\0';
+
+	return results;
+}
+
+char *string_in_clause(	LIST *data_list )
+{
+	char in_clause[ STRING_WHERE_BUFFER ];
+	char *ptr = in_clause;
+	char *data;
+	char *escaped_data;
+
+	if ( !list_rewind( data_list ) ) strdup( "" );
+
+	*ptr = '\0';
+
+	do {
+		data = list_get_pointer( data_list );
+
+		if ( !*ptr ) ptr += sprintf( ptr, "," );
+
+		escaped_data = timlib_sql_injection_escape( data );
+
+		ptr += sprintf( ptr, "'%s'", escaped_data );
+
+		free( escaped_data );
+
+	} while( list_next( data_list ) );
+
+	return strdup( in_clause );
+}
+
+int string_length( char *string )
 {
 	if ( !string )
-		return strdup( "" );
+		return 0;
+	else
+		return strlen( string );
+}
+
+char *string_decode_html_post(
+			char *destination,
+			char *source )
+{
+	char *source_ptr, *destination_ptr;
+	char hex[ 3 ];
+	int c;
+
+	source_ptr = source;
+	destination_ptr = destination;
+	*(hex + 2) = '\0';
+
+	while( *source_ptr )
+	{
+		if ( *source_ptr == '%' )
+		{
+			/* Sometimes, there's a preceeding "25" */
+			/* ------------------------------------ */
+			if ( strncmp( source_ptr + 1, "25", 2 ) == 0 )
+			{
+				strcpy( ( source_ptr + 1 ),
+					( source_ptr + 3 ) );
+			}
+
+			/* If 10 */
+			/* ------ */
+			if ( strncmp( source_ptr + 1, "0A", 2 ) == 0 )
+			{
+				*destination_ptr++ = *source_ptr++;
+				*destination_ptr++ = *source_ptr++;
+				*destination_ptr++ = *source_ptr++;
+				continue;
+			}
+
+			/* ----- */
+			/* If 13 */
+			/* ----- */
+			if ( strncmp( source_ptr + 1, "0D", 2 ) == 0 )
+			{
+				*destination_ptr++ = *source_ptr++;
+				*destination_ptr++ = *source_ptr++;
+				*destination_ptr++ = *source_ptr++;
+				continue;
+			}
+
+			if ( *(source_ptr + 1)
+			&&     isalnum( *(source_ptr + 1) ) )
+			{
+				*hex = *(source_ptr + 1);
+				*(hex + 1) = *(source_ptr + 2);
+				sscanf( hex, "%x", &c );
+
+				/* Make some conversions */
+				/* --------------------- */
+				/* if ( c == '+' ) c = ' '; */
+				if ( c == '"' ) c = '\'';
+
+				if ( c == '=' )
+					*destination_ptr++ = '\\';
+				if ( c == '&' )
+					*destination_ptr++ = '\\';
+
+				*destination_ptr++ = c;
+				source_ptr += 3;
+				continue;
+			}
+		}
+
+		if ( *source_ptr == '\\' )
+		{
+			if ( *( source_ptr + 1 ) == ',' )
+			{
+				source_ptr++;
+				*destination_ptr++ = *source_ptr++;
+				continue;
+			}
+		}
+
+		*destination_ptr++ = *source_ptr++;
+	}
+	*destination_ptr = '\0';
+	return destination;
+}
+
+char *string_trim( char *buffer )
+{
+        char *buf_ptr = buffer;
+
+        /* If buffer is empty then return */
+        /* ------------------------------ */
+        if ( !buffer || !*buffer ) return buffer;
+
+        /* First trim leading spaces */
+        /* ------------------------- */
+        while( *buf_ptr && isspace( *buf_ptr ) )
+        	buf_ptr++;
+
+        /* If *buf_ptr is NULL then buffer was just spaces */
+        /* ----------------------------------------------- */
+        if ( !*buf_ptr )
+        {
+        	*buffer = '\0';
+        	return buffer;
+        }
+
+        /* Flush left the buffer */
+        /* --------------------- */
+        if ( buffer != buf_ptr ) string_strcpy( buffer, buf_ptr, 0 );
+
+        /* Trim trailing spaces */
+        /* -------------------- */
+        buf_ptr = buffer + strlen( buffer ) - 1;
+
+        while (	*buf_ptr && isspace( *buf_ptr ) )
+	{
+        	buf_ptr--;
+	}
+
+        *(buf_ptr + 1) = '\0';
+
+        return buffer;
+}
+
+char *string_extract_lt_gt_delimited(
+			char *destination,
+			char *source )
+{
+	char *ptr = destination;
+	char destination_delimiter;
+
+	*ptr = '\0';
+	destination_delimiter = *source++;
+
+	if ( destination_delimiter == '<' ) destination_delimiter = '>';
+
+	while(	*source && *source != destination_delimiter )
+	{
+		*ptr++ = *source++;
+	}
+	*ptr = '\0';
+	return destination;
+}
+
+char *string_trim_index( char *string )
+{
+	char *end_ptr;
+
+	if ( string || !*string ) return string;
+
+ 	end_ptr = string + strlen( string ) - 1;
+
+	while( end_ptr != string )
+	{
+		if ( isdigit( *end_ptr ) )
+		{
+			end_ptr--;
+			continue;
+		}
+		if ( *end_ptr == '_' )
+		{
+			*end_ptr = '\0';
+			break;
+		}
+		else
+		{
+			break;
+		}
+	}
+	return string;
+}
+
+/* Sample: attribute_name = "station_1" */
+/* ------------------------------------ */
+int string_index( char *source )
+{
+	char *end_ptr;
+
+	if ( !source || !*source ) return -1;
+
+ 	end_ptr = source + strlen( source ) - 1;
+
+	while( end_ptr > source )
+	{
+		if ( *end_ptr == '_' )
+		{
+			end_ptr++;
+			return atoi( end_ptr );
+		}
+
+		if ( isdigit( *end_ptr ) )
+			end_ptr--;
+		else
+			return -1;
+	}
+	return -1;
+}
+
+boolean string_exists_character(
+			char *s,
+			char ch )
+{
+	while( *s )
+	{
+		if ( *s == ch ) return 1;
+		s++;
+	}
+	return 0;
+}
+
+char string_delimiter( char *string )
+{
+	if ( string_exists_character( string, '|' ) )
+		return '|';
+	else
+	if ( string_exists_character( string, '^' ) )
+		return '^';
+	else
+	if ( string_exists_character( string, ',' ) )
+		return ',';
+	else
+	if ( string_exists_character( string, ';' ) )
+		return ';';
+	else
+	if ( string_exists_character( string, ':' ) )
+		return ':';
+	else
+		return 0;
+}
+
+char *string_separate_delimiter(
+			char *destination,
+			char *source )
+{
+	boolean beginning = 1;
+	char *destination_ptr = destination;
+
+	*destination_ptr = '\0';
+
+	if ( !source ) return destination;
+
+	while( *source )
+	{
+		if ( *source == '(' )
+		{
+			*destination_ptr++ = *source++;
+			beginning = 1;
+
+			while( *source )
+			{
+				*destination_ptr++ = *source++;
+				if ( *source == ')' ) break;
+			}
+		}
+
+		if ( *source == '\\' )
+		{
+			*destination_ptr++ = *source++;
+			beginning = 0;
+		}
+		else
+		if ( beginning )
+		{
+
+			if ( !isspace( *source )
+			&& ( !ispunct( *source )
+			&&   *source != '\'' ) )
+			{
+				*destination_ptr++ = *source++;
+				beginning = 0;
+			}
+			else
+			{
+				*destination_ptr++ = *source++;
+			}
+		}
+		else
+		if ( *source == '_' || *source == '|' || *source == '^' )
+		{
+			beginning = 1;
+			*destination_ptr++ = ' ';
+			source++;
+		}
+		else
+		if ( isspace( *source )
+		|| ( ispunct( *source ) && *source != '\'' ) )
+		{
+			beginning = 1;
+			*destination_ptr++ = *source++;
+		}
+		else
+		{
+			*destination_ptr++ = *source++;
+		}
+	}
+	*destination_ptr = '\0';
+
+	return destination;
+}
+
+char *string_initial_capital(
+			char *destination,
+			char *source )
+{
+	boolean beginning = 1;
+	char *destination_ptr = destination;
+
+	*destination_ptr = '\0';
+
+	if ( !source ) return destination;
+
+	while( *source )
+	{
+		if ( *source == '(' )
+		{
+			*destination_ptr++ = *source++;
+			beginning = 1;
+
+			while( *source )
+			{
+				*destination_ptr++ = *source++;
+				if ( *source == ')' ) break;
+			}
+		}
+
+		if ( *source == '\\' )
+		{
+			*destination_ptr++ = *source++;
+			beginning = 0;
+		}
+		else
+		if ( beginning )
+		{
+
+			if ( !isspace( *source )
+			&& ( !ispunct( *source )
+			&&   *source != '\'' ) )
+			{
+				*destination_ptr++ = toupper( *source++ );
+				beginning = 0;
+			}
+			else
+			{
+				*destination_ptr++ = *source++;
+			}
+		}
+		else
+		if ( *source == '_' || *source == '|' || *source == '^' )
+		{
+			beginning = 1;
+			*destination_ptr++ = ' ';
+			source++;
+		}
+		else
+		if ( isspace( *source )
+		|| ( ispunct( *source ) && *source != '\'' ) )
+		{
+			beginning = 1;
+			*destination_ptr++ = *source++;
+		}
+		else
+		{
+			*destination_ptr++ = *source++;
+		}
+	}
+	*destination_ptr = '\0';
+
+	/* Keep booleans at lower case */
+	/* --------------------------- */
+	search_replace_string( destination, " Yn", " yn" );
+
+	if ( strcmp( destination, "Y" ) == 0 ) *destination = 'y';
+	if ( strcmp( destination, "N" ) == 0 ) *destination = 'n';
+
+	return destination;
+}
+
+char *string_search_replace_character(
+			char *source_destination,
+			char search_character,
+			char replace_character )
+{
+	char *ptr = source_destination;
+
+	while ( *ptr )
+	{
+		if ( *ptr == search_character )
+		{
+			*ptr = replace_character;
+		}
+		ptr++;
+	}
+
+	return source_destination;
+}
+
+char *string_search_replace(
+			char *source_destination,
+			char *search_string,
+			char *replace_string )
+{
+        int here;
+	int len_search = strlen( search_string );
+	char *anchor;
+	int str_len = strlen( replace_string );
+
+	anchor = source_destination;
+
+	if ( strcmp( search_string, replace_string ) == 0 )
+		return anchor;
+
+        while( 1 )
+	{
+                if ( ( here =
+			string_instr(
+				search_string,
+				source_destination,
+				1 ) ) == -1 )
+		{
+                        return anchor;
+		}
+
+                string_delete( source_destination, here, len_search );
+                string_insert( source_destination, replace_string, here );
+
+		source_destination += ( here + str_len );
+        }
+}
+
+char *string_insert(	char *string,
+			char *substring,
+			int pos )
+{
+        char *temp = malloc( strlen( string ) + strlen( substring ) + 1 );
+
+        /* Copy first part */
+	/* --------------- */
+        strncpy( temp, string, pos );
+        temp[ pos ] = '\0';
+
+        /* place substring in middle */
+	/* ------------------------- */
+        strcat( temp, substring );
+
+        /* Copy rest of string */
+	/* ------------------- */
+        strcat( temp, &string[ pos ] );
+
+        /* copy entire string back to original */
+	/* ----------------------------------- */
+        strcpy( string, temp );
+
+        free( temp );
+        return string;
+}
+
+char *string_delete(	char *string,
+			int start,
+			int num_chars )
+{
+        int far_str;
+
+        for(	far_str = start + num_chars;
+                far_str <= strlen( string );
+		far_str++, start++ )
+	{
+		string[ start ] = string[ far_str ];
+	}
+
+        return string;
+}
+
+/* Sample: attribute_name = "station_1" */
+/* ------------------------------------ */
+int string_row_number( char *attribute_name )
+{
+	char *end_ptr;
+
+	if ( !attribute_name || !*attribute_name ) return -1;
+
+ 	end_ptr = attribute_name + strlen( attribute_name ) - 1;
+
+	while( end_ptr != attribute_name )
+	{
+		if ( *end_ptr == '_' )
+		{
+			end_ptr++;
+			return atoi( end_ptr );
+		}
+
+		if ( isdigit( *end_ptr ) )
+			end_ptr--;
+		else
+			return -1;
+	}
+	return -1;
+}
+
+char *string_file_fetch(char *filename,
+			char *delimiter )
+{
+	char string[ STRING_64K ];
+	char input[ 1024 ];
+	char *ptr = string;
+	FILE *file;
+
+	if ( !delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: delimiter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( file = fopen( filename, "r" ) ) ) return (char *)0;
+
+	while( string_input( input, file, 1024 ) )
+	{
+		if ( ptr != string ) ptr += sprintf( ptr, "%s", delimiter );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			input );
+	}
+
+	fclose( file );
+
+	if ( ptr == string )
+		return (char *)0;
 	else
 		return strdup( string );
 }
 
-double string_atof( char *string )
+char *string_append(	char *message_list_string,
+			char *message_string,
+			char *delimiter )
 {
-	if ( !string || !*string || isalpha( *string ) )
-		return 0.0;
+	char append_string[ STRING_64K ];
+
+	if ( !message_string || !delimiter )
+		return strdup( "" );
+
+	if ( !message_list_string )
+	{
+		strcpy( append_string, message_string );
+	}
 	else
-		return atof( string );
+	{
+		sprintf(append_string,
+			"%s%s%s",
+			message_list_string,
+			delimiter,
+			message_string );
+
+		free( message_list_string );
+	}
+
+	free( message_string );
+
+	return strdup( append_string );
 }
 
-int string_atoi( char *string )
+char string_last_character( char *string )
 {
-	if ( !string || !*string || isalpha( *string ) )
-		return 0;
-	else
-		return atoi( string );
+	int str_length;
+
+	if ( !string ) return 0;
+
+	if ( ! ( str_length = strlen( string ) ) ) return 0;
+
+	return *(string + str_length - 1);
+}
+
+char *string_up( char *s )
+{
+        char *hold = s;
+
+        while ( *s )
+        {
+                *s = toupper( *s );
+                s++;
+        }
+        return hold;
+}
+
+char *string_low( char *s )
+{
+        char *hold = s;
+
+        while ( *s )
+        {
+                *s = tolower( *s );
+                s++;
+        }
+        return hold;
+}
+
+char *string_commas_number_string( char *s )
+{
+	static char return_string[ 64 ];
+	char *r_ptr;
+	char *s_ptr;
+	int c = 0;
+ 
+	if ( !timlib_strlen( s ) ) return "";
+
+	r_ptr = &return_string[ 63 ];
+	*r_ptr-- = '\0';
+ 
+	s_ptr = s + strlen( s ) - 1;
+
+	if ( *s_ptr != '.' && !isdigit( *s_ptr ) ) return s;
+
+	if ( instr( ".", s, 1 ) != -1 )
+	{
+		while( s_ptr >= s )
+		{
+			if ( *s_ptr == '.' )
+			{
+				*r_ptr-- = *s_ptr--;
+				break;
+			}
+			else
+			{
+				*r_ptr-- = *s_ptr--;
+			}
+		}
+	}
+
+	while( s_ptr >= s )
+	{
+		*r_ptr-- = *s_ptr--;
+
+		if ( *s_ptr == '-' )
+		{
+			*r_ptr-- = *s_ptr--;
+			continue;
+		}
+
+		if ( ++c == 3 )
+		{
+			if ( s_ptr != s - 1 ) *r_ptr-- = ',';
+			c = 0;
+		}
+	}
+
+	return r_ptr + 1;
 }
 
