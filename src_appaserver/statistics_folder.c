@@ -20,15 +20,14 @@
 #include "application.h"
 #include "dictionary.h"
 #include "query.h"
-#include "query_attribute_statistics_list.h"
+#include "query_statistic.h"
 #include "appaserver_library.h"
 #include "appaserver_error.h"
 #include "environ.h"
 #include "appaserver_parameter_file.h"
 #include "decode_html_post.h"
 #include "role.h"
-#include "dictionary_appaserver.h"
-#include "lookup_before_drop_down.h"
+#include "dictionary_separate.h"
 
 /* Constants */
 /* --------- */
@@ -38,177 +37,132 @@
 
 int main( int argc, char **argv )
 {
-	char *login_name, *application_name, *session, *folder_name;
-	DOCUMENT *document;
+	char *application_name;
+	char *login_name;
+	char *folder_name;
+	char *role_name;
 	char decoded_dictionary_string[ MAX_INPUT_LINE ];
 	char *dictionary_string;
 	DICTIONARY *original_post_dictionary;
-	FOLDER *folder;
-	QUERY_ATTRIBUTE_STATISTICS_LIST *query_attribute_statistics_list;
+	QUERY_STATISTIC *query_statistic;
 	APPASERVER_PARAMETER_FILE *appaserver_parameter_file;
-	char *sys_string;
-	char *where_clause;
-	ROLE *role;
-	char *role_name;
-	DICTIONARY_APPASERVER *dictionary_appaserver;
+	DICTIONARY_SEPARATE *dictionary_separate;
 	QUERY *query;
-	LOOKUP_BEFORE_DROP_DOWN *lookup_before_drop_down;
+	ROLE *role;
 
-	application_name = environ_get_application_name( argv[ 0 ] );
+	application_name = environ_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_starting_argv_append_file(
 		argc,
 		argv,
 		application_name );
 
-	if ( argc != 7 )
+	if ( argc != 5 )
 	{
-		fprintf( stderr, 
-"Usage: %s login_name ignored session folder role dictionary\n",
-			 argv[ 0 ] );
+		fprintf(stderr, 
+			"Usage: %s login_name folder role dictionary\n",
+			argv[ 0 ] );
 		exit ( 1 );
 	}
 
 	login_name = argv[ 1 ];
-	session = argv[ 3 ];
-	folder_name = argv[ 4 ];
-	role_name = argv[ 5 ];
-	dictionary_string = argv[ 6 ];
+	folder_name = argv[ 2 ];
+	role_name = argv[ 3 ];
+	dictionary_string = argv[ 4 ];
 
-	decode_html_post(	decoded_dictionary_string, 
-				dictionary_string );
-
-	original_post_dictionary = 
-		dictionary_index_string2dictionary( 
-			decoded_dictionary_string );
-
-	if ( ! ( dictionary_appaserver =
-			dictionary_appaserver_new(
-				original_post_dictionary,
-				(char *)0 /* application_name */,
-				(LIST *)0 /* attribute_list */,
-				(LIST *)0 /* operation_name_list */ ) ) )
-	{
-		fprintf( stderr,
-			 "ERROR in %s/%s()/%d: exiting early.\n",
-			 __FILE__,
-			 __FUNCTION__,
-			 __LINE__ );
-		exit( 1 );
-	}
+	dictionary_separate =
+		/* --------------- */
+		/* Always succeeds */
+		/* --------------- */
+		dictionary_separate_string_new(
+			dictionary_string );
 
 	appaserver_parameter_file = appaserver_parameter_file_new();
 
-	folder = folder_new_folder( 	application_name,
-					session,
-					folder_name );
-
-	role = role_new_role(	application_name,
-				role_name );
-
-	folder_load(	&folder->insert_rows_number,
-			&folder->lookup_email_output,
-			&folder->row_level_non_owner_forbid,
-			&folder->row_level_non_owner_view_only,
-			&folder->populate_drop_down_process,
-			&folder->post_change_process,
-			&folder->folder_form,
-			&folder->notepad,
-			&folder->html_help_file_anchor,
-			&folder->post_change_javascript,
-			&folder->lookup_before_drop_down,
-			&folder->data_directory,
-			&folder->index_directory,
-			&folder->no_initial_capital,
-			&folder->subschema_name,
-			&folder->create_view_statement,
-			application_name,
-			session,
-			folder->folder_name,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
+	role =
+		role_fetch(
 			role_name,
-			(LIST *)0 /* mto1_related_folder_list */ );
+			1 /* fetch_role_attribute_exclude_list */ );
 
-	folder->mto1_isa_related_folder_list =
-		related_folder_get_mto1_related_folder_list(
-			list_new_list(),
-			application_name,
-			session,
-			folder_name,
-			(char *)0 /* role_name */,
-			1 /* isa_flag */,
-			related_folder_recursive_all,
-			role_get_override_row_restrictions(
-				role->override_row_restrictions_yn ),
-			(LIST *)0 /* root_primary_attribute_name_list */,
-			0 /* recursive_level */ );
-
-	folder->attribute_list =
-		attribute_get_attribute_list(
-			folder->application_name,
-			folder->folder_name,
-			(char *)0 /* attribute_name */,
-			folder->mto1_isa_related_folder_list,
-			(char *)0 /* role_name */ );
-
-	lookup_before_drop_down =
-		lookup_before_drop_down_new(
-			application_name,
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary,
-			"lookup" /* state */ );
-
-	lookup_before_drop_down->lookup_before_drop_down_state =
-		lookup_before_drop_down_get_state(
-			lookup_before_drop_down->
-				lookup_before_drop_down_folder_list,
-			dictionary_appaserver->
-				lookup_before_drop_down_dictionary,
-			dictionary_appaserver->preprompt_dictionary );
+	if ( !role )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: role_fetch(%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			role_name );
+		exit( 1 );
+	}
 
 	query =
-		query_simple_new(
-			dictionary_appaserver->query_dictionary,
-			application_name,
+		query_table_new(
+			folder_name,
 			login_name,
-			folder_name );
+			dictionary_separate->
+				ignore_select_attribute_name_list,
+			role,
+			dictionary_separate->query_dictionary,
+			(DICTIONARY *)0 /* sort_dictionary */ );
 
-	where_clause = query->query_output->where_clause;
+	if ( !query )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: query_row_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	document = document_new( "", application_name );
-	document->output_content_type = 1;
+	if ( !query->folder )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: query->folder is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	document_output_head(
-		document->application_name,
-		document->title,
-		document->output_content_type,
-		appaserver_parameter_file->appaserver_mount_point,
-		document->javascript_module_list,
-		document->stylesheet_filename,
-		application_relative_source_directory(
-			application_name ),
-		0 /* not with_dynarch_menu */ );
+	document_quick_output( application_name );
 
-	document_output_body(
-		document->application_name,
-		document->onload_control_string );
-
-	query_attribute_statistics_list =
-		query_attribute_statistics_list_new(
-			folder->application_name,
-			query->query_output->from_clause );
+	query_statistic =
+		query_statistic_new(
+			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
+				folder_attribute_number_list(
+					query->
+						folder->
+						folder_attribute_list ) )
+				/* folder_attribute_number_name_list */,
+			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
+				folder_attribute_date_list(
+					query->
+						folder->
+						folder_attribute_list ) )
+				/* folder_attribute_date_name_list */,
+			folder_attribute_name_list(
+				(char *)0 /* folder_name */,
+				folder_attribute_date_time_list(
+					query->
+						folder->
+						folder_attribute_list ) )
+				/* folder_attribute_date_time_name_list */,
+			query->from_clause,
+			query->where_clause );
 
 	query_attribute_statistics_list->list =
 		query_attribute_statistics_list_get_list(
-			folder->attribute_list );
+			query->query_folder->attribute_list );
 
 	sys_string =
 	query_attribute_statistics_list_get_build_each_temp_file_sys_string(
 			query_attribute_statistics_list->application_name,
 			query_attribute_statistics_list->folder_name,
 			query_attribute_statistics_list->list,
-			where_clause );
+			query->query_where );
 
 	if ( !sys_string )
 	{
@@ -225,12 +179,13 @@ int main( int argc, char **argv )
 
 	query_attribute_statistics_list_output_table(
 		query_attribute_statistics_list->folder_name,
-		where_clause,
+		query->query_where
 		query_attribute_statistics_list->list,
 		application_name );
 
 	query_attribute_statistics_remove_temp_file(
 		query_attribute_statistics_list->list );
+*/
 
 	document_close();
 
