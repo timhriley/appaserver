@@ -544,6 +544,20 @@ DATE *date_set_time(	DATE *date,
 		0 /* utc_offset */ );
 }
 
+DATE *date_set_time_seconds(
+			DATE *date,
+			int hour,
+			int minutes,
+			int seconds )
+{
+	return date_set_time_integers(
+		date,
+		hour,
+		minutes,
+		seconds,
+		0 /* utc_offset */ );
+}
+
 void date_free( DATE *d )
 {
 	free( d->tm );
@@ -740,14 +754,34 @@ int date_day_of_week( DATE *d )
 	return d->tm->tm_wday;
 }
 
-char *date_day_of_week_string( DATE *d )
-{
-	return date_day_string( date_day_offset( d ) );
-}
-
 char *date_get_day_of_week_string( DATE *d )
 {
 	return date_day_string( date_day_offset( d ) );
+
+/* 
+	if ( d->tm->tm_wday == WDAY_SUNDAY )
+		return "Sunday";
+	else
+	if ( d->tm->tm_wday == WDAY_MONDAY )
+		return "Monday";
+	else
+	if ( d->tm->tm_wday == WDAY_TUESDAY )
+		return "Tuesday";
+	else
+	if ( d->tm->tm_wday == WDAY_WEDNESDAY )
+		return "Wednesday";
+	else
+	if ( d->tm->tm_wday == WDAY_THURSDAY )
+		return "Thursday";
+	else
+	if ( d->tm->tm_wday == WDAY_FRIDAY )
+		return "Friday";
+	else
+	if ( d->tm->tm_wday == WDAY_SATURDAY )
+		return "Saturday";
+	else
+		return "Unknown";
+*/
 }
 
 int date_year( DATE *d )
@@ -825,7 +859,6 @@ int date_months_between(	DATE *from_date,
 	to_month = date_month( to_date );
 
 	return ( ( to_year - from_year ) * 12 ) + ( to_month - from_month );
-
 }
 
 /* ------------------------------------------------------------- */
@@ -837,6 +870,12 @@ int date_days_between(	char *from_date_string,
 	DATE *from_date;
 	DATE *to_date;
 	time_t difference;
+
+	/* If first time, then return 1 */
+	/* ---------------------------- */
+	if ( !from_date_string ) return 1;
+
+	if ( !to_date_string ) return 0;
 
 	if ( ! ( from_date =
 			/* ------------------- */
@@ -864,8 +903,7 @@ int date_days_between(	char *from_date_string,
 	date_free( to_date );
 
 	return (int) (difference / SECONDS_IN_DAY);
-
-} /* date_days_between() */
+}
 
 /* --------------------------------------------------------- */
 /* Sample input: from_date = "10/06/60" to_date = "08/04/11" */
@@ -902,7 +940,6 @@ int date_years_between( char *from_date, char *to_date )
 	if ( diff_year < 0 ) diff_year = 0;
 
 	return diff_year;
-
 }
 
 void date_time_parse(		int *hours,
@@ -1239,8 +1276,6 @@ DATE *date_increment_days(	DATE *d,
 	return d;
 }
 
-/* Returns static memory */
-/* --------------------- */
 char *date_yyyy_mm_dd( DATE *date )
 {
 	static char destination[ 16 ];
@@ -1452,18 +1487,8 @@ char *date_get_yyyy_mm_dd_string( DATE *date )
 	return date_display_yyyy_mm_dd( date );
 }
 
-char *date_get_day_of_week_yyyy_mm_dd(
-			int wday_of_week,
-			int utc_offset )
-{
-	return date_day_of_week_yyyy_mm_dd(
-			wday_of_week,
-			utc_offset );
-}
-
-char *date_day_of_week_yyyy_mm_dd(
-			int wday_of_week,
-			int utc_offset )
+char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
+					int utc_offset )
 {
 	char *date_string;
 	DATE *date = date_today_new( utc_offset );
@@ -1476,11 +1501,6 @@ char *date_day_of_week_yyyy_mm_dd(
 	date_free( date );
 
 	return date_string;
-}
-
-char *date_yesterday_yyyy_mm_dd( int utc_offset )
-{
-	return date_get_yesterday_yyyy_mm_dd_string( utc_offset );
 }
 
 char *date_get_yesterday_yyyy_mm_dd( int utc_offset )
@@ -1563,32 +1583,31 @@ DATE *date_get_today_new( int utc_offset )
 	return date_today_new( utc_offset );
 }
 
-char *date_now_hhmm_string( int utc_offset )
-{
-	return date_now_hhmm( utc_offset );
-}
-
 char *date_get_now_hhmm( int utc_offset )
 {
-	return date_now_hhmm( utc_offset );
-}
-
-char *date_now_yyyy_mm_dd_string( int utc_offset )
-{
-	return date_get_now_date_yyyy_mm_dd( utc_offset );
+	return date_get_now_date_hhmm( utc_offset );
 }
 
 char *date_now_yyyy_mm_dd( int utc_offset )
 {
-	return date_get_now_date_yyyy_mm_dd( utc_offset );
+	DATE *date = date_today_new( utc_offset );
+
+	if ( !date )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: date_today_new() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	/* Returns heap memory or "" */
+	/* ------------------------- */
+	return date_display_yyyy_mm_dd( date );
 }
 
 char *date_get_now_yyyy_mm_dd( int utc_offset )
-{
-	return date_get_now_date_yyyy_mm_dd( utc_offset );
-}
-
-char *date_today_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }
@@ -1606,12 +1625,6 @@ char *date_get_current_hhmm( int utc_offset )
 char *date_get_current_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
-}
-
-char *date_now_hhmm( int utc_offset )
-{
-	DATE *date = date_today_new( utc_offset );
-	return date_display_hhmm( date );
 }
 
 char *date_get_now_date_hhmm( int utc_offset )
@@ -1657,49 +1670,30 @@ char *date_get_now_hhmmss( int utc_offset )
 
 char *date_now_hhmmss( int utc_offset )
 {
-	char buffer[ 128 ];
-	DATE *d;
+	char *return_string;
 
-	d = date_today_new( utc_offset );
+	/* Returns heap memory. */
+	/* -------------------- */
+	return_string = date_get_now_hhmm_colon_ss( utc_offset );
 
-	sprintf(	buffer,
-			"%02d%02d%02d",
-			d->tm->tm_hour,
-			d->tm->tm_min,
-			d->tm->tm_sec );
+	return return_string;
 
-	return strdup( buffer );
+#ifdef NOT_DEFINED
+	return search_replace_string(
+			return_string /* source_destination */,
+			":" /* search_str */,
+			"" /* replace_str */ );
+#endif
 }
 
 char *date_get_now_hhmm_colon_ss( int utc_offset )
 {
-	return date_now_hhmm_colon_ss( utc_offset );
-}
-
-/* Safely returns heap memory. */
-/* --------------------------- */
-char *date_now_hhmm_colon_ss( int utc_offset )
-{
-	char buffer[ 128 ];
-	DATE *d;
-
-	d = date_today_new( utc_offset );
-
-	sprintf(	buffer,
-			"%02d%02d:%02d",
-			d->tm->tm_hour,
-			d->tm->tm_min,
-			d->tm->tm_sec );
-
-	return strdup( buffer );
+	/* Returns heap memory. */
+	/* -------------------- */
+	return date_get_now_time_hhmm_colon_ss( utc_offset );
 }
 
 char *date_now_hh_colon_mm_colon_ss( int utc_offset )
-{
-	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
-}
-
-char *date_now_time_second( int utc_offset )
 {
 	return date_get_now_hh_colon_mm_colon_ss( utc_offset );
 }
@@ -1767,11 +1761,6 @@ char *date_now16( int utc_offset )
 
 char *date_get_now_hh_colon_mm( int utc_offset )
 {
-	return date_now_hh_colon_mm( utc_offset );
-}
-
-char *date_now_hh_colon_mm( int utc_offset )
-{
 	char buffer[ 128 ];
 	DATE *d;
 
@@ -1810,6 +1799,24 @@ char *date_time_now19( int utc_offset )
 
 	d = date_now_new( utc_offset );
 	return date_get_yyyy_mm_dd_hh_mm_ss( d );
+}
+
+/* Safely returns heap memory. */
+/* --------------------------- */
+char *date_get_now_time_hhmm_colon_ss( int utc_offset )
+{
+	char buffer[ 128 ];
+	DATE *d;
+
+	d = date_today_new( utc_offset );
+
+	sprintf(	buffer,
+			"%02d%02d:%02d",
+			d->tm->tm_hour,
+			d->tm->tm_min,
+			d->tm->tm_sec );
+
+	return strdup( buffer );
 }
 
 void date_set_tm_structures(	DATE *d,
@@ -2035,6 +2042,35 @@ DATE *date_yyyy_mm_dd_hhmm_new(	char *date_string,
 	return date;
 }
 
+boolean date_set_time_hhmmss(	DATE *date,
+				/* --------------------- */
+				/* Looks like "23:59:59" */
+				/* --------------------- */
+				char *hhmmss )
+{
+	int hours, minutes, seconds;
+	char piece_buffer[ 128 ];
+
+
+	if ( character_count( ':', hhmmss ) != 2 )
+	{
+		return 0;
+	}
+
+	piece( piece_buffer, ':', hhmmss, 0 );
+	hours = atoi( piece_buffer );
+
+	piece( piece_buffer, ':', hhmmss, 1 );
+	minutes = atoi( piece_buffer );
+
+	piece( piece_buffer, ':', hhmmss, 2 );
+	seconds = atoi( piece_buffer );
+
+	date_set_time_seconds( date, hours, minutes, seconds );
+
+	return 1;
+}
+
 boolean date_set_time_hhmm(	DATE *date,
 				char *hhmm )
 {
@@ -2044,7 +2080,7 @@ boolean date_set_time_hhmm(	DATE *date,
 	/* Remove spaces and colons. */
 	/* ------------------------- */
 	trim_character(	buffer /* destination */,
-			':' ,
+			':',
 			hhmm /* source */ );
 
 	strcpy( hhmm, buffer );
