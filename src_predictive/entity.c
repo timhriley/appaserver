@@ -13,9 +13,9 @@
 #include "piece.h"
 #include "appaserver_library.h"
 #include "account.h"
+#include "journal.h"
 #include "transaction.h"
 #include "liability.h"
-#include "journal.h"
 #include "entity.h"
 
 enum payroll_pay_period entity_payroll_pay_period(
@@ -56,35 +56,32 @@ ENTITY *entity_calloc( void )
 ENTITY *entity_new(	char *full_name,
 			char *street_address )
 {
-	ENTITY *e;
+	ENTITY *entity;
 
-	e = entity_calloc();
+	if ( !full_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: full_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	e->full_name = full_name;
-	e->street_address = street_address;
-	return e;
-}
 
-/* ---------------------- */
-/* Returns program memory */
-/* ---------------------- */
-char *entity_select( void )
-{
-	return
-		"full_name,"
-		"street_address,"
-		"city,"
-		"state_code,"
-		"zip_code,"
-		"phone_number,"
-		"email_address";
+	entity = entity_calloc();
+
+	entity->full_name = full_name;
+	entity->street_address = street_address;
+
+	return entity;
 }
 
 ENTITY *entity_sales_tax_payable_entity( void )
 {
 	char full_name[ 128 ];
 	char street_address[ 128 ];
-	char system_string[ 1024 ];
+	char sys_string[ 1024 ];
 	char *select;
 	char *folder;
 	char *results;
@@ -92,12 +89,12 @@ ENTITY *entity_sales_tax_payable_entity( void )
 	select = "full_name,street_address";
 	folder = "sales_tax_payable_entity";
 
-	sprintf( system_string,
+	sprintf( sys_string,
 		 "echo \"select %s from %s;\" | sql | head -1",
 		 select,
 		 folder );
 
-	results = pipe2string( system_string );
+	results = pipe2string( sys_string );
 
 	if ( !results ) return (ENTITY *)0;
 
@@ -138,8 +135,9 @@ char *entity_get_payroll_pay_period_string(
 
 }
 
-ENTITY *entity_full_name_seek(	char *full_name,
-				LIST *entity_list )
+ENTITY *entity_full_name_seek(
+			char *full_name,
+			LIST *entity_list )
 {
 	ENTITY *entity;
 
@@ -228,7 +226,7 @@ char *entity_list_display( LIST *entity_list )
 					"Entity: %s/%s, amount_due = %.2lf\n",
 					entity->full_name,
 					entity->street_address,
-					entity->entity_liability_amount_due );
+					entity->liability_amount_due );
 
 		} while( list_next( entity_list ) );
 	}
@@ -260,20 +258,35 @@ boolean entity_list_exists(
 ENTITY *entity_fetch(	char *full_name,
 			char *street_address )
 {
+	FILE *input_pipe;
+	char input[ 1024 ];
+	ENTITY *entity;
+
 	if ( !full_name || !street_address )
 	{
 		return (ENTITY *)0;
 	}
 
-	return entity_parse(
-			pipe2string(
-				entity_system_string(
-		 			/* -------------------------- */
-		 			/* Safely returns heap memory */
-		 			/* -------------------------- */
-		 			entity_primary_where(
-						full_name,
-						street_address ) ) ) );
+	input_pipe =
+		entity_input_pipe(
+			entity_system_string(
+				ENTITY_SELECT,
+				ENTITY_TABLE,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				entity_primary_where(
+					full_name,
+					street_address ) ) );
+
+	entity =
+		entity_parse(
+			string_input(
+				input, input_pipe, 1024 ) );
+
+	pclose( input_pipe );
+
+	return entity;
 }
 
 ENTITY *entity_parse( char *input )
@@ -341,17 +354,18 @@ char *entity_primary_where(
 			char *full_name,
 			char *street_address )
 {
-	char where[ 512 ];
+	char static where[ 256 ];
 
 	sprintf( where,
 		 "full_name = '%s' and	"
 		 "street_address = '%s'	",
+		 /* --------------------- */
 		 /* Returns static memory */
 		 /* --------------------- */
 		 entity_escape_full_name( full_name ),
 		 street_address );
 
-	return strdup( where );
+	return where;
 }
 
 char *entity_street_address( char *full_name )
@@ -363,7 +377,12 @@ char *entity_street_address( char *full_name )
 	{
 		entity_list =
 			entity_system_list(
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
 				entity_system_string(
+					ENTITY_SELECT,
+					ENTITY_TABLE,
 					"1 = 1" ) );
 	}
 
@@ -380,9 +399,9 @@ char *entity_street_address( char *full_name )
 FILE *entity_insert_open(
 			char *error_filename )
 {
-	char system_string[ 1024 ];
+	char sys_string[ 1024 ];
 
-	sprintf(system_string,
+	sprintf(sys_string,
 		"insert_statement table=%s field=\"%s\" delimiter='%c'	|"
 		"sql 2>&1						|"
 		"grep -vi duplicate					|"
@@ -392,7 +411,7 @@ FILE *entity_insert_open(
 		SQL_DELIMITER,
 		error_filename );
 
-	return popen( system_string, "w" );
+	return popen( sys_string, "w" );
 }
 
 void entity_insert_pipe(
@@ -433,17 +452,31 @@ char *entity_name_display(
 	return display;
 }
 
+FILE *entity_input_pipe( char *system_string )
+{
+	return
+	popen( system_string, "r" );
+}
+
 LIST *entity_system_list( char *system_string )
 {
 	FILE *input_pipe;
 	char input[ 1024 ];
 	LIST *entity_list;
 
-	if ( !system_string ) return (LIST *)0;
+	if ( !system_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: system_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	entity_list = list_new();
 
-	input_pipe = popen( system_string, "r" );
+	input_pipe = entity_input_pipe( system_string );
 
 	while ( string_input( input, input_pipe, 1024 ) )
 	{
@@ -451,22 +484,23 @@ LIST *entity_system_list( char *system_string )
 	}
 
 	pclose( input_pipe );
+
 	return entity_list;
 }
 
-char *entity_system_string( char *where )
+char *entity_system_string(
+			char *select,
+			char *table,
+			char *where )
 {
 	char system_string[ 1024 ];
 
-	if ( !where ) return (char *)0;
+	if ( !where ) where = "1 = 1";
 
 	sprintf( system_string,
 		 "select.sh '%s' %s \"%s\" select",
-		 /* ---------------------- */
-		 /* Returns program memory */
-		 /* ---------------------- */
-		 entity_select(),
-		 ENTITY_TABLE,
+		 select,
+		 table,
 		 where );
 
 	return strdup( system_string );
@@ -511,7 +545,6 @@ LIST *entity_full_street_list(
 	return entity_list;
 }
 
-
 ENTITY *entity_full_name_entity(
 			/* ------------------- */
 			/* Expect stack memory */
@@ -543,209 +576,5 @@ ENTITY *entity_full_name_entity(
 				ENTITY_STREET_ADDRESS_UNKNOWN );
 	}
 	return entity;
-}
-
-double entity_liability_amount_due(
-			LIST *entity_balance_zero_account_list )
-{
-	LIST *account_list;
-	ACCOUNT *account;
-	double amount_due;
-
-	account_list = entity_balance_zero_account_list;
-
-	if ( !list_rewind( account_list ) ) return 0.0;
-
-	amount_due = 0.0;
-
-	do {
-		account = list_get( account_list );
-
-		account->account_liability_due =
-			journal_credit_difference_sum(
-				account->liability_journal_list );
-
-		amount_due += account->account_liability_due;
-
-	} while ( list_next( account_list ) );
-
-	return amount_due;
-}
-
-LIST *entity_balance_zero_account_list(
-			LIST *account_list,
-			char *full_name,
-			char *street_address )
-{
-	ACCOUNT *account;
-	JOURNAL *journal;
-	LIST *return_account_list;
-	LIST *journal_list;
-
-	if ( !list_rewind( account_list ) ) return (LIST *)0;
-
-	return_account_list = list_new();
-
-	do {
-		account =
-			list_get(
-				account_list );
-
-		journal_list = account->account_balance_zero_journal_list;
-
-		if ( !list_rewind( journal_list ) ) continue;
-
-		do {
-			journal = list_get( journal_list );
-
-			if ( strcmp(	journal->full_name,
-					full_name ) == 0
-			&&   strcmp(	journal->street_address,
-					street_address ) == 0 )
-			{
-				account =
-					account_getset(
-						return_account_list,
-						account->account_name );
-
-				if ( !account->liability_journal_list )
-					account->liability_journal_list =
-						list_new();
-
-				list_set(
-					account->liability_journal_list,
-					journal );
-			}
-
-		} while ( list_next( journal_list ) );
-
-	} while ( list_next( account_list ) );
-
-	return return_account_list;
-}
-
-ENTITY *entity_liability_steady_state(
-			ENTITY *entity,
-			LIST *entity_balance_zero_account_list )
-{
-	if ( !entity )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: empty entity.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	entity->entity_liability_amount_due =
-		/* ----------------------------------- */
-		/* Sets account->account_liability_due */
-		/* ----------------------------------- */
-		entity_liability_amount_due(
-			entity_balance_zero_account_list );
-
-	entity->entity_liability_payment_amount =
-		entity_liability_payment_amount(
-			entity->dialog_box_payment_amount,
-			entity->entity_liability_amount_due );
-
-	entity->entity_liability_additional_payment_amount =
-		entity_liability_additional_payment_amount(
-			entity->dialog_box_payment_amount,
-			entity->entity_liability_payment_amount );
-
-	return entity;
-}
-
-double entity_liability_additional_payment_amount(
-			double dialog_box_payment_amount,
-			double entity_liability_payment_amount )
-{
-	double additional_payment_amount;
-
-	if ( !dialog_box_payment_amount ) return 0.0;
-
-	additional_payment_amount =
-		dialog_box_payment_amount -
-		entity_liability_payment_amount;
-
-	if ( additional_payment_amount <= 0.0 )
-		return 0.0;
-	else
-		return additional_payment_amount;
-}
-
-double entity_liability_payment_amount(
-			double dialog_box_payment_amount,
-			double entity_liability_amount_due )
-{
-	if ( !dialog_box_payment_amount )
-		return entity_liability_amount_due;
-
-	if ( dialog_box_payment_amount < entity_liability_amount_due )
-		return dialog_box_payment_amount;
-	else
-		return entity_liability_amount_due;
-}
-
-double entity_liability_prepaid(
-			char *payor_full_name,
-			char *payor_street_address )
-{
-	LIST *entity_list = list_new();
-	LIABILITY *liability = liability_calloc();
-	ENTITY *entity;
-
-	list_set(
-		entity_list,
-		entity_new(
-			payor_full_name,
-			payor_street_address ) );
-
-	liability->liability_balance_zero_account_list =
-		/* -------------------------------------- */
-		/* Sets account_balance_zero_journal_list */
-		/* -------------------------------------- */
-		liability_balance_zero_account_list();
-
-	liability->liability_entity_list =
-		liability_entity_list(
-			liability->liability_balance_zero_account_list,
-			entity_list /* input_entity_list */,
-			0.0 /* dialog_box_payment_amount */ );
-
-	liability->liability_balance_zero_entity_list =
-		liability_balance_zero_entity_list(
-			liability->liability_entity_list,
-			liability->liability_balance_zero_account_list );
-
-	if ( !list_rewind(
-		liability->liability_balance_zero_entity_list ) )
-	{
-		return 0.0;
-	}
-
-	entity =
-		list_get(
-			liability->
-				liability_balance_zero_entity_list );
-
-	if ( !list_length(
-		entity->
-			entity_balance_zero_account_list ) )
-	{
-		return 0.0;
-	}
-
-	if ( ( entity->entity_liability_amount_due =
-		entity_liability_amount_due(
-			entity->
-			   entity_balance_zero_account_list ) ) > 0.0 )
-	{
-		return entity->entity_liability_amount_due;
-	}
-
-	return 0.0;
 }
 

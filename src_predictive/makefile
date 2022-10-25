@@ -1,5 +1,5 @@
-# src_predictive/makefile
-# -----------------------
+# $APPASERVER_HOME/src_predictive/makefile
+# ----------------------------------------
 
 CC=gcc
 #CFLAGS=-g
@@ -22,41 +22,33 @@ STANDARD_LIBRARY=							\
 		${LIBRARY}/String.o 					\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/hash_table.o					\
+		${LIBRARY}/dollar.o					\
 		${LIBRARY}/javascript.o
 
-EXECUTABLES=	trial_balance						\
-		tax_form_report						\
-		transaction_balance_report				\
-		transaction_date_time					\
-		income_statement					\
-		balance_sheet						\
+EXECUTABLES=	trial_balance_output					\
+		income_statement_output					\
+		balance_sheet_output					\
+		budget_report						\
 		program_profit						\
-		bank_upload_transaction_insert				\
-		ledger_unbalance					\
 		ledger_debit_credit_audit				\
-		close_nominal_accounts					\
-		load_bank_spreadsheet					\
-		feeder_upload_missing					\
-		post_change_bank_upload					\
-		post_reoccurring_transaction				\
-		post_cash_expense_transaction				\
-		post_change_self					\
-		make_vendor_payment					\
-		generate_invoice					\
-		post_change_vendor_payment				\
-		pay_liabilities_process					\
-		populate_print_checks_entity				\
-		depreciate_fixed_assets					\
-		post_change_account_balance				\
 		ledger_propagate					\
-		feeder_upload_missing					\
+		feeder_load						\
 		journal_ledger_trigger					\
-		post_change_fixed_asset_purchase			\
-		depreciation_trigger					\
-		cost_recovery_trigger					\
-		cost_recover_fixed_assets				\
-		recovery_statutory_accelerated_half_year		\
-		liability_prepaid
+		tax_form_report						\
+		close_nominal_accounts					\
+		populate_print_checks_entity				\
+		pay_liabilities_process					\
+		depreciate_fixed_assets					\
+		post_accrual						\
+		transaction_html_display				\
+		post_change_fixed_asset_purchase
+#		post_change_self					\
+#		generate_invoice					\
+#		post_change_vendor_payment				\
+#		post_change_account_balance				\
+#		cost_recover_fixed_assets				\
+#		recovery_statutory_accelerated_half_year		\
+#		liability_prepaid
 
 EXTERNAL_LIBRARY=							\
 		${STANDARD_LIBRARY}					\
@@ -80,6 +72,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/appaserver_user.o				\
 		${LIBRARY}/security.o					\
+		${LIBRARY}/process_parameter_list.o			\
 		${LIBRARY}/populate_helper_process.o			\
 		${LIBRARY}/appaserver_link_file.o			\
 		${LIBRARY}/related_folder.o				\
@@ -88,7 +81,7 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/folder.o					\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/appaserver.o					\
-		${LIBRARY}/dictionary_separate.o			\
+		${LIBRARY}/dictionary_appaserver.o			\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/latex.o					\
 		${LIBRARY}/process.o					\
@@ -102,9 +95,11 @@ EXTERNAL_LIBRARY=							\
 		${LIBRARY}/frameset.o					\
 		${LIBRARY}/insert_database.o				\
 		${LIBRARY}/update_database.o				\
+		${LIBRARY}/operation_list.o				\
 		${LIBRARY}/validation_form.o				\
-		${LIBRARY}/post_dictionary.o				\
-		${LIBRARY}/dictionary2file.o
+		${LIBRARY}/post2dictionary.o				\
+		${LIBRARY}/dictionary2file.o				\
+		${LIBRARY}/folder_menu.o
 
 SOURCE_LIBRARY= 							\
 		program.o						\
@@ -113,31 +108,26 @@ SOURCE_LIBRARY= 							\
 		recovery.o						\
 		entity_self.o						\
 		entity.o						\
-		purchase.o						\
 		inventory_purchase.o					\
 		specific_inventory.o					\
 		specific_inventory_purchase.o				\
 		fixed_asset.o						\
 		fixed_asset_purchase.o					\
-		vendor_payment.o					\
-		sale.o							\
-		inventory_sale.o					\
-		fixed_service_sale.o					\
-		hourly_service_sale.o					\
-		customer_payment.o					\
-		work.o							\
 		predictive.o						\
 		transaction.o						\
 		account.o						\
 		element.o						\
 		journal.o						\
-		statement.o						\
-		supply.o						\
-		supply_purchase.o					\
-		prepaid_asset.o						\
-		prepaid_asset_purchase.o				\
 		liability.o						\
-		receivable.o
+		receivable.o						\
+		feeder.o						\
+		statement.o						\
+		trial_balance.o						\
+		income_statement.o					\
+		balance_sheet.o						\
+		close_nominal.o						\
+		accrual.o						\
+		budget.o
 
 SPREADSHEET_LIBRARY= 							\
 		spreadsheet.o						\
@@ -158,47 +148,21 @@ clean:
 		statement_of_activities					\
 		generate_workorder
 
-tax_dvr: tax_dvr.c 							\
+post_accrual: post_accrual.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		tax_dvr.c						\
-		-o tax_dvr
+		post_accrual.c						\
+		-o post_accrual
 
-post_reoccurring_transaction: post_reoccurring_transaction.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		accrual.o						\
-		${LIBRARY}/folder_menu.o
+transaction_html_display: transaction_html_display.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		post_reoccurring_transaction.c				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		accrual.o						\
-		${LIBRARY}/folder_menu.o				\
-		-o post_reoccurring_transaction
-
-post_cash_expense_transaction: post_cash_expense_transaction.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		${LIBRARY}/folder_menu.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_cash_expense_transaction.c				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		${LIBRARY}/folder_menu.o				\
-		-o post_cash_expense_transaction
+		transaction_html_display.c				\
+		-o transaction_html_display
 
 post_payroll: post_payroll.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -216,34 +180,6 @@ shortcut_service_work: shortcut_service_work.c				\
 		shortcut_service_work.c					\
 		-o shortcut_service_work
 
-bank_upload_transaction_insert: bank_upload_transaction_insert.c	\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		bank_upload_transaction_insert.c			\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		-o bank_upload_transaction_insert
-
-ledger_propagate: ledger_propagate.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		ledger_propagate.c					\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		-o ledger_propagate
-
 load_receipt_scan: load_receipt_scan.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -251,14 +187,6 @@ load_receipt_scan: load_receipt_scan.c					\
 		${SOURCE_LIBRARY}					\
 		load_receipt_scan.c					\
 		-o load_receipt_scan
-
-ledger_unbalance: ledger_unbalance.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		ledger_unbalance.c					\
-		-o ledger_unbalance
 
 ledger_debit_credit_audit: ledger_debit_credit_audit.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -284,48 +212,22 @@ cost_recover_fixed_assets: cost_recover_fixed_assets.c			\
 		cost_recover_fixed_assets.c				\
 		-o cost_recover_fixed_assets
 
-trial_balance: trial_balance.c						\
+trial_balance_output: trial_balance_output.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		trial_balance.c						\
-		-o trial_balance
+		trial_balance_output.c					\
+		-o trial_balance_output
 
 tax_form_report: tax_form_report.c					\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax.o
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY} tax_form.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		tax_form_report.c					\
-		tax.o							\
+		tax_form.o						\
 		-o tax_form_report
-
-transaction_balance_report: transaction_balance_report.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		transaction_balance.o					\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		transaction_balance_report.c				\
-		transaction_balance.o					\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		-o transaction_balance_report
-
-transaction_date_time: transaction_date_time.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		transaction_balance.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		transaction_date_time.c					\
-		transaction_balance.o					\
-		-o transaction_date_time
 
 program_profit: program_profit.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -335,27 +237,35 @@ program_profit: program_profit.c					\
 		program_profit.c					\
 		-o program_profit
 
-income_statement: income_statement.c					\
+budget_report: budget_report.c						\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		income_statement.c					\
-		-o income_statement
+		budget_report.c						\
+		-o budget_report
+
+income_statement_output: income_statement_output.c			\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		income_statement_output.c				\
+		-o income_statement_output
 	touch statement_of_activities
 	/bin/rm -f statement_of_activities
-	ln income_statement statement_of_activities
+	ln income_statement_output statement_of_activities
 
-balance_sheet: balance_sheet.c						\
+balance_sheet_output: balance_sheet_output.c				\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		balance_sheet.c						\
-		-o balance_sheet
+		balance_sheet_output.c					\
+		-o balance_sheet_output
 	touch financial_position
 	/bin/rm -f financial_position
-	ln balance_sheet financial_position
+	ln balance_sheet_output financial_position
 
 close_nominal_accounts: close_nominal_accounts.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -365,6 +275,14 @@ close_nominal_accounts: close_nominal_accounts.c			\
 		close_nominal_accounts.c				\
 		-o close_nominal_accounts
 
+populate_print_checks_entity: populate_print_checks_entity.c		\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${EXTERNAL_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		populate_print_checks_entity.c				\
+		-o populate_print_checks_entity
+
 journal_ledger_trigger: journal_ledger_trigger.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -372,22 +290,6 @@ journal_ledger_trigger: journal_ledger_trigger.c			\
 		${SOURCE_LIBRARY}					\
 		journal_ledger_trigger.c				\
 		-o journal_ledger_trigger
-
-depreciation_trigger: depreciation_trigger.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		depreciation_trigger.c					\
-		-o depreciation_trigger
-
-cost_recovery_trigger: cost_recovery_trigger.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		cost_recovery_trigger.c					\
-		-o cost_recovery_trigger
 
 pay_liabilities_process: pay_liabilities_process.c			\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -397,14 +299,6 @@ pay_liabilities_process: pay_liabilities_process.c			\
 		pay_liabilities_process.c				\
 		-o pay_liabilities_process
 
-populate_print_checks_entity: populate_print_checks_entity.c		\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		populate_print_checks_entity.c				\
-		-o populate_print_checks_entity
-
 liability_prepaid: liability_prepaid.c					\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -413,33 +307,21 @@ liability_prepaid: liability_prepaid.c					\
 		liability_prepaid.c					\
 		-o liability_prepaid
 
-load_bank_spreadsheet: load_bank_spreadsheet.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o
+ledger_propagate: ledger_propagate.c					\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		load_bank_spreadsheet.c					\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		-o load_bank_spreadsheet
+		ledger_propagate.c					\
+		-o ledger_propagate
 
-feeder_upload_missing: feeder_upload_missing.c				\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o
+feeder_load: feeder_load.c						\
+	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${EXTERNAL_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
-		feeder_upload_missing.c					\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		-o feeder_upload_missing
+		feeder_load.c						\
+		-o feeder_load
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -448,20 +330,6 @@ post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 		${SOURCE_LIBRARY}					\
 		post_change_prepaid_asset_accrual.c			\
 		-o post_change_prepaid_asset_accrual
-
-post_change_bank_upload: post_change_bank_upload.c			\
-	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${EXTERNAL_LIBRARY}					\
-		${SOURCE_LIBRARY}					\
-		post_change_bank_upload.c				\
-		bank_upload.o						\
-		feeder_upload.o						\
-		reoccurring.o						\
-		-o post_change_bank_upload
 
 post_change_inventory_purchase: post_change_inventory_purchase.c	\
 	${EXTERNAL_LIBRARY} ${SOURCE_LIBRARY}
@@ -786,6 +654,10 @@ accrual.o: accrual.c accrual.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c accrual.c
 
+budget.o: budget.c budget.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c budget.c
+
 entity_self.o: entity_self.c entity_self.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c entity_self.c
@@ -806,9 +678,9 @@ receivable.o: receivable.c receivable.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c receivable.c
 
-tax.o: tax.c tax.h
+tax_form.o: tax_form.c tax_form.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c tax.c
+		-c tax_form.c
 
 subsidiary_transaction.o: subsidiary_transaction.c			\
 		subsidiary_transaction.h
@@ -819,16 +691,6 @@ investment.o: investment.c						\
 		investment.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c investment.c
-
-bank_upload.o: bank_upload.c reoccurring.h				\
-		bank_upload.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c bank_upload.c
-
-reoccurring.o: reoccurring.c						\
-		reoccurring.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c reoccurring.c
 
 fixed_asset.o: fixed_asset.c						\
 		fixed_asset_purchase.h
@@ -855,20 +717,13 @@ vendor_payment.o: vendor_payment.c					\
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c vendor_payment.c
 
-feeder_upload.o: feeder_upload.c					\
-		feeder_upload.h reoccurring.o
+feeder.o: feeder.c feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c feeder_upload.c
+		-c feeder.c
 
-recovery.o: recovery.c							\
-		recovery.h
+recovery.o: recovery.c recovery.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c recovery.c
-
-transaction_balance.o: transaction_balance.c				\
-		transaction_balance.h
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		-c transaction_balance.c
 
 transaction.o: transaction.c transaction.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
@@ -930,6 +785,18 @@ statement.o: statement.c statement.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c statement.c
 
+trial_balance.o: trial_balance.c trial_balance.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c trial_balance.c
+
+income_statement.o: income_statement.c income_statement.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c income_statement.c
+
+balance_sheet.o: balance_sheet.c balance_sheet.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c balance_sheet.c
+
 paypal.o: paypal.c paypal.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c paypal.c
@@ -988,4 +855,8 @@ recovery_statutory_accelerated_half_year:				\
 	${CC} ${CFLAGS} -I${LIBRARY}					\
 		recovery_statutory_accelerated_half_year.c		\
 		-o recovery_statutory_accelerated_half_year -lm
+
+close_nominal.o: close_nominal.c close_nominal.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c close_nominal.c
 
