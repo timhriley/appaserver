@@ -4,15 +4,19 @@
 /* ------------------------------------------------------- */
 
 #include <stdio.h>
+#include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include "String.h"
 #include "timlib.h"
-#include "query.h"
+#include "sql.h"
+#include "piece.h"
 #include "appaserver_error.h"
 #include "environ.h"
+#include "folder_attribute.h"
+#include "role_folder.h"
 #include "security.h"
 
 boolean security_password_match(
@@ -62,19 +66,22 @@ enum password_function
 }
 
 char *security_encrypted_password(
-			char *application_name,
 			char *password_sql_injection_escape,
 			enum password_function password_function )
 {
 	char sys_string[ 1024 ];
-	char where[ 128 ];
 	char *select_clause;
 	char *results;
-	char *table_name;
 
-	table_name = get_table_name( application_name, "application" );
-
-	sprintf( where, "application = '%s'", application_name );
+	if ( !password_sql_injection_escape )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: password_sql_injection_escape is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( ! ( select_clause = 
 			security_encryption_select_clause(
@@ -90,10 +97,8 @@ char *security_encrypted_password(
 	}
 
 	sprintf( sys_string,
-		 "echo \"select %s from %s where %s;\" | sql.e",
-		 select_clause,
-		 table_name,
-		 where );
+		 "select.sh \"%s\"",
+		 select_clause );
 
 	if ( ! ( results = pipe2string( sys_string ) ) )
 	{
@@ -141,11 +146,25 @@ char *security_mysql_version( void )
 	return version;
 }
 
+/* ---------------------------------------------------- */
+/* Next step is openssl_256				*/
+/* echo $password | openssl dgst -sha256 | column.e 1	*/
+/* ---------------------------------------------------- */
 char *security_encryption_select_clause(
 			enum password_function password_function,
 			char *password )
 {
 	char select_clause[ 128 ];
+
+	if ( !password )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: password is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	if ( password_function == no_encryption )
 	{
@@ -202,7 +221,8 @@ boolean security_password_encrypted(
 char *security_replace_special_characters(
 			char *data )
 {
-	/* search_replace_string( data, "`", "'" ); */
+	if ( !data || !*data ) return data;
+
 	search_replace_string( data, "\\", "/" );
 	search_replace_string( data, "\"", "'" );
 
@@ -211,14 +231,219 @@ char *security_replace_special_characters(
 
 char *security_sql_injection_escape( char *data )
 {
-	char destination[ QUERY_WHERE_BUFFER ];
+	char destination[ STRING_64K ];
 
 	if ( !data || !*data ) return strdup( "" );
+
+	if ( strlen( data ) >= STRING_64K )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: data length = %d > max length = %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			strlen( data ),
+			STRING_64K );
+		exit( 1 );
+	}
 
 	return strdup(
 		string_escape_character_array(
 			destination,
 			data,
-			"`'$;%&=" ) );
+			SECURITY_ESCAPE_CHARACTER_STRING ) );
+}
+
+char *security_sql_injection_escape_quote_delimit( char *data )
+{
+	char destination[ STRING_64K ];
+	char *ptr = destination;
+
+	if ( !data || !*data ) return strdup( "''" );
+
+	if ( strlen( data ) >= STRING_64K )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: data length = %d > max length = %d.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			strlen( data ),
+			STRING_64K );
+		exit( 1 );
+	}
+
+	ptr += sprintf( ptr, "'" );
+
+	string_escape_character_array(
+		ptr,
+		data,
+		SECURITY_ESCAPE_CHARACTER_STRING );
+
+	ptr += sprintf( ptr, "'" );
+
+	return strdup( destination );
+}
+
+SECURITY_ENTITY *security_entity_calloc( void )
+{
+	SECURITY_ENTITY *security_entity;
+
+	if ( ! ( security_entity =
+			calloc( 1, sizeof( SECURITY_ENTITY ) ) ) )
+	{
+		fprintf( stderr,
+			 "ERROR in %s/%s()/%d: calloc() returned empty..\n",
+			 __FILE__,
+			 __FUNCTION__,
+			 __LINE__ );
+		exit( 1 );
+	}
+
+	return security_entity;
+}
+
+SECURITY_ENTITY *security_entity_new(
+			char *login_name,
+			boolean non_owner_forbid,
+			boolean override_row_restrictions )
+{
+	SECURITY_ENTITY *security_entity = security_entity_calloc();
+
+	security_entity->login_name = login_name;
+	security_entity->non_owner_forbid = non_owner_forbid;
+	security_entity->override_row_restrictions = override_row_restrictions;
+
+	if ( non_owner_forbid && !override_row_restrictions )
+	{
+		security_entity->login_name_only = login_name;
+
+		security_entity->full_name_only =
+			security_entity_fetch(
+				&security_entity->street_address_only,
+				security_entity->login_name );
+	}
+
+	return security_entity;
+}
+
+char *security_entity_fetch(
+			char **street_address_only,
+			char *login_name )
+{
+	char system_string[ 1024 ];
+	char full_name_only[ 128 ];
+	char local_street_address[ 128 ];
+	char escaped_login_name[ 128 ];
+	char where[ 256 ];
+	char *results;
+	char *select = "full_name,street_address";
+
+	sprintf(where,
+		"login_name = '%s'",
+		string_escape_full(
+			escaped_login_name,
+			login_name ) );
+
+	sprintf(system_string,
+		"select.sh %s entity \"%s\"",
+		select,
+		where );
+
+	results = string_pipe_fetch( system_string );
+
+	if ( !results || !*results ) return (char *)0;
+
+	piece( full_name_only, SQL_DELIMITER, results, 0 );
+	piece( local_street_address, SQL_DELIMITER, results, 1 );
+
+	*street_address_only = strdup( local_street_address );
+
+	return strdup( full_name_only );
+}
+
+char *security_login_name_full_name_only(
+			char **street_address_only,
+			char *login_name )
+{
+	if ( !folder_attribute_exists(
+			"entity",
+			"login_name" ) )
+	{
+		return (char *)0;
+	}
+
+	return
+	security_entity_fetch(
+		street_address_only,
+		login_name );
+}
+
+char *security_entity_where(
+			SECURITY_ENTITY *security_entity,
+			LIST *folder_attribute_list )
+{
+	char where[ 1024 ];
+
+	if ( !security_entity ) return (char *)0;
+
+	if ( security_entity->full_name_only
+	&&   *security_entity->full_name_only
+	&&   folder_attribute_list_seek(
+		"full_name",
+		folder_attribute_list ) )
+	{
+		sprintf(where,
+			"full_name = '%s' and street_address = '%s'",
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape(
+				security_entity->full_name_only ),
+			security_sql_injection_escape(
+				security_entity->street_address_only ) );
+
+		return strdup( where );
+	}
+
+	if ( security_entity->login_name_only
+	&&   *security_entity->login_name_only
+	&&   folder_attribute_list_seek(
+		"login_name",
+		folder_attribute_list ) )
+	{
+		sprintf(where,
+			"login_name = '%s'",
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape(
+				security_entity->login_name_only ) );
+
+		return strdup( where );
+	}
+
+	return (char *)0;
+}
+
+LIST *security_sql_injection_escape_list(
+			LIST *data_list )
+{
+	LIST *escape_list = list_new();
+
+	if ( !list_rewind( data_list ) ) return escape_list;
+
+	do {
+		list_set(
+			escape_list,
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			security_sql_injection_escape(
+				(char *)list_get( data_list ) ) );
+
+	} while ( list_next( data_list ) );
+
+	return escape_list;
 }
 
