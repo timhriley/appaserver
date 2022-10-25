@@ -20,14 +20,20 @@ then
 	exit 1
 fi
 
-if [ "$#" -lt 2 ]
+if [ "$#" -lt 1 ]
 then
-	echo "Usage: `basename.e $0 n` \*|attribute[,attribute] table [where] [order]" 1>&2
+	echo "Usage: `basename.e $0 n` \*|attribute[,attribute] [table] [where] [order]" 1>&2
 	exit 1
 fi
 
 select="$1"
-table="$2"
+
+if [ "$#" -gt 1 ]
+then
+	table="$2"
+else
+	table=""
+fi
 
 if [ "$#" -gt 2 ]
 then
@@ -35,27 +41,30 @@ then
 
 	if [ "$where" = "" -o "$where" = "where" ]
 	then
-		where="1=1"
+		where=""
 	fi
 else
-	where="1=1"
+	where=""
 fi
 
-where=`echo $where | sed 's/^where //'`
+if [ "$where" != "" ]
+then
+	where=`echo $where | sed 's/^where //'`
+fi
 
 if [ "$#" -gt 3 ]
 then
 	order="$4"
 
-	if [ "$order" = "" -o "$order" = "order" ]
+	if [ "$order" = "" -o "$order" = "order" -o "$order" = "none" ]
 	then
-		order="none"
+		order=""
 	fi
 else
-	order="none"
+	order=""
 fi
 
-if [ "$select" = "" -o "$select" = "*" -o "$select" = "select" ]
+if [ "$select" = "*" -o "$select" = "select" ]
 then
 	select=`attribute_list $table | joinlines.e ','`
 fi
@@ -65,7 +74,13 @@ then
 	order="$select"
 fi
 
-if [ "$order" = "none" ]
+if [ "$table" = "" ]
+then
+	echo "select $select;" | sql
+elif [ "$where" = "" ]
+then
+	echo "select $select from $table;" | sql
+elif [ "$order" = "" ]
 then
 	echo "select $select from $table where $where;" | sql
 else
