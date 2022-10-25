@@ -201,10 +201,10 @@ char *date_get_now_date_hhmm(
 char *date_get_now_date_oracle_format(
 			int utc_offset );
 
-char *date_get_today_yyyy_mm_dd(
+char *date_today_yyyy_mm_dd(
 			int utc_offset );
 
-char *date_get_yesterday_yyyy_mm_dd(
+char *date_yesterday_yyyy_mm_dd(
 			int utc_offset );
 
 char *date_get_now_time_hhmm(
@@ -397,7 +397,7 @@ boolean date_tomorrow( 		DATE *old_date,
 boolean date_year_in_future(	DATE *date,
 				int year );
 
-char *date_get_day_of_week_yyyy_mm_dd(
+char *date_day_of_week_yyyy_mm_dd(
 				int wday_of_week,
 				int utc_offset );
 

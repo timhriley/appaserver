@@ -1487,7 +1487,7 @@ char *date_get_yyyy_mm_dd_string( DATE *date )
 	return date_display_yyyy_mm_dd( date );
 }
 
-char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
+char *date_day_of_week_yyyy_mm_dd(	int wday_of_week,
 					int utc_offset )
 {
 	char *date_string;
@@ -1503,7 +1503,7 @@ char *date_get_day_of_week_yyyy_mm_dd(	int wday_of_week,
 	return date_string;
 }
 
-char *date_get_yesterday_yyyy_mm_dd( int utc_offset )
+char *date_yesterday_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_yesterday_yyyy_mm_dd_string( utc_offset );
 }
@@ -1612,7 +1612,7 @@ char *date_get_now_yyyy_mm_dd( int utc_offset )
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }
 
-char *date_get_today_yyyy_mm_dd( int utc_offset )
+char *date_today_yyyy_mm_dd( int utc_offset )
 {
 	return date_get_now_date_yyyy_mm_dd( utc_offset );
 }

@@ -1026,8 +1026,7 @@ DATE_CONVERT *date_convert_login_name_fetch(
 	if ( ! ( appaserver_user =
 			appaserver_user_fetch(
 				login_name,
-				0 /* fetch_role_list */,
-				0 /* fetch_session_list */ ) ) )
+				0 /* fetch_role_list */ ) ) )
 	{
 		fprintf(stderr,
 	"ERROR in %s/%s()/%d: appaserver_user_fetch() returned empty.\n",
@@ -1109,53 +1108,53 @@ DATE_CONVERT *date_convert_new_date_convert(
 
 	if ( strcasecmp( date_string, "today" ) == 0 )
 		date_string =
-			date_get_today_yyyy_mm_dd(
+			date_today_yyyy_mm_dd(
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "yesterday" ) == 0 )
 		date_string =
-			date_get_yesterday_yyyy_mm_dd(
+			date_yesterday_yyyy_mm_dd(
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "monday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_MONDAY,
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "tuesday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_TUESDAY,
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "wednesday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_WEDNESDAY,
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "thursday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_THURSDAY,
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "friday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_FRIDAY,
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "saturday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_SATURDAY,
 				date_get_utc_offset() );
 	else
 	if ( strcasecmp( date_string, "sunday" ) == 0 )
 		date_string =
-			date_get_day_of_week_yyyy_mm_dd(
+			date_day_of_week_yyyy_mm_dd(
 				WDAY_SUNDAY,
 				date_get_utc_offset() );
 
