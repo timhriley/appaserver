@@ -1,0 +1,2 @@
+# MIN HOUR DAY MONTH DAYOFWEEK COMMAND
+00 03 * * * . /etc/profile; export APPASERVER_DATABASE=theDatabase; $APPASERVER_HOME/src_appaserver/upload_purge theOptionalKey theTable theColumn

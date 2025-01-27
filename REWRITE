@@ -1,0 +1,200 @@
+${APPASERVER_HOME}/REWRITE
+--------------------------
+
+== INTRODUCTION ==
+
+Beginning in early 2020 and continuing today, the Appaserver engine is being
+completely rewritten. The rewrite was so extensive, that Git generated too
+many conflicts. Instead of resolving the conflicts, the rewrite took place
+without Git support. As a consequence, this version of Appaserver is completely
+Git incompatible with the old. Therefore, this version should be installed
+in a different directory root and the APPASERVER_HOME environment variable
+reset.
+
+== INSTALL NEW SOURCE ==
+
+$ cd $APPASERVER_HOME
+$ make clean
+
+# To start a new Git thread for Appaserver source code, "git pull" the
+# rewritten version into a new directory root.
+# 
+# $ sudo mkdir /usr9
+# $ sudo mkdir /usr9/appaserver
+# $ sudo chown `whoami` /usr9/appaserver
+# $ chgrp appaserver /usr9/appaserver
+# $ chmod g+ws /usr9/appaserver
+# $ cd /usr9/appaserver
+# $ git pull https://github.com/timhriley/appaserver
+
+Place the rewritten appaserver.tar.gz file in /tmp, then untar it into
+a new directory root.
+
+$ sudo mkdir /usr9
+$ sudo mkdir /usr9/appaserver
+$ sudo chown `whoami` /usr9/appaserver
+$ chgrp appaserver /usr9/appaserver
+$ chmod g+ws /usr9/appaserver
+$ cd /usr9/appaserver
+$ tar xzf /tmp/appaserver.tar.gz
+
+== SET THE NEW ENVIRONMENT ==
+
+After the source code is installed, then change your environment
+file /etc/profile. Probably, the only environment variable to change
+is "export APPASERVER_HOME=" to set the new directory root.
+
+Then type:
+$ . /etc/profile
+$ make
+
+Your filesystem and databases need to change to the new Appaserver structure.
+The database changes are automated, but the filesystem changes are manual.
+Note: for a virgin install, the filesystem creation scripts are executed.
+See INSTALL.
+
+== CREATE THE NEW FILESYSTEM DIRECTORIES ==
+
+The new filesystem structure is documented in the first page of
+appaserver_API.pdf.
+
+The first step is to have your filesystem match this document. Note: the
+Cloudacus.com structure isn't necessary.
+
+You will have to execute the following filesystem steps for each
+Appaserver database on your system. Here are the directions for
+database=template.
+
+1) Create the backup directories:
+
+	$ sudo mkdir /var/backups/appaserver
+	$ sudo chown `whoami` /var/backups/appaserver
+	$ chgrp appaserver /var/backups/appaserver
+	$ chmod g+ws /var/backups/appaserver
+	$ chmdo o-rx /var/backups/appaserver
+	$ mkdir /var/backups/appaserver/template
+
+Nightly backups from crontab are now a standard process. To have your
+applications participate, place a backup configuration file in the directory
+/var/backups/appaserver/.  To get you started, here is a template file:
+$APPASERVER_HOME/src_template/mysqldump_template.config.
+
+	$ cp $APPASERVER_HOME/src_template/mysqldump_template.config \
+		/var/backups/appaserver/
+
+Note: the subdirectories for son, father, etc. will be created during
+the first run of mysqldump_appaserver.
+
+2) Create the data subdirectory:
+
+Appaserver temporary data is now stored in a subdirectory of
+/var/appaserver_data.
+
+	$ mkdir /var/appaserver_data/template
+
+3) Create the upload directory:
+
+Appaserver now stores uploaded files in a permenant directory. A new
+Appaserver widget is available to view uploaded files from the user
+interface.
+
+	$ sudo mkdir /var/appaserver_upload
+	$ sudo chown `whoami` /var/appaserver_upload
+	$ chgrp appaserver /var/appaserver_upload
+	$ chmod g+ws /var/appaserver_upload
+	$ chmdo o-rx /var/appaserver_upload
+	$ mkdir /var/appaserver_upload/template
+
+== CREATE THE NEW LINKS ==
+
+Change the links from $DOCUMENT_ROOT
+
+This is the error-prone part. To give Apache access to the Appaserver files,
+links from $DOCUMENT_ROOT to /var/appaserver_data/$database are required.
+Also, the login screen, javascript code, and images need to be
+available to Apache.  As a guide, see page 1 of appaserver_API.pdf.
+
+$ cd $DOCUMENT_ROOT
+$ ln -s $APPASERVER_HOME `pwd`/appaserver_home
+$ ln -s /var/appaserver_data `pwd`/appaserver_data
+$ ln -s $APPASERVER_HOME/appaserver/zmenu `pwd`/zmenu
+$ ln -s $APPASERVER_HOME/appaserver/zcal2 `pwd`/zcal2
+$ ln -s $APPASERVER_HOME/appaserver/zimages `pwd`/images
+$ ln -s $DOCUMENT_ROOT/appaserver `pwd`/appaserver
+
+== CHANGE appaserver.config ==
+
+After your filesystem is correct, then adjust your existing
+/etc/appaserver.config. Its variable names need to align with
+$APPASERVER_HOME/src_template/appaserver_template.config.
+
+== HAVE CONNECTIONS BE TO database=template ==
+
+$ . set_database template
+
+This sets the environment variable DATABASE=template.
+
+You will have to execute the following database steps for each
+Appaserver database on your system.
+
+== BACKUP YOUR DATABASE ==
+
+Before changing the database structure, perform a quick mysqldump. Execute:
+
+$ cd /tmp
+$ mysqldump_quick.sh $DATABASE
+
+This creates ${DATABASE}_database.sql.gz.
+
+== UPGRADE YOUR DATABASES ==
+
+After your environment and filesystem are set, then change the
+structure of your existing databases. You should already have
+database=template installed. Modify this database first. Execute:
+
+To change the database structure, two processes need to execute:
+
+$ $APPASERVER_HOME/src_template/rename_upgrade_scripts.sh
+
+$ appaserver-upgrade $DATABASE
+
+If appaserver-upgrade generated any errors, then they should be traced
+down. You may have to fix an upgrade script, restore the database from
+the backup, and start again.
+
+== IF ERROR, RESTORE BACKUP ==
+
+If appaserver-upgrade generated no errors, then skip this step.
+
+$ echo "drop database $DATABASE; create database $DATABASE;" | sql mysql
+
+This logs into database=mysql to execute the two sql statements.
+
+$ cat ${DATABASE}_database.sql.gz | sql
+
+== STEP THROUGH THE UPGRADE ==
+
+If appaserver-upgrade generated any errors and you want to step through
+the upgrade scripts one at a time, then appaserver-upgrade provides the
+"step" parameter.
+
+$ appaserver-upgrade $DATABASE step
+
+== LOG IN ==
+
+After the upgrade completes without any errors, you can attempt to log
+in to see if your $DOCUMENT_ROOT links are correct. However, before
+you log in, perform a quick test for any database orphans.
+
+$ fix_orphans '' '' n n stdout
+
+The second 'n' parameter communicates to not attempt to fix anything.
+If fix_orphans generated any errors, then note them down. After you
+log in, you can execute fix_orphans more precisely:
+Alter/Fix Orphans.
+
+After you succeed to log in to the your database, execute the process:
+Alter/Table Rectification
+
+If either fix_orphans or Table Rectification generated errors, the errors
+can be fixed using Appaserver's screens.

@@ -1,0 +1,67 @@
+Group Centric Paradigm
+Tim Riley (October, 1, 2023)
+
+Purpose
+-------
+The purpose of the group centric paradigm is to give multiple
+Linux users write access to only collaborating directories and files.
+Non-collaborating users will not have even read access.
+
+Vocabulary
+----------
+* User:	   Every login account has one user name.
+* Group:   Every user name belongs to one or more groups.
+	   Every group has a group name.
+* World:   Every user belongs to the world.
+	   The world does not have a name.
+	   Instead, it is represented by the letter 'o'.
+
+Process
+-------
+Collaborating users need group write access to collaborating
+directories.
+* Add collaborating groups to /etc/group.
+* Add collaborating users to groups in /etc/group.
+
+Set umask
+---------
+* Set umask to 0002 in /etc/profile.
+* This instructs Linux to turn on the group write bit for new files
+  and directories. It also instructs Linux to not turn on the world
+  write bit.
+
+File creation without group centric
+-----------------------------------
+* User:		receives full permissions
+* Group:	receives restricted permissions
+* World:	receives restricted permissions
+
+File creation with group centric
+--------------------------------
+* User:		receives full permissions
+* Group:	receives full permissions
+* World:	receives read and execute permissions
+
+Access management
+-----------------
+1) Assign each new user to a group name that is the same as the user name.
+   This habit allows new users to not have to belong to a collaborating
+   group.
+2) Each user may be assigned to more groups in the /etc/group file.
+3) For each collaborating directory, set the group name: chgrp $group .
+4) For each collaborating directory, set the group SUID bit: chmod g+s .
+5) For each collaborating directory, set the group write bit: chmod g+w .
+
+The group SUID bit for a directory instructs Linux to change the behavior
+for new files and subdirectories. Instead of setting the group name
+to the user's group name, it sets the group name to the directory's
+group name.
+
+Each new file will have the group write bit turned on because umask
+is 0002. The new file's group name will be the group name of the directory.
+The world can read and/or execute the file.
+
+Likewise, each new subdirectory will have the group write bit turned
+on because umask is 0002.  Moreover, the subdirectory's group SUID bit
+will be turned on.  The subdirectory's group name will be the group
+name of its parent directory, not the group name of the user.

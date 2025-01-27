@@ -1,0 +1,17 @@
+# $APPASERVER_HOME/utility/set_project
+# ------------------------------------
+# You must dot this file.
+# ------------------------------------
+
+if [ "$#" -ne 1 ]
+then
+	echo "Usage: . `basename.e $0 n` database" 1>&2
+else
+	database=$1
+
+	export PATH=${APPASERVER_HOME}/src_$database:$PATH
+	export DATABASE=$database
+	export APPASERVER_DATABASE=$database
+fi
+
+# exit 0 <-- will exit shell.

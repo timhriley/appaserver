@@ -1,0 +1,226 @@
+${APPASERVER_HOME}/INSTALL
+--------------------------
+
+-----------
+A) Security
+-----------
+The challenge is to securely couple Appaserver, Mysql, and Apache. For example, 
+shell users need to access only their private databases, yet Apache needs to
+access all of them. Another example, Appaserver creates sensitive files in
+/var/appaserver_data that world users should not read. Also, you need to
+compile Appaserver which writes links to Apaches's CGI directory. Yet, no one
+should plant a trojan horse there.
+
+UNIX (Linux) has an elegant solution -- the Group Centric Paradigm. The key
+technologies are the group 's' bit being set on each directory and a more
+liberal UMASK setting.
+
+1) With the group's 's' bit set on a directory, new files and subdirectories
+   gain the directory's group name instead of the user's group name.
+
+2) The UMASK needs to be 0002. The group's write bit will be turned on for
+   new files and subdirectories.
+
+3) All shell users need a default group that is same name as their username.
+   You can then grant shell access to users without fear that they can modify
+   anything outside their responsibilities.
+
+See: template/group_centric.txt
+
+Appaserver's implementation of the Group Centric Paradigm is to create
+group=appaserver in /etc/group. Trusted users, including `whoami`, are assign
+as group members. The important characteristic is the trusted users gain write
+permission. Apache and everyone else has only read and execute access.
+
+----------------------
+B) Install basic LAMP.
+----------------------
+1) $ sudo apt -y install apache2
+2) $ sudo apt -y install mysql-server
+3) $ sudo mysql_secure_installation
+
+----------------------
+C) Ensure group access
+----------------------
+1) $ sudo addgroup appaserver
+2) $ sudo usermod -a -G appaserver `whoami`
+3) $ sudo usermod -a -G www-data `whoami`
+4) $ sudo usermod -a -G mysql `whoami`
+5) Log out/in to take effect
+6) $ id
+
+----------------------------------
+D) Install Appaserver source code:
+----------------------------------
+1) $ cd /var
+2) $ sudo mkdir appaserver
+3) $ sudo chown `whoami`:$appaserver appaserver
+4) $ chmod g+ws appaserver
+5) $ chmod o+rx appaserver
+6) $ git clone https://github.com/timhriley/appaserver.git
+
+--------------------------------------
+E) Tell Appaserver the MySQL password:
+--------------------------------------
+1) $ sudo cp appaserver/template/appaserver.config /etc
+2) $ sudo vi /etc/appaserver.config
+3) vi> password=mysqlPassword
+
+------------------------------------
+F) Create Appaserver user for MySQL:
+------------------------------------
+$ head -4 appaserver.config # to display the password
+$ sudo mysql -s
+
+mysql> create user 'appaserver'@'localhost' identified with caching_sha2_password by 'mysqlPassword';
+mysql> grant all on *.* to 'appaserver'@'localhost' with grant option;
+mysql> flush privileges;
+mysql> exit
+
+$ mysql -s -u appaserver -p # to test
+mysql> exit
+
+------------------------------
+G) Run the Appaserver scripts:
+------------------------------
+1) cd /var/appaserver/template
+2) $ ./install-apt.sh execute|noexecute
+3) $ sudo ./install-profile.sh execute|noexecute
+4) $ . /etc/profile
+5) $ sudo ./install-filesystem.sh execute|noexecute
+6) $ sudo ./install-protect.sh execute|noexecute
+7) $ sudo ./install-apache.sh execute|noexecute
+
+----------------------
+H) Compile Appaserver:
+----------------------
+1) $ cd $APPASERVER_HOME
+2) $ make
+
+-----------------------------
+I) Install template database:
+-----------------------------
+1) $ . set-database template
+2) $ template/install-template-database.sh execute|noexecute
+3) $ appaserver-upgrade
+
+------------------------------
+J) Consider advanced features:
+------------------------------
+$ template/install-extra.sh | less
+
+---------
+K) Debug:
+---------
+$ menu
+
+Note: If a screen doesn't properly generate, then a hint message was
+sent to stderr. Hint messages are captured in one of three files:
+1) Apache's error file
+2) Apache's access file
+3) Appaserver's log file
+
+The menu program displays the tail of each of these files. It also displays
+the tail of Linux's system log files.
+
+------------------------------
+L) Login to template database:
+------------------------------
+Point your browser to:
+http://localhost/appaserver/template
+	Login name=nobody
+	Password=changeit
+
+---------------------------------
+M) Insert your username/password:
+---------------------------------
+1) <Role> <System>
+2) <Insert> <Security> <Appaserver User>
+3) Set Login Name = yourLoginName
+4) Set Password = yourPassword
+5) <Role Appaserver User>
+6) Set Role=System
+7) Set Role=Supervisor
+
+---------------------------------
+N) Delete APPASERVER_USER=nobody:
+---------------------------------
+1) <Role> <System>
+2) <Lookup> <Security> <Appaserver User>
+3) Query where login_name = 'nobody'
+4) <Delete>
+
+Note: APPASERVER_USER=nobody was deleted, so login again.
+
+Point your browser to:
+http://localhost/appaserver/template
+	Login name=yourLoginName
+	Password=yourPassword
+
+----------------------------
+O) Create $firstApplication:
+----------------------------
+1) <Role> <System>
+2) <Alter> <Create Empty Application>
+
+------------------------------
+P) Login to $firstApplication:
+------------------------------
+Browser: http://tree/appaserver/$firstApplication
+	Login name=yourLoginName
+	Password=yourPassword
+
+--------------------------------------
+Q) Tail log file of $firstApplication:
+--------------------------------------
+menu> ^C and 99 and 99 # exit to shell
+$ cd `appaserver_log_directory`
+$ tail -f appaserver_$firstApplication.err
+
+Note:
+1) $ vi ~/menu.dat
+2) vi> add instruction to tail -f $firstApplication
+
+----------------------------------
+R) Import PredictBooks (optional):
+----------------------------------
+Your first application may be PredictBooks Home Edition.
+1) <Role> <System>
+2) <Alter> <Import PredictBooks>
+
+Notes:
+1) Press the <Menu Refresh> button for the top menu to display correctly.
+2) Execute two output processes to see the state of PredictBooks.
+	1) <Output> <Trial Balance>
+		Bookkeeping rule #1: Total Debit = Total Credit
+	2) <Output> <Financial Position>
+		Bookkeeping rule #2: Asset = Liability + Equity
+
+-----------------------------------------
+S) You can switch between databases with:
+-----------------------------------------
+$ . set-database $database
+
+------------------------
+T) Backup all databases:
+------------------------
+$ mysqldump_all.sh
+$ cd `appaserver_backup_directory`
+$ find . -ls | less
+
+---------------
+U) Set crontab:
+---------------
+$ crontab -e
+vi> :r $APPASERVER_HOME/template/appaserver_file_purge.crontab
+vi> :r $APPASERVER_HOME/template/mysqldump.crontab
+
+----------------------
+V) Upgrade Appaserver:
+----------------------
+See $APPASERVER_HOME/UPGRADE
+
+---------------------
+W) Remove Appaserver:
+---------------------
+See $APPASERVER_HOME/REMOVE

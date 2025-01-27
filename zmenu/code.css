@@ -1,0 +1,9 @@
+ol.faq li p.q { font-weight: bold; }
+ol.faq li div.a { margin-left: 2em; }
+
+pre { background-color: #ddf; border: 1px solid #aaa; padding: 0.5em; margin: 1em; }
+.html-tag { color: #00b; font-weight: bold; }
+.function-name { font-weight: bold; color: #888; }
+.string { color: #048; }
+.variable-name { color: #a00; }
+.comment { color: #080; }

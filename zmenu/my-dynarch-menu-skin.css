@@ -1,0 +1,6 @@
+@import url("src/skin-aqua.css");
+
+div.dynarch-horiz-menu table, div.dynarch-popup-menu table
+{
+   font: italic 16px georgia,'times new roman',sans-serif;
+}

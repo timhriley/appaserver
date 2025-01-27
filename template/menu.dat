@@ -1,0 +1,55 @@
+# ~/menu.dat
+# ----------
+
+Appaserver
+(
+	Monitor Template Appaserver log					\
+	[								\
+		directory=/var/log/appaserver				\
+		executable="tail -f appaserver_template.err"		\
+	]
+)
+
+System
+(
+	Monitor Apache Error log					\
+	[								\
+		directory=/var/log/apache2/				\
+		executable="tail -f error.log"				\
+	]
+	Monitor Apache Access log					\
+	[								\
+		directory=/var/log/apache2/				\
+		executable="tail -f access.log"				\
+	]
+	Monitor Mysql log						\
+	[								\
+		directory=/var/log/mysql				\
+		executable="tail -f error.log"				\
+	]
+	Monitor system messages						\
+	[								\
+		directory=/var/log					\
+		executable="tail -f syslog | grep -v 'UFW BLOCK'"	\
+	]
+	Monitor UFW messages						\
+	[								\
+		directory=/var/log					\
+		executable="tail -f ufw.log"				\
+	]
+	Monitor auth messages						\
+	[								\
+		directory=/var/log					\
+		executable="tail -f auth.log"				\
+	]
+	Monitor mail messages						\
+	[								\
+		directory=/var/log					\
+		executable="tail -f mail.log"				\
+	]
+	Monitor all messages						\
+	[								\
+		executable="monitor.sh"					\
+	]
+)
+

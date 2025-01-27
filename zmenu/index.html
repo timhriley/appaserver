@@ -1,0 +1,608 @@
+<!-- -*- nxml -*-
+     Copyright Dynarch.com, 2003-2009.  All Rights Reserved.
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dhtml menu javascript menu</title>
+    <link rel="stylesheet" href="src/hmenu.css" />
+    <link rel="alternate stylesheet" href="src/skin-xp.css" title="Windows XP" />
+    <link rel="alternate stylesheet" href="src/skin-xp-apps.css" title="Windows XP Apps" />
+    <link rel="alternate stylesheet" href="src/skin-aqua.css" title="Aqua" />
+    <link rel="alternate stylesheet" href="src/skin-longhorn.css" title="Windows Longhorn" />
+    <link rel="alternate stylesheet" href="src/skin-modern.css" title="Mozilla Modern" />
+    <link rel="alternate stylesheet" href="src/skin-win98.css" title="Win 98 Style" />
+    <link rel="stylesheet" href="src/skin-win2k.css" title="Win 2000 Style" />
+    <link rel="alternate stylesheet" href="src/skin-beos.css" title="BeOS Style" />
+    <link rel="alternate stylesheet" href="src/skin-system.css" title="System Style" />
+    <link rel="alternate stylesheet" href="src/skin-xp-extended.css" title="XP Extended" />
+    <link rel="alternate stylesheet" href="src/skin-hmenu-dark.css" title="HMenu Dark" />
+    <link rel="alternate stylesheet" href="src/skin-rain.css" title="Rain" />
+    <link rel="alternate stylesheet" href="src/skin-yellow.css" title="Yellow" />
+    <link rel="alternate stylesheet" href="src/skin-yp.css" title="Yp" />
+    <link rel="alternate stylesheet" href="my-dynarch-menu-skin.css" title="Custom fonts" />
+    <script type="text/javascript">
+      // WARNING: the following should be a path relative to site, like "/hmenu/"
+      // here it is set relative to the current page only (note the dot in "./src/"),
+      // which is not recommended for production usage; it's useful in this case though
+      // to make the demo work correctly on local systems.
+      _dynarch_menu_url = "./src/";
+    </script>
+    <script type="text/javascript" src="src/hmenu.js"></script>
+
+    <style type="text/css">
+      @import url("code.css");
+      /* div.dynarch-horiz-menu table, div.dynarch-popup-menu table { font: 8pt "trebuchet ms",verdana,tahoma,sans-serif; } */
+      div.dynarch-horiz-menu table tr td { height: 20px; }
+      html, body { margin: 0px; padding: 0px; font: 9pt "trebuchet ms",verdana,tahoma,sans-serif; background-color: #aaa; }
+      table { font: 9pt "trebuchet ms",verdana,tahoma,sans-serif; }
+      #div-content { padding: 0px 1em; border: 1px solid #888; background-color: #fff; }
+      a:link, a:visited { color: #00f; }
+      a:hover { background-color: #ff8; color: #f00; }
+      h1, h2, h3 { border-bottom: 2px solid #888; font-weight: normal; }
+      h2, h3 { border-width: 1px; }
+      .content { margin: 0px 4em; }
+
+      .list-files { color: #686; }
+      .list-files tt { color: #000; }
+      .list-files ul li { list-style-image: url("src/img/rarrow.gif"); }
+
+      .footer { text-align: center; font: 9pt tahoma,verdana,sans-serif; border-top: 1px solid #99a; color: #446; }
+
+      #features { font: 95% "trebuchet ms",tahoma,verdana,sans-serif; height: 1024px; border-collapse: collapse; }
+      #features .feature { margin: 3px 0; }
+      #features .details { height: 1px; overflow: hidden; }
+      #features .brief { cursor: default; padding: 2px 0 2px 10px; }
+      #features .brief .unique { color: #f42; }
+      #features .brief-active { z-index: 10; border-bottom: 1px solid #842; border-top: 1px solid #842;
+        padding: 1px 0 1px 10px; background: #f5f5f5 url("img/arrows.png") no-repeat 100% 50%;
+        margin-right: -2px;
+      }
+      #features .brief .bullet { font: bold italic 100% "bitstream vera serif",georgia,"trebuchet ms",serif; color: #888; }
+      #features .brief-active .bullet { color: #f42; }
+      #featdesc { border-left: 1px solid #842; background-color: #f5f5f5; width: 50%; padding: 1em 0; }
+
+      p, blockquote { text-align: justify; }
+      tt { color: #862; }
+      dt { background-color: #fff }
+
+      .downarrow { background: url("img/downarrow.gif") no-repeat 100% 100%; padding-right: 11px; display: block; }
+      td.hover .downarrow { background-image: url("img/downarrow-hover.gif"); }
+      td.active .downarrow { background-image: url("img/uparrow.gif"); }
+
+      a.logo { position: absolute; right: 10px; top: 35px; background: none; }
+      body > a.logo { position: fixed; }
+      a.logo:hover { background: none; }
+      a.logo img { border: none; }
+    </style>
+
+    <script type="text/javascript">//<![CDATA[
+      var mainmenu;
+      function setActiveStyleSheet(title) {
+	var i, a, main;
+        title = title.replace(/%20/g, " "); // IE fucked up
+	if (title) {
+          var links = document.getElementsByTagName('link');
+          for(i = 0; (a = links[i]); i++) {
+            if (/style/.test(a.getAttribute('rel')) && a.getAttribute('title')) {
+              a.disabled = true;
+              if (a.getAttribute('title') == title) {
+                a.disabled = true;
+                a.disabled = false;
+              }
+            }
+          }
+	}
+        if (is_ie) {
+          // note, this code refreshes the popup menus for Internet Explorer
+          // you don't normally want to use it as you'll probably load only
+          // one menu style in your page.
+          DynarchMenu._forAllMenus(function(menu) {
+            var a = menu._popupMenus, i, s, el, tds, j;
+            for (i = a.length; --i >= 0;) {
+              tds = a[i].element.getElementsByTagName("td");
+              for (j = tds.length; --j >= 0;) {
+                s = tds[j].style;
+                s.display = "none";
+                s.display = "block";
+              }
+            }
+          });
+        }
+      }
+
+      var current_skin_item = null;
+      function setSkin(action, pref) {
+        if (!current_skin_item)
+          current_skin_item = mainmenu.items["default-skin"];
+        setActiveStyleSheet(pref);
+        action.info.icon.src = action.info.icon.src.replace("radio-0", "radio-1");
+        current_skin_item.icon.src = current_skin_item.icon.src.replace("radio-1", "radio-0");
+        current_skin_item = action.info;
+        if (pref == "XP Extended") {
+          if (/msie 5\.0/i.test(navigator.userAgent)) {
+            alert("This skin might not work properly with IE 5.0");
+          }
+        }
+        document.body.style.display = "none";
+        document.body.style.display = "";
+        return false;
+      }
+
+      function toggleCheckbox(action, pref) {
+        if (!mainmenu) {
+          alert("Your browser does not support our menu so preferences do not work");
+          return;
+        }
+        var item = action.info;
+        var img = item.icon;
+        var val;
+        if (/checkbox-1/.test(img.src)) {
+          // item is on
+          img.src = img.src.replace('checkbox-1', 'checkbox-0');
+          val = false;
+        } else {
+          // assume item is off
+          img.src = img.src.replace('checkbox-0', 'checkbox-1');
+          val = true;
+        }
+        switch (pref) {
+          case 'tooltips':
+            item.menu.config.tooltips = val;
+            break;
+          case 'electric':
+            item.menu.config.electric = val ? 350 : false;
+            mainmenu.items["menu-item-electric"].disable(!val);
+            break;
+          case 'shadows':
+            item.menu.config.shadows = val ? [4, 4] : null;
+            mainmenu.items["menu-item-shadowSize"].disable(!val);
+            return false;
+            break;
+          case 'blink':
+            item.menu.config.blink = val ? 5 : false;
+            break;
+        }
+        return !item.menu.config.electric;
+      }
+
+      function setElectricTimeout(action) {
+        var item = action.info;
+        var tmout = prompt("Please enter the timeout for closing popup menus, in milliseconds", item.menu.config.electric);
+        if (!tmout) return;
+        item.menu.config.electric = parseInt(tmout);
+      }
+
+      function setGeneralTimeout(action) {
+        var item = action.info;
+        var tmout = prompt("Please enter the general menu timeout, in milliseconds", item.menu.config.timeout);
+        if (!tmout) return;
+        item.menu.config.timeout = tmout;
+      }
+
+      function setShadowSize(action) {
+        var item = action.info;
+        var dx = prompt("Please enter shadow's X displacement (width)", item.menu.config.shadows[0]);
+        if (!dx) return;
+        var dy = prompt("Please enter shadow's Y displacement (height)", item.menu.config.shadows[1]);
+        if (!dy) return;
+        item.menu.config.shadows = [parseInt(dx), parseInt(dy)];
+      }
+
+      function featInstall(el) {
+        var info = {};
+        for (var i = el.firstChild; i; i = i.nextSibling) {
+          if (i.nodeType != 1) continue;
+          if (/\S/.test(i.className)) {
+            info[i.className] = i;
+          }
+        }
+        el = info.brief;
+        el.innerHTML = el.innerHTML.replace("(unique)", "<span class='unique' title='To the best of our knowledge, this feature is unique to our menu.'>(unique)</span>");
+        el.innerHTML = el.innerHTML.replace("»", "<span class='bullet'>»</span>");
+        el.info = info;
+        activeFeature = null;
+        el.onmouseover = function() {
+          if (activeFeature == this) return;
+          if (activeFeature)
+            activeFeature.className = "brief";
+          activeFeature = this;
+          this.className += " brief-active";
+          document.getElementById('featdesc').innerHTML = '<div style="margin-left: 1px; padding: 0 1em;">' + this.info.details.innerHTML + '</div>';
+        };
+      }
+
+      function patchFeatures() {
+        var i = document.getElementById("first-feature");
+        for (; i; i = i.nextSibling) {
+          if (i.nodeType != 1) continue; // skip non-element nodes
+          if (/feature/.test(i.className))
+            featInstall(i);
+        }
+      }
+
+      current_section = null;
+      function showSection(id) {
+        if (mainmenu) {
+          mainmenu.items["menu-item-sec-" + id].disable();
+          if (current_section)
+            mainmenu.items["menu-item-sec-" + current_section].disable(false);
+          if (current_section == 'setup') {
+            other_menu.destroy();
+          }
+        }
+        document.getElementById("frame-content").src = "docs/" + id + ".html";
+        current_section = id;
+      }
+
+      function sectionLoaded(body) {
+        var c = document.getElementById("div-content");
+        c.innerHTML = body.innerHTML;
+        PieNG(c);
+        other_menu = document.getElementById("menu");
+        if (other_menu)
+          other_menu = DynarchMenu.setup(other_menu);
+        window.scrollTo(0, 0);
+        if (current_section == 'features')
+          patchFeatures();
+      }
+
+      var browser_support = {
+        "msie50"    :  "IE 5.0/Win: Excellent mouse support, good keyboard support, no PNG icons, no smooth shadows.",
+        "msie55"    :  "IE 5.5/Win: Excellent mouse support, good keyboard support.",
+        "msie60"    :  "IE 6.0/Win: Excellent mouse support, good keyboard support.",
+        "mozilla"   :  "All Gecko-based browsers: Excellent support in every aspect.",
+        "opera6x"   :  "Opera 6.x: Not tested, assumed to fail.",
+        "opera7x"   :  "Opera 7.x: Excellent mouse support, poor keyboard support.",
+        "konqueror" :  "Konqueror: full mouse support, no keyboard support.",
+        "safari"    :  "Apple Safari: full mouse support, no keyboard support."
+      };
+      function showBrowser(id) {
+        var txt = browser_support[id];
+        if (typeof txt == "string") {
+          alert(txt);
+        }
+      }
+      function initPage() {
+        mainmenu = DynarchMenu.setup('page-menu', { shadows: [-1, 0, 5, 5], scrolling: true });
+        showSection('overview');
+      }
+    //]]></script>
+  </head>
+
+  <body style="overflow: auto" onload="initPage()" id="document">
+
+    <a class="logo" title="Visit Our Website" href="http://www.dynarch.com/"><img src="img/logo.png" width="100" height="96" alt="Visit Our Website" /></a>
+    <h1 style="text-align: center; margin: 10px 0; border-top: 1px solid #888; border-bottom-width: 1px; background-color: #c9c9c9;"
+        >The Perfect DHTML Menus</h1>
+    <table style="width: 90%; margin: 0 auto; border: 1px solid #555;" align="center" cellspacing="0" cellpadding="0">
+      <tr style="height: 1em"><td style="height: 1em">
+      <ul id="page-menu" style="display: none;">
+        <li title="Documentation, browser support, samples">
+          <img src="icons/hmenu.png" width="18" height="18" alt="" />
+          <a><span class="downarrow">Dynarch_Menu</span></a>
+          <ul>
+            <li id="menu-item-sec-overview">
+              <img src="icons/magnifier.gif" alt="" />
+              <a href="javascript:retval=showSection('overview');" title="Menu overview">_Overview</a>
+            </li>
+            <li id="menu-item-sec-features">
+              <img src="icons/features.png" width="18" height="18" alt="" />
+              <a href="javascript:retval=showSection('features');" title="Features list">_Features</a>
+            </li>
+            <li title="Menu documentation">
+              _Documentation
+              <ul>
+                <li id="menu-item-sec-files">
+                  <a href="javascript:retval=showSection('files');" title="Archive files">_Files</a>
+                </li>
+                <li id="menu-item-sec-load">
+                  <a href="javascript:retval=showSection('load');" title="Load the scripts">_Load it</a>
+                </li>
+                <li id="menu-item-sec-setup">
+                  <a href="javascript:retval=showSection('setup');" title="How to setup menu">_Setup</a>
+                </li>
+                <li id="menu-item-sec-anatomy">
+                  <a href="javascript:retval=showSection('anatomy');" title="Anatomy of a menu">_Menu anatomy</a>
+                </li>
+                <li id="menu-item-sec-classes">
+                  <a href="javascript:retval=showSection('classes');" title="Special class names">Special class names</a>
+                </li>
+                <li id="menu-item-sec-config">
+                  <a href="javascript:retval=showSection('config');" title="Customizing the menu">_Customization</a>
+                </li>
+                <li></li>
+                <li id="menu-item-sec-actions">
+                  <a href="javascript:retval=showSection('actions');" title="Unique event handler">Advanced handlers</a>
+                </li>
+                <li id="menu-item-sec-item-object">
+                  <a href="javascript:retval=showSection('item-object');" title="Advanced API to DynarchMenu">The MenuItem object</a>
+                </li>
+                <li></li>
+                <li id="menu-item-sec-skins">
+                  <a href="javascript:retval=showSection('skins');" title="Customizing the CSS file">S_kin files</a>
+                </li>
+                <li id="menu-item-sec-icons">
+                  <a href="javascript:retval=showSection('icons');" title="Some notes about the icons">_Icons</a>
+                </li>
+                <li></li>
+                <li id="menu-item-sec-deviation">
+                  <a href="javascript:retval=showSection('deviation');" title="Deviations from Web standards">_Deviations from W3C</a>
+                </li>
+              </ul>
+            </li>
+            <li id="menu-item-sec-faq" title="Frequently asked questions">
+              <a href="javascript:showSection('faq')">FA_Q</a>
+            </li>
+            <li>
+              _Browser support
+              <ul>
+                <li>
+                  <img src="icons/mozilla.gif" alt="" />
+                  _Gecko
+                  <ul>
+                    <li>
+                      <img src="icons/mozilla.gif" alt="" />
+                      <a href="javascript:showBrowser('mozilla')">_Mozilla</a>
+                    </li>
+                    <li>
+                      <img src="icons/firebird.gif" alt="" />
+                      <a href="javascript:showBrowser('mozilla')">Mozilla Fire_Bird</a>
+                    </li>
+                    <li>
+                      <img src="icons/firefox.gif" alt="" />
+                      <a href="javascript:showBrowser('mozilla')">Mozilla Fire_Fox</a>
+                    </li>
+                    <li>
+                      <img src="icons/netscape.gif" alt="" />
+                      <a href="javascript:showBrowser('mozilla')">_Netscape</a>
+                    </li>
+                    <li></li>
+                    <li>
+                      <a href="javascript:showBrowser('mozilla')">_Other Gecko-s</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <img src="icons/win.gif" alt="" />
+                  Internet E_xplorer/Win
+                  <ul>
+                    <li>
+                      <a href="javascript:showBrowser('msie50')">5.0</a>
+                    </li>
+                    <li>
+                      <a href="javascript:showBrowser('msie55')">_5.5</a>
+                    </li>
+                    <li>
+                      <a href="javascript:showBrowser('msie60')">_6.0</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <img src="icons/opera.gif" alt="" />
+                  _Opera
+                  <ul>
+                    <li>
+                      <a href="javascript:showBrowser('opera6x')">_6.x</a>
+                    </li>
+                    <li>
+                      <a href="javascript:showBrowser('opera7x')">_7.x</a>
+                    </li>
+                  </ul>
+                </li>
+                <li>
+                  <img src="icons/konqueror.gif" alt="" />
+                  <a href="javascript:showBrowser('konqueror')">_Konqueror</a>
+                </li>
+                <li>
+                  <img src="icons/apple.gif" alt="" />
+                  <a href="javascript:showBrowser('safari')">Apple _Safari</a>
+                </li>
+              </ul>
+            </li>
+            <li></li>
+            <li title="Other samples (each opens in new window)">
+              Samples
+              <ul><li><a href="examples/" target="_blank" title="Go to examples index"><b>Examples index</b></a></li><li></li><li><a href="examples/actions.html" target="_blank" title="Describes various actions that can be fired by menu items (opens new window)">Item actions</a></li><li><a href="examples/big.html" target="_blank" title="A big menu, featuring lazy initialization. (opens new window)">Really big menus</a></li><li><a href="examples/clone-popups.html" target="_blank" title="Display the same popup menu in multiple places (opens new window)">Clone popups</a></li><li><a href="examples/context.html" target="_blank" title="You can specify context menu for any HTML element (opens new window)">Context menus part #1</a></li><li><a href="examples/context2.html" target="_blank" title="Context menus for all elements having a certain class (opens new window)">Context menus part #2</a></li><li><a href="examples/context3.html" target="_blank" title="Context menus for dynamically created elements (opens new window)">Context menus part #3</a></li><li><a href="examples/context4.html" target="_blank" title="Using the onPopup JavaScript handler (opens new window)">Context menus part #4</a></li><li><a href="examples/context5.html" target="_blank" title="Menus that popup on arbitrary HTML elements upon keybindings (opens new window)">Keyboard-triggered popup menus</a></li><li><a href="examples/different-colors.html" target="_blank" title="Shows you how you can customize individual menu popups and items based on class names (opens new window)">Individual customization</a></li><li><a href="examples/electric.html" target="_blank" title="Demonstrates the “electric” feature (opens new window)">Electric menus</a></li><li><a href="examples/frames.html" target="_blank" title="Shows how you can use DynarchMenu in 2 frames (bleeding edge) (opens new window)">Cross-frames menus (horizontal)</a></li><li><a href="examples/framesv.html" target="_blank" title="Shows how you can use DynarchMenu in 2 frames with vertical layout (bleeding edge) (opens new window)">Cross-frames menus (vertical)</a></li><li><a href="examples/html-items.html" target="_blank" title="Shows how you can enrich menu items with HTML (opens new window)">HTML in menu items</a></li><li><a href="examples/html-popups.html" target="_blank" title="Fully user-defined HTML popups (opens new window)">HTML popups</a></li><li><a href="examples/icons.html" target="_blank" title="Describes possible ways to include icons in menu items (opens new window)">Include icons</a></li><li><a href="examples/iframe.html" target="_blank" title="Demonstrates how one can use an IFRAME in order to maintain a fixed menu. (opens new window)">Fixed menu using IFRAME</a></li><li><a href="examples/images-in-bar.html" target="_blank" title="Shows a setup that allows you to use images in the main menu bar (opens new window)">Using images in menu bar</a></li><li><a href="examples/position.html" target="_blank" title="Demonstrates DynarchMenu's positioning algorithm (opens new window)">Position test: bottom-left</a></li><li><a href="examples/right-align.html" target="_blank" title="Shows you how to push menu items to the right (opens new window)">Right-aligned items</a></li><li><a href="examples/scroll1.html" target="_blank" title="A big menu that demonstrates scrolling support (opens new window)">Scrolling menus</a></li><li><a href="examples/select-in-bar.html" target="_blank" title="How you can include a drop-down box, if you need it for whatever reason (opens new window)">&lt;select&gt; in top menu bar</a></li><li><a href="examples/select.html" target="_blank" title="Displays correctly on top of windowed controls in IE (opens new window)">Windowed controls</a></li><li><a href="examples/skins.html" target="_blank" title="Shows the sample.css skin, which describes how you can customize the look (opens new window)">Ugly skin sample</a></li><li><a href="examples/timeouts.html" target="_blank" title="All timeouts are customizable (opens new window)">Menu timeouts</a></li><li><a href="examples/toolbar.html" target="_blank" title="Shows you how you can create a neat toolbar using DynarchMenu (opens new window)">Creating a Toolbar!</a></li><li><a href="examples/vertical.html" target="_blank" title="Shows how you can create vertical menus (opens new window)">Vertical menus</a></li></ul>
+            </li>
+            <li></li>
+            <li id="menu-item-sec-license">
+              <img src="icons/about.gif" alt="" />
+              <a title="Read the license (opens new window)" href="license.html" target="_blank">_License</a>
+            </li>
+          </ul>
+        </li>
+        <li class="context-for-document">
+          <img src="icons/configure.png" width="16" height="16" alt="" />
+          <a><span class="downarrow">_Preferences</span></a>
+          <ul>
+            <li>
+              <img src="icons/skins.gif" alt="" />
+              _Select skin
+              <ul>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Use Windows XP skin (skin-xp.css)"
+                  href="javascript:retval=setSkin(this, 'Windows XP')">Windows _XP™ Start Menu</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Use Windows XP Apps skin (skin-xp-apps.css)"
+                  href="javascript:retval=setSkin(this, 'Windows XP Apps')">Windows X_P™ Apps</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Use Aqua skin (skin-aqua.css)"
+                  href="javascript:retval=setSkin(this, 'Aqua')">_Aqua (Mac OS X)™</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Use Windows XP skin (skin-xp.css)"
+                  href="javascript:retval=setSkin(this, 'Windows Longhorn')">Windows Longhorn™</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Mozilla Modern skin (skin-modern.css)"
+                  href="javascript:retval=setSkin(this, 'Mozilla Modern')">Mo_zilla Modern</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Windows 98 skin (skin-win98.css)"
+                  href="javascript:retval=setSkin(this, 'Win 98 Style')">Windows _98™</a>
+                </li>
+                <li id="default-skin">
+                  <img src="icons/radio-1.gif" alt="" />
+                  <a title="Windows 2000 skin (skin-win2k.css)"
+                  href="javascript:retval=setSkin(this, 'Win 2000 Style')">Windows _2000™</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Windows 2000 skin (skin-beos.css)"
+                  href="javascript:retval=setSkin(this, 'BeOS Style')">Be_OS™</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Skin that uses system colors (skin-system.css)"
+                  href="javascript:retval=setSkin(this, 'System Style')">_System</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="XP Extended skin (skin-xp-extended.css)"
+                  href="javascript:retval=setSkin(this, 'XP Extended')">XP _Extended</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="YP skin (skin-yp.css)"
+                  href="javascript:retval=setSkin(this, 'Yp')">Why P</a>
+                </li>
+                <li></li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Rainy skin (skin-rain.css)"
+                  href="javascript:retval=setSkin(this, 'Rain')">_Rainy</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="HMenu Dark skin (skin-hmenu-dark.css)"
+                  href="javascript:retval=setSkin(this, 'HMenu Dark')">HMenu _Dark</a>
+                </li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Yellow skin (skin-yellow.css)"
+                  href="javascript:retval=setSkin(this, 'Yellow')">_Yellow</a>
+                </li>
+                <li></li>
+                <li>
+                  <img src="icons/radio-0.gif" alt="" />
+                  <a title="Custom fonts (my-dynarch-meny-skin.css)"
+                  href="javascript:retval=setSkin(this, 'Custom fonts')">Custom _fonts</a>
+                </li>
+              </ul>
+            </li>
+            <li></li>
+            <li>
+              <img src="icons/checkbox-0.gif" alt="" />
+              <a title="Should the menu display tooltips?"
+              href="javascript:retval=toggleCheckbox(this, 'tooltips')">Tooltips</a>
+            </li>
+            <li>
+              <img src="icons/checkbox-0.gif" alt="" />
+              <a title="Blink items when clicked?"
+              href="javascript:retval=toggleCheckbox(this, 'blink')">Blin_k items</a>
+            </li>
+            <li></li>
+            <li>
+              <img src="icons/checkbox-0.gif" alt="" />
+              <a title="Uses “electric” behavior?"
+              href="javascript:retval=toggleCheckbox(this, 'electric')">Electric</a>
+            </li>
+            <li id="menu-item-electric">
+              <a title="Set the electric timeout"
+              href="javascript:retval=setElectricTimeout(this)">Electric Timeout&hellip;</a>
+            </li>
+            <li></li>
+            <li>
+              <a title="Set the general timeout"
+              href="javascript:retval=setGeneralTimeout(this)">General Timeout&hellip;</a>
+            </li>
+            <li></li>
+            <li>
+              <img src="icons/checkbox-1.gif" alt="" />
+              <a title="Displays shadows?"
+              href="javascript:retval=toggleCheckbox(this, 'shadows')">Shadows</a>
+            </li>
+            <li id="menu-item-shadowSize">
+              <a title="Configure shadow size"
+              href="javascript:setShadowSize(this)">Shadow size&hellip;</a>
+            </li>
+          </ul>
+        </li>
+        <li>
+          <img src="icons/link.png" width="16" height="16" alt="" />
+          <a><span class="downarrow">_Links</span></a>
+          <ul>
+            <li>
+              <img src="icons/dynarch.png" width="18" height="18" alt="" />
+              <a href="http://www.dynarch.com/" target="_blank" title="dynarch.com website (opens new window)">_Dynarch.com</a>
+            </li>
+            <li>
+              <a href="http://www.bazon.net/mishoo/" target="_blank" title="Mishoo's homepage (opens new window)">_Mishoo</a>
+            </li>
+            <li>
+              <a href="http://www.bazon.net/mishoo/articles.epl?art_id=430" target="_blank"
+              title="PieNG (PNG with variable opacity in IE)">PieNG</a>
+            </li>
+            <li></li>
+            <li>
+              <a href="http://www.dynarch.com/products/dhtml-menu/" title="The DHTML Menu product page">DHTML Menu</a>
+            </li>
+            <li>
+              <a href="http://www.dynarch.com/products/dhtml-tabs/" title="RollBar product page">DHTML Tabs</a>
+            </li>
+            <li>
+              <a href="http://www.dynarch.com/products/chat/" title="DynarchChat product page">DHTML Chat</a>
+            </li>
+          </ul>
+        </li>
+        <li></li>
+        <li>
+          <img src="icons/dynarch-14.png" width="17" height="14" alt="" />
+          <a href="http://dynarch.com" title="Go to dynarch.com website (in a new window)" target="_blank">_dynarch.com</a>
+        </li>
+      </ul>
+      </td></tr>
+      <tr><td valign="top">
+        <div id="div-content">
+          <p style="text-align: center">
+            Please wait —— loading.<br />
+            We are preloading all skins and all images, so please be patient.<br />
+            In practice, if you are only loading one skin, the menu will load much faster.
+          </p>
+          <ul>
+<li><a href="docs/actions.html">docs/actions.html</a></li>
+<li><a href="docs/anatomy.html">docs/anatomy.html</a></li>
+<li><a href="docs/classes.html">docs/classes.html</a></li>
+<li><a href="docs/config.html">docs/config.html</a></li>
+<li><a href="docs/deviation.html">docs/deviation.html</a></li>
+<li><a href="docs/faq.html">docs/faq.html</a></li>
+<li><a href="docs/features.html">docs/features.html</a></li>
+<li><a href="docs/files.html">docs/files.html</a></li>
+<li><a href="docs/icons.html">docs/icons.html</a></li>
+<li><a href="docs/item-object.html">docs/item-object.html</a></li>
+<li><a href="docs/load.html">docs/load.html</a></li>
+<li><a href="docs/overview.html">docs/overview.html</a></li>
+<li><a href="docs/setup.html">docs/setup.html</a></li>
+<li><a href="docs/skins.html">docs/skins.html</a></li>
+          </ul>
+        </div>
+      </td></tr>
+    </table>
+
+    <iframe id="frame-content" name="content" style="height: 0px; width: 0px; border: 0px; padding: 0px; margin: 0px;"></iframe>
+    <script type="text/javascript" src="src/PieNG.js"></script>
+    <script type="text/javascript">DynarchMenu.preloadImages()</script>
+  </body>
+</html>
+
+<!--
+-->

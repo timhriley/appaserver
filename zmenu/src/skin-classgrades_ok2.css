@@ -1,0 +1,16 @@
+/* Copyright Dynarch.com, 2003-2005.  All Rights Reserved. */
+
+@import url("hmenu.css");
+
+div.dynarch-horiz-menu { background-color: #dffeff; color: #cc1; border-color: #000; }
+div.dynarch-horiz-menu table { color: #cc1; }
+div.dynarch-horiz-menu table tr td.hover { background-color: #cc1; color: #dffeff; }
+div.dynarch-horiz-menu table tr td.active { background-color: #cc1; color: #dffeff; }
+div.dynarch-horiz-menu table tr td.hover table,
+div.dynarch-horiz-menu table tr td.active table { color: #dffeff; }
+div.dynarch-horiz-menu table tr td.separator div { border-right-color: #ffc; border-left-color: #cc5; margin-right: 3px; }
+
+div.dynarch-popup-menu { background-color: #dffeff; padding: 0; color: #cc1; }
+div.dynarch-popup-menu tr.item.hover { background-color: #cc1; color: #dffeff; }
+div.dynarch-popup-menu tr.item.active { background-color: #cc1; color: #fff; }
+div.dynarch-popup-menu tr.separator td div { background: #cc5; }

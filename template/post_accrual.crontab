@@ -1,0 +1,2 @@
+# MIN HOUR DAY MONTH DAYOFWEEK COMMAND
+05 00 * * * . /etc/profile; export APPASERVER_DATABASE=theDatabase; $APPASERVER_HOME/src_predictive/post_accrual '' '' '' '' '' '' y n | mail -s "post_accrual $APPASERVER_DATABASE" yourname@foo.com

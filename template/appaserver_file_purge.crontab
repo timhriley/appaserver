@@ -1,0 +1,3 @@
+# MIN HOUR DAY MONTH DAYOFWEEK   COMMAND
+0,30 * * * * . /etc/profile; appaserver_purge_temporary_files.sh
+

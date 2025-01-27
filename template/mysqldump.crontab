@@ -1,0 +1,2 @@
+# MIN HOUR DAY MONTH DAYOFWEEK COMMAND
+10 00 * * * . /etc/profile; mysqldump_all.sh | mail -s "Appaserver Mysqldump Database" yourname@foo.com

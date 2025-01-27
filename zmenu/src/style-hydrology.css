@@ -1,0 +1,91 @@
+HTML		{	color: navy }
+BODY		{	color: navy;
+			background-color: #effdff
+		}
+H1 		{	text-align: center;
+			letter-spacing: .2em;
+			color: #AA0000;
+			font-size: 12pt }
+H2		{	text-align: center;
+			color: #AA0000;
+			font-size: 10pt }
+H3		{	text-align: left;
+			color: #AA0000;
+			font-size: 10pt }
+TH		{	text-align: center;
+			color: #AA0000;
+			font-size: 10pt }
+TD		{	color: navy;
+			font-size: 10pt }
+P  		{	color: navy;
+			font-size: 10pt }
+LI  		{	color: navy;
+			font-size: 10pt }
+A 		{	color: navy;
+			font-size: 10pt }
+.RIGHT		{	color: navy;
+			font-size: 10pt;
+			text-align: right }
+A.menu:link	{
+			color: navy;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+A.menu:active	{	color: brown;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+A.menu:hover	{	color: brown;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+A.menu:visited	{	color: #ff3a0e;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+
+div.historical_heading		
+	{
+			position: absolute;
+			left: 10px;
+			top: 25px;
+			color: blue;
+			font-weight: bold;
+			text-align: left;
+			font-size: 12pt;
+	}
+
+div.historical_radio_button
+	{	
+			position: absolute;
+			left: 10px;
+			top: 50px;
+			font-size: 8pt;
+			text-align: left;
+			width: 250px;
+			border-width: thin;
+			border-style: solid;
+			border-color: teal;
+	}
+
+div.station_list_class
+	{	
+			position: absolute;
+			left: 1000px;
+			top: 50px;
+			text-align: left;
+			width: 200px;
+	}
+
+div.dynarch_menu_class
+	{	
+			position: absolute;
+			left: 0px;
+			top: 0px;
+			width: 100%;
+	}
+

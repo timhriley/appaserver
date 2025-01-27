@@ -1,0 +1,33 @@
+
+HTML		{	color: green }
+BODY		{	
+			color: green; 
+			font-family: times; 
+			background-color: navy
+		}
+H1 		{	text-align: center;
+			color: green;
+			font-size: 14pt }
+A.diagram:link	{	color: green;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+A.diagram:active	
+		{	color: brown;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+A.diagram:hover	{	color: brown;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+A.diagram:visited	
+		{	color: #ff3a0e;
+			font-family: helvetica;
+			text-decoration: none;
+			font-size: 10pt
+		}
+

@@ -1,0 +1,8 @@
+SM_INTFNC ("close_until_screen(s,s)",		close_until_screen),
+SM_INTFNC ("populate_city_state(s,s,s)",	populate_city_state),
+SM_INTFNC ("populate_zip_distance(s,s)",	populate_zip_distance),
+SM_INTFNC ("populate_distance_array(s,i)",	populate_distance_array),
+SM_INTFNC ("dbms_append(s)",			dbms_append),
+SM_INTFNC ("dbms_init()",			dbms_init),
+SM_INTFNC ("dbms_send_to_dbms_out()",		dbms_send_to_dbms_out),
+SM_INTFNC ("dbms_execute()",			dbms_execute),

@@ -1,0 +1,2 @@
+# MIN HOUR DAY MONTH DAYOFWEEK COMMAND
+00 00 * * * . /etc/profile; application=template; device=theDevice; insert_ethernet_device_snapshot.sh $application $device && update_ethernet_device_snapshot_daily.sh $application $device

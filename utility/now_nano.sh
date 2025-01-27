@@ -1,0 +1,3 @@
+:
+date +%s.%N
+exit $?
