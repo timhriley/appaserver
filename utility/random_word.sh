@@ -13,13 +13,23 @@ fi
 
 word_file_length=`cat $word_file | wc -l`
 
-random_number=`random.e ${word_file_length}`
+while [ true ]
+do
+	random_number=`random.e ${word_file_length}`
 
-word=`	cat $word_file			|
-	head -$random_number		|
-	tail -1				|
-	piece.e "'" 0			|
-	sed 's/.*/\L&/g'`
+	word=`	cat $word_file			|
+		head -$random_number		|
+		tail -1				|
+		piece.e "'" 0			|
+		sed 's/.*/\L&/g'`
+
+	ene=`echo $word | od -c | grep ' 303 '`
+
+	if [ "$ene" = "" ]
+	then
+		break
+	fi
+done
 
 echo $word
 
