@@ -54,13 +54,13 @@ int main( int argc, char **argv )
 	execute_boolean = (*argv[ 6 ] == 'y');
 
 	if ( strcmp(	current_application_name,
-			APPLICATION_CREATE_TEMPLATE_NAME ) != 0 )
+			APPLICATION_TEMPLATE_NAME ) != 0 )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			"current_application_name must be %s.",
-			APPLICATION_CREATE_TEMPLATE_NAME );
+			APPLICATION_TEMPLATE_NAME );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

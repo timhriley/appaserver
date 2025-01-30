@@ -80,7 +80,7 @@ APPLICATION_CREATE *application_create_new(
 		/* Safely returns */
 		/* -------------- */
 		application_backup_new(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			application_name,
 			mount_point );
 
@@ -105,7 +105,7 @@ APPLICATION_CREATE *application_create_new(
 		/* Safely returns */
 		/* -------------- */
 		application_login_new(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			APPLICATION_CREATE_DEFAULT_TITLE,
 			application_name,
 			application_title,

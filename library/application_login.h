@@ -28,7 +28,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 APPLICATION_LOGIN *application_login_new(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		const char *application_create_default_title,
 		char *application_name,
 		char *application_title,
@@ -69,7 +69,7 @@ char *application_login_destination_directory(
 /* Returns static memory */
 /* --------------------- */
 char *application_login_source_filename(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		const char *extension,
 		char *mount_point );
 

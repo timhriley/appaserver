@@ -14,6 +14,7 @@
 #include "boolean.h"
 #include "String.h"
 #include "document.h"
+#include "application.h"
 #include "process.h"
 #include "appaserver_parameter.h"
 #include "appaserver_error.h"
@@ -38,13 +39,13 @@ int main( int argc, char **argv )
 
 	if ( !NON_TEMPLATE_APPLICATION_OKAY
 	&&   strcmp(	current_application_name,
-			APPLICATION_CREATE_TEMPLATE_NAME ) != 0 )
+			APPLICATION_TEMPLATE_NAME ) != 0 )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			"current_application_name must be %s.",
-			APPLICATION_CREATE_TEMPLATE_NAME );
+			APPLICATION_TEMPLATE_NAME );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

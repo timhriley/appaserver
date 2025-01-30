@@ -748,7 +748,7 @@ POST_LOGIN_DOCUMENT *post_login_document_new(
 		/* Returns either parameter */
 		/* ------------------------ */
 		post_login_document_application_name(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			application_name );
 
 	post_login_document->filename_location =
@@ -1276,12 +1276,12 @@ POST_LOGIN_INPUT *post_login_input_new(
 }
 
 char *post_login_document_application_name(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		char *post_login_input_application_name )
 {
 	if ( post_login_input_application_name )
 		return post_login_input_application_name;
 	else
-		return (char *)application_create_template_name;
+		return (char *)application_template_name;
 
 }

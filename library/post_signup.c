@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "session.h"
+#include "application.h"
 #include "application_create.h"
 #include "execute_system_string.h"
 #include "appaserver_user.h"
@@ -66,7 +67,7 @@ POST_SIGNUP *post_signup_new(
 
 	post_signup = post_signup_calloc();
 
-	session_environment_set( APPLICATION_CREATE_TEMPLATE_NAME );
+	session_environment_set( APPLICATION_TEMPLATE_NAME );
 
 	post_signup->post_signup_input =
 		/* -------------- */
@@ -126,7 +127,7 @@ POST_SIGNUP *post_signup_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		session_key(
-			APPLICATION_CREATE_TEMPLATE_NAME );
+			APPLICATION_TEMPLATE_NAME );
 
 	post_signup->
 		execute_system_string_create_application =
@@ -150,7 +151,7 @@ POST_SIGNUP *post_signup_new(
 				/* Returns heap memory */
 				/* ------------------- */
 				appaserver_error_filename(
-					APPLICATION_CREATE_TEMPLATE_NAME ) );
+					APPLICATION_TEMPLATE_NAME ) );
 
 	return post_signup;
 }

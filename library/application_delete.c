@@ -72,7 +72,7 @@ APPLICATION_DELETE *application_delete_new(
 		/* Safely returns */
 		/* -------------- */
 		application_backup_new(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			application_name,
 			mount_point );
 
@@ -97,7 +97,7 @@ APPLICATION_DELETE *application_delete_new(
 		/* Safely returns */
 		/* -------------- */
 		application_login_new(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			APPLICATION_CREATE_DEFAULT_TITLE,
 			application_name,
 			(char *)0 /* application_title */,

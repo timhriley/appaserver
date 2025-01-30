@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "String.h"
 #include "date.h"
-#include "timlib.h"
+#include "application.h"
 #include "appaserver_error.h"
 #include "document.h"
 #include "environ.h"
@@ -38,7 +38,7 @@ int main( int argc, char **argv )
 	appaserver_error_argv_file(
 		argc,
 		argv,
-		APPLICATION_CREATE_TEMPLATE_NAME,
+		APPLICATION_TEMPLATE_NAME,
 		post_signup->
 			post_signup_input->
 			post_login_input_login_name );
@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 		yes_boolean )
 	{
 		appaserver_error_message_file(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			(char *)0 /* login_name */,
 			post_signup->
 				post_signup_input->
@@ -72,7 +72,7 @@ int main( int argc, char **argv )
 
 	environment_set(
 		"DATABASE",
-		APPLICATION_CREATE_TEMPLATE_NAME );
+		APPLICATION_TEMPLATE_NAME );
 
 	session_insert(
 		post_signup->session_key,
@@ -81,7 +81,7 @@ int main( int argc, char **argv )
 			post_login_input_login_name,
 		date_now_yyyy_mm_dd( date_utc_offset() ),
 		date_now_hhmm( date_utc_offset() ),
-		left_string(
+		string_left(
 			destination,
 			environment_http_user_agent(),
 			80 ),

@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "dictionary.h"
+#include "application.h"
 #include "document.h"
 #include "application_create.h"
 #include "appaserver_error.h"
@@ -34,7 +35,7 @@ int main( int argc, char **argv )
 		yes_boolean )
 	{
 		appaserver_error_message_file(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			(char *)0 /* login_name */,
 			post_contact->
 				post_contact_input->

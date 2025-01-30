@@ -32,7 +32,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 APPLICATION_BACKUP *application_backup_new(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		char *application_name,
 		char *mount_point );
 
@@ -56,7 +56,7 @@ char *application_backup_filename(
 /* Returns heap memory */
 /* ------------------- */
 char *application_backup_create_file_system_string(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		char *application_name,
 		char *mount_point,
 		char *application_backup_filename );

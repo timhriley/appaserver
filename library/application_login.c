@@ -11,7 +11,7 @@
 #include "application_login.h"
 
 APPLICATION_LOGIN *application_login_new(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		const char *application_create_default_title,
 		char *application_name,
 		char *application_title,
@@ -68,7 +68,7 @@ APPLICATION_LOGIN *application_login_new(
 		/* Returns static memory */
 		/* --------------------- */
 		application_login_source_filename(
-			application_create_template_name,
+			application_template_name,
 			"php" /* extension */,
 			mount_point );
 
@@ -134,7 +134,7 @@ char *application_login_title(
 }
 
 char *application_login_source_filename(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		const char *extension,
 		char *mount_point )
 {
@@ -143,7 +143,7 @@ char *application_login_source_filename(
 	sprintf(filename,
 		"%s/%s/index.%s",
 		mount_point,
-		application_create_template_name,
+		application_template_name,
 		extension );
 
 	return filename;

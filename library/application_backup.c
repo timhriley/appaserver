@@ -12,7 +12,7 @@
 #include "application_backup.h"
 
 APPLICATION_BACKUP *application_backup_new(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		char *application_name,
 		char *mount_point )
 {
@@ -54,7 +54,7 @@ APPLICATION_BACKUP *application_backup_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		application_backup_create_file_system_string(
-			application_create_template_name,
+			application_template_name,
 			application_name,
 			mount_point,
 			application_backup->filename );
@@ -148,7 +148,7 @@ char *application_backup_filename(
 }
 
 char *application_backup_create_file_system_string(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		char *application_name,
 		char *mount_point,
 		char *application_backup_filename )
@@ -165,8 +165,8 @@ char *application_backup_create_file_system_string(
 		"chmod g+w %s",
 		application_name,
 		mount_point,
-		application_create_template_name,
-		application_create_template_name,
+		application_template_name,
+		application_template_name,
 		application_backup_filename,
 		application_backup_filename,
 		application_backup_filename );

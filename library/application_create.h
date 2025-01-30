@@ -16,7 +16,6 @@
 #include "application_login.h"
 
 #define APPLICATION_CREATE_DEFAULT_TITLE	"Appaserver Application"
-#define APPLICATION_CREATE_TEMPLATE_NAME	"template"
 #define APPLICATION_CREATE_EXECUTABLE		"create_empty_application"
 
 typedef struct

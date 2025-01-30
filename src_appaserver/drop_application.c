@@ -8,6 +8,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "appaserver_error.h"
+#include "application.h"
 #include "document.h"
 #include "appaserver_parameter.h"
 #include "environ.h"
@@ -25,13 +26,13 @@ int main( int argc, char **argv )
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
-	if ( strcmp( application_name, APPLICATION_CREATE_TEMPLATE_NAME ) != 0 )
+	if ( strcmp( application_name, APPLICATION_TEMPLATE_NAME ) != 0 )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			"application_name must be %s.",
-			APPLICATION_CREATE_TEMPLATE_NAME );
+			APPLICATION_TEMPLATE_NAME );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

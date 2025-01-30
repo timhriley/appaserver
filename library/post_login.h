@@ -165,7 +165,7 @@ POST_LOGIN_DOCUMENT *post_login_document_calloc(
 /* Returns either parameter */
 /* ------------------------ */
 char *post_login_document_application_name(
-		const char *application_create_template_name,
+		const char *application_template_name,
 		char *post_login_input_application_name );
 
 /* Usage */

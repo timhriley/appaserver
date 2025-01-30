@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include "String.h"
 #include "date.h"
-#include "timlib.h"
+#include "application.h"
 #include "appaserver_error.h"
 #include "application_create.h"
 #include "document.h"
@@ -42,7 +42,7 @@ int main( int argc, char **argv )
 	if ( post_login->post_login_input->bot_generated->yes_boolean )
 	{
 		appaserver_error_message_file(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			(char *)0 /* login_name */,
 			post_login->post_login_input->bot_generated->message );
 
@@ -62,7 +62,7 @@ int main( int argc, char **argv )
 			post_login->post_login_input->login_name,
 			date_now_yyyy_mm_dd( date_utc_offset() ),
 			date_now_hhmm( date_utc_offset() ),
-			left_string(
+			string_left(
 				destination,
 				environment_http_user_agent(),
 				80 ),

@@ -13,8 +13,10 @@
 #include "boolean.h"
 #include "list.h"
 
+#define APPLICATION_TEMPLATE_NAME	"template"
+#define APPLICATION_ADMIN_NAME		"admin"
 
-#define APPLICATION_TABLE	"appaserver_application"
+#define APPLICATION_TABLE		"appaserver_application"
 
 #define APPLICATION_SELECT			\
 		"application,"			\
