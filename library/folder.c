@@ -109,7 +109,7 @@ FOLDER *folder_parse(
 	folder = folder_new( strdup( field ) );
 
 	piece( field, SQL_DELIMITER, input, 1 );
-	if ( *field ) folder->folder_form = strdup( field );
+	if ( *field ) folder->appaserver_form = strdup( field );
 
 	piece( field, SQL_DELIMITER, input, 2 );
 	if ( *field ) folder->insert_rows_number = atoi( field );
@@ -396,15 +396,6 @@ LIST *folder_name_list( LIST *folder_list )
 	return name_list;
 }
 
-boolean folder_form_prompt( char *folder_form )
-{
-	if ( !folder_form
-	||   ( strcmp( folder_form, "prompt" ) != 0 ) )
-		return 0;
-	else
-		return 1;
-}
-
 LIST *folder_table_name_list( char *role_name )
 {
 	char *where_string;
@@ -614,7 +605,7 @@ FOLDER *folder_where_fetch(
 		input );
 }
 
-char *folder_form( char *folder_name )
+char *folder_appaserver_form( char *folder_name )
 {
 	FOLDER *folder;
 
@@ -642,7 +633,7 @@ char *folder_form( char *folder_name )
 			0 /* not fetch_folder_attribute_list */,
 			0 /* not fetch_attribute */ );
 
-	return folder->folder_form;
+	return folder->appaserver_form;
 }
 
 char *folder_notepad( char *folder_name )
@@ -820,3 +811,28 @@ boolean folder_column_boolean(
 	return (boolean)!result;
 }
 
+boolean folder_form_prompt_boolean(
+		const char *form_appaserver_prompt,
+		char *appaserver_form )
+{
+	if ( !appaserver_form )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"appaserver_form is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( strcmp( appaserver_form, form_appaserver_prompt ) == 0 )
+		return 1;
+	else
+		return 0;
+}

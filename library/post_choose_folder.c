@@ -109,8 +109,8 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 
 	post_choose_folder->fetch_relation_mto1_isa =
 		post_choose_folder_fetch_relation_mto1_isa(
-			state,
-			APPASERVER_INSERT_STATE );
+			APPASERVER_INSERT_STATE,
+			state );
 
 	if ( post_choose_folder->fetch_relation_mto1_isa )
 	{
@@ -135,45 +135,58 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 				folder_attribute_primary_key_list );
 
 	post_choose_folder->form_name =
+		/* ------------------------------------------------- */
+		/* Returns either const parameter or appaserver_form */
+		/* ------------------------------------------------- */
 		post_choose_folder_form_name(
+			FORM_APPASERVER_PROMPT,
+			FORM_APPASERVER_TABLE,
 			list_length(
 				post_choose_folder->
 					relation_one2m_pair_list )
 				/* relation_one2m_pair_list_length */,
-			post_choose_folder->folder->folder_form,
-			POST_CHOOSE_FOLDER_PROMPT_FORM,
-			POST_CHOOSE_FOLDER_TABLE_FORM );
+			post_choose_folder->folder->appaserver_form );
 	
-	post_choose_folder->isa_drop_down =
-		post_choose_folder_isa_drop_down(
+	post_choose_folder->isa_drop_down_boolean =
+		post_choose_folder_isa_drop_down_boolean(
 			list_length(
 				post_choose_folder->
 					relation_mto1_isa_list )
 				/* relation_mto1_isa_list_length */ );
 
-	post_choose_folder->prompt_insert =
-		post_choose_folder_prompt_insert(
-			post_choose_folder->form_name,
+	post_choose_folder->prompt_insert_boolean =
+		post_choose_folder_prompt_insert_boolean(
+			APPASERVER_INSERT_STATE,
+			FORM_APPASERVER_PROMPT,
 			state,
-			POST_CHOOSE_FOLDER_PROMPT_FORM );
+			post_choose_folder->form_name );
 
-	post_choose_folder->table_insert =
-		post_choose_folder_table_insert(
-			post_choose_folder->form_name,
+	post_choose_folder->table_insert_boolean =
+		post_choose_folder_table_insert_boolean(
+			APPASERVER_INSERT_STATE,
+			FORM_APPASERVER_TABLE,
 			state,
-			POST_CHOOSE_FOLDER_TABLE_FORM );
+			post_choose_folder->form_name );
 
-	post_choose_folder->prompt_lookup =
-		post_choose_folder_prompt_lookup(
-			post_choose_folder->form_name,
+	post_choose_folder->prompt_lookup_boolean =
+		post_choose_folder_prompt_lookup_boolean(
+			/* -------- */
+			/* Not this */
+			/* -------- */
+			APPASERVER_INSERT_STATE,
+			FORM_APPASERVER_PROMPT,
 			state,
-			POST_CHOOSE_FOLDER_PROMPT_FORM );
+			post_choose_folder->form_name );
 
-	post_choose_folder->table_edit =
-		post_choose_folder_table_edit(
-			post_choose_folder->form_name,
+	post_choose_folder->table_edit_boolean =
+		post_choose_folder_table_edit_boolean(
+			/* -------- */
+			/* Not this */
+			/* -------- */
+			APPASERVER_INSERT_STATE,
+			FORM_APPASERVER_TABLE,
 			state,
-			POST_CHOOSE_FOLDER_TABLE_FORM );
+			post_choose_folder->form_name );
 
 	post_choose_folder->appaserver_error_filename =
 		/* --------------------- */
@@ -192,11 +205,11 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 			login_name,
 			role_name,
 			folder_name,
-			post_choose_folder->isa_drop_down,
-			post_choose_folder->prompt_insert,
-			post_choose_folder->table_insert,
-			post_choose_folder->prompt_lookup,
-			post_choose_folder->table_edit,
+			post_choose_folder->isa_drop_down_boolean,
+			post_choose_folder->prompt_insert_boolean,
+			post_choose_folder->table_insert_boolean,
+			post_choose_folder->prompt_lookup_boolean,
+			post_choose_folder->table_edit_boolean,
 			post_choose_folder->appaserver_error_filename,
 			list_first(
 				post_choose_folder->
@@ -207,77 +220,81 @@ POST_CHOOSE_FOLDER *post_choose_folder_new(
 }
 
 char *post_choose_folder_form_name(
+		const char *form_appaserver_prompt,
+		const char *form_appaserver_table,
 		int relation_pair_one2m_list_length,
-		char *folder_form,
-		char *post_choose_folder_prompt_form,
-		char *post_choose_folder_table_form )
+		char *appaserver_form )
 {
 	if ( relation_pair_one2m_list_length )
-		return post_choose_folder_prompt_form;
+		return (char *)form_appaserver_prompt;
 	else
-	if ( !folder_form || !*folder_form )
-		return post_choose_folder_table_form;
+	if ( !appaserver_form || !*appaserver_form )
+		return (char *)form_appaserver_table;
 	else
-		return folder_form;
+		return appaserver_form;
 }
 
-boolean post_choose_folder_prompt_insert(
-		char *folder_form_name,
+boolean post_choose_folder_prompt_insert_boolean(
+		const char *appaserver_insert_state,
+		const char *form_appaserver_prompt,
 		char *state,
-		char *post_choose_folder_prompt_form )
+		char *folder_form_name )
 {
-	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) != 0 )
+	if ( string_strcmp( state, (char *)appaserver_insert_state ) != 0 )
 		return 0;
 
 	return
 	( string_strcmp(
 		folder_form_name,
-		post_choose_folder_prompt_form ) == 0 );
+		(char *)form_appaserver_prompt ) == 0 );
 }
 
-boolean post_choose_folder_table_insert(
-		char *folder_form_name,
+boolean post_choose_folder_table_insert_boolean(
+		const char *appaserver_insert_state,
+		const char *form_appaserver_table,
 		char *state,
-		char *post_choose_folder_table_form )
+		char *folder_form_name )
 {
-	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) != 0 )
+	if ( string_strcmp( state, (char *)appaserver_insert_state ) != 0 )
 		return 0;
 
 	return
 	( string_strcmp(
 		folder_form_name,
-		post_choose_folder_table_form ) == 0 );
+		(char *)form_appaserver_table ) == 0 );
 }
 
-boolean post_choose_folder_prompt_lookup(
-		char *folder_form_name,
+boolean post_choose_folder_prompt_lookup_boolean(
+		const char *appaserver_insert_state,
+		const char *form_appaserver_prompt,
 		char *state,
-		char *post_choose_folder_prompt_form )
+		char *folder_form_name )
 {
-	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
+	if ( string_strcmp( state, (char *)appaserver_insert_state ) == 0 )
 		return 0;
 
 	return
 	( string_strcmp(
 		folder_form_name,
-		post_choose_folder_prompt_form ) == 0 );
+		(char *)form_appaserver_prompt ) == 0 );
 }
 
-boolean post_choose_folder_table_edit(
-		char *folder_form_name,
+boolean post_choose_folder_table_edit_boolean(
+		const char *appaserver_insert_state,
+		const char *form_appaserver_table,
 		char *state,
-		char *post_choose_folder_table_form )
+		char *folder_form_name )
 {
-	if ( string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
+	if ( string_strcmp( state, (char *)appaserver_insert_state ) == 0 )
 		return 0;
 
 	return
 	( string_strcmp(
 		folder_form_name,
-		post_choose_folder_table_form ) == 0 );
+		(char *)form_appaserver_table ) == 0 );
 }
 
-boolean post_choose_folder_isa_drop_down(
+boolean post_choose_folder_isa_drop_down_boolean(
 		int relation_mto1_isa_list_length )
 {
 	return (boolean)relation_mto1_isa_list_length;
@@ -289,11 +306,11 @@ char *post_choose_folder_system_string(
 		char *login_name,
 		char *role_name,
 		char *folder_name,
-		boolean isa_drop_down,
-		boolean prompt_insert,
-		boolean table_insert,
-		boolean prompt_lookup,
-		boolean table_edit,
+		boolean isa_drop_down_boolean,
+		boolean prompt_insert_boolean,
+		boolean table_insert_boolean,
+		boolean prompt_lookup_boolean,
+		boolean table_edit_boolean,
 		char *appaserver_error_filename,
 		RELATION_MTO1 *relation_mto1_isa_first )
 {
@@ -315,7 +332,7 @@ char *post_choose_folder_system_string(
 			message );
 	}
 
-	if ( isa_drop_down )
+	if ( isa_drop_down_boolean )
 	{
 		if ( !relation_mto1_isa_first )
 		{
@@ -351,7 +368,7 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename );
 	}
 	else
-	if ( prompt_insert )
+	if ( prompt_insert_boolean )
 	{
 		return
 		/* ------------------- */
@@ -367,7 +384,7 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename );
 	}
 	else
-	if ( table_insert )
+	if ( table_insert_boolean )
 	{
 		return
 		/* ------------------- */
@@ -386,7 +403,7 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename );
 	}
 	else
-	if ( prompt_lookup )
+	if ( prompt_lookup_boolean )
 	{
 		return
 		/* ------------------- */
@@ -402,7 +419,7 @@ char *post_choose_folder_system_string(
 		 	appaserver_error_filename );
 	}
 	else
-	if ( table_edit )
+	if ( table_edit_boolean )
 	{
 		return
 		/* ------------------- */
@@ -432,11 +449,11 @@ char *post_choose_folder_system_string(
 }
 
 boolean post_choose_folder_fetch_relation_mto1_isa(
-		char *state,
-		char *appaserver_insert_state )
+		const char *appaserver_insert_state,
+		char *state )
 {
 	return
-	( string_strcmp( state, appaserver_insert_state ) == 0 );
+	( string_strcmp( state, (char *)appaserver_insert_state ) == 0 );
 }
 
 char *post_choose_folder_action_string(

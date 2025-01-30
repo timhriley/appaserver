@@ -11,6 +11,7 @@
 #include "appaserver_error.h"
 #include "appaserver_user.h"
 #include "timlib.h"
+#include "form.h"
 #include "role.h"
 #include "folder.h"
 #include "choose_role.h"
@@ -543,14 +544,20 @@ char *frameset_filename(
 }
 
 char *frameset_current_frame(
-		char *frameset_prompt_frame,
-		char *frameset_table_frame,
-		char *folder_form )
+		const char *frameset_prompt_frame,
+		const char *frameset_table_frame,
+		char *appaserver_form )
 {
-	if ( folder_form_prompt( folder_form ) )
-		return frameset_prompt_frame;
+	if ( folder_form_prompt_boolean(
+		FORM_APPASERVER_PROMPT,
+		appaserver_form ) )
+	{
+		return (char *)frameset_prompt_frame;
+	}
 	else
-		return frameset_table_frame;
+	{
+		return (char *)frameset_table_frame;
+	}
 }
 
 char *frameset_prompt_target(

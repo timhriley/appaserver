@@ -152,6 +152,7 @@ touch:
 
 clean:
 	/bin/rm -f ${EXECUTABLES}					\
+	view_pdf_files							\
 	${CGI_HOME}/delete_folder_row					\
 	${CGI_HOME}/drop_column						\
 	${CGI_HOME}/drop_table						\

@@ -12,7 +12,7 @@
 #include "process.h"
 
 #define FOLDER_SELECT		"table_name,"			\
-				"form,"				\
+				"appaserver_form,"		\
 				"insert_rows_number,"		\
 				"notepad,"			\
 				"populate_drop_down_process,"	\
@@ -36,7 +36,7 @@ typedef struct
 {
 	char *folder_name;
 	char *role_name;
-	char *folder_form;
+	char *appaserver_form;
 	int insert_rows_number;
 	char *notepad;
 	char *populate_drop_down_process_name;
@@ -166,7 +166,7 @@ unsigned long folder_row_count(
 
 /* Returns heap memory or null */
 /* --------------------------- */
-char *folder_form(
+char *folder_appaserver_form(
 		char *folder_name );
 
 /* Usage */
@@ -198,13 +198,14 @@ char *folder_table_name(
 
 /* Usage */
 /* ----- */
-boolean folder_form_prompt(
-		char *folder_form );
+LIST *folder_system_name_list(
+		void );
 
 /* Usage */
 /* ----- */
-LIST *folder_system_name_list(
-		void );
+boolean folder_form_prompt_boolean(
+		const char *form_appaserver_prompt,
+		char *appaserver_form );
 
 /* Usage */
 /* ----- */

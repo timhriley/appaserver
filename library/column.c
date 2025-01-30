@@ -120,7 +120,6 @@ char *column_skip_spaces( char *string )
 {
 	while( *string && isspace( *string ) ) string++;
 	return string;
-
 }
 
 char *column_fill_characters( char *destination, char *string )

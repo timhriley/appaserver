@@ -21,7 +21,8 @@ fi
 
 if [ "$application" != "home" ]
 then
-	application="home"
+	echo "Error in `basename.e $0 n`: you need to . set-database home" 1>&2
+	exit 1
 fi
 
 if [ $# -ne 1 ]

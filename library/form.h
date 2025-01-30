@@ -26,6 +26,9 @@
 #define FORM_SORT_ASCEND_LABEL		"assend_"
 #define FORM_SORT_DESCEND_LABEL		"descend_"
 
+#define FORM_APPASERVER_PROMPT		"prompt"
+#define FORM_APPASERVER_TABLE		"table"
+
 #define FORM_LOOKUP_SUBTITLE_MESSAGE	\
 	"Enter only the minimum information sufficient to search."
 

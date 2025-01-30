@@ -119,14 +119,14 @@ char *frameset_filename(
 		FRAMESET_FRAME *frameset_frame_menu,
 		FRAMESET_FRAME *frameset_frame_prompt );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns either frameset_prompt_frame or frameset_table_frame */
 /* ------------------------------------------------------------ */
 char *frameset_current_frame(
-		char *frameset_prompt_frame,
-		char *frameset_table_frame,
-		char *folder_form );
+		const char *frameset_prompt_frame,
+		const char *frameset_table_frame,
+		char *appaserver_form );
 #endif
 
