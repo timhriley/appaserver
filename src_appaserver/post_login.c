@@ -51,8 +51,6 @@ int main( int argc, char **argv )
 	else
 	if ( post_login->post_login_success )
 	{
-		char destination[ 256 ];
-
 		environment_set(
 			"DATABASE",
 			post_login->post_login_input->application_name );
@@ -74,8 +72,8 @@ int main( int argc, char **argv )
 			/* Returns heap memory */
 			/* ------------------- */
 			session_http_user_agent(
-				environment_http_user_agent(),
-				SESSION_USER_AGENT_WIDTH ),
+				SESSION_USER_AGENT_WIDTH,
+				environment_http_user_agent() ),
 			post_login->
 				post_login_input->
 				bot_generated->

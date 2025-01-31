@@ -302,7 +302,7 @@ post_login: post_login.c ${APPASERVER_LIBRARY}				\
 	${APPASERVER_HOME}/src_appaserver/post_login			\
 	${CGI_HOME}
 
-post_signup: post_signup.c ${APPASERVER_LIBRARY}				\
+post_signup: post_signup.c ${APPASERVER_LIBRARY}			\
 		${LIBRARY}/post_login.o					\
 		${LIBRARY}/post_signup.o				\
 		${LIBRARY}/bot_generated.o
