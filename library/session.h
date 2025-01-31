@@ -13,6 +13,7 @@
 #define SESSION_TABLE				"session"
 #define SESSION_REMOTE_IP_ADDRESS_VARIABLE	"REMOTE_ADDR"
 #define SESSION_SIZE				10
+#define SESSION_USER_AGENT_WIDTH		80
 
 #define SESSION_SELECT				"session,"		\
 						"login_name,"		\
@@ -23,7 +24,7 @@
 						"http_user_agent,"	\
 						"remote_ip_address"
 
-#define SESSION_INSERT				"session,"		\
+#define SESSION_INSERT_COLUMNS			"session,"		\
 						"login_name,"		\
 						"login_date,"		\
 						"login_time,"		\
@@ -40,10 +41,11 @@ typedef struct
 	char *login_time;
 	char *last_access_date;
 	char *last_access_time;
-	char *http_user_agent;
+	char *environment_http_user_agent;
 	char *remote_ip_address;
 	char *current_ip_address;
 	boolean remote_ip_address_changed;
+	char *http_user_agent;
 } SESSION;
 
 /* Usage */
@@ -106,6 +108,76 @@ SESSION *session_parse(
 SESSION *session_calloc(
 		void );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* --------------------*/
+char *session_http_user_agent(
+		const int session_user_agent_width /* probably 80 */,
+		char *environment_http_user_agent );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* --------------------*/
+char *session_login_date(
+		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* --------------------*/
+char *session_login_time(
+		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* --------------------*/
+char *session_last_access_date(
+		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* --------------------*/
+char *session_last_access_time(
+		void );
+
+/* Usage */
+/* ----- */
+SESSION *session_new(
+		char *application_name,
+		char *login_name,
+		char *environment_http_user_agent,
+		char *environment_remote_ip_address );
+
+/* Usage */
+/* ----- */
+void session_insert(
+		const char *session_table,
+		const char *session_insert,
+		char *session_key,
+		char *login_name,
+		char *date_now_yyyy_mm_dd_string,
+		char *date_now_hhmm_string,
+		char *http_user_agent,
+		char *remote_ip_address );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *session_insert_system_string(
+		const char *session_table,
+		const char *session_insert_columns );
+
 /* Public */
 /* ------ */
 boolean session_sql_injection_strcmp_okay(
@@ -135,14 +207,6 @@ LIST *session_system_list(
 /* ------------------- */
 char *session_key(
 		char *application_name );
-
-void session_insert(
-		char *session_key,
-		char *login_name,
-		char *date_now_yyyy_mm_dd_string,
-		char *date_now_hhmm_string,
-		char *http_user_agent,
-		char *remote_ip_address );
 
 void session_delete(
 		char *session_key );

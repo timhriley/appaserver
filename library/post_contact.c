@@ -61,8 +61,8 @@ POST_CONTACT *post_contact_new( char *argv_0 )
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			post_contact_message_system_string(
-				POST_CONTACT_MESSAGE_NOT_SENT_HTML,
+			post_contact_display_system_string(
+				POST_CONTACT_NOT_SENT_FILENAME,
 				post_contact->
 					post_contact_input->
 					appaserver_parameter->
@@ -101,8 +101,8 @@ POST_CONTACT *post_contact_new( char *argv_0 )
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		post_contact_message_system_string(
-			POST_CONTACT_MESSAGE_SENT_HTML,
+		post_contact_display_system_string(
+			POST_CONTACT_SENT_FILENAME,
 			post_contact->
 				post_contact_input->
 				appaserver_parameter->
@@ -128,8 +128,8 @@ POST_CONTACT *post_contact_calloc( void )
 	return post_contact;
 }
 
-char *post_contact_message_system_string(
-		const char *message_html,
+char *post_contact_display_system_string(
+		const char *message_filename,
 		char *document_root )
 {
 	char system_string[ 1024 ];
@@ -149,7 +149,7 @@ char *post_contact_message_system_string(
 		sizeof ( system_string ),
 		"php %s/../appahost_com/%s",
 		document_root,
-		message_html );
+		message_filename );
 
 	return strdup( system_string );
 }

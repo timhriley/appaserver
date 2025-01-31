@@ -287,6 +287,8 @@ clean:
 	unix2dos							\
 	delete_statement						\
 	update_statement						\
+	insert_statement						\
+	descriptive_statistics						\
 	mysqldump_appaserver
 
 fiforead.e: fiforead.c

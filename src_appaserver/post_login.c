@@ -58,14 +58,24 @@ int main( int argc, char **argv )
 			post_login->post_login_input->application_name );
 
 		session_insert(
+			SESSION_TABLE,
+			SESSION_INSERT_COLUMNS,
 			post_login->post_login_success->session_key,
 			post_login->post_login_input->login_name,
-			date_now_yyyy_mm_dd( date_utc_offset() ),
-			date_now_hhmm( date_utc_offset() ),
-			string_left(
-				destination,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			session_login_date(),
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			session_login_time(),
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			session_http_user_agent(
 				environment_http_user_agent(),
-				80 ),
+				SESSION_USER_AGENT_WIDTH ),
 			post_login->
 				post_login_input->
 				bot_generated->

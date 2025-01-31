@@ -16,8 +16,8 @@
 #define POST_CONTACT_DESTINATION_EMAIL		"timriley@timriley.net"
 #define POST_CONTACT_APPLICATION		"appahost"
 #define POST_CONTACT_ENTITY			"Appahost"
-#define POST_CONTACT_MESSAGE_NOT_SENT_HTML	"message_not_sent.php"
-#define POST_CONTACT_MESSAGE_SENT_HTML		"message_sent.php"
+#define POST_CONTACT_NOT_SENT_FILENAME		"message_not_sent.php"
+#define POST_CONTACT_SENT_FILENAME		"message_sent.php"
 
 typedef struct
 {
@@ -149,7 +149,7 @@ void post_contact_write(
 
 /* Returns heap memory */
 /* ------------------- */
-char *post_contact_message_system_string(
+char *post_contact_display_system_string(
 		const char *message_html,
 		char *document_root );
 

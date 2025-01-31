@@ -21,7 +21,6 @@
 int main( int argc, char **argv )
 {
 	POST_SIGNUP *post_signup;
-	char destination[ 256 ];
 	char *fetch;
 	char *index_html_message;
 
@@ -75,16 +74,26 @@ int main( int argc, char **argv )
 		APPLICATION_TEMPLATE_NAME );
 
 	session_insert(
+		SESSION_TABLE,
+		SESSION_INSERT_COLUMNS,
 		post_signup->session_key,
 		post_signup->
 			post_signup_input->
 			post_login_input_login_name,
-		date_now_yyyy_mm_dd( date_utc_offset() ),
-		date_now_hhmm( date_utc_offset() ),
-		string_left(
-			destination,
-			environment_http_user_agent(),
-			80 ),
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		session_login_date(),
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		session_login_time(),
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		session_http_user_agent(
+			SESSION_USER_AGENT_WIDTH,
+			environment_http_user_agent() ),
 		post_signup->
 			post_signup_input->
 			bot_generated->

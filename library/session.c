@@ -823,20 +823,21 @@ void session_delete( char *session_key )
 }
 
 void session_insert(
+		const char *session_table,
+		const char *session_insert_columns,
 		char *session_key,
 		char *login_name,
-		char *date_now_yyyy_mm_dd_string,
-		char *date_now_hhmm_string,
+		char *login_date,
+		char *login_time,
 		char *http_user_agent,
 		char *remote_ip_address )
 {
 	FILE *output_pipe;
-	char system_string[ 1024 ];
 
 	if ( !session_key
 	||   !login_name
-	||   !date_now_yyyy_mm_dd_string
-	||   !date_now_hhmm_string
+	||   !login_time
+	||   !login_time
 	||   !http_user_agent
 	||   !remote_ip_address )
 	{
@@ -848,21 +849,26 @@ void session_insert(
 		exit( 1 );
 	}
 
-	sprintf( system_string,
-		 "insert_statement.e table=%s field=\"%s\" | sql.e",
-		 SESSION_TABLE,
-		 SESSION_INSERT );
-
-	output_pipe = popen( system_string, "w" );
+	output_pipe =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_pipe(
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			session_insert_system_string(
+				session_table,
+				session_insert_columns ) );
 
 	fprintf(output_pipe,
 		"%s|%s|%s|%s|%s|%s|%s|%s\n",
 		session_key,
 		login_name,
-		date_now_yyyy_mm_dd_string,
-		date_now_hhmm_string,
-		date_now_yyyy_mm_dd_string,
-		date_now_hhmm_string,
+		login_date,
+		login_time,
+		login_date,
+		login_time,
 		http_user_agent,
 		remote_ip_address );
 
@@ -933,3 +939,139 @@ void session_access_or_exit(
 		session_key,
 		login_name );
 }
+
+char *session_http_user_agent(
+		const int session_user_agent_width,
+		char *environment_http_user_agent )
+{
+	char destination[ 81 ];
+
+	if ( !environment_http_user_agent )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: environment_http_user_agent is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	strdup(
+		/* Returns destination */
+		/* ------------------- */
+		string_left(
+			destination,
+			environment_http_user_agent,
+			session_user_agent_width /* how_many */ ) );
+}
+
+char *session_login_date( void )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	date_now_yyyy_mm_dd(
+		date_utc_offset() );
+}
+
+char *session_login_time( void )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	date_now_hhmm(
+		date_utc_offset() );
+}
+
+char *session_last_access_date( void )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	date_now_yyyy_mm_dd(
+		date_utc_offset() );
+}
+
+char *session_last_access_time( void )
+{
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	date_now_hhmm(
+		date_utc_offset() );
+}
+
+char *session_insert_system_string(
+		const char *session_table,
+		const char *session_insert_columns )
+{
+	char system_string[ 1024 ];
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"insert_statement.e table=%s field=\"%s\" |"
+		"tee_appaserver.sh |"
+		"sql.e",
+		session_table,
+		session_insert_columns );
+
+	return strdup( system_string );
+}
+
+SESSION *session_new(
+		char *application_name,
+		char *login_name,
+		char *environment_http_user_agent,
+		char *environment_remote_ip_address )
+{
+	SESSION *session;
+
+	if ( !application_name
+	||   !login_name
+	||   !environment_http_user_agent
+	||   !environment_remote_ip_address )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	session = session_calloc();
+
+	session->application_name = application_name;
+	session->login_name = login_name;
+	session->environment_http_user_agent = environment_http_user_agent;
+	session->remote_ip_address = environment_remote_ip_address;
+
+	/* Returns heap memory */
+	/* ------------------- */
+	session->session_key = session_key( application_name );
+
+	/* Returns heap memory */
+	/* --------------------*/
+	session->login_date = session_login_date();
+
+	/* Returns heap memory */
+	/* --------------------*/
+	session->login_time = session_login_time();
+
+	session->http_user_agent =
+		/* --------------------*/
+		/* Returns heap memory */
+		/* --------------------*/
+		session_http_user_agent(
+			SESSION_USER_AGENT_WIDTH,
+			environment_http_user_agent );
+
+	return session;
+}
+

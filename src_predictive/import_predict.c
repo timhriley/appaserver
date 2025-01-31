@@ -62,7 +62,7 @@ IMPORT_PREDICT *import_predict_new(
 
 	import_predict->template_boolean =
 		import_predict_template_boolean(
-			APPLICATION_CREATE_TEMPLATE_NAME,
+			APPLICATION_TEMPLATE_NAME,
 			application_name );
 
 	import_predict->exists_boolean =

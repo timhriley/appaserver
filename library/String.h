@@ -541,11 +541,15 @@ boolean string_mnemonic_boolean(
 boolean string_email_address_boolean(
 		char *string );
 
+/* Returns destination */
+/* ------------------- */
 char *string_left(
 		char *destination,
 		char *source,
 		int how_many );
 
+/* Returns destination */
+/* ------------------- */
 char *string_middle(
 		char *destination,
 		char *source,

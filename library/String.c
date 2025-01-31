@@ -2251,7 +2251,21 @@ char *string_left(
 		char *source,
 		int how_many )
 {
+	if ( !destination
+	||   !source )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	return
+	/* ------------------- */
+	/* Returns destination */
+	/* ------------------- */
 	string_middle(
 		destination,
 		source,
@@ -2265,6 +2279,17 @@ char *string_middle(
 		int start,
 		int how_many )
 {
+	if ( !destination
+	||   !source )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	string_strncpy( destination, source + start, how_many );
 	*( destination + how_many ) = '\0';
 
