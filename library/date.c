@@ -1369,6 +1369,17 @@ char *date_hhmm( DATE *date )
 	return strdup( buffer );
 }
 
+char *date_now_yyyymmdd( void )
+{
+	DATE *date;
+
+	date = date_now_new( date_utc_offset() );
+
+	/* Returns static memory */
+	/* --------------------- */
+	return date_display_yyyymmdd( date );
+}
+
 char *date_display_yyyymmdd( DATE *date )
 {
 	static char buffer[ 32 ];

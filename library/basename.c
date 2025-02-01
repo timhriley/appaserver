@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include "basename.h"
 #include "piece.h"
-#include "timlib.h"
+#include "String.h"
 
 char *basename_get_directory( char *argv_0 )
 {
@@ -22,7 +22,7 @@ char *basename_directory( char *argv_0 )
 	char local_buffer[ 512 ];
 	char *base_name_ptr;
 
-	timlib_strcpy( local_buffer, argv_0, 512 );
+	string_strcpy( local_buffer, argv_0, 512 );
 	base_name_ptr = local_buffer + strlen( local_buffer );
 
 	while( base_name_ptr != local_buffer )
@@ -67,8 +67,16 @@ char *basename_get_extension( char *argv_0 )
 char *basename_extension( char *argv_0 )
 {
 	static char extension[ 128 ];
+	int count;
 
-	if ( !piece( extension, '.', argv_0, 1 ) ) *extension = '\0';
+	*extension = '\0';
+
+	count = string_character_count( '.', argv_0 );
+
+	if ( count )
+	{
+		piece( extension, '.', argv_0, count );
+	}
 
 	return extension;
 }
@@ -89,7 +97,7 @@ char *basename_base_name( char *argv_0, boolean strip_extension )
 
 	/* First, strip off extension */
 	/* -------------------------- */
-	if ( strip_extension && character_exists( local_buffer, '.' ) )
+	if ( strip_extension && string_character_exists( local_buffer, '.' ) )
 	{
 		while( base_name_ptr != local_buffer )
 		{

@@ -431,6 +431,11 @@ void date_increment_weekly_ceiling(
 int date_day_of_week(
 		DATE *d );
 
+/* Returns static memory */
+/* --------------------- */
+char *date_now_yyyymmdd(
+		void );
+
 /* Returns static memory or "" */
 /* --------------------------- */
 char *date_display_yyyymmdd(
