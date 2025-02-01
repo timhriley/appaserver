@@ -525,7 +525,8 @@ LIST *insert_datum_key_datum_list(
 
 char *insert_statement_sql_execute(
 		char *appaserver_error_filename,
-		LIST *insert_statement_extract_sql_list )
+		LIST *insert_sql_list,
+		char *insert_statement )
 {
 	char system_string[ 128 ];
 	FILE *output_pipe;
@@ -545,12 +546,15 @@ char *insert_statement_sql_execute(
 			message );
 	}
 
-	if ( !list_rewind( insert_statement_extract_sql_list ) )
+	if ( !list_rewind( insert_sql_list )
+	&&   !insert_statement )
 	{
 		return (char *)0;
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"tee -a %s | sql.e 2>%s",
 		appaserver_error_filename,
 		( temp_filename =
@@ -558,13 +562,19 @@ char *insert_statement_sql_execute(
 
 	output_pipe = appaserver_output_pipe( system_string );
 
+	if ( insert_statement )
+	{
+		fprintf(output_pipe,
+			"%s\n",
+			insert_statement );
+	}
+	else
 	do {
 		fprintf(output_pipe,
 			"%s\n",
-			(char *)list_get(
-				insert_statement_extract_sql_list ) );
+			(char *)list_get( insert_sql_list ) );
 
-	} while ( list_next( insert_statement_extract_sql_list ) );
+	} while ( list_next( insert_sql_list ) );
 
 	pclose( output_pipe );
 
@@ -768,7 +778,8 @@ char *insert_statement_execute(
 		/* --------------------------------------------- */
 		insert_statement_sql_execute(
 			appaserver_error_filename,
-			extract_sql_list );
+			extract_sql_list,
+			(char *)0 /* insert_statement */ );
 
 	if ( error_string )
 	{

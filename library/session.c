@@ -487,7 +487,7 @@ void session_environment_set( char *application_name )
 	environ_src_appaserver_to_path();
 	environ_src_system_to_path();
 	environ_utility_to_path();
-	environ_usr2_bin_to_path();
+	/* environ_usr2_bin_to_path(); */
 	environ_relative_source_directory_to_path( application_name );
 	environ_append_dot_to_path();
 	environ_appaserver_home();

@@ -285,6 +285,11 @@ char *string_fetch_pipe(
 
 /* Returns heap memory or null */
 /* --------------------------- */
+char *string_fetch(
+		char *system_string );
+
+/* Returns heap memory or null */
+/* --------------------------- */
 char *string_pipe_input(
 		char *system_string );
 

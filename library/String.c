@@ -928,6 +928,11 @@ char *string_fetch_pipe( char *system_string )
 	return string_pipe( system_string );
 }
 
+char *string_fetch( char *system_string )
+{
+	return string_pipe( system_string );
+}
+
 char *string_pipe_fetch( char *system_string )
 {
 	return string_pipe( system_string );
