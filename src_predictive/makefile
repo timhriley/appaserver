@@ -2,9 +2,8 @@
 # ----------------------------------------
 
 CC=gcc
-#CFLAGS=-g
-#CFLAGS=-O3 -s -Wall -W
-CFLAGS=-O3 -s -Wall -Wunused-parameter
+WARN=-Wall -Wextra -Wunused-parameter
+CFLAGS=-O3 -s ${WARN}
 
 LIBRARY=${APPASERVER_HOME}/library
 

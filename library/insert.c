@@ -1127,7 +1127,7 @@ char *insert_folder_sql_statement_string(
 		char *attribute_name_list_string,
 		char *value_list_string )
 {
-	char sql_statement_string[ STRING_64K ];
+	char sql_statement_string[ STRING_65K ];
 
 	if ( !folder_table_name
 	||   !attribute_name_list_string
@@ -1146,13 +1146,13 @@ char *insert_folder_sql_statement_string(
 
 	if (	strlen( folder_table_name ) +
 		strlen( attribute_name_list_string ) +
-		strlen( value_list_string ) + 26 >= STRING_64K )
+		strlen( value_list_string ) + 26 >= STRING_65K )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_64K );
+			STRING_65K );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

@@ -33,6 +33,9 @@ INSERT_DATUM *insert_datum_extract(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 INSERT_DATUM *insert_datum_new(
 		char *attribute_name,
 		char *datum,
