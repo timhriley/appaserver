@@ -151,6 +151,9 @@ char *session_last_access_time(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 SESSION *session_new(
 		char *application_name,
 		char *login_name,
