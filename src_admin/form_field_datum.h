@@ -20,6 +20,7 @@
 
 typedef struct
 {
+	char *form_name;
 	char *field_name;
 	char *field_datum;
 	char *message_datum;

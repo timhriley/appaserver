@@ -10,8 +10,13 @@
 #include "boolean.h"
 #include "list.h"
 #include "insert.h"
+#include "session.h"
+#include "appaserver_parameter.h"
 
 #define POST_TABLE		"post"
+
+#define POST_SELECT		"IP_address,"		\
+				"form_name"
 
 #define POST_INSERT_COLUMNS	"timestamp,"		\
 				"email_address,"	\
@@ -19,6 +24,8 @@
 				"form_name"
 
 #define POST_RETURN_USERNAME	"DoNotReply"
+
+#define POST_LOGIN_NAME		"post"
 
 typedef struct
 {
@@ -55,6 +62,11 @@ char *post_insert_statement(
 		char *email_address,
 		char *ip_address,
 		char *post_timestamp );
+
+/* Returns heap memory */
+/* ------------------- */
+char *post_timestamp(
+		void );
 
 /* Usage */
 /* ----- */
@@ -98,7 +110,34 @@ char *post_primary_where(
 /* Usage */
 /* ----- */
 POST *post_parse(
+		char *email_address,
+		char *timestamp,
 		char *post_primary_where,
 		char *string_fetch );
+
+typedef struct
+{
+	char *email_address;
+	char *timestamp;
+	char *session_key;
+	SESSION *session;
+	APPASERVER_PARAMETER *appaserver_parameter;
+	POST *post;
+	char *appaserver_mailname;
+} POST_RECEIVE_INPUT;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+POST_RECEIVE_INPUT *post_receive_input_new(
+		int argc,
+		char **argv );
+
+/* Process */
+/* ------- */
+POST_RECEIVE_INPUT *post_receive_input_calloc(
+		void );
 
 #endif

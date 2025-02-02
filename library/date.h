@@ -778,11 +778,13 @@ int date_month(	DATE *d );
 
 /* Returns heap memory */
 /* ------------------- */
-char *date_time_now19(	int utc_offset );
+char *date_time_now19(
+		int utc_offset );
 
 /* Returns heap memory */
 /* ------------------- */
-char *date_now19(	int utc_offset );
+char *date_now19(
+		int utc_offset );
 
 char *date_display_day_name(
 		DATE *date );

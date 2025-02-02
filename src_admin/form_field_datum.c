@@ -200,22 +200,22 @@ FORM_FIELD_DATUM *form_field_datum_parse( char *string_input )
 
 	/* See FORM_FIELD_DATUM_SELECT */
 	/* --------------------------- */
-	piece( buffer, SQL_DELIMITER, input, 0 );
+	piece( buffer, SQL_DELIMITER, string_input, 0 );
 	if ( *buffer )
 		form_field_datum->form_name =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 1 );
+	piece( buffer, SQL_DELIMITER, string_input, 1 );
 	if ( *buffer )
 		form_field_datum->field_name =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 2 );
+	piece( buffer, SQL_DELIMITER, string_input, 2 );
 	if ( *buffer )
 		form_field_datum->field_datum =
 			strdup( buffer );
 
-	piece( buffer, SQL_DELIMITER, input, 3 );
+	piece( buffer, SQL_DELIMITER, string_input, 3 );
 	if ( *buffer )
 		form_field_datum->message_datum =
 			strdup( buffer );
@@ -272,7 +272,7 @@ char *form_field_datum_insert_statement(
 	/* Returns heap memory or null */
 	/* --------------------------- */
 	insert_datum_sql_statement(
-		FORM_FIELD_DATUM_TABLE /* table_name */,
+		(char *)form_field_datum_table /* table_name */,
 		insert_list /* insert_datum_list */ );
 }
 

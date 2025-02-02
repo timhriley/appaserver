@@ -63,7 +63,8 @@ APPASERVER_LIBRARY=							\
 
 ADMIN_LIBRARY=								\
 		form_field_datum.o					\
-		post.o
+		post.o							\
+		post_signup_recieve.o
 
 EXECUTABLES=								\
 		post_contact_submit_execute
@@ -90,6 +91,10 @@ post_contact_submit_execute: post_contact_submit_execute.c		\
 form_field_datum.o: form_field_datum.c form_field_datum.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		-c form_field_datum.c
+
+post_signup_receive.o: post_signup_receive.c post_signup_receive.h
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		-c post_signup_receive.c
 
 post.o: post.c post.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
