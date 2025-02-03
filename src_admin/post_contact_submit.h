@@ -12,6 +12,7 @@
 #include "appaserver_parameter.h"
 #include "post_dictionary.h"
 #include "session.h"
+#include "form_field.h"
 #include "post.h"
 
 #define POST_CONTACT_SUBMIT_SUBJECT		"Contact confirmation"
@@ -94,8 +95,8 @@ typedef struct
 	POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input;
 	char *display_system_string;
 	POST *post;
-	LIST *form_field_datum_list;
-	char *form_field_datum_insert_statement;
+	FORM_FIELD_INSERT_LIST *form_field_insert_list;
+	LIST *form_field_datum_insert_statement_list;
 	SESSION *session;
 	char *post_return_email;
 	char *post_mailx_system_string;
@@ -116,14 +117,6 @@ POST_CONTACT_SUBMIT *post_contact_submit_new(
 POST_CONTACT_SUBMIT *post_contact_submit_calloc(
 		void );
 
-LIST *post_contact_submit_form_field_datum_list(
-		char *timestamp,
-		char *email_address,
-		char *form_name,
-		char *reason,
-		char *message,
-		char *filespecification );
-
 /* Usage */
 /* ----- */
 
@@ -141,5 +134,18 @@ char *post_contact_submit_display_system_string(
 char *post_contact_submit_message(
 		const char *post_contact_submit_message_prompt,
 		char *post_receive_url );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FORM_FIELD_INSERT_LIST *post_contact_submit_form_field_insert_list(
+		char *email_address,
+		char *reason,
+		char *message,
+		char *filespecification,
+		char *form_name,
+		char *timestamp );
 
 #endif

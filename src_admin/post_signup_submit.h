@@ -13,6 +13,7 @@
 #include "post_dictionary.h"
 #include "session.h"
 #include "post.h"
+#include "form_field.h"
 #include "post_login.h"
 
 typedef struct
@@ -71,8 +72,8 @@ typedef struct
 	POST_LOGIN_DOCUMENT *post_login_document;
 	char *display_system_string;
 	POST *post;
-	LIST *form_field_datum_list;
-	char *form_field_datum_insert_statement;
+	FORM_FIELD_INSERT_LIST *form_field_insert_list;
+	LIST *form_field_datum_insert_statement_list;
 	SESSION *session;
 	char *post_return_email;
 	char *post_mailx_system_string;
@@ -93,17 +94,22 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new(
 POST_SIGNUP_SUBMIT *post_signup_submit_calloc(
 		void );
 
-char *post_signup_submit_reject_index_html_message(
+/* Returns program memory or null */
+/* ------------------------------ */
+char *post_signup_submit_reject_index_html_parameter(
 		boolean missing_application_boolean,
 		boolean invalid_application_boolean,
 		boolean application_exists_boolean,
 		boolean post_contact_submit_invalid_email_boolean,
 		boolean missing_title_boolean );
 
-LIST *post_signup_submit_form_field_datum_list(
-		char *timestamp,
+/* Usage */
+/* ----- */
+FORM_FIELD_INSERT_LIST *post_signup_submit_form_field_insert_list(
 		char *email_address,
-		char *form_name,
 		char *application_key,
-		char *application_title );
+		char *application_title,
+		char *form_name,
+		char *timestamp );
+
 #endif

@@ -62,7 +62,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/operation.o
 
 ADMIN_LIBRARY=								\
-		form_field_datum.o					\
+		form_field.o						\
 		post.o							\
 		post_signup_submit.o					\
 		post_signup_receive.o					\
@@ -127,9 +127,9 @@ post_signup_receive_execute: post_signup_receive_execute.c		\
 		post_sigunup_receive_execute.c				\
 		-o post_signup_receive_execute
 
-form_field_datum.o: form_field_datum.c form_field_datum.h
+form_field.o: form_field.c form_field.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
-		-c form_field_datum.c
+		-c form_field.c
 
 post_signup_receive.o: post_signup_receive.c post_signup_receive.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\

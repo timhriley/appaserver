@@ -1,11 +1,11 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_admin/form_field_datum.h			*/
+/* $APPASERVER_HOME/src_admin/form_field.h				*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
-#ifndef FORM_FIELD_DATUM_H
-#define FORM_FIELD_DATUM_H
+#ifndef FORM_FIELD_H
+#define FORM_FIELD_H
 
 #include "boolean.h"
 #include "list.h"
@@ -73,11 +73,56 @@ FORM_FIELD_DATUM *form_field_datum_seek(
 
 /* Usage */
 /* ----- */
+LIST *form_field_datum_insert_statement_list(
+		const char *form_field_datum_table,
+		LIST *form_field_insert_list );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *form_field_datum_insert_statement(
+char *form_field_datum_insert_sql_statement(
 		const char *form_field_datum_table,
 		LIST *form_field_datum_list );
+
+typedef struct
+{
+	LIST *form_field_datum_list;
+} FORM_FIELD_INSERT;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FORM_FIELD_INSERT *form_field_insert_new(
+		char *email_address,
+		char *form_name,
+		char *timestamp,
+		LIST *form_field_datum_list /* in/out */ );
+
+/* Process */
+/* ------- */
+FORM_FIELD_INSERT *form_field_insert_calloc(
+		void );
+
+typedef struct
+{
+	LIST *list;
+} FORM_FIELD_INSERT_LIST;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FORM_FIELD_INSERT_LIST *form_field_insert_list_new(
+		void );
+
+/* Process */
+/* ------- */
+FORM_FIELD_INSERT_LIST *form_field_insert_list_calloc(
+		void );
 
 #endif

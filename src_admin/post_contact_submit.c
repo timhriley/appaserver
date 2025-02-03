@@ -16,7 +16,6 @@
 #include "security.h"
 #include "environ.h"
 #include "post.h"
-#include "form_field_datum.h"
 #include "upload_source.h"
 #include "post_contact_receive.h"
 #include "post_contact_submit.h"
@@ -73,8 +72,8 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 				post_contact_submit_input->
 				environment_remote_ip_address );
 
-	post_contact_submit->form_field_datum_list =
-		post_contact_submit_form_field_datum_list(
+	post_contact_submit->form_field_insert_list =
+		post_contact_submit_form_field_insert_list(
 			post_contact_submit->
 				post->
 				timestamp,
@@ -94,13 +93,13 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 				post_contact_submit_input->
 				filespecification );
 
-	post_contact_submit->form_field_datum_insert_statement =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		form_field_datum_insert_statement(
+	post_contact_submit->form_field_datum_insert_statement_list =
+		form_field_datum_insert_statement_list(
 			FORM_FIELD_DATUM_TABLE,
-			post_contact_submit->form_field_datum_list );
+			post_contact_submit->
+				form_field_insert_list->
+				list
+				/* form_field_insert_list */ );
 
 	post_contact_submit->session =
 		/* -------------- */
@@ -583,3 +582,130 @@ boolean post_contact_submit_input_filespecification_boolean(
 		filespecification
 			/* directory_filename_session */ );
 }
+
+FORM_FIELD_INSERT_LIST *post_contact_submit_form_field_insert_list(
+		char *email_address,
+		char *reason,
+		char *message,
+		char *filespecification,
+		char *form_name,
+		char *timestamp )
+{
+	FORM_FIELD_INSERT_LIST *form_field_insert_list;
+	LIST *form_field_datum_list;
+	FORM_FIELD_DATUM *form_field_datum;
+	FORM_FIELD_INSERT *form_field_insert;
+
+	if ( !email_address
+	||   !reason
+	||   !form_name
+	||   !timestamp )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	/* Safely returns */
+	/* -------------- */
+	form_field_insert_list = form_field_insert_list_new();
+
+	/* Set reason */
+	/* ---------- */
+	form_field_datum_list = list_new();
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"reason" /* field_name */,
+			reason /* field_datum */,
+			(char *)0 /* message_datum */,
+			0 /* primary_key_index */ );
+
+	list_set(
+		form_field_datum_list,
+		form_field_datum );
+
+	form_field_insert =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_insert_new(
+			email_address,
+			form_name,
+			timestamp,
+			form_field_datum_list /* in/out */ );
+
+	list_set(
+		form_field_insert_list->list,
+		form_field_insert );
+
+	/* Set message */
+	/* ----------- */
+	if ( message )
+	{
+		form_field_datum_list = list_new();
+
+		form_field_datum =
+			form_field_datum_new(
+				"message" /* field_name */,
+				(char *)0 /* field_datum */,
+				message /* message_datum */,
+				0 /* primary_key_index */ );
+
+			list_set(
+				form_field_datum_list,
+				form_field_datum );
+
+		form_field_insert =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			form_field_insert_new(
+				email_address,
+				form_name,
+				timestamp,
+				form_field_datum_list /* in/out */ );
+
+		list_set(
+			form_field_insert_list->list,
+			form_field_insert );
+	}
+
+	/* Set filespecification */
+	/* --------------------- */
+	if ( filespecification )
+	{
+		form_field_datum_list = list_new();
+
+		form_field_datum =
+			form_field_datum_new(
+				"upload_file" /* field_name */,
+				filespecification /* field_datum */,
+				(char *)0 /* message_datum */,
+				0 /* primary_key_index */ );
+
+		list_set(
+			form_field_datum_list,
+			form_field_datum );
+
+		form_field_insert =
+			form_field_insert_new(
+				email_address,
+				form_name,
+				timestamp,
+				form_field_datum_list /* in/out */ );
+
+		list_set(
+			form_field_insert_list->list,
+			form_field_insert );
+	}
+
+	return form_field_insert_list;
+}
+

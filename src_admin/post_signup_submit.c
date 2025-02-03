@@ -238,8 +238,98 @@ boolean post_signup_submit_input_application_exists_boolean(
 
 POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 {
-	POST_SIGNUP_SUBMIT *post_signup_submit;
+	POST_SIGNUP_SUBMIT *post_signup_submit =
+		post_signup_submit_calloc();
 
+	post_signup_submit->post_signup_input =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		post_signup_submit_input_new();
+
+	post_signup_submit->reject_index_html_message =
+		post_signup_submit_reject_index_html_message(
+			post_signup_submit->
+				post_signup_submit_input->
+				post_login_input_missing_application_boolean,
+			post_signup_submit->
+				post_signup_submit_input->
+				post_login_input_invalid_application_boolean,
+			post_signup_submit->
+				post_signup_submit_input->
+				application_exists_boolean,
+			post_signup_submit->
+				post_signup_submit_input->
+				post_contact_submit_invalid_email_boolean,
+			post_signup_submit->
+				post_signup_submit_input->
+				missing_title_boolean );
+
+if ( post_signup_reject_index_html_message() )
+{
+	POST_LOGIN_DOCUMENT *post_login_document_new(
+		APPLICATION_ADMIN_NAME,
+		(DICTIONARY *)0 /* location_website */,
+		post_signup_submit_reject_index_html_message() );
+
+	return this;
+}
+
+POST *post_new(
+	FORM_SIGNUP /* FORM_NAME */,
+	post_signup_submit_input->
+		email_address,
+	post_signup_submit_input->
+		environment_remote_ip_address );
+
+FORM_FIELD_INSERT_LIST *
+	post_signup_submit_form_field_insert_list(
+		post_signup_submit_input->post->timestamp,
+		post_signup_submit_input->email_address,
+		post->form_name,
+		post_signup_submit_input->application_key,
+		post_signup_submit_input->application_title );
+
+LIST *form_field_datum_insert_statement_list(
+	FORM_FIELD_DATUM_TABLE,
+	post_signup_submit_form_field_insert_list()->list
+		/* form_field_insert_list */ );
+
+SESSION *session_new(
+	APPLICATION_ADMIN_NAME,
+	POST_LOGIN_NAME,
+	post_signup_submit_input->
+		environment_http_user_agent,
+	post_signup_submit_input->
+		environment_remote_ip_address );
+
+char *post_return_email(
+	POST_RETURN_USERNAME,
+	post_signup_submit_input->
+		appaserver_mailname );
+
+char *post_mailx_system_string(
+	POST_SIGNUP_SUBMIT_SUBJECT,
+	post_return_email() );
+
+char *post_receive_url(
+	POST_SIGNUP_RECEIVE_EXECUTABLE,
+	post_signup_submit_input->
+		apache_cgi_directory,
+	post_signup_submit_input->
+		email_address,
+	post->timestamp,
+	session_new->session_key );
+
+char *post_signup_submit_message(
+	POST_SIGNUP_SUBMIT_MESSAGE_PROMPT,
+	post_signup_submit_receive_url() );
+
+POST_LOGIN_DOCUMENT *
+	post_login_document_new(
+		APPLICATION_ADMIN_NAME,
+		(DICTIONARY *)0 /* location_website */,
+		POST_SIGNUP_SUCCESS_INDEX_HTML_MESSAGE );
 
 	return post_signup_submit;
 }
@@ -263,28 +353,54 @@ POST_SIGNUP_SUBMIT *post_signup_submit_calloc( void )
 	return post_signup_submit;
 }
 
-char *post_signup_submit_reject_index_html_message(
+char *post_signup_submit_reject_index_html_parameter(
 		boolean missing_application_boolean,
 		boolean invalid_application_boolean,
 		boolean application_exists_boolean,
 		boolean post_contact_submit_invalid_email_boolean,
 		boolean missing_title_boolean )
 {
+	char *parameter = {0};
+
+	if ( missing_application_boolean )
+		message = "signup_missing_application_yn=y";
+	else
+	if ( invalid_application_boolean )
+		message = "signup_invalid_application_yn=y";
+	else
+	if ( missing_login_name_boolean )
+		message = "signup_missing_name_yn=y";
+	else
+	if ( invalid_login_name_boolean )
+		message = "signup_invalid_login_yn=y";
+	else
+	if ( application_exists_boolean )
+		message = "signup_application_exists_yn=y";
+	else
+	if ( missing_title_boolean )
+		message = "signup_missing_title_yn=y";
+
+	return message;
 }
 
-LIST *post_signup_submit_form_field_datum_list(
-		char *timestamp,
+}
+
+FORM_FIELD_INSERT_LIST *post_signup_submit_form_field_insert_list(
 		char *email_address,
-		char *form_name,
 		char *application_key,
-		char *application_title )
+		char *application_title,
+		char *form_name,
+		char *timestamp )
 {
-	LIST *form_field_datum_list = list_new();
+	FORM_FIELD_INSERT_LIST *form_field_insert_list;
+	LIST *form_field_datum_list;
 	FORM_FIELD_DATUM *form_field_datum;
 
-	if ( !timestamp
-	||   !email_address
-	||   !form_name )
+	if ( !email_address
+	||   !form_name
+	||   !application_key
+	||   !application_title
+	||   !timestamp )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -294,41 +410,13 @@ LIST *post_signup_submit_form_field_datum_list(
 		exit( 1 );
 	}
 
-	form_field_datum =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_datum_new(
-			"timestamp" /* field_name */,
-			timestamp /* field_datum */,
-			(char *)0 /* message_datum */,
-			1 /* primary_key_index */ );
+	/* Safely returns */
+	/* -------------- */
+	form_field_insert_list = form_field_insert_list_new();
 
-	list_set( form_field_datum_list, form_field_datum );
-
-	form_field_datum =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_datum_new(
-			"email_address" /* field_name */,
-			email_address /* field_datum */,
-			(char *)0 /* message_datum */,
-			2 /* primary_key_index */ );
-
-	list_set( form_field_datum_list, form_field_datum );
-
-	form_field_datum =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_datum_new(
-			"form_name" /* field_name */,
-			form_name /* field_datum */,
-			(char *)0 /* message_datum */,
-			3 /* primary_key_index */ );
-
-	list_set( form_field_datum_list, form_field_datum );
+	/* Set application_key */
+	/* ------------------- */
+	form_field_datum_list = list_new();
 
 	form_field_datum =
 		/* -------------- */
@@ -338,9 +426,29 @@ LIST *post_signup_submit_form_field_datum_list(
 			"application_key" /* field_name */,
 			application_key /* field_datum */,
 			(char *)0 /* message_datum */,
-			4 /* primary_key_index */ );
+			0 /* primary_key_index */ );
 
-	list_set( form_field_datum_list, form_field_datum );
+	list_set(
+		form_field_datum_list,
+		form_field_datum );
+
+	form_field_insert =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_insert_new(
+			email_address,
+			form_name,
+			timestamp,
+			form_field_datum_list /* in/out */ );
+
+	list_set(
+		form_field_insert_list->list,
+		form_field_insert );
+
+	/* Set application_title */
+	/* --------------------- */
+	form_field_datum_list = list_new();
 
 	form_field_datum =
 		/* -------------- */
@@ -350,9 +458,25 @@ LIST *post_signup_submit_form_field_datum_list(
 			"application_title" /* field_name */,
 			application_title /* field_datum */,
 			(char *)0 /* message_datum */,
-			4 /* primary_key_index */ );
+			0 /* primary_key_index */ );
 
-	list_set( form_field_datum_list, form_field_datum );
+	list_set(
+		form_field_datum_list,
+		form_field_datum );
 
-	return form_field_datum_list;
+	form_field_insert =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_insert_new(
+			email_address,
+			form_name,
+			timestamp,
+			form_field_datum_list /* in/out */ );
+
+	list_set(
+		form_field_insert_list->list,
+		form_field_insert );
+
+	return form_field_insert_list;
 }

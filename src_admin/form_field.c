@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_admin/form_field_datum.c			*/
+/* $APPASERVER_HOME/src_admin/form_field.c				*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -13,7 +13,7 @@
 #include "appaserver.h"
 #include "post.h"
 #include "appaserver_error.h"
-#include "form_field_datum.h"
+#include "form_field.h"
 
 FORM_FIELD_DATUM *form_field_datum_new(
 		char *field_name,
@@ -99,7 +99,7 @@ char *form_field_datum_field(
 
 LIST *form_field_datum_insert_list( LIST *form_field_datum_list )
 {
-	LIST *insert_list = list_new();
+	LIST *insert_datum_list = list_new();
 	FORM_FIELD_DATUM *form_field_datum;
 
 	if ( list_rewind( form_field_datum_list ) )
@@ -107,18 +107,18 @@ LIST *form_field_datum_insert_list( LIST *form_field_datum_list )
 		form_field_datum = list_get( form_field_datum_list );
 
 		list_set(
-			insert_list,
+			insert_datum_list,
 			form_field_datum->insert_datum );
 
 	} while ( list_next( form_field_datum_list ) );
 
-	if ( !list_length( insert_list ) )
+	if ( !list_length( insert_datum_list ) )
 	{
-		list_free( insert_list );
-		insert_list = NULL;
+		list_free( insert_datum_list );
+		insert_datum_list = NULL;
 	}
 
-	return insert_list;
+	return insert_datum_list;
 }
 
 LIST *form_field_datum_fetch_list(
@@ -257,7 +257,7 @@ FORM_FIELD_DATUM *form_field_datum_seek(
 	return NULL;
 }
 
-char *form_field_datum_insert_statement(
+char *form_field_datum_insert_sql_statement(
 		const char *form_field_datum_table,
 		LIST *form_field_datum_list )
 {
@@ -274,5 +274,162 @@ char *form_field_datum_insert_statement(
 	insert_datum_sql_statement(
 		(char *)form_field_datum_table /* table_name */,
 		insert_list /* insert_datum_list */ );
+}
+
+LIST *form_field_datum_insert_statement_list(
+		const char *form_field_datum_table,
+		LIST *form_field_insert_list )
+{
+	LIST *insert_statement_list = list_new();
+	FORM_FIELD_INSERT *form_field_insert;
+	LIST *datum_insert_list;
+	char *sql_statement;
+
+	if ( list_rewind( form_field_insert_list ) )
+	do {
+		form_field_insert = list_get( form_field_insert_list );
+
+		datum_insert_list =
+			form_field_datum_insert_list(
+				form_field_insert->form_field_datum_list );
+
+		sql_statement =
+			form_field_datum_insert_sql_statement(
+				form_field_datum_table /* table_name */,
+				datum_insert_list
+					/* insert_datum_list */ );
+
+		list_set(
+			insert_statement_list,
+			sql_statement );
+
+	} while ( list_next( form_field_insert_list ) );
+
+	if ( !list_length( insert_statement_list ) )
+	{
+		list_free( insert_statement_list );
+		insert_statement_list = NULL;
+	}
+
+	return insert_statement_list;
+}
+
+FORM_FIELD_INSERT *form_field_insert_new(
+		char *email_address,
+		char *form_name,
+		char *timestamp,
+		LIST *form_field_datum_list )
+{
+	FORM_FIELD_INSERT *form_field_insert;
+	FORM_FIELD_DATUM *form_field_datum;
+
+	if ( !email_address
+	||   !form_name
+	||   !timestamp
+	||   !list_length( form_field_datum_list ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_field_insert = form_field_insert_calloc();
+
+	form_field_insert->form_field_datum_list = form_field_datum_list;
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"timestamp" /* field_name */,
+			timestamp /* field_datum */,
+			(char *)0 /* message_datum */,
+			1 /* primary_key_index */ );
+
+	list_set(
+		form_field_datum_list,
+		form_field_datum );
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"email_address" /* field_name */,
+			email_address /* field_datum */,
+			(char *)0 /* message_datum */,
+			2 /* primary_key_index */ );
+
+	list_set(
+	form_field_datum_list,
+		form_field_datum );
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"form_name" /* field_name */,
+			form_name /* field_datum */,
+			(char *)0 /* message_datum */,
+			3 /* primary_key_index */ );
+
+	list_set(
+		form_field_datum_list,
+		form_field_datum );
+
+	return form_field_insert;
+}
+
+FORM_FIELD_INSERT *form_field_insert_calloc( void )
+{
+	FORM_FIELD_INSERT *form_field_insert;
+
+	if ( ! ( form_field_insert =
+			calloc( 1,
+				sizeof ( FORM_FIELD_INSERT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_field_insert;
+}
+
+FORM_FIELD_INSERT_LIST *form_field_insert_list_new( void )
+{
+	FORM_FIELD_INSERT_LIST *form_field_insert_list =
+		form_field_insert_list_calloc();
+
+	form_field_insert_list->list = list_new();
+
+	return form_field_insert_list;
+}
+
+FORM_FIELD_INSERT_LIST *form_field_insert_list_calloc( void )
+{
+	FORM_FIELD_INSERT_LIST *form_field_insert_list;
+
+	if ( ! ( form_field_insert_list =
+			calloc( 1,
+				sizeof ( FORM_FIELD_INSERT_LIST ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return form_field_insert_list;
 }
 
