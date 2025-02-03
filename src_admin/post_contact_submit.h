@@ -14,6 +14,11 @@
 #include "session.h"
 #include "post.h"
 
+#define POST_CONTACT_SUBMIT_SUBJECT		"Contact confirmation"
+#define POST_CONTACT_SUBMIT_MESSAGE_PROMPT	"Confirm contact"
+#define POST_CONTACT_SUBMIT_NOT_SENT_FILENAME	"message_not_sent.php"
+#define POST_CONTACT_SUBMIT_SENT_FILENAME	"confirmation_sent.php"
+
 typedef struct
 {
 	APPASERVER_PARAMETER *appaserver_parameter;
@@ -43,7 +48,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new(
 
 /* Process */
 /* ------- */
-POST_CONTACT_SUBMIT_INPUT *post_contact_submit_calloc(
+POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_calloc(
 		void );
 
 /* List of one */
@@ -99,8 +104,8 @@ char *post_contact_submit_receive_url(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *post_contact_submit_display_system_string(
 		const char *message_filename,
 		char *document_root );
@@ -126,7 +131,6 @@ typedef struct
 	char *post_mailx_system_string;
 	char *receive_url;
 	char *message;
-	char *display_system_string;
 } POST_CONTACT_SUBMIT;
 
 /* Usage */
@@ -141,5 +145,13 @@ POST_CONTACT_SUBMIT *post_contact_submit_new(
 /* ------- */
 POST_CONTACT_SUBMIT *post_contact_submit_calloc(
 		void );
+
+LIST *post_contact_submit_form_field_datum_list(
+		char *timestamp,
+		char *email_address,
+		char *form_name,
+		char *reason,
+		char *message,
+		char *filespecification );
 
 #endif

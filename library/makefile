@@ -115,7 +115,6 @@ APPASERVER_LIBRARY=						\
 		pair_one2m.o					\
 		mysqldump.o					\
 		fork_control.o					\
-		post_contact.o					\
 		prompt_lookup.o					\
 		prompt_insert.o					\
 		prompt_process.o				\
@@ -126,7 +125,6 @@ APPASERVER_LIBRARY=						\
 		choose_isa.o					\
 		choose_role.o					\
 		post_login.o					\
-		post_signup.o					\
 		post_choose_folder.o				\
 		post_choose_process.o				\
 		post_choose_role.o				\
@@ -674,17 +672,11 @@ dictionary_separate.o: dictionary_separate.c dictionary_separate.h
 post_login.o: post_login.c post_login.h
 	${CC} ${CFLAGS} -c post_login.c
 
-post_signup.o: post_signup.c post_signup.h
-	${CC} ${CFLAGS} -c post_signup.c
-
 array.o: array.c array.h
 	${CC} ${CFLAGS} -c array.c
 
 mysqldump.o: mysqldump.c mysqldump.h
 	${CC} ${CFLAGS} -c mysqldump.c
-
-post_contact.o: post_contact.c post_contact.h
-	${CC} ${CFLAGS} -c post_contact.c
 
 foreign_attribute.o: foreign_attribute.c foreign_attribute.h
 	${CC} ${CFLAGS} -c foreign_attribute.c

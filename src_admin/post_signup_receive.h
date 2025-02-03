@@ -10,6 +10,8 @@
 #include "boolean.h"
 #include "list.h"
 
+#define POST_SIGNUP_RECEIVE_EXECUTABLE		"post_signup_receive_execute"
+
 typedef struct
 {
 	char *application_key;

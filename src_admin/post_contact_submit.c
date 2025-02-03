@@ -12,25 +12,393 @@
 #include "piece.h"
 #include "appaserver_error.h"
 #include "form.h"
+#include "security.h"
 #include "post.h"
 #include "form_field_datum.h"
+#include "upload_source.h"
+#include "post_contact_receive.h"
 #include "post_contact_submit.h"
 
-POST_CONTACT_SUBMIT_INPUT *post_contact_submit_new( void )
+POST_CONTACT_SUBMIT *post_contact_submit_new( void )
+{
+	POST_CONTACT_SUBMIT *post_contact_submit;
+
+	post_contact_submit = post_contact_submit_calloc();
+
+	post_contact_submit->post_contact_submit_input =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		post_contact_submit_input_new();
+
+	if (	post_contact_submit->
+			post_contact_submit_input->
+			email_invalid_boolean
+	|| 	post_contact_submit->
+			post_contact_submit_input->
+			reason_invalid_boolean
+	|| (	post_contact_submit->
+			post_contact_submit_input->
+			message_empty_boolean
+	&&	!post_contact_submit->
+			post_contact_submit_input->
+			filespecification_boolean ) )
+	{
+		post_contact_submit->display_system_string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			post_contact_submit_display_system_string(
+				POST_CONTACT_SUBMIT_NOT_SENT_FILENAME,
+				post_contact_submit->
+					post_contact_submit_input->
+					appaserver_parameter->
+					document_root );
+
+		return post_contact_submit;
+	}
+
+	post_contact_submit->post =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		post_new(
+			FORM_CONTACT /* FORM_NAME */,
+			post_contact_submit->
+				post_contact_submit_input->
+				email_address,
+			post_contact_submit->
+				post_contact_submit_input->
+				environment_remote_ip_address );
+
+	post_contact_submit->form_field_datum_list =
+		post_contact_submit_form_field_datum_list(
+			post_contact_submit->
+				post->
+				timestamp,
+			post_contact_submit->
+				post_contact_submit_input->
+				email_address,
+			post_contact_submit->
+				post->
+				form_name,
+			post_contact_submit->
+				post_contact_submit_input->
+				reason,
+			post_contact_submit->
+				post_contact_submit_input->
+				message,
+			post_contact_submit->
+				post_contact_submit_input->
+				filespecification );
+
+	post_contact_submit->form_field_datum_insert_statement =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		form_field_datum_insert_statement(
+			FORM_FIELD_DATUM_TABLE,
+			post_contact_submit->form_field_datum_list );
+
+	post_contact_submit->session =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		session_new(
+			APPLICATION_ADMIN_NAME,
+			POST_LOGIN_NAME,
+			post_contact_submit->
+				post_contact_submit_input->
+				environment_http_user_agent,
+			post_contact_submit->
+				post_contact_submit_input->
+				environment_remote_ip_address );
+
+	post_contact_submit->post_return_email =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_return_email(
+			POST_RETURN_USERNAME,
+			post_contact_submit->
+				post_contact_submit_input->
+				appaserver_mailname );
+
+	post_contact_submit->post_mailx_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_mailx_system_string(
+			POST_CONTACT_SUBMIT_SUBJECT,
+			post_contact_submit->post_return_email );
+
+	post_contact_submit->receive_url =
+		post_contact_submit_receive_url(
+			POST_CONTACT_RECEIVE_EXECUTABLE,
+			post_contact_submit->
+				post_contact_submit_input->
+				appaserver_parameter->
+				apache_cgi_directory,
+			post_contact_submit->
+				post_contact_submit_input->
+				email_address,
+			post_contact_submit->
+				post->
+				timestamp,
+			post_contact_submit->
+				session->
+				session_key );
+
+	post_contact_submit->message =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_contact_submit_message(
+			POST_CONTACT_SUBMIT_MESSAGE_PROMPT,
+			post_contact_submit->receive_url );
+
+	post_contact_submit->display_system_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_contact_submit_display_system_string(
+			POST_CONTACT_SUBMIT_SENT_FILENAME
+				/* message_filename */,
+			post_contact_submit->
+				post_contact_submit_input->
+				appaserver_parameter->
+				document_root );
+
+	return post_contact_submit;
+}
+
+POST_CONTACT_SUBMIT *post_contact_submit_calloc( void )
+{
+	POST_CONTACT_SUBMIT *post_contact_submit;
+
+	if ( ! ( post_contact_submit =
+			calloc( 1,
+				sizeof ( POST_CONTACT_SUBMIT ) ) ) )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return post_contact_submit;
+}
+
+char *post_contact_submit_receive_url(
+		const char *post_contact_receive_executable,
+		char *apache_cgi_directory,
+		char *email_address,
+		char *timestamp,
+		char *session_key )
+{
+	char receive_url[ 1024 ];
+
+	if ( !apache_cgi_directory
+	||   !email_address
+	||   !timestamp
+	||   !session_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		receive_url,
+		sizeof ( receive_url ),
+		"%s/%s?%s+%s+%s",
+		apache_cgi_directory,
+		post_contact_receive_executable,
+		email_address,
+		timestamp,
+		session_key );
+
+	return strdup( receive_url );
+}
+
+char *post_contact_submit_display_system_string(
+		const char *message_filename,
+		char *document_root )
+{
+	static char display_system_string[ 128 ];
+
+	if ( !document_root )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: document_root is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		display_system_string,
+		sizeof ( display_system_string ),
+		"php %s/../appahost_com/%s",
+		document_root,
+		message_filename );
+
+	return display_system_string;
+}
+
+char *post_contact_submit_message(
+		const char *message_prompt,
+		char *receive_url )
+{
+	static char message[ 128 ];
+
+	if ( !receive_url )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: receive_url is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		message,
+		sizeof ( message ),
+		"%s: %s",
+		message_prompt,
+		receive_url );
+
+	return message;
+}
+
+LIST *post_contact_submit_form_field_datum_list(
+		char *timestamp,
+		char *email_address,
+		char *form_name,
+		char *reason,
+		char *message,
+		char *filespecification )
+{
+	LIST *form_field_datum_list = list_new();
+	FORM_FIELD_DATUM *form_field_datum;
+
+	if ( !timestamp
+	||   !email_address
+	||   !form_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"timestamp" /* field_name */,
+			timestamp /* field_datum */,
+			(char *)0 /* message_datum */,
+			1 /* primary_key_index */ );
+
+	list_set( form_field_datum_list, form_field_datum );
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"email_address" /* field_name */,
+			email_address /* field_datum */,
+			(char *)0 /* message_datum */,
+			2 /* primary_key_index */ );
+
+	list_set( form_field_datum_list, form_field_datum );
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"form_name" /* field_name */,
+			form_name /* field_datum */,
+			(char *)0 /* message_datum */,
+			3 /* primary_key_index */ );
+
+	list_set( form_field_datum_list, form_field_datum );
+
+	form_field_datum =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		form_field_datum_new(
+			"reason" /* field_name */,
+			reason /* field_datum */,
+			(char *)0 /* message_datum */,
+			4 /* primary_key_index */ );
+
+	list_set( form_field_datum_list, form_field_datum );
+
+	if ( message )
+	{
+		form_field_datum =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			form_field_datum_new(
+				"message" /* field_name */,
+				(char *)0 /* field_datum */,
+				message /* message_datum */,
+				0 /* primary_key_index */ );
+
+		list_set( form_field_datum_list, form_field_datum );
+	}
+
+	if ( filespecification )
+	{
+		form_field_datum =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			form_field_datum_new(
+				"upload_file" /* field_name */,
+				filespecification /* field_datum */,
+				(char *)0 /* message_datum */,
+				0 /* primary_key_index */ );
+
+		list_set( form_field_datum_list, form_field_datum );
+	}
+
+	return form_field_datum_list;
+}
+
+POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new( void )
 {
 	POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input;
 
-	post_contact_submit_input->upload_filename_list =
-		/* ----------- */
-		/* List of one */
-		/* ----------- */
-		post_contact_submit_input_upload_filename_list();
+	post_contact_submit_input = post_contact_submit_input_calloc();
 
 	post_contact_submit_input->appaserver_parameter =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		appaserver_parameter_new();
+
+	post_contact_submit_input->upload_filename_list =
+		/* ----------- */
+		/* List of one */
+		/* ----------- */
+		post_contact_submit_input_upload_filename_list();
 
 	post_contact_submit_input->post_dictionary =
 		/* -------------- */
@@ -40,7 +408,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_new( void )
 			/* ---------------------------------- */
 			/* Used when expecting a spooled file */
 			/* ---------------------------------- */
-			POST_CONTACT_SUBMIT_APPLICATION,
+			APPLICATION_ADMIN_NAME,
 			post_contact_submit_input->
 				appaserver_parameter->
 				upload_directory,
@@ -75,7 +443,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_new( void )
 
 	post_contact_submit_input->reason_invalid_boolean =
 		post_contact_submit_input_reason_invalid_boolean(
-			post_contact_input->reason );
+			post_contact_submit_input->reason );
 
 	if ( post_contact_submit_input->reason_invalid_boolean )
 		return post_contact_submit_input;
@@ -92,7 +460,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_new( void )
 
 	post_contact_submit_input->message_empty_boolean =
 		post_contact_submit_input_message_empty_boolean(
-			post_contact_input->message );
+			post_contact_submit_input->message );
 
 	post_contact_submit_input->filespecification =
 		/* --------------------------------------- */
@@ -112,7 +480,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_new( void )
 	return post_contact_submit_input;
 }
 
-POST_CONTACT_SUBMIT_INPUT *post_contact_submit_calloc( void )
+POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_calloc( void )
 {
 	POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input;
 
@@ -233,253 +601,4 @@ boolean post_contact_submit_input_filespecification_boolean(
 	upload_source_file_exists_boolean(
 		filespecification
 			/* directory_filename_session */ );
-}
-
-POST_CONTACT_SUBMIT *post_contact_submit_new( void )
-{
-	POST_CONTACT_SUBMIT *post_contact_submit;
-
-	post_contact_submit = post_contact_submit_calloc();
-
-	post_contact_submit->post_contact_submit_input =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		post_contact_submit_input_new();
-
-	if (	post_contact_submit->
-			post_contact_submit_input->
-			email_invalid_boolean
-	|| 	post_contact_submit->
-			post_contact_submit_input->
-			reason_invalid_boolean
-	|| (	post_contact_submit->
-			post_contact_submit_input->
-			message_empty_boolean
-	&&	!post_contact_submit->
-			post_contact_submit_input->
-			filespecification_boolean ) )
-	{
-		post_contact_submit->message_not_sent_system_string =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			post_contact_submit_display_system_string(
-				POST_CONTACT_SUBMIT_NOT_SENT_FILENAME,
-				post_contact_submit->
-					post_contact_submit_input->
-					appaserver_parameter->
-					document_root );
-
-		return post_contact_submit;
-	}
-
-	post_contact_submit->post =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		post_new(
-			FORM_CONTACT /* FORM_NAME */,
-			post_contact_submit->
-				post_contact_submit_input->
-				email_address,
-			post_contact_submit->
-				post_contact_submit_input->
-				environment_remote_ip_address );
-
-	post_contact_submit->form_field_datum_list =
-		post_contact_submit_form_field_datum_list(
-			post_contact_submit->
-				post_contact_submit_input->
-				post->
-				timestamp,
-			post_contact_submit->
-				post_contact_submit_input->
-				email_address,
-			post_contact_submit->
-				post->
-				form_name,
-			post_contact_submit->
-				post_contact_submit_input->
-				reason,
-			post_contact_submit->
-				post_contact_submit_input->
-				message,
-			post_contact_submit->
-				post_contact_submit_input->
-				filespecification );
-
-	post_contact_submit->form_field_datum_insert_statement =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		form_field_datum_insert_statement(
-			FORM_FIELD_DATUM_TABLE,
-			post_contact_submit->form_field_datum_list );
-
-	post_contact_submit->session =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		session_new(
-			APPLICATION_ADMIN_NAME,
-			POST_LOGIN_NAME,
-			post_contact_submit->
-				post_contact_submit_input->
-				environment_http_user_agent,
-			post_contact_submit->
-				post_contact_submit_input->
-				environment_remote_ip_address );
-
-	post_contact_submit->post_return_email =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		post_return_email(
-			POST_RETURN_USERNAME,
-			post_contact_submit_input->
-				appaserver_mailname );
-
-	post_contact_submit->post_mailx_system_string =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		post_mailx_system_string(
-			POST_CONTACT_SUBMIT_SUBJECT,
-			post_contact_submit->post_return_email );
-
-	post_contact_submit->receive_url =
-		post_contact_submit_receive_url(
-			POST_CONTACT_RECEIVE_EXECUTABLE,
-			post_contact_submit->
-				post_contact_submit_input->
-				apache_cgi_directory,
-			post_contact_submit->
-				post_contact_submit_input->
-				email_address,
-			post_contact_submit->
-				post->
-				timestamp,
-			post_contact_submit->
-				session->
-				session_key );
-
-char *post_contact_submit_message(
-	POST_CONTACT_SUBMIT_MESSAGE_PROMPT,
-	post_contact_submit_receive_url() );
-
-char *post_contact_submit_display_system_string(
-	POST_CONTACT_DISPLAY_SENT_FILENAME
-		/* message_filename */,
-	post_contact_input->
-		appaserver_parameter->
-		document_root );
-
-	return post_contact_submit;
-}
-
-POST_CONTACT_SUBMIT *post_contact_submit_calloc( void )
-{
-	POST_CONTACT_SUBMIT *post_contact_submit;
-
-	if ( ! ( post_contact_submit =
-			calloc( 1,
-				sizeof ( POST_CONTACT_SUBMIT ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return post_contact_submit;
-}
-
-char *post_contact_submit_receive_url(
-		const char *post_contact_receive_executable,
-		char *apache_cgi_directory,
-		char *email_address,
-		char *timestamp,
-		char *session_key )
-{
-	char receive_url[ 1024 ];
-
-	if ( !apache_cgi_directory
-	||   !email_address
-	||   !timestamp
-	||   !session_key )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		receive_url,
-		sizeof ( receive_url ),
-		"%s/%s?%s+%s+%s",
-		apache_cgi_directory,
-		post_contact_receive_executable,
-		email_address,
-		timestamp,
-		session_key );
-
-	return strdup( receive_url );
-}
-
-char *post_contact_submit_display_system_string(
-		const char *message_filename,
-		char *document_root )
-{
-	char display_system_string[ 1024 ];
-
-	if ( !document_root )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: document_root is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"php %s/../appahost_com/%s",
-		document_root,
-		message_filename );
-
-	return strdup( display_system_string );
-}
-
-char *post_contact_submit_message(
-		const char *message_prompt,
-		char *receive_url )
-{
-	static char message[ 128 ];
-
-	if ( !receive_url )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: receive_url is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		message,
-		sizeof ( message ),
-		"%s: %s",
-		message_prompt,
-		receive_url );
-
-	return message;
 }

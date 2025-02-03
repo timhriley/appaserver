@@ -14,7 +14,6 @@
 #define POST_CONTACT_RECEIVE_DESTINATION_EMAIL	"timriley@timriley.net"
 #define POST_CONTACT_RECEIVE_APPLICATION	"appahost"
 #define POST_CONTACT_RECEIVE_ENTITY		"Appahost"
-#define POST_CONTACT_RECEIVE_NOT_SENT_FILENAME	"message_not_sent.php"
 #define POST_CONTACT_RECEIVE_SENT_FILENAME	"message_sent.php"
 #define POST_CONTACT_RECEIVE_EXECUTABLE		"post_contact_receive_execute"
 

@@ -111,10 +111,10 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 				post->
 				ip_address,
 			post_contact_receive->
-				post_contact_record->
+				post_contact_receive_record->
 				reason,
 			post_contact_receive->
-				post_contact_record->
+				post_contact_receive_record->
 				upload_file
 					/* filespecification */,
 			post_contact_receive->
@@ -126,7 +126,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		post_contact_receive_message_system_string(
-			POST_CONTACT_MESSAGE_SENT_FILENAME,
+			POST_CONTACT_RECEIVE_SENT_FILENAME,
 			post_contact_receive->
 				post_receive_input->
 				appaserver_parameter->
@@ -155,7 +155,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_calloc( void )
 }
 
 char *post_contact_receive_mailx_system_string(
-		const char *post_contact_receive_destination_email,
+		const char *destination_email,
 		const char *post_contact_receive_entity,
 		char *email_address,
 		char *remote_ip_address,
@@ -185,8 +185,8 @@ char *post_contact_receive_mailx_system_string(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		post_contact_subject(
-			post_contact_entity,
+		post_contact_receive_subject(
+			post_contact_receive_entity,
 			email_address,
 			remote_ip_address,
 			reason ),
@@ -197,13 +197,13 @@ char *post_contact_receive_mailx_system_string(
 		ptr += sprintf( ptr, " -A '%s'", filespecification );
 	}
 
-	ptr += sprintf( ptr, " %s", post_contact_destination_email );
+	ptr += sprintf( ptr, " %s", destination_email );
 
 	return strdup( system_string );
 }
 
-char *post_contact_subject(
-		const char *post_contact_entity,
+char *post_contact_receive_subject(
+		const char *post_contact_receive_entity,
 		char *email_address,
 		char *remote_ip_address,
 		char *reason )
@@ -226,7 +226,7 @@ char *post_contact_subject(
 		subject,
 		sizeof ( subject ),
 		"%s [%s] from %s %s",
-		post_contact_entity,
+		post_contact_receive_entity,
 		reason,
 		email_address,
 		remote_ip_address );
