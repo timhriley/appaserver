@@ -64,11 +64,16 @@ APPASERVER_LIBRARY=							\
 ADMIN_LIBRARY=								\
 		form_field_datum.o					\
 		post.o							\
+		post_signup_submit.o					\
 		post_signup_receive.o					\
+		post_contact_submit.o					\
 		post_contact_receive.o
 
 EXECUTABLES=								\
-		post_contact_submit_execute
+		post_contact_submit_execute				\
+		post_signup_submit_execute				\
+		post_contact_receive_execute				\
+		post_signup_receive_execute
 
 all: 	${EXECUTABLES}
 
@@ -89,6 +94,39 @@ post_contact_submit_execute: post_contact_submit_execute.c		\
 		post_contact_submit_execute.c				\
 		-o post_contact_submit_execute
 
+post_signup_submit_execute: post_signup_submit_execute.c		\
+	${ADMIN_LIBRARY}						\
+	${STANDARD_LIBRARY}						\
+	${APPASERVER_LIBRARY}
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		${ADMIN_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		post_sigunup_submit_execute.c				\
+		-o post_signup_submit_execute
+
+post_contact_receive_execute: post_contact_receive_execute.c		\
+	${ADMIN_LIBRARY}						\
+	${STANDARD_LIBRARY}						\
+	${APPASERVER_LIBRARY}
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		${ADMIN_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		post_contact_receive_execute.c				\
+		-o post_contact_receive_execute
+
+post_signup_receive_execute: post_signup_receive_execute.c		\
+	${ADMIN_LIBRARY}						\
+	${STANDARD_LIBRARY}						\
+	${APPASERVER_LIBRARY}
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		${ADMIN_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		post_sigunup_receive_execute.c				\
+		-o post_signup_receive_execute
+
 form_field_datum.o: form_field_datum.c form_field_datum.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		-c form_field_datum.c
@@ -104,6 +142,10 @@ post_contact_receive.o: post_contact_receive.c post_contact_receive.h
 post_contact_submit.o: post_contact_submit.c post_contact_submit.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		-c post_contact_submit.c
+
+post_signup_submit.o: post_signup_submit.c post_signup_submit.h
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		-c post_signup_submit.c
 
 post.o: post.c post.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\

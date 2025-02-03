@@ -89,36 +89,6 @@ char *post_contact_submit_input_filespecification(
 boolean post_contact_submit_input_filespecification_boolean(
 		char *post_contact_submit_input_filenspecification );
 
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *post_contact_submit_receive_url(
-		const char *post_contact_receive_executable,
-		char *apache_cgi_directory,
-		char *email_address,
-		char *timestamp,
-		char *session_key );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *post_contact_submit_display_system_string(
-		const char *message_filename,
-		char *document_root );
-
-/* Usage */
-/* ----- */
-
-/* Returns static memory */
-/* --------------------- */
-char *post_contact_submit_message(
-		const char *post_contact_submit_message_prompt,
-		char *post_contact_submit_receive_url );
-
 typedef struct
 {
 	POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input;
@@ -129,7 +99,7 @@ typedef struct
 	SESSION *session;
 	char *post_return_email;
 	char *post_mailx_system_string;
-	char *receive_url;
+	char *post_receive_url;
 	char *message;
 } POST_CONTACT_SUBMIT;
 
@@ -153,5 +123,23 @@ LIST *post_contact_submit_form_field_datum_list(
 		char *reason,
 		char *message,
 		char *filespecification );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *post_contact_submit_display_system_string(
+		const char *message_filename,
+		char *document_root );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *post_contact_submit_message(
+		const char *post_contact_submit_message_prompt,
+		char *post_receive_url );
 
 #endif

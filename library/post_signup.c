@@ -299,10 +299,9 @@ char *post_signup_input_application_title( DICTIONARY *dictionary )
 {
 	char *get;
 
-	get =
-		dictionary_get(
-			"application_title",
-			dictionary );
+	get = dictionary_get(
+		"application_title",
+		dictionary );
 
 	if ( !get ) return NULL;
 

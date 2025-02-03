@@ -402,3 +402,38 @@ POST_RECEIVE_INPUT *post_receive_input_calloc( void )
 	return post_receive_input;
 }
 
+char *post_receive_url(
+		const char *receive_executable,
+		char *apache_cgi_directory,
+		char *email_address,
+		char *timestamp,
+		char *session_key )
+{
+	char receive_url[ 1024 ];
+
+	if ( !apache_cgi_directory
+	||   !email_address
+	||   !timestamp
+	||   !session_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		receive_url,
+		sizeof ( receive_url ),
+		"%s/%s?%s+%s+%s",
+		apache_cgi_directory,
+		receive_executable,
+		email_address,
+		timestamp,
+		session_key );
+
+	return strdup( receive_url );
+}
+

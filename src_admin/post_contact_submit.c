@@ -10,9 +10,11 @@
 #include "String.h"
 #include "application.h"
 #include "piece.h"
+#include "appaserver.h"
 #include "appaserver_error.h"
 #include "form.h"
 #include "security.h"
+#include "environ.h"
 #include "post.h"
 #include "form_field_datum.h"
 #include "upload_source.h"
@@ -132,8 +134,8 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 			POST_CONTACT_SUBMIT_SUBJECT,
 			post_contact_submit->post_return_email );
 
-	post_contact_submit->receive_url =
-		post_contact_submit_receive_url(
+	post_contact_submit->post_receive_url =
+		post_receive_url(
 			POST_CONTACT_RECEIVE_EXECUTABLE,
 			post_contact_submit->
 				post_contact_submit_input->
@@ -155,7 +157,7 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 		/* --------------------- */
 		post_contact_submit_message(
 			POST_CONTACT_SUBMIT_MESSAGE_PROMPT,
-			post_contact_submit->receive_url );
+			post_contact_submit->post_receive_url );
 
 	post_contact_submit->display_system_string =
 		/* --------------------- */
@@ -189,41 +191,6 @@ POST_CONTACT_SUBMIT *post_contact_submit_calloc( void )
 	}
 
 	return post_contact_submit;
-}
-
-char *post_contact_submit_receive_url(
-		const char *post_contact_receive_executable,
-		char *apache_cgi_directory,
-		char *email_address,
-		char *timestamp,
-		char *session_key )
-{
-	char receive_url[ 1024 ];
-
-	if ( !apache_cgi_directory
-	||   !email_address
-	||   !timestamp
-	||   !session_key )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	snprintf(
-		receive_url,
-		sizeof ( receive_url ),
-		"%s/%s?%s+%s+%s",
-		apache_cgi_directory,
-		post_contact_receive_executable,
-		email_address,
-		timestamp,
-		session_key );
-
-	return strdup( receive_url );
 }
 
 char *post_contact_submit_display_system_string(
@@ -476,6 +443,20 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new( void )
 	post_contact_submit_input->filespecification_boolean =
 		post_contact_submit_input_filespecification_boolean(
 			post_contact_submit_input->filespecification );
+
+	post_contact_submit_input->environment_remote_ip_address =
+		environment_remote_ip_address();
+
+	post_contact_submit_input->environment_http_user_agent =
+		environment_http_user_agent();
+
+	post_contact_submit_input->appaserver_mailname =
+		appaserver_mailname(
+			APPASERVER_MAILNAME_FILESPECIFICATION );
+
+	post_contact_submit_input->appaserver_error_filename =
+		appaserver_error_filename(
+			APPLICATION_ADMIN_NAME );
 
 	return post_contact_submit_input;
 }

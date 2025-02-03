@@ -115,6 +115,18 @@ POST *post_parse(
 		char *post_primary_where,
 		char *string_fetch );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *post_receive_url(
+		const char *receive_executable,
+		char *apache_cgi_directory,
+		char *email_address,
+		char *timestamp,
+		char *session_key );
+
 typedef struct
 {
 	char *email_address;

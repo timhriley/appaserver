@@ -160,9 +160,13 @@ void environ_display(
 char *environment_application_name(
 		void );
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *environment_http_user_agent(
 		void );
 
+/* Returns heap memory or null */
+/* --------------------------- */
 char *environment_remote_ip_address(
 		void );
 

@@ -246,10 +246,9 @@ char *post_login_input_application_name(
 		list_set( key_list, "application_key" );
 		list_set( key_list, "application_name" );
 	
-		get =
-			dictionary_list_get(
-				dictionary,
-				key_list );
+		get = dictionary_list_get(
+			dictionary,
+			key_list );
 	
 		if ( get )
 		{
