@@ -14,4 +14,4 @@ make clean >/dev/null
 git commit -am "$message"
 make >/dev/null
 
-exit 0
+exit $?
