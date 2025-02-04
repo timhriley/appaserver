@@ -51,13 +51,12 @@ int main( int argc, char **argv )
 	else
 	if ( post_login->post_login_success )
 	{
-		environment_set(
-			"DATABASE",
+		environment_database_set(
 			post_login->post_login_input->application_name );
 
 		session_insert(
 			SESSION_TABLE,
-			SESSION_INSERT_COLUMNS,
+			SESSION_INSERT,
 			post_login->post_login_success->session_key,
 			post_login->post_login_input->login_name,
 			/* ------------------- */
