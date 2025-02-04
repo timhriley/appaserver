@@ -42,7 +42,7 @@ typedef struct
 	POST_RECEIVE_INPUT *post_receive_input;
 	POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record;
 	char *mailx_system_string;
-	char *message_system_string;
+	char *display_system_string;
 } POST_CONTACT_RECEIVE;
 
 /* Usage */
@@ -89,7 +89,7 @@ char *post_contact_receive_subject(
 
 /* Returns heap memory */
 /* ------------------- */
-char *post_contact_receive_message_system_string(
+char *post_contact_receive_display_system_string(
 		const char *message_filename,
 		char *document_root );
 

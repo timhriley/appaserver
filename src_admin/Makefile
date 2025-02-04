@@ -89,7 +89,10 @@ touch:
 
 clean:
 	rm -f *.o ${EXECUTABLES}					\
-	${CGI_HOME}/post_signup_submit_execute
+	${CGI_HOME}/post_signup_submit_execute				\
+	${CGI_HOME}/post_signup_receive_execute				\
+	${CGI_HOME}/post_contact_submit_execute				\
+	${CGI_HOME}/post_contact_receive_execute
 
 post_contact_submit_execute: post_contact_submit_execute.c		\
 	${ADMIN_LIBRARY}						\
@@ -101,6 +104,11 @@ post_contact_submit_execute: post_contact_submit_execute.c		\
 		${APPASERVER_LIBRARY}					\
 		post_contact_submit_execute.c				\
 		-o post_contact_submit_execute
+	touch ${CGI_HOME}/post_contact_submit_execute
+	/bin/rm -f ${CGI_HOME}/post_contact_submit_execute
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_admin/post_contact_submit_execute	\
+	${CGI_HOME}
 
 post_signup_submit_execute: post_signup_submit_execute.c		\
 	${ADMIN_LIBRARY}						\
@@ -128,6 +136,11 @@ post_contact_receive_execute: post_contact_receive_execute.c		\
 		${APPASERVER_LIBRARY}					\
 		post_contact_receive_execute.c				\
 		-o post_contact_receive_execute
+	touch ${CGI_HOME}/post_contact_receive_execute
+	/bin/rm -f ${CGI_HOME}/post_contact_receive_execute
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_admin/post_contact_receive_execute	\
+	${CGI_HOME}
 
 post_signup_receive_execute: post_signup_receive_execute.c		\
 	${ADMIN_LIBRARY}						\

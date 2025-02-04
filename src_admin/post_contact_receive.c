@@ -121,11 +121,11 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 				post_receive_input->
 				appaserver_mailname );
 
-	post_contact_receive->message_system_string =
+	post_contact_receive->display_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		post_contact_receive_message_system_string(
+		post_contact_receive_display_system_string(
 			POST_CONTACT_RECEIVE_SENT_FILENAME,
 			post_contact_receive->
 				post_receive_input->
@@ -234,7 +234,7 @@ char *post_contact_receive_subject(
 	return subject;
 }
 
-char *post_contact_receive_message_system_string(
+char *post_contact_receive_display_system_string(
 		const char *message_filename,
 		char *document_root )
 {
