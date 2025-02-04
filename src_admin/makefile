@@ -152,6 +152,11 @@ post_signup_receive_execute: post_signup_receive_execute.c		\
 		${APPASERVER_LIBRARY}					\
 		post_signup_receive_execute.c				\
 		-o post_signup_receive_execute
+	touch ${CGI_HOME}/post_signup_receive_execute
+	/bin/rm -f ${CGI_HOME}/post_signup_receive_execute
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_admin/post_signup_receive_execute	\
+	${CGI_HOME}
 
 form_field.o: form_field.c form_field.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
