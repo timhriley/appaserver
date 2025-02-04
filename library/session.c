@@ -835,7 +835,6 @@ void session_insert(
 	FILE *output_pipe;
 
 	if ( !session_key
-	||   !login_name
 	||   !login_time
 	||   !login_time
 	||   !http_user_agent
@@ -864,7 +863,7 @@ void session_insert(
 	fprintf(output_pipe,
 		"%s|%s|%s|%s|%s|%s|%s|%s\n",
 		session_key,
-		login_name,
+		(login_name) ? login_name : "",
 		login_date,
 		login_time,
 		login_date,

@@ -31,4 +31,12 @@ POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record_new(
 POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record_calloc(
 		void );
 
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *post_signup_receive_success_parameter(
+		char *password );
+
 #endif

@@ -50,7 +50,7 @@ POST *post_new(
 		/* ------------------- */
 		post_insert_statement(
 			POST_TABLE,
-			POST_INSERT_COLUMNS,
+			POST_INSERT,
 			form_name,
 			email_address,
 			ip_address,
@@ -78,7 +78,7 @@ POST *post_calloc( void )
 
 char *post_insert_statement(
 		const char *post_table,
-		const char *post_insert_columns,
+		const char *post_insert,
 		const char *form_name,
 		char *email_address,
 		char *ip_address,
@@ -103,7 +103,7 @@ char *post_insert_statement(
 		sizeof ( insert_statement ),
 		"insert into %s (%s) values ('%s','%s','%s','%s');",
 		post_table,
-		post_insert_columns,
+		post_insert,
 		post_timestamp,
 		email_address,
 		ip_address,

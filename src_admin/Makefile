@@ -59,6 +59,13 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/role.o					\
 		${LIBRARY}/role_folder.o				\
 		${LIBRARY}/folder_operation.o				\
+		${LIBRARY}/post_dictionary.o				\
+		${LIBRARY}/session.o					\
+		${LIBRARY}/timlib.o					\
+		${LIBRARY}/upload_source.o				\
+		${LIBRARY}/post_login.o					\
+		${LIBRARY}/execute_system_string.o			\
+		${LIBRARY}/bot_generated.o				\
 		${LIBRARY}/operation.o
 
 ADMIN_LIBRARY=								\
@@ -81,7 +88,8 @@ touch:
 	/usr/bin/touch *.c
 
 clean:
-	rm -f *.o ${EXECUTABLES}
+	rm -f *.o ${EXECUTABLES}					\
+	${CGI_HOME}/post_signup_submit_execute
 
 post_contact_submit_execute: post_contact_submit_execute.c		\
 	${ADMIN_LIBRARY}						\
@@ -102,8 +110,13 @@ post_signup_submit_execute: post_signup_submit_execute.c		\
 		${ADMIN_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
-		post_sigunup_submit_execute.c				\
+		post_signup_submit_execute.c				\
 		-o post_signup_submit_execute
+	touch ${CGI_HOME}/post_signup_submit_execute
+	/bin/rm -f ${CGI_HOME}/post_signup_submit_execute
+	ln ${APPASERVER_LINK_FLAGS}					\
+	${APPASERVER_HOME}/src_admin/post_signup_submit_execute		\
+	${CGI_HOME}
 
 post_contact_receive_execute: post_contact_receive_execute.c		\
 	${ADMIN_LIBRARY}						\

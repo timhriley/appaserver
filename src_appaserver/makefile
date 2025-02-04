@@ -22,8 +22,6 @@ EXECUTABLES=								\
 		output_choose_role					\
 		output_table_edit					\
 		post_login						\
-		post_signup						\
-		post_contact						\
 		select							\
 		post_prompt_insert					\
 		post_prompt_lookup					\
@@ -158,7 +156,6 @@ clean:
 	${CGI_HOME}/post_ajax_window					\
 	${CGI_HOME}/post_change_sort_order				\
 	${CGI_HOME}/post_login						\
-	${CGI_HOME}/post_signup						\
 	${CGI_HOME}/post_choose_role	 				\
 	${CGI_HOME}/post_drillthru	 				\
 	${CGI_HOME}/post_prompt_insert					\
@@ -172,7 +169,6 @@ clean:
 	${CGI_HOME}/post_generic_load_choose				\
 	${CGI_HOME}/post_generic_load_folder				\
 	${CGI_HOME}/post_prompt_process					\
-	${CGI_HOME}/post_contact					\
 	${CGI_HOME}/output_menu						\
 	appaserver_mount_point						\
 	appaserver_data_directory					\
@@ -300,43 +296,6 @@ post_login: post_login.c ${APPASERVER_LIBRARY}				\
 	/bin/rm -f ${CGI_HOME}/post_login
 	ln ${APPASERVER_LINK_FLAGS}					\
 	${APPASERVER_HOME}/src_appaserver/post_login			\
-	${CGI_HOME}
-
-post_signup: post_signup.c ${APPASERVER_LIBRARY}			\
-		${LIBRARY}/post_login.o					\
-		${LIBRARY}/post_signup.o				\
-		${LIBRARY}/bot_generated.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		post_signup.c						\
-		${LIBRARY}/post_login.o					\
-		${LIBRARY}/post_signup.o				\
-		${LIBRARY}/bot_generated.o				\
-		-o post_signup
-	touch ${CGI_HOME}/post_signup
-	/bin/rm -f ${CGI_HOME}/post_signup
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_signup			\
-	${CGI_HOME}
-
-post_contact: post_contact.c						\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/post_contact.o				\
-		${LIBRARY}/bot_generated.o				\
-		${LIBRARY}/upload_source.o
-	${CC}	${CFLAGS} -I${LIBRARY}					\
-		${APPASERVER_ERROR_FILE_FLAG}				\
-		${APPASERVER_LIBRARY}					\
-		post_contact.c						\
-		${LIBRARY}/post_contact.o				\
-		${LIBRARY}/bot_generated.o				\
-		${LIBRARY}/upload_source.o				\
-		-o post_contact
-	touch ${CGI_HOME}/post_contact
-	/bin/rm -f ${CGI_HOME}/post_contact
-	ln ${APPASERVER_LINK_FLAGS}					\
-	${APPASERVER_HOME}/src_appaserver/post_contact			\
 	${CGI_HOME}
 
 table_list: table_list.c 						\

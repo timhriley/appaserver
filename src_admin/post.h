@@ -18,7 +18,7 @@
 #define POST_SELECT		"IP_address,"		\
 				"form_name"
 
-#define POST_INSERT_COLUMNS	"timestamp,"		\
+#define POST_INSERT		"timestamp,"		\
 				"email_address,"	\
 				"IP_address,"		\
 				"form_name"
@@ -55,7 +55,7 @@ POST *post_calloc(
 /* ------------------- */
 char *post_insert_statement(
 		const char *post_table,
-		const char *post_insert_columns,
+		const char *post_insert,
 		const char *form_name,
 		char *email_address,
 		char *ip_address,

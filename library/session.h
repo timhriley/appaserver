@@ -24,7 +24,7 @@
 						"http_user_agent,"	\
 						"remote_ip_address"
 
-#define SESSION_INSERT_COLUMNS			"session,"		\
+#define SESSION_INSERT				"session,"		\
 						"login_name,"		\
 						"login_date,"		\
 						"login_time,"		\
@@ -179,7 +179,7 @@ void session_insert(
 /* ------------------- */
 char *session_insert_system_string(
 		const char *session_table,
-		const char *session_insert_columns );
+		const char *session_insert );
 
 /* Public */
 /* ------ */

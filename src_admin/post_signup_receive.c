@@ -58,3 +58,27 @@ POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record_calloc( void )
 
 	return post_signup_receive_record;
 }
+
+char *post_signup_receive_success_parameter( char *password )
+{
+	static char parameter[ 128 ];
+
+	if ( !password )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: password is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		parameter,
+		sizeof ( parameter ),
+		"signup_succeed_email_password=%s",
+		password );
+
+	return parameter;
+}
+
