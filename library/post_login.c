@@ -111,11 +111,11 @@ POST_LOGIN *post_login_new(
 				post_login->security_encrypt_password );
 	}
 
-	post_login->reject_index_html_message =
+	post_login->reject_index_html_parameter =
 		/* ------------------------------ */
 		/* Returns program memory or null */
 		/* ------------------------------ */
-		post_login_reject_index_html_message(
+		post_login_reject_index_html_parameter(
 			post_login->
 				post_login_input->
 				missing_application_boolean,
@@ -140,7 +140,7 @@ POST_LOGIN *post_login_new(
 				deactivated_boolean,
 			post_login->password_fail_boolean );
 
-	if ( post_login->reject_index_html_message )
+	if ( post_login->reject_index_html_parameter )
 	{
 		post_login->post_login_document =
 			/* -------------- */
@@ -153,7 +153,7 @@ POST_LOGIN *post_login_new(
 				post_login->
 					post_login_input->
 					application_name,
-				post_login->reject_index_html_message );
+				post_login->reject_index_html_parameter );
 
 		return post_login;
 	}
@@ -192,7 +192,7 @@ POST_LOGIN *post_login_new(
 					application_name,
 				post_login->
 					post_login_success->
-					index_html_message );
+					index_html_parameter );
 	}
 
 	return post_login;
@@ -639,11 +639,11 @@ POST_LOGIN_SUCCESS *post_login_success_new(
 				post_login_success->sendmail_message,
 				post_login_success->sendmail_filename );
 
-		post_login_success->index_html_message =
+		post_login_success->index_html_parameter =
 			/* ---------------------- */
 			/* Returns program memory */
 			/* ---------------------- */
-			post_login_success_index_html_message();
+			post_login_success_index_html_parameter();
 	}
 
 	return post_login_success;
@@ -667,7 +667,7 @@ POST_LOGIN_SUCCESS *post_login_success_calloc( void )
 	return post_login_success;
 }
 
-char *post_login_reject_index_html_message(
+char *post_login_reject_index_html_parameter(
 		boolean missing_application_boolean,
 		boolean invalid_application_boolean,
 		boolean missing_login_name_boolean,
@@ -677,52 +677,52 @@ char *post_login_reject_index_html_message(
 		boolean deactivated_boolean,
 		boolean password_fail_boolean )
 {
-	char *message = {0};
+	char *parameter = {0};
 
 	if ( missing_application_boolean )
-		message = "missing_application_yn=y";
+		parameter = "missing_application_yn=y";
 	else
 	if ( invalid_application_boolean )
-		message = "invalid_application_yn=y";
+		parameter = "invalid_application_yn=y";
 	else
 	if ( missing_login_name_boolean )
-		message = "missing_name_yn=y";
+		parameter = "missing_name_yn=y";
 	else
 	if ( invalid_login_name_boolean )
-		message = "invalid_login_yn=y";
+		parameter = "invalid_login_yn=y";
 	else
 	if ( application_not_exists_boolean )
-		message = "invalid_application_yn=y";
+		parameter = "invalid_application_yn=y";
 	else
 	if ( user_not_found_boolean )
-		message = "invalid_login_yn=y";
+		parameter = "invalid_login_yn=y";
 	else
 	if ( deactivated_boolean )
-		message = "account_deactivated_yn=y";
+		parameter = "account_deactivated_yn=y";
 	else
 	if ( password_fail_boolean )
-		message = "invalid_password_yn=y";
+		parameter = "invalid_password_yn=y";
 
-	return message;
+	return parameter;
 }
 
-char *post_login_success_index_html_message( void )
+char *post_login_success_index_html_parameter( void )
 {
-	char *message = "emailed_login_yn=y";
-	return message;
+	char *parameter = "emailed_login_yn=y";
+	return parameter;
 }
 
 POST_LOGIN_DOCUMENT *post_login_document_new(
 		DICTIONARY *dictionary,
 		char *application_name,
-		char *index_html_message )
+		char *index_html_parameter )
 {
 	POST_LOGIN_DOCUMENT *post_login_document;
 
-	if ( !index_html_message )
+	if ( !index_html_parameter )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: index_html_message is empty.\n",
+			"ERROR in %s/%s()/%d: index_html_parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -756,7 +756,7 @@ POST_LOGIN_DOCUMENT *post_login_document_new(
 		/* --------------------- */
 		post_login_document_filename_location(
 			post_login_document->application_name,
-			index_html_message,
+			index_html_parameter,
 			post_login_document->location_enum );
 
 	post_login_document->application_title_string =
@@ -822,13 +822,13 @@ POST_LOGIN_DOCUMENT *post_login_document_calloc( void )
 
 char *post_login_document_filename_location(
 		char *application_name,
-		char *index_html_message,
+		char *index_html_parameter,
 		enum post_login_document_location_enum location_enum )
 {
 	static char location[ 128 ];
 
 	if ( !application_name
-	||   !index_html_message )
+	||   !index_html_parameter )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -842,7 +842,7 @@ char *post_login_document_filename_location(
 	{
 		string_strcpy(
 			location,
-			index_html_message,
+			index_html_parameter,
 			sizeof ( location ) );
 
 		if ( string_exists(
@@ -860,7 +860,7 @@ char *post_login_document_filename_location(
 			sizeof ( location ),
 			"/appaserver/%s/index.php?%s",
 			application_name,
-			index_html_message );
+			index_html_parameter );
 	}
 	else
 	/* ------------------------ */
@@ -871,7 +871,7 @@ char *post_login_document_filename_location(
 			location,
 			sizeof ( location ),
 			"/index.php?%s",
-			index_html_message );
+			index_html_parameter );
 	}
 
 	return location;
@@ -1068,7 +1068,7 @@ enum post_login_document_location_enum
 {
 	if ( !post_login_document_filename )
 	{
-		return location_php;
+		return location_website;
 	}
 
 	if ( strcmp(

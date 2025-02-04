@@ -25,8 +25,6 @@
 
 #define POST_RETURN_USERNAME	"DoNotReply"
 
-#define POST_LOGIN_NAME		"post"
-
 typedef struct
 {
 	char *form_name;

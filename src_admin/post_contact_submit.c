@@ -107,7 +107,7 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 		/* -------------- */
 		session_new(
 			APPLICATION_ADMIN_NAME,
-			POST_LOGIN_NAME,
+			(char *)0 /* login_name */,
 			post_contact_submit->
 				post_contact_submit_input->
 				environment_http_user_agent,

@@ -155,7 +155,7 @@ typedef struct
 POST_LOGIN_DOCUMENT *post_login_document_new(
 		DICTIONARY *post_login_input_dictionary,
 		char *post_login_input_application_name,
-		char *index_html_message );
+		char *index_html_parameter );
 
 /* Process */
 /* ------- */
@@ -189,7 +189,7 @@ enum post_login_document_location_enum
 /* --------------------- */
 char *post_login_document_filename_location(
 		char *post_login_input_application_name,
-		char *index_html_message,
+		char *index_html_parameter,
 		enum post_login_document_location_enum location_enum );
 
 /* Usage */
@@ -215,7 +215,7 @@ typedef struct
 	char *sendmail_message;
 	char *sendmail_filename;
 	char *email_system_string;
-	char *index_html_message;
+	char *index_html_parameter;
 } POST_LOGIN_SUCCESS;
 
 /* Usage */
@@ -279,7 +279,7 @@ char *post_login_success_email_system_string(
 
 /* Returns program memory */
 /* ---------------------- */
-char *post_login_success_index_html_message(
+char *post_login_success_index_html_parameter(
 		void );
 
 typedef struct
@@ -287,7 +287,7 @@ typedef struct
 	POST_LOGIN_INPUT *post_login_input;
 	char *security_encrypt_password;
 	boolean password_fail_boolean;
-	char *reject_index_html_message;
+	char *reject_index_html_parameter;
 	POST_LOGIN_DOCUMENT *post_login_document;
 	POST_LOGIN_SUCCESS *post_login_success;
 } POST_LOGIN;
@@ -314,7 +314,7 @@ boolean post_login_password_fail_boolean(
 
 /* Returns program memory or null */
 /* ------------------------------ */
-char *post_login_reject_index_html_message(
+char *post_login_reject_index_html_parameter(
 		boolean post_login_input_missing_application_boolean,
 		boolean post_login_input_invalid_application_boolean,
 		boolean post_login_input_missing_login_name_boolean,

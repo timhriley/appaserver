@@ -350,7 +350,7 @@ POST_RECEIVE_INPUT *post_receive_input_new(
 		session_fetch(
 			APPLICATION_ADMIN_NAME,
 			post_receive_input->session_key,
-			POST_LOGIN_NAME );
+			(char *)0 /* login_name */ );
 
 	post_receive_input->appaserver_parameter =
 		/* -------------- */

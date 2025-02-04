@@ -43,7 +43,7 @@ void session_message_ip_address_changed_exit(
 		__FUNCTION__,
 		__LINE__,
 		application_name,
-		login_name,
+		(login_name) ? login_name : "[login_name missing]",
 		session_key,
 		remote_ip_address,
 		current_ip_address );
@@ -55,7 +55,7 @@ void session_message_ip_address_changed_exit(
 
 	sprintf(msg,
 		"Warning for %s",
-		login_name );
+		(login_name) ? login_name : "[login_name missing]" );
 
 	if (	remote_ip_address
 	&&	*remote_ip_address
@@ -309,7 +309,7 @@ SESSION *session_fetch(
 					      	session_key ) ) ) );
 
 	if ( !session
-	||   string_strcmp( session->login_name, login_name ) != 0 )
+	||   ( login_name && strcmp( session->login_name, login_name ) != 0 ) )
 	{
 		session_access_failed_message_exit(
 			application_name,
