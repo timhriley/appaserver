@@ -51,6 +51,17 @@ then
 	fi
 fi
 
+if [	-d $APPASERVER_HOME/src_admin -a \
+	-f $APPASERVER_HOME/src_admin/makefile ]
+then
+	cd $APPASERVER_HOME/src_admin 2>/dev/null && pwd && make
+	if [ "$?" -ne 0 ]
+	then
+		echo "$0 exiting early"
+		exit 1
+	fi
+fi
+
 if [	-d $APPASERVER_HOME/src_predictive -a \
 	-f $APPASERVER_HOME/src_predictive/makefile ]
 then
@@ -70,6 +81,7 @@ then
 	do
 		if [ "$application" = "appaserver" -o	\
 		     "$application" = "system" -o	\
+		     "$application" = "admin" -o	\
 		     "$application" = "predictive" ]
 		then
 			continue

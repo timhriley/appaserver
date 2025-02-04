@@ -418,7 +418,7 @@ char *transaction_date_time(
 		char *transaction_date,
 		char *transaction_time )
 {
-	char static date_time[ 128 ];
+	static char date_time[ 128 ];
 
 	sprintf(date_time,
 		"%s %s",
@@ -433,7 +433,7 @@ char *transaction_date_time_where(
 		char *transaction_date,
 		char *transaction_time )
 {
-	char static where[ 256 ];
+	static char where[ 256 ];
 
 	sprintf(where,
 		"%s = '%s'",
