@@ -34,22 +34,20 @@ int main( int argc, char **argv )
 			argc,
 			argv );
 
-	if ( post_contact_receive->post )
-	{
-		environment_database_set( APPLICATION_ADMIN_NAME );
-
-		post_mailx(
-			post_contact_receive->
-				post_contact_receive_record->
-				message,
-			post_contact_receive->post_mailx_system_string );
-	}
+	post_mailx(
+		post_contact_receive->
+			post_contact_receive_record->
+			message,
+		post_contact_receive->mailx_system_string );
 
 	if ( system(
 		post_contact_receive->
 			display_system_string ) ){}
 
-	session_delete( post_receive_input->session_key );
+	session_delete(
+		post_contact_receive->
+			post_receive_input->
+			session_key );
 
 	return 0;
 }

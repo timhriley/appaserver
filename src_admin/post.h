@@ -134,6 +134,7 @@ typedef struct
 	APPASERVER_PARAMETER *appaserver_parameter;
 	POST *post;
 	char *appaserver_mailname;
+	char *appaserver_error_filename;
 } POST_RECEIVE_INPUT;
 
 /* Usage */

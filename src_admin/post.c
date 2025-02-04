@@ -380,6 +380,13 @@ POST_RECEIVE_INPUT *post_receive_input_new(
 		appaserver_mailname(
 			APPASERVER_MAILNAME_FILESPECIFICATION );
 
+	post_receive_input->appaserver_error_filename =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_error_filename(
+			APPLICATION_ADMIN_NAME );
+
 	return post_receive_input;
 }
 

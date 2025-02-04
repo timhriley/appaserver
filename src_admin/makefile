@@ -150,7 +150,7 @@ post_signup_receive_execute: post_signup_receive_execute.c		\
 		${ADMIN_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
-		post_sigunup_receive_execute.c				\
+		post_signup_receive_execute.c				\
 		-o post_signup_receive_execute
 
 form_field.o: form_field.c form_field.h
