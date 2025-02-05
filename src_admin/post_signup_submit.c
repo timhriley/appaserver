@@ -318,6 +318,15 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 			post_signup_submit->form_field_insert_list->list
 				/* form_field_insert_list */ );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: exiting early.\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+msg( (char *)0, message );
+}
+exit( 0 );
 	post_signup_submit->session =
 		/* -------------- */
 		/* Safely returns */

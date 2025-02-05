@@ -1959,11 +1959,21 @@ char *insert_datum_attribute_name_list_string( LIST *insert_datum_list )
 	char *ptr = string;
 	INSERT_DATUM *insert_datum;
 
-	if ( !list_rewind( insert_datum_list ) ) return (char *)0;
-
+	if (list_rewind( insert_datum_list ) )
 	do {
 		insert_datum = list_get( insert_datum_list );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: insert_datum=[%x,%s,%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(unsigned int)(long)insert_datum,
+insert_datum->attribute_name,
+insert_datum->datum );
+msg( (char *)0, message );
+}
 		if ( ptr != string ) ptr += sprintf( ptr, "," );
 
 		ptr += sprintf(
@@ -1973,7 +1983,10 @@ char *insert_datum_attribute_name_list_string( LIST *insert_datum_list )
 
 	} while ( list_next( insert_datum_list ) );
 
-	return strdup( string );
+	if ( ptr == string )
+		return NULL;
+	else
+		return strdup( string );
 }
 
 char *insert_datum_value_list_string( LIST *insert_datum_list )
@@ -2034,6 +2047,14 @@ char *insert_datum_sql_statement(
 	char *value_list_string;
 	char *sql_statement_string;
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: HERE!!!\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+msg( (char *)0, message );
+}
 	if ( !folder_table_name )
 	{
 		char message[ 128 ];

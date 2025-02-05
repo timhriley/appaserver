@@ -20,6 +20,8 @@ int main( int argc, char **argv )
 	POST_SIGNUP_RECEIVE *post_signup_receive;
 	char *fetch;
 
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
 	appaserver_error_argv_file(
 		argc,
 		argv,

@@ -17,6 +17,8 @@ int main( int argc, char **argv )
 {
 	POST_SIGNUP_SUBMIT *post_signup_submit;
 
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
 	appaserver_error_argv_file(
 		argc,
 		argv,
@@ -41,8 +43,6 @@ int main( int argc, char **argv )
 
 	if ( post_signup_submit->post )
 	{
-		environment_database_set( APPLICATION_ADMIN_NAME );
-
 		session_insert(
 			SESSION_TABLE,
 			SESSION_INSERT,

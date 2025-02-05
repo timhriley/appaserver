@@ -18,6 +18,8 @@ int main( int argc, char **argv )
 {
 	POST_CONTACT_SUBMIT *post_contact_submit;
 
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
 	appaserver_error_argv_file(
 		argc,
 		argv,

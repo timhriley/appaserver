@@ -1030,7 +1030,6 @@ SESSION *session_new(
 	SESSION *session;
 
 	if ( !application_name
-	||   !login_name
 	||   !environment_http_user_agent
 	||   !environment_remote_ip_address )
 	{

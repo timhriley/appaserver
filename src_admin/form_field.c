@@ -99,26 +99,37 @@ char *form_field_datum_field(
 
 LIST *form_field_datum_insert_list( LIST *form_field_datum_list )
 {
-	LIST *insert_datum_list = list_new();
+	LIST *datum_insert_list = list_new();
 	FORM_FIELD_DATUM *form_field_datum;
 
 	if ( list_rewind( form_field_datum_list ) )
 	do {
 		form_field_datum = list_get( form_field_datum_list );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: insert_datum=[%x,%s,%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(unsigned int)(long)form_field_datum->insert_datum,
+form_field_datum->insert_datum->attribute_name,
+form_field_datum->insert_datum->datum );
+msg( (char *)0, message );
+}
 		list_set(
-			insert_datum_list,
+			datum_insert_list,
 			form_field_datum->insert_datum );
 
 	} while ( list_next( form_field_datum_list ) );
 
-	if ( !list_length( insert_datum_list ) )
+	if ( !list_length( datum_insert_list ) )
 	{
-		list_free( insert_datum_list );
-		insert_datum_list = NULL;
+		list_free( datum_insert_list );
+		datum_insert_list = NULL;
 	}
 
-	return insert_datum_list;
+	return datum_insert_list;
 }
 
 LIST *form_field_datum_fetch_list(
@@ -262,18 +273,21 @@ char *form_field_datum_insert_sql_statement(
 		LIST *form_field_datum_list )
 {
 	LIST *insert_list;
+	char *sql_statement;
 
 	insert_list =
 		form_field_datum_insert_list(
 			form_field_datum_list );
 
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	insert_datum_sql_statement(
-		(char *)form_field_datum_table /* table_name */,
-		insert_list /* insert_datum_list */ );
+	sql_statement =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		insert_datum_sql_statement(
+			(char *)form_field_datum_table /* table_name */,
+			insert_list /* insert_datum_list */ );
+
+	return sql_statement;
 }
 
 LIST *form_field_datum_insert_statement_list(
@@ -285,6 +299,15 @@ LIST *form_field_datum_insert_statement_list(
 	LIST *datum_insert_list;
 	char *sql_statement;
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: should generate %d insert statements, only generating one.\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( form_field_insert_list ) );
+msg( (char *)0, message );
+}
 	if ( list_rewind( form_field_insert_list ) )
 	do {
 		form_field_insert = list_get( form_field_insert_list );
@@ -293,16 +316,56 @@ LIST *form_field_datum_insert_statement_list(
 			form_field_datum_insert_list(
 				form_field_insert->form_field_datum_list );
 
+		if ( !list_length( datum_insert_list ) )
+		{
+			fprintf(stderr,
+	"ERROR in %s/%s()/%d: form_field_datum_insert_list() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: list_length(datum_insert_list)=%d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+list_length( datum_insert_list ) );
+msg( (char *)0, message );
+}
 		sql_statement =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			form_field_datum_insert_sql_statement(
 				form_field_datum_table /* table_name */,
 				datum_insert_list
 					/* insert_datum_list */ );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: sql_statement=[%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+sql_statement );
+msg( (char *)0, message );
+}
 		list_set(
 			insert_statement_list,
 			sql_statement );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: BREAKING OUT OF LOOP.\n",
+__FILE__,
+__FUNCTION__,
+__LINE__ );
+msg( (char *)0, message );
+}
+break;
 	} while ( list_next( form_field_insert_list ) );
 
 	if ( !list_length( insert_statement_list ) )
@@ -336,8 +399,17 @@ FORM_FIELD_INSERT *form_field_insert_new(
 		exit( 1 );
 	}
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: BEGINNING form_field_datum_list=[%x,length=%d]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(unsigned int)(long)form_field_datum_list,
+list_length( form_field_datum_list ) );
+msg( (char *)0, message );
+}
 	form_field_insert = form_field_insert_calloc();
-
 	form_field_insert->form_field_datum_list = form_field_datum_list;
 
 	form_field_datum =
@@ -365,7 +437,7 @@ FORM_FIELD_INSERT *form_field_insert_new(
 			2 /* primary_key_index */ );
 
 	list_set(
-	form_field_datum_list,
+		form_field_datum_list,
 		form_field_datum );
 
 	form_field_datum =
@@ -382,6 +454,16 @@ FORM_FIELD_INSERT *form_field_insert_new(
 		form_field_datum_list,
 		form_field_datum );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: ENDING form_field_datum_list=[%x,length=%d]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+(unsigned int)(long)form_field_datum_list,
+list_length( form_field_datum_list ) );
+msg( (char *)0, message );
+}
 	return form_field_insert;
 }
 
