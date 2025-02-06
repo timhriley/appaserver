@@ -7,67 +7,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "form_field.h"
+#include "application.h"
+#include "appaserver.h"
 #include "post_contact_submit.h"
 #include "post_contact_receive.h"
-
-POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record_new(
-		LIST *form_field_datum_list )
-{
-	POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record;
-	FORM_FIELD_DATUM *form_field_datum;
-
-	post_contact_receive_record =
-		post_contact_receive_record_calloc();
-
-	if ( ( form_field_datum =
-			form_field_datum_seek(
-				form_field_datum_list,
-				"reason" ) ) )
-	{
-		post_contact_receive_record->reason =
-			form_field_datum->field_datum;
-	}
-
-	if ( ( form_field_datum =
-			form_field_datum_seek(
-				form_field_datum_list,
-				"message" ) ) )
-	{
-		post_contact_receive_record->message =
-			form_field_datum->field_datum;
-	}
-
-	if ( ( form_field_datum =
-			form_field_datum_seek(
-				form_field_datum_list,
-				"upload_file" ) ) )
-	{
-		post_contact_receive_record->upload_file =
-			form_field_datum->field_datum;
-	}
-
-	return post_contact_receive_record;
-}
-
-POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record_calloc( void )
-{
-	POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record;
-
-	if ( ! ( post_contact_receive_record =
-			calloc( 1,
-				sizeof ( POST_CONTACT_RECEIVE_RECORD ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return post_contact_receive_record;
-}
 
 POST_CONTACT_RECEIVE *post_contact_receive_new(
 		int argc,
@@ -77,23 +20,40 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 
 	post_contact_receive = post_contact_receive_calloc();
 
-	post_contact_receive->post_receive_input =
+	post_contact_receive->post_receive =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		post_receive_input_new(
+		post_receive_new(
+			APPLICATION_ADMIN_NAME,
+			APPASERVER_MAILNAME_FILESPECIFICATION,
 			argc,
 			argv );
 
-	post_contact_receive->post_contact_receive_record =
+	post_contact_receive->post =
+		post_fetch(
+			post_contact_receive->
+				post_receive->
+				email_address,
+			post_contact_receive->
+				post_receive->
+				timestamp );
+
+	if ( !post_contact_receive->post ) return post_contact_receive;
+
+	post_contact_receive->post_contact =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		post_contact_receive_record_new(
+		post_contact_fetch(
 			post_contact_receive->
-				post_receive_input->
-				post->
-				form_field_datum_list );
+				post_receive->
+				email_address,
+			post_contact_receive->
+				post_receive->
+				timestamp );
+
+	if ( !post_contact_receive->post_contact ) return post_contact_receive;
 
 	post_contact_receive->mailx_system_string =
 		/* ------------------- */
@@ -103,22 +63,19 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 			POST_CONTACT_RECEIVE_DESTINATION_EMAIL,
 			POST_CONTACT_RECEIVE_ENTITY,
 			post_contact_receive->
-				post_receive_input->
-				post->
+				post_receive->
 				email_address,
 			post_contact_receive->
-				post_receive_input->
 				post->
 				ip_address,
 			post_contact_receive->
-				post_contact_receive_record->
+				post_contact->
 				reason,
 			post_contact_receive->
-				post_contact_receive_record->
-				upload_file
-					/* filespecification */,
+				post_contact->
+				upload_filespecification,
 			post_contact_receive->
-				post_receive_input->
+				post_receive->
 				appaserver_mailname );
 
 	post_contact_receive->display_system_string =
@@ -128,7 +85,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 		post_contact_receive_display_system_string(
 			POST_CONTACT_RECEIVE_SENT_FILENAME,
 			post_contact_receive->
-				post_receive_input->
+				post_receive->
 				appaserver_parameter->
 				document_root );
 
@@ -158,16 +115,16 @@ char *post_contact_receive_mailx_system_string(
 		const char *destination_email,
 		const char *post_contact_receive_entity,
 		char *email_address,
-		char *remote_ip_address,
+		char *ip_address,
 		char *reason,
-		char *filespecification,
+		char *upload_filespecification,
 		char *appaserver_mailname )
 {
 	char system_string[ 1024 ];
 	char *ptr = system_string;
 
 	if ( !email_address
-	||   !remote_ip_address
+	||   !ip_address
 	||   !reason
 	||   !appaserver_mailname )
 	{
@@ -188,13 +145,13 @@ char *post_contact_receive_mailx_system_string(
 		post_contact_receive_subject(
 			post_contact_receive_entity,
 			email_address,
-			remote_ip_address,
+			ip_address,
 			reason ),
 		appaserver_mailname );
 
-	if ( filespecification )
+	if ( upload_filespecification )
 	{
-		ptr += sprintf( ptr, " -A '%s'", filespecification );
+		ptr += sprintf( ptr, " -A '%s'", upload_filespecification );
 	}
 
 	ptr += sprintf( ptr, " %s", destination_email );
@@ -205,13 +162,13 @@ char *post_contact_receive_mailx_system_string(
 char *post_contact_receive_subject(
 		const char *post_contact_receive_entity,
 		char *email_address,
-		char *remote_ip_address,
+		char *ip_address,
 		char *reason )
 {
 	static char subject[ 256 ];
 
 	if ( !email_address
-	||   !remote_ip_address
+	||   !ip_address
 	||   !reason )
 	{
 		fprintf(stderr,
@@ -229,7 +186,7 @@ char *post_contact_receive_subject(
 		post_contact_receive_entity,
 		reason,
 		email_address,
-		remote_ip_address );
+		ip_address );
 
 	return subject;
 }

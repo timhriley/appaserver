@@ -10,6 +10,7 @@
 #include "boolean.h"
 #include "list.h"
 #include "post.h"
+#include "post_contact.h"
 
 #define POST_CONTACT_RECEIVE_DESTINATION_EMAIL	"timriley@timriley.net"
 #define POST_CONTACT_RECEIVE_APPLICATION	"appahost"
@@ -19,28 +20,9 @@
 
 typedef struct
 {
-	char *reason;
-	char *message;
-	char *upload_file;
-} POST_CONTACT_RECEIVE_RECORD;
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record_new(
-		LIST *form_field_datum_list );
-
-/* Process */
-/* ------- */
-POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record_calloc(
-		void );
-
-typedef struct
-{
-	POST_RECEIVE_INPUT *post_receive_input;
-	POST_CONTACT_RECEIVE_RECORD *post_contact_receive_record;
+	POST_RECEIVE *post_receive;
+	POST *post;
+	POST_CONTACT *post_contact;
 	char *mailx_system_string;
 	char *display_system_string;
 } POST_CONTACT_RECEIVE;
@@ -68,9 +50,9 @@ char *post_contact_receive_mailx_system_string(
 		const char *post_contact_receive_destination_email,
 		const char *post_contact_receive_entity,
 		char *email_address,
-		char *remote_ip_address,
+		char *ip_address,
 		char *reason,
-		char *filespecification,
+		char *upload_filespecification,
 		char *appaserver_mailname );
 
 /* Process */
@@ -81,7 +63,7 @@ char *post_contact_receive_mailx_system_string(
 char *post_contact_receive_subject(
 		const char *post_contact_receive_entity,
 		char *email_address,
-		char *remote_ip_address,
+		char *ip_address,
 		char *reason );
 
 /* Usage */

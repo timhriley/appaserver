@@ -18,8 +18,6 @@ int main( int argc, char **argv )
 {
 	POST_CONTACT_RECEIVE *post_contact_receive;
 
-	session_environment_set( APPLICATION_ADMIN_NAME );
-
 	appaserver_error_argv_file(
 		argc,
 		argv,
@@ -36,20 +34,22 @@ int main( int argc, char **argv )
 			argc,
 			argv );
 
-	post_mailx(
-		post_contact_receive->
-			post_contact_receive_record->
-			message,
-		post_contact_receive->mailx_system_string );
+	if ( post_contact_receive->post_contact )
+	{
+		post_mailx(
+			post_contact_receive->
+				post_contact->
+				message,
+			post_contact_receive->mailx_system_string );
 
-	if ( system(
-		post_contact_receive->
-			display_system_string ) ){}
-
-	session_delete(
-		post_contact_receive->
-			post_receive_input->
-			session_key );
+		if ( system(
+			post_contact_receive->
+				display_system_string ) ){}
+	}
+	else
+	{
+		sleep( POST_SLEEP_SECONDS );
+	}
 
 	return 0;
 }

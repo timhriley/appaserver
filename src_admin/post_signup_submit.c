@@ -14,10 +14,8 @@
 #include "environ.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
-#include "form.h"
 #include "security.h"
 #include "post.h"
-#include "form_field.h"
 #include "post_contact_submit.h"
 #include "post_signup_receive.h"
 #include "post_signup_submit.h"
@@ -28,9 +26,11 @@ POST_SIGNUP_SUBMIT_INPUT *post_signup_submit_input_new( void )
 
 	post_signup_submit_input = post_signup_submit_input_calloc();
 
-	post_signup_submit_input->
-		appaserver_parameter =
-			appaserver_parameter_new();
+	post_signup_submit_input->appaserver_parameter =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_parameter_new();
 
 	post_signup_submit_input->post_dictionary =
 		/* -------------- */
@@ -287,59 +287,24 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 		/* Safely returns */
 		/* -------------- */
 		post_new(
-			FORM_SIGNUP /* FORM_NAME */,
+			APPLICATION_ADMIN_NAME,
 			post_signup_submit->
 				post_signup_submit_input->
-				post_contact_submit_input_email_address,
-			post_signup_submit->
-				post_signup_submit_input->
-				environment_remote_ip_address );
+				post_contact_submit_input_email_address );
 
-	post_signup_submit->form_field_insert_list =
+	post_signup_submit->post_signup =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		post_signup_submit_form_field_insert_list(
-			post_signup_submit->
-				post_signup_submit_input->
-				post_contact_submit_input_email_address,
+		post_signup_new(
+			post_signup_submit->post->email_address->email_address,
+			post_signup_submit->post->timestamp,
 			post_signup_submit->
 				post_signup_submit_input->
 				application_key,
 			post_signup_submit->
 				post_signup_submit_input->
-				application_title,
-			post_signup_submit->post->form_name,
-			post_signup_submit->post->timestamp );
-
-	post_signup_submit->form_field_datum_insert_statement_list =
-		form_field_datum_insert_statement_list(
-			FORM_FIELD_DATUM_TABLE,
-			post_signup_submit->form_field_insert_list->list
-				/* form_field_insert_list */ );
-
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d: exiting early.\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
-msg( (char *)0, message );
-}
-exit( 0 );
-	post_signup_submit->session =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		session_new(
-			APPLICATION_ADMIN_NAME,
-			(char *)0 /* login_name */,
-			post_signup_submit->
-				post_signup_submit_input->
-				environment_http_user_agent,
-			post_signup_submit->
-				post_signup_submit_input->
-				environment_remote_ip_address );
+				application_title );
 
 	post_signup_submit->post_return_email =
 		/* --------------------- */
@@ -374,10 +339,7 @@ exit( 0 );
 				post_contact_submit_input_email_address,
 			post_signup_submit->
 				post->
-				timestamp,
-			post_signup_submit->
-				session->
-				session_key );
+				timestamp );
 
 	post_signup_submit->message =
 		/* --------------------- */
@@ -439,103 +401,6 @@ char *post_signup_submit_reject_parameter(
 		parameter = "signup_missing_title_yn=y";
 
 	return parameter;
-}
-
-FORM_FIELD_INSERT_LIST *post_signup_submit_form_field_insert_list(
-		char *email_address,
-		char *application_key,
-		char *application_title,
-		char *form_name,
-		char *timestamp )
-{
-	FORM_FIELD_INSERT_LIST *form_field_insert_list;
-	LIST *form_field_datum_list;
-	FORM_FIELD_DATUM *form_field_datum;
-	FORM_FIELD_INSERT *form_field_insert;
-
-	if ( !email_address
-	||   !form_name
-	||   !application_key
-	||   !application_title
-	||   !timestamp )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	/* Safely returns */
-	/* -------------- */
-	form_field_insert_list = form_field_insert_list_new();
-
-	/* Set application_key */
-	/* ------------------- */
-	form_field_datum_list = list_new();
-
-	form_field_datum =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_datum_new(
-			"application_key" /* field_name */,
-			application_key /* field_datum */,
-			(char *)0 /* message_datum */,
-			0 /* primary_key_index */ );
-
-	list_set(
-		form_field_datum_list,
-		form_field_datum );
-
-	form_field_insert =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_insert_new(
-			email_address,
-			form_name,
-			timestamp,
-			form_field_datum_list /* in/out */ );
-
-	list_set(
-		form_field_insert_list->list,
-		form_field_insert );
-
-	/* Set application_title */
-	/* --------------------- */
-	form_field_datum_list = list_new();
-
-	form_field_datum =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_datum_new(
-			"application_title" /* field_name */,
-			application_title /* field_datum */,
-			(char *)0 /* message_datum */,
-			0 /* primary_key_index */ );
-
-	list_set(
-		form_field_datum_list,
-		form_field_datum );
-
-	form_field_insert =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		form_field_insert_new(
-			email_address,
-			form_name,
-			timestamp,
-			form_field_datum_list /* in/out */ );
-
-	list_set(
-		form_field_insert_list->list,
-		form_field_insert );
-
-	return form_field_insert_list;
 }
 
 char *post_signup_submit_message(

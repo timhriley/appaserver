@@ -7,60 +7,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "form_field.h"
 #include "application.h"
+#include "appaserver.h"
 #include "application_create.h"
 #include "execute_system_string.h"
 #include "post_signup_receive.h"
-
-POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record_new(
-		LIST *form_field_datum_list )
-{
-	POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record;
-	FORM_FIELD_DATUM *form_field_datum;
-
-	post_signup_receive_record =
-		post_signup_receive_record_calloc();
-
-	if ( ( form_field_datum =
-			form_field_datum_seek(
-				form_field_datum_list,
-				"application_key" ) ) )
-	{
-		post_signup_receive_record->application_key =
-			form_field_datum->field_datum;
-	}
-
-	if ( ( form_field_datum =
-			form_field_datum_seek(
-				form_field_datum_list,
-				"application_title" ) ) )
-	{
-		post_signup_receive_record->application_title =
-			form_field_datum->field_datum;
-	}
-
-	return post_signup_receive_record;
-}
-
-POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record_calloc( void )
-{
-	POST_SIGNUP_RECEIVE_RECORD *post_signup_receive_record;
-
-	if ( ! ( post_signup_receive_record =
-			calloc( 1,
-				sizeof ( POST_SIGNUP_RECEIVE_RECORD ) ) ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return post_signup_receive_record;
-}
 
 char *post_signup_receive_success_parameter( char *password )
 {
@@ -79,7 +30,7 @@ char *post_signup_receive_success_parameter( char *password )
 	snprintf(
 		parameter,
 		sizeof ( parameter ),
-		"signup_succeed_email_password=%s",
+		"signup_success_email_password=%s",
 		password );
 
 	return parameter;
@@ -92,45 +43,68 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 	POST_SIGNUP_RECEIVE *post_signup_receive =
 		post_signup_receive_calloc();
 
-	post_signup_receive->post_receive_input =
+	post_signup_receive->post_receive =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		post_receive_input_new(
+		post_receive_new(
+			APPLICATION_ADMIN_NAME,
+			APPASERVER_MAILNAME_FILESPECIFICATION,
 			argc,
 			argv );
 
-	post_signup_receive->post_signup_receive_record =
+
+	post_signup_receive->post =
+		post_fetch(
+			post_signup_receive->post_receive->email_address,
+			post_signup_receive->post_receive->timestamp );
+
+	if ( !post_signup_receive->post ) return post_signup_receive;
+
+	post_signup_receive->post_signup =
+		post_signup_fetch(
+			post_signup_receive->post_receive->email_address,
+			post_signup_receive->post_receive->timestamp );
+
+	if ( !post_signup_receive->post_signup ) return post_signup_receive;
+
+	post_signup_receive->session =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		post_signup_receive_record_new(
+		session_new(
+			APPLICATION_ADMIN_NAME,
+			(char *)0 /* login_name */,
 			post_signup_receive->
-				post_receive_input->
 				post->
-				form_field_datum_list );
+				http_user_agent,
+			post_signup_receive->
+				post->
+				ip_address );
 
 	post_signup_receive->
 		execute_system_string_create_application =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
 			execute_system_string_create_application(
 				APPLICATION_CREATE_EXECUTABLE,
 				post_signup_receive->
-					post_receive_input->
+					session->
 					session_key,
 				post_signup_receive->
-					post_receive_input->
-					post->
+					post_receive->
 					email_address
 					/* login_name */,
 				post_signup_receive->
-					post_signup_receive_record->
+					post_signup->
 					application_key
 					/* destination_application */,
 				post_signup_receive->
-					post_signup_receive_record->
+					post_signup->
 					application_title,
 				post_signup_receive->
-					post_receive_input->
+					post_receive->
 					appaserver_error_filename );
 
 	return post_signup_receive;

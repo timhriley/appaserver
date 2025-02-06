@@ -13,7 +13,7 @@
 #include "post_dictionary.h"
 #include "session.h"
 #include "post.h"
-#include "form_field.h"
+#include "post_signup.h"
 #include "post_login.h"
 
 #define POST_SIGNUP_SUBMIT_CONFIRM_PARAMETER	"signup_confirm_yn"
@@ -77,9 +77,7 @@ typedef struct
 	POST_LOGIN_DOCUMENT *post_login_document;
 	char *display_system_string;
 	POST *post;
-	FORM_FIELD_INSERT_LIST *form_field_insert_list;
-	LIST *form_field_datum_insert_statement_list;
-	SESSION *session;
+	POST_SIGNUP *post_signup;
 	char *post_return_email;
 	char *post_mailx_system_string;
 	char *post_receive_url;
@@ -110,34 +108,10 @@ char *post_signup_submit_reject_parameter(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *post_signup_submit_receive_url(
-		const char *post_signup_receive_executable,
-		char *apache_cgi_directory,
-		char *email_address,
-		char *timestamp,
-		char *session_key );
-
-/* Usage */
-/* ----- */
-
 /* Returns static memory */
 /* --------------------- */
 char *post_signup_submit_message(
 		const char *post_signup_submit_message_prompt,
-		char *post_signup_submit_receive_url );
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-FORM_FIELD_INSERT_LIST *post_signup_submit_form_field_insert_list(
-		char *email_address,
-		char *application_key,
-		char *application_title,
-		char *form_name,
-		char *timestamp );
+		char *post_receive_url );
 
 #endif

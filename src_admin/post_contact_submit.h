@@ -11,9 +11,8 @@
 #include "list.h"
 #include "appaserver_parameter.h"
 #include "post_dictionary.h"
-#include "session.h"
-#include "form_field.h"
 #include "post.h"
+#include "post_contact.h"
 
 #define POST_CONTACT_SUBMIT_SUBJECT		"Contact confirmation"
 #define POST_CONTACT_SUBMIT_MESSAGE_PROMPT	"Confirm contact"
@@ -33,8 +32,6 @@ typedef struct
 	boolean message_empty_boolean;
 	char *filespecification;
 	boolean filespecification_boolean;
-	char *environment_remote_ip_address;
-	char *environment_http_user_agent;
 	char *appaserver_mailname;
 	char *appaserver_error_filename;
 } POST_CONTACT_SUBMIT_INPUT;
@@ -95,9 +92,7 @@ typedef struct
 	POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input;
 	char *display_system_string;
 	POST *post;
-	FORM_FIELD_INSERT_LIST *form_field_insert_list;
-	LIST *form_field_datum_insert_statement_list;
-	SESSION *session;
+	POST_CONTACT *post_contact;
 	char *post_return_email;
 	char *post_mailx_system_string;
 	char *post_receive_url;
@@ -134,18 +129,5 @@ char *post_contact_submit_display_system_string(
 char *post_contact_submit_message(
 		const char *post_contact_submit_message_prompt,
 		char *post_receive_url );
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-FORM_FIELD_INSERT_LIST *post_contact_submit_form_field_insert_list(
-		char *email_address,
-		char *reason,
-		char *message,
-		char *filespecification,
-		char *form_name,
-		char *timestamp );
 
 #endif

@@ -32,22 +32,8 @@ int main( int argc, char **argv )
 	/* -------------- */
 	post_contact_submit = post_contact_submit_new();
 
-	if ( post_contact_submit->post )
+	if ( post_contact_submit->post_contact )
 	{
-		environment_database_set( APPLICATION_ADMIN_NAME );
-
-		session_insert(
-			SESSION_TABLE,
-			SESSION_INSERT,
-			post_contact_submit->session->session_key,
-			(char *)0 /* login_name */,
-			post_contact_submit->session->login_date,
-			post_contact_submit->session->login_time,
-			post_contact_submit->session->http_user_agent,
-			post_contact_submit->
-				post_contact_submit_input->
-				environment_remote_ip_address );
-
 		(void)insert_statement_sql_execute(
 			post_contact_submit->
 				post_contact_submit_input->
@@ -61,18 +47,50 @@ int main( int argc, char **argv )
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
+			(LIST *)0 /* insert_statement_list */,
 			post_contact_submit->
-				form_field_datum_insert_statement_list,
-				(char *)0 /* insert_statement */ );
+				post_contact->
+				insert_statement );
 
 		post_mailx(
 			post_contact_submit->message,
 			post_contact_submit->post_mailx_system_string );
 	}
 
-	if ( system(
-		post_contact_submit->
-			display_system_string ) ){}
+	if ( post_contact_submit->display_system_string )
+	{
+		if ( system(
+			post_contact_submit->
+				display_system_string ) ){}
+	}
+
+	if ( post_contact_submit->
+		post->
+		email_address->
+		insert_statement )
+	{
+			(void)insert_statement_sql_execute(
+				post_contact_submit->
+					post_contact_submit_input->
+					appaserver_error_filename,
+				(LIST *)0 /* insert_statement_list */,
+				post_contact_submit->
+					post->
+					email_address->
+					insert_statement );
+	}
+
+	if ( post_contact_submit->
+		post->
+		ip_deny_system_string )
+	{
+		if ( system(
+			post_contact_submit->
+				post->
+				ip_deny_system_string ) ){}
+	
+		sleep( POST_SLEEP_SECONDS );
+	}
 
 	return 0;
 }
