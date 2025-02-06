@@ -147,12 +147,20 @@ boolean string_loose_strcmp(
 char *string_remove_control(
 		char *input );
 
-/* Returns input */
-/* ------------- */
+/* Returns source_destination */
+/* -------------------------- */
 char *string_remove_character(
-		char *source_destination,
+		char *source_destination /* in/out */,
 		char character );
 
+/* Returns source_destination */
+/* -------------------------- */
+char *string_remove_character_string(
+		char *source_destination /* in/out */,
+		const char *character_string );
+
+/* Returns destination */
+/* ------------------- */
 char *string_escape_character(
 		char *destination,
 		char *data,

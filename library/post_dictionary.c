@@ -14,6 +14,7 @@
 #include "dictionary.h"
 #include "appaserver.h"
 #include "widget.h"
+#include "security.h"
 #include "post_dictionary.h"
 
 POST_DICTIONARY *post_dictionary_calloc( void )
@@ -53,6 +54,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 	if ( !post_dictionary->apache_key )
 	{
 		free( post_dictionary );
+
 		return
 		post_dictionary_string_new(
 			DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
@@ -95,7 +97,7 @@ DICTIONARY *post_dictionary_fetch(
 		LIST *upload_filename_list,
 		char *apache_key )
 {
-	char input[ STRING_64K ];
+	char input[ STRING_128K ];
 	char *apache_label;
 	char *attribute_name;
 	char *input_filename;
@@ -164,13 +166,11 @@ DICTIONARY *post_dictionary_fetch(
 					' ',
 					'_' );
 
-				string_trim_character(
-					input_filename,
-					'(' );
-
-				string_trim_character(
-					input_filename,
-					')' );
+				string_remove_character_string(
+					input_filename
+						/* source_destination */,
+					SECURITY_ESCAPE_CHARACTER_STRING
+						/* character_string */ );
 
 				spool_filename =
 					/* --------------------- */

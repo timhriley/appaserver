@@ -1882,8 +1882,8 @@ char *string_double_quote_comma(
 {
 	static char destination[ STRING_64K ];
 	char *ptr;
-	char item_piece[ STRING_16K ];
-	char item_buffer[ STRING_16K ];
+	char item_piece[ STRING_65K ];
+	char item_buffer[ STRING_65K ];
 	int p;
 
 	if ( !delimiter )
@@ -2327,6 +2327,21 @@ boolean string_email_address_boolean( char *string )
 	}
 
 	return 0;
+}
+
+char *string_remove_character_string(
+		char *source_destination,
+		const char *character_string )
+{
+	char character;
+
+	while ( ( character = *character_string ) )
+	{
+		string_remove_character( source_destination, character );
+		character_string++;
+	}
+
+	return source_destination;
 }
 
 char *string_remove_character( char *source_destination, char character )

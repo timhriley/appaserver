@@ -69,7 +69,9 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/operation.o
 
 ADMIN_LIBRARY=								\
-		form_field.o						\
+		email_address.o						\
+		post_signup.o						\
+		post_contact.o						\
 		post.o							\
 		post_signup_submit.o					\
 		post_signup_receive.o					\
@@ -158,9 +160,17 @@ post_signup_receive_execute: post_signup_receive_execute.c		\
 	${APPASERVER_HOME}/src_admin/post_signup_receive_execute	\
 	${CGI_HOME}
 
-form_field.o: form_field.c form_field.h
+email_address.o: email_address.c email_address.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
-		-c form_field.c
+		-c email_address.c
+
+post_signup.o: post_signup.c post_signup.h
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		-c post_signup.c
+
+post_contact.o: post_contact.c post_contact.h
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		-c post_contact.c
 
 post_signup_receive.o: post_signup_receive.c post_signup_receive.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
