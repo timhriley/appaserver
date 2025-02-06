@@ -29,6 +29,8 @@ EMAIL_ADDRESS *email_address_new( char *email_address )
 
 	address = email_address_calloc();
 
+	address->email_address = email_address;
+
 	address->insert_statement =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -99,8 +101,8 @@ EMAIL_ADDRESS *email_address_fetch( char *email_address )
 			/* Returns heap memory */
 			/* ------------------- */
 			appaserver_system_string(
-				EMAIL_ADDRESS_TABLE,
 				EMAIL_ADDRESS_SELECT,
+				EMAIL_ADDRESS_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */

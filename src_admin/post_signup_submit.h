@@ -16,7 +16,7 @@
 #include "post_signup.h"
 #include "post_login.h"
 
-#define POST_SIGNUP_SUBMIT_CONFIRM_PARAMETER	"signup_confirm_yn"
+#define POST_SIGNUP_SUBMIT_CONFIRM_PARAMETER	"signup_confirm_yn=y"
 #define POST_SIGNUP_SUBMIT_SUBJECT		"Cloudacus signup confirmation"
 #define POST_SIGNUP_SUBMIT_MESSAGE_PROMPT	"Confirm Cloudacus signup"
 

@@ -23,8 +23,17 @@ POST_SIGNUP *post_signup_new(
 {
 	POST_SIGNUP *post_signup;
 
-	if ( !email_address
-	||   !timestamp
+	if ( !email_address )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: email_address is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !timestamp
 	||   !application_key
 	||   !application_title )
 	{
@@ -120,8 +129,8 @@ POST_SIGNUP *post_signup_fetch(
 			/* Returns heap memory */
 			/* ------------------- */
 			appaserver_system_string(
-				POST_SIGNUP_TABLE,
 				POST_SIGNUP_SELECT,
+				POST_SIGNUP_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */

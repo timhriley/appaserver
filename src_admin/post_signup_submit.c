@@ -292,6 +292,11 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 				post_signup_submit_input->
 				post_contact_submit_input_email_address );
 
+	if ( post_signup_submit->post->email_address->blocked_boolean )
+	{
+		return post_signup_submit;
+	}
+
 	post_signup_submit->post_signup =
 		/* -------------- */
 		/* Safely returns */

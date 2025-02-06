@@ -1073,6 +1073,13 @@ enum post_login_document_location_enum
 
 	if ( strcmp(
 		post_login_document_filename,
+		"cloudacus_com/index.php" ) == 0 )
+	{
+		return location_website;
+	}
+
+	if ( strcmp(
+		post_login_document_filename,
 		"index.html" ) == 0 )
 	{
 		return location_html;

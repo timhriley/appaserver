@@ -154,8 +154,8 @@ POST_CONTACT *post_contact_fetch(
 			/* Returns heap memory */
 			/* ------------------- */
 			appaserver_system_string(
-				POST_CONTACT_TABLE,
 				POST_CONTACT_SELECT,
+				POST_CONTACT_TABLE,
 				/* --------------------- */
 				/* Returns static memory */
 				/* --------------------- */

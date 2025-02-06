@@ -1130,7 +1130,8 @@ boolean rectification_mismatch_datatype_boolean(
 	if ( attribute_is_notepad( attribute_datatype_name ) )
 	{
 		if ( strcmp( column_datatype_name, "char" ) == 0
-		||   strcmp( column_datatype_name, "text" ) == 0 )
+		||   strcmp( column_datatype_name, "text" ) == 0
+		||   strcmp( column_datatype_name, "longtext" ) == 0 )
 			return 0;
 		else
 			return 1;
