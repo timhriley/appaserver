@@ -10,30 +10,35 @@
 #include "boolean.h"
 #include "list.h"
 #include "insert.h"
-#include "session.h"
 #include "appaserver_parameter.h"
+#include "email_address.h"
 
-#define POST_TABLE		"post"
+#define POST_TABLE			"post"
+#define POST_CONFIRMATION_COLUMN	"confirmation_received_date"
 
-#define POST_SELECT		"IP_address,"		\
-				"form_name"
+#define POST_SELECT			"IP_address,"			\
+					"http_user_agent,"		\
+					"confirmation_received_date"
 
-#define POST_INSERT		"timestamp,"		\
-				"email_address,"	\
-				"IP_address,"		\
-				"form_name"
+#define POST_INSERT			"email_address,"		\
+					"IP_address,"			\
+					"http_user_agent,"		\
+					"timestamp"
 
-#define POST_RETURN_USERNAME	"DoNotReply"
+#define POST_RETURN_USERNAME		"DoNotReply"
+
+#define POST_DENY_EXECUTABLE		"ufw_deny_queue.sh"
+#define POST_DENY_FILESPECIFICATION	"/usr2/ufw/deny_queue.dat"
 
 typedef struct
 {
-	char *form_name;
 	char *ip_address;
-	char *email_address;
+	char *http_user_agent;
 	char *timestamp;
+	EMAIL_ADDRESS *email_address;
+	char *ip_deny_system_string;
 	char *insert_statement;
-	LIST *form_field_datum_list;
-	char *post_primary_where;
+	char *confirmation_received_date;
 } POST;
 
 /* Usage */
@@ -42,24 +47,55 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 POST *post_new(
-		const char *form_name,
-		char *email_address,
-		char *ip_address );
+		const char *application_admin_name,
+		char *email_address );
 
 /* Process */
 /* ------- */
 POST *post_calloc(
 		void );
 
+/* Returns static memory */
+/* --------------------- */
+char *post_ip_deny_system_string(
+		const char *post_deny_executable,
+		const char *post_deny_filespecification,
+		char *ip_address );
+
 /* Returns heap memory */
 /* ------------------- */
 char *post_insert_statement(
 		const char *post_table,
 		const char *post_insert,
-		const char *form_name,
 		char *email_address,
-		char *ip_address,
+		char *environment_remote_ip_address,
+		char *environment_http_user_agent,
 		char *post_timestamp );
+
+/* Usage */
+/* ----- */
+POST *post_fetch(
+		char *email_address,
+		char *timestamp );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *post_primary_where(
+		char *email_address,
+		char *timestamp );
+
+/* Usage */
+/* ----- */
+POST *post_parse(
+		char *email_address,
+		char *timestamp,
+		char *string_fetch );
+
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -92,26 +128,40 @@ char *post_mailx_system_string(
 
 /* Usage */
 /* ----- */
-POST *post_fetch(
-		char *email_address,
-		char *timestamp );
 
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *post_primary_where(
+/* Returns heap memory */
+/* ------------------- */
+char *post_confirmation_update_statement(
+		const char *post_table,
+		const char *post_confirmation_column,
 		char *email_address,
-		char *timestamp );
+		char *timestamp,
+		char *confirmation_received_date );
+
+typedef struct
+{
+	char *email_address;
+	char *timestamp;
+	APPASERVER_PARAMETER *appaserver_parameter;
+	char *appaserver_mailname;
+	char *appaserver_error_filename;
+} POST_RECEIVE;
 
 /* Usage */
 /* ----- */
-POST *post_parse(
-		char *email_address,
-		char *timestamp,
-		char *post_primary_where,
-		char *string_fetch );
+
+/* Safely returns */
+/* -------------- */
+POST_RECEIVE *post_receive_new(
+		const char *application_admin_name,
+		const char *appaserver_mailname_filespecification,
+		int argc,
+		char **argv );
+
+/* Process */
+/* ------- */
+POST_RECEIVE *post_receive_calloc(
+		void );
 
 /* Usage */
 /* ----- */
@@ -122,33 +172,6 @@ char *post_receive_url(
 		const char *receive_executable,
 		char *apache_cgi_directory,
 		char *email_address,
-		char *timestamp,
-		char *session_key );
-
-typedef struct
-{
-	char *email_address;
-	char *timestamp;
-	char *session_key;
-	SESSION *session;
-	APPASERVER_PARAMETER *appaserver_parameter;
-	POST *post;
-	char *appaserver_mailname;
-	char *appaserver_error_filename;
-} POST_RECEIVE_INPUT;
-
-/* Usage */
-/* ----- */
-
-/* Safely returns */
-/* -------------- */
-POST_RECEIVE_INPUT *post_receive_input_new(
-		int argc,
-		char **argv );
-
-/* Process */
-/* ------- */
-POST_RECEIVE_INPUT *post_receive_input_calloc(
-		void );
+		char *timestamp );
 
 #endif
