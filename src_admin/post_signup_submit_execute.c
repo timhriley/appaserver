@@ -48,12 +48,6 @@ int main( int argc, char **argv )
 			post_signup_submit->
 				post_signup->
 				insert_statement );
-fprintf(stderr,
-	"Message in %s/%s()/%d: %s\n",
-	__FILE__,
-	__FUNCTION__,
-	__LINE__,
-	post_signup_submit->message );
 
 		post_mailx(
 			post_signup_submit->message,

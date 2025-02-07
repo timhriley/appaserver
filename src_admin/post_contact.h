@@ -12,13 +12,15 @@
 
 #define POST_CONTACT_TABLE		"post_contact"
 
-#define POST_CONTACT_SELECT		"application_key,"	\
-					"application_title"
+#define POST_CONTACT_SELECT		"reason,"			\
+					"message,"			\
+					"upload_filespecification"
 
-#define POST_CONTACT_INSERT		"email_address,"	\
-					"timestamp,"		\
-					"application_key,"	\
-					"application_title"
+#define POST_CONTACT_INSERT		"email_address,"		\
+					"timestamp,"			\
+					"reason,"			\
+					"message,"			\
+					"upload_filespecification"
 
 typedef struct
 {

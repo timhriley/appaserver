@@ -131,14 +131,13 @@ char *post_mailx_system_string(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *post_confirmation_update_statement(
 		const char *post_table,
 		const char *post_confirmation_column,
 		char *email_address,
-		char *timestamp,
-		char *confirmation_received_date );
+		char *timestamp_space );
 
 typedef struct
 {
@@ -178,6 +177,7 @@ char *post_receive_timestamp_space(
 /* ------------------- */
 char *post_receive_url(
 		const char *receive_executable,
+		const char *website_domain_name,
 		char *apache_cgi_directory,
 		char *email_address,
 		char *timestamp_space );

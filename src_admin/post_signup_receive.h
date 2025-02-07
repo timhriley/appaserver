@@ -23,6 +23,7 @@ typedef struct
 	POST_SIGNUP *post_signup;
 	SESSION *session;
 	char *execute_system_string_create_application;
+	char *post_confirmation_update_statement;
 	/* -------------- */
 	/* Set externally */
 	/* -------------- */

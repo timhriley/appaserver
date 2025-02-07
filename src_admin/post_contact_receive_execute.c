@@ -42,6 +42,14 @@ int main( int argc, char **argv )
 				message,
 			post_contact_receive->mailx_system_string );
 
+		(void)insert_statement_sql_execute(
+			post_contact_receive->
+				post_receive->
+				appaserver_error_filename,
+			(LIST *)0 /* insert_statement_list */,
+			post_contact_receive->
+				post_confirmation_update_statement );
+
 		if ( system(
 			post_contact_receive->
 				display_system_string ) ){}

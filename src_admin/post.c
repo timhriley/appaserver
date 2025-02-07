@@ -430,6 +430,7 @@ POST_RECEIVE *post_receive_calloc( void )
 
 char *post_receive_url(
 		const char *receive_executable,
+		const char *website_domain_name,
 		char *apache_cgi_directory,
 		char *email_address,
 		char *timestamp_space )
@@ -451,7 +452,8 @@ char *post_receive_url(
 	snprintf(
 		receive_url,
 		sizeof ( receive_url ),
-		"https://cloudacus.com%s/%s?%s+%s",
+		"https://%s%s/%s?%s+%s",
+		website_domain_name,
 		apache_cgi_directory,
 		receive_executable,
 		email_address,
@@ -538,5 +540,44 @@ char *post_receive_timestamp_spaceless( char *timestamp_space )
 		timestamp_spaceless /* source_destination */,
 		' ' /* search_character */,
 		'_' /* replace_character */ );
+}
+
+char *post_confirmation_update_statement(
+		const char *post_table,
+		const char *post_confirmation_column,
+		char *email_address,
+		char *timestamp_space )
+{
+	static char confirmation_update_statement[ 256 ];
+
+	if ( !email_address
+	||   !timestamp_space )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		confirmation_update_statement,
+		sizeof ( confirmation_update_statement ),
+		"update %s set %s = '%s' where %s;",
+		post_table,
+		post_confirmation_column,
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		date_now_yyyy_mm_dd( date_utc_offset() ),
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_primary_where(
+			email_address,
+			timestamp_space ) );
+
+	return confirmation_update_statement;
 }
 

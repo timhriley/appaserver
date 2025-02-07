@@ -12,7 +12,10 @@
 #include "post.h"
 #include "post_contact.h"
 
+/*
 #define POST_CONTACT_RECEIVE_DESTINATION_EMAIL	"timriley@timriley.net"
+*/
+#define POST_CONTACT_RECEIVE_DESTINATION_EMAIL	"timriley@localhost"
 #define POST_CONTACT_RECEIVE_APPLICATION	"appahost"
 #define POST_CONTACT_RECEIVE_ENTITY		"Appahost"
 #define POST_CONTACT_RECEIVE_SENT_FILENAME	"message_sent.php"
@@ -24,6 +27,7 @@ typedef struct
 	POST *post;
 	POST_CONTACT *post_contact;
 	char *mailx_system_string;
+	char *post_confirmation_update_statement;
 	char *display_system_string;
 } POST_CONTACT_RECEIVE;
 

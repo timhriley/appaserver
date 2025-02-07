@@ -336,6 +336,7 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 		/* ------------------- */
 		post_receive_url(
 			POST_SIGNUP_RECEIVE_EXECUTABLE,
+			"cloudacus.com" /* website_domain_name */,
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_parameter->

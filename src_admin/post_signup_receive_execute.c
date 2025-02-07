@@ -69,6 +69,14 @@ int main( int argc, char **argv )
 			exit( 1 );
 		}
 
+		(void)insert_statement_sql_execute(
+			post_signup_receive->
+				post_receive->
+				appaserver_error_filename,
+			(LIST *)0 /* insert_statement_list */,
+			post_signup_receive->
+				post_confirmation_update_statement );
+
 		post_signup_receive->post_login_document =
 			post_login_document_new(
 				(DICTIONARY *)0 /* location_website */,

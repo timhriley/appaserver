@@ -110,6 +110,16 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 					post_receive->
 					appaserver_error_filename );
 
+	post_signup_receive->post_confirmation_update_statement =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_confirmation_update_statement(
+			POST_TABLE,
+			POST_CONFIRMATION_COLUMN,
+			post_signup_receive->post_receive->email_address,
+			post_signup_receive->post_receive->timestamp_space );
+
 	return post_signup_receive;
 }
 

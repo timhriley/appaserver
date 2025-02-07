@@ -133,6 +133,7 @@ POST_CONTACT *post_contact_fetch(
 		char *timestamp )
 {
 	char *fetch;
+	char *system_string;
 
 	if ( !email_address
 	||   !timestamp )
@@ -145,25 +146,21 @@ POST_CONTACT *post_contact_fetch(
 		exit( 1 );
 	}
 
-	fetch =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		string_fetch(
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			appaserver_system_string(
-				POST_CONTACT_SELECT,
-				POST_CONTACT_TABLE,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				post_primary_where(
-					email_address,
-					timestamp ) ) );
+	system_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_system_string(
+			POST_CONTACT_SELECT,
+			POST_CONTACT_TABLE,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			post_primary_where(
+				email_address,
+				timestamp ) );
 
-	if ( !fetch ) return NULL;
+	if ( ! ( fetch = string_fetch( system_string ) ) ) return NULL;
 
 	return
 	post_contact_parse(

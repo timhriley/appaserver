@@ -17,7 +17,7 @@
 #define POST_CONTACT_SUBMIT_SUBJECT		"Contact confirmation"
 #define POST_CONTACT_SUBMIT_MESSAGE_PROMPT	"Confirm contact"
 #define POST_CONTACT_SUBMIT_NOT_SENT_FILENAME	"message_not_sent.php"
-#define POST_CONTACT_SUBMIT_SENT_FILENAME	"confirmation_sent.php"
+#define POST_CONTACT_SUBMIT_SENT_FILENAME	"message_confirmation_sent.php"
 
 typedef struct
 {

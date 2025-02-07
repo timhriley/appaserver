@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "application.h"
 #include "appaserver.h"
+#include "appaserver_error.h"
 #include "post_contact_submit.h"
 #include "post_contact_receive.h"
 
@@ -77,6 +78,16 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 			post_contact_receive->
 				post_receive->
 				appaserver_mailname );
+
+	post_contact_receive->post_confirmation_update_statement =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_confirmation_update_statement(
+			POST_TABLE,
+			POST_CONFIRMATION_COLUMN,
+			post_contact_receive->post_receive->email_address,
+			post_contact_receive->post_receive->timestamp_space );
 
 	post_contact_receive->display_system_string =
 		/* ------------------- */

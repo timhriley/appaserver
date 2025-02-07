@@ -121,6 +121,7 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 		/* ------------------- */
 		post_receive_url(
 			POST_CONTACT_RECEIVE_EXECUTABLE,
+			"appahost.com" /* website_domain_name */,
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_parameter->
