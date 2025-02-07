@@ -41,6 +41,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/update.o					\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/widget.o					\
+		${LIBRARY}/file.o					\
 		${LIBRARY}/sql.o					\
 		${LIBRARY}/button.o					\
 		${LIBRARY}/query.o					\

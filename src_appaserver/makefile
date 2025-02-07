@@ -99,6 +99,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/process_parameter.o				\
 		${LIBRARY}/appaserver_link.o				\
 		${LIBRARY}/widget.o					\
+		${LIBRARY}/file.o					\
 		${LIBRARY}/button.o					\
 		${LIBRARY}/process.o					\
 		${LIBRARY}/folder.o					\
@@ -399,13 +400,15 @@ output_table_insert: output_table_insert.c				\
 output_table_edit: output_table_edit.c					\
 		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/table_edit.o					\
-		${LIBRARY}/form_table_edit.o
+		${LIBRARY}/form_table_edit.o				\
+		${LIBRARY}/upload_source.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		output_table_edit.c					\
 		${LIBRARY}/table_edit.o					\
 		${LIBRARY}/form_table_edit.o				\
+		${LIBRARY}/upload_source.o				\
 		-o output_table_edit
 
 generic_load: generic_load.c ${APPASERVER_LIBRARY}			\

@@ -10,7 +10,7 @@
 #include "boolean.h"
 #include "dictionary.h"
 
-#define POST_DICTIONARY_SPOOL_PREFIX	"spool_"
+#define POST_DICTIONARY_SPOOL_PREFIX	"sspool_"
 
 typedef struct
 {

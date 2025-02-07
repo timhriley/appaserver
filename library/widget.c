@@ -9,10 +9,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "String.h"
-#include "timlib.h"
 #include "column.h"
 #include "session.h"
 #include "attribute.h"
+#include "file.h"
 #include "form.h"
 #include "relation.h"
 #include "folder.h"
@@ -24,6 +24,7 @@
 #include "application.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
+#include "upload_source.h"
 #include "piece.h"
 #include "basename.h"
 #include "environ.h"
@@ -1720,6 +1721,8 @@ char *widget_container_html(
 	else
 	if ( widget_container->widget_type == upload )
 	{
+		char *html;
+
 		if ( !widget_container->upload )
 		{
 			fprintf(stderr,
@@ -1730,14 +1733,16 @@ char *widget_container_html(
 			exit( 1 );
 		}
 
-		return
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		widget_container_upload_html(
-			query_row_cell_list,
-			background_color,
-			widget_container->upload );
+		html =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			widget_container_upload_html(
+				query_row_cell_list,
+				background_color,
+				widget_container->upload );
+
+		return html;
 	}
 	else
 	if ( widget_container->widget_type == yes_no )
@@ -3890,37 +3895,13 @@ char *widget_upload_edit_frame_html(
 	char *hypertext;
 	char *link_system_string;
 
-	if ( !application_name )
+	if ( !application_name
+	||   !session_key
+	||   !widget_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "application_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !session_key )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "session_key is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !widget_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "widget_name is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3960,7 +3941,7 @@ char *widget_upload_edit_frame_html(
 			upload_directory,
 			container_value );
 
-	if ( !timlib_file_exists( filespecification ) )
+	if ( !file_exists_boolean( filespecification ) )
 	{
 		return
 		widget_non_edit_text_html_string(
@@ -4268,6 +4249,34 @@ char *widget_container_upload_html(
 
 			sprintf(message,
 				"widget_upload->application_name is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !widget_upload->session_key )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"widget_upload->session_key is empty." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !widget_upload->widget_name )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				"widget_upload->widget_name is empty." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -7247,7 +7256,9 @@ char *widget_upload_source_filespecification(
 			message );
 	}
 
-	sprintf(filespecification,
+	snprintf(
+		filespecification,
+		sizeof ( filespecification ),
 		"%s/%s/%s",
 		upload_directory,
 		application_name,

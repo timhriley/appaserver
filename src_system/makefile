@@ -92,6 +92,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/process_parameter.o				\
 		${LIBRARY}/appaserver_link.o				\
 		${LIBRARY}/widget.o					\
+		${LIBRARY}/file.o					\
 		${LIBRARY}/button.o					\
 		${LIBRARY}/javascript.o					\
 		${LIBRARY}/process.o					\

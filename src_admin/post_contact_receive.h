@@ -26,6 +26,7 @@ typedef struct
 	POST_RECEIVE *post_receive;
 	POST *post;
 	POST_CONTACT *post_contact;
+	char *upload_filespecification;
 	char *mailx_system_string;
 	char *post_confirmation_update_statement;
 	char *display_system_string;
@@ -44,6 +45,16 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 /* ------- */
 POST_CONTACT_RECEIVE *post_contact_receive_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *post_contact_receive_upload_filespecification(
+		const char *application_admin_name,
+		char *upload_directory,
+		char *fetch_upload_filespecification );
 
 /* Usage */
 /* ----- */

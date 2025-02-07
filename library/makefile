@@ -202,7 +202,8 @@ APPASERVER_LIBRARY=						\
 		preupdate_change.o				\
 		bot_generated.o					\
 		canvass_waypoint.o				\
-		waypoint.o
+		waypoint.o					\
+		file.o
 
 all: 	${APPASERVER_LIBRARY}					\
 	credit_provider_dvr
@@ -916,6 +917,9 @@ preupdate_change.o: preupdate_change.c preupdate_change.h
 
 bot_generated.o: bot_generated.c bot_generated.h
 	${CC} ${CFLAGS} -c bot_generated.c
+
+file.o: file.c file.h
+	${CC} ${CFLAGS} -c file.c
 
 credit_provider.o: credit_provider.c credit_provider.h
 	${CC} ${CFLAGS} -c credit_provider.c

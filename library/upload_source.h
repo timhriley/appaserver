@@ -28,19 +28,19 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 UPLOAD_SOURCE *upload_source_new(
-			char *application_name,
-			char *directory_filename_session,
-			char *mount_point );
+		char *application_name,
+		char *directory_filename_session,
+		char *mount_point );
 
 /* Process */
 /* ------- */
 UPLOAD_SOURCE *upload_source_calloc(
-			void );
+		void );
 
 /* Usage */
 /* ----- */
 boolean upload_source_file_exists_boolean(
-			char *directory_filename_session );
+		char *directory_filename_session );
 
 /* Usage */
 /* ----- */
@@ -48,7 +48,7 @@ boolean upload_source_file_exists_boolean(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_directory_filename(
-			char *directory_filename_session );
+		char *directory_filename_session );
 
 /* Usage */
 /* ----- */
@@ -56,7 +56,7 @@ char *upload_source_directory_filename(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_filename(
-			char *upload_source_directory_filename );
+		char *upload_source_directory_filename );
 
 /* Usage */
 /* ----- */
@@ -64,8 +64,8 @@ char *upload_source_filename(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_destination_directory(
-			char *application_name,
-			char *mount_point );
+		char *application_name,
+		char *mount_point );
 
 /* Usage */
 /* ----- */
@@ -73,8 +73,8 @@ char *upload_source_destination_directory(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_destination_filename(
-			char *upload_source_filename,
-			char *upload_source_destination_directory );
+		char *upload_source_filename,
+		char *upload_source_destination_directory );
 
 /* Usage */
 /* ----- */
@@ -82,8 +82,8 @@ char *upload_source_destination_filename(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_copy_system_string(
-			char *directory_filename_session,
-			char *upload_source_destination_filename );
+		char *directory_filename_session,
+		char *upload_source_destination_filename );
 
 /* Usage */
 /* ----- */
@@ -91,7 +91,7 @@ char *upload_source_copy_system_string(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_chmod_system_string(
-			char *upload_source_destination_filename );
+		char *upload_source_destination_filename );
 
 /* Usage */
 /* ----- */
@@ -99,7 +99,7 @@ char *upload_source_chmod_system_string(
 /* Returns static memory */
 /* --------------------- */
 char *upload_source_confirm_system_string(
-			char *upload_source_filename,
-			char *upload_source_destination_directory );
+		char *upload_source_filename,
+		char *upload_source_destination_directory );
 
 #endif

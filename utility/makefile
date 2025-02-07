@@ -47,6 +47,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/insert.o					\
 		${LIBRARY}/widget.o					\
 		${LIBRARY}/sql.o					\
+		${LIBRARY}/file.o					\
 		${LIBRARY}/button.o					\
 		${LIBRARY}/query.o					\
 		${LIBRARY}/security_entity.o				\

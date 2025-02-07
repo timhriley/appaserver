@@ -16,7 +16,7 @@
 #include "security.h"
 #include "environ.h"
 #include "post.h"
-#include "upload_source.h"
+#include "file.h"
 #include "post_contact_receive.h"
 #include "post_contact_submit.h"
 
@@ -458,7 +458,7 @@ boolean post_contact_submit_input_filespecification_boolean(
 		char *filespecification )
 {
 	return
-	upload_source_file_exists_boolean(
+	file_exists_boolean(
 		filespecification
 			/* directory_filename_session */ );
 }

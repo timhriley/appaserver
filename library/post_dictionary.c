@@ -185,10 +185,12 @@ DICTIONARY *post_dictionary_fetch(
 					spool_filename,
 					apache_key );
 
+/*
 				dictionary_set(
 					original_post_dictionary,
 					strdup( attribute_name ),
 					strdup( input_filename ) );
+*/
 
 				snprintf(
 					spool_key,
@@ -200,7 +202,7 @@ DICTIONARY *post_dictionary_fetch(
 				dictionary_set(
 					original_post_dictionary,
 					strdup( spool_key ),
-					strdup( spool_filename ) );
+					strdup( input_filename ) );
 
 				continue;
 			}

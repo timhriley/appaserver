@@ -11,6 +11,7 @@
 #include "String.h"
 #include "basename.h"
 #include "session.h"
+#include "file.h"
 #include "upload_source.h"
 
 UPLOAD_SOURCE *upload_source_new(
@@ -130,17 +131,10 @@ UPLOAD_SOURCE *upload_source_calloc( void )
 
 boolean upload_source_file_exists_boolean( char *directory_filename_session )
 {
-	char system_string[ 1024 ];
-
-	if ( !directory_filename_session ) return 0;
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"echo %s | stat.e 2>&1 | grep 'No such file' | wc -l",
-		directory_filename_session );
-
-	return 1 - atoi( string_pipe_fetch( system_string ) );
+	return
+	file_exists_boolean(
+		directory_filename_session
+			/* filespecification */ );
 }
 
 char *upload_source_directory_filename( char *directory_filename_session )
