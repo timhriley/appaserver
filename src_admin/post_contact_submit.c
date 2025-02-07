@@ -133,6 +133,12 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 				timestamp
 			       /* timestamp_space */ 	);
 
+	appaserver_error_message_file(
+		APPLICATION_ADMIN_NAME,
+		(char *)0 /* login_name */,
+		post_contact_submit->post_receive_url
+			/* message */ );
+
 	post_contact_submit->message =
 		/* --------------------- */
 		/* Returns static memory */

@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/drilldown.c				*/
+/* $APPASERVER_HOME/src_system/drilldown.c				*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/

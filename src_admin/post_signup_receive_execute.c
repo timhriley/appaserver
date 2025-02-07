@@ -42,7 +42,10 @@ int main( int argc, char **argv )
 			SESSION_TABLE,
 			SESSION_INSERT,
 			post_signup_receive->session->session_key,
-			(char *)0 /* login_name */,
+			post_signup_receive->
+				post_receive->
+				email_address
+					/* login_name */,
 			post_signup_receive->session->login_date,
 			post_signup_receive->session->login_time,
 			post_signup_receive->session->http_user_agent,

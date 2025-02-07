@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/appaserver_user_trigger.c		*/
+/* $APPASERVER_HOME/src_system/appaserver_user_trigger.c		*/
 /* -------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------	*/

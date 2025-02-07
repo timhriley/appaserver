@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_appaserver/table_rectification.c		*/
+/* $APPASERVER_HOME/src_system/table_rectification.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */

@@ -74,7 +74,10 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 		/* -------------- */
 		session_new(
 			APPLICATION_ADMIN_NAME,
-			(char *)0 /* login_name */,
+			post_signup_receive->
+				post_receive->
+				email_address
+				/* login_name */,
 			post_signup_receive->
 				post->
 				http_user_agent,

@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/google_map_operation.c		*/
+/* $APPASERVER_HOME/src_system/google_map_operation.c			*/
 /* --------------------------------------------------------------------	*/
 /* This is the operation process for the google map button.		*/
 /*									*/

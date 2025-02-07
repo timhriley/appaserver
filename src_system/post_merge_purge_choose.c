@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_appaserver/post_merge_purge_choose.c		*/
+/* $APPASERVER_HOME/src_system/post_merge_purge_choose.c		*/
 /* --------------------------------------------------------------- 	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------- 	*/

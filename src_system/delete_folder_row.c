@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/delete_folder_row.c			*/
+/* $APPASERVER_HOME/src_system/delete_folder_row.c			*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/

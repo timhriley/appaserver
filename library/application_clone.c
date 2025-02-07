@@ -482,6 +482,9 @@ APPASERVER_USER *application_clone_appaserver_user( char *login_name )
 			login_name );
 
 	appaserver_user->database_password =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		security_generate_password();
 
 	return appaserver_user;

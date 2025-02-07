@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_appaserver/alter_column_datatype.c		*/
+/* $APPASERVER_HOME/src_system/alter_column_datatype.c			*/
 /* --------------------------------------------------------------- 	*/
 /* No warranty and freely available software. Visit Appaserver.org	*/
 /* --------------------------------------------------------------- 	*/

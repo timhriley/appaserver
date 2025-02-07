@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------------	*/
-/* $APPASERVER_HOME/src_appaserver/change_password.c			*/
+/* $APPASERVER_HOME/src_system/change_password.c			*/
 /* --------------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------------	*/

@@ -686,7 +686,7 @@ char *post_login_reject_index_html_parameter(
 		parameter = "invalid_application_yn=y";
 	else
 	if ( missing_login_name_boolean )
-		parameter = "missing_name_yn=y";
+		parameter = "invalid_login_yn=y";
 	else
 	if ( invalid_login_name_boolean )
 		parameter = "invalid_login_yn=y";

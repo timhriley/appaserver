@@ -1,5 +1,5 @@
 /* --------------------------------------------------------------- 	*/
-/* $APPASERVER_HOME/src_appaserver/rename_table.c			*/
+/* $APPASERVER_HOME/src_system/rename_table.c				*/
 /* --------------------------------------------------------------- 	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------- 	*/

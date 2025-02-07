@@ -387,11 +387,24 @@ unsigned long security_random( unsigned long up_to )
 
 char *security_generate_password( void )
 {
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	string_pipe( "generate_password.sh" );
+	char *password;
+
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	password = string_pipe( "generate_password.sh 2>/dev/null" );
+
+	if ( !password )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: generate_password.sh returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return password;
 }
 
 char *security_remove_semicolon( char *datum )
