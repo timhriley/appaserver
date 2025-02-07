@@ -37,7 +37,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 				email_address,
 			post_contact_receive->
 				post_receive->
-				timestamp );
+				timestamp_space );
 
 	if ( !post_contact_receive->post ) return post_contact_receive;
 
@@ -51,7 +51,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 				email_address,
 			post_contact_receive->
 				post_receive->
-				timestamp );
+				timestamp_space );
 
 	if ( !post_contact_receive->post_contact ) return post_contact_receive;
 

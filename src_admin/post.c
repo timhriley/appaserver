@@ -209,14 +209,16 @@ char *post_return_email(
 
 char *post_mailx_system_string(
 		const char *subject,
+		char *email_address,
 		char *post_return_email )
 {
-	static char mailx_system_string[ 256 ];
+	static char mailx_system_string[ 128 ];
 
-	if ( !post_return_email )
+	if ( !email_address
+	||   !post_return_email )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: post_return_email is empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -226,9 +228,10 @@ char *post_mailx_system_string(
 	snprintf(
 		mailx_system_string,
 		sizeof ( mailx_system_string ),
-		"mailx -s \"%s\" -r %s",
+		"mailx -s \"%s\" -r %s %s",
 		subject,
-		post_return_email );
+		post_return_email,
+		email_address );
 
 	return mailx_system_string;
 }
@@ -372,7 +375,14 @@ POST_RECEIVE *post_receive_new(
 	post_receive = post_receive_calloc();
 
 	post_receive->email_address = argv[ 1 ];
-	post_receive->timestamp = argv[ 2 ];
+	post_receive->timestamp_spaceless = argv[ 2 ];
+
+	post_receive->timestamp_space =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_receive_timestamp_space(
+			post_receive->timestamp_spaceless );
 
 	session_environment_set( (char *)application_admin_name );
 
@@ -422,13 +432,13 @@ char *post_receive_url(
 		const char *receive_executable,
 		char *apache_cgi_directory,
 		char *email_address,
-		char *timestamp )
+		char *timestamp_space )
 {
 	char receive_url[ 1024 ];
 
 	if ( !apache_cgi_directory
 	||   !email_address
-	||   !timestamp )
+	||   !timestamp_space )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -441,11 +451,15 @@ char *post_receive_url(
 	snprintf(
 		receive_url,
 		sizeof ( receive_url ),
-		"%s/%s?%s+%s",
+		"https://cloudacus.com%s/%s?%s+%s",
 		apache_cgi_directory,
 		receive_executable,
 		email_address,
-		timestamp );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_receive_timestamp_spaceless(
+			timestamp_space ) );
 
 	return strdup( receive_url );
 }
@@ -477,3 +491,52 @@ char *post_ip_deny_system_string(
 
 	return system_string;
 }
+
+char *post_receive_timestamp_space( char *timestamp_spaceless )
+{
+	static char timestamp_space[ 20 ];
+
+	if ( !timestamp_spaceless
+	||   strlen( timestamp_spaceless ) != 19 )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: timestamp_spaceless is empty or invalid.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	strcpy( timestamp_space, timestamp_spaceless );
+
+	return
+	string_search_replace_character(
+		timestamp_space /* source_destination */,
+		'_' /* search_character */,
+		' ' /* replace_character */ );
+}
+
+char *post_receive_timestamp_spaceless( char *timestamp_space )
+{
+	static char timestamp_spaceless[ 20 ];
+
+	if ( !timestamp_space
+	||   strlen( timestamp_space ) != 19 )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: timestamp_space is empty or invalid.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	strcpy( timestamp_spaceless, timestamp_space );
+
+	return
+	string_search_replace_character(
+		timestamp_spaceless /* source_destination */,
+		' ' /* search_character */,
+		'_' /* replace_character */ );
+}
+

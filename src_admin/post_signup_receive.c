@@ -57,14 +57,14 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 	post_signup_receive->post =
 		post_fetch(
 			post_signup_receive->post_receive->email_address,
-			post_signup_receive->post_receive->timestamp );
+			post_signup_receive->post_receive->timestamp_space );
 
 	if ( !post_signup_receive->post ) return post_signup_receive;
 
 	post_signup_receive->post_signup =
 		post_signup_fetch(
 			post_signup_receive->post_receive->email_address,
-			post_signup_receive->post_receive->timestamp );
+			post_signup_receive->post_receive->timestamp_space );
 
 	if ( !post_signup_receive->post_signup ) return post_signup_receive;
 

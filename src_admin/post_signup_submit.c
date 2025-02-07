@@ -327,6 +327,7 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 		/* --------------------- */
 		post_mailx_system_string(
 			POST_SIGNUP_SUBMIT_SUBJECT,
+			post_signup_submit->post->email_address->email_address,
 			post_signup_submit->post_return_email );
 
 	post_signup_submit->post_receive_url =
@@ -344,7 +345,8 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 				post_contact_submit_input_email_address,
 			post_signup_submit->
 				post->
-				timestamp );
+				timestamp
+				/* timestamp_space */ );
 
 	post_signup_submit->message =
 		/* --------------------- */

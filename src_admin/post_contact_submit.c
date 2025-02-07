@@ -112,6 +112,7 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 		/* --------------------- */
 		post_mailx_system_string(
 			POST_CONTACT_SUBMIT_SUBJECT,
+			post_contact_submit->post->email_address->email_address,
 			post_contact_submit->post_return_email );
 
 	post_contact_submit->post_receive_url =
@@ -129,7 +130,8 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 				email_address,
 			post_contact_submit->
 				post->
-				timestamp );
+				timestamp
+			       /* timestamp_space */ 	);
 
 	post_contact_submit->message =
 		/* --------------------- */

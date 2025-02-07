@@ -125,6 +125,7 @@ char *post_return_email(
 /* --------------------- */
 char *post_mailx_system_string(
 		const char *subject,
+		char *email_address,
 		char *post_return_email );
 
 /* Usage */
@@ -142,7 +143,8 @@ char *post_confirmation_update_statement(
 typedef struct
 {
 	char *email_address;
-	char *timestamp;
+	char *timestamp_spaceless;
+	char *timestamp_space;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	char *appaserver_mailname;
 	char *appaserver_error_filename;
@@ -164,6 +166,11 @@ POST_RECEIVE *post_receive_new(
 POST_RECEIVE *post_receive_calloc(
 		void );
 
+/* Returns static memory */
+/* --------------------- */
+char *post_receive_timestamp_space(
+		char *timestamp_spaceless );
+
 /* Usage */
 /* ----- */
 
@@ -173,6 +180,14 @@ char *post_receive_url(
 		const char *receive_executable,
 		char *apache_cgi_directory,
 		char *email_address,
-		char *timestamp );
+		char *timestamp_space );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *post_receive_timestamp_spaceless(
+		char *timestamp_space );
 
 #endif
