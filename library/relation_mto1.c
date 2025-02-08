@@ -335,13 +335,11 @@ LIST *relation_mto1_drillthru_list(
 
 RELATION_MTO1 *relation_mto1_consumes(
 		char *many_attribute_name,
-		LIST *relation_mto1_list,
-		LIST *relation_mto1_isa_list )
+		LIST *relation_mto1_list )
 {
 	RELATION_MTO1 *relation_mto1;
 
-	if ( !list_length( relation_mto1_list )
-	&&   !list_length( relation_mto1_isa_list ) )
+	if ( !list_length( relation_mto1_list ) )
 	{
 		return NULL;
 	}
@@ -351,20 +349,33 @@ RELATION_MTO1 *relation_mto1_consumes(
 			many_attribute_name,
 			relation_mto1_list );
 
-	if ( relation_mto1 )
-	{
-		return relation_mto1;
-	}
+	if ( relation_mto1 ) return relation_mto1;
 
-	if ( list_length( relation_mto1_isa_list ) )
-	{
-		relation_mto1 =
+	return NULL;
+}
+
+RELATION_MTO1 *relation_mto1_isa_consumes(
+		char *many_attribute_name,
+		LIST *relation_mto1_isa_list )
+{
+	RELATION_MTO1 *relation_mto1;
+	RELATION_MTO1 *relation_mto1_to_one;
+
+	if ( list_rewind( relation_mto1_isa_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_isa_list );
+
+		relation_mto1_to_one =
 			relation_mto1_attribute_consumes(
 				many_attribute_name,
-				relation_mto1_isa_list );
+				relation_mto1->relation_mto1_list );
 
-		if ( relation_mto1 ) return relation_mto1;
-	}
+		if ( relation_mto1_to_one )
+		{
+			return relation_mto1_to_one;
+		}
+
+	} while ( list_next( relation_mto1_isa_list ) );
 
 	return NULL;
 }
@@ -401,7 +412,10 @@ RELATION_MTO1 *relation_mto1_attribute_consumes(
 				many_attribute_name,
 				relation_mto1->relation_foreign_key_list );
 
-		if ( string_exists ) return relation_mto1;
+		if ( string_exists )
+		{
+			return relation_mto1;
+		}
 
 		if ( list_length( relation_mto1->relation_mto1_list ) )
 		{

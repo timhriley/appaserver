@@ -57,7 +57,12 @@ RELATION_MTO1 *relation_mto1_calloc(
 /* ----- */
 RELATION_MTO1 *relation_mto1_consumes(
 		char *many_attribute_name,
-		LIST *relation_mto1_list,
+		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
+RELATION_MTO1 *relation_mto1_isa_consumes(
+		char *many_attribute_name,
 		LIST *relation_mto1_isa_list );
 
 /* Usage */

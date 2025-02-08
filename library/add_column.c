@@ -328,8 +328,7 @@ char *add_column_relation_insert_system_string(
 	if ( ( relation_mto1 =
 		relation_mto1_consumes(
 			attribute_name /* many_attribute_name */,
-			mto1_list /* relation_mto1_list */,
-			(LIST *)0 /* relation_mto1_isa_list */ ) ) )
+			mto1_list /* relation_mto1_list */ ) ) )
 	{
 		sprintf(system_string,
 			"echo \"%s\" | sql.e 2>&1",

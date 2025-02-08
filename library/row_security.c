@@ -486,14 +486,23 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 
 	row_security_relation = row_security_relation_calloc();
 
-	if ( ! ( row_security_relation->relation_mto1 =
-			relation_mto1_consumes(
-				attribute_name,
-				many_folder_relation_mto1_list,
-				relation_mto1_isa_list ) ) )
+	row_security_relation->relation_mto1 =
+		relation_mto1_consumes(
+			attribute_name,
+			many_folder_relation_mto1_list );
+
+	if ( !row_security_relation->relation_mto1 )
 	{
-		free( row_security_relation );
-		return NULL;
+		row_security_relation->relation_mto1 =
+			relation_mto1_isa_consumes(
+				attribute_name,
+				relation_mto1_isa_list );
+
+		if ( !row_security_relation->relation_mto1 )
+		{
+			free( row_security_relation );
+			return NULL;
+		}
 	}
 
 	if ( primary_key_index

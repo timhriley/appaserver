@@ -173,8 +173,7 @@ FORM_GENERIC_LOAD_RELATION *form_generic_load_relation_new(
 	form_generic_load_relation->relation_mto1 =
 		relation_mto1_consumes(
 			attribute_name,
-			relation_mto1_recursive_list,
-			(LIST *)0 /* relation_mto1_isa_list */ );
+			relation_mto1_recursive_list );
 
 	if ( !form_generic_load_relation->relation_mto1 )
 	{

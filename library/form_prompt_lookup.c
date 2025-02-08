@@ -754,14 +754,23 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 
 	form_prompt_lookup_relation = form_prompt_lookup_relation_calloc();
 
-	if ( ! ( form_prompt_lookup_relation->relation_mto1 =
-			relation_mto1_consumes(
-				attribute_name,
-				many_folder_relation_mto1_list,
-				relation_mto1_isa_list ) ) )
+	form_prompt_lookup_relation->relation_mto1 =
+		relation_mto1_consumes(
+			attribute_name,
+			many_folder_relation_mto1_list );
+
+	if ( !form_prompt_lookup_relation->relation_mto1 )
 	{
-		free( form_prompt_lookup_relation );
-		return NULL;
+		form_prompt_lookup_relation->relation_mto1 =
+			relation_mto1_isa_consumes(
+				attribute_name,
+				relation_mto1_isa_list );
+
+		if ( !form_prompt_lookup_relation->relation_mto1 )
+		{
+			free( form_prompt_lookup_relation );
+			return NULL;
+		}
 	}
 
 	if ( primary_key_index

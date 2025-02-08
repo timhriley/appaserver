@@ -1367,13 +1367,20 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 	form_prompt_insert_relation->relation_mto1 =
 		relation_mto1_consumes(
 			attribute_name,
-			many_folder_relation_mto1_list,
-			relation_mto1_isa_list );
+			many_folder_relation_mto1_list );
 
 	if ( !form_prompt_insert_relation->relation_mto1 )
 	{
-		free( form_prompt_insert_relation );
-		return NULL;
+		form_prompt_insert_relation->relation_mto1 =
+			relation_mto1_isa_consumes(
+				attribute_name,
+				relation_mto1_isa_list );
+
+		if ( !form_prompt_insert_relation->relation_mto1 )
+		{
+			free( form_prompt_insert_relation );
+			return NULL;
+		}
 	}
 
 	if ( !form_prompt_insert_relation->relation_mto1->one_folder )

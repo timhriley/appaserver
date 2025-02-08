@@ -260,13 +260,20 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 	form_table_insert_relation->relation_mto1 =
 		relation_mto1_consumes(
 			attribute_name,
-			many_folder_relation_mto1_list,
-			relation_mto1_isa_list );
+			many_folder_relation_mto1_list );
 
 	if ( !form_table_insert_relation->relation_mto1 )
 	{
-		free( form_table_insert_relation );
-		return NULL;
+		form_table_insert_relation->relation_mto1 =
+			relation_mto1_isa_consumes(
+				attribute_name,
+				relation_mto1_isa_list );
+
+		if ( !form_table_insert_relation->relation_mto1 )
+		{
+			free( form_table_insert_relation );
+			return NULL;
+		}
 	}
 
 	if ( primary_key_index
