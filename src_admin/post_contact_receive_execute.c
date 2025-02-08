@@ -37,19 +37,24 @@ int main( int argc, char **argv )
 
 	if ( post_contact_receive->post_contact )
 	{
-		post_mailx(
-			post_contact_receive->
-				post_contact->
-				message,
-			post_contact_receive->mailx_system_string );
+		if ( !post_contact_receive->
+			post->
+			confirmation_received_date )
+		{
+			post_mailx(
+				post_contact_receive->
+					post_contact->
+					message,
+				post_contact_receive->mailx_system_string );
 
-		(void)sql_execute(
-			post_contact_receive->
-				post_receive->
-				appaserver_error_filename,
-			(LIST *)0 /* sql_list */,
-			post_contact_receive->
-				post_confirmation_update_statement );
+			(void)sql_execute(
+				post_contact_receive->
+					post_receive->
+					appaserver_error_filename,
+				(LIST *)0 /* sql_list */,
+				post_contact_receive->
+					post_confirmation_update_statement );
+		}
 
 		if ( system(
 			post_contact_receive->
