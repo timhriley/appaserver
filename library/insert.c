@@ -523,78 +523,6 @@ LIST *insert_datum_key_datum_list(
 	return key_datum_list;
 }
 
-char *insert_statement_sql_execute(
-		char *appaserver_error_filename,
-		LIST *insert_sql_list,
-		char *insert_statement )
-{
-	char system_string[ 128 ];
-	FILE *output_pipe;
-	char *temp_filename;
-	char *error_string;
-
-	if ( !appaserver_error_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "appaserver_error_filename is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !list_rewind( insert_sql_list )
-	&&   !insert_statement )
-	{
-		return (char *)0;
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"tee -a %s | sql.e 2>%s",
-		appaserver_error_filename,
-		( temp_filename =
-			timlib_temp_filename( "insert" /* key */ ) ) );
-
-	output_pipe = appaserver_output_pipe( system_string );
-
-	if ( insert_statement )
-	{
-		fprintf(output_pipe,
-			"%s\n",
-			insert_statement );
-	}
-	else
-	do {
-		fprintf(output_pipe,
-			"%s\n",
-			(char *)list_get( insert_sql_list ) );
-
-	} while ( list_next( insert_sql_list ) );
-
-	pclose( output_pipe );
-
-	error_string =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		string_file_fetch(
-			temp_filename,
-			"\n<br>" /* delimiter */ );
-
-	timlib_remove_file( temp_filename );
-
-	return
-	string_search_replace(
-		error_string,
-		"ERROR 1062 (23000) ",
-		"" );
-}
-
 void insert_statement_command_execute(
 		LIST *insert_statement_extract_command_list )
 {
@@ -773,10 +701,10 @@ char *insert_statement_execute(
 	}
 
 	error_string =
-		/* --------------------------------------------- */
-		/* Returns insert_statement_error_string or null */
-		/* --------------------------------------------- */
-		insert_statement_sql_execute(
+		/* ---------------------------- */
+		/* Returns error_string or null */
+		/* ---------------------------- */
+		sql_execute(
 			appaserver_error_filename,
 			extract_sql_list,
 			(char *)0 /* insert_statement */ );

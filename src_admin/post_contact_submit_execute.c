@@ -10,6 +10,7 @@
 #include "application.h"
 #include "environ.h"
 #include "document.h"
+#include "sql.h"
 #include "session.h"
 #include "appaserver_error.h"
 #include "post_contact_submit.h"
@@ -34,20 +35,20 @@ int main( int argc, char **argv )
 
 	if ( post_contact_submit->post_contact )
 	{
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
-			(LIST *)0 /* insert_statement_list */,
+			(LIST *)0 /* sql_list */,
 			post_contact_submit->
 				post->
 				insert_statement );
 
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
-			(LIST *)0 /* insert_statement_list */,
+			(LIST *)0 /* sql_list */,
 			post_contact_submit->
 				post_contact->
 				insert_statement );
@@ -69,11 +70,11 @@ int main( int argc, char **argv )
 		email_address->
 		insert_statement )
 	{
-			(void)insert_statement_sql_execute(
+			(void)sql_execute(
 				post_contact_submit->
 					post_contact_submit_input->
 					appaserver_error_filename,
-				(LIST *)0 /* insert_statement_list */,
+				(LIST *)0 /* sql_list */,
 				post_contact_submit->
 					post->
 					email_address->

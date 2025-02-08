@@ -11,6 +11,7 @@
 #include "environ.h"
 #include "document.h"
 #include "session.h"
+#include "sql.h"
 #include "appaserver_error.h"
 #include "post_contact_receive.h"
 
@@ -42,11 +43,11 @@ int main( int argc, char **argv )
 				message,
 			post_contact_receive->mailx_system_string );
 
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_contact_receive->
 				post_receive->
 				appaserver_error_filename,
-			(LIST *)0 /* insert_statement_list */,
+			(LIST *)0 /* sql_list */,
 			post_contact_receive->
 				post_confirmation_update_statement );
 

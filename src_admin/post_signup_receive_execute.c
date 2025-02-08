@@ -12,6 +12,7 @@
 #include "document.h"
 #include "session.h"
 #include "spool.h"
+#include "sql.h"
 #include "appaserver_error.h"
 #include "post_signup_receive.h"
 
@@ -69,11 +70,11 @@ int main( int argc, char **argv )
 			exit( 1 );
 		}
 
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_signup_receive->
 				post_receive->
 				appaserver_error_filename,
-			(LIST *)0 /* insert_statement_list */,
+			(LIST *)0 /* sql_list */,
 			post_signup_receive->
 				post_confirmation_update_statement );
 

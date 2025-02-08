@@ -341,13 +341,6 @@ char *insert_statement_execute(
 LIST *insert_statement_extract_sql_list(
 		LIST *insert_folder_statement_list );
 
-/* Returns insert_statement_error_string or null */
-/* --------------------------------------------- */
-char *insert_statement_sql_execute(
-		char *appaserver_error_filename,
-		LIST *insert_sql_list /* mutually exclusive */,
-		char *insert_statement /* mutually exclusive */ );
-
 LIST *insert_statement_extract_command_list(
 		LIST *insert_folder_statement_list );
 

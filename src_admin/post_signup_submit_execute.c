@@ -10,6 +10,7 @@
 #include "application.h"
 #include "environ.h"
 #include "session.h"
+#include "sql.h"
 #include "appaserver_error.h"
 #include "post_signup_submit.h"
 
@@ -31,7 +32,7 @@ int main( int argc, char **argv )
 
 	if ( post_signup_submit->post_signup )
 	{
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -40,7 +41,7 @@ int main( int argc, char **argv )
 				post->
 				insert_statement );
 
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -67,7 +68,7 @@ int main( int argc, char **argv )
 		email_address->
 		insert_statement )
 	{
-		(void)insert_statement_sql_execute(
+		(void)sql_execute(
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
