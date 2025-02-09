@@ -12,7 +12,7 @@
 #include "post.h"
 #include "post_contact.h"
 
-#define POST_CONTACT_RECEIVE_DESTINATION_EMAIL	"timriley@appahost.com"
+#define POST_CONTACT_RECEIVE_DESTINATION_EMAIL	"timriley@timriley.net"
 #define POST_CONTACT_RECEIVE_APPLICATION	"appahost"
 #define POST_CONTACT_RECEIVE_ENTITY		"Appahost"
 #define POST_CONTACT_RECEIVE_SENT_FILENAME	"message_sent.php"

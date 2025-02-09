@@ -13,7 +13,10 @@
 #include "appaserver_parameter.h"
 #include "email_address.h"
 
+/*
 #define POST_RETURN_USERNAME		"DoNotReply"
+*/
+#define POST_RETURN_USERNAME		"timriley"
 
 #define POST_TABLE			"post"
 #define POST_CONFIRMATION_COLUMN	"confirmation_received_date"

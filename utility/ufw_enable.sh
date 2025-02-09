@@ -25,10 +25,11 @@ sudo ufw default allow outgoing
 sudo ufw allow http
 sudo ufw allow https
 sudo ufw allow domain
-sudo ufw allow smtp
+sudo ufw allow smtp	# smtp v6
+sudo ufw allow 25	# smtp v4
 sudo ufw allow time
-sudo ufw allow sftp
-sudo ufw allow remoteping
+#sudo ufw allow sftp
+#sudo ufw allow remoteping
 sudo ufw allow ssh
 sudo ufw limit ssh
 
