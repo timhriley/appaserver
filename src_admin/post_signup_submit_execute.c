@@ -32,7 +32,9 @@ int main( int argc, char **argv )
 
 	if ( post_signup_submit->post_signup )
 	{
-		(void)sql_execute(
+		char *error_string;
+
+		error_string = sql_execute(
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -41,7 +43,16 @@ int main( int argc, char **argv )
 				post->
 				insert_statement );
 
-		(void)sql_execute(
+		if ( error_string )
+		{
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				error_string );
+		}
+
+		error_string = sql_execute(
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -49,6 +60,15 @@ int main( int argc, char **argv )
 			post_signup_submit->
 				post_signup->
 				insert_statement );
+
+		if ( error_string )
+		{
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				error_string );
+		}
 
 		post_mailx(
 			post_signup_submit->message,
@@ -68,7 +88,9 @@ int main( int argc, char **argv )
 		email_address->
 		insert_statement )
 	{
-		(void)sql_execute(
+		char *error_string;
+
+		error_string = sql_execute(
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -77,6 +99,15 @@ int main( int argc, char **argv )
 				post->
 				email_address->
 				insert_statement );
+
+		if ( error_string )
+		{
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				error_string );
+		}
 	}
 
 	if ( post_signup_submit->

@@ -18,6 +18,7 @@
 */
 #define POST_RETURN_USERNAME		"timriley"
 
+#define POST_HTTP_USER_AGENT_SIZE	80
 #define POST_TABLE			"post"
 #define POST_CONFIRMATION_COLUMN	"confirmation_received_date"
 
@@ -71,6 +72,7 @@ char *post_ip_deny_system_string(
 char *post_insert_statement(
 		const char *post_table,
 		const char *post_insert,
+		const int post_http_user_agent_size,
 		char *email_address,
 		char *environment_remote_ip_address,
 		char *environment_http_user_agent,

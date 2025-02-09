@@ -87,6 +87,7 @@ POST *post_new(
 		post_insert_statement(
 			POST_TABLE,
 			POST_INSERT,
+			POST_HTTP_USER_AGENT_SIZE,
 			email_address,
 			post->ip_address,
 			post->http_user_agent,
@@ -115,12 +116,14 @@ POST *post_calloc( void )
 char *post_insert_statement(
 		const char *post_table,
 		const char *post_insert,
+		const int post_http_user_agent_size,
 		char *email_address,
 		char *ip_address,
 		char *http_user_agent,
 		char *timestamp )
 {
 	char insert_statement[ 1024 ];
+	char http_user_agent_trimmed[ 256 ];
 
 	if ( !email_address
 	||   !ip_address
@@ -135,6 +138,11 @@ char *post_insert_statement(
 		exit( 1 );
 	}
 
+	string_strcpy(
+		http_user_agent_trimmed,
+		http_user_agent,
+		post_http_user_agent_size + 1 /* buffer_size */ );
+
 	snprintf(
 		insert_statement,
 		sizeof ( insert_statement ),
@@ -143,7 +151,7 @@ char *post_insert_statement(
 		post_insert,
 		email_address,
 		ip_address,
-		http_user_agent,
+		http_user_agent_trimmed,
 		timestamp );
 
 	return strdup( insert_statement );

@@ -35,7 +35,9 @@ int main( int argc, char **argv )
 
 	if ( post_contact_submit->post_contact )
 	{
-		(void)sql_execute(
+		char *error_string;
+
+		error_string = sql_execute(
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
@@ -44,7 +46,16 @@ int main( int argc, char **argv )
 				post->
 				insert_statement );
 
-		(void)sql_execute(
+		if ( error_string )
+		{
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				error_string );
+		}
+
+		error_string = sql_execute(
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
@@ -52,6 +63,15 @@ int main( int argc, char **argv )
 			post_contact_submit->
 				post_contact->
 				insert_statement );
+
+		if ( error_string )
+		{
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				error_string );
+		}
 
 		post_mailx(
 			post_contact_submit->message,
@@ -70,15 +90,26 @@ int main( int argc, char **argv )
 		email_address->
 		insert_statement )
 	{
-			(void)sql_execute(
-				post_contact_submit->
-					post_contact_submit_input->
-					appaserver_error_filename,
-				(LIST *)0 /* sql_list */,
-				post_contact_submit->
-					post->
-					email_address->
-					insert_statement );
+		char *error_string;
+
+		error_string = sql_execute(
+			post_contact_submit->
+				post_contact_submit_input->
+				appaserver_error_filename,
+			(LIST *)0 /* sql_list */,
+			post_contact_submit->
+				post->
+				email_address->
+				insert_statement );
+
+		if ( error_string )
+		{
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				error_string );
+		}
 	}
 
 	if ( post_contact_submit->
