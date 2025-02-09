@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "String.h"
 #include "frameset.h"
+#include "create_table.h"
 #include "table_edit.h"
 #include "table_insert.h"
 #include "prompt_insert.h"
@@ -154,11 +155,11 @@ int main( int argc, char **argv )
 
 		fatal_duplicate_error =
 			post_prompt_insert_fatal_duplicate_error(
+				CREATE_TABLE_UNIQUE_SUFFIX,
 				post_prompt_insert->
-					insert->
-					insert_zero->
-					insert_folder->
-					application_table_name,
+					post_prompt_insert_input->
+					folder->
+					folder_attribute_primary_key_list,
 				insert_statement_error_string );
 
 		if ( fatal_duplicate_error )

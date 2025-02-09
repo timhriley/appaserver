@@ -14,6 +14,7 @@
 
 #define CREATE_TABLE_EXECUTABLE		"create_table"
 #define CREATE_TABLE_MYISAM_ENGINE	"MyISAM"
+#define CREATE_TABLE_UNIQUE_SUFFIX	"additional_unique"
 
 typedef struct
 {
@@ -95,17 +96,26 @@ char *create_table_unique_index_statement(
 /* Usage */
 /* ----- */
 LIST *create_table_additional_unique_index_list(
+		const char *create_table_unique_suffix,
 		LIST *folder_attribute_list,
 		char *folder_table_name );
 
 /* Process */
 /* ------- */
-LIST *create_table_additional_unique_index_name_list(
+LIST *create_table_additional_unique_name_list(
 		LIST *folder_attribute_list );
 
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *create_table_additional_unique_name(
+		const char *create_table_unique_suffix,
+		char *attribute_name );
 
 /* Usage */
-/* ------- */
+/* ------ */
 LIST *create_table_additional_index_list(
 		LIST *folder_attribute_list,
 		char *folder_table_name );

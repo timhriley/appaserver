@@ -634,13 +634,17 @@ dot_process2option_value: dot_process2option_value.c			\
 
 post_prompt_insert: post_prompt_insert.c ${APPASERVER_LIBRARY}		\
 	${LIBRARY}/post_prompt_insert.o					\
-	${LIBRARY}/vertical_new_prompt.o
+	${LIBRARY}/vertical_new_prompt.o				\
+	${LIBRARY}/create_table.o					\
+	${LIBRARY}/shell_script.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
 		post_prompt_insert.c					\
 		${LIBRARY}/post_prompt_insert.o				\
 		${LIBRARY}/vertical_new_prompt.o			\
+		${LIBRARY}/create_table.o				\
+		${LIBRARY}/shell_script.o				\
 		-o post_prompt_insert
 	touch ${CGI_HOME}/post_prompt_insert
 	/bin/rm -f ${CGI_HOME}/post_prompt_insert
@@ -889,7 +893,9 @@ post_table_insert: post_table_insert.c					\
 		${LIBRARY}/vertical_new_prompt.o			\
 		${LIBRARY}/vertical_new_checkbox.o			\
 		${LIBRARY}/prompt_insert.o				\
-		${LIBRARY}/form_prompt_insert.o
+		${LIBRARY}/form_prompt_insert.o				\
+		${LIBRARY}/create_table.o				\
+		${LIBRARY}/shell_script.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${APPASERVER_LIBRARY}					\
@@ -902,6 +908,8 @@ post_table_insert: post_table_insert.c					\
 		${LIBRARY}/vertical_new_checkbox.o			\
 		${LIBRARY}/prompt_insert.o				\
 		${LIBRARY}/form_prompt_insert.o				\
+		${LIBRARY}/create_table.o				\
+		${LIBRARY}/shell_script.o				\
 		-o post_table_insert
 	touch ${CGI_HOME}/post_table_insert
 	/bin/rm -f ${CGI_HOME}/post_table_insert

@@ -22,6 +22,7 @@
 #include "table_insert.h"
 #include "pair_one2m.h"
 #include "vertical_new_checkbox.h"
+#include "create_table.h"
 #include "post_prompt_insert.h"
 
 POST_PROMPT_INSERT *post_prompt_insert_new(
@@ -606,7 +607,9 @@ char *post_prompt_insert_missing_display(
 			message );
 	}
 
-	sprintf(display,
+	snprintf(
+		display,
+		sizeof ( display ),
 		post_prompt_insert_missing_template,
 		string_initial_capital(
 			buffer,
@@ -621,35 +624,34 @@ char *post_prompt_insert_missing_display(
 }
 
 boolean post_prompt_insert_fatal_duplicate_error(
-		char *application_table_name,
+		const char *create_table_unique_suffix,
+		LIST *primary_key_list,
 		char *insert_statement_error_string )
 {
-	char substring[ 128 ];
+	char *primary_key;
 
-	if ( !application_table_name )
+	if ( !string_exists(
+			insert_statement_error_string,
+			(char *)create_table_unique_suffix
+				/* substring */ ) )
 	{
-		char message[ 128 ];
-
-		sprintf(message, "application_table_name is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		return 0;
 	}
 
-	if ( !insert_statement_error_string ) return 0;
+	if ( list_rewind( primary_key_list ) )
+	do {
+		primary_key = list_get( primary_key_list );
 
-	snprintf(
-		substring,
-		sizeof ( substring ),
-		"for key '%s.%s'",
-		application_table_name,
-		application_table_name );
+		if ( string_exists(
+			insert_statement_error_string,
+			create_table_additional_unique_name(
+				create_table_unique_suffix,
+				primary_key /* attribute_name */ ) ) )
+		{
+			return 0;
+		}
 
-	return
-	!string_exists(
-		insert_statement_error_string,
-		substring );
+	} while ( list_next( primary_key_list ) );
+
+	return 1;
 }

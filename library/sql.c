@@ -88,7 +88,7 @@ char *sql_execute(
 	return
 	string_search_replace(
 		error_string,
-		"ERROR 1062 (23000) ",
-		"" );
+		"ERROR 1062 (23000) at",
+		"At" );
 }
 

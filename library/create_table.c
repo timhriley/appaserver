@@ -95,6 +95,7 @@ CREATE_TABLE *create_table_new(
 
 	create_table->additional_unique_index_list =
 		create_table_additional_unique_index_list(
+			CREATE_TABLE_UNIQUE_SUFFIX,
 			create_table->folder->folder_attribute_list,
 			create_table->folder_table_name );
 
@@ -302,11 +303,12 @@ char *create_table_shell_filename(
 }
 
 LIST *create_table_additional_unique_index_list(
+		const char *create_table_unique_suffix,
 		LIST *folder_attribute_list,
 		char *folder_table_name )
 {
-	LIST *additional_unique_index_name_list;
-	char *additional_unique_index_name;
+	LIST *attribute_name_list;
+	char *attribute_name;
 	LIST *list = list_new();
 	char statement[ 256 ];
 
@@ -324,28 +326,36 @@ LIST *create_table_additional_unique_index_list(
 			message );
 	}
 
-	additional_unique_index_name_list =
-		create_table_additional_unique_index_name_list(
+	attribute_name_list =
+		create_table_additional_unique_name_list(
 			folder_attribute_list );
 
-	if ( list_rewind( additional_unique_index_name_list ) )
+	if ( list_rewind( attribute_name_list ) )
 	do {
-		additional_unique_index_name =
+		attribute_name =
 			list_get(
-				additional_unique_index_name_list );
+				attribute_name_list );
 
 		snprintf(
 			statement,
 			sizeof ( statement ),
 			"create unique index %s "
 			"on %s (%s);",
-			additional_unique_index_name,
-			folder_table_name,
-			additional_unique_index_name );
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			create_table_additional_unique_name(
+				create_table_unique_suffix,
+				attribute_name ),
+			/* ------------------------- */
+			/* Prevent compiler warnings */
+			/* ------------------------- */
+			(folder_table_name) ? folder_table_name : "",
+			(attribute_name) ? attribute_name : "" );
 
 		list_set( list, strdup( statement ) );
 
-	} while ( list_next( additional_unique_index_name_list ) );
+	} while ( list_next( attribute_name_list ) );
 
 	if ( !list_length( list ) )
 	{
@@ -532,7 +542,7 @@ LIST *create_table_additional_index_name_list(
 	return list;
 }
 
-LIST *create_table_additional_unique_index_name_list(
+LIST *create_table_additional_unique_name_list(
 		LIST *folder_attribute_list )
 {
 	LIST *list = list_new();
@@ -658,4 +668,39 @@ char *create_table_storage_engine(
 		return storage_engine;
 	else
 		return (char *)create_table_myisam_engine;
+}
+
+char *create_table_additional_unique_name(
+		const char *create_table_unique_suffix,
+		char *attribute_name )
+{
+	static char additional_unique_name[ 128 ];
+
+	if ( !attribute_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"attribute_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		additional_unique_name,
+		sizeof ( additional_unique_name ),
+		"%s_%s",
+		/* ------------------------- */
+		/* Prevent compiler warning. */
+		/* ------------------------- */
+		(attribute_name) ? attribute_name : "",
+		create_table_unique_suffix );
+
+	return additional_unique_name;
 }

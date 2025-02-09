@@ -120,10 +120,11 @@ char *post_prompt_insert_missing_display(
 		char *post_prompt_insert_missing_template,
 		LIST *post_prompt_insert_missing_primary_key_list );
 
-/* Driver */
-/* ------ */
+/* Usage */
+/* ----- */
 boolean post_prompt_insert_fatal_duplicate_error(
-		char *application_table_name,
+		const char *create_table_unique_suffix,
+		LIST *primary_key_list,
 		char *insert_statement_error_string );
 
 #endif
