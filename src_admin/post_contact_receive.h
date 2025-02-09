@@ -61,6 +61,7 @@ char *post_contact_receive_upload_filespecification(
 char *post_contact_receive_mailx_system_string(
 		const char *post_contact_receive_destination_email,
 		const char *post_contact_receive_entity,
+		const char *post_return_username,
 		char *email_address,
 		char *ip_address,
 		char *reason,

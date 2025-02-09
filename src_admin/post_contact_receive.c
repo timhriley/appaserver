@@ -77,6 +77,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 		post_contact_receive_mailx_system_string(
 			POST_CONTACT_RECEIVE_DESTINATION_EMAIL,
 			POST_CONTACT_RECEIVE_ENTITY,
+			POST_RETURN_USERNAME,
 			post_contact_receive->
 				post_receive->
 				email_address,
@@ -137,6 +138,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_calloc( void )
 char *post_contact_receive_mailx_system_string(
 		const char *destination_email,
 		const char *post_contact_receive_entity,
+		const char *post_return_username,
 		char *email_address,
 		char *ip_address,
 		char *reason,
@@ -161,7 +163,7 @@ char *post_contact_receive_mailx_system_string(
 
 	ptr += sprintf(
 		ptr,
-		"mailx -s \"%s\" -r timriley@%s",
+		"mailx -s \"%s\" -r %s@%s",
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -170,6 +172,7 @@ char *post_contact_receive_mailx_system_string(
 			email_address,
 			ip_address,
 			reason ),
+		post_return_username,
 		appaserver_mailname );
 
 	if ( upload_filespecification )

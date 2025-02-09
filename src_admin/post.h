@@ -13,6 +13,8 @@
 #include "appaserver_parameter.h"
 #include "email_address.h"
 
+#define POST_RETURN_USERNAME		"DoNotReply"
+
 #define POST_TABLE			"post"
 #define POST_CONFIRMATION_COLUMN	"confirmation_received_date"
 
@@ -24,8 +26,6 @@
 					"IP_address,"			\
 					"http_user_agent,"		\
 					"timestamp"
-
-#define POST_RETURN_USERNAME		"DoNotReply"
 
 #define POST_DENY_EXECUTABLE		"ufw_deny_queue.sh"
 #define POST_DENY_FILESPECIFICATION	"/usr2/ufw/deny_queue.dat"
