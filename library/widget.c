@@ -3358,9 +3358,6 @@ char *widget_notepad_html(
 		attribute_size,
 		WIDGET_NOTEPAD_COLUMNS,
 		WIDGET_NOTEPAD_ROWS,
-		WIDGET_NOTEPAD_LARGE_THRESHOLD,
-		WIDGET_NOTEPAD_LARGE_COLUMNS,
-		WIDGET_NOTEPAD_LARGE_ROWS,
 		text_replace_on_change );
 }
 
@@ -3372,9 +3369,6 @@ char *widget_notepad_html_string(
 		int attribute_size,
 		int widget_notepad_columns,
 		int widget_notepad_rows,
-		int widget_notepad_large_threshold,
-		int widget_notepad_large_columns,
-		int widget_notepad_large_rows,
 		char *widget_text_replace_javascript )
 {
 	char html[ STRING_256K ];
@@ -3391,12 +3385,6 @@ char *widget_notepad_html_string(
 			__FUNCTION__,
 			__LINE__,
 			message );
-	}
-
-	if ( attribute_size >= widget_notepad_large_threshold )
-	{
-		widget_notepad_columns = widget_notepad_large_columns;
-		widget_notepad_rows = widget_notepad_large_rows;
 	}
 
 	ptr += sprintf(

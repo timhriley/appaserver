@@ -50,9 +50,6 @@
 
 #define WIDGET_NOTEPAD_COLUMNS			30
 #define WIDGET_NOTEPAD_ROWS			4
-#define WIDGET_NOTEPAD_LARGE_THRESHOLD		10000
-#define WIDGET_NOTEPAD_LARGE_COLUMNS		70
-#define WIDGET_NOTEPAD_LARGE_ROWS		12
 
 #define WIDGET_ENCRYPT_COMPARE_LABEL	"compare"
 
@@ -880,9 +877,6 @@ char *widget_notepad_html_string(
 		int attribute_size,
 		int widget_notepad_columns,
 		int widget_notepad_rows,
-		int widget_notepad_large_threshold,
-		int widget_notepad_large_columns,
-		int widget_notepad_large_rows,
 		char *widget_change_replace_javascript );
 
 typedef struct
