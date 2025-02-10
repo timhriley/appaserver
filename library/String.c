@@ -400,7 +400,7 @@ int string_strlen( char *string )
 	return length;
 }
 
-boolean string_strcmp( char *s1, char *s2 )
+int string_strcmp( char *s1, char *s2 )
 {
 	if ( !s1 && !s2 ) return 0;
 	if ( !s2 ) return -1;
@@ -409,30 +409,31 @@ boolean string_strcmp( char *s1, char *s2 )
 	return strcasecmp( s1, s2 );
 }
 
-boolean string_strcpy( char *d, char *s, int buffer_size )
+void string_strcpy( char *d, char *s, unsigned int buffer_size )
 {
-	int str_len;
+	register unsigned int count = 0;
 
-	if ( d && !s )
+	if ( d ) *d = '\0';
+
+	if ( !s ) return;
+	if ( !d ) return;
+	if ( d == s ) return;
+
+	while( *s )
 	{
-		*d = '\0';
-		return 0;
+		if ( buffer_size )
+		{
+			if ( ++count == buffer_size )
+			{
+				*d = '\0';
+				return;
+			}
+		}
+
+		*d++ = *s++;
 	}
 
-	if ( !d || !s ) return 0;
-
-	if ( d == s ) return 1;
-
 	*d = '\0';
-
-	str_len = strlen( s );
-
-	if ( buffer_size && str_len >= buffer_size ) return 0;
-
-	while( *s ) *d++ = *s++;
-
-	*d = '\0';
-	return 1;
 }
 
 char *string_strcat( char *d, char *s )

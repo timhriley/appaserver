@@ -121,14 +121,14 @@ char *string_unescape_character_array(
 int string_strlen(
 		char *string );
 
-boolean string_strcmp(
+int string_strcmp(
 		char *s1,
 		char *s2 );
 
-boolean string_strcpy(
+void string_strcpy(
 		char *d,
 		char *s,
-		int buffer_size );
+		unsigned int buffer_size );
 
 char *string_strcat(
 		char *d,
