@@ -869,14 +869,12 @@ QUERY_ATTRIBUTE *query_attribute_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *query_attribute_is_null_where(
-		char *attribute_full_attribute_name,
-		boolean attribute_is_number );
+		char *attribute_full_attribute_name );
 
 /* Returns heap memory */
 /* ------------------- */
 char *query_attribute_not_null_where(
-		char *attribute_full_attribute_name,
-		boolean attribute_is_number );
+		char *attribute_full_attribute_name );
 
 /* Returns heap memory */
 /* ------------------- */

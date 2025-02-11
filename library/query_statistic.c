@@ -410,6 +410,7 @@ QUERY_STATISTIC *query_statistic_new(
 		query_statistic_select_list(
 			application_name,
 			folder_name,
+			folder_attribute_append_isa_list,
 			list_length( relation_mto1_isa_list )
 				/* relation_mto1_isa_list_length */,
 			primary_key_first,
@@ -490,6 +491,7 @@ QUERY_STATISTIC *query_statistic_calloc( void )
 LIST *query_statistic_select_list(
 		char *application_name,
 		char *folder_name,
+		LIST *folder_attribute_append_isa_list,
 		int relation_mto1_isa_list_length,
 		char *primary_key_first,
 		LIST *attribute_number_name_list,
@@ -530,6 +532,16 @@ LIST *query_statistic_select_list(
 			list_get(
 				attribute_number_name_list );
 
+		folder_name =
+/* ---------------------------------------------------------------------- */
+/* Returns folder_name or a component of folder_attribute_append_isa_list */
+/* ---------------------------------------------------------------------- */
+			query_statistic_select_folder_name(
+				folder_name,
+				folder_attribute_append_isa_list,
+				relation_mto1_isa_list_length,
+				attribute_name );
+
 		list_set(
 			select_list,
 			query_select_new(
@@ -546,6 +558,16 @@ LIST *query_statistic_select_list(
 		attribute_name =
 			list_get(
 				attribute_date_name_list );
+
+		folder_name =
+/* ---------------------------------------------------------------------- */
+/* Returns folder_name or a component of folder_attribute_append_isa_list */
+/* ---------------------------------------------------------------------- */
+			query_statistic_select_folder_name(
+				folder_name,
+				folder_attribute_append_isa_list,
+				relation_mto1_isa_list_length,
+				attribute_name );
 
 		list_set(
 			select_list,
@@ -699,5 +721,58 @@ boolean query_statistic_fetch_first_date_boolean(
 	list_string_exists(
 		primary_key_first /* string */,
 		attribute_date_name_list );
+}
+
+char *query_statistic_select_folder_name(
+		char *folder_name,
+		LIST *folder_attribute_append_isa_list,
+		int relation_mto1_isa_list_length,
+		char *attribute_name )
+{
+	FOLDER_ATTRIBUTE *folder_attribute;
+
+	if ( !folder_name
+	||   !list_length( folder_attribute_append_isa_list )
+	||   !attribute_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !relation_mto1_isa_list_length ) return folder_name;
+
+	folder_attribute =
+		folder_attribute_seek(
+			attribute_name,
+			folder_attribute_append_isa_list );
+
+	if ( !folder_attribute )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_attribute_seek(%s) returned empty.",
+			attribute_name );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return folder_attribute->folder_name;
 }
 

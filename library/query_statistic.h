@@ -160,9 +160,21 @@ QUERY_STATISTIC *query_statistic_calloc(
 LIST *query_statistic_select_list(
 		char *application_name,
 		char *folder_name,
+		LIST *folder_attribute_append_isa_list,
 		int relation_mto1_isa_list_length,
 		char *primary_key_first,
 		LIST *attribute_number_name_list,
 		LIST *attribute_date_name_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns folder_name or a component of folder_attribute_append_isa_list */
+/* ---------------------------------------------------------------------- */
+char *query_statistic_select_folder_name(
+		char *folder_name,
+		LIST *folder_attribute_append_isa_list,
+		int relation_mto1_isa_list_length,
+		char *attribute_name );
 
 #endif

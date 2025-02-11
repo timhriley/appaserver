@@ -1417,8 +1417,7 @@ QUERY_ATTRIBUTE *query_attribute_new(
 			query_attribute_is_null_where(
 				attribute_full_attribute_name(
 					table_name,
-					attribute_name ),
-				query_attribute->attribute_is_number );
+					attribute_name ) );
 	}
 	else
 	if (	query_attribute->query_relation->query_relation_enum ==
@@ -1431,8 +1430,7 @@ QUERY_ATTRIBUTE *query_attribute_new(
 			query_attribute_not_null_where(
 				attribute_full_attribute_name(
 					table_name,
-					attribute_name ),
-				query_attribute->attribute_is_number );
+					attribute_name ) );
 	}
 	else
 	if (	query_attribute->query_relation->query_relation_enum ==
@@ -1558,47 +1556,29 @@ QUERY_ATTRIBUTE *query_attribute_new(
 }
 
 char *query_attribute_is_null_where(
-		char *attribute_full_attribute_name,
-		boolean attribute_is_number)
+		char *attribute_full_attribute_name )
 {
 	char where[ 128 ];
 
-	if ( attribute_is_number )
-	{
-		sprintf(where,
-			"%s is null",
-			attribute_full_attribute_name );
-	}
-	else
-	{
-		sprintf(where,
-			"(%s = 'null' or %s is null)",
-			attribute_full_attribute_name,
-			attribute_full_attribute_name );
-	}
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s is null",
+		attribute_full_attribute_name );
 
 	return strdup( where );
 }
 
 char *query_attribute_not_null_where(
-		char *attribute_full_attribute_name,
-		boolean attribute_is_number )
+		char *attribute_full_attribute_name )
 {
 	char where[ 128 ];
 
-	if ( attribute_is_number )
-	{
-		sprintf(where,
-			"%s is not null",
-			attribute_full_attribute_name );
-	}
-	else
-	{
-		sprintf(where,
-			"(%s <> 'null' or %s is not null)",
-			attribute_full_attribute_name,
-			attribute_full_attribute_name );
-	}
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s is not null",
+		attribute_full_attribute_name );
 
 	return strdup( where );
 }
