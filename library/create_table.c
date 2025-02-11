@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "application.h"
+#include "appaserver.h"
 #include "folder.h"
 #include "folder_attribute.h"
 #include "create_table.h"
@@ -58,18 +59,17 @@ CREATE_TABLE *create_table_new(
 			1 /* fetch_folder_attribute_list */,
 			1 /* fetch_attribute */ );
 
-	create_table->folder_table_name =
+	create_table->appaserver_table_name =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		folder_table_name(
-			application_name,
+		appaserver_table_name(
 			folder_name );
 
 	create_table->drop_statement =
 		create_table_drop_statement(
 			create_table->folder->create_view_statement,
-			create_table->folder_table_name );
+			create_table->appaserver_table_name );
 
 	create_table->statement =
 		/* ------------------- */
@@ -81,28 +81,29 @@ CREATE_TABLE *create_table_new(
 			create_table->folder->data_directory,
 			create_table->folder->index_directory,
 			create_table->folder->storage_engine,
-			create_table->folder_table_name );
+			create_table->appaserver_table_name );
 
 	create_table->unique_index_statement =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		create_table_unique_index_statement(
+			CREATE_TABLE_UNIQUE_SUFFIX,
 			create_table->
 				folder->
 				folder_attribute_primary_key_list,
-			create_table->folder_table_name );
+			create_table->appaserver_table_name );
 
 	create_table->additional_unique_index_list =
 		create_table_additional_unique_index_list(
-			CREATE_TABLE_UNIQUE_SUFFIX,
+			CREATE_TABLE_ADDITIONAL_SUFFIX,
 			create_table->folder->folder_attribute_list,
-			create_table->folder_table_name );
+			create_table->appaserver_table_name );
 
 	create_table->additional_index_list =
 		create_table_additional_index_list(
 			create_table->folder->folder_attribute_list,
-			create_table->folder_table_name );
+			create_table->appaserver_table_name );
 
 	create_table->shell_filename =
 		/* --------------------- */
@@ -159,7 +160,7 @@ char *create_table_statement(
 		char *data_directory,
 		char *index_directory,
 		char *storage_engine,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	char statement[ 4096 ];
 	char *ptr = statement;
@@ -168,7 +169,7 @@ char *create_table_statement(
 	char *database_datatype;
 
 	if ( !list_rewind( folder_attribute_list )
-	||   !folder_table_name )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -189,7 +190,7 @@ char *create_table_statement(
 	ptr += sprintf(
 		ptr,
 		"create table %s (",
-		folder_table_name );
+		appaserver_table_name );
 
 	do {
 		folder_attribute =
@@ -303,9 +304,9 @@ char *create_table_shell_filename(
 }
 
 LIST *create_table_additional_unique_index_list(
-		const char *create_table_unique_suffix,
+		const char *create_table_additional_suffix,
 		LIST *folder_attribute_list,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	LIST *attribute_name_list;
 	char *attribute_name;
@@ -313,7 +314,7 @@ LIST *create_table_additional_unique_index_list(
 	char statement[ 256 ];
 
 	if ( !list_length( folder_attribute_list )
-	||   !folder_table_name )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -324,6 +325,10 @@ LIST *create_table_additional_unique_index_list(
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 
 	attribute_name_list =
@@ -339,18 +344,17 @@ LIST *create_table_additional_unique_index_list(
 		snprintf(
 			statement,
 			sizeof ( statement ),
-			"create unique index %s "
-			"on %s (%s);",
+			"create unique index %s on %s (%s);",
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 			create_table_additional_unique_name(
-				create_table_unique_suffix,
+				create_table_additional_suffix,
 				attribute_name ),
-			/* ------------------------- */
-			/* Prevent compiler warnings */
-			/* ------------------------- */
-			(folder_table_name) ? folder_table_name : "",
+			appaserver_table_name,
+			/* ------------------------ */
+			/* Prevent compiler warning */
+			/* ------------------------ */
 			(attribute_name) ? attribute_name : "" );
 
 		list_set( list, strdup( statement ) );
@@ -368,7 +372,7 @@ LIST *create_table_additional_unique_index_list(
 
 LIST *create_table_additional_index_list(
 		LIST *folder_attribute_list,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	LIST *additional_index_name_list;
 	LIST *list = list_new();
@@ -376,7 +380,7 @@ LIST *create_table_additional_index_list(
 	char statement[ 256 ];
 
 	if ( !list_length( folder_attribute_list )
-	||   !folder_table_name )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -387,6 +391,10 @@ LIST *create_table_additional_index_list(
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 
 	additional_index_name_list =
@@ -404,7 +412,7 @@ LIST *create_table_additional_index_list(
 			sizeof ( statement ),
 			"create index %s on %s (%s);",
 			additional_index_name,
-			folder_table_name,
+			appaserver_table_name,
 			additional_index_name );
 
 		list_set( list, strdup( statement ) );
@@ -421,13 +429,14 @@ LIST *create_table_additional_index_list(
 }
 
 char *create_table_unique_index_statement(
+		const char *create_table_unique_suffix,
 		LIST *folder_attribute_primary_key_list,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	static char statement[ 256 ];
 
 	if ( !list_length( folder_attribute_primary_key_list )
-	||   !folder_table_name )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
@@ -438,14 +447,23 @@ char *create_table_unique_index_statement(
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 
 	snprintf(
 		statement,
 		sizeof ( statement ),
 		"create unique index %s on %s (%s);",
-		folder_table_name,
-		folder_table_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_name(
+			create_table_unique_suffix,
+			appaserver_table_name ),
+		appaserver_table_name,
 		/* ------------------------- */
 		/* Returns heap memory or "" */
 		/* ------------------------- */
@@ -574,15 +592,15 @@ LIST *create_table_additional_unique_name_list(
 
 char *create_table_drop_statement(
 		char *create_view_statement,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	static char statement[ 128 ];
 
-	if ( !folder_table_name )
+	if ( !appaserver_table_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "folder_table_name is empty." );
+		sprintf(message, "appaserver_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -597,7 +615,7 @@ char *create_table_drop_statement(
 			statement,
 			sizeof ( statement ),
 			"drop view if exists %s;",
-			folder_table_name );
+			appaserver_table_name );
 	}
 	else
 	{
@@ -605,36 +623,25 @@ char *create_table_drop_statement(
 			statement,
 			sizeof ( statement ),
 			"drop table if exists %s;",
-			folder_table_name );
+			appaserver_table_name );
 	}
 
 	return statement;
 }
 
 char *create_table_primary_index_system_string(
+		const char *create_table_unique_suffix,
 		LIST *primary_key_list,
-		char *folder_table_name )
+		char *appaserver_table_name )
 {
 	static char system_string[ 512 ];
 
-	if ( !list_length( primary_key_list ) )
+	if ( !list_length( primary_key_list )
+	||   !appaserver_table_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "primary_key_list is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( !folder_table_name )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "folder_table_name is empty." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -646,16 +653,15 @@ char *create_table_primary_index_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"echo \"create unique index %s on %s (%s);\" |"
+		"echo \"%s\" |"
 		"sql.e 2>&1",
-		folder_table_name,
-		folder_table_name,
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		list_display_delimited(
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_index_statement(
+			create_table_unique_suffix,
 			primary_key_list,
-			',' ) );
+			appaserver_table_name ) );
 
 	return system_string;
 }
@@ -671,7 +677,7 @@ char *create_table_storage_engine(
 }
 
 char *create_table_additional_unique_name(
-		const char *create_table_unique_suffix,
+		const char *create_table_additional_suffix,
 		char *attribute_name )
 {
 	static char additional_unique_name[ 128 ];
@@ -690,17 +696,55 @@ char *create_table_additional_unique_name(
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 
 	snprintf(
 		additional_unique_name,
 		sizeof ( additional_unique_name ),
 		"%s_%s",
-		/* ------------------------- */
-		/* Prevent compiler warning. */
-		/* ------------------------- */
-		(attribute_name) ? attribute_name : "",
-		create_table_unique_suffix );
+		attribute_name,
+		create_table_additional_suffix );
 
 	return additional_unique_name;
 }
+
+char *create_table_unique_name(
+		const char *create_table_unique_suffix,
+		char *folder_name )
+{
+	static char unique_name[ 128 ];
+
+	if ( !folder_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
+	}
+
+	snprintf(
+		unique_name,
+		sizeof ( unique_name ),
+		"%s_%s",
+		folder_name,
+		create_table_unique_suffix );
+
+	return unique_name;
+}
+

@@ -625,15 +625,40 @@ char *post_prompt_insert_missing_display(
 
 boolean post_prompt_insert_fatal_duplicate_error(
 		const char *create_table_unique_suffix,
+		const char *create_table_additional_suffix,
+		char *appaserver_table_name,
 		LIST *primary_key_list,
 		char *insert_statement_error_string )
 {
 	char *primary_key;
 
-	if ( !string_exists(
-			insert_statement_error_string,
-			(char *)create_table_unique_suffix
-				/* substring */ ) )
+	if ( !appaserver_table_name
+	||   !list_length( primary_key_list ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !insert_statement_error_string ) return 0;
+
+	if ( string_exists(
+		insert_statement_error_string,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_name(
+			create_table_unique_suffix,
+			appaserver_table_name ) /* substring */ ) )
 	{
 		return 0;
 	}
@@ -644,8 +669,11 @@ boolean post_prompt_insert_fatal_duplicate_error(
 
 		if ( string_exists(
 			insert_statement_error_string,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			create_table_additional_unique_name(
-				create_table_unique_suffix,
+				create_table_additional_suffix,
 				primary_key /* attribute_name */ ) ) )
 		{
 			return 0;

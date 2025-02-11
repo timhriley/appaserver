@@ -76,7 +76,8 @@ RENAME_TABLE *rename_table_new(
 		/* Returns static memory */
 		/* --------------------- */
 		rename_table_drop_index_system_string(
-			old_folder_name,
+			CREATE_TABLE_UNIQUE_SUFFIX,
+			rename_table->old_folder_table_name,
 			rename_table->new_folder_table_name );
 
 	primary_key_list =
@@ -88,6 +89,7 @@ RENAME_TABLE *rename_table_new(
 		/* Returns static memory */
 		/* --------------------- */
 		create_table_primary_index_system_string(
+			CREATE_TABLE_UNIQUE_SUFFIX,
 			primary_key_list,
 			rename_table->new_folder_table_name );
 
@@ -507,12 +509,13 @@ char *rename_table_update_statement(
 }
 
 char *rename_table_drop_index_system_string(
-		char *old_folder_name,
+		const char *create_table_unique_suffix,
+		char *old_folder_table_name,
 		char *new_folder_table_name )
 {
 	static char system_string[ 256 ];
 
-	if ( !old_folder_name
+	if ( !old_folder_table_name
 	||   !new_folder_table_name )
 	{
 		char message[ 128 ];
@@ -524,6 +527,10 @@ char *rename_table_drop_index_system_string(
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 
 	sprintf(system_string,
@@ -531,7 +538,12 @@ char *rename_table_drop_index_system_string(
 		"tee_appaserver.sh | "
 		"sql.e 2>&1",
 		new_folder_table_name,
-		old_folder_name );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_name(
+			create_table_unique_suffix,
+			old_folder_table_name ) );
 
 	return system_string;
 }

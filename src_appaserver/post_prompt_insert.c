@@ -156,6 +156,15 @@ int main( int argc, char **argv )
 		fatal_duplicate_error =
 			post_prompt_insert_fatal_duplicate_error(
 				CREATE_TABLE_UNIQUE_SUFFIX,
+				CREATE_TABLE_ADDITIONAL_SUFFIX,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				appaserver_table_name(
+					post_prompt_insert->
+						post_prompt_insert_input->
+						folder->
+						folder_name ),
 				post_prompt_insert->
 					post_prompt_insert_input->
 					folder->

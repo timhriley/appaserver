@@ -14,12 +14,13 @@
 
 #define CREATE_TABLE_EXECUTABLE		"create_table"
 #define CREATE_TABLE_MYISAM_ENGINE	"MyISAM"
-#define CREATE_TABLE_UNIQUE_SUFFIX	"additional_unique"
+#define CREATE_TABLE_UNIQUE_SUFFIX	"unique"
+#define CREATE_TABLE_ADDITIONAL_SUFFIX	"additional_unique"
 
 typedef struct
 {
 	FOLDER *folder;
-	char *folder_table_name;
+	char *appaserver_table_name;
 	char *drop_statement;
 	char *statement;
 	char *unique_index_statement;
@@ -60,7 +61,7 @@ LIST *create_table_sql_statement_list(
 /* --------------------- */
 char *create_table_drop_statement(
 		char *create_view_statement,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Usage */
 /* ----- */
@@ -73,7 +74,7 @@ char *create_table_statement(
 		char *data_directory,
 		char *index_directory,
 		char *storage_engine,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Process */
 /* ------- */
@@ -90,35 +91,42 @@ char *create_table_storage_engine(
 /* Returns static memory */
 /* --------------------- */
 char *create_table_unique_index_statement(
+		const char *create_table_unique_suffix,
 		LIST *folder_attribute_primary_key_list,
-		char *folder_table_name );
+		char *appaserver_table_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *create_table_unique_name(
+		const char *create_table_unique_suffix,
+		char *appaserver_table_name );
 
 /* Usage */
 /* ----- */
 LIST *create_table_additional_unique_index_list(
-		const char *create_table_unique_suffix,
+		const char *create_table_additional_suffix,
 		LIST *folder_attribute_list,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Process */
 /* ------- */
 LIST *create_table_additional_unique_name_list(
 		LIST *folder_attribute_list );
 
-/* Usage */
-/* ----- */
-
 /* Returns static memory */
 /* --------------------- */
 char *create_table_additional_unique_name(
-		const char *create_table_unique_suffix,
+		const char *create_table_additional_suffix,
 		char *attribute_name );
 
 /* Usage */
 /* ------ */
 LIST *create_table_additional_index_list(
 		LIST *folder_attribute_list,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 /* Process */
 /* ------- */
@@ -148,7 +156,8 @@ SHELL_SCRIPT *create_table_shell_script(
 /* Returns static memory */
 /* --------------------- */
 char *create_table_primary_index_system_string(
+		const char *create_table_unique_suffix,
 		LIST *primary_key_list,
-		char *folder_table_name );
+		char *appaserver_table_name );
 
 #endif

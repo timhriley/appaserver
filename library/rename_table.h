@@ -38,7 +38,8 @@ RENAME_TABLE *rename_table_calloc(
 /* Returns static memory */
 /* --------------------- */
 char *rename_table_drop_index_system_string(
-		char *old_folder_name,
+		const char *create_table_unique_suffix,
+		char *old_folder_table_name,
 		char *new_folder_table_name );
 
 /* Usage */

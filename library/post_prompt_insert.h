@@ -124,6 +124,8 @@ char *post_prompt_insert_missing_display(
 /* ----- */
 boolean post_prompt_insert_fatal_duplicate_error(
 		const char *create_table_unique_suffix,
+		const char *create_table_additional_suffix,
+		char *appaserver_table_name,
 		LIST *primary_key_list,
 		char *insert_statement_error_string );
 
