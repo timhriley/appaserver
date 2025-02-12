@@ -229,7 +229,29 @@ void orphan_delete_execute(
 
 typedef struct
 {
+	FOLDER *folder;
+	LIST *relation_mto1_list;
+	LIST *relation_mto1_isa_list;
+} ORPHAN_FOLDER_INPUT;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+ORPHAN_FOLDER_INPUT *orphan_folder_input_new(
+		char *role_name,
+		char *folder_name );
+
+/* Process */
+/* ------- */
+ORPHAN_FOLDER_INPUT *orphan_folder_input_calloc(
+		void );
+
+typedef struct
+{
 	char *folder_name;
+	ORPHAN_FOLDER_INPUT *orphan_folder_input;
 	LIST *orphan_subquery_list;
 	LIST *orphan_insert_list;
 	LIST *orphan_delete_list;

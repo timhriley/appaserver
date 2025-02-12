@@ -29,12 +29,10 @@ int main( int argc, char **argv )
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
-/*
 	appaserver_error_argv_append_file(
 		argc,
 		argv,
 		application_name );
-*/
 
 	if ( argc < 5 )
 	{
@@ -87,10 +85,7 @@ int main( int argc, char **argv )
 	if ( list_rewind( orphan->orphan_folder_list ) )
 	do {
 		orphan_folder = list_get( orphan->orphan_folder_list );
-/*
-orphan_subquery_string_stdout( orphan_folder->orphan_subquery_list );
-continue;
-*/
+
 		if ( execute_boolean && !delete_boolean )
 		{
 			orphan_insert_execute(

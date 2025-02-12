@@ -438,7 +438,6 @@ ORPHAN_SUBQUERY *orphan_subquery_new(
 	orphan_subquery->orphan_data_list =
 		list_pipe(
 			orphan_subquery->system_string );
-
 	return orphan_subquery;
 }
 
@@ -479,7 +478,9 @@ char *orphan_subquery_system_string( char *subquery_string )
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"echo \"%s\" | "
 		"sql.e | "
 		/* ------------------------------------- */
@@ -489,7 +490,7 @@ char *orphan_subquery_system_string( char *subquery_string )
 		/* ------------------------------------------- */
 		/* empty lines for multi-select have leading ^ */
 		/* ------------------------------------------- */
-		"grep -v '\\^'",
+		"grep -v '^\\^'",
 		subquery_string );
 
 	return strdup( system_string );
@@ -502,9 +503,6 @@ ORPHAN_FOLDER *orphan_folder_new(
 		boolean delete_boolean )
 {
 	ORPHAN_FOLDER *orphan_folder;
-	LIST *mto1_list;
-	LIST *mto1_isa_list;
-	FOLDER *folder;
 	RELATION_MTO1 *relation_mto1;
 	ORPHAN_SUBQUERY *orphan_subquery;
 
@@ -522,44 +520,30 @@ ORPHAN_FOLDER *orphan_folder_new(
 			message );
 	}
 
-/*
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d: folder_name=[%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-folder_name );
-msg( (char *)0, message );
-}
-*/
 	orphan_folder = orphan_folder_calloc();
 
 	orphan_folder->folder_name = folder_name;
-	orphan_folder->orphan_subquery_list = list_new();
 
-	folder =
+	orphan_folder->orphan_folder_input =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		folder_fetch(
-			folder_name,
+		orphan_folder_input_new(
 			role_name,
-			(LIST *)0 /* exclude_attribute_name_list */,
-			1 /* fetch_folder_attribute_list */,
-			0 /* not fetch_attribute */ );
+			folder_name );
 
-	mto1_list =
-		relation_mto1_list(
-			role_name,
-			folder_name
-				/* many_folder_name */,
-			folder->folder_attribute_primary_key_list
-				/* many_folder_primary_key_list */ );
+	orphan_folder->orphan_subquery_list = list_new();
 
-	if ( list_rewind( mto1_list ) )
+	if ( list_rewind(
+			orphan_folder->
+				orphan_folder_input->
+				relation_mto1_list ) )
 	do {
-		relation_mto1 = list_get( mto1_list );
+		relation_mto1 =
+			list_get(
+				orphan_folder->
+					orphan_folder_input->
+					relation_mto1_list );
 
 		orphan_subquery =
 			/* -------------- */
@@ -574,20 +558,21 @@ msg( (char *)0, message );
 			orphan_folder->orphan_subquery_list,
 			orphan_subquery );
 
-	} while ( list_next( mto1_list ) );
+	} while ( list_next(
+			orphan_folder->
+				orphan_folder_input->
+				relation_mto1_list ) );
 
-	mto1_isa_list =
-		relation_mto1_isa_list(
-			(LIST *)0,
-			role_name,
-			folder_name,
-			folder->folder_attribute_primary_key_list,
-			0 /* not fetch_relation_one2m_list */,
-			0 /* not fetch_relation_mto1_list */ );
-
-	if ( list_rewind( mto1_isa_list ) )
+	if ( list_rewind(
+			orphan_folder->
+				orphan_folder_input->
+				relation_mto1_isa_list ) )
 	do {
-		relation_mto1 = list_get( mto1_isa_list );
+		relation_mto1 =
+			list_get(
+				orphan_folder->
+					orphan_folder_input->
+					relation_mto1_isa_list );
 
 		list_set(
 			orphan_folder->orphan_subquery_list,
@@ -596,7 +581,14 @@ msg( (char *)0, message );
 				folder_name,
 				relation_mto1 ) );
 	
-	} while ( list_next( mto1_isa_list ) );
+	} while ( list_next(
+			orphan_folder->
+				orphan_folder_input->
+				relation_mto1_isa_list ) );
+
+/*
+orphan_subquery_string_stdout( orphan_folder->orphan_subquery_list );
+*/
 
 	if ( !delete_boolean )
 	{
@@ -947,6 +939,8 @@ ORPHAN *orphan_new(
 		orphan_folder_name(
 			folder_name );
 
+	/* Per role to engage caching. */
+	/* --------------------------- */
 	orphan->orphan_role_list =
 		orphan_role_list(
 			orphan->folder_name );
@@ -992,7 +986,7 @@ ORPHAN *orphan_calloc( void )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "calloc() returned empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1422,5 +1416,90 @@ void orphan_delete_list_display(
 		pclose( display_pipe );
 
 	} while ( list_next( orphan_delete_list ) );
+}
+
+ORPHAN_FOLDER_INPUT *orphan_folder_input_new(
+		char *role_name,
+		char *folder_name )
+{
+	ORPHAN_FOLDER_INPUT *orphan_folder_input;
+
+	if ( !folder_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	orphan_folder_input = orphan_folder_input_calloc();
+
+	orphan_folder_input->folder =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		folder_fetch(
+			folder_name,
+			role_name,
+			(LIST *)0 /* exclude_attribute_name_list */,
+			1 /* fetch_folder_attribute_list */,
+			0 /* not fetch_attribute */ );
+
+	orphan_folder_input->relation_mto1_list =
+		relation_mto1_list(
+			role_name,
+			folder_name
+				/* many_folder_name */,
+			orphan_folder_input->
+				folder->
+				folder_attribute_primary_key_list
+				/* many_folder_primary_key_list */ );
+
+
+	orphan_folder_input->relation_mto1_isa_list =
+		relation_mto1_isa_list(
+			(LIST *)0,
+			role_name,
+			folder_name,
+			orphan_folder_input->
+				folder->
+				folder_attribute_primary_key_list,
+			0 /* not fetch_relation_one2m_list */,
+			0 /* not fetch_relation_mto1_list */ );
+
+	return orphan_folder_input;
+}
+
+ORPHAN_FOLDER_INPUT *orphan_folder_input_calloc( void )
+{
+	ORPHAN_FOLDER_INPUT *orphan_folder_input;
+
+	if ( ! ( orphan_folder_input =
+			calloc( 1,
+				sizeof ( ORPHAN_FOLDER_INPUT ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return orphan_folder_input;
 }
 

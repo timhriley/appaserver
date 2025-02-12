@@ -120,7 +120,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
-			1 /* viewonly_boolean */,
+			0 /* not viewonly_boolean */,
 			1 /* omit_delete_boolean */ );
 
 	/* If lookup permission isn't set. */
