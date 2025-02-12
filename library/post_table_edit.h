@@ -38,7 +38,7 @@ typedef struct
 	LIST *relation_mto1_isa_list;
 	PROCESS *post_change_process;
 	LIST *relation_mto1_list;
-	LIST *relation_one2m_list;
+	LIST *relation_one2m_recursive_list;
 	FOLDER_ROW_LEVEL_RESTRICTION *folder_row_level_restriction;
 	char *appaserver_spool_filename;
 	DICTIONARY *file_dictionary;

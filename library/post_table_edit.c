@@ -197,8 +197,9 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 					folder_attribute_primary_key_list
 					/* many_folder_primary_key_list */ );
 
-		post_table_edit_input->relation_one2m_list =
-			relation_one2m_list(
+		post_table_edit_input->relation_one2m_recursive_list =
+			relation_one2m_recursive_list(
+				(LIST *)0 /* one2m_list */,
 				/* ----------------------------------- */
 				/* Set to cache all folders for a role */
 				/* ----------------------------------- */
@@ -208,8 +209,7 @@ POST_TABLE_EDIT_INPUT *post_table_edit_input_new(
 				post_table_edit_input->
 					folder->
 					folder_attribute_primary_key_list
-					/* one_folder_primary_key_list */,
-				1 /* include_isa_boolean */ );
+					/* one_folder_primary_key_list */ );
 
 		post_table_edit_input->folder_row_level_restriction =
 			/* -------------- */
@@ -447,7 +447,8 @@ POST_TABLE_EDIT *post_table_edit_new(
 					folder_row_level_restriction,
 				post_table_edit->
 					post_table_edit_input->
-					relation_one2m_list,
+					relation_one2m_recursive_list
+						/* relation_one2m_list */,
 				post_table_edit->
 					post_table_edit_input->
 					relation_mto1_isa_list,

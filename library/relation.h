@@ -59,6 +59,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Returns static LIST * */
+/* --------------------- */
 LIST *relation_cache_list(
 		void );
 

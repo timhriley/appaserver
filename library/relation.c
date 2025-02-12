@@ -44,7 +44,7 @@ LIST *relation_cache_list( void )
 		appaserver_input_pipe(
 			system_string );
 
-	while ( string_input( input, input_pipe, STRING_64K ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			cache_list,
@@ -136,6 +136,8 @@ LIST *relation_seek_mto1_list( char *many_folder_name )
 			message );
 	}
 
+	/* Returns static LIST * */
+	/* --------------------- */
 	cache_list = relation_cache_list();
 
 	if ( list_rewind( cache_list ) )
@@ -175,6 +177,8 @@ LIST *relation_seek_one2m_list( char *one_folder_name )
 			message );
 	}
 
+	/* Returns static LIST * */
+	/* --------------------- */
 	cache_list = relation_cache_list();
 
 	if ( list_rewind( cache_list ) )
