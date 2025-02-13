@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "String.h"
 #include "frameset.h"
+#include "appaserver.h"
 #include "create_table.h"
 #include "table_edit.h"
 #include "table_insert.h"
@@ -29,7 +30,7 @@ int main( int argc, char **argv )
 	char *insert_statement_error_string = {0};
 	char *results_string = {0};
 	char *system_string = {0};
-	boolean fatal_duplicate_error = 0;
+	boolean fatal_duplicate_boolean;
 
 	if ( argc < 6 )
 	{
@@ -153,8 +154,8 @@ int main( int argc, char **argv )
 					insert->
 					appaserver_error_filename );
 
-		fatal_duplicate_error =
-			post_prompt_insert_fatal_duplicate_error(
+		fatal_duplicate_boolean =
+			post_prompt_insert_fatal_duplicate_boolean(
 				CREATE_TABLE_UNIQUE_SUFFIX,
 				CREATE_TABLE_ADDITIONAL_SUFFIX,
 				/* --------------------- */
@@ -171,7 +172,7 @@ int main( int argc, char **argv )
 					folder_attribute_primary_key_list,
 				insert_statement_error_string );
 
-		if ( fatal_duplicate_error )
+		if ( fatal_duplicate_boolean )
 		{
 			document_process_output(
 				application_name,

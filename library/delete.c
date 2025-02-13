@@ -254,7 +254,9 @@ char *delete_sql_statement(
 			message );
 	}
 
-	sprintf(sql_statement,
+	snprintf(
+		sql_statement,
+		sizeof ( sql_statement ),
 		"delete from %s where %s;",
 		folder_table_name,
 		delete_where );

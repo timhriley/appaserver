@@ -174,7 +174,7 @@ html_string += '</form>\n';
 html_string += '</BODY>\n';
 html_string += '</HTML>';
 
-	my_window = window.open( "", "${ajax_folder}", "width=400,height=600" );
+	my_window = window.open( "", "${ajax_folder}", "width=400,height=450" );
 	my_document = my_window.document;
 	my_document.write( html_string );
 	my_document.close();
