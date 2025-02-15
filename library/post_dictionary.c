@@ -8,8 +8,11 @@
 #include <string.h>
 #include <ctype.h>
 #include "String.h"
-#include "timlib.h"
+#include "basename.h"
 #include "piece.h"
+#include "file.h"
+#include "basename.h"
+#include "date.h"
 #include "appaserver_error.h"
 #include "dictionary.h"
 #include "appaserver.h"
@@ -38,7 +41,7 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 		char *upload_directory,
 		LIST *upload_filename_list )
 {
-	char input[ STRING_64K ];
+	char input[ STRING_128K ];
 	POST_DICTIONARY *post_dictionary = post_dictionary_calloc();
 
 	post_dictionary->apache_key =
@@ -56,6 +59,9 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 		free( post_dictionary );
 
 		return
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		post_dictionary_string_new(
 			DICTIONARY_ATTRIBUTE_DATUM_DELIMITER,
 			DICTIONARY_ELEMENT_DELIMITER,
@@ -63,6 +69,9 @@ POST_DICTIONARY *post_dictionary_stdin_new(
 	}
 
 	post_dictionary->original_post_dictionary =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		post_dictionary_fetch(
 			application_name,
 			upload_directory,
@@ -100,9 +109,23 @@ DICTIONARY *post_dictionary_fetch(
 	char input[ STRING_128K ];
 	char *apache_label;
 	char *attribute_name;
-	char *input_filename;
-	char *spool_filename;
 	DICTIONARY *original_post_dictionary = dictionary_huge();
+
+	if ( !apache_key )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"apache_key is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	while( string_input( input, stdin, sizeof ( input ) ) )
 	{
@@ -115,94 +138,44 @@ DICTIONARY *post_dictionary_fetch(
 			post_dictionary_apache_label(
 				input );
 
+		/* New attribute */
+		/* ------------- */
 		if ( string_strcmp(
 			apache_label,
 			"Content-Disposition: form-data; name=" ) == 0 )
 		{
+			POST_DICTIONARY_FILE *post_dictionary_file;
+
 			attribute_name =
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
 				post_dictionary_attribute_name(
 					input );
 
-			/* ------------------------ */
-			/* Check if spooling a file */
-			/* ------------------------ */
-			input_filename =
-				/* ----------------------------- */
-				/* Returns static memory or null */
-				/* ----------------------------- */
-				post_dictionary_input_filename(
+			post_dictionary_file =
+				post_dictionary_file_new(
+					SECURITY_ESCAPE_CHARACTER_STRING,
+					application_name,
+					upload_directory,
 					upload_filename_list,
-					input,
+					apache_key,
+					input,	
 					attribute_name );
 
-			if ( input_filename )
+			if ( post_dictionary_file )
 			{
-				char spool_key[ 128 ];
-
-				if ( !application_name
-				||   !upload_directory )
-				{
-					char message[ 128 ];
-
-					sprintf(message,
-"Received a request to spool a file, but one or more parameters are empty." );
-
-					appaserver_error_stderr_exit(
-						__FILE__,
-						__FUNCTION__,
-						__LINE__,
-						message );
-				}
-
-				/* If exists filename prompt but is empty */
-				/* -------------------------------------- */
-				if ( !*input_filename ) continue;
-
-				string_search_replace_character(
-					input_filename,
-					' ',
-					'_' );
-
-				string_remove_character_string(
-					input_filename
-						/* source_destination */,
-					SECURITY_ESCAPE_CHARACTER_STRING
-						/* character_string */ );
-
-				spool_filename =
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					post_dictionary_spool_filename(
-						application_name,
-						upload_directory,
-						input_filename );
-
-				post_dictionary_spool_file(
-					spool_filename,
-					apache_key );
-
-/*
 				dictionary_set(
 					original_post_dictionary,
-					strdup( attribute_name ),
-					strdup( input_filename ) );
-*/
-
-				snprintf(
-					spool_key,
-					sizeof ( spool_key ),
-					"%s%s",
-					POST_DICTIONARY_SPOOL_PREFIX,
-					attribute_name );
+					attribute_name,
+					post_dictionary_file->date_name );
 
 				dictionary_set(
 					original_post_dictionary,
-					strdup( spool_key ),
-					strdup( input_filename ) );
+					post_dictionary_file->
+						specification_key,
+					post_dictionary_file->
+						specification );
 
 				continue;
 			}
@@ -223,7 +196,13 @@ DICTIONARY *post_dictionary_fetch(
 				{
 					post_dictionary_datum_set(
 					     original_post_dictionary,
+					     /* ------------------ */
+					     /* Expect heap memory */
+					     /* ------------------ */
 					     attribute_name,
+					     /* ------------------- */
+					     /* Expect stack memory */
+					     /* ------------------- */
 					     input /* datum */ );
 				}
 			}
@@ -244,7 +223,13 @@ char *post_dictionary_apache_key( char *input )
 
 void post_dictionary_datum_set(
 		DICTIONARY *dictionary /* out */,
+		/* ------------------ */
+		/* Expect heap memory */
+		/* ------------------ */
 		char *attribute_name,
+		/* ------------------- */
+		/* Expect stack memory */
+		/* ------------------- */
 		char *datum )
 {
 	int row_number;
@@ -273,20 +258,27 @@ void post_dictionary_datum_set(
 
 	if ( row_number )
 	{
-		sprintf(attribute_name + strlen( attribute_name ),
-			"_%d",
-			row_number );
+		char *row_attribute_name =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			post_dictionary_row_attribute_name(
+				attribute_name,
+				row_number );
+
+		free( attribute_name );
+		attribute_name = row_attribute_name;
 	}
 
 	dictionary_set(
 		dictionary,
-		strdup( attribute_name ),
+		attribute_name,
 		strdup( datum ) );
 }
 
-void post_dictionary_spool_file(
-		char *spool_filename,
-		char *apache_key )
+void post_dictionary_file_write(
+		char *apache_key,
+		char *specification )
 {
 	FILE *output_file;
 	int false_alarm_buffer[ 1024 ];
@@ -294,8 +286,8 @@ void post_dictionary_spool_file(
 	char *apache_key_anchor = apache_key;
 	int c;
 
-	if ( !spool_filename
-	||   !apache_key )
+	if ( !apache_key
+	||   !specification )
 	{
 		char message[ 128 ];
 
@@ -308,20 +300,20 @@ void post_dictionary_spool_file(
 			message );
 	}
 
+	/* Skip "Content-Type: application/octet-stream" */
+	/* --------------------------------------------- */
+	file_skip_line( stdin );
+
+	/* Skip "\n" */
+	/* --------- */
+	file_skip_line( stdin );
+
 	output_file =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		appaserver_output_file(
-			spool_filename );
-
-	/* Skip "Content-Type: application/octet-stream" */
-	/* --------------------------------------------- */
-	skip_line( stdin );
-
-	/* Skip "\n" */
-	/* --------- */
-	skip_line( stdin );
+			specification );
 
 	while ( ( c = getc( stdin ) ) != EOF )
 	{
@@ -369,24 +361,24 @@ void post_dictionary_spool_file(
 			}
 		}
 
-		/* Write to the spool file */
-		/* ----------------------- */
+		/* Write to the file */
+		/* ----------------- */
 		putc( c, output_file );
 	}
 
 	fclose( output_file );
 }
 
-char *post_dictionary_spool_filename(
+char *post_dictionary_file_specification(
 		char *application_name,
 		char *upload_directory,
-		char *input_filename )
+		char *date_name )
 {
-	static char spool_filename[ 512 ];
+	char specification[ 512 ];
 
 	if ( !application_name
 	||   !upload_directory
-	||   !input_filename )
+	||   !date_name )
 	{
 		char message[ 128 ];
 
@@ -400,25 +392,29 @@ char *post_dictionary_spool_filename(
 	}
 
 	snprintf(
-		spool_filename,
-		sizeof ( spool_filename ),
+		specification,
+		sizeof ( specification ),
 	 	"%s/%s/%s",
 	 	upload_directory,
 		application_name,
-	 	input_filename );
+	 	date_name );
 
-	return spool_filename;
+	return strdup( specification );
 }
 
 char *post_dictionary_apache_label( char *input )
 {
 	static char apache_label[ 128 ];
+
+	/* ---------------------------------------------------- */
+	/* Returns destination or null if not enough delimiters */
+	/* ---------------------------------------------------- */
 	return piece( apache_label, '"', input, 0 );
 }
 
 char *post_dictionary_attribute_name( char *input )
 {
-	static char attribute_name[ 256 ];
+	char attribute_name[ 256 ];
 
 	if ( !string_character_count(
 		'"',
@@ -436,22 +432,28 @@ char *post_dictionary_attribute_name( char *input )
 			message );
 	}
 
-	return piece( attribute_name, '"', input, 1 );
+	/* ---------------------------------------------------- */
+	/* Returns destination or null if not enough delimiters */
+	/* ---------------------------------------------------- */
+	return strdup( piece( attribute_name, '"', input, 1 ) );
 }
 
-char *post_dictionary_input_filename(
+char *post_dictionary_file_raw_name(
 		LIST *upload_filename_list,
 		char *input,
-		char *post_dictionary_attribute_name )
+		char *attribute_name )
 {
-	static char filename[ 256 ];
+	static char raw_name[ 256 ];
 
 	if ( list_exists_string(
-		post_dictionary_attribute_name,
+		attribute_name,
 		upload_filename_list ) )
 	{
-		piece( filename, '"', input, 3 );
-		return filename;
+		return
+		/* ---------------------------------------------------- */
+		/* Returns destination or null if not enough delimiters */
+		/* ---------------------------------------------------- */
+		piece( raw_name, '"', input, 3 );
 	}
 
 	return NULL;
@@ -486,4 +488,307 @@ int post_dictionary_row_number(
 		break;
 	}
 	return 0;
+}
+
+char *post_dictionary_file_clean_name(
+		const char *security_escape_character_string,
+		char *raw_name )
+{
+	static char clean_name[ 256 ];
+
+	string_strcpy(
+		clean_name,
+		raw_name,
+		sizeof ( clean_name ) /* buffer_size */ );
+
+	/* Returns source_destination */
+	/* -------------------------- */
+	string_search_replace_character(
+		clean_name /* source_destination */,
+		' ',
+		'_' );
+
+	/* Returns source_destination */
+	/* -------------------------- */
+	string_remove_character_string(
+		clean_name /* source_destination */,
+		(char *)security_escape_character_string
+			/* character_string */ );
+
+	return clean_name;
+}
+
+char *post_dictionary_file_date_name( char *clean_name )
+{
+	char date_name[ 1024 ];
+	static char *yyyymmdd;
+	char *base_name;
+	char *extension;
+	char *dot;
+
+	if ( !clean_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"clean_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	/* Returns static memory */
+	/* --------------------- */
+	if ( !yyyymmdd ) yyyymmdd = date_now_yyyymmdd();
+
+	base_name =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		basename_base_name(
+			clean_name,
+			1 /* strip_extension */ );
+
+	extension =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		basename_extension(
+			clean_name );
+
+	if ( *extension )
+		dot = ".";
+	else
+		dot = "";
+
+	snprintf(
+		date_name,
+		sizeof ( date_name ),
+		"%s_%s%s%s",
+		base_name,
+		yyyymmdd,
+		dot,
+		extension );
+
+	return strdup( date_name );
+}
+
+POST_DICTIONARY_FILE *post_dictionary_file_new(
+		const char *security_escape_character_string,
+		char *application_name,
+		char *upload_directory,
+		LIST *upload_filename_list,
+		char *apache_key,
+		char *input,
+		char *attribute_name )
+{
+	POST_DICTIONARY_FILE *post_dictionary_file;
+	char *raw_name;
+	char *clean_name;
+	char *specification;
+
+	if ( !list_length( upload_filename_list ) ) return NULL;
+
+	if ( !application_name
+	||   !upload_directory )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+"An upload file is attempted, but application_name or upload_directory is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
+	}
+
+	if ( !apache_key
+	||   !input
+	||   !attribute_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !list_length( upload_filename_list ) ) return NULL;
+
+	post_dictionary_file = post_dictionary_file_calloc();
+
+	raw_name =
+		/* ----------------------------- */
+		/* Returns static memory or null */
+		/* ----------------------------- */
+		post_dictionary_file_raw_name(
+			upload_filename_list,
+			input,
+			attribute_name );
+
+	if ( !raw_name )
+	{
+		free( post_dictionary_file );
+		return NULL;
+	}
+
+	/* If exists filename attribute but is empty */
+	/* ----------------------------------------- */
+	if ( !*raw_name )
+	{
+		free( post_dictionary_file );
+		return NULL;
+	}
+
+	clean_name =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_dictionary_file_clean_name(
+			security_escape_character_string,
+			raw_name );
+
+	post_dictionary_file->date_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		post_dictionary_file_date_name(
+			clean_name );
+
+	specification =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		post_dictionary_file_specification(
+			application_name,
+			upload_directory,
+			post_dictionary_file->date_name );
+
+	post_dictionary_file->specification_key =
+		/* ------------------ */
+		/* Returns heap memory */
+		/* ------------------ */
+		post_dictionary_file_specification_key(
+			POST_DICTIONARY_FILE_NAME_PREFIX,
+			attribute_name );
+
+	post_dictionary_file_write(
+		apache_key,
+		specification );
+
+	return post_dictionary_file;
+}
+
+POST_DICTIONARY_FILE *post_dictionary_file_calloc( void )
+{
+	POST_DICTIONARY_FILE *post_dictionary_file;
+
+	if ( ! ( post_dictionary_file =
+			calloc( 1,
+				sizeof ( POST_DICTIONARY_FILE ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return post_dictionary_file;
+}
+
+char *post_dictionary_row_attribute_name(
+		char *attribute_name,
+		int row_number )
+{
+	char row_attribute_name[ 1024 ];
+
+	if ( !attribute_name
+	||   !row_number )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		row_attribute_name,
+		sizeof ( row_attribute_name ),
+		"%s_%d",
+		attribute_name,
+		row_number );
+
+	return strdup( row_attribute_name );
+}
+
+char *post_dictionary_file_specification_key(
+		const char *post_dictionary_file_name_prefix,
+		char *attribute_name )
+{
+	char specification_key[ 256 ];
+
+	if ( !attribute_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"attribute_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
+	}
+
+	snprintf(
+		specification_key,
+		sizeof ( specification_key ),
+		"%s_%s",
+		post_dictionary_file_name_prefix,
+		attribute_name );
+
+	return strdup( specification_key );
 }

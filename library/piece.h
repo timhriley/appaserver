@@ -23,8 +23,8 @@ typedef struct
 	int count;
 } PIECE_DELIMITER_COUNT;
 
-/* Returns null if not enough delimiters */
-/* ------------------------------------- */
+/* Returns destination or null if not enough delimiters */
+/* ---------------------------------------------------- */
 char *piece(	char *destination,
 		char delimiter,
 		char *source,

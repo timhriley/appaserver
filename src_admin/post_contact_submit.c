@@ -250,7 +250,8 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new( void )
 		/* ----------- */
 		/* List of one */
 		/* ----------- */
-		post_contact_submit_input_upload_filename_list();
+		post_contact_submit_input_upload_filename_list(
+			"upload_file" /* attribute_name */ );
 
 	post_contact_submit_input->post_dictionary =
 		/* -------------- */
@@ -314,16 +315,25 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new( void )
 		post_contact_submit_input_message_empty_boolean(
 			post_contact_submit_input->message );
 
+	post_contact_submit_input->post_dictionary_file_specification_key =
+		/* ------------------ */
+		/* Returns heap memory */
+		/* ------------------ */
+		post_dictionary_file_specification_key(
+			POST_DICTIONARY_FILE_NAME_PREFIX,
+			"upload_file" /* post_dictionary_attribute_name */ );
+
 	post_contact_submit_input->filespecification =
 		/* --------------------------------------- */
 		/* Returns component of dictionary or null */
 		/* --------------------------------------- */
 		post_contact_submit_input_filespecification(
-			POST_DICTIONARY_SPOOL_PREFIX,
 			post_contact_submit_input->
 				post_dictionary->
 				original_post_dictionary
-					/* post_dictionary */ );
+					/* post_dictionary */,
+			post_contact_submit_input->
+				post_dictionary_file_specification_key );
 
 	post_contact_submit_input->filespecification_boolean =
 		post_contact_submit_input_filespecification_boolean(
@@ -359,10 +369,11 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_calloc( void )
 	return post_contact_submit_input;
 }
 
-LIST *post_contact_submit_input_upload_filename_list( void )
+LIST *post_contact_submit_input_upload_filename_list(
+		const char *attribute_name )
 {
 	LIST *filename_list = list_new();
-	list_set( filename_list, "upload_file" );
+	list_set( filename_list, (char *)attribute_name );
 
 	return filename_list;
 }
@@ -433,24 +444,25 @@ boolean post_contact_submit_input_message_empty_boolean( char *message )
 }
 
 char *post_contact_submit_input_filespecification(
-		const char *post_dictionary_spool_prefix,
-		DICTIONARY *post_dictionary )
+		DICTIONARY *post_dictionary,
+		char *specification_key )
 {
-	char key[ 128 ];
-
-	snprintf(
-		key,
-		sizeof ( key ),
-		"%s%s",
-		post_dictionary_spool_prefix,
-		"upload_file" );
+	if ( !specification_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: specification_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
 	return
 	/* --------------------------------------- */
 	/* Returns component of dictionary or null */
 	/* --------------------------------------- */
 	dictionary_get(
-		key,
+		specification_key,
 		post_dictionary );
 }
 

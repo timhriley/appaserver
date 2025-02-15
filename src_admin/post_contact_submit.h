@@ -30,6 +30,7 @@ typedef struct
 	boolean reason_invalid_boolean;
 	char *message;
 	boolean message_empty_boolean;
+	char *post_dictionary_file_specification_key;
 	char *filespecification;
 	boolean filespecification_boolean;
 	char *appaserver_mailname;
@@ -52,7 +53,7 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_calloc(
 /* List of one */
 /* ----------- */
 LIST *post_contact_submit_input_upload_filename_list(
-		void );
+		const char *attribute_name );
 
 /* Returns component of dictionary or null */
 /* --------------------------------------- */
@@ -81,11 +82,11 @@ boolean post_contact_submit_input_message_empty_boolean(
 /* Returns component of dictionary or null */
 /* --------------------------------------- */
 char *post_contact_submit_input_filespecification(
-		const char *post_dictionary_spool_prefix,
-		DICTIONARY *post_dictionary );
+		DICTIONARY *post_dictionary,
+		char *post_dictionary_file_specification_key );
 
 boolean post_contact_submit_input_filespecification_boolean(
-		char *post_contact_submit_input_filenspecification );
+		char *post_contact_submit_input_filespecification );
 
 typedef struct
 {

@@ -46,6 +46,8 @@ char *basename_directory( char *argv_0 )
 char *basename_filename( char *argv_0 )
 {
 	return
+	/* Returns static memory */
+	/* --------------------- */
 	basename_base_name(
 		argv_0,
 		0 /* no strip_extension */ );
@@ -90,55 +92,56 @@ char *basename_base_name( char *argv_0, boolean strip_extension )
 {
 	static char base_name[ 128 ];
 	char local_buffer[ 512 ];
-	char *base_name_ptr;
+	char *end_ptr;
 
-	strcpy( local_buffer, argv_0 );
-	base_name_ptr = local_buffer + strlen( local_buffer );
+	string_strcpy( local_buffer, argv_0, sizeof ( local_buffer ) );
+	end_ptr = local_buffer + strlen( local_buffer );
 
 	/* First, strip off extension */
 	/* -------------------------- */
 	if ( strip_extension && string_character_exists( local_buffer, '.' ) )
 	{
-		while( base_name_ptr != local_buffer )
+		while( end_ptr != local_buffer )
 		{
 			/* If found extension */
 			/* ------------------ */
-			if ( *base_name_ptr == '.' )
+			if ( *end_ptr == '.' )
 			{
 				/* Make this the end of string */
 				/* --------------------------- */
-				*base_name_ptr-- = '\0';
+				*end_ptr-- = '\0';
 				break;
 			}
 			else
 			{
-				base_name_ptr--;
+				end_ptr--;
 			}
 		}
 	}
 
 	/* Second, Isolate base name */
 	/* ------------------------- */
-	while( base_name_ptr != local_buffer )
+	while( end_ptr != local_buffer )
 	{
 		/* If at the back slash in front of the base name */
 		/* ---------------------------------------------- */
-		if ( *base_name_ptr == '\\' 
-		||   *base_name_ptr == '/' )
+		if ( *end_ptr == '\\' 
+		||   *end_ptr == '/' )
 		{
 			/* Base name is the next character */
 			/* ------------------------------- */
-			base_name_ptr++;
+			end_ptr++;
 			break;
 		}
 		else
 		{
-			base_name_ptr--;
+			end_ptr--;
 		}
 	}
 
 	/* Copy to static memory to return */
 	/* ------------------------------- */
-	strcpy( base_name, base_name_ptr );
+	strcpy( base_name, end_ptr );
+
 	return base_name;
 }

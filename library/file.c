@@ -15,3 +15,16 @@ boolean file_exists_boolean( char *filespecification )
 
 	return ( stat( filespecification, &s ) != -1 );
 }
+
+void file_skip_line( FILE *infile )
+{
+	char in_char;
+
+	while ( 1 )
+	{
+		in_char = fgetc(infile);
+
+		if ( in_char == EOF || in_char == FILE_LF ) return;
+	}
+}
+
