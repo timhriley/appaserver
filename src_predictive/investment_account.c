@@ -99,15 +99,17 @@ char *investment_account_primary_where(
 		char *street_address,
 		char *account_number )
 {
-	static char where[ 128 ];
+	static char where[ 256 ];
 
-	sprintf( where,
-		 "full_name = '%s' and		"
-		 "street_address = '%s' and	"
-		 "account_number = '%s'		",
-		 full_name,
-		 street_address,
-		 account_number );
+	snprintf(
+		where,
+		sizeof ( where ),
+		"full_name = '%s' and		"
+		"street_address = '%s' and	"
+		"account_number = '%s'		",
+		full_name,
+		street_address,
+		account_number );
 
 	return where;
 }
@@ -302,7 +304,9 @@ char *investment_account_update_statement(
 {
 	char statement[ 1024 ];
 
-	sprintf(statement,
+	snprintf(
+		statement,
+		sizeof ( statement ),
 		"update %s set balance_latest = %.2lf where %s;",
 		investment_account_table,
 		update_balance_latest,

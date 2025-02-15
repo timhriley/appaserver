@@ -383,8 +383,6 @@ char *account_balance_list_update( LIST *account_balance_update_set )
 	char *system_string;
 	SPOOL *spool;
 	ACCOUNT_BALANCE *account_balance;
-	boolean balance_change_virtually_same;
-	boolean change_percent_same;
 	char *string;
 	LIST *list;
 	char *error_string;
@@ -409,52 +407,37 @@ char *account_balance_list_update( LIST *account_balance_update_set )
 	do {
 		account_balance = list_get( account_balance_update_set );
 
-		balance_change_virtually_same =
-			float_virtually_same(
-				account_balance->balance_change,
-				account_balance->update_balance_change );
+		string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			account_balance_update_change_string(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_string,
+				account_balance->
+					update_balance_change );
 
-		change_percent_same =
-			( account_balance->
-			  	balance_change_percent ==
-			  account_balance->
-			  	update_balance_change_percent );
+		fprintf(spool->output_pipe,
+			"%s\n",
+			string );
 
-		if ( !balance_change_virtually_same
-		||   !change_percent_same )
-		{
-			string =
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				account_balance_update_change_string(
-					account_balance->full_name,
-					account_balance->street_address,
-					account_balance->account_number,
-					account_balance->date_string,
-					account_balance->
-						update_balance_change );
+		string =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			account_balance_update_percent_string(
+				account_balance->full_name,
+				account_balance->street_address,
+				account_balance->account_number,
+				account_balance->date_string,
+				account_balance->
+					update_balance_change_percent );
 
-			fprintf(spool->output_pipe,
-				"%s\n",
-				string );
-
-			string =
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				account_balance_update_percent_string(
-					account_balance->full_name,
-					account_balance->street_address,
-					account_balance->account_number,
-					account_balance->date_string,
-					account_balance->
-						update_balance_change_percent );
-
-			fprintf(spool->output_pipe,
-				"%s\n",
-				string );
-		}
+		fprintf(spool->output_pipe,
+			"%s\n",
+			string );
 	} while ( list_next( account_balance_update_set ) );
 
 	pclose( spool->output_pipe );
