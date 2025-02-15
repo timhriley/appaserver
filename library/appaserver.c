@@ -35,7 +35,9 @@ char *appaserver_system_string(
 
 	if ( !where ) where = "";
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\" select",
 		select,
 		table,
@@ -160,10 +162,10 @@ char *appaserver_spreadsheet_heading_string( LIST *folder_attribute_name_list )
 }
 
 char *appaserver_spreadsheet_output_system_string(
-			char delimiter,
-			char *spreadsheet_filename )
+		char delimiter,
+		char *spreadsheet_filename )
 {
-	static char system_string[ 128 ];
+	static char system_string[ 256 ];
 
 	if ( !delimiter
 	||   !spreadsheet_filename )
@@ -179,7 +181,9 @@ char *appaserver_spreadsheet_output_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"double_quote_comma_delimited.e '%c' >> %s",
 		delimiter,
 		spreadsheet_filename );

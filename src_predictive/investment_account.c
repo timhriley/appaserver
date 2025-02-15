@@ -99,7 +99,7 @@ char *investment_account_primary_where(
 		char *street_address,
 		char *account_number )
 {
-	static char where[ 256 ];
+	static char where[ 512 ];
 
 	snprintf(
 		where,
