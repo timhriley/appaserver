@@ -25,10 +25,9 @@ POST_DICTIONARY_FILE *post_dictionary_file_new(
 		const char *security_escape_character_string,
 		char *application_name,
 		char *upload_directory,
-		LIST *upload_filename_list,
 		char *post_dictionary_apache_key,
-		char *input,
-		char *post_dictionary_attribute_name );
+		char *post_dictionary_attribute_name,
+		char *post_dictionary_file_datum );
 
 /* Process */
 /* ------- */
@@ -44,21 +43,11 @@ char *post_dictionary_file_specification_key(
 /* Usage */
 /* ----- */
 
-/* Returns static memory or null */
-/* ----------------------------- */
-char *post_dictionary_file_raw_name(
-		LIST *upload_filename_list,
-		char *input,
-		char *post_dictionary_attribute_name );
-
-/* Usage */
-/* ----- */
-
 /* Returns static memory */
 /* --------------------- */
 char *post_dictionary_file_clean_name(
 		const char *security_escape_character_string,
-		char *post_dictionary_file_raw_name );
+		char *post_dictionary_file_datum );
 
 /* Usage */
 /* ----- */
@@ -77,6 +66,16 @@ char *post_dictionary_file_specification(
 		char *application_name,
 		char *upload_directory,
 		char *post_dictionary_file_date_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *post_dictionary_file_datum(
+		LIST *upload_filename_list,
+		char *post_dictionary_attribute_name,
+		char *input );
 
 /* Usage */
 /* ----- */
@@ -123,14 +122,8 @@ DICTIONARY *post_dictionary_fetch(
 /* ----- */
 void post_dictionary_datum_set(
 		DICTIONARY *original_post_dictionary /* out */,
-		/* ------------------ */
-		/* Expect heap memory */
-		/* ------------------ */
 		char *post_dictionary_attribute_name,
-		/* ------------------- */
-		/* Expect stack memory */
-		/* ------------------- */
-		char *datum );
+		char *post_dictionary_datum );
 
 /* Usage */
 /* ----- */
@@ -155,6 +148,15 @@ char *post_dictionary_apache_label(
 /* ------------------- */
 char *post_dictionary_attribute_name(
 		char *input );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *post_dictionary_datum(
+		const char *widget_select_operator,
+		char *post_dictionary_apache_key );
 
 /* Usage */
 /* ----- */
