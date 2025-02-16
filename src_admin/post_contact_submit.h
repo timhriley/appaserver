@@ -30,9 +30,8 @@ typedef struct
 	boolean reason_invalid_boolean;
 	char *message;
 	boolean message_empty_boolean;
-	char *post_dictionary_file_specification_key;
-	char *filespecification;
-	boolean filespecification_boolean;
+	char *file;
+	boolean file_boolean;
 	char *appaserver_mailname;
 	char *appaserver_error_filename;
 } POST_CONTACT_SUBMIT_INPUT;
@@ -81,12 +80,11 @@ boolean post_contact_submit_input_message_empty_boolean(
 
 /* Returns component of dictionary or null */
 /* --------------------------------------- */
-char *post_contact_submit_input_filespecification(
-		DICTIONARY *post_dictionary,
-		char *post_dictionary_file_specification_key );
+char *post_contact_submit_input_file(
+		DICTIONARY *post_dictionary );
 
-boolean post_contact_submit_input_filespecification_boolean(
-		char *post_contact_submit_input_filespecification );
+boolean post_contact_submit_input_file_boolean(
+		char *post_contact_submit_input_file );
 
 typedef struct
 {

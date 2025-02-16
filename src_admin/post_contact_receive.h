@@ -51,7 +51,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_calloc(
 char *post_contact_receive_upload_filespecification(
 		const char *application_admin_name,
 		char *upload_directory,
-		char *fetch_upload_filespecification );
+		char *post_contact_fetch_upload_file );
 
 /* Usage */
 /* ----- */

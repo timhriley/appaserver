@@ -68,7 +68,7 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 				upload_directory,
 			post_contact_receive->
 				post_contact->
-				upload_filespecification );
+				upload_file );
 
 	post_contact_receive->mailx_system_string =
 		/* ------------------- */
@@ -243,7 +243,7 @@ char *post_contact_receive_display_system_string(
 char *post_contact_receive_upload_filespecification(
 		const char *application_admin_name,
 		char *upload_directory,
-		char *fetch_upload_filespecification )
+		char *upload_file )
 {
 	char upload_filespecification[ 1024 ];
 
@@ -257,7 +257,7 @@ char *post_contact_receive_upload_filespecification(
 		exit( 1 );
 	}
 
-	if ( !fetch_upload_filespecification ) return NULL;
+	if ( !upload_file ) return NULL;
 
 	snprintf(
 		upload_filespecification,
@@ -265,7 +265,7 @@ char *post_contact_receive_upload_filespecification(
 		"%s/%s/%s",
 		upload_directory,
 		application_admin_name,
-		fetch_upload_filespecification );
+		upload_file );
 
 	return strdup( upload_filespecification );
 }

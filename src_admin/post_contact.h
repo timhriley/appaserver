@@ -14,13 +14,13 @@
 
 #define POST_CONTACT_SELECT		"reason,"			\
 					"message,"			\
-					"upload_filespecification"
+					"upload_file"
 
 #define POST_CONTACT_INSERT		"email_address,"		\
 					"timestamp,"			\
 					"reason,"			\
 					"message,"			\
-					"upload_filespecification"
+					"upload_file"
 
 typedef struct
 {
@@ -28,7 +28,7 @@ typedef struct
 	char *timestamp;
 	char *reason;
 	char *message;
-	char *upload_filespecification;
+	char *upload_file;
 	char *insert_statement;
 } POST_CONTACT;
 
@@ -42,7 +42,7 @@ POST_CONTACT *post_contact_new(
 		char *timestamp,
 		char *reason,
 		char *message,
-		char *upload_filespecification );
+		char *upload_file );
 
 /* Process */
 /* ------- */
@@ -58,7 +58,7 @@ char *post_contact_insert_statement(
 		char *timestamp,
 		char *reason,
 		char *message,
-		char *upload_filespecification );
+		char *upload_file );
 
 /* Usage */
 /* ----- */

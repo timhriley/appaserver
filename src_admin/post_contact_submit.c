@@ -43,7 +43,7 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 			message_empty_boolean
 	&&	!post_contact_submit->
 			post_contact_submit_input->
-			filespecification_boolean ) )
+			file_boolean ) )
 	{
 		post_contact_submit->display_system_string =
 			/* --------------------- */
@@ -94,7 +94,7 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 				message,
 			post_contact_submit->
 				post_contact_submit_input->
-				filespecification );
+				file );
 
 	post_contact_submit->post_return_email =
 		/* --------------------- */
@@ -315,29 +315,19 @@ POST_CONTACT_SUBMIT_INPUT *post_contact_submit_input_new( void )
 		post_contact_submit_input_message_empty_boolean(
 			post_contact_submit_input->message );
 
-	post_contact_submit_input->post_dictionary_file_specification_key =
-		/* ------------------ */
-		/* Returns heap memory */
-		/* ------------------ */
-		post_dictionary_file_specification_key(
-			POST_DICTIONARY_FILE_NAME_PREFIX,
-			"upload_file" /* post_dictionary_attribute_name */ );
-
-	post_contact_submit_input->filespecification =
+	post_contact_submit_input->file =
 		/* --------------------------------------- */
 		/* Returns component of dictionary or null */
 		/* --------------------------------------- */
-		post_contact_submit_input_filespecification(
+		post_contact_submit_input_file(
 			post_contact_submit_input->
 				post_dictionary->
 				original_post_dictionary
-					/* post_dictionary */,
-			post_contact_submit_input->
-				post_dictionary_file_specification_key );
+					/* post_dictionary */ );
 
-	post_contact_submit_input->filespecification_boolean =
-		post_contact_submit_input_filespecification_boolean(
-			post_contact_submit_input->filespecification );
+	post_contact_submit_input->file_boolean =
+		post_contact_submit_input_file_boolean(
+			post_contact_submit_input->file );
 
 	post_contact_submit_input->appaserver_mailname =
 		appaserver_mailname(
@@ -443,35 +433,23 @@ boolean post_contact_submit_input_message_empty_boolean( char *message )
 		return 0;
 }
 
-char *post_contact_submit_input_filespecification(
-		DICTIONARY *post_dictionary,
-		char *specification_key )
+char *post_contact_submit_input_file(
+		DICTIONARY *post_dictionary )
 {
-	if ( !specification_key )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: specification_key is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	return
 	/* --------------------------------------- */
 	/* Returns component of dictionary or null */
 	/* --------------------------------------- */
 	dictionary_get(
-		specification_key,
+		"upload_file",
 		post_dictionary );
 }
 
-boolean post_contact_submit_input_filespecification_boolean(
-		char *filespecification )
+boolean post_contact_submit_input_file_boolean( char *file )
 {
-	return
-	file_exists_boolean(
-		filespecification
-			/* directory_filename_session */ );
+	if ( file )
+		return 1;
+	else
+		return 0;
 }
 

@@ -21,7 +21,7 @@ POST_CONTACT *post_contact_new(
 		char *timestamp,
 		char *reason,
 		char *message,
-		char *upload_filespecification )
+		char *upload_file )
 {
 	POST_CONTACT *post_contact;
 
@@ -50,7 +50,7 @@ POST_CONTACT *post_contact_new(
 			timestamp,
 			reason,
 			message,
-			upload_filespecification );
+			upload_file );
 
 	return post_contact;
 }
@@ -79,7 +79,7 @@ char *post_contact_insert_statement(
 		char *timestamp,
 		char *reason,
 		char *message,
-		char *upload_filespecification )
+		char *upload_file )
 {
 	char insert_statement[ STRING_65K ];
 	char *ptr = insert_statement;
@@ -114,9 +114,9 @@ char *post_contact_insert_statement(
 		ptr += sprintf( ptr, ",null" );
 	}
 
-	if ( upload_filespecification )
+	if ( upload_file )
 	{
-		ptr += sprintf( ptr, ",'%s'", upload_filespecification );
+		ptr += sprintf( ptr, ",'%s'", upload_file );
 	}
 	else
 	{
@@ -204,7 +204,7 @@ POST_CONTACT *post_contact_parse(
 
 	piece( buffer, SQL_DELIMITER, string_fetch, 2 );
 	if ( *buffer )
-		post_contact->upload_filespecification =
+		post_contact->upload_file =
 			strdup( buffer );
 
 	return post_contact;
