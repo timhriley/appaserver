@@ -11,9 +11,9 @@
 #include "appaserver_error.h"
 #include "query_isa.h"
 
-QUERY_ISA *query_isa_where_new(
-			char *application_name,
-			LIST *relation_mto1_isa_list )
+QUERY_ISA *query_isa_new(
+		char *application_name,
+		LIST *relation_mto1_isa_list )
 {
 	QUERY_ISA *query_isa;
 
@@ -31,11 +31,11 @@ QUERY_ISA *query_isa_where_new(
 
 	if ( !list_length( relation_mto1_isa_list ) ) return query_isa;
 
-	query_isa->where =
+	query_isa->join_where =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		query_isa_where(
+		query_isa_join_where(
 			application_name,
 			relation_mto1_isa_list );
 
@@ -59,11 +59,12 @@ QUERY_ISA *query_isa_calloc( void )
 	return query_isa;
 }
 
-char *query_isa_where(	char *application_name,
-			LIST *relation_mto1_isa_list )
+char *query_isa_join_where(
+		char *application_name,
+		LIST *relation_mto1_isa_list )
 {
-	char where[ 2048 ];
-	char *ptr = where;
+	char join_where[ 2048 ];
+	char *ptr = join_where;
 	RELATION_MTO1 *relation_mto1;
 
 	if ( !application_name
@@ -100,9 +101,10 @@ char *query_isa_where(	char *application_name,
 				message );
 		}
 
-		if ( ptr != where ) ptr += sprintf( ptr, " and " );
+		if ( ptr != join_where ) ptr += sprintf( ptr, " and " );
 
-		ptr += sprintf( ptr,
+		ptr += sprintf(
+			ptr,
 			"%s",
 			/* --------------------- */
 			/* Returns static memory */
@@ -120,18 +122,18 @@ char *query_isa_where(	char *application_name,
 
 	} while ( list_next( relation_mto1_isa_list ) );
 
-	return strdup( where );
+	return strdup( join_where );
 }
 
 char *query_isa_where_join(
-			char *application_name,
-			char *many_folder_name,
-			LIST *relation_foreign_key_list,
-			char *one_folder_name,
-			LIST *one_folder_primary_key_list )
+		char *application_name,
+		char *many_folder_name,
+		LIST *relation_foreign_key_list,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list )
 {
-	static char join[ 256 ];
-	char *ptr = join;
+	static char where_join[ 512 ];
+	char *ptr = where_join;
 	char *many_table_name;
 	char *one_table_name;
 
@@ -164,7 +166,7 @@ char *query_isa_where_join(
 			one_folder_name );
 
 	do {
-		if ( ptr != join ) ptr += sprintf( ptr, " and " );
+		if ( ptr != where_join ) ptr += sprintf( ptr, " and " );
 
 		ptr +=
 			sprintf(
@@ -181,5 +183,6 @@ char *query_isa_where_join(
 	} while ( list_next( one_folder_primary_key_list ) );
 
 	free( many_table_name );
-	return join;
+
+	return where_join;
 }

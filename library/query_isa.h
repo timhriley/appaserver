@@ -11,7 +11,7 @@
 
 typedef struct
 {
-	char *where;
+	char *join_where;
 } QUERY_ISA;
 
 /* Usage */
@@ -19,23 +19,23 @@ typedef struct
 
 /* Safely returns */
 /* -------------- */
-QUERY_ISA *query_isa_where_new(
-			char *application_name,
-			LIST *relation_mto1_isa_list );
+QUERY_ISA *query_isa_new(
+		char *application_name,
+		LIST *relation_mto1_isa_list );
 
 /* Process */
 /* ------- */
 QUERY_ISA *query_isa_calloc(
-			void );
+		void );
 
 /* Usage */
 /* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
-char *query_isa_where(
-			char *application_name,
-			LIST *relation_mto1_isa_list );
+char *query_isa_join_where(
+		char *application_name,
+		LIST *relation_mto1_isa_list );
 
 /* Usage */
 /* ----- */
@@ -43,10 +43,10 @@ char *query_isa_where(
 /* Returns static memory */
 /* --------------------- */
 char *query_isa_where_join(
-			char *application_name,
-			char *many_folder_name,
-			LIST *relation_foreign_key_list,
-			char *one_folder_name,
-			LIST *one_folder_primary_key_list );
+		char *application_name,
+		char *many_folder_name,
+		LIST *relation_foreign_key_list,
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list );
 
 #endif

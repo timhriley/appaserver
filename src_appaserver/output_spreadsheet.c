@@ -1,11 +1,11 @@
-/* ------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_appaserver/output_spreadsheet.c		 */
-/* ------------------------------------------------------------- */
-/* This process is triggered if you select the spreadsheet radio */
-/* button in a lookup form.					 */
-/*								 */
-/* No warranty and freely available software: see Appaserver.org */
-/* ------------------------------------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_appaserver/output_spreadsheet.c			*/
+/* ---------------------------------------------------------------	*/
+/* This process is triggered if you select the spreadsheet radio	*/
+/* button in a lookup form.						*/
+/*									*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>

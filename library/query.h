@@ -761,6 +761,35 @@ LIST *query_drop_down_relation_attribute_name_list(
 typedef struct
 {
 	int dictionary_highest_index;
+	LIST *list;
+	char *where;
+} QUERY_ISA_DROP_DOWN_LIST;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list_new(
+		LIST *relation_mto1_isa_list,
+		DICTIONARY *dictionary );
+
+/* Process */
+/* ------- */
+QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_isa_drop_down_list_where(
+		LIST *query_drop_down_list_list );
+
+typedef struct
+{
+	int dictionary_highest_index;
 	LIST *query_drop_down_relation_list;
 	char *query_drop_down_relation_where;
 	LIST *query_drop_down_relation_attribute_name_list;
@@ -785,8 +814,8 @@ typedef struct
 {
 	int relation_mto1_isa_list_length;
 	char *query_table_name;
-	QUERY_DROP_DOWN_LIST *relation_mto1_query_drop_down_list;
-	QUERY_DROP_DOWN_LIST *relation_mto1_isa_query_drop_down_list;
+	QUERY_DROP_DOWN_LIST *query_drop_down_list;
+	QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list;
 	char *drop_down_where;
 	QUERY_ATTRIBUTE_LIST *query_attribute_list;
 	QUERY_ISA *query_isa;
@@ -821,8 +850,8 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_calloc(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_table_edit_where_drop_down_where(
-		char *mto1_relation_where,
-		char *mto1_isa_relation_where );
+		char *query_drop_down_relation_where,
+		char *query_isa_drop_down_list_where );
 
 /* Returns heap memory or null. 	*/
 /* Note: frees each non-static where.	*/
@@ -834,7 +863,7 @@ char *query_table_edit_where_string(
 		char *security_entity_where,
 		char *query_drop_down_relation_where,
 		char *query_attribute_list_where,
-		char *query_isa_where,
+		char *query_isa_join_where,
 		char *row_security_role_update_list_where );
 
 /* Usage */

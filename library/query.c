@@ -541,13 +541,13 @@ char *query_multi_select_drop_down_where(
 		if (	strlen( where ) +
 			strlen( query_drop_down_row->
 					query_drop_down_datum_list_where ) +
-			7 >= STRING_128K )
+			7 >= STRING_WHERE_BUFFER )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_128K );
+				STRING_WHERE_BUFFER );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -942,7 +942,7 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			row_security_role_update_list_where
 				/* attribute_not_null */ );
 
-	query_table_edit_where->relation_mto1_query_drop_down_list =
+	query_table_edit_where->query_drop_down_list =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
@@ -953,16 +953,13 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 			query_table_edit_where->query_table_name
 				/* many_table_name */ );
 
-	query_table_edit_where->relation_mto1_isa_query_drop_down_list =
+	query_table_edit_where->query_isa_drop_down_list =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		query_drop_down_list_new(
-			relation_mto1_isa_list
-				/* relation_mto1_to_one_list */,
-			query_dictionary /* dictionary */,
-			query_table_edit_where->query_table_name
-				/* many_table_name */ );
+		query_isa_drop_down_list_new(
+			relation_mto1_isa_list,
+			query_dictionary /* dictionary */ );
 
 	query_table_edit_where->drop_down_where =
 		/* --------------------------- */
@@ -970,13 +967,10 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 		/* --------------------------- */
 		query_table_edit_where_drop_down_where(
 			query_table_edit_where->
-				relation_mto1_query_drop_down_list->
-				query_drop_down_relation_where
-					/* mto1_relation_where */,
+				query_drop_down_list->
+				query_drop_down_relation_where,
 			query_table_edit_where->
-				relation_mto1_isa_query_drop_down_list->
-				query_drop_down_relation_where
-					/* mto1_isa_relation_where */ );
+				query_isa_drop_down_list->where );
 
 	query_table_edit_where->query_attribute_list =
 		/* -------------- */
@@ -994,7 +988,7 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
-		query_isa_where_new(
+		query_isa_new(
 			application_name,
 			relation_mto1_isa_list );
 
@@ -1012,20 +1006,20 @@ QUERY_TABLE_EDIT_WHERE *query_table_edit_where_new(
 				where,
 			query_table_edit_where->
 				query_isa->
-				where,
+				join_where,
 			row_security_role_update_list_where );
 
 	return query_table_edit_where;
 }
 
 char *query_table_edit_where_string(
-		/* Static memory or null */
 		/* --------------------- */
 		/* Static memory or null */
+		/* --------------------- */
 		char *security_entity_where,
 		char *query_drop_down_relation_where,
 		char *query_attribute_list_where,
-		char *query_isa_where,
+		char *query_isa_join_where,
 		char *row_security_role_update_list_where )
 {
 	char string[ STRING_WHERE_BUFFER ];
@@ -1072,20 +1066,54 @@ char *query_table_edit_where_string(
 		free( query_attribute_list_where );
 	}
 
-	if ( query_isa_where )
+	if ( query_isa_join_where )
 	{
+		if (	strlen( string ) +
+			strlen( query_isa_join_where ) +
+			5 >= STRING_WHERE_BUFFER )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_WHERE_BUFFER );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
 			"%s",
-			query_isa_where );
+			query_isa_join_where );
 
-		free( query_isa_where );
+		free( query_isa_join_where );
 	}
 
 	if ( security_entity_where )
 	{
+		if (	strlen( string ) +
+			strlen( security_entity_where ) +
+			5 >= STRING_WHERE_BUFFER )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_WHERE_BUFFER );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
@@ -1096,6 +1124,23 @@ char *query_table_edit_where_string(
 
 	if ( row_security_role_update_list_where )
 	{
+		if (	strlen( string ) +
+			strlen( row_security_role_update_list_where ) +
+			5 >= STRING_WHERE_BUFFER )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_WHERE_BUFFER );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		if ( ptr != string ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
@@ -5203,7 +5248,7 @@ char *query_cell_quote_comma_string(
 
 	if ( !first_cell_boolean ) ptr += sprintf( ptr, "," );
 
-	if ( !query_cell->select_datum ) return strdup( "" );
+	if ( !query_cell->display_datum ) return strdup( "" );
 
 	if ( query_cell->attribute_is_number )
 	{
@@ -5968,13 +6013,13 @@ void query_table_edit_where_free(
 
 	string_free(
 		query_table_edit_where->
-			relation_mto1_query_drop_down_list->
+			query_drop_down_list->
 			query_drop_down_relation_where );
 
 	string_free(
 		query_table_edit_where->
-			relation_mto1_isa_query_drop_down_list->
-			query_drop_down_relation_where );
+			query_isa_drop_down_list->
+			where );
 
 	string_free(
 		query_table_edit_where->
@@ -8259,23 +8304,23 @@ char *query_fetch_display_system_string(
 }
 
 char *query_table_edit_where_drop_down_where(
-		char *mto1_relation_where,
-		char *mto1_isa_relation_where )
+		char *query_drop_down_relation_where,
+		char *query_isa_drop_down_list_where )
 {
-	char where[ STRING_128K ];
+	char where[ STRING_WHERE_BUFFER ];
 	char *ptr = where;
 
 	*ptr = '\0';
 
-	if (	string_strlen( mto1_relation_where ) +
-		string_strlen( mto1_isa_relation_where ) +
-		5 >= STRING_128K )
+	if (	string_strlen( query_drop_down_relation_where ) +
+		string_strlen( query_isa_drop_down_list_where ) +
+		5 >= STRING_WHERE_BUFFER )
 	{
 		char message[ 128 ];
 
 		sprintf(message,
 			STRING_OVERFLOW_TEMPLATE,
-			STRING_128K );
+			STRING_WHERE_BUFFER );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -8284,22 +8329,22 @@ char *query_table_edit_where_drop_down_where(
 			message );
 	}
 
-	if ( mto1_relation_where )
+	if ( query_drop_down_relation_where )
 	{
 		ptr += sprintf(
 			ptr,
 			"%s",
-			mto1_relation_where );
+			query_drop_down_relation_where );
 	}
 
-	if ( mto1_isa_relation_where )
+	if ( query_isa_drop_down_list_where )
 	{
 		if ( ptr != where ) ptr += sprintf( ptr, " and " );
 
 		ptr += sprintf(
 			ptr,
 			"%s",
-			mto1_isa_relation_where );
+			query_isa_drop_down_list_where );
 	}
 
 	if ( *where )
@@ -8307,3 +8352,130 @@ char *query_table_edit_where_drop_down_where(
 	else
 		return NULL;
 }
+
+QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list_new(
+		LIST *relation_mto1_isa_list,
+		DICTIONARY *dictionary )
+{
+	QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list;
+	RELATION_MTO1 *relation_mto1;
+	QUERY_DROP_DOWN_LIST *query_drop_down_list;
+
+	query_isa_drop_down_list = query_isa_drop_down_list_calloc();
+	query_isa_drop_down_list->list = list_new();
+
+	if ( list_rewind( relation_mto1_isa_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_isa_list );
+
+		query_drop_down_list =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			query_drop_down_list_new(
+				relation_mto1->relation_mto1_list
+					/* relation_mto1_to_one_list */,
+				dictionary,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				appaserver_table_name(
+					relation_mto1->
+						one_folder_name ) );
+
+		if ( query_drop_down_list->
+			query_drop_down_relation_where )
+		{
+			list_set(
+				query_isa_drop_down_list->list,
+				query_drop_down_list );
+		}
+
+	} while ( list_next( relation_mto1_isa_list ) );
+
+	if ( list_length( query_isa_drop_down_list->list ) )
+	{
+		query_isa_drop_down_list->where =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			query_isa_drop_down_list_where(
+				query_isa_drop_down_list->list
+					/* query_drop_down_list_list */ );
+	}
+	else
+	{
+		list_free( query_isa_drop_down_list->list );
+		query_isa_drop_down_list->list = NULL;
+	}
+
+	return query_isa_drop_down_list;
+}
+
+QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list_calloc( void )
+{
+	QUERY_ISA_DROP_DOWN_LIST *query_isa_drop_down_list;
+
+	if ( ! ( query_isa_drop_down_list =
+			calloc( 1,
+				sizeof ( QUERY_ISA_DROP_DOWN_LIST ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return query_isa_drop_down_list;
+}
+
+char *query_isa_drop_down_list_where( LIST *query_drop_down_list_list )
+{
+	char where[ STRING_WHERE_BUFFER ];
+	char *ptr = where;
+	QUERY_DROP_DOWN_LIST *query_drop_down_list;
+
+	if ( list_rewind( query_drop_down_list_list ) )
+	do {
+		query_drop_down_list = list_get( query_drop_down_list_list );
+
+		if (	strlen( where ) +
+			strlen( query_drop_down_list->
+					query_drop_down_relation_where ) +
+			5 >= STRING_WHERE_BUFFER )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_WHERE_BUFFER );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !list_at_first( query_drop_down_list_list ) )
+			ptr += sprintf( ptr, " and " );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			query_drop_down_list->
+				query_drop_down_relation_where );
+
+	} while ( list_next( query_drop_down_list_list ) );
+
+	return strdup( where );
+}
+
