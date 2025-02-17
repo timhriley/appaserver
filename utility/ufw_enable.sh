@@ -28,10 +28,10 @@ sudo ufw allow domain
 sudo ufw allow smtp	# smtp v6
 sudo ufw allow 25	# smtp v4
 sudo ufw allow time
-#sudo ufw allow sftp
-#sudo ufw allow remoteping
 sudo ufw allow ssh
 sudo ufw limit ssh
+
+ufw_http_dos_rules.sh
 
 echo 'y' | sudo ufw enable >/dev/null
 

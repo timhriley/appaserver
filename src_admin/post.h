@@ -31,8 +31,7 @@
 					"http_user_agent,"		\
 					"timestamp"
 
-#define POST_DENY_EXECUTABLE		"ufw_deny_queue.sh"
-#define POST_DENY_FILESPECIFICATION	"/usr2/ufw/deny_queue.dat"
+#define POST_DENY_EXECUTABLE		"/usr2/ufw/ufw_deny"
 #define POST_SLEEP_SECONDS		600
 
 typedef struct
@@ -64,7 +63,6 @@ POST *post_calloc(
 /* --------------------- */
 char *post_ip_deny_system_string(
 		const char *post_deny_executable,
-		const char *post_deny_filespecification,
 		char *ip_address );
 
 /* Returns heap memory */

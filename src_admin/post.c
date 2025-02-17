@@ -64,7 +64,6 @@ POST *post_new(
 				/* --------------------- */
 				post_ip_deny_system_string(
 					POST_DENY_EXECUTABLE,
-					POST_DENY_FILESPECIFICATION,
 					post->ip_address );
 
 			return post;
@@ -476,7 +475,6 @@ char *post_receive_url(
 
 char *post_ip_deny_system_string(
 		const char *post_deny_executable,
-		const char *post_deny_filespecification,
 		char *ip_address )
 {
 	static char system_string[ 128 ];
@@ -494,9 +492,8 @@ char *post_ip_deny_system_string(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"%s %s %s",
+		"%s %s",
 		post_deny_executable,
-		post_deny_filespecification,
 		ip_address );
 
 	return system_string;
