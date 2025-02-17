@@ -805,6 +805,7 @@ typedef struct
 {
 	APPASERVER_LINK *appaserver_link;
 	char *tex_filename;
+	char *tex_anchor_html;
 	char *pdf_anchor_html;
 	char *appaserver_link_working_directory;
 } STATEMENT_LINK;
@@ -826,6 +827,11 @@ STATEMENT_LINK *statement_link_new(
 /* ------- */
 STATEMENT_LINK *statement_link_calloc(
 		void );
+
+/* Returns static memory */
+/* --------------------- */
+char *statement_link_tex_prompt(
+		char *process_name );
 
 /* Returns static memory */
 /* --------------------- */

@@ -1235,6 +1235,7 @@ LATEX_CELL *latex_cell_small_new(
 }
 
 LIST *latex_cell_list(
+		const char *calling_function,
 		LIST *latex_column_list,
 		LIST *data_list )
 {
@@ -1246,7 +1247,9 @@ LIST *latex_cell_list(
 	{
 		char message[ 128 ];
 
-		sprintf(message, "latex_column_list is past the end." );
+		sprintf(message,
+			"latex_column_list is past the end. Called by %s()",
+			calling_function );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1278,16 +1281,18 @@ LIST *latex_cell_list(
 
 void latex_table_output(
 		char *tex_filename,
-		char *working_directory,
+		char *tex_anchor_html,
 		char *pdf_anchor_html,
+		char *working_directory,
 		LATEX *latex,
 		LATEX_TABLE *latex_table )
 {
 	FILE *output_file;
 
 	if ( !tex_filename
-	||   !working_directory
+	||   !tex_anchor_html
 	||   !pdf_anchor_html
+	||   !working_directory
 	||   !latex
 	||   !latex_table )
 	{
@@ -1335,14 +1340,16 @@ void latex_table_output(
 		tex_filename,
 		working_directory );
 
-	printf( "%s\n",
-		pdf_anchor_html );
+	printf( "%s<br>%s\n",
+		pdf_anchor_html,
+		tex_anchor_html );
 }
 
 void latex_table_list_output(
 		char *tex_filename,
-		char *working_directory,
+		char *tex_anchor_html,
 		char *pdf_anchor_html,
+		char *working_directory,
 		LATEX *latex,
 		LIST *latex_table_list )
 {
@@ -1350,8 +1357,9 @@ void latex_table_list_output(
 	LATEX_TABLE *latex_table;
 
 	if ( !tex_filename
-	||   !working_directory
+	||   !tex_anchor_html
 	||   !pdf_anchor_html
+	||   !working_directory
 	||   !latex )
 	{
 		char message[ 128 ];
@@ -1404,7 +1412,8 @@ void latex_table_list_output(
 		tex_filename,
 		working_directory );
 
-	printf( "%s\n",
-		pdf_anchor_html );
+	printf( "%s<br>%s\n",
+		pdf_anchor_html,
+		tex_anchor_html );
 }
 

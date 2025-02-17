@@ -3,5 +3,5 @@
 cd ../library
 make
 cd -
-make
+make income_statement_output
 

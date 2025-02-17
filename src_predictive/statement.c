@@ -484,9 +484,7 @@ STATEMENT_LINK *statement_link_new(
 			(char *)0 /* session_key */,
 			transaction_date_begin_date_string,
 			end_date_time_string,
-			(char *)0 /* extension */ );
-
-	statement_link->appaserver_link->extension = "tex";
+			"tex" /* extension */ );
 
 	statement_link->tex_filename =
 		/* ------------------- */
@@ -499,6 +497,22 @@ STATEMENT_LINK *statement_link_new(
 			statement_link->appaserver_link->process_id,
 			statement_link->appaserver_link->session_key,
 			statement_link->appaserver_link->extension );
+
+	statement_link->tex_anchor_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_link_anchor_html(
+			statement_link->
+				appaserver_link->
+				appaserver_link_prompt->
+				filename /* prompt_filename */,
+			process_name /* target_window */,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			statement_link_tex_prompt(
+				process_name ) );
 
 	statement_link->appaserver_link->extension = "pdf";
 
@@ -520,6 +534,9 @@ STATEMENT_LINK *statement_link_new(
 			statement_link->appaserver_link->extension );
 
 	statement_link->pdf_anchor_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		appaserver_link_anchor_html(
 			statement_link->
 				appaserver_link->
@@ -1157,6 +1174,7 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_subclassification_data_list ) );
 	}
@@ -1280,6 +1298,7 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_element_data_list ) );
 	}
@@ -1405,6 +1424,15 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
 
+	list_set(
+		cell_list,
+		latex_cell_small_new(
+			latex_column,
+			(char *)0 /* datum */ ) );
+
+	latex_column = list_get( latex_column_list );
+	list_next( latex_column_list );
+
 	while ( statement_prior_year_list_length-- )
 	{
 		list_set(
@@ -1502,8 +1530,10 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 			latex_column,
 			statement_account->percent_string ) );
 
+/*
 	latex_column = list_get( latex_column_list );
 	list_next( latex_column_list );
+*/
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -1517,6 +1547,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_account_data_list ) );
 	}
@@ -2265,9 +2296,42 @@ char *statement_link_pdf_prompt( char *process_name )
 		exit( 1 );
 	}
 
-	string_initial_capital( prompt, process_name );
+	snprintf(
+		prompt,
+		sizeof ( prompt ),
+		"%s PDF file",
+		process_name );
 
-	return prompt;
+	return
+	string_initial_capital(
+		prompt,
+		prompt );
+}
+
+char *statement_link_tex_prompt( char *process_name )
+{
+	static char prompt[ 128 ];
+
+	if ( !process_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: process_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		prompt,
+		sizeof ( prompt ),
+		"%s LATEX file",
+		process_name );
+
+	return
+	string_initial_capital(
+		prompt,
+		prompt );
 }
 
 char *statement_prior_year_cell_display(
@@ -4231,6 +4295,7 @@ LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				statement_prior_year_element_data_list(
 					element_name,
@@ -4332,8 +4397,6 @@ LATEX_ROW *statement_subclass_aggr_latex_row(
 			latex_column,
 			account_percent_string ) );
 
-	list_next( latex_column_list );
-
 	if ( list_length( statement_prior_year_list ) )
 	{
 		LIST *prior_year_subclassification_data_list =
@@ -4344,6 +4407,7 @@ LATEX_ROW *statement_subclass_aggr_latex_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_subclassification_data_list ) );
 	}
@@ -4785,6 +4849,7 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_account_data_list ) );
 	}
@@ -4887,6 +4952,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_element_data_list ) );
 	}

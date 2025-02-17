@@ -260,8 +260,6 @@ LATEX_ROW *income_statement_latex_net_income_row(
 			latex_column,
 			percent_of_income_display ) );
 
-	list_next( latex_column_list );
-
 	if ( list_length( statement_prior_year_list ) )
 	{
 		LIST *prior_net_income_data_list =
@@ -272,6 +270,7 @@ LATEX_ROW *income_statement_latex_net_income_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_net_income_data_list ) );
 	}

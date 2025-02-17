@@ -114,11 +114,15 @@ int main( int argc, char **argv )
 			balance_sheet->
 				balance_sheet_latex->
 				statement_link->
-				appaserver_link_working_directory,
+				tex_anchor_html,
 			balance_sheet->
 				balance_sheet_latex->
 				statement_link->
 				pdf_anchor_html,
+			balance_sheet->
+				balance_sheet_latex->
+				statement_link->
+				appaserver_link_working_directory,
 			balance_sheet->
 				balance_sheet_latex->
 				latex,

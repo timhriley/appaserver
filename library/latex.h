@@ -190,6 +190,7 @@ char *latex_cell_escape(
 /* Usage */
 /* ----- */
 LIST *latex_cell_list(
+		const char *calling_function,
 		LIST *latex_column_list,
 		LIST *data_list );
 
@@ -432,8 +433,9 @@ void latex_table_output_tail(
 /* ------ */
 void latex_table_output(
 		char *tex_filename,
-		char *working_directory,
+		char *tex_anchor_html,
 		char *pdf_anchor_html,
+		char *working_directory,
 		LATEX *latex,
 		LATEX_TABLE *latex_table );
 
@@ -441,8 +443,9 @@ void latex_table_output(
 /* ------ */
 void latex_table_list_output(
 		char *tex_filename,
-		char *working_directory,
+		char *tex_anchor_html,
 		char *pdf_anchor_html,
+		char *working_directory,
 		LATEX *latex,
 		LIST *latex_table_list );
 

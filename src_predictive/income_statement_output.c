@@ -111,11 +111,15 @@ int main( int argc, char **argv )
 			income_statement->
 				income_statement_latex->
 				statement_link->
-				appaserver_link_working_directory,
+				tex_anchor_html,
 			income_statement->
 				income_statement_latex->
 				statement_link->
 				pdf_anchor_html,
+			income_statement->
+				income_statement_latex->
+				statement_link->
+				appaserver_link_working_directory,
 			income_statement->
 				income_statement_latex->
 				latex,

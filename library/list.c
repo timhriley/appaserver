@@ -847,8 +847,9 @@ void list_add_string( LIST *list, char *string )
 	append( list, string, strlen( string ) + 1 );
 }
 
-LIST *list_append_current_list(	LIST *destination_list,
-				LIST *source_list )
+LIST *list_append_current_list(
+		LIST *destination_list,
+		LIST *source_list )
 {
 	void *a;
 

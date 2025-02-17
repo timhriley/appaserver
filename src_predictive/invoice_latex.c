@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
+#include "File.h"
 #include "String.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
@@ -293,7 +293,7 @@ void latex_invoice_education_invoice_header(
 
 	if ( logo_filename
 	&&   *logo_filename
-	&&   timlib_file_exists( logo_filename ) )
+	&&   file_exists_boolean( logo_filename ) )
 	{
 		fprintf(output_stream,
 "\\begin{center}\n"
@@ -419,7 +419,7 @@ void invoice_latex_output_title(
 "\\begin{center}{\\Large \\bf %s} \\end{center}\n",
 	 	invoice_caption );
 
-	if ( timlib_file_exists( logo_filename ) )
+	if ( file_exists_boolean( logo_filename ) )
 	{
 		fprintf(output_stream,
 "\\begin{center}\n"

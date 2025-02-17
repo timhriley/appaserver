@@ -984,6 +984,10 @@ invoice.o: invoice.c invoice.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c invoice.c
 
+invoice_latex.o: invoice_latex.c invoice_latex.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c invoice_latex.c
+
 customer.o: customer.c customer.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c customer.c

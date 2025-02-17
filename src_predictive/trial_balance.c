@@ -2315,8 +2315,6 @@ LATEX_ROW *trial_balance_subclass_omit_latex_row(
 
 	list_set( cell_list, latex_cell );
 
-	list_next( latex_column_list );
-
 	if ( list_length( statement_prior_year_list ) )
 	{
 		LIST *prior_year_account_data_list =
@@ -2327,6 +2325,7 @@ LATEX_ROW *trial_balance_subclass_omit_latex_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_account_data_list ) );
 	}
@@ -2772,8 +2771,6 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 
 	list_set( cell_list, latex_cell );
 
-	list_next( latex_column_list );
-
 	if ( list_length( statement_prior_year_list ) )
 	{
 		LIST *prior_year_account_data_list =
@@ -2784,6 +2781,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 		list_set_list(
 			cell_list,
 			latex_cell_list(
+				__FUNCTION__,
 				latex_column_list,
 				prior_year_account_data_list ) );
 	}

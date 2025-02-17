@@ -92,11 +92,15 @@ int main( int argc, char **argv )
 			budget->
 				budget_latex->
 				statement_link->
-				appaserver_link_working_directory,
+				tex_anchor_html,
 			budget->
 				budget_latex->
 				statement_link->
 				pdf_anchor_html,
+			budget->
+				budget_latex->
+				statement_link->
+				appaserver_link_working_directory,
 			budget->
 				budget_latex->
 				latex,

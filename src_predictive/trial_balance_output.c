@@ -118,11 +118,15 @@ int main( int argc, char **argv )
 				trial_balance->
 					trial_balance_pdf->
 					preclose_statement_link->
-					appaserver_link_working_directory,
+					tex_anchor_html,
 				trial_balance->
 					trial_balance_pdf->
 					preclose_statement_link->
 					pdf_anchor_html,
+				trial_balance->
+					trial_balance_pdf->
+					preclose_statement_link->
+					appaserver_link_working_directory,
 				trial_balance->
 					trial_balance_pdf->
 					preclose_trial_balance_latex->
@@ -141,11 +145,15 @@ int main( int argc, char **argv )
 			trial_balance->
 				trial_balance_pdf->
 				statement_link->
-				appaserver_link_working_directory,
+				tex_anchor_html,
 			trial_balance->
 				trial_balance_pdf->
 				statement_link->
 				pdf_anchor_html,
+			trial_balance->
+				trial_balance_pdf->
+				statement_link->
+				appaserver_link_working_directory,
 			trial_balance->
 				trial_balance_pdf->
 				trial_balance_latex->

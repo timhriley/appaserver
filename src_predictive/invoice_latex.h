@@ -10,7 +10,7 @@
 #include "boolean.h"
 #include "latex.h"
 #include "invoice.h"
-#include "statement_link.h"
+#include "statement.h"
 #include "entity_self.h"
 #include "customer.h"
 

@@ -113,11 +113,15 @@ int main( int argc, char **argv )
 			tax_form->
 				tax_form_latex->
 				statement_link->
-				appaserver_link_working_directory,
+				tex_anchor_html,
 			tax_form->
 				tax_form_latex->
 				statement_link->
 				pdf_anchor_html,
+			tax_form->
+				tax_form_latex->
+				statement_link->
+				appaserver_link_working_directory,
 			tax_form->
 				tax_form_latex->
 				latex,
