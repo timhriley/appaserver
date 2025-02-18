@@ -991,7 +991,8 @@ UPDATE_ONE2M *update_one2m_new(
 			0 /* destination_enum */,
 			many_attribute_name_list
 				/* select_name_list */,
-			update_one2m->query_system_string );
+			update_one2m->query_system_string,
+			0 /* not input_save_boolean */ );
 
 	if ( !list_length( update_one2m->query_fetch->row_list ) ) return NULL;
 

@@ -586,7 +586,8 @@ DELETE_ONE2M *delete_one2m_new(
 			0 /* destination_enum */,
 			many_folder_primary_key_list
 				/* select_name_list */,
-			delete_one2m->query_system_string );
+			delete_one2m->query_system_string,
+			1 /* input_save_boolean for MERGE_PURGE */ );
 
 	if ( !list_length( delete_one2m->query_fetch->row_list ) )
 	{

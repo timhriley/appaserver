@@ -185,11 +185,13 @@ QUERY_ROW *query_row_parse(
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
+		boolean input_save_boolean,
 		char *input /* stack memory */ );
 
 /* Usage */
 /* ----- */
 QUERY_ROW *query_row_new(
+		boolean input_save_boolean,
 		char *input /* stack memory or null */,
 		LIST *cell_list );
 
@@ -252,7 +254,8 @@ QUERY_FETCH *query_fetch_new(
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
-		char *query_system_string );
+		char *query_system_string,
+		boolean input_save_boolean );
 
 /* Process */
 /* ------- */

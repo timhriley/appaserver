@@ -657,6 +657,7 @@ LIST *chart_aggregate_query_row_list(
 
 		query_row =
 			query_row_new(
+				0 /* not input_save_boolean */,
 				(char *)0 /* input */,
 				query_cell_list );
 

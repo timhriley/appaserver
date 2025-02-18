@@ -790,7 +790,8 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 			folder_attribute_append_isa_list,
 			query_table_edit->destination_enum,
 			query_table_edit->query_select_name_list,
-			query_table_edit->query_system_string );
+			query_table_edit->query_system_string,
+			0 /* not input_save_boolean */ );
 
 	return query_table_edit;
 }
@@ -3655,6 +3656,7 @@ QUERY_ROW *query_row_parse(
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
+		boolean input_save_boolean,
 		char *input /* stack memory */ )
 {
 	LIST *cell_list;
@@ -3711,11 +3713,13 @@ QUERY_ROW *query_row_parse(
 
 	return
 	query_row_new(
+		input_save_boolean,
 		input,
 		cell_list );
 }
 
 QUERY_ROW *query_row_new(
+		boolean input_save_boolean,
 		char *input /* stack memory or null */,
 		LIST *cell_list )
 {
@@ -3736,7 +3740,7 @@ QUERY_ROW *query_row_new(
 
 	query_row = query_row_calloc();
 
-	if ( input ) query_row->input = strdup( input );
+	if ( input_save_boolean ) query_row->input = strdup( input );
 
 	query_row->cell_list = cell_list;
 
@@ -3765,7 +3769,8 @@ QUERY_FETCH *query_fetch_new(
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
-		char *query_system_string )
+		char *query_system_string,
+		boolean input_save_boolean )
 {
 	QUERY_FETCH *query_fetch;
 	char input[ STRING_INPUT_BUFFER ];
@@ -3806,6 +3811,7 @@ QUERY_FETCH *query_fetch_new(
 				folder_attribute_append_isa_list,
 				destination_enum,
 				query_select_name_list,
+				input_save_boolean,
 				input /* stack memory */ ) );
 	}
 
@@ -4429,7 +4435,8 @@ QUERY_DROP_DOWN_FETCH *query_drop_down_fetch_new(
 				/* folder_attribute_append_isa_list */,
 			query_drop_down_fetch->destination_enum,
 			query_drop_down_fetch->query_select_name_list,
-			query_drop_down_fetch->query_system_string );
+			query_drop_down_fetch->query_system_string,
+			0 /* not input_save_boolean */ );
 
 	query_drop_down_fetch->query_row_delimited_list =
 		query_row_delimited_list(
@@ -4733,7 +4740,8 @@ QUERY_CHOOSE_ISA *query_choose_isa_new(
 				/* folder_attribute_append_isa_list */,
 			query_choose_isa->destination_enum,
 			query_choose_isa->query_select_name_list,
-			query_choose_isa->query_system_string );
+			query_choose_isa->query_system_string,
+			0 /* not input_save_boolean */ );
 
 	query_choose_isa->query_row_delimited_list =
 		query_row_delimited_list(
@@ -5381,13 +5389,14 @@ unsigned long query_spreadsheet_output(
 			destination,
 			query_select_name_list ) );
 		
-	while ( string_input( input, input_pipe, STRING_256K ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		query_row =
 			query_row_parse(
 				folder_attribute_append_isa_list,
 				destination_enum,
 				query_select_name_list,
+				0 /* not input_save_boolean */,
 				input /* stack memory */ );
 
 		if ( !query_row ) continue;
@@ -5930,7 +5939,8 @@ QUERY_CHART *query_chart_new(
 			date_convert_international
 				/* destination_enum */,
 			query_chart->query_select_name_list,
-			query_chart->query_system_string );
+			query_chart->query_system_string,
+			0 /* not input_save_boolean */ );
 
 	return query_chart;
 }
@@ -6483,7 +6493,8 @@ QUERY_PRIMARY_KEY *query_primary_key_fetch(
 			date_convert_international
 				/* destination_enum */,
 			query_primary_key->query_select_name_list,
-			query_primary_key->query_system_string );
+			query_primary_key->query_system_string,
+			0 /* not input_save_boolean */ );
 
 	return query_primary_key;
 }
