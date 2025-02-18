@@ -56,7 +56,7 @@ int main( int argc, char **argv )
 	JULIAN *end_date_julian = {0};
 	char buffer[ 128 ];
 
-	appaserver_error_stderr( argc, argv );
+	/* appaserver_error_stderr( argc, argv ); */
 
 	if ( argc < 8 )
 	{

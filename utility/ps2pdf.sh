@@ -1,12 +1,12 @@
 :
 # ps2pdf.sh
-# ---------------------------------------------
+# ---------------------------------------------------------------
 # This is a wrapper around ps2pdf or distill.
 #
-# Freely available software: see Appaserver.org
-# ---------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
-echo "Starting: $0 $*" 1>&2
+#echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 2 ]
 then
@@ -14,8 +14,11 @@ then
 	exit 1
 fi
 
+# Input
+# -----
 ps_file=$1
 pdf_file=$2
+fonts_directory=/var/lib/ghostscript/fonts
 
 if [ ! -f $ps_file ]
 then
@@ -23,11 +26,13 @@ then
 	exit 1
 fi
 
-#export GS_LIB
-#PATH=$GS_LIB:$GS_LIB/obj:$GS_LIB/bin:$PATH;export PATH
-#cd $GS_LIB/fonts 2>/dev/null
+if [ ! -d $fonts_directory ]
+then
+	echo "Directory not found error in $0: $fonts_directory" 1>&2
+	exit 1
+fi
 
-cd /var/lib/ghostscript/fonts 2>/dev/null
+cd $fonts_directory
 
 ps2pdf $ps_file $pdf_file
 
