@@ -18,52 +18,55 @@
 #define DAYS_PER_HOUR		(1.0 / 24.0)
 #define DAYS_PER_HALF_HOUR	(1.0 / 48.0)
 
-char *display_julian(		enum aggregate_level aggregate_level,
-				double current,
-				char delimiter,
-				EXPECTED_COUNT *expected_count );
+char *display_julian(
+		enum aggregate_level aggregate_level,
+		double current,
+		char delimiter,
+		EXPECTED_COUNT *expected_count );
 
 void output_weekly(
-				char delimiter,
-				char *begin_date_string,
-				char *end_date_string );
+		char delimiter,
+		char *begin_date_string,
+		char *end_date_string );
 
 void output_monthly(
-				char delimiter,
-				char *begin_date_string,
-				char *end_date_string );
+		char delimiter,
+		char *begin_date_string,
+		char *end_date_string );
 
 void output_annually(
-				char delimiter,
-				char *begin_date_string,
-				char *end_date_string );
+		char delimiter,
+		char *begin_date_string,
+		char *end_date_string );
 
 void output_real_time_halfhour_hourly_daily(
-				char delimiter,
-				enum aggregate_level aggregate_level,
-				char *begin_date_string,
-				char *begin_time_string,
-				char *end_date_string,
-				char *end_time_string,
-				char *expected_count_list_string,
-				char *argv_0 );
+		char delimiter,
+		enum aggregate_level aggregate_level,
+		char *begin_date_string,
+		char *begin_time_string,
+		char *end_date_string,
+		char *end_time_string,
+		char *expected_count_list_string,
+		char *argv_0 );
 
-time_t get_expected_x(		LIST *expected_count_list,
-				enum aggregate_level,
-				time_t current );
+time_t get_expected_x(
+		LIST *expected_count_list,
+		enum aggregate_level,
+		time_t current );
 
 double get_julian_next_expected_x(
-				EXPECTED_COUNT *expected_count,
-				enum aggregate_level,
-				double current );
+		EXPECTED_COUNT *expected_count,
+		enum aggregate_level,
+		double current );
 
-int parse_date_time(		char *month,
-				char *day,
-				char *year,
-				char *hour,
-				char *minute,
-				char *date_string,
-				char *time_string );
+int parse_date_time(
+		char *month,
+		char *day,
+		char *year,
+		char *hour,
+		char *minute,
+		char *date_string,
+		char *time_string );
 
 int main( int argc, char **argv )
 {
@@ -75,10 +78,9 @@ int main( int argc, char **argv )
 	char end_time_string[ 16 ] = {0};
 	char *expected_count_list_string;
 
-	/* -------------------------------------------- */
-	/* stderr gets rerouted to a log file		*/
-	/* output_starting_argv_stderr( argc, argv );	*/
-	/* -------------------------------------------- */
+	/* ------------------------------------ */
+	/* appaserver_error_argv( argc, argv );	*/
+	/* ------------------------------------ */
 
 	if ( argc != 6 )
 	{
@@ -151,48 +153,48 @@ int main( int argc, char **argv )
 	||   aggregate_level == daily )
 	{
 		output_real_time_halfhour_hourly_daily(
-				delimiter,
-				aggregate_level,
-				begin_date_string,
-				begin_time_string,
-				end_date_string,
-				end_time_string,
-				expected_count_list_string,
-				argv[ 0 ] );
+			delimiter,
+			aggregate_level,
+			begin_date_string,
+			begin_time_string,
+			end_date_string,
+			end_time_string,
+			expected_count_list_string,
+			argv[ 0 ] );
 	}
 	else
 	if ( aggregate_level == weekly )
 	{
 		output_weekly(
-				delimiter,
-				begin_date_string,
-				end_date_string );
+			delimiter,
+			begin_date_string,
+			end_date_string );
 	}
 	else
 	if ( aggregate_level == monthly )
 	{
 		output_monthly(
-				delimiter,
-				begin_date_string,
-				end_date_string );
+			delimiter,
+			begin_date_string,
+			end_date_string );
 	}
 	else
 	if ( aggregate_level == annually )
 	{
 		output_annually(
-				delimiter,
-				begin_date_string,
-				end_date_string );
+			delimiter,
+			begin_date_string,
+			end_date_string );
 	}
 
 	return 0;
+}
 
-} /* main() */
-
-char *display_julian(		enum aggregate_level aggregate_level,
-				double current,
-				char delimiter,
-				EXPECTED_COUNT *expected_count )
+char *display_julian(
+		enum aggregate_level aggregate_level,
+		double current,
+		char delimiter,
+		EXPECTED_COUNT *expected_count )
 {
 	static char display[ 128 ];
 	char *date_display_string;
@@ -242,16 +244,16 @@ char *display_julian(		enum aggregate_level aggregate_level,
 	}
 
 	return display;
+}
 
-} /* display_julian() */
-
-int parse_date_time(	char *month,
-			char *day,
-			char *year,
-			char *hour,
-			char *minute,
-			char *date_string,
-			char *time_string )
+int parse_date_time(
+		char *month,
+		char *day,
+		char *year,
+		char *hour,
+		char *minute,
+		char *date_string,
+		char *time_string )
 {
 	if ( !*date_string ) return 0;
 
@@ -271,11 +273,12 @@ int parse_date_time(	char *month,
 	*(minute + 2) = '\0';
 
 	return 1;
-} /* parse_date_time() */
+}
 
-time_t get_expected_x(	LIST *expected_count_list,
-			enum aggregate_level aggregate_level,
-			time_t current )
+time_t get_expected_x(
+		LIST *expected_count_list,
+		enum aggregate_level aggregate_level,
+		time_t current )
 {
 	EXPECTED_COUNT *expected_count;
 	int x_increment_seconds;
@@ -315,12 +318,12 @@ time_t get_expected_x(	LIST *expected_count_list,
 				aggregate_level );
 
 	return x_increment_seconds + current;
-} /* get_expected_x() */
+}
 
 double get_julian_next_expected_x(
-			EXPECTED_COUNT *expected_count,
-			enum aggregate_level aggregate_level,
-			double current )
+		EXPECTED_COUNT *expected_count,
+		enum aggregate_level aggregate_level,
+		double current )
 {
 	double x_increment_days = 0.0;
 
@@ -342,13 +345,12 @@ double get_julian_next_expected_x(
 	}
 
 	return x_increment_days + current;
-
-} /* get_julian_next_expected_x() */
+}
 
 void output_weekly(
-				char delimiter,
-				char *begin_date_string,
-				char *end_date_string )
+		char delimiter,
+		char *begin_date_string,
+		char *end_date_string )
 {
 	JULIAN *start_date_julian;
 	JULIAN *end_date_julian;
@@ -368,17 +370,17 @@ void output_weekly(
 				end_date_julian );
 
 		printf( "%s%cnull\n",
-			julian_get_yyyy_mm_dd_string(
+			julian_yyyy_mm_dd_string(
 				start_date_julian->current ),
 			delimiter );
 		start_date_julian->current += 7.0;
 	}
-} /* output_weekly() */
+}
 
 void output_monthly(
-				char delimiter,
-				char *begin_date_string,
-				char *end_date_string )
+		char delimiter,
+		char *begin_date_string,
+		char *end_date_string )
 {
 	JULIAN *start_date_julian;
 	JULIAN *end_date_julian;
@@ -398,7 +400,7 @@ void output_monthly(
 				end_date_julian );
 
 		printf( "%s%cnull\n",
-			julian_get_yyyy_mm_dd_string(
+			julian_yyyy_mm_dd_string(
 				start_date_julian->current ),
 			delimiter );
 
@@ -406,12 +408,12 @@ void output_monthly(
 			julian_increment_month(
 				start_date_julian->current );
 	}
-} /* output_monthly() */
+}
 
 void output_annually(
-				char delimiter,
-				char *begin_date_string,
-				char *end_date_string )
+		char delimiter,
+		char *begin_date_string,
+		char *end_date_string )
 {
 	JULIAN *start_date_julian;
 	JULIAN *end_date_julian;
@@ -431,7 +433,7 @@ void output_annually(
 				end_date_julian );
 
 		printf( "%s%cnull\n",
-			julian_get_yyyy_mm_dd_string(
+			julian_yyyy_mm_dd_string(
 				start_date_julian->current ),
 			delimiter );
 
@@ -439,17 +441,17 @@ void output_annually(
 			julian_increment_year(
 				start_date_julian->current );
 	}
-} /* output_annually() */
+}
 
 void output_real_time_halfhour_hourly_daily(
-				char delimiter,
-				enum aggregate_level aggregate_level,
-				char *begin_date_string,
-				char *begin_time_string,
-				char *end_date_string,
-				char *end_time_string,
-				char *expected_count_list_string,
-				char *argv_0 )
+		char delimiter,
+		enum aggregate_level aggregate_level,
+		char *begin_date_string,
+		char *begin_time_string,
+		char *end_date_string,
+		char *end_time_string,
+		char *expected_count_list_string,
+		char *argv_0 )
 {
 	LIST *expected_count_list = {0};
 	char month[ 16 ];
@@ -562,8 +564,6 @@ void output_real_time_halfhour_hourly_daily(
 						delimiter,
 						expected_count ) );
 		}
-
-	} /* while( 1 ) */
-
-} /* output_real_time_halfhour_hourly_daily() */
+	}
+}
 

@@ -70,6 +70,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 CHART_AGGREGATE_ATTRIBUTE *
 	chart_aggregate_attribute_new(
 		char *date_attribute_name,

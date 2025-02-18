@@ -3655,7 +3655,7 @@ QUERY_ROW *query_row_parse(
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
-		char *input )
+		char *input /* stack memory */ )
 {
 	LIST *cell_list;
 	char *attribute_name;
@@ -3716,7 +3716,7 @@ QUERY_ROW *query_row_parse(
 }
 
 QUERY_ROW *query_row_new(
-		char *input /* stack memory */,
+		char *input /* stack memory or null */,
 		LIST *cell_list )
 {
 	QUERY_ROW *query_row;
@@ -3736,7 +3736,8 @@ QUERY_ROW *query_row_new(
 
 	query_row = query_row_calloc();
 
-	query_row->input = strdup( input );
+	if ( input ) query_row->input = strdup( input );
+
 	query_row->cell_list = cell_list;
 
 	return query_row;
@@ -3805,7 +3806,7 @@ QUERY_FETCH *query_fetch_new(
 				folder_attribute_append_isa_list,
 				destination_enum,
 				query_select_name_list,
-				input ) );
+				input /* stack memory */ ) );
 	}
 
 	pclose( input_pipe );
@@ -5387,7 +5388,7 @@ unsigned long query_spreadsheet_output(
 				folder_attribute_append_isa_list,
 				destination_enum,
 				query_select_name_list,
-				input );
+				input /* stack memory */ );
 
 		if ( !query_row ) continue;
 

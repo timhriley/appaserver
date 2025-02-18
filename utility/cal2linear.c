@@ -39,7 +39,7 @@ int main( int argc, char **argv )
 
 	julian = julian_yyyy_mm_dd_new( full_date );
 
-	while( julian_get_year_number( julian->current ) == year )
+	while( julian_year_number( julian->current ) == year )
 	{
 		results = julian_display_yyyy_mm_dd( julian->current );
 		printf( "%s\n", results );
@@ -48,6 +48,5 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}
 

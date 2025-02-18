@@ -760,6 +760,8 @@ CHART_AGGREGATE_LIST *chart_aggregate_list_new(
 	/* --------- */
 	list_next( query_select_name_list );
 
+	/* Skip time */
+	/* --------- */
 	if ( time_attribute_name ) list_next( query_select_name_list );
 
 	chart_aggregate_list->chart_aggregate_attribute_list = list_new();
@@ -770,6 +772,9 @@ CHART_AGGREGATE_LIST *chart_aggregate_list_new(
 				query_select_name_list );
 
 		chart_aggregate_attribute =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
 			chart_aggregate_attribute_new(
 				date_attribute_name,
 				number_attribute_name,

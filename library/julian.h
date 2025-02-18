@@ -36,10 +36,10 @@ void julian_free(	JULIAN *julian );
 
 char *julian_display_yyyy_mm_dd( double current );
 char *julian_display_yyyymmdd( double current );
-char *julian_get_yyyy_mm_dd_string( double current );
-char *julian_get_yyyy_mm_dd( double current );
-char *julian_get_hhmm_string( double current );
-char *julian_get_hhmm( double current );
+char *julian_yyyy_mm_dd_string( double current );
+char *julian_yyyy_mm_dd( double current );
+char *julian_hhmm_string( double current );
+char *julian_hhmm( double current );
 char *julian_display_hhmm( double current );
 char *julian_display_hhmmss( double current );
 char *julian_yyyy_mm_dd_string( double current );
@@ -62,39 +62,34 @@ double julian_increment_day( double current );
 double julian_decrement_day( double current );
 double julian_increment_month( double current );
 double julian_increment_year( double current );
-int julian_get_year_number( double current );
+int julian_year_number( double current );
 double julian_add_minutes( double julian, int minutes );
 double julian_subtract( JULIAN *begin_julian, JULIAN *end_julian );
 void julian_add_julian( JULIAN *julian, double add_julian );
 char *julian_make_y2k_year( char *two_digit_year_buffer );
-
-/*
-JULIAN *julian_oracle_format_new( char *date_buffer );
-char *julian_display_oracle_format( double current );
-*/
 
 /* Returns hhmm */
 /* ------------ */
 char *julian_clean_hhmm(
 		char *hhmm );
 
-void julian_get_hour_minute( int *hour, int *minute, char *hhmm );
+void julian_hour_minute( int *hour, int *minute, char *hhmm );
 void julian_set_yyyy_mm_dd_hhmm(	JULIAN *julian,
 					char *yyyy_mm_dd,
 					char *hhmm );
 void julian_copy(			JULIAN *destination_julian,
 					JULIAN *source_julian );
-int julian_get_month_number( double current );
-int julian_get_half_hour_number( double current );
-int julian_get_hour_number( double current );
-int julian_get_minute_number( double current );
+int julian_month_number( double current );
+int julian_half_hour_number( double current );
+int julian_hour_number( double current );
+int julian_minute_number( double current );
 void julian_set_yyyy_mm_dd(	JULIAN *julian,
 				char *yyyy_mm_dd );
 void julian_set_time_hhmm(	JULIAN *julian,
 				char *hhmm );
-int julian_get_week_number( double current );
-int julian_get_day_number( double current );
-int julian_get_day_of_month_number( double current );
+int julian_week_number( double current );
+int julian_day_number( double current );
+int julian_day_of_month_number( double current );
 void julian_set_year_month_day( JULIAN *julian, int year, int month, int day );
 
 double julian_consistent_date_aggregation(

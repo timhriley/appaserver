@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_predictive
-	make income_statement_output
+	cd ../src_appaserver
+	make output_grace_chart
 fi
 

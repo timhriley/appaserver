@@ -185,12 +185,12 @@ QUERY_ROW *query_row_parse(
 		LIST *folder_attribute_append_isa_list,
 		enum date_convert_format_enum destination_enum,
 		LIST *query_select_name_list,
-		char *input );
+		char *input /* stack memory */ );
 
 /* Usage */
 /* ----- */
 QUERY_ROW *query_row_new(
-		char *input /* stack memory */,
+		char *input /* stack memory or null */,
 		LIST *cell_list );
 
 /* Process */

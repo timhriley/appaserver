@@ -45,7 +45,7 @@ void julian_set_time_hhmm(	JULIAN *julian,
 {
 	char *yyyy_mm_dd;
 
-	yyyy_mm_dd = julian_get_yyyy_mm_dd_string( julian->current );
+	yyyy_mm_dd = julian_yyyy_mm_dd_string( julian->current );
 	julian->current =
 		julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, hhmm );
 }
@@ -164,12 +164,7 @@ void julian_free( JULIAN *julian )
 	if ( julian ) free( julian );
 }
 
-char *julian_get_yyyy_mm_dd( double current )
-{
-	return julian_to_yyyy_mm_dd( current );
-}
-
-char *julian_get_yyyy_mm_dd_string( double current )
+char *julian_yyyy_mm_dd( double current )
 {
 	return julian_to_yyyy_mm_dd( current );
 }
@@ -203,12 +198,12 @@ char *julian_yyyy_mm_dd_string( double current )
 	return julian_to_yyyy_mm_dd( current );
 }
 
-char *julian_get_hhmm( double current )
+char *julian_hhmm( double current )
 {
 	return julian_display_hhmm( current );
 }
 
-char *julian_get_hhmm_string( double current )
+char *julian_hhmm_string( double current )
 {
 	return julian_display_hhmm( current );
 }
@@ -299,7 +294,7 @@ double julian_yyyymmdd_time_hhmm_to_julian( char *yyyymmdd, char *hhmm )
 	*(buffer + 1) = *(yyyymmdd + 7);
 	day = atoi( buffer );
 
-	julian_get_hour_minute( &hour, &minute, hhmm );
+	julian_hour_minute( &hour, &minute, hhmm );
 
 	return greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
 }
@@ -315,7 +310,7 @@ void julian_set_year_month_day( JULIAN *julian, int year, int month, int day )
 				0.0 /* seconds */ );
 }
 
-void julian_get_hour_minute( int *hour, int *minute, char *hhmm )
+void julian_hour_minute( int *hour, int *minute, char *hhmm )
 {
 	char buffer[ 3 ];
 
@@ -362,7 +357,7 @@ double julian_yyyy_mm_dd_time_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )
 	month = atoi( piece( buffer, '-', yyyy_mm_dd, 1 ) );
 	day = atoi( piece( buffer, '-', yyyy_mm_dd, 2 ) );
 
-	julian_get_hour_minute( &hour, &minute, hhmm );
+	julian_hour_minute( &hour, &minute, hhmm );
 
 	/* if ( !month || !day || !year ) return 0.0; */
 
@@ -416,7 +411,7 @@ buffer );
 
 }
 
-int julian_get_year_number( double current )
+int julian_year_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -429,11 +424,6 @@ char *julian_to_yyyymmdd( double julian )
 	return julian_to_yyyy_mm_dd( julian );
 }
 
-char *julian_hhmm_string( double julian )
-{
-	return julian_to_hhmm( julian );
-}
-
 char *julian_to_hhmm( double julian )
 {
 	char buffer[ 128 ];
@@ -441,7 +431,7 @@ char *julian_to_hhmm( double julian )
 	double seconds;
 	jul2greg( julian, &month, &day, &year, &hour, &minute, &seconds );
 /*
-printf( "1) got minute = %d\n", julian_get_minute_number( julian ) );
+printf( "1) got minute = %d\n", julian_minute_number( julian ) );
 printf( "2) got minute = %d\n", minute );
 */
 	sprintf( buffer, "%.2d%.2d", hour, minute );
@@ -573,9 +563,9 @@ double julian_increment_month( double current )
 {
 	int month_number;
 
-	month_number = julian_get_month_number( current );
+	month_number = julian_month_number( current );
 
-	while( month_number == julian_get_month_number( current ) )
+	while( month_number == julian_month_number( current ) )
 		current++;
 
 	return current;
@@ -586,9 +576,9 @@ double julian_increment_year( double current )
 {
 	int year_number;
 
-	year_number = julian_get_year_number( current );
+	year_number = julian_year_number( current );
 
-	while( year_number == julian_get_year_number( current ) )
+	while( year_number == julian_year_number( current ) )
 		current++;
 
 	return current;
@@ -710,7 +700,7 @@ double julian_subtract( JULIAN *begin_julian, JULIAN *end_julian )
 	return begin_julian->current - end_julian->current;
 }
 
-int julian_get_month_number( double current )
+int julian_month_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -718,7 +708,7 @@ int julian_get_month_number( double current )
 	return month;
 }
 
-int julian_get_hour_number( double current )
+int julian_hour_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -726,7 +716,7 @@ int julian_get_hour_number( double current )
 	return hour;
 }
 
-int julian_get_half_hour_number( double current )
+int julian_half_hour_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -744,12 +734,12 @@ double julian_round_to_half_hour( double current )
 	int year, month, day, hour, minute, half_hour_number;
 	double seconds;
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
-	half_hour_number = julian_get_half_hour_number( current );
+	half_hour_number = julian_half_hour_number( current );
 	minute = half_hour_number;
 	return greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
 }
 
-int julian_get_minute_number( double current )
+int julian_minute_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -757,7 +747,7 @@ int julian_get_minute_number( double current )
 	return minute;
 }
 
-int julian_get_week_number( double current )
+int julian_week_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -772,7 +762,7 @@ int julian_get_week_number( double current )
 	return week;
 }
 
-int julian_get_day_of_month_number( double current )
+int julian_day_of_month_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -782,7 +772,7 @@ int julian_get_day_of_month_number( double current )
 
 }
 
-int julian_get_day_number( double current )
+int julian_day_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
@@ -823,11 +813,11 @@ double julian_consistent_date_aggregation(
 		int current_week_number;
 		int next_week_number;
 
-		for(	current_week_number = julian_get_week_number( current );
+		for(	current_week_number = julian_week_number( current );
 			;
 			current++ )
 		{
-			next_week_number = julian_get_week_number( current );
+			next_week_number = julian_week_number( current );
 
 			if ( next_week_number != current_week_number )
 				return current - 1.0;
@@ -845,11 +835,11 @@ double julian_consistent_date_aggregation(
 		int current_month_number;
 		int next_month_number;
 
-		for( current_month_number = julian_get_month_number( current );
+		for( current_month_number = julian_month_number( current );
 		     ;
 		     current++ )
 		{
-			next_month_number = julian_get_month_number( current );
+			next_month_number = julian_month_number( current );
 			if ( next_month_number != current_month_number )
 				return current - 1.0;
 
@@ -866,11 +856,11 @@ double julian_consistent_date_aggregation(
 		int current_year_number;
 		int next_year_number;
 
-		for( current_year_number = julian_get_year_number( current );
+		for( current_year_number = julian_year_number( current );
 		     ;
 		     current++ )
 		{
-			next_year_number = julian_get_year_number( current );
+			next_year_number = julian_year_number( current );
 			if ( next_year_number != current_year_number )
 				return current - 1.0;
 

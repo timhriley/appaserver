@@ -472,6 +472,9 @@ STATEMENT_LINK *statement_link_new(
 	statement_link = statement_link_calloc();
 
 	statement_link->appaserver_link =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		appaserver_link_new(
 			application_http_prefix(
 				application_ssl_support_boolean(

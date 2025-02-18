@@ -164,18 +164,18 @@ int main( int argc, char **argv )
 
 			julian_set_time_hhmm( new_date_julian, time_string );
 
-			if ( ( julian_get_half_hour_number(
+			if ( ( julian_half_hour_number(
 						old_date_julian->
 							current ) !=
-		     	       julian_get_half_hour_number(
+		     	       julian_half_hour_number(
 				     		new_date_julian->
 							current ))
-			|| ( julian_get_hour_number( old_date_julian->
+			|| ( julian_hour_number( old_date_julian->
 							current ) !=
-		     	     julian_get_hour_number( new_date_julian->
+		     	     julian_hour_number( new_date_julian->
 							current ))
 			|| ( strcmp( date_string,
-				     julian_get_yyyy_mm_dd_string(
+				     julian_yyyy_mm_dd_string(
 					old_date_julian->current ) ) != 0 ))
 			{
 				new_aggregate = 1;
@@ -200,12 +200,12 @@ int main( int argc, char **argv )
 
 			julian_set_time_hhmm( new_date_julian, time_string );
 
-			if ( ( julian_get_hour_number( old_date_julian->
+			if ( ( julian_hour_number( old_date_julian->
 							current ) !=
-		     	       julian_get_hour_number( new_date_julian->
+		     	       julian_hour_number( new_date_julian->
 							current ))
 			|| ( strcmp( date_string,
-				     julian_get_yyyy_mm_dd_string(
+				     julian_yyyy_mm_dd_string(
 					old_date_julian->current ) ) != 0 ) )
 			{
 				new_aggregate = 1;
@@ -215,7 +215,7 @@ int main( int argc, char **argv )
 		if ( aggregate_level == daily )
 		{
 			if ( strcmp( date_string,
-				     julian_get_yyyy_mm_dd_string(
+				     julian_yyyy_mm_dd_string(
 						old_date_julian->
 							current ) ) != 0 )
 			{
@@ -225,14 +225,14 @@ int main( int argc, char **argv )
 		else
 		if ( aggregate_level == weekly )
 		{
-			if ( ( julian_get_week_number( old_date_julian->
+			if ( ( julian_week_number( old_date_julian->
 							current ) !=
-		     	       julian_get_week_number( new_date_julian->
+		     	       julian_week_number( new_date_julian->
 							current ))
 			||
-		    	   ( julian_get_year_number( old_date_julian->
+		    	   ( julian_year_number( old_date_julian->
 							current ) != 
-		     	     julian_get_year_number( new_date_julian->
+		     	     julian_year_number( new_date_julian->
 							current )))
 			{
 				new_aggregate = 1;
@@ -241,13 +241,13 @@ int main( int argc, char **argv )
 		else
 		if ( aggregate_level == monthly )
 		{
-			if ( ( julian_get_month_number( old_date_julian->
+			if ( ( julian_month_number( old_date_julian->
 							current ) !=
-		     	       julian_get_month_number( new_date_julian->
+		     	       julian_month_number( new_date_julian->
 							current ))
-			||  (  julian_get_year_number( old_date_julian->
+			||  (  julian_year_number( old_date_julian->
 							current ) != 
-		     	       julian_get_year_number( new_date_julian->
+		     	       julian_year_number( new_date_julian->
 							current )))
 			{
 				new_aggregate = 1;
@@ -256,9 +256,9 @@ int main( int argc, char **argv )
 		else
 		if ( aggregate_level == annually )
 		{
-			if ( julian_get_year_number( old_date_julian->
+			if ( julian_year_number( old_date_julian->
 							current ) != 
-		     	     julian_get_year_number( new_date_julian->
+		     	     julian_year_number( new_date_julian->
 							current ) )
 			{
 				new_aggregate = 1;
@@ -292,6 +292,7 @@ int main( int argc, char **argv )
 
 			if ( !first_time )
 			{
+
 				output(	input_buffer,
 					old_date_julian,
 					aggregate_level,
@@ -470,7 +471,7 @@ void output(	char *input_buffer,
 
 	replace_piece(	output_buffer,
 			delimiter, 
-			julian_get_yyyy_mm_dd_string(
+			julian_yyyy_mm_dd_string(
 				date_julian->current ),
 			date_piece_offset );
 
@@ -483,7 +484,7 @@ void output(	char *input_buffer,
 					date_julian->current );
 
 			strcpy(	time_string,
-				julian_get_hhmm_string(
+				julian_hhmm_string(
 					date_julian->current ) );
 	
 			replace_piece(	output_buffer,
@@ -495,7 +496,7 @@ void output(	char *input_buffer,
 		if ( aggregate_level == hourly )
 		{
 			strcpy(	time_string,
-				julian_get_hhmm_string(
+				julian_hhmm_string(
 					date_julian->current ) );
 	
 			/* --------------------------------------------- */

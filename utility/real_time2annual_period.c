@@ -519,7 +519,7 @@ int week_integer( char *containing_date_string )
 
 	if ( !date ) return -1;
 
-	week_integer = julian_get_week_number( date->current );
+	week_integer = julian_week_number( date->current );
 	julian_free( date );
 	return week_integer;
 }
@@ -533,7 +533,7 @@ int daily_month_integer( char *containing_date_string )
 
 	if ( !date ) return -1;
 
-	month_integer = julian_get_month_number( date->current );
+	month_integer = julian_month_number( date->current );
 	julian_free( date );
 	return month_integer;
 }
@@ -547,7 +547,7 @@ int day_of_month_integer( char *containing_date_string )
 
 	if ( !date ) return -1;
 
-	day_of_month_integer = julian_get_day_of_month_number( date->current );
+	day_of_month_integer = julian_day_of_month_number( date->current );
 	julian_free( date );
 	return day_of_month_integer;
 }
@@ -561,7 +561,7 @@ int day_integer( char *containing_date_string )
 
 	if ( !date ) return -1;
 
-	day_integer = julian_get_day_number( date->current );
+	day_integer = julian_day_number( date->current );
 	julian_free( date );
 	return day_integer;
 }
@@ -573,7 +573,7 @@ void output(	JULIAN *date,
 {
 	char results_string[ 128 ];
 
-	if ( julian_get_year_number( date->current ) == 1900 ) return;
+	if ( julian_year_number( date->current ) == 1900 ) return;
 
 	if ( statistic->row_count == 0 )
 	{
@@ -623,7 +623,7 @@ void output(	JULIAN *date,
 		strcpy( results_string, "AGGREGATE?" );
 
 	printf( "%s%c%s%c%ld\n",
-		julian_get_yyyy_mm_dd_string( date->current ),
+		julian_yyyy_mm_dd_string( date->current ),
 		delimiter,
 		results_string,
 		delimiter,
@@ -658,9 +658,9 @@ int real_time2annual_weekly_period(
 		return 1;
 	}
 
-	old_year = julian_get_year_number( old_date->current );
-	new_year = julian_get_year_number( new_date->current );
-	new_week = julian_get_week_number( new_date->current );
+	old_year = julian_year_number( old_date->current );
+	new_year = julian_year_number( new_date->current );
+	new_week = julian_week_number( new_date->current );
 
 	if ( period_week != new_week )
 	{
@@ -758,10 +758,10 @@ int real_time2annual_daily_period(
 		return 1;
 	}
 
-	old_year = julian_get_year_number( old_date->current );
-	new_year = julian_get_year_number( new_date->current );
-	new_day = julian_get_day_of_month_number( new_date->current );
-	new_month = julian_get_month_number( new_date->current );
+	old_year = julian_year_number( old_date->current );
+	new_year = julian_year_number( new_date->current );
+	new_day = julian_day_of_month_number( new_date->current );
+	new_month = julian_month_number( new_date->current );
 
 	if ( period_day != new_day
 	||   period_month != new_month )
@@ -864,9 +864,9 @@ int real_time2annual_monthly_period(
 		return 1;
 	}
 
-	old_year = julian_get_year_number( old_date->current );
-	new_year = julian_get_year_number( new_date->current );
-	new_month = julian_get_month_number( new_date->current );
+	old_year = julian_year_number( old_date->current );
+	new_year = julian_year_number( new_date->current );
+	new_month = julian_month_number( new_date->current );
 
 	if ( ! ( period_month = month_integer( period ) ) )
 	{
@@ -1208,8 +1208,8 @@ fprintf( stderr,
 
 boolean is_same_year( JULIAN *new_date, JULIAN *old_date )
 {
-	int old_year = julian_get_year_number( old_date->current );
-	int new_year = julian_get_year_number( new_date->current );
+	int old_year = julian_year_number( old_date->current );
+	int new_year = julian_year_number( new_date->current );
 
 	return ( old_year == new_year );
 }
@@ -1310,8 +1310,8 @@ int real_time2annual_dynamic_period(
 		return 1;
 	}
 
-	old_year = julian_get_year_number( old_date->current );
-	new_year = julian_get_year_number( new_date->current );
+	old_year = julian_year_number( old_date->current );
+	new_year = julian_year_number( new_date->current );
 
 	/* If skipped a year. */
 	/* ------------------ */
@@ -1329,7 +1329,7 @@ int real_time2annual_dynamic_period(
 printf( "getting day number for date = (%s)\n", julian_display_yyyy_mm_dd( new_date->current ) );
 */
 
-	new_day = julian_get_day_number( new_date->current );
+	new_day = julian_day_number( new_date->current );
 
 	/* Two step process to set within_range_results */
 	/* -------------------------------------------- */
@@ -1514,9 +1514,9 @@ enum season_match_results season_match_results_evaluate(
 {
 	char *date_string;
 	char *trimmed_date_string;
-	int new_year = julian_get_year_number( new_date->current );
+	int new_year = julian_year_number( new_date->current );
 
-	date_string = julian_get_yyyy_mm_dd_string( new_date->current );
+	date_string = julian_yyyy_mm_dd_string( new_date->current );
 	trimmed_date_string = date_string + 5;
 
 	if ( season_year_relationship == season_entire_year )
