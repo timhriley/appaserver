@@ -397,3 +397,29 @@ APPASERVER_PARAMETER *appaserver_parameter_application(
 		appaserver_parameter->dictionary );
 }
 
+char *appaserver_parameter_application_data_directory(
+		char *application_name,
+		char *data_directory )
+{
+	char application_data_directory[ 128 ];
+
+	if ( !application_name
+	||   !data_directory )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		application_data_directory,
+		sizeof ( application_data_directory ),
+		"%s/%s",
+		data_directory,
+		application_name );
+
+	return strdup( application_data_directory );
+}

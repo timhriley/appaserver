@@ -128,6 +128,7 @@ typedef struct
 {
 	APPASERVER_LINK *appaserver_link;
 	char *tex_filename;
+	char *tex_anchor_html;
 	char *pdf_anchor_html;
 	char *appaserver_link_working_directory;
 } CHECK_LINK;

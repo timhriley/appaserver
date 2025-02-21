@@ -19,78 +19,209 @@ typedef struct
 	double current;
 } JULIAN;
 
-JULIAN *julian_new_julian( double current );
-JULIAN *julian_new( double current );
-JULIAN *julian_yyyy_mm_dd_new( char *yyyy_mm_dd );
-JULIAN *julian_new_yyyy_mm_dd( char *yyyy_mm_dd );
-JULIAN *julian_yyyy_mm_dd_hhmm_new( char *yyyy_mm_dd, char *hhmm );
+/* Usage */
+/* ----- */
+JULIAN *julian_new_julian(
+		double current );
+
+JULIAN *julian_new(
+		double current );
+
+JULIAN *julian_yyyy_mm_dd_new(
+		char *yyyy_mm_dd );
+
+JULIAN *julian_new_yyyy_mm_dd(
+		char *yyyy_mm_dd );
+
+JULIAN *julian_yyyy_mm_dd_hhmm_new(
+		char *yyyy_mm_dd,
+		char *hhmm );
 
 JULIAN *julian_date_time_new(
-			int year,
-			int month,
-			int day,
-			int hour,
-			int minute );
+		int year,
+		int month,
+		int day,
+		int hour,
+		int minute );
 
-void julian_free(	JULIAN *julian );
+/* Process */
+/* ------- */
+JULIAN *julian_calloc(
+		void );
 
-char *julian_display_yyyy_mm_dd( double current );
-char *julian_display_yyyymmdd( double current );
-char *julian_yyyy_mm_dd_string( double current );
-char *julian_yyyy_mm_dd( double current );
-char *julian_hhmm_string( double current );
-char *julian_hhmm( double current );
-char *julian_display_hhmm( double current );
-char *julian_display_hhmmss( double current );
-char *julian_yyyy_mm_dd_string( double current );
-char *julian_display( double current );
-double julian_yyyy_mm_dd_time_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm );
-double julian_yyyymmdd_time_hhmm_to_julian( char *yyyymmdd, char *hhmm );
-double julian_yyyy_mm_dd_to_julian( char *yyyy_mm_dd );
-char *julian_to_yyyy_mm_dd( double julian );
-char *julian_to_yyyymmdd( double julian );
-char *julian_to_hhmm( double julian );
-char *julian_hhmm_string( double julian );
-double greg2jul( int mon, int day, int year, int h, int mi, double se );
-void jul2greg( 	double jd, int *m, int *d, int *y,
-		int *h, int *mi, double *sec );
-double julian_increment_seconds( double julian, int seconds );
-double julian_increment_minutes( double julian, int minutes );
-double julian_increment_hours( double julian, int hours );
-double julian_increment_hours_double( double julian, double hours );
-double julian_increment_day( double current );
-double julian_decrement_day( double current );
-double julian_increment_month( double current );
-double julian_increment_year( double current );
-int julian_year_number( double current );
-double julian_add_minutes( double julian, int minutes );
-double julian_subtract( JULIAN *begin_julian, JULIAN *end_julian );
-void julian_add_julian( JULIAN *julian, double add_julian );
-char *julian_make_y2k_year( char *two_digit_year_buffer );
+/* Public */
+/* ------ */
+void julian_free(
+		JULIAN *julian );
+
+char *julian_display_yyyy_mm_dd(
+		double current );
+
+char *julian_display_yyyymmdd(
+		double current );
+
+char *julian_yyyy_mm_dd_string(
+		double current );
+
+char *julian_yyyy_mm_dd(
+		double current );
+
+char *julian_hhmm_string(
+		double current );
+
+char *julian_hhmm(
+		double current );
+
+char *julian_display_hhmm(
+		double current );
+
+char *julian_display_hhmmss(
+		double current );
+
+char *julian_yyyy_mm_dd_string(
+		double current );
+
+char *julian_display(
+		double current );
+
+double julian_yyyy_mm_dd_time_hhmm_to_julian(
+		char *yyyy_mm_dd,
+		char *hhmm );
+
+double julian_yyyymmdd_time_hhmm_to_julian(
+		char *yyyymmdd,
+		char *hhmm );
+
+double julian_yyyy_mm_dd_to_julian(
+		char *yyyy_mm_dd );
+
+char *julian_to_yyyy_mm_dd(
+		double julian );
+
+char *julian_to_yyyymmdd(
+		double julian );
+
+char *julian_to_hhmm(
+		double julian );
+
+char *julian_hhmm_string(
+		double julian );
+
+double greg2jul(
+		int mon,
+		int day,
+		int year,
+		int h,
+		int mi,
+		double se );
+
+void jul2greg( 	double jd,
+		int *m,
+		int *d,
+		int *y,
+		int *h,
+		int *mi,
+		double *sec );
+
+double julian_increment_seconds(
+		double julian,
+		int seconds );
+
+double julian_increment_minutes(
+		double julian,
+		int minutes );
+
+double julian_increment_hours(
+		double julian,
+		int hours );
+
+double julian_increment_hours_double(
+		double julian,
+		double hours );
+
+double julian_increment_day(
+		double current );
+
+double julian_decrement_day(
+		double current );
+
+double julian_increment_month(
+		double current );
+
+double julian_increment_year(
+		double current );
+
+int julian_year_number(
+		double current );
+
+double julian_add_minutes(
+		double julian,
+		int minutes );
+
+double julian_subtract(
+		JULIAN *begin_julian,
+		JULIAN *end_julian );
+
+void julian_add_julian(
+		JULIAN *julian,
+		double add_julian );
+
+char *julian_make_y2k_year(
+		char *two_digit_year_buffer );
 
 /* Returns hhmm */
 /* ------------ */
 char *julian_clean_hhmm(
 		char *hhmm );
 
-void julian_hour_minute( int *hour, int *minute, char *hhmm );
-void julian_set_yyyy_mm_dd_hhmm(	JULIAN *julian,
-					char *yyyy_mm_dd,
-					char *hhmm );
-void julian_copy(			JULIAN *destination_julian,
-					JULIAN *source_julian );
-int julian_month_number( double current );
-int julian_half_hour_number( double current );
-int julian_hour_number( double current );
-int julian_minute_number( double current );
-void julian_set_yyyy_mm_dd(	JULIAN *julian,
-				char *yyyy_mm_dd );
-void julian_set_time_hhmm(	JULIAN *julian,
-				char *hhmm );
-int julian_week_number( double current );
-int julian_day_number( double current );
-int julian_day_of_month_number( double current );
-void julian_set_year_month_day( JULIAN *julian, int year, int month, int day );
+void julian_hour_minute(
+		int *hour,
+		int *minute,
+		char *hhmm );
+
+void julian_set_yyyy_mm_dd_hhmm(
+		JULIAN *julian,
+		char *yyyy_mm_dd,
+		char *hhmm );
+
+void julian_copy(
+		JULIAN *destination_julian,
+		JULIAN *source_julian );
+
+int julian_month_number(
+		double current );
+
+int julian_half_hour_number(
+		double current );
+
+int julian_hour_number(
+		double current );
+
+int julian_minute_number(
+		double current );
+
+void julian_set_yyyy_mm_dd(
+		JULIAN *julian,
+		char *yyyy_mm_dd );
+
+void julian_set_time_hhmm(
+		JULIAN *julian,
+		char *hhmm );
+
+int julian_week_number(
+		double current );
+
+int julian_day_number(
+		double current );
+
+int julian_day_of_month_number(
+		double current );
+
+void julian_set_year_month_day(
+		JULIAN *julian,
+		int year,
+		int month,
+		int day );
 
 double julian_consistent_date_aggregation(
 		double current,

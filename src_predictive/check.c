@@ -750,6 +750,9 @@ CHECK_LINK *check_link_new(
 			check_link->appaserver_link->extension );
 
 	check_link->pdf_anchor_html =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		appaserver_link_anchor_html(
 			check_link->
 				appaserver_link->

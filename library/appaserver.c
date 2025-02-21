@@ -64,6 +64,34 @@ FILE *appaserver_input_pipe( char *system_string )
 	return popen( system_string, "r" );
 }
 
+FILE *appaserver_append_file( char *filename )
+{
+	FILE *file;
+
+	if ( !filename )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: filename is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( ! ( file = fopen( filename, "a" ) ) )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: fopen(%s) for append returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			filename );
+		exit( 1 );
+	}
+
+	return file;
+}
+
 FILE *appaserver_output_file( char *filename )
 {
 	FILE *file;

@@ -91,6 +91,12 @@ char *appaserver_parameter_log_directory(
 char *appaserver_parameter_data_directory(
 		void );
 
+/* Returns heap memory */
+/* ------------------- */
+char *appaserver_parameter_application_data_directory(
+		char *application_name,
+		char *appaserver_parameter_data_directory );
+
 /* Returns component of global_appaserver_parameter */
 /* ------------------------------------------------ */
 char *appaserver_parameter_cgi_home(

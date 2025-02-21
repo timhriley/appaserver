@@ -64,6 +64,9 @@ int round_int(	double d );
 int float_round_int(
 		double d );
 
+int float_round_integer(
+		double d );
+
 double ceiling_double(
 		double d );
 

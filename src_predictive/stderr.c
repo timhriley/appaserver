@@ -1,10 +1,12 @@
 /*
-fprintf(
-stderr,
-"%s/%s()/%d:\n",
-__FILE__,
-__FUNCTION__,
-__LINE__ );
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d:\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 */
 	{
 		char message[ 128 ];
@@ -19,5 +21,9 @@ __LINE__ );
 			__FUNCTION__,
 			__LINE__,
 			message );
+
+		/* Stub */
+		/* ---- */
+		exit( 1 );
 	}
 

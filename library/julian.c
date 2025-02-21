@@ -19,20 +19,30 @@ JULIAN *julian_new( double current )
 	return julian_new_julian( current );
 }
 
-JULIAN *julian_new_julian( double current )
+JULIAN *julian_calloc( void )
 {
-	JULIAN *j;
+	JULIAN *julian;
 
-	if ( ! ( j = (JULIAN *)calloc( 1, sizeof( JULIAN ) ) ) )
+	if ( ! ( julian = calloc( 1, sizeof ( JULIAN ) ) ) )
 	{
 		fprintf(stderr,
-			"ERROR: memory allocation error in %s/%s()\n",
+			"ERROR in %s/%s()/%d: calloc() returned empty.\n",
 			__FILE__,
-			__FUNCTION__ );
+			__FUNCTION__,
+			__LINE__ );
 		exit( 1 );
 	}
-	j->current = current;
-	return j;
+
+	return julian;
+}
+
+JULIAN *julian_new_julian( double current )
+{
+	JULIAN *julian = julian_calloc();
+
+	julian->current = current;
+
+	return julian;
 }
 
 double julian_yyyy_mm_dd_to_julian( char *yyyy_mm_dd )
@@ -40,43 +50,55 @@ double julian_yyyy_mm_dd_to_julian( char *yyyy_mm_dd )
 	return julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, "0000" );
 }
 
-void julian_set_time_hhmm(	JULIAN *julian,
-				char *hhmm )
+void julian_set_time_hhmm(
+		JULIAN *julian,
+		char *hhmm )
 {
 	char *yyyy_mm_dd;
 
 	yyyy_mm_dd = julian_yyyy_mm_dd_string( julian->current );
+
 	julian->current =
-		julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, hhmm );
+		julian_yyyy_mm_dd_time_hhmm_to_julian(
+			yyyy_mm_dd,
+			hhmm );
 }
 
-void julian_set_yyyy_mm_dd(	JULIAN *julian,
-				char *yyyy_mm_dd )
+void julian_set_yyyy_mm_dd(
+		JULIAN *julian,
+		char *yyyy_mm_dd )
 {
 	julian->current =
-		julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, "0000" );
-
+		julian_yyyy_mm_dd_time_hhmm_to_julian(
+			yyyy_mm_dd,
+			"0000" );
 }
 
-void julian_set_yyyy_mm_dd_hhmm(	JULIAN *julian,
-					char *yyyy_mm_dd,
-					char *hhmm )
+void julian_set_yyyy_mm_dd_hhmm(
+		JULIAN *julian,
+		char *yyyy_mm_dd,
+		char *hhmm )
 {
 	julian->current =
-		julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, hhmm );
-
+		julian_yyyy_mm_dd_time_hhmm_to_julian(
+			yyyy_mm_dd,
+			hhmm );
 }
 
 JULIAN *julian_new_yyyy_mm_dd( char *yyyy_mm_dd )
 {
-	return julian_yyyy_mm_dd_hhmm_new( yyyy_mm_dd, "0000" );
+	return
+	julian_yyyy_mm_dd_hhmm_new(
+		yyyy_mm_dd,
+		"0000" );
 }
 
-JULIAN *julian_date_time_new(	int year,
-				int month,
-				int day,
-				int hour,
-				int minute )
+JULIAN *julian_date_time_new(
+		int year,
+		int month,
+		int day,
+		int hour,
+		int minute )
 {
 	char yyyy_mm_dd[ 16 ];
 	char hhmm[ 16 ];
@@ -89,8 +111,10 @@ JULIAN *julian_date_time_new(	int year,
 		 "%.2d%.2d",
 		 hour, minute );
 
-	return julian_yyyy_mm_dd_hhmm_new( yyyy_mm_dd, hhmm );
-
+	return
+	julian_yyyy_mm_dd_hhmm_new(
+		yyyy_mm_dd,
+		hhmm );
 }
 
 JULIAN *julian_yyyy_mm_dd_hhmm_new( char *yyyy_mm_dd, char *hhmm )
@@ -109,9 +133,9 @@ JULIAN *julian_yyyy_mm_dd_hhmm_new( char *yyyy_mm_dd, char *hhmm )
 	hhmm = julian_clean_hhmm( hhmm );
 
 	julian->current =
-		julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, hhmm );
-
-	/* if ( !julian->current ) return (JULIAN *)0; */
+		julian_yyyy_mm_dd_time_hhmm_to_julian(
+			yyyy_mm_dd,
+			hhmm );
 
 	return julian;
 }
@@ -152,10 +176,6 @@ JULIAN *julian_yyyy_mm_dd_new( char *yyyy_mm_dd )
 			yyyy_mm_dd,
 			time_string );
 
-/*
-	if ( !julian->current ) return (JULIAN *)0;
-*/
-
 	return julian;
 }
 
@@ -179,20 +199,6 @@ char *julian_display( double current )
 	return julian_to_yyyy_mm_dd( current );
 }
 
-#ifdef NOT_DEFINED
-char *julian_display_oracle_format( double current )
-{
-	char *yyyy_mm_dd;
-	char *oracle_format;
-
-	yyyy_mm_dd = julian_to_yyyy_mm_dd( current );
-
-	oracle_format = timlib_yyyymmdd_to_oracle_format( yyyy_mm_dd );
-	free( yyyy_mm_dd );
-	return oracle_format;
-}
-#endif
-
 char *julian_yyyy_mm_dd_string( double current )
 {
 	return julian_to_yyyy_mm_dd( current );
@@ -215,18 +221,12 @@ char *julian_display_yyyy_mm_dd_hhmm( double current )
 	char *hhmm;
 
 	yyyy_mm_dd = julian_display_yyyy_mm_dd( current );
-
-/*
-fprintf( stderr, "%s(): for current = %.5lf, got yyyy_mm_dd = (%s)\n",
-__FUNCTION__,
-current,
-yyyy_mm_dd );
-*/
 	hhmm = julian_display_hhmm( current );
-
 	sprintf( buffer, "%s:%s", yyyy_mm_dd, hhmm );
+
 	free( yyyy_mm_dd );
 	free( hhmm );
+
 	return strdup( buffer );
 
 }
@@ -236,8 +236,10 @@ char *julian_display_hhmm( double current )
 	char buffer[ 128 ];
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
 	sprintf( buffer, "%.2d%.2d", hour, minute );
+
 	return strdup( buffer );
 }
 
@@ -246,8 +248,10 @@ char *julian_display_hhmmss( double current )
 	char buffer[ 128 ];
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
 	sprintf( buffer, "%.2d:%.2d:%.2d", hour, minute, (int)seconds );
+
 	return strdup( buffer );
 }
 
@@ -296,18 +300,26 @@ double julian_yyyymmdd_time_hhmm_to_julian( char *yyyymmdd, char *hhmm )
 
 	julian_hour_minute( &hour, &minute, hhmm );
 
-	return greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
+	return
+	greg2jul(
+		month,
+		day,
+		year,
+		hour,
+		minute,
+		0.0 /* seconds */ );
 }
 
 void julian_set_year_month_day( JULIAN *julian, int year, int month, int day )
 {
 	julian->current = 
-		greg2jul(	month,
-				day,
-				year,
-				0 /* hour */,
-				0 /* minute */,
-				0.0 /* seconds */ );
+		greg2jul(
+			month,
+			day,
+			year,
+			0 /* hour */,
+			0 /* minute */,
+			0.0 /* seconds */ );
 }
 
 void julian_hour_minute( int *hour, int *minute, char *hhmm )
@@ -323,7 +335,6 @@ void julian_hour_minute( int *hour, int *minute, char *hhmm )
 	*(buffer + 1) = *(hhmm + 1);
 	*hour = atoi( buffer );
 	*minute = atoi( hhmm + 2 );
-
 }
 
 double julian_yyyy_mm_dd_time_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )
@@ -347,10 +358,11 @@ double julian_yyyy_mm_dd_time_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )
 
 	if ( strlen( year_buffer ) == 2 )
 	{
-		string_strcpy(	year_buffer,
-				julian_make_y2k_year(
-					year_buffer ),
-				8 );
+		string_strcpy(
+			year_buffer,
+			julian_make_y2k_year(
+				year_buffer ),
+			8 );
 	}
 
 	year = atoi( year_buffer );
@@ -359,21 +371,14 @@ double julian_yyyy_mm_dd_time_hhmm_to_julian( char *yyyy_mm_dd, char *hhmm )
 
 	julian_hour_minute( &hour, &minute, hhmm );
 
-	/* if ( !month || !day || !year ) return 0.0; */
-
-/*
-fprintf( stderr, "%s(): setting month = %d and day = %d and year = %d and hour = %d and minute = %d\n",
-__FUNCTION__,
-month, day, year, hour, minute );
-*/
-
-	current = greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
-
-/*
-fprintf( stderr, "%s(): got resulting julian = %.5lf\n",
-__FUNCTION__,
-current );
-*/
+	current =
+		greg2jul(
+			month,
+			day,
+			year,
+			hour,
+			minute,
+			0.0 /* seconds */ );
 
 	return current;
 }
@@ -390,22 +395,17 @@ char *julian_to_yyyy_mm_dd( double julian )
 	}
 	else
 	{
-		jul2greg(	julian,
-				&month,
-				&day,
-				&year,
-				&hour,
-				&minute,
-				&seconds );
+		jul2greg(
+			julian,
+			&month,
+			&day,
+			&year,
+			&hour,
+			&minute,
+			&seconds );
+
 		sprintf( buffer, "%d-%.2d-%.2d", year, month, day );
 	}
-
-/*
-fprintf( stderr, "%s(): for julian = %.5lf, returning yyyy_mm_dd = (%s)\n",
-__FUNCTION__,
-julian,
-buffer );
-*/
 
 	return strdup( buffer );
 
@@ -415,7 +415,9 @@ int julian_year_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
+
 	return year;
 }
 
@@ -429,12 +431,10 @@ char *julian_to_hhmm( double julian )
 	char buffer[ 128 ];
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( julian, &month, &day, &year, &hour, &minute, &seconds );
-/*
-printf( "1) got minute = %d\n", julian_minute_number( julian ) );
-printf( "2) got minute = %d\n", minute );
-*/
 	sprintf( buffer, "%.2d%.2d", hour, minute );
+
 	return strdup( buffer );
 }
 
@@ -442,7 +442,7 @@ double greg2jul( int mon, int day, int year, int h, int mi, double se )
 {
 /*
 ** Takes a date, and returns a Julian day. A Julian day is the number of
-** days since some base date  (in the very distant past).
+** days since some base date (in the very distant past).
 ** Handy for getting date of x number of days after a given Julian date
 ** (use jdate to get that from the Gregorian date).
 ** Author: Robert G. Tantzen, translator: Nat Howard
@@ -455,42 +455,38 @@ double greg2jul( int mon, int day, int year, int h, int mi, double se )
 	double seconds = h * 3600.0 + mi * 60 + se;
 	double current;
 
-/*
-fprintf( stderr, "%s/%s() got mon = %d, day = %d, year = %d\n",
-__FILE__,
-__FUNCTION__,
-mon, day, year );
-fflush( stderr );
-*/
+	if ( ! ( mon + day + year + h + mi + se ) ) return 0.0;
 
-    if ( ! ( mon + day + year + h + mi + se ) ) return 0.0;
+	if (m > 2)
+		m -= 3;
+	else
+	{
+		m += 9;
+		--y;
+	}
 
-    if (m > 2)
-	m -= 3;
-    else {
-	m += 9;
-	--y;
-    }
-    c = y / 100L;
-    ya = y - (100L * c);
-    j = (146097L * c) / 4L + (1461L * ya) / 4L + (153L * m + 2L) / 5L + d + 1721119L;
-    if (seconds < 12 * 3600.0) {
-	j--;
-	seconds += 12.0 * 3600.0;
-    }
-    else {
-	seconds = seconds - 12.0 * 3600.0;
-    }
+	c = y / 100L;
+	ya = y - (100L * c);
+	j =	(146097L * c) /
+		4L +
+		(1461L * ya) /
+		4L +
+		(153L * m + 2L) /
+		5L +
+		d +
+		1721119L;
+
+	if (seconds < 12 * 3600.0)
+	{
+		j--;
+		seconds += 12.0 * 3600.0;
+	}
+	else
+	{
+		seconds = seconds - 12.0 * 3600.0;
+	}
 
 	current = (j + (seconds / 3600.0) / 24.0);
-
-/*
-fprintf( stderr, "%s/%s() returning = %.5lf\n",
-__FILE__,
-__FUNCTION__,
-current );
-fflush( stderr );
-*/
 
 	return current;
 }
@@ -504,45 +500,49 @@ void jul2greg( double jd, int *m, int *d, int *y, int *h, int *mi, double *sec )
 ** Copied from Algorithm 199 in Collected algorithms of the CACM
 ** Author: Robert G. Tantzen, Translator: Nat Howard
 */
-    long j = jd;
-    double tmp, frac = jd - j;
+	long j = jd;
+	double tmp, frac = jd - j;
 
 	/* For some unknown reason, the time is a little short */
 	/* --------------------------------------------------- */
 	frac += JULIAN_ADJUSTMENT;
 
-    if (frac >= 0.5) {
-	frac = frac - 0.5;
-        j++;
-    }
-    else {
-	frac = frac + 0.5;
-    }
+	if (frac >= 0.5)
+	{
+		frac = frac - 0.5;
+		j++;
+	}
+	else
+	{
+		frac = frac + 0.5;
+	}
 
-    j -= 1721119L;
-    *y = (4L * j - 1L) / 146097L;
-    j = 4L * j - 1L - 146097L * *y;
-    *d = j / 4L;
-    j = (4L * *d + 3L) / 1461L;
-    *d = 4L * *d + 3L - 1461L * j;
-    *d = (*d + 4L) / 4L;
-    *m = (5L * *d - 3L) / 153L;
-    *d = 5L * *d - 3 - 153L * *m;
-    *d = (*d + 5L) / 5L;
-    *y = 100L * *y + j;
-    if (*m < 10)
-	*m += 3;
-    else {
-	*m -= 9;
-	*y += 1;
-    }
-    tmp = 3600.0 * (frac * 24.0);
-    *h = (int) (tmp / 3600.0);
-    tmp = tmp - *h * 3600.0;
-    *mi = (int) (tmp / 60.0);
-    *sec = tmp - *mi * 60.0;
+	j -= 1721119L;
+	*y = (4L * j - 1L) / 146097L;
+	j = 4L * j - 1L - 146097L * *y;
+	*d = j / 4L;
+	j = (4L * *d + 3L) / 1461L;
+	*d = 4L * *d + 3L - 1461L * j;
+	*d = (*d + 4L) / 4L;
+	*m = (5L * *d - 3L) / 153L;
+	*d = 5L * *d - 3 - 153L * *m;
+	*d = (*d + 5L) / 5L;
+	*y = 100L * *y + j;
+
+	if (*m < 10)
+		*m += 3;
+	else
+	{
+		*m -= 9;
+		*y += 1;
+	}
+
+	tmp = 3600.0 * (frac * 24.0);
+	*h = (int) (tmp / 3600.0);
+	tmp = tmp - *h * 3600.0;
+	*mi = (int) (tmp / 60.0);
+	*sec = tmp - *mi * 60.0;
 }
-
 
 void julian_decrement_days( JULIAN *julian, double number_of_days )
 {
@@ -569,7 +569,6 @@ double julian_increment_month( double current )
 		current++;
 
 	return current;
-
 }
 
 double julian_increment_year( double current )
@@ -627,15 +626,6 @@ void julian_add_julian( JULIAN *julian, double add_julian )
 	julian->current += add_julian;
 }
 
-#ifdef NOT_DEFINED
-JULIAN *julian_oracle_format_new( char *oracle_date_string )
-{
-	return julian_yyyy_mm_dd_new(
-			timlib_oracle_date2mysql_date_string(
-				oracle_date_string ) );
-}
-#endif
-
 char *julian_make_y2k_year( char *two_digit_year_buffer )
 {
 	static char year_buffer[ 5 ];
@@ -670,8 +660,8 @@ char *julian_make_y2k_year( char *two_digit_year_buffer )
 	*ptr++ = *two_digit_year_buffer++;
 	*ptr++ = *two_digit_year_buffer++;
 	*ptr = '\0';
-	return year_buffer;
 
+	return year_buffer;
 }
 
 char *julian_clean_hhmm( char *hhmm )
@@ -686,8 +676,8 @@ char *julian_clean_hhmm( char *hhmm )
 	{
 		hhmm = "0000";
 	}
-	return hhmm;
 
+	return hhmm;
 }
 
 void julian_copy( JULIAN *destination_julian, JULIAN *source_julian )
@@ -704,7 +694,9 @@ int julian_month_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
+
 	return month;
 }
 
@@ -712,7 +704,9 @@ int julian_hour_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
+
 	return hour;
 }
 
@@ -733,17 +727,22 @@ double julian_round_to_half_hour( double current )
 {
 	int year, month, day, hour, minute, half_hour_number;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
 	half_hour_number = julian_half_hour_number( current );
 	minute = half_hour_number;
-	return greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
+
+	return
+	greg2jul( month, day, year, hour, minute, 0.0 /* seconds */ );
 }
 
 int julian_minute_number( double current )
 {
 	int year, month, day, hour, minute;
 	double seconds;
+
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
+
 	return minute;
 }
 
@@ -759,6 +758,7 @@ int julian_week_number( double current )
 	julian_set_year_month_day( tmp_julian, year, 1, 1 );
 	week = ( ( current - tmp_julian->current ) / 7.0 ) + 1;
 	julian_free( tmp_julian );
+
 	return week;
 }
 
@@ -769,7 +769,6 @@ int julian_day_of_month_number( double current )
 
 	jul2greg( current, &month, &day, &year, &hour, &minute, &seconds );
 	return day;
-
 }
 
 int julian_day_number( double current )
@@ -791,6 +790,7 @@ int julian_day_number( double current )
 
 	day_number = ( (int)( current - tmp_julian->current ) % divide_by ) + 1;
 	julian_free( tmp_julian );
+
 	return day_number;
 }
 
@@ -891,6 +891,5 @@ void julian_current_century(
 
 	*current_two_digit_year = atoi( current_year + 2 );
 	free( current_year );
-
 }
 

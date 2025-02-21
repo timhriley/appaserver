@@ -1,10 +1,13 @@
-/* date2julian.c */
-/* ------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/date2julian.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "timlib.h"
+#include "String.h"
 #include "piece.h"
 #include "julian.h"
 #include "date_convert.h"
@@ -35,7 +38,7 @@ int main( int argc, char **argv )
 	else
 		delimiter = DEFAULT_DELIMITER;
 
-	while( get_line( input_buffer, stdin ) )
+	while( string_input( input_buffer, stdin, sizeof ( input_buffer ) ) )
 	{
 		if ( ! piece(	piece_buffer,
 				delimiter,
@@ -60,7 +63,8 @@ int main( int argc, char **argv )
 
 		julian =
 			julian_yyyy_mm_dd_new(
-				date_convert->return_date_string );
+				date_convert->
+					return_date_string );
 
 		if (!julian ) continue;
 
@@ -77,6 +81,5 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
 }
 

@@ -1,10 +1,10 @@
 :
 # $APPASERVER_HOME/utility/linear_regression.sh
-# -------------------------------------------------------------
-# No warranty and freely available software: see Appaserver.org
-# -------------------------------------------------------------
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
 
-echo "Starting: $0 $*" 1>&2
+#echo "Starting: $0 $*" 1>&2
 
 if [ "$#" -ne 3 ]
 then

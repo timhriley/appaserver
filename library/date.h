@@ -359,8 +359,11 @@ double date_yyyy_mm_dd_hhmm_to_julian(
 		char *yyyy_mm_dd,
 		char *hhmm );
 
-boolean date_copy(
-		DATE *d1, DATE *d2 );
+/* Returns date_destination or date_calloc() */
+/* ----------------------------------------- */
+DATE *date_copy(
+		DATE *date_destination,
+		DATE *date_source );
 
 DATE *date_round2five_minutes(
 		DATE *date );
@@ -385,8 +388,10 @@ char *date_current_yyyy_mm_dd_string(
 char *date_current_hhmm(
 		int utc_offset );
 
+/* Returns date */
+/* ------------ */
 DATE *date_increment_days(
-		DATE *d,
+		DATE *date,
 		double days );
 
 DATE *date_decrement_days(
@@ -666,6 +671,8 @@ char *date_now_time_hhmm(
 char *date_remove_colon_from_time(
 		char *time_string );
 
+/* Safely returns */
+/* -------------- */
 DATE *date_now_new(
 		int utc_offset );
 
@@ -748,6 +755,8 @@ char *date_month_number_string(
 char *date_day_number_string(
 		DATE *date );
 
+/* Safely returns */
+/* ------------- */
 DATE *date_now(	int utc_offset );
 
 DATE *date_set_now(

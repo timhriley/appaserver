@@ -114,10 +114,15 @@ double float_round_money( double d )
 
 int round_int( double d )
 {
-	return float_round_int( d );
+	return float_round_integer( d );
 }
 
 int float_round_int( double d )
+{
+	return float_round_integer( d );
+}
+
+int float_round_integer( double d )
 {
 	if ( d >= 0.0 )
 		return (int)(d + 0.5);

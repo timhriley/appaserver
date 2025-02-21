@@ -9,6 +9,8 @@
 
 #include "boolean.h"
 
+#define APPASERVER_LINK_PROMPT_DIRECTORY	"appaserver_data"
+
 typedef struct
 {
 	char *filename;
@@ -33,8 +35,6 @@ APPASERVER_LINK_OUTPUT *appaserver_link_output_calloc(
 char *appaserver_link_output_filename(
 		char *appaserver_parameter_data_directory,
 		char *tail_half );
-
-#define APPASERVER_LINK_PROMPT_DIRECTORY	"appaserver_data"
 
 typedef struct
 {
@@ -157,7 +157,6 @@ void appaserver_link_pid_filename(
 /* Usage */
 /* ----- */
 
-/* ------------------- */
 /* Returns heap memory */
 /* ------------------- */
 char *appaserver_link_working_directory(

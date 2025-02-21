@@ -16,11 +16,12 @@
 int main( int argc, char **argv )
 {
 	char *application_name;
+	char *session_key;
 	char *process_name;
 	char *output_medium_string;
-	char *as_of_date_string;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	BUDGET *budget;
+	BUDGET_ANNUALIZED *budget_annualized;
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -32,7 +33,7 @@ int main( int argc, char **argv )
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-			"Usage: %s process as_of_date output_medium\n",
+			"Usage: %s session process output_medium\n",
 			argv[ 0 ] );
 
 		fprintf(stderr,
@@ -41,8 +42,8 @@ int main( int argc, char **argv )
 		exit ( 1 );
 	}
 
-	process_name = argv[ 1 ];
-	as_of_date_string = argv[ 2 ];
+	session_key = argv[ 1 ];
+	process_name = argv[ 2 ];
 	output_medium_string = argv[ 3 ];
 
 	appaserver_parameter = appaserver_parameter_new();
@@ -50,10 +51,10 @@ int main( int argc, char **argv )
 	budget =
 		budget_fetch(
 			application_name,
+			session_key,
 			process_name,
-			appaserver_parameter->data_directory,
-			as_of_date_string,
-			output_medium_string );
+			output_medium_string,
+			appaserver_parameter->data_directory );
 
 	if ( !budget )
 	{
@@ -73,7 +74,7 @@ int main( int argc, char **argv )
 		document_process_output(
 			application_name,
 			(LIST *)0 /* javascript_filename_list */,
-			process_name /* title */ );
+			(char *)0 /* title */ );
 
 		printf( "%s\n",
 			budget->
@@ -115,6 +116,53 @@ int main( int argc, char **argv )
 			budget->budget_html->html_table,
 			(char *)0 /* secondary_title */ );
 	}
+	else
+	{
+		printf(
+		"<h3>Sorry, but this output option isn't written yet.</h3>\n" );
+	}
+
+	if ( list_rewind( budget->budget_annualized_list ) )
+	do {
+		budget_annualized =
+			list_get(
+				budget->
+					budget_annualized_list );
+
+		if ( !budget_annualized->
+			budget_regression
+		||   !budget_annualized->
+			budget_regression->
+			budget_link
+		||   !budget_annualized->
+			budget_regression->
+			budget_link->
+			pdf_anchor_html )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+				"budget_annualizedl is incomplete." );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( budget_annualized->budget_regression->confidence_integer )
+		{
+			printf( "%s\n",
+				budget_annualized->
+					budget_regression->
+					budget_link->
+					pdf_anchor_html );
+		}
+
+	} while ( list_next( budget->budget_annualized_list ) );
 
 	if (	budget->statement_output_medium !=
 		statement_output_stdout )

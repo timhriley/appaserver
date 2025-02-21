@@ -639,15 +639,14 @@ DATE *date_decrement_day( DATE *d )
 }
 
 DATE *date_decrement_days(
-		DATE *d,
+		DATE *date,
 		double days )
 {
-	double minus_days = -days;
-
 	date_increment_days(
-		d,
-		minus_days );
-	return d;
+		date,
+		-days );
+
+	return date;
 }
 
 DATE *date_increment_months(
@@ -1273,8 +1272,19 @@ DATE *date_increment_days(
 		DATE *date,
 		double days )
 {
+	if ( !date )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: date is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	date->current += (long)((double)SECONDS_IN_DAY * days);
 	date_set_tm_structures( date, date->current, 0 /* utc_offset */ );
+
 	return date;
 }
 
@@ -1633,12 +1643,12 @@ DATE *date_now( int utc_offset )
 {
 	time_t now;
 	struct tm *tm;
-	DATE *return_date;
+	DATE *date;
 
 	now = time( (time_t *)0 );
 	tm = gmtime( &now );
 
-	return_date =
+	date =
 		date_new_date_time(
 			tm->tm_year + 1900,
 			tm->tm_mon + 1,
@@ -1648,12 +1658,12 @@ DATE *date_now( int utc_offset )
 			tm->tm_sec,
 			utc_offset );
 
-	if ( return_date->is_daylight_time )
+	if ( date->is_daylight_time )
 	{
-		date_increment_hour( return_date );
+		date_increment_hour( date );
 	}
 
-	return return_date;
+	return date;
 }
 
 DATE *date_today_new( int utc_offset )
@@ -2437,13 +2447,24 @@ double date_yyyy_mm_dd_to_julian( char *yyyy_mm_dd )
 	return julian_yyyy_mm_dd_time_hhmm_to_julian( yyyy_mm_dd, "0000" );
 }
 
-boolean date_copy( DATE *d1, DATE *d2 )
+DATE *date_copy( DATE *date_destination, DATE *date_source )
 {
-	if ( !d2 ) return 0;
+	if ( !date_source )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: date_source is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
 
-	d1->current = d2->current;
-	memcpy( d1->tm, d2->tm, sizeof ( struct tm ) );
-	return 1;
+	if ( !date_destination ) date_destination = date_calloc();
+
+	date_destination->current = date_source->current;
+	memcpy( date_destination->tm, date_source->tm, sizeof ( struct tm ) );
+
+	return date_destination;
 }
 
 char *date_display_mdy( DATE *date )
