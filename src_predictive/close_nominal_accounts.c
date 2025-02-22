@@ -143,11 +143,25 @@ int main( int argc, char **argv )
 
 		if ( execute )
 		{
+			char *transaction_date_time = {0};
+
+			if ( close_nominal->
+				close_nominal_undo->
+				transaction )
+			{
+				transaction_date_time =
+					close_nominal->
+						close_nominal_undo->
+						transaction->
+						transaction_date_time;
+			}
+
 			printf( "%s\n",
-				/* ---------------------- */
-				/* Returns program memory */
-				/* ---------------------- */
-				close_nominal_undo_execute_message() );
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
+				close_nominal_undo_execute_message(
+					transaction_date_time ) );
 		}
 	}
 

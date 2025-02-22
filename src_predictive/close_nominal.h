@@ -251,10 +251,10 @@ char *close_nominal_do_execute_message(
 char *close_nominal_do_no_execute_message(
 		void );
 
-/* Returns program memory */
-/* ---------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *close_nominal_undo_execute_message(
-		void );
+		char *transaction_date_time );
 
 /* Returns program memory */
 /* ---------------------- */

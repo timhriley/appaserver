@@ -951,10 +951,24 @@ void close_nominal_undo_execute( TRANSACTION *transaction )
 		transaction->transaction_date_time );
 }
 
-char *close_nominal_undo_execute_message( void )
+char *close_nominal_undo_execute_message( char *transaction_date_time )
 {
-	return
-	"<h3>Transaction delete complete.</h3>";
+	static char message[ 128 ];
+
+	if ( !transaction_date_time )
+	{
+		strcpy( message, "<h3>No closing entry to delete.</h3>" );
+	}
+	else
+	{
+		snprintf(
+			message,
+			sizeof ( message ),
+			"<h3>Transaction delete of %s complete.</h3>",
+			transaction_date_time );
+	}
+
+	return message;
 }
 
 char *close_nominal_undo_no_transaction_message( void )
