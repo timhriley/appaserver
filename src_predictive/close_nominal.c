@@ -974,13 +974,13 @@ char *close_nominal_undo_execute_message( char *transaction_date_time )
 char *close_nominal_undo_no_transaction_message( void )
 {
 	return
-	"<h3>ERROR: there are no closing entries to undo.</h3>";
+	"<h3>Warning: there are no closing entries to undo.</h3>";
 }
 
 char *close_nominal_do_no_transaction_message( void )
 {
 	return
-	"<h3>ERROR: there are no transactions to close.</h3>";
+	"<h3>Warning: there are no transactions to close.</h3>";
 }
 
 char *close_nominal_empty_date_message( void )
