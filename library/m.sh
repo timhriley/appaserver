@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_grace_chart
+	cd ../src_system
+	make fix_orphans
 fi
 

@@ -673,13 +673,12 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 		LIST *relation_foreign_key_list,
 		char *orphan_data )
 {
-	char statement[ 1024 ];
+	char statement[ 2048 ];
 	char *ptr = statement;
-	int p = 0;
-	boolean first_time = 1;
 	ORPHAN_DELETE_STATEMENT *orphan_delete_statement;
+	int p = 0;
 	char *foreign_key;
-	char datum[ 128 ];
+	char datum[ 1024 ];
 
 	if ( !many_table_name
 	||   !list_rewind( relation_foreign_key_list )
@@ -701,6 +700,15 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 	orphan_delete_statement->many_table_name = many_table_name;
 	orphan_delete_statement->orphan_data = orphan_data;
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: orphan_data=[%s]\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+orphan_data );
+msg( (char *)0, message );
+}
 	ptr += sprintf(
 		ptr,
 		"delete from %s where ",
@@ -709,10 +717,7 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 	do {
 		foreign_key = list_get( relation_foreign_key_list );
 
-		if ( first_time )
-			first_time = 0;
-		else
-			ptr += sprintf( ptr, " and " );
+		if ( p ) ptr += sprintf( ptr, " and " );
 
 		/* Returns null if not enough delimiters */
 		/* ------------------------------------- */
@@ -724,9 +729,9 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 			char message[ 128 ];
 
 			sprintf(message,
-				"piece(%d,%s) returned empty.",
-				p,
-				orphan_data );
+				"piece(%s,%d) returned empty.",
+				orphan_data,
+				p );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -741,6 +746,8 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 				"%s = '%s'",
 				foreign_key,
 				datum );
+
+		p++;
 
 	} while ( list_next( relation_foreign_key_list ) );
 
