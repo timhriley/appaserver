@@ -379,14 +379,14 @@ LIST *account_balance_sort_list( LIST *account_list )
 		list_add_pointer_in_order(
 			balance_sort_list,
 			account,
-			account_balance_match_function );
+			account_balance_compare_function );
 
 	} while ( list_next( account_list ) );
 
 	return balance_sort_list;
 }
 
-int account_balance_match_function(
+int account_balance_compare_function(
 		ACCOUNT *account_from_list,
 		ACCOUNT *account_compare )
 {

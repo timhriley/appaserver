@@ -17,6 +17,9 @@ BOT_GENERATED *bot_generated_new( char *argv_0 )
 
 	bot_generated = bot_generated_calloc();
 
+/* Turn off b/c of false positives. */
+return bot_generated;
+
 	bot_generated->remote_ip_address =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -44,7 +47,6 @@ BOT_GENERATED *bot_generated_new( char *argv_0 )
 	if ( !bot_generated->appaserver_executable_exists_boolean )
 		return bot_generated;
 
-#ifdef NOT_DEFINED
 	bot_generated->system_string =
 		/* --------------------- */
 		/* Returns static memory */
@@ -56,7 +58,6 @@ BOT_GENERATED *bot_generated_new( char *argv_0 )
 	bot_generated->yes_boolean =
 		bot_generated_yes_boolean(
 			bot_generated->system_string );
-#endif
 
 	if ( bot_generated->yes_boolean )
 	{

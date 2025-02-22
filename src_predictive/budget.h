@@ -418,6 +418,9 @@ LIST *budget_annualized_list(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 BUDGET_ANNUALIZED *budget_annualized_new(
 		char *application_name,
 		char *session_key,
@@ -482,6 +485,12 @@ int budget_annualized_amount_integer(
 		double account_amount,
 		int forecast_integer,
 		int budget_annualized_budget_integer );
+
+/* Usage */
+/* ----- */
+int budget_annualized_compare_function(
+		BUDGET_ANNUALIZED *from_list_budget_annualized,
+		BUDGET_ANNUALIZED *compare_budget_annualized );
 
 typedef struct
 {

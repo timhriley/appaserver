@@ -34,6 +34,7 @@ LIST *budget_annualized_list(
 	LIST *list;
 	ELEMENT *element;
 	ACCOUNT *account;
+	BUDGET_ANNUALIZED *budget_annualized;
 
 	if ( !application_name
 	||   !session_key
@@ -80,8 +81,10 @@ LIST *budget_annualized_list(
 				exit( 1 );
 			}
 
-			list_set(
-				list,
+			budget_annualized =
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
 				budget_annualized_new(
 					application_name,
 					session_key,
@@ -93,7 +96,12 @@ LIST *budget_annualized_list(
 					statement_prior_year,
 					budget_forecast_date_string,
 					budget_forecast_julian_string,
-					appaserver_link_working_directory ) );
+					appaserver_link_working_directory );
+
+			list_set_order(
+				list,
+				budget_annualized,
+				budget_annualized_compare_function );
 
 		} while ( list_next( element->account_statement_list ) );
 
@@ -2883,3 +2891,40 @@ double budget_amount_sum(
 	return sum;
 }
 
+int budget_annualized_compare_function(
+		BUDGET_ANNUALIZED *from_list_budget_annualized,
+		BUDGET_ANNUALIZED *compare_budget_annualized )
+{
+	if ( !from_list_budget_annualized
+	||   !compare_budget_annualized )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if (	compare_budget_annualized->amount_integer ==
+		from_list_budget_annualized->amount_integer )
+	{
+		return 0;
+	}
+	else
+	if (	compare_budget_annualized->amount_integer >
+		from_list_budget_annualized->amount_integer )
+	{
+		return 1;
+	}
+	else
+	{
+		return -1;
+	}
+}

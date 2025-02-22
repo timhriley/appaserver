@@ -173,7 +173,7 @@ LIST *account_balance_sort_list(
 
 /* Process */
 /* ------- */
-int account_balance_match_function(
+int account_balance_compare_function(
 		ACCOUNT *account_from_list,
 		ACCOUNT *account_compare );
 

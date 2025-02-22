@@ -341,7 +341,7 @@ LIST *subclassification_account_statement_list(
 			list_set_order(
 				account_statement_list /* in/out */,
 				account,
-				account_balance_match_function );
+				account_balance_compare_function );
 
 		} while ( list_next(
 				subclassification->
