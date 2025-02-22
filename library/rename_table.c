@@ -541,7 +541,7 @@ char *rename_table_drop_index_system_string(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		create_table_unique_name(
+		create_table_unique_index_name(
 			create_table_unique_suffix,
 			old_folder_table_name ) );
 

@@ -20,6 +20,7 @@
 #include "appaserver.h"
 #include "folder_attribute.h"
 #include "drop_column.h"
+#include "create_table.h"
 #include "drop_table.h"
 #include "rectification.h"
 
@@ -323,6 +324,7 @@ RECTIFICATION_TABLE *rectification_table_new( char *table_name )
 
 	rectification_table->rectification_index_list =
 		rectification_index_list(
+			CREATE_TABLE_UNIQUE_SUFFIX,
 			table_name );
 
 	if ( !list_length( rectification_table->rectification_index_list ) )
@@ -1433,7 +1435,9 @@ char *rectification_role_list_string( void )
 		',' );
 }
 
-LIST *rectification_index_list( char *table_name )
+LIST *rectification_index_list(
+		const char *create_table_unique_suffix,
+		char *table_name )
 {
 	LIST *list;
 	char *system_string;
@@ -1469,11 +1473,12 @@ LIST *rectification_index_list( char *table_name )
 		appaserver_input_pipe(
 			system_string );
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			list,
 			rectification_index_parse(
+				create_table_unique_suffix,
 				table_name,
 				input ) );
 	}
@@ -1484,6 +1489,7 @@ LIST *rectification_index_list( char *table_name )
 }
 
 RECTIFICATION_INDEX *rectification_index_parse(
+		const char *create_table_unique_suffix,
 		char *table_name,
 		char *input )
 {
@@ -1506,7 +1512,17 @@ RECTIFICATION_INDEX *rectification_index_parse(
 		return NULL;
 	}
 
-	if ( strcmp( index_name, table_name ) != 0 ) return NULL;
+	if ( strcmp(
+		index_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_index_name(
+			create_table_unique_suffix,
+			table_name ) ) != 0 )
+	{
+		if ( strcmp( index_name, table_name ) != 0 ) return NULL;
+	}
 
 	piece( column_name, SQL_DELIMITER, input, 4 );
 	if ( !*column_name )

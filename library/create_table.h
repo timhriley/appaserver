@@ -100,7 +100,7 @@ char *create_table_unique_index_statement(
 
 /* Returns static memory */
 /* --------------------- */
-char *create_table_unique_name(
+char *create_table_unique_index_name(
 		const char *create_table_unique_suffix,
 		char *appaserver_table_name );
 

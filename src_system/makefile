@@ -444,6 +444,7 @@ drop_table: drop_table.c						\
 table_rectification: table_rectification.c 				\
 		${APPASERVER_LIBRARY}					\
 		${LIBRARY}/rectification.o				\
+		${LIBRARY}/create_table.o				\
 		${LIBRARY}/drop_table.o					\
 		${LIBRARY}/drop_column.o				\
 		${LIBRARY}/shell_script.o				\
@@ -453,6 +454,7 @@ table_rectification: table_rectification.c 				\
 		${APPASERVER_LIBRARY}					\
 		table_rectification.c					\
 		${LIBRARY}/rectification.o				\
+		${LIBRARY}/create_table.o				\
 		${LIBRARY}/drop_table.o					\
 		${LIBRARY}/drop_column.o				\
 		${LIBRARY}/shell_script.o				\

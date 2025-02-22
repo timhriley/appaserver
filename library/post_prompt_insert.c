@@ -656,7 +656,7 @@ boolean post_prompt_insert_fatal_duplicate_boolean(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		create_table_unique_name(
+		create_table_unique_index_name(
 			create_table_unique_suffix,
 			appaserver_table_name ) /* substring */ ) )
 	{

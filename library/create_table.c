@@ -460,7 +460,7 @@ char *create_table_unique_index_statement(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		create_table_unique_name(
+		create_table_unique_index_name(
 			create_table_unique_suffix,
 			appaserver_table_name ),
 		appaserver_table_name,
@@ -712,7 +712,7 @@ char *create_table_additional_unique_name(
 	return additional_unique_name;
 }
 
-char *create_table_unique_name(
+char *create_table_unique_index_name(
 		const char *create_table_unique_suffix,
 		char *folder_name )
 {

@@ -20,11 +20,13 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *rectification_index_list(
+		const char *create_table_unique_suffix,
 		char *table_name );
 
 /* Usage */
 /* ----- */
 RECTIFICATION_INDEX *rectification_index_parse(
+		const char *create_table_unique_suffix,
 		char *table_name,
 		char *input );
 
