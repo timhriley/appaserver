@@ -17,9 +17,6 @@ BOT_GENERATED *bot_generated_new( char *argv_0 )
 
 	bot_generated = bot_generated_calloc();
 
-/* Turn off b/c of false positives. */
-return bot_generated;
-
 	bot_generated->remote_ip_address =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -36,6 +33,9 @@ return bot_generated;
 			"bot_generated_remote_ip_address" );
 		exit( 1 );
 	}
+
+/* Turn off b/c of false positives. */
+return bot_generated;
 
 	environment_prepend_path( BOT_GENERATED_DIRECTORY );
 	environment_utility_path();
