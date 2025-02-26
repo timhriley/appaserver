@@ -61,7 +61,7 @@ int main( int argc, char **argv )
 		document_process_output(
 			application_name,
 			(LIST *)0 /* javascript_filename_list */,
-			process_name /* title */ );
+			(char *)0 /* title */ );
 	}
 
 	tax_form =
