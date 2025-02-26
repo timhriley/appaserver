@@ -200,7 +200,6 @@ APPASERVER_LIBRARY=						\
 		entity_self.o					\
 		upload_purge.o					\
 		preupdate_change.o				\
-		bot_generated.o					\
 		canvass_waypoint.o				\
 		waypoint.o					\
 		file.o
@@ -914,9 +913,6 @@ upload_purge.o: upload_purge.c upload_purge.h
 
 preupdate_change.o: preupdate_change.c preupdate_change.h
 	${CC} ${CFLAGS} -c preupdate_change.c
-
-bot_generated.o: bot_generated.c bot_generated.h
-	${CC} ${CFLAGS} -c bot_generated.c
 
 file.o: file.c file.h
 	${CC} ${CFLAGS} -c file.c

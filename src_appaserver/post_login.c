@@ -31,6 +31,28 @@ int main( int argc, char **argv )
 			argc,
 			argv );
 
+	appaserver_error_argv_file(
+		argc,
+		argv,
+		post_login->
+			post_login_input->
+			application_name,
+		post_login->
+			post_login_input->
+			login_name );
+
+	if ( !post_login->post_login_input->remote_ip_address )
+	{
+		appaserver_error_message_file(
+			post_login->
+				post_login_input->
+				application_name,
+			(char *)0 /* login_name */,
+			"remote_ip_address not set" );
+
+		exit( 1 );
+	}
+
 	if ( post_login->post_login_document )
 	{
 		printf(	"%s\n",
@@ -39,16 +61,11 @@ int main( int argc, char **argv )
 				html );
 	}
 
-	if ( post_login->post_login_input->bot_generated->yes_boolean )
+	if ( post_login->password_fail_boolean )
 	{
-		appaserver_error_message_file(
-			APPLICATION_TEMPLATE_NAME,
-			(char *)0 /* login_name */,
-			post_login->post_login_input->bot_generated->message );
-
-		sleep( BOT_GENERATED_SLEEP_SECONDS );
+		sleep( POST_LOGIN_SLEEP_SECONDS );
 	}
-	else
+
 	if ( post_login->post_login_success )
 	{
 		environment_database_set(
@@ -75,7 +92,6 @@ int main( int argc, char **argv )
 				environment_http_user_agent() ),
 			post_login->
 				post_login_input->
-				bot_generated->
 				remote_ip_address );
 
 		if ( post_login->

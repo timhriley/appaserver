@@ -70,9 +70,6 @@ POST_LOGIN *post_login_new(
 			argc,
 			argv );
 
-	if ( post_login->post_login_input->bot_generated->yes_boolean )
-		return post_login;
-
 	if ( !post_login->post_login_input->missing_application_boolean
 	&&   !post_login->post_login_input->public_boolean
 	&&   !post_login->post_login_input->form_password_blank_boolean
@@ -1160,13 +1157,6 @@ POST_LOGIN_INPUT *post_login_input_new(
 
 	post_login_input = post_login_input_calloc();
 
-	/* Safely returns */
-	/* -------------- */
-	post_login_input->bot_generated = bot_generated_new( argv[ 0 ] );
-
-	if ( post_login_input->bot_generated->yes_boolean )
-		return post_login_input;
-
 	post_login_input->dictionary = post_login_input_dictionary();
 
 	post_login_input->application_name =
@@ -1183,6 +1173,20 @@ POST_LOGIN_INPUT *post_login_input_new(
 			post_login_input->application_name );
 
 	if ( post_login_input->missing_application_boolean )
+	{
+		/* Send argv to admin log file. */
+		/* ---------------------------- */
+		post_login_input->application_name = APPLICATION_ADMIN_NAME;
+		return post_login_input;
+	}
+
+	post_login_input->remote_ip_address =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		post_login_input_remote_ip_address();
+
+	if ( !post_login_input->remote_ip_address )
 		return post_login_input;
 
 	post_login_input->invalid_application_boolean =
@@ -1190,9 +1194,12 @@ POST_LOGIN_INPUT *post_login_input_new(
 			post_login_input->application_name );
 
 	if ( post_login_input->invalid_application_boolean )
+	{
+		/* Send argv to admin log file. */
+		/* ---------------------------- */
+		post_login_input->application_name = APPLICATION_ADMIN_NAME;
 		return post_login_input;
-
-	session_environment_set( post_login_input->application_name );
+	}
 
 	post_login_input->login_name =
 		/* ----------------------------------------- */
@@ -1209,6 +1216,8 @@ POST_LOGIN_INPUT *post_login_input_new(
 	if ( post_login_input->missing_login_name_boolean )
 		return post_login_input;
 
+	session_environment_set( post_login_input->application_name );
+
 	post_login_input->application_exists_boolean =
 		post_login_input_application_exists_boolean(
 			post_login_input->application_name,
@@ -1218,7 +1227,12 @@ POST_LOGIN_INPUT *post_login_input_new(
 			appaserver_parameter_log_directory() );
 
 	if ( !post_login_input->application_exists_boolean )
+	{
+		/* Send argv to admin log file. */
+		/* ---------------------------- */
+		post_login_input->application_name = APPLICATION_ADMIN_NAME;
 		return post_login_input;
+	}
 
 	post_login_input->email_address_boolean =
 		post_login_input_email_address_boolean(
@@ -1290,4 +1304,13 @@ char *post_login_document_application_name(
 	else
 		return (char *)application_template_name;
 
+}
+
+char *post_login_input_remote_ip_address( void )
+{
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	environment_get( "REMOTE_ADDR" );
 }

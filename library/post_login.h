@@ -11,11 +11,11 @@
 #include "document.h"
 #include "security.h"
 #include "appaserver_user.h"
-#include "bot_generated.h"
 
 #define POST_LOGIN_RETURN_USERNAME	"login"
 #define POST_LOGIN_MAIL_FILENAME	"/etc/mailname"
 #define POST_LOGIN_SUBJECT		"Appaserver login"
+#define POST_LOGIN_SLEEP_SECONDS	3
 
 #define POST_LOGIN_EMAIL_OUTPUT_TEMPLATE \
 				"%s/appaserver_data/%s/post_login_%s.html"
@@ -30,9 +30,9 @@ enum post_login_document_location_enum {
 
 typedef struct
 {
-	BOT_GENERATED *bot_generated;
 	DICTIONARY *dictionary;
 	char *application_name;
+	char *remote_ip_address;
 	boolean missing_application_boolean;
 	boolean invalid_application_boolean;
 	boolean application_exists_boolean;
@@ -61,6 +61,12 @@ POST_LOGIN_INPUT *post_login_input_new(
 /* Process */
 /* ------- */
 POST_LOGIN_INPUT *post_login_input_calloc(
+		void );
+
+/* --------------------------- */
+/* Returns heap memory or null */
+/* --------------------------- */
+char *post_login_input_remote_ip_address(
 		void );
 
 DICTIONARY *post_login_input_dictionary(
