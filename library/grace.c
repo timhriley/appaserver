@@ -429,7 +429,7 @@ GRACE_UNITLESS *grace_unitless_new(
 		grace_dataset_new(
 			(char *)0 /* datatype_name */,
 			point_list,
-			grace_dataset_bar,
+			grace_dataset_xy,
 			grace_dataset_color_number(
 				GRACE_DATASET_MAX_COLOR_NUMBER,
 				0 /* not cycle_colors_boolean */ ),
