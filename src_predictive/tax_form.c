@@ -839,9 +839,9 @@ TAX_FORM_LATEX *tax_form_latex_new(
 			application_name,
 			process_name,
 			data_directory,
-			(char *)0
-				/* transaction_date_begin_date_string */,
 			statement_caption->date_now16
+				/* transaction_date_begin_date_string */,
+			(char *)0
 				/* end_date_string */,
 			getpid() /* process_id */ );
 

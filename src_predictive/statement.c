@@ -454,9 +454,7 @@ STATEMENT_LINK *statement_link_new(
 
 	if ( !application_name
 	||   !process_name
-	||   !data_directory
-	||   !transaction_date_begin_date_string
-	||   !end_date_time_string )
+	||   !data_directory )
 	{
 		char message[ 128 ];
 

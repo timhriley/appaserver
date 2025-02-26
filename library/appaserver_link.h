@@ -119,10 +119,10 @@ APPASERVER_LINK *appaserver_link_new(
 APPASERVER_LINK *appaserver_link_calloc(
 		void );
 
-/* Returns end_date_string or heap memory */
-/* -------------------------------------- */
-char *appaserver_link_end_date_string(
-		char *end_date_string );
+/* Returns date_string or heap memory */
+/* ---------------------------------- */
+char *appaserver_link_date_string(
+		char *date_string );
 
 /* Returns heap memory */
 /* ------------------- */

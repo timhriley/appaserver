@@ -78,13 +78,6 @@ APPASERVER_LINK *appaserver_link_new(
 
 	if ( !filename_stem ) filename_stem = "stem";
 
-	end_date_string =
-		/* -------------------------------------- */
-		/* Returns end_date_string or heap memory */
-		/* -------------------------------------- */
-		appaserver_link_end_date_string(
-			end_date_string );
-
 	appaserver_link->http_prefix = http_prefix;
 	appaserver_link->server_address = server_address;
 	appaserver_link->appaserver_parameter_data_directory = data_directory;
@@ -93,9 +86,21 @@ APPASERVER_LINK *appaserver_link_new(
 	appaserver_link->application_name = application_name;
 	appaserver_link->process_id = process_id;
 	appaserver_link->session_key = session_key;
-	appaserver_link->begin_date_string = begin_date_string;
-	appaserver_link->end_date_string = end_date_string;
 	appaserver_link->extension = extension;
+
+	appaserver_link->begin_date_string =
+		/* ---------------------------------- */
+		/* Returns date_string or heap memory */
+		/* ---------------------------------- */
+		appaserver_link_date_string(
+			begin_date_string );
+
+	appaserver_link->end_date_string =
+		/* ---------------------------------- */
+		/* Returns date_string or heap memory */
+		/* ---------------------------------- */
+		appaserver_link_date_string(
+			end_date_string );
 
 	appaserver_link->appaserver_link_prompt =
 		appaserver_link_prompt_new(
@@ -104,8 +109,8 @@ APPASERVER_LINK *appaserver_link_new(
 			server_address,
 			application_name,
 			filename_stem,
-			begin_date_string,
-			end_date_string,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
 			process_id,
 			session_key,
 			extension );
@@ -116,8 +121,8 @@ APPASERVER_LINK *appaserver_link_new(
 		/* ------------------- */
 		appaserver_link_filename(
 			filename_stem,
-			begin_date_string,
-			end_date_string,
+			appaserver_link->begin_date_string,
+			appaserver_link->end_date_string,
 			process_id,
 			session_key,
 			extension );
@@ -573,20 +578,20 @@ char *appaserver_link_anchor_html(
 	return strdup( html );
 }
 
-char *appaserver_link_end_date_string( char *end_date_string )
+char *appaserver_link_date_string( char *date_string )
 {
 	if ( string_character_exists(
-		end_date_string /* datum */,
+		date_string /* datum */,
 		' ' ) )
 	{
 		char buffer[ 128 ];
 
-		column( buffer, 0, end_date_string );
+		column( buffer, 0, date_string );
 		return strdup( buffer );
 	}
 	else
 	{
-		return end_date_string;
+		return date_string;
 	}
 }
 
