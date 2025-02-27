@@ -38,13 +38,19 @@ POST *post_new(
 
 	session_environment_set( (char *)application_admin_name );
 
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	post->ip_address = environment_remote_ip_address();
+	post->ip_address =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		environment_remote_ip_address(
+			ENVIRONMENT_REMOTE_KEY );
 
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	post->http_user_agent = environment_http_user_agent();
+	post->http_user_agent =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		environment_http_user_agent(
+			ENVIRONMENT_USER_AGENT_KEY );
 
 	/* Returns heap memory */
 	/* ------------------- */

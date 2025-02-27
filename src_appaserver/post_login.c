@@ -89,7 +89,11 @@ int main( int argc, char **argv )
 			/* ------------------- */
 			session_http_user_agent(
 				SESSION_USER_AGENT_WIDTH,
-				environment_http_user_agent() ),
+				/* --------------------------- */
+				/* Returns heap memory or null */
+				/* --------------------------- */
+				environment_http_user_agent(
+					ENVIRONMENT_USER_AGENT_KEY ) ),
 			post_login->
 				post_login_input->
 				remote_ip_address );

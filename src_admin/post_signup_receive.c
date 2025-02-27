@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "application.h"
 #include "appaserver.h"
+#include "environ.h"
 #include "application_create.h"
 #include "execute_system_string.h"
 #include "post_signup_receive.h"
@@ -81,9 +82,11 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 			post_signup_receive->
 				post->
 				http_user_agent,
-			post_signup_receive->
-				post->
-				ip_address );
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			environment_remote_ip_address(
+				ENVIRONMENT_REMOTE_KEY ) );
 
 	post_signup_receive->
 		execute_system_string_create_application =

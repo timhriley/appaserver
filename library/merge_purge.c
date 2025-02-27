@@ -818,7 +818,8 @@ MERGE_PURGE_PROCESS *merge_purge_process_new(
 			application_name,
 			login_name,
 			session_current_ip_address(
-				environment_remote_ip_address() ) );
+				environment_remote_ip_address(
+					ENVIRONMENT_REMOTE_KEY ) ) );
 	}
 
 	merge_purge_process->post_dictionary =
@@ -1303,7 +1304,8 @@ MERGE_PURGE_FOLDER *merge_purge_folder_new(
 			application_name,
 			login_name,
 			session_current_ip_address(
-				environment_remote_ip_address() ) );
+				environment_remote_ip_address(
+					ENVIRONMENT_REMOTE_KEY ) ) );
 	}
 
 	merge_purge_folder->folder =

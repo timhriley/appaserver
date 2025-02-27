@@ -19,6 +19,7 @@
 #define POST_SIGNUP_SUBMIT_CONFIRM_PARAMETER	"signup_confirm_yn=y"
 #define POST_SIGNUP_SUBMIT_SUBJECT		"Cloudacus signup confirmation"
 #define POST_SIGNUP_SUBMIT_MESSAGE_PROMPT	"Confirm Cloudacus signup"
+#define POST_SIGNUP_SUBMIT_LOG_PROMPT		"Sending url"
 
 typedef struct
 {
@@ -105,6 +106,11 @@ char *post_signup_submit_reject_parameter(
 		boolean application_exists_boolean,
 		boolean application_title_empty_boolean );
 
+/* Returns static memory */
+/* --------------------- */
+char *post_signup_submit_log_message(
+		const char *post_signup_submit_log_prompt,
+		char *post_receive_url );
 /* Usage */
 /* ----- */
 

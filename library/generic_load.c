@@ -1033,7 +1033,8 @@ GENERIC_LOAD_INSERT *generic_load_insert_new(
 			application_name,
 			login_name,
 			session_current_ip_address(
-				environment_remote_ip_address() ) );
+				environment_remote_ip_address(
+					ENVIRONMENT_REMOTE_KEY ) ) );
 	}
 
 	generic_load_insert->sub_title_string =

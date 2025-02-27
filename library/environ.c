@@ -634,11 +634,12 @@ char *environment_database( void )
 	return environment_application_name();
 }
 
-char *environment_http_user_agent( void )
+char *environment_http_user_agent(
+		const char *environment_user_agent_key )
 {
 	char *result;
 
-	if ( ( result = environment_get( "HTTP_USER_AGENT" ) ) )
+	if ( ( result = environment_get( (char *)environment_user_agent_key ) ) )
 	{
 		return result;
 	}
@@ -648,11 +649,12 @@ char *environment_http_user_agent( void )
 	}
 }
 
-char *environment_remote_ip_address( void )
+char *environment_remote_ip_address(
+		const char *environment_remote_key )
 {
 	char *result;
 
-	if ( ( result = environment_get( "REMOTE_ADDR" ) ) )
+	if ( ( result = environment_get( (char *)environment_remote_key ) ) )
 	{
 		return result;
 	}

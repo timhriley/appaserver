@@ -315,7 +315,8 @@ SESSION *session_fetch(
 			application_name,
 			login_name,
 			session_current_ip_address(
-				environment_remote_ip_address() ) );
+				environment_remote_ip_address(
+					ENVIRONMENT_REMOTE_KEY ) ) );
 	}
 
 	session->application_name = application_name;
@@ -325,7 +326,8 @@ SESSION *session_fetch(
 		/* Returns heap memory or exits */
 		/* ---------------------------- */
 		session_current_ip_address(
-			environment_remote_ip_address() );
+			environment_remote_ip_address(
+				ENVIRONMENT_REMOTE_KEY ) );
 
 	if ( session_remote_ip_address_changed(
 		session->remote_ip_address,
@@ -380,7 +382,8 @@ SESSION_PROCESS *session_process_integrity_exit(
 	{
 		session_sql_injection_message_exit(
 			argv[ 0 ],
-			environment_remote_ip_address() );
+			environment_remote_ip_address(
+				ENVIRONMENT_REMOTE_KEY ) );
 	}
 
 	session_environment_set( application_name );

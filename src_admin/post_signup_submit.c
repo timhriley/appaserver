@@ -113,13 +113,15 @@ POST_SIGNUP_SUBMIT_INPUT *post_signup_submit_input_new( void )
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		environment_remote_ip_address();
+		environment_remote_ip_address(
+			ENVIRONMENT_REMOTE_KEY );
 
 	post_signup_submit_input->environment_http_user_agent =
 		/* --------------------------- */
 		/* Returns heap memory or null */
 		/* --------------------------- */
-		environment_http_user_agent();
+		environment_http_user_agent(
+			ENVIRONMENT_USER_AGENT_KEY );
 
 	post_signup_submit_input->appaserver_mailname =
 		/* --------------------- */
@@ -352,8 +354,12 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 	appaserver_error_message_file(
 		APPLICATION_ADMIN_NAME,
 		(char *)0 /* login_name */,
-		post_signup_submit->post_receive_url
-			/* message */ );
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_signup_submit_log_message(
+			POST_SIGNUP_SUBMIT_LOG_PROMPT,
+			post_signup_submit->post_receive_url ) );
 
 	post_signup_submit->message =
 		/* --------------------- */
@@ -443,3 +449,18 @@ char *post_signup_submit_message(
 	return message;
 }
 
+char *post_signup_submit_log_message(
+		const char *post_signup_submit_log_prompt,
+		char *post_receive_url )
+{
+	static char message[ 256 ];
+
+	snprintf(
+		message,
+		sizeof ( message ),
+		"%s: %s",
+		post_signup_submit_log_prompt,
+		post_receive_url );
+
+	return message;
+}
