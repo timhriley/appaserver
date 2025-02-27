@@ -63,8 +63,12 @@ APPLICATION_CLONE *application_clone_new(
 			log_directory,
 			mount_point );
 
-	if ( application_clone->application_create->application_name_invalid
-	||   application_clone->application_create->application_exists_boolean )
+	if ( application_clone->
+		application_create->
+		application_name_invalid
+	||   application_clone->
+		application_create->
+		application_log_exists_boolean )
 	{
 		return application_clone;
 	}

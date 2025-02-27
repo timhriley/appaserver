@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
+#include "application.h"
 #include "appaserver_error.h"
 #include "application_log.h"
 
@@ -123,3 +125,27 @@ char *application_log_delete_system_string(
 
 	return strdup( system_string );
 }
+
+boolean application_log_exists_boolean(
+		char *application_name,
+		char *log_directory )
+{
+	if ( string_strcmp( application_name, "hydrology" ) == 0
+	||   string_strcmp( application_name, "benthic" ) == 0
+	||   string_strcmp( application_name, "donner" ) == 0
+	||   string_strcmp( application_name, "tnt" ) == 0 )
+	{
+		return 1;
+	}
+
+	return
+	application_exists_boolean(
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		application_log_filename(
+			APPLICATION_LOG_EXTENSION,
+			application_name,
+			log_directory ) );
+}
+

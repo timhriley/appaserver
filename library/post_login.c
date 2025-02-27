@@ -127,7 +127,7 @@ POST_LOGIN *post_login_new(
 				invalid_login_name_boolean,
 			!post_login->
 				post_login_input->
-				application_exists_boolean
+				application_log_exists_boolean
 				/* application_not_exists_boolean */,
 			post_login->
 				post_login_input->
@@ -931,29 +931,6 @@ char *post_login_document_html(
 	return strdup( html );
 }
 
-boolean post_login_input_application_exists_boolean(
-		char *application_name,
-		char *log_directory )
-{
-	if ( string_strcmp( application_name, "hydrology" ) == 0
-	||   string_strcmp( application_name, "benthic" ) == 0
-	||   string_strcmp( application_name, "donner" ) == 0
-	||   string_strcmp( application_name, "tnt" ) == 0 )
-	{
-		return 1;
-	}
-
-	return
-	application_exists_boolean(
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		application_log_filename(
-			APPLICATION_LOG_EXTENSION,
-			application_name,
-			log_directory ) );
-}
-
 boolean post_login_input_missing_application_boolean( char *application_name )
 {
 	if ( application_name && *application_name )
@@ -1226,15 +1203,15 @@ POST_LOGIN_INPUT *post_login_input_new(
 
 	session_environment_set( post_login_input->application_name );
 
-	post_login_input->application_exists_boolean =
-		post_login_input_application_exists_boolean(
+	post_login_input->application_log_exists_boolean =
+		application_log_exists_boolean(
 			post_login_input->application_name,
 			/* ------------------------------------------------ */
 			/* Returns component of global_appaserver_parameter */
 			/* ------------------------------------------------ */
 			appaserver_parameter_log_directory() );
 
-	if ( !post_login_input->application_exists_boolean )
+	if ( !post_login_input->application_log_exists_boolean )
 	{
 		/* Send argv to admin log file. */
 		/* ---------------------------- */

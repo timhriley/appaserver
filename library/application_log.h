@@ -63,4 +63,10 @@ char *application_log_create_system_string(
 char *application_log_delete_system_string(
 		char *application_log_filename );
 
+/* Usage */
+/* ----- */
+boolean application_log_exists_boolean(
+		char *application_name,
+		char *log_directory );
+
 #endif

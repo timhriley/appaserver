@@ -23,7 +23,7 @@ typedef struct
 	boolean application_name_invalid;
 	char *database_system_string;
 	APPLICATION_LOG *application_log;
-	boolean application_exists_boolean;
+	boolean application_log_exists_boolean;
 	APPLICATION_BACKUP *application_backup;
 	APPLICATION_DATA *application_data;
 	APPLICATION_UPLOAD *application_upload;

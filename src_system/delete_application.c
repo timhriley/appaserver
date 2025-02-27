@@ -111,7 +111,7 @@ int main( int argc, char **argv )
 			appaserver_parameter->mount_point );
 
 	if ( application_delete->application_name_invalid
-	||   !application_delete->application_exists_boolean )
+	||   !application_delete->application_log_exists_boolean )
 	{
 		if ( application_delete->application_name_invalid )
 		{

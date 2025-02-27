@@ -60,11 +60,12 @@ APPLICATION_DELETE *application_delete_new(
 			application_name,
 			log_directory );
 
-	application_delete->application_exists_boolean =
-		application_exists_boolean(
+	application_delete->application_log_exists_boolean =
+		application_log_exists_boolean(
+			application_name,
 			application_delete->application_log->filename );
 
-	if ( !application_delete->application_exists_boolean )
+	if ( !application_delete->application_log_exists_boolean )
 		return application_delete;
 
 	application_delete->application_backup =

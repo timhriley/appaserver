@@ -137,7 +137,7 @@ int main( int argc, char **argv )
 			application_name_invalid
 	||	application_clone->
 			application_create->
-			application_exists_boolean )
+			application_log_exists_boolean )
 	{
 		if ( application_clone->
 			application_create->

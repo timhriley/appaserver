@@ -35,7 +35,7 @@ typedef struct
 	char *remote_ip_address;
 	boolean missing_application_boolean;
 	boolean invalid_application_boolean;
-	boolean application_exists_boolean;
+	boolean application_log_exists_boolean;
 	char *login_name;
 	boolean missing_login_name_boolean;
 	boolean signup_boolean;
@@ -134,11 +134,6 @@ char *post_login_input_application_name(
 char *post_login_input_login_name(
 		const char *appaserver_user_primary_key,
 		DICTIONARY *post_login_input_dictionary );
-/* Usage */
-/* ----- */
-boolean post_login_input_application_exists_boolean(
-		char *post_login_input_application_name,
-		char *appaserver_parameter_log_directory );
 
 typedef struct
 {

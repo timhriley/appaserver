@@ -68,11 +68,12 @@ APPLICATION_CREATE *application_create_new(
 			application_name,
 			log_directory );
 
-	application_create->application_exists_boolean =
-		application_exists_boolean(
+	application_create->application_log_exists_boolean =
+		application_log_exists_boolean(
+			application_name,
 			application_create->application_log->filename );
 
-	if ( application_create->application_exists_boolean )
+	if ( application_create->application_log_exists_boolean )
 		return application_create;
 
 	application_create->application_backup =
@@ -159,7 +160,7 @@ boolean application_create_execute(
 	}
 
 	if (	application_create->application_name_invalid
-	||	application_create->application_exists_boolean )
+	||	application_create->application_log_exists_boolean )
 	{
 		char message[ 128 ];
 
