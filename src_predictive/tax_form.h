@@ -404,6 +404,7 @@ typedef struct
 TAX_FORM_LINE_LATEX_TABLE *
 	tax_form_line_latex_table_new(
 		char *tax_form_name,
+		char *statement_caption_title,
 		char *statement_caption_sub_title,
 		LIST *tax_form_line_list );
 
@@ -417,6 +418,7 @@ TAX_FORM_LINE_LATEX_TABLE *
 /* ------------------- */
 char *tax_form_line_latex_table_caption(
 		char *tax_form_name,
+		char *statement_caption_title,
 		char *statement_caption_sub_title );
 
 /* Usage */
@@ -580,7 +582,9 @@ TAX_FORM_LATEX *tax_form_latex_new(
 		char *process_name,
 		char *appaserver_parameter_data_directory,
 		char *tax_form_name,
-		STATEMENT_CAPTION *statement_caption,
+		char *statement_caption_title,
+		char *statement_caption_sub_title,
+		char *statement_caption_date_now16,
 		LIST *tax_form_line_list );
 
 /* Process */

@@ -713,7 +713,9 @@ TAX_FORM *tax_form_fetch(
 				process_name,
 				data_directory,
 				tax_form_name,
-				tax_form->statement_caption,
+				tax_form->statement_caption->title,
+				tax_form->statement_caption->sub_title,
+				tax_form->statement_caption->date_now16,
 				tax_form->tax_form_line_list );
 
 		if ( !tax_form->tax_form_latex ) return NULL;
@@ -805,7 +807,9 @@ TAX_FORM_LATEX *tax_form_latex_new(
 		char *process_name,
 		char *data_directory,
 		char *tax_form_name,
-		STATEMENT_CAPTION *statement_caption,
+		char *statement_caption_title,
+		char *statement_caption_sub_title,
+		char *statement_caption_date_now16,
 		LIST *tax_form_line_list )
 {
 	TAX_FORM_LATEX *tax_form_latex;
@@ -814,7 +818,7 @@ TAX_FORM_LATEX *tax_form_latex_new(
 	||   !process_name
 	||   !data_directory
 	||   !tax_form_name
-	||   !statement_caption )
+	||   !statement_caption_date_now16 )
 	{
 		char message[ 128 ];
 
@@ -839,7 +843,7 @@ TAX_FORM_LATEX *tax_form_latex_new(
 			application_name,
 			process_name,
 			data_directory,
-			statement_caption->date_now16
+			statement_caption_date_now16
 				/* transaction_date_begin_date_string */,
 			(char *)0
 				/* end_date_string */,
@@ -862,7 +866,8 @@ TAX_FORM_LATEX *tax_form_latex_new(
 	tax_form_latex->tax_form_line_latex_table =
 		tax_form_line_latex_table_new(
 			tax_form_name,
-			statement_caption->sub_title,
+			statement_caption_title,
+			statement_caption_sub_title,
 			tax_form_line_list );
 
 	if ( !tax_form_latex->tax_form_line_latex_table ) return NULL;
@@ -920,6 +925,7 @@ TAX_FORM_LATEX *tax_form_latex_calloc( void )
 TAX_FORM_LINE_LATEX_TABLE *
 	tax_form_line_latex_table_new(
 		char *tax_form_name,
+		char *statement_caption_title,
 		char *statement_caption_sub_title,
 		LIST *tax_form_line_list )
 {
@@ -964,8 +970,8 @@ TAX_FORM_LINE_LATEX_TABLE *
 			/* ------------------- */
 			tax_form_line_latex_table_caption(
 				tax_form_name,
-				statement_caption_sub_title )
-				/* title */,
+				statement_caption_title,
+				statement_caption_sub_title ),
 			column_list,
 			row_list );
 
@@ -993,16 +999,17 @@ TAX_FORM_LINE_LATEX_TABLE *tax_form_line_latex_table_calloc( void )
 
 char *tax_form_line_latex_table_caption(
 		char *tax_form_name,
+		char *statement_caption_title,
 		char *statement_caption_sub_title )
 {
 	char caption[ 1024 ];
+	char *ptr = caption;
 
-	if ( !tax_form_name
-	||   !statement_caption_sub_title )
+	if ( !tax_form_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "tax_form_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1011,10 +1018,23 @@ char *tax_form_line_latex_table_caption(
 			message );
 	}
 
-	sprintf(caption,
-		"%s %s",
-		tax_form_name,
-		statement_caption_sub_title );
+	if ( statement_caption_title )
+	{
+		ptr += sprintf(
+			ptr,
+			"%s ",
+			statement_caption_title );
+	}
+
+	ptr += sprintf( ptr, "%s", tax_form_name );
+
+	if ( statement_caption_sub_title )
+	{
+		ptr += sprintf(
+			ptr,
+			" %s",
+			statement_caption_sub_title );
+	}
 
 	return strdup( caption );
 }

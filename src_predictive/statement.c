@@ -4585,7 +4585,7 @@ STATEMENT_CAPTION *statement_caption_new(
 		/* --------------------------- */
 		statement_caption_logo_filename(
 			STATEMENT_LOGO_FILENAME_KEY );
-	
+
 	statement_caption->title =
 		/* --------------------- */
 		/* Returns static memory */
@@ -4595,7 +4595,7 @@ STATEMENT_CAPTION *statement_caption_new(
 			(statement_caption->logo_filename)
 				? 1 : 0 /* exists_logo_filename */,
 			process_name );
-	
+
 	statement_caption->sub_title =
 		/* ----------------------------- */
 		/* Returns static memory or null */
@@ -4603,7 +4603,7 @@ STATEMENT_CAPTION *statement_caption_new(
 		statement_caption_sub_title(
 			transaction_begin_date_string,
 			end_date_time_string );
-	
+
 	statement_caption->combined =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -4611,10 +4611,10 @@ STATEMENT_CAPTION *statement_caption_new(
 		statement_caption_combined(
 			statement_caption->title,
 			statement_caption->sub_title );
-	
+
 	statement_caption->date_now16 =
 		date_now16( date_utc_offset() );
-	
+
 	statement_caption->frame_title =
 		/* --------------------- */
 		/* Returns static memory */

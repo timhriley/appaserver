@@ -139,13 +139,13 @@ void latex_tex2pdf(
 		exit( 1 );
 	}
 
-	sprintf( system_string,
-		 "pdflatex %s 1>&2",
-		 tex_filename );
 
-/*
 	sprintf( system_string,
 		 "pdflatex %s 1>/dev/null 2>&1",
+		 tex_filename );
+/*
+	sprintf( system_string,
+		 "pdflatex %s 1>&2",
 		 tex_filename );
 	sprintf( system_string,
 		 "pdflatex %s 2>/tmp/latex.err 1>&2",
