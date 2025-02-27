@@ -9,8 +9,17 @@ then
 	exit 1
 fi
 
-# Skip 4 friendly allows
-# ----------------------
-sudo ufw insert 5 deny from $1
+ip_address=$1
+
+/usr2/ufw/ufw_whitelist.sh $ip_address
+
+# If not shell okay
+# -----------------
+if [ $? -ne 0 ]
+then
+	# Skip 4 friendly allows
+	# ----------------------
+	sudo ufw insert 5 deny from $ip_address
+fi
 
 exit 0
