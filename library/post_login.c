@@ -935,6 +935,14 @@ boolean post_login_input_application_exists_boolean(
 		char *application_name,
 		char *log_directory )
 {
+	if ( string_strcmp( application_name, "hydrology" ) == 0
+	||   string_strcmp( application_name, "benthic" ) == 0
+	||   string_strcmp( application_name, "donner" ) == 0
+	||   string_strcmp( application_name, "tnt" ) == 0 )
+	{
+		return 1;
+	}
+
 	return
 	application_exists_boolean(
 		/* --------------------- */
