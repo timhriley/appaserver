@@ -182,4 +182,7 @@ void environment_append_path(
 void environment_prepend_path(
 		char *directory );
 
+void environment_session_set(
+		char *application_name );
+
 #endif

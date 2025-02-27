@@ -31,7 +31,7 @@ where="confirmation_received_date is null"
 
 key="email_address"
 
-execute="update_statement.e table=email_address key=$key carrot=y | sql.e"
+execute="update_statement.e table=email_address key=$key carrot=y"
 
 echo "select email_address, IP_address from post where $where;"	|
 sql.e '^'							|
@@ -44,7 +44,7 @@ do
 
 	if [ "$?" -ne 0 ]
 	then
-		echo "$email_address^blocked_yn^y" | $execute
+		echo "$email_address^blocked_yn^y" | $execute | sql.e
 	fi
 done
 
