@@ -31,7 +31,7 @@
 					"http_user_agent,"		\
 					"timestamp"
 
-#define POST_DENY_EXECUTABLE		"/usr2/ufw/ufw_deny"
+#define POST_DENY_EXECUTABLE		"sudo /usr2/ufw/ufw_deny"
 #define POST_SLEEP_SECONDS		600
 
 typedef struct
