@@ -1290,7 +1290,7 @@ DRILLDOWN_INPUT *drilldown_input_new(
 				folder_attribute_primary_key_list
 				/* many_primary_key_list */,
 			0 /* not fetch_relation_one2m_list */,
-			0 /* not fetch_relation_mto1_list */ );
+			1 /* fetch_relation_mto1_list */ );
 
 	drilldown_input->relation_one2m_list =
 		relation_one2m_list(
@@ -1660,25 +1660,33 @@ LIST *drilldown_relation_mto1_list(
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list )
 {
-	LIST *mto1_list;
+	LIST *mto1_list = list_new();
+	RELATION_MTO1 *relation_mto1;
 
-	if ( !list_length( relation_mto1_list )
-	&&   !list_length( relation_mto1_isa_list ) )
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		list_set( mto1_list, relation_mto1 );
+
+	} while ( list_next( relation_mto1_list ) );
+
+
+	if ( list_rewind( relation_mto1_isa_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_isa_list );
+
+		list_set_list(
+			mto1_list,
+			relation_mto1->relation_mto1_list );
+
+	} while ( list_next( relation_mto1_isa_list ) );
+
+	if ( !list_length( mto1_list ) )
 	{
-		return NULL;
+		list_free( mto1_list );
+		mto1_list = NULL;
 	}
-
-	if ( !list_length( relation_mto1_list ) )
-		return relation_mto1_isa_list;
-
-	if ( !list_length( relation_mto1_isa_list ) )
-		return relation_mto1_list;
-
-	mto1_list = list_copy( relation_mto1_isa_list );
-
-	list_set_list(
-		mto1_list,
-		relation_mto1_list );
 
 	return mto1_list;
 }
