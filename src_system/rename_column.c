@@ -17,6 +17,7 @@
 #include "environ.h"
 #include "process.h"
 #include "security.h"
+#include "shell_script.h"
 #include "rename_column.h"
 
 int main( int argc, char **argv )
@@ -128,7 +129,7 @@ int main( int argc, char **argv )
 			/* Safely returns */
 			/* -------------- */
 			appaserver_output_file(
-				rename_column->process_filename );
+				rename_column->process_filespecification );
 
 		fprintf(output_file,
 			"%s\n",
@@ -137,11 +138,11 @@ int main( int argc, char **argv )
 		fclose( output_file );
 
 		if ( system(
-			appaserver_execute_bit_system_string(
-				rename_column->process_filename ) ) ){}
+			shell_script_execute_bit_system_string(
+				rename_column->process_filespecification ) ) ){}
 
 		printf( "<h3>Created: %s</h3>\n",
-			rename_column->process_filename );
+			rename_column->process_filespecification );
 	}
 
 	document_close();

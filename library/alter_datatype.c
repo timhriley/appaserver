@@ -99,11 +99,12 @@ ALTER_DATATYPE *alter_datatype_new(
 			alter_datatype->folder_table_name,
 			alter_datatype->execute_system_string );
 
-	alter_datatype->process_filename =
+	alter_datatype->process_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		alter_datatype_process_filename(
+		alter_datatype_process_filespecification(
+			application_name,
 			folder_name,
 			attribute_name,
 			data_directory );
@@ -247,14 +248,16 @@ char *alter_datatype_shell_script(
 	return strdup( shell_script );
 }
 
-char *alter_datatype_process_filename(
+char *alter_datatype_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *attribute_name,
 		char *data_directory )
 {
-	static char process_filename[ 128 ];
+	static char process_filespecification[ 128 ];
 
-	if ( !folder_name
+	if ( !application_name
+	||   !folder_name
 	||   !attribute_name
 	||   !data_directory )
 	{
@@ -270,14 +273,15 @@ char *alter_datatype_process_filename(
 	}
 
 	snprintf(
-		process_filename,
-		sizeof ( process_filename ),
-		"%s/alter_datatype_%s_%s.sh",
+		process_filespecification,
+		sizeof ( process_filespecification ),
+		"%s/%s/alter_datatype_%s_%s.sh",
 		data_directory,
+		application_name,
 		folder_name,
 		attribute_name );
 
-	return process_filename;
+	return process_filespecification;
 }
 
 char *alter_datatype_shell_script_system_string( char *statement )

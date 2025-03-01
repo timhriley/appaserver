@@ -91,10 +91,12 @@ int main( int argc, char **argv )
 
 	if ( system(
 		export_process_shell->
-			appaserver_execute_bit_system_string ) ){}
+			shell_script_execute_bit_system_string ) ){}
 
 	process_increment_count( process_name );
-	printf( "<h3>Created: %s</h3>\n", export_process_shell->filename );
+
+	printf( "<h3>Created: %s</h3>\n",
+		export_process_shell->filespecification );
 
 	document_close();
 

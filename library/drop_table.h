@@ -19,7 +19,7 @@ typedef struct
 	char *execute_system_string;
 	char *shell_script;
 	char *appaserver_parameter_data_directory;
-	char *process_filename;
+	char *process_filespecification;
 } DROP_TABLE;
 
 /* Usage */
@@ -54,7 +54,8 @@ char *drop_table_execute_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *drop_table_process_filename(
+char *drop_table_process_filespecification(
+		char *application_name,
 		char *table_name,
 		char *data_directory );
 

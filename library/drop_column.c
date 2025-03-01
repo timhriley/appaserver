@@ -106,11 +106,12 @@ DROP_COLUMN *drop_column_new(
 		/* ------------------------------------------------ */
 		appaserver_parameter_data_directory();
 
-	drop_column->process_filename =
+	drop_column->process_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		drop_column_process_filename(
+		drop_column_process_filespecification(
+			application_name,
 			folder_name,
 			attribute_name,
 			drop_column->appaserver_parameter_data_directory );
@@ -452,14 +453,16 @@ char *drop_column_shell_script(
 	return strdup( shell_script );
 }
 
-char *drop_column_process_filename(
+char *drop_column_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *attribute_name,
 		char *data_directory )
 {
-	static char process_filename[ 256 ];
+	static char process_filespecification[ 256 ];
 
-	if ( !folder_name
+	if ( !application_name
+	||   !folder_name
 	||   !attribute_name
 	||   !data_directory )
 	{
@@ -474,12 +477,14 @@ char *drop_column_process_filename(
 			message );
 	}
 
-	sprintf(process_filename,
-		"%s/drop_column_%s_%s.sh",
+	sprintf(process_filespecification,
+		"%s/%s/%s_%s_%s.sh",
 		data_directory,
+		application_name,
+		DROP_COLUMN_EXECUTABLE,
 		folder_name,
 		attribute_name );
 
-	return process_filename;
+	return process_filespecification;
 }
 

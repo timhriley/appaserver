@@ -119,7 +119,7 @@ SHELL_SCRIPT *shell_script_calloc( void )
 
 SHELL_SCRIPT *shell_script_new(
 		char *application_name,
-		char *shell_filename,
+		char *shell_script_filespecification,
 		LIST *sql_statement_list,
 		boolean tee_appaserver_boolean,
 		boolean html_paragraph_wrapper_boolean )
@@ -128,7 +128,7 @@ SHELL_SCRIPT *shell_script_new(
 	FILE *output_file;
 
 	if ( !application_name
-	||   !shell_filename )
+	||   !shell_script_filespecification )
 	{
 		char message[ 128 ];
 
@@ -143,9 +143,12 @@ SHELL_SCRIPT *shell_script_new(
 
 	shell_script = shell_script_calloc();
 
-	/* Safely returns */
-	/* -------------- */
-	output_file = appaserver_output_file( shell_filename );
+	output_file =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_output_file(
+			shell_script_filespecification );
 
 	fprintf(output_file,
 		"%s\n",
@@ -191,8 +194,8 @@ SHELL_SCRIPT *shell_script_new(
 	fclose( output_file );
 
 	if ( system(
-		appaserver_execute_bit_system_string(
-			shell_filename ) ) ){}
+		shell_script_execute_bit_system_string(
+			shell_script_filespecification ) ) ){}
 
 	return shell_script;
 }
@@ -265,3 +268,77 @@ void shell_script_spool_string_list(
 
 	fclose( output_file );
 }
+
+char *shell_script_filespecification(
+		const char *process_label,
+		char *application_name,
+		char *folder_name,
+		char *data_directory )
+{
+	static char specification[ 128 ];
+
+	if ( !application_name
+	||   !data_directory )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !folder_name )
+	{
+		snprintf(
+			specification,
+			sizeof ( specification ),
+			"%s/%s/%s.sh",
+			data_directory,
+			application_name,
+			process_label );
+	}
+	else
+	{
+		snprintf(
+			specification,
+			sizeof ( specification ),
+			"%s/%s/%s_%s.sh",
+			data_directory,
+			application_name,
+			process_label,
+			folder_name );
+	}
+
+	return specification;
+}
+
+char *shell_script_execute_bit_system_string( char *specification )
+{
+	char system_string[ 256 ];
+
+	if ( !specification )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "specification is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"chmod +x,g+w %s",
+		specification );
+
+	return strdup( system_string );
+}
+

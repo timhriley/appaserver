@@ -120,11 +120,12 @@ RENAME_TABLE *rename_table_new(
 			rename_table->create_table_primary_index_system_string,
 			rename_table->update_statement_list );
 
-	rename_table->process_filename =
+	rename_table->process_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		rename_table_process_filename(
+		rename_table_process_filespecification(
+			application_name,
 			old_folder_name,
 			data_directory );
 
@@ -181,13 +182,13 @@ char *rename_table_execute_system_string(
 	return system_string;
 }
 
-char *rename_table_process_filename(
+char *rename_table_process_filespecification(
+		char *application_name,
 		char *old_folder_name,
 		char *data_directory )
 {
-	static char process_filename[ 128 ];
-
-	if ( !old_folder_name
+	if ( !application_name
+	||   !old_folder_name
 	||   !data_directory )
 	{
 		char message[ 128 ];
@@ -201,12 +202,12 @@ char *rename_table_process_filename(
 			message );
 	}
 
-	sprintf(process_filename,
-		"%s/rename_table_%s.sh",
-		data_directory,
-		old_folder_name );
-
-	return process_filename;
+	return
+	shell_script_filespecification(
+		"rename_table" /* PROCESS_LABEL */,
+		application_name,
+		old_folder_name,
+		data_directory );
 }
 
 char *rename_table_shell_script(

@@ -128,14 +128,6 @@ char *appaserver_mnemonic(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory */
-/* ------------------- */
-char *appaserver_execute_bit_system_string(
-		char *shell_filename );
-
-/* Usage */
-/* ----- */
-
 /* Returns static memory */
 /* --------------------- */
 char *appaserver_table_name(

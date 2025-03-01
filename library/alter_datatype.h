@@ -16,7 +16,7 @@ typedef struct
 	char *attribute_database_datatype;
 	char *execute_system_string;
 	char *shell_script;
-	char *process_filename;
+	char *process_filespecification;
 } ALTER_DATATYPE;
 
 /* Usage */
@@ -50,7 +50,8 @@ char *alter_datatype_execute_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *alter_datatype_process_filename(
+char *alter_datatype_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *attribute_name,
 		char *data_directory );

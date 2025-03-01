@@ -266,32 +266,6 @@ char *appaserver_mnemonic( LIST *key_list )
 	list_delimited( key_list, '_' );
 }
 
-char *appaserver_execute_bit_system_string( char *shell_filename )
-{
-	char system_string[ 256 ];
-
-	if ( !shell_filename )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "shell_filename is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		system_string,
-		sizeof ( system_string ),
-		"chmod +x,g+w %s",
-		shell_filename );
-
-	return strdup( system_string );
-}
-
 char *appaserver_table_name( char *folder_name )
 {
 	if ( !folder_name )

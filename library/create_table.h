@@ -26,7 +26,7 @@ typedef struct
 	char *unique_index_statement;
 	LIST *additional_unique_index_list;
 	LIST *additional_index_list;
-	char *shell_filename;
+	char *shell_script_filespecification;
 	LIST *sql_statement_list;
 	SHELL_SCRIPT *shell_script;
 } CREATE_TABLE;
@@ -133,12 +133,6 @@ LIST *create_table_additional_index_list(
 LIST *create_table_additional_index_name_list(
 		LIST *folder_attribute_list );
 
-/* Returns static memory */
-/* --------------------- */
-char *create_table_shell_filename(
-		char *folder_name,
-		char *data_directory );
-
 /* Usage */
 /* ----- */
 
@@ -147,7 +141,7 @@ char *create_table_shell_filename(
 SHELL_SCRIPT *create_table_shell_script(
 		char *application_name,
 		boolean execute_boolean,
-		char *create_table_shell_filename,
+		char *shell_script_filespecification,
 		LIST *create_table_sql_statement_list );
 
 /* Usage */

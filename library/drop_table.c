@@ -87,11 +87,12 @@ DROP_TABLE *drop_table_new(
 		/* ------------------------------------------------ */
 		appaserver_parameter_data_directory();
 
-	drop_table->process_filename =
+	drop_table->process_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		drop_table_process_filename(
+		drop_table_process_filespecification(
+			application_name,
 			table_name,
 			drop_table->
 				appaserver_parameter_data_directory );
@@ -251,13 +252,13 @@ char *drop_table_shell_script(
 	return strdup( shell_script );
 }
 
-char *drop_table_process_filename(
+char *drop_table_process_filespecification(
+		char *application_name,
 		char *table_name,
 		char *data_directory )
 {
-	static char process_filename[ 128 ];
-
-	if ( !table_name
+	if ( !application_name
+	||   !table_name
 	||   !data_directory )
 	{
 		char message[ 128 ];
@@ -271,13 +272,14 @@ char *drop_table_process_filename(
 			message );
 	}
 
-	snprintf(
-		process_filename,
-		sizeof ( process_filename ),
-		"%s/drop_table_%s.sh",
-		data_directory,
-		table_name );
-
-	return process_filename;
+	return
+	/* --------------------- */
+	/* Returns static memory */
+	/* --------------------- */
+	shell_script_filespecification(
+		DROP_TABLE_EXECUTABLE /* PROCESS_LABEL */,
+		application_name,
+		table_name /* folder_name */,
+		data_directory );
 }
 

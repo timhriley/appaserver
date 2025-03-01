@@ -120,11 +120,12 @@ RENAME_COLUMN *rename_column_new(
 			rename_column->execute_system_string,
 			rename_column->update_statement_list );
 
-	rename_column->process_filename =
+	rename_column->process_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		rename_column_process_filename(
+		rename_column_process_filespecification(
+			application_name,
 			folder_name,
 			new_attribute_name,
 			data_directory );
@@ -190,14 +191,16 @@ char *rename_column_execute_system_string(
 	return system_string;
 }
 
-char *rename_column_process_filename(
+char *rename_column_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *new_attribute_name,
 		char *data_directory )
 {
-	static char process_filename[ 256 ];
+	static char process_filespecification[ 256 ];
 
-	if ( !folder_name
+	if ( !application_name
+	||   !folder_name
 	||   !new_attribute_name
 	||   !data_directory )
 	{
@@ -213,14 +216,15 @@ char *rename_column_process_filename(
 	}
 
 	snprintf(
-		process_filename,
-		sizeof ( process_filename ),
-		"%s/rename_column_%s_%s.sh",
+		process_filespecification,
+		sizeof ( process_filespecification ),
+		"%s/%s/rename_column_%s_%s.sh",
 		data_directory,
+		application_name,
 		folder_name,
 		new_attribute_name );
 
-	return process_filename;
+	return process_filespecification;
 }
 
 char *rename_column_shell_script(

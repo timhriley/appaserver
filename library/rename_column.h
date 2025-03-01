@@ -17,7 +17,7 @@ typedef struct
 	char *execute_system_string;
 	LIST *update_statement_list;
 	char *shell_script;
-	char *process_filename;
+	char *process_filespecification;
 } RENAME_COLUMN;
 
 /* Usage */
@@ -53,7 +53,8 @@ char *rename_column_execute_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *rename_column_process_filename(
+char *rename_column_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *new_attribute_name,
 		char *data_directory );

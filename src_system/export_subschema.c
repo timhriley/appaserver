@@ -15,6 +15,7 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "post_dictionary.h"
+#include "shell_script.h"
 #include "export_subschema.h"
 
 int main( int argc, char **argv )
@@ -76,11 +77,11 @@ int main( int argc, char **argv )
 
 	if ( system(
 		export_subschema->
-			appaserver_execute_bit_system_string ) ){}
+			shell_script_execute_bit_system_string ) ){}
 
 	process_increment_count( process_name );
 
-	printf( "<h3>Created: %s</h3>\n", export_subschema->filename );
+	printf( "<h3>Created: %s</h3>\n", export_subschema->filespecification );
 
 	document_close();
 

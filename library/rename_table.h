@@ -16,7 +16,7 @@ typedef struct
 	char *create_table_primary_index_system_string;
 	LIST *update_statement_list;
 	char *shell_script;
-	char *process_filename;
+	char *process_filespecification;
 } RENAME_TABLE;
 
 /* Usage */
@@ -56,7 +56,8 @@ char *rename_table_execute_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *rename_table_process_filename(
+char *rename_table_process_filespecification(
+		char *application_name,
 		char *old_folder_name,
 		char *data_directory );
 

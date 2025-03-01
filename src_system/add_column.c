@@ -16,6 +16,7 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "security.h"
+#include "shell_script.h"
 #include "add_column.h"
 
 int main( int argc, char **argv )
@@ -109,7 +110,7 @@ int main( int argc, char **argv )
 			/* Safely returns */
 			/* -------------- */
 			appaserver_output_file(
-				add_column->process_filename );
+				add_column->process_filespecification );
 
 		fprintf(output_file,
 			"%s\n",
@@ -121,11 +122,11 @@ int main( int argc, char **argv )
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			appaserver_execute_bit_system_string(
-				add_column->process_filename ) ) ){}
+			shell_script_execute_bit_system_string(
+				add_column->process_filespecification ) ) ){}
 
 		printf( "<h3>Created: %s</h3>\n",
-			add_column->process_filename );
+			add_column->process_filespecification );
 	}
 
 	document_close();

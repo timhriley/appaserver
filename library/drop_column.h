@@ -21,7 +21,7 @@ typedef struct
 	LIST *delete_statement_list;
 	char *shell_script;
 	char *appaserver_parameter_data_directory;
-	char *process_filename;
+	char *process_filespecification;
 } DROP_COLUMN;
 
 /* Usage */
@@ -58,7 +58,8 @@ char *drop_column_execute_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *drop_column_process_filename(
+char *drop_column_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *attribute_name,
 		char *data_directory );

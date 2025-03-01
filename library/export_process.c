@@ -56,11 +56,11 @@ EXPORT_PROCESS_SHELL *export_process_shell_new(
 
 	if ( !list_rewind( export_process_shell->name_list ) ) return NULL;
 
-	export_process_shell->filename =
+	export_process_shell->filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		export_process_shell_filename(
+		export_process_shell_filespecification(
 			application_name,
 			data_directory,
 			date_now_yyyy_mm_dd( date_utc_offset() ) );
@@ -70,7 +70,7 @@ EXPORT_PROCESS_SHELL *export_process_shell_new(
 		/* Safely returns */
 		/* -------------- */
 		export_process_stream(
-			export_process_shell->filename,
+			export_process_shell->filespecification,
 			"w" /* mode */ );
 
 	export_process_shell->shell_script_open_string =
@@ -176,12 +176,12 @@ EXPORT_PROCESS_SHELL *export_process_shell_new(
 
 	fclose( process_stream );
 
-	export_process_shell->appaserver_execute_bit_system_string =
+	export_process_shell->shell_script_execute_bit_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_execute_bit_system_string(
-			export_process_shell->filename );
+		shell_script_execute_bit_system_string(
+			export_process_shell->filespecification );
 
 	return export_process_shell;
 }
@@ -221,12 +221,12 @@ LIST *export_process_shell_name_list(
 		(char )delimiter );
 }
 
-char *export_process_shell_filename(
+char *export_process_shell_filespecification(
 		char *application_name,
 		char *data_directory,
 		char *date_now_yyyy_mm_dd )
 {
-	static char filename[ 128 ];
+	static char filespecification[ 128 ];
 
 	if ( !application_name
 	||   !data_directory
@@ -243,26 +243,29 @@ char *export_process_shell_filename(
 			message );
 	}
 
-	sprintf(filename,
-		"%s/export_process_%s_%s.sh",
+	snprintf(
+		filespecification,
+		sizeof ( filespecification ),
+		"%s/%s/export_process_%s_%s.sh",
 		data_directory,
+		application_name,
 		application_name,
 		date_now_yyyy_mm_dd );
 
-	return filename;
+	return filespecification;
 }
 
 FILE *export_process_stream(
-		char *filename,
+		char *filespecification,
 		const char *mode )
 {
 	FILE *stream;
 
-	if ( !filename )
+	if ( !filespecification )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "filename is empty." );
+		sprintf(message, "filespecification is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -271,13 +274,13 @@ FILE *export_process_stream(
 			message );
 	}
 
-	if ( ! ( stream = fopen( filename, mode ) ) )
+	if ( ! ( stream = fopen( filespecification, mode ) ) )
 	{
 		char message[ 256 ];
 
 		sprintf(message,
 			"fopen(%s,%s) returned empty.",
-			filename,
+			filespecification,
 			mode );
 
 		appaserver_error_stderr_exit(
@@ -1069,14 +1072,14 @@ char *export_process_escape( char *string_pipe_input )
 }
 
 EXPORT_PROCESS_FILE *export_process_file_new(
-		char *filename,
+		char *filespecification,
 		LIST *process_name_list )
 {
 	EXPORT_PROCESS_FILE *export_process_file;
 	char *process_name;
 	FILE *process_stream;
 
-	if ( !filename
+	if ( !filespecification
 	||   !list_rewind( process_name_list ) )
 	{
 		return NULL;
@@ -1089,7 +1092,7 @@ EXPORT_PROCESS_FILE *export_process_file_new(
 		/* Safely returns */
 		/* -------------- */
 		export_process_stream(
-			filename,
+			filespecification,
 			"a" /* mode */ );
 
 	do {

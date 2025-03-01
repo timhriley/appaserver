@@ -66,11 +66,11 @@ EXPORT_SUBSCHEMA *export_subschema_new(
 		return NULL;
 	}
 
-	export_subschema->filename =
+	export_subschema->filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		export_subschema_filename(
+		export_subschema_filespecification(
 			application_name,
 			data_directory,
 			/* ------------------- */
@@ -84,7 +84,7 @@ EXPORT_SUBSCHEMA *export_subschema_new(
 		/* Safely returns */
 		/* -------------- */
 		export_subschema_process_file(
-			export_subschema->filename );
+			export_subschema->filespecification );
 
 	fprintf(process_file,
 		"%s\n",
@@ -191,13 +191,12 @@ EXPORT_SUBSCHEMA *export_subschema_new(
 
 	fclose( process_file );
 
-	export_subschema->appaserver_execute_bit_system_string =
+	export_subschema->shell_script_execute_bit_system_string =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_execute_bit_system_string(
-			export_subschema->filename
-				/* shell_filename */ );
+		shell_script_execute_bit_system_string(
+			export_subschema->filespecification );
 
 	return export_subschema;
 }
@@ -235,12 +234,12 @@ LIST *export_subschema_folder_name_list(
 		sql_delimiter );
 }
 
-char *export_subschema_filename(
+char *export_subschema_filespecification(
 		char *application_name,
 		char *data_directory,
 		char *date_now_yyyy_mm_dd )
 {
-	static char filename[ 128 ];
+	static char filespecification[ 128 ];
 
 	if ( !application_name
 	||   !data_directory
@@ -257,24 +256,27 @@ char *export_subschema_filename(
 			message );
 	}
 
-	sprintf(filename,
-		"%s/export_subschema_%s_%s.sh",
+	snprintf(
+		filespecification,
+		sizeof ( filespecification ),
+		"%s/%s/export_subschema_%s_%s.sh",
 		data_directory,
+		application_name,
 		application_name,
 		date_now_yyyy_mm_dd );
 
-	return filename;
+	return filespecification;
 }
 
-FILE *export_subschema_process_file( char *filename )
+FILE *export_subschema_process_file( char *filespecification )
 {
 	FILE *file;
 
-	if ( !filename )
+	if ( !filespecification )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "filename is empty." );
+		sprintf(message, "filespecification is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -283,13 +285,13 @@ FILE *export_subschema_process_file( char *filename )
 			message );
 	}
 
-	if ( ! ( file = fopen( filename, "w" ) ) )
+	if ( ! ( file = fopen( filespecification, "w" ) ) )
 	{
 		char message[ 256 ];
 
 		sprintf(message,
 			"fopen(%s) for write returned empty.",
-			filename );
+			filespecification );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

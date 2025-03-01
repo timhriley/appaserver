@@ -105,11 +105,13 @@ CREATE_TABLE *create_table_new(
 			create_table->folder->folder_attribute_list,
 			create_table->appaserver_table_name );
 
-	create_table->shell_filename =
+	create_table->shell_script_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		create_table_shell_filename(
+		shell_script_filespecification(
+			"create_table" /* PROCESS_LABEL */,
+			application_name,
 			folder_name,
 			data_directory );
 
@@ -128,7 +130,7 @@ CREATE_TABLE *create_table_new(
 		create_table_shell_script(
 			application_name,
 			execute_boolean,
-			create_table->shell_filename,
+			create_table->shell_script_filespecification,
 			create_table->sql_statement_list );
 
 	return create_table;
@@ -271,36 +273,6 @@ char *create_table_statement(
 			storage_engine ) );
 
 	return strdup( statement );
-}
-
-char *create_table_shell_filename(
-		char *folder_name,
-		char *data_directory )
-{
-	static char shell_filename[ 128 ];
-
-	if ( !folder_name
-	||   !data_directory )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	snprintf(
-		shell_filename,
-		sizeof ( shell_filename ),
-		"%s/create_table_%s.sh",
-		data_directory,
-		folder_name );
-
-	return shell_filename;
 }
 
 LIST *create_table_additional_unique_index_list(
@@ -501,11 +473,11 @@ LIST *create_table_sql_statement_list(
 SHELL_SCRIPT *create_table_shell_script(
 		char *application_name,
 		boolean execute_boolean,
-		char *create_table_shell_filename,
+		char *shell_script_filespecification,
 		LIST *create_table_sql_statement_list )
 {
 	if ( !application_name
-	||   !create_table_shell_filename )
+	||   !shell_script_filespecification )
 	{
 		char message[ 128 ];
 
@@ -524,7 +496,7 @@ SHELL_SCRIPT *create_table_shell_script(
 	/* -------------- */
 	shell_script_new(
 		application_name,
-		create_table_shell_filename,
+		shell_script_filespecification,
 		create_table_sql_statement_list,
 		execute_boolean /* tee_appaserver_boolean */,
 		execute_boolean /* html_paragraph_wrapper_boolean */ );

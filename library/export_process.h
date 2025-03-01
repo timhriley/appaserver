@@ -14,12 +14,12 @@ typedef struct
 {
 	LIST *name_list;
 	LIST *process_parameter_list;
-	char *filename;
+	char *filespecification;
 	char *shell_script_open_string;
 	char *shell_script_here_open_string;
 	char *shell_script_here_close_string;
 	char *shell_script_close_string;
-	char *appaserver_execute_bit_system_string;
+	char *shell_script_execute_bit_system_string;
 } EXPORT_PROCESS_SHELL;
 
 /* Usage */
@@ -41,7 +41,7 @@ LIST *export_process_shell_name_list(
 
 /* Returns static memory */
 /* --------------------- */
-char *export_process_shell_filename(
+char *export_process_shell_filespecification(
 		char *application_name,
 		char *data_directory,
 		char *date_now_yyyy_mm_dd );

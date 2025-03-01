@@ -13,6 +13,7 @@
 
 typedef struct
 {
+	/* Stub */
 } SHELL_SCRIPT;
 
 /* Usage */
@@ -22,7 +23,7 @@ typedef struct
 /* -------------- */
 SHELL_SCRIPT *shell_script_new(
 		char *application_name,
-		char *shell_filename,
+		char *shell_script_filespecification,
 		LIST *sql_statement_list,
 		boolean tee_appaserver_boolean,
 		boolean html_paragraph_wrapper_boolean );
@@ -54,11 +55,30 @@ char *shell_script_here_close_string(
 char *shell_script_close_string(
 		void );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *shell_script_filespecification(
+		const char *process_label,
+		char *application_name,
+		char *folder_name,
+		char *data_directory );
+
+/* Usage */
+/* ----- */
 void shell_script_spool_string_list(
 		char *application_name,
 		char *shell_filename,
 		LIST *sql_statement_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *shell_script_execute_bit_system_string(
+		char *shell_script_filespecification );
 
 #endif

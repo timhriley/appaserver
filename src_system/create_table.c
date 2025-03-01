@@ -82,7 +82,7 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean )
 	{
-		if ( system( create_table->shell_filename ) ){}
+		if ( system( create_table->shell_script_filespecification ) ){}
 		process_increment_count( process_name );
 		printf( "<h3>Process complete</h3>\n" );
 	}
@@ -93,7 +93,7 @@ int main( int argc, char **argv )
 			"SQL Statement" /* heading_string */ );
 
 		printf( "<h3>Created %s</h3>\n",
-			create_table->shell_filename );
+			create_table->shell_script_filespecification );
 	}
 
 	document_close();

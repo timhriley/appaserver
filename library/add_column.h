@@ -16,7 +16,7 @@ typedef struct
 	char *attribute_database_datatype;
 	char *execute_system_string;
 	char *shell_script;
-	char *process_filename;
+	char *process_filespecification;
 } ADD_COLUMN;
 
 /* Usage */
@@ -50,7 +50,8 @@ char *add_column_execute_system_string(
 
 /* Returns static memory */
 /* --------------------- */
-char *add_column_process_filename(
+char *add_column_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *attribute_name,
 		char *data_directory );

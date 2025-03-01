@@ -15,12 +15,12 @@
 typedef struct
 {
 	LIST *folder_name_list;
-	char *filename;
+	char *filespecification;
 	char *shell_script_open_string;
 	char *shell_script_here_open_string;
 	char *shell_script_here_close_string;
 	char *shell_script_close_string;
-	char *appaserver_execute_bit_system_string;
+	char *shell_script_execute_bit_system_string;
 } EXPORT_SUBSCHEMA;
 
 /* Usage */
@@ -38,7 +38,7 @@ EXPORT_SUBSCHEMA *export_subschema_calloc(
 
 /* Returns static memory */
 /* --------------------- */
-char *export_subschema_filename(
+char *export_subschema_filespecification(
 		char *application_name,
 		char *data_directory,
 		char *date_now_yyyy_mm_dd );
@@ -46,7 +46,7 @@ char *export_subschema_filename(
 /* Safely returns */
 /* -------------- */
 FILE *export_subschema_process_file(
-		char *export_subschema_filename );
+		char *export_subschema_filespecification );
 
 /* Usage */
 /* ----- */

@@ -89,11 +89,12 @@ ADD_COLUMN *add_column_new(
 			add_column->folder_table_name,
 			add_column->execute_system_string );
 
-	add_column->process_filename =
+	add_column->process_filespecification =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		add_column_process_filename(
+		add_column_process_filespecification(
+			application_name,
 			folder_name,
 			attribute_name,
 			data_directory );
@@ -350,14 +351,16 @@ char *add_column_relation_insert_system_string(
 	return (char *)0;
 }
 
-char *add_column_process_filename(
+char *add_column_process_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *attribute_name,
 		char *data_directory )
 {
-	static char process_filename[ 128 ];
+	static char process_filespecification[ 128 ];
 
-	if ( !folder_name
+	if ( !application_name
+	||   !folder_name
 	||   !attribute_name
 	||   !data_directory )
 	{
@@ -372,11 +375,14 @@ char *add_column_process_filename(
 			message );
 	}
 
-	sprintf(process_filename,
-		"%s/add_column_%s_%s.sh",
+	snprintf(
+		process_filespecification,
+		sizeof ( process_filespecification ),
+		"%s/%s/add_column_%s_%s.sh",
 		data_directory,
+		application_name,
 		folder_name,
 		attribute_name );
 
-	return process_filename;
+	return process_filespecification;
 }
