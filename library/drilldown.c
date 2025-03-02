@@ -1551,11 +1551,13 @@ DICTIONARY *drilldown_query_dictionary(
 		char message[ 1024 ];
 
 		sprintf(message,
-		"cannot map: key_list=[%s] with attribute_data_list=[%s]",
+"cannot map: key_list=[%s] having length=%d with attribute_data_list=[%s] having length=%d",
 			list_display( key_list ),
-			list_display( attribute_data_list ) );
+			list_length( key_list ),
+			list_display( attribute_data_list ),
+			list_length( attribute_data_list ) );
 
-		appaserver_error_stderr_exit(
+		appaserver_error_warning(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
