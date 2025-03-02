@@ -1681,8 +1681,10 @@ char *query_attribute_contains_where(
 		char *table_name,
 		char *attribute_name )
 {
-	char where[ 256 ];
+	char where[ 1024 ];
+	char *ptr = where;
 	char *extract;
+	char *full_attribute_name;
 
 	if ( !dictionary
 	||   !attribute_name )
@@ -1709,14 +1711,27 @@ char *query_attribute_contains_where(
 		return (char *)0;
 	}
 
-	sprintf(where,
-		"%s like '%c%s%c'",
+	full_attribute_name =
+		/* ------------------------------------- */
+		/* Returns attribute_name or heap memory */
+		/* ------------------------------------- */
 		attribute_full_attribute_name(
 			table_name,
-			attribute_name ),
+			attribute_name );
+
+	ptr += sprintf(
+		ptr,
+		"(%s like '%c%s%c' or ",
+		full_attribute_name,
 		'%',
 		extract,
 		'%' );
+
+	ptr += sprintf(
+		ptr,
+		"%s sounds like '%s')",
+		full_attribute_name,
+		extract );
 
 	return strdup( where );
 }

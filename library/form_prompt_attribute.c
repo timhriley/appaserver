@@ -415,17 +415,17 @@ LIST *form_prompt_attribute_option_list( char *datatype_name )
 		list_set(
 			list,
 			widget_drop_down_option_new(
+				QUERY_CONTAINS ) );
+
+		list_set(
+			list,
+			widget_drop_down_option_new(
 				QUERY_BEGINS ) );
 
 		list_set(
 			list,
 			widget_drop_down_option_new(
 				QUERY_EQUAL ) );
-
-		list_set(
-			list,
-			widget_drop_down_option_new(
-				QUERY_CONTAINS ) );
 
 		list_set(
 			list,
@@ -462,12 +462,7 @@ LIST *form_prompt_attribute_option_list( char *datatype_name )
 		list_set(
 			list,
 			widget_drop_down_option_new(
-				QUERY_EQUAL ) );
-
-		list_set(
-			list,
-			widget_drop_down_option_new(
-				QUERY_BETWEEN ) );
+				QUERY_CONTAINS ) );
 
 		list_set(
 			list,
@@ -477,7 +472,12 @@ LIST *form_prompt_attribute_option_list( char *datatype_name )
 		list_set(
 			list,
 			widget_drop_down_option_new(
-				QUERY_CONTAINS ) );
+				QUERY_EQUAL ) );
+
+		list_set(
+			list,
+			widget_drop_down_option_new(
+				QUERY_BETWEEN ) );
 
 		list_set(
 			list,
