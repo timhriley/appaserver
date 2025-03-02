@@ -72,7 +72,7 @@ typedef struct
 	WIDGET_CONTAINER *ignore_widget_container;
 	boolean role_folder_insert_boolean;
 	VERTICAL_NEW_CHECKBOX *vertical_new_checkbox;
-	LIST *relation_mto1_to_one_list;
+	LIST *relation_mto1_to_one_fetch_list;
 	AJAX_CLIENT *ajax_client;
 	QUERY_DROP_DOWN *query_drop_down;
 	LIST *widget_drop_down_option_list;

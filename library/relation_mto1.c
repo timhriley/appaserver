@@ -821,22 +821,19 @@ char *relation_mto1_list_display( LIST *relation_mto1_list )
 	return strdup( display );
 }
 
-LIST *relation_mto1_to_one_list(
+LIST *relation_mto1_to_one_fetch_list(
 		char *role_name,
-		RELATION_MTO1 *relation_mto1 )
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list )
 {
 	if ( !role_name
-	||   !relation_mto1
-	||   !relation_mto1->one_folder_name
-	||   !relation_mto1->one_folder
+	||   !one_folder_name
 	||   !list_length(
-		relation_mto1->
-			one_folder->
-			folder_attribute_primary_key_list ) )
+		one_folder_primary_key_list ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty or incomplete." );
+		sprintf(message, "parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -848,12 +845,9 @@ LIST *relation_mto1_to_one_list(
 	return
 	relation_mto1_list(
 		role_name,
-		relation_mto1->
-			one_folder_name
+		one_folder_name
 			/* many_folder_name */,
-		relation_mto1->
-			one_folder->
-			folder_attribute_primary_key_list
+		one_folder_primary_key_list
 			/* many_folder_primary_key_list */ );
 }
 
@@ -906,4 +900,39 @@ LIST *relation_mto1_without_trigger_insert_update_list(
 	}
 
 	return list;
+}
+
+LIST *relation_mto1_to_one_list(
+		LIST *relation_mto1_list,
+		LIST *relation_mto1_isa_list )
+{
+	LIST *mto1_list = list_new();
+	RELATION_MTO1 *relation_mto1;
+
+	if ( list_rewind( relation_mto1_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_list );
+
+		list_set( mto1_list, relation_mto1 );
+
+	} while ( list_next( relation_mto1_list ) );
+
+
+	if ( list_rewind( relation_mto1_isa_list ) )
+	do {
+		relation_mto1 = list_get( relation_mto1_isa_list );
+
+		list_set_list(
+			mto1_list,
+			relation_mto1->relation_mto1_list );
+
+	} while ( list_next( relation_mto1_isa_list ) );
+
+	if ( !list_length( mto1_list ) )
+	{
+		list_free( mto1_list );
+		mto1_list = NULL;
+	}
+
+	return mto1_list;
 }

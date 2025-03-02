@@ -1353,7 +1353,6 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		int tab_order )
 {
 	FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation;
-	LIST *one_folder_relation_mto1_list;
 
 	if ( form_prompt_insert_relation_attribute_exists(
 		attribute_name,
@@ -1523,16 +1522,22 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 		widget_container_new(
 			table_data, (char *)0 ) );
 
+	form_prompt_insert_relation->relation_mto1_to_one_fetch_list =
+		relation_mto1_to_one_fetch_list(
+			role_name,
+			form_prompt_insert_relation->
+				relation_mto1->
+				one_folder_name,
+			form_prompt_insert_relation->
+				relation_mto1->
+				one_folder->
+				folder_attribute_primary_key_list );
+
 	if ( !form_prompt_insert_relation->
 		relation_mto1->
 		relation->
 		omit_ajax_fill_drop_down )
 	{
-		form_prompt_insert_relation->relation_mto1_to_one_list =
-			relation_mto1_to_one_list(
-				role_name,
-				form_prompt_insert_relation->relation_mto1 );
-
 		form_prompt_insert_relation->ajax_client =
 			/* --------------------------------- */
 			/* Returns null if not participating */
@@ -1541,7 +1546,7 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 				form_prompt_insert_relation->
 					relation_mto1,
 				form_prompt_insert_relation->
-					relation_mto1_to_one_list,
+					relation_mto1_to_one_fetch_list,
 				1 /* top_select_boolean */ );
 	}
 
@@ -1601,19 +1606,6 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 					relation_name
 					/* widget_name */ ) ) );
 
-	one_folder_relation_mto1_list =
-		relation_mto1_list(
-			role_name,
-			form_prompt_insert_relation->
-				relation_mto1->
-				one_folder_name
-					/* many_folder_name */,
-			form_prompt_insert_relation->
-				relation_mto1->
-				one_folder->
-				folder_attribute_primary_key_list
-				/* many_folder_primary_key_list */ );
-
 	form_prompt_insert_relation->query_drop_down =
 		/* -------------- */
 		/* Safely returns */
@@ -1634,9 +1626,10 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 				relation_mto1->
 				one_folder->
 				populate_drop_down_process_name,
-			one_folder_relation_mto1_list,
+			form_prompt_insert_relation->
+				relation_mto1_to_one_fetch_list,
 			drillthru_dictionary
-				/* process_command_line_dictionary */,
+				/* drop_down_dictionary */,
 			security_entity );
 
 	form_prompt_insert_relation->

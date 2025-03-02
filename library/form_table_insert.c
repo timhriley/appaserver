@@ -2047,8 +2047,11 @@ AJAX_CLIENT *form_table_insert_relation_ajax_client(
 	/* --------------------------------- */
 	ajax_client_relation_mto1_new(
 		relation_mto1,
-		relation_mto1_to_one_list(
+		relation_mto1_to_one_fetch_list(
 			role_name,
-			relation_mto1 ),
+			relation_mto1->one_folder_name,
+			relation_mto1->
+				one_folder->
+				folder_attribute_primary_key_list ),
 		1 /* top_select_boolean */ );
 }

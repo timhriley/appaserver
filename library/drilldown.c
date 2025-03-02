@@ -1660,35 +1660,10 @@ LIST *drilldown_relation_mto1_list(
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list )
 {
-	LIST *mto1_list = list_new();
-	RELATION_MTO1 *relation_mto1;
-
-	if ( list_rewind( relation_mto1_list ) )
-	do {
-		relation_mto1 = list_get( relation_mto1_list );
-
-		list_set( mto1_list, relation_mto1 );
-
-	} while ( list_next( relation_mto1_list ) );
-
-
-	if ( list_rewind( relation_mto1_isa_list ) )
-	do {
-		relation_mto1 = list_get( relation_mto1_isa_list );
-
-		list_set_list(
-			mto1_list,
-			relation_mto1->relation_mto1_list );
-
-	} while ( list_next( relation_mto1_isa_list ) );
-
-	if ( !list_length( mto1_list ) )
-	{
-		list_free( mto1_list );
-		mto1_list = NULL;
-	}
-
-	return mto1_list;
+	return
+	relation_mto1_to_one_list(
+		relation_mto1_list,
+		relation_mto1_isa_list );
 }
 
 char *drilldown_input_post_table_edit_folder_name(

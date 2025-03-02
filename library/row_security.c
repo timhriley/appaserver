@@ -550,17 +550,22 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 		goto row_security_relation_heading_set;
 	}
 
+	row_security_relation->relation_mto1_to_one_fetch_list =
+		relation_mto1_to_one_fetch_list(
+			role_name,
+			row_security_relation->
+				relation_mto1->
+				one_folder_name,
+			row_security_relation->
+				relation_mto1->
+				one_folder->
+				folder_attribute_primary_key_list );
+
 	if ( !row_security_relation->
 		relation_mto1->
 		relation->
 		omit_ajax_fill_drop_down )
 	{
-		row_security_relation->relation_mto1_to_one_list =
-			relation_mto1_to_one_list(
-				role_name,
-				row_security_relation->
-					relation_mto1 );
-
 		row_security_relation->ajax_client =
 			/* --------------------------------- */
 			/* Returns null if not participating */
@@ -568,7 +573,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 			ajax_client_relation_mto1_new(
 				row_security_relation->relation_mto1,
 				row_security_relation->
-					relation_mto1_to_one_list,
+					relation_mto1_to_one_fetch_list,
 				0 /* not top_select_boolean */ );
 	}
  
@@ -612,7 +617,7 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 				one_folder->
 				populate_drop_down_process_name,
 			row_security_relation->
-				relation_mto1_to_one_list,
+				relation_mto1_to_one_fetch_list,
 			drop_down_dictionary,
 			(SECURITY_ENTITY *)0 /* security_entity */ );
 

@@ -153,9 +153,10 @@ char *relation_mto1_list_display(
 
 /* Usage */
 /* ----- */
-LIST *relation_mto1_to_one_list(
+LIST *relation_mto1_to_one_fetch_list(
 		char *role_name,
-		RELATION_MTO1 *relation_mto1 );
+		char *one_folder_name,
+		LIST *one_folder_primary_key_list );
 
 /* Usage */
 /* ----- */
@@ -166,6 +167,12 @@ LIST *relation_mto1_without_omit_drillthru_list(
 /* ----- */
 LIST *relation_mto1_without_trigger_insert_update_list(
 		LIST *relation_mto1_list );
+
+/* Usage */
+/* ----- */
+LIST *relation_mto1_to_one_list(
+		LIST *relation_mto1_list,
+		LIST *relation_mto1_isa_list );
 
 #endif
 

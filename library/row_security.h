@@ -120,7 +120,7 @@ boolean row_security_attribute_non_edit_boolean(
 typedef struct
 {
 	RELATION_MTO1 *relation_mto1;
-	LIST *relation_mto1_to_one_list;
+	LIST *relation_mto1_to_one_fetch_list;
 	QUERY_DROP_DOWN *query_drop_down;
 	boolean viewonly_boolean;
 	AJAX_CLIENT *ajax_client;
