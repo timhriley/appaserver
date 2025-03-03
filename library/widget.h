@@ -1269,8 +1269,8 @@ char *widget_upload_prompt_frame_html_string(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *widget_upload_edit_frame_html(
 		char *application_name,
 		char *session_key,

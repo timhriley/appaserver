@@ -1989,6 +1989,16 @@ char *string_unescape_character(
 {
 	char *anchor = destination;
 
+	if ( !destination )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: destination is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !datum )
 	{
 		*destination = '\0';

@@ -8,10 +8,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include "String.h"
 #include "appaserver_error.h"
 #include "appaserver_user.h"
 #include "appaserver_parameter.h"
 #include "environ.h"
+#include "security.h"
 #include "post_dictionary.h"
 #include "drilldown.h"
 
@@ -79,7 +81,10 @@ int main( int argc, char **argv )
 			role_name,
 			drilldown_base_folder_name,
 			target_frame,
-			primary_data_list_string,
+			string_unescape_character(
+				primary_data_list_string /* destination */,
+				primary_data_list_string /* datum */,
+				'^' ),
 			update_results_string,
 			update_error_string,
 			post_dictionary->original_post_dictionary,

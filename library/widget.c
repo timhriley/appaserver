@@ -3918,7 +3918,7 @@ char *widget_upload_edit_frame_html(
 			query_cell_list,
 			widget_name );
 
-	if ( !container_value ) return NULL;
+	if ( !container_value || !*container_value ) return strdup( "" );
 
 	filespecification =
 		/* --------------------- */
@@ -3932,6 +3932,9 @@ char *widget_upload_edit_frame_html(
 	if ( !file_exists_boolean( filespecification ) )
 	{
 		return
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		widget_non_edit_text_html_string(
 			widget_name,
 			1 /* no_initial_capital_boolean */,
@@ -4010,7 +4013,6 @@ char *widget_upload_edit_frame_html_string(
 
 	return strdup( html );
 }
-
 
 char *widget_upload_hypertext(
 		char *application_name,
@@ -4274,9 +4276,9 @@ char *widget_container_upload_html(
 		}
 
 		return
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
+		/* ------------------------ */
+		/* Returns heap memory null */
+		/* ------------------------ */
 		widget_upload_edit_frame_html(
 			widget_upload->application_name,
 			widget_upload->session_key,

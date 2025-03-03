@@ -988,7 +988,8 @@ char *table_edit_row_html(
 			message );
 	}
 
-	ptr += sprintf( ptr, "%s", html );
+	if ( html ) ptr += sprintf( ptr, "%s", html );
+
 	free( html );
 
 	return strdup( row_html );
@@ -1268,7 +1269,8 @@ void table_edit_output_row_list_hidden(
 				(char *)0 /* form_background_color */,
 				1 /* hidden_only */ );
 
-		printf( "%s\n", html );
+		if ( *html ) printf( "%s\n", html );
+
 		free( html );
 
 	} while ( list_next( query_fetch_row_list ) );

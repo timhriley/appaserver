@@ -74,8 +74,6 @@ typedef struct
 {
 	char *one_folder_name;
 	LIST *attribute_data_list;
-	DICTIONARY *drilldown_query_dictionary;
-	DICTIONARY *drilldown_original_post_dictionary;
 	TABLE_EDIT *table_edit;
 } DRILLDOWN_MANY_TO_ONE;
 
@@ -91,6 +89,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
 		pid_t process_id,
+		DICTIONARY *drilldown_original_post_dictionary,
 		char *one_folder_name,
 		LIST *relation_translate_list,
 		LIST *one_folder_primary_key_list,
@@ -114,8 +113,6 @@ LIST *drilldown_many_to_one_attribute_data_list(
 typedef struct
 {
 	char *relation_many_folder_name;
-	DICTIONARY *drilldown_query_dictionary;
-	DICTIONARY *original_post_dictionary;
 	TABLE_EDIT *table_edit;
 } DRILLDOWN_ONE_TO_MANY;
 
@@ -130,12 +127,9 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 		char *target_frame,
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
-		DICTIONARY *sort_dictionary,
-		char *post_table_edit_folder_name,
-		LIST *primary_attribute_data_list,
 		pid_t process_id,
-		char *relation_many_folder_name,
-		LIST *relation_foreign_key_list );
+		DICTIONARY *drilldown_original_post_dictionary,
+		char *relation_many_folder_name );
 
 /* Process */
 /* ------- */
@@ -155,8 +149,6 @@ DICTIONARY *drilldown_one_to_many_original_post_dictionary(
 
 typedef struct
 {
-	DICTIONARY *drilldown_query_dictionary;
-	DICTIONARY *original_post_dictionary;
 	TABLE_EDIT *table_edit;
 } DRILLDOWN_PRIMARY;
 
@@ -174,24 +166,13 @@ DRILLDOWN_PRIMARY *drilldown_primary_new(
 		char *target_frame,
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
-		LIST *folder_attribute_primary_key_list,
-		DICTIONARY *no_display_dictionary,
-		DICTIONARY *query_dictionary,
-		LIST *primary_attribute_data_list,
-		pid_t process_id );
+		pid_t process_id,
+		DICTIONARY *drilldown_original_post_dictionary );
 
 /* Process */
 /* ------- */
 DRILLDOWN_PRIMARY *drilldown_primary_calloc(
 		void );
-
-/* Safely returns */
-/* -------------- */
-DICTIONARY *drilldown_primary_original_post_dictionary(
-		const char *dictionary_separate_no_display_prefix,
-		const char *dictionary_separate_query_prefix,
-		DICTIONARY *no_display_dictionary,
-		DICTIONARY *drilldown_query_dictionary );
 
 typedef struct
 {
@@ -270,9 +251,12 @@ typedef struct
 {
 	SESSION_FOLDER *session_folder;
 	DRILLDOWN_INPUT *drilldown_input;
+	DICTIONARY *query_dictionary;
+	DICTIONARY *original_post_dictionary;
 	DRILLDOWN_PRIMARY *drilldown_primary;
 	LIST *drilldown_one_to_many_list;
 	LIST *relation_mto1_list;
+	LIST *relation_mto1_to_one_list;
 	LIST *drilldown_many_to_one_list;
 	DRILLDOWN_DOCUMENT *drilldown_document;
 } DRILLDOWN;
@@ -302,10 +286,6 @@ DRILLDOWN *drilldown_new(
 DRILLDOWN *drilldown_calloc(
 		void );
 
-LIST *drilldown_relation_mto1_list(
-		LIST *relation_mto1_list,
-		LIST *relation_mto1_isa_list );
-
 /* Usage */
 /* ------ */
 
@@ -324,5 +304,13 @@ void drilldown_table_edit_output(
 		const char *appaserver_user_primary_key,
 		char *login_name,
 		TABLE_EDIT *table_edit );
+
+/* Safely returns */
+/* -------------- */
+DICTIONARY *drilldown_original_post_dictionary(
+		const char *dictionary_separate_no_display_prefix,
+		const char *dictionary_separate_query_prefix,
+		DICTIONARY *no_display_dictionary,
+		DICTIONARY *drilldown_query_dictionary );
 
 #endif

@@ -34,13 +34,13 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
 		pid_t process_id,
+		DICTIONARY *drilldown_original_post_dictionary,
 		char *one_folder_name,
 		LIST *relation_translate_list,
 		LIST *one_folder_primary_key_list,
 		DICTIONARY *query_fetch_dictionary )
 {
 	DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one;
-	DICTIONARY *original_post_dictionary;
 
 	if ( !application_name
 	||   !session_key
@@ -86,24 +86,6 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		return NULL;
 	}
 
-	drilldown_many_to_one->drilldown_query_dictionary =
-		/* ---------------------------------------------- */
-		/* Returns query_dictionary or dictionary_small() */
-		/* ---------------------------------------------- */
-		drilldown_query_dictionary(
-			QUERY_RELATION_OPERATOR_PREFIX,
-			QUERY_EQUAL,
-			(DICTIONARY *)0 /* query_dictionary */,
-			one_folder_primary_key_list,
-			drilldown_many_to_one->attribute_data_list );
-
-	original_post_dictionary = dictionary_small();
-
-	dictionary_prefixed_dictionary_set(
-		original_post_dictionary,
-		DICTIONARY_SEPARATE_QUERY_PREFIX,
-		drilldown_many_to_one->drilldown_query_dictionary );
-
 	drilldown_many_to_one->table_edit =
 		table_edit_new(
 			application_name,
@@ -116,7 +98,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 			(char *)0 /* results_string */,
 			(char *)0 /* error_string */,
 			0 /* not application_menu_horizontal_boolean */,
-			original_post_dictionary,
+			drilldown_original_post_dictionary,
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
@@ -165,12 +147,9 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 		char *target_frame,
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
-		DICTIONARY *sort_dictionary,
-		char *post_table_edit_folder_name,
-		LIST *primary_attribute_data_list,
 		pid_t process_id,
-		char *relation_many_folder_name,
-		LIST *relation_foreign_key_list )
+		DICTIONARY *drilldown_original_post_dictionary,
+		char *relation_many_folder_name )
 {
 	DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many;
 
@@ -182,10 +161,8 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 	||   !target_frame
 	||   !drilldown_primary_data_list_string
 	||   !data_directory
-	||   !list_length( primary_attribute_data_list )
 	||   !process_id
-	||   !relation_many_folder_name
-	||   !list_length( relation_foreign_key_list ) )
+	||   !relation_many_folder_name )
 	{
 		char message[ 128 ];
 
@@ -203,27 +180,6 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 	drilldown_one_to_many->relation_many_folder_name =
 		relation_many_folder_name;
 
-	drilldown_one_to_many->drilldown_query_dictionary =
-		/* ---------------------------------------------- */
-		/* Returns query_dictionary or dictionary_small() */
-		/* ---------------------------------------------- */
-		drilldown_query_dictionary(
-			QUERY_RELATION_OPERATOR_PREFIX,
-			QUERY_EQUAL,
-			(DICTIONARY *)0 /* query_dictionary */,
-			relation_foreign_key_list,
-			primary_attribute_data_list );
-
-	drilldown_one_to_many->original_post_dictionary =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		drilldown_one_to_many_original_post_dictionary(
-			sort_dictionary,
-			post_table_edit_folder_name,
-			relation_many_folder_name,
-			drilldown_one_to_many->drilldown_query_dictionary );
-
 	drilldown_one_to_many->table_edit =
 		table_edit_new(
 			application_name,
@@ -236,7 +192,7 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 			(char *)0 /* results_string */,
 			(char *)0 /* error_string */,
 			0 /* not application_menu_horizontal_boolean */,
-			drilldown_one_to_many->original_post_dictionary,
+			drilldown_original_post_dictionary,
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
@@ -284,11 +240,8 @@ DRILLDOWN_PRIMARY *drilldown_primary_new(
 		char *target_frame,
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
-		LIST *folder_attribute_primary_key_list,
-		DICTIONARY *no_display_dictionary,
-		DICTIONARY *query_dictionary,
-		LIST *primary_attribute_data_list,
-		pid_t process_id )
+		pid_t process_id,
+		DICTIONARY *original_post_dictionary )
 {
 	DRILLDOWN_PRIMARY *drilldown_primary;
 
@@ -300,8 +253,6 @@ DRILLDOWN_PRIMARY *drilldown_primary_new(
 	||   !target_frame
 	||   !drilldown_primary_data_list_string
 	||   !data_directory
-	||   !list_length( folder_attribute_primary_key_list )
-	||   !list_length( primary_attribute_data_list )
 	||   !process_id )
 	{
 		char message[ 128 ];
@@ -317,27 +268,6 @@ DRILLDOWN_PRIMARY *drilldown_primary_new(
 
 	drilldown_primary = drilldown_primary_calloc();
 
-	drilldown_primary->drilldown_query_dictionary =
-		/* ---------------------------------------------- */
-		/* Returns query_dictionary or dictionary_small() */
-		/* ---------------------------------------------- */
-		drilldown_query_dictionary(
-			QUERY_RELATION_OPERATOR_PREFIX,
-			QUERY_EQUAL,
-			query_dictionary,
-			folder_attribute_primary_key_list,
-			primary_attribute_data_list );
-
-	drilldown_primary->original_post_dictionary =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
-		drilldown_primary_original_post_dictionary(
-			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
-			DICTIONARY_SEPARATE_QUERY_PREFIX,
-			no_display_dictionary,
-			drilldown_primary->drilldown_query_dictionary );
-
 	drilldown_primary->table_edit =
 		table_edit_new(
 			application_name,
@@ -350,7 +280,7 @@ DRILLDOWN_PRIMARY *drilldown_primary_new(
 			(char *)0 /* results_string */,
 			(char *)0 /* error_string */,
 			0 /* not application_menu_horizontal_boolean */,
-			drilldown_primary->original_post_dictionary,
+			original_post_dictionary,
 			data_directory,
 			drilldown_base_folder_name,
 			drilldown_primary_data_list_string,
@@ -469,6 +399,38 @@ DRILLDOWN *drilldown_new(
 			data_directory,
 			original_post_dictionary );
 
+	drilldown->query_dictionary =
+		/* ---------------------------------------------- */
+		/* Returns query_dictionary or dictionary_small() */
+		/* ---------------------------------------------- */
+		drilldown_query_dictionary(
+			QUERY_RELATION_OPERATOR_PREFIX,
+			QUERY_EQUAL,
+			drilldown->
+				drilldown_input->
+				dictionary_separate->
+				query_dictionary,
+			drilldown->
+				drilldown_input->
+				folder->
+				folder_attribute_primary_key_list,
+			drilldown->
+				drilldown_input->
+				primary_attribute_data_list );
+
+	drilldown->original_post_dictionary =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		drilldown_original_post_dictionary(
+			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
+			DICTIONARY_SEPARATE_QUERY_PREFIX,
+			drilldown->
+				drilldown_input->
+				dictionary_separate->
+				no_display_dictionary,
+			drilldown->query_dictionary );
+
 	drilldown->drilldown_primary =
 		/* -------------- */
 		/* Safely returns */
@@ -484,22 +446,8 @@ DRILLDOWN *drilldown_new(
 			data_directory,
 			drilldown->
 				drilldown_input->
-				folder->
-				folder_attribute_primary_key_list,
-			drilldown->
-				drilldown_input->
-				dictionary_separate->
-				no_display_dictionary,
-			drilldown->
-				drilldown_input->
-				dictionary_separate->
-				query_dictionary,
-			drilldown->
-				drilldown_input->
-				primary_attribute_data_list,
-			drilldown->
-				drilldown_input->
-				process_id );
+				process_id,
+			drilldown->original_post_dictionary );
 
 	if ( list_rewind( drilldown->drilldown_input->relation_one2m_list ) )
 	{
@@ -544,20 +492,9 @@ DRILLDOWN *drilldown_new(
 					data_directory,
 					drilldown->
 						drilldown_input->
-						dictionary_separate->
-						sort_dictionary,
-					drilldown->
-						drilldown_input->
-						post_table_edit_folder_name,
-					drilldown->
-						drilldown_input->
-						primary_attribute_data_list,
-					drilldown->
-						drilldown_input->
 						process_id,
-					relation_one2m->many_folder_name,
-					relation_one2m->
-						relation_foreign_key_list );
+					drilldown->original_post_dictionary,
+					relation_one2m->many_folder_name );
 
 			if ( drilldown_one_to_many )
 			{
@@ -572,12 +509,12 @@ DRILLDOWN *drilldown_new(
 					relation_one2m_list ) );
 	}
 
-	drilldown->relation_mto1_list =
-		drilldown_relation_mto1_list(
+	drilldown->relation_mto1_to_one_list =
+		relation_mto1_to_one_list(
 			drilldown->drilldown_input->relation_mto1_list,
 			drilldown->drilldown_input->relation_mto1_isa_list );
 
-	if ( list_rewind( drilldown->relation_mto1_list ) )
+	if ( list_rewind( drilldown->relation_mto1_to_one_list ) )
 	{
 		DICTIONARY *fetch_dictionary;
 		RELATION_MTO1 *relation_mto1;
@@ -616,7 +553,7 @@ DRILLDOWN *drilldown_new(
 			relation_mto1 =
 				list_get(
 					drilldown->
-						relation_mto1_list );
+						relation_mto1_to_one_list );
 
 			if ( !list_length(
 				relation_mto1->
@@ -652,6 +589,7 @@ DRILLDOWN *drilldown_new(
 					drilldown->
 						drilldown_input->
 						process_id,
+					drilldown->original_post_dictionary,
 					relation_mto1->one_folder_name,
 					relation_mto1->relation_translate_list,
 					relation_mto1->
@@ -668,7 +606,7 @@ DRILLDOWN *drilldown_new(
 
 		} while ( list_next(
 				drilldown->
-					relation_mto1_list ) );
+					relation_mto1_to_one_list ) );
 	}
 
 drilldown_document:
@@ -1136,7 +1074,7 @@ DRILLDOWN_DOCUMENT *drilldown_document_new(
 		drilldown_document_update_results_string(
 			update_results_string );
 
-	if ( update_error_string )
+	if ( update_error_string && *update_error_string )
 	{
 		update_results_string = (char *)0;
 	}
@@ -1548,14 +1486,29 @@ DICTIONARY *drilldown_query_dictionary(
 
 	if ( list_length( key_list ) != list_length( attribute_data_list ) )
 	{
-		char message[ 1024 ];
+		char message[ 2048 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 "cannot map: key_list=[%s] having length=%d with attribute_data_list=[%s] having length=%d",
 			list_display( key_list ),
 			list_length( key_list ),
 			list_display( attribute_data_list ),
 			list_length( attribute_data_list ) );
+
+		appaserver_error_warning(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"query_dictionary=[%s]",
+			dictionary_display(
+				dictionary_separate_query_dictionary ) );
 
 		appaserver_error_warning(
 			__FILE__,
@@ -1658,16 +1611,6 @@ LIST *drilldown_document_ajax_client_list(
 	return ajax_client_list;
 }
 
-LIST *drilldown_relation_mto1_list(
-		LIST *relation_mto1_list,
-		LIST *relation_mto1_isa_list )
-{
-	return
-	relation_mto1_to_one_list(
-		relation_mto1_list,
-		relation_mto1_isa_list );
-}
-
 char *drilldown_input_post_table_edit_folder_name(
 		const char *post_table_edit_folder_label,
 		DICTIONARY *non_prefixed_dictionary )
@@ -1681,7 +1624,7 @@ char *drilldown_input_post_table_edit_folder_name(
 		non_prefixed_dictionary );
 }
 
-DICTIONARY *drilldown_primary_original_post_dictionary(
+DICTIONARY *drilldown_original_post_dictionary(
 		const char *dictionary_separate_no_display_prefix,
 		const char *dictionary_separate_query_prefix,
 		DICTIONARY *no_display_dictionary,

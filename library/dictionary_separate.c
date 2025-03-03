@@ -871,8 +871,8 @@ char *dictionary_separate_send_string( DICTIONARY *send_dictionary )
 }
 
 char *dictionary_separate_hidden_html(
-			char *prefix,
-			DICTIONARY *dictionary )
+		char *prefix,
+		DICTIONARY *dictionary )
 {
 	char html[ STRING_64K ];
 	char *ptr = html;
@@ -916,7 +916,7 @@ char *dictionary_separate_hidden_html(
 
 		ptr += sprintf(
 			ptr,
-			"%s\n",
+			"%s",
 			( tmp =
 				/* Returns heap memory */
 				/* ------------------- */
