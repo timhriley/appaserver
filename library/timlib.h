@@ -165,38 +165,39 @@ char *delete_str( char *string, int start, int num_chars );
 char *insert_str( char *sub, char *string, int pos );
 
 char *search_replace_word(
-			char *source_destination,
-			char *search_str, 
-			char *replace_str );
+		char *source_destination,
+		char *search_str, 
+		char *replace_str );
 
-char *search_replace( 	char *search_str, 
-			char *replace_str,
-			char *source_destination );
+char *search_replace( 
+		char *search_str, 
+		char *replace_str,
+		char *source_destination );
 
 char *search_replace_character(
-			char *source_destination,
-			char search_character, 
-			char replace_character );
+		char *source_destination,
+		char search_character, 
+		char replace_character );
 
 char *search_replace_string(
-			char *source_destination,
-			char *search_str, 
-			char *replace_str );
+		char *source_destination,
+		char *search_str, 
+		char *replace_str );
 
 char *search_replace_strict_case_once(
-			char *source_destination,
-			boolean *made_replace,
-			char *search_str, 
-			char *replace_str );
+		char *source_destination,
+		boolean *made_replace,
+		char *search_str, 
+		char *replace_str );
 
 char *search_replace_once(
-			char *source_destination,
-			char *search_str, 
-			char *replace_str );
+		char *source_destination,
+		char *search_str, 
+		char *replace_str );
 
 char *timlib_delete_character(
-			char *source_destination,
-			char character );
+		char *source_destination,
+		char character );
 
 char *skip_words( char *source, int number_words );
 

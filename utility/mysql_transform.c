@@ -10,6 +10,9 @@
 #include "String.h"
 #include "timlib.h"
 
+void mysql_remove_spaces(
+		char *buffer /* in/out */ );
+
 void mysql_escape_delimiter(
 		char delimiter,
 		char *buffer /* in/out */ );
@@ -44,6 +47,9 @@ int main( int argc, char **argv )
 			printf( "\n" );
 			continue;
 		}
+
+		mysql_remove_spaces(
+			buffer /* in/out */ );
 
 		mysql_escape_delimiter(
 			delimiter,
@@ -163,7 +169,48 @@ void mysql_tab_to_delimiter(
 {
 	(void)string_search_replace_character(
 		buffer /* source_destination */,
-		9 /* search_character */,
+		STRING_TAB /* search_character */,
 		delimiter /* replace_character */ );
 }
 
+void mysql_remove_spaces( char *buffer /* in/out */ )
+{
+	char substring[ 3 ];
+	char tabstring[ 2 ];
+
+	/* Trims leading and trailing spaces */
+	/* --------------------------------- */
+	(void)string_trim( buffer );
+
+	sprintf(tabstring,
+		"%c",
+		STRING_TAB );
+
+	/* Trim leading spaces for each field. */
+	/* ----------------------------------- */
+	sprintf(substring,
+		" %c",
+		STRING_TAB );
+
+	while ( string_exists( buffer, substring ) )
+	{
+		(void)string_search_replace(
+			buffer /* source_destination */,
+			substring /* search_string */,
+			tabstring /* replace_string */ );
+	}
+
+	/* Trim trailing spaces for each field. */
+	/* ------------------------------------ */
+	sprintf(substring,
+		"%c ",
+		STRING_TAB );
+
+	while ( string_exists( buffer, substring ) )
+	{
+		(void)string_search_replace(
+			buffer /* source_destination */,
+			substring /* search_string */,
+			tabstring /* replace_string */ );
+	}
+}

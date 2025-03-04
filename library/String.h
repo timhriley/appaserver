@@ -12,6 +12,7 @@
 
 #define STRING_LF			10
 #define STRING_CR			13
+#define STRING_TAB			9
 #define STRING_1K			1024
 #define STRING_2K			2048
 #define STRING_4K			4096
@@ -347,6 +348,8 @@ char *string_in_clause(
 int string_length(
 		char *string );
 
+/* Trims leading and trailing spaces */
+/* --------------------------------- */
 char *string_trim(
 		char *buffer );
 
