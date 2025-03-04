@@ -4603,10 +4603,18 @@ WIDGET_DROP_DOWN *widget_drop_down_calloc( void )
 
 boolean widget_date_calendar_boolean(
 		char *datatype_name,
-		char *state )
+		char *state,
+		char *widget_container_value )
 {
 	if ( attribute_is_current_date_time( datatype_name )
 	&&   string_strcmp( state, APPASERVER_INSERT_STATE ) == 0 )
+	{
+		return 0;
+	}
+
+	if ( attribute_is_date_time( datatype_name )
+	&&   widget_container_value
+	&&   *widget_container_value )
 	{
 		return 0;
 	}
@@ -4699,7 +4707,8 @@ char *widget_date_html(
 
 	if ( widget_date_calendar_boolean(
 		datatype_name,
-		state ) )
+		state,
+		container_value ) )
 	{
 		if ( !user_date_format_string )
 		{

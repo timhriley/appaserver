@@ -960,7 +960,8 @@ WIDGET_DATE *widget_date_calloc(
 /* ----- */
 boolean widget_date_calendar_boolean(
 		char *datatype_name,
-		char *state );
+		char *state,
+		char *widget_container_value );
 
 /* Usage */
 /* ----- */
