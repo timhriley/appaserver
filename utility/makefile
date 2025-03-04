@@ -239,7 +239,7 @@ all: 	insert_statement.e						\
 	pivot_table.e							\
 	search_replace_character_limited.e				\
 	search_replace_string.e						\
-	mysql_remove_null.e						\
+	mysql_transform.e						\
 	filename_date_older.e						\
 	in_clause.e							\
 	real_time2annual_period.e					\
@@ -1121,12 +1121,12 @@ search_replace_string.e: search_replace_string.c
 		${STANDARD_LIBRARY}					\
 		-o search_replace_string.e
 
-mysql_remove_null.e: mysql_remove_null.c
+mysql_transform.e: mysql_transform.c
 	$(CC) 	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
-		mysql_remove_null.c		 			\
+		mysql_transform.c		 			\
 		${STANDARD_LIBRARY}					\
-		-o mysql_remove_null.e
+		-o mysql_transform.e
 
 count.e: count.c
 	$(CC) 	${CFLAGS} -I${LIBRARY} count.c 				\
