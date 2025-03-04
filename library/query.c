@@ -156,6 +156,7 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 	}
 
 	query_drop_down_row = query_drop_down_row_calloc();
+
 	query_drop_down_row->data_list_string = data_list_string;
 	query_drop_down_row->query_drop_down_datum_list = list_new();
 
@@ -166,11 +167,12 @@ QUERY_DROP_DOWN_ROW *query_drop_down_row_new(
 				p++ ) )
 		{
 			fprintf(stderr,
-			"ERROR in %s/%s()/%d: piece(%s) returned empty.\n",
+			"ERROR in %s/%s()/%d: piece(%s,%d) returned empty.\n",
 				__FILE__,
 				__FUNCTION__,
 				__LINE__,
-				data_list_string );
+				data_list_string,
+				p - 1 );
 			exit( 1 );
 		}
 

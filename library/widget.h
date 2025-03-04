@@ -834,6 +834,7 @@ typedef struct
 	/* -------------- */
 	int attribute_size;
 	boolean null_to_slash;
+	boolean prevent_carrot_boolean;
 	char *post_change_javascript;
 	int tab_order;
 } WIDGET_NOTEPAD;
@@ -857,6 +858,7 @@ char *widget_notepad_html(
 		char *widget_name,
 		int attribute_size,
 		boolean null_to_slash,
+		boolean prevent_carrot_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *state,
@@ -877,7 +879,11 @@ char *widget_notepad_html_string(
 		int attribute_size,
 		int widget_notepad_columns,
 		int widget_notepad_rows,
-		char *widget_change_replace_javascript );
+		char *widget_change_replace_javascript,
+		/* --------------------- */
+		/* Expect program memory */
+		/* --------------------- */
+		char *widget_text_prevent_carrot_javascript );
 
 typedef struct
 {
@@ -1048,6 +1054,7 @@ typedef struct
 	int widget_text_display_size;
 	int attribute_width_max_length;
 	boolean null_to_slash;
+	boolean prevent_carrot_boolean;
 	char *post_change_javascript;
 	int tab_order;
 	char *value_string;
@@ -1074,6 +1081,7 @@ char *widget_text_html(
 		int attribute_width_max_length,
 		int widget_text_display_size,
 		boolean null_to_slash,
+		boolean prevent_carrot_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *value_string,
@@ -1097,6 +1105,11 @@ char *widget_change_replace_javascript(
 boolean widget_text_autocomplete_off(
 		char *widget_name );
 
+/* Returns program memory */
+/* ---------------------- */
+char *widget_text_prevent_carrot_javascript(
+		boolean prevent_carrot_boolean );
+
 /* Returns heap memory */
 /* ------------------- */
 char *widget_text_html_string(
@@ -1108,7 +1121,11 @@ char *widget_text_html_string(
 		char *widget_container_name,
 		char *widget_text_value_string,
 		char *widget_text_replace_javascript,
-		boolean widget_text_autocomplete_off );
+		boolean widget_text_autocomplete_off,
+		/* --------------------- */
+		/* Expect program memory */
+		/* --------------------- */
+		char *widget_text_prevent_carrot_javascript );
 
 /* Usage */
 /* ----- */

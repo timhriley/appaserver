@@ -13,7 +13,7 @@
 #include "appaserver_user.h"
 #include "appaserver_parameter.h"
 #include "environ.h"
-#include "security.h"
+#include "sql.h"
 #include "post_dictionary.h"
 #include "drilldown.h"
 
@@ -33,7 +33,7 @@ int main( int argc, char **argv )
 	DRILLDOWN *drilldown;
 	DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many;
 	DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one;
-	char buffer[ 128 ];
+	char buffer[ 1024 ];
 
 	application_name = environ_exit_application_name( argv[ 0 ] );
 
@@ -81,12 +81,10 @@ int main( int argc, char **argv )
 			role_name,
 			drilldown_base_folder_name,
 			target_frame,
-			/* ---------------------------- */
-			/* Returns heap memory or datum */
-			/* ---------------------------- */
-			security_sql_injection_unescape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
-				primary_data_list_string /* datum */ ),
+			string_unescape_character(
+				buffer,
+				primary_data_list_string /* datum */,
+				SQL_DELIMITER ),
 			update_results_string,
 			update_error_string,
 			post_dictionary->original_post_dictionary,

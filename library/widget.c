@@ -2441,7 +2441,11 @@ char *widget_text_html_string(
 		char *widget_container_name,
 		char *widget_text_value_string,
 		char *replace_on_change_javascript,
-		boolean autocomplete_off )
+		boolean autocomplete_off,
+		/* --------------------- */
+		/* Expect program memory */
+		/* --------------------- */
+		char *prevent_carrot_javascript )
 {
 	char html[ 1024 ];
 	char *ptr = html;
@@ -2516,11 +2520,10 @@ char *widget_text_html_string(
 			replace_on_change_javascript );
 	}
 
-/*
 	ptr += sprintf(
 		ptr,
-		" onKeyup=\"timlib_prevent_carrot(event,this)\"" );
-*/
+		"%s",
+		prevent_carrot_javascript );
 
 	if ( background_color )
 	{
@@ -2557,7 +2560,9 @@ WIDGET_TEXT *widget_text_new( char *widget_name )
 	}
 
 	widget_text = widget_text_calloc();
+
 	widget_text->widget_name = widget_name;
+	widget_text->prevent_carrot_boolean = 1;
 
 	return widget_text;
 }
@@ -2946,13 +2951,13 @@ char *widget_container_text_html(
 		int row_number,
 		LIST *query_cell_list,
 		char *background_color,
-		WIDGET_TEXT *text )
+		WIDGET_TEXT *widget_text )
 {
-	if ( !text )
+	if ( !widget_text )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "text is empty." );
+		sprintf(message, "widget_text is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2961,11 +2966,11 @@ char *widget_container_text_html(
 			message );
 	}
 
-	if ( !text->widget_name )
+	if ( !widget_text->widget_name )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "text->widget_name is empty." );
+		sprintf(message, "widget_text->widget_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2974,11 +2979,11 @@ char *widget_container_text_html(
 			message );
 	}
 
-	if ( !text->attribute_width_max_length )
+	if ( !widget_text->attribute_width_max_length )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "text->attribute_width_max_length is empty." );
+		sprintf(message, "attribute_width_max_length is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -2992,14 +2997,15 @@ char *widget_container_text_html(
 	/* Returns heap memory */
 	/* ------------------- */
 	widget_text_html(
-		text->widget_name,
-		text->attribute_width_max_length,
-		text->widget_text_display_size,
-		text->null_to_slash,
-		text->post_change_javascript,
-		text->tab_order,
-		text->value_string,
-		text->viewonly,
+		widget_text->widget_name,
+		widget_text->attribute_width_max_length,
+		widget_text->widget_text_display_size,
+		widget_text->null_to_slash,
+		widget_text->prevent_carrot_boolean,
+		widget_text->post_change_javascript,
+		widget_text->tab_order,
+		widget_text->value_string,
+		widget_text->viewonly,
 		state,
 		row_number,
 		query_cell_list,
@@ -3011,6 +3017,7 @@ char *widget_text_html(
 		int attribute_width_max_length,
 		int widget_text_display_size,
 		boolean null_to_slash,
+		boolean prevent_carrot_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *value_string,
@@ -3080,7 +3087,12 @@ char *widget_text_html(
 			container_name,
 			text_value_string,
 			replace_post_change_javascript,
-			autocomplete_off );
+			autocomplete_off,
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			widget_text_prevent_carrot_javascript(
+				prevent_carrot_boolean ) );
 
 	if ( replace_post_change_javascript )
 		free( replace_post_change_javascript );
@@ -3292,6 +3304,7 @@ char *widget_notepad_html(
 		char *widget_name,
 		int attribute_size,
 		boolean null_to_slash,
+		boolean prevent_carrot_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *state,
@@ -3360,7 +3373,12 @@ char *widget_notepad_html(
 		attribute_size,
 		WIDGET_NOTEPAD_COLUMNS,
 		WIDGET_NOTEPAD_ROWS,
-		text_replace_on_change );
+		text_replace_on_change,
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		widget_text_prevent_carrot_javascript(
+			prevent_carrot_boolean ) );
 }
 
 char *widget_notepad_html_string(
@@ -3371,7 +3389,11 @@ char *widget_notepad_html_string(
 		int attribute_size,
 		int widget_notepad_columns,
 		int widget_notepad_rows,
-		char *widget_text_replace_javascript )
+		char *widget_text_replace_javascript,
+		/* --------------------- */
+		/* Expect program memory */
+		/* --------------------- */
+		char *prevent_carrot_javascript )
 {
 	char html[ STRING_256K ];
 	char *ptr = html;
@@ -3409,11 +3431,10 @@ char *widget_notepad_html_string(
 		" onblur=\"timlib_check_notepad_size(this, %d);\"",
 		attribute_size );
 
-/*
 	ptr += sprintf(
 		ptr,
-		" onkeyup=\"timlib_prevent_carrot(event,this)\"" );
-*/
+		"%s",
+		prevent_carrot_javascript );
 
 	if ( tab_order > 0 )
 	{
@@ -3477,7 +3498,9 @@ WIDGET_NOTEPAD *widget_notepad_new( char *widget_name )
 	}
 
 	widget_notepad = widget_notepad_calloc();
+
 	widget_notepad->widget_name = widget_name;
+	/* widget_notepad->prevent_carrot_boolean = 1; */
 
 	return widget_notepad;
 
@@ -3523,15 +3546,16 @@ char *widget_container_notepad_html(
 	/* Returns heap memory */
 	/* ------------------- */
 	widget_notepad_html(
-			notepad->widget_name,
-			notepad->attribute_size,
-			notepad->null_to_slash,
-			notepad->post_change_javascript,
-			notepad->tab_order,
-			state,
-			row_number,
-			query_cell_list,
-			background_color );
+		notepad->widget_name,
+		notepad->attribute_size,
+		notepad->null_to_slash,
+		notepad->prevent_carrot_boolean,
+		notepad->post_change_javascript,
+		notepad->tab_order,
+		state,
+		row_number,
+		query_cell_list,
+		background_color );
 }
 
 WIDGET_ENCRYPT *widget_encrypt_new( char *widget_name )
@@ -7778,6 +7802,7 @@ char *widget_password_html(
 		widget_text->attribute_width_max_length,
 		widget_text->widget_text_display_size,
 		widget_text->null_to_slash,
+		widget_text->prevent_carrot_boolean,
 		widget_text->post_change_javascript,
 		widget_text->tab_order,
 		value_string,
@@ -7848,5 +7873,18 @@ char *widget_drop_down_row_number_id(
 		row_number );
 
 	return row_number_id;
+}
+
+char *widget_text_prevent_carrot_javascript( boolean prevent_carrot_boolean )
+{
+	if ( prevent_carrot_boolean )
+	{
+		return
+		" onKeyup=\"timlib_prevent_carrot(event,this)\"\n";
+	}
+	else
+	{
+		return "";
+	}
 }
 

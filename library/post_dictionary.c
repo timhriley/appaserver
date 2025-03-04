@@ -1,3 +1,4 @@
+/* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/library/post_dictionary.c				*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
