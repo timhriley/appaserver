@@ -1498,9 +1498,9 @@ void table_edit_spool_file_cell_list_output(
 		LIST *cell_list )
 {
 	QUERY_CELL *query_cell;
+	char destination[ STRING_64K ];
 
-	if ( !list_rewind( cell_list ) ) return;
-
+	if ( list_rewind( cell_list ) )
 	do {
 		query_cell = list_get( cell_list );
 
@@ -1509,7 +1509,10 @@ void table_edit_spool_file_cell_list_output(
 			query_cell->attribute_name,
 			row_number,
 			SQL_DELIMITER,
-			query_cell->select_datum );
+			string_escape_character(
+				destination,
+				query_cell->select_datum,
+				SQL_DELIMITER ) );
 
 	} while ( list_next( cell_list ) );
 }

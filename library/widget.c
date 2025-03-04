@@ -2516,9 +2516,11 @@ char *widget_text_html_string(
 			replace_on_change_javascript );
 	}
 
+/*
 	ptr += sprintf(
 		ptr,
 		" onKeyup=\"timlib_prevent_carrot(event,this)\"" );
+*/
 
 	if ( background_color )
 	{
@@ -3407,9 +3409,11 @@ char *widget_notepad_html_string(
 		" onblur=\"timlib_check_notepad_size(this, %d);\"",
 		attribute_size );
 
+/*
 	ptr += sprintf(
 		ptr,
 		" onkeyup=\"timlib_prevent_carrot(event,this)\"" );
+*/
 
 	if ( tab_order > 0 )
 	{
