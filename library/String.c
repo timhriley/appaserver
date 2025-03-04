@@ -499,10 +499,11 @@ char *string_escape_character(
 	{
 		if ( *data == '\\' )
 		{
-			*destination++ = *data++;
 /*
+			*destination++ = *data++;
 			if ( *data ) *destination++ = *data++;
 */
+			data++;
 		}
 		else
 		if ( *data == character )
