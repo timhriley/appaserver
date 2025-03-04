@@ -839,15 +839,18 @@ char *dictionary_get(
 		char *key,
 		DICTIONARY *d )
 {
+	char *get;
 	int duplicate_indicator = 0;
 
 	if ( !key || !d ) return (char *)0;
 
-	return
+	get =
 	(char *)hash_table_retrieve_other_data( 
 		d->hash_table, 
 		key,
 		&duplicate_indicator );
+
+	return get;
 }
 
 char *dictionary_list_get(
@@ -1834,6 +1837,10 @@ void dictionary_output_with_prefix(
 				__FUNCTION__,
 				__LINE__,
 				message );
+
+			/* Stub */
+			/* ---- */
+			exit( 1 );
 		}
 
 		printf(	"%s%s=%s\n",
@@ -1866,39 +1873,37 @@ void dictionary_output_html_table(
 		printf( "<th>%s\n", heading2 );
 
 	if ( list_rewind( key_list ) )
-	{
-		do {
-			key = list_get( key_list );
+	do {
+		key = list_get( key_list );
 
-			data =
-				/* --------------------------------------- */
-				/* Returns component of dictionary or null */
-				/* --------------------------------------- */
-				(char *)dictionary_get(
-					key,
-					dictionary );
+		data =
+			/* --------------------------------------- */
+			/* Returns component of dictionary or null */
+			/* --------------------------------------- */
+			(char *)dictionary_get(
+				key,
+				dictionary );
 
-			/* Should always be true, but gcc warns otherwise. */
-			/* ----------------------------------------------- */
-			if ( data )
+		/* Should always be true, but gcc warns otherwise. */
+		/* ----------------------------------------------- */
+		if ( data )
+		{
+			printf( "<tr><td>%s</td>\n",
+				key );
+
+			if ( align_right )
 			{
-				printf( "<tr><td>%s</td>\n",
-					key );
-
-				if ( align_right )
-				{
-					printf( "<td align=right>%s</td>\n",
-					data );
-				}
-				else
-				{
-					printf( "<td>%s</td>\n",
-						data );
-				}
+				printf( "<td align=right>%s</td>\n",
+				data );
 			}
+			else
+			{
+				printf( "<td>%s</td>\n",
+					data );
+			}
+		}
+	} while( list_next( key_list ) );
 
-		} while( list_next( key_list ) );
-	}
 	printf( "</table>\n" );
 }
 

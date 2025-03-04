@@ -5,7 +5,7 @@
 # No warranty and freely available software. Visit appaserver.org
 # ---------------------------------------------------------------
 
-dir=`appaserver_error_directory`
+dir=`appaserver_log_directory`
 
 ls $dir/appaserver_*.err		|
 sed "s|^$dir/||"			|
