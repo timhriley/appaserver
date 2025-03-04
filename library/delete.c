@@ -358,10 +358,10 @@ char *delete_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			destination,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 DELETE_ROOT *delete_root_new(
@@ -1408,10 +1408,10 @@ char *delete_one2m_update_cell_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			destination,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 LIST *delete_one2m_update_cell_sql_statement_list(

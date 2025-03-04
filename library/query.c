@@ -7174,8 +7174,8 @@ char *query_drop_down_process_command_line(
 		char *appaserver_error_filename )
 {
 	char command_line[ STRING_WHERE_BUFFER ];
-	char destination[ STRING_WHERE_BUFFER ];
 	char *delimited;
+	char *escape_dollar;
 
 	if ( !process_command_line )
 	{
@@ -7275,21 +7275,33 @@ char *query_drop_down_process_command_line(
 		query_drop_down_where_string,
 		PROCESS_WHERE_PLACEHOLDER );
 
-	*destination = '\0';
-
-	string_escape_dollar(
-		destination,
-		command_line /* source */ );
+	escape_dollar =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		string_escape_dollar(
+			command_line /* source */ );
 
 	if ( appaserver_error_filename )
 	{
-		sprintf(
-			destination + strlen( destination ),
-			" 2>>%s",
+		char destination[ STRING_WHERE_BUFFER ];
+
+		snprintf(
+			destination,
+			sizeof ( destination ),
+			"%s 2>>%s",
+			escape_dollar,
 			appaserver_error_filename );
+
+		free( escape_dollar );
+
+		return strdup( destination );
+	}
+	else
+	{
+		return escape_dollar;
 	}
 
-	return strdup( destination );
 }
 
 QUERY_DICTIONARY *query_dictionary_fetch(

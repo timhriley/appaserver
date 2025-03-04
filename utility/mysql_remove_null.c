@@ -1,9 +1,13 @@
-/* utility/mysql_remove_null.c */
-/* ------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/mysql_remove_null.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "timlib.h"
 
 int main( int argc, char **argv )
@@ -24,7 +28,7 @@ int main( int argc, char **argv )
 
 	delimiter = *argv[ 1 ];
 
-	while( timlib_get_line( buffer, stdin, 65536 ) )
+	while( string_input( buffer, stdin, sizeof ( buffer ) ) )
 	{
 		if ( !*buffer )
 		{
@@ -45,7 +49,7 @@ int main( int argc, char **argv )
 			 "NULL%c",
 			 delimiter );
 
-		if ( timlib_strict_case_instr(
+		if ( string_strict_case_instr(
 			search_string,
 			buffer,
 			1 ) == 0 )
@@ -81,8 +85,8 @@ int main( int argc, char **argv )
 
 		str_len = strlen( search_string );
 
-		if ( timlib_strict_case_strcmp(
-			timlib_right_string(
+		if ( string_strict_case_strcmp(
+			string_right(
 				buffer,
 				str_len ),
 			search_string ) == 0 )
@@ -100,5 +104,4 @@ int main( int argc, char **argv )
 	}
 
 	return 0;
-
-} /* main() */
+}

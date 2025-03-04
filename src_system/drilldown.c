@@ -81,10 +81,12 @@ int main( int argc, char **argv )
 			role_name,
 			drilldown_base_folder_name,
 			target_frame,
-			string_unescape_character(
-				primary_data_list_string /* destination */,
-				primary_data_list_string /* datum */,
-				'^' ),
+			/* ---------------------------- */
+			/* Returns heap memory or datum */
+			/* ---------------------------- */
+			security_sql_injection_unescape(
+				SECURITY_ESCAPE_CHARACTER_STRING,
+				primary_data_list_string /* datum */ ),
 			update_results_string,
 			update_error_string,
 			post_dictionary->original_post_dictionary,

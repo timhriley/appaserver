@@ -1,15 +1,16 @@
-/* escape_character.c					 */
-/* ----------------------------------------------------- */
-/* Freely available software: see Appaserver.org	 */
-/* ----------------------------------------------------- */
- 
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/escape_character.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "timlib.h"
+#include "String.h"
  
 int main( int argc, char **argv )
 {
-	char input_buffer[ 65536 ];
+	char input_buffer[ STRING_64K ];
 	char *ptr;
 	char character;
 
@@ -21,7 +22,7 @@ int main( int argc, char **argv )
 
 	character = *argv[ 1 ];
 
-	while( get_line( input_buffer, stdin ) )
+	while( string_input( input_buffer, stdin, sizeof ( input_buffer ) ) )
 	{
 		for( ptr = input_buffer; *ptr; ptr++ )
 		{
@@ -30,5 +31,7 @@ int main( int argc, char **argv )
 		}
 		printf( "\n" );
 	}
+
+	return 0;
 }
  

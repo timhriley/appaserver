@@ -11,7 +11,7 @@
 #include "boolean.h"
 #include "list.h"
 
-#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=()"
+#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=()^"
 
 enum password_function	{	no_encryption,
 				old_password_function,

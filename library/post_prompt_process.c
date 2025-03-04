@@ -380,7 +380,6 @@ char *post_prompt_process_command_line(
 		char *appaserver_error_filename )
 {
 	char command_line[ STRING_16K ];
-	char destination[ STRING_16K ];
 	char *tmp;
 	char *execute_yn;
 
@@ -479,10 +478,10 @@ char *post_prompt_process_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			destination,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 char *post_prompt_process_name(

@@ -928,7 +928,6 @@ char *operation_row_checked_command_line(
 		LIST *primary_key_data_list )
 {
 	char command_line[ STRING_16K ];
-	char destination[ STRING_16K ];
 	char *tmp;
 
 	if ( !session_key
@@ -1050,10 +1049,10 @@ char *operation_row_checked_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			destination,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 char *operation_row_checked_execute(

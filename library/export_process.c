@@ -1168,8 +1168,8 @@ void export_process_output_populate_name(
 		"process,command_line";
 	char *populate_process;
 	char *command_line_fetch;
-	char buffer[ 1024 ];
 	char delimited_string[ 2048 ];
+	char *escape_dollar;
 	char *sql_statement;
 
 	if ( list_rewind( process_parameter_list ) )
@@ -1200,15 +1200,22 @@ void export_process_output_populate_name(
 			process_command_line_fetch(
 				populate_process /* process_name */ );
 
+		escape_dollar =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			string_escape_dollar(
+				command_line_fetch );
+
 		snprintf(
 			delimited_string,
 			sizeof ( delimited_string ),
 			"%s%c%s",
 			populate_process,
 			SQL_DELIMITER,
-			string_escape_dollar(
-				buffer,
-				command_line_fetch ) );
+			escape_dollar );
+
+		free( escape_dollar );
 
 		sql_statement =
 			/* ------------------- */

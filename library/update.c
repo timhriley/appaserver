@@ -1140,7 +1140,6 @@ char *update_command_line(
 		LIST *update_attribute_list )
 {
 	char command_line[ STRING_8K ];
-	char buffer[ STRING_8K ];
 	char preupdate_attribute_name[ 128 ];
 	UPDATE_ATTRIBUTE *update_attribute;
 
@@ -1238,8 +1237,10 @@ char *update_command_line(
 		string_with_space_search_replace(
 			command_line,
 			update_attribute->folder_attribute->attribute_name,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
 			string_double_quotes_around(
-				buffer,
 				update_attribute->post_datum ) );
 
 		if ( update_changed_boolean(
@@ -1258,8 +1259,10 @@ char *update_command_line(
 			string_with_space_search_replace(
 				command_line,
 				preupdate_attribute_name,
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				string_double_quotes_around(
-					buffer,
 					update_attribute->
 						file_datum ) );
 		}
@@ -1271,10 +1274,10 @@ char *update_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			buffer,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 char *update_command_line_list_execute( LIST *command_line_list )

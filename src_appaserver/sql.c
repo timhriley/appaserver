@@ -126,14 +126,19 @@ int main( int argc, char **argv )
 		exit( 1 );
 	}
 
-	sprintf( null_string_filter,
+	snprintf(
+		null_string_filter,
+		sizeof ( null_string_filter ),
 		 "mysql_remove_null.e '%c'",
 		 delimiter );
 
 	if ( appaserver_parameter->mysql_password_syntax )
 	{
-		sprintf( system_string,
+		snprintf(
+		system_string,
+		sizeof ( system_string ),
 "mysql --defaults-extra-file=%s %s -u%s %s %s		|"
+"escape_character.e '%c'				|"
 "tr '\011' '%c'						|"
 "%s							 ",
 	 	appaserver_parameter->filename,
@@ -142,16 +147,20 @@ int main( int argc, char **argv )
 	 	quick_flag,
 	 	database_connection,
 	 	delimiter,
+	 	delimiter,
 		null_string_filter );
 	}
 	else
 	{
-		sprintf( system_string,
+		snprintf(
+		system_string,
+		sizeof ( system_string ),
 "(							 "
 "	echo \"connect %s;\"				;"
 "	cat -						 "
 ") 							|"
 "mysql %s -p%s -u%s %s					|"
+"escape_character.e '%c'				|"
 "tr '\011' '%c'						|"
 "%s							 ",
 	 	database_connection,
@@ -159,6 +168,7 @@ int main( int argc, char **argv )
 	 	appaserver_parameter->password,
 	 	appaserver_parameter->mysql_user,
 	 	quick_flag,
+	 	delimiter,
 	 	delimiter,
 		null_string_filter );
 	}

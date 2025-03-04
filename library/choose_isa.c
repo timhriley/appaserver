@@ -388,7 +388,6 @@ char *choose_isa_command_line(
 		char *appaserver_error_filename )
 {
 	char command_line[ STRING_8K ];
-	char destination[ STRING_8K ];
 
 	if ( !process_command_line
 	||   !session_key
@@ -448,10 +447,10 @@ char *choose_isa_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			destination,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 CHOOSE_ISA_INPUT *choose_isa_input_new(

@@ -27,35 +27,18 @@ void string_reset_get_line_check_utf_16( void )
 	string_utf_16_toggle = 1;
 }
 
-/* These two functions generate a warning b/c destination is an argument. */
-/* ---------------------------------------------------------------------- */
-char *string_double_quotes_around( char *destination, char *s )
+char *string_double_quotes_around( char *s )
 {
-	if ( !destination )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: destination is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	return
-	string_quotes_around( destination, s, '\"' );
+	/* --------------------- */
+	/* Returns static memory */
+	/* --------------------- */
+	string_quotes_around( s, '\"' );
 }
 
-char *string_quotes_around( char *destination, char *s, char c )
+char *string_quotes_around( char *s, char c )
 {
-	if ( !destination )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: destination is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
+	static char destination[ STRING_66K ];
 
 	if ( !s )
 	{
@@ -380,14 +363,16 @@ char *string_escape_quote_dollar(
 }
 
 char *string_escape_dollar(
-		char *destination,
 		char *source )
 {
+	char destination[ STRING_64K ];
+
 	return
-	string_escape_character_array(
-		destination,
-		source,
-		"$" /* character_array */ );
+	strdup(
+		string_escape_character_array(
+			destination,
+			source,
+			"$" /* character_array */ ) );
 }
 
 int string_strlen( char *string )
@@ -1058,7 +1043,7 @@ char *string_escape_character_array(
 {
 	char local_source[ STRING_64K ];
 
-	string_strcpy( local_source, source, STRING_64K );
+	string_strcpy( local_source, source, sizeof ( local_source ) );
 
 	while ( *character_array )
 	{
@@ -1078,6 +1063,7 @@ char *string_escape_character_array(
 				STRING_64K );
 		}
 	}
+
 	return destination;
 }
 
@@ -1884,7 +1870,6 @@ char *string_double_quote_comma(
 	static char destination[ STRING_64K ];
 	char *ptr;
 	char item_piece[ STRING_65K ];
-	char item_buffer[ STRING_65K ];
 	int p;
 
 	if ( !delimiter )
@@ -1906,8 +1891,10 @@ char *string_double_quote_comma(
 		ptr +=
 			sprintf(ptr,
 				"%s",
+				/* --------------------- */
+				/* Returns static memory */
+				/* --------------------- */
 				string_double_quotes_around( 
-					item_buffer /* destination */,
 					item_piece /* source */ ) );
 	}
 
@@ -1936,7 +1923,7 @@ void string_replace_command_line(
 		char *string,
 		char *placeholder )
 {
-	char destination[ STRING_64K ];
+	char *double_quotes_around;
 
 	if ( !command_line
 	||   !placeholder )
@@ -1972,14 +1959,17 @@ void string_replace_command_line(
 		exit( 1 );
 	}
 
-	string_double_quotes_around(
-		destination,
-		string );
+	double_quotes_around =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_double_quotes_around(
+			string );
 
 	string_with_space_search_replace(
 		command_line /* source_destination */,
 		placeholder /* search_string */,
-		destination /* replace_string */ );
+		double_quotes_around /* replace_string */ );
 }
 
 char *string_unescape_character(
@@ -2373,5 +2363,40 @@ char *string_remove_character( char *source_destination, char character )
 	}
 
 	return anchor;
+}
+
+int string_strict_case_instr(
+		char *substr,
+		char *string,
+		int occurrence )
+{
+        int x,found;
+        int str_len_str;
+        int str_len_sub;
+
+	if ( !substr || !*substr ) return -1;
+	if ( !string || !*string ) return -1;
+
+        str_len_str = strlen( string );
+        str_len_sub = strlen( substr );
+
+        for(	x = 0,found = 0;
+		x < str_len_str;
+		x++ )
+	{
+                if ( strncmp( &string[x], substr, str_len_sub ) == 0 )
+                        if ( ++found == occurrence )
+                                return x;
+	}
+        return -1;
+}
+
+int string_strict_case_strcmp( char *s1, char *s2 )
+{
+	if ( !s1 && !s2 ) return 0;
+	if ( !s2 ) return -1;
+	if ( !s1 ) return 1;
+
+	return strcmp( s1, s2 );
 }
 

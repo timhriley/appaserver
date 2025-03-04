@@ -4,5 +4,5 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd -
-	make date_ticker.e date.e minutes_ticker.e
+	make mysql_remove_null.e
 fi

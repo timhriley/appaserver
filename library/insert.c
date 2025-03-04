@@ -1126,7 +1126,6 @@ char *insert_folder_command_line(
 		char *insert_folder_primary_data_list_string )
 {
 	char command_line[ STRING_8K ];
-	char destination[ STRING_8K ];
 	INSERT_DATUM *insert_datum;
 
 	if ( !post_change_process_command_line
@@ -1213,10 +1212,10 @@ char *insert_folder_command_line(
 		appaserver_error_filename );
 
 	return
-	strdup(
-		string_escape_dollar(
-			destination,
-			command_line ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	string_escape_dollar( command_line );
 }
 
 char *insert_datum_value_string(

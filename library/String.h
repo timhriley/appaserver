@@ -20,6 +20,7 @@
 #define STRING_32K			32768
 #define STRING_64K			65536
 #define STRING_65K			66560
+#define STRING_66K			67584
 #define STRING_128K			131072
 #define STRING_192K			196608
 #define STRING_256K			262144
@@ -95,8 +96,9 @@ char *string_escape_quote_dollar(
 		char *destination,
 		char *source );
 
+/* Returns heap memory */
+/* ------------------- */
 char *string_escape_dollar(
-		char *destination,
 		char *source );
 
 char *string_escape_full(
@@ -482,12 +484,14 @@ char *string_unescape_character(
 		char *datum,
 		char character_to_unescape );
 
+/* Returns static memory */
+/* --------------------- */
 char *string_double_quotes_around(
-		char *destination,
 		char *s );
 
+/* Returns static memory */
+/* --------------------- */
 char *string_quotes_around(
-		char *destination,
 		char *s,
 		char c );
 
@@ -568,5 +572,14 @@ char *string_middle(
 		char *source,
 		int start,
 		int how_many );
+
+int string_strict_case_instr(
+		char *substr,
+		char *string,
+		int occurrence );
+
+int string_strict_case_strcmp(
+		char *s1,
+		char *s2 );
 
 #endif

@@ -11,6 +11,8 @@ function timlib_prevent_carrot( theEvent, element )
 	var without_character;
 	var new_value;
 
+return true;
+
 	// Replace ^ with **
 	// -----------------
 	if ( theEvent.shiftKey && theEvent.keyCode == 54 )
