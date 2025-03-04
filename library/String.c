@@ -500,8 +500,9 @@ char *string_escape_character(
 		if ( *data == '\\' )
 		{
 			*destination++ = *data++;
-
+/*
 			if ( *data ) *destination++ = *data++;
+*/
 		}
 		else
 		if ( *data == character )
@@ -1060,7 +1061,7 @@ char *string_escape_character_array(
 			string_strcpy(
 				local_source,
 				destination,
-				STRING_64K );
+				sizeof ( local_source ) );
 		}
 	}
 

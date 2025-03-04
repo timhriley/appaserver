@@ -3,7 +3,7 @@ char message[ 65536 ];
 snprintf(
 	message,
 	sizeof ( message ),
-	"%s/%s()/%d\n",
+	"%s/%s()/%d: \n",
 	__FILE__,
 	__FUNCTION__,
 	__LINE__ );

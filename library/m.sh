@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make output_table_edit
+	cd ../src_system
+	make create_empty_application
 fi
 
