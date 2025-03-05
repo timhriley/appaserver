@@ -26,6 +26,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 	dictionary_separate_sql_injection_escape_new(
 		DICTIONARY *original_post_dictionary /* in/out */,

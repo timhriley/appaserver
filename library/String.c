@@ -1189,8 +1189,7 @@ char *string_trim( char *buffer )
 
         /* First trim leading spaces */
         /* ------------------------- */
-        while( *buf_ptr && isspace( *buf_ptr ) )
-        	buf_ptr++;
+        while( *buf_ptr && isspace( *buf_ptr ) ) buf_ptr++;
 
         /* If *buf_ptr is NULL then buffer was just spaces */
         /* ----------------------------------------------- */
@@ -1208,12 +1207,11 @@ char *string_trim( char *buffer )
         /* -------------------- */
         buf_ptr = buffer + strlen( buffer ) - 1;
 
-        while (	*buf_ptr && isspace( *buf_ptr ) )
+        while (	buf_ptr > buffer && isspace( *buf_ptr ) )
 	{
-        	buf_ptr--;
+		*buf_ptr = '\0';
+		buf_ptr--;
 	}
-
-        *(buf_ptr + 1) = '\0';
 
         return buffer;
 }

@@ -834,7 +834,6 @@ typedef struct
 	/* -------------- */
 	int attribute_size;
 	boolean null_to_slash;
-	boolean prevent_carrot_boolean;
 	char *post_change_javascript;
 	int tab_order;
 } WIDGET_NOTEPAD;
@@ -858,7 +857,6 @@ char *widget_notepad_html(
 		char *widget_name,
 		int attribute_size,
 		boolean null_to_slash,
-		boolean prevent_carrot_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *state,
@@ -879,11 +877,7 @@ char *widget_notepad_html_string(
 		int attribute_size,
 		int widget_notepad_columns,
 		int widget_notepad_rows,
-		char *widget_change_replace_javascript,
-		/* --------------------- */
-		/* Expect program memory */
-		/* --------------------- */
-		char *widget_text_prevent_carrot_javascript );
+		char *widget_change_replace_javascript );
 
 typedef struct
 {

@@ -2562,7 +2562,6 @@ WIDGET_TEXT *widget_text_new( char *widget_name )
 	widget_text = widget_text_calloc();
 
 	widget_text->widget_name = widget_name;
-	widget_text->prevent_carrot_boolean = 1;
 
 	return widget_text;
 }
@@ -3304,7 +3303,6 @@ char *widget_notepad_html(
 		char *widget_name,
 		int attribute_size,
 		boolean null_to_slash,
-		boolean prevent_carrot_boolean,
 		char *post_change_javascript,
 		int tab_order,
 		char *state,
@@ -3373,12 +3371,7 @@ char *widget_notepad_html(
 		attribute_size,
 		WIDGET_NOTEPAD_COLUMNS,
 		WIDGET_NOTEPAD_ROWS,
-		text_replace_on_change,
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		widget_text_prevent_carrot_javascript(
-			prevent_carrot_boolean ) );
+		text_replace_on_change );
 }
 
 char *widget_notepad_html_string(
@@ -3389,13 +3382,9 @@ char *widget_notepad_html_string(
 		int attribute_size,
 		int widget_notepad_columns,
 		int widget_notepad_rows,
-		char *widget_text_replace_javascript,
-		/* --------------------- */
-		/* Expect program memory */
-		/* --------------------- */
-		char *prevent_carrot_javascript )
+		char *widget_text_replace_javascript )
 {
-	char html[ STRING_256K ];
+	char html[ STRING_65K ];
 	char *ptr = html;
 
 	if ( !widget_container_key )
@@ -3430,11 +3419,6 @@ char *widget_notepad_html_string(
 		ptr,
 		" onblur=\"timlib_check_notepad_size(this, %d);\"",
 		attribute_size );
-
-	ptr += sprintf(
-		ptr,
-		"%s",
-		prevent_carrot_javascript );
 
 	if ( tab_order > 0 )
 	{
@@ -3500,10 +3484,8 @@ WIDGET_NOTEPAD *widget_notepad_new( char *widget_name )
 	widget_notepad = widget_notepad_calloc();
 
 	widget_notepad->widget_name = widget_name;
-	/* widget_notepad->prevent_carrot_boolean = 1; */
 
 	return widget_notepad;
-
 }
 
 WIDGET_NOTEPAD *widget_notepad_calloc( void )
@@ -3549,7 +3531,6 @@ char *widget_container_notepad_html(
 		notepad->widget_name,
 		notepad->attribute_size,
 		notepad->null_to_slash,
-		notepad->prevent_carrot_boolean,
 		notepad->post_change_javascript,
 		notepad->tab_order,
 		state,

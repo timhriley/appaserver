@@ -999,6 +999,12 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 			widget_container->
 			text->
 			null_to_slash = 1;
+
+		row_security_attribute->
+			widget_container->
+			text->
+			prevent_carrot_boolean =
+				(boolean)primary_key_index;
 	}
 
 	row_security_attribute->widget_container->heading_string =

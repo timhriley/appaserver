@@ -97,6 +97,9 @@ DICTIONARY_SEPARATE_POST_TABLE_EDIT *
 			folder_attribute_date_name_list );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );
@@ -1204,6 +1207,9 @@ DICTIONARY_SEPARATE_DRILLTHRU *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_list );
@@ -1305,6 +1311,9 @@ DICTIONARY_SEPARATE_TABLE_EDIT *
 			folder_attribute_date_name_list );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );
@@ -1613,6 +1622,9 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );
@@ -1718,78 +1730,83 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 		dictionary_key_list(
 			dictionary_separate->dictionary );
 
-	if ( !list_rewind( key_list ) )
-	{
-		free( dictionary_separate );
-		return NULL;
-	}
-
+	if ( list_rewind( key_list ) )
 	do {
 		key = list_get( key_list );
 
-		datum =
-			dictionary_get(
-				key,
-				dictionary_separate->dictionary );
-
-		if ( datum )
+		if ( ! ( datum =
+				dictionary_get(
+					key,
+					dictionary_separate->
+						dictionary ) ) )
 		{
-			string_trim_index(
-				key_trimmed /* destination */,
-				key );
+			fprintf(stderr,
+		"ERROR in %s/%s()/%d: dictionary_get() returned empty.\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
 
-			if ( ( folder_attribute =
-					folder_attribute_seek(
-						key_trimmed,
-						folder_attribute_list ) ) )
+		string_trim_index(
+			key_trimmed /* destination */,
+			key );
+
+		if ( ( folder_attribute =
+				folder_attribute_seek(
+					key_trimmed,
+					folder_attribute_list ) ) )
+		{
+			if ( !folder_attribute->
+				attribute )
 			{
-				if ( !folder_attribute->
-					attribute )
-				{
-					char message[ 128 ];
+				char message[ 128 ];
 
-					sprintf(message,
+				sprintf(message,
 				"folder_attribute->attribute is empty." );
 
-					appaserver_error_stderr_exit(
-						__FILE__,
-						__FUNCTION__,
-						__LINE__,
-						message );
-				}
-
-				if ( attribute_is_number(
-					folder_attribute->
-						attribute->
-						datatype_name ) )
-				{
-					/* --------------- */
-					/* Returns number. */
-					/* Trims , and $   */
-					/* --------------- */
-					attribute_trim_number_characters(
-						datum /* number */ );
-				}
+				appaserver_error_stderr_exit(
+					__FILE__,
+					__FUNCTION__,
+					__LINE__,
+					message );
 			}
 
-			(void)string_search_replace_character(
-				datum /* source_destination */,
-				'\\' /* search_character */,
-				'/' /* replace_character */ );
-
-			sql_injection_escape =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				security_sql_injection_escape(
-					SECURITY_ESCAPE_CHARACTER_STRING,
-					datum );
-
-			dictionary_set(
-				dictionary_separate->dictionary,
-				key,
-				sql_injection_escape );
+			if ( attribute_is_number(
+				folder_attribute->
+					attribute->
+					datatype_name ) )
+			{
+				/* --------------- */
+				/* Returns number. */
+				/* Trims , and $   */
+				/* --------------- */
+				(void)attribute_trim_number_characters(
+					datum /* number */ );
+			}
 		}
+
+		(void)string_search_replace_character(
+			datum /* source_destination */,
+			'\\' /* search_character */,
+			'/' /* replace_character */ );
+
+		/* Trims leading and trailing spaces */
+		/* --------------------------------- */
+		(void)string_trim( datum );
+
+		sql_injection_escape =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			security_sql_injection_escape(
+				SECURITY_ESCAPE_CHARACTER_STRING,
+				datum );
+
+		dictionary_set(
+			dictionary_separate->dictionary,
+			key,
+			sql_injection_escape );
 
 	} while ( list_next( key_list ) );
 
@@ -1890,6 +1907,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );
@@ -2022,6 +2042,9 @@ DICTIONARY_SEPARATE_PROMPT_PROCESS *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_name_list_attribute_list );
@@ -2143,6 +2166,9 @@ DICTIONARY_SEPARATE_POST_TABLE_INSERT *
 			folder_attribute_date_name_list );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );
@@ -2277,6 +2303,9 @@ DICTIONARY_SEPARATE_PROMPT_LOOKUP *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_list );
@@ -2402,6 +2431,9 @@ DICTIONARY_SEPARATE_POST_PROMPT_LOOKUP *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );
@@ -2533,6 +2565,9 @@ DICTIONARY_SEPARATE_LOOKUP_DELETE *
 			parse_multi->dictionary /* in/out */ );
 
 	sql_injection_escape =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		dictionary_separate_sql_injection_escape_new(
 			date_convert->dictionary,
 			folder_attribute_append_isa_list );

@@ -11,8 +11,9 @@
 #include "boolean.h"
 #include "list.h"
 
-#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=()\""
-/* #define SECURITY_ESCAPE_CHARACTER_STRING "'\"" */
+/* Leave out the percent sign b/c mysql will save the backslash. */
+/* ------------------------------------------------------------- */
+#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;&=()\""
 
 enum password_function	{	no_encryption,
 				old_password_function,
