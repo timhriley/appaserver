@@ -102,20 +102,28 @@ char *string_escape_quote_dollar(
 char *string_escape_dollar(
 		char *source );
 
+/* Safely returns destination */
+/* -------------------------- */
 char *string_escape_full(
 		char *destination,
 		char *source );
 
+/* Safely returns destination */
+/* -------------------------- */
 char *string_escape(
 		char *destination,
 		char *source,
 		char *character_array );
 
+/* Safely returns destination */
+/* -------------------------- */
 char *string_escape_character_array(
 		char *destination,
 		char *source,
 		char *character_array );
 
+/* Safely returns destination */
+/* -------------------------- */
 char *string_unescape_character_array(
 		char *destination,
 		char *source,

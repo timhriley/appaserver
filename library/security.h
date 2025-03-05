@@ -11,7 +11,8 @@
 #include "boolean.h"
 #include "list.h"
 
-#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=()"
+#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;%&=()\""
+/* #define SECURITY_ESCAPE_CHARACTER_STRING "'\"" */
 
 enum password_function	{	no_encryption,
 				old_password_function,
@@ -26,8 +27,8 @@ typedef struct
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *security_sql_injection_escape(
 		const char *security_escape_character_string,
 		char *datum );
@@ -35,8 +36,8 @@ char *security_sql_injection_escape(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory or datum */
-/* ---------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *security_sql_injection_unescape(
 		const char *security_escape_character_string,
 		char *datum );

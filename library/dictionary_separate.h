@@ -202,7 +202,7 @@ char *dictionary_separate_parse_multi_single_key(
 		char *single_key );
 
 /* Usage */
-/* ------ */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */

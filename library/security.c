@@ -271,7 +271,7 @@ char *security_sql_injection_escape(
 	char destination[ STRING_64K ];
 	char *return_value;
 
-	if ( !datum || !*datum ) return datum;
+	if ( !datum || !*datum ) return strdup( "" );
 
 	if ( strlen( datum ) >= STRING_64K )
 	{
@@ -288,8 +288,14 @@ char *security_sql_injection_escape(
 			message );
 	}
 
+	if ( string_character_boolean( datum, '\\' ) )
+		return strdup( datum );
+
 	return_value =
 	strdup(
+		/* -------------------------- */
+		/* Safely returns destination */
+		/* -------------------------- */
 		string_escape_character_array(
 			destination,
 			datum,
@@ -304,7 +310,7 @@ char *security_sql_injection_unescape(
 {
 	char destination[ STRING_64K ];
 
-	if ( !datum || !*datum ) return datum;
+	if ( !datum || !*datum ) return strdup( "" );
 
 	if ( strlen( datum ) >= STRING_64K )
 	{
@@ -350,8 +356,10 @@ char *security_sql_injection_escape_quote_delimit( char *datum )
 
 	ptr += sprintf( ptr, "'" );
 
+	/* Safely returns destination */
+	/* -------------------------- */
 	string_escape_character_array(
-		ptr,
+		ptr /* destination */,
 		datum,
 		SECURITY_ESCAPE_CHARACTER_STRING );
 
@@ -368,9 +376,9 @@ LIST *security_sql_injection_escape_list( LIST *data_list )
 	do {
 		list_set(
 			escape_list,
-			/* --------------------------- */
-			/* Returns heap memory or null */
-			/* --------------------------- */
+			/* ------------------- */
+			/* Returns heap memory */
+			/* -------------------- */
 			security_sql_injection_escape(
 				SECURITY_ESCAPE_CHARACTER_STRING,
 				(char *)list_get( data_list ) ) );

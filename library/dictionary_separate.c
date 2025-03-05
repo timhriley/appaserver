@@ -1734,9 +1734,6 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 
 		if ( datum )
 		{
-			string_search_replace_character(
-				datum, '"', '\'' );
-
 			string_trim_index(
 				key_trimmed /* destination */,
 				key );
@@ -1775,21 +1772,23 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 				}
 			}
 
+			(void)string_search_replace_character(
+				datum /* source_destination */,
+				'\\' /* search_character */,
+				'/' /* replace_character */ );
+
 			sql_injection_escape =
-				/* ---------------------------- */
-				/* Returns heap memory or datum */
-				/* ---------------------------- */
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
 				security_sql_injection_escape(
 					SECURITY_ESCAPE_CHARACTER_STRING,
 					datum );
 
-			if ( sql_injection_escape != datum )
-			{
-				dictionary_set(
-					dictionary_separate->dictionary,
-					key,
-					sql_injection_escape );
-			}
+			dictionary_set(
+				dictionary_separate->dictionary,
+				key,
+				sql_injection_escape );
 		}
 
 	} while ( list_next( key_list ) );

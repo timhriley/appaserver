@@ -497,24 +497,12 @@ char *string_escape_character(
 
 	while ( *data )
 	{
-		if ( *data == '\\' )
-		{
-/*
-			*destination++ = *data++;
-			if ( *data ) *destination++ = *data++;
-*/
-			data++;
-		}
-		else
 		if ( *data == character )
 		{
 			*destination++ = '\\';
-			*destination++ = *data++;
 		}
-		else
-		{
-			*destination++ = *data++;
-		}
+
+		*destination++ = *data++;
 	}
 
 	*destination = '\0';
@@ -1043,9 +1031,32 @@ char *string_escape_character_array(
 		char *source,
 		char *character_array )
 {
-	char local_source[ STRING_64K ];
+	char local_source[ STRING_65K ];
 
-	string_strcpy( local_source, source, sizeof ( local_source ) );
+	if ( !destination
+	||   !source
+	||   !character_array )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( strlen( source ) > STRING_64K )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: source exceeded max length=%d\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			STRING_64K );
+		exit( 1 );
+	}
+
+	strcpy( local_source, source );
 
 	while ( *character_array )
 	{
@@ -1055,15 +1066,8 @@ char *string_escape_character_array(
 			*character_array
 				/* character_to_escape */ );
 
+		strcpy( local_source, destination );
 		character_array++;
-
-		if ( *character_array )
-		{
-			string_strcpy(
-				local_source,
-				destination,
-				sizeof ( local_source ) );
-		}
 	}
 
 	return destination;
@@ -1088,13 +1092,10 @@ char *string_unescape_character_array(
 
 		character_array++;
 
-		if ( *character_array )
-		{
-			string_strcpy(
-				local_source,
-				destination,
-				STRING_64K );
-		}
+		string_strcpy(
+			local_source,
+			destination,
+			STRING_64K );
 	}
 	return destination;
 }
