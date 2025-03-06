@@ -26,6 +26,10 @@
 
 #define ATTRIBUTE_PRIMARY_KEY		"column_name"
 
+#define ATTRIBUTE_DATATYPE_CHARACTER	"character"
+#define ATTRIBUTE_DATATYPE_NOTEPAD	"notepad"
+#define ATTRIBUTE_DATATYPE_INTEGER	"integer"
+
 typedef struct
 {
 	char *attribute_name;
@@ -191,15 +195,18 @@ boolean attribute_is_float(
 		char *datatype_name );
 
 boolean attribute_is_integer(
+		const char *attribute_datatype_integer,
 		char *datatype_name );
 
 boolean attribute_is_number(
 		char *datatype_name );
 
-boolean attribute_is_text(
+boolean attribute_is_character(
+		const char *attribute_datatype_character,
 		char *datatype_name );
 
 boolean attribute_is_notepad(
+		const char *attribute_datatype_notepad,
 		char *datatype_name );
 
 boolean attribute_is_password(

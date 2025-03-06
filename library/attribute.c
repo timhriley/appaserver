@@ -184,11 +184,14 @@ boolean attribute_is_time( char *datatype_name )
 	}
 }
 
-boolean attribute_is_integer( char *datatype_name )
+boolean attribute_is_integer(
+		const char *attribute_datatype_integer,
+		char *datatype_name )
 {
 	if ( !datatype_name ) return 0;
 
-	if (  strcmp( datatype_name, "integer" ) == 0 )
+	if (  strcmp(	datatype_name,
+			(char *)attribute_datatype_integer ) == 0 )
 	{
 		return 1;
 	}
@@ -258,17 +261,25 @@ boolean attribute_is_date_time( char *datatype_name )
 	}
 }
 
-boolean attribute_is_text( char *datatype_name )
+boolean attribute_is_character(
+		const char *attribute_datatype_character,
+		char *datatype_name )
 {
-	if ( string_strcmp( datatype_name, "text" ) == 0 )
+	if ( string_strcmp(
+			datatype_name,
+			(char *)attribute_datatype_character ) == 0 )
 		return 1;
 	else
 		return 0;
 }
 
-boolean attribute_is_notepad( char *datatype_name )
+boolean attribute_is_notepad(
+		const char *attribute_datatype_notepad,
+		char *datatype_name )
 {
-	if ( string_strcmp( datatype_name, "notepad" ) == 0 )
+	if ( string_strcmp(
+			datatype_name,
+			(char *)attribute_datatype_notepad ) == 0 )
 		return 1;
 	else
 		return 0;
@@ -509,9 +520,13 @@ char *attribute_database_datatype(
 			width );
 	}
 	else
-	if ( strcmp( datatype_name, "text" ) == 0
+	if ( attribute_is_character(
+		ATTRIBUTE_DATATYPE_CHARACTER,
+		datatype_name )
+	||   attribute_is_notepad(
+		ATTRIBUTE_DATATYPE_NOTEPAD,
+		datatype_name )
 	||   strcmp( datatype_name, "hidden_text" ) == 0
-	||   strcmp( datatype_name, "notepad" ) == 0
 	||   strcmp( datatype_name, "http_filename" ) == 0 )
 	{
 		if ( width < 256)
@@ -531,7 +546,9 @@ char *attribute_database_datatype(
 		}
 	}
 	else
-	if ( strcmp( datatype_name, "integer" ) == 0 )
+	if ( attribute_is_integer(
+		ATTRIBUTE_DATATYPE_INTEGER,
+		datatype_name ) )
 	{
 		strcpy( buffer, "integer" );
 	}

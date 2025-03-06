@@ -858,7 +858,9 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 				post_change_javascript;
 	}
 	else
-	if ( attribute_is_notepad( datatype_name ) )
+	if ( attribute_is_notepad(
+		ATTRIBUTE_DATATYPE_NOTEPAD,
+		datatype_name ) )
 	{
 		row_security_attribute->widget_container =
 			widget_container_new(
@@ -966,7 +968,7 @@ ROW_SECURITY_ATTRIBUTE *row_security_attribute_new(
 	{
 		row_security_attribute->widget_container =
 			widget_container_new(
-				text,
+				character,
 				attribute_name );
 
 		row_security_attribute->
@@ -1439,7 +1441,7 @@ LIST *row_security_role_update_container_list(
 		/* Safely returns */
 		/* -------------- */
 		widget_container_new(
-			text,
+			character,
 			attribute_not_null );
 
 	widget_container->heading_string = attribute_not_null;

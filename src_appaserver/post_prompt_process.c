@@ -72,7 +72,6 @@ int main( int argc, char **argv )
 	else
 	if ( post_prompt_process->command_line )
 	{
-		char *sql_injection_escape;
 
 		if ( post_prompt_process->
 			post_choose_process_no_parameters )
@@ -83,21 +82,14 @@ int main( int argc, char **argv )
 			fflush( stdout );
 		}
 
-		sql_injection_escape =
-			/* ---------------------------- */
-			/* Returns heap memory or datum */
-			/* ---------------------------- */
-			security_sql_injection_escape(
-				SECURITY_ESCAPE_CHARACTER_STRING,
-			post_prompt_process->
-				command_line /* datum */ );
-
 		appaserver_error_message_file(
 			application_name,
 			login_name,
-			sql_injection_escape /* message */ );
+			post_prompt_process->command_line /* message */ );
 
-		if ( system( sql_injection_escape ) ){}
+		if ( system(
+			post_prompt_process->
+		       	command_line ) ){}
 	}
 
 	return 0;

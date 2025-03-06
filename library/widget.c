@@ -105,7 +105,7 @@ WIDGET_CONTAINER *widget_container_new(
 			widget_button_new(
 				widget_name /* label */ );
 	else
-	if ( widget_type == text )
+	if ( widget_type == character )
 	{
 		widget_container->text =
 			widget_text_new(
@@ -1648,7 +1648,7 @@ char *widget_container_html(
 			widget_container->multi_drop_down );
 	}
 	else
-	if ( widget_container->widget_type == text )
+	if ( widget_container->widget_type == character )
 	{
 		if ( !widget_container->text )
 		{

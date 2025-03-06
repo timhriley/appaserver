@@ -114,6 +114,7 @@ FORM_PROMPT_INSERT_ATTRIBUTE *form_prompt_insert_attribute_new(
 
 	form_prompt_insert_attribute->attribute_is_notepad =
 		attribute_is_notepad(
+			ATTRIBUTE_DATATYPE_NOTEPAD,
 			datatype_name );
 
 	if ( form_prompt_insert_attribute->attribute_is_notepad )
@@ -253,7 +254,7 @@ FORM_PROMPT_INSERT_ATTRIBUTE *form_prompt_insert_attribute_new(
 			( form_prompt_insert_attribute->
 				widget_container =
 					widget_container_new(
-						text,
+						character,
 						attribute_name
 							/* widget_name */ ) ) );
 

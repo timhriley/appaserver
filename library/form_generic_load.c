@@ -111,7 +111,7 @@ FORM_GENERIC_LOAD_ATTRIBUTE *form_generic_load_attribute_new(
 	{
 		form_generic_load_attribute->widget_container =
 			widget_container_new(
-				text,
+				character,
 				form_generic_load_constant_label
 					/* widget_name */ );
 
@@ -421,7 +421,7 @@ FORM_GENERIC_LOAD *form_generic_load_new(
 		list_set(
 			form_generic_load->widget_container_list,
 			widget_container_new(
-				text,
+				character,
 				/* ----------------------------- */
 				/* Returns prompt or heap memory */
 				/* ----------------------------- */
@@ -442,7 +442,7 @@ FORM_GENERIC_LOAD *form_generic_load_new(
 		list_set(
 			form_generic_load->widget_container_list,
 			( widget_container = widget_container_new(
-				text,
+				character,
 				position_label ) ) );
 
 		widget_container->
@@ -834,7 +834,7 @@ LIST *form_generic_load_upload_container_list(
 		widget_container_list,
 		( widget_container =
 			widget_container_new(
-				text,
+				character,
 				generic_load_skip_header_rows_label ) ) );
 
 	widget_container->

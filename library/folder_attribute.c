@@ -629,6 +629,7 @@ LIST *folder_attribute_integer_name_list(
 		}
 
 		if ( attribute_is_integer(
+			ATTRIBUTE_DATATYPE_INTEGER,
 			folder_attribute->
 				attribute->
 				datatype_name ) )

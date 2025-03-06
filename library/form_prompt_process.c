@@ -779,7 +779,7 @@ WIDGET_CONTAINER *form_prompt_process_prompt_text_widget(
 
 	widget_container =
 		widget_container_new(
-			text,
+			character,
 			prompt_name
 				/* widget_name */ );
 

@@ -1111,7 +1111,9 @@ boolean rectification_mismatch_datatype_boolean(
 			return 1;
 	}
 
-	if ( attribute_is_text( attribute_datatype_name ) )
+	if ( attribute_is_character(
+		ATTRIBUTE_DATATYPE_CHARACTER,
+		attribute_datatype_name ) )
 	{
 		if ( strcmp( column_datatype_name, "char" ) == 0 )
 		{
@@ -1129,7 +1131,9 @@ boolean rectification_mismatch_datatype_boolean(
 		}
 	}
 
-	if ( attribute_is_notepad( attribute_datatype_name ) )
+	if ( attribute_is_notepad(
+		ATTRIBUTE_DATATYPE_NOTEPAD,
+		attribute_datatype_name ) )
 	{
 		if ( strcmp( column_datatype_name, "char" ) == 0
 		||   strcmp( column_datatype_name, "text" ) == 0

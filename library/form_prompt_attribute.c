@@ -178,7 +178,7 @@ FORM_PROMPT_ATTRIBUTE *form_prompt_attribute_new(
 			( form_prompt_attribute->
 				from_widget_container =
 				    widget_container_new(
-					text,
+					character,
 					attribute_name ) ) );
 
 		form_prompt_attribute->
@@ -333,7 +333,9 @@ LIST *form_prompt_attribute_option_list( char *datatype_name )
 				QUERY_NOT_NULL ) );
 	}
 	else
-	if ( attribute_is_notepad( datatype_name ) )
+	if ( attribute_is_notepad(
+		ATTRIBUTE_DATATYPE_NOTEPAD,
+		datatype_name ) )
 	{
 		list_set(
 			list,
@@ -409,7 +411,9 @@ LIST *form_prompt_attribute_option_list( char *datatype_name )
 				QUERY_NOT_NULL ) );
 	}
 	else
-	if ( attribute_is_text( datatype_name )
+	if ( attribute_is_character(
+		ATTRIBUTE_DATATYPE_CHARACTER,
+		datatype_name )
 	||   attribute_is_upload( datatype_name ) )
 	{
 		list_set(
@@ -588,7 +592,7 @@ WIDGET_CONTAINER *form_prompt_attribute_from_container(
 	{
 		from_widget_container =
 			widget_container_new(
-				text,
+				character,
 				form_prefix_widget_name );
 
 		from_widget_container->
@@ -682,7 +686,7 @@ WIDGET_CONTAINER *form_prompt_attribute_to_container(
 	{
 		to_widget_container =
 			widget_container_new(
-				text,
+				character,
 				form_prefix_widget_name );
 
 		to_widget_container->

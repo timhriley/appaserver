@@ -84,7 +84,9 @@ FORM_TABLE_INSERT_ATTRIBUTE *form_table_insert_attribute_new(
 				post_change_javascript;
 	}
 	else
-	if ( attribute_is_notepad( datatype_name ) )
+	if ( attribute_is_notepad(
+		ATTRIBUTE_DATATYPE_NOTEPAD,
+		datatype_name ) )
 	{
 		list_set(
 			form_table_insert_attribute->widget_container_list,
@@ -156,7 +158,7 @@ FORM_TABLE_INSERT_ATTRIBUTE *form_table_insert_attribute_new(
 			form_table_insert_attribute->widget_container_list,
 			( form_table_insert_attribute->widget_container =
 				widget_container_new(
-					text,
+					character,
 					attribute_name
 						/* widget_name */ ) ) );
 

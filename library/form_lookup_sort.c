@@ -148,7 +148,7 @@ FORM_LOOKUP_SORT_TABLE *form_lookup_sort_table_new(
 				form_lookup_sort_table->widget_container_list,
 				( widget_container =
 					widget_container_new(
-						text,
+						character,
 						/* ------------------- */
 						/* Returns heap memory */
 						/* ------------------- */
@@ -186,7 +186,10 @@ FORM_LOOKUP_SORT_TABLE *form_lookup_sort_table_new(
 			form_lookup_sort_table->widget_container_list,
 			( widget_container =
 			    widget_container_new(
-				text,
+				character,
+				/* ------------------- */
+				/* Returns heap memory */
+				/* ------------------- */
 				form_lookup_sort_table_label(
 				     row_number,
 				     lookup_sort_input_attribute_name ) ) ) );
