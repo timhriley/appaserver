@@ -127,7 +127,7 @@ POST_LOGIN *post_login_new(
 				invalid_login_name_boolean,
 			!post_login->
 				post_login_input->
-				application_log_exists_boolean
+				application_exists_boolean
 				/* application_not_exists_boolean */,
 			post_login->
 				post_login_input->
@@ -1203,15 +1203,15 @@ POST_LOGIN_INPUT *post_login_input_new(
 
 	session_environment_set( post_login_input->application_name );
 
-	post_login_input->application_log_exists_boolean =
-		application_log_exists_boolean(
+	post_login_input->application_exists_boolean =
+		post_login_input_application_exists_boolean(
 			post_login_input->application_name,
 			/* ------------------------------------------------ */
 			/* Returns component of global_appaserver_parameter */
 			/* ------------------------------------------------ */
 			appaserver_parameter_log_directory() );
 
-	if ( !post_login_input->application_log_exists_boolean )
+	if ( !post_login_input->application_exists_boolean )
 	{
 		/* Send argv to admin log file. */
 		/* ---------------------------- */
@@ -1288,7 +1288,6 @@ char *post_login_document_application_name(
 		return post_login_input_application_name;
 	else
 		return (char *)application_template_name;
-
 }
 
 char *post_login_input_remote_ip_address( void )
@@ -1298,4 +1297,30 @@ char *post_login_input_remote_ip_address( void )
 	/* Returns heap memory or null */
 	/* --------------------------- */
 	environment_get( "REMOTE_ADDR" );
+}
+
+boolean post_login_input_application_exists_boolean(
+		char *application_name,
+		char *log_directory )
+{
+	if ( !application_name
+	||   !log_directory )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	application_exists_boolean(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		application_log_filename(
+			APPLICATION_LOG_EXTENSION,
+			application_name,
+			log_directory ) );
 }

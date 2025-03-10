@@ -95,20 +95,6 @@ POST_SIGNUP_SUBMIT_INPUT *post_signup_submit_input_new( void )
 		return post_signup_submit_input;
 	}
 
-	post_signup_submit_input->application_title =
-		/* --------------------------------------- */
-		/* Returns component of dictionary or null */
-		/* --------------------------------------- */
-		post_signup_submit_input_application_title(
-			post_signup_submit_input->
-				post_dictionary->
-				original_post_dictionary
-					/* post_dictionary */ );
-
-	post_signup_submit_input->application_title_empty_boolean =
-		post_signup_submit_input_application_title_empty_boolean(
-			post_signup_submit_input->application_title );
-
 	post_signup_submit_input->environment_remote_ip_address =
 		/* --------------------------- */
 		/* Returns heap memory or null */
@@ -206,15 +192,6 @@ char *post_signup_submit_input_application_title( DICTIONARY *post_dictionary )
 		get /* datum */ );
 }
 
-boolean post_signup_submit_input_application_title_empty_boolean(
-		char *application_title )
-{
-	if ( application_title && *application_title )
-		return 0;
-	else
-		return 1;
-}
-
 boolean post_signup_submit_input_application_exists_boolean(
 		char *log_directory,
 		char *application_key )
@@ -232,9 +209,9 @@ boolean post_signup_submit_input_application_exists_boolean(
 
 	return
 	application_exists_boolean(
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		application_log_filename(
 			APPLICATION_LOG_EXTENSION,
 			application_key /* application_name */,
@@ -265,10 +242,7 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 				application_key_invalid_boolean,
 			post_signup_submit->
 				post_signup_submit_input->
-				application_exists_boolean,
-			post_signup_submit->
-				post_signup_submit_input->
-				application_title_empty_boolean );
+				application_exists_boolean );
 
 	if ( post_signup_submit->index_html_parameter )
 	{
@@ -299,6 +273,15 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 		return post_signup_submit;
 	}
 
+	post_signup_submit->application_title =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_signup_submit_application_title(
+			post_signup_submit->
+				post_signup_submit_input->
+				application_key );
+
 	post_signup_submit->post_signup =
 		/* -------------- */
 		/* Safely returns */
@@ -309,9 +292,7 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 			post_signup_submit->
 				post_signup_submit_input->
 				application_key,
-			post_signup_submit->
-				post_signup_submit_input->
-				application_title );
+			post_signup_submit->application_title );
 
 	post_signup_submit->post_return_email =
 		/* --------------------- */
@@ -403,8 +384,7 @@ POST_SIGNUP_SUBMIT *post_signup_submit_calloc( void )
 char *post_signup_submit_reject_parameter(
 		boolean email_invalid_boolean,
 		boolean application_key_invalid_boolean,
-		boolean application_exists_boolean,
-		boolean application_title_empty_boolean )
+		boolean application_exists_boolean )
 {
 	char *parameter = {0};
 
@@ -416,9 +396,6 @@ char *post_signup_submit_reject_parameter(
 	else
 	if ( application_exists_boolean )
 		parameter = "signup_application_exists_yn=y";
-	else
-	if ( application_title_empty_boolean )
-		parameter = "signup_missing_title_yn=y";
 
 	return parameter;
 }
@@ -464,3 +441,27 @@ char *post_signup_submit_log_message(
 
 	return message;
 }
+
+char *post_signup_submit_application_title( char *application_key )
+{
+	static char application_title[ 128 ];
+
+	if ( !application_key )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_key is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return
+	/* ------------------- */
+	/* Returns destination */
+	/* ------------------- */
+	string_initial_capital(
+		application_title /* destination */,
+		application_key );
+}
+

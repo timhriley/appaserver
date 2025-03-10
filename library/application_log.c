@@ -13,14 +13,13 @@
 #include "application_log.h"
 
 APPLICATION_LOG *application_log_new(
-		char *application_log_extension,
+		const char *application_log_extension,
 		char *application_name,
 		char *log_directory )
 {
 	APPLICATION_LOG *application_log;
 
-	if ( !application_log_extension
-	||   !application_name
+	if ( !application_name
 	||   !log_directory )
 	{
 		char message[ 128 ];
@@ -37,9 +36,9 @@ APPLICATION_LOG *application_log_new(
 	application_log = application_log_calloc();
 
 	application_log->filename =
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		application_log_filename(
 			application_log_extension,
 			application_name,
@@ -83,19 +82,32 @@ APPLICATION_LOG *application_log_calloc( void )
 }
 
 char *application_log_filename(
-		char *application_log_extension,
+		const char *application_log_extension,
 		char *application_name,
 		char *log_directory )
 {
-	static char filename[ 128 ];
+	char filename[ 128 ];
 
-	sprintf(filename,
+	if ( !application_name
+	||   !log_directory )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		filename,
+		sizeof ( filename ),
 		"%s/appaserver_%s.%s",
 		log_directory,
 		application_name,
 		application_log_extension );
 
-	return filename;
+	return strdup( filename );
 }
 
 char *application_log_create_system_string(
@@ -103,7 +115,9 @@ char *application_log_create_system_string(
 {
 	char system_string[ 1024 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"touch %s && "
 		"chmod g+w %s && "
 		"chmod o-rwx %s",
@@ -119,7 +133,9 @@ char *application_log_delete_system_string(
 {
 	char system_string[ 256 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"rm %s",
 		application_log_filename );
 
@@ -128,7 +144,7 @@ char *application_log_delete_system_string(
 
 boolean application_log_exists_boolean(
 		char *application_name,
-		char *log_directory )
+		char *application_log_filename )
 {
 	if ( string_strcmp( application_name, "hydrology" ) == 0
 	||   string_strcmp( application_name, "benthic" ) == 0
@@ -140,12 +156,6 @@ boolean application_log_exists_boolean(
 
 	return
 	application_exists_boolean(
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		application_log_filename(
-			APPLICATION_LOG_EXTENSION,
-			application_name,
-			log_directory ) );
+		application_log_filename );
 }
 

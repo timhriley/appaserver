@@ -65,7 +65,9 @@ int main( int argc, char **argv )
 		exit( 1 );
 
 	}
+
 	printf( "%s\n", output );
-	return 0;
+
+	exit( 0 );
 }
 

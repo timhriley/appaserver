@@ -28,7 +28,7 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 APPLICATION_LOG *application_log_new(
-		char *application_log_extension,
+		const char *application_log_extension,
 		char *application_name,
 		char *log_directory );
 
@@ -40,10 +40,10 @@ APPLICATION_LOG *application_log_calloc(
 /* Usage */
 /* ----- */
 
-/* Returns static memory */
-/* --------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *application_log_filename(
-		char *application_log_extension,
+		const char *application_log_extension,
 		char *application_name,
 		char *log_directory );
 
@@ -67,6 +67,6 @@ char *application_log_delete_system_string(
 /* ----- */
 boolean application_log_exists_boolean(
 		char *application_name,
-		char *log_directory );
+		char *application_log_filename );
 
 #endif

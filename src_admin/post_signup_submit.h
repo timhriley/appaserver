@@ -30,8 +30,6 @@ typedef struct
 	char *application_key;
 	boolean application_key_invalid_boolean;
 	boolean application_exists_boolean;
-	char *application_title;
-	boolean application_title_empty_boolean;
 	char *environment_remote_ip_address;
 	char *environment_http_user_agent;
 	char *appaserver_mailname;
@@ -68,9 +66,6 @@ boolean post_signup_submit_input_application_exists_boolean(
 char *post_signup_submit_input_application_title(
 		DICTIONARY *post_dictionary );
 
-boolean post_signup_submit_input_application_title_empty_boolean(
-		char *post_signup_submit_input_application_title );
-
 typedef struct
 {
 	POST_SIGNUP_SUBMIT_INPUT *post_signup_submit_input;
@@ -78,6 +73,7 @@ typedef struct
 	POST_LOGIN_DOCUMENT *post_login_document;
 	char *display_system_string;
 	POST *post;
+	char *application_title;
 	POST_SIGNUP *post_signup;
 	char *post_return_email;
 	char *post_mailx_system_string;
@@ -103,8 +99,12 @@ POST_SIGNUP_SUBMIT *post_signup_submit_calloc(
 char *post_signup_submit_reject_parameter(
 		boolean post_contact_submit_input_email_invalid_boolean,
 		boolean application_key_invalid_boolean,
-		boolean application_exists_boolean,
-		boolean application_title_empty_boolean );
+		boolean application_exists_boolean );
+
+/* Returns static memory */
+/* --------------------- */
+char *post_signup_submit_application_title(
+		char *application_key );
 
 /* Returns static memory */
 /* --------------------- */

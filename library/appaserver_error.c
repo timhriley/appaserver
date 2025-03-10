@@ -81,14 +81,13 @@ char *appaserver_error_filename( char *application_name )
 	}
 
 	return
-	strdup(
-		/* --------------------- */
-		/* Returns static memory */
-		/* --------------------- */
-		application_log_filename(
-			APPLICATION_LOG_EXTENSION,
-			application_name,
-			appaserver_parameter->log_directory ) );
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	application_log_filename(
+		APPLICATION_LOG_EXTENSION,
+		application_name,
+		appaserver_parameter->log_directory );
 }
 
 void appaserver_error_argv_file(

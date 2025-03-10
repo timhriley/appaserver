@@ -5,6 +5,6 @@ make
 if [ "$?" -eq 0 ]
 then
 	cd ../src_system
-	make drilldown
+	make delete_application
 fi
 

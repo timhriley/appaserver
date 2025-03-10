@@ -117,7 +117,9 @@ char *appaserver_parameter_filename( char *application_name )
 
 	if ( application_name )
 	{
-		sprintf(filename,
+		snprintf(
+			filename,
+			sizeof ( filename ),
 			APPASERVER_PARAMETER_APPLICATION_NAME,
 			application_name );
 
@@ -343,6 +345,17 @@ APPASERVER_PARAMETER *appaserver_parameter_application(
 		char *application_name )
 {
 	APPASERVER_PARAMETER *appaserver_parameter;
+
+	if ( !application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+
+		exit( 1 );
+	}
 
 	appaserver_parameter = appaserver_parameter_calloc();
 	appaserver_parameter->application_name = application_name;
