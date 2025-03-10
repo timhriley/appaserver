@@ -851,6 +851,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 		/* Returns prompt_name, "" or heap memory */
 		/* -------------------------------------- */
 		process_parameter_drop_down_name(
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			folder_name,
 			prompt_name,
 			(LIST *)0 /* folder_attribute_primary_key_list */ );
@@ -962,6 +963,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 		/* Returns prompt_name, "" or heap memory */
 		/* -------------------------------------- */
 		process_parameter_drop_down_name(
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			(char *)0 /* folder_name */,
 			(char *)0 /* prompt_name */,
 			process_parameter_drop_down->
@@ -1057,6 +1059,7 @@ PROCESS_PARAMETER_DROP_DOWN *
 }
 
 char *process_parameter_drop_down_name(
+		const char attribute_multi_key_delimiter,
 		char *folder_name,
 		char *prompt_name,
 		LIST *folder_attribute_primary_key_list )
@@ -1081,7 +1084,7 @@ char *process_parameter_drop_down_name(
 	/* ------------------------- */
 	list_display_delimited(
 		folder_attribute_primary_key_list,
-		'^' );
+		(char)attribute_multi_key_delimiter );
 }
 
 LIST *process_parameter_drop_down_attribute_name_list(

@@ -304,15 +304,14 @@ LIST *relation_foreign_key_list(
 }
 
 char *relation_name(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		LIST *relation_foreign_key_list )
 {
-	if ( !sql_delimiter
-	||   !list_length( relation_foreign_key_list ) )
+	if ( !list_length( relation_foreign_key_list ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "relation_foreign_key_list is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -327,7 +326,7 @@ char *relation_name(
 	/* ------------------------- */
 	list_display_delimited(
 		relation_foreign_key_list,
-		sql_delimiter );
+		(char)attribute_multi_key_delimiter );
 }
 
 char *relation_prompt(

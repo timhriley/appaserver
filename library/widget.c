@@ -700,15 +700,14 @@ char *widget_non_edit_text_html_string(
 }
 
 char *widget_drop_down_name(
-			char sql_delimiter,
-			char *widget_name,
-			LIST *attribute_name_list )
+		const char attribute_multi_key_delimiter,
+		char *widget_name,
+		LIST *attribute_name_list )
 {
 	static char drop_down_name[ 128 ];
 	char *results;
 
-	if ( !sql_delimiter
-	||   ( !widget_name && !list_length( attribute_name_list ) ) )
+	if ( ( !widget_name && !list_length( attribute_name_list ) ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is is empty.\n",
@@ -730,7 +729,7 @@ char *widget_drop_down_name(
 			/* ------------------------- */
 			list_display_delimited(
 				attribute_name_list,
-				sql_delimiter );
+				(char)attribute_multi_key_delimiter );
 
 		if ( !*results )
 		{
@@ -757,8 +756,8 @@ int widget_container_tab_order( void )
 }
 
 char *widget_drop_down_option_tag(
-			char *value_string,
-			char *display_string )
+		char *value_string,
+		char *display_string )
 {
 	static char tag[ 256 ];
 
@@ -784,8 +783,8 @@ char *widget_drop_down_option_tag(
 }
 
 boolean widget_drop_down_null_boolean(
-			boolean null_boolean,
-			boolean top_select_boolean )
+		boolean null_boolean,
+		boolean top_select_boolean )
 {
 	if ( top_select_boolean )
 		return 0;
@@ -794,9 +793,9 @@ boolean widget_drop_down_null_boolean(
 }
 
 char *widget_drop_down_select_close_tag(
-			boolean null_boolean,
-			boolean not_null_boolean,
-			boolean bottom_select_boolean )
+		boolean null_boolean,
+		boolean not_null_boolean,
+		boolean bottom_select_boolean )
 {
 	static char tag[ 300 ];
 	char *ptr = tag;
@@ -1098,8 +1097,8 @@ char *widget_multi_drop_down_name(
 }
 
 char *widget_multi_drop_down_original_name(
-			char *widget_multi_original_prefix,
-			char *widget_name )
+		char *widget_multi_original_prefix,
+		char *widget_name )
 {
 	char drop_down_name[ 256 ];
 
@@ -1126,7 +1125,7 @@ char *widget_multi_drop_down_original_name(
 }
 
 WIDGET_MULTI_DROP_DOWN *widget_multi_drop_down_new(
-			char *widget_name )
+		char *widget_name )
 {
 	WIDGET_MULTI_DROP_DOWN *widget_multi_drop_down;
 
@@ -2062,8 +2061,8 @@ char *widget_container_name(
 }
 
 char *widget_drop_down_heading(
-			char *name,
-			LIST *attribute_name_list )
+		char *name,
+		LIST *attribute_name_list )
 {
 	char heading[ 1024 ];
 	char formatted_heading[ 1024 ];
@@ -3179,29 +3178,6 @@ char *widget_container_time_html(
 		row_number,
 		query_cell_list,
 		background_color );
-}
-
-char *widget_container_list_key_string(
-		char sql_delimiter,
-		LIST *attribute_name_list )
-{
-	static char key_string[ 1024 ];
-	char *results;
-
-	if ( !list_length( attribute_name_list ) ) return (char *)0;
-
-	results =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		list_display_delimited(
-			attribute_name_list,
-			sql_delimiter );
-
-	strcpy( key_string, results );
-	free( results );
-
-	return key_string;
 }
 
 WIDGET_HIDDEN *widget_hidden_new( char *widget_name )
@@ -5442,7 +5418,7 @@ char *widget_drop_down_html(
 		/* Returns static memory */
 		/* --------------------- */
 		widget_drop_down_name(
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			widget_name /* mutually exclusive */,
 			attribute_name_list /* mutually exclusive */ );
 
@@ -5476,7 +5452,7 @@ char *widget_drop_down_html(
 			/* Returns static memory or null */
 			/* ----------------------------- */
 			widget_drop_down_value(
-				SQL_DELIMITER,
+				ATTRIBUTE_MULTI_KEY_DELIMITER,
 				widget_name,
 				query_row_cell_list,
 				relation_join_row,
@@ -6127,7 +6103,7 @@ char *widget_hidden_container_key(
 }
 
 char *widget_drop_down_value(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		char *widget_name,
 		LIST *query_cell_list,
 		RELATION_JOIN_ROW *relation_join_row,
@@ -6224,7 +6200,10 @@ char *widget_drop_down_value(
 
 		if ( ptr != drop_down_value )
 		{
-			ptr += sprintf( ptr, "%c", sql_delimiter );
+			ptr += sprintf(
+				ptr,
+				"%c",
+				attribute_multi_key_delimiter );
 		}
 
 		ptr += sprintf(

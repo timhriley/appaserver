@@ -218,7 +218,7 @@ int dictionary_highest_index(
 /* Usage */
 /* ----- */
 int dictionary_key_list_highest_index(
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		LIST *key_list,
 		DICTIONARY *dictionary,
 		int dictionary_highest_index );

@@ -829,6 +829,7 @@ OPERATION_ROW_CHECKED *operation_row_checked_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		operation_row_checked_command_line(
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			session_key,
 			login_name,
 			role_name,
@@ -910,6 +911,7 @@ int operation_row_checked_count(
 }
  
 char *operation_row_checked_command_line(
+		const char attribute_multi_key_delimiter,
 		char *session_key,
 		char *login_name,
 		char *role_name,
@@ -1023,7 +1025,7 @@ char *operation_row_checked_command_line(
 		/* ------------------- */
 		(tmp = list_display_delimited(
 			primary_key_data_list,
-			SQL_DELIMITER ) ),
+			(char)attribute_multi_key_delimiter ) ),
 		PROCESS_PRIMARY_PLACEHOLDER );
 
 	free( tmp );

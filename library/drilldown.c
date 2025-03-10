@@ -747,6 +747,7 @@ void drilldown_table_edit_output(
 }
 
 LIST *drilldown_input_primary_attribute_data_list(
+		const char attribute_multi_key_delimiter,
 		char *drilldown_primary_data_list_string )
 {
 	char unescaped[ 1024 ];
@@ -765,14 +766,13 @@ LIST *drilldown_input_primary_attribute_data_list(
 			message );
 	}
 
-
 	return
 	attribute_data_list(
-		SQL_DELIMITER,
+		attribute_multi_key_delimiter,
 		string_unescape_character(
 			unescaped,
 			drilldown_primary_data_list_string,
-			SQL_DELIMITER ) );
+			attribute_multi_key_delimiter ) );
 }
 
 LIST *drilldown_document_javascript_filename_list(
@@ -1309,6 +1309,7 @@ DRILLDOWN_INPUT *drilldown_input_new(
 
 	drilldown_input->primary_attribute_data_list =
 		drilldown_input_primary_attribute_data_list(
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			drilldown_primary_data_list_string );
 
 	drilldown_input->process_id = getpid();

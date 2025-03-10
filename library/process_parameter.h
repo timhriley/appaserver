@@ -307,6 +307,7 @@ boolean process_parameter_drop_down_fetch_mto1(
 /* Returns prompt_name, "" or heap memory */
 /* -------------------------------------- */
 char *process_parameter_drop_down_name(
+		const char attribute_multi_key_delimiter,
 		char *folder_name,
 		char *prompt_name,
 		LIST *folder_attribute_primary_key_list );

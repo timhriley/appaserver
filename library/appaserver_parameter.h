@@ -53,12 +53,14 @@ APPASERVER_PARAMETER *appaserver_parameter_calloc(
 APPASERVER_PARAMETER *appaserver_parameter_application(
 		char *application_name );
 
-/* Returns heap memory or null */
-/* --------------------------- */
+/* Returns heap memory */
+/* ------------------- */
 char *appaserver_parameter_filename(
 		char *application_name );
 
-FILE *appaserver_parameter_open(
+/* Safely returns */
+/* -------------- */
+FILE *appaserver_parameter_open_file(
 		char *filename );
 
 DICTIONARY *appaserver_parameter_dictionary(

@@ -153,7 +153,7 @@ DICTIONARY_SEPARATE_PARSE_MULTI *
 		const char *dictionary_separate_ignore_prefix,
 		const char *dictionary_separate_no_display_prefix,
 		const char *dictionary_separate_pair_prefix,
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		DICTIONARY *dictionary /* in/out */ );
 
 /* Process */
@@ -172,7 +172,7 @@ DICTIONARY_SEPARATE_PARSE_MULTI *
 /* ------------------------------------------------------------ */
 void dictionary_separate_parse_multi(
 		char *prefix,
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		DICTIONARY *dictionary /* in/out */,
 		LIST *dictionary_key_list );
 
@@ -189,7 +189,7 @@ char *dictionary_separate_multi_prefix_skipped(
 /* ----- */
 void dictionary_separate_parse_multi_key(
 		char *prefix,
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		DICTIONARY *dictionary /* in/out */,
 		int string_index,
 		char *multi_key_without_prefix_index,

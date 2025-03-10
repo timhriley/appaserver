@@ -122,8 +122,8 @@ INSERT_FOLDER *insert_folder_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *insert_folder_primary_data_list_string(
-		LIST *insert_data_key_data_list,
-		char sql_delimiter );
+		const char attribute_multi_key_delimiter,
+		LIST *insert_data_key_data_list );
 
 /* Usage */
 /* ----- */

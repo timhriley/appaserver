@@ -83,7 +83,7 @@ DICTIONARY_SEPARATE_POST_TABLE_EDIT *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -1037,7 +1037,7 @@ DICTIONARY *dictionary_separate_prompt(
 			list_display_delimited(
 				relation_mto1->
 					relation_foreign_key_list,
-				SQL_DELIMITER );
+				ATTRIBUTE_MULTI_KEY_DELIMITER );
 
 		/* --------------------------------------- */
 		/* Returns component of dictionary or null */
@@ -1191,7 +1191,7 @@ DICTIONARY_SEPARATE_DRILLTHRU *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -1297,7 +1297,7 @@ DICTIONARY_SEPARATE_TABLE_EDIT *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -1478,7 +1478,7 @@ DICTIONARY_SEPARATE_PARSE_MULTI *
 		const char *dictionary_separate_ignore_prefix,
 		const char *dictionary_separate_no_display_prefix,
 		const char *dictionary_separate_pair_prefix,
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		DICTIONARY *dictionary )
 {
 	DICTIONARY_SEPARATE_PARSE_MULTI *parse_multi;
@@ -1494,49 +1494,49 @@ DICTIONARY_SEPARATE_PARSE_MULTI *
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_sort_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_query_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_drillthru_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_ignore_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_no_display_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_pair_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)dictionary_separate_pair_prefix,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
 	dictionary_separate_parse_multi(
 		(char *)0 /* prefix */,
-		sql_delimiter,
+		attribute_multi_key_delimiter,
 		dictionary /* in/out */,
 		key_list );
 
@@ -1606,7 +1606,7 @@ DICTIONARY_SEPARATE_TABLE_INSERT *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary );
 
 	date_convert =
@@ -1891,7 +1891,7 @@ DICTIONARY_SEPARATE_POST_PROMPT_INSERT *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -2026,7 +2026,7 @@ DICTIONARY_SEPARATE_PROMPT_PROCESS *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -2152,7 +2152,7 @@ DICTIONARY_SEPARATE_POST_TABLE_INSERT *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -2287,7 +2287,7 @@ DICTIONARY_SEPARATE_PROMPT_LOOKUP *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -2415,7 +2415,7 @@ DICTIONARY_SEPARATE_POST_PROMPT_LOOKUP *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -2549,7 +2549,7 @@ DICTIONARY_SEPARATE_LOOKUP_DELETE *
 			DICTIONARY_SEPARATE_IGNORE_PREFIX,
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_PAIR_PREFIX,
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			trim_double_bracket->dictionary /* in/out */ );
 
 	date_convert =
@@ -2858,7 +2858,7 @@ char *dictionary_separate_parse_multi_index_key(
 
 void dictionary_separate_parse_multi_key(
 		char *prefix,
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		DICTIONARY *dictionary /* in/out */,
 		int string_index,
 		char *multi_key_without_prefix_index,
@@ -2888,12 +2888,12 @@ void dictionary_separate_parse_multi_key(
 	attribute_key_list =
 		list_string_to_list(
 			multi_key_without_prefix_index,
-			sql_delimiter );
+			attribute_multi_key_delimiter );
 
 	attribute_data_list =
 		list_string_to_list(
 			multi_data,
-			sql_delimiter );
+			attribute_multi_key_delimiter );
 
 	if ( !list_rewind( attribute_data_list ) )
 	{
@@ -2953,7 +2953,7 @@ void dictionary_separate_parse_multi_key(
 
 void dictionary_separate_parse_multi(
 		char *prefix,
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		DICTIONARY *dictionary /* in/out */,
 		LIST *dictionary_key_list )
 {
@@ -2969,7 +2969,7 @@ void dictionary_separate_parse_multi(
 
 		if ( !string_character_boolean(
 			multi_key,
-			sql_delimiter ) )
+			attribute_multi_key_delimiter ) )
 		{
 			continue;
 		}
@@ -3020,7 +3020,7 @@ void dictionary_separate_parse_multi(
 
 		dictionary_separate_parse_multi_key(
 			prefix,
-			sql_delimiter,
+			attribute_multi_key_delimiter,
 			dictionary /* in/out */,
 			index,
 			multi_key_without_prefix_index,

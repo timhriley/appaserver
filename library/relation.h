@@ -108,7 +108,7 @@ LIST *relation_foreign_key_list(
 /* Returns heap memory */
 /* ------------------- */
 char *relation_name(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		LIST *relation_foreign_key_list );
 
 /* Usage */

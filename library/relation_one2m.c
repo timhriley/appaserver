@@ -161,7 +161,7 @@ RELATION_ONE2M *relation_one2m_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		relation_name(
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			relation_one2m->
 				relation_foreign_key_list );
 

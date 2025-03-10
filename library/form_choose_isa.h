@@ -46,7 +46,7 @@ FORM_CHOOSE_ISA *form_choose_isa_calloc(
 /* Returns heap memory */
 /* ------------------- */
 char *form_choose_isa_drop_down_name(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		LIST *primary_key_list );
 
 LIST *form_choose_isa_button_widget_container_list(

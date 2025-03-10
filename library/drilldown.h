@@ -68,6 +68,7 @@ char *drilldown_input_post_table_edit_folder_name(
 /* Usage */
 /* ----- */
 LIST *drilldown_input_primary_attribute_data_list(
+		const char attribute_multi_key_delimiter,
 		char *drilldown_primary_data_list_string );
 
 typedef struct

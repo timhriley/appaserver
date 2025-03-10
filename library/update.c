@@ -1304,63 +1304,6 @@ char *update_command_line_list_execute( LIST *command_line_list )
 	return message_list_string;
 }
 
-char *update_one2m_command_line(
-		char *appaserver_update_state,
-		char *update_preupdate_prefix,
-		char *post_change_process_command_line,
-		char *session_key,
-		char *login_name,
-		char *role_name,
-		char *folder_name,
-		char *post_change_process_name,
-		char *appaserver_error_filename,
-		UPDATE_ONE2M_ROW *update_one2m_row )
-{
-	if ( !appaserver_update_state
-	||   !update_preupdate_prefix
-	||   !post_change_process_command_line
-	||   !session_key
-	||   !login_name
-	||   !role_name
-	||   !folder_name
-	||   !post_change_process_name
-	||   !appaserver_error_filename
-	||   !update_one2m_row
-	||   !list_length( update_one2m_row->update_attribute_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	return
-	/* ------------------- */
-	/* Returns heap memory */
-	/* ------------------- */
-	update_command_line(
-		appaserver_update_state,
-		update_preupdate_prefix,
-		post_change_process_command_line,
-		session_key,
-		login_name,
-		role_name,
-		folder_name,
-		post_change_process_name,
-		appaserver_error_filename,
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		list_display_delimited(
-			update_attribute_data_list(
-				update_one2m_row->update_attribute_list ),
-			SQL_DELIMITER )
-				/* update_where_list_primary_data_string */,
-		update_one2m_row->update_attribute_list );
-}
-
 LIST *update_one2m_changed_list(
 		char *many_folder_name,
 		LIST *update_changed_list,
@@ -3454,7 +3397,7 @@ char *update_one2m_row_command_line(
 		/* ------------------------- */
 		list_display_delimited(
 			query_cell_primary_data_list,
-			SQL_DELIMITER );
+			ATTRIBUTE_MULTI_KEY_DELIMITER );
 
 	return
 	/* ------------------- */

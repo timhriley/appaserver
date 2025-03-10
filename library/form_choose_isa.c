@@ -189,7 +189,7 @@ FORM_CHOOSE_ISA *form_choose_isa_new(
 		/* Returns static memory */
 		/* --------------------- */
 		form_choose_isa_drop_down_name(
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			primary_key_list );
 
 	list_set(
@@ -322,15 +322,14 @@ char *form_choose_isa_html(
 }
 
 char *form_choose_isa_drop_down_name(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		LIST *primary_key_list )
 {
-	if ( !sql_delimiter
-	||   !list_length( primary_key_list ) )
+	if ( !list_length( primary_key_list ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "primary_key_list is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -345,6 +344,6 @@ char *form_choose_isa_drop_down_name(
 	/* ------------------------- */
 	list_display_delimited(
 		primary_key_list,
-		sql_delimiter );
+		(char)attribute_multi_key_delimiter );
 }
 

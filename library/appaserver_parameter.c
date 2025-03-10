@@ -133,13 +133,13 @@ char *appaserver_parameter_filename( char *application_name )
 		return strdup( filename );
 
 	fprintf(stderr,
-		"Warning in %s/%s()/%d: cannot find %s.\n",
+		"ERROR in %s/%s()/%d: cannot find %s.\n",
 		__FILE__,
 		__FUNCTION__,
 		__LINE__,
 		filename );
 
-	return (char *)0;
+	exit( 1 );
 }
 
 FILE *appaserver_parameter_open_file( char *filename )
@@ -149,12 +149,13 @@ FILE *appaserver_parameter_open_file( char *filename )
 	if ( ! ( file = fopen( filename, "r" ) ) )
 	{
 		fprintf(stderr,
-			"Warning in %s/%s()/%d: fopen(%s) returned empty.\n",
+			"ERROR in %s/%s()/%d: fopen(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			filename );
-		return (FILE *)0;
+
+		exit( 1 );
 	}
 
 	return file;
@@ -346,54 +347,22 @@ APPASERVER_PARAMETER *appaserver_parameter_application(
 {
 	APPASERVER_PARAMETER *appaserver_parameter;
 
-	if ( !application_name )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: application_name is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-
-		exit( 1 );
-	}
-
 	appaserver_parameter = appaserver_parameter_calloc();
 	appaserver_parameter->application_name = application_name;
 
 	appaserver_parameter->filename =
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		appaserver_parameter_filename(
 			application_name );
 
-	if ( !appaserver_parameter->filename )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: appaserver_parameter_filename(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			application_name );
-
-		exit( 1 );
-	}
-
 	appaserver_parameter->file =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
 		appaserver_parameter_open_file(
 			appaserver_parameter->filename );
-
-	if ( !appaserver_parameter->file )
-	{
-		fprintf(stderr,
-"ERROR in %s/%s()/%d: appaserver_parameter_open_file(%s) returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			appaserver_parameter->filename );
-
-		exit( 1 );
-	}
 
 	appaserver_parameter->dictionary =
 		appaserver_parameter_dictionary(

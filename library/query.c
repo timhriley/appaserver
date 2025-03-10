@@ -94,40 +94,6 @@ char *query_system_string(
 	return strdup( system_string );
 }
 
-char *query_drop_down_row_key(
-		LIST *foreign_key_list,
-		int index )
-{
-	char key[ 512 ];
-	char *tmp;
-
-	*key = '\0';
-
-	if ( !list_length( foreign_key_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: foreign_key_list is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	sprintf(key,
-		"%s_%d",
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		( tmp =
-			list_display_delimited(
-				foreign_key_list,
-				SQL_DELIMITER ) ),
-		index );
-
-	free( tmp );
-	return strdup( key );
-}
-
 char *query_data_list_string(
 		DICTIONARY *query_dictionary,
 		char *query_key )
@@ -2940,7 +2906,7 @@ QUERY_DROP_DOWN_RELATION *query_drop_down_relation_new(
 
 	query_drop_down_relation->dictionary_key_list_highest_index =
 		dictionary_key_list_highest_index(
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			relation_mto1->relation_foreign_key_list,
 			dictionary,
 			dictionary_highest_index );

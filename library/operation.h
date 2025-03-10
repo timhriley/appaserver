@@ -86,6 +86,7 @@ char *operation_row_checked_key(
 /* Returns heap memory */
 /* ------------------- */
 char *operation_row_checked_command_line(
+		const char attribute_multi_key_delimiter,
 		char *session_key,
 		char *login_name,
 		char *role_name,

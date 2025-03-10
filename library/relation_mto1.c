@@ -687,7 +687,7 @@ RELATION_MTO1 *relation_mto1_new(
 		/* Returns heap memory */
 		/* ------------------- */
 		relation_name(
-			SQL_DELIMITER,
+			ATTRIBUTE_MULTI_KEY_DELIMITER,
 			relation_mto1->relation_foreign_key_list );
 
 	relation_mto1->relation_foreign_key_exists_primary =

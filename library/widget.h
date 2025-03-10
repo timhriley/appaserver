@@ -443,7 +443,7 @@ char *widget_drop_down_html(
 /* Returns static memory */
 /* --------------------- */
 char *widget_drop_down_name(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		char *widget_name /* mutually exclusive */,
 		LIST *attribute_name_list /* mutually exclusive */ );
 
@@ -485,7 +485,7 @@ char *widget_drop_down_html_string(
 /* Returns static memory or null */
 /* ----------------------------- */
 char *widget_drop_down_value(
-		char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		char *widget_name,
 		LIST *query_cell_list,
 		RELATION_JOIN_ROW *relation_join_row,

@@ -13,6 +13,7 @@
 #include "appaserver_user.h"
 #include "appaserver_parameter.h"
 #include "environ.h"
+#include "attribute.h"
 #include "sql.h"
 #include "post_dictionary.h"
 #include "drilldown.h"
@@ -81,10 +82,7 @@ int main( int argc, char **argv )
 			role_name,
 			drilldown_base_folder_name,
 			target_frame,
-			string_unescape_character(
-				buffer,
-				primary_data_list_string /* datum */,
-				SQL_DELIMITER ),
+			primary_data_list_string,
 			update_results_string,
 			update_error_string,
 			post_dictionary->original_post_dictionary,

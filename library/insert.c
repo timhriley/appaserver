@@ -1008,8 +1008,8 @@ INSERT_FOLDER *insert_folder_new(
 			/* Returns heap memory */
 			/* ------------------- */
 			insert_folder_primary_data_list_string(
-				insert_folder->insert_datum_key_datum_list,
-				SQL_DELIMITER );
+				ATTRIBUTE_MULTI_KEY_DELIMITER,
+				insert_folder->insert_datum_key_datum_list );
 
 		insert_folder->command_line =
 			/* ------------------- */
@@ -1101,8 +1101,8 @@ char *insert_folder_sql_statement_string(
 }
 
 char *insert_folder_primary_data_list_string(
-		LIST *insert_datum_key_datum_list,
-		char sql_delimiter )
+		const char attribute_multi_key_delimiter,
+		LIST *insert_datum_key_datum_list )
 {
 	return
 	/* ------------------- */
@@ -1110,7 +1110,7 @@ char *insert_folder_primary_data_list_string(
 	/* ------------------- */
 	list_display_delimited(
 		insert_datum_key_datum_list,
-		sql_delimiter );
+		(char)attribute_multi_key_delimiter );
 }
 
 char *insert_folder_command_line(

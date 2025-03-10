@@ -335,7 +335,7 @@ boolean dictionary_exists_key_index(
 }
 
 int dictionary_key_list_highest_index(
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		LIST *key_list,
 		DICTIONARY *dictionary,
 		int dictionary_highest_index )
@@ -366,7 +366,7 @@ int dictionary_key_list_highest_index(
 		/* ------------------------- */
 		list_display_delimited(
 			key_list,
-			sql_delimiter );
+			attribute_multi_key_delimiter );
 
 	if ( dictionary_key_exists(
 		dictionary,

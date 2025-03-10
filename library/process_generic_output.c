@@ -2578,12 +2578,13 @@ PROCESS_GENERIC_VALUE *process_generic_value_new( void )
 }
 
 char *process_generic_get_datatype_name(
-				LIST *datatype_primary_attribute_data_list,
-				char delimiter )
+		LIST *datatype_primary_attribute_data_list,
+		char delimiter )
 {
-	return list_display_delimited(
-			datatype_primary_attribute_data_list,
-			delimiter );
+	return
+	list_display_delimited(
+		datatype_primary_attribute_data_list,
+		delimiter );
 }
 
 LIST *process_generic_get_prefixed_primary_attribute_data_list(
