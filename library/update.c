@@ -2146,12 +2146,6 @@ boolean update_changed_boolean(
 			SECURITY_ESCAPE_CHARACTER_STRING,
 			post_datum );
 
-	if ( !*file_datum
-	&&   strcmp( unescape, "n" ) == 0 )
-	{
-		return_value = 0;
-	}
-	else
 	if ( strcmp( file_datum, unescape ) != 0 )
 	{
 		return_value = 1;
