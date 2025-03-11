@@ -304,7 +304,7 @@ typedef struct
 /* Usage */
 /* ----- */
 LIST *widget_drop_down_option_list(
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		const char widget_drop_down_label_delimiter /* '|' */,
 		const char widget_drop_down_extra_delimiter /* '[' */,
 		const char *widget_drop_down_dash_delimiter,
@@ -1498,6 +1498,17 @@ char *widget_container_name(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *widget_container_value(
+		char attribute_multi_key_delimiter,
+		LIST *query_row_cell_list,
+		char *widget_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *widget_container_multi_key_value(
+		char attribute_multi_key_delimiter,
 		LIST *query_row_cell_list,
 		char *widget_name );
 
@@ -1510,15 +1521,6 @@ char *widget_container_list_html(
 		char *state,
 		int row_number /* < 1 to omit index suffix */,
 		char *background_color,
-		LIST *widget_container_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory or null */
-/* --------------------------- */
-char *widget_container_list_hidden_html(
-		int row_number,
 		LIST *widget_container_list );
 
 /* Usage */
@@ -1578,6 +1580,16 @@ char *widget_container_time_html(
 		LIST *query_cell_list,
 		char *background_color,
 		WIDGET_TIME *time );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *widget_container_list_hidden_html(
+		int row_number,
+		LIST *widget_container_list );
+
 
 /* Returns heap memory */
 /* ------------------- */

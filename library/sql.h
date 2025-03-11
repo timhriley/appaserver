@@ -11,7 +11,6 @@
 #include "list.h"
 
 #define SQL_DELIMITER	'^'
-/* #define SQL_DELIMITER	0x1e */
 
 /* Public */
 /* ------ */
@@ -19,7 +18,7 @@
 /* Returns static memory */
 /* --------------------- */
 char *sql_delimiter_string(
-		char sql_delimiter );
+		char delimiter );
 
 /* Returns error_string or null */
 /* ---------------------------- */

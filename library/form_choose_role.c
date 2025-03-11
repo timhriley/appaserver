@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/library/form_choose_role.c				*/
 /* -------------------------------------------------------------------- */
-/* No warranty and freely available software: see Appaserver.org	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
@@ -84,7 +84,7 @@ FORM_CHOOSE_ROLE *form_choose_role_new(
 		drop_down->
 		widget_drop_down_option_list =
 			widget_drop_down_option_list(
-				SQL_DELIMITER,
+				ATTRIBUTE_MULTI_KEY_DELIMITER,
 				WIDGET_DROP_DOWN_LABEL_DELIMITER,
 				WIDGET_DROP_DOWN_EXTRA_DELIMITER,
 				WIDGET_DROP_DOWN_DASH_DELIMITER,

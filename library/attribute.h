@@ -20,6 +20,8 @@
 					"hint_message"
 
 #define ATTRIBUTE_MULTI_KEY_DELIMITER	'^'
+/* #define ATTRIBUTE_MULTI_KEY_DELIMITER	0x1e */
+
 #define ATTRIBUTE_NAME_SORT_ORDER	"sort_order"
 #define ATTRIBUTE_NAME_DISPLAY_ORDER	"display_order"
 #define ATTRIBUTE_NAME_SEQUENCE_NUMBER	"sequence_number"

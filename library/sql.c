@@ -1,8 +1,8 @@
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
 /* $APPASERVER_HOME/library/sql.c			   		*/
-/* -------------------------------------------------------------	*/
-/* No warranty and Freely available software: see Appaserver.org	*/
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and Freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdlib.h>
 #include "String.h"
@@ -13,9 +13,9 @@
 
 char *sql_delimiter_string( char sql_delimiter )
 {
-	static char string[ 2 ] = {0};
+	static char string[ 2 ];
 
-	if ( !*string ) *string = sql_delimiter;
+	*string = sql_delimiter;
 
 	return string;
 }

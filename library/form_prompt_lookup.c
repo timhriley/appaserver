@@ -903,7 +903,7 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 		form_prompt_lookup_relation->
 			widget_drop_down_option_list =
 				widget_drop_down_option_list(
-					SQL_DELIMITER,
+					ATTRIBUTE_MULTI_KEY_DELIMITER,
 					WIDGET_DROP_DOWN_LABEL_DELIMITER,
 					WIDGET_DROP_DOWN_EXTRA_DELIMITER,
 					WIDGET_DROP_DOWN_DASH_DELIMITER,

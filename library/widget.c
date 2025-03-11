@@ -588,13 +588,14 @@ char *widget_non_edit_text_html(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			widget_container_value(
+				ATTRIBUTE_MULTI_KEY_DELIMITER,
 				query_row_cell_list,
 				widget_name );
 
 		if ( container_value
 		&&   string_exists_character(
 			widget_name,
-			SQL_DELIMITER ) )
+			ATTRIBUTE_MULTI_KEY_DELIMITER ) )
 		{
 			char *tmp;
 
@@ -609,7 +610,8 @@ char *widget_non_edit_text_html(
 					/* --------------------- */
 					/* Returns static memory */
 					/* --------------------- */
-					sql_delimiter_string( SQL_DELIMITER ),
+					sql_delimiter_string(
+						ATTRIBUTE_MULTI_KEY_DELIMITER ),
 					container_value );
 
 			free( container_value );
@@ -1064,36 +1066,6 @@ char *widget_empty_prompt_drop_down_html(
 	ptr += sprintf( ptr, ">\n" );
 
 	return strdup( html );
-}
-
-char *widget_multi_drop_down_name(
-			LIST *attribute_name_list )
-{
-	static char drop_down_name[ 1024 ];
-	char *results;
-
-	if ( !list_length( attribute_name_list ) )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: list_length() returned empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
-	results =
-		/* ------------------------- */
-		/* Returns heap memory or "" */
-		/* ------------------------- */
-		list_display_delimited(
-			attribute_name_list,
-			SQL_DELIMITER );
-
-	strcpy(	drop_down_name, results );
-
-	free( results );
-	return drop_down_name;
 }
 
 char *widget_multi_drop_down_original_name(
@@ -2060,51 +2032,6 @@ char *widget_container_name(
 		row_number );
 }
 
-char *widget_drop_down_heading(
-		char *name,
-		LIST *attribute_name_list )
-{
-	char heading[ 1024 ];
-	char formatted_heading[ 1024 ];
-
-	if ( !name
-	&&   !list_length( attribute_name_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message,
-			"both name and attribute_name_list are empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( name )
-	{
-		strcpy( heading, name );
-	}
-	else
-	{
-		sprintf(heading,
-			"%s", 
-			/* ------------------------- */
-			/* Returns heap memory or "" */
-			/* ------------------------- */
-			list_display_delimited(
-				attribute_name_list,
-				SQL_DELIMITER ) );
-	}
-
-	return
-	strdup(
-		string_initial_capital(
-			formatted_heading,
-			heading ) );
-}
-
 char *widget_multi_drop_down_html(
 		char *state,
 		WIDGET_DROP_DOWN *original_drop_down,
@@ -2694,14 +2621,10 @@ boolean widget_text_autocomplete_off( char *widget_name )
 }
 
 char *widget_container_value(
+		char attribute_multi_key_delimiter,
 		LIST *query_row_cell_list,
 		char *widget_name )
 {
-	QUERY_CELL *query_cell;
-	char container_value[ 65536 ];
-	char *ptr = container_value;
-	LIST *list;
-
 	if ( !widget_name )
 	{
 		char message[ 128 ];
@@ -2717,10 +2640,65 @@ char *widget_container_value(
 
 	if ( !list_length( query_row_cell_list ) ) return (char *)0;
 
-	list = list_string_to_list( widget_name, SQL_DELIMITER );
+	if ( attribute_multi_key_delimiter )
+	{
+		return
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		widget_container_multi_key_value(
+			attribute_multi_key_delimiter,
+			query_row_cell_list,
+			widget_name );
+	}
+	else
+	{
+		QUERY_CELL *query_cell;
 
-	list_rewind( list );
+		if ( ! ( query_cell =
+				query_cell_seek(
+					widget_name /* attribute_name */,
+					query_row_cell_list ) ) )
+		{
+			return NULL;
+		}
 
+		return query_cell->display_datum;
+	}
+}
+
+char *widget_container_multi_key_value(
+		char attribute_multi_key_delimiter,
+		LIST *query_row_cell_list,
+		char *widget_name )
+{
+	QUERY_CELL *query_cell;
+	char container_value[ STRING_64K ];
+	char *ptr = container_value;
+	LIST *list;
+
+	if ( !attribute_multi_key_delimiter
+	||   !widget_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !list_length( query_row_cell_list ) ) return NULL;
+
+	list =
+		list_string_to_list(
+			widget_name,
+			attribute_multi_key_delimiter );
+
+	if ( list_rewind( list ) )
 	do {
 		widget_name = list_get( list );
 
@@ -2729,14 +2707,14 @@ char *widget_container_value(
 					widget_name /* attribute_name */,
 					query_row_cell_list ) ) )
 		{
-			return (char *)0;
+			return NULL;
 		}
 
 		if ( !query_cell->display_datum )
 			query_cell->display_datum = "";
 
 		if (	strlen( container_value ) +
-			strlen( query_cell->display_datum ) + 1 >= 65536 )
+			strlen( query_cell->display_datum ) + 1 >= STRING_64K )
 		{
 			char message[ 128 ];
 
@@ -2756,7 +2734,7 @@ char *widget_container_value(
 			ptr += sprintf(
 				ptr,
 				"%c",
-				SQL_DELIMITER );
+				attribute_multi_key_delimiter );
 		}
 
 		ptr += sprintf( ptr, "%s", query_cell->display_datum );
@@ -3318,6 +3296,7 @@ char *widget_notepad_html(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			widget_container_value(
+				(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 				query_cell_list,
 				widget_name );
 	}
@@ -3604,6 +3583,7 @@ char *widget_encrypt_html(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			widget_container_value(
+				(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 				query_cell_list,
 				widget_name );
 	}
@@ -3900,6 +3880,7 @@ char *widget_upload_edit_frame_html(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		widget_container_value(
+			(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 			query_cell_list,
 			widget_name );
 
@@ -4330,6 +4311,7 @@ char *widget_yes_no_html(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		widget_container_value(
+			(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 			query_cell_list,
 			widget_name );
 
@@ -4673,6 +4655,7 @@ char *widget_date_html(
 			/* Returns heap memory or null */
 			/* --------------------------- */
 			widget_container_value(
+				(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 				query_cell_list,
 				widget_name );
 	}
@@ -5057,7 +5040,7 @@ char *widget_multi_empty_drop_down_html(
 }
 
 LIST *widget_drop_down_option_list(
-		const char sql_delimiter,
+		const char attribute_multi_key_delimiter,
 		const char widget_drop_down_label_delimiter /* '|' */,
 		const char widget_drop_down_extra_delimiter /* '[' */,
 		const char *widget_drop_down_dash_delimiter,
@@ -5065,9 +5048,17 @@ LIST *widget_drop_down_option_list(
 		boolean no_initial_capital )
 {
 	LIST *list;
+	char *delimiter_string;
 	char *delimited_string;
 
 	list = list_new();
+
+	delimiter_string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sql_delimiter_string(
+			attribute_multi_key_delimiter );
 
 	if ( list_rewind( delimited_list ) )
 	do {
@@ -5082,10 +5073,7 @@ LIST *widget_drop_down_option_list(
 				widget_drop_down_extra_delimiter,
 				widget_drop_down_dash_delimiter,
 				no_initial_capital,
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				sql_delimiter_string( sql_delimiter ),
+				delimiter_string,
 				delimited_string ) );
 
 	} while ( list_next( delimited_list ) );
@@ -6043,9 +6031,9 @@ int widget_drop_down_display_size(
 }
 
 char *widget_hidden_value(
-			LIST *query_row_cell_list,
-			char *widget_name,
-			char *value_string )
+		LIST *query_row_cell_list,
+		char *widget_name,
+		char *value_string )
 {
 	char *value;
 
@@ -6066,6 +6054,7 @@ char *widget_hidden_value(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		widget_container_value(
+			(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 			query_row_cell_list,
 			widget_name );
 
@@ -6938,6 +6927,7 @@ char *widget_time_html(
 		/* Returns heap memory or null */
 		/* --------------------------- */
 		widget_container_value(
+			(char)0 /* ATTRIBUTE_MULTI_KEY_DELIMITER */,
 			query_cell_list,
 			widget_name );
 

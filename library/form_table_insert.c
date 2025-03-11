@@ -403,7 +403,7 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 		drop_down->
 		widget_drop_down_option_list =
 			widget_drop_down_option_list(
-				SQL_DELIMITER,
+				ATTRIBUTE_MULTI_KEY_DELIMITER,
 				WIDGET_DROP_DOWN_LABEL_DELIMITER,
 				WIDGET_DROP_DOWN_EXTRA_DELIMITER,
 				WIDGET_DROP_DOWN_DASH_DELIMITER,
