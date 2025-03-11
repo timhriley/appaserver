@@ -1,7 +1,7 @@
 #!/bin/bash
-# ---------------------------------------------------------
+# ---------------------------------------------------
 # $APPASERVER_HOME/src_predictive/populate_account.sh
-# ---------------------------------------------------------
+# ---------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -93,7 +93,7 @@ if [ "$element" != "" ]
 then
 	subclassification_join="account.subclassification = subclassification.subclassification"
 
-	element_portion="subclassification.element = 'expense'"
+	element_portion="subclassification.element = '$element'"
 
 	element_where="${subclassification_join} and ${element_portion}"
 

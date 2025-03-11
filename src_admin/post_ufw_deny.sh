@@ -31,6 +31,6 @@ where="confirmation_received_date is null"
 
 echo "select IP_address from post where $where;"	|
 sql.e							|
-xargs.e "sudo /usr2/ufw/ufw_deny {}"
+xargs.e "/usr2/ufw/ufw_submit {}"
 
 exit $?

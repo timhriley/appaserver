@@ -39,7 +39,7 @@ program_name="$9"
 cat << all_done
 <html>
 <head>
-<link rel=stylesheet type="text/css" href="/appaserver/$application/style.css">
+<link rel=stylesheet type="text/css" href="/appaserver/template/style.css">
 </head>
 <body>
 <h1>`echo $process | format_initial_capital.e`</h1>
@@ -149,9 +149,9 @@ from=transaction
 
 where="full_name = '$full_name_escaped' and street_address = '$street_address' and transaction_date_time like '$transaction_date %' and transaction_amount = $transaction_amount"
 
-results=`echo "select count(1) from $from where $where;" | sql.e`
+result=`echo "select count(1) from $from where $where;" | sql.e`
 
-if [ "$results" -ge 1 ]
+if [ "$result" -ge 1 ]
 then
 	echo "<h2> `now.sh 19` </h2>"
 	echo "<h3>Duplication Error. You have to Insert->PB&J->Transaction instead.</h3>"
@@ -183,7 +183,7 @@ then
 
 	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo,program_name"
 
-	results=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo^$program_name"				|\
+	result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo^$program_name"				|\
 		insert_statement.e table=$table field=$field del='^'	|\
 		sql.e 2>&1`
 
@@ -191,16 +191,16 @@ else
 
 	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
 
-	results=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
+	result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
 		insert_statement.e table=$table field=$field del='^'	|\
 		sql.e 2>&1`
 
 fi
 
-if [ "$results" != "" ]
+if [ "$result" != "" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
-	echo "<h3>$results</h3>"
+	echo "<h3>$result</h3>"
 	echo "</body>"
 	echo "</html>"
 	exit 0
@@ -238,7 +238,7 @@ html_paragraph_wrapper.e
 
 # Execute the post change process for debit and credit accounts
 # -------------------------------------------------------------
-post_change_journal.sh	insert				\
+post_change_journal.sh		insert				\
 				"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\
@@ -246,7 +246,7 @@ post_change_journal.sh	insert				\
 				preupdate_transaction_date_time	\
 				preupdate_account
 
-post_change_journal.sh	insert				\
+post_change_journal.sh		insert				\
 				"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\
