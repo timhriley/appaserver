@@ -1561,20 +1561,7 @@ DICTIONARY *drilldown_query_dictionary(
 			list_display( attribute_data_list ),
 			list_length( attribute_data_list ) );
 
-		appaserver_error_warning(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"query_dictionary=[%s]",
-			dictionary_display(
-				dictionary_separate_query_dictionary ) );
-
-		appaserver_error_warning(
+		appaserver_error_stderr_exit(
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,

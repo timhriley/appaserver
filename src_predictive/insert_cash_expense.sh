@@ -36,9 +36,8 @@ check_number=$7
 memo="$8"
 program_name="$9"
 
-# Generate document head and body
-# -------------------------------
-echo | html_wrapper.e | grep -v '^</body' | grep -v '^</html>'
+document_body.sh
+
 echo "<h1>`echo $process | format_initial_capital.e`</h1>"
 
 if [	"$full_name" = "" -o				\

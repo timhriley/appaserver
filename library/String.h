@@ -490,6 +490,8 @@ boolean string_file_write(
 		char *filename,
 		char *string );
 
+/* Returns destination */
+/* ------------------- */
 char *string_unescape_character(
 		char *destination,
 		char *datum,

@@ -28,7 +28,7 @@ then
 fi
 
 process_name=$1                       	# Assumed letters_and_underbars
-feeder_account=$2
+feeder_account="$2"
 minimum_transaction_date=$3
 
 if [	"$minimum_transaction_date" = "" -o				\
@@ -41,10 +41,17 @@ then
 	minimum_transaction_date=`echo $sql_statement | sql.e | column.e 0`
 fi
 
-process_title=`echo "$process_name" | format_initial_capital.e`
 
 document_body.sh $application
-echo "<h1>$process_title</h1>"
+
+echo "<h1>`echo "$process_name" | format_initial_capital.e`</h1>"
+
+if [ "$feeder_account" = "feeder_account" ]
+then
+	echo "<h3>Please select a Feeder Account</h3>"
+	echo "</body></html>"
+	exit 0
+fi
 
 heading="transaction_date_time,full_name,check_number,debit_amount,credit_amount,balance"
 

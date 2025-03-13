@@ -11,6 +11,7 @@
 #include "String.h"
 #include "execute_system_string.h"
 #include "dictionary_separate.h"
+#include "attribute.h"
 #include "table_edit.h"
 #include "post_table_edit.h"
 
@@ -163,22 +164,32 @@ int main( int argc, char **argv )
 	{
 		if ( *drilldown_base_folder_name )
 		{
+			char drilldown_primary_data_list_unescape[ 2048 ];
+
 			system_string =
-				execute_system_string_drilldown(
-					POST_TABLE_EDIT_DRILLDOWN_EXECUTABLE,
-					session_key,
-					login_name,
-					role_name,
-					target_frame,
-					drilldown_base_folder_name,
-					drilldown_primary_data_list_string,
-					update_results_string,
-					update_error_string,
-					post_table_edit->
-						dictionary_separate_send_string,
-					post_table_edit->
-						post_table_edit_input->
-						appaserver_error_filename );
+			   execute_system_string_drilldown(
+				POST_TABLE_EDIT_DRILLDOWN_EXECUTABLE,
+				session_key,
+				login_name,
+				role_name,
+				target_frame,
+				drilldown_base_folder_name,
+				/* ------------------- */
+				/* Returns destination */
+				/* ------------------- */
+				string_unescape_character(
+					drilldown_primary_data_list_unescape
+						/* destination */,
+					drilldown_primary_data_list_string
+						/* datum */,
+					ATTRIBUTE_MULTI_KEY_DELIMITER ),
+				update_results_string,
+				update_error_string,
+				post_table_edit->
+					dictionary_separate_send_string,
+				post_table_edit->
+					post_table_edit_input->
+					appaserver_error_filename );
 		}
 		else
 		{
