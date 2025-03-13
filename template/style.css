@@ -1,7 +1,9 @@
 HTML		{	color: navy }
+
 BODY		{	color: navy;
 			background-color: #effdff
 		}
+
 H1 		{	text-align: center;
 			letter-spacing: .2em;
 			color: #AA0000;
@@ -26,6 +28,7 @@ LI  		{	color: navy;
 			font-size: 10pt }
 A 		{	color: navy;
 			font-size: 10pt }
+
 .RIGHT		{	color: navy;
 			font-size: 10pt;
 			text-align: right }
