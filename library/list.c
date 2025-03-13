@@ -210,7 +210,7 @@ boolean item_exists( LIST *list, char *item, int (*compare_fn)() )
 	if ( !list ) return 0;
 	if ( !item ) return 0;
 
-	return list_item_exists( list, item, compare_fn );
+	return list_item_boolean( list, item, compare_fn );
 }
 
 boolean list_exists( LIST *list, char *item, int (*compare_fn)() )
@@ -218,7 +218,7 @@ boolean list_exists( LIST *list, char *item, int (*compare_fn)() )
 	if ( !list ) return 0;
 	if ( !item ) return 0;
 
-	return list_item_exists( list, item, compare_fn );
+	return list_item_boolean( list, item, compare_fn );
 }
 
 boolean list_search_string( LIST *list, char *string )
@@ -234,7 +234,15 @@ boolean list_string_exists( char *string, LIST *list )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return list_item_exists( list, string, list_strcmp );
+	return list_item_boolean( list, string, list_strcmp );
+}
+
+boolean list_string_boolean( char *string, LIST *list )
+{
+	if ( !list ) return 0;
+	if ( !string ) return 0;
+
+	return list_item_boolean( list, string, list_strcmp );
 }
 
 boolean list_exists_string( char *string, LIST *list )
@@ -242,7 +250,7 @@ boolean list_exists_string( char *string, LIST *list )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return list_item_exists( list, string, list_strcmp );
+	return list_item_boolean( list, string, list_strcmp );
 }
 
 boolean list_exists_any_index_string( LIST *list, char *string )
@@ -250,7 +258,7 @@ boolean list_exists_any_index_string( LIST *list, char *string )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return list_item_exists( list, string, list_string_index_compare );
+	return list_item_boolean( list, string, list_string_index_compare );
 }
 
 boolean is_subset_of( LIST *subset, LIST *set )
@@ -300,7 +308,7 @@ boolean list_subset_boolean(
 	do {
 		item = list_get( subset );
 
-		if ( !list_item_exists( set, item, list_strcmp ) )
+		if ( !list_item_boolean( set, item, list_strcmp ) )
 		{
 			list_restore( subset );
 			list_restore( set );
@@ -1096,11 +1104,19 @@ void *list_match_seek( LIST *list, char *string, int (*compare_fn)() )
 }
 
 boolean list_item_exists( LIST *list, char *item, int (*compare_fn)() )
-/* ----------------------------------------------------------- */
-/* This function return the offset if item exists in the list, */
-/* otherwise it returns 0.	                               */
-/* Also, if found the current pointer points there.            */
-/* ----------------------------------------------------------- */
+{
+	return list_item_boolean( list, item, compare_fn );
+}
+
+boolean list_item_boolean( LIST *list, char *item, int (*compare_fn)() )
+{
+	if ( list_item_offset( list, item, compare_fn ) )
+		return 1;
+	else
+		return 0;
+}
+
+int list_item_offset( LIST *list, char *item, int (*compare_fn)() )
 {
 	int offset = 0;
         struct LINKTYPE *save_ptr;
@@ -1108,16 +1124,17 @@ boolean list_item_exists( LIST *list, char *item, int (*compare_fn)() )
         if ( !go_head( list ) ) return 0;
 
         save_ptr = list->current;
+
         while ( 1 )
 	{
 		offset++;
 
-                if ((*compare_fn) (list->current->item, item) == 0)
+                if ( (*compare_fn) (list->current->item, item) == 0 )
 		{
                         return offset;
 		}
                 else
-                if (!next_item(list))
+                if ( !list_next( list ) )
 		{
                         list->current = save_ptr;
                         return 0;
@@ -2234,7 +2251,7 @@ boolean list_equivalent_string_list(
 	do {
 		item = list_get( list1 );
 
-		if ( !list_item_exists( list2, item, list_strcmp ) )
+		if ( !list_item_boolean( list2, item, list_strcmp ) )
 		{
 			list_restore( list1 );
 			list_restore( list2 );

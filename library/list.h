@@ -105,7 +105,17 @@ boolean list_next(
 boolean next_item(
 		LIST *list );
 
-int list_item_exists(
+boolean list_item_exists(
+		LIST *list,
+		char *item,
+		int (*compare_fn)() );
+
+boolean list_item_boolean(
+		LIST *list,
+		char *item,
+		int (*compare_fn)() );
+
+int list_item_offset(
 		LIST *list,
 		char *item,
 		int (*compare_fn)() );
@@ -130,6 +140,10 @@ boolean list_exists_string(
 		LIST *list );
 
 boolean list_string_exists(
+		char *string,
+		LIST *list );
+
+boolean list_string_boolean(
 		char *string,
 		LIST *list );
 

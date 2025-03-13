@@ -1390,10 +1390,22 @@ char *query_order_string(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_key_list_order_string(
-		const char delimiter,
+		const char attribute_multi_key_delimiter,
 		const char *form_sort_ascend_label,
 		const char *form_sort_descend_label,
+		LIST *folder_attribute_name_list,
 		LIST *sort_dictionary_key_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *query_key_order_string(
+		const char attribute_multi_key_delimiter,
+		LIST *folder_attribute_name_list,
+		char *attribute_name_list_string,
+		boolean descend_boolean );
 
 /* Usage */
 /* ----- */

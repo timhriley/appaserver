@@ -61,9 +61,10 @@ COVARIANCE_DATATYPE *covariance_set_covariance_datatype(
 {
 	COVARIANCE_DATATYPE *covariance_datatype;
 
-	if ( list_item_exists(	compare_covariance_datatype_list,
-				datatype_name,
-				covariance_datatype_compare ) )
+	if ( list_item_exists(
+		compare_covariance_datatype_list,
+		datatype_name,
+		covariance_datatype_compare ) )
 	{
 		return
 		list_get(
@@ -266,9 +267,10 @@ int covariance_get_results(	double *covariance,
 	LIST *compare_date_time_key_list;
 	LIST *date_time_key_list;
 
-	if ( list_item_exists(	compare_covariance_datatype_list,
-				datatype_name,
-				covariance_datatype_compare ) )
+	if ( list_item_exists(
+		compare_covariance_datatype_list,
+		datatype_name,
+		covariance_datatype_compare ) )
 	{
 		compare_datatype =
 			list_get(

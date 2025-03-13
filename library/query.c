@@ -771,17 +771,16 @@ char *query_order_string(
 		LIST *folder_attribute_name_list,
 		DICTIONARY *sort_dictionary )
 {
-	if ( folder_attribute_name_list )
+	char *order_string = {0};
+
+	if ( dictionary_length( sort_dictionary )
+	&&   folder_attribute_name_list )
 	{
 		LIST *key_list =
 			dictionary_key_list(
 				sort_dictionary );
 
-		if ( list_subset_boolean(
-			key_list /* subset */,
-			folder_attribute_name_list ) )
-		{
-			return
+		order_string =
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
@@ -789,16 +788,44 @@ char *query_order_string(
 				ATTRIBUTE_MULTI_KEY_DELIMITER,
 				FORM_SORT_ASCEND_LABEL,
 				FORM_SORT_DESCEND_LABEL,
-				key_list );
-		}
+				folder_attribute_name_list,
+				key_list
+					/* sort_dictionary_key_list */ );
 	}
 
-	if ( !list_length( folder_attribute_primary_key_list ) )
+	if ( !order_string )
+	{
+		order_string =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			list_delimited_string(
+				folder_attribute_primary_key_list,
+				',' /* delimiter */ );
+	}
+
+	return order_string;
+}
+
+char *query_key_list_order_string(
+		const char attribute_multi_key_delimiter,
+		const char *form_sort_ascend_label,
+		const char *form_sort_descend_label,
+		LIST *folder_attribute_name_list,
+		LIST *sort_dictionary_key_list )
+{
+	char *first_key;
+	char *key_order_string = {0};
+	char *attribute_name_list_string;
+
+	if ( list_length( sort_dictionary_key_list ) != 1 )
 	{
 		char message[ 128 ];
 
-		sprintf(message,
-			"folder_attribute_primary_key_list is empty." );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"Expecting list length of 1." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -807,54 +834,105 @@ char *query_order_string(
 			message );
 	}
 
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	list_delimited_string(
-		folder_attribute_primary_key_list,
-		',' /* delimiter */ );
+	first_key = list_first( sort_dictionary_key_list );
+
+	string_strncmp(
+	first_key,
+	FORM_SORT_ASCEND_LABEL );
+
+	if ( string_strncmp(
+		first_key,
+		(char *)form_sort_ascend_label ) == 0 )
+	{
+		attribute_name_list_string =
+			first_key + strlen( form_sort_ascend_label );
+
+		key_order_string =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			query_key_order_string(
+				attribute_multi_key_delimiter,
+				folder_attribute_name_list,
+				attribute_name_list_string,
+				0 /* not descend_boolean */ );
+	}
+
+	if ( string_strncmp(
+		first_key,
+		(char *)form_sort_descend_label ) == 0 )
+	{
+		attribute_name_list_string =
+			first_key + strlen( form_sort_descend_label );
+
+		key_order_string =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			query_key_order_string(
+				attribute_multi_key_delimiter,
+				folder_attribute_name_list,
+				attribute_name_list_string,
+				1 /* descend_boolean */ );
+	}
+
+	return key_order_string;
 }
 
-char *query_key_list_order_string(
-		const char delimiter,
-		const char *form_sort_ascend_label,
-		const char *form_sort_descend_label,
-		LIST *sort_dictionary_key_list )
+char *query_key_order_string(
+		const char attribute_multi_key_delimiter,
+		LIST *folder_attribute_name_list,
+		char *attribute_name_list_string,
+		boolean descend_boolean )
 {
 	char order_string[ 1024 ];
 	char *ptr = order_string;
-	char *key;
+	int p;
+	char attribute_name[ 128 ];
 
-	if ( !list_rewind( sort_dictionary_key_list ) ) return (char *)0;
+	if ( !attribute_name_list_string )
+	{
+		char message[ 128 ];
 
-	do {
-		key = list_get( sort_dictionary_key_list );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"attribute_name_list_string is empty." );
 
-		if ( string_character_exists( key, delimiter ) )
-			continue;
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
-		if ( ptr != order_string ) ptr += sprintf( ptr, "," );
-
-		if ( string_strncmp(
-			key,
-			(char *)form_sort_ascend_label ) == 0 )
+	for (	p = 0;
+		piece(	attribute_name,
+			attribute_multi_key_delimiter,
+			attribute_name_list_string,
+			p );
+		p++ )
+	{
+		if ( list_string_boolean(
+			attribute_name,
+			folder_attribute_name_list ) )
 		{
+			if ( ptr != order_string ) ptr += sprintf( ptr, "," );
+
 			ptr += sprintf(
 				ptr,
 				"%s",
-				key + strlen( form_sort_ascend_label ) );
-		}
-		else
-		{
-			ptr += sprintf(
-				ptr,
-				"%s desc",
-				key + strlen( form_sort_descend_label ) );
-		}
-	} while ( list_next( sort_dictionary_key_list ) );
+				attribute_name );
 
-	return strdup( order_string );
+			if ( descend_boolean )
+				ptr += sprintf( ptr, " desc" );
+		}
+	}
+
+	if ( ptr == order_string )
+		return NULL;
+	else
+		return strdup( order_string );
 }
 
 QUERY_TABLE_EDIT_WHERE *query_table_edit_where_calloc( void )
