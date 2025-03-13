@@ -388,6 +388,10 @@ boolean list_is_subset_of(
 		LIST *subset,
 		LIST *set );
 
+boolean list_subset_boolean(
+		LIST *subset,
+		LIST *set );
+
 void list_delete_from_list(
 		LIST *set,
 		LIST *delete_list );

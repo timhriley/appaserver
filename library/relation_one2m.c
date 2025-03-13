@@ -450,7 +450,9 @@ char *relation_one2m_where_string(
 			message );
 	}
 
-	sprintf(where_string,
+	snprintf(
+		where_string,
+		sizeof ( where_string ),
 		"%s = '%s'",
 		relation_foreign_key,
 		one_folder_name );

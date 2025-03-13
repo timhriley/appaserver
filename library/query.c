@@ -626,6 +626,7 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *folder_attribute_primary_key_list,
+		LIST *folder_attribute_name_list,
 		DICTIONARY *query_dictionary,
 		DICTIONARY *sort_dictionary,
 		/* ------------------------- */
@@ -729,6 +730,7 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 		/* ----------------------------------------------- */
 		query_order_string(
 			folder_attribute_primary_key_list,
+			folder_attribute_name_list,
 			sort_dictionary );
 
 	query_table_edit->query_system_string =
@@ -766,49 +768,56 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 
 char *query_order_string(
 		LIST *folder_attribute_primary_key_list,
+		LIST *folder_attribute_name_list,
 		DICTIONARY *sort_dictionary )
 {
-	if ( dictionary_length( sort_dictionary ) )
+	if ( folder_attribute_name_list )
 	{
-		return
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		query_key_list_order_string(
-			SQL_DELIMITER,
-			FORM_SORT_ASCEND_LABEL,
-			FORM_SORT_DESCEND_LABEL,
+		LIST *key_list =
 			dictionary_key_list(
-				sort_dictionary ) );
-	}
-	else
-	{
-		if ( !list_length( folder_attribute_primary_key_list ) )
+				sort_dictionary );
+
+		if ( list_subset_boolean(
+			key_list /* subset */,
+			folder_attribute_name_list ) )
 		{
-			char message[ 128 ];
-
-			sprintf(message,
-				"folder_attribute_primary_key_list is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			return
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			query_key_list_order_string(
+				ATTRIBUTE_MULTI_KEY_DELIMITER,
+				FORM_SORT_ASCEND_LABEL,
+				FORM_SORT_DESCEND_LABEL,
+				key_list );
 		}
-
-		return
-		/* --------------------------- */
-		/* Returns heap memory or null */
-		/* --------------------------- */
-		list_delimited_string(
-			folder_attribute_primary_key_list,
-			',' /* delimiter */ );
 	}
+
+	if ( !list_length( folder_attribute_primary_key_list ) )
+	{
+		char message[ 128 ];
+
+		sprintf(message,
+			"folder_attribute_primary_key_list is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	list_delimited_string(
+		folder_attribute_primary_key_list,
+		',' /* delimiter */ );
 }
 
 char *query_key_list_order_string(
-		const char sql_delimiter,
+		const char delimiter,
 		const char *form_sort_ascend_label,
 		const char *form_sort_descend_label,
 		LIST *sort_dictionary_key_list )
@@ -822,7 +831,7 @@ char *query_key_list_order_string(
 	do {
 		key = list_get( sort_dictionary_key_list );
 
-		if ( string_character_exists( key, sql_delimiter ) )
+		if ( string_character_exists( key, delimiter ) )
 			continue;
 
 		if ( ptr != order_string ) ptr += sprintf( ptr, "," );
@@ -4386,6 +4395,7 @@ QUERY_DROP_DOWN_FETCH *query_drop_down_fetch_new(
 		query_order_string(
 			query_drop_down_fetch->query_select_name_list
 				/* folder_attribute_primary_key_list */,
+			(LIST *)0 /* folder_attribute_name_list */,
 			(DICTIONARY *)0 /* sort_dictionary */ );
 
 	query_drop_down_fetch->query_system_string =
@@ -4693,6 +4703,7 @@ QUERY_CHOOSE_ISA *query_choose_isa_new(
 		query_order_string(
 			query_choose_isa->query_select_name_list
 				/* folder_attribute_primary_key_list */,
+			(LIST *)0 /* folder_attribute_name_list */,
 			(DICTIONARY *)0 /* sort_dictionary */ );
 
 	query_choose_isa->query_system_string =
@@ -5504,6 +5515,7 @@ QUERY_SPREADSHEET *query_spreadsheet_new(
 		/* ----------------------------------------------- */
 		query_order_string(
 			folder_attribute_primary_key_list,
+			(LIST *)0 /* folder_attribute_name_list */,
 			(DICTIONARY *)0 /* sort_dictionary */ );
 
 	query_spreadsheet->query_system_string =
@@ -5897,6 +5909,7 @@ QUERY_CHART *query_chart_new(
 		query_order_string(
 			query_chart->order_name_list
 				/* folder_attribute_primary_key_list */,
+			(LIST *)0 /* folder_attribute_name_list */,
 			(DICTIONARY *)0 /* sort_dictionary */ );
 
 	query_chart->query_system_string =

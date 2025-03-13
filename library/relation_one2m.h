@@ -103,7 +103,7 @@ LIST *relation_one2m_join_list(
 /* Returns static memory */
 /* --------------------- */
 char *relation_one2m_where_string(
-		const char *relation_foreign_keY
+		const char *relation_foreign_key
 			/* probably related_table */,
 		char *one_folder_name );
 

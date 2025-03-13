@@ -75,6 +75,8 @@ typedef struct
 {
 	char *one_folder_name;
 	LIST *attribute_data_list;
+	DICTIONARY *query_dictionary;
+	DICTIONARY *drilldown_original_post_dictionary;
 	TABLE_EDIT *table_edit;
 } DRILLDOWN_MANY_TO_ONE;
 
@@ -90,7 +92,8 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
 		pid_t process_id,
-		DICTIONARY *drilldown_original_post_dictionary,
+		DICTIONARY *no_display_dictionary,
+		DICTIONARY *sort_dictionary,
 		char *one_folder_name,
 		LIST *relation_translate_list,
 		LIST *one_folder_primary_key_list,
@@ -111,9 +114,22 @@ LIST *drilldown_many_to_one_attribute_data_list(
 		LIST *one_folder_primary_key_list,
 		DICTIONARY *query_fetch_dictionary );
 
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+DICTIONARY *drilldown_many_to_one_query_dictionary(
+		const char *query_relation_operator_prefix,
+		const char *query_equal,
+		LIST *one_folder_primary_key_list,
+		LIST *drilldown_many_to_one_attribute_data_list );
+
 typedef struct
 {
 	char *relation_many_folder_name;
+	DICTIONARY *query_dictionary;
+	DICTIONARY *drilldown_original_post_dictionary;
 	TABLE_EDIT *table_edit;
 } DRILLDOWN_ONE_TO_MANY;
 
@@ -129,8 +145,11 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_new(
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
 		pid_t process_id,
-		DICTIONARY *drilldown_original_post_dictionary,
-		char *relation_many_folder_name );
+		DICTIONARY *no_display_dictionary,
+		DICTIONARY *sort_dictionary,
+		LIST *primary_attribute_data_list,
+		char *relation_many_folder_name,
+		LIST *relation_foreign_key_list );
 
 /* Process */
 /* ------- */
@@ -142,11 +161,11 @@ DRILLDOWN_ONE_TO_MANY *drilldown_one_to_many_calloc(
 
 /* Safely returns */
 /* -------------- */
-DICTIONARY *drilldown_one_to_many_original_post_dictionary(
-		DICTIONARY *sort_dictionary,
-		char *post_table_edit_folder_name,
-		char *relation_many_folder_name,
-		DICTIONARY *drilldown_query_dictionary );
+DICTIONARY *drilldown_one_to_many_query_dictionary(
+		const char *query_relation_operator_prefix,
+		const char *query_equal,
+		LIST *primary_attribute_data_list,
+		LIST *relation_foreign_key_list );
 
 typedef struct
 {
@@ -310,8 +329,10 @@ void drilldown_table_edit_output(
 /* -------------- */
 DICTIONARY *drilldown_original_post_dictionary(
 		const char *dictionary_separate_no_display_prefix,
+		const char *dictionary_separate_sort_prefix,
 		const char *dictionary_separate_query_prefix,
 		DICTIONARY *no_display_dictionary,
+		DICTIONARY *sort_dictionary,
 		DICTIONARY *drilldown_query_dictionary );
 
 #endif

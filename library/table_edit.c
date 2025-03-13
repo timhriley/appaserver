@@ -485,7 +485,12 @@ TABLE_EDIT *table_edit_new(
 				folder_attribute_append_isa_list,
 			table_edit->
 				table_edit_input->
-				folder->folder_attribute_primary_key_list,
+				folder->
+				folder_attribute_primary_key_list,
+			table_edit->
+				table_edit_input->
+				folder->
+				folder_attribute_name_list,
 			table_edit->
 				table_edit_input->
 				dictionary_separate->
@@ -1548,7 +1553,9 @@ char *table_edit_post_action_string(
 		exit( 1 );
 	}
 
-	sprintf(action_string,
+	snprintf(
+		action_string,
+		sizeof ( action_string ),
 		"%s/%s?%s+%s+%s+%s+%s+%s+%d+%s+%s",
 		/* --------------------- */
 		/* Returns static memory */

@@ -205,9 +205,12 @@ boolean list_exists_string_beginning( LIST *list, char *string )
 
 }
 
-boolean list_item_exists( LIST *list, char *item, int (*compare_fn)() )
+boolean item_exists( LIST *list, char *item, int (*compare_fn)() )
 {
-	return item_exists( list, item, compare_fn );
+	if ( !list ) return 0;
+	if ( !item ) return 0;
+
+	return list_item_exists( list, item, compare_fn );
 }
 
 boolean list_exists( LIST *list, char *item, int (*compare_fn)() )
@@ -215,7 +218,7 @@ boolean list_exists( LIST *list, char *item, int (*compare_fn)() )
 	if ( !list ) return 0;
 	if ( !item ) return 0;
 
-	return item_exists( list, item, compare_fn );
+	return list_item_exists( list, item, compare_fn );
 }
 
 boolean list_search_string( LIST *list, char *string )
@@ -231,7 +234,7 @@ boolean list_string_exists( char *string, LIST *list )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return item_exists( list, string, list_strcmp );
+	return list_item_exists( list, string, list_strcmp );
 }
 
 boolean list_exists_string( char *string, LIST *list )
@@ -239,7 +242,7 @@ boolean list_exists_string( char *string, LIST *list )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return item_exists( list, string, list_strcmp );
+	return list_item_exists( list, string, list_strcmp );
 }
 
 boolean list_exists_any_index_string( LIST *list, char *string )
@@ -247,12 +250,12 @@ boolean list_exists_any_index_string( LIST *list, char *string )
 	if ( !list ) return 0;
 	if ( !string ) return 0;
 
-	return item_exists( list, string, list_string_index_compare );
+	return list_item_exists( list, string, list_string_index_compare );
 }
 
-boolean list_is_subset_of( LIST *subset, LIST *set )
+boolean is_subset_of( LIST *subset, LIST *set )
 {
-	return is_subset_of( subset, set );
+	return list_is_subset_of( subset, set );
 }
 
 LIST *list_intersect_string_list( LIST *list1, LIST *list2 )
@@ -279,12 +282,12 @@ LIST *list_intersect_string_list( LIST *list1, LIST *list2 )
 		}
 	} while( list_next( list1 ) );
 
-	/* Bug: dictionary_free( dictionary ); */
 	return return_list;
-
 }
 
-boolean is_subset_of( LIST *subset, LIST *set )
+boolean list_subset_boolean(
+		LIST *subset,
+		LIST *set )
 {
 	char *item;
 
@@ -292,19 +295,29 @@ boolean is_subset_of( LIST *subset, LIST *set )
 
 	list_save( subset );
 	list_save( set );
-	if ( list_reset( subset ) )
-		do {
-			item = list_get( subset );
-			if ( !item_exists( set, item, list_strcmp ) )
-			{
-				list_restore( subset );
-				list_restore( set );
-				return 0;
-			}
-		} while ( next_item( subset ) );
+
+	if ( list_rewind( subset ) )
+	do {
+		item = list_get( subset );
+
+		if ( !list_item_exists( set, item, list_strcmp ) )
+		{
+			list_restore( subset );
+			list_restore( set );
+
+			return 0;
+		}
+	} while ( next_item( subset ) );
+
 	list_restore( subset );
 	list_restore( set );
+
 	return 1;
+}
+
+boolean list_is_subset_of( LIST *subset, LIST *set )
+{
+	return list_subset_boolean( subset, set );
 }
 
 void list_delete_string( LIST *list, char *string )
@@ -785,16 +798,15 @@ LIST *list_subtract( LIST *list, LIST *subtract_this )
 	LIST *return_list = list_new();
 
 	if ( list_rewind( list ) )
-	{
-		do {
-			item = list_get( list );
+	do {
+		item = list_get( list );
 
-			if ( !item_exists( subtract_this, item, list_strcmp ) )
-			{
-				list_set( return_list, item );
-			}
-		} while( list_next( list ) );
-	}
+		if ( !item_exists( subtract_this, item, list_strcmp ) )
+		{
+			list_set( return_list, item );
+		}
+	} while( list_next( list ) );
+
 	return return_list;
 }
 
@@ -1083,7 +1095,7 @@ void *list_match_seek( LIST *list, char *string, int (*compare_fn)() )
 		return (void *)0;
 }
 
-int item_exists( LIST *list, char *item, int (*compare_fn)() )
+boolean list_item_exists( LIST *list, char *item, int (*compare_fn)() )
 /* ----------------------------------------------------------- */
 /* This function return the offset if item exists in the list, */
 /* otherwise it returns 0.	                               */
@@ -1099,6 +1111,7 @@ int item_exists( LIST *list, char *item, int (*compare_fn)() )
         while ( 1 )
 	{
 		offset++;
+
                 if ((*compare_fn) (list->current->item, item) == 0)
 		{
                         return offset;

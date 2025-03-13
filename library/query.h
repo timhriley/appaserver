@@ -1173,6 +1173,7 @@ QUERY_TABLE_EDIT *query_table_edit_new(
 		LIST *relation_mto1_isa_list,
 		LIST *folder_attribute_append_isa_list,
 		LIST *folder_attribute_primary_key_list,
+		LIST *folder_attribute_name_list,
 		DICTIONARY *query_dictionary,
 		DICTIONARY *sort_dictionary,
 		/* ------------------------- */
@@ -1380,6 +1381,7 @@ char *query_table_name(
 /* ------------------- */
 char *query_order_string(
 		LIST *folder_attribute_primary_key_list,
+		LIST *folder_attribute_name_list,
 		DICTIONARY *sort_dictionary );
 
 /* Usage */
@@ -1388,7 +1390,7 @@ char *query_order_string(
 /* Returns heap memory or null */
 /* --------------------------- */
 char *query_key_list_order_string(
-		const char sql_delimiter,
+		const char delimiter,
 		const char *form_sort_ascend_label,
 		const char *form_sort_descend_label,
 		LIST *sort_dictionary_key_list );
