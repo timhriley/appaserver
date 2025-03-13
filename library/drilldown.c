@@ -71,13 +71,12 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 	drilldown_many_to_one->one_folder_name = one_folder_name;
 
 	drilldown_many_to_one->attribute_data_list =
-		/* -------------- */
-		/* Safely returns */
-		/* -------------- */
 		drilldown_many_to_one_attribute_data_list(
 			relation_translate_list,
 			one_folder_primary_key_list,
 			query_fetch_dictionary );
+
+	if ( !drilldown_many_to_one->attribute_data_list ) return NULL;
 
 	drilldown_many_to_one->query_dictionary =
 		drilldown_many_to_one_query_dictionary(
@@ -1428,7 +1427,8 @@ LIST *drilldown_many_to_one_attribute_data_list(
 	char *foreign_key;
 	char *get;
 
-	if ( !list_rewind( one_folder_primary_key_list )
+	if ( !list_length( relation_translate_list )
+	||   !list_rewind( one_folder_primary_key_list )
 	||   !dictionary_length( query_fetch_dictionary ) )
 	{
 		char message[ 128 ];
@@ -1463,19 +1463,7 @@ LIST *drilldown_many_to_one_attribute_data_list(
 					foreign_key,
 					query_fetch_dictionary ) ) )
 		{
-			char message[ 128 ];
-
-			snprintf(
-				message,
-				sizeof ( message ),
-				"dictionary_get(%s) returned empty.",
-				foreign_key );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			return NULL;
 		}
 
 		list_set( attribute_data_list, get );

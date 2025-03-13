@@ -106,9 +106,6 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_calloc(
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 LIST *drilldown_many_to_one_attribute_data_list(
 		LIST *relation_translate_list,
 		LIST *one_folder_primary_key_list,
