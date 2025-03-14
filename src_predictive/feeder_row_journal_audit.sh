@@ -31,6 +31,18 @@ process_name=$1                       	# Assumed letters_and_underbars
 feeder_account=$2
 minimum_transaction_date=$3
 
+title_html="<h1>`echo "$process_name" | format_initial_capital.e`</h1>"
+
+if [ "$feeder_account" = "feeder_account" ]
+then
+	document_body.sh $application
+	echo "$title_html"
+
+	echo "<h3>Please select a Feeder Account</h3>"
+	echo "</body></html>"
+	exit 0
+fi
+
 if [	"$minimum_transaction_date" = "" -o				\
 	"$minimum_transaction_date" = "minimum_transaction_date" ]
 then
@@ -39,6 +51,16 @@ then
 			where feeder_account = '$feeder_account';"
 
 	minimum_transaction_date=`echo $sql_statement | sql.e | column.e 0`
+fi
+
+if [ "$minimum_transaction_date" = "" ]
+then
+	document_body.sh $application
+	echo "$title_html"
+
+	echo "<h3>There are no transactions to audit.</h3>"
+	echo "</body></html>"
+	exit 0
 fi
 
 sql_statement="						      		      \
@@ -57,11 +79,6 @@ else
 	journal_balance="journal.balance"
 fi
 
-process_title=`echo "$process_name" | format_initial_capital.e`
-
-document_body.sh $application
-echo "<h1>$process_title</h1>"
-
 heading="transaction_date_time,feeder_row_number,feeder_date,feeder_load_date_time,full_name,file_row_amount,file_row_balance,calculate_balance,ledger_balance,difference"
 
 justification="left,right,left,left,left,right"
@@ -75,6 +92,9 @@ from="from feeder_row,journal"
 where="where feeder_row.feeder_account = '$feeder_account' and feeder_row.transaction_date_time >= '$minimum_transaction_date' and feeder_row.full_name = journal.full_name and feeder_row.street_address = journal.street_address and feeder_row.transaction_date_time = journal.transaction_date_time and journal.account = '$feeder_account'"
 
 order="order by feeder_row.transaction_date_time"
+
+document_body.sh $application
+echo "$title_html"
 
 echo "$select $from $where $order;"				|
 sql								|

@@ -31,16 +31,16 @@ process_name=$1                       	# Assumed letters_and_underbars
 minimum_transaction_date=$2
 delete_no_journal_yn=$3
 
+title_html="<h1>`echo "$process_name" | format_initial_capital.e`</h1>"
+
 if [	"$minimum_transaction_date" = "" -o	\
 	"$minimum_transaction_date" = "minimum_transaction_date" ]
 then
 	minimum_transaction_date="1990-01-01"
 fi
 
-process_title=`echo "$process_name" | format_initial_capital.e`
-
 document_body.sh
-echo "<h1>$process_title</h1>"
+echo "$title_html"
 
 if [ "$delete_no_journal_yn" = "y" ]
 then
