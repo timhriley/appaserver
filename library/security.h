@@ -13,7 +13,9 @@
 
 /* Leave out the percent sign b/c mysql will save the backslash. */
 /* ------------------------------------------------------------- */
-#define SECURITY_ESCAPE_CHARACTER_STRING "`'$;&=()\""
+#define SECURITY_ESCAPE_CHARACTER_STRING	"~!`'$;&=()\""
+
+#define SECURITY_ERROR_CHARACTER_STRING		"~!`$&=()"
 
 enum password_function	{	no_encryption,
 				old_password_function,
@@ -103,6 +105,12 @@ boolean security_password_match(
 char *security_encrypt_select_clause(
 		enum password_function,
 		char *post_login_password );
+
+/* Usage */
+/* ----- */
+void security_system(
+		const char *security_error_character_string,
+		char *system_string );
 
 /* Public */
 /* ------ */

@@ -169,17 +169,47 @@ char *transaction_primary_where(
 		char *transaction_date_time )
 {
 	static char where[ 512 ];
-	char escape_full_name[ 64 ];
+	char *escape_full_name;
+	char *escape_street_address;
+	char *escape_transaction_date_time;
 
-	sprintf(where,
+	escape_full_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			SECURITY_ESCAPE_CHARACTER_STRING,
+			full_name /* datum */ );
+
+	escape_street_address =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			SECURITY_ESCAPE_CHARACTER_STRING,
+			street_address /* datum */ );
+
+	escape_transaction_date_time =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_escape(
+			SECURITY_ESCAPE_CHARACTER_STRING,
+			transaction_date_time /* datum */ );
+
+	snprintf(
+		where,
+		sizeof ( where ),
 		"full_name = '%s' and		"
 		"street_address = '%s' and	"
 		"transaction_date_time = '%s'	",
-		string_escape_quote(
-			escape_full_name,
-			full_name ),
-		street_address,
-		transaction_date_time );
+		escape_full_name,
+		escape_street_address,
+		escape_transaction_date_time );
+
+	free( escape_full_name );
+	free( escape_street_address );
+	free( escape_transaction_date_time );
 
 	return where;
 }

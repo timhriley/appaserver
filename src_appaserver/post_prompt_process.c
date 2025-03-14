@@ -65,9 +65,10 @@ int main( int argc, char **argv )
 
 	if ( post_prompt_process->prompt_process_output_system_string )
 	{
-		if ( system(
+		security_system(
+			SECURITY_ERROR_CHARACTER_STRING,
 			post_prompt_process->
-				prompt_process_output_system_string ) ){}
+				prompt_process_output_system_string );
 	}
 	else
 	if ( post_prompt_process->command_line )
@@ -87,9 +88,9 @@ int main( int argc, char **argv )
 			login_name,
 			post_prompt_process->command_line /* message */ );
 
-		if ( system(
-			post_prompt_process->
-		       	command_line ) ){}
+		security_system(
+			SECURITY_ERROR_CHARACTER_STRING,
+			post_prompt_process->command_line );
 	}
 
 	return 0;

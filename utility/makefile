@@ -85,6 +85,7 @@ all: 	insert_statement.e						\
 	merge_n_lines.e findgrep.e stat.e				\
 	unescape_single_quotes.e					\
 	escape_character.e						\
+	escape_security.e						\
 	binary_count.e							\
 	decimal_count.e							\
 	location_convert.e						\
@@ -1465,13 +1466,17 @@ unescape_single_quotes.e: unescape_single_quotes.c			\
 		${LIBRARY}/name_arg.o					\
 		-o unescape_single_quotes.e
 
-escape_character.e: escape_character.c					\
-	${LIBRARY}/name_arg.o
+escape_character.e: escape_character.c
 	$(CC) 	-I${LIBRARY} escape_character.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/name_arg.o					\
 		-o escape_character.e
+
+escape_security.e: escape_security.c
+	$(CC) 	-I${LIBRARY} escape_security.c				\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o escape_security.e
 
 html_encode_quote_and_ampersand.e: html_encode_quote_and_ampersand.c	\
 	${LIBRARY}/name_arg.o

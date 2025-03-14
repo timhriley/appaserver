@@ -16,6 +16,7 @@
 #include "sql.h"
 #include "folder_operation.h"
 #include "dictionary_separate.h"
+#include "security.h"
 #include "operation.h"
 
 void operation_row_execute( char *command_line )
@@ -1077,7 +1078,10 @@ char *operation_row_checked_execute(
 
 	if ( operation_row_list_output_boolean )
 	{
-		if ( system( command_line ) ){}
+		security_system(
+			SECURITY_ERROR_CHARACTER_STRING,
+			command_line );
+
 		return (char *)0;
 	}
 	else

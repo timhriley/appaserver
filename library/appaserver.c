@@ -341,3 +341,4 @@ boolean appaserver_executable_exists_boolean( char *executable )
 
 	return 1;
 }
+

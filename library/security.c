@@ -288,9 +288,6 @@ char *security_sql_injection_escape(
 			message );
 	}
 
-	if ( string_character_boolean( datum, '\\' ) )
-		return strdup( datum );
-
 	return_value =
 	strdup(
 		/* -------------------------- */
@@ -460,5 +457,54 @@ char *security_remove_semicolon( char *datum )
 	}
 
 	return strdup( destination );
+}
+
+void security_system(
+		const char *security_error_character_string,
+		char *system_string )
+{
+	char destination[ STRING_64K ];
+
+	if ( !system_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"system_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	/* Safely returns destination */
+	/* -------------------------- */
+	(void)string_escape(
+		destination,
+		system_string /* source */,
+		(char *)security_error_character_string );
+
+	if ( strcmp( destination, system_string ) != 0 )
+	{
+		char message[ STRING_65K ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"Cannot execute=[%s].",
+			system_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( system( system_string ) ){}
 }
 

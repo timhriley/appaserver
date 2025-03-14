@@ -1,7 +1,7 @@
 /* --------------------------------------------------------------- 	*/
 /* $APPASERVER_HOME/src_system/export_process.c    			*/
 /* --------------------------------------------------------------- 	*/
-/* No warranty and freely available software. Visit Appaserver.org	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------- 	*/
 
 #include <stdio.h>

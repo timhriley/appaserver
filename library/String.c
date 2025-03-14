@@ -497,6 +497,12 @@ char *string_escape_character(
 
 	while ( *data )
 	{
+		if ( *data == '\\' )
+		{
+			data++;
+			continue;
+		}
+
 		if ( *data == character )
 		{
 			*destination++ = '\\';

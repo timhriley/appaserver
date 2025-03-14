@@ -1,7 +1,7 @@
 /* --------------------------------------------------------------- 	*/
 /* $APPASERVER_HOME/src_system/alter_column_datatype.c			*/
 /* --------------------------------------------------------------- 	*/
-/* No warranty and freely available software. Visit Appaserver.org	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------- 	*/
 
 #include <stdio.h>

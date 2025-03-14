@@ -12,6 +12,7 @@
 #include "execute_system_string.h"
 #include "dictionary_separate.h"
 #include "attribute.h"
+#include "security.h"
 #include "table_edit.h"
 #include "post_table_edit.h"
 
@@ -230,7 +231,9 @@ int main( int argc, char **argv )
 				message );
 		}
 
-		if ( system( system_string ) ){}
+		security_system(
+			SECURITY_ERROR_CHARACTER_STRING,
+			system_string );
 	}
 
 	return 0;

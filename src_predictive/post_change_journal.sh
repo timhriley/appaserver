@@ -1,10 +1,8 @@
-:
+#!/bin/bash
 # $APPASERVER_HOME/src_predictive/post_change_journal.sh
 # ---------------------------------------------------------------
 # No warranty and freely available software. Visit appaserver.org
 # ---------------------------------------------------------------
-
-echo "$0 $*" 1>&2
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -29,13 +27,13 @@ then
 	exit 1
 fi
 
-state=$1
-full_name=$2
-street_address=$3
-transaction_date_time=$4
-account_name=$5
-preupdate_transaction_date_time=$6
-preupdate_account_name=$7
+state="$(echo $1 | escape_security.e)"
+full_name="$(echo $2 | escape_security.e)"
+street_address="$(echo $3 | escape_security.e)"
+transaction_date_time="$(echo $4 | escape_security.e)"
+account_name="$(echo $5 | escape_security.e)"
+preupdate_transaction_date_time="$(echo $6 | escape_security.e)"
+preupdate_account_name="$(echo $7 | escape_security.e)"
 
 if [ "$transaction_date_time" = ""				\
 -o   "$transaction_date_time" = "transaction_date_time" ]

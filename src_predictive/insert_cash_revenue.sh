@@ -18,22 +18,20 @@ then
 	exit 1
 fi
 
-if [ "$#" -ne 9 ]
+if [ "$#" -ne 8 ]
 then
 	echo "Usage: `basename.e $0 n` process full_name street_address transaction_date account transaction_amount memo program_name" 1>&2
 	exit 1
 fi
 
-echo "$0 $*" 1>&2
-
-process=$1
-full_name="$2"
-street_address="$3"
-transaction_date=$4
-credit_account="$5"
-transaction_amount=$6
-memo="$7"
-program_name="$8"
+process="$(echo $1 | escape_security.e)"
+full_name="$(echo $2 | escape_security.e)"
+street_address="$(echo $3 | escape_security.e)"
+transaction_date="$(echo $4 | escape_security.e)"
+credit_account="$(echo $5 | escape_security.e)"
+transaction_amount="$(echo $6 | escape_security.e)"
+memo="$(echo $7 | escape_security.e)"
+program_name="$(echo $8 | escape_security.e)"
 
 document_body.sh
 
@@ -82,25 +80,27 @@ fi
 
 # Build the entity
 # ----------------
-full_name_escaped=`echo $full_name | escape_character.e "'"`
+full_name=`echo $full_name | escape_security.e`
 
 if [ "$street_address" = "street_address" -o "$street_address" = "" ]
 then
 	street_address="unknown"
 fi
 
+street_address=`echo $street_address | escape_security.e`
+
 # Check for duplication
 # ---------------------
 from=journal
 
-where="full_name = '$full_name_escaped' and street_address = '$street_address' and account = '$credit_account' and transaction_date_time like '$transaction_date %' and credit_amount = $transaction_amount"
+where="full_name = '$full_name' and street_address = '$street_address' and account = '$credit_account' and transaction_date_time like '$transaction_date %' and credit_amount = $transaction_amount"
 
 result=`echo "select count(1) from $from where $where;" | sql.e`
 
 if [ "$result" -ge 1 ]
 then
 	echo "<h2> `now.sh 19` </h2>"
-	echo "<h3>Duplication Error. Please follow this path: Insert->PB&J->Transaction.</h3>"
+	echo "<h3>Duplication Error. Please follow this path: Insert->PB&J->Transaction</h3>"
 	echo "</body>"
 	echo "</html>"
 	exit 0
@@ -137,7 +137,7 @@ then
 	memo=""
 fi
 
-insert_cash_transaction.sh	"$full_name_escaped"		\
+insert_cash_transaction.sh	"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\
 				"$debit_account"		\
@@ -146,6 +146,11 @@ insert_cash_transaction.sh	"$full_name_escaped"		\
 				""				\
 				"$memo"				\
 				"$program_name"
+
+echo "<h2> `now.sh 19` </h2>"
+echo "<h3>Process complete for transaction:"
+
+transaction_html_display "$transaction_date_time"
 
 echo "</body>"
 echo "</html>"

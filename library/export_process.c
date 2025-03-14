@@ -52,7 +52,7 @@ EXPORT_PROCESS_SHELL *export_process_shell_new(
 	export_process_shell->name_list =
 		export_process_shell_name_list(
 			export_process_name,
-			',' );
+			'^' );
 
 	if ( !list_rewind( export_process_shell->name_list ) ) return NULL;
 
@@ -278,7 +278,9 @@ FILE *export_process_stream(
 	{
 		char message[ 256 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 			"fopen(%s,%s) returned empty.",
 			filespecification,
 			mode );
@@ -350,7 +352,9 @@ void export_process_output_process(
 	{
 		char message[ 128 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 			"export_process_select(%s) returned empty.",
 			PROCESS_TABLE );
 
@@ -376,9 +380,11 @@ void export_process_output_process(
 	/* --------------------------- */
 	if ( ! ( input = string_pipe_input( system_string ) ) )
 	{
-		char message[ 128 ];
+		char message[ 1024 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 			"string_pipe_input(%s) returned empty.",
 			system_string );
 

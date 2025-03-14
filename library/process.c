@@ -749,7 +749,7 @@ LIST *process_system_list( char *appaserver_system_string )
 
 char *process_primary_where( char *process_name )
 {
-	static char where[ 128 ];
+	static char where[ 256 ];
 
 	if ( !process_name || !*process_name )
 	{

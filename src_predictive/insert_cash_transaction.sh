@@ -22,19 +22,19 @@ echo "$0 $*" 1>&2
 
 if [ "$#" -ne 9 ]
 then
-	echo "Usage: `basename.e $0 n` full_name_escaped street_address transaction_date_time debit_account credit_account transaction_amount check_number memo program_name" 1>&2
+	echo "Usage: `basename.e $0 n` full_name street_address transaction_date_time debit_account credit_account transaction_amount check_number memo program_name" 1>&2
 	exit 1
 fi
 
-full_name_escaped="$1"
-street_address="$2"
-transaction_date_time="$3"
-debit_account="$4"
-credit_account="$5"
-transaction_amount=$6
-check_number="$7"
-memo="$8"
-program_name="$9"
+full_name="$(echo $1 | escape_security.e)"
+street_address="$(echo $2 | escape_security.e)"
+transaction_date_time="$(echo $3 | escape_security.e)"
+debit_account="$(echo $4 | escape_security.e)"
+credit_account="$(echo $5 | escape_security.e)"
+transaction_amount="$(echo $6 | escape_security.e)"
+check_number="$(echo $7 | escape_security.e)"
+memo="$(echo $8 | escape_security.e)"
+program_name="$(echo $9 | escape_security.e)"
 
 table="transaction"
 
@@ -42,13 +42,13 @@ if [ "$program_name" != "" -a "$program_name" != "program_name" ]
 then
 	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo,program_name"
 
-	result=`echo "$full_name_escaped^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo^$program_name"			|\
+	result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo^$program_name"				|\
 		insert_statement.e table=$table field=$field del='^'	|\
 		sql.e 2>&1`
 else
 	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
 
-	result=`echo "$full_name_escaped^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"				|\
+	result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
 		insert_statement.e table=$table field=$field del='^'	|\
 		sql.e 2>&1`
 fi
@@ -66,7 +66,7 @@ table="journal"
 # --------------------
 field="full_name,street_address,transaction_date_time,account,debit_amount"
 
-echo "$full_name_escaped^$street_address^$transaction_date_time^$debit_account^$transaction_amount"						|
+echo "$full_name^$street_address^$transaction_date_time^$debit_account^$transaction_amount"							|
 insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
 html_paragraph_wrapper.e
@@ -75,7 +75,7 @@ html_paragraph_wrapper.e
 # ---------------------
 field="full_name,street_address,transaction_date_time,account,credit_amount"
 
-echo "$full_name_escaped^$street_address^$transaction_date_time^$credit_account^$transaction_amount"						|
+echo "$full_name^$street_address^$transaction_date_time^$credit_account^$transaction_amount"							|
 insert_statement.e table=$table field=$field del='^'		|
 sql.e 2>&1							|
 html_paragraph_wrapper.e
@@ -84,7 +84,7 @@ html_paragraph_wrapper.e
 # -------------
 field="full_name,street_address"
 
-echo "$full_name_escaped^$street_address"			|
+echo "$full_name^$street_address"				|
 insert_statement.e table=entity field=$field del='^'		|
 sql.e 2>&1							|
 grep -vi duplicate						|
@@ -93,7 +93,7 @@ html_paragraph_wrapper.e
 # Execute the post change process for debit and credit accounts
 # -------------------------------------------------------------
 post_change_journal.sh		insert				\
-				"$full_name_escaped"		\
+				"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\
 				"$debit_account"		\
@@ -101,17 +101,12 @@ post_change_journal.sh		insert				\
 				preupdate_account
 
 post_change_journal.sh		insert				\
-				"$full_name_escaped"		\
+				"$full_name"			\
 				"$street_address"		\
 				"$transaction_date_time"	\
 				"$credit_account"		\
 				preupdate_transaction_date_time	\
 				preupdate_account
-
-echo "<h2> `now.sh 19` </h2>"
-echo "<h3>Process complete for transaction:"
-
-transaction_html_display "$transaction_date_time"
 
 exit 0
 
