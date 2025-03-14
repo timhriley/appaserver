@@ -31,6 +31,18 @@ process_name=$1                       	# Assumed letters_and_underbars
 feeder_account="$2"
 minimum_transaction_date=$3
 
+title_html="<h1>`echo "$process_name" | format_initial_capital.e`</h1>"
+
+if [ "$feeder_account" = "feeder_account" ]
+then
+	document_body.sh $application
+	echo "$title_html"
+
+	echo "<h3>Please select a Feeder Account</h3>"
+	echo "</body></html>"
+	exit 0
+fi
+
 if [	"$minimum_transaction_date" = "" -o				\
 	"$minimum_transaction_date" = "minimum_transaction_date" ]
 then
@@ -41,14 +53,12 @@ then
 	minimum_transaction_date=`echo $sql_statement | sql.e | column.e 0`
 fi
 
-
-document_body.sh $application
-
-echo "<h1>`echo "$process_name" | format_initial_capital.e`</h1>"
-
-if [ "$feeder_account" = "feeder_account" ]
+if [ "$minimum_transaction_date" = "" ]
 then
-	echo "<h3>Please select a Feeder Account</h3>"
+	document_body.sh $application
+	echo "$title_html"
+
+	echo "<h3>There are no transactions to audit.</h3>"
 	echo "</body></html>"
 	exit 0
 fi
@@ -70,6 +80,9 @@ where="where account = '$feeder_account' and journal.transaction_date_time >= '$
 order="order by journal.transaction_date_time"
 
 table_title=`echo "$feeder_account $minimum_transaction_date" | format_initial_capital.e`
+
+document_body.sh $application
+echo "$title_html"
 
 echo "$select from journal,transaction $where $order;"	|
 sql								|

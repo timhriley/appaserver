@@ -367,18 +367,7 @@ BUTTON *button_recall( char *recall_load_javascript )
 {
 	BUTTON *button;
 
-	if ( !recall_load_javascript )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "recall_load_javascript is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
+	if ( !recall_load_javascript ) return NULL;
 
 	button = button_calloc();
 

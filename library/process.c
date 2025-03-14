@@ -713,7 +713,7 @@ PROCESS *process_seek(	char *process_name,
 LIST *process_system_list( char *appaserver_system_string )
 {
 	FILE *input_pipe;
-	char input[ 1024 ];
+	char input[ STRING_64K ];
 	LIST *list = list_new();
 
 	if ( !appaserver_system_string || !*appaserver_system_string )
@@ -735,7 +735,7 @@ LIST *process_system_list( char *appaserver_system_string )
 		appaserver_input_pipe(
 			appaserver_system_string );
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			list,

@@ -1034,15 +1034,20 @@ LIST *form_prompt_insert_button_container_list(
 
 	widget_container->widget_button->button = button_forward();
 
-	list_set(
-		button_container_list,
-		( widget_container =
-			widget_container_new(
-				button, (char *)0 ) ) );
+	widget_container =
+		widget_container_new(
+			button, (char *)0 );
 
 	widget_container->widget_button->button =
 		button_recall(
 			recall_load_javascript );
+
+	if ( widget_container->widget_button->button )
+	{
+		list_set(
+			button_container_list,
+			widget_container );
+	}
 
 	if ( post_choose_folder_action_string )
 	{
