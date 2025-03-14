@@ -28,7 +28,7 @@ fi
 role=$1
 output_sqlgz=$2
 
-directory=`appaserver_data_directory`
+directory="`appaserver_data_directory`/$application"
 date=`now.sh ymd`
 input_export_process="${directory}/export_process_${application}_${date}.sh"
 

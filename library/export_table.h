@@ -18,7 +18,7 @@ typedef struct
 	char *appaserver_select;
 	char *appaserver_system_string;
 	char *date_now_yyyy_mm_dd;
-	char *shell_filename;
+	char *shell_filespecification;
 	char *execute_bit_system_string;
 	char *appaserver_spreadsheet_heading_string;
 	char *html_title;
@@ -26,7 +26,7 @@ typedef struct
 	char *insert_folder_statement_system_string;
 	APPASERVER_LINK *appaserver_link;
 	char *appaserver_link_anchor_html;
-	char *spreadsheet_filename;
+	char *spreadsheet_filespecification;
 	char *appaserver_spreadsheet_output_system_string;
 } EXPORT_TABLE;
 
@@ -45,7 +45,8 @@ EXPORT_TABLE *export_table_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
-char *export_table_shell_filename(
+char *export_table_shell_filespecification(
+		char *aplication_name,
 		char *folder_name,
 		char *data_directory,
 		char *date_now_yyyy_mm_dd );
@@ -53,11 +54,11 @@ char *export_table_shell_filename(
 /* Returns heap memory */
 /* ------------------- */
 char *export_table_execute_bit_system_string(
-		char *export_table_shell_filename );
+		char *export_table_shell_filespecification );
 
 /* Returns parameter */
 /* ----------------- */
-char *export_table_spreadsheet_filename(
+char *export_table_spreadsheet_filespecification(
 		char *appaserver_link_output_filename );
 
 /* Returns heap memory */
@@ -82,7 +83,7 @@ void export_table_shell_output(
 		char *application_table_name,
 		char *appaserver_select,
 		char *appaserver_system_string,
-		char *shell_filename,
+		char *shell_filespecification,
 		char *execute_bit_system_string,
 		boolean output_prompt_boolean );
 
@@ -90,7 +91,7 @@ void export_table_shell_output(
 /* ------ */
 void export_table_spreadsheet_output(
 		char *appaserver_system_string,
-		char *spreadsheet_filename,
+		char *spreadsheet_filespecification,
 		char *appaserver_spreadsheet_heading_string,
 		char *appaserver_spreadsheet_output_system_string,
 		char *appaserver_link_anchor_html );

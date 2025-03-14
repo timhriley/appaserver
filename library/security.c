@@ -459,12 +459,8 @@ char *security_remove_semicolon( char *datum )
 	return strdup( destination );
 }
 
-void security_system(
-		const char *security_error_character_string,
-		char *system_string )
+void security_system( char *system_string )
 {
-	char destination[ STRING_64K ];
-
 	if ( !system_string )
 	{
 		char message[ 128 ];
@@ -481,14 +477,12 @@ void security_system(
 			message );
 	}
 
-	/* Safely returns destination */
-	/* -------------------------- */
-	(void)string_escape(
-		destination,
-		system_string /* source */,
-		(char *)security_error_character_string );
-
-	if ( strcmp( destination, system_string ) != 0 )
+	if ( string_character_boolean(
+		system_string,
+		'`' )
+	||   string_exists(
+		system_string,
+		"$(" /* substring */ ) )
 	{
 		char message[ STRING_65K ];
 

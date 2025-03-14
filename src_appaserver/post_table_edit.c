@@ -231,9 +231,7 @@ int main( int argc, char **argv )
 				message );
 		}
 
-		security_system(
-			SECURITY_ERROR_CHARACTER_STRING,
-			system_string );
+		security_system( system_string );
 	}
 
 	return 0;

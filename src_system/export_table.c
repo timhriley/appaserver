@@ -1,7 +1,7 @@
 /* --------------------------------------------------------------- 	*/
 /* $APPASERVER_HOME/src_system/export_table.c    			*/
 /* --------------------------------------------------------------- 	*/
-/* No warranty and freely available software. Visit Appaserver.org	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* --------------------------------------------------------------- 	*/
 
 #include <stdio.h>
@@ -96,7 +96,7 @@ int main( int argc, char **argv )
 			export_table->application_table_name,
 			export_table->appaserver_select,
 			export_table->appaserver_system_string,
-			export_table->shell_filename,
+			export_table->shell_filespecification,
 			export_table->execute_bit_system_string,
 			1 /* output_prompt_boolean */ );
 	}
@@ -105,7 +105,7 @@ int main( int argc, char **argv )
 	{
 		export_table_spreadsheet_output(
 			export_table->appaserver_system_string,
-			export_table->spreadsheet_filename,
+			export_table->spreadsheet_filespecification,
 			export_table->
 				appaserver_spreadsheet_heading_string,
 			export_table->

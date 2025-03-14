@@ -1125,7 +1125,7 @@ char *insert_folder_command_line(
 		LIST *insert_datum_list,
 		char *insert_folder_primary_data_list_string )
 {
-	char command_line[ STRING_8K ];
+	char command_line[ STRING_64K ];
 	INSERT_DATUM *insert_datum;
 
 	if ( !post_change_process_command_line
@@ -1153,7 +1153,7 @@ char *insert_folder_command_line(
 	string_strcpy(
 		command_line,
 		post_change_process_command_line,
-		STRING_8K );
+		sizeof ( command_line ) );
 
 	string_replace_command_line(
 		command_line,

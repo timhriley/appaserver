@@ -2193,23 +2193,9 @@ char *update_changed_set_string(
 
 	if ( !*set_string )
 	{
-		if (	strlen( attribute_name ) +
-			strlen( post_datum ) + 5 >= STRING_64K )
-		{
-			char message[ 128 ];
-
-			sprintf(message,
-				STRING_OVERFLOW_TEMPLATE,
-				STRING_64K );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
-		}
-
-		sprintf(set_string,
+		snprintf(
+			set_string,
+			sizeof ( set_string ),
 			format_string,
 			attribute_name,
 			post_datum );
@@ -3260,7 +3246,6 @@ char *update_sql_statement_string(
 				datatype_name,
 				list_get( update_data_list )
 					/* post_data */ );
-
 
 		if (	strlen( statement_string ) +
 			strlen( set_string ) >= STRING_4K )

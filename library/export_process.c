@@ -380,7 +380,7 @@ void export_process_output_process(
 	/* --------------------------- */
 	if ( ! ( input = string_pipe_input( system_string ) ) )
 	{
-		char message[ 1024 ];
+		char message[ STRING_64K ];
 
 		snprintf(
 			message,
@@ -433,7 +433,7 @@ void export_process_output_standard(
 	char *select;
 	char *system_string;
 	FILE *input_pipe;
-	char input[ 1024 ];
+	char input[ STRING_64K ];
 	char *sql_statement;
 
 	if ( !table_name
@@ -496,7 +496,7 @@ void export_process_output_standard(
 		export_process_input_pipe(
 			system_string );
 
-	while ( string_input( input, input_pipe, 1024 ) )
+	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
 		sql_statement =
 			/* ------------------- */
@@ -1066,7 +1066,7 @@ char *export_process_delete_sql_statement(
 
 char *export_process_escape( char *string_pipe_input )
 {
-	char destination[ 1024 ];
+	char destination[ STRING_64K ];
 
 	if ( !string_pipe_input ) return NULL;
 

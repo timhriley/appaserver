@@ -98,11 +98,12 @@ EXPORT_TABLE *export_table_new(
 			date_now_yyyy_mm_dd(
 				date_utc_offset() );
 
-		export_table->shell_filename =
+		export_table->shell_filespecification =
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			export_table_shell_filename(
+			export_table_shell_filespecification(
+				application_name,
 				folder_name,
 				data_directory,
 				export_table->date_now_yyyy_mm_dd );
@@ -112,7 +113,7 @@ EXPORT_TABLE *export_table_new(
 			/* Returns heap memory */
 			/* ------------------- */
 			export_table_execute_bit_system_string(
-				export_table->shell_filename );
+				export_table->shell_filespecification );
 
 		export_table->appaserver_spreadsheet_heading_string =
 			/* --------------------------- */
@@ -195,11 +196,11 @@ EXPORT_TABLE *export_table_new(
 				"_new" /* target_window */,
 				"Link to csv file" /* prompt_message */ );
 
-		export_table->spreadsheet_filename =
+		export_table->spreadsheet_filespecification =
 			/* ----------------- */
 			/* Returns parameter */
 			/* ----------------- */
-			export_table_spreadsheet_filename(
+			export_table_spreadsheet_filespecification(
 				export_table->
 					appaserver_link->
 					appaserver_link_output->
@@ -212,7 +213,8 @@ EXPORT_TABLE *export_table_new(
 				/* --------------------- */
 				appaserver_spreadsheet_output_system_string(
 					SQL_DELIMITER,
-					export_table->spreadsheet_filename ) );
+					export_table->
+					     spreadsheet_filespecification ) );
 	}
 
 	return export_table;
@@ -238,15 +240,15 @@ EXPORT_TABLE *export_table_calloc( void )
 	return export_table;
 }
 
-char *export_table_execute_bit_system_string( char *shell_filename )
+char *export_table_execute_bit_system_string( char *shell_filespecification )
 {
 	char system_string[ 256 ];
 
-	if ( !shell_filename )
+	if ( !shell_filespecification )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "shell_filename is empty." );
+		sprintf(message, "shell_filespecification is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -257,19 +259,21 @@ char *export_table_execute_bit_system_string( char *shell_filename )
 
 	sprintf(system_string,
 		"chmod +x %s",
-		shell_filename );
+		shell_filespecification );
 
 	return strdup( system_string );
 }
 
-char *export_table_shell_filename(
+char *export_table_shell_filespecification(
+		char *application_name,
 		char *folder_name,
 		char *data_directory,
 		char *date_now_yyyy_mm_dd )
 {
-	char filename[ 128 ];
+	char filespecification[ 128 ];
 
-	if ( !folder_name
+	if ( !application_name
+	||   !folder_name
 	||   !data_directory
 	||   !date_now_yyyy_mm_dd )
 	{
@@ -284,13 +288,16 @@ char *export_table_shell_filename(
 			message );
 	}
 
-	sprintf(filename,
-		"%s/export_table_%s_%s.sh",
+	snprintf(
+		filespecification,
+		sizeof ( filespecification ),
+		"%s/%s/export_table_%s_%s.sh",
 		data_directory,
+		application_name,
 		folder_name,
 		date_now_yyyy_mm_dd );
 
-	return strdup( filename );
+	return strdup( filespecification );
 }
 
 void export_table_shell_output(
@@ -298,7 +305,7 @@ void export_table_shell_output(
 		char *application_table_name,
 		char *appaserver_select,
 		char *appaserver_system_string,
-		char *shell_filename,
+		char *shell_filespecification,
 		char *execute_bit_system_string,
 		boolean output_prompt_boolean )
 {
@@ -310,7 +317,7 @@ void export_table_shell_output(
 	if ( !application_table_name
 	||   !appaserver_select
 	||   !appaserver_system_string
-	||   !shell_filename
+	||   !shell_filespecification
 	||   !execute_bit_system_string )
 	{
 		char message[ 128 ];
@@ -336,7 +343,7 @@ void export_table_shell_output(
 		/* Safely returns */
 		/* -------------- */
 		appaserver_output_file(
-			shell_filename );
+			shell_filespecification );
 
 	fprintf(output_file,
 		"%s\n",
@@ -397,13 +404,13 @@ void export_table_shell_output(
 	if ( output_prompt_boolean )
 	{
 		printf(	"<h3>Created: %s</h3>\n",
-			shell_filename );
+			shell_filespecification );
 	}
 }
 
 void export_table_spreadsheet_output(
 		char *appaserver_system_string,
-		char *filename,
+		char *filespecification,
 		char *heading_string,
 		char *output_system_string,
 		char *appaserver_link_anchor_html )
@@ -414,7 +421,7 @@ void export_table_spreadsheet_output(
 	char input[ 65536 ];
 
 	if ( !appaserver_system_string
-	||   !filename
+	||   !filespecification
 	||   !heading_string
 	||   !output_system_string )
 	{
@@ -434,7 +441,7 @@ void export_table_spreadsheet_output(
 		/* Safely returns */
 		/* -------------- */
 		appaserver_output_file(
-			filename );
+			filespecification );
 
 	fprintf(output_file,
 		"%s\n",
@@ -529,12 +536,12 @@ LIST *export_table_shell_filename_list( LIST *export_table_list )
 	do {
 		export_table = list_get( export_table_list );
 
-		if ( !export_table->shell_filename )
+		if ( !export_table->shell_filespecification )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
-				"export_table->shell_filename is empty." );
+				"shell_filespecification is empty." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -545,7 +552,7 @@ LIST *export_table_shell_filename_list( LIST *export_table_list )
 
 		list_set(
 			filename_list,
-			export_table->shell_filename );
+			export_table->shell_filespecification );
 
 	} while ( list_next( export_table_list ) );
 
@@ -561,12 +568,12 @@ LIST *export_table_spreadsheet_filename_list( LIST *export_table_list )
 	do {
 		export_table = list_get( export_table_list );
 
-		if ( !export_table->spreadsheet_filename )
+		if ( !export_table->spreadsheet_filespecification )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
-			"export_table->spreadsheet_filename is empty." );
+			"spreadsheet_filespecification is empty." );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -577,7 +584,7 @@ LIST *export_table_spreadsheet_filename_list( LIST *export_table_list )
 
 		list_set(
 			filename_list,
-			export_table->spreadsheet_filename );
+			export_table->spreadsheet_filespecification );
 
 	} while ( list_next( export_table_list ) );
 
@@ -607,7 +614,7 @@ char *export_table_html_title( char *folder_name )
 		folder_name );
 }
 
-char *export_table_spreadsheet_filename(
+char *export_table_spreadsheet_filespecification(
 		char *appaserver_link_output_filename )
 {
 	return appaserver_link_output_filename;

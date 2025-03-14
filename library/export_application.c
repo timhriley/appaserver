@@ -226,7 +226,7 @@ void export_application_spreadsheet_output(
 
 		export_table_spreadsheet_output(
 			export_table->appaserver_system_string,
-			export_table->spreadsheet_filename,
+			export_table->spreadsheet_filespecification,
 			export_table->
 		  	appaserver_spreadsheet_heading_string,
 			export_table->
@@ -288,7 +288,7 @@ void export_application_shell_output(
 			export_table->application_table_name,
 			export_table->appaserver_select,
 			export_table->appaserver_system_string,
-			export_table->shell_filename,
+			export_table->shell_filespecification,
 			export_table->execute_bit_system_string,
 			0 /* not output_prompt_boolean */ );
 

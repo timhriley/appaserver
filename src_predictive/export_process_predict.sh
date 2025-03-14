@@ -29,7 +29,7 @@ fi
 
 output_sql=$1
 
-directory=`appaserver_data_directory`
+directory="`appaserver_data_directory`/$application"
 date=`now.sh ymd`
 input_export_process="${directory}/export_process_${application}_${date}.sh"
 

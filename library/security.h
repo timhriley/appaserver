@@ -15,8 +15,6 @@
 /* ------------------------------------------------------------- */
 #define SECURITY_ESCAPE_CHARACTER_STRING	"~!`'$;&=()\""
 
-#define SECURITY_ERROR_CHARACTER_STRING		"~!`$&=()"
-
 enum password_function	{	no_encryption,
 				old_password_function,
 				regular_password_function,
@@ -109,7 +107,6 @@ char *security_encrypt_select_clause(
 /* Usage */
 /* ----- */
 void security_system(
-		const char *security_error_character_string,
 		char *system_string );
 
 /* Public */
