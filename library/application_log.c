@@ -133,6 +133,16 @@ char *application_log_delete_system_string(
 {
 	char system_string[ 256 ];
 
+	if ( !application_log_filename )
+	{
+		fprintf(stderr,
+		"ERROR in %s/%s()/%d: application_log_filename is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
@@ -146,10 +156,27 @@ boolean application_log_exists_boolean(
 		char *application_name,
 		char *application_log_filename )
 {
-	if ( string_strcmp( application_name, "hydrology" ) == 0
-	||   string_strcmp( application_name, "benthic" ) == 0
-	||   string_strcmp( application_name, "donner" ) == 0
-	||   string_strcmp( application_name, "tnt" ) == 0 )
+	if ( !application_name )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: application_name is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( strcmp( application_name, "hydrology" ) == 0
+	||   strcmp( application_name, "benthic" ) == 0
+	||   strcmp( application_name, "donner" ) == 0
+	||   strcmp( application_name, "tnt" ) == 0
+	||   strcmp( application_name, "creel" ) == 0
+	||   strcmp( application_name, "waterquality" ) == 0
+	||   strcmp( application_name, "wadingbird" ) == 0
+	||   strcmp( application_name, "audubon" ) == 0
+	||   strcmp( application_name, "cesi" ) == 0
+	||   strcmp( application_name, "sparrow" ) == 0
+	||   strcmp( application_name, "freshwaterfish" ) == 0 )
 	{
 		return 1;
 	}

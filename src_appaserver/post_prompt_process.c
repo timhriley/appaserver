@@ -66,6 +66,8 @@ int main( int argc, char **argv )
 	if ( post_prompt_process->prompt_process_output_system_string )
 	{
 		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
 			post_prompt_process->
 				prompt_process_output_system_string );
 	}
@@ -88,6 +90,8 @@ int main( int argc, char **argv )
 			post_prompt_process->command_line /* message */ );
 
 		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
 			post_prompt_process->command_line );
 	}
 

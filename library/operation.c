@@ -1078,7 +1078,11 @@ char *operation_row_checked_execute(
 
 	if ( operation_row_list_output_boolean )
 	{
-		security_system( command_line );
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			command_line );
+
 		return (char *)0;
 	}
 	else

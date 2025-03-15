@@ -459,7 +459,10 @@ char *security_remove_semicolon( char *datum )
 	return strdup( destination );
 }
 
-void security_system( char *system_string )
+void security_system(
+		const char security_fork_character,
+		const char *security_fork_string,
+		char *system_string )
 {
 	if ( !system_string )
 	{
@@ -479,10 +482,10 @@ void security_system( char *system_string )
 
 	if ( string_character_boolean(
 		system_string,
-		'`' )
+		(char)security_fork_character )
 	||   string_exists(
 		system_string,
-		"$(" /* substring */ ) )
+		(char *)security_fork_string /* substring */ ) )
 	{
 		char message[ STRING_65K ];
 

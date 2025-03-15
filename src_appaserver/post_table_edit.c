@@ -231,7 +231,10 @@ int main( int argc, char **argv )
 				message );
 		}
 
-		security_system( system_string );
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			system_string );
 	}
 
 	return 0;
