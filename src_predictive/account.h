@@ -40,6 +40,7 @@
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
 #define ACCOUNT_CREDIT_CARD_KEY		"credit_card_key"
+#define ACCOUNT_PASSTHRU_KEY		"credit_card_passthru"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_EQUITY_KEY		"equity_key"
 
@@ -386,7 +387,13 @@ char *account_shipping_revenue(
 		char *account_shipping_revenue_key );
 
 char *account_cash(
-		char *account_cash_key );
+		const char *account_cash_key );
+
+char *account_credit_card(
+		const char *account_credit_card_key );
+
+char *account_credit_card_passthru(
+		const char *account_passthru_key );
 
 char *account_gain(
 		char *account_gain_key );

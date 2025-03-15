@@ -293,11 +293,30 @@ char *account_shipping_revenue( char *account_shipping_revenue_key )
 		__FUNCTION__ );
 }
 
-char *account_cash( char *account_cash_key )
+char *account_cash( const char *account_cash_key )
 {
 	return
 	account_hard_coded_account_name(
-		account_cash_key,
+		(char *)account_cash_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_credit_card( const char *account_credit_card_key )
+{
+	return
+	account_hard_coded_account_name(
+		(char *)account_credit_card_key,
+		0 /* not warning_only */,
+		__FUNCTION__ );
+}
+
+char *account_credit_card_passthru(
+		const char *account_passthru_key )
+{
+	return
+	account_hard_coded_account_name(
+		(char *)account_passthru_key,
 		0 /* not warning_only */,
 		__FUNCTION__ );
 }
