@@ -23,6 +23,9 @@
 #define IMPORT_PREDICT_CASH_ACCOUNT		"checking"
 #define IMPORT_PREDICT_EQUITY_ACCOUNT		"net_asset"
 
+#define IMPORT_PREDICT_CARD_FEEDER_PHRASE	"Credit Card Bill Payment"
+#define IMPORT_PREDICT_CASH_FEEDER_PHRASE	"PAYMENT - THANK YOU"
+
 #define IMPORT_PREDICT_TRIAL_BALANCE_EXECUTABLE		\
 						"trial_balance_output"
 
@@ -144,6 +147,40 @@
 
 typedef struct
 {
+	char *account_credit_card_passthru;
+	char *card_insert_statement;
+	char *cash_insert_statement;
+	LIST *feeder_phrase_insert_statement_list;
+} IMPORT_PREDICT_PASSTHRU;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+IMPORT_PREDICT_PASSTHRU *import_predict_passthru_new(
+		char *entity_self_full_name,
+		char *entity_self_street_address );
+
+/* Process */
+/* ------- */
+IMPORT_PREDICT_PASSTHRU *import_pedict_passthru_calloc(
+		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *import_predict_passthru_insert_statement(
+		const char *feeder_phrase_table,
+		const char *feeder_phrase,
+		char *entity_self_full_name,
+		char *entity_self_street_address,
+		char *account_credit_card_passthru );
+
+typedef struct
+{
 	LIST *import_predict_map_list;
 	char *import_predict_map_process_name;
 	char *insert_system_string;
@@ -226,7 +263,8 @@ IMPORT_PREDICT_TRANSACTION *
 		const char *transaction_begin_time,
 		char *checking_begin_date,
 		double checking_begin_balance,
-		ENTITY_SELF *entity_self );
+		char *entity_self_full_name,
+		char *entity_self_street_address );
 
 /* Process */
 /* ------- */
@@ -263,10 +301,12 @@ typedef struct
 	char *delete_role_system_string;
 	char *entity_system_string;
 	IMPORT_PREDICT_TRANSACTION *import_predict_transaction;
+	IMPORT_PREDICT_PASSTHRU *import_predict_passthru;
 	char *menu_href_string;
 	char *menu_anchor_tag;
 	char *trial_balance_system_string;
 	char *financial_position_system_string;
+	char *appaserver_error_filename;
 } IMPORT_PREDICT;
 
 /* Safely returns */

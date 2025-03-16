@@ -326,8 +326,8 @@ char *account_closing_entry(
 /* Usage */
 /* ----- */
 
-/* Safely heap memory or null */
-/* -------------------------- */
+/* Returns heap memory from static list or null */
+/* -------------------------------------------- */
 char *account_drawing(
 		const char *account_drawing_key );
 
@@ -378,20 +378,28 @@ char *account_receivable(
 char *account_payable(
 		char *account_payable_key );
 
-/* Safely returns */
-/* -------------- */
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_uncleared_checks(
 		char *account_uncleared_checks_key );
 
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_shipping_revenue(
 		char *account_shipping_revenue_key );
 
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_cash(
 		const char *account_cash_key );
 
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_credit_card(
 		const char *account_credit_card_key );
 
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_credit_card_passthru(
 		const char *account_passthru_key );
 

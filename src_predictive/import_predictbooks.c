@@ -10,6 +10,7 @@
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "document.h"
+#include "sql.h"
 #include "import_predict.h"
 
 int main( int argc, char **argv )
@@ -120,6 +121,8 @@ int main( int argc, char **argv )
 
 	if ( execute_boolean )
 	{
+		char *error_string;
+
 		if ( system( import_predict->system_string ) ){}
 
 		if ( system(
@@ -182,6 +185,25 @@ int main( int argc, char **argv )
 			import_predict->
 				import_predict_transaction->
 				transaction );
+
+		error_string =
+			/* ---------------------------- */
+			/* Returns error_string or null */
+			/* ---------------------------- */
+			sql_execute(
+				import_predict->appaserver_error_filename,
+				import_predict->
+					import_predict_passthru->
+					feeder_phrase_insert_statement_list,
+					(char *)0 /* sql_statement */ );
+
+		if ( error_string )
+		{
+			appaserver_error_message_file(
+				application_name,
+				login_name,
+				error_string );
+		}
 
 		printf( "%s\n",
 			IMPORT_PREDICT_WARNING_MESSAGE );

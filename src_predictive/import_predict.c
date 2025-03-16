@@ -17,6 +17,8 @@
 #include "entity.h"
 #include "export_table.h"
 #include "account.h"
+#include "feeder.h"
+#include "insert.h"
 #include "role.h"
 #include "role_folder.h"
 #include "folder.h"
@@ -155,7 +157,8 @@ IMPORT_PREDICT *import_predict_new(
 			TRANSACTION_BEGIN_TIME,
 			checking_begin_date,
 			checking_begin_balance,
-			import_predict->entity_self );
+			import_predict->entity_self->full_name,
+			import_predict->entity_self->street_address );
 
 	if ( !import_predict->import_predict_transaction
 	||   !import_predict->
@@ -177,6 +180,14 @@ IMPORT_PREDICT *import_predict_new(
 			message );
 	}
 
+	import_predict->import_predict_passthru =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		import_predict_passthru_new(
+			import_predict->entity_self->full_name,
+			import_predict->entity_self->street_address );
+
 	import_predict->menu_href_string =
 		/* ----------------------------- */
 		/* Returns static memory or null */
@@ -190,6 +201,22 @@ IMPORT_PREDICT *import_predict_new(
 			application_menu_horizontal_boolean(
 			       application_name ) );
 
+	if ( !import_predict->menu_href_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"import_predict_menu_href_string() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 	import_predict->menu_anchor_tag =
 		/* ----------------------------- */
 		/* Returns static memory or null */
@@ -197,6 +224,22 @@ IMPORT_PREDICT *import_predict_new(
 		import_predict_menu_anchor_tag(
 			FRAMESET_PROMPT_FRAME,
 			import_predict->menu_href_string );
+
+	if ( !import_predict->menu_anchor_tag )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"import_predict_menu_anchor_tag() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	import_predict->trial_balance_system_string =
 		/* --------------------- */
@@ -218,6 +261,13 @@ IMPORT_PREDICT *import_predict_new(
 			login_name,
 			role_name );
 
+	import_predict->appaserver_error_filename =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_error_filename(
+			application_name );
+
 	return import_predict;
 }
 
@@ -225,14 +275,16 @@ IMPORT_PREDICT_TRANSACTION *import_predict_transaction_new(
 		const char *transaction_begin_time,
 		char *checking_begin_date,
 		double checking_begin_balance,
-		ENTITY_SELF *entity_self )
+		char *full_name,
+		char *street_address )
 {
 	IMPORT_PREDICT_TRANSACTION *import_predict_transaction;
 
 	if ( !checking_begin_date
 	||   !*checking_begin_date
 	||   float_virtually_same( checking_begin_balance, 0.0 )
-	||   !entity_self )
+	||   !full_name
+	||   !street_address )
 	{
 		char message[ 128 ];
 
@@ -254,8 +306,8 @@ IMPORT_PREDICT_TRANSACTION *import_predict_transaction_new(
 
 	import_predict_transaction->transaction =
 		transaction_new(
-			entity_self->full_name,
-			entity_self->street_address,
+			full_name,
+			street_address,
 			import_predict_transaction->date_time );
 
 	import_predict_transaction->
@@ -1033,5 +1085,179 @@ char *import_predict_financial_position_system_string(
 		role_name );
 
 	return system_string;
+}
+
+IMPORT_PREDICT_PASSTHRU *import_predict_passthru_new(
+		char *entity_self_full_name,
+		char *entity_self_street_address )
+{
+	IMPORT_PREDICT_PASSTHRU *import_predict_passthru;
+
+	if ( !entity_self_full_name
+	||   !entity_self_street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	import_predict_passthru = import_pedict_passthru_calloc();
+
+	import_predict_passthru->account_credit_card_passthru =
+		/* ------------------------------------ */
+		/* Returns heap memory from static list */
+		/* ------------------------------------ */
+		account_credit_card_passthru(
+			ACCOUNT_PASSTHRU_KEY );
+
+	import_predict_passthru->card_insert_statement =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		import_predict_passthru_insert_statement(
+			FEEDER_PHRASE_TABLE,
+			IMPORT_PREDICT_CARD_FEEDER_PHRASE,
+			entity_self_full_name,
+			entity_self_street_address,
+			import_predict_passthru->
+				account_credit_card_passthru );
+
+	import_predict_passthru->cash_insert_statement =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		import_predict_passthru_insert_statement(
+			FEEDER_PHRASE_TABLE,
+			IMPORT_PREDICT_CASH_FEEDER_PHRASE,
+			entity_self_full_name,
+			entity_self_street_address,
+			import_predict_passthru->
+				account_credit_card_passthru );
+
+	import_predict_passthru->
+		feeder_phrase_insert_statement_list =
+			list_new();
+
+	list_set(
+		import_predict_passthru->feeder_phrase_insert_statement_list,
+		import_predict_passthru->card_insert_statement );
+
+	list_set(
+		import_predict_passthru->feeder_phrase_insert_statement_list,
+		import_predict_passthru->cash_insert_statement );
+
+	return import_predict_passthru;
+}
+
+IMPORT_PREDICT_PASSTHRU *import_pedict_passthru_calloc(
+		void )
+{
+	IMPORT_PREDICT_PASSTHRU *import_predict_passthru;
+
+	if ( ! ( import_predict_passthru =
+			calloc( 1,
+				sizeof ( IMPORT_PREDICT_PASSTHRU ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return import_predict_passthru;
+}
+
+char *import_predict_passthru_insert_statement(
+		const char *feeder_phrase_table,
+		const char *feeder_phrase,
+		char *entity_self_full_name,
+		char *entity_self_street_address,
+		char *account_credit_card_passthru )
+{
+	LIST *insert_datum_list = list_new();
+
+	if ( !entity_self_full_name
+	||   !entity_self_street_address
+	||   !account_credit_card_passthru )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			"feeder_phrase" /* attribute_name */,
+			(char *)feeder_phrase /* datum */,
+			1 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			"nominal_account" /* attribute_name */,
+			(char *)account_credit_card_passthru /* datum */,
+			0 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			"full_name" /* attribute_name */,
+			entity_self_full_name /* datum */,
+			0 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	list_set(
+		insert_datum_list,
+		insert_datum_new(
+			"street_address" /* attribute_name */,
+			entity_self_street_address /* datum */,
+			0 /* primary_key_index */,
+			0 /* not attribute_is_number */ ) );
+
+	return
+	/* --------------------------- */
+	/* Returns heap memory or null */
+	/* --------------------------- */
+	insert_folder_sql_statement_string(
+		(char *)feeder_phrase_table,
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		insert_datum_attribute_name_list_string(
+			insert_datum_list ),
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		insert_datum_value_list_string(
+			insert_datum_list ) );
 }
 

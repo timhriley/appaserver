@@ -196,6 +196,9 @@ char *account_name_format( char *account_name )
 char *account_key_account_name( char *account_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_key,
 		0 /* not warning_only */,
@@ -205,6 +208,9 @@ char *account_key_account_name( char *account_key )
 char *account_revenue( char *account_revenue_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_revenue_key,
 		0 /* not warning_only */,
@@ -214,6 +220,9 @@ char *account_revenue( char *account_revenue_key )
 char *account_receivable( char *account_receivable_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_receivable_key,
 		0 /* not warning_only */,
@@ -223,6 +232,9 @@ char *account_receivable( char *account_receivable_key )
 char *account_payable( char *account_payable_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_payable_key,
 		0 /* not warning_only */,
@@ -232,6 +244,9 @@ char *account_payable( char *account_payable_key )
 char *account_uncleared_checks( char *account_uncleared_checks_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_uncleared_checks_key,
 		0 /* not warning_only */,
@@ -241,6 +256,9 @@ char *account_uncleared_checks( char *account_uncleared_checks_key )
 char *account_gain( char *account_gain_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_gain_key,
 		0 /* not warning_only */,
@@ -250,6 +268,9 @@ char *account_gain( char *account_gain_key )
 char *account_loss( char *account_loss_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_loss_key,
 		0 /* not warning_only */,
@@ -259,6 +280,9 @@ char *account_loss( char *account_loss_key )
 char *account_sales_tax_payable( char *account_sales_tax_payable_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_sales_tax_payable_key,
 		0 /* not warning_only */,
@@ -268,6 +292,9 @@ char *account_sales_tax_payable( char *account_sales_tax_payable_key )
 char *account_depreciation_expense( char *account_depreciation_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_depreciation_key,
 		0 /* not warning_only */,
@@ -277,6 +304,9 @@ char *account_depreciation_expense( char *account_depreciation_key )
 char *account_accumulated_depreciation( char *account_accumulated_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_accumulated_key,
 		0 /* not warning_only */,
@@ -287,6 +317,9 @@ char *account_accumulated_depreciation( char *account_accumulated_key )
 char *account_shipping_revenue( char *account_shipping_revenue_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		account_shipping_revenue_key,
 		0 /* not warning_only */,
@@ -296,6 +329,9 @@ char *account_shipping_revenue( char *account_shipping_revenue_key )
 char *account_cash( const char *account_cash_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		(char *)account_cash_key,
 		0 /* not warning_only */,
@@ -305,6 +341,9 @@ char *account_cash( const char *account_cash_key )
 char *account_credit_card( const char *account_credit_card_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		(char *)account_credit_card_key,
 		0 /* not warning_only */,
@@ -315,6 +354,9 @@ char *account_credit_card_passthru(
 		const char *account_passthru_key )
 {
 	return
+	/* ------------------------------------ */
+	/* Returns heap memory from static list */
+	/* ------------------------------------ */
 	account_hard_coded_account_name(
 		(char *)account_passthru_key,
 		0 /* not warning_only */,
