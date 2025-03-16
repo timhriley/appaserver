@@ -1,0 +1,14 @@
+${APPASERVER_HOME}/GIT
+----------------------
+
+The file .gitignore is not implemented because too many executables have
+made it unmanagable. As an alternative, several git*.sh scripts are
+available to manage the git repository:
+
+1) $APPASERVER_HOME/utility/git_commit.sh
+2) $APPASERVER_HOME/utility/git_merge_development.sh
+3) $APPASERVER_HOME/utility/git_merge_main.sh
+4) $APPASERVER_HOME/utility/git_panic.sh
+5) $APPASERVER_HOME/utility/git_pull_main.sh
+6) $APPASERVER_HOME/utility/git_pull_origin.sh
+7) $APPASERVER_HOME/utility/git_status.sh

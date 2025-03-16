@@ -566,12 +566,65 @@ DRILLDOWN *drilldown_new(
 					relation_one2m_list ) );
 	}
 
-	drilldown->relation_mto1_to_one_list =
-		relation_mto1_to_one_list(
-			drilldown->drilldown_input->relation_mto1_list,
-			drilldown->drilldown_input->relation_mto1_isa_list );
+	if ( list_length(
+		drilldown->
+			drilldown_input->
+			relation_mto1_isa_list ) )
+	{
+		RELATION_MTO1 *relation_mto1;
+		DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one;
 
-	if ( list_rewind( drilldown->relation_mto1_to_one_list ) )
+		relation_mto1 =
+			list_first(
+				drilldown->
+					drilldown_input->
+					relation_mto1_isa_list );
+
+		drilldown->drilldown_many_to_one_list = list_new();
+
+		drilldown_many_to_one =
+			drilldown_many_to_one_new(
+				application_name,
+				session_key,
+				login_name,
+				role_name,
+				drilldown_base_folder_name,
+				target_frame,
+				drilldown_primary_data_list_string,
+				data_directory,
+				drilldown->drilldown_input->process_id,
+				drilldown->
+					drilldown_input->
+					dictionary_separate->
+					no_display_dictionary,
+				drilldown->
+					drilldown_input->
+					dictionary_separate->
+					sort_dictionary,
+				relation_mto1->one_folder_name,
+				relation_mto1->relation_translate_list,
+				relation_mto1->
+					one_folder->
+					folder_attribute_primary_key_list,
+				drilldown->query_dictionary );
+
+		if ( drilldown_many_to_one )
+		{
+			list_set(
+				drilldown->drilldown_many_to_one_list,
+				drilldown_many_to_one );
+
+			drilldown->drilldown_input->relation_mto1_list =
+			    relation_mto1_to_one_fetch_list(
+				role_name,
+				relation_mto1->one_folder_name,
+				relation_mto1->
+					one_folder->
+					folder_attribute_primary_key_list );
+		}
+	}
+
+	if ( list_rewind( drilldown->drilldown_input->relation_mto1_list ) )
 	{
 		DICTIONARY *fetch_dictionary;
 		RELATION_MTO1 *relation_mto1;
@@ -604,13 +657,17 @@ DRILLDOWN *drilldown_new(
 		/* ------------------------------- */
 		if ( !fetch_dictionary ) goto drilldown_document;
 
-		drilldown->drilldown_many_to_one_list = list_new();
+		if ( !drilldown->drilldown_many_to_one_list )
+		{
+			drilldown->drilldown_many_to_one_list = list_new();
+		}
 
 		do {
 			relation_mto1 =
 				list_get(
 					drilldown->
-						relation_mto1_to_one_list );
+						drilldown_input->
+						relation_mto1_list );
 
 			if ( !list_length(
 				relation_mto1->
@@ -670,7 +727,8 @@ DRILLDOWN *drilldown_new(
 
 		} while ( list_next(
 				drilldown->
-					relation_mto1_to_one_list ) );
+					drilldown_input->
+					relation_mto1_list ) );
 	}
 
 drilldown_document:
@@ -1306,7 +1364,7 @@ DRILLDOWN_INPUT *drilldown_input_new(
 				folder->
 				folder_attribute_primary_key_list
 				/* one_primary_key_list */,
-			0 /* not include_isa_boolean */ );
+			1 /* include_isa_boolean */ );
 
 	drilldown_input->folder_attribute_append_isa_list =
 		folder_attribute_append_isa_list(

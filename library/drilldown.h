@@ -272,8 +272,6 @@ typedef struct
 	DICTIONARY *original_post_dictionary;
 	DRILLDOWN_PRIMARY *drilldown_primary;
 	LIST *drilldown_one_to_many_list;
-	LIST *relation_mto1_list;
-	LIST *relation_mto1_to_one_list;
 	LIST *drilldown_many_to_one_list;
 	DRILLDOWN_DOCUMENT *drilldown_document;
 } DRILLDOWN;
