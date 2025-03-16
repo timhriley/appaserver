@@ -143,7 +143,7 @@ DICTIONARY *post_dictionary_fetch(
 
 		/* New attribute */
 		/* ------------- */
-		if ( string_strcmp(
+		if ( strcmp(
 			apache_label,
 			"Content-Disposition: form-data; name=" ) == 0 )
 		{
@@ -195,6 +195,7 @@ DICTIONARY *post_dictionary_fetch(
 				/* --------------------------- */
 				post_dictionary_datum(
 					WIDGET_SELECT_OPERATOR,
+					stdin /* input_stream */,
 					apache_key );
 
 			if ( datum )
@@ -751,15 +752,22 @@ char *post_dictionary_file_specification_key(
 
 char *post_dictionary_datum(
 		const char *widget_select_operator,
+		FILE *input_stream,
 		char *post_dictionary_apache_key )
 {
 	char datum[ STRING_64K ];
 
 	/* Skip "\n" */
 	/* --------- */
-	file_skip_line( stdin );
+	file_skip_line( input_stream );
 
-	if ( !string_input( datum, stdin, sizeof ( datum ) ) ) return NULL;
+	if ( !string_input(
+		datum,
+		input_stream,
+		sizeof ( datum ) ) )
+	{
+		return NULL;
+	}
 
 	if ( !*datum ) return NULL;
 	if ( strcmp( datum, widget_select_operator ) == 0 ) return NULL;

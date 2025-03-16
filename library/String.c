@@ -501,8 +501,8 @@ char *string_escape_character(
 		{
 			if ( *(data + 1) == character )
 			{
-				data++;
-				data++;
+				*destination++ = *data++;
+				*destination++ = *data++;
 				continue;
 			}
 		}

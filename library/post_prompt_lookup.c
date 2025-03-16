@@ -588,8 +588,8 @@ char *post_prompt_lookup_execute_system_string(
 }
 
 char *post_prompt_lookup_input_selection(
-			char *form_radio_list_name,
-			DICTIONARY *non_prefixed_dictionary )
+		char *form_radio_list_name,
+		DICTIONARY *non_prefixed_dictionary )
 {
 	char *selection;
 

@@ -156,6 +156,7 @@ char *post_dictionary_attribute_name(
 /* --------------------------- */
 char *post_dictionary_datum(
 		const char *widget_select_operator,
+		FILE *input_stream,
 		char *post_dictionary_apache_key );
 
 /* Usage */
