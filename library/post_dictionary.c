@@ -773,7 +773,12 @@ char *post_dictionary_datum(
 	if ( strcmp( datum, widget_select_operator ) == 0 ) return NULL;
 	if ( strcmp( datum, post_dictionary_apache_key ) == 0 ) return NULL;
 
-	return strdup( datum );
+	return
+	strdup(
+		/* --------------------------------- */
+		/* Trims leading and trailing spaces */
+		/* --------------------------------- */
+		string_trim( datum ) );
 }
 
 char *post_dictionary_file_datum(
@@ -810,6 +815,11 @@ char *post_dictionary_file_datum(
 	if ( !piece( datum, '"', input, 3 ) ) return NULL;
 	if ( !*datum ) return NULL;
 
-	return strdup( datum );
+	return
+	strdup(
+		/* --------------------------------- */
+		/* Trims leading and trailing spaces */
+		/* --------------------------------- */
+		string_trim( datum ) );
 }
 

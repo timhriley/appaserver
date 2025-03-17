@@ -10,7 +10,7 @@
 /*	transaction_difference^						*/
 /*	difference_type							*/
 /* 									*/
-/* Note: difference_type = {	no_journal_ledger,			*/
+/* Note: difference_type = {	no_journal,				*/
 /*				debit_credit_difference,		*/
 /*				balance_difference }			*/
 /*									*/
@@ -21,7 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
+#include "float.h"
 #include "String.h"
 #include "piece.h"
 #include "list.h"
@@ -81,10 +81,12 @@ void ledger_debit_credit_audit( char *minimum_transaction_date )
 		minimum_transaction_date,
 		"minimum_transaction_date" ) != 0 )
 	{
-		sprintf( where_clause,
-			 "%s.transaction_date_time >= '%s'",
-			 TRANSACTION_TABLE,
-			 minimum_transaction_date );
+		snprintf(
+			where_clause,
+			sizeof ( where_clause ),
+			"%s.transaction_date_time >= '%s'",
+			TRANSACTION_TABLE,
+			minimum_transaction_date );
 	}
 	else
 	{
@@ -94,7 +96,7 @@ void ledger_debit_credit_audit( char *minimum_transaction_date )
 	list =
 		transaction_list(
 			where_clause,
-			1 /* fetch_journal_ledger */ );
+			1 /* fetch_journal_list */ );
 
 	if ( list_rewind( list ) )
 	do {
@@ -116,7 +118,7 @@ void ledger_debit_credit_audit( char *minimum_transaction_date )
 				transaction->journal_list );
 
 		if ( !difference_type
-		&&   !timlib_double_virtually_same(
+		&&   !float_virtually_same(
 			difference, 0.0 ) )
 		{
 			difference_type = "debit_credit_difference";
@@ -124,7 +126,7 @@ void ledger_debit_credit_audit( char *minimum_transaction_date )
 		}
 
 		if ( !difference_type
-		&&   !double_virtually_same(
+		&&   !float_virtually_same(
 			balance_difference, 0.0 ) )
 		{
 			difference_type = "balance_difference";

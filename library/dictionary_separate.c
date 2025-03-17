@@ -1791,10 +1791,6 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 			'\\' /* search_character */,
 			'/' /* replace_character */ );
 
-		/* Trims leading and trailing spaces */
-		/* --------------------------------- */
-		(void)string_trim( datum );
-
 		sql_injection_escape =
 			/* ------------------- */
 			/* Returns heap memory */

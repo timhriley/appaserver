@@ -44,10 +44,10 @@ echo "$title_html"
 
 if [ "$delete_no_journal_yn" = "y" ]
 then
-
 	ledger_no_journal_delete.sh "$minimum_transaction_date"	|
-	sql							|
-	cat
+	tee_appaserver.sh					|
+	sql.e 2>&1						|
+	html_paragraph_wrapper.e
 fi
 
 heading="full_name,street_address,transaction_date_time,check_number,difference,flaw"
