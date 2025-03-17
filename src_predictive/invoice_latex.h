@@ -60,8 +60,11 @@ INVOICE_LATEX *invoice_latex_calloc(
 
 /* Usage */
 /* ----- */
-void latex_invoice_output_document_header(
-		FILE *appaserver_output_file );
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_invoice_document_header(
+		void );
 
 /* Usage */
 /* ----- */

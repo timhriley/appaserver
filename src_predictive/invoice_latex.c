@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "File.h"
 #include "String.h"
+#include "file.h"
+#include "float.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "statement.h"
@@ -250,28 +251,21 @@ void invoice_latex_output( INVOICE_LATEX *invoice_latex )
 		invoice_latex->pdf_anchor_html );
 }
 
-void invoice_latex_output_document_header( FILE *output_file )
+char *invoice_latex_document_header( void )
 {
-	if ( !output_file )
-	{
-		char message[ 128 ];
+	char document_header[ 1024 ];
 
-		sprintf(message, "output_file is empty." );
+	snprintf(
+		document_header,
+		sizeof ( document_header ),
+		"\\documentclass{letter}\n"
+		"\\usepackage{longtable}\n"
+		"\\usepackage{graphics}\n"
+		"\\usepackage[	margin=1in,\n"
+		"		nohead]{geometry}\n"
+		"\\begin{document}\n" );
 
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	fprintf(output_file,
-"\\documentclass{letter}\n"
-"\\usepackage{longtable}\n"
-"\\usepackage{graphics}\n"
-"\\usepackage[	margin=1in,\n"
-"		nohead]{geometry}\n"
-"\\begin{document}\n" );
+	return strdup( document_header );
 }
 
 void latex_invoice_education_invoice_header(
@@ -772,7 +766,7 @@ void invoice_latex_output_line_item_list(
 		 	format_initial_capital(
 				buffer, line_item->item_name ),
 		 	dollar_string,
-			timlib_place_commas_in_money(
+			string_commas_money(
 				line_item->extended_price ) );
 
 		if ( *dollar_string ) *dollar_string = '\0';
@@ -828,7 +822,7 @@ void latex_invoice_output_line_item_list(
 			fprintf( output_stream,
 "& %s%s \\\\\n",
 			 	 dollar_string,
-			 	 timlib_place_commas_in_money(
+			 	 string_commas_money(
 					line_item->extended_price ) );
 
 			if ( *dollar_string ) *dollar_string = '\0';
@@ -856,7 +850,7 @@ boolean latex_invoice_each_quantity_integer(
 	do {
 		line_item = list_get_pointer( invoice_line_item_list );
 
-		if ( !timlib_double_is_integer(
+		if ( !float_integer_boolean(
 			line_item->quantity ) )
 		{
 			return 0;

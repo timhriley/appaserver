@@ -104,7 +104,7 @@ EXECUTABLES=	trial_balance_output					\
 		import_predictbooks					\
 		prior_fixed_asset_trigger				\
 		investment_transaction_driver
-#		generate_invoice					\
+#		generate_invoice
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
@@ -746,6 +746,7 @@ inventory_cost_method_propagate: inventory_cost_method_propagate.c	\
 generate_invoice: generate_invoice.c					\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
 	invoice.o							\
+	invoice_latex.o							\
 	customer.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
@@ -753,6 +754,7 @@ generate_invoice: generate_invoice.c					\
 		${STANDARD_LIBRARY}					\
 		generate_invoice.c					\
 		invoice.o						\
+		invoice_latex.o						\
 		customer.o						\
 		-o generate_invoice
 	touch generate_workorder

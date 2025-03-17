@@ -1,7 +1,7 @@
 /* -------------------------------------------------------------------- */
 /* $APPASERVER_HOME/src_predictive/customer.c				*/
 /* -------------------------------------------------------------------- */
-/* No warranty and freely available software. Visit Appaserver.org	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
 
 #include <stdio.h>
