@@ -7,14 +7,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "timlib.h"
 #include "String.h"
 #include "environ.h"
-#include "piece.h"
-#include "list.h"
-#include "appaserver_error.h"
 #include "appaserver.h"
-#include "security.h"
+#include "appaserver_error.h"
 #include "preupdate_change.h"
 #include "appaserver_user.h"
 
@@ -27,7 +23,7 @@ int main( int argc, char **argv )
 	char *password;
 	enum preupdate_change_state preupdate_change_state;
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
+	application_name = environment_exit_application_name( argv[ 0 ] );
 
 	if ( argc != 5 )
 	{

@@ -35,6 +35,7 @@ EXECUTABLES=								\
 		table_rectification					\
 		change_password						\
 		appaserver_user_trigger					\
+		self_trigger						\
 		fix_orphans						\
 		merge_purge						\
 		post_merge_purge_choose					\
@@ -470,6 +471,18 @@ appaserver_user_trigger: appaserver_user_trigger.c 			\
 		appaserver_user_trigger.c				\
 		${LIBRARY}/preupdate_change.o				\
 		-o appaserver_user_trigger
+
+self_trigger: self_trigger.c 						\
+		${APPASERVER_LIBRARY}					\
+		${LIBRARY}/preupdate_change.o				\
+		${LIBRARY}/credit_provider.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${APPASERVER_LIBRARY}					\
+		self_trigger.c						\
+		${LIBRARY}/preupdate_change.o				\
+		${LIBRARY}/credit_provider.o				\
+		-o self_trigger
 
 change_password: change_password.c					\
 		${APPASERVER_LIBRARY}					\

@@ -8,9 +8,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include "appaserver_error.h"
+#include "entity.h"
+#include "entity_self.h"
 #include "credit_provider.h"
 
-static char *cc_name_array[] = {
+static char *provider_name_array[] = {
         "Visa",
         "MasterCard",
         "American Express",
@@ -40,39 +43,62 @@ static CC_ID_TYPE cc_id_array[] = {
         { 6, 14, '9', '\0', '\0' }, /* Carte Blanche International */
         { 99, 99, '9', '\0', '\0' } };
 
-void strip_non_digits( char *destination, char *source  )
+char *credit_provider_number_stripped( char *credit_card_number )
 {
-        while( *source )
+	static char number_stripped[ 128 ];
+	char *ptr = number_stripped;
+
+	if ( !credit_card_number )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"credit_card_number is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+        while( *credit_card_number )
         {
-                if( isdigit( *source ) )
-                        *destination++ = *source++;
+                if( isdigit( *credit_card_number ) )
+                        *ptr++ = *credit_card_number++;
                 else
-                        source++;
+                        credit_card_number++;
         }
-        *destination = '\0';
+
+        *ptr = '\0';
+
+	return number_stripped;
 }
 
-/* cc_identify()
-
-        Identify credit card
-        -------------------------------
-        returns:-1 error
-                0  Visa
-                1  Master Card
-                2  American Express
-                3  Discover
-                4  Diner's Club
-                5  Carte Blanche
-                6  Carte Blanche International
-*/
-int cc_identify( char *cc_string )
+int credit_provider_array_offset( char *number_stripped )
 {
-        char cc_number[ 80 ] = { 0 };
         int  cc_number_size;
         int  index;
 
-        strip_non_digits( cc_number, cc_string );
-        cc_number_size = strlen( cc_number );
+	if ( !number_stripped )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"number_stripped is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+        cc_number_size = strlen( number_stripped );
 
         if( cc_number_size < MIN_CC_SIZE || cc_number_size > MAX_CC_SIZE )
                 return -1;
@@ -83,36 +109,33 @@ int cc_identify( char *cc_string )
                 {
                         continue;
                 }
-                if( cc_id_array[ index ].first_digit != cc_number[ 0 ] )
+
+                if( cc_id_array[ index ].first_digit != number_stripped[ 0 ] )
                 {
                         continue;
                 }
+
                 if( ( cc_id_array[ index ].secnd_digit != '\0' )
-                && ( cc_id_array[ index ].secnd_digit != cc_number[ 1 ] ) )
+                &&  ( cc_id_array[ index ].secnd_digit != number_stripped[ 1 ]))
                 {
                         continue;
                 }
+
                 if( ( cc_id_array[ index ].third_digit != '\0' )
-                && ( cc_id_array[ index ].third_digit != cc_number[ 2 ] ) )
+                &&  ( cc_id_array[ index ].third_digit != number_stripped[ 2 ]))
                 {
                         continue;
                 }
+
                 return cc_id_array[ index ].cc_id;
         }
 
         return -1;
 }
 
-/* cc_chk_digit()
-
-        check the the digits of a credit card.
-        --------------------------------------
-        returns: 1 == valid
-                 0 == invalid
-*/
-int cc_chk_digit( char *cc_string )
+boolean credit_provider_check_digit_boolean(
+		char *number_stripped )
 {
-        char cc_number[ 80 ] = { 0 };
         int cc_number_size;
         int index;
         int weight = 2;
@@ -120,8 +143,7 @@ int cc_chk_digit( char *cc_string )
         int current_number;
         int accummulator = 0;
 
-        strip_non_digits( cc_number, cc_string );
-        cc_number_size = strlen( cc_number );
+        cc_number_size = strlen( number_stripped );
         index = cc_number_size - 2;
 
         if( cc_number_size < MIN_CC_SIZE || cc_number_size > MAX_CC_SIZE )
@@ -129,33 +151,177 @@ int cc_chk_digit( char *cc_string )
 
         for( ; index >= 0; index-- )
         {
-                if( !isdigit( cc_number[ index ]) )
-                        continue;
-                current_number = cc_number[ index ] - 48;
+                current_number = number_stripped[ index ] - 48;
                 product = current_number * weight;
                 accummulator += product / 10;
                 accummulator += product % 10;
+
                 if( weight == 2 )
                         weight = 1;
                 else
                         weight = 2;
         }
+
         accummulator %= 10;
         accummulator = 10 - accummulator;
 
         if( accummulator == 10 )
                 accummulator = 0;
 
-        if( accummulator == ( cc_number[ cc_number_size - 1 ] - 48 ) )
+        if ( accummulator == ( number_stripped[ cc_number_size - 1 ] - 48 ) )
                 return 1;
-        return 0;
+	else
+        	return 0;
 }
 
-char *get_cc_name( int cc_number )
+char *credit_provider_name( int array_offset )
 {
-        if( ( cc_number >= 0 ) || ( cc_number <= 6 ) )
-                return cc_name_array[ cc_number ];
+        if( ( array_offset >= 0 ) || ( array_offset <= 6 ) )
+                return provider_name_array[ array_offset ];
         else
                 return (char *)0;
+}
+
+CREDIT_PROVIDER *credit_provider_new(
+		char *full_name,
+		char *street_address,
+		char *credit_card_number )
+{
+	CREDIT_PROVIDER *credit_provider;
+
+	if ( !full_name
+	||   !street_address
+	||   !credit_card_number )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	credit_provider = credit_provider_calloc();
+
+	credit_provider->number_stripped =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		credit_provider_number_stripped(
+			credit_card_number );
+
+	credit_provider->check_digit_boolean =
+		credit_provider_check_digit_boolean(
+			credit_provider->number_stripped );
+
+	if ( credit_provider->check_digit_boolean )
+	{
+		credit_provider->array_offset =
+			credit_provider_array_offset(
+				credit_provider->number_stripped );
+
+		credit_provider->name =
+			/* --------------------------------------------- */
+			/* Returns component of global structure or null */
+			/* --------------------------------------------- */
+			credit_provider_name(
+				credit_provider->array_offset );
+	}
+
+	credit_provider->sql_statement =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		credit_provider_sql_statement(
+			ENTITY_SELF_TABLE,
+			full_name,
+			street_address,
+			credit_provider->name );
+
+	return credit_provider;
+}
+
+CREDIT_PROVIDER *credit_provider_calloc( void )
+{
+	CREDIT_PROVIDER *credit_provider;
+
+	if ( ! ( credit_provider = calloc( 1, sizeof ( CREDIT_PROVIDER ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return credit_provider;
+}
+
+char *credit_provider_sql_statement(
+		const char *entity_self_table,
+		char *full_name,
+		char *street_address,
+		char *credit_provider_name )
+{
+	char set_clause[ 128 ];
+	char sql_statement[ 1024 ];
+
+	if ( !full_name
+	||   !street_address )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !credit_provider_name )
+	{
+		strcpy( set_clause, "credit_provider = null" );
+	}
+	else
+	{
+		snprintf(
+			set_clause,
+			sizeof ( set_clause ),
+			"credit_provider = '%s'",
+			credit_provider_name );
+	}
+
+	snprintf(
+		sql_statement,
+		sizeof ( sql_statement ),
+		"update %s set %s where %s;",
+		entity_self_table,
+		set_clause,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			full_name,
+			street_address ) );
+
+	return strdup( sql_statement );
 }
 

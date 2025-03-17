@@ -202,23 +202,16 @@ APPASERVER_LIBRARY=						\
 		preupdate_change.o				\
 		canvass_waypoint.o				\
 		waypoint.o					\
-		file.o
+		file.o						\
+		credit_provider.o
 
-all: 	${APPASERVER_LIBRARY}					\
-	credit_provider_dvr
+all: 	${APPASERVER_LIBRARY}
 
 touch:
 	/usr/bin/touch *.c
 
 clean:
-	rm -f *.[oe] credit_provider_dvr
-
-credit_provider_dvr: credit_provider_dvr.c				\
-	credit_provider.o
-	$(CC)   ${CFLAGS}						\
-		credit_provider_dvr.c					\
-		credit_provider.o					\
-		-o credit_provider_dvr
+	rm -f *.[oe]
 
 html.o: html.c html.h
 	${CC} ${CFLAGS} -c html.c
