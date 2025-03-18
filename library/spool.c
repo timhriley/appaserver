@@ -98,7 +98,7 @@ char *spool_create_system_string( char *output_filename )
 	snprintf(
 		create_system_string,
 		sizeof ( create_system_string ),
-		"echo '' > %s && chmod go-rw %s",
+		"touch %s && chmod go-rw %s",
 		output_filename,
 		output_filename );
 

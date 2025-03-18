@@ -242,26 +242,26 @@ void invoice_latex_output(
 typedef struct
 {
 	/* Stub */
-} INVOICE_LATEX_EDUCATION;
+} INVOICE_LATEX_SCHOOL;
 
-char *invoice_latex_education_header(
+char *invoice_latex_school_header(
 		char *invoice_date,
 		INVOICE_LATEX_ENTITY *self_invoice_latex_entity;
 		INVOICE_LATEX_ENTITY *customer_invoice_latex_entity;
 		char *title,
 		char *logo_filename );
 
-char *invoice_latex_education_header_format_line(
+char *invoice_latex_school_header_format_line(
 		void );
 
-char *invoice_latex_education_header_text_line(
+char *invoice_latex_school_header_text_line(
 		char *first_column_label,
 		char *last_column_label );
 
-char *invoice_latex_education_line_item_list(
+char *invoice_latex_school_line_item_list(
 		LIST *invoice_line_item_list );
 
-char *invoice_latex_education_footer(
+char *invoice_latex_school_footer(
 		double extended_price_total,
 		double total_payment,
 		double amount_due );

@@ -194,11 +194,38 @@ INVOICE_LATEX_TABLE *invoice_latex_table_new(
 				customer_label,
 				customer->entity );
 
-	invoice_latex->latex_table =
+	invoice_latex_table->latex_table =
 		latex_table_new(
 			invoice_caption );
 
+	invoice_latex_table->latex_table->column_list =
+		invoice_latex_table_column_list(
+			invoice_data );
+
 	return invoice_latex_table;
+}
+
+LIST *invoice_latex_table_column_list( INVOICE_DATA *invoice_data )
+{
+	LIST *column_list;
+
+	if ( !invoice_data )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"invoice_data is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return column_list;
 }
 
 INVOICE_LATEX_TABLE *invoice_latex_table_calloc( void )
@@ -220,10 +247,6 @@ INVOICE_LATEX_TABLE *invoice_latex_table_calloc( void )
 	}
 
 	return invoice_latex_table;
-}
-
-LIST *invoice_latex_table_column_list( INVOICE_DATA *invoice_data )
-{
 }
 
 LIST *invoice_latex_table_row_list(
@@ -1165,7 +1188,7 @@ INVOICE_LATEX_ENTITY *invoice_latex_entity_calloc( void )
 }
 
 #ifdef NOT_DEFINED
-char *latex_invoice_header_education_format_line( void )
+char *latex_invoice_header_school_format_line( void )
 {
 	char format_line[ 1024 ];
 
@@ -1176,7 +1199,7 @@ char *latex_invoice_header_education_format_line( void )
 	return strdup( format_line );
 }
 
-char *invoice_latex_education_header(
+char *invoice_latex_school_header(
 		char *invoice_date,
 		LATEX_INVOICE_SELF *invoice_self,
 		LATEX_INVOICE_CUSTOMER *invoice_customer,
@@ -1277,14 +1300,14 @@ char *invoice_latex_education_header(
 		 "%s\n",
 		 /* Returns heap memory */
 		 /* ------------------- */
-		 latex_invoice_header_education_format_line() );
+		 latex_invoice_header_school_format_line() );
 
 	fprintf( output_stream,
 		 "%s\n",
 		 /* ------------------- */
 		 /* Returns heap memory */
 		 /* ------------------- */
-		 latex_invoice_header_education_text_line(
+		 latex_invoice_header_school_text_line(
 			"Course",
 			"Tuition" ) );
 
@@ -1293,7 +1316,7 @@ char *invoice_latex_education_header(
 
 }
 
-char *latex_invoice_header_education_text_line(
+char *latex_invoice_header_school_text_line(
 		char *first_column_label,
 		char *last_column_label )
 {

@@ -61,22 +61,6 @@ char *latex_column_display(
 
 /* Usage */
 /* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *latex_column_header_format_line(
-		LIST *latex_column_list );
-
-/* Usage */
-/* ----- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *latex_column_header_text_line(
-		LIST *latex_column_list );
-
-/* Usage */
-/* ----- */
 LIST *latex_column_float_list(
 		LIST *heading_string_list,
 		boolean first_column_boolean,
@@ -88,6 +72,28 @@ LIST *latex_column_text_list(
 		LIST *heading_string_list,
 		boolean first_column_boolean,
 		boolean right_justify_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_column_header_text_line(
+		LIST *latex_column_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_column_header_format_line(
+		LIST *latex_column_list );
+
+/* Usage */
+/* ----- */
+LATEX_COLUMN *latex_column_seek(
+		LIST *latex_column_list,
+		char *heading_string );
 
 typedef struct
 {
@@ -228,6 +234,14 @@ LATEX_ROW *latex_row_new(
 /* ------- */
 LATEX_ROW *latex_row_calloc(
 		void );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_row_list_display(
+		LIST *latex_row_list /* freed */ );
 
 /* Driver */
 /* ------ */

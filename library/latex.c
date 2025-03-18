@@ -368,11 +368,70 @@ LATEX_ROW *latex_row_calloc( void )
 	return latex_row;
 }
 
+char *latex_row_list_display( LIST *latex_row_list /* freed */ )
+{
+	char display[ STRING_128K ];
+	char *ptr = display;
+	LATEX_ROW *latex_row;
+	char *cell_list_display;
+
+	*display = '\0';
+
+	if ( list_rewind( latex_row_list ) )
+	do {
+		latex_row = list_get( latex_row_list );
+
+		cell_list_display =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			latex_cell_list_display(
+				latex_row->cell_list );
+
+		if (	strlen( display ) +
+			string_strlen( cell_list_display ) +
+			16 >= STRING_128K )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_128K );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( latex_row->preceed_double_line_boolean )
+		{
+			ptr += sprintf(
+				ptr,
+				"\\hline \\hline\n" );
+		}
+
+		ptr += sprintf(
+			ptr,
+			"%s\\\\\n",
+			cell_list_display );
+
+		free( cell_list_display );
+
+		latex_cell_list_free( latex_row->cell_list );
+
+	} while ( list_next( latex_row_list ) );
+
+	list_free( latex_row_list );
+
+	return strdup( display );
+}
+
 void latex_row_list_output(
 		LIST *latex_row_list,
 		FILE *latex_output_file )
 {
-	LATEX_ROW *latex_row;
 	char *display;
 
 	if ( !latex_output_file )
@@ -388,34 +447,17 @@ void latex_row_list_output(
 			message );
 	}
 
-	if ( list_rewind( latex_row_list ) )
-	do {
-		latex_row = list_get( latex_row_list );
+	display =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		latex_row_list_display(
+			latex_row_list /* freed */ );
 
-		if ( latex_row->preceed_double_line_boolean )
-		{
-			fprintf(latex_output_file,
-				"\\hline \\hline\n" );
-		}
-
-		display =
-			/* ------------------- */
-			/* Returns heap memory */
-			/* ------------------- */
-			latex_cell_list_display(
-				latex_row->cell_list );
-
-		fprintf(latex_output_file,
-			"%s\\\\\n",
-			display );
-
-		free( display );
-
-		latex_cell_list_free( latex_row->cell_list );
-
-	} while ( list_next( latex_row_list ) );
-
-	list_free( latex_row_list );
+	fprintf(
+		latex_output_file,
+		"%s\n",
+		display );
 }
 
 LATEX_CELL *latex_cell_new(
@@ -604,7 +646,9 @@ char *latex_cell_display(
 			message );
 	}
 
-	sprintf(display,
+	snprintf(
+		display,
+		sizeof ( display ),
 		"%s %s %s",
 		latex_cell_column_delimiter,
 		(latex_cell_formatted_datum)
@@ -1417,3 +1461,40 @@ void latex_table_list_output(
 		tex_anchor_html );
 }
 
+LATEX_COLUMN *latex_column_seek(
+		LIST *latex_column_list,
+		char *heading_string )
+{
+	LATEX_COLUMN *latex_column;
+
+	if ( !heading_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"heading_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( latex_column_list ) )
+	do {
+		latex_column = list_get( latex_column_list );
+
+		if ( string_strcmp(
+			latex_column->heading_string,
+			heading_string ) == 0 )
+		{
+			return latex_column;
+		}
+
+	} while ( list_next( latex_column_list ) );
+
+	return NULL;
+}

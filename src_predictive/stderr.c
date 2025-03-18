@@ -21,9 +21,5 @@
 			__FUNCTION__,
 			__LINE__,
 			message );
-
-		/* Stub */
-		/* ---- */
-		exit( 1 );
 	}
 
