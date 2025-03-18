@@ -1036,6 +1036,53 @@ char *string_escape(
 		character_array );
 }
 
+char *string_escape_array(
+		char *character_array,
+		char *source )
+{
+	char destination[ STRING_65K ];
+	char local_source[ STRING_65K ];
+
+	if ( !character_array )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: character_array is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !source ) return strdup( "" );
+
+	if ( strlen( source ) > STRING_64K )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: source exceeded max length=%d\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			STRING_64K );
+		exit( 1 );
+	}
+
+	strcpy( local_source, source );
+
+	while ( *character_array )
+	{
+		string_escape_character(
+			destination,
+			local_source,
+			*character_array
+				/* character_to_escape */ );
+
+		strcpy( local_source, destination );
+		character_array++;
+	}
+
+	return strdup( destination );
+}
+
 char *string_escape_character_array(
 		char *destination,
 		char *source,

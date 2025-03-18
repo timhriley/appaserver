@@ -480,12 +480,10 @@ void security_system(
 			message );
 	}
 
-	if ( string_character_boolean(
-		system_string,
-		(char)security_fork_character )
-	||   string_exists(
-		system_string,
-		(char *)security_fork_string /* substring */ ) )
+	if ( !security_system_string_valid_boolean(
+		security_fork_character,
+		security_fork_string,
+		system_string ) )
 	{
 		char message[ STRING_65K ];
 
@@ -503,5 +501,41 @@ void security_system(
 	}
 
 	if ( system( system_string ) ){}
+}
+
+boolean security_system_string_valid_boolean(
+		const char security_fork_character,
+		const char *security_fork_string,
+		char *system_string )
+{
+	if ( !system_string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"system_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( string_character_boolean(
+		system_string,
+		(char)security_fork_character )
+	||   string_exists(
+		system_string,
+		(char *)security_fork_string /* substring */ ) )
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 

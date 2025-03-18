@@ -114,6 +114,13 @@ void security_system(
 		const char *security_fork_string,
 		char *system_string );
 
+/* Process */
+/* ------- */
+boolean security_system_string_valid_boolean(
+		const char security_fork_character,
+		const char *security_fork_string,
+		char *system_string );
+
 /* Public */
 /* ------ */
 enum password_function

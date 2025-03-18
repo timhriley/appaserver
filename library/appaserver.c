@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "String.h"
+#include "security.h"
 #include "appaserver_error.h"
 #include "application.h"
 #include "appaserver.h"
@@ -53,6 +54,26 @@ FILE *appaserver_input_pipe( char *system_string )
 		char message[ 128 ];
 
 		sprintf(message, "system_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !security_system_string_valid_boolean(
+		SECURITY_FORK_CHARACTER,
+		SECURITY_FORK_STRING,
+		system_string ) )
+	{
+		char message[ STRING_65K ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"Cannot execute=[%s].",
+			system_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,

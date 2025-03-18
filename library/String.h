@@ -115,6 +115,12 @@ char *string_escape(
 		char *source,
 		char *character_array );
 
+/* Returns heap memory */
+/* ------------------- */
+char *string_escape_array(
+		char *character_array,
+		char *source );
+
 /* Safely returns destination */
 /* -------------------------- */
 char *string_escape_character_array(
