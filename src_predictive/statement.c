@@ -991,6 +991,7 @@ LATEX_ROW *statement_subclass_display_latex_element_label_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1052,6 +1053,7 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_label_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1119,6 +1121,7 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1137,6 +1140,7 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_balance_string ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1146,6 +1150,7 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1163,6 +1168,7 @@ LATEX_ROW *statement_subclass_display_latex_subclassification_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_percent_string ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -1243,6 +1249,7 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1252,6 +1259,7 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1270,6 +1278,7 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_balance_string ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1287,6 +1296,7 @@ LATEX_ROW *statement_subclass_display_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_percent_string ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -1411,6 +1421,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1420,6 +1431,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1429,6 +1441,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1440,6 +1453,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_label_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1492,6 +1506,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			cell_label_datum ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1501,6 +1516,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			statement_account->balance_string ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1510,6 +1526,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1520,6 +1537,7 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1529,12 +1547,8 @@ LATEX_ROW *statement_subclass_display_latex_account_row(
 		cell_list,
 			latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			statement_account->percent_string ) );
-
-/*
-	latex_column = list_get( latex_column_list );
-	list_next( latex_column_list );
-*/
 
 	if ( list_length( statement_prior_year_list ) )
 	{
@@ -4197,6 +4211,7 @@ LATEX_ROW *statement_subclass_aggr_latex_element_label_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -4260,6 +4275,7 @@ LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4269,6 +4285,7 @@ LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -4284,6 +4301,7 @@ LATEX_ROW *statement_subclass_aggr_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -4349,6 +4367,7 @@ LATEX_ROW *statement_subclass_aggr_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			cell_label_datum ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4368,6 +4387,7 @@ LATEX_ROW *statement_subclass_aggr_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_balance_string ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4378,6 +4398,7 @@ LATEX_ROW *statement_subclass_aggr_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4396,6 +4417,7 @@ LATEX_ROW *statement_subclass_aggr_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_percent_string ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -4811,6 +4833,7 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			cell_label_datum ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4820,6 +4843,7 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			statement_account->balance_string ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4829,6 +4853,7 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4838,6 +4863,7 @@ LATEX_ROW *statement_subclass_omit_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			statement_account->percent_string ) );
 
 	if ( list_length( statement_prior_year_list ) )
@@ -4912,6 +4938,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -4921,6 +4948,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
@@ -4936,6 +4964,7 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */

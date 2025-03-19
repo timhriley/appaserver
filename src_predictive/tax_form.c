@@ -1131,6 +1131,7 @@ LATEX_ROW *tax_form_line_latex_table_row(
 		latex_cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			tax_form_line->string ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1140,6 +1141,7 @@ LATEX_ROW *tax_form_line_latex_table_row(
 		latex_cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			tax_form_line->description ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1149,6 +1151,7 @@ LATEX_ROW *tax_form_line_latex_table_row(
 		latex_cell_list,
 		latex_cell_float_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			tax_form_line->total /* value */ ) );
 
 	return
@@ -1433,6 +1436,7 @@ LATEX_ROW *tax_form_line_account_latex_row(
 		latex_cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				string_initial_capital(
 					buffer,
@@ -1446,6 +1450,7 @@ LATEX_ROW *tax_form_line_account_latex_row(
 		latex_cell_list,
 		latex_cell_float_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			tax_form_line_account->journal_list_total ) );
 
 	return
@@ -1759,6 +1764,7 @@ LATEX_ROW *tax_form_entity_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			tax_form_entity->entity->full_name ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1768,6 +1774,7 @@ LATEX_ROW *tax_form_entity_latex_row(
 		cell_list,
 		latex_cell_float_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			tax_form_entity->total ) );
 
 	return

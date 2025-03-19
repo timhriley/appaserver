@@ -1417,6 +1417,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ----------------------*/
 				/* Returns static memory */
@@ -1435,6 +1436,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_begin_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 	}
 
@@ -1492,6 +1494,7 @@ LATEX_ROW *balance_sheet_equity_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			    /* --------------------- */
 			    /* Returns static memory */
@@ -1509,6 +1512,7 @@ LATEX_ROW *balance_sheet_equity_latex_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) ),
 
 		latex_column = list_get( latex_column_list );
@@ -1575,6 +1579,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1585,6 +1590,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			    /* --------------------- */
 			    /* Returns static memory */
@@ -1603,6 +1609,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_equity_end_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1669,6 +1676,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1679,6 +1687,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ----------------------*/
 				/* Returns static memory */
@@ -1694,6 +1703,7 @@ LATEX_ROW *balance_sheet_subclass_display_latex_liability_plus_equity_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -1934,6 +1944,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ----------------------*/
 				/* Returns static memory */
@@ -1952,6 +1963,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_begin_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2010,6 +2022,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -2019,6 +2032,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ----------------------*/
 				/* Returns static memory */
@@ -2037,6 +2051,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_equity_end_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2100,6 +2115,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -2109,6 +2125,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ----------------------*/
 				/* Returns static memory */
@@ -2127,6 +2144,7 @@ LATEX_ROW *balance_sheet_subclass_omit_latex_liability_plus_equity_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2352,6 +2370,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------------- */
 			/* Returns heap memory or "" */
 			/* ------------------------- */
@@ -2365,6 +2384,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ----------------------*/
 				/* Returns static memory */
@@ -2383,6 +2403,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_begin_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2429,6 +2450,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------------- */
 			/* Returns heap memory or "" */
 			/* ------------------------- */
@@ -2442,6 +2464,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -2451,6 +2474,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			    /* --------------------- */
 			    /* Returns static memory */
@@ -2469,6 +2493,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_equity_end_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2531,6 +2556,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -2540,6 +2566,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			    /* --------------------- */
 			    /* Returns static memory */
@@ -2558,6 +2585,7 @@ LATEX_ROW *balance_sheet_subclass_aggr_latex_liability_plus_equity_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -3222,6 +3250,7 @@ LATEX_ROW *balance_sheet_latex_net_income_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			cell_label_datum );
 
 	list_set( cell_list, latex_cell );
@@ -3240,6 +3269,7 @@ LATEX_ROW *balance_sheet_latex_net_income_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup( commas_money ) ) );
 
 	latex_column = list_get( latex_column_list );
@@ -3253,6 +3283,7 @@ LATEX_ROW *balance_sheet_latex_net_income_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );

@@ -713,6 +713,7 @@ LATEX_ROW *budget_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------------- */
 			/* Returns heap memory or "" */
 			/* ------------------------- */
@@ -726,6 +727,7 @@ LATEX_ROW *budget_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* ------------------------- */
 			/* Returns heap memory or "" */
 			/* ------------------------- */
@@ -739,6 +741,7 @@ LATEX_ROW *budget_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ---------------------- */
 				/* Returns static memory. */
@@ -754,6 +757,7 @@ LATEX_ROW *budget_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* ---------------------- */
 				/* Returns static memory. */
@@ -768,6 +772,7 @@ LATEX_ROW *budget_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			/* --------------------------- */
 			/* Returns heap memory or null */
 			/* --------------------------- */
@@ -780,6 +785,7 @@ LATEX_ROW *budget_latex_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(statement_delta)
 				? statement_delta->cell_string
 				: (char *)0 ) );
@@ -1486,6 +1492,7 @@ LATEX_ROW *budget_latex_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			"Net" ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1495,6 +1502,7 @@ LATEX_ROW *budget_latex_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			(char *)0 ) );
 
 	latex_column = list_get( latex_column_list );
@@ -1504,6 +1512,7 @@ LATEX_ROW *budget_latex_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			     /* ---------------------- */
 			     /* Returns static memory. */
@@ -1518,6 +1527,7 @@ LATEX_ROW *budget_latex_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			     /* ---------------------- */
 			     /* Returns static memory. */
@@ -1532,6 +1542,7 @@ LATEX_ROW *budget_latex_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 			     /* ---------------------- */
 			     /* Returns static memory. */
@@ -1546,6 +1557,7 @@ LATEX_ROW *budget_latex_sum_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			delta_cell_string ) );
 
 	return

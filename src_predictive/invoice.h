@@ -16,7 +16,7 @@
 
 typedef struct
 {
-	char *item;
+	char *item_key;
 	char *description;
 	double quantity;
 	double retail_price;
@@ -99,8 +99,8 @@ typedef struct
 	double taxable_amount;
 	double sales_tax;
 	double total;
-	boolean invoice_line_item_description_exists;
-	boolean invoice_line_item_discount_amount_exists;
+	boolean invoice_line_item_description_boolean;
+	boolean invoice_line_item_discount_boolean;
 	int invoice_line_item_quantity_decimal_places;
 } INVOICE_CALCULATE;
 

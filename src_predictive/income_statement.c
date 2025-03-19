@@ -232,6 +232,7 @@ LATEX_ROW *income_statement_latex_net_income_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -249,6 +250,7 @@ LATEX_ROW *income_statement_latex_net_income_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup( commas_money ) ) );
 
 	latex_column = list_get( latex_column_list );
@@ -258,6 +260,7 @@ LATEX_ROW *income_statement_latex_net_income_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			percent_of_income_display ) );
 
 	if ( list_length( statement_prior_year_list ) )

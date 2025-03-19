@@ -121,6 +121,11 @@ boolean security_system_string_valid_boolean(
 		const char *security_fork_string,
 		char *system_string );
 
+/* Usage */
+/* ----- */
+FILE *security_read_pipe(
+		char *system_string );
+
 /* Public */
 /* ------ */
 enum password_function

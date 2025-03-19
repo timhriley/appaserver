@@ -927,18 +927,18 @@ char *string_pipe_fetch( char *system_string )
 char *string_pipe( char *system_string )
 {
 	char buffer[ STRING_64K ];
-	FILE *p;
+	FILE *pipe;
 	int null_input = 0;
 
 	if ( !system_string ) return (char *)0;
 
 	*buffer = '\0';
 
-	p = popen( system_string, "r" );
+	pipe = security_read_pipe( system_string );
 
-	if ( !string_input( buffer, p, STRING_64K ) ) null_input = 1;
+	if ( !string_input( buffer, pipe, STRING_64K ) ) null_input = 1;
 
-	pclose( p );
+	pclose( pipe );
 
 	if ( null_input )
 		return (char *)0;
@@ -949,18 +949,19 @@ char *string_pipe( char *system_string )
 LIST *string_pipe_list(	char *system_string )
 {
 	char buffer[ STRING_64K ];
-	FILE *p;
+	FILE *pipe;
 	LIST *list = {0};
 
-	p = popen( system_string, "r" );
+	pipe = security_read_pipe( system_string );
 
-	while( string_input( buffer, p, 65536 ) )
+	while( string_input( buffer, pipe, 65536 ) )
 	{
 		if ( !list ) list = list_new();
 		list_set( list, strdup( buffer ) );
 	}
 
-	pclose( p );
+	pclose( pipe );
+
 	return list;
 }
 

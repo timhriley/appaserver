@@ -503,6 +503,31 @@ void security_system(
 	if ( system( system_string ) ){}
 }
 
+FILE *security_read_pipe( char *system_string )
+{
+	if ( !security_system_string_valid_boolean(
+		SECURITY_FORK_CHARACTER,
+		SECURITY_FORK_STRING,
+		system_string ) )
+	{
+		char message[ STRING_65K ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"Cannot execute=[%s].",
+			system_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return popen( system_string, "r" );
+}
+
 boolean security_system_string_valid_boolean(
 		const char security_fork_character,
 		const char *security_fork_string,

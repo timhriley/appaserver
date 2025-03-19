@@ -18,6 +18,10 @@
 
 typedef struct
 {
+} INVOICE_LATEX_SUMMARY;
+
+typedef struct
+{
 	char *label;
 	char *escape_street_address;
 	char *city_state_zip;

@@ -2193,6 +2193,7 @@ LATEX_ROW *trial_balance_subclass_omit_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			label_datum );
 
 	list_set( cell_list, latex_cell );
@@ -2256,6 +2257,7 @@ LATEX_ROW *trial_balance_subclass_omit_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_datum );
 
 	list_set( cell_list, latex_cell );
@@ -2273,6 +2275,7 @@ LATEX_ROW *trial_balance_subclass_omit_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			transaction_count_string );
 
 	list_set( cell_list, latex_cell );
@@ -2311,6 +2314,7 @@ LATEX_ROW *trial_balance_subclass_omit_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			statement_account->percent_string /* datum */ );
 
 	list_set( cell_list, latex_cell );
@@ -2366,6 +2370,7 @@ LATEX_ROW *trial_balance_latex_total_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			"Total" /* datum */ ) );
 
 	latex_column = list_get( latex_column_list );
@@ -2378,6 +2383,7 @@ LATEX_ROW *trial_balance_latex_total_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2388,6 +2394,7 @@ LATEX_ROW *trial_balance_latex_total_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* --------------------- */
 				/* Returns static memory */
@@ -2404,6 +2411,7 @@ LATEX_ROW *trial_balance_latex_total_row(
 		cell_list,
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			strdup(
 				/* --------------------- */
 				/* Returns static memory */
@@ -2421,6 +2429,7 @@ LATEX_ROW *trial_balance_latex_total_row(
 			cell_list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				(char *)0 /* datum */ ) );
 
 		latex_column = list_get( latex_column_list );
@@ -2634,6 +2643,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			cell_label_datum );
 
 	list_set( cell_list, latex_cell );
@@ -2651,6 +2661,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			cell_label_datum );
 
 	list_set( cell_list, latex_cell );
@@ -2712,6 +2723,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			account_datum );
 
 	list_set( cell_list, latex_cell );
@@ -2729,6 +2741,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			transaction_count_string );
 
 	list_set( cell_list, latex_cell );
@@ -2767,6 +2780,7 @@ LATEX_ROW *trial_balance_subclass_display_latex_row(
 	latex_cell =
 		latex_cell_small_new(
 			latex_column,
+			0 /* not first_row_boolean */,
 			statement_account->percent_string /* datum */ );
 
 	list_set( cell_list, latex_cell );

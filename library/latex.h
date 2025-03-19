@@ -107,6 +107,7 @@ typedef struct
 /* -------------- */
 LATEX_CELL *latex_cell_float_new(
 		LATEX_COLUMN *latex_column,
+		boolean first_row_boolean,
 		double value );
 
 /* Usage */
@@ -116,6 +117,7 @@ LATEX_CELL *latex_cell_float_new(
 /* -------------- */
 LATEX_CELL *latex_cell_small_new(
 		LATEX_COLUMN *latex_column,
+		boolean first_row_boolean,
 		char *datum );
 
 /* Usage */

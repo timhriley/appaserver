@@ -1219,6 +1219,7 @@ boolean latex_cell_dollar_sign_boolean(
 
 LATEX_CELL *latex_cell_float_new(
 		LATEX_COLUMN *latex_column,
+		boolean first_row_boolean,
 		double value )
 {
 	if ( !latex_column )
@@ -1240,6 +1241,7 @@ LATEX_CELL *latex_cell_float_new(
 	/* -------------- */
 	latex_cell_small_new(
 		latex_column,
+		first_row_boolean,
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
@@ -1251,6 +1253,7 @@ LATEX_CELL *latex_cell_float_new(
 
 LATEX_CELL *latex_cell_small_new(
 		LATEX_COLUMN *latex_column,
+		boolean first_row_boolean,
 		char *datum )
 {
 	if ( !latex_column )
@@ -1272,7 +1275,7 @@ LATEX_CELL *latex_cell_small_new(
 	/* -------------- */
 	latex_cell_new(
 		latex_column,
-		0 /* not first_row_boolean */,
+		first_row_boolean,
 		datum,
 		0 /* not large_boolean */,
 		0 /* not bold_boolean */ );
@@ -1316,6 +1319,7 @@ LIST *latex_cell_list(
 			list,
 			latex_cell_small_new(
 				latex_column,
+				0 /* not first_row_boolean */,
 				datum ) );
 
 	} while ( list_next( data_list ) );

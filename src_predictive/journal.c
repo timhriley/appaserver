@@ -1712,13 +1712,10 @@ double journal_first_account_balance( char *account_name )
 
 double journal_balance_sum( LIST *journal_list )
 {
-	double sum;
+	double sum = 0.0;
 	JOURNAL *journal;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 
