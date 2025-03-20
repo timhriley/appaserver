@@ -375,6 +375,8 @@ char *account_revenue(
 char *account_receivable(
 		char *account_receivable_key );
 
+/* Returns heap memory from static list */
+/* ------------------------------------ */
 char *account_payable(
 		char *account_payable_key );
 

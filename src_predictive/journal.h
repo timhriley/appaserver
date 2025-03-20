@@ -297,6 +297,12 @@ double journal_credit_sum(
 
 /* Usage */
 /* ----- */
+double journal_debit_credit_sum_difference(
+		boolean element_accumulate_debit,
+		LIST *journal_list );
+
+/* Usage */
+/* ----- */
 JOURNAL *journal_debit_new(
 		char *debit_account_name,
 		double debit_amount );
@@ -306,6 +312,52 @@ JOURNAL *journal_debit_new(
 JOURNAL *journal_credit_new(
 		char *credit_account_name,
 		double credit_amount );
+
+/* Usage */
+/* ----- */
+LIST *journal_binary_list(
+		char *full_name,
+		char *street_address,
+		char *transaction_date_time,
+		double transaction_amount,
+		ACCOUNT *debit_account,
+		ACCOUNT *credit_account );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *journal_system_string(
+		const char *journal_select,
+		const char *journal_table,
+		char *where );
+
+/* Usage */
+/* ----- */
+JOURNAL *journal_seek(
+		char *transaction_date_time,
+		char *account_name,
+		LIST *journal_system_list );
+
+/* Usage */
+/* ----- */
+LIST *journal_entity_list(
+		const char *journal_select,
+		const char *journal_table,
+		char *full_name,
+		char *street_address,
+		char *account_name );
+
+/* Process */
+/* ------- */
+
+/* Returns static memory */
+/* --------------------- */
+char *journal_entity_where(
+		char *full_name,
+		char *street_address,
+		char *account_name );
 
 /* Public */
 /* ------ */
@@ -318,19 +370,6 @@ char *journal_primary_where(
 		char *transaction_date_time,
 		char *account_name );
 
-/* Returns heap memory */
-/* ------------------- */
-char *journal_system_string(
-		const char *journal_select,
-		const char *journal_table,
-		char *where );
-
-double journal_credit_debit_difference_sum(
-		LIST *journal_list );
-
-double journal_debit_credit_difference_sum(
-		LIST *journal_list );
-
 LIST *journal_account_distinct_entity_list(
 		char *journal_table,
 		LIST *account_name_list );
@@ -342,14 +381,6 @@ char *journal_delete_system_string(
 		char *journal_table,
 		char *where );
 
-LIST *journal_binary_list(
-		char *full_name,
-		char *street_address,
-		char *transaction_date_time,
-		double transaction_amount,
-		ACCOUNT *debit_account,
-		ACCOUNT *credit_account );
-
 int journal_transaction_count(
 		const char *journal_table,
 		char *account_name,
@@ -359,11 +390,6 @@ int journal_transaction_count(
 LIST *journal_date_time_account_name_list(
 		char *journal_table,
 		char *transaction_date_time );
-
-JOURNAL *journal_seek(
-		char *transaction_date_time,
-		char *account_name,
-		LIST *journal_system_list );
 
 char *journal_minimum_transaction_date_time(
 		char *account_name );

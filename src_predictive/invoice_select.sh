@@ -48,22 +48,21 @@ hourly_service_work_select="	service_name,
 					substr( end_work_date_time, 1, 16 ) ),
 				work_hours,
 				hourly_rate,
-				'0',
-				extended_price"
+				'0'"
 
-echo "select ${inventory_sale_select}
-from inventory_sale
-where full_name = '$full_name'
-and street_address = '$street_address'
-and sale_date_time = '$sale_date_time';" |
-sql.e '^'
+#echo "select ${inventory_sale_select}
+#from inventory_sale
+#where full_name = '$full_name'
+#and street_address = '$street_address'
+#and sale_date_time = '$sale_date_time';" |
+#sql.e '^'
 
-echo "select ${fixed_service_sale_select}
-from fixed_service_sale
-where full_name = '$full_name'
-and street_address = '$street_address'
-and sale_date_time = '$sale_date_time';" |
-sql.e '^'
+#echo "select ${fixed_service_sale_select}
+#from fixed_service_sale
+#where full_name = '$full_name'
+#and street_address = '$street_address'
+#and sale_date_time = '$sale_date_time';" |
+#sql.e '^'
 
 echo "select ${hourly_service_work_select}
 from hourly_service_work

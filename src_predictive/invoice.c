@@ -44,19 +44,14 @@ INVOICE *invoice_new(
 		char *invoice_date_time_string,
 		char *customer_name,
 		char *customer_street_address,
-		INVOICE_DATA *invoice_data,
-		double customer_payment,
-		LIST *extra_label_list,
-		char *instructions,
-		boolean workorder_boolean,
-		boolean estimate_boolean )
+		enum invoice_enum invoice_enum,
+		LIST *invoice_line_item_list )
 {
 	INVOICE *invoice;
 
 	if ( !invoice_date_time_string
 	||   !customer_name
-	||   !customer_street_address
-	||   !invoice_data )
+	||   !customer_street_address )
 	{
 		char message[ 128 ];
 
@@ -71,9 +66,7 @@ INVOICE *invoice_new(
 
 	invoice = invoice_calloc();
 
-	invoice->extra_label_list = extra_label_list;
-	invoice->instructions = instructions;
-	invoice->workorder_boolean = workorder_boolean;
+	invoice->invoice_line_item_list = invoice_line_item_list;
 
 	if ( ! ( invoice->entity_self =
 			entity_self_fetch(
@@ -95,11 +88,14 @@ INVOICE *invoice_new(
 			customer_fetch(
 				customer_name,
 				customer_street_address,
-				1 /* fetch_entity_boolean */ ) ) )
+				1 /* fetch_entity_boolean */,
+				1 /* fetch_payable_balance_boolean */ ) ) )
 	{
 		char message[ 128 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 			"customer_fetch(%s,%s) returned empty.",
 			customer_name,
 			customer_street_address );
@@ -126,7 +122,7 @@ INVOICE *invoice_new(
 		/* --------------------- */
 		invoice_caption(
 			customer_name,
-			workorder_boolean,
+			invoice_enum,
 			invoice->use_key );
 
 	invoice->date_string =
@@ -136,27 +132,22 @@ INVOICE *invoice_new(
 		invoice_date_string(
 			invoice_date_time_string );
 
-	invoice->amount_due =
-		invoice_amount_due(
-			invoice_data->total_amount,
-			customer_payment );
-
 	invoice->amount_due_label =
 		/* ---------------------- */
 		/* Returns program memory */
 		/* ---------------------- */
 		invoice_amount_due_label(
-			estimate_boolean );
+			invoice_enum );
+
+	invoice->invoice_summary =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		invoice_summary_new(
+			invoice_line_item_list,
+			invoice->customer->journal_payable_balance );
 
 	return invoice;
-}
-
-double invoice_amount_due(
-		double total_amount,
-		double customer_payment )
-{
-	return
-	total_amount - customer_payment;
 }
 
 double invoice_line_item_extended_price(
@@ -191,7 +182,7 @@ INVOICE_LINE_ITEM *invoice_line_item_calloc( void )
 }
 
 INVOICE_LINE_ITEM *invoice_line_item_new(
-		char *item,
+		char *item_key,
 		char *description /* stack memory */,
 		double quantity,
 		double retail_price,
@@ -199,11 +190,9 @@ INVOICE_LINE_ITEM *invoice_line_item_new(
 {
 	INVOICE_LINE_ITEM *invoice_line_item;
 
-	if ( !item ) return NULL;
-
 	invoice_line_item = invoice_line_item_calloc();
 
-	invoice_line_item->item = item;
+	invoice_line_item->item_key = item_key;
 
 	if ( *description )
 		invoice_line_item->description =
@@ -234,118 +223,47 @@ void invoice_html_output_style( FILE *output_stream )
 }
 
 void invoice_html_output_footer(
-		FILE *output_stream,
+		boolean description_boolean,
+		boolean discount_boolean,
+		double extended_total,
+		double customer_payable_balance,
+		double invoice_summary_total,
 		char *amount_due_label,
-		double sales_tax,
-		double shipping_amount,
-		boolean description_exists,
-		boolean discount_amount_exists,
-		double total_amount,
-		double customer_payment,
-		double amount_due )
+		FILE *output_stream )
 {
-	if ( !float_virtually_same( sales_tax, 0.0 ) )
-	{
-		fprintf( output_stream, "<tr><td>Sales tax" );
+	fprintf( output_stream, "<tr><td>Extended Total" );
 
-		if ( description_exists )
-			fprintf( output_stream, "<td>" );
-
-		/* Placeholder for quantity */
-		/* ------------------------ */
+	if ( description_boolean )
 		fprintf( output_stream, "<td>" );
 
-		if ( discount_amount_exists )
-			fprintf( output_stream, "<td>" );
+	/* Placeholder for quantity */
+	/* ------------------------ */
+	fprintf( output_stream, "<td>" );
 
-		fprintf(output_stream,
-"<td align=right>%s\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-		 	string_commas_money( sales_tax ) );
-	}
-
-	if ( !float_virtually_same( shipping_amount, 0.0 ) )
-	{
-		fprintf( output_stream, "<tr><td>Shipping" );
-
-		if ( description_exists )
-			fprintf( output_stream, "<td>" );
-
-		/* Placeholder for quantity */
-		/* ------------------------ */
+	if ( discount_boolean )
 		fprintf( output_stream, "<td>" );
 
-		if ( discount_amount_exists )
-			fprintf( output_stream, "<td>" );
-
-		fprintf(output_stream,
-"<td align=right>%s\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-		 	string_commas_money(
-				shipping_amount ) );
-	}
-
-	if ( float_virtually_same( customer_payment, 0.0 ) )
-	{
-		fprintf(output_stream,
-			"<tr><td><big>%s</big>",
-			amount_due_label );
-
-		if ( description_exists )
-			fprintf( output_stream, "<td>" );
-
-		/* Placeholder for quantity */
-		/* ------------------------ */
-		fprintf( output_stream, "<td>" );
-
-		if ( discount_amount_exists )
-			fprintf( output_stream, "<td>" );
-
-		fprintf(output_stream,
-"<td align=right><big>$%s</big>\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			string_commas_money(
-			 	amount_due ) );
-	}
-	else
-	{
-		fprintf( output_stream, "<tr><td>Invoice Total" );
-
-		if ( description_exists )
-			fprintf( output_stream, "<td>" );
-
-		/* Placeholder for quantity */
-		/* ------------------------ */
-		fprintf( output_stream, "<td>" );
-
-		if ( discount_amount_exists )
-			fprintf( output_stream, "<td>" );
-
-		fprintf(output_stream,
+	fprintf(output_stream,
 "<td align=right>$%s\n"
-"</table>								\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			string_commas_money(
-			 	total_amount ) );
+"</table>\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_commas_money(
+		 	extended_total ) );
 
+	if ( !float_virtually_same( customer_payable_balance, 0.0 ) )
+	{
 		fprintf( output_stream, "<tr><td>Payment (Thank you)" );
 
-		if ( description_exists )
+		if ( description_boolean )
 			fprintf( output_stream, "<td>" );
 
 		/* Placeholder for quantity */
 		/* ------------------------ */
 		fprintf( output_stream, "<td>" );
 
-		if ( discount_amount_exists )
+		if ( discount_boolean )
 			fprintf( output_stream, "<td>" );
 
 		fprintf(output_stream,
@@ -354,48 +272,48 @@ void invoice_html_output_footer(
 			/* Returns static memory */
 			/* --------------------- */
 			string_commas_money(
-			 	customer_payment ) );
+			 	customer_payable_balance ) );
+	}
 
-		fprintf(output_stream,
-			"<tr><td><big>%s</big>",
-			amount_due_label );
+	fprintf(output_stream,
+		"<tr><td><big>%s</big>",
+		amount_due_label );
 
-		if ( description_exists )
-			fprintf( output_stream, "<td>" );
-
-		/* Placeholder for quantity */
-		/* ------------------------ */
+	if ( description_boolean )
 		fprintf( output_stream, "<td>" );
 
-		if ( discount_amount_exists )
-			fprintf( output_stream, "<td>" );
+	/* Placeholder for quantity */
+	/* ------------------------ */
+	fprintf( output_stream, "<td>" );
 
-		fprintf(output_stream,
+	if ( discount_boolean )
+		fprintf( output_stream, "<td>" );
+
+	fprintf(output_stream,
 "<td align=right><big>$%s</big>\n",
-			/* --------------------- */
-			/* Returns static memory */
-			/* --------------------- */
-			string_commas_money( amount_due ) );
-	}
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		string_commas_money( invoice_summary_total ) );
 }
 
 void invoice_html_output_line_item_list(
-		FILE *output_stream,
-		LIST *line_item_list,
-		boolean workorder_boolean,
-		boolean description_exists,
-		boolean discount_amount_exists,
-		int quantity_decimal_places )
+		enum invoice_enum invoice_enum,
+		LIST *invoice_line_item_list,
+		boolean description_boolean,
+		boolean discount_boolean,
+		int quantity_decimal_count,
+		FILE *output_stream )
 {
 	INVOICE_LINE_ITEM *line_item;
 	char buffer[ 256 ];
-	char dollar_string[ 2 ];
+	char dollar_string[ 2 ] = {0};
 
-	strcpy( dollar_string, "$" );
+	*dollar_string = '$';
 
-	if ( list_rewind( line_item_list ) )
+	if ( list_rewind( invoice_line_item_list ) )
 	do {
-		line_item = list_get( line_item_list );
+		line_item = list_get( invoice_line_item_list );
 
 		fprintf( output_stream, "<tr>" );
 
@@ -403,30 +321,30 @@ void invoice_html_output_line_item_list(
 			"<td>%s",
 			string_initial_capital(
 				buffer,
-				line_item->item ) );
+				line_item->item_key ) );
 
-		if ( description_exists )
+		if ( description_boolean )
 		{
 			fprintf(output_stream,
-"<td>%s",
+				"<td>%s",
 				(line_item->description)
 					? line_item->description
 					: "" );
 		}
 
 		fprintf(output_stream,
-"<td align=right>%s\n",
+			"<td align=right>%s\n",
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
 		 	string_commas_float(
 				line_item->quantity,
-				quantity_decimal_places ) );
+				quantity_decimal_count ) );
 
-		if ( !workorder_boolean )
+		if ( invoice_enum != invoice_workorder )
 		{
 			fprintf(output_stream,
-"<td align=right>%s%s",
+				"<td align=right>%s%s",
 			 	dollar_string,
 				/* --------------------- */
 			 	/* Returns static memory */
@@ -434,10 +352,10 @@ void invoice_html_output_line_item_list(
 				string_commas_money(
 					line_item->retail_price ) );
 
-			if ( discount_amount_exists )
+			if ( discount_boolean )
 			{
 				fprintf(output_stream,
-"<td align=right>%s%s",
+				"<td align=right>%s%s",
 			 		dollar_string,
 					/* --------------------- */
 			 		/* Returns static memory */
@@ -447,7 +365,7 @@ void invoice_html_output_line_item_list(
 			}
 
 			fprintf(output_stream,
-"<td align=right>%s%s\n",
+				"<td align=right>%s%s\n",
 			 	dollar_string,
 				/* --------------------- */
 			 	/* Returns static memory */
@@ -458,60 +376,59 @@ void invoice_html_output_line_item_list(
 			if ( *dollar_string ) *dollar_string = '\0';
 		}
 
-	} while( list_next( line_item_list ) );
+	} while( list_next( invoice_line_item_list ) );
 }
 
-double invoice_line_item_extended_total( LIST *line_item_list )
+double invoice_line_item_extended_total( LIST *invoice_line_item_list )
 {
 	INVOICE_LINE_ITEM *line_item;
 	double total = 0.0;
 
-	if ( list_rewind( line_item_list ) )
+	if ( list_rewind( invoice_line_item_list ) )
 	do {
-		line_item = list_get( line_item_list );
+		line_item = list_get( invoice_line_item_list );
 
 		total += line_item->extended_price;
 
-	} while( list_next( line_item_list ) );
+	} while( list_next( invoice_line_item_list ) );
 
 	return total;
 }
 
-boolean invoice_line_item_description_exists( LIST *line_item_list )
+boolean invoice_line_item_description_boolean( LIST *invoice_line_item_list )
 {
 	INVOICE_LINE_ITEM *line_item;
 
-	if ( !list_rewind( line_item_list ) ) return 0;
-
+	if ( list_rewind( invoice_line_item_list ) )
 	do {
-		line_item = list_get( line_item_list );
+		line_item = list_get( invoice_line_item_list );
 
 		if ( line_item->description ) return 1;
 
-	} while( list_next( line_item_list ) );
+	} while( list_next( invoice_line_item_list ) );
 
 	return 0;
 }
 
-boolean invoice_line_item_discount_amount_exists( LIST *line_item_list )
+boolean invoice_line_item_discount_amount_boolean(
+		LIST *invoice_line_item_list )
 {
 	INVOICE_LINE_ITEM *line_item;
 
-	if ( !list_rewind( line_item_list ) ) return 0;
-
+	if ( list_rewind( invoice_line_item_list ) )
 	do {
-		line_item = list_get( line_item_list );
+		line_item = list_get( invoice_line_item_list );
 
 		if ( line_item->discount_amount ) return 1;
 
-	} while( list_next( line_item_list ) );
+	} while( list_next( invoice_line_item_list ) );
 
 	return 0;
 }
 
 void invoice_html_output(
-		FILE *output_stream,
-		INVOICE *invoice )
+		INVOICE *invoice,
+		FILE *output_stream )
 {
 	if ( !output_stream )
 	{
@@ -531,12 +448,11 @@ void invoice_html_output(
 	||   !invoice->date_string
 	||   !invoice->entity_self
 	||   !invoice->customer
-	||   !invoice->invoice_data
-	||   !invoice->invoice_data->invoice_calculate )
+	||   !invoice->invoice_summary )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty or incomplete." );
+		sprintf(message, "invoice is empty or incomplete." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -548,92 +464,69 @@ void invoice_html_output(
 	invoice_html_output_style( output_stream );
 
 	invoice_html_output_table_open(
-		output_stream,
-		invoice->caption );
+		invoice->caption,
+		output_stream );
 
 	invoice_html_output_self(
-		output_stream,
 		invoice->date_string,
 		invoice->entity_self,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_description_exists,
+			invoice_summary->
+			invoice_line_item_description_boolean,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_discount_amount_exists );
+			invoice_summary->
+			invoice_line_item_discount_boolean,
+		output_stream );
 
 	invoice_html_output_customer(
-		output_stream,
 		invoice->customer,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_description_exists,
+			invoice_summary->
+			invoice_line_item_description_boolean,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_discount_amount_exists );
-
-	invoice_html_output_extra(
-		output_stream,
-		invoice->extra_label_list,
-		invoice->instructions );
+			invoice_summary->
+			invoice_line_item_discount_boolean,
+		output_stream );
 
 	invoice_html_output_table_header(
-		output_stream,
-		invoice->workorder_boolean,
+		invoice->invoice_enum,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_description_exists,
+			invoice_summary->
+			invoice_line_item_description_boolean,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_discount_amount_exists );
+			invoice_summary->
+			invoice_line_item_discount_boolean,
+		output_stream );
 
 	invoice_html_output_line_item_list(
-		output_stream,
+		invoice->invoice_enum,
+		invoice->invoice_line_item_list,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_list,
-		invoice->workorder_boolean,
+			invoice_summary->
+			invoice_line_item_description_boolean,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_description_exists,
+			invoice_summary->
+			invoice_line_item_discount_boolean,
 		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_discount_amount_exists,
-		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_quantity_decimal_places );
+			invoice_summary->
+			invoice_line_item_quantity_decimal_count,
+		output_stream );
 
 	invoice_html_output_footer(
-		output_stream,
+		invoice->
+			invoice_summary->
+			invoice_line_item_description_boolean,
+		invoice->
+			invoice_summary->
+			invoice_line_item_discount_boolean,
+		invoice->
+			invoice_summary->
+			invoice_line_item_extended_total,
+		invoice->customer->journal_payable_balance
+			/* customer_payable_balance */,
+		invoice->invoice_summary->total,
 		invoice->amount_due_label,
-		invoice->
-			invoice_data->
-			invoice_calculate->
-			sales_tax,
-		invoice->invoice_data->shipping_amount,
-		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_description_exists,
-		invoice->
-			invoice_data->
-			invoice_calculate->
-			invoice_line_item_discount_amount_exists,
-		invoice->
-			invoice_data->
-			total_amount,
-		invoice->customer_payment,
-		invoice->amount_due );
+		output_stream );
 
 	invoice_html_output_table_close( output_stream );
 }
@@ -683,8 +576,7 @@ int invoice_line_item_quantity_decimal_places(
 {
 	INVOICE_LINE_ITEM *invoice_line_item;
 
-	if ( !list_rewind( invoice_line_item_list ) ) return 0;
-
+	if ( list_rewind( invoice_line_item_list ) )
 	do {
 		invoice_line_item =
 			list_get(
@@ -693,7 +585,7 @@ int invoice_line_item_quantity_decimal_places(
 		if ( !float_is_integer( invoice_line_item->quantity ) )
 		{
 			return
-			INVOICE_LINE_ITEM_QUANTITY_DECIMAL_PLACES;
+			INVOICE_LINE_ITEM_QUANTITY_DECIMAL_COUNT;
 		}
 
 	} while ( list_next( invoice_line_item_list ) );
@@ -702,8 +594,8 @@ int invoice_line_item_quantity_decimal_places(
 }
 
 void invoice_html_output_table_open(
-		FILE *output_stream,
-		char *invoice_caption )
+		char *invoice_caption,
+		FILE *output_stream )
 {
 	char caption_buffer[ 128 ];
 
@@ -732,7 +624,7 @@ void invoice_html_output_table_open(
 
 char *invoice_caption(
 		char *customer_name,
-		boolean workorder_boolean,
+		enum invoice_enum invoice_enum,
 		char *invoice_use_key )
 {
 	static char caption[ 256 ];
@@ -752,12 +644,18 @@ char *invoice_caption(
 			message );
 	}
 
-	if ( workorder_boolean )
+	if ( invoice_enum == invoice_workorder )
 		title = "Workorder";
 	else
-		title = "Invoice";
+	if ( invoice_enum == invoice_estimate )
+		title = "Estimate";
+	else
+	/* Must be invoice_enum == invoice_due */
+		title = "Invoice Due";
 
-	sprintf(caption,
+	snprintf(
+		caption,
+		sizeof ( caption ),
 		"%s %s for %s",
 		title,
 		invoice_use_key,
@@ -767,11 +665,11 @@ char *invoice_caption(
 }
 
 void invoice_html_output_self(
-		FILE *output_stream,
 		char *invoice_date_string,
 		ENTITY_SELF *entity_self,
-		boolean description_exists,
-		boolean discount_amount_exists )
+		boolean description_boolean,
+		boolean discount_boolean,
+		FILE *output_stream )
 {
 	int column_span = 3;
 
@@ -790,8 +688,8 @@ void invoice_html_output_self(
 			message );
 	}
 
-	if ( description_exists ) column_span++;
-	if ( discount_amount_exists ) column_span++;
+	if ( description_boolean ) column_span++;
+	if ( discount_boolean ) column_span++;
 
 	fprintf(output_stream,
 "<tr><td colspan=%d>\n"
@@ -810,10 +708,10 @@ void invoice_html_output_self(
 }
 
 void invoice_html_output_customer(
-		FILE *output_stream,
 	       	CUSTOMER *customer,
-		boolean description_exists,
-		boolean discount_amount_exists )
+		boolean description_boolean,
+		boolean discount_boolean,
+		FILE *output_stream )
 {
 	int column_span = 3;
 
@@ -831,8 +729,8 @@ void invoice_html_output_customer(
 			message );
 	}
 
-	if ( description_exists ) column_span++;
-	if ( discount_amount_exists ) column_span++;
+	if ( description_boolean ) column_span++;
+	if ( discount_boolean ) column_span++;
 
 	if ( customer->entity->city )
 	{
@@ -846,8 +744,12 @@ void invoice_html_output_customer(
 		 	customer->customer_full_name,
 		 	customer->customer_street_address,
 		 	customer->entity->city,
-		 	customer->entity->state_code,
-		 	customer->entity->zip_code );
+		 	(customer->entity->state_code)
+		 		? customer->entity->state_code
+				: "EMPTY",
+		 	(customer->entity->zip_code)
+		 		? customer->entity->zip_code
+				: "EMPTY" );
 	}
 	else
 	{
@@ -860,53 +762,25 @@ void invoice_html_output_customer(
 		 	customer->customer_full_name,
 		 	customer->customer_street_address );
 	}
-
-	if ( customer->customer_key )
-	{
-		fprintf(output_stream,
-"<br>Label:%s\n",
-		 	customer->customer_key );
-	}
-}
-
-void invoice_html_output_extra(
-		FILE *output_stream,
-		LIST *extra_label_list,
-		char *instructions )
-{
-	if ( list_rewind( extra_label_list ) )
-	do {
-		fprintf(output_stream,
-			"<tr><td>%s\n",
-			(char *)list_get( extra_label_list ) );
-
-	} while ( list_next( extra_label_list ) );
-
-	if ( instructions && *instructions )
-	{
-		fprintf(output_stream,
-			"<tr><td>%s\n",
-			instructions );
-	}
 }
 
 void invoice_html_output_table_header(
-		FILE *output_stream,
-		boolean workorder_boolean,
-		boolean description_exists,
-		boolean discount_amount_exists )
+		enum invoice_enum invoice_enum,
+		boolean description_boolean,
+		boolean discount_boolean,
+		FILE *output_stream )
 {
 	fprintf( output_stream, "<tr>" );
 
 	fprintf( output_stream, "<th>Item" );
 
-	if ( description_exists ) fprintf( output_stream, "<th>Description" );
+	if ( description_boolean ) fprintf( output_stream, "<th>Description" );
 
 	fprintf( output_stream, "<th>Quantity" );
 
-	if ( !workorder_boolean )
+	if ( invoice_enum != invoice_workorder )
 	{
-		if ( discount_amount_exists )
+		if ( discount_boolean )
 		{
 			fprintf(output_stream,
 "<th>Retail Price<th>Discount<th>Extended\n" );
@@ -924,138 +798,74 @@ void invoice_html_output_table_close( FILE *output_stream )
 	fprintf( output_stream, "</table>\n" );
 }
 
-char *invoice_amount_due_label( boolean estimate_boolean )
+char *invoice_amount_due_label( enum invoice_enum invoice_enum )
 {
-	if ( estimate_boolean )
+	if ( invoice_enum == invoice_workorder )
+		return "Workorder";
+	else
+	if ( invoice_enum == invoice_estimate )
 		return "Estimated Due";
 	else
+	/* ------------------- */
+	/* Must be invoice_due */
+	/* ------------------- */
 		return "Amount Due";
 }
 
-INVOICE_DATA *invoice_data_new(
-		INVOICE_CALCULATE *invoice_calculate,
-		double shipping_amount )
+double invoice_summary_total(
+		double customer_payable_balance,
+		double extended_total,
+		double discount_total )
 {
-	INVOICE_DATA *invoice_data;
-
-	if ( !invoice_calculate )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "invoice_calculate is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	invoice_data = invoice_data_calloc();
-
-	invoice_data->invoice_calculate = invoice_calculate;
-
-	invoice_data->total_amount =
-		invoice_data_total_amount(
-			invoice_calculate->total,
-			shipping_amount );
-
-	return invoice_data;
+	return
+	extended_total -
+	discount_total -
+	customer_payable_balance;
 }
 
-INVOICE_DATA *invoice_data_calloc( void )
-{
-	INVOICE_DATA *invoice_data;
-
-	if ( ! ( invoice_data = calloc( 1, sizeof ( INVOICE_DATA ) ) ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "calloc() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return invoice_data;
-}
-
-double invoice_calculate_total_amount(
-		double invoice_calculate_total,
-		double shipping_amount )
-{
-	return invoice_calculate_total + shipping_amount;
-}
-
-INVOICE_CALCULATE *invoice_calculate_new(
+INVOICE_SUMMARY *invoice_summary_new(
 		LIST *invoice_line_item_list,
-		double discount_amount,
-		double sales_tax_rate )
+		double customer_payable_balance )
 {
-	INVOICE_CALCULATE *invoice_calculate;
+	INVOICE_SUMMARY *invoice_summary;
 
-	if ( !list_length( invoice_line_item_list ) ) return NULL;
+	invoice_summary = invoice_summary_calloc();
 
-	invoice_calculate = invoice_calculate_calloc();
+	invoice_summary->invoice_line_item_description_boolean =
+		invoice_line_item_description_boolean(
+			invoice_line_item_list );
 
-	invoice_calculate->invoice_line_item_list = invoice_line_item_list;
+	invoice_summary->invoice_line_item_discount_boolean =
+		invoice_line_item_discount_boolean(
+			invoice_line_item_list );
 
-	invoice_calculate->invoice_line_item_extended_total =
+	invoice_summary->invoice_line_item_quantity_decimal_count =
+		invoice_line_item_quantity_decimal_count(
+			invoice_line_item_list );
+
+	invoice_summary->invoice_line_item_extended_total =
 		invoice_line_item_extended_total(
 			invoice_line_item_list );
 
-	invoice_calculate->invoice_line_item_discount_amount =
-		invoice_line_item_discount_amount(
+	invoice_summary->invoice_line_item_discount_total =
+		invoice_line_item_discount_total(
 			invoice_line_item_list );
 
-	invoice_calculate->discount_amount =
-		/* ------------------------ */
-		/* Returns either parameter */
-		/* ------------------------ */
-		invoice_calculate_discount_amount(
-			discount_amount,
-			invoice_calculate->
-				invoice_line_item_discount_amount );
+	invoice_summary->total =
+		invoice_summary_total(
+			customer_payable_balance,
+			invoice_summary->invoice_line_item_extended_total,
+			invoice_summary->invoice_line_item_discount_total );
 
-	invoice_calculate->taxable_amount =
-		invoice_calculate_taxable_amount(
-			invoice_calculate->invoice_line_item_extended_total,
-			invoice_calculate->discount_amount );
-
-	invoice_calculate->sales_tax =
-		invoice_calculate_sales_tax(
-			sales_tax_rate,
-			invoice_calculate->taxable_amount );
-	
-	invoice_calculate->total =
-		invoice_calculate_total(
-			invoice_calculate->invoice_line_item_extended_total,
-			invoice_calculate->sales_tax );
-
-	invoice_calculate->invoice_line_item_description_exists =
-		invoice_line_item_description_exists(
-			invoice_line_item_list );
-
-	invoice_calculate->invoice_line_item_discount_amount_exists =
-		invoice_line_item_discount_amount_exists(
-			invoice_line_item_list );
-
-	invoice_calculate->invoice_line_item_quantity_decimal_places =
-		invoice_line_item_quantity_decimal_places(
-			invoice_line_item_list );
-
-	return invoice_calculate;
+	return invoice_summary;
 }
 
-INVOICE_CALCULATE *invoice_calculate_calloc( void )
+INVOICE_SUMMARY *invoice_summary_calloc( void )
 {
-	INVOICE_CALCULATE *invoice_calculate;
+	INVOICE_SUMMARY *invoice_summary;
 
-	if ( ! ( invoice_calculate =
-			calloc( 1, sizeof ( INVOICE_CALCULATE ) ) ) )
+	if ( ! ( invoice_summary =
+			calloc( 1, sizeof ( INVOICE_SUMMARY ) ) ) )
 	{
 		char message[ 128 ];
 
@@ -1068,62 +878,22 @@ INVOICE_CALCULATE *invoice_calculate_calloc( void )
 			message );
 	}
 
-	return invoice_calculate;
+	return invoice_summary;
 }
 
-double invoice_calculate_discount_amount(
-		double discount_amount,
-		double invoice_line_item_discount_amount )
-{
-	if ( !float_virtually_same( discount_amount, 0.0 ) )
-		return discount_amount;
-	else
-		return invoice_line_item_discount_amount;
-}
-
-double invoice_calculate_taxable_amount(
-		double invoice_line_item_extended_total,
-		double invoice_calculate_discount_amount )
-{
-	return
-	invoice_line_item_extended_total -
-	invoice_calculate_discount_amount;
-}
-
-double invoice_calculate_sales_tax(
-		double sales_tax_rate,
-		double invoice_calculate_taxable_amount )
-{
-	if ( float_virtually_same( sales_tax_rate, 0.0 ) ) return 0.0;
-
-	return
-	sales_tax_rate *
-	invoice_calculate_taxable_amount;
-}
-
-double invoice_calculate_total(
-		double invoice_line_item_extended_total,
-		double invoice_calculate_sales_tax )
-{
-	return
-	invoice_line_item_extended_total +
-	invoice_calculate_sales_tax;
-}
-
-double invoice_line_item_discount_amount( LIST *line_item_list )
+double invoice_line_item_discount_total( LIST *line_item_list )
 {
 	INVOICE_LINE_ITEM *line_item;
-	double discount_amount = 0.0;
+	double discount_total = 0.0;
 
 	if ( list_rewind( line_item_list ) )
 	do {
 		line_item = list_get( line_item_list );
-
-		discount_amount += line_item->discount_amount;
+		discount_total += line_item->discount_amount;
 
 	} while( list_next( line_item_list ) );
 
-	return discount_amount;
+	return discount_total;
 }
 
 char *invoice_line_item_system_string(
@@ -1148,7 +918,9 @@ char *invoice_line_item_system_string(
 			message );
 	}
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"invoice_select.sh \"%s\" \"%s\" \"%s\"",
 		customer_full_name,
 		customer_street_address,
@@ -1217,7 +989,7 @@ LIST *invoice_line_item_list(
 
 INVOICE_LINE_ITEM *invoice_line_item_parse( char *input )
 {
-	char item[ 256 ];
+	char item_key[ 256 ];
 	char description[ 1024 ];
 	char quantity[ 128 ];
 	char retail_price[ 128 ];
@@ -1227,15 +999,18 @@ INVOICE_LINE_ITEM *invoice_line_item_parse( char *input )
 
 	/* See invoice_select.sh */
 	/* --------------------- */
-	piece( item, SQL_DELIMITER, input, 0 );
+	piece( item_key, SQL_DELIMITER, input, 0 );
 	piece( description, SQL_DELIMITER, input, 1 );
 	piece( quantity, SQL_DELIMITER, input, 2 );
 	piece( retail_price, SQL_DELIMITER, input, 3 );
 	piece( discount_amount, SQL_DELIMITER, input, 4 );
 
 	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
 	invoice_line_item_new(
-		strdup( item ),
+		strdup( item_key ),
 		description /* stack memory */,
 		atof( quantity ),
 		atof( retail_price ),

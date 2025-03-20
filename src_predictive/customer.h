@@ -21,10 +21,7 @@ typedef struct
 	char *customer_street_address;
 	boolean sales_tax_exempt_boolean;
 	ENTITY *entity;
-
-	/* Not used, yet */
-	/* ------------- */
-	char *customer_key;
+	double journal_payable_balance;
 } CUSTOMER;
 
 /* Usage */
@@ -32,7 +29,8 @@ typedef struct
 CUSTOMER *customer_fetch(
 		char *customer_full_name,
 		char *customer_street_address,
-		boolean fetch_entity_boolean );
+		boolean fetch_entity_boolean,
+		boolean fetch_payable_balance_boolean );
 
 /* Usage */
 /* ----- */
@@ -40,8 +38,8 @@ CUSTOMER *customer_parse(
 		char *customer_full_name,
 		char *customer_street_address,
 		boolean fetch_entity_boolean,
+		boolean fetch_payable_balance_boolean,
 		char *string_pipe_input );
-
 
 /* Usage */
 /* ----- */

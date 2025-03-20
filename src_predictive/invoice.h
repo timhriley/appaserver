@@ -12,7 +12,12 @@
 #include "entity_self.h"
 #include "customer.h"
 
-#define INVOICE_LINE_ITEM_QUANTITY_DECIMAL_PLACES	4
+#define INVOICE_LINE_ITEM_QUANTITY_DECIMAL_COUNT	4
+
+enum invoice_enum {
+	invoice_due,
+	invoice_workorder,
+	invoice_estimate };
 
 typedef struct
 {
@@ -38,8 +43,11 @@ INVOICE_LINE_ITEM *invoice_line_item_parse(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 INVOICE_LINE_ITEM *invoice_line_item_new(
-		char *item,
+		char *item_key,
 		char *description /* stack memory */,
 		double quantity,
 		double retail_price,
@@ -62,22 +70,22 @@ double invoice_line_item_extended_total(
 
 /* Usage */
 /* ----- */
-boolean invoice_line_item_description_exists(
+boolean invoice_line_item_description_boolean(
 		LIST *invoice_line_item_list );
 
 /* Usage */
 /* ----- */
-boolean invoice_line_item_discount_amount_exists(
+boolean invoice_line_item_discount_boolean(
 		LIST *invoice_line_item_list );
 
 /* Usage */
 /* ----- */
-int invoice_line_item_quantity_decimal_places(
+int invoice_line_item_quantity_decimal_count(
 		LIST *invoice_line_item_list );
 
 /* Usage */
 /* ----- */
-double invoice_line_item_discount_amount(
+double invoice_line_item_discount_total(
 		LIST *invoice_line_item_list );
 
 /* Usage */
@@ -92,103 +100,59 @@ char *invoice_line_item_system_string(
 
 typedef struct
 {
-	LIST *invoice_line_item_list;
-	double invoice_line_item_extended_total;
-	double invoice_line_item_discount_amount;
-	double discount_amount;
-	double taxable_amount;
-	double sales_tax;
-	double total;
 	boolean invoice_line_item_description_boolean;
 	boolean invoice_line_item_discount_boolean;
-	int invoice_line_item_quantity_decimal_places;
-} INVOICE_CALCULATE;
-
-/* Usage */
-/* ----- */
-INVOICE_CALCULATE *invoice_calculate_new(
-		LIST *invoice_line_item_list,
-		double discount_amount,
-		double sales_tax_rate );
-
-/* Process */
-/* ------- */
-INVOICE_CALCULATE *invoice_calculate_calloc(
-		void );
-
-/* Returns either parameter */
-/* ------------------------ */
-double invoice_calculate_discount_amount(
-		double discount_amount,
-		double invoice_line_item_discount_amount );
-
-double invoice_calculate_taxable_amount(
-		double invoice_line_item_extended_total,
-		double invoice_calculate_discount_amount );
-
-double invoice_calculate_sales_tax(
-		double sale_tax_rate,
-		double invoice_calculate_taxable_amount );
-
-double invoice_calculate_total(
-		double invoice_line_item_extended_total,
-		double invoice_calculate_sales_tax );
-
-typedef struct
-{
-	INVOICE_CALCULATE *invoice_calculate;
-	double shipping_amount;
-	double total_amount;
-} INVOICE_DATA;
+	int invoice_line_item_quantity_decimal_count;
+	double invoice_line_item_extended_total;
+	double invoice_line_item_discount_total;
+	double total;
+} INVOICE_SUMMARY;
 
 /* Usage */
 /* ----- */
 
 /* Safely returns */
 /* -------------- */
-INVOICE_DATA *invoice_data_new(
-		INVOICE_CALCULATE *invoice_calculate,
-		double shipping_amount );
+INVOICE_SUMMARY *invoice_summary_new(
+		LIST *invoice_line_item_list,
+		double customer_payable_balance );
 
 /* Process */
 /* ------- */
-INVOICE_DATA *invoice_data_calloc(
+INVOICE_SUMMARY *invoice_summary_calloc(
 		void );
 
-double invoice_data_total_amount(
-		double invoice_calculate_total,
-		double shipping_amount );
+double invoice_summary_total(
+		double customer_payable_balance,
+		double invoice_line_item_extended_total,
+		double invoice_line_item_discount_total );
 
 typedef struct
 {
-	INVOICE_DATA *invoice_data;
+	LIST *invoice_line_item_list;
+	enum invoice_enum invoice_enum;
 	ENTITY_SELF *entity_self;
 	CUSTOMER *customer;
-	double customer_payment;
-	LIST *extra_label_list;
-	char *instructions;
-	boolean workorder_boolean;
 	char *use_key;
 	char *caption;
 	char *date_string;
-	double amount_due;
 	char *amount_due_label;
+	INVOICE_SUMMARY *invoice_summary;
 } INVOICE;
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 INVOICE *invoice_new(
 		char *invoice_key,
 		char *transaction_date_time_string,
 		char *invoice_date_time_string,
 		char *customer_name,
 		char *customer_street_address,
-		INVOICE_DATA *invoice_data,
-		double customer_payment,
-		LIST *extra_label_list,
-		char *instructions,
-		boolean workorder_boolean,
-		boolean estimate_boolean );
+		enum invoice_enum invoice_enum,
+		LIST *invoice_line_item_list );
 
 /* Process */
 /* ------- */
@@ -206,7 +170,7 @@ char *invoice_use_key(
 /* --------------------- */
 char *invoice_caption(
 		char *customer_name,
-		boolean workorder_boolean,
+		enum invoice_enum invoice_enum,
 		char *invoice_use_key );
 
 /* Returns static memory */
@@ -214,20 +178,16 @@ char *invoice_caption(
 char *invoice_date_string(
 		char *invoice_date_time_string );
 
-double invoice_amount_due(
-		double invoice_data_total_amount,
-		double customer_payment );
-
 /* Returns program memory */
 /* ---------------------- */
 char *invoice_amount_due_label(
-		boolean estimate_boolean );
+		enum invoice_enum invoice_enum );
 
 /* Driver */
 /* ------ */
 void invoice_html_output(
-		FILE *output_stream,
-		INVOICE *invoice );
+		INVOICE *invoice,
+		FILE *output_stream );
 
 /* Process */
 /* ------- */
@@ -235,51 +195,44 @@ void invoice_html_output_style(
 		FILE *output_stream );
 
 void invoice_html_output_table_open(
-		FILE *output_stream,
-		char *invoice_caption );
+		char *invoice_caption,
+		FILE *output_stream );
 
 void invoice_html_output_self(
-		FILE *output_stream,
 		char *invoice_date_string,
 		ENTITY_SELF *entity_self,
-		boolean invoice_line_item_description_exists,
-		boolean invoice_line_item_discount_amount_exists );
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		FILE *output_stream );
 
 void invoice_html_output_customer(
-		FILE *output_stream,
 	       	CUSTOMER *customer,
-		boolean invoice_line_item_description_exists,
-		boolean invoice_line_item_discount_amount_exists );
-
-void invoice_html_output_extra(
-		FILE *output_stream,
-		LIST *extra_label_list,
-		char *instructions );
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		FILE *output_stream );
 
 void invoice_html_output_table_header(
-		FILE *output_stream,
-		boolean workorder_boolean,
-		boolean invoice_line_item_description_exists,
-		boolean invoice_line_item_discount_amount_exists );
+		enum invoice_enum invoice_enum,
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		FILE *output_stream );
 
 void invoice_html_output_line_item_list(
-		FILE *output_stream,
+		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list,
-		boolean workorder_boolean,
-		boolean invoice_line_item_description_exists,
-		boolean invoice_line_item_discount_amount_exists,
-		int invoice_line_item_quantity_decimal_places );
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		int invoice_line_item_quantity_decimal_count,
+		FILE *output_stream );
 
 void invoice_html_output_footer(
-		FILE *output_stream,
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double invoice_line_item_extended_total,
+		double customer_payable_balance,
+		double invoice_summary_total,
 		char *invoice_amount_due_label,
-		double sales_tax_amount,
-		double shipping_amount,
-		boolean invoice_line_item_description_exists,
-		boolean invoice_line_item_discount_amount_exists,
-		double invoice_data_total_amount,
-		double customer_payment,
-		double invoice_amount_due );
+		FILE *output_stream );
 
 void invoice_html_output_table_close(
 		FILE *output_stream );

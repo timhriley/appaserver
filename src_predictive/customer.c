@@ -12,12 +12,15 @@
 #include "sql.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
+#include "journal.h"
+#include "account.h"
 #include "customer.h"
 
 CUSTOMER *customer_fetch(
 		char *customer_full_name,
 		char *customer_street_address,
-		boolean fetch_entity_boolean )
+		boolean fetch_entity_boolean,
+		boolean fetch_payable_balance_boolean )
 {
 	char *where;
 	char *system_string;
@@ -67,6 +70,7 @@ CUSTOMER *customer_fetch(
 		customer_full_name,
 		customer_street_address,
 		fetch_entity_boolean,
+		fetch_payable_balance_boolean,
 		input );
 }
 
@@ -74,6 +78,7 @@ CUSTOMER *customer_parse(
 		char *customer_full_name,
 		char *customer_street_address,
 		boolean fetch_entity_boolean,
+		boolean fetch_payable_balance_boolean,
 		char *input )
 {
 	char piece_buffer[ 128 ];
@@ -131,6 +136,28 @@ CUSTOMER *customer_parse(
 				__LINE__,
 				message );
 		}
+	}
+
+	if ( fetch_payable_balance_boolean )
+	{
+		LIST *list;
+
+		list =
+			journal_entity_list(
+				JOURNAL_SELECT,
+				JOURNAL_TABLE,
+				customer_full_name,
+				customer_street_address,
+				/* ------------------------------------ */
+				/* Returns heap memory from static list */
+				/* ------------------------------------ */
+				account_payable(
+					ACCOUNT_PAYABLE_KEY ) );
+
+		customer->journal_payable_balance =
+			journal_debit_credit_sum_difference(
+				0 /* not element_accumulate_debit */,
+				list );
 	}
 
 	return customer;

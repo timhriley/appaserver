@@ -453,11 +453,13 @@ char *journal_system_string(
 		const char *journal_table,
 		char *where )
 {
-	char system_string[ 65536 ];
+	char system_string[ STRING_64K ];
 
 	if ( !where ) where = "1 = 1";
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 	 	"select.sh \"%s\" %s \"%s\" transaction_date_time",
 		journal_select,
 		journal_table,
@@ -1761,6 +1763,9 @@ LIST *journal_tax_form_list(
 
 	return
 	journal_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
 		journal_system_string(
 			JOURNAL_SELECT,
 			JOURNAL_TABLE,
@@ -2280,5 +2285,117 @@ char *journal_propagate_update_statement(
 	free( primary_where );
 
 	return strdup( update_statement );
+}
+
+double journal_debit_credit_sum_difference(
+		boolean element_accumulate_debit,
+		LIST *journal_list )
+{
+	double debit_sum;
+	double credit_sum;
+	double sum_difference;
+
+	debit_sum =
+		journal_debit_sum(
+			journal_list );
+
+	credit_sum =
+		journal_credit_sum(
+			journal_list );
+
+	if ( element_accumulate_debit )
+		sum_difference =
+			debit_sum - credit_sum;
+	else
+		sum_difference =
+			credit_sum - debit_sum;
+
+	return sum_difference;
+}
+
+LIST *journal_entity_list(
+		const char *journal_select,
+		const char *journal_table,
+		char *full_name,
+		char *street_address,
+		char *account_name )
+{
+	if ( !full_name
+	||   !street_address
+	||   !account_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	journal_system_list(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		journal_system_string(
+			journal_select,
+			journal_table,
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			journal_entity_where(
+				full_name,
+				street_address,
+				account_name ) ),
+		0 /* not fetch_account */,
+		0 /* not fetch_subclassification */,
+		0 /* not fetch_element */,
+		0 /* not fetch_transaction */ );
+}
+
+char *journal_entity_where(
+		char *full_name,
+		char *street_address,
+		char *account_name )
+{
+	static char where[ 256 ];
+
+	if ( !full_name
+	||   !street_address
+	||   !account_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		where,
+		sizeof ( where ),
+		"%s and account = '%s'",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		entity_primary_where(
+			full_name,
+			street_address ),
+		account_name );
+
+	return where;
 }
 
