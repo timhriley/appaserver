@@ -18,14 +18,95 @@
 
 typedef struct
 {
+	char *extended_display;
+	char *discount_display;
+	char *amount_display;
+	char *payable_display;
+	char *due_display;
+	char *display;
 } INVOICE_LATEX_SUMMARY;
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+INVOICE_LATEX_SUMMARY *invoice_latex_summary_new(
+		char *amount_due_label,
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double invoice_line_item_extended_price_total,
+		double invoice_line_item_discount_total,
+		double invoice_latex_summary_invoice_amount,
+		double customer_payable_balance,
+		double amount_due );
+
+/* Process */
+/* ------- */
+INVOICE_LATEX_SUMMARY *invoice_latex_summary_calloc(
+		void );
+
+/* Returns heap memory */
+/* ------------------- */
+char *invoice_latex_summary_extended_display(
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double extended_price_total );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *invoice_latex_summary_discount_display(
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double discount_total );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *invoice_latex_summary_amount_display(
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double invoice_amount );
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *invoice_latex_summary_payable_display(
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double customer_payable_balance );
+
+/* Returns heap memory */
+/* ------------------- */
+char *invoice_latex_summary_due_display(
+		char *amount_due_label,
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		double invoice_summary_amount_due );
+
+
+/* Returns heap memory */
+/* ------------------- */
+char *invoice_latex_summary_display(
+		char *invoice_latex_summary_extended_display,
+		char *invoice_latex_summary_discount_display,
+		char *invoice_latex_summary_amount_display,
+		char *invoice_latex_summary_payable_display,
+		char *invoice_latex_summary_due_display );
+
+/* Usage */
+/* ----- */
+
+/* Returns same static memory each time */
+/* ------------------------------------ */
+char *invoice_latex_summary_empty_display(
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean );
 
 typedef struct
 {
-	char *label;
+	char *heading;
 	char *escape_street_address;
 	char *city_state_zip;
-	char *string;
+	char *display;
 } INVOICE_LATEX_ENTITY;
 
 /* Usage */
@@ -34,7 +115,6 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 INVOICE_LATEX_ENTITY *invoice_latex_entity_new(
-		char *label,
 		ENTITY *entity );
 
 /* Process */
@@ -47,8 +127,8 @@ INVOICE_LATEX_ENTITY *invoice_latex_entity_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
-char *invoice_latex_entity_label(
-		char *label );
+char *invoice_latex_entity_heading(
+		char *full_name );
 
 /* Usage */
 /* ----- */
@@ -65,9 +145,9 @@ char *invoice_latex_entity_city_state_zip(
 
 /* Returns heap memory */
 /* ------------------- */
-char *invoice_latex_entity_string(
+char *invoice_latex_entity_display(
 		char *entity_full_name,
-		char *invoice_latex_entity_label,
+		char *invoice_latex_entity_heading,
 		char *escape_street_address,
 		char *invoice_latex_entity_city_state_zip );
 
@@ -75,6 +155,8 @@ typedef struct
 {
 	INVOICE_LATEX_ENTITY *self_invoice_latex_entity;
 	INVOICE_LATEX_ENTITY *customer_invoice_latex_entity;
+	LIST *column_list;
+	LIST *row_list;
 	LATEX_TABLE *latex_table;
 	INVOICE_LATEX_SUMMARY *invoice_latex_summary;
 	char *display;
@@ -86,10 +168,13 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 INVOICE_LATEX_TABLE *invoice_latex_table_new(
-		char *invoice_caption,
+		enum invoice_enum invoice_enum,
+		char *invoice_title,
 		ENTITY_SELF *entity_self,
 		CUSTOMER *customer,
-		INVOICE_DATA *invoice_data );
+		LIST *invoice_line_item_list,
+		char *amount_due_label,
+		INVOICE_SUMMARY *invoice_summary );
 
 /* Process */
 /* ------- */
@@ -99,41 +184,58 @@ INVOICE_LATEX_TABLE *invoice_latex_table_calloc(
 /* Usage */
 /* ----- */
 LIST *invoice_latex_table_column_list(
-		INVOICE_DATA *invoice_data );
+		enum invoice_enum invoice_enum,
+		boolean invoice_line_item_description_boolean,
+		boolean invoice_line_item_discount_boolean,
+		int invoice_line_item_decimal_count );
+
+/* Process */
+/* ------- */
+
+/* Returns program memory */
+/* ---------------------- */
+char *invoice_latex_table_description_size(
+		boolean invoice_line_item_discount_boolean );
 
 /* Usage */
 /* ----- */
 LIST *invoice_latex_table_row_list(
-		INVOICE_DATA *invoice_data,
+		LIST *invoice_line_item_list,
 		LIST *latex_table_column_list );
 
 /* Usage */
 /* ----- */
+LIST *invoice_latex_table_cell_list(
+		char *item_key,
+		char *description,
+		double quantity,
+		double retail_price,
+		double discount_amount,
+		double extended_price,
+		LIST *invoice_latex_table_column_list,
+		boolean first_row_boolean );
 
 /* Returns heap memory */
 /* ------------------- */
 char *invoice_latex_table_display(
-		char *latex_table_title,
-		INVOICE_LATEX_ENTITY *
-			self_invoice_latex_entity,
-		INVOICE_LATEX_ENTITY *
-			customer_invoice_latex_entity,
-		LIST *latex_table_row_list /* freed */,
-		INVOICE_LATEX_SUMMARY *invoice_latex_summary );
+		char *latex_table_caption_display,
+		char *self_invoice_latex_entity_display,
+		char *customer_invoice_latex_entity_display,
+		char *latex_table_head_display,
+		LIST *latex_table_latex_row_list /* freed */,
+		char *latex_table_end_longtable,
+		char *invoice_latex_summary_display );
 
 typedef struct
 {
 	INVOICE *invoice;
 	char *document_header;
 	STATEMENT_LINK *statement_link;
-	LATEX *latex;
-	INVOICE_LATEX_TABLE *invoice_latex_table;
 	char *statement_caption_logo_filename;
-	char *document_header;
-	char *title_string;
-	char *self_string;
-	char *customer_string;
-	char *extra_string;
+	LATEX *latex;
+	char *title;
+	INVOICE_LATEX_TABLE *invoice_latex_table;
+	char *footer;
 } INVOICE_LATEX;
 
 /* Usage */
@@ -142,7 +244,6 @@ INVOICE_LATEX *invoice_latex_new(
 		char *application_name,
 		char *process_name,
 		char *appaserver_parameter_data_directory,
-		char *statement_logo_filename,
 		INVOICE *invoice );
 
 /* Process */
@@ -163,112 +264,23 @@ char *invoice_latex_document_header(
 
 /* Returns heap memory */
 /* ------------------- */
-char *invoice_latex_title_string(
+char *invoice_latex_title(
 		char *invoice_caption,
 		char *statement_caption_logo_filename,
 		char *invoice_date_string );
 
 /* Usage */
 /* ----- */
-char *invoice_latex_self_string(
-		ENTITY_SELF *entity_self );
-
-void latex_invoice_output_footer(
-			FILE *output_stream,
-			boolean with_customer_signature );
-
-char *invoice_latex_header(
-		char *invoice_key,
-		char *invoice_date,
-		char *line_item_key_heading,
-		INVOICE_LATEX_ENTITY *
-			self_invoice_latex_entity,
-	       	INVOICE_LATEX_ENTITY *
-			customer_invoice_latex_entity,
-		char *customer_service_key,
-		boolean discount_amount_boolean,
-		char *title_string,
-		boolean omit_money_boolean,
-		char *logo_filename,
-		char *instructions,
-		LIST *extra_label_list,
-		char *first_column_label,
-		char *last_column_label,
-		char *customer_label );
-
-char *invoice_latex_line_item_list_string(
-		LIST *invoice_line_item_list,
-		boolean _discount_amount_boolean,
-		boolean omit_money_boolean,
-		int quantity_decimal_places );
-
-char *invoice_latex_invoice_footer(
-		double extended_price_total,
-		double sales_tax,
-		double shipping_charge,
-		double total_payment,
-		double amount_due,
-		char *line_item_key_heading,
-		boolean discount_amount_boolean,
-		boolean estimate_boolean );
-
-boolean latex_invoice_discount_amount_boolean(
-		LIST *invoice_line_item_list );
-
-boolean latex_invoice_each_quantity_integer_boolean(
-		LIST *invoice_line_item_list );
-
-boolean latex_invoice_extended_price_boolean(
-		LIST *invoice_line_item_list );
-
-int latex_invoice_quantity_decimal_places(
-		boolean each_quantity_integer_boolean,
-		int default_quantity_decimal_places );
 
 /* Returns heap memory */
 /* ------------------- */
-char *latex_invoice_header_text_line(
-		boolean discount_amount_boolean,
-		boolean omit_money_boolean,
-		char *first_column_label,
-		char *last_column_label );
-
-/* Returns heap memory */
-/* ------------------- */
-char *latex_invoice_header_format_line(
-		boolean discount_amount_boolean );
+char *invoice_latex_footer(
+		enum invoice_enum invoice_enum );
 
 /* Driver */
 /* ------ */
 void invoice_latex_output(
 		INVOICE_LATEX *invoice_latex );
-
-typedef struct
-{
-	/* Stub */
-} INVOICE_LATEX_SCHOOL;
-
-char *invoice_latex_school_header(
-		char *invoice_date,
-		INVOICE_LATEX_ENTITY *self_invoice_latex_entity;
-		INVOICE_LATEX_ENTITY *customer_invoice_latex_entity;
-		char *title,
-		char *logo_filename );
-
-char *invoice_latex_school_header_format_line(
-		void );
-
-char *invoice_latex_school_header_text_line(
-		char *first_column_label,
-		char *last_column_label );
-
-char *invoice_latex_school_line_item_list(
-		LIST *invoice_line_item_list );
-
-char *invoice_latex_school_footer(
-		double extended_price_total,
-		double total_payment,
-		double amount_due );
 
 #endif
 

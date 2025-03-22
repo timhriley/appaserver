@@ -8,8 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include "timlib.h"
 #include "date.h"
+#include "file.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
 #include "String.h"
@@ -75,7 +75,7 @@ LATEX *latex_new(
 		/* ---------------------- */
 		latex_begin_document();
 
-	if ( timlib_file_exists( logo_filename ) )
+	if ( file_exists_boolean( logo_filename ) )
 	{
 		latex->logo_display =
 			/* --------------------- */
@@ -140,9 +140,11 @@ void latex_tex2pdf(
 	}
 
 
-	sprintf( system_string,
-		 "pdflatex %s 1>/dev/null 2>&1",
-		 tex_filename );
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"pdflatex %s 1>/dev/null 2>&1",
+		tex_filename );
 /*
 	sprintf( system_string,
 		 "pdflatex %s 1>&2",
@@ -257,7 +259,7 @@ char *latex_column_display( char *heading_string )
 
 char *latex_column_header_format_line( LIST *latex_column_list )
 {
-	char format_line[ 256 ];
+	char format_line[ 1024 ];
 	char *ptr = format_line;
 	LATEX_COLUMN *latex_column;
 
@@ -290,7 +292,7 @@ char *latex_column_header_format_line( LIST *latex_column_list )
 
 	} while ( list_next( latex_column_list ) );
 
-	ptr += sprintf( ptr, "} \\hline" );
+	ptr += sprintf( ptr, "}" );
 
 	return strdup( format_line );
 }
@@ -312,7 +314,7 @@ char *latex_column_header_text_line( LIST *latex_column_list )
 			list_first_boolean(
 				latex_column_list );
 
-		if ( !first_boolean ) ptr += sprintf( ptr, " & " );
+		if ( !first_boolean ) ptr += sprintf( ptr, "&" );
 
 		ptr += sprintf( ptr,
 			"%s",
@@ -370,7 +372,7 @@ LATEX_ROW *latex_row_calloc( void )
 
 char *latex_row_list_display( LIST *latex_row_list /* freed */ )
 {
-	char display[ STRING_128K ];
+	char display[ STRING_768K ];
 	char *ptr = display;
 	LATEX_ROW *latex_row;
 	char *cell_list_display;
@@ -390,13 +392,13 @@ char *latex_row_list_display( LIST *latex_row_list /* freed */ )
 
 		if (	strlen( display ) +
 			string_strlen( cell_list_display ) +
-			16 >= STRING_128K )
+			16 >= STRING_768K )
 		{
 			char message[ 128 ];
 
 			sprintf(message,
 				STRING_OVERFLOW_TEMPLATE,
-				STRING_128K );
+				STRING_768K );
 
 			appaserver_error_stderr_exit(
 				__FILE__,
@@ -823,17 +825,36 @@ LATEX_TABLE *latex_table_calloc( void )
 }
 
 void latex_output_document_head(
-		LATEX *latex,
+		char *latex_documentclass,
+		char *latex_usepackage,
+		char *latex_footer_declaration,
+		char *latex_begin_document,
+		char *latex_logo_display,
 		FILE *latex_output_file )
 {
-	if ( !latex
-	||   !latex_output_file )
+	char *display;
+
+	if ( !latex_output_file )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "latex_output_file is empty." );
 
-		if ( latex_output_file ) fclose( latex_output_file );
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !latex_documentclass
+	||   !latex_usepackage
+	||   !latex_begin_document )
+	{
+		char message[ 128 ];
+
+		fclose( latex_output_file );
+		sprintf(message, "latex_output_file is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -844,43 +865,108 @@ void latex_output_document_head(
 
 	fprintf(latex_output_file,
 		"%s\n",
-		latex->documentclass );
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( display = latex_document_head_display(
+			latex_documentclass,
+			latex_usepackage,
+			latex_footer_declaration,
+			latex_begin_document,
+			latex_logo_display ) ) );
 
-	fprintf(latex_output_file,
-		"%s\n",
-		latex->usepackage );
+	free( display );
+}
 
-	if ( latex->footer_declaration )
+char *latex_document_head_display(
+		char *latex_documentclass,
+		char *latex_usepackage,
+		char *latex_footer_declaration,
+		char *latex_begin_document,
+		char *latex_logo_display )
+{
+	char display[ STRING_64K ];
+	char *ptr = display;
+
+	if ( !latex_documentclass
+	||   !latex_usepackage
+	||   !latex_begin_document )
 	{
-		fprintf(latex_output_file,
-			"%s\n",
-			latex->footer_declaration );
+		char message[ 128 ];
+
+		sprintf(message, "latex_output_file is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
-	fprintf(latex_output_file,
+	ptr += sprintf( ptr,
 		"%s\n",
-		latex->begin_document );
+		latex_documentclass );
 
-	if ( latex->logo_display )
+	ptr += sprintf( ptr,
+		"%s\n",
+		latex_usepackage );
+
+	if ( latex_footer_declaration )
 	{
-		fprintf(latex_output_file,
+		ptr += sprintf( ptr,
 			"%s\n",
-			latex->logo_display );
+			latex_footer_declaration );
 	}
+
+	ptr += sprintf( ptr,
+		"%s\n",
+		latex_begin_document );
+
+	if ( latex_logo_display )
+	{
+		printf( ptr,
+			"%s\n",
+			latex_logo_display );
+	}
+
+	return strdup( display );
 }
 
 void latex_table_output_head(
-		LATEX_TABLE *latex_table,
+		char *latex_table_begin_longtable,
+		char *latex_column_header_format_line,
+		char *latex_table_caption_display,
+		char *latex_column_header_text_line,
+		char *latex_table_footer_display,
 		FILE *latex_output_file )
 {
-	if ( !latex_table
-	||   !latex_output_file )
+	char *display;
+
+	if ( !latex_output_file )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "latex_output_file is empty." );
 
-		if ( latex_output_file ) fclose( latex_output_file );
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !latex_table_begin_longtable
+	||   !latex_column_header_format_line
+	||   !latex_table_caption_display
+	||   !latex_column_header_text_line
+	||   !latex_table_footer_display )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -890,24 +976,71 @@ void latex_table_output_head(
 	}
 
 	fprintf(latex_output_file,
+		"%s\n",
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		( display = latex_table_head_display(
+			latex_table_begin_longtable,
+			latex_column_header_format_line,
+			latex_table_caption_display,
+			latex_column_header_text_line,
+			latex_table_footer_display ) ) );
+
+	free( display );
+}
+
+char *latex_table_head_display(
+		char *latex_table_begin_longtable,
+		char *latex_column_header_format_line,
+		char *latex_table_caption_display,
+		char *latex_column_header_text_line,
+		char *latex_table_footer_display )
+{
+	char display[ STRING_64K ];
+	char *ptr = display;
+
+	if ( !latex_table_begin_longtable
+	||   !latex_column_header_format_line
+	||   !latex_table_caption_display
+	||   !latex_column_header_text_line
+	||   !latex_table_footer_display )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	ptr += sprintf( ptr,
 		"%s",
-		latex_table->begin_longtable );
+		latex_table_begin_longtable );
 
-	fprintf(latex_output_file,
+	ptr += sprintf( ptr,
 		"%s\n",
-		latex_table->latex_column_header_format_line );
+		latex_column_header_format_line );
 
-	fprintf(latex_output_file,
+	ptr += sprintf( ptr,
 		"%s\n",
-		latex_table->caption_display );
+		latex_table_caption_display );
 
-	fprintf(latex_output_file,
+	ptr += sprintf( ptr,
 		"%s\n",
-		latex_table->latex_column_header_text_line );
+		latex_column_header_text_line );
 
-	fprintf(latex_output_file,
+	ptr += sprintf( ptr,
 		"%s\n",
-		latex_table->footer_display );
+		latex_table_footer_display );
+
+	return strdup( display );
 }
 
 void latex_table_output_row_list(
@@ -1363,11 +1496,19 @@ void latex_table_output(
 			latex->directory_filename );
 
 	latex_output_document_head(
-		latex,
+		latex->documentclass,
+		latex->usepackage,
+		latex->footer_declaration,
+		latex->begin_document,
+		latex->logo_display,
 		output_file );
 
 	latex_table_output_head(
-		latex_table,
+		latex_table->begin_longtable,
+		latex_table->latex_column_header_format_line,
+		latex_table->caption_display,
+		latex_table->latex_column_header_text_line,
+		latex_table->footer_display,
 		output_file );
 
 	latex_table_output_row_list(
@@ -1429,7 +1570,11 @@ void latex_table_list_output(
 			latex->directory_filename );
 
 	latex_output_document_head(
-		latex,
+		latex->documentclass,
+		latex->usepackage,
+		latex->footer_declaration,
+		latex->begin_document,
+		latex->logo_display,
 		output_file );
 
 	if ( list_rewind( latex_table_list ) )
@@ -1437,7 +1582,11 @@ void latex_table_list_output(
 		latex_table = list_get( latex_table_list );
 
 		latex_table_output_head(
-			latex_table,
+			latex_table->begin_longtable,
+			latex_table->latex_column_header_format_line,
+			latex_table->caption_display,
+			latex_table->latex_column_header_text_line,
+			latex_table->footer_display,
 			output_file );
 
 		latex_table_output_row_list(

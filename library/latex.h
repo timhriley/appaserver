@@ -358,8 +358,24 @@ FILE *latex_output_file(
 /* Usage */
 /* ----- */
 void latex_output_document_head(
-		LATEX *latex,
+		char *latex_documentclass,
+		char *latex_usepackage,
+		char *latex_footer_declaration,
+		char *latex_begin_document,
+		char *latex_logo_display,
 		FILE *latex_output_file );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_document_head_display(
+		char *latex_documentclass,
+		char *latex_usepackage,
+		char *latex_footer_declaration,
+		char *latex_begin_document,
+		char *latex_logo_display );
 
 /* Usage */
 /* ----- */
@@ -430,8 +446,24 @@ char *latex_table_end_longtable(
 /* Usage */
 /* ----- */
 void latex_table_output_head(
-		LATEX_TABLE *latex_table,
+		char *latex_table_begin_longtable,
+		char *latex_column_header_format_line,
+		char *latex_table_caption_display,
+		char *latex_column_header_text_line,
+		char *latex_table_footer_display,
 		FILE *latex_output_file );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *latex_table_head_display(
+		char *latex_table_begin_longtable,
+		char *latex_column_header_format_line,
+		char *latex_table_caption_display,
+		char *latex_column_header_text_line,
+		char *latex_table_footer_display );
 
 /* Usage */
 /* ----- */

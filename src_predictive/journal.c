@@ -751,13 +751,10 @@ void journal_insert(
 double journal_debit_credit_difference_sum( LIST *journal_list )
 {
 	JOURNAL *journal;
-	double sum;
+	double sum = 0.0;
 	double difference;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 
@@ -774,13 +771,10 @@ double journal_debit_credit_difference_sum( LIST *journal_list )
 double journal_credit_debit_difference_sum( LIST *journal_list )
 {
 	JOURNAL *journal;
-	double sum;
+	double sum = 0.0;
 	double difference;
 
-	if ( !list_rewind( journal_list ) ) return 0.0;
-
-	sum = 0.0;
-
+	if ( list_rewind( journal_list ) )
 	do {
 		journal = list_get( journal_list );
 

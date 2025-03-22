@@ -105,7 +105,8 @@ typedef struct
 	int invoice_line_item_quantity_decimal_count;
 	double invoice_line_item_extended_total;
 	double invoice_line_item_discount_total;
-	double total;
+	double invoice_amount;
+	double amount_due;
 } INVOICE_SUMMARY;
 
 /* Usage */
@@ -122,10 +123,13 @@ INVOICE_SUMMARY *invoice_summary_new(
 INVOICE_SUMMARY *invoice_summary_calloc(
 		void );
 
-double invoice_summary_total(
-		double customer_payable_balance,
+double invoice_summary_invoice_amount(
 		double invoice_line_item_extended_total,
 		double invoice_line_item_discount_total );
+
+double invoice_summary_amount_due(
+		double customer_payable_balance,
+		double invoice_summary_invoice_amount );
 
 typedef struct
 {
@@ -134,7 +138,7 @@ typedef struct
 	ENTITY_SELF *entity_self;
 	CUSTOMER *customer;
 	char *use_key;
-	char *caption;
+	char *title;
 	char *date_string;
 	char *amount_due_label;
 	INVOICE_SUMMARY *invoice_summary;
@@ -168,7 +172,7 @@ char *invoice_use_key(
 
 /* Returns static memory */
 /* --------------------- */
-char *invoice_caption(
+char *invoice_title(
 		char *customer_name,
 		enum invoice_enum invoice_enum,
 		char *invoice_use_key );
@@ -195,7 +199,7 @@ void invoice_html_output_style(
 		FILE *output_stream );
 
 void invoice_html_output_table_open(
-		char *invoice_caption,
+		char *invoice_title,
 		FILE *output_stream );
 
 void invoice_html_output_self(
@@ -230,7 +234,7 @@ void invoice_html_output_footer(
 		boolean invoice_line_item_discount_boolean,
 		double invoice_line_item_extended_total,
 		double customer_payable_balance,
-		double invoice_summary_total,
+		double invoice_summary_amount_due,
 		char *invoice_amount_due_label,
 		FILE *output_stream );
 

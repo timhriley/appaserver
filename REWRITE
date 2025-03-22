@@ -16,27 +16,16 @@ reset.
 $ cd $APPASERVER_HOME
 $ make clean
 
-# To start a new Git thread for Appaserver source code, "git pull" the
-# rewritten version into a new directory root.
-# 
-# $ sudo mkdir /usr9
-# $ sudo mkdir /usr9/appaserver
-# $ sudo chown `whoami` /usr9/appaserver
-# $ chgrp appaserver /usr9/appaserver
-# $ chmod g+ws /usr9/appaserver
-# $ cd /usr9/appaserver
-# $ git pull https://github.com/timhriley/appaserver
-
-Place the rewritten appaserver.tar.gz file in /tmp, then untar it into
-a new directory root.
-
+To start a new Git thread for Appaserver source code, "git clone" the
+rewritten version into a new directory root.
+ 
 $ sudo mkdir /usr9
 $ sudo mkdir /usr9/appaserver
 $ sudo chown `whoami` /usr9/appaserver
 $ chgrp appaserver /usr9/appaserver
 $ chmod g+ws /usr9/appaserver
 $ cd /usr9/appaserver
-$ tar xzf /tmp/appaserver.tar.gz
+$ git clone https://github.com/timhriley/appaserver.git
 
 == SET THE NEW ENVIRONMENT ==
 

@@ -116,11 +116,11 @@ INVOICE *invoice_new(
 			transaction_date_time_string,
 			invoice_date_time_string );
 
-	invoice->caption =
+	invoice->title =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		invoice_caption(
+		invoice_title(
 			customer_name,
 			invoice_enum,
 			invoice->use_key );
@@ -227,7 +227,7 @@ void invoice_html_output_footer(
 		boolean discount_boolean,
 		double extended_total,
 		double customer_payable_balance,
-		double invoice_summary_total,
+		double invoice_summary_amount_due,
 		char *amount_due_label,
 		FILE *output_stream )
 {
@@ -294,7 +294,7 @@ void invoice_html_output_footer(
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
-		string_commas_money( invoice_summary_total ) );
+		string_commas_money( invoice_summary_amount_due ) );
 }
 
 void invoice_html_output_line_item_list(
@@ -464,7 +464,7 @@ void invoice_html_output(
 	invoice_html_output_style( output_stream );
 
 	invoice_html_output_table_open(
-		invoice->caption,
+		invoice->title,
 		output_stream );
 
 	invoice_html_output_self(
@@ -524,7 +524,7 @@ void invoice_html_output(
 			invoice_line_item_extended_total,
 		invoice->customer->journal_payable_balance
 			/* customer_payable_balance */,
-		invoice->invoice_summary->total,
+		invoice->invoice_summary->amount_due,
 		invoice->amount_due_label,
 		output_stream );
 
@@ -594,16 +594,16 @@ int invoice_line_item_quantity_decimal_places(
 }
 
 void invoice_html_output_table_open(
-		char *invoice_caption,
+		char *invoice_title,
 		FILE *output_stream )
 {
-	char caption_buffer[ 128 ];
+	char title_buffer[ 128 ];
 
-	if ( !invoice_caption )
+	if ( !invoice_title )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "caption is empty." );
+		sprintf(message, "invoice_title is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -612,23 +612,23 @@ void invoice_html_output_table_open(
 			message );
 	}
 
-	strcpy( caption_buffer, invoice_caption );
-	string_search_replace( caption_buffer, " ", "&nbsp;" );
+	strcpy( title_buffer, invoice_title );
+	string_search_replace( title_buffer, " ", "&nbsp;" );
 
 	fprintf(output_stream,
 "<table border=1>						\n"
 "<caption align=top><big><bold>%s				\n"
 "</bold></big></caption>					\n",
-		caption_buffer );
+		title_buffer );
 }
 
-char *invoice_caption(
+char *invoice_title(
 		char *customer_name,
 		enum invoice_enum invoice_enum,
 		char *invoice_use_key )
 {
-	static char caption[ 256 ];
-	char *title;
+	static char title[ 256 ];
+	char *prompt;
 
 	if ( !customer_name
 	||   !invoice_use_key )
@@ -645,23 +645,23 @@ char *invoice_caption(
 	}
 
 	if ( invoice_enum == invoice_workorder )
-		title = "Workorder";
+		prompt = "Workorder";
 	else
 	if ( invoice_enum == invoice_estimate )
-		title = "Estimate";
+		prompt = "Estimate";
 	else
 	/* Must be invoice_enum == invoice_due */
-		title = "Invoice Due";
+		prompt = "Invoice Due";
 
 	snprintf(
-		caption,
-		sizeof ( caption ),
-		"%s %s for %s",
 		title,
+		sizeof ( title ),
+		"%s %s for %s",
+		prompt,
 		invoice_use_key,
 		customer_name );
 
-	return caption;
+	return title;
 }
 
 void invoice_html_output_self(
@@ -812,14 +812,21 @@ char *invoice_amount_due_label( enum invoice_enum invoice_enum )
 		return "Amount Due";
 }
 
-double invoice_summary_total(
-		double customer_payable_balance,
+double invoice_summary_invoice_amount(
 		double extended_total,
 		double discount_total )
 {
 	return
 	extended_total -
-	discount_total -
+	discount_total;
+}
+
+double invoice_summary_amount_due(
+		double customer_payable_balance,
+		double invoice_amount )
+{
+	return
+	invoice_amount -
 	customer_payable_balance;
 }
 
@@ -851,11 +858,15 @@ INVOICE_SUMMARY *invoice_summary_new(
 		invoice_line_item_discount_total(
 			invoice_line_item_list );
 
-	invoice_summary->total =
-		invoice_summary_total(
-			customer_payable_balance,
+	invoice_summary->invoice_amount =
+		invoice_summary_invoice_amount(
 			invoice_summary->invoice_line_item_extended_total,
 			invoice_summary->invoice_line_item_discount_total );
+
+	invoice_summary->amount_due =
+		invoice_summary_amount_due(
+			customer_payable_balance,
+			invoice_summary->invoice_amount );
 
 	return invoice_summary;
 }
