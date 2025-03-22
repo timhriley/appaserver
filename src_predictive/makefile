@@ -103,8 +103,8 @@ EXECUTABLES=	trial_balance_output					\
 		post_change_account_balance				\
 		import_predictbooks					\
 		prior_fixed_asset_trigger				\
-		investment_transaction_driver
-#		generate_invoice
+		investment_transaction_driver				\
+		generate_invoice
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\

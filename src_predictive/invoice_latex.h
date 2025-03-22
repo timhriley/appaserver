@@ -240,6 +240,9 @@ typedef struct
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 INVOICE_LATEX *invoice_latex_new(
 		char *application_name,
 		char *process_name,

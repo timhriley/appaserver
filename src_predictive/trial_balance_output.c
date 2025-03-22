@@ -32,7 +32,7 @@ int main( int argc, char **argv )
 	APPASERVER_PARAMETER *appaserver_parameter;
 	TRIAL_BALANCE *trial_balance;
 
-	application_name = environ_exit_application_name( argv[ 0 ] );
+	application_name = environment_exit_application_name( argv[ 0 ] );
 
 	appaserver_error_argv_append_file(
 		argc,

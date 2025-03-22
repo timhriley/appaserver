@@ -42,7 +42,7 @@ INVOICE *invoice_new(
 		char *invoice_key,
 		char *transaction_date_time_string,
 		char *invoice_date_time_string,
-		char *customer_name,
+		char *customer_full_name,
 		char *customer_street_address,
 		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list )
@@ -50,7 +50,7 @@ INVOICE *invoice_new(
 	INVOICE *invoice;
 
 	if ( !invoice_date_time_string
-	||   !customer_name
+	||   !customer_full_name
 	||   !customer_street_address )
 	{
 		char message[ 128 ];
@@ -86,7 +86,7 @@ INVOICE *invoice_new(
 
 	if ( ! ( invoice->customer =
 			customer_fetch(
-				customer_name,
+				customer_full_name,
 				customer_street_address,
 				1 /* fetch_entity_boolean */,
 				1 /* fetch_payable_balance_boolean */ ) ) )
@@ -97,7 +97,7 @@ INVOICE *invoice_new(
 			message,
 			sizeof ( message ),
 			"customer_fetch(%s,%s) returned empty.",
-			customer_name,
+			customer_full_name,
 			customer_street_address );
 
 		appaserver_error_stderr_exit(
@@ -121,7 +121,7 @@ INVOICE *invoice_new(
 		/* Returns static memory */
 		/* --------------------- */
 		invoice_title(
-			customer_name,
+			customer_full_name,
 			invoice_enum,
 			invoice->use_key );
 
@@ -410,7 +410,7 @@ boolean invoice_line_item_description_boolean( LIST *invoice_line_item_list )
 	return 0;
 }
 
-boolean invoice_line_item_discount_amount_boolean(
+boolean invoice_line_item_discount_boolean(
 		LIST *invoice_line_item_list )
 {
 	INVOICE_LINE_ITEM *line_item;
@@ -571,7 +571,7 @@ char *invoice_date_string( char *invoice_date_time_string )
 	return date_string;
 }
 
-int invoice_line_item_quantity_decimal_places(
+int invoice_line_item_quantity_decimal_count(
 		LIST *invoice_line_item_list )
 {
 	INVOICE_LINE_ITEM *invoice_line_item;
@@ -623,14 +623,14 @@ void invoice_html_output_table_open(
 }
 
 char *invoice_title(
-		char *customer_name,
+		char *customer_full_name,
 		enum invoice_enum invoice_enum,
 		char *invoice_use_key )
 {
 	static char title[ 256 ];
 	char *prompt;
 
-	if ( !customer_name
+	if ( !customer_full_name
 	||   !invoice_use_key )
 	{
 		char message[ 128 ];
@@ -659,7 +659,7 @@ char *invoice_title(
 		"%s %s for %s",
 		prompt,
 		invoice_use_key,
-		customer_name );
+		customer_full_name );
 
 	return title;
 }

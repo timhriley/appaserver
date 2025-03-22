@@ -153,7 +153,7 @@ INVOICE *invoice_new(
 		char *invoice_key,
 		char *transaction_date_time_string,
 		char *invoice_date_time_string,
-		char *customer_name,
+		char *customer_full_name,
 		char *customer_street_address,
 		enum invoice_enum invoice_enum,
 		LIST *invoice_line_item_list );
@@ -173,7 +173,7 @@ char *invoice_use_key(
 /* Returns static memory */
 /* --------------------- */
 char *invoice_title(
-		char *customer_name,
+		char *customer_full_name,
 		enum invoice_enum invoice_enum,
 		char *invoice_use_key );
 
