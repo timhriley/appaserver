@@ -3101,7 +3101,10 @@ void update_row_command_line_execute(
 {
 	if ( update_root && update_root->update_command_line )
 	{
-		if ( system( update_root->update_command_line ) ){}
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			update_root->update_command_line );
 	}
 
 	if ( update_one2m_list )
@@ -3471,9 +3474,11 @@ void update_one2m_row_list_command_execute(
 
 		if ( update_one2m_row->command_line )
 		{
-			if ( system(
+			security_system(
+				SECURITY_FORK_CHARACTER,
+				SECURITY_FORK_STRING,
 				update_one2m_row->
-			     		command_line ) ){}
+			     		command_line );
 		}
 
 		if ( update_one2m_row->update_one2m_list )
@@ -3525,8 +3530,7 @@ void update_one2m_list_command_line_execute( LIST *update_one2m_list )
 {
 	UPDATE_ONE2M *update_one2m;
 
-	if ( !list_rewind( update_one2m_list ) ) return;
-
+	if ( list_rewind( update_one2m_list ) )
 	do {
 		update_one2m = list_get( update_one2m_list );
 
@@ -3557,8 +3561,7 @@ void update_mto1_isa_list_sql_statement_execute(
 			message );
 	}
 
-	if ( !list_rewind( update_mto1_isa_list ) ) return;
-
+	if ( list_rewind( update_mto1_isa_list ) )
 	do {
 		update_mto1_isa = list_get( update_mto1_isa_list );
 
@@ -3640,17 +3643,15 @@ void update_mto1_isa_list_command_line_execute( LIST *update_mto1_isa_list )
 	UPDATE_MTO1_ISA *update_mto1_isa;
 
 	if ( list_rewind( update_mto1_isa_list ) )
-	{
-		do {
-			update_mto1_isa =
-				list_get(
-					update_mto1_isa_list );
+	do {
+		update_mto1_isa =
+			list_get(
+				update_mto1_isa_list );
 
-			update_mto1_isa_command_line_execute(
-				update_mto1_isa );
+		update_mto1_isa_command_line_execute(
+			update_mto1_isa );
 
-		} while ( list_next( update_mto1_isa_list ) );
-	}
+	} while ( list_next( update_mto1_isa_list ) );
 }
 
 void update_mto1_isa_command_line_execute( UPDATE_MTO1_ISA *update_mto1_isa )
@@ -3670,7 +3671,10 @@ void update_mto1_isa_command_line_execute( UPDATE_MTO1_ISA *update_mto1_isa )
 
 	if ( update_mto1_isa->update_command_line )
 	{
-		if ( system( update_mto1_isa->update_command_line ) ){}
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			update_mto1_isa->update_command_line );
 	}
 
 	if ( update_mto1_isa->update_one2m_list

@@ -528,10 +528,12 @@ void insert_statement_command_execute(
 {
 	LIST *list = insert_statement_extract_command_list;
 
-	if ( !list_rewind( list ) ) return;
-
+	if ( list_rewind( list ) )
 	do {
-		if ( system( (char *)list_get( list ) ) ){}
+		security_system(
+			SECURITY_FORK_CHARACTER,
+			SECURITY_FORK_STRING,
+			list_get( list ) );
 
 	} while ( list_next( list ) );
 }
