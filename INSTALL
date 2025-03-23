@@ -28,9 +28,9 @@ liberal UMASK setting.
 See: template/group_centric.txt
 
 Appaserver's implementation of the Group Centric Paradigm is to create
-group=appaserver in /etc/group. Trusted users, including `whoami`, are assign
-as group members. The important characteristic is the trusted users gain write
-permission. Apache and everyone else has only read and execute access.
+group=appaserver in /etc/group. Trusted users, including `whoami`, are added
+to group=appaserver. The important characteristic is the trusted users gain
+write permission. Apache and everyone else has only read and execute access.
 
 ----------------------
 B) Install basic LAMP.
@@ -122,6 +122,10 @@ sent to stderr. Hint messages are captured in one of three files:
 
 The menu program displays the tail of each of these files. It also displays
 the tail of Linux's system log files.
+
+Report any errors to https://appahost.com/contact. Please submit a
+screenshot your browser and error/access/log file containing the error
+message.
 
 ------------------------------
 L) Login to template database:

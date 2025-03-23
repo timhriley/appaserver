@@ -69,6 +69,7 @@ append_etc_profile ()
 	echo "alias cda=\"cd \$APPASERVER_HOME\"" >> ${profile_file}
 	echo "alias cdd=\"cd \$DOCUMENT_ROOT\"" >> ${profile_file}
 	echo "alias lsd=\"ls -la | grep '^d'\"" >> ${profile_file}
+	echo "mkcd() { mkdir \"$1\" && chmod o-rx \"$1\" && cd \"$1\"; }" >> ${profile_file}
 	echo "" >> ${profile_file}
 	echo "export UTC_OFFSET=-8" >> ${profile_file}
 	echo "export DATABASE=template" >> ${profile_file}

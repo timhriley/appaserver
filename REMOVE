@@ -7,7 +7,7 @@ ${APPASERVER_HOME}/REMOVE
  4) $ echo "drop user 'appaserver'@'localhost';" | sql.e mysql
  5) $ cd $APPASERVER_HOME
  6) $ make clean
- 7) $ sudo template/uninstall-filesystem.sh execute|noexecute
+ 7) $ sudo ./template/uninstall-filesystem.sh execute|noexecute
  8) $ template/install-extra.sh | less # undo anything you might have done
  9) $ cd /
 10) $ sudo rm -fr $APPASERVER_HOME

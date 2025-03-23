@@ -82,7 +82,9 @@ update_ssl_support ()
 load_mysqldump_template ()
 {
 	cd $APPASERVER_HOME/template
-	zcat mysqldump_template.sql.gz | sql.e
+	zcat mysqldump_template.sql.gz	|
+	mysqldump_sed.sh		|
+	sql.e
 }
 
 insert_user_nobody ()

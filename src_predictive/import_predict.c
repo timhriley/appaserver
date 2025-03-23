@@ -416,7 +416,10 @@ char *import_predict_system_string( char *filename )
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"zcat %s | sql.e 2>&1 | grep -vi duplicate",
+		"zcat %s |"
+		"mysqldump_sed.sh |"
+		"sql.e 2>&1 |"
+		"grep -vi duplicate",
 		filename );
 
 	return system_string;

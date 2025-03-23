@@ -51,7 +51,6 @@ outputfile=/tmp/mysqldump_${application}_`date.e 0 | tr ':' '-'`.sql.gz
 shift
 
 nice mysqldump $options $application $*			|
-mysqldump_sed.sh					|
 gzip 							|
 cat > $outputfile
 
