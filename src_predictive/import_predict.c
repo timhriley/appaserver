@@ -1398,15 +1398,6 @@ boolean import_predict_input_date_recent_boolean(
 			checking_begin_date /* early_date_string */,
 			date_now_yyyy_mm_dd /* late_date_string */ );
 
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d: days_between = %d\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-days_between );
-msg( (char *)0, message );
-}
 	if ( days_between < 0 )
 	{
 		char message[ 128 ];
