@@ -185,8 +185,39 @@ Note:
 1) $ vi ~/menu.dat
 2) vi> add instruction to tail -f $firstApplication
 
+----------------------------------------------------------------
+R) From the command line, you can switch between databases with:
+----------------------------------------------------------------
+$ . set-database $database
+
+------------------------------------------------------------
+S) From the command line, you can backup all databases with:
+------------------------------------------------------------
+$ mysqldump_all.sh
+
+To see your mysqldumps:
+$ cd `appaserver_backup_directory`
+$ find . -ls | less
+
+---------------
+T) Set crontab:
+---------------
+$ crontab -e
+vi> :r $APPASERVER_HOME/template/appaserver_file_purge.crontab
+vi> :r $APPASERVER_HOME/template/mysqldump.crontab
+
+----------------------
+U) Upgrade Appaserver:
+----------------------
+See $APPASERVER_HOME/UPGRADE
+
+---------------------
+V) Remove Appaserver:
+---------------------
+See $APPASERVER_HOME/REMOVE
+
 ----------------------------------
-R) Import PredictBooks (optional):
+W) Import PredictBooks (optional):
 ----------------------------------
 Your first application may be PredictBooks Home Edition.
 1) <Alter> <Import PredictBooks>
@@ -199,33 +230,3 @@ Notes after installing PredictBooks:
 	2) <Output> <Financial Position>
 		Bookkeeping rule #2: Asset = Liability + Equity
 
-----------------------------------------------------------------
-S) From the command line, you can switch between databases with:
-----------------------------------------------------------------
-$ . set-database $database
-
-------------------------------------------------------------
-T) From the command line, you can backup all databases with:
-------------------------------------------------------------
-$ mysqldump_all.sh
-
-To see your mysqldumps:
-$ cd `appaserver_backup_directory`
-$ find . -ls | less
-
----------------
-U) Set crontab:
----------------
-$ crontab -e
-vi> :r $APPASERVER_HOME/template/appaserver_file_purge.crontab
-vi> :r $APPASERVER_HOME/template/mysqldump.crontab
-
-----------------------
-V) Upgrade Appaserver:
-----------------------
-See $APPASERVER_HOME/UPGRADE
-
----------------------
-W) Remove Appaserver:
----------------------
-See $APPASERVER_HOME/REMOVE
