@@ -170,7 +170,7 @@ O) Create $firstApplication:
 ------------------------------
 P) Login to $firstApplication:
 ------------------------------
-Browser: http://tree/appaserver/$firstApplication
+Browser: http://localhost/appaserver/$firstApplication
 	Login name=yourLoginName
 	Password=yourPassword
 
