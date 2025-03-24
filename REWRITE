@@ -11,6 +11,10 @@ Git incompatible with the old. Therefore, this version should be installed
 in a different directory root and the APPASERVER_HOME environment variable
 reset.
 
+These instructions should only be executed if you have the old version
+of Appaserver installed. If you don't have the old version installed,
+see INSTALL.
+
 == INSTALL NEW SOURCE ==
 
 $ cd $APPASERVER_HOME
