@@ -1100,24 +1100,16 @@ IMPORT_PREDICT_PASSTHRU *import_predict_passthru_new(
 
 	import_predict_passthru = import_pedict_passthru_calloc();
 
-	import_predict_passthru->account_credit_card_passthru =
-		/* ------------------------------------ */
-		/* Returns heap memory from static list */
-		/* ------------------------------------ */
-		account_credit_card_passthru(
-			ACCOUNT_PASSTHRU_KEY );
-
 	import_predict_passthru->card_insert_statement =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
 		import_predict_passthru_insert_statement(
 			FEEDER_PHRASE_TABLE,
+			IMPORT_PREDICT_PASSTHRU_ACCOUNT,
 			IMPORT_PREDICT_CARD_FEEDER_PHRASE,
 			entity_self_full_name,
-			entity_self_street_address,
-			import_predict_passthru->
-				account_credit_card_passthru );
+			entity_self_street_address );
 
 	import_predict_passthru->cash_insert_statement =
 		/* ------------------- */
@@ -1125,11 +1117,10 @@ IMPORT_PREDICT_PASSTHRU *import_predict_passthru_new(
 		/* ------------------- */
 		import_predict_passthru_insert_statement(
 			FEEDER_PHRASE_TABLE,
+			IMPORT_PREDICT_PASSTHRU_ACCOUNT,
 			IMPORT_PREDICT_CASH_FEEDER_PHRASE,
 			entity_self_full_name,
-			entity_self_street_address,
-			import_predict_passthru->
-				account_credit_card_passthru );
+			entity_self_street_address );
 
 	import_predict_passthru->
 		feeder_phrase_insert_statement_list =
@@ -1174,16 +1165,15 @@ IMPORT_PREDICT_PASSTHRU *import_pedict_passthru_calloc(
 
 char *import_predict_passthru_insert_statement(
 		const char *feeder_phrase_table,
+		const char *import_predict_passthru_account,
 		const char *feeder_phrase,
 		char *entity_self_full_name,
-		char *entity_self_street_address,
-		char *account_credit_card_passthru )
+		char *entity_self_street_address )
 {
 	LIST *insert_datum_list = list_new();
 
 	if ( !entity_self_full_name
-	||   !entity_self_street_address
-	||   !account_credit_card_passthru )
+	||   !entity_self_street_address )
 	{
 		char message[ 128 ];
 
@@ -1211,7 +1201,7 @@ char *import_predict_passthru_insert_statement(
 		insert_datum_list,
 		insert_datum_new(
 			"nominal_account" /* attribute_name */,
-			(char *)account_credit_card_passthru /* datum */,
+			(char *)import_predict_passthru_account /* datum */,
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );
 
@@ -1405,9 +1395,18 @@ boolean import_predict_input_date_recent_boolean(
 
 	days_between =
 		date_days_between(
-			date_now_yyyy_mm_dd /* from_date_string */,
-			checking_begin_date /* to_date_string */ );
+			checking_begin_date /* early_date_string */,
+			date_now_yyyy_mm_dd /* late_date_string */ );
 
+{
+char message[ 65536 ];
+sprintf( message, "%s/%s()/%d: days_between = %d\n",
+__FILE__,
+__FUNCTION__,
+__LINE__,
+days_between );
+msg( (char *)0, message );
+}
 	if ( days_between < 0 )
 	{
 		char message[ 128 ];

@@ -1024,8 +1024,7 @@ void test_payroll_period( void )
 					end_date_string ) );
 		}
 	}
-
-} /* test_payroll_period() */
+}
 
 void test_increment_year( void )
 {

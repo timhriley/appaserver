@@ -127,18 +127,18 @@ int date_day_offset(
 		DATE *date );
 
 int date_days_between(
-		char *from_date,
-		char *to_date );
+		char *early_date,
+		char *late_date );
 
 int date_years_between(
-		char *from_date,
-		char *to_date );
+		char *early_date,
+		char *late_date );
 
 int date_minutes_between(
-		char *from_date_string,
-		char *from_time_string,
-		char *to_date_string,
-       		char *to_time_string,
+		char *early_date_string,
+		char *early_time_string,
+		char *late_date_string,
+       		char *late_time_string,
 		boolean add_one );
 
 int date_age(	char *birth_date );

@@ -833,15 +833,15 @@ int date_months_between(
 }
 
 int date_days_between(
-		char *from_date_string,
-		char *to_date_string )
+		char *early_date_string,
+		char *late_date_string )
 {
-	DATE *from_date;
-	DATE *to_date;
+	DATE *early_date;
+	DATE *late_date;
 	time_t difference;
 
-	if ( !from_date_string
-	||   !to_date_string )
+	if ( !early_date_string
+	||   !late_date_string )
 	{
 		char message[ 128 ];
 
@@ -858,20 +858,20 @@ int date_days_between(
 	}
 
 
-	if ( ! ( from_date =
+	if ( ! ( late_date =
 			/* ------------------- */
 			/* Trims trailing time */
 			/* ------------------- */
 			date_yyyy_mm_dd_new(
-				from_date_string ) ) )
+				late_date_string ) ) )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"from date format is invalid %s.",
-			from_date_string );
+			"late date format is invalid %s.",
+			late_date_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -880,20 +880,20 @@ int date_days_between(
 			message );
 	}
 
-	if ( ! ( to_date =
+	if ( ! ( early_date =
 			/* ------------------- */
 			/* Trims trailing time */
 			/* ------------------- */
 			date_yyyy_mm_dd_new(
-				to_date_string ) ) )
+				early_date_string ) ) )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"to date format is invalid %s.",
-			to_date_string );
+			"early date format is invalid %s.",
+			early_date_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -902,41 +902,41 @@ int date_days_between(
 			message );
 	}
 
-	difference = to_date->current - from_date->current;
+	difference = late_date->current - early_date->current;
 
-	date_free( from_date );
-	date_free( to_date );
+	date_free( late_date );
+	date_free( early_date );
 
 	return (int) (difference / SECONDS_IN_DAY);
 }
 
-int date_years_between( char *from_date, char *to_date )
+int date_years_between( char *early_date, char *late_date )
 {
-	int from_year, from_month, from_day;
-	int to_year, to_month, to_day;
+	int early_year, early_month, early_day;
+	int late_year, late_month, late_day;
 	int diff_year, diff_month, diff_day;
 
 	if ( !date_parse(
-		&from_year,
-		&from_month,
-		&from_day,
-		from_date ) )
+		&early_year,
+		&early_month,
+		&early_day,
+		early_date ) )
 	{
 		return -1;
 	}
 
 	if ( !date_parse(
-		&to_year,
-		&to_month,
-		&to_day,
-		to_date ) )
+		&late_year,
+		&late_month,
+		&late_day,
+		late_date ) )
 	{
 		return -1;
 	}
 
-	diff_year = to_year - from_year;
-	diff_month = to_month - from_month;
-	diff_day = to_day - from_day;
+	diff_year = late_year - early_year;
+	diff_month = late_month - early_month;
+	diff_day = late_day - early_day;
 
 	if ( diff_day < 0 ) diff_month--;
 	if ( diff_month < 0 ) diff_year--;
@@ -1019,38 +1019,38 @@ boolean date_parse(
 }
 
 int date_minutes_between(
-		char *from_date_string,
-		char *from_time_string,
-		char *to_date_string,
-	       	char *to_time_string,
+		char *early_date_string,
+		char *early_time_string,
+		char *late_date_string,
+	       	char *late_time_string,
 		boolean add_one )
 {
-	DATE *from_date;
-	DATE *to_date;
+	DATE *early_date;
+	DATE *late_date;
 	time_t difference;
 
-	if ( strcmp( from_time_string, "null" ) == 0
-	||   strcmp( to_time_string, "null" ) == 0 )
+	if ( strcmp( early_time_string, "null" ) == 0
+	||   strcmp( late_time_string, "null" ) == 0 )
 	{
 		return 24 * 60;
 	}
 
-	from_date =
+	early_date =
 		date_yyyy_mm_dd_new(
-			from_date_string );
+			early_date_string );
 
-	date_set_time_hhmm( from_date, from_time_string );
+	date_set_time_hhmm( early_date, early_time_string );
 
-	to_date =
+	late_date =
 		date_yyyy_mm_dd_new(
-			to_date_string );
+			late_date_string );
 
-	date_set_time_hhmm( to_date, to_time_string );
+	date_set_time_hhmm( late_date, late_time_string );
 
-	difference = to_date->current - from_date->current;
+	difference = late_date->current - early_date->current;
 
-	date_free( from_date );
-	date_free( to_date );
+	date_free( early_date );
+	date_free( late_date );
 
 	if ( add_one )
 		return ( difference / SECONDS_IN_MINUTE ) + 1;

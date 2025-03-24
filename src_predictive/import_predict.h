@@ -148,9 +148,11 @@
 
 #define IMPORT_PREDICT_INPUT_DAYS_AGO 180
 
+#define IMPORT_PREDICT_PASSTHRU_ACCOUNT	\
+	"credit_card_passthru"
+
 typedef struct
 {
-	char *account_credit_card_passthru;
 	char *card_insert_statement;
 	char *cash_insert_statement;
 	LIST *feeder_phrase_insert_statement_list;
@@ -177,10 +179,10 @@ IMPORT_PREDICT_PASSTHRU *import_pedict_passthru_calloc(
 /* ------------------- */
 char *import_predict_passthru_insert_statement(
 		const char *feeder_phrase_table,
+		const char *import_predict_passthru_account,
 		const char *feeder_phrase,
 		char *entity_self_full_name,
-		char *entity_self_street_address,
-		char *account_credit_card_passthru );
+		char *entity_self_street_address );
 
 typedef struct
 {
