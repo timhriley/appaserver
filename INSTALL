@@ -189,10 +189,9 @@ Note:
 R) Import PredictBooks (optional):
 ----------------------------------
 Your first application may be PredictBooks Home Edition.
-1) <Role> <System>
-2) <Alter> <Import PredictBooks>
+1) <Alter> <Import PredictBooks>
 
-Notes:
+Notes after installing PredictBooks:
 1) Press the <Menu Refresh> button for the top menu to display correctly.
 2) Execute two output processes to see the state of PredictBooks.
 	1) <Output> <Trial Balance>
@@ -200,15 +199,17 @@ Notes:
 	2) <Output> <Financial Position>
 		Bookkeeping rule #2: Asset = Liability + Equity
 
------------------------------------------
-S) You can switch between databases with:
------------------------------------------
+----------------------------------------------------------------
+S) From the command line, you can switch between databases with:
+----------------------------------------------------------------
 $ . set-database $database
 
-------------------------
-T) Backup all databases:
-------------------------
+------------------------------------------------------------
+T) From the command line, you can backup all databases with:
+------------------------------------------------------------
 $ mysqldump_all.sh
+
+To see your mysqldumps:
 $ cd `appaserver_backup_directory`
 $ find . -ls | less
 
