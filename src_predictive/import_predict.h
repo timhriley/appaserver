@@ -34,7 +34,7 @@
 
 #define IMPORT_PREDICT_DATE_MISSING_MESSAGE	\
 	"<p style=\"margin: 3\%;\">"		\
-	"Please enter a begin date."
+	"Please enter a valid begin date."
 
 #define IMPORT_PREDICT_BALANCE_ZERO_MESSAGE	\
 	"<p style=\"margin: 3\%;\">"		\
@@ -42,21 +42,28 @@
 
 #define IMPORT_PREDICT_BANK_MISSING_MESSAGE	\
 	"<p style=\"margin: 3\%;\">"		\
-	"Please either select a financial institution or enter in a bank name."
+	"Please either select a financial "	\
+	"institution or enter in a valid "	\
+	"bank name."
 
-#define IMPORT_PREDICT_EXISTS_MESSAGE		\
-	"<p style=\"margin: 3\%;\">"		\
+#define IMPORT_PREDICT_EXISTS_MESSAGE					  \
+	"<p style=\"margin: 3\%;\">"					  \
 	"Warning: PredictBooks is already installed and will be replaced."
 
-#define IMPORT_PREDICT_ENTITY_SELF_MESSAGE	\
-	"<p style=\"margin: 3\%;\">"		\
+#define IMPORT_PREDICT_ENTITY_SELF_MESSAGE				  \
+	"<p style=\"margin: 3\%;\">"					  \
 	"ERROR: your name must be inserted into the table Self. "	  \
 	"The Supervisor role path is Insert --> Entity --> Self"
 
-#define IMPORT_PREDICT_WARNING_MESSAGE					  \
+#define IMPORT_PREDICT_ONCE_MESSAGE					  \
 	"<p style=\"margin: 3\%;\">"					  \
 	"This process should only be executed again "			  \
 	"if you want to delete PredictBooks and start over."
+
+#define IMPORT_PREDICT_RECENT_MESSAGE					  \
+	"<p style=\"margin: 3\%;\">"					  \
+	"Warning: the Checking Begin Date is recent. Your bank should "	  \
+	"store 18 months of transactions."
 
 #define IMPORT_PREDICT_OPENING_MESSAGE 					  \
 	"<p style=\"margin: 3\%;\">"					  \
@@ -100,12 +107,6 @@
 	"in the menu above. To update the menu above, click this "	\
 	"link: "
 
-#define IMPORT_PREDICT_LOGIN_AGAIN_MESSAGE 				\
-	"<p style=\"margin: 3\%;\">"					\
-	"This process changed the database that is not yet reflected "	\
-	"in the menu above. To update the menu above, please login "	\
-	"again."
-
 #define IMPORT_PREDICT_TRIAL_BALANCE_MESSAGE				\
 	"<p style=\"margin: 3\%;\">"					\
 	"The Trial Balance is the first financial statement to "	\
@@ -144,6 +145,8 @@
 
 #define IMPORT_PREDICT_MAP_PROCESS_NAME \
 	"generic_checking_upload"
+
+#define IMPORT_PREDICT_INPUT_DAYS_AGO 180
 
 typedef struct
 {
@@ -292,11 +295,72 @@ typedef struct
 	boolean exists_boolean;
 	char *bank_name;
 	boolean bank_missing_boolean;
-	boolean begin_date_missing_boolean;
+	boolean date_missing_boolean;
+	boolean date_recent_boolean;
 	boolean balance_zero_boolean;
 	ENTITY_SELF *entity_self;
+	char *filespecification;
+	char *appaserver_error_filename;
+	boolean application_menu_horizontal_boolean;
+} IMPORT_PREDICT_INPUT;
+
+/* Safely returns */
+/* -------------- */
+IMPORT_PREDICT_INPUT *import_predict_input_new(
+		const char *import_predict_sqlgz,
+		char *application_name,
+		char *financial_institution_full_name,
+		char *name_of_bank,
+		char *checking_begin_date,
+		double checking_begin_balance,
+		char *mount_point );
+
+/* Process */
+/* ------- */
+IMPORT_PREDICT_INPUT *import_predict_input_calloc(
+		void );
+
+boolean import_predict_input_template_boolean(
+		const char *application_create_template_name,
+		char *application_name );
+
+/* Returns either parameter or null */
+/* -------------------------------- */
+char *import_predict_input_bank_name(
+		char *financial_institution_full_name,
+		char *name_of_bank );
+
+boolean import_predict_input_bank_missing_boolean(
+		const char *security_forbid_character_string,
+		char *import_predict_input_bank_name );
+
+boolean import_predict_input_date_missing_boolean(
+		const char *security_forbid_character_string,
+		char *checking_begin_date );
+
+boolean import_predict_input_date_recent_boolean(
+		const int import_predict_input_days_ago,
+		char *checking_begin_date,
+		char *date_now_yyyy_mm_dd );
+
+boolean import_predict_input_balance_zero_boolean(
+		double checking_begin_balance );
+
+/* Returns heap memory */
+/* ------------------- */
+char *import_predict_input_filespecification(
+		const char *import_predict_sqlgz,
+		char *mount_point );
+
+/* Usage */
+/* ----- */
+boolean import_predict_input_exists_boolean(
+		const char *transaction_table );
+
+typedef struct
+{
+	IMPORT_PREDICT_INPUT *import_predict_input;
 	IMPORT_PREDICT_PROCESS *import_predict_process;
-	char *filename;
 	char *system_string;
 	char *delete_role_system_string;
 	char *entity_system_string;
@@ -306,7 +370,6 @@ typedef struct
 	char *menu_anchor_tag;
 	char *trial_balance_system_string;
 	char *financial_position_system_string;
-	char *appaserver_error_filename;
 } IMPORT_PREDICT;
 
 /* Safely returns */
@@ -327,31 +390,6 @@ IMPORT_PREDICT *import_predict_new(
 /* ------- */
 IMPORT_PREDICT *import_predict_calloc(
 		void );
-
-/* Returns either parameter or null */
-/* -------------------------------- */
-char *import_predict_bank_name(
-		char *financial_institution_full_name,
-		char *name_of_bank );
-
-boolean import_predict_bank_missing_boolean(
-		char *import_predict_bank_name );
-
-boolean import_predict_begin_date_missing_boolean(
-		char *checking_begin_date );
-
-boolean import_predict_balance_zero_boolean(
-		double checking_begin_balance );
-
-boolean import_predict_template_boolean(
-		const char *application_create_template_name,
-		char *application_name );
-
-/* Returns heap memory */
-/* ------------------- */
-char *import_predict_filename(
-		const char *import_predict_sqlgz,
-		char *mount_point );
 
 /* Returns static memory */
 /* --------------------- */
@@ -391,11 +429,6 @@ char *import_predict_financial_position_system_string(
 		char *session_key,
 		char *login_name,
 		char *role_name );
-
-/* Usage */
-/* ----- */
-boolean import_predict_exists_boolean(
-		const char *transaction_table );
 
 /* Usage */
 /* ----- */

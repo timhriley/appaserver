@@ -500,7 +500,9 @@ void security_system(
 			message );
 	}
 
+	fflush( stdout );
 	if ( system( system_string ) ){}
+	fflush( stdout );
 }
 
 FILE *security_read_pipe( char *system_string )
@@ -564,3 +566,39 @@ boolean security_system_string_valid_boolean(
 	}
 }
 
+boolean security_forbid_boolean(
+		const char *security_forbid_character_string,
+		char *string )
+{
+	const char *ptr = security_forbid_character_string;
+
+	if ( !string )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	while ( *ptr )
+	{
+		if ( string_character_boolean(
+			string,
+			*ptr ) )
+		{
+			return 1;
+		}
+
+		ptr++;
+	}
+
+	return 0;
+}

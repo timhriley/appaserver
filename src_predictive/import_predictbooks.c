@@ -74,20 +74,20 @@ int main( int argc, char **argv )
 			checking_begin_balance,
 			appaserver_parameter_mount_point() );
 
-	if ( import_predict->template_boolean )
+	if ( import_predict->import_predict_input->template_boolean )
 	{
 		printf(	"%s\n",
 			IMPORT_PREDICT_TEMPLATE_MESSAGE );
 	}
 
-	if ( import_predict->exists_boolean
+	if ( import_predict->import_predict_input->exists_boolean
 	&&   !execute_boolean )
 	{
 		printf( "%s\n",
 			IMPORT_PREDICT_EXISTS_MESSAGE );
 	}
 
-	if ( import_predict->begin_date_missing_boolean )
+	if ( import_predict->import_predict_input->date_missing_boolean )
 	{
 		printf( "%s\n",
 			IMPORT_PREDICT_DATE_MISSING_MESSAGE );
@@ -95,7 +95,15 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( import_predict->balance_zero_boolean )
+	if ( import_predict->
+		import_predict_input->
+		date_recent_boolean )
+	{
+		printf(	"%s\n",
+			IMPORT_PREDICT_RECENT_MESSAGE );
+	}
+
+	if ( import_predict->import_predict_input->balance_zero_boolean )
 	{
 		printf( "%s\n",
 			IMPORT_PREDICT_BALANCE_ZERO_MESSAGE );
@@ -103,7 +111,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( import_predict->bank_missing_boolean )
+	if ( import_predict->import_predict_input->bank_missing_boolean )
 	{
 		printf( "%s\n",
 			IMPORT_PREDICT_BANK_MISSING_MESSAGE );
@@ -111,7 +119,7 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( !import_predict->entity_self )
+	if ( !import_predict->import_predict_input->entity_self )
 	{
 		printf( "%s\n",
 			IMPORT_PREDICT_ENTITY_SELF_MESSAGE );
@@ -191,7 +199,9 @@ int main( int argc, char **argv )
 			/* Returns error_string or null */
 			/* ---------------------------- */
 			sql_execute(
-				import_predict->appaserver_error_filename,
+				import_predict->
+					import_predict_input->
+					appaserver_error_filename,
 				import_predict->
 					import_predict_passthru->
 					feeder_phrase_insert_statement_list,
@@ -206,24 +216,13 @@ int main( int argc, char **argv )
 		}
 
 		printf( "%s\n",
-			IMPORT_PREDICT_WARNING_MESSAGE );
+			IMPORT_PREDICT_ONCE_MESSAGE );
 
-		if ( !import_predict->exists_boolean )
-		{
-			if ( import_predict->menu_anchor_tag )
-			{
-				printf(	"%s\n",
-					IMPORT_PREDICT_REFRESH_MESSAGE );
+		printf(	"%s\n",
+			IMPORT_PREDICT_REFRESH_MESSAGE );
 
-				printf(	"%s\n",
-					import_predict->menu_anchor_tag );
-			}
-			else
-			{
-				printf( "%s\n",
-					IMPORT_PREDICT_LOGIN_AGAIN_MESSAGE );
-			}
-		}
+		printf(	"%s\n",
+			import_predict->menu_anchor_tag );
 
 		printf( "<h3>Reminder:</h3>\n" );
 

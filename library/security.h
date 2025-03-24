@@ -15,6 +15,7 @@
 /* ------------------------------------------------------------- */
 #define SECURITY_ESCAPE_CHARACTER_STRING	"~!`'$;&=()\""
 
+#define SECURITY_FORBID_CHARACTER_STRING	"~!`$;&=()\""
 #define SECURITY_FORK_CHARACTER			'`'
 #define SECURITY_FORK_STRING			"$("
 
@@ -82,6 +83,12 @@ unsigned long security_random(
 /* ---------------------------- */
 char *security_remove_semicolon(
 		char *datum );
+
+/* Usage */
+/* ----- */
+boolean security_forbid_boolean(
+		const char *security_forbid_character_string,
+		char *string );
 
 /* Usage */
 /* ----- */

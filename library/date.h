@@ -126,8 +126,6 @@ int date_month_day_integer(
 int date_day_offset(
 		DATE *date );
 
-/* Ignores trailing time. */
-/* ---------------------- */
 int date_days_between(
 		char *from_date,
 		char *to_date );

@@ -15,6 +15,7 @@
 #include "date.h"
 #include "insert.h"
 #include "entity.h"
+#include "security.h"
 #include "export_table.h"
 #include "account.h"
 #include "feeder.h"
@@ -62,49 +63,29 @@ IMPORT_PREDICT *import_predict_new(
 
 	import_predict = import_predict_calloc();
 
-	import_predict->template_boolean =
-		import_predict_template_boolean(
-			APPLICATION_TEMPLATE_NAME,
-			application_name );
-
-	import_predict->exists_boolean =
-		import_predict_exists_boolean(
-			TRANSACTION_TABLE );
-
-	import_predict->bank_name =
-		/* -------------------------------- */
-		/* Returns either parameter or null */
-		/* -------------------------------- */
-		import_predict_bank_name(
+	import_predict->import_predict_input =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		import_predict_input_new(
+			import_predict_sqlgz,
+			application_name,
 			financial_institution_full_name,
-			name_of_bank );
+			name_of_bank,
+			checking_begin_date,
+			checking_begin_balance,
+			mount_point );
 
-	import_predict->bank_missing_boolean =
-		import_predict_bank_missing_boolean(
-			import_predict->bank_name );
-
-	if ( import_predict->bank_missing_boolean )
+	if ( import_predict->import_predict_input->bank_missing_boolean )
 		return import_predict;
 
-	import_predict->begin_date_missing_boolean =
-		import_predict_begin_date_missing_boolean(
-			checking_begin_date );
-
-	if ( import_predict->begin_date_missing_boolean )
+	if ( import_predict->import_predict_input->date_missing_boolean )
 		return import_predict;
 
-	import_predict->balance_zero_boolean =
-		import_predict_balance_zero_boolean(
-			checking_begin_balance );
-
-	if ( import_predict->balance_zero_boolean )
+	if ( import_predict->import_predict_input->balance_zero_boolean )
 		return import_predict;
 
-	import_predict->entity_self =
-		entity_self_fetch(
-			0 /* not fetch_entity_boolean */ );
-
-	if ( !import_predict->entity_self )
+	if ( !import_predict->import_predict_input->entity_self )
 		return import_predict;
 
 	import_predict->
@@ -115,22 +96,18 @@ IMPORT_PREDICT *import_predict_new(
 			import_predict_process_new(
 				ROLE_PROCESS_TABLE,
 				ROLE_SUPERVISOR,
-				financial_institution_full_name );
-
-	import_predict->filename =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		import_predict_filename(
-			import_predict_sqlgz,
-			mount_point );
+				import_predict->
+					import_predict_input->
+					bank_name );
 
 	import_predict->system_string =
 		/* --------------------- */
 		/* Returns static memory */
 		/* --------------------- */
 		import_predict_system_string(
-			import_predict->filename );
+			import_predict->
+				import_predict_input->
+				filespecification );
 
 	import_predict->delete_role_system_string =
 		/* --------------------- */
@@ -150,15 +127,21 @@ IMPORT_PREDICT *import_predict_new(
 			ENTITY_FINANCIAL_INSTITUTION_TABLE,
 			ENTITY_STREET_ADDRESS_UNKNOWN,
 			name_of_bank,
-			import_predict->bank_name );
+			import_predict->import_predict_input->bank_name );
 
 	import_predict->import_predict_transaction =
 		import_predict_transaction_new(
 			TRANSACTION_BEGIN_TIME,
 			checking_begin_date,
 			checking_begin_balance,
-			import_predict->entity_self->full_name,
-			import_predict->entity_self->street_address );
+			import_predict->
+				import_predict_input->
+				entity_self->
+				full_name,
+			import_predict->
+				import_predict_input->
+				entity_self->
+				street_address );
 
 	if ( !import_predict->import_predict_transaction
 	||   !import_predict->
@@ -185,8 +168,14 @@ IMPORT_PREDICT *import_predict_new(
 		/* Safely returns */
 		/* -------------- */
 		import_predict_passthru_new(
-			import_predict->entity_self->full_name,
-			import_predict->entity_self->street_address );
+			import_predict->
+				import_predict_input->
+				entity_self->
+				full_name,
+			import_predict->
+				import_predict_input->
+				entity_self->
+				street_address );
 
 	import_predict->menu_href_string =
 		/* ----------------------------- */
@@ -198,8 +187,9 @@ IMPORT_PREDICT *import_predict_new(
 			session_key,
 			login_name,
 			role_name,
-			application_menu_horizontal_boolean(
-			       application_name ) );
+			import_predict->
+				import_predict_input->
+				application_menu_horizontal_boolean );
 
 	if ( !import_predict->menu_href_string )
 	{
@@ -260,13 +250,6 @@ IMPORT_PREDICT *import_predict_new(
 			session_key,
 			login_name,
 			role_name );
-
-	import_predict->appaserver_error_filename =
-		/* ------------------- */
-		/* Returns heap memory */
-		/* ------------------- */
-		appaserver_error_filename(
-			application_name );
 
 	return import_predict;
 }
@@ -394,7 +377,7 @@ LIST *import_predict_transaction_journal_list(
 	return journal_list;
 }
 
-boolean import_predict_balance_zero_boolean(
+boolean import_predict_input_balance_zero_boolean(
 		double checking_begin_balance )
 {
 	if ( float_virtually_same(
@@ -458,7 +441,7 @@ char *import_predict_transaction_date_time(
 	return transaction_date_time;
 }
 
-boolean import_predict_exists_boolean(
+boolean import_predict_input_exists_boolean(
 		const char *transaction_table )
 {
 	return
@@ -470,23 +453,23 @@ boolean import_predict_exists_boolean(
 		0 /* not fetch_attribute */ );
 }
 
-char *import_predict_filename(
+char *import_predict_input_filespecification(
 		const char *import_predict_sqlgz,
 		char *mount_point )
 {
-	char filename[ 128 ];
+	char filespecification[ 128 ];
 
 	snprintf(
-		filename,
-		sizeof ( filename ),
+		filespecification,
+		sizeof ( filespecification ),
 		"%s/src_predictive/%s",
 		mount_point,
 		import_predict_sqlgz );
 
-	return strdup( filename );
+	return strdup( filespecification );
 }
 
-boolean import_predict_template_boolean(
+boolean import_predict_input_template_boolean(
 		const char *application_create_template_name,
 		char *application_name )
 {
@@ -826,23 +809,7 @@ char *import_predict_process_insert_system_string(
 	return system_string;
 }
 
-boolean import_predict_name_missing_boolean( char *full_name )
-{
-	if ( !full_name
-	||   !*full_name
-	||   strcmp(
-		full_name,
-		"full_name" ) == 0 )
-	{
-		return 1;
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-char *import_predict_bank_name(
+char *import_predict_input_bank_name(
 		char *full_name,
 		char *name_of_bank )
 {
@@ -869,9 +836,20 @@ char *import_predict_bank_name(
 	}
 }
 
-boolean import_predict_bank_missing_boolean( char *bank_name )
+boolean import_predict_input_bank_missing_boolean(
+		const char *security_forbid_character_string,
+		char *bank_name )
 {
-	return (bank_name) ? 0 : 1;
+	if ( !bank_name ) return 1;
+
+	if ( security_forbid_boolean(
+		security_forbid_character_string,
+		bank_name /* string */ ) )
+	{
+		return 1;
+	}
+
+	return 0;
 }
 
 char *import_predict_entity_system_string(
@@ -937,7 +915,9 @@ char *import_predict_entity_system_string(
 	return strdup( system_string );
 }
 
-boolean import_predict_begin_date_missing_boolean( char *checking_begin_date )
+boolean import_predict_input_date_missing_boolean(
+		const char *security_forbid_character_string,
+		char *checking_begin_date )
 {
 	if ( !checking_begin_date
 	||   !*checking_begin_date
@@ -945,10 +925,15 @@ boolean import_predict_begin_date_missing_boolean( char *checking_begin_date )
 	{
 		return 1;
 	}
-	else
+
+	if ( security_forbid_boolean(
+		security_forbid_character_string,
+		checking_begin_date /* string */ ) )
 	{
-		return 0;
+		return 1;
 	}
+
+	return 0;
 }
 
 char *import_predict_menu_href_string(
@@ -1262,5 +1247,187 @@ char *import_predict_passthru_insert_statement(
 		/* --------------------------- */
 		insert_datum_value_list_string(
 			insert_datum_list ) );
+}
+
+IMPORT_PREDICT_INPUT *import_predict_input_new(
+		const char *import_predict_sqlgz,
+		char *application_name,
+		char *financial_institution_full_name,
+		char *name_of_bank,
+		char *checking_begin_date,
+		double checking_begin_balance,
+		char *mount_point )
+{
+	IMPORT_PREDICT_INPUT *import_predict_input;
+
+	if ( !application_name
+	||   !mount_point )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	import_predict_input = import_predict_input_calloc();
+
+	import_predict_input->template_boolean =
+		import_predict_input_template_boolean(
+			APPLICATION_TEMPLATE_NAME,
+			application_name );
+
+	import_predict_input->exists_boolean =
+		import_predict_input_exists_boolean(
+			TRANSACTION_TABLE );
+
+	import_predict_input->bank_name =
+		/* -------------------------------- */
+		/* Returns either parameter or null */
+		/* -------------------------------- */
+		import_predict_input_bank_name(
+			financial_institution_full_name,
+			name_of_bank );
+
+	import_predict_input->bank_missing_boolean =
+		import_predict_input_bank_missing_boolean(
+			SECURITY_FORBID_CHARACTER_STRING,
+			import_predict_input->bank_name );
+
+	if ( import_predict_input->bank_missing_boolean )
+		return import_predict_input;
+
+	import_predict_input->date_missing_boolean =
+		import_predict_input_date_missing_boolean(
+			SECURITY_FORBID_CHARACTER_STRING,
+			checking_begin_date );
+
+	if ( import_predict_input->date_missing_boolean )
+		return import_predict_input;
+
+	import_predict_input->date_recent_boolean =
+		import_predict_input_date_recent_boolean(
+			IMPORT_PREDICT_INPUT_DAYS_AGO,
+			checking_begin_date,
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			date_now_yyyy_mm_dd( date_utc_offset() ) );
+
+	import_predict_input->balance_zero_boolean =
+		import_predict_input_balance_zero_boolean(
+			checking_begin_balance );
+
+	if ( import_predict_input->balance_zero_boolean )
+		return import_predict_input;
+
+	import_predict_input->entity_self =
+		entity_self_fetch(
+			0 /* not fetch_entity_boolean */ );
+
+	if ( !import_predict_input->entity_self )
+		return import_predict_input;
+
+	import_predict_input->filespecification =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		import_predict_input_filespecification(
+			import_predict_sqlgz,
+			mount_point );
+
+	import_predict_input->appaserver_error_filename =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		appaserver_error_filename(
+			application_name );
+
+	import_predict_input->application_menu_horizontal_boolean =
+		application_menu_horizontal_boolean(
+		       application_name );
+
+	return import_predict_input;
+}
+
+IMPORT_PREDICT_INPUT *import_predict_input_calloc( void )
+{
+	IMPORT_PREDICT_INPUT *import_predict_input;
+
+	if ( ! ( import_predict_input =
+			calloc( 1,
+				sizeof ( IMPORT_PREDICT_INPUT ) ) ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"calloc() returned empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return import_predict_input;
+}
+
+boolean import_predict_input_date_recent_boolean(
+		const int import_predict_input_days_ago,
+		char *checking_begin_date,
+		char *date_now_yyyy_mm_dd )
+{
+	int days_between;
+
+	if ( !checking_begin_date
+	||   !date_now_yyyy_mm_dd )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	days_between =
+		date_days_between(
+			date_now_yyyy_mm_dd /* from_date_string */,
+			checking_begin_date /* to_date_string */ );
+
+	if ( days_between < 0 )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"checking begin date is in the future %s.",
+			checking_begin_date );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( days_between < import_predict_input_days_ago )
+		return 1;
+	else
+		return 0;
 }
 

@@ -832,9 +832,6 @@ int date_months_between(
 	return ( ( to_year - from_year ) * 12 ) + ( to_month - from_month );
 }
 
-/* ------------------------------------------------------------- */
-/* Sample input: from_date = "2017-03-01" to_date = "2017-04-16" */
-/* ------------------------------------------------------------- */
 int date_days_between(
 		char *from_date_string,
 		char *to_date_string )
@@ -843,11 +840,23 @@ int date_days_between(
 	DATE *to_date;
 	time_t difference;
 
-	/* If first time, then return 1 */
-	/* ---------------------------- */
-	if ( !from_date_string ) return 1;
+	if ( !from_date_string
+	||   !to_date_string )
+	{
+		char message[ 128 ];
 
-	if ( !to_date_string ) return 0;
+		snprintf(
+			message,
+			sizeof ( message ),
+			"parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
 
 	if ( ! ( from_date =
 			/* ------------------- */
@@ -856,7 +865,19 @@ int date_days_between(
 			date_yyyy_mm_dd_new(
 				from_date_string ) ) )
 	{
-		return 0;
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"from date format is invalid %s.",
+			from_date_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	if ( ! ( to_date =
@@ -866,7 +887,19 @@ int date_days_between(
 			date_yyyy_mm_dd_new(
 				to_date_string ) ) )
 	{
-		return 0;
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"to date format is invalid %s.",
+			to_date_string );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	difference = to_date->current - from_date->current;
@@ -877,27 +910,26 @@ int date_days_between(
 	return (int) (difference / SECONDS_IN_DAY);
 }
 
-/* --------------------------------------------------------- */
-/* Sample input: from_date = "10/06/60" to_date = "08/04/11" */
-/* --------------------------------------------------------- */
 int date_years_between( char *from_date, char *to_date )
 {
 	int from_year, from_month, from_day;
 	int to_year, to_month, to_day;
 	int diff_year, diff_month, diff_day;
 
-	if ( !date_parse(	&from_year,
-				&from_month,
-				&from_day,
-				from_date ) )
+	if ( !date_parse(
+		&from_year,
+		&from_month,
+		&from_day,
+		from_date ) )
 	{
 		return -1;
 	}
 
-	if ( !date_parse(	&to_year,
-				&to_month,
-				&to_day,
-				to_date ) )
+	if ( !date_parse(
+		&to_year,
+		&to_month,
+		&to_day,
+		to_date ) )
 	{
 		return -1;
 	}
@@ -914,9 +946,10 @@ int date_years_between( char *from_date, char *to_date )
 	return diff_year;
 }
 
-void date_time_parse(		int *hours,
-				int *minutes,
-				char *hhmm )
+void date_time_parse(
+		int *hours,
+		int *minutes,
+		char *hhmm )
 {
 	char buffer[ 3 ];
 	char *ptr;
@@ -939,13 +972,13 @@ void date_time_parse(		int *hours,
 	*ptr = '\0';
 
 	*minutes = atoi( buffer );
-
 }
 
-boolean date_parse(	int *year,
-			int *month,
-			int *day,
-			char *date_string )
+boolean date_parse(
+		int *year,
+		int *month,
+		int *day,
+		char *date_string )
 {
 	char piece_buffer[ 128 ];
 
