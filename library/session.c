@@ -310,7 +310,10 @@ SESSION *session_fetch(
 					      	session_key ) ) ) );
 
 	if ( !session
-	||   ( login_name && strcmp( session->login_name, login_name ) != 0 ) )
+	||   ( login_name
+	&&     string_strcmp(
+		session->login_name,
+		login_name ) != 0 ) )
 	{
 		session_access_failed_message_exit(
 			application_name,
