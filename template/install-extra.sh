@@ -7,7 +7,7 @@
 
 echo "# NFS isn't nececssary for Appaserver. We use this GID at Appahost."
 echo "# -----------------------------------------------------------------"
-echo "sudo addgroup --gid 1003 nfs"
+echo "sudo addgroup --gid 2049 nfs"
 echo "sudo usermod -a -G nfs `whoami`"
 
 echo ""

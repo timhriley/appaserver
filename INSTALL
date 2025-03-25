@@ -62,7 +62,7 @@ D) Install Appaserver source code:
 --------------------------------------
 E) Tell Appaserver the MySQL password:
 --------------------------------------
-1) $ sudo cp appaserver/template/appaserver.config /etc
+1) $ sudo cp appaserver/template/appaserver.config /etc/
 2) $ sudo vi /etc/appaserver.config
 3) vi> password=mysqlPassword
 
@@ -96,6 +96,15 @@ H) Compile Appaserver:
 ----------------------
 1) $ cd $APPASERVER_HOME
 2) $ make
+
+If you get a link error like "ln: failed to create hard link ..." then:
+1) $APPASERVER_HOME is on a different filesystem than $CGI_HOME.
+2) You need to enable hard links in the makefiles.
+
+3) $ sudo vi /etc/profile
+vi> export APPASERVER_LINK_FLAGS=-s
+
+4) $ . /etc/profile
 
 -----------------------------
 I) Install template database:
