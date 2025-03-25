@@ -1495,16 +1495,6 @@ boolean piece_boolean(
 		exit( 1 );
 	}
 
-	if ( !delimited_string )
-	{
-		fprintf(stderr,
-			"ERROR in %s/%s()/%d: delimited_string is empty.\n",
-			__FILE__,
-			__FUNCTION__,
-			__LINE__ );
-		exit( 1 );
-	}
-
 	if ( !delimiter )
 	{
 		fprintf(stderr,
@@ -1514,6 +1504,8 @@ boolean piece_boolean(
 			__LINE__ );
 		exit( 1 );
 	}
+
+	if ( !delimited_string || !*delimited_string ) return 0;
 
 	if ( !string_character_boolean(
 		delimited_string,
