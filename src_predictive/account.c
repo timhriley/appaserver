@@ -8,11 +8,12 @@
 #include <stdlib.h>
 #include "String.h"
 #include "list.h"
+#include "boolean.h"
 #include "float.h"
 #include "piece.h"
 #include "sql.h"
 #include "appaserver_error.h"
-#include "boolean.h"
+#include "folder_attribute.h"
 #include "dictionary_separate.h"
 #include "drillthru.h"
 #include "prompt_lookup.h"
@@ -30,8 +31,10 @@ LIST *account_statement_list(
 		boolean fetch_journal_latest,
 		boolean fetch_transaction )
 {
+	boolean chart_account_boolean;
+	char *select_string;
 	FILE *pipe;
-	char input[ 256 ];
+	char input[ 1024 ];
 	LIST *statement_list;
 	ACCOUNT *account;
 
@@ -48,17 +51,30 @@ LIST *account_statement_list(
 
 	statement_list = list_new();
 
+	chart_account_boolean =
+		account_chart_account_boolean(
+			ACCOUNT_TABLE,
+			ACCOUNT_CHART_ACCOUNT_NUMBER );
+
+	select_string =
+		/* Returns heap memory */
+		/* ------------------- */
+		account_select_string(
+			ACCOUNT_SELECT,
+			ACCOUNT_CHART_ACCOUNT_NUMBER,
+			chart_account_boolean );
+
 	pipe =
 		account_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
 			account_system_string(
-				ACCOUNT_SELECT,
+				select_string,
 				ACCOUNT_TABLE,
 				subclassification_primary_where ) );
 
-	while ( string_input( input, pipe, 256 ) )
+	while ( string_input( input, pipe, sizeof ( input ) ) )
 	{
 		account =
 			/* ------------------------------- */
@@ -67,6 +83,7 @@ LIST *account_statement_list(
 			account_statement_parse(
 				input,
 				transaction_date_time_closing,
+				chart_account_boolean,
 				fetch_subclassification,
 				fetch_element,
 				fetch_journal_latest,
@@ -88,6 +105,7 @@ LIST *account_statement_list(
 ACCOUNT *account_statement_parse(
 		char *input,
 		char *transaction_date_time_closing,
+		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
@@ -105,6 +123,7 @@ ACCOUNT *account_statement_parse(
 	if ( ! ( account =
 			account_parse(
 				input,
+				account_chart_account_boolean,
 				fetch_subclassification,
 				fetch_element ) ) )
 	{
@@ -561,6 +580,7 @@ ACCOUNT *account_seek(
 
 ACCOUNT *account_parse(
 		char *input,
+		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element )
 {
@@ -570,32 +590,35 @@ ACCOUNT *account_parse(
 
 	if ( !input || !*input ) return (ACCOUNT *)0;
 
-	/* See ACCOUNT_SELECT */
-	/* ------------------ */
+	/* See account_select_string() */
+	/* --------------------------- */
 	piece( account_name, SQL_DELIMITER, input, 0 );
 
 	account =
 		account_new(
 			strdup( account_name ) );
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 1 ) )
-	{
-		account->subclassification_name = strdup( piece_buffer );
-	}
+	piece( piece_buffer, SQL_DELIMITER, input, 1 );
+	if ( *piece_buffer )
+		account->subclassification_name =
+			strdup( piece_buffer );
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 2 ) )
-	{
-		account->hard_coded_account_key = strdup( piece_buffer );
-	}
+	piece( piece_buffer, SQL_DELIMITER, input, 2 );
+	if ( *piece_buffer )
+		account->hard_coded_account_key =
+			strdup( piece_buffer );
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 3 ) )
-	{
-		account->chart_account_number = atoi( piece_buffer );
-	}
+	piece( piece_buffer, SQL_DELIMITER, input, 3 ); 
+	if ( *piece_buffer )
+		account->annual_budget =
+			atoi( piece_buffer );
 
-	if ( piece( piece_buffer, SQL_DELIMITER, input, 4 ) )
+	if ( account_chart_account_boolean )
 	{
-		account->annual_budget = atoi( piece_buffer );
+		piece( piece_buffer, SQL_DELIMITER, input, 4 );
+		if ( *piece_buffer )
+			account->chart_account_number =
+				strdup( piece_buffer );
 	}
 
 	if ( fetch_subclassification )
@@ -634,6 +657,23 @@ ACCOUNT *account_fetch(
 	}
 	else
 	{
+		boolean chart_account_boolean;
+		char *select_string;
+
+		chart_account_boolean =
+			account_chart_account_boolean(
+				ACCOUNT_TABLE,
+				ACCOUNT_CHART_ACCOUNT_NUMBER );
+
+		select_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			account_select_string(
+				ACCOUNT_SELECT,
+				ACCOUNT_CHART_ACCOUNT_NUMBER,
+				chart_account_boolean );
+
 		account =
 			account_parse(
 				string_pipe(
@@ -641,13 +681,14 @@ ACCOUNT *account_fetch(
 					/* Returns heap memory */
 					/* ------------------- */
 					account_system_string(
-						ACCOUNT_SELECT,
+						select_string,
 						ACCOUNT_TABLE,
 	 					/* --------------------- */
 	 					/* Returns static memory */
 	 					/* --------------------- */
 	 					account_primary_where(
 							account_name ) ) ),
+				chart_account_boolean,
 				fetch_subclassification,
 				fetch_element );
 	}
@@ -1191,7 +1232,24 @@ LIST *account_list(
 		boolean fetch_subclassification,
 		boolean fetch_element )
 {
+	boolean chart_account_boolean;
+	char *select_string;
+
 	if ( !where ) where = "1 = 1";
+
+	chart_account_boolean =
+		account_chart_account_boolean(
+			ACCOUNT_TABLE,
+			ACCOUNT_CHART_ACCOUNT_NUMBER );
+
+	select_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		account_select_string(
+			ACCOUNT_SELECT,
+			ACCOUNT_CHART_ACCOUNT_NUMBER,
+			chart_account_boolean );
 
 	return
 	account_system_list(
@@ -1199,15 +1257,17 @@ LIST *account_list(
 		/* Returns heap memory */
 		/* ------------------- */
 		account_system_string(
-			ACCOUNT_SELECT,
+			select_string,
 			ACCOUNT_TABLE,
 			where ),
+		chart_account_boolean,
 		fetch_subclassification,
 		fetch_element );
 }
 
 LIST *account_system_list(
 		char *system_string,
+		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element )
 {
@@ -1218,12 +1278,13 @@ LIST *account_system_list(
 	system_list = list_new();
 	pipe = account_pipe( system_string );
 
-	while( string_input( input, pipe, 1024 ) )
+	while( string_input( input, pipe, sizeof ( input ) ) )
 	{
 		list_set(
 			system_list,
 			account_parse(
 				input,
+				account_chart_account_boolean,
 				fetch_subclassification,
 				fetch_element ) );
 	}
@@ -1235,17 +1296,16 @@ LIST *account_system_list(
 
 char *account_system_string(
 		char *select,
-		char *table,
+		const char *table,
 		char *where )
 {
 	char system_string[ 1024 ];
 
-	if ( !select
-	||   !table )
+	if ( !select )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "select is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1256,7 +1316,9 @@ char *account_system_string(
 
 	if ( !where ) where = "1 = 1";
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"select.sh \"%s\" %s \"%s\" account",
 		select,
 		table,
@@ -1519,3 +1581,32 @@ ACCOUNT *account_key_fetch(
 		fetch_element );
 }
 
+boolean account_chart_account_boolean(
+		const char *account_table,
+		const char *account_chart_account_number )
+{
+	return
+	folder_attribute_exists(
+		(char *)account_table,
+		(char *)account_chart_account_number );
+}
+
+char *account_select_string(
+		const char *account_select,
+		const char *account_chart_account_number,
+		boolean account_chart_account_boolean )
+{
+	char select_string[ 1024 ];
+
+	if ( account_chart_account_boolean )
+		snprintf(
+			select_string,
+			sizeof ( select_string ),
+			"%s,%s",
+			account_select,
+			account_chart_account_number );
+	else
+		strcpy( select_string, account_select );
+
+	return strdup( select_string );
+}

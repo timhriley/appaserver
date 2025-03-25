@@ -15,8 +15,9 @@
 #define ACCOUNT_SELECT			"account,"			\
 					"subclassification,"		\
 					"hard_coded_account_key,"	\
-					"chart_account_number,"		\
 					"annual_budget"
+
+#define ACCOUNT_CHART_ACCOUNT_NUMBER	"chart_account_number"
 
 #define ACCOUNT_TABLE			"account"
 
@@ -78,8 +79,8 @@ typedef struct
 	char *account_name;
 	char *subclassification_name;
 	char *hard_coded_account_key;
-	int chart_account_number;
 	int annual_budget;
+	char *chart_account_number;
 	SUBCLASSIFICATION *subclassification;
 
 	/* Set externally */
@@ -106,14 +107,6 @@ LIST *account_statement_list(
 
 /* Process */
 /* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *account_system_string(
-		char *account_select,
-		char *account_table,
-		char *where );
-
 FILE *account_pipe(
 		char *account_system_string );
 
@@ -126,6 +119,7 @@ FILE *account_pipe(
 ACCOUNT *account_statement_parse(
 		char *input,
 		char *end_date_time_string,
+		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element,
 		boolean fetch_journal_latest,
@@ -164,6 +158,7 @@ LIST *account_list(
 /* ----- */
 LIST *account_system_list(
 		char *account_system_string,
+		boolean account_chart_account_boolean,
 		boolean fetch_subclassifiction,
 		boolean fetch_element );
 
@@ -238,6 +233,7 @@ ACCOUNT *account_key_seek(
 /* ----- */
 ACCOUNT *account_parse(
 		char *input,
+		boolean account_chart_account_boolean,
 		boolean fetch_subclassification,
 		boolean fetch_element );
 
@@ -338,6 +334,32 @@ char *account_drawing(
 /* ------------------------------------ */
 char *account_key_account_name(
 		char *account_key );
+
+/* Usage */
+/* ----- */
+boolean account_chart_account_boolean(
+		const char *account_table,
+		const char *account_chart_account_number );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *account_select_string(
+		const char *account_select,
+		const char *account_chart_account_number,
+		boolean account_chart_account_boolean );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *account_system_string(
+		char *account_select_string,
+		const char *account_table,
+		char *where );
 
 /* Public */
 /* ------ */
