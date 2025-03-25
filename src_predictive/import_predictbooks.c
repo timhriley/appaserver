@@ -262,6 +262,8 @@ int main( int argc, char **argv )
 
 		printf( "%s\n",
 			IMPORT_PREDICT_SHORTCUT_MESSAGE );
+
+		printf( "<h3>Hint message complete</h3>\n" );
 	}
 
 	document_close();

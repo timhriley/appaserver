@@ -229,7 +229,8 @@ See $APPASERVER_HOME/REMOVE
 W) Import PredictBooks (optional):
 ----------------------------------
 Your first application may be PredictBooks Home Edition.
-1) <Alter> <Import PredictBooks>
+1) <Role> <Supervisor>
+2) <Alter> <Import PredictBooks>
 
 Notes after installing PredictBooks:
 1) Press the <Menu Refresh> button for the top menu to display correctly.
