@@ -2056,13 +2056,12 @@ char *string_unescape_character(
 
 	while ( *datum )
 	{
-		if ( *datum == '\\' )
+		if ( *datum == '\\'
+		&&   *(datum + 1) == character_to_unescape )
 		{
-			if ( *(datum + 1) == character_to_unescape )
-			{
-				datum++;
-			}
+			datum++;
 		}
+
 		*destination++ = *datum++;
 	}
 

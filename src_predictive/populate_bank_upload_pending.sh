@@ -52,6 +52,7 @@ where="not exists (
 
 echo "select $select from $table where $where order by $order;"		|
 sql.e "$delimiter"							|
+unescape_character.e "$delimiter"					|
 # --------------------------
 # Why is there a blank line?
 # --------------------------

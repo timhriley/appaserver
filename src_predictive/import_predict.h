@@ -111,14 +111,14 @@
 	"<p style=\"margin: 3\%;\">"					\
 	"The Trial Balance is the first financial statement to "	\
 	"execute.\n"							\
-	"<br />Journal entries with a <i>debit</i> amount usually "	\
-	"<i>increase</i> your Checking balance.\n"			\
-	"The corresponding <i>credit</i> "				\
-	"journal entry will probably be a revenue (income) account.\n"	\
-	"<br />Journal entries with a <i>credit</i> amount usually "	\
-	"<i>decrease</i> your Checking balance.\n"			\
-	"The corresponding <i>debit</i> "				\
-	"journal entry will probably be an expense account.\n"		\
+	"<br />Journal entries with a <i>debit</i> amount "		\
+	"(the left column) usually <i>increase</i> your Checking "	\
+	"balance. The corresponding <i>credit</i> amount (the right "	\
+        "column) will probably be a revenue (income) account.\n"	\
+	"<br />Journal entries with a <i>credit</i> amount (the right "	\
+	"column) usually <i>decrease</i> your Checking balance. The "	\
+	"corresponding <i>debit</i> amount (the left column) will "	\
+	"probably be an expense account.\n"				\
 	"<br />Bookkeeping rule #1: Total Debit = Total Credit"
 
 #define IMPORT_PREDICT_FINANCIAL_POSITION_MESSAGE			\
@@ -130,12 +130,10 @@
 #define IMPORT_PREDICT_NEXT_STEP_MESSAGE				\
 	"<p style=\"margin: 3\%;\">"					\
 	"The second financial statement to execute is the Statement "	\
-	"of Activities. Activities are mainly revenues (income) and "	\
-	"expenses.\n"							\
+	"of Activities. It is omitted here because it would have been "	\
+	"blank. Activities are mainly revenues (income) and expenses.\n"\
 	"<br />Notice above the label \"Change In Net Assets\".\n"	\
 	"The amount reported is currently 0.00.\n"			\
-	"Likewise, your Statement of Activities will currently be "	\
-	"blank.\n"							\
 	"<br />The next step is to:\n"					\
 	"<ol>\n"							\
 	"<li>Download all of your checking transactions from your "	\

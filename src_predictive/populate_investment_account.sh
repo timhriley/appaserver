@@ -41,6 +41,8 @@ else
 	where=$parameter_where
 fi
 
-echo "select $select from $table where $where;" | sql.e
+echo "select $select from $table where $where;"	|
+sql.e						|
+unescape_character.e '^'
 
 exit 0

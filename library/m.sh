@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_appaserver
-	make lookup_statistic post_prompt_lookup
+	cd ../utility
+	make unescape_character.e
 fi
 

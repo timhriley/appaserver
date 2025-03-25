@@ -1,32 +1,30 @@
-/* unescape_single_quotes.c				 */
-/* ----------------------------------------------------- */
-/* Freely available software: see Appaserver.org	 */
-/* ----------------------------------------------------- */
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/utility/unescape_single_quotes.c			*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
  
 #include <stdio.h>
-#include "timlib.h"
+#include "String.h"
  
-int main( int argc, char **argv )
+int main( void )
 {
 	char input_buffer[ 65536 ];
 	char *ptr;
 
-	while( get_line( input_buffer, stdin ) )
+	while( string_input( input_buffer, stdin, sizeof ( input_buffer ) ) )
 	{
 		for( ptr = input_buffer; *ptr; ptr++ )
 		{
 			if ( *ptr == '\\' )
 			{
-				/* If not at the end */
-				/* ----------------- */
-				if ( *(ptr + 1) )
-				{
-					if ( *(ptr + 1) == '\'' ) continue;
-				}
+				if ( *(ptr + 1) == '\'' ) continue;
 			}
 			printf( "%c", *ptr );
 		}
 		printf( "\n" );
 	}
+
+	return 0;
 }
  

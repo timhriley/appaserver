@@ -83,9 +83,10 @@ all: 	insert_statement.e						\
 	piece_quoted.e							\
 	piece_quote_comma.e						\
 	merge_n_lines.e findgrep.e stat.e				\
-	unescape_single_quotes.e					\
 	escape_character.e						\
 	escape_security.e						\
+	unescape_single_quotes.e					\
+	unescape_character.e						\
 	binary_count.e							\
 	decimal_count.e							\
 	location_convert.e						\
@@ -1458,15 +1459,21 @@ merge_n_lines.e: merge_n_lines.c					\
 		${LIBRARY}/name_arg.o					\
 		-o merge_n_lines.e
 
-unescape_single_quotes.e: unescape_single_quotes.c			\
-	${LIBRARY}/name_arg.o
+unescape_single_quotes.e: unescape_single_quotes.c
 	$(CC) 	-I${LIBRARY} unescape_single_quotes.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		${LIBRARY}/name_arg.o					\
 		-o unescape_single_quotes.e
 
-escape_character.e: escape_character.c
+unescape_character.e: unescape_character.c				\
+		${STANDARD_LIBRARY}
+	$(CC) 	-I${LIBRARY} unescape_character.c			\
+		${APPASERVER_ERROR_FILE_FLAG}				\
+		${STANDARD_LIBRARY}					\
+		-o unescape_character.e
+
+escape_character.e: escape_character.c					\
+		${STANDARD_LIBRARY}
 	$(CC) 	-I${LIBRARY} escape_character.c				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
