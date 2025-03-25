@@ -2,6 +2,6 @@ ${APPASERVER_HOME}/UPGRADE
 --------------------------
 
 1) $ cd $APPASERVER_HOME
-2) $ git_pull_main.sh
-3) $ make [touch|force] && make
+2) $ git pull
+3) $ make touch && make
 4) $ appaserver-upgrade
