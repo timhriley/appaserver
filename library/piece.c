@@ -1485,12 +1485,30 @@ boolean piece_boolean(
 	char destination[ 1024 ];
 	int p;
 
-	if ( !search_string
-	||   !delimited_string
-	||   !delimiter )
+	if ( !search_string )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: search_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !delimited_string )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: delimited_string is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	if ( !delimiter )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: delimiter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );

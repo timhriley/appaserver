@@ -130,7 +130,7 @@
 #define IMPORT_PREDICT_NEXT_STEP_MESSAGE				\
 	"<p style=\"margin: 3\%;\">"					\
 	"The second financial statement to execute is the Statement "	\
-	"of Activities. Activities are mainly revenue (income) and "	\
+	"of Activities. Activities are mainly revenues (income) and "	\
 	"expenses.\n"							\
 	"<br />Notice above the label \"Change In Net Assets\".\n"	\
 	"The amount reported is currently 0.00.\n"			\
@@ -138,7 +138,7 @@
 	"blank.\n"							\
 	"<br />The next step is to:\n"					\
 	"<ol>\n"							\
-	"<li>Download your checking account activites from your "	\
+	"<li>Download all of your checking transactions from your "	\
 	"bank.\n"							\
 	"<li>Execute: Reconcile --> yourBank Checking Upload.\n"	\
 	"</ol>\n"
