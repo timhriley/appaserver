@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "appaserver_error.h"
-#include "timlib.h"
+#include "file.h"
 #include "application.h"
 #include "role.h"
 #include "application_clone.h"
@@ -17,7 +17,7 @@ APPLICATION_CLONE *application_clone_new(
 		char *current_application_name,
 		char *login_name,
 		char *destination_application_name,
-		char *application_clone_sql_gz_filename,
+		char *application_clone_sql_gz_filespecification,
 		char *application_title,
 		char *document_root,
 		char *data_directory,
@@ -73,7 +73,7 @@ APPLICATION_CLONE *application_clone_new(
 		return application_clone;
 	}
 
-	if ( application_clone_sql_gz_filename )
+	if ( application_clone_sql_gz_filespecification )
 	{
 		application_clone->gz_system_string =
 			/* ------------------- */
@@ -81,7 +81,7 @@ APPLICATION_CLONE *application_clone_new(
 			/* ------------------- */
 			application_clone_gz_system_string(
 				destination_application_name,
-				application_clone_sql_gz_filename );
+				application_clone_sql_gz_filespecification );
 	}
 	else
 	{
@@ -209,11 +209,12 @@ char *application_clone_database_system_string(
 
 char *application_clone_gz_system_string(
 		char *destination_application_name,
-		char *sql_gz_filename )
+		char *sql_gz_filespecification )
 {
 	char system_string[ 256 ];
 
-	if ( !sql_gz_filename )
+	if ( !destination_application_name
+	||   !sql_gz_filespecification )
 	{
 		char message[ 128 ];
 
@@ -226,29 +227,32 @@ char *application_clone_gz_system_string(
 			message );
 	}
 
-	sprintf(system_string,
-		"zcat %s | sql.e %s",
-		sql_gz_filename,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"zcat %s |"
+		"mysqldump_sed.sh |"
+		"sql.e %s",
+		sql_gz_filespecification,
 		destination_application_name );
 
 	return strdup( system_string );
 }
 
-char *application_clone_sql_gz_filename( char *mount_point )
+char *application_clone_sql_gz_filespecification(
+		const char *application_clone_sql_gz,
+		char *mount_point )
 {
-	static char filename[ 128 ];
+	static char filespecification[ 128 ];
 
-	sprintf(filename,
-		"%s/template/mysqldump_template.sql.gz",
-		mount_point );
-
-	if ( !timlib_file_exists( filename ) )
+	if ( !mount_point )
 	{
-		char message[ 256 ];
+		char message[ 128 ];
 
-		sprintf(message,
-			"timlib_file_exists(%s) returned empty.",
-			filename );
+		snprintf(
+			message,
+			sizeof ( message ),
+			"mount_point is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -257,7 +261,29 @@ char *application_clone_sql_gz_filename( char *mount_point )
 			message );
 	}
 
-	return filename;
+	snprintf(
+		filespecification,
+		sizeof ( filespecification ),
+		"%s/%s",
+		mount_point,
+		application_clone_sql_gz );
+
+	if ( !file_exists_boolean( filespecification ) )
+	{
+		char message[ 256 ];
+
+		sprintf(message,
+			"file_exists_boolean(%s) returned empty.",
+			filespecification );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return filespecification;
 }
 
 char *application_clone_application_system_string(

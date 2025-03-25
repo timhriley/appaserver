@@ -121,7 +121,8 @@ int main( int argc, char **argv )
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			application_clone_sql_gz_filename(
+			application_clone_sql_gz_filespecification(
+				APPLICATION_CLONE_SQL_GZ,
 				appaserver_parameter->mount_point ),
 			security_sql_injection_escape(
 				SECURITY_ESCAPE_CHARACTER_STRING,

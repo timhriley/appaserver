@@ -16,6 +16,9 @@
 #include "appaserver_user.h"
 #include "application_create.h"
 
+#define APPLICATION_CLONE_SQL_GZ \
+	"template/mysqldump_template.sql.gz"
+
 typedef struct
 {
 	APPLICATION_CREATE *application_create;
@@ -58,7 +61,7 @@ APPLICATION_CLONE *application_clone_calloc(
 /* ------------------- */
 char *application_clone_gz_system_string(
 		char *destination_application_name,
-		char *application_clone_sql_gz_filename );
+		char *application_clone_sql_gz_filespecification );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -133,5 +136,11 @@ char *application_clone_database_system_string(
 void application_clone_system(
 		boolean execute_boolean,
 		char *system_string );
+
+/* Usage */
+/* ----- */
+char *application_clone_sql_gz_filespecification(
+		const char *application_clone_sql_gz,
+		char *mount_point );
 
 #endif
