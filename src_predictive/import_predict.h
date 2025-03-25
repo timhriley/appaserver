@@ -98,7 +98,7 @@
 	"familiar with the Feeder Phrase table. Each of your bank's "	\
 	"transactions is described with a phrase. Insert these "	\
 	"phrases into the Feeder Phrase table. PredictBooks will "	\
-	"seek out the phrase to generate your transactions "		\
+	"seek out the phrases to generate your transactions "		\
 	"automatically."
 
 #define IMPORT_PREDICT_REFRESH_MESSAGE 					\
