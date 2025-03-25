@@ -170,6 +170,7 @@ int main( int argc, char **argv )
 			if ( system( application_clone->gz_system_string ) ){}
 		}
 		else
+		if ( application_clone->database_system_string )
 		{
 			if ( system(
 				application_clone->

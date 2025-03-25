@@ -21,8 +21,7 @@ echo "password=${mysqldump_password}" >> $mysqldump_password_file
 
 options="--defaults-extra-file=${mysqldump_password_file} -u $mysqldump_mysql_user -c --extended-insert=FALSE --force --quick --add-drop-table"
 
-nice mysqldump $options $database	|
-mysqldump_sed.sh
+nice mysqldump $options $database
 
 rm ${mysqldump_password_file}
 

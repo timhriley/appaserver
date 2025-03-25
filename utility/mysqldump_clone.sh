@@ -25,7 +25,9 @@ then
 	exit 1
 fi
 
-mysqldump_stdout.sh $source_db | sql.e $destination_db
+mysqldump_stdout.sh $source_db	|
+mysqldump_sed.sh		|
+sql.e $destination_db
 
 shift
 shift

@@ -194,9 +194,11 @@ char *application_clone_database_system_string(
 		char *destination_application_name,
 		LIST *application_create_zaptable_list )
 {
-	char system_string[ 1024 ];
+	char system_string[ 4096 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"mysqldump_clone.sh %s %s %s",
 		current_application_name,
 		destination_application_name,
