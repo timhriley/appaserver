@@ -117,7 +117,7 @@ debit_account=`echo "	select account		\
 
 if [ "$debit_account" = "" ]
 then
-	echo "ERROR in `basename.e $0 n`: cannot get account.hard_coded_account_key = '$hard_coded_account_key'" 1>&2
+	echo "ERROR in `basename.e $0 n`: cannot get account where = '$where'" 1>&2
 	exit 1
 fi
 
