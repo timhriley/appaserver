@@ -1786,11 +1786,6 @@ DICTIONARY_SEPARATE_SQL_INJECTION_ESCAPE *
 			}
 		}
 
-		(void)string_search_replace_character(
-			datum /* source_destination */,
-			'\\' /* search_character */,
-			'/' /* replace_character */ );
-
 		sql_injection_escape =
 			/* ------------------- */
 			/* Returns heap memory */

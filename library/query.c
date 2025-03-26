@@ -3228,11 +3228,7 @@ char *query_drop_down_relation_where(
 	char *ptr = where;
 	QUERY_DROP_DOWN_RELATION *query_drop_down_relation;
 
-	if ( !list_rewind( query_drop_down_relation_list ) )
-	{
-		return (char *)0;
-	}
-
+	if ( list_rewind( query_drop_down_relation_list ) )
 	do {
 		query_drop_down_relation =
 			list_get(

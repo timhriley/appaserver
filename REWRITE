@@ -3,7 +3,7 @@ ${APPASERVER_HOME}/REWRITE
 
 == INTRODUCTION ==
 
-Beginning in early 2020 and continuing today, the Appaserver engine is being
+From early 2020 until March 2025, the Appaserver engine was
 completely rewritten. The rewrite was so extensive, that Git generated too
 many conflicts. Instead of resolving the conflicts, the rewrite took place
 without Git support. As a consequence, this version of Appaserver is completely
