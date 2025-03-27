@@ -39,10 +39,6 @@ typedef struct
 	boolean is_daylight_time;
 } DATE;
 
-/* Public */
-/* ------ */
-boolean date_is_daylight_time(	void );
-
 DATE *date_new(
 		int year,
 		int month,
@@ -126,6 +122,8 @@ int date_month_day_integer(
 int date_day_offset(
 		DATE *date );
 
+/* Starts on zero */
+/* -------------- */
 int date_days_between(
 		char *early_date,
 		char *late_date );
@@ -733,7 +731,7 @@ int date_months_between(DATE *from_date,
 int date_days_in_year(
 		int year );
 
-void date_set_TZ(
+void date_environ_set_TZ(
 		char *TZ );
 
 boolean date_set_yyyy_mm_dd_hh_mm_ss_colon(
@@ -882,5 +880,15 @@ char *date_now_colon_hhmm(
 /* ------------------- */
 char *date_now_hh_colon_mm(
 		int utc_offset );
+
+boolean date_now_daylight_time(
+		void );
+
+boolean date_year_leap_boolean(
+		int year );
+
+boolean date_greater_year_boolean(
+		char *early_yyyy_mm_dd_string,
+		char *late_yyyy_mm_dd_string );
 
 #endif

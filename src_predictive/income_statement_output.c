@@ -99,6 +99,14 @@ int main( int argc, char **argv )
 				statement->
 				statement_caption->
 				frame_title );
+
+		if ( income_statement->statement->greater_year_message )
+		{
+			printf( "%s\n",
+				income_statement->
+					statement->
+					greater_year_message );
+		}
 	}
 
 	if ( income_statement->income_statement_latex )

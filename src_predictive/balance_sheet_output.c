@@ -102,6 +102,14 @@ int main( int argc, char **argv )
 				statement->
 				statement_caption->
 				frame_title );
+
+		if ( balance_sheet->statement->greater_year_message )
+		{
+			printf( "%s\n",
+				balance_sheet->
+					statement->
+					greater_year_message );
+		}
 	}
 
 	if ( balance_sheet->balance_sheet_latex )

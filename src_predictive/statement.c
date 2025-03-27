@@ -235,6 +235,14 @@ STATEMENT *statement_fetch(
 				end_date_time_string );
 	}
 
+	statement->greater_year_message =
+		/* ------------------------------ */
+		/* Returns program memory or null */
+		/* ------------------------------ */
+		statement_greater_year_message(
+			transaction_date_begin_date_string,
+			end_date_time_string );
+
 	return statement;
 }
 
@@ -4991,3 +4999,18 @@ LATEX_ROW *statement_subclass_omit_latex_element_sum_row(
 	latex_row_new( cell_list );
 }
 
+char *statement_greater_year_message(
+		char *transaction_date_begin_date_string,
+		char *end_date_time_string )
+{
+	if ( date_greater_year_boolean(
+		transaction_date_begin_date_string,
+		end_date_time_string ) )
+	{
+		return STATEMENT_GREATER_YEAR_MESSAGE;
+	}
+	else
+	{
+		return NULL;
+	}
+}

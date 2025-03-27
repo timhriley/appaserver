@@ -21,6 +21,13 @@
 #define STATEMENT_LOGO_FILENAME_KEY		"logo_filename"
 #define STATEMENT_DAYS_FOR_EMPHASIS		35
 
+#define STATEMENT_GREATER_YEAR_MESSAGE		\
+	"<h3>Warning: the date range exceeds a "\
+	"year. Consider executing:"		\
+	"<br>Alter --> Close Nominal Accounts"	\
+	"<br>Use As Of Date = December 31st."	\
+	"</h3>"
+
 enum statement_subclassification_option {
 		statement_subclassification_aggregate,
 		statement_subclassification_display,
@@ -636,6 +643,7 @@ typedef struct
 	LIST *element_statement_list;
 	boolean pdf_landscape_boolean;
 	STATEMENT_CAPTION *statement_caption;
+	char *greater_year_message;
 } STATEMENT;
 
 /* Usage */
@@ -687,12 +695,23 @@ boolean statement_subclassification_name_duplicated(
 char *statement_element_sum_name(
 		char *element_name );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
+
+/* Returns program memory or null */
+/* ------------------------------ */
+char *statement_greater_year_message(
+		char *transaction_date_begin_date_string,
+		char *end_date_time_string );
+
+/* Usage */
+/* ----- */
 enum statement_subclassification_option
 	statement_resolve_subclassification_option(
 		char *subclassification_option_string );
 
+/* Usage */
+/* ----- */
 enum statement_output_medium
 	statement_resolve_output_medium(
 		char *output_medium_string );
