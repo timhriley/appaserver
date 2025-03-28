@@ -298,7 +298,6 @@ LIST *relation_mto1_drillthru_list(
 			continue;
 		}
 
-		if ( relation->trigger_insert_update ) continue;
 		if ( relation->omit_drillthru ) continue;
 
 		relation_mto1 =
@@ -861,32 +860,6 @@ LIST *relation_mto1_without_omit_drillthru_list( LIST *relation_mto1_list )
 		relation_mto1 = list_get( relation_mto1_list );
 
 		if ( !relation_mto1->relation->omit_drillthru )
-		{
-			list_set( list, relation_mto1 );
-		}
-
-	} while ( list_next( relation_mto1_list ) );
-
-	if ( !list_length( list ) )
-	{
-		list_free( list );
-		list = NULL;
-	}
-
-	return list;
-}
-
-LIST *relation_mto1_without_trigger_insert_update_list(
-		LIST *relation_mto1_list )
-{
-	LIST *list = list_new();
-	RELATION_MTO1 *relation_mto1;
-
-	if ( list_rewind( relation_mto1_list ) )
-	do {
-		relation_mto1 = list_get( relation_mto1_list );
-
-		if ( !relation_mto1->relation->trigger_insert_update )
 		{
 			list_set( list, relation_mto1 );
 		}

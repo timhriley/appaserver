@@ -34,8 +34,6 @@
 					"drop_down_multi_select_yn,"	\
 					"join_one2m_each_row_yn,"	\
 					"ajax_fill_drop_down_yn,"	\
-					"omit_ajax_fill_drop_down_yn,"	\
-					"trigger_insert_update_yn,"	\
 					"hint_message"
 
 typedef struct
@@ -52,8 +50,6 @@ typedef struct
 	boolean drop_down_multi_select;
 	boolean join_one2m_each_row;
 	boolean ajax_fill_drop_down;
-	boolean omit_ajax_fill_drop_down;
-	boolean trigger_insert_update;
 	char *hint_message;
 } RELATION;
 

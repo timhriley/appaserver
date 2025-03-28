@@ -1539,10 +1539,10 @@ FORM_PROMPT_INSERT_RELATION *form_prompt_insert_relation_new(
 				one_folder->
 				folder_attribute_primary_key_list );
 
-	if ( !form_prompt_insert_relation->
+	if ( form_prompt_insert_relation->
 		relation_mto1->
 		relation->
-		omit_ajax_fill_drop_down )
+		ajax_fill_drop_down )
 	{
 		form_prompt_insert_relation->ajax_client =
 			/* --------------------------------- */

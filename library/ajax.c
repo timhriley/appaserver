@@ -1345,7 +1345,7 @@ AJAX_CLIENT *ajax_client_relation_mto1_new(
 			message );
 	}
 
-	if ( relation_mto1->relation->omit_ajax_fill_drop_down )
+	if ( !relation_mto1->relation->ajax_fill_drop_down )
 	{
 		return NULL;
 	}

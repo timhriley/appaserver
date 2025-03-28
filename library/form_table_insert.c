@@ -315,10 +315,10 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 			message );
 	}
 
-	if ( !form_table_insert_relation->
+	if ( form_table_insert_relation->
 		relation_mto1->
 		relation->
-		omit_ajax_fill_drop_down )
+		ajax_fill_drop_down )
 	{
 		form_table_insert_relation->ajax_client =
 			form_table_insert_relation_ajax_client(

@@ -422,10 +422,6 @@ PROMPT_LOOKUP_INPUT *prompt_lookup_input_new(
 		relation_mto1_without_omit_drillthru_list(
 			prompt_lookup_input->relation_mto1_list );
 
-	prompt_lookup_input->relation_mto1_list =
-		relation_mto1_without_trigger_insert_update_list(
-			prompt_lookup_input->relation_mto1_list );
-
 	prompt_lookup_input->relation_mto1_isa_list =
 		relation_mto1_isa_list(
 			(LIST *)0 /* mto1_isa_list */,

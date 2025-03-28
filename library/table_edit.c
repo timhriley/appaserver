@@ -189,7 +189,7 @@ TABLE_EDIT_INPUT *table_edit_input_new(
 				/* many_primary_key_list */ );
 
 	table_edit_input->relation_mto1_list =
-		relation_mto1_without_trigger_insert_update_list(
+		relation_mto1_without_omit_drillthru_list(
 			table_edit_input->relation_mto1_list );
 
 	table_edit_input->relation_mto1_isa_list =

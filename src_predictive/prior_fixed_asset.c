@@ -234,7 +234,7 @@ PRIOR_FIXED_ASSET *prior_fixed_asset_parse(
 			asset_name );
 
 	/* See PRIOR_FIXED_ASSET_SELECT */
-	/* ------------------------------------ */
+	/* ---------------------------- */
 	piece( buffer, SQL_DELIMITER, input, 0 );
 	if ( *buffer )
 		prior_fixed_asset->full_name =

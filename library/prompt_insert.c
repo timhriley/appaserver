@@ -156,7 +156,7 @@ PROMPT_INSERT_INPUT *prompt_insert_input_new(
 				/* many_primary_key_list */ );
 
 	prompt_insert_input->relation_mto1_list =
-		relation_mto1_without_trigger_insert_update_list(
+		relation_mto1_without_omit_drillthru_list(
 			prompt_insert_input->relation_mto1_list );
 
 	prompt_insert_input->relation_mto1_isa_list =

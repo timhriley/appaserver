@@ -561,10 +561,10 @@ ROW_SECURITY_RELATION *row_security_relation_new(
 				one_folder->
 				folder_attribute_primary_key_list );
 
-	if ( !row_security_relation->
+	if ( row_security_relation->
 		relation_mto1->
 		relation->
-		omit_ajax_fill_drop_down )
+		ajax_fill_drop_down )
 	{
 		row_security_relation->ajax_client =
 			/* --------------------------------- */

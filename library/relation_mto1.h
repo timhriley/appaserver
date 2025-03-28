@@ -165,11 +165,6 @@ LIST *relation_mto1_without_omit_drillthru_list(
 
 /* Usage */
 /* ----- */
-LIST *relation_mto1_without_trigger_insert_update_list(
-		LIST *relation_mto1_list );
-
-/* Usage */
-/* ----- */
 LIST *relation_mto1_to_one_list(
 		LIST *relation_mto1_list,
 		LIST *relation_mto1_isa_list );

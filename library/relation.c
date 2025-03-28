@@ -105,13 +105,7 @@ RELATION *relation_parse( char *input )
 	piece( field, SQL_DELIMITER, input, 11 );
 	relation->ajax_fill_drop_down = ( *field == 'y' );
 
-	piece( field, SQL_DELIMITER, input, 12 );
-	relation->omit_ajax_fill_drop_down = ( *field == 'y' );
-
-	piece( field, SQL_DELIMITER, input, 13 );
-	relation->trigger_insert_update = ( *field == 'y' );
-
-	piece( hint_message, SQL_DELIMITER, input, 14 );
+	piece( hint_message, SQL_DELIMITER, input, 12 );
 	if ( *hint_message ) relation->hint_message = strdup( hint_message );
 
 	return relation;
