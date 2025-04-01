@@ -133,6 +133,10 @@ typedef struct
 {
 	UPDATE_ATTRIBUTE *update_attribute;
 	char *set_string;
+
+	/* Set externally */
+	/* -------------- */
+	char *sql_statement_string;
 } UPDATE_CHANGED;
 
 /* Usage */
@@ -165,13 +169,13 @@ char *update_changed_set_string(
 /* Usage */
 /* ----- */
 boolean update_changed_primary_key_boolean(
-		LIST *changed_list );
+		LIST *update_changed_list );
 
 /* Usage */
 /* ----- */
 UPDATE_CHANGED *update_changed_seek(
 		char *attribute_name,
-		LIST *changed_list );
+		LIST *update_changed_list );
 
 /* Usage */
 /* ----- */
@@ -184,7 +188,7 @@ char *update_changed_display(
 typedef struct
 {
 	char *folder_name;
-	LIST *changed_list;
+	LIST *list;
 	char *set_string;
 	LIST *where_list;
 	char *update_where_list_string;
@@ -194,7 +198,6 @@ typedef struct
 /* Usage */
 /* ----- */
 UPDATE_CHANGED_LIST *update_changed_list_new(
-		char *application_name,
 		char *folder_name,
 		LIST *folder_attribute_primary_key_list,
 		LIST *folder_attribute_name_list,
@@ -217,9 +220,9 @@ char *update_changed_list_set_string(
 /* Returns heap memory */
 /* ------------------- */
 char *update_changed_list_sql_statement_string(
-		char *folder_table_name,
-		char *update_changed_list_set_string,
-		char *update_where_list_string );
+		char *table_name,
+		char *set_string,
+		char *where_list_string );
 
 /* Returns heap memory */
 /* ------------------- */
@@ -337,9 +340,6 @@ LIST *update_one2m_row_list_folder_name_list(
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
 		char *many_folder_name,
 		LIST *many_primary_key_list,
@@ -347,8 +347,22 @@ UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
 
 /* Usage */
 /* ----- */
+UPDATE_CHANGED *update_one2m_row_update_changed(
+		char *many_folder_name,
+		LIST *many_primary_key_list,
+		char *primary_key,
+		LIST *update_attribute_list );
+
+/* Usage */
+/* ----- */
 void update_one2m_row_list_pipe_execute(
 		LIST *update_one2m_row_list,
+		FILE *appaserver_output_pipe );
+
+/* Usage */
+/* ----- */
+void update_one2m_row_changed_list_pipe_execute(
+		LIST *update_changed_list,
 		FILE *appaserver_output_pipe );
 
 /* Usage */
@@ -360,6 +374,11 @@ void update_one2m_row_list_command_execute(
 /* ------ */
 void update_one2m_row_list_display(
 		LIST *update_one2m_row_list );
+
+/* Usage */
+/* ----- */
+void update_one2m_row_changed_list_display(
+		UPDATE_CHANGED_LIST *update_changed_list );
 
 typedef struct
 {
