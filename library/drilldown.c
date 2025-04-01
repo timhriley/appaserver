@@ -34,7 +34,6 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
 		pid_t process_id,
-		DICTIONARY *no_display_dictionary,
 		DICTIONARY *sort_dictionary,
 		char *one_folder_name,
 		LIST *relation_translate_list,
@@ -93,7 +92,7 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 			DICTIONARY_SEPARATE_NO_DISPLAY_PREFIX,
 			DICTIONARY_SEPARATE_SORT_PREFIX,
 			DICTIONARY_SEPARATE_QUERY_PREFIX,
-			no_display_dictionary,
+			(DICTIONARY *)0 /* no_display_dictionary */,
 			sort_dictionary,
 			drilldown_many_to_one->query_dictionary );
 
@@ -596,10 +595,6 @@ DRILLDOWN *drilldown_new(
 				drilldown->
 					drilldown_input->
 					dictionary_separate->
-					no_display_dictionary,
-				drilldown->
-					drilldown_input->
-					dictionary_separate->
 					sort_dictionary,
 				relation_mto1->one_folder_name,
 				relation_mto1->relation_translate_list,
@@ -703,10 +698,6 @@ DRILLDOWN *drilldown_new(
 					drilldown->
 						drilldown_input->
 						process_id,
-					drilldown->
-						drilldown_input->
-						dictionary_separate->
-						no_display_dictionary,
 					drilldown->
 						drilldown_input->
 						dictionary_separate->

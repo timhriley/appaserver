@@ -105,6 +105,7 @@ EXECUTABLES=	trial_balance_output					\
 		prior_fixed_asset_trigger				\
 		investment_transaction_driver				\
 		generate_invoice
+#		hourly_service_sale_trigger
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
 #		recovery_statutory_accelerated_half_year		\
@@ -121,7 +122,6 @@ EXECUTABLES=	trial_balance_output					\
 #		post_change_fixed_asset					\
 #		post_change_fixed_service_sale				\
 #		post_change_fixed_service_work				\
-#		post_change_hourly_service_sale				\
 #		post_change_hourly_service_work				\
 #		post_change_inventory_purchase				\
 #		post_change_inventory_sale				\

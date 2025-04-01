@@ -92,7 +92,6 @@ DRILLDOWN_MANY_TO_ONE *drilldown_many_to_one_new(
 		char *drilldown_primary_data_list_string,
 		char *data_directory,
 		pid_t process_id,
-		DICTIONARY *no_display_dictionary,
 		DICTIONARY *sort_dictionary,
 		char *one_folder_name,
 		LIST *relation_translate_list,
