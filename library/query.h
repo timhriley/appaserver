@@ -237,6 +237,14 @@ QUERY_ROW *query_row_seek(
 		LIST *row_list,
 		char *date_string );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *query_row_display(
+		QUERY_ROW *query_row );
+
 typedef struct
 {
 	char *folder_name;
@@ -262,11 +270,6 @@ QUERY_FETCH *query_fetch_new(
 QUERY_FETCH *query_fetch_calloc(
 		void );
 
-/* Safely returns */
-/* -------------- */
-FILE *query_fetch_input_pipe(
-		char *query_system_string );
-
 /* Usage */
 /* ----- */
 void query_fetch_html_display(
@@ -282,6 +285,14 @@ void query_fetch_html_display(
 char *query_fetch_display_system_string(
 		char *folder_name,
 		LIST *query_select_name_list );
+
+/* Usage */
+/* ----- */
+
+/* Safely returns */
+/* -------------- */
+FILE *query_fetch_input_pipe(
+		char *query_system_string );
 
 enum query_relation {		query_unknown,
 				query_equal,

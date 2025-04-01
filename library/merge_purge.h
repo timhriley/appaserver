@@ -340,6 +340,7 @@ boolean merge_purge_process_execute_boolean(
 /* Usage */
 /* ----- */
 void merge_purge_process_execute(
+		const char *sql_executable,
 		char *appliction_name,
 		MERGE_PURGE_UPDATE *merge_purge_update,
 		MERGE_PURGE_DELETE *merge_purge_delete );

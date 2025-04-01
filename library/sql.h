@@ -11,6 +11,7 @@
 #include "list.h"
 
 #define SQL_DELIMITER	'^'
+#define SQL_EXECUTABLE	"sql.e"
 
 /* Public */
 /* ------ */

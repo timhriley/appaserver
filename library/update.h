@@ -337,6 +337,16 @@ LIST *update_one2m_row_list_folder_name_list(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
+UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
+		char *many_folder_name,
+		LIST *many_primary_key_list,
+		LIST *update_attribute_list );
+
+/* Usage */
+/* ----- */
 void update_one2m_row_list_pipe_execute(
 		LIST *update_one2m_row_list,
 		FILE *appaserver_output_pipe );
@@ -633,6 +643,7 @@ int update_root_cell_count(
 /* Returns char *update_error_string */
 /* --------------------------------- */
 char *update_root_execute(
+		const char *sql_executable,
 		char *update_sql_statement_string,
 		char *appaserver_error_filename );
 
@@ -689,6 +700,7 @@ LIST *update_row_folder_name_list(
 /* Returns update_error_string or null */
 /* ----------------------------------- */
 char *update_row_execute(
+		const char *sql_executable,
 		char *application_name,
 		UPDATE_ROOT *update_root,
 		UPDATE_ONE2M_LIST *update_one2m_list,
@@ -762,6 +774,7 @@ char *update_row_list_folder_name_list_string(
 /* Returns error_row_list_error_string or null */
 /* ------------------------------------------- */
 char *update_row_list_execute(
+		const char *sql_executable,
 		char *application_name,
 		UPDATE_ROW_LIST *update_row_list,
 		char *appaserver_error_filename );
@@ -847,6 +860,7 @@ char *update_command_line(
 /* Returns static memory */
 /* --------------------- */
 char *update_system_string(
+		const char *sql_executable,
 		char *appaserver_error_filename );
 
 /* Usage */
@@ -865,6 +879,7 @@ char *update_sql_statement_string(
 /* Usage */
 /* ----- */
 void update_statement_execute(
+		const char *sql_executable,
 		char *application_name,
 		char *update_statement );
 

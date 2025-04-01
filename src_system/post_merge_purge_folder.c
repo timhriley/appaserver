@@ -10,6 +10,7 @@
 #include <ctype.h>
 #include <unistd.h>
 #include "String.h"
+#include "sql.h"
 #include "appaserver_error.h"
 #include "document.h"
 #include "session.h"
@@ -92,6 +93,7 @@ int main( int argc, char **argv )
 	if ( merge_purge_process->execute_boolean )
 	{
 		merge_purge_process_execute(
+			SQL_EXECUTABLE,
 			application_name,
 			merge_purge_process->merge_purge_update,
 			merge_purge_process->merge_purge_delete );

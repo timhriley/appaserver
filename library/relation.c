@@ -737,7 +737,7 @@ RELATION_TRANSLATE *relation_translate_primary_seek(
 
 char *relation_translate_list_display( LIST *relation_translate_list )
 {
-	char display[ 1024 ];
+	char display[ 65536 ];
 	char *ptr = display;
 	RELATION_TRANSLATE *relation_translate;
 
@@ -757,7 +757,7 @@ char *relation_translate_list_display( LIST *relation_translate_list )
 
 	} while ( list_next( relation_translate_list ) );
 
-	if ( !*ptr )
+	if ( !*display )
 		return "NULL";
 	else
 		return strdup( display );

@@ -1181,6 +1181,7 @@ LIST *merge_purge_choose_role_folder_name_list(
 }
 
 void merge_purge_process_execute(
+		const char *sql_executable,
 		char *application_name,
 		MERGE_PURGE_UPDATE *merge_purge_update,
 		MERGE_PURGE_DELETE *merge_purge_delete )
@@ -1204,6 +1205,7 @@ void merge_purge_process_execute(
 	}
 
 	update_row_list_execute(
+		sql_executable,
 		application_name,
 		merge_purge_update->
 			update->

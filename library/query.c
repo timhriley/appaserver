@@ -3915,7 +3915,11 @@ FILE *query_fetch_input_pipe( char *query_system_string )
 		exit( 1 );
 	}
 
-	return popen( query_system_string, "r" );
+	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
+	appaserver_input_pipe( query_system_string );
 }
 
 QUERY_DROP_DOWN_DATUM *query_drop_down_datum_new(
@@ -6934,10 +6938,9 @@ char *query_cell_list_display( LIST *cell_list )
 	char display[ 65536 ];
 	char *ptr = display;
 
-	if ( !list_rewind( cell_list ) ) return strdup( "NULL" );
-
 	*ptr = '\0';
 
+	if ( list_rewind( cell_list ) )
 	do {
 		query_cell = list_get( cell_list );
 
@@ -6952,6 +6955,8 @@ char *query_cell_list_display( LIST *cell_list )
 			query_cell_display( query_cell ) );
 
 	} while ( list_next( cell_list ) );
+
+	if ( !*display ) strcpy( display, "NULL" );
 
 	return strdup( display );
 }
@@ -8371,8 +8376,8 @@ char *query_fetch_display_system_string(
 		char *folder_name,
 		LIST *query_select_name_list )
 {
-	char system_string[ 1024 ];
-	char destination[ 128 ];
+	char system_string[ STRING_65K ];
+	char destination[ STRING_64K ];
 	char *string;
 
 	string =
@@ -8383,7 +8388,9 @@ char *query_fetch_display_system_string(
 			query_select_name_list,
 			',' /* delimiter */ );
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"html_table.e \"^^%s\" \"%s\" '%c'",
 		/* ------------------- */
 		/* Returns destination */
@@ -8571,5 +8578,26 @@ char *query_isa_drop_down_list_where( LIST *query_drop_down_list_list )
 	} while ( list_next( query_drop_down_list_list ) );
 
 	return strdup( where );
+}
+
+char *query_row_display( QUERY_ROW *query_row )
+{
+	if ( !query_row )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"query_row is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return query_cell_list_display( query_row->cell_list );
 }
 

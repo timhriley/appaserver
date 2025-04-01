@@ -992,7 +992,7 @@ UPDATE_ONE2M *update_one2m_new(
 			many_attribute_name_list
 				/* select_name_list */,
 			update_one2m->query_system_string,
-			0 /* not input_save_boolean */ );
+			1 /* input_save_boolean */ );
 
 	if ( !list_length( update_one2m->query_fetch->row_list ) ) return NULL;
 
@@ -1069,6 +1069,7 @@ char *update_changed_list_sql_statement_string(
 }
 
 char *update_row_list_execute(
+		const char *sql_executable,
 		char *application_name,
 		UPDATE_ROW_LIST *update_row_list,
 		char *appaserver_error_filename )
@@ -1099,6 +1100,7 @@ char *update_row_list_execute(
 
 		update_error_string =
 			update_row_execute(
+				sql_executable,
 				application_name,
 				update_row->update_root,
 				update_row->update_one2m_list,
@@ -2629,13 +2631,10 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 			query_row_cell_list );
 
 	update_one2m_row->update_changed_list =
-		update_changed_list_new(
-			application_name,
+		update_one2m_row_update_changed_list(
 			many_folder_name,
 			many_primary_key_list,
-			many_attribute_name_list,
-			update_one2m_row->update_attribute_list,
-			(char *)0 /* security_entity_where */ );
+			update_one2m_row->update_attribute_list );
 
 	if ( !update_one2m_row->update_changed_list )
 	{
@@ -3015,6 +3014,18 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 	do {
 		query_row = list_get( query_fetch_row_list );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: query_row=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	query_row->input );
+msg( (char *)0, message );
+}
 		update_one2m_row =
 			/* -------------- */
 			/* Safely returns */
@@ -3310,7 +3321,9 @@ char *update_sql_statement_string(
 	return strdup( statement_string );
 }
 
-char *update_system_string( char *appaserver_error_filename )
+char *update_system_string(
+		const char *sql_executable,
+		char *appaserver_error_filename )
 {
 	static char system_string[ 256 ];
 
@@ -3327,9 +3340,12 @@ char *update_system_string( char *appaserver_error_filename )
 			message );
 	}
 
-	sprintf(system_string,
-		"tee -a %s | sql.e 2>>%s",
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"tee -a %s | %s 2>>%s",
 		appaserver_error_filename,
+		sql_executable,
 		appaserver_error_filename );
 
 	return system_string;
@@ -3701,6 +3717,7 @@ void update_mto1_isa_command_line_execute( UPDATE_MTO1_ISA *update_mto1_isa )
 }
 
 char *update_row_execute(
+		const char *sql_executable,
 		char *application_name,
 		UPDATE_ROOT *update_root,
 		UPDATE_ONE2M_LIST *update_one2m_list,
@@ -3729,6 +3746,7 @@ char *update_row_execute(
 
 		update_error_string =
 			update_root_execute(
+				sql_executable,
 				update_root->
 					update_changed_list->
 					sql_statement_string
@@ -3755,6 +3773,7 @@ char *update_row_execute(
 			/* Returns static memory */
 			/* --------------------- */
 			update_system_string(
+				sql_executable,
 				appaserver_error_filename ) );
 
 	if ( update_one2m_list )
@@ -4239,6 +4258,23 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 				message );
 		}
 
+		if ( !list_length(
+			relation_one2m->
+				relation_translate_list ) )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+		"for many_folder_name=[%s], relation_translate_list is empty.",
+				relation_one2m->many_folder_name );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
 		/* Cache PROCESS *post_change_process */
 		/* ---------------------------------- */
 		if ( relation_one2m->
@@ -4260,6 +4296,8 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 				1 /* check_inside */,
 				appaserver_parameter_mount_point );
 		}
+
+if ( strcmp( relation_one2m->many_folder_name, "relation" ) != 0 ) continue;
 
 		update_one2m =
 			update_one2m_new(
@@ -4699,6 +4737,7 @@ char *update_changed_list_display(
 }
 
 char *update_root_execute(
+		const char *sql_executable,
 		char *update_sql_statement_string,
 		char *appaserver_error_filename )
 {
@@ -4721,10 +4760,13 @@ char *update_root_execute(
 			message );
 	}
 
-	sprintf(system_string,
-		"tee_process.e '%s %s' | sql.e",
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"tee_process.e '%s %s' | %s",
 		"update_log.sh",
-		appaserver_error_filename );
+		appaserver_error_filename,
+		sql_executable );
 
 	/* Safely returns */
 	/* -------------- */
@@ -5004,6 +5046,7 @@ void update_row_list_display( UPDATE_ROW_LIST *update_row_list )
 }
 
 void update_statement_execute(
+		const char *sql_executable,
 		char *application_name,
 		char *update_statement )
 {
@@ -5040,6 +5083,7 @@ void update_statement_execute(
 		/* Returns static memory */
 		/* --------------------- */
 		update_system_string(
+			sql_executable,
 			error_filename );
 
 	output_pipe =
@@ -5058,3 +5102,125 @@ void update_statement_execute(
 
 	free( error_filename );
 }
+
+UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
+		char *many_folder_name,
+		LIST *many_primary_key_list,
+		LIST *update_attribute_list )
+{
+	UPDATE_CHANGED_LIST *update_changed_list;
+	UPDATE_CHANGED *update_changed;
+	char *primary_key;
+	UPDATE_WHERE *update_where;
+
+	if ( !many_folder_name
+	||   !list_rewind( many_primary_key_list )
+	||   !list_length( update_attribute_list ) )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	update_changed_list = update_changed_list_calloc();
+	update_changed_list->folder_name = many_folder_name;
+
+	do {
+		primary_key =
+			list_get(
+				many_primary_key_list );
+
+		update_changed =
+			update_changed_new(
+				primary_key /* attribute_name */,
+				update_attribute_list );
+
+		if ( update_changed )
+		{
+			if ( !update_changed_list->changed_list )
+			{
+				update_changed_list->changed_list = list_new();
+			} 
+
+			list_set(
+				update_changed_list->changed_list,
+				update_changed );
+		}
+
+	} while ( list_next( many_primary_key_list ) );
+
+	if ( !list_length( update_changed_list->changed_list ) ) return NULL;
+
+	update_changed_list->set_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_changed_list_set_string(
+			update_changed_list->changed_list );
+
+	update_changed_list->where_list = list_new();
+
+	list_rewind( many_primary_key_list );
+
+	do {
+		primary_key =
+			list_get(
+				many_primary_key_list );
+
+		if ( ! ( update_where =
+				update_where_new(
+					primary_key,
+					update_attribute_list ) ) )
+		{
+			char message[ 1024 ];
+
+			sprintf(message,
+"for folder_name=%s, update_attribute_list = [%s], update_where_new(%s) returned empty.",
+				many_folder_name,
+				update_attribute_list_display(
+					update_attribute_list ),
+				primary_key );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		list_set(
+			update_changed_list->where_list,
+			update_where );
+
+	} while ( list_next( many_primary_key_list ) );
+
+	update_changed_list->update_where_list_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_where_list_string(
+			(char *)0 /* security_entity_where */,
+			update_changed_list->where_list );
+
+
+	update_changed_list->sql_statement_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		update_changed_list_sql_statement_string(
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			appaserver_table_name( many_folder_name ),
+			update_changed_list->set_string,
+			update_changed_list->update_where_list_string );
+
+	return update_changed_list;
+}
+

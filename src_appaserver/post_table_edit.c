@@ -7,8 +7,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "appaserver_error.h"
 #include "String.h"
+#include "appaserver_error.h"
+#include "sql.h"
 #include "execute_system_string.h"
 #include "dictionary_separate.h"
 #include "attribute.h"
@@ -103,7 +104,7 @@ int main( int argc, char **argv )
 				message );
 		}
 
-/* #ifdef NOT_DEFINED */
+#ifdef NOT_DEFINED
 
 		update_error_string =
 		post_table_edit->update->error_string =
@@ -111,6 +112,7 @@ int main( int argc, char **argv )
 			/* Returns error_row_list_error_string or null */
 			/* ------------------------------------------- */
 			update_row_list_execute(
+				SQL_EXECUTABLE,
 				application_name,
 				post_table_edit->update->update_row_list,
 				post_table_edit->
@@ -131,16 +133,16 @@ int main( int argc, char **argv )
 			post_table_edit->
 				update->
 				results_string;
-/* #endif */
+#endif
 
-#ifdef NOT_DEFINED
+/* #ifdef NOT_DEFINED */
 		update_row_list_display(
 			post_table_edit->
 				update->
 				update_row_list );
 
 		update_error_string = "test only";
-#endif
+/* #endif */
 	}
 
 	if ( !update_error_string
