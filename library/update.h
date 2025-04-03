@@ -133,10 +133,6 @@ typedef struct
 {
 	UPDATE_ATTRIBUTE *update_attribute;
 	char *set_string;
-
-	/* Set externally */
-	/* -------------- */
-	char *sql_statement_string;
 } UPDATE_CHANGED;
 
 /* Usage */
@@ -174,8 +170,8 @@ boolean update_changed_primary_key_boolean(
 /* Usage */
 /* ----- */
 UPDATE_CHANGED *update_changed_seek(
-		char *attribute_name,
-		LIST *update_changed_list );
+		LIST *update_changed_list,
+		char *attribute_name );
 
 /* Usage */
 /* ----- */
@@ -257,6 +253,7 @@ UPDATE_ONE2M_LIST *update_one2m_list_calloc(
 
 typedef struct
 {
+	char *many_folder_name;
 	LIST *update_attribute_list;
 	UPDATE_CHANGED_LIST *update_changed_list;
 	LIST *query_cell_primary_data_list;
@@ -276,8 +273,6 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 		char *many_folder_name,
 		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list,
-		LIST *many_attribute_name_list,
-		LIST *many_primary_key_list,
 		PROCESS *many_post_change_process,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -292,7 +287,6 @@ UPDATE_ONE2M_ROW *update_one2m_row_calloc(
 /* Usage */
 /* ----- */
 LIST *update_one2m_row_update_attribute_list(
-		char *many_folder_name,
 		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list,
 		LIST *update_changed_list,
@@ -304,11 +298,18 @@ LIST *update_one2m_row_update_attribute_list(
 /* Safely returns */
 /* -------------- */
 UPDATE_ATTRIBUTE *update_one2m_row_update_attribute(
-		char *many_folder_name,
-		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list,
-		LIST *update_changed_list,
-		QUERY_CELL *query_cell );
+		char *attribute_name,
+		char *query_cell_select_datum,
+		char *update_one2m_row_post_datum );
+
+/* Usage */
+/* ----- */
+
+/* Returns component of parameter or null */
+/* -------------------------------------- */
+char *update_one2m_row_post_datum(
+		UPDATE_CHANGED *update_changed_seek );
 
 /* Usage */
 /* ----- */
@@ -342,27 +343,13 @@ LIST *update_one2m_row_list_folder_name_list(
 /* ----- */
 UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
 		char *many_folder_name,
-		LIST *many_primary_key_list,
-		LIST *update_attribute_list );
-
-/* Usage */
-/* ----- */
-UPDATE_CHANGED *update_one2m_row_update_changed(
-		char *many_folder_name,
-		LIST *many_primary_key_list,
-		char *primary_key,
-		LIST *update_attribute_list );
+		LIST *many_folder_attribute_list,
+		LIST *update_one2m_row_update_attribute_list );
 
 /* Usage */
 /* ----- */
 void update_one2m_row_list_pipe_execute(
 		LIST *update_one2m_row_list,
-		FILE *appaserver_output_pipe );
-
-/* Usage */
-/* ----- */
-void update_one2m_row_changed_list_pipe_execute(
-		LIST *update_changed_list,
 		FILE *appaserver_output_pipe );
 
 /* Usage */
@@ -374,11 +361,6 @@ void update_one2m_row_list_command_execute(
 /* ------ */
 void update_one2m_row_list_display(
 		LIST *update_one2m_row_list );
-
-/* Usage */
-/* ----- */
-void update_one2m_row_changed_list_display(
-		UPDATE_CHANGED_LIST *update_changed_list );
 
 typedef struct
 {
@@ -401,8 +383,6 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 		char *many_folder_name,
 		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list,
-		LIST *many_attribute_name_list,
-		LIST *many_primary_key_list,
 		PROCESS *many_post_change_process,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -417,8 +397,9 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_calloc(
 typedef struct
 {
 	char *many_folder_name;
-	LIST *query_cell_list;
+	LIST *select_name_list;
 	char *select_string;
+	LIST *where_query_cell_list;
 	char *query_cell_where_string;
 	char *query_system_string;
 	QUERY_FETCH *query_fetch;
@@ -436,8 +417,6 @@ UPDATE_ONE2M *update_one2m_new(
 		char *many_folder_name,
 		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list,
-		LIST *many_attribute_name_list,
-		LIST *many_primary_key_list,
 		PROCESS *many_post_change_process,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -448,15 +427,9 @@ UPDATE_ONE2M *update_one2m_new(
 UPDATE_ONE2M *update_one2m_calloc(
 		void );
 
-/* Returns heap memory */
-/* ------------------- */
-char *update_one2m_select_string(
-		LIST *many_attribute_name_list,
-		char delimiter );
-
 /* Usage */
 /* ----- */
-LIST *update_one2m_query_cell_list(
+LIST *update_one2m_where_query_cell_list(
 		LIST *update_where_list,
 		LIST *relation_translate_list,
 		LIST *many_folder_attribute_list );
@@ -509,6 +482,20 @@ int update_one2m_list_cell_count(
 /* ----- */
 LIST *update_one2m_list_folder_name_list(
 		LIST *update_one2m_list );
+
+/* Usage */
+/* ----- */
+LIST *update_one2m_select_name_list(
+		char *many_folder_name,
+		LIST *many_folder_attribute_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *update_one2m_select_string(
+		LIST *update_one2m_select_name_list );
 
 typedef struct
 {
@@ -568,11 +555,10 @@ LIST *update_mto1_isa_update_attribute_list(
 /* -------------- */
 UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
 		LIST *one_folder_attribute_list,
-		LIST *relation_translate_list,
 		char *many_attribute_name,
 		char *post_datum,
 		char *file_datum,
-		UPDATE_ATTRIBUTE *many_update_attribute );
+		char *foreign_key );
 
 /* Usage */
 /* ----- */

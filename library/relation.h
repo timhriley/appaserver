@@ -144,6 +144,14 @@ char *relation_insert_statement(
 		char *one_folder_name,
 		char *related_attribute_name );
 
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_list_display(
+		LIST *relation_list );
+
 typedef struct
 {
 	char *primary_key;
@@ -169,40 +177,24 @@ RELATION_TRANSLATE *relation_translate_calloc(
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 char *relation_translate_primary_key(
-		char *foreign_key,
-		LIST *relation_translate_list );
-
-/* Process */
-/* ------- */
-RELATION_TRANSLATE *relation_translate_foreign_seek(
-		char *foreign_key,
-		LIST *relation_translate_list );
+		LIST *relation_translate_list,
+		char *foreign_key );
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
 char *relation_translate_foreign_key(
-		char *primary_key,
-		LIST *relation_translate_list );
+		LIST *relation_translate_list,
+		char *primary_key );
 
-/* Process */
-/* ------- */
-RELATION_TRANSLATE *relation_translate_primary_seek(
-		char *primary_key,
+/* Usage */
+/* ----- */
+LIST *relation_translate_primary_list(
 		LIST *relation_translate_list );
 
 /* Usage */
 /* ----- */
-
-/* Returns heap or program memory */
-/* ------------------------------ */
-char *relation_translate_list_display(
+LIST *relation_translate_foreign_list(
 		LIST *relation_translate_list );
 
 /* Usage */
@@ -210,7 +202,20 @@ char *relation_translate_list_display(
 
 /* Returns heap memory */
 /* ------------------- */
-char *relation_list_display(
-		LIST *relation_list );
+char *relation_translate_primary_delimited_string(
+		LIST *relation_translate_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *relation_translate_foreign_delimited_string(
+		LIST *relation_translate_list );
+
+/* Returns heap or program memory */
+/* ------------------------------ */
+char *relation_translate_list_display(
+		LIST *relation_translate_list );
 
 #endif

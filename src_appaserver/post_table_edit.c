@@ -104,7 +104,7 @@ int main( int argc, char **argv )
 				message );
 		}
 
-#ifdef NOT_DEFINED
+/* #ifdef NOT_DEFINED */
 
 		update_error_string =
 		post_table_edit->update->error_string =
@@ -133,16 +133,16 @@ int main( int argc, char **argv )
 			post_table_edit->
 				update->
 				results_string;
-#endif
+/* #endif */
 
-/* #ifdef NOT_DEFINED */
+#ifdef NOT_DEFINED
 		update_row_list_display(
 			post_table_edit->
 				update->
 				update_row_list );
 
 		update_error_string = "test only";
-/* #endif */
+#endif
 	}
 
 	if ( !update_error_string

@@ -1496,13 +1496,25 @@ LIST *drilldown_many_to_one_attribute_data_list(
 	do {
 		primary_key = list_get( one_folder_primary_key_list );
 
-		foreign_key =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			relation_translate_foreign_key(
-				primary_key,
-				relation_translate_list );
+		if ( ! ( foreign_key =
+				relation_translate_foreign_key(
+					relation_translate_list,
+					primary_key ) ) )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"relation_translate_foreign_key(%s) returned empty.",
+				primary_key );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
 
 		if ( ! ( get =
 				/* --------------------------------------- */

@@ -597,147 +597,9 @@ RELATION_TRANSLATE *relation_translate_calloc( void )
 	return relation_translate;
 }
 
-char *relation_translate_primary_key(
-		char *foreign_key,
-		LIST *relation_translate_list )
-{
-	RELATION_TRANSLATE *relation_translate;
-
-	if ( !foreign_key )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "foreign_key is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( ! ( relation_translate =
-			relation_translate_foreign_seek(
-				foreign_key,
-				relation_translate_list ) ) )
-	{
-		return foreign_key;
-	}
-	else
-	{
-		return relation_translate->primary_key;
-	}
-}
-
-RELATION_TRANSLATE *relation_translate_foreign_seek(
-		char *foreign_key,
-		LIST *relation_translate_list )
-{
-	RELATION_TRANSLATE *relation_translate;
-
-	if ( !foreign_key
-	||   !list_rewind( relation_translate_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	do {
-		relation_translate =
-			list_get(
-				relation_translate_list );
-
-		if ( strcmp(
-			foreign_key,
-			relation_translate->foreign_key ) == 0 ) 
-		{
-			return relation_translate;
-		}
-
-	} while ( list_next( relation_translate_list ) );
-
-	return NULL;
-}
-
-char *relation_translate_foreign_key(
-		char *primary_key,
-		LIST *relation_translate_list )
-{
-	RELATION_TRANSLATE *relation_translate;
-
-	if ( !primary_key )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "primary_key is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	if ( ! ( relation_translate =
-			relation_translate_primary_seek(
-				primary_key,
-				relation_translate_list ) ) )
-	{
-		return primary_key;
-	}
-	else
-	{
-		return relation_translate->foreign_key;
-	}
-}
-
-RELATION_TRANSLATE *relation_translate_primary_seek(
-		char *primary_key,
-		LIST *relation_translate_list )
-{
-	RELATION_TRANSLATE *relation_translate;
-
-	if ( !primary_key
-	||   !list_rewind( relation_translate_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	do {
-		relation_translate =
-			list_get(
-				relation_translate_list );
-
-		if ( strcmp(
-			primary_key,
-			relation_translate->primary_key ) == 0 ) 
-		{
-			return relation_translate;
-		}
-
-	} while ( list_next( relation_translate_list ) );
-
-	return NULL;
-}
-
 char *relation_translate_list_display( LIST *relation_translate_list )
 {
-	char display[ 65536 ];
+	char display[ 4096 ];
 	char *ptr = display;
 	RELATION_TRANSLATE *relation_translate;
 
@@ -761,6 +623,60 @@ char *relation_translate_list_display( LIST *relation_translate_list )
 		return "NULL";
 	else
 		return strdup( display );
+}
+
+char *relation_translate_primary_delimited_string(
+		LIST *relation_translate_list )
+{
+	char string[ 2048 ];
+	char *ptr = string;
+	RELATION_TRANSLATE *relation_translate;
+
+	*ptr = '\0';
+
+	if ( list_rewind( relation_translate_list ) )
+	do {
+		relation_translate =
+			list_get(
+				relation_translate_list );
+
+		if ( ptr != string ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			relation_translate->primary_key );
+
+	} while ( list_next( relation_translate_list ) );
+
+	return strdup( string );
+}
+
+char *relation_translate_foreign_delimited_string(
+		LIST *relation_translate_list )
+{
+	char string[ 2048 ];
+	char *ptr = string;
+	RELATION_TRANSLATE *relation_translate;
+
+	*ptr = '\0';
+
+	if ( list_rewind( relation_translate_list ) )
+	do {
+		relation_translate =
+			list_get(
+				relation_translate_list );
+
+		if ( ptr != string ) ptr += sprintf( ptr, "," );
+
+		ptr += sprintf(
+			ptr,
+			"%s",
+			relation_translate->foreign_key );
+
+	} while ( list_next( relation_translate_list ) );
+
+	return strdup( string );
 }
 
 char *relation_list_display( LIST *relation_list )
@@ -808,3 +724,118 @@ char *relation_list_display( LIST *relation_list )
 	return strdup( display );
 }
 
+LIST *relation_translate_primary_list( LIST *relation_translate_list )
+{
+	LIST *list = list_new();
+	RELATION_TRANSLATE *relation_translate;
+
+	if ( list_rewind( relation_translate_list ) )
+	do {
+		relation_translate =
+			list_get(
+				relation_translate_list );
+
+		list_set( list, relation_translate->primary_key );
+
+	} while ( list_next( relation_translate_list ) );
+
+	return list;
+}
+
+LIST *relation_translate_foreign_list( LIST *relation_translate_list )
+{
+	LIST *list = list_new();
+	RELATION_TRANSLATE *relation_translate;
+
+	if ( list_rewind( relation_translate_list ) )
+	do {
+		relation_translate =
+			list_get(
+				relation_translate_list );
+
+		list_set( list, relation_translate->foreign_key );
+
+	} while ( list_next( relation_translate_list ) );
+
+	return list;
+}
+
+char *relation_translate_primary_key(
+		LIST *relation_translate_list,
+		char *foreign_key )
+{
+	RELATION_TRANSLATE *relation_translate;
+
+	if ( !foreign_key )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"foreign_key is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( relation_translate_list ) )
+	do {
+		relation_translate =
+			list_get(
+				relation_translate_list );
+
+		if ( strcmp(
+			relation_translate->foreign_key,
+			foreign_key ) == 0 )
+		{
+			return relation_translate->primary_key;
+		}
+
+	} while ( list_next( relation_translate_list ) );
+
+	return NULL;
+}
+
+char *relation_translate_foreign_key(
+		LIST *relation_translate_list,
+		char *primary_key )
+{
+	RELATION_TRANSLATE *relation_translate;
+
+	if ( !primary_key )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"primary_key is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( list_rewind( relation_translate_list ) )
+	do {
+		relation_translate =
+			list_get(
+				relation_translate_list );
+
+		if ( strcmp(
+			relation_translate->primary_key,
+			primary_key ) == 0 )
+		{
+			return relation_translate->foreign_key;
+		}
+
+	} while ( list_next( relation_translate_list ) );
+
+	return NULL;
+}
