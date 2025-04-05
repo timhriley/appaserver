@@ -21,6 +21,7 @@ char *sql_delimiter_string( char sql_delimiter )
 }
 
 char *sql_execute(
+		const char *sql_executable,
 		char *appaserver_error_filename,
 		LIST *sql_list,
 		char *sql_statement )
@@ -52,8 +53,9 @@ char *sql_execute(
 	snprintf(
 		system_string,
 		sizeof ( system_string ),
-		"tee -a %s | sql.e 2>%s",
+		"tee -a %s | %s 2>%s",
 		appaserver_error_filename,
+		sql_executable,
 		( temp_filename =
 			timlib_temp_filename( "insert" /* key */ ) ) );
 

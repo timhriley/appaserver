@@ -31,8 +31,6 @@
 #include "dictionary_separate.h"
 #include "update.h"
 
-/* #define DEBUG_MODE 1 */
-
 UPDATE *update_calloc( void )
 {
 	UPDATE *update;
@@ -380,7 +378,7 @@ UPDATE_ROW *update_row_new(
 	&&   update_row->update_root->update_changed_primary_key_boolean
 	&&   list_length( relation_one2m_list ) )
 	{
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
@@ -704,7 +702,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 
 		if ( list_length( update_mto1_isa->relation_one2m_list ) )
 		{
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
@@ -2679,7 +2677,7 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 				/* update_changed_list */,
 			query_row_cell_list );
 
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
@@ -2776,7 +2774,7 @@ msg( (char *)0, message );
 
 		if ( list_length( update_one2m_row->relation_one2m_list ) )
 		{
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
@@ -3081,7 +3079,7 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 	do {
 		query_row = list_get( query_fetch_row_list );
 
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
@@ -4349,7 +4347,7 @@ UPDATE_ONE2M_LIST *update_one2m_list_new(
 				appaserver_parameter_mount_point );
 		}
 
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(
@@ -5157,7 +5155,7 @@ UPDATE_CHANGED_LIST *update_one2m_row_update_changed_list(
 			many_folder_name,
 			many_folder_attribute_list );
 
-#ifdef DEBUG_MODE
+#ifdef UPDATE_DEBUG_MODE
 {
 char message[ 65536 ];
 snprintf(

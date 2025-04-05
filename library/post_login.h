@@ -12,7 +12,7 @@
 #include "security.h"
 #include "appaserver_user.h"
 
-#define POST_LOGIN_RETURN_USERNAME	"login"
+#define POST_LOGIN_RETURN_USERNAME	"timriley"
 #define POST_LOGIN_MAIL_FILENAME	"/etc/mailname"
 #define POST_LOGIN_SUBJECT		"Appaserver login"
 #define POST_LOGIN_SLEEP_SECONDS	3
@@ -150,7 +150,7 @@ typedef struct
 	char *application_title_string;
 	DOCUMENT *document;
 	char *document_body_open_tag;
-	char *document_close_tag;
+	char *document_both_close_tag;
 	char *html;
 } POST_LOGIN_DOCUMENT;
 

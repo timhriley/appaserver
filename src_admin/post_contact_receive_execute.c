@@ -19,12 +19,6 @@ int main( int argc, char **argv )
 {
 	POST_CONTACT_RECEIVE *post_contact_receive;
 
-	appaserver_error_argv_file(
-		argc,
-		argv,
-		APPLICATION_ADMIN_NAME,
-		(char *)0 /* login_name */ );
-
 	document_content_type_output();
 
 	post_contact_receive =
@@ -48,6 +42,7 @@ int main( int argc, char **argv )
 				post_contact_receive->mailx_system_string );
 
 			(void)sql_execute(
+				SQL_EXECUTABLE,
 				post_contact_receive->
 					post_receive->
 					appaserver_error_filename,

@@ -84,6 +84,7 @@ int main( int argc, char **argv )
 			/* Returns error_string or null */
 			/* ---------------------------- */
 			sql_execute(
+				SQL_EXECUTABLE,
 				appaserver_error_filename(
 					application_name ),
 				(LIST *)0 /* sql_list */,

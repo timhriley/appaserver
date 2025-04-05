@@ -199,6 +199,7 @@ int main( int argc, char **argv )
 			/* Returns error_string or null */
 			/* ---------------------------- */
 			sql_execute(
+				SQL_EXECUTABLE,
 				import_predict->
 					import_predict_input->
 					appaserver_error_filename,

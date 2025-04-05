@@ -104,7 +104,8 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 POST_CONTACT_SUBMIT *post_contact_submit_new(
-		void );
+		int argc,
+		char **argv );
 
 /* Process */
 /* ------- */

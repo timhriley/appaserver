@@ -18,23 +18,22 @@ int main( int argc, char **argv )
 {
 	POST_SIGNUP_SUBMIT *post_signup_submit;
 
-	appaserver_error_argv_file(
-		argc,
-		argv,
-		APPLICATION_ADMIN_NAME,
-		(char *)0 /* login_name */ );
-
 	document_content_type_output();
 
-	/* Safely returns */
-	/* -------------- */
-	post_signup_submit = post_signup_submit_new();
+	post_signup_submit =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		post_signup_submit_new(
+			argc,
+			argv );
 
 	if ( post_signup_submit->post_signup )
 	{
 		char *error_string;
 
 		error_string = sql_execute(
+			SQL_EXECUTABLE,
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -53,6 +52,7 @@ int main( int argc, char **argv )
 		}
 
 		error_string = sql_execute(
+			SQL_EXECUTABLE,
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,
@@ -77,10 +77,12 @@ int main( int argc, char **argv )
 
 	if ( post_signup_submit->post_login_document )
 	{
+		fflush( stdout );
 		printf(	"%s\n",
 			post_signup_submit->
 				post_login_document->
 				html );
+		fflush( stdout );
 	}
 
 	if ( post_signup_submit->
@@ -91,6 +93,7 @@ int main( int argc, char **argv )
 		char *error_string;
 
 		error_string = sql_execute(
+			SQL_EXECUTABLE,
 			post_signup_submit->
 				post_signup_submit_input->
 				appaserver_error_filename,

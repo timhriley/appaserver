@@ -19,25 +19,21 @@ int main( int argc, char **argv )
 {
 	POST_CONTACT_SUBMIT *post_contact_submit;
 
-	session_environment_set( APPLICATION_ADMIN_NAME );
-
-	appaserver_error_argv_file(
-		argc,
-		argv,
-		APPLICATION_ADMIN_NAME,
-		(char *)0 /* login_name */ );
-
 	document_content_type_output();
 
-	/* Safely returns */
-	/* -------------- */
-	post_contact_submit = post_contact_submit_new();
+	post_contact_submit =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		post_contact_submit_new(
+			argc, argv );
 
 	if ( post_contact_submit->post_contact )
 	{
 		char *error_string;
 
 		error_string = sql_execute(
+			SQL_EXECUTABLE,
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
@@ -56,6 +52,7 @@ int main( int argc, char **argv )
 		}
 
 		error_string = sql_execute(
+			SQL_EXECUTABLE,
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,
@@ -93,6 +90,7 @@ int main( int argc, char **argv )
 		char *error_string;
 
 		error_string = sql_execute(
+			SQL_EXECUTABLE,
 			post_contact_submit->
 				post_contact_submit_input->
 				appaserver_error_filename,

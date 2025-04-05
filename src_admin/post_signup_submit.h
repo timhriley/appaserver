@@ -87,7 +87,8 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 POST_SIGNUP_SUBMIT *post_signup_submit_new(
-		void );
+		int argc,
+		char **argv );
 
 /* Process */
 /* ------- */

@@ -469,12 +469,12 @@ char *post_login_success_email_system_string(
 		/* --------------------------------------------------- */
 		/* -t means to extract the recepients from the message */
 		/* --------------------------------------------------- */
-		"/usr/sbin/sendmail -t < %s;",
+		"/usr/sbin/sendmail -t < %s",
 		sendmail_filename );
 
 	ptr += sprintf(
 		ptr,
-		"rm -f %s",
+		" && rm -f %s",
 		sendmail_filename );
 
 	return strdup( system_string );
@@ -778,11 +778,11 @@ POST_LOGIN_DOCUMENT *post_login_document_new(
 		/* ---------------------- */
 		document_body_open_tag();
 
-	post_login_document->document_close_tag =
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_close_tag();
+	post_login_document->document_both_close_tag =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		document_both_close_tag();
 
 	post_login_document->html =
 		/* ------------------- */
@@ -793,7 +793,7 @@ POST_LOGIN_DOCUMENT *post_login_document_new(
 			post_login_document->filename_location,
 			post_login_document->document->html,
 			post_login_document->document_body_open_tag,
-			post_login_document->document_close_tag );
+			post_login_document->document_both_close_tag );
 
 	return post_login_document;
 }
@@ -879,15 +879,15 @@ char *post_login_document_html(
 		char *post_login_document_filename_location,
 		char *document_html,
 		char *document_body_open_tag,
-		char *document_close_tag )
+		char *document_both_close_tag )
 {
-	char html[ 1024 ];
+	char html[ 2048 ];
 	char destination[ 128 ];
 
 	if ( !post_login_document_filename_location
 	||   !document_html
 	||   !document_body_open_tag
-	||   !document_close_tag )
+	||   !document_both_close_tag )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -910,7 +910,7 @@ char *post_login_document_html(
 			string_initial_capital(
 				destination,
 				post_login_document_filename_location ),
-			document_close_tag );
+			document_both_close_tag );
 	}
 	else
 	{
@@ -925,7 +925,7 @@ char *post_login_document_html(
 			document_html,
 			document_body_open_tag,
 			post_login_document_filename_location,
-			document_close_tag );
+			document_both_close_tag );
 	}
 
 	return strdup( html );

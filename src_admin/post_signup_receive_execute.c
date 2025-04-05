@@ -21,12 +21,6 @@ int main( int argc, char **argv )
 	POST_SIGNUP_RECEIVE *post_signup_receive;
 	char *fetch;
 
-	appaserver_error_argv_file(
-		argc,
-		argv,
-		APPLICATION_ADMIN_NAME,
-		(char *)0 /* login_name */ );
-
 	document_content_type_output();
 
 	post_signup_receive =
@@ -37,81 +31,116 @@ int main( int argc, char **argv )
 			argc,
 			argv );
 
-	if ( post_signup_receive->post_signup )
+	if ( post_signup_receive->session )
 	{
-		if ( !post_signup_receive->
-			post->
-			confirmation_received_date )
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			post_signup_receive->
+				post_receive->
+				appaserver_error_filename,
+			(LIST *)0 /* sql_list */,
+			post_signup_receive->
+				post_confirmation_update_statement );
+
+		session_insert(
+			SESSION_TABLE,
+			SESSION_INSERT,
+			post_signup_receive->session->session_key,
+			post_signup_receive->
+				post_receive->
+				email_address
+					/* login_name */,
+			post_signup_receive->session->login_date,
+			post_signup_receive->session->login_time,
+			post_signup_receive->session->http_user_agent,
+			post_signup_receive->
+				session->
+				remote_ip_address );
+	
+		fetch =
+		   spool_fetch(
+			post_signup_receive->
+		    		execute_system_string_create_application,
+			0 /* not capture_stderr_boolean */ );
+	
+		if ( !fetch )
 		{
-			session_insert(
-				SESSION_TABLE,
-				SESSION_INSERT,
-				post_signup_receive->session->session_key,
-				post_signup_receive->
-					post_receive->
-					email_address
-						/* login_name */,
-				post_signup_receive->session->login_date,
-				post_signup_receive->session->login_time,
-				post_signup_receive->session->http_user_agent,
-				post_signup_receive->
-					session->
-					remote_ip_address );
-	
-			fetch =
-			   spool_fetch(
-				post_signup_receive->
-				    execute_system_string_create_application,
-				0 /* not capture_stderr_boolean */ );
-	
-			if ( !fetch )
-			{
-				fprintf(
-				  stderr,
+			fprintf(
+			  stderr,
 		"ERROR in %s/%s()/%d: spool_fetch(%s) returned empty.\n",
-				  __FILE__,
-				  __FUNCTION__,
-				  __LINE__,
-				  post_signup_receive->
-				     execute_system_string_create_application );
-				exit( 1 );
-			}
+			  __FILE__,
+			  __FUNCTION__,
+			  __LINE__,
+			  post_signup_receive->
+			     execute_system_string_create_application );
+			exit( 1 );
+		}
 
-			(void)sql_execute(
+		session_delete(
+			post_signup_receive->
+				session->
+				session_key );
+
+		post_signup_receive->password =
+			/* ----------------- */
+			/* Returns parameter */
+			/* ----------------- */
+			post_signup_receive_password(
+				fetch );
+
+		post_signup_receive->success_parameter =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			post_signup_receive_success_parameter(
+				post_signup_receive->password );
+
+		post_signup_receive->password_statement =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			post_signup_receive_password_statement(
+				POST_SIGNUP_TABLE,
+				POST_SIGNUP_PASSWORD_COLUMN,
 				post_signup_receive->
 					post_receive->
-					appaserver_error_filename,
-				(LIST *)0 /* sql_list */,
+					email_address,
 				post_signup_receive->
-					post_confirmation_update_statement );
+					post_receive->
+					timestamp_space,
+				post_signup_receive->password );
 
-			post_signup_receive->post_login_document =
-				post_login_document_new(
-					(DICTIONARY *)0 /* location_website */,
-					post_signup_receive->
-						post_signup->
-						application_key
-							/* application_name */,
-					/* --------------------- */
-					/* Returns static memory */
-					/* --------------------- */
-					post_signup_receive_success_parameter(
-						fetch /* password */ ) );
+		(void)sql_execute(
+			SQL_EXECUTABLE,
+			post_signup_receive->
+				post_receive->
+				appaserver_error_filename,
+			(LIST *)0 /* sql_list */,
+			post_signup_receive->password_statement );
 
-			printf(	"%s\n",
+		post_signup_receive->post_login_document =
+			post_login_document_new(
+				(DICTIONARY *)0
+				/* input_dictionary for location_website */,
 				post_signup_receive->
-					post_login_document->
-					html );
-
-			session_delete(
-				post_signup_receive->
-					session->
-					session_key );
-		}
+					post_signup->
+					application_key /* application_name */,
+				post_signup_receive->success_parameter );
 	}
-	else
+
+	if ( post_signup_receive->post_login_document )
 	{
-		sleep( POST_SLEEP_SECONDS );
+		fflush( stdout );
+		printf(	"%s\n",
+			post_signup_receive->
+				post_login_document->
+				html );
+		fflush( stdout );
+	}
+
+	if ( post_signup_receive->sleep_seconds )
+	{
+		sleep( post_signup_receive->sleep_seconds );
 	}
 
 	return 0;

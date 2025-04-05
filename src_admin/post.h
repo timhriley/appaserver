@@ -32,7 +32,7 @@
 					"timestamp"
 
 #define POST_DENY_EXECUTABLE		"/usr2/ufw/ufw_submit"
-#define POST_SLEEP_SECONDS		600
+#define POST_SLEEP_SECONDS		60
 
 typedef struct
 {
@@ -50,9 +50,7 @@ typedef struct
 
 /* Safely returns */
 /* -------------- */
-POST *post_new(
-		const char *application_admin_name,
-		char *email_address );
+POST *post_new(	char *email_address );
 
 /* Process */
 /* ------- */

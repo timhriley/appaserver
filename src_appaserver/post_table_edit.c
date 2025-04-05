@@ -15,6 +15,7 @@
 #include "attribute.h"
 #include "security.h"
 #include "table_edit.h"
+#include "update.h"
 #include "post_table_edit.h"
 
 int main( int argc, char **argv )
@@ -104,7 +105,7 @@ int main( int argc, char **argv )
 				message );
 		}
 
-/* #ifdef NOT_DEFINED */
+#ifndef UPDATE_DEBUG_MODE
 
 		update_error_string =
 		post_table_edit->update->error_string =
@@ -133,9 +134,9 @@ int main( int argc, char **argv )
 			post_table_edit->
 				update->
 				results_string;
-/* #endif */
+#endif
 
-#ifdef NOT_DEFINED
+#ifdef UPDATE_DEBUG_MODE
 		update_row_list_display(
 			post_table_edit->
 				update->

@@ -218,10 +218,20 @@ boolean post_signup_submit_input_application_exists_boolean(
 			log_directory ) );
 }
 
-POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
+POST_SIGNUP_SUBMIT *post_signup_submit_new(
+		int argc,
+		char **argv )
 {
 	POST_SIGNUP_SUBMIT *post_signup_submit =
 		post_signup_submit_calloc();
+
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
+	appaserver_error_argv_file(
+		argc,
+		argv,
+		APPLICATION_ADMIN_NAME,
+		(char *)0 /* login_name */ );
 
 	post_signup_submit->post_signup_submit_input =
 		/* -------------- */
@@ -251,7 +261,8 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 			/* Safely returns */
 			/* -------------- */
 			post_login_document_new(
-				(DICTIONARY *)0 /* location_website */,
+				(DICTIONARY *)0
+				/* input_dictionary for location_website */,
 				APPLICATION_ADMIN_NAME,
 				post_signup_submit->index_html_parameter );
 
@@ -263,7 +274,6 @@ POST_SIGNUP_SUBMIT *post_signup_submit_new( void )
 		/* Safely returns */
 		/* -------------- */
 		post_new(
-			APPLICATION_ADMIN_NAME,
 			post_signup_submit->
 				post_signup_submit_input->
 				post_contact_submit_input_email_address );

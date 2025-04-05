@@ -10,6 +10,7 @@
 #include "String.h"
 #include "appaserver_error.h"
 #include "float.h"
+#include "sql.h"
 #include "update.h"
 #include "subsidiary_transaction.h"
 
@@ -573,6 +574,7 @@ void subsidiary_transaction_execute(
 				transaction_date_time );
 
 			update_statement_execute(
+				SQL_EXECUTABLE,
 				application_name,
 				update_statement );
 		}

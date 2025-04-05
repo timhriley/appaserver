@@ -21,6 +21,14 @@ POST_CONTACT_RECEIVE *post_contact_receive_new(
 
 	post_contact_receive = post_contact_receive_calloc();
 
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
+	appaserver_error_argv_file(
+		argc,
+		argv,
+		APPLICATION_ADMIN_NAME,
+		(char *)0 /* login_name */ );
+
 	post_contact_receive->post_receive =
 		/* -------------- */
 		/* Safely returns */

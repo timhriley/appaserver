@@ -18,9 +18,7 @@
 #include "appaserver_error.h"
 #include "post.h"
 
-POST *post_new(
-		const char *application_admin_name,
-		char *email_address )
+POST *post_new(	char *email_address )
 {
 	POST *post;
 
@@ -35,8 +33,6 @@ POST *post_new(
 	}
 
 	post = post_calloc();
-
-	session_environment_set( (char *)application_admin_name );
 
 	post->ip_address =
 		/* --------------------------- */
@@ -396,8 +392,6 @@ POST_RECEIVE *post_receive_new(
 		/* --------------------- */
 		post_receive_timestamp_space(
 			post_receive->timestamp_spaceless );
-
-	session_environment_set( (char *)application_admin_name );
 
 	post_receive->appaserver_parameter =
 		/* -------------- */

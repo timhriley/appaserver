@@ -180,5 +180,8 @@ POST_SIGNUP *post_signup_parse(
 	piece( buffer, SQL_DELIMITER, string_fetch, 1 );
 	if ( *buffer ) post_signup->application_title = strdup( buffer );
 
+	piece( buffer, SQL_DELIMITER, string_fetch, 2 );
+	if ( *buffer ) post_signup->signup_password = strdup( buffer );
+
 	return post_signup;
 }

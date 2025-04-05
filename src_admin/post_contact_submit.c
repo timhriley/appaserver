@@ -12,7 +12,7 @@
 #include "piece.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
-#include "form.h"
+#include "session.h"
 #include "security.h"
 #include "environ.h"
 #include "post.h"
@@ -20,11 +20,21 @@
 #include "post_contact_receive.h"
 #include "post_contact_submit.h"
 
-POST_CONTACT_SUBMIT *post_contact_submit_new( void )
+POST_CONTACT_SUBMIT *post_contact_submit_new(
+		int argc,
+		char **argv )
 {
 	POST_CONTACT_SUBMIT *post_contact_submit;
 
 	post_contact_submit = post_contact_submit_calloc();
+
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
+	appaserver_error_argv_file(
+		argc,
+		argv,
+		APPLICATION_ADMIN_NAME,
+		(char *)0 /* login_name */ );
 
 	post_contact_submit->post_contact_submit_input =
 		/* -------------- */
@@ -65,7 +75,6 @@ POST_CONTACT_SUBMIT *post_contact_submit_new( void )
 		/* Safely returns */
 		/* -------------- */
 		post_new(
-			APPLICATION_ADMIN_NAME,
 			post_contact_submit->
 				post_contact_submit_input->
 				email_address );

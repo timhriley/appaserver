@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "application.h"
 #include "appaserver.h"
+#include "appaserver_error.h"
 #include "environ.h"
 #include "application_create.h"
 #include "execute_system_string.h"
@@ -44,6 +45,14 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 	POST_SIGNUP_RECEIVE *post_signup_receive =
 		post_signup_receive_calloc();
 
+	session_environment_set( APPLICATION_ADMIN_NAME );
+
+	appaserver_error_argv_file(
+		argc,
+		argv,
+		APPLICATION_ADMIN_NAME,
+		(char *)0 /* login_name */ );
+
 	post_signup_receive->post_receive =
 		/* -------------- */
 		/* Safely returns */
@@ -54,20 +63,87 @@ POST_SIGNUP_RECEIVE *post_signup_receive_new(
 			argc,
 			argv );
 
-
 	post_signup_receive->post =
 		post_fetch(
 			post_signup_receive->post_receive->email_address,
 			post_signup_receive->post_receive->timestamp_space );
 
-	if ( !post_signup_receive->post ) return post_signup_receive;
+	if ( !post_signup_receive->post )
+	{
+		post_signup_receive->sleep_seconds =
+			post_signup_receive_sleep_seconds(
+				POST_SLEEP_SECONDS );
+
+		return post_signup_receive;
+	}
 
 	post_signup_receive->post_signup =
 		post_signup_fetch(
 			post_signup_receive->post_receive->email_address,
 			post_signup_receive->post_receive->timestamp_space );
 
-	if ( !post_signup_receive->post_signup ) return post_signup_receive;
+	if ( !post_signup_receive->post_signup )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: post_signup_fetch(%s,%s) returned empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			post_signup_receive->post_receive->email_address,
+			post_signup_receive->post_receive->timestamp_space );
+		exit( 1 );
+	}
+
+	if ( post_signup_receive->post_signup->signup_password )
+	{
+		post_signup_receive->success_parameter =
+			/* --------------------- */
+			/* Returns static memory */
+			/* --------------------- */
+			post_signup_receive_success_parameter(
+				post_signup_receive->
+					post_signup->
+					signup_password );
+
+		post_signup_receive->post_login_document =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			post_login_document_new(
+				(DICTIONARY *)0
+				/* input_dictionary for location_website */,
+				post_signup_receive->
+					post_signup->
+					application_key
+					/* application_name */,
+				post_signup_receive->success_parameter );
+
+		return post_signup_receive;
+	}
+
+	if ( post_signup_receive->post->confirmation_received_date )
+	{
+		post_signup_receive->in_process_parameter =
+			/* ---------------------- */
+			/* Returns program memory */
+			/* ---------------------- */
+			post_signup_receive_in_process_parameter();
+
+		post_signup_receive->post_login_document =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			post_login_document_new(
+				(DICTIONARY *)0
+				/* input_dictionary for location_website */,
+				post_signup_receive->
+					post_signup->
+					application_key
+					/* application_name */,
+				post_signup_receive->in_process_parameter );
+
+		return post_signup_receive;
+	}
 
 	post_signup_receive->session =
 		/* -------------- */
@@ -144,3 +220,67 @@ POST_SIGNUP_RECEIVE *post_signup_receive_calloc( void )
 
 	return post_signup_receive;
 }
+
+char *post_signup_receive_password_statement(
+		const char *post_signup_table,
+		const char *post_signup_password_column,
+		char *email_address,
+		char *timestamp_space,
+		char *post_signup_receive_password )
+{
+	static char password_statement[  256 ];
+
+	if ( !email_address
+	||   !timestamp_space
+	||   !post_signup_receive_password )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	snprintf(
+		password_statement,
+		sizeof ( password_statement ),
+		"update %s set %s = '%s' where %s;",
+		post_signup_table,
+		post_signup_password_column,
+		post_signup_receive_password,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		post_primary_where(
+			email_address,
+			timestamp_space ) );
+
+	return password_statement;
+}
+
+char *post_signup_receive_in_process_parameter( void )
+{
+	return "signup_in_process=yes";
+}
+
+char *post_signup_receive_password( char *spool_fetch )
+{
+	if ( !spool_fetch )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: spool_fetch is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return spool_fetch;
+}
+
+int post_signup_receive_sleep_seconds( const int post_sleep_seconds )
+{
+	return post_sleep_seconds;
+}
+

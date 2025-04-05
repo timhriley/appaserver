@@ -13,12 +13,15 @@
 #define POST_SIGNUP_TABLE		"post_signup"
 
 #define POST_SIGNUP_SELECT		"application_key,"	\
-					"application_title"
+					"application_title,"	\
+					"signup_password"
 
 #define POST_SIGNUP_INSERT		"email_address,"	\
 					"timestamp,"		\
 					"application_key,"	\
 					"application_title"
+
+#define POST_SIGNUP_PASSWORD_COLUMN	"signup_password"
 
 typedef struct
 {
@@ -26,6 +29,7 @@ typedef struct
 	char *timestamp;
 	char *application_key;
 	char *application_title;
+	char *signup_password;
 	char *insert_statement;
 } POST_SIGNUP;
 

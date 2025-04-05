@@ -707,6 +707,7 @@ char *insert_statement_execute(
 		/* Returns error_string or null */
 		/* ---------------------------- */
 		sql_execute(
+			SQL_EXECUTABLE,
 			appaserver_error_filename,
 			extract_sql_list,
 			(char *)0 /* sql_statement */ );

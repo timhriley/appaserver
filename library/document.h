@@ -321,6 +321,14 @@ char *document_close_tag(
 /* Usage */
 /* ----- */
 
+/* Returns static memory */
+/* --------------------- */
+char *document_both_close_tag(
+		void );
+
+/* Usage */
+/* ----- */
+
 /* Outputs both </body> and </html> */
 /* -------------------------------- */
 void document_close(

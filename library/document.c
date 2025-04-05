@@ -672,15 +672,11 @@ char *document_head_title_tag( char *title_string )
 void document_close( void )
 {
 	fflush( stdout );
-	printf( "%s\n%s\n",
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_body_close_tag(),
-		/* ---------------------- */
-		/* Returns program memory */
-		/* ---------------------- */
-		document_close_tag() );
+	printf( "%s\n",
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		document_both_close_tag() );
 	fflush( stdout );
 }
 
@@ -1004,5 +1000,25 @@ double document_capacity(
 	return
 	( (double)strlen_html /
 	  (double)max_strlen ) * 100.0;
+}
+
+char *document_both_close_tag( void )
+{
+	static char both_close_tag[ 32 ];
+
+	snprintf(
+		both_close_tag,
+		sizeof ( both_close_tag ),
+		"%s\n%s",
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_body_close_tag(),
+		/* ---------------------- */
+		/* Returns program memory */
+		/* ---------------------- */
+		document_close_tag() );
+
+	return both_close_tag;
 }
 
