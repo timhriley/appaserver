@@ -61,8 +61,8 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/post_dictionary.o				\
 		${LIBRARY}/session.o					\
-		${LIBRARY}/timlib.o					\
 		${LIBRARY}/file.o					\
+		${LIBRARY}/timlib.o					\
 		${LIBRARY}/post_login.o					\
 		${LIBRARY}/execute_system_string.o			\
 		${LIBRARY}/bot_generated.o				\

@@ -8,7 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "String.h"
-#include "timlib.h"
 #include "appaserver_error.h"
 #include "list.h"
 #include "environ.h"
@@ -75,18 +74,18 @@ boolean process_executable_okay(
 
 	/* Can't redirect anything. */
 	/* ------------------------ */
-	if ( character_exists( command_line, '>' ) ) return 0;
-	if ( character_exists( command_line, '<' ) ) return 0;
+	if ( string_character_exists( command_line, '>' ) ) return 0;
+	if ( string_character_exists( command_line, '<' ) ) return 0;
 
 	/* Can't execute multiple commands. */
 	/* -------------------------------- */
-	if ( character_exists( command_line, ';' ) ) return 0;
-	if ( character_exists( command_line, '&' ) ) return 0;
+	if ( string_character_exists( command_line, ';' ) ) return 0;
+	if ( string_character_exists( command_line, '&' ) ) return 0;
 
 	/* Can't fork a subshell. */
 	/* ---------------------- */
-	if ( character_exists( command_line, '(' ) ) return 0;
-	if ( character_exists( command_line, '`' ) ) return 0;
+	if ( string_character_exists( command_line, '(' ) ) return 0;
+	if ( string_character_exists( command_line, '`' ) ) return 0;
 
 	column( command, 0, command_line );
 
