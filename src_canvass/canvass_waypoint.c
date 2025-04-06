@@ -109,3 +109,51 @@ LIST *canvass_waypoint_utm_list(
  
 	return waypoint_utm_list;
 }
+
+LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
+{
+	CANVASS_STREET *canvass_street;
+	LIST *lonlat_list = list_new();
+	WAYPOINT_LONLAT *waypoint_lonlat;
+
+	if ( list_rewind( canvass_street_list ) )
+	do {
+		canvass_street = list_get( canvass_street_list );
+
+		if ( !canvass_street->street
+		||   !canvass_street->street->household_count
+		||   !canvass_street->street->longitude_string
+		||   !canvass_street->street->latitude_string )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: canvass_street is incomplete\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		waypoint_lonlat =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			waypoint_lonlat_new(
+				canvass_street /* record */,
+				canvass_street->street->household_count
+					/* weight */,
+				canvass_street->street->longitude_string,
+				canvass_street->street->latitude_string );
+
+		list_set( lonlat_list, waypoint_lonlat );
+
+	} while ( list_next( canvass_street_list ) );
+
+	if ( !list_length( lonlat_list ) )
+	{
+		list_free( lonlat_list );
+		lonlat_list = NULL;
+	}
+
+	return lonlat_list;
+}
+
