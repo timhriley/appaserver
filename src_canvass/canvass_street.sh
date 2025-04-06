@@ -1,4 +1,9 @@
 :
+# $APPASERVER_HOME/src_canvass/canvass_street.sh
+# ---------------------------------------------------------------
+# No warranty and freely available software. Visit appaserver.org
+# ---------------------------------------------------------------
+
 if [ "$#" -ne 2 ]
 then
 	echo "Usage: $0 canvass_name include_yn" 1>&2

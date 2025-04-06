@@ -14,14 +14,11 @@
 
 typedef struct
 {
-	char *start_record;
-	char *start_longitude_string;
-	char *start_latitude_string;
-	LIST *canvass_street_include_list;
-	int canvass_street_include_list_weight;
-	LIST *include_waypoint_lonlat_list;
-	LIST *canvass_street_not_include_list;
-	LIST *not_include_waypoint_lonlat_list;
+	STREET *start_street;
+	WAYPOINT *start_waypoint;
+	LIST *street_list;
+	LIST *canvass_street_list;
+	LIST *waypoint_lonlat_list;
 } CANVASS;
 
 /* Usage */
@@ -38,9 +35,5 @@ CANVASS *canvass_new(
 /* ------- */
 CANVASS *canvass_calloc(
 		void );
-
-char *canvass_start_record(
-		char *city,
-		char *start_street_address );
 
 #endif

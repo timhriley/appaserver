@@ -200,8 +200,6 @@ APPASERVER_LIBRARY=						\
 		entity_self.o					\
 		upload_purge.o					\
 		preupdate_change.o				\
-		canvass_waypoint.o				\
-		waypoint.o					\
 		file.o						\
 		credit_provider.o
 
@@ -497,12 +495,6 @@ application_constant.o: application_constant.c application_constant.h
 
 session.o: session.c session.h
 	${CC} ${CFLAGS} -c session.c
-
-canvass_waypoint.o: canvass_waypoint.c canvass_waypoint.h
-	${CC} ${CFLAGS} -c canvass_waypoint.c
-
-waypoint.o: waypoint.c waypoint.h
-	${CC} ${CFLAGS} -c waypoint.c
 
 pivot_table.o: pivot_table.c pivot_table.h
 	${CC} ${CFLAGS} -c pivot_table.c

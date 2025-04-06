@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/library/canvass_waypoint.c		   		*/
+/* $APPASERVER_HOME/src_canvass/canvass_waypoint.c	   		*/
 /* ---------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* ---------------------------------------------------------------	*/

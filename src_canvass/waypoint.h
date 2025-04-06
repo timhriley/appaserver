@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------	*/
-/* $APPASERVER_HOME/library/waypoint.h			   		*/
+/* $APPASERVER_HOME/src_canvass/waypoint.h		   		*/
 /* ---------------------------------------------------------------	*/
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* ---------------------------------------------------------------	*/
@@ -76,7 +76,7 @@ WAYPOINT_UTM *waypoint_utm_calloc(
 
 /* Usage */
 /* ----- */
-WAYPOINT_UTM *waypoint_utm_start(
+WAYPOINT_UTM *start_waypoint_utm(
 		char *start_longitude_string,
 		char *start_latitude_string,
 		int utm_zone );
@@ -84,13 +84,13 @@ WAYPOINT_UTM *waypoint_utm_start(
 /* Usage */
 /* ----- */
 void waypoint_utm_distance_set(
-		WAYPOINT_UTM *waypoint_utm_start,
+		WAYPOINT_UTM *start_waypoint_utm,
 		LIST *utm_list /* in/out */ );
 
 /* Usage */
 /* ----- */
 int waypoint_utm_distance_yards(
-		WAYPOINT_UTM *waypoint_utm_start,
+		WAYPOINT_UTM *start_waypoint_utm,
 		int utm_x,
 		int utm_y );
 
@@ -108,7 +108,7 @@ int waypoint_utm_compare(
 typedef struct
 {
 	LIST *waypoint_lonlat_list;
-	WAYPOINT_UTM *waypoint_utm_start;
+	WAYPOINT_UTM *wstart_waypoint_utm;
 	LIST *utm_list;
 	LIST *waypoint_utm_distance_sort_list;
 } WAYPOINT;
@@ -143,5 +143,10 @@ LIST *waypoint_utm_list(
 char *waypoint_system_string(
 		const char *waypoint_cs2cs_executable,
 		int utm_zone );
+
+/* Usage */
+/* ----- */
+LIST *waypoint_lonlat_list(
+		LIST *canvass_street_list );
 
 #endif

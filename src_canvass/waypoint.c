@@ -1,8 +1,8 @@
-/* -------------------------------------------------------------	*/
-/* $APPASERVER_HOME/library/waypoint.c					*/
-/* -------------------------------------------------------------	*/
-/* No warranty and freely available software: see Appaserver.org	*/
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
+/* $APPASERVER_HOME/src_canvass/waypoint.c				*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -112,7 +112,7 @@ WAYPOINT_UTM *waypoint_utm_calloc( void )
 	return waypoint_utm;
 }
 
-WAYPOINT_UTM *waypoint_utm_start(
+WAYPOINT_UTM *start_waypoint_utm(
 		char *start_longitude_string,
 		char *start_latitude_string,
 		int utm_zone )
@@ -154,15 +154,15 @@ WAYPOINT_UTM *waypoint_utm_start(
 }
 
 void waypoint_utm_distance_set(
-		WAYPOINT_UTM *waypoint_utm_start,
+		WAYPOINT_UTM *start_waypoint_utm,
 		LIST *utm_list /* in/out */ )
 {
 	WAYPOINT_UTM *waypoint_utm;
 
-	if ( !waypoint_utm_start )
+	if ( !start_waypoint_utm )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: parameter is empty.\n",
+			"ERROR in %s/%s()/%d: start_waypoint_utm is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
@@ -175,7 +175,7 @@ void waypoint_utm_distance_set(
 
 		waypoint_utm->distance_yards =
 			waypoint_utm_distance_yards(
-				waypoint_utm_start,
+				start_waypoint_utm,
 				waypoint_utm->utm_x,
 				waypoint_utm->utm_y );
 
@@ -183,11 +183,11 @@ void waypoint_utm_distance_set(
 }
 
 int waypoint_utm_distance_yards(
-		WAYPOINT_UTM *waypoint_utm_start,
+		WAYPOINT_UTM *start_waypoint_utm,
 		int utm_x,
 		int utm_y )
 {
-	if ( !waypoint_utm_start
+	if ( !start_waypoint_utm
 	||   !utm_x
 	||   !utm_y )
 	{
@@ -201,8 +201,8 @@ int waypoint_utm_distance_yards(
 
 	return
 	distance_pythagorean_integer(
-		waypoint_utm_start->utm_x /* point_a_x */,
-		waypoint_utm_start->utm_y /* point_a_y */,
+		start_waypoint_utm->utm_x /* point_a_x */,
+		start_waypoint_utm->utm_y /* point_a_y */,
 		utm_x /* point_b_x */,
 		utm_y /* point_b_y */ );
 }
@@ -335,16 +335,16 @@ WAYPOINT *waypoint_new(
 	waypoint = waypoint_calloc();
 	waypoint->waypoint_lonlat_list = waypoint_lonlat_list;
 
-	waypoint->waypoint_utm_start =
-		waypoint_utm_start(
+	waypoint->start_waypoint_utm =
+		start_waypoint_utm(
 			start_longitude_string,
 			start_latitude_string,
 			utm_zone );
 
-	if ( !waypoint->waypoint_utm_start )
+	if ( !waypoint->start_waypoint_utm )
 	{
 		fprintf(stderr,
-	"ERROR in %s/%s()/%d: waypoint_utm_start(%s,%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: start_waypoint_utm(%s,%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
@@ -359,7 +359,7 @@ WAYPOINT *waypoint_new(
 			waypoint->waypoint_lonlat_list );
 
 	waypoint_utm_distance_set(
-		waypoint->waypoint_utm_start,
+		waypoint->start_waypoint_utm,
 		waypoint->utm_list /* in/out */ );
 
 	waypoint->waypoint_utm_distance_sort_list =
@@ -474,5 +474,52 @@ char *waypoint_system_string(
 		utm_zone );
 
 	return system_string;
+}
+
+LIST *waypoint_lonlat_list( LIST *canvass_street_list )
+{
+	CANVASS_STREET *canvass_street;
+	LIST *lonlat_list = list_new();
+	WAYPOINT_LONLAT *waypoint_lonlat;
+
+	if ( list_rewind( canvass_street_list ) )
+	do {
+		canvass_street = list_get( canvass_street_list );
+
+		if ( !canvass_street->street
+		||   !canvass_street->street->household_count
+		||   !canvass_street->street->longitude_string
+		||   !canvass_street->street->latitude_string )
+		{
+			fprintf(stderr,
+			"ERROR in %s/%s()/%d: canvass_street is incomplete\n",
+				__FILE__,
+				__FUNCTION__,
+				__LINE__ );
+			exit( 1 );
+		}
+
+		waypoint_lonlat =
+			/* -------------- */
+			/* Safely returns */
+			/* -------------- */
+			waypoint_lonlat_new(
+				canvass_street /* record */,
+				canvass_street->street->household_count
+					/* weight */,
+				canvass_street->street->longitude_string,
+				canvass_street->street->latitude_string );
+
+		list_set( lonlat_list, waypoint_lonlat );
+
+	} while ( list_next( canvass_street_list ) );
+
+	if ( !list_length( lonlat_list ) )
+	{
+		list_free( lonlat_list );
+		lonlat_list = NULL;
+	}
+
+	return lonlat_list;
 }
 
