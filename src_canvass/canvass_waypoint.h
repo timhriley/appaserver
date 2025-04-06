@@ -36,8 +36,13 @@ CANVASS_WAYPOINT *canvass_waypoint_calloc(
 
 /* Usage */
 /* ----- */
+LIST *canvass_waypoint_lonlat_list(
+		LIST *canvass_street_list );
+
+/* Usage */
+/* ----- */
 LIST *canvass_waypoint_utm_list(
 		int maximum_weight,
-		LIST *distance_sort_list );
+		LIST *utm_distance_sort_list /* in/out */ );
 
 #endif

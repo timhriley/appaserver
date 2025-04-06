@@ -6,19 +6,19 @@
 
 #include "boolean.h"
 #include "list.h"
+#include "street.h"
+#include "canvass_waypoint.h"
 
 #ifndef CANVASS_H
 #define CANVASS_H
 
-#define CANVASS_UTM_ZONE 10
-
 typedef struct
 {
 	STREET *start_street;
-	WAYPOINT *start_waypoint;
 	LIST *street_list;
 	LIST *canvass_street_list;
-	LIST *waypoint_lonlat_list;
+	LIST *canvass_waypoint_lonlat_list;
+	CANVASS_WAYPOINT *canvass_waypoint;
 } CANVASS;
 
 /* Usage */
@@ -27,13 +27,21 @@ typedef struct
 /* Safely returns */
 /* -------------- */
 CANVASS *canvass_new(
-		char *canvass_name,
+		char *start_street_name,
 		char *city,
-		char *start_street_address );
+		char *state_code,
+		char *canvass_name,
+		int maximum_weight,
+		int utm_zone );
 
 /* Process */
 /* ------- */
 CANVASS *canvass_calloc(
 		void );
+
+/* Driver */
+/* ------ */
+void canvass_output(
+		LIST *waypoint_utm_list );
 
 #endif

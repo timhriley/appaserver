@@ -50,7 +50,8 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 			maximum_weight,
 			canvass_waypoint->
 				waypoint->
-				waypoint_utm_distance_sort_list );
+				waypoint_utm_distance_sort_list
+					/* utm_distance_sort_list in/out */ );
 
 	return canvass_waypoint;
 }
@@ -76,7 +77,7 @@ CANVASS_WAYPOINT *canvass_waypoint_calloc( void )
 
 LIST *canvass_waypoint_utm_list(
 		int maximum_weight,
-		LIST *distance_sort_list )
+		LIST *utm_distance_sort_list )
 {
 	LIST *waypoint_utm_list = list_new();
 	int total_weight = 0;
@@ -84,11 +85,11 @@ LIST *canvass_waypoint_utm_list(
 
 	while ( 1 )
 	{
-		if ( !list_rewind( distance_sort_list ) ) break;
+		if ( !list_rewind( utm_distance_sort_list ) ) break;
 
 		waypoint_utm =
 			list_get(
-				distance_sort_list );
+				utm_distance_sort_list );
 
 		total_weight += waypoint_utm->weight;
 
@@ -96,15 +97,18 @@ LIST *canvass_waypoint_utm_list(
 
 		list_set( waypoint_utm_list, waypoint_utm );
 
-		list_delete( distance_sort_list );
+		list_delete( utm_distance_sort_list );
 
 		waypoint_utm_distance_set(
-			waypoint_utm /* waypoint_utm_start */,
-			distance_sort_list /* in/out */ );
+			waypoint_utm
+				/* waypoint_utm_start */,
+			utm_distance_sort_list
+				/* waypoint_utm_list in/out */ );
 
-		distance_sort_list =
+		utm_distance_sort_list =
 			waypoint_utm_distance_sort_list(
-				distance_sort_list );
+				utm_distance_sort_list
+					/* waypoint_utm_list */ );
 	}
  
 	return waypoint_utm_list;
@@ -121,7 +125,7 @@ LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
 		canvass_street = list_get( canvass_street_list );
 
 		if ( !canvass_street->street
-		||   !canvass_street->street->household_count
+		||   !canvass_street->street->total_count
 		||   !canvass_street->street->longitude_string
 		||   !canvass_street->street->latitude_string )
 		{
@@ -139,7 +143,7 @@ LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
 			/* -------------- */
 			waypoint_lonlat_new(
 				canvass_street /* record */,
-				canvass_street->street->household_count
+				canvass_street->street->total_count
 					/* weight */,
 				canvass_street->street->longitude_string,
 				canvass_street->street->latitude_string );

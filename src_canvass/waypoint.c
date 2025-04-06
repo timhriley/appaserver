@@ -87,6 +87,7 @@ WAYPOINT_UTM *waypoint_utm_new(
 	}
 
 	waypoint_utm = waypoint_utm_calloc();
+
 	waypoint_utm->record = record;
 	waypoint_utm->weight = weight;
 	waypoint_utm->utm_x = atoi( utm_x_string );
@@ -155,7 +156,7 @@ WAYPOINT_UTM *start_waypoint_utm(
 
 void waypoint_utm_distance_set(
 		WAYPOINT_UTM *start_waypoint_utm,
-		LIST *utm_list /* in/out */ )
+		LIST *waypoint_utm_list /* in/out */ )
 {
 	WAYPOINT_UTM *waypoint_utm;
 
@@ -169,9 +170,9 @@ void waypoint_utm_distance_set(
 		exit( 1 );
 	}
 
-	if ( list_rewind( utm_list ) )
+	if ( list_rewind( waypoint_utm_list ) )
 	do {
-		waypoint_utm = list_get( utm_list );
+		waypoint_utm = list_get( waypoint_utm_list );
 
 		waypoint_utm->distance_yards =
 			waypoint_utm_distance_yards(
@@ -179,7 +180,7 @@ void waypoint_utm_distance_set(
 				waypoint_utm->utm_x,
 				waypoint_utm->utm_y );
 
-	} while ( list_next( utm_list ) );
+	} while ( list_next( waypoint_utm_list ) );
 }
 
 int waypoint_utm_distance_yards(
@@ -207,21 +208,21 @@ int waypoint_utm_distance_yards(
 		utm_y /* point_b_y */ );
 }
 
-LIST *waypoint_utm_distance_sort_list( LIST *utm_list )
+LIST *waypoint_utm_distance_sort_list( LIST *waypoint_utm_list )
 {
 	LIST *sort_list = list_new();
 	WAYPOINT_UTM *waypoint_utm;
 
-	if ( list_rewind( utm_list ) )
+	if ( list_rewind( waypoint_utm_list ) )
 	do {
-		waypoint_utm = list_get( utm_list );
+		waypoint_utm = list_get( waypoint_utm_list );
 
 		list_set_order(
 			sort_list,
 			waypoint_utm,
 			waypoint_utm_compare );
 
-	} while ( list_next( utm_list ) );
+	} while ( list_next( waypoint_utm_list ) );
 
 	if ( !list_length( sort_list ) )
 	{
@@ -333,7 +334,6 @@ WAYPOINT *waypoint_new(
 	}
 
 	waypoint = waypoint_calloc();
-	waypoint->waypoint_lonlat_list = waypoint_lonlat_list;
 
 	waypoint->start_waypoint_utm =
 		start_waypoint_utm(
@@ -356,7 +356,7 @@ WAYPOINT *waypoint_new(
 	waypoint->utm_list =
 		waypoint_utm_list(
 			utm_zone,
-			waypoint->waypoint_lonlat_list );
+			waypoint_lonlat_list );
 
 	waypoint_utm_distance_set(
 		waypoint->start_waypoint_utm,
@@ -371,7 +371,7 @@ WAYPOINT *waypoint_new(
 
 LIST *waypoint_utm_list(
 		int utm_zone,
-		LIST *lonlat_list )
+		LIST *waypoint_lonlat_list )
 {
 	char *system_string;
 	WAYPOINT_LONLAT *waypoint_lonlat;
@@ -391,7 +391,7 @@ LIST *waypoint_utm_list(
 		exit( 1 );
 	}
 
-	if ( !list_rewind( lonlat_list ) ) return (LIST *)0;
+	if ( !list_rewind( waypoint_lonlat_list ) ) return (LIST *)0;
 
 	system_string =
 		/* --------------------- */
@@ -410,7 +410,7 @@ LIST *waypoint_utm_list(
 			0 /* not capture_stderr_boolean */ );
 
 	do {
-		waypoint_lonlat = list_get( lonlat_list );
+		waypoint_lonlat = list_get( waypoint_lonlat_list );
 
 		fprintf(
 			spool->output_pipe,
@@ -418,14 +418,14 @@ LIST *waypoint_utm_list(
 			waypoint_lonlat->longitude_string,
 			waypoint_lonlat->latitude_string );
 
-	} while ( list_next( lonlat_list ) );
+	} while ( list_next( waypoint_lonlat_list ) );
 
 	pclose( spool->output_pipe );
 
 	list = spool_list( spool->output_filename );
 
 	if (	list_length( list ) !=
-		list_length( lonlat_list ) )
+		list_length( waypoint_lonlat_list ) )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: list lengths don't match.\n",
@@ -436,12 +436,13 @@ LIST *waypoint_utm_list(
 	}
 
 	utm_list = list_new();
-	list_rewind( lonlat_list );
+
+	list_rewind( waypoint_lonlat_list );
 	list_rewind( list );
 
 	do {
 		column_string = list_get( list );
-		waypoint_lonlat = list_get( lonlat_list );
+		waypoint_lonlat = list_get( waypoint_lonlat_list );
 
 		waypoint_utm =
 			/* -------------- */
@@ -453,7 +454,7 @@ LIST *waypoint_utm_list(
 				column_string );
 
 		list_set( utm_list, waypoint_utm );
-		list_next( lonlat_list );
+		list_next( waypoint_lonlat_list );
 
 	} while ( list_next( list ) );
 

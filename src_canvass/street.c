@@ -190,6 +190,11 @@ STREET *street_parse(
 	piece( buffer, SQL_DELIMITER, input, 8 );
 	if ( *buffer ) street->county_district = atoi( buffer );
 
+	street->total_count =
+		street_total_count(
+			street->apartment_count,
+			street->house_count );
+
 	return street;
 }
 
@@ -329,4 +334,11 @@ STREET *street_seek(
 	} while ( list_next( street_list ) );
 
 	return NULL;
+}
+
+int street_total_count(
+		int house_count,
+		int apartment_count )
+{
+	return house_count + apartment_count;
 }

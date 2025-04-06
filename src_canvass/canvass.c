@@ -11,50 +11,80 @@
 #include "piece.h"
 #include "appaserver.h"
 #include "appaserver_error.h"
+#include "canvass_street.h"
+#include "canvass_waypoint.h"
 #include "canvass.h"
 
-CANVASS *canvass_new( char *canvass_name )
+CANVASS *canvass_new(
+		char *start_street_name,
+		char *city,
+		char *state_code,
+		char *canvass_name,
+		int maximum_weight,
+		int utm_zone )
 {
 	CANVASS *canvass;
 	char buffer[ 128 ];
 
-	canvass = canvass_calloc();
-
-	if ( ! ( canvass->start_record = canvass_start_record() ) )
+	if ( !start_street_name
+	||   !city
+	||   !state_code
+	||   !canvass_name
+	||   !maximum_weight
+	||   !utm_zone )
 	{
 		fprintf(stderr,
-		"ERROR in %s/%s()/%d: canvass_start_record() returned empty.\n",
+			"ERROR in %s/%s()/%d: parameter is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	piece( buffer, SQL_DELIMITER, canvass->start_record, 0 );
-	canvass->start_longitude_string = strdup( buffer );
+	canvass = canvass_calloc();
 
-	piece( buffer, SQL_DELIMITER, canvass->start_record, 1 );
-	canvass->start_latitude_string = strdup( buffer );
+	canvass->start_street =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		street_fetch(
+			start_street_name,
+			city,
+			state_code );
 
-	canvass->canvass_street_include_list =
-		canvass_street_include_list(
-			canvass_name );
+	canvass->street_list =
+		street_list(
+			city,
+			state_code );
 
-	canvass->canvass_street_include_list_weight =
-		canvass_street_include_list_weight(
-			canvass->canvass_street_include_list );
+	canvass->canvass_street_list = list_new();
 
-	canvass->include_waypoint_lonlat_list =
+	canvass_street_fetch_list(
+		canvass_name,
+		1 /* include_boolean */,
+		canvass->street_list,
+		canvass->canvass_street_list /* out */ );
+
+	canvass_street_fetch_list(
+		canvass_name,
+		0 /* not include_boolean */,
+		canvass->street_list,
+		canvass->canvass_street_list /* out */ );
+
+	canvass->canvass_waypoint_lonlat_list =
 		canvass_waypoint_lonlat_list(
-			canvass->canvass_street_include_list );
+			canvass->canvass_street_list );
 
-	canvass->canvass_street_not_include_list =
-		canvass_street_not_include_list(
-			canvass_name );
-
-	canvass->not_include_waypoint_lonlat_list =
-		canvass_waypoint_lonlat_list(
-			canvass->canvass_street_not_include_list );
+	canvass->canvass_waypoint =
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		canvass_waypoint_new(
+			canvass->start_street->longitude_string,
+			canvass->start_street->latitude_string,
+			utm_zone,
+			maximum_weight,
+			canvass->canvass_waypoint_lonlat_list );
 
 	return canvass;
 }
@@ -128,5 +158,35 @@ LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
 	}
 
 	return waypoint_lonlat_list;
+}
+
+void canvass_output( LIST *waypoint_utm_list )
+{
+	WAYPOINT_UTM *waypoint_utm;
+
+	if ( list_rewind( waypoint_utm_list ) )
+	do {
+		waypoint_utm = list_get( waypoint_utm_list );
+
+		printf(
+			"%s^%d^%d^%d\n",
+			waypoint_utm->
+				canvass_street->
+				street->
+				street_name,
+			waypoint_utm->
+				canvass_street->
+				street->
+				apartment_count,
+			waypoint_utm->
+				canvass_street->
+				street->
+				house_count,
+			waypoint_utm->
+				canvass_street->
+				street->
+				total_count );
+
+	} while ( list_next( waypoint_utm_list ) );
 }
 

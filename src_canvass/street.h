@@ -33,6 +33,7 @@ typedef struct
 	char *longitude_string;
 	char *latitude_string;
 	int county_district;
+	int total_count;
 } STREET;
 
 /* Usage */
@@ -82,6 +83,10 @@ LIST *street_list(
 char *street_where(
 		char *city,
 		char *state_code );
+
+int street_total_count(
+		int house_count,
+		int apartment_count );
 
 /* Usage */
 /* ----- */

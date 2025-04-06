@@ -50,6 +50,13 @@ typedef struct
 
 /* Usage */
 /* ----- */
+WAYPOINT_UTM *start_waypoint_utm(
+		char *start_longitude_string,
+		char *start_latitude_string,
+		int utm_zone );
+
+/* Usage */
+/* ----- */
 
 /* Safely returns */
 /* -------------- */
@@ -76,16 +83,9 @@ WAYPOINT_UTM *waypoint_utm_calloc(
 
 /* Usage */
 /* ----- */
-WAYPOINT_UTM *start_waypoint_utm(
-		char *start_longitude_string,
-		char *start_latitude_string,
-		int utm_zone );
-
-/* Usage */
-/* ----- */
 void waypoint_utm_distance_set(
 		WAYPOINT_UTM *start_waypoint_utm,
-		LIST *utm_list /* in/out */ );
+		LIST *waypoint_utm_list /* in/out */ );
 
 /* Usage */
 /* ----- */
@@ -97,7 +97,7 @@ int waypoint_utm_distance_yards(
 /* Usage */
 /* ----- */
 LIST *waypoint_utm_distance_sort_list(
-		LIST *utm_list );
+		LIST *waypoint_utm_list );
 
 /* Usage */
 /* ----- */
@@ -107,8 +107,7 @@ int waypoint_utm_compare(
 
 typedef struct
 {
-	LIST *waypoint_lonlat_list;
-	WAYPOINT_UTM *wstart_waypoint_utm;
+	WAYPOINT_UTM *start_waypoint_utm;
 	LIST *utm_list;
 	LIST *waypoint_utm_distance_sort_list;
 } WAYPOINT;
@@ -133,7 +132,7 @@ WAYPOINT *waypoint_calloc(
 /* ----- */
 LIST *waypoint_utm_list(
 		int utm_zone,
-		LIST *lonlat_list );
+		LIST *waypoint_lonlat_list );
 
 /* Process */
 /* ------- */
@@ -143,10 +142,5 @@ LIST *waypoint_utm_list(
 char *waypoint_system_string(
 		const char *waypoint_cs2cs_executable,
 		int utm_zone );
-
-/* Usage */
-/* ----- */
-LIST *waypoint_lonlat_list(
-		LIST *canvass_street_list );
 
 #endif

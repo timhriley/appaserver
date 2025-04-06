@@ -65,7 +65,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/folder_operation.o				\
 		${LIBRARY}/operation.o
 
-EXECUTABLES=	canvass_street
+EXECUTABLES=	canvass_execute
 
 all: 	${EXECUTABLES}
 
@@ -75,24 +75,30 @@ clean:
 touch:
 	/usr/bin/touch *.c
 
-canvass_street: canvass_street.c					\
+canvass_execute: canvass_execute.c					\
 	street.o							\
-	/waypoint.o							\
+	canvass_street.o						\
+	waypoint.o							\
 	canvass_waypoint.o						\
 	${LIBRARY}/distance.o
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
-		canvass_street.c 					\
+		canvass_execute.c 					\
 		street.o						\
+		canvass_street.o					\
 		waypoint.o						\
 		canvass_waypoint.o					\
 		${LIBRARY}/distance.o					\
-		-o canvass_street -lm
+		-o canvass_execute -lm
 
 street.o: street.c street.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		-c street.c
+
+canvass_street.o: canvass_street.c canvass_street.h
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		-c canvass_street.c
 
 waypoint.o: waypoint.c waypoint.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
