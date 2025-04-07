@@ -4,7 +4,7 @@ first_time=1
 
 while read input
 do
-	street_name=`echo $input | piece_quote_comma 0`
+	street_name=`echo $input | piece.e '^' 0`
 
 	if [ "$street_name" = "Street" -o "$street_name" = "Sum" ]
 	then

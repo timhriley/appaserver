@@ -80,6 +80,7 @@ canvass_execute: canvass_execute.c					\
 	canvass_street.o						\
 	waypoint.o							\
 	canvass_waypoint.o						\
+	canvass.o							\
 	${LIBRARY}/distance.o
 	$(CC)    ${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_ERROR_FILE_FLAG}				\
@@ -89,12 +90,17 @@ canvass_execute: canvass_execute.c					\
 		canvass_street.o					\
 		waypoint.o						\
 		canvass_waypoint.o					\
+		canvass.o						\
 		${LIBRARY}/distance.o					\
 		-o canvass_execute -lm
 
 street.o: street.c street.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\
 		-c street.c
+
+canvass.o: canvass.c canvass.h
+	$(CC)   ${CFLAGS} -I${LIBRARY}					\
+		-c canvass.c
 
 canvass_street.o: canvass_street.c canvass_street.h
 	$(CC)   ${CFLAGS} -I${LIBRARY}					\

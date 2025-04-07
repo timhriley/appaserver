@@ -24,7 +24,6 @@ CANVASS *canvass_new(
 		int utm_zone )
 {
 	CANVASS *canvass;
-	char buffer[ 128 ];
 
 	if ( !start_street_name
 	||   !city
@@ -106,84 +105,28 @@ CANVASS *canvass_calloc( void )
 	return canvass;
 }
 
-char *canvass_start_record( void )
-{
-	return
-	/* --------------------------- */
-	/* Returns heap memory or null */
-	/* --------------------------- */
-	string_pipe( "canvass_start.sh" );
-}
-
-LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
-{
-	CANVASS_STREET *canvass_street;
-	LIST *waypoint_lonlat_list = list_new();
-	WAYPOINT_LONLAT *waypoint_lonlat;
-
-	if ( list_rewind( canvass_street_list ) )
-	do {
-		canvass_street = list_get( canvass_street_list );
-
-		if ( !canvass_street->weight
-		||   !canvass_street->longitude_string
-		||   !canvass_street->latitude_string )
-		{
-			fprintf(stderr,
-			"ERROR in %s/%s()/%d: canvass_street is incomplete\n",
-				__FILE__,
-				__FUNCTION__,
-				__LINE__ );
-			exit( 1 );
-		}
-
-		waypoint_lonlat =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			waypoint_lonlat_new(
-				canvass_street /* record */,
-				canvass_street->weight,
-				canvass_street->longitude_string,
-				canvass_street->latitude_string );
-
-		list_set( waypoint_lonlat_list, waypoint_lonlat );
-
-	} while ( list_next( canvass_street_list ) );
-
-	if ( !list_length( waypoint_lonlat_list ) )
-	{
-		list_free( waypoint_lonlat_list );
-		waypoint_lonlat_list = NULL;
-	}
-
-	return waypoint_lonlat_list;
-}
-
 void canvass_output( LIST *waypoint_utm_list )
 {
 	WAYPOINT_UTM *waypoint_utm;
+	CANVASS_STREET *canvass_street;
 
 	if ( list_rewind( waypoint_utm_list ) )
 	do {
 		waypoint_utm = list_get( waypoint_utm_list );
 
-		printf(
-			"%s^%d^%d^%d\n",
-			waypoint_utm->
-				canvass_street->
+		canvass_street = waypoint_utm->record;
+
+		printf(	"%s^%d^%d^%d\n",
+			canvass_street->
 				street->
 				street_name,
-			waypoint_utm->
-				canvass_street->
+			canvass_street->
 				street->
 				apartment_count,
-			waypoint_utm->
-				canvass_street->
+			canvass_street->
 				street->
 				house_count,
-			waypoint_utm->
-				canvass_street->
+			canvass_street->
 				street->
 				total_count );
 

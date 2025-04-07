@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <unistd.h>
+#include "canvass_street.h"
 #include "canvass_waypoint.h"
 
 CANVASS_WAYPOINT *canvass_waypoint_new(

@@ -1,10 +1,4 @@
 :
-if [ "$#" -eq 1 -a "$1" = "force" ]
-then
-	force_compile=1
-else
-	force_compile=0
-fi
 
 if [ "$APPASERVER_HOME" = "" ]
 then
@@ -18,7 +12,6 @@ then
 	exit 1
 fi
 
-(
 cd $APPASERVER_HOME/library && pwd && make
 if [ "$?" -ne 0 ]
 then
@@ -75,54 +68,29 @@ fi
 
 cd $APPASERVER_HOME
 
-if [ "$force_compile" -eq 1 ]
-then
-	for application in $(ls -1 -d src_* | sed 's/src_//')
-	do
-		if [ "$application" = "appaserver" -o	\
-		     "$application" = "system" -o	\
-		     "$application" = "admin" -o	\
-		     "$application" = "predictive" ]
-		then
-			continue
-		fi
+for application in $(ls -1 -d src_* | sed 's/src_//')
+do
+	if [ "$application" = "appaserver" -o	\
+	     "$application" = "system" -o	\
+	     "$application" = "admin" -o	\
+	     "$application" = "predictive" ]
+	then
+		continue
+	fi
 
-		directory="$APPASERVER_HOME/src_${application}"
+	directory="$APPASERVER_HOME/src_${application}"
 
-		if [ -f $directory/makefile ]
-		then
-			cd $directory && pwd && make
+	if [ -f $directory/makefile ]
+	then
+		cd $directory && pwd && make
 	
-			if [ "$?" -ne 0 ]
-			then
-				echo "$0 exiting early"
-				exit 1
-			fi
-		fi
-	done
-else
-	for application in `application_list.sh`
-	do
-		if [ "$application" = "appaserver" -o	\
-		     "$application" = "predictive" ]
+		if [ "$?" -ne 0 ]
 		then
-			continue
+			echo "$0 exiting early"
+			exit 1
 		fi
-
-		directory="$APPASERVER_HOME/src_${application}"
-	
-		if [ -f $directory/makefile ]
-		then
-			cd $directory && pwd && make
-	
-			if [ "$?" -ne 0 ]
-			then
-				echo "$0 exiting early"
-				exit 1
-			fi
-		fi
-	done
-fi
+	fi
+done
 
 if [	-d $APPASERVER_HOME/src_hydrology/reg_sched -a		\
 	-f $APPASERVER_HOME/src_hydrology/reg_sched/makefile ]
@@ -130,8 +98,5 @@ then
 	cd $APPASERVER_HOME/src_hydrology/reg_sched 		\
 	&& pwd && make
 fi
-
-) 2>&1						|
-cat
 
 exit 0
