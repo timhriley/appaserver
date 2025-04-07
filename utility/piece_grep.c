@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "timlib.h"
 #include "piece.h"
 

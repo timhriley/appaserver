@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "application.h"
 #include "appaserver.h"
+#include "session.h"
 #include "appaserver_error.h"
 #include "post_contact_submit.h"
 #include "post_contact_receive.h"
