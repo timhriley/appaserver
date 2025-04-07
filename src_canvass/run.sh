@@ -29,7 +29,7 @@ utm_zone=10
 
 maximum_weight=$1
 
-heading="Street,Houses,Apartments,Total"
+heading="Street,Apartments,Houses,Total"
 
 # Send to screen
 # --------------
