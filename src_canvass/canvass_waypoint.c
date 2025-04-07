@@ -54,6 +54,11 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 				waypoint_utm_distance_sort_list
 					/* utm_distance_sort_list in/out */ );
 
+	canvass_waypoint->total_weight =
+		canvass_waypoint_total_weight(
+			canvass_waypoint->
+				waypoint_utm_list );
+
 	return canvass_waypoint;
 }
 
@@ -160,5 +165,21 @@ LIST *canvass_waypoint_lonlat_list( LIST *canvass_street_list )
 	}
 
 	return lonlat_list;
+}
+
+int canvass_waypoint_total_weight( LIST *waypoint_utm_list )
+{
+	int total_weight = 0;
+	WAYPOINT_UTM *waypoint_utm;
+
+	if ( list_rewind( waypoint_utm_list ) )
+	do {
+		waypoint_utm = list_get( waypoint_utm_list );
+
+		total_weight += waypoint_utm->weight;
+
+	} while ( list_next( waypoint_utm_list ) );
+
+	return total_weight;
 }
 

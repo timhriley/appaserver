@@ -15,6 +15,7 @@ typedef struct
 {
 	WAYPOINT *waypoint;
 	LIST *waypoint_utm_list;
+	int total_weight;
 } CANVASS_WAYPOINT;
 
 /* Usage */
@@ -33,6 +34,9 @@ CANVASS_WAYPOINT *canvass_waypoint_new(
 /* ------- */
 CANVASS_WAYPOINT *canvass_waypoint_calloc(
 		void );
+
+int canvass_waypoint_total_weight(
+		LIST *waypoint_utm_list );
 
 /* Usage */
 /* ----- */
