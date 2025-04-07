@@ -26,6 +26,8 @@
 #define UPDATE_RESULTS_KEY		"update_results"
 #define UPDATE_ROW_LIST_ERROR_KEY	"update_row_list_error"
 
+/* #define UPDATE_DEBUG_MODE 1 */
+
 typedef struct
 {
 	FOLDER_ATTRIBUTE *folder_attribute;
@@ -271,8 +273,9 @@ UPDATE_ONE2M_ROW *update_one2m_row_new(
 		char *role_name,
 		int row_number,
 		char *many_folder_name,
-		LIST *relation_translate_list,
+		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
+		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -287,8 +290,9 @@ UPDATE_ONE2M_ROW *update_one2m_row_calloc(
 /* Usage */
 /* ----- */
 LIST *update_one2m_row_update_attribute_list(
-		LIST *relation_translate_list,
+		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
+		LIST *relation_translate_list,
 		LIST *update_changed_list,
 		LIST *query_row_cell_list );
 
@@ -381,8 +385,9 @@ UPDATE_ONE2M_FETCH *update_one2m_fetch_new(
 		char *role_name,
 		int row_number,
 		char *many_folder_name,
-		LIST *relation_translate_list,
+		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
+		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -415,8 +420,10 @@ UPDATE_ONE2M *update_one2m_new(
 		char *role_name,
 		int row_number,
 		char *many_folder_name,
-		LIST *relation_translate_list,
+		LIST *many_primary_key_list,
 		LIST *many_folder_attribute_list,
+		LIST *relation_foreign_key_list,
+		LIST *relation_translate_list,
 		PROCESS *many_post_change_process,
 		char *appaserver_error_filename,
 		char *appaserver_parameter_mount_point,
@@ -486,8 +493,8 @@ LIST *update_one2m_list_folder_name_list(
 /* Usage */
 /* ----- */
 LIST *update_one2m_select_name_list(
-		char *many_folder_name,
-		LIST *many_folder_attribute_list );
+		LIST *many_primary_key_list,
+		LIST *relation_foreign_key_list );
 
 /* Usage */
 /* ----- */
