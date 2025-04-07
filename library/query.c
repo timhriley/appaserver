@@ -2571,12 +2571,12 @@ char *query_attribute_or_where(
 		char *attribute_name,
 		boolean attribute_is_number )
 {
-	char where[ 1024 ];
+	char where[ STRING_64K ];
 	char *ptr = where;
 	char *from_data;
 	char delimiter;
-	char piece_buffer[ 128 ];
-	char expression[ 256 ];
+	char piece_buffer[ 1024 ];
+	char expression[ 2048 ];
 	int i;
 	boolean first_time = 1;
 
@@ -2629,6 +2629,23 @@ char *query_attribute_or_where(
 					table_name,
 					attribute_name ),
 				piece_buffer );
+		}
+
+		if (	strlen( where ) +
+			strlen( expression ) >=
+			STRING_64K )
+		{
+			char message[ 128 ];
+
+			sprintf(message,
+				STRING_OVERFLOW_TEMPLATE,
+				STRING_64K );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
 		}
 
 		ptr += sprintf( ptr, "%s", expression  );

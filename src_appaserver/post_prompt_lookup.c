@@ -157,7 +157,7 @@ void post_prompt_lookup_query_string_parse(
 		char **parameters,
 		char *query_string )
 {
-	char piece_buffer[ 1024 ];
+	char piece_buffer[ 65536 ];
 
 	piece( piece_buffer, '+', query_string, 0 );
 	if ( *piece_buffer ) *application_name = strdup( piece_buffer );

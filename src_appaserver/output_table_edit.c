@@ -100,7 +100,9 @@ int main( int argc, char **argv )
 	{
 		char message[ 128 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 			"table_edit_new(%s) returned empty.",
 			folder_name );
 
@@ -113,9 +115,11 @@ int main( int argc, char **argv )
 
 	if ( !table_edit->query_table_edit )
 	{
-		char message[ 128 ];
+		char message[ 256 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 	"table_edit_new(%s) returned an empty table_edit->query_table_edit.",
 			folder_name );
 
@@ -128,9 +132,11 @@ int main( int argc, char **argv )
 
 	if ( !table_edit->query_table_edit->query_fetch )
 	{
-		char message[ 128 ];
+		char message[ 256 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 "table_edit_new(%s) returned an empty table_edit->query_table_edit->query_fetch.",
 			folder_name );
 
@@ -143,9 +149,11 @@ int main( int argc, char **argv )
 
 	if ( !table_edit->form_table_edit )
 	{
-		char message[ 128 ];
+		char message[ 256 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 	"table_edit_new(%s) returned an empty table_edit->form_table_edit.",
 			folder_name );
 
@@ -158,9 +166,11 @@ int main( int argc, char **argv )
 
 	if ( !table_edit->appaserver_spool_filename )
 	{
-		char message[ 128 ];
+		char message[ 256 ];
 
-		sprintf(message,
+		snprintf(
+			message,
+			sizeof ( message ),
 "table_edit_new(%s) returned an empty table_edit->appaserver_spool_filename.",
 			folder_name );
 
