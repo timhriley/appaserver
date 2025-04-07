@@ -24,14 +24,10 @@ typedef struct
 
 /* Usage */
 /* ----- */
-
-/* Safely returns */
-/* -------------- */
-void canvass_street_fetch_list(
+LIST *canvass_street_fetch_list(
 		char *canvass_name,
 		boolean include_boolean,
-		LIST *street_list,
-		LIST *canvass_street_list /* out */ );
+		LIST *street_list );
 
 /* Usage */
 /* ----- */
@@ -60,5 +56,10 @@ char *canvass_street_where(
 /* ---------------------- */
 char *canvass_street_include_where(
 		boolean include_boolean );
+
+/* Usage */
+/* ----- */
+void canvass_street_output(
+		CANVASS_STREET *canvass_street );
 
 #endif

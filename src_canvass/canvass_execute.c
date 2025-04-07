@@ -52,8 +52,11 @@ int main( int argc, char **argv )
 
 	canvass_output(
 		canvass->
-		canvass_waypoint->
-		waypoint_utm_list );
+			include_canvass_waypoint->
+			waypoint_utm_list,
+		canvass->
+			not_include_canvass_waypoint->
+			waypoint_utm_list );
 
 	return 0;
 }

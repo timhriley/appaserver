@@ -30,21 +30,19 @@ CANVASS_STREET *canvass_street_calloc( void )
 	return canvass_street;
 }
 
-void canvass_street_fetch_list(
+LIST *canvass_street_fetch_list(
 		char *canvass_name,
 		boolean include_boolean,
-		LIST *street_list,
-		LIST *canvass_street_list )
+		LIST *street_list )
 {
+	LIST *canvass_street_list = list_new();
 	char *where;
 	char *system_string;
 	FILE *input_pipe;
 	char input[ 1024 ];
-	CANVASS_STREET *canvass_street;
 
 	if ( !canvass_name
-	||   !street_list
-	||   !canvass_street_list )
+	||   !street_list )
 	{
 		fprintf(stderr,
 			"ERROR in %s/%s()/%d: parameter is empty.\n",
@@ -79,17 +77,22 @@ void canvass_street_fetch_list(
 
 	while ( string_input( input, input_pipe, sizeof ( input ) ) )
 	{
-		canvass_street =
-			canvass_street_parse(
-				street_list,
-				input );
-
 		list_set(
 			canvass_street_list,
-			canvass_street );
+			canvass_street_parse(
+				street_list,
+				input ) );
 	}
 
 	pclose( input_pipe );
+
+	if ( !list_length( canvass_street_list ) )
+	{
+		list_free( canvass_street_list );
+		canvass_street_list = NULL;
+	}
+
+	return canvass_street_list;
 }
 
 char *canvass_street_where(
@@ -168,3 +171,30 @@ CANVASS_STREET *canvass_street_parse(
 	return canvass_street;
 }
 
+void canvass_street_output( CANVASS_STREET *canvass_street )
+{
+	if ( !canvass_street
+	||   !canvass_street->street )
+	{
+		fprintf(stderr,
+	"ERROR in %s/%s()/%d: canvass_street is empty or incomplete.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	printf(	"%s^%d^%d^%d\n",
+		canvass_street->
+			street->
+			street_name,
+		canvass_street->
+			street->
+			apartment_count,
+		canvass_street->
+			street->
+			house_count,
+		canvass_street->
+			street->
+			total_count );
+}

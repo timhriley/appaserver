@@ -16,9 +16,13 @@ typedef struct
 {
 	STREET *start_street;
 	LIST *street_list;
-	LIST *canvass_street_list;
-	LIST *canvass_waypoint_lonlat_list;
-	CANVASS_WAYPOINT *canvass_waypoint;
+	LIST *include_canvass_street_list;
+	LIST *not_include_canvass_street_list;
+	LIST *include_canvass_waypoint_lonlat_list;
+	LIST *not_include_canvass_waypoint_lonlat_list;
+	CANVASS_WAYPOINT *include_canvass_waypoint;
+	STREET *continue_street;
+	CANVASS_WAYPOINT *not_include_canvass_waypoint;
 } CANVASS;
 
 /* Usage */
@@ -39,9 +43,16 @@ CANVASS *canvass_new(
 CANVASS *canvass_calloc(
 		void );
 
+/* Returns component of second parameter or first parameter */
+/* -------------------------------------------------------- */
+STREET *canvass_continue_street(
+		STREET *start_street,
+		LIST *include_canvass_street_list );
+
 /* Driver */
 /* ------ */
 void canvass_output(
-		LIST *waypoint_utm_list );
+		LIST *include_waypoint_utm_list,
+		LIST *not_include_waypoint_utm_list );
 
 #endif
