@@ -120,7 +120,9 @@ int main( int argc, char **argv )
 		}
 		else
 		{
-			feeder_display( feeder );
+			feeder_display(
+				reverse_order_boolean,
+				feeder );
 		}
 	}
 

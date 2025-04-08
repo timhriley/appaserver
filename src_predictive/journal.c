@@ -919,7 +919,9 @@ void journal_list_html_display(
 	heading = "Transaction,Account,Debit,Credit";
 	justify = "left,left,right,right";
 
-	sprintf(sys_string,
+	snprintf(
+		sys_string,
+		sizeof ( sys_string ),
 		"html_table.e '' %s '^' %s",
 		heading,
 		justify );
@@ -943,6 +945,7 @@ void journal_list_html_display(
 	pclose( output_pipe );
 	fflush( stdout );
 	printf( "</div>\n" );
+	fflush( stdout );
 }
 
 void journal_list_pipe_display(

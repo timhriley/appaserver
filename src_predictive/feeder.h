@@ -574,12 +574,12 @@ char *feeder_row_transaction_date_time(
 /* Usage */
 /* ----- */
 int feeder_row_count(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance );
+		LIST *feeder_row_list );
 
 /* Usage */
 /* ----- */
 void feeder_row_error_display(
+		boolean reverse_order_boolean,
 		LIST *feeder_row_list );
 
 /* Process */
@@ -590,6 +590,7 @@ LIST *feeder_row_error_extract_list(
 /* Usage */
 /* ----- */
 void feeder_row_list_display(
+		boolean reverse_order_boolean,
 		LIST *feeder_row_list,
 		FEEDER_ROW *feeder_row_first_out_balance );
 
@@ -997,6 +998,7 @@ char *feeder_parameter_end_balance_error(
 		double parameter_end_balance,
 		boolean parameter_end_balance_not_null_boolean,
 		FEEDER_ROW *feeder_row_first_out_balance,
+		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance );
 
 /* Usage */
@@ -1008,6 +1010,7 @@ void feeder_execute(
 /* Usage */
 /* ----- */
 void feeder_display(
+		boolean reverse_order_boolean,
 		FEEDER *feeder );
 
 #define FEEDER_AUDIT_HTML_TITLE		"Feeder After Execute Audit"

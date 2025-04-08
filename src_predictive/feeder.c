@@ -1034,8 +1034,7 @@ FEEDER *feeder_fetch(
 
 	feeder->feeder_row_count =
 		feeder_row_count(
-			feeder->feeder_row_list,
-			feeder->feeder_row_first_out_balance );
+			feeder->feeder_row_list );
 
 	if ( !feeder->feeder_row_count ) return feeder;
 
@@ -1069,33 +1068,22 @@ FEEDER *feeder_fetch(
 			feeder->feeder_row_list,
 			feeder->feeder_row_first_out_balance );
 
-	if ( !feeder->feeder_row_account_end_date )
+	if ( feeder->feeder_row_account_end_date )
 	{
-		char message[ 128 ];
+		feeder->feeder_row_account_end_balance =
+			feeder_row_account_end_balance(
+				feeder->feeder_row_list,
+				feeder->feeder_row_first_out_balance );
 
-		sprintf(message,
-			"feeder_row_account_end_date() returned empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		feeder->feeder_load_event =
+			feeder_load_event_new(
+				feeder_account_name,
+				feeder->feeder_load_date_time,
+				login_name,
+				feeder->feeder_load_file->feeder_load_filename,
+				feeder->feeder_row_account_end_date,
+				feeder->feeder_row_account_end_balance );
 	}
-
-	feeder->feeder_row_account_end_balance =
-		feeder_row_account_end_balance(
-			feeder->feeder_row_list,
-			feeder->feeder_row_first_out_balance );
-
-	feeder->feeder_load_event =
-		feeder_load_event_new(
-			feeder_account_name,
-			feeder->feeder_load_date_time,
-			login_name,
-			feeder->feeder_load_file->feeder_load_filename,
-			feeder->feeder_row_account_end_date,
-			feeder->feeder_row_account_end_balance );
 
 	feeder->parameter_end_balance_error =
 		/* ------------------------- */
@@ -1105,6 +1093,7 @@ FEEDER *feeder_fetch(
 			parameter_end_balance,
 			parameter_end_balance_not_null_boolean,
 			feeder->feeder_row_first_out_balance,
+			feeder->feeder_row_account_end_date,
 			feeder->feeder_row_account_end_balance );
 
 	return feeder;
@@ -2029,7 +2018,12 @@ char *feeder_row_phrase( FEEDER_PHRASE *feeder_phrase_seek )
 
 FILE *feeder_row_list_display_pipe( char *system_string )
 {
-	return popen( system_string, "w" );
+	FILE *pipe;
+
+	fflush( stdout );
+	pipe = popen( system_string, "w" );
+	fflush( stdout );
+	return pipe;
 }
 
 char *feeder_row_list_display_system_string( void )
@@ -2044,7 +2038,7 @@ char *feeder_row_list_display_system_string( void )
 	format = "right,left,left,left,right,right,right,right,left";
 
 	sprintf(system_string,
-		"sort -n | html_table.e '' '%s' '^' %s",
+		"html_table.e '' '%s' '^' %s",
 		heading,
 		format );
 
@@ -2052,12 +2046,18 @@ char *feeder_row_list_display_system_string( void )
 }
 
 void feeder_row_list_display(
+		boolean reverse_order_boolean,
 		LIST *feeder_row_list,
 		FEEDER_ROW *feeder_row_first_out_balance )
 {
 	FEEDER_ROW *feeder_row;
 	FILE *display_pipe;
 	char *system_string;
+	boolean result;
+
+/* Stub */
+/* ---- */
+if ( feeder_row_first_out_balance ){}
 
 	system_string =
 		/* ------------------- */
@@ -2072,25 +2072,30 @@ void feeder_row_list_display(
 		feeder_row_list_display_pipe(
 			system_string );
 
-	if ( !list_rewind( feeder_row_list ) )
+	if ( !list_length( feeder_row_list ) )
 	{
 		pclose( display_pipe );
 	}
 
+	if ( reverse_order_boolean )
+		list_tail( feeder_row_list );
+	else
+		list_rewind( feeder_row_list );
+
 	do {
 		feeder_row = list_get( feeder_row_list );
 
+#ifdef NOT_DEFINED
 		if ( feeder_row == feeder_row_first_out_balance )
 		{
 			pclose( display_pipe );
-
 			fflush( stdout );
+
 			printf( "%s\n",
 				/* ---------------------- */
 				/* Returns program memory */
 				/* ---------------------- */
 				feeder_row_no_more_display() );
-			fflush( stdout );
 
 			display_pipe =
 				/* -------------- */
@@ -2099,6 +2104,7 @@ void feeder_row_list_display(
 				feeder_row_list_display_pipe(
 					system_string );
 		}
+#endif
 
 		display_pipe =
 			/* ---------------------------- */
@@ -2119,9 +2125,16 @@ void feeder_row_list_display(
 					system_string );
 		}
 
-	} while ( list_next( feeder_row_list ) );
+		if ( reverse_order_boolean )
+			result = list_prior( feeder_row_list );
+		else
+			result = list_next( feeder_row_list );
+
+	} while ( result );
 
 	if ( display_pipe ) pclose( display_pipe );
+
+	fflush( stdout );
 }
 
 void feeder_row_transaction_insert(
@@ -2205,7 +2218,7 @@ FILE *feeder_row_display_output(
 		FILE *display_pipe,
 		FEEDER_ROW *feeder_row )
 {
-	char *tmp;
+	char *display_results;
 	char *status_string;
 	char calculate_balance_string[ 128 ];
 	char file_row_balance_string[ 128 ];
@@ -2223,10 +2236,11 @@ FILE *feeder_row_display_output(
 			__LINE__ );
 
 		if ( display_pipe ) pclose( display_pipe );
+		fflush( stdout );
 		exit( 1 );
 	}
 
-	tmp =
+	display_results =
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
@@ -2273,7 +2287,7 @@ FILE *feeder_row_display_output(
 	fprintf(display_pipe,
 		"%d^%s^%s^%s^%s^%s^%s^%s^%s\n",
 		feeder_row->feeder_load_row->feeder_row_number,
-		tmp,
+		display_results,
 		feeder_row->feeder_load_row->american_date,
 		feeder_row->feeder_load_row->description_embedded,
 		/* --------------------- */
@@ -2286,12 +2300,13 @@ FILE *feeder_row_display_output(
 		difference_string,
 		status_string );
 
-	free( tmp );
+	free( display_results );
 
 	if ( feeder_row->feeder_transaction
 	&&   feeder_row->feeder_transaction->transaction )
 	{
 		pclose( display_pipe );
+		fflush( stdout );
 		display_pipe = (FILE *)0;
 
 		journal_list_html_display(
@@ -2774,9 +2789,9 @@ int feeder_match_days_ago(
 	char *days_ago_string;
 
 	days_ago_string =
-	     /* ----------------------------------------------------------- */
-	     /* Returns component of application_constant->dictionary or "" */
-	     /* ----------------------------------------------------------- */
+	/* ------------------------------------------------------------------ */
+	/* Returns component of application_constant->dictionary->get() or "" */
+	/* ------------------------------------------------------------------ */
 	     application_constant_fetch(
 			(char *)feeder_load_transaction_days_ago );
 
@@ -2839,9 +2854,12 @@ char *feeder_match_minimum_date(
 	date_display_yyyy_mm_dd( date );
 }
 
-void feeder_row_error_display( LIST *feeder_row_list )
+void feeder_row_error_display(
+		boolean reverse_order_boolean,
+		LIST *feeder_row_list )
 {
 	feeder_row_list_display(
+		reverse_order_boolean,
 		feeder_row_error_extract_list(
 			feeder_row_list )
 			/* feeder_row_list */,
@@ -3424,6 +3442,7 @@ char *feeder_parameter_end_balance_error(
 		double parameter_end_balance,
 		boolean parameter_end_balance_not_null_boolean,
 		FEEDER_ROW *feeder_row_first_out_balance,
+		char *feeder_row_account_end_date,
 		double feeder_row_account_end_balance )
 {
 	char error[ 256 ];
@@ -3432,7 +3451,8 @@ char *feeder_parameter_end_balance_error(
 	||   float_dollar_virtually_same(
 			parameter_end_balance,
 			feeder_row_account_end_balance )
-	||   feeder_row_first_out_balance )
+	||   feeder_row_first_out_balance
+	||   !feeder_row_account_end_date )
 	{
 		return "";
 	}
@@ -3445,31 +3465,9 @@ char *feeder_parameter_end_balance_error(
 	return strdup( error );
 }
 
-int feeder_row_count(
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+int feeder_row_count( LIST *feeder_row_list )
 {
-	int count = 0;
-	FEEDER_ROW *feeder_row;
-
-	if ( list_rewind( feeder_row_list ) )
-	do {
-		feeder_row = list_get( feeder_row_list );
-
-		if ( feeder_row == feeder_row_first_out_balance )
-		{
-			break;
-		}
-
-		if ( feeder_row->feeder_matched_journal
-		||   feeder_row->feeder_phrase_seek )
-		{
-			count++;
-		}
-
-	} while ( list_next( feeder_row_list ) );
-
-	return count;
+	return list_length( feeder_row_list );
 }
 
 char *feeder_row_system_string(
@@ -4646,7 +4644,9 @@ void feeder_execute(
 		process_name );
 }
 
-void feeder_display( FEEDER *feeder )
+void feeder_display(
+		boolean reverse_order_boolean,
+		FEEDER *feeder )
 {
 	if ( !feeder )
 	{
@@ -4664,16 +4664,16 @@ void feeder_display( FEEDER *feeder )
 	if ( feeder->feeder_row_first_out_balance )
 	{
 		printf( "<h1>Feeder Error Table</h1>\n" );
-		fflush( stdout );
 
 		feeder_row_error_display(
+			reverse_order_boolean,
 			feeder->feeder_row_list );
 	}
 
 	printf( "<h1>Transaction Table</h1>\n" );
-	fflush( stdout );
 
 	feeder_row_list_display(
+		reverse_order_boolean,
 		feeder->feeder_row_list,
 		feeder->feeder_row_first_out_balance );
 

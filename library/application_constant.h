@@ -38,8 +38,8 @@ DICTIONARY *application_constant_dictionary(
 /* Usage */
 /* ----- */
 
-/* Returns component of application_constant->dictionary or "" */
-/* ----------------------------------------------------------- */
+/* Returns component of application_constant->dictionary->get() or "" */
+/* ------------------------------------------------------------------ */
 char *application_constant_fetch(
 		char *key );
 
