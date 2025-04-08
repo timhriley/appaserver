@@ -2047,17 +2047,12 @@ char *feeder_row_list_display_system_string( void )
 
 void feeder_row_list_display(
 		boolean reverse_order_boolean,
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance )
+		LIST *feeder_row_list )
 {
 	FEEDER_ROW *feeder_row;
 	FILE *display_pipe;
 	char *system_string;
 	boolean result;
-
-/* Stub */
-/* ---- */
-if ( feeder_row_first_out_balance ){}
 
 	system_string =
 		/* ------------------- */
@@ -2075,6 +2070,7 @@ if ( feeder_row_first_out_balance ){}
 	if ( !list_length( feeder_row_list ) )
 	{
 		pclose( display_pipe );
+		return;
 	}
 
 	if ( reverse_order_boolean )
@@ -2085,18 +2081,8 @@ if ( feeder_row_first_out_balance ){}
 	do {
 		feeder_row = list_get( feeder_row_list );
 
-#ifdef NOT_DEFINED
-		if ( feeder_row == feeder_row_first_out_balance )
+		if ( !display_pipe )
 		{
-			pclose( display_pipe );
-			fflush( stdout );
-
-			printf( "%s\n",
-				/* ---------------------- */
-				/* Returns program memory */
-				/* ---------------------- */
-				feeder_row_no_more_display() );
-
 			display_pipe =
 				/* -------------- */
 				/* Safely returns */
@@ -2104,7 +2090,6 @@ if ( feeder_row_first_out_balance ){}
 				feeder_row_list_display_pipe(
 					system_string );
 		}
-#endif
 
 		display_pipe =
 			/* ---------------------------- */
@@ -2113,17 +2098,6 @@ if ( feeder_row_first_out_balance ){}
 			feeder_row_display_output(
 				display_pipe,
 				feeder_row );
-
-		if ( !display_pipe
-		&&   !list_at_end( feeder_row_list ) )
-		{
-			display_pipe =
-				/* -------------- */
-				/* Safely returns */
-				/* -------------- */
-				feeder_row_list_display_pipe(
-					system_string );
-		}
 
 		if ( reverse_order_boolean )
 			result = list_prior( feeder_row_list );
@@ -2862,9 +2836,7 @@ void feeder_row_error_display(
 		reverse_order_boolean,
 		feeder_row_error_extract_list(
 			feeder_row_list )
-			/* feeder_row_list */,
-		(FEEDER_ROW *)0
-			/* feeder_row_first_out_balance */ );
+			/* feeder_row_list */ );
 }
 
 LIST *feeder_row_error_extract_list( LIST *feeder_row_list )
@@ -4674,8 +4646,7 @@ void feeder_display(
 
 	feeder_row_list_display(
 		reverse_order_boolean,
-		feeder->feeder_row_list,
-		feeder->feeder_row_first_out_balance );
+		feeder->feeder_row_list );
 
 	printf( "%s\n",
 		feeder->parameter_end_balance_error );

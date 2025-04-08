@@ -591,8 +591,7 @@ LIST *feeder_row_error_extract_list(
 /* ----- */
 void feeder_row_list_display(
 		boolean reverse_order_boolean,
-		LIST *feeder_row_list,
-		FEEDER_ROW *feeder_row_first_out_balance );
+		LIST *feeder_row_list );
 
 /* Process */
 /* ------- */
