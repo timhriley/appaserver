@@ -553,7 +553,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_calloc(
 LIST *update_mto1_isa_update_attribute_list(
 		LIST *one_folder_attribute_list,
 		LIST *relation_translate_list,
-		LIST *many_update_attribute_list );
+		LIST *update_attribute_list );
 
 /* Usage */
 /* ----- */
@@ -561,11 +561,10 @@ LIST *update_mto1_isa_update_attribute_list(
 /* Safely returns */
 /* -------------- */
 UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
-		LIST *one_folder_attribute_list,
-		char *many_attribute_name,
-		char *post_datum,
-		char *file_datum,
-		char *foreign_key );
+		char *folder_attribute_name,
+		int primary_key_index,
+		LIST *relation_translate_list,
+		LIST *update_attribute_list );
 
 /* Usage */
 /* ----- */

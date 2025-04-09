@@ -4640,126 +4640,66 @@ LIST *update_one2m_where_query_cell_list(
 LIST *update_mto1_isa_update_attribute_list(
 		LIST *one_folder_attribute_list,
 		LIST *relation_translate_list,
-		LIST *many_update_attribute_list )
+		LIST *update_attribute_list )
 {
 	LIST *list = list_new();
-	UPDATE_ATTRIBUTE *many_update_attribute;
-	RELATION_TRANSLATE *relation_translate;
-	UPDATE_ATTRIBUTE *isa_update_attribute;
+	FOLDER_ATTRIBUTE *folder_attribute;
+	UPDATE_ATTRIBUTE *update_attribute;
 
-	if ( !list_length( one_folder_attribute_list )
-	||   !list_rewind( relation_translate_list )
-	||   !list_rewind( many_update_attribute_list ) )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
+	if ( list_rewind( one_folder_attribute_list ) )
 	do {
-		many_update_attribute =
+		folder_attribute =
 			list_get(
-				many_update_attribute_list );
+				one_folder_attribute_list );
 
-		if ( !many_update_attribute->folder_attribute )
+		update_attribute =
+			update_mto1_isa_update_attribute(
+				folder_attribute->attribute_name,
+				folder_attribute->primary_key_index,
+				relation_translate_list,
+				update_attribute_list );
+
+		if ( update_attribute )
 		{
-			char message[ 128 ];
-
-			sprintf(message,
-			"many_update_attribute->folder_attribute is empty." );
-
-			appaserver_error_stderr_exit(
-				__FILE__,
-				__FUNCTION__,
-				__LINE__,
-				message );
+			list_set( list, update_attribute );
 		}
 
-		relation_translate =
-			list_get(
-				relation_translate_list );
+	} while ( list_next( one_folder_attribute_list ) );
 
-		isa_update_attribute =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			update_mto1_isa_update_attribute(
-				one_folder_attribute_list,
-				many_update_attribute->
-					folder_attribute->
-					attribute_name
-						/* many_attribute_name */,
-				many_update_attribute->post_datum,
-				many_update_attribute->file_datum,
-				relation_translate->foreign_key );
-
-		list_set( list, isa_update_attribute );
-
-		list_next( relation_translate_list );
-
-	} while ( list_next( many_update_attribute_list ) );
+	if ( !list_length( list ) )
+	{
+		list_free( list );
+		list = NULL;
+	}
 
 	return list;
 }
 
 UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
-		LIST *one_folder_attribute_list,
-		char *many_attribute_name,
-		char *post_datum,
-		char *file_datum,
-		char *foreign_key )
+		char *folder_attribute_name,
+		int primary_key_index,
+		LIST *relation_translate_list,
+		LIST *update_attribute_list )
 {
-	UPDATE_ATTRIBUTE *update_attribute;
+	char *attribute_name;
 
-	if ( !list_length( one_folder_attribute_list )
-	||   !many_attribute_name
-	||   !post_datum
-	||   !file_datum
-	||   !foreign_key )
+	if ( primary_key_index )
 	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
+		attribute_name =
+			relation_translate_foreign_key(
+				relation_translate_list,
+				folder_attribute_name
+					/* primary_key */ );
+	}
+	else
+	{
+		attribute_name = folder_attribute_name;
 	}
 
-	update_attribute = update_attribute_calloc();
-
-	if ( ! ( update_attribute->folder_attribute =
-			folder_attribute_seek(
-				foreign_key,
-				one_folder_attribute_list ) ) )
-	{
-		char message[ 128 ];
-
-		snprintf(
-			message,
-			sizeof ( message ),
-			"folder_attribute_seek(%s) returned empty.",
-			foreign_key );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	update_attribute->post_datum = post_datum;
-	update_attribute->file_datum = file_datum;
-
-	return update_attribute;
+	return
+	update_attribute_seek(
+		attribute_name,
+		update_attribute_list );
 }
 
 char *update_attribute_list_display( LIST *update_attribute_list )
