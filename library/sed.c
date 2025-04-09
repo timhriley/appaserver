@@ -1,13 +1,13 @@
-/* sed.c		 						*/
-/* -------------------------------------------------------------------- */
-/* Freely available software: see Appaserver.org			*/
-/* -------------------------------------------------------------------- */
+/* -------------------------------------------------------------	*/
+/* $APPASERVER_HOME/library/sed.c		 			*/
+/* -------------------------------------------------------------	*/
+/* No warranty and freely available software: see Appaserver.org	*/
+/* -------------------------------------------------------------	*/
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "sed.h"
-#include "timlib.h"
 #include "String.h"
 
 void sed_free( SED *sed )
@@ -122,7 +122,7 @@ char *sed_trim_double_spaces( char *string )
 
 	sed = sed_new( regular_expression, replace );
 
-	timlib_strcpy(	return_string,
+	string_strcpy(	return_string,
 			string,
 			1024 );
 
@@ -132,7 +132,6 @@ char *sed_trim_double_spaces( char *string )
 	}
 
 	sed_free( sed );
-	return timlib_rtrim( return_string );
-
-} /* sed_trim_double_spaces() */
+	return string_rtrim( return_string );
+}
 

@@ -280,6 +280,8 @@ int string_character_count(
 		char ch,
 		char *source );
 
+/* Returns buffer with end shortened (maybe) */
+/* ----------------------------------------- */
 char *string_rtrim(
 		char *buffer );
 

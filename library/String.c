@@ -850,6 +850,9 @@ int string_character_count(
 char *string_rtrim( char *buffer )
 {
 	return
+	/* ----------------------------------------- */
+	/* Returns buffer with end shortened (maybe) */
+	/* ----------------------------------------- */
 	string_trim_right_spaces( buffer );
 }
 

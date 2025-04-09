@@ -161,7 +161,7 @@ FEEDER_PHRASE *feeder_phrase_calloc(
 /* Usage */
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_seek(
-		char *file_row_description,
+		char *feeder_load_row_description_space_trim,
 		LIST *feeder_phrase_list );
 
 /* Process */
@@ -292,6 +292,7 @@ typedef struct
 	char *american_date;
 	char *international_date;
 	char *file_row_description;
+	char *description_space_trim;
 	double debit;
 	double credit;
 	double file_row_amount;
@@ -328,6 +329,14 @@ double feeder_load_row_amount(
 		double credit );
 
 int feeder_load_row_check_number(
+		char *feeder_load_row_description_space_trim );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_description_space_trim(
 		char *file_row_description );
 
 /* Usage */
@@ -336,7 +345,7 @@ int feeder_load_row_check_number(
 /* Returns heap memory or file_row_description */
 /* ------------------------------------------- */
 char *feeder_load_row_description_embedded(
-		char *file_row_description,
+		char *feeder_load_row_description_space_trim,
 		double balance,
 		char *reference_string,
 		int feeder_load_row_check_number );
@@ -347,12 +356,12 @@ char *feeder_load_row_description_embedded(
 /* Returns static memory */
 /* --------------------- */
 char *feeder_load_row_trim_date(
-		char *file_row_description );
+		char *description_space_trim );
 
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_load_row_description_build(
-		char *sed_trim_double_spaces,
+		char *feeder_load_row_trim_date,
 		double balance,
 		char *reference_string );
 

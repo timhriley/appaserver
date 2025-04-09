@@ -173,7 +173,7 @@ FEEDER_PHRASE *feeder_phrase_calloc( void )
 	return feeder_phrase;
 }
 
-char *feeder_load_row_trim_date( char *file_row_description )
+char *feeder_load_row_trim_date( char *description_space_trim )
 {
 	static char sans_bank_date_description[ 256 ];
 	char *replace;
@@ -186,7 +186,7 @@ char *feeder_load_row_trim_date( char *file_row_description )
 	sed = sed_new( regular_expression, replace );
 
 	string_strcpy(	sans_bank_date_description,
-			file_row_description,
+			description_space_trim,
 			512 );
 
 	/* Why do I need to append the EOL character for sed() to work? */
@@ -212,7 +212,11 @@ char *feeder_load_row_trim_date( char *file_row_description )
 
 	sed_free( sed );
 
-	return string_rtrim( sans_bank_date_description );
+	return
+	/* ----------------------------------------- */
+	/* Returns buffer with end shortened (maybe) */
+	/* ----------------------------------------- */
+	string_rtrim( sans_bank_date_description );
 }
 
 FEEDER_LOAD_ROW *feeder_load_row_new(
@@ -321,6 +325,13 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 		return NULL;
 	}
 
+	feeder_load_row->description_space_trim =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_load_row_description_space_trim(
+			feeder_load_row->file_row_description );
+
 	if ( !credit_column )
 	{
 		feeder_load_row->file_row_amount =
@@ -383,14 +394,14 @@ FEEDER_LOAD_ROW *feeder_load_row_new(
 
 	feeder_load_row->check_number =
 		feeder_load_row_check_number(
-			feeder_load_row->file_row_description );
+			feeder_load_row->description_space_trim );
 
 	feeder_load_row->description_embedded =
 		/* ------------------------------------------- */
 		/* Returns heap memory or file_row_description */
 		/* ------------------------------------------- */
 		feeder_load_row_description_embedded(
-			feeder_load_row->file_row_description,
+			feeder_load_row->description_space_trim,
 			feeder_load_row->file_row_balance,
 			feeder_load_row->reference_string,
 			feeder_load_row->check_number );
@@ -427,12 +438,12 @@ double feeder_load_row_amount(
 }
 
 char *feeder_load_row_description_embedded(
-		char *file_row_description,
+		char *description_space_trim,
 		double balance,
 		char *reference_string,
 		int check_number )
 {
-	if ( check_number ) return file_row_description;
+	if ( check_number ) return description_space_trim;
 
 	return
 	/* ----------------------------------------- */
@@ -446,29 +457,25 @@ char *feeder_load_row_description_embedded(
 			/* --------------------- */
 			/* Returns static memory */
 			/* --------------------- */
-			sed_trim_double_spaces(
-				/* --------------------- */
-				/* Returns static memory */
-				/* --------------------- */
-				feeder_load_row_trim_date(
-					file_row_description ) ),
+			feeder_load_row_trim_date(
+				description_space_trim ),
 			balance,
 			reference_string ),
 		FEEDER_DESCRIPTION_SIZE );
 }
 
 char *feeder_load_row_description_build(
-		char *sed_trim_double_spaces,
+		char *feeder_load_row_trim_date,
 		double balance,
 		char *reference_string )
 {
 	char build[ 512 ];
 
-	if ( !sed_trim_double_spaces )
+	if ( !feeder_load_row_trim_date )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "sed_trim_double_spaces is empty." );
+		sprintf(message, "feeder_load_row_trim_date is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -481,7 +488,7 @@ char *feeder_load_row_description_build(
 	{
 		sprintf(build,
 			"%s %.2lf",
-			sed_trim_double_spaces,
+			feeder_load_row_trim_date,
 			balance );
 	}
 	else
@@ -489,7 +496,7 @@ char *feeder_load_row_description_build(
 	{
 		sprintf(build,
 			"%s %s",
-			sed_trim_double_spaces,
+			feeder_load_row_trim_date,
 			reference_string );
 	}
 
@@ -1120,7 +1127,7 @@ FEEDER *feeder_calloc( void )
 }
 
 FEEDER_PHRASE *feeder_phrase_seek(
-		char *file_row_description,
+		char *description_space_trim,
 		LIST *feeder_phrase_list )
 {
 	FEEDER_PHRASE *feeder_phrase = {0};
@@ -1140,7 +1147,7 @@ FEEDER_PHRASE *feeder_phrase_seek(
 			piece_number++ )
 		{
 			if ( string_exists_substring(
-				file_row_description /* string */,
+				description_space_trim /* string */,
 				feeder_component /* substring */ ) )
 			{
 				return feeder_phrase;
@@ -1149,7 +1156,7 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 	} while ( list_next( feeder_phrase_list ) );
 
-	return (FEEDER_PHRASE *)0;
+	return NULL;
 }
 
 char feeder_phrase_delimiter( char *phrase )
@@ -1475,18 +1482,18 @@ char *feeder_matched_journal_where(
 	return strdup( where );
 }
 
-int feeder_load_row_check_number( char *file_row_description )
+int feeder_load_row_check_number( char *description_space_trim )
 {
 	char buffer[ 512 ];
 	char *substr = "CHECK #:";
 
 	int position;
 
-	if ( !file_row_description )
+	if ( !description_space_trim )
 	{
 		char message[ 128 ];
 
-		sprintf(message, "file_row_description is empty." );
+		sprintf(message, "description_space_trim is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -1495,7 +1502,7 @@ int feeder_load_row_check_number( char *file_row_description )
 			message );
 	}
 
-	string_strcpy( buffer, file_row_description, 512 );
+	string_strcpy( buffer, description_space_trim, 512 );
 
 	/* If like: VETERANS AFFAIRS DES:PAYMENT CHECK #:1827 */
 	/* -------------------------------------------------- */
@@ -3352,7 +3359,7 @@ FEEDER_ROW *feeder_row_new(
 	{
 		feeder_row->feeder_phrase_seek =
 			feeder_phrase_seek(
-				feeder_load_row->file_row_description,
+				feeder_load_row->description_space_trim,
 				feeder_phrase_list );
 	}
 
@@ -4753,3 +4760,29 @@ char *feeder_row_display( FEEDER_ROW *feeder_row )
 	return strdup( display );
 }
 
+char *feeder_load_row_description_space_trim( char *file_row_description )
+{
+	if ( !file_row_description )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"file_row_description is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	strdup(
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sed_trim_double_spaces(
+			file_row_description ) );
+}
