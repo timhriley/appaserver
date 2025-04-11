@@ -23,8 +23,9 @@
 #define IMPORT_PREDICT_CASH_ACCOUNT		"checking"
 #define IMPORT_PREDICT_EQUITY_ACCOUNT		"net_asset"
 
-#define IMPORT_PREDICT_BANK_STUB_NAME		"Your Bank"
+#define IMPORT_PREDICT_BANK_STUB_NAME		"your_bank"
 #define IMPORT_PREDICT_BANK_STUB_ADDRESS	"1234 Set Me"
+#define IMPORT_PREDICT_BANK_ADDRESS_ANY		"any"
 
 #define IMPORT_PREDICT_CARD_FEEDER_PHRASE	"Credit Card Bill Payment"
 #define IMPORT_PREDICT_CASH_FEEDER_PHRASE	"PAYMENT - THANK YOU"
@@ -144,7 +145,7 @@
 	"<li>Execute: Reconcile --> yourBank Checking Upload.\n"	\
 	"</ol>\n"
 
-#define IMPORT_PREDICT_MAP_PROCESS_NAME \
+#define IMPORT_PREDICT_BANK_PROCESS_NAME \
 	"generic_checking_upload"
 
 #define IMPORT_PREDICT_INPUT_DAYS_AGO 180

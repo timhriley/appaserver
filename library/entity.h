@@ -27,7 +27,7 @@
 					"street_address,"	\
 					"email_address"
 
-#define ENTITY_STREET_ADDRESS_UNKNOWN	"unknown"
+#define ENTITY_STREET_ADDRESS_ANY	"any"
 
 typedef struct
 {

@@ -468,13 +468,8 @@ LIST *journal_propagate_journal_list(
 /* Usage */
 /* ----- */
 void journal_propagate_balance_set(
-		LIST *journal_propagate_journal_list /* in/out */,
-		boolean journal_propagate_accumulate_debit );
-
-/* Process */
-/* ------- */
-double journal_propagate_previous_balance(
-		double journal_prior_balance );
+		LIST *journal_list /* in/out */,
+		boolean accumulate_debit );
 
 /* Usage */
 /* ----- */
@@ -483,6 +478,19 @@ double journal_propagate_balance(
 		double previous_balance,
 		double debit_amount,
 		double credit_amount );
+
+/* Usage */
+/* ----- */
+void journal_propagate_previous_balance_set(
+		LIST *journal_list /* in/out */,
+		double end_balance );
+
+/* Usage */
+/* ----- */
+double journal_propagate_previous_balance(
+		double debit_amount,
+		double credit_amount,
+		double balance );
 
 /* Usage */
 /* ----- */

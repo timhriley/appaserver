@@ -491,7 +491,7 @@ ENTITY *entity_full_name_entity(
 		entity =
 			entity_new(
 				strdup( full_name ),
-				ENTITY_STREET_ADDRESS_UNKNOWN );
+				ENTITY_STREET_ADDRESS_ANY );
 	}
 	return entity;
 }

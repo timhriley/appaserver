@@ -146,14 +146,15 @@ void list_append_string_list( LIST *list, LIST *string_list )
 }
 
 LIST *list_subtract_string(
-			LIST *list,
-			char *string )
+		LIST *list,
+		char *string )
 {
-/* ------------------------------------------------------------ */
-/* This function deletes the link that current is pointing to	*/
-/* but not the data item.					*/
-/* ------------------------------------------------------------ */
-	if ( item_exists( list, string, list_strcmp ) ) list_delete( list );
+	if ( item_exists( list, string, list_strcmp ) )
+	/* ------------------------------------------------------------ */
+	/* This function deletes the link that current is pointing to	*/
+	/* but not the data item.					*/
+	/* ------------------------------------------------------------ */
+		list_delete( list );
 
 	return list;
 }
@@ -1144,18 +1145,16 @@ int list_item_offset( LIST *list, char *item, int (*compare_fn)() )
 
 struct LINKTYPE *create_node()
 {
-        return (struct LINKTYPE *)calloc( 1, sizeof( struct LINKTYPE ) );
+        return (struct LINKTYPE *)calloc( 1, sizeof ( struct LINKTYPE ) );
 }
 
 void list_free_string_list( LIST *string_list )
 {
 	if ( list_rewind( string_list ) )
-	{
-		do {
-			free( list_get( string_list ) );
+	do {
+		free( list_get( string_list ) );
 
-		} while( list_next( string_list ) );
-	}
+	} while( list_next( string_list ) );
 
 	list_free_container( string_list );
 }
@@ -1170,12 +1169,13 @@ void list_free( LIST *list )
 	list_free_datum( list );
 
         if ( list_rewind( list ) )
+	while ( list->num_in_list )
 	{
-/* ------------------------------------------------------------ */
-/* This function deletes the link that current is pointing to	*/
-/* but not the data item.					*/
-/* ------------------------------------------------------------ */
-                while ( list->num_in_list ) list_delete( list );
+	/* ------------------------------------------------------------ */
+	/* This function deletes the link that current is pointing to	*/
+	/* but not the data item.					*/
+	/* ------------------------------------------------------------ */
+		list_delete( list );
 	}
 
 	if ( list ) free( list );
@@ -1196,7 +1196,7 @@ LIST *list_new() { return create_list(); }
 /* ------------------------------------------- */
 LIST *create_list( void )
 {
-        LIST *ret_list = (LIST *)calloc(1, sizeof( LIST ) );
+        LIST *ret_list = calloc( 1, sizeof ( LIST ) );
         struct LINKTYPE *list_head, *list_tail;
 
         if (!ret_list)
@@ -1268,12 +1268,12 @@ void list_set_current_pointer(	LIST *list, void *item )
 	list_set_current( list, item );
 }
 
-void list_set_position_string(	LIST *list,
-				char *string,
-				int position )
+void list_set_position_string(
+		LIST *list,
+		char *string,
+		int position )
 {
-	if ( !list_rewind( list ) ) return;
-
+	if ( list_rewind( list ) )
 	do {
 		if ( !position )
 		{
@@ -1356,10 +1356,10 @@ boolean list_still_more( LIST *list )
 boolean list_past_end( LIST *list )
 {
 	if ( !list )
-		return 0;
+		return 1;
 	else
 	if ( !list->num_in_list )
-		return 0;
+		return 1;
 	else
 		return list->past_end;
 }

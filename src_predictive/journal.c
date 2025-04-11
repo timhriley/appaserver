@@ -2093,9 +2093,7 @@ void journal_propagate_balance_set(
 
 		if ( prior_journal )
 		{
-			journal->previous_balance =
-				journal_propagate_previous_balance(
-					prior_journal->balance );
+			journal->previous_balance = prior_journal->balance;
 		}
 
 		journal->balance =
@@ -2108,11 +2106,6 @@ void journal_propagate_balance_set(
 		prior_journal = journal;
 
 	} while( list_next( journal_list ) );
-}
-
-double journal_propagate_previous_balance( double journal_prior_balance )
-{
-	return journal_prior_balance;
 }
 
 double journal_propagate_balance(
@@ -2157,6 +2150,61 @@ double journal_propagate_balance(
 	}
 
 	return balance;
+}
+
+void journal_propagate_previous_balance_set(
+		LIST *journal_list /* in/out */,
+		double end_balance )
+{
+	JOURNAL *journal;
+	JOURNAL *prior_journal = {0};
+
+	if ( list_go_tail( journal_list ) )
+	do {
+		journal = list_get( journal_list );
+
+		if ( !prior_journal )
+		{
+			journal->balance = end_balance;
+		}
+		else
+		{
+			journal->balance = prior_journal->previous_balance;
+		}
+
+		journal->previous_balance =
+			journal_propagate_previous_balance(
+				journal->debit_amount,
+				journal->credit_amount,
+				journal->balance );
+
+		prior_journal = journal;
+
+	} while( list_prior( journal_list ) );
+}
+
+double journal_propagate_previous_balance(
+		double debit_amount,
+		double credit_amount,
+		double balance )
+{
+	double previous_balance = 0.0;
+
+	if ( debit_amount )
+	{
+		previous_balance =
+			balance -
+			debit_amount;
+	}
+	else
+	if ( credit_amount )
+	{
+		previous_balance =
+			balance +
+			credit_amount;
+	}
+
+	return previous_balance;
 }
 
 char *journal_propagate_greater_equal_where(

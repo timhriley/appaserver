@@ -101,10 +101,10 @@ EXECUTABLES=	trial_balance_output					\
 		transaction_html_display				\
 		post_change_self					\
 		post_change_account_balance				\
-		import_predictbooks					\
 		prior_fixed_asset_trigger				\
 		investment_transaction_driver				\
 		generate_invoice
+#		import_predictbooks
 #		hourly_service_sale_trigger
 #		post_change_vendor_payment				\
 #		cost_recover_fixed_assets				\
