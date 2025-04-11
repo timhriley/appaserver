@@ -599,6 +599,14 @@ char *string_middle(
 		int start,
 		int how_many );
 
+/* Returns destination */
+/* ------------------- */
+char *string_substr(
+		char *destination,
+		char *source,
+		int start,
+		int how_many );
+
 int string_strict_case_instr(
 		char *substr,
 		char *string,

@@ -622,7 +622,7 @@ TABLE_EDIT *table_edit_new(
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_spool_filename(
+		appaserver_spool_filespecification(
 			application_name,
 			folder_name,
 			session_key,

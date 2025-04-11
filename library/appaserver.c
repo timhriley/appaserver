@@ -85,84 +85,84 @@ FILE *appaserver_input_pipe( char *system_string )
 	return popen( system_string, "r" );
 }
 
-FILE *appaserver_append_file( char *filename )
+FILE *appaserver_append_file( char *filespecification )
 {
 	FILE *file;
 
-	if ( !filename )
+	if ( !filespecification )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: filename is empty.\n",
+			"ERROR in %s/%s()/%d: filespecification is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( file = fopen( filename, "a" ) ) )
+	if ( ! ( file = fopen( filespecification, "a" ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: fopen(%s) for append returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			filename );
+			filespecification );
 		exit( 1 );
 	}
 
 	return file;
 }
 
-FILE *appaserver_output_file( char *filename )
+FILE *appaserver_output_file( char *filespecification )
 {
 	FILE *file;
 
-	if ( !filename )
+	if ( !filespecification )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: filename is empty.\n",
+			"ERROR in %s/%s()/%d: filespecification is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( file = fopen( filename, "w" ) ) )
+	if ( ! ( file = fopen( filespecification, "w" ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: fopen(%s) for write returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			filename );
+			filespecification );
 		exit( 1 );
 	}
 
 	return file;
 }
 
-FILE *appaserver_input_file( char *filename )
+FILE *appaserver_input_file( char *filespecification )
 {
 	FILE *file;
 
-	if ( !filename )
+	if ( !filespecification )
 	{
 		fprintf(stderr,
-			"ERROR in %s/%s()/%d: filename is empty.\n",
+			"ERROR in %s/%s()/%d: filespecification is empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__ );
 		exit( 1 );
 	}
 
-	if ( ! ( file = fopen( filename, "r" ) ) )
+	if ( ! ( file = fopen( filespecification, "r" ) ) )
 	{
 		fprintf(stderr,
 		"ERROR in %s/%s()/%d: fopen(%s) for read returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
-			filename );
+			filespecification );
 		exit( 1 );
 	}
 
@@ -176,6 +176,26 @@ FILE *appaserver_output_pipe( char *system_string )
 		char message[ 128 ];
 
 		sprintf(message, "system_string is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !security_system_string_valid_boolean(
+		SECURITY_FORK_CHARACTER,
+		SECURITY_FORK_STRING,
+		system_string ) )
+	{
+		char message[ STRING_65K ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"Cannot execute=[%s].",
+			system_string );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -212,12 +232,12 @@ char *appaserver_spreadsheet_heading_string( LIST *folder_attribute_name_list )
 
 char *appaserver_spreadsheet_output_system_string(
 		char delimiter,
-		char *spreadsheet_filename )
+		char *spreadsheet_filespecification )
 {
 	static char system_string[ 256 ];
 
 	if ( !delimiter
-	||   !spreadsheet_filename )
+	||   !spreadsheet_filespecification )
 	{
 		char message[ 128 ];
 
@@ -235,19 +255,19 @@ char *appaserver_spreadsheet_output_system_string(
 		sizeof ( system_string ),
 		"double_quote_comma_delimited.e '%c' >> %s",
 		delimiter,
-		spreadsheet_filename );
+		spreadsheet_filespecification );
 
 	return system_string;
 }
 
-char *appaserver_spool_filename(
+char *appaserver_spool_filespecification(
 		char *application_name,
 		char *folder_name,
 		char *session_key,
 		pid_t process_id,
 		char *data_directory )
 {
-	char filename[ 128 ];
+	char filespecification[ 128 ];
 
 	if ( !application_name
 	||   !folder_name
@@ -264,8 +284,8 @@ char *appaserver_spool_filename(
 	}
 
 	snprintf(
-		filename,
-		sizeof ( filename ),
+		filespecification,
+		sizeof ( filespecification ),
 		"%s/%s/%s_%s_%d.dat",
 		data_directory,
 		application_name,
@@ -273,7 +293,7 @@ char *appaserver_spool_filename(
 		session_key,
 		process_id );
 
-	return strdup( filename );
+	return strdup( filespecification );
 }
 
 char *appaserver_mnemonic( LIST *key_list )

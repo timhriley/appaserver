@@ -2340,6 +2340,23 @@ char *string_left(
 		how_many );
 }
 
+char *string_substr(
+		char *destination,
+		char *source,
+		int start,
+		int how_many )
+{
+	return
+	/* ------------------- */
+	/* Returns destination */
+	/* ------------------- */
+	string_middle(
+		destination,
+		source,
+		start,
+		how_many );
+}
+
 char *string_middle(
 		char *destination,
 		char *source,

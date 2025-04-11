@@ -53,7 +53,7 @@ char *appaserver_spreadsheet_heading_string(
 /* --------------------- */
 char *appaserver_spreadsheet_output_system_string(
 		char delimiter,
-		char *spreadsheet_filename );
+		char *spreadsheet_filespecification );
 
 /* Usage */
 /* ----- */
@@ -79,7 +79,7 @@ FILE *appaserver_input_pipe(
 /* Safely returns */
 /* -------------- */
 FILE *appaserver_output_file(
-		char *filename );
+		char *filespecification );
 
 /* Usage */
 /* ----- */
@@ -87,7 +87,7 @@ FILE *appaserver_output_file(
 /* Safely returns */
 /* -------------- */
 FILE *appaserver_append_file(
-		char *filename );
+		char *filespecification );
 
 /* Usage */
 /* ----- */
@@ -95,7 +95,7 @@ FILE *appaserver_append_file(
 /* Safely returns */
 /* -------------- */
 FILE *appaserver_input_file(
-		char *filename );
+		char *filespecification );
 
 /* Usage */
 /* ----- */
@@ -110,7 +110,7 @@ FILE *appaserver_output_pipe(
 
 /* Returns heap memory */
 /* ------------------- */
-char *appaserver_spool_filename(
+char *appaserver_spool_filespecification(
 		char *application_name,
 		char *folder_name,
 		char *session_key,
