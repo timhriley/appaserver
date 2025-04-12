@@ -737,6 +737,9 @@ LIST *list_position_list(
 LIST *list_initial_capital(
 		LIST *list );
 
+boolean list_head(
+		LIST *list );
+
 boolean list_go_head(
 		LIST *list );
 

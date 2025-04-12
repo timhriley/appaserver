@@ -8,19 +8,21 @@
 #include <string.h>
 #include <stdlib.h>
 #include "String.h"
-#include "piece.h"
 #include "appaserver_error.h"
+#include "appaserver.h"
+#include "piece.h"
+#include "column.h"
+#include "float.h"
 #include "exchange.h"
 
 EXCHANGE_JOURNAL *exchange_journal_extract(
-		const char *exchange_trntype_tag,
 		LIST *list )
 {
 	char *get;
 	char *date_posted;
 	char *amount_string;
 	char *name;
-	char *memo;
+	char *memo = {0};
 	char *description;
 
 	if ( !list )
@@ -39,7 +41,7 @@ EXCHANGE_JOURNAL *exchange_journal_extract(
 			message );
 	}
 
-	while ( !list_past_end( list ) )
+	while ( 1 )
 	{
 		list =
 			/* ------------ */
@@ -47,70 +49,105 @@ EXCHANGE_JOURNAL *exchange_journal_extract(
 			/* ------------ */
 			exchange_tag_seek_list(
 				EXCHANGE_TRNTYPE_TAG,
+				(char *)0 /* stop_tag */,
 				list );
 
-		if ( !list_past_end( list ) )
+		if ( list_past_end( list ) ) return NULL;
+
+		list =
+			/* ------------ */
+			/* Returns list */
+			/* ------------ */
+			exchange_tag_seek_list(
+				EXCHANGE_DTPOSTED_TAG,
+				(char *)0 /* stop_tag */,
+				list );
+
+		get = list_get( list );
+
+		date_posted =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			exchange_journal_datum( get );
+
+		list =
+			/* ------------ */
+			/* Returns list */
+			/* ------------ */
+			exchange_tag_seek_list(
+				EXCHANGE_TRNAMT_TAG,
+				(char *)0 /* stop_tag */,
+				list );
+
+		get = list_get( list );
+
+		amount_string =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			exchange_journal_datum( get );
+
+		list =
+			/* ------------ */
+			/* Returns list */
+			/* ------------ */
+			exchange_tag_seek_list(
+				EXCHANGE_NAME_TAG,
+				(char *)0 /* stop_tag */,
+				list );
+
+		get = list_get( list );
+
+		name =
+			/* ------------------- */
+			/* Returns heap memory */
+			/* ------------------- */
+			exchange_journal_datum( get );
+
+		list =
+			/* ------------ */
+			/* Returns list */
+			/* ------------ */
+			exchange_tag_seek_list(
+				EXCHANGE_MEMO_TAG,
+				EXCHANGE_STMTTRN_END_TAG /* stop_tag */,
+				list );
+
+		get = list_get( list );
+
+		if ( !exchange_tag_boolean(
+			EXCHANGE_STMTTRN_END_TAG,
+			get ) )
 		{
-			list =
-				/* ------------ */
-				/* Returns list */
-				/* ------------ */
-				exchange_tag_seek_list(
-					EXCHANGE_DTPOSTED_TAG,
-					list );
-
-			get = list_get( list );
-
-			date_posted =
+			memo =
 				/* ------------------- */
 				/* Returns heap memory */
 				/* ------------------- */
-				exchange_journal_datum( get );
-
-			list =
-				/* ------------ */
-				/* Returns list */
-				/* ------------ */
-				exchange_tag_seek_list(
-					EXCHANGE_TRNAMT_TAG,
-					list );
-
-			get = list_get( list );
-
-			amount_string =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				exchange_journal_datum( get );
-
-			list =
-				/* ------------ */
-				/* Returns list */
-				/* ------------ */
-				exchange_tag_seek_list(
-					EXCHANGE_NAME_TAG,
-					list );
-
-			get = list_get( list );
-
-			description =
-				/* ------------------- */
-				/* Returns heap memory */
-				/* ------------------- */
-				exchange_journal_datum( get );
-
-			return
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			exchange_journal_new(
-				date_posted,
-				amount_string,
-				description );			
+				exchange_journal_datum(
+					get );
 		}
 
-		list_next( list );
+		description =
+			/* --------------------------- */
+			/* Returns name or heap memory */
+			/* --------------------------- */
+			exchange_journal_description(
+				name,
+				memo );
+
+		return
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		exchange_journal_new(
+			date_posted,
+			amount_string,
+			description );			
 	}
+
+	/* Stub */
+	/* ---- */
 	return NULL;
 }
 
@@ -141,6 +178,7 @@ EXCHANGE_JOURNAL *exchange_journal_new(
 
 	exchange_journal = exchange_journal_calloc();
 
+	exchange_journal->amount = string_atof( amount_string );
 	exchange_journal->journal = journal_calloc();
 
 	exchange_journal->journal->transaction_date_time =
@@ -186,12 +224,6 @@ EXCHANGE_JOURNAL *exchange_journal_calloc( void )
 	return exchange_journal;
 }
 
-boolean exchange_open_tag_boolean(
-		const char *exchange_ofx_tag,
-		LIST *list_stream_fetch )
-{
-}
-
 char *exchange_journal_transaction_date_time( char *date_posted )
 {
 	char year[ 5 ];
@@ -218,15 +250,15 @@ char *exchange_journal_transaction_date_time( char *date_posted )
 			message );
 	}
 
-	if ( strlen( posted_date ) < 14 )
+	if ( strlen( date_posted ) < 14 )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"posted_date is too short: %s.",
-			posted_date );
+			"date_posted is too short: %s.",
+			date_posted );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -235,19 +267,18 @@ char *exchange_journal_transaction_date_time( char *date_posted )
 			message );
 	}
 
-
 	/* Sample input: 20250404120000[0:GMT]	*/
 	/*               ^   ^ ^ ^ ^ ^		*/
 	/* 		 |   | | | | |		*/
 	/*               Y   M D H M S		*/
 	/*               0123456789012		*/
 	/* ------------------------------------	*/
-	string_instr( year, date_posted, 0, 4 );
-	string_instr( month, date_posted, 4, 2 );
-	string_instr( day, date_posted, 6, 2 );
-	string_instr( hour, date_posted, 8, 2 );
-	string_instr( minute, date_posted, 10, 2 );
-	string_instr( second, date_posted, 12, 2 );
+	string_substr( year, date_posted, 0, 4 );
+	string_substr( month, date_posted, 4, 2 );
+	string_substr( day, date_posted, 6, 2 );
+	string_substr( hour, date_posted, 8, 2 );
+	string_substr( minute, date_posted, 10, 2 );
+	string_substr( second, date_posted, 12, 2 );
 
 	snprintf(
 		transaction_date_time,
@@ -366,6 +397,11 @@ double exchange_journal_begin_amount(
 		exchange_balance_amount
 			/* end_balance */ );
 
+	journal_propagate_balance_set(
+		extract_list
+			/* journal_list in/out */,
+		1 /* accumulate_debit */ );
+
 	journal = list_first( extract_list );
 
 	return journal->previous_balance;
@@ -380,7 +416,7 @@ LIST *exchange_journal_extract_list( LIST *exchange_journal_list )
 	do {
 		exchange_journal = list_get( exchange_journal_list );
 
-		list_set( extract_list, exchange_journal->journal;
+		list_set( extract_list, exchange_journal->journal );
 
 	} while ( list_next( exchange_journal_list ) );
 
@@ -392,20 +428,25 @@ LIST *exchange_journal_extract_list( LIST *exchange_journal_list )
 	return extract_list;
 }
 
-EXCHANGE *exchange_parse( char *filespecification )
+EXCHANGE *exchange_parse(
+		char *application_name,
+		char *exchange_format_filename,
+		char *upload_directory )
 {
 	EXCHANGE *exchange;
 	FILE *input_file;
 	EXCHANGE_JOURNAL *exchange_journal;
 
-	if ( !filespecification || !*filespecification )
+	if ( !application_name
+	||   !exchange_format_filename
+	||   !upload_directory )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"filespecification is empty." );
+			"parameter is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -417,12 +458,23 @@ EXCHANGE *exchange_parse( char *filespecification )
 
 	exchange = exchange_calloc();
 
+	exchange->exchange_format_filename = exchange_format_filename;
+
+	exchange->filespecification =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		exchange_filespecification(
+			application_name,
+			exchange_format_filename,
+			upload_directory );
+
 	input_file =
 		/* -------------- */
 		/* Safely returns */
 		/* -------------- */
 		appaserver_input_file(
-			filespecification );
+			exchange->filespecification );
 
 	exchange->list_stream_fetch =
 		list_stream_fetch(
@@ -456,26 +508,36 @@ EXCHANGE *exchange_parse( char *filespecification )
 	{
 		exchange_journal =
 			exchange_journal_extract(
-				EXCHANGE_TRNTYPE_TAG,
 				exchange->list_stream_fetch /* list */ );
 
 		if ( exchange_journal )
 		{
 			list_set_order(
-				exchange_journal_list,
+				exchange->exchange_journal_list,
 				exchange_journal,
 				exchange_journal_compare_function );
 		}
 	}
 
-double exchange_balance_amount(
-	const char *EXCHANGE_BALAMT_TAG,
-	LIST *list_stream_fetch() );
+	exchange->balance_amount =
+		exchange_balance_amount(
+			EXCHANGE_BALAMT_TAG,
+			exchange->list_stream_fetch /* list */ );
 
-double exchange_journal_begin_amount(
-	exchange_journal_list,
-	exchange_balance_amount() );
+	exchange->exchange_journal_begin_amount =
+		exchange_journal_begin_amount(
+			exchange->exchange_journal_list /* in/out */,
+			exchange->balance_amount );
 
+	exchange->minimum_date_string =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		exchange_minimum_date_string(
+			list_first(
+				exchange->
+					exchange_journal_list )
+					/* first_exchange_journal */ );
 
 	return exchange;
 }
@@ -505,22 +567,76 @@ EXCHANGE *exchange_calloc( void )
 
 char *exchange_financial_institution(
 		const char *exchange_org_tag,
-		LIST *list_stream_fetch )
+		LIST *list )
 {
+	(void)list_rewind( list );
+
+	list =
+		/* ------------ */
+		/* Returns list */
+		/* ------------ */
+		exchange_tag_seek_list(
+			exchange_org_tag,
+			(char *)0 /* stop_tag */,
+			list );
+
+	if ( list_past_end( list ) ) return NULL;
+
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	exchange_journal_datum(
+		list_get( list ) );
 }
 
 double exchange_balance_amount(
 		const char *exchange_balamt_tag,
-		LIST *list_stream_fetch )
+		LIST *list )
 {
+	(void)list_rewind( list );
+
+	list =
+		/* ------------ */
+		/* Returns list */
+		/* ------------ */
+		exchange_tag_seek_list(
+			exchange_balamt_tag,
+			(char *)0 /* stop_tag */,
+			list );
+
+	if ( list_past_end( list ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"exchange_tag_seek_list(%s) returned empty.",
+			exchange_balamt_tag );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	string_atof(
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		exchange_journal_datum(
+			(char *)list_get( list ) ) );
 }
 
 LIST *exchange_tag_seek_list(
 		const char *tag,
+		char *stop_tag,
 		LIST *list )
 {
-	char *string;
-	int instr;
+	char *get;
 
 	if ( !list )
 	{
@@ -540,22 +656,26 @@ LIST *exchange_tag_seek_list(
 
 	while ( !list_past_end( list ) )
 	{
-		string = list_get( list );
+		get = list_get( list );
 
-		instr =
-			string_instr(
-				tag /* substr */,
-				string,
-				1 /* occurrence */ );
+		if ( stop_tag )
+		{
+			if ( exchange_tag_boolean(
+				(const char *)stop_tag,
+				get ) )
+			{
+				return list;
+			}
+		}
 
-		if ( instr != 0 ) return list;
+		if ( exchange_tag_boolean( tag, get ) ) return list;
 
 		list_next( list );
 	}
 	return list;
 }
 
-char *exchange_journal_datum( char *list_get );
+char *exchange_journal_datum( char *list_get )
 {
 	char datum[ 128 ];
 
@@ -622,8 +742,158 @@ boolean exchange_open_tag_boolean(
 		/* ------------ */
 		exchange_tag_seek_list(
 			exchange_ofx_tag,
+			(char *)0 /* stop_tag */,
 			list );
 
 	return !list_past_end( list );
+}
+
+boolean exchange_tag_boolean(
+		const char *tag,
+		char *list_get )
+{
+	if ( !list_get )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"list_get is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( string_instr(
+		(char *)tag /* substr */,
+		list_get,
+		1 /* occurrence */ ) > -1 )
+	{
+		return 1;
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+char *exchange_journal_description(
+		char *name,
+		char *memo )
+{
+	char description[ 1024 ];
+
+	if ( !name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
+	(void)string_search_replace(
+		name /* source_destination */,
+		"&amp;" /* search_string */,
+		"&" /* replace_string */ );
+
+	(void)string_trim_character(
+		name /* source_destination */,
+		'\\' );
+
+	if ( !memo ) return name;
+
+	if ( strcmp(
+		name,
+		memo ) == 0 )
+	{
+		return name;
+	}
+
+	snprintf(
+		description,
+		sizeof ( description ),
+		"%s %s",
+		name,
+		memo );
+
+	return strdup( description );
+}
+
+char *exchange_minimum_date_string( EXCHANGE_JOURNAL *first_exchange_journal )
+{
+	char *transaction_date_time;
+	char minimum_date_string[ 128 ];
+
+	if ( !first_exchange_journal
+	||   !first_exchange_journal->journal )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"first_exchange_journal is empty or incomplete." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	transaction_date_time =
+		first_exchange_journal->
+			journal->
+			transaction_date_time;
+
+	(void)column( minimum_date_string, 0, transaction_date_time );
+
+	return strdup( minimum_date_string );
+}
+
+char *exchange_filespecification(
+		char *application_name,
+		char *exchange_format_filename,
+		char *upload_directory )
+{
+	static char filespecification[ 128 ];
+
+	if ( !application_name
+	||   !exchange_format_filename
+	||   !upload_directory )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		filespecification,
+		sizeof ( filespecification ),
+		"%s/%s/%s",
+		upload_directory,
+		application_name,
+		exchange_format_filename );
+
+	return filespecification;
 }
 

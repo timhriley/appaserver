@@ -1303,7 +1303,12 @@ void list_set_current_string( LIST *list, char *s )
         list->current->num_bytes = strlen( s ) + 1;
 }
 
-int list_go_head( LIST *list )
+boolean list_head( LIST *list )
+{
+	return list_rewind( list );
+}
+
+boolean list_go_head( LIST *list )
 {
 	return list_rewind( list );
 }

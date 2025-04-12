@@ -11,21 +11,26 @@
 #include "boolean.h"
 #include "journal.h"
 
-#define EXCHANGE_OFX_TAG	"<OFX>"
-#define EXCHANGE_ORG_TAG	"<ORG>"
-#define EXCHANGE_BALAMT_TAG	"<BALAMT>"
-#define EXCHANGE_TRNTYPE_TAG	"<TRNTYPE>"
+#define EXCHANGE_OFX_TAG		"<OFX>"
+#define EXCHANGE_ORG_TAG		"<ORG>"
+#define EXCHANGE_DTPOSTED_TAG		"<DTPOSTED>"
+#define EXCHANGE_TRNAMT_TAG		"<TRNAMT>"
+#define EXCHANGE_NAME_TAG		"<NAME>"
+#define EXCHANGE_MEMO_TAG		"<MEMO>"
+#define EXCHANGE_STMTTRN_END_TAG	"</STMTTRN>"
+#define EXCHANGE_BALAMT_TAG		"<BALAMT>"
+#define EXCHANGE_TRNTYPE_TAG		"<TRNTYPE>"
 
 typedef struct
 {
-	JOURNAL *journal;
+	double amount;
 	char *description;
+	JOURNAL *journal;
 } EXCHANGE_JOURNAL;
 
 /* Usage */
 /* ----- */
 EXCHANGE_JOURNAL *exchange_journal_extract(
-		const char *exchange_trntype_tag,
 		LIST *list );
 
 /* Usage */
@@ -61,7 +66,7 @@ double exchange_journal_credit_amount(
 /* Usage */
 /* ----- */
 double exchange_journal_begin_amount(
-		LIST *exchange_journal_list,
+		LIST *exchange_journal_list /* in/out */,
 		double exchange_balance_amount );
 
 /* Process */
@@ -83,35 +88,54 @@ int exchange_journal_compare_function(
 		EXCHANGE_JOURNAL *exchange_journal_from_list,
 		EXCHANGE_JOURNAL *exchange_journal_compare );
 
+/* Usage */
+/* ----- */
+
+/* Returns name or heap memory */
+/* --------------------------- */
+char *exchange_journal_description(
+		char *name,
+		char *memo );
+
 typedef struct
 {
+	char *exchange_format_filename;
+	char *filespecification;
 	LIST *list_stream_fetch;
 	boolean open_tag_boolean;
 	char *financial_institution;
 	LIST *exchange_journal_list;
 	double balance_amount;
 	double exchange_journal_begin_amount;
+	char *minimum_date_string;
 } EXCHANGE;
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 EXCHANGE *exchange_parse(
-		char *filespecification );
+		char *application_name,
+		char *exchange_format_filename,
+		char *upload_directory );
 
 /* Process */
 /* ------- */
 EXCHANGE *exchange_calloc(
 		void );
 
-/* Returns heap memory or null */
-/* --------------------------- */
-char *exchange_financial_institution(
-		const char *exchange_org_tag,
-		LIST *list_stream_fetch );
+/* Returns static memory */
+/* --------------------- */
+char *exchange_filespecification(
+		char *application_name,
+		char *exchange_format_filename,
+		char *upload_directory );
 
-double exchange_balance_amount(
-		const char *exchange_balamt_tag,
-		LIST *list_stream_fetch );
+/* Returns heap memory */
+/* ------------------- */
+char *exchange_minimum_date_string(
+		EXCHANGE_JOURNAL *first_exchange_journal );
 
 /* Usage */
 /* ----- */
@@ -120,12 +144,34 @@ double exchange_balance_amount(
 /* ------------ */
 LIST *exchange_tag_seek_list(
 		const char *tag,
+		char *stop_tag,
 		LIST *list );
 
 /* Usage */
 /* ----- */
 boolean exchange_open_tag_boolean(
 		const char *exchange_ofx_tag,
+		LIST *list );
+
+/* Usage */
+/* ----- */
+boolean exchange_tag_boolean(
+		const char *tag,
+		char *list_get );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *exchange_financial_institution(
+		const char *exchange_org_tag,
+		LIST *list );
+
+/* Usage */
+/* ----- */
+double exchange_balance_amount(
+		const char *exchange_balamt_tag,
 		LIST *list );
 
 #endif

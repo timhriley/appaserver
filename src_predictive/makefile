@@ -395,12 +395,14 @@ ledger_propagate: ledger_propagate.c					\
 
 feeder_load: feeder_load.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+	exchange.o							\
 	feeder.o
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
 		feeder_load.c						\
+		exchange.o						\
 		feeder.o						\
 		-o feeder_load
 
@@ -840,6 +842,10 @@ vendor_payment.o: vendor_payment.c					\
 feeder.o: feeder.c feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder.c
+
+exchange.o: exchange.c exchange.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c exchange.c
 
 recovery.o: recovery.c recovery.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
