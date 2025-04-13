@@ -416,6 +416,7 @@ msg( (char *)0, message );
 				session_key,
 				login_name,
 				role_name,
+				folder_name /* many_folder_name */,
 				row_number,
 				relation_mto1_isa_list,
 				appaserver_error_filename,
@@ -548,6 +549,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *many_folder_name,
 		int row_number,
 		RELATION_MTO1 *relation_mto1_isa,
 		char *appaserver_error_filename,
@@ -561,6 +563,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 	||   !session_key
 	||   !login_name
 	||   !role_name
+	||   !many_folder_name
 	||   !relation_mto1_isa
 	||   !relation_mto1_isa->one_folder
 	||   !list_length(
@@ -590,17 +593,49 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 			message );
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: relation_mto1_isa->one_folder_name=[%s]\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	relation_mto1_isa->one_folder_name );
+msg( (char *)0, message );
+}
+#endif
+
 	update_mto1_isa = update_mto1_isa_calloc();
 	update_mto1_isa->relation_mto1_isa = relation_mto1_isa;
 
 	update_mto1_isa->update_attribute_list =
 		update_mto1_isa_update_attribute_list(
+			many_folder_name,
 			relation_mto1_isa->
 				one_folder->
-				folder_attribute_list,
+				folder_attribute_list
+				/* one_folder_attribute_list */,
 			relation_mto1_isa->relation_translate_list,
 			update_attribute_list
 				/* many_update_attribute_list */ );
+
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: update_attribute_list=[%s]\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	update_attribute_list_display( update_mto1_isa->update_attribute_list ) );
+msg( (char *)0, message );
+}
+#endif
 
 	if ( !list_length( update_mto1_isa->update_attribute_list ) )
 	{
@@ -866,6 +901,7 @@ LIST *update_mto1_isa_list(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *many_folder_name,
 		int row_number,
 		LIST *relation_mto1_isa_list,
 		char *appaserver_error_filename,
@@ -881,6 +917,7 @@ LIST *update_mto1_isa_list(
 	||   !session_key
 	||   !login_name
 	||   !role_name
+	||   !many_folder_name
 	||   !appaserver_error_filename
 	||   !appaserver_parameter_mount_point
 	||   !list_length( update_attribute_list ) )
@@ -896,6 +933,23 @@ LIST *update_mto1_isa_list(
 			message );
 	}
 
+#ifdef UPDATE_DEBUG_MODE
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: with many_folder_name=%s; relation_mto1_isa_list=[%s]; update_attribute_list=[%s]\n\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	many_folder_name,
+	relation_mto1_list_display( relation_mto1_isa_list ),
+	update_attribute_list_display( update_attribute_list ) );
+msg( (char *)0, message );
+}
+#endif
+
 	if ( list_rewind( relation_mto1_isa_list ) )
 	do {
 		relation_mto1_isa =
@@ -908,6 +962,7 @@ LIST *update_mto1_isa_list(
 				session_key,
 				login_name,
 				role_name,
+				many_folder_name,
 				row_number,
 				relation_mto1_isa,
 				appaserver_error_filename,
@@ -1739,6 +1794,7 @@ UPDATE_CHANGED_LIST *update_changed_list_new(
 
 		update_changed =
 			update_changed_new(
+				folder_name,
 				attribute_name,
 				update_attribute_list );
 
@@ -1774,6 +1830,7 @@ UPDATE_CHANGED_LIST *update_changed_list_new(
 
 		if ( ! ( update_where =
 				update_where_new(
+					folder_name,
 					primary_key,
 					update_attribute_list ) ) )
 		{
@@ -1910,13 +1967,32 @@ char *update_changed_list_set_string( LIST *changed_list )
 }
 
 UPDATE_WHERE *update_where_new(
+		char *folder_name,
 		char *primary_key,
 		LIST *update_attribute_list )
 {
 	UPDATE_WHERE *update_where = update_where_calloc();
 
+	if ( !folder_name )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+
 	if ( ! ( update_where->update_attribute =
 			update_attribute_seek(
+				folder_name,
 				primary_key /* attribute_name */,
 				update_attribute_list ) ) )
 	{
@@ -2097,6 +2173,7 @@ char *update_where_list_string(
 }
 
 UPDATE_CHANGED *update_changed_new(
+		char *folder_name,
 		char *attribute_name,
 		LIST *update_attribute_list )
 {
@@ -2121,6 +2198,7 @@ UPDATE_CHANGED *update_changed_new(
 
 	if ( ! ( update_changed->update_attribute =
 			update_attribute_seek(
+				folder_name,
 				attribute_name,
 				update_attribute_list ) ) )
 	{
@@ -2616,6 +2694,7 @@ LIST *update_attribute_data_list( LIST *update_attribute_list )
 }
 
 UPDATE_ATTRIBUTE *update_attribute_seek(
+		char *folder_name,
 		char *attribute_name,
 		LIST *update_attribute_list )
 {
@@ -2650,6 +2729,15 @@ UPDATE_ATTRIBUTE *update_attribute_seek(
 				__FUNCTION__,
 				__LINE__,
 				message );
+		}
+
+		if ( strcmp(
+			update_attribute->
+				folder_attribute->
+				folder_name,
+			folder_name ) != 0 )
+		{
+			continue;
 		}
 
 		if ( strcmp(
@@ -4638,6 +4726,7 @@ LIST *update_one2m_where_query_cell_list(
 }
 
 LIST *update_mto1_isa_update_attribute_list(
+		char *many_folder_name,
 		LIST *one_folder_attribute_list,
 		LIST *relation_translate_list,
 		LIST *update_attribute_list )
@@ -4645,6 +4734,23 @@ LIST *update_mto1_isa_update_attribute_list(
 	LIST *list = list_new();
 	FOLDER_ATTRIBUTE *folder_attribute;
 	UPDATE_ATTRIBUTE *update_attribute;
+
+	if ( !many_folder_name
+	||   !list_length( one_folder_attribute_list ) )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"one_folder_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
 
 	if ( list_rewind( one_folder_attribute_list ) )
 	do {
@@ -4654,8 +4760,9 @@ LIST *update_mto1_isa_update_attribute_list(
 
 		update_attribute =
 			update_mto1_isa_update_attribute(
-				folder_attribute->attribute_name,
-				folder_attribute->primary_key_index,
+				many_folder_name,
+				folder_attribute
+					/* one_folder_attribute */,
 				relation_translate_list,
 				update_attribute_list );
 
@@ -4676,30 +4783,48 @@ LIST *update_mto1_isa_update_attribute_list(
 }
 
 UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
-		char *folder_attribute_name,
-		int primary_key_index,
+		char *many_folder_name,
+		FOLDER_ATTRIBUTE *one_folder_attribute,
 		LIST *relation_translate_list,
 		LIST *update_attribute_list )
 {
+	char *folder_name;
 	char *attribute_name;
+	UPDATE_ATTRIBUTE *seek;
+	UPDATE_ATTRIBUTE *new;
 
-	if ( primary_key_index )
+	if ( one_folder_attribute->primary_key_index )
 	{
+		folder_name = many_folder_name;
+
 		attribute_name =
 			relation_translate_foreign_key(
 				relation_translate_list,
-				folder_attribute_name
+				one_folder_attribute->attribute_name
 					/* primary_key */ );
 	}
 	else
 	{
-		attribute_name = folder_attribute_name;
+		folder_name = one_folder_attribute->folder_name;
+		attribute_name = one_folder_attribute->attribute_name;
 	}
 
-	return
-	update_attribute_seek(
-		attribute_name,
-		update_attribute_list );
+	if ( ! ( seek =
+			update_attribute_seek(
+				folder_name,
+				attribute_name,
+				update_attribute_list ) ) )
+	{
+		return NULL;
+	}
+
+	new = update_attribute_calloc();
+
+	new->folder_attribute = one_folder_attribute;
+	new->post_datum = seek->post_datum;
+	new->file_datum = seek->file_datum;
+
+	return new;
 }
 
 char *update_attribute_list_display( LIST *update_attribute_list )

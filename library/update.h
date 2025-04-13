@@ -59,6 +59,7 @@ UPDATE_ATTRIBUTE *update_attribute_calloc(
 /* Usage */
 /* ----- */
 UPDATE_ATTRIBUTE *update_attribute_seek(
+		char *folder_name,
 		char *attribute_name,
 		LIST *update_attribute_list );
 
@@ -95,6 +96,7 @@ typedef struct
 /* Usage */
 /* ----- */
 UPDATE_WHERE *update_where_new(
+		char *folder_name,
 		char *primary_key,
 		LIST *update_attribute_list );
 
@@ -140,6 +142,7 @@ typedef struct
 /* Usage */
 /* ----- */
 UPDATE_CHANGED *update_changed_new(
+		char *folder_name,
 		char *attribute_name,
 		LIST *update_attribute_list );
 
@@ -522,6 +525,7 @@ LIST *update_mto1_isa_list(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *many_folder_name,
 		int row_number,
 		LIST *relation_mto1_isa_list,
 		char *appaserver_error_filename,
@@ -536,6 +540,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_new(
 		char *session_key,
 		char *login_name,
 		char *role_name,
+		char *many_folder_name,
 		int row_number,
 		RELATION_MTO1 *relation_mto1_isa,
 		char *appaserver_error_filename,
@@ -551,6 +556,7 @@ UPDATE_MTO1_ISA *update_mto1_isa_calloc(
 /* Usage */
 /* ----- */
 LIST *update_mto1_isa_update_attribute_list(
+		char *many_folder_name,
 		LIST *one_folder_attribute_list,
 		LIST *relation_translate_list,
 		LIST *update_attribute_list );
@@ -561,8 +567,8 @@ LIST *update_mto1_isa_update_attribute_list(
 /* Safely returns */
 /* -------------- */
 UPDATE_ATTRIBUTE *update_mto1_isa_update_attribute(
-		char *folder_attribute_name,
-		int primary_key_index,
+		char *many_folder_name,
+		FOLDER_ATTRIBUTE *one_folder_attribute,
 		LIST *relation_translate_list,
 		LIST *update_attribute_list );
 
