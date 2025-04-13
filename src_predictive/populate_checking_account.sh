@@ -23,50 +23,21 @@ echo $0 $* 1>&2
 # Select
 # ======
 
-# Select chart_account_number?
-# ----------------------------
-select_chart_account_number=0
-
-table_column_exists.sh account chart_account_number
-
-# Zero means true
-# ---------------
-exists_chart_account_number=$?
-
-if [ $exists_chart_account_number = 0 ]
-then
-	chart_account_number_count=`echo			\
-		"select count(1)				\
-		 from account					\
-		 where chart_account_number is not null;"	|
-		 sql.e`
-
-	if [ "$chart_account_number_count" -ge 1 ]
-	then
-		# One means false
-		# ---------------
-		select_chart_account_number=1
-	fi
-fi
-
-if [ $select_chart_account_number -eq 1 ]
-then
-	select="concat( account, '|', account, '---', ifnull( chart_account_number, '' ) )"
-else
-	select="concat( account, '|', account, ' [', account.subclassification, ']' )"
-fi
+select="concat( feeder_account, '|', feeder_account, ' [', subclassification, ']' )"
 
 # From
 # ----
-from="account"
+from="feeder_account,account"
 
 # Order
 # -----
-order="account"
+order="feeder_account"
 
 # Where
 # -----
-where="hard_coded_account_key = 'checking'"
+join="feeder_account.feeder_account = account.account"
+
+where="subclassification = 'cash_or_equivalent' and $join"
 
 echo "select $select from $from where $where order by $order;"		|
 sql.e									|

@@ -46,17 +46,14 @@ date=`now.sh ymd`
 input_export_subschema="${directory}/export_subschema_${application}_${date}.sh"
 input_export_entity="${directory}/export_table_entity_${date}.sh"
 output_export_process_role="/tmp/export_process_role_$$.sql.gz"
-output_export_process_predict="/tmp/export_process_predict_$$.sql"
 
 export_subschema '' "$tablelist_delimited" n >/dev/null
 export_table '' entity shell_script >/dev/null
 export_process_role.sh supervisor $output_export_process_role
-export_process_predict.sh $output_export_process_predict
 
 (
 zcat $input_mysqldump
 zcat $output_export_process_role
-cat $output_export_process_predict
 grep '^insert' < $input_export_subschema
 grep '^insert' < $input_export_entity
 ) |
@@ -65,8 +62,7 @@ gzip > $deploy_filename
 rm	$input_mysqldump		\
 	$input_export_subschema		\
 	$input_export_entity		\
-	$output_export_process_role	\
-	$output_export_process_predict
+	$output_export_process_role
 
 echo "Created: $deploy_filename"
 
