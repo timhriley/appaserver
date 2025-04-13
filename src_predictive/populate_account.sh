@@ -106,9 +106,9 @@ fi
 
 one2m_where="1 = 1"
 
-if [ "$many_table" = "self" ]
+if [ "$many_table" = "feeder_account" ]
 then
-	one2m_where="account.subclassification = 'cash'"
+	one2m_where="account.subclassification = 'cash_or_equivalent' or ( account.subclassification = ‘current_liability’ and account.hard_coded_account_key <> ‘uncleared_checks_key’ )"
 fi
 
 if [ "$many_table" = "inventory" ]

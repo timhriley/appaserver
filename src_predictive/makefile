@@ -90,7 +90,7 @@ EXECUTABLES=	trial_balance_output					\
 		budget_report						\
 		ledger_debit_credit_audit				\
 		ledger_propagate					\
-		feeder_load						\
+		feeder_upload						\
 		journal_trigger						\
 		tax_form_report						\
 		close_nominal_accounts					\
@@ -393,7 +393,7 @@ ledger_propagate: ledger_propagate.c					\
 		ledger_propagate.c					\
 		-o ledger_propagate
 
-feeder_load: feeder_load.c						\
+feeder_upload: feeder_upload.c						\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
 	exchange.o							\
 	feeder.o
@@ -401,10 +401,10 @@ feeder_load: feeder_load.c						\
 		${APPASERVER_LIBRARY}					\
 		${SOURCE_LIBRARY}					\
 		${STANDARD_LIBRARY}					\
-		feeder_load.c						\
+		feeder_upload.c						\
 		exchange.o						\
 		feeder.o						\
-		-o feeder_load
+		-o feeder_upload
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}

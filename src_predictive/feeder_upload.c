@@ -1,5 +1,5 @@
 /* -------------------------------------------------------------------- */
-/* $APPASERVER_HOME/src_predictive/feeder_load.c			*/
+/* $APPASERVER_HOME/src_predictive/feeder_upload.c			*/
 /* -------------------------------------------------------------------- */
 /* No warranty and freely available software. Visit appaserver.org	*/
 /* -------------------------------------------------------------------- */
@@ -24,7 +24,7 @@ int main( int argc, char **argv )
 	char *process_name;
 	char *login_name;
 	char *feeder_account_name;
-	char *filename;
+	char *exchange_format_filename;
 	boolean execute_boolean;
 	EXCHANGE *exchange = {0};
 	FEEDER *feeder = {0};
@@ -37,7 +37,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name feeder_account filename execute_yn\n",
+"Usage: %s process_name login_name feeder_account excxhange_format_filename execute_yn\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );
@@ -46,7 +46,7 @@ int main( int argc, char **argv )
 	process_name = argv[ 1 ];
 	login_name = argv[ 2 ];
 	feeder_account_name = argv[ 3 ];
-	filename = argv[ 4 ];
+	exchange_format_filename = argv[ 4 ];
 	execute_boolean = (*argv[ 5 ] == 'y');
 
 	appaserver_error_argv_file(
@@ -68,8 +68,10 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
-	if ( *filename
-	&&   strcmp( filename, "exchange_format_filename" ) != 0 )
+	if ( *exchange_format_filename
+	&&   strcmp(
+		exchange_format_filename,
+		"exchange_format_filename" ) != 0 )
 	{
 		exchange =
 			/* -------------- */
@@ -77,7 +79,7 @@ int main( int argc, char **argv )
 			/* -------------- */
 			exchange_parse(
 				application_name,
-				filename /* exchange_format_filename */,
+				exchange_format_filename,
 				appaserver_parameter_upload_directory() );
 	}
 
@@ -107,7 +109,7 @@ int main( int argc, char **argv )
 				application_name,
 				login_name,
 				feeder_account_name,
-				filename /* exchange_format_filename */,
+				exchange_format_filename,
 				exchange->exchange_journal_list,
 				exchange->balance_amount,
 				exchange->minimum_date_string );
