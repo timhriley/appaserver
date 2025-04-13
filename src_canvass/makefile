@@ -15,6 +15,7 @@ CORE_LIBRARY=								\
 		${LIBRARY}/appaserver_error.o				\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/String.o					\
+		${LIBRARY}/sed.o					\
 		${LIBRARY}/piece.o					\
 		${LIBRARY}/float.o					\
 		${LIBRARY}/dictionary.o					\

@@ -4012,6 +4012,35 @@ void feeder_row_journal_propagate(
 	}
 }
 
+char *feeder_phrase_primary_where( char *feeder_phrase )
+{
+	static char primary_where[ 128 ];
+
+	if ( !feeder_phrase )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"feeder_phrase is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	snprintf(
+		primary_where,
+		sizeof ( primary_where ),
+		"feeder_phrase = '%s'",
+		feeder_phrase );
+
+	return primary_where;
+}
+
 char *feeder_phrase_where( void )
 {
 	return "full_name is not null";

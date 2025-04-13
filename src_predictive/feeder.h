@@ -194,6 +194,14 @@ char feeder_phrase_delimiter(
 char *feeder_phrase_where(
 		void );
 
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *feeder_phrase_primary_where(
+		char *feeder_phrase );
+
 typedef struct
 {
 	char *full_name;

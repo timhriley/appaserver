@@ -15,6 +15,7 @@ APPASERVER_LIBRARY=							\
 		${LIBRARY}/document.o					\
 		${LIBRARY}/javascript.o					\
 		${LIBRARY}/String.o 					\
+		${LIBRARY}/sed.o 					\
 		${LIBRARY}/security.o 					\
 		${LIBRARY}/spool.o 					\
 		${LIBRARY}/appaserver.o 				\

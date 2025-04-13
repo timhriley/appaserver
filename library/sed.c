@@ -1,8 +1,8 @@
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
 /* $APPASERVER_HOME/library/sed.c		 			*/
-/* -------------------------------------------------------------	*/
-/* No warranty and freely available software: see Appaserver.org	*/
-/* -------------------------------------------------------------	*/
+/* ---------------------------------------------------------------	*/
+/* No warranty and freely available software. Visit appaserver.org	*/
+/* ---------------------------------------------------------------	*/
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,10 +20,16 @@ SED *new_sed( char *regular_expression, char *replace )
 	return sed_new( regular_expression, replace );
 }
 
+SED *sed_calloc( void )
+{
+	SED *sed = calloc( 1, sizeof ( SED ) );
+	return sed;
+}
+
 SED *sed_new( char *regular_expression, char *replace )
 {
 	char regular_expression_buffer[ SED_BUFFER_SIZE ];
-	SED *sed = (SED *)(calloc( 1, sizeof( SED ) ) );
+	SED *sed = sed_calloc();
 
 	sed->replace = replace;
 
@@ -49,7 +55,7 @@ int sed_will_replace( char *buffer, SED *sed )
 		return 0;
 	else
 		return 1;
-} /* sed_will_replace() */
+}
 
 void sed_get_begin_end(	regoff_t *begin,
 			regoff_t *end,
@@ -73,7 +79,7 @@ void sed_get_begin_end(	regoff_t *begin,
 		*begin = pmatch[ 0 ].rm_so;
 		*end = pmatch[ 0 ].rm_eo;
 	}
-} /* sed_get_begin_end() */
+}
 
 int sed_search_replace( char *buffer, SED *sed )
 {
@@ -106,7 +112,7 @@ int sed_search_replace( char *buffer, SED *sed )
 		did_any = 1;
 	}
 	return did_any;
-} /* sed_search_replace() */
+}
 
 /* Returns static memory */
 /* --------------------- */
@@ -116,6 +122,18 @@ char *sed_trim_double_spaces( char *string )
 	char *replace;
 	char *regular_expression;
 	SED *sed;
+
+	if ( !string
+	||   strlen( string ) > 1023 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: string=[%s] is too large.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			string );
+		exit( 1 );
+	}
 
 	regular_expression = "[ ][ ]";
 	replace = " ";
@@ -132,6 +150,7 @@ char *sed_trim_double_spaces( char *string )
 	}
 
 	sed_free( sed );
+
 	return string_rtrim( return_string );
 }
 

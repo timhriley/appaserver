@@ -15,6 +15,7 @@ CORE_LIBRARY=								\
 		${LIBRARY}/appaserver_error.o				\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/String.o					\
+		${LIBRARY}/sed.o					\
 		${LIBRARY}/piece.o					\
 		${LIBRARY}/float.o					\
 		${LIBRARY}/dictionary.o					\
@@ -732,14 +733,12 @@ date_convert.e: date_convert.c						\
 
 date_convert_anywhere.e: date_convert_anywhere.c			\
 		${STANDARD_LIBRARY}					\
-		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/sed.o
+		${APPASERVER_LIBRARY}
 	$(CC)    ${CFLAGS} -I${LIBRARY} 				\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		date_convert_anywhere.c 				\
 		${STANDARD_LIBRARY}					\
 		${APPASERVER_LIBRARY}					\
-		${LIBRARY}/sed.o					\
 		-o date_convert_anywhere.e
 
 piece_set_character.e: piece_set_character.c ${LIBRARY}/piece.o
@@ -1500,13 +1499,11 @@ date_grandfather_father_son.e: date_grandfather_father_son.c
 		-o date_grandfather_father_son.e
 
 findgrep.e: findgrep.c							\
-	${LIBRARY}/name_arg.o						\
-	${LIBRARY}/sed.o
+	${LIBRARY}/name_arg.o
 	$(CC)	${CFLAGS} -I${LIBRARY} findgrep.c			\
 		${APPASERVER_ERROR_FILE_FLAG}				\
 		${STANDARD_LIBRARY}					\
 		${LIBRARY}/name_arg.o					\
-		${LIBRARY}/sed.o					\
 		-o findgrep.e
 	touch findgrep
 	rm findgrep

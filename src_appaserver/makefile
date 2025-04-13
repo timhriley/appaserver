@@ -61,6 +61,7 @@ CORE_LIBRARY=								\
 		${LIBRARY}/appaserver_error.o				\
 		${LIBRARY}/application.o				\
 		${LIBRARY}/String.o					\
+		${LIBRARY}/sed.o					\
 		${LIBRARY}/piece.o					\
 		${LIBRARY}/float.o					\
 		${LIBRARY}/dictionary.o					\
@@ -81,7 +82,6 @@ CORE_LIBRARY=								\
 
 APPASERVER_LIBRARY=							\
 		${CORE_LIBRARY}						\
-		${LIBRARY}/sed.o					\
 		${LIBRARY}/timlib.o 					\
 		${LIBRARY}/date_convert.o 				\
 		${LIBRARY}/appaserver_user.o				\

@@ -23,7 +23,7 @@
 #define SUBCLASSIFICATION_DRAWING		"drawing"
 #define SUBCLASSIFICATION_CURRENT_LIABILITY	"current_liability"
 #define SUBCLASSIFICATION_RECEIVABLE		"receivable"
-#define SUBCLASSIFICATION_CASH			"cash"
+#define SUBCLASSIFICATION_CASH			"cash_or_equivalent"
 
 #define SUBCLASSIFICATION_NOTANUMBER		"NAN"
 

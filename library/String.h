@@ -241,6 +241,16 @@ char *string_commas_unsigned_long(
 char *string_commas_unsigned_long_long(
 		unsigned long long n );
 
+/* ---------------- */
+/* Returns mnemonic */
+/* ---------------- */
+char *string_mnemonic(
+		char *mnemonic,
+		char *string );
+
+/* ---------------- */
+/* Returns mnemonic */
+/* ---------------- */
 char *string_format_mnemonic(
 		char *mnemonic,
 		char *string );

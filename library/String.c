@@ -14,6 +14,7 @@
 #include "appaserver_error.h"
 #include "environ.h"
 #include "attribute.h"
+#include "sed.h"
 #include "String.h"
 
 static boolean string_get_line_check_utf_16 = 1;
@@ -655,15 +656,44 @@ char *string_commas_double(
 	return destination;
 }
 
+char *string_mnemonic(
+		char *mnemonic,
+		char *string )
+{
+	return
+	/* ---------------- */
+	/* Returns mnemonic */
+	/* ---------------- */
+	string_format_mnemonic(
+		mnemonic,
+		string );
+}
+
 char *string_format_mnemonic(
 		char *mnemonic,
 		char *string )
 {
 	char *mnemonic_anchor = mnemonic;
-
 	int beginning = 1;
 
+	if ( !mnemonic )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: mnemonic is empty.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
 	if ( !string ) return "";
+
+	string =
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		sed_trim_double_spaces(
+			string );
 
 	while( *string )
 	{
@@ -703,6 +733,7 @@ char *string_format_mnemonic(
 			*mnemonic++ = tolower( *string++ );
 		}
 	}
+
 	*mnemonic = '\0';
 
 	return mnemonic_anchor;
