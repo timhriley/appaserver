@@ -40,7 +40,7 @@
 #define ACCOUNT_FEES_EXPENSE_KEY	"fees_expense_key"
 #define ACCOUNT_SALES_TAX_EXPENSE_KEY	"sales_tax_key"
 #define ACCOUNT_DRAWING_KEY		"drawing_key"
-#define ACCOUNT_CREDIT_CARD_KEY		"credit_card_key"
+#define ACCOUNT_CREDIT_CARD_KEY		"credit_card"
 #define ACCOUNT_PASSTHRU_KEY		"credit_card_passthru"
 #define ACCOUNT_CLOSING_KEY		"closing_key"
 #define ACCOUNT_EQUITY_KEY		"equity_key"
