@@ -1522,11 +1522,26 @@ RECTIFICATION_INDEX *rectification_index_parse(
 		/* Returns static memory */
 		/* --------------------- */
 		create_table_unique_index_name(
-			create_table_unique_suffix,
+			(char *)create_table_unique_suffix,
+			table_name ) ) != 0 )
+	{
+		if ( strcmp( index_name, table_name ) == 0 )
+			goto rectification_index_continue;
+	}
+
+	if ( strcmp(
+		index_name,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_index_name(
+			(char *)0 /* create_table_unique_suffix */,
 			table_name ) ) != 0 )
 	{
 		if ( strcmp( index_name, table_name ) != 0 ) return NULL;
 	}
+
+rectification_index_continue:
 
 	piece( column_name, SQL_DELIMITER, input, 4 );
 	if ( !*column_name )

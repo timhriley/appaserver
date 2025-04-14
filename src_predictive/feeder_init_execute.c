@@ -56,8 +56,6 @@ int main( int argc, char **argv )
 	exchange_format_filename = argv[ 7 ];
 	execute_boolean = (*argv[ 8 ] == 'y');
 
-	checking_boolean = ( strcmp( account_type, "checking" ) == 0 );
-
 	document_process_output(
 		application_name,
 		(LIST *)0 /* javascript_filename_list */,
@@ -70,6 +68,17 @@ int main( int argc, char **argv )
 	{
 		printf(
 		"<h3>Please transmit an exchange formatted file.</h3>\n" );
+		document_close();
+		exit( 0 );
+	}
+
+	if ( !*account_type
+	&&   strcmp(
+		account_type,
+		"account_type" ) == 0 )
+	{
+		printf(
+		"<h3>Please select an account type.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -98,6 +107,8 @@ int main( int argc, char **argv )
 		document_close();
 		exit( 0 );
 	}
+
+	checking_boolean = ( strcmp( account_type, "checking" ) == 0 );
 
 	feeder_init =
 		/* -------------- */

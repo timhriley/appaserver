@@ -657,7 +657,19 @@ boolean post_prompt_insert_fatal_duplicate_boolean(
 		/* Returns static memory */
 		/* --------------------- */
 		create_table_unique_index_name(
-			create_table_unique_suffix,
+			(char *)create_table_unique_suffix,
+			appaserver_table_name ) /* substring */ ) )
+	{
+		return 0;
+	}
+
+	if ( string_exists(
+		insert_statement_error_string,
+		/* --------------------- */
+		/* Returns static memory */
+		/* --------------------- */
+		create_table_unique_index_name(
+			(char *)0 /* create_table_unique_suffix */,
 			appaserver_table_name ) /* substring */ ) )
 	{
 		return 0;

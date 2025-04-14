@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "String.h"
 #include "appaserver_error.h"
 #include "appaserver_parameter.h"
 #include "application.h"
@@ -433,7 +434,7 @@ char *create_table_unique_index_statement(
 		/* Returns static memory */
 		/* --------------------- */
 		create_table_unique_index_name(
-			create_table_unique_suffix,
+			(char *)create_table_unique_suffix,
 			appaserver_table_name ),
 		appaserver_table_name,
 		/* ------------------------- */
@@ -685,19 +686,19 @@ char *create_table_additional_unique_name(
 }
 
 char *create_table_unique_index_name(
-		const char *create_table_unique_suffix,
-		char *folder_name )
+		char *create_table_unique_suffix,
+		char *folder_table_name )
 {
 	static char unique_name[ 128 ];
 
-	if ( !folder_name )
+	if ( !folder_table_name )
 	{
 		char message[ 128 ];
 
 		snprintf(
 			message,
 			sizeof ( message ),
-			"folder_name is empty." );
+			"folder_table_name is empty." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -710,12 +711,22 @@ char *create_table_unique_index_name(
 		exit( 1 );
 	}
 
-	snprintf(
-		unique_name,
-		sizeof ( unique_name ),
-		"%s_%s",
-		folder_name,
-		create_table_unique_suffix );
+	if ( create_table_unique_suffix )
+	{
+		snprintf(
+			unique_name,
+			sizeof ( unique_name ),
+			"%s_%s",
+			folder_table_name,
+			create_table_unique_suffix );
+	}
+	else
+	{
+		string_strcpy(
+			unique_name,
+			folder_table_name,
+			sizeof ( unique_name ) /* buffer_size */ );
+	}
 
 	return unique_name;
 }

@@ -61,6 +61,13 @@ typedef struct
 LIST *relation_cache_list(
 		void );
 
+/* Process */
+/* ------- */
+char *relation_system_string(
+		const char *relation_select,
+		const char *relation_table,
+		char *order_string );
+
 /* Usage */
 /* ----- */
 

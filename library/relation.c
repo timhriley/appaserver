@@ -32,10 +32,10 @@ LIST *relation_cache_list( void )
 		/* ------------------- */
 		/* Returns heap memory */
 		/* ------------------- */
-		appaserver_system_string(
+		relation_system_string(
 			RELATION_SELECT,
 			RELATION_TABLE,
-			(char *)0 /* where_string */ );
+			"pair_one2m_order" /* order_string */ );
 
 	input_pipe =
 		/* -------------- */
@@ -839,3 +839,24 @@ char *relation_translate_foreign_key(
 
 	return NULL;
 }
+
+char *relation_system_string(
+		const char *relation_select,
+		const char *relation_table,
+		char *order_string )
+{
+	char system_string[ 65536 ];
+
+	if ( !order_string ) order_string = "";
+
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
+		"select.sh \"%s\" %s \"\" \"%s\"",
+		relation_select,
+		relation_table,
+		order_string );
+
+	return strdup( system_string );
+}
+

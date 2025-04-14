@@ -95,15 +95,6 @@ char *create_table_unique_index_statement(
 		LIST *folder_attribute_primary_key_list,
 		char *appaserver_table_name );
 
-/* Process */
-/* ------- */
-
-/* Returns static memory */
-/* --------------------- */
-char *create_table_unique_index_name(
-		const char *create_table_unique_suffix,
-		char *appaserver_table_name );
-
 /* Usage */
 /* ----- */
 LIST *create_table_additional_unique_index_list(
@@ -121,6 +112,15 @@ LIST *create_table_additional_unique_name_list(
 char *create_table_additional_unique_name(
 		const char *create_table_additional_suffix,
 		char *attribute_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns static memory */
+/* --------------------- */
+char *create_table_unique_index_name(
+		char *create_table_unique_suffix,
+		char *appaserver_table_name );
 
 /* Usage */
 /* ------ */

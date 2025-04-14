@@ -42,10 +42,10 @@ then
 
 	if [ "$where" = "" -o "$where" = "where" ]
 	then
-		where=""
+		where="1 = 1"
 	fi
 else
-	where=""
+	where="1 = 1"
 fi
 
 if [ "$where" != "" ]
@@ -78,10 +78,6 @@ fi
 if [ "$table" = "" ]
 then
 	echo "select $select;" |
-	$SQL_EXECUTABLE
-elif [ "$where" = "" ]
-then
-	echo "select $select from $table;" |
 	$SQL_EXECUTABLE
 elif [ "$order" = "" ]
 then
