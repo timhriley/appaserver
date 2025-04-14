@@ -41,6 +41,16 @@ void appaserver_error_message_file(
 
 char *appaserver_error_filename( char *application_name )
 {
+	return
+	/* ------------------- */
+	/* Returns heap memory */
+	/* ------------------- */
+	appaserver_error_filespecification(
+		application_name );
+}
+
+char *appaserver_error_filespecification( char *application_name )
+{
 	APPASERVER_PARAMETER *appaserver_parameter;
 
 	if ( !application_name )

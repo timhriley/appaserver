@@ -37,7 +37,7 @@ int main( int argc, char **argv )
 	if ( argc != 6 )
 	{
 		fprintf( stderr,
-"Usage: %s process_name login_name feeder_account excxhange_format_filename execute_yn\n",
+"Usage: %s process_name login_name feeder_account exchange_format_filename execute_yn\n",
 			 argv[ 0 ] );
 
 		exit ( 1 );

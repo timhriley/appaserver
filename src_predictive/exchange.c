@@ -825,7 +825,7 @@ char *exchange_journal_description(
 	snprintf(
 		description,
 		sizeof ( description ),
-		"%s %s",
+		"%s%s",
 		name,
 		memo );
 

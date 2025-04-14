@@ -656,10 +656,21 @@ char *string_commas_double(
 	return destination;
 }
 
-char *string_mnemonic(
-		char *mnemonic,
-		char *string )
+char *string_mnemonic( char *string )
 {
+	static char mnemonic[ 128 ];
+
+	if ( string_strlen( string ) > 127 )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: string too big: [%s]\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			string );
+		exit( 1 );
+	}
+
 	return
 	/* ---------------- */
 	/* Returns mnemonic */

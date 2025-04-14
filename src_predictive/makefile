@@ -91,6 +91,7 @@ EXECUTABLES=	trial_balance_output					\
 		ledger_debit_credit_audit				\
 		ledger_propagate					\
 		feeder_upload						\
+		feeder_init_execute					\
 		journal_trigger						\
 		tax_form_report						\
 		close_nominal_accounts					\
@@ -405,6 +406,21 @@ feeder_upload: feeder_upload.c						\
 		exchange.o						\
 		feeder.o						\
 		-o feeder_upload
+
+feeder_init_execute: feeder_init_execute.c				\
+	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}	\
+	exchange.o							\
+	feeder.o							\
+	feeder_init.o
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		${APPASERVER_LIBRARY}					\
+		${SOURCE_LIBRARY}					\
+		${STANDARD_LIBRARY}					\
+		feeder_init_execute.c					\
+		exchange.o						\
+		feeder.o						\
+		feeder_init.o						\
+		-o feeder_init_execute
 
 post_change_prepaid_asset_accrual: post_change_prepaid_asset_accrual.c	\
 	${APPASERVER_LIBRARY} ${SOURCE_LIBRARY} ${STANDARD_LIBRARY}
@@ -842,6 +858,10 @@ vendor_payment.o: vendor_payment.c					\
 feeder.o: feeder.c feeder.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\
 		-c feeder.c
+
+feeder_init.o: feeder_init.c feeder_init.h
+	${CC}	${CFLAGS} -I${LIBRARY}					\
+		-c feeder_init.c
 
 exchange.o: exchange.c exchange.h
 	${CC}	${CFLAGS} -I${LIBRARY}					\

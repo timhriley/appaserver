@@ -637,10 +637,10 @@ ACCOUNT *account_fetch(
 		boolean fetch_subclassification,
 		boolean fetch_element )
 {
-	ACCOUNT *account;
+	ACCOUNT *account = {0};
 	static LIST *list = {0};
 
-	if ( !account_name ) return (ACCOUNT *)0;
+	if ( !account_name ) return NULL;
 
 	if ( fetch_subclassification && fetch_element )
 	{

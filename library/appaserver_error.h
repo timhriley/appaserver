@@ -32,6 +32,14 @@ APPASERVER_ERROR *appaserver_error_calloc(
 
 /* Returns heap memory */
 /* ------------------- */
+char *appaserver_error_filespecification(
+		char *application_name );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
 char *appaserver_error_filename(
 		char *application_name );
 

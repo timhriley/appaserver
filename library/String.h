@@ -241,11 +241,10 @@ char *string_commas_unsigned_long(
 char *string_commas_unsigned_long_long(
 		unsigned long long n );
 
-/* ---------------- */
-/* Returns mnemonic */
-/* ---------------- */
+/* --------------------- */
+/* Returns static memory */
+/* --------------------- */
 char *string_mnemonic(
-		char *mnemonic,
 		char *string );
 
 /* ---------------- */

@@ -827,8 +827,7 @@ FEEDER_PHRASE *feeder_phrase_seek(
 
 		for(	piece_number = 0;
 			piece(	feeder_component,
-				feeder_phrase_delimiter(
-					feeder_phrase->phrase ),
+				FEEDER_PHRASE_DELIMITER,
 				feeder_phrase->phrase,
 				piece_number );
 			piece_number++ )
@@ -844,20 +843,6 @@ FEEDER_PHRASE *feeder_phrase_seek(
 	} while ( list_next( feeder_phrase_list ) );
 
 	return NULL;
-}
-
-char feeder_phrase_delimiter( char *phrase )
-{
-	if ( string_exists_character( phrase, '|' ) )
-		return '|';
-	else
-	if ( string_exists_character( phrase, ',' ) )
-		return ',';
-	else
-	if ( string_exists_character( phrase, ';' ) )
-		return ';';
-	else
-		return 0;
 }
 
 char *feeder_exist_row_where(
@@ -4014,7 +3999,7 @@ void feeder_row_journal_propagate(
 
 char *feeder_phrase_primary_where( char *feeder_phrase )
 {
-	static char primary_where[ 128 ];
+	static char primary_where[ 256 ];
 
 	if ( !feeder_phrase )
 	{

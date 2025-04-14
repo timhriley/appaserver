@@ -82,6 +82,10 @@
 					"full_name,"			\
 					"street_address"
 
+#define FEEDER_PHRASE_DELIMITER		'|'
+
+#define FEEDER_ACCOUNT_TABLE		"feeder_account"
+
 enum feeder_row_status {
 	feeder_row_status_okay,
 	feeder_row_status_out_of_balance,

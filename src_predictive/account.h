@@ -216,8 +216,8 @@ double account_balance_sum(
 /* Usage */
 /* ----- */
 
-/* Returns heap memory from static list or null */
-/* -------------------------------------------- */
+/* Returns heap memory from static list or null (maybe) */
+/* ---------------------------------------------------- */
 char *account_hard_coded_account_name(
 		char *hard_coded_account_key,
 		boolean warning_only,

@@ -327,6 +327,9 @@ TRANSACTION *transaction_parse(
 
 /* Usage */
 /* ----- */
+
+/* Safely returns */
+/* -------------- */
 TRANSACTION *transaction_new(
 		char *full_name,
 		char *street_address,
