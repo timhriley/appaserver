@@ -420,6 +420,11 @@ char *post_prompt_process_command_line(
 	string_replace_command_line(
 		command_line,
 		login_name,
+		PROCESS_LOGIN_NAME_PLACEHOLDER );
+
+	string_replace_command_line(
+		command_line,
+		login_name,
 		PROCESS_LOGIN_PLACEHOLDER );
 
 	string_replace_command_line(

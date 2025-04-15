@@ -13,6 +13,7 @@
 #include "sql.h"
 #include "security.h"
 #include "exchange.h"
+#include "import_predict.h"
 #include "feeder_init.h"
 
 int main( int argc, char **argv )
@@ -121,13 +122,12 @@ int main( int argc, char **argv )
 			role_name,
 			full_name /* financial_institution_full_name */,
 			checking_boolean,
-			execute_boolean,
 			exchange->exchange_journal_begin_amount,
 			exchange->minimum_date_string );
 
 	if ( feeder_init->
-			feeder_init_input->
-			institution_missing_boolean )
+		feeder_init_input->
+		institution_missing_boolean )
 	{
 		printf( "%s\n",
 			FEEDER_INIT_INSTITUTION_MISSING_MESSAGE );
@@ -136,8 +136,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( feeder_init->
-			feeder_init_input->
-			account_exist_boolean )
+		feeder_init_input->
+		account_exist_boolean )
 	{
 		printf( "%s\n",
 			FEEDER_INIT_ACCOUNT_EXIST_MESSAGE );
@@ -146,8 +146,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( !feeder_init->
-			feeder_init_input->
-			entity_self )
+		feeder_init_input->
+		entity_self )
 	{
 		printf( "%s\n",
 			FEEDER_INIT_ENTITY_SELF_MESSAGE );
@@ -156,16 +156,8 @@ int main( int argc, char **argv )
 	}
 
 	if ( feeder_init->
-			feeder_init_input->
-			date_recent_boolean )
-	{
-		printf( "%s\n",
-			FEEDER_INIT_RECENT_MESSAGE );
-	}
-
-	if ( feeder_init->
-			feeder_init_passthru->
-			exist_boolean )
+		feeder_init_passthru->
+		exist_boolean )
 	{
 		printf( "%s\n",
 			FEEDER_INIT_PASSTHRU_EXIST_MESSAGE );
@@ -173,6 +165,14 @@ int main( int argc, char **argv )
 
 	if ( !execute_boolean )
 	{
+		if ( feeder_init->
+			feeder_init_input->
+			date_recent_boolean )
+		{
+			printf( "%s\n",
+				FEEDER_INIT_RECENT_MESSAGE );
+		}
+
 		printf( "%s\n",
 			FEEDER_INIT_OPENING_MESSAGE );
 
@@ -181,30 +181,11 @@ int main( int argc, char **argv )
 			feeder_init->feeder_init_credit );
 
 		printf( "%s\n",
-			FEEDER_INIT_SHORTCUT_MESSAGE );
+			IMPORT_PREDICT_SHORTCUT_MESSAGE );
 	}
 
 	if ( execute_boolean )
 	{
-		if ( feeder_init->feeder_init_checking )
-		{
-			feeder_init_transaction_insert(
-				feeder_init->
-					feeder_init_checking->
-					feeder_init_transaction );
-		}
-		else
-		{
-			feeder_init_transaction_insert(
-				feeder_init->
-					feeder_init_credit->
-					feeder_init_transaction );
-		}
-
-		feeder_init_transaction_html_display(
-			feeder_init->feeder_init_checking,
-			feeder_init->feeder_init_credit );
-
 		error_string =
 			sql_execute(
 				SQL_EXECUTABLE,
@@ -221,6 +202,73 @@ int main( int argc, char **argv )
 				login_name,
 				error_string );
 		}
+
+		if ( checking_boolean )
+		{
+			feeder_init->feeder_init_checking =
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
+				feeder_init_checking_new(
+					1 /* execute_boolean */,
+					exchange->exchange_journal_begin_amount,
+					exchange->minimum_date_string,
+					feeder_init->
+						feeder_init_input->
+							account_name,
+					feeder_init->
+						feeder_init_input->
+						entity_self->
+						full_name,
+					feeder_init->
+						feeder_init_input->
+						entity_self->
+						street_address );
+		}
+		else
+		{
+			feeder_init->feeder_init_credit =
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
+				feeder_init_credit_new(
+					1 /* execute_boolean */,
+					exchange->exchange_journal_begin_amount,
+					exchange->minimum_date_string,
+					feeder_init->
+						feeder_init_input->
+						account_name,
+					feeder_init->
+						feeder_init_input->
+						entity_self->
+						full_name,
+					feeder_init->
+						feeder_init_input->
+						entity_self->
+						street_address );
+		}
+
+		if ( feeder_init->feeder_init_checking )
+		{
+			feeder_init_transaction_insert(
+				feeder_init->
+					feeder_init_checking->
+					feeder_init_transaction );
+		}
+		else
+		{
+			feeder_init_transaction_insert(
+				feeder_init->
+					feeder_init_credit->
+					feeder_init_transaction );
+		}
+
+		printf( "%s\n",
+			FEEDER_INIT_OPENING_MESSAGE );
+
+		feeder_init_transaction_html_display(
+			feeder_init->feeder_init_checking,
+			feeder_init->feeder_init_credit );
 
 		printf( "%s\n",
 			FEEDER_INIT_TRIAL_BALANCE_MESSAGE );

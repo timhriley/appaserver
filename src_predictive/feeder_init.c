@@ -996,7 +996,6 @@ FEEDER_INIT *feeder_init_new(
 		char *role_name,
 		char *financial_institution_full_name,
 		boolean checking_boolean,
-		boolean execute_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string )
 {
@@ -1050,7 +1049,7 @@ FEEDER_INIT *feeder_init_new(
 			/* Safely returns */
 			/* -------------- */
 			feeder_init_checking_new(
-				execute_boolean,
+				0 /* not execute_boolean */,
 				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
@@ -1072,7 +1071,7 @@ FEEDER_INIT *feeder_init_new(
 			/* Safely returns */
 			/* -------------- */
 			feeder_init_credit_new(
-				execute_boolean,
+				0 /* not execute_boolean */,
 				exchange_journal_begin_amount,
 				exchange_minimum_date_string,
 				feeder_init->
@@ -1418,7 +1417,7 @@ char *feeder_init_account_insert_sql(
 	list_set(
 		insert_datum_list,
 		insert_datum_new(
-			"subclassifiction" /* attribute_name */,
+			"subclassification" /* attribute_name */,
 			subclassification /* datum */,
 			0 /* primary_key_index */,
 			0 /* not attribute_is_number */ ) );

@@ -43,9 +43,10 @@
 	"ERROR: your name must be inserted into the table Self. "	\
 	"The Supervisor role path is Insert --> Entity --> Self"
 
-#define FEEDER_INIT_RECENT_MESSAGE					  \
-	"<p style=\"margin: 3\%;\">"					  \
-	"Warning: the begin date is recent. Your financial institution "  \
+#define FEEDER_INIT_RECENT_MESSAGE					\
+	"<p style=\"margin: 3\%;\">"					\
+	"Warning: the earliest transaction is recent. "			\
+	"Your financial institution "  					\
 	"should store 18 months of transactions."
 
 #define FEEDER_INIT_PASSTHRU_EXIST_MESSAGE				  \
@@ -84,27 +85,62 @@
 	"<p style=\"margin: 3\%;\">"					\
 	"The Trial Balance is the first financial statement to "	\
 	"execute.\n"							\
-	"<br />Journal entries with a <i>debit</i> amount "		\
+	"<br />"							\
+	"<br />Journal entries that begin with a <i>debit</i> amount "	\
 	"(the left column) usually <i>increase</i> your Checking "	\
 	"balance. The corresponding <i>credit</i> amount (the right "	\
         "column) will probably be a revenue (income) account.\n"	\
-	"<br />Journal entries with a <i>credit</i> amount (the right "	\
-	"column) usually <i>decrease</i> your Checking balance. The "	\
-	"corresponding <i>debit</i> amount (the left column) will "	\
-	"probably be an expense account.\n"				\
+	"<br />"							\
+	"<br />Journal entries that begin with a <i>credit</i> amount "	\
+	"(the right column) usually <i>decrease</i> your Checking "	\
+	"balance. The corresponding <i>debit</i> amount "		\
+	"(the left column) will probably be an expense account.\n"	\
+	"<br />"							\
+	"<br />In the journal entry above, "				\
+	"the <i>credit</i> amount is posted to the account Net Asset. "	\
+	"Net Asset is an Equity element. Equity elements are never "	\
+	"used to record normal activities. However, this opening "	\
+	"entry is not a normal activity.\n"				\
+	"<br />"							\
+	"<br />Your Trial Balance follows. It contains Bookkeeping "	\
+	"rule #1.\n"							\
+	"<br />"							\
 	"<br />Bookkeeping rule #1: Total Debit = Total Credit"
 
 #define FEEDER_INIT_ACTIVITY_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\
 	"The second financial statement to execute is the Statement "	\
-	"of Activities. It will be blank if there are no activities."	\
+	"of Activities. It will be blank if there are no activities. "	\
 	"Activities are mainly revenues (income) and expenses."
 
 #define FEEDER_INIT_POSITION_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\
 	"The Financial Position is the third financial statement to "	\
 	"execute. <br />Bookkeeping rule #2: "				\
-	"Asset Element = Liability Plus Equity\n"
+	"Asset Element = Liability Element + Equity Element\n"
+
+#define FEEDER_INIT_UPLOAD_MESSAGE 					\
+	"<p style=\"margin: 3\%;\">"					\
+	"The next step is to upload this file to generate journal "	\
+	"entries for all of these activity transactions. However, "	\
+	"you will be lucky if any tranactions get generated the first "	\
+	"time you run the process. In this file, each transaction is "	\
+	"described with some text that contains the vendor's name. "	\
+	"PredictBooks calls the vendor's name and any descriptive "	\
+	"words a feeder phrase.\n"					\
+	"<br />"							\
+	"<br />Execute the feeder process called Feeder Upload with "	\
+	"Execute yn set to 'No' or left as 'Select'. A Feeder Error "	\
+	"Table will display the text that contains the vendor's name. "	\
+	"Copy and paste the vendor's name and any descriptive words "	\
+	"into the following path:\n"					\
+	"<br />"							\
+	"<br />Insert --> Feeder --> Feeder Phrase\n"			\
+	"<br />"							\
+	"<br />Hint: [Right Click] your browser's tab and select "	\
+	"Duplicate Tab. You will then have two instances of "		\
+	"PredictBooks open. One tab is for the Feeder Upload process. "	\
+	"The other tab is for Insert --> Feeder --> Feeder Phrase.\n"
 
 typedef struct
 {
@@ -342,7 +378,6 @@ FEEDER_INIT *feeder_init_new(
 		char *role_name,
 		char *financial_institution_full_name,
 		boolean checking_boolean,
-		boolean execute_boolean,
 		double exchange_journal_begin_amount,
 		char *exchange_minimum_date_string );
 
