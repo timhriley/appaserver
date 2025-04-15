@@ -43,22 +43,26 @@
 	"called Create Empty Application. This process is available "	\
 	"to the System role."
 
-#define IMPORT_PREDICT_SHORTCUT_MESSAGE 				\
-	"<p style=\"margin: 3\%;\">"					\
-	"If you are not yet familiar with double-entry bookkeeping, "	\
-	"the skill will develop over time. PredictBooks has "		\
-	"available a shortcut process called Insert Cash Expense "	\
-	"Transaction. This process will prompt you for the necessary "	\
-	"information and generate the correct double-entry "		\
-	"transaction.\n"						\
-	"<br />"							\
-	"However, you will only have to insert a small number of "	\
-	"transactions because most of them will be generated "		\
-	"automatically. After you install PredictBooks, become "	\
-	"familiar with the Feeder Phrase table. Each of your bank's "	\
-	"transactions is described with a phrase. Insert these "	\
-	"phrases into the Feeder Phrase table. PredictBooks will "	\
-	"seek out the phrases to generate your transactions "		\
+#define IMPORT_PREDICT_SHORTCUT_MESSAGE 				      \
+	"<p style=\"margin: 3\%;\">"					      \
+	"If you are not yet familiar with "				      \
+	"<a href=\"https://en.wikipedia.org/wiki/Double-entry_bookkeeping\""  \
+	"target=_new>"							      \
+	"double-entry bookkeeping</a>, "				      \
+	"the skill will develop over time. PredictBooks has "		      \
+	"available a shortcut process called Insert Cash Expense "	      \
+	"Transaction. This process will prompt you for the necessary "	      \
+	"information and generate the correct double-entry "		      \
+	"transaction.\n"						      \
+	"<br />"							      \
+	"<br />"							      \
+	"However, you will only have to insert a small number of "	      \
+	"transactions because most of them will be generated "		      \
+	"automatically. After you install PredictBooks, become "	      \
+	"familiar with the Feeder Phrase table. Each of your bank's "	      \
+	"transactions is described with a phrase. Insert these "	      \
+	"phrases into the Feeder Phrase table. PredictBooks will "	      \
+	"seek out the phrases to generate your transactions "		      \
 	"automatically."
 
 #define IMPORT_PREDICT_REFRESH_MESSAGE 					\
@@ -73,22 +77,27 @@
 	"Feeder accounts are either checking or credit card accounts "	     \
 	"from financial institutions that feed transactions into "	     \
 	"PredictBooks.\n"						     \
-	"<br />Log into your bank's website and download all "		     \
+	"<br />"							     \
+	"<br />"							     \
+	"Log into your bank's website and download all "		     \
 	"of your checking transactions that are available. "		     \
 	"The bank's download dialog box will probably give you choice "	     \
 	"of format options. PredictBooks only recognizes the most "	     \
 	"current format option. The most current format option is "	     \
 	"called "							     \
-	"<a href=\"https://en.wikipedia.org/wiki/Open_Financial_Exchange\">" \
-	"Open Financial Exchange</a>. However, your bank may call it by "     \
+	"<a href=\"https://en.wikipedia.org/wiki/Open_Financial_Exchange\""  \
+	"target=_new>"							     \
+	"Open Financial Exchange</a>. However, your bank may call it by "    \
 	"the name of other bookkeeping software products. "		     \
 	"Nonetheless, the downloaded filename should end with either "	     \
 	"'FX' or 'fx'."							     \
-	"<br />The next step is to:\n"					     \
+	"<br />"							     \
+	"<br />"							     \
+	"The next step is to:\n"					     \
 	"<ol>\n"							     \
 	"<li>Download all of your checking transactions from your "	     \
 	"bank.\n"							     \
-	"<li>Execute: Reconcile --> Initialize Feeder Account.\n"	     \
+	"<li>Execute: Feeder --> Initialize Feeder Account.\n"	     	     \
 	"</ol>\n"
 
 typedef struct

@@ -105,6 +105,8 @@ int main( int argc, char **argv )
 		printf( "%s\n",
 			IMPORT_PREDICT_SHORTCUT_MESSAGE );
 
+		printf( "<h3>Next step:</h3>\n" );
+
 		printf( "%s\n",
 			IMPORT_PREDICT_NEXT_STEP_MESSAGE );
 
