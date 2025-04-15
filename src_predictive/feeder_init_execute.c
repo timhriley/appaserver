@@ -96,7 +96,7 @@ int main( int argc, char **argv )
 	if ( !exchange->open_tag_boolean )
 	{
 		printf(
-	"<h3>Sorry, but this file is not in exchange format.</h3>\n" );
+	"<h3>Sorry, but this file is not in open exchange format.</h3>\n" );
 		document_close();
 		exit( 0 );
 	}
@@ -293,6 +293,9 @@ int main( int argc, char **argv )
 			SECURITY_FORK_CHARACTER,
 			SECURITY_FORK_STRING,
 			feeder_init->position_system_string );
+
+		printf( "%s\n",
+			FEEDER_INIT_UPLOAD_MESSAGE );
 	}
 
 	document_close();

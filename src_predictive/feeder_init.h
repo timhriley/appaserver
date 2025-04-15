@@ -63,24 +63,6 @@
 	"to midnight. No two transactions can share the "   		  \
 	"same second. Here is your opening entry transaction:"
 
-#define FEEDER_INIT_SHORTCUT_MESSAGE 					\
-	"<p style=\"margin: 3\%;\">"					\
-	"If you are not yet familiar with double-entry bookkeeping, "	\
-	"the skill will develop over time. PredictBooks has "		\
-	"available a shortcut process called Insert Cash Expense "	\
-	"Transaction. This process will prompt you for the necessary "	\
-	"information and generate the correct double-entry "		\
-	"transaction.\n"						\
-	"<p style=\"margin: 3\%;\">"					\
-	"However, you will only have to insert a small number of "	\
-	"transactions because most of them will be generated "		\
-	"automatically. Become familiar with the Feeder Phrase table. " \
-	"Each of your bank's "						\
-	"transactions is described with a phrase. Insert these "	\
-	"phrases into the Feeder Phrase table. PredictBooks will "	\
-	"seek out the phrases to generate your transactions "		\
-	"automatically."
-
 #define FEEDER_INIT_TRIAL_BALANCE_MESSAGE				\
 	"<p style=\"margin: 3\%;\">"					\
 	"The Trial Balance is the first financial statement to "	\
@@ -97,10 +79,25 @@
 	"(the left column) will probably be an expense account.\n"	\
 	"<br />"							\
 	"<br />In the journal entry above, "				\
-	"the <i>credit</i> amount is posted to the account Net Asset. "	\
-	"Net Asset is an Equity element. Equity elements are never "	\
+	"the <i>credit</i> amount is posted to the Net Asset account. "	\
+	"Net Asset is an Equity element. Equity elements are rarely "	\
 	"used to record normal activities. However, this opening "	\
 	"entry is not a normal activity.\n"				\
+	"<br />"							\
+	"<br />Become familiar with the seven elements. The menu "	\
+	"path is:\n"							\
+	"<br />"							\
+	"<br />Lookup --> Transaction --> Element\n"			\
+	"<br />"							\
+	"<br />The only normal activity that will post to an Equity "	\
+	"element is when you transfer money from your checking account "\
+	"to pay down your credit card account. The transfer activity "	\
+	"generates two transactions. "					\
+	"One transaction posts the decrease in checking cash. "		\
+	"The other transaction posts the decrease in "			\
+	"credit card liability. The common account in both "		\
+	"transactions is called Credit Card Passthru. It is an Equity "	\
+	"account.\n"							\
 	"<br />"							\
 	"<br />Your Trial Balance follows. It contains Bookkeeping "	\
 	"rule #1.\n"							\
@@ -111,7 +108,9 @@
 	"<p style=\"margin: 3\%;\">"					\
 	"The second financial statement to execute is the Statement "	\
 	"of Activities. It will be blank if there are no activities. "	\
-	"Activities are mainly revenues (income) and expenses."
+	"Common activities are revenue (income) and expense "		\
+	"transactions. "						\
+	"Uncommon actitites are gain and loss transactions."
 
 #define FEEDER_INIT_POSITION_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\
@@ -121,19 +120,24 @@
 
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
 	"<p style=\"margin: 3\%;\">"					\
-	"The next step is to upload this file to generate journal "	\
-	"entries for all of these activity transactions. However, "	\
-	"you will be lucky if any tranactions get generated the first "	\
-	"time you run the process. In this file, each transaction is "	\
-	"described with some text that contains the vendor's name. "	\
+	"The next step is to upload this feeder file to generate "	\
+	"journal entries for all of these activity transactions. "	\
+	"The process to execute is called Feeder Upload. "		\
+	"However, it is likely that only a few transactions get "	\
+	"generated the first time.\n"					\
+	"<br />"							\
+	"<br />In this feeder file, each transaction is described with "\
+	"some text that contains the vendor's name. "			\
 	"PredictBooks calls the vendor's name and any descriptive "	\
 	"words a feeder phrase.\n"					\
 	"<br />"							\
-	"<br />Execute the feeder process called Feeder Upload with "	\
-	"Execute yn set to 'No' or left as 'Select'. A Feeder Error "	\
-	"Table will display the text that contains the vendor's name. "	\
-	"Copy and paste the vendor's name and any descriptive words "	\
-	"into the following path:\n"					\
+	"<br />Execute the Feeder Upload process with "			\
+	"Execute yn set to 'No' or left as 'Select'. "			\
+	"A Feeder Error Table will display containing a row for each "	\
+	"activity that will not generate a journal entry. "		\
+	"Each row contains text that contains the vendor's name. "	\
+	"Copy and paste the vendor's name and any adjoining "		\
+	"descriptive words into the following path:\n"			\
 	"<br />"							\
 	"<br />Insert --> Feeder --> Feeder Phrase\n"			\
 	"<br />"							\

@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 #include "String.h"
 #include "appaserver_error.h"
 #include "appaserver.h"
@@ -677,7 +678,7 @@ LIST *exchange_tag_seek_list(
 
 char *exchange_journal_datum( char *list_get )
 {
-	char datum[ 128 ];
+	char datum[ 65536 ];
 
 	if ( !list_get )
 	{
@@ -704,8 +705,7 @@ char *exchange_journal_datum( char *list_get )
 		snprintf(
 			message,
 			sizeof ( message ),
-			"piece(%s,'>') returned empty.",
-			list_get );
+		"Sorry, but this file is not in open exchange format." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -803,7 +803,6 @@ char *exchange_journal_description(
 			message );
 	}
 
-
 	(void)string_search_replace(
 		name /* source_destination */,
 		"&amp;" /* search_string */,
@@ -822,12 +821,24 @@ char *exchange_journal_description(
 		return name;
 	}
 
-	snprintf(
-		description,
-		sizeof ( description ),
-		"%s%s",
-		name,
-		memo );
+	if ( isdigit( *memo ) )
+	{
+		snprintf(
+			description,
+			sizeof ( description ),
+			"%s%s",
+			name,
+			memo );
+	}
+	else
+	{
+		snprintf(
+			description,
+			sizeof ( description ),
+			"%s %s",
+			name,
+			memo );
+	}
 
 	return strdup( description );
 }
