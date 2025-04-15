@@ -691,7 +691,9 @@ char *lookup_histogram_window_onload_string(
 			message );
 	}
 
-	sprintf(onload_string,
+	snprintf(
+		onload_string,
+		sizeof ( onload_string ),
 		APPASERVER_WINDOW_OPEN_TEMPLATE,
 		(http_prompt_filename) ? http_prompt_filename : "",
 		(query_prompt_target_frame) ? query_prompt_target_frame : "" );

@@ -45,10 +45,14 @@ directory="`appaserver_data_directory`/$application"
 date=`now.sh ymd`
 input_export_subschema="${directory}/export_subschema_${application}_${date}.sh"
 input_export_entity="${directory}/export_table_entity_${date}.sh"
+input_export_vendor="${directory}/export_table_vendor_${date}.sh"
+input_export_financial_institution="${directory}/export_table_financial_institution_${date}.sh"
 output_export_process_role="/tmp/export_process_role_$$.sql.gz"
 
 export_subschema '' "$tablelist_delimited" n >/dev/null
 export_table '' entity shell_script >/dev/null
+export_table '' vendor shell_script >/dev/null
+export_table '' financial_institution shell_script >/dev/null
 export_process_role.sh supervisor $output_export_process_role
 
 (
@@ -56,12 +60,16 @@ zcat $input_mysqldump
 zcat $output_export_process_role
 grep '^insert' < $input_export_subschema
 grep '^insert' < $input_export_entity
+grep '^insert' < $input_export_vendor
+grep '^insert' < $input_export_financial_institution
 ) |
 gzip > $deploy_filename
 
-rm	$input_mysqldump		\
-	$input_export_subschema		\
-	$input_export_entity		\
+rm	$input_mysqldump			\
+	$input_export_subschema			\
+	$input_export_entity			\
+	$input_export_vendor			\
+	$input_export_financial_institution	\
 	$output_export_process_role
 
 echo "Created: $deploy_filename"

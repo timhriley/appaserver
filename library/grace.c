@@ -3090,10 +3090,12 @@ char *grace_window_onload_string(
 			message );
 	}
 
-	sprintf(onload_string,
+	snprintf(
+		onload_string,
+		sizeof ( onload_string ),
 		APPASERVER_WINDOW_OPEN_TEMPLATE,
-			pdf_prompt_filename,
-			grace_window_pdf_target );
+		pdf_prompt_filename,
+		grace_window_pdf_target );
 
 	return onload_string;
 }

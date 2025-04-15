@@ -2034,14 +2034,13 @@ char *table_edit_input_onload_javascript_string(
 
 	if ( get )
 	{
-		char destination[ 1024 ];
-
 		return
-		strdup(
-			string_unescape_character(
-				destination,
-				get /* datum */,
-				'\'' /* character_to_unescape */ ) );
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		security_sql_injection_unescape(
+			SECURITY_ESCAPE_CHARACTER_STRING,
+			get /* datum */ );
 	}
 	else
 	{

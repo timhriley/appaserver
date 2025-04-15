@@ -403,7 +403,6 @@ char *document_body_onload_open_tag(
 			ptr,
 			" && %s",
 			menu_onload_string );
-
 	}
 
 	if ( onload_javascript_string )
