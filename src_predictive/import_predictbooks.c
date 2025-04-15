@@ -20,10 +20,6 @@ int main( int argc, char **argv )
 	char *login_name;
 	char *role_name;
 	char *process_name;
-	char *full_name;
-	char *name_of_bank;
-	char *checking_begin_date;
-	double checking_begin_balance;
 	boolean execute_boolean;
 	IMPORT_PREDICT *import_predict;
 
@@ -34,10 +30,10 @@ int main( int argc, char **argv )
 		argv,
 		application_name );
 
-	if ( argc != 10 )
+	if ( argc != 6 )
 	{
 		fprintf(stderr,
-"Usage: %s session login_name role process full_name name_of_bank checking_begin_date checking_begin_balance execute_yn\n",
+		"Usage: %s session login role process execute_yn\n",
 			argv[ 0 ] );
 
 		exit ( 1 );
@@ -47,11 +43,7 @@ int main( int argc, char **argv )
 	login_name = argv[ 2 ];
 	role_name = argv[ 3 ];
 	process_name = argv[ 4 ];
-	full_name = argv[ 5 ];
-	name_of_bank = argv[ 6 ];
-	checking_begin_date = argv[ 7 ];
-	checking_begin_balance = atof( argv[ 8 ] );
-	execute_boolean = (*argv[ 9 ] == 'y');
+	execute_boolean = (*argv[ 5 ] == 'y');
 
 	document_process_output(
 		application_name,
@@ -68,55 +60,12 @@ int main( int argc, char **argv )
 			session_key,
 			login_name,
 			role_name,
-			full_name,
-			name_of_bank,
-			checking_begin_date,
-			checking_begin_balance,
 			appaserver_parameter_mount_point() );
 
 	if ( import_predict->import_predict_input->template_boolean )
 	{
 		printf(	"%s\n",
 			IMPORT_PREDICT_TEMPLATE_MESSAGE );
-	}
-
-	if ( import_predict->import_predict_input->exists_boolean
-	&&   !execute_boolean )
-	{
-		printf( "%s\n",
-			IMPORT_PREDICT_EXISTS_MESSAGE );
-	}
-
-	if ( import_predict->import_predict_input->date_missing_boolean )
-	{
-		printf( "%s\n",
-			IMPORT_PREDICT_DATE_MISSING_MESSAGE );
-		document_close();
-		exit( 0 );
-	}
-
-	if ( import_predict->
-		import_predict_input->
-		date_recent_boolean )
-	{
-		printf(	"%s\n",
-			IMPORT_PREDICT_RECENT_MESSAGE );
-	}
-
-	if ( import_predict->import_predict_input->balance_zero_boolean )
-	{
-		printf( "%s\n",
-			IMPORT_PREDICT_BALANCE_ZERO_MESSAGE );
-		document_close();
-		exit( 0 );
-	}
-
-	if ( import_predict->import_predict_input->bank_missing_boolean )
-	{
-		printf( "%s\n",
-			IMPORT_PREDICT_BANK_MISSING_MESSAGE );
-		document_close();
-		exit( 0 );
 	}
 
 	if ( !import_predict->import_predict_input->entity_self )
@@ -127,94 +76,20 @@ int main( int argc, char **argv )
 		exit( 0 );
 	}
 
+	if ( import_predict->import_predict_input->exists_boolean
+	&&   !execute_boolean )
+	{
+		printf( "%s\n",
+			IMPORT_PREDICT_EXISTS_MESSAGE );
+	}
+
 	if ( execute_boolean )
 	{
-		char *error_string;
-
 		if ( system( import_predict->system_string ) ){}
 
 		if ( system(
 			import_predict->
 				delete_role_system_string ) ){}
-
-		if ( system(
-			import_predict->
-				import_predict_process->
-				insert_system_string ) ){}
-
-		if ( import_predict->
-			entity_system_string )
-		{
-			if ( system(
-				import_predict->
-					entity_system_string ) ){}
-		}
-
-		import_predict->
-			import_predict_transaction->
-			transaction->
-			journal_list =
-			import_predict_transaction_journal_list(
-				IMPORT_PREDICT_CASH_ACCOUNT,
-				IMPORT_PREDICT_EQUITY_ACCOUNT,
-				checking_begin_balance,
-				1 /* fetch_account_boolean */ );
-
-		(void)transaction_insert(
-			import_predict->
-				import_predict_transaction->
-				transaction->
-				full_name,
-			import_predict->
-				import_predict_transaction->
-				transaction->
-				street_address,
-			import_predict->
-				import_predict_transaction->
-				transaction->
-				transaction_date_time,
-			import_predict->
-				import_predict_transaction->
-				transaction->
-				transaction_amount,
-			0 /* check_number */,
-			import_predict->
-				import_predict_transaction->
-				transaction->
-				memo,
-			'n' /* lock_transaction_yn */,
-			import_predict->
-				import_predict_transaction->
-				transaction->
-				journal_list,
-			1 /* insert_journal_list_boolean */ );
-
-		transaction_html_display(
-			import_predict->
-				import_predict_transaction->
-				transaction );
-
-		error_string =
-			/* ---------------------------- */
-			/* Returns error_string or null */
-			/* ---------------------------- */
-			sql_execute(
-				SQL_EXECUTABLE,
-				import_predict->
-					import_predict_input->
-					appaserver_error_filename,
-				import_predict->
-					import_predict_passthru->
-					feeder_phrase_insert_statement_list,
-					(char *)0 /* sql_statement */ );
-
-		if ( error_string )
-		{
-			appaserver_error_message_file(
-				application_name,
-				login_name,
-				error_string );
-		}
 
 		printf( "%s\n",
 			IMPORT_PREDICT_ONCE_MESSAGE );
@@ -231,36 +106,12 @@ int main( int argc, char **argv )
 			IMPORT_PREDICT_SHORTCUT_MESSAGE );
 
 		printf( "%s\n",
-			IMPORT_PREDICT_TRIAL_BALANCE_MESSAGE );
-
-		fflush( stdout );
-		if ( system( import_predict->trial_balance_system_string ) ){}
-		fflush( stdout );
-
-		printf( "%s\n",
-			IMPORT_PREDICT_FINANCIAL_POSITION_MESSAGE );
-
-		fflush( stdout );
-		if ( system(
-			import_predict->
-				financial_position_system_string ) ){}
-		fflush( stdout );
-
-		printf( "%s\n",
 			IMPORT_PREDICT_NEXT_STEP_MESSAGE );
 
 		printf( "<h3>Process complete</h3>\n" );
 	}
 	else
 	{
-		printf( "%s\n",
-			IMPORT_PREDICT_OPENING_MESSAGE );
-
-		transaction_html_display(
-			import_predict->
-				import_predict_transaction->
-				transaction );
-
 		printf( "%s\n",
 			IMPORT_PREDICT_SHORTCUT_MESSAGE );
 
