@@ -49,6 +49,7 @@ LIST *feeder_phrase_list(
 	LIST *list;
 	FILE *pipe_open;
 	char input[ 1024 ];
+	FEEDER_PHRASE *feeder_phrase;
 
 	pipe_open =
 		feeder_phrase_pipe_open(
@@ -67,9 +68,49 @@ LIST *feeder_phrase_list(
 
 	while ( string_input( input, pipe_open, 1024 ) )
 	{
-		list_set(
-			list,
-			feeder_phrase_parse( input ) );
+		feeder_phrase =
+			feeder_phrase_parse(
+				input );
+
+		if ( !feeder_phrase->nominal_account )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"feeder_phrase=[%s] has an empty nominal account.",
+				feeder_phrase->phrase );
+
+			pclose( pipe_open );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		if ( !feeder_phrase->full_name )
+		{
+			char message[ 128 ];
+
+			snprintf(
+				message,
+				sizeof ( message ),
+			"feeder_phrase=[%s] has an empty full name.",
+				feeder_phrase->phrase );
+
+			pclose( pipe_open );
+
+			appaserver_error_stderr_exit(
+				__FILE__,
+				__FUNCTION__,
+				__LINE__,
+				message );
+		}
+
+		list_set( list, feeder_phrase );
 	}
 
 	pclose( pipe_open );
@@ -2113,6 +2154,38 @@ FEEDER_TRANSACTION *feeder_transaction_new(
 		feeder_transaction->credit_account =
 			feeder_phrase_seek->
 				nominal_account;
+	}
+
+	if ( !feeder_transaction->debit_account )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"feeder_transaction->debit_account is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	if ( !feeder_transaction->credit_account )
+	{
+		char message[ 128 ];
+
+		snprintf(
+			message,
+			sizeof ( message ),
+			"feeder_transaction->credit_account is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
 	}
 
 	feeder_transaction->transaction =
