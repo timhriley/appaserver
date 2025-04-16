@@ -593,6 +593,11 @@ int feeder_row_count(
 
 /* Usage */
 /* ----- */
+int feeder_row_insert_count(
+		LIST *feeder_row_list );
+
+/* Usage */
+/* ----- */
 void feeder_row_error_display(
 		LIST *feeder_row_list );
 
@@ -890,6 +895,7 @@ typedef struct
 	LIST *feeder_row_list;
 	FEEDER_ROW *feeder_row_first_out_balance;
 	int feeder_row_count;
+	int feeder_row_insert_count;
 	double prior_account_end_balance;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;

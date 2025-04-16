@@ -26,6 +26,7 @@ int main( int argc, char **argv )
 	char *feeder_account_name;
 	char *exchange_format_filename;
 	boolean execute_boolean;
+	boolean okay_continue = 1;
 	EXCHANGE *exchange = {0};
 	FEEDER *feeder = {0};
 	FEEDER_AUDIT *feeder_audit;
@@ -64,11 +65,12 @@ int main( int argc, char **argv )
 	||   strcmp( feeder_account_name, "feeder_account" ) == 0 )
 	{
 		printf( "<h3>Please choose a feeder account.</h3>\n" );
-		document_close();
-		exit( 0 );
+
+		okay_continue = 0;
 	}
 
-	if ( *exchange_format_filename
+	if ( okay_continue
+	&&   *exchange_format_filename
 	&&   strcmp(
 		exchange_format_filename,
 		"exchange_format_filename" ) != 0 )
@@ -89,30 +91,34 @@ int main( int argc, char **argv )
 		{
 			printf(
 		"<h3>Sorry, but this file is not in exchange format.</h3>\n" );
-			document_close();
-			exit( 0 );
+
+			okay_continue = 0;
 		}
 
-		if ( !list_length( exchange->exchange_journal_list ) )
+		if ( okay_continue
+		&&   !list_length( exchange->exchange_journal_list ) )
 		{
 			printf(
 "<h3>Sorry, but this exchange formatted file doesn't have any transactions.</h3>\n" );
-			document_close();
-			exit( 0 );
+
+			okay_continue = 0;
 		}
 
-		feeder =
-			/* -------------- */
-			/* Safely returns */
-			/* -------------- */
-			feeder_fetch(
-				application_name,
-				login_name,
-				feeder_account_name,
-				exchange_format_filename,
-				exchange->exchange_journal_list,
-				exchange->balance_amount,
-				exchange->minimum_date_string );
+		if ( okay_continue )
+		{
+			feeder =
+				/* -------------- */
+				/* Safely returns */
+				/* -------------- */
+				feeder_fetch(
+					application_name,
+					login_name,
+					feeder_account_name,
+					exchange_format_filename,
+					exchange->exchange_journal_list,
+					exchange->balance_amount,
+					exchange->minimum_date_string );
+		}
 	}
 
 	if ( feeder )
@@ -122,7 +128,8 @@ int main( int argc, char **argv )
 			printf( "<h3>No new feeder rows to process.</h3>\n" );
 		}
 		else
-		if ( execute_boolean )
+		if ( execute_boolean
+		&&   feeder->feeder_row_insert_count )
 		{
 			feeder_execute( process_name, feeder );
 		}
@@ -162,6 +169,8 @@ int main( int argc, char **argv )
 			"no journal entries exist for account=%s"
 			"</h3>\n",
 			feeder_account_name );
+
+			okay_continue = 0;
 		}
 		else
 		if ( !feeder_audit->html_table )

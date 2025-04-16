@@ -1,7 +1,7 @@
 #!/bin/bash
-# ----------------------------------------------------------
-# $APPASERVER_HOME/src_predictive/insert_cash_transaction.sh
-# ----------------------------------------------------------
+# ---------------------------------------------------------------------
+# $APPASERVER_HOME/src_predictive/insert_expense_transaction_process.sh
+# ---------------------------------------------------------------------
 
 if [ "$APPASERVER_DATABASE" != "" ]
 then
@@ -20,9 +20,9 @@ fi
 
 echo "$0 $*" 1>&2
 
-if [ "$#" -ne 9 ]
+if [ "$#" -ne 8 ]
 then
-	echo "Usage: `basename.e $0 n` full_name street_address transaction_date_time debit_account credit_account transaction_amount check_number memo program_name" 1>&2
+	echo "Usage: `basename.e $0 n` full_name street_address transaction_date_time debit_account credit_account transaction_amount check_number memo" 1>&2
 	exit 1
 fi
 
@@ -34,24 +34,14 @@ credit_account="$(echo $5 | escape_security.e)"
 transaction_amount="$(echo $6 | escape_security.e)"
 check_number="$(echo $7 | escape_security.e)"
 memo="$(echo $8 | escape_security.e)"
-program_name="$(echo $9 | escape_security.e)"
 
 table="transaction"
 
-if [ "$program_name" != "" -a "$program_name" != "program_name" ]
-then
-	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo,program_name"
+field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
 
-	result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo^$program_name"				|\
-		insert_statement.e table=$table field=$field del='^'	|\
-		sql.e 2>&1`
-else
-	field="full_name,street_address,transaction_date_time,transaction_amount,check_number,memo"
-
-	result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
-		insert_statement.e table=$table field=$field del='^'	|\
-		sql.e 2>&1`
-fi
+result=`echo "$full_name^$street_address^$transaction_date_time^$transaction_amount^$check_number^$memo"					|\
+	insert_statement.e table=$table field=$field del='^'	|\
+	sql.e 2>&1`
 
 if [ "$result" != "" ]
 then

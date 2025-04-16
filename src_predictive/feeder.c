@@ -730,6 +730,10 @@ FEEDER *feeder_fetch(
 
 	if ( !feeder->feeder_row_count ) return feeder;
 
+	feeder->feeder_row_insert_count =
+		feeder_row_insert_count(
+			feeder->feeder_row_list );
+
 	feeder->prior_account_end_balance =
 		feeder_prior_account_end_balance(
 			feeder_account_name );
@@ -3053,6 +3057,25 @@ char *feeder_parameter_end_balance_error(
 int feeder_row_count( LIST *feeder_row_list )
 {
 	return list_length( feeder_row_list );
+}
+
+int feeder_row_insert_count( LIST *feeder_row_list )
+{
+	int insert_count = 0;
+	FEEDER_ROW *feeder_row;
+
+	if ( list_rewind( feeder_row_list ) )
+	do {
+		feeder_row = list_get( feeder_row_list );
+
+		if ( feeder_row->feeder_matched_journal
+		||   feeder_row->feeder_phrase_seek )
+		{
+			insert_count++;
+		}
+	} while ( list_next( feeder_row_list ) );
+
+	return insert_count;
 }
 
 char *feeder_row_system_string(

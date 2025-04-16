@@ -50,7 +50,7 @@
 	"target=_new>"							      \
 	"double-entry bookkeeping</a>, "				      \
 	"the skill will develop over time. PredictBooks has "		      \
-	"available a shortcut process called Insert Cash Expense "	      \
+	"available a shortcut process called Insert Expense "	      	\
 	"Transaction. This process will prompt you for the necessary "	      \
 	"information and generate the correct double-entry "		      \
 	"transaction.\n"						      \

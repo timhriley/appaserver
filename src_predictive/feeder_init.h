@@ -31,12 +31,12 @@
 					"financial_position"
 
 #define FEEDER_INIT_INSTITUTION_MISSING_MESSAGE	\
-	"<p style=\"margin: 3\%;\">"		\
-	"Please select a financial institution."
+	"<h3>Please select a financial institution.</h3>"
 
-#define FEEDER_INIT_ACCOUNT_EXIST_MESSAGE	\
-	"<p style=\"margin: 3\%;\">"		\
-	"ERROR: This feeder account already exists."
+#define FEEDER_INIT_ACCOUNT_EXIST_MESSAGE				\
+	"<p style=\"margin: 3\%;\">"					\
+	"ERROR: This feeder account already exists."			\
+	"The Supervisor role path is Lookup --> Feeder --> Feeder Account"
 
 #define FEEDER_INIT_ENTITY_SELF_MESSAGE				  	\
 	"<p style=\"margin: 3\%;\">"					\
@@ -49,12 +49,14 @@
 	"Your financial institution "  					\
 	"should store 18 months of transactions."
 
-#define FEEDER_INIT_PASSTHRU_EXIST_MESSAGE				  \
-	"<p style=\"margin: 3\%;\">"					  \
-	"Warning: the passthru account's feeder phrase alread exists. "   \
+#define FEEDER_INIT_PASSTHRU_EXIST_MESSAGE				\
+	"<p style=\"margin: 3\%;\">"					\
+	"Warning: the passthru account's feeder phrase already "	\
+	"exists. "  							\
 	"You will need to adjust the passthru feeder phrases manually."
 
 #define FEEDER_INIT_OPENING_MESSAGE 					  \
+	"<h3>Opening message</h3>\n"					  \
 	"<p style=\"margin: 3\%;\">"					  \
 	"PredictBooks implements "					  \
 	"<a href=https://en.wikipedia.org/wiki/Double-entry_bookkeeping " \
@@ -64,17 +66,18 @@
 	"same second. Here is your opening entry transaction:"
 
 #define FEEDER_INIT_TRIAL_BALANCE_MESSAGE				\
+	"<h3>Trial Balance</h3>\n"					\
 	"<p style=\"margin: 3\%;\">"					\
 	"The Trial Balance is the first financial statement to "	\
-	"execute.\n"							\
+	"generate.\n"							\
 	"<br />"							\
-	"<br />Journal entries that begin with a <i>debit</i> amount "	\
-	"(the left column) usually <i>increase</i> your Checking "	\
+	"<br />Journal entries with a Checking account <i>debit</i> "	\
+	"amount (the left column) will <i>increase</i> the Checking "	\
 	"balance. The corresponding <i>credit</i> amount (the right "	\
         "column) will probably be a revenue (income) account.\n"	\
 	"<br />"							\
-	"<br />Journal entries that begin with a <i>credit</i> amount "	\
-	"(the right column) usually <i>decrease</i> your Checking "	\
+	"<br />Journal entries with a Checking account <i>credit</i> "	\
+	"amount (the right column) will <i>decrease</i> the Checking "	\
 	"balance. The corresponding <i>debit</i> amount "		\
 	"(the left column) will probably be an expense account.\n"	\
 	"<br />"							\
@@ -84,8 +87,8 @@
 	"used to record normal activities. However, this opening "	\
 	"entry is not a normal activity.\n"				\
 	"<br />"							\
-	"<br />Become familiar with the seven elements. The menu "	\
-	"path is:\n"							\
+	"<br /><big>Become familiar with the seven elements</big>. "	\
+	"The menu path is:\n"						\
 	"<br />"							\
 	"<br />Lookup --> Transaction --> Element\n"			\
 	"<br />"							\
@@ -102,23 +105,39 @@
 	"<br />Your Trial Balance follows. It contains Bookkeeping "	\
 	"rule #1.\n"							\
 	"<br />"							\
-	"<br />Bookkeeping rule #1: Total Debit = Total Credit"
+	"<br />Bookkeeping rule #1: Total Debit = Total Credit\n"	\
+	"<br />"							\
+	"<br />If Total Debit != Total Credit, then <i>stop</i> "	\
+	"generating financial statements. "				\
+	"Instead, execute Audit --> Ledger Debit Credit Audit"
 
 #define FEEDER_INIT_ACTIVITY_MESSAGE					\
+	"<h3>Statement of Activities</h3>\n"				\
 	"<p style=\"margin: 3\%;\">"					\
-	"The second financial statement to execute is the Statement "	\
+	"The second financial statement to generate is the Statement "	\
 	"of Activities. It will be blank if there are no activities. "	\
 	"Common activities are revenue (income) and expense "		\
 	"transactions. "						\
-	"Uncommon actitites are gain and loss transactions."
+	"Uncommon actitites are gain and loss transactions.\n"		\
+	"<br />"							\
+	"<br />A note about bookkeeping jargon: "			\
+	"The elements of revenue, expense, gain, and loss are known "	\
+	"as nominal elements. Therefore, the accounts assigned to "	\
+	"these elements are known as nominal accounts. "		\
+	"Nominal accounts have the property that they are closed "	\
+	"(reset to zero) at year-end.\n"				\
+	"<br />See Alter --> Close Nominal Accounts"
 
 #define FEEDER_INIT_POSITION_MESSAGE					\
+	"<h3>Financial Position</h3>\n"					\
 	"<p style=\"margin: 3\%;\">"					\
 	"The Financial Position is the third financial statement to "	\
-	"execute. <br />Bookkeeping rule #2: "				\
+	"generate.\n"							\
+	"<br />Bookkeeping rule #2: "					\
 	"Asset Element = Liability Element + Equity Element\n"
 
 #define FEEDER_INIT_UPLOAD_MESSAGE 					\
+	"<h3>Next Step</h3>\n"						\
 	"<p style=\"margin: 3\%;\">"					\
 	"The next step is to upload this feeder file to generate "	\
 	"journal entries for all of these activity transactions. "	\
@@ -145,6 +164,13 @@
 	"Duplicate Tab. You will then have two instances of "		\
 	"PredictBooks open. One tab is for the Feeder Upload process. "	\
 	"The other tab is for Insert --> Feeder --> Feeder Phrase.\n"
+
+#define FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE 				\
+	"<h3>Messages Available</h3>\n"					\
+	"<p style=\"margin: 3\%;\">"					\
+	"These messages are available anytime by executing Feeder --> "	\
+	"Initialize Feeder Account. Leave at least one choice blank. "	\
+	"Set Execute yn to 'Yes' for the extended messages."
 
 typedef struct
 {
