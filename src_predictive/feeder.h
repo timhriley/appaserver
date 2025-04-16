@@ -1047,7 +1047,7 @@ LIST *feeder_audit_html_cell_list(
 		char *file_row_description,
 		char *feeder_row_transaction_date_time,
 		char *feeder_date,
-		double exchange_journal_amount,
+		double feeder_row_file_row_amount,
 		double feeder_row_calculate_balance,
 		char *journal_full_name,
 		char *journal_transaction_date_time,

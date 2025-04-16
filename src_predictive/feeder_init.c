@@ -16,14 +16,12 @@
 
 FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 		boolean checking_boolean,
-		char *account_name,
 		char *entity_self_full_name,
 		char *entity_self_street_address )
 {
 	FEEDER_INIT_PASSTHRU *feeder_init_passthru;
 
-	if ( !account_name
-	||   !entity_self_full_name
+	if ( !entity_self_full_name
 	||   !entity_self_street_address )
 	{
 		char message[ 128 ];
@@ -41,6 +39,13 @@ FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 	}
 
 	feeder_init_passthru = feeder_init_passthru_calloc();
+
+	feeder_init_passthru->account_name =
+		/* ------------------- */
+		/* Returns heap memory */
+		/* ------------------- */
+		feeder_init_passthru_account_name(
+			ACCOUNT_PASSTHRU_KEY );
 
 	feeder_init_passthru->feeder_phrase =
 		/* ------------------------ */
@@ -72,7 +77,7 @@ FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 		/* ------------------- */
 		feeder_init_passthru_insert_sql(
 			FEEDER_PHRASE_TABLE,
-			account_name,
+			feeder_init_passthru->account_name,
 			entity_self_full_name,
 			entity_self_street_address,
 			feeder_init_passthru->feeder_phrase );
@@ -1095,9 +1100,6 @@ FEEDER_INIT *feeder_init_new(
 			checking_boolean,
 			feeder_init->
 				feeder_init_input->
-				account_name,
-			feeder_init->
-				feeder_init_input->
 				entity_self->
 				full_name,
 			feeder_init->
@@ -1455,5 +1457,17 @@ const char *feeder_init_subclassification(
 		return subclassification_cash;
 	else
 		return subclassification_current_liability;
+}
+
+char *feeder_init_passthru_account_name( const char *account_passthru_key )
+{
+	return
+	/* ---------------------------------------------------- */
+	/* Returns heap memory from static list or null (maybe) */
+	/* ---------------------------------------------------- */
+	account_hard_coded_account_name(
+		(char *)account_passthru_key,
+		0 /* not warning_only */,
+		__FUNCTION__ /* calling_function_name */ );
 }
 

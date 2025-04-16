@@ -685,10 +685,12 @@ FILE *journal_insert_pipe(
 {
 	char system_string[ 1024 ];
 
-	sprintf(system_string,
+	snprintf(
+		system_string,
+		sizeof ( system_string ),
 		"insert_statement t=%s f=%s delimiter='^'	|"
-/*		"tee_appaserver_error.sh			|" */
-		"sql 2>&1					|"
+/*		"tee_appaserver.sh				|" */
+		"sql.e 2>&1					|"
 		"html_paragraph_wrapper.e			 ",
 		journal_table,
 		journal_insert );
@@ -705,8 +707,8 @@ void journal_insert(
 		double debit_amount,
 		double credit_amount )
 {
-	char debit_amount_string[ 16 ];
-	char credit_amount_string[ 16 ];
+	char debit_amount_string[ 32 ];
+	char credit_amount_string[ 32 ];
 
 	if ( float_dollar_virtually_same(
 		debit_amount,

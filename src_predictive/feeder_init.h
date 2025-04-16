@@ -304,6 +304,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_calloc(
 
 typedef struct
 {
+	char *account_name;
 	char *feeder_phrase;
 	char *exist_system_string;
 	boolean exist_boolean;
@@ -317,7 +318,6 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_PASSTHRU *feeder_init_passthru_new(
 		boolean checking_boolean,
-		char *feeder_init_input_account_name,
 		char *entity_self_full_name,
 		char *entity_self_street_address );
 
@@ -349,12 +349,21 @@ char *feeder_init_passthru_insert_sql(
 		char *feeder_init_passthru_feeder_phrase );
 
 /* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_init_passthru_exist_system_string(
 		const char *feeder_phrase_table,
 		char *feeder_init_passthru_feeder_phrase );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_init_passthru_account_name(
+		const char *account_passthru_key );
 
 typedef struct
 {

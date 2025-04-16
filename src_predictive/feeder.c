@@ -3530,7 +3530,7 @@ HTML_ROW *feeder_audit_html_row(
 	{
 		char message[ 128 ];
 
-		sprintf(message, "parameter is empty." );
+		sprintf(message, "parameter is empty or incomplete." );
 
 		appaserver_error_stderr_exit(
 			__FILE__,
@@ -3545,6 +3545,9 @@ HTML_ROW *feeder_audit_html_row(
 			feeder_row->full_name,
 			feeder_row->file_row_description,
 			feeder_row->transaction_date_time,
+			/* ----------------------------------------------- */
+			/* Returns heap memory, source_date_string or null */
+			/* ----------------------------------------------- */
 			date_convert_return_date_string(
 				date_convert_international
 					/* source_enum */,
@@ -3555,7 +3558,7 @@ HTML_ROW *feeder_audit_html_row(
 				feeder_row->feeder_date
 					/* source_date_string */)
 				/* feeder_date */,
-			feeder_row->feeder_load_row->exchange_journal_amount,
+			feeder_row->file_row_amount,
 			feeder_row->calculate_balance,
 			journal->full_name,
 			journal->transaction_date_time,
@@ -3564,6 +3567,9 @@ HTML_ROW *feeder_audit_html_row(
 			feeder_audit_difference_zero );
 
 	return
+	/* -------------- */
+	/* Safely returns */
+	/* -------------- */
 	html_row_new( cell_list );
 }
 
@@ -3580,7 +3586,7 @@ LIST *feeder_audit_html_cell_list(
 		char *file_row_description,
 		char *feeder_row_transaction_date_time,
 		char *feeder_date,
-		double exchange_journal_amount,
+		double feeder_row_file_row_amount,
 		double feeder_row_calculate_balance,
 		char *journal_full_name,
 		char *journal_transaction_date_time,
@@ -3596,7 +3602,7 @@ LIST *feeder_audit_html_cell_list(
 	||   !file_row_description
 	||   !feeder_row_transaction_date_time
 	||   !feeder_date
-	||   !exchange_journal_amount
+	||   !feeder_row_file_row_amount
 	||   !journal_full_name
 	||   !journal_transaction_date_time )
 	{
@@ -3675,7 +3681,7 @@ LIST *feeder_audit_html_cell_list(
 				/* Doesn't trim pennies.  */
 				/* ---------------------- */
 				string_commas_money(
-					exchange_journal_amount ) ),
+					feeder_row_file_row_amount ) ),
 			0 /* not large_boolean */,
 			0 /* not bold_boolean */ ) );
 

@@ -4,7 +4,7 @@ make
 
 if [ "$?" -eq 0 ]
 then
-	cd ../src_system
-	make export_subschema
+	cd ../src_predictive
+	make feeder_upload
 fi
 
