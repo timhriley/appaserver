@@ -233,7 +233,8 @@ int main( int argc, char **argv )
 				/* -------------- */
 				feeder_init_credit_new(
 					1 /* execute_boolean */,
-					exchange->exchange_journal_begin_amount,
+					-exchange->exchange_journal_begin_amount
+					/* negate_exchange_journal_begin */,
 					exchange->minimum_date_string,
 					feeder_init->
 						feeder_init_input->

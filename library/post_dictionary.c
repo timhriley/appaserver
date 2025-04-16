@@ -502,6 +502,12 @@ char *post_dictionary_file_clean_name(
 		(char *)security_escape_character_string
 			/* character_string */ );
 
+	/* Returns source_destination */
+	/* -------------------------- */
+	string_remove_character(
+		clean_name /* source_destination */,
+		',' );
+
 	return clean_name;
 }
 

@@ -11,6 +11,7 @@
 #include <ctype.h>
 #include "String.h"
 #include "piece.h"
+#include "appaserver.h"
 #include "column.h"
 #include "float.h"
 #include "sql.h"
@@ -24,24 +25,6 @@
 #include "exchange.h"
 #include "feeder.h"
 
-FILE *feeder_phrase_pipe_open( char *system_string )
-{
-	if ( !system_string )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "system_string is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	return popen( system_string, "r" );
-}
-
 LIST *feeder_phrase_list(
 		char *feeder_phrase_select,
 		char *feeder_phrase_table )
@@ -52,17 +35,17 @@ LIST *feeder_phrase_list(
 	FEEDER_PHRASE *feeder_phrase;
 
 	pipe_open =
-		feeder_phrase_pipe_open(
+		/* -------------- */
+		/* Safely returns */
+		/* -------------- */
+		appaserver_input_pipe(
 			/* ------------------- */
 			/* Returns heap memory */
 			/* ------------------- */
-			feeder_phrase_system_string(
+			appaserver_system_string(
 				feeder_phrase_select,
 				feeder_phrase_table,
-				/* ---------------------- */
-				/* Returns program memory */
-				/* ---------------------- */
-				feeder_phrase_where() ) );
+				(char *)0 /* where */ ) );
 
 	list = list_new();
 
@@ -116,35 +99,6 @@ LIST *feeder_phrase_list(
 	pclose( pipe_open );
 
 	return list;
-}
-
-char *feeder_phrase_system_string(
-		char *select,
-		char *table,
-		char *where )
-{
-	char system_string[ 1024 ];
-
-	if ( !select || !table || !where )
-	{
-		char message[ 128 ];
-
-		sprintf(message, "parameter is empty." );
-
-		appaserver_error_stderr_exit(
-			__FILE__,
-			__FUNCTION__,
-			__LINE__,
-			message );
-	}
-
-	sprintf(system_string,
-		"select.sh \"%s\" %s \"%s\"",
-		select,
-		table,
-		where );
-
-	return strdup( system_string );
 }
 
 FEEDER_PHRASE *feeder_phrase_parse( char *input )
@@ -4103,11 +4057,6 @@ char *feeder_phrase_primary_where( char *feeder_phrase )
 		feeder_phrase );
 
 	return primary_where;
-}
-
-char *feeder_phrase_where( void )
-{
-	return "full_name is not null";
 }
 
 char *feeder_load_file_filename(

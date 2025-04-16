@@ -8,6 +8,7 @@
 #include "environ.h"
 #include "String.h"
 #include "appaserver_error.h"
+#include "float.h"
 #include "insert.h"
 #include "date.h"
 #include "security.h"
@@ -316,7 +317,7 @@ FEEDER_INIT_TRANSACTION *feeder_init_transaction_new(
 			feeder_init_transaction->date_time );
 
 	feeder_init_transaction->transaction->transaction_amount =
-		exchange_journal_begin_amount;
+		float_abs( exchange_journal_begin_amount );
 
 	feeder_init_transaction->transaction->memo =
 		TRANSACTION_OPEN_MEMO;
@@ -520,7 +521,7 @@ void feeder_init_transaction_insert(
 
 FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		boolean execute_boolean,
-		double exchange_journal_begin_amount,
+		double negate_exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
 		char *entity_self_full_name,
@@ -561,7 +562,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		/* Safely returns */
 		/* -------------- */
 		feeder_init_transaction_journal(
-			exchange_journal_begin_amount,
+			negate_exchange_journal_begin_amount,
 			feeder_init_credit->
 				feeder_init_transaction_equity_account_name,
 			1 /* debit_boolean */,
@@ -572,7 +573,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		/* Safely returns */
 		/* -------------- */
 		feeder_init_transaction_journal(
-			exchange_journal_begin_amount,
+			negate_exchange_journal_begin_amount,
 			account_name,
 			0 /* not debit_boolean */,
 			execute_boolean /* fetch_account_boolean */ );
@@ -583,7 +584,7 @@ FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		/* -------------- */
 		feeder_init_transaction_new(
 			TRANSACTION_BEGIN_TIME,
-			exchange_journal_begin_amount,
+			negate_exchange_journal_begin_amount,
 			exchange_minimum_date_string,
 			entity_self_full_name,
 			entity_self_street_address,
@@ -1077,7 +1078,8 @@ FEEDER_INIT *feeder_init_new(
 			/* -------------- */
 			feeder_init_credit_new(
 				0 /* not execute_boolean */,
-				exchange_journal_begin_amount,
+				-exchange_journal_begin_amount
+				/* negate_exchange_journal_begin_amount */,
 				exchange_minimum_date_string,
 				feeder_init->
 					feeder_init_input->

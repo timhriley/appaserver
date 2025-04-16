@@ -153,19 +153,6 @@ LIST *feeder_phrase_list(
 		char *feeder_phrase_select,
  		char *feeder_phrase_table );
 
-/* Process */
-/* ------- */
-
-/* Returns heap memory */
-/* ------------------- */
-char *feeder_phrase_system_string(
-		char *feeder_phrase_select,
-		char *feeder_phrase_table,
-		char *feeder_phrase_where );
-
-FILE *feeder_phrase_pipe_open(
-		char *feeder_phrase_system_string );
-
 /* Usage */
 /* ----- */
 FEEDER_PHRASE *feeder_phrase_parse(
@@ -189,14 +176,6 @@ FEEDER_PHRASE *feeder_phrase_seek(
 /* ------- */
 char feeder_phrase_delimiter(
 		char *phrase );
-
-/* Usage */
-/* ----- */
-
-/* Returns program memory */
-/* ---------------------- */
-char *feeder_phrase_where(
-		void );
 
 /* Usage */
 /* ----- */

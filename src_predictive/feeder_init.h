@@ -291,7 +291,7 @@ typedef struct
 /* -------------- */
 FEEDER_INIT_CREDIT *feeder_init_credit_new(
 		boolean execute_boolean,
-		double exchange_journal_begin_amount,
+		double negate_exchange_journal_begin_amount,
 		char *exchange_minimum_date_string,
 		char *account_name,
 		char *entity_self_full_name,
