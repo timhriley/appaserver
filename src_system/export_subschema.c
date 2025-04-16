@@ -22,7 +22,7 @@ int main( int argc, char **argv )
 {
 	char *application_name;
 	char *process_name;
-	char *folder_name;
+	char *folder_name_list_string;
 	boolean exclude_role_boolean;
 	APPASERVER_PARAMETER *appaserver_parameter;
 	EXPORT_SUBSCHEMA *export_subschema;
@@ -37,13 +37,13 @@ int main( int argc, char **argv )
 	if ( argc != 4 )
 	{
 		fprintf(stderr,
-		"Usage: %s process folder_name exclude_role_yn\n",
+		"Usage: %s process folder_name_list_string exclude_role_yn\n",
 			argv[ 0 ] );
 		exit( 1 );
 	}
 
 	process_name = argv[ 1 ];
-	folder_name = argv[ 2 ];
+	folder_name_list_string = argv[ 2 ];
 	exclude_role_boolean = ( *argv[ 3 ] == 'y' );
 
 	document_process_output(
@@ -60,7 +60,7 @@ int main( int argc, char **argv )
 	export_subschema =
 		export_subschema_new(
 			application_name,
-			folder_name,
+			folder_name_list_string,
 			exclude_role_boolean,
 			appaserver_parameter->data_directory );
 

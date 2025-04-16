@@ -700,15 +700,6 @@ ORPHAN_DELETE_STATEMENT *orphan_delete_statement_new(
 	orphan_delete_statement->many_table_name = many_table_name;
 	orphan_delete_statement->orphan_data = orphan_data;
 
-{
-char message[ 65536 ];
-sprintf( message, "%s/%s()/%d: orphan_data=[%s]\n",
-__FILE__,
-__FUNCTION__,
-__LINE__,
-orphan_data );
-msg( (char *)0, message );
-}
 	ptr += sprintf(
 		ptr,
 		"delete from %s where ",

@@ -31,15 +31,16 @@
 
 EXPORT_SUBSCHEMA *export_subschema_new(
 		char *application_name,
-		char *folder_name,
+		char *folder_name_list_string,
 		boolean exclude_roles_boolean,
 		char *data_directory )
 {
 	EXPORT_SUBSCHEMA *export_subschema;
+	char *folder_name;
 	FILE *process_file;
 
 	if ( !application_name
-	||   !folder_name
+	||   !folder_name_list_string
 	||   !data_directory )
 	{
 		char message[ 128 ];
@@ -58,7 +59,7 @@ EXPORT_SUBSCHEMA *export_subschema_new(
 	export_subschema->folder_name_list =
 		export_subschema_folder_name_list(
 			SQL_DELIMITER,
-			folder_name );
+			folder_name_list_string );
 
 	if ( !list_rewind( export_subschema->folder_name_list ) )
 	{
@@ -155,6 +156,10 @@ EXPORT_SUBSCHEMA *export_subschema_new(
 
 		export_subschema_output_standard(
 			"foreign_column" /* appaserver_folder_name */,
+			process_file,
+			folder_name );
+
+		export_subschema_output_subschema(
 			process_file,
 			folder_name );
 
@@ -606,7 +611,9 @@ char *export_subschema_attribute_where(
 		list_single_quotes_around_string(
 			name_list );
 
-	sprintf(where,
+	snprintf(
+		where,
+		sizeof ( where ),
 		"%s in (%s)",
 		attribute_primary_key,
 		single_quotes_around_string );
@@ -802,8 +809,9 @@ void export_subschema_output_subschema(
 		char *folder_name )
 {
 	char *system_string;
-	char *input;
+	char *subschema;
 	char *sql_statement;
+	static LIST *subschema_list = {0};
 
 	if ( !process_file
 	||   !folder_name )
@@ -821,6 +829,8 @@ void export_subschema_output_subschema(
 		if ( process_file ) fclose( process_file );
 	}
 
+	if ( !subschema_list ) subschema_list = list_new();
+
 	system_string =
 		/* ------------------- */
 		/* Returns heap memory */
@@ -837,17 +847,21 @@ void export_subschema_output_subschema(
 
 	/* Returns heap memory or null */
 	/* --------------------------- */
-	if ( ! ( input = string_pipe_input( system_string ) ) )
+	if ( ! ( subschema = string_pipe_input( system_string ) ) )
 	{
 		fprintf(stderr,
-	"Warning in %s/%s()/%d: string_pipe_input(%s) returned empty.\n",
+	"ERROR in %s/%s()/%d: string_pipe_input(%s) returned empty.\n",
 			__FILE__,
 			__FUNCTION__,
 			__LINE__,
 			system_string );
 
-		return;
+		exit( 1 );
 	}
+
+	if ( list_string_boolean( subschema, subschema_list ) ) return;
+
+	list_set( subschema_list, subschema );
 
 	sql_statement =
 		/* ------------------- */
@@ -855,16 +869,15 @@ void export_subschema_output_subschema(
 		/* ------------------- */
 		insert_folder_string_sql_statement(
 			SQL_DELIMITER,
-			FOLDER_TABLE,
+			"subschema" /* table_name */,
 			"subschema" /* attribute_name_list_string */,
-			input /* delimited_string */ );
+			subschema /* delimited_string */ );
 
 	fprintf(process_file,
 		"%s\n",
 		sql_statement );
 
 	free( system_string );
-	free( input );
 	free( sql_statement );
 }
 
@@ -1241,3 +1254,4 @@ char *export_subschema_operation_string(
 
 	return operation_string;
 }
+

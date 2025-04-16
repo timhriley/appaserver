@@ -27,7 +27,7 @@ typedef struct
 /* ----- */
 EXPORT_SUBSCHEMA *export_subschema_new(
 		char *application_name,
-		char *folder_name,
+		char *folder_name_list_string,
 		boolean exclude_roles_boolean,
 		char *data_directory );
 
@@ -52,7 +52,7 @@ FILE *export_subschema_process_file(
 /* ----- */
 LIST *export_subschema_folder_name_list(
 		const char sql_delimiter,
-		char *folder_name );
+		char *folder_name_list_string );
 
 /* Usage */
 /* ----- */
