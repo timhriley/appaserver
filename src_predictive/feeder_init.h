@@ -35,13 +35,13 @@
 
 #define FEEDER_INIT_ACCOUNT_EXIST_MESSAGE				\
 	"<p style=\"margin: 3\%;\">"					\
-	"ERROR: This feeder account already exists."			\
-	"The Supervisor role path is Lookup --> Feeder --> Feeder Account"
+	"ERROR: This feeder account already exists. "			\
+	"See Lookup --> Feeder --> Feeder Account"
 
 #define FEEDER_INIT_ENTITY_SELF_MESSAGE				  	\
 	"<p style=\"margin: 3\%;\">"					\
 	"ERROR: your name must be inserted into the table Self. "	\
-	"The Supervisor role path is Insert --> Entity --> Self"
+	"See Insert --> Entity --> Self"
 
 #define FEEDER_INIT_RECENT_MESSAGE					\
 	"<p style=\"margin: 3\%;\">"					\
@@ -81,16 +81,14 @@
 	"balance. The corresponding <i>debit</i> amount "		\
 	"(the left column) will probably be an expense account.\n"	\
 	"<br />"							\
-	"<br />In the journal entry above, "				\
+	"<br />If the journal entry above is for a Checking account, "	\
 	"the <i>credit</i> amount is posted to the Net Asset account. "	\
 	"Net Asset is an Equity element. Equity elements are rarely "	\
 	"used to record normal activities. However, this opening "	\
 	"entry is not a normal activity.\n"				\
 	"<br />"							\
 	"<br /><big>Become familiar with the seven elements</big>. "	\
-	"The menu path is:\n"						\
-	"<br />"							\
-	"<br />Lookup --> Transaction --> Element\n"			\
+	"See Lookup --> Transaction --> Element\n"			\
 	"<br />"							\
 	"<br />The only normal activity that will post to an Equity "	\
 	"element is when you transfer money from your checking account "\
