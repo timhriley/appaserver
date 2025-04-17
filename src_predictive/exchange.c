@@ -821,7 +821,8 @@ char *exchange_journal_description(
 		return name;
 	}
 
-	if ( isdigit( *memo ) )
+	if ( isdigit( *memo )
+	||   *memo == '-' )
 	{
 		snprintf(
 			description,

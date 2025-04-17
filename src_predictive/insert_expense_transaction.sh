@@ -39,7 +39,7 @@ document_body.sh
 echo "<h1>`echo $process | format_initial_capital.e`</h1>"
 
 if [	"$feeder_account" = "" -o	\
-	"$feeder_account" = "full_name" ]
+	"$feeder_account" = "feeder_account" ]
 then
 	echo "<h2> `now.sh 19` </h2>"
 	echo "<h3>Please choose a feeder account .</h3>"
@@ -113,14 +113,10 @@ fi
 
 # Build the entity
 # ----------------
-full_name=`echo $full_name | escape_security.e`
-
 if [ "$street_address" = "street_address" -o "$street_address" = "" ]
 then
 	street_address="any"
 fi
-
-street_address=`echo $street_address | escape_security.e`
 
 # Check for duplication
 # ---------------------

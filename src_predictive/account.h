@@ -193,6 +193,8 @@ void account_percent_of_income_set(
 
 /* Usage */
 /* ----- */
+boolean account_accumulate_debit_boolean(
+		char *account_name );
 boolean account_accumulate_debit(
 		char *account_name );
 

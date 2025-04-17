@@ -308,6 +308,8 @@ typedef struct
 
 	/* Set externally */
 	/* -------------- */
+	/* Saved as file_row_amount */
+	/* ------------------------ */
 	double calculate_balance;
 } FEEDER_LOAD_ROW;
 
@@ -385,6 +387,14 @@ void feeder_load_row_calculate_balance_set(
 /* ----- */
 LIST *feeder_load_row_list(
 		LIST *exchange_journal_list );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory */
+/* ------------------- */
+char *feeder_load_row_raw_display(
+		FEEDER_LOAD_ROW *feeder_load_row );
 
 typedef struct
 {
@@ -764,7 +774,7 @@ FILE *feeder_row_check_journal_update_pipe(
 
 /* Returns heap memory */
 /* ------------------- */
-char *feeder_row_display(
+char *feeder_row_raw_display(
 		FEEDER_ROW *feeder_row );
 
 typedef struct
@@ -824,7 +834,7 @@ FEEDER_LOAD_EVENT *feeder_load_event_parse(
 /* ----- */
 FEEDER_LOAD_EVENT *
 	feeder_load_event_latest_fetch(
-		char *feeder_load_event_table,
+		const char *feeder_load_event_table,
 		char *feeder_account_name );
 
 /* Process */
@@ -838,7 +848,7 @@ char *feeder_load_event_account_where(
 /* Returns heap memory */
 /* ------------------- */
 char *feeder_load_event_latest_system_string(
-		char *feeder_load_event_table,
+		const char *feeder_load_event_table,
 		char *feeder_load_event_account_where );
 
 /* --------------------------- */
@@ -896,6 +906,7 @@ typedef struct
 	FEEDER_ROW *feeder_row_first_out_balance;
 	int feeder_row_count;
 	int feeder_row_insert_count;
+	boolean account_accumulate_debit_boolean;
 	double prior_account_end_balance;
 	char *feeder_row_account_end_date;
 	double feeder_row_account_end_balance;
@@ -938,7 +949,9 @@ char *feeder_match_minimum_date(
 /* Usage */
 /* ----- */
 double feeder_prior_account_end_balance(
-		char *feeder_account_name );
+		const char *feeder_load_event_table,
+		char *feeder_account_name,
+		boolean account_accumulate_debit_boolean );
 
 /* Usage */
 /* ----- */

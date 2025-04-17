@@ -1522,6 +1522,26 @@ ACCOUNT_JOURNAL *account_journal_calloc( void )
 
 boolean account_accumulate_debit( char *account_name )
 {
+	if ( !account_name )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "account_name is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	return
+	account_accumulate_debit_boolean(
+		account_name );
+}
+
+boolean account_accumulate_debit_boolean( char *account_name )
+{
 	ACCOUNT *account;
 
 	if ( !account_name )

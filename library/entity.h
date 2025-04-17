@@ -129,6 +129,11 @@ char *entity_escape_name(
 char *entity_name_escape(
 		char *full_name );
 
+/* Returns static memory */
+/* --------------------- */
+char *entity_escape_street_address(
+		char *street_address );
+
 /* Returns heap memory or null */
 /* --------------------------- */
 char *entity_street_address(

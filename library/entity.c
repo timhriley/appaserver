@@ -260,6 +260,23 @@ char *entity_escape_full_name( char *full_name )
 	return string_escape_quote( escape_full_name, full_name );
 }
 
+char *entity_escape_street_address( char *street_address )
+{
+	static char escape_street_address[ 256 ];
+
+	if ( !street_address )
+	{
+		fprintf(stderr,
+			"ERROR in %s/%s()/%d: empty street_address.\n",
+			__FILE__,
+			__FUNCTION__,
+			__LINE__ );
+		exit( 1 );
+	}
+
+	return string_escape_quote( escape_street_address, street_address );
+}
+
 char *entity_primary_where(
 		char *full_name,
 		char *street_address )

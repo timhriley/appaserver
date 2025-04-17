@@ -152,16 +152,16 @@
 	"Execute yn set to 'No' or left as 'Select'. "			\
 	"A Feeder Error Table will display containing a row for each "	\
 	"activity that will not generate a journal entry. "		\
-	"Each row contains text that contains the vendor's name. "	\
+	"Each row contains the vendor's name. "				\
 	"Copy and paste the vendor's name and any adjoining "		\
 	"descriptive words into the following path:\n"			\
 	"<br />"							\
-	"<br />Insert --> Feeder --> Feeder Phrase\n"			\
+	"<br />Feeder --> Insert Feeder Phrase\n"			\
 	"<br />"							\
 	"<br />Hint: [Right Click] your browser's tab and select "	\
 	"Duplicate Tab. You will then have two instances of "		\
 	"PredictBooks open. One tab is for the Feeder Upload process. "	\
-	"The other tab is for Insert --> Feeder --> Feeder Phrase.\n"
+	"The other tab is for Feeder --> Insert Feeder Phrase.\n"
 
 #define FEEDER_INIT_MESSAGES_AVAILABLE_MESSAGE 				\
 	"<h3>Messages Available</h3>\n"					\

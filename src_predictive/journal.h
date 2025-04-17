@@ -369,8 +369,8 @@ char *journal_entity_where(
 		char *street_address,
 		char *account_name );
 
-/* Public */
-/* ------ */
+/* Usage */
+/* ----- */
 
 /* Returns heap memory */
 /* ------------------- */
@@ -379,6 +379,9 @@ char *journal_primary_where(
 		char *street_address,
 		char *transaction_date_time,
 		char *account_name );
+
+/* Public */
+/* ------ */
 
 LIST *journal_account_distinct_entity_list(
 		char *journal_table,

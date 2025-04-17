@@ -395,15 +395,14 @@ int string_strcmp( char *s1, char *s2 )
 	return strcasecmp( s1, s2 );
 }
 
-void string_strcpy( char *d, char *s, unsigned int buffer_size )
+char *string_strcpy( char *d, char *s, unsigned int buffer_size )
 {
 	register unsigned int count = 0;
+	char *anchor = d;
 
-	if ( d ) *d = '\0';
-
-	if ( !s ) return;
-	if ( !d ) return;
-	if ( d == s ) return;
+	if ( !s ) return anchor;
+	if ( !d ) return anchor;
+	if ( d == s ) return anchor;
 
 	while( *s )
 	{
@@ -412,7 +411,7 @@ void string_strcpy( char *d, char *s, unsigned int buffer_size )
 			if ( ++count == buffer_size )
 			{
 				*d = '\0';
-				return;
+				return anchor;
 			}
 		}
 
@@ -420,6 +419,7 @@ void string_strcpy( char *d, char *s, unsigned int buffer_size )
 	}
 
 	*d = '\0';
+	return anchor;
 }
 
 char *string_strcat( char *d, char *s )
@@ -800,6 +800,24 @@ char *string_right(
 	if ( str_len <= length ) return input;
 
 	return input + (str_len - length);
+}
+
+char *string_trim_left_spaces( char *buffer )
+{
+	char *ptr;
+
+	if ( !buffer || !*buffer ) return buffer;
+
+	ptr = buffer;
+
+	while ( *ptr )
+	{
+		if ( !isspace( *ptr ) ) break;
+		string_strcpy( ptr, ptr + 1, 0 );
+		ptr++;
+	}
+
+	return buffer;
 }
 
 char *string_trim_right_spaces( char *buffer )
@@ -1284,39 +1302,14 @@ int string_length( char *string )
 
 char *string_trim( char *buffer )
 {
-        char *buf_ptr = buffer;
-
         /* If buffer is empty then return */
         /* ------------------------------ */
         if ( !buffer || !*buffer ) return buffer;
 
-        /* First trim leading spaces */
-        /* ------------------------- */
-        while( *buf_ptr && isspace( *buf_ptr ) ) buf_ptr++;
+	string_trim_right_spaces( buffer );
 
-        /* If *buf_ptr is NULL then buffer was just spaces */
-        /* ----------------------------------------------- */
-        if ( !*buf_ptr )
-        {
-        	*buffer = '\0';
-        	return buffer;
-        }
-
-        /* Flush left the buffer */
-        /* --------------------- */
-        if ( buffer != buf_ptr ) string_strcpy( buffer, buf_ptr, 0 );
-
-        /* Trim trailing spaces */
-        /* -------------------- */
-        buf_ptr = buffer + strlen( buffer ) - 1;
-
-        while (	buf_ptr > buffer && isspace( *buf_ptr ) )
-	{
-		*buf_ptr = '\0';
-		buf_ptr--;
-	}
-
-        return buffer;
+	return
+	string_trim_left_spaces( buffer );
 }
 
 char *string_extract_lt_gt_delimited(

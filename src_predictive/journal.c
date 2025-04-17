@@ -1851,7 +1851,8 @@ char *journal_primary_where(
 		char *transaction_date_time,
 		char *account_name )
 {
-	char escape_account[ 64 ];
+	char escape_address[ 128 ];
+	char escape_account[ 128 ];
 	char where[ 1024 ];
 
 	if ( !full_name
@@ -1879,7 +1880,9 @@ char *journal_primary_where(
 		/* --------------------- */
 		entity_escape_full_name(
 			full_name ),
-		street_address,
+		string_escape_quote(
+			escape_address,
+			street_address ),
 		transaction_date_time,
 		string_escape_quote(
 			escape_account,

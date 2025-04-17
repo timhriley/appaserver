@@ -147,14 +147,18 @@ int string_strcmp(
 		char *s1,
 		char *s2 );
 
-void string_strcpy(
-		char *d,
-		char *s,
+/* Returns destination */
+/* ------------------- */
+char *string_strcpy(
+		char *destination,
+		char *source,
 		unsigned int buffer_size );
 
+/* Returns destination */
+/* ------------------- */
 char *string_strcat(
-		char *d,
-		char *s );
+		char *destination,
+		char *source );
 
 int string_strncmp(
 		char *large_string,
@@ -273,6 +277,11 @@ int string_character_position(
 char *string_trim_character(
 		char *datum,
 		char character );
+
+/* Returns buffer with begin shortened (maybe) */
+/* ------------------------------------------- */
+char *string_trim_left_spaces(
+		char *buffer );
 
 /* Returns buffer with end shortened (maybe) */
 /* ----------------------------------------- */

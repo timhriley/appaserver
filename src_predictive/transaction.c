@@ -342,8 +342,8 @@ void transaction_insert_pipe(
 	{
 		fprintf(pipe_open,
 			"%s^%s^%s^%.2lf^%s^%s^y\n",
-	 		full_name,
-			street_address,
+	 		entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
 			race_free_date_time,
 			transaction_amount,
 			transaction_check_number,
@@ -353,8 +353,8 @@ void transaction_insert_pipe(
 	{
 		fprintf(pipe_open,
 			"%s^%s^%s^%.2lf^%s^%s\n",
-	 		full_name,
-			street_address,
+	 		entity_escape_full_name( full_name ),
+			entity_escape_street_address( street_address ),
 			race_free_date_time,
 			transaction_amount,
 			transaction_check_number,
@@ -393,7 +393,8 @@ char *transaction_memo( char *memo )
 			TRANSACTION_MEMO_LENGTH + 1 );
 	}
 
-	return return_memo;
+	return
+	string_escape_quote( return_memo, return_memo );
 }
 
 char *transaction_race_free_date_time( char *transaction_date_time )
