@@ -334,6 +334,21 @@ FORM_TABLE_INSERT_RELATION *form_table_insert_relation_new(
 				ajax_client->
 				widget_container_list );
 
+{
+char message[ 65536 ];
+snprintf(
+	message,
+	sizeof ( message ),
+	"%s/%s()/%d: ajax_client->widget_container_list=[%s]\n",
+	__FILE__,
+	__FUNCTION__,
+	__LINE__,
+	widget_container_list_display(
+		form_table_insert_relation->
+			ajax_client->
+			widget_container_list ) );
+msg( (char *)0, message );
+}
 		return form_table_insert_relation;
 	}
 
@@ -2029,6 +2044,8 @@ AJAX_CLIENT *form_table_insert_relation_ajax_client(
 		char *role_name,
 		RELATION_MTO1 *relation_mto1 )
 {
+	LIST *relation_mto1_list;
+
 	if ( !role_name
 	||   !relation_mto1 )
 	{
@@ -2043,17 +2060,20 @@ AJAX_CLIENT *form_table_insert_relation_ajax_client(
 			message );
 	}
 
+	relation_mto1_list =
+		relation_mto1_to_one_fetch_list(
+			role_name,
+			relation_mto1->one_folder_name,
+			relation_mto1->
+				one_folder->
+				folder_attribute_primary_key_list );
+
 	return
 	/* --------------------------------- */
 	/* Returns null if not participating */
 	/* --------------------------------- */
 	ajax_client_relation_mto1_new(
 		relation_mto1,
-		relation_mto1_to_one_fetch_list(
-			role_name,
-			relation_mto1->one_folder_name,
-			relation_mto1->
-				one_folder->
-				folder_attribute_primary_key_list ),
+		relation_mto1_list,
 		1 /* top_select_boolean */ );
 }

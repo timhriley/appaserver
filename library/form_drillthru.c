@@ -220,6 +220,7 @@ FORM_DRILLTHRU *form_drillthru_new(
 			form_drillthru->form_tag,
 			(LIST *)0 /* form_prompt_lookup_no_display_all_list */,
 			(char *)0 /* radio_list_html */,
+			(char *)0 /* form_prompt_lookp_ajax_javascript */,
 			form_drillthru->
 				form_prompt_lookup_widget_list->
 				widget_container_list,

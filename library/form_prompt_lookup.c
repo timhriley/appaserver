@@ -178,6 +178,18 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 				form_prompt_lookup_widget_list->
 				widget_container_list );
 
+	form_prompt_lookup->ajax_javascript =
+		/* --------------------------- */
+		/* Returns heap memory or null */
+		/* --------------------------- */
+		form_prompt_lookup_ajax_javascript(
+			session_key,
+			login_name,
+			role_name,
+			form_prompt_lookup->
+				form_prompt_lookup_widget_list->
+				form_prompt_lookup_relation_list );
+
 	form_prompt_lookup->recall_save =
 		/* -------------- */
 		/* Safely returns */
@@ -226,6 +238,7 @@ FORM_PROMPT_LOOKUP *form_prompt_lookup_new(
 			form_prompt_lookup->form_tag,
 			form_prompt_lookup->no_display_all_widget_list,
 			form_prompt_lookup->radio_list->html,
+			form_prompt_lookup->ajax_javascript,
 			form_prompt_lookup->
 				form_prompt_lookup_widget_list->
 				widget_container_list,
@@ -958,70 +971,101 @@ FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation_new(
 				original_drop_down->
 				not_null_boolean = 1;
 		}
+
+		goto form_prompt_lookup_relation_hint_message;
 	}
-	else
+
+	form_prompt_lookup_relation->ajax_client =
+		form_prompt_lookup_relation_ajax_client(
+			role_name,
+			form_prompt_lookup_relation->
+				relation_mto1 );
+
+	if ( form_prompt_lookup_relation->ajax_client )
 	{
-		list_set(
-			form_prompt_lookup_relation->widget_container_list,
-			( form_prompt_lookup_relation->
-				drop_down_widget_container =
-					widget_container_new(
-						drop_down,
-						form_prompt_lookup_relation->
-							relation_mto1->
-							relation_name ) ) );
+		form_prompt_lookup_relation->
+			drop_down_widget_container =
+				list_first(
+					form_prompt_lookup_relation->
+						ajax_client->
+						widget_container_list );
 
 		form_prompt_lookup_relation->
 			drop_down_widget_container->
-			drop_down->
-			widget_drop_down_option_list =
-				form_prompt_lookup_relation->
-					widget_drop_down_option_list;
+				recall_boolean = 1;
 
-		form_prompt_lookup_relation->
-			drop_down_widget_container->
-			drop_down->
-			display_size = 1;
-
-		/* De Morgan's law:				*/
-		/* If active_boolean && drillthru, then skip	*/
-		/* -------------------------------------------- */
-		if ( !drillthru_status_active_boolean
-		||   !form_prompt_lookup_relation->
-			relation_mto1->
-			one_folder->
-			drillthru )
-		{
+		list_set_list(
 			form_prompt_lookup_relation->
-				drop_down_widget_container->
-				drop_down->
-				top_select_boolean = 1;
-
-			if ( drop_down_extra_options_boolean )
-			{
-				form_prompt_lookup_relation->
-					drop_down_widget_container->
-					drop_down->
-					null_boolean = 1;
-
-				form_prompt_lookup_relation->
-					drop_down_widget_container->
-					drop_down->
-					not_null_boolean = 1;
-			}
-		}
-		else
-		{
+				widget_container_list,
 			form_prompt_lookup_relation->
-				drop_down_widget_container->
-				drop_down->
-				bottom_select_boolean = 1;
-		}
+				ajax_client->
+				widget_container_list );
+
+		goto form_prompt_lookup_relation_hint_message;
 	}
+
+	list_set(
+		form_prompt_lookup_relation->widget_container_list,
+		( form_prompt_lookup_relation->
+			drop_down_widget_container =
+				widget_container_new(
+					drop_down,
+					form_prompt_lookup_relation->
+						relation_mto1->
+						relation_name ) ) );
 
 	form_prompt_lookup_relation->
 		drop_down_widget_container->
+		drop_down->
+		widget_drop_down_option_list =
+			form_prompt_lookup_relation->
+				widget_drop_down_option_list;
+
+	form_prompt_lookup_relation->
+		drop_down_widget_container->
+		drop_down->
+		display_size = 1;
+
+	/* De Morgan's law:				*/
+	/* If active_boolean && drillthru, then skip	*/
+	/* -------------------------------------------- */
+	if ( !drillthru_status_active_boolean
+	||   !form_prompt_lookup_relation->
+		relation_mto1->
+		one_folder->
+		drillthru )
+	{
+		form_prompt_lookup_relation->
+			drop_down_widget_container->
+			drop_down->
+			top_select_boolean = 1;
+
+		if ( drop_down_extra_options_boolean )
+		{
+			form_prompt_lookup_relation->
+				drop_down_widget_container->
+				drop_down->
+				null_boolean = 1;
+
+			form_prompt_lookup_relation->
+				drop_down_widget_container->
+				drop_down->
+				not_null_boolean = 1;
+		}
+	}
+	else
+	{
+		form_prompt_lookup_relation->
+			drop_down_widget_container->
+			drop_down->
+			bottom_select_boolean = 1;
+	}
+	
+	form_prompt_lookup_relation->
+		drop_down_widget_container->
 		recall_boolean = 1;
+
+form_prompt_lookup_relation_hint_message:
 
 	if ( form_prompt_lookup_relation->
 		relation_mto1->
@@ -1102,6 +1146,7 @@ char *form_prompt_lookup_html(
 		char *form_tag,
 		LIST *no_display_all_widget_list,
 		char *radio_list_html,
+		char *ajax_javascript,
 		LIST *widget_container_list,
 		char *button_list_html,
 		char *form_close_tag )
@@ -1165,6 +1210,7 @@ char *form_prompt_lookup_html(
 		string_strlen( no_display_all_html ) +
 		string_strlen( button_list_html ) +
 		string_strlen( radio_list_html ) +
+		string_strlen( ajax_javascript ) +
 		string_strlen( container_list_html ) +
 		string_strlen( hidden_html ) +
 		string_strlen( form_close_tag ) + 6 >= STRING_704K )
@@ -1182,9 +1228,12 @@ char *form_prompt_lookup_html(
 			message );
 	}
 
-	sprintf(html,
-		"%s\n%s\n%s\n%s\n%s\n%s\n%s",
+	snprintf(
+		html,
+		sizeof ( html ),
+		"%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
 		form_tag,
+		(ajax_javascript) ? ajax_javascript : "",
 		button_list_html,
 		(no_display_all_html) ? no_display_all_html : "",
 		(radio_list_html) ? radio_list_html : "",
@@ -1528,5 +1577,98 @@ FORM_PROMPT_LOOKUP_YES_NO *form_prompt_lookup_yes_no_calloc( void )
 	}
 
 	return form_prompt_lookup_yes_no;
+}
+
+AJAX_CLIENT *form_prompt_lookup_relation_ajax_client(
+		char *role_name,
+		RELATION_MTO1 *relation_mto1 )
+{
+	LIST *relation_mto1_list;
+
+	if ( !role_name
+	||   !relation_mto1 )
+	{
+		char message[ 128 ];
+
+		sprintf(message, "parameter is empty." );
+
+		appaserver_error_stderr_exit(
+			__FILE__,
+			__FUNCTION__,
+			__LINE__,
+			message );
+	}
+
+	relation_mto1_list =
+		relation_mto1_to_one_fetch_list(
+			role_name,
+			relation_mto1->one_folder_name,
+			relation_mto1->
+				one_folder->
+				folder_attribute_primary_key_list );
+
+	return
+	/* --------------------------------- */
+	/* Returns null if not participating */
+	/* --------------------------------- */
+	ajax_client_relation_mto1_new(
+		relation_mto1,
+		relation_mto1_list,
+		1 /* top_select_boolean */ );
+}
+
+LIST *form_prompt_lookup_relation_ajax_client_list(
+		LIST *form_prompt_lookup_relation_list )
+{
+	FORM_PROMPT_LOOKUP_RELATION *form_prompt_lookup_relation;
+	LIST *ajax_client_list = {0};
+
+	if ( list_rewind( form_prompt_lookup_relation_list ) )
+	do {
+		form_prompt_lookup_relation =
+			list_get(
+				form_prompt_lookup_relation_list );
+
+		if ( form_prompt_lookup_relation->ajax_client )
+		{
+			if ( !ajax_client_list ) ajax_client_list = list_new();
+
+			list_set(
+				ajax_client_list,
+				form_prompt_lookup_relation->ajax_client );
+		}
+
+	} while ( list_next( form_prompt_lookup_relation_list ) );
+
+	return ajax_client_list;
+}
+
+char *form_prompt_lookup_ajax_javascript(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		LIST *form_prompt_lookup_relation_list )
+{
+	LIST *relation_ajax_client_list;
+	char *ajax_javascript = {0};
+
+	relation_ajax_client_list =
+		form_prompt_lookup_relation_ajax_client_list(
+			form_prompt_lookup_relation_list );
+
+	if ( list_length( relation_ajax_client_list ) )
+	{
+		ajax_javascript =
+			/* --------------------------- */
+			/* Returns heap memory or null */
+			/* --------------------------- */
+			ajax_client_list_javascript(
+				session_key,
+				login_name,
+				role_name,
+				relation_ajax_client_list );
+	}
+
+	return ajax_javascript;
 }
 

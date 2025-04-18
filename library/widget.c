@@ -7838,3 +7838,49 @@ char *widget_text_prevent_carrot_javascript( boolean prevent_carrot_boolean )
 	}
 }
 
+char *widget_container_list_display( LIST *widget_container_list )
+{
+	char display[ STRING_64K ];
+	char *ptr = display;
+	WIDGET_CONTAINER *widget_container;
+
+	if ( list_rewind( widget_container_list ) )
+	do {
+		widget_container = list_get( widget_container_list );
+
+		ptr += sprintf(
+			ptr,
+			"widget_name=%s; ",
+			widget_container->widget_name );
+
+		ptr += sprintf(
+			ptr,
+			"widget_type=%d; ",
+			widget_container->widget_type );
+
+		ptr += sprintf(
+			ptr,
+			"heading_string=%s; ",
+			(widget_container->heading_string)
+				? widget_container->heading_string
+				: "" );
+
+		ptr += sprintf(
+			ptr,
+			"widget_key=%s; ",
+			(widget_container->widget_key)
+				? widget_container->widget_key
+				: "" );
+
+		ptr += sprintf(
+			ptr,
+			"recall_boolean=%d\n",
+			widget_container->recall_boolean );
+
+	} while ( list_next( widget_container_list ) );
+
+	*ptr = '\0';
+
+	return strdup( display );
+}
+

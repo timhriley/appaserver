@@ -15,6 +15,7 @@
 #include "security.h"
 #include "radio.h"
 #include "query.h"
+#include "ajax.h"
 #include "recall.h"
 #include "relation_mto1.h"
 #include "dictionary_separate.h"
@@ -55,6 +56,7 @@ typedef struct
 	QUERY_DROP_DOWN *query_drop_down;
 	LIST *widget_drop_down_option_list;
 	WIDGET_CONTAINER *drop_down_widget_container;
+	AJAX_CLIENT *ajax_client;
 	WIDGET_CONTAINER *hint_message_widget_container;
 } FORM_PROMPT_LOOKUP_RELATION;
 
@@ -94,6 +96,12 @@ char *form_prompt_lookup_relation_no_display_name(
 char *form_prompt_lookup_relation_prompt(
 		char *relation_name,
 		int primary_key_index );
+
+/* Usage */
+/* ----- */
+AJAX_CLIENT *form_prompt_lookup_relation_ajax_client(
+		char *role_name,
+		RELATION_MTO1 *relation_mto1 );
 
 typedef struct
 {
@@ -166,6 +174,7 @@ typedef struct
 	FORM_PROMPT_LOOKUP_WIDGET_LIST *form_prompt_lookup_widget_list;
 	LIST *widget_hidden_container_list;
 	char *form_multi_select_all_javascript;
+	char *ajax_javascript;
 	RECALL_SAVE *recall_save;
 	RECALL_LOAD *recall_load;
 	LIST *button_list;
@@ -220,16 +229,6 @@ char *form_prompt_lookup_action_string(
 
 /* Usage */
 /* ----- */
-LIST *form_prompt_lookup_button_list(
-		char *form_name,
-		boolean button_drillthru_skip_boolean,
-		char *post_choose_folder_action_string,
-		char *form_multi_select_all_javascript,
-		char *recall_save_javascript,
-		char *recall_load_javascript );
-
-/* Usage */
-/* ----- */
 LIST *form_prompt_lookup_join_container_list(
 		char *dictionary_separate_no_display_prefix,
 		LIST *relation_one2m_join_list );
@@ -243,6 +242,7 @@ char *form_prompt_lookup_html(
 		char *form_tag,
 		LIST *form_prompt_lookup_no_display_all_widget_list,
 		char *radio_list_html,
+		char *form_prompt_lookup_ajax_javascript,
 		LIST *widget_container_list,
 		char *button_list_html,
 		char *form_close_tag );
@@ -262,5 +262,31 @@ LIST *form_prompt_lookup_no_display_all_widget_list(
 /* --------------------- */
 char *form_prompt_lookup_no_display_all_onclick(
 		char *form_no_display_prefix );
+
+/* Usage */
+/* ----- */
+LIST *form_prompt_lookup_button_list(
+		char *form_name,
+		boolean button_drillthru_skip_boolean,
+		char *post_choose_folder_action_string,
+		char *form_multi_select_all_javascript,
+		char *recall_save_javascript,
+		char *recall_load_javascript );
+
+/* Usage */
+/* ----- */
+
+/* Returns heap memory or null */
+/* --------------------------- */
+char *form_prompt_lookup_ajax_javascript(
+		char *session_key,
+		char *login_name,
+		char *role_name,
+		LIST *form_prompt_lookup_relation_list );
+
+/* Process */
+/* ------- */
+LIST *form_prompt_lookup_relation_ajax_client_list(
+		LIST *form_prompt_lookup_relation_list );
 
 #endif

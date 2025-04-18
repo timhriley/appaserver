@@ -1769,6 +1769,11 @@ char *widget_container_number_commas_string(
 		char *widget_name,
 		char *data );
 
+/* Returns heap memory */
+/* ------------------- */
+char *widget_container_list_display(
+		LIST *widget_container_list );
+
 typedef struct
 {
 	/* stub */
